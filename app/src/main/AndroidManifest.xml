@@ -275,7 +275,7 @@
         </provider>
 
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name=".utils.ShareFileProvider"
             android:authorities="${applicationId}.share.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
