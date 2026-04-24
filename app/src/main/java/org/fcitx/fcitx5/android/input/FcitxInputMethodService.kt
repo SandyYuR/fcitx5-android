@@ -98,6 +98,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     internal lateinit var fcitx: FcitxConnection
 
     private var jobs = Channel<Job>(capacity = Channel.UNLIMITED)
+    private var inputBindingGeneration = 0
+    private var inputSessionGeneration = 0
 
     /**
      * Marks if we're in a critical input lifecycle phase to delay theme changes and avoid race conditions.
@@ -407,6 +409,22 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         jobs.trySend(job)
         return job
+    }
+
+    private fun postFcitxBindingJob(
+        expectedGeneration: Int,
+        block: suspend FcitxAPI.() -> Unit
+    ): Job = postFcitxJob {
+        if (expectedGeneration != inputBindingGeneration) return@postFcitxJob
+        block()
+    }
+
+    private fun postFcitxSessionJob(
+        expectedGeneration: Int,
+        block: suspend FcitxAPI.() -> Unit
+    ): Job = postFcitxJob {
+        if (expectedGeneration != inputSessionGeneration) return@postFcitxJob
+        block()
     }
 
     override fun onCreate() {
@@ -1197,8 +1215,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     override fun onBindInput() {
         val uid = currentInputBinding.uid
         val pkgName = pkgNameCache.forUid(uid)
+        val bindingGeneration = ++inputBindingGeneration
         Timber.d("onBindInput: uid=$uid pkg=$pkgName")
-        postFcitxJob {
+        postFcitxBindingJob(bindingGeneration) {
             // ensure InputContext has been created before focusing it
             activate(uid, pkgName)
         }
@@ -1248,6 +1267,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         isInInputLifecycleCriticalPhase = true
         try {
+            val inputSessionGeneration = ++this.inputSessionGeneration
             MainService.startSyncService(this, "ime-start-input", imeSyncActive = true)
             selection.resetTo(attribute.initialSelStart, attribute.initialSelEnd)
             resetComposingState()
@@ -1256,7 +1276,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             inputDeviceManager.notifyOnStartInput(attribute)
             Timber.d("onStartInput: initialSel=${selection.current}, restarting=$restarting")
             val isNullType = attribute.isTypeNull()
-            postFcitxJob {
+            postFcitxSessionJob(inputSessionGeneration) {
                 if (restarting) {
                     focus(false)
                 }
@@ -1276,15 +1296,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     override fun onStartInputView(info: EditorInfo, restarting: Boolean) {
         isInInputLifecycleCriticalPhase = true
         try {
+            val inputSessionGeneration = this.inputSessionGeneration
             Timber.d("onStartInputView: restarting=$restarting")
             MainService.startSyncService(this, "ime-start-input-view", imeSyncActive = true)
             if (org.fcitx.fcitx5.android.input.font.FontProviders.needsRefresh()) {
                 refreshViewsForFontChange()
             }
-            postFcitxJob {
+            postFcitxSessionJob(inputSessionGeneration) {
                 focus(true)
-            }
-            postFcitxJob {
                 // Keep paged candidate mode enabled so candidate cursor/highlight is available.
                 setCandidatePagingMode(1)
             }
@@ -1585,7 +1604,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             monitorCursorAnchor(false)
         }
         resetComposingState()
-        postFcitxJob {
+        val inputSessionGeneration = this.inputSessionGeneration
+        postFcitxSessionJob(inputSessionGeneration) {
             focusOutIn()
         }
         showingDialog?.dismiss()
@@ -1594,7 +1614,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     override fun onFinishInput() {
         Timber.d("onFinishInput")
         MainService.stopSyncService(this)
-        postFcitxJob {
+        val inputSessionGeneration = this.inputSessionGeneration
+        postFcitxSessionJob(inputSessionGeneration) {
             focus(false)
         }
         capabilityFlags = CapabilityFlags.DefaultFlags
@@ -1606,8 +1627,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         cursorUpdateIndex = 0
         // currentInputBinding can be null on some devices under some special Multi-screen mode
         val uid = currentInputBinding?.uid ?: return
+        val bindingGeneration = inputBindingGeneration
         Timber.d("onUnbindInput: uid=$uid")
-        postFcitxJob {
+        postFcitxBindingJob(bindingGeneration) {
             deactivate(uid)
         }
     }
