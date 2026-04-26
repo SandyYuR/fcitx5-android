@@ -848,11 +848,107 @@ abstract class BaseKeyboard(
         if (!composing) return baseDef to baseDef.appearance
         val overrideDef = baseDef.composeOverride ?: return baseDef to baseDef.appearance
         val appearance = if (overrideDef.independentColor) {
-            overrideDef.appearance
+            overrideDef.appearance.withIdentityFrom(baseDef.appearance)
         } else {
             overrideDef.appearance.withColorsFrom(baseDef.appearance)
         }
         return overrideDef to appearance
+    }
+
+    private fun KeyDef.Appearance.withIdentityFrom(source: KeyDef.Appearance): KeyDef.Appearance = when (this) {
+        is KeyDef.Appearance.AltText -> KeyDef.Appearance.AltText(
+            displayText = displayText,
+            altText = altText,
+            character = character,
+            textSize = textSize,
+            textStyle = textStyle,
+            percentWidth = percentWidth,
+            variant = source.variant,
+            border = source.border,
+            margin = source.margin,
+            viewId = source.viewId,
+            textColor = textColor,
+            textColorMonet = textColorMonet,
+            altTextColor = altTextColor,
+            altTextColorMonet = altTextColorMonet,
+            backgroundColor = backgroundColor,
+            backgroundColorMonet = backgroundColorMonet,
+            shadowColor = shadowColor,
+            shadowColorMonet = shadowColorMonet
+        )
+        is KeyDef.Appearance.ImageAltText -> KeyDef.Appearance.ImageAltText(
+            src = src,
+            altText = altText,
+            percentWidth = percentWidth,
+            variant = source.variant,
+            border = source.border,
+            margin = source.margin,
+            viewId = source.viewId,
+            soundEffect = source.soundEffect,
+            textColor = textColor,
+            textColorMonet = textColorMonet,
+            altTextColor = altTextColor,
+            altTextColorMonet = altTextColorMonet,
+            backgroundColor = backgroundColor,
+            backgroundColorMonet = backgroundColorMonet,
+            shadowColor = shadowColor,
+            shadowColorMonet = shadowColorMonet
+        )
+        is KeyDef.Appearance.ImageText -> KeyDef.Appearance.ImageText(
+            displayText = displayText,
+            textSize = textSize,
+            textStyle = textStyle,
+            src = src,
+            percentWidth = percentWidth,
+            variant = source.variant,
+            border = source.border,
+            margin = source.margin,
+            viewId = source.viewId,
+            textColor = textColor,
+            textColorMonet = textColorMonet,
+            altTextColor = altTextColor,
+            altTextColorMonet = altTextColorMonet,
+            backgroundColor = backgroundColor,
+            backgroundColorMonet = backgroundColorMonet,
+            shadowColor = shadowColor,
+            shadowColorMonet = shadowColorMonet
+        )
+        is KeyDef.Appearance.Text -> KeyDef.Appearance.Text(
+            displayText = displayText,
+            textSize = textSize,
+            textStyle = textStyle,
+            percentWidth = percentWidth,
+            variant = source.variant,
+            border = source.border,
+            margin = source.margin,
+            viewId = source.viewId,
+            soundEffect = source.soundEffect,
+            textColor = textColor,
+            textColorMonet = textColorMonet,
+            altTextColor = altTextColor,
+            altTextColorMonet = altTextColorMonet,
+            backgroundColor = backgroundColor,
+            backgroundColorMonet = backgroundColorMonet,
+            shadowColor = shadowColor,
+            shadowColorMonet = shadowColorMonet
+        )
+        is KeyDef.Appearance.Image -> KeyDef.Appearance.Image(
+            src = src,
+            percentWidth = percentWidth,
+            variant = source.variant,
+            border = source.border,
+            margin = source.margin,
+            viewId = source.viewId,
+            soundEffect = source.soundEffect,
+            textColor = textColor,
+            textColorMonet = textColorMonet,
+            altTextColor = altTextColor,
+            altTextColorMonet = altTextColorMonet,
+            backgroundColor = backgroundColor,
+            backgroundColorMonet = backgroundColorMonet,
+            shadowColor = shadowColor,
+            shadowColorMonet = shadowColorMonet
+        )
     }
 
     private fun KeyDef.Appearance.withColorsFrom(source: KeyDef.Appearance): KeyDef.Appearance = when (this) {
@@ -865,8 +961,8 @@ abstract class BaseKeyboard(
             percentWidth = percentWidth,
             variant = source.variant,
             border = source.border,
-            margin = margin,
-            viewId = viewId,
+            margin = source.margin,
+            viewId = source.viewId,
             textColor = source.textColor,
             textColorMonet = source.textColorMonet,
             altTextColor = source.altTextColor,
@@ -882,9 +978,9 @@ abstract class BaseKeyboard(
             percentWidth = percentWidth,
             variant = source.variant,
             border = source.border,
-            margin = margin,
-            viewId = viewId,
-            soundEffect = soundEffect,
+            margin = source.margin,
+            viewId = source.viewId,
+            soundEffect = source.soundEffect,
             textColor = source.textColor,
             textColorMonet = source.textColorMonet,
             altTextColor = source.altTextColor,
@@ -902,8 +998,8 @@ abstract class BaseKeyboard(
             percentWidth = percentWidth,
             variant = source.variant,
             border = source.border,
-            margin = margin,
-            viewId = viewId,
+            margin = source.margin,
+            viewId = source.viewId,
             textColor = source.textColor,
             textColorMonet = source.textColorMonet,
             altTextColor = source.altTextColor,
@@ -920,9 +1016,9 @@ abstract class BaseKeyboard(
             percentWidth = percentWidth,
             variant = source.variant,
             border = source.border,
-            margin = margin,
-            viewId = viewId,
-            soundEffect = soundEffect,
+            margin = source.margin,
+            viewId = source.viewId,
+            soundEffect = source.soundEffect,
             textColor = source.textColor,
             textColorMonet = source.textColorMonet,
             altTextColor = source.altTextColor,
@@ -937,9 +1033,9 @@ abstract class BaseKeyboard(
             percentWidth = percentWidth,
             variant = source.variant,
             border = source.border,
-            margin = margin,
-            viewId = viewId,
-            soundEffect = soundEffect,
+            margin = source.margin,
+            viewId = source.viewId,
+            soundEffect = source.soundEffect,
             textColor = source.textColor,
             textColorMonet = source.textColorMonet,
             altTextColor = source.altTextColor,

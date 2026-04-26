@@ -558,6 +558,7 @@
     <string name="invalid_plugin_descriptor">Ungültige Plugin-Beschreibungsdatei</string>
     <string name="key_border">Tastenrahmen aktivieren</string>
     <string name="key_border_stroke">Rahmenkontur für Tasten aktivieren</string>
+    <string name="special_key_oval_shape">Aktionstasten im Gboard-Stil verwenden</string>
     <string name="key_ripple_effect">Wasserwelleneffekt für Tasten aktivieren</string>
     <string name="keyboard_bottom_padding">Unterer Tastaturabstand</string>
     <string name="keyboard_side_padding">Seitlicher Tastaturabstand</string>

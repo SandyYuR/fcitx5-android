@@ -465,6 +465,7 @@
     <string name="emoji_skin_tone_type_6">🏿 Type-6</string>
     <string name="hide_unsupported_emojis">Hide unsupported Emojis</string>
     <string name="key_border_stroke">Enable stroke for key border</string>
+    <string name="special_key_oval_shape">Use Gboard-style action keys</string>
     <!-- Text Keyboard Layout Editor -->
     <string name="edit_text_keyboard_layout">Edit Text Keyboard Layout</string>
     <string name="edit_text_keyboard_layout_summary">Edit text keyboard layout (TextKeyboardLayout.json)</string>

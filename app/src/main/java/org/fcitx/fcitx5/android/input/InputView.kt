@@ -286,7 +286,10 @@ class InputView(
                     if (target is KeyView) {
                         hMargin = target.hMargin
                         vMargin = target.vMargin
-                        radius = target.radius
+                        radius = target.blurClipRadius(
+                            (target.width - target.hMargin * 2).coerceAtLeast(0),
+                            (target.height - target.vMargin * 2).coerceAtLeast(0)
+                        )
                     } else {
                         hMargin = 0
                         vMargin = 0
@@ -302,9 +305,8 @@ class InputView(
                     )
                     clipRect.offset(offsetX, offsetY)
                     if (!clipRect.intersect(0, 0, width, height)) return@forEach
-                    val maxRadius = minOf(clipRect.width(), clipRect.height()) * 0.5f
                     keyClipRects.add(Rect(clipRect))
-                    keyClipRadii.add(radius.coerceIn(0f, maxRadius))
+                    keyClipRadii.add(radius.coerceIn(0f, minOf(clipRect.width(), clipRect.height()) * 0.5f))
                 }
             }
             buildClipRects()

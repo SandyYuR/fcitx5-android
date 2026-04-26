@@ -139,31 +139,13 @@ abstract class KeyView(
             id = View.generateViewId()
             tag = def.viewId
         }
-        // key border
-        if ((bordered && def.border != Border.Off) || def.border == Border.On) {
-            val defaultBkgColor = when (def.variant) {
-                Variant.Normal, Variant.AltForeground -> theme.keyBackgroundColor
-                Variant.Alternative -> theme.altKeyBackgroundColor
-                Variant.Accent -> theme.accentKeyBackgroundColor
-            }
-            val bkgColor = resolveBackgroundColor(theme, defaultBkgColor)
-            val borderOrShadowWidth = dp(1)
-            // background: key border
-            appearanceView.background = if (borderStroke) borderedKeyBackgroundDrawable(
-                bkgColor, resolveShadowColor(theme),
-                radius, borderOrShadowWidth, hMargin, vMargin
-            ) else shadowedKeyBackgroundDrawable(
-                bkgColor, resolveShadowColor(theme),
-                radius, borderOrShadowWidth, hMargin, vMargin
-            )
-            // foreground: press highlight or ripple
-            setupPressHighlight()
+        if (usesSpecialBackground()) {
+            appearanceView.background = null
+            appearanceView.foreground = null
+        } else if ((bordered && def.border != Border.Off) || def.border == Border.On) {
+            applyStandardBackground(theme)
         } else {
-            // normal press highlight for keys without special background
-            // special background is handled in `onSizeChanged()`
-            if (def.border != Border.Special) {
-                setupPressHighlight()
-            }
+            setupPressHighlight()
         }
         add(appearanceView, lParams(matchParent, matchParent))
     }
@@ -228,6 +210,72 @@ abstract class KeyView(
         return resolveColorOverride(def.altTextColor, def.altTextColorMonet) ?: defaultColor
     }
 
+    private fun defaultBackgroundColor(theme: Theme): Int = when (def.variant) {
+        Variant.Normal, Variant.AltForeground -> theme.keyBackgroundColor
+        Variant.Alternative -> theme.altKeyBackgroundColor
+        Variant.Accent -> theme.accentKeyBackgroundColor
+    }
+
+    private fun usesPillShape(): Boolean = ThemeManager.prefs.specialKeyOvalShape.getValue() && when (def.viewId) {
+        R.id.button_return, R.id.button_layout_switch -> true
+        else -> false
+    }
+
+    fun blurClipRadius(clipWidth: Int, clipHeight: Int): Float {
+        val maxRadius = min(clipWidth, clipHeight) * 0.5f
+        return if (usesPillShape()) {
+            maxRadius
+        } else {
+            radius.coerceIn(0f, maxRadius)
+        }
+    }
+
+    private fun usesSpecialBackground(): Boolean = when (def.viewId) {
+        R.id.button_space -> !bordered
+        R.id.button_return, R.id.button_layout_switch -> usesPillShape()
+        else -> false
+    }
+
+    private fun applyStandardBackground(theme: Theme) {
+        val bkgColor = resolveBackgroundColor(theme, defaultBackgroundColor(theme))
+        val borderOrShadowWidth = dp(1)
+        appearanceView.background = if (borderStroke) borderedKeyBackgroundDrawable(
+            bkgColor, resolveShadowColor(theme),
+            radius, borderOrShadowWidth, hMargin, vMargin
+        ) else shadowedKeyBackgroundDrawable(
+            bkgColor, resolveShadowColor(theme),
+            radius, borderOrShadowWidth, hMargin, vMargin
+        )
+        setupPressHighlight()
+    }
+
+    private fun applyPillBackground(theme: Theme) {
+        val bkgColor = resolveBackgroundColor(theme, defaultBackgroundColor(theme))
+        val borderOrShadowWidth = dp(1)
+        appearanceView.background = if (bordered) {
+            if (borderStroke) {
+                borderedPillKeyBackgroundDrawable(
+                    bkgColor, resolveShadowColor(theme),
+                    borderOrShadowWidth, hMargin, vMargin
+                )
+            } else {
+                shadowedPillKeyBackgroundDrawable(
+                    bkgColor, resolveShadowColor(theme),
+                    borderOrShadowWidth, hMargin, vMargin
+                )
+            }
+        } else {
+            insetPillDrawable(hMargin, vMargin, bkgColor)
+        }
+        appearanceView.padding = 0
+        setupPressHighlight(
+            insetPillDrawable(
+                hMargin, vMargin,
+                if (rippled) Color.WHITE else theme.keyPressHighlightColor
+            )
+        )
+    }
+
     private fun setupPressHighlight(mask: Drawable? = null) {
         appearanceView.foreground = if (rippled) {
             RippleDrawable(
@@ -235,7 +283,7 @@ abstract class KeyView(
                 // ripple should be masked with an opaque color
                 mask ?: highlightMaskDrawable(Color.WHITE)
             )
-        } else if (bordered && borderStroke) {
+        } else if (bordered && borderStroke && mask == null) {
             StateListDrawable().apply {
                 addState(
                     intArrayOf(android.R.attr.state_pressed),
@@ -302,9 +350,10 @@ abstract class KeyView(
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        if (bordered) return
+        val specialKeyOvalShapeEnabled = ThemeManager.prefs.specialKeyOvalShape.getValue()
         when (def.viewId) {
             R.id.button_space -> {
+                if (bordered) return
                 val bkgRadius = dp(3f)
                 val minHeight = dp(26)
                 val hInset = dp(10)
@@ -323,18 +372,14 @@ abstract class KeyView(
                 )
             }
             R.id.button_return -> {
-                val drawableSize = min(min(w, h), dp(35))
-                val hInset = (w - drawableSize) / 2
-                val vInset = (h - drawableSize) / 2
-                appearanceView.background = insetOvalDrawable(
-                    hInset, vInset, resolveBackgroundColor(theme, theme.accentKeyBackgroundColor)
-                )
-                appearanceView.padding = 0
-                setupPressHighlight(
-                    insetOvalDrawable(
-                        hInset, vInset, if (rippled) Color.WHITE else theme.keyPressHighlightColor
-                    )
-                )
+                if (specialKeyOvalShapeEnabled && def.border == Border.Special) {
+                    applyPillBackground(theme)
+                }
+            }
+            R.id.button_layout_switch -> {
+                if (specialKeyOvalShapeEnabled && def.border == Border.Special) {
+                    applyPillBackground(theme)
+                }
             }
         }
     }
@@ -345,27 +390,16 @@ abstract class KeyView(
     open fun updateTheme(newTheme: Theme) {
         theme = newTheme
 
-        // Update key background (only when bordered)
-        if ((bordered && def.border != Border.Off) || def.border == Border.On) {
-            val defaultBkgColor = when (def.variant) {
-                Variant.Normal, Variant.AltForeground -> newTheme.keyBackgroundColor
-                Variant.Alternative -> newTheme.altKeyBackgroundColor
-                Variant.Accent -> newTheme.accentKeyBackgroundColor
-            }
-            val bkgColor = resolveBackgroundColor(newTheme, defaultBkgColor)
-            val borderOrShadowWidth = dp(1)
-            appearanceView.background = if (borderStroke) borderedKeyBackgroundDrawable(
-                bkgColor, resolveShadowColor(newTheme),
-                radius, borderOrShadowWidth, hMargin, vMargin
-            ) else shadowedKeyBackgroundDrawable(
-                bkgColor, resolveShadowColor(newTheme),
-                radius, borderOrShadowWidth, hMargin, vMargin
-            )
+        if (usesSpecialBackground()) {
+            appearanceView.background = null
+            appearanceView.foreground = null
+        } else if ((bordered && def.border != Border.Off) || def.border == Border.On) {
+            applyStandardBackground(newTheme)
+        } else {
+            appearanceView.background = null
+            setupPressHighlight()
         }
-        // Update press highlight for all keys
-        setupPressHighlight()
 
-        // Update special backgrounds for spaceBar and returnKey
         val w = appearanceView.width
         val h = appearanceView.height
         if (w > 0 && h > 0) {

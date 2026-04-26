@@ -336,6 +336,7 @@
     <string name="emoji_skin_tone_type_6">🏿 Type-6</string>
     <string name="hide_unsupported_emojis">Скрыть неподдерживаемые эмодзи</string>
     <string name="key_border_stroke">Включить обводку для границы клавиши</string>
+    <string name="special_key_oval_shape">Использовать клавиши действий в стиле Gboard</string>
     <string name="edit_popup_preset">Редактировать предустановку всплывающих окон</string>
     <string name="edit_popup_preset_summary">Редактировать сопоставление клавиш всплывающих окон (клавиша -&gt; кандидаты всплывающих окон)</string>
     <string name="edit_buttons">Редактировать кнопки</string>

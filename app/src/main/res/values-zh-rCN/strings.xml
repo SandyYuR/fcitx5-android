@@ -452,6 +452,7 @@
     <string name="emoji_skin_tone_type_6">🏿 深肤色 (Type-6)</string>
     <string name="hide_unsupported_emojis">隐藏不支持的表情</string>
     <string name="key_border_stroke">启用按键边框描边</string>
+    <string name="special_key_oval_shape">使用 Gboard 风格的操作按键</string>
 
     <!-- Text Keyboard Layout Editor -->
     <string name="edit_text_keyboard_layout">编辑文本键盘布局</string>

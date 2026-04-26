@@ -628,6 +628,7 @@
     <string name="hide_toolbar">ツールバーを非表示</string>
     <string name="hide_unsupported_emojis">サポートされていない絵文字を非表示</string>
     <string name="key_border_stroke">キー枠のストロークを有効化</string>
+    <string name="special_key_oval_shape">Gboard風のアクションキーを使用</string>
     <string name="move_cursor_down">カーソルを下に移動</string>
     <string name="move_cursor_left">左に移動</string>
     <string name="move_cursor_right">カーソルを右に移動</string>

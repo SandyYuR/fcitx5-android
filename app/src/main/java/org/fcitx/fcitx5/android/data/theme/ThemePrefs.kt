@@ -41,6 +41,8 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         enableUiOn = { keyBorder.getValue() }
     )
 
+    val specialKeyOvalShape = switch(R.string.special_key_oval_shape, "special_key_oval_shape", false)
+
     val keyRippleEffect = switch(R.string.key_ripple_effect, "key_ripple_effect", false)
 
     val keyHorizontalMargin: ManagedPreference.PInt

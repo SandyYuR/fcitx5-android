@@ -506,6 +506,7 @@
     <string name="fontset_entry_popup_key">彈出按鍵字體</string>
     <string name="fontset_entry_preedit">預編輯字體</string>
     <string name="key_border_stroke">按鍵邊框描邊</string>
+    <string name="special_key_oval_shape">使用 Gboard 風格的操作按鍵</string>
     <string name="edit_text_keyboard_layout_summary">編輯文字鍵盤佈局並預覽按鍵配置</string>
     <string name="edit_text_keyboard_layout_summary_with_file">編輯文字鍵盤佈局（%1$s）</string>
     <string name="text_keyboard_layout_file_select_title">文字鍵盤佈局檔案</string>

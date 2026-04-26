@@ -177,10 +177,8 @@ class PreviewKeyBlurMaskView(context: Context) : View(context) {
                 )
                 if (clipRect.width() <= 0 || clipRect.height() <= 0) return@forEach
                 if (!clipRect.intersect(0, 0, width, height)) return@forEach
-                val maxRadius = minOf(clipRect.width(), clipRect.height()) * 0.5f
-                val radius = key.radius.coerceIn(0f, maxRadius)
                 keyClipRects.add(Rect(clipRect))
-                keyClipRadii.add(radius)
+                keyClipRadii.add(key.blurClipRadius(clipRect.width(), clipRect.height()))
             }
         }
 
