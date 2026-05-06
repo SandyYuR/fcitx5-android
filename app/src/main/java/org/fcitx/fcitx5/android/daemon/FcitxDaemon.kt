@@ -9,6 +9,7 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.fcitx.fcitx5.android.FcitxApplication
@@ -47,27 +48,45 @@ object FcitxDaemon {
 
     private fun mkConnection(name: String) = object : FcitxConnection {
 
-        private inline fun <T> ensureConnected(block: () -> T) =
+        private inline fun <T> ensureConnected(block: () -> T): T =
             if (name in clients)
                 block()
-            else throw IllegalStateException("$name is disconnected")
+            else throw kotlinx.coroutines.CancellationException("$name is disconnected")
 
-        override fun <T> runImmediately(block: suspend FcitxAPI.() -> T): T = ensureConnected {
-            runBlocking(realFcitx.lifeCycleScope.coroutineContext) {
-                block(fcitxImpl)
+        override fun <T> runImmediately(block: suspend FcitxAPI.() -> T): T {
+            return try {
+                ensureConnected {
+                    runBlocking(realFcitx.lifeCycleScope.coroutineContext) {
+                        block(fcitxImpl)
+                    }
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                Timber.d("Connection $name disconnected, cancelling operation")
+                throw e
             }
         }
 
-        override suspend fun <T> runOnReady(block: suspend FcitxAPI.() -> T): T = ensureConnected {
-            realFcitx.lifecycle.whenReady { block(fcitxImpl) }
+        override suspend fun <T> runOnReady(block: suspend FcitxAPI.() -> T): T {
+            return try {
+                ensureConnected {
+                    realFcitx.lifecycle.whenReady { block(fcitxImpl) }
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                Timber.d("Connection $name disconnected while waiting for ready")
+                throw e
+            }
         }
 
         override fun runIfReady(block: suspend FcitxAPI.() -> Unit) {
-            ensureConnected {
-                if (realFcitx.isReady)
-                    realFcitx.lifeCycleScope.launch {
-                        block(fcitxImpl)
-                    }
+            try {
+                ensureConnected {
+                    if (realFcitx.isReady)
+                        realFcitx.lifeCycleScope.launch {
+                            block(fcitxImpl)
+                        }
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                Timber.d("Connection $name disconnected, skipping operation")
             }
         }
 
