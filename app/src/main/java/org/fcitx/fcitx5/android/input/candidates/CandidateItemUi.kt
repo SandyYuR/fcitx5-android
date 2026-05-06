@@ -67,6 +67,9 @@ class CandidateItemUi(
 
     override val root = view(::CustomGestureView) {
         background = normalBackground
+        /**
+         * candidate long press feedback is handled by [org.fcitx.fcitx5.android.input.BaseInputView.showCandidateActionMenu]
+         */
         longPressFeedbackEnabled = false
         add(text, lParams(wrapContent, matchParent) {
             gravity = gravityCenter

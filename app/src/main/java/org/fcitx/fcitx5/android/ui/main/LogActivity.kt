@@ -17,9 +17,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.BuildConfig
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.databinding.ActivityLogBinding
@@ -42,12 +42,14 @@ class LogActivity : AppCompatActivity() {
     private fun registerLauncher() {
         launcher = registerForActivityResult(CreateDocument("text/plain")) { uri ->
             if (uri == null) return@registerForActivityResult
-            lifecycleScope.launch(NonCancellable + Dispatchers.IO) {
+            lifecycleScope.launch {
                 runCatching {
-                    contentResolver.openOutputStream(uri)!!.use { stream ->
-                        stream.bufferedWriter().use { writer ->
-                            writer.write(DeviceInfo.get(this@LogActivity))
-                            writer.write(logView.currentLog)
+                    withContext(Dispatchers.IO) {
+                        contentResolver.openOutputStream(uri)!!.use { stream ->
+                            stream.bufferedWriter().use { writer ->
+                                writer.write(DeviceInfo.get(this@LogActivity))
+                                writer.write(logView.currentLog)
+                            }
                         }
                     }
                 }.let { toast(it) }

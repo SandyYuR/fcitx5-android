@@ -137,6 +137,7 @@ class CandidatesView(
     private val candidatesUi = PagedCandidatesUi(
         ctx, theme, setupTextView,
         onCandidateClick = { index -> fcitx.launchOnReady { it.select(index) } },
+        onCandidateAction = { index, text, view -> showCandidateActionMenu(index, text, view) },
         onPrevPage = { fcitx.launchOnReady { it.offsetCandidatePage(-1) } },
         onNextPage = { fcitx.launchOnReady { it.offsetCandidatePage(1) } },
         highlightRadius = dp(highlightRadius).toFloat()
@@ -524,6 +525,21 @@ class CandidatesView(
         parentSize[1] = parentHeight
         useKeyboardPosition = false
         this.isVirtualKeyboardVisible = isKeyboardVisible
+        updatePosition()
+    }
+
+    /**
+     * Anchor candidates view to bottom-left corner, takes navbar bottom insets into consideration.
+     * Should only be used when [CursorAnchorInfo][android.view.inputmethod.CursorAnchorInfo] is invalid
+     */
+    fun updateCursorAnchor(@Size(2) parent: FloatArray) {
+        val (parentWidth, parentHeight) = parent
+        val bottom = parentHeight - bottomInsets
+        anchorPosition[0] = 0f
+        anchorPosition[1] = bottom
+        anchorPosition[2] = bottom
+        parentSize[0] = parentWidth
+        parentSize[1] = parentHeight
         updatePosition()
     }
 

@@ -87,7 +87,7 @@ public:
                         auto &candidate = bulk->candidateFromAll(i);
                         // maybe unnecessary; I don't see anywhere using `CandidateWord::setPlaceHolder`
                         // if (candidate.isPlaceHolder()) continue;
-                        candidates.emplace_back(filterString(candidate.textWithComment("")));
+                        candidates.emplace_back(filterCandidate(candidate));
                     } catch (const std::invalid_argument &e) {
                         size = static_cast<int>(candidates.size());
                         break;
@@ -96,7 +96,7 @@ public:
             } else {
                 size = list->size();
                 for (int i = 0; i < size; i++) {
-                    candidates.emplace_back(filterString(list->candidate(i).textWithComment("")));
+                    candidates.emplace_back(filterCandidate(list->candidate(i)));
                 }
             }
         }
@@ -187,7 +187,7 @@ public:
                 for (int i = offset; i < end; i++) {
                     try {
                         auto &candidate = bulk->candidateFromAll(i);
-                        candidates.emplace_back(filterString(candidate.textWithComment()));
+                        candidates.emplace_back(filterCandidate(candidate));
                     } catch (const std::invalid_argument &e) {
                         break;
                     }
@@ -195,7 +195,7 @@ public:
             } else {
                 const int end = std::min(list->size(), last);
                 for (int i = offset; i < end; i++) {
-                    candidates.emplace_back(filterString(list->candidate(i).textWithComment()));
+                    candidates.emplace_back(filterCandidate(list->candidate(i)));
                 }
             }
         }
@@ -283,6 +283,11 @@ private:
 
     inline std::string filterString(const Text &orig) {
         return filterText(orig).toString();
+    }
+
+    inline std::string filterCandidate(const CandidateWord &candidate) {
+        const std::string separator = candidate.spaceBetweenComment() ? " " : "";
+        return filterString(candidate.textWithComment(separator));
     }
 };
 

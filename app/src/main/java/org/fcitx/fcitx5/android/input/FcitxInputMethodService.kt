@@ -135,6 +135,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 setCandidatePagingMode(1)
             }
             currentInputConnection?.monitorCursorAnchor(!isVirtualKeyboard)
+            if (isVirtualKeyboard) {
+                hideStatusIcon()
+            } else {
+                showStatusIcon(StatusIconMapping.fromEntry(fcitx.runImmediately { inputMethodEntryCached }))
+            }
             window.window?.let {
                 navbarMgr.evaluate(it, isVirtualKeyboard)
             }
@@ -549,6 +554,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 }
                 // Update space key label in "Always" floating mode
                 inputView?.updateSpaceLabelOnFloatingMode()
+                if (inputDeviceManager.evaluateOnInputMethodActivate()) {
+                    showStatusIcon(StatusIconMapping.fromEntry(event.data))
+                }
             }
             is FcitxEvent.SwitchInputMethodEvent -> {
                 val (reason) = event.data
@@ -646,7 +654,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             return
         }
         val editorInfo = currentInputEditorInfo
-        if (editorInfo.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL) {
+        val type = editorInfo.inputType and InputType.TYPE_MASK_CLASS
+        val variation = editorInfo.inputType and InputType.TYPE_MASK_VARIATION
+        if (type == InputType.TYPE_NULL ||
+            // confirm URL suggestion in browser location bar, see also https://bugzilla.mozilla.org/show_bug.cgi?id=1999915
+            type == InputType.TYPE_CLASS_TEXT && variation == InputType.TYPE_TEXT_VARIATION_URI
+        ) {
             sendDownUpKeyEvents(keyCode)
             return
         }
@@ -1316,12 +1329,16 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                     }
                     workaroundNullCursorAnchorInfo()
                 }
+                // anchor CandidatesView to bottom-left corner in case InputConnection does not
+                // support monitoring CursorAnchorInfo
+                candidatesView?.updateCursorAnchor(contentSize)
             }
         } finally {
             contentView.post {
                 isInInputLifecycleCriticalPhase = false
                 applyPendingThemeIfPossible()
             }
+            showStatusIcon(StatusIconMapping.fromEntry(fcitx.runImmediately { inputMethodEntryCached }))
         }
     }
 
@@ -1360,9 +1377,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private val anchorPosition = floatArrayOf(0f, 0f, 0f, 0f)
 
-    /**
-     * anchor candidates view to bottom-left corner, only works if [decorLocationUpdated]
-     */
     private fun workaroundNullCursorAnchorInfo() {
         anchorPosition[0] = 0f
         anchorPosition[1] = contentSize[1]
@@ -1393,7 +1407,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         if (anchorPosition.any(Float::isNaN)) {
             // anchor candidates view to bottom-left corner in case CursorAnchorInfo is invalid
-            workaroundNullCursorAnchorInfo()
+            candidatesView?.updateCursorAnchor(contentSize)
             return
         }
         // params of `Matrix.mapPoints` must be [x0, y0, x1, y1]
@@ -1608,6 +1622,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         postFcitxSessionJob(inputSessionGeneration) {
             focusOutIn()
         }
+        hideStatusIcon()
         showingDialog?.dismiss()
     }
 

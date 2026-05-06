@@ -128,42 +128,28 @@ class ThemeListFragment : Fragment() {
                 val ctx = requireContext()
                 val cr = ctx.contentResolver
                 lifecycleScope.withLoadingDialog(ctx) {
-                    // Run IO operations on Dispatchers.IO
-                    val result = withContext(Dispatchers.IO) {
-                        val name = cr.queryFileName(uri) ?: return@withContext null
-                        val ext = name.substringAfterLast('.')
-                        if (ext != "zip") {
-                            withContext(Dispatchers.Main) {
-                                ctx.importErrorDialog(R.string.exception_theme_filename, ext)
-                            }
-                            return@withContext null
-                        }
-                        runCatching {
+                    val name = cr.queryFileName(uri) ?: return@withLoadingDialog
+                    val ext = name.substringAfterLast('.')
+                    if (ext != "zip") {
+                        ctx.importErrorDialog(R.string.exception_theme_filename, ext)
+                        return@withLoadingDialog
+                    }
+                    try {
+                        val (newCreated, theme, migrated) = withContext(Dispatchers.IO) {
                             val inputStream = cr.openInputStream(uri)!!
                             ThemeFilesManager.importTheme(inputStream).getOrThrow()
                         }
-                    }
-
-                    // Update UI on Main thread (including ThemeManager.refreshThemes)
-                    withContext(Dispatchers.Main) {
-                        if (result == null) return@withContext
-                        
-                        // Refresh theme data (this triggers UI updates via ThemeChangeListener)
                         ThemeManager.refreshThemes()
-
-                        result.onSuccess { (newCreated, theme, migrated) ->
-                            if (newCreated) {
-                                themeListAdapter.prependTheme(theme)
-                            } else {
-                                themeListAdapter.replaceTheme(theme)
-                            }
-                            if (migrated) {
-                                ctx.toast(R.string.theme_migrated)
-                            }
+                        if (newCreated) {
+                            themeListAdapter.prependTheme(theme)
+                        } else {
+                            themeListAdapter.replaceTheme(theme)
                         }
-                        result.onFailure { e ->
-                            ctx.importErrorDialog(e)
+                        if (migrated) {
+                            ctx.toast(R.string.theme_migrated)
                         }
+                    } catch (e: Exception) {
+                        ctx.importErrorDialog(e)
                     }
                 }
             }
@@ -174,17 +160,13 @@ class ThemeListFragment : Fragment() {
                 val exported = beingExported ?: return@registerForActivityResult
                 beingExported = null
                 lifecycleScope.withLoadingDialog(requireContext()) {
-                    withContext(Dispatchers.IO) {
-                        val result = runCatching {
+                    try {
+                        withContext(Dispatchers.IO) {
                             val outputStream = ctx.contentResolver.openOutputStream(uri)!!
                             ThemeFilesManager.exportTheme(exported, outputStream).getOrThrow()
                         }
-
-                        withContext(Dispatchers.Main) {
-                            result.onFailure { e ->
-                                ctx.toast(e)
-                            }
-                        }
+                    } catch (e: Exception) {
+                        ctx.toast(e)
                     }
                 }
             }
