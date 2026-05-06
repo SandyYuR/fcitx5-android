@@ -1053,10 +1053,12 @@ abstract class BaseKeyboard(
             is AltTextKeyView -> if (appearance is KeyDef.Appearance.AltText) {
                 view.mainText.text = appearance.displayText
                 view.altText.text = appearance.altText
+                view.refreshAltTextLayout()
             }
             is ImageAltTextKeyView -> if (appearance is KeyDef.Appearance.ImageAltText) {
                 view.img.setImageResource(appearance.src)
                 view.altText.text = appearance.altText
+                view.refreshAltTextLayout()
             }
             is ImageTextKeyView -> if (appearance is KeyDef.Appearance.ImageText) {
                 view.mainText.text = appearance.displayText

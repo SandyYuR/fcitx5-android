@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
 import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.StateListDrawable
+import android.text.TextPaint
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -647,6 +648,11 @@ class AltTextKeyView(
         }
     }
 
+    fun refreshAltTextLayout() {
+        lastLayoutMode = null
+        applyLayout()
+    }
+
     override fun shouldTriggerAltBySwipe(totalY: Int, fallback: SwipeSymbolDirection): Boolean {
         if (totalY == 0) return false
         return when (lastLayoutMode ?: resolveLayoutMode(appearanceView.height)) {
@@ -696,6 +702,7 @@ class ImageAltTextKeyView(
     private val baseAltTextSizeSp = org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
         "key_alt_font", 10.666667f
     )
+    private var currentMainTextScale = 1f
     private var lastLayoutMode: AltTextLayoutMode? = null
 
     val img = imageView { configure(theme, def.src, def.variant) }.apply {
@@ -740,6 +747,7 @@ class ImageAltTextKeyView(
     }
 
     override fun setTextScale(scale: Float) {
+        currentMainTextScale = scale
         altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp * scale)
         altText.requestLayout()
         lastLayoutMode = null
@@ -813,10 +821,28 @@ class ImageAltTextKeyView(
         if (keyHeight <= 0) return preferred
 
         val contentHeight = keyHeight - vMargin * 2
-        val iconHeight = img.measuredHeight.takeIf { it > 0 } ?: dp(24)
+        val measuredIconHeight = img.measuredHeight.takeIf { it > 0 } ?: 0
+        val drawableIconHeight = img.drawable?.intrinsicHeight?.takeIf { it > 0 } ?: dp(24)
+        val iconHeight = max(measuredIconHeight, drawableIconHeight).toFloat()
+        val mainHeight = TextPaint().apply {
+            val mainTextSizeSp = org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
+                "key_main_font",
+                23f
+            ) * currentMainTextScale
+            textSize = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,
+                mainTextSizeSp,
+                resources.displayMetrics
+            )
+            typeface = org.fcitx.fcitx5.android.input.font.FontProviders.resolveTypeface(
+                "key_main_font",
+                Typeface.DEFAULT
+            )
+        }.run { fontMetrics.bottom - fontMetrics.top }
         val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
-        val compactMinHeight = max(iconHeight.toFloat(), altHeight + dp(1).toFloat())
-        val stackedMinHeight = iconHeight + altHeight + dp(1)
+        val normalizedMainHeight = max(iconHeight, mainHeight)
+        val compactMinHeight = max(normalizedMainHeight, altHeight + dp(1))
+        val stackedMinHeight = normalizedMainHeight + altHeight + dp(1)
 
         return when (preferred) {
             AltTextLayoutMode.Bottom -> when {
@@ -843,6 +869,11 @@ class ImageAltTextKeyView(
             AltTextLayoutMode.TopRight -> applyTopRightAltTextPosition()
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
+    }
+
+    fun refreshAltTextLayout() {
+        lastLayoutMode = null
+        applyLayout()
     }
 
     override fun shouldTriggerAltBySwipe(totalY: Int, fallback: SwipeSymbolDirection): Boolean {
