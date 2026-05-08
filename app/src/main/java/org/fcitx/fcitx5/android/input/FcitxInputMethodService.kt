@@ -60,6 +60,7 @@ import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.core.FormattedText
+import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.core.KeySym
@@ -135,11 +136,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 setCandidatePagingMode(1)
             }
             currentInputConnection?.monitorCursorAnchor(!isVirtualKeyboard)
-            if (isVirtualKeyboard) {
-                hideStatusIcon()
-            } else {
-                showStatusIcon(StatusIconMapping.fromEntry(fcitx.runImmediately { inputMethodEntryCached }))
-            }
+            updateStatusIcon()
             window.window?.let {
                 navbarMgr.evaluate(it, isVirtualKeyboard)
             }
@@ -304,6 +301,21 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private fun resetComposingState() {
         composing.clear()
         composingText = FormattedText.Empty
+    }
+
+    private fun updateStatusIcon(entry: InputMethodEntry = fcitx.runImmediately { inputMethodEntryCached }) {
+        if (inputDeviceManager.isVirtualKeyboard) {
+            hideStatusIcon()
+            return
+        }
+
+        val iconRes = StatusIconMapping.fromEntry(entry)
+        // Skip placeholder icon when IM info has not been initialized yet.
+        if (entry.uniqueName.isEmpty() && iconRes == R.drawable.ic_baseline_keyboard_24) {
+            hideStatusIcon()
+            return
+        }
+        showStatusIcon(iconRes)
     }
 
     private var cursorUpdateIndex: Int = 0
@@ -555,7 +567,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 // Update space key label in "Always" floating mode
                 inputView?.updateSpaceLabelOnFloatingMode()
                 if (inputDeviceManager.evaluateOnInputMethodActivate()) {
-                    showStatusIcon(StatusIconMapping.fromEntry(event.data))
+                    updateStatusIcon(event.data)
                 }
             }
             is FcitxEvent.SwitchInputMethodEvent -> {
@@ -1338,7 +1350,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 isInInputLifecycleCriticalPhase = false
                 applyPendingThemeIfPossible()
             }
-            showStatusIcon(StatusIconMapping.fromEntry(fcitx.runImmediately { inputMethodEntryCached }))
+            updateStatusIcon()
         }
     }
 
