@@ -212,7 +212,7 @@ class LayoutDataManager(private val context: Context) {
 
             // Only clean the base layout's displayText when submode layouts exist
             val baseLayoutNames = entries.keys.map { key ->
-                if (key.contains(':')) key.substringBeforeLast(':') else key
+                LayoutJsonUtils.baseLayoutNameFromEntryKey(key)
             }.distinct()
             
             // Only clear base layout displayText for layouts that actually have submode variants
@@ -277,11 +277,7 @@ class LayoutDataManager(private val context: Context) {
      * @return 删除后剩余的布局键列表
      */
     fun deleteLayout(layoutKey: String): List<String> {
-        val layoutName = if (layoutKey.contains(':')) {
-            layoutKey.substringBeforeLast(':')
-        } else {
-            layoutKey
-        }
+        val layoutName = LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutKey)
         
         // 删除指定布局
         entries.remove(layoutKey)
@@ -351,6 +347,31 @@ class LayoutDataManager(private val context: Context) {
 
         entries[subModeKey] = newLayout
         return true
+    }
+
+    /**
+     * 添加子布局（用于层切换功能）。
+     *
+     * 子布局使用保留前缀，避免与真实 submode 标签冲突。
+     *
+     * @param layoutName 基础布局名称
+     * @param childName 子布局名称（不包含前缀）
+     * @return 新建后的完整布局键，失败返回 null
+     */
+    fun addChildLayout(layoutName: String, childName: String): String? {
+        val normalizedChild = childName.trim()
+        if (normalizedChild.isEmpty()) return null
+        if (normalizedChild.contains(':')) return null
+        val subModeLabel = LayoutJsonUtils.toLayerSubModeLabel(normalizedChild)
+        val childKey = "$layoutName:$subModeLabel"
+        if (entries.containsKey(childKey)) return null
+
+        val sourceLayout = entries[layoutName]
+            ?: entries.keys.firstOrNull { it.startsWith("$layoutName:") }?.let { entries[it] }
+            ?: return null
+
+        entries[childKey] = copyLayout(sourceLayout)
+        return childKey
     }
     
     /**

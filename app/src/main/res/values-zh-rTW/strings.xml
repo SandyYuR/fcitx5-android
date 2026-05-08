@@ -563,6 +563,9 @@
     <string name="macro_editor_step_type_shortcut">快速鍵</string>
     <string name="macro_editor_step_type_edit">編輯操作</string>
     <string name="macro_editor_step_type_app">應用動作</string>
+    <string name="macro_editor_step_type_layer">切層動作</string>
+    <string name="macro_editor_step_type_to">切換到層</string>
+    <string name="macro_editor_step_type_osl">單次層</string>
     <string name="macro_editor_step_type_down">按下按鍵</string>
     <string name="macro_editor_step_type_up">釋放按鍵</string>
     <string name="macro_editor_step_type_text">輸入文字</string>
@@ -587,6 +590,12 @@
     <string name="macro_editor_step_shortcut_multiple_keys">步驟 %1$d 只能有一個目標按鍵</string>
     <string name="macro_editor_step_edit_action_required">步驟 %1$d 需要選擇一個操作</string>
     <string name="macro_editor_step_app_action_required">步驟 %1$d 需要選擇一個應用動作</string>
+    <string name="macro_editor_step_layer_target_required">步驟 %1$d 需要選擇目標層</string>
+    <string name="macro_editor_step_layer_target_invalid">步驟 %1$d 的目標層無效</string>
+    <string name="macro_editor_layer_target_hint">點擊選擇目標層</string>
+    <string name="macro_editor_layer_target_picker_title">選擇目標層</string>
+    <string name="macro_editor_layer_target_empty">暫無可選目標佈局</string>
+    <string name="macro_editor_layer_mode_picker_title">選擇切層模式</string>
     <string name="macro_editor_type_change_title">更改步驟類型</string>
     <string name="macro_editor_type_change_message">更改步驟類型將清除當前數據。是否繼續？</string>
     <string name="macro_editor_delete_step_title">刪除步驟</string>

@@ -1497,6 +1497,16 @@ abstract class BaseKeyboard(
                         Timber.v("executeMacro: Shortcut modifiers=%d key=%s", step.modifiers.size, step.key)
                         executeShortcut(step.modifiers, step.key)
                     }
+                    is MacroStep.LayerSwitch -> {
+                        Timber.v("executeMacro: %s target=%s", step.mode, step.target)
+                        keyActionListener?.onKeyAction(
+                            KeyAction.LayerSwitchAction(
+                                step.mode,
+                                step.target
+                            ),
+                            KeyActionListener.Source.Keyboard
+                        )
+                    }
                 }
             }
         }

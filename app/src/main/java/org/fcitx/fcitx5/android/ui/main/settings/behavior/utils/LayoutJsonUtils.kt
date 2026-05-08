@@ -24,6 +24,7 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 object LayoutJsonUtils {
 
     private const val TAG = "LayoutJsonUtils"
+    const val LAYER_SUBMODE_PREFIX = "__layer__:"
     private val KEY_FIELD_ORDER = listOf(
         "type",
         "main",
@@ -47,6 +48,29 @@ object LayoutJsonUtils {
         "shadowColor",
         "shadowColorMonet"
     )
+
+    fun toLayerSubModeLabel(childName: String): String = "$LAYER_SUBMODE_PREFIX$childName"
+
+    fun isLayerSubModeLabel(label: String): Boolean = label.startsWith(LAYER_SUBMODE_PREFIX)
+
+    fun childNameFromLayerLabel(label: String): String =
+        label.removePrefix(LAYER_SUBMODE_PREFIX)
+
+    fun baseLayoutNameFromEntryKey(key: String): String {
+        return when {
+            key.contains(":$LAYER_SUBMODE_PREFIX") -> key.substringBefore(":$LAYER_SUBMODE_PREFIX")
+            key.contains(':') -> key.substringBeforeLast(':')
+            else -> key
+        }
+    }
+
+    fun subModeLabelFromEntryKey(key: String, baseName: String): String {
+        return if (key == baseName) {
+            "default"
+        } else {
+            key.removePrefix("$baseName:")
+        }
+    }
 
     // ==================== 解析功能 ====================
 
@@ -262,6 +286,10 @@ object LayoutJsonUtils {
             "text" -> MacroStep.Text(obj["text"]?.jsonPrimitive?.content ?: "")
             "edit" -> MacroStep.Edit(obj["action"]?.jsonPrimitive?.content ?: "copy")
             "app" -> MacroStep.AppAction(obj["id"]?.jsonPrimitive?.content ?: "theme")
+            "layer" -> MacroStep.LayerSwitch(
+                mode = parseLayerSwitchMode(obj["mode"]?.jsonPrimitive?.content),
+                target = obj["target"]?.jsonPrimitive?.content ?: ""
+            )
             "shortcut" -> {
                 val modifiers = obj["modifiers"]?.jsonArray?.map { parseKeyRef(it.jsonObject) }
                     ?: obj["modifier"]?.jsonObject?.let { listOf(parseKeyRef(it)) }
@@ -271,6 +299,20 @@ object LayoutJsonUtils {
                 MacroStep.Shortcut(modifiers, key)
             }
             else -> throw IllegalArgumentException("Unknown step type: $type")
+        }
+    }
+
+    private fun parseLayerSwitchMode(raw: String?): KeyAction.LayerSwitchMode {
+        return when (raw?.lowercase()) {
+            "osl" -> KeyAction.LayerSwitchMode.OSL
+            else -> KeyAction.LayerSwitchMode.TO
+        }
+    }
+
+    private fun layerSwitchModeToString(mode: KeyAction.LayerSwitchMode): String {
+        return when (mode) {
+            KeyAction.LayerSwitchMode.TO -> "to"
+            KeyAction.LayerSwitchMode.OSL -> "osl"
         }
     }
 
@@ -587,6 +629,11 @@ object LayoutJsonUtils {
                 "type" to JsonPrimitive("app"),
                 "id" to JsonPrimitive(step.id)
             ))
+            is MacroStep.LayerSwitch -> JsonObject(mapOf(
+                "type" to JsonPrimitive("layer"),
+                "mode" to JsonPrimitive(layerSwitchModeToString(step.mode)),
+                "target" to JsonPrimitive(step.target)
+            ))
             is MacroStep.Shortcut -> JsonObject(mapOf(
                 "type" to JsonPrimitive("shortcut"),
                 "modifiers" to JsonArray(step.modifiers.map { keyRefToJson(it) }),
@@ -793,7 +840,7 @@ object LayoutJsonUtils {
         val layoutMap = mutableMapOf<String, JsonElement>()
 
         val baseLayoutNames = entries.keys.map { key ->
-            if (key.contains(':')) key.substringBeforeLast(':') else key
+            baseLayoutNameFromEntryKey(key)
         }.distinct()
 
         for (baseName in baseLayoutNames) {
@@ -809,11 +856,7 @@ object LayoutJsonUtils {
                 val subModeMap = mutableMapOf<String, JsonElement>()
 
                 for (key in subModeKeys) {
-                    val subModeLabel = if (key.contains(':')) {
-                        key.substringAfterLast(':').ifEmpty { "default" }
-                    } else {
-                        "default"
-                    }
+                    val subModeLabel = subModeLabelFromEntryKey(key, baseName)
 
                     val rows = entries[key]!!
                     val jsonArray = JsonArray(rows.map { row ->

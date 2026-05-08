@@ -368,6 +368,9 @@
     <string name="macro_editor_step_type_shortcut">Tastenkombination</string>
     <string name="macro_editor_step_type_edit">Aktion bearbeiten</string>
     <string name="macro_editor_step_type_app">App-Aktion</string>
+    <string name="macro_editor_step_type_layer">Ebenenwechsel</string>
+    <string name="macro_editor_step_type_to">Zu Ebene wechseln</string>
+    <string name="macro_editor_step_type_osl">One-Shot-Ebene</string>
     <string name="macro_editor_step_type_down">Taste drücken</string>
     <string name="macro_editor_step_type_up">Taste loslassen</string>
     <string name="macro_editor_step_type_text">Text eingeben</string>
@@ -392,6 +395,12 @@
     <string name="macro_editor_step_shortcut_multiple_keys">Schritt %1$d kann nur eine Zieltaste haben</string>
     <string name="macro_editor_step_edit_action_required">Schritt %1$d benötigt eine Aktion</string>
     <string name="macro_editor_step_app_action_required">Schritt %1$d benötigt eine App-Aktion</string>
+    <string name="macro_editor_step_layer_target_required">Schritt %1$d benötigt ein Ebenenziel</string>
+    <string name="macro_editor_step_layer_target_invalid">Schritt %1$d hat ein ungültiges Ebenenziel</string>
+    <string name="macro_editor_layer_target_hint">Tippen, um Ebenenziel zu wählen</string>
+    <string name="macro_editor_layer_target_picker_title">Ebenenziel auswählen</string>
+    <string name="macro_editor_layer_target_empty">Kein Layoutziel verfügbar</string>
+    <string name="macro_editor_layer_mode_picker_title">Ebenenmodus auswählen</string>
     <string name="macro_editor_type_change_title">Schritttyp ändern</string>
     <string name="macro_editor_type_change_message">Das Ändern des Schritttyps löscht die aktuellen Daten. Fortfahren?</string>
     <string name="macro_editor_delete_step_title">Schritt löschen</string>

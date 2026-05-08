@@ -61,6 +61,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.SimpleDividerI
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.LayoutFileProfileInputActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.LayoutNameInputActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.manager.SubModeManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.preview.KeyboardPreviewManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
@@ -155,6 +156,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             minWidth = dp(40)
             gravity = Gravity.CENTER
             setOnClickListener { openLayoutEditor(null) }
+            setOnLongClickListener {
+                openGlobalLayoutNameInput()
+                true
+            }
         }
     }
 
@@ -296,6 +301,15 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     renameLayoutProfileFromInput(normalized)
                 }
             }
+        }
+
+    private val layoutNameInputLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val data = result.data ?: return@registerForActivityResult
+            if (result.resultCode != RESULT_OK) return@registerForActivityResult
+            val layoutName = data.getStringExtra(LayoutNameInputActivity.EXTRA_RESULT_LAYOUT_NAME).orEmpty()
+            val copySource = data.getStringExtra(LayoutNameInputActivity.EXTRA_RESULT_COPY_SOURCE)
+            createGlobalSharedLayout(layoutName, copySource)
         }
     
     // 子模式管理器
@@ -769,11 +783,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 addLayoutButton.setOnClickListener { addSubModeForCurrentSelection() }
                 addLayoutButton.alpha = 1.0f
             } else {
-                // Submode layout already exists - disable add button or show info
-                addLayoutButton.setOnClickListener {
-                    showToast(getString(R.string.text_keyboard_layout_submode_already_exists, subModeLabel))
-                }
-                addLayoutButton.alpha = 0.5f
+                // Submode layout exists: tap + creates global shared layout by lightweight activity.
+                addLayoutButton.setOnClickListener { openGlobalLayoutNameInput() }
+                addLayoutButton.alpha = 1.0f
             }
             
             // Update delete button: delete submode layout if it exists, otherwise delete base layout
@@ -790,6 +802,74 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             addLayoutButton.alpha = 1.0f
             deleteLayoutButton.setOnClickListener { confirmDeleteCurrentEditingLayout() }
         }
+        addLayoutButton.setOnLongClickListener {
+            openGlobalLayoutNameInput()
+            true
+        }
+    }
+
+    private fun openGlobalLayoutNameInput() {
+        val currentEditingLayoutKey = currentLayout?.let { layoutName ->
+            previewSubModeLabel?.let { label ->
+                val subModeKey = "$layoutName:$label"
+                if (entries.containsKey(subModeKey)) subModeKey else layoutName
+            } ?: layoutName
+        }
+        val copySourceOptions = entries.keys.sorted()
+        val intent = Intent(this, LayoutNameInputActivity::class.java).apply {
+            putExtra(LayoutNameInputActivity.EXTRA_TITLE, getString(R.string.text_keyboard_layout_add_layout))
+            putExtra(LayoutNameInputActivity.EXTRA_LABEL, getString(R.string.text_keyboard_layout_layout_name))
+            putExtra(LayoutNameInputActivity.EXTRA_HINT, getString(R.string.text_keyboard_layout_layout_name_hint))
+            putStringArrayListExtra(LayoutNameInputActivity.EXTRA_COPY_SOURCE_OPTIONS, ArrayList(copySourceOptions))
+            putExtra(LayoutNameInputActivity.EXTRA_COPY_SOURCE_DEFAULT, currentEditingLayoutKey)
+        }
+        layoutNameInputLauncher.launch(intent)
+    }
+
+    private fun createGlobalSharedLayout(rawName: String, copySourceKey: String? = null) {
+        val newName = rawName.trim()
+        if (newName.isEmpty()) {
+            showToast(getString(R.string.text_keyboard_layout_name_empty))
+            return
+        }
+        if (newName.contains(":")) {
+            showToast(getString(R.string.text_keyboard_layout_global_layout_name_invalid))
+            return
+        }
+        val conflictsImeName = allImesFromJson.any { ime ->
+            ime.uniqueName == newName || ime.displayName == newName
+        }
+        if (conflictsImeName) {
+            showToast(getString(R.string.text_keyboard_layout_global_layout_name_invalid))
+            return
+        }
+        if (entries.containsKey(newName)) {
+            showToast(getString(R.string.text_keyboard_layout_layout_name_exists))
+            return
+        }
+
+        val sourceRows = copySourceKey
+            ?.takeIf { it.isNotBlank() }
+            ?.let { entries[it] }
+            ?: currentRowsRef.takeIf { it.isNotEmpty() }
+            ?: currentLayout?.let { name ->
+                previewSubModeLabel?.let { label -> entries["$name:$label"] } ?: entries[name]
+            }
+            ?: mutableListOf()
+
+        entries[newName] = sourceRows.map { row ->
+            row.map { key -> key.toMutableMap() }.toMutableList()
+        }.toMutableList()
+
+        currentLayout = newName
+        previewSubModeLabel = null
+        lastEditingTarget = "$newName:default"
+        buildSpinner()
+        buildSubModeSpinner()
+        buildRows()
+        run { val layoutName = currentLayout ?: return@run; previewManager.updatePreview(layoutName, previewSubModeLabel, fcitxConnection) }
+        updateSaveButtonState()
+        showToast(getString(R.string.text_keyboard_layout_editing_default, newName))
     }
 
     private fun bindSubModeSpinner(labels: List<String>) {
@@ -1358,6 +1438,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             putExtra(KeyEditorActivity.EXTRA_IS_EDITING_SUBMODE_LAYOUT, isEditingSubModeLayout)
             putExtra(KeyEditorActivity.EXTRA_CURRENT_SUBMODE_LABEL, previewSubModeLabel)
             putExtra(KeyEditorActivity.EXTRA_HAS_MULTI_SUBMODE_SUPPORT, hasMultiSubmodeSupport)
+            putStringArrayListExtra(
+                KeyEditorActivity.EXTRA_AVAILABLE_LAYOUT_TARGETS,
+                ArrayList(entries.keys.sorted())
+            )
         }
         keyEditorLauncher.launch(launchIntent)
     }
@@ -1419,7 +1503,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun openLayoutEditor(originalLayoutName: String?) {
+    private fun openLayoutEditor(originalLayoutName: String?, globalSharedOnly: Boolean = false) {
         val currentName = originalLayoutName.orEmpty()
 
         val container = LinearLayout(this).apply {
@@ -1452,7 +1536,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             !entries.containsKey(ime.displayName)
         }.map { ime: InputMethodEntry -> ime.uniqueName }.sorted().toTypedArray()
 
-        if (availableImeNames.isNotEmpty()) {
+        if (!globalSharedOnly && availableImeNames.isNotEmpty()) {
             val imeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, availableImeNames)
             imeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             val imeSpinner = Spinner(this).apply {
@@ -1478,7 +1562,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 }
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
-        } else {
+        } else if (!globalSharedOnly) {
             // Show hint if no IMEs available
             val noImeHint = TextView(this).apply {
                 text = getString(R.string.text_keyboard_layout_no_additional_input_methods)
@@ -1535,8 +1619,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         copySpinner.adapter = copyAdapter
         container.addView(copySpinner)
 
-        // Auto-fill name when selecting
-        if (displayItems.isNotEmpty()) {
+        // Auto-fill name when selecting (disabled for global-shared mode).
+        if (!globalSharedOnly && displayItems.isNotEmpty()) {
             copySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     if (nameEdit.text.isNullOrBlank()) {
@@ -1562,19 +1646,41 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     showToast(getString(R.string.text_keyboard_layout_name_empty))
                     return@setOnClickListener
                 }
+                if (globalSharedOnly) {
+                    if (newName.contains(":")) {
+                        showToast(getString(R.string.text_keyboard_layout_global_layout_name_invalid))
+                        return@setOnClickListener
+                    }
+                    val conflictsImeName = allImes.any { ime ->
+                        ime.uniqueName == newName || ime.displayName == newName
+                    }
+                    if (conflictsImeName) {
+                        showToast(getString(R.string.text_keyboard_layout_global_layout_name_invalid))
+                        return@setOnClickListener
+                    }
+                }
 
-                // Check for duplicates (both uniqueName and displayName)
-                val selectedKey = nameToKeyMap.entries.find { it.value == newName }?.key ?: newName
-                val isDuplicate = entries.any { (key, _) -> 
-                    key == newName || 
-                    (allImes.any { ime -> 
-                        (ime.displayName == newName || ime.uniqueName == newName) &&
-                        (ime.displayName == key || ime.uniqueName == key)
-                    })
+                // Check for duplicates
+                val isDuplicate = if (globalSharedOnly) {
+                    entries.containsKey(newName)
+                } else {
+                    entries.any { (key, _) ->
+                        key == newName ||
+                            (allImes.any { ime ->
+                                (ime.displayName == newName || ime.uniqueName == newName) &&
+                                    (ime.displayName == key || ime.uniqueName == key)
+                            })
+                    }
                 }
 
                 if (isDuplicate && newName != originalLayoutName) {
-                    showToast(getString(R.string.text_keyboard_layout_layout_exists_for_input_method))
+                    showToast(
+                        if (globalSharedOnly) {
+                            getString(R.string.text_keyboard_layout_layout_name_exists)
+                        } else {
+                            getString(R.string.text_keyboard_layout_layout_exists_for_input_method)
+                        }
+                    )
                     return@setOnClickListener
                 }
 

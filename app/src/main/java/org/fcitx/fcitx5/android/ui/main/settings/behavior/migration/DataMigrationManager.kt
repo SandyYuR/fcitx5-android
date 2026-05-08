@@ -9,6 +9,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -83,7 +84,7 @@ class DataMigrationManager(
      */
     fun checkIfMigrationNeeded(): Boolean {
         val layoutGroups = entries.keys.groupBy { key ->
-            if (key.contains(':')) key.substringBeforeLast(':') else key
+            LayoutJsonUtils.baseLayoutNameFromEntryKey(key)
         }
 
         layoutGroups.forEach { (baseName, keys) ->
@@ -173,7 +174,7 @@ class DataMigrationManager(
      */
     fun migrateAllDisplayTextToSubmodeStructure() {
         val layoutGroups = entries.keys.groupBy { key ->
-            if (key.contains(':')) key.substringBeforeLast(':') else key
+            LayoutJsonUtils.baseLayoutNameFromEntryKey(key)
         }
 
         layoutGroups.forEach { (baseName, keys) ->
@@ -188,7 +189,7 @@ class DataMigrationManager(
             val baseKey = keys.firstOrNull { it == baseName || it == "$baseName:default" }
 
             subModeKeys.forEach { subModeKey ->
-                val subModeLabel = subModeKey.substringAfterLast(':')
+                val subModeLabel = LayoutJsonUtils.subModeLabelFromEntryKey(subModeKey, baseName)
                 val subModeLayout = entries[subModeKey]
                 subModeLayout?.let { layout ->
                     migrateDisplayTextForSubMode(layout, subModeLabel)

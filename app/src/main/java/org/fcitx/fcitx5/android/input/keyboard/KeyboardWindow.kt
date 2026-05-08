@@ -78,6 +78,8 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private var preeditEmpty = true
     private var candidateEmpty = true
     private var composingState = false
+    private var latchedLayerKey: String? = null
+    private var oneShotLayerKey: String? = null
 
     private val currentKeyboard: BaseKeyboard? get() = keyboards[currentKeyboardName]
 
@@ -108,10 +110,13 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     private val keyActionListener = KeyActionListener { it, source ->
-        if (it is KeyAction.LayoutSwitchAction) {
-            switchLayout(it.act)
-        } else {
-            commonKeyActionListener.listener.onKeyAction(it, source)
+        when (it) {
+            is KeyAction.LayoutSwitchAction -> switchLayout(it.act)
+            is KeyAction.LayerSwitchAction -> handleLayerSwitchAction(it)
+            else -> {
+                commonKeyActionListener.listener.onKeyAction(it, source)
+                consumeOneShotLayerIfNeeded(it)
+            }
         }
     }
 
@@ -172,7 +177,47 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         }
     }
 
+    private fun applyEffectiveTextLayer() {
+        val effective = oneShotLayerKey ?: latchedLayerKey
+        TextKeyboard.setForcedLayoutKey(effective)
+    }
+
+    private fun clearAllLayerOverrides() {
+        latchedLayerKey = null
+        oneShotLayerKey = null
+        TextKeyboard.clearForcedLayoutKey()
+    }
+
+    private fun consumeOneShotLayerIfNeeded(action: KeyAction) {
+        if (oneShotLayerKey == null) return
+        if (action is KeyAction.LayoutSwitchAction || action is KeyAction.LayerSwitchAction) return
+        oneShotLayerKey = null
+        applyEffectiveTextLayer()
+    }
+
+    private fun handleLayerSwitchAction(action: KeyAction.LayerSwitchAction) {
+        val resolved = TextKeyboard.resolveLayerTargetKey(action.target)
+        if (resolved == null) {
+            if (action.mode == KeyAction.LayerSwitchMode.TO) {
+                clearAllLayerOverrides()
+            }
+            return
+        }
+        when (action.mode) {
+            KeyAction.LayerSwitchMode.TO -> {
+                latchedLayerKey = resolved
+                oneShotLayerKey = null
+            }
+            KeyAction.LayerSwitchMode.OSL -> {
+                oneShotLayerKey = resolved
+            }
+        }
+        applyEffectiveTextLayer()
+        switchLayout(TextKeyboard.Name, remember = false)
+    }
+
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {
+        clearAllLayerOverrides()
         preeditEmpty = true
         candidateEmpty = true
         composingState = false
@@ -186,6 +231,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     override fun onImeUpdate(ime: InputMethodEntry) {
+        clearAllLayerOverrides()
         currentKeyboard?.onInputMethodUpdate(ime)
     }
 

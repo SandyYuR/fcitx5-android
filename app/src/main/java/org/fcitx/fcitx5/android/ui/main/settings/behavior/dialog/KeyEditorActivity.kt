@@ -109,6 +109,7 @@ class KeyEditorActivity : AppCompatActivity() {
     private var disableWeightEditing: Boolean = false
     private var composeOverrideEditorMode: Boolean = false
     private var hasInitialComposeOverride: Boolean = false
+    private var availableLayoutTargets: List<String> = emptyList()
     private var independentColor: Boolean = false
     private var keyData: MutableMap<String, Any?> = mutableMapOf()
     private var composeOverrideData: MutableMap<String, Any?>? = null
@@ -301,6 +302,7 @@ class KeyEditorActivity : AppCompatActivity() {
         isEditingSubModeLayout = intent.getBooleanExtra(EXTRA_IS_EDITING_SUBMODE_LAYOUT, false)
         currentSubModeLabel = intent.getStringExtra(EXTRA_CURRENT_SUBMODE_LABEL)
         hasMultiSubmodeSupport = intent.getBooleanExtra(EXTRA_HAS_MULTI_SUBMODE_SUPPORT, false)
+        availableLayoutTargets = intent.getStringArrayListExtra(EXTRA_AVAILABLE_LAYOUT_TARGETS)?.toList() ?: emptyList()
         lockTypeSelection = intent.getBooleanExtra(EXTRA_LOCK_TYPE_SELECTION, false)
         disableWeightEditing = intent.getBooleanExtra(EXTRA_DISABLE_WEIGHT_EDITING, false)
         composeOverrideEditorMode = intent.getBooleanExtra(EXTRA_COMPOSE_OVERRIDE_EDITOR_MODE, false)
@@ -1355,6 +1357,10 @@ class KeyEditorActivity : AppCompatActivity() {
             }
         }
         intent.putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, eventType)
+        intent.putStringArrayListExtra(
+            MacroEditorActivity.EXTRA_LAYOUT_TARGETS,
+            ArrayList(availableLayoutTargets)
+        )
         macroEditCallback = callback
         macroEditorLauncher.launch(intent)
     }
@@ -1400,6 +1406,11 @@ class KeyEditorActivity : AppCompatActivity() {
                     val text = stepMap["text"] as? String ?: return@mapNotNull null
                     val displayText = if (text.length > 10) "${text.take(10)}..." else text
                     "$type:\"$displayText\""
+                }
+                "layer" -> {
+                    val target = stepMap["target"] as? String ?: return@mapNotNull null
+                    val mode = (stepMap["mode"] as? String)?.uppercase() ?: "TO"
+                    "layer($mode):$target"
                 }
                 else -> type
             }
@@ -1733,6 +1744,7 @@ class KeyEditorActivity : AppCompatActivity() {
         const val EXTRA_IS_EDITING_SUBMODE_LAYOUT = "is_editing_submode_layout"
         const val EXTRA_CURRENT_SUBMODE_LABEL = "current_submode_label"
         const val EXTRA_HAS_MULTI_SUBMODE_SUPPORT = "has_multi_submode_support"
+        const val EXTRA_AVAILABLE_LAYOUT_TARGETS = "available_layout_targets"
         const val EXTRA_LOCK_TYPE_SELECTION = "lock_type_selection"
         const val EXTRA_DISABLE_WEIGHT_EDITING = "disable_weight_editing"
         const val EXTRA_COMPOSE_OVERRIDE_EDITOR_MODE = "compose_override_editor_mode"

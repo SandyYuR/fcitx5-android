@@ -62,6 +62,14 @@ sealed class MacroStep {
      * @param id 动作 ID，如 "theme", "virtual_keyboard", "more"
      */
     data class AppAction(val id: String) : MacroStep()
+
+    /**
+     * Layer switch action: TO/OSL
+     */
+    data class LayerSwitch(
+        val mode: KeyAction.LayerSwitchMode,
+        val target: String
+    ) : MacroStep()
 }
 
 /**
@@ -90,6 +98,9 @@ sealed class KeyRef {
 data class MacroAction(val steps: List<MacroStep>) : KeyAction()
 
 sealed class KeyAction {
+    enum class LayerSwitchMode {
+        TO, OSL
+    }
 
     data class FcitxKeyAction(
         val act: String,
@@ -121,4 +132,9 @@ sealed class KeyAction {
     data class PickerSwitchAction(val key: PickerWindow.Key? = null) : KeyAction()
 
     data object SpaceLongPressAction : KeyAction()
+
+    data class LayerSwitchAction(
+        val mode: LayerSwitchMode,
+        val target: String
+    ) : KeyAction()
 }

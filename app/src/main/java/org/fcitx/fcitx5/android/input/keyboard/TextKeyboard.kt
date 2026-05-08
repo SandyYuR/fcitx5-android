@@ -105,6 +105,7 @@ class TextKeyboard(
         // Cache for parsed KeyDef layouts to avoid recreating them on every reloadLayout()
         private val cachedKeyDefLayouts = mutableMapOf<String, List<List<KeyDef>>>()
         private var lastLayoutCacheInvalidated = 0L
+        private var forcedLayoutKey: String? = null
 
         /**
          * Clear KeyDef layout cache. Call this after saving layout changes.
@@ -112,6 +113,79 @@ class TextKeyboard(
         fun clearCachedKeyDefLayouts() {
             cachedKeyDefLayouts.clear()
             lastLayoutCacheInvalidated = 0L
+        }
+
+        @Synchronized
+        fun setForcedLayoutKey(layoutKey: String?) {
+            val normalized = layoutKey?.trim()?.takeIf { it.isNotEmpty() }
+            if (forcedLayoutKey == normalized) return
+            forcedLayoutKey = normalized
+            cachedKeyDefLayouts.clear()
+            val living = attachedKeyboards.mapNotNull { it.get() }
+            attachedKeyboards.removeAll { it.get() == null }
+            living.forEach { keyboard ->
+                keyboard.refreshStyle()
+                ime?.let { keyboard.updateSpaceLabel(it) }
+            }
+        }
+
+        @Synchronized
+        fun clearForcedLayoutKey() = setForcedLayoutKey(null)
+
+        @Synchronized
+        fun currentBaseLayoutKey(): String? {
+            val currentIme = ime ?: return null
+            val json = textLayoutJson
+            return when {
+                json?.containsKey(currentIme.uniqueName) == true -> currentIme.uniqueName
+                json?.containsKey(currentIme.displayName) == true -> currentIme.displayName
+                else -> "default"
+            }
+        }
+
+        @Synchronized
+        fun resolveLayerTargetKey(target: String): String? {
+            val normalized = target.trim()
+            if (normalized.isEmpty()) return null
+            val json = textLayoutJson ?: return null
+            if (containsLayoutKey(json, normalized)) return normalized
+            val base = currentBaseLayoutKey() ?: return null
+            val subModeLabel = if (LayoutJsonUtils.isLayerSubModeLabel(normalized)) {
+                normalized
+            } else {
+                LayoutJsonUtils.toLayerSubModeLabel(normalized)
+            }
+            val candidate = "$base:$subModeLabel"
+            return candidate.takeIf { containsLayoutKey(json, it) }
+        }
+
+        private fun containsLayoutKey(json: JsonObject, layoutKey: String): Boolean {
+            val base = layoutKey.substringBefore(':')
+            val sub = layoutKey.substringAfter(':', "")
+            val element = json[base] ?: return false
+            if (sub.isEmpty()) {
+                return when (element) {
+                    is JsonArray -> true
+                    is JsonObject -> element.containsKey("default") || element.containsKey("")
+                    else -> false
+                }
+            }
+            return (element as? JsonObject)?.get(sub) is JsonArray
+        }
+
+        private fun findLayoutElementByKey(json: JsonObject, layoutKey: String): JsonArray? {
+            val base = layoutKey.substringBefore(':')
+            val sub = layoutKey.substringAfter(':', "")
+            val element = json[base] ?: return null
+            return if (sub.isEmpty()) {
+                when (element) {
+                    is JsonArray -> element
+                    is JsonObject -> element["default"]?.jsonArray ?: element[""]?.jsonArray
+                    else -> null
+                }
+            } else {
+                (element as? JsonObject)?.get(sub)?.jsonArray
+            }
         }
 
         val textLayoutJson: JsonObject?
@@ -141,8 +215,24 @@ class TextKeyboard(
             val imeName = ime?.uniqueName
             val subModeLabel = ime?.subMode?.label ?: ""
             val showLangSwitch = AppPrefs.getInstance().keyboard.showLangSwitchKey.getValue()
+            val json = textLayoutJson
+
+            forcedLayoutKey?.let { forced ->
+                if (json != null) {
+                    val forcedLayout = findLayoutElementByKey(json, forced)
+                    if (forcedLayout != null) {
+                        val cacheKey = "forced:$forced:$showLangSwitch"
+                        return cachedKeyDefLayouts.getOrPut(cacheKey) {
+                            forcedLayout.map { rowElement ->
+                                LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
+                                    .map { LayoutJsonUtils.createKeyDef(it, subModeLabel, ime?.subMode?.name ?: "") }
+                            }
+                        }
+                    }
+                }
+            }
+
             if (imeName != null) {
-                val json = textLayoutJson
                 if (json != null) {
                     // Try uniqueName first, then displayName
                     val layoutKey = imeName
@@ -333,7 +423,8 @@ class TextKeyboard(
             else -> "default"
         }
         val subModeLabel = ime.subMode.run { label.ifEmpty { name.ifEmpty { "" } } }
-        return "$layoutSource|$subModeLabel|$lastRawModified"
+        val forced = forcedLayoutKey ?: ""
+        return "$layoutSource|$subModeLabel|$forced|$lastRawModified"
     }
 
     override fun onAction(action: KeyAction, source: KeyActionListener.Source) {
@@ -481,7 +572,10 @@ class TextKeyboard(
                         is KeyRef.Android -> step.key
                     }
                 )
-                is MacroStep.Text, is MacroStep.Edit, is MacroStep.AppAction -> step
+                is MacroStep.Text,
+                is MacroStep.Edit,
+                is MacroStep.AppAction,
+                is MacroStep.LayerSwitch -> step
             }
         }
 
