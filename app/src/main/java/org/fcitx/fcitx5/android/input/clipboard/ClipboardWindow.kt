@@ -234,7 +234,7 @@ class ClipboardWindow(
 
             override fun onDelete(id: Int) {
                 service.lifecycleScope.launch {
-                    maybeQueueRemoteMediaSuppression(id)
+                    maybeQueueRemoteSuppression(id)
                     maybeQueueMediaSourceDeletionTarget(id)
                     ClipboardManager.delete(id)
                     showUndoSnackbar(id)
@@ -306,7 +306,7 @@ class ClipboardWindow(
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val entry = adapter.getEntryAt(viewHolder.bindingAdapterPosition) ?: return
                     service.lifecycleScope.launch {
-                        maybeQueueRemoteMediaSuppression(entry.id)
+                        maybeQueueRemoteSuppression(entry.id)
                         maybeQueueMediaSourceDeletionTarget(entry.id)
                         ClipboardManager.delete(entry.id)
                         showUndoSnackbar(entry.id)
@@ -361,9 +361,7 @@ class ClipboardWindow(
     private val pendingDeleteSourceTargets = linkedMapOf<Int, ClipboardSourceDeletionTarget>()
 
     private suspend fun deleteEntries(skipPinned: Boolean, deleteFiles: Boolean) {
-        if (currentCategory == ClipboardCategory.Media || currentCategory == ClipboardCategory.Remote) {
-            pendingSuppressedRemoteContents += ClipboardManager.remoteMediaSuppressionContents(skipPinned)
-        }
+        pendingSuppressedRemoteContents += ClipboardManager.remoteSuppressionContents(currentCategory, skipPinned)
         if (currentCategory == ClipboardCategory.Media) {
             pendingDeleteSourceTargets.putAll(ClipboardManager.mediaDeletionTargets(skipPinned))
         } else if (currentCategory == ClipboardCategory.Remote) {
@@ -378,8 +376,8 @@ class ClipboardWindow(
         showUndoSnackbar(*ids)
     }
 
-    private suspend fun maybeQueueRemoteMediaSuppression(id: Int) {
-        ClipboardManager.remoteMediaSuppressionContent(id)?.let { pendingSuppressedRemoteContents += it }
+    private suspend fun maybeQueueRemoteSuppression(id: Int) {
+        ClipboardManager.remoteSuppressionContent(id)?.let { pendingSuppressedRemoteContents += it }
     }
 
     private suspend fun maybeQueueMediaSourceDeletionTarget(id: Int) {

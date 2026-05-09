@@ -94,6 +94,18 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         onUpdateListeners.forEach { it.onUpdate(entry) }
     }
 
+    private fun clearLastEntry() {
+        lastEntry = null
+        onUpdateListeners.forEach {
+            it.onUpdate(
+                ClipboardEntry(
+                    text = "",
+                    timestamp = System.currentTimeMillis()
+                )
+            )
+        }
+    }
+
     private fun normalizeEntry(entry: ClipboardEntry): ClipboardEntry {
         if (entry.text.startsWith("content://") || entry.text.startsWith("file://")) {
             // For URI entries (like clipboard images), try to stage the content
@@ -256,7 +268,11 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
     }
 
     suspend fun delete(id: Int) {
+        val shouldClearSuggestion = lastEntry?.id == id
         clbDao.markAsDeleted(id)
+        if (shouldClearSuggestion) {
+            clearLastEntry()
+        }
         updateItemCount()
     }
 
@@ -303,7 +319,11 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
             }
         }
         if (ids.isNotEmpty()) {
+            val shouldClearSuggestion = lastEntry?.id?.let { lastId -> ids.contains(lastId) } == true
             clbDao.markAsDeleted(*ids)
+            if (shouldClearSuggestion) {
+                clearLastEntry()
+            }
             updateItemCount()
         }
         return ids
@@ -340,17 +360,46 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
             .toMap()
     }
 
-    suspend fun remoteMediaSuppressionContent(id: Int): String? {
-        return clbDao.get(id)?.remoteMediaSuppressionContent()
+    suspend fun remoteSuppressionContent(id: Int): String? {
+        return clbDao.get(id)?.remoteSuppressionContent()
     }
 
-    suspend fun remoteMediaSuppressionContents(skipPinned: Boolean): List<String> {
-        val entries = if (skipPinned) {
-            clbDao.getAllUnpinnedMediaEntries()
-        } else {
-            clbDao.getAllMediaEntries()
+    suspend fun remoteSuppressionContents(
+        category: ClipboardCategory,
+        skipPinned: Boolean
+    ): List<String> {
+        val entries = when (category) {
+            ClipboardCategory.All -> if (skipPinned) {
+                clbDao.getAllUnpinnedEntriesBySource(ClipboardEntry.SOURCE_REMOTE)
+            } else {
+                clbDao.getAllEntriesBySource(ClipboardEntry.SOURCE_REMOTE)
+            }
+
+            ClipboardCategory.Favorites -> if (skipPinned) {
+                emptyList()
+            } else {
+                clbDao.getAllEntriesBySource(ClipboardEntry.SOURCE_REMOTE)
+                    .filter { it.pinned }
+            }
+
+            ClipboardCategory.Local -> emptyList()
+
+            ClipboardCategory.Remote -> if (skipPinned) {
+                clbDao.getAllUnpinnedEntriesBySource(ClipboardEntry.SOURCE_REMOTE)
+            } else {
+                clbDao.getAllEntriesBySource(ClipboardEntry.SOURCE_REMOTE)
+            }
+
+            ClipboardCategory.Media -> {
+                val mediaEntries = if (skipPinned) {
+                    clbDao.getAllUnpinnedMediaEntries()
+                } else {
+                    clbDao.getAllMediaEntries()
+                }
+                mediaEntries.filter { it.source == ClipboardEntry.SOURCE_REMOTE }
+            }
         }
-        return entries.mapNotNull { it.remoteMediaSuppressionContent() }.distinct()
+        return entries.mapNotNull { it.remoteSuppressionContent() }.distinct()
     }
 
     suspend fun undoDelete(vararg ids: Int) {
@@ -365,6 +414,7 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
     suspend fun nukeTable() {
         withContext(coroutineContext) {
             clbDb.clearAllTables()
+            clearLastEntry()
             updateItemCount()
         }
     }
@@ -498,11 +548,14 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         return ClipboardSourceDeletionTarget(rawUri = rawUri, rootUri = rootUri)
     }
 
-    private fun ClipboardEntry.remoteMediaSuppressionContent(): String? {
-        if (source != ClipboardEntry.SOURCE_REMOTE || !isUriEntry()) return null
-        return originalText
-            .takeIf { it.startsWith("content://") || it.startsWith("file://") }
-            ?: text.takeIf { it.startsWith("content://") || it.startsWith("file://") }
+    private fun ClipboardEntry.remoteSuppressionContent(): String? {
+        if (source != ClipboardEntry.SOURCE_REMOTE) return null
+        if (isUriEntry()) {
+            return originalText
+                .takeIf { it.startsWith("content://") || it.startsWith("file://") }
+                ?: text.takeIf { it.startsWith("content://") || it.startsWith("file://") }
+        }
+        return text.takeIf { it.isNotBlank() }
     }
 
 }

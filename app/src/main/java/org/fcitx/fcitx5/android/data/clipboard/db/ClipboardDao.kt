@@ -143,6 +143,18 @@ interface ClipboardDao {
 
     @Query(
         "SELECT * FROM ${ClipboardEntry.TABLE_NAME} " +
+            "WHERE source=:source AND pinned=0 AND deleted=0"
+    )
+    suspend fun getAllUnpinnedEntriesBySource(source: String): List<ClipboardEntry>
+
+    @Query(
+        "SELECT * FROM ${ClipboardEntry.TABLE_NAME} " +
+            "WHERE source=:source AND deleted=0"
+    )
+    suspend fun getAllEntriesBySource(source: String): List<ClipboardEntry>
+
+    @Query(
+        "SELECT * FROM ${ClipboardEntry.TABLE_NAME} " +
             "WHERE (text LIKE 'content://%' OR text LIKE 'file://%') AND pinned=0 AND deleted=0"
     )
     suspend fun getAllUnpinnedMediaEntries(): List<ClipboardEntry>

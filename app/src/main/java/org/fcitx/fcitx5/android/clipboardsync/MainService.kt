@@ -761,8 +761,13 @@ class MainService : FcitxPluginService() {
                 return
             }
 
+            val itemsToImport = if (backend == ServerBackend.SYNCCLIPBOARD) {
+                acceptedItems.takeLast(1)
+            } else {
+                acceptedItems
+            }
             var importedAll = true
-            acceptedItems.forEach { data ->
+            itemsToImport.forEach { data ->
                 val remoteText = data.text
                 Log.d(TAG, "[Pull] Processed data: type=${data.type}, text=$remoteText")
                 acknowledgePendingUploads(remoteText)
@@ -779,7 +784,7 @@ class MainService : FcitxPluginService() {
                 return
             }
 
-            val latestItem = acceptedItems.last()
+            val latestItem = itemsToImport.last()
             val remoteText = latestItem.text
             if (
                 remoteText.isNotEmpty() &&
@@ -1422,7 +1427,7 @@ class MainService : FcitxPluginService() {
         val normalized = contents
             .asSequence()
             .map(String::trim)
-            .filter { it.startsWith("content://") || it.startsWith("file://") }
+            .filter { it.isNotEmpty() }
             .distinct()
             .toList()
         if (normalized.isEmpty()) return
@@ -1440,9 +1445,8 @@ class MainService : FcitxPluginService() {
     }
 
     private fun isSuppressedRemoteClipboard(data: ClipboardData): Boolean {
-        val remoteText = data.text
-            .takeIf { it.startsWith("content://") || it.startsWith("file://") }
-            ?: return false
+        val remoteText = data.text.trim()
+        if (remoteText.isEmpty()) return false
         synchronized(suppressedRemoteClipboardContents) {
             return remoteText in suppressedRemoteClipboardContents
         }
@@ -1870,7 +1874,7 @@ class MainService : FcitxPluginService() {
                     stateJson.decodeFromString<List<String>>(serialized)
                 }.onSuccess { restored ->
                     restored.forEach { item ->
-                        if (item.startsWith("content://") || item.startsWith("file://")) {
+                        if (item.isNotBlank()) {
                             suppressedRemoteClipboardContents.add(item)
                         }
                     }
