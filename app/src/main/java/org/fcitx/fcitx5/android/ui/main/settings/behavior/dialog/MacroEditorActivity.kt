@@ -936,7 +936,7 @@ class MacroEditorActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: StepViewHolder, position: Int) {
-            holder.bind(position, steps[position])
+            holder.bind(steps[position])
         }
 
         override fun getItemCount() = steps.size
@@ -948,7 +948,7 @@ class MacroEditorActivity : AppCompatActivity() {
         private lateinit var textEditContainer: LinearLayout
         private lateinit var deleteBtn: TextView
 
-        fun bind(position: Int, step: MacroStepData) {
+        fun bind(step: MacroStepData) {
             container.removeAllViews()
             if (step.type == "layer") {
                 ensureLayerMode(step)
@@ -1055,8 +1055,12 @@ class MacroEditorActivity : AppCompatActivity() {
                         .setTitle(R.string.macro_editor_delete_step_title)
                         .setMessage(R.string.macro_editor_delete_step_message)
                         .setPositiveButton(R.string.macro_editor_delete) { _, _ ->
-                            steps.removeAt(position)
-                            stepsAdapter.notifyItemRemoved(position)
+                            val removeIndex = steps.indexOfFirst { it === step }
+                                .takeIf { it >= 0 }
+                                ?: bindingAdapterPosition.takeIf { it != RecyclerView.NO_POSITION && it in steps.indices }
+                                ?: return@setPositiveButton
+                            steps.removeAt(removeIndex)
+                            stepsAdapter.notifyItemRemoved(removeIndex)
                             updateSaveButtonState()
                         }
                         .setNegativeButton(R.string.macro_editor_cancel, null)
