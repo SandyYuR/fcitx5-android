@@ -52,6 +52,7 @@ import org.fcitx.fcitx5.android.clipboardsync.network.SyncClient.ServerBackend
 import org.fcitx.fcitx5.android.clipboardsync.service.QuickSyncTileService
 import org.fcitx.fcitx5.android.clipboardsync.ui.ClipboardCaptureActivity
 import org.fcitx.fcitx5.android.clipboardsync.ui.StoragePathUtils
+import org.fcitx.fcitx5.android.utils.userManager
 import java.io.IOException
 import java.util.Locale
 
@@ -115,7 +116,13 @@ class MainService : FcitxPluginService() {
         private const val MAX_PENDING_UPLOADS = 50
         private const val MAX_SUPPRESSED_REMOTE_ITEMS = 256
 
+        private fun isCredentialStorageUnlocked(context: Context): Boolean {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return true
+            return context.userManager.isUserUnlocked
+        }
+
         fun shouldAutoStart(context: Context): Boolean {
+            if (!isCredentialStorageUnlocked(context)) return false
             val prefs = PreferenceManager.getDefaultSharedPreferences(context)
             return prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)
         }
@@ -126,6 +133,10 @@ class MainService : FcitxPluginService() {
             forceEnableSync: Boolean = false,
             imeSyncActive: Boolean = false
         ) {
+            if (!isCredentialStorageUnlocked(context)) {
+                Log.i(TAG, "Skip startSyncService($reason): user storage is still locked")
+                return
+            }
             val prefs = PreferenceManager.getDefaultSharedPreferences(context)
             if (!forceEnableSync && !prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)) {
                 return
@@ -142,6 +153,7 @@ class MainService : FcitxPluginService() {
         }
 
         fun stopSyncService(context: Context) {
+            if (!isCredentialStorageUnlocked(context)) return
             PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
                 .putBoolean(PREF_IME_SYNC_ACTIVE, false)
