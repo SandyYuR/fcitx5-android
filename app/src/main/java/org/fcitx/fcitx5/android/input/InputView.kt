@@ -1094,6 +1094,9 @@ class InputView(
     private val keyboardSidePaddingLandscape = keyboardPrefs.keyboardSidePaddingLandscape
     private val keyboardBottomPadding = keyboardPrefs.keyboardBottomPadding
     private val keyboardBottomPaddingLandscape = keyboardPrefs.keyboardBottomPaddingLandscape
+    private val candidatesPrefs = AppPrefs.getInstance().candidates
+    private val physicalKeyboardHorizontalCandidateBar =
+        candidatesPrefs.physicalKeyboardHorizontalCandidateBar
     private val splitKeyboardUseLandscapeLayout = keyboardPrefs.splitKeyboardUseLandscapeLayout
     private val textKeyboardLayoutProfile = keyboardPrefs.textKeyboardLayoutProfile
 
@@ -1116,6 +1119,8 @@ class InputView(
     var isOneHanded = false
         private set
     var isAdjustingMode = false
+        private set
+    internal var isPhysicalCandidateBarMode = false
         private set
 
     private var oneHandOnRight = true
@@ -1205,7 +1210,7 @@ class InputView(
         get() = isOneHanded && !isFloating
 
     private val isEffectiveFloating: Boolean
-        get() = isFloating
+        get() = isFloating && !isPhysicalCandidateBarMode
 
     private fun getStoredFloatingPosition(): Pair<Int, Int> {
         return if (isLandscapeOrientation) {
@@ -1331,7 +1336,7 @@ class InputView(
     }
 
     private fun updateFloatingHandlesVisibility() {
-        if (isFloating) {
+        if (isEffectiveFloating) {
             floatingRightHandle.visibility = VISIBLE
             floatingBottomHandle.visibility = VISIBLE
             adjustableHandle.visibility = VISIBLE
@@ -1412,23 +1417,19 @@ class InputView(
         adjustingRightMarginHandle.translationX = (contentRight - marginTouchAreaWidth / 2f)
         adjustingRightMarginHandle.translationY = (keyboardView.top + keyboardView.height / 2f - marginTouchAreaHeight / 2f)
 
-        // Position floatingMoveHandle (which also serves as bottom padding adjuster in adjusting mode) above kawaii bar
+        // Position floatingMoveHandle (which also serves as bottom padding adjuster in adjusting mode) above keyboard
         if (isAdjustingMode) {
             val moveHandleSize = dp(24)
-            // Position above kawaii bar, centered horizontally
-            // kawaiiBar is inside keyboardView, so we need keyboardView.top + kawaiiBar.top
-            val kawaiiTopInParent = keyboardView.top + kawaiiBar.view.top
-            // Center the handle horizontally
+            // Position above keyboard top edge, centered horizontally
             adjustableHandle.translationX = (keyboardView.left + keyboardView.width / 2f - moveHandleSize / 2f)
-            // Position above kawaii bar with a gap
-            adjustableHandle.translationY = (kawaiiTopInParent - moveHandleSize - dp(8)).toFloat()
+            adjustableHandle.translationY = (keyboardView.top - moveHandleSize - dp(8)).toFloat()
             
             // Update layout params for adjusting mode
             adjustableHandle.updateLayoutParams {
                 width = moveHandleSize
                 height = moveHandleSize
             }
-        } else if (isFloating) {
+        } else if (isEffectiveFloating) {
             // In floating mode, position according to original floating logic
             val kX = keyboardView.translationX
             val kY = keyboardView.translationY
@@ -1512,6 +1513,9 @@ class InputView(
 
     internal fun toggleFloatingMode() {
         popup.dismissAll()
+        if (!isFloating && isPhysicalCandidateBarMode) {
+            setPhysicalCandidateBarMode(false)
+        }
         if (isFloating) {
             saveFloatingPosition(
                 keyboardView.translationX.toInt(),
@@ -1875,7 +1879,7 @@ class InputView(
         get() {
             val percent = (if (isLayoutLandscape) keyboardHeightPercentLandscape else keyboardHeightPercent).getValue()
             val baseHeight = resources.displayMetrics.heightPixels * percent / 100
-            if (isFloating) {
+            if (isEffectiveFloating) {
                 return (baseHeight * 0.8).toInt()
             }
             return baseHeight
@@ -1885,7 +1889,7 @@ class InputView(
         get() {
             val value = (if (isLayoutLandscape) keyboardSidePaddingLandscape else keyboardSidePadding).getValue()
             val px = dp(value)
-            if (isFloating) {
+            if (isEffectiveFloating) {
                 return (px * 0.8).toInt()
             }
             return px
@@ -1895,7 +1899,7 @@ class InputView(
         get() {
             val value = (if (isLayoutLandscape) keyboardBottomPaddingLandscape else keyboardBottomPadding).getValue()
             val px = dp(value)
-            if (isFloating) {
+            if (isEffectiveFloating) {
                 return (px * 0.8).toInt()
             }
             return px
@@ -1918,6 +1922,13 @@ class InputView(
                 key == textKeyboardLayoutProfile.key) {
                 (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)?.refreshAllKeyboards()
             }
+        }
+    }
+
+    @Keep
+    private val onCandidatePreferenceChangeListener = ManagedPreferenceProvider.OnChangeListener { key ->
+        if (key == physicalKeyboardHorizontalCandidateBar.key) {
+            service.inputDeviceManager.onPhysicalKeyboardHorizontalCandidateBarChanged()
         }
     }
 
@@ -1945,6 +1956,11 @@ class InputView(
         windowManager.addEssentialWindow(emoticonPicker)
         // show KeyboardWindow by default
         windowManager.attachWindow(KeyboardWindow)
+        windowManager.onWindowChanged = {
+            if (isPhysicalCandidateBarMode) {
+                syncPhysicalCandidateBarLayout()
+            }
+        }
 
         broadcaster.onImeUpdate(fcitx.runImmediately { inputMethodEntryCached })
 
@@ -2089,6 +2105,7 @@ class InputView(
             endToEnd = keyboardView.id
         })
         keyboardPrefs.registerOnChangeListener(onKeyboardSizeChangeListener)
+        candidatesPrefs.registerOnChangeListener(onCandidatePreferenceChangeListener)
         updateFloatingState()
         updateFloatingHandlesVisibility()
         updateOneHandHandleVisibility()
@@ -2158,28 +2175,45 @@ class InputView(
     internal fun showButtonsAdjustingOverlay() {
         if (isButtonsAdjustingOverlayVisible) return
         popup.dismissAll()
-        ButtonsAdjustingWindow.updateOverlayInsets(keyboardSidePaddingPx, keyboardBottomPaddingPx)
+        ButtonsAdjustingWindow.updateOverlayInsets(
+            keyboardSidePaddingPx,
+            keyboardBottomPaddingPx,
+            isPhysicalCandidateBarMode
+        )
         ButtonsAdjustingWindow.onAttached()
         buttonsAdjustingOverlayView.bringToFront()
         buttonsAdjustingOverlayView.visibility = VISIBLE
+        updateKeyboardSize()
     }
 
     internal fun hideButtonsAdjustingOverlay() {
         if (!isButtonsAdjustingOverlayVisible) return
         ButtonsAdjustingWindow.onDetached()
         buttonsAdjustingOverlayView.visibility = GONE
+        updateKeyboardSize()
     }
 
     private fun updateKeyboardSize() {
         applyStoredOneHandSideIfNeeded()
 
-        ButtonsAdjustingWindow.updateOverlayInsets(keyboardSidePaddingPx, keyboardBottomPaddingPx)
+        ButtonsAdjustingWindow.updateOverlayInsets(
+            keyboardSidePaddingPx,
+            keyboardBottomPaddingPx,
+            isPhysicalCandidateBarMode
+        )
+        updateKeyboardTopBarPosition()
 
-        val targetHeight = if (isFloating) {
-            resolveFloatingHeight()
-        } else {
-            keyboardHeightPx
+        val collapseKeyboardWindow =
+            isPhysicalCandidateBarMode &&
+                windowManager.currentWindowOrNull() is KeyboardWindow &&
+                !isAdjustingMode &&
+                !isButtonsAdjustingOverlayVisible
+        val targetHeight = when {
+            collapseKeyboardWindow -> 1
+            isEffectiveFloating -> resolveFloatingHeight()
+            else -> keyboardHeightPx
         }
+        windowManager.view.visibility = if (collapseKeyboardWindow) INVISIBLE else VISIBLE
         windowManager.view.updateLayoutParams {
             height = targetHeight
         }
@@ -2251,7 +2285,7 @@ class InputView(
         }
         preedit.ui.root.setPadding(sidePadding, 0, sidePadding, 0)
         kawaiiBar.view.setPadding(sidePadding, 0, sidePadding, 0)
-        if (isFloating) {
+        if (isEffectiveFloating) {
             keyboardView.post {
                 clampFloatingPosition()
                 updateHandlePosition()
@@ -2261,6 +2295,61 @@ class InputView(
         }
         // Sync handles when size changes
         updateHandlePosition()
+    }
+
+    private fun updateKeyboardTopBarPosition() {
+        val placeAtBottom = isPhysicalCandidateBarMode
+        if (placeAtBottom) {
+            kawaiiBar.view.updateLayoutParams<LayoutParams> {
+                topToTop = unset
+                topToBottom = unset
+                bottomToTop = bottomPaddingSpace.id
+                bottomToBottom = unset
+            }
+            windowManager.view.updateLayoutParams<LayoutParams> {
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                topToBottom = unset
+                bottomToTop = kawaiiBar.view.id
+                bottomToBottom = unset
+            }
+            leftPaddingSpace.updateLayoutParams<LayoutParams> {
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                topToBottom = unset
+                bottomToTop = kawaiiBar.view.id
+                bottomToBottom = unset
+            }
+            rightPaddingSpace.updateLayoutParams<LayoutParams> {
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                topToBottom = unset
+                bottomToTop = kawaiiBar.view.id
+                bottomToBottom = unset
+            }
+        } else {
+            kawaiiBar.view.updateLayoutParams<LayoutParams> {
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                topToBottom = unset
+                bottomToTop = unset
+                bottomToBottom = unset
+            }
+            windowManager.view.updateLayoutParams<LayoutParams> {
+                topToTop = unset
+                topToBottom = kawaiiBar.view.id
+                bottomToTop = bottomPaddingSpace.id
+                bottomToBottom = unset
+            }
+            leftPaddingSpace.updateLayoutParams<LayoutParams> {
+                topToTop = unset
+                topToBottom = kawaiiBar.view.id
+                bottomToTop = unset
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            }
+            rightPaddingSpace.updateLayoutParams<LayoutParams> {
+                topToTop = unset
+                topToBottom = kawaiiBar.view.id
+                bottomToTop = unset
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            }
+        }
     }
 
     override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
@@ -2348,6 +2437,26 @@ class InputView(
         preedit.shouldDisplay = shouldDisplay
     }
 
+    internal fun setPhysicalCandidateBarMode(enabled: Boolean) {
+        if (isPhysicalCandidateBarMode == enabled) return
+        if (enabled && isFloating) {
+            isFloating = false
+        }
+        isPhysicalCandidateBarMode = enabled
+        syncPhysicalCandidateBarLayout()
+    }
+
+    private fun syncPhysicalCandidateBarLayout() {
+        updateFloatingState()
+        updateFloatingHandlesVisibility()
+        updateOneHandHandleVisibility()
+        kawaiiBar.setFloatingState(isEffectiveFloating)
+        updateKeyboardSize()
+        service.updateFullscreenMode()
+        requestLayout()
+        service.window.window?.decorView?.requestLayout()
+    }
+
     /**
      * Get the Y position of the input field top (where text appears)
      * This is used for positioning floating candidates window
@@ -2420,7 +2529,9 @@ class InputView(
     }
 
     override fun onDetachedFromWindow() {
+        windowManager.onWindowChanged = null
         keyboardPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
+        candidatesPrefs.unregisterOnChangeListener(onCandidatePreferenceChangeListener)
         ConfigProviders.removeButtonsLayoutListener(onButtonsLayoutChangeListener)
         blurUpdateJob?.cancel()
         blurUpdateScope.cancel()

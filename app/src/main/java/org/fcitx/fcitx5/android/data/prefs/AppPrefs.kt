@@ -342,6 +342,13 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             FloatingCandidatesMode.InputDevice
         )
 
+        val physicalKeyboardHorizontalCandidateBar = switch(
+            R.string.physical_keyboard_horizontal_candidate_bar,
+            "physical_keyboard_horizontal_candidate_bar",
+            false,
+            R.string.physical_keyboard_horizontal_candidate_bar_summary
+        )
+
         val orientation = enumList(
             R.string.candidates_orientation,
             "candidates_window_orientation",
