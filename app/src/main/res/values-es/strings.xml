@@ -668,4 +668,11 @@
     <string name="tokenized_clipboard_empty_state">Sin tokens disponibles</string>
     <string name="tokenized_clipboard_loading">Procesando...</string>
     <string name="tokenized_clipboard_copied">Tokens seleccionados copiados</string>
+    <string name="text_keyboard_layout_layout_height_override_title">Altura del diseño: %1$s</string>
+    <string name="text_keyboard_layout_use_global_height">Usar altura global del teclado</string>
+    <string name="text_keyboard_layout_layout_height_percent_hint">Altura del teclado del diseño (%) 10-90</string>
+    <string name="text_keyboard_layout_layout_height_percent_helper">Si se desactiva, este diseño sobrescribe la altura global del teclado. Si se activa, sigue la configuración global.</string>
+    <string name="text_keyboard_layout_layout_height_percent_invalid">La altura del teclado del diseño debe estar entre 10 y 90</string>
+    <string name="text_keyboard_layout_key_row_height_percent">Altura de fila %</string>
+    <string name="text_keyboard_layout_row_height_percent_invalid">El porcentaje de altura de fila debe estar entre 1 y 100</string>
     </resources>

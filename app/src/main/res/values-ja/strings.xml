@@ -666,4 +666,11 @@
     <string name="tokenized_clipboard_empty_state">利用可能なトークンはありません</string>
     <string name="tokenized_clipboard_loading">処理中...</string>
     <string name="tokenized_clipboard_copied">選択したトークンをコピーしました</string>
+    <string name="text_keyboard_layout_layout_height_override_title">レイアウト高さ: %1$s</string>
+    <string name="text_keyboard_layout_use_global_height">グローバルキーボード高さを使用</string>
+    <string name="text_keyboard_layout_layout_height_percent_hint">レイアウトのキーボード高さ（%）10〜90</string>
+    <string name="text_keyboard_layout_layout_height_percent_helper">無効にすると、このレイアウトはグローバルのキーボード高さを上書きします。有効のままならグローバル設定に従います。</string>
+    <string name="text_keyboard_layout_layout_height_percent_invalid">レイアウトのキーボード高さは 10 〜 90 の範囲で指定してください</string>
+    <string name="text_keyboard_layout_key_row_height_percent">行の高さ %</string>
+    <string name="text_keyboard_layout_row_height_percent_invalid">行の高さの割合は 1 〜 100 の範囲で指定してください</string>
     </resources>

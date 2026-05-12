@@ -668,4 +668,11 @@
     <string name="tokenized_clipboard_empty_state">사용 가능한 토큰이 없습니다</string>
     <string name="tokenized_clipboard_loading">처리 중...</string>
     <string name="tokenized_clipboard_copied">선택한 토큰이 복사되었습니다</string>
+    <string name="text_keyboard_layout_layout_height_override_title">레이아웃 높이: %1$s</string>
+    <string name="text_keyboard_layout_use_global_height">전역 키보드 높이 사용</string>
+    <string name="text_keyboard_layout_layout_height_percent_hint">레이아웃 키보드 높이(%) 10~90</string>
+    <string name="text_keyboard_layout_layout_height_percent_helper">끄면 이 레이아웃이 전역 키보드 높이를 덮어씁니다. 켜 두면 전역 설정을 따릅니다.</string>
+    <string name="text_keyboard_layout_layout_height_percent_invalid">레이아웃 키보드 높이는 10에서 90 사이여야 합니다</string>
+    <string name="text_keyboard_layout_key_row_height_percent">행 높이 %</string>
+    <string name="text_keyboard_layout_row_height_percent_invalid">행 높이 비율은 1~100 사이여야 합니다</string>
     </resources>

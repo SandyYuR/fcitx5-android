@@ -146,6 +146,7 @@ class KeyEditorActivity : AppCompatActivity() {
     private var macroWeightEdit: EditText? = null
 
     private var simpleWeightEdit: EditText? = null
+    private var rowHeightPercentEdit: EditText? = null
     private var nonMacroSwipeLabelEdit: EditText? = null
 
     private var macroTapStepsData: List<Any> = emptyList()
@@ -395,6 +396,7 @@ class KeyEditorActivity : AppCompatActivity() {
         macroAltLabelEdit = null
         macroWeightEdit = null
         simpleWeightEdit = null
+        rowHeightPercentEdit = null
         nonMacroSwipeLabelEdit = null
         nonMacroSwipeStepsData = emptyList()
 
@@ -419,6 +421,16 @@ class KeyEditorActivity : AppCompatActivity() {
             macroDisplayTextSimpleValue = simpleValue
             macroDisplayTextModeItems.clear()
             macroDisplayTextModeItems.addAll(items)
+        }
+
+        if (!composeOverrideEditorMode) {
+            val rowHeightEdit = uiBuilder.createEditField(
+                getString(R.string.text_keyboard_layout_key_row_height_percent),
+                (keyData["rowHeightPercent"] as? Number)?.toString()
+                    ?: (keyData["rowHeightPercent"] as? String).orEmpty()
+            )
+            fieldsContainer.addView(rowHeightEdit.first)
+            rowHeightPercentEdit = rowHeightEdit.second
         }
 
         when (selectedType) {
@@ -1312,6 +1324,9 @@ class KeyEditorActivity : AppCompatActivity() {
                 }
             }
         }
+        if (!composeOverrideEditorMode) {
+            parseRowHeightPercent(rowHeightPercentEdit?.text?.toString())?.let { draft["rowHeightPercent"] = it }
+        }
         composeOverrideData?.let { draft["composeOverride"] = toSerializableMap(it) }
         if (composeOverrideEditorMode) {
             draft["independentColor"] = independentColor
@@ -1621,6 +1636,14 @@ class KeyEditorActivity : AppCompatActivity() {
             }
         }
 
+        if (!composeOverrideEditorMode) {
+            val rawRowHeight = rowHeightPercentEdit?.text?.toString()?.trim().orEmpty()
+            if (rawRowHeight.isNotEmpty() && parseRowHeightPercent(rawRowHeight) == null) {
+                Toast.makeText(this, R.string.text_keyboard_layout_row_height_percent_invalid, Toast.LENGTH_SHORT).show()
+                return null
+            }
+        }
+
         val newKey = mutableMapOf<String, Any?>()
         newKey["type"] = selectedType
 
@@ -1747,6 +1770,9 @@ class KeyEditorActivity : AppCompatActivity() {
                 }
             }
         }
+        if (!composeOverrideEditorMode) {
+            parseRowHeightPercent(rowHeightPercentEdit?.text?.toString())?.let { newKey["rowHeightPercent"] = it }
+        }
         composeOverrideData?.let { newKey["composeOverride"] = toSerializableMap(it) }
         if (composeOverrideEditorMode) {
             newKey["independentColor"] = independentColor
@@ -1815,6 +1841,13 @@ class KeyEditorActivity : AppCompatActivity() {
     private fun parseWeight(text: String?): Float? {
         val weight = text?.toFloatOrNull()
         return weight?.takeIf { it in 0.0f..1.0f }
+    }
+
+    private fun parseRowHeightPercent(text: String?): Float? {
+        val value = text?.trim()
+            ?.takeUnless { it.isEmpty() || it.equals("null", ignoreCase = true) }
+            ?.toFloatOrNull()
+        return value?.takeIf { it in 1f..100f }
     }
 
     companion object {

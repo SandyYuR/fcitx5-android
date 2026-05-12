@@ -703,9 +703,11 @@ class MacroKey(
             longPress: MacroAction?
         ): Set<Behavior> {
             return buildSet {
-                add(Behavior.Press(tap))
-                swipe?.let { add(Behavior.Swipe(it)) }
-                longPress?.let { add(Behavior.LongPress(it)) }
+                if (tap.hasExecutableStep()) {
+                    add(Behavior.Press(tap))
+                }
+                swipe?.takeIf { it.hasExecutableStep() }?.let { add(Behavior.Swipe(it)) }
+                longPress?.takeIf { it.hasExecutableStep() }?.let { add(Behavior.LongPress(it)) }
             }
         }
 
@@ -725,6 +727,12 @@ class MacroKey(
             // If explicit popup is provided, use it
             if (explicitPopup != null) {
                 return explicitPopup
+            }
+
+            val tapExecutable = tap.hasExecutableStep()
+            val longPressExecutable = longPress?.hasExecutableStep() == true
+            if (!tapExecutable && !longPressExecutable) {
+                return null
             }
 
             val popupList = mutableListOf<Popup>()
@@ -782,11 +790,27 @@ class MacroKey(
 
             // Register LongPressKeyboard after previews so its gesture listener runs first on key-up.
             // The longPress macro still appears as the first candidate inside popup keyboard UI.
-            if (longPress != null) {
+            if (longPressExecutable) {
+                val validLongPress = requireNotNull(longPress)
                 val displayLabel = longPressLabel?.takeIf { it.isNotBlank() } ?: label
-                popupList.add(Popup.LongPressKeyboard(displayLabel, longPress, label))
+                popupList.add(Popup.LongPressKeyboard(displayLabel, validLongPress, label))
             }
             return popupList.toTypedArray()
+        }
+
+        private fun MacroAction.hasExecutableStep(): Boolean {
+            return steps.any { step ->
+                when (step) {
+                    is MacroStep.Down -> step.keys.isNotEmpty()
+                    is MacroStep.Up -> step.keys.isNotEmpty()
+                    is MacroStep.Tap -> step.keys.isNotEmpty()
+                    is MacroStep.Text -> step.text.isNotEmpty()
+                    is MacroStep.Edit -> step.action.isNotBlank()
+                    is MacroStep.AppAction -> step.id.isNotBlank()
+                    is MacroStep.Shortcut -> true
+                    is MacroStep.LayerSwitch -> step.target.isNotBlank()
+                }
+            }
         }
     }
 }

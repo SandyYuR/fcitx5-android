@@ -680,4 +680,11 @@
     <string name="text_keyboard_layout_compose_override_clear_button">清除</string>
     <string name="text_keyboard_layout_compose_override_editor_title">編輯組字中按鍵</string>
     <string name="text_keyboard_layout_compose_override_follow_base_key_colors">獨立按鍵顏色</string>
+    <string name="text_keyboard_layout_layout_height_override_title">佈局高度：%1$s</string>
+    <string name="text_keyboard_layout_use_global_height">使用全域鍵盤高度</string>
+    <string name="text_keyboard_layout_layout_height_percent_hint">佈局鍵盤高度（%）10-90</string>
+    <string name="text_keyboard_layout_layout_height_percent_helper">關閉「使用全域鍵盤高度」後，此佈局會覆蓋全域鍵盤高度；保持開啟則沿用全域設定。</string>
+    <string name="text_keyboard_layout_layout_height_percent_invalid">佈局鍵盤高度必須在 10 到 90 之間</string>
+    <string name="text_keyboard_layout_key_row_height_percent">行高百分比</string>
+    <string name="text_keyboard_layout_row_height_percent_invalid">行高百分比必須在 1 到 100 之間</string>
 </resources>

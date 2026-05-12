@@ -108,6 +108,7 @@ abstract class BaseKeyboard(
     private val bounds = Rect()
     private val childLocationInWindow = intArrayOf(0, 0)
     private lateinit var keyRows: List<ConstraintLayout>
+    private var rowHeightPercents: List<Float> = emptyList()
     private var horizontalGapScale = 1f
     private var composing = false
 
@@ -168,7 +169,16 @@ abstract class BaseKeyboard(
 
         val splitKeyboard = splitKeyboardManager.shouldUseSplitKeyboard(width)
         lastSplitLandscapeState = splitKeyboard
-        keyRows = keyLayout.map { row ->
+        val rows = keyLayout
+        val defaultRowHeight = defaultRowHeightPercent(rows.size)
+        rowHeightPercents = rows.map { row ->
+            val rowMax = row
+                .mapNotNull { it.rowHeightPercent }
+                .maxOrNull()
+            (rowMax ?: defaultRowHeight).coerceAtLeast(1f)
+        }
+
+        keyRows = rows.map { row ->
             val keyViews = row.map(::createKeyView).apply {
                 // Batch apply fontset mappings for all key labels.
                 forEach(::applyConfiguredFonts)
@@ -181,6 +191,8 @@ abstract class BaseKeyboard(
         }
         keyRows.forEachIndexed { index, row ->
             add(row, lParams {
+                height = 0
+                verticalWeight = rowHeightPercents.getOrElse(index) { 1f }
                 if (index == 0) topOfParent()
                 else below(keyRows[index - 1])
                 if (index == keyRows.size - 1) bottomOfParent()
@@ -189,6 +201,18 @@ abstract class BaseKeyboard(
             })
         }
     }
+
+    protected open fun defaultRowHeightPercent(rowCount: Int): Float {
+        if (rowCount <= 0) return 25f
+        return (100f / rowCount.toFloat()).coerceAtLeast(1f)
+    }
+
+    open fun keyboardHeightScaleFactor(): Float {
+        if (rowHeightPercents.isEmpty()) return 1f
+        return (rowHeightPercents.sum() / 100f).coerceAtLeast(0.1f)
+    }
+
+    open fun preferredKeyboardHeightPercentOverride(): Int? = null
 
     private fun splitGapPercent(): Float {
         return splitKeyboardManager.getSplitGapPercent()
@@ -1156,6 +1180,11 @@ abstract class BaseKeyboard(
         view.swipeThresholdY = baseline.swipeThresholdY
         view.onGestureListener = baseline.onGestureListener
 
+        val interactive = behaviors.isNotEmpty() || !popup.isNullOrEmpty()
+        view.isEnabled = interactive
+        view.isClickable = interactive
+        if (!interactive) return
+
         var hasLongPressBehavior = false
         behaviors.forEach {
             when (it) {
@@ -1378,7 +1407,7 @@ abstract class BaseKeyboard(
         val x1 = x.roundToInt() + bounds.left
         val y1 = y.roundToInt() + bounds.top
         return keyRows.asSequence().flatMap { it.children }.find {
-            if (it !is KeyView) false else it.bounds.contains(x1, y1)
+            if (it !is KeyView) false else it.isEnabled && it.bounds.contains(x1, y1)
         }
     }
 

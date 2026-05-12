@@ -162,9 +162,17 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                 if (remember && target != TextKeyboard.Name) {
                     lastSymbolType = target
                 }
-                if (target == currentKeyboardName) return@execute
+                if (target == currentKeyboardName) {
+                    if (target == TextKeyboard.Name) {
+                        currentKeyboard?.onInputMethodUpdate(fcitx.runImmediately { inputMethodEntryCached })
+                        updateCompositionState()
+                    }
+                    service.inputView?.onKeyboardHeightSourceChanged()
+                    return@execute
+                }
                 detachCurrentLayout()
                 attachLayout(target)
+                service.inputView?.onKeyboardHeightSourceChanged()
                 if (windowManager.isAttached(this)) {
                     notifyBarLayoutChanged()
                 }
@@ -191,8 +199,10 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private fun consumeOneShotLayerIfNeeded(action: KeyAction) {
         if (oneShotLayerKey == null) return
         if (action is KeyAction.LayoutSwitchAction || action is KeyAction.LayerSwitchAction) return
+        if (action is MacroAction && !action.hasExecutableStep()) return
         oneShotLayerKey = null
         applyEffectiveTextLayer()
+        switchLayout(TextKeyboard.Name, remember = false)
     }
 
     private fun handleLayerSwitchAction(action: KeyAction.LayerSwitchAction) {
@@ -200,6 +210,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         if (resolved == null) {
             if (action.mode == KeyAction.LayerSwitchMode.TO) {
                 clearAllLayerOverrides()
+                service.inputView?.onKeyboardHeightSourceChanged()
             }
             return
         }
@@ -233,6 +244,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     override fun onImeUpdate(ime: InputMethodEntry) {
         clearAllLayerOverrides()
         currentKeyboard?.onInputMethodUpdate(ime)
+        service.inputView?.onKeyboardHeightSourceChanged()
     }
 
     override fun onPunctuationUpdate(mapping: Map<String, String>) {
@@ -295,5 +307,36 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     fun setHorizontalGapScale(scale: Float) {
         val target = scale.coerceIn(0.5f, 1f)
         currentKeyboard?.setHorizontalGapScale(target)
+    }
+
+    fun currentKeyboardHeightScaleFactor(): Float {
+        return currentKeyboard?.keyboardHeightScaleFactor() ?: 1f
+    }
+
+    fun currentKeyboardHeightPercentOverride(): Int? {
+        return currentKeyboard?.preferredKeyboardHeightPercentOverride()
+    }
+
+    fun updateCurrentKeyboardHeightPercentOverride(percent: Int): Boolean {
+        return if (currentKeyboard is TextKeyboard) {
+            TextKeyboard.setCurrentLayoutHeightPercentOverride(percent)
+        } else {
+            false
+        }
+    }
+}
+
+private fun MacroAction.hasExecutableStep(): Boolean {
+    return steps.any { step ->
+        when (step) {
+            is MacroStep.Down -> step.keys.isNotEmpty()
+            is MacroStep.Up -> step.keys.isNotEmpty()
+            is MacroStep.Tap -> step.keys.isNotEmpty()
+            is MacroStep.Text -> step.text.isNotEmpty()
+            is MacroStep.Edit -> step.action.isNotBlank()
+            is MacroStep.AppAction -> step.id.isNotBlank()
+            is MacroStep.Shortcut -> true
+            is MacroStep.LayerSwitch -> step.target.isNotBlank()
+        }
     }
 }

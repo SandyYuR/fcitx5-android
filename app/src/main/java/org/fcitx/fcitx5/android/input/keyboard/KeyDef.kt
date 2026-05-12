@@ -14,6 +14,12 @@ open class KeyDef(
     val popup: Array<Popup>? = null
 ) {
     /**
+     * Optional per-row height percentage hint contributed by this key.
+     * The effective row height is the max value among keys in the same row.
+     */
+    var rowHeightPercent: Float? = null
+
+    /**
      * Optional key definition that is used while IME is in composing state.
      * This must keep the same key type/size semantics as the base key.
      */

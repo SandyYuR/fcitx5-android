@@ -666,4 +666,11 @@
     <string name="tokenized_clipboard_empty_state">Нет доступных токенов</string>
     <string name="tokenized_clipboard_loading">Обработка...</string>
     <string name="tokenized_clipboard_copied">Выбранные токены скопированы</string>
+    <string name="text_keyboard_layout_layout_height_override_title">Высота раскладки: %1$s</string>
+    <string name="text_keyboard_layout_use_global_height">Использовать глобальную высоту клавиатуры</string>
+    <string name="text_keyboard_layout_layout_height_percent_hint">Высота клавиатуры раскладки (%) 10-90</string>
+    <string name="text_keyboard_layout_layout_height_percent_helper">Если отключено, эта раскладка переопределяет глобальную высоту клавиатуры. Если включено, используется глобальная настройка.</string>
+    <string name="text_keyboard_layout_layout_height_percent_invalid">Высота клавиатуры раскладки должна быть от 10 до 90</string>
+    <string name="text_keyboard_layout_key_row_height_percent">Высота строки %</string>
+    <string name="text_keyboard_layout_row_height_percent_invalid">Процент высоты строки должен быть от 1 до 100</string>
     </resources>

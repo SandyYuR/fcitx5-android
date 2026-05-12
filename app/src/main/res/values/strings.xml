@@ -478,6 +478,12 @@
     <string name="text_keyboard_layout_file_create">Create layout file</string>
     <string name="text_keyboard_layout_file_rename">Rename layout file</string>
     <string name="text_keyboard_layout_file_delete">Delete layout file</string>
+    <string name="text_keyboard_layout_layout_height_override">Layout-specific keyboard height</string>
+    <string name="text_keyboard_layout_layout_height_override_title">Layout height: %1$s</string>
+    <string name="text_keyboard_layout_use_global_height">Use global keyboard height</string>
+    <string name="text_keyboard_layout_layout_height_percent_hint">10 - 90</string>
+    <string name="text_keyboard_layout_layout_height_percent_invalid">Layout keyboard height must be between 10 and 90</string>
+    <string name="text_keyboard_layout_layout_height_percent_helper">When enabled, this layout overrides global keyboard height. Leave it global to follow system keyboard height settings.</string>
     <string name="text_keyboard_layout_file_renamed">Renamed profile: %1$s → %2$s</string>
     <string name="text_keyboard_layout_file_rename_failed">Failed to rename layout file</string>
     <string name="text_keyboard_layout_file_delete_confirm">Delete layout file profile "%1$s" and its backups?</string>
@@ -509,6 +515,8 @@
     <string name="text_keyboard_layout_key_label">Label</string>
     <string name="text_keyboard_layout_key_sub_label">Sub Label</string>
     <string name="text_keyboard_layout_key_weight">Weight Width</string>
+    <string name="text_keyboard_layout_key_row_height_percent">Row Height %</string>
+    <string name="text_keyboard_layout_row_height_percent_invalid">Row height percent must be between 1 and 100</string>
     <string name="text_keyboard_layout_key_text_color">Text Color</string>
     <string name="text_keyboard_layout_key_alt_text_color">Secondary Text Color</string>
     <string name="text_keyboard_layout_key_background_color">Background Color</string>

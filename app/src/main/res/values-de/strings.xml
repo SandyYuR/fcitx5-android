@@ -664,4 +664,11 @@
     <string name="tokenized_clipboard_empty_selection">先选择一个或多个token</string>
     <string name="tokenized_clipboard_empty_state">没有可用token</string>
     <string name="tokenized_clipboard_loading">处理中...</string>
+    <string name="text_keyboard_layout_layout_height_override_title">Layouthöhe: %1$s</string>
+    <string name="text_keyboard_layout_use_global_height">Globale Tastaturhöhe verwenden</string>
+    <string name="text_keyboard_layout_layout_height_percent_hint">Layout-Tastaturhöhe (%) 10-90</string>
+    <string name="text_keyboard_layout_layout_height_percent_helper">Wenn deaktiviert, überschreibt dieses Layout die globale Tastaturhöhe. Aktiviert folgt es der globalen Einstellung.</string>
+    <string name="text_keyboard_layout_layout_height_percent_invalid">Layout-Tastaturhöhe muss zwischen 10 und 90 liegen</string>
+    <string name="text_keyboard_layout_key_row_height_percent">Zeilenhöhe %</string>
+    <string name="text_keyboard_layout_row_height_percent_invalid">Zeilenhöhenprozentsatz muss zwischen 1 und 100 liegen</string>
     </resources>

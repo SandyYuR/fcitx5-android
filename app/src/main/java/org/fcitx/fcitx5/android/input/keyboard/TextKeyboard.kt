@@ -34,9 +34,12 @@ class TextKeyboard(
 
     companion object {
         const val Name = "Text"
+        private const val LAYOUT_META_KEY = "__meta__"
+        private const val LAYOUT_META_HEIGHT_PERCENT_KEY = "keyboard_height_percent"
         private var lastModified = 0L
         var ime: InputMethodEntry? = null
         private var listenerRegistered = false
+        private var resolvedLayoutHeightPercentOverride: Int? = null
         private val attachedKeyboards = mutableListOf<WeakReference<TextKeyboard>>()
 
         @Synchronized
@@ -144,6 +147,22 @@ class TextKeyboard(
         }
 
         @Synchronized
+        private fun currentHeightOverrideTargetLayoutKey(): String? {
+            val json = textLayoutJson
+            forcedLayoutKey?.let { forced ->
+                if (json != null && containsLayoutKey(json, forced)) return forced
+            }
+            val base = currentBaseLayoutKey() ?: return null
+            val subModeLabel = ime?.subMode?.label?.takeIf { it.isNotEmpty() }
+            val subModeKey = subModeLabel?.let { "$base:$it" }
+            return if (json != null && subModeKey != null && containsLayoutKey(json, subModeKey)) {
+                subModeKey
+            } else {
+                base
+            }
+        }
+
+        @Synchronized
         fun resolveLayerTargetKey(target: String): String? {
             val normalized = target.trim()
             if (normalized.isEmpty()) return null
@@ -166,11 +185,12 @@ class TextKeyboard(
             if (sub.isEmpty()) {
                 return when (element) {
                     is JsonArray -> true
-                    is JsonObject -> element.containsKey("default") || element.containsKey("")
+                    is JsonObject -> parseLayoutArray(element["default"]) != null || parseLayoutArray(element[""]) != null
                     else -> false
                 }
             }
-            return (element as? JsonObject)?.get(sub) is JsonArray
+            val subElement = (element as? JsonObject)?.get(sub) ?: return false
+            return parseLayoutArray(subElement) != null
         }
 
         private fun findLayoutElementByKey(json: JsonObject, layoutKey: String): JsonArray? {
@@ -180,12 +200,107 @@ class TextKeyboard(
             return if (sub.isEmpty()) {
                 when (element) {
                     is JsonArray -> element
-                    is JsonObject -> element["default"]?.jsonArray ?: element[""]?.jsonArray
+                    is JsonObject -> parseLayoutArray(element["default"]) ?: parseLayoutArray(element[""])
                     else -> null
                 }
             } else {
-                (element as? JsonObject)?.get(sub)?.jsonArray
+                parseLayoutArray((element as? JsonObject)?.get(sub))
             }
+        }
+
+        private fun parseLayoutArray(layoutElement: JsonElement?): JsonArray? {
+            return when (layoutElement) {
+                is JsonArray -> layoutElement
+                is JsonObject -> (layoutElement["default"] as? JsonArray) ?: (layoutElement[""] as? JsonArray)
+                else -> null
+            }
+        }
+
+        private fun parseLayoutHeightPercentOverride(layoutElement: JsonElement?): Int? {
+            val objectElement = layoutElement as? JsonObject ?: return null
+            val meta = objectElement[LAYOUT_META_KEY] as? JsonObject ?: return null
+            val raw = (meta[LAYOUT_META_HEIGHT_PERCENT_KEY] as? JsonPrimitive)?.intOrNull
+                ?: (meta[LAYOUT_META_HEIGHT_PERCENT_KEY] as? JsonPrimitive)?.content?.toIntOrNull()
+            return raw?.takeIf { it in 10..90 }
+        }
+
+        @Synchronized
+        fun setCurrentLayoutHeightPercentOverride(percent: Int): Boolean {
+            val layoutKey = currentHeightOverrideTargetLayoutKey() ?: return false
+            return setLayoutHeightPercentOverride(layoutKey, percent)
+        }
+
+        @Synchronized
+        private fun setLayoutHeightPercentOverride(layoutKey: String, percent: Int): Boolean {
+            if (percent !in 10..90) return false
+            val snapshot = org.fcitx.fcitx5.android.input.config.ConfigProviders
+                .readTextKeyboardLayout<JsonObject>() ?: return false
+            val root = snapshot.value.toMutableMap()
+            val base = layoutKey.substringBefore(':')
+            val sub = layoutKey.substringAfter(':', "")
+            val existingBase = root[base] ?: return false
+
+            if (sub.isEmpty()) {
+                val updatedLayoutElement = when (existingBase) {
+                    is JsonArray -> {
+                        JsonObject(
+                            mapOf(
+                                LAYOUT_META_KEY to JsonObject(
+                                    mapOf(LAYOUT_META_HEIGHT_PERCENT_KEY to JsonPrimitive(percent))
+                                ),
+                                "default" to existingBase
+                            )
+                        )
+                    }
+                    is JsonObject -> {
+                        val mutable = existingBase.toMutableMap()
+                        val meta = (mutable[LAYOUT_META_KEY] as? JsonObject)?.toMutableMap() ?: mutableMapOf()
+                        meta[LAYOUT_META_HEIGHT_PERCENT_KEY] = JsonPrimitive(percent)
+                        mutable[LAYOUT_META_KEY] = JsonObject(meta)
+                        JsonObject(mutable)
+                    }
+                    else -> return false
+                }
+                root[base] = updatedLayoutElement
+            } else {
+                val baseObject = when (existingBase) {
+                    is JsonObject -> mutableMapOf<String, JsonElement>().apply { putAll(existingBase) }
+                    is JsonArray -> mutableMapOf<String, JsonElement>("default" to existingBase)
+                    else -> return false
+                }
+                val existingSub = baseObject[sub] ?: return false
+                val updatedSubElement = when (existingSub) {
+                    is JsonArray -> {
+                        JsonObject(
+                            mapOf(
+                                LAYOUT_META_KEY to JsonObject(
+                                    mapOf(LAYOUT_META_HEIGHT_PERCENT_KEY to JsonPrimitive(percent))
+                                ),
+                                "default" to existingSub
+                            )
+                        )
+                    }
+                    is JsonObject -> {
+                        val mutable = existingSub.toMutableMap()
+                        val meta = (mutable[LAYOUT_META_KEY] as? JsonObject)?.toMutableMap() ?: mutableMapOf()
+                        meta[LAYOUT_META_HEIGHT_PERCENT_KEY] = JsonPrimitive(percent)
+                        mutable[LAYOUT_META_KEY] = JsonObject(meta)
+                        JsonObject(mutable)
+                    }
+                    else -> return false
+                }
+                baseObject[sub] = updatedSubElement
+                root[base] = JsonObject(baseObject)
+            }
+            val targetFile = snapshot.file
+                ?: org.fcitx.fcitx5.android.input.config.ConfigProviders.provider.textKeyboardLayoutFile()
+                ?: return false
+            return runCatching {
+                targetFile.parentFile?.mkdirs()
+                targetFile.writeText(JsonObject(root).toString() + "\n")
+                resolvedLayoutHeightPercentOverride = percent
+                onTextLayoutFileChanged()
+            }.isSuccess
         }
 
         val textLayoutJson: JsonObject?
@@ -222,6 +337,14 @@ class TextKeyboard(
                     val forcedLayout = findLayoutElementByKey(json, forced)
                     if (forcedLayout != null) {
                         val cacheKey = "forced:$forced:$showLangSwitch"
+                        val baseName = forced.substringBefore(':')
+                        val forcedSub = forced.substringAfter(':', "")
+                        resolvedLayoutHeightPercentOverride = if (forcedSub.isNotEmpty()) {
+                            parseLayoutHeightPercentOverride((json[baseName] as? JsonObject)?.get(forcedSub))
+                                ?: parseLayoutHeightPercentOverride(json[baseName])
+                        } else {
+                            parseLayoutHeightPercentOverride(json[baseName])
+                        }
                         return cachedKeyDefLayouts.getOrPut(cacheKey) {
                             forcedLayout.map { rowElement ->
                                 LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
@@ -251,12 +374,16 @@ class TextKeyboard(
                             imeLayoutElement
                         }
 
-                        if (subModeLayoutElement is JsonArray) {
+                        val layoutArray = parseLayoutArray(subModeLayoutElement)
+                        if (layoutArray != null) {
+                            resolvedLayoutHeightPercentOverride =
+                                parseLayoutHeightPercentOverride(subModeLayoutElement)
+                                    ?: parseLayoutHeightPercentOverride(imeLayoutElement)
                             // Use a cache key that includes submode and showLangSwitch for proper caching
                             // Include showLangSwitch in cache key so layout is re-created when setting changes
                             val cacheKey = "$layoutKey:$subModeLabel:$showLangSwitch"
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
-                                subModeLayoutElement.map { rowElement ->
+                                layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
                                         .map { LayoutJsonUtils.createKeyDef(it, subModeLabel, ime?.subMode?.name ?: "") }
                                 }
@@ -266,6 +393,7 @@ class TextKeyboard(
 
                     // Fallback to global "default" layout
                     json["default"]?.let { layoutElement ->
+                        resolvedLayoutHeightPercentOverride = parseLayoutHeightPercentOverride(layoutElement)
                         if (layoutElement is JsonArray) {
                             return cachedKeyDefLayouts.getOrPut("default:$showLangSwitch") {
                                 layoutElement.map { rowElement ->
@@ -277,6 +405,7 @@ class TextKeyboard(
                     }
                 }
             }
+            resolvedLayoutHeightPercentOverride = null
             return getDefaultLayout(showLangSwitch)
         }
 
@@ -610,6 +739,10 @@ class TextKeyboard(
         updateCapsButtonIcon()
         updateAlphabetKeys()
     }
+
+    protected override fun defaultRowHeightPercent(rowCount: Int): Float = 25f
+
+    override fun preferredKeyboardHeightPercentOverride(): Int? = resolvedLayoutHeightPercentOverride
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()

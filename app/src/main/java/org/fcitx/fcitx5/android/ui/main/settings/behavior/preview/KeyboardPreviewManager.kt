@@ -23,7 +23,6 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
-import org.fcitx.fcitx5.android.input.config.DefaultConfigProvider
 import org.fcitx.fcitx5.android.input.config.MemoryConfigProvider
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
@@ -53,7 +52,8 @@ import java.io.File
 class KeyboardPreviewManager(
     private val context: Context,
     private val previewContainer: ViewGroup,
-    private val entries: Map<String, List<List<Map<String, Any?>>>>
+    private val entries: Map<String, List<List<Map<String, Any?>>>>,
+    private val layoutHeightPercentOverrideProvider: (String) -> Int? = { null }
 ) {
     private var previewKeyboard: TextKeyboard? = null
     private val previewBlurMask by lazy { PreviewKeyBlurMaskView(context) }
@@ -74,7 +74,8 @@ class KeyboardPreviewManager(
 
         // Try to load submode-specific layout first
         val subModeKey = previewSubModeLabel?.let { "$layoutName:$it" }
-        val rows = subModeKey?.let { entries[it] } ?: entries[layoutName] ?: return
+        val effectiveLayoutKey = subModeKey?.takeIf { entries.containsKey(it) } ?: layoutName
+        val rows = entries[effectiveLayoutKey] ?: return
 
         val theme = ThemeManager.activeTheme
         val keyBorder = ThemeManager.prefs.keyBorder.getValue()
@@ -109,7 +110,7 @@ class KeyboardPreviewManager(
             showError(e.message ?: "Unknown error")
         } finally {
             // Restore original provider and IME state
-            ConfigProviders.provider = DefaultConfigProvider
+            ConfigProviders.provider = provider
             TextKeyboard.clearCachedKeyDefLayouts()
             TextKeyboard.ime = originalIme
         }
@@ -171,10 +172,17 @@ class KeyboardPreviewManager(
             val displayMetrics = context.resources.displayMetrics
             val screenHeight = displayMetrics.heightPixels
 
-            // Get keyboard height percentage from preferences
+            val subModeKey = previewSubModeLabel?.let { "$layoutName:$it" }
+            val effectiveLayoutKey = subModeKey?.takeIf { entries.containsKey(it) } ?: layoutName
+            val rows = entries[effectiveLayoutKey].orEmpty()
+
+            // Get keyboard height percentage from layout override or preferences
             val keyboardPrefs = AppPrefs.getInstance().keyboard
-            val heightPercent = keyboardPrefs.keyboardHeightPercent.getValue()
-            val keyboardHeight = screenHeight * heightPercent / 100
+            val basePercent = layoutHeightPercentOverrideProvider(effectiveLayoutKey)
+                ?: keyboardPrefs.keyboardHeightPercent.getValue()
+            val rowScale = computeRowHeightScale(rows)
+            val effectivePercent = (basePercent * rowScale).coerceIn(10f, 90f)
+            val keyboardHeight = (screenHeight * effectivePercent / 100f).toInt()
 
             // Get keyboard side and bottom padding from preferences
             val sidePadding = keyboardPrefs.keyboardSidePadding.getValue()
@@ -217,6 +225,33 @@ class KeyboardPreviewManager(
             requestLayout()
             invalidate()
         }
+    }
+
+    private fun computeRowHeightScale(rows: List<List<Map<String, Any?>>>): Float {
+        if (rows.isEmpty()) return 1f
+
+        // Parse defined percents for each row (null if not defined)
+        val parsedPercents = rows.map { row ->
+            row.mapNotNull { key ->
+                (key["rowHeightPercent"] as? Number)?.toFloat()
+                    ?: (key["rowHeightPercent"] as? String)?.trim()?.toFloatOrNull()
+            }.maxOrNull()?.takeIf { it in 1f..100f }
+        }
+
+        val definedSum = parsedPercents.filterNotNull().sum()
+        val undefinedCount = parsedPercents.count { it == null }
+
+        // If there are undefined rows, distribute the remaining percent among them
+        val finalPercents = if (undefinedCount == 0) {
+            // All rows defined (use their values directly)
+            parsedPercents.map { it ?: 0f }
+        } else {
+            val remaining = (100f - definedSum).coerceAtLeast(0f)
+            val avg = if (undefinedCount > 0) remaining / undefinedCount else 0f
+            parsedPercents.map { it ?: avg }
+        }
+
+        return (finalPercents.sum() / 100f).coerceAtLeast(0.1f)
     }
 
     /**

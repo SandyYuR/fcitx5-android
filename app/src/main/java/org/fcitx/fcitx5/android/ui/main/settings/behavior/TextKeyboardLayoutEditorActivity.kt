@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -222,7 +223,14 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     private var originalEntries: Map<String, List<List<Map<String, Any?>>>> = emptyMap()
 
     private val previewManager by lazy {
-        KeyboardPreviewManager(this, previewKeyboardContainer, dataManager.entries)
+        KeyboardPreviewManager(
+            this,
+            previewKeyboardContainer,
+            dataManager.entries
+        ) { layoutKey ->
+            dataManager.getLayoutHeightPercentOverride(layoutKey)
+                ?: dataManager.getLayoutHeightPercentOverride(LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutKey))
+        }
     }
     
     private val keyEditorLauncher: ActivityResultLauncher<Intent> =
@@ -254,10 +262,12 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     if (keyIndex != null) {
                         if (keyIndex in rows[rowIndex].indices) {
                             rows[rowIndex][keyIndex] = resultKeyData
+                            normalizeRowHeightPercent(rows[rowIndex])
                             rowsAdapter?.notifyKeyChanged(rowIndex, keyIndex)
                         }
                     } else {
                         rows[rowIndex].add(resultKeyData)
+                        normalizeRowHeightPercent(rows[rowIndex])
                         rowsAdapter?.notifyRowChanged(rowIndex)
                     }
 
@@ -332,6 +342,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     // 缓存 IMEs 用于 spinner 显示
     private var allImesFromJson: Array<InputMethodEntry> = emptyArray()
+    private var layoutSpinnerNameMap: Map<String, String> = emptyMap()
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri == null) return@registerForActivityResult
@@ -416,6 +427,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_LAYOUT_FILE_DELETE_ID, Menu.NONE, getString(R.string.text_keyboard_layout_file_delete))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(Menu.NONE, MENU_LAYOUT_HEIGHT_OVERRIDE_ID, Menu.NONE, getString(R.string.text_keyboard_layout_layout_height_override))
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_QR_EXPORT_ID, Menu.NONE, getString(R.string.text_keyboard_layout_qr_export))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_QR_IMPORT_SCAN_ID, Menu.NONE, getString(R.string.text_keyboard_layout_qr_import_scan))
@@ -457,6 +470,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
         MENU_LAYOUT_FILE_DELETE_ID -> {
             confirmDeleteCurrentLayoutFile()
+            true
+        }
+        MENU_LAYOUT_HEIGHT_OVERRIDE_ID -> {
+            openLayoutHeightOverrideDialog()
             true
         }
         MENU_QR_EXPORT_ID -> {
@@ -612,6 +629,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         layoutSpinner.adapter = adapter
+        layoutSpinnerNameMap = layoutNameMap.toMap()
 
         // Set selection based on current layout
         currentLayout?.let {
@@ -1045,6 +1063,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                             it == layoutName || it.startsWith("$layoutName:")
                         }.toList()
                         allKeysForIme.forEach { entries.remove(it) }
+                        dataManager.setLayoutHeightPercentOverride(layoutName, null)
 
                         // Switch to another base layout IMMEDIATELY
                         currentLayout = entries.keys.firstOrNull { !it.contains(':') }
@@ -1138,6 +1157,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     it == layoutName || it.startsWith("$layoutName:")
                 }.toList()
                 allKeysForIme.forEach { entries.remove(it) }
+                dataManager.setLayoutHeightPercentOverride(layoutName, null)
 
                 // Switch to another base layout
                 currentLayout = entries.keys.firstOrNull { !it.contains(':') }
@@ -1503,6 +1523,22 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun normalizeRowHeightPercent(row: MutableList<MutableMap<String, Any?>>) {
+        row.forEach { key ->
+            val parsed = when (val raw = key["rowHeightPercent"]) {
+                is Number -> raw.toFloat()
+                is String -> raw.trim().toFloatOrNull()
+                else -> null
+            }?.takeIf { it in 1f..100f }
+
+            if (parsed == null) {
+                key.remove("rowHeightPercent")
+            } else {
+                key["rowHeightPercent"] = parsed
+            }
+        }
+    }
+
     private fun openLayoutEditor(originalLayoutName: String?, globalSharedOnly: Boolean = false) {
         val currentName = originalLayoutName.orEmpty()
 
@@ -1691,7 +1727,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 }
 
                 if (originalLayoutName != null && newName != originalLayoutName) {
+                    val oldOverride = dataManager.getLayoutHeightPercentOverride(originalLayoutName)
                     entries.remove(originalLayoutName)
+                    dataManager.setLayoutHeightPercentOverride(originalLayoutName, null)
+                    dataManager.setLayoutHeightPercentOverride(newName, oldOverride)
                 }
 
                 // Copy from selected layout if adding new
@@ -1718,15 +1757,21 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                             entries[newName] = sourceLayout.map { row ->
                                 row.map { key -> key.toMutableMap() }.toMutableList()
                             }.toMutableList()
+                            dataManager.setLayoutHeightPercentOverride(
+                                newName,
+                                dataManager.getLayoutHeightPercentOverride(selectedKey)
+                            )
                         } else {
                             // Create empty layout, will be loaded from JSON when saving
                             entries[newName] = mutableListOf()
+                            dataManager.setLayoutHeightPercentOverride(newName, null)
                         }
                     }
                 } else if (originalLayoutName != null) {
                     entries[newName] = originalLayoutRows ?: mutableListOf()
                 } else {
                     entries[newName] = mutableListOf()
+                    dataManager.setLayoutHeightPercentOverride(newName, null)
                 }
 
                 currentLayout = newName
@@ -1775,8 +1820,14 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             showToast(getString(R.string.text_keyboard_layout_file_saved, file.name))
             // 通知 provider watcher 文件已更改
             ConfigProviders.ensureWatching()
-            currentLayout?.let { layoutName ->
-                previewManager.updatePreview(layoutName, previewSubModeLabel, fcitxConnection)
+            refreshPreviewFromSpinnerSelection()
+            lifecycleScope.launch {
+                // File watcher may asynchronously refresh TextKeyboard with current IME.
+                // Re-apply spinner-selected preview target after that refresh.
+                delay(220)
+                if (!isFinishing && !isDestroyed) {
+                    refreshPreviewFromSpinnerSelection()
+                }
             }
             updateSaveButtonState()
             return true
@@ -1790,6 +1841,113 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             updateSaveButtonState()
             return false
         }
+    }
+
+    private fun syncEditingTargetFromSpinnerSelection() {
+        val selectedLayout = (layoutSpinner.selectedItem as? String)
+            ?.let { layoutSpinnerNameMap[it] }
+            ?.takeIf { entries.containsKey(it) }
+        if (selectedLayout != null) {
+            currentLayout = selectedLayout
+        }
+        previewSubModeLabel = if (
+            subModeSpinner.visibility == View.VISIBLE &&
+            subModeSpinner.adapter != null &&
+            subModeSpinner.selectedItemPosition >= 0
+        ) {
+            (subModeSpinner.selectedItem as? String)?.takeIf { it.isNotBlank() }
+        } else {
+            null
+        }
+    }
+
+    private fun refreshPreviewFromSpinnerSelection() {
+        syncEditingTargetFromSpinnerSelection()
+        currentLayout?.let { layoutName ->
+            previewManager.updatePreview(layoutName, previewSubModeLabel, fcitxConnection)
+        }
+    }
+
+    private fun openLayoutHeightOverrideDialog() {
+        val layoutName = currentEditingLayoutKey() ?: return
+        val currentOverride = dataManager.getLayoutHeightPercentOverride(layoutName)
+            ?: dataManager.getLayoutHeightPercentOverride(LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutName))
+        val useGlobalInitially = currentOverride == null
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = dp(12)
+            setPadding(pad, pad, pad, pad)
+        }
+        val useGlobalSwitch = androidx.appcompat.widget.SwitchCompat(this).apply {
+            text = getString(R.string.text_keyboard_layout_use_global_height)
+            isChecked = useGlobalInitially
+        }
+        val initialPercent = currentOverride ?: 30
+        val percentValue = TextView(this).apply {
+            text = "$initialPercent%"
+            textSize = 16f
+            setPadding(0, dp(6), 0, dp(4))
+        }
+        val percentSeek = SeekBar(this).apply {
+            max = 80 // 10..90
+            progress = (initialPercent - 10).coerceIn(0, 80)
+            isEnabled = !useGlobalInitially
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    val percent = progress + 10
+                    percentValue.text = "$percent%"
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            })
+        }
+        val helper = TextView(this).apply {
+            text = getString(R.string.text_keyboard_layout_layout_height_percent_helper)
+            textSize = DIALOG_LABEL_TEXT_SIZE_SP
+            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setPadding(0, dp(6), 0, 0)
+        }
+        useGlobalSwitch.setOnCheckedChangeListener { _, isChecked ->
+            percentSeek.isEnabled = !isChecked
+            val alpha = if (isChecked) 0.5f else 1f
+            percentSeek.alpha = alpha
+            percentValue.alpha = alpha
+        }
+        container.addView(useGlobalSwitch)
+        container.addView(percentValue)
+        container.addView(percentSeek)
+        container.addView(helper)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.text_keyboard_layout_layout_height_override_title, layoutName))
+            .setView(container)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                if (useGlobalSwitch.isChecked) {
+                    dataManager.setLayoutHeightPercentOverride(layoutName, null)
+                } else {
+                    val percent = percentSeek.progress + 10
+                    dataManager.setLayoutHeightPercentOverride(layoutName, percent)
+                }
+                currentLayout?.let { name ->
+                    previewManager.updatePreview(name, previewSubModeLabel, fcitxConnection)
+                }
+                updateSaveButtonState()
+                dialog.dismiss()
+            }
+        }
+        dialog.show()
+    }
+
+    private fun currentEditingLayoutKey(): String? {
+        val base = currentLayout ?: return null
+        val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() } ?: return base
+        val subModeKey = "$base:$subModeLabel"
+        return if (entries.containsKey(subModeKey)) subModeKey else base
     }
 
     private fun currentActiveProfile(): String {
@@ -2476,9 +2634,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             if (parsed.isEmpty()) {
                 throw IllegalArgumentException("No valid layout in QR payload")
             }
-            ParsedImportResult(parsed, importedProfile)
+            ParsedImportResult(parsed, importedProfile, dataManager.latestParsedLayoutHeightPercentOverrides())
         }.onSuccess { parsed ->
-            applyImportedLayouts(parsed.parsedLayouts, parsed.profile)
+            applyImportedLayouts(parsed.parsedLayouts, parsed.profile, parsed.layoutHeightOverrides)
         }.onFailure {
             val message = it.message.orEmpty()
             if (message.startsWith("type_mismatch:")) {
@@ -2507,9 +2665,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             if (parsed.isEmpty()) {
                 throw IllegalArgumentException("No valid layout in QR payload")
             }
-            ParsedImportResult(parsed, importedProfile)
+            ParsedImportResult(parsed, importedProfile, dataManager.latestParsedLayoutHeightPercentOverrides())
         }.onSuccess { parsed ->
-            applyImportedLayouts(parsed.parsedLayouts, parsed.profile)
+            applyImportedLayouts(parsed.parsedLayouts, parsed.profile, parsed.layoutHeightOverrides)
         }.onFailure {
             showToast(getString(R.string.text_keyboard_layout_qr_import_failed, it.localizedMessage ?: ""))
         }
@@ -2517,7 +2675,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     private fun applyImportedLayouts(
         parsed: Map<String, List<List<Map<String, Any?>>>>,
-        importedProfile: String?
+        importedProfile: String?,
+        layoutHeightOverrides: Map<String, Int>
     ) {
         withImportPreparation {
             val targetProfile = importedProfile ?: currentLayoutProfile
@@ -2541,6 +2700,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     parsed.toSortedMap().forEach { (k, v) ->
                         entries[k] = v.map { row -> row.map { key -> key.toMutableMap() }.toMutableList() }.toMutableList()
                     }
+                    dataManager.layoutHeightPercentOverrides.clear()
+                    dataManager.layoutHeightPercentOverrides.putAll(layoutHeightOverrides)
                     currentLayout = entries.keys.firstOrNull { !it.contains(':') } ?: entries.keys.firstOrNull()
                     previewSubModeLabel = null
                     buildSpinner()
@@ -2570,9 +2731,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         private const val MENU_LAYOUT_FILE_CREATE_ID = 3003
         private const val MENU_LAYOUT_FILE_RENAME_ID = 3004
         private const val MENU_LAYOUT_FILE_DELETE_ID = 3005
-        private const val MENU_QR_EXPORT_ID = 3006
-        private const val MENU_QR_IMPORT_SCAN_ID = 3007
-        private const val MENU_QR_IMPORT_IMAGE_ID = 3008
+        private const val MENU_LAYOUT_HEIGHT_OVERRIDE_ID = 3006
+        private const val MENU_QR_EXPORT_ID = 3007
+        private const val MENU_QR_IMPORT_SCAN_ID = 3008
+        private const val MENU_QR_IMPORT_IMAGE_ID = 3009
         private const val FCITX_CONNECTION_NAME = "TextKeyboardLayoutEditorActivity"
         private const val DIALOG_LABEL_TEXT_SIZE_SP = 13f
         private const val DIALOG_CONTENT_TEXT_SIZE_SP = 14f
@@ -2580,6 +2742,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     private data class ParsedImportResult(
         val parsedLayouts: Map<String, List<List<Map<String, Any?>>>>,
-        val profile: String?
+        val profile: String?,
+        val layoutHeightOverrides: Map<String, Int>
     )
 }

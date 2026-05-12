@@ -722,7 +722,8 @@ class InputView(
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     // Store the current preference value and touch position
-                    adjustingResizeStartHeight = resolveKeyboardHeightPercent()
+                    adjustingResizeStartHeight = resolveAdjustingHeightPercent()
+                    adjustingPendingHeightPercent = adjustingResizeStartHeight
                     lastAdjustingTouchY = event.rawY
                     // Also store the keyboard height at touch start for accurate calculation
                     adjustingStartKeyboardTop = keyboardView.top
@@ -741,14 +742,10 @@ class InputView(
                     // Match the preference range: 10% to 90%
                     val newPercent = (adjustingResizeStartHeight - deltaPercent).toInt()
                         .coerceIn(10, 90)
-                    val currentPercent = resolveKeyboardHeightPercent()
+                    val currentPercent = resolveAdjustingHeightPercent()
                     // Only update if value changed significantly
                     if (kotlin.math.abs(newPercent - currentPercent) >= 1) {
-                        if (isLayoutLandscape) {
-                            keyboardPrefs.keyboardHeightPercentLandscape.setValue(newPercent)
-                        } else {
-                            keyboardPrefs.keyboardHeightPercent.setValue(newPercent)
-                        }
+                        adjustingPendingHeightPercent = newPercent
                         updateKeyboardSize()
                         keyboardView.post {
                             updateAdjustingHandlePosition()
@@ -756,7 +753,16 @@ class InputView(
                     }
                     true
                 }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                MotionEvent.ACTION_UP -> {
+                    adjustingPendingHeightPercent?.let { applyAdjustedHeightPercent(it) }
+                    adjustingPendingHeightPercent = null
+                    v.parent?.requestDisallowInterceptTouchEvent(false)
+                    v.isPressed = false
+                    true
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    adjustingPendingHeightPercent = null
+                    updateKeyboardSize()
                     v.parent?.requestDisallowInterceptTouchEvent(false)
                     v.isPressed = false
                     true
@@ -871,12 +877,35 @@ class InputView(
     private var lastAdjustingTouchX = 0f
     private var lastAdjustingTouchY = 0f
     private var adjustingStartKeyboardTop = 0
+    private var adjustingPendingHeightPercent: Int? = null
 
     private fun resolveKeyboardHeightPercent(): Int {
         return if (isLayoutLandscape) {
             keyboardPrefs.keyboardHeightPercentLandscape.getValue()
         } else {
             keyboardPrefs.keyboardHeightPercent.getValue()
+        }
+    }
+
+    private fun resolveAdjustingHeightPercent(): Int {
+        adjustingPendingHeightPercent?.let { return it }
+        val keyboardWindow = windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow
+        return keyboardWindow?.currentKeyboardHeightPercentOverride() ?: resolveKeyboardHeightPercent()
+    }
+
+    private fun applyAdjustedHeightPercent(newPercent: Int) {
+        val keyboardWindow = windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow
+        val updatedLayoutOverride = if (keyboardWindow?.currentKeyboardHeightPercentOverride() != null) {
+            keyboardWindow.updateCurrentKeyboardHeightPercentOverride(newPercent)
+        } else {
+            false
+        }
+        if (!updatedLayoutOverride) {
+            if (isLayoutLandscape) {
+                keyboardPrefs.keyboardHeightPercentLandscape.setValue(newPercent)
+            } else {
+                keyboardPrefs.keyboardHeightPercent.setValue(newPercent)
+            }
         }
     }
 
@@ -1581,6 +1610,9 @@ class InputView(
 
     private fun toggleAdjustingMode() {
         popup.dismissAll()
+        if (isAdjustingMode) {
+            adjustingPendingHeightPercent = null
+        }
         isAdjustingMode = !isAdjustingMode
         // In adjusting mode, force non-floating state for better UX
         if (isAdjustingMode && isFloating) {
@@ -1877,8 +1909,14 @@ class InputView(
 
     private val keyboardHeightPx: Int
         get() {
-            val percent = (if (isLayoutLandscape) keyboardHeightPercentLandscape else keyboardHeightPercent).getValue()
-            val baseHeight = resources.displayMetrics.heightPixels * percent / 100
+            val globalPercent = (if (isLayoutLandscape) keyboardHeightPercentLandscape else keyboardHeightPercent).getValue()
+            val keyboard = windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow
+            val overridePercent = keyboard?.currentKeyboardHeightPercentOverride()
+            val heightScale = keyboard?.currentKeyboardHeightScaleFactor() ?: 1f
+            val basePercent = adjustingPendingHeightPercent ?: overridePercent ?: globalPercent
+            val effectivePercent = (basePercent.toFloat() * heightScale)
+                .coerceIn(10f, 90f)
+            val baseHeight = (resources.displayMetrics.heightPixels * effectivePercent / 100f).toInt()
             if (isEffectiveFloating) {
                 return (baseHeight * 0.8).toInt()
             }
@@ -2512,6 +2550,10 @@ class InputView(
      */
     internal fun syncImeFromCache() {
         broadcaster.onImeUpdate(fcitx.runImmediately { inputMethodEntryCached })
+    }
+
+    internal fun onKeyboardHeightSourceChanged() {
+        updateKeyboardSize()
     }
 
     @RequiresApi(Build.VERSION_CODES.R)

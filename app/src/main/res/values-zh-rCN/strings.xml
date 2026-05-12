@@ -466,6 +466,12 @@
     <string name="text_keyboard_layout_file_create">新建布局文件</string>
     <string name="text_keyboard_layout_file_rename">重命名布局文件</string>
     <string name="text_keyboard_layout_file_delete">删除布局文件</string>
+    <string name="text_keyboard_layout_layout_height_override">布局专用键盘高度</string>
+    <string name="text_keyboard_layout_layout_height_override_title">布局高度：%1$s</string>
+    <string name="text_keyboard_layout_use_global_height">使用全局键盘高度</string>
+    <string name="text_keyboard_layout_layout_height_percent_hint">10 - 90</string>
+    <string name="text_keyboard_layout_layout_height_percent_invalid">布局键盘高度必须在 10 到 90 之间</string>
+    <string name="text_keyboard_layout_layout_height_percent_helper">关闭“使用全局键盘高度”后，本布局将覆盖全局键盘高度。保持开启则继续跟随全局设置。</string>
     <string name="text_keyboard_layout_file_renamed">已重命名配置：%1$s → %2$s</string>
     <string name="text_keyboard_layout_file_rename_failed">重命名布局文件失败</string>
     <string name="text_keyboard_layout_file_delete_confirm">确认删除布局文件配置“%1$s”及其备份？</string>
@@ -495,6 +501,8 @@
     <string name="text_keyboard_layout_key_label">标签</string>
     <string name="text_keyboard_layout_key_sub_label">子标签</string>
     <string name="text_keyboard_layout_key_weight">权重宽度</string>
+    <string name="text_keyboard_layout_key_row_height_percent">行高百分比</string>
+    <string name="text_keyboard_layout_row_height_percent_invalid">行高百分比必须在 1 到 100 之间</string>
     <string name="text_keyboard_layout_key_text_color">文字颜色</string>
     <string name="text_keyboard_layout_key_alt_text_color">副文字颜色</string>
     <string name="text_keyboard_layout_key_background_color">背景颜色</string>
