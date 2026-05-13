@@ -76,6 +76,7 @@ abstract class KeyView(
     val radius: Float
     val hMargin: Int
     val vMargin: Int
+    protected val cornerLabelSafeInset: Int
 
     init {
         val prefs = ThemeManager.prefs
@@ -92,6 +93,7 @@ abstract class KeyView(
         val hMarginValue = (hMarginPref.getValue().toFloat() * hScale).roundToInt().coerceAtLeast(0)
         hMargin = if (def.margin) dp(hMarginValue) else 0
         vMargin = if (def.margin) dp(vMarginPref.getValue()) else 0
+        cornerLabelSafeInset = dp(3)
     }
 
     private val cachedLocation = intArrayOf(0, 0)
@@ -527,6 +529,14 @@ class AltTextKeyView(
         )
     }
 
+    private fun applyTopRightAltTextPadding() {
+        altText.setPadding(cornerLabelSafeInset, 0, cornerLabelSafeInset, 0)
+    }
+
+    private fun applyBottomAltTextPadding() {
+        altText.setPadding(hMargin, 0, hMargin, 0)
+    }
+
     init {
         appearanceView.apply {
             add(altText, lParams(0, wrapContent))
@@ -557,10 +567,11 @@ class AltTextKeyView(
             width = 0
             bottomToBottom = unset; bottomMargin = 0
             // set
-            topToTop = parentId; topMargin = vMargin
+            topToTop = parentId; topMargin = vMargin + cornerLabelSafeInset
             leftToLeft = parentId; leftMargin = hMargin
             rightToRight = parentId; rightMargin = hMargin
         }
+        applyTopRightAltTextPadding()
         altText.gravity = Gravity.END or Gravity.CENTER_VERTICAL
     }
 
@@ -584,6 +595,7 @@ class AltTextKeyView(
             rightToRight = parentId
             bottomToBottom = parentId; bottomMargin = vMargin + dp(2)
         }
+        applyBottomAltTextPadding()
         altText.gravity = Gravity.CENTER
     }
 
@@ -597,6 +609,7 @@ class AltTextKeyView(
             bottomToBottom = parentId
         }
         altText.visibility = View.GONE
+        applyBottomAltTextPadding()
         altText.gravity = Gravity.CENTER
     }
 
@@ -616,7 +629,7 @@ class AltTextKeyView(
         val mainHeight = mainText.paint.run { fontMetrics.bottom - fontMetrics.top }
         val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
         // Keep a small guard gap but avoid over-conservative fallback to top-right.
-        val compactMinHeight = max(mainHeight, altHeight + dp(1))
+        val compactMinHeight = max(mainHeight, altHeight + cornerLabelSafeInset)
         val stackedMinHeight = mainHeight + altHeight + dp(1)
 
         return when (preferred) {
@@ -734,6 +747,14 @@ class ImageAltTextKeyView(
         )
     }
 
+    private fun applyTopRightAltTextPadding() {
+        altText.setPadding(cornerLabelSafeInset, 0, cornerLabelSafeInset, 0)
+    }
+
+    private fun applyBottomAltTextPadding() {
+        altText.setPadding(hMargin, 0, hMargin, 0)
+    }
+
     init {
         appearanceView.apply {
             add(img, lParams(wrapContent, wrapContent))
@@ -763,11 +784,12 @@ class ImageAltTextKeyView(
         altText.visibility = View.VISIBLE
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
-            topToTop = parentId; topMargin = vMargin
+            topToTop = parentId; topMargin = vMargin + cornerLabelSafeInset
             bottomToBottom = unset; bottomMargin = 0
             leftToLeft = parentId; leftMargin = hMargin
             rightToRight = parentId; rightMargin = hMargin
         }
+        applyTopRightAltTextPadding()
         altText.gravity = Gravity.END or Gravity.CENTER_VERTICAL
     }
 
@@ -787,6 +809,7 @@ class ImageAltTextKeyView(
             rightToRight = parentId; rightMargin = hMargin
             bottomToBottom = parentId; bottomMargin = vMargin + dp(2)
         }
+        applyBottomAltTextPadding()
         altText.gravity = Gravity.CENTER
     }
 
@@ -801,6 +824,7 @@ class ImageAltTextKeyView(
             bottomToTop = unset
         }
         altText.visibility = View.GONE
+        applyBottomAltTextPadding()
         altText.gravity = Gravity.CENTER
     }
 
@@ -837,7 +861,7 @@ class ImageAltTextKeyView(
         }.run { fontMetrics.bottom - fontMetrics.top }
         val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
         val normalizedMainHeight = max(iconHeight, mainHeight)
-        val compactMinHeight = max(normalizedMainHeight, altHeight + dp(1))
+        val compactMinHeight = max(normalizedMainHeight, altHeight + cornerLabelSafeInset)
         val stackedMinHeight = normalizedMainHeight + altHeight + dp(1)
 
         return when (preferred) {
