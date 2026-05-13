@@ -113,6 +113,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         when (it) {
             is KeyAction.LayoutSwitchAction -> switchLayout(it.act)
             is KeyAction.LayerSwitchAction -> handleLayerSwitchAction(it)
+            KeyAction.MacroConsumedAction -> consumeOneShotLayerIfNeeded(it)
             else -> {
                 commonKeyActionListener.listener.onKeyAction(it, source)
                 consumeOneShotLayerIfNeeded(it)

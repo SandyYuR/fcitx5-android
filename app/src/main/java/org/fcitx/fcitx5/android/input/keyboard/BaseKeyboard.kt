@@ -1603,6 +1603,27 @@ abstract class BaseKeyboard(
                     }
                 }
             }
+            if (macroAction.hasOneShotLayerConsumingStep()) {
+                keyActionListener?.onKeyAction(
+                    KeyAction.MacroConsumedAction,
+                    KeyActionListener.Source.Keyboard
+                )
+            }
+        }
+    }
+
+    private fun MacroAction.hasOneShotLayerConsumingStep(): Boolean {
+        return steps.any { step ->
+            when (step) {
+                is MacroStep.Down -> step.keys.isNotEmpty()
+                is MacroStep.Up -> step.keys.isNotEmpty()
+                is MacroStep.Tap -> step.keys.isNotEmpty()
+                is MacroStep.Text -> step.text.isNotEmpty()
+                is MacroStep.Edit -> step.action.isNotBlank()
+                is MacroStep.AppAction -> step.id.isNotBlank()
+                is MacroStep.Shortcut -> true
+                is MacroStep.LayerSwitch -> false
+            }
         }
     }
 

@@ -137,4 +137,10 @@ sealed class KeyAction {
         val mode: LayerSwitchMode,
         val target: String
     ) : KeyAction()
+
+    /**
+     * Internal notification from BaseKeyboard after a MacroAction has performed
+     * non-layer work. KeyboardWindow uses this to consume one-shot layers.
+     */
+    data object MacroConsumedAction : KeyAction()
 }
