@@ -66,7 +66,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FcitxAppTheme"
         android:usesCleartextTraffic="true"
-        tools:replace="android:supportsRtl,android:networkSecurityConfig,android:usesCleartextTraffic"
+        tools:replace="android:supportsRtl"
         tools:targetApi="33">
         <activity
             android:name=".ui.setup.SetupActivity"
