@@ -80,8 +80,19 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private var composingState = false
     private var latchedLayerKey: String? = null
     private var oneShotLayerKey: String? = null
+    private var companionHeightPercentOverride: Int? = null
+    private var companionHeightPxOverride: Int? = null
 
     private val currentKeyboard: BaseKeyboard? get() = keyboards[currentKeyboardName]
+
+    private fun clearCompanionKeyboardHeightOverride() {
+        companionHeightPercentOverride = null
+        companionHeightPxOverride = null
+    }
+
+    fun usesCompanionKeyboardHeightOverride(): Boolean {
+        return currentKeyboardName != TextKeyboard.Name
+    }
 
     private fun updateCompositionState() {
         val composing = !preeditEmpty || !candidateEmpty
@@ -156,10 +167,21 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         }
     }
 
-    fun switchLayout(to: String, remember: Boolean = true) {
+    fun switchLayout(
+        to: String,
+        remember: Boolean = true,
+        inheritTextHeight: Boolean = true
+    ) {
         val target = to.ifEmpty { lastSymbolType }
         ContextCompat.getMainExecutor(service).execute {
             if (keyboards.containsKey(target)) {
+                if (target == TextKeyboard.Name) {
+                    clearCompanionKeyboardHeightOverride()
+                } else if (inheritTextHeight) {
+                    prepareCompanionKeyboardHeightPercentOverride()
+                } else {
+                    clearCompanionKeyboardHeightOverride()
+                }
                 if (remember && target != TextKeyboard.Name) {
                     lastSymbolType = target
                 }
@@ -180,6 +202,11 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             } else {
                 if (remember) {
                     lastSymbolType = PickerWindow.Key.Symbol.name
+                }
+                if (inheritTextHeight) {
+                    prepareCompanionKeyboardHeightPercentOverride()
+                } else {
+                    clearCompanionKeyboardHeightOverride()
                 }
                 windowManager.attachWindow(PickerWindow.Key.Symbol)
             }
@@ -238,7 +265,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             InputType.TYPE_CLASS_PHONE -> NumberKeyboard.Name
             else -> TextKeyboard.Name
         }
-        switchLayout(targetLayout, remember = false)
+        switchLayout(targetLayout, remember = false, inheritTextHeight = false)
         updateCompositionState()
     }
 
@@ -274,6 +301,12 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         }
         notifyBarLayoutChanged()
         service.inputView?.requestBlurRefresh(retryFrames = 8)
+    }
+
+    override fun beforeAttached() {
+        if (!usesCompanionKeyboardHeightOverride()) {
+            clearCompanionKeyboardHeightOverride()
+        }
     }
 
     override fun onDetached() {
@@ -316,6 +349,21 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     fun currentKeyboardHeightPercentOverride(): Int? {
         return currentKeyboard?.preferredKeyboardHeightPercentOverride()
+            ?: companionHeightPercentOverride.takeIf { usesCompanionKeyboardHeightOverride() }
+    }
+
+    fun companionKeyboardHeightPercentOverride(): Int? = companionHeightPercentOverride
+
+    fun companionKeyboardHeightPxOverride(): Int? = companionHeightPxOverride
+
+    fun prepareCompanionKeyboardHeightPercentOverride() {
+        service.inputView?.captureCurrentKeyboardHeightPxForCompanion()?.let {
+            companionHeightPxOverride = it
+        }
+        companionHeightPercentOverride = service.inputView?.captureCurrentKeyboardHeightPercentForCompanion()
+            ?: TextKeyboard.currentLayoutHeightPercentOverride()
+            ?: currentKeyboard?.preferredKeyboardHeightPercentOverride()
+            ?: companionHeightPercentOverride.takeIf { usesCompanionKeyboardHeightOverride() }
     }
 
     fun updateCurrentKeyboardHeightPercentOverride(percent: Int): Boolean {

@@ -136,6 +136,9 @@ class TextKeyboard(
         fun clearForcedLayoutKey() = setForcedLayoutKey(null)
 
         @Synchronized
+        fun currentLayoutHeightPercentOverride(): Int? = resolvedLayoutHeightPercentOverride
+
+        @Synchronized
         fun currentBaseLayoutKey(): String? {
             val currentIme = ime ?: return null
             val json = textLayoutJson

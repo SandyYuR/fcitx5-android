@@ -181,6 +181,8 @@ class CommonKeyActionListener :
                         ?: runCatching { PickerWindow.Key.valueOf(lastPickerType) }.getOrNull()
                         ?: PickerWindow.Key.Emoji
                     ContextCompat.getMainExecutor(service).execute {
+                        (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)
+                            ?.prepareCompanionKeyboardHeightPercentOverride()
                         windowManager.attachWindow(key)
                     }
                 }

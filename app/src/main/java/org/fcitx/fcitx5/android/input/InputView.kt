@@ -1909,19 +1909,51 @@ class InputView(
 
     private val keyboardHeightPx: Int
         get() {
-            val globalPercent = (if (isLayoutLandscape) keyboardHeightPercentLandscape else keyboardHeightPercent).getValue()
-            val keyboard = windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow
-            val overridePercent = keyboard?.currentKeyboardHeightPercentOverride()
-            val heightScale = keyboard?.currentKeyboardHeightScaleFactor() ?: 1f
-            val basePercent = adjustingPendingHeightPercent ?: overridePercent ?: globalPercent
-            val effectivePercent = (basePercent.toFloat() * heightScale)
-                .coerceIn(10f, 90f)
+            companionKeyboardHeightPxOverride()?.let { return it }
+            val effectivePercent = resolveEffectiveKeyboardHeightPercent()
             val baseHeight = (resources.displayMetrics.heightPixels * effectivePercent / 100f).toInt()
             if (isEffectiveFloating) {
                 return (baseHeight * 0.8).toInt()
             }
             return baseHeight
         }
+
+    internal fun captureCurrentKeyboardHeightPxForCompanion(): Int {
+        return keyboardHeightPx
+    }
+
+    internal fun captureCurrentKeyboardHeightPercentForCompanion(): Int {
+        return kotlin.math.round(resolveEffectiveKeyboardHeightPercent()).toInt().coerceIn(10, 90)
+    }
+
+    private fun companionKeyboardHeightPxOverride(): Int? {
+        if (adjustingPendingHeightPercent != null) return null
+        val keyboard = windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow
+        return when (windowManager.currentWindowOrNull()) {
+            is PickerWindow -> keyboard?.companionKeyboardHeightPxOverride()
+            is KeyboardWindow -> keyboard?.companionKeyboardHeightPxOverride()
+                ?.takeIf { keyboard.usesCompanionKeyboardHeightOverride() }
+            else -> null
+        }
+    }
+
+    private fun resolveEffectiveKeyboardHeightPercent(): Float {
+        val globalPercent = (if (isLayoutLandscape) keyboardHeightPercentLandscape else keyboardHeightPercent).getValue()
+        val keyboard = windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow
+        val companionPercent = if (windowManager.currentWindowOrNull() is PickerWindow) {
+            keyboard?.companionKeyboardHeightPercentOverride()
+        } else {
+            null
+        }
+        val overridePercent = companionPercent ?: keyboard?.currentKeyboardHeightPercentOverride()
+        val heightScale = if (companionPercent != null) {
+            1f
+        } else {
+            keyboard?.currentKeyboardHeightScaleFactor() ?: 1f
+        }
+        val basePercent = adjustingPendingHeightPercent ?: overridePercent ?: globalPercent
+        return (basePercent.toFloat() * heightScale).coerceIn(10f, 90f)
+    }
 
     private val keyboardSidePaddingPx: Int
         get() {
@@ -1997,6 +2029,8 @@ class InputView(
         windowManager.onWindowChanged = {
             if (isPhysicalCandidateBarMode) {
                 syncPhysicalCandidateBarLayout()
+            } else {
+                updateKeyboardSize()
             }
         }
 
