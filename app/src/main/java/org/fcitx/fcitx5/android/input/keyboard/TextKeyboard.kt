@@ -695,6 +695,8 @@ class TextKeyboard(
     override fun onCompositionStateChanged(composing: Boolean) {
         super.onCompositionStateChanged(composing)
         ensureSpecialKeyViewsInitialized()
+        // Compose-state switches may recreate key views; re-apply caps presentation immediately.
+        updateAlphabetKeys()
     }
 
     private fun transformPopupPreview(c: String): String {
@@ -769,10 +771,12 @@ class TextKeyboard(
         textKeys.forEach {
             val keyDef = it.def
             if (keyDef is KeyDef.Appearance.AltText) {
-                val displayText = keyDef.displayText
+                val renderedText = it.mainText.text.toString()
+                val sourceFromDef = renderedText.isEmpty() || renderedText == keyDef.displayText
+                val displayText = if (sourceFromDef) keyDef.displayText else renderedText
                 val character = keyDef.character
                 val displayIsSingleLetter = displayText.length == 1 && displayText[0].isLetter()
-                val characterIsSingleLetter = character.length == 1 && character[0].isLetter()
+                val characterIsSingleLetter = sourceFromDef && character.length == 1 && character[0].isLetter()
 
                 it.mainText.text = when {
                     keepLettersUppercase && displayIsSingleLetter -> displayText.uppercase()
@@ -784,8 +788,12 @@ class TextKeyboard(
                     else -> displayText
                 }
             } else if (keyDef is KeyDef.Appearance.Text) {
-                // handle other text keys if necessary, but mainly AlphabetKey is AltText
-                val str = keyDef.displayText
+                val renderedText = it.mainText.text.toString()
+                val str = if (renderedText.isEmpty() || renderedText == keyDef.displayText) {
+                    keyDef.displayText
+                } else {
+                    renderedText
+                }
                 if (str.length == 1 && str[0].isLetter()) {
                      it.mainText.text = if (keepLettersUppercase) {
                         str.uppercase()
