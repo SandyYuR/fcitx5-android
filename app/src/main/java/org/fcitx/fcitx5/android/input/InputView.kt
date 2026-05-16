@@ -1978,20 +1978,20 @@ class InputView(
     @Keep
     private val onKeyboardSizeChangeListener = ManagedPreferenceProvider.OnChangeListener { key ->
         if (keyboardSizePrefs.any { it.key == key }) {
-            updateFloatingState()
-            updateFloatingHandlesVisibility()
-            updateOneHandHandleVisibility()
-            kawaiiBar.setFloatingState(isEffectiveFloating)
-            updateKeyboardSize()
-            service.updateFullscreenMode()
-
-            // Refresh keyboard layout when split keyboard settings change
+            // Keep keyboard height source in sync with freshly reloaded key layouts.
             if (key == keyboardPrefs.splitKeyboardEnabled.key ||
                 key == keyboardPrefs.splitKeyboardThreshold.key ||
                 key == keyboardPrefs.splitKeyboardGapPercent.key ||
                 key == textKeyboardLayoutProfile.key) {
                 (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)?.refreshAllKeyboards()
             }
+
+            updateFloatingState()
+            updateFloatingHandlesVisibility()
+            updateOneHandHandleVisibility()
+            kawaiiBar.setFloatingState(isEffectiveFloating)
+            updateKeyboardSize()
+            service.updateFullscreenMode()
         }
     }
 
