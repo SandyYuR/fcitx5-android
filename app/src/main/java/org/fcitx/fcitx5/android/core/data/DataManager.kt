@@ -76,7 +76,7 @@ object DataManager {
     fun getLoadedPlugins(): Set<PluginDescriptor> = loadedPlugins
     fun getFailedPlugins(): Map<String, PluginLoadFailed> = failedPlugins
 
-    fun getSyncedPluginSet() = PluginSet(loadedPlugins, failedPlugins)
+    fun getSyncedPluginSet() = PluginSet(loadedPlugins.toSet(), failedPlugins.toMap())
 
     /**
      * Will be cleared after each sync

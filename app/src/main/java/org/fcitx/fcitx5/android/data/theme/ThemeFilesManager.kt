@@ -19,9 +19,15 @@ import java.util.zip.ZipOutputStream
 
 object ThemeFilesManager {
 
-    private val dir = File(appContext.getExternalFilesDir(null), "theme").also { it.mkdirs() }
+    private val themeRootDir: File by lazy {
+        File(appContext.getExternalFilesDir(null), "theme").also { it.mkdirs() }
+    }
 
-    private fun themeFile(theme: Theme.Custom) = File(dir, theme.name + ".json")
+    private fun themeDir(): File {
+        return themeRootDir
+    }
+
+    private fun themeFile(theme: Theme.Custom) = File(themeDir(), theme.name + ".json")
 
     fun newCustomBackgroundImages(): Triple<String, File, File> {
         val themeName = UUID.randomUUID().toString()
@@ -30,7 +36,7 @@ object ThemeFilesManager {
     }
 
     fun newBackgroundImagesForTheme(themeName: String): Pair<File, File> {
-        val folder = File(dir, safeThemePathComponent(themeName)).also { it.mkdirs() }
+        val folder = File(themeDir(), safeThemePathComponent(themeName)).also { it.mkdirs() }
         val fileBase = safeThemePathComponent(themeName)
         val croppedImageFile = File(folder, "$fileBase-cropped.png")
         val srcImageFile = File(folder, "$fileBase-src")
@@ -45,7 +51,7 @@ object ThemeFilesManager {
         val croppedFile = resolveImagePath(bg.croppedFilePath, appFilesDir, themeDir)
 
         val fileBase = safeThemePathComponent(theme.name)
-        val targetDir = File(dir, fileBase).also { it.mkdirs() }
+        val targetDir = File(themeDir(), fileBase).also { it.mkdirs() }
         val srcExt = srcFile.extension.takeIf { it.isNotEmpty() }
         val targetSrc = File(targetDir, buildString {
             append(fileBase)
@@ -79,8 +85,9 @@ object ThemeFilesManager {
     }
 
     private fun cleanupEmptyParents(start: File?) {
+        val baseDir = themeDir()
         var current = start
-        while (current != null && current != dir) {
+        while (current != null && current != baseDir) {
             val files = current.listFiles()
             if (files != null && files.isEmpty()) {
                 if (!current.delete()) break
@@ -101,7 +108,7 @@ object ThemeFilesManager {
     }
 
     fun deleteThemeFiles(theme: Theme.Custom, allThemes: List<Theme.Custom> = emptyList()) {
-        val themeDir = dir
+        val baseDir = themeDir()
         
         // Collect directories and files to process
         val dirsToCheck = mutableSetOf<File>()
@@ -131,7 +138,7 @@ object ThemeFilesManager {
 
         // Cleanup empty directories from deepest to shallowest
         dirsToCheck.sortedByDescending { it.absolutePath.length }.forEach { dir ->
-            cleanupEmptyDir(dir, allThemes, themeDir)
+            cleanupEmptyDir(dir, allThemes, baseDir)
         }
     }
     
@@ -189,6 +196,7 @@ object ThemeFilesManager {
     }
 
     fun listThemes(): MutableList<Theme.Custom> {
+        val dir = themeDir()
         val files = dir.listFiles(FileFilter { it.extension == "json" }) ?: return mutableListOf()
         return files
             .sortedByDescending { it.lastModified() } // newest first
@@ -209,19 +217,19 @@ object ThemeFilesManager {
 
                 // Resolve relative paths to absolute paths
                 val resolvedTheme = if (theme.backgroundImage != null) {
-                    val appFilesDir = appContext.getExternalFilesDir(null)!!
-                    val themeDir = File(appFilesDir, "theme")
+                    val appFilesDir = appContext.getExternalFilesDir(null) ?: appContext.filesDir
+                    val baseDir = themeDir()
                     theme.copy(
                         backgroundImage = theme.backgroundImage.copy(
                             croppedFilePath = resolveImagePath(
                                 theme.backgroundImage.croppedFilePath,
                                 appFilesDir,
-                                themeDir
+                                baseDir
                             ).absolutePath,
                             srcFilePath = resolveImagePath(
                                 theme.backgroundImage.srcFilePath,
                                 appFilesDir,
-                                themeDir
+                                baseDir
                             ).absolutePath
                         )
                     )
@@ -425,19 +433,19 @@ object ThemeFilesManager {
                 val newCreated = oldTheme == null
                 val theme = decoded.copy(name = importedThemeName)
                 val newTheme = if (decoded.backgroundImage != null) {
-                    val appFilesDir = appContext.getExternalFilesDir(null)!!
-                    val themeDir = File(appFilesDir, "theme")
+                    val appFilesDir = appContext.getExternalFilesDir(null) ?: appContext.filesDir
+                    val baseDir = themeDir()
 
                     // Resolve target paths: handle both absolute and relative paths
                     val (croppedTarget, srcTarget) = if (importedName == null) {
                         resolveImagePath(
                             decoded.backgroundImage.croppedFilePath,
                             appFilesDir,
-                            themeDir
+                            baseDir
                         ) to resolveImagePath(
                             decoded.backgroundImage.srcFilePath,
                             appFilesDir,
-                            themeDir
+                            baseDir
                         )
                     } else {
                         newBackgroundImagesForTheme(importedThemeName)
@@ -478,11 +486,11 @@ object ThemeFilesManager {
                     // Save theme with relative paths (relative to theme dir)
                     theme.copy(
                         backgroundImage = decoded.backgroundImage.copy(
-                            croppedFilePath = croppedTarget.relativeTo(themeDir).path.replace(
+                            croppedFilePath = croppedTarget.relativeTo(baseDir).path.replace(
                                 '\\',
                                 '/'
                             ),
-                            srcFilePath = srcTarget.relativeTo(themeDir).path.replace('\\', '/')
+                            srcFilePath = srcTarget.relativeTo(baseDir).path.replace('\\', '/')
                         )
                     )
                 } else {

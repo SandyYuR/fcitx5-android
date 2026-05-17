@@ -17,7 +17,9 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import org.fcitx.fcitx5.android.core.data.DataManager
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
@@ -36,6 +38,8 @@ import kotlin.system.exitProcess
 class FcitxApplication : Application() {
 
     val coroutineScope = MainScope() + CoroutineName("FcitxApplication")
+    @Volatile
+    private var pluginRefreshPending = false
 
     private val shutdownReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -68,6 +72,28 @@ class FcitxApplication : Application() {
                 FcitxDaemon.restartFcitx()
             } else {
                 Timber.i("Received broadcast '${intent.action}', but there's no fcitx instance")
+            }
+        }
+    }
+
+    private val pluginPackageChangeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.data?.schemeSpecificPart == packageName) return
+            if (pluginRefreshPending) return
+            pluginRefreshPending = true
+            coroutineScope.launch {
+                try {
+                    val synced = DataManager.getSyncedPluginSet()
+                    val detected = DataManager.detectPlugins()
+                    if (synced != detected) {
+                        Timber.i("Plugin package state changed, restart fcitx to refresh plugin data")
+                        FcitxDaemon.getFirstConnectionOrNull()?.also {
+                            FcitxDaemon.restartFcitx()
+                        }
+                    }
+                } finally {
+                    pluginRefreshPending = false
+                }
             }
         }
     }
@@ -154,6 +180,13 @@ class FcitxApplication : Application() {
             null,
             ContextCompat.RECEIVER_EXPORTED
         )
+        registerReceiver(pluginPackageChangeReceiver, IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addDataScheme("package")
+        })
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
