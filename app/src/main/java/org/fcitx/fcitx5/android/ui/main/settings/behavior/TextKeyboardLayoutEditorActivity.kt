@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior
 import android.Manifest
 import android.content.Intent
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -1872,6 +1873,11 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         val layoutName = currentEditingLayoutKey() ?: return
         val currentOverride = dataManager.getLayoutHeightPercentOverride(layoutName)
             ?: dataManager.getLayoutHeightPercentOverride(LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutName))
+        val keyboardPrefs = AppPrefs.getInstance().keyboard
+        val globalPercent = when (resources.configuration.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> keyboardPrefs.keyboardHeightPercentLandscape.getValue()
+            else -> keyboardPrefs.keyboardHeightPercent.getValue()
+        }
         val useGlobalInitially = currentOverride == null
 
         val container = LinearLayout(this).apply {
@@ -1883,7 +1889,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             text = getString(R.string.text_keyboard_layout_use_global_height)
             isChecked = useGlobalInitially
         }
-        val initialPercent = currentOverride ?: 30
+        var customPercent = currentOverride ?: globalPercent
+        val initialPercent = currentOverride ?: globalPercent
         val percentValue = TextView(this).apply {
             text = "$initialPercent%"
             textSize = 16f
@@ -1896,7 +1903,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     val percent = progress + 10
-                    percentValue.text = "$percent%"
+                    if (!useGlobalSwitch.isChecked) {
+                        customPercent = percent
+                        percentValue.text = "$percent%"
+                    }
                 }
                 override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
                 override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
@@ -1910,6 +1920,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
         useGlobalSwitch.setOnCheckedChangeListener { _, isChecked ->
             percentSeek.isEnabled = !isChecked
+            if (isChecked) {
+                percentSeek.progress = (globalPercent - 10).coerceIn(0, 80)
+                percentValue.text = "$globalPercent%"
+            } else {
+                percentSeek.progress = (customPercent - 10).coerceIn(0, 80)
+                percentValue.text = "$customPercent%"
+            }
             val alpha = if (isChecked) 0.5f else 1f
             percentSeek.alpha = alpha
             percentValue.alpha = alpha

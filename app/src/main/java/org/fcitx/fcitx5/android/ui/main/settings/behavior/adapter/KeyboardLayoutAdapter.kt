@@ -167,6 +167,10 @@ class KeyboardLayoutAdapter(
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(0, context.dp(4), 0, context.dp(4))
+            layoutParams = RecyclerView.LayoutParams(
+                RecyclerView.LayoutParams.MATCH_PARENT,
+                RecyclerView.LayoutParams.WRAP_CONTENT
+            )
         }
 
         // Drag handle on the left

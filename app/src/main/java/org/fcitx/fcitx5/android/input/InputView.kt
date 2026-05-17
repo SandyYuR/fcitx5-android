@@ -2183,6 +2183,9 @@ class InputView(
         updateOneHandHandleVisibility()
         updateSplitBackgroundVisibility()
         kawaiiBar.setFloatingState(isEffectiveFloating)
+        // Re-broadcast IME once InputView is fully initialized so layout-specific
+        // keyboard height overrides are applied on first show.
+        post { syncImeFromCache() }
 
         kawaiiBar.onFloatingToggleListener = {
             // If currently in adjusting mode, exit adjusting mode; otherwise toggle floating mode

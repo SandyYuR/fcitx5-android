@@ -112,7 +112,10 @@ class KeyboardPreviewManager(
             // Restore original provider and IME state
             ConfigProviders.provider = provider
             TextKeyboard.clearCachedKeyDefLayouts()
-            TextKeyboard.ime = originalIme
+            val restoredIme = runCatching {
+                fcitxConnection.runImmediately { inputMethodEntryCached }
+            }.getOrNull()
+            TextKeyboard.ime = restoredIme ?: originalIme
         }
     }
 
@@ -230,7 +233,6 @@ class KeyboardPreviewManager(
     private fun computeRowHeightScale(rows: List<List<Map<String, Any?>>>): Float {
         if (rows.isEmpty()) return 1f
 
-        // Parse defined percents for each row (null if not defined)
         val parsedPercents = rows.map { row ->
             row.mapNotNull { key ->
                 (key["rowHeightPercent"] as? Number)?.toFloat()
@@ -241,17 +243,18 @@ class KeyboardPreviewManager(
         val definedSum = parsedPercents.filterNotNull().sum()
         val undefinedCount = parsedPercents.count { it == null }
 
-        // If there are undefined rows, distribute the remaining percent among them
-        val finalPercents = if (undefinedCount == 0) {
-            // All rows defined (use their values directly)
+        val distributed = if (undefinedCount == 0) {
             parsedPercents.map { it ?: 0f }
         } else {
             val remaining = (100f - definedSum).coerceAtLeast(0f)
-            val avg = if (undefinedCount > 0) remaining / undefinedCount else 0f
+            val avg = remaining / undefinedCount
             parsedPercents.map { it ?: avg }
         }
 
-        return (finalPercents.sum() / 100f).coerceAtLeast(0.1f)
+        val sum = distributed.sum()
+        if (sum <= 0f) return 1f
+        val normalized = distributed.map { it * 100f / sum }
+        return (normalized.sum() / 100f).coerceAtLeast(0.1f)
     }
 
     /**

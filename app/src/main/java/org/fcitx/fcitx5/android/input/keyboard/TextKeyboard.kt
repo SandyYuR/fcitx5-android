@@ -136,7 +136,51 @@ class TextKeyboard(
         fun clearForcedLayoutKey() = setForcedLayoutKey(null)
 
         @Synchronized
-        fun currentLayoutHeightPercentOverride(): Int? = resolvedLayoutHeightPercentOverride
+        fun currentLayoutHeightPercentOverride(): Int? {
+            resolvedLayoutHeightPercentOverride = resolveCurrentLayoutHeightPercentOverride()
+            return resolvedLayoutHeightPercentOverride
+        }
+
+        private fun resolveCurrentLayoutHeightPercentOverride(): Int? {
+            val currentIme = ime ?: return null
+            val json = textLayoutJson ?: return null
+
+            forcedLayoutKey?.let { forced ->
+                val forcedLayout = findLayoutElementByKey(json, forced)
+                if (forcedLayout != null) {
+                    val baseName = forced.substringBefore(':')
+                    val forcedSub = forced.substringAfter(':', "")
+                    return if (forcedSub.isNotEmpty()) {
+                        parseLayoutHeightPercentOverride((json[baseName] as? JsonObject)?.get(forcedSub))
+                            ?: parseLayoutHeightPercentOverride(json[baseName])
+                    } else {
+                        parseLayoutHeightPercentOverride(json[baseName])
+                    }
+                }
+            }
+
+            val imeLayoutElement = json[currentIme.uniqueName] ?: json[currentIme.displayName]
+            if (imeLayoutElement != null) {
+                val subModeLabel = currentIme.subMode.label
+                val subModeLayoutElement = if (imeLayoutElement is JsonObject) {
+                    imeLayoutElement[subModeLabel]
+                        ?: imeLayoutElement["default"]
+                        ?: imeLayoutElement[""]
+                } else {
+                    imeLayoutElement
+                }
+                if (parseLayoutArray(subModeLayoutElement) != null) {
+                    return parseLayoutHeightPercentOverride(subModeLayoutElement)
+                        ?: parseLayoutHeightPercentOverride(imeLayoutElement)
+                }
+            }
+
+            val defaultLayoutElement = json["default"]
+            if (parseLayoutArray(defaultLayoutElement) != null) {
+                return parseLayoutHeightPercentOverride(defaultLayoutElement)
+            }
+            return null
+        }
 
         @Synchronized
         fun currentBaseLayoutKey(): String? {
@@ -743,9 +787,11 @@ class TextKeyboard(
         updateAlphabetKeys()
     }
 
-    protected override fun defaultRowHeightPercent(rowCount: Int): Float = 25f
+    protected override fun defaultRowHeightPercent(rowCount: Int): Float =
+        super.defaultRowHeightPercent(rowCount)
 
-    override fun preferredKeyboardHeightPercentOverride(): Int? = resolvedLayoutHeightPercentOverride
+    override fun preferredKeyboardHeightPercentOverride(): Int? =
+        TextKeyboard.currentLayoutHeightPercentOverride()
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()

@@ -170,13 +170,7 @@ abstract class BaseKeyboard(
         val splitKeyboard = splitKeyboardManager.shouldUseSplitKeyboard(width)
         lastSplitLandscapeState = splitKeyboard
         val rows = keyLayout
-        val defaultRowHeight = defaultRowHeightPercent(rows.size)
-        rowHeightPercents = rows.map { row ->
-            val rowMax = row
-                .mapNotNull { it.rowHeightPercent }
-                .maxOrNull()
-            (rowMax ?: defaultRowHeight).coerceAtLeast(1f)
-        }
+        rowHeightPercents = resolveRowHeightPercents(rows)
 
         keyRows = rows.map { row ->
             val keyViews = row.map(::createKeyView).apply {
@@ -200,6 +194,34 @@ abstract class BaseKeyboard(
                 centerHorizontally()
             })
         }
+    }
+
+    private fun resolveRowHeightPercents(rows: List<List<KeyDef>>): List<Float> {
+        if (rows.isEmpty()) return emptyList()
+
+        val parsedPercents = rows.map { row ->
+            row.mapNotNull { it.rowHeightPercent }
+                .maxOrNull()
+                ?.takeIf { it in 1f..100f }
+        }
+        val definedSum = parsedPercents.filterNotNull().sum()
+        val undefinedCount = parsedPercents.count { it == null }
+
+        val distributed = if (undefinedCount == 0) {
+            parsedPercents.map { it ?: 0f }
+        } else {
+            val remaining = (100f - definedSum).coerceAtLeast(0f)
+            val avg = remaining / undefinedCount
+            parsedPercents.map { it ?: avg }
+        }
+
+        val sum = distributed.sum()
+        if (sum <= 0f) {
+            val fallback = defaultRowHeightPercent(rows.size)
+            return List(rows.size) { fallback }
+        }
+
+        return distributed.map { it * 100f / sum }
     }
 
     protected open fun defaultRowHeightPercent(rowCount: Int): Float {
