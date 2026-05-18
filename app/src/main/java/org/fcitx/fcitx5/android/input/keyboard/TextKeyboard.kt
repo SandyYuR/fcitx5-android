@@ -441,9 +441,10 @@ class TextKeyboard(
                     // Fallback to global "default" layout
                     json["default"]?.let { layoutElement ->
                         resolvedLayoutHeightPercentOverride = parseLayoutHeightPercentOverride(layoutElement)
-                        if (layoutElement is JsonArray) {
-                            return cachedKeyDefLayouts.getOrPut("default:$showLangSwitch") {
-                                layoutElement.map { rowElement ->
+                        val layoutArray = parseLayoutArray(layoutElement)
+                        if (layoutArray != null) {
+                            return cachedKeyDefLayouts.getOrPut("default:$showLangSwitch:$lastRawModified") {
+                                layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
                                         .map { LayoutJsonUtils.createKeyDef(it) }
                                 }
