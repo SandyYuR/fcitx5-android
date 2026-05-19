@@ -237,7 +237,9 @@ abstract class KeyView(
 
     private fun usesSpecialBackground(): Boolean = when (def.viewId) {
         R.id.button_space -> !bordered
-        R.id.button_return, R.id.button_layout_switch -> usesPillShape()
+        // Return keeps accent pill background even when key border is disabled.
+        R.id.button_return -> !bordered || usesPillShape()
+        R.id.button_layout_switch -> usesPillShape()
         else -> false
     }
 
@@ -377,7 +379,9 @@ abstract class KeyView(
                 )
             }
             R.id.button_return -> {
-                if (specialKeyOvalShapeEnabled && def.border == Border.Special) {
+                // Return uses special pill background when border is disabled,
+                // and also when Gboard-style special key oval shape is enabled.
+                if ((!bordered || specialKeyOvalShapeEnabled) && def.border == Border.Special) {
                     applyPillBackground(theme)
                 }
             }
