@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="qr_scan_frame_size">280dp</dimen>
+</resources>

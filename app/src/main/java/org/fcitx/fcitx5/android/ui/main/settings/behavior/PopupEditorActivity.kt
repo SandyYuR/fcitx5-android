@@ -36,6 +36,7 @@ import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrScanOptions
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
@@ -126,12 +127,7 @@ class PopupEditorActivity : AppCompatActivity() {
 
     private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) {
-            cameraScanLauncher.launch(com.journeyapps.barcodescanner.ScanOptions().apply {
-                setDesiredBarcodeFormats(com.journeyapps.barcodescanner.ScanOptions.QR_CODE)
-                setPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt))
-                setBeepEnabled(false)
-                setOrientationLocked(true)
-            })
+            cameraScanLauncher.launch(QrScanOptions.forPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt)))
         } else {
             showToast(getString(R.string.text_keyboard_layout_qr_camera_permission_denied))
         }
@@ -600,12 +596,7 @@ class PopupEditorActivity : AppCompatActivity() {
         val granted = androidx.core.content.ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
             android.content.pm.PackageManager.PERMISSION_GRANTED
         if (granted) {
-            cameraScanLauncher.launch(com.journeyapps.barcodescanner.ScanOptions().apply {
-                setDesiredBarcodeFormats(com.journeyapps.barcodescanner.ScanOptions.QR_CODE)
-                setPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt))
-                setBeepEnabled(false)
-                setOrientationLocked(true)
-            })
+            cameraScanLauncher.launch(QrScanOptions.forPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt)))
         } else {
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
@@ -676,12 +667,7 @@ class PopupEditorActivity : AppCompatActivity() {
             applyImportedPopupJson(it)
             return
         }
-        cameraScanLauncher.launch(com.journeyapps.barcodescanner.ScanOptions().apply {
-            setDesiredBarcodeFormats(com.journeyapps.barcodescanner.ScanOptions.QR_CODE)
-            setPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt))
-            setBeepEnabled(false)
-            setOrientationLocked(true)
-        })
+        cameraScanLauncher.launch(QrScanOptions.forPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt)))
     }
 
     private fun applyImportedPopupJson(json: String) {

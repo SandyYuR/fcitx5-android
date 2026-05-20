@@ -130,6 +130,13 @@
             android:taskAffinity=".ui.main.settings.behavior.dialog.TextKeyboardLayoutProfilePickerActivity"
             android:theme="@style/Theme.TransparentOverlayActivity" />
         <activity
+            android:name=".ui.main.settings.behavior.share.QrScanCaptureActivity"
+            android:exported="false"
+            android:screenOrientation="fullSensor"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
             android:name=".ui.main.settings.behavior.ButtonsCustomizerActivity"
             android:exported="false"
             android:label="@string/edit_buttons" />

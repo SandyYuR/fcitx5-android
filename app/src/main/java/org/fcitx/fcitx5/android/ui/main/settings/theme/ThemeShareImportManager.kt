@@ -33,6 +33,7 @@ import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrBitmapUtil
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrScanOptions
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
 import org.fcitx.fcitx5.android.utils.importErrorDialog
 import org.fcitx.fcitx5.android.utils.queryFileName
@@ -217,12 +218,7 @@ class ThemeShareImportManager(
         val granted = ContextCompat.checkSelfPermission(fragment.requireContext(), Manifest.permission.CAMERA) ==
             android.content.pm.PackageManager.PERMISSION_GRANTED
         if (granted) {
-            cameraScanLauncher.launch(ScanOptions().apply {
-                setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                setPrompt(fragment.getString(R.string.text_keyboard_layout_qr_scan_prompt))
-                setBeepEnabled(false)
-                setOrientationLocked(true)
-            })
+            cameraScanLauncher.launch(QrScanOptions.forPrompt(fragment.getString(R.string.text_keyboard_layout_qr_scan_prompt)))
         } else {
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
@@ -274,12 +270,7 @@ class ThemeShareImportManager(
             tryImportThemeJson(json)
             return
         }
-        cameraScanLauncher.launch(ScanOptions().apply {
-            setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-            setPrompt(fragment.getString(R.string.text_keyboard_layout_qr_scan_prompt))
-            setBeepEnabled(false)
-            setOrientationLocked(true)
-        })
+        cameraScanLauncher.launch(QrScanOptions.forPrompt(fragment.getString(R.string.text_keyboard_layout_qr_scan_prompt)))
     }
 
     private fun tryAssembleAndImport(chunks: List<String>) {

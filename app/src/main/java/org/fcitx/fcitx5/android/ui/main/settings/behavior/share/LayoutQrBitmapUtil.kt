@@ -12,8 +12,10 @@ import android.graphics.Typeface
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
 import com.google.zxing.EncodeHintType
+import com.google.zxing.LuminanceSource
 import com.google.zxing.MultiFormatReader
 import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.common.GlobalHistogramBinarizer
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
 import com.google.zxing.qrcode.QRCodeWriter
@@ -39,8 +41,8 @@ object LayoutQrBitmapUtil {
     fun createQrBitmap(content: String): Bitmap {
         val hints = mapOf<EncodeHintType, Any>(
             EncodeHintType.CHARACTER_SET to "UTF-8",
-            EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M,
-            EncodeHintType.MARGIN to 1
+            EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.Q,
+            EncodeHintType.MARGIN to 2
         )
         val matrix = QRCodeWriter().encode(content, com.google.zxing.BarcodeFormat.QR_CODE, QR_SIZE, QR_SIZE, hints)
         val pixels = IntArray(QR_SIZE * QR_SIZE)
@@ -304,11 +306,19 @@ object LayoutQrBitmapUtil {
         val pixels = IntArray(width * height)
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
         val source = RGBLuminanceSource(width, height, pixels)
-        val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
-        return runCatching {
-            MultiFormatReader().decode(binaryBitmap, hints).text
-        }.recoverCatching {
-            QRCodeReader().decode(binaryBitmap, hints).text
-        }.getOrNull()
+        val variants = buildList<LuminanceSource> {
+            add(source)
+            add(source.invert())
+        }
+        variants.forEach { luminance ->
+            val hybrid = BinaryBitmap(HybridBinarizer(luminance))
+            runCatching { MultiFormatReader().decode(hybrid, hints).text }.getOrNull()?.let { return it }
+            runCatching { QRCodeReader().decode(hybrid, hints).text }.getOrNull()?.let { return it }
+
+            val histogram = BinaryBitmap(GlobalHistogramBinarizer(luminance))
+            runCatching { MultiFormatReader().decode(histogram, hints).text }.getOrNull()?.let { return it }
+            runCatching { QRCodeReader().decode(histogram, hints).text }.getOrNull()?.let { return it }
+        }
+        return null
     }
 }
