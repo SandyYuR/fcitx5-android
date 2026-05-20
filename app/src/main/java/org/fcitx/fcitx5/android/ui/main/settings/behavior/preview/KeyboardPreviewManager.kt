@@ -23,7 +23,6 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
-import org.fcitx.fcitx5.android.input.config.MemoryConfigProvider
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
@@ -100,11 +99,13 @@ class KeyboardPreviewManager(
         ConfigProviders.provider = tempProvider
         TextKeyboard.clearCachedKeyDefLayouts()
 
-        // Save the original IME state to restore later
+        // Save the original IME state to restore later.
+        // Keep this purely in-process to avoid blocking Binder calls on UI thread.
         val originalIme = TextKeyboard.ime
+        var appliedPreviewIme: org.fcitx.fcitx5.android.core.InputMethodEntry? = null
 
         try {
-            createKeyboardPreview(layoutName, previewSubModeLabel, fcitxConnection)
+            appliedPreviewIme = createKeyboardPreview(layoutName, previewSubModeLabel, fcitxConnection)
         } catch (e: Exception) {
             android.util.Log.e("KeyboardPreview", "Failed to create keyboard preview for layout: $layoutName, submode: $previewSubModeLabel", e)
             showError(e.message ?: "Unknown error")
@@ -112,10 +113,10 @@ class KeyboardPreviewManager(
             // Restore original provider and IME state
             ConfigProviders.provider = provider
             TextKeyboard.clearCachedKeyDefLayouts()
-            val restoredIme = runCatching {
-                fcitxConnection.runImmediately { inputMethodEntryCached }
-            }.getOrNull()
-            TextKeyboard.ime = restoredIme ?: originalIme
+            // Avoid clobbering real IME updates that may happen while preview is rendering.
+            if (appliedPreviewIme != null && TextKeyboard.ime === appliedPreviewIme) {
+                TextKeyboard.ime = originalIme
+            }
         }
     }
 
@@ -168,7 +169,7 @@ class KeyboardPreviewManager(
         layoutName: String,
         previewSubModeLabel: String?,
         fcitxConnection: FcitxConnection
-    ) {
+    ): org.fcitx.fcitx5.android.core.InputMethodEntry {
         val theme = ThemeManager.activeTheme
 
         previewKeyboard = TextKeyboard(context, theme).apply {
@@ -208,11 +209,10 @@ class KeyboardPreviewManager(
 
             onAttach()
 
-            // Get current IME and create preview IME
-            val currentIme = runCatching {
-                fcitxConnection.runImmediately { inputMethodEntryCached }
-            }.getOrNull()
-
+            // Create preview IME from the currently cached in-process IME state.
+            // Avoid runImmediately() here because updatePreview is called very frequently
+            // during editing and can ANR when host IME and editor contend for the same IPC path.
+            val currentIme = TextKeyboard.ime
             val previewIme = PreviewInputMethodEntry.create(
                 layoutName = layoutName,
                 subModeLabel = previewSubModeLabel,
@@ -227,6 +227,8 @@ class KeyboardPreviewManager(
             post { previewBlurMask.refreshMask(hierarchyChanged = true) }
             requestLayout()
             invalidate()
+
+            return previewIme
         }
     }
 

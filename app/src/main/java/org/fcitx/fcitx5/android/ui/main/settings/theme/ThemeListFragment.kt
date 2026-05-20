@@ -192,9 +192,14 @@ class ThemeListFragment : Fragment() {
             override fun onEditMonetTheme(theme: Theme.Monet) = editMonetTheme(theme)
             override fun onExportTheme(theme: Theme.Custom) = exportTheme(theme)
         }
-        ThemeManager.refreshThemes()
         themeListAdapter.setThemes(ThemeManager.getAllThemes())
         updateSelectedThemes()
+        lifecycleScope.launch {
+            val themes = withContext(Dispatchers.IO) {
+                ThemeFilesManager.listThemes()
+            }
+            ThemeManager.refreshThemes(themes)
+        }
         return ResponsiveThemeListView(requireContext()).apply {
             adapter = themeListAdapter
             applyNavBarInsetsBottomPadding()

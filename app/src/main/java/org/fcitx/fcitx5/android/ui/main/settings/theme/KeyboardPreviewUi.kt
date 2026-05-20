@@ -16,6 +16,8 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.RenderEffect
 import android.graphics.Shader
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.View
@@ -26,11 +28,19 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemePrefs.NavbarBackground
+import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.input.keyboard.KeyView
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
@@ -113,6 +123,22 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
     private lateinit var fakeKeyboardWindow: TextKeyboard
     private var currentTheme: Theme? = null
     private var isUpdatingTheme = false
+    private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var backgroundJob: Job? = null
+    private var backgroundGeneration = 0L
+
+    private inline fun <T> withPreviewIme(previewIme: InputMethodEntry, block: () -> T): T {
+        val originalIme = TextKeyboard.ime
+        TextKeyboard.ime = previewIme
+        return try {
+            block()
+        } finally {
+            // Do not overwrite if real IME already updated global state during preview rendering.
+            if (TextKeyboard.ime === previewIme) {
+                TextKeyboard.ime = originalIme
+            }
+        }
+    }
 
     private inner class PreviewBlurMaskView : View(ctx) {
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
@@ -302,6 +328,8 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
     }
 
     private fun applyBlurMaskFromBitmap(sourceBitmap: Bitmap?, blurRadius: Float, brightness: Int) {
+        backgroundJob?.cancel()
+        val generation = ++backgroundGeneration
         if (sourceBitmap == null || blurRadius <= 0f) {
             blurMaskView.setBlurBitmap(null)
             return
@@ -314,26 +342,74 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
                 useRenderEffect = true
             )
         } else {
-            blurMaskView.setBlurBitmap(BitmapBlurUtil.blur(sourceBitmap, blurRadius), brightness)
+            backgroundJob = backgroundScope.launch {
+                val blurred = withContext(Dispatchers.IO) {
+                    BitmapBlurUtil.blur(sourceBitmap, blurRadius)
+                }
+                if (generation != backgroundGeneration) return@launch
+                blurMaskView.setBlurBitmap(blurred, brightness)
+            }
         }
     }
 
-    private fun applyBlurMaskFromTheme(theme: Theme) {
+    private fun fallbackBackground(theme: Theme): Drawable =
+        if (theme is Theme.Custom && theme.backgroundImage != null) {
+            ColorDrawable(if (keyBorder) theme.backgroundColor else theme.keyboardColor)
+        } else {
+            theme.backgroundDrawable(keyBorder)
+        }
+
+    private fun loadBackgroundFromThemeAsync(theme: Theme) {
+        backgroundJob?.cancel()
+        val generation = ++backgroundGeneration
         val custom = theme as? Theme.Custom
         val bg = custom?.backgroundImage
-        if (bg == null || bg.blurRadius <= 0f) {
+        if (bg == null) {
+            setBackground(theme.backgroundDrawable(keyBorder))
             blurMaskView.setBlurBitmap(null)
             return
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !keyBorder) {
-            blurMaskView.setBlurBitmap(
-                bitmap = bg.loadBitmapForRendering(),
-                brightness = bg.brightness,
-                blurRadius = bg.blurRadius,
-                useRenderEffect = true
-            )
-        } else {
-            blurMaskView.setBlurBitmap(bg.loadBlurredBitmapForRendering(), bg.brightness)
+        setBackground(fallbackBackground(theme))
+        blurMaskView.setBlurBitmap(null)
+        backgroundJob = backgroundScope.launch {
+            try {
+                val sourceBitmap = withContext(Dispatchers.IO) {
+                    bg.loadBitmapForRendering()
+                }
+                if (generation != backgroundGeneration) return@launch
+                if (sourceBitmap == null) {
+                    setBackground(fallbackBackground(theme))
+                    blurMaskView.setBlurBitmap(null)
+                    return@launch
+                }
+                setBackground(
+                    BitmapDrawable(ctx.resources, sourceBitmap).apply {
+                        colorFilter = DarkenColorFilter(100 - bg.brightness)
+                    }
+                )
+                if (bg.blurRadius <= 0f) {
+                    blurMaskView.setBlurBitmap(null)
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !keyBorder) {
+                    blurMaskView.setBlurBitmap(
+                        bitmap = sourceBitmap,
+                        brightness = bg.brightness,
+                        blurRadius = bg.blurRadius,
+                        useRenderEffect = true
+                    )
+                } else {
+                    val blurred = withContext(Dispatchers.IO) {
+                        BitmapBlurUtil.blur(sourceBitmap, bg.blurRadius)
+                    }
+                    if (generation != backgroundGeneration) return@launch
+                    blurMaskView.setBlurBitmap(blurred, bg.brightness)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                if (generation != backgroundGeneration) return@launch
+                setBackground(fallbackBackground(theme))
+                blurMaskView.setBlurBitmap(null)
+            }
         }
     }
 
@@ -373,6 +449,8 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         }
 
         override fun onDetachedFromWindow() {
+            backgroundJob?.cancel()
+            backgroundGeneration++
             navbarBackground.unregisterOnChangeListener(navbarBkgChangeListener)
             super.onDetachedFromWindow()
         }
@@ -464,9 +542,13 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         
         val sameTheme = currentTheme != null && currentTheme == theme
 
-        val resolvedBackground = background ?: theme.backgroundDrawable(keyBorder)
-        setBackground(resolvedBackground)
-        applyBlurMaskFromTheme(theme)
+        if (background != null) {
+            backgroundJob?.cancel()
+            backgroundGeneration++
+            setBackground(background)
+        } else {
+            loadBackgroundFromThemeAsync(theme)
+        }
 
         // First-time setup: create new keyboard view
         if (!this::fakeKeyboardWindow.isInitialized) {
@@ -485,8 +567,11 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             }
 
             fakeKeyboardWindow.post {
+                val previewIme = PreviewInputMethodEntry.create()
                 fakeKeyboardWindow.onAttach()
-                fakeKeyboardWindow.onInputMethodUpdate(PreviewInputMethodEntry.create())
+                withPreviewIme(previewIme) {
+                    fakeKeyboardWindow.onInputMethodUpdate(previewIme)
+                }
                 fakeKeyboardWindow.setTextScale(sizeScale)
                 fakeKeyboardWindow.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
                     blurMaskView.markKeyRegionsDirty()
@@ -516,10 +601,13 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             fakeKeyboardWindow.post {
                 try {
                     isUpdatingTheme = true
+                    val previewIme = PreviewInputMethodEntry.create()
                     if (forceRefresh || sameTheme) {
                         // Config changed: rebuild layout
                         // refreshStyle() reads latest config from ThemeManager.prefs
-                        fakeKeyboardWindow.refreshStyle()
+                        withPreviewIme(previewIme) {
+                            fakeKeyboardWindow.refreshStyle()
+                        }
                     } else {
                         // Theme changed: update colors without rebuilding
                         currentTheme = theme

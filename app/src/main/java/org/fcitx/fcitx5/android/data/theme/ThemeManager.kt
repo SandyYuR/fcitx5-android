@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.Keep
+import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
@@ -84,8 +85,21 @@ object ThemeManager {
     fun getAllThemes() = customThemes + monetThemes + BuiltinThemes
 
     fun refreshThemes() {
+        refreshThemes(ThemeFilesManager.listThemes())
+    }
+
+    fun refreshThemes(refreshedCustomThemes: List<Theme.Custom>) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            mainHandler.post { refreshThemes(refreshedCustomThemes) }
+            return
+        }
+        applyRefreshedThemes(refreshedCustomThemes)
+    }
+
+    @MainThread
+    private fun applyRefreshedThemes(refreshedCustomThemes: List<Theme.Custom>) {
         customThemes.clear()
-        customThemes.addAll(ThemeFilesManager.listThemes())
+        customThemes.addAll(refreshedCustomThemes)
         monetThemes = loadMonetThemes()
         activeTheme = evaluateActiveTheme()
         fireThemeListChange()
