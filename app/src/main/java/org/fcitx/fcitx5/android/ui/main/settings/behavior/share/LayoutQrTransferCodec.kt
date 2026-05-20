@@ -26,7 +26,8 @@ object LayoutQrTransferCodec {
     private val prettyJson = Json { prettyPrint = true }
 
     private const val MAGIC = "F5AQR1"
-    private const val MAX_CHUNK_BYTES = 1500
+    private const val MAX_EXPORT_CHUNK_BYTES = 1024
+    private const val MAX_IMPORT_CHUNK_BYTES_LEGACY = 1500
     private const val MAX_DECOMPRESSED_BYTES = 256 * 1024
     const val TRANSFER_TYPE_LAYOUT = 'L'
     const val TRANSFER_TYPE_POPUP = 'P'
@@ -56,15 +57,17 @@ object LayoutQrTransferCodec {
         transferType: Char? = null,
         transferProfile: String? = null
     ): ChunkBundle {
-        val compressed = compress(rawJson.toByteArray(Charsets.UTF_8))
+        val normalizedJson = minifyJsonIfPossible(rawJson)
+        val compressed = compress(normalizedJson.toByteArray(Charsets.UTF_8))
         val crc = crc32(compressed)
         val transferId = buildTransferId(transferType, transferProfile)
-        val chunkCount = (compressed.size + MAX_CHUNK_BYTES - 1) / MAX_CHUNK_BYTES
+        val chunkCount = maxOf(1, (compressed.size + MAX_EXPORT_CHUNK_BYTES - 1) / MAX_EXPORT_CHUNK_BYTES)
+        val chunkSize = minOf(MAX_EXPORT_CHUNK_BYTES, (compressed.size + chunkCount - 1) / chunkCount)
         val chunks = ArrayList<Chunk>(chunkCount)
         var i = 0
         while (i < chunkCount) {
-            val start = i * MAX_CHUNK_BYTES
-            val end = minOf(start + MAX_CHUNK_BYTES, compressed.size)
+            val start = i * chunkSize
+            val end = minOf(start + chunkSize, compressed.size)
             val part = compressed.copyOfRange(start, end)
             chunks += Chunk(
                 transferId = transferId,
@@ -135,6 +138,9 @@ object LayoutQrTransferCodec {
         return if (trimmed.startsWith(MAGIC)) trimmed else null
     }
 
+    private fun minifyJsonIfPossible(raw: String): String =
+        runCatching { json.parseToJsonElement(raw).toString() }.getOrDefault(raw)
+
     private fun decodeChunkLine(line: String): Chunk {
         val parts = line.split('|', limit = 5)
         if (parts.size != 5 || parts[0] != MAGIC) throw IllegalArgumentException("Invalid QR payload header")
@@ -145,6 +151,12 @@ object LayoutQrTransferCodec {
         val total = seq[1].toIntOrNull() ?: throw IllegalArgumentException("Invalid total chunks")
         if (index <= 0 || total <= 0 || index > total) throw IllegalArgumentException("Chunk sequence out of range")
         val crc = parts[3].toLongOrNull() ?: throw IllegalArgumentException("Invalid crc32")
+        val payloadBytes = runCatching {
+            Base64.decode(parts[4], Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
+        }.getOrElse { throw IllegalArgumentException("Invalid payload base64") }
+        if (payloadBytes.isEmpty() || payloadBytes.size > MAX_IMPORT_CHUNK_BYTES_LEGACY) {
+            throw IllegalArgumentException("Chunk payload size out of range")
+        }
         return Chunk(transferId, index, total, crc, parts[4])
     }
 
