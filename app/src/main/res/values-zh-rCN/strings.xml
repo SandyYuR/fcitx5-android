@@ -311,6 +311,7 @@
     <string name="custom_label_hint">自定义标签（可选）</string>
     <string name="enable_long_press_menu">启用长按显示浮动菜单</string>
     <string name="floating_keyboard">浮动键盘</string>
+    <string name="adjusting_mode_confirm">确认</string>
     <string name="edit_button_title">编辑按钮</string>
     <string name="delete_button_title">删除按钮</string>
     <string name="delete_button_confirm">删除此按钮？</string>

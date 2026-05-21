@@ -144,6 +144,7 @@
     <string name="custom_label_hint">Etiqueta personalizada (opcional)</string>
     <string name="enable_long_press_menu">Activar mantenimiento para mostrar menú flotante</string>
     <string name="floating_keyboard">Teclado flotante</string>
+    <string name="adjusting_mode_confirm">Listo</string>
     <string name="edit_button_title">Editar botón</string>
     <string name="delete_button_title">Eliminar botón</string>
     <string name="delete_button_confirm">¿Eliminar este botón?</string>

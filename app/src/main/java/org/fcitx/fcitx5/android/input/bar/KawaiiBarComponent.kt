@@ -216,13 +216,18 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         idleUi.updateState(newState, fromUser)
     }
 
-    private val hideKeyboardCallback = View.OnClickListener {
+    private fun hideKeyboardAndExitAdjustingMode() {
+        service.inputView?.exitAdjustingMode()
         service.requestHideSelf(0)
+    }
+
+    private val hideKeyboardCallback = View.OnClickListener {
+        hideKeyboardAndExitAdjustingMode()
     }
 
     private val swipeDownExpandCallback = CustomGestureView.OnGestureListener { _, e ->
         if (e.type == CustomGestureView.GestureType.Up && e.totalY > 0) {
-            service.requestHideSelf(0)
+            hideKeyboardAndExitAdjustingMode()
             true
         } else false
     }
@@ -262,7 +267,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                     val thresholdY = v.swipeThresholdY
                     val handled = when (angle) {
                         in -45f..45f if distance > thresholdY -> {
-                            service.requestHideSelf(0)
+                            hideKeyboardAndExitAdjustingMode()
                             true
                         }
                         !in -45f..45f if distance > thresholdX -> {
@@ -281,7 +286,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         }
 
         if (e.type == CustomGestureView.GestureType.Up && abs(e.totalY) > abs(e.totalX) && e.totalY > 0) {
-            service.requestHideSelf(0)
+            hideKeyboardAndExitAdjustingMode()
             true
         } else false
     }

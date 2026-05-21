@@ -246,6 +246,13 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val keyboardSidePaddingLandscape: ManagedPreference.PInt
 
         init {
+            val dm = appContext.resources.displayMetrics
+            val shortEdgeDp = (minOf(dm.widthPixels, dm.heightPixels) / dm.density).toInt()
+            val longEdgeDp = (maxOf(dm.widthPixels, dm.heightPixels) / dm.density).toInt()
+            // Keep keyboard width >= 1/2 screen width: sidePadding <= width/4.
+            val portraitMaxPaddingDp = (shortEdgeDp / 4).coerceAtLeast(0)
+            val landscapeMaxPaddingDp = (longEdgeDp / 4).coerceAtLeast(0)
+            val sidePaddingMaxDp = maxOf(portraitMaxPaddingDp, landscapeMaxPaddingDp)
             val (primary, secondary) = twinInt(
                 R.string.keyboard_side_padding,
                 R.string.portrait,
@@ -255,7 +262,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
                 "keyboard_side_padding_landscape",
                 0,
                 0,
-                300,
+                sidePaddingMaxDp,
                 "dp"
             )
             keyboardSidePadding = primary

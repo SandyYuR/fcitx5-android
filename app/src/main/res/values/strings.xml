@@ -321,6 +321,7 @@
     <string name="custom_label_hint">Custom label (optional)</string>
     <string name="enable_long_press_menu">Enable long press to show floating menu</string>
     <string name="floating_keyboard">Floating Keyboard</string>
+    <string name="adjusting_mode_confirm">Done</string>
     <string name="edit_button_title">Edit Button</string>
     <string name="delete_button_title">Delete Button</string>
     <string name="delete_button_confirm">Remove this button?</string>

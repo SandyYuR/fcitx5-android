@@ -192,6 +192,7 @@
     <string name="custom_label_hint">Benutzerdefiniertes Label (optional)</string>
     <string name="enable_long_press_menu">Langes Drücken aktivieren, um schwebendes Menü anzuzeigen</string>
     <string name="floating_keyboard">Schwebende Tastatur</string>
+    <string name="adjusting_mode_confirm">Fertig</string>
     <string name="edit_button_title">Schaltfläche bearbeiten</string>
     <string name="delete_button_title">Schaltfläche löschen</string>
     <string name="delete_button_confirm">Diese Schaltfläche löschen?</string>

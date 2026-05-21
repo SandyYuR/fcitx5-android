@@ -112,6 +112,11 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
         super.onSizeChanged(w, h, oldw, oldh)
         // Update layout mode when size changes
         updateLayoutMode()
+        // Rebind visible items so button width/minWidth is recalculated with the latest width.
+        val itemCount = adapter?.itemCount ?: 0
+        if (itemCount > 0) {
+            adapter?.notifyItemRangeChanged(0, itemCount)
+        }
     }
 
     /**

@@ -281,6 +281,7 @@
     <string name="custom_label_hint">カスタムラベル（オプション）</string>
     <string name="enable_long_press_menu">長押しでフローティングメニューを表示</string>
     <string name="floating_keyboard">フローティングキーボード</string>
+    <string name="adjusting_mode_confirm">確定</string>
     <string name="edit_button_title">ボタンを編集</string>
     <string name="delete_button_title">ボタンを削除</string>
     <string name="delete_button_confirm">このボタンを削除しますか？</string>
