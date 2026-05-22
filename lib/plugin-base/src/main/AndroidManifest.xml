@@ -7,8 +7,6 @@
     -->
     <queries>
         <package android:name="${mainApplicationId}" />
-        <!-- Compatibility: also query original Fcitx5 Android package -->
-        <package android:name="org.fcitx.fcitx5.android" />
     </queries>
 
     <!-- permission required to request self-uninstall -->

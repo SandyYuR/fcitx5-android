@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_debug">Fcitx5 (Text Editor Plugin | Debug)</string>
+    <string name="app_name_release">Fcitx5 (Text Editor Plugin)</string>
+    <string name="description">Browse and edit files under Fcitx5 data folder</string>
+
+    <string name="edit_user_files">Edit User Files</string>
+    <string name="parent_directory">..</string>
+    <string name="empty_directory">(empty directory)</string>
+    <string name="binary_file_unsupported">Binary file not supported</string>
+    <string name="file_too_large">File too large: %1$s</string>
+    <string name="error_open_file">Cannot open: %1$s</string>
+    <string name="error_save_file">Failed to save: %1$s</string>
+    <string name="saved">Saved</string>
+    <string name="unsaved_changes">Unsaved changes</string>
+    <string name="confirm_discard_changes">Discard your unsaved edits?</string>
+    <string name="discard_changes">Discard</string>
+    <string name="save">Save</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
+
+    <string name="rename">Rename</string>
+    <string name="renamed">Renamed</string>
+    <string name="rename_failed">Failed to rename: %1$s</string>
+    <string name="delete">Delete</string>
+    <string name="deleted">Deleted</string>
+    <string name="delete_failed">Failed to delete: %1$s</string>
+    <string name="confirm_delete">Delete \"%1$s\"?</string>
+
+    <string name="find_replace">Find / Replace</string>
+    <string name="find">Find</string>
+    <string name="replace_with">Replace with</string>
+    <string name="replace_one">Replace</string>
+    <string name="replace_all_button">All</string>
+    <string name="find_prev">Previous match</string>
+    <string name="find_next">Next match</string>
+    <string name="search_close">Close search</string>
+    <string name="no_matches">No matches</string>
+    <string name="word_wrap">Word wrap</string>
+    <string name="show_whitespace">Show whitespace</string>
+    <string name="tab_inserts_spaces">Tab inserts spaces</string>
+    <string name="plain_mode">plain mode</string>
+
+    <string name="editor_options">Options</string>
+    <string name="tab_width">Tab width</string>
+    <string name="tab_width_hint">Number of columns a tab character occupies (1–16).</string>
+    <string name="font_fallback">Font fallback</string>
+    <string name="font_fallback_hint">Drag to reorder. The first enabled font is primary; missing glyphs fall through to the next.</string>
+    <string name="font_fallback_empty">No fonts imported yet. Imported fonts are stored in the plugin\'s private data directory.</string>
+    <string name="import_font">Import font…</string>
+    <string name="remove_font">Remove</string>
+    <string name="confirm_remove_font">Remove \"%1$s\"?</string>
+    <string name="invalid_font_file">Not a valid font file</string>
+    <string name="font_imported">Imported %1$s</string>
+    <string name="font_in_use">in fallback chain</string>
+
+    <string name="grant_access_message">Select the Fcitx5 data folder to enable editing. The folder appears as a root in the system file picker; tap \"Use this folder\".</string>
+    <string name="grant_access_denied">Access not granted; the editor cannot start.</string>
+</resources>

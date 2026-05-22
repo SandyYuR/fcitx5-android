@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        Cover all main-app applicationId variants explicitly. We deliberately don't use
+        ${mainApplicationId} here: it resolves to whichever variant the plugin is built
+        against (mainline/fx × release/debug), which always overlaps one of the four
+        entries below and triggers a duplicate-package merger warning.
+        `org.fcitx.fcitx5.android` is already declared by lib:plugin-base.
+    -->
+    <queries>
+        <package android:name="org.fcitx.fcitx5.android.debug" />
+        <package android:name="org.fcitx.fcitx5.android.fx" />
+        <package android:name="org.fcitx.fcitx5.android.fx.debug" />
+    </queries>
+
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+
+    <application
+        android:icon="@mipmap/ic_launcher_plugin_generic"
+        android:label="@string/app_name"
+        android:allowBackup="false">
+
+        <meta-data
+            android:name="org.fcitx.fcitx5.android.plugin.METADATA"
+            android:resource="@xml/plugin" />
+
+        <!--
+            Hide plugin-base's AboutActivity entry point. Clicking the plugin row in the main
+            app's plugin list should land on FileBrowserActivity directly, not an "About" screen.
+        -->
+        <activity
+            android:name="org.fcitx.fcitx5.android.lib.plugin_base.AboutActivity"
+            tools:node="remove" />
+
+        <activity
+            android:name=".FileBrowserActivity"
+            android:exported="true"
+            android:theme="@style/TextEditorTheme">
+            <!--
+                The main app's DataManager.PLUGIN_INTENT is "${APPLICATION_ID}.plugin.MANIFEST",
+                where APPLICATION_ID varies by flavor (mainline / fx) and build type (release / debug).
+                List every variant explicitly so the same plugin APK works regardless of which
+                main-app flavor is installed.
+            -->
+            <intent-filter>
+                <action android:name="${mainApplicationId}.plugin.MANIFEST" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="org.fcitx.fcitx5.android.plugin.MANIFEST" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="org.fcitx.fcitx5.android.debug.plugin.MANIFEST" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="org.fcitx.fcitx5.android.fx.plugin.MANIFEST" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="org.fcitx.fcitx5.android.fx.debug.plugin.MANIFEST" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".TextFileEditActivity"
+            android:exported="false"
+            android:theme="@style/TextEditorTheme"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".EditorOptionsActivity"
+            android:exported="false"
+            android:theme="@style/TextEditorTheme" />
+    </application>
+</manifest>

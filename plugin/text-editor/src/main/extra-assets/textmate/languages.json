@@ -1,0 +1,34 @@
+{
+  "languages": [
+    {
+      "name": "ini",
+      "scopeName": "source.ini",
+      "grammar": "textmate/grammars/ini.tmLanguage.json"
+    },
+    {
+      "name": "json",
+      "scopeName": "source.json",
+      "grammar": "textmate/grammars/json.tmLanguage.json"
+    },
+    {
+      "name": "lua",
+      "scopeName": "source.lua",
+      "grammar": "textmate/grammars/lua.tmLanguage.json"
+    },
+    {
+      "name": "markdown",
+      "scopeName": "text.html.markdown",
+      "grammar": "textmate/grammars/markdown.tmLanguage.json"
+    },
+    {
+      "name": "shell",
+      "scopeName": "source.shell",
+      "grammar": "textmate/grammars/shell.tmLanguage.json"
+    },
+    {
+      "name": "yaml",
+      "scopeName": "source.yaml",
+      "grammar": "textmate/grammars/yaml.tmLanguage.json"
+    }
+  ]
+}

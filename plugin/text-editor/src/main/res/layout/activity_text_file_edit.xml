@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TextFileEditActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorPrimary"
+        android:elevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/searchBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground"
+        android:elevation="2dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp">
+
+            <EditText
+                android:id="@+id/findInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/find"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:singleLine="true"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/matchInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="6dp"
+                android:minWidth="40dp"
+                android:gravity="center"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="12sp"
+                tools:text="1/3" />
+
+            <TextView
+                android:id="@+id/findPrev"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/find_prev"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="↑"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/findNext"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/find_next"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="↓"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/searchClose"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/search_close"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="✕"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingBottom="4dp">
+
+            <EditText
+                android:id="@+id/replaceInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/replace_with"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:singleLine="true"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/replaceOne"
+                style="?attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:paddingHorizontal="12dp"
+                android:text="@string/replace_one"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/replaceAll"
+                style="?attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:paddingHorizontal="12dp"
+                android:text="@string/replace_all_button"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="?android:attr/dividerHorizontal" />
+
+    </LinearLayout>
+
+    <org.fcitx.fcitx5.android.plugin.text_editor.ArrowTabCodeEditor
+        android:id="@+id/editor"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/keyBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchBar" />
+
+    <LinearLayout
+        android:id="@+id/keyBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="?android:attr/dividerHorizontal" />
+
+        <HorizontalScrollView
+            android:id="@+id/keysScroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/keysContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/keySave"
+                    style="@style/EditorKey"
+                    android:contentDescription="@string/save"
+                    android:text="💾" />
+
+                <TextView
+                    android:id="@+id/keyUndo"
+                    style="@style/EditorKey"
+                    android:contentDescription="@string/undo"
+                    android:text="↶"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/keyRedo"
+                    style="@style/EditorKey"
+                    android:contentDescription="@string/redo"
+                    android:text="↷"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/keyTab"
+                    style="@style/EditorKey"
+                    android:contentDescription="Tab"
+                    android:text="⇥"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/keyHome"
+                    style="@style/EditorKey"
+                    android:contentDescription="Home"
+                    android:text="⇱"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/keyEnd"
+                    style="@style/EditorKey"
+                    android:contentDescription="End"
+                    android:text="⇲"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/keyLeft"
+                    style="@style/EditorKey"
+                    android:text="←" />
+
+                <TextView
+                    android:id="@+id/keyUp"
+                    style="@style/EditorKey"
+                    android:text="↑" />
+
+                <TextView
+                    android:id="@+id/keyDown"
+                    style="@style/EditorKey"
+                    android:text="↓" />
+
+                <TextView
+                    android:id="@+id/keyRight"
+                    style="@style/EditorKey"
+                    android:text="→" />
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

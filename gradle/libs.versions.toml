@@ -71,6 +71,7 @@ zxing-embedded = { module = "com.journeyapps:zxing-android-embedded", version.re
 xz = { module = "org.tukaani:xz", version.ref = "xz" }
 pictureselector = { module = "io.github.lucksiege:pictureselector", version.ref = "pictureselector" }
 jieba = { module = "com.huaban:jieba-analysis", version = "1.0.2" }
+sora-editor = { module = "io.github.Rosemoe.sora-editor:editor", version = "0.23.4" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

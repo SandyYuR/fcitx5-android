@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:minHeight="48dp"
+    android:orientation="horizontal"
+    android:paddingHorizontal="4dp">
+
+    <ImageView
+        android:id="@+id/dragHandle"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:contentDescription="@null"
+        android:padding="4dp"
+        android:src="@drawable/ic_drag_handle"
+        app:tint="?android:attr/textColorSecondary" />
+
+    <CheckBox
+        android:id="@+id/enableCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/fontName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="middle"
+        android:paddingHorizontal="4dp"
+        android:singleLine="true"
+        android:textSize="14sp"
+        tools:text="NotoSansCJKsc-Regular.otf" />
+
+    <ImageButton
+        android:id="@+id/deleteFont"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/remove_font"
+        android:src="@android:drawable/ic_menu_delete"
+        app:tint="?android:attr/textColorSecondary" />
+
+</LinearLayout>

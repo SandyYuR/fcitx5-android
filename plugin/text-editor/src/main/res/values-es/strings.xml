@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_debug">Fcitx5 (Complemento de editor de texto | Depuración)</string>
+    <string name="app_name_release">Fcitx5 (Complemento de editor de texto)</string>
+    <string name="description">Examinar y editar archivos dentro de la carpeta de datos de Fcitx5</string>
+
+    <string name="edit_user_files">Editar archivos del usuario</string>
+    <string name="parent_directory">..</string>
+    <string name="empty_directory">(carpeta vacía)</string>
+    <string name="binary_file_unsupported">Archivo binario no admitido</string>
+    <string name="file_too_large">Archivo demasiado grande: %1$s</string>
+    <string name="error_open_file">No se puede abrir: %1$s</string>
+    <string name="error_save_file">No se pudo guardar: %1$s</string>
+    <string name="saved">Guardado</string>
+    <string name="unsaved_changes">Cambios sin guardar</string>
+    <string name="confirm_discard_changes">¿Descartar los cambios sin guardar?</string>
+    <string name="discard_changes">Descartar</string>
+    <string name="save">Guardar</string>
+    <string name="undo">Deshacer</string>
+    <string name="redo">Rehacer</string>
+
+    <string name="rename">Renombrar</string>
+    <string name="renamed">Renombrado</string>
+    <string name="rename_failed">No se pudo renombrar: %1$s</string>
+    <string name="delete">Eliminar</string>
+    <string name="deleted">Eliminado</string>
+    <string name="delete_failed">No se pudo eliminar: %1$s</string>
+    <string name="confirm_delete">¿Eliminar «%1$s»?</string>
+
+    <string name="find_replace">Buscar / Reemplazar</string>
+    <string name="find">Buscar</string>
+    <string name="replace_with">Reemplazar con</string>
+    <string name="replace_one">Reemplazar</string>
+    <string name="replace_all_button">Todos</string>
+    <string name="find_prev">Coincidencia anterior</string>
+    <string name="find_next">Coincidencia siguiente</string>
+    <string name="search_close">Cerrar búsqueda</string>
+    <string name="no_matches">Sin coincidencias</string>
+    <string name="word_wrap">Ajuste de línea</string>
+    <string name="show_whitespace">Mostrar espacios en blanco</string>
+    <string name="tab_inserts_spaces">Tab inserta espacios</string>
+    <string name="plain_mode">modo texto plano</string>
+
+    <string name="editor_options">Opciones</string>
+    <string name="tab_width">Ancho de tabulación</string>
+    <string name="tab_width_hint">Columnas ocupadas por un tabulador (1–16).</string>
+    <string name="font_fallback">Fuente alternativa</string>
+    <string name="font_fallback_hint">Arrastra para reordenar. La primera fuente es la principal; los glifos faltantes recurren a las siguientes.</string>
+    <string name="font_fallback_empty">No hay fuentes importadas. Se guardan en el directorio de datos privado del complemento.</string>
+    <string name="import_font">Importar fuente…</string>
+    <string name="remove_font">Eliminar</string>
+    <string name="confirm_remove_font">¿Eliminar \"%1$s\"?</string>
+    <string name="invalid_font_file">Archivo de fuente no válido</string>
+    <string name="font_imported">Importado %1$s</string>
+    <string name="font_in_use">en la cadena</string>
+
+    <string name="grant_access_message">Seleccione la carpeta de datos de Fcitx5 para habilitar la edición. La carpeta aparece como raíz en el selector de archivos del sistema; toque «Usar esta carpeta».</string>
+    <string name="grant_access_denied">Acceso no concedido; el editor no puede iniciarse.</string>
+</resources>
