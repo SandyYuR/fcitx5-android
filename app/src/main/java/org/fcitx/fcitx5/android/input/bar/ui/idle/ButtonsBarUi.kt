@@ -43,6 +43,8 @@ class ButtonsBarUi(
 
     // Map to store button references by ID
     private val buttonMap = mutableMapOf<String, ToolButton>()
+    // Keep per-button active state so recycled/rebound views always restore correct tint.
+    private val buttonActiveMap = mutableMapOf<String, Boolean>()
 
     // Click listeners for each button
     private val clickListeners = mutableMapOf<String, View.OnClickListener>()
@@ -112,10 +114,12 @@ class ButtonsBarUi(
     fun getButton(buttonId: String): ToolButton? = buttonMap[buttonId]
 
     fun setFloatingState(isFloating: Boolean) {
+        buttonActiveMap["floating_toggle"] = isFloating
         buttonMap["floating_toggle"]?.setActive(isFloating)
     }
 
     fun setOneHandKeyboardState(isOneHanded: Boolean) {
+        buttonActiveMap["one_handed_keyboard"] = isOneHanded
         buttonMap["one_handed_keyboard"]?.setActive(isOneHanded)
     }
 
@@ -124,7 +128,9 @@ class ButtonsBarUi(
      */
     fun updateButtonsState(service: FcitxInputMethodService) {
         ButtonAction.allConfigurableActions.forEach { action ->
-            buttonMap[action.id]?.setActive(action.isActive(service))
+            val active = action.isActive(service)
+            buttonActiveMap[action.id] = active
+            buttonMap[action.id]?.setActive(active)
         }
     }
 
@@ -165,6 +171,8 @@ class ButtonsBarUi(
             val parentWidth = recyclerView.width
             val childCount = itemCount
             val button = holder.button
+            val config = buttons[position]
+            buttonMap[config.id] = button
 
             val params = holder.button.layoutParams as FlexboxLayoutManager.LayoutParams
 
@@ -211,6 +219,7 @@ class ButtonsBarUi(
                 params.width = ViewGroup.LayoutParams.WRAP_CONTENT
                 params.minWidth = kawaiiBarLayout.minButtonWidth
             }
+            button.setActive(buttonActiveMap[config.id] == true)
         }
 
         override fun getItemViewType(position: Int): Int {
