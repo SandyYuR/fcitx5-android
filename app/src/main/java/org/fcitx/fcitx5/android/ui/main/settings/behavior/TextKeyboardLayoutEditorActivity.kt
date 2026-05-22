@@ -2495,18 +2495,14 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     private fun exportLayoutAsQrLongImage() {
         lifecycleScope.launch {
             val result = runCatching {
+                val previewBitmap = captureLayoutPreviewForQrShare()
                 if (!saveLayout()) {
+                    if (previewBitmap != null && !previewBitmap.isRecycled) {
+                        previewBitmap.recycle()
+                    }
                     throw IllegalStateException(getString(R.string.text_keyboard_layout_save_failed))
                 }
                 val file = layoutFile ?: throw IllegalStateException(getString(R.string.cannot_resolve_text_keyboard_layout))
-                
-                // Get preview bitmap before generating QR codes
-                val previewBitmap = withContext(Dispatchers.Main) {
-                    previewKeyboardContainer.requestLayout()
-                    previewKeyboardContainer.invalidate()
-                    delay(16)
-                    previewManager.getPreviewBitmap()
-                }
                 
                 // Generate QR codes
                 val bundle: LayoutQrTransferCodec.ChunkBundle = withContext(Dispatchers.Default) {
@@ -2548,6 +2544,19 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 showToast(getString(R.string.text_keyboard_layout_qr_export_failed, it.localizedMessage ?: ""))
             }
         }
+    }
+
+    private suspend fun captureLayoutPreviewForQrShare(): android.graphics.Bitmap? = withContext(Dispatchers.Main) {
+        val layoutName = currentLayout ?: return@withContext null
+        // Ensure preview is refreshed to current editing target before capture.
+        previewManager.updatePreview(layoutName, previewSubModeLabel, fcitxConnection)
+        repeat(10) {
+            previewKeyboardContainer.requestLayout()
+            previewKeyboardContainer.invalidate()
+            delay(16)
+            previewManager.getPreviewBitmap()?.let { return@withContext it }
+        }
+        null
     }
 
     private fun shareLongImageUri(uri: Uri) {

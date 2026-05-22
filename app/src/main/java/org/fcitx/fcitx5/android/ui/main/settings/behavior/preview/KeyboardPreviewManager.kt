@@ -289,15 +289,18 @@ class KeyboardPreviewManager(
      * @return Bitmap of the preview keyboard, or null if no preview is available
      */
     fun getPreviewBitmap(): Bitmap? {
-        val keyboard = previewKeyboard ?: return null
-
-        val targetView = if (previewContainer.width > 0 && previewContainer.height > 0) {
+        val keyboard = previewKeyboard
+        val targetView: View = if (previewContainer.width > 0 && previewContainer.height > 0) {
+            previewContainer
+        } else if (keyboard != null) {
+            keyboard
+        } else if (previewContainer.childCount > 0) {
             previewContainer
         } else {
-            keyboard
+            return null
         }
-        val width = targetView.width
-        val height = targetView.height
+        val width = if (targetView.width > 0) targetView.width else targetView.measuredWidth
+        val height = if (targetView.height > 0) targetView.height else targetView.measuredHeight
         if (width <= 0 || height <= 0) return null
 
         // Directly render the current view tree into bitmap
