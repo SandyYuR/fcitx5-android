@@ -1210,12 +1210,16 @@ class InputView(
         }
     }
 
-    private fun resolveKeyboardSidePadding(): Int {
+    private fun rawKeyboardSidePadding(): Int {
         return if (isLayoutLandscape) {
             keyboardPrefs.keyboardSidePaddingLandscape.getValue()
         } else {
             keyboardPrefs.keyboardSidePadding.getValue()
         }
+    }
+
+    private fun resolveKeyboardSidePadding(): Int {
+        return rawKeyboardSidePadding().coerceIn(0, maxKeyboardSidePaddingInAdjustingMode())
     }
 
     private fun maxKeyboardSidePaddingInAdjustingMode(): Int {
@@ -1229,13 +1233,14 @@ class InputView(
     }
 
     private fun clampKeyboardSidePaddingToSafeRange() {
-        val current = resolveKeyboardSidePadding()
+        val current = rawKeyboardSidePadding()
         val maxSafePadding = maxKeyboardSidePaddingInAdjustingMode()
-        if (current <= maxSafePadding) return
+        val clamped = current.coerceIn(0, maxSafePadding)
+        if (current == clamped) return
         if (isLayoutLandscape) {
-            keyboardPrefs.keyboardSidePaddingLandscape.setValue(maxSafePadding)
+            keyboardPrefs.keyboardSidePaddingLandscape.setValue(clamped)
         } else {
-            keyboardPrefs.keyboardSidePadding.setValue(maxSafePadding)
+            keyboardPrefs.keyboardSidePadding.setValue(clamped)
         }
     }
 
@@ -2401,7 +2406,7 @@ class InputView(
 
     private val keyboardSidePaddingPx: Int
         get() {
-            val value = (if (isLayoutLandscape) keyboardSidePaddingLandscape else keyboardSidePadding).getValue()
+            val value = resolveKeyboardSidePadding()
             val px = dp(value)
             if (isEffectiveFloating) {
                 return (px * 0.8).toInt()

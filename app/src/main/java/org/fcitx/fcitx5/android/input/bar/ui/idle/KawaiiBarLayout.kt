@@ -102,9 +102,6 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
 
     init {
         layoutManager = kawaiiBarLayout
-        // Disable change animations to avoid transient translation artifacts
-        // when button layout mode changes while the list is scrolled.
-        itemAnimator = null
         // Disable nested scrolling to prevent conflicts with parent touch handling
         isNestedScrollingEnabled = false
         // Ensure RecyclerView can scroll horizontally
@@ -113,65 +110,36 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        refreshButtonsLayout()
-    }
-
-    private fun applyLayoutMode(parentWidth: Int, childCount: Int): Boolean {
-        if (parentWidth <= 0 || childCount == 0) return false
-
-        val idealWidth = kawaiiBarLayout.calculateEvenDistributedWidth(childCount, parentWidth)
-        val shouldDistribute = idealWidth >= kawaiiBarLayout.minButtonWidth
-        val modeChanged = shouldDistribute != kawaiiBarLayout.isEvenDistributionMode
-
-        if (shouldDistribute) {
-            kawaiiBarLayout.setEvenDistributionMode()
-            isHorizontalScrollBarEnabled = false
-            // Reset offset when leaving scroll mode to avoid stale anchor state.
-            scrollToPosition(0)
-        } else {
-            kawaiiBarLayout.setScrollMode()
-            isHorizontalScrollBarEnabled = true
-        }
-        return modeChanged
+        // Update layout mode when size changes
+        updateLayoutMode()
     }
 
     /**
      * Update the layout mode based on current button count and available space
      */
     internal fun updateLayoutMode() {
-        val currentAdapter = adapter ?: return
-        val childCount = currentAdapter.itemCount
-        val parentWidth = width
-
-        if (parentWidth > 0 && childCount > 0) {
-            val modeChanged = applyLayoutMode(parentWidth, childCount)
-            if (modeChanged) {
-                requestLayout()
-            }
-            return
-        }
+        val adapter = adapter ?: return
+        val childCount = adapter.itemCount
 
         post {
-            val deferredAdapter = adapter ?: return@post
-            val deferredChildCount = deferredAdapter.itemCount
-            val deferredParentWidth = width
-            if (deferredParentWidth <= 0 || deferredChildCount == 0) return@post
-            val modeChanged = applyLayoutMode(deferredParentWidth, deferredChildCount)
-            if (modeChanged) {
-                requestLayout()
-                deferredAdapter.notifyDataSetChanged()
-            }
-        }
-    }
+            val parentWidth = width
+            if (parentWidth <= 0 || childCount == 0) return@post
 
-    internal fun refreshButtonsLayout() {
-        stopScroll()
-        updateLayoutMode()
-        requestLayout()
-        val currentAdapter = adapter ?: return
-        val itemCount = currentAdapter.itemCount
-        if (itemCount > 0) {
-            currentAdapter.notifyDataSetChanged()
+            // Calculate ideal width for even distribution
+            val idealWidth = kawaiiBarLayout.calculateEvenDistributedWidth(childCount, parentWidth)
+
+            // If ideal width is less than minimum button width, use scroll mode
+            val shouldDistribute = idealWidth >= kawaiiBarLayout.minButtonWidth
+
+            if (shouldDistribute) {
+                kawaiiBarLayout.setEvenDistributionMode()
+                // Disable horizontal scrolling when in even distribution mode
+                isHorizontalScrollBarEnabled = false
+            } else {
+                kawaiiBarLayout.setScrollMode()
+                // Enable horizontal scrolling when buttons need more space
+                isHorizontalScrollBarEnabled = true
+            }
         }
     }
 

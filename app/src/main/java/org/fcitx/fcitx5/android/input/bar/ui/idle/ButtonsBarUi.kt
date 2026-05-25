@@ -59,8 +59,6 @@ class ButtonsBarUi(
         val recyclerView = root
         // Recreate adapter to ensure clean state
         recyclerView.adapter = ButtonsBarAdapter()
-        // Update layout mode immediately (width should be available from previous layout)
-        recyclerView.updateLayoutMode()
     }
 
     fun updateConfig(newButtons: List<ConfigurableButton>) {
@@ -116,13 +114,11 @@ class ButtonsBarUi(
     fun setFloatingState(isFloating: Boolean) {
         buttonActiveMap["floating_toggle"] = isFloating
         buttonMap["floating_toggle"]?.setActive(isFloating)
-        root.refreshButtonsLayout()
     }
 
     fun setOneHandKeyboardState(isOneHanded: Boolean) {
         buttonActiveMap["one_handed_keyboard"] = isOneHanded
         buttonMap["one_handed_keyboard"]?.setActive(isOneHanded)
-        root.refreshButtonsLayout()
     }
 
     /**
@@ -182,12 +178,35 @@ class ButtonsBarUi(
             if (parentWidth > 0 && childCount > 0) {
                 val idealWidth = kawaiiBarLayout.calculateEvenDistributedWidth(childCount, parentWidth)
 
-                if (!kawaiiBarLayout.isEvenDistributionMode) {
+                // Switch to scroll mode if ideal width is less than minimum
+                if (idealWidth < kawaiiBarLayout.minButtonWidth) {
+                    if (kawaiiBarLayout.isEvenDistributionMode) {
+                        kawaiiBarLayout.setScrollMode()
+                        recyclerView.isHorizontalScrollBarEnabled = true
+                        // Request relayout on next frame
+                        if (position == 0) {
+                            recyclerView.post {
+                                notifyDataSetChanged()
+                            }
+                            return
+                        }
+                    }
                     // Scroll mode: WRAP_CONTENT with minimum width ensures buttons don't shrink
                     params.width = ViewGroup.LayoutParams.WRAP_CONTENT
                     params.minWidth = kawaiiBarLayout.minButtonWidth
                     button.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
                 } else {
+                    // Switch to even distribution mode if not already
+                    if (!kawaiiBarLayout.isEvenDistributionMode) {
+                        kawaiiBarLayout.setEvenDistributionMode()
+                        recyclerView.isHorizontalScrollBarEnabled = false
+                        if (position == 0) {
+                            recyclerView.post {
+                                notifyDataSetChanged()
+                            }
+                            return
+                        }
+                    }
                     // Even distribution mode: Set fixed width for each button
                     params.width = max(idealWidth, kawaiiBarLayout.minButtonWidth)
                     params.minWidth = 0
