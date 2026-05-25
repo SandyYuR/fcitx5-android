@@ -7,9 +7,11 @@ package org.fcitx.fcitx5.android.plugin.text_editor
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.ComponentCallbacks2
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.text.Editable
 import android.text.TextWatcher
@@ -30,19 +32,30 @@ import androidx.core.view.updateLayoutParams
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import io.github.rosemoe.sora.event.PublishSearchResultEvent
+import io.github.rosemoe.sora.event.ScrollEvent
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.EditorSearcher
 import io.github.rosemoe.sora.widget.SymbolPairMatch
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.plugin.text_editor.databinding.ActivityTextFileEditBinding
 import splitties.views.topPadding
 import timber.log.Timber
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.security.MessageDigest
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.channels.FileChannel
+import java.nio.charset.CharsetDecoder
+import java.nio.charset.StandardCharsets
 
 class TextFileEditActivity : AppCompatActivity() {
 
@@ -57,9 +70,27 @@ class TextFileEditActivity : AppCompatActivity() {
     private var wordWrap: Boolean = true
     private var showWhitespace: Boolean = false
     private var useTab: Boolean = true
+    private var fileSizeBytes: Long = 0L
     // Above TextFileSupport.LARGE_FILE_THRESHOLD: skip TextMate grammar and disable autocompletion,
     // both of which scan the whole buffer and stall the UI on multi-MB files.
     private var isLargeFile: Boolean = false
+    private var deferredSyntaxHighlightPending: Boolean = false
+    private var lowMemoryMode: Boolean = false
+    private var lowMemoryNoticeShown: Boolean = false
+    private var largeFilePager: LargeFilePager? = null
+    private var largeFileFullyLoaded: Boolean = false
+    private var largeFileLoadInFlight: Boolean = false
+    private var largeFileDirty: Boolean = false
+    private var suppressLargeFileDirtyTracking: Boolean = false
+    private val largeFilePagerMutex = Mutex()
+    private val crashHandler = CoroutineExceptionHandler { _, throwable ->
+        Timber.e(throwable, "Unhandled editor coroutine error")
+        if (::binding.isInitialized) {
+            binding.root.post {
+                toast(getString(R.string.editor_runtime_recovered))
+            }
+        }
+    }
 
     // Per-file draft on disk, used to survive process death. Filename hashes the URI so different
     // documents don't collide and special characters don't break paths.
@@ -88,7 +119,12 @@ class TextFileEditActivity : AppCompatActivity() {
         wordWrap = prefs.getBoolean(PREF_WORD_WRAP, true)
         showWhitespace = prefs.getBoolean(PREF_SHOW_WHITESPACE, false)
         useTab = prefs.getBoolean(PREF_USE_TAB, true)
-        isLargeFile = TextFileSupport.isLargeFile(fileLength())
+        fileSizeBytes = fileLength()
+        isLargeFile = TextFileSupport.isLargeFile(fileSizeBytes)
+        deferredSyntaxHighlightPending = TextFileSupport.shouldUseDeferredSyntaxHighlight(
+            fileSizeBytes,
+            displayName,
+        )
         // Force word-wrap off for large files — wrap layout reflows the entire buffer on width
         // changes. Don't persist this override; the user's saved pref still applies to small files.
         if (isLargeFile) wordWrap = false
@@ -142,7 +178,7 @@ class TextFileEditActivity : AppCompatActivity() {
             colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND, 0)
             colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, 0)
             setEditorLanguage(
-                TextMateSetup.createLanguage(currentScopeName(), assets, useTab)
+                TextMateSetup.createLanguage(initialScopeName(), assets, useTab)
             )
             // Note: don't install OnlineBracketsMatcher here — sora's setText() (called from
             // loadFile() later) runs styleDelegate.reset() which nulls bracketsProvider. Install
@@ -154,6 +190,8 @@ class TextFileEditActivity : AppCompatActivity() {
             tabWidth = readTabWidth()
             setWordwrap(wordWrap)
             nonPrintablePaintingFlags = whitespaceFlags()
+            props.disallowSuggestions = true
+            props.cacheRenderNodeForLongLines = !isLargeFile
             // Default true: when the current line is entirely whitespace, Backspace deletes the
             // whole line + the preceding line break, surprising users who expected to delete just
             // one space/tab from the indent.
@@ -164,10 +202,17 @@ class TextFileEditActivity : AppCompatActivity() {
             installDefaultSymbolPairs(props.overrideSymbolPairs)
             if (isLargeFile) {
                 getComponent(EditorAutoCompletion::class.java).isEnabled = false
+                setHighlightCurrentBlock(false)
+                setHighlightCurrentLine(false)
+                setHighlightBracketPair(false)
+                setDiagnostics(null)
             }
         }
 
         binding.editor.subscribeAlways(io.github.rosemoe.sora.event.ContentChangeEvent::class.java) {
+            if (isLargeFile && !suppressLargeFileDirtyTracking) {
+                largeFileDirty = true
+            }
             // sora's UndoManager dispatches ContentChangeEvent *before* updating its stackPointer
             // (see UndoManager.undo/redo: action.undo(content) fires the event, then stackPointer--).
             // Reading canUndo/canRedo synchronously here returns the pre-undo state, which is why
@@ -177,6 +222,9 @@ class TextFileEditActivity : AppCompatActivity() {
         }
         binding.editor.subscribeAlways(PublishSearchResultEvent::class.java) {
             updateMatchInfo()
+        }
+        binding.editor.subscribeAlways(ScrollEvent::class.java) {
+            if (isLargeFile) tryLoadNextLargeFilePage()
         }
 
         setupSearchBar()
@@ -210,6 +258,18 @@ class TextFileEditActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
         return true
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+            enterLowMemoryMode(level)
+        }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        enterLowMemoryMode(ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -275,7 +335,7 @@ class TextFileEditActivity : AppCompatActivity() {
                 useTab = !useTab
                 isChecked = !useTab
                 binding.editor.setEditorLanguage(
-                    TextMateSetup.createLanguage(currentScopeName(), assets, useTab)
+                    TextMateSetup.createLanguage(activeScopeName(), assets, useTab)
                 )
                 // setEditorLanguage runs styleDelegate.reset() → reinstall bracket matcher.
                 binding.editor.installOnlineBracketsMatcher()
@@ -313,8 +373,11 @@ class TextFileEditActivity : AppCompatActivity() {
 
     // Suppress TextMate highlighting for large files — the grammar tokenizer is the main source
     // of jank above a few MB. Falling back to a null scope makes TextMateSetup use PlainLanguage.
-    private fun currentScopeName(): String? =
-        if (isLargeFile) null else TextFileSupport.detectScopeName(displayName)
+    private fun activeScopeName(): String? =
+        if (isLargeFile || lowMemoryMode) null else TextFileSupport.detectScopeName(displayName)
+
+    private fun initialScopeName(): String? =
+        if (deferredSyntaxHighlightPending) null else activeScopeName()
 
     private fun installDefaultSymbolPairs(target: SymbolPairMatch) {
         target.putPair('(', SymbolPairMatch.SymbolPair("(", ")"))
@@ -511,7 +574,11 @@ class TextFileEditActivity : AppCompatActivity() {
         DocumentFile.fromSingleUri(this, docUri)?.lastModified() ?: 0L
 
     private fun loadFile() {
-        lifecycleScope.launch {
+        lifecycleScope.launch(crashHandler) {
+            if (isLargeFile) {
+                loadLargeFilePaged()
+                return@launch
+            }
             val original = try {
                 withContext(Dispatchers.IO) {
                     contentResolver.openInputStream(docUri)?.use {
@@ -536,16 +603,141 @@ class TextFileEditActivity : AppCompatActivity() {
             // sora's setText triggers styleDelegate.reset(), which nulls bracketsProvider —
             // reinstall after the content is in place.
             binding.editor.installOnlineBracketsMatcher()
+            scheduleDeferredSyntaxHighlightIfNeeded()
             updateMenuState()
         }
     }
 
-    private fun isDirty(): Boolean = binding.editor.text.toString() != originalText
+    private fun scheduleDeferredSyntaxHighlightIfNeeded() {
+        if (!deferredSyntaxHighlightPending || lowMemoryMode || isLargeFile) return
+        val scope = TextFileSupport.detectScopeName(displayName) ?: run {
+            deferredSyntaxHighlightPending = false
+            return
+        }
+        binding.editor.postDelayed({
+            if (!deferredSyntaxHighlightPending || lowMemoryMode || isLargeFile || isFinishing) {
+                return@postDelayed
+            }
+            runCatching {
+                binding.editor.setEditorLanguage(
+                    TextMateSetup.createLanguage(scope, assets, useTab)
+                )
+                binding.editor.installOnlineBracketsMatcher()
+                deferredSyntaxHighlightPending = false
+            }.onFailure {
+                Timber.e(it, "Deferred highlight activation failed")
+                deferredSyntaxHighlightPending = false
+            }
+        }, DEFERRED_HIGHLIGHT_DELAY_MS)
+    }
+
+    private suspend fun loadLargeFilePaged() {
+        val pager = try {
+            withContext(Dispatchers.IO) { LargeFilePager(this@TextFileEditActivity, docUri) }
+        } catch (e: Exception) {
+            toast(getString(R.string.error_open_file, e.message ?: displayName))
+            finish()
+            return
+        }
+        largeFilePager = pager
+        val firstPage = try {
+            withContext(Dispatchers.IO) { pager.readNextTextPage().orEmpty() }
+        } catch (e: Exception) {
+            pager.close()
+            largeFilePager = null
+            toast(getString(R.string.error_open_file, e.message ?: displayName))
+            finish()
+            return
+        }
+        originalText = ""
+        largeFileDirty = false
+        withSuppressedLargeFileDirtyTracking {
+            binding.editor.setText(firstPage)
+        }
+        // sora's setText triggers styleDelegate.reset(), which nulls bracketsProvider — reinstall
+        // after the content is in place.
+        binding.editor.installOnlineBracketsMatcher()
+        largeFileFullyLoaded = pager.isFullyConsumed
+        if (largeFileFullyLoaded) {
+            pager.close()
+            largeFilePager = null
+        }
+        updateMenuState()
+        // If first page does not fill the viewport, continue paging immediately.
+        tryLoadNextLargeFilePage(force = true)
+    }
+
+    private fun tryLoadNextLargeFilePage(force: Boolean = false) {
+        if (!isLargeFile || largeFileLoadInFlight || largeFileFullyLoaded) return
+        val pager = largeFilePager ?: return
+        val remainingScroll = binding.editor.scrollMaxY - binding.editor.offsetY
+        if (!force && remainingScroll > binding.editor.height * PREFETCH_VIEWPORT_MULTIPLIER) return
+
+        largeFileLoadInFlight = true
+        lifecycleScope.launch(crashHandler) {
+            try {
+                largeFilePagerMutex.withLock {
+                    val nextPage = withContext(Dispatchers.IO) { pager.readNextTextPage() }
+                    if (nextPage.isNullOrEmpty()) {
+                        if (pager.isFullyConsumed) {
+                            largeFileFullyLoaded = true
+                            pager.close()
+                            largeFilePager = null
+                        }
+                    } else {
+                        withSuppressedLargeFileDirtyTracking {
+                            appendTextToEditor(nextPage)
+                        }
+                        if (pager.isFullyConsumed) {
+                            largeFileFullyLoaded = true
+                            pager.close()
+                            largeFilePager = null
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed paging read for $docUri")
+                largeFileFullyLoaded = true
+                runCatching { pager.close() }
+                largeFilePager = null
+                toast(getString(R.string.error_open_file, e.message ?: displayName))
+            } finally {
+                largeFileLoadInFlight = false
+                updateMenuState()
+            }
+        }
+    }
+
+    private fun appendTextToEditor(text: String) {
+        if (text.isEmpty()) return
+        val content = binding.editor.text
+        val lastLine = content.lineCount - 1
+        val lastColumn = content.getColumnCount(lastLine)
+        content.insert(lastLine, lastColumn, text)
+    }
+
+    private inline fun withSuppressedLargeFileDirtyTracking(block: () -> Unit) {
+        val old = suppressLargeFileDirtyTracking
+        suppressLargeFileDirtyTracking = true
+        try {
+            block()
+        } finally {
+            suppressLargeFileDirtyTracking = old
+        }
+    }
+
+    private fun isDirty(): Boolean {
+        if (isLargeFile) return largeFileDirty
+        return binding.editor.text.toString() != originalText
+    }
 
     private fun saveFile(onSuccess: (() -> Unit)? = null) {
-        val content = binding.editor.text.toString()
-        lifecycleScope.launch {
+        lifecycleScope.launch(crashHandler) {
             try {
+                if (isLargeFile) {
+                    loadRemainingLargeFilePagesForSave()
+                }
+                val content = binding.editor.text.toString()
                 withContext(Dispatchers.IO) {
                     // "wt" = truncate-and-write. Without 't', some providers append rather than
                     // overwrite, leaving stale tail bytes when the new content is shorter.
@@ -555,6 +747,9 @@ class TextFileEditActivity : AppCompatActivity() {
                     runCatching { draftFile.delete() }
                 }
                 originalText = content
+                if (isLargeFile) {
+                    largeFileDirty = false
+                }
                 toast(getString(R.string.saved))
                 updateMenuState()
                 onSuccess?.invoke()
@@ -567,7 +762,7 @@ class TextFileEditActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        if (!::docUri.isInitialized || !::binding.isInitialized) return
+        if (!::docUri.isInitialized || !::binding.isInitialized || isLargeFile) return
         val current = binding.editor.text.toString()
         try {
             if (current != originalText) {
@@ -581,7 +776,58 @@ class TextFileEditActivity : AppCompatActivity() {
         }
     }
 
+    private suspend fun loadRemainingLargeFilePagesForSave() {
+        if (!isLargeFile || largeFileFullyLoaded) return
+        val pager = largeFilePager ?: return
+        largeFileLoadInFlight = true
+        try {
+            largeFilePagerMutex.withLock {
+                while (true) {
+                    val nextPage = withContext(Dispatchers.IO) { pager.readNextTextPage() } ?: break
+                    if (nextPage.isNotEmpty()) {
+                        withSuppressedLargeFileDirtyTracking {
+                            appendTextToEditor(nextPage)
+                        }
+                    }
+                }
+                if (pager.isFullyConsumed) {
+                    largeFileFullyLoaded = true
+                    pager.close()
+                    largeFilePager = null
+                }
+            }
+        } finally {
+            largeFileLoadInFlight = false
+        }
+    }
+
+    private fun enterLowMemoryMode(level: Int) {
+        if (!::binding.isInitialized || lowMemoryMode) return
+        lowMemoryMode = true
+        deferredSyntaxHighlightPending = false
+        runCatching {
+            binding.editor.apply {
+                setStyles(null)
+                setDiagnostics(null)
+                setEditorLanguage(TextMateSetup.createLanguage(null, assets, useTab))
+                installOnlineBracketsMatcher()
+                getComponent(EditorAutoCompletion::class.java).isEnabled = false
+                props.cacheRenderNodeForLongLines = false
+                props.disallowSuggestions = true
+            }
+            if (!lowMemoryNoticeShown) {
+                lowMemoryNoticeShown = true
+                toast(getString(R.string.low_memory_features_disabled))
+            }
+            Timber.w("Entered low memory mode, level=$level")
+        }.onFailure {
+            Timber.e(it, "Failed to degrade editor on low memory")
+        }
+    }
+
     override fun onDestroy() {
+        runCatching { largeFilePager?.close() }
+        largeFilePager = null
         if (::binding.isInitialized) binding.editor.release()
         super.onDestroy()
     }
@@ -604,5 +850,157 @@ class TextFileEditActivity : AppCompatActivity() {
         private const val PREF_WORD_WRAP = "word_wrap"
         private const val PREF_SHOW_WHITESPACE = "show_whitespace"
         private const val PREF_USE_TAB = "use_tab"
+        private const val LARGE_FILE_PAGE_BYTES = 256 * 1024
+        private const val PREFETCH_VIEWPORT_MULTIPLIER = 2
+        private const val DEFERRED_HIGHLIGHT_DELAY_MS = 180L
+    }
+
+    private class LargeFilePager(
+        private val context: Context,
+        private val uri: Uri,
+    ) : AutoCloseable {
+
+        private var pfd: ParcelFileDescriptor? = null
+        private var channel: FileChannel? = null
+        private var mappedSize: Long = 0L
+        private var mappedOffset: Long = 0L
+        private var stream: BufferedInputStream? = null
+        private var sourceExhausted: Boolean = false
+        private val decoder: CharsetDecoder = StandardCharsets.UTF_8.newDecoder()
+        private var carry: ByteArray = ByteArray(0)
+
+        val isFullyConsumed: Boolean
+            get() = sourceExhausted && carry.isEmpty()
+
+        init {
+            if (!openMappedSource()) {
+                openStreamSource()
+            }
+        }
+
+        fun readNextTextPage(): String? {
+            if (isFullyConsumed) return null
+            val bytes = when {
+                channel != null -> readMappedBytes(LARGE_FILE_PAGE_BYTES)
+                stream != null -> readStreamBytes(LARGE_FILE_PAGE_BYTES)
+                else -> ByteArray(0)
+            }
+            if (bytes.isEmpty() && isFullyConsumed) {
+                return null
+            }
+            return decodeUtf8(bytes, sourceExhausted)
+        }
+
+        private fun openMappedSource(): Boolean {
+            return try {
+                val descriptor = context.contentResolver.openFileDescriptor(uri, "r") ?: return false
+                val fileChannel = FileInputStream(descriptor.fileDescriptor).channel
+                mappedSize = fileChannel.size()
+                pfd = descriptor
+                channel = fileChannel
+                sourceExhausted = mappedSize == 0L
+                true
+            } catch (_: Exception) {
+                runCatching { channel?.close() }
+                runCatching { pfd?.close() }
+                channel = null
+                pfd = null
+                false
+            }
+        }
+
+        private fun openStreamSource() {
+            stream = BufferedInputStream(
+                context.contentResolver.openInputStream(uri)
+                    ?: error("openInputStream returned null")
+            )
+            sourceExhausted = false
+        }
+
+        private fun readMappedBytes(maxBytes: Int): ByteArray {
+            val fileChannel = channel ?: return ByteArray(0)
+            val remaining = mappedSize - mappedOffset
+            if (remaining <= 0) {
+                sourceExhausted = true
+                return ByteArray(0)
+            }
+            val toRead = minOf(maxBytes.toLong(), remaining).toInt()
+            val mapped = fileChannel.map(FileChannel.MapMode.READ_ONLY, mappedOffset, toRead.toLong())
+            val out = ByteArray(toRead)
+            mapped.get(out)
+            mappedOffset += toRead
+            if (mappedOffset >= mappedSize) sourceExhausted = true
+            return out
+        }
+
+        private fun readStreamBytes(maxBytes: Int): ByteArray {
+            val input = stream ?: return ByteArray(0)
+            val buf = ByteArray(maxBytes)
+            val read = input.read(buf)
+            if (read < 0) {
+                sourceExhausted = true
+                return ByteArray(0)
+            }
+            return if (read == buf.size) buf else buf.copyOf(read)
+        }
+
+        private fun decodeUtf8(bytes: ByteArray, endInput: Boolean): String {
+            val merged = if (carry.isEmpty()) {
+                bytes
+            } else {
+                ByteArray(carry.size + bytes.size).also {
+                    carry.copyInto(it, 0)
+                    bytes.copyInto(it, carry.size)
+                }
+            }
+            val inBuffer = ByteBuffer.wrap(merged)
+            var outBuffer = CharBuffer.allocate((merged.size * decoder.maxCharsPerByte()).toInt() + 8)
+            while (true) {
+                val result = decoder.decode(inBuffer, outBuffer, endInput)
+                if (result.isOverflow) {
+                    val grown = CharBuffer.allocate(outBuffer.capacity() * 2)
+                    outBuffer.flip()
+                    grown.put(outBuffer)
+                    outBuffer = grown
+                    continue
+                }
+                if (result.isError) result.throwException()
+                break
+            }
+            if (endInput) {
+                while (true) {
+                    val flush = decoder.flush(outBuffer)
+                    if (flush.isOverflow) {
+                        val grown = CharBuffer.allocate(outBuffer.capacity() * 2)
+                        outBuffer.flip()
+                        grown.put(outBuffer)
+                        outBuffer = grown
+                        continue
+                    }
+                    if (flush.isError) flush.throwException()
+                    break
+                }
+                decoder.reset()
+                carry = ByteArray(0)
+            } else {
+                val remain = inBuffer.remaining()
+                carry = ByteArray(remain)
+                if (remain > 0) inBuffer.get(carry)
+            }
+            outBuffer.flip()
+            return outBuffer.toString()
+        }
+
+        override fun close() {
+            runCatching { stream?.close() }
+            runCatching { channel?.close() }
+            runCatching { pfd?.close() }
+            stream = null
+            channel = null
+            pfd = null
+            sourceExhausted = true
+            carry = ByteArray(0)
+            decoder.reset()
+        }
     }
 }

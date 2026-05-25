@@ -56,4 +56,6 @@
 
     <string name="grant_access_message">Seleccione la carpeta de datos de Fcitx5 para habilitar la edición. La carpeta aparece como raíz en el selector de archivos del sistema; toque «Usar esta carpeta».</string>
     <string name="grant_access_denied">Acceso no concedido; el editor no puede iniciarse.</string>
+    <string name="low_memory_features_disabled">Memoria baja: se desactivaron algunas funciones (resaltado, diagnósticos y autocompletado).</string>
+    <string name="editor_runtime_recovered">Se produjo un error del editor. Se desactivaron algunas funciones para mantener la respuesta.</string>
 </resources>

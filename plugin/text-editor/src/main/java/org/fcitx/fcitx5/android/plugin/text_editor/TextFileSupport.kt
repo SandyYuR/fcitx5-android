@@ -16,7 +16,14 @@ object TextFileSupport {
     // OOM the TextMate tokenizer or stall the autocomplete buffer scan.
     const val LARGE_FILE_THRESHOLD: Long = 10L * 1024 * 1024 // 10 MB
 
+    // For small files, we can defer TextMate activation until content is visible, reducing
+    // first-paint latency while still keeping full highlighting after startup.
+    const val DEFERRED_HIGHLIGHT_THRESHOLD: Long = 2L * 1024 * 1024 // 2 MB
+
     fun isLargeFile(bytes: Long): Boolean = bytes >= LARGE_FILE_THRESHOLD
+
+    fun shouldUseDeferredSyntaxHighlight(bytes: Long, displayName: String): Boolean =
+        bytes in 1 until DEFERRED_HIGHLIGHT_THRESHOLD && detectScopeName(displayName) != null
 
     private val KNOWN_TEXT_EXTENSIONS = setOf(
         "txt", "md", "markdown", "rst", "log",

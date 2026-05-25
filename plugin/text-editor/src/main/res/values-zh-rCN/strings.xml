@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name_debug">Fcitx5（文本编辑器插件 | 调试）</string>
-    <string name="app_name_release">Fcitx5（文本编辑器插件）</string>
+    <string name="app_name_debug">小企鹅（文本编辑器插件 | 调试）</string>
+    <string name="app_name_release">小企鹅（文本编辑器插件）</string>
     <string name="description">浏览并编辑 Fcitx5 数据目录下的文件</string>
 
     <string name="edit_user_files">编辑用户文件</string>
@@ -56,4 +56,6 @@
 
     <string name="grant_access_message">在系统文件选择器里选中 Fcitx5 的数据目录，然后点「使用此文件夹」。</string>
     <string name="grant_access_denied">未授权，无法启动编辑器。</string>
+    <string name="low_memory_features_disabled">内存不足：已关闭部分功能（语法高亮、诊断、自动补全）。</string>
+    <string name="editor_runtime_recovered">编辑器发生异常，已自动降级部分功能以保持可用。</string>
 </resources>
