@@ -17,19 +17,14 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import androidx.core.graphics.ColorUtils
 import kotlinx.parcelize.Parcelize
-import kotlinx.serialization.Serializable
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.MonetThemeMapping
 import org.fcitx.fcitx5.android.data.theme.SystemColorResourceId
@@ -75,6 +70,9 @@ class MonetThemeEditorActivity : AppCompatActivity() {
     private var isDark: Boolean = false
     private lateinit var mapping: MonetThemeMapping
     private lateinit var currentTheme: Theme.Monet
+    private var waterRippleResource: SystemColorResourceId? = null
+    private var waterRippleColorPreview: View? = null
+    private var waterRippleColorText: TextView? = null
     
     // 颜色编辑项列表
     private val colorEditItems = listOf<ColorEditItem>(
@@ -123,13 +121,30 @@ class MonetThemeEditorActivity : AppCompatActivity() {
         
         // 加载当前的映射配置
         mapping = MonetThemePrefs.getMapping(themeName) ?: MonetThemeMapping.createDefault(isDark)
+        waterRippleResource = MonetThemePrefs.getWaterRippleResource(themeName)
         currentTheme = buildThemeFromMapping()
         
         initUi()
     }
     
     private fun buildThemeFromMapping(): Theme.Monet {
-        return ThemeMonet.createFromMapping(isDark = isDark, mapping = mapping, context = this)
+        return ThemeMonet.createFromMapping(
+            isDark = isDark,
+            mapping = mapping,
+            waterRippleResource = waterRippleResource,
+            context = this
+        )
+    }
+
+    private fun computeWaterRippleColor(theme: Theme.Monet): Int {
+        val shadow = theme.keyShadowColor
+        val background = ColorUtils.setAlphaComponent(theme.keyboardColor, 255)
+        val contrast = ColorUtils.calculateContrast(shadow, background)
+        return if (contrast < 1.35) {
+            ColorUtils.blendARGB(shadow, theme.accentKeyBackgroundColor, 0.72f)
+        } else {
+            ColorUtils.blendARGB(shadow, theme.accentKeyBackgroundColor, 0.28f)
+        }
     }
     
     private fun getColorForResource(resourceId: SystemColorResourceId): Int {
@@ -249,6 +264,11 @@ class MonetThemeEditorActivity : AppCompatActivity() {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ))
         }
+
+        contentLayout.addView(createWaterRippleEditor(), LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
         contentLayout.bottomPadding = dp(28f)
 
         scrollView.addView(contentLayout)
@@ -315,23 +335,84 @@ class MonetThemeEditorActivity : AppCompatActivity() {
             setOnClickListener { showColorResourcePicker(item) }
         }
     }
+
+    private fun createWaterRippleEditor(): View {
+        val currentResource = waterRippleResource
+        val color = waterRippleResource?.let { getColorForResource(it) } ?: computeWaterRippleColor(currentTheme)
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = gravityCenter
+            verticalPadding = dp(8f)
+            horizontalPadding = dp(16f)
+            background = resources.getDrawable(android.R.drawable.list_selector_background, null)
+
+            val colorPreview = View(this@MonetThemeEditorActivity).apply {
+                backgroundColor = color
+                layoutParams = LinearLayout.LayoutParams(dp(32f), dp(32f)).apply {
+                    marginEnd = dp(12f)
+                }
+            }
+            waterRippleColorPreview = colorPreview
+            addView(colorPreview)
+
+            TextView(this@MonetThemeEditorActivity).apply {
+                text = "Water Ripple"
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                    weight = 1f
+                }
+                setTextColor(styledColor(android.R.attr.textColorPrimary))
+            }.also { addView(it) }
+
+            val colorText = TextView(this@MonetThemeEditorActivity).apply {
+                text = waterRippleResource?.let { formatResourceName(it) } ?: "Auto"
+                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                textSize = 12f
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                    marginStart = dp(8f)
+                }
+            }
+            waterRippleColorText = colorText
+            addView(colorText)
+
+            setOnClickListener {
+                SystemColorResourcePickerDialog.show(
+                    this@MonetThemeEditorActivity,
+                    currentResource,
+                    allowClear = true,
+                    listener = object : SystemColorResourcePickerDialog.OnColorResourceSelectedListener {
+                        override fun onColorResourceSelected(resourceId: SystemColorResourceId?) {
+                            waterRippleResource = resourceId
+                            currentTheme = buildThemeFromMapping()
+                            applyThemePreview(currentTheme)
+                            updateWaterRippleEditorUi(resourceId)
+                        }
+                    }
+                )
+            }
+        }
+    }
     
     private fun showColorResourcePicker(item: ColorEditItem) {
         val currentResource = item.getter(mapping)
         
-        SystemColorResourcePickerDialog.show(this, currentResource, object : SystemColorResourcePickerDialog.OnColorResourceSelectedListener {
-            override fun onColorResourceSelected(resourceId: SystemColorResourceId) {
+        SystemColorResourcePickerDialog.show(
+            this,
+            currentResource,
+            listener = object : SystemColorResourcePickerDialog.OnColorResourceSelectedListener {
+                override fun onColorResourceSelected(resourceId: SystemColorResourceId?) {
+                    resourceId ?: return
                 // 更新映射
-                mapping = item.setter(mapping, resourceId)
+                    mapping = item.setter(mapping, resourceId)
                 
                 // 更新主题预览
-                currentTheme = buildThemeFromMapping()
-                applyThemePreview(currentTheme)
+                    currentTheme = buildThemeFromMapping()
+                    applyThemePreview(currentTheme)
                 
                 // 更新 UI
-                updateColorEditorUi(item, resourceId)
+                    updateColorEditorUi(item, resourceId)
+                }
             }
-        })
+        )
     }
     
     private fun updateColorEditorUi(item: ColorEditItem, resourceId: SystemColorResourceId) {
@@ -343,6 +424,12 @@ class MonetThemeEditorActivity : AppCompatActivity() {
         
         // 更新资源名称显示
         holder.resourceNameText.text = formatResourceName(resourceId)
+    }
+
+    private fun updateWaterRippleEditorUi(resourceId: SystemColorResourceId?) {
+        val color = resourceId?.let { getColorForResource(it) } ?: computeWaterRippleColor(currentTheme)
+        waterRippleColorPreview?.backgroundColor = color
+        waterRippleColorText?.text = resourceId?.let { formatResourceName(it) } ?: "Auto"
     }
     
     private fun applyThemePreview(theme: Theme) {
@@ -395,6 +482,7 @@ class MonetThemeEditorActivity : AppCompatActivity() {
     private fun saveAndFinish() {
         // 保存映射配置
         MonetThemePrefs.saveMapping(themeName, mapping)
+        MonetThemePrefs.saveWaterRippleResource(themeName, waterRippleResource)
         
         // 返回结果
         val result = EditorResult(themeName, isDark)
@@ -457,7 +545,6 @@ class MonetThemeEditorActivity : AppCompatActivity() {
     }
 }
 
-@Serializable
 data class ColorEditItem(
     val name: String,
     val getter: (MonetThemeMapping) -> SystemColorResourceId,

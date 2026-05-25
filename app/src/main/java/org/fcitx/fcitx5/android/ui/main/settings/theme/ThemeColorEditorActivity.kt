@@ -47,13 +47,14 @@ class ThemeColorEditorActivity : AppCompatActivity() {
     data class EditorInput(
         val fieldName: String,
         @StringRes val titleRes: Int,
-        val initialColor: Int
+        val initialColor: Int,
+        val allowClear: Boolean = false
     ) : Parcelable
 
     @Parcelize
     data class EditorResult(
         val fieldName: String,
-        val color: Int
+        val color: Int?
     ) : Parcelable
 
     class Contract : ActivityResultContract<EditorInput, EditorResult?>() {
@@ -89,6 +90,21 @@ class ThemeColorEditorActivity : AppCompatActivity() {
         }
         currentColor = currentInput.initialColor
         initUi()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        if (currentInput.allowClear) {
+            menu.add(Menu.NONE, MENU_CLEAR, Menu.NONE, getString(R.string.clear)).apply {
+                setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                icon?.setTint(styledColor(android.R.attr.textColorPrimary))
+            }
+        }
+        menu.add(Menu.NONE, MENU_DONE, Menu.NONE, getString(R.string.save)).apply {
+            setIcon(R.drawable.ic_baseline_check_24)
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            icon?.setTint(styledColor(android.R.attr.textColorPrimary))
+        }
+        return true
     }
 
     private fun initUi() {
@@ -303,18 +319,13 @@ class ThemeColorEditorActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(Menu.NONE, MENU_DONE, Menu.NONE, getString(R.string.save)).apply {
-            setIcon(R.drawable.ic_baseline_check_24)
-            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            icon?.setTint(styledColor(android.R.attr.textColorPrimary))
-        }
-        return true
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         android.R.id.home -> {
             finish()
+            true
+        }
+        MENU_CLEAR -> {
+            finishWithResult(null)
             true
         }
         MENU_DONE -> {
@@ -324,11 +335,11 @@ class ThemeColorEditorActivity : AppCompatActivity() {
         else -> super.onOptionsItemSelected(item)
     }
 
-    private fun finishWithResult() {
+    private fun finishWithResult(color: Int? = currentColor) {
         setResult(
             RESULT_OK,
             Intent().apply {
-                putExtra(EXTRA_RESULT, EditorResult(currentInput.fieldName, currentColor))
+                putExtra(EXTRA_RESULT, EditorResult(currentInput.fieldName, color))
             }
         )
         finish()
@@ -375,6 +386,7 @@ class ThemeColorEditorActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_INPUT = "theme_color_editor_input"
         const val EXTRA_RESULT = "theme_color_editor_result"
-        private const val MENU_DONE = 1
+        private const val MENU_CLEAR = 1
+        private const val MENU_DONE = 2
     }
 }

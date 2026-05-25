@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.fcitx.fcitx5.android.data.theme.SystemColorResourceId
 import org.fcitx.fcitx5.android.data.theme.MonetThemeMapping
 import org.fcitx.fcitx5.android.utils.appContext
 
@@ -50,6 +51,29 @@ object MonetThemePrefs {
         val jsonStr = json.encodeToString(mapping)
         prefs.edit().putString(getKeyForTheme(themeName), jsonStr).apply()
     }
+
+    fun getWaterRippleResource(themeName: String): SystemColorResourceId? {
+        val key = getWaterRippleKeyForTheme(themeName)
+        val value = prefs.all[key] ?: return null
+        return when (value) {
+            is String -> SystemColorResourceId.fromResourceName(value)
+            is Int -> {
+                prefs.edit().remove(key).apply()
+                null
+            }
+            else -> null
+        }
+    }
+
+    fun saveWaterRippleResource(themeName: String, resourceId: SystemColorResourceId?) {
+        prefs.edit().apply {
+            if (resourceId == null) {
+                remove(getWaterRippleKeyForTheme(themeName))
+            } else {
+                putString(getWaterRippleKeyForTheme(themeName), resourceId.resourceId)
+            }
+        }.apply()
+    }
     
     /**
      * 删除主题映射配置
@@ -89,7 +113,12 @@ object MonetThemePrefs {
     private fun getKeyForTheme(themeName: String): String {
         return "$KEY_PREFIX$themeName"
     }
+
+    private fun getWaterRippleKeyForTheme(themeName: String): String {
+        return "$WATER_RIPPLE_KEY_PREFIX$themeName"
+    }
     
     private const val PREFS_NAME = "monet_theme_mappings"
     private const val KEY_PREFIX = "mapping_"
+    private const val WATER_RIPPLE_KEY_PREFIX = "water_ripple_"
 }

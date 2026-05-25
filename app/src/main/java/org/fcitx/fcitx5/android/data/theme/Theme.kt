@@ -62,6 +62,7 @@ sealed class Theme : Parcelable {
 
     abstract val keyPressHighlightColor: Int
     abstract val keyShadowColor: Int
+    open val waterRippleColor: Int? get() = null
 
     abstract val popupBackgroundColor: Int
     abstract val popupTextColor: Int
@@ -106,7 +107,8 @@ sealed class Theme : Parcelable {
         override val dividerColor: Int,
         override val clipboardEntryColor: Int,
         override val genericActiveBackgroundColor: Int,
-        override val genericActiveForegroundColor: Int
+        override val genericActiveForegroundColor: Int,
+        override val waterRippleColor: Int? = null
     ) : Theme() {
         @Parcelize
         @Serializable
@@ -231,7 +233,8 @@ sealed class Theme : Parcelable {
         override val dividerColor: Int,
         override val clipboardEntryColor: Int,
         override val genericActiveBackgroundColor: Int,
-        override val genericActiveForegroundColor: Int
+        override val genericActiveForegroundColor: Int,
+        override val waterRippleColor: Int? = null
     ) : Theme() {
 
         // an alias to use 0xAARRGGBB color literal in code
@@ -259,7 +262,8 @@ sealed class Theme : Parcelable {
             dividerColor: Number,
             clipboardEntryColor: Number,
             genericActiveBackgroundColor: Number,
-            genericActiveForegroundColor: Number
+            genericActiveForegroundColor: Number,
+            waterRippleColor: Number? = null
         ) : this(
             name,
             isDark,
@@ -283,7 +287,8 @@ sealed class Theme : Parcelable {
             dividerColor.toInt(),
             clipboardEntryColor.toInt(),
             genericActiveBackgroundColor.toInt(),
-            genericActiveForegroundColor.toInt()
+            genericActiveForegroundColor.toInt(),
+            waterRippleColor?.toInt()
         )
 
         fun deriveCustomNoBackground(name: String) = Custom(
@@ -310,7 +315,8 @@ sealed class Theme : Parcelable {
             dividerColor,
             clipboardEntryColor,
             genericActiveBackgroundColor,
-            genericActiveForegroundColor
+            genericActiveForegroundColor,
+            waterRippleColor
         )
 
         fun deriveCustomBackground(
@@ -352,7 +358,8 @@ sealed class Theme : Parcelable {
             dividerColor,
             clipboardEntryColor,
             genericActiveBackgroundColor,
-            genericActiveForegroundColor
+            genericActiveForegroundColor,
+            waterRippleColor
         )
     }
 
@@ -380,7 +387,8 @@ sealed class Theme : Parcelable {
         override val dividerColor: Int,
         override val clipboardEntryColor: Int,
         override val genericActiveBackgroundColor: Int,
-        override val genericActiveForegroundColor: Int
+        override val genericActiveForegroundColor: Int,
+        override val waterRippleColor: Int? = null
     ) : Theme() {
         constructor(
             isDark: Boolean,
@@ -409,6 +417,7 @@ sealed class Theme : Parcelable {
             accentKeyTextColor = onPrimary,
             keyPressHighlightColor = onSurface.alpha(if (isDark) 0.2f else 0.12f),
             keyShadowColor = 0x000000,
+            waterRippleColor = null,
             popupBackgroundColor = surfaceContainer,
             popupTextColor = onSurface,
             spaceBarColor = surfaceBright,
@@ -437,6 +446,7 @@ sealed class Theme : Parcelable {
             accentKeyTextColor = accentKeyTextColor,
             keyPressHighlightColor = keyPressHighlightColor,
             keyShadowColor = keyShadowColor,
+            waterRippleColor = waterRippleColor,
             popupBackgroundColor = popupBackgroundColor,
             popupTextColor = popupTextColor,
             spaceBarColor = spaceBarColor,

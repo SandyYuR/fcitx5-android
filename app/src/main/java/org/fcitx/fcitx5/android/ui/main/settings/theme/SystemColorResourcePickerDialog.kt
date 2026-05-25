@@ -27,7 +27,7 @@ import org.fcitx.fcitx5.android.data.theme.ThemeMonet
 object SystemColorResourcePickerDialog {
     
     interface OnColorResourceSelectedListener {
-        fun onColorResourceSelected(resourceId: SystemColorResourceId)
+        fun onColorResourceSelected(resourceId: SystemColorResourceId?)
     }
     
     /**
@@ -38,7 +38,8 @@ object SystemColorResourcePickerDialog {
      */
     fun show(
         context: Context,
-        currentResource: SystemColorResourceId,
+        currentResource: SystemColorResourceId?,
+        allowClear: Boolean = false,
         listener: OnColorResourceSelectedListener
     ) {
         // 检查系统是否支持动态颜色
@@ -66,7 +67,7 @@ object SystemColorResourcePickerDialog {
         val currentIndex = colorItems.indexOfFirst { it.first == currentResource }
             .takeIf { it >= 0 } ?: 0
 
-        AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context)
             .setTitle(R.string.monet_editor_select_color_resource)
             .setSingleChoiceItems(
                 ColorPreviewAdapter(context, colorItems.map { it.first }, colorItems.map { it.second }),
@@ -76,7 +77,15 @@ object SystemColorResourcePickerDialog {
                 dialog.dismiss()
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+
+        if (allowClear) {
+            builder.setNeutralButton(R.string.clear) { dialog, _ ->
+                listener.onColorResourceSelected(null)
+                dialog.dismiss()
+            }
+        }
+
+        builder.show()
     }
 
     private class ColorPreviewAdapter(

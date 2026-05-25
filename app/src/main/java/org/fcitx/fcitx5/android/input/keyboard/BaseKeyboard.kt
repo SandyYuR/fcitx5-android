@@ -17,6 +17,7 @@ import androidx.annotation.Keep
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.Guideline
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.allViews
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
@@ -61,8 +62,10 @@ import splitties.views.dsl.constraintlayout.rightOfParent
 import splitties.views.dsl.constraintlayout.rightToLeftOf
 import splitties.views.dsl.constraintlayout.topOfParent
 import splitties.views.dsl.core.add
+import splitties.views.dsl.core.matchParent
 import timber.log.Timber
 import kotlin.math.absoluteValue
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 abstract class BaseKeyboard(
@@ -108,6 +111,8 @@ abstract class BaseKeyboard(
     private val bounds = Rect()
     private val childLocationInWindow = intArrayOf(0, 0)
     private lateinit var keyRows: List<ConstraintLayout>
+    private var keyboardWaterRippleView: KeyboardWaterRippleView? = null
+    private var cachedWaterRippleColor: Int? = null
     private var rowHeightPercents: List<Float> = emptyList()
     private var horizontalGapScale = 1f
     private var composing = false
@@ -156,6 +161,8 @@ abstract class BaseKeyboard(
 
     init {
         isMotionEventSplittingEnabled = true
+        clipChildren = false
+        clipToPadding = false
         reloadLayout()
         spaceSwipeMoveCursor.registerOnChangeListener(spaceSwipeChangeListener)
         splitKeyboardManager.registerListener(splitStateChangeListener)
@@ -163,6 +170,10 @@ abstract class BaseKeyboard(
 
     protected open fun reloadLayout() {
         removeAllViews()
+        cachedWaterRippleColor = null
+        keyboardWaterRippleView = KeyboardWaterRippleView(context).also { rippleView ->
+            add(rippleView, lParams(matchParent, matchParent))
+        }
         spaceKeys.clear()
         touchTarget.clear()
         composeAwareKeys.clear()
@@ -194,6 +205,10 @@ abstract class BaseKeyboard(
                 centerHorizontally()
             })
         }
+
+        keyboardWaterRippleView?.setOccluders(
+            keyRows.flatMap { row -> row.children.mapNotNull { it as? KeyView }.toList() }
+        )
     }
 
     private fun resolveRowHeightPercents(rows: List<List<KeyDef>>): List<Float> {
@@ -300,6 +315,16 @@ abstract class BaseKeyboard(
     }
 
     private fun buildSplitRow(row: List<KeyDef>, keyViews: List<KeyView>): ConstraintLayout = constraintLayout {
+        clipChildren = false
+        clipToPadding = false
+        keyViews.forEach { keyView ->
+            keyView.onWaterRippleRequest = { view, _, _ ->
+                val cx = (view.parent as? View)?.x.orZero() + view.x + view.width * 0.5f
+                val cy = (view.parent as? View)?.y.orZero() + view.y + view.height * 0.5f
+                val radius = waterRippleRadiusPx(view)
+                keyboardWaterRippleView?.startRipple(cx, cy, waterRippleColor(), radius)
+            }
+        }
         if (row.isEmpty()) return@constraintLayout
         val gap = splitGapPercent()
         val normalizedWidths = resolveRowWidths(row)
@@ -502,6 +527,16 @@ abstract class BaseKeyboard(
     }
 
     private fun buildRegularRow(row: List<KeyDef>, keyViews: List<KeyView>): ConstraintLayout = constraintLayout Row@{
+        clipChildren = false
+        clipToPadding = false
+        keyViews.forEach { keyView ->
+            keyView.onWaterRippleRequest = { view, _, _ ->
+                val cx = (view.parent as? View)?.x.orZero() + view.x + view.width * 0.5f
+                val cy = (view.parent as? View)?.y.orZero() + view.y + view.height * 0.5f
+                val radius = waterRippleRadiusPx(view)
+                keyboardWaterRippleView?.startRipple(cx, cy, waterRippleColor(), radius)
+            }
+        }
         var totalWidth = 0f
         keyViews.forEachIndexed { index, view ->
             add(view, lParams {
@@ -542,6 +577,32 @@ abstract class BaseKeyboard(
                 layoutMarginRight = free / (row.last().appearance.percentWidth + free)
             }
         }
+    }
+
+    private fun Float?.orZero(): Float = this ?: 0f
+
+    private fun waterRippleRadiusPx(view: View): Float {
+        val base = minOf(width, height).takeIf { it > 0 }?.toFloat() ?: dp(120).toFloat()
+        val minFromKey = max(view.width, view.height) * 1.0f
+        return max(base * 0.20f, minFromKey)
+    }
+
+    private fun waterRippleColor(): Int {
+        cachedWaterRippleColor?.let { return it }
+        theme.waterRippleColor?.let {
+            cachedWaterRippleColor = it
+            return it
+        }
+        val shadow = theme.keyShadowColor
+        val background = ColorUtils.setAlphaComponent(theme.keyboardColor, 255)
+        val contrast = ColorUtils.calculateContrast(shadow, background)
+        val computed = if (contrast < 1.35) {
+            ColorUtils.blendARGB(shadow, theme.accentKeyBackgroundColor, 0.72f)
+        } else {
+            ColorUtils.blendARGB(shadow, theme.accentKeyBackgroundColor, 0.28f)
+        }
+        cachedWaterRippleColor = computed
+        return computed
     }
 
     private var currentTextScale = 1.0f
@@ -599,6 +660,7 @@ abstract class BaseKeyboard(
      */
     fun updateTheme(newTheme: Theme) {
         theme = newTheme
+        cachedWaterRippleColor = null
 
         if (::keyRows.isInitialized) {
             keyRows.forEach { row ->

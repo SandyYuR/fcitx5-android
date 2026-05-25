@@ -59,15 +59,25 @@ object ThemeManager {
         // 检查是否存在自定义映射配置
         val lightMapping = MonetThemePrefs.getMapping("MonetLight")
         val darkMapping = MonetThemePrefs.getMapping("MonetDark")
+        val lightWaterRippleResource = MonetThemePrefs.getWaterRippleResource("MonetLight")
+        val darkWaterRippleResource = MonetThemePrefs.getWaterRippleResource("MonetDark")
         
         val lightTheme = if (lightMapping != null) {
-            ThemeMonet.createFromMapping(isDark = false, mapping = lightMapping)
+            ThemeMonet.createFromMapping(
+                isDark = false,
+                mapping = lightMapping,
+                waterRippleResource = lightWaterRippleResource
+            )
         } else {
             ThemeMonet.getLight()
         }
         
         val darkTheme = if (darkMapping != null) {
-            ThemeMonet.createFromMapping(isDark = true, mapping = darkMapping)
+            ThemeMonet.createFromMapping(
+                isDark = true,
+                mapping = darkMapping,
+                waterRippleResource = darkWaterRippleResource
+            )
         } else {
             ThemeMonet.getDark()
         }

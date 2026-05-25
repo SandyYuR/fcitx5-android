@@ -19,6 +19,7 @@ import android.graphics.drawable.StateListDrawable
 import android.text.TextPaint
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import androidx.annotation.ColorInt
@@ -121,6 +122,8 @@ abstract class KeyView(
      */
     @FloatRange(0.0, 1.0)
     var layoutMarginRight = 0f
+
+    var onWaterRippleRequest: ((keyView: KeyView, localX: Float, localY: Float) -> Unit)? = null
 
     /**
      * [KeyView] contains 2 parts: `TouchEventView` and `AppearanceView`.
@@ -284,13 +287,14 @@ abstract class KeyView(
     }
 
     private fun setupPressHighlight(mask: Drawable? = null) {
-        appearanceView.foreground = if (rippled) {
-            RippleDrawable(
-                ColorStateList.valueOf(theme.keyPressHighlightColor), null,
-                // ripple should be masked with an opaque color
-                mask ?: highlightMaskDrawable(Color.WHITE)
-            )
-        } else if (bordered && borderStroke && mask == null) {
+        if (rippled) {
+            background = null
+            appearanceView.foreground = null
+            return
+        }
+
+        background = null
+        appearanceView.foreground = if (bordered && borderStroke && mask == null) {
             StateListDrawable().apply {
                 addState(
                     intArrayOf(android.R.attr.state_pressed),
@@ -354,6 +358,13 @@ abstract class KeyView(
         }
         super.onLayout(changed, left, top, right, bottom)
         onAppearanceLayoutChanged(appearanceView.width, appearanceView.height)
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (event.actionMasked == MotionEvent.ACTION_DOWN && rippled) {
+            onWaterRippleRequest?.invoke(this, event.x, event.y)
+        }
+        return super.onTouchEvent(event)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

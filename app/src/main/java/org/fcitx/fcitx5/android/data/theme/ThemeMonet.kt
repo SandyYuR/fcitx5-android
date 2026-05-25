@@ -110,6 +110,7 @@ object ThemeMonet {
     fun createFromMapping(
         isDark: Boolean,
         mapping: MonetThemeMapping,
+        waterRippleResource: SystemColorResourceId? = null,
         context: android.content.Context = appContext
     ): Theme.Monet {
         fun getColor(resourceId: SystemColorResourceId): Int {
@@ -216,7 +217,8 @@ object ThemeMonet {
             dividerColor = getColor(mapping.dividerColor),
             clipboardEntryColor = getColor(mapping.clipboardEntryColor),
             genericActiveBackgroundColor = getColor(mapping.genericActiveBackgroundColor),
-            genericActiveForegroundColor = getColor(mapping.genericActiveForegroundColor)
+            genericActiveForegroundColor = getColor(mapping.genericActiveForegroundColor),
+            waterRippleColor = waterRippleResource?.let { getColor(it) }
         )
     }
 }

@@ -1048,8 +1048,9 @@ class KeyEditorActivity : AppCompatActivity() {
         SystemColorResourcePickerDialog.show(
             this,
             current,
-            object : SystemColorResourcePickerDialog.OnColorResourceSelectedListener {
-                override fun onColorResourceSelected(resourceId: SystemColorResourceId) {
+            listener = object : SystemColorResourcePickerDialog.OnColorResourceSelectedListener {
+                override fun onColorResourceSelected(resourceId: SystemColorResourceId?) {
+                    resourceId ?: return
                     persistCurrentDraft()
                     setColorOverride(field, null, resourceId.resourceId)
                     rebuildFields()

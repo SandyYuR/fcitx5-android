@@ -47,6 +47,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
+import androidx.core.graphics.ColorUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
@@ -149,6 +150,7 @@ class CustomThemeActivity : AppCompatActivity() {
         ThemeColorEditItem("Candidate Comment", { t: Theme.Custom -> t.candidateCommentColor }, { t: Theme.Custom, c: Int -> t.copy(candidateCommentColor = c) }),
         ThemeColorEditItem("Key Press Highlight", { t: Theme.Custom -> t.keyPressHighlightColor }, { t: Theme.Custom, c: Int -> t.copy(keyPressHighlightColor = c) }),
         ThemeColorEditItem("Key Shadow", { t: Theme.Custom -> t.keyShadowColor }, { t: Theme.Custom, c: Int -> t.copy(keyShadowColor = c) }),
+        ThemeColorEditItem("Water Ripple", { t: Theme.Custom -> t.waterRippleColor ?: computeWaterRippleColor(t) }, { t: Theme.Custom, c: Int -> t.copy(waterRippleColor = c) }),
         ThemeColorEditItem("Popup Background", { t: Theme.Custom -> t.popupBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(popupBackgroundColor = c) }),
         ThemeColorEditItem("Popup Text", { t: Theme.Custom -> t.popupTextColor }, { t: Theme.Custom, c: Int -> t.copy(popupTextColor = c) }),
         ThemeColorEditItem("Space Bar", { t: Theme.Custom -> t.spaceBarColor }, { t: Theme.Custom, c: Int -> t.copy(spaceBarColor = c) }),
@@ -161,6 +163,14 @@ class CustomThemeActivity : AppCompatActivity() {
         registerForActivityResult(ThemeColorEditorActivity.Contract()) { result ->
             result ?: return@registerForActivityResult
             val item = colorEditItems.firstOrNull { it.name == result.fieldName } ?: return@registerForActivityResult
+            if (result.color == null) {
+                if (item.name == "Water Ripple") {
+                    theme = theme.copy(waterRippleColor = null)
+                    colorPreviewDrawables[item.name]?.setColor(computeWaterRippleColor(theme))
+                    applyThemePreview(theme)
+                }
+                return@registerForActivityResult
+            }
             val originalTheme = theme
             val originalColor = item.getter(originalTheme)
             if (result.color == originalColor) return@registerForActivityResult
@@ -168,6 +178,17 @@ class CustomThemeActivity : AppCompatActivity() {
             colorPreviewDrawables[item.name]?.setColor(result.color)
             applyThemePreview(theme)
         }
+
+    private fun computeWaterRippleColor(theme: Theme.Custom): Int {
+        val shadow = theme.keyShadowColor
+        val background = ColorUtils.setAlphaComponent(theme.keyboardColor, 255)
+        val contrast = ColorUtils.calculateContrast(shadow, background)
+        return if (contrast < 1.35) {
+            ColorUtils.blendARGB(shadow, theme.accentKeyBackgroundColor, 0.72f)
+        } else {
+            ColorUtils.blendARGB(shadow, theme.accentKeyBackgroundColor, 0.28f)
+        }
+    }
 
     private fun createTextView(@StringRes string: Int? = null, ripple: Boolean = false) = textView {
         if (string != null) {
@@ -357,8 +378,10 @@ class CustomThemeActivity : AppCompatActivity() {
 
     private fun createInlineColorEditor(
         initialColor: Int,
+        allowClear: Boolean = false,
         onPreview: (Int) -> Unit,
         onConfirm: (Int) -> Unit,
+        onClear: (() -> Unit)? = null,
         onCancel: () -> Unit
     ): View {
         var editingColor = initialColor
@@ -537,6 +560,21 @@ class CustomThemeActivity : AppCompatActivity() {
                     layoutParams = LinearLayout.LayoutParams(dp(16), 1)
                 })
 
+                if (allowClear) {
+                    addView(Button(this@CustomThemeActivity).apply {
+                        text = getString(R.string.clear)
+                        layoutParams = LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f)
+                        setOnClickListener {
+                            onClear?.invoke()
+                            removeEditorView()
+                        }
+                    })
+
+                    addView(View(this@CustomThemeActivity).apply {
+                        layoutParams = LinearLayout.LayoutParams(dp(16), 1)
+                    })
+                }
+
                 addView(Button(this@CustomThemeActivity).apply {
                     text = getString(R.string.custom_theme_cancel)
                     layoutParams = LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f)
@@ -689,7 +727,8 @@ class CustomThemeActivity : AppCompatActivity() {
                             ThemeColorEditorActivity.EditorInput(
                                 fieldName = item.name,
                                 titleRes = R.string.edit_color,
-                                initialColor = item.getter(theme)
+                                initialColor = item.getter(theme),
+                                allowClear = item.name == "Water Ripple"
                             )
                         )
                         return@setOnClickListener
@@ -718,6 +757,7 @@ class CustomThemeActivity : AppCompatActivity() {
                     val originalColor = item.getter(originalTheme)
                     val editor = createInlineColorEditor(
                         initialColor = originalColor,
+                        allowClear = item.name == "Water Ripple",
                         onPreview = { c ->
                             val changed = c != originalColor
                             if (changed) {
@@ -735,6 +775,12 @@ class CustomThemeActivity : AppCompatActivity() {
                                 preview.setColor(c)
                                 applyThemePreview(theme)
                             }
+                            inlinePreviewDirty = false
+                        },
+                        onClear = {
+                            theme = theme.copy(waterRippleColor = null)
+                            preview.setColor(computeWaterRippleColor(theme))
+                            applyThemePreview(theme)
                             inlinePreviewDirty = false
                         },
                         onCancel = {
