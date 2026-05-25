@@ -13,6 +13,7 @@ import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.broadcast.ReturnKeyDrawableComponent
 import org.fcitx.fcitx5.android.input.dependency.theme
+import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyActionListener
@@ -172,6 +173,10 @@ class PickerWindow(
             it.reapplyTextScale()
             it.requestLayout()
             it.invalidate()
+        }
+        if (FontProviders.needsRefresh()) {
+            pickerLayout.embeddedKeyboard.refreshStyle()
+            pickerPagesAdapter.notifyDataSetChanged()
         }
         if (isEmoji) {
             hideUnsupportedEmojisPrefs.registerOnChangeListener(initDataListener!!)

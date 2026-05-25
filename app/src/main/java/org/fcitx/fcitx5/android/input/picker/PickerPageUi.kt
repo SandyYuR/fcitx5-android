@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.input.picker
 
 import android.content.Context
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -16,6 +17,7 @@ import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
+import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
 import org.fcitx.fcitx5.android.input.keyboard.ImageKeyView
@@ -54,7 +56,7 @@ import kotlin.math.max
 class PickerPageUi(
     override val ctx: Context,
     private val theme: Theme,
-    density: Density,
+    private val density: Density,
     bordered: Boolean = false
 ) : Ui {
 
@@ -189,6 +191,7 @@ class PickerPageUi(
     }
 
     init {
+        applyFontConfig()
         val occluders = ArrayList<View>(keyViews.size + if (density.showBackspace) 1 else 0)
         keyViews.forEach { keyView ->
             bindRipple(keyView)
@@ -199,6 +202,14 @@ class PickerPageUi(
             occluders.add(backspaceKey)
         }
         waterRippleOverlay.setOccluders(occluders)
+    }
+
+    fun applyFontConfig() {
+        val textSize = FontProviders.getFontSize("key_main_font", density.textSize)
+        keyViews.forEach { keyView ->
+            keyView.mainText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
+            keyView.mainText.setFontTypeFace("key_main_font")
+        }
     }
 
     private fun bindRipple(keyView: KeyView) {
@@ -233,6 +244,7 @@ class PickerPageUi(
     }
 
     fun setItems(items: List<String>, withSkinTone: Boolean = false) {
+        applyFontConfig()
         keyViews.forEachIndexed { i, keyView ->
             keyView.apply {
                 if (i >= items.size) {

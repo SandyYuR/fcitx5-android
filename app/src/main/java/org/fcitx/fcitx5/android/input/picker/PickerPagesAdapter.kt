@@ -102,6 +102,7 @@ class PickerPagesAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.ui.applyFontConfig()
         holder.ui.setItems(pages[position], isEmoji)
     }
 
