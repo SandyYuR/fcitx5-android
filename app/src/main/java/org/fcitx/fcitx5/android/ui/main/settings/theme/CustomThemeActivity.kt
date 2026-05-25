@@ -168,6 +168,7 @@ class CustomThemeActivity : AppCompatActivity() {
                     theme = theme.copy(waterRippleColor = null)
                     colorPreviewDrawables[item.name]?.setColor(computeWaterRippleColor(theme))
                     applyThemePreview(theme)
+                    refreshSaveButtonState()
                 }
                 return@registerForActivityResult
             }
@@ -177,6 +178,7 @@ class CustomThemeActivity : AppCompatActivity() {
             theme = item.setter(originalTheme, result.color)
             colorPreviewDrawables[item.name]?.setColor(result.color)
             applyThemePreview(theme)
+            refreshSaveButtonState()
         }
 
     private fun computeWaterRippleColor(theme: Theme.Custom): Int {
@@ -233,6 +235,7 @@ class CustomThemeActivity : AppCompatActivity() {
                 theme = theme.copy(name = newName)
                 supportActionBar?.title = toThemeLabel(newName)
                 applyThemePreview(theme)
+                refreshSaveButtonState()
                 dialog.dismiss()
             }
         }
@@ -777,6 +780,7 @@ class CustomThemeActivity : AppCompatActivity() {
                                 theme = item.setter(originalTheme, c)
                                 preview.setColor(c)
                                 applyThemePreview(theme)
+                                refreshSaveButtonState()
                             }
                             inlinePreviewDirty = false
                         },
@@ -784,6 +788,7 @@ class CustomThemeActivity : AppCompatActivity() {
                             theme = theme.copy(waterRippleColor = null)
                             preview.setColor(computeWaterRippleColor(theme))
                             applyThemePreview(theme)
+                            refreshSaveButtonState()
                             inlinePreviewDirty = false
                         },
                         onCancel = {
@@ -894,8 +899,36 @@ class CustomThemeActivity : AppCompatActivity() {
     private var newCreated = true
 
     private lateinit var theme: Theme.Custom
+    private lateinit var initialThemeSnapshot: Theme.Custom
     private var originalThemeName: String? = null
     private var backgroundControlsBound = false
+    private var suppressVariantSwitchCallback = false
+    private var saveMenuItem: MenuItem? = null
+
+    private fun effectiveThemeForDirtyCheck(): Theme.Custom {
+        val bg = theme.backgroundImage ?: return theme
+        return theme.copy(
+            backgroundImage = bg.copy(
+                brightness = brightnessSeekBar.progress,
+                blurRadius = blurRadiusSeekBar.progress.toFloat(),
+                cropRect = backgroundStates.cropRect,
+                cropRotation = backgroundStates.cropRotation
+            )
+        )
+    }
+
+    private fun hasUnsavedChanges(): Boolean {
+        if (newCreated) return true
+        if (!::initialThemeSnapshot.isInitialized) return false
+        if (backgroundStates.srcImageDirty || backgroundStates.pendingSrcUri != null) return true
+        return effectiveThemeForDirtyCheck() != initialThemeSnapshot
+    }
+
+    private fun refreshSaveButtonState() {
+        val enabled = hasUnsavedChanges()
+        saveMenuItem?.isEnabled = enabled
+        saveMenuItem?.icon?.alpha = if (enabled) 255 else 90
+    }
 
     private class BackgroundStates {
         lateinit var launcher: ActivityResultLauncher<CropOption>
@@ -939,6 +972,7 @@ class CustomThemeActivity : AppCompatActivity() {
             background.cropRotation
         )
         applyThemePreview(theme, filteredDrawable)
+        refreshSaveButtonState()
     }
 
     /**
@@ -1030,6 +1064,7 @@ class CustomThemeActivity : AppCompatActivity() {
                     updateBackgroundEditorVisibility()
                     updateBlurRadiusLabel(blurRadiusSeekBar.progress)
                     backgroundStates.updateState()
+                    refreshSaveButtonState()
                 }
             }
         }
@@ -1074,6 +1109,7 @@ class CustomThemeActivity : AppCompatActivity() {
             variantSwitch.isChecked = !variantSwitch.isChecked
         }
         variantSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (suppressVariantSwitchCallback) return@setOnCheckedChangeListener
             whenHasBackground { background ->
                 setKeyVariant(background, darkKeys = isChecked)
             }
@@ -1084,6 +1120,7 @@ class CustomThemeActivity : AppCompatActivity() {
             override fun onProgressChanged(bar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser && theme.backgroundImage != null) {
                     backgroundStates.updateState()
+                    refreshSaveButtonState()
                 }
             }
         })
@@ -1094,6 +1131,7 @@ class CustomThemeActivity : AppCompatActivity() {
                 updateBlurRadiusLabel(progress)
                 if (fromUser && theme.backgroundImage != null) {
                     backgroundStates.updateState()
+                    refreshSaveButtonState()
                 }
             }
         })
@@ -1109,6 +1147,7 @@ class CustomThemeActivity : AppCompatActivity() {
         backgroundStates.pendingSrcFile = null
         applyThemePreview(theme)
         updateBackgroundEditorVisibility()
+        refreshSaveButtonState()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -1165,7 +1204,9 @@ class CustomThemeActivity : AppCompatActivity() {
         whenHasBackground { background ->
             brightnessSeekBar.progress = background.brightness
             blurRadiusSeekBar.progress = background.blurRadius.toInt()
+            suppressVariantSwitchCallback = true
             variantSwitch.isChecked = !theme.isDark
+            suppressVariantSwitchCallback = false
             updateBlurRadiusLabel(blurRadiusSeekBar.progress)
         }
         updateBackgroundEditorVisibility()
@@ -1184,6 +1225,9 @@ class CustomThemeActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback {
             cancel()
         }
+
+        initialThemeSnapshot = effectiveThemeForDirtyCheck()
+        refreshSaveButtonState()
     }
 
     private fun BackgroundStates.launchCrop(w: Int, h: Int, pickNewSource: Boolean) {
@@ -1222,6 +1266,10 @@ class CustomThemeActivity : AppCompatActivity() {
     }
 
     private fun done() {
+        if (!hasUnsavedChanges()) {
+            cancel()
+            return
+        }
         lifecycleScope.withLoadingDialog(this) {
             try {
                 var outputTheme = theme
@@ -1369,9 +1417,10 @@ class CustomThemeActivity : AppCompatActivity() {
         menu.item(R.string.theme_name, R.drawable.ic_baseline_edit_24, iconTint, true) {
             promptRenameTheme()
         }
-        menu.item(R.string.save, R.drawable.ic_baseline_check_24, iconTint, true) {
+        saveMenuItem = menu.item(R.string.save, R.drawable.ic_baseline_check_24, iconTint, true) {
             done()
         }
+        refreshSaveButtonState()
         return true
     }
 
