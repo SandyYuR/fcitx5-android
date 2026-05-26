@@ -289,7 +289,10 @@ abstract class KeyView(
     private fun setupPressHighlight(mask: Drawable? = null) {
         if (rippled) {
             background = null
-            appearanceView.foreground = null
+            appearanceView.foreground = RippleDrawable(
+                ColorStateList.valueOf(theme.keyPressHighlightColor), null,
+                mask ?: highlightMaskDrawable(Color.WHITE)
+            )
             return
         }
 
