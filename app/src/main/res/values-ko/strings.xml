@@ -701,4 +701,10 @@
     <string name="share_receive_invalid_path">대상 경로가 올바르지 않습니다.</string>
     <string name="share_receive_file_imported">파일을 가져왔습니다: %1$s</string>
     <string name="share_receive_files_imported">파일 %1$d개를 가져왔습니다.</string>
+    <string name="share_receive_archive_action_title">압축 파일 가져오기</string>
+    <string name="share_receive_archive_action_message">"%1$s"을(를) 어떻게 가져오시겠습니까?</string>
+    <string name="share_receive_archive_action_message_multiple">%2$d개의 공유 항목에서 압축 파일 %1$d개를 감지했습니다. 파일로 가져오거나 선택한 폴더에 바로 압축을 풀까요?</string>
+    <string name="share_receive_archive_action_extract">선택한 폴더에 압축 풀기</string>
+    <string name="share_receive_archive_action_import_file">파일로 가져오기</string>
+    <string name="share_receive_archive_extracted">%1$d개 파일을 %2$s에 압축 해제했습니다.</string>
     </resources>

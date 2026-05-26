@@ -697,4 +697,10 @@
     <string name="share_receive_invalid_path">Ungültiger Zielpfad.</string>
     <string name="share_receive_file_imported">Datei importiert: %1$s</string>
     <string name="share_receive_files_imported">%1$d Dateien importiert.</string>
+    <string name="share_receive_archive_action_title">Archiv importieren</string>
+    <string name="share_receive_archive_action_message">Wie möchten Sie „%1$s“ importieren?</string>
+    <string name="share_receive_archive_action_message_multiple">In %2$d geteilten Elementen wurden %1$d Archiv(e) erkannt. Archive als Dateien importieren oder direkt in den ausgewählten Ordner entpacken?</string>
+    <string name="share_receive_archive_action_extract">In ausgewählten Ordner entpacken</string>
+    <string name="share_receive_archive_action_import_file">Als Dateien importieren</string>
+    <string name="share_receive_archive_extracted">%1$d Datei(en) nach %2$s entpackt.</string>
     </resources>

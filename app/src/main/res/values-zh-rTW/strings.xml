@@ -683,6 +683,12 @@
     <string name="share_receive_invalid_path">目標路徑無效。</string>
     <string name="share_receive_file_imported">檔案已匯入：%1$s</string>
     <string name="share_receive_files_imported">已匯入 %1$d 個檔案。</string>
+    <string name="share_receive_archive_action_title">匯入壓縮檔</string>
+    <string name="share_receive_archive_action_message">要如何匯入「%1$s」？</string>
+    <string name="share_receive_archive_action_message_multiple">在 %2$d 個分享項目中偵測到 %1$d 個壓縮檔。請選擇將壓縮檔作為檔案匯入，或直接解壓到所選資料夾。</string>
+    <string name="share_receive_archive_action_extract">解壓到所選資料夾</string>
+    <string name="share_receive_archive_action_import_file">作為檔案匯入</string>
+    <string name="share_receive_archive_extracted">已解壓 %1$d 個檔案到 %2$s。</string>
     <string name="background_blur_radius">背景模糊半徑</string>
     <string name="no_blur">無模糊</string>
 

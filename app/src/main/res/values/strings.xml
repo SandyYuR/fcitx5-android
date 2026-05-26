@@ -722,6 +722,12 @@
     <string name="share_receive_invalid_path">Invalid target path.</string>
     <string name="share_receive_file_imported">File imported: %1$s</string>
     <string name="share_receive_files_imported">Imported %1$d files.</string>
+    <string name="share_receive_archive_action_title">Import archive</string>
+    <string name="share_receive_archive_action_message">How do you want to import "%1$s"?</string>
+    <string name="share_receive_archive_action_message_multiple">Detected %1$d archive(s) in %2$d shared items. Import archives as files, or extract them directly into the selected folder?</string>
+    <string name="share_receive_archive_action_extract">Extract to selected folder</string>
+    <string name="share_receive_archive_action_import_file">Import as files</string>
+    <string name="share_receive_archive_extracted">Extracted %1$d file(s) to %2$s.</string>
     <string name="preferred_voice_input">Preferred voice input</string>
     <string name="background_blur_radius">Background Blur Radius</string>
     <string name="no_blur">No Blur</string>

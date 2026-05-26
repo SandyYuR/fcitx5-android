@@ -699,4 +699,10 @@
     <string name="share_receive_invalid_path">対象パスが無効です。</string>
     <string name="share_receive_file_imported">ファイルをインポートしました: %1$s</string>
     <string name="share_receive_files_imported">%1$d 個のファイルをインポートしました。</string>
+    <string name="share_receive_archive_action_title">圧縮ファイルをインポート</string>
+    <string name="share_receive_archive_action_message">「%1$s」をどのようにインポートしますか？</string>
+    <string name="share_receive_archive_action_message_multiple">%2$d 個の共有項目で %1$d 個の圧縮ファイルを検出しました。ファイルとしてインポートするか、選択したフォルダーに直接解凍しますか？</string>
+    <string name="share_receive_archive_action_extract">選択したフォルダーに解凍</string>
+    <string name="share_receive_archive_action_import_file">ファイルとしてインポート</string>
+    <string name="share_receive_archive_extracted">%1$d 個のファイルを %2$s に解凍しました。</string>
     </resources>

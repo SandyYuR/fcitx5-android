@@ -699,4 +699,10 @@
     <string name="share_receive_invalid_path">Недопустимый путь назначения.</string>
     <string name="share_receive_file_imported">Файл импортирован: %1$s</string>
     <string name="share_receive_files_imported">Импортировано файлов: %1$d.</string>
+    <string name="share_receive_archive_action_title">Импорт архива</string>
+    <string name="share_receive_archive_action_message">Как импортировать «%1$s»?</string>
+    <string name="share_receive_archive_action_message_multiple">Обнаружено архивов: %1$d из %2$d общих элементов. Импортировать архивы как файлы или распаковать сразу в выбранную папку?</string>
+    <string name="share_receive_archive_action_extract">Распаковать в выбранную папку</string>
+    <string name="share_receive_archive_action_import_file">Импортировать как файлы</string>
+    <string name="share_receive_archive_extracted">Распаковано файлов: %1$d в %2$s.</string>
     </resources>

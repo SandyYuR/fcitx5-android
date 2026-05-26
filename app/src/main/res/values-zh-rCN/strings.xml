@@ -705,6 +705,12 @@
     <string name="share_receive_invalid_path">目标路径无效。</string>
     <string name="share_receive_file_imported">文件已导入：%1$s</string>
     <string name="share_receive_files_imported">已导入 %1$d 个文件。</string>
+    <string name="share_receive_archive_action_title">导入压缩包</string>
+    <string name="share_receive_archive_action_message">要如何导入“%1$s”？</string>
+    <string name="share_receive_archive_action_message_multiple">在 %2$d 个分享项目中检测到 %1$d 个压缩包。请选择将压缩包作为文件导入，或解压到所选目录。</string>
+    <string name="share_receive_archive_action_extract">解压到所选目录</string>
+    <string name="share_receive_archive_action_import_file">作为文件导入</string>
+    <string name="share_receive_archive_extracted">已解压 %1$d 个文件到 %2$s。</string>
     <string name="preferred_voice_input">首选语音输入</string>
     <string name="background_blur_radius">背景模糊半径</string>
     <string name="no_blur">无模糊</string>

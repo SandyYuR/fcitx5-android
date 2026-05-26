@@ -266,6 +266,7 @@ dependencies {
     implementation(libs.zxing.core)
     implementation(libs.zxing.embedded)
     implementation(libs.xz)
+    implementation("org.apache.commons:commons-compress:1.27.1")
     implementation(libs.pictureselector)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.runner)

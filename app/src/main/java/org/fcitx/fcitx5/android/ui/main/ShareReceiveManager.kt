@@ -47,6 +47,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareM
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeQrTransferCodec
 import org.fcitx.fcitx5.android.utils.queryFileName
+import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import java.io.File
 import java.io.InputStream
 import java.nio.charset.Charset
@@ -96,11 +97,27 @@ class ShareReceiveManager(
         data class Layout(val detection: DetectionResult.LayoutJson) : AutoDetectedImport
     }
 
+    private enum class ArchiveType {
+        ZIP,
+        SEVEN_Z
+    }
+
+    private enum class ArchiveImportMode {
+        IMPORT_AS_FILE,
+        EXTRACT_TO_DIRECTORY
+    }
+
+    private data class ArchiveEntrySpec(
+        val relativePath: String,
+        val isDirectory: Boolean
+    )
+
     private data class RawImportItem(
         val uri: Uri,
         val name: String,
         val isDirectory: Boolean,
-        val documentRelativePath: String?
+        val documentRelativePath: String?,
+        val archiveType: ArchiveType?
     )
 
     private data class RawImportTarget(
@@ -324,23 +341,62 @@ class ShareReceiveManager(
             importRawItems(listOf(item))
             return
         }
+        if (item.archiveType != null) {
+            importSingleRawArchive(item)
+            return
+        }
         importSingleRawFile(uri, item.name)
     }
 
     private suspend fun importRawItems(rawItems: List<RawImportItem>) {
         if (rawItems.isEmpty()) return
+        if (rawItems.size == 1) {
+            val item = rawItems.first()
+            if (!item.isDirectory && item.archiveType != null) {
+                importSingleRawArchive(item)
+                return
+            }
+        }
+        val archiveItems = rawItems.filter { !it.isDirectory && it.archiveType != null }
+        val archiveImportMode = if (archiveItems.isNotEmpty()) {
+            askArchiveImportMode(archiveCount = archiveItems.size, totalCount = rawItems.size) ?: return
+        } else {
+            ArchiveImportMode.IMPORT_AS_FILE
+        }
         val baseDir = askTargetDirectory(
             lastShareReceiveDirectoryOr("shared"),
             fileCount = rawItems.size
         ) ?: return
-        val targets = resolveRawImportTargets(baseDir, rawItems)
-        val hasConflicts = rawImportTargetsHaveConflicts(targets)
+        val rawFileItems = if (archiveImportMode == ArchiveImportMode.EXTRACT_TO_DIRECTORY) {
+            rawItems.filter { it.archiveType == null }
+        } else {
+            rawItems
+        }
+        val targets = resolveRawImportTargets(baseDir, rawFileItems)
+        val baseDirectory = resolveImportDirectory(baseDir)
+        val hasArchiveConflicts = if (archiveImportMode == ArchiveImportMode.EXTRACT_TO_DIRECTORY) {
+            archivesHaveConflicts(archiveItems, baseDirectory)
+        } else {
+            false
+        }
+        val hasConflicts = rawImportTargetsHaveConflicts(targets) || hasArchiveConflicts
         if (hasConflicts && !confirmFileOverwrite(activity.getString(R.string.share_receive_file_exists_message_multiple))) {
             return
         }
         var importedCount = 0
         targets.forEach { target ->
             importedCount += copyRawImportItem(target.item, target.target)
+        }
+        if (archiveImportMode == ArchiveImportMode.EXTRACT_TO_DIRECTORY) {
+            archiveItems.forEach { item ->
+                val archiveType = item.archiveType ?: return@forEach
+                importedCount += extractSharedArchive(
+                    item.uri,
+                    archiveType,
+                    baseDirectory,
+                    checkConflicts = false
+                )
+            }
         }
         if (importedCount > 0 || targets.any { it.target.isDirectory }) {
             rememberShareReceiveDirectory(baseDir)
@@ -362,6 +418,30 @@ class ShareReceiveManager(
         copySharedUriToFile(uri, finalTarget)
         rememberShareReceiveDirectory(selectedDirectory)
         showMessage(activity.getString(R.string.share_receive_file_imported, relativePathFromRoot(finalTarget)), null)
+    }
+
+    private suspend fun importSingleRawArchive(item: RawImportItem) {
+        val archiveType = item.archiveType ?: error("archive type is required")
+        val importMode = askArchiveImportMode(item.name) ?: return
+        if (importMode == ArchiveImportMode.IMPORT_AS_FILE) {
+            importSingleRawFile(item.uri, item.name)
+            return
+        }
+        val selectedDirectory = askTargetDirectory(
+            lastShareReceiveDirectoryOr("shared"),
+            fileName = item.name
+        ) ?: return
+        val targetDirectory = resolveImportDirectory(selectedDirectory)
+        val extractedCount = extractSharedArchive(item.uri, archiveType, targetDirectory)
+        rememberShareReceiveDirectory(selectedDirectory)
+        showMessage(
+            activity.getString(
+                R.string.share_receive_archive_extracted,
+                extractedCount,
+                displayRelativeDirectory(relativePathFromRoot(targetDirectory))
+            ),
+            null
+        )
     }
 
     private suspend fun detectAutoImport(source: SourcePayload): AutoDetectedImport? {
@@ -661,9 +741,264 @@ class ShareReceiveManager(
         val name = safeImportFileName(queriedName)
         val isDirectory = document?.isDirectory == true ||
             activity.contentResolver.getType(uri) == DocumentsContract.Document.MIME_TYPE_DIR
+        val archiveType = if (isDirectory) {
+            null
+        } else {
+            detectArchiveType(name, activity.contentResolver.getType(uri))
+        }
         val relativePath = extractDocumentRelativePath(uri)
             ?: extractRelativePathHintFromName(queriedName)
-        RawImportItem(uri, name, isDirectory, relativePath)
+        RawImportItem(uri, name, isDirectory, relativePath, archiveType)
+    }
+
+    private suspend fun extractSharedArchive(
+        uri: Uri,
+        archiveType: ArchiveType,
+        targetDirectory: File,
+        checkConflicts: Boolean = true
+    ): Int {
+        val tempArchive = withContext(Dispatchers.IO) {
+            val suffix = when (archiveType) {
+                ArchiveType.ZIP -> ".zip"
+                ArchiveType.SEVEN_Z -> ".7z"
+            }
+            File.createTempFile("shared-archive-", suffix, activity.cacheDir)
+        }
+        return try {
+            withContext(Dispatchers.IO) {
+                copySharedUriToFile(uri, tempArchive)
+                val conflicts = if (checkConflicts) {
+                    val entries = listArchiveEntries(tempArchive, archiveType)
+                    archiveHasConflicts(entries, targetDirectory)
+                } else {
+                    false
+                }
+                val overwrite = if (conflicts) {
+                    confirmFileOverwrite(activity.getString(R.string.share_receive_file_exists_message_multiple))
+                } else {
+                    true
+                }
+                if (!overwrite) return@withContext 0
+                extractArchiveToDirectory(tempArchive, archiveType, targetDirectory)
+            }
+        } finally {
+            tempArchive.delete()
+        }
+    }
+
+    private suspend fun archivesHaveConflicts(items: List<RawImportItem>, targetDirectory: File): Boolean =
+        withContext(Dispatchers.IO) {
+            items.any { item ->
+                val archiveType = item.archiveType ?: return@any false
+                val tempArchive = File.createTempFile(
+                    "shared-archive-check-",
+                    if (archiveType == ArchiveType.SEVEN_Z) ".7z" else ".zip",
+                    activity.cacheDir
+                )
+                try {
+                    copySharedUriToFile(item.uri, tempArchive)
+                    archiveHasConflicts(listArchiveEntries(tempArchive, archiveType), targetDirectory)
+                } finally {
+                    tempArchive.delete()
+                }
+            }
+        }
+
+    private fun listArchiveEntries(archiveFile: File, archiveType: ArchiveType): List<ArchiveEntrySpec> {
+        return when (archiveType) {
+            ArchiveType.ZIP -> listZipEntries(archiveFile)
+            ArchiveType.SEVEN_Z -> listSevenZEntries(archiveFile)
+        }
+    }
+
+    private fun listZipEntries(archiveFile: File): List<ArchiveEntrySpec> {
+        val encodings = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            listOf("UTF-8", "GBK", "Big5")
+        } else {
+            listOf("UTF-8")
+        }
+        var lastError: Throwable? = null
+        encodings.forEach { encoding ->
+            runCatching {
+                archiveFile.inputStream().use { input ->
+                    val zip = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        ZipInputStream(input, Charset.forName(encoding))
+                    } else {
+                        ZipInputStream(input)
+                    }
+                    zip.use {
+                        val entries = mutableListOf<ArchiveEntrySpec>()
+                        var totalEntries = 0
+                        var entry = zip.nextEntry
+                        while (entry != null) {
+                            totalEntries += 1
+                            check(totalEntries <= MAX_ARCHIVE_ENTRY_COUNT) { "Too many archive entries." }
+                            val normalizedPath = normalizeArchiveEntryPath(entry.name)
+                            if (normalizedPath != null) {
+                                entries += ArchiveEntrySpec(normalizedPath, entry.isDirectory)
+                            }
+                            entry = zip.nextEntry
+                        }
+                        check(entries.isNotEmpty()) { activity.getString(R.string.share_receive_target_not_supported) }
+                        return entries
+                    }
+                }
+            }.onFailure {
+                lastError = it
+            }
+        }
+        throw (lastError ?: IllegalStateException("Cannot read zip archive"))
+    }
+
+    private fun listSevenZEntries(archiveFile: File): List<ArchiveEntrySpec> {
+        val entries = mutableListOf<ArchiveEntrySpec>()
+        SevenZFile.builder().setFile(archiveFile).get().use { sevenZ ->
+            var totalEntries = 0
+            var entry = sevenZ.nextEntry
+            while (entry != null) {
+                totalEntries += 1
+                check(totalEntries <= MAX_ARCHIVE_ENTRY_COUNT) { "Too many archive entries." }
+                val normalizedPath = normalizeArchiveEntryPath(entry.name)
+                if (normalizedPath != null) {
+                    entries += ArchiveEntrySpec(normalizedPath, entry.isDirectory)
+                }
+                entry = sevenZ.nextEntry
+            }
+        }
+        check(entries.isNotEmpty()) { activity.getString(R.string.share_receive_target_not_supported) }
+        return entries
+    }
+
+    private fun archiveHasConflicts(entries: List<ArchiveEntrySpec>, targetDirectory: File): Boolean {
+        val canonicalTargetDirectory = targetDirectory.canonicalFile
+        return entries.any { entry ->
+            if (entry.isDirectory) {
+                false
+            } else {
+                resolveArchiveEntryTarget(canonicalTargetDirectory, entry.relativePath).exists()
+            }
+        }
+    }
+
+    private fun extractArchiveToDirectory(archiveFile: File, archiveType: ArchiveType, targetDirectory: File): Int {
+        val canonicalTargetDirectory = targetDirectory.canonicalFile
+        canonicalTargetDirectory.mkdirs()
+        return when (archiveType) {
+            ArchiveType.ZIP -> extractZipArchive(archiveFile, canonicalTargetDirectory)
+            ArchiveType.SEVEN_Z -> extractSevenZArchive(archiveFile, canonicalTargetDirectory)
+        }
+    }
+
+    private fun extractZipArchive(archiveFile: File, targetDirectory: File): Int {
+        val encodings = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            listOf("UTF-8", "GBK", "Big5")
+        } else {
+            listOf("UTF-8")
+        }
+        var lastError: Throwable? = null
+        encodings.forEach { encoding ->
+            runCatching {
+                archiveFile.inputStream().use { input ->
+                    val zip = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        ZipInputStream(input, Charset.forName(encoding))
+                    } else {
+                        ZipInputStream(input)
+                    }
+                    zip.use {
+                        var extractedCount = 0
+                        var totalEntries = 0
+                        var totalBytes = 0L
+                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                        var entry = zip.nextEntry
+                        while (entry != null) {
+                            totalEntries += 1
+                            check(totalEntries <= MAX_ARCHIVE_ENTRY_COUNT) { "Too many archive entries." }
+                            val normalizedPath = normalizeArchiveEntryPath(entry.name)
+                            if (normalizedPath != null) {
+                                val target = resolveArchiveEntryTarget(targetDirectory, normalizedPath)
+                                if (entry.isDirectory) {
+                                    target.mkdirs()
+                                } else {
+                                    target.parentFile?.mkdirs()
+                                    target.outputStream().use { output ->
+                                        while (true) {
+                                            val read = zip.read(buffer)
+                                            if (read < 0) break
+                                            totalBytes += read
+                                            check(totalBytes <= MAX_ARCHIVE_EXTRACT_BYTES) {
+                                                "Extracted archive is too large."
+                                            }
+                                            output.write(buffer, 0, read)
+                                        }
+                                    }
+                                    extractedCount += 1
+                                }
+                            }
+                            entry = zip.nextEntry
+                        }
+                        return extractedCount
+                    }
+                }
+            }.onFailure {
+                lastError = it
+            }
+        }
+        throw (lastError ?: IllegalStateException("Cannot extract zip archive"))
+    }
+
+    private fun extractSevenZArchive(archiveFile: File, targetDirectory: File): Int {
+        var extractedCount = 0
+        var totalEntries = 0
+        var totalBytes = 0L
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        SevenZFile.builder().setFile(archiveFile).get().use { sevenZ ->
+            var entry = sevenZ.nextEntry
+            while (entry != null) {
+                totalEntries += 1
+                check(totalEntries <= MAX_ARCHIVE_ENTRY_COUNT) { "Too many archive entries." }
+                val normalizedPath = normalizeArchiveEntryPath(entry.name)
+                if (normalizedPath != null) {
+                    val target = resolveArchiveEntryTarget(targetDirectory, normalizedPath)
+                    if (entry.isDirectory) {
+                        target.mkdirs()
+                    } else {
+                        target.parentFile?.mkdirs()
+                        target.outputStream().use { output ->
+                            while (true) {
+                                val read = sevenZ.read(buffer)
+                                if (read < 0) break
+                                totalBytes += read
+                                check(totalBytes <= MAX_ARCHIVE_EXTRACT_BYTES) {
+                                    "Extracted archive is too large."
+                                }
+                                output.write(buffer, 0, read)
+                            }
+                        }
+                        extractedCount += 1
+                    }
+                }
+                entry = sevenZ.nextEntry
+            }
+        }
+        return extractedCount
+    }
+
+    private fun normalizeArchiveEntryPath(path: String?): String? {
+        val normalized = normalizeRelativePath(path.orEmpty())
+        if (normalized.isBlank()) return null
+        val segments = normalized.split('/').filter { it.isNotBlank() }
+        if (segments.isEmpty() || segments.any { it == "." || it == ".." }) {
+            error(activity.getString(R.string.share_receive_invalid_path))
+        }
+        return segments.joinToString("/") { safeImportFileName(it) }
+    }
+
+    private fun resolveArchiveEntryTarget(baseDirectory: File, relativePath: String): File {
+        val target = File(baseDirectory, relativePath).canonicalFile
+        require(target.path.startsWith(baseDirectory.path + File.separator) || target == baseDirectory) {
+            activity.getString(R.string.share_receive_invalid_path)
+        }
+        return target
     }
 
     private fun documentFile(uri: Uri): DocumentFile? {
@@ -1118,6 +1453,57 @@ class ShareReceiveManager(
         }
     }
 
+    private suspend fun askArchiveImportMode(archiveName: String): ArchiveImportMode? = withContext(Dispatchers.Main) {
+        if (!canShowDialog()) return@withContext null
+        suspendCancellableDialog { cont ->
+            MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.share_receive_archive_action_title)
+                .setMessage(activity.getString(R.string.share_receive_archive_action_message, archiveName))
+                .setPositiveButton(R.string.share_receive_archive_action_extract) { _, _
+                    -> if (cont.isActive) cont.resume(ArchiveImportMode.EXTRACT_TO_DIRECTORY)
+                }
+                .setNegativeButton(R.string.share_receive_archive_action_import_file) { _, _
+                    -> if (cont.isActive) cont.resume(ArchiveImportMode.IMPORT_AS_FILE)
+                }
+                .setNeutralButton(android.R.string.cancel) { _, _
+                    -> if (cont.isActive) cont.resume(null)
+                }
+                .setOnCancelListener {
+                    if (cont.isActive) cont.resume(null)
+                }
+                .show()
+        }
+    }
+
+    private suspend fun askArchiveImportMode(archiveCount: Int, totalCount: Int): ArchiveImportMode? =
+        withContext(Dispatchers.Main) {
+            if (!canShowDialog()) return@withContext null
+            suspendCancellableDialog { cont ->
+                MaterialAlertDialogBuilder(activity)
+                    .setTitle(R.string.share_receive_archive_action_title)
+                    .setMessage(
+                        activity.getString(
+                            R.string.share_receive_archive_action_message_multiple,
+                            archiveCount,
+                            totalCount
+                        )
+                    )
+                    .setPositiveButton(R.string.share_receive_archive_action_extract) { _, _
+                        -> if (cont.isActive) cont.resume(ArchiveImportMode.EXTRACT_TO_DIRECTORY)
+                    }
+                    .setNegativeButton(R.string.share_receive_archive_action_import_file) { _, _
+                        -> if (cont.isActive) cont.resume(ArchiveImportMode.IMPORT_AS_FILE)
+                    }
+                    .setNeutralButton(android.R.string.cancel) { _, _
+                        -> if (cont.isActive) cont.resume(null)
+                    }
+                    .setOnCancelListener {
+                        if (cont.isActive) cont.resume(null)
+                    }
+                    .show()
+            }
+        }
+
     private suspend fun confirmFileOverwrite(message: String): Boolean = withContext(Dispatchers.Main) {
         if (!canShowDialog()) return@withContext false
         suspendCancellableDialog { cont ->
@@ -1160,6 +1546,16 @@ class ShareReceiveManager(
     private fun looksLikeZip(displayName: String?, mimeType: String?): Boolean {
         return mimeType == "application/zip" ||
             displayName?.substringAfterLast('.', "")?.equals("zip", true) == true
+    }
+
+    private fun detectArchiveType(displayName: String?, mimeType: String?): ArchiveType? {
+        return when {
+            mimeType == "application/zip" ||
+                displayName?.substringAfterLast('.', "")?.equals("zip", true) == true -> ArchiveType.ZIP
+            mimeType == "application/x-7z-compressed" ||
+                displayName?.substringAfterLast('.', "")?.equals("7z", true) == true -> ArchiveType.SEVEN_Z
+            else -> null
+        }
     }
 
     private fun looksLikeTextOrQrImage(displayName: String?, mimeType: String?): Boolean {
@@ -1273,6 +1669,8 @@ class ShareReceiveManager(
         private const val MAX_AUTO_IMPORT_ZIP_BYTES = 16 * 1024 * 1024
         private const val MAX_DIRECTORY_TRAVERSAL_DEPTH = 64
         private const val MAX_DIRECTORY_ENTRY_COUNT = 20000
+        private const val MAX_ARCHIVE_ENTRY_COUNT = 20000
+        private const val MAX_ARCHIVE_EXTRACT_BYTES = 256L * 1024L * 1024L
     }
 }
 

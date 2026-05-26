@@ -701,4 +701,10 @@
     <string name="share_receive_invalid_path">Ruta de destino no válida.</string>
     <string name="share_receive_file_imported">Archivo importado: %1$s</string>
     <string name="share_receive_files_imported">Se importaron %1$d archivos.</string>
+    <string name="share_receive_archive_action_title">Importar archivo</string>
+    <string name="share_receive_archive_action_message">¿Cómo desea importar "%1$s"?</string>
+    <string name="share_receive_archive_action_message_multiple">Se detectaron %1$d archivo(s) comprimido(s) en %2$d elementos compartidos. ¿Importarlos como archivos o extraerlos directamente en la carpeta seleccionada?</string>
+    <string name="share_receive_archive_action_extract">Extraer en la carpeta seleccionada</string>
+    <string name="share_receive_archive_action_import_file">Importar como archivos</string>
+    <string name="share_receive_archive_extracted">Se extrajeron %1$d archivo(s) en %2$s.</string>
     </resources>
