@@ -1,6 +1,6 @@
 {
     "uniqueId": "fxliang/librime-predict-leveldb",
-    "artifactVersion": "5c2f4ff",
+    "artifactVersion": "8449408",
     "description": "librime plugin. predict next word, by commit history",
     "name": "rime/librime-predict",
     "website": "https://github.com/fxliang/librime-predict-leveldb",
