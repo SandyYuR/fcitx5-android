@@ -112,6 +112,11 @@
     <string name="quickphrase_already_exists">快速片語已存在</string>
     <string name="create_new">新增</string>
     <string name="name">名稱</string>
+    <string name="addon_dir_profile_create">新增資料目錄</string>
+    <string name="addon_dir_profile_rename">重新命名資料目錄</string>
+    <string name="addon_dir_profile_switch">切換到此目錄</string>
+    <string name="addon_dir_profile_delete_confirm">刪除資料目錄「%1$s」？</string>
+    <string name="addon_dir_profile_current_format">%1$s（目前）</string>
     <string name="reset">重設</string>
     <string name="quickphrase_keyword">關鍵字</string>
     <string name="quickphrase_phrase">片語</string>
@@ -159,6 +164,8 @@
     <string name="exception_theme_name_clash">主題名稱與內建主題相沖突</string>
     <string name="exception_theme_src_image">無法儲存主題背景的原始影象</string>
     <string name="exception_theme_cropped_image">無法儲存主題背景剪裁後的影象</string>
+    <string name="config_protocol_not_supported_title">不支援的設定協定</string>
+    <string name="config_protocol_not_supported_summary">此插件要求應用協定 v%1$d，而目前應用最高支援 v%2$d。請更新應用。</string>
     <string name="follow_system_day_night_theme">跟隨系統設定主題色調</string>
     <string name="follow_system_day_night_theme_summary">覆蓋目前的主題</string>
     <string name="light_mode_theme">日間模式主題</string>
@@ -320,7 +327,7 @@
     <string name="lang_switch_behavior_next_ime_app">切換至下一個輸入法</string>
     <string name="_cannot_be_empty">%1$s不能為空</string>
     <string name="clipboard_mask_sensitive">隱藏敏感訊息（如密碼）</string>
-    <string name="open_rime_user_data_dir">即將開啓應用資料目錄。RIME 用户資料目錄位於 “data/rime”。</string>
+    <string name="open_rime_user_data_dir">即將開啟應用資料目錄。RIME 使用者資料目錄位於「data」下，並取決於目前目錄設定。</string>
     <string name="generic_multiselect_min">至少需要選擇 %1$d 項。</string>
     <string name="space_swipe_move_cursor">划動空格以移動游標</string>
     <string name="please_wait">請稍候……</string>

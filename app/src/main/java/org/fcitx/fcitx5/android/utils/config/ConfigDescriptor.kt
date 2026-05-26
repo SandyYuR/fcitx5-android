@@ -185,6 +185,8 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
             PinyinCustomPhrase,
             RimeUserDataDir,
             MultiSelect,
+            AddonDirProfileManager,
+            AddonAction,
 
             // manually added on Android side for TableManager
             AndroidTable
@@ -321,6 +323,10 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
                             when {
                                 raw.findByName("External")?.value?.startsWith("fcitx://multiselect/") == true ->
                                     ConfigExternal.ETy.MultiSelect
+                                raw.findByName("External")?.value?.startsWith("fcitx://addon-dir-profile/") == true ->
+                                    ConfigExternal.ETy.AddonDirProfileManager
+                                raw.findByName("External")?.value?.startsWith("fcitx://addon-action/") == true ->
+                                    ConfigExternal.ETy.AddonAction
                                 else -> when (raw.name) {
                                 "DictManager" -> ConfigExternal.ETy.PinyinDict
                                 "Punctuation" -> ConfigExternal.ETy.Punctuation

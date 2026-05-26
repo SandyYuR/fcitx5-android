@@ -112,6 +112,12 @@
     <string name="quickphrase_already_exists">快速输入已存在</string>
     <string name="create_new">新建</string>
     <string name="name">名称</string>
+    <string name="addon_dir_profile_create">新建数据目录</string>
+    <string name="addon_dir_profile_rename">重命名数据目录</string>
+    <string name="addon_dir_profile_switch">切换到此目录</string>
+    <string name="addon_dir_profile_delete_confirm">删除数据目录“%1$s”？</string>
+    <string name="addon_dir_profile_delete_last_forbidden">至少保留一个数据目录</string>
+    <string name="addon_dir_profile_current_format">%1$s（当前）</string>
     <string name="reset">重置</string>
     <string name="quickphrase_keyword">关键词</string>
     <string name="quickphrase_phrase">短语</string>
@@ -159,6 +165,8 @@
     <string name="exception_theme_name_clash">主题名称与内置主题冲突</string>
     <string name="exception_theme_src_image">无法保存主题背景原图片</string>
     <string name="exception_theme_cropped_image">无法保存裁切后的主题背景图片</string>
+    <string name="config_protocol_not_supported_title">配置协议不受支持</string>
+    <string name="config_protocol_not_supported_summary">此插件要求应用协议 v%1$d，而当前应用最高支持 v%2$d。请升级应用。</string>
     <string name="follow_system_day_night_theme">跟随系统夜间模式</string>
     <string name="follow_system_day_night_theme_summary">覆盖手动主题选择</string>
     <string name="light_mode_theme">亮色模式主题</string>
@@ -373,7 +381,7 @@
     <string name="lang_switch_behavior_next_ime_app">切换至下一个输入法应用</string>
     <string name="_cannot_be_empty">%1$s不能为空</string>
     <string name="clipboard_mask_sensitive">隐藏敏感信息（如密码）</string>
-    <string name="open_rime_user_data_dir">即将打开应用数据目录。 RIME 用户数据目录位于“data/rime”。</string>
+    <string name="open_rime_user_data_dir">即将打开应用数据目录。RIME 用户数据目录位于“data”下，并取决于当前目录配置。</string>
     <string name="generic_multiselect_min">至少需要选择 %1$d 项。</string>
     <string name="space_swipe_move_cursor">划动空格键以移动光标</string>
     <string name="please_wait">请稍候…</string>

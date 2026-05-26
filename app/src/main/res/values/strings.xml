@@ -119,6 +119,12 @@
     <string name="quickphrase_already_exists">Quick phrase already exists</string>
     <string name="create_new">Create new</string>
     <string name="name">Name</string>
+    <string name="addon_dir_profile_create">Create data directory</string>
+    <string name="addon_dir_profile_rename">Rename data directory</string>
+    <string name="addon_dir_profile_switch">Switch to this directory</string>
+    <string name="addon_dir_profile_delete_confirm">Delete data directory "%1$s"?</string>
+    <string name="addon_dir_profile_delete_last_forbidden">At least one data directory must remain</string>
+    <string name="addon_dir_profile_current_format">%1$s (current)</string>
     <string name="reset">Reset</string>
     <string name="quickphrase_keyword">Keyword</string>
     <string name="quickphrase_phrase">Phrase</string>
@@ -166,6 +172,8 @@
     <string name="exception_theme_name_clash">Theme name clashes with builtin themes</string>
     <string name="exception_theme_src_image">Unable to save source image of theme background</string>
     <string name="exception_theme_cropped_image">Unable to save cropped image of theme background</string>
+    <string name="config_protocol_not_supported_title">Unsupported configuration protocol</string>
+    <string name="config_protocol_not_supported_summary">This plugin requires app protocol v%1$d, but current app supports up to v%2$d. Please update the app.</string>
     <string name="follow_system_day_night_theme">Follow system day/night theme</string>
     <string name="follow_system_day_night_theme_summary">Override manual theme selection</string>
     <string name="light_mode_theme">Light mode theme</string>
@@ -390,7 +398,7 @@
     <string name="lang_switch_behavior_next_ime_app">Switch to next input method App</string>
     <string name="_cannot_be_empty">%1$s cannot be empty</string>
     <string name="clipboard_mask_sensitive">Mask sensitive data (such as passwords)</string>
-    <string name="open_rime_user_data_dir">Application data directory will be opened. RIME user data directory is located in \"data/rime\".</string>
+    <string name="open_rime_user_data_dir">Application data directory will be opened. RIME user data directory is inside \"data\" and depends on the current profile.</string>
     <string name="generic_multiselect_min">At least %1$d item(s) must be selected.</string>
     <string name="space_swipe_move_cursor">Swipe on space key to move cursor</string>
     <string name="please_wait">Please wait…</string>

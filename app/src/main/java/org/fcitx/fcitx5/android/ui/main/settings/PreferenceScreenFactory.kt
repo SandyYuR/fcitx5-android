@@ -20,9 +20,12 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import arrow.core.getOrElse
+import kotlinx.coroutines.launch
+import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.Key
 import org.fcitx.fcitx5.android.core.RawConfig
+import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.ui.main.modified.MySwitchPreference
 import org.fcitx.fcitx5.android.utils.LongClickPreference
@@ -140,11 +143,7 @@ object PreferenceScreenFactory {
                     .setMessage(R.string.open_rime_user_data_dir)
                     .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
-                        try {
-                            context.startActivity(buildDocumentsProviderIntent())
-                        } catch (e: Exception) {
-                            context.toast(e)
-                        }
+                        openCurrentRimeDataDir(context)
                     }
                     .show()
                 true
@@ -153,11 +152,7 @@ object PreferenceScreenFactory {
             // make it a hidden option, because of compatibility issues
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 setOnPreferenceLongClickListener {
-                    try {
-                        context.startActivity(buildPrimaryStorageIntent("data/rime"))
-                    } catch (e: Exception) {
-                        context.toast(e)
-                    }
+                    openCurrentRimeDataDir(context)
                 }
             }
         }
@@ -224,6 +219,24 @@ object PreferenceScreenFactory {
                         val parsed = parseMultiSelectRoute(uri, descriptor.description ?: descriptor.name)
                             ?: return@setOnPreferenceClickListener false
                         navigate(parsed)
+                    }
+                }
+                ConfigExternal.ETy.AddonDirProfileManager -> Preference(context).apply {
+                    setOnPreferenceClickListener {
+                        val uri = descriptor.uri ?: return@setOnPreferenceClickListener false
+                        val parsed = parseAddonDirProfileRoute(
+                            uri,
+                            descriptor.description ?: descriptor.name
+                        ) ?: return@setOnPreferenceClickListener false
+                        navigate(parsed)
+                    }
+                }
+                ConfigExternal.ETy.AddonAction -> Preference(context).apply {
+                    setOnPreferenceClickListener {
+                        val uri = descriptor.uri ?: return@setOnPreferenceClickListener false
+                        val parsed = parseAddonActionRoute(uri)
+                            ?: return@setOnPreferenceClickListener false
+                        runAddonAction(context, parsed.first, parsed.second)
                     }
                 }
                 ConfigExternal.ETy.RimeUserDataDir -> rimeUserDataDir(
@@ -331,6 +344,99 @@ object PreferenceScreenFactory {
             option = option,
             min = min
         )
+    }
+
+    private fun parseAddonDirProfileRoute(
+        uriText: String,
+        title: String
+    ): SettingsRoute.AddonDirProfileManager? {
+        val uri = Uri.parse(uriText)
+        val segments = uri.pathSegments
+        if (segments.size < 3 || segments.first() != "addon") {
+            Timber.w("Invalid addon dir profile URI: $uriText")
+            return null
+        }
+        val addon = segments[1]
+        val path = segments.drop(2).joinToString("/")
+        if (addon.isBlank() || path.isBlank()) {
+            Timber.w("Invalid addon/path in URI: $uriText")
+            return null
+        }
+        return SettingsRoute.AddonDirProfileManager(title, addon, path)
+    }
+
+    private fun parseAddonActionRoute(uriText: String): Pair<String, String>? {
+        val uri = Uri.parse(uriText)
+        val segments = uri.pathSegments
+        if (segments.size < 3 || segments.first() != "addon") {
+            Timber.w("Invalid addon action URI: $uriText")
+            return null
+        }
+        val addon = segments[1]
+        val path = segments.drop(2).joinToString("/")
+        if (addon.isBlank() || path.isBlank()) {
+            Timber.w("Invalid addon action target in URI: $uriText")
+            return null
+        }
+        return addon to path
+    }
+
+    private fun runAddonAction(context: Context, addon: String, path: String): Boolean {
+        FcitxApplication.getInstance().coroutineScope.launch {
+            val connectionName = "settings-addon-action-${System.nanoTime()}"
+            val conn = FcitxDaemon.connect(connectionName)
+            try {
+                conn.runOnReady {
+                    setAddonSubConfig(addon, path, RawConfig())
+                }
+                context.toast(R.string.done)
+            } catch (e: Exception) {
+                Timber.w("Addon action failed: addon=$addon path=$path error=$e")
+                context.toast(e)
+            } finally {
+                FcitxDaemon.disconnect(connectionName)
+            }
+        }
+        return true
+    }
+
+    private fun openCurrentRimeDataDir(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return try {
+                context.startActivity(buildDocumentsProviderIntent())
+                true
+            } catch (e: Exception) {
+                context.toast(e)
+                false
+            }
+        }
+
+        FcitxApplication.getInstance().coroutineScope.launch {
+            val connectionName = "settings-rime-user-dir-${System.nanoTime()}"
+            val conn = FcitxDaemon.connect(connectionName)
+            val currentDir = try {
+                conn.runOnReady {
+                    val raw = getAddonSubConfig("rime", "profile-manager")
+                    val cfg = raw.findByName("cfg") ?: raw
+                    cfg.findByName("Current")?.value?.trim().orEmpty().ifBlank { "rime" }
+                }
+            } catch (e: Exception) {
+                Timber.w("Unable to get current rime directory: $e")
+                "rime"
+            } finally {
+                FcitxDaemon.disconnect(connectionName)
+            }
+            try {
+                context.startActivity(buildPrimaryStorageIntent("data/$currentDir"))
+            } catch (e: Exception) {
+                try {
+                    context.startActivity(buildDocumentsProviderIntent())
+                } catch (fallback: Exception) {
+                    context.toast(fallback)
+                }
+            }
+        }
+        return true
     }
 
 }

@@ -71,6 +71,11 @@
     <string name="quickphrase_already_exists">La frase rápida ya existe</string>
     <string name="create_new">Crear</string>
     <string name="name">Nombre</string>
+    <string name="addon_dir_profile_create">Crear directorio de datos</string>
+    <string name="addon_dir_profile_rename">Renombrar directorio de datos</string>
+    <string name="addon_dir_profile_switch">Cambiar a este directorio</string>
+    <string name="addon_dir_profile_delete_confirm">¿Eliminar el directorio de datos "%1$s"?</string>
+    <string name="addon_dir_profile_current_format">%1$s (actual)</string>
     <string name="reset">Restablecer</string>
     <string name="quickphrase_keyword">Palabra clave</string>
     <string name="quickphrase_phrase">Frase</string>
@@ -497,6 +502,8 @@
     <string name="exception_table_import_both_files">Seleccione ambos archivos anteriores para importar</string>
     <string name="exception_text_dict_filename">La extension de %1$s no corresponde a un diccionario de texto</string>
     <string name="exception_theme_cropped_image">No se pudo guardar la imagen recortada del fondo del tema</string>
+    <string name="config_protocol_not_supported_title">Protocolo de configuracion no compatible</string>
+    <string name="config_protocol_not_supported_summary">Este complemento requiere el protocolo de app v%1$d, pero la app actual solo admite hasta v%2$d. Actualiza la app.</string>
     <string name="exception_theme_filename">La extension de %1$s no corresponde a un tema</string>
     <string name="exception_theme_json">No se pudo encontrar el JSON del tema</string>
     <string name="exception_theme_name_clash">El nombre del tema entra en conflicto con temas integrados</string>
@@ -581,7 +588,7 @@
     <string name="notification_permission_title">Sin permiso de notificaciones</string>
     <string name="num_items_deleted">%1$d elemento(s) eliminado(s)</string>
     <string name="open_input_method_settings">Abrir ajustes del metodo de entrada</string>
-    <string name="open_rime_user_data_dir">Se abrira el directorio de datos de la aplicacion. El directorio de datos de usuario de RIME se encuentra en "data/rime".</string>
+    <string name="open_rime_user_data_dir">Se abrira el directorio de datos de la aplicacion. El directorio de datos de usuario de RIME esta dentro de "data" y depende del directorio actual seleccionado.</string>
     <string name="path_conflict">La ruta "%1$s" ya pertenece a %2$s</string>
     <string name="pinyin_dict">Diccionarios Pinyin</string>
     <string name="please_wait">Espere por favor…</string>

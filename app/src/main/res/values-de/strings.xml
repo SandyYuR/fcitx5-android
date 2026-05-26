@@ -94,6 +94,11 @@
     <string name="keyboard_long_press_delay">Verzögerung bei langem Tastendruck</string>
     <string name="create_new">Neu erstellen</string>
     <string name="name">Name</string>
+    <string name="addon_dir_profile_create">Datenverzeichnis erstellen</string>
+    <string name="addon_dir_profile_rename">Datenverzeichnis umbenennen</string>
+    <string name="addon_dir_profile_switch">Zu diesem Verzeichnis wechseln</string>
+    <string name="addon_dir_profile_delete_confirm">Datenverzeichnis "%1$s" löschen?</string>
+    <string name="addon_dir_profile_current_format">%1$s (aktuell)</string>
     <string name="reset">Zurücksetzen</string>
     <string name="quickphrase_keyword">Schlüsselwort</string>
     <string name="quickphrase_phrase">Phrase</string>
@@ -522,6 +527,8 @@
     <string name="exception_table_conf_filename">"%1$s" hat keine Tabellen-IM-Konfigurations-Erweiterung (.conf oder .conf.in)</string>
     <string name="exception_text_dict_filename">Datei %1$s hat keine Textwörterbuch-Erweiterung</string>
     <string name="exception_theme_cropped_image">Zugeschnittenes Theme-Hintergrundbild konnte nicht gespeichert werden</string>
+    <string name="config_protocol_not_supported_title">Nicht unterstuetztes Konfigurationsprotokoll</string>
+    <string name="config_protocol_not_supported_summary">Dieses Plugin erfordert App-Protokoll v%1$d, aber die aktuelle App unterstuetzt nur bis v%2$d. Bitte aktualisieren Sie die App.</string>
     <string name="exception_theme_filename">Datei %1$s hat keine Theme-Erweiterung</string>
     <string name="exception_theme_name_clash">Theme-Name kollidiert mit integriertem Theme</string>
     <string name="exception_theme_src_image">Originalbild des Theme-Hintergrunds konnte nicht gespeichert werden</string>
@@ -591,7 +598,7 @@
     <string name="no_plugins">Keine Plugins verfügbar</string>
     <string name="notification_permission_message">Es gibt keine Berechtigung für Benachrichtigungen; bei zeitaufwändigen Vorgängen können wir Sie nach Abschluss nicht benachrichtigen.</string>
     <string name="open_input_method_settings">Eingabemethodeneinstellungen öffnen</string>
-    <string name="open_rime_user_data_dir">Das App-Datenverzeichnis wird geöffnet. Das RIME-Benutzerdatenverzeichnis befindet sich unter "data/rime".</string>
+    <string name="open_rime_user_data_dir">Das App-Datenverzeichnis wird geöffnet. Das RIME-Benutzerdatenverzeichnis liegt unter "data" und hängt vom aktuell ausgewählten Verzeichnis ab.</string>
     <string name="path_conflict">Pfad "%1$s" wird bereits von %2$s verwendet</string>
     <string name="please_wait">Bitte warten…</string>
     <string name="plugin_needs_reload">Plugin-Änderungen erkannt, zum Neuladen tippen</string>

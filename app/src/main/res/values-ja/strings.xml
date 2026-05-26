@@ -103,6 +103,11 @@
     <string name="quickphrase_already_exists">クイックフレーズはすでに存在します</string>
     <string name="create_new">新規作成</string>
     <string name="name">名前</string>
+    <string name="addon_dir_profile_create">データディレクトリを作成</string>
+    <string name="addon_dir_profile_rename">データディレクトリ名を変更</string>
+    <string name="addon_dir_profile_switch">このディレクトリに切り替え</string>
+    <string name="addon_dir_profile_delete_confirm">データディレクトリ「%1$s」を削除しますか？</string>
+    <string name="addon_dir_profile_current_format">%1$s（現在）</string>
     <string name="reset">リセット</string>
     <string name="quickphrase_keyword">キーワード</string>
     <string name="quickphrase_phrase">フレーズ</string>
@@ -146,6 +151,8 @@
     <string name="exception_theme_name_clash">テーマ名がビルトインテーマと衝突します</string>
     <string name="exception_theme_src_image">選択した画像をテーマの背景として保存できません</string>
     <string name="exception_theme_cropped_image">切り取った画像をテーマの背景として保存できません</string>
+    <string name="config_protocol_not_supported_title">サポートされていない設定プロトコル</string>
+    <string name="config_protocol_not_supported_summary">このプラグインはアプリプロトコル v%1$d を必要としますが、現在のアプリは v%2$d までしか対応していません。アプリを更新してください。</string>
     <string name="follow_system_day_night_theme">システムのテーマに従う</string>
     <string name="follow_system_day_night_theme_summary">選択したテーマに手動で上書きする</string>
     <string name="light_mode_theme">ライトモードテーマ</string>
@@ -648,7 +655,7 @@
     <string name="move_cursor_to_start">カーソルを先頭に移動</string>
     <string name="move_cursor_up">カーソルを上に移動</string>
     <string name="open_input_method_settings">输入法設定を開く</string>
-    <string name="open_rime_user_data_dir">アプリのデータディレクトリを開きます。RIME ユーザーデータディレクトリは「data/rime」にあります。</string>
+    <string name="open_rime_user_data_dir">アプリのデータディレクトリを開きます。RIME ユーザーデータディレクトリは「data」配下で、現在のディレクトリ設定によって決まります。</string>
     <string name="please_wait">しばらくお待ちください…</string>
     <string name="text_keyboard_layout_compose_override_title">変換中オーバーライド</string>
     <string name="text_keyboard_layout_compose_override_not_configured">変換中はデフォルトのキー動作を使用</string>
