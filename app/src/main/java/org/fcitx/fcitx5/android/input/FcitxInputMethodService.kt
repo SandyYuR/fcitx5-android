@@ -476,6 +476,32 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         block()
     }
 
+    /**
+     * Re-apply the current Android input binding/session state to fcitx.
+     *
+     * This is needed after fcitx process restart (e.g. plugin package replaced) because
+     * Android may keep IME UI visible without re-triggering onBindInput/onStartInput callbacks.
+     */
+    private fun rebindCurrentInputStateToFcitx() {
+        val binding = currentInputBinding
+        if (binding != null) {
+            val uid = binding.uid
+            val pkgName = pkgNameCache.forUid(uid)
+            val bindingGeneration = inputBindingGeneration
+            postFcitxBindingJob(bindingGeneration) {
+                activate(uid, pkgName)
+            }
+        }
+        val editorInfo = currentInputEditorInfo ?: return
+        val shouldFocus = !editorInfo.isTypeNull()
+        val flags = capabilityFlags
+        val inputSessionGeneration = this.inputSessionGeneration
+        postFcitxSessionJob(inputSessionGeneration) {
+            setCapFlags(flags)
+            focus(shouldFocus)
+        }
+    }
+
     override fun onCreate() {
         fcitx = FcitxDaemon.connect(javaClass.name)
         lifecycleScope.launch {
@@ -509,6 +535,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         when (event) {
             is FcitxEvent.ReadyEvent -> {
                 resetCandidatePagingModeCache()
+                rebindCurrentInputStateToFcitx()
             }
             is FcitxEvent.CommitStringEvent -> {
                 commitText(event.data.text, event.data.cursor)

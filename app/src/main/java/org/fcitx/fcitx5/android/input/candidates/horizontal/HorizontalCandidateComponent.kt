@@ -5,6 +5,8 @@
 
 package org.fcitx.fcitx5.android.input.candidates.horizontal
 
+import android.os.SystemClock
+import android.view.inputmethod.EditorInfo
 import android.content.res.Configuration
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
@@ -15,6 +17,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.core.CapabilityFlags
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
@@ -75,9 +78,17 @@ class HorizontalCandidateComponent :
     private var lastPagedHasPrev = false
     private var lastPagedData: PagedCandidateEvent.Data? = null
     private var pagedCandidateFlowActive = false
+    private var lastPagedEventUptimeMs = 0L
     private var lastRenderedCandidatesSnapshot: List<String> = emptyList()
     private var lastRenderedActiveIndex = Int.MIN_VALUE
     private var pendingLegacyCandidateUpdate: Runnable? = null
+
+    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {
+        // New input session should not inherit paged-candidate flow state from previous one.
+        pagedCandidateFlowActive = false
+        lastPagedEventUptimeMs = 0L
+        lastPagedData = null
+    }
 
     // Since expanded candidate window is created once the expand button was clicked,
     // we need to replay the last offset
@@ -242,9 +253,17 @@ class HorizontalCandidateComponent :
 
     override fun onCandidateUpdate(data: FcitxEvent.CandidateListEvent.Data) {
         if (pagedCandidateFlowActive && data.total == -1) {
+            val now = SystemClock.uptimeMillis()
+            // Keep preferring paged events only when they are still arriving.
+            // If paged stream is stale (e.g. engine/plugin restarted), fallback to legacy list updates.
+            if (now - lastPagedEventUptimeMs <= 500L) {
+                pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
+                pendingLegacyCandidateUpdate = null
+                return
+            }
+            pagedCandidateFlowActive = false
+            lastPagedData = null
             pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
-            pendingLegacyCandidateUpdate = null
-            return
         }
         lastPagedData = null
         lastRenderedCandidatesSnapshot = emptyList()
@@ -261,6 +280,7 @@ class HorizontalCandidateComponent :
 
     override fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data) {
         pagedCandidateFlowActive = true
+        lastPagedEventUptimeMs = SystemClock.uptimeMillis()
         pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
         pendingLegacyCandidateUpdate = null
         if (data == lastPagedData) {
