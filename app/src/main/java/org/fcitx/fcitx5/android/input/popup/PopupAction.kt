@@ -27,6 +27,10 @@ sealed class PopupAction {
         override val viewId: Int
     ) : PopupAction()
 
+    data class DismissAllAction(
+        override val viewId: Int = -1
+    ) : PopupAction()
+
     data class ShowKeyboardAction(
         override val viewId: Int,
         val keyboard: KeyDef.Popup.Keyboard,

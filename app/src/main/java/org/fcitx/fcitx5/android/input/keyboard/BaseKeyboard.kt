@@ -1325,6 +1325,7 @@ abstract class BaseKeyboard(
                     if (!hasLongPressKeyboard && !hasLongPressBehavior) {
                         view.setOnLongClickListener { currentView ->
                             currentView as KeyView
+                            dismissAllPopups()
                             onPopupAction(PopupAction.ShowMenuAction(currentView.id, it, currentView.bounds))
                             false
                         }
@@ -1347,6 +1348,7 @@ abstract class BaseKeyboard(
                 is KeyDef.Popup.LongPressKeyboard -> {
                     view.setOnLongClickListener { currentView ->
                         currentView as KeyView
+                        dismissAllPopups()
                         onPopupAction(PopupAction.ShowLongPressKeyboardAction(currentView.id, it, currentView.bounds))
                         false
                     }
@@ -1369,6 +1371,7 @@ abstract class BaseKeyboard(
                     if (!hasLongPressKeyboard && !hasLongPressBehavior) {
                         view.setOnLongClickListener { currentView ->
                             currentView as KeyView
+                            dismissAllPopups()
                             onPopupAction(PopupAction.ShowKeyboardAction(currentView.id, it, currentView.bounds))
                             false
                         }
@@ -1406,6 +1409,7 @@ abstract class BaseKeyboard(
                                 }
                                 GestureType.Up -> {
                                     onPopupAction(PopupAction.DismissAction(currentView.id))
+                                    dismissAllPopups()
                                 }
                             }
                         }
@@ -1423,6 +1427,7 @@ abstract class BaseKeyboard(
                                 )
                                 GestureType.Up -> {
                                     onPopupAction(PopupAction.DismissAction(currentView.id))
+                                    dismissAllPopups()
                                 }
                                 else -> {}
                             }
@@ -2239,7 +2244,16 @@ abstract class BaseKeyboard(
 
     @CallSuper
     protected open fun onPopupAction(action: PopupAction) {
+        if (action is PopupAction.PreviewAction || action is PopupAction.ShowKeyboardAction ||
+            action is PopupAction.ShowLongPressKeyboardAction || action is PopupAction.ShowMenuAction
+        ) {
+            dismissAllPopups()
+        }
         popupActionListener?.onPopupAction(action)
+    }
+
+    private fun dismissAllPopups() {
+        popupActionListener?.onPopupAction(PopupAction.DismissAllAction())
     }
 
     private fun onPopupChangeFocus(viewId: Int, x: Float, y: Float): Boolean {
