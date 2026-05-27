@@ -292,22 +292,26 @@ abstract class BaseKeyboard(
             }
         }
 
-        val spaceIndex = row.indexOfFirst { it is SpaceKey || it is MiniSpaceKey }
-        if (spaceIndex in 1 until row.lastIndex) {
-            val aroundSpaceCandidates = listOf(spaceIndex - 1, spaceIndex)
-                .filter { it in 0 until row.lastIndex }
+        val spaceIndices = row.mapIndexedNotNull { index, def ->
+            if (def is SpaceKey || def is MiniSpaceKey) index else null
+        }.filter { it in 1 until row.lastIndex }
+        if (spaceIndices.isNotEmpty()) {
             var running = 0f
             val prefixByBoundary = HashMap<Int, Float>(row.size)
             for (i in 0 until row.lastIndex) {
                 running += normalizedWidths[i]
                 prefixByBoundary[i] = running
             }
-            aroundSpaceCandidates.forEach { index ->
-                val p = prefixByBoundary[index] ?: return@forEach
-                val d = kotlin.math.abs(p - 0.5f)
-                if (d <= bestDistance + 0.06f) {
-                    bestDistance = d
-                    bestIndex = index
+            spaceIndices.forEach { spaceIndex ->
+                val aroundSpaceCandidates = listOf(spaceIndex - 1, spaceIndex)
+                    .filter { it in 0 until row.lastIndex }
+                aroundSpaceCandidates.forEach { index ->
+                    val p = prefixByBoundary[index] ?: return@forEach
+                    val d = kotlin.math.abs(p - 0.5f)
+                    if (d <= bestDistance + 0.06f) {
+                        bestDistance = d
+                        bestIndex = index
+                    }
                 }
             }
         }
@@ -329,8 +333,9 @@ abstract class BaseKeyboard(
         val gap = splitGapPercent()
         val normalizedWidths = resolveRowWidths(row)
 
+        val flexCount = row.count { it.appearance.percentWidth <= 0f }
         val bridgeIndex = row.indexOfFirst { it is SpaceKey || it is MiniSpaceKey }
-            .takeIf { it in 1 until row.lastIndex }
+            .takeIf { it in 1 until row.lastIndex && flexCount <= 1 }
         if (bridgeIndex != null) {
             val minSideReach = 0.06f
             val bridgeMinWidth = (gap + minSideReach * 2f).coerceAtMost(0.75f)
