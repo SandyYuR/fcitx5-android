@@ -27,6 +27,9 @@ import splitties.views.recyclerview.verticalLayoutManager
 class LogView @JvmOverloads constructor(context: Context, attributeSet: AttributeSet? = null) :
     HorizontalScrollView(context, attributeSet) {
 
+    private val logLevelPattern =
+        Regex("""^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+\d+\s+\d+\s+([VDIWEF])\s""")
+
     private var logcat: Logcat? = null
 
     private val logAdapter = LogAdapter()
@@ -46,7 +49,7 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
     }
 
     fun append(content: String) {
-        logAdapter.append(buildSpannedString {
+        logAdapter.append(content, buildSpannedString {
             color(styledColor(android.R.attr.colorForeground)) { append(content) }
         })
     }
@@ -55,8 +58,9 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
         this.logcat = logcat
         logcat.initLogFlow()
         logcat.logFlow.onEach {
+            val level = logLevelPattern.find(it)?.groupValues?.getOrNull(1)?.firstOrNull()
             val color = styledColor(
-                when (it.first()) {
+                when (level) {
                     'V' -> R.attr.colorLogVerbose
                     'D' -> R.attr.colorLogDebug
                     'I' -> R.attr.colorLogInfo
@@ -66,7 +70,7 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
                     else -> android.R.attr.colorForeground
                 }
             )
-            logAdapter.append(buildSpannedString {
+            logAdapter.append(it, buildSpannedString {
                 color(color) { append(it) }
             })
         }.launchIn(findViewTreeLifecycleOwner()!!.lifecycleScope)
@@ -78,6 +82,12 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
     fun clear() {
         logAdapter.clear()
     }
+
+    fun setFilterQuery(query: String) {
+        logAdapter.setFilterQuery(query)
+    }
+
+    fun currentFilterQuery() = logAdapter.currentFilterQuery()
 
     fun setBottomPadding(padding: Int) {
         rv.clipToPadding = false

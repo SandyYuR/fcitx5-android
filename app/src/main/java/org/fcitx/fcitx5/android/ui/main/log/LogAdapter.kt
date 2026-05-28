@@ -15,25 +15,60 @@ import splitties.dimensions.dp
 import splitties.views.dsl.core.textView
 import splitties.views.dsl.core.wrapContent
 
-class LogAdapter(private val entries: ArrayList<CharSequence> = ArrayList()) :
-    RecyclerView.Adapter<LogAdapter.Holder>() {
+class LogAdapter : RecyclerView.Adapter<LogAdapter.Holder>() {
+    private data class LogEntry(val raw: String, val styled: CharSequence)
+
+    private val allEntries = ArrayList<LogEntry>()
+    private val visibleEntries = ArrayList<LogEntry>()
+
+    private var filterQuery = ""
+
     inner class Holder(val textView: TextView) : RecyclerView.ViewHolder(textView)
 
-    fun append(line: CharSequence) {
-        val size = entries.size
-        entries.add(line)
-        notifyItemInserted(size)
+    private fun matches(entry: LogEntry) =
+        filterQuery.isEmpty() || entry.raw.contains(filterQuery, ignoreCase = true)
+
+    fun append(raw: String, line: CharSequence) {
+        val entry = LogEntry(raw, line)
+        allEntries.add(entry)
+        if (matches(entry)) {
+            val size = visibleEntries.size
+            visibleEntries.add(entry)
+            notifyItemInserted(size)
+        }
     }
 
     fun clear() {
-        val size = entries.size
-        entries.clear()
+        val size = visibleEntries.size
+        allEntries.clear()
+        visibleEntries.clear()
         notifyItemRangeRemoved(0, size)
     }
 
-    fun fullLogString() = entries.joinToString("\n")
+    fun setFilterQuery(query: String) {
+        val normalized = query.trim()
+        if (filterQuery == normalized) {
+            return
+        }
+        filterQuery = normalized
+        visibleEntries.clear()
+        if (filterQuery.isEmpty()) {
+            visibleEntries.addAll(allEntries)
+        } else {
+            allEntries.forEach { entry ->
+                if (matches(entry)) {
+                    visibleEntries.add(entry)
+                }
+            }
+        }
+        notifyDataSetChanged()
+    }
 
-    override fun getItemCount() = entries.size
+    fun currentFilterQuery() = filterQuery
+
+    fun fullLogString() = visibleEntries.joinToString("\n") { it.raw }
+
+    override fun getItemCount() = visibleEntries.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = Holder(
         parent.textView {
@@ -50,6 +85,6 @@ class LogAdapter(private val entries: ArrayList<CharSequence> = ArrayList()) :
     )
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.textView.text = entries[position]
+        holder.textView.text = visibleEntries[position].styled
     }
 }

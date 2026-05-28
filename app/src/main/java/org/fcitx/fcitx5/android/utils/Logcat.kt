@@ -38,7 +38,7 @@ class Logcat(val pid: Int? = Process.myPid()) : CoroutineScope by CoroutineScope
     fun getLogAsync(): Deferred<Result<List<String>>> = async {
         runCatching {
             Runtime.getRuntime()
-                .exec(arrayOf("logcat", pid?.let { "--pid=$it" } ?: "", "-d"))
+                .exec(arrayOf("logcat", pid?.let { "--pid=$it" } ?: "", "-v", "threadtime", "-d"))
                 .inputStream
                 .bufferedReader()
                 .readLines()
@@ -63,7 +63,7 @@ class Logcat(val pid: Int? = Process.myPid()) : CoroutineScope by CoroutineScope
             runCatching {
                 Runtime
                     .getRuntime()
-                    .exec(arrayOf("logcat", pid?.let { "--pid=$it" } ?: "", "-v", "brief"))
+                    .exec(arrayOf("logcat", pid?.let { "--pid=$it" } ?: "", "-v", "threadtime"))
                     .also { process = it }
                     .inputStream
                     .bufferedReader()
