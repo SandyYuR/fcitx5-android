@@ -388,17 +388,13 @@ class MainService : FcitxPluginService() {
     }
 
     override fun onDestroy() {
-        unregisterClipboardListenerIfNeeded()
-        unregisterPrefsListenerIfNeeded()
-        unregisterNetworkCallbackIfNeeded()
-        unregisterScreenStateReceiverIfNeeded()
-        stopPeriodicSync()
-        stopHealthMonitor()
-        stopForegroundState()
-        connectionSessionId += 1
-        connection = null
+        if (serviceRunning) {
+            stop()
+        } else {
+            connectionSessionId += 1
+            connection = null
+        }
         scope.cancel()
-        serviceRunning = false
         selfStarted = false
         super.onDestroy()
     }
