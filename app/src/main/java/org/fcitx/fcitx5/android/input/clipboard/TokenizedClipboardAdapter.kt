@@ -5,7 +5,6 @@
 package org.fcitx.fcitx5.android.input.clipboard
 
 import android.view.MotionEvent
-import android.view.ViewConfiguration
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -30,9 +29,6 @@ class TokenizedClipboardAdapter(
     private var lastDragIndex = RecyclerView.NO_POSITION
     private var dragStartIndex = RecyclerView.NO_POSITION
     private var dragActivePointerId = MotionEvent.INVALID_POINTER_ID
-    private var pendingDragIndex = RecyclerView.NO_POSITION
-    private var pendingDragX = 0f
-    private var pendingDragY = 0f
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(TokenizedClipboardTokenUi(parent.context, theme)).apply {
@@ -66,6 +62,11 @@ class TokenizedClipboardAdapter(
         holder.itemView.setOnClickListener {
             if (dragSelecting) return@setOnClickListener
             toggleSelection(position)
+        }
+        holder.itemView.setOnLongClickListener {
+            if (dragSelecting) return@setOnLongClickListener true
+            beginDragSelection(position)
+            true
         }
     }
 
@@ -163,27 +164,13 @@ class TokenizedClipboardAdapter(
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 dragActivePointerId = event.getPointerId(0)
-                val index = rv.getChildAdapterPosition(rv.findChildViewUnder(event.x, event.y) ?: return false)
-                if (index == RecyclerView.NO_POSITION) return false
-                pendingDragIndex = index
-                pendingDragX = event.x
-                pendingDragY = event.y
                 return false
             }
             MotionEvent.ACTION_MOVE -> {
+                if (!dragSelecting) return false
                 val pointerIndex = event.findPointerIndex(dragActivePointerId)
                 if (pointerIndex < 0) return false
-                val x = event.getX(pointerIndex)
-                val y = event.getY(pointerIndex)
-                if (!dragSelecting) {
-                    if (pendingDragIndex == RecyclerView.NO_POSITION) return false
-                    val touchSlop = ViewConfiguration.get(rv.context).scaledTouchSlop
-                    val dx = x - pendingDragX
-                    val dy = y - pendingDragY
-                    if (dx * dx + dy * dy < touchSlop * touchSlop) return false
-                    beginDragSelection(pendingDragIndex)
-                }
-                val view = rv.findChildViewUnder(x, y) ?: return true
+                val view = rv.findChildViewUnder(event.getX(pointerIndex), event.getY(pointerIndex)) ?: return true
                 val index = rv.getChildAdapterPosition(view)
                 if (index != RecyclerView.NO_POSITION) {
                     updateDragSelection(index)
@@ -191,7 +178,6 @@ class TokenizedClipboardAdapter(
                 return true
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                pendingDragIndex = RecyclerView.NO_POSITION
                 dragActivePointerId = MotionEvent.INVALID_POINTER_ID
                 if (dragSelecting) {
                     endDragSelection()
