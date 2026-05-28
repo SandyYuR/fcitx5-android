@@ -7,17 +7,24 @@ package org.fcitx.fcitx5.android.ui.main
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.Preference
+import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
+import org.fcitx.fcitx5.android.ui.main.update.UpdateCheckActivity
+import org.fcitx.fcitx5.android.ui.main.update.UpdateRepository
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.utils.Const
 import org.fcitx.fcitx5.android.utils.addCategory
 import org.fcitx.fcitx5.android.utils.addPreference
 import org.fcitx.fcitx5.android.utils.formatDateTime
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
+import timber.log.Timber
 
 class AboutFragment : PaddingPreferenceFragment() {
+    private var currentVersionPreference: Preference? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceScreen = preferenceManager.createPreferenceScreen(requireContext()).apply {
@@ -38,13 +45,45 @@ class AboutFragment : PaddingPreferenceFragment() {
             }
             addCategory(R.string.version) {
                 isIconSpaceReserved = false
-                addPreference(R.string.current_version, Const.versionName)
+                currentVersionPreference = Preference(requireContext()).apply {
+                    setTitle(R.string.current_version)
+                    summary = Const.versionName
+                    isSingleLineTitle = false
+                    isIconSpaceReserved = false
+                    setOnPreferenceClickListener {
+                        startActivity(Intent(requireContext(), UpdateCheckActivity::class.java))
+                        true
+                    }
+                }
+                currentVersionPreference?.let(::addPreference)
                 addPreference(R.string.build_git_hash, BuildConfig.BUILD_GIT_HASH) {
                     val commit = BuildConfig.BUILD_GIT_HASH.substringBefore('-')
                     val uri = Uri.parse("${Const.githubRepo}/commit/${commit}")
                     startActivity(Intent(Intent.ACTION_VIEW, uri))
                 }
                 addPreference(R.string.build_time, formatDateTime(BuildConfig.BUILD_TIME))
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val latest = UpdateRepository.fetchLatestRelease(requireContext())
+                val summary = if (UpdateRepository.isNewerVersion(latest.tagName, Const.versionName)) {
+                    getString(
+                        R.string.about_current_version_new_available,
+                        Const.versionName,
+                        latest.tagName
+                    )
+                } else {
+                    Const.versionName
+                }
+                currentVersionPreference?.summary = summary
+            } catch (t: Throwable) {
+                Timber.w(t, "Failed to check latest version on About page")
+                currentVersionPreference?.summary = Const.versionName
             }
         }
     }

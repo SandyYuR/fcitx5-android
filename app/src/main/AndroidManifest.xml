@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -121,6 +122,18 @@
             android:name=".ui.main.settings.behavior.dialog.LayoutNameInputActivity"
             android:exported="false"
             android:label="@string/edit_text_keyboard_layout" />
+        <activity
+            android:name=".ui.main.update.UpdateCheckActivity"
+            android:exported="false"
+            android:label="@string/update_page_title" />
+        <activity
+            android:name=".ui.main.update.UpdateHostsSettingsActivity"
+            android:exported="false"
+            android:label="@string/update_hosts_settings_title" />
+        <activity
+            android:name=".ui.main.update.UpdateMirrorEditActivity"
+            android:exported="false"
+            android:label="@string/update_mirror_edit_title" />
         <activity
             android:name=".ui.main.settings.behavior.dialog.TextKeyboardLayoutProfilePickerActivity"
             android:autoRemoveFromRecents="true"
