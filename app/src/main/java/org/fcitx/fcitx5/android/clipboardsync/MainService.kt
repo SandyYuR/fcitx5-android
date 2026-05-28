@@ -121,9 +121,18 @@ class MainService : FcitxPluginService() {
             return context.userManager.isUserUnlocked
         }
 
+        private fun defaultSharedPreferencesOrNull(context: Context): SharedPreferences? {
+            return try {
+                PreferenceManager.getDefaultSharedPreferences(context)
+            } catch (e: IllegalStateException) {
+                Log.i(TAG, "Skip accessing shared preferences: ${e.message}")
+                null
+            }
+        }
+
         fun shouldAutoStart(context: Context): Boolean {
             if (!isCredentialStorageUnlocked(context)) return false
-            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            val prefs = defaultSharedPreferencesOrNull(context) ?: return false
             return prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)
         }
 
@@ -137,7 +146,7 @@ class MainService : FcitxPluginService() {
                 Log.i(TAG, "Skip startSyncService($reason): user storage is still locked")
                 return
             }
-            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            val prefs = defaultSharedPreferencesOrNull(context) ?: return
             if (!forceEnableSync && !prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)) {
                 return
             }
@@ -154,7 +163,8 @@ class MainService : FcitxPluginService() {
 
         fun stopSyncService(context: Context) {
             if (!isCredentialStorageUnlocked(context)) return
-            PreferenceManager.getDefaultSharedPreferences(context)
+            val prefs = defaultSharedPreferencesOrNull(context) ?: return
+            prefs
                 .edit()
                 .putBoolean(PREF_IME_SYNC_ACTIVE, false)
                 .apply()
