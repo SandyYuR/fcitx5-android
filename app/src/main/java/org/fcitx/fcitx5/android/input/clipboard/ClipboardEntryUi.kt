@@ -18,6 +18,7 @@ import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
 import splitties.dimensions.dp
 import splitties.resources.drawable
+import splitties.views.dsl.constraintlayout.centerVertically
 import splitties.views.dsl.constraintlayout.bottomOfParent
 import splitties.views.dsl.constraintlayout.constraintLayout
 import splitties.views.dsl.constraintlayout.endOfParent
@@ -63,6 +64,7 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
         minLines = 1
         maxLines = 4
         textSize = 14f
+        includeFontPadding = false
         setPaddingDp(8, 4, 8, 4)
         ellipsize = TextUtils.TruncateAt.END
         setTextColor(theme.keyTextColor)
@@ -83,7 +85,7 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
             topOfParent(dp(6))
         })
         add(textView, lParams(matchParent, wrapContent) {
-            topOfParent(dp(8))
+            centerVertically()
         })
         add(pin, lParams(dp(12), dp(12)) {
             bottomOfParent(dp(2))
