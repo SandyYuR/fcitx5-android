@@ -1670,7 +1670,7 @@ class ShareReceiveManager(
         private const val MAX_DIRECTORY_TRAVERSAL_DEPTH = 64
         private const val MAX_DIRECTORY_ENTRY_COUNT = 20000
         private const val MAX_ARCHIVE_ENTRY_COUNT = 20000
-        private const val MAX_ARCHIVE_EXTRACT_BYTES = 256L * 1024L * 1024L
+        private const val MAX_ARCHIVE_EXTRACT_BYTES = 1024L * 1024L * 1024L
     }
 }
 
