@@ -49,6 +49,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Request
+import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.Const
 import splitties.dimensions.dp
@@ -82,6 +83,13 @@ class UpdateCheckActivity : AppCompatActivity() {
     private val mirrorEditorLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             reloadMirrors()
+        }
+
+    private val sharedReadPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                refreshLatestRelease()
+            }
         }
 
     private var pendingLegacyDownloadState: AssetUiState? = null
@@ -139,6 +147,9 @@ class UpdateCheckActivity : AppCompatActivity() {
         assetsView.layoutManager = LinearLayoutManager(this)
         assetsView.adapter = adapter
 
+        if (requiresSharedReadPermission() && !hasSharedReadPermission()) {
+            sharedReadPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
         reloadMirrors()
         refreshLatestRelease()
     }
@@ -180,7 +191,14 @@ class UpdateCheckActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val release = UpdateRepository.fetchLatestRelease(this@UpdateCheckActivity)
-                val newBadge = if (UpdateRepository.isNewerVersion(release.tagName, Const.versionName)) {
+                val versionFallback = release.assets.firstOrNull()?.name ?: release.releaseName
+                val newBadge = if (UpdateRepository.isNewerVersion(
+                        release.tagName,
+                        Const.versionName,
+                        release.publishedAt,
+                        BuildConfig.BUILD_TIME,
+                        versionFallback
+                    )) {
                     getString(R.string.update_new_version_badge)
                 } else {
                     ""
@@ -472,6 +490,15 @@ class UpdateCheckActivity : AppCompatActivity() {
 
     private fun hasLegacyWritePermission(): Boolean {
         return checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+            PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requiresSharedReadPermission(): Boolean {
+        return Build.VERSION.SDK_INT in Build.VERSION_CODES.Q..32
+    }
+
+    private fun hasSharedReadPermission(): Boolean {
+        return checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
             PackageManager.PERMISSION_GRANTED
     }
 
@@ -833,7 +860,7 @@ class UpdateCheckActivity : AppCompatActivity() {
                     runCatching { file.inputStream() }.getOrNull()
                 }
             }
-            "content" -> contentResolver.openInputStream(uri)
+            "content" -> runCatching { contentResolver.openInputStream(uri) }.getOrNull()
             else -> null
         }
     }

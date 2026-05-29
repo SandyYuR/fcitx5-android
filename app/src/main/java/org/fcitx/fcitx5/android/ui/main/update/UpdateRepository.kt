@@ -177,10 +177,19 @@ object UpdateRepository {
 
     /**
      * Add publishedAtMs parameter for comparison.
-     * If version numbers are not comparable, fallback to publish time and local build time (ms).
+     * If tag version is not comparable, try fallbackVersionSource first, then fallback to
+     * publish time and local build time (ms).
      */
-    fun isNewerVersion(latestTag: String, currentVersion: String, publishedAtMs: Long? = null, buildTimeMs: Long? = null): Boolean {
-        val latest = extractVersionNumbers(latestTag)
+    fun isNewerVersion(
+        latestTag: String,
+        currentVersion: String,
+        publishedAtMs: Long? = null,
+        buildTimeMs: Long? = null,
+        fallbackVersionSource: String? = null
+    ): Boolean {
+        val latest = extractVersionNumbers(latestTag).ifEmpty {
+            extractVersionNumbers(fallbackVersionSource.orEmpty())
+        }
         val current = extractVersionNumbers(currentVersion)
         if (latest.isEmpty() || current.isEmpty()) {
             // Version numbers not comparable, fallback to timestamp
