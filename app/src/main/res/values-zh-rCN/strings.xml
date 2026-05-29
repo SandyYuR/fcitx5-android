@@ -377,6 +377,7 @@
     <string name="expand_keypress_area">将按键范围扩展至边缘</string>
     <string name="update_table">更新码表</string>
     <string name="update_storage_permission_denied">存储权限被拒绝</string>
+    <string name="update_invalid_download_url">无效的下载链接。</string>
     <string name="table_dict_replace_message">码表词典 \"%1$s\" 已存在。您可以导入新词典并替换它。</string>
     <string name="lang_switch_key_behavior">语言切换键行为</string>
     <string name="lang_switch_behavior_next_ime_app">切换至下一个输入法应用</string>

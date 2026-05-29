@@ -450,6 +450,14 @@ class UpdateCheckActivity : AppCompatActivity() {
         beginDownload(state)
     }
 
+    private fun showUrlDialog(title: String, url: String) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(url)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
+    }
+
     private fun beginDownload(state: AssetUiState) {
         val mirror = selectedMirror()
         val downloadUrl = try {
@@ -462,26 +470,32 @@ class UpdateCheckActivity : AppCompatActivity() {
             startHostsMappedDirectDownload(state, downloadUrl)
             return
         }
-        val request = DownloadManager.Request(Uri.parse(downloadUrl))
-            .setTitle(state.asset.name)
-            .setDescription(getString(R.string.update_downloading))
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            .setAllowedOverMetered(true)
-            .setAllowedOverRoaming(true)
-            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, state.asset.name)
-        val id = downloadManager.enqueue(request)
-        val updated = state.copy(
-            status = AssetStatus.DOWNLOADING,
-            progressPercent = 0,
-            downloadedBytes = 0L,
-            speedBytesPerSec = 0L,
-            downloadId = id,
-            installUri = null,
-            error = null
-        )
-        downloadStates[state.asset.browserDownloadUrl] = updated
-        adapter.submitList(downloadStates.values.toList())
-        startPolling()
+        try {
+            val request = DownloadManager.Request(Uri.parse(downloadUrl))
+                .setTitle(state.asset.name)
+                .setDescription(getString(R.string.update_downloading))
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setAllowedOverMetered(true)
+                .setAllowedOverRoaming(true)
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, state.asset.name)
+            val id = downloadManager.enqueue(request)
+            val updated = state.copy(
+                status = AssetStatus.DOWNLOADING,
+                progressPercent = 0,
+                downloadedBytes = 0L,
+                speedBytesPerSec = 0L,
+                downloadId = id,
+                installUri = null,
+                error = null
+            )
+            downloadStates[state.asset.browserDownloadUrl] = updated
+            adapter.submitList(downloadStates.values.toList())
+            startPolling()
+        } catch (e: IllegalArgumentException) {
+            showUrlDialog(getString(R.string.update_invalid_download_url), downloadUrl)
+        } catch (e: Exception) {
+            showUrlDialog(getString(R.string.update_failed_to_fetch), downloadUrl)
+        }
     }
 
     private fun requiresLegacyWritePermission(): Boolean {

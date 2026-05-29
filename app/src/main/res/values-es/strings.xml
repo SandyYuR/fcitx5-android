@@ -658,6 +658,7 @@
     <string name="unimplemented_type">⛔ Tipo no implementado</string>
     <string name="update_table">Actualizar tabla</string>
     <string name="update_storage_permission_denied">Permiso de almacenamiento denegado</string>
+    <string name="update_invalid_download_url">URL de descarga no válida.</string>
     <string name="user_data_imported">Los datos de usuario de %1$s se importaron, reiniciando…</string>
     <string name="vivo_keypress_workaround">Solucion alternativa para pulsaciones en vivo Origin OS</string>
     <string name="text_keyboard_layout_compose_override_title">Anulación durante composición</string>

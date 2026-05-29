@@ -654,6 +654,7 @@
     <string name="remove_from_favorites">Aus Favoriten entfernen</string>
     <string name="update_table">Tabelle aktualisieren</string>
     <string name="update_storage_permission_denied">Speicherberechtigung verweigert</string>
+    <string name="update_invalid_download_url">Ungültige Download-URL.</string>
     <string name="user_data_imported">Benutzerdaten aus %1$s wurden importiert, Neustart läuft…</string>
     <string name="vivo_keypress_workaround">Problem bei der Tastenereigniserkennung auf vivo Origin OS beheben</string>
     <string name="text_keyboard_layout_compose_override_title">Überschreibung während der Eingabe</string>

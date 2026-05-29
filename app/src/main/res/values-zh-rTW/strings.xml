@@ -323,6 +323,7 @@
     <string name="expand_keypress_area">將按鍵範圍擴展至邊緣</string>
     <string name="update_table">更新碼表</string>
     <string name="update_storage_permission_denied">儲存權限遭拒</string>
+    <string name="update_invalid_download_url">無效的下載連結。</string>
     <string name="table_dict_replace_message">碼表字典 \"%1$s\" 已存在。您可以匯入新字典並覆蓋原字典。</string>
     <string name="lang_switch_key_behavior">語言切換鍵行為</string>
     <string name="lang_switch_behavior_next_ime_app">切換至下一個輸入法</string>
