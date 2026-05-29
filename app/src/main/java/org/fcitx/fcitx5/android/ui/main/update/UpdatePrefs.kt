@@ -16,6 +16,7 @@ object UpdatePrefs {
     private const val KEY_MIRROR_RULES = "update_mirror_rules_v1"
     private const val KEY_SELECTED_MIRROR = "update_selected_mirror_v1"
     private const val KEY_HOSTS_CONFIG = "update_hosts_config_v1"
+    private const val KEY_RELEASE_CACHE = "update_release_cache_v1"
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -80,6 +81,25 @@ object UpdatePrefs {
         val sp = PreferenceManager.getDefaultSharedPreferences(context)
         sp.edit {
             putString(KEY_HOSTS_CONFIG, json.encodeToString(config))
+        }
+    }
+
+    fun loadReleaseCache(context: Context): ReleaseInfo? {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        val raw = sp.getString(KEY_RELEASE_CACHE, null).orEmpty()
+        if (raw.isBlank()) return null
+        return try {
+            json.decodeFromString<ReleaseInfo>(raw)
+        } catch (t: Throwable) {
+            Timber.w(t, "Failed to parse release cache preference")
+            null
+        }
+    }
+
+    fun saveReleaseCache(context: Context, release: ReleaseInfo) {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+        sp.edit {
+            putString(KEY_RELEASE_CACHE, json.encodeToString(release))
         }
     }
 }

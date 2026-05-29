@@ -657,6 +657,7 @@
     <string name="toolbar_num_row_on_password">Mostrar fila numerica en la barra de herramientas al ingresar contrasena</string>
     <string name="unimplemented_type">⛔ Tipo no implementado</string>
     <string name="update_table">Actualizar tabla</string>
+    <string name="update_storage_permission_denied">Permiso de almacenamiento denegado</string>
     <string name="user_data_imported">Los datos de usuario de %1$s se importaron, reiniciando…</string>
     <string name="vivo_keypress_workaround">Solucion alternativa para pulsaciones en vivo Origin OS</string>
     <string name="text_keyboard_layout_compose_override_title">Anulación durante composición</string>

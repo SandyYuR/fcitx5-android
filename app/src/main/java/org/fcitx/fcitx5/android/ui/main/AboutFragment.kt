@@ -71,7 +71,12 @@ class AboutFragment : PaddingPreferenceFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val latest = UpdateRepository.fetchLatestRelease(requireContext())
-                val summary = if (UpdateRepository.isNewerVersion(latest.tagName, Const.versionName)) {
+                val summary = if (UpdateRepository.isNewerVersion(
+                        latest.tagName,
+                        Const.versionName,
+                        latest.publishedAt,
+                        BuildConfig.BUILD_TIME
+                    )) {
                     getString(
                         R.string.about_current_version_new_available,
                         Const.versionName,

@@ -5,17 +5,20 @@
 package org.fcitx.fcitx5.android.ui.main.update
 
 import android.app.DownloadManager
+import android.Manifest
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.os.ParcelFileDescriptor.AutoCloseInputStream
 import android.text.TextUtils
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -52,6 +55,7 @@ import splitties.dimensions.dp
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
 import timber.log.Timber
+import java.io.FileInputStream
 import java.io.File
 import java.io.InputStream
 import java.security.MessageDigest
@@ -78,6 +82,23 @@ class UpdateCheckActivity : AppCompatActivity() {
     private val mirrorEditorLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             reloadMirrors()
+        }
+
+    private var pendingLegacyDownloadState: AssetUiState? = null
+
+    private val legacyStoragePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            val pending = pendingLegacyDownloadState
+            pendingLegacyDownloadState = null
+            if (granted && pending != null) {
+                beginDownload(pending)
+            } else if (pending != null) {
+                Toast.makeText(
+                    this,
+                    getString(R.string.update_storage_permission_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
     private val pollRunnable = object : Runnable {
@@ -258,7 +279,10 @@ class UpdateCheckActivity : AppCompatActivity() {
     }
 
     private fun detectExistingCompletedState(asset: ReleaseAsset): AssetUiState? {
-        val hit = findLatestSuccessfulDownload(asset) ?: findLatestMediaStoreDownload(asset) ?: return null
+        val hit = findLatestSuccessfulDownload(asset)
+            ?: findLatestMediaStoreDownload(asset)
+            ?: findLatestLegacyDownloadFile(asset)
+            ?: return null
         return AssetUiState(
             asset = asset,
             status = AssetStatus.FINISHED,
@@ -300,9 +324,9 @@ class UpdateCheckActivity : AppCompatActivity() {
                 val localUri = runCatching { Uri.parse(localUriRaw) }.getOrNull() ?: continue
                 val displayName = extractDisplayName(localUri, title)
                 if (!nameMatchesAsset(displayName, asset.name)) continue
-                val size = detectUriSize(localUri, sizeIdx.takeIf { it >= 0 }?.let { c.getLong(it) } ?: 0L)
+                val size = detectUriSize(installUri, sizeIdx.takeIf { it >= 0 }?.let { c.getLong(it) } ?: 0L)
                 if (asset.sizeBytes > 0 && size != asset.sizeBytes) continue
-                if (!hashMatchesAsset(localUri, asset)) continue
+                if (!hashMatchesAsset(id, installUri, asset)) continue
                 val ts = if (modifiedIdx >= 0) c.getLong(modifiedIdx) else 0L
                 if (best == null || ts >= bestTs) {
                     best = DownloadHit(
@@ -317,6 +341,28 @@ class UpdateCheckActivity : AppCompatActivity() {
             }
             return best
         }
+    }
+
+    private fun findLatestLegacyDownloadFile(asset: ReleaseAsset): DownloadHit? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return null
+        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val candidates = downloadsDir.listFiles()?.asSequence().orEmpty()
+            .filter { it.isFile && nameMatchesAsset(it.name, asset.name) }
+            .sortedByDescending { it.lastModified() }
+        for (file in candidates) {
+            val uri = Uri.fromFile(file)
+            val size = file.length()
+            if (asset.sizeBytes > 0 && size != asset.sizeBytes) continue
+            if (!hashMatchesAsset(null, uri, asset)) continue
+            return DownloadHit(
+                id = null,
+                uri = uri,
+                localUri = uri,
+                sizeBytes = size,
+                lastModified = file.lastModified()
+            )
+        }
+        return null
     }
 
     private fun findLatestMediaStoreDownload(asset: ReleaseAsset): DownloadHit? {
@@ -343,7 +389,7 @@ class UpdateCheckActivity : AppCompatActivity() {
                 if (!nameMatchesAsset(name, asset.name)) continue
                 val size = if (sizeIdx >= 0) c.getLong(sizeIdx) else 0L
                 if (asset.sizeBytes > 0 && size > 0 && size != asset.sizeBytes) continue
-                if (!hashMatchesAsset(uri, asset)) continue
+                if (!hashMatchesAsset(null, uri, asset)) continue
                 val ts = if (modifiedIdx >= 0) c.getLong(modifiedIdx) else 0L
                 if (best == null || ts >= bestTs) {
                     best = DownloadHit(
@@ -378,6 +424,15 @@ class UpdateCheckActivity : AppCompatActivity() {
     }
 
     private fun startDownload(state: AssetUiState) {
+        if (requiresLegacyWritePermission() && !hasLegacyWritePermission()) {
+            pendingLegacyDownloadState = state
+            legacyStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            return
+        }
+        beginDownload(state)
+    }
+
+    private fun beginDownload(state: AssetUiState) {
         val mirror = selectedMirror()
         val downloadUrl = try {
             UpdateRepository.applyMirror(state.asset.browserDownloadUrl, mirror)
@@ -409,6 +464,15 @@ class UpdateCheckActivity : AppCompatActivity() {
         downloadStates[state.asset.browserDownloadUrl] = updated
         adapter.submitList(downloadStates.values.toList())
         startPolling()
+    }
+
+    private fun requiresLegacyWritePermission(): Boolean {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+    }
+
+    private fun hasLegacyWritePermission(): Boolean {
+        return checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+            PackageManager.PERMISSION_GRANTED
     }
 
     private fun shouldUseHostsMappedDirectDownload(mirror: MirrorRule?): Boolean {
@@ -653,8 +717,8 @@ class UpdateCheckActivity : AppCompatActivity() {
                 val size = uri?.let { detectUriSize(it, state.totalBytes) } ?: -1L
                 if (uri == null ||
                     !uriUsable(uri) ||
-                    (state.asset.sizeBytes > 0 && size > 0 && size != state.asset.sizeBytes) ||
-                    !hashMatchesAsset(uri, state.asset)
+                    (state.asset.sizeBytes > 0 && size > 0 && size != state.asset.sizeBytes)
+                    || !hashMatchesAsset(null, uri, state.asset)
                 ) {
                     downloadStates[state.asset.browserDownloadUrl] = state.copy(
                         status = AssetStatus.IDLE,
@@ -734,16 +798,16 @@ class UpdateCheckActivity : AppCompatActivity() {
         runCatching { contentResolver.delete(uri, null, null) }
     }
 
-    private fun hashMatchesAsset(localUri: Uri, asset: ReleaseAsset): Boolean {
+    private fun hashMatchesAsset(downloadId: Long?, localUri: Uri, asset: ReleaseAsset): Boolean {
         val expected = asset.sha256?.lowercase()?.trim().orEmpty()
         if (expected.isBlank()) return true
-        val actual = sha256Of(localUri) ?: return false
+        val actual = sha256Of(downloadId, localUri) ?: return false
         return actual.equals(expected, ignoreCase = true)
     }
 
-    private fun sha256Of(uri: Uri): String? {
+    private fun sha256Of(downloadId: Long?, uri: Uri): String? {
         val md = MessageDigest.getInstance("SHA-256")
-        val input = openLocalInputStream(uri) ?: return null
+        val input = openLocalInputStream(downloadId, uri) ?: return null
         input.use { stream ->
             val buf = ByteArray(8 * 1024)
             while (true) {
@@ -755,11 +819,19 @@ class UpdateCheckActivity : AppCompatActivity() {
         return md.digest().joinToString("") { "%02x".format(it) }
     }
 
-    private fun openLocalInputStream(uri: Uri): InputStream? {
+    private fun openLocalInputStream(downloadId: Long?, uri: Uri): InputStream? {
+        if (downloadId != null) {
+            return runCatching { AutoCloseInputStream(downloadManager.openDownloadedFile(downloadId)) }
+                .getOrNull()
+        }
         return when (uri.scheme) {
             "file" -> {
                 val file = File(uri.path.orEmpty())
-                if (!file.exists()) null else file.inputStream()
+                if (!file.exists()) {
+                    null
+                } else {
+                    runCatching { file.inputStream() }.getOrNull()
+                }
             }
             "content" -> contentResolver.openInputStream(uri)
             else -> null

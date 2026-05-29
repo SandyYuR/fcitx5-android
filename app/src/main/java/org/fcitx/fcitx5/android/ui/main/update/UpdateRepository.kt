@@ -20,9 +20,10 @@ import org.fcitx.fcitx5.android.utils.Const
 import java.io.IOException
 import java.net.InetAddress
 import java.net.URL
+import timber.log.Timber
 
 object UpdateRepository {
-    private const val RELEASE_CACHE_TTL_MS = 10 * 60 * 1000L
+    private const val RELEASE_CACHE_TTL_MS = 2 * 60 * 1000L
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -59,42 +60,59 @@ object UpdateRepository {
                 .addHeader("User-Agent", "fcitx5-android-update")
                 .build()
             val mapping = if (hosts.enabled) hosts.mapping else emptyMap()
-            clientWithHosts(mapping).newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw IOException("GitHub API request failed: ${response.code}")
-                }
-                val body = response.body?.string()
-                    ?: throw IOException("GitHub API response body is empty")
-                val obj = json.parseToJsonElement(body).jsonArray.firstOrNull()?.jsonObject
-                    ?: throw IOException("No release found")
-                val assets = obj["assets"]?.jsonArray.orEmpty().mapNotNull { item ->
-                    val o = item.jsonObject
-                    val name = o["name"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
-                    val link = o["browser_download_url"]?.jsonPrimitive?.contentOrNull
-                        ?: return@mapNotNull null
-                    val size = o["size"]?.jsonPrimitive?.longOrNull ?: 0L
-                    val digest = o["digest"]?.jsonPrimitive?.contentOrNull
-                    val sha256 = digest
-                        ?.takeIf { it.startsWith("sha256:", ignoreCase = true) }
-                        ?.substringAfter(':')
-                        ?.trim()
-                        ?.lowercase()
-                    ReleaseAsset(
-                        name = name,
-                        browserDownloadUrl = link,
-                        sizeBytes = size,
-                        sha256 = sha256
+            try {
+                clientWithHosts(mapping).newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        throw IOException("GitHub API request failed: ${response.code}")
+                    }
+                    val body = response.body?.string()
+                        ?: throw IOException("GitHub API response body is empty")
+                    val obj = json.parseToJsonElement(body).jsonArray.firstOrNull()?.jsonObject
+                        ?: throw IOException("No release found")
+                    val assets = obj["assets"]?.jsonArray.orEmpty().mapNotNull { item ->
+                        val o = item.jsonObject
+                        val name = o["name"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
+                        val link = o["browser_download_url"]?.jsonPrimitive?.contentOrNull
+                            ?: return@mapNotNull null
+                        val size = o["size"]?.jsonPrimitive?.longOrNull ?: 0L
+                        val digest = o["digest"]?.jsonPrimitive?.contentOrNull
+                        val sha256 = digest
+                            ?.takeIf { it.startsWith("sha256:", ignoreCase = true) }
+                            ?.substringAfter(':')
+                            ?.trim()
+                            ?.lowercase()
+                        ReleaseAsset(
+                            name = name,
+                            browserDownloadUrl = link,
+                            sizeBytes = size,
+                            sha256 = sha256
+                        )
+                    }
+                    val publishedAt = obj["published_at"]?.jsonPrimitive?.contentOrNull?.let {
+                        // Parse ISO 8601 time to milliseconds
+                        java.time.OffsetDateTime.parse(it).toInstant().toEpochMilli()
+                    }
+                    val release = ReleaseInfo(
+                        tagName = obj["tag_name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                        releaseName = obj["name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                        releaseBody = obj["body"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                        assets = assets,
+                        publishedAt = publishedAt
                     )
+                    cachedReleaseInfo = release
+                    cachedReleaseAt = System.currentTimeMillis()
+                    UpdatePrefs.saveReleaseCache(context, release)
+                    return@withContext release
                 }
-                val release = ReleaseInfo(
-                    tagName = obj["tag_name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
-                    releaseName = obj["name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
-                    releaseBody = obj["body"]?.jsonPrimitive?.contentOrNull.orEmpty(),
-                    assets = assets
-                )
-                cachedReleaseInfo = release
-                cachedReleaseAt = System.currentTimeMillis()
-                return@withContext release
+            } catch (t: Throwable) {
+                val cached = UpdatePrefs.loadReleaseCache(context)
+                if (cached != null) {
+                    Timber.w(t, "Failed to fetch release, falling back to cached release info")
+                    cachedReleaseInfo = cached
+                    cachedReleaseAt = System.currentTimeMillis()
+                    return@withContext cached
+                }
+                throw t
             }
         }
     }
@@ -157,9 +175,20 @@ object UpdateRepository {
         return clientWithHosts(mapping)
     }
 
-    fun isNewerVersion(latestTag: String, currentVersion: String): Boolean {
+    /**
+     * Add publishedAtMs parameter for comparison.
+     * If version numbers are not comparable, fallback to publish time and local build time (ms).
+     */
+    fun isNewerVersion(latestTag: String, currentVersion: String, publishedAtMs: Long? = null, buildTimeMs: Long? = null): Boolean {
         val latest = extractVersionNumbers(latestTag)
         val current = extractVersionNumbers(currentVersion)
+        if (latest.isEmpty() || current.isEmpty()) {
+            // Version numbers not comparable, fallback to timestamp
+            if (publishedAtMs != null && buildTimeMs != null) {
+                return publishedAtMs > buildTimeMs
+            }
+            return false
+        }
         val maxSize = maxOf(latest.size, current.size)
         for (i in 0 until maxSize) {
             val l = latest.getOrElse(i) { 0 }
@@ -171,7 +200,10 @@ object UpdateRepository {
     }
 
     private fun extractVersionNumbers(value: String): List<Int> {
-        return Regex("""\d+""").findAll(value).map {
+        // Only take the first numeric version segment (e.g. 0.1.2-349-gxxxx), ignore suffixes (e.g. arm64-v8a)
+        val versionPart = Regex("""(\d+\.\d+\.\d+(?:-\d+)?(?:-g[0-9a-fA-F]+)?)""").find(value)?.value
+            ?: value
+        return Regex("""\d+""").findAll(versionPart).map {
             it.value.toIntOrNull() ?: 0
         }.toList()
     }

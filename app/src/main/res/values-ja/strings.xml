@@ -266,6 +266,7 @@
     <string name="grant_permission">権限の許可</string>
     <string name="expand_keypress_area">キー押下範囲を端まで拡張する</string>
     <string name="update_table">Tableの更新</string>
+    <string name="update_storage_permission_denied">ストレージ権限が拒否されました</string>
     <string name="table_dict_replace_message">Tableの辞書\"%1$s\"は存在します。新しい辞書をインポートして置き換えることができます。</string>
     <string name="lang_switch_key_behavior">言語切り替えキーの動作</string>
     <string name="lang_switch_behavior_next_ime_app">次のインプットメゾッドアプリに切り替える</string>

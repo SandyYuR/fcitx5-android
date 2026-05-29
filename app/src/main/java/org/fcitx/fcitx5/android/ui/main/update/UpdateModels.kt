@@ -23,6 +23,7 @@ data class HostsConfig(
     @SerialName("updated_at") val updatedAt: Long = 0L,
 )
 
+@Serializable
 data class ReleaseAsset(
     val name: String,
     val browserDownloadUrl: String,
@@ -30,9 +31,11 @@ data class ReleaseAsset(
     val sha256: String?
 )
 
+@Serializable
 data class ReleaseInfo(
     val tagName: String,
     val releaseName: String,
     val releaseBody: String,
-    val assets: List<ReleaseAsset>
+    val assets: List<ReleaseAsset>,
+    val publishedAt: Long? = null // Timestamp of release publish time (milliseconds)
 )

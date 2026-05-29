@@ -393,6 +393,7 @@
     <string name="clear_clp_db_confirm">Clipboard database would be completely cleared, including pinned items. Proceed?</string>
     <string name="expand_keypress_area">Expand keypress area to the edge</string>
     <string name="update_table">Update table</string>
+    <string name="update_storage_permission_denied">Storage permission denied</string>
     <string name="table_dict_replace_message">Dictionary of table-based input method \"%1$s\" exists. You may import a new dict and replace it.</string>
     <string name="lang_switch_key_behavior">Language switch key behavior</string>
     <string name="lang_switch_behavior_next_ime_app">Switch to next input method App</string>
