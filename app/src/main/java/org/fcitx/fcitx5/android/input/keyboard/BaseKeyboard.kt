@@ -854,6 +854,10 @@ abstract class BaseKeyboard(
             } finally {
                 parents.forEach { it.suppressLayout(false) }
             }
+            // Update occluders so water ripple masking uses the recreated views
+            keyboardWaterRippleView?.setOccluders(
+                keyRows.flatMap { row -> row.children.mapNotNull { it as? KeyView }.toList() }
+            )
         }
 
         updates.forEach { u ->
@@ -929,6 +933,13 @@ abstract class BaseKeyboard(
         // Keep the same identity so sibling constraints (leftToRight/rightToLeft) remain valid.
         newView.id = oldView.id
         newView.tag = oldView.tag
+        // Preserve water ripple request callback on recreated view
+        newView.onWaterRippleRequest = { view, _, _ ->
+            val cx = (view.parent as? View)?.x.orZero() + view.x + view.width * 0.5f
+            val cy = (view.parent as? View)?.y.orZero() + view.y + view.height * 0.5f
+            val radius = waterRippleRadiusPx(view)
+            keyboardWaterRippleView?.startRipple(cx, cy, waterRippleColor(), radius)
+        }
         parent.removeViewAt(index)
         if (copiedLayoutParams != null) {
             parent.addView(newView, index, copiedLayoutParams)
