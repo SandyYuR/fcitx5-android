@@ -207,6 +207,11 @@ class CandidatesView(
             calculatePositionByCursorAnchor(parentWidth, parentHeight, selfWidth, selfHeight)
         }
         
+        if (tX.isNaN() || tY.isNaN()) {
+            translationX = 0f
+            translationY = 0f
+            return
+        }
         translationX = tX
         translationY = tY
         // update touchEventReceiverWindow's position after CandidatesView's
