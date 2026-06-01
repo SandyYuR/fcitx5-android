@@ -79,10 +79,14 @@ class AboutFragment : PaddingPreferenceFragment() {
                         BuildConfig.BUILD_TIME,
                         versionFallback
                     )) {
+                    // Extract version string from asset name (e.g. "0.1.2-352-g6f8634b9" or "latest-352-g6f8634b9")
+                    val versionFromAsset = versionFallback.let { name ->
+                        Regex("""([\w.]+-\d+-g[0-9a-fA-F]+)""").find(name)?.value
+                    }
                     getString(
                         R.string.about_current_version_new_available,
                         Const.versionName,
-                        versionFallback.ifBlank { latest.tagName }
+                        versionFromAsset ?: latest.tagName
                     )
                 } else {
                     Const.versionName

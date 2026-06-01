@@ -203,8 +203,12 @@ class UpdateCheckActivity : AppCompatActivity() {
                 } else {
                     ""
                 }
-                // Prefer asset name (usually contains full version) over bare tag
-                val displayVersion = versionFallback.ifBlank { release.tagName.ifBlank { release.releaseName } }
+                // Extract version string from asset name (e.g. "0.1.2-352-g6f8634b9" or "latest-352-g6f8634b9")
+                val versionFromAsset = versionFallback.let { name ->
+                    Regex("""([\w.]+-\d+-g[0-9a-fA-F]+)""").find(name)?.value
+                }
+                val displayVersion = versionFromAsset
+                    ?: release.tagName.ifBlank { release.releaseName }
                 latestVersionText.text = getString(
                     R.string.update_latest_version_line,
                     displayVersion,
