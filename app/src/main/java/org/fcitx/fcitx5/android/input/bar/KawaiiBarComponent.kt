@@ -118,6 +118,10 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         idleUi.buttonsUi.setOneHandKeyboardState(isOneHanded)
     }
 
+    fun refreshButtonsLayout() {
+        idleUi.buttonsUi.refreshLayout()
+    }
+
     private val prefs = AppPrefs.getInstance()
 
     private val clipboardSuggestion = prefs.clipboard.clipboardSuggestion

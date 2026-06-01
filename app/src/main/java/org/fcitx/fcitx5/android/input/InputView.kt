@@ -2793,8 +2793,21 @@ class InputView(
                 startToEndOf(leftPaddingSpace)
                 endToStartOf(rightPaddingSpace)
             }
-            preedit.ui.root.setPadding(0, 0, 0, 0)
+            kawaiiBar.view.updateLayoutParams<LayoutParams> {
+                width = 0
+                startToStart = unset
+                endToEnd = unset
+                startToEndOf(leftPaddingSpace)
+                endToStartOf(rightPaddingSpace)
+            }
+            preedit.ui.root.setPadding(
+                if (oneHandOnRight) remaining else 0,
+                0,
+                if (oneHandOnRight) 0 else remaining,
+                0
+            )
             kawaiiBar.view.setPadding(0, 0, 0, 0)
+            kawaiiBar.view.post { kawaiiBar.refreshButtonsLayout() }
             syncOneHandHandleUi()
             updateHandlePosition()
             syncKeyboardBoundsAfterLayout()
@@ -2826,9 +2839,17 @@ class InputView(
                 startToEndOf(leftPaddingSpace)
                 endToStartOf(rightPaddingSpace)
             }
+            kawaiiBar.view.updateLayoutParams<LayoutParams> {
+                width = LayoutParams.MATCH_PARENT
+                startToEnd = unset
+                endToStart = unset
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            }
         }
         preedit.ui.root.setPadding(sidePadding, 0, sidePadding, 0)
         kawaiiBar.view.setPadding(sidePadding, 0, sidePadding, 0)
+        kawaiiBar.view.post { kawaiiBar.refreshButtonsLayout() }
         if (isEffectiveFloating) {
             keyboardView.post {
                 clampFloatingPosition()

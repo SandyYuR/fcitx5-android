@@ -121,6 +121,13 @@ class ButtonsBarUi(
         buttonMap["one_handed_keyboard"]?.setActive(isOneHanded)
     }
 
+    fun refreshLayout() {
+        val recyclerView = root
+        recyclerView.layoutManager?.requestLayout()
+        recyclerView.adapter?.notifyDataSetChanged()
+        recyclerView.requestLayout()
+    }
+
     /**
      * Update all buttons' active state based on their ButtonAction.isActive() method.
      */
