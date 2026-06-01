@@ -268,9 +268,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         // Check if virtual keyboard is visible
         val isKeyboardVisible = inputDeviceManager.isVirtualKeyboard
 
-        // Fallback: if system doesn't provide valid cursor position, use keyboard top
-        if (cursorTop <= 0f || cursorBottom <= 0f) {
-            // Assume cursor is near keyboard top
+        // Fallback: if system doesn't provide valid cursor position,
+        // use keyboard top as reference. Only apply when cursor position
+        // is truly unset (both are 0), not when cursor is above the IME
+        // window (which produces negative values after coordinate transform).
+        if (cursorTop == 0f && cursorBottom == 0f) {
+            // System didn't provide any cursor position, assume near keyboard top
             cursorBottom = keyboardTop
             cursorTop = keyboardTop
         }
