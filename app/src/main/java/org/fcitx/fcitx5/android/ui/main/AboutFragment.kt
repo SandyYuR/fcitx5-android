@@ -82,7 +82,7 @@ class AboutFragment : PaddingPreferenceFragment() {
                     getString(
                         R.string.about_current_version_new_available,
                         Const.versionName,
-                        latest.tagName
+                        versionFallback.ifBlank { latest.tagName }
                     )
                 } else {
                     Const.versionName

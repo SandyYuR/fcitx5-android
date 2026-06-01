@@ -203,9 +203,11 @@ class UpdateCheckActivity : AppCompatActivity() {
                 } else {
                     ""
                 }
+                // Prefer asset name (usually contains full version) over bare tag
+                val displayVersion = versionFallback.ifBlank { release.tagName.ifBlank { release.releaseName } }
                 latestVersionText.text = getString(
                     R.string.update_latest_version_line,
-                    release.tagName.ifBlank { release.releaseName },
+                    displayVersion,
                     newBadge
                 ).trim()
                 val notes = if (release.releaseBody.isBlank()) {
