@@ -23,10 +23,10 @@ public:
 
     Instance *instance() { return instance_; }
 
-    void updateCandidateList(const std::vector<std::string> &candidates, int size);
+    void updateCandidateList(const std::vector<CandidateEntity> &candidates, int total);
     void commitString(const std::string &str, int cursor);
     void updateClientPreedit(const Text &clientPreedit);
-    void updateInputPanel(const Text &preedit, const Text &auxUp, const Text &auxDown);
+    void updateInputPanel(const Text &preedit, const Text &auxUp, const Text &auxDown, const std::vector<CandidateActionEntity> &tabs);
     void releaseInputContext(int uid);
     void updatePagedCandidate(const PagedCandidateEntity &paged);
 
@@ -41,17 +41,19 @@ public:
     void deactivateInputContext(int uid);
     [[nodiscard]] InputContext *activeInputContext() const;
     void setCapabilityFlags(uint64_t flag);
-    std::vector<std::string> getCandidates(int offset, int limit);
-    std::vector<CandidateAction> getCandidateActions(int idx);
+    std::vector<CandidateEntity> getCandidates(int offset, int limit);
+    std::vector<CandidateActionEntity> getCandidateActions(int idx);
     void triggerCandidateAction(int idx, int actionIdx);
+    void triggerTabAction(int idx);
     void deleteSurrounding(int before, int after);
     void showToast(const std::string &s);
     void setCandidatePagingMode(int mode);
     void offsetCandidatePage(int delta);
+    void triggerCandidateListTabAction(int id);
     void setCandidateListCallback(const CandidateListCallback &callback);
     void setCommitStringCallback(const CommitStringCallback &callback);
     void setPreeditCallback(const ClientPreeditCallback &callback);
-    void setInputPanelAuxCallback(const InputPanelCallback &callback);
+    void setInputPanelCallback(const InputPanelCallback &callback);
     void setKeyEventCallback(const KeyEventCallback &callback);
     void setInputMethodChangeCallback(const InputMethodChangeCallback &callback);
     void setStatusAreaUpdateCallback(const StatusAreaUpdateCallback &callback);
@@ -74,13 +76,15 @@ private:
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, getCandidates);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, getCandidateActions);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, triggerCandidateAction);
+    FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, triggerTabAction);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, showToast);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, setCandidatePagingMode);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, offsetCandidatePage);
+    FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, triggerCandidateListTabAction);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, setCandidateListCallback);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, setCommitStringCallback);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, setPreeditCallback);
-    FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, setInputPanelAuxCallback);
+    FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, setInputPanelCallback);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, setKeyEventCallback);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, setInputMethodChangeCallback);
     FCITX_ADDON_EXPORT_FUNCTION(AndroidFrontend, setStatusAreaUpdateCallback);
@@ -96,10 +100,10 @@ private:
     std::vector<std::unique_ptr<HandlerTableEntry<EventHandler>>> eventHandlers_;
     int pagingMode_;
 
-    CandidateListCallback candidateListCallback = [](const std::vector<std::string> &, const int) {};
+    CandidateListCallback candidateListCallback = [](const std::vector<CandidateEntity> &, const int) {};
     CommitStringCallback commitStringCallback = [](const std::string &, const int) {};
     ClientPreeditCallback preeditCallback = [](const Text &) {};
-    InputPanelCallback inputPanelCallback = [](const fcitx::Text &, const fcitx::Text &, const Text &) {};
+    InputPanelCallback inputPanelCallback = [](const fcitx::Text &, const fcitx::Text &, const Text &, const std::vector<CandidateActionEntity> &) {};
     KeyEventCallback keyEventCallback = [](const int, const uint32_t, const uint32_t, const bool, const int) {};
     InputMethodChangeCallback imChangeCallback = [](const InputMethodStatus &) {};
     StatusAreaUpdateCallback statusAreaUpdateCallback = [](const std::vector<ActionEntity> &, const InputMethodStatus &) {};

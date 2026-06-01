@@ -410,7 +410,7 @@ public:
         action->activate(ic);
     }
 
-    std::vector<std::string> getCandidates(int offset, int limit) {
+    std::vector<CandidateEntity> getCandidates(int offset, int limit) {
         return p_frontend->call<fcitx::IAndroidFrontend::getCandidates>(offset, limit);
     }
 
@@ -432,6 +432,10 @@ public:
 
     void offsetCandidatePage(int delta) {
         return p_frontend->call<fcitx::IAndroidFrontend::offsetCandidatePage>(delta);
+    }
+
+    void triggerCandidateListTabAction(int id) {
+        return p_frontend->call<fcitx::IAndroidFrontend::triggerCandidateListTabAction>(id);
     }
 
     void save() {
@@ -587,15 +591,15 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_startupFcitx(
         fcitx::registerDomain(CString(env, domain), locale_dir_char);
     }
 
-    auto candidateListCallback = [](const std::vector<std::string> &candidates, const int size) {
+    auto candidateListCallback = [](const std::vector<CandidateEntity> &candidates, const int total) {
         auto env = GlobalRef->AttachEnv();
-        auto candidatesArray = JRef<jobjectArray>(env, env->NewObjectArray(static_cast<int>(candidates.size()), GlobalRef->String, nullptr));
+        auto candidatesArray = JRef<jobjectArray>(env, env->NewObjectArray(static_cast<int>(candidates.size()), GlobalRef->Candidate, nullptr));
         int i = 0;
-        for (const auto &s: candidates) {
-            env->SetObjectArrayElement(candidatesArray, i++, JString(env, s));
+        for (const auto &candidate: candidates) {
+            env->SetObjectArrayElement(candidatesArray, i++, candidateEntityToObject(env, candidate));
         }
         auto vararg = JRef<jobjectArray>(env, env->NewObjectArray(2, GlobalRef->Object, nullptr));
-        auto candidatesCount = JRef(env, env->NewObject(GlobalRef->Integer, GlobalRef->IntegerInit, size));
+        auto candidatesCount = JRef(env, env->NewObject(GlobalRef->Integer, GlobalRef->IntegerInit, total));
         env->SetObjectArrayElement(vararg, 0, *candidatesCount);
         env->SetObjectArrayElement(vararg, 1, *candidatesArray);
         env->CallStaticVoidMethod(GlobalRef->Fcitx, GlobalRef->HandleFcitxEvent, 0, *vararg);
@@ -614,12 +618,18 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_startupFcitx(
         env->SetObjectArrayElement(vararg, 0, fcitxTextToJObject(env, clientPreedit));
         env->CallStaticVoidMethod(GlobalRef->Fcitx, GlobalRef->HandleFcitxEvent, 2, *vararg);
     };
-    auto inputPanelAuxCallback = [](const fcitx::Text &preedit, const fcitx::Text &auxUp, const fcitx::Text &auxDown) {
+    auto inputPanelCallback = [](const fcitx::Text &preedit, const fcitx::Text &auxUp, const fcitx::Text &auxDown, const std::vector<CandidateActionEntity> &tabs) {
         auto env = GlobalRef->AttachEnv();
-        auto vararg = JRef<jobjectArray>(env, env->NewObjectArray(3, GlobalRef->FormattedText, nullptr));
+        auto vararg = JRef<jobjectArray>(env, env->NewObjectArray(4, GlobalRef->Object, nullptr));
         env->SetObjectArrayElement(vararg, 0, fcitxTextToJObject(env, preedit));
         env->SetObjectArrayElement(vararg, 1, fcitxTextToJObject(env, auxUp));
         env->SetObjectArrayElement(vararg, 2, fcitxTextToJObject(env, auxDown));
+        auto tabsArray = JRef<jobjectArray>(env, env->NewObjectArray(static_cast<int>(tabs.size()), GlobalRef->CandidateAction, nullptr));
+        int i = 0;
+        for (const auto &tab: tabs) {
+            env->SetObjectArrayElement(tabsArray, i++, fcitxCandidateActionToObject(env, tab));
+        }
+        env->SetObjectArrayElement(vararg, 3, *tabsArray);
         env->CallStaticVoidMethod(GlobalRef->Fcitx, GlobalRef->HandleFcitxEvent, 3, *vararg);
     };
     auto readyCallback = []() {
@@ -713,7 +723,7 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_startupFcitx(
         androidfrontend->template call<fcitx::IAndroidFrontend::setCandidateListCallback>(candidateListCallback);
         androidfrontend->template call<fcitx::IAndroidFrontend::setCommitStringCallback>(commitStringCallback);
         androidfrontend->template call<fcitx::IAndroidFrontend::setPreeditCallback>(preeditCallback);
-        androidfrontend->template call<fcitx::IAndroidFrontend::setInputPanelAuxCallback>(inputPanelAuxCallback);
+        androidfrontend->template call<fcitx::IAndroidFrontend::setInputPanelCallback>(inputPanelCallback);
         androidfrontend->template call<fcitx::IAndroidFrontend::setKeyEventCallback>(keyEventCallback);
         androidfrontend->template call<fcitx::IAndroidFrontend::setInputMethodChangeCallback>(imChangeCallback);
         androidfrontend->template call<fcitx::IAndroidFrontend::setStatusAreaUpdateCallback>(statusAreaUpdateCallback);
@@ -1053,10 +1063,10 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_getFcitxCandidates(JNIEnv *env, jclass 
     RETURN_VALUE_IF_NOT_RUNNING(nullptr)
     auto candidates = Fcitx::Instance().getCandidates(static_cast<int>(offset), static_cast<int>(limit));
     int size = static_cast<int>(candidates.size());
-    jobjectArray array = env->NewObjectArray(size, GlobalRef->String, nullptr);
+    jobjectArray array = env->NewObjectArray(size, GlobalRef->Candidate, nullptr);
     for (int i = 0; i < size; i++) {
-        auto str = JString(env, candidates[i]);
-        env->SetObjectArrayElement(array, i, str);
+        auto obj = JRef(env, candidateEntityToObject(env, candidates[i]));
+        env->SetObjectArrayElement(array, i, obj);
     }
     return array;
 }
@@ -1094,6 +1104,13 @@ JNIEXPORT void JNICALL
 Java_org_fcitx_fcitx5_android_core_Fcitx_offsetFcitxCandidatePage(JNIEnv *env, jclass clazz, jint delta) {
     RETURN_IF_NOT_RUNNING
     Fcitx::Instance().offsetCandidatePage(delta);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_org_fcitx_fcitx5_android_core_Fcitx_triggerFcitxCandidateListTabAction(JNIEnv *env, jclass clazz, jint id) {
+    RETURN_IF_NOT_RUNNING
+    Fcitx::Instance().triggerCandidateListTabAction(id);
 }
 
 extern "C"

@@ -6,8 +6,6 @@ package org.fcitx.fcitx5.android.core
 
 sealed class FcitxEvent<T>(open val data: T) {
 
-    data class Candidate(val label: String, val text: String, val comment: String)
-
     abstract val eventType: EventType
 
     data class CandidateListEvent(override val data: Data) :
@@ -15,7 +13,7 @@ sealed class FcitxEvent<T>(open val data: T) {
 
         override val eventType = EventType.Candidate
 
-        data class Data(val total: Int = -1, val candidates: Array<String> = emptyArray()) {
+        data class Data(val total: Int = -1, val candidates: Array<CandidateWord> = emptyArray()) {
 
             override fun toString(): String =
                 "total=$total, candidates=[${candidates.joinToString(limit = 5)}]"
@@ -63,9 +61,37 @@ sealed class FcitxEvent<T>(open val data: T) {
         data class Data(
             val preedit: FormattedText,
             val auxUp: FormattedText,
-            val auxDown: FormattedText
+            val auxDown: FormattedText,
+            val tabs: Array<CandidateAction>
         ) {
-            constructor() : this(FormattedText.Empty, FormattedText.Empty, FormattedText.Empty)
+            constructor() : this(
+                FormattedText.Empty,
+                FormattedText.Empty,
+                FormattedText.Empty,
+                emptyArray()
+            )
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (javaClass != other?.javaClass) return false
+
+                other as Data
+
+                if (preedit != other.preedit) return false
+                if (auxUp != other.auxUp) return false
+                if (auxDown != other.auxDown) return false
+                if (!tabs.contentEquals(other.tabs)) return false
+
+                return true
+            }
+
+            override fun hashCode(): Int {
+                var result = preedit.hashCode()
+                result = 31 * result + auxUp.hashCode()
+                result = 31 * result + auxDown.hashCode()
+                result = 31 * result + tabs.contentHashCode()
+                return result
+            }
         }
     }
 
@@ -143,7 +169,7 @@ sealed class FcitxEvent<T>(open val data: T) {
         }
 
         data class Data(
-            val candidates: Array<Candidate>,
+            val candidates: Array<CandidateWord>,
             val cursorIndex: Int,
             val layoutHint: LayoutHint,
             val hasPrev: Boolean,
@@ -249,7 +275,7 @@ sealed class FcitxEvent<T>(open val data: T) {
                 EventType.Candidate -> CandidateListEvent(
                     CandidateListEvent.Data(
                         params[0] as Int,
-                        params[1] as Array<String>
+                        params[1] as Array<CandidateWord>
                     )
                 )
                 EventType.Commit -> CommitStringEvent(
@@ -263,7 +289,8 @@ sealed class FcitxEvent<T>(open val data: T) {
                     InputPanelEvent.Data(
                         params[0] as FormattedText,
                         params[1] as FormattedText,
-                        params[2] as FormattedText
+                        params[2] as FormattedText,
+                        params[3] as Array<CandidateAction>
                     )
                 )
                 EventType.Ready -> ReadyEvent()
@@ -291,7 +318,7 @@ sealed class FcitxEvent<T>(open val data: T) {
                 } else {
                     PagedCandidateEvent(
                         PagedCandidateEvent.Data(
-                            params[0] as Array<Candidate>,
+                            params[0] as Array<CandidateWord>,
                             params[1] as Int,
                             PagedCandidateEvent.LayoutHint.of(params[2] as Int),
                             params[3] as Boolean,

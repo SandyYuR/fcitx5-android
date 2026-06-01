@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlags
+import org.fcitx.fcitx5.android.core.CandidateWord
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
@@ -34,7 +35,6 @@ import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateM
 import org.fcitx.fcitx5.android.input.dependency.UniqueViewComponent
 import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.fcitx
-import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.inputView
 import org.fcitx.fcitx5.android.input.dependency.theme
 import org.mechdancer.dependency.manager.must
@@ -44,7 +44,6 @@ import kotlin.math.max
 class HorizontalCandidateComponent :
     UniqueViewComponent<HorizontalCandidateComponent, RecyclerView>(), InputBroadcastReceiver {
 
-    private val service by manager.inputMethodService()
     private val context by manager.context()
     private val fcitx by manager.fcitx()
     private val theme by manager.theme()
@@ -73,13 +72,13 @@ class HorizontalCandidateComponent :
     private var secondLayoutPassNeeded = false
     private var secondLayoutPassDone = false
     private var highlightMovedInCurrentComposition = false
-    private var lastPagedCandidatesSnapshot: List<String> = emptyList()
+    private var lastPagedCandidatesSnapshot: List<CandidateWord> = emptyList()
     private var lastPagedCursor = -1
     private var lastPagedHasPrev = false
     private var lastPagedData: PagedCandidateEvent.Data? = null
     private var pagedCandidateFlowActive = false
     private var lastPagedEventUptimeMs = 0L
-    private var lastRenderedCandidatesSnapshot: List<String> = emptyList()
+    private var lastRenderedCandidatesSnapshot: List<CandidateWord> = emptyList()
     private var lastRenderedActiveIndex = Int.MIN_VALUE
     private var pendingLegacyCandidateUpdate: Runnable? = null
 
@@ -132,7 +131,7 @@ class HorizontalCandidateComponent :
     }
 
     private fun ensureActiveCandidateVisible(
-        originalCandidates: Array<String>,
+        originalCandidates: Array<CandidateWord>,
         total: Int,
         activeIndex: Int,
     ) {
@@ -181,7 +180,7 @@ class HorizontalCandidateComponent :
                     fcitx.launchOnReady { it.select(idx) }
                 }
                 holder.itemView.setOnLongClickListener {
-                    inputView.showCandidateActionMenu(holder.idx, holder.text, holder.ui.root)
+                    inputView.showCandidateActionMenu(holder.idx, holder.candidate.text, holder.ui.root)
                     true
                 }
             }
@@ -287,15 +286,7 @@ class HorizontalCandidateComponent :
             return
         }
         lastPagedData = data
-        val candidates = data.candidates.map { candidate ->
-            buildString {
-                append(candidate.text)
-                if (candidate.comment.isNotBlank()) {
-                    append(' ')
-                    append(candidate.comment)
-                }
-            }
-        }.toTypedArray()
+        val candidates = data.candidates
         val cursorIndex = data.cursorIndex
         val normalizedCursor = when {
             cursorIndex in candidates.indices -> cursorIndex
@@ -346,7 +337,7 @@ class HorizontalCandidateComponent :
     }
 
     private fun updateCandidates(
-        candidates: Array<String>,
+        candidates: Array<CandidateWord>,
         total: Int,
         activeIndex: Int,
     ) {

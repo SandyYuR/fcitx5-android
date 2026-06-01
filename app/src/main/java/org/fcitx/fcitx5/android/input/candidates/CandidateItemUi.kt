@@ -8,6 +8,9 @@ package org.fcitx.fcitx5.android.input.candidates
 import android.content.Context
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import androidx.core.text.buildSpannedString
+import androidx.core.text.color
+import org.fcitx.fcitx5.android.core.CandidateWord
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.font.FontProviders
@@ -23,12 +26,12 @@ import splitties.views.gravityCenter
 
 class CandidateItemUi(
     override val ctx: Context,
-    private val theme: Theme,
+    val theme: Theme,
     // Optional: external font for batch setting (avoids repeated FontProviders access)
     private val font: Typeface? = null
 ) : Ui {
 
-    val text = view(::AutoScaleTextView) {
+    private val text = view(::AutoScaleTextView) {
         scaleMode = AutoScaleTextView.Mode.Proportional
         // Use configured font size with fallback to default (20f)
         val fontSize = org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
@@ -51,6 +54,9 @@ class CandidateItemUi(
         cornerRadius = 8f
     }
 
+    private var active = false
+    private var candidate = CandidateWord.Empty
+
     fun applyConfiguredTypeface(fontOverride: Typeface? = font) {
         // Priority: explicit override > constructor font > cand_font > font > current/system default
         val resolved = fontOverride ?: FontProviders.resolveTypeface("cand_font", text.typeface)
@@ -60,9 +66,13 @@ class CandidateItemUi(
     }
 
     fun setActive(active: Boolean) {
-        text.setTextColor(if (active) theme.genericActiveForegroundColor else theme.candidateTextColor)
+        if (this.active != active) {
+            this.active = active
+            renderCandidate()
+        }
+        text.setTextColor(if (this.active) theme.genericActiveForegroundColor else theme.candidateTextColor)
         text.background = null
-        root.background = if (active) activeBackground else normalBackground
+        root.background = if (this.active) activeBackground else normalBackground
     }
 
     override val root = view(::CustomGestureView) {
@@ -74,5 +84,28 @@ class CandidateItemUi(
         add(text, lParams(wrapContent, matchParent) {
             gravity = gravityCenter
         })
+    }
+
+    fun updateCandidate(candidate: CandidateWord) {
+        this.candidate = candidate
+        renderCandidate()
+    }
+
+    private fun renderCandidate() {
+        val fg = if (active) theme.genericActiveForegroundColor else theme.candidateTextColor
+        val altFg = if (active) theme.genericActiveForegroundColor else theme.candidateCommentColor
+        text.text = buildSpannedString {
+            color(fg) {
+                append(candidate.text)
+            }
+            if (candidate.comment.isNotBlank()) {
+                if (candidate.spaceBetweenComment) {
+                    append(" ")
+                }
+                color(altFg) {
+                    append(candidate.comment)
+                }
+            }
+        }
     }
 }

@@ -20,6 +20,9 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import android.graphics.Typeface
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.style.CharacterStyle
 
 @SuppressLint("AppCompatCustomView")
 class AutoScaleTextView @JvmOverloads constructor(
@@ -44,7 +47,8 @@ class AutoScaleTextView @JvmOverloads constructor(
 
     var scaleMode = Mode.None
 
-    private lateinit var text: String
+    private var text: CharSequence = ""
+    private var plainText: String = ""
 
     private var needsMeasureText = true
     private val fontMetrics = Paint.FontMetrics()
@@ -97,10 +101,11 @@ class AutoScaleTextView @JvmOverloads constructor(
 
     override fun setText(charSequence: CharSequence?, bufferType: BufferType) {
         // setText can be called in super constructor
-        if (!::text.isInitialized || charSequence == null || !text.contentEquals(charSequence)) {
+        if (charSequence == null || text != charSequence) {
             needsMeasureText = true
             needsCalculateTransform = true
-            text = charSequence?.toString() ?: ""
+            text = charSequence ?: ""
+            plainText = text.toString()
             requestLayout()
             invalidate()
         }
@@ -135,16 +140,16 @@ class AutoScaleTextView @JvmOverloads constructor(
         if (needsMeasureText) {
             val paint = paint
             paint.getFontMetrics(fontMetrics)
-            val codePointCount = Character.codePointCount(text, 0, text.length)
+            val codePointCount = Character.codePointCount(plainText, 0, plainText.length)
             if (codePointCount == 1) {
                 // use actual text bounds when there is only one "character",
                 // eg. full-width punctuation
-                paint.getTextBounds(text, 0, text.length, textBounds)
+                paint.getTextBounds(plainText, 0, plainText.length, textBounds)
             } else {
                 textBounds.set(
                     /* left = */ 0,
                     /* top = */ floor(fontMetrics.top).toInt(),
-                    /* right = */ ceil(paint.measureText(text)).toInt(),
+                    /* right = */ ceil(paint.measureText(plainText)).toInt(),
                     /* bottom = */ ceil(fontMetrics.bottom).toInt()
                 )
             }
@@ -227,7 +232,28 @@ class AutoScaleTextView @JvmOverloads constructor(
             translate(scrollX.toFloat(), scrollY.toFloat())
             scale(textScaleX, textScaleY, 0f, translateY)
             translate(translateX, translateY)
-            drawText(text, 0f, 0f, paint)
+            drawTextWithSpans(canvas, paint)
+        }
+    }
+
+    private fun drawTextWithSpans(canvas: Canvas, paint: Paint) {
+        val spanned = text as? Spanned
+        if (spanned == null) {
+            canvas.drawText(plainText, 0f, 0f, paint)
+            return
+        }
+        val length = plainText.length
+        var start = 0
+        var x = 0f
+        while (start < length) {
+            val end = spanned.nextSpanTransition(start, length, CharacterStyle::class.java)
+            val runPaint = TextPaint(paint)
+            spanned.getSpans(start, end, CharacterStyle::class.java).forEach {
+                it.updateDrawState(runPaint)
+            }
+            canvas.drawText(plainText, start, end, x, 0f, runPaint)
+            x += runPaint.measureText(plainText, start, end)
+            start = end
         }
     }
 
