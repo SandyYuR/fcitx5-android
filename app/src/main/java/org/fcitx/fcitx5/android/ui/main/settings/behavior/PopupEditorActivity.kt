@@ -37,6 +37,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareM
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrScanOptions
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
@@ -44,10 +45,7 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 import kotlinx.serialization.json.*
-import kotlinx.serialization.encodeToString
 import java.io.File
-
-private val prettyJson = Json { prettyPrint = true }
 
 class PopupEditorActivity : AppCompatActivity() {
 
@@ -550,7 +548,7 @@ class PopupEditorActivity : AppCompatActivity() {
             JsonArray(v.map { JsonPrimitive(it) })
         })
 
-        file.writeText(prettyJson.encodeToString(jsonElement) + "\n")
+        file.writeText(LayoutJsonUtils.formatJsonCompact(jsonElement) + "\n")
         ConfigProviders.ensureWatching()
         showToast(getString(R.string.popup_preset_saved_at, file.absolutePath))
         originalEntries = normalizedEntries()
