@@ -285,8 +285,8 @@ class CandidatesView(
 
         // For Bottom positions with visible keyboard: ensure candidate window
         // does not extend below keyboard top (overlapping the keyboard).
-        // When the window is too tall to fit above the keyboard, force it to
-        // the top of the IME window location.
+        // For tall windows (e.g. vertical layout), let the top clip naturally
+        // instead of forcing it to the top of the screen.
         if (isKeyboardVisible) {
             when (floatingPosition) {
                 FloatingCandidatesVirtualKeyboardPosition.BottomLeft,
@@ -295,9 +295,8 @@ class CandidatesView(
                     val maxAllowedBottom = bottomReference - gap
                     if (candidateBottom > maxAllowedBottom) {
                         // Window would overlap keyboard area.
-                        // Try to place it right above the keyboard. If that
-                        // falls outside the visible area, clamp to gap.
-                        tY = (bottomReference - gap - selfHeight).coerceAtLeast(gap)
+                        // Align to keyboard top — tall windows will clip at the top.
+                        tY = bottomReference - gap - selfHeight
                     }
                 }
                 else -> { /* Top positions don't need this constraint */ }
@@ -357,7 +356,10 @@ class CandidatesView(
             FloatingCandidatesVirtualKeyboardPosition.BottomRight -> {
                 // Default placement: right above the keyboard top (bottomReference).
                 // Only shift if the candidate window would overlap the cursor.
-                val atKeyboardTop = (bottomReference - gap - selfHeight).coerceAtLeast(gap)
+                // Don't coerce to gap here — tall windows (e.g. vertical layout)
+                // should align to keyboard top and clip from the top, rather than
+                // getting pushed to the top and covering the cursor entirely.
+                val atKeyboardTop = bottomReference - gap - selfHeight
                 
                 // Check if placing at keyboard top would overlap cursor:
                 // window [atKeyboardTop .. atKeyboardTop+selfHeight] vs cursor [cursorTop .. cursorBottom]
@@ -374,8 +376,8 @@ class CandidatesView(
                     if (spaceAbove >= selfHeight) {
                         cursorTop - gap - selfHeight
                     } else {
-                        // Not enough room above cursor — place at keyboard top
-                        // (the cursor is near the top, minimal overlap unavoidable)
+                        // Not enough room above cursor — align to keyboard top
+                        // (window will clip at top if too tall)
                         atKeyboardTop
                     }
                 } else {
