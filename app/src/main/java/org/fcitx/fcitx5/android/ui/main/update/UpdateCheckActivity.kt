@@ -77,6 +77,13 @@ class UpdateCheckActivity : AppCompatActivity() {
     private var selectedMirrorId: String? = null
     private var mirrors: List<MirrorRule> = emptyList()
 
+    // Per-download speed sampling for the DownloadManager polling path:
+    // actual elapsed time + EMA smoothing, so the displayed rate doesn't
+    // jitter between 0 and huge bursts as DownloadManager batches its
+    // progress writes.
+    private data class SpeedSample(val timeMs: Long, val bytes: Long, val smoothed: Long)
+    private val speedSamples = mutableMapOf<String, SpeedSample>()
+
     private val pollHandler = Handler(Looper.getMainLooper())
     private var polling = false
 
@@ -485,6 +492,7 @@ class UpdateCheckActivity : AppCompatActivity() {
                 .setAllowedOverRoaming(true)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, state.asset.name)
             val id = downloadManager.enqueue(request)
+            speedSamples.remove(state.asset.browserDownloadUrl)
             val updated = state.copy(
                 status = AssetStatus.DOWNLOADING,
                 progressPercent = 0,
@@ -565,6 +573,7 @@ class UpdateCheckActivity : AppCompatActivity() {
                             var downloaded = 0L
                             var lastBytes = 0L
                             var lastAt = System.currentTimeMillis()
+                            var smoothedSpeed = 0L
                             while (true) {
                                 coroutineContext.ensureActive()
                                 val n = input.read(buf)
@@ -572,12 +581,17 @@ class UpdateCheckActivity : AppCompatActivity() {
                                 out.write(buf, 0, n)
                                 downloaded += n
                                 val now = System.currentTimeMillis()
-                                if (now - lastAt >= 300L) {
+                                if (now - lastAt >= 750L) {
                                     val dt = (now - lastAt).coerceAtLeast(1L)
-                                    val speed = ((downloaded - lastBytes).coerceAtLeast(0L) * 1000L) / dt
+                                    val instant = ((downloaded - lastBytes).coerceAtLeast(0L) * 1000L) / dt
+                                    // EMA with alpha = 0.4; seed with the first
+                                    // instant value so the bar isn't stuck at 0.
+                                    smoothedSpeed = if (smoothedSpeed == 0L) instant
+                                        else (smoothedSpeed * 6 + instant * 4) / 10
                                     val progress = if (total > 0L) {
                                         ((downloaded * 100L) / total).toInt().coerceIn(0, 100)
                                     } else 0
+                                    val displayed = smoothedSpeed
                                     withContext(Dispatchers.Main) {
                                         val current = downloadStates[key] ?: return@withContext
                                         downloadStates[key] = current.copy(
@@ -585,7 +599,7 @@ class UpdateCheckActivity : AppCompatActivity() {
                                             progressPercent = progress,
                                             downloadedBytes = downloaded,
                                             totalBytes = if (total > 0L) total else current.totalBytes,
-                                            speedBytesPerSec = speed,
+                                            speedBytesPerSec = displayed,
                                             downloadId = null
                                         )
                                         adapter.submitList(downloadStates.values.toList())
@@ -655,6 +669,7 @@ class UpdateCheckActivity : AppCompatActivity() {
         } else {
             manualDownloadJobs.remove(key)?.cancel()
         }
+        speedSamples.remove(key)
         downloadStates[key] = state.copy(
             status = AssetStatus.CANCELED,
             speedBytesPerSec = 0L,
@@ -715,13 +730,12 @@ class UpdateCheckActivity : AppCompatActivity() {
                 val total = c.getLongOrZero(DownloadManager.COLUMN_TOTAL_SIZE_BYTES).coerceAtLeast(0L)
                 val soFar = c.getLongOrZero(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR).coerceAtLeast(0L)
                 val progress = if (total > 0) ((soFar * 100) / total).toInt().coerceIn(0, 100) else 0
-                val dt = 800L.coerceAtLeast(1L)
-                val delta = (soFar - state.downloadedBytes).coerceAtLeast(0L)
-                val speed = (delta * 1000L) / dt
+                val url = state.asset.browserDownloadUrl
                 when (status) {
                     DownloadManager.STATUS_SUCCESSFUL -> {
+                        speedSamples.remove(url)
                         val installUri = downloadManager.getUriForDownloadedFile(id)
-                        downloadStates[state.asset.browserDownloadUrl] = state.copy(
+                        downloadStates[url] = state.copy(
                             status = AssetStatus.FINISHED,
                             progressPercent = 100,
                             downloadedBytes = total,
@@ -731,7 +745,8 @@ class UpdateCheckActivity : AppCompatActivity() {
                         )
                     }
                     DownloadManager.STATUS_FAILED -> {
-                        downloadStates[state.asset.browserDownloadUrl] = state.copy(
+                        speedSamples.remove(url)
+                        downloadStates[url] = state.copy(
                             status = AssetStatus.FAILED,
                             speedBytesPerSec = 0L,
                             error = getString(R.string.update_asset_failed)
@@ -740,12 +755,33 @@ class UpdateCheckActivity : AppCompatActivity() {
                     DownloadManager.STATUS_PAUSED,
                     DownloadManager.STATUS_PENDING,
                     DownloadManager.STATUS_RUNNING -> {
-                        downloadStates[state.asset.browserDownloadUrl] = state.copy(
+                        val now = android.os.SystemClock.elapsedRealtime()
+                        val prev = speedSamples[url]
+                        val displayed: Long = if (prev == null) {
+                            speedSamples[url] = SpeedSample(now, soFar, 0L)
+                            0L
+                        } else {
+                            val dt = now - prev.timeMs
+                            // Only refresh once at least ~750ms of wall time has
+                            // passed; otherwise keep the previous smoothed value
+                            // so DownloadManager's bursty writes don't show up.
+                            if (dt >= 750L) {
+                                val db = (soFar - prev.bytes).coerceAtLeast(0L)
+                                val instant = db * 1000L / dt
+                                // EMA with alpha = 0.4
+                                val smoothed = (prev.smoothed * 6 + instant * 4) / 10
+                                speedSamples[url] = SpeedSample(now, soFar, smoothed)
+                                smoothed
+                            } else {
+                                prev.smoothed
+                            }
+                        }
+                        downloadStates[url] = state.copy(
                             status = AssetStatus.DOWNLOADING,
                             progressPercent = progress,
                             downloadedBytes = soFar,
                             totalBytes = total,
-                            speedBytesPerSec = speed
+                            speedBytesPerSec = displayed
                         )
                     }
                 }
