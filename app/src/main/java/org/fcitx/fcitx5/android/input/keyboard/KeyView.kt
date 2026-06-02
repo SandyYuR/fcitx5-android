@@ -734,6 +734,17 @@ class ImageAltTextKeyView(
     private var currentMainTextScale = 1f
     private var lastLayoutMode: AltTextLayoutMode? = null
 
+    // Reused for measuring main-text height in resolveLayoutMode().
+    // Configured lazily and re-used across calls to avoid per-swipe Skia paint allocation.
+    private val mainTextMeasurePaint = TextPaint()
+    private var cachedMainTextHeight = -1f
+    private var cachedAltTextHeight = -1f
+
+    private fun invalidateTextMetricsCache() {
+        cachedMainTextHeight = -1f
+        cachedAltTextHeight = -1f
+    }
+
     val img = imageView { configure(theme, def.src, def.variant) }.apply {
         imageTintList = ColorStateList.valueOf(
             resolveTextColor(
@@ -787,6 +798,7 @@ class ImageAltTextKeyView(
         currentMainTextScale = scale
         altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp * scale)
         altText.requestLayout()
+        invalidateTextMetricsCache()
         lastLayoutMode = null
         applyLayout()
     }
@@ -864,22 +876,27 @@ class ImageAltTextKeyView(
         val measuredIconHeight = img.measuredHeight.takeIf { it > 0 } ?: 0
         val drawableIconHeight = img.drawable?.intrinsicHeight?.takeIf { it > 0 } ?: dp(24)
         val iconHeight = max(measuredIconHeight, drawableIconHeight).toFloat()
-        val mainHeight = TextPaint().apply {
+        val mainHeight = cachedMainTextHeight.takeIf { it >= 0f } ?: run {
             val mainTextSizeSp = org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
                 "key_main_font",
                 23f
             ) * currentMainTextScale
-            textSize = TypedValue.applyDimension(
+            mainTextMeasurePaint.textSize = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_SP,
                 mainTextSizeSp,
                 resources.displayMetrics
             )
-            typeface = org.fcitx.fcitx5.android.input.font.FontProviders.resolveTypeface(
-                "key_main_font",
-                Typeface.DEFAULT
-            )
-        }.run { fontMetrics.bottom - fontMetrics.top }
-        val altHeight = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
+            mainTextMeasurePaint.typeface = org.fcitx.fcitx5.android.input.font.FontProviders
+                .resolveTypeface("key_main_font", Typeface.DEFAULT)
+            val h = mainTextMeasurePaint.run { fontMetrics.bottom - fontMetrics.top }
+            cachedMainTextHeight = h
+            h
+        }
+        val altHeight = cachedAltTextHeight.takeIf { it >= 0f } ?: run {
+            val h = altText.paint.run { fontMetrics.bottom - fontMetrics.top }
+            cachedAltTextHeight = h
+            h
+        }
         val normalizedMainHeight = max(iconHeight, mainHeight)
         val compactMinHeight = max(normalizedMainHeight, altHeight + cornerLabelTopSafeInset)
         val stackedMinHeight = normalizedMainHeight + altHeight + dp(1)
@@ -924,6 +941,7 @@ class ImageAltTextKeyView(
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
+        invalidateTextMetricsCache()
         lastLayoutMode = null
         applyLayout()
     }
