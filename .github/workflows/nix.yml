@@ -2,6 +2,11 @@ name: Nix
 
 on:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+      - '*.md'
+      - '.gitignore'
   push:
     branches: [master]
 

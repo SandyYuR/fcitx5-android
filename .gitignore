@@ -102,3 +102,8 @@ lint/tmp/
 
 ### Kotlin ###
 .kotlin/
+
+# Docs (VitePress)
+docs/node_modules/
+docs/.vitepress/cache/
+docs/.vitepress/dist/

@@ -3,8 +3,8 @@ name: Commit CI
 on:
   workflow_dispatch:
   push:
-    branches:
-      - '*'
+    branches-ignore:
+      - docs
     tags-ignore:
       - '[0-9]*'
       - 'v[0-9]*'
@@ -155,4 +155,3 @@ jobs:
           title: "Nightly Build"
           files: |
             final-release/*.apk
-
