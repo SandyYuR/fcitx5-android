@@ -13,6 +13,7 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/fcitx5-android/logo.png' }],
     ['meta', { name: 'theme-color', content: '#5b73e8' }],
+    ['script', { defer: '', src: 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js' }],
   ],
 
   themeConfig: {
@@ -168,7 +169,8 @@ export default defineConfig({
     footer: {
       message:
         '本项目基于 <a href="https://github.com/fcitx5-android/fcitx5-android">fcitx5-android/fcitx5-android</a> 修改。源码与文档以 LGPL-2.1 发布。',
-      copyright: '© fxliang & Fcitx5 for Android contributors',
+      copyright:
+        '© fxliang & Fcitx5 for Android contributors<br><span id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv"></span> 次</span>',
     },
 
     editLink: {
