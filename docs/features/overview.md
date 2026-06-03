@@ -11,7 +11,7 @@
 | 功能 | 说明 | 链接 |
 |------|------|------|
 | 浮动键盘 | 可任意拖动、调整尺寸、移动手柄 | [查看](/features/keyboard/float-keyboard) |
-| 分屏键盘 | 横屏自动分屏，含校准 UI 与智能默认 | [查看](/features/keyboard/split-keyboard) |
+| 分体键盘 | 横屏自动分屏，含校准 UI 与智能默认 | [查看](/features/keyboard/split-keyboard) |
 | 单手模式 | 左/右手切换，适配大屏 | [查看](/features/keyboard/one-handed) |
 | 调整模式 | 可视化调整键盘大小、位置 | [查看](/features/keyboard/adjust-mode) |
 | Compose Override 键 | 运行时切换的复合键 + 编辑器支持 | [查看](/features/keyboard/compose-override) |

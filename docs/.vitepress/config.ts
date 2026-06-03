@@ -80,7 +80,7 @@ export default defineConfig({
           text: '键盘',
           items: [
             { text: '浮动键盘', link: '/features/keyboard/float-keyboard' },
-            { text: '分屏键盘', link: '/features/keyboard/split-keyboard' },
+            { text: '分体键盘', link: '/features/keyboard/split-keyboard' },
             { text: '单手模式', link: '/features/keyboard/one-handed' },
             { text: '调整模式', link: '/features/keyboard/adjust-mode' },
             { text: 'Compose Override', link: '/features/keyboard/compose-override' },
