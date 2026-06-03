@@ -8,7 +8,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
-import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.Const
 import org.fcitx.fcitx5.android.utils.appContext
@@ -38,6 +37,12 @@ object UserDataManager {
     // Allow importing user data from any build variant of Fcitx5 Android
     private const val allowedPackageNamePrefix = "org.fcitx.fcitx5.android"
 
+    // Upstream release package name. Always written into exported metadata so that
+    // upstream's strict `metadata.packageName == BuildConfig.APPLICATION_ID` check
+    // accepts our exports out of the box. The SharedPreferences XML in the zip is
+    // renamed to match this name for the same reason.
+    private const val canonicalExportPackageName = "org.fcitx.fcitx5.android"
+
     private fun isAllowedPackageName(packageName: String): Boolean {
         return packageName == allowedPackageNamePrefix || packageName.startsWith("$allowedPackageNamePrefix.")
     }
@@ -57,6 +62,38 @@ object UserDataManager {
         }
     }
 
+    /**
+     * Write shared_prefs into the zip, renaming this build's package-specific
+     * preferences XML (`<currentPkg>_preferences.xml`) to the canonical upstream name
+     * (`org.fcitx.fcitx5.android_preferences.xml`) so the resulting zip is portable
+     * across upstream, fx and mainline builds. Other variants' preferences XML files
+     * are skipped (mirrors the importer's behavior).
+     */
+    private fun writeSharedPrefsTree(srcDir: File, dest: ZipOutputStream) {
+        val destPrefix = "shared_prefs"
+        val currentPrefsFileName = "${appContext.packageName}_preferences.xml"
+        val canonicalPrefsFileName = "${canonicalExportPackageName}_preferences.xml"
+        dest.putNextEntry(ZipEntry("$destPrefix/"))
+        srcDir.walkTopDown().forEach { f ->
+            val related = f.relativeTo(srcDir).path
+            if (related.isEmpty()) return@forEach
+            if (f.isDirectory) {
+                dest.putNextEntry(ZipEntry("$destPrefix/$related/"))
+                return@forEach
+            }
+            if (!f.isFile) return@forEach
+            val mappedRelated = when {
+                f.name == currentPrefsFileName ->
+                    related.substring(0, related.length - f.name.length) + canonicalPrefsFileName
+                // Skip other variants' preferences files to avoid confusion on import.
+                f.name.endsWith("_preferences.xml") -> return@forEach
+                else -> related
+            }
+            dest.putNextEntry(ZipEntry("$destPrefix/$mappedRelated"))
+            f.inputStream().use { it.copyTo(dest) }
+        }
+    }
+
     private val sharedPrefsDir = File(appContext.applicationInfo.dataDir, "shared_prefs")
     private val dataBasesDir = File(appContext.applicationInfo.dataDir, "databases")
     private val externalDir = appContext.getExternalFilesDir(null)!!
@@ -65,18 +102,18 @@ object UserDataManager {
     @OptIn(ExperimentalSerializationApi::class)
     fun export(dest: OutputStream, timestamp: Long = System.currentTimeMillis()) = runCatching {
         ZipOutputStream(dest.buffered()).use { zipStream ->
-            // shared_prefs
-            writeFileTree(sharedPrefsDir, "shared_prefs", zipStream)
+            // shared_prefs (current variant's prefs XML renamed to canonical upstream name)
+            writeSharedPrefsTree(sharedPrefsDir, zipStream)
             // databases
             writeFileTree(dataBasesDir, "databases", zipStream)
             // external
             writeFileTree(externalDir, "external", zipStream)
             // recently_used moved to SharedPreference and shoud not be exported
-            // metadata
+            // metadata — write canonical upstream package name so upstream's import accepts it
             zipStream.putNextEntry(ZipEntry("metadata.json"))
             val pkgInfo = appContext.packageManager.getPackageInfo(appContext.packageName, 0)
             val metadata = Metadata(
-                pkgInfo.packageName,
+                canonicalExportPackageName,
                 pkgInfo.versionCodeCompat,
                 Const.versionName,
                 timestamp

@@ -12,6 +12,7 @@ on:
       - '**/**'
       - '!*.md'
       - '!.gitignore'
+      - '!docs/**'
 
 permissions:
   contents: write
