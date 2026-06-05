@@ -6,8 +6,10 @@
 
 ```bash
 git clone https://github.com/fxliang/fcitx5-android.git
+# 或者 git clone https://gitlab.com/fxliang/fcitx5-android.git -b docs
 cd fcitx5-android
-git checkout fx
+# 直接拉取docs分支的话就不用下面的操作了
+git checkout docs
 ```
 
 如果你从自己的 fork 修改，可以把地址换成你的 fork：
@@ -15,7 +17,7 @@ git checkout fx
 ```bash
 git clone https://github.com/<your-name>/fcitx5-android.git
 cd fcitx5-android
-git checkout fx
+git checkout docs
 ```
 
 ## 准备文档环境
