@@ -2,23 +2,23 @@
 
 本文档放在仓库的 `docs/` 目录中，使用 VitePress 构建。只修改文档时通常不需要准备 Android 构建环境，只需要 Git、Node.js 和 npm。
 
-## 拉取仓库
+## 拉取仓库（只拉 docs 分支最新提交）
 
 ```bash
-git clone https://github.com/fxliang/fcitx5-android.git
-# 或者 git clone https://gitlab.com/fxliang/fcitx5-android.git -b docs
+git clone --depth 1 --single-branch --branch docs https://github.com/fxliang/fcitx5-android.git
+# 或者：
+# git clone --depth 1 --single-branch --branch docs https://gitlab.com/fxliang/fcitx5-android.git
 cd fcitx5-android
-# 直接拉取docs分支的话就不用下面的操作了
-git checkout docs
 ```
 
 如果你从自己的 fork 修改，可以把地址换成你的 fork：
 
 ```bash
-git clone https://github.com/<your-name>/fcitx5-android.git
+git clone --depth 1 --single-branch --branch docs https://github.com/<your-name>/fcitx5-android.git
 cd fcitx5-android
-git checkout docs
 ```
+
+上面的命令只会拉取 `docs` 分支的一层历史（最新提交），下载量更小，适合只参与文档编写。
 
 ## 准备文档环境
 
