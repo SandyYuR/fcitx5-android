@@ -34,6 +34,7 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyAction.SpaceLongPressAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.SymAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.UnicodeAction
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
+import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import org.fcitx.fcitx5.android.utils.switchToNextIME
@@ -97,6 +98,29 @@ class CommonKeyActionListener :
             CapabilityFlags.fromEditorInfo(it).has(CapabilityFlag.Password)
         } ?: false
         if (isPasswordField) return
+        if (VoiceInputProviderManager.isProviderId(preferredVoiceInput)) {
+            VoiceInputProviderManager.toggle(
+                service = service,
+                id = preferredVoiceInput,
+                onReady = {
+                    VoiceInputProviderManager.voiceReadyCallback?.invoke()
+                },
+                onPartialResult = {},
+                onError = { msg ->
+                    VoiceInputProviderManager.voiceErrorCallback?.invoke(msg)
+                },
+                onLevel = { rms ->
+                    VoiceInputProviderManager.voiceLevelCallback?.invoke(rms)
+                },
+                onFinished = {
+                    VoiceInputProviderManager.voiceFinishedCallback?.invoke()
+                },
+                onStatus = { status ->
+                    VoiceInputProviderManager.voiceStatusCallback?.invoke(status)
+                },
+            )
+            return
+        }
         val (id, subtype) = InputMethodUtil.findVoiceSubtype(preferredVoiceInput) ?: return
         InputMethodUtil.switchInputMethod(service, id, subtype)
     }

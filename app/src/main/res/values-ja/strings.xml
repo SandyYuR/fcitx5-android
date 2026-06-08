@@ -707,4 +707,12 @@
     <string name="share_receive_archive_action_extract">選択したフォルダーに解凍</string>
     <string name="share_receive_archive_action_import_file">ファイルとしてインポート</string>
     <string name="share_receive_archive_extracted">%1$d 個のファイルを %2$s に解凍しました。</string>
+
+    <string name="voice_status_connecting">接続中…</string>
+    <string name="voice_status_opening">起動中…</string>
+    <string name="voice_status_loading">読込中…</string>
+    <string name="voice_status_floating_ready">準備完了</string>
+    <string name="voice_status_recognizing">認識中</string>
+    <string name="voice_status_listening">聞取中</string>
+    <string name="voice_status_committed">完了</string>
     </resources>

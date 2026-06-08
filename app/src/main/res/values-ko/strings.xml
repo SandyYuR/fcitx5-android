@@ -709,4 +709,12 @@
     <string name="share_receive_archive_action_extract">선택한 폴더에 압축 풀기</string>
     <string name="share_receive_archive_action_import_file">파일로 가져오기</string>
     <string name="share_receive_archive_extracted">%1$d개 파일을 %2$s에 압축 해제했습니다.</string>
+
+    <string name="voice_status_connecting">연결 중…</string>
+    <string name="voice_status_opening">시작 중…</string>
+    <string name="voice_status_loading">로드 중…</string>
+    <string name="voice_status_floating_ready">준비됨</string>
+    <string name="voice_status_recognizing">인식 중</string>
+    <string name="voice_status_listening">듣는 중</string>
+    <string name="voice_status_committed">완료</string>
     </resources>

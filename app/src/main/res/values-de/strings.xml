@@ -705,4 +705,12 @@
     <string name="share_receive_archive_action_extract">In ausgewählten Ordner entpacken</string>
     <string name="share_receive_archive_action_import_file">Als Dateien importieren</string>
     <string name="share_receive_archive_extracted">%1$d Datei(en) nach %2$s entpackt.</string>
+
+    <string name="voice_status_connecting">Verbinde…</string>
+    <string name="voice_status_opening">Öffne…</string>
+    <string name="voice_status_loading">Lade…</string>
+    <string name="voice_status_floating_ready">Bereit</string>
+    <string name="voice_status_recognizing">Erkenne</string>
+    <string name="voice_status_listening">Höre zu</string>
+    <string name="voice_status_committed">Fertig</string>
     </resources>

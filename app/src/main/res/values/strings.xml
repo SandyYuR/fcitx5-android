@@ -734,4 +734,13 @@
     <string name="no_blur">No Blur</string>
     <string name="edit_text_playground">EditText Playground</string>
     <string name="update_storage_permission_denied">Storage permission denied</string>
+
+    <!-- Voice input status bar messages (keep short — limited space) -->
+    <string name="voice_status_connecting">Connecting…</string>
+    <string name="voice_status_opening">Opening…</string>
+    <string name="voice_status_loading">Loading…</string>
+    <string name="voice_status_floating_ready">Ready</string>
+    <string name="voice_status_recognizing">Recognizing</string>
+    <string name="voice_status_listening">Listening</string>
+    <string name="voice_status_committed">Done</string>
 </resources>

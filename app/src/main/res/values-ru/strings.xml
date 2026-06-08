@@ -707,4 +707,12 @@
     <string name="share_receive_archive_action_extract">Распаковать в выбранную папку</string>
     <string name="share_receive_archive_action_import_file">Импортировать как файлы</string>
     <string name="share_receive_archive_extracted">Распаковано файлов: %1$d в %2$s.</string>
+
+    <string name="voice_status_connecting">Подключение…</string>
+    <string name="voice_status_opening">Запуск…</string>
+    <string name="voice_status_loading">Загрузка…</string>
+    <string name="voice_status_floating_ready">Готово</string>
+    <string name="voice_status_recognizing">Распознавание</string>
+    <string name="voice_status_listening">Прослушивание</string>
+    <string name="voice_status_committed">Готово</string>
     </resources>

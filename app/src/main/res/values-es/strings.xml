@@ -709,4 +709,12 @@
     <string name="share_receive_archive_action_extract">Extraer en la carpeta seleccionada</string>
     <string name="share_receive_archive_action_import_file">Importar como archivos</string>
     <string name="share_receive_archive_extracted">Se extrajeron %1$d archivo(s) en %2$s.</string>
+
+    <string name="voice_status_connecting">Conectando…</string>
+    <string name="voice_status_opening">Abriendo…</string>
+    <string name="voice_status_loading">Cargando…</string>
+    <string name="voice_status_floating_ready">Listo</string>
+    <string name="voice_status_recognizing">Reconociendo</string>
+    <string name="voice_status_listening">Escuchando</string>
+    <string name="voice_status_committed">Hecho</string>
     </resources>

@@ -1,0 +1,714 @@
+/*
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
+ */
+package org.fcitx.fcitx5.android.input.voice
+
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Build
+import android.os.Bundle
+import android.os.IBinder
+import android.os.RemoteException
+import android.os.SystemClock
+import android.util.Log
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.fcitx.fcitx5.android.BuildConfig
+import org.fcitx.fcitx5.android.common.ipc.IVoiceInputCallback
+import org.fcitx.fcitx5.android.common.ipc.IVoiceInputProvider
+import org.fcitx.fcitx5.android.common.ipc.VoiceInputIpc
+import org.fcitx.fcitx5.android.input.FcitxInputMethodService
+import org.fcitx.fcitx5.android.utils.appContext
+import timber.log.Timber
+
+data class VoiceInputProviderInfo(
+    val id: String,
+    val label: CharSequence,
+    val packageName: String,
+    val serviceName: String,
+    val action: String,
+)
+
+object VoiceInputProviderManager {
+    const val ID_PREFIX = "plugin:"
+    private const val TAG = "FcitxVoiceInput"
+
+    // 3-second post-speech silence ⇒ provider emits a final segment.
+    private const val DEFAULT_SILENCE_MS = 3000L
+    private const val KEEPALIVE_MIN_INTERVAL_MS = 30_000L
+    private const val KEEPALIVE_BIND_TIMEOUT_MS = 2_000L
+    private const val WARM_CONNECTION_HOLD_MS = 5 * 60 * 1000L
+
+    private val actions = buildSet {
+        val appId = BuildConfig.APPLICATION_ID
+        add(appId)
+        val releaseLikeId = appId.removeSuffix(".debug")
+        add(releaseLikeId)
+        add("$releaseLikeId.debug")
+        add("org.fcitx.fcitx5.android")
+        add("org.fcitx.fcitx5.android.debug")
+    }.map { it + VoiceInputIpc.SERVICE_ACTION_SUFFIX }
+
+    private var activeConnection: ServiceConnection? = null
+    private var activeProvider: IVoiceInputProvider? = null
+    private var activeCallback: IVoiceInputCallback? = null
+    private var activeCapture: VoiceInputAudioCapture? = null
+    private var activeSessionConfig = SessionConfig()
+    private var activeProviderId: String? = null
+    private var finishing = false
+    private var sessionActive = false
+    private var floatingFallbackActive = false
+    private var floatingFallbackComponent: ComponentName? = null
+    private var warmConnectionReleaseGeneration = 0
+    private var keepAliveConnection: ServiceConnection? = null
+    private var keepAliveLastAttemptElapsed = 0L
+    var floatingCommitListener: ((String) -> Unit)? = null
+    // Default UI callbacks for voice status, shared across all toggle() callers.
+    var voiceStatusCallback: ((String) -> Unit)? = null    // show/hide/update bar text
+    var voiceLevelCallback: ((Int) -> Unit)? = null        // volume level
+    var voiceReadyCallback: (() -> Unit)? = null           // set "listening" status
+    var voiceFinishedCallback: (() -> Unit)? = null        // hide status on finish
+    var voiceErrorCallback: ((String) -> Unit)? = null     // show error toast
+
+    fun isActive(): Boolean =
+        floatingFallbackActive || sessionActive || activeCallback != null || activeCapture != null
+
+    // Toggle helper for UI buttons that should "stop if running, start otherwise".
+    // Returns true if a new session was started, false if the previous one was stopped.
+    fun toggle(
+        service: FcitxInputMethodService,
+        id: String,
+        onReady: () -> Unit,
+        onPartialResult: (String) -> Unit,
+        onError: (String) -> Unit,
+        onLevel: (Int) -> Unit = {},
+        onFinished: () -> Unit = {},
+        onStatus: (String) -> Unit = {},
+    ): Boolean {
+        if (isActive()) {
+            if (floatingFallbackActive) {
+                stopFloatingFallback(service)
+                return false
+            }
+            if (finishing) {
+                Log.i(TAG, "toggle ignored: voice input is finishing")
+                return false
+            }
+            finish(service)
+            return false
+        }
+        start(service, id, onReady, onPartialResult, onError, onLevel, onFinished, onStatus)
+        return true
+    }
+
+    fun listProviders(context: Context = appContext): List<VoiceInputProviderInfo> {
+        val registered = VoiceInputProviderRegistry.all().map {
+            VoiceInputProviderInfo(
+                id = it.id,
+                label = it.label,
+                packageName = it.packageName,
+                serviceName = "",
+                action = "registered",
+            )
+        }
+        val services = actions.flatMap { action ->
+            val intent = Intent(action)
+            val results = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.queryIntentServices(
+                    intent,
+                    android.content.pm.PackageManager.ResolveInfoFlags.of(0),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.queryIntentServices(intent, 0)
+            }
+            results.map { action to it }
+        }
+        val queried = services.mapNotNull { (action, info) ->
+            val serviceInfo = info.serviceInfo ?: return@mapNotNull null
+            val component = ComponentName(serviceInfo.packageName, serviceInfo.name)
+            VoiceInputProviderInfo(
+                id = ID_PREFIX + component.flattenToShortString(),
+                label = serviceInfo.loadLabel(context.packageManager),
+                packageName = serviceInfo.packageName,
+                serviceName = serviceInfo.name,
+                action = action,
+            )
+        }
+        return (registered + queried).distinctBy { it.id }
+            .sortedBy { it.label.toString() }
+            .also {
+                Log.i(
+                    TAG,
+                    "Detected voice input providers: " +
+                        it.joinToString { p ->
+                            "${p.id}@${p.action}[${p.packageName}/${p.serviceName}]"
+                        }
+                )
+                Timber.i(
+                    "Detected voice input providers: " +
+                        it.joinToString { p -> "${p.id}@${p.action}" }
+                )
+            }
+    }
+
+    fun isProviderId(id: String) = id.startsWith(ID_PREFIX)
+
+    fun hasProvider(id: String, context: Context = appContext): Boolean =
+        listProviders(context).any { it.id == id }
+
+    /**
+     * Best-effort prewarm for external voice input plugins when the virtual keyboard is shown.
+     *
+     * Binding with BIND_AUTO_CREATE recreates the plugin service if Android killed its process in
+     * the background. We immediately call isAvailable() so heavy providers can lazily load their
+     * model before the user taps the mic button, then unbind after a short delay.
+     */
+    fun ensureProviderAvailable(service: FcitxInputMethodService, id: String) {
+        if (!isProviderId(id)) return
+        if (isActive()) return
+        val now = SystemClock.elapsedRealtime()
+        if (now - keepAliveLastAttemptElapsed < KEEPALIVE_MIN_INTERVAL_MS) return
+        keepAliveLastAttemptElapsed = now
+
+        val providerComponent = ComponentName.unflattenFromString(id.removePrefix(ID_PREFIX))
+        if (providerComponent == null) {
+            Log.w(TAG, "keepalive invalid provider id=$id")
+            return
+        }
+        val action = listProviders(service).firstOrNull { it.id == id }?.action
+        if (action == null) {
+            Log.i(TAG, "keepalive skipped: provider unavailable id=$id")
+            return
+        }
+
+        keepAliveConnection?.let {
+            runCatching { service.unbindService(it) }
+                .onFailure { Timber.w(it, "keepalive unbind previous") }
+        }
+        keepAliveConnection = null
+
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+                Log.i(TAG, "keepalive provider connected: $name")
+                val provider = IVoiceInputProvider.Stub.asInterface(binder)
+                val connection = this
+                service.lifecycleScope.launch(Dispatchers.IO) {
+                    val available = runCatching { provider.isAvailable() }
+                        .onFailure { Timber.w(it, "keepalive isAvailable failed") }
+                        .getOrDefault(false)
+                    Log.i(TAG, "keepalive provider available=$available name=$name")
+                    delay(KEEPALIVE_BIND_TIMEOUT_MS)
+                    withContext(Dispatchers.Main.immediate) {
+                        releaseKeepAlive(service, connection)
+                    }
+                }
+            }
+
+            override fun onServiceDisconnected(name: ComponentName) {
+                Log.i(TAG, "keepalive provider disconnected: $name")
+                if (keepAliveConnection === this) {
+                    keepAliveConnection = null
+                }
+            }
+
+            override fun onBindingDied(name: ComponentName) {
+                Log.w(TAG, "keepalive binding died: $name")
+                releaseKeepAlive(service, this)
+            }
+
+            override fun onNullBinding(name: ComponentName) {
+                Log.w(TAG, "keepalive null binding: $name")
+                releaseKeepAlive(service, this)
+            }
+        }
+
+        keepAliveConnection = connection
+        Log.i(TAG, "keepalive binding provider component=$providerComponent action=$action")
+        val bound = try {
+            service.bindService(
+                Intent(action).apply { component = providerComponent },
+                connection,
+                Context.BIND_AUTO_CREATE,
+            )
+        } catch (e: SecurityException) {
+            Timber.w(e, "keepalive bind denied"); false
+        } catch (e: RuntimeException) {
+            Timber.w(e, "keepalive bind failed"); false
+        }
+        if (!bound) {
+            Log.w(TAG, "keepalive bindService returned false")
+            keepAliveConnection = null
+            return
+        }
+        service.lifecycleScope.launch {
+            delay(KEEPALIVE_BIND_TIMEOUT_MS)
+            if (keepAliveConnection === connection) {
+                Log.w(TAG, "keepalive bind timed out without onServiceConnected")
+                releaseKeepAlive(service, connection)
+            }
+        }
+    }
+
+    // MVP integration point. Caller wires this to whatever UI starts voice
+    // input (long-press of a key, dedicated mic button, etc.). For the MVP
+    // segment text is committed via service.commitText; later this can be
+    // replaced with a candidate-bar push.
+    fun start(
+        service: FcitxInputMethodService,
+        id: String,
+        onReady: () -> Unit,
+        onPartialResult: (String) -> Unit,
+        onError: (String) -> Unit,
+        onLevel: (Int) -> Unit = {},
+        onFinished: () -> Unit = {},
+        onStatus: (String) -> Unit = {},
+    ) {
+        Log.i(TAG, "start requested id=$id")
+        onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_connecting))
+        Timber.i("Starting voice input provider: $id")
+
+        if (!VoiceInputAudioCapture.hasPermission(service)) {
+            Log.w(TAG, "RECORD_AUDIO permission not granted")
+            onError("RECORD_AUDIO permission not granted")
+            return
+        }
+
+        cancelWarmConnectionRelease()
+        floatingFallbackActive = false
+        floatingFallbackComponent = null
+        if (activeProvider != null && activeProviderId != id) {
+            releaseProviderConnection(service, callStopSession = true)
+        }
+
+        val callback = object : IVoiceInputCallback.Stub() {
+            override fun onReady() {
+                Log.i(TAG, "provider ready")
+                service.lifecycleScope.launch {
+                    startCapture(service, onLevel, onError)
+                    onReady()
+                }
+            }
+
+            override fun onVolumeLevel(rms: Int) {
+                service.lifecycleScope.launch { onLevel(rms) }
+            }
+
+            override fun onPartialResult(text: String?) {
+                val t = text.orEmpty()
+                if (t.isNotBlank()) {
+                    Log.i(TAG, "partial result len=${t.length}: $t")
+                    service.lifecycleScope.launch {
+                        service.setVoiceComposingText(t)
+                        onPartialResult(t)
+                    }
+                }
+            }
+
+            override fun onSegmentFinal(text: String?) {
+                val t = text.orEmpty()
+                if (t.isNotBlank()) {
+                    Log.i(TAG, "segment final len=${t.length}: $t")
+                    Timber.i("Voice segment final: $t")
+                    service.lifecycleScope.launch { service.commitText(t) }
+                } else {
+                    Log.i(TAG, "segment final blank")
+                    service.lifecycleScope.launch { service.clearVoiceComposingText() }
+                }
+            }
+
+            override fun onSessionEnded() {
+                Log.i(TAG, "provider session ended")
+                Timber.i("Voice provider session ended")
+                service.lifecycleScope.launch { onFinished() }
+                stopSession(service, keepConnectionWarm = true)
+            }
+
+            override fun onError(code: Int, message: String?) {
+                Log.w(TAG, "provider error $code: $message")
+                Timber.w("Voice provider error $code: $message")
+                service.lifecycleScope.launch {
+                    service.clearVoiceComposingText()
+                    onFinished()
+                    onError(message ?: "Voice input failed")
+                }
+                stopSession(service, keepConnectionWarm = false)
+            }
+        }
+        activeCallback = callback
+        finishing = false
+        sessionActive = true
+
+        VoiceInputProviderRegistry.get(id)?.let { entry ->
+            Timber.i("Starting registered voice input provider: $id")
+            activeProviderId = id
+            activeProvider = entry.provider
+            activeSessionConfig = getPreferredSessionConfig(entry.provider)
+            if (!callProviderSafely(onError) {
+                    configureProvider(entry.provider, activeSessionConfig)
+                    entry.provider.startSession(callback)
+                }) {
+                stopSession(service, keepConnectionWarm = false)
+                return
+            }
+            return
+        }
+
+        activeProvider?.let { provider ->
+            Log.i(TAG, "reusing warm provider connection id=$id")
+            activeSessionConfig = getPreferredSessionConfig(provider)
+            if (!callProviderSafely(onError) {
+                    configureProvider(provider, activeSessionConfig)
+                    provider.startSession(callback)
+                }) {
+                stopSession(service, keepConnectionWarm = false)
+            }
+            return
+        }
+
+        val providerComponent = ComponentName.unflattenFromString(id.removePrefix(ID_PREFIX))
+        if (providerComponent == null) {
+            activeCallback = null
+            Log.w(TAG, "invalid provider id=$id")
+            onError("Invalid voice input provider")
+            return
+        }
+        val action = listProviders(service).firstOrNull { it.id == id }?.action
+        if (action == null) {
+            activeCallback = null
+            Log.w(TAG, "provider unavailable id=$id")
+            onError("Voice input provider is not available")
+            return
+        }
+
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+                Log.i(TAG, "provider connected: $name")
+                Timber.i("Voice input provider connected: $name")
+                val provider = IVoiceInputProvider.Stub.asInterface(binder)
+                activeProvider = provider
+                activeProviderId = id
+                activeSessionConfig = getPreferredSessionConfig(provider)
+                if (!callProviderSafely(onError) {
+                        configureProvider(provider, activeSessionConfig)
+                        provider.startSession(callback)
+                    }) {
+                    stopSession(service, keepConnectionWarm = false)
+                }
+            }
+
+            override fun onServiceDisconnected(name: ComponentName) {
+                Log.i(TAG, "provider disconnected: $name")
+                activeProvider = null
+                activeProviderId = null
+                activeConnection = null
+                sessionActive = false
+            }
+
+            override fun onBindingDied(name: ComponentName) {
+                Log.w(TAG, "provider binding died: $name")
+                stopSession(service, keepConnectionWarm = false)
+            }
+
+            override fun onNullBinding(name: ComponentName) {
+                Log.w(TAG, "provider null binding: $name")
+                onError("Voice input provider returned no binding")
+                stopSession(service, keepConnectionWarm = false)
+            }
+        }
+
+        activeConnection = connection
+        Log.i(TAG, "binding provider component=$providerComponent action=$action")
+        onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_connecting))
+        Timber.i("Binding voice input provider: component=$providerComponent action=$action")
+        val bound = try {
+            service.bindService(
+                Intent(action).apply { component = providerComponent },
+                connection,
+                Context.BIND_AUTO_CREATE,
+            )
+        } catch (e: SecurityException) {
+            Timber.w(e, "bind denied"); false
+        } catch (e: RuntimeException) {
+            Timber.w(e, "bind failed"); false
+        }
+        Log.i(TAG, "bindService returned $bound")
+        if (!bound) {
+            activeConnection = null
+            activeCallback = null
+            Log.w(TAG, "bindService returned false")
+            onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_opening))
+            val floatingComponent = startFloatingFallback(service, providerComponent)
+            if (floatingComponent != null) {
+                sessionActive = false
+                finishing = false
+                floatingFallbackActive = true
+                floatingFallbackComponent = floatingComponent
+                onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_loading))
+                service.lifecycleScope.launch {
+                    delay(1200)
+                    onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_floating_ready))
+                }
+            } else {
+                onError("Cannot bind voice input provider")
+            }
+        } else {
+            service.lifecycleScope.launch {
+                delay(2000)
+                if (activeConnection === connection && activeProvider == null) {
+                    Log.w(TAG, "provider bind timed out without onServiceConnected")
+                    onError("Voice input provider bind timed out")
+                    stopSession(service, keepConnectionWarm = false)
+                }
+            }
+        }
+    }
+
+    private fun startFloatingFallback(
+        service: FcitxInputMethodService,
+        providerComponent: ComponentName,
+    ): ComponentName? {
+        val action = BuildConfig.APPLICATION_ID + VoiceInputIpc.START_FLOATING_ACTION_SUFFIX
+        val serviceClass = providerComponent.className.substringBeforeLast('.') + ".FloatingService"
+        val component = ComponentName(providerComponent.packageName, serviceClass)
+        val intent = Intent(action).apply { this.component = component }
+        return try {
+            ContextCompat.startForegroundService(service, intent)
+            Log.i(TAG, "started floating fallback component=${intent.component} action=$action")
+            component
+        } catch (e: Throwable) {
+            Log.w(TAG, "floating fallback failed", e)
+            null
+        }
+    }
+
+    private data class SessionConfig(
+        val audio: VoiceInputAudioCapture.Config = VoiceInputAudioCapture.Config(),
+        val silenceMs: Long = DEFAULT_SILENCE_MS,
+    )
+
+    private fun getPreferredSessionConfig(provider: IVoiceInputProvider): SessionConfig {
+        val params = runCatching { provider.preferredConfig }
+            .onFailure { Timber.w(it, "getPreferredConfig failed; using default voice input config") }
+            .getOrNull()
+        params?.classLoader = VoiceInputProviderManager::class.java.classLoader
+        val defaults = VoiceInputAudioCapture.Config()
+        val audio = VoiceInputAudioCapture.Config(
+            sampleRate = params?.getInt(VoiceInputIpc.ConfigKeys.SAMPLE_RATE, defaults.sampleRate)
+                ?.takeIf { it > 0 } ?: defaults.sampleRate,
+            bitsPerSample = params?.getInt(VoiceInputIpc.ConfigKeys.BITS_PER_SAMPLE, defaults.bitsPerSample)
+                ?.takeIf { it == 16 } ?: defaults.bitsPerSample,
+            channels = params?.getInt(VoiceInputIpc.ConfigKeys.CHANNELS, defaults.channels)
+                ?.takeIf { it == 1 } ?: defaults.channels,
+        )
+        return SessionConfig(
+            audio = audio,
+            silenceMs = params?.getLong(VoiceInputIpc.ConfigKeys.SILENCE_MS, DEFAULT_SILENCE_MS)
+                ?.takeIf { it > 0 } ?: DEFAULT_SILENCE_MS,
+        ).also {
+            Log.i(TAG, "provider preferred session config: $it")
+        }
+    }
+
+    private fun configureProvider(provider: IVoiceInputProvider, sessionConfig: SessionConfig) {
+        val params = Bundle().apply {
+            putInt(VoiceInputIpc.ConfigKeys.SAMPLE_RATE, sessionConfig.audio.sampleRate)
+            putInt(VoiceInputIpc.ConfigKeys.BITS_PER_SAMPLE, sessionConfig.audio.bitsPerSample)
+            putInt(VoiceInputIpc.ConfigKeys.CHANNELS, sessionConfig.audio.channels)
+            putLong(VoiceInputIpc.ConfigKeys.SILENCE_MS, sessionConfig.silenceMs)
+        }
+        provider.configure(params)
+    }
+
+    private fun releaseKeepAlive(context: Context, connection: ServiceConnection) {
+        if (keepAliveConnection !== connection) return
+        runCatching { context.unbindService(connection) }
+            .onFailure { Timber.w(it, "keepalive unbind") }
+        keepAliveConnection = null
+    }
+
+    private inline fun callProviderSafely(
+        onError: (String) -> Unit,
+        block: () -> Unit,
+    ): Boolean = try {
+        block(); true
+    } catch (e: Throwable) {
+        Timber.w(e, "provider call failed")
+        onError(e.message ?: "Voice input provider call failed")
+        false
+    }
+
+    private fun startCapture(
+        service: FcitxInputMethodService,
+        onLevel: (Int) -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        if (activeCapture != null) return
+        val provider = activeProvider ?: return
+        val capture = VoiceInputAudioCapture(
+            context = service,
+            config = activeSessionConfig.audio,
+            onPcm = { buf, off, len, pts ->
+                val p = provider
+                try {
+                    p.feedAudio(buf.copyOfRange(off, off + len), 0, len, pts)
+                } catch (e: RemoteException) {
+                    Timber.w(e, "feedAudio failed")
+                }
+            },
+            onLevel = { rms -> service.lifecycleScope.launch { onLevel(rms) } },
+            onError = { msg ->
+                service.lifecycleScope.launch { onError(msg) }
+                stop(service)
+            },
+        )
+        activeCapture = capture
+        if (!capture.start()) {
+            Log.w(TAG, "capture start failed")
+            activeCapture = null
+        } else {
+            Log.i(TAG, "capture started")
+        }
+    }
+
+    private fun finish(context: Context = appContext) {
+        if (floatingFallbackActive) {
+            stopFloatingFallback(context)
+            return
+        }
+        if (finishing) {
+            Log.i(TAG, "finish ignored: already finishing")
+            return
+        }
+        finishing = true
+        Log.i(
+            TAG,
+            "finish provider=${activeProvider != null} " +
+                "connection=${activeConnection != null} capture=${activeCapture != null}"
+        )
+        Timber.i(
+            "Finishing voice input provider: provider=${activeProvider != null} " +
+                "connection=${activeConnection != null} capture=${activeCapture != null}"
+        )
+        activeCapture?.let {
+            runCatching { it.stop() }.onFailure { Timber.w(it, "capture stop") }
+        }
+        activeCapture = null
+        try {
+            activeProvider?.endStream()
+            Log.i(TAG, "endStream sent")
+        } catch (e: Throwable) {
+            serviceFinished(context, null)
+            Timber.w(e, "endStream")
+            stopSession(context, keepConnectionWarm = false)
+        }
+    }
+
+    private fun serviceFinished(context: Context, onFinished: (() -> Unit)?) {
+        if (context is FcitxInputMethodService && onFinished != null) {
+            context.lifecycleScope.launch { onFinished() }
+        }
+    }
+
+    fun stop(context: Context = appContext) {
+        if (floatingFallbackActive) {
+            stopFloatingFallback(context)
+            return
+        }
+        stopSession(context, keepConnectionWarm = false)
+    }
+
+    private fun stopSession(context: Context = appContext, keepConnectionWarm: Boolean) {
+        Log.i(
+            TAG,
+            "stop provider=${activeProvider != null} " +
+                "connection=${activeConnection != null} capture=${activeCapture != null} " +
+                "keepWarm=$keepConnectionWarm"
+        )
+        Timber.i(
+            "Stopping voice input provider: provider=${activeProvider != null} " +
+                "connection=${activeConnection != null} capture=${activeCapture != null} " +
+                "keepWarm=$keepConnectionWarm"
+        )
+        activeCapture?.let {
+            runCatching { it.stop() }.onFailure { Timber.w(it, "capture stop") }
+        }
+        activeCapture = null
+        try {
+            activeProvider?.stopSession()
+        } catch (e: Throwable) {
+            Timber.w(e, "stopSession")
+        }
+        activeCallback = null
+        finishing = false
+        sessionActive = false
+        floatingFallbackActive = false
+        floatingFallbackComponent = null
+        if (keepConnectionWarm && activeProvider != null && activeConnection != null) {
+            scheduleWarmConnectionRelease(context)
+        } else {
+            releaseProviderConnection(context, callStopSession = false)
+        }
+        keepAliveConnection?.let {
+            runCatching { context.unbindService(it) }
+                .onFailure { Timber.w(it, "keepalive unbind on stop") }
+        }
+        keepAliveConnection = null
+    }
+
+    private fun scheduleWarmConnectionRelease(context: Context) {
+        val generation = ++warmConnectionReleaseGeneration
+        Log.i(TAG, "schedule warm provider release in ${WARM_CONNECTION_HOLD_MS}ms")
+        if (context is FcitxInputMethodService) {
+            context.lifecycleScope.launch {
+                delay(WARM_CONNECTION_HOLD_MS)
+                if (warmConnectionReleaseGeneration == generation && !isActive()) {
+                    releaseProviderConnection(context, callStopSession = true)
+                }
+            }
+        }
+    }
+
+    private fun cancelWarmConnectionRelease() {
+        warmConnectionReleaseGeneration++
+    }
+
+    private fun releaseProviderConnection(context: Context, callStopSession: Boolean) {
+        cancelWarmConnectionRelease()
+        if (callStopSession) {
+            try {
+                activeProvider?.stopSession()
+            } catch (e: Throwable) {
+                Timber.w(e, "stopSession")
+            }
+        }
+        activeProvider = null
+        activeProviderId = null
+        activeConnection?.let {
+            runCatching { context.unbindService(it) }
+                .onFailure { Timber.w(it, "unbind") }
+        }
+        activeConnection = null
+    }
+
+    private fun stopFloatingFallback(context: Context) {
+        val component = floatingFallbackComponent
+        floatingFallbackActive = false
+        floatingFallbackComponent = null
+        finishing = false
+        sessionActive = false
+        if (component != null) {
+            val intent = Intent("stop_service").apply { this.component = component }
+            runCatching { ContextCompat.startForegroundService(context, intent) }
+                .onFailure { Timber.w(it, "stop floating fallback failed") }
+        }
+        voiceFinishedCallback?.invoke()
+    }
+}

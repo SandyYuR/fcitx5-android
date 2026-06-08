@@ -721,4 +721,13 @@
     <string name="text_keyboard_layout_layout_height_percent_invalid">佈局鍵盤高度必須在 10 到 90 之間</string>
     <string name="text_keyboard_layout_key_row_height_percent">行高百分比</string>
     <string name="text_keyboard_layout_row_height_percent_invalid">行高百分比必須在 1 到 100 之間</string>
+
+    <!-- Voice input status -->
+    <string name="voice_status_connecting">連線中…</string>
+    <string name="voice_status_opening">啟動中…</string>
+    <string name="voice_status_loading">載入中…</string>
+    <string name="voice_status_floating_ready">就緒</string>
+    <string name="voice_status_recognizing">識別中</string>
+    <string name="voice_status_listening">聆聽中</string>
+    <string name="voice_status_committed">完成</string>
 </resources>

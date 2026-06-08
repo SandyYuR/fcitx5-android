@@ -12,6 +12,7 @@
         tools:node="remove" />
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -34,6 +35,9 @@
     <queries>
         <intent>
             <action android:name="${applicationId}.plugin.MANIFEST" />
+        </intent>
+        <intent>
+            <action android:name="${applicationId}.plugin.VOICE_INPUT" />
         </intent>
         <!-- Compatibility with original Fcitx5 Android plugins -->
         <intent>

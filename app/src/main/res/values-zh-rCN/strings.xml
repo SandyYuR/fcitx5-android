@@ -732,4 +732,13 @@
     <string name="text_keyboard_layout_compose_override_clear_button">清除</string>
     <string name="text_keyboard_layout_compose_override_editor_title">编辑合成中按键</string>
     <string name="text_keyboard_layout_compose_override_follow_base_key_colors">独立按键颜色</string>
+
+    <!-- Voice input status -->
+    <string name="voice_status_connecting">连接中…</string>
+    <string name="voice_status_opening">启动中…</string>
+    <string name="voice_status_loading">加载中…</string>
+    <string name="voice_status_floating_ready">就绪</string>
+    <string name="voice_status_recognizing">识别中</string>
+    <string name="voice_status_listening">聆听中</string>
+    <string name="voice_status_committed">完成</string>
 </resources>
