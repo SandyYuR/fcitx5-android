@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name_debug">小企鵝（文字編輯器外掛 | 偵錯）</string>
     <string name="app_name_release">小企鵝（文字編輯器外掛）</string>
-    <string name="description">瀏覽並編輯 Fcitx5 資料目錄下的檔案</string>
+    <string name="description">瀏覽並編輯已授權目錄中的文字檔案</string>
 
     <string name="edit_user_files">編輯使用者檔案</string>
     <string name="parent_directory">..</string>
@@ -54,8 +54,10 @@
     <string name="font_imported">已匯入 %1$s</string>
     <string name="font_in_use">在回退鏈中</string>
 
-    <string name="grant_access_message">請於系統檔案選擇器中選取 Fcitx5 的資料目錄，再點選「使用此資料夾」。</string>
+    <string name="grant_access_message">請於系統檔案選擇器中選取一個目錄，再點選「使用此資料夾」以授權編輯該目錄中的檔案。</string>
     <string name="grant_access_denied">未授予存取權限，無法啟動編輯器。</string>
+    <string name="change_root_folder">切換根目錄</string>
+    <string name="open_single_file">開啟單一檔案…</string>
     <string name="low_memory_features_disabled">記憶體不足：已關閉部分功能（語法高亮、診斷、自動補全）。</string>
     <string name="editor_runtime_recovered">編輯器發生異常，已自動降級部分功能以保持可用。</string>
 </resources>

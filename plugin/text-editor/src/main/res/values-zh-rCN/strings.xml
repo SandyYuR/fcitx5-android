@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name_debug">小企鹅（文本编辑器插件 | 调试）</string>
     <string name="app_name_release">小企鹅（文本编辑器插件）</string>
-    <string name="description">浏览并编辑 Fcitx5 数据目录下的文件</string>
+    <string name="description">浏览并编辑已授权目录中的文本文件</string>
 
     <string name="edit_user_files">编辑用户文件</string>
     <string name="parent_directory">..</string>
@@ -54,8 +54,10 @@
     <string name="font_imported">已导入 %1$s</string>
     <string name="font_in_use">在回退链中</string>
 
-    <string name="grant_access_message">在系统文件选择器里选中 Fcitx5 的数据目录，然后点「使用此文件夹」。</string>
+    <string name="grant_access_message">在系统文件选择器中选中一个目录，然后点「使用此文件夹」授权编辑该目录下的文件。</string>
     <string name="grant_access_denied">未授权，无法启动编辑器。</string>
+    <string name="change_root_folder">切换根目录</string>
+    <string name="open_single_file">打开单个文件…</string>
     <string name="low_memory_features_disabled">内存不足：已关闭部分功能（语法高亮、诊断、自动补全）。</string>
     <string name="editor_runtime_recovered">编辑器发生异常，已自动降级部分功能以保持可用。</string>
 </resources>

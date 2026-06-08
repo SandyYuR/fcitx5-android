@@ -38,6 +38,10 @@
             android:name=".FileBrowserActivity"
             android:exported="true"
             android:theme="@style/TextEditorTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <!--
                 The main app's DataManager.PLUGIN_INTENT is "${APPLICATION_ID}.plugin.MANIFEST",
                 where APPLICATION_ID varies by flavor (mainline / fx) and build type (release / debug).

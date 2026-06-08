@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name_debug">Penguin Text Editor Plugin (Debug)</string>
     <string name="app_name_release">Penguin Text Editor Plugin</string>
-    <string name="description">Browse and edit files under Fcitx5 data folder</string>
+    <string name="description">Browse and edit text files from folders you grant access to</string>
 
     <string name="edit_user_files">Edit User Files</string>
     <string name="parent_directory">..</string>
@@ -54,8 +54,10 @@
     <string name="font_imported">Imported %1$s</string>
     <string name="font_in_use">in fallback chain</string>
 
-    <string name="grant_access_message">Select the Fcitx5 data folder to enable editing. The folder appears as a root in the system file picker; tap \"Use this folder\".</string>
+    <string name="grant_access_message">Select a folder in the system file picker, then tap \"Use this folder\" to allow editing files inside it.</string>
     <string name="grant_access_denied">Access not granted; the editor cannot start.</string>
+    <string name="change_root_folder">Change root folder</string>
+    <string name="open_single_file">Open single file…</string>
     <string name="low_memory_features_disabled">Low memory: some features were disabled (syntax highlight, diagnostics, auto-completion).</string>
     <string name="editor_runtime_recovered">An editor error occurred. Some features were disabled to keep the app responsive.</string>
 </resources>

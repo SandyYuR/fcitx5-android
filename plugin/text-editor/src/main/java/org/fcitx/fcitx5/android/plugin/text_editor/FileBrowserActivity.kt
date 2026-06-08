@@ -13,6 +13,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -54,7 +56,9 @@ class FileBrowserActivity : AppCompatActivity() {
         ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
         if (uri == null) {
-            toast(getString(R.string.grant_access_denied))
+            if (rootTree == null) {
+                toast(getString(R.string.grant_access_denied))
+            }
             // Stay on the empty-state screen so the user can retry.
             return@registerForActivityResult
         }
@@ -66,6 +70,21 @@ class FileBrowserActivity : AppCompatActivity() {
         }
         prefs.edit().putString(PREF_TREE_URI, uri.toString()).apply()
         openTree(uri)
+    }
+
+    private val pickFile = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@registerForActivityResult
+        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        try {
+            contentResolver.takePersistableUriPermission(uri, flags)
+        } catch (_: SecurityException) {
+            // Persisting depends on the provider; continue with transient grant.
+        }
+        val doc = DocumentFile.fromSingleUri(this, uri)
+        val displayName = doc?.name ?: uri.lastPathSegment ?: "?"
+        openFileUri(uri, displayName, doc?.type ?: contentResolver.getType(uri), doc?.length() ?: -1L)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,7 +107,7 @@ class FileBrowserActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar!!.apply {
-            setDisplayHomeAsUpEnabled(true)
+            setDisplayHomeAsUpEnabled(!isTaskRoot)
             setTitle(R.string.edit_user_files)
         }
 
@@ -126,6 +145,24 @@ class FileBrowserActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
+        return true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menu.add(R.string.change_root_folder).apply {
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+            setOnMenuItemClickListener {
+                launchPicker()
+                true
+            }
+        }
+        menu.add(R.string.open_single_file).apply {
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+            setOnMenuItemClickListener {
+                pickFile.launch(arrayOf("*/*"))
+                true
+            }
+        }
         return true
     }
 
@@ -246,20 +283,21 @@ class FileBrowserActivity : AppCompatActivity() {
             navigateTo(doc)
             return
         }
-        val displayName = entry.name
-        val mime = doc.type
-        if (!TextFileSupport.isProbablyTextFile(contentResolver, doc.uri, displayName, mime)) {
+        openFileUri(doc.uri, entry.name, doc.type, doc.length())
+    }
+
+    private fun openFileUri(uri: Uri, displayName: String, mime: String?, length: Long) {
+        if (!TextFileSupport.isProbablyTextFile(contentResolver, uri, displayName, mime)) {
             toast(getString(R.string.binary_file_unsupported))
             return
         }
-        val length = doc.length()
         if (length > TextFileSupport.MAX_FILE_SIZE) {
             toast(getString(R.string.file_too_large, formatSize(length)))
             return
         }
         startActivity(
             Intent(this, TextFileEditActivity::class.java).apply {
-                data = doc.uri
+                data = uri
                 putExtra(TextFileEditActivity.EXTRA_DISPLAY_NAME, displayName)
             }
         )
