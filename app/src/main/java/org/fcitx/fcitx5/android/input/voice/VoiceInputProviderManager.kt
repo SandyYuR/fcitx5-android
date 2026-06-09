@@ -17,9 +17,12 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.common.ipc.IVoiceInputCallback
 import org.fcitx.fcitx5.android.common.ipc.IVoiceInputProvider
@@ -46,6 +49,15 @@ object VoiceInputProviderManager {
     private const val KEEPALIVE_BIND_TIMEOUT_MS = 2_000L
     private const val WARM_CONNECTION_HOLD_MS = 5 * 60 * 1000L
 
+    // Upper bound for draining the in-flight PCM queue before sending endStream.
+    // Why: avoid tail-end word loss if the provider hangs in feedAudio.
+    private const val FEED_DRAIN_TIMEOUT_MS = 1_000L
+
+    // Pre-roll window: capture starts immediately on toggle so audio spoken
+    // before the provider reports onReady is replayed once the session opens.
+    // Eliminates head-end word loss from cold-bind + model-load latency.
+    private const val PRE_ROLL_MAX_MS = 3_000L
+
     private val actions = buildSet {
         val appId = BuildConfig.APPLICATION_ID
         add(appId)
@@ -60,6 +72,8 @@ object VoiceInputProviderManager {
     private var activeProvider: IVoiceInputProvider? = null
     private var activeCallback: IVoiceInputCallback? = null
     private var activeCapture: VoiceInputAudioCapture? = null
+    private var activeAudioFeedJob: Job? = null
+    private var activeAudioFeedQueue: Channel<QueuedAudio>? = null
     private var activeSessionConfig = SessionConfig()
     private var activeProviderId: String? = null
     private var finishing = false
@@ -69,6 +83,9 @@ object VoiceInputProviderManager {
     private var warmConnectionReleaseGeneration = 0
     private var keepAliveConnection: ServiceConnection? = null
     private var keepAliveLastAttemptElapsed = 0L
+    @Volatile private var preRollActive: Boolean = false
+    private val preRollBuffer = ArrayDeque<QueuedAudio>()
+    private val preRollLock = Any()
     var floatingCommitListener: ((String) -> Unit)? = null
     // Default UI callbacks for voice status, shared across all toggle() callers.
     var voiceStatusCallback: ((String) -> Unit)? = null    // show/hide/update bar text
@@ -76,6 +93,33 @@ object VoiceInputProviderManager {
     var voiceReadyCallback: (() -> Unit)? = null           // set "listening" status
     var voiceFinishedCallback: (() -> Unit)? = null        // hide status on finish
     var voiceErrorCallback: ((String) -> Unit)? = null     // show error toast
+
+    private data class QueuedAudio(
+        val pcm: ByteArray,
+        val ptsMs: Long,
+    )
+
+    // Verbose tracing is debug-only. Timber still records important warnings
+    // in release, so user-reported issues remain debuggable via the file log.
+    // R8 folds away the call in release builds where BuildConfig.DEBUG is false.
+    private fun logI(msg: String) {
+        if (BuildConfig.DEBUG) android.util.Log.i(TAG, msg)
+    }
+
+    private fun logW(msg: String) {
+        if (BuildConfig.DEBUG) android.util.Log.w(TAG, msg)
+    }
+
+    private fun logW(msg: String, e: Throwable) {
+        if (BuildConfig.DEBUG) android.util.Log.w(TAG, msg, e)
+    }
+
+    // Timber.i is verbose tracing of normal flow; gate it like logI so release
+    // builds don't pay the string-template + tree-iteration cost. Timber.w
+    // stays unconditional — release file logs need warnings for bug reports.
+    private fun tlogI(msg: String) {
+        if (BuildConfig.DEBUG) Timber.i(msg)
+    }
 
     fun isActive(): Boolean =
         floatingFallbackActive || sessionActive || activeCallback != null || activeCapture != null
@@ -98,7 +142,7 @@ object VoiceInputProviderManager {
                 return false
             }
             if (finishing) {
-                Log.i(TAG, "toggle ignored: voice input is finishing")
+                logI("toggle ignored: voice input is finishing")
                 return false
             }
             finish(service)
@@ -145,14 +189,13 @@ object VoiceInputProviderManager {
         return (registered + queried).distinctBy { it.id }
             .sortedBy { it.label.toString() }
             .also {
-                Log.i(
-                    TAG,
+                logI(
                     "Detected voice input providers: " +
                         it.joinToString { p ->
                             "${p.id}@${p.action}[${p.packageName}/${p.serviceName}]"
                         }
                 )
-                Timber.i(
+                tlogI(
                     "Detected voice input providers: " +
                         it.joinToString { p -> "${p.id}@${p.action}" }
                 )
@@ -180,12 +223,12 @@ object VoiceInputProviderManager {
 
         val providerComponent = ComponentName.unflattenFromString(id.removePrefix(ID_PREFIX))
         if (providerComponent == null) {
-            Log.w(TAG, "keepalive invalid provider id=$id")
+            logW("keepalive invalid provider id=$id")
             return
         }
         val action = listProviders(service).firstOrNull { it.id == id }?.action
         if (action == null) {
-            Log.i(TAG, "keepalive skipped: provider unavailable id=$id")
+            logI("keepalive skipped: provider unavailable id=$id")
             return
         }
 
@@ -197,14 +240,14 @@ object VoiceInputProviderManager {
 
         val connection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName, binder: IBinder) {
-                Log.i(TAG, "keepalive provider connected: $name")
+                logI("keepalive provider connected: $name")
                 val provider = IVoiceInputProvider.Stub.asInterface(binder)
                 val connection = this
                 service.lifecycleScope.launch(Dispatchers.IO) {
                     val available = runCatching { provider.isAvailable() }
                         .onFailure { Timber.w(it, "keepalive isAvailable failed") }
                         .getOrDefault(false)
-                    Log.i(TAG, "keepalive provider available=$available name=$name")
+                    logI("keepalive provider available=$available name=$name")
                     delay(KEEPALIVE_BIND_TIMEOUT_MS)
                     withContext(Dispatchers.Main.immediate) {
                         releaseKeepAlive(service, connection)
@@ -213,25 +256,25 @@ object VoiceInputProviderManager {
             }
 
             override fun onServiceDisconnected(name: ComponentName) {
-                Log.i(TAG, "keepalive provider disconnected: $name")
+                logI("keepalive provider disconnected: $name")
                 if (keepAliveConnection === this) {
                     keepAliveConnection = null
                 }
             }
 
             override fun onBindingDied(name: ComponentName) {
-                Log.w(TAG, "keepalive binding died: $name")
+                logW("keepalive binding died: $name")
                 releaseKeepAlive(service, this)
             }
 
             override fun onNullBinding(name: ComponentName) {
-                Log.w(TAG, "keepalive null binding: $name")
+                logW("keepalive null binding: $name")
                 releaseKeepAlive(service, this)
             }
         }
 
         keepAliveConnection = connection
-        Log.i(TAG, "keepalive binding provider component=$providerComponent action=$action")
+        logI("keepalive binding provider component=$providerComponent action=$action")
         val bound = try {
             service.bindService(
                 Intent(action).apply { component = providerComponent },
@@ -244,14 +287,14 @@ object VoiceInputProviderManager {
             Timber.w(e, "keepalive bind failed"); false
         }
         if (!bound) {
-            Log.w(TAG, "keepalive bindService returned false")
+            logW("keepalive bindService returned false")
             keepAliveConnection = null
             return
         }
         service.lifecycleScope.launch {
             delay(KEEPALIVE_BIND_TIMEOUT_MS)
             if (keepAliveConnection === connection) {
-                Log.w(TAG, "keepalive bind timed out without onServiceConnected")
+                logW("keepalive bind timed out without onServiceConnected")
                 releaseKeepAlive(service, connection)
             }
         }
@@ -271,12 +314,12 @@ object VoiceInputProviderManager {
         onFinished: () -> Unit = {},
         onStatus: (String) -> Unit = {},
     ) {
-        Log.i(TAG, "start requested id=$id")
+        logI("start requested id=$id")
         onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_connecting))
-        Timber.i("Starting voice input provider: $id")
+        tlogI("Starting voice input provider: $id")
 
         if (!VoiceInputAudioCapture.hasPermission(service)) {
-            Log.w(TAG, "RECORD_AUDIO permission not granted")
+            logW("RECORD_AUDIO permission not granted")
             onError("RECORD_AUDIO permission not granted")
             return
         }
@@ -290,9 +333,9 @@ object VoiceInputProviderManager {
 
         val callback = object : IVoiceInputCallback.Stub() {
             override fun onReady() {
-                Log.i(TAG, "provider ready")
+                logI("provider ready")
                 service.lifecycleScope.launch {
-                    startCapture(service, onLevel, onError)
+                    onProviderReady(service, onLevel, onError)
                     onReady()
                 }
             }
@@ -304,7 +347,7 @@ object VoiceInputProviderManager {
             override fun onPartialResult(text: String?) {
                 val t = text.orEmpty()
                 if (t.isNotBlank()) {
-                    Log.i(TAG, "partial result len=${t.length}: $t")
+                    logI("partial result len=${t.length}: $t")
                     service.lifecycleScope.launch {
                         service.setVoiceComposingText(t)
                         onPartialResult(t)
@@ -315,24 +358,24 @@ object VoiceInputProviderManager {
             override fun onSegmentFinal(text: String?) {
                 val t = text.orEmpty()
                 if (t.isNotBlank()) {
-                    Log.i(TAG, "segment final len=${t.length}: $t")
-                    Timber.i("Voice segment final: $t")
+                    logI("segment final len=${t.length}: $t")
+                    tlogI("Voice segment final: $t")
                     service.lifecycleScope.launch { service.commitText(t) }
                 } else {
-                    Log.i(TAG, "segment final blank")
+                    logI("segment final blank")
                     service.lifecycleScope.launch { service.clearVoiceComposingText() }
                 }
             }
 
             override fun onSessionEnded() {
-                Log.i(TAG, "provider session ended")
-                Timber.i("Voice provider session ended")
+                logI("provider session ended")
+                tlogI("Voice provider session ended")
                 service.lifecycleScope.launch { onFinished() }
                 stopSession(service, keepConnectionWarm = true)
             }
 
             override fun onError(code: Int, message: String?) {
-                Log.w(TAG, "provider error $code: $message")
+                logW("provider error $code: $message")
                 Timber.w("Voice provider error $code: $message")
                 service.lifecycleScope.launch {
                     service.clearVoiceComposingText()
@@ -346,8 +389,10 @@ object VoiceInputProviderManager {
         finishing = false
         sessionActive = true
 
+        startPreRollCapture(service, onLevel, onError)
+
         VoiceInputProviderRegistry.get(id)?.let { entry ->
-            Timber.i("Starting registered voice input provider: $id")
+            tlogI("Starting registered voice input provider: $id")
             activeProviderId = id
             activeProvider = entry.provider
             activeSessionConfig = getPreferredSessionConfig(entry.provider)
@@ -362,7 +407,7 @@ object VoiceInputProviderManager {
         }
 
         activeProvider?.let { provider ->
-            Log.i(TAG, "reusing warm provider connection id=$id")
+            logI("reusing warm provider connection id=$id")
             activeSessionConfig = getPreferredSessionConfig(provider)
             if (!callProviderSafely(onError) {
                     configureProvider(provider, activeSessionConfig)
@@ -375,23 +420,23 @@ object VoiceInputProviderManager {
 
         val providerComponent = ComponentName.unflattenFromString(id.removePrefix(ID_PREFIX))
         if (providerComponent == null) {
-            activeCallback = null
-            Log.w(TAG, "invalid provider id=$id")
+            logW("invalid provider id=$id")
             onError("Invalid voice input provider")
+            stopSession(service, keepConnectionWarm = false)
             return
         }
         val action = listProviders(service).firstOrNull { it.id == id }?.action
         if (action == null) {
-            activeCallback = null
-            Log.w(TAG, "provider unavailable id=$id")
+            logW("provider unavailable id=$id")
             onError("Voice input provider is not available")
+            stopSession(service, keepConnectionWarm = false)
             return
         }
 
         val connection = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName, binder: IBinder) {
-                Log.i(TAG, "provider connected: $name")
-                Timber.i("Voice input provider connected: $name")
+                logI("provider connected: $name")
+                tlogI("Voice input provider connected: $name")
                 val provider = IVoiceInputProvider.Stub.asInterface(binder)
                 activeProvider = provider
                 activeProviderId = id
@@ -405,7 +450,7 @@ object VoiceInputProviderManager {
             }
 
             override fun onServiceDisconnected(name: ComponentName) {
-                Log.i(TAG, "provider disconnected: $name")
+                logI("provider disconnected: $name")
                 activeProvider = null
                 activeProviderId = null
                 activeConnection = null
@@ -413,21 +458,21 @@ object VoiceInputProviderManager {
             }
 
             override fun onBindingDied(name: ComponentName) {
-                Log.w(TAG, "provider binding died: $name")
+                logW("provider binding died: $name")
                 stopSession(service, keepConnectionWarm = false)
             }
 
             override fun onNullBinding(name: ComponentName) {
-                Log.w(TAG, "provider null binding: $name")
+                logW("provider null binding: $name")
                 onError("Voice input provider returned no binding")
                 stopSession(service, keepConnectionWarm = false)
             }
         }
 
         activeConnection = connection
-        Log.i(TAG, "binding provider component=$providerComponent action=$action")
+        logI("binding provider component=$providerComponent action=$action")
         onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_connecting))
-        Timber.i("Binding voice input provider: component=$providerComponent action=$action")
+        tlogI("Binding voice input provider: component=$providerComponent action=$action")
         val bound = try {
             service.bindService(
                 Intent(action).apply { component = providerComponent },
@@ -439,12 +484,18 @@ object VoiceInputProviderManager {
         } catch (e: RuntimeException) {
             Timber.w(e, "bind failed"); false
         }
-        Log.i(TAG, "bindService returned $bound")
+        logI("bindService returned $bound")
         if (!bound) {
             activeConnection = null
             activeCallback = null
-            Log.w(TAG, "bindService returned false")
+            logW("bindService returned false")
             onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_opening))
+            // Pre-roll is no longer useful (no AIDL provider to feed); release the mic.
+            activeCapture?.let {
+                runCatching { it.stop() }.onFailure { Timber.w(it, "stop pre-roll on bind-failed") }
+            }
+            activeCapture = null
+            resetPreRoll()
             val floatingComponent = startFloatingFallback(service, providerComponent)
             if (floatingComponent != null) {
                 sessionActive = false
@@ -458,12 +509,13 @@ object VoiceInputProviderManager {
                 }
             } else {
                 onError("Cannot bind voice input provider")
+                stopSession(service, keepConnectionWarm = false)
             }
         } else {
             service.lifecycleScope.launch {
                 delay(2000)
                 if (activeConnection === connection && activeProvider == null) {
-                    Log.w(TAG, "provider bind timed out without onServiceConnected")
+                    logW("provider bind timed out without onServiceConnected")
                     onError("Voice input provider bind timed out")
                     stopSession(service, keepConnectionWarm = false)
                 }
@@ -481,10 +533,10 @@ object VoiceInputProviderManager {
         val intent = Intent(action).apply { this.component = component }
         return try {
             ContextCompat.startForegroundService(service, intent)
-            Log.i(TAG, "started floating fallback component=${intent.component} action=$action")
+            logI("started floating fallback component=${intent.component} action=$action")
             component
         } catch (e: Throwable) {
-            Log.w(TAG, "floating fallback failed", e)
+            logW("floating fallback failed", e)
             null
         }
     }
@@ -513,7 +565,7 @@ object VoiceInputProviderManager {
             silenceMs = params?.getLong(VoiceInputIpc.ConfigKeys.SILENCE_MS, DEFAULT_SILENCE_MS)
                 ?.takeIf { it > 0 } ?: DEFAULT_SILENCE_MS,
         ).also {
-            Log.i(TAG, "provider preferred session config: $it")
+            logI("provider preferred session config: $it")
         }
     }
 
@@ -545,23 +597,145 @@ object VoiceInputProviderManager {
         false
     }
 
+    private fun startPreRollCapture(
+        service: FcitxInputMethodService,
+        onLevel: (Int) -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        if (activeCapture != null) return
+        synchronized(preRollLock) {
+            preRollBuffer.clear()
+            preRollActive = true
+        }
+        val preRollConfig = VoiceInputAudioCapture.Config()
+        val capture = VoiceInputAudioCapture(
+            context = service,
+            config = preRollConfig,
+            onPcm = { buf, off, len, pts ->
+                val packet = QueuedAudio(buf.copyOfRange(off, off + len), pts)
+                val pushDirect = synchronized(preRollLock) {
+                    if (preRollActive) {
+                        preRollBuffer.addLast(packet)
+                        while (preRollBuffer.size > 1 &&
+                            pts - preRollBuffer.first().ptsMs > PRE_ROLL_MAX_MS
+                        ) {
+                            preRollBuffer.removeFirst()
+                        }
+                        false
+                    } else {
+                        true
+                    }
+                }
+                if (pushDirect) {
+                    activeAudioFeedQueue?.trySend(packet)
+                }
+            },
+            onLevel = { rms -> service.lifecycleScope.launch { onLevel(rms) } },
+            onError = { msg ->
+                service.lifecycleScope.launch { onError(msg) }
+                stop(service)
+            },
+        )
+        if (!capture.start()) {
+            logW("pre-roll capture start failed; will fall back to onReady-time capture")
+            resetPreRoll()
+            return
+        }
+        activeCapture = capture
+        logI("pre-roll capture started config=$preRollConfig")
+    }
+
+    private fun onProviderReady(
+        service: FcitxInputMethodService,
+        onLevel: (Int) -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        val preRollCapture = activeCapture
+        val configMatches = activeSessionConfig.audio == VoiceInputAudioCapture.Config()
+        if (preRollCapture == null || !configMatches) {
+            if (preRollCapture != null) {
+                logI("discarding pre-roll: config mismatch desired=${activeSessionConfig.audio}")
+                resetPreRoll()
+                runCatching { preRollCapture.stop() }
+                    .onFailure { Timber.w(it, "stop pre-roll capture") }
+                activeCapture = null
+            }
+            startCapture(service, onLevel, onError)
+            return
+        }
+        val queue = Channel<QueuedAudio>(capacity = Channel.UNLIMITED)
+        val drained: List<QueuedAudio>
+        synchronized(preRollLock) {
+            activeAudioFeedQueue = queue
+            drained = preRollBuffer.toList()
+            preRollBuffer.clear()
+            preRollActive = false
+        }
+        logI("pre-roll flush: packets=${drained.size}")
+        drained.forEach { queue.trySend(it) }
+        activeAudioFeedJob = launchAudioFeedJob(service, queue)
+    }
+
+    private fun launchAudioFeedJob(
+        service: FcitxInputMethodService,
+        queue: Channel<QueuedAudio>,
+    ): Job = service.lifecycleScope.launch(Dispatchers.IO) {
+        for (packet in queue) {
+            val currentProvider = activeProvider ?: continue
+            try {
+                currentProvider.feedAudio(
+                    packet.pcm, 0, packet.pcm.size, packet.ptsMs,
+                )
+            } catch (e: RemoteException) {
+                // Binder is dead — provider crashed or was killed. Don't keep
+                // looping silently; surface via the callback so the UI clears
+                // its "listening" state and stopSession unwinds.
+                Timber.w(e, "feedAudio failed — provider gone, aborting session")
+                val cb = activeCallback
+                withContext(Dispatchers.Main) {
+                    if (cb != null) {
+                        runCatching {
+                            cb.onError(
+                                VoiceInputIpc.ErrorCodes.UNKNOWN,
+                                "Provider disconnected",
+                            )
+                        }
+                    } else {
+                        stopSession(service, keepConnectionWarm = false)
+                    }
+                }
+                return@launch
+            }
+        }
+    }
+
+    private fun resetPreRoll() {
+        synchronized(preRollLock) {
+            preRollBuffer.clear()
+            preRollActive = false
+        }
+    }
+
     private fun startCapture(
         service: FcitxInputMethodService,
         onLevel: (Int) -> Unit,
         onError: (String) -> Unit,
     ) {
         if (activeCapture != null) return
-        val provider = activeProvider ?: return
+        activeProvider ?: return
+        val audioQueue = Channel<QueuedAudio>(capacity = Channel.UNLIMITED)
+        activeAudioFeedQueue = audioQueue
+        activeAudioFeedJob = launchAudioFeedJob(service, audioQueue)
         val capture = VoiceInputAudioCapture(
             context = service,
             config = activeSessionConfig.audio,
             onPcm = { buf, off, len, pts ->
-                val p = provider
-                try {
-                    p.feedAudio(buf.copyOfRange(off, off + len), 0, len, pts)
-                } catch (e: RemoteException) {
-                    Timber.w(e, "feedAudio failed")
-                }
+                audioQueue.trySend(
+                    QueuedAudio(
+                        pcm = buf.copyOfRange(off, off + len),
+                        ptsMs = pts,
+                    ),
+                )
             },
             onLevel = { rms -> service.lifecycleScope.launch { onLevel(rms) } },
             onError = { msg ->
@@ -571,10 +745,14 @@ object VoiceInputProviderManager {
         )
         activeCapture = capture
         if (!capture.start()) {
-            Log.w(TAG, "capture start failed")
+            logW("capture start failed")
             activeCapture = null
+            activeAudioFeedQueue?.close()
+            activeAudioFeedQueue = null
+            activeAudioFeedJob?.cancel()
+            activeAudioFeedJob = null
         } else {
-            Log.i(TAG, "capture started")
+            logI("capture started")
         }
     }
 
@@ -584,16 +762,15 @@ object VoiceInputProviderManager {
             return
         }
         if (finishing) {
-            Log.i(TAG, "finish ignored: already finishing")
+            logI("finish ignored: already finishing")
             return
         }
         finishing = true
-        Log.i(
-            TAG,
+        logI(
             "finish provider=${activeProvider != null} " +
                 "connection=${activeConnection != null} capture=${activeCapture != null}"
         )
-        Timber.i(
+        tlogI(
             "Finishing voice input provider: provider=${activeProvider != null} " +
                 "connection=${activeConnection != null} capture=${activeCapture != null}"
         )
@@ -601,9 +778,27 @@ object VoiceInputProviderManager {
             runCatching { it.stop() }.onFailure { Timber.w(it, "capture stop") }
         }
         activeCapture = null
+        resetPreRoll()
+
+        val queue = activeAudioFeedQueue
+        val feedJob = activeAudioFeedJob
+        val scope = (context as? FcitxInputMethodService)?.lifecycleScope
+        if (queue != null && feedJob != null && scope != null) {
+            scope.launch {
+                queue.close()
+                val drained = withTimeoutOrNull(FEED_DRAIN_TIMEOUT_MS) { feedJob.join() } != null
+                if (!drained) logW("feed queue drain timed out before endStream")
+                sendEndStream(context)
+            }
+        } else {
+            sendEndStream(context)
+        }
+    }
+
+    private fun sendEndStream(context: Context) {
         try {
             activeProvider?.endStream()
-            Log.i(TAG, "endStream sent")
+            logI("endStream sent")
         } catch (e: Throwable) {
             serviceFinished(context, null)
             Timber.w(e, "endStream")
@@ -626,13 +821,12 @@ object VoiceInputProviderManager {
     }
 
     private fun stopSession(context: Context = appContext, keepConnectionWarm: Boolean) {
-        Log.i(
-            TAG,
+        logI(
             "stop provider=${activeProvider != null} " +
                 "connection=${activeConnection != null} capture=${activeCapture != null} " +
                 "keepWarm=$keepConnectionWarm"
         )
-        Timber.i(
+        tlogI(
             "Stopping voice input provider: provider=${activeProvider != null} " +
                 "connection=${activeConnection != null} capture=${activeCapture != null} " +
                 "keepWarm=$keepConnectionWarm"
@@ -641,6 +835,11 @@ object VoiceInputProviderManager {
             runCatching { it.stop() }.onFailure { Timber.w(it, "capture stop") }
         }
         activeCapture = null
+        resetPreRoll()
+        activeAudioFeedQueue?.close()
+        activeAudioFeedQueue = null
+        activeAudioFeedJob?.cancel()
+        activeAudioFeedJob = null
         try {
             activeProvider?.stopSession()
         } catch (e: Throwable) {
@@ -665,7 +864,7 @@ object VoiceInputProviderManager {
 
     private fun scheduleWarmConnectionRelease(context: Context) {
         val generation = ++warmConnectionReleaseGeneration
-        Log.i(TAG, "schedule warm provider release in ${WARM_CONNECTION_HOLD_MS}ms")
+        logI("schedule warm provider release in ${WARM_CONNECTION_HOLD_MS}ms")
         if (context is FcitxInputMethodService) {
             context.lifecycleScope.launch {
                 delay(WARM_CONNECTION_HOLD_MS)
@@ -682,6 +881,10 @@ object VoiceInputProviderManager {
 
     private fun releaseProviderConnection(context: Context, callStopSession: Boolean) {
         cancelWarmConnectionRelease()
+        activeAudioFeedQueue?.close()
+        activeAudioFeedQueue = null
+        activeAudioFeedJob?.cancel()
+        activeAudioFeedJob = null
         if (callStopSession) {
             try {
                 activeProvider?.stopSession()
