@@ -87,8 +87,6 @@ class CandidatesView(
      * Used for positioning floating candidates when using virtual keyboard
      */
     private val keyboardBounds = floatArrayOf(0f, 0f, 0f, 0f)
-    private var useKeyboardPosition = false
-
     /**
      * Cursor Y positions for floating candidates positioning
      */
@@ -201,11 +199,12 @@ class CandidatesView(
         val selfWidth = w.toFloat()
         val selfHeight = h.toFloat()
         
-        val (tX, tY) = if (useKeyboardPosition) {
-            calculatePositionByKeyboardBounds(parentWidth, parentHeight, selfWidth, selfHeight)
-        } else {
-            calculatePositionByCursorAnchor(parentWidth, parentHeight, selfWidth, selfHeight)
-        }
+        val (tX, tY) = calculatePositionByCursorAnchor(
+            parentWidth,
+            parentHeight,
+            selfWidth,
+            selfHeight
+        )
         
         if (tX.isNaN() || tY.isNaN()) {
             translationX = 0f
@@ -471,62 +470,6 @@ class CandidatesView(
         return Pair(tX, tY)
     }
 
-    private fun calculatePositionByKeyboardBounds(
-        parentWidth: Float,
-        parentHeight: Float,
-        selfWidth: Float,
-        selfHeight: Float
-    ): Pair<Float, Float> {
-        val gap = dp(8).toFloat() // Gap between keyboard and candidates window
-
-        // cursorBottom is the keyboard top Y position (input field starts here)
-        // For BottomLeft/BottomRight positions:
-        // - Default: place candidates just above keyboard top
-        //   (candidates bottom edge at cursorBottom - gap)
-        // - If not enough space (cursorBottom is too low), place candidates as high as possible
-        //   while staying within screen bounds
-
-        android.util.Log.d("CandidatesPos", "cursorBottom=$cursorBottom, selfSize: ${selfWidth}x${selfHeight}, position=$floatingPosition")
-
-        // Calculate X position based on floatingPosition
-        val tX: Float = when (floatingPosition) {
-            FloatingCandidatesVirtualKeyboardPosition.TopLeft,
-            FloatingCandidatesVirtualKeyboardPosition.BottomLeft -> {
-                gap
-            }
-            FloatingCandidatesVirtualKeyboardPosition.TopRight,
-            FloatingCandidatesVirtualKeyboardPosition.BottomRight -> {
-                (parentWidth - selfWidth - gap).coerceAtLeast(gap)
-            }
-        }
-
-        // Calculate Y position based on floatingPosition
-        val tY: Float = when (floatingPosition) {
-            FloatingCandidatesVirtualKeyboardPosition.TopLeft,
-            FloatingCandidatesVirtualKeyboardPosition.TopRight -> {
-                // Top of screen
-                gap
-            }
-            FloatingCandidatesVirtualKeyboardPosition.BottomLeft,
-            FloatingCandidatesVirtualKeyboardPosition.BottomRight -> {
-                // Bottom positions: place candidates near keyboard top
-                // cursorBottom = keyboard top Y
-                // Target: candidates bottom edge at (cursorBottom - gap)
-                // Formula: tY + selfHeight = cursorBottom - gap  =>  tY = cursorBottom - gap - selfHeight
-
-                val targetY = cursorBottom - gap - selfHeight
-
-                // Ensure candidates stay within screen bounds
-                // If targetY < gap, there's not enough space between keyboard and screen top
-                targetY.coerceAtLeast(gap)
-            }
-        }
-
-        android.util.Log.d("CandidatesPos", "Calculated position: tX=$tX, tY=$tY")
-
-        return Pair(tX, tY)
-    }
-
     fun updateCursorAnchor(@Size(4) anchor: FloatArray, @Size(2) parent: FloatArray) {
         val (horizontal, bottom, _, top) = anchor
         val (parentWidth, parentHeight) = parent
@@ -535,7 +478,6 @@ class CandidatesView(
         anchorPosition[2] = top
         parentSize[0] = parentWidth
         parentSize[1] = parentHeight
-        useKeyboardPosition = false
         updatePosition()
     }
 
@@ -579,38 +521,6 @@ class CandidatesView(
         }
         this.keyboardBounds[1] = keyboardTop
 
-        useKeyboardPosition = false
-        this.isVirtualKeyboardVisible = isKeyboardVisible
-        updatePosition()
-    }
-
-    fun updateKeyboardBounds(
-        @Size(4) bounds: FloatArray,
-        @Size(2) parent: FloatArray,
-        cursorY: Float = 0f,
-        isKeyboardVisible: Boolean = true
-    ) {
-        val (left, top, right, bottom) = bounds
-        val (parentWidth, parentHeight) = parent
-
-        // Store actual keyboard bounds for use in position calculations
-        keyboardBounds[0] = left
-        keyboardBounds[1] = top
-        keyboardBounds[2] = right
-        keyboardBounds[3] = bottom
-
-        // Update cursor position for overlap-avoidance logic
-        cursorTop = cursorY
-        cursorBottom = cursorY
-
-        anchorPosition[0] = right
-        anchorPosition[1] = cursorY
-        anchorPosition[2] = cursorY
-        anchorPosition[3] = parentHeight
-
-        parentSize[0] = parentWidth
-        parentSize[1] = parentHeight
-        useKeyboardPosition = false
         this.isVirtualKeyboardVisible = isKeyboardVisible
         updatePosition()
     }
@@ -673,10 +583,7 @@ class CandidatesView(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        // Re-position when size changes (e.g., when content changes)
-        if (useKeyboardPosition && visibility == VISIBLE) {
-            shouldUpdatePosition = true
-        }
+        shouldUpdatePosition = visibility == VISIBLE
     }
 
     override fun setVisibility(visibility: Int) {

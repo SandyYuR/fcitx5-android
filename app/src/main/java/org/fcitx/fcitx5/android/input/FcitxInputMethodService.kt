@@ -190,61 +190,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     /**
-     * Update CandidatesView with keyboard bounds for floating candidates positioning
-     */
-    private fun updateCandidatesViewKeyboardBounds() {
-        val cv = candidatesView ?: return
-        val iv = inputView ?: return
-        val keyboardView = iv.keyboardView
-
-        // Ensure views have valid dimensions
-        if (contentView.width <= 0 || contentView.height <= 0 || 
-            keyboardView.width <= 0 || keyboardView.height <= 0) {
-            android.util.Log.d("CandidatesPos", "Views not ready: contentView=${contentView.width}x${contentView.height}, keyboardView=${keyboardView.width}x${keyboardView.height}")
-            return
-        }
-        
-        val keyboardLocation = IntArray(2)
-        keyboardView.getLocationInWindow(keyboardLocation)
-        val keyboardLeft = keyboardLocation[0].toFloat()
-        val keyboardTop = keyboardLocation[1].toFloat()
-        val keyboardRight = keyboardLeft + keyboardView.width
-        val keyboardBottom = keyboardTop + keyboardView.height
-        
-        val parentWidth = contentView.width.toFloat()
-        val parentHeight = contentView.height.toFloat()
-
-        // Get cursor Y position from InputView
-        // This is the Y coordinate of the text input area (where text appears)
-        val cursorY = iv.getInputFieldTopY()
-
-        // Check if virtual keyboard is visible
-        val isKeyboardVisible = inputDeviceManager.isVirtualKeyboard
-
-        android.util.Log.d("CandidatesPos", "updateKeyboardBounds: keyboard=($keyboardLeft,$keyboardTop,$keyboardRight,$keyboardBottom), cursorY=$cursorY, parent=${parentWidth}x${parentHeight}, isKeyboardVisible=$isKeyboardVisible")
-
-        cv.updateKeyboardBounds(
-            floatArrayOf(keyboardLeft, keyboardTop, keyboardRight, keyboardBottom),
-            floatArrayOf(parentWidth, parentHeight),
-            cursorY,
-            isKeyboardVisible
-        )
-    }
-    
-    /**
      * Update paging mode and cursor anchor for "Always" floating mode
      */
     internal fun updateCandidatesViewPagingAndBounds() {
         val floatingMode = AppPrefs.getInstance().candidates.mode.getValue()
-        val useFloatingAlways = floatingMode == FloatingCandidatesMode.Always
-        
-        android.util.Log.d("FloatingCandidates", "updateCandidatesViewPagingAndBounds: mode=$floatingMode")
-        
+        if (floatingMode != FloatingCandidatesMode.Always) return
+
         // Enable candidate paging mode for "Always" floating mode
-        if (useFloatingAlways) {
-            android.util.Log.d("FloatingCandidates", "setCandidatePagingMode: 1")
-            requestCandidatePagingMode(1)
-        }
+        requestCandidatePagingMode(1)
         
         // Enable cursor anchor monitoring to get actual cursor position from app
         // This will trigger onUpdateCursorAnchorInfo callback
@@ -287,8 +240,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             cursorTop = keyboardTop
         }
 
-        android.util.Log.d("CandidatesPos", "updateCursorAnchorForFloatingCandidates: cursorTop=$cursorTop, cursorBottom=$cursorBottom, keyboardTop=$keyboardTop, parent=${parentWidth}x${parentHeight}, isKeyboardVisible=$isKeyboardVisible")
-
         // Pass keyboard top as additional reference for positioning
         cv.updateCursorAnchorForFloating(
             floatArrayOf(anchorPosition[0], cursorBottom, cursorTop),
@@ -297,9 +248,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             isKeyboardVisible
         )
     }
-    
-    private val anchorPositionForFloating = floatArrayOf(0f, 0f, 0f, 0f)
-
     private var capabilityFlags = CapabilityFlags.DefaultFlags
 
     private val selection = CursorTracker()
@@ -1625,13 +1573,13 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         anchorPosition[2] -= xOffset
         anchorPosition[3] -= yOffset
         
-        // Update candidates view with cursor anchor
-        candidatesView?.updateCursorAnchor(anchorPosition, contentSize)
-        
-        // Also update floating candidates position in "Always" mode
+        // In "Always" floating mode, avoid doing the normal cursor-anchor
+        // positioning first and then immediately re-positioning again.
         val floatingMode = AppPrefs.getInstance().candidates.mode.getValue()
         if (floatingMode == FloatingCandidatesMode.Always) {
             updateCursorAnchorForFloatingCandidates()
+        } else {
+            candidatesView?.updateCursorAnchor(anchorPosition, contentSize)
         }
     }
 
