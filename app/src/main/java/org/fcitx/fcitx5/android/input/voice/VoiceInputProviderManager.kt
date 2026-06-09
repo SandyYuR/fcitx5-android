@@ -370,7 +370,13 @@ object VoiceInputProviderManager {
             override fun onSessionEnded() {
                 logI("provider session ended")
                 tlogI("Voice provider session ended")
-                service.lifecycleScope.launch { onFinished() }
+                // Any partial that wasn't followed by a final (e.g. provider
+                // discarded it via speaker filter / VAD silence / cancel) is
+                // now an orphan — clear it instead of leaving stale composing.
+                service.lifecycleScope.launch {
+                    service.clearVoiceComposingText()
+                    onFinished()
+                }
                 stopSession(service, keepConnectionWarm = true)
             }
 
