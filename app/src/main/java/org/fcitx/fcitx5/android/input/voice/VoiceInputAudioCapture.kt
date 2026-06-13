@@ -47,7 +47,7 @@ class VoiceInputAudioCapture(
 
     fun start(): Boolean {
         if (!hasPermission(context)) {
-            onError("RECORD_AUDIO permission not granted")
+            onError(context.getString(org.fcitx.fcitx5.android.R.string.voice_error_no_permission))
             return false
         }
         val minBuf = AudioRecord.getMinBufferSize(
@@ -56,7 +56,7 @@ class VoiceInputAudioCapture(
             AudioFormat.ENCODING_PCM_16BIT,
         )
         if (minBuf <= 0) {
-            onError("AudioRecord.getMinBufferSize=$minBuf")
+            onError(context.getString(org.fcitx.fcitx5.android.R.string.voice_error_audio_minbuf, minBuf))
             return false
         }
         val rec = try {
@@ -68,12 +68,12 @@ class VoiceInputAudioCapture(
                 minBuf * 2,
             )
         } catch (e: SecurityException) {
-            onError("AudioRecord construct denied: ${e.message}")
+            onError(context.getString(org.fcitx.fcitx5.android.R.string.voice_error_audio_construct, e.message))
             return false
         }
         if (rec.state != AudioRecord.STATE_INITIALIZED) {
             rec.release()
-            onError("AudioRecord not initialized")
+            onError(context.getString(org.fcitx.fcitx5.android.R.string.voice_error_audio_not_init))
             return false
         }
         recorder = rec
@@ -82,7 +82,7 @@ class VoiceInputAudioCapture(
             rec.startRecording()
         } catch (e: IllegalStateException) {
             rec.release(); recorder = null; running = false
-            onError("startRecording failed: ${e.message}")
+            onError(context.getString(org.fcitx.fcitx5.android.R.string.voice_error_audio_start_failed, e.message))
             return false
         }
 

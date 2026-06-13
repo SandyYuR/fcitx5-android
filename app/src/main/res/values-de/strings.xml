@@ -713,4 +713,19 @@
     <string name="voice_status_recognizing">Erkenne</string>
     <string name="voice_status_listening">Höre zu</string>
     <string name="voice_status_committed">Fertig</string>
+
+    <!-- Voice input error toasts -->
+    <string name="voice_error_no_permission">RECORD_AUDIO-Berechtigung nicht erteilt</string>
+    <string name="voice_error_failed">Spracheingabe fehlgeschlagen</string>
+    <string name="voice_error_invalid_provider">Ungültiger Spracheingabe-Anbieter</string>
+    <string name="voice_error_not_available">Spracheingabe-Anbieter nicht verfügbar</string>
+    <string name="voice_error_disconnected">Spracheingabe-Anbieter getrennt</string>
+    <string name="voice_error_null_binding">Spracheingabe-Anbieter hat null-Bindung zurückgegeben</string>
+    <string name="voice_error_cannot_bind">Spracheingabe-Anbieter kann nicht gebunden werden</string>
+    <string name="voice_error_bind_timeout">Zeitüberschreitung bei Bindung des Spracheingabe-Anbieters</string>
+    <string name="voice_error_call_failed">Aufruf des Spracheingabe-Anbieters fehlgeschlagen</string>
+    <string name="voice_error_audio_minbuf">AudioRecord.getMinBufferSize=%d</string>
+    <string name="voice_error_audio_construct">AudioRecord-Erstellung verweigert: %s</string>
+    <string name="voice_error_audio_not_init">AudioRecord nicht initialisiert</string>
+    <string name="voice_error_audio_start_failed">Aufnahmestart fehlgeschlagen: %s</string>
     </resources>

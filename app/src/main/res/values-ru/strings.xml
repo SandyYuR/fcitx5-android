@@ -715,4 +715,19 @@
     <string name="voice_status_recognizing">Распознавание</string>
     <string name="voice_status_listening">Прослушивание</string>
     <string name="voice_status_committed">Готово</string>
+
+    <!-- Voice input error toasts -->
+    <string name="voice_error_no_permission">Разрешение RECORD_AUDIO не предоставлено</string>
+    <string name="voice_error_failed">Ошибка голосового ввода</string>
+    <string name="voice_error_invalid_provider">Недопустимый провайдер голосового ввода</string>
+    <string name="voice_error_not_available">Провайдер голосового ввода недоступен</string>
+    <string name="voice_error_disconnected">Провайдер голосового ввода отключен</string>
+    <string name="voice_error_null_binding">Провайдер голосового ввода вернул пустую привязку</string>
+    <string name="voice_error_cannot_bind">Не удалось привязать провайдер голосового ввода</string>
+    <string name="voice_error_bind_timeout">Тайм-аут привязки провайдера голосового ввода</string>
+    <string name="voice_error_call_failed">Ошибка вызова провайдера голосового ввода</string>
+    <string name="voice_error_audio_minbuf">AudioRecord.getMinBufferSize=%d</string>
+    <string name="voice_error_audio_construct">AudioRecord создание запрещено: %s</string>
+    <string name="voice_error_audio_not_init">AudioRecord не инициализирован</string>
+    <string name="voice_error_audio_start_failed">Ошибка начала записи: %s</string>
     </resources>

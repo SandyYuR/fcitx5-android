@@ -730,4 +730,19 @@
     <string name="voice_status_recognizing">識別中</string>
     <string name="voice_status_listening">聆聽中</string>
     <string name="voice_status_committed">完成</string>
+
+    <!-- Voice input error toasts -->
+    <string name="voice_error_no_permission">未授予錄音權限</string>
+    <string name="voice_error_failed">語音輸入失敗</string>
+    <string name="voice_error_invalid_provider">無效的語音輸入提供者</string>
+    <string name="voice_error_not_available">語音輸入提供者不可用</string>
+    <string name="voice_error_disconnected">語音輸入提供者已中斷連線</string>
+    <string name="voice_error_null_binding">語音輸入提供者傳回空繫結</string>
+    <string name="voice_error_cannot_bind">無法繫結語音輸入提供者</string>
+    <string name="voice_error_bind_timeout">語音輸入提供者繫結逾時</string>
+    <string name="voice_error_call_failed">呼叫語音輸入提供者失敗</string>
+    <string name="voice_error_audio_minbuf">AudioRecord.getMinBufferSize=%d</string>
+    <string name="voice_error_audio_construct">AudioRecord 建構被拒絕：%s</string>
+    <string name="voice_error_audio_not_init">AudioRecord 未初始化</string>
+    <string name="voice_error_audio_start_failed">開始錄音失敗：%s</string>
 </resources>
