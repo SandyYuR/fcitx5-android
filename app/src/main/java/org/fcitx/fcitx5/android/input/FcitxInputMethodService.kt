@@ -1766,6 +1766,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     override fun onFinishInputView(finishingInput: Boolean) {
         Timber.d("onFinishInputView: finishingInput=$finishingInput")
         MainService.stopSyncService(this)
+        if (VoiceInputProviderManager.isActive()) {
+            VoiceInputProviderManager.stop(this)
+        }
         decorLocationUpdated = false
         inputDeviceManager.onFinishInputView()
         currentInputConnection?.apply {
