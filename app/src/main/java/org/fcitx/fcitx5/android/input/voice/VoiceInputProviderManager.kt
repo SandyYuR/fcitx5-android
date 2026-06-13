@@ -47,6 +47,10 @@ object VoiceInputProviderManager {
     private const val DEFAULT_SILENCE_MS = 3000L
     private const val KEEPALIVE_MIN_INTERVAL_MS = 30_000L
     private const val KEEPALIVE_BIND_TIMEOUT_MS = 2_000L
+    /** Hard deadline for `onServiceConnected` to fire after `bindService` returns
+     *  true for an active voice session. If the plugin process hangs during startup
+     *  (e.g. model init deadlocks), the IME must not stay stuck in "connecting". */
+    private const val ACTIVE_BIND_TIMEOUT_MS = 8_000L
     private const val WARM_CONNECTION_HOLD_MS = 5 * 60 * 1000L
 
     // Upper bound for draining the in-flight PCM queue before sending endStream.
@@ -465,11 +469,13 @@ object VoiceInputProviderManager {
 
             override fun onBindingDied(name: ComponentName) {
                 logW("provider binding died: $name")
+                onStatus("")
                 stopSession(service, keepConnectionWarm = false)
             }
 
             override fun onNullBinding(name: ComponentName) {
                 logW("provider null binding: $name")
+                onStatus("")
                 onError("Voice input provider returned no binding")
                 stopSession(service, keepConnectionWarm = false)
             }
@@ -514,14 +520,16 @@ object VoiceInputProviderManager {
                     onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_floating_ready))
                 }
             } else {
+                onStatus("")
                 onError("Cannot bind voice input provider")
                 stopSession(service, keepConnectionWarm = false)
             }
         } else {
             service.lifecycleScope.launch {
-                delay(2000)
+                delay(ACTIVE_BIND_TIMEOUT_MS)
                 if (activeConnection === connection && activeProvider == null) {
                     logW("provider bind timed out without onServiceConnected")
+                    onStatus("")
                     onError("Voice input provider bind timed out")
                     stopSession(service, keepConnectionWarm = false)
                 }
