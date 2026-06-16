@@ -603,6 +603,56 @@ class MacroEditorActivity : AppCompatActivity() {
         ViewCompat.requestApplyInsets(toolbar)
     }
 
+    /**
+     * Show a dialog containing a scrollable FlowLayout of chips.
+     * Tapping a chip calls [onSelect] with its index and dismisses the dialog.
+     */
+    private fun showScrollableChipsDialog(
+        title: String,
+        items: List<String>,
+        highlightIndex: Int = -1,
+        onSelect: (Int) -> Unit
+    ) {
+        val chipsContainer = FlowLayout(this).apply {
+            setPadding(dp(12), dp(8), dp(12), dp(8))
+        }
+        val primaryColor = styledColor(android.R.attr.colorPrimary)
+        val buttonColor = styledColor(android.R.attr.colorButtonNormal)
+        val borderColor = styledColor(android.R.attr.colorControlNormal)
+        val scrollView = android.widget.ScrollView(this).apply {
+            addView(chipsContainer)
+        }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(title)
+            .setView(scrollView)
+            .setNegativeButton(R.string.macro_editor_picker_cancel, null)
+            .create()
+        items.forEachIndexed { index, label ->
+            val isHighlighted = index == highlightIndex
+            val chip = TextView(this).apply {
+                text = label
+                textSize = 14f
+                setPadding(dp(12), dp(8), dp(12), dp(8))
+                gravity = Gravity.CENTER
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(if (isHighlighted) primaryColor else buttonColor)
+                    setStroke(dp(1), borderColor)
+                    cornerRadius = dp(4).toFloat()
+                }
+                layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
+                    rightMargin = dp(6)
+                    bottomMargin = dp(6)
+                }
+                setOnClickListener {
+                    onSelect(index)
+                    dialog.dismiss()
+                }
+            }
+            chipsContainer.addView(chip)
+        }
+        dialog.show()
+    }
+
     private fun parseStep(stepMap: Map<*, *>): MacroStepData {
         val type = stepMap["type"] as? String ?: "tap"
         var keys = (stepMap["keys"] as? List<*>)?.mapNotNull { keyMap ->
@@ -1511,53 +1561,64 @@ class MacroEditorActivity : AppCompatActivity() {
             // Not adding keyTypeRow to dialogView - hidden from UI
             // dialogView.addView(keyTypeRow)
 
-            // Key value selector
-            val keyValueRow = LinearLayout(this@MacroEditorActivity).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(0, dp(4), 0, dp(4))
+            // Key value selector - directly embedded chips list
+            var currentKeyType = key.keyType
+            val keysList = if (currentKeyType == "fcitx") FCITX_KEYS else ANDROID_KEYS
+            val displayList = if (currentKeyType == "fcitx") {
+                keysList.map { getFcitxKeyDisplayName(it) }
+            } else {
+                keysList.map { ANDROID_KEY_NAMES[it] ?: it }
             }
-            val keyValueLabel = TextView(this@MacroEditorActivity).apply {
-                text = getString(R.string.macro_editor_key_value_label)
-                textSize = 14f
-                layoutParams = LinearLayout.LayoutParams(wrapContent, wrapContent)
-            }
-            keyValueRow.addView(keyValueLabel)
+            val primaryColor = styledColor(android.R.attr.colorPrimary)
+            val buttonColor = styledColor(android.R.attr.colorButtonNormal)
+            val borderColor = styledColor(android.R.attr.colorControlNormal)
 
-            val keyValueSpinner = Spinner(this@MacroEditorActivity, Spinner.MODE_DROPDOWN).apply {
-                layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply {
-                    weight = 1f
-                    marginStart = dp(8)
+            var highlightIndex = keysList.indexOfFirst { it.equals(key.code, ignoreCase = true) }
+                .takeIf { it >= 0 } ?: -1
+
+            val chipsContainer = FlowLayout(this@MacroEditorActivity).apply {
+                setPadding(dp(12), dp(8), dp(12), dp(8))
+            }
+
+            fun renderChips() {
+                chipsContainer.removeAllViews()
+                keysList.forEachIndexed { index, _ ->
+                    val isHighlighted = index == highlightIndex
+                    val chip = TextView(this@MacroEditorActivity).apply {
+                        text = displayList[index]
+                        textSize = 14f
+                        setPadding(dp(12), dp(8), dp(12), dp(8))
+                        gravity = Gravity.CENTER
+                        background = android.graphics.drawable.GradientDrawable().apply {
+                            setColor(if (isHighlighted) primaryColor else buttonColor)
+                            setStroke(dp(1), borderColor)
+                            cornerRadius = dp(4).toFloat()
+                        }
+                        layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
+                            rightMargin = dp(6)
+                            bottomMargin = dp(6)
+                        }
+                        setOnClickListener {
+                            key.code = keysList[index]
+                            highlightIndex = index
+                            renderChips()
+                        }
+                    }
+                    chipsContainer.addView(chip)
                 }
             }
-            val keysList = if (key.keyType == "fcitx") FCITX_KEYS else ANDROID_KEYS
-            // Use friendly names (Android key codes show as names, Fcitx keys show with symbol hints)
-            val displayList = if (key.keyType == "fcitx") {
-                FCITX_KEYS.map { getFcitxKeyDisplayName(it) }.toTypedArray()
-            } else {
-                ANDROID_KEYS.map { ANDROID_KEY_NAMES[it] ?: it }.toTypedArray()
+            renderChips()
+
+            val scrollView = android.widget.ScrollView(this@MacroEditorActivity).apply {
+                addView(chipsContainer)
             }
-            val keyValueAdapter = ArrayAdapter(
-                this@MacroEditorActivity,
-                android.R.layout.simple_spinner_item,
-                displayList
-            )
-            // Use a custom dropdown view to show more content in one line
-            keyValueAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
-            keyValueSpinner.adapter = keyValueAdapter
-            // Try to match current key value (case-insensitive)
-            val keyIndex = keysList.indexOfFirst { it.equals(key.code, ignoreCase = true) }.takeIf { it >= 0 } ?: 0
-            keyValueSpinner.setSelection(keyIndex)
-            keyValueRow.addView(keyValueSpinner)
-            dialogView.addView(keyValueRow)
+            dialogView.addView(scrollView)
 
             val dialog = AlertDialog.Builder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_edit_key_title)
                 .setView(dialogView)
                 .setPositiveButton(R.string.macro_editor_confirm) { _, _ ->
-                    key.keyType = KEY_TYPES[keyTypeEditSpinner.selectedItemPosition]
-                    val currentKeysList = if (key.keyType == "fcitx") FCITX_KEYS else ANDROID_KEYS
-                    key.code = currentKeysList[keyValueSpinner.selectedItemPosition]
+                    key.keyType = currentKeyType
                     onSuccess()
                 }
                 .setNegativeButton(R.string.macro_editor_cancel) { _, _ ->
@@ -1573,27 +1634,16 @@ class MacroEditorActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
 
-            // Key type change listener - update key value list
+            // Key type change listener - hidden spinner, no-op
+            var isInitialKeyTypeSelection = true
             keyTypeEditSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-                    val newKeyType = KEY_TYPES[pos]
-                    val newKeysList = if (newKeyType == "fcitx") FCITX_KEYS else ANDROID_KEYS
-                    // Use friendly names
-                    val newDisplayList = if (newKeyType == "fcitx") {
-                        FCITX_KEYS.map { getFcitxKeyDisplayName(it) }.toTypedArray()
-                    } else {
-                        ANDROID_KEYS.map { ANDROID_KEY_NAMES[it] ?: it }.toTypedArray()
+                    if (isInitialKeyTypeSelection) {
+                        isInitialKeyTypeSelection = false
+                        return
                     }
-                    val newAdapter = ArrayAdapter(
-                        this@MacroEditorActivity,
-                        android.R.layout.simple_spinner_item,
-                        newDisplayList
-                    )
-                    newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    keyValueSpinner.adapter = newAdapter
-                    // Try to match current value
-                    val newIndex = newKeysList.indexOfFirst { it.equals(key.code, ignoreCase = true) }.takeIf { it >= 0 } ?: 0
-                    keyValueSpinner.setSelection(newIndex)
+                    currentKeyType = KEY_TYPES[pos]
+                    // Key type spinner is hidden (GONE), chips are embedded directly in dialog
                 }
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
@@ -1621,13 +1671,12 @@ class MacroEditorActivity : AppCompatActivity() {
                 return
             }
 
-            AlertDialog.Builder(this@MacroEditorActivity)
-                .setTitle(R.string.macro_editor_select_modifier_title)
-                .setItems(availableModifiers.toTypedArray()) { _, which ->
-                    onSelect(availableModifiers[which])
-                }
-                .setNegativeButton(R.string.macro_editor_cancel, null)
-                .show()
+            showScrollableChipsDialog(
+                title = getString(R.string.macro_editor_select_modifier_title),
+                items = availableModifiers
+            ) { index ->
+                onSelect(availableModifiers[index])
+            }
         }
 
         private fun showLayerTargetPicker(currentTarget: String, onSelect: (String) -> Unit) {
