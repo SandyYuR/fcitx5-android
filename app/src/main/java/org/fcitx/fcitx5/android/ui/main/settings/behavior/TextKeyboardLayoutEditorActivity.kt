@@ -2055,7 +2055,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle(R.string.text_keyboard_layout_file_delete)
             .setMessage(getString(R.string.text_keyboard_layout_file_delete_confirm, label))
-            .setPositiveButton(R.string.text_keyboard_layout_discard_changes_positive) { _, _ ->
+            .setPositiveButton(R.string.ok) { _, _ ->
                 runCatching {
                     val parent = targetFile.parentFile ?: throw IllegalStateException("Missing parent dir")
                     val backups = parent.listFiles { candidate ->
