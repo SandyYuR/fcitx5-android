@@ -655,13 +655,9 @@ class AltTextKeyView(
         return when (preferred) {
             AltTextLayoutMode.Bottom -> when {
                 contentHeight >= stackedMinHeight -> AltTextLayoutMode.Bottom
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
-                else -> AltTextLayoutMode.Hidden
+                else -> AltTextLayoutMode.TopRight
             }
-            AltTextLayoutMode.TopRight -> when {
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
-                else -> AltTextLayoutMode.Hidden
-            }
+            AltTextLayoutMode.TopRight -> AltTextLayoutMode.TopRight
             AltTextLayoutMode.Hidden -> AltTextLayoutMode.Hidden
         }
     }
@@ -904,13 +900,9 @@ class ImageAltTextKeyView(
         return when (preferred) {
             AltTextLayoutMode.Bottom -> when {
                 contentHeight >= stackedMinHeight -> AltTextLayoutMode.Bottom
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
-                else -> AltTextLayoutMode.Hidden
+                else -> AltTextLayoutMode.TopRight
             }
-            AltTextLayoutMode.TopRight -> when {
-                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
-                else -> AltTextLayoutMode.Hidden
-            }
+            AltTextLayoutMode.TopRight -> AltTextLayoutMode.TopRight
             AltTextLayoutMode.Hidden -> AltTextLayoutMode.Hidden
         }
     }

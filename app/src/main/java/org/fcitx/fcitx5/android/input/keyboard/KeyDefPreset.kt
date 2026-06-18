@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: LGPL-2.1-or-later
- * SPDX-FileCopyrightText: Copyright 2021-2023 Fcitx5 for Android Contributors
+ * SPDX-FileCopyrightText: Copyright 2021-2026 Fcitx5 for Android Contributors
  */
 package org.fcitx.fcitx5.android.input.keyboard
 
@@ -72,7 +72,7 @@ class SymbolKey(
     },
     popup ?: arrayOf(
         Popup.Preview(symbol),
-        Popup.Keyboard(symbol)
+        Popup.Keyboard.Preset(symbol)
     )
 )
 
@@ -114,7 +114,7 @@ class AlphabetKey(
     ),
     popup ?: arrayOf(
         Popup.AltPreview(character, punctuation),
-        Popup.Keyboard(character)
+        Popup.Keyboard.Preset(character)
     )
 )
 
@@ -136,7 +136,7 @@ class AlphabetDigitKey(
     ),
     popup ?: arrayOf(
         Popup.AltPreview(character, altText),
-        Popup.Keyboard(character)
+        Popup.Keyboard.Preset(character)
     )
 ) {
     constructor(
@@ -753,13 +753,13 @@ class MacroKey(
                             val upper = display.uppercase()
                             arrayOf(
                                 Popup.AltPreview(display, upper),
-                                Popup.Keyboard(display)
+                                Popup.Keyboard.Preset(display)
                             )
                         } else {
                             // Symbol/emoji/non-letter keys should still expose popup keyboard like SymbolKey.
                             arrayOf(
                                 Popup.Preview(display),
-                                Popup.Keyboard(display)
+                                Popup.Keyboard.Preset(display)
                             )
                         }
                     }
@@ -775,13 +775,13 @@ class MacroKey(
                     val upper = label.uppercase()
                     arrayOf(
                         Popup.AltPreview(label, upper),
-                        Popup.Keyboard(label)
+                        Popup.Keyboard.Preset(label)
                     )
                 } else {
                     // Non-letter labels should still expose popup keyboard.
                     arrayOf(
                         Popup.Preview(label),
-                        Popup.Keyboard(label)
+                        Popup.Keyboard.Preset(label)
                     )
                 }
             }

@@ -147,23 +147,31 @@ class PopupComponent :
     }
 
     private fun showKeyboard(viewId: Int, keyboard: KeyDef.Popup.Keyboard, bounds: Rect) {
-        val keys = popupPresetJson?.get(keyboard.label)
-            ?: PopupPreset[keyboard.label]
-            ?: EmojiModifier.produceSkinTones(keyboard.label)
-            ?: return
+        val keys: Array<String>
+        val labels: Array<String>
+        when (keyboard) {
+            is KeyDef.Popup.Keyboard.Preset -> {
+                // Allow overriding via popupPresetJson, with EmojiModifier skin-tone fallback.
+                val preset = popupPresetJson?.get(keyboard.label)
+                    ?: PopupPreset[keyboard.label]
+                    ?: EmojiModifier.produceSkinTones(keyboard.label, EmojiModifier.SkinTone.Default)
+                    ?: return
+                keys = preset
+                labels = if (keyboard.transformPunctuation && punctuation.enabled) {
+                    Array(keys.size) { punctuation.transform(keys[it]) }
+                } else keys
+            }
+            is KeyDef.Popup.Keyboard.Explicit -> {
+                keys = keyboard.items
+                labels = keyboard.items
+            }
+        }
         if (keys.isEmpty()) {
             dismissPopup(viewId)
             return
         }
         // clear popup preview text         OR create empty popup preview
         showingEntryUi[viewId]?.setText("") ?: showPopup(viewId, "", bounds)
-        reallyShowKeyboard(viewId, keys, bounds)
-    }
-
-    private fun reallyShowKeyboard(viewId: Int, keys: Array<String>, bounds: Rect) {
-        val labels = if (punctuation.enabled) {
-            Array(keys.size) { punctuation.transform(keys[it]) }
-        } else keys
         val keyboardUi = PopupKeyboardUi(
             context,
             theme,
@@ -185,7 +193,7 @@ class PopupComponent :
         // Get base candidates from PopupPreset using baseLabel
         val baseKeys = popupPresetJson?.get(keyboard.baseLabel)
             ?: PopupPreset[keyboard.baseLabel]
-            ?: EmojiModifier.produceSkinTones(keyboard.baseLabel)
+            ?: EmojiModifier.produceSkinTones(keyboard.baseLabel, EmojiModifier.SkinTone.Default)
             ?: emptyArray()
 
         // Prepend the longPress macro as the first candidate
