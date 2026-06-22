@@ -131,7 +131,7 @@ class InputView(
         private val clipRect = Rect()
         private val clipRectF = RectF()
         private val clipPath = Path()
-        private val containerLoc = IntArray(2)
+        private val selfLoc = IntArray(2)
         private val keyLoc = IntArray(2)
         private val blurTargetViews = ArrayList<View>(128)
         private val keyClipRects = ArrayList<Rect>(96)
@@ -273,9 +273,7 @@ class InputView(
                 collectBlurTargets(windowManager.view, blurTargetViews)
                 keyHierarchyDirty = false
             }
-            windowManager.view.getLocationInWindow(containerLoc)
-            val offsetX = windowManager.view.left
-            val offsetY = windowManager.view.top
+            getLocationInWindow(selfLoc)
             fun buildClipRects() {
                 hasVisibleKey = false
                 keyClipRects.clear()
@@ -300,15 +298,12 @@ class InputView(
                         vMargin = 0
                         radius = (target.getTag(R.id.blur_mask_clip_radius) as? Number)?.toFloat() ?: 0f
                     }
-                    val relativeLeft = keyLoc[0] - containerLoc[0]
-                    val relativeTop = keyLoc[1] - containerLoc[1]
                     clipRect.set(
-                        relativeLeft + hMargin,
-                        relativeTop + vMargin,
-                        relativeLeft + target.width - hMargin,
-                        relativeTop + target.height - vMargin
+                        keyLoc[0] - selfLoc[0] + hMargin,
+                        keyLoc[1] - selfLoc[1] + vMargin,
+                        keyLoc[0] - selfLoc[0] + target.width - hMargin,
+                        keyLoc[1] - selfLoc[1] + target.height - vMargin
                     )
-                    clipRect.offset(offsetX, offsetY)
                     if (!clipRect.intersect(0, 0, width, height)) return@forEach
                     keyClipRects.add(Rect(clipRect))
                     keyClipRadii.add(radius.coerceIn(0f, minOf(clipRect.width(), clipRect.height()) * 0.5f))
