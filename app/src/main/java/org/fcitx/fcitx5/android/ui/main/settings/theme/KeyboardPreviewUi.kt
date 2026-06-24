@@ -15,7 +15,9 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.RenderEffect
+import android.graphics.RenderNode
 import android.graphics.Shader
+import androidx.annotation.RequiresApi
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -155,6 +157,27 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         private var keyRegionsDirty = true
         private var keyHierarchyDirty = true
         private var hasVisibleKey = false
+        /**
+         * RenderNode carrying the GPU blur RenderEffect. The bitmap is recorded into the node;
+         * replaying the node under a canvas clip blurs the full image first and then hard-clips,
+         * matching the CPU `loadBlurredBitmapForRendering + clipPath + drawBitmap` semantics.
+         */
+        private var blurNode: RenderNode? = null
+        private var blurNodeDirty = true
+        private var hasRenderEffect = false
+
+        @RequiresApi(Build.VERSION_CODES.S)
+        private fun obtainBlurNode(): RenderNode {
+            return blurNode ?: RenderNode("keyBlur").also { blurNode = it }
+        }
+
+        private fun discardBlurNode() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                blurNode?.discardDisplayList()
+            }
+            blurNode = null
+            blurNodeDirty = true
+        }
 
         fun setBlurBitmap(
             bitmap: Bitmap?,
@@ -165,13 +188,19 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             blurBitmap = bitmap
             paint.colorFilter = bitmap?.let { DarkenColorFilter(100 - brightness) }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                setRenderEffect(
-                    if (useRenderEffect && bitmap != null && blurRadius > 0f) {
+                // View itself never carries the RenderEffect — blur lives on the offscreen node,
+                // so canvas clipping in onDraw applies after the blur.
+                setRenderEffect(null)
+                hasRenderEffect = useRenderEffect && bitmap != null && blurRadius > 0f
+                if (hasRenderEffect) {
+                    val node = obtainBlurNode()
+                    node.setRenderEffect(
                         RenderEffect.createBlurEffect(blurRadius, blurRadius, Shader.TileMode.CLAMP)
-                    } else {
-                        null
-                    }
-                )
+                    )
+                    blurNodeDirty = true
+                } else {
+                    discardBlurNode()
+                }
             }
             visibility = if (bitmap == null) View.GONE else View.VISIBLE
             keyRegionsDirty = true
@@ -197,9 +226,6 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
                 redrawRetryCount = 0
                 return
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                setRenderEffect(null)
-            }
 
             if (!this@KeyboardPreviewUi::fakeKeyboardWindow.isInitialized) return
             if (keyRegionsDirty) {
@@ -217,7 +243,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
                 } else {
                     canvas.clipRect(rect)
                 }
-                canvas.drawBitmap(bitmap, srcRect, dstRect, paint)
+                drawFullScreenBlur(canvas, bitmap)
                 canvas.restoreToCount(saveId)
                 drewKeyRegion = true
             }
@@ -232,7 +258,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
                 )
                 if (clipRect.intersect(0, 0, width, height)) {
                     canvas.clipRect(clipRect)
-                    canvas.drawBitmap(bitmap, srcRect, dstRect, paint)
+                    drawFullScreenBlur(canvas, bitmap)
                 }
                 canvas.restoreToCount(barSaveId)
             }
@@ -245,6 +271,30 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
                 }
             } else {
                 redrawRetryCount = 0
+            }
+        }
+
+        /**
+         * Draws the source bitmap onto [canvas]. On API ≥ S the bitmap is replayed through a
+         * RenderNode carrying the blur RenderEffect, so the GPU blur runs once over the full
+         * image and any canvas clip the caller set applies AFTER the blur — visually equivalent
+         * to `loadBlurredBitmapForRendering + clipPath + drawBitmap` on the CPU path.
+         */
+        private fun drawFullScreenBlur(canvas: Canvas, bitmap: Bitmap) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && hasRenderEffect && canvas.isHardwareAccelerated) {
+                val node = obtainBlurNode()
+                if (node.setPosition(0, 0, width, height) || blurNodeDirty || !node.hasDisplayList()) {
+                    val rc = node.beginRecording(width, height)
+                    try {
+                        rc.drawBitmap(bitmap, srcRect, dstRect, paint)
+                    } finally {
+                        node.endRecording()
+                    }
+                    blurNodeDirty = false
+                }
+                canvas.drawRenderNode(node)
+            } else {
+                canvas.drawBitmap(bitmap, srcRect, dstRect, paint)
             }
         }
 
@@ -334,7 +384,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             blurMaskView.setBlurBitmap(null)
             return
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !keyBorder) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             blurMaskView.setBlurBitmap(
                 bitmap = sourceBitmap,
                 brightness = brightness,
@@ -389,7 +439,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
                 )
                 if (bg.blurRadius <= 0f) {
                     blurMaskView.setBlurBitmap(null)
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !keyBorder) {
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     blurMaskView.setBlurBitmap(
                         bitmap = sourceBitmap,
                         brightness = bg.brightness,
