@@ -522,6 +522,12 @@
     <string name="edit_text_keyboard_layout_summary">編輯文字鍵盤佈局並預覽按鍵配置</string>
     <string name="edit_text_keyboard_layout_summary_with_file">編輯文字鍵盤佈局（%1$s）</string>
     <string name="text_keyboard_layout_file_select_title">文字鍵盤佈局檔案</string>
+    <string name="web_editor_bridge_title">區域網路 Web 編輯橋接</string>
+    <string name="web_editor_bridge_summary">啟動臨時本地橋接服務，供 web-editor 直接讀取／儲存 IME 資料</string>
+    <string name="web_editor_bridge_running_message">橋接服務已啟動。\n\n編輯器入口：\n%1$s\n\nAPI 基址：\n%2$s</string>
+    <string name="web_editor_bridge_start_failed">啟動橋接服務失敗：%1$s</string>
+    <string name="web_editor_bridge_open">開啟編輯器頁面</string>
+    <string name="web_editor_bridge_stop">停止服務</string>
     <string name="text_keyboard_layout_file_select_summary">目前檔案：%1$s</string>
     <string name="text_keyboard_layout_file_switch">切換佈局檔案</string>
     <string name="text_keyboard_layout_file_create">建立佈局檔案</string>

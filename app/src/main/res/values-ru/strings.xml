@@ -437,6 +437,12 @@
     <string name="cannot_resolve_text_keyboard_layout">Не удалось определить файл раскладки текстовой клавиатуры</string>
     <string name="edit_text_keyboard_layout_summary_with_file">Редактировать раскладку текстовой клавиатуры (%1$s)</string>
     <string name="text_keyboard_layout_file_select_title">Файл раскладки текстовой клавиатуры</string>
+    <string name="web_editor_bridge_title">Мост веб-редактора по LAN</string>
+    <string name="web_editor_bridge_summary">Запустить временный локальный мост-сервер для чтения/записи данных IME веб-редактором</string>
+    <string name="web_editor_bridge_running_message">Мост-сервер запущен.\n\nАдрес редактора:\n%1$s\n\nAPI-база:\n%2$s</string>
+    <string name="web_editor_bridge_start_failed">Не удалось запустить мост-сервер: %1$s</string>
+    <string name="web_editor_bridge_open">Открыть страницу редактора</string>
+    <string name="web_editor_bridge_stop">Остановить сервер</string>
     <string name="text_keyboard_layout_file_select_summary">Текущий файл: %1$s</string>
     <string name="text_keyboard_layout_file_switch">Переключить файл раскладки</string>
     <string name="text_keyboard_layout_file_create">Создать файл раскладки</string>

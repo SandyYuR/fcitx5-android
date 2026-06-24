@@ -225,6 +225,12 @@
     <string name="cannot_resolve_text_keyboard_layout">No se puede localizar el archivo de distribución del teclado de texto</string>
     <string name="edit_text_keyboard_layout_summary_with_file">Editar diseño de teclado de texto (%1$s)</string>
     <string name="text_keyboard_layout_file_select_title">Archivo de diseño de teclado de texto</string>
+    <string name="web_editor_bridge_title">Puente de editor web LAN</string>
+    <string name="web_editor_bridge_summary">Iniciar un servidor puente local temporal para lectura/escritura del editor web</string>
+    <string name="web_editor_bridge_running_message">El servidor puente está en ejecución.\n\nEntrada del editor:\n%1$s\n\nBase API:\n%2$s</string>
+    <string name="web_editor_bridge_start_failed">Error al iniciar el servidor puente: %1$s</string>
+    <string name="web_editor_bridge_open">Abrir página del editor</string>
+    <string name="web_editor_bridge_stop">Detener servidor</string>
     <string name="text_keyboard_layout_file_select_summary">Archivo actual: %1$s</string>
     <string name="text_keyboard_layout_file_switch">Cambiar archivo de diseño</string>
     <string name="text_keyboard_layout_file_create">Crear archivo de diseño</string>

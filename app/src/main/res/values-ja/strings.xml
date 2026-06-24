@@ -381,6 +381,12 @@
     <string name="cannot_resolve_text_keyboard_layout">テキストキーボードレイアウトファイルを解決できません</string>
     <string name="edit_text_keyboard_layout_summary_with_file">テキストキーボードレイアウトを編集（%1$s）</string>
     <string name="text_keyboard_layout_file_select_title">テキストキーボードレイアウトファイル</string>
+    <string name="web_editor_bridge_title">LAN Web エディターブリッジ</string>
+    <string name="web_editor_bridge_summary">Web エディターが IME データを直接読み書きできるように一時的なローカルブリッジサーバーを起動します</string>
+    <string name="web_editor_bridge_running_message">ブリッジサーバーが起動しました。\n\nエディター入口：\n%1$s\n\nAPI ベース：\n%2$s</string>
+    <string name="web_editor_bridge_start_failed">ブリッジサーバーの起動に失敗しました：%1$s</string>
+    <string name="web_editor_bridge_open">エディターページを開く</string>
+    <string name="web_editor_bridge_stop">サーバーを停止</string>
     <string name="text_keyboard_layout_file_select_summary">現在のファイル：%1$s</string>
     <string name="text_keyboard_layout_file_switch">レイアウトファイルを切り替え</string>
     <string name="text_keyboard_layout_file_create">レイアウトファイルを作成</string>
