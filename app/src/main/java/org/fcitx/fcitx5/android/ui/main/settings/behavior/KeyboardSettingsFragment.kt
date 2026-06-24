@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
 import android.content.Intent
+import android.net.Uri
 import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
 import org.fcitx.fcitx5.android.R
@@ -13,6 +14,7 @@ import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.webeditor.ImeWebEditorBridgeServer
 
 class KeyboardSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance().keyboard) {
 
@@ -71,6 +73,16 @@ class KeyboardSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance(
             textLayoutFileSelectPreference = this
             setOnPreferenceClickListener {
                 showSelectTextLayoutFileDialog()
+                true
+            }
+        })
+        screen.addPreference(Preference(requireContext()).apply {
+            setTitle(R.string.web_editor_bridge_title)
+            setSummary(R.string.web_editor_bridge_summary)
+            isSingleLineTitle = false
+            isIconSpaceReserved = false
+            setOnPreferenceClickListener {
+                showWebEditorBridgeDialog()
                 true
             }
         })
@@ -177,6 +189,33 @@ class KeyboardSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance(
         } else {
             profile
         }
+    }
+
+    private fun showWebEditorBridgeDialog() {
+        val session = runCatching { ImeWebEditorBridgeServer.start() }.getOrElse {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(R.string.web_editor_bridge_title)
+                .setMessage(getString(R.string.web_editor_bridge_start_failed, it.localizedMessage ?: ""))
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+            return
+        }
+        val message = getString(
+            R.string.web_editor_bridge_running_message,
+            session.editorUrl,
+            session.apiBaseUrl
+        )
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle(R.string.web_editor_bridge_title)
+            .setMessage(message)
+            .setPositiveButton(R.string.web_editor_bridge_open) { _, _ ->
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(session.editorUrl)))
+            }
+            .setNeutralButton(R.string.web_editor_bridge_stop) { _, _ ->
+                ImeWebEditorBridgeServer.stop()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     companion object {

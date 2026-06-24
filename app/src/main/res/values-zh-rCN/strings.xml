@@ -472,6 +472,12 @@
     <string name="edit_text_keyboard_layout_summary">编辑文本键盘布局（TextKeyboardLayout.json）</string>
     <string name="edit_text_keyboard_layout_summary_with_file">编辑文本键盘布局（%1$s）</string>
     <string name="text_keyboard_layout_file_select_title">文本键盘布局文件</string>
+    <string name="web_editor_bridge_title">局域网 Web 编辑桥接</string>
+    <string name="web_editor_bridge_summary">启动临时本地桥接服务，供 web-editor 直接读取/保存 IME 数据</string>
+    <string name="web_editor_bridge_running_message">桥接服务已启动。\n\n编辑器入口：\n%1$s\n\nAPI 基地址：\n%2$s</string>
+    <string name="web_editor_bridge_start_failed">启动桥接服务失败：%1$s</string>
+    <string name="web_editor_bridge_open">打开编辑器页面</string>
+    <string name="web_editor_bridge_stop">停止服务</string>
     <string name="text_keyboard_layout_file_select_summary">当前配置：%1$s</string>
     <string name="text_keyboard_layout_file_switch">切换布局文件</string>
     <string name="text_keyboard_layout_file_create">新建布局文件</string>
