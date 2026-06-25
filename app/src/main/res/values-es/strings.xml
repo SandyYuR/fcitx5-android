@@ -607,6 +607,7 @@
     <string name="punctuation_pos_bottom">Abajo</string>
     <string name="punctuation_pos_none">Ninguno</string>
     <string name="punctuation_pos_top_right">Arriba a la derecha</string>
+    <string name="punctuation_pos_top_center">Arriba centro</string>
     <string name="recrop_image">Recortar imagen de nuevo</string>
     <string name="reloading">Recargando</string>
     <string name="removed_n_items">Se eliminaron %1$d elemento(s)</string>

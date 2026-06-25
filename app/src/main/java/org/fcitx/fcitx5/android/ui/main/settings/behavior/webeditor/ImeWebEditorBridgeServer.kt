@@ -654,12 +654,14 @@ object ImeWebEditorBridgeServer {
     private fun ThemePrefs.PunctuationPosition.toWebValue(): String = when (this) {
         ThemePrefs.PunctuationPosition.Bottom -> "bottom"
         ThemePrefs.PunctuationPosition.TopRight -> "top-right"
+        ThemePrefs.PunctuationPosition.TopCenter -> "top-center"
         ThemePrefs.PunctuationPosition.None -> "none"
     }
 
     private fun punctuationPositionFromWebValue(value: String): ThemePrefs.PunctuationPosition? = when (value) {
         "bottom" -> ThemePrefs.PunctuationPosition.Bottom
         "top-right" -> ThemePrefs.PunctuationPosition.TopRight
+        "top-center" -> ThemePrefs.PunctuationPosition.TopCenter
         "none" -> ThemePrefs.PunctuationPosition.None
         else -> null
     }

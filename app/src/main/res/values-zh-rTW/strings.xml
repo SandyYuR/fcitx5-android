@@ -145,6 +145,7 @@
     <string name="punctuation_position">標點符號的位置</string>
     <string name="punctuation_pos_bottom">底部</string>
     <string name="punctuation_pos_top_right">右上</string>
+    <string name="punctuation_pos_top_center">上方置中</string>
     <string name="punctuation_pos_none">無</string>
     <string name="expand_toolbar_by_default">預設展開工具列</string>
     <string name="toolbar_manually_toggled">工具列手動切換狀態</string>

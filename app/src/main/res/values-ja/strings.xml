@@ -622,6 +622,7 @@
     <string name="popup_preset_saved_at">popuppreset.json を %1$s に保存しました</string>
     <string name="preferred_voice_input">優先音声入力</string>
     <string name="private_mode">プライベートモード（ツールバーを切り替えるにはタップ）</string>
+    <string name="punctuation_pos_top_center">上部中央</string>
     <string name="punctuation_pos_none">なし</string>
     <string name="reset_keyboard_on_focus_change">フォーカス変更時にキーボードにリセット</string>
     <string name="share">共有</string>

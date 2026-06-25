@@ -599,6 +599,7 @@
     <string name="punctuation_pos_bottom">하단</string>
     <string name="punctuation_pos_none">없음</string>
     <string name="punctuation_pos_top_right">오른쪽 위</string>
+    <string name="punctuation_pos_top_center">상단 중앙</string>
     <string name="punctuation_position">구두점 위치</string>
     <string name="recrop_image">이미지 다시 자르기</string>
     <string name="removed_n_items">%1$d개 항목 제거됨</string>

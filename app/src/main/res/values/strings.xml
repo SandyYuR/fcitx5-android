@@ -153,6 +153,7 @@
     <string name="punctuation_position">Punctuation position</string>
     <string name="punctuation_pos_bottom">Bottom</string>
     <string name="punctuation_pos_top_right">Top Right</string>
+    <string name="punctuation_pos_top_center">Top Center</string>
     <string name="punctuation_pos_none">None</string>
     <string name="expand_toolbar_by_default">Expand toolbar by default</string>
     <string name="toolbar_manually_toggled">Toolbar manually toggled</string>
