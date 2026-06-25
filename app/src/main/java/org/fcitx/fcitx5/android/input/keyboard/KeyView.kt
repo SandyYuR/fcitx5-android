@@ -680,13 +680,18 @@ class AltTextKeyView(
         return when (preferred) {
             AltTextLayoutMode.Bottom -> when {
                 contentHeight >= stackedMinHeight -> AltTextLayoutMode.Bottom
-                else -> AltTextLayoutMode.TopRight
+                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
+                else -> AltTextLayoutMode.Hidden
             }
             AltTextLayoutMode.TopCenter -> when {
                 contentHeight >= stackedMinHeight -> AltTextLayoutMode.TopCenter
-                else -> AltTextLayoutMode.TopRight
+                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
+                else -> AltTextLayoutMode.Hidden
             }
-            AltTextLayoutMode.TopRight -> AltTextLayoutMode.TopRight
+            AltTextLayoutMode.TopRight -> when {
+                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
+                else -> AltTextLayoutMode.Hidden
+            }
             AltTextLayoutMode.Hidden -> AltTextLayoutMode.Hidden
         }
     }
@@ -955,13 +960,18 @@ class ImageAltTextKeyView(
         return when (preferred) {
             AltTextLayoutMode.Bottom -> when {
                 contentHeight >= stackedMinHeight -> AltTextLayoutMode.Bottom
-                else -> AltTextLayoutMode.TopRight
+                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
+                else -> AltTextLayoutMode.Hidden
             }
             AltTextLayoutMode.TopCenter -> when {
                 contentHeight >= stackedMinHeight -> AltTextLayoutMode.TopCenter
-                else -> AltTextLayoutMode.TopRight
+                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
+                else -> AltTextLayoutMode.Hidden
             }
-            AltTextLayoutMode.TopRight -> AltTextLayoutMode.TopRight
+            AltTextLayoutMode.TopRight -> when {
+                contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
+                else -> AltTextLayoutMode.Hidden
+            }
             AltTextLayoutMode.Hidden -> AltTextLayoutMode.Hidden
         }
     }
