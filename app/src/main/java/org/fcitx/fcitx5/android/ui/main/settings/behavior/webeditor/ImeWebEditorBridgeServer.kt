@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.webeditor
 
+import android.content.res.Configuration
 import android.os.Looper
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -23,6 +24,7 @@ import okhttp3.Response
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.CustomThemeSerializer
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.data.theme.ThemeFilesManager
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemePrefs
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
@@ -230,19 +232,87 @@ object ImeWebEditorBridgeServer {
                         save()
                     } else {
                         val done = java.util.concurrent.CountDownLatch(1)
+                        var failure: Throwable? = null
                         android.os.Handler(Looper.getMainLooper()).post {
-                            runCatching { save() }
+                            runCatching { save() }.onFailure { failure = it }
                             done.countDown()
                         }
                         done.await()
+                        failure?.let { throw it }
                     }
                     writeJson(output, buildJsonObject {
                         put("ok", JsonPrimitive(true))
                         put("name", JsonPrimitive(theme.name))
                     })
                 }
+                request.method == "GET" && path == "/api/v1/theme/package" -> {
+                    val name = query["name"].orEmpty()
+                    val target = ThemeManager.getTheme(name).takeIf { name.isNotBlank() }
+                        ?: ThemeManager.activeTheme
+                    val custom = target as? Theme.Custom
+                        ?: throw IllegalArgumentException("custom theme is required")
+                    val bytes = ByteArrayOutputStream().use { stream ->
+                        ThemeFilesManager.exportTheme(custom, stream).getOrThrow()
+                        stream.toByteArray()
+                    }
+                    writeBinaryResponse(
+                        output = output,
+                        statusCode = 200,
+                        statusText = "OK",
+                        contentType = "application/zip",
+                        bytes = bytes,
+                        extraHeaders = corsHeaders()
+                    )
+                }
+                request.method == "PUT" && path == "/api/v1/theme/package" -> {
+                    val bytes = request.body ?: throw IllegalArgumentException("theme package is required")
+                    val importedName = query["name"]?.takeIf { it.isNotBlank() }
+                    val (_, importedTheme, _) = ThemeFilesManager.importTheme(bytes.inputStream(), importedName).getOrThrow()
+                    val save = {
+                        ThemeManager.refreshThemes()
+                        val theme = ThemeManager.getTheme(importedTheme.name) ?: importedTheme
+                        ThemeManager.setNormalModeTheme(theme)
+                    }
+                    if (Looper.myLooper() == Looper.getMainLooper()) {
+                        save()
+                    } else {
+                        val done = java.util.concurrent.CountDownLatch(1)
+                        var failure: Throwable? = null
+                        android.os.Handler(Looper.getMainLooper()).post {
+                            runCatching { save() }.onFailure { failure = it }
+                            done.countDown()
+                        }
+                        done.await()
+                        failure?.let { throw it }
+                    }
+                    writeJson(output, buildJsonObject {
+                        put("ok", JsonPrimitive(true))
+                        put("name", JsonPrimitive(importedTheme.name))
+                    })
+                }
                 request.method == "GET" && path == "/api/v1/theme/prefs" -> {
                     val prefs = ThemeManager.prefs
+                    val keyboardPrefs = AppPrefs.getInstance().keyboard
+                    val resources = org.fcitx.fcitx5.android.utils.appContext.resources
+                    val metrics = resources.displayMetrics
+                    val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+                    val keyboardHeightPercent = if (isLandscape) {
+                        keyboardPrefs.keyboardHeightPercentLandscape.getValue()
+                    } else {
+                        keyboardPrefs.keyboardHeightPercent.getValue()
+                    }
+                    val keyboardSidePadding = if (isLandscape) {
+                        keyboardPrefs.keyboardSidePaddingLandscape.getValue()
+                    } else {
+                        keyboardPrefs.keyboardSidePadding.getValue()
+                    }
+                    val keyboardBottomPadding = if (isLandscape) {
+                        keyboardPrefs.keyboardBottomPaddingLandscape.getValue()
+                    } else {
+                        keyboardPrefs.keyboardBottomPadding.getValue()
+                    }
+                    val keyboardHeightPx = metrics.heightPixels * keyboardHeightPercent / 100
+                    val density = metrics.density
                     writeJson(output, buildJsonObject {
                         put("borderEnabled", JsonPrimitive(prefs.keyBorder.getValue()))
                         put("borderOutline", JsonPrimitive(prefs.keyBorderStroke.getValue()))
@@ -251,6 +321,20 @@ object ImeWebEditorBridgeServer {
                         put("keyVGap", JsonPrimitive(prefs.keyVerticalMargin.getValue()))
                         put("keyRadius", JsonPrimitive(prefs.keyRadius.getValue()))
                         put("punctPos", JsonPrimitive(prefs.punctuationPosition.getValue().toWebValue()))
+                        put("screenWidthPx", JsonPrimitive(metrics.widthPixels))
+                        put("screenHeightPx", JsonPrimitive(metrics.heightPixels))
+                        put("density", JsonPrimitive(density))
+                        put("densityDpi", JsonPrimitive(metrics.densityDpi))
+                        put("orientation", JsonPrimitive(if (isLandscape) "landscape" else "portrait"))
+                        put("keyboardHeightPercent", JsonPrimitive(keyboardHeightPercent))
+                        put("keyboardHeightPx", JsonPrimitive(keyboardHeightPx))
+                        put("keyboardSidePaddingDp", JsonPrimitive(keyboardSidePadding))
+                        put("keyboardSidePaddingPx", JsonPrimitive((keyboardSidePadding * density).toInt()))
+                        put("keyboardBottomPaddingDp", JsonPrimitive(keyboardBottomPadding))
+                        put("keyboardBottomPaddingPx", JsonPrimitive((keyboardBottomPadding * density).toInt()))
+                        // Kawaii bar height (40dp) sits above the keyboard view in the IME layout.
+                        // Web preview needs this to offset key background positions correctly.
+                        put("kawaiiBarHeightPx", JsonPrimitive((40 * density).toInt()))
                     })
                 }
                 request.method == "PUT" && path == "/api/v1/theme/prefs" -> {
@@ -290,19 +374,21 @@ object ImeWebEditorBridgeServer {
         raw.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
 
     private fun themeToWebThemeElement(theme: Theme): JsonObject {
-        val background = when (theme) {
-            is Theme.Custom -> theme.backgroundImage?.let {
-                buildJsonObject {
-                    put("croppedFilePath", JsonPrimitive(it.croppedFilePath))
-                    put("srcFilePath", JsonPrimitive(it.srcFilePath))
-                    put("brightness", JsonPrimitive(it.brightness))
-                    put("cropRect", JsonNull)
-                    put("cropRotation", JsonPrimitive(it.cropRotation))
-                    put("blurRadius", JsonPrimitive(it.blurRadius))
-                }
-            }
-            else -> null
-        }
+       val safeDir = theme.name.replace(Regex("""[\\/:*?"<>|]"""), "_")
+       fun ensureDir(path: String) = if (path.startsWith("$safeDir/")) path else "$safeDir/$path"
+       val background = when (theme) {
+           is Theme.Custom -> theme.backgroundImage?.let {
+               buildJsonObject {
+                   put("croppedFilePath", JsonPrimitive(ensureDir(it.croppedFilePath)))
+                   put("srcFilePath", JsonPrimitive(ensureDir(it.srcFilePath)))
+                   put("brightness", JsonPrimitive(it.brightness))
+                   put("cropRect", JsonNull)
+                   put("cropRotation", JsonPrimitive(it.cropRotation))
+                   put("blurRadius", JsonPrimitive(it.blurRadius))
+               }
+           }
+           else -> null
+       }
         return buildJsonObject {
             put("name", JsonPrimitive(theme.name))
             put("isDark", JsonPrimitive(theme.isDark))
@@ -412,14 +498,15 @@ object ImeWebEditorBridgeServer {
     }
 
     private fun rewriteEditorHtml(rawHtml: String): String {
-        val injection = """
-            <base href="$UPSTREAM_EDITOR_BASE">
-            <script>window.__F5A_IME_API_BASE__ = window.location.origin;</script>
-        """.trimIndent()
+        val rewrittenHtml = rawHtml
+            .replace(Regex("""\b(src|href)=["']\./([^"']+)["']""")) {
+                """${it.groupValues[1]}="/${it.groupValues[2]}""""
+            }
+        val injection = """<script>window.__F5A_IME_API_BASE__ = window.location.origin;</script>"""
         return if (rawHtml.contains("</head>", ignoreCase = true)) {
-            rawHtml.replace("</head>", "$injection\n</head>", ignoreCase = true)
+            rewrittenHtml.replace("</head>", "$injection\n</head>", ignoreCase = true)
         } else {
-            "$injection\n$rawHtml"
+            "$injection\n$rewrittenHtml"
         }
     }
 
@@ -544,7 +631,7 @@ object ImeWebEditorBridgeServer {
     private fun corsHeaders(): Map<String, String> = mapOf(
         "Access-Control-Allow-Origin" to "*",
         "Access-Control-Allow-Methods" to "GET,PUT,OPTIONS",
-        "Access-Control-Allow-Headers" to "Content-Type"
+        "Access-Control-Allow-Headers" to "Content-Type,Accept"
     )
 
     private fun detectBestHostAddress(): String? {
