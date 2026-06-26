@@ -601,9 +601,9 @@ class AltTextKeyView(
             // reset
             topMargin = 0
             bottomToTop = unset
-            // set: mainText below altText, fills remaining space to bottom
-            topToBottom = altText.existingOrNewId
-            bottomToBottom = parentId; bottomMargin = vMargin
+            // set
+            topToTop = parentId
+            bottomToBottom = parentId
         }
         altText.visibility = View.VISIBLE
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
@@ -859,12 +859,12 @@ class ImageAltTextKeyView(
 
     private fun applyTopCenterAltTextPosition() {
         img.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            // set: img in remaining space below altText
-            topToBottom = altText.existingOrNewId
-            bottomToBottom = parentId; bottomMargin = vMargin
+            topToTop = parentId
+            bottomToBottom = parentId
             startToStart = parentId
             endToEnd = parentId
             topMargin = 0
+            bottomMargin = 0
             bottomToTop = unset
         }
         altText.visibility = View.VISIBLE
