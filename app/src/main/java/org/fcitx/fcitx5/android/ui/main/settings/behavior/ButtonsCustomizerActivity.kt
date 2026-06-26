@@ -8,6 +8,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -388,10 +389,16 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
                 super.onSelectedChanged(viewHolder, actionState)
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && viewHolder != null) {
-                    // Highlight the dragged item - use theme color for consistency
-                    viewHolder.itemView.alpha = 0.85f
-                    viewHolder.itemView.translationZ = 10f
-                    // Use colorControlHighlight for visual feedback (consistent with Android standard)
+                    // Give immediate pickup feedback so drag start feels deliberate.
+                    viewHolder.itemView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    viewHolder.itemView.animate().cancel()
+                    viewHolder.itemView.alpha = 0.92f
+                    viewHolder.itemView.animate()
+                        .scaleX(0.96f)
+                        .scaleY(0.96f)
+                        .translationZ(dp(8f))
+                        .setDuration(120L)
+                        .start()
                     viewHolder.itemView.setBackgroundColor(
                         this@ButtonsCustomizerActivity.styledColor(android.R.attr.colorControlHighlight)
                     )
@@ -400,16 +407,29 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
             override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
                 super.clearView(recyclerView, viewHolder)
-                // Restore original appearance
+                // Restore original appearance with a short settle animation.
+                viewHolder.itemView.animate().cancel()
+                viewHolder.itemView.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .translationZ(0f)
+                    .setDuration(120L)
+                    .start()
                 viewHolder.itemView.alpha = 1.0f
-                viewHolder.itemView.translationZ = 0f
                 viewHolder.itemView.setBackgroundColor(android.graphics.Color.TRANSPARENT)
-                // 不需要调用 notifyDataSetChanged，视图会自动恢复
             }
 
             // Enable long press to start drag
             override fun isLongPressDragEnabled(): Boolean {
                 return true
+            }
+
+            override fun getMoveThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+                return 0.18f
+            }
+
+            override fun getBoundingBoxMargin(): Int {
+                return dp(12)
             }
         }).apply {
             attachToRecyclerView(recyclerView)
@@ -758,12 +778,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                             openButtonEditor(buttonItem.button, position, buttonItem.section)
                         }
                     }
-                    holder.ui.root.setOnLongClickListener {
-                        if (!isBuiltIn) {
-                            openButtonEditor(buttonItem.button, position, buttonItem.section)
-                        }
-                        true
-                    }
+                    holder.ui.root.setOnLongClickListener(null)
                 }
                 is AddButtonViewHolder -> {
                     val addItem = item as ListItem.AddButtonItem

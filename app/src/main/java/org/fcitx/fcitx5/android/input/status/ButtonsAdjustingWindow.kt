@@ -74,6 +74,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private var lastTopScrollerWidth = -1
     private var topBarAtBottom = false
     private val feedbackInterpolator = DecelerateInterpolator(1.6f)
+    private val minWidthPx by lazy { context.dp(40) }
     private val topScrollerLayoutListener =
         View.OnLayoutChangeListener { _, _, _, right, _, _, _, oldRight, _ ->
             val newWidth = right
@@ -217,6 +218,8 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                     ?: button.id
                 ui.bind(icon, label, disabled = false, theme = theme)
                 ui.setOnLongClickListener {
+                    val pos = holder.bindingAdapterPosition
+                    if (pos == RecyclerView.NO_POSITION) return@setOnLongClickListener false
                     it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                     it.animate()
                         .alpha(0.72f)
@@ -225,7 +228,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                         .setDuration(DRAG_FEEDBACK_DURATION_MS)
                         .setInterpolator(feedbackInterpolator)
                         .start()
-                    val payload = DragPayload(section, position, it)
+                    val payload = DragPayload(section, pos, it)
                     it.startDragAndDrop(
                         ClipData.newPlainText("button", section.name.lowercase()),
                         View.DragShadowBuilder(it),
@@ -269,46 +272,10 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
 
     private fun renderTopButtons() {
         topContainer.removeAllViews()
-        val minWidth = context.dp(40)
-        val spacing = context.dp(4)
-        val available = topScroller.width
-        val count = topButtons.size + 1
-        val evenWidth = if (available > 0 && count > 0) {
-            ((available - count * spacing) / count).coerceAtLeast(0)
-        } else {
-            0
-        }
-        val useEven = evenWidth >= minWidth
+        val (useEven, evenWidth) = computeTopWidthInfo()
         topButtons.forEachIndexed { index, button ->
-            val action = ButtonAction.fromId(button.id)
-            val icon = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
-            val view = ToolButton(context, icon, currentTheme).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    if (useEven) evenWidth else ViewGroup.LayoutParams.WRAP_CONTENT,
-                    context.dp(KawaiiBarComponent.HEIGHT)
-                ).apply {
-                    marginStart = context.dp(2)
-                    marginEnd = context.dp(2)
-                }
-                minimumWidth = minWidth
-                image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-                setOnLongClickListener {
-                    it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                    it.animate()
-                        .alpha(0.72f)
-                        .scaleX(0.97f)
-                        .scaleY(0.97f)
-                        .setDuration(DRAG_FEEDBACK_DURATION_MS)
-                        .setInterpolator(feedbackInterpolator)
-                        .start()
-                    val payload = DragPayload(Section.Top, index, it)
-                    it.startDragAndDrop(
-                        ClipData.newPlainText("button", "top"),
-                        View.DragShadowBuilder(it),
-                        payload,
-                        0
-                    )
-                }
+            val view = createTopButtonView(button, index).apply {
+                setTopButtonWidth(this, useEven, evenWidth)
             }
             topContainer.addView(view)
         }
@@ -320,7 +287,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                 marginStart = context.dp(2)
                 marginEnd = context.dp(2)
             }
-            minimumWidth = minWidth
+            minimumWidth = minWidthPx
             image.scaleType = ImageView.ScaleType.CENTER_INSIDE
             alpha = 1f
         }
@@ -329,6 +296,109 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             if (useEven) ViewGroup.LayoutParams.MATCH_PARENT else ViewGroup.LayoutParams.WRAP_CONTENT,
             context.dp(KawaiiBarComponent.HEIGHT)
         )
+    }
+
+    private fun computeTopWidthInfo(): Pair<Boolean, Int> {
+        val spacing = context.dp(4)
+        val available = topScroller.width
+        val count = topButtons.size + 1
+        val evenWidth = if (available > 0 && count > 0) {
+            ((available - count * spacing) / count).coerceAtLeast(0)
+        } else {
+            0
+        }
+        return (evenWidth >= minWidthPx) to evenWidth
+    }
+
+    private fun setupTopButtonDrag(view: View, index: Int) {
+        view.setOnLongClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            it.animate()
+                .alpha(0.72f).scaleX(0.97f).scaleY(0.97f)
+                .setDuration(DRAG_FEEDBACK_DURATION_MS)
+                .setInterpolator(feedbackInterpolator)
+                .start()
+            val payload = DragPayload(Section.Top, index, it)
+            it.startDragAndDrop(
+                ClipData.newPlainText("button", "top"),
+                View.DragShadowBuilder(it),
+                payload,
+                0
+            )
+        }
+    }
+
+    private fun createTopButtonView(button: ConfigurableButton, index: Int): ToolButton {
+        val action = ButtonAction.fromId(button.id)
+        val icon = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+        return ToolButton(context, icon, currentTheme).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                context.dp(KawaiiBarComponent.HEIGHT)
+            ).apply {
+                marginStart = context.dp(2)
+                marginEnd = context.dp(2)
+            }
+            minimumWidth = minWidthPx
+            image.scaleType = ImageView.ScaleType.CENTER_INSIDE
+            setupTopButtonDrag(this, index)
+        }
+    }
+
+    private fun setTopButtonWidth(view: View, useEven: Boolean, evenWidth: Int) {
+        (view.layoutParams as? LinearLayout.LayoutParams)?.width =
+            if (useEven) evenWidth else ViewGroup.LayoutParams.WRAP_CONTENT
+    }
+
+    private fun applyTopRowWidths(useEven: Boolean, evenWidth: Int) {
+        for (i in 0 until topContainer.childCount) {
+            setTopButtonWidth(topContainer.getChildAt(i), useEven, evenWidth)
+        }
+        topContainer.layoutParams = FrameLayout.LayoutParams(
+            if (useEven) ViewGroup.LayoutParams.MATCH_PARENT else ViewGroup.LayoutParams.WRAP_CONTENT,
+            context.dp(KawaiiBarComponent.HEIGHT)
+        )
+    }
+
+    private fun syncTopRowAfterMove(
+        sourceSection: Section, targetSection: Section,
+        sourceIndex: Int, targetIndex: Int
+    ) {
+        if (sourceSection == Section.Top && targetSection == Section.Top) {
+            val view = topContainer.getChildAt(sourceIndex)
+            topContainer.removeViewAt(sourceIndex)
+            topContainer.addView(view, targetIndex)
+            setupTopButtonDrag(view, targetIndex)
+            return
+        }
+        if (sourceSection == Section.Top) {
+            topContainer.removeViewAt(sourceIndex)
+        }
+        if (targetSection == Section.Top) {
+            val view = createTopButtonView(topButtons[targetIndex], targetIndex)
+            topContainer.addView(view, targetIndex)
+        }
+        val (useEven, evenWidth) = computeTopWidthInfo()
+        applyTopRowWidths(useEven, evenWidth)
+        topContainer.requestLayout()
+    }
+
+    private fun notifyAdaptersAfterMove(
+        sourceSection: Section, targetSection: Section,
+        sourceIndex: Int, targetIndex: Int
+    ) {
+        when {
+            sourceSection == Section.Bottom && targetSection == Section.Bottom ->
+                bottomAdapter.notifyItemMoved(sourceIndex, targetIndex)
+            sourceSection == Section.Bottom -> bottomAdapter.notifyItemRemoved(sourceIndex)
+            targetSection == Section.Bottom -> bottomAdapter.notifyItemInserted(targetIndex)
+        }
+        when {
+            sourceSection == Section.Available && targetSection == Section.Available ->
+                availableAdapter.notifyItemMoved(sourceIndex, targetIndex)
+            sourceSection == Section.Available -> availableAdapter.notifyItemRemoved(sourceIndex)
+            targetSection == Section.Available -> availableAdapter.notifyItemInserted(targetIndex)
+        }
     }
 
     private fun findTopInsertIndex(x: Float): Int {
@@ -358,7 +428,9 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     }
 
     private fun move(payload: DragPayload, targetSection: Section, targetIndexRaw: Int): Boolean {
-        val sourceList = when (payload.section) {
+        val sourceSection = payload.section
+        val sourceIndex = payload.index
+        val sourceList = when (sourceSection) {
             Section.Top -> topButtons
             Section.Bottom -> bottomButtons
             Section.Available -> availableButtons
@@ -368,25 +440,24 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             Section.Bottom -> bottomButtons
             Section.Available -> availableButtons
         }
-        if (payload.index !in sourceList.indices) return false
+        if (sourceIndex !in sourceList.indices) return false
 
-        if (sourceList === targetList && payload.index == targetIndexRaw.coerceIn(0, targetList.size)) {
+        if (sourceList === targetList && sourceIndex == targetIndexRaw.coerceIn(0, targetList.size)) {
             return false
         }
 
-        val moving = sourceList.removeAt(payload.index)
+        val moving = sourceList.removeAt(sourceIndex)
         var targetIndex = targetIndexRaw.coerceIn(0, targetList.size)
-        if (sourceList === targetList && payload.index < targetIndex) targetIndex -= 1
-        if (sourceList === targetList && payload.index == targetIndex) {
-            sourceList.add(payload.index, moving)
+        if (sourceList === targetList && sourceIndex < targetIndex) targetIndex -= 1
+        if (sourceList === targetList && sourceIndex == targetIndex) {
+            sourceList.add(sourceIndex, moving)
             return false
         }
         targetList.add(targetIndex, moving)
         payload.section = targetSection
         payload.index = targetIndex
-        renderTopButtons()
-        bottomAdapter.notifyDataSetChanged()
-        availableAdapter.notifyDataSetChanged()
+        syncTopRowAfterMove(sourceSection, targetSection, sourceIndex, targetIndex)
+        notifyAdaptersAfterMove(sourceSection, targetSection, sourceIndex, targetIndex)
         updateInsertionIndicator(targetSection, targetIndex)
         return true
     }
