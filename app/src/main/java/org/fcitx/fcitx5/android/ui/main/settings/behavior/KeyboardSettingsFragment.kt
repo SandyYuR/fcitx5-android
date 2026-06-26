@@ -4,223 +4,54 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
-import android.content.Intent
-import android.net.Uri
+import android.os.Bundle
 import androidx.preference.Preference
-import androidx.preference.PreferenceScreen
 import org.fcitx.fcitx5.android.R
-import org.fcitx.fcitx5.android.data.prefs.AppPrefs
-import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceFragment
-import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceProvider
-import org.fcitx.fcitx5.android.input.config.ConfigProviders
-import org.fcitx.fcitx5.android.input.config.UserConfigFiles
+import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
+import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.webeditor.ImeWebEditorBridgeServer
+import org.fcitx.fcitx5.android.utils.addPreference
+import org.fcitx.fcitx5.android.utils.navigateWithAnim
 
-class KeyboardSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance().keyboard) {
+class KeyboardSettingsFragment : PaddingPreferenceFragment() {
 
-    private var calibrationPreference: Preference? = null
-    private var textLayoutFilePreference: Preference? = null
-    private var textLayoutFileSelectPreference: Preference? = null
-    
-    private val onSplitEnabledChangeListener = ManagedPreferenceProvider.OnChangeListener { key ->
-        if (key == SPLIT_ENABLED_KEY) {
-            val enabled = AppPrefs.getInstance().keyboard.splitKeyboardEnabled.getValue()
-            calibrationPreference?.isEnabled = enabled
-            // Also enable/disable "Use landscape layout when split" preference when auto-split is toggled
-            val useLandscapePref = preferenceScreen.findPreference<Preference>("split_keyboard_use_landscape_layout")
-            useLandscapePref?.isEnabled = enabled
+    private var editorsPref: Preference? = null
+
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        preferenceScreen = preferenceManager.createPreferenceScreen(requireContext()).apply {
+            addPreference(R.string.keyboard_category_layout) {
+                navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_LAYOUT))
+            }
+            addPreference(R.string.keyboard_category_behavior) {
+                navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_BEHAVIOR))
+            }
+            addPreference(R.string.keyboard_category_feedback) {
+                navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_FEEDBACK))
+            }
+            addPreference(R.string.keyboard_category_toolbar) {
+                navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_TOOLBAR))
+            }
+            val p = Preference(context).apply {
+                key = "editors_category"
+                isSingleLineTitle = false
+                isIconSpaceReserved = false
+                setTitle(R.string.keyboard_category_editors)
+                setOnPreferenceClickListener {
+                    navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_EDITORS))
+                    true
+                }
+            }
+            editorsPref = p
+            addPreference(p)
         }
-    }
-
-    override fun onPreferenceUiCreated(screen: PreferenceScreen) {
-        screen.addPreference(Preference(requireContext()).apply {
-            setTitle(R.string.edit_fontset)
-            setSummary(R.string.edit_fontset_summary)
-            isSingleLineTitle = false
-            isIconSpaceReserved = false
-            setOnPreferenceClickListener {
-                startActivity(Intent(requireContext(), FontsetEditorActivity::class.java))
-                true
-            }
-        })
-        screen.addPreference(Preference(requireContext()).apply {
-            setTitle(R.string.edit_popup_preset)
-            setSummary(R.string.edit_popup_preset_summary)
-            isSingleLineTitle = false
-            isIconSpaceReserved = false
-            setOnPreferenceClickListener {
-                startActivity(Intent(requireContext(), PopupEditorActivity::class.java))
-                true
-            }
-        })
-        screen.addPreference(Preference(requireContext()).apply {
-            setTitle(R.string.edit_text_keyboard_layout)
-            setSummary(buildTextLayoutSummary())
-            isSingleLineTitle = false
-            isIconSpaceReserved = false
-            textLayoutFilePreference = this
-            setOnPreferenceClickListener {
-                startActivity(Intent(requireContext(), TextKeyboardLayoutEditorActivity::class.java))
-                true
-            }
-        })
-        screen.addPreference(Preference(requireContext()).apply {
-            setTitle(R.string.text_keyboard_layout_file_select_title)
-            key = TEXT_LAYOUT_FILE_SELECT_PREF_KEY
-            setSummary(buildCurrentTextLayoutFileSummary())
-            isSingleLineTitle = false
-            isIconSpaceReserved = false
-            textLayoutFileSelectPreference = this
-            setOnPreferenceClickListener {
-                showSelectTextLayoutFileDialog()
-                true
-            }
-        })
-        screen.addPreference(Preference(requireContext()).apply {
-            setTitle(R.string.web_editor_bridge_title)
-            setSummary(R.string.web_editor_bridge_summary)
-            isSingleLineTitle = false
-            isIconSpaceReserved = false
-            setOnPreferenceClickListener {
-                showWebEditorBridgeDialog()
-                true
-            }
-        })
-        screen.addPreference(Preference(requireContext()).apply {
-            setTitle(R.string.edit_buttons)
-            setSummary(R.string.edit_buttons_summary)
-            isSingleLineTitle = false
-            isIconSpaceReserved = false
-            setOnPreferenceClickListener {
-                startActivity(Intent(requireContext(), ButtonsCustomizerActivity::class.java))
-                true
-            }
-        })
-
-        // Split keyboard calibration entry - placed after "Enable auto split keyboard"
-        calibrationPreference = Preference(requireContext()).apply {
-            key = CALIBRATION_PREF_KEY
-            setTitle(R.string.split_keyboard_calibration_title)
-            setSummary(R.string.split_keyboard_calibration_summary)
-            isSingleLineTitle = false
-            isIconSpaceReserved = false
-            isEnabled = AppPrefs.getInstance().keyboard.splitKeyboardEnabled.getValue()
-            setOnPreferenceClickListener {
-                startActivity(Intent(requireContext(), SplitKeyboardCalibrationActivity::class.java))
-                true
-            }
-        }
-
-        // Assign stable order to existing items, then insert calibration entry after "Enable auto split keyboard"
-        val enabledIndex = (0 until screen.preferenceCount)
-            .firstOrNull { index -> screen.getPreference(index).key == SPLIT_ENABLED_KEY }
-        for (index in 0 until screen.preferenceCount) {
-            screen.getPreference(index).order = index * 2
-        }
-        calibrationPreference?.order = enabledIndex?.let { it * 2 + 1 } ?: Int.MAX_VALUE
-
-        calibrationPreference?.let { screen.addPreference(it) }
-        
-        // Ensure "Use landscape layout when split" preference is enabled only when auto-split is enabled
-        val useLandscapePref = screen.findPreference<Preference>("split_keyboard_use_landscape_layout")
-        useLandscapePref?.isEnabled = AppPrefs.getInstance().keyboard.splitKeyboardEnabled.getValue()
-
-        // Register listener to update calibration preference enabled state
-        AppPrefs.getInstance().keyboard.registerOnChangeListener(onSplitEnabledChangeListener)
-    }
-    
-    override fun onDestroy() {
-        AppPrefs.getInstance().keyboard.unregisterOnChangeListener(onSplitEnabledChangeListener)
-        super.onDestroy()
     }
 
     override fun onResume() {
         super.onResume()
-        textLayoutFilePreference?.summary = buildTextLayoutSummary()
-        textLayoutFileSelectPreference?.summary = buildCurrentTextLayoutFileSummary()
-    }
-
-    private fun buildTextLayoutSummary(): String {
-        return getString(
-            R.string.edit_text_keyboard_layout_summary_with_file,
-            displayProfile(currentTextLayoutProfile())
-        )
-    }
-
-    private fun buildCurrentTextLayoutFileSummary(): String {
-        val profile = currentTextLayoutProfile()
-        return getString(
-            R.string.text_keyboard_layout_file_select_summary,
-            displayProfile(profile)
-        )
-    }
-
-    private fun currentTextLayoutProfile(): String {
-        return UserConfigFiles.normalizeTextKeyboardLayoutProfile(
-            AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.getValue()
-        ) ?: UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE
-    }
-
-    private fun showSelectTextLayoutFileDialog() {
-        val profiles = UserConfigFiles.listTextKeyboardLayoutProfiles().toMutableList()
-        val current = currentTextLayoutProfile()
-        if (current !in profiles) profiles += current
-        val sortedProfiles = profiles.distinct().sortedWith(compareBy({ it != UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE }, { it }))
-        val labels = sortedProfiles.map { displayProfile(it) }.toTypedArray()
-        val initialSelection = sortedProfiles.indexOf(current).coerceAtLeast(0)
-
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle(R.string.text_keyboard_layout_file_select_title)
-            .setSingleChoiceItems(labels, initialSelection) { dialog, which ->
-                val selectedProfile = sortedProfiles.getOrNull(which) ?: return@setSingleChoiceItems
-                AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.setValue(selectedProfile)
-                ConfigProviders.provider = ConfigProviders.provider
-                textLayoutFilePreference?.summary = buildTextLayoutSummary()
-                textLayoutFileSelectPreference?.summary = buildCurrentTextLayoutFileSummary()
-                dialog.dismiss()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    private fun displayProfile(profile: String): String {
-        return if (profile == UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE) {
-            getString(R.string.default_)
-        } else {
-            profile
-        }
-    }
-
-    private fun showWebEditorBridgeDialog() {
-        val session = runCatching { ImeWebEditorBridgeServer.start() }.getOrElse {
-            androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle(R.string.web_editor_bridge_title)
-                .setMessage(getString(R.string.web_editor_bridge_start_failed, it.localizedMessage ?: ""))
-                .setPositiveButton(android.R.string.ok, null)
-                .show()
-            return
-        }
-        val message = getString(
-            R.string.web_editor_bridge_running_message,
-            session.editorUrl,
-            session.apiBaseUrl
-        )
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle(R.string.web_editor_bridge_title)
-            .setMessage(message)
-            .setPositiveButton(R.string.web_editor_bridge_open) { _, _ ->
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(session.editorUrl)))
-            }
-            .setNeutralButton(R.string.web_editor_bridge_stop) { _, _ ->
-                ImeWebEditorBridgeServer.stop()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    companion object {
-        private const val CALIBRATION_PREF_KEY = "split_keyboard_calibration"
-        private const val SPLIT_ENABLED_KEY = "split_keyboard_enabled"
-        private const val TEXT_LAYOUT_FILE_SELECT_PREF_KEY = "text_keyboard_layout_file_select"
+        val session = ImeWebEditorBridgeServer.currentSession()
+        val pref = editorsPref ?: findPreference<Preference>("editors_category")
+        pref?.summary = if (session != null) {
+            getString(R.string.web_editor_bridge_running_indicator)
+        } else null
     }
 }

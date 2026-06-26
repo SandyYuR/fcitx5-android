@@ -550,7 +550,7 @@ class PopupEditorActivity : AppCompatActivity() {
 
         file.writeText(LayoutJsonUtils.formatJsonCompact(jsonElement) + "\n")
         ConfigProviders.ensureWatching()
-        showToast(getString(R.string.popup_preset_saved_at, file.absolutePath))
+        showToast(getString(R.string.popup_preset_saved_at))
         originalEntries = normalizedEntries()
         updateSaveButtonState()
         return true

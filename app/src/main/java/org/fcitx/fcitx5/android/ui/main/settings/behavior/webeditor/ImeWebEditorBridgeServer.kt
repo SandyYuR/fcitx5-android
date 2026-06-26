@@ -40,6 +40,9 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.net.URLDecoder
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 object ImeWebEditorBridgeServer {
@@ -56,6 +59,10 @@ object ImeWebEditorBridgeServer {
     private const val CACHE_TTL_MS = 10 * 60 * 1000L
 
     private val ioExecutor = Executors.newCachedThreadPool()
+    private val autoStopScheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+    private const val AUTO_STOP_HOURS = 3L
+    @Volatile
+    private var autoStopFuture: ScheduledFuture<*>? = null
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
@@ -82,6 +89,7 @@ object ImeWebEditorBridgeServer {
         session = Session(host = host, port = port)
         running.set(true)
         ioExecutor.execute { acceptLoop(socket) }
+        scheduleAutoStop()
         return session!!
     }
 
@@ -91,9 +99,22 @@ object ImeWebEditorBridgeServer {
         runCatching { serverSocket?.close() }
         serverSocket = null
         session = null
+        cancelAutoStop()
     }
 
     fun currentSession(): Session? = session?.takeIf { running.get() }
+
+    private fun scheduleAutoStop() {
+        cancelAutoStop()
+        autoStopFuture = autoStopScheduler.schedule({
+            if (running.get()) stop()
+        }, AUTO_STOP_HOURS, TimeUnit.HOURS)
+    }
+
+    private fun cancelAutoStop() {
+        autoStopFuture?.cancel(false)
+        autoStopFuture = null
+    }
 
     private fun bindServerSocket(): Pair<ServerSocket, Int> {
         val candidatePorts = sequenceOf(18888, 18889, 18890) + (18900..18950).asSequence()

@@ -85,6 +85,11 @@ class FontsetEditorActivity : AppCompatActivity() {
     private val rowViews: MutableMap<String, FontRowViews> = mutableMapOf()
     private val fontSizeViews: MutableMap<String, TextView> = mutableMapOf()
     private var availableFonts: List<String> = emptyList()
+    private var saveMenuItem: MenuItem? = null
+
+    // Snapshots of initial state for dirty detection
+    private lateinit var initialFonts: Map<String, List<String>>
+    private lateinit var initialSizes: Map<String, Float>
 
     private val listContainer by lazy {
         LinearLayout(this).apply {
@@ -147,6 +152,8 @@ class FontsetEditorActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val item = menu.add(Menu.NONE, MENU_SAVE_ID, Menu.NONE, "${getString(R.string.save)}")
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS or MenuItem.SHOW_AS_ACTION_WITH_TEXT)
+        saveMenuItem = item
+        item.isEnabled = false
         return true
     }
 
@@ -192,22 +199,69 @@ class FontsetEditorActivity : AppCompatActivity() {
             selectedFontSizes[entry.key] = parsed[sizeKey]?.firstOrNull()?.toFloatOrNull()
                 ?.coerceIn(8f, 72f) ?: entry.defaultFontSize
         }
+        initialFonts = selectedFonts.mapValues { it.value.toList() }
+        initialSizes = selectedFontSizes.toMap()
+    }
+
+    private fun updateSaveButtonState() {
+        val hasChanges = entries.any { entry ->
+            selectedFonts[entry.key] != initialFonts[entry.key] ||
+            selectedFontSizes[entry.key] != initialSizes[entry.key]
+        }
+        saveMenuItem?.isEnabled = hasChanges
     }
 
     private fun buildRows() {
         listContainer.removeAllViews()
-        entries.forEachIndexed { index, entry ->
 
+        val hint = TextView(this).apply {
+            text = getString(R.string.fontset_editor_hint)
+            textSize = 12f
+            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setPadding(0, 0, 0, dp(8))
+        }
+        listContainer.addView(hint)
+
+        entries.forEachIndexed { index, entry ->
             val openPicker = { openFontPicker(entry) }
             val openFontSizeEditor = { openFontSizeEditor(entry) }
+
+            val titleRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(0, dp(12), 0, dp(4))
+                setOnClickListener { openPicker() }
+            }
 
             val title = TextView(this).apply {
                 text = getString(entry.titleRes)
                 setTextColor(styledColor(android.R.attr.textColorPrimary))
                 textSize = 15f
-                setOnClickListener { openPicker() }
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    weight = 1f
+                }
             }
-            listContainer.addView(title)
+            titleRow.addView(title)
+
+            val fontSizeValue = TextView(this).apply {
+                textSize = 13f
+                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setPadding(dp(8), 0, dp(4), 0)
+                gravity = android.view.Gravity.END
+                setOnClickListener { openFontSizeEditor(entry) }
+            }
+            titleRow.addView(fontSizeValue)
+
+            val fontSizeGear = TextView(this).apply {
+                text = "⚙"
+                textSize = 14f
+                alpha = 0.6f
+                setPadding(0, 0, dp(4), 0)
+                setOnClickListener { openFontSizeEditor(entry) }
+            }
+            titleRow.addView(fontSizeGear)
+
+            listContainer.addView(titleRow)
 
             val preview = TextView(this).apply {
                 text = entry.sample
@@ -224,42 +278,6 @@ class FontsetEditorActivity : AppCompatActivity() {
                 setOnClickListener { openPicker() }
             }
             listContainer.addView(value)
-
-            // Font size editor row
-            val fontSizeRow = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = android.view.Gravity.CENTER_VERTICAL
-                setPadding(0, dp(8), 0, dp(8))
-                setOnClickListener { openFontSizeEditor(entry) }
-            }
-
-            val fontSizeLabel = TextView(this).apply {
-                text = getString(R.string.font_size)
-                textSize = 14f
-                setTextColor(styledColor(android.R.attr.textColorPrimary))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                    weight = 1f
-                }
-            }
-            fontSizeRow.addView(fontSizeLabel)
-
-            val fontSizeValue = TextView(this).apply {
-                textSize = 14f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
-                setPadding(dp(8), 0, dp(8), 0)
-                gravity = android.view.Gravity.END
-            }
-            fontSizeRow.addView(fontSizeValue)
-
-            val fontSizeArrow = TextView(this).apply {
-                text = "⚙"
-                textSize = 16f
-                alpha = 0.6f
-                setPadding(0, 0, dp(8), 0)
-            }
-            fontSizeRow.addView(fontSizeArrow)
-
-            listContainer.addView(fontSizeRow)
 
             val divider = View(this).apply {
                 setBackgroundColor(
@@ -279,14 +297,6 @@ class FontsetEditorActivity : AppCompatActivity() {
             rowViews[entry.key] = FontRowViews(preview, value)
             fontSizeViews[entry.key] = fontSizeValue
         }
-
-        val hint = TextView(this).apply {
-            text = getString(R.string.fontset_editor_hint) + "\n" + fontsetFile.absolutePath
-            textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
-            setPadding(0, dp(8), 0, 0)
-        }
-        listContainer.addView(hint)
     }
 
     private fun refreshRows() {
@@ -298,6 +308,7 @@ class FontsetEditorActivity : AppCompatActivity() {
             } else {
                 selected.joinToString(", ")
             }
+            row.value.visibility = if (selected.isEmpty()) View.GONE else View.VISIBLE
             row.preview.typeface = buildTypeface(selected)
             
             // Update font size display
@@ -459,6 +470,7 @@ class FontsetEditorActivity : AppCompatActivity() {
             .setView(recycler)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 selectedFonts[entry.key] = selectedOrder.toMutableList()
+                updateSaveButtonState()
                 refreshRows()
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -526,11 +538,13 @@ class FontsetEditorActivity : AppCompatActivity() {
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 val newSize = minSize + seekBar.progress
                 selectedFontSizes[entry.key] = newSize.coerceIn(minSize, maxSize)
+                updateSaveButtonState()
                 refreshRows()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .setNeutralButton(R.string.reset) { _, _ ->
                 selectedFontSizes[entry.key] = entry.defaultFontSize
+                updateSaveButtonState()
                 refreshRows()
             }
             .show()
@@ -568,8 +582,10 @@ class FontsetEditorActivity : AppCompatActivity() {
                 } else {
                     android.util.Log.w("FontsetEditor", "Fcitx connection not available, config reload skipped")
                 }
-                toast(getString(R.string.fontset_saved_at, file.absolutePath))
-                finish()
+                toast(getString(R.string.fontset_saved_at))
+                initialFonts = selectedFonts.mapValues { it.value.toList() }
+                initialSizes = selectedFontSizes.toMap()
+                saveMenuItem?.isEnabled = false
             }.onFailure { e ->
                 val errorMsg = when (e) {
                     is java.io.IOException -> getString(R.string.fontset_save_failed_io_error)

@@ -295,8 +295,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val splitKeyboardEnabled = switch(
             R.string.split_keyboard_enabled,
             "split_keyboard_enabled",
-            true,  // Default enabled; may be adjusted based on device type on first install
-            R.string.split_keyboard_enabled_summary
+            true  // Default enabled; may be adjusted based on device type on first install
         )
 
         // Internal split keyboard settings (no UI, managed via calibration activity)
@@ -307,8 +306,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val splitKeyboardUseLandscapeLayout = switch(
             R.string.split_keyboard_use_landscape_layout,
             "split_keyboard_use_landscape_layout",
-            false,
-            R.string.split_keyboard_use_landscape_layout_summary
+            false
         )
 
         val horizontalCandidateStyle = enumList(

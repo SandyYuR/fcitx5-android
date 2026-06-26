@@ -70,6 +70,11 @@
     <string name="clipboard">剪貼簿</string>
     <string name="keyboard_height">鍵盤高度</string>
     <string name="virtual_keyboard">虛擬鍵盤</string>
+    <string name="keyboard_category_layout">佈局與尺寸</string>
+    <string name="keyboard_category_behavior">按鍵行為</string>
+    <string name="keyboard_category_feedback">按鍵回饋</string>
+    <string name="keyboard_category_toolbar">工具列與候選欄</string>
+    <string name="keyboard_category_editors">增強選項</string>
     <string name="one_handed_keyboard">單手鍵盤</string>
     <string name="clipboard_suggestion_timeout">剪貼簿項目逾時</string>
     <string name="version">版本</string>
@@ -261,10 +266,8 @@
     <string name="edit_color">編輯顏色</string>
     <string name="theme_color_editor_argb_label">ARGB</string>
     <string name="show_voice_input_button">顯示語音輸入鍵</string>
-    <string name="edit_fontset">編輯字型集</string>
-    <string name="edit_fontset_summary">編輯 fonts/fontset.json 並預覽字型組合</string>
-    <string name="edit_popup_preset">編輯彈出預設</string>
-    <string name="edit_popup_preset_summary">編輯按鍵彈出對應（key -&gt; 候選清單）</string>
+    <string name="edit_fontset">字型設定</string>
+    <string name="edit_popup_preset">彈出字元設定</string>
     <string name="edit_buttons">編輯按鈕</string>
     <string name="edit_buttons_summary">自定義 Kawaii Bar 和 Status Area 中的按鈕</string>
     <string name="buttons_customizer_hint">拖動按鈕重新排序或在 Kawaii Bar（頂行）和 Status Area（選單）之間移動。長按開始拖動。</string>
@@ -294,7 +297,7 @@
     <string name="popup_editor_add_candidate_button">新增</string>
     <string name="popup_editor_candidate_input_hint">請輸入候選值</string>
     <string name="cannot_resolve_popup_preset">無法定位彈出預設檔案</string>
-    <string name="popup_preset_saved_at">popuppreset.json 已儲存至：%1$s</string>
+    <string name="popup_preset_saved_at">已儲存</string>
     <string name="fcitx_daemon">Fcitx 常駐程式</string>
     <string name="restarting_fcitx">重新啟動 Fcitx</string>
     <string name="plugin_needs_reload">偵測到有外掛程式變化，點此重新載入</string>
@@ -411,7 +414,7 @@
     <string name="emoji_skin_tone_type_5">🏾 中等深膚色 (Type-5)</string>
     <string name="emoji_skin_tone_type_6">🏿 深膚色 (Type-6)</string>
     <string name="hide_unsupported_emojis">隱藏不支援的表情</string>
-    <string name="edit_text_keyboard_layout">編輯文字鍵盤佈局</string>
+    <string name="edit_text_keyboard_layout">修改鍵盤定義</string>
     <string name="text_keyboard_layout_preview">預覽</string>
     <string name="ok">確定</string>
     <string name="cancel">取消</string>
@@ -467,20 +470,17 @@
     <string name="text_keyboard_layout_file_saved">已儲存：%1$s</string>
     
     <!-- Split keyboard settings (refactored) -->
-    <string name="split_keyboard_enabled">啟用自動分體鍵盤</string>
-    <string name="split_keyboard_enabled_summary">根據鍵盤寬度自動啟用分體鍵盤。關閉後始終使用完整鍵盤。</string>
+    <string name="split_keyboard_enabled">自動分體鍵盤</string>
     <string name="split_keyboard_threshold">分體鍵盤閾值</string>
 
     <!-- Split keyboard calibration -->
     <string name="split_keyboard_calibration_title">分體鍵盤校準</string>
-    <string name="split_keyboard_calibration_summary">可視化預覽和調節分體鍵盤設置，支援自動推薦和摺疊屏適配</string>
     <string name="split_keyboard_device_info">📱 裝置資訊</string>
     <string name="split_keyboard_threshold_label">分體閾值 (dp)</string>
     <string name="split_keyboard_gap_label">中縫間隙 (%)</string>
     <string name="split_keyboard_auto_calibrate">自動校準</string>
     <string name="split_keyboard_reset">重置</string>
     <string name="split_keyboard_use_landscape_layout">分體鍵盤啟用橫向佈局</string>
-    <string name="split_keyboard_use_landscape_layout_summary">啟用且分體鍵盤作用時，套用橫向佈局參數（高度、邊距等）。此選項僅在自動分體鍵盤啟用時可用。</string>
     <string name="split_keyboard_preview_load_failed">預覽載入失敗：%1$s</string>
     <string name="split_keyboard_info_type">類型</string>
     <string name="split_keyboard_info_orientation">方向</string>
@@ -508,10 +508,9 @@
     <string name="split_keyboard_recommend_reason_phone">標準手機建議值</string>
     <string name="split_keyboard_auto_calibrate_toast">✅ 已套用建議值：%1$ddp，間隙 %2$d%%（%3$s）</string>
     <string name="split_keyboard_reset_toast">已重設為預設值</string>
-    <string name="fontset_editor_hint">點選每個項目從 fonts 目錄選擇一個或多個字體。多個字體按順序用作回退。</string>
+    <string name="fontset_editor_hint">勾選多個字型可依次回退，拖曳可調整順序</string>
     <string name="no_fonts_found">fonts/ 目錄中沒有字體檔案</string>
-    <string name="fontset_saved">fontset.json 已儲存</string>
-    <string name="fontset_saved_at">fontset.json 已儲存於：%1$s</string>
+    <string name="fontset_saved_at">已儲存</string>
     <string name="fontset_entry_font">基礎字體</string>
     <string name="fontset_entry_key_main">按鍵主字體</string>
     <string name="fontset_entry_key_alt">按鍵備用字體</string>
@@ -520,13 +519,13 @@
     <string name="fontset_entry_preedit">預編輯字體</string>
     <string name="key_border_stroke">按鍵邊框描邊</string>
     <string name="special_key_oval_shape">使用 Gboard 風格的操作按鍵</string>
-    <string name="edit_text_keyboard_layout_summary">編輯文字鍵盤佈局並預覽按鍵配置</string>
-    <string name="edit_text_keyboard_layout_summary_with_file">編輯文字鍵盤佈局（%1$s）</string>
-    <string name="text_keyboard_layout_file_select_title">文字鍵盤佈局檔案</string>
-    <string name="web_editor_bridge_title">區域網路 Web 編輯橋接</string>
-    <string name="web_editor_bridge_summary">啟動臨時本地橋接服務，供 web-editor 直接讀取／儲存 IME 資料</string>
-    <string name="web_editor_bridge_running_message">橋接服務已啟動。\n\n編輯器入口：\n%1$s\n\nAPI 基址：\n%2$s</string>
-    <string name="web_editor_bridge_start_failed">啟動橋接服務失敗：%1$s</string>
+    <string name="text_keyboard_layout_file_select_title">切換鍵盤定義配置</string>
+    <string name="web_editor_bridge_title">線上編輯器</string>
+    <string name="web_editor_bridge_summary">啟動本機服務，在瀏覽器中編輯設定</string>
+    <string name="web_editor_bridge_running_message">服務已啟動。\n\n編輯器入口：\n%1$s\n\nAPI 基地址：\n%2$s</string>
+    <string name="web_editor_bridge_running_status">執行中 · %1$s:%2$d</string>
+    <string name="web_editor_bridge_running_indicator">🟢 線上編輯器執行中</string>
+    <string name="web_editor_bridge_start_failed">啟動服務失敗：%1$s</string>
     <string name="web_editor_bridge_open">開啟編輯器頁面</string>
     <string name="web_editor_bridge_stop">停止服務</string>
     <string name="text_keyboard_layout_file_select_summary">目前檔案：%1$s</string>

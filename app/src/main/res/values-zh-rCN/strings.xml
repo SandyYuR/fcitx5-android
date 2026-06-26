@@ -70,6 +70,11 @@
     <string name="clipboard">剪贴板</string>
     <string name="keyboard_height">键盘高度</string>
     <string name="virtual_keyboard">虚拟键盘</string>
+    <string name="keyboard_category_layout">布局与尺寸</string>
+    <string name="keyboard_category_behavior">按键行为</string>
+    <string name="keyboard_category_feedback">按键反馈</string>
+    <string name="keyboard_category_toolbar">工具栏与候选栏</string>
+    <string name="keyboard_category_editors">增强选项</string>
     <string name="one_handed_keyboard">单手键盘</string>
     <string name="clipboard_suggestion_timeout">剪贴板提示超时</string>
     <string name="version">版本</string>
@@ -192,13 +197,11 @@
     <string name="clipboard_suggestion">显示剪贴板提示</string>
     
     <!-- Split keyboard settings (refactored) -->
-    <string name="split_keyboard_enabled">启用自动分体键盘</string>
-    <string name="split_keyboard_enabled_summary">根据键盘宽度自动启用分体键盘。关闭后始终使用完整键盘。</string>
+    <string name="split_keyboard_enabled">自动分体键盘</string>
     <string name="split_keyboard_threshold">分体键盘阈值</string>
 
     <!-- Split keyboard calibration -->
     <string name="split_keyboard_calibration_title">分体键盘校准</string>
-    <string name="split_keyboard_calibration_summary">可视化预览和调节分体键盘设置，支持自动推荐和折叠屏适配</string>
     <string name="split_keyboard_device_info">📱 设备信息</string>
     <string name="split_keyboard_threshold_label">分体阈值 (dp)</string>
     <string name="split_keyboard_gap_label">中缝间隙 (%)</string>
@@ -232,7 +235,6 @@
     <string name="split_keyboard_auto_calibrate_toast">✅ 已应用推荐值：%1$ddp，间隙 %2$d%%（%3$s）</string>
     <string name="split_keyboard_reset_toast">已重置为默认值</string>
     <string name="split_keyboard_use_landscape_layout">分体键盘时采用横屏布局参数</string>
-    <string name="split_keyboard_use_landscape_layout_summary">启用后，当分体键盘生效时使用横屏的布局参数（高度、边距等）。仅当启用自动分体键盘时可用。</string>
     <string name="disable_addon_warn_title">禁用附加组件</string>
     <string name="disable_addon_warn_name">禁用%1$s将同时：</string>
     <string name="disable_addon_warn_dep">禁用%1$s</string>
@@ -305,10 +307,8 @@
     <string name="edit_color">编辑颜色</string>
     <string name="theme_color_editor_argb_label">ARGB</string>
     <string name="show_voice_input_button">显示语音输入按钮</string>
-    <string name="edit_fontset">编辑字体集</string>
-    <string name="edit_fontset_summary">编辑 fonts/fontset.json 并预览字体组合</string>
-    <string name="edit_popup_preset">编辑弹出预设</string>
-    <string name="edit_popup_preset_summary">编辑按键弹出映射（key -&gt; 候选列表）</string>
+    <string name="edit_fontset">字体设定</string>
+    <string name="edit_popup_preset">弹出字符设定</string>
     <string name="edit_buttons">编辑按钮</string>
     <string name="edit_buttons_summary">自定义 Kawaii Bar 和 Status Area 中的按钮</string>
     <string name="buttons_customizer_hint">拖动按钮重新排序或在 Kawaii Bar（顶行）和 Status Area（菜单）之间移动。长按开始拖动。</string>
@@ -338,11 +338,10 @@
     <string name="popup_editor_add_candidate_button">添加</string>
     <string name="popup_editor_candidate_input_hint">请输入候选值</string>
     <string name="cannot_resolve_popup_preset">无法定位弹出预设文件</string>
-    <string name="popup_preset_saved_at">popuppreset.json 已保存到：%1$s</string>
-    <string name="fontset_editor_hint">点击每一项可从 fonts 目录选择一个或多个字体。多个字体将按顺序作为回退字体使用。</string>
+    <string name="popup_preset_saved_at">已保存</string>
+    <string name="fontset_editor_hint">勾选多个字体可依次回退，拖拽可调整顺序</string>
     <string name="no_fonts_found">在 fonts/ 中未找到字体文件</string>
-    <string name="fontset_saved">fontset.json 已保存</string>
-    <string name="fontset_saved_at">fontset.json 已保存到：%1$s</string>
+    <string name="fontset_saved_at">已保存</string>
     <string name="fontset_entry_font">基础字体</string>
     <string name="fontset_entry_key_main">按键主字体</string>
     <string name="fontset_entry_key_alt">按键副字体</string>
@@ -469,14 +468,14 @@
     <string name="special_key_oval_shape">使用 Gboard 风格的操作按键</string>
 
     <!-- Text Keyboard Layout Editor -->
-    <string name="edit_text_keyboard_layout">编辑文本键盘布局</string>
-    <string name="edit_text_keyboard_layout_summary">编辑文本键盘布局（TextKeyboardLayout.json）</string>
-    <string name="edit_text_keyboard_layout_summary_with_file">编辑文本键盘布局（%1$s）</string>
-    <string name="text_keyboard_layout_file_select_title">文本键盘布局文件</string>
-    <string name="web_editor_bridge_title">局域网 Web 编辑桥接</string>
-    <string name="web_editor_bridge_summary">启动临时本地桥接服务，供 web-editor 直接读取/保存 IME 数据</string>
-    <string name="web_editor_bridge_running_message">桥接服务已启动。\n\n编辑器入口：\n%1$s\n\nAPI 基地址：\n%2$s</string>
-    <string name="web_editor_bridge_start_failed">启动桥接服务失败：%1$s</string>
+    <string name="edit_text_keyboard_layout">修改键盘定义</string>
+    <string name="text_keyboard_layout_file_select_title">切换键盘定义配置</string>
+    <string name="web_editor_bridge_title">在线编辑器</string>
+    <string name="web_editor_bridge_summary">启动本地服务，在浏览器中编辑配置</string>
+    <string name="web_editor_bridge_running_status">运行中 · %1$s:%2$d</string>
+    <string name="web_editor_bridge_running_indicator">🟢 在线编辑器运行中</string>
+    <string name="web_editor_bridge_running_message">服务已启动。\n\n编辑器入口：\n%1$s\n\nAPI 基地址：\n%2$s</string>
+    <string name="web_editor_bridge_start_failed">启动服务失败：%1$s</string>
     <string name="web_editor_bridge_open">打开编辑器页面</string>
     <string name="web_editor_bridge_stop">停止服务</string>
     <string name="text_keyboard_layout_file_select_summary">当前配置：%1$s</string>
