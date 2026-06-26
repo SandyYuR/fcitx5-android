@@ -204,6 +204,16 @@
     <string name="floating_keyboard">Schwebende Tastatur</string>
     <string name="adjusting_mode_confirm">Fertig</string>
     <string name="edit_button_title">Schaltfläche bearbeiten</string>
+    <string name="edit_button_label_id">Kennung</string>
+    <string name="edit_button_label_text">Text</string>
+    <string name="edit_button_label_label">Bezeichnung</string>
+    <string name="edit_button_hint_id">eindeutige Kennung</string>
+    <string name="edit_button_hint_text">Emoji oder Zeichen statt Symbol</string>
+    <string name="edit_button_pick_icon">Symbol auswählen</string>
+    <string name="edit_button_macro">Makro</string>
+    <string name="edit_button_no_custom_icon">(kein eigenes Symbol)</string>
+    <string name="edit_button_macro_event_type">Tastenaktion</string>
+    <string name="edit_button_new_custom">Neue benutzerdefinierte Taste…</string>
     <string name="delete_button_title">Schaltfläche löschen</string>
     <string name="delete_button_confirm">Diese Schaltfläche löschen?</string>
     <string name="popup_editor_hint">Tippen Sie auf ein Element zum Bearbeiten. Lange drücken zum Löschen.</string>
@@ -734,4 +744,7 @@
     <string name="voice_error_audio_construct">AudioRecord-Erstellung verweigert: %s</string>
     <string name="voice_error_audio_not_init">AudioRecord nicht initialisiert</string>
     <string name="voice_error_audio_start_failed">Aufnahmestart fehlgeschlagen: %s</string>
-    </resources>
+        <string name="macro_editor_table_input_methods">Tabellebeneingabe</string>
+    <string name="macro_editor_pinyin_custom_phrase">Pinyin benutzerdefinierte Phrasen</string>
+    <string name="macro_editor_pinyin_dict">Pinyin-Wörterbuch</string>
+</resources>

@@ -6,11 +6,14 @@ package org.fcitx.fcitx5.android.input.bar.ui
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.drawable.Drawable
+import android.view.View
 import android.widget.ImageView
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
 import org.fcitx.fcitx5.android.utils.borderlessRippleDrawable
 import org.fcitx.fcitx5.android.utils.circlePressHighlightDrawable
@@ -18,8 +21,10 @@ import splitties.dimensions.dp
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.imageView
 import splitties.views.dsl.core.lParams
+import splitties.views.dsl.core.view
 import splitties.views.dsl.core.wrapContent
 import splitties.views.gravityCenter
+import splitties.views.imageDrawable
 import splitties.views.imageResource
 import splitties.views.padding
 
@@ -36,6 +41,13 @@ class ToolButton(context: Context) : CustomGestureView(context) {
         scaleType = ImageView.ScaleType.CENTER_INSIDE
     }
 
+    val textView = view(::AutoScaleTextView) {
+        setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 16f)
+        scaleMode = AutoScaleTextView.Mode.Proportional
+        gravity = gravityCenter
+        visibility = View.GONE
+    }
+
     private var theme: Theme? = null
     private var isActive: Boolean = false
 
@@ -45,10 +57,31 @@ class ToolButton(context: Context) : CustomGestureView(context) {
         setIcon(icon)
         setPressHighlightColor(theme.keyPressHighlightColor)
         add(image, lParams(wrapContent, wrapContent, gravityCenter))
+        add(textView, lParams(wrapContent, wrapContent, gravityCenter))
     }
 
     fun setIcon(@DrawableRes icon: Int) {
+        textView.visibility = View.GONE
+        image.visibility = View.VISIBLE
+        image.imageTintList = theme?.let { ColorStateList.valueOf(it.altKeyTextColor) }
         image.imageResource = icon
+    }
+
+    fun setIconFromDrawable(drawable: Drawable?) {
+        if (drawable != null) {
+            textView.visibility = View.GONE
+            image.visibility = View.VISIBLE
+            image.imageTintList = null
+            image.imageDrawable = drawable
+        }
+    }
+
+    fun setText(text: String?) {
+        if (!text.isNullOrEmpty()) {
+            image.visibility = View.GONE
+            textView.visibility = View.VISIBLE
+            textView.text = text
+        }
     }
 
     fun setPressHighlightColor(@ColorInt color: Int) {
@@ -71,10 +104,9 @@ class ToolButton(context: Context) : CustomGestureView(context) {
 
     private fun updateAppearance() {
         val theme = theme ?: return
-        // Only change icon color when active, background remains transparent
-        // Use accentKeyBackgroundColor to match the one-handed handle color
         val iconColor = if (isActive) theme.accentKeyBackgroundColor else theme.altKeyTextColor
 
         image.imageTintList = ColorStateList.valueOf(iconColor)
+        textView.setTextColor(iconColor)
     }
 }

@@ -8,6 +8,8 @@ import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.core.ScancodeMapping
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 /**
  * Macro 步骤类型
@@ -19,88 +21,48 @@ import org.fcitx.fcitx5.android.input.picker.PickerWindow
  * - Clipboard: 剪贴板操作（copy/cut/paste/selectAll/undo/redo）
  * - Shortcut: 快捷键（自动展开为 modifier down + key tap + modifier up）
  */
+@Serializable
 sealed class MacroStep {
-    /**
-     * 按下键（不释放）
-     * @param keys 按键列表，按顺序执行
-     */
+    @Serializable @SerialName("down")
     data class Down(val keys: List<KeyRef>) : MacroStep()
 
-    /**
-     * 释放键
-     * @param keys 按键列表，按顺序执行
-     */
+    @Serializable @SerialName("up")
     data class Up(val keys: List<KeyRef>) : MacroStep()
 
-    /**
-     * 点击键（按下并释放）
-     * @param keys 按键列表，按顺序执行
-     */
+    @Serializable @SerialName("tap")
     data class Tap(val keys: List<KeyRef>) : MacroStep()
 
-    /**
-     * 提交文本
-     * @param text 要提交的文本
-     */
+    @Serializable @SerialName("text")
     data class Text(val text: String) : MacroStep()
 
-    /**
-     * 编辑操作（copy/cut/paste/selectAll/undo/redo）
-     * @param action 操作类型：copy, cut, paste, selectAll, undo, redo
-     */
+    @Serializable @SerialName("edit")
     data class Edit(val action: String) : MacroStep()
 
-    /**
-     * 快捷键（自动展开为 modifier down + key tap + modifier up）
-     * @param modifiers 修饰键列表：如 [Ctrl_L, Alt_L]
-     * @param key 目标按键
-     */
+    @Serializable @SerialName("shortcut")
     data class Shortcut(val modifiers: List<KeyRef>, val key: KeyRef) : MacroStep()
 
-    /**
-     * 调用应用内动作（复用 ButtonAction id）
-     * @param id 动作 ID，如 "theme", "virtual_keyboard", "more"
-     */
+    @Serializable @SerialName("app_action")
     data class AppAction(val id: String) : MacroStep()
 
-    /**
-     * Layer switch action: TO/OSL
-     */
-    data class LayerSwitch(
-        val mode: KeyAction.LayerSwitchMode,
-        val target: String
-    ) : MacroStep()
+    @Serializable @SerialName("layer_switch")
+    data class LayerSwitch(val mode: KeyAction.LayerSwitchMode, val target: String) : MacroStep()
 }
 
-/**
- * 按键引用 - 使用字段名区分类型
- * - "fcitx": Fcitx 虚拟键
- * - "android": Android 实体键
- */
+@Serializable
 sealed class KeyRef {
-    /**
-     * Fcitx 虚拟键
-     * @param code 键名，如 "Ctrl_L", "Shift_L", "Enter", "a" 等
-     */
+    @Serializable @SerialName("fcitx")
     data class Fcitx(val code: String) : KeyRef()
 
-    /**
-     * Android 实体键
-     * @param code Android 键码，参考 android.view.KeyEvent
-     */
+    @Serializable @SerialName("android")
     data class Android(val code: Int) : KeyRef()
 }
 
-/**
- * Macro 动作，由多个 MacroStep 组成
- * 支持 down/up/tap/text 组合
- */
+@Serializable
 data class MacroAction(val steps: List<MacroStep>) : KeyAction()
 
 sealed class KeyAction {
-    enum class LayerSwitchMode {
-        TO, OSL
-    }
+    @Serializable
+    enum class LayerSwitchMode { TO, OSL }
 
     data class FcitxKeyAction(
         val act: String,

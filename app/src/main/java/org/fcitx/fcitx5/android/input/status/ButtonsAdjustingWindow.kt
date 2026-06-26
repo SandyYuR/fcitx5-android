@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.status
 
 import android.content.ClipData
 import android.content.res.Configuration
+import android.graphics.drawable.Drawable
 import android.view.DragEvent
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
@@ -328,10 +329,18 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
+    private fun loadFileIcon(path: String): Drawable? {
+        return try {
+            Drawable.createFromPath(path)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     private fun createTopButtonView(button: ConfigurableButton, index: Int): ToolButton {
         val action = ButtonAction.fromId(button.id)
-        val icon = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
-        return ToolButton(context, icon, currentTheme).apply {
+        val defaultIcon = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+        return ToolButton(context, defaultIcon, currentTheme).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 context.dp(KawaiiBarComponent.HEIGHT)
@@ -342,8 +351,17 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             minimumWidth = minWidthPx
             image.scaleType = ImageView.ScaleType.CENTER_INSIDE
             setupTopButtonDrag(this, index)
+            if (!button.text.isNullOrEmpty()) {
+                setText(button.text)
+            } else if (button.icon != null && button.icon.startsWith("file:")) {
+                val path = button.icon.removePrefix("file:")
+                val drawable = loadFileIcon(path)
+                if (drawable != null) {
+                    setIconFromDrawable(drawable)
+                }
+            }
         }
-    }
+        }
 
     private fun setTopButtonWidth(view: View, useEven: Boolean, evenWidth: Int) {
         (view.layoutParams as? LinearLayout.LayoutParams)?.width =
@@ -652,11 +670,11 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         val seen = mutableSetOf<String>()
         topButtons.clear()
         config.kawaiiBarButtons.forEach { button ->
-            if (button.id in configurableIds && seen.add(button.id)) topButtons.add(button)
+            if ((button.id in configurableIds || button.macroSteps != null) && seen.add(button.id)) topButtons.add(button)
         }
         bottomButtons.clear()
         config.statusAreaButtons.forEach { button ->
-            if (button.id != "input_method_options" && button.id in configurableIds && seen.add(button.id)) {
+            if (button.id != "input_method_options" && (button.id in configurableIds || button.macroSteps != null) && seen.add(button.id)) {
                 bottomButtons.add(button)
             }
         }

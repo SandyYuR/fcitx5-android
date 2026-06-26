@@ -107,7 +107,7 @@ class StatusAreaEntryUi(override val ctx: Context, private val theme: Theme) : U
         } else {
             icon.visibility = View.GONE
             textIcon.visibility = View.VISIBLE
-            textIcon.text = getFirstCharacter(entry.label)
+            textIcon.text = entry.displayText ?: getFirstCharacter(entry.label)
             textIcon.setTextColor(contentColor)
         }
         bkgDrawable.paint.color =

@@ -296,6 +296,16 @@
     <string name="floating_keyboard">フローティングキーボード</string>
     <string name="adjusting_mode_confirm">確定</string>
     <string name="edit_button_title">ボタンを編集</string>
+    <string name="edit_button_label_id">ID</string>
+    <string name="edit_button_label_text">テキスト</string>
+    <string name="edit_button_label_label">ラベル</string>
+    <string name="edit_button_hint_id">一意の識別子</string>
+    <string name="edit_button_hint_text">アイコンの代わりに表示する絵文字や文字</string>
+    <string name="edit_button_pick_icon">アイコンを選択</string>
+    <string name="edit_button_macro">マクロ</string>
+    <string name="edit_button_no_custom_icon">（カスタムアイコンなし）</string>
+    <string name="edit_button_macro_event_type">ボタンアクション</string>
+    <string name="edit_button_new_custom">新しいカスタムボタン…</string>
     <string name="delete_button_title">ボタンを削除</string>
     <string name="delete_button_confirm">このボタンを削除しますか？</string>
     <string name="popup_editor_hint">アイテムをタップして編集、長押しして削除。</string>
@@ -736,4 +746,7 @@
     <string name="voice_error_audio_construct">AudioRecord構築が拒否されました: %s</string>
     <string name="voice_error_audio_not_init">AudioRecordが初期化されていません</string>
     <string name="voice_error_audio_start_failed">録音開始に失敗しました: %s</string>
-    </resources>
+        <string name="macro_editor_table_input_methods">テーブル入力方式</string>
+    <string name="macro_editor_pinyin_custom_phrase">拼音カスタムフレーズ</string>
+    <string name="macro_editor_pinyin_dict">拼音辞書</string>
+</resources>

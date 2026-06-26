@@ -127,6 +127,16 @@
     <string name="floating_keyboard">플로팅 키보드</string>
     <string name="adjusting_mode_confirm">확인</string>
     <string name="edit_button_title">버튼 편집</string>
+    <string name="edit_button_label_id">ID</string>
+    <string name="edit_button_label_text">텍스트</string>
+    <string name="edit_button_label_label">라벨</string>
+    <string name="edit_button_hint_id">고유 식별자</string>
+    <string name="edit_button_hint_text">아이콘 대신 표시할 이모지 또는 문자</string>
+    <string name="edit_button_pick_icon">아이콘 선택</string>
+    <string name="edit_button_macro">매크로</string>
+    <string name="edit_button_no_custom_icon">(사용자 정의 아이콘 없음)</string>
+    <string name="edit_button_macro_event_type">버튼 동작</string>
+    <string name="edit_button_new_custom">새 사용자 정의 버튼…</string>
     <string name="delete_button_title">버튼 삭제</string>
     <string name="delete_button_confirm">이 버튼을 삭제하시겠습니까?</string>
     <string name="popup_editor_hint">항목을 탭하여 편집하고 길게 눌러 삭제합니다.</string>
@@ -738,4 +748,7 @@
     <string name="voice_error_audio_construct">AudioRecord 구성 거부됨: %s</string>
     <string name="voice_error_audio_not_init">AudioRecord가 초기화되지 않음</string>
     <string name="voice_error_audio_start_failed">녹음 시작 실패: %s</string>
-    </resources>
+        <string name="macro_editor_table_input_methods">테이블 입력 방식</string>
+    <string name="macro_editor_pinyin_custom_phrase">병음 사용자 정의 구문</string>
+    <string name="macro_editor_pinyin_dict">병음 사전</string>
+</resources>

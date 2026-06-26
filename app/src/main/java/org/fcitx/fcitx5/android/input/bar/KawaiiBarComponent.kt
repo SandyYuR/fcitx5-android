@@ -47,6 +47,7 @@ import org.fcitx.fcitx5.android.input.bar.KawaiiBarStateMachine.TransitionEvent.
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarStateMachine.TransitionEvent.ExtendedWindowAttached
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarStateMachine.TransitionEvent.PreeditUpdated
 import org.fcitx.fcitx5.android.input.action.ButtonAction
+import org.fcitx.fcitx5.android.input.action.executeMacroSteps
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarStateMachine.TransitionEvent.WindowDetached
 import org.fcitx.fcitx5.android.input.bar.ui.CandidateUi
 import org.fcitx.fcitx5.android.input.bar.ui.IdleUi
@@ -479,6 +480,9 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 )
                 true
             }
+
+            // Setup click listeners for custom action buttons
+            setupCustomActionListeners(ui)
         }
         ui.numberRow.onCollapseListener = {
             numberRowState = NumberRowState.ForceHide
@@ -512,9 +516,23 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         val newConfig = loadButtonsConfig()
         if (newConfig != currentButtonsConfig) {
             currentButtonsConfig = newConfig
-            // Update the existing IdleUi with new config
             _idleUi?.buttonsUi?.updateConfig(newConfig)
+            _idleUi?.let { setupCustomActionListeners(it) }
             updateButtonsState()
+        }
+    }
+
+    private fun setupCustomActionListeners(ui: IdleUi) {
+        fun restoreVirtualKeyboardMode() {
+            service.restoreVirtualKeyboardForKawaiiBarAction()
+        }
+        currentButtonsConfig.forEach { button ->
+            val steps = button.macroSteps ?: return@forEach
+            if (steps.isEmpty()) return@forEach
+            ui.buttonsUi.setOnClickListener(button.id) {
+                restoreVirtualKeyboardMode()
+                executeMacroSteps(steps, service, context)
+            }
         }
     }
 

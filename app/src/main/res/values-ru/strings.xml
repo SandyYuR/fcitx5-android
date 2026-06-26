@@ -368,6 +368,16 @@
     <string name="floating_keyboard">Плавающая клавиатура</string>
     <string name="adjusting_mode_confirm">Готово</string>
     <string name="edit_button_title">Редактировать кнопку</string>
+    <string name="edit_button_label_id">ид</string>
+    <string name="edit_button_label_text">текст</string>
+    <string name="edit_button_label_label">метка</string>
+    <string name="edit_button_hint_id">уникальный идентификатор</string>
+    <string name="edit_button_hint_text">эмодзи или символ вместо значка</string>
+    <string name="edit_button_pick_icon">Выбрать значок</string>
+    <string name="edit_button_macro">Макрос</string>
+    <string name="edit_button_no_custom_icon">(нет своего значка)</string>
+    <string name="edit_button_macro_event_type">Действие кнопки</string>
+    <string name="edit_button_new_custom">Новая своя кнопка…</string>
     <string name="delete_button_title">Удалить кнопку</string>
     <string name="delete_button_confirm">Удалить эту кнопку?</string>
     <string name="popup_editor_hint">Нажмите на элемент, чтобы редактировать. Долгое нажатие для удаления.</string>
@@ -736,4 +746,7 @@
     <string name="voice_error_audio_construct">AudioRecord создание запрещено: %s</string>
     <string name="voice_error_audio_not_init">AudioRecord не инициализирован</string>
     <string name="voice_error_audio_start_failed">Ошибка начала записи: %s</string>
-    </resources>
+        <string name="macro_editor_table_input_methods">Табличный ввод</string>
+    <string name="macro_editor_pinyin_custom_phrase">Пользовательские фразы пиньинь</string>
+    <string name="macro_editor_pinyin_dict">Словарь пиньинь</string>
+</resources>

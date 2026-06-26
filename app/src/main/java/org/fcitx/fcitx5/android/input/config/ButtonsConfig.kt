@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.config
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 
 /**
  * Represents a configurable button on Kawaii Bar or Status Area.
@@ -22,8 +23,9 @@ data class ConfigurableButton(
     
     /**
      * Optional: Icon resource name (without extension) to use for this button.
+     * Prefix with "file:" to load from file path.
      * If null, uses default icon for the action.
-     * Examples: "ic_baseline_undo_24", "ic_clipboard", "ic_cursor_move"
+     * Examples: "ic_baseline_undo_24", "ic_clipboard", "file:my_icon.png"
      */
     @SerialName("icon")
     val icon: String? = null,
@@ -34,6 +36,14 @@ data class ConfigurableButton(
      */
     @SerialName("label")
     val label: String? = null,
+
+    /**
+     * Optional: Custom text/emoji to display on the button instead of icon.
+     * When non-null, takes priority over icon drawable.
+     * Examples: "✂️", "Aa", "剪"
+     */
+    @SerialName("text")
+    val text: String? = null,
     
     /**
      * Optional: Long press action, if different from short press.
@@ -41,7 +51,14 @@ data class ConfigurableButton(
      * Examples: "floating_menu" (for floating_toggle long press)
      */
     @SerialName("longPressAction")
-    val longPressAction: String? = null
+    val longPressAction: String? = null,
+
+    /**
+     * Optional: Macro steps for user-defined buttons.
+     * When non-null and non-empty, executes these steps instead of looking up [ButtonAction.fromId].
+     */
+    @SerialName("macroSteps")
+    val macroSteps: List<MacroStep>? = null
 )
 
 /**

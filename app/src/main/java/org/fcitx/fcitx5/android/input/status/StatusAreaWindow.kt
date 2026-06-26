@@ -24,6 +24,7 @@ import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.action.ButtonAction
+import org.fcitx.fcitx5.android.input.action.executeMacroSteps
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigChangeListener
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
@@ -78,11 +79,21 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
         val config = currentButtonsConfig.ifEmpty { loadButtonsConfig() }
         // Filter out input_method_options as it's always added automatically at the end
         val configurableEntries = config.filter { it.id != "input_method_options" }.mapNotNull { button ->
+            // Handle custom action buttons
+            if (button.macroSteps != null) {
+                val label = button.label ?: button.id
+                val iconRes = if (!button.text.isNullOrEmpty()) 0
+                else ButtonAction.fromId(button.id)?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+                return@mapNotNull StatusAreaEntry.CustomEntry(button.id, button.macroSteps, label, iconRes, displayText = button.text)
+            }
             // Find the corresponding ButtonAction
             val action = ButtonAction.fromId(button.id) ?: return@mapNotNull null
 
             // Get label (custom or default)
             val label = button.label ?: context.getString(action.defaultLabelRes)
+
+            // Use text icon if custom text is set, otherwise use action default icon
+            val iconRes = if (!button.text.isNullOrEmpty()) 0 else action.defaultIcon
 
             // Check if button should be active
             val active = action.isActive(service)
@@ -94,7 +105,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                 null
             }
 
-            StatusAreaEntry.ActionEntry(action, label, action.defaultIcon, active, longPressAction)
+            StatusAreaEntry.ActionEntry(action, label, iconRes, active, longPressAction, displayText = button.text)
         }
 
         // Always add input_method_options at the end (fixed, not configurable)
@@ -268,6 +279,10 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                         if (entry.buttonAction.id != "floating_toggle" && !opensOwnWindow) {
                             windowManager.attachWindow(KeyboardWindow)
                         }
+                    }
+                    is StatusAreaEntry.CustomEntry -> {
+                        executeMacroSteps(entry.macroSteps, service, context)
+                        windowManager.attachWindow(KeyboardWindow)
                     }
                 }
             }

@@ -155,6 +155,16 @@
     <string name="floating_keyboard">Teclado flotante</string>
     <string name="adjusting_mode_confirm">Listo</string>
     <string name="edit_button_title">Editar botón</string>
+    <string name="edit_button_label_id">id</string>
+    <string name="edit_button_label_text">texto</string>
+    <string name="edit_button_label_label">etiqueta</string>
+    <string name="edit_button_hint_id">identificador único</string>
+    <string name="edit_button_hint_text">emoji o carácter en lugar de icono</string>
+    <string name="edit_button_pick_icon">Elegir icono</string>
+    <string name="edit_button_macro">Macro</string>
+    <string name="edit_button_no_custom_icon">(sin icono personalizado)</string>
+    <string name="edit_button_macro_event_type">Acción de botón</string>
+    <string name="edit_button_new_custom">Nuevo botón personalizado…</string>
     <string name="delete_button_title">Eliminar botón</string>
     <string name="delete_button_confirm">¿Eliminar este botón?</string>
     <string name="popup_editor_hint">Toque un elemento para editar. Mantenga presionado para eliminar.</string>
@@ -738,4 +748,7 @@
     <string name="voice_error_audio_construct">AudioRecord construcción denegada: %s</string>
     <string name="voice_error_audio_not_init">AudioRecord no inicializado</string>
     <string name="voice_error_audio_start_failed">Error al iniciar grabación: %s</string>
-    </resources>
+        <string name="macro_editor_table_input_methods">Método de entrada por tabla</string>
+    <string name="macro_editor_pinyin_custom_phrase">Frases personalizadas de Pinyin</string>
+    <string name="macro_editor_pinyin_dict">Diccionario Pinyin</string>
+</resources>

@@ -281,6 +281,16 @@
     <string name="floating_keyboard">浮動鍵盤</string>
     <string name="adjusting_mode_confirm">確認</string>
     <string name="edit_button_title">編輯按鈕</string>
+    <string name="edit_button_label_id">識別碼</string>
+    <string name="edit_button_label_text">文字</string>
+    <string name="edit_button_label_label">標籤</string>
+    <string name="edit_button_hint_id">唯一識別碼</string>
+    <string name="edit_button_hint_text">代替圖示顯示的 emoji 或文字</string>
+    <string name="edit_button_pick_icon">選擇圖示檔案</string>
+    <string name="edit_button_macro">巨集</string>
+    <string name="edit_button_no_custom_icon">（無自訂圖示）</string>
+    <string name="edit_button_macro_event_type">按鈕動作</string>
+    <string name="edit_button_new_custom">新增自訂按鈕…</string>
     <string name="delete_button_title">刪除按鈕</string>
     <string name="delete_button_confirm">刪除此按鈕？</string>
     <string name="popup_editor_hint">點擊項目可編輯，長按可刪除。</string>
@@ -751,4 +761,7 @@
     <string name="voice_error_audio_construct">AudioRecord 建構被拒絕：%s</string>
     <string name="voice_error_audio_not_init">AudioRecord 未初始化</string>
     <string name="voice_error_audio_start_failed">開始錄音失敗：%s</string>
+    <string name="macro_editor_table_input_methods">碼表輸入法</string>
+    <string name="macro_editor_pinyin_custom_phrase">拼音自訂片語</string>
+    <string name="macro_editor_pinyin_dict">拼音詞典</string>
 </resources>

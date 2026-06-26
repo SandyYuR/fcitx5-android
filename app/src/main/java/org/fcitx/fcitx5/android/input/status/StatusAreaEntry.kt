@@ -8,12 +8,14 @@ import androidx.annotation.DrawableRes
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.Action
 import org.fcitx.fcitx5.android.input.action.ButtonAction
+import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 
 sealed class StatusAreaEntry(
     val label: String,
     @DrawableRes
     val icon: Int,
-    val active: Boolean
+    val active: Boolean,
+    val displayText: String? = null
 ) {
     /**
      * Status Area entry backed by a ButtonAction
@@ -23,8 +25,9 @@ sealed class StatusAreaEntry(
         label: String,
         icon: Int,
         active: Boolean = false,
-        val longPressAction: LongPressActionType? = null
-    ) : StatusAreaEntry(label, icon, active) {
+        val longPressAction: LongPressActionType? = null,
+        displayText: String? = null
+    ) : StatusAreaEntry(label, icon, active, displayText) {
         enum class LongPressActionType {
             EnterAdjustingMode
         }
@@ -43,6 +46,15 @@ sealed class StatusAreaEntry(
 
     class Fcitx(val action: Action, label: String, icon: Int, active: Boolean) :
         StatusAreaEntry(label, icon, active)
+
+    class CustomEntry(
+        val buttonId: String,
+        val macroSteps: List<MacroStep>,
+        label: String,
+        icon: Int,
+        active: Boolean = false,
+        displayText: String? = null
+    ) : StatusAreaEntry(label, icon, active, displayText)
 
     companion object {
         private fun drawableFromIconName(icon: String) = when (icon) {

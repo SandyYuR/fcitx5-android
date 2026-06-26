@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.input.bar.ui.idle
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -89,7 +90,7 @@ class ButtonsBarUi(
     @DrawableRes
     private fun getIconResForButton(buttonId: String, customIcon: String?): Int {
         // If custom icon is specified, try to find it
-        if (customIcon != null) {
+        if (customIcon != null && !customIcon.startsWith("file:")) {
             // Try to get resource ID from name
             val resId = ctx.resources.getIdentifier(customIcon, "drawable", ctx.packageName)
             if (resId != 0) return resId
@@ -97,6 +98,26 @@ class ButtonsBarUi(
 
         // Return default icon from ButtonAction
         return ButtonAction.fromId(buttonId)?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+    }
+
+    private fun loadFileIcon(path: String): Drawable? {
+        return try {
+            Drawable.createFromPath(path)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun applyIconAndText(button: ToolButton, config: ConfigurableButton) {
+        if (!config.text.isNullOrEmpty()) {
+            button.setText(config.text)
+        } else if (config.icon != null && config.icon.startsWith("file:")) {
+            val path = config.icon.removePrefix("file:")
+            val drawable = loadFileIcon(path)
+            if (drawable != null) {
+                button.setIconFromDrawable(drawable)
+            }
+        }
     }
 
     private fun getDefaultLabel(buttonId: String): String {
@@ -166,6 +187,7 @@ class ButtonsBarUi(
                 clickListeners[config.id]?.let { setOnClickListener(it) }
                 longClickListeners[config.id]?.let { setOnLongClickListener(it) }
             }
+            applyIconAndText(button, config)
             buttonMap[config.id] = button
             return ButtonViewHolder(button)
         }
@@ -178,6 +200,7 @@ class ButtonsBarUi(
             val button = holder.button
             val config = buttons[position]
             buttonMap[config.id] = button
+            applyIconAndText(button, config)
 
             val params = holder.button.layoutParams as FlexboxLayoutManager.LayoutParams
 

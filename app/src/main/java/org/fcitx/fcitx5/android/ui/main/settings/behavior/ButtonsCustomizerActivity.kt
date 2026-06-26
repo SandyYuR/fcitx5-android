@@ -4,21 +4,26 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import android.graphics.drawable.Drawable
 import android.graphics.Typeface
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -38,6 +43,10 @@ import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
+import org.fcitx.fcitx5.android.input.keyboard.KeyRef
+import org.fcitx.fcitx5.android.input.keyboard.MacroStep
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorActivity
+import org.fcitx.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import splitties.resources.styledColor
@@ -550,8 +559,90 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             .show()
     }
 
+    // Macro editor launcher
+
+    private val macroJson = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private var pendingMacroCallback: ((List<MacroStep>?) -> Unit)? = null
+    private val macroEditorLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val json = result.data?.getStringExtra(MacroEditorActivity.EXTRA_MACRO_RESULT_JSON)
+            val steps = if (json != null) {
+                try { macroJson.decodeFromString<List<MacroStep>>(json) } catch (_: Exception) { null }
+            } else null
+            pendingMacroCallback?.invoke(steps ?: MacroEditorActivity.fromStepsExtra(
+                result.data?.serializable<ArrayList<Map<*, *>>>(MacroEditorActivity.EXTRA_MACRO_RESULT)
+            ))
+        }
+    }
+
+    // File picker for custom icon
+    private var pendingIconCallback: ((String?) -> Unit)? = null
+    private val iconPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            try {
+                // Get the original filename from the content provider
+                var fileName = "icon"
+                contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val nameIdx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        if (nameIdx >= 0) fileName = cursor.getString(nameIdx)
+                    }
+                }
+                val extDir = getExternalFilesDir(null) ?: filesDir
+                val iconDir = File(extDir, "button_icons")
+                iconDir.mkdirs()
+                val destFile = File(iconDir, fileName)
+                contentResolver.openInputStream(uri)?.use { input ->
+                    destFile.outputStream().use { output -> input.copyTo(output) }
+                }
+                pendingIconCallback?.invoke("file:${destFile.absolutePath}")
+            } catch (_: Exception) {
+                pendingIconCallback?.invoke(null)
+            }
+        } else {
+            pendingIconCallback?.invoke(null)
+        }
+    }
+
+    private fun openMacroEditor(steps: List<MacroStep>?, callback: (List<MacroStep>?) -> Unit) {
+        pendingMacroCallback = callback
+        val intent = android.content.Intent(this, MacroEditorActivity::class.java).apply {
+            val stepsList = steps ?: emptyList()
+            putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS_JSON, macroJson.encodeToString(stepsList))
+            // Also include Map format for backward compatibility
+            putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, MacroEditorActivity.toStepsExtra(stepsList))
+            putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, getString(R.string.edit_button_macro_event_type))
+            putStringArrayListExtra(MacroEditorActivity.EXTRA_LAYOUT_TARGETS, ArrayList())
+        }
+        macroEditorLauncher.launch(intent)
+    }
+
+    private fun labeledInput(label: String, hint: String, value: String?, parent: LinearLayout): EditText {
+        val row = LinearLayout(parent.context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, dp(4), 0, 0)
+        }
+        TextView(parent.context).apply {
+            text = label
+            textSize = 12f
+            setTypeface(null, Typeface.BOLD)
+            layoutParams = LinearLayout.LayoutParams(wrapContent, wrapContent).apply { gravity = android.view.Gravity.CENTER_VERTICAL }
+        }.also { row.addView(it) }
+        val editText = EditText(parent.context).apply {
+            this.hint = hint
+            setText(value ?: "")
+            layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply { weight = 1f; marginStart = dp(8) }
+        }
+        row.addView(editText)
+        parent.addView(row)
+        return editText
+    }
+
     private fun openButtonEditor(button: ConfigurableButton, position: Int, section: Section) {
-        val buttonDef = availableButtons.find { it.id == button.id }
         val isBuiltIn = button.id in builtInButtonIds
 
         val dialogView = LinearLayout(this).apply {
@@ -559,24 +650,81 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             setPadding(dp(16), dp(16), dp(16), dp(16))
         }
 
-        // Button info
-        val infoText = TextView(this).apply {
-            text = "${getString(buttonDef?.labelRes ?: 0).ifEmpty { button.id }} (${button.id})"
-            textSize = 14f
-            setTypeface(null, Typeface.BOLD)
-            setPadding(0, 0, 0, dp(8))
+        // Macro steps data
+        var currentSteps = button.macroSteps
+        lateinit var stepsSummaryText: TextView
+        fun stepsSummary(): String {
+            val s = currentSteps ?: return "(none)"
+            if (s.isEmpty()) return "(none)"
+            return s.joinToString(" → ") { step ->
+                when (step) {
+                    is MacroStep.Tap -> "Tap ${step.keys.joinToString { (it as? KeyRef.Fcitx)?.code ?: it.toString() }}"
+                    is MacroStep.Text -> "Text: ${step.text.take(12)}"
+                    is MacroStep.AppAction -> "App: ${step.id}"
+                    is MacroStep.Shortcut -> "Shortcut: ${step.key}"
+                    is MacroStep.Edit -> "Edit: ${step.action}"
+                    is MacroStep.Down -> "Down: ${step.keys.size} key(s)"
+                    is MacroStep.Up -> "Up: ${step.keys.size} key(s)"
+                    is MacroStep.LayerSwitch -> "Layer: ${step.mode}→${step.target}"
+                }
+            }
         }
-        dialogView.addView(infoText)
 
-        // Custom label input (only for custom buttons, not built-in)
+        // ID input (only for non-built-in)
+        var idInput: EditText? = null
+        if (!isBuiltIn) {
+            idInput = labeledInput(getString(R.string.edit_button_label_id), getString(R.string.edit_button_hint_id), button.id, dialogView)
+        }
+
+        // Text icon input
+        val textInput = labeledInput(getString(R.string.edit_button_label_text), getString(R.string.edit_button_hint_text), button.text, dialogView)
+
+        // Custom label input (only for non-built-in)
         var labelInput: EditText? = null
         if (!isBuiltIn) {
-            labelInput = EditText(this).apply {
-                hint = getString(R.string.custom_label_hint)
-                setText(button.label ?: "")
-            }
-            dialogView.addView(labelInput)
+            labelInput = labeledInput(getString(R.string.edit_button_label_label), getString(R.string.custom_label_hint), button.label, dialogView)
         }
+
+        // File icon picker
+        var iconPath = button.icon
+        lateinit var iconPathText: TextView
+        val iconBtnRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        val pickIconBtn = Button(this).apply {
+            text = getString(R.string.edit_button_pick_icon)
+            textSize = 12f
+            layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply { weight = 1f; topMargin = dp(4) }
+            setOnClickListener {
+                pendingIconCallback = { path ->
+                    if (path != null) {
+                        iconPath = path
+                        iconPathText.text = path.removePrefix("file:").takeLast(30)
+                    }
+                }
+                iconPickerLauncher.launch(arrayOf("image/png", "image/webp"))
+            }
+        }
+        val clearIconBtn = Button(this).apply {
+            text = "✕"
+            textSize = 12f
+            layoutParams = LinearLayout.LayoutParams(wrapContent, wrapContent).apply { marginStart = dp(4); topMargin = dp(4) }
+            setOnClickListener {
+                iconPath = null
+                iconPathText.text = getString(R.string.edit_button_no_custom_icon)
+            }
+        }
+        iconBtnRow.addView(pickIconBtn)
+        iconBtnRow.addView(clearIconBtn)
+        dialogView.addView(iconBtnRow)
+        iconPathText = TextView(this).apply {
+            text = if (button.icon != null && button.icon.startsWith("file:"))
+                button.icon.removePrefix("file:").takeLast(30) else getString(R.string.edit_button_no_custom_icon)
+            textSize = 11f
+            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setPadding(dp(8), dp(2), 0, 0)
+        }
+        dialogView.addView(iconPathText)
 
         // Long press action (only for floating_toggle)
         var longPressToggle: CheckBox? = null
@@ -589,43 +737,95 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             dialogView.addView(longPressToggle)
         }
 
-        // Delete button (only for custom buttons, not built-in)
+        // Edit Macro Steps button
         if (!isBuiltIn) {
-            val deleteButton = TextView(this).apply {
-                text = getString(R.string.delete)
-                textSize = 14f
-                setTextColor(styledColor(android.R.attr.colorError))
-                setPadding(0, dp(16), 0, 0)
+            val macroBtn = Button(this).apply {
+                text = getString(R.string.edit_button_macro)
+                textSize = 12f
+                layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent).apply { topMargin = dp(4) }
                 setOnClickListener {
-                    AlertDialog.Builder(this@ButtonsCustomizerActivity)
-                        .setTitle(R.string.delete_button_title)
-                        .setMessage(R.string.delete_button_confirm)
-                        .setPositiveButton(R.string.delete) { _, _ ->
-                            items.removeAt(position)
-                            adapter?.notifyItemRemoved(position)
-                            updateAddButtonsSection()
-                            adapter?.notifyDataSetChanged() // 更新 AddButtons 区域
-                            updateSaveButtonState()
+                    openMacroEditor(currentSteps) { newSteps ->
+                        if (newSteps != null) {
+                            currentSteps = newSteps.ifEmpty { null }
+                            stepsSummaryText.text = stepsSummary()
                         }
-                        .setNegativeButton(R.string.cancel, null)
-                        .show()
+                    }
                 }
             }
-            dialogView.addView(deleteButton)
+            dialogView.addView(macroBtn)
+        }
+
+        // Macro steps summary
+        if (!isBuiltIn) {
+            stepsSummaryText = TextView(this).apply {
+                text = stepsSummary()
+                textSize = 11f
+                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setPadding(dp(8), dp(4), 0, 0)
+            }
+            dialogView.addView(stepsSummaryText)
+        }
+
+        // Delete button (only for non-built-in buttons) - shown as neutral button in dialog
+        if (!isBuiltIn) {
+            dialogView.addView(View(this).apply { layoutParams = ViewGroup.LayoutParams(0, dp(8)) })
         }
 
         AlertDialog.Builder(this)
-            .setTitle(R.string.edit_button_title)
+            .setTitle("${getString(R.string.edit_button_title)} ${button.id}")
             .setView(dialogView)
+            .apply {
+                if (!isBuiltIn) {
+                    setNeutralButton(R.string.delete) { dialog, _ ->
+                        AlertDialog.Builder(this@ButtonsCustomizerActivity)
+                            .setTitle(R.string.delete_button_title)
+                            .setMessage(R.string.delete_button_confirm)
+                            .setPositiveButton(R.string.delete) { _, _ ->
+                                items.removeAt(position)
+                                adapter?.notifyItemRemoved(position)
+                                updateAddButtonsSection()
+                                adapter?.notifyDataSetChanged()
+                                updateSaveButtonState()
+                                dialog.dismiss()
+                            }
+                            .setNegativeButton(R.string.cancel, null)
+                            .show()
+                    }
+                }
+            }
             .setPositiveButton(R.string.ok) { _, _ ->
+                val customText = textInput.text?.toString()?.trim()?.ifEmpty { null }
                 val customLabel = if (isBuiltIn) null else labelInput?.text?.toString()?.trim()?.ifEmpty { null }
                 val longPressAction = if (longPressToggle?.isChecked == true) "floating_menu" else null
 
+                val newId = idInput?.text?.toString()?.trim()?.takeIf { it.isNotEmpty() } ?: button.id
+                // Validate ID
+                val reservedIds = setOf("more", "input_method_options")
+                if (newId.isEmpty()) {
+                    Toast.makeText(this@ButtonsCustomizerActivity, R.string.edit_button_id_empty, Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                if (newId in reservedIds) {
+                    Toast.makeText(this@ButtonsCustomizerActivity, R.string.edit_button_id_reserved, Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                if (newId != button.id) {
+                    val duplicate = items.filterIsInstance<ListItem.ButtonItem>()
+                        .filterIndexed { idx, _ -> idx != position }
+                        .any { it.button.id == newId }
+                    if (duplicate) {
+                        Toast.makeText(this@ButtonsCustomizerActivity, R.string.edit_button_id_duplicate, Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+                }
+
                 val updatedButton = ConfigurableButton(
-                    id = button.id,
-                    icon = button.icon,
+                    id = newId,
+                    icon = iconPath,
                     label = customLabel,
-                    longPressAction = longPressAction
+                    text = customText,
+                    longPressAction = longPressAction,
+                    macroSteps = currentSteps
                 )
 
                 items[position] = ListItem.ButtonItem(updatedButton, section)
@@ -634,6 +834,15 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    private fun generateCustomButtonId(): String {
+        val existingCustomIds = items.filterIsInstance<ListItem.ButtonItem>()
+            .map { it.button.id }
+            .filter { it !in builtInButtonIds }
+        var idx = 1
+        while ("custom_$idx" in existingCustomIds) idx++
+        return "custom_$idx"
     }
 
     private fun saveConfig() {
@@ -730,20 +939,38 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     holder.ui.setButton("", 0, "+")
                     holder.ui.root.setOnClickListener {
                         // Show add button dialog
+                        val currentIds = items.filterIsInstance<ListItem.ButtonItem>().map { it.button.id }.toSet()
                         val availableIds = availableButtons.filter { button ->
-                            items.filterIsInstance<ListItem.ButtonItem>().none { it.button.id == button.id }
+                            button.id !in currentIds
                         }.map { it.id }
                         
-                        if (availableIds.isEmpty()) {
-                            Toast.makeText(this@ButtonsCustomizerActivity, R.string.all_buttons_added, Toast.LENGTH_SHORT).show()
-                        } else {
-                            // Show a popup menu with available buttons
-                            val popup = android.widget.PopupMenu(this@ButtonsCustomizerActivity, holder.ui.root)
-                            availableIds.forEach { id ->
-                                val buttonDef = availableButtons.find { it.id == id }
-                                popup.menu.add(buttonDef?.let { getString(it.labelRes) } ?: id)
-                            }
-                            popup.setOnMenuItemClickListener { menuItem ->
+                        // Show a popup menu with available buttons
+                        val popup = android.widget.PopupMenu(this@ButtonsCustomizerActivity, holder.ui.root)
+                        availableIds.forEach { id ->
+                            val buttonDef = availableButtons.find { it.id == id }
+                            popup.menu.add(buttonDef?.let { getString(it.labelRes) } ?: id)
+                        }
+                        val customLabel = getString(R.string.edit_button_new_custom)
+                        popup.menu.add(customLabel)
+                        popup.setOnMenuItemClickListener { menuItem ->
+                            if (menuItem.title == customLabel) {
+                                val customId = generateCustomButtonId()
+                                val targetSection = if (isKawaiiBar) Section.KawaiiBar else Section.StatusArea
+                                val newButton = ConfigurableButton(
+                                    id = customId,
+                                    text = null,
+                                    macroSteps = listOf(MacroStep.Text(""))
+                                )
+                                items.add(position, ListItem.ButtonItem(newButton, targetSection))
+                                adapter?.notifyItemInserted(position)
+                                updateAddButtonsSection()
+                                adapter?.notifyDataSetChanged()
+                                updateSaveButtonState()
+                                // Open editor immediately so user can configure
+                                recyclerView.post {
+                                    openButtonEditor(newButton, position, targetSection)
+                                }
+                            } else {
                                 val buttonDef = availableButtons.find { getString(it.labelRes) == menuItem.title }
                                 if (buttonDef != null) {
                                     val targetSection = if (isKawaiiBar) Section.KawaiiBar else Section.StatusArea
@@ -759,24 +986,33 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                                     adapter?.notifyDataSetChanged()
                                     updateSaveButtonState()
                                 }
-                                true
                             }
-                            popup.show()
+                            true
                         }
+                        popup.show()
                     }
                 }
                 is ButtonViewHolder -> {
                     val buttonItem = item as ListItem.ButtonItem
-                    val buttonDef = availableButtons.find { it.id == buttonItem.button.id }
-                    val label = buttonItem.button.label ?: buttonDef?.let { getString(it.labelRes) } ?: buttonItem.button.id
-                    val iconRes = buttonDef?.iconRes ?: 0
-                    val isBuiltIn = buttonItem.button.id in builtInButtonIds
-
-                    holder.ui.setButton(label, iconRes)
-                    holder.ui.root.setOnClickListener {
-                        if (!isBuiltIn) {
-                            openButtonEditor(buttonItem.button, position, buttonItem.section)
+                    val b = buttonItem.button
+                    val buttonDef = availableButtons.find { it.id == b.id }
+                    val label = b.label ?: buttonDef?.let { getString(it.labelRes) } ?: b.id
+                    val displayIconRes = when {
+                        !b.text.isNullOrEmpty() -> 0
+                        b.icon != null && b.icon.startsWith("file:") -> 0
+                        b.icon != null -> {
+                            val resId = resources.getIdentifier(b.icon, "drawable", packageName)
+                            if (resId != 0) resId else (buttonDef?.iconRes ?: 0)
                         }
+                        else -> (buttonDef?.iconRes ?: 0)
+                    }
+                    val drawable = if (b.icon != null && b.icon.startsWith("file:")) {
+                        try { Drawable.createFromPath(b.icon.removePrefix("file:")) } catch (_: Exception) { null }
+                    } else null
+
+                    holder.ui.setButton(label, displayIconRes, b.text, drawable)
+                    holder.ui.root.setOnClickListener {
+                        openButtonEditor(buttonItem.button, position, buttonItem.section)
                     }
                     holder.ui.root.setOnLongClickListener(null)
                 }
@@ -806,7 +1042,8 @@ class ButtonEntryUi(
     private val theme: Theme,
     private var label: String,
     private var iconRes: Int,
-    private var circleText: String? = null // Text to display in the circular button (e.g., "+")
+    private var circleText: String? = null,
+    private var customDrawable: android.graphics.drawable.Drawable? = null
 ) : Ui {
 
     private val bkgDrawable = ShapeDrawable(OvalShape())
@@ -861,10 +1098,11 @@ class ButtonEntryUi(
         updateIcon()
     }
 
-    fun setButton(newLabel: String, newIconRes: Int, newCircleText: String? = null) {
+    fun setButton(newLabel: String, newIconRes: Int, newCircleText: String? = null, newDrawable: android.graphics.drawable.Drawable? = null) {
         label = newLabel
         iconRes = newIconRes
         circleText = newCircleText
+        customDrawable = newDrawable
         labelView.text = label
         labelView.visibility = if (label.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
         updateColors()
@@ -885,7 +1123,14 @@ class ButtonEntryUi(
         bkg.removeAllViews()
         val contentColor = ctx.styledColor(android.R.attr.textColorPrimary)
 
-        if (iconRes != 0) {
+        if (customDrawable != null) {
+            icon.visibility = android.view.View.VISIBLE
+            textIcon.visibility = android.view.View.GONE
+            icon.setImageDrawable(customDrawable)
+            bkg.addView(icon, android.widget.FrameLayout.LayoutParams(ctx.dp(32), ctx.dp(32)).apply {
+                gravity = android.view.Gravity.CENTER
+            })
+        } else if (iconRes != 0) {
             icon.visibility = android.view.View.VISIBLE
             textIcon.visibility = android.view.View.GONE
             icon.setImageDrawable(ctx.getDrawable(iconRes))

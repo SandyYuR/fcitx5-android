@@ -27,6 +27,9 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.input.keyboard.KeyAction
+import org.fcitx.fcitx5.android.input.keyboard.KeyRef
+import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.utils.serializable
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FlowLayout
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.SimpleDividerItemDecoration
@@ -132,6 +135,79 @@ class MacroEditorActivity : AppCompatActivity() {
         const val EXTRA_EVENT_TYPE = "event_type"
         const val EXTRA_MACRO_RESULT = "macro_result"
         const val EXTRA_LAYOUT_TARGETS = "layout_targets"
+        const val EXTRA_MACRO_STEPS_JSON = "macro_steps_json"
+        const val EXTRA_MACRO_RESULT_JSON = "macro_result_json"
+
+        /**
+         * Convert [MacroStep] list to [ArrayList] of [Map] for use as Intent extra.
+         */
+        fun toStepsExtra(steps: List<MacroStep>): ArrayList<Map<String, Any?>> {
+            val result = ArrayList<Map<String, Any?>>()
+            for (step in steps) {
+                result.add(when (step) {
+                    is MacroStep.Tap -> mapOf("type" to "tap", "keys" to step.keys.map { it.toMap() })
+                    is MacroStep.Down -> mapOf("type" to "down", "keys" to step.keys.map { it.toMap() })
+                    is MacroStep.Up -> mapOf("type" to "up", "keys" to step.keys.map { it.toMap() })
+                    is MacroStep.Text -> mapOf("type" to "text", "text" to step.text)
+                    is MacroStep.Edit -> mapOf("type" to "edit", "action" to step.action)
+                    is MacroStep.AppAction -> mapOf("type" to "app", "id" to step.id)
+                    is MacroStep.Shortcut -> mapOf(
+                        "type" to "shortcut",
+                        "modifiers" to step.modifiers.map { it.toMap() },
+                        "key" to step.key.toMap()
+                    )
+                    is MacroStep.LayerSwitch -> mapOf("type" to "layer", "mode" to step.mode.name, "target" to step.target)
+                })
+            }
+            return result
+        }
+
+        /**
+         * Convert result from Intent extra back to [MacroStep] list.
+         */
+        fun fromStepsExtra(data: ArrayList<Map<*, *>>?): List<MacroStep> {
+            if (data == null) return emptyList()
+            return data.mapNotNull { map ->
+                @Suppress("UNCHECKED_CAST")
+                val m = map as Map<String, Any?>
+                when (val type = m["type"] as? String) {
+                    "tap" -> MacroStep.Tap((m["keys"] as? List<Map<*,*>>).toKeyRefs())
+                    "down" -> MacroStep.Down((m["keys"] as? List<Map<*,*>>).toKeyRefs())
+                    "up" -> MacroStep.Up((m["keys"] as? List<Map<*,*>>).toKeyRefs())
+                    "text" -> MacroStep.Text(m["text"] as? String ?: "")
+                    "edit" -> MacroStep.Edit(m["action"] as? String ?: "paste")
+                    "app" -> MacroStep.AppAction(m["id"] as? String ?: "theme")
+                    "shortcut" -> {
+                        val mods = (m["modifiers"] as? List<Map<*,*>>).toKeyRefs()
+                        val key = (m["key"] as? Map<*,*>)?.toKeyRef() ?: return@mapNotNull null
+                        MacroStep.Shortcut(mods, key)
+                    }
+                    "layer" -> {
+                        val mode = when (m["mode"] as? String) {
+                            "TO" -> KeyAction.LayerSwitchMode.TO
+                            "OSL" -> KeyAction.LayerSwitchMode.OSL
+                            else -> return@mapNotNull null
+                        }
+                        MacroStep.LayerSwitch(mode, m["target"] as? String ?: "")
+                    }
+                    else -> null
+                }
+            }
+        }
+
+        private fun KeyRef.toMap(): Map<String, String> = when (this) {
+            is KeyRef.Fcitx -> mapOf("fcitx" to code)
+            is KeyRef.Android -> mapOf("android" to code.toString())
+        }
+
+        private fun List<Map<*, *>>?.toKeyRefs(): List<KeyRef> =
+            this?.mapNotNull { it.toKeyRef() } ?: emptyList()
+
+        private fun Map<*, *>.toKeyRef(): KeyRef? {
+            (this["fcitx"] as? String)?.let { return KeyRef.Fcitx(it) }
+            (this["android"] as? String)?.let { return KeyRef.Android(it.toIntOrNull() ?: return null) }
+            return null
+        }
 
         val STEP_TYPES = arrayOf("tap", "shortcut", "edit", "app", "layer", "down", "up", "text")
         val KEY_TYPES = arrayOf("fcitx", "android")
@@ -574,15 +650,21 @@ class MacroEditorActivity : AppCompatActivity() {
         android.util.Log.d("MacroEditor", "Received initialSteps: $originalSteps")
         if (originalSteps != null) {
             steps.clear()
-            steps.addAll(originalSteps!!.map {
-                val parsed = parseStep(it)
-                android.util.Log.d("MacroEditor", "Parsed step: type=${parsed.type}, keys=${parsed.keys}")
-                parsed
-            })
+            steps.addAll(originalSteps!!.map { parseStep(it) })
         } else {
-            android.util.Log.d("MacroEditor", "No initialSteps, adding default tap step")
-            // Add a default tap step
-            steps.add(MacroStepData())
+            // Try JSON format if Map format is null (e.g. from new ButtonsCustomizerActivity)
+            val json = intent.getStringExtra(EXTRA_MACRO_STEPS_JSON)
+            if (json != null) {
+                try {
+                    val macroList = macroJson.decodeFromString<List<MacroStep>>(json)
+                    steps.clear()
+                    steps.addAll(macroList.map { macroStepToData(it) })
+                } catch (_: Exception) {
+                    steps.add(MacroStepData())
+                }
+            } else {
+                steps.add(MacroStepData())
+            }
         }
 
         updateSaveButtonState()
@@ -653,6 +735,8 @@ class MacroEditorActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    private val macroJson = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
     private fun parseStep(stepMap: Map<*, *>): MacroStepData {
         val type = stepMap["type"] as? String ?: "tap"
         var keys = (stepMap["keys"] as? List<*>)?.mapNotNull { keyMap ->
@@ -698,6 +782,27 @@ class MacroEditorActivity : AppCompatActivity() {
         }
 
         return MacroStepData(type = type, keys = keys, text = text)
+    }
+
+    private fun macroStepToData(step: MacroStep): MacroStepData = when (step) {
+        is MacroStep.Tap -> MacroStepData("tap", keys = step.keys.map { keyRefToData(it) }.toMutableList())
+        is MacroStep.Down -> MacroStepData("down", keys = step.keys.map { keyRefToData(it) }.toMutableList())
+        is MacroStep.Up -> MacroStepData("up", keys = step.keys.map { keyRefToData(it) }.toMutableList())
+        is MacroStep.Text -> MacroStepData("text", text = step.text)
+        is MacroStep.Edit -> MacroStepData("edit", keys = mutableListOf(KeyData("fcitx", step.action)))
+        is MacroStep.AppAction -> MacroStepData("app", keys = mutableListOf(KeyData("fcitx", step.id)))
+        is MacroStep.Shortcut -> {
+            val keys = mutableListOf<KeyData>()
+            keys.addAll(step.modifiers.map { keyRefToData(it) })
+            keys.add(keyRefToData(step.key))
+            MacroStepData("shortcut", keys = keys)
+        }
+        is MacroStep.LayerSwitch -> MacroStepData("layer", keys = mutableListOf(KeyData("fcitx", step.mode.name)), text = step.target)
+    }
+
+    private fun keyRefToData(ref: KeyRef): KeyData = when (ref) {
+        is KeyRef.Fcitx -> KeyData("fcitx", ref.code)
+        is KeyRef.Android -> KeyData("android", ref.code.toString())
     }
 
 
@@ -884,6 +989,9 @@ class MacroEditorActivity : AppCompatActivity() {
 
         val data = android.content.Intent()
         data.putExtra(EXTRA_MACRO_RESULT, ArrayList(result))
+        // Also provide JSON format for reliable deserialization
+        val macroSteps = fromStepsExtra(ArrayList(result))
+        data.putExtra(EXTRA_MACRO_RESULT_JSON, macroJson.encodeToString(macroSteps))
         setResult(RESULT_OK, data)
         finish()
     }
@@ -1456,7 +1564,15 @@ class MacroEditorActivity : AppCompatActivity() {
                 "settings_license",
                 "edit_text_keyboard_layout",
                 "text_keyboard_layout_file_select",
-                "edit_fontset"
+                "edit_fontset",
+                "addon_list",
+                "table_input_methods",
+                "quick_phrase_list",
+                "pinyin_custom_phrase",
+                "pinyin_dict",
+                "edit_buttons",
+                "split_keyboard_calibration",
+                "web_editor_bridge"
             )
             val actionLabels = arrayOf(
                 getString(R.string.theme),
@@ -1484,7 +1600,15 @@ class MacroEditorActivity : AppCompatActivity() {
                 getString(R.string.license),
                 getString(R.string.edit_text_keyboard_layout),
                 getString(R.string.text_keyboard_layout_file_select_title),
-                getString(R.string.edit_fontset)
+                getString(R.string.edit_fontset),
+                getString(R.string.addons),
+                getString(R.string.macro_editor_table_input_methods),
+                getString(R.string.quickphrase_editor),
+                getString(R.string.macro_editor_pinyin_custom_phrase),
+                getString(R.string.macro_editor_pinyin_dict),
+                getString(R.string.edit_buttons),
+                getString(R.string.split_keyboard_calibration_title),
+                getString(R.string.web_editor_bridge_title)
             )
             AlertDialog.Builder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_app_picker_title)
@@ -1523,6 +1647,14 @@ class MacroEditorActivity : AppCompatActivity() {
                 "edit_text_keyboard_layout" -> getString(R.string.edit_text_keyboard_layout)
                 "text_keyboard_layout_file_select" -> getString(R.string.text_keyboard_layout_file_select_title)
                 "edit_fontset" -> getString(R.string.edit_fontset)
+                "addon_list" -> getString(R.string.addons)
+                "table_input_methods" -> getString(R.string.macro_editor_table_input_methods)
+                "quick_phrase_list" -> getString(R.string.quickphrase_editor)
+                "pinyin_custom_phrase" -> getString(R.string.macro_editor_pinyin_custom_phrase)
+                "pinyin_dict" -> getString(R.string.macro_editor_pinyin_dict)
+                "edit_buttons" -> getString(R.string.edit_buttons)
+                "split_keyboard_calibration" -> getString(R.string.split_keyboard_calibration_title)
+                "web_editor_bridge" -> getString(R.string.web_editor_bridge_title)
                 else -> actionId
             }
         }
