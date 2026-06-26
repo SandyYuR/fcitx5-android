@@ -67,6 +67,7 @@ class TextKeyboard(
         private fun onTextLayoutFileChanged() {
             cachedRawLayoutJson = null
             lastRawModified = 0L
+            lastRawLayoutFile = null
             val living = attachedKeyboards.mapNotNull { it.get() }
             attachedKeyboards.removeAll { it.get() == null }
             living.forEach { keyboard ->
@@ -96,6 +97,7 @@ class TextKeyboard(
         // Cache for raw JSON layout (preserves submode structure)
         internal var cachedRawLayoutJson: JsonObject? = null
         private var lastRawModified = 0L
+        private var lastRawLayoutFile: String? = null
 
         // Compatibility alias for cachedRawLayoutJson (used by SplitKeyboardCalibrationActivity)
         @JvmStatic
@@ -103,6 +105,9 @@ class TextKeyboard(
             get() = cachedRawLayoutJson
             set(value) {
                 cachedRawLayoutJson = value
+                if (value == null) {
+                    lastRawLayoutFile = null
+                }
             }
 
         // Cache for parsed KeyDef layouts to avoid recreating them on every reloadLayout()
@@ -356,10 +361,16 @@ class TextKeyboard(
                 val snapshot = org.fcitx.fcitx5.android.input.config.ConfigProviders
                     .readTextKeyboardLayout<JsonObject>() ?: run {
                     cachedRawLayoutJson = null
+                    lastRawLayoutFile = null
                     return null
                 }
-                if (cachedRawLayoutJson == null || snapshot.lastModified != lastRawModified) {
+                val currentFile = snapshot.file?.absolutePath
+                if (cachedRawLayoutJson == null ||
+                    currentFile != lastRawLayoutFile ||
+                    snapshot.lastModified != lastRawModified
+                ) {
                     lastRawModified = snapshot.lastModified
+                    lastRawLayoutFile = currentFile
                     cachedRawLayoutJson = snapshot.value
                     // Invalidate KeyDef cache when JSON changes
                     lastLayoutCacheInvalidated = snapshot.lastModified
