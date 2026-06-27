@@ -537,7 +537,6 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     id = buttonDef.id,
                     icon = null,
                     label = null,
-                    longPressAction = if (buttonDef.id == "floating_toggle") "floating_menu" else null
                 )
 
                 val targetSection = if (which == 0) Section.KawaiiBar else Section.StatusArea
@@ -726,17 +725,6 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         }
         dialogView.addView(iconPathText)
 
-        // Long press action (only for floating_toggle)
-        var longPressToggle: CheckBox? = null
-        if (button.id == "floating_toggle") {
-            longPressToggle = CheckBox(this).apply {
-                text = getString(R.string.enable_long_press_menu)
-                isChecked = button.longPressAction == "floating_menu"
-                setPadding(0, dp(8), 0, 0)
-            }
-            dialogView.addView(longPressToggle)
-        }
-
         // Edit Macro Steps button
         if (!isBuiltIn) {
             val macroBtn = Button(this).apply {
@@ -796,7 +784,6 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             .setPositiveButton(R.string.ok) { _, _ ->
                 val customText = textInput.text?.toString()?.trim()?.ifEmpty { null }
                 val customLabel = if (isBuiltIn) null else labelInput?.text?.toString()?.trim()?.ifEmpty { null }
-                val longPressAction = if (longPressToggle?.isChecked == true) "floating_menu" else null
 
                 val newId = idInput?.text?.toString()?.trim()?.takeIf { it.isNotEmpty() } ?: button.id
                 // Validate ID
@@ -824,7 +811,6 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     icon = iconPath,
                     label = customLabel,
                     text = customText,
-                    longPressAction = longPressAction,
                     macroSteps = currentSteps
                 )
 
@@ -978,7 +964,6 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                                         id = buttonDef.id,
                                         icon = null,
                                         label = null,
-                                        longPressAction = if (buttonDef.id == "floating_toggle") "floating_menu" else null
                                     )
                                     items.add(position, ListItem.ButtonItem(newButton, targetSection))
                                     adapter?.notifyItemInserted(position)
