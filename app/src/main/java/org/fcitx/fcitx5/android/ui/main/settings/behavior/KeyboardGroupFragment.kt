@@ -16,9 +16,7 @@ import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
-import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.webeditor.ImeWebEditorBridgeServer
-import org.fcitx.fcitx5.android.utils.lazyRoute
 
 /**
  * Sub-fragment showing only the preferences belonging to one keyboard settings group.
@@ -27,8 +25,7 @@ import org.fcitx.fcitx5.android.utils.lazyRoute
  */
 class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().keyboard) {
 
-    private val args by lazyRoute<SettingsRoute.KeyboardGroup>()
-    private val group: Int get() = args.group
+    private val group: Int get() = arguments?.getInt("group", -1) ?: -1
     private val viewModel: MainViewModel by activityViewModels()
 
     private var calibrationPreference: Preference? = null
