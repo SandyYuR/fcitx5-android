@@ -372,6 +372,52 @@ object ImeWebEditorBridgeServer {
                     }
                     writeJson(output, buildJsonObject { put("ok", JsonPrimitive(true)) })
                 }
+                request.method == "DELETE" && path == "/api/v1/theme" -> {
+                    val name = query["name"]?.takeIf { it.isNotBlank() }
+                        ?: throw IllegalArgumentException("name query parameter is required")
+                    val delete = {
+                        ThemeManager.deleteTheme(name)
+                    }
+                    if (Looper.myLooper() == Looper.getMainLooper()) {
+                        delete()
+                    } else {
+                        val done = java.util.concurrent.CountDownLatch(1)
+                        var failure: Throwable? = null
+                        android.os.Handler(Looper.getMainLooper()).post {
+                            runCatching { delete() }.onFailure { failure = it }
+                            done.countDown()
+                        }
+                        done.await()
+                        failure?.let { throw it }
+                    }
+                    writeJson(output, buildJsonObject {
+                        put("ok", JsonPrimitive(true))
+                        put("name", JsonPrimitive(name))
+                    })
+                }
+                request.method == "DELETE" && path == "/api/v1/theme/package" -> {
+                    val name = query["name"]?.takeIf { it.isNotBlank() }
+                        ?: throw IllegalArgumentException("name query parameter is required")
+                    val delete = {
+                        ThemeManager.deleteTheme(name)
+                    }
+                    if (Looper.myLooper() == Looper.getMainLooper()) {
+                        delete()
+                    } else {
+                        val done = java.util.concurrent.CountDownLatch(1)
+                        var failure: Throwable? = null
+                        android.os.Handler(Looper.getMainLooper()).post {
+                            runCatching { delete() }.onFailure { failure = it }
+                            done.countDown()
+                        }
+                        done.await()
+                        failure?.let { throw it }
+                    }
+                    writeJson(output, buildJsonObject {
+                        put("ok", JsonPrimitive(true))
+                        put("name", JsonPrimitive(name))
+                    })
+                }
                 request.method == "GET" && !path.startsWith("/api/") -> {
                     proxyUpstreamAsset(request.path, output)
                 }
@@ -651,7 +697,7 @@ object ImeWebEditorBridgeServer {
 
     private fun corsHeaders(): Map<String, String> = mapOf(
         "Access-Control-Allow-Origin" to "*",
-        "Access-Control-Allow-Methods" to "GET,PUT,OPTIONS",
+        "Access-Control-Allow-Methods" to "GET,PUT,DELETE,OPTIONS",
         "Access-Control-Allow-Headers" to "Content-Type,Accept"
     )
 
