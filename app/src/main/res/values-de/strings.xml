@@ -642,6 +642,7 @@
     <string name="space_behavior_enumerate">Eingabemethoden zyklisch wechseln</string>
     <string name="space_behavior_picker">Dialog zur Eingabemethodenauswahl anzeigen</string>
     <string name="space_behavior_voice_input">Zur Spracheingabe wechseln</string>
+    <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="space_swipe_move_cursor">Über die Leertaste wischen, um den Cursor zu bewegen</string>
     <string name="split_keyboard_calibration_title">Kalibrierung der geteilten Tastatur</string>
     <string name="split_keyboard_enabled">Auto-geteilte Tastatur</string>

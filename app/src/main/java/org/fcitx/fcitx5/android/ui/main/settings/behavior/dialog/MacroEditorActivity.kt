@@ -165,10 +165,10 @@ class MacroEditorActivity : AppCompatActivity() {
         /**
          * Convert result from Intent extra back to [MacroStep] list.
          */
+        @Suppress("UNCHECKED_CAST")
         fun fromStepsExtra(data: ArrayList<Map<*, *>>?): List<MacroStep> {
             if (data == null) return emptyList()
             return data.mapNotNull { map ->
-                @Suppress("UNCHECKED_CAST")
                 val m = map as Map<String, Any?>
                 when (val type = m["type"] as? String) {
                     "tap" -> MacroStep.Tap((m["keys"] as? List<Map<*,*>>).toKeyRefs())

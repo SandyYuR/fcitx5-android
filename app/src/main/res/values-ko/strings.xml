@@ -631,6 +631,7 @@
     <string name="space_behavior_none">없음</string>
     <string name="space_behavior_picker">입력기 선택 대화상자 표시</string>
     <string name="space_behavior_voice_input">음성 입력으로 전환</string>
+    <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="space_long_press_behavior">스페이스 키 길게 누르기 동작</string>
     <string name="space_swipe_move_cursor">스페이스 키를 밀어서 커서 이동</string>
     <string name="split_keyboard_calibration_title">분할 키보드 보정</string>

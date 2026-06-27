@@ -639,6 +639,7 @@
     <string name="space_behavior_activate">Alternar estado de activacion del metodo de entrada</string>
     <string name="space_behavior_picker">Mostrar dialogo selector de metodo de entrada</string>
     <string name="space_behavior_voice_input">Cambiar a entrada de voz</string>
+    <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="space_long_press_behavior">Comportamiento de pulsacion larga de la barra espaciadora</string>
     <string name="space_swipe_move_cursor">Deslizar en la barra espaciadora para mover el cursor</string>
     <string name="split_keyboard_calibration_title">Calibracion de teclado dividido</string>

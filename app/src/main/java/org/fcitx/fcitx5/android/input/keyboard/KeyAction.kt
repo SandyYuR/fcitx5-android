@@ -95,6 +95,8 @@ sealed class KeyAction {
 
     data object SpaceLongPressAction : KeyAction()
 
+    data object VoiceInputHoldEnd : KeyAction()
+
     data class LayerSwitchAction(
         val mode: LayerSwitchMode,
         val target: String

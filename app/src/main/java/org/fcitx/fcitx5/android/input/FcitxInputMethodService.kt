@@ -1491,7 +1491,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         val keyboardPrefs = AppPrefs.getInstance().keyboard
         val voiceInputReachable =
             keyboardPrefs.showVoiceInputButton.getValue() ||
-                keyboardPrefs.spaceKeyLongPressBehavior.getValue() == SpaceLongPressBehavior.VoiceInput
+                keyboardPrefs.spaceKeyLongPressBehavior.getValue() == SpaceLongPressBehavior.VoiceInput ||
+                keyboardPrefs.spaceKeyLongPressBehavior.getValue() == SpaceLongPressBehavior.VoiceInputHold
         if (!voiceInputReachable) return
         val preferredVoiceInput = keyboardPrefs.preferredVoiceInput.getValue()
         VoiceInputProviderManager.ensureProviderAvailable(this, preferredVoiceInput)
