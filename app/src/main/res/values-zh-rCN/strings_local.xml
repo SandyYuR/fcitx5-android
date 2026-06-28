@@ -45,6 +45,9 @@
     <string name="local_sync_interval">同步间隔（秒）</string>
     <string name="sync_filter_title">同步过滤</string>
     <string name="sync_filter_summary_empty">不过滤任何接收内容</string>
+    <string name="screenshot_sync_title">同步新截屏</string>
+    <string name="screenshot_sync_summary">截屏保存后，将图片加入系统剪贴板并同步到当前服务器</string>
+    <string name="screenshot_sync_permission_denied">需要图片权限才能检测新截屏</string>
     <string name="sync_filter_category_text">文本</string>
     <string name="sync_filter_category_binary">图片与文件</string>
     <string name="sync_filter_category_preview">当前规则</string>

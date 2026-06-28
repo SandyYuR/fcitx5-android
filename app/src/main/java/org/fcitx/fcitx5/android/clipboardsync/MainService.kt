@@ -46,6 +46,7 @@ import org.fcitx.fcitx5.android.clipboardsync.ui.ClipboardSyncSettingsActivity
 import org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadeClient
 import org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadeClipboardData
 import org.fcitx.fcitx5.android.clipboardsync.network.ClipboardData
+import org.fcitx.fcitx5.android.clipboardsync.network.HashUtils
 import org.fcitx.fcitx5.android.clipboardsync.network.OneClipEventClient
 import org.fcitx.fcitx5.android.clipboardsync.network.SyncClient
 import org.fcitx.fcitx5.android.clipboardsync.network.SyncClient.ServerBackend
@@ -54,6 +55,7 @@ import org.fcitx.fcitx5.android.clipboardsync.ui.ClipboardCaptureActivity
 import org.fcitx.fcitx5.android.clipboardsync.ui.StoragePathUtils
 import org.fcitx.fcitx5.android.utils.userManager
 import java.io.IOException
+import android.provider.OpenableColumns
 import java.util.Locale
 
 class MainService : FcitxPluginService() {
@@ -62,6 +64,7 @@ class MainService : FcitxPluginService() {
         private const val TAG = "FcitxClipboardSync"
         private const val PREF_QUICK_SYNC = "quick_sync"
         private const val DEFAULT_QUICK_SYNC_ENABLED = false
+        private const val PREF_SCREENSHOT_SYNC = "screenshot_sync"
         private const val PREF_QUICK_SYNC_UNREACHABLE = "quick_sync_unreachable"
         private const val PREF_IME_SYNC_ACTIVE = "ime_sync_active"
         private const val PREF_SYNC_INTERVAL = "sync_interval"
@@ -113,8 +116,11 @@ class MainService : FcitxPluginService() {
         private const val PREF_REMOTE_REVISIONS = "remote_revisions"
         private const val PREF_LAST_SYNCED_CONTENT = "last_synced_content"
         private const val PREF_SUPPRESSED_REMOTE_ITEMS = "suppressed_remote_items"
+        private const val PREF_RECENT_UPLOADED_FILES = "recent_uploaded_files"
         private const val MAX_PENDING_UPLOADS = 50
         private const val MAX_SUPPRESSED_REMOTE_ITEMS = 256
+        private const val MAX_RECENT_UPLOADED_FILES = 64
+        private const val RECENT_UPLOADED_FILE_TTL_MS = 10 * 60 * 1000L
 
         private fun isCredentialStorageUnlocked(context: Context): Boolean {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return true
@@ -168,6 +174,10 @@ class MainService : FcitxPluginService() {
                 .edit()
                 .putBoolean(PREF_IME_SYNC_ACTIVE, false)
                 .apply()
+            if (prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)) {
+                startSyncService(context, "ime-stop-refresh")
+                return
+            }
             runCatching {
                 context.stopService(Intent(context, MainService::class.java))
             }
@@ -234,6 +244,9 @@ class MainService : FcitxPluginService() {
     private val powerManager by lazy {
         getSystemService(Context.POWER_SERVICE) as PowerManager
     }
+    private val screenshotClipboardWatcher by lazy {
+        ScreenshotClipboardWatcher(this, clipboardManager, ::handleScreenshotClipboardUri)
+    }
     private var clipboardListenerRegistered = false
     private var prefsListenerRegistered = false
     private var clipCascadeClient: ClipCascadeClient? = null
@@ -257,6 +270,7 @@ class MainService : FcitxPluginService() {
     private val pendingUploads = mutableListOf<PendingUploadEntry>()
     private val storedRemoteRevisions = mutableMapOf<String, String>()
     private val suppressedRemoteClipboardContents = linkedSetOf<String>()
+    private val recentUploadedFiles = mutableListOf<RecentUploadedFile>()
     // Track imported profile IDs to avoid duplicate imports within a sync cycle
     private val importedProfileIdsInCurrentSync = mutableSetOf<String>()
     private val stateJson = Json {
@@ -354,6 +368,7 @@ class MainService : FcitxPluginService() {
         registerPrefsListenerIfNeeded()
         registerNetworkCallbackIfNeeded()
         registerScreenStateReceiverIfNeeded()
+        updateScreenshotWatcher()
         refreshSyncRuntime()
         ensureRemoteBinding(forceRebind = true)
         handleSystemClipboardChanged()
@@ -367,6 +382,7 @@ class MainService : FcitxPluginService() {
         unregisterPrefsListenerIfNeeded()
         unregisterNetworkCallbackIfNeeded()
         unregisterScreenStateReceiverIfNeeded()
+        screenshotClipboardWatcher.stop()
         stopPeriodicSync()
         stopHealthMonitor()
         stopForegroundState()
@@ -413,9 +429,10 @@ class MainService : FcitxPluginService() {
             key == SyncFilterPrefs.PREF_FILTER_MAX_TEXT_CHARS
         ) {
             Log.d(TAG, "Receive filter changed: $key")
-        } else if (key == PREF_QUICK_SYNC || key == PREF_SYNC_INTERVAL) {
+        } else if (key == PREF_QUICK_SYNC || key == PREF_SYNC_INTERVAL || key == PREF_SCREENSHOT_SYNC) {
             Log.d(TAG, "Preference changed: $key, restarting sync")
             updateForegroundState()
+            updateScreenshotWatcher()
             refreshSyncRuntime()
             if (key == PREF_QUICK_SYNC) {
                 QuickSyncTileService.requestTileRefresh(this)
@@ -445,6 +462,11 @@ class MainService : FcitxPluginService() {
         }
     }
 
+    private fun handleScreenshotClipboardUri(uri: String) {
+        handleLocalClipboardUpdate(uri, "screenshot-watcher")
+        rememberIgnoredRemoteClipboardContent(uri)
+    }
+
     private fun refreshSyncRuntime() {
         if (!shouldRunSyncLoops()) {
             stopPeriodicSync()
@@ -454,6 +476,18 @@ class MainService : FcitxPluginService() {
         ensureSelfStarted()
         startPeriodicSync()
         startHealthMonitor()
+    }
+
+    private fun updateScreenshotWatcher() {
+        if (
+            serviceRunning &&
+            prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED) &&
+            prefs.getBoolean(PREF_SCREENSHOT_SYNC, false)
+        ) {
+            screenshotClipboardWatcher.start()
+        } else {
+            screenshotClipboardWatcher.stop()
+        }
     }
 
     private fun startHealthMonitor() {
@@ -1278,7 +1312,8 @@ class MainService : FcitxPluginService() {
     }
 
     private fun shouldRunInForeground(): Boolean {
-        return false
+        return prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED) &&
+            prefs.getBoolean(PREF_SCREENSHOT_SYNC, false)
     }
 
     private fun createNotificationChannelIfNeeded() {
@@ -1593,6 +1628,10 @@ class MainService : FcitxPluginService() {
     }
 
     private fun shouldAcceptIncomingMetadata(data: ClipboardData): Boolean {
+        if (isRecentUploadedFileEcho(data)) {
+            Log.d(TAG, "[Pull] Skipping echoed uploaded file metadata: name=${data.dataName}")
+            return false
+        }
         return if (isBinaryClipboardData(data)) {
             shouldAcceptIncomingBinary(
                 fileName = inferIncomingFileName(data),
@@ -1600,6 +1639,19 @@ class MainService : FcitxPluginService() {
             )
         } else {
             shouldAcceptIncomingText(data.text)
+        }
+    }
+
+    private fun isRecentUploadedFileEcho(data: ClipboardData): Boolean {
+        if (!isBinaryClipboardData(data)) return false
+        val fileName = inferIncomingFileName(data)?.takeIf { it.isNotBlank() } ?: return false
+        val size = data.size.takeIf { it > 0 }
+        pruneRecentUploadedFiles()
+        return synchronized(recentUploadedFiles) {
+            recentUploadedFiles.any { uploaded ->
+                uploaded.fileName == fileName &&
+                    (size == null || uploaded.size == size)
+            }
         }
     }
 
@@ -1857,6 +1909,14 @@ class MainService : FcitxPluginService() {
         val enqueuedAt: Long = System.currentTimeMillis()
     )
 
+    @Serializable
+    private data class RecentUploadedFile(
+        val fileName: String,
+        val size: Long,
+        val hash: String,
+        val uploadedAt: Long = System.currentTimeMillis()
+    )
+
     private fun loadPersistentSyncState() {
         pendingUploads.clear()
         prefs.getString(PREF_PENDING_UPLOADS, null)
@@ -1900,6 +1960,20 @@ class MainService : FcitxPluginService() {
                     Log.w(TAG, "[State] Failed to restore suppressed remote clipboard items", error)
                 }
             }
+
+        recentUploadedFiles.clear()
+        prefs.getString(PREF_RECENT_UPLOADED_FILES, null)
+            ?.takeIf { it.isNotBlank() }
+            ?.let { serialized ->
+                runCatching {
+                    stateJson.decodeFromString<List<RecentUploadedFile>>(serialized)
+                }.onSuccess { restored ->
+                    recentUploadedFiles += restored
+                }.onFailure { error ->
+                    Log.w(TAG, "[State] Failed to restore recent uploaded files", error)
+                }
+            }
+        pruneRecentUploadedFiles()
     }
 
     private fun persistPendingUploadsLocked() {
@@ -1920,6 +1994,12 @@ class MainService : FcitxPluginService() {
                 PREF_SUPPRESSED_REMOTE_ITEMS,
                 stateJson.encodeToString(suppressedRemoteClipboardContents.toList())
             )
+            .apply()
+    }
+
+    private fun persistRecentUploadedFiles() {
+        prefs.edit()
+            .putString(PREF_RECENT_UPLOADED_FILES, stateJson.encodeToString(recentUploadedFiles))
             .apply()
     }
 
@@ -1966,9 +2046,68 @@ class MainService : FcitxPluginService() {
         data: ClipboardData,
         remoteText: String
     ): Boolean {
-        if (!data.type.equals("Text", ignoreCase = true)) return false
         if (remoteText.isBlank()) return false
+        if (!data.type.equals("Text", ignoreCase = true)) {
+            return isRecentUploadedFileEcho(data)
+        }
         return remoteText == lastLocalContent || remoteText == lastUploadedContent
+    }
+
+    private fun rememberUploadedFile(content: String) {
+        val uri = content
+            .takeIf { it.startsWith("content://") || it.startsWith("file://") }
+            ?.let(Uri::parse)
+            ?: return
+        val bytes = runCatching {
+            contentResolver.openInputStream(uri)?.use { it.readBytes() }
+        }.getOrNull() ?: return
+        val fileName = queryDisplayName(uri)
+            ?: uri.lastPathSegment?.substringAfterLast('/')
+            ?: return
+        val uploaded = RecentUploadedFile(
+            fileName = fileName,
+            size = bytes.size.toLong(),
+            hash = HashUtils.sha256(bytes)
+        )
+        synchronized(recentUploadedFiles) {
+            recentUploadedFiles.removeAll {
+                it.fileName == uploaded.fileName && it.size == uploaded.size && it.hash.equals(uploaded.hash, ignoreCase = true)
+            }
+            recentUploadedFiles += uploaded
+        }
+        pruneRecentUploadedFiles()
+        persistRecentUploadedFiles()
+    }
+
+    private fun pruneRecentUploadedFiles() {
+        val cutoff = System.currentTimeMillis() - RECENT_UPLOADED_FILE_TTL_MS
+        var changed = false
+        synchronized(recentUploadedFiles) {
+            changed = recentUploadedFiles.removeAll { it.uploadedAt < cutoff } || changed
+            val overflow = recentUploadedFiles.size - MAX_RECENT_UPLOADED_FILES
+            if (overflow > 0) {
+                repeat(overflow) {
+                    recentUploadedFiles.removeAt(0)
+                }
+                changed = true
+            }
+        }
+        if (changed) {
+            persistRecentUploadedFiles()
+        }
+    }
+
+    private fun queryDisplayName(uri: Uri): String? {
+        return runCatching {
+            contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                ?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
+                    } else {
+                        null
+                    }
+                }
+        }.getOrNull()
     }
 
     private fun ensureEndpointState(endpoint: ServerEndpoint) {
@@ -2053,6 +2192,7 @@ class MainService : FcitxPluginService() {
             SyncClient.putClipboard(this@MainService, url, user, pass, backend, text)
         }
         lastUploadedContent = text
+        rememberUploadedFile(text)
         persistLastSyncedContent(text)
         markBackendActivity()
     }

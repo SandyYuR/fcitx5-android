@@ -37,6 +37,9 @@
     <string name="local_sync_interval">Intervalo de sincronización (segundos)</string>
     <string name="sync_filter_title">Filtro de sincronización</string>
     <string name="sync_filter_summary_empty">No se filtra ningún contenido recibido</string>
+    <string name="screenshot_sync_title">Sincronizar nuevas capturas</string>
+    <string name="screenshot_sync_summary">Cuando se guarde una captura, copiar la imagen al portapapeles del sistema y sincronizarla con el servidor actual</string>
+    <string name="screenshot_sync_permission_denied">Se requiere permiso de imágenes para detectar nuevas capturas</string>
     <string name="sync_filter_category_text">Texto</string>
     <string name="sync_filter_category_binary">Imágenes y archivos</string>
     <string name="sync_filter_category_preview">Reglas actuales</string>

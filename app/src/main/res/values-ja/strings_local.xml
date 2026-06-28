@@ -37,6 +37,9 @@
     <string name="local_sync_interval">同期間隔（秒）</string>
     <string name="sync_filter_title">同期フィルター</string>
     <string name="sync_filter_summary_empty">受信内容をフィルターしません</string>
+    <string name="screenshot_sync_title">新しいスクリーンショットを同期</string>
+    <string name="screenshot_sync_summary">スクリーンショットが保存されたら、画像をシステムクリップボードにコピーして現在のサーバーへ同期します</string>
+    <string name="screenshot_sync_permission_denied">新しいスクリーンショットを検出するには画像の権限が必要です</string>
     <string name="sync_filter_category_text">テキスト</string>
     <string name="sync_filter_category_binary">画像とファイル</string>
     <string name="sync_filter_category_preview">現在のルール</string>

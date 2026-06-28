@@ -37,6 +37,9 @@
     <string name="local_sync_interval">동기화 간격(초)</string>
     <string name="sync_filter_title">동기화 필터</string>
     <string name="sync_filter_summary_empty">수신 콘텐츠를 필터링하지 않습니다</string>
+    <string name="screenshot_sync_title">새 스크린샷 동기화</string>
+    <string name="screenshot_sync_summary">스크린샷이 저장되면 이미지를 시스템 클립보드에 복사하고 현재 서버로 동기화합니다</string>
+    <string name="screenshot_sync_permission_denied">새 스크린샷을 감지하려면 이미지 권한이 필요합니다</string>
     <string name="sync_filter_category_text">텍스트</string>
     <string name="sync_filter_category_binary">이미지 및 파일</string>
     <string name="sync_filter_category_preview">현재 규칙</string>

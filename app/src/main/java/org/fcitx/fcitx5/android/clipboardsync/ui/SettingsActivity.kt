@@ -1,9 +1,12 @@
 package org.fcitx.fcitx5.android.clipboardsync.ui
 
+import android.Manifest
 import android.app.AlertDialog
+import android.content.pm.PackageManager
 import android.content.SharedPreferences
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.InputType
@@ -21,6 +24,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -87,6 +91,7 @@ class SettingsActivity : AppCompatActivity() {
             private const val DOWNLOAD_PATH_URI_KEY = "download_path_uri"
             private const val QUICK_SYNC_KEY = "quick_sync"
             private const val QUICK_SYNC_UNREACHABLE_KEY = "quick_sync_unreachable"
+            private const val SCREENSHOT_SYNC_KEY = "screenshot_sync"
             private const val SYNC_ACCOUNT_KEY = "sync_account"
             private const val PROFILE_SYNC_CLIPBOARD = "syncclipboard"
             private const val PROFILE_ONE_CLIP = "oneclip"
@@ -168,6 +173,24 @@ class SettingsActivity : AppCompatActivity() {
                 updateTestPushSelectedFileSummary()
             }
 
+        private val screenshotPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                val prefs = preferenceManager.sharedPreferences ?: return@registerForActivityResult
+                if (granted) {
+                    prefs.edit().putBoolean(SCREENSHOT_SYNC_KEY, true).apply()
+                    findPreference<SwitchPreferenceCompat>(SCREENSHOT_SYNC_KEY)?.isChecked = true
+                    MainService.startSyncService(requireContext(), "screenshot-sync-enabled")
+                } else {
+                    prefs.edit().putBoolean(SCREENSHOT_SYNC_KEY, false).apply()
+                    findPreference<SwitchPreferenceCompat>(SCREENSHOT_SYNC_KEY)?.isChecked = false
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.screenshot_sync_permission_denied,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
         private val settingActionKeys = listOf(
             SERVER_PROFILE_KEY,
             SYNC_ACCOUNT_KEY,
@@ -187,10 +210,17 @@ class SettingsActivity : AppCompatActivity() {
             initializeServerProfileState()
             syncCredentialPreferencesForActiveProfile()
             findPreference<Preference>(QUICK_SYNC_KEY)?.setOnPreferenceChangeListener { _, newValue ->
-                if (newValue == false) {
+                if (newValue == true) {
+                    MainService.startSyncService(
+                        requireContext(),
+                        "settings-enable",
+                        forceEnableSync = true
+                    )
+                } else if (newValue == false) {
                     preferenceManager.sharedPreferences?.edit()
                         ?.putBoolean(QUICK_SYNC_UNREACHABLE_KEY, false)
                         ?.apply()
+                    MainService.stopSyncService(requireContext())
                 }
                 true
             }
@@ -218,6 +248,18 @@ class SettingsActivity : AppCompatActivity() {
             syncFilterPref?.setOnPreferenceClickListener {
                 openPreferenceFragment(SyncFilterSettingsFragment())
                 true
+            }
+
+            findPreference<SwitchPreferenceCompat>(SCREENSHOT_SYNC_KEY)?.setOnPreferenceChangeListener { _, newValue ->
+                if (newValue == true && !hasScreenshotImagePermission()) {
+                    screenshotPermissionLauncher.launch(screenshotImagePermission())
+                    false
+                } else {
+                    if (newValue == true) {
+                        MainService.startSyncService(requireContext(), "screenshot-sync-enabled")
+                    }
+                    true
+                }
             }
 
             findPreference<Preference>("test_connection")?.setOnPreferenceClickListener {
@@ -335,6 +377,23 @@ class SettingsActivity : AppCompatActivity() {
             settingActionKeys.forEach { key ->
                 findPreference<Preference>(key)?.isEnabled = enabled
             }
+            findPreference<Preference>(SCREENSHOT_SYNC_KEY)?.isEnabled = enabled
+        }
+
+        private fun screenshotImagePermission(): String {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Manifest.permission.READ_MEDIA_IMAGES
+            } else {
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            }
+        }
+
+        private fun hasScreenshotImagePermission(): Boolean {
+            return Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    screenshotImagePermission()
+                ) == PackageManager.PERMISSION_GRANTED
         }
 
         private fun migrateLegacyCredentialProfiles(

@@ -445,6 +445,28 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         }
     }
 
+    suspend fun importLocalEntry(
+        text: String,
+        type: String = android.content.ClipDescription.MIMETYPE_TEXT_PLAIN,
+        timestamp: Long = System.currentTimeMillis(),
+        sensitive: Boolean = false,
+        notifyListeners: Boolean = true
+    ): ClipboardEntry? {
+        if (text.isBlank()) return null
+        return mutex.withLock {
+            insertOrUpdateEntry(
+                ClipboardEntry(
+                    text = text,
+                    timestamp = timestamp,
+                    type = type,
+                    source = ClipboardEntry.SOURCE_LOCAL,
+                    sensitive = sensitive
+                ),
+                notifyListeners = notifyListeners
+            )
+        }
+    }
+
     private var lastClipTimestamp = -1L
     private var lastClipHash = 0
 

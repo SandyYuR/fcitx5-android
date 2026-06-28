@@ -37,6 +37,9 @@
     <string name="local_sync_interval">Интервал синхронизации (сек.)</string>
     <string name="sync_filter_title">Фильтр синхронизации</string>
     <string name="sync_filter_summary_empty">Получаемое содержимое не фильтруется</string>
+    <string name="screenshot_sync_title">Синхронизировать новые скриншоты</string>
+    <string name="screenshot_sync_summary">После сохранения скриншота копировать изображение в системный буфер обмена и синхронизировать с текущим сервером</string>
+    <string name="screenshot_sync_permission_denied">Для обнаружения новых скриншотов требуется разрешение на доступ к изображениям</string>
     <string name="sync_filter_category_text">Текст</string>
     <string name="sync_filter_category_binary">Изображения и файлы</string>
     <string name="sync_filter_category_preview">Текущие правила</string>

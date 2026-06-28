@@ -40,6 +40,9 @@
     <string name="local_sync_interval">Sync interval (seconds)</string>
     <string name="sync_filter_title">Sync filter</string>
     <string name="sync_filter_summary_empty">Do not filter any received content</string>
+    <string name="screenshot_sync_title">Sync new screenshots</string>
+    <string name="screenshot_sync_summary">After a screenshot is saved, copy the image to the system clipboard and sync it to the current server</string>
+    <string name="screenshot_sync_permission_denied">Image permission is required to detect new screenshots</string>
     <string name="sync_filter_category_text">Text</string>
     <string name="sync_filter_category_binary">Images and files</string>
     <string name="sync_filter_category_preview">Current rules</string>

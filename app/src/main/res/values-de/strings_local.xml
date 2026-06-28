@@ -37,6 +37,9 @@
     <string name="local_sync_interval">Synchronisierungsintervall (Sekunden)</string>
     <string name="sync_filter_title">Synchronisierungsfilter</string>
     <string name="sync_filter_summary_empty">Keine eingehenden Inhalte werden gefiltert</string>
+    <string name="screenshot_sync_title">Neue Screenshots synchronisieren</string>
+    <string name="screenshot_sync_summary">Nach dem Speichern eines Screenshots wird das Bild in die Systemzwischenablage kopiert und mit dem aktuellen Server synchronisiert</string>
+    <string name="screenshot_sync_permission_denied">Zum Erkennen neuer Screenshots ist die Berechtigung für Bilder erforderlich</string>
     <string name="sync_filter_category_text">Text</string>
     <string name="sync_filter_category_binary">Bilder und Dateien</string>
     <string name="sync_filter_category_preview">Aktuelle Regeln</string>
