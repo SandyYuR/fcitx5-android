@@ -77,6 +77,7 @@ import org.fcitx.fcitx5.android.input.status.StatusAreaWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.utils.AppUtil
+import org.fcitx.fcitx5.android.utils.loadThumbnailBitmap
 import org.fcitx.fcitx5.android.core.SubtypeManager
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
@@ -84,6 +85,7 @@ import org.mechdancer.dependency.DynamicScope
 import org.mechdancer.dependency.manager.must
 import splitties.bitflags.hasFlag
 import splitties.dimensions.dp
+import splitties.resources.drawable
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.lParams
@@ -157,10 +159,28 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 if (it.text.isEmpty()) {
                     isClipboardFresh = false
                 } else {
-                    idleUi.clipboardUi.text.text = if (it.sensitive && clipboardMaskSensitive) {
-                        ClipboardEntry.BULLET.repeat(min(42, it.text.length))
+                    val isImage = it.type.startsWith("image/")
+                    if (isImage) {
+                        idleUi.clipboardUi.text.visibility = View.GONE
+                        idleUi.clipboardUi.preview.visibility = View.VISIBLE
+                        val bitmap = it.loadThumbnailBitmap(context)
+                        if (bitmap != null) {
+                            idleUi.clipboardUi.preview.setImageBitmap(bitmap)
+                        } else {
+                            context.drawable(R.drawable.ic_baseline_image_24)?.apply {
+                                setTint(theme.altKeyTextColor)
+                            }?.let {
+                                idleUi.clipboardUi.preview.setImageDrawable(it)
+                            }
+                        }
                     } else {
-                        it.text.take(42)
+                        idleUi.clipboardUi.preview.visibility = View.GONE
+                        idleUi.clipboardUi.text.visibility = View.VISIBLE
+                        idleUi.clipboardUi.text.text = if (it.sensitive && clipboardMaskSensitive) {
+                            ClipboardEntry.BULLET.repeat(min(42, it.text.length))
+                        } else {
+                            it.text.take(42)
+                        }
                     }
                     isClipboardFresh = true
                     launchClipboardTimeoutJob()

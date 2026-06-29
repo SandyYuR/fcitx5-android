@@ -6,6 +6,8 @@ package org.fcitx.fcitx5.android.input.bar.ui.idle
 
 import android.content.Context
 import android.text.TextUtils
+import android.view.View
+import android.widget.ImageView
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
@@ -13,7 +15,6 @@ import org.fcitx.fcitx5.android.utils.rippleDrawable
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import splitties.views.dsl.constraintlayout.after
-import splitties.views.dsl.constraintlayout.before
 import splitties.views.dsl.constraintlayout.centerInParent
 import splitties.views.dsl.constraintlayout.centerVertically
 import splitties.views.dsl.constraintlayout.constraintLayout
@@ -39,6 +40,14 @@ class ClipboardSuggestionUi(override val ctx: Context, private val theme: Theme)
         }
     }
 
+    val preview = imageView {
+        visibility = View.GONE
+        scaleType = ImageView.ScaleType.CENTER_INSIDE
+        adjustViewBounds = true
+        maxWidth = dp(120)
+        maxHeight = dp(36)
+    }
+
     val text = textView {
         isSingleLine = true
         maxWidth = dp(120)
@@ -50,7 +59,11 @@ class ClipboardSuggestionUi(override val ctx: Context, private val theme: Theme)
         val spacing = dp(4)
         add(icon, lParams(dp(20), dp(20)) {
             startOfParent(spacing)
-            before(text)
+            centerVertically()
+        })
+        add(preview, lParams(wrapContent, wrapContent) {
+            after(icon, spacing)
+            endOfParent(spacing)
             centerVertically()
         })
         add(text, lParams(wrapContent, wrapContent) {
