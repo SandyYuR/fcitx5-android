@@ -33,7 +33,6 @@ class ScreenshotClipboardWatcher(
         private const val POLL_INTERVAL_MS = 5000L
         private const val PREF_HANDLED_SCREENSHOTS = "screenshot_sync_handled_items"
         private const val MAX_HANDLED_SCREENSHOTS = 256
-        private const val STRICT_RECENT_WINDOW_SECONDS = 10L
         private const val SCREENSHOT_RECENT_WINDOW_SECONDS = 120L
         private val SCREENSHOT_MARKERS = listOf(
             "screenshots",
@@ -180,12 +179,8 @@ class ScreenshotClipboardWatcher(
                     val bucket = cursor.getString(bucketIndex).orEmpty()
                     val relativePath = if (pathIndex >= 0) cursor.getString(pathIndex).orEmpty() else ""
                     val looksLikeScreenshot = looksLikeScreenshot(displayName, bucket, relativePath)
-                    val recentWindow = if (looksLikeScreenshot) {
-                        SCREENSHOT_RECENT_WINDOW_SECONDS
-                    } else {
-                        STRICT_RECENT_WINDOW_SECONDS
-                    }
-                    if (eventTime < System.currentTimeMillis() / 1000 - recentWindow) continue
+                    if (!looksLikeScreenshot) continue
+                    if (eventTime < System.currentTimeMillis() / 1000 - SCREENSHOT_RECENT_WINDOW_SECONDS) continue
 
                     val mediaId = cursor.getLong(idIndex)
                     val uri = ContentUris.withAppendedId(
