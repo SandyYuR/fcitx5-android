@@ -587,7 +587,11 @@ object SyncClient {
             val bytes = response.body?.bytes() ?: ByteArray(0)
 
             if (data.hash.isNotEmpty()) {
-                val calculatedHash = HashUtils.sha256(bytes)
+                val calculatedHash = if (data.type.equals("Text", ignoreCase = true)) {
+                    HashUtils.sha256(bytes)
+                } else {
+                    HashUtils.calculateFileHash(data.dataName, bytes)
+                }
 
                 if (!calculatedHash.equals(data.hash, ignoreCase = true)) {
                     val message = "[Pull] Hash mismatch! Expected: ${data.hash}, Got: $calculatedHash"
