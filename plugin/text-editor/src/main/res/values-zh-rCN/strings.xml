@@ -42,6 +42,17 @@
     <string name="plain_mode">纯文本模式</string>
 
     <string name="editor_options">选项</string>
+    <string name="external_change_detection">外部变更时重新加载</string>
+    <string name="external_change_hint">当编辑器在后台时，检测文件是否被其他应用修改。</string>
+    <string name="external_change_off">关闭</string>
+    <string name="external_change_prompt">重载前询问</string>
+    <string name="external_change_auto">自动重新加载</string>
+    <string name="external_change_dialog_title">文件已被外部修改</string>
+    <string name="external_change_dialog_message">该文件已被其他应用修改，是否重新加载？</string>
+    <string name="external_change_dialog_message_dirty">该文件已被其他应用修改，但你有未保存的修改。重新加载将丢弃你的编辑。</string>
+    <string name="reload">重新加载</string>
+    <string name="keep_editing">保留当前</string>
+    <string name="file_reloaded">已从磁盘重新加载</string>
     <string name="tab_width">Tab 宽度</string>
     <string name="tab_width_hint">Tab 字符占用的列数（1–16）。</string>
     <string name="font_fallback">字体回退</string>

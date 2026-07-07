@@ -65,7 +65,41 @@ class EditorOptionsActivity : AppCompatActivity() {
         prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
         setupTabWidth()
+        setupExternalChange()
         setupFontList()
+    }
+
+    private fun setupExternalChange() {
+        updateExternalChangeValue()
+        binding.externalChangeRow.setOnClickListener {
+            val values = arrayOf(EXTERNAL_CHANGE_OFF, EXTERNAL_CHANGE_PROMPT, EXTERNAL_CHANGE_AUTO)
+            val labels = arrayOf(
+                getString(R.string.external_change_off),
+                getString(R.string.external_change_prompt),
+                getString(R.string.external_change_auto),
+            )
+            val current = prefs.getString(PREF_EXTERNAL_CHANGE, EXTERNAL_CHANGE_PROMPT)
+            val checked = values.indexOf(current).coerceAtLeast(0)
+            AlertDialog.Builder(this)
+                .setTitle(R.string.external_change_detection)
+                .setSingleChoiceItems(labels, checked) { dialog, which ->
+                    prefs.edit().putString(PREF_EXTERNAL_CHANGE, values[which]).apply()
+                    updateExternalChangeValue()
+                    dialog.dismiss()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+    }
+
+    private fun updateExternalChangeValue() {
+        binding.externalChangeValue.setText(
+            when (prefs.getString(PREF_EXTERNAL_CHANGE, EXTERNAL_CHANGE_PROMPT)) {
+                EXTERNAL_CHANGE_OFF -> R.string.external_change_off
+                EXTERNAL_CHANGE_AUTO -> R.string.external_change_auto
+                else -> R.string.external_change_prompt
+            }
+        )
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -200,6 +234,11 @@ class EditorOptionsActivity : AppCompatActivity() {
         const val PREFS_NAME = "text_editor"
         const val PREF_TAB_WIDTH = "tab_width"
         const val PREF_FONT_FALLBACK = "font_fallback_files"
+
+        const val PREF_EXTERNAL_CHANGE = "external_change_action"
+        const val EXTERNAL_CHANGE_OFF = "off"
+        const val EXTERNAL_CHANGE_PROMPT = "prompt"
+        const val EXTERNAL_CHANGE_AUTO = "auto"
 
         const val DEFAULT_TAB_WIDTH = 4
         const val MIN_TAB_WIDTH = 1

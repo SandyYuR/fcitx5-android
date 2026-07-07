@@ -42,6 +42,17 @@
     <string name="plain_mode">plain mode</string>
 
     <string name="editor_options">Options</string>
+    <string name="external_change_detection">Reload on external change</string>
+    <string name="external_change_hint">Detect when this file is modified by another app while the editor is in the background.</string>
+    <string name="external_change_off">Off</string>
+    <string name="external_change_prompt">Ask before reloading</string>
+    <string name="external_change_auto">Reload automatically</string>
+    <string name="external_change_dialog_title">File changed on disk</string>
+    <string name="external_change_dialog_message">This file was modified by another app. Reload it?</string>
+    <string name="external_change_dialog_message_dirty">This file was modified by another app, but you have unsaved changes. Reloading discards your edits.</string>
+    <string name="reload">Reload</string>
+    <string name="keep_editing">Keep mine</string>
+    <string name="file_reloaded">Reloaded from disk</string>
     <string name="tab_width">Tab width</string>
     <string name="tab_width_hint">Number of columns a tab character occupies (1–16).</string>
     <string name="font_fallback">Font fallback</string>

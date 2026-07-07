@@ -71,6 +71,18 @@ class TextFileEditActivity : AppCompatActivity() {
     private var showWhitespace: Boolean = false
     private var useTab: Boolean = true
     private var fileSizeBytes: Long = 0L
+    // Snapshot of the on-disk file at load/save time, used to detect external modifications when
+    // the activity returns to the foreground. loadedFileSize < 0 means "not loaded yet".
+    private var loadedLastModified: Long = 0L
+    private var loadedFileSize: Long = -1L
+    private var externalChangeDialogShowing: Boolean = false
+    private var externalCheckInFlight: Boolean = false
+    private var externalPollScheduled: Boolean = false
+    private val externalChangePoll = Runnable {
+        externalPollScheduled = false
+        maybeCheckExternalChange()
+        scheduleExternalChangePoll()
+    }
     // Above TextFileSupport.LARGE_FILE_THRESHOLD: skip TextMate grammar and disable autocompletion,
     // both of which scan the whole buffer and stall the UI on multi-MB files.
     private var isLargeFile: Boolean = false
@@ -354,6 +366,137 @@ class TextFileEditActivity : AppCompatActivity() {
         val newTabWidth = readTabWidth()
         if (editor.tabWidth != newTabWidth) editor.tabWidth = newTabWidth
         applyUserTypeface(editor)
+        maybeCheckExternalChange()
+        scheduleExternalChangePoll()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopExternalChangePolling()
+        persistDraftOnPause()
+    }
+
+    private fun scheduleExternalChangePoll() {
+        if (externalPollScheduled || !::binding.isInitialized) return
+        val mode = prefs.getString(
+            EditorOptionsActivity.PREF_EXTERNAL_CHANGE,
+            EditorOptionsActivity.EXTERNAL_CHANGE_PROMPT
+        )
+        // Poll only while the feature is enabled.
+        if (mode == EditorOptionsActivity.EXTERNAL_CHANGE_OFF) return
+        externalPollScheduled = true
+        binding.root.postDelayed(externalChangePoll, EXTERNAL_CHANGE_POLL_INTERVAL_MS)
+    }
+
+    private fun stopExternalChangePolling() {
+        externalPollScheduled = false
+        if (::binding.isInitialized) binding.root.removeCallbacks(externalChangePoll)
+    }
+
+    private fun captureFileSnapshot() {
+        loadedLastModified = fileLastModified()
+        loadedFileSize = fileLength()
+    }
+
+    private fun maybeCheckExternalChange() {
+        // Not loaded yet, a prompt is already up, or a check is already running.
+        if (loadedFileSize < 0 || externalChangeDialogShowing || externalCheckInFlight) return
+        val mode = prefs.getString(
+            EditorOptionsActivity.PREF_EXTERNAL_CHANGE,
+            EditorOptionsActivity.EXTERNAL_CHANGE_PROMPT
+        )
+        if (mode == EditorOptionsActivity.EXTERNAL_CHANGE_OFF) return
+        externalCheckInFlight = true
+        lifecycleScope.launch(crashHandler) {
+            // Some providers stat slowly — keep the metadata query off the main thread so polling
+            // never janks the editor.
+            val currentModified: Long
+            val currentSize: Long
+            withContext(Dispatchers.IO) {
+                currentModified = fileLastModified()
+                currentSize = fileLength()
+            }
+            externalCheckInFlight = false
+            if (externalChangeDialogShowing) return@launch
+            if (currentModified == loadedLastModified && currentSize == loadedFileSize) return@launch
+            // Never silently discard unsaved edits — fall back to prompting even in auto mode.
+            if (mode == EditorOptionsActivity.EXTERNAL_CHANGE_AUTO && !isDirty()) {
+                reloadFromDisk()
+            } else {
+                promptExternalChange()
+            }
+        }
+    }
+
+    private fun promptExternalChange() {
+        if (externalChangeDialogShowing) return
+        externalChangeDialogShowing = true
+        val message = if (isDirty()) {
+            R.string.external_change_dialog_message_dirty
+        } else {
+            R.string.external_change_dialog_message
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.external_change_dialog_title)
+            .setMessage(message)
+            .setPositiveButton(R.string.reload) { _, _ ->
+                externalChangeDialogShowing = false
+                reloadFromDisk()
+            }
+            .setNegativeButton(R.string.keep_editing) { _, _ ->
+                externalChangeDialogShowing = false
+                // Accept the current on-disk state as the new baseline so we stop re-prompting
+                // for this same external change.
+                captureFileSnapshot()
+            }
+            .setOnCancelListener {
+                externalChangeDialogShowing = false
+                captureFileSnapshot()
+            }
+            .show()
+    }
+
+    private fun reloadFromDisk() {
+        if (isLargeFile) {
+            runCatching { largeFilePager?.close() }
+            largeFilePager = null
+            largeFileFullyLoaded = false
+            largeFileLoadInFlight = false
+            largeFileDirty = false
+            lifecycleScope.launch(crashHandler) {
+                loadLargeFilePaged()
+                toast(getString(R.string.file_reloaded))
+            }
+            return
+        }
+        lifecycleScope.launch(crashHandler) {
+            val original = try {
+                withContext(Dispatchers.IO) {
+                    contentResolver.openInputStream(docUri)?.use {
+                        it.readBytes().decodeToString()
+                    } ?: error("openInputStream returned null")
+                }
+            } catch (e: Exception) {
+                toast(getString(R.string.error_open_file, e.message ?: displayName))
+                return@launch
+            }
+            originalText = original
+            val cursor = binding.editor.cursor
+            val prevLine = cursor.leftLine
+            val prevColumn = cursor.leftColumn
+            binding.editor.setText(original)
+            // sora's setText triggers styleDelegate.reset(), which nulls bracketsProvider.
+            binding.editor.installOnlineBracketsMatcher()
+            runCatching {
+                val line = prevLine.coerceIn(0, binding.editor.text.lineCount - 1)
+                val col = prevColumn.coerceIn(0, binding.editor.text.getColumnCount(line))
+                binding.editor.setSelection(line, col)
+            }
+            withContext(Dispatchers.IO) { runCatching { draftFile.delete() } }
+            captureFileSnapshot()
+            updateMenuState()
+            toast(getString(R.string.file_reloaded))
+        }
     }
 
     private fun readTabWidth(): Int =
@@ -591,6 +734,7 @@ class TextFileEditActivity : AppCompatActivity() {
                 return@launch
             }
             originalText = original
+            captureFileSnapshot()
             // Only restore a draft when it is at least as fresh as the on-disk file —
             // otherwise the file has been edited externally and the draft is stale.
             val draft = withContext(Dispatchers.IO) {
@@ -651,6 +795,7 @@ class TextFileEditActivity : AppCompatActivity() {
         }
         originalText = ""
         largeFileDirty = false
+        captureFileSnapshot()
         withSuppressedLargeFileDirtyTracking {
             binding.editor.setText(firstPage)
         }
@@ -750,6 +895,7 @@ class TextFileEditActivity : AppCompatActivity() {
                 if (isLargeFile) {
                     largeFileDirty = false
                 }
+                captureFileSnapshot()
                 toast(getString(R.string.saved))
                 updateMenuState()
                 onSuccess?.invoke()
@@ -760,8 +906,7 @@ class TextFileEditActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
+    private fun persistDraftOnPause() {
         if (!::docUri.isInitialized || !::binding.isInitialized || isLargeFile) return
         val current = binding.editor.text.toString()
         try {
@@ -853,6 +998,7 @@ class TextFileEditActivity : AppCompatActivity() {
         private const val LARGE_FILE_PAGE_BYTES = 256 * 1024
         private const val PREFETCH_VIEWPORT_MULTIPLIER = 2
         private const val DEFERRED_HIGHLIGHT_DELAY_MS = 180L
+        private const val EXTERNAL_CHANGE_POLL_INTERVAL_MS = 3000L
     }
 
     private class LargeFilePager(

@@ -42,6 +42,17 @@
     <string name="plain_mode">純文字模式</string>
 
     <string name="editor_options">選項</string>
+    <string name="external_change_detection">外部變更時重新載入</string>
+    <string name="external_change_hint">當編輯器在背景時，偵測檔案是否被其他應用程式修改。</string>
+    <string name="external_change_off">關閉</string>
+    <string name="external_change_prompt">重新載入前詢問</string>
+    <string name="external_change_auto">自動重新載入</string>
+    <string name="external_change_dialog_title">檔案已被外部修改</string>
+    <string name="external_change_dialog_message">此檔案已被其他應用程式修改，是否重新載入？</string>
+    <string name="external_change_dialog_message_dirty">此檔案已被其他應用程式修改，但你有未儲存的變更。重新載入將捨棄你的編輯內容。</string>
+    <string name="reload">重新載入</string>
+    <string name="keep_editing">保留目前</string>
+    <string name="file_reloaded">已從磁碟重新載入</string>
     <string name="tab_width">Tab 寬度</string>
     <string name="tab_width_hint">Tab 字元佔用的欄數（1–16）。</string>
     <string name="font_fallback">字型回退</string>
