@@ -386,7 +386,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             val view = topContainer.getChildAt(sourceIndex)
             topContainer.removeViewAt(sourceIndex)
             topContainer.addView(view, targetIndex)
-            setupTopButtonDrag(view, targetIndex)
+            refreshTopButtonDragIndices()
             return
         }
         if (sourceSection == Section.Top) {
@@ -396,9 +396,18 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             val view = createTopButtonView(topButtons[targetIndex], targetIndex)
             topContainer.addView(view, targetIndex)
         }
+        if (sourceSection == Section.Top || targetSection == Section.Top) {
+            refreshTopButtonDragIndices()
+        }
         val (useEven, evenWidth) = computeTopWidthInfo()
         applyTopRowWidths(useEven, evenWidth)
         topContainer.requestLayout()
+    }
+
+    private fun refreshTopButtonDragIndices() {
+        for (i in topButtons.indices) {
+            topContainer.getChildAt(i)?.let { setupTopButtonDrag(it, i) }
+        }
     }
 
     private fun notifyAdaptersAfterMove(
