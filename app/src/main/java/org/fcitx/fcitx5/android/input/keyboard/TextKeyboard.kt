@@ -36,6 +36,7 @@ class TextKeyboard(
         const val Name = "Text"
         private const val LAYOUT_META_KEY = "__meta__"
         private const val LAYOUT_META_HEIGHT_PERCENT_KEY = "keyboard_height_percent"
+        private const val LAYOUT_META_HEIGHT_PERCENT_LANDSCAPE_KEY = "keyboard_height_percent_landscape"
         private var lastModified = 0L
         var ime: InputMethodEntry? = null
         private var listenerRegistered = false
@@ -268,12 +269,23 @@ class TextKeyboard(
             }
         }
 
+        private fun isLandscapeNow(): Boolean =
+            android.content.res.Resources.getSystem().configuration.orientation ==
+                android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
         private fun parseLayoutHeightPercentOverride(layoutElement: JsonElement?): Int? {
             val objectElement = layoutElement as? JsonObject ?: return null
             val meta = objectElement[LAYOUT_META_KEY] as? JsonObject ?: return null
-            val raw = (meta[LAYOUT_META_HEIGHT_PERCENT_KEY] as? JsonPrimitive)?.intOrNull
-                ?: (meta[LAYOUT_META_HEIGHT_PERCENT_KEY] as? JsonPrimitive)?.content?.toIntOrNull()
-            return raw?.takeIf { it in 10..90 }
+            fun readKey(key: String): Int? {
+                val raw = (meta[key] as? JsonPrimitive)?.intOrNull
+                    ?: (meta[key] as? JsonPrimitive)?.content?.toIntOrNull()
+                return raw?.takeIf { it in 10..90 }
+            }
+            return if (isLandscapeNow()) {
+                readKey(LAYOUT_META_HEIGHT_PERCENT_LANDSCAPE_KEY) ?: readKey(LAYOUT_META_HEIGHT_PERCENT_KEY)
+            } else {
+                readKey(LAYOUT_META_HEIGHT_PERCENT_KEY)
+            }
         }
 
         @Synchronized
@@ -285,6 +297,11 @@ class TextKeyboard(
         @Synchronized
         private fun setLayoutHeightPercentOverride(layoutKey: String, percent: Int): Boolean {
             if (percent !in 10..90) return false
+            val metaKey = if (isLandscapeNow()) {
+                LAYOUT_META_HEIGHT_PERCENT_LANDSCAPE_KEY
+            } else {
+                LAYOUT_META_HEIGHT_PERCENT_KEY
+            }
             val snapshot = org.fcitx.fcitx5.android.input.config.ConfigProviders
                 .readTextKeyboardLayout<JsonObject>() ?: return false
             val root = snapshot.value.toMutableMap()
@@ -298,7 +315,7 @@ class TextKeyboard(
                         JsonObject(
                             mapOf(
                                 LAYOUT_META_KEY to JsonObject(
-                                    mapOf(LAYOUT_META_HEIGHT_PERCENT_KEY to JsonPrimitive(percent))
+                                    mapOf(metaKey to JsonPrimitive(percent))
                                 ),
                                 "default" to existingBase
                             )
@@ -307,7 +324,7 @@ class TextKeyboard(
                     is JsonObject -> {
                         val mutable = existingBase.toMutableMap()
                         val meta = (mutable[LAYOUT_META_KEY] as? JsonObject)?.toMutableMap() ?: mutableMapOf()
-                        meta[LAYOUT_META_HEIGHT_PERCENT_KEY] = JsonPrimitive(percent)
+                        meta[metaKey] = JsonPrimitive(percent)
                         mutable[LAYOUT_META_KEY] = JsonObject(meta)
                         JsonObject(mutable)
                     }
@@ -326,7 +343,7 @@ class TextKeyboard(
                         JsonObject(
                             mapOf(
                                 LAYOUT_META_KEY to JsonObject(
-                                    mapOf(LAYOUT_META_HEIGHT_PERCENT_KEY to JsonPrimitive(percent))
+                                    mapOf(metaKey to JsonPrimitive(percent))
                                 ),
                                 "default" to existingSub
                             )
@@ -335,7 +352,7 @@ class TextKeyboard(
                     is JsonObject -> {
                         val mutable = existingSub.toMutableMap()
                         val meta = (mutable[LAYOUT_META_KEY] as? JsonObject)?.toMutableMap() ?: mutableMapOf()
-                        meta[LAYOUT_META_HEIGHT_PERCENT_KEY] = JsonPrimitive(percent)
+                        meta[metaKey] = JsonPrimitive(percent)
                         mutable[LAYOUT_META_KEY] = JsonObject(meta)
                         JsonObject(mutable)
                     }

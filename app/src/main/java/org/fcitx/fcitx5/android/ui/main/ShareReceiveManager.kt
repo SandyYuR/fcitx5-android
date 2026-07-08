@@ -86,7 +86,8 @@ class ShareReceiveManager(
         data class LayoutJson(
             val parsed: Map<String, List<List<Map<String, Any?>>>>,
             val profile: String?,
-            val heightOverrides: Map<String, Int>
+            val heightOverrides: Map<String, Int>,
+            val heightOverridesLandscape: Map<String, Int>
         ) : DetectionResult
         data class PopupJson(val parsed: Map<String, List<String>>) : DetectionResult
     }
@@ -289,6 +290,8 @@ class ShareReceiveManager(
         }
         dataManager.layoutHeightPercentOverrides.clear()
         dataManager.layoutHeightPercentOverrides.putAll(layout.heightOverrides)
+        dataManager.layoutHeightPercentOverridesLandscape.clear()
+        dataManager.layoutHeightPercentOverridesLandscape.putAll(layout.heightOverridesLandscape)
         val saved = withContext(Dispatchers.IO) { dataManager.saveToFile(targetFile) }
         check(saved) { activity.getString(R.string.text_keyboard_layout_save_failed) }
         ConfigProviders.ensureWatching()
@@ -598,7 +601,8 @@ class ShareReceiveManager(
         return DetectionResult.LayoutJson(
             parsed = parsed,
             profile = profile,
-            heightOverrides = dataManager.latestParsedLayoutHeightPercentOverrides()
+            heightOverrides = dataManager.latestParsedLayoutHeightPercentOverrides(),
+            heightOverridesLandscape = dataManager.latestParsedLayoutHeightPercentOverridesLandscape()
         )
     }
 

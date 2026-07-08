@@ -121,6 +121,7 @@
     <string name="addon_dir_profile_rename">重新命名資料目錄</string>
     <string name="addon_dir_profile_switch">切換到此目錄</string>
     <string name="addon_dir_profile_delete_confirm">刪除資料目錄「%1$s」？</string>
+    <string name="addon_dir_profile_delete_last_forbidden">至少須保留一個資料目錄</string>
     <string name="addon_dir_profile_current_format">%1$s（目前）</string>
     <string name="reset">重設</string>
     <string name="quickphrase_keyword">關鍵字</string>
@@ -292,6 +293,10 @@
     <string name="edit_button_no_custom_icon">（無自訂圖示）</string>
     <string name="edit_button_macro_event_type">按鈕動作</string>
     <string name="edit_button_new_custom">新增自訂按鈕…</string>
+    <string name="edit_button_id_duplicate">識別碼已存在</string>
+    <string name="edit_button_id_empty">識別碼不能為空</string>
+    <string name="edit_button_id_reserved">識別碼為保留字</string>
+    <string name="edit_button_unknown_action">未知動作：%s</string>
     <string name="delete_button_title">刪除按鈕</string>
     <string name="delete_button_confirm">刪除此按鈕？</string>
     <string name="popup_editor_hint">點擊項目可編輯，長按可刪除。</string>
@@ -425,6 +430,7 @@
     <string name="emoji_skin_tone_type_5">🏾 中等深膚色 (Type-5)</string>
     <string name="emoji_skin_tone_type_6">🏿 深膚色 (Type-6)</string>
     <string name="hide_unsupported_emojis">隱藏不支援的表情</string>
+    <string name="edit_text_playground">文字方塊測試區</string>
     <string name="edit_text_keyboard_layout">修改鍵盤定義</string>
     <string name="text_keyboard_layout_preview">預覽</string>
     <string name="ok">確定</string>
@@ -432,6 +438,11 @@
     <string name="saved">已儲存</string>
     <string name="save_failed">儲存失敗</string>
     <string name="text_keyboard_layout_add_layout">新增佈局</string>
+    <string name="text_keyboard_layout_add_child_layout">新增子佈局</string>
+    <string name="text_keyboard_layout_child_layout_added">已新增子佈局：%1$s</string>
+    <string name="text_keyboard_layout_child_layout_exists">子佈局「%1$s」已存在或無效</string>
+    <string name="text_keyboard_layout_child_layout_name_empty">子佈局名稱不能為空</string>
+    <string name="text_keyboard_layout_child_layout_name_hint">子佈局名稱</string>
     <string name="text_keyboard_layout_add_row">新增列</string>
     <string name="text_keyboard_layout_add_key">新增按鍵</string>
     <string name="text_keyboard_layout_key_type">按鍵類型</string>
@@ -454,8 +465,10 @@
     <string name="text_keyboard_layout_key_color_monet_unavailable">Monet 動態顏色目前不可用</string>
     <string name="text_keyboard_layout_layout_name">佈局名稱</string>
     <string name="text_keyboard_layout_layout_name_hint">例如：rime、pinyin</string>
+    <string name="text_keyboard_layout_layout_name_exists">佈局名稱已存在</string>
     <string name="text_keyboard_layout_copy_from">從現有佈局複製</string>
     <string name="text_keyboard_layout_name_empty">佈局名稱不能為空</string>
+    <string name="text_keyboard_layout_global_layout_name_invalid">全域共用佈局名稱不能使用輸入法名稱或包含「:」</string>
     <string name="text_keyboard_layout_delete_key_confirm">刪除此按鍵？</string>
     <string name="text_keyboard_layout_delete_layout_confirm">刪除佈局「%1$s」？</string>
     <string name="text_keyboard_layout_delete_row_confirm">刪除第 %1$d 列？</string>
@@ -731,8 +744,11 @@
     <string name="text_keyboard_layout_compose_override_clear_button">清除</string>
     <string name="text_keyboard_layout_compose_override_editor_title">編輯組字中按鍵</string>
     <string name="text_keyboard_layout_compose_override_follow_base_key_colors">獨立按鍵顏色</string>
+    <string name="text_keyboard_layout_layout_height_override">佈局專用鍵盤高度</string>
     <string name="text_keyboard_layout_layout_height_override_title">佈局高度：%1$s</string>
     <string name="text_keyboard_layout_use_global_height">使用全域鍵盤高度</string>
+    <string name="text_keyboard_layout_height_portrait">直向</string>
+    <string name="text_keyboard_layout_height_landscape">橫向</string>
     <string name="text_keyboard_layout_layout_height_percent_hint">佈局鍵盤高度（%）10-90</string>
     <string name="text_keyboard_layout_layout_height_percent_helper">關閉「使用全域鍵盤高度」後，此佈局會覆蓋全域鍵盤高度；保持開啟則沿用全域設定。</string>
     <string name="text_keyboard_layout_layout_height_percent_invalid">佈局鍵盤高度必須在 10 到 90 之間</string>

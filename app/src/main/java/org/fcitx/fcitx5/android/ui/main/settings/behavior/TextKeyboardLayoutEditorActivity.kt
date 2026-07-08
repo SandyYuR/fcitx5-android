@@ -230,8 +230,17 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             previewKeyboardContainer,
             dataManager.entries
         ) { layoutKey ->
-            dataManager.getLayoutHeightPercentOverride(layoutKey)
-                ?: dataManager.getLayoutHeightPercentOverride(LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutKey))
+            val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+            val baseKey = LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutKey)
+            if (landscape) {
+                dataManager.getLayoutHeightPercentOverrideLandscape(layoutKey)
+                    ?: dataManager.getLayoutHeightPercentOverrideLandscape(baseKey)
+                    ?: dataManager.getLayoutHeightPercentOverride(layoutKey)
+                    ?: dataManager.getLayoutHeightPercentOverride(baseKey)
+            } else {
+                dataManager.getLayoutHeightPercentOverride(layoutKey)
+                    ?: dataManager.getLayoutHeightPercentOverride(baseKey)
+            }
         }
     }
     
@@ -1865,28 +1874,31 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun openLayoutHeightOverrideDialog() {
-        val layoutName = currentEditingLayoutKey() ?: return
-        val currentOverride = dataManager.getLayoutHeightPercentOverride(layoutName)
-            ?: dataManager.getLayoutHeightPercentOverride(LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutName))
-        val keyboardPrefs = AppPrefs.getInstance().keyboard
-        val globalPercent = when (resources.configuration.orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> keyboardPrefs.keyboardHeightPercentLandscape.getValue()
-            else -> keyboardPrefs.keyboardHeightPercent.getValue()
-        }
-        val useGlobalInitially = currentOverride == null
+    private class HeightOverrideSection(
+        val useGlobalSwitch: androidx.appcompat.widget.SwitchCompat,
+        val percentSeek: SeekBar,
+        val readCurrentPercent: () -> Int?
+    )
 
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            val pad = dp(12)
-            setPadding(pad, pad, pad, pad)
+    private fun buildHeightOverrideSection(
+        container: LinearLayout,
+        sectionTitle: String,
+        currentOverride: Int?,
+        globalPercent: Int
+    ): HeightOverrideSection {
+        val useGlobalInitially = currentOverride == null
+        val initialPercent = currentOverride ?: globalPercent
+
+        val header = TextView(this).apply {
+            text = sectionTitle
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setPadding(0, dp(10), 0, dp(2))
         }
         val useGlobalSwitch = androidx.appcompat.widget.SwitchCompat(this).apply {
             text = getString(R.string.text_keyboard_layout_use_global_height)
             isChecked = useGlobalInitially
         }
         var customPercent = currentOverride ?: globalPercent
-        val initialPercent = currentOverride ?: globalPercent
         val percentValue = TextView(this).apply {
             text = "$initialPercent%"
             textSize = 16f
@@ -1896,6 +1908,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             max = 80 // 10..90
             progress = (initialPercent - 10).coerceIn(0, 80)
             isEnabled = !useGlobalInitially
+            alpha = if (useGlobalInitially) 0.5f else 1f
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     val percent = progress + 10
@@ -1908,12 +1921,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
             })
         }
-        val helper = TextView(this).apply {
-            text = getString(R.string.text_keyboard_layout_layout_height_percent_helper)
-            textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
-            setPadding(0, dp(6), 0, 0)
-        }
+        percentValue.alpha = if (useGlobalInitially) 0.5f else 1f
         useGlobalSwitch.setOnCheckedChangeListener { _, isChecked ->
             percentSeek.isEnabled = !isChecked
             if (isChecked) {
@@ -1927,25 +1935,66 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             percentSeek.alpha = alpha
             percentValue.alpha = alpha
         }
+        container.addView(header)
         container.addView(useGlobalSwitch)
         container.addView(percentValue)
         container.addView(percentSeek)
+
+        return HeightOverrideSection(useGlobalSwitch, percentSeek) {
+            if (useGlobalSwitch.isChecked) null else percentSeek.progress + 10
+        }
+    }
+
+    private fun openLayoutHeightOverrideDialog() {
+        val layoutName = currentEditingLayoutKey() ?: return
+        val baseKey = LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutName)
+        val currentOverridePortrait = dataManager.getLayoutHeightPercentOverride(layoutName)
+            ?: dataManager.getLayoutHeightPercentOverride(baseKey)
+        val currentOverrideLandscape = dataManager.getLayoutHeightPercentOverrideLandscape(layoutName)
+            ?: dataManager.getLayoutHeightPercentOverrideLandscape(baseKey)
+        val keyboardPrefs = AppPrefs.getInstance().keyboard
+        val globalPercentPortrait = keyboardPrefs.keyboardHeightPercent.getValue()
+        val globalPercentLandscape = keyboardPrefs.keyboardHeightPercentLandscape.getValue()
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = dp(12)
+            setPadding(pad, pad, pad, pad)
+        }
+
+        val portraitSection = buildHeightOverrideSection(
+            container,
+            getString(R.string.text_keyboard_layout_height_portrait),
+            currentOverridePortrait,
+            globalPercentPortrait
+        )
+        val landscapeSection = buildHeightOverrideSection(
+            container,
+            getString(R.string.text_keyboard_layout_height_landscape),
+            currentOverrideLandscape,
+            globalPercentLandscape
+        )
+
+        val helper = TextView(this).apply {
+            text = getString(R.string.text_keyboard_layout_layout_height_percent_helper)
+            textSize = DIALOG_LABEL_TEXT_SIZE_SP
+            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setPadding(0, dp(10), 0, 0)
+        }
         container.addView(helper)
+
+        val scroll = android.widget.ScrollView(this).apply { addView(container) }
 
         val dialog = AlertDialog.Builder(this)
             .setTitle(getString(R.string.text_keyboard_layout_layout_height_override_title, layoutName))
-            .setView(container)
+            .setView(scroll)
             .setPositiveButton(android.R.string.ok, null)
             .setNegativeButton(android.R.string.cancel, null)
             .create()
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                if (useGlobalSwitch.isChecked) {
-                    dataManager.setLayoutHeightPercentOverride(layoutName, null)
-                } else {
-                    val percent = percentSeek.progress + 10
-                    dataManager.setLayoutHeightPercentOverride(layoutName, percent)
-                }
+                dataManager.setLayoutHeightPercentOverride(layoutName, portraitSection.readCurrentPercent())
+                dataManager.setLayoutHeightPercentOverrideLandscape(layoutName, landscapeSection.readCurrentPercent())
                 currentLayout?.let { name ->
                     previewManager.updatePreview(name, previewSubModeLabel, fcitxConnection)
                 }
@@ -2646,9 +2695,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             if (parsed.isEmpty()) {
                 throw IllegalArgumentException("No valid layout in QR payload")
             }
-            ParsedImportResult(parsed, importedProfile, dataManager.latestParsedLayoutHeightPercentOverrides())
+            ParsedImportResult(parsed, importedProfile, dataManager.latestParsedLayoutHeightPercentOverrides(), dataManager.latestParsedLayoutHeightPercentOverridesLandscape())
         }.onSuccess { parsed ->
-            applyImportedLayouts(parsed.parsedLayouts, parsed.profile, parsed.layoutHeightOverrides)
+            applyImportedLayouts(parsed.parsedLayouts, parsed.profile, parsed.layoutHeightOverrides, parsed.layoutHeightOverridesLandscape)
         }.onFailure {
             val message = it.message.orEmpty()
             if (message.startsWith("type_mismatch:")) {
@@ -2677,9 +2726,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             if (parsed.isEmpty()) {
                 throw IllegalArgumentException("No valid layout in QR payload")
             }
-            ParsedImportResult(parsed, importedProfile, dataManager.latestParsedLayoutHeightPercentOverrides())
+            ParsedImportResult(parsed, importedProfile, dataManager.latestParsedLayoutHeightPercentOverrides(), dataManager.latestParsedLayoutHeightPercentOverridesLandscape())
         }.onSuccess { parsed ->
-            applyImportedLayouts(parsed.parsedLayouts, parsed.profile, parsed.layoutHeightOverrides)
+            applyImportedLayouts(parsed.parsedLayouts, parsed.profile, parsed.layoutHeightOverrides, parsed.layoutHeightOverridesLandscape)
         }.onFailure {
             showToast(getString(R.string.text_keyboard_layout_qr_import_failed, it.localizedMessage ?: ""))
         }
@@ -2688,7 +2737,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     private fun applyImportedLayouts(
         parsed: Map<String, List<List<Map<String, Any?>>>>,
         importedProfile: String?,
-        layoutHeightOverrides: Map<String, Int>
+        layoutHeightOverrides: Map<String, Int>,
+        layoutHeightOverridesLandscape: Map<String, Int>
     ) {
         withImportPreparation {
             val targetProfile = importedProfile ?: currentLayoutProfile
@@ -2714,6 +2764,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     }
                     dataManager.layoutHeightPercentOverrides.clear()
                     dataManager.layoutHeightPercentOverrides.putAll(layoutHeightOverrides)
+                    dataManager.layoutHeightPercentOverridesLandscape.clear()
+                    dataManager.layoutHeightPercentOverridesLandscape.putAll(layoutHeightOverridesLandscape)
                     currentLayout = entries.keys.firstOrNull { !it.contains(':') } ?: entries.keys.firstOrNull()
                     previewSubModeLabel = null
                     buildSpinner()
@@ -2755,6 +2807,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     private data class ParsedImportResult(
         val parsedLayouts: Map<String, List<List<Map<String, Any?>>>>,
         val profile: String?,
-        val layoutHeightOverrides: Map<String, Int>
+        val layoutHeightOverrides: Map<String, Int>,
+        val layoutHeightOverridesLandscape: Map<String, Int>
     )
 }

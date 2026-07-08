@@ -845,9 +845,20 @@ object LayoutJsonUtils {
      */
     fun convertToSaveJson(
         entries: Map<String, List<List<Map<String, Any?>>>>,
-        layoutHeightPercentOverrides: Map<String, Int> = emptyMap()
+        layoutHeightPercentOverrides: Map<String, Int> = emptyMap(),
+        layoutHeightPercentOverridesLandscape: Map<String, Int> = emptyMap()
     ): JsonObject {
         val layoutMap = mutableMapOf<String, JsonElement>()
+
+        fun buildHeightMeta(overrideKey: String): JsonObject? {
+            val portrait = layoutHeightPercentOverrides[overrideKey]?.takeIf { it in 10..90 }
+            val landscape = layoutHeightPercentOverridesLandscape[overrideKey]?.takeIf { it in 10..90 }
+            if (portrait == null && landscape == null) return null
+            val meta = mutableMapOf<String, JsonElement>()
+            portrait?.let { meta["keyboard_height_percent"] = JsonPrimitive(it) }
+            landscape?.let { meta["keyboard_height_percent_landscape"] = JsonPrimitive(it) }
+            return JsonObject(meta)
+        }
 
         val baseLayoutNames = entries.keys.map { key ->
             baseLayoutNameFromEntryKey(key)
@@ -864,13 +875,7 @@ object LayoutJsonUtils {
 
             if (hasSubModeKeys) {
                 val subModeMap = mutableMapOf<String, JsonElement>()
-                layoutHeightPercentOverrides[baseName]
-                    ?.takeIf { it in 10..90 }
-                    ?.let { percent ->
-                        subModeMap["__meta__"] = JsonObject(
-                            mapOf("keyboard_height_percent" to JsonPrimitive(percent))
-                        )
-                    }
+                buildHeightMeta(baseName)?.let { subModeMap["__meta__"] = it }
 
                 for (key in subModeKeys) {
                     val subModeLabel = subModeLabelFromEntryKey(key, baseName)
@@ -891,14 +896,11 @@ object LayoutJsonUtils {
                     } else {
                         "$baseName:$subModeLabel"
                     }
-                    val subModeOverridePercent =
-                        layoutHeightPercentOverrides[overrideKey]?.takeIf { it in 10..90 }
-                    subModeMap[subModeLabel] = if (subModeLabel != "default" && subModeOverridePercent != null) {
+                    val subModeMeta = if (subModeLabel != "default") buildHeightMeta(overrideKey) else null
+                    subModeMap[subModeLabel] = if (subModeMeta != null) {
                         JsonObject(
                             mapOf(
-                                "__meta__" to JsonObject(
-                                    mapOf("keyboard_height_percent" to JsonPrimitive(subModeOverridePercent))
-                                ),
+                                "__meta__" to subModeMeta,
                                 "default" to jsonArray
                             )
                         )
@@ -921,15 +923,13 @@ object LayoutJsonUtils {
                         )
                     })
                 })
-                val overridePercent = layoutHeightPercentOverrides[baseName]?.takeIf { it in 10..90 }
-                layoutMap[baseName] = if (overridePercent == null) {
+                val overrideMeta = buildHeightMeta(baseName)
+                layoutMap[baseName] = if (overrideMeta == null) {
                     jsonArray
                 } else {
                     JsonObject(
                         mapOf(
-                            "__meta__" to JsonObject(
-                                mapOf("keyboard_height_percent" to JsonPrimitive(overridePercent))
-                            ),
+                            "__meta__" to overrideMeta,
                             "default" to jsonArray
                         )
                     )

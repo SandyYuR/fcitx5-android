@@ -182,8 +182,15 @@ class KeyboardPreviewManager(
 
             // Get keyboard height percentage from layout override or preferences
             val keyboardPrefs = AppPrefs.getInstance().keyboard
+            val isLandscape = context.resources.configuration.orientation ==
+                android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            val globalPercent = if (isLandscape) {
+                keyboardPrefs.keyboardHeightPercentLandscape.getValue()
+            } else {
+                keyboardPrefs.keyboardHeightPercent.getValue()
+            }
             val basePercent = layoutHeightPercentOverrideProvider(effectiveLayoutKey)
-                ?: keyboardPrefs.keyboardHeightPercent.getValue()
+                ?: globalPercent
             val rowScale = computeRowHeightScale(rows)
             val effectivePercent = (basePercent * rowScale).coerceIn(10f, 90f)
             val keyboardHeight = (screenHeight * effectivePercent / 100f).toInt()

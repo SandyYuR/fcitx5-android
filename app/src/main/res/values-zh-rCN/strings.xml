@@ -486,6 +486,7 @@
     <string name="special_key_oval_shape">使用 Gboard 风格的操作按键</string>
 
     <!-- Text Keyboard Layout Editor -->
+    <string name="edit_text_playground">文本框测试区</string>
     <string name="edit_text_keyboard_layout">修改键盘定义</string>
     <string name="text_keyboard_layout_file_select_title">切换键盘定义配置</string>
     <string name="web_editor_bridge_title">在线编辑器</string>
@@ -504,6 +505,8 @@
     <string name="text_keyboard_layout_layout_height_override">布局专用键盘高度</string>
     <string name="text_keyboard_layout_layout_height_override_title">布局高度：%1$s</string>
     <string name="text_keyboard_layout_use_global_height">使用全局键盘高度</string>
+    <string name="text_keyboard_layout_height_portrait">竖屏</string>
+    <string name="text_keyboard_layout_height_landscape">横屏</string>
     <string name="text_keyboard_layout_layout_height_percent_hint">10 - 90</string>
     <string name="text_keyboard_layout_layout_height_percent_invalid">布局键盘高度必须在 10 到 90 之间</string>
     <string name="text_keyboard_layout_layout_height_percent_helper">关闭“使用全局键盘高度”后，本布局将覆盖全局键盘高度。保持开启则继续跟随全局设置。</string>

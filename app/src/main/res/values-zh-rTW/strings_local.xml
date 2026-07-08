@@ -145,4 +145,22 @@
     <string name="update_release_notes_empty">更新說明：（空）</string>
     <string name="update_mirror_fields_required">請完整填寫鏡像欄位</string>
     <string name="update_mirror_pattern_invalid">正則 pattern 不合法</string>
+    <string name="about_build_version_title">目前建置版本號</string>
+    <string name="about_build_version_unknown">未知</string>
+    <string name="about_server_clipcascade_summary">點按開啟 ClipCascade GitHub 專案</string>
+    <string name="about_server_oneclip_summary">點按開啟 OneClip 首頁</string>
+    <string name="about_server_syncclipboard_summary">點按開啟 SyncClipboard GitHub 專案</string>
+    <string name="about_supported_servers_title">支援的伺服器</string>
+    <string name="background_keep_alive_title">背景常駐同步</string>
+    <string name="background_keep_alive_summary">啟用前景服務、網路重連與自我復原，減少背景被系統中斷</string>
+    <string name="battery_optimization_title">電池最佳化</string>
+    <string name="battery_optimization_summary">建議將外掛加入背景白名單，避免螢幕關閉後被系統限制</string>
+    <string name="battery_optimization_summary_disabled">目前仍受電池最佳化限制，建議允許背景執行</string>
+    <string name="battery_optimization_summary_enabled">目前已忽略電池最佳化</string>
+    <string name="clipboard_permission_title">系統剪貼簿授權</string>
+    <string name="clipboard_permission_summary">請授權應用程式讀取/寫入系統剪貼簿及相關背景權限</string>
+    <string name="clipboard_permission_dialog_title">授權系統剪貼簿存取</string>
+    <string name="clipboard_permission_dialog_message">Android 沒有統一的剪貼簿執行階段授權對話框，通常需要在系統的應用程式權限或隱私設定中手動允許本外掛存取系統剪貼簿。若你的系統提供「讀取剪貼簿」「存取剪貼簿」「背景讀取剪貼簿」或類似選項，請為 ClipboardSync 開啟；同時建議保留背景執行權限。注意：Android 10+ 在「非預設輸入法且應用程式不在前景」時會限制讀取系統剪貼簿，這是平台政策而非外掛錯誤。此時可使用通知中的「擷取並同步」進行前景單次擷取。</string>
+    <string name="clipboard_permission_open_app_info">開啟應用程式資訊</string>
+    <string name="clipboard_permission_open_permissions">開啟權限設定</string>
 </resources>
