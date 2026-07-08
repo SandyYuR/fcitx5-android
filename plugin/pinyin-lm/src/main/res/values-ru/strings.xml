@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_debug">Fcitx5 (плагин модели пиньинь | Отладка)</string>
+    <string name="app_name_release">Fcitx5 (плагин модели пиньинь)</string>
+    <string name="description">Данные языковой модели пиньинь для Fcitx5, обеспечивающие предсказание фраз и ранжирование кандидатов</string>
+</resources>

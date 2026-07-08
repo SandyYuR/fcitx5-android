@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_debug">Fcitx5 (Pinyin Model Plugin | Debug)</string>
+    <string name="app_name_release">Fcitx5 (Pinyin Model Plugin)</string>
+    <string name="description">Pinyin language model data for Fcitx5, providing full sentence prediction and ranking</string>
+</resources>

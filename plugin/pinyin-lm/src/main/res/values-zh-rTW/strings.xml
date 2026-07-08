@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_debug">Fcitx5（拼音模型外掛 | 除錯）</string>
+    <string name="app_name_release">Fcitx5（拼音模型外掛）</string>
+    <string name="description">Fcitx5 的拼音語言模型資料，提供整句預測與候選排序</string>
+</resources>

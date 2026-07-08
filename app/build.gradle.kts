@@ -204,7 +204,11 @@ fcitxComponent {
     // exclude (delete immediately after install) tables that nobody would use
     excludeFiles = listOf("cangjie", "erbi", "qxm", "wanfeng").map {
         "usr/share/fcitx5/inputmethod/$it.conf"
-    }
+    } + listOf(
+        // pinyin language model is shipped by the :plugin:pinyin-lm plugin instead
+        "usr/share/libime/zh_CN.lm",
+        "usr/share/libime/zh_CN.lm.predict"
+    )
     installPrebuiltAssets = true
 }
 
