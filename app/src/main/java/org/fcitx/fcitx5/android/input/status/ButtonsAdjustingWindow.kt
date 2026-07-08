@@ -31,6 +31,7 @@ import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.action.ButtonAction
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
+import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
@@ -330,11 +331,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     }
 
     private fun loadFileIcon(path: String): Drawable? {
-        return try {
-            Drawable.createFromPath(path)
-        } catch (_: Exception) {
-            null
-        }
+        return ButtonIconFile.loadDrawable(path)
     }
 
     private fun createTopButtonView(button: ConfigurableButton, index: Int): ToolButton {
@@ -354,8 +351,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             if (!button.text.isNullOrEmpty()) {
                 setText(button.text)
             } else if (button.icon != null && button.icon.startsWith("file:")) {
-                val path = button.icon.removePrefix("file:")
-                val drawable = loadFileIcon(path)
+                val drawable = loadFileIcon(button.icon)
                 if (drawable != null) {
                     setIconFromDrawable(drawable)
                 }

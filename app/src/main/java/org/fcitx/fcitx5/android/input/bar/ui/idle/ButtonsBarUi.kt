@@ -18,6 +18,7 @@ import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.action.ButtonAction
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
+import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
 import splitties.dimensions.dp
@@ -101,19 +102,14 @@ class ButtonsBarUi(
     }
 
     private fun loadFileIcon(path: String): Drawable? {
-        return try {
-            Drawable.createFromPath(path)
-        } catch (_: Exception) {
-            null
-        }
+        return ButtonIconFile.loadDrawable(path)
     }
 
     private fun applyIconAndText(button: ToolButton, config: ConfigurableButton) {
         if (!config.text.isNullOrEmpty()) {
             button.setText(config.text)
         } else if (config.icon != null && config.icon.startsWith("file:")) {
-            val path = config.icon.removePrefix("file:")
-            val drawable = loadFileIcon(path)
+            val drawable = loadFileIcon(config.icon)
             if (drawable != null) {
                 button.setIconFromDrawable(drawable)
             }

@@ -123,6 +123,25 @@ object UserDataManager {
         }
     }
 
+    /**
+     * Rewrite absolute custom button icon paths in ButtonsLayout.json to the
+     * portable relative form `file:button_icons/<name>`. No-op when the file is
+     * absent or contains no such paths.
+     */
+    private val absoluteButtonIconRegex =
+        Regex(""""file:[^"]*?button_icons/([^"/]+)"""")
+
+    private fun normalizeButtonIconPaths(file: File) {
+        if (!file.isFile) return
+        runCatching {
+            val original = file.readText()
+            val rewritten = absoluteButtonIconRegex.replace(original) {
+                """"file:button_icons/${it.groupValues[1]}""""
+            }
+            if (rewritten != original) file.writeText(rewritten)
+        }
+    }
+
     private fun copyDir(source: File, target: File) {
         val exists = source.exists()
         val isDir = source.isDirectory
@@ -177,6 +196,10 @@ object UserDataManager {
                 copySharedPrefs(File(tempDir, "shared_prefs"), sharedPrefsDir, metadata.packageName)
                 copyDir(File(tempDir, "databases"), dataBasesDir)
                 copyDir(File(tempDir, "external"), externalDir)
+                // Rewrite absolute custom button icon paths (which embed the source
+                // build's applicationId) to the portable relative form, so imported
+                // configs keep working across build variants.
+                normalizeButtonIconPaths(File(externalDir, "config/ButtonsLayout.json"))
                 // keep importing recently_used for backwords compatibility
                 copyDir(File(tempDir, "recently_used"), recentlyUsedDir)
                 metadata

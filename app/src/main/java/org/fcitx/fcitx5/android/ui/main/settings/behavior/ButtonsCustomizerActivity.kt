@@ -4,7 +4,6 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
-import android.graphics.drawable.Drawable
 import android.graphics.Typeface
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
@@ -40,6 +39,7 @@ import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
+import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
@@ -65,6 +65,9 @@ import splitties.views.imageDrawable
 import java.io.File
 
 private val prettyJson = kotlinx.serialization.json.Json { prettyPrint = true }
+
+private fun ConfigurableButton.normalizedIcon(): ConfigurableButton =
+    if (ButtonIconFile.isFileIcon(icon)) copy(icon = ButtonIconFile.toRelative(icon!!)) else this
 
 /**
  * Unified activity for customizing buttons in both Kawaii Bar and Status Area.
@@ -592,13 +595,15 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     }
                 }
                 val extDir = getExternalFilesDir(null) ?: filesDir
-                val iconDir = File(extDir, "button_icons")
+                val iconDir = File(extDir, ButtonIconFile.DIR)
                 iconDir.mkdirs()
                 val destFile = File(iconDir, fileName)
                 contentResolver.openInputStream(uri)?.use { input ->
                     destFile.outputStream().use { output -> input.copyTo(output) }
                 }
-                pendingIconCallback?.invoke("file:${destFile.absolutePath}")
+                // Store a portable relative path so the config survives export/import
+                // across build variants with different applicationIds.
+                pendingIconCallback?.invoke("${ButtonIconFile.PREFIX}${ButtonIconFile.DIR}/${destFile.name}")
             } catch (_: Exception) {
                 pendingIconCallback?.invoke(null)
             }
@@ -856,10 +861,11 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             // Ensure config directory exists
             file.parentFile?.mkdirs()
 
-            // Create unified config
+            // Create unified config, normalizing custom icon paths to the portable
+            // relative form so exports remain valid across build variants.
             val config = ButtonsLayoutConfig(
-                kawaiiBarButtons = kawaiiBarButtons,
-                statusAreaButtons = statusAreaButtons
+                kawaiiBarButtons = kawaiiBarButtons.map { it.normalizedIcon() },
+                statusAreaButtons = statusAreaButtons.map { it.normalizedIcon() }
             )
 
             val jsonContent = prettyJson.encodeToString(config) + "\n"
@@ -992,7 +998,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                         else -> (buttonDef?.iconRes ?: 0)
                     }
                     val drawable = if (b.icon != null && b.icon.startsWith("file:")) {
-                        try { Drawable.createFromPath(b.icon.removePrefix("file:")) } catch (_: Exception) { null }
+                        ButtonIconFile.loadDrawable(b.icon)
                     } else null
 
                     holder.ui.setButton(label, displayIconRes, b.text, drawable)
