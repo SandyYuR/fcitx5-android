@@ -1551,8 +1551,12 @@ class InputView(
     // Persistent storage for floating state and one-handed mode
     private val internalPrefs = AppPrefs.getInstance().internal
 
-    private var floatingWidthRatioPref by internalPrefs.floatingKeyboardWidthRatio
-    private var floatingHeightRatioPref by internalPrefs.floatingKeyboardHeightRatio
+    private var floatingWidthPortraitRatioPref by internalPrefs.floatingKeyboardWidthPortraitRatio
+    private var floatingWidthLandscapeRatioPref by internalPrefs.floatingKeyboardWidthLandscapeRatio
+    private var floatingHeightPortraitRatioPref by internalPrefs.floatingKeyboardHeightPortraitRatio
+    private var floatingHeightLandscapeRatioPref by internalPrefs.floatingKeyboardHeightLandscapeRatio
+    private var floatingWidthRatioLegacyPref by internalPrefs.floatingKeyboardWidthRatio
+    private var floatingHeightRatioLegacyPref by internalPrefs.floatingKeyboardHeightRatio
     private var floatingWidthLegacyPref by internalPrefs.floatingKeyboardWidthLegacy
     private var floatingHeightLegacyPref by internalPrefs.floatingKeyboardHeightLegacy
     private var floatingWidthPx = 0
@@ -1569,12 +1573,38 @@ class InputView(
     private var oneHandOnRightLandscape by internalPrefs.oneHandOnRightLandscape
     private var floatingModeEnabledPref by internalPrefs.floatingModeEnabled
     private var oneHandModeEnabledPref by internalPrefs.oneHandModeEnabled
-    private var oneHandWidthRatioPref by internalPrefs.oneHandKeyboardWidthRatio
+    private var oneHandWidthPortraitRatioPref by internalPrefs.oneHandKeyboardWidthPortraitRatio
+    private var oneHandWidthLandscapeRatioPref by internalPrefs.oneHandKeyboardWidthLandscapeRatio
+    private var oneHandWidthRatioLegacyPref by internalPrefs.oneHandKeyboardWidthRatio
     private var oneHandWidthLegacyPref by internalPrefs.oneHandKeyboardWidthLegacy
     private var oneHandWidthPx = 0
 
     private val isLandscapeOrientation: Boolean
         get() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    // Orientation-aware accessors for size ratios. Sizes must be stored per
+    // orientation just like positions, otherwise a ratio captured in one
+    // orientation gets applied to the other orientation's screen dimensions.
+    private var floatingWidthRatioPref: Float
+        get() = if (isLandscapeOrientation) floatingWidthLandscapeRatioPref else floatingWidthPortraitRatioPref
+        set(value) {
+            if (isLandscapeOrientation) floatingWidthLandscapeRatioPref = value
+            else floatingWidthPortraitRatioPref = value
+        }
+
+    private var floatingHeightRatioPref: Float
+        get() = if (isLandscapeOrientation) floatingHeightLandscapeRatioPref else floatingHeightPortraitRatioPref
+        set(value) {
+            if (isLandscapeOrientation) floatingHeightLandscapeRatioPref = value
+            else floatingHeightPortraitRatioPref = value
+        }
+
+    private var oneHandWidthRatioPref: Float
+        get() = if (isLandscapeOrientation) oneHandWidthLandscapeRatioPref else oneHandWidthPortraitRatioPref
+        set(value) {
+            if (isLandscapeOrientation) oneHandWidthLandscapeRatioPref = value
+            else oneHandWidthPortraitRatioPref = value
+        }
 
     // Whether layout-related preferences should be treated as landscape.
     // Enabled when device is landscape OR when "use landscape layout when split" is enabled and split keyboard is active.
@@ -1726,16 +1756,18 @@ class InputView(
 
     private fun resolveOneHandWidth(): Int {
         if (oneHandWidthPx <= 0) {
+            val legacyRatio = oneHandWidthRatioLegacyPref
             val legacyPx = oneHandWidthLegacyPref
             oneHandWidthPx = when {
                 oneHandWidthRatioPref > 0f ->
                     (resources.displayMetrics.widthPixels * oneHandWidthRatioPref).toInt()
+                legacyRatio > 0f ->
+                    (resources.displayMetrics.widthPixels * legacyRatio).toInt()
                 legacyPx > 0 -> legacyPx
                 else -> (resources.displayMetrics.widthPixels * 0.8f).toInt()
             }
-            if (oneHandWidthRatioPref <= 0f && legacyPx > 0) {
+            if (oneHandWidthRatioPref <= 0f && (legacyRatio > 0f || legacyPx > 0)) {
                 persistOneHandWidth()
-                oneHandWidthLegacyPref = 0
             }
         }
         oneHandWidthPx = oneHandWidthPx.coerceIn(minOneHandWidthPx, maxOneHandWidthPx)
@@ -1753,16 +1785,18 @@ class InputView(
 
     private fun resolveFloatingWidth(): Int {
         if (floatingWidthPx <= 0) {
+            val legacyRatio = floatingWidthRatioLegacyPref
             val legacyPx = floatingWidthLegacyPref
             floatingWidthPx = when {
                 floatingWidthRatioPref > 0f ->
                     (resources.displayMetrics.widthPixels * floatingWidthRatioPref).toInt()
+                legacyRatio > 0f ->
+                    (resources.displayMetrics.widthPixels * legacyRatio).toInt()
                 legacyPx > 0 -> legacyPx
                 else -> (resources.displayMetrics.widthPixels * 0.8f).toInt()
             }
-            if (floatingWidthRatioPref <= 0f && legacyPx > 0) {
+            if (floatingWidthRatioPref <= 0f && (legacyRatio > 0f || legacyPx > 0)) {
                 persistFloatingWidth()
-                floatingWidthLegacyPref = 0
             }
         }
         floatingWidthPx = floatingWidthPx.coerceIn(minFloatingWidthPx, maxFloatingWidthPx)
@@ -1780,16 +1814,18 @@ class InputView(
 
     private fun resolveFloatingHeight(): Int {
         if (floatingHeightPx <= 0) {
+            val legacyRatio = floatingHeightRatioLegacyPref
             val legacyPx = floatingHeightLegacyPref
             floatingHeightPx = when {
                 floatingHeightRatioPref > 0f ->
                     (resources.displayMetrics.heightPixels * floatingHeightRatioPref).toInt()
+                legacyRatio > 0f ->
+                    (resources.displayMetrics.heightPixels * legacyRatio).toInt()
                 legacyPx > 0 -> legacyPx
                 else -> keyboardHeightPx
             }
-            if (floatingHeightRatioPref <= 0f && legacyPx > 0) {
+            if (floatingHeightRatioPref <= 0f && (legacyRatio > 0f || legacyPx > 0)) {
                 persistFloatingHeight()
-                floatingHeightLegacyPref = 0
             }
         }
         floatingHeightPx = floatingHeightPx.coerceIn(minFloatingHeightPx, maxFloatingHeightPx)

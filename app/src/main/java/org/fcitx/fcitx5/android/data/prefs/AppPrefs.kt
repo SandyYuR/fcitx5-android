@@ -37,6 +37,11 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val pid = int("pid", 0)
         val editorInfoInspector = bool("editor_info_inspector", false)
         val needNotifications = bool("need_notifications", true)
+        val floatingKeyboardWidthPortraitRatio = float("floating_keyboard_width_portrait_ratio", 0f)
+        val floatingKeyboardWidthLandscapeRatio = float("floating_keyboard_width_landscape_ratio", 0f)
+        val floatingKeyboardHeightPortraitRatio = float("floating_keyboard_height_portrait_ratio", 0f)
+        val floatingKeyboardHeightLandscapeRatio = float("floating_keyboard_height_landscape_ratio", 0f)
+        // legacy single (orientation-agnostic) ratio prefs kept for one-time migration
         val floatingKeyboardWidthRatio = float("floating_keyboard_width_ratio", 0f)
         val floatingKeyboardHeightRatio = float("floating_keyboard_height_ratio", 0f)
         // legacy px prefs kept for one-time migration to the ratio-based values above
@@ -55,6 +60,9 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val oneHandOnRightLandscape = bool("one_hand_on_right_landscape", true)
         val floatingModeEnabled = bool("floating_mode_enabled", false)
         val oneHandModeEnabled = bool("one_hand_mode_enabled", false)
+        val oneHandKeyboardWidthPortraitRatio = float("one_hand_keyboard_width_portrait_ratio", 0f)
+        val oneHandKeyboardWidthLandscapeRatio = float("one_hand_keyboard_width_landscape_ratio", 0f)
+        // legacy single (orientation-agnostic) ratio pref kept for one-time migration
         val oneHandKeyboardWidthRatio = float("one_hand_keyboard_width_ratio", 0f)
         // legacy px pref kept for one-time migration to the ratio-based value above
         val oneHandKeyboardWidthLegacy = int("one_hand_keyboard_width", 0)
@@ -557,8 +565,10 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
                 advanced.ignoreSystemCursor,
                 advanced.disableAnimation,
                 advanced.vivoKeypressWorkaround,
-                internal.floatingKeyboardWidthRatio,
-                internal.floatingKeyboardHeightRatio,
+                internal.floatingKeyboardWidthPortraitRatio,
+                internal.floatingKeyboardWidthLandscapeRatio,
+                internal.floatingKeyboardHeightPortraitRatio,
+                internal.floatingKeyboardHeightLandscapeRatio,
                 internal.floatingKeyboardXPortraitRatio,
                 internal.floatingKeyboardYPortraitRatio,
                 internal.floatingKeyboardXLandscapeRatio,
@@ -567,7 +577,8 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
                 internal.oneHandOnRightLandscape,
                 internal.floatingModeEnabled,
                 internal.oneHandModeEnabled,
-                internal.oneHandKeyboardWidthRatio
+                internal.oneHandKeyboardWidthPortraitRatio,
+                internal.oneHandKeyboardWidthLandscapeRatio
             ).forEach {
                 it.putValueTo(this@edit)
             }
