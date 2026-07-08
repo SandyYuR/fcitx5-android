@@ -295,6 +295,12 @@ object VoiceInputProviderManager {
         }
         if (!bound) {
             logW("keepalive bindService returned false")
+            // Even when bindService returns false the ServiceConnection is
+            // registered; it must be unbound or it leaks (ServiceConnectionLeaked).
+            // This is the common case on OEMs that force-stopped the plugin
+            // process: the bind is rejected but the connection still lingers.
+            runCatching { service.unbindService(connection) }
+                .onFailure { Timber.w(it, "keepalive unbind after failed bind") }
             keepAliveConnection = null
             return
         }
@@ -525,6 +531,12 @@ object VoiceInputProviderManager {
         }
         logI("bindService returned $bound")
         if (!bound) {
+            // Even when bindService returns false the ServiceConnection is
+            // registered and must be unbound, or it leaks (ServiceConnectionLeaked
+            // at IMS destroy). This is the common OEM case where the plugin process
+            // was force-stopped: the bind is rejected but the connection lingers.
+            runCatching { service.unbindService(connection) }
+                .onFailure { Timber.w(it, "unbind after failed bind") }
             activeConnection = null
             activeCallback = null
             activeProviderBinder = null
