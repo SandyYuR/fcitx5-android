@@ -1387,7 +1387,7 @@ class InputView(
             keyboard.setHorizontalGapScale(1f)
             return
         }
-        val containerWidth = keyboardView.width.takeIf { it > 0 } ?: resources.displayMetrics.widthPixels
+        val containerWidth = oneHandContainerWidth
         val scale = resolveOneHandWidth().toFloat() / containerWidth.toFloat()
         keyboard.setHorizontalGapScale(scale)
     }
@@ -1651,6 +1651,20 @@ class InputView(
 
     private val isDockedOneHandMode: Boolean
         get() = isOneHanded && !isFloating
+
+    /**
+     * Full container width available for docked one-handed layout.
+     *
+     * In docked mode [keyboardView] spans the whole InputView width, but right
+     * after leaving floating mode its measured width is still the (narrower)
+     * floating width because layout hasn't run yet. Reading [keyboardView.width]
+     * then would compute a too-small edge gap. Prefer the stable InputView width
+     * (which stays full-width across floating/docked transitions).
+     */
+    private val oneHandContainerWidth: Int
+        get() = width.takeIf { it > 0 }
+            ?: keyboardView.width.takeIf { it > 0 }
+            ?: resources.displayMetrics.widthPixels
 
     private val isEffectiveFloating: Boolean
         get() = isFloating && !isPhysicalCandidateBarMode
@@ -2957,7 +2971,7 @@ class InputView(
             height = keyboardBottomPaddingPx
         }
         if (isDockedOneHandMode) {
-            val containerWidth = keyboardView.width.takeIf { it > 0 } ?: resources.displayMetrics.widthPixels
+            val containerWidth = oneHandContainerWidth
             val oneHandWidth = resolveOneHandWidth().coerceAtMost(containerWidth)
             val remaining = (containerWidth - oneHandWidth).coerceAtLeast(0)
 
