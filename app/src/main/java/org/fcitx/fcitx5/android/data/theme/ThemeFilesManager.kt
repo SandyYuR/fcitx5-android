@@ -104,7 +104,21 @@ object ThemeFilesManager {
     }
 
     fun saveThemeFiles(theme: Theme.Custom) {
-        themeFile(theme).writeText(Json.encodeToString(CustomThemeSerializer, theme))
+        // Normalize background paths to portable relative form (relative to theme dir)
+        // so the persisted JSON survives export/import across build variants with
+        // different applicationIds.
+        val normalized = theme.backgroundImage?.let {
+            val baseDir = themeDir()
+            theme.copy(
+                backgroundImage = theme.backgroundImage.copy(
+                    croppedFilePath = File(it.croppedFilePath).relativeToOrSelf(baseDir).path
+                        .replace('\\', '/'),
+                    srcFilePath = File(it.srcFilePath).relativeToOrSelf(baseDir).path
+                        .replace('\\', '/')
+                )
+            )
+        } ?: theme
+        themeFile(theme).writeText(Json.encodeToString(CustomThemeSerializer, normalized))
     }
 
     fun deleteThemeFiles(theme: Theme.Custom, allThemes: List<Theme.Custom> = emptyList()) {
@@ -483,14 +497,12 @@ object ThemeFilesManager {
                         oldCroppedFile?.delete()
                     }
 
-                    // Save theme with relative paths (relative to theme dir)
+                    // Save theme with absolute paths; saveThemeFiles normalizes to
+                    // portable relative form so the JSON survives cross-variant import.
                     theme.copy(
                         backgroundImage = decoded.backgroundImage.copy(
-                            croppedFilePath = croppedTarget.relativeTo(baseDir).path.replace(
-                                '\\',
-                                '/'
-                            ),
-                            srcFilePath = srcTarget.relativeTo(baseDir).path.replace('\\', '/')
+                            croppedFilePath = croppedTarget.path,
+                            srcFilePath = srcTarget.path
                         )
                     )
                 } else {
