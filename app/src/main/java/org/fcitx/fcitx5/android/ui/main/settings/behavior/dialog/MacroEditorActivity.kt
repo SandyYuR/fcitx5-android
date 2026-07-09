@@ -851,10 +851,11 @@ class MacroEditorActivity : AppCompatActivity() {
                         Toast.makeText(this, getString(R.string.macro_editor_step_layer_target_required, index + 1), Toast.LENGTH_SHORT).show()
                         return
                     }
-                    if (availableLayoutTargets.isNotEmpty() && step.text !in availableLayoutTargets) {
-                        Toast.makeText(this, getString(R.string.macro_editor_step_layer_target_invalid, index + 1), Toast.LENGTH_SHORT).show()
-                        return
-                    }
+                    // availableLayoutTargets is only a picker suggestion set, not a hard
+                    // whitelist: layer targets are resolved at runtime (bare sub-layer
+                    // labels and cross-layout keys are valid) and a custom button is not
+                    // bound to a single layout profile, so a snapshot-based whitelist is
+                    // inherently incomplete. Do not reject a non-blank target here.
                 }
             }
         }
@@ -894,10 +895,6 @@ class MacroEditorActivity : AppCompatActivity() {
             }
             if (step.type == "layer" && step.text.isBlank()) {
                 Toast.makeText(this, getString(R.string.macro_editor_step_layer_target_required, index + 1), Toast.LENGTH_SHORT).show()
-                return
-            }
-            if (step.type == "layer" && availableLayoutTargets.isNotEmpty() && step.text !in availableLayoutTargets) {
-                Toast.makeText(this, getString(R.string.macro_editor_step_layer_target_invalid, index + 1), Toast.LENGTH_SHORT).show()
                 return
             }
         }
