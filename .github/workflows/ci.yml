@@ -146,6 +146,12 @@ jobs:
           git remote add upstream https://github.com/fcitx5-android/fcitx5-android.git || true
           git fetch upstream --tags
 
+      - name: Save previous release tag
+        id: prev_tag
+        shell: bash
+        run: |
+          echo "value=$(git describe --tags --abbrev=0 2>/dev/null || echo '')" >> $GITHUB_OUTPUT
+
       - name: Remove non-semver local tags
         shell: bash
         run: |
@@ -173,8 +179,7 @@ jobs:
         id: notes
         shell: bash
         run: |
-          last_tag=$(git for-each-ref --sort=-creatordate --format='%(refname:strip=2)' refs/tags \
-            | grep -E '^v?[0-9]+(\.[0-9]+)+(-.*)?$' | head -n 1 || true)
+          last_tag="${{ steps.prev_tag.outputs.value }}"
           {
             echo "## Nightly Build ${{ steps.tag.outputs.value }}"
             echo ""
@@ -188,7 +193,7 @@ jobs:
             else
               range="-30"
             fi
-            git log "$range" --no-merges --pretty=format:'- %s (%h)' | head -n 50
+            git log "$range" --no-merges --pretty=format:'- %s (%h)' | head -n 50 || true
           } > release_notes.md
           cat release_notes.md
 
