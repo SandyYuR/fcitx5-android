@@ -150,7 +150,12 @@ jobs:
         id: prev_tag
         shell: bash
         run: |
-          echo "value=$(git describe --tags --abbrev=0 2>/dev/null || echo '')" >> $GITHUB_OUTPUT
+          tag=$(git describe --tags --abbrev=0 2>/dev/null || echo '')
+          sha=''
+          if [ -n "$tag" ]; then
+            sha=$(git rev-parse "${tag}^{commit}" 2>/dev/null || echo '')
+          fi
+          echo "value=$sha" >> $GITHUB_OUTPUT
 
       - name: Remove non-semver local tags
         shell: bash
