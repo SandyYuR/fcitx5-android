@@ -136,6 +136,25 @@ jobs:
     needs: build_commit
     runs-on: ubuntu-22.04
     steps:
+      - name: Fetch source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch upstream tags
+        run: |
+          git remote add upstream https://github.com/fcitx5-android/fcitx5-android.git || true
+          git fetch upstream --tags
+
+      - name: Remove non-semver local tags
+        shell: bash
+        run: |
+          git for-each-ref --format='%(refname:strip=2)' refs/tags | while read tag; do
+            if [[ ! "$tag" =~ ^v?[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
+              git tag -d "$tag" || true
+            fi
+          done
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -146,13 +165,17 @@ jobs:
           mkdir -p final-release
           find release-artifacts -name "*.apk" -exec cp {} final-release/ \;
 
+      - name: Generate nightly tag
+        id: tag
+        run: echo "value=nightly-$(git describe --tags --long)-$(date -u +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+
       - name: Create Nightly release
         uses: 'marvinpinto/action-automatic-releases@latest'
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: latest
+          automatic_release_tag: ${{ steps.tag.outputs.value }}
           prerelease: true
-          title: "Nightly Build"
+          title: "Nightly Build ${{ steps.tag.outputs.value }}"
           files: |
             final-release/*.apk
 
