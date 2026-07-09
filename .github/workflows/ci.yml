@@ -169,13 +169,37 @@ jobs:
         id: tag
         run: echo "value=nightly-$(git describe --tags --long)-$(date -u +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
 
+      - name: Generate release notes
+        id: notes
+        shell: bash
+        run: |
+          last_tag=$(git for-each-ref --sort=-creatordate --format='%(refname:strip=2)' refs/tags \
+            | grep -E '^v?[0-9]+(\.[0-9]+)+(-.*)?$' | head -n 1 || true)
+          {
+            echo "## Nightly Build ${{ steps.tag.outputs.value }}"
+            echo ""
+            echo "Commit: \`$(git rev-parse --short HEAD)\`"
+            echo "Built at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            echo ""
+            echo "### Changes"
+            echo ""
+            if [ -n "$last_tag" ]; then
+              range="${last_tag}..HEAD"
+            else
+              range="-30"
+            fi
+            git log "$range" --no-merges --pretty=format:'- %s (%h)' | head -n 50
+          } > release_notes.md
+          cat release_notes.md
+
       - name: Create Nightly release
-        uses: 'marvinpinto/action-automatic-releases@latest'
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: ${{ steps.tag.outputs.value }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.tag.outputs.value }}
+          name: "Nightly Build ${{ steps.tag.outputs.value }}"
+          body_path: release_notes.md
           prerelease: true
-          title: "Nightly Build ${{ steps.tag.outputs.value }}"
           files: |
             final-release/*.apk
 

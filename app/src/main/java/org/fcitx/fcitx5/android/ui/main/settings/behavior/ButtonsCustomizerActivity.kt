@@ -45,6 +45,7 @@ import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorActivity
 import org.fcitx.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
@@ -620,10 +621,16 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             // Also include Map format for backward compatibility
             putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, MacroEditorActivity.toStepsExtra(stepsList))
             putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, getString(R.string.edit_button_macro_event_type))
-            putStringArrayListExtra(MacroEditorActivity.EXTRA_LAYOUT_TARGETS, ArrayList())
+            putStringArrayListExtra(MacroEditorActivity.EXTRA_LAYOUT_TARGETS, ArrayList(availableLayoutTargets()))
         }
         macroEditorLauncher.launch(intent)
     }
+
+    private fun availableLayoutTargets(): List<String> = runCatching {
+        val dataManager = LayoutDataManager(this)
+        dataManager.loadFromFile(ConfigProviders.provider.textKeyboardLayoutFile())
+        dataManager.entries.keys.sorted()
+    }.getOrDefault(emptyList())
 
     private fun labeledInput(label: String, hint: String, value: String?, parent: LinearLayout): EditText {
         val row = LinearLayout(parent.context).apply {
