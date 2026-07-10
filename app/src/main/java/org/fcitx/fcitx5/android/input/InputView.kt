@@ -2143,6 +2143,12 @@ class InputView(
         updateOneHandHandleVisibility()
         updateKeyboardSize() // Add this to refresh padding/height based on new state
         updateOneHandGapScale(force = true)
+        // Rebuild the current keyboard so alt-text (punctuation) positions are
+        // recomputed from a clean state at the final size. The one-hand toggle gets
+        // this for free via setHorizontalGapScale -> refreshStyle, but the floating
+        // toggle keeps the gap scale at 1f, so without this a top-center label can
+        // get stuck in the top-right fallback after returning from floating mode.
+        (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)?.refreshCurrentKeyboard()
         service.updateFullscreenMode()
         // Force layout update
         requestLayout()
