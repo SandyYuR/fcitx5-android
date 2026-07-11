@@ -96,6 +96,13 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         // disable system sound effect and haptic feedback
         isSoundEffectsEnabled = false
         isHapticFeedbackEnabled = false
+        // These gesture views are touch-driven only. Prevent them from grabbing
+        // input focus when the window leaves touch mode (e.g. on physical/bluetooth
+        // keyboard or macro-simulated key events), which would otherwise show a
+        // spurious focus highlight on the first focusable view (like the kawaii bar
+        // menu button). Setting a click listener alone would make the view
+        // FOCUSABLE_AUTO on API 26+, so opt out explicitly.
+        isFocusable = false
     }
 
     override fun setEnabled(enabled: Boolean) {
