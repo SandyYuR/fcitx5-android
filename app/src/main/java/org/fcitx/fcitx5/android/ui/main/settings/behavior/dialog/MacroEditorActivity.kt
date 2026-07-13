@@ -183,7 +183,7 @@ class MacroEditorActivity : AppCompatActivity() {
                         MacroStep.Shortcut(mods, key)
                     }
                     "layer" -> {
-                        val mode = when (m["mode"] as? String) {
+                        val mode = when ((m["mode"] as? String)?.uppercase()) {
                             "TO" -> KeyAction.LayerSwitchMode.TO
                             "OSL" -> KeyAction.LayerSwitchMode.OSL
                             else -> return@mapNotNull null

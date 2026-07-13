@@ -220,8 +220,22 @@ class TextKeyboard(
             val normalized = target.trim()
             if (normalized.isEmpty()) return null
             val json = textLayoutJson ?: return null
-            if (containsLayoutKey(json, normalized)) return normalized
             val base = currentBaseLayoutKey() ?: return null
+            if (normalized.contains(':')) {
+                val subModeFromTarget = normalized.substringAfter(':', "")
+                if (subModeFromTarget.isNotEmpty()) {
+                    val baseScoped = "$base:$subModeFromTarget"
+                    if (containsLayoutKey(json, baseScoped)) return baseScoped
+                    val normalizedSubMode = if (LayoutJsonUtils.isLayerSubModeLabel(subModeFromTarget)) {
+                        subModeFromTarget
+                    } else {
+                        LayoutJsonUtils.toLayerSubModeLabel(subModeFromTarget)
+                    }
+                    val baseScopedLayer = "$base:$normalizedSubMode"
+                    if (containsLayoutKey(json, baseScopedLayer)) return baseScopedLayer
+                }
+            }
+            if (containsLayoutKey(json, normalized)) return normalized
             val subModeLabel = if (LayoutJsonUtils.isLayerSubModeLabel(normalized)) {
                 normalized
             } else {

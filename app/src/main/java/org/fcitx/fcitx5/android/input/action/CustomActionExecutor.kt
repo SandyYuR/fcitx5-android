@@ -28,6 +28,13 @@ private val FCITX_KEY_TO_ANDROID = mapOf(
     "Alt_R" to KeyEvent.KEYCODE_ALT_RIGHT,
     "Meta_L" to KeyEvent.KEYCODE_META_LEFT,
     "Meta_R" to KeyEvent.KEYCODE_META_RIGHT,
+    "Super_L" to KeyEvent.KEYCODE_META_LEFT,
+    "Super_R" to KeyEvent.KEYCODE_META_RIGHT,
+    "Hyper_L" to KeyEvent.KEYCODE_FUNCTION,
+    "Hyper_R" to KeyEvent.KEYCODE_FUNCTION,
+    "Mode_switch" to KeyEvent.KEYCODE_ALT_RIGHT,
+    "ISO_Level3_Shift" to KeyEvent.KEYCODE_ALT_RIGHT,
+    "ISO_Level5_Shift" to KeyEvent.KEYCODE_ALT_RIGHT,
     "Enter" to KeyEvent.KEYCODE_ENTER,
     "Tab" to KeyEvent.KEYCODE_TAB,
     "Escape" to KeyEvent.KEYCODE_ESCAPE,
@@ -56,6 +63,8 @@ private val EDIT_ACTION_MAP = mapOf(
     "cut" to android.R.id.cut,
     "paste" to android.R.id.paste,
     "selectAll" to android.R.id.selectAll,
+    "selectall" to android.R.id.selectAll,
+    "select_all" to android.R.id.selectAll,
     "undo" to android.R.id.undo,
     "redo" to android.R.id.redo,
 )
@@ -83,32 +92,41 @@ fun resolveKeyRefCode(ref: KeyRef): Int = when (ref) {
 }
 
 fun executeMacroSteps(steps: List<MacroStep>, service: FcitxInputMethodService, context: Context? = null) {
+    var hasOsLConsumingStep = false
     for (step in steps) {
         when (step) {
             is MacroStep.Down -> {
+                if (step.keys.isNotEmpty()) hasOsLConsumingStep = true
                 step.keys.forEach { k ->
                     val kc = resolveKeyRefCode(k)
                     if (kc != KeyEvent.KEYCODE_UNKNOWN) service.sendSimulatedKeyEventOrFallback(kc, true)
                 }
             }
             is MacroStep.Up -> {
+                if (step.keys.isNotEmpty()) hasOsLConsumingStep = true
                 step.keys.forEach { k ->
                     val kc = resolveKeyRefCode(k)
                     if (kc != KeyEvent.KEYCODE_UNKNOWN) service.sendSimulatedKeyEventOrFallback(kc, false)
                 }
             }
             is MacroStep.Tap -> {
+                if (step.keys.isNotEmpty()) hasOsLConsumingStep = true
                 step.keys.forEach { k ->
                     val kc = resolveKeyRefCode(k)
                     if (kc != KeyEvent.KEYCODE_UNKNOWN) service.sendDownUpKeyEvents(kc)
                 }
             }
-            is MacroStep.Text -> service.commitText(step.text)
+            is MacroStep.Text -> {
+                if (step.text.isNotEmpty()) hasOsLConsumingStep = true
+                service.commitText(step.text)
+            }
             is MacroStep.Edit -> {
+                if (step.action.isNotBlank()) hasOsLConsumingStep = true
                 val menuId = EDIT_ACTION_MAP[step.action]
                 if (menuId != null) service.currentInputConnection?.performContextMenuAction(menuId)
             }
             is MacroStep.AppAction -> {
+                if (step.id.isNotBlank()) hasOsLConsumingStep = true
                 if (ButtonAction.fromId(step.id) != null) {
                     service.inputView?.executeButtonAction(step.id)
                 } else {
@@ -142,33 +160,60 @@ fun executeMacroSteps(steps: List<MacroStep>, service: FcitxInputMethodService, 
                 }
             }
             is MacroStep.Shortcut -> {
-                val keyCode = resolveKeyRefCode(step.key)
-                if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
-                    val ctrl = step.modifiers.any {
-                        when (it) {
-                            is KeyRef.Fcitx -> it.code == "Ctrl_L" || it.code == "Ctrl_R"
-                            is KeyRef.Android -> it.code == KeyEvent.KEYCODE_CTRL_LEFT || it.code == KeyEvent.KEYCODE_CTRL_RIGHT
-                        }
-                    }
-                    val alt = step.modifiers.any {
-                        when (it) {
-                            is KeyRef.Fcitx -> it.code == "Alt_L" || it.code == "Alt_R"
-                            is KeyRef.Android -> it.code == KeyEvent.KEYCODE_ALT_LEFT || it.code == KeyEvent.KEYCODE_ALT_RIGHT
-                        }
-                    }
-                    val shift = step.modifiers.any {
-                        when (it) {
-                            is KeyRef.Fcitx -> it.code == "Shift_L" || it.code == "Shift_R"
-                            is KeyRef.Android -> it.code == KeyEvent.KEYCODE_SHIFT_LEFT || it.code == KeyEvent.KEYCODE_SHIFT_RIGHT
-                        }
-                    }
-                    service.sendCombinationKeyEvents(keyCode, alt, ctrl, shift)
-                }
+                hasOsLConsumingStep = true
+                executeShortcutStep(service, step)
             }
-            is MacroStep.LayerSwitch -> {} // Layer switching not applicable from kawaii bar
+            is MacroStep.LayerSwitch -> {
+                service.inputView?.executeLayerSwitch(step.mode, step.target)
+            }
         }
     }
+    if (hasOsLConsumingStep) {
+        service.inputView?.consumeOneShotLayer()
+    }
 }
+
+private fun executeShortcutStep(service: FcitxInputMethodService, step: MacroStep.Shortcut) {
+    val normalizedKey = when (val key = step.key) {
+        is KeyRef.Fcitx -> {
+            if (key.code.length == 1 && key.code[0].isLetter()) key.copy(code = key.code.lowercase()) else key
+        }
+        is KeyRef.Android -> key
+    }
+    val modifierKeys = step.modifiers.filter { mod ->
+        when (mod) {
+            is KeyRef.Android -> true
+            is KeyRef.Fcitx -> mod.code in SUPPORTED_SHORTCUT_MODIFIERS
+        }
+    }
+
+    modifierKeys.forEach { mod ->
+        service.sendMacroKey(mod, isDown = true)
+    }
+    service.sendMacroKey(normalizedKey, isDown = true)
+    service.sendMacroKey(normalizedKey, isDown = false)
+    modifierKeys.asReversed().forEach { mod ->
+        service.sendMacroKey(mod, isDown = false)
+    }
+}
+
+private fun FcitxInputMethodService.sendMacroKey(key: KeyRef, isDown: Boolean) {
+    val keyCode = resolveKeyRefCode(key)
+    if (keyCode == KeyEvent.KEYCODE_UNKNOWN) return
+    sendSimulatedKeyEventOrFallback(keyCode, isDown)
+}
+
+private val SUPPORTED_SHORTCUT_MODIFIERS = setOf(
+    "Ctrl_L", "Ctrl_R",
+    "Alt_L", "Alt_R",
+    "Shift_L", "Shift_R",
+    "Meta_L", "Meta_R",
+    "Super_L", "Super_R",
+    "Hyper_L", "Hyper_R",
+    "Mode_switch",
+    "ISO_Level3_Shift",
+    "ISO_Level5_Shift"
+)
 
 private fun FcitxInputMethodService.sendSimulatedKeyEventOrFallback(keyCode: Int, isDown: Boolean) {
     val eventTime = android.os.SystemClock.uptimeMillis()

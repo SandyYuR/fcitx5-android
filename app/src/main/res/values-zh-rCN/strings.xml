@@ -639,11 +639,11 @@
     <string name="macro_editor_step_shortcut_multiple_keys">步骤 %1$d 只能有一个目标按键</string>
     <string name="macro_editor_step_edit_action_required">步骤 %1$d 需要选择一个操作</string>
     <string name="macro_editor_step_app_action_required">步骤 %1$d 需要选择一个应用动作</string>
-    <string name="macro_editor_step_layer_target_required">步骤 %1$d 需要填写目标布局</string>
-    <string name="macro_editor_step_layer_target_invalid">步骤 %1$d 的目标布局无效</string>
-    <string name="macro_editor_layer_target_hint">点击选择目标布局</string>
-    <string name="macro_editor_layer_target_picker_title">选择目标布局</string>
-    <string name="macro_editor_layer_target_empty">暂无可选布局</string>
+    <string name="macro_editor_step_layer_target_required">步骤 %1$d 需要选择目标层</string>
+    <string name="macro_editor_step_layer_target_invalid">步骤 %1$d 的目标层无效</string>
+    <string name="macro_editor_layer_target_hint">点击选择目标层</string>
+    <string name="macro_editor_layer_target_picker_title">选择目标层</string>
+    <string name="macro_editor_layer_target_empty">暂无可选目标层</string>
     <string name="macro_editor_layer_mode_picker_title">选择切层模式</string>
     <string name="macro_editor_type_change_title">更改步骤类型</string>
     <string name="macro_editor_type_change_message">更改步骤类型将清除当前数据。是否继续？</string>

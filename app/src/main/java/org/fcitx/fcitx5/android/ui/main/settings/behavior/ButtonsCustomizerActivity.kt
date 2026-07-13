@@ -47,6 +47,7 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fcitx.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
 import splitties.resources.drawable
@@ -629,7 +630,18 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     private fun availableLayoutTargets(): List<String> = runCatching {
         val dataManager = LayoutDataManager(this)
         dataManager.loadFromFile(ConfigProviders.provider.textKeyboardLayoutFile())
-        dataManager.entries.keys.sorted()
+        val entryKeys = dataManager.entries.keys.toList()
+        val layerAliases = entryKeys.mapNotNull { key ->
+            val subMode = key.substringAfter(':', "")
+            if (subMode.isNotEmpty() && LayoutJsonUtils.isLayerSubModeLabel(subMode)) {
+                LayoutJsonUtils.childNameFromLayerLabel(subMode)
+            } else {
+                null
+            }
+        }
+        (layerAliases + entryKeys).distinct().sortedWith(
+            compareBy<String> { if (it.contains(':')) 1 else 0 }.thenBy { it }
+        )
     }.getOrDefault(emptyList())
 
     private fun labeledInput(label: String, hint: String, value: String?, parent: LinearLayout): EditText {

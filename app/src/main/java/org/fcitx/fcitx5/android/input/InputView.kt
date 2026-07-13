@@ -64,6 +64,7 @@ import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateC
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard
 import org.fcitx.fcitx5.android.input.keyboard.KeyView
+import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.picker.emojiPicker
@@ -3275,6 +3276,14 @@ class InputView(
             view = null,
             onActionComplete = null
         )
+    }
+
+    internal fun executeLayerSwitch(mode: KeyAction.LayerSwitchMode, target: String) {
+        keyboardWindow.switchLayer(mode, target)
+    }
+
+    internal fun consumeOneShotLayer() {
+        keyboardWindow.consumeOneShotLayer()
     }
 
     /**

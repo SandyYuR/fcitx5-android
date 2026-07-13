@@ -264,6 +264,14 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         switchLayout(TextKeyboard.Name, remember = false)
     }
 
+    fun switchLayer(mode: KeyAction.LayerSwitchMode, target: String) {
+        handleLayerSwitchAction(KeyAction.LayerSwitchAction(mode, target))
+    }
+
+    fun consumeOneShotLayer() {
+        consumeOneShotLayerIfNeeded(KeyAction.MacroConsumedAction)
+    }
+
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {
         clearAllLayerOverrides()
         preeditEmpty = true
