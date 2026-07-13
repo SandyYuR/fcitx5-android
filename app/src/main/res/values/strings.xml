@@ -700,6 +700,7 @@
     <string name="text_keyboard_layout_qr_import_image">Import from QR image</string>
     <string name="text_keyboard_layout_qr_share_title">Share layout QR image</string>
     <string name="text_keyboard_layout_qr_exported">QR long image generated, choose an app to share</string>
+    <string name="text_keyboard_layout_qr_share_no_handler">No app available to share this image</string>
     <string name="text_keyboard_layout_qr_export_failed">Failed to generate QR image: %1$s</string>
     <string name="text_keyboard_layout_qr_scan_prompt">Scan all QR chunks in order</string>
     <string name="text_keyboard_layout_qr_camera_permission_denied">Camera permission denied</string>

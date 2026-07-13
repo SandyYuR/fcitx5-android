@@ -666,6 +666,7 @@
     <string name="text_keyboard_layout_qr_import_image">從二維碼圖片匯入</string>
     <string name="text_keyboard_layout_qr_share_title">分享佈局二維碼圖片</string>
     <string name="text_keyboard_layout_qr_exported">二維碼長圖已生成，請選擇應用分享</string>
+    <string name="text_keyboard_layout_qr_share_no_handler">沒有可用來分享該圖片的應用</string>
     <string name="text_keyboard_layout_qr_export_failed">生成二維碼圖片失敗：%1$s</string>
     <string name="text_keyboard_layout_qr_scan_prompt">請按順序掃描全部二維碼分包</string>
     <string name="text_keyboard_layout_qr_camera_permission_denied">相機權限被拒絕</string>

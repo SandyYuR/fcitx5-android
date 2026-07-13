@@ -173,10 +173,10 @@ object LayoutQrTransferCodec {
     }
 
     private fun compress(raw: ByteArray): ByteArray {
-        val presets = intArrayOf(
-            LZMA2Options.PRESET_MAX,
-            8, 7, 6
-        )
+        // Avoid aggressive high presets on some HarmonyOS/Android devices:
+        // preset 8/9 can request very large allocations (hundreds of MB),
+        // causing process-killing OOM during QR export.
+        val presets = intArrayOf(6, 5, 4, 3)
         var lastError: Throwable? = null
         for (preset in presets) {
             try {

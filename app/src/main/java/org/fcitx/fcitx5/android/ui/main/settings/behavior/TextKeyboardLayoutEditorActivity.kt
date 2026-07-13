@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.Context
 import android.content.res.Configuration
@@ -2624,8 +2625,26 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        startActivity(Intent.createChooser(sendIntent, getString(R.string.text_keyboard_layout_qr_share_title)))
-        showToast(getString(R.string.text_keyboard_layout_qr_exported))
+        val chooserIntent = Intent.createChooser(sendIntent, getString(R.string.text_keyboard_layout_qr_share_title))
+        val launched = runCatching {
+            when {
+                canHandleIntent(chooserIntent) -> startActivity(chooserIntent)
+                canHandleIntent(sendIntent) -> startActivity(sendIntent)
+                else -> return
+            }
+            true
+        }.getOrElse {
+            if (it is ActivityNotFoundException) false else throw it
+        }
+        if (launched) {
+            showToast(getString(R.string.text_keyboard_layout_qr_exported))
+        } else {
+            showToast(getString(R.string.text_keyboard_layout_qr_share_no_handler))
+        }
+    }
+
+    private fun canHandleIntent(intent: Intent): Boolean {
+        return packageManager.queryIntentActivities(intent, 0).isNotEmpty()
     }
 
     private fun startCameraScanImport() {

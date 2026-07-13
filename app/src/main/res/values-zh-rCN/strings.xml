@@ -685,6 +685,7 @@
     <string name="text_keyboard_layout_qr_import_image">从二维码图片导入</string>
     <string name="text_keyboard_layout_qr_share_title">分享布局二维码图片</string>
     <string name="text_keyboard_layout_qr_exported">二维码长图已生成，请选择应用分享</string>
+    <string name="text_keyboard_layout_qr_share_no_handler">没有可用于分享该图片的应用</string>
     <string name="text_keyboard_layout_qr_export_failed">生成二维码图片失败：%1$s</string>
     <string name="text_keyboard_layout_qr_scan_prompt">请按顺序扫描全部二维码分包</string>
     <string name="text_keyboard_layout_qr_camera_permission_denied">相机权限被拒绝</string>
