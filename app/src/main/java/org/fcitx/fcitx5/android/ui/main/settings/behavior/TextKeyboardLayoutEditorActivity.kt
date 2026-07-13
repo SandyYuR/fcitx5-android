@@ -303,19 +303,29 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     private val layoutFileInputLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val data = result.data ?: return@registerForActivityResult
             if (result.resultCode != RESULT_OK) return@registerForActivityResult
-            val action = data.getStringExtra(LayoutFileProfileInputActivity.EXTRA_ACTION) ?: return@registerForActivityResult
+            val data = result.data
+            val fallback = LayoutFileProfileInputActivity.consumePendingResultPayload()
+            val action = data?.getStringExtra(LayoutFileProfileInputActivity.EXTRA_ACTION)
+                ?: fallback?.action
+            if (action.isNullOrBlank()) {
+                showToast(getString(R.string.text_keyboard_layout_save_failed))
+                return@registerForActivityResult
+            }
             val normalized = UserConfigFiles.normalizeTextKeyboardLayoutProfile(
-                data.getStringExtra(LayoutFileProfileInputActivity.EXTRA_RESULT_PROFILE).orEmpty()
+                data?.getStringExtra(LayoutFileProfileInputActivity.EXTRA_RESULT_PROFILE)
+                    ?: fallback?.profile.orEmpty()
             )
-            if (normalized == null) {
+            if (normalized.isNullOrBlank()) {
                 showToast(getString(R.string.text_keyboard_layout_file_name_invalid))
                 return@registerForActivityResult
             }
             when (action) {
                 LayoutFileProfileInputActivity.ACTION_CREATE -> {
-                    val copyCurrent = data.getBooleanExtra(LayoutFileProfileInputActivity.EXTRA_RESULT_COPY_CURRENT, true)
+                    val copyCurrent = data?.getBooleanExtra(
+                        LayoutFileProfileInputActivity.EXTRA_RESULT_COPY_CURRENT,
+                        true
+                    ) ?: fallback?.copyCurrent ?: true
                     createLayoutProfileFromInput(normalized, copyCurrent)
                 }
                 LayoutFileProfileInputActivity.ACTION_RENAME -> {

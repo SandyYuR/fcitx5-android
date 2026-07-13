@@ -28,6 +28,12 @@ import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 
 class LayoutFileProfileInputActivity : AppCompatActivity() {
+    data class ResultPayload(
+        val action: String,
+        val profile: String,
+        val copyCurrent: Boolean
+    )
+
     companion object {
         const val EXTRA_ACTION = "action"
         const val EXTRA_INITIAL_PROFILE = "initial_profile"
@@ -39,6 +45,14 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
         const val ACTION_CREATE = "create"
         const val ACTION_RENAME = "rename"
         private const val MENU_SAVE_ID = 9001
+        @Volatile
+        private var pendingResultPayload: ResultPayload? = null
+
+        fun consumePendingResultPayload(): ResultPayload? {
+            val payload = pendingResultPayload
+            pendingResultPayload = null
+            return payload
+        }
     }
 
     private val toolbar by lazy {
@@ -130,7 +144,7 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menu.add(Menu.NONE, MENU_SAVE_ID, Menu.NONE, getString(R.string.save))
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS or MenuItem.SHOW_AS_ACTION_WITH_TEXT)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         return true
     }
 
@@ -141,22 +155,31 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
                 true
             }
             MENU_SAVE_ID -> {
-                val raw = profileInput.text?.toString().orEmpty()
-                val normalized = UserConfigFiles.normalizeTextKeyboardLayoutProfile(raw)
-                if (normalized == null) {
-                    Toast.makeText(this, getString(R.string.text_keyboard_layout_file_name_invalid), Toast.LENGTH_SHORT).show()
-                    return true
-                }
-                val data = Intent().apply {
-                    putExtra(EXTRA_ACTION, action)
-                    putExtra(EXTRA_RESULT_PROFILE, normalized)
-                    putExtra(EXTRA_RESULT_COPY_CURRENT, copySwitch?.isChecked ?: true)
-                }
-                setResult(RESULT_OK, data)
-                finish()
+                submitAndFinish()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun submitAndFinish() {
+        val raw = profileInput.text?.toString().orEmpty()
+        val normalized = UserConfigFiles.normalizeTextKeyboardLayoutProfile(raw)
+        if (normalized == null) {
+            Toast.makeText(this, getString(R.string.text_keyboard_layout_file_name_invalid), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val data = Intent().apply {
+            putExtra(EXTRA_ACTION, action)
+            putExtra(EXTRA_RESULT_PROFILE, normalized)
+            putExtra(EXTRA_RESULT_COPY_CURRENT, copySwitch?.isChecked ?: true)
+        }
+        pendingResultPayload = ResultPayload(
+            action = action,
+            profile = normalized,
+            copyCurrent = copySwitch?.isChecked ?: true
+        )
+        setResult(RESULT_OK, data)
+        finish()
     }
 }
