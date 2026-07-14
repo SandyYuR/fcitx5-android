@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.keyboard
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
@@ -96,13 +97,19 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         // disable system sound effect and haptic feedback
         isSoundEffectsEnabled = false
         isHapticFeedbackEnabled = false
-        // These gesture views are touch-driven only. Prevent them from grabbing
-        // input focus when the window leaves touch mode (e.g. on physical/bluetooth
-        // keyboard or macro-simulated key events), which would otherwise show a
-        // spurious focus highlight on the first focusable view (like the kawaii bar
-        // menu button). Setting a click listener alone would make the view
-        // FOCUSABLE_AUTO on API 26+, so opt out explicitly.
+        enforceNonFocusable()
+    }
+
+    private fun enforceNonFocusable() {
+        // Clickable views on API 26+ may be promoted to FOCUSABLE_AUTO by framework.
+        // Keep gesture-only buttons out of focus navigation so hardware/macro keys
+        // won't leave any focused/selected visual state on Kawaii bar.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            focusable = View.NOT_FOCUSABLE
+        }
         isFocusable = false
+        isFocusableInTouchMode = false
+        if (hasFocus()) clearFocus()
     }
 
     override fun setEnabled(enabled: Boolean) {
@@ -310,6 +317,12 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
     override fun setOnLongClickListener(l: OnLongClickListener?) {
         longPressEnabled = l != null
         super.setOnLongClickListener(l)
+        enforceNonFocusable()
+    }
+
+    override fun setOnClickListener(l: OnClickListener?) {
+        super.setOnClickListener(l)
+        enforceNonFocusable()
     }
 
     companion object {
