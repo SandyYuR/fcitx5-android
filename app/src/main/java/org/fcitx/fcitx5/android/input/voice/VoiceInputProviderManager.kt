@@ -45,7 +45,7 @@ object VoiceInputProviderManager {
 
     // 3-second post-speech silence ⇒ provider emits a final segment.
     private const val DEFAULT_SILENCE_MS = 3000L
-    private const val KEEPALIVE_MIN_INTERVAL_MS = 30_000L
+    private const val KEEPALIVE_MIN_INTERVAL_MS = 10_000L
     private const val KEEPALIVE_BIND_TIMEOUT_MS = 2_000L
     /** Hard deadline for `onServiceConnected` to fire after `bindService` returns
      *  true for an active voice session. If the plugin process hangs during startup
@@ -296,7 +296,13 @@ object VoiceInputProviderManager {
         logI("keepalive binding provider component=$providerComponent action=$action")
         val bound = try {
             service.bindService(
-                Intent(action).apply { component = providerComponent },
+                Intent(action).apply {
+                    component = providerComponent
+                    // Allow waking the provider even if the user swiped it away or
+                    // force-stopped it (package in stopped state). Without this flag
+                    // Android rejects the bind and the provider can't be prewarmed.
+                    addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+                },
                 connection,
                 Context.BIND_AUTO_CREATE,
             )
@@ -533,6 +539,14 @@ object VoiceInputProviderManager {
                     activeProvider = provider
                     activeProviderId = id
                     activeSessionConfig = getPreferredSessionConfig(provider)
+                    val stillActiveSession = activeConnection === this &&
+                        activeCallback === callback &&
+                        sessionActive &&
+                        !voiceSessionTerminalized
+                    if (!stillActiveSession) {
+                        logI("provider connected while no active voice session; keeping warm only")
+                        return
+                    }
                     // The provider is connected, but the session is not usable until it
                     // reports onReady (model loads asynchronously). Reflect that in the UI
                     // so the user isn't left staring at "connecting".
@@ -570,7 +584,12 @@ object VoiceInputProviderManager {
             tlogI("Binding voice input provider: component=$providerComponent action=$action")
             val bound = try {
                 service.bindService(
-                    Intent(action).apply { component = providerComponent },
+                    Intent(action).apply {
+                        component = providerComponent
+                        // Wake the provider even from a stopped state (user swiped it
+                        // away or force-stopped it), otherwise the bind is rejected.
+                        addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+                    },
                     connection,
                     Context.BIND_AUTO_CREATE,
                 )
@@ -652,7 +671,10 @@ object VoiceInputProviderManager {
         val action = BuildConfig.APPLICATION_ID + VoiceInputIpc.START_FLOATING_ACTION_SUFFIX
         val serviceClass = providerComponent.className.substringBeforeLast('.') + ".FloatingService"
         val component = ComponentName(providerComponent.packageName, serviceClass)
-        val intent = Intent(action).apply { this.component = component }
+        val intent = Intent(action).apply {
+            this.component = component
+            addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+        }
         return try {
             ContextCompat.startForegroundService(service, intent)
             logI("started floating fallback component=${intent.component} action=$action")
