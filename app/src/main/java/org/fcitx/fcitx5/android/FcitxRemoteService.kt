@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: LGPL-2.1-or-later
- * SPDX-FileCopyrightText: Copyright 2021-2023 Fcitx5 for Android Contributors
+ * SPDX-FileCopyrightText: Copyright 2021-2026 Fcitx5 for Android Contributors
  */
 package org.fcitx.fcitx5.android
 
@@ -31,7 +31,7 @@ import org.fcitx.fcitx5.android.utils.Const
 import org.fcitx.fcitx5.android.utils.desc
 import org.fcitx.fcitx5.android.utils.descEquals
 import timber.log.Timber
-import java.util.PriorityQueue
+import java.util.concurrent.CopyOnWriteArrayList
 
 class FcitxRemoteService : Service() {
 
@@ -43,8 +43,7 @@ class FcitxRemoteService : Service() {
 
     private val scope = MainScope() + CoroutineName("FcitxRemoteService")
 
-    private val clipboardTransformers =
-        PriorityQueue<IClipboardEntryTransformer>(3, compareByDescending { it.priority })
+    private val clipboardTransformers = CopyOnWriteArrayList<IClipboardEntryTransformer>()
 
     private fun orderedClipboardTransformers() =
         clipboardTransformers.toList()
@@ -143,6 +142,7 @@ class FcitxRemoteService : Service() {
             Timber.d("registerClipboardEntryTransformer: ${transformer.desc} from $callingPackage")
             if (transformer.description.isNullOrBlank()) {
                 Timber.w("Cannot register ClipboardEntryTransformer of null or empty description")
+                return
             }
             if (clipboardTransformers.any { it.descEquals(transformer) }) {
                 Timber.w("ClipboardEntryTransformer ${transformer.desc} has already been registered")
@@ -153,6 +153,7 @@ class FcitxRemoteService : Service() {
                     unregisterClipboardEntryTransformer(transformer)
                 }, 0)
                 clipboardTransformers.add(transformer)
+                clipboardTransformers.sortByDescending { it.priority }
                 updateClipboardManager()
             }
         }

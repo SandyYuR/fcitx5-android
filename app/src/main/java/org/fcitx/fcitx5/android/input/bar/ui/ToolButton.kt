@@ -15,6 +15,7 @@ import android.graphics.drawable.StateListDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.graphics.drawable.ShapeDrawable
 import android.view.View
+import android.view.ViewPropertyAnimator
 import android.widget.ImageView
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
@@ -59,6 +60,12 @@ class ToolButton(context: Context) : CustomGestureView(context) {
     @ColorInt
     private var pressHighlightColor: Int = Color.TRANSPARENT
 
+    var iconRotation: Float
+        get() = image.rotation
+        set(value) {
+            image.rotation = value
+        }
+
     constructor(context: Context, @DrawableRes icon: Int, theme: Theme) : this(context) {
         this.theme = theme
         image.imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
@@ -68,6 +75,8 @@ class ToolButton(context: Context) : CustomGestureView(context) {
         add(image, lParams(wrapContent, wrapContent, gravityCenter))
         add(textView, lParams(wrapContent, wrapContent, gravityCenter))
     }
+
+    fun iconAnimate(): ViewPropertyAnimator = image.animate()
 
     fun setIcon(@DrawableRes icon: Int) {
         textView.visibility = View.GONE
