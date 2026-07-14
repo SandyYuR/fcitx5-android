@@ -75,8 +75,11 @@ class FlexboxExpandedCandidateWindow :
 
     override fun prevPage() {
         layoutManager.apply {
-            var prev = findFirstCompletelyVisibleItemPosition() - 1
-            if (prev < 0) prev = 0
+            val count = itemCount
+            if (count <= 0) return
+            val first = findFirstCompletelyVisibleItemPosition()
+            if (first == RecyclerView.NO_POSITION) return
+            val prev = (first - 1).coerceAtLeast(0)
             startSmoothScroll(object : LinearSmoothScroller(context) {
                 override fun getVerticalSnapPreference() = SNAP_TO_END
                 override fun calculateSpeedPerPixel(dm: DisplayMetrics?) =
@@ -87,8 +90,11 @@ class FlexboxExpandedCandidateWindow :
 
     override fun nextPage() {
         layoutManager.apply {
-            var next = findLastCompletelyVisibleItemPosition() + 1
-            if (next >= itemCount) next = itemCount - 1
+            val count = itemCount
+            if (count <= 0) return
+            val last = findLastCompletelyVisibleItemPosition()
+            if (last == RecyclerView.NO_POSITION) return
+            val next = (last + 1).coerceAtMost(count - 1)
             startSmoothScroll(object : LinearSmoothScroller(context) {
                 override fun getVerticalSnapPreference() = SNAP_TO_START
                 override fun calculateSpeedPerPixel(dm: DisplayMetrics?) =
