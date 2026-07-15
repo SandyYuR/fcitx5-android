@@ -353,7 +353,8 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             } else if (button.icon != null && button.icon.startsWith("file:")) {
                 val drawable = loadFileIcon(button.icon)
                 if (drawable != null) {
-                    setIconFromDrawable(drawable)
+                    val tintWithTheme = button.icon.endsWith(".xml", ignoreCase = true)
+                    setIconFromDrawable(drawable, tintWithTheme = tintWithTheme)
                 }
             }
         }

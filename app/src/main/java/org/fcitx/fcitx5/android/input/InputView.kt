@@ -3307,9 +3307,15 @@ class InputView(
         kawaiiBar.reloadButtonsConfig()
     }
 
+    private val onIconChangeListener: ConfigChangeListener = {
+        kawaiiBar.reloadButtonIcons()
+    }
+
     init {
         // Register listener for buttons layout config changes
         ConfigProviders.addButtonsLayoutListener(onButtonsLayoutChangeListener)
+        // Register listener for button icon file changes (hot-reload)
+        ConfigProviders.addIconChangeListener(onIconChangeListener)
     }
 
     override fun onDetachedFromWindow() {
@@ -3317,6 +3323,7 @@ class InputView(
         keyboardPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
         candidatesPrefs.unregisterOnChangeListener(onCandidatePreferenceChangeListener)
         ConfigProviders.removeButtonsLayoutListener(onButtonsLayoutChangeListener)
+        ConfigProviders.removeIconChangeListener(onIconChangeListener)
         blurUpdateJob?.cancel()
         blurUpdateScope.cancel()
         // clear DynamicScope, implies that InputView should not be attached again after detached.

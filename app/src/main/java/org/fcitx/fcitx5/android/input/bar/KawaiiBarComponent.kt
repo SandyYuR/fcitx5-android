@@ -22,6 +22,7 @@ import android.widget.inline.InlineContentView
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
+import java.io.File
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -53,6 +54,7 @@ import org.fcitx.fcitx5.android.input.bar.ui.CandidateUi
 import org.fcitx.fcitx5.android.input.bar.ui.IdleUi
 import org.fcitx.fcitx5.android.input.bar.ui.TitleUi
 import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
+import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
@@ -352,7 +354,17 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         val filteredButtons = config.kawaiiBarButtons.filter { it.id != "more" }
 
         // Always add 'more' button at the end
-        return filteredButtons + ConfigurableButton("more")
+        val buttons = filteredButtons + ConfigurableButton("more")
+
+        // Update watched icon filenames for hot-reload
+        val iconFileNames = buttons
+            .mapNotNull { it.icon }
+            .filter { it.startsWith(ButtonIconFile.PREFIX) }
+            .map { it.removePrefix(ButtonIconFile.PREFIX).substringAfterLast('/') }
+            .toSet()
+        ConfigProviders.setWatchedIconFileNames(iconFileNames)
+
+        return buttons
     }
 
     private var _idleUi: IdleUi? = null
@@ -525,10 +537,56 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     fun reloadButtonsConfig() {
         val newConfig = loadButtonsConfig()
         if (newConfig != currentButtonsConfig) {
+            // Clean up orphaned icon files before updating config
+            cleanupOrphanedIconFiles(currentButtonsConfig, newConfig)
             currentButtonsConfig = newConfig
             _idleUi?.buttonsUi?.updateConfig(newConfig)
             _idleUi?.let { setupCustomActionListeners(it) }
             updateButtonsState()
+        }
+    }
+
+    // Reload button icons from disk (called when icon files change on disk)
+    fun reloadButtonIcons() {
+        _idleUi?.buttonsUi?.reloadIcons()
+    }
+
+    private fun extractIconFileNames(buttons: List<ConfigurableButton>): Set<String> {
+        return buttons
+            .mapNotNull { it.icon }
+            .filter { it.startsWith(ButtonIconFile.PREFIX) }
+            .map { it.removePrefix(ButtonIconFile.PREFIX).substringAfterLast('/') }
+            .toSet()
+    }
+
+    private fun getAllReferencedIconFileNames(): Set<String> {
+        val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
+        if (snapshot == null) return emptySet()
+        val config = snapshot.value
+        val allButtons = config.kawaiiBarButtons + config.statusAreaButtons
+        return extractIconFileNames(allButtons)
+    }
+
+    private fun cleanupOrphanedIconFiles(
+        oldKawaiiButtons: List<ConfigurableButton>,
+        newKawaiiButtons: List<ConfigurableButton>
+    ) {
+        val oldIcons = extractIconFileNames(oldKawaiiButtons)
+        val newKawaiiIcons = extractIconFileNames(newKawaiiButtons)
+        // Only clean up icons that were removed from kawaii bar
+        val removed = oldIcons - newKawaiiIcons
+        if (removed.isEmpty()) return
+        // But don't delete if still referenced by any button in the full config
+        val allNewIcons = getAllReferencedIconFileNames()
+        val orphaned = removed - allNewIcons
+        if (orphaned.isEmpty()) return
+        val extDir = context.getExternalFilesDir(null) ?: return
+        val iconDir = File(extDir, ButtonIconFile.DIR)
+        orphaned.forEach { filename ->
+            val file = File(iconDir, filename)
+            if (file.exists() && file.isFile) {
+                try { file.delete() } catch (_: Exception) { }
+            }
         }
     }
 

@@ -69,6 +69,9 @@ object ConfigProviders {
 
     @Volatile
     private var fontWatcher: FileObserver? = null
+    
+    @Volatile
+    private var iconWatcher: FileObserver? = null
 
     @Volatile
     private var watchedConfigDir: String? = null
@@ -88,10 +91,17 @@ object ConfigProviders {
     @Volatile
     private var watchedButtonsLayoutFileName: String? = null
 
+    @Volatile
+    private var watchedIconBaseDir: String? = null
+
+    @Volatile
+    private var watchedIconFileNames: Set<String> = emptySet()
+
     private val textLayoutListeners = linkedSetOf<() -> Unit>()
     private val popupPresetListeners = linkedSetOf<() -> Unit>()
     private val fontsetListeners = linkedSetOf<() -> Unit>()
     private val buttonsLayoutListeners = linkedSetOf<() -> Unit>()
+    private val iconChangeListeners = linkedSetOf<() -> Unit>()
 
     @Synchronized
     private fun notifyListeners(listeners: Set<() -> Unit>) {
@@ -134,17 +144,35 @@ object ConfigProviders {
     }
 
     @Synchronized
+    fun addIconChangeListener(listener: () -> Unit) {
+        iconChangeListeners.add(listener)
+        ensureWatching()
+    }
+
+    @Synchronized
+    fun removeIconChangeListener(listener: () -> Unit) {
+        iconChangeListeners.remove(listener)
+    }
+
+    fun setWatchedIconFileNames(names: Set<String>) {
+        watchedIconFileNames = names
+    }
+
+    @Synchronized
     private fun restartWatching() {
         configWatcher?.stopWatching()
         fontWatcher?.stopWatching()
+        iconWatcher?.stopWatching()
         configWatcher = null
         fontWatcher = null
+        iconWatcher = null
         watchedConfigDir = null
         watchedTextLayoutFileName = null
         watchedPopupPresetFileName = null
         watchedButtonsLayoutFileName = null
         watchedFontDir = null
         watchedFontsetFileName = null
+        watchedIconBaseDir = null
         ensureWatching()
     }
 
@@ -157,7 +185,7 @@ object ConfigProviders {
         }
 
         val hasConfigListeners = textLayoutListeners.isNotEmpty() || popupPresetListeners.isNotEmpty() ||
-                buttonsLayoutListeners.isNotEmpty()
+                buttonsLayoutListeners.isNotEmpty() || iconChangeListeners.isNotEmpty()
         val hasFontsetListeners = fontsetListeners.isNotEmpty()
 
         if (!hasConfigListeners && !hasFontsetListeners) return
@@ -166,6 +194,7 @@ object ConfigProviders {
         val popupFile = provider.popupPresetFile()
         val buttonsLayoutFile = provider.buttonsLayoutConfigFile()
         val configDir = textFile?.parentFile ?: popupFile?.parentFile ?: buttonsLayoutFile?.parentFile
+        val hasButtonsListeners = buttonsLayoutListeners.isNotEmpty()
 
         if (hasConfigListeners && configDir != null) {
             val dirPath = configDir.absolutePath
@@ -216,6 +245,33 @@ object ConfigProviders {
             watchedTextLayoutFileName = null
             watchedPopupPresetFileName = null
             watchedButtonsLayoutFileName = null
+        }
+
+        val hasIconWatcherListeners = hasButtonsListeners || iconChangeListeners.isNotEmpty()
+        val iconBaseDir = buttonsLayoutFile?.parentFile?.parentFile?.let { File(it, ButtonIconFile.DIR) }
+        if (hasIconWatcherListeners && iconBaseDir != null) {
+            val dirPath = iconBaseDir.absolutePath
+            if (!(iconWatcher != null && watchedIconBaseDir == dirPath)) {
+                iconWatcher?.stopWatching()
+                @Suppress("DEPRECATION")
+                iconWatcher = object : FileObserver(
+                    dirPath,
+                    CLOSE_WRITE or MODIFY or MOVED_TO or CREATE or DELETE or DELETE_SELF or MOVE_SELF
+                ) {
+                    override fun onEvent(event: Int, path: String?) {
+                        if (path.isNullOrEmpty()) return
+                        val watched = watchedIconFileNames
+                        if (watched.isEmpty() || path in watched) {
+                            notifyListeners(iconChangeListeners)
+                        }
+                    }
+                }.also { it.startWatching() }
+                watchedIconBaseDir = dirPath
+            }
+        } else if (!hasIconWatcherListeners) {
+            iconWatcher?.stopWatching()
+            iconWatcher = null
+            watchedIconBaseDir = null
         }
 
         val fontsetFile = provider.fontsetFile()

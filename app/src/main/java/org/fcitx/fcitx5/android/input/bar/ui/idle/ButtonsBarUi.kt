@@ -70,6 +70,20 @@ class ButtonsBarUi(
         }
     }
 
+    /**
+     * Reload icons from disk for all buttons that use file-based custom icons.
+     * Call this when icon files have changed on disk to refresh button drawables
+     * without rebuilding the entire adapter.
+     */
+    fun reloadIcons() {
+        buttons.forEach { config ->
+            val button = buttonMap[config.id] ?: return@forEach
+            if (config.icon != null && config.icon.startsWith("file:")) {
+                applyIconAndText(button, config)
+            }
+        }
+    }
+
     fun setOnClickListener(buttonId: String, listener: View.OnClickListener?) {
         if (listener != null) {
             clickListeners[buttonId] = listener
@@ -111,7 +125,8 @@ class ButtonsBarUi(
         } else if (config.icon != null && config.icon.startsWith("file:")) {
             val drawable = loadFileIcon(config.icon)
             if (drawable != null) {
-                button.setIconFromDrawable(drawable)
+                val tintWithTheme = config.icon.endsWith(".xml", ignoreCase = true)
+                button.setIconFromDrawable(drawable, tintWithTheme = tintWithTheme)
             }
         }
     }

@@ -725,7 +725,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                         iconPathText.text = path.removePrefix("file:").takeLast(30)
                     }
                 }
-                iconPickerLauncher.launch(arrayOf("image/png", "image/webp"))
+                iconPickerLauncher.launch(arrayOf("image/png", "image/webp", "text/xml", "application/xml"))
             }
         }
         val clearIconBtn = Button(this).apply {
@@ -1019,8 +1019,15 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     val drawable = if (b.icon != null && b.icon.startsWith("file:")) {
                         ButtonIconFile.loadDrawable(b.icon)
                     } else null
+                    val tintCustomDrawable = b.icon?.endsWith(".xml", ignoreCase = true) == true
+                    val previewText = when {
+                        !b.text.isNullOrEmpty() -> b.text
+                        b.icon != null && b.icon.startsWith("file:") && drawable == null ->
+                            b.icon.removePrefix("file:").substringAfterLast('/').substringBeforeLast('.').take(6)
+                        else -> null
+                    }
 
-                    holder.ui.setButton(label, displayIconRes, b.text, drawable)
+                    holder.ui.setButton(label, displayIconRes, previewText, drawable, tintCustomDrawable)
                     holder.ui.root.setOnClickListener {
                         openButtonEditor(buttonItem.button, position, buttonItem.section)
                     }
@@ -1053,7 +1060,8 @@ class ButtonEntryUi(
     private var label: String,
     private var iconRes: Int,
     private var circleText: String? = null,
-    private var customDrawable: android.graphics.drawable.Drawable? = null
+    private var customDrawable: android.graphics.drawable.Drawable? = null,
+    private var tintCustomDrawable: Boolean = true
 ) : Ui {
 
     private val bkgDrawable = ShapeDrawable(OvalShape())
@@ -1108,11 +1116,18 @@ class ButtonEntryUi(
         updateIcon()
     }
 
-    fun setButton(newLabel: String, newIconRes: Int, newCircleText: String? = null, newDrawable: android.graphics.drawable.Drawable? = null) {
+    fun setButton(
+        newLabel: String,
+        newIconRes: Int,
+        newCircleText: String? = null,
+        newDrawable: android.graphics.drawable.Drawable? = null,
+        shouldTintCustomDrawable: Boolean = true
+    ) {
         label = newLabel
         iconRes = newIconRes
         circleText = newCircleText
         customDrawable = newDrawable
+        tintCustomDrawable = shouldTintCustomDrawable
         labelView.text = label
         labelView.visibility = if (label.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
         updateColors()
@@ -1136,7 +1151,12 @@ class ButtonEntryUi(
         if (customDrawable != null) {
             icon.visibility = android.view.View.VISIBLE
             textIcon.visibility = android.view.View.GONE
-            icon.setImageDrawable(customDrawable)
+            icon.setImageDrawable(customDrawable?.mutate())
+            if (tintCustomDrawable) {
+                icon.imageDrawable?.setTint(contentColor)
+            } else {
+                icon.imageDrawable?.setTintList(null)
+            }
             bkg.addView(icon, android.widget.FrameLayout.LayoutParams(ctx.dp(32), ctx.dp(32)).apply {
                 gravity = android.view.Gravity.CENTER
             })
