@@ -17,6 +17,7 @@ import android.widget.LinearLayout
 import android.widget.Space
 import android.widget.TextView
 import android.widget.ViewAnimator
+import androidx.annotation.DrawableRes
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
@@ -25,6 +26,7 @@ import org.fcitx.fcitx5.android.input.bar.ui.idle.ButtonsBarUi
 import org.fcitx.fcitx5.android.input.bar.ui.idle.ClipboardSuggestionUi
 import org.fcitx.fcitx5.android.input.bar.ui.idle.InlineSuggestionsUi
 import org.fcitx.fcitx5.android.input.bar.ui.idle.NumberRow
+import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
@@ -56,7 +58,9 @@ class IdleUi(
     private val theme: Theme,
     private val popup: PopupComponent,
     private val commonKeyActionListener: CommonKeyActionListener,
-    private val buttonsConfig: List<ConfigurableButton> = ButtonsLayoutConfig.default().kawaiiBarButtons
+    private val buttonsConfig: List<ConfigurableButton> = ButtonsLayoutConfig.default().kawaiiBarButtons,
+    private var toolbarToggleConfig: ConfigurableButton = ConfigurableButton("toolbar_toggle"),
+    private var hideKeyboardConfig: ConfigurableButton = ConfigurableButton("hide_keyboard")
 ) : Ui {
 
     enum class State {
@@ -74,6 +78,9 @@ class IdleUi(
         if (ctx.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_LTR) 1f else -1f
     }
 
+    private val hasCustomMenuIcon get() = toolbarToggleConfig.icon != null || !toolbarToggleConfig.text.isNullOrEmpty()
+    private val hasCustomHideKeyboardIcon get() = hideKeyboardConfig.icon != null || !hideKeyboardConfig.text.isNullOrEmpty()
+
     private val menuButtonRotation
         get() = when {
             inPrivate -> 0f
@@ -81,11 +88,19 @@ class IdleUi(
             else -> -90f * translateDirection
         }
 
+    @DrawableRes
+    private val defaultMenuIcon = R.drawable.ic_baseline_expand_more_24
+    @DrawableRes
+    private val defaultHideKeyboardIcon = R.drawable.ic_baseline_arrow_drop_down_24
+
     val menuButton = ToolButton(ctx, R.drawable.ic_baseline_expand_more_24, theme).apply {
         iconRotation = menuButtonRotation
+        applySystemButtonConfig(this, toolbarToggleConfig, defaultMenuIcon)
     }
 
-    val hideKeyboardButton = ToolButton(ctx, R.drawable.ic_baseline_arrow_drop_down_24, theme)
+    val hideKeyboardButton = ToolButton(ctx, R.drawable.ic_baseline_arrow_drop_down_24, theme).apply {
+        applySystemButtonConfig(this, hideKeyboardConfig, defaultHideKeyboardIcon)
+    }
 
     val emptyBar = Space(ctx)
 
@@ -198,7 +213,52 @@ class IdleUi(
         updateMenuButtonRotation(instant = true)
     }
 
+    private fun applySystemButtonConfig(button: ToolButton, config: ConfigurableButton, @DrawableRes defaultIcon: Int) {
+        if (!config.text.isNullOrEmpty()) {
+            button.setText(config.text)
+        } else if (config.icon != null) {
+            if (config.icon.startsWith("file:")) {
+                val drawable = ButtonIconFile.loadDrawable(config.icon)
+                if (drawable != null) {
+                    button.setIconFromDrawable(drawable, tintWithTheme = config.icon.endsWith(".xml", ignoreCase = true))
+                }
+            } else {
+                val resId = ctx.resources.getIdentifier(config.icon, "drawable", ctx.packageName)
+                if (resId != 0) {
+                    button.setIcon(resId)
+                }
+            }
+        }
+        if (!config.label.isNullOrEmpty()) {
+            button.contentDescription = config.label
+        }
+    }
+
+    fun reloadSystemButtonIcons() {
+        val toolbarIcon = toolbarToggleConfig.icon
+        if (toolbarIcon != null && toolbarIcon.startsWith("file:")) {
+            applySystemButtonConfig(menuButton, toolbarToggleConfig, defaultMenuIcon)
+        }
+        val hideIcon = hideKeyboardConfig.icon
+        if (hideIcon != null && hideIcon.startsWith("file:")) {
+            applySystemButtonConfig(hideKeyboardButton, hideKeyboardConfig, defaultHideKeyboardIcon)
+        }
+    }
+
+    fun updateSystemButtonConfigs(
+        newToolbarToggleConfig: ConfigurableButton,
+        newHideKeyboardConfig: ConfigurableButton
+    ) {
+        toolbarToggleConfig = newToolbarToggleConfig
+        hideKeyboardConfig = newHideKeyboardConfig
+        applySystemButtonConfig(menuButton, toolbarToggleConfig, defaultMenuIcon)
+        applySystemButtonConfig(hideKeyboardButton, hideKeyboardConfig, defaultHideKeyboardIcon)
+        updateMenuButtonIcon()
+        updateMenuButtonContentDescription()
+    }
+
     private fun updateMenuButtonIcon() {
+        if (hasCustomMenuIcon) return
         menuButton.setIcon(
             if (inPrivate) R.drawable.ic_view_private
             else R.drawable.ic_baseline_expand_more_24
@@ -206,6 +266,7 @@ class IdleUi(
     }
 
     private fun updateMenuButtonContentDescription() {
+        if (!toolbarToggleConfig.label.isNullOrEmpty()) return
         menuButton.contentDescription = when {
             inPrivate -> ctx.getString(R.string.private_mode)
             currentState == State.Toolbar -> ctx.getString(R.string.hide_toolbar)
@@ -227,12 +288,14 @@ class IdleUi(
     }
 
     fun setHideKeyboardIsVoiceInput(isVoiceInput: Boolean, callback: View.OnClickListener) {
-        if (isVoiceInput) {
-            hideKeyboardButton.setIcon(R.drawable.ic_baseline_keyboard_voice_24)
-            hideKeyboardButton.contentDescription = ctx.getString(R.string.switch_to_voice_input)
-        } else {
-            hideKeyboardButton.setIcon(R.drawable.ic_baseline_arrow_drop_down_24)
-            hideKeyboardButton.contentDescription = ctx.getString(R.string.hide_keyboard)
+        if (!hasCustomHideKeyboardIcon) {
+            if (isVoiceInput) {
+                hideKeyboardButton.setIcon(R.drawable.ic_baseline_keyboard_voice_24)
+                hideKeyboardButton.contentDescription = ctx.getString(R.string.switch_to_voice_input)
+            } else {
+                hideKeyboardButton.setIcon(R.drawable.ic_baseline_arrow_drop_down_24)
+                hideKeyboardButton.contentDescription = ctx.getString(R.string.hide_keyboard)
+            }
         }
         hideKeyboardButton.setOnClickListener(callback)
     }

@@ -81,7 +81,24 @@ data class ButtonsLayoutConfig(
      * Note: 'input_method_options' button is always added automatically at the end and should not be in this list.
      */
     @SerialName("statusAreaButtons")
-    val statusAreaButtons: List<ConfigurableButton>
+    val statusAreaButtons: List<ConfigurableButton>,
+
+    /**
+     * Configuration for the toolbar toggle button (collapse/expand toolbar).
+     * Always present on the left side of the idle bar.
+     * Supports custom icon, text, and label.
+     */
+    @SerialName("toolbarToggleButton")
+    val toolbarToggleButton: ConfigurableButton = ConfigurableButton("toolbar_toggle"),
+
+    /**
+     * Configuration for the hide keyboard button.
+     * Always present on the right side of the idle bar.
+     * Can also act as a voice input button when voice input is available.
+     * Supports custom icon, text, and label.
+     */
+    @SerialName("hideKeyboardButton")
+    val hideKeyboardButton: ConfigurableButton = ConfigurableButton("hide_keyboard")
 ) {
     companion object {
         /**

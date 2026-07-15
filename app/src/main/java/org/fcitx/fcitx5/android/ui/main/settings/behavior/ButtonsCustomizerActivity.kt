@@ -128,6 +128,10 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     private val provider: ConfigProvider = ConfigProviders.provider
     private val theme: Theme by lazy { ThemeManager.activeTheme }
 
+    // System button configs (not part of the drag-and-drop list)
+    private var toolbarToggleConfig: ConfigurableButton = ConfigurableButton("toolbar_toggle")
+    private var hideKeyboardConfig: ConfigurableButton = ConfigurableButton("hide_keyboard")
+
     // Combined list: Section headers + buttons
     private val items = mutableListOf<ListItem>()
     private var originalItems = listOf<ListItem>()
@@ -154,7 +158,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
      * Set of built-in button IDs that cannot be deleted or have custom labels.
      * These are the core buttons that are always available in the app.
      */
-    private val builtInButtonIds = availableButtons.map { it.id }.toSet()
+    private val builtInButtonIds = (availableButtons.map { it.id } + listOf("toolbar_toggle", "hide_keyboard")).toSet()
 
     data class ButtonDefinition(
         val id: String,
@@ -171,6 +175,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     }
 
     enum class Section {
+        SystemBar,
         KawaiiBar,
         StatusArea,
         AddButtons
@@ -220,8 +225,15 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         val config = snapshot?.value ?: ButtonsLayoutConfig.default()
 
+        // Store system button configs
+        toolbarToggleConfig = config.toolbarToggleButton.normalizedIcon()
+        hideKeyboardConfig = config.hideKeyboardButton.normalizedIcon()
+
         // Build combined list
         items.clear()
+        // System buttons section (fixed, not draggable)
+        items.add(ListItem.ButtonItem(toolbarToggleConfig, Section.SystemBar))
+        items.add(ListItem.ButtonItem(hideKeyboardConfig, Section.SystemBar))
         // Kawaii Bar section buttons
         config.kawaiiBarButtons.forEach { button ->
             items.add(ListItem.ButtonItem(button, Section.KawaiiBar))
@@ -332,6 +344,12 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     return false
                 }
 
+                // Don't allow moving system buttons or dropping on them
+                if (fromItem.section == Section.SystemBar ||
+                    (toItem is ListItem.ButtonItem && toItem.section == Section.SystemBar)) {
+                    return false
+                }
+
                 val kawaiiBarEndIndex = items.indexOfFirst { it is ListItem.AddButtonPlaceholder }
                 val statusAreaEndIndex = items.indexOfFirst { it is ListItem.StatusAreaAddButtonPlaceholder }
 
@@ -372,6 +390,12 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                         insertPosition = determineInsertPositionOnButton(dragCenterX, targetCenterX, toPosition)
                         targetSection = determineSectionByPosition(insertPosition)
                     }
+                }
+
+                // Don't allow dropping before system buttons (first 2 positions)
+                val systemButtonsEndIndex = 1 // system buttons are at positions 0,1
+                if (insertPosition <= systemButtonsEndIndex) {
+                    return false
                 }
 
                 // Don't allow dropping after StatusArea "+" unless target is AddButtons section
@@ -599,7 +623,16 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 val extDir = getExternalFilesDir(null) ?: filesDir
                 val iconDir = File(extDir, ButtonIconFile.DIR)
                 iconDir.mkdirs()
-                val destFile = File(iconDir, fileName)
+                // Avoid overwriting existing files with same name
+                var destFile = File(iconDir, fileName)
+                var counter = 1
+                while (destFile.exists()) {
+                    val dotIdx = fileName.lastIndexOf('.')
+                    val baseName = if (dotIdx >= 0) fileName.substring(0, dotIdx) else fileName
+                    val ext = if (dotIdx >= 0) fileName.substring(dotIdx) else ""
+                    destFile = File(iconDir, "${baseName}_$counter$ext")
+                    counter++
+                }
                 contentResolver.openInputStream(uri)?.use { input ->
                     destFile.outputStream().use { output -> input.copyTo(output) }
                 }
@@ -856,6 +889,12 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     }
 
     private fun saveConfig() {
+        // Extract system button configs from items
+        val systemItems = items.filterIsInstance<ListItem.ButtonItem>()
+            .filter { it.section == Section.SystemBar }
+        toolbarToggleConfig = systemItems.find { it.button.id == "toolbar_toggle" }?.button ?: toolbarToggleConfig
+        hideKeyboardConfig = systemItems.find { it.button.id == "hide_keyboard" }?.button ?: hideKeyboardConfig
+
         // Extract buttons for each section
         val kawaiiBarButtons = items.filterIsInstance<ListItem.ButtonItem>()
             .filter { it.section == Section.KawaiiBar }
@@ -868,14 +907,14 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         // Save unified config
         val buttonsLayoutFile = provider.buttonsLayoutConfigFile()
         if (buttonsLayoutFile != null) {
-            saveUnifiedConfigToFile(buttonsLayoutFile, kawaiiBarButtons, statusAreaButtons)
+            saveUnifiedConfigToFile(buttonsLayoutFile, kawaiiBarButtons, statusAreaButtons, toolbarToggleConfig, hideKeyboardConfig)
         }
 
         originalItems = items.toList()
         updateSaveButtonState()
     }
 
-    private fun saveUnifiedConfigToFile(file: File, kawaiiBarButtons: List<ConfigurableButton>, statusAreaButtons: List<ConfigurableButton>) {
+    private fun saveUnifiedConfigToFile(file: File, kawaiiBarButtons: List<ConfigurableButton>, statusAreaButtons: List<ConfigurableButton>, toolbarToggleButton: ConfigurableButton, hideKeyboardButton: ConfigurableButton) {
         try {
             // Ensure config directory exists
             file.parentFile?.mkdirs()
@@ -884,7 +923,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             // relative form so exports remain valid across build variants.
             val config = ButtonsLayoutConfig(
                 kawaiiBarButtons = kawaiiBarButtons.map { it.normalizedIcon() },
-                statusAreaButtons = statusAreaButtons.map { it.normalizedIcon() }
+                statusAreaButtons = statusAreaButtons.map { it.normalizedIcon() },
+                toolbarToggleButton = toolbarToggleButton.normalizedIcon(),
+                hideKeyboardButton = hideKeyboardButton.normalizedIcon()
             )
 
             val jsonContent = prettyJson.encodeToString(config) + "\n"
@@ -1006,15 +1047,30 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     val buttonItem = item as ListItem.ButtonItem
                     val b = buttonItem.button
                     val buttonDef = availableButtons.find { it.id == b.id }
-                    val label = b.label ?: buttonDef?.let { getString(it.labelRes) } ?: b.id
+                    val label = when {
+                        buttonItem.section == Section.SystemBar -> when (b.id) {
+                            "toolbar_toggle" -> getString(R.string.expand_toolbar)
+                            "hide_keyboard" -> getString(R.string.hide_keyboard)
+                            else -> b.id
+                        }
+                        else -> b.label ?: buttonDef?.let { getString(it.labelRes) } ?: b.id
+                    }
                     val displayIconRes = when {
                         !b.text.isNullOrEmpty() -> 0
                         b.icon != null && b.icon.startsWith("file:") -> 0
                         b.icon != null -> {
                             val resId = resources.getIdentifier(b.icon, "drawable", packageName)
-                            if (resId != 0) resId else (buttonDef?.iconRes ?: 0)
+                            if (resId != 0) resId else (buttonDef?.iconRes ?: when (b.id) {
+                                "toolbar_toggle" -> R.drawable.ic_baseline_expand_more_24
+                                "hide_keyboard" -> R.drawable.ic_baseline_arrow_drop_down_24
+                                else -> 0
+                            })
                         }
-                        else -> (buttonDef?.iconRes ?: 0)
+                        else -> (buttonDef?.iconRes ?: when (b.id) {
+                            "toolbar_toggle" -> R.drawable.ic_baseline_expand_more_24
+                            "hide_keyboard" -> R.drawable.ic_baseline_arrow_drop_down_24
+                            else -> 0
+                        })
                     }
                     val drawable = if (b.icon != null && b.icon.startsWith("file:")) {
                         ButtonIconFile.loadDrawable(b.icon)

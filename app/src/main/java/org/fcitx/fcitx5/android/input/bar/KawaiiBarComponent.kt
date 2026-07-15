@@ -346,7 +346,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     // Load buttons config from file or use default
     // Note: 'more' button is always added automatically at the end if not present in config
-    private fun loadButtonsConfig(): List<ConfigurableButton> {
+    private fun loadButtonsConfig(): Triple<List<ConfigurableButton>, ConfigurableButton, ConfigurableButton> {
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         val config = snapshot?.value ?: ButtonsLayoutConfig.default()
 
@@ -357,24 +357,31 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         val buttons = filteredButtons + ConfigurableButton("more")
 
         // Update watched icon filenames for hot-reload
-        val iconFileNames = buttons
+        val allButtons = buttons + listOf(config.toolbarToggleButton, config.hideKeyboardButton)
+        val iconFileNames = allButtons
             .mapNotNull { it.icon }
             .filter { it.startsWith(ButtonIconFile.PREFIX) }
             .map { it.removePrefix(ButtonIconFile.PREFIX).substringAfterLast('/') }
             .toSet()
         ConfigProviders.setWatchedIconFileNames(iconFileNames)
 
-        return buttons
+        return Triple(buttons, config.toolbarToggleButton, config.hideKeyboardButton)
     }
 
     private var _idleUi: IdleUi? = null
     private var currentButtonsConfig: List<ConfigurableButton> = emptyList()
+    private var currentToolbarToggleConfig: ConfigurableButton = ConfigurableButton("toolbar_toggle")
+    private var currentHideKeyboardConfig: ConfigurableButton = ConfigurableButton("hide_keyboard")
     
     private val idleUi: IdleUi
         get() {
             if (_idleUi == null) {
-                currentButtonsConfig = loadButtonsConfig()
-                _idleUi = IdleUi(context, theme, popup, commonKeyActionListener, currentButtonsConfig)
+                val (buttons, toolbarToggle, hideKeyboard) = loadButtonsConfig()
+                currentButtonsConfig = buttons
+                currentToolbarToggleConfig = toolbarToggle
+                currentHideKeyboardConfig = hideKeyboard
+                _idleUi = IdleUi(context, theme, popup, commonKeyActionListener, currentButtonsConfig,
+                    currentToolbarToggleConfig, currentHideKeyboardConfig)
                 setupIdleUiCallbacks(_idleUi!!)
             }
             return _idleUi!!
@@ -535,20 +542,34 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     // Reload Kawaii Bar buttons config (called when config file changes)
     fun reloadButtonsConfig() {
-        val newConfig = loadButtonsConfig()
-        if (newConfig != currentButtonsConfig) {
-            // Clean up orphaned icon files before updating config
-            cleanupOrphanedIconFiles(currentButtonsConfig, newConfig)
-            currentButtonsConfig = newConfig
-            _idleUi?.buttonsUi?.updateConfig(newConfig)
+        val (newButtons, newToolbarToggle, newHideKeyboard) = loadButtonsConfig()
+        val buttonsChanged = newButtons != currentButtonsConfig
+        val systemButtonsChanged = newToolbarToggle != currentToolbarToggleConfig ||
+            newHideKeyboard != currentHideKeyboardConfig
+        if (buttonsChanged || systemButtonsChanged) {
+            cleanupOrphanedIconFiles(
+                currentButtonsConfig, newButtons,
+                currentToolbarToggleConfig, newToolbarToggle,
+                currentHideKeyboardConfig, newHideKeyboard
+            )
+        }
+        if (buttonsChanged) {
+            currentButtonsConfig = newButtons
+            _idleUi?.buttonsUi?.updateConfig(newButtons)
             _idleUi?.let { setupCustomActionListeners(it) }
             updateButtonsState()
+        }
+        if (systemButtonsChanged) {
+            currentToolbarToggleConfig = newToolbarToggle
+            currentHideKeyboardConfig = newHideKeyboard
+            _idleUi?.updateSystemButtonConfigs(newToolbarToggle, newHideKeyboard)
         }
     }
 
     // Reload button icons from disk (called when icon files change on disk)
     fun reloadButtonIcons() {
         _idleUi?.buttonsUi?.reloadIcons()
+        _idleUi?.reloadSystemButtonIcons()
     }
 
     private fun extractIconFileNames(buttons: List<ConfigurableButton>): Set<String> {
@@ -563,18 +584,25 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         if (snapshot == null) return emptySet()
         val config = snapshot.value
-        val allButtons = config.kawaiiBarButtons + config.statusAreaButtons
+        val allButtons = config.kawaiiBarButtons + config.statusAreaButtons +
+            listOf(config.toolbarToggleButton, config.hideKeyboardButton)
         return extractIconFileNames(allButtons)
     }
 
     private fun cleanupOrphanedIconFiles(
         oldKawaiiButtons: List<ConfigurableButton>,
-        newKawaiiButtons: List<ConfigurableButton>
+        newKawaiiButtons: List<ConfigurableButton>,
+        oldToolbarToggle: ConfigurableButton = ConfigurableButton("toolbar_toggle"),
+        newToolbarToggle: ConfigurableButton = ConfigurableButton("toolbar_toggle"),
+        oldHideKeyboard: ConfigurableButton = ConfigurableButton("hide_keyboard"),
+        newHideKeyboard: ConfigurableButton = ConfigurableButton("hide_keyboard")
     ) {
-        val oldIcons = extractIconFileNames(oldKawaiiButtons)
-        val newKawaiiIcons = extractIconFileNames(newKawaiiButtons)
-        // Only clean up icons that were removed from kawaii bar
-        val removed = oldIcons - newKawaiiIcons
+        val oldIcons = extractIconFileNames(oldKawaiiButtons) +
+            extractIconFileNames(listOf(oldToolbarToggle, oldHideKeyboard))
+        val newLocalIcons = extractIconFileNames(newKawaiiButtons) +
+            extractIconFileNames(listOf(newToolbarToggle, newHideKeyboard))
+        // Icons that were in the old config but not in the new local config
+        val removed = oldIcons - newLocalIcons
         if (removed.isEmpty()) return
         // But don't delete if still referenced by any button in the full config
         val allNewIcons = getAllReferencedIconFileNames()

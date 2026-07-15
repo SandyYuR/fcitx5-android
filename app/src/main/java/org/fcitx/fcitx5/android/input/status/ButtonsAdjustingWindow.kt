@@ -127,6 +127,29 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
+    private fun applySystemButtonConfigToCollapse() {
+        val config = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
+        val toolbarConfig = config?.toolbarToggleButton ?: return
+        if (!toolbarConfig.text.isNullOrEmpty()) {
+            collapseButton.setText(toolbarConfig.text)
+        } else if (toolbarConfig.icon != null) {
+            if (toolbarConfig.icon.startsWith("file:")) {
+                val drawable = loadFileIcon(toolbarConfig.icon)
+                if (drawable != null) {
+                    collapseButton.setIconFromDrawable(drawable, tintWithTheme = toolbarConfig.icon.endsWith(".xml", ignoreCase = true))
+                }
+            } else {
+                val resId = context.resources.getIdentifier(toolbarConfig.icon, "drawable", context.packageName)
+                if (resId != 0) {
+                    collapseButton.setIcon(resId)
+                }
+            }
+        }
+        if (!toolbarConfig.label.isNullOrEmpty()) {
+            collapseButton.contentDescription = toolbarConfig.label
+        }
+    }
+
     private val moreButton by lazy {
         ToolButton(context, R.drawable.ic_baseline_arrow_drop_down_24, currentTheme).apply {
             layoutParams = LinearLayout.LayoutParams(
@@ -159,6 +182,13 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             layoutParams = LayoutParams(context.dp(24), context.dp(24))
         }
 
+        val textIcon = TextView(context).apply {
+            textSize = 18f
+            gravity = Gravity.CENTER
+            layoutParams = LayoutParams(context.dp(24), context.dp(24))
+            visibility = View.GONE
+        }
+
         val label = TextView(context).apply {
             textSize = 11f
             gravity = Gravity.CENTER
@@ -173,6 +203,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             gravity = Gravity.CENTER
             setPadding(context.dp(4), context.dp(4), context.dp(4), context.dp(4))
             addView(icon)
+            addView(textIcon)
             addView(label)
             layoutParams = RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, context.dp(72))
         }
@@ -180,6 +211,30 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         fun bind(iconRes: Int, text: String, disabled: Boolean, theme: Theme) {
             icon.setImageDrawable(ContextCompat.getDrawable(context, iconRes)?.mutate())
             icon.drawable?.setTint(theme.keyTextColor)
+            icon.visibility = View.VISIBLE
+            textIcon.visibility = View.GONE
+            label.setTextColor(theme.keyTextColor)
+            label.text = text
+            alpha = if (disabled) 0.45f else 1f
+        }
+
+        fun bindTextIcon(emoji: String, text: String, disabled: Boolean, theme: Theme) {
+            icon.visibility = View.GONE
+            textIcon.text = emoji
+            textIcon.setTextColor(theme.keyTextColor)
+            textIcon.visibility = View.VISIBLE
+            label.setTextColor(theme.keyTextColor)
+            label.text = text
+            alpha = if (disabled) 0.45f else 1f
+        }
+
+        fun bindDrawable(drawable: Drawable, tintWithTheme: Boolean, text: String, disabled: Boolean, theme: Theme) {
+            if (tintWithTheme) {
+                drawable.setTint(theme.keyTextColor)
+            }
+            icon.setImageDrawable(drawable)
+            icon.visibility = View.VISIBLE
+            textIcon.visibility = View.GONE
             label.setTextColor(theme.keyTextColor)
             label.text = text
             alpha = if (disabled) 0.45f else 1f
@@ -214,11 +269,34 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             if (position < list.size) {
                 val button = list[position]
                 val action = ButtonAction.fromId(button.id)
-                val icon = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
                 val label = button.label
                     ?: action?.let { holder.itemView.context.getString(it.defaultLabelRes) }
                     ?: button.id
-                ui.bind(icon, label, disabled = false, theme = theme)
+                if (!button.text.isNullOrEmpty()) {
+                    ui.bindTextIcon(button.text, label, disabled = false, theme = theme)
+                } else if (button.icon != null) {
+                    if (button.icon.startsWith("file:")) {
+                        val drawable = outer.loadFileIcon(button.icon)
+                        if (drawable != null) {
+                            val tintWithTheme = button.icon.endsWith(".xml", ignoreCase = true)
+                            ui.bindDrawable(drawable, tintWithTheme, label, disabled = false, theme = theme)
+                        } else {
+                            val iconRes = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+                            ui.bind(iconRes, label, disabled = false, theme = theme)
+                        }
+                    } else {
+                        val resId = holder.itemView.context.resources.getIdentifier(button.icon, "drawable", holder.itemView.context.packageName)
+                        if (resId != 0) {
+                            ui.bind(resId, label, disabled = false, theme = theme)
+                        } else {
+                            val iconRes = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+                            ui.bind(iconRes, label, disabled = false, theme = theme)
+                        }
+                    }
+                } else {
+                    val iconRes = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+                    ui.bind(iconRes, label, disabled = false, theme = theme)
+                }
                 ui.setOnLongClickListener {
                     val pos = holder.bindingAdapterPosition
                     if (pos == RecyclerView.NO_POSITION) return@setOnLongClickListener false
@@ -350,15 +428,22 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             setupTopButtonDrag(this, index)
             if (!button.text.isNullOrEmpty()) {
                 setText(button.text)
-            } else if (button.icon != null && button.icon.startsWith("file:")) {
-                val drawable = loadFileIcon(button.icon)
-                if (drawable != null) {
-                    val tintWithTheme = button.icon.endsWith(".xml", ignoreCase = true)
-                    setIconFromDrawable(drawable, tintWithTheme = tintWithTheme)
+            } else if (button.icon != null) {
+                if (button.icon.startsWith("file:")) {
+                    val drawable = loadFileIcon(button.icon)
+                    if (drawable != null) {
+                        val tintWithTheme = button.icon.endsWith(".xml", ignoreCase = true)
+                        setIconFromDrawable(drawable, tintWithTheme = tintWithTheme)
+                    }
+                } else {
+                    val resId = context.resources.getIdentifier(button.icon, "drawable", context.packageName)
+                    if (resId != 0) {
+                        setIcon(resId)
+                    }
                 }
             }
         }
-        }
+    }
 
     private fun setTopButtonWidth(view: View, useEven: Boolean, evenWidth: Int) {
         (view.layoutParams as? LinearLayout.LayoutParams)?.width =
@@ -698,9 +783,13 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         val file = ConfigProviders.provider.buttonsLayoutConfigFile() ?: return
         runCatching {
             file.parentFile?.mkdirs()
+            // Read existing config to preserve toolbarToggleButton and hideKeyboardButton
+            val existing = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
             val config = ButtonsLayoutConfig(
                 kawaiiBarButtons = topButtons.toList(),
-                statusAreaButtons = bottomButtons.toList()
+                statusAreaButtons = bottomButtons.toList(),
+                toolbarToggleButton = existing?.toolbarToggleButton ?: ConfigurableButton("toolbar_toggle"),
+                hideKeyboardButton = existing?.hideKeyboardButton ?: ConfigurableButton("hide_keyboard")
             )
             file.writeText(prettyJson.encodeToString(config) + "\n")
         }.onFailure {
@@ -817,6 +906,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         lastKnownOrientation = currentOrientation
         refreshThemeUi()
         loadState()
+        applySystemButtonConfigToCollapse()
         if (topScroller.width > 0) {
             lastTopScrollerWidth = topScroller.width
             renderTopButtons()
