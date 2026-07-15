@@ -6,8 +6,10 @@ package org.fcitx.fcitx5.android.input.config
 
 import android.content.res.Resources
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorFilter
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
@@ -110,6 +112,14 @@ object ButtonIconFile {
                     Log.w(TAG, "XML custom icon fallback to default: $path")
                 } else {
                     Log.i(TAG, "Loaded XML custom icon: $path")
+                }
+            }
+        } else if (path.endsWith(".svg", ignoreCase = true)) {
+            loadSvgDrawable(path).also {
+                if (it == null) {
+                    Log.w(TAG, "SVG custom icon fallback to default: $path")
+                } else {
+                    Log.i(TAG, "Loaded SVG custom icon: $path")
                 }
             }
         } else {
@@ -299,6 +309,81 @@ object ButtonIconFile {
         val fillColor: Int,
         val fillAlpha: Float
     )
+
+    /**
+     * Check whether a file icon path should be tinted with theme colors.
+     * XML vector icons and monochrome SVGs (black/white/gray only) are tinted.
+     */
+    fun shouldTintIcon(icon: String?): Boolean {
+        if (icon == null) return false
+        if (icon.endsWith(".xml", ignoreCase = true)) return true
+        if (icon.endsWith(".svg", ignoreCase = true)) {
+            val path = resolvePath(icon) ?: return false
+            return isSvgMonochrome(path)
+        }
+        return false
+    }
+
+    private fun isSvgMonochrome(path: String): Boolean {
+        val bytes = try {
+            File(path).readBytes()
+        } catch (_: IOException) {
+            return false
+        }
+        try {
+            val parser = Xml.newPullParser().apply {
+                setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
+                setInput(ByteArrayInputStream(bytes), null)
+            }
+            var event = parser.eventType
+            while (event != XmlPullParser.END_DOCUMENT) {
+                if (event == XmlPullParser.START_TAG) {
+                    val fill = parseSvgColorForMonochrome(getAttr(parser, "fill"))
+                    if (fill != null && !isGray(fill)) return false
+                    val stroke = parseSvgColorForMonochrome(getAttr(parser, "stroke"))
+                    if (stroke != null && !isGray(stroke)) return false
+                }
+                event = parser.next()
+            }
+            return true
+        } catch (_: Exception) {
+            return false
+        }
+    }
+
+    private fun parseSvgColorForMonochrome(value: String?): Int? {
+        if (value.isNullOrBlank() || value.equals("none", ignoreCase = true)) return null
+        return runCatching { Color.parseColor(value.trim()) }.getOrNull()
+    }
+
+    private fun isGray(color: Int): Boolean {
+        val r = Color.red(color)
+        val g = Color.green(color)
+        val b = Color.blue(color)
+        return r == g && g == b
+    }
+
+    private fun loadSvgDrawable(path: String): Drawable? {
+        try {
+            val svg = com.caverock.androidsvg.SVG.getFromInputStream(File(path).inputStream())
+            val picture = svg.renderToPicture()
+            val w = picture.width.coerceAtLeast(1)
+            val h = picture.height.coerceAtLeast(1)
+            // Cap at a reasonable max dimension
+            val maxDim = 256f
+            val scale = minOf(maxDim / w, maxDim / h, 1f)
+            val bitW = (w * scale).toInt().coerceAtLeast(1)
+            val bitH = (h * scale).toInt().coerceAtLeast(1)
+            val bitmap = Bitmap.createBitmap(bitW, bitH, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            canvas.scale(bitW.toFloat() / w, bitH.toFloat() / h)
+            canvas.drawPicture(picture)
+            return BitmapDrawable(appContext.resources, bitmap)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to load SVG: $path", e)
+            return null
+        }
+    }
 
     private class SimpleVectorDrawable(
         private val widthDp: Float,

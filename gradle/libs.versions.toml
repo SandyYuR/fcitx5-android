@@ -13,6 +13,7 @@ zxing = "3.5.3"
 zxingEmbedded = "4.3.0"
 xz = "1.10"
 pictureselector = "kotlin-v1.0.0-beta"
+androidsvg = "1.4"
 
 [libraries]
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
@@ -72,6 +73,7 @@ xz = { module = "org.tukaani:xz", version.ref = "xz" }
 pictureselector = { module = "io.github.lucksiege:pictureselector", version.ref = "pictureselector" }
 jieba = { module = "com.huaban:jieba-analysis", version = "1.0.2" }
 sora-editor = { module = "io.github.Rosemoe.sora-editor:editor", version = "0.23.4" }
+androidsvg = { module = "com.caverock:androidsvg", version.ref = "androidsvg" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

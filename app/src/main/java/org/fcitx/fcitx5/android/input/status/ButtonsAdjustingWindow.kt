@@ -136,7 +136,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             if (toolbarConfig.icon.startsWith("file:")) {
                 val drawable = loadFileIcon(toolbarConfig.icon)
                 if (drawable != null) {
-                    collapseButton.setIconFromDrawable(drawable, tintWithTheme = toolbarConfig.icon.endsWith(".xml", ignoreCase = true))
+                    collapseButton.setIconFromDrawable(drawable, tintWithTheme = ButtonIconFile.shouldTintIcon(toolbarConfig.icon))
                 }
             } else {
                 val resId = context.resources.getIdentifier(toolbarConfig.icon, "drawable", context.packageName)
@@ -278,7 +278,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                     if (button.icon.startsWith("file:")) {
                         val drawable = outer.loadFileIcon(button.icon)
                         if (drawable != null) {
-                            val tintWithTheme = button.icon.endsWith(".xml", ignoreCase = true)
+                            val tintWithTheme = ButtonIconFile.shouldTintIcon(button.icon)
                             ui.bindDrawable(drawable, tintWithTheme, label, disabled = false, theme = theme)
                         } else {
                             val iconRes = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
@@ -430,9 +430,9 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                 setText(button.text)
             } else if (button.icon != null) {
                 if (button.icon.startsWith("file:")) {
-                    val drawable = loadFileIcon(button.icon)
+                        val drawable = loadFileIcon(button.icon)
                     if (drawable != null) {
-                        val tintWithTheme = button.icon.endsWith(".xml", ignoreCase = true)
+                        val tintWithTheme = ButtonIconFile.shouldTintIcon(button.icon)
                         setIconFromDrawable(drawable, tintWithTheme = tintWithTheme)
                     }
                 } else {

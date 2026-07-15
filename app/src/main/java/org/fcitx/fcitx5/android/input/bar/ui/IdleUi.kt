@@ -220,7 +220,7 @@ class IdleUi(
             if (config.icon.startsWith("file:")) {
                 val drawable = ButtonIconFile.loadDrawable(config.icon)
                 if (drawable != null) {
-                    button.setIconFromDrawable(drawable, tintWithTheme = config.icon.endsWith(".xml", ignoreCase = true))
+                    button.setIconFromDrawable(drawable, tintWithTheme = ButtonIconFile.shouldTintIcon(config.icon))
                 }
             } else {
                 val resId = ctx.resources.getIdentifier(config.icon, "drawable", ctx.packageName)
@@ -288,10 +288,12 @@ class IdleUi(
     }
 
     fun setHideKeyboardIsVoiceInput(isVoiceInput: Boolean, callback: View.OnClickListener) {
-        if (!hasCustomHideKeyboardIcon) {
-            if (isVoiceInput) {
-                hideKeyboardButton.setIcon(R.drawable.ic_baseline_keyboard_voice_24)
-                hideKeyboardButton.contentDescription = ctx.getString(R.string.switch_to_voice_input)
+        if (isVoiceInput) {
+            hideKeyboardButton.setIcon(R.drawable.ic_baseline_keyboard_voice_24)
+            hideKeyboardButton.contentDescription = ctx.getString(R.string.switch_to_voice_input)
+        } else {
+            if (hasCustomHideKeyboardIcon) {
+                applySystemButtonConfig(hideKeyboardButton, hideKeyboardConfig, defaultHideKeyboardIcon)
             } else {
                 hideKeyboardButton.setIcon(R.drawable.ic_baseline_arrow_drop_down_24)
                 hideKeyboardButton.contentDescription = ctx.getString(R.string.hide_keyboard)

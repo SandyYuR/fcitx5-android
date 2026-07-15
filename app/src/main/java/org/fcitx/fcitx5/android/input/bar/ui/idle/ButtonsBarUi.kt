@@ -125,7 +125,7 @@ class ButtonsBarUi(
         } else if (config.icon != null && config.icon.startsWith("file:")) {
             val drawable = loadFileIcon(config.icon)
             if (drawable != null) {
-                val tintWithTheme = config.icon.endsWith(".xml", ignoreCase = true)
+                val tintWithTheme = ButtonIconFile.shouldTintIcon(config.icon)
                 button.setIconFromDrawable(drawable, tintWithTheme = tintWithTheme)
             }
         }

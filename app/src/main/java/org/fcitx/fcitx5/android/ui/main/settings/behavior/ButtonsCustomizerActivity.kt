@@ -758,7 +758,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                         iconPathText.text = path.removePrefix("file:").takeLast(30)
                     }
                 }
-                iconPickerLauncher.launch(arrayOf("image/png", "image/webp", "text/xml", "application/xml"))
+                iconPickerLauncher.launch(arrayOf("image/png", "image/webp", "image/svg+xml", "text/xml", "application/xml"))
             }
         }
         val clearIconBtn = Button(this).apply {
@@ -908,6 +908,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         val buttonsLayoutFile = provider.buttonsLayoutConfigFile()
         if (buttonsLayoutFile != null) {
             saveUnifiedConfigToFile(buttonsLayoutFile, kawaiiBarButtons, statusAreaButtons, toolbarToggleConfig, hideKeyboardConfig)
+            cleanupOrphanedIconFiles(kawaiiBarButtons, statusAreaButtons, toolbarToggleConfig, hideKeyboardConfig)
         }
 
         originalItems = items.toList()
@@ -932,6 +933,30 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             file.writeText(jsonContent)
         } catch (e: Exception) {
             Toast.makeText(this, "${getString(R.string.save_failed)}: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun cleanupOrphanedIconFiles(
+        kawaiiBarButtons: List<ConfigurableButton>,
+        statusAreaButtons: List<ConfigurableButton>,
+        toolbarToggle: ConfigurableButton,
+        hideKeyboard: ConfigurableButton
+    ) {
+        val extDir = getExternalFilesDir(null) ?: return
+        val iconDir = File(extDir, ButtonIconFile.DIR)
+        if (!iconDir.exists() || !iconDir.isDirectory) return
+
+        val allButtons = kawaiiBarButtons + statusAreaButtons + listOf(toolbarToggle, hideKeyboard)
+        val referencedNames = allButtons
+            .mapNotNull { it.icon }
+            .filter { it.startsWith(ButtonIconFile.PREFIX) }
+            .map { it.removePrefix(ButtonIconFile.PREFIX).substringAfterLast('/') }
+            .toSet()
+
+        iconDir.listFiles()?.filter { it.isFile }?.forEach { file ->
+            if (file.name !in referencedNames) {
+                try { file.delete() } catch (_: Exception) { }
+            }
         }
     }
 
@@ -1075,7 +1100,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     val drawable = if (b.icon != null && b.icon.startsWith("file:")) {
                         ButtonIconFile.loadDrawable(b.icon)
                     } else null
-                    val tintCustomDrawable = b.icon?.endsWith(".xml", ignoreCase = true) == true
+                    val tintCustomDrawable = ButtonIconFile.shouldTintIcon(b.icon)
                     val previewText = when {
                         !b.text.isNullOrEmpty() -> b.text
                         b.icon != null && b.icon.startsWith("file:") && drawable == null ->

@@ -272,6 +272,7 @@ dependencies {
     implementation(libs.xz)
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation(libs.pictureselector)
+    implementation(libs.androidsvg)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
