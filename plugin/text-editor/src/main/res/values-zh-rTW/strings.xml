@@ -71,4 +71,7 @@
     <string name="open_single_file">開啟單一檔案…</string>
     <string name="low_memory_features_disabled">記憶體不足：已關閉部分功能（語法高亮、診斷、自動補全）。</string>
     <string name="editor_runtime_recovered">編輯器發生異常，已自動降級部分功能以保持可用。</string>
+    <string name="open_file">開啟</string>
+    <string name="open_file_saf">開啟(SAF)</string>
+    <string name="close_tab">關閉分頁</string>
 </resources>

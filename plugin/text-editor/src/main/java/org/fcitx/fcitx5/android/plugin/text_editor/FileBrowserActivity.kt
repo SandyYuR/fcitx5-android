@@ -295,13 +295,28 @@ class FileBrowserActivity : AppCompatActivity() {
             toast(getString(R.string.file_too_large, formatSize(length)))
             return
         }
-        startActivity(
-            Intent(this, TextFileEditActivity::class.java).apply {
-                data = uri
-                putExtra(TextFileEditActivity.EXTRA_DISPLAY_NAME, displayName)
-            }
-        )
+        if (callerForResult) {
+            setResult(
+                RESULT_OK,
+                Intent().apply {
+                    data = uri
+                    putExtra(EXTRA_RESULT_DISPLAY_NAME, displayName)
+                    putExtra(EXTRA_RESULT_LENGTH, length)
+                }
+            )
+            finish()
+        } else {
+            startActivity(
+                Intent(this, TextFileEditActivity::class.java).apply {
+                    data = uri
+                    putExtra(TextFileEditActivity.EXTRA_DISPLAY_NAME, displayName)
+                }
+            )
+        }
     }
+
+    private val callerForResult: Boolean
+        get() = callingActivity != null
 
     private inner class FileAdapter : RecyclerView.Adapter<FileVH>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileVH {
@@ -440,5 +455,7 @@ class FileBrowserActivity : AppCompatActivity() {
     companion object {
         private const val PREFS_NAME = "text_editor"
         private const val PREF_TREE_URI = "tree_uri"
+        const val EXTRA_RESULT_DISPLAY_NAME = "result_display_name"
+        const val EXTRA_RESULT_LENGTH = "result_length"
     }
 }

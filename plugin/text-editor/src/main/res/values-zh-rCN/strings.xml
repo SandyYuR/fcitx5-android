@@ -16,6 +16,7 @@
     <string name="confirm_discard_changes">放弃未保存的修改？</string>
     <string name="discard_changes">放弃</string>
     <string name="save">保存</string>
+    <string name="save_as">另存为…</string>
     <string name="undo">撤销</string>
     <string name="redo">重做</string>
 
@@ -71,4 +72,7 @@
     <string name="open_single_file">打开单个文件…</string>
     <string name="low_memory_features_disabled">内存不足：已关闭部分功能（语法高亮、诊断、自动补全）。</string>
     <string name="editor_runtime_recovered">编辑器发生异常，已自动降级部分功能以保持可用。</string>
+    <string name="open_file">打开</string>
+    <string name="open_file_saf">打开(SAF)</string>
+    <string name="close_tab">关闭标签页</string>
 </resources>
