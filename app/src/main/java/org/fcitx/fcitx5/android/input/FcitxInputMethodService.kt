@@ -746,25 +746,19 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         val type = editorInfo.inputType and InputType.TYPE_MASK_CLASS
         val variation = editorInfo.inputType and InputType.TYPE_MASK_VARIATION
         if (type == InputType.TYPE_NULL ||
-            // confirm URL suggestion in browser location bar, see also https://bugzilla.mozilla.org/show_bug.cgi?id=1999915
             type == InputType.TYPE_CLASS_TEXT && variation == InputType.TYPE_TEXT_VARIATION_URI
         ) {
             sendDownUpKeyEvents(keyCode)
             return
         }
-        val (start, end) = currentInputSelection
-        val offset = if (start == end) 1 else 0
-        val target = when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_LEFT -> start - offset
-            KeyEvent.KEYCODE_DPAD_RIGHT -> end + offset
-            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
-                // For up/down, just send the key event to move by line
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_LEFT,
+            KeyEvent.KEYCODE_DPAD_RIGHT,
+            KeyEvent.KEYCODE_DPAD_UP,
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
                 sendDownUpKeyEvents(keyCode)
-                return
             }
-            else -> return
         }
-        ic.setSelection(target, target)
     }
 
     fun commitText(text: String, cursor: Int = -1) {
