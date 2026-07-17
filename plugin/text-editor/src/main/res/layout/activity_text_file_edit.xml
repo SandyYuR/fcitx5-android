@@ -139,6 +139,39 @@
                 android:singleLine="true"
                 android:textSize="14sp" />
 
+            <TextView
+                android:id="@+id/findRegex"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_search_toggle"
+                android:clickable="true"
+                android:contentDescription="@string/search_regex"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="28dp"
+                android:paddingHorizontal="4dp"
+                android:text=".*"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/findCase"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_search_toggle"
+                android:clickable="true"
+                android:contentDescription="@string/search_case_sensitive"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="24dp"
+                android:paddingHorizontal="3dp"
+                android:text="Aa"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
             <Button
                 android:id="@+id/replaceOne"
                 style="?attr/buttonBarButtonStyle"

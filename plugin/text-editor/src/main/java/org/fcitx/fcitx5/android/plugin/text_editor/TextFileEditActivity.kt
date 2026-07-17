@@ -72,6 +72,8 @@ class TextFileEditActivity : AppCompatActivity() {
     private var showWhitespace: Boolean = false
     private var useTab: Boolean = true
     private var fileSizeBytes: Long = 0L
+    private var isRegex: Boolean = false
+    private var isCaseSensitive: Boolean = false
     // Snapshot of the on-disk file at load/save time, used to detect external modifications when
     // the activity returns to the foreground. loadedFileSize < 0 means "not loaded yet".
     private var loadedLastModified: Long = 0L
@@ -604,21 +606,35 @@ class TextFileEditActivity : AppCompatActivity() {
             0
         }
 
+    private fun buildSearchOptions(): EditorSearcher.SearchOptions {
+        return EditorSearcher.SearchOptions(isCaseSensitive, isRegex)
+    }
+
+    private fun refreshSearchToggles() {
+        val isDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+        val accent = if (isDark) 0x40FFFFFF else 0x1A000000
+
+        binding.findRegex.setBackgroundColor(if (isRegex) accent else android.graphics.Color.TRANSPARENT)
+        binding.findCase.setBackgroundColor(if (isCaseSensitive) accent else android.graphics.Color.TRANSPARENT)
+    }
+
+    private fun reRunSearch() {
+        val query = binding.findInput.text?.toString().orEmpty()
+        if (query.isEmpty()) {
+            activeEditor().searcher.stopSearch()
+        } else {
+            activeEditor().searcher.search(query, buildSearchOptions())
+        }
+        updateMatchInfo()
+    }
+
     private fun setupSearchBar() {
         binding.findInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                val query = s?.toString().orEmpty()
-                if (query.isEmpty()) {
-                    activeEditor().searcher.stopSearch()
-                } else {
-                    activeEditor().searcher.search(
-                        query,
-                        EditorSearcher.SearchOptions(/* caseInsensitive = */ false, /* useRegex = */ false)
-                    )
-                }
-                updateMatchInfo()
+                reRunSearch()
             }
         })
         binding.findPrev.setOnClickListener {
@@ -628,6 +644,16 @@ class TextFileEditActivity : AppCompatActivity() {
             if (activeEditor().searcher.hasQuery()) activeEditor().searcher.gotoNext()
         }
         binding.searchClose.setOnClickListener { closeSearchBar() }
+        binding.findRegex.setOnClickListener {
+            isRegex = !isRegex
+            refreshSearchToggles()
+            reRunSearch()
+        }
+        binding.findCase.setOnClickListener {
+            isCaseSensitive = !isCaseSensitive
+            refreshSearchToggles()
+            reRunSearch()
+        }
         binding.replaceOne.setOnClickListener {
             if (!activeEditor().searcher.hasQuery()) return@setOnClickListener
             activeEditor().searcher.replaceThis(binding.replaceInput.text.toString())
@@ -640,13 +666,11 @@ class TextFileEditActivity : AppCompatActivity() {
 
     private fun openSearchBar() {
         binding.searchBar.visibility = View.VISIBLE
+        refreshSearchToggles()
         binding.findInput.requestFocus()
         val query = binding.findInput.text?.toString().orEmpty()
         if (query.isNotEmpty()) {
-            activeEditor().searcher.search(
-                query,
-                EditorSearcher.SearchOptions(false, false)
-            )
+            activeEditor().searcher.search(query, buildSearchOptions())
         }
         updateMatchInfo()
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager

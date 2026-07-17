@@ -35,6 +35,8 @@
     <string name="replace_all_button">All</string>
     <string name="find_prev">Previous match</string>
     <string name="find_next">Next match</string>
+    <string name="search_regex">Regular expression</string>
+    <string name="search_case_sensitive">Case sensitive</string>
     <string name="search_close">Close search</string>
     <string name="no_matches">No matches</string>
     <string name="word_wrap">Word wrap</string>
