@@ -35,6 +35,8 @@
     <string name="replace_all_button">全部</string>
     <string name="find_prev">上一个匹配</string>
     <string name="find_next">下一个匹配</string>
+    <string name="search_regex">正则表达式</string>
+    <string name="search_case_sensitive">区分大小写</string>
     <string name="search_close">关闭搜索</string>
     <string name="no_matches">无匹配</string>
     <string name="word_wrap">自动换行</string>

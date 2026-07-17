@@ -34,6 +34,8 @@
     <string name="replace_all_button">全部</string>
     <string name="find_prev">上一個符合項</string>
     <string name="find_next">下一個符合項</string>
+    <string name="search_regex">正則表示式</string>
+    <string name="search_case_sensitive">區分大小寫</string>
     <string name="search_close">關閉搜尋</string>
     <string name="no_matches">無符合項</string>
     <string name="word_wrap">自動換行</string>
