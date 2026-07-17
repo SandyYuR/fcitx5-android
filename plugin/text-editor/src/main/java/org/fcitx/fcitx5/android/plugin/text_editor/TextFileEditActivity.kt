@@ -24,6 +24,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -31,6 +32,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.rosemoe.sora.event.PublishSearchResultEvent
 import io.github.rosemoe.sora.event.ScrollEvent
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -63,7 +65,6 @@ class TextFileEditActivity : AppCompatActivity() {
     private lateinit var docUri: Uri
     private lateinit var prefs: SharedPreferences
     private var displayName: String = ""
-    private var originalText: String = ""
     private var saveItem: MenuItem? = null
     private var undoItem: MenuItem? = null
     private var redoItem: MenuItem? = null
@@ -89,12 +90,8 @@ class TextFileEditActivity : AppCompatActivity() {
     private var deferredSyntaxHighlightPending: Boolean = false
     private var lowMemoryMode: Boolean = false
     private var lowMemoryNoticeShown: Boolean = false
-    private var largeFilePager: LargeFilePager? = null
-    private var largeFileFullyLoaded: Boolean = false
-    private var largeFileLoadInFlight: Boolean = false
-    private var largeFileDirty: Boolean = false
-    private var suppressLargeFileDirtyTracking: Boolean = false
     private val largeFilePagerMutex = Mutex()
+    private lateinit var sharedColorScheme: EditorColorScheme
     private val crashHandler = CoroutineExceptionHandler { _, throwable ->
         Timber.e(throwable, "Unhandled editor coroutine error")
         if (::binding.isInitialized) {
@@ -104,14 +101,99 @@ class TextFileEditActivity : AppCompatActivity() {
         }
     }
 
+    private val tabs = mutableListOf<EditorTab>()
+    private var activeTabIndex: Int = 0
+    private lateinit var tabBarAdapter: TabBarAdapter
+
+    private fun activeEditor(): ArrowTabCodeEditor = tabs[activeTabIndex].editor!!
+    private fun activeTab(): EditorTab = tabs[activeTabIndex]
+
+    private val openFilePicker = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@registerForActivityResult
+        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        try {
+            contentResolver.takePersistableUriPermission(uri, flags)
+        } catch (_: SecurityException) {
+        }
+        val doc = DocumentFile.fromSingleUri(this, uri)
+        val name = doc?.name ?: uri.lastPathSegment ?: "?"
+        val mime = doc?.type ?: contentResolver.getType(uri)
+        val length = doc?.length() ?: -1L
+        openInNewTab(uri, name, mime, length)
+    }
+
+    private val browseFilePicker = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode != RESULT_OK || result.data?.data == null) return@registerForActivityResult
+        val uri = result.data!!.data!!
+        val name = result.data!!.getStringExtra(FileBrowserActivity.EXTRA_RESULT_DISPLAY_NAME)
+            ?: uri.lastPathSegment ?: "?"
+        val length = result.data!!.getLongExtra(FileBrowserActivity.EXTRA_RESULT_LENGTH, -1L)
+        openInNewTab(uri, name, null, length)
+    }
+
+    private val saveAsPicker = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("*/*")
+    ) { uri ->
+        if (uri == null) return@registerForActivityResult
+        saveFileAsUri(uri)
+    }
+
     // Per-file draft on disk, used to survive process death. Filename hashes the URI so different
     // documents don't collide and special characters don't break paths.
     private val draftFile: File by lazy {
-        val key = docUri.toString()
-        val hex = MessageDigest.getInstance("SHA-256")
-            .digest(key.toByteArray())
-            .joinToString("") { "%02x".format(it) }
-        File(cacheDir, "fileedit/$hex.draft")
+        draftFileForUri(docUri)
+    }
+
+    private fun createEditor(tab: EditorTab): ArrowTabCodeEditor {
+        val editor = ArrowTabCodeEditor(this)
+        editor.colorScheme = sharedColorScheme
+        editor.setTextSize(14f)
+        applyUserTypeface(editor)
+        editor.tabWidth = readTabWidth()
+        editor.setWordwrap(if (tab.isLargeFile) false else wordWrap)
+        editor.nonPrintablePaintingFlags = whitespaceFlags()
+        editor.props.disallowSuggestions = true
+        editor.props.cacheRenderNodeForLongLines = !tab.isLargeFile
+        editor.props.deleteEmptyLineFast = false
+        installDefaultSymbolPairs(editor.props.overrideSymbolPairs)
+        if (tab.isLargeFile) {
+            editor.getComponent(EditorAutoCompletion::class.java).isEnabled = false
+            editor.setHighlightCurrentBlock(false)
+            editor.setHighlightCurrentLine(false)
+            editor.setHighlightBracketPair(false)
+            editor.setDiagnostics(null)
+        }
+        editor.subscribeAlways(io.github.rosemoe.sora.event.ContentChangeEvent::class.java) {
+            if (tab.isLargeFile && !tab.suppressLargeFileDirtyTracking) {
+                tab.largeFileDirty = true
+            }
+            editor.post { updateMenuState() }
+        }
+        editor.subscribeAlways(PublishSearchResultEvent::class.java) {
+            updateMatchInfo()
+        }
+        editor.subscribeAlways(ScrollEvent::class.java) {
+            if (tab.isLargeFile && tabs.indexOf(tab) == activeTabIndex) {
+                tryLoadNextLargeFilePage()
+            }
+        }
+        return editor
+    }
+
+    private fun applyEditorLanguage(editor: ArrowTabCodeEditor, tab: EditorTab, fileSize: Long = 0L) {
+        val scopeName = if (tab.isLargeFile) null
+            else TextFileSupport.detectScopeName(tab.displayName)
+        // Always set the proper language directly — deferred highlighting
+        // (PlainLanguage → real language after 180ms) is only for the initial load.
+        val language = TextMateSetup.createLanguage(scopeName, assets, useTab)
+        editor.setEditorLanguage(language)
+        if (scopeName != null) {
+            editor.installOnlineBracketsMatcher()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -170,77 +252,40 @@ class TextFileEditActivity : AppCompatActivity() {
             subtitle = sizeSubtitle()
         }
 
-        binding.editor.apply {
-            val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-                Configuration.UI_MODE_NIGHT_YES
-            TextMateSetup.applyTheme(isDark, assets)
-            colorScheme = TextMateSetup.createColorScheme(assets)
-            // Must be after the assignment above: setColorScheme triggers attachEditor →
-            // setTheme → colors.clear(), which wipes any setColor() done before attach.
-            colorScheme.setColor(
+        setupSearchBar()
+        setupKeyBar()
+        setupTabBar()
+
+        val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        TextMateSetup.applyTheme(isDark, assets)
+        sharedColorScheme = TextMateSetup.createColorScheme(assets).apply {
+            setColor(
                 EditorColorScheme.NON_PRINTABLE_CHAR,
                 if (isDark) 0x1ACCCCCC else 0x1A444444
             )
-            // Matched-bracket highlight: sora enables matching by default but its color slots are
-            // near-invisible on these TextMate themes. Render a translucent pill behind the pair.
-            colorScheme.setColor(
+            setColor(
                 EditorColorScheme.HIGHLIGHTED_DELIMITERS_BACKGROUND,
                 if (isDark) 0x40FFFFFF else 0x30000000
             )
-            colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND, 0)
-            colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, 0)
-            setEditorLanguage(
-                TextMateSetup.createLanguage(initialScopeName(), assets, useTab)
-            )
-            // Note: don't install OnlineBracketsMatcher here — sora's setText() (called from
-            // loadFile() later) runs styleDelegate.reset() which nulls bracketsProvider. Install
-            // it after setText instead. Same caveat for the tab/space toggle path that re-creates
-            // the language below.
-            setTextSize(14f)
-            // Falls back to Typeface.MONOSPACE when the user hasn't imported any fonts.
-            applyUserTypeface(this)
-            tabWidth = readTabWidth()
-            setWordwrap(wordWrap)
-            nonPrintablePaintingFlags = whitespaceFlags()
-            props.disallowSuggestions = true
-            props.cacheRenderNodeForLongLines = !isLargeFile
-            // Default true: when the current line is entirely whitespace, Backspace deletes the
-            // whole line + the preceding line break, surprising users who expected to delete just
-            // one space/tab from the indent.
-            props.deleteEmptyLineFast = false
-            // overrideSymbolPairs is the parent of whatever Language.getSymbolPairs() returns —
-            // our TextMate grammars ship without languageConfiguration files (no autoClosingPairs),
-            // and PlainLanguage's pair set is empty, so without this nothing would auto-pair.
-            installDefaultSymbolPairs(props.overrideSymbolPairs)
-            if (isLargeFile) {
-                getComponent(EditorAutoCompletion::class.java).isEnabled = false
-                setHighlightCurrentBlock(false)
-                setHighlightCurrentLine(false)
-                setHighlightBracketPair(false)
-                setDiagnostics(null)
-            }
+            setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND, 0)
+            setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, 0)
         }
 
-        binding.editor.subscribeAlways(io.github.rosemoe.sora.event.ContentChangeEvent::class.java) {
-            if (isLargeFile && !suppressLargeFileDirtyTracking) {
-                largeFileDirty = true
-            }
-            // sora's UndoManager dispatches ContentChangeEvent *before* updating its stackPointer
-            // (see UndoManager.undo/redo: action.undo(content) fires the event, then stackPointer--).
-            // Reading canUndo/canRedo synchronously here returns the pre-undo state, which is why
-            // undo stays enabled after undoing all the way back. Defer to the next frame so the
-            // stack pointer has settled.
-            binding.editor.post { updateMenuState() }
-        }
-        binding.editor.subscribeAlways(PublishSearchResultEvent::class.java) {
-            updateMatchInfo()
-        }
-        binding.editor.subscribeAlways(ScrollEvent::class.java) {
-            if (isLargeFile) tryLoadNextLargeFilePage()
-        }
-
-        setupSearchBar()
-        setupKeyBar()
+        val initialTab = EditorTab(
+            uri = docUri,
+            displayName = displayName,
+            isLargeFile = isLargeFile,
+        )
+        val editor = createEditor(initialTab)
+        initialTab.editor = editor
+        binding.editorContainer.addView(editor, ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
+        ))
+        applyEditorLanguage(editor, initialTab, fileSizeBytes)
+        tabs.add(initialTab)
+        activeTabIndex = 0
+        tabBarAdapter.notifyDataSetChanged()
 
         loadFile()
 
@@ -248,6 +293,10 @@ class TextFileEditActivity : AppCompatActivity() {
             override fun handleOnBackPressed() {
                 if (binding.searchBar.visibility == View.VISIBLE) {
                     closeSearchBar()
+                    return
+                }
+                if (tabs.size > 1) {
+                    closeTab(activeTabIndex)
                     return
                 }
                 if (isDirty()) {
@@ -285,24 +334,23 @@ class TextFileEditActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        saveItem = menu.add(R.string.save).apply {
-            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            setOnMenuItemClickListener { saveFile(); true }
-        }
-        undoItem = menu.add(R.string.undo).apply {
+        menu.add(R.string.open_file).apply {
             setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             setOnMenuItemClickListener {
-                if (binding.editor.canUndo()) binding.editor.undo()
+                browseFilePicker.launch(Intent(this@TextFileEditActivity, FileBrowserActivity::class.java))
                 true
             }
         }
-        redoItem = menu.add(R.string.redo).apply {
+        menu.add(R.string.open_file_saf).apply {
             setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             setOnMenuItemClickListener {
-                if (binding.editor.canRedo()) binding.editor.redo()
+                openFilePicker.launch(arrayOf("*/*"))
                 true
             }
         }
+        saveItem = null
+        undoItem = null
+        redoItem = null
         menu.add(R.string.find_replace).apply {
             setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
             setOnMenuItemClickListener { openSearchBar(); true }
@@ -314,6 +362,13 @@ class TextFileEditActivity : AppCompatActivity() {
                 true
             }
         }
+        menu.add(R.string.save_as).apply {
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+            setOnMenuItemClickListener {
+                saveAsFile()
+                true
+            }
+        }
         menu.add(R.string.word_wrap).apply {
             setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
             isCheckable = true
@@ -322,7 +377,7 @@ class TextFileEditActivity : AppCompatActivity() {
             setOnMenuItemClickListener {
                 wordWrap = !wordWrap
                 isChecked = wordWrap
-                binding.editor.setWordwrap(wordWrap)
+                activeEditor().setWordwrap(wordWrap)
                 prefs.edit().putBoolean(PREF_WORD_WRAP, wordWrap).apply()
                 true
             }
@@ -334,7 +389,7 @@ class TextFileEditActivity : AppCompatActivity() {
             setOnMenuItemClickListener {
                 showWhitespace = !showWhitespace
                 isChecked = showWhitespace
-                binding.editor.nonPrintablePaintingFlags = whitespaceFlags()
+                activeEditor().nonPrintablePaintingFlags = whitespaceFlags()
                 prefs.edit().putBoolean(PREF_SHOW_WHITESPACE, showWhitespace).apply()
                 true
             }
@@ -346,11 +401,11 @@ class TextFileEditActivity : AppCompatActivity() {
             setOnMenuItemClickListener {
                 useTab = !useTab
                 isChecked = !useTab
-                binding.editor.setEditorLanguage(
+                activeEditor().setEditorLanguage(
                     TextMateSetup.createLanguage(activeScopeName(), assets, useTab)
                 )
                 // setEditorLanguage runs styleDelegate.reset() → reinstall bracket matcher.
-                binding.editor.installOnlineBracketsMatcher()
+                activeEditor().installOnlineBracketsMatcher()
                 prefs.edit().putBoolean(PREF_USE_TAB, useTab).apply()
                 true
             }
@@ -362,7 +417,7 @@ class TextFileEditActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (!::binding.isInitialized) return
-        val editor = binding.editor
+        val editor = activeEditor()
         val newTabWidth = readTabWidth()
         if (editor.tabWidth != newTabWidth) editor.tabWidth = newTabWidth
         applyUserTypeface(editor)
@@ -458,11 +513,11 @@ class TextFileEditActivity : AppCompatActivity() {
 
     private fun reloadFromDisk() {
         if (isLargeFile) {
-            runCatching { largeFilePager?.close() }
-            largeFilePager = null
-            largeFileFullyLoaded = false
-            largeFileLoadInFlight = false
-            largeFileDirty = false
+            runCatching { activeTab().largeFilePager?.close() }
+            activeTab().largeFilePager = null
+            activeTab().largeFileFullyLoaded = false
+            activeTab().largeFileLoadInFlight = false
+            activeTab().largeFileDirty = false
             lifecycleScope.launch(crashHandler) {
                 loadLargeFilePaged()
                 toast(getString(R.string.file_reloaded))
@@ -480,17 +535,17 @@ class TextFileEditActivity : AppCompatActivity() {
                 toast(getString(R.string.error_open_file, e.message ?: displayName))
                 return@launch
             }
-            originalText = original
-            val cursor = binding.editor.cursor
+            activeTab().originalText = original
+            val cursor = activeEditor().cursor
             val prevLine = cursor.leftLine
             val prevColumn = cursor.leftColumn
-            binding.editor.setText(original)
+            activeEditor().setText(original)
             // sora's setText triggers styleDelegate.reset(), which nulls bracketsProvider.
-            binding.editor.installOnlineBracketsMatcher()
+            activeEditor().installOnlineBracketsMatcher()
             runCatching {
-                val line = prevLine.coerceIn(0, binding.editor.text.lineCount - 1)
-                val col = prevColumn.coerceIn(0, binding.editor.text.getColumnCount(line))
-                binding.editor.setSelection(line, col)
+                val line = prevLine.coerceIn(0, activeEditor().text.lineCount - 1)
+                val col = prevColumn.coerceIn(0, activeEditor().text.getColumnCount(line))
+                activeEditor().setSelection(line, col)
             }
             withContext(Dispatchers.IO) { runCatching { draftFile.delete() } }
             captureFileSnapshot()
@@ -556,9 +611,9 @@ class TextFileEditActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
                 val query = s?.toString().orEmpty()
                 if (query.isEmpty()) {
-                    binding.editor.searcher.stopSearch()
+                    activeEditor().searcher.stopSearch()
                 } else {
-                    binding.editor.searcher.search(
+                    activeEditor().searcher.search(
                         query,
                         EditorSearcher.SearchOptions(/* caseInsensitive = */ false, /* useRegex = */ false)
                     )
@@ -567,19 +622,19 @@ class TextFileEditActivity : AppCompatActivity() {
             }
         })
         binding.findPrev.setOnClickListener {
-            if (binding.editor.searcher.hasQuery()) binding.editor.searcher.gotoPrevious()
+            if (activeEditor().searcher.hasQuery()) activeEditor().searcher.gotoPrevious()
         }
         binding.findNext.setOnClickListener {
-            if (binding.editor.searcher.hasQuery()) binding.editor.searcher.gotoNext()
+            if (activeEditor().searcher.hasQuery()) activeEditor().searcher.gotoNext()
         }
         binding.searchClose.setOnClickListener { closeSearchBar() }
         binding.replaceOne.setOnClickListener {
-            if (!binding.editor.searcher.hasQuery()) return@setOnClickListener
-            binding.editor.searcher.replaceThis(binding.replaceInput.text.toString())
+            if (!activeEditor().searcher.hasQuery()) return@setOnClickListener
+            activeEditor().searcher.replaceThis(binding.replaceInput.text.toString())
         }
         binding.replaceAll.setOnClickListener {
-            if (!binding.editor.searcher.hasQuery()) return@setOnClickListener
-            binding.editor.searcher.replaceAll(binding.replaceInput.text.toString())
+            if (!activeEditor().searcher.hasQuery()) return@setOnClickListener
+            activeEditor().searcher.replaceAll(binding.replaceInput.text.toString())
         }
     }
 
@@ -588,7 +643,7 @@ class TextFileEditActivity : AppCompatActivity() {
         binding.findInput.requestFocus()
         val query = binding.findInput.text?.toString().orEmpty()
         if (query.isNotEmpty()) {
-            binding.editor.searcher.search(
+            activeEditor().searcher.search(
                 query,
                 EditorSearcher.SearchOptions(false, false)
             )
@@ -599,11 +654,11 @@ class TextFileEditActivity : AppCompatActivity() {
     }
 
     private fun closeSearchBar() {
-        binding.editor.searcher.stopSearch()
+        activeEditor().searcher.stopSearch()
         binding.searchBar.visibility = View.GONE
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.findInput.windowToken, 0)
-        binding.editor.requestFocus()
+        activeEditor().requestFocus()
     }
 
     private fun setupKeyBar() {
@@ -611,10 +666,10 @@ class TextFileEditActivity : AppCompatActivity() {
             if (isDirty()) saveFile()
         }
         binding.keyUndo.setOnClickListener {
-            if (binding.editor.canUndo()) binding.editor.undo()
+            if (activeEditor().canUndo()) activeEditor().undo()
         }
         binding.keyRedo.setOnClickListener {
-            if (binding.editor.canRedo()) binding.editor.redo()
+            if (activeEditor().canRedo()) activeEditor().redo()
         }
         binding.keyTab.setOnClickListener { sendKey(KeyEvent.KEYCODE_TAB) }
         binding.keyHome.setOnClickListener { sendKey(KeyEvent.KEYCODE_MOVE_HOME) }
@@ -629,6 +684,166 @@ class TextFileEditActivity : AppCompatActivity() {
             if (r - l != or - ol) applyKeyBarDistribution()
         }
         binding.keysScroll.post { applyKeyBarDistribution() }
+    }
+
+    private fun setupTabBar() {
+        tabBarAdapter = TabBarAdapter(
+            tabs = tabs,
+            activeIndex = { activeTabIndex },
+            onTabClick = { index -> switchToTab(index) },
+            onTabClose = { index -> closeTab(index) },
+        )
+        binding.tabBar.layoutManager = LinearLayoutManager(
+            this, LinearLayoutManager.HORIZONTAL, false
+        )
+        binding.tabBar.adapter = tabBarAdapter
+    }
+
+    private fun switchToTab(index: Int) {
+        if (index == activeTabIndex || index !in tabs.indices) return
+        val oldEditor = activeEditor()
+        activeTabIndex = index
+        val tab = tabs[index]
+        docUri = tab.uri
+        displayName = tab.displayName
+        isLargeFile = tab.isLargeFile
+        loadedLastModified = tab.loadedLastModified
+        loadedFileSize = tab.loadedFileSize
+        fileSizeBytes = fileLength()
+        supportActionBar?.title = displayName
+        supportActionBar?.subtitle = if (tab.isDirty) {
+            getString(R.string.unsaved_changes)
+        } else {
+            sizeSubtitle()
+        }
+        val newEditor = tab.editor!!
+        newEditor.bringToFront()
+        newEditor.visibility = View.VISIBLE
+        // Trigger TextMate re-analysis by recreating Content (setText) and re-applying language.
+        // Text is preserved; cursor is saved/restored; dirty state is protected.
+        val savedText = newEditor.text.toString()
+        val cursorLine = newEditor.cursor.leftLine
+        val cursorCol = newEditor.cursor.leftColumn
+        val wasDirty = tab.isDirty
+        withSuppressedLargeFileDirtyTracking {
+            newEditor.setText(savedText)
+        }
+        if (savedText.isNotEmpty()) {
+            newEditor.setSelection(
+                cursorLine.coerceIn(0, newEditor.text.lineCount - 1),
+                cursorCol.coerceIn(0, newEditor.text.getColumnCount(
+                    cursorLine.coerceIn(0, newEditor.text.lineCount - 1)
+                ))
+            )
+        }
+        tab.largeFileDirty = wasDirty
+        applyEditorLanguage(newEditor, tab, fileSizeBytes)
+        newEditor.post { newEditor.invalidate() }
+        newEditor.requestFocus()
+        closeSearchBar()
+        updateMenuState()
+        tabBarAdapter.notifyDataSetChanged()
+        binding.tabBar.scrollToPosition(index)
+        if (tab.isLargeFile && !tab.largeFileFullyLoaded) {
+            tryLoadNextLargeFilePage(force = true)
+        }
+    }
+
+    private fun closeTab(index: Int) {
+        if (index !in tabs.indices) return
+        val tab = tabs[index]
+        if (index == activeTabIndex && isDirty()) {
+            AlertDialog.Builder(this)
+                .setTitle(tab.displayName)
+                .setMessage(R.string.confirm_discard_changes)
+                .setPositiveButton(R.string.discard_changes) { _, _ -> doCloseTab(index) }
+                .setNeutralButton(R.string.save) { _, _ ->
+                    saveFile { doCloseTab(index) }
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } else {
+            doCloseTab(index)
+        }
+    }
+
+    private fun doCloseTab(index: Int) {
+        if (index !in tabs.indices) return
+        val wasActive = index == activeTabIndex
+        val closedTab = tabs[index]
+        val closedEditor = closedTab.editor
+        binding.editorContainer.removeView(closedEditor)
+        closedEditor?.release()
+        runCatching { closedTab.largeFilePager?.close() }
+        tabs.removeAt(index)
+        if (tabs.isEmpty()) {
+            finish()
+            return
+        }
+        if (wasActive) {
+            val newIndex = index.coerceAtMost(tabs.lastIndex)
+            activeTabIndex = newIndex
+            val tab = tabs[newIndex]
+            docUri = tab.uri
+            displayName = tab.displayName
+            isLargeFile = tab.isLargeFile
+            loadedLastModified = tab.loadedLastModified
+            loadedFileSize = tab.loadedFileSize
+            fileSizeBytes = fileLength()
+            supportActionBar?.title = displayName
+            val newEditor = tab.editor!!
+            newEditor.visibility = View.VISIBLE
+            newEditor.requestFocus()
+            if (tab.isLargeFile && !tab.largeFileFullyLoaded) {
+                tryLoadNextLargeFilePage(force = true)
+            }
+        } else if (index < activeTabIndex) {
+            activeTabIndex--
+        }
+        updateMenuState()
+        tabBarAdapter.notifyDataSetChanged()
+    }
+
+    private fun openInNewTab(uri: Uri, displayName: String, mime: String?, length: Long) {
+        if (!TextFileSupport.isProbablyTextFile(contentResolver, uri, displayName, mime)) {
+            toast(getString(R.string.binary_file_unsupported))
+            return
+        }
+        if (length > TextFileSupport.MAX_FILE_SIZE) {
+            toast(getString(R.string.file_too_large, formatSize(length)))
+            return
+        }
+        val existingIndex = tabs.indexOfFirst { it.uri == uri }
+        if (existingIndex >= 0) {
+            switchToTab(existingIndex)
+            return
+        }
+        val isLarge = TextFileSupport.isLargeFile(length)
+        val tab = EditorTab(
+            uri = uri,
+            displayName = displayName,
+            isLargeFile = isLarge,
+        )
+        val editor = createEditor(tab)
+        tab.editor = editor
+        binding.editorContainer.addView(editor, ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
+        ))
+        applyEditorLanguage(editor, tab, length)
+        tabs.add(tab)
+        activeTabIndex = tabs.lastIndex
+        docUri = uri
+        this.displayName = displayName
+        isLargeFile = isLarge
+        fileSizeBytes = length
+        loadedLastModified = 0L
+        loadedFileSize = -1L
+        supportActionBar?.title = displayName
+        supportActionBar?.subtitle = sizeSubtitle()
+        closeSearchBar()
+        loadFile()
+        tabBarAdapter.notifyDataSetChanged()
+        binding.tabBar.scrollToPosition(activeTabIndex)
     }
 
     // Even-fill when all keys fit the viewport; fall back to natural width + horizontal scroll
@@ -670,12 +885,12 @@ class TextFileEditActivity : AppCompatActivity() {
 
     private fun sendKey(keyCode: Int) {
         val now = SystemClock.uptimeMillis()
-        binding.editor.dispatchKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0))
-        binding.editor.dispatchKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_UP, keyCode, 0))
+        activeEditor().dispatchKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0))
+        activeEditor().dispatchKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_UP, keyCode, 0))
     }
 
     private fun updateMatchInfo() {
-        val searcher = binding.editor.searcher
+        val searcher = activeEditor().searcher
         val query = binding.findInput.text?.toString().orEmpty()
         binding.matchInfo.text = when {
             query.isEmpty() -> ""
@@ -687,8 +902,8 @@ class TextFileEditActivity : AppCompatActivity() {
 
     private fun updateMenuState() {
         val dirty = isDirty()
-        val canUndo = binding.editor.canUndo()
-        val canRedo = binding.editor.canRedo()
+        val canUndo = activeEditor().canUndo()
+        val canRedo = activeEditor().canRedo()
         saveItem?.isEnabled = dirty
         undoItem?.isEnabled = canUndo
         redoItem?.isEnabled = canRedo
@@ -702,6 +917,12 @@ class TextFileEditActivity : AppCompatActivity() {
             getString(R.string.unsaved_changes)
         } else {
             sizeSubtitle()
+        }
+        if (tabs.isNotEmpty() && activeTabIndex in tabs.indices) {
+            tabs[activeTabIndex].isDirty = dirty
+        }
+        if (::tabBarAdapter.isInitialized) {
+            tabBarAdapter.notifyDataSetChanged()
         }
     }
 
@@ -733,7 +954,7 @@ class TextFileEditActivity : AppCompatActivity() {
                 finish()
                 return@launch
             }
-            originalText = original
+            activeTab().originalText = original
             captureFileSnapshot()
             // Only restore a draft when it is at least as fresh as the on-disk file —
             // otherwise the file has been edited externally and the draft is stale.
@@ -743,30 +964,31 @@ class TextFileEditActivity : AppCompatActivity() {
                     if (f.exists() && f.lastModified() >= fileLastModified()) f.readText() else null
                 }.getOrNull()
             }
-            binding.editor.setText(draft ?: original)
+            activeEditor().setText(draft ?: original)
             // sora's setText triggers styleDelegate.reset(), which nulls bracketsProvider —
             // reinstall after the content is in place.
-            binding.editor.installOnlineBracketsMatcher()
-            scheduleDeferredSyntaxHighlightIfNeeded()
+            activeEditor().installOnlineBracketsMatcher()
+            scheduleDeferredSyntaxHighlightIfNeeded(activeEditor(), displayName)
             updateMenuState()
         }
     }
 
-    private fun scheduleDeferredSyntaxHighlightIfNeeded() {
+    private fun scheduleDeferredSyntaxHighlightIfNeeded(editor: ArrowTabCodeEditor, name: String) {
         if (!deferredSyntaxHighlightPending || lowMemoryMode || isLargeFile) return
-        val scope = TextFileSupport.detectScopeName(displayName) ?: run {
+        val scope = TextFileSupport.detectScopeName(name) ?: run {
             deferredSyntaxHighlightPending = false
             return
         }
-        binding.editor.postDelayed({
-            if (!deferredSyntaxHighlightPending || lowMemoryMode || isLargeFile || isFinishing) {
+        val tabIsLarge = isLargeFile
+        editor.postDelayed({
+            if (lowMemoryMode || tabIsLarge || isFinishing) {
                 return@postDelayed
             }
             runCatching {
-                binding.editor.setEditorLanguage(
+                editor.setEditorLanguage(
                     TextMateSetup.createLanguage(scope, assets, useTab)
                 )
-                binding.editor.installOnlineBracketsMatcher()
+                editor.installOnlineBracketsMatcher()
                 deferredSyntaxHighlightPending = false
             }.onFailure {
                 Timber.e(it, "Deferred highlight activation failed")
@@ -783,29 +1005,29 @@ class TextFileEditActivity : AppCompatActivity() {
             finish()
             return
         }
-        largeFilePager = pager
+        activeTab().largeFilePager = pager
         val firstPage = try {
             withContext(Dispatchers.IO) { pager.readNextTextPage().orEmpty() }
         } catch (e: Exception) {
             pager.close()
-            largeFilePager = null
+            activeTab().largeFilePager = null
             toast(getString(R.string.error_open_file, e.message ?: displayName))
             finish()
             return
         }
-        originalText = ""
-        largeFileDirty = false
+        activeTab().originalText = ""
+        activeTab().largeFileDirty = false
         captureFileSnapshot()
         withSuppressedLargeFileDirtyTracking {
-            binding.editor.setText(firstPage)
+            activeEditor().setText(firstPage)
         }
         // sora's setText triggers styleDelegate.reset(), which nulls bracketsProvider — reinstall
         // after the content is in place.
-        binding.editor.installOnlineBracketsMatcher()
-        largeFileFullyLoaded = pager.isFullyConsumed
-        if (largeFileFullyLoaded) {
+        activeEditor().installOnlineBracketsMatcher()
+        activeTab().largeFileFullyLoaded = pager.isFullyConsumed
+        if (activeTab().largeFileFullyLoaded) {
             pager.close()
-            largeFilePager = null
+            activeTab().largeFilePager = null
         }
         updateMenuState()
         // If first page does not fill the viewport, continue paging immediately.
@@ -813,41 +1035,41 @@ class TextFileEditActivity : AppCompatActivity() {
     }
 
     private fun tryLoadNextLargeFilePage(force: Boolean = false) {
-        if (!isLargeFile || largeFileLoadInFlight || largeFileFullyLoaded) return
-        val pager = largeFilePager ?: return
-        val remainingScroll = binding.editor.scrollMaxY - binding.editor.offsetY
-        if (!force && remainingScroll > binding.editor.height * PREFETCH_VIEWPORT_MULTIPLIER) return
+        if (!isLargeFile || activeTab().largeFileLoadInFlight || activeTab().largeFileFullyLoaded) return
+        val pager = activeTab().largeFilePager ?: return
+        val remainingScroll = activeEditor().scrollMaxY - activeEditor().offsetY
+        if (!force && remainingScroll > activeEditor().height * PREFETCH_VIEWPORT_MULTIPLIER) return
 
-        largeFileLoadInFlight = true
+        activeTab().largeFileLoadInFlight = true
         lifecycleScope.launch(crashHandler) {
             try {
                 largeFilePagerMutex.withLock {
                     val nextPage = withContext(Dispatchers.IO) { pager.readNextTextPage() }
                     if (nextPage.isNullOrEmpty()) {
                         if (pager.isFullyConsumed) {
-                            largeFileFullyLoaded = true
+                            activeTab().largeFileFullyLoaded = true
                             pager.close()
-                            largeFilePager = null
+                            activeTab().largeFilePager = null
                         }
                     } else {
                         withSuppressedLargeFileDirtyTracking {
                             appendTextToEditor(nextPage)
                         }
                         if (pager.isFullyConsumed) {
-                            largeFileFullyLoaded = true
+                            activeTab().largeFileFullyLoaded = true
                             pager.close()
-                            largeFilePager = null
+                            activeTab().largeFilePager = null
                         }
                     }
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Failed paging read for $docUri")
-                largeFileFullyLoaded = true
+                activeTab().largeFileFullyLoaded = true
                 runCatching { pager.close() }
-                largeFilePager = null
+                activeTab().largeFilePager = null
                 toast(getString(R.string.error_open_file, e.message ?: displayName))
             } finally {
-                largeFileLoadInFlight = false
+                activeTab().largeFileLoadInFlight = false
                 updateMenuState()
             }
         }
@@ -855,25 +1077,25 @@ class TextFileEditActivity : AppCompatActivity() {
 
     private fun appendTextToEditor(text: String) {
         if (text.isEmpty()) return
-        val content = binding.editor.text
+        val content = activeEditor().text
         val lastLine = content.lineCount - 1
         val lastColumn = content.getColumnCount(lastLine)
         content.insert(lastLine, lastColumn, text)
     }
 
     private inline fun withSuppressedLargeFileDirtyTracking(block: () -> Unit) {
-        val old = suppressLargeFileDirtyTracking
-        suppressLargeFileDirtyTracking = true
+        val old = activeTab().suppressLargeFileDirtyTracking
+        activeTab().suppressLargeFileDirtyTracking = true
         try {
             block()
         } finally {
-            suppressLargeFileDirtyTracking = old
+            activeTab().suppressLargeFileDirtyTracking = old
         }
     }
 
     private fun isDirty(): Boolean {
-        if (isLargeFile) return largeFileDirty
-        return binding.editor.text.toString() != originalText
+        if (isLargeFile) return activeTab().largeFileDirty
+        return activeEditor().text.toString() != activeTab().originalText
     }
 
     private fun saveFile(onSuccess: (() -> Unit)? = null) {
@@ -882,7 +1104,7 @@ class TextFileEditActivity : AppCompatActivity() {
                 if (isLargeFile) {
                     loadRemainingLargeFilePagesForSave()
                 }
-                val content = binding.editor.text.toString()
+                val content = activeEditor().text.toString()
                 withContext(Dispatchers.IO) {
                     // "wt" = truncate-and-write. Without 't', some providers append rather than
                     // overwrite, leaving stale tail bytes when the new content is shorter.
@@ -891,9 +1113,9 @@ class TextFileEditActivity : AppCompatActivity() {
                     } ?: error("openOutputStream returned null")
                     runCatching { draftFile.delete() }
                 }
-                originalText = content
+                activeTab().originalText = content
                 if (isLargeFile) {
-                    largeFileDirty = false
+                    activeTab().largeFileDirty = false
                 }
                 captureFileSnapshot()
                 toast(getString(R.string.saved))
@@ -906,25 +1128,73 @@ class TextFileEditActivity : AppCompatActivity() {
         }
     }
 
-    private fun persistDraftOnPause() {
-        if (!::docUri.isInitialized || !::binding.isInitialized || isLargeFile) return
-        val current = binding.editor.text.toString()
-        try {
-            if (current != originalText) {
-                draftFile.parentFile?.mkdirs()
-                draftFile.writeText(current)
-            } else if (draftFile.exists()) {
-                draftFile.delete()
+    private fun saveAsFile() {
+        val defaultName = activeTab().displayName.ifEmpty {
+            "untitled.txt"
+        }
+        saveAsPicker.launch(defaultName)
+    }
+
+    private fun saveFileAsUri(uri: Uri) {
+        lifecycleScope.launch(crashHandler) {
+            try {
+                val content = activeEditor().text.toString()
+                withContext(Dispatchers.IO) {
+                    contentResolver.openOutputStream(uri, "wt")?.use {
+                        it.write(content.toByteArray())
+                    } ?: error("openOutputStream returned null")
+                }
+                activeTab().originalText = content
+                if (isLargeFile) activeTab().largeFileDirty = false
+                // Switch the tab's URI to the new location
+                activeTab().uri = uri
+                docUri = uri
+                displayName = DocumentFile.fromSingleUri(this@TextFileEditActivity, uri)?.name
+                    ?: uri.lastPathSegment ?: displayName
+                activeTab().displayName = displayName
+                supportActionBar?.title = displayName
+                captureFileSnapshot()
+                toast(getString(R.string.saved))
+                updateMenuState()
+                tabBarAdapter.notifyDataSetChanged()
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to save as $uri")
+                toast(getString(R.string.error_save_file, e.message ?: ""))
             }
-        } catch (_: Exception) {
-            // Best-effort; losing a draft is recoverable, crashing here is not.
         }
     }
 
+    private fun persistDraftOnPause() {
+        if (!::docUri.isInitialized || !::binding.isInitialized) return
+        for (tab in tabs) {
+            if (tab.isLargeFile) continue
+            val editor = tab.editor ?: continue
+            val text = editor.text.toString()
+            val draftFile = draftFileForUri(tab.uri)
+            try {
+                if (text != tab.originalText) {
+                    draftFile.parentFile?.mkdirs()
+                    draftFile.writeText(text)
+                } else if (draftFile.exists()) {
+                    draftFile.delete()
+                }
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    private fun draftFileForUri(uri: Uri): File {
+        val key = uri.toString()
+        val hex = MessageDigest.getInstance("SHA-256")
+            .digest(key.toByteArray())
+            .joinToString("") { "%02x".format(it) }
+        return File(cacheDir, "fileedit/$hex.draft")
+    }
+
     private suspend fun loadRemainingLargeFilePagesForSave() {
-        if (!isLargeFile || largeFileFullyLoaded) return
-        val pager = largeFilePager ?: return
-        largeFileLoadInFlight = true
+        if (!isLargeFile || activeTab().largeFileFullyLoaded) return
+        val pager = activeTab().largeFilePager ?: return
+        activeTab().largeFileLoadInFlight = true
         try {
             largeFilePagerMutex.withLock {
                 while (true) {
@@ -936,13 +1206,13 @@ class TextFileEditActivity : AppCompatActivity() {
                     }
                 }
                 if (pager.isFullyConsumed) {
-                    largeFileFullyLoaded = true
+                    activeTab().largeFileFullyLoaded = true
                     pager.close()
-                    largeFilePager = null
+                    activeTab().largeFilePager = null
                 }
             }
         } finally {
-            largeFileLoadInFlight = false
+            activeTab().largeFileLoadInFlight = false
         }
     }
 
@@ -951,7 +1221,7 @@ class TextFileEditActivity : AppCompatActivity() {
         lowMemoryMode = true
         deferredSyntaxHighlightPending = false
         runCatching {
-            binding.editor.apply {
+            activeEditor().apply {
                 setStyles(null)
                 setDiagnostics(null)
                 setEditorLanguage(TextMateSetup.createLanguage(null, assets, useTab))
@@ -971,9 +1241,11 @@ class TextFileEditActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        runCatching { largeFilePager?.close() }
-        largeFilePager = null
-        if (::binding.isInitialized) binding.editor.release()
+        for (tab in tabs) {
+            runCatching { tab.largeFilePager?.close() }
+            tab.largeFilePager = null
+            tab.editor?.release()
+        }
         super.onDestroy()
     }
 
@@ -1001,7 +1273,7 @@ class TextFileEditActivity : AppCompatActivity() {
         private const val EXTERNAL_CHANGE_POLL_INTERVAL_MS = 3000L
     }
 
-    private class LargeFilePager(
+    internal class LargeFilePager(
         private val context: Context,
         private val uri: Uri,
     ) : AutoCloseable {

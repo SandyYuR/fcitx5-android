@@ -16,6 +16,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/tabBar"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="?android:attr/colorPrimary"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:scrollbars="none"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <View
+        android:id="@+id/tabBarDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="?android:attr/dividerHorizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tabBar" />
+
     <LinearLayout
         android:id="@+id/searchBar"
         android:layout_width="match_parent"
@@ -26,7 +50,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
+        app:layout_constraintTop_toBottomOf="@id/tabBarDivider">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -144,8 +168,8 @@
 
     </LinearLayout>
 
-    <org.fcitx.fcitx5.android.plugin.text_editor.ArrowTabCodeEditor
-        android:id="@+id/editor"
+    <FrameLayout
+        android:id="@+id/editorContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/keyBar"

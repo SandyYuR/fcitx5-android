@@ -16,6 +16,7 @@
     <string name="confirm_discard_changes">Discard your unsaved edits?</string>
     <string name="discard_changes">Discard</string>
     <string name="save">Save</string>
+    <string name="save_as">Save As…</string>
     <string name="undo">Undo</string>
     <string name="redo">Redo</string>
 
@@ -71,4 +72,7 @@
     <string name="open_single_file">Open single file…</string>
     <string name="low_memory_features_disabled">Low memory: some features were disabled (syntax highlight, diagnostics, auto-completion).</string>
     <string name="editor_runtime_recovered">An editor error occurred. Some features were disabled to keep the app responsive.</string>
+    <string name="open_file">Open</string>
+    <string name="open_file_saf">Open (SAF)</string>
+    <string name="close_tab">Close tab</string>
 </resources>
