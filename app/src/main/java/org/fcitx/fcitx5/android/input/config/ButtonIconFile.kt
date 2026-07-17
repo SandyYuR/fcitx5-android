@@ -138,6 +138,28 @@ object ButtonIconFile {
         }
     }
 
+    /**
+     * Load drawable from inline XML content using the same parser pipeline as file-based XML icons.
+     * This keeps behavior consistent with button editor/icon runtime parsing.
+     */
+    fun loadInlineXmlDrawable(xmlContent: String): Drawable? {
+        val bytes = try {
+            xmlContent.toByteArray()
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to read inline xml icon content", e)
+            return null
+        }
+        val framework = tryLoadFrameworkXmlDrawable("<inline>", bytes)
+        if (framework != null) return framework
+        val platformVector = tryLoadPlatformVectorDrawable("<inline>", bytes)
+        if (platformVector != null) return platformVector
+        val compatVector = tryLoadCompatVectorDrawable("<inline>", bytes)
+        if (compatVector != null) return compatVector
+        val simpleVector = tryLoadSimpleVectorDrawable("<inline>", bytes)
+        if (simpleVector != null) return simpleVector
+        return null
+    }
+
     private fun loadXmlDrawable(path: String): Drawable? {
         val bytes = try {
             File(path).readBytes()

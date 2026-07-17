@@ -21,6 +21,7 @@ import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import splitties.dimensions.dp
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.view
@@ -106,29 +107,60 @@ class ButtonsBarUi(
     private fun getIconResForButton(buttonId: String, customIcon: String?): Int {
         // If custom icon is specified, try to find it
         if (customIcon != null && !customIcon.startsWith("file:")) {
-            // Try to get resource ID from name
             val resId = ctx.resources.getIdentifier(customIcon, "drawable", ctx.packageName)
             if (resId != 0) return resId
         }
 
-        // Return default icon from ButtonAction
-        return ButtonAction.fromId(buttonId)?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+        // Check icon theme for SVG icon (resource icons handled separately in applyIconAndText)
+        val action = ButtonAction.fromId(buttonId)
+        return action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
     }
 
     private fun loadFileIcon(path: String): Drawable? {
         return ButtonIconFile.loadDrawable(path)
     }
 
-    private fun applyIconAndText(button: ToolButton, config: ConfigurableButton) {
+    private fun applyIconThemeIfAvailable(button: ToolButton, buttonId: String): Boolean {
+        val action = ButtonAction.fromId(buttonId) ?: return false
+        val slot = action.iconSlot ?: return false
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
+        if (iconInfo != null) {
+            button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
+            return true
+        }
+        val textValue = IconThemeManager.resolveIcon(slot)
+        if (textValue != null) {
+            button.setText(textValue)
+            return true
+        }
+        return false
+    }
+
+    private fun applyConfiguredIconIfAvailable(button: ToolButton, config: ConfigurableButton): Boolean {
         if (!config.text.isNullOrEmpty()) {
             button.setText(config.text)
-        } else if (config.icon != null && config.icon.startsWith("file:")) {
-            val drawable = loadFileIcon(config.icon)
-            if (drawable != null) {
-                val tintWithTheme = ButtonIconFile.shouldTintIcon(config.icon)
-                button.setIconFromDrawable(drawable, tintWithTheme = tintWithTheme)
-            }
+            return true
         }
+        val customIcon = config.icon ?: return false
+        if (customIcon.startsWith("file:")) {
+            val drawable = loadFileIcon(customIcon) ?: return false
+            val tintWithTheme = ButtonIconFile.shouldTintIcon(customIcon)
+            button.setIconFromDrawable(drawable, tintWithTheme = tintWithTheme)
+            return true
+        }
+        val resId = ctx.resources.getIdentifier(customIcon, "drawable", ctx.packageName)
+        if (resId != 0) {
+            button.setIcon(resId)
+            return true
+        }
+        return false
+    }
+
+    private fun applyIconAndText(button: ToolButton, config: ConfigurableButton) {
+        if (applyIconThemeIfAvailable(button, config.id)) return
+        if (applyConfiguredIconIfAvailable(button, config)) return
+        val fallbackIcon = ButtonAction.fromId(config.id)?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+        button.setIcon(fallbackIcon)
     }
 
     private fun getDefaultLabel(buttonId: String): String {

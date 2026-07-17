@@ -115,6 +115,7 @@ data class ButtonsLayoutConfig(
             // Note: input_method_options is always added automatically at the end of Status Area
             statusAreaButtons = listOf(
                 ConfigurableButton("theme"),
+                ConfigurableButton("icon_theme"),
                 ConfigurableButton("reload_config"),
                 ConfigurableButton("virtual_keyboard"),
                 ConfigurableButton("one_handed_keyboard")

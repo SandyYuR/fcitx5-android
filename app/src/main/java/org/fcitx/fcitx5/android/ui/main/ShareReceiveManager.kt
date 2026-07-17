@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +41,9 @@ import org.fcitx.fcitx5.android.data.theme.CustomThemeSerializer
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeFilesManager
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.data.theme.IconTheme
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
+import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeQrTransferCodec
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
@@ -90,12 +94,14 @@ class ShareReceiveManager(
             val heightOverridesLandscape: Map<String, Int>
         ) : DetectionResult
         data class PopupJson(val parsed: Map<String, List<String>>) : DetectionResult
+        data class IconThemeJson(val theme: IconTheme) : DetectionResult
     }
 
     private sealed interface AutoDetectedImport {
         data class Theme(val detection: DetectionResult) : AutoDetectedImport
         data class Popup(val detection: DetectionResult.PopupJson) : AutoDetectedImport
         data class Layout(val detection: DetectionResult.LayoutJson) : AutoDetectedImport
+        data class IconTheme(val detection: DetectionResult.IconThemeJson) : AutoDetectedImport
     }
 
     private enum class ArchiveType {
@@ -231,6 +237,7 @@ class ShareReceiveManager(
             is AutoDetectedImport.Theme -> importThemeDetection(detected.detection)
             is AutoDetectedImport.Popup -> importPopupDetection(detected.detection)
             is AutoDetectedImport.Layout -> importLayoutDetection(detected.detection)
+            is AutoDetectedImport.IconTheme -> importIconThemeDetection(detected.detection)
         }
     }
 
@@ -472,6 +479,10 @@ class ShareReceiveManager(
                 return runCatching { AutoDetectedImport.Popup(detectForPopup(SourcePayload.Text(text)) as DetectionResult.PopupJson) }
                     .getOrNull()
             }
+            LayoutQrTransferCodec.TRANSFER_TYPE_ICON_THEME -> {
+                return runCatching { AutoDetectedImport.IconTheme(detectForIconTheme(SourcePayload.Text(text)) as DetectionResult.IconThemeJson) }
+                    .getOrNull()
+            }
         }
         return runCatching { AutoDetectedImport.Theme(detectForTheme(SourcePayload.Text(text))) }.getOrNull()
             ?: runCatching { AutoDetectedImport.Layout(detectForLayout(SourcePayload.Text(text)) as DetectionResult.LayoutJson) }.getOrNull()
@@ -501,6 +512,11 @@ class ShareReceiveManager(
             LayoutQrTransferCodec.TRANSFER_TYPE_POPUP -> {
                 return runCatching {
                     AutoDetectedImport.Popup(DetectionResult.PopupJson(parsePopupJson(content.jsonText)))
+                }.getOrNull()
+            }
+            LayoutQrTransferCodec.TRANSFER_TYPE_ICON_THEME -> {
+                return runCatching {
+                    AutoDetectedImport.IconTheme(DetectionResult.IconThemeJson(decodeIconThemeJsonPayload(content.jsonText)))
                 }.getOrNull()
             }
         }
@@ -657,6 +673,38 @@ class ShareReceiveManager(
             activity.getString(R.string.share_receive_target_not_supported)
         }
         return parsed
+    }
+
+    private suspend fun detectForIconTheme(source: SourcePayload): DetectionResult {
+        val jsonText = when (source) {
+            is SourcePayload.Text -> decodeQrOrRawJson(source.value)
+            is SourcePayload.UriPayload -> decodeTextOrQrFromUri(source.uri).jsonText
+        }
+        return DetectionResult.IconThemeJson(decodeIconThemeJsonPayload(jsonText))
+    }
+
+    private fun decodeIconThemeJsonPayload(jsonText: String): IconTheme {
+        return IconThemeQrTransferCodec.decodeIconThemeFromJson(jsonText)
+    }
+
+    private suspend fun importIconThemeDetection(detection: DetectionResult.IconThemeJson) {
+        val theme = detection.theme
+        val existing = IconThemeManager.iconThemes.find { it.name == theme.name && it.name != IconTheme.default().name }
+        if (existing != null) {
+            val overwrite = suspendCancellableCoroutine<Boolean> { cont ->
+                AlertDialog.Builder(activity)
+                    .setTitle(R.string.icon_theme_import_dialog_title)
+                    .setMessage(activity.getString(R.string.icon_theme_overwrite_confirm, theme.name))
+                    .setPositiveButton(android.R.string.ok) { _, _ -> cont.resume(true) }
+                    .setNegativeButton(android.R.string.cancel) { _, _ -> cont.resume(false) }
+                    .show()
+            }
+            if (!overwrite) return
+        }
+        IconThemeManager.saveTheme(theme)
+        withContext(Dispatchers.Main) {
+            Toast.makeText(activity, activity.getString(R.string.icon_theme_imported, theme.name), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private suspend fun importDecodedTheme(decoded: ThemeQrTransferCodec.DecodedTheme) {

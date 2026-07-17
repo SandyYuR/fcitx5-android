@@ -32,6 +32,7 @@ object LayoutQrTransferCodec {
     const val TRANSFER_TYPE_LAYOUT = 'L'
     const val TRANSFER_TYPE_POPUP = 'P'
     const val TRANSFER_TYPE_THEME = 'T'
+    const val TRANSFER_TYPE_ICON_THEME = 'I'
     private const val TRANSFER_PROFILE_SEPARATOR = "~"
 
     data class Chunk(
@@ -110,7 +111,7 @@ object LayoutQrTransferCodec {
     fun parseChunk(raw: String): Chunk = decodeChunkLine(raw)
 
     fun detectTransferType(transferId: String): Char? = when (transferId.firstOrNull()) {
-        TRANSFER_TYPE_LAYOUT, TRANSFER_TYPE_POPUP, TRANSFER_TYPE_THEME -> transferId.first()
+        TRANSFER_TYPE_LAYOUT, TRANSFER_TYPE_POPUP, TRANSFER_TYPE_THEME, TRANSFER_TYPE_ICON_THEME -> transferId.first()
         else -> null
     }
 

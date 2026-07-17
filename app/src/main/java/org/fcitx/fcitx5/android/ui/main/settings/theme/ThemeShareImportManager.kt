@@ -324,6 +324,7 @@ class ThemeShareImportManager(
             LayoutQrTransferCodec.TRANSFER_TYPE_THEME -> fragment.getString(R.string.qr_payload_type_theme)
             LayoutQrTransferCodec.TRANSFER_TYPE_LAYOUT -> fragment.getString(R.string.qr_payload_type_layout)
             LayoutQrTransferCodec.TRANSFER_TYPE_POPUP -> fragment.getString(R.string.qr_payload_type_popup)
+            LayoutQrTransferCodec.TRANSFER_TYPE_ICON_THEME -> fragment.getString(R.string.qr_payload_type_icon_theme)
             else -> fragment.getString(R.string.qr_payload_type_unknown)
         }
 

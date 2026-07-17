@@ -6,8 +6,12 @@ package org.fcitx.fcitx5.android.input.keyboard
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.drawable.Drawable
 import android.view.View
+import android.widget.ImageView
 import androidx.annotation.Keep
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import androidx.core.view.allViews
 import java.lang.ref.WeakReference
 import org.fcitx.fcitx5.android.R
@@ -583,27 +587,34 @@ class TextKeyboard(
     )
 
     data class SpecialKeyViews(
-        val caps: List<ImageKeyView>,
-        val backspace: List<ImageKeyView>,
-        val quickphrase: List<ImageKeyView>,
+        val caps: List<ImageView>,
+        val backspace: List<ImageView>,
+        val quickphrase: List<ImageView>,
         val space: List<TextKeyView>,
-        val `return`: List<ImageKeyView>
+        val `return`: List<ImageView>
     )
 
+    private fun iconViewOf(view: View): ImageView? = when (view) {
+        is ImageKeyView -> view.img
+        is ImageAltTextKeyView -> view.img
+        is ImageTextKeyView -> view.img
+        else -> null
+    }
+
     private fun findAllSpecialKeyViews(): SpecialKeyViews {
-        val caps = mutableListOf<ImageKeyView>()
-        val backspace = mutableListOf<ImageKeyView>()
-        val quickphrase = mutableListOf<ImageKeyView>()
+        val caps = mutableListOf<ImageView>()
+        val backspace = mutableListOf<ImageView>()
+        val quickphrase = mutableListOf<ImageView>()
         val space = mutableListOf<TextKeyView>()
-        val returnKeys = mutableListOf<ImageKeyView>()
+        val returnKeys = mutableListOf<ImageView>()
 
         allViews.forEach { view ->
             when (view.tag) {
-                R.id.button_caps -> (view as? ImageKeyView)?.let(caps::add)
-                R.id.button_backspace -> (view as? ImageKeyView)?.let(backspace::add)
-                R.id.button_quickphrase -> (view as? ImageKeyView)?.let(quickphrase::add)
+                R.id.button_caps -> iconViewOf(view)?.let(caps::add)
+                R.id.button_backspace -> iconViewOf(view)?.let(backspace::add)
+                R.id.button_quickphrase -> iconViewOf(view)?.let(quickphrase::add)
                 R.id.button_space -> (view as? TextKeyView)?.let(space::add)
-                R.id.button_return -> (view as? ImageKeyView)?.let(returnKeys::add)
+                R.id.button_return -> iconViewOf(view)?.let(returnKeys::add)
             }
         }
 
@@ -883,7 +894,15 @@ class TextKeyboard(
 
     override fun onReturnDrawableUpdate(returnDrawable: Int) {
         specialKeyViews.`return`.forEach { returnKey ->
-            returnKey.img.imageResource = returnDrawable
+            returnKey.imageResource = returnDrawable
+        }
+    }
+
+    override fun onReturnDrawableOverride(drawable: Drawable?) {
+        if (drawable != null) {
+            specialKeyViews.`return`.forEach { returnKey ->
+                returnKey.setImageDrawable(drawable)
+            }
         }
     }
 
@@ -952,6 +971,7 @@ class TextKeyboard(
         super.onCompositionStateChanged(composing)
         ensureSpecialKeyViewsInitialized()
         // Compose-state switches may recreate key views; re-apply caps presentation immediately.
+        updateCapsButtonIcon()
         updateAlphabetKeys()
     }
 
@@ -1018,12 +1038,30 @@ class TextKeyboard(
 
     private fun updateCapsButtonIcon() {
         val displayLock = isDisplayCapsOn()
+        val slots = when (capsState) {
+            CapsState.None -> if (displayLock) listOf("keys.capslock.lock") else listOf("keys.capslock.none")
+            CapsState.Once -> listOf("keys.capslock.once")
+            CapsState.Lock -> listOf("keys.capslock.lock")
+        }
+        val iconInfo = slots.firstNotNullOfOrNull { IconThemeManager.resolveIconDrawableInfo(it) }
+        val fallbackRes = when (capsState) {
+            CapsState.None -> if (displayLock) R.drawable.ic_capslock_lock else R.drawable.ic_capslock_none
+            CapsState.Once -> R.drawable.ic_capslock_once
+            CapsState.Lock -> R.drawable.ic_capslock_lock
+        }
         specialKeyViews.caps.forEach { cap ->
-            cap.img.apply {
-                imageResource = when (capsState) {
-                    CapsState.None -> if (displayLock) R.drawable.ic_capslock_lock else R.drawable.ic_capslock_none
-                    CapsState.Once -> R.drawable.ic_capslock_once
-                    CapsState.Lock -> R.drawable.ic_capslock_lock
+            cap.apply {
+                if (iconInfo != null) {
+                    setImageDrawable(iconInfo.drawable)
+                    if (iconInfo.tintWithTheme) {
+                        imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
+                    } else {
+                        imageTintList = null
+                        drawable?.setTintList(null)
+                    }
+                } else {
+                    imageResource = fallbackRes
+                    imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
                 }
             }
         }

@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.status
 
 import android.content.ClipData
 import android.content.res.Configuration
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.view.DragEvent
 import android.view.Gravity
@@ -35,6 +36,7 @@ import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.wm.InputWindow
 import splitties.dimensions.dp
@@ -129,25 +131,53 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
 
     private fun applySystemButtonConfigToCollapse() {
         val config = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
-        val toolbarConfig = config?.toolbarToggleButton ?: return
-        if (!toolbarConfig.text.isNullOrEmpty()) {
-            collapseButton.setText(toolbarConfig.text)
-        } else if (toolbarConfig.icon != null) {
-            if (toolbarConfig.icon.startsWith("file:")) {
-                val drawable = loadFileIcon(toolbarConfig.icon)
-                if (drawable != null) {
-                    collapseButton.setIconFromDrawable(drawable, tintWithTheme = ButtonIconFile.shouldTintIcon(toolbarConfig.icon))
-                }
-            } else {
-                val resId = context.resources.getIdentifier(toolbarConfig.icon, "drawable", context.packageName)
-                if (resId != 0) {
-                    collapseButton.setIcon(resId)
-                }
+        val toolbarConfig = config?.toolbarToggleButton
+        val fromConfig = applyConfiguredCollapseButton(toolbarConfig)
+        if (!fromConfig) {
+            applyIconThemeToCollapseButton()
+        }
+        val label = toolbarConfig?.label
+        if (!label.isNullOrEmpty()) {
+            collapseButton.contentDescription = label
+        }
+    }
+
+    private fun applyConfiguredCollapseButton(config: ConfigurableButton?): Boolean {
+        if (config == null) return false
+        if (!config.text.isNullOrEmpty()) {
+            collapseButton.setText(config.text)
+            return true
+        }
+        val icon = config.icon ?: return false
+        if (icon.startsWith("file:")) {
+            val drawable = loadFileIcon(icon)
+            if (drawable != null) {
+                collapseButton.setIconFromDrawable(drawable, tintWithTheme = ButtonIconFile.shouldTintIcon(icon))
+                return true
+            }
+        } else {
+            val resId = context.resources.getIdentifier(icon, "drawable", context.packageName)
+            if (resId != 0) {
+                collapseButton.setIcon(resId)
+                return true
             }
         }
-        if (!toolbarConfig.label.isNullOrEmpty()) {
-            collapseButton.contentDescription = toolbarConfig.label
+        return false
+    }
+
+    private fun applyIconThemeToCollapseButton(): Boolean {
+        val slot = "system.toolbar_toggle"
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
+        if (iconInfo != null) {
+            collapseButton.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
+            return true
         }
+        val textValue = IconThemeManager.resolveIcon(slot)
+        if (textValue != null) {
+            collapseButton.setText(textValue)
+            return true
+        }
+        return false
     }
 
     private val moreButton by lazy {
@@ -272,7 +302,30 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                 val label = button.label
                     ?: action?.let { holder.itemView.context.getString(it.defaultLabelRes) }
                     ?: button.id
-                if (!button.text.isNullOrEmpty()) {
+                val themed = action?.iconSlot?.let { slot ->
+                    val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
+                    val textValue = IconThemeManager.resolveIcon(slot)
+                    when {
+                        iconInfo != null -> {
+                            ui.bindDrawable(
+                                iconInfo.drawable,
+                                tintWithTheme = iconInfo.tintWithTheme,
+                                label,
+                                disabled = false,
+                                theme = theme
+                            )
+                            true
+                        }
+                        textValue != null -> {
+                            ui.bindTextIcon(textValue, label, disabled = false, theme = theme)
+                            true
+                        }
+                        else -> false
+                    }
+                } ?: false
+                if (themed) {
+                    // icon theme has highest priority
+                } else if (!button.text.isNullOrEmpty()) {
                     ui.bindTextIcon(button.text, label, disabled = false, theme = theme)
                 } else if (button.icon != null) {
                     if (button.icon.startsWith("file:")) {
@@ -412,6 +465,23 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         return ButtonIconFile.loadDrawable(path)
     }
 
+    private fun applyIconThemeToTopButton(button: ToolButton, actionId: String): Boolean {
+        val action = ButtonAction.fromId(actionId) ?: return false
+        val slot = action.iconSlot ?: return false
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
+        if (iconInfo != null) {
+            button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
+            return true
+        } else {
+            val textValue = IconThemeManager.resolveIcon(slot)
+            if (textValue != null) {
+                button.setText(textValue)
+                return true
+            }
+        }
+        return false
+    }
+
     private fun createTopButtonView(button: ConfigurableButton, index: Int): ToolButton {
         val action = ButtonAction.fromId(button.id)
         val defaultIcon = action?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
@@ -426,11 +496,13 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             minimumWidth = minWidthPx
             image.scaleType = ImageView.ScaleType.CENTER_INSIDE
             setupTopButtonDrag(this, index)
-            if (!button.text.isNullOrEmpty()) {
+            if (applyIconThemeToTopButton(this, button.id)) {
+                // icon theme has highest priority
+            } else if (!button.text.isNullOrEmpty()) {
                 setText(button.text)
             } else if (button.icon != null) {
                 if (button.icon.startsWith("file:")) {
-                        val drawable = loadFileIcon(button.icon)
+                    val drawable = loadFileIcon(button.icon)
                     if (drawable != null) {
                         val tintWithTheme = ButtonIconFile.shouldTintIcon(button.icon)
                         setIconFromDrawable(drawable, tintWithTheme = tintWithTheme)

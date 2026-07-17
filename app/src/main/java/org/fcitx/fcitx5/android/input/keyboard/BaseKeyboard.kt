@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.SystemClock
 import android.util.Log
+import android.graphics.drawable.Drawable
 import android.util.SparseIntArray
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -702,10 +703,10 @@ abstract class BaseKeyboard(
         val activeAppearance = appearanceOverride ?: resolvedAppearance
         return when (activeAppearance) {
             is KeyDef.Appearance.AltText -> AltTextKeyView(context, theme, activeAppearance, horizontalGapScale)
-            is KeyDef.Appearance.ImageAltText -> ImageAltTextKeyView(context, theme, activeAppearance, horizontalGapScale)
-            is KeyDef.Appearance.ImageText -> ImageTextKeyView(context, theme, activeAppearance, horizontalGapScale)
+            is KeyDef.Appearance.ImageAltText -> ImageAltTextKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
+            is KeyDef.Appearance.ImageText -> ImageTextKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
             is KeyDef.Appearance.Text -> TextKeyView(context, theme, activeAppearance, horizontalGapScale)
-            is KeyDef.Appearance.Image -> ImageKeyView(context, theme, activeAppearance, horizontalGapScale)
+            is KeyDef.Appearance.Image -> ImageKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
         }.apply {
             setTextScale(currentTextScale)
             soundEffect = when (def) {
@@ -1255,18 +1256,21 @@ abstract class BaseKeyboard(
             }
             is ImageAltTextKeyView -> if (appearance is KeyDef.Appearance.ImageAltText) {
                 view.img.setImageResource(appearance.src)
+                view.reapplyIconThemeOverride()
                 view.altText.text = appearance.altText
                 view.refreshAltTextLayout()
             }
             is ImageTextKeyView -> if (appearance is KeyDef.Appearance.ImageText) {
                 view.mainText.text = appearance.displayText
                 view.img.setImageResource(appearance.src)
+                view.reapplyIconThemeOverride()
             }
             is TextKeyView -> if (appearance is KeyDef.Appearance.Text) {
                 view.mainText.text = appearance.displayText
             }
             is ImageKeyView -> if (appearance is KeyDef.Appearance.Image) {
                 view.img.setImageResource(appearance.src)
+                view.reapplyIconThemeOverride()
             }
         }
     }
@@ -2302,6 +2306,10 @@ abstract class BaseKeyboard(
 
     open fun onReturnDrawableUpdate(@DrawableRes returnDrawable: Int) {
         // do nothing by default
+    }
+
+    open fun onReturnDrawableOverride(drawable: Drawable?) {
+        // do nothing by default - override in subclasses that render return key icons
     }
 
     open fun onPunctuationUpdate(mapping: Map<String, String>) {

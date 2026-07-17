@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -12,6 +13,7 @@ import androidx.preference.PreferenceCategory
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeListActivity
 import org.fcitx.fcitx5.android.utils.addCategory
 import org.fcitx.fcitx5.android.utils.addPreference
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
@@ -65,6 +67,9 @@ class MainFragment : PaddingPreferenceFragment() {
                     R.drawable.ic_baseline_palette_24,
                     SettingsRoute.Theme
                 )
+                addPreference(R.string.icon_theme, icon = R.drawable.ic_icon_theme_24) {
+                    startActivity(Intent(requireContext(), IconThemeListActivity::class.java))
+                }
                 addDestinationPreference(
                     R.string.virtual_keyboard,
                     R.drawable.ic_baseline_keyboard_24,
