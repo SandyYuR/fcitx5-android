@@ -33,6 +33,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlag
 import org.fcitx.fcitx5.android.core.CapabilityFlags
 import org.fcitx.fcitx5.android.core.FcitxEvent.CandidateListEvent
+import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardCategory
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
@@ -59,6 +60,7 @@ import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.candidates.expanded.ExpandedCandidateStyle
 import org.fcitx.fcitx5.android.input.candidates.expanded.window.FlexboxExpandedCandidateWindow
@@ -212,6 +214,10 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 else -> {}
             }
         }
+
+    @Keep
+    private val onIconThemeChangeListener =
+        IconThemeManager.OnIconThemeChangeListener { _idleUi?.refreshAllIcons() }
 
     private fun launchClipboardTimeoutJob() {
         clipboardTimeoutJob?.cancel()
@@ -744,6 +750,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             idleUi.hideVoiceStatus()
             android.widget.Toast.makeText(service, msg, android.widget.Toast.LENGTH_SHORT).show()
         }
+        IconThemeManager.addOnChangedListener(onIconThemeChangeListener)
     }
 
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {
@@ -756,18 +763,31 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             idleUi.inlineSuggestionsBar.clear()
         }
+        refreshHideKeyboardVoiceButton()
+        /*
+                "password=${capFlags.has(CapabilityFlag.Password)} shouldShow=$shouldShowVoiceInput"
+        )
+        */
+        evalIdleUiState()
+    }
+
+    override fun onImeUpdate(ime: InputMethodEntry) {
+        refreshHideKeyboardVoiceButton()
+    }
+
+    private fun refreshHideKeyboardVoiceButton() {
         voiceInputSubtype = InputMethodUtil.findVoiceSubtype(preferredVoiceInput)
         val hasPluginProvider = VoiceInputProviderManager.isProviderId(preferredVoiceInput) &&
             VoiceInputProviderManager.hasProvider(preferredVoiceInput, service)
         val shouldShowVoiceInput =
             showVoiceInputButton &&
                 (voiceInputSubtype != null || hasPluginProvider) &&
-                !capFlags.has(CapabilityFlag.Password)
+                !isCapabilityFlagsPassword
         Log.i(
             VOICE_INPUT_TAG,
-            "onStartInput showVoice=$showVoiceInputButton preferred=$preferredVoiceInput " +
+            "refreshVoiceButton showVoice=$showVoiceInputButton preferred=$preferredVoiceInput " +
                 "subtype=${voiceInputSubtype != null} plugin=$hasPluginProvider " +
-                "password=${capFlags.has(CapabilityFlag.Password)} shouldShow=$shouldShowVoiceInput"
+                ""
         )
         val hideKeyboardOrVoiceCallback = if (shouldShowVoiceInput) {
             switchToVoiceInputCallback
@@ -781,7 +801,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 hideKeyboardOrVoiceCallback.onClick(view)
             }
         )
-        evalIdleUiState()
     }
 
     override fun onPreeditEmptyStateUpdate(empty: Boolean) {

@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
 import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.StateListDrawable
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import android.text.TextPaint
 import android.util.TypedValue
 import android.view.Gravity
@@ -751,7 +752,8 @@ class ImageAltTextKeyView(
     ctx: Context,
     theme: Theme,
     def: KeyDef.Appearance.ImageAltText,
-    horizontalGapScale: Float = 1f
+    horizontalGapScale: Float = 1f,
+    private val iconSlot: String? = null
 ) : KeyView(ctx, theme, def, horizontalGapScale), SwipeHintAwareKeyView {
     private enum class AltTextLayoutMode {
         TopRight,
@@ -765,6 +767,7 @@ class ImageAltTextKeyView(
     )
     private var currentMainTextScale = 1f
     private var lastLayoutMode: AltTextLayoutMode? = null
+    private var iconThemeTintWithTheme: Boolean? = null
 
     // Reused for measuring main-text height in resolveLayoutMode().
     // Configured lazily and re-used across calls to avoid per-swipe Skia paint allocation.
@@ -823,7 +826,39 @@ class ImageAltTextKeyView(
             add(img, lParams(wrapContent, wrapContent))
             add(altText, lParams(0, wrapContent))
         }
+        reapplyIconThemeOverride()
         applyLayout()
+    }
+
+    fun reapplyIconThemeOverride() {
+        if (iconSlot == null) return
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo(iconSlot)
+        if (iconInfo == null) {
+            iconThemeTintWithTheme = null
+            applyIconTint(theme)
+            return
+        }
+        iconThemeTintWithTheme = iconInfo.tintWithTheme
+        img.setImageDrawable(iconInfo.drawable)
+        applyIconTint(theme)
+    }
+
+    private fun applyIconTint(currentTheme: Theme) {
+        val shouldTint = iconThemeTintWithTheme != false
+        if (shouldTint) {
+            img.imageTintList = ColorStateList.valueOf(
+                resolveTextColor(
+                    when (def.variant) {
+                        Variant.Normal -> currentTheme.keyTextColor
+                        Variant.AltForeground, Variant.Alternative -> currentTheme.altKeyTextColor
+                        Variant.Accent -> currentTheme.accentKeyTextColor
+                    }
+                )
+            )
+        } else {
+            img.imageTintList = null
+            img.drawable?.setTintList(null)
+        }
     }
 
     override fun setTextScale(scale: Float) {
@@ -1014,15 +1049,7 @@ class ImageAltTextKeyView(
 
     override fun updateTheme(newTheme: Theme) {
         super.updateTheme(newTheme)
-        img.imageTintList = ColorStateList.valueOf(
-            resolveTextColor(
-                when (def.variant) {
-                    Variant.Normal -> newTheme.keyTextColor
-                    Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
-                    Variant.Accent -> newTheme.accentKeyTextColor
-                }
-            )
-        )
+        applyIconTint(newTheme)
         altText.setTextColor(
             resolveAltTextColor(
                 when (def.variant) {
@@ -1031,6 +1058,7 @@ class ImageAltTextKeyView(
                 }
             )
         )
+        reapplyIconThemeOverride()
         lastLayoutMode = null
         applyLayout()
     }
@@ -1041,9 +1069,11 @@ class ImageKeyView(
     ctx: Context,
     theme: Theme,
     def: KeyDef.Appearance.Image,
-    horizontalGapScale: Float = 1f
+    horizontalGapScale: Float = 1f,
+    private val iconSlot: String? = null
 ) :
     KeyView(ctx, theme, def, horizontalGapScale) {
+    private var iconThemeTintWithTheme: Boolean? = null
     val img = imageView { configure(theme, def.src, def.variant) }.apply {
         imageTintList = ColorStateList.valueOf(
             resolveTextColor(
@@ -1062,19 +1092,44 @@ class ImageKeyView(
                 centerInParent()
             })
         }
+        reapplyIconThemeOverride()
+    }
+
+    fun reapplyIconThemeOverride() {
+        if (iconSlot == null) return
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo(iconSlot)
+        if (iconInfo == null) {
+            iconThemeTintWithTheme = null
+            applyIconTint(theme)
+            return
+        }
+        iconThemeTintWithTheme = iconInfo.tintWithTheme
+        img.setImageDrawable(iconInfo.drawable)
+        applyIconTint(theme)
+    }
+
+    private fun applyIconTint(currentTheme: Theme) {
+        val shouldTint = iconThemeTintWithTheme != false
+        if (shouldTint) {
+            img.imageTintList = ColorStateList.valueOf(
+                resolveTextColor(
+                    when (def.variant) {
+                        Variant.Normal -> currentTheme.keyTextColor
+                        Variant.AltForeground, Variant.Alternative -> currentTheme.altKeyTextColor
+                        Variant.Accent -> currentTheme.accentKeyTextColor
+                    }
+                )
+            )
+        } else {
+            img.imageTintList = null
+            img.drawable?.setTintList(null)
+        }
     }
 
     override fun updateTheme(newTheme: Theme) {
         super.updateTheme(newTheme)
-        img.imageTintList = ColorStateList.valueOf(
-            resolveTextColor(
-                when (def.variant) {
-                    Variant.Normal -> newTheme.keyTextColor
-                    Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
-                    Variant.Accent -> newTheme.accentKeyTextColor
-                }
-            )
-        )
+        applyIconTint(newTheme)
+        reapplyIconThemeOverride()
     }
 }
 
@@ -1096,9 +1151,11 @@ class ImageTextKeyView(
     ctx: Context,
     theme: Theme,
     def: KeyDef.Appearance.ImageText,
-    horizontalGapScale: Float = 1f
+    horizontalGapScale: Float = 1f,
+    private val iconSlot: String? = null
 ) :
     TextKeyView(ctx, theme, def, horizontalGapScale) {
+    private var iconThemeTintWithTheme: Boolean? = null
     val img = imageView {
         configure(theme, def.src, def.variant)
         imageTintList = ColorStateList.valueOf(
@@ -1126,7 +1183,39 @@ class ImageTextKeyView(
             centerHorizontally()
             topToTop = parentId
         }
+        reapplyIconThemeOverride()
         updateMargins(resources.configuration.orientation)
+    }
+
+    fun reapplyIconThemeOverride() {
+        if (iconSlot == null) return
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo(iconSlot)
+        if (iconInfo == null) {
+            iconThemeTintWithTheme = null
+            applyIconTint(theme)
+            return
+        }
+        iconThemeTintWithTheme = iconInfo.tintWithTheme
+        img.setImageDrawable(iconInfo.drawable)
+        applyIconTint(theme)
+    }
+
+    private fun applyIconTint(currentTheme: Theme) {
+        val shouldTint = iconThemeTintWithTheme != false
+        if (shouldTint) {
+            img.imageTintList = ColorStateList.valueOf(
+                resolveTextColor(
+                    when (def.variant) {
+                        Variant.Normal -> currentTheme.keyTextColor
+                        Variant.AltForeground, Variant.Alternative -> currentTheme.altKeyTextColor
+                        Variant.Accent -> currentTheme.accentKeyTextColor
+                    }
+                )
+            )
+        } else {
+            img.imageTintList = null
+            img.drawable?.setTintList(null)
+        }
     }
 
     private fun updateMargins(orientation: Int) {
@@ -1156,14 +1245,7 @@ class ImageTextKeyView(
 
     override fun updateTheme(newTheme: Theme) {
         super.updateTheme(newTheme)
-        img.imageTintList = ColorStateList.valueOf(
-            resolveTextColor(
-                when (def.variant) {
-                    Variant.Normal -> newTheme.keyTextColor
-                    Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
-                    Variant.Accent -> newTheme.accentKeyTextColor
-                }
-            )
-        )
+        applyIconTint(newTheme)
+        reapplyIconThemeOverride()
     }
 }

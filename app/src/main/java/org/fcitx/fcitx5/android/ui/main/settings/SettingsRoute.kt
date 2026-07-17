@@ -71,6 +71,9 @@ sealed class SettingsRoute : Parcelable {
     data object Theme : SettingsRoute()
 
     @Serializable
+    data object IconTheme : SettingsRoute()
+
+    @Serializable
     data object VirtualKeyboard : SettingsRoute()
 
     @Serializable

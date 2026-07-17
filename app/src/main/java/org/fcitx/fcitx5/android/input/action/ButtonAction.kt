@@ -29,6 +29,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.TextKeyboardLayoutProfilePickerActivity
+import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeListActivity
 import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.utils.buildDocumentsProviderIntent
 import org.fcitx.fcitx5.android.utils.switchToNextIME
@@ -53,6 +54,11 @@ sealed class ButtonAction {
      * Default label string resource for this button.
      */
     abstract val defaultLabelRes: Int
+
+    /**
+     * Icon theme slot name for this button. Null if not covered by icon themes.
+     */
+    open val iconSlot: String? = null
 
     /**
      * Execute the action.
@@ -116,6 +122,7 @@ sealed class ButtonAction {
             ClipboardAction,
             LanguageSwitchAction,
             ThemeAction,
+            IconThemeAction,
             InputMethodOptionsAction,
             ReloadConfigAction,
             VirtualKeyboardAction,
@@ -155,6 +162,7 @@ sealed class ButtonAction {
         val statusAreaActions = listOf(
             LanguageSwitchAction,
             ThemeAction,
+            IconThemeAction,
             InputMethodOptionsAction,
             ReloadConfigAction,
             VirtualKeyboardAction,
@@ -174,6 +182,7 @@ data object UndoAction : ButtonAction() {
     override val id = "undo"
     override val defaultIcon = R.drawable.ic_baseline_undo_24
     override val defaultLabelRes = R.string.undo
+    override val iconSlot = "toolbar.undo"
 
     override fun execute(
         context: Context,
@@ -191,6 +200,7 @@ data object RedoAction : ButtonAction() {
     override val id = "redo"
     override val defaultIcon = R.drawable.ic_baseline_redo_24
     override val defaultLabelRes = R.string.redo
+    override val iconSlot = "toolbar.redo"
 
     override fun execute(
         context: Context,
@@ -208,6 +218,7 @@ data object CursorMoveAction : ButtonAction() {
     override val id = "cursor_move"
     override val defaultIcon = R.drawable.ic_cursor_move
     override val defaultLabelRes = R.string.text_editing
+    override val iconSlot = "toolbar.cursor_move"
 
     override fun execute(
         context: Context,
@@ -225,6 +236,7 @@ data object FloatingToggleAction : ButtonAction() {
     override val id = "floating_toggle"
     override val defaultIcon = R.drawable.ic_floating_toggle_24
     override val defaultLabelRes = R.string.floating_keyboard
+    override val iconSlot = "toolbar.floating_toggle"
 
     override fun isActive(service: FcitxInputMethodService): Boolean {
         return service.inputView?.isFloating == true
@@ -262,6 +274,7 @@ data object ClipboardAction : ButtonAction() {
     override val id = "clipboard"
     override val defaultIcon = R.drawable.ic_clipboard
     override val defaultLabelRes = R.string.clipboard
+    override val iconSlot = "toolbar.clipboard"
 
     override fun execute(
         context: Context,
@@ -279,6 +292,7 @@ data object MoreAction : ButtonAction() {
     override val id = "more"
     override val defaultIcon = R.drawable.ic_baseline_more_horiz_24
     override val defaultLabelRes = R.string.status_area
+    override val iconSlot = "toolbar.more"
 
     override fun execute(
         context: Context,
@@ -298,6 +312,7 @@ data object LanguageSwitchAction : ButtonAction() {
     override val id = "language_switch"
     override val defaultIcon = R.drawable.ic_baseline_language_24
     override val defaultLabelRes = R.string.language_switch
+    override val iconSlot = "toolbar.language_switch"
 
     override fun execute(
         context: Context,
@@ -348,6 +363,7 @@ data object ThemeAction : ButtonAction() {
     override val id = "theme"
     override val defaultIcon = R.drawable.ic_baseline_palette_24
     override val defaultLabelRes = R.string.theme
+    override val iconSlot = "toolbar.theme"
 
     override fun execute(
         context: Context,
@@ -361,10 +377,31 @@ data object ThemeAction : ButtonAction() {
     }
 }
 
+data object IconThemeAction : ButtonAction() {
+    override val id = "icon_theme"
+    override val defaultIcon = R.drawable.ic_icon_theme_24
+    override val defaultLabelRes = R.string.icon_theme
+    override val iconSlot = "toolbar.icon_theme"
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        context.startActivity(Intent(context, IconThemeListActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+        })
+    }
+}
+
 data object InputMethodOptionsAction : ButtonAction() {
     override val id = "input_method_options"
     override val defaultIcon = R.drawable.ic_baseline_language_24
     override val defaultLabelRes = R.string.input_method_options
+    override val iconSlot = "toolbar.input_method_options"
 
     override fun execute(
         context: Context,
@@ -384,6 +421,7 @@ data object ReloadConfigAction : ButtonAction() {
     override val id = "reload_config"
     override val defaultIcon = R.drawable.ic_baseline_sync_24
     override val defaultLabelRes = R.string.reload_config
+    override val iconSlot = "toolbar.reload_config"
 
     override fun execute(
         context: Context,
@@ -409,6 +447,7 @@ data object VirtualKeyboardAction : ButtonAction() {
     override val id = "virtual_keyboard"
     override val defaultIcon = R.drawable.ic_baseline_keyboard_24
     override val defaultLabelRes = R.string.virtual_keyboard
+    override val iconSlot = "toolbar.virtual_keyboard"
 
     override fun execute(
         context: Context,
@@ -426,6 +465,7 @@ data object OneHandedKeyboardAction : ButtonAction() {
     override val id = "one_handed_keyboard"
     override val defaultIcon = R.drawable.ic_baseline_keyboard_tab_24
     override val defaultLabelRes = R.string.one_handed_keyboard
+    override val iconSlot = "toolbar.one_handed_keyboard"
 
     override fun isActive(service: FcitxInputMethodService): Boolean {
         return service.isOneHandKeyboardEnabled()
@@ -447,6 +487,7 @@ data object BrowseUserDataDirAction : ButtonAction() {
     override val id = "browse_user_data_dir"
     override val defaultIcon = R.drawable.ic_baseline_more_horiz_24
     override val defaultLabelRes = R.string.browse_user_data_dir
+    override val iconSlot = "toolbar.browse_user_data"
 
     override fun execute(
         context: Context,
@@ -468,6 +509,7 @@ data object SettingsGlobalOptionsAction : ButtonAction() {
     override val id = "settings_global_options"
     override val defaultIcon = R.drawable.ic_baseline_tune_24
     override val defaultLabelRes = R.string.global_options
+    override val iconSlot = "toolbar.settings_global"
 
     override fun execute(
         context: Context,
@@ -485,6 +527,7 @@ data object SettingsInputMethodsAction : ButtonAction() {
     override val id = "settings_input_methods"
     override val defaultIcon = R.drawable.ic_baseline_language_24
     override val defaultLabelRes = R.string.input_methods
+    override val iconSlot = "toolbar.settings_ime"
 
     override fun execute(
         context: Context,
@@ -638,6 +681,7 @@ data object EditTextKeyboardLayoutAction : ButtonAction() {
     override val id = "edit_text_keyboard_layout"
     override val defaultIcon = R.drawable.ic_baseline_keyboard_24
     override val defaultLabelRes = R.string.edit_text_keyboard_layout
+    override val iconSlot = "toolbar.edit_layout"
 
     override fun execute(
         context: Context,
@@ -676,6 +720,7 @@ data object EditFontsetAction : ButtonAction() {
     override val id = "edit_fontset"
     override val defaultIcon = R.drawable.ic_baseline_text_format_24
     override val defaultLabelRes = R.string.edit_fontset
+    override val iconSlot = "toolbar.edit_fontset"
 
     override fun execute(
         context: Context,

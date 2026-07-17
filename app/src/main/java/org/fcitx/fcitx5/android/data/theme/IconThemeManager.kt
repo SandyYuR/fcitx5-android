@@ -1,0 +1,456 @@
+/*
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
+ */
+package org.fcitx.fcitx5.android.data.theme
+
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.os.Handler
+import android.os.Looper
+import android.util.Xml
+import android.util.LruCache
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.fcitx.fcitx5.android.input.config.ButtonIconFile
+import org.fcitx.fcitx5.android.utils.WeakHashSet
+import org.fcitx.fcitx5.android.utils.appContext
+import timber.log.Timber
+import java.io.ByteArrayInputStream
+import java.io.File
+import org.xmlpull.v1.XmlPullParser
+
+object IconThemeManager {
+    data class IconDrawableInfo(
+        val drawable: Drawable,
+        val tintWithTheme: Boolean
+    )
+
+    fun interface OnIconThemeChangeListener {
+        fun onIconThemeChange(theme: IconTheme)
+    }
+
+    fun interface OnIconThemeListChangeListener {
+        fun onIconThemeListChange(themes: List<IconTheme>)
+    }
+
+    private val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
+
+    private val themeDir: File? by lazy {
+        val extDir = appContext.getExternalFilesDir(null)
+        if (extDir != null) File(extDir, "icon_themes").also { it.mkdirs() } else null
+    }
+
+    private val builtinDefault: IconTheme = IconTheme.default()
+
+    private val mainHandler = Handler(Looper.getMainLooper())
+
+    private val onChangeListeners = WeakHashSet<OnIconThemeChangeListener>()
+    private val onListChangeListeners = WeakHashSet<OnIconThemeListChangeListener>()
+
+    /** Backing list of all installed icon themes (loaded from disk). */
+    @Volatile
+    private var installedThemes: List<IconTheme> = emptyList()
+
+    private val themeLock = Any()
+
+    /** Drawable cache for SVG icons, keyed by "slot:themeName". */
+    private val drawableCache = object : LruCache<String, IconDrawableInfo>(16 * 1024) {
+        override fun sizeOf(key: String, value: IconDrawableInfo): Int {
+            val w = value.drawable.intrinsicWidth.coerceAtLeast(1)
+            val h = value.drawable.intrinsicHeight.coerceAtLeast(1)
+            return w * h * 4 / 1024
+        }
+    }
+
+    /** The currently active icon theme. Defaults to builtin (all slots empty). */
+    var activeTheme: IconTheme = builtinDefault
+        set(value) {
+            if (field == value) return
+            field = value
+            activeThemeName = value.name
+            clearDrawableCache()
+            dispatchOnMain { onChangeListeners.toList().forEach { it.onIconThemeChange(value) } }
+        }
+
+    /** Store/restore active theme name in SharedPreferences. */
+    private var activeThemeName: String
+        get() = appContext
+            .getSharedPreferences("icon_theme", 0)
+            .getString("active_icon_theme", builtinDefault.name) ?: builtinDefault.name
+        set(value) {
+            appContext
+                .getSharedPreferences("icon_theme", 0)
+                .edit()
+                .putString("active_icon_theme", value)
+                .apply()
+        }
+
+    /** All installed icon themes (including builtin default at index 0). */
+    val iconThemes: List<IconTheme>
+        get() = listOf(builtinDefault) + installedThemes
+
+    init {
+        refresh()
+        // Restore active theme from saved name
+        val savedName = activeThemeName
+        val saved = installedThemes.find { it.name == savedName }
+        if (saved != null && saved !== builtinDefault) {
+            activeTheme = saved
+        }
+    }
+
+    fun resolveIcon(slot: String): String? {
+        val value = activeTheme.icons[slot]
+        return if (value.isNullOrEmpty()) null else value
+    }
+
+    fun buildThemeThumbnailSvg(icons: Map<String, String>): String? {
+        val svgBySlot = icons.filterValues { isInlineSvg(it) }
+        if (svgBySlot.isEmpty()) return null
+
+        val preferredSlots = IconTheme.ALL_SLOTS.filter { svgBySlot.containsKey(it) }
+        val chosenSlots = preferredSlots.take(4)
+        if (chosenSlots.isEmpty()) return null
+
+        val tileSize = 24
+        val canvasSize = tileSize * 2
+        val cells = listOf(
+            0 to 0,
+            tileSize to 0,
+            0 to tileSize,
+            tileSize to tileSize
+        )
+
+        return buildString {
+            append("<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 $canvasSize $canvasSize\">")
+            chosenSlots.forEachIndexed { index, slot ->
+                val raw = svgBySlot[slot] ?: return@forEachIndexed
+                val parts = extractSvgParts(raw) ?: return@forEachIndexed
+                val (x, y) = cells[index]
+                append("<svg x=\"$x\" y=\"$y\" width=\"$tileSize\" height=\"$tileSize\" viewBox=\"${parts.viewBox}\">")
+                append(parts.innerContent)
+                append("</svg>")
+            }
+            append("</svg>")
+        }.takeIf { it.contains("<svg x=") }
+    }
+
+    /**
+     * Resolve an icon slot to a Drawable, with caching.
+     * Returns null if the slot has no custom icon, or if it's emoji/text.
+     */
+    fun resolveIconDrawable(slot: String): Drawable? {
+        return resolveIconDrawableInfo(slot)?.drawable
+    }
+
+    fun resolveIconDrawableInfo(slot: String): IconDrawableInfo? {
+        val value = activeTheme.icons[slot] ?: return null
+        val key = "$slot:${activeTheme.name}"
+        drawableCache.get(key)?.let { cached ->
+            return IconDrawableInfo(
+                drawable = cloneDrawable(cached.drawable),
+                tintWithTheme = cached.tintWithTheme
+            )
+        }
+        val isFileIcon = ButtonIconFile.isFileIcon(value)
+        val rootTag = detectXmlRootTag(value)
+        val isSvg = rootTag.equals("svg", ignoreCase = true) && isInlineSvg(value)
+        val loaded: Drawable = (if (isFileIcon) {
+            ButtonIconFile.loadDrawable(value)
+        } else if (isSvg) {
+            loadSvgDrawable(value)
+        } else {
+            loadInlineDrawableXml(value)
+        }) ?: return null
+        val info = IconDrawableInfo(
+            drawable = loaded,
+            tintWithTheme = when {
+                isFileIcon -> ButtonIconFile.shouldTintIcon(value)
+                isSvg -> isSvgMonochrome(value)
+                else -> true
+            }
+        )
+        drawableCache.put(key, info)
+        return IconDrawableInfo(
+            drawable = cloneDrawable(info.drawable),
+            tintWithTheme = info.tintWithTheme
+        )
+    }
+
+    private fun normalizeSvgContent(raw: String): String {
+        val withoutBom = raw.removePrefix("\uFEFF")
+        val withoutXmlDecl = withoutBom.replaceFirst(Regex("^\\s*<\\?xml[^>]*\\?>\\s*"), "")
+        val withoutLeadingComments = withoutXmlDecl.replaceFirst(
+            Regex("^(\\s*<!--.*?-->\\s*)+", setOf(RegexOption.DOT_MATCHES_ALL)),
+            ""
+        )
+        val svgStart = Regex("<svg\\b", RegexOption.IGNORE_CASE).find(withoutLeadingComments)?.range?.first
+        val content = if (svgStart != null) {
+            withoutLeadingComments.substring(svgStart)
+        } else {
+            withoutLeadingComments
+        }
+        val openingTagRegex = Regex("<svg\\b[^>]*>", RegexOption.IGNORE_CASE)
+        val openingTag = openingTagRegex.find(content)?.value ?: return content
+        val normalizedOpening = openingTag
+            .replace(Regex("\\swidth\\s*=\\s*\"[^\"]*\"", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("\\sheight\\s*=\\s*\"[^\"]*\"", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("\\swidth\\s*=\\s*'[^']*'", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("\\sheight\\s*=\\s*'[^']*'", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("\\swidth\\s*=\\s*[^\\s>]+", RegexOption.IGNORE_CASE), "")
+            .replace(Regex("\\sheight\\s*=\\s*[^\\s>]+", RegexOption.IGNORE_CASE), "")
+        var normalized = content.replaceFirst(openingTag, normalizedOpening)
+        if (normalized.contains("xlink:") && !normalized.contains("xmlns:xlink")) {
+            normalized = normalized.replaceFirst(
+                Regex("<svg\\b([^>]*)>", RegexOption.IGNORE_CASE),
+                "<svg$1 xmlns:xlink=\"http://www.w3.org/1999/xlink\">"
+            )
+        }
+        return normalized
+    }
+
+    private fun detectXmlRootTag(raw: String): String? {
+        val clean = normalizeXmlContent(raw)
+        val match = Regex("^<\\s*([A-Za-z_][A-Za-z0-9_\\-.:]*)\\b").find(clean) ?: return null
+        return match.groupValues[1].substringAfterLast(':')
+    }
+
+    /** True if the value is an inline SVG (handles xml decl/comments/BOM prefixes). */
+    fun isInlineSvg(value: String): Boolean = try {
+        if (!detectXmlRootTag(value).equals("svg", ignoreCase = true)) return false
+        val clean = normalizeSvgContent(value)
+        com.caverock.androidsvg.SVG.getFromString(clean) != null
+    } catch (_: Exception) { false }
+
+    fun shouldTintInlineSvg(value: String): Boolean {
+        if (!isInlineSvg(value)) return false
+        return isSvgMonochrome(value)
+    }
+
+    private fun normalizeXmlContent(raw: String): String {
+        return raw
+            .removePrefix("\uFEFF")
+            .replaceFirst(
+                Regex(
+                    "^\\s*(?:<\\?xml\\b[^>]*\\?>|<!DOCTYPE\\b[^>]*(?:\\[[^\\]]*\\])?[^>]*>|<!--.*?-->)\\s*",
+                    setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE)
+                ),
+                ""
+            )
+            .replaceFirst(
+                Regex("^(\\s*<!--.*?-->\\s*)+", setOf(RegexOption.DOT_MATCHES_ALL)),
+                ""
+            )
+            .trimStart()
+    }
+
+    fun isInlineDrawableXml(value: String): Boolean {
+        val clean = normalizeXmlContent(value)
+        if (!clean.startsWith("<")) return false
+        if (detectXmlRootTag(clean).equals("svg", ignoreCase = true)) return false
+        return loadInlineDrawableXml(clean) != null
+    }
+
+    fun loadInlineDrawableXml(xmlContent: String): Drawable? {
+        val clean = normalizeXmlContent(xmlContent)
+        return ButtonIconFile.loadInlineXmlDrawable(clean)
+    }
+
+    private fun loadSvgDrawable(svgContent: String): Drawable? {
+        return try {
+            val clean = normalizeSvgContent(svgContent)
+            val svg = com.caverock.androidsvg.SVG.getFromString(clean)
+            val density = appContext.resources.displayMetrics.density
+            val size = (24 * density).toInt().coerceAtLeast(1)
+            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            svg.renderToCanvas(canvas, android.graphics.RectF(0f, 0f, size.toFloat(), size.toFloat()))
+            BitmapDrawable(appContext.resources, bitmap)
+        } catch (_: Exception) { null }
+    }
+
+    private fun cloneDrawable(drawable: Drawable): Drawable {
+        val cloned = drawable.constantState?.newDrawable(appContext.resources) ?: drawable
+        return cloned.mutate()
+    }
+
+    private data class SvgParts(
+        val viewBox: String,
+        val innerContent: String
+    )
+
+    private fun extractSvgParts(svgContent: String): SvgParts? {
+        val clean = normalizeSvgContent(svgContent)
+        val openingMatch = Regex("<svg\\b([^>]*)>", RegexOption.IGNORE_CASE).find(clean) ?: return null
+        val attrs = openingMatch.groupValues[1]
+        val viewBox = Regex("viewBox\\s*=\\s*[\"']([^\"']+)[\"']", RegexOption.IGNORE_CASE)
+            .find(attrs)
+            ?.groupValues
+            ?.get(1)
+            ?: "0 0 24 24"
+        val closeIndex = clean.lastIndexOf("</svg>", ignoreCase = true)
+        if (closeIndex <= openingMatch.range.last) return null
+        val inner = clean.substring(openingMatch.range.last + 1, closeIndex).trim()
+        if (inner.isEmpty()) return null
+        return SvgParts(viewBox = viewBox, innerContent = inner)
+    }
+
+    private fun isSvgMonochrome(svgContent: String): Boolean {
+        val clean = normalizeSvgContent(svgContent)
+        return try {
+            val parser = Xml.newPullParser().apply {
+                setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
+                setInput(ByteArrayInputStream(clean.toByteArray()), null)
+            }
+            var event = parser.eventType
+            while (event != XmlPullParser.END_DOCUMENT) {
+                if (event == XmlPullParser.START_TAG) {
+                    val fill = parseSvgColor(getAttr(parser, "fill"))
+                    if (fill != null && !isGray(fill)) return false
+                    val stroke = parseSvgColor(getAttr(parser, "stroke"))
+                    if (stroke != null && !isGray(stroke)) return false
+                }
+                event = parser.next()
+            }
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun getAttr(parser: XmlPullParser, name: String): String? {
+        for (i in 0 until parser.attributeCount) {
+            if (parser.getAttributeName(i) == name) return parser.getAttributeValue(i)
+        }
+        return null
+    }
+
+    private fun parseSvgColor(value: String?): Int? {
+        if (value.isNullOrBlank() || value.equals("none", ignoreCase = true)) return null
+        return runCatching { Color.parseColor(value.trim()) }.getOrNull()
+    }
+
+    private fun isGray(color: Int): Boolean {
+        val r = Color.red(color)
+        val g = Color.green(color)
+        val b = Color.blue(color)
+        return r == g && g == b
+    }
+
+    private fun clearDrawableCache() {
+        drawableCache.evictAll()
+    }
+
+    fun refresh() {
+        val dir = themeDir ?: return
+        val files = dir.listFiles { f -> f.isFile && f.name.endsWith(".json") } ?: return
+        val themes = files.mapNotNull { f ->
+            runCatching {
+                val loaded = json.decodeFromString<IconTheme>(f.readText())
+                val normalized = fillMissingThumbnail(loaded)
+                if (normalized != loaded) {
+                    runCatching { f.writeText(json.encodeToString(normalized)) }
+                        .onFailure { Timber.w(it, "Failed to backfill thumbnail for icon theme: ${loaded.name}") }
+                }
+                normalized
+            }.onFailure {
+                Timber.w(it, "Failed to load icon theme: ${f.name}")
+            }.getOrNull()
+        }
+        synchronized(themeLock) {
+            installedThemes = themes
+        }
+        // Ensure active theme still exists
+        val current = activeTheme
+        if (current !== builtinDefault && themes.none { it.name == current.name }) {
+            activeTheme = builtinDefault
+        }
+    }
+
+    fun saveTheme(theme: IconTheme) {
+        val normalizedTheme = fillMissingThumbnail(theme)
+        val dir = themeDir ?: return
+        val file = File(dir, "${normalizedTheme.name}.json")
+        runCatching {
+            file.writeText(json.encodeToString(normalizedTheme))
+        }.onFailure {
+            Timber.w(it, "Failed to save icon theme: ${normalizedTheme.name}")
+            return
+        }
+        synchronized(themeLock) {
+            val mutable = installedThemes.toMutableList()
+            val idx = mutable.indexOfFirst { it.name == normalizedTheme.name }
+            if (idx >= 0) {
+                mutable[idx] = normalizedTheme
+            } else {
+                mutable.add(0, normalizedTheme)
+            }
+            installedThemes = mutable
+        }
+        if (activeTheme.name == normalizedTheme.name) {
+            activeTheme = normalizedTheme
+        }
+        dispatchOnMain { onListChangeListeners.toList().forEach { it.onIconThemeListChange(iconThemes) } }
+    }
+
+    fun deleteTheme(name: String) {
+        synchronized(themeLock) {
+            val mutable = installedThemes.toMutableList()
+            val idx = mutable.indexOfFirst { it.name == name }
+            if (idx < 0) return
+            mutable.removeAt(idx)
+            installedThemes = mutable
+        }
+        val dir = themeDir
+        if (dir != null) File(dir, "$name.json").delete()
+        if (activeTheme.name == name) {
+            activeTheme = builtinDefault
+        }
+        dispatchOnMain { onListChangeListeners.toList().forEach { it.onIconThemeListChange(iconThemes) } }
+    }
+
+    fun importTheme(jsonString: String): IconTheme {
+        val theme = json.decodeFromString<IconTheme>(jsonString)
+        saveTheme(theme)
+        return theme
+    }
+
+    @Synchronized
+    fun addOnChangedListener(listener: OnIconThemeChangeListener) {
+        onChangeListeners.add(listener)
+    }
+
+    @Synchronized
+    fun removeOnChangedListener(listener: OnIconThemeChangeListener) {
+        onChangeListeners.remove(listener)
+    }
+
+    @Synchronized
+    fun addOnListChangeListener(listener: OnIconThemeListChangeListener) {
+        onListChangeListeners.add(listener)
+    }
+
+    @Synchronized
+    fun removeOnListChangeListener(listener: OnIconThemeListChangeListener) {
+        onListChangeListeners.remove(listener)
+    }
+
+    private inline fun dispatchOnMain(crossinline block: () -> Unit) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            block()
+        } else {
+            mainHandler.post { block() }
+        }
+    }
+
+    private fun fillMissingThumbnail(theme: IconTheme): IconTheme {
+        if (!theme.thumbnailSvg.isNullOrBlank()) return theme
+        val generated = buildThemeThumbnailSvg(theme.icons)
+        if (generated.isNullOrBlank()) return theme
+        return theme.copy(thumbnailSvg = generated)
+    }
+}

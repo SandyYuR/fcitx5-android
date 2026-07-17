@@ -149,6 +149,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         ButtonDefinition("clipboard", R.drawable.ic_clipboard, R.string.clipboard),
         ButtonDefinition("language_switch", R.drawable.ic_baseline_language_24, R.string.language_switch),
         ButtonDefinition("theme", R.drawable.ic_baseline_palette_24, R.string.theme),
+        ButtonDefinition("icon_theme", R.drawable.ic_icon_theme_24, R.string.icon_theme),
         ButtonDefinition("reload_config", R.drawable.ic_baseline_sync_24, R.string.reload_config),
         ButtonDefinition("virtual_keyboard", R.drawable.ic_baseline_keyboard_24, R.string.virtual_keyboard),
         ButtonDefinition("one_handed_keyboard", R.drawable.ic_baseline_keyboard_tab_24, R.string.one_handed_keyboard)
@@ -248,7 +249,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         }
         // Add "+" button for Status Area
         items.add(ListItem.StatusAreaAddButtonPlaceholder)
-        
+
         updateAddButtonsSection()
 
         originalItems = items.toList()

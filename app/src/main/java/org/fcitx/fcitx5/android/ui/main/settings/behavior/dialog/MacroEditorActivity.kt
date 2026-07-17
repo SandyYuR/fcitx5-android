@@ -1537,6 +1537,7 @@ class MacroEditorActivity : AppCompatActivity() {
         private fun showAppActionPicker(onSelect: (String) -> Unit) {
             val actionIds = arrayOf(
                 "theme",
+                "icon_theme",
                 "virtual_keyboard",
                 "more",
                 "browse_user_data_dir",
@@ -1573,6 +1574,7 @@ class MacroEditorActivity : AppCompatActivity() {
             )
             val actionLabels = arrayOf(
                 getString(R.string.theme),
+                getString(R.string.icon_theme),
                 getString(R.string.virtual_keyboard),
                 getString(R.string.macro_editor_app_action_more),
                 getString(R.string.browse_user_data_dir),
@@ -1619,6 +1621,7 @@ class MacroEditorActivity : AppCompatActivity() {
         private fun getAppActionLabel(actionId: String): String {
             return when (actionId) {
                 "theme" -> getString(R.string.theme)
+                "icon_theme" -> getString(R.string.icon_theme)
                 "virtual_keyboard" -> getString(R.string.virtual_keyboard)
                 "more" -> getString(R.string.macro_editor_app_action_more)
                 "browse_user_data_dir" -> getString(R.string.browse_user_data_dir)

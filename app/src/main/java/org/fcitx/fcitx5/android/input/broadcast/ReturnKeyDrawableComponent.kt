@@ -4,7 +4,9 @@
  */
 package org.fcitx.fcitx5.android.input.broadcast
 
+import android.graphics.drawable.Drawable
 import android.view.inputmethod.EditorInfo
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import androidx.annotation.DrawableRes
 import org.fcitx.fcitx5.android.R
 import org.mechdancer.dependency.Dependent
@@ -28,8 +30,34 @@ class ReturnKeyDrawableComponent :
     var resourceId: Int = DEFAULT_DRAWABLE
         private set
 
+    /** Non-null when the active icon theme provides an SVG override for the current action. */
+    var iconThemeDrawable: Drawable? = null
+        private set
+
+    /** Current action slot name (for debugging / external icon theme checks). */
+    var currentSlot: String? = null
+        private set
+
     @DrawableRes
     private var actionDrawable: Int = DEFAULT_DRAWABLE
+
+    private fun slotForEditorInfo(info: EditorInfo): String? {
+        if (info.imeOptions.hasFlag(EditorInfo.IME_FLAG_NO_ENTER_ACTION)) return "keys.return.default"
+        return when (info.imeOptions and EditorInfo.IME_MASK_ACTION) {
+            EditorInfo.IME_ACTION_GO -> "keys.return.go"
+            EditorInfo.IME_ACTION_SEARCH -> "keys.return.search"
+            EditorInfo.IME_ACTION_SEND -> "keys.return.send"
+            EditorInfo.IME_ACTION_NEXT -> "keys.return.next"
+            EditorInfo.IME_ACTION_DONE -> "keys.return.done"
+            EditorInfo.IME_ACTION_PREVIOUS -> "keys.return.previous"
+            else -> "keys.return.default"
+        }
+    }
+
+    private fun resolveIconThemeDrawable(slot: String?): Drawable? {
+        val candidates = listOfNotNull(slot, "keys.return.default").distinct()
+        return candidates.firstNotNullOfOrNull { IconThemeManager.resolveIconDrawable(it) }
+    }
 
     @DrawableRes
     private fun drawableFromEditorInfo(info: EditorInfo): Int {
@@ -49,6 +77,8 @@ class ReturnKeyDrawableComponent :
 
     fun updateDrawableOnEditorInfo(info: EditorInfo) {
         actionDrawable = drawableFromEditorInfo(info)
+        currentSlot = slotForEditorInfo(info)
+        iconThemeDrawable = resolveIconThemeDrawable(currentSlot)
         if (resourceId == actionDrawable) return
         resourceId = actionDrawable
         broadcaster.onReturnKeyDrawableUpdate(resourceId)
@@ -56,8 +86,19 @@ class ReturnKeyDrawableComponent :
 
     fun updateDrawableOnPreedit(preeditEmpty: Boolean) {
         val newResId = if (preeditEmpty) actionDrawable else DEFAULT_DRAWABLE
+        if (preeditEmpty) {
+            iconThemeDrawable = resolveIconThemeDrawable(currentSlot)
+        } else {
+            currentSlot = "keys.return.default"
+            iconThemeDrawable = resolveIconThemeDrawable(currentSlot)
+        }
         if (resourceId == newResId) return
         resourceId = newResId
+        broadcaster.onReturnKeyDrawableUpdate(resourceId)
+    }
+
+    fun onIconThemeChanged() {
+        iconThemeDrawable = resolveIconThemeDrawable(currentSlot)
         broadcaster.onReturnKeyDrawableUpdate(resourceId)
     }
 }

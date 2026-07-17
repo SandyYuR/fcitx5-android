@@ -97,6 +97,16 @@
             android:exported="false"
             android:label="@string/edit_color" />
         <activity
+            android:name=".ui.main.settings.icon.IconThemeListActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="@string/icon_theme" />
+        <activity
+            android:name=".ui.main.settings.icon.IconThemeEditorActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="@string/edit_icon_theme" />
+        <activity
             android:name=".ui.main.settings.theme.MonetThemeEditorActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"

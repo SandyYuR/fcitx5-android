@@ -21,6 +21,7 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.broadcast.ReturnKeyDrawableComponent
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.theme
@@ -47,6 +48,11 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private val popup: PopupComponent by manager.must()
     private val bar: KawaiiBarComponent by manager.must()
     private val returnKeyDrawable: ReturnKeyDrawableComponent by manager.must()
+
+    private val iconThemeListener = IconThemeManager.OnIconThemeChangeListener {
+        returnKeyDrawable.onIconThemeChanged()
+        refreshCurrentKeyboard()
+    }
 
     companion object : EssentialWindow.Key
 
@@ -186,6 +192,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             it.setTextScale(currentTextScale)
             it.onAttach()
             it.onReturnDrawableUpdate(returnKeyDrawable.resourceId)
+            it.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)
             it.onInputMethodUpdate(fcitx.runImmediately { inputMethodEntryCached })
             updateCompositionState()
         }
@@ -313,6 +320,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     override fun onReturnKeyDrawableUpdate(resourceId: Int) {
         currentKeyboard?.onReturnDrawableUpdate(resourceId)
+        currentKeyboard?.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)
     }
 
     override fun onPreeditEmptyStateUpdate(empty: Boolean) {
@@ -326,6 +334,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     override fun onAttached() {
+        IconThemeManager.addOnChangedListener(iconThemeListener)
         currentKeyboard?.let {
             it.keyActionListener = keyActionListener
             it.popupActionListener = popupActionListener
@@ -342,6 +351,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     override fun onDetached() {
+        IconThemeManager.removeOnChangedListener(iconThemeListener)
         currentKeyboard?.let {
             it.onDetach()
             it.keyActionListener = null

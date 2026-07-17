@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.input.bar.ui
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.transition.Slide
 import android.transition.TransitionManager
 import android.transition.TransitionSet
@@ -29,6 +30,7 @@ import org.fcitx.fcitx5.android.input.bar.ui.idle.NumberRow
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import splitties.dimensions.dp
@@ -79,8 +81,7 @@ class IdleUi(
     }
 
     private val hasCustomMenuIcon get() = toolbarToggleConfig.icon != null || !toolbarToggleConfig.text.isNullOrEmpty()
-    private val hasCustomHideKeyboardIcon get() = hideKeyboardConfig.icon != null || !hideKeyboardConfig.text.isNullOrEmpty()
-
+    private var hideKeyboardInVoiceInputMode = false
     private val menuButtonRotation
         get() = when {
             inPrivate -> 0f
@@ -213,21 +214,57 @@ class IdleUi(
         updateMenuButtonRotation(instant = true)
     }
 
-    private fun applySystemButtonConfig(button: ToolButton, config: ConfigurableButton, @DrawableRes defaultIcon: Int) {
+    private fun systemSlotFromButtonId(buttonId: String): String? = when (buttonId) {
+        "toolbar_toggle" -> "system.toolbar_toggle"
+        "hide_keyboard" -> "system.hide_keyboard"
+        "voice_input" -> "system.voice_input"
+        else -> buttonId.takeIf { it.startsWith("system.") }
+    }
+
+    private fun applyIconThemeToSystemButton(button: ToolButton, slotOrButtonId: String): Boolean {
+        val slot = systemSlotFromButtonId(slotOrButtonId) ?: return false
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
+        if (iconInfo != null) {
+            button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
+            return true
+        }
+        val textValue = IconThemeManager.resolveIcon(slot)
+        if (textValue != null) {
+            button.setText(textValue)
+            return true
+        }
+        return false
+    }
+
+    private fun applyConfiguredSystemButton(button: ToolButton, config: ConfigurableButton): Boolean {
         if (!config.text.isNullOrEmpty()) {
             button.setText(config.text)
-        } else if (config.icon != null) {
-            if (config.icon.startsWith("file:")) {
-                val drawable = ButtonIconFile.loadDrawable(config.icon)
-                if (drawable != null) {
-                    button.setIconFromDrawable(drawable, tintWithTheme = ButtonIconFile.shouldTintIcon(config.icon))
-                }
-            } else {
-                val resId = ctx.resources.getIdentifier(config.icon, "drawable", ctx.packageName)
-                if (resId != 0) {
-                    button.setIcon(resId)
-                }
-            }
+            return true
+        }
+        val icon = config.icon ?: return false
+        if (icon.startsWith("file:")) {
+            val drawable = ButtonIconFile.loadDrawable(icon) ?: return false
+            button.setIconFromDrawable(drawable, tintWithTheme = ButtonIconFile.shouldTintIcon(icon))
+            return true
+        }
+        val resId = ctx.resources.getIdentifier(icon, "drawable", ctx.packageName)
+        if (resId != 0) {
+            button.setIcon(resId)
+            return true
+        }
+        return false
+    }
+
+    private fun applySystemButtonConfig(
+        button: ToolButton,
+        config: ConfigurableButton,
+        @DrawableRes defaultIcon: Int,
+        slotOverride: String? = null
+    ) {
+        val fromConfig = applyConfiguredSystemButton(button, config)
+        val fromTheme = if (!fromConfig) applyIconThemeToSystemButton(button, slotOverride ?: config.id) else false
+        if (!fromConfig && !fromTheme) {
+            button.setIcon(defaultIcon)
         }
         if (!config.label.isNullOrEmpty()) {
             button.contentDescription = config.label
@@ -241,8 +278,17 @@ class IdleUi(
         }
         val hideIcon = hideKeyboardConfig.icon
         if (hideIcon != null && hideIcon.startsWith("file:")) {
-            applySystemButtonConfig(hideKeyboardButton, hideKeyboardConfig, defaultHideKeyboardIcon)
+            refreshHideKeyboardButtonIcon()
         }
+    }
+
+    /** Refresh all toolbar and system button icons (called when icon theme changes). */
+    fun refreshAllIcons() {
+        // Re-apply icon theme to system buttons
+        applySystemButtonConfig(menuButton, toolbarToggleConfig, defaultMenuIcon)
+        refreshHideKeyboardButtonIcon()
+        // Rebind toolbar buttons
+        buttonsUi.refreshLayout()
     }
 
     fun updateSystemButtonConfigs(
@@ -252,17 +298,17 @@ class IdleUi(
         toolbarToggleConfig = newToolbarToggleConfig
         hideKeyboardConfig = newHideKeyboardConfig
         applySystemButtonConfig(menuButton, toolbarToggleConfig, defaultMenuIcon)
-        applySystemButtonConfig(hideKeyboardButton, hideKeyboardConfig, defaultHideKeyboardIcon)
+        refreshHideKeyboardButtonIcon()
         updateMenuButtonIcon()
         updateMenuButtonContentDescription()
     }
 
     private fun updateMenuButtonIcon() {
-        if (hasCustomMenuIcon) return
-        menuButton.setIcon(
-            if (inPrivate) R.drawable.ic_view_private
-            else R.drawable.ic_baseline_expand_more_24
-        )
+        if (inPrivate && !hasCustomMenuIcon) {
+            menuButton.setIcon(R.drawable.ic_view_private)
+            return
+        }
+        applySystemButtonConfig(menuButton, toolbarToggleConfig, defaultMenuIcon)
     }
 
     private fun updateMenuButtonContentDescription() {
@@ -287,15 +333,25 @@ class IdleUi(
         }
     }
 
+    private fun refreshHideKeyboardButtonIcon() {
+        if (hideKeyboardInVoiceInputMode) {
+            val fromTheme = applyIconThemeToSystemButton(hideKeyboardButton, "system.voice_input")
+            if (!fromTheme) {
+                hideKeyboardButton.setIcon(R.drawable.ic_baseline_keyboard_voice_24)
+            }
+        } else {
+            applySystemButtonConfig(hideKeyboardButton, hideKeyboardConfig, defaultHideKeyboardIcon)
+        }
+    }
+
     fun setHideKeyboardIsVoiceInput(isVoiceInput: Boolean, callback: View.OnClickListener) {
+        hideKeyboardInVoiceInputMode = isVoiceInput
         if (isVoiceInput) {
-            hideKeyboardButton.setIcon(R.drawable.ic_baseline_keyboard_voice_24)
+            refreshHideKeyboardButtonIcon()
             hideKeyboardButton.contentDescription = ctx.getString(R.string.switch_to_voice_input)
         } else {
-            if (hasCustomHideKeyboardIcon) {
-                applySystemButtonConfig(hideKeyboardButton, hideKeyboardConfig, defaultHideKeyboardIcon)
-            } else {
-                hideKeyboardButton.setIcon(R.drawable.ic_baseline_arrow_drop_down_24)
+            refreshHideKeyboardButtonIcon()
+            if (hideKeyboardConfig.label.isNullOrEmpty()) {
                 hideKeyboardButton.contentDescription = ctx.getString(R.string.hide_keyboard)
             }
         }

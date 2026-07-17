@@ -195,7 +195,8 @@ class CapsKey(
         add(Behavior.LongPress(KeyAction.CapsAction(true)))
         add(Behavior.DoubleTap(KeyAction.CapsAction(true)))
         swipe?.let { add(Behavior.Swipe(it)) }
-    }
+    },
+    iconSlot = "keys.capslock.none"
 )
 
 class LayoutSwitchKey(
@@ -315,7 +316,8 @@ class BackspaceKey(
     setOf(
         Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_BackSpace))),
         Behavior.Repeat(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_BackSpace)))
-    )
+    ),
+    iconSlot = "keys.backspace"
 )
 
 class QuickPhraseKey : KeyDef(
@@ -327,7 +329,8 @@ class QuickPhraseKey : KeyDef(
     setOf(
         Behavior.Press(KeyAction.QuickPhraseAction),
         Behavior.LongPress(KeyAction.UnicodeAction)
-    )
+    ),
+    iconSlot = "keys.quickphrase"
 )
 
 class CommaKey(
@@ -377,7 +380,8 @@ class CommaKey(
                 )
             )
         )
-    )
+    ),
+    iconSlot = "keys.emoji"
 )
 
 class LanguageKey(
@@ -404,7 +408,8 @@ class LanguageKey(
     setOf(
         Behavior.Press(KeyAction.LangSwitchAction),
         Behavior.LongPress(KeyAction.ShowInputMethodPickerAction)
-    )
+    ),
+    iconSlot = "keys.language"
 )
 
 class SpaceKey(
@@ -492,6 +497,7 @@ class ReturnKey(
             )
         )
     ),
+    iconSlot = "keys.return.default"
 )
 
 class ImageLayoutSwitchKey(
@@ -561,7 +567,8 @@ class MiniSpaceKey : KeyDef(
     ),
     setOf(
         Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_space)))
-    )
+    ),
+    iconSlot = "keys.space"
 )
 
 class NumPadKey(
