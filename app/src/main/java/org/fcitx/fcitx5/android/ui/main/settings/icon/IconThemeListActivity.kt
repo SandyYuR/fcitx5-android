@@ -7,8 +7,13 @@ package org.fcitx.fcitx5.android.ui.main.settings.icon
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.RectF
 import android.graphics.drawable.GradientDrawable
 import android.graphics.Typeface
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
@@ -24,6 +29,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -31,6 +37,7 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.journeyapps.barcodescanner.ScanContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,6 +47,8 @@ import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrBitmapUtil
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrScanOptions
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 
@@ -48,11 +57,14 @@ class IconThemeListActivity : AppCompatActivity() {
         private const val MENU_IMPORT_JSON = 2
         private const val MENU_IMPORT_QR_IMAGE = 3
         private const val MENU_SHARE_ICON_THEME = 4
+        private const val MENU_IMPORT_QR_SCAN = 5
+        private const val QR_PREVIEW_ICON_SIZE = 96
     }
 
     private val themes get() = IconThemeManager.iconThemes
     private val builtinDefault = IconTheme.default()
     private val adapter = ThemeAdapter()
+    private val qrChunkCollector = QrChunkCollector()
 
     private val onListChangeListener = IconThemeManager.OnIconThemeListChangeListener { refreshThemes() }
     private val onThemeChangeListener = IconThemeManager.OnIconThemeChangeListener { refreshThemes() }
@@ -64,6 +76,21 @@ class IconThemeListActivity : AppCompatActivity() {
     private val qrImageImportLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri -> uri?.let { importFromQrImage(it) } }
+
+    private val cameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            cameraScanLauncher.launch(QrScanOptions.forPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt)))
+        } else {
+            Toast.makeText(this, getString(R.string.text_keyboard_layout_qr_camera_permission_denied), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val cameraScanLauncher = registerForActivityResult(ScanContract()) { result ->
+        val content = result?.contents ?: return@registerForActivityResult
+        addImportedChunkFromText(content)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,6 +137,8 @@ class IconThemeListActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menu.add(Menu.NONE, MENU_IMPORT_JSON, Menu.NONE, getString(R.string.icon_theme_import_json))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(Menu.NONE, MENU_IMPORT_QR_SCAN, Menu.NONE, getString(R.string.text_keyboard_layout_qr_import_scan))
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_IMPORT_QR_IMAGE, Menu.NONE, getString(R.string.icon_theme_import_qr_image))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_SHARE_ICON_THEME, Menu.NONE, getString(R.string.icon_theme_share_title))
@@ -119,6 +148,7 @@ class IconThemeListActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         MENU_IMPORT_JSON -> { jsonImportLauncher.launch("application/json"); true }
+        MENU_IMPORT_QR_SCAN -> { startCameraScanImport(); true }
         MENU_IMPORT_QR_IMAGE -> { qrImageImportLauncher.launch("image/*"); true }
         MENU_SHARE_ICON_THEME -> { promptShareTheme(); true }
         else -> super.onOptionsItemSelected(item)
@@ -145,18 +175,74 @@ class IconThemeListActivity : AppCompatActivity() {
                 return
             }
             val json = LayoutQrTransferCodec.decodeChunksToJson(chunks)
-            val theme = if (IconThemeQrTransferCodec.detectSchema(json) == IconThemeQrTransferCodec.SCHEMA) {
-                IconThemeQrTransferCodec.decodeIconThemeFromJson(json)
-            } else {
+            importThemeFromJson(json)
+        } catch (_: Exception) {
+            Toast.makeText(this, getString(R.string.icon_theme_decode_qr_failed), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun importThemeFromJson(json: String) {
+        try {
+            val theme = runCatching {
+                IconThemeQrTransferCodec.decodeIconThemeFromJson(json).also { IconThemeManager.saveTheme(it) }
+            }.getOrElse {
                 IconThemeManager.importTheme(json)
-                return
             }
-            IconThemeManager.saveTheme(theme)
             Toast.makeText(this, getString(R.string.icon_theme_imported, theme.name), Toast.LENGTH_SHORT).show()
             refreshThemes()
         } catch (_: Exception) {
             Toast.makeText(this, getString(R.string.icon_theme_decode_qr_failed), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun startCameraScanImport() {
+        val granted = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            cameraScanLauncher.launch(QrScanOptions.forPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt)))
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun addImportedChunkFromText(raw: String) {
+        val headerChunk = JsonFileQrShareManager.parseQrPayload(raw)
+        val headerType = headerChunk?.let { LayoutQrTransferCodec.detectTransferType(it.transferId) }
+        if (headerType != null && headerType != LayoutQrTransferCodec.TRANSFER_TYPE_ICON_THEME) {
+            Toast.makeText(
+                this,
+                getString(
+                    R.string.text_keyboard_layout_qr_type_mismatch,
+                    getString(R.string.qr_payload_type_icon_theme),
+                    when (headerType) {
+                        LayoutQrTransferCodec.TRANSFER_TYPE_THEME -> getString(R.string.qr_payload_type_theme)
+                        LayoutQrTransferCodec.TRANSFER_TYPE_LAYOUT -> getString(R.string.qr_payload_type_layout)
+                        LayoutQrTransferCodec.TRANSFER_TYPE_POPUP -> getString(R.string.qr_payload_type_popup)
+                        else -> getString(R.string.qr_payload_type_unknown)
+                    }
+                ),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        val progress = runCatching { qrChunkCollector.addAndMaybeAssemble(raw) }.getOrNull()
+        if (progress == null) {
+            Toast.makeText(this, getString(R.string.text_keyboard_layout_qr_invalid_payload), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (progress.duplicate) {
+            Toast.makeText(this, getString(R.string.text_keyboard_layout_qr_duplicate_chunk), Toast.LENGTH_SHORT).show()
+        }
+        Toast.makeText(
+            this,
+            getString(R.string.text_keyboard_layout_qr_scan_progress, progress.current, progress.total),
+            Toast.LENGTH_SHORT
+        ).show()
+        progress.completedJson?.let {
+            importThemeFromJson(it)
+            return
+        }
+        cameraScanLauncher.launch(QrScanOptions.forPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt)))
     }
 
     private fun refreshThemes() {
@@ -262,15 +348,34 @@ class IconThemeListActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun renderThumbnailBitmap(theme: IconTheme, sizePx: Int): Bitmap? {
+        val svgContent = theme.thumbnailSvg?.takeIf { it.isNotBlank() }
+            ?: IconThemeManager.buildThemeThumbnailSvg(theme.icons)
+            ?: return null
+        return runCatching {
+            val svg = com.caverock.androidsvg.SVG.getFromString(svgContent)
+            val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+            svg.renderToCanvas(Canvas(bitmap), RectF(0f, 0f, sizePx.toFloat(), sizePx.toFloat()))
+            bitmap
+        }.getOrNull()
+    }
+
     private fun exportAsQrLongImage(theme: IconTheme) {
         lifecycleScope.launch {
             try {
                 val bundle = withContext(Dispatchers.Default) { IconThemeQrTransferCodec.encodeIconThemeToChunks(theme) }
                 val labels = JsonFileQrShareManager.buildChunkLabels(bundle, getString(R.string.qr_payload_type_icon_theme), theme.name)
                 val image = withContext(Dispatchers.Default) {
-                    LayoutQrBitmapUtil.composeLongImageStreamingWithPreview(
-                        bundle.chunks.map { it.encode() }, labels, null
+                    val preview = renderThumbnailBitmap(theme, QR_PREVIEW_ICON_SIZE)?.let { icon ->
+                        val strip = LayoutQrBitmapUtil.composeCenteredPreviewStrip(icon, QR_PREVIEW_ICON_SIZE)
+                        icon.recycle()
+                        strip
+                    }
+                    val composed = LayoutQrBitmapUtil.composeLongImageStreamingWithPreview(
+                        bundle.chunks.map { it.encode() }, labels, preview
                     )
+                    if (preview != null && !preview.isRecycled) preview.recycle()
+                    composed
                 }
                 val uri = JsonFileQrShareManager.saveLongImageToShareCache(
                     this@IconThemeListActivity, image, "icon_theme_${theme.name}")

@@ -127,8 +127,9 @@ class QrChunkCollector {
         if (chunks.size == total) {
             val json = LayoutQrTransferCodec.decodeChunksToJson(chunks.values.toList())
             val completedTransferId = transferId
+            val completedTotal = total
             clear()
-            return Progress(total, total, completedTransferId, json, duplicate)
+            return Progress(completedTotal, completedTotal, completedTransferId, json, duplicate)
         }
         return Progress(chunks.size, total, transferId, null, duplicate)
     }

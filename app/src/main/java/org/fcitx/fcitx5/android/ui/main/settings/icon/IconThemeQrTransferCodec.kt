@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.icon
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -18,14 +20,16 @@ object IconThemeQrTransferCodec {
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     private data class IconThemeSharePayload(
+        @EncodeDefault(EncodeDefault.Mode.ALWAYS)
         val schema: String = SCHEMA,
         val iconTheme: IconTheme
     )
 
     fun encodeIconThemeToChunks(theme: IconTheme): LayoutQrTransferCodec.ChunkBundle {
-        val payload = IconThemeSharePayload(iconTheme = theme)
+        val payload = IconThemeSharePayload(iconTheme = theme.copy(thumbnailSvg = null))
         val rawJson = json.encodeToString(payload)
         return LayoutQrTransferCodec.encodeJsonToChunks(rawJson, transferType = TRANSFER_TYPE_ICON_THEME)
     }

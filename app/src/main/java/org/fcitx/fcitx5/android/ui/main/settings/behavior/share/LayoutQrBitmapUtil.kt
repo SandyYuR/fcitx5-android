@@ -39,6 +39,24 @@ object LayoutQrBitmapUtil {
         return ScaledPreview(scaled, scaledHeight + PAGE_PADDING)
     }
 
+    /**
+     * Build a full-width preview strip with [icon] drawn centered at [iconSize] px square,
+     * so [composeLongImageStreamingWithPreview] renders it at its intended size
+     * instead of scaling it up to the long image width.
+     */
+    fun composeCenteredPreviewStrip(icon: Bitmap, iconSize: Int): Bitmap {
+        val width = QR_SIZE + PAGE_PADDING * 2
+        val strip = Bitmap.createBitmap(width, PAGE_PADDING + iconSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(strip)
+        canvas.drawColor(Color.WHITE)
+        val left = (width - iconSize) / 2f
+        val dst = android.graphics.RectF(
+            left, PAGE_PADDING.toFloat(), left + iconSize, (PAGE_PADDING + iconSize).toFloat()
+        )
+        canvas.drawBitmap(icon, null, dst, Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG))
+        return strip
+    }
+
     fun createQrBitmap(content: String): Bitmap {
         val hints = mapOf<EncodeHintType, Any>(
             EncodeHintType.CHARACTER_SET to "UTF-8",
