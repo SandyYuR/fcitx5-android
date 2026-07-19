@@ -815,6 +815,9 @@
     <string name="icon_theme_imported">已匯入：%s</string>
     <string name="icon_theme_import_json_failed">匯入 JSON 失敗</string>
     <string name="icon_theme_decode_qr_failed">QR 碼圖片解碼失敗</string>
+    <string name="icon_theme_import_zip">從 ZIP 匯入</string>
+    <string name="icon_theme_export_zip_failed">匯出 ZIP 失敗：%1$s</string>
+    <string name="icon_theme_import_zip_failed">匯入 ZIP 失敗：%1$s</string>
     <string name="icon_theme_no_qr_found">圖片中未找到 QR 碼</string>
     <string name="icon_theme_export_qr_long_image">匯出為 QR 碼長圖</string>
     <string name="icon_theme_duplicate">複製</string>

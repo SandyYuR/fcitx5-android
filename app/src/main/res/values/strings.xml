@@ -755,6 +755,9 @@
     <string name="icon_theme_imported">Imported: %s</string>
     <string name="icon_theme_import_json_failed">Failed to import JSON</string>
     <string name="icon_theme_decode_qr_failed">Failed to decode QR image</string>
+    <string name="icon_theme_import_zip">Import from ZIP</string>
+    <string name="icon_theme_export_zip_failed">Failed to export ZIP: %1$s</string>
+    <string name="icon_theme_import_zip_failed">Failed to import ZIP: %1$s</string>
     <string name="icon_theme_no_qr_found">No QR codes found in image</string>
     <string name="icon_theme_export_qr_long_image">Export as QR long image</string>
     <string name="icon_theme_duplicate">Duplicate</string>

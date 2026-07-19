@@ -21,6 +21,12 @@ import org.fcitx.fcitx5.android.utils.appContext
 import timber.log.Timber
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.nio.charset.Charset
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 import org.xmlpull.v1.XmlPullParser
 
 object IconThemeManager {
@@ -160,7 +166,7 @@ object IconThemeManager {
         val rootTag = detectXmlRootTag(value)
         val isSvg = rootTag.equals("svg", ignoreCase = true) && isInlineSvg(value)
         val loaded: Drawable = (if (isFileIcon) {
-            ButtonIconFile.loadDrawable(value)
+            ButtonIconFile.loadDrawable(value)?.let { normalizedDrawable(it) }
         } else if (isSvg) {
             loadSvgDrawable(value)
         } else {
@@ -271,6 +277,26 @@ object IconThemeManager {
             svg.renderToCanvas(canvas, android.graphics.RectF(0f, 0f, size.toFloat(), size.toFloat()))
             BitmapDrawable(appContext.resources, bitmap)
         } catch (_: Exception) { null }
+    }
+
+    /** Scale an oversized BitmapDrawable down to the standard icon size (24dp)
+     *  so PNG file icons don't overflow key/toolbar button boundaries. */
+    private fun normalizedDrawable(drawable: Drawable): Drawable {
+        if (drawable !is BitmapDrawable) return drawable
+        val bitmap = drawable.bitmap
+        val w = bitmap.width.coerceAtLeast(1)
+        val h = bitmap.height.coerceAtLeast(1)
+        val density = appContext.resources.displayMetrics.density
+        val targetSize = (24 * density).toInt()
+        if (w <= targetSize && h <= targetSize) return drawable
+        val scale = minOf(targetSize.toFloat() / w, targetSize.toFloat() / h)
+        val scaled = Bitmap.createScaledBitmap(
+            bitmap,
+            (w * scale).toInt().coerceAtLeast(1),
+            (h * scale).toInt().coerceAtLeast(1),
+            true
+        )
+        return BitmapDrawable(appContext.resources, scaled)
     }
 
     private fun cloneDrawable(drawable: Drawable): Drawable {
@@ -394,6 +420,7 @@ object IconThemeManager {
         if (activeTheme.name == normalizedTheme.name) {
             activeTheme = normalizedTheme
         }
+        cleanupOrphanedPngs(normalizedTheme.name)
         dispatchOnMain { onListChangeListeners.toList().forEach { it.onIconThemeListChange(iconThemes) } }
     }
 
@@ -410,6 +437,7 @@ object IconThemeManager {
         if (activeTheme.name == name) {
             activeTheme = builtinDefault
         }
+        cleanupOrphanedPngs(name)
         dispatchOnMain { onListChangeListeners.toList().forEach { it.onIconThemeListChange(iconThemes) } }
     }
 
@@ -417,6 +445,178 @@ object IconThemeManager {
         val theme = json.decodeFromString<IconTheme>(jsonString)
         saveTheme(theme)
         return theme
+    }
+
+    /** Directory under button_icons/ for a theme's PNG resources. */
+    fun pngDirForTheme(name: String): File {
+        val extDir = appContext.getExternalFilesDir(null) ?: appContext.filesDir
+        return File(extDir, "${ButtonIconFile.DIR}/${sanitizeFileName(name)}").also { it.mkdirs() }
+    }
+
+    private fun sanitizeFileName(name: String): String =
+        name.replace(Regex("[/\\\\:*?\"<>|]"), "_").trim { it <= ' ' || it == '.' }
+
+    /** Collect all `file:` references in a theme's icons map. */
+    fun collectFileReferences(theme: IconTheme): Set<String> =
+        theme.icons.values.filter(ButtonIconFile::isFileIcon).toSet()
+
+    /** Collect all `file:` references across all installed themes. */
+    private fun collectAllFileReferences(): Set<String> =
+        installedThemes.flatMap { collectFileReferences(it) }.toSet()
+
+    /**
+     * Clean up PNG files in [themeName]'s directory that are NOT referenced
+     * by any installed theme. Call after save or delete.
+     */
+    fun cleanupOrphanedPngs(themeName: String) {
+        val dir = pngDirForTheme(themeName)
+        if (!dir.isDirectory) return
+        val used = collectAllFileReferences()
+        dir.listFiles()?.forEach { file ->
+            if (file.isFile) {
+                val relativePath = "${ButtonIconFile.DIR}/${sanitizeFileName(themeName)}/${file.name}"
+                if (ButtonIconFile.PREFIX + relativePath !in used) {
+                    runCatching { file.delete() }
+                        .onFailure { Timber.w(it, "Failed to delete unused PNG: $file") }
+                }
+            }
+        }
+        dir.list()?.takeIf { it.isEmpty() }?.let { runCatching { dir.delete() } }
+    }
+
+    /**
+     * Export an icon theme and its PNG resources as a ZIP file.
+     * The JSON is written with relative `file:` paths so the ZIP is portable.
+     * [dest] will be closed on finished.
+     */
+    fun exportThemeToZip(theme: IconTheme, dest: java.io.OutputStream) =
+        runCatching {
+            val safeName = sanitizeFileName(theme.name)
+            val fileRefs = collectFileReferences(theme)
+            val extDir = appContext.getExternalFilesDir(null) ?: appContext.filesDir
+            val btnIconsBase = File(extDir, ButtonIconFile.DIR)
+
+            // Build normalized icons map with portable (relative) paths
+            val portableIcons = theme.icons.mapValues { (_, value) ->
+                if (ButtonIconFile.isFileIcon(value)) {
+                    ButtonIconFile.PREFIX + value.removePrefix(ButtonIconFile.PREFIX)
+                        .split("/").takeLast(2).joinToString("/")
+                        .let { "${ButtonIconFile.DIR}/$it" }
+                        .let { ButtonIconFile.PREFIX + it }
+                } else value
+            }
+
+            ZipOutputStream(dest.buffered()).use { zip ->
+                // Write JSON
+                zip.putNextEntry(ZipEntry("$safeName.json"))
+                val exportTheme = theme.copy(icons = portableIcons)
+                val jsonBytes = json.encodeToString(exportTheme).toByteArray(Charsets.UTF_8)
+                zip.write(jsonBytes)
+                zip.closeEntry()
+
+                // Write each referenced PNG
+                fileRefs.forEach { ref ->
+                    runCatching {
+                        val raw = ref.removePrefix(ButtonIconFile.PREFIX)
+                        val file = File(btnIconsBase, raw)
+                        val file2 = File(extDir, raw)
+                        val resolved = when {
+                            file.isFile -> file
+                            file2.isFile -> file2
+                            else -> null
+                        }
+                        if (resolved != null) {
+                            val entryName = ref.removePrefix(ButtonIconFile.PREFIX)
+                                .split("/").takeLast(2).joinToString("/")
+                                .let { "${ButtonIconFile.DIR}/$it" }
+                            zip.putNextEntry(ZipEntry(entryName))
+                            FileInputStream(resolved).use { it.copyTo(zip) }
+                            zip.closeEntry()
+                        }
+                    }.onFailure { Timber.w(it, "Failed to pack PNG for export: $ref") }
+                }
+            }
+        }
+
+    /**
+     * Import an icon theme from a ZIP input stream.
+     * PNG resources are extracted to button_icons/<themeName>/.
+     * @return the imported IconTheme
+     */
+    fun importThemeFromZip(src: java.io.InputStream, importedName: String? = null): Result<IconTheme> =
+        runCatching {
+            val zipBytes = src.readBytes()
+            val encodings = listOf("UTF-8", "GBK", "Big5")
+            for (encoding in encodings) {
+                try {
+                    return@runCatching importThemeFromZipWithEncoding(zipBytes.inputStream(), encoding, importedName)
+                } catch (_: Exception) { /* try next encoding */ }
+            }
+            error("Failed to decode icon theme ZIP with any encoding")
+        }
+
+    private fun importThemeFromZipWithEncoding(
+        src: java.io.InputStream,
+        encoding: String,
+        importedName: String?
+    ): IconTheme {
+        val charset = Charset.forName(encoding)
+        val extDir = appContext.getExternalFilesDir(null) ?: appContext.filesDir
+        val btnIconsBase = File(extDir, ButtonIconFile.DIR)
+
+        // First pass: extract JSON
+        var jsonText: String? = null
+        val pngEntries = mutableListOf<Pair<String, ByteArray>>()
+        ZipInputStream(src, charset).use { zipStream ->
+            var entry = zipStream.nextEntry
+            while (entry != null) {
+                if (!entry.isDirectory) {
+                    val bytes = zipStream.readBytes()
+                    if (entry.name.endsWith(".json")) {
+                        jsonText = bytes.toString(Charsets.UTF_8)
+                    } else {
+                        pngEntries.add(entry.name to bytes)
+                    }
+                }
+                entry = zipStream.nextEntry
+            }
+        }
+
+        val rawJson = jsonText ?: throw IllegalArgumentException("No JSON found in icon theme ZIP")
+
+        // Normalize paths for cross-variant import
+        val normalizedJson = rawJson.replace(
+            Regex("""/Android/data/[^/]+/files"""),
+            "/Android/data/${appContext.packageName}/files"
+        )
+
+        val theme = json.decodeFromString<IconTheme>(normalizedJson)
+        val finalName = importedName ?: theme.name
+
+        // Write PNG files to the theme's directory
+        pngEntries.forEach { (entryName, data) ->
+            runCatching {
+                val fileName = File(entryName).name
+                if (fileName.isBlank()) return@forEach
+                val targetFile = File(pngDirForTheme(finalName), fileName)
+                targetFile.parentFile?.mkdirs()
+                targetFile.writeBytes(data)
+            }.onFailure { Timber.w(it, "Failed to write PNG from ZIP: $entryName") }
+        }
+
+        // Re-resolve file paths in the theme to point to the correct location
+        val resolvedIcons = theme.icons.mapValues { (_, value) ->
+            if (ButtonIconFile.isFileIcon(value)) {
+                val fileName = value.removePrefix(ButtonIconFile.PREFIX).substringAfterLast('/')
+                if (fileName.isNotBlank()) {
+                    ButtonIconFile.PREFIX + ButtonIconFile.DIR + "/" + sanitizeFileName(finalName) + "/" + fileName
+                } else value
+            } else value
+        }
+
+        val finalTheme = theme.copy(name = finalName, icons = resolvedIcons)
+        saveTheme(finalTheme)
+        return finalTheme
     }
 
     @Synchronized
