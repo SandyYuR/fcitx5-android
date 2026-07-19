@@ -59,7 +59,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
     private val iconPickerLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
-        handlePickedSvg(uri)
+        handlePickedIcon(uri)
     }
 
     private var pendingSlot: String? = null
@@ -186,6 +186,73 @@ class IconThemeEditorActivity : AppCompatActivity() {
         finish()
     }
 
+    private fun handlePickedIcon(uri: Uri?) {
+        val slot = pendingSlot ?: return
+        pendingSlot = null
+        if (uri == null) return
+        try {
+            val mimeType = contentResolver.getType(uri)
+            val isPng = mimeType == "image/png" || uri.toString().endsWith(".png", ignoreCase = true)
+            if (isPng) {
+                handlePickedPng(uri, slot)
+            } else {
+                handlePickedSvg(uri, slot)
+            }
+        } catch (_: Exception) {
+            Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun handlePickedSvg(uri: Uri, slot: String) {
+        try {
+            val valueToStore = contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use { reader ->
+                reader.readText().trim()
+            } ?: run {
+                Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
+                return
+            }
+            if (SlotRowUi.isSvgContent(valueToStore) || SlotRowUi.isDrawableXmlContent(valueToStore)) {
+                mutableIcons[slot] = valueToStore
+                notifySlotChanged(slot)
+                currentDialog?.dismiss()
+            } else {
+                Toast.makeText(this, getString(R.string.icon_theme_invalid_svg), Toast.LENGTH_SHORT).show()
+            }
+        } catch (_: Exception) {
+            Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun handlePickedPng(uri: Uri, slot: String) {
+        try {
+            val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                ?: run {
+                    Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
+                    return
+                }
+            val originalName = contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) cursor.getString(0) else null
+            }?.takeIf { it.isNotBlank() } ?: "image.png"
+            val baseName = originalName.substringBeforeLast('.', originalName).takeIf { it.isNotBlank() } ?: "image"
+            val ext = originalName.substringAfterLast('.', originalName).takeIf { it.isNotBlank() } ?: "png"
+            val pngDir = IconThemeManager.pngDirForTheme(themeName)
+            var fileName = "$baseName.$ext"
+            var counter = 1
+            while (java.io.File(pngDir, fileName).exists()) {
+                fileName = "${baseName}_${counter}.$ext"
+                counter++
+            }
+            val targetFile = java.io.File(pngDir, fileName)
+            targetFile.writeBytes(bytes)
+            val value = ButtonIconFile.PREFIX + ButtonIconFile.DIR + "/" + targetFile.parentFile!!.name + "/" + fileName
+            mutableIcons[slot] = value
+            notifySlotChanged(slot)
+            currentDialog?.dismiss()
+        } catch (_: Exception) {
+            Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun handlePickedSvg(uri: Uri?) {
         val slot = pendingSlot ?: return
         pendingSlot = null
@@ -204,6 +271,39 @@ class IconThemeEditorActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, getString(R.string.icon_theme_invalid_svg), Toast.LENGTH_SHORT).show()
             }
+        } catch (_: Exception) {
+            Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun handlePickedPng(uri: Uri?) {
+        val slot = pendingSlot ?: return
+        pendingSlot = null
+        if (uri == null) return
+        try {
+            val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                ?: run {
+                    Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
+                    return
+                }
+            val originalName = contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) cursor.getString(0) else null
+            }?.takeIf { it.isNotBlank() } ?: "image.png"
+            val baseName = originalName.substringBeforeLast('.', originalName).takeIf { it.isNotBlank() } ?: "image"
+            val ext = originalName.substringAfterLast('.', originalName).takeIf { it.isNotBlank() } ?: "png"
+            val pngDir = IconThemeManager.pngDirForTheme(themeName)
+            var fileName = "$baseName.$ext"
+            var counter = 1
+            while (java.io.File(pngDir, fileName).exists()) {
+                fileName = "${baseName}_${counter}.$ext"
+                counter++
+            }
+            val targetFile = java.io.File(pngDir, fileName)
+            targetFile.writeBytes(bytes)
+            val value = ButtonIconFile.PREFIX + ButtonIconFile.DIR + "/" + targetFile.parentFile!!.name + "/" + fileName
+            mutableIcons[slot] = value
+            notifySlotChanged(slot)
+            currentDialog?.dismiss()
         } catch (_: Exception) {
             Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
         }
@@ -469,7 +569,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
             setPadding(dp(12), dp(8), dp(12), dp(8))
             setOnClickListener {
                 pendingSlot = slot
-                iconPickerLauncher.launch(arrayOf("image/svg+xml", "text/xml", "application/xml"))
+                iconPickerLauncher.launch(arrayOf("image/*", "text/xml", "application/xml"))
             }
         }
         actionsRow.addView(selectAction, LinearLayout.LayoutParams(0, wrapContent, 1f))

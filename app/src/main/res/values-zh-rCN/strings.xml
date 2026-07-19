@@ -817,6 +817,9 @@
     <string name="icon_theme_imported">已导入：%s</string>
     <string name="icon_theme_import_json_failed">导入 JSON 失败</string>
     <string name="icon_theme_decode_qr_failed">二维码图片解码失败</string>
+    <string name="icon_theme_import_zip">从 ZIP 导入</string>
+    <string name="icon_theme_export_zip_failed">导出 ZIP 失败：%1$s</string>
+    <string name="icon_theme_import_zip_failed">导入 ZIP 失败：%1$s</string>
     <string name="icon_theme_no_qr_found">图片中未找到二维码</string>
     <string name="icon_theme_export_qr_long_image">导出为二维码长图</string>
     <string name="icon_theme_duplicate">复制</string>

@@ -42,6 +42,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.data.theme.IconTheme
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
@@ -58,6 +59,7 @@ class IconThemeListActivity : AppCompatActivity() {
         private const val MENU_IMPORT_QR_IMAGE = 3
         private const val MENU_SHARE_ICON_THEME = 4
         private const val MENU_IMPORT_QR_SCAN = 5
+        private const val MENU_IMPORT_ZIP = 6
         private const val QR_PREVIEW_ICON_SIZE = 96
     }
 
@@ -91,6 +93,10 @@ class IconThemeListActivity : AppCompatActivity() {
         val content = result?.contents ?: return@registerForActivityResult
         addImportedChunkFromText(content)
     }
+
+    private val zipImportLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri -> uri?.let { importIconThemeZip(it) } }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -141,6 +147,8 @@ class IconThemeListActivity : AppCompatActivity() {
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_IMPORT_QR_IMAGE, Menu.NONE, getString(R.string.icon_theme_import_qr_image))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(Menu.NONE, MENU_IMPORT_ZIP, Menu.NONE, getString(R.string.icon_theme_import_zip))
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_SHARE_ICON_THEME, Menu.NONE, getString(R.string.icon_theme_share_title))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         return true
@@ -150,6 +158,7 @@ class IconThemeListActivity : AppCompatActivity() {
         MENU_IMPORT_JSON -> { jsonImportLauncher.launch("application/json"); true }
         MENU_IMPORT_QR_SCAN -> { startCameraScanImport(); true }
         MENU_IMPORT_QR_IMAGE -> { qrImageImportLauncher.launch("image/*"); true }
+        MENU_IMPORT_ZIP -> { zipImportLauncher.launch("application/zip"); true }
         MENU_SHARE_ICON_THEME -> { promptShareTheme(); true }
         else -> super.onOptionsItemSelected(item)
     }
@@ -343,9 +352,61 @@ class IconThemeListActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.icon_theme_share_title))
             .setItems(names) { _, which ->
-                exportAsQrLongImage(customThemes[which])
+                val theme = customThemes[which]
+                val hasFiles = IconThemeManager.collectFileReferences(theme).isNotEmpty()
+                if (hasFiles) {
+                    shareThemeAsZip(theme)
+                } else {
+                    exportAsQrLongImage(theme)
+                }
             }
             .show()
+    }
+
+    private fun shareThemeAsZip(theme: IconTheme) {
+        lifecycleScope.launch {
+            try {
+                val uri = withContext(Dispatchers.Default) {
+                    val dir = java.io.File(cacheDir, "shared").also { it.mkdirs() }
+                    val zipFile = java.io.File(dir, "icon_theme_${theme.name.replace(Regex("[/\\\\:*?\"<>|]"), "_")}.zip")
+                    java.io.FileOutputStream(zipFile).use { out ->
+                        IconThemeManager.exportThemeToZip(theme, out).getOrThrow()
+                    }
+                    androidx.core.content.FileProvider.getUriForFile(
+                        this@IconThemeListActivity,
+                        "${BuildConfig.APPLICATION_ID}.share.fileprovider",
+                        zipFile
+                    )
+                }
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/zip"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(Intent.createChooser(intent, getString(R.string.icon_theme_share_title)))
+            } catch (e: Exception) {
+                Toast.makeText(this@IconThemeListActivity,
+                    getString(R.string.icon_theme_export_zip_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun importIconThemeZip(uri: Uri) {
+        lifecycleScope.launch {
+            try {
+                val theme = withContext(Dispatchers.Default) {
+                    contentResolver.openInputStream(uri)?.use { input ->
+                        IconThemeManager.importThemeFromZip(input).getOrThrow()
+                    } ?: throw IllegalStateException("Cannot open ZIP")
+                }
+                Toast.makeText(this@IconThemeListActivity,
+                    getString(R.string.icon_theme_imported, theme.name), Toast.LENGTH_SHORT).show()
+                refreshThemes()
+            } catch (e: Exception) {
+                Toast.makeText(this@IconThemeListActivity,
+                    getString(R.string.icon_theme_import_zip_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun renderThumbnailBitmap(theme: IconTheme, sizePx: Int): Bitmap? {
