@@ -79,7 +79,6 @@ class ReturnKeyDrawableComponent :
         actionDrawable = drawableFromEditorInfo(info)
         currentSlot = slotForEditorInfo(info)
         iconThemeDrawable = resolveIconThemeDrawable(currentSlot)
-        if (resourceId == actionDrawable) return
         resourceId = actionDrawable
         broadcaster.onReturnKeyDrawableUpdate(resourceId)
     }
@@ -92,7 +91,6 @@ class ReturnKeyDrawableComponent :
             currentSlot = "keys.return.default"
             iconThemeDrawable = resolveIconThemeDrawable(currentSlot)
         }
-        if (resourceId == newResId) return
         resourceId = newResId
         broadcaster.onReturnKeyDrawableUpdate(resourceId)
     }

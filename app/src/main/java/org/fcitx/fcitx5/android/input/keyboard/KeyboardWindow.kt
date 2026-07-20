@@ -116,12 +116,18 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         service.inputView?.requestBlurRefresh(retryFrames = 2, hierarchyChanged = true)
     }
 
+    private fun reapplyReturnKeyDrawable() {
+        currentKeyboard?.onReturnDrawableUpdate(returnKeyDrawable.resourceId)
+        currentKeyboard?.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)
+    }
+
     /**
      * Refresh all keyboard layouts.
      * Call this when split keyboard settings (gap, threshold, enabled) change.
      */
     fun refreshAllKeyboards() {
         keyboards.values.forEach { it.refreshStyle() }
+        reapplyReturnKeyDrawable()
     }
 
     /**
@@ -131,6 +137,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
      */
     fun refreshCurrentKeyboard() {
         currentKeyboard?.refreshStyle()
+        reapplyReturnKeyDrawable()
     }
 
     /**
