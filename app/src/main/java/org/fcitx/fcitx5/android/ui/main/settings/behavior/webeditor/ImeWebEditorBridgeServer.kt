@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.webeditor
 
 import android.content.res.Configuration
 import android.os.Looper
+import android.util.Base64
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -27,6 +28,9 @@ import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeFilesManager
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemePrefs
+import org.fcitx.fcitx5.android.data.theme.IconTheme
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
+import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
@@ -418,6 +422,110 @@ object ImeWebEditorBridgeServer {
                         put("name", JsonPrimitive(name))
                     })
                 }
+                request.method == "GET" && path == "/api/v1/icon-theme" -> {
+                    val allThemes = IconThemeManager.iconThemes
+                    val themesArray = kotlinx.serialization.json.JsonArray(
+                        allThemes.map { iconThemeToJson(it) }
+                    )
+                    val active = IconThemeManager.activeTheme
+                    writeJson(output, buildJsonObject {
+                        put("themes", themesArray)
+                        put("activeThemeName", JsonPrimitive(active.name))
+                    })
+                }
+                request.method == "GET" && path == "/api/v1/icon-theme/preview" -> {
+                    val themeName = query["theme"] ?: throw IllegalArgumentException("theme query parameter is required")
+                    val slot = query["slot"] ?: throw IllegalArgumentException("slot query parameter is required")
+                    val theme = IconThemeManager.iconThemes.find { it.name == themeName }
+                        ?: throw IllegalArgumentException("icon theme not found: $themeName")
+                    val value = theme.icons[slot]
+                        ?: throw IllegalArgumentException("slot not found: $slot")
+                    if (ButtonIconFile.isFileIcon(value)) {
+                        val filePath = ButtonIconFile.resolvePath(value)
+                            ?: throw IllegalArgumentException("failed to resolve file: $value")
+                        val file = java.io.File(filePath)
+                        if (!file.isFile) throw IllegalArgumentException("file not found: $filePath")
+                        val bytes = file.readBytes()
+                        val ext = filePath.substringAfterLast('.', "").lowercase()
+                        val mime = when (ext) {
+                            "png" -> "image/png"
+                            "jpg", "jpeg" -> "image/jpeg"
+                            "webp" -> "image/webp"
+                            "svg" -> "image/svg+xml"
+                            else -> "application/octet-stream"
+                        }
+                        writeBinaryResponse(output, 200, "OK", mime, bytes, extraHeaders = corsHeaders())
+                    } else if (value.isNotBlank()) {
+                        // SVG or XML inline value
+                        val bytes = value.toByteArray(Charsets.UTF_8)
+                        val mime = if (value.trimStart().startsWith("<svg", ignoreCase = true))
+                            "image/svg+xml; charset=utf-8" else "text/xml; charset=utf-8"
+                        writeBinaryResponse(output, 200, "OK", mime, bytes, extraHeaders = corsHeaders())
+                    } else {
+                        throw IllegalArgumentException("empty icon value for slot: $slot")
+                    }
+                }
+                request.method == "PUT" && path == "/api/v1/icon-theme" -> {
+                    val body = parseBodyJson(request)
+                    val name = body["name"]?.jsonPrimitive?.contentOrNull
+                        ?: throw IllegalArgumentException("icon theme name is required")
+                    val author = body["author"]?.jsonPrimitive?.contentOrNull ?: ""
+                    val version = body["version"]?.jsonPrimitive?.intOrNull ?: 1
+                    val thumbnailSvg = body["thumbnailSvg"]?.jsonPrimitive?.contentOrNull
+                    val iconsObj = body["icons"]?.jsonObject ?: kotlinx.serialization.json.JsonObject(emptyMap())
+                    // Save new binary files from base64 data URIs in the payload
+                    val fileUploads = body["_uploads"]?.jsonObject
+                    if (fileUploads != null) {
+                        val pngDir = IconThemeManager.pngDirForTheme(name)
+                        fileUploads.forEach { (slotKey, fileValue) ->
+                            val base64 = fileValue.jsonPrimitive?.contentOrNull ?: return@forEach
+                            val (mime, data) = parseBase64DataUri(base64) ?: return@forEach
+                            val ext = when {
+                                mime.contains("png") -> "png"
+                                mime.contains("jpeg") || mime.contains("jpg") -> "jpg"
+                                mime.contains("webp") -> "webp"
+                                mime.contains("svg") -> "svg"
+                                else -> "png"
+                            }
+                            val cleanSlot = slotKey.replace(".", "_").replace("/", "_")
+                            var fileName = "${cleanSlot}.$ext"
+                            var counter = 1
+                            while (java.io.File(pngDir, fileName).exists()) {
+                                fileName = "${cleanSlot}_${counter}.$ext"
+                                counter++
+                            }
+                            val target = java.io.File(pngDir, fileName)
+                            pngDir.mkdirs()
+                            target.writeBytes(data)
+                        }
+                    }
+                    val icons = iconsObj.mapValues { (_, v) -> v.jsonPrimitive?.contentOrNull ?: "" }
+                        .filterValues { it.isNotBlank() }
+                    val theme = IconTheme(
+                        name = name,
+                        author = author,
+                        version = version,
+                        thumbnailSvg = thumbnailSvg,
+                        icons = icons
+                    )
+                    val save = { IconThemeManager.saveTheme(theme) }
+                    if (Looper.myLooper() == Looper.getMainLooper()) {
+                        save()
+                    } else {
+                        val done = java.util.concurrent.CountDownLatch(1)
+                        var failure: Throwable? = null
+                        android.os.Handler(Looper.getMainLooper()).post {
+                            runCatching { save() }.onFailure { failure = it }
+                            done.countDown()
+                        }
+                        done.await()
+                        failure?.let { throw it }
+                    }
+                    writeJson(output, buildJsonObject {
+                        put("ok", JsonPrimitive(true))
+                        put("name", JsonPrimitive(name))
+                    })
+                }
                 request.method == "GET" && !path.startsWith("/api/") -> {
                     proxyUpstreamAsset(request.path, output)
                 }
@@ -439,6 +547,42 @@ object ImeWebEditorBridgeServer {
 
     private fun escapeForJson(raw: String): String =
         raw.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
+
+    /**
+     * Parse a data URI (`data:<mime>;base64,<data>`) into (mime, bytes) pair.
+     * Returns null if the input is not a valid base64 data URI.
+     */
+    private fun parseBase64DataUri(raw: String): Pair<String, ByteArray>? {
+        if (!raw.startsWith("data:", ignoreCase = true)) return null
+        val commaIdx = raw.indexOf(',')
+        if (commaIdx < 0) return null
+        val header = raw.substring(0, commaIdx)
+        val mime = header.substringAfter(":").substringBefore(";").ifBlank { "application/octet-stream" }
+        if (!header.contains("base64", ignoreCase = true)) return null
+        val b64 = raw.substring(commaIdx + 1)
+        return try {
+            mime to Base64.decode(b64, Base64.DEFAULT)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun iconThemeToJson(theme: IconTheme): JsonObject {
+        val iconsObj = buildJsonObject {
+            theme.icons.forEach { (slot, value) ->
+                if (value.isBlank()) return@forEach
+                put(slot, JsonPrimitive(value))
+            }
+        }
+        return buildJsonObject {
+            put("name", JsonPrimitive(theme.name))
+            put("author", JsonPrimitive(theme.author))
+            put("version", JsonPrimitive(theme.version))
+            put("builtin", JsonPrimitive(theme.name == IconTheme.default().name))
+            theme.thumbnailSvg?.let { put("thumbnailSvg", JsonPrimitive(it)) }
+            put("icons", iconsObj)
+        }
+    }
 
     private fun themeToWebThemeElement(theme: Theme): JsonObject {
        val safeDir = theme.name.replace(Regex("""[\\/:*?"<>|]"""), "_")
