@@ -19,6 +19,7 @@ import org.fcitx.fcitx5.android.core.SubtypeManager
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
@@ -74,6 +75,10 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     }
 
     private var currentButtonsConfig: List<ConfigurableButton> = emptyList()
+
+    private val iconThemeChangeListener = IconThemeManager.OnIconThemeChangeListener {
+        renderEntries(fcitx.runImmediately { statusAreaActionsCached })
+    }
 
     private fun staticEntries(): Array<StatusAreaEntry> {
         val config = currentButtonsConfig.ifEmpty { loadButtonsConfig() }
@@ -354,6 +359,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     override fun onAttached() {
         // Load config when attached
         currentButtonsConfig = loadButtonsConfig()
+        IconThemeManager.addOnChangedListener(iconThemeChangeListener)
         fcitx.launchOnReady {
             val data = it.statusArea()
             service.lifecycleScope.launch {
@@ -363,6 +369,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     }
 
     override fun onDetached() {
+        IconThemeManager.removeOnChangedListener(iconThemeChangeListener)
         popupMenu?.dismiss()
         popupMenu = null
     }

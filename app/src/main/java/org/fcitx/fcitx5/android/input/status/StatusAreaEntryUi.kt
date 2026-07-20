@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
@@ -98,6 +99,44 @@ class StatusAreaEntryUi(override val ctx: Context, private val theme: Theme) : U
     fun setEntry(entry: StatusAreaEntry) {
         val contentColor =
             if (entry.active) theme.genericActiveForegroundColor else theme.keyTextColor
+
+        // Check icon theme override for ActionEntry
+        val iconSlot = (entry as? StatusAreaEntry.ActionEntry)?.buttonAction?.iconSlot
+
+        // Try icon theme drawable
+        val themedIconInfo = if (iconSlot != null) {
+            IconThemeManager.resolveIconDrawableInfo(iconSlot)
+        } else null
+
+        if (themedIconInfo != null) {
+            icon.visibility = View.VISIBLE
+            textIcon.visibility = View.GONE
+            icon.imageDrawable = themedIconInfo.drawable.apply {
+                if (themedIconInfo.tintWithTheme) setTint(contentColor)
+            }
+        } else if (iconSlot != null) {
+            // Try icon theme text/emoji
+            val themedText = IconThemeManager.resolveIcon(iconSlot)
+            if (themedText != null) {
+                icon.visibility = View.GONE
+                textIcon.visibility = View.VISIBLE
+                textIcon.text = themedText
+                textIcon.setTextColor(contentColor)
+            } else {
+                // Fall back to built-in drawable
+                showBuiltinIcon(entry, contentColor)
+            }
+        } else {
+            // Non-ActionEntry — use built-in icon
+            showBuiltinIcon(entry, contentColor)
+        }
+
+        bkgDrawable.paint.color =
+            if (entry.active) theme.genericActiveBackgroundColor else theme.keyBackgroundColor
+        label.text = entry.label
+    }
+
+    private fun showBuiltinIcon(entry: StatusAreaEntry, contentColor: Int) {
         if (entry.icon != 0) {
             icon.visibility = View.VISIBLE
             textIcon.visibility = View.GONE
@@ -110,9 +149,6 @@ class StatusAreaEntryUi(override val ctx: Context, private val theme: Theme) : U
             textIcon.text = entry.displayText ?: getFirstCharacter(entry.label)
             textIcon.setTextColor(contentColor)
         }
-        bkgDrawable.paint.color =
-            if (entry.active) theme.genericActiveBackgroundColor else theme.keyBackgroundColor
-        label.text = entry.label
     }
 
     private fun getFirstCharacter(s: String): String {
