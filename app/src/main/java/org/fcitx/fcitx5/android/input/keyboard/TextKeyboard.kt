@@ -1074,10 +1074,13 @@ class TextKeyboard(
             if (keyDef is KeyDef.Appearance.AltText) {
                 val renderedText = it.mainText.text.toString()
                 val sourceFromDef = renderedText.isEmpty() || renderedText == keyDef.displayText
+                    || renderedText.equals(keyDef.character, ignoreCase = true)
                 val displayText = if (sourceFromDef) keyDef.displayText else renderedText
                 val character = keyDef.character
-                val displayIsSingleLetter = displayText.length == 1 && displayText[0].isLetter()
-                val characterIsSingleLetter = sourceFromDef && character.length == 1 && character[0].isLetter()
+                val displayIsSingleLetter = displayText.length == 1
+                    && (displayText[0] in 'A'..'Z' || displayText[0] in 'a'..'z')
+                val characterIsSingleLetter = sourceFromDef && character.length == 1
+                    && (character[0] in 'A'..'Z' || character[0] in 'a'..'z')
 
                 it.mainText.text = when {
                     keepLettersUppercase && displayIsSingleLetter -> displayText.uppercase()
@@ -1095,7 +1098,7 @@ class TextKeyboard(
                 } else {
                     renderedText
                 }
-                if (str.length == 1 && str[0].isLetter()) {
+                if (str.length == 1 && (str[0] in 'A'..'Z' || str[0] in 'a'..'z')) {
                      it.mainText.text = if (keepLettersUppercase) {
                         str.uppercase()
                     } else {
