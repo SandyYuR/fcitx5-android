@@ -55,7 +55,8 @@ class ExpandedCandidateLayout(context: Context, theme: Theme) : ConstraintLayout
                         to = UpBtnLabel,
                         percentWidth = 1f,
                         variant = KeyDef.Appearance.Variant.Alternative,
-                        viewId = UpBtnId
+                        viewId = UpBtnId,
+                        iconSlot = "keys.pageup"
                     )
                 ),
                 listOf(
@@ -64,7 +65,8 @@ class ExpandedCandidateLayout(context: Context, theme: Theme) : ConstraintLayout
                         to = DownBtnLabel,
                         percentWidth = 1f,
                         variant = KeyDef.Appearance.Variant.Alternative,
-                        viewId = DownBtnId
+                        viewId = DownBtnId,
+                        iconSlot = "keys.pagedown"
                     )
                 ),
                 listOf(BackspaceKey(percentWidth = 1f, KeyDef.Appearance.Variant.Alternative)),

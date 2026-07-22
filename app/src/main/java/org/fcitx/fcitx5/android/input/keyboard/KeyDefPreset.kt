@@ -259,12 +259,14 @@ class LayoutSwitchKey(
             Popup.Menu.Item(
                 "Symbols",
                 R.drawable.ic_baseline_emoji_symbols_24,
-                KeyAction.LayoutSwitchAction(PickerWindow.Key.Symbol.name)
+                KeyAction.LayoutSwitchAction(PickerWindow.Key.Symbol.name),
+                iconSlot = "keys.symbols"
             ),
             Popup.Menu.Item(
                 "NumPad",
                 R.drawable.ic_number_pad,
-                KeyAction.LayoutSwitchAction(NumberKeyboard.Name)
+                KeyAction.LayoutSwitchAction(NumberKeyboard.Name),
+                iconSlot = "keys.numpad"
             )
         )
        )
@@ -376,7 +378,8 @@ class CommaKey(
                 Popup.Menu.Item(
                     "Unicode",
                     R.drawable.ic_logo_unicode,
-                    KeyAction.UnicodeAction
+                    KeyAction.UnicodeAction,
+                    iconSlot = "keys.unicode"
                 )
             )
         )
@@ -506,7 +509,8 @@ class ImageLayoutSwitchKey(
     to: String,
     percentWidth: Float = 0.1f,
     variant: Variant = Variant.AltForeground,
-    viewId: Int = -1
+    viewId: Int = -1,
+    iconSlot: String? = null
 ) : KeyDef(
     Appearance.Image(
         src = icon,
@@ -516,7 +520,8 @@ class ImageLayoutSwitchKey(
     ),
     setOf(
         Behavior.Press(KeyAction.LayoutSwitchAction(to))
-    )
+    ),
+    iconSlot = iconSlot
 )
 
 class ImagePickerSwitchKey(
@@ -525,7 +530,8 @@ class ImagePickerSwitchKey(
     to: PickerWindow.Key,
     percentWidth: Float = 0.1f,
     variant: Variant = Variant.AltForeground,
-    viewId: Int = -1
+    viewId: Int = -1,
+    iconSlot: String? = null
 ) : KeyDef(
     Appearance.Image(
         src = icon,
@@ -535,7 +541,8 @@ class ImagePickerSwitchKey(
     ),
     setOf(
         Behavior.Press(KeyAction.PickerSwitchAction(to))
-    )
+    ),
+    iconSlot = iconSlot
 )
 
 class TextPickerSwitchKey(
