@@ -11,6 +11,7 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.widget.ImageView
 import androidx.core.graphics.ColorUtils
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
 import splitties.dimensions.dp
@@ -61,11 +62,12 @@ class PopupMenuUi(
 
     private var focusedIndex = columnOrder[focusColumn]
 
-    private val keyViews = items.map {
+    private val keyViews = items.map { item ->
+        val resolvedIcon = item.iconSlot?.let { IconThemeManager.resolveIconDrawable(it) }
         imageView {
             background = inactiveBackground
             scaleType = ImageView.ScaleType.CENTER_INSIDE
-            imageDrawable = drawable(it.icon)!!.apply {
+            imageDrawable = (resolvedIcon ?: drawable(item.icon))!!.apply {
                 setTint(theme.accentKeyTextColor)
             }
         }

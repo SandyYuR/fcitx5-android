@@ -569,7 +569,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
             setPadding(dp(12), dp(8), dp(12), dp(8))
             setOnClickListener {
                 pendingSlot = slot
-                iconPickerLauncher.launch(arrayOf("image/*", "text/xml", "application/xml"))
+                iconPickerLauncher.launch(arrayOf("image/png", "image/svg+xml", "text/xml", "application/xml"))
             }
         }
         actionsRow.addView(selectAction, LinearLayout.LayoutParams(0, wrapContent, 1f))

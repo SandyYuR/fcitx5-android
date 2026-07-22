@@ -291,7 +291,12 @@ open class KeyDef(
         }
 
         class Menu(val items: Array<Item>) : Popup() {
-            class Item(val label: String, @DrawableRes val icon: Int, val action: KeyAction)
+            class Item(
+                val label: String,
+                @DrawableRes val icon: Int,
+                val action: KeyAction,
+                val iconSlot: String? = null
+            )
         }
 
         /**
