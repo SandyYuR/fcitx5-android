@@ -4,6 +4,10 @@
  */
 package org.fcitx.fcitx5.android.data.theme
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -17,6 +21,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.utils.WeakHashSet
+import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.utils.appContext
 import timber.log.Timber
 import java.io.ByteArrayInputStream
@@ -24,6 +29,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.charset.Charset
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -82,13 +88,27 @@ object IconThemeManager {
             dispatchOnMain { onChangeListeners.toList().forEach { it.onIconThemeChange(value) } }
         }
 
-    /** Store/restore active theme name in SharedPreferences. */
+    /** Store/restore active theme name in device-protected SharedPreferences. */
     private var activeThemeName: String
-        get() = appContext
-            .getSharedPreferences("icon_theme", 0)
-            .getString("active_icon_theme", builtinDefault.name) ?: builtinDefault.name
+        get() {
+            val dpc = FcitxApplication.getInstance().directBootAwareContext
+            val prefs = dpc.getSharedPreferences("icon_theme", 0)
+            val saved = prefs.getString("active_icon_theme", null)
+            if (saved != null) return saved
+
+            // Migrate from credential-encrypted storage (pre-existing installs)
+            val migrated = runCatching {
+                appContext.getSharedPreferences("icon_theme", 0)
+                    .getString("active_icon_theme", builtinDefault.name)
+            }.getOrDefault(builtinDefault.name) ?: builtinDefault.name
+
+            if (migrated != builtinDefault.name) {
+                prefs.edit().putString("active_icon_theme", migrated).apply()
+            }
+            return migrated
+        }
         set(value) {
-            appContext
+            FcitxApplication.getInstance().directBootAwareContext
                 .getSharedPreferences("icon_theme", 0)
                 .edit()
                 .putString("active_icon_theme", value)
@@ -99,14 +119,35 @@ object IconThemeManager {
     val iconThemes: List<IconTheme>
         get() = listOf(builtinDefault) + installedThemes
 
+    private val restorePending = AtomicBoolean(false)
+
     init {
         refresh()
-        // Restore active theme from saved name
-        val savedName = activeThemeName
+        restoreActiveTheme()
+        if (restorePending.get()) {
+            registerUserUnlockReceiver()
+        }
+    }
+
+    private fun restoreActiveTheme() {
+        val savedName = runCatching { activeThemeName }.getOrElse {
+            restorePending.set(true)
+            return
+        }
         val saved = installedThemes.find { it.name == savedName }
         if (saved != null && saved !== builtinDefault) {
             activeTheme = saved
         }
+    }
+
+    private fun registerUserUnlockReceiver() {
+        val filter = IntentFilter(Intent.ACTION_USER_UNLOCKED)
+        appContext.registerReceiver(object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                context.unregisterReceiver(this)
+                restoreActiveTheme()
+            }
+        }, filter)
     }
 
     fun resolveIcon(slot: String): String? {
