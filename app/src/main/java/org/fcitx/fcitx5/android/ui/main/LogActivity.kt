@@ -79,7 +79,6 @@ class LogActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         with(binding) {
-            setSupportActionBar(toolbar)
             this@LogActivity.logView = logView
             logView.setFilterQuery(logFilterQuery)
             if (intent.hasExtra(FROM_CRASH)) {
@@ -94,10 +93,8 @@ class LogActivity : AppCompatActivity() {
                 logView.append(intent.getStringExtra(CRASH_STACK_TRACE) ?: "<empty>")
                 logView.setLogcat(Logcat(FcitxApplication.getLastPid()))
             } else {
-                supportActionBar!!.apply {
-                    setDisplayHomeAsUpEnabled(true)
-                    setTitle(R.string.real_time_logs)
-                }
+                supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+                supportActionBar!!.setTitle(R.string.real_time_logs)
                 logView.setLogcat(Logcat())
             }
         }

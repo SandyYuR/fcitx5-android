@@ -17,6 +17,7 @@ import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesOrientation
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode
+import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase
 import org.fcitx.fcitx5.android.input.keyboard.LangSwitchBehavior
 import org.fcitx.fcitx5.android.input.keyboard.SpaceKeyLabelMode
 import org.fcitx.fcitx5.android.input.keyboard.SpaceLongPressBehavior
@@ -99,6 +100,11 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             emptySet(),
             R.string.allowed_plugin_prefixes_summary
         ) { allowOriginalPlugins.getValue() }
+        val keyboardHeightPercentBase = enumList(
+            R.string.keyboard_height_percent_base,
+            "keyboard_height_percent_base",
+            KeyboardHeightPercentBase.DisplayMetrics
+        )
     }
 
     inner class Keyboard : ManagedPreferenceCategory(R.string.virtual_keyboard, sharedPreferences) {

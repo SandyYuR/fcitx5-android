@@ -106,7 +106,7 @@ class AutoScaleTextView @JvmOverloads constructor(
     override fun setText(charSequence: CharSequence?, bufferType: BufferType) {
         // setText can be called from the super constructor; guard against the
         // shadowed `text` field not yet being initialized by comparing safely.
-        if (charSequence == null || text != charSequence) {
+        if (charSequence == null || charSequence != text) {
             needsMeasureText = true
             needsCalculateTransform = true
             text = charSequence ?: ""
