@@ -742,6 +742,9 @@
     <string name="share_receive_archive_action_import_file">作为文件导入</string>
     <string name="share_receive_archive_extracted">已解压 %1$d 个文件到 %2$s。</string>
     <string name="preferred_voice_input">首选语音输入</string>
+    <string name="keyboard_height_percent_base">键盘高度百分比</string>
+    <string name="display_metrics">显示指标 (Resources.getDisplayMetrics)</string>
+    <string name="real_size">真实尺寸 (Display.getRealSize)</string>
     <string name="background_blur_radius">背景模糊半径</string>
     <string name="no_blur">无模糊</string>
 

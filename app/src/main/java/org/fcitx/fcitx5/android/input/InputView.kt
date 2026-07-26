@@ -25,6 +25,7 @@ import android.graphics.RenderNode
 import android.graphics.Shader
 import androidx.core.content.ContextCompat
 import android.graphics.Outline
+import android.graphics.Point
 import android.os.Build
 import android.os.SystemClock
 import android.view.View
@@ -65,6 +66,8 @@ import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard
 import org.fcitx.fcitx5.android.input.keyboard.KeyView
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
+import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase.DisplayMetrics
+import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase.RealSize
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.picker.emojiPicker
@@ -86,6 +89,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import org.fcitx.fcitx5.android.utils.windowManager
 import org.mechdancer.dependency.DynamicScope
 import org.mechdancer.dependency.manager.wrapToUniqueComponent
 import org.mechdancer.dependency.plusAssign
@@ -1502,6 +1506,9 @@ class InputView(
     private val splitKeyboardUseLandscapeLayout = keyboardPrefs.splitKeyboardUseLandscapeLayout
     private val textKeyboardLayoutProfile = keyboardPrefs.textKeyboardLayoutProfile
 
+    private val advancedPrefs = AppPrefs.getInstance().advanced
+    private val keyboardHeightPercentBase = advancedPrefs.keyboardHeightPercentBase
+
     private val keyboardSizePrefs = listOf(
         keyboardHeightPercent,
         keyboardHeightPercentLandscape,
@@ -1514,6 +1521,7 @@ class InputView(
         keyboardPrefs.splitKeyboardThreshold,
         keyboardPrefs.splitKeyboardGapPercent,
         splitKeyboardUseLandscapeLayout,
+        keyboardHeightPercentBase,
     )
 
     var isFloating = false
@@ -2581,8 +2589,23 @@ class InputView(
     private val keyboardHeightPx: Int
         get() {
             companionKeyboardHeightPxOverride()?.let { return it }
-            val effectivePercent = resolveEffectiveKeyboardHeightPercent()
-            val baseHeight = (resources.displayMetrics.heightPixels * effectivePercent / 100f).toInt()
+            val baseType = keyboardHeightPercentBase.getValue()
+            val base = when (baseType) {
+                DisplayMetrics -> resources.displayMetrics.heightPixels
+                RealSize -> Point().also {
+                    @Suppress("DEPRECATION")
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        context.display
+                    } else {
+                        context.windowManager.defaultDisplay
+                    }.getRealSize(it)
+                }.y
+            }
+            val percent = when (resources.configuration.orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> keyboardHeightPercentLandscape
+                else -> keyboardHeightPercent
+            }.getValue()
+            val baseHeight = base * percent / 100
             if (isEffectiveFloating) {
                 return (baseHeight * 0.8).toInt()
             }
@@ -2868,6 +2891,7 @@ class InputView(
             endToEnd = keyboardView.id
         })
         keyboardPrefs.registerOnChangeListener(onKeyboardSizeChangeListener)
+        advancedPrefs.registerOnChangeListener(onKeyboardSizeChangeListener)
         candidatesPrefs.registerOnChangeListener(onCandidatePreferenceChangeListener)
         restoreFloatingAndOneHandState()
         updateFloatingState()
@@ -3331,6 +3355,7 @@ class InputView(
 
     override fun onDetachedFromWindow() {
         windowManager.onWindowChanged = null
+        advancedPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
         keyboardPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
         candidatesPrefs.unregisterOnChangeListener(onCandidatePreferenceChangeListener)
         ConfigProviders.removeButtonsLayoutListener(onButtonsLayoutChangeListener)
