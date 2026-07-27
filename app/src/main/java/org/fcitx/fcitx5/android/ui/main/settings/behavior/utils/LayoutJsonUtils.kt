@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.utils
 import android.util.Log
 import kotlinx.serialization.json.*
 import org.fcitx.fcitx5.android.input.keyboard.*
+import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 
 // Import Macro types explicitly
 import org.fcitx.fcitx5.android.input.keyboard.MacroAction
@@ -846,17 +847,32 @@ object LayoutJsonUtils {
     fun convertToSaveJson(
         entries: Map<String, List<List<Map<String, Any?>>>>,
         layoutHeightPercentOverrides: Map<String, Int> = emptyMap(),
-        layoutHeightPercentOverridesLandscape: Map<String, Int> = emptyMap()
+        layoutHeightPercentOverridesLandscape: Map<String, Int> = emptyMap(),
+        layoutAuxBarConfigs: Map<String, AuxBarConfig?> = emptyMap()
     ): JsonObject {
         val layoutMap = mutableMapOf<String, JsonElement>()
 
-        fun buildHeightMeta(overrideKey: String): JsonObject? {
+        fun buildMeta(overrideKey: String): JsonObject? {
             val portrait = layoutHeightPercentOverrides[overrideKey]?.takeIf { it in 10..90 }
             val landscape = layoutHeightPercentOverridesLandscape[overrideKey]?.takeIf { it in 10..90 }
-            if (portrait == null && landscape == null) return null
+            val auxBarConfig = layoutAuxBarConfigs[overrideKey]
+            if (portrait == null && landscape == null && auxBarConfig == null) return null
             val meta = mutableMapOf<String, JsonElement>()
             portrait?.let { meta["keyboard_height_percent"] = JsonPrimitive(it) }
             landscape?.let { meta["keyboard_height_percent_landscape"] = JsonPrimitive(it) }
+            auxBarConfig?.let { config ->
+                val posStr = when (config.position) {
+                    AuxBarPosition.Top -> "top"
+                    AuxBarPosition.Bottom -> "bottom"
+                    AuxBarPosition.Left -> "left"
+                    AuxBarPosition.Right -> "right"
+                    AuxBarPosition.AbovePreedit -> "above_preedit"
+                }
+                meta["aux_bar"] = JsonObject(mapOf(
+                    "position" to JsonPrimitive(posStr),
+                    "size_percent" to JsonPrimitive(config.sizePercent)
+                ))
+            }
             return JsonObject(meta)
         }
 
@@ -875,7 +891,7 @@ object LayoutJsonUtils {
 
             if (hasSubModeKeys) {
                 val subModeMap = mutableMapOf<String, JsonElement>()
-                buildHeightMeta(baseName)?.let { subModeMap["__meta__"] = it }
+                buildMeta(baseName)?.let { subModeMap["__meta__"] = it }
 
                 for (key in subModeKeys) {
                     val subModeLabel = subModeLabelFromEntryKey(key, baseName)
@@ -896,7 +912,7 @@ object LayoutJsonUtils {
                     } else {
                         "$baseName:$subModeLabel"
                     }
-                    val subModeMeta = if (subModeLabel != "default") buildHeightMeta(overrideKey) else null
+                    val subModeMeta = if (subModeLabel != "default") buildMeta(overrideKey) else null
                     subModeMap[subModeLabel] = if (subModeMeta != null) {
                         JsonObject(
                             mapOf(
@@ -923,7 +939,7 @@ object LayoutJsonUtils {
                         )
                     })
                 })
-                val overrideMeta = buildHeightMeta(baseName)
+                val overrideMeta = buildMeta(baseName)
                 layoutMap[baseName] = if (overrideMeta == null) {
                     jsonArray
                 } else {

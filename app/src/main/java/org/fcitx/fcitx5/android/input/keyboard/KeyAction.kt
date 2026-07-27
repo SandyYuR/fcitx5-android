@@ -107,4 +107,6 @@ sealed class KeyAction {
      * non-layer work. KeyboardWindow uses this to consume one-shot layers.
      */
     data object MacroConsumedAction : KeyAction()
+
+    data class AuxBarTrigger(val edgeId: Int) : KeyAction()
 }

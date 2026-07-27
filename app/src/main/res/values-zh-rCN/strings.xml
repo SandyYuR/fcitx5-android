@@ -504,6 +504,16 @@
     <string name="text_keyboard_layout_file_delete">删除布局文件</string>
     <string name="text_keyboard_layout_layout_height_override">布局专用键盘高度</string>
     <string name="text_keyboard_layout_layout_height_override_title">布局高度：%1$s</string>
+    <string name="text_keyboard_layout_aux_bar">辅助选择栏</string>
+    <string name="text_keyboard_layout_aux_bar_title">辅助选择栏：%1$s</string>
+    <string name="text_keyboard_layout_aux_bar_none">无</string>
+    <string name="text_keyboard_layout_aux_bar_position">位置</string>
+    <string name="text_keyboard_layout_aux_bar_size_percent">宽度/高度</string>
+    <string name="text_keyboard_layout_aux_bar_left">左侧</string>
+    <string name="text_keyboard_layout_aux_bar_right">右侧</string>
+    <string name="text_keyboard_layout_aux_bar_top">顶部</string>
+    <string name="text_keyboard_layout_aux_bar_bottom">底部</string>
+    <string name="text_keyboard_layout_aux_bar_above_preedit">预编辑上方</string>
     <string name="text_keyboard_layout_use_global_height">使用全局键盘高度</string>
     <string name="text_keyboard_layout_height_portrait">竖屏</string>
     <string name="text_keyboard_layout_height_landscape">横屏</string>

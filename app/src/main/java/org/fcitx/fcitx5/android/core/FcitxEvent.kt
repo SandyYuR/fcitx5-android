@@ -62,7 +62,8 @@ sealed class FcitxEvent<T>(open val data: T) {
             val preedit: FormattedText,
             val auxUp: FormattedText,
             val auxDown: FormattedText,
-            val tabs: Array<CandidateAction>
+            val tabs: Array<CandidateAction>,
+            val auxBarActions: Array<AuxBarAction> = emptyArray()
         ) {
             constructor() : this(
                 FormattedText.Empty,
@@ -81,6 +82,7 @@ sealed class FcitxEvent<T>(open val data: T) {
                 if (auxUp != other.auxUp) return false
                 if (auxDown != other.auxDown) return false
                 if (!tabs.contentEquals(other.tabs)) return false
+                if (!auxBarActions.contentEquals(other.auxBarActions)) return false
 
                 return true
             }
@@ -90,6 +92,7 @@ sealed class FcitxEvent<T>(open val data: T) {
                 result = 31 * result + auxUp.hashCode()
                 result = 31 * result + auxDown.hashCode()
                 result = 31 * result + tabs.contentHashCode()
+                result = 31 * result + auxBarActions.contentHashCode()
                 return result
             }
         }

@@ -57,6 +57,8 @@ import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
+import org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition
+import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapter
 import org.fcitx.fcitx5.android.utils.AppUtil
@@ -229,20 +231,24 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         KeyboardPreviewManager(
             this,
             previewKeyboardContainer,
-            dataManager.entries
-        ) { layoutKey ->
-            val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            val baseKey = LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutKey)
-            if (landscape) {
-                dataManager.getLayoutHeightPercentOverrideLandscape(layoutKey)
-                    ?: dataManager.getLayoutHeightPercentOverrideLandscape(baseKey)
-                    ?: dataManager.getLayoutHeightPercentOverride(layoutKey)
-                    ?: dataManager.getLayoutHeightPercentOverride(baseKey)
-            } else {
-                dataManager.getLayoutHeightPercentOverride(layoutKey)
-                    ?: dataManager.getLayoutHeightPercentOverride(baseKey)
+            dataManager.entries,
+            layoutHeightPercentOverrideProvider = { layoutKey ->
+                val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+                val baseKey = LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutKey)
+                if (landscape) {
+                    dataManager.getLayoutHeightPercentOverrideLandscape(layoutKey)
+                        ?: dataManager.getLayoutHeightPercentOverrideLandscape(baseKey)
+                        ?: dataManager.getLayoutHeightPercentOverride(layoutKey)
+                        ?: dataManager.getLayoutHeightPercentOverride(baseKey)
+                } else {
+                    dataManager.getLayoutHeightPercentOverride(layoutKey)
+                        ?: dataManager.getLayoutHeightPercentOverride(baseKey)
+                }
+            },
+            layoutAuxBarConfigProvider = { layoutKey ->
+                dataManager.getLayoutAuxBarConfig(layoutKey)
             }
-        }
+        )
     }
     
     private val keyEditorLauncher: ActivityResultLauncher<Intent> =
@@ -446,6 +452,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_LAYOUT_HEIGHT_OVERRIDE_ID, Menu.NONE, getString(R.string.text_keyboard_layout_layout_height_override))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(Menu.NONE, MENU_LAYOUT_AUX_BAR_ID, Menu.NONE, getString(R.string.text_keyboard_layout_aux_bar))
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_QR_EXPORT_ID, Menu.NONE, getString(R.string.text_keyboard_layout_qr_export))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         menu.add(Menu.NONE, MENU_QR_IMPORT_SCAN_ID, Menu.NONE, getString(R.string.text_keyboard_layout_qr_import_scan))
@@ -491,6 +499,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
         MENU_LAYOUT_HEIGHT_OVERRIDE_ID -> {
             openLayoutHeightOverrideDialog()
+            true
+        }
+        MENU_LAYOUT_AUX_BAR_ID -> {
+            openAuxBarDialog()
             true
         }
         MENU_QR_EXPORT_ID -> {
@@ -1325,7 +1337,6 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     if (from >= 0 && from < currentRow.size && to >= 0 && to < currentRow.size) {
                         val item = currentRow.removeAt(from)
                         currentRow.add(to, item)
-                        updateSaveButtonState()
                     }
                 }
 
@@ -1337,6 +1348,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                         }
                         currentLayout?.let { name ->
                             previewManager.updatePreview(name, previewSubModeLabel, fcitxConnection)
+                            updateSaveButtonState()
                         }
                     }
                 }
@@ -1994,11 +2006,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
         container.addView(helper)
 
-        val scroll = android.widget.ScrollView(this).apply { addView(container) }
-
         val dialog = AlertDialog.Builder(this)
             .setTitle(getString(R.string.text_keyboard_layout_layout_height_override_title, layoutName))
-            .setView(scroll)
+            .setView(container)
             .setPositiveButton(android.R.string.ok, null)
             .setNegativeButton(android.R.string.cancel, null)
             .create()
@@ -2006,6 +2016,106 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 dataManager.setLayoutHeightPercentOverride(layoutName, portraitSection.readCurrentPercent())
                 dataManager.setLayoutHeightPercentOverrideLandscape(layoutName, landscapeSection.readCurrentPercent())
+                currentLayout?.let { name ->
+                    previewManager.updatePreview(name, previewSubModeLabel, fcitxConnection)
+                }
+                updateSaveButtonState()
+                dialog.dismiss()
+            }
+        }
+        dialog.show()
+    }
+
+    private fun openAuxBarDialog() {
+        val layoutName = currentEditingLayoutKey() ?: return
+        val currentConfig = dataManager.getLayoutAuxBarConfig(layoutName)
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = dp(12)
+            setPadding(pad, pad, pad, pad)
+        }
+
+        val positionLabel = TextView(this).apply {
+            text = getString(R.string.text_keyboard_layout_aux_bar_position)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setPadding(0, 0, 0, dp(4))
+        }
+        val positionSpinner = Spinner(this)
+        val positions = listOf(
+            getString(R.string.text_keyboard_layout_aux_bar_none) to null,
+            getString(R.string.text_keyboard_layout_aux_bar_left) to AuxBarPosition.Left,
+            getString(R.string.text_keyboard_layout_aux_bar_right) to AuxBarPosition.Right,
+            getString(R.string.text_keyboard_layout_aux_bar_top) to AuxBarPosition.Top,
+            getString(R.string.text_keyboard_layout_aux_bar_bottom) to AuxBarPosition.Bottom,
+            getString(R.string.text_keyboard_layout_aux_bar_above_preedit) to AuxBarPosition.AbovePreedit
+        )
+        val positionLabels = positions.map { it.first }
+        positionSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, positionLabels)
+        val initialPosIdx = if (currentConfig == null) 0 else
+            positions.indexOfFirst { it.second == currentConfig.position }.coerceAtLeast(0)
+
+        val sizeLabel = TextView(this).apply {
+            text = getString(R.string.text_keyboard_layout_aux_bar_size_percent)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setPadding(0, dp(10), 0, dp(4))
+        }
+        val sizeSeek = SeekBar(this).apply {
+            max = 90 // 5..95
+            progress = (currentConfig?.sizePercent?.takeIf { it > 0f }?.toInt()?.minus(5)?.coerceIn(0, 90)) ?: 10
+        }
+        val sizeValue = TextView(this).apply {
+            val pct = currentConfig?.sizePercent?.takeIf { it > 0f }?.toInt() ?: 15
+            text = "$pct%"
+            textSize = 16f
+        }
+        val abovePreeditIdx = positions.indexOfFirst { it.second == AuxBarPosition.AbovePreedit }
+        val showSize = initialPosIdx > 0 && initialPosIdx != abovePreeditIdx
+        sizeSeek.isEnabled = showSize
+        sizeSeek.alpha = if (showSize) 1f else 0.5f
+        sizeValue.alpha = if (showSize) 1f else 0.5f
+        sizeLabel.alpha = if (showSize) 1f else 0.5f
+        sizeSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                sizeValue.text = "${progress + 5}%"
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+        })
+        positionSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, pos: Int, id: Long) {
+                val show = pos > 0 && pos != abovePreeditIdx
+                sizeSeek.isEnabled = show
+                sizeSeek.alpha = if (show) 1f else 0.5f
+                sizeValue.alpha = if (show) 1f else 0.5f
+                sizeLabel.alpha = if (show) 1f else 0.5f
+            }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) = Unit
+        }
+        positionSpinner.setSelection(initialPosIdx)
+
+        container.addView(positionLabel)
+        container.addView(positionSpinner)
+        container.addView(sizeLabel)
+        container.addView(sizeSeek)
+        container.addView(sizeValue)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.text_keyboard_layout_aux_bar_title, layoutName))
+            .setView(container)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val selectedIdx = positionSpinner.selectedItemPosition
+                val config = if (selectedIdx > 0) {
+                    val pos = positions[selectedIdx].second!!
+                    val size = if (pos == AuxBarPosition.AbovePreedit) currentConfig?.sizePercent ?: 15f
+                        else (sizeSeek.progress + 5).toFloat()
+                    AuxBarConfig(pos, size)
+                } else null
+                dataManager.setLayoutAuxBarConfig(layoutName, config)
                 currentLayout?.let { name ->
                     previewManager.updatePreview(name, previewSubModeLabel, fcitxConnection)
                 }
@@ -2825,6 +2935,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         private const val MENU_LAYOUT_FILE_RENAME_ID = 3004
         private const val MENU_LAYOUT_FILE_DELETE_ID = 3005
         private const val MENU_LAYOUT_HEIGHT_OVERRIDE_ID = 3006
+        private const val MENU_LAYOUT_AUX_BAR_ID = 3010
         private const val MENU_QR_EXPORT_ID = 3007
         private const val MENU_QR_IMPORT_SCAN_ID = 3008
         private const val MENU_QR_IMPORT_IMAGE_ID = 3009

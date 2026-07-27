@@ -32,7 +32,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 class TextKeyboard(
     context: Context,
     theme: Theme
-) : BaseKeyboard(context, theme, ::getLayout) {
+) : BaseKeyboard(context, theme, ::getLayout, ::getAuxBarConfig) {
 
     enum class CapsState { None, Once, Lock }
 
@@ -41,6 +41,7 @@ class TextKeyboard(
         private const val LAYOUT_META_KEY = "__meta__"
         private const val LAYOUT_META_HEIGHT_PERCENT_KEY = "keyboard_height_percent"
         private const val LAYOUT_META_HEIGHT_PERCENT_LANDSCAPE_KEY = "keyboard_height_percent_landscape"
+        private const val LAYOUT_META_AUX_BAR_KEY = "aux_bar"
         private var lastModified = 0L
         var ime: InputMethodEntry? = null
         private var listenerRegistered = false
@@ -117,14 +118,17 @@ class TextKeyboard(
 
         // Cache for parsed KeyDef layouts to avoid recreating them on every reloadLayout()
         private val cachedKeyDefLayouts = mutableMapOf<String, List<List<KeyDef>>>()
+        private val cachedAuxBarConfigs = mutableMapOf<String, AuxBarConfig?>()
         private var lastLayoutCacheInvalidated = 0L
         private var forcedLayoutKey: String? = null
+        var resolvedAuxBarConfig: AuxBarConfig? = null
 
         /**
          * Clear KeyDef layout cache. Call this after saving layout changes.
          */
         fun clearCachedKeyDefLayouts() {
             cachedKeyDefLayouts.clear()
+            cachedAuxBarConfigs.clear()
             lastLayoutCacheInvalidated = 0L
         }
 
@@ -306,6 +310,31 @@ class TextKeyboard(
             }
         }
 
+        private fun parseAuxBarConfig(layoutElement: JsonElement?): AuxBarConfig? {
+            val objectElement = layoutElement as? JsonObject ?: return null
+            val meta = objectElement[LAYOUT_META_KEY] as? JsonObject ?: return null
+            val auxBarConfig = meta[LAYOUT_META_AUX_BAR_KEY] as? JsonObject ?: return null
+            val position = when (auxBarConfig["position"]?.jsonPrimitive?.content) {
+                "top" -> AuxBarPosition.Top
+                "bottom" -> AuxBarPosition.Bottom
+                "left" -> AuxBarPosition.Left
+                "right" -> AuxBarPosition.Right
+                "above_preedit" -> AuxBarPosition.AbovePreedit
+                else -> return null
+            }
+            val sizePercent = if (position == AuxBarPosition.AbovePreedit) {
+                0f
+            } else {
+                auxBarConfig["size_percent"]?.jsonPrimitive?.floatOrNull
+                    ?.takeIf { it.isFinite() }
+                    ?.coerceIn(5f, 95f)
+                    ?: return null
+            }
+            return AuxBarConfig(position, sizePercent)
+        }
+
+        fun getAuxBarConfig(): AuxBarConfig? = resolvedAuxBarConfig
+
         @Synchronized
         fun setCurrentLayoutHeightPercentOverride(percent: Int): Boolean {
             val layoutKey = currentHeightOverrideTargetLayoutKey() ?: return false
@@ -465,6 +494,13 @@ class TextKeyboard(
                         } else {
                             parseLayoutHeightPercentOverride(json[baseName])
                         }
+                        resolvedAuxBarConfig = if (forcedSub.isNotEmpty()) {
+                            parseAuxBarConfig((json[baseName] as? JsonObject)?.get(forcedSub))
+                                ?: parseAuxBarConfig(json[baseName])
+                        } else {
+                            parseAuxBarConfig(json[baseName])
+                        }
+                        cachedAuxBarConfigs[cacheKey] = resolvedAuxBarConfig
                         return cachedKeyDefLayouts.getOrPut(cacheKey) {
                             forcedLayout.map { rowElement ->
                                 LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
@@ -499,9 +535,13 @@ class TextKeyboard(
                             resolvedLayoutHeightPercentOverride =
                                 parseLayoutHeightPercentOverride(subModeLayoutElement)
                                     ?: parseLayoutHeightPercentOverride(imeLayoutElement)
+                            resolvedAuxBarConfig =
+                                parseAuxBarConfig(subModeLayoutElement)
+                                    ?: parseAuxBarConfig(imeLayoutElement)
                             // Use a cache key that includes submode and showLangSwitch for proper caching
                             // Include showLangSwitch in cache key so layout is re-created when setting changes
                             val cacheKey = "$layoutKey:$subModeLabel:$showLangSwitch"
+                            cachedAuxBarConfigs[cacheKey] = resolvedAuxBarConfig
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
@@ -514,9 +554,12 @@ class TextKeyboard(
                     // Fallback to global "default" layout
                     json["default"]?.let { layoutElement ->
                         resolvedLayoutHeightPercentOverride = parseLayoutHeightPercentOverride(layoutElement)
+                        resolvedAuxBarConfig = parseAuxBarConfig(layoutElement)
                         val layoutArray = parseLayoutArray(layoutElement)
                         if (layoutArray != null) {
-                            return cachedKeyDefLayouts.getOrPut("default:$showLangSwitch:$lastRawModified") {
+                            val cacheKey = "default:$showLangSwitch:$lastRawModified"
+                            cachedAuxBarConfigs[cacheKey] = resolvedAuxBarConfig
+                            return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
                                         .map { LayoutJsonUtils.createKeyDef(it) }
@@ -527,6 +570,7 @@ class TextKeyboard(
                 }
             }
             resolvedLayoutHeightPercentOverride = null
+            resolvedAuxBarConfig = null
             return getDefaultLayout(showLangSwitch)
         }
 

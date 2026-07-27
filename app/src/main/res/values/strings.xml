@@ -514,6 +514,16 @@
     <string name="text_keyboard_layout_file_delete">Delete layout file</string>
     <string name="text_keyboard_layout_layout_height_override">Layout-specific keyboard height</string>
     <string name="text_keyboard_layout_layout_height_override_title">Layout height: %1$s</string>
+    <string name="text_keyboard_layout_aux_bar">Auxiliary bar</string>
+    <string name="text_keyboard_layout_aux_bar_title">Auxiliary bar: %1$s</string>
+    <string name="text_keyboard_layout_aux_bar_none">None</string>
+    <string name="text_keyboard_layout_aux_bar_position">Position</string>
+    <string name="text_keyboard_layout_aux_bar_size_percent">Width / Height</string>
+    <string name="text_keyboard_layout_aux_bar_left">Left</string>
+    <string name="text_keyboard_layout_aux_bar_right">Right</string>
+    <string name="text_keyboard_layout_aux_bar_top">Top</string>
+    <string name="text_keyboard_layout_aux_bar_bottom">Bottom</string>
+    <string name="text_keyboard_layout_aux_bar_above_preedit">Above preedit</string>
     <string name="text_keyboard_layout_use_global_height">Use global keyboard height</string>
     <string name="text_keyboard_layout_height_portrait">Portrait</string>
     <string name="text_keyboard_layout_height_landscape">Landscape</string>

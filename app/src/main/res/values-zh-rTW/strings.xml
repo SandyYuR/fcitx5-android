@@ -828,4 +828,14 @@
     <string name="icon_theme_import_dialog_title">匯入圖示主題</string>
     <string name="icon_theme_overwrite_confirm">覆蓋已存在的圖示主題 \"%s\"？</string>
     <string name="icon_theme_new">新增</string>
+    <string name="text_keyboard_layout_aux_bar">輔助選擇欄</string>
+    <string name="text_keyboard_layout_aux_bar_title">輔助選擇欄: %1$s</string>
+    <string name="text_keyboard_layout_aux_bar_none">無</string>
+    <string name="text_keyboard_layout_aux_bar_position">位置</string>
+    <string name="text_keyboard_layout_aux_bar_size_percent">寬度 / 高度</string>
+    <string name="text_keyboard_layout_aux_bar_left">左側</string>
+    <string name="text_keyboard_layout_aux_bar_right">右側</string>
+    <string name="text_keyboard_layout_aux_bar_top">頂部</string>
+    <string name="text_keyboard_layout_aux_bar_bottom">底部</string>
+    <string name="text_keyboard_layout_aux_bar_above_preedit">預編輯上方</string>
 </resources>
