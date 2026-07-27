@@ -272,3 +272,9 @@ data class CandidateAction(
     val isCheckable: Boolean,
     val isChecked: Boolean
 )
+
+data class AuxBarAction(
+    val id: Int,
+    val text: String,
+    val isSeparator: Boolean = false
+)

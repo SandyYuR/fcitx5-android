@@ -15,8 +15,11 @@ import androidx.core.content.ContextCompat
 import androidx.transition.Slide
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlags
+import org.fcitx.fcitx5.android.core.AuxBarAction
+import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.InputMethodEntry
+import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
@@ -92,12 +95,13 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private var preeditEmpty = true
     private var candidateEmpty = true
     private var composingState = false
+    private var lastAuxActions = emptyList<AuxBarAction>()
     private var latchedLayerKey: String? = null
     private var oneShotLayerKey: String? = null
     private var companionHeightPercentOverride: Int? = null
     private var companionHeightPxOverride: Int? = null
 
-    private val currentKeyboard: BaseKeyboard? get() = keyboards[currentKeyboardName]
+    internal val currentKeyboard: BaseKeyboard? get() = keyboards[currentKeyboardName]
 
     private fun clearCompanionKeyboardHeightOverride() {
         companionHeightPercentOverride = null
@@ -154,6 +158,10 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         when (it) {
             is KeyAction.LayoutSwitchAction -> switchLayout(it.act)
             is KeyAction.LayerSwitchAction -> handleLayerSwitchAction(it)
+            is KeyAction.AuxBarTrigger -> {
+                val actionId = it.edgeId
+                fcitx.launchOnReady { fcitxApi: FcitxAPI -> fcitxApi.triggerCandidateListTabAction(actionId) }
+            }
             KeyAction.MacroConsumedAction -> consumeOneShotLayerIfNeeded(it)
             else -> {
                 commonKeyActionListener.listener.onKeyAction(it, source)
@@ -335,6 +343,16 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         updateCompositionState()
     }
 
+    override fun onInputPanelUpdate(data: FcitxEvent.InputPanelEvent.Data) {
+        val auxActions = if (data.auxBarActions.isNotEmpty()) {
+            data.auxBarActions.toList()
+        } else {
+            data.tabs.map { AuxBarAction(it.id, it.text, it.isSeparator) }
+        }
+        lastAuxActions = auxActions
+        currentKeyboard?.updateAuxBarActions(auxActions)
+    }
+
     override fun onCandidateUpdate(data: FcitxEvent.CandidateListEvent.Data) {
         candidateEmpty = data.candidates.isEmpty()
         updateCompositionState()
@@ -345,7 +363,15 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         currentKeyboard?.let {
             it.keyActionListener = keyActionListener
             it.popupActionListener = popupActionListener
+            it.auxBarListener = { scrollable, pinned ->
+                service.inputView?.updateAuxBar(
+                    (scrollable + pinned).filter { a -> !a.isSeparator }, keyActionListener
+                )
+            }
             it.onAttach()
+        }
+        if (lastAuxActions.isNotEmpty()) {
+            currentKeyboard?.updateAuxBarActions(lastAuxActions)
         }
         notifyBarLayoutChanged()
         service.inputView?.requestBlurRefresh(retryFrames = 8)
@@ -363,7 +389,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             it.onDetach()
             it.keyActionListener = null
             it.popupActionListener = null
+            it.auxBarListener = null
         }
+        service.inputView?.clearAuxBar()
         popup.dismissAll()
     }
 

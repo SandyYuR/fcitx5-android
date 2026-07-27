@@ -51,6 +51,8 @@ import org.fcitx.fcitx5.android.data.prefs.SplitKeyboardStateManager
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import com.google.android.flexbox.FlexboxLayout
+import com.google.android.flexbox.FlexWrap
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.utils.DarkenColorFilter
 import org.fcitx.fcitx5.android.input.config.ConfigChangeListener
@@ -62,6 +64,7 @@ import org.fcitx.fcitx5.android.input.broadcast.PunctuationComponent
 import org.fcitx.fcitx5.android.input.broadcast.ReturnKeyDrawableComponent
 import org.fcitx.fcitx5.android.input.action.ButtonAction
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateComponent
+import org.fcitx.fcitx5.android.input.keyboard.KeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard
 import org.fcitx.fcitx5.android.input.keyboard.KeyView
@@ -74,6 +77,7 @@ import org.fcitx.fcitx5.android.input.picker.emojiPicker
 import org.fcitx.fcitx5.android.input.picker.emoticonPicker
 import org.fcitx.fcitx5.android.input.picker.symbolPicker
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
+import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.input.preedit.PreeditComponent
 import org.fcitx.fcitx5.android.input.status.ButtonsAdjustingWindow
 import org.fcitx.fcitx5.android.input.status.StatusAreaWindow
@@ -927,7 +931,6 @@ class InputView(
                     }
                     MotionEvent.ACTION_MOVE -> {
                         val delta = (lastAdjustingTouchY - event.rawY).toInt()
-                        // Scale: 100px drag = 20dp padding change
                         val deltaPadding = (delta * 0.2f).toInt()
                         val newPadding = (adjustingResizeStartBottomPadding + deltaPadding).coerceIn(0, 100)
                         val currentPadding = resolveKeyboardBottomPadding()
@@ -937,14 +940,18 @@ class InputView(
                             } else {
                                 keyboardPrefs.keyboardBottomPadding.setValue(newPadding)
                             }
-                            updateKeyboardSize()
-                            keyboardView.post {
-                                updateAdjustingHandlePosition()
+                            val now = System.currentTimeMillis()
+                            if (now - adjustingLastUpdateTime >= 50) {
+                                adjustingLastUpdateTime = now
+                                updateKeyboardSize()
+                                keyboardView.post { updateAdjustingHandlePosition() }
                             }
                         }
                         true
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        updateKeyboardSize()
+                        keyboardView.post { updateAdjustingHandlePosition() }
                         v.parent?.requestDisallowInterceptTouchEvent(false)
                         v.isPressed = false
                         true
@@ -1020,22 +1027,18 @@ class InputView(
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val delta = event.rawY - lastAdjustingTouchY
-                    // Calculate percent change based on touch movement
-                    // Moving up (negative delta) should increase height
-                    // Moving down (positive delta) should decrease height
                     val screenHeight = resources.displayMetrics.heightPixels.toFloat()
-                    // Scale factor: 100px drag = 10% keyboard height change (more responsive)
                     val deltaPercent = (delta / screenHeight) * 100f
-                    // Match the preference range: 10% to 90%
                     val newPercent = (adjustingResizeStartHeight - deltaPercent).toInt()
                         .coerceIn(10, 90)
                     val currentPercent = resolveAdjustingHeightPercent()
-                    // Only update if value changed significantly
                     if (kotlin.math.abs(newPercent - currentPercent) >= 1) {
                         adjustingPendingHeightPercent = newPercent
-                        updateKeyboardSize()
-                        keyboardView.post {
-                            updateAdjustingHandlePosition()
+                        val now = System.currentTimeMillis()
+                        if (now - adjustingLastUpdateTime >= 50) {
+                            adjustingLastUpdateTime = now
+                            updateKeyboardSize()
+                            keyboardView.post { updateAdjustingHandlePosition() }
                         }
                     }
                     true
@@ -1043,6 +1046,8 @@ class InputView(
                 MotionEvent.ACTION_UP -> {
                     adjustingPendingHeightPercent?.let { applyAdjustedHeightPercent(it) }
                     adjustingPendingHeightPercent = null
+                    updateKeyboardSize()
+                    keyboardView.post { updateAdjustingHandlePosition() }
                     v.parent?.requestDisallowInterceptTouchEvent(false)
                     v.isPressed = false
                     true
@@ -1073,7 +1078,6 @@ class InputView(
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val delta = (event.rawX - lastAdjustingTouchX).toInt()
-                    // Scale: 100px drag = 20dp padding change
                     val deltaPadding = (delta * 0.2f).toInt()
                     val newPadding = (adjustingResizeStartSidePadding + deltaPadding)
                         .coerceIn(0, maxKeyboardSidePaddingInAdjustingMode())
@@ -1084,14 +1088,18 @@ class InputView(
                         } else {
                             keyboardPrefs.keyboardSidePadding.setValue(newPadding)
                         }
-                        updateKeyboardSize()
-                        keyboardView.post {
-                            updateAdjustingHandlePosition()
+                        val now = System.currentTimeMillis()
+                        if (now - adjustingLastUpdateTime >= 50) {
+                            adjustingLastUpdateTime = now
+                            updateKeyboardSize()
+                            keyboardView.post { updateAdjustingHandlePosition() }
                         }
                     }
                     true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    updateKeyboardSize()
+                    keyboardView.post { updateAdjustingHandlePosition() }
                     v.parent?.requestDisallowInterceptTouchEvent(false)
                     v.isPressed = false
                     true
@@ -1115,7 +1123,6 @@ class InputView(
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val delta = (lastAdjustingTouchX - event.rawX).toInt()
-                    // Scale: 100px drag = 20dp padding change
                     val deltaPadding = (delta * 0.2f).toInt()
                     val newPadding = (adjustingResizeStartSidePadding + deltaPadding)
                         .coerceIn(0, maxKeyboardSidePaddingInAdjustingMode())
@@ -1126,14 +1133,18 @@ class InputView(
                         } else {
                             keyboardPrefs.keyboardSidePadding.setValue(newPadding)
                         }
-                        updateKeyboardSize()
-                        keyboardView.post {
-                            updateAdjustingHandlePosition()
+                        val now = System.currentTimeMillis()
+                        if (now - adjustingLastUpdateTime >= 50) {
+                            adjustingLastUpdateTime = now
+                            updateKeyboardSize()
+                            keyboardView.post { updateAdjustingHandlePosition() }
                         }
                     }
                     true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    updateKeyboardSize()
+                    keyboardView.post { updateAdjustingHandlePosition() }
                     v.parent?.requestDisallowInterceptTouchEvent(false)
                     v.isPressed = false
                     true
@@ -1225,6 +1236,7 @@ class InputView(
     private var adjustingResizeStartHeight = 0
     private var adjustingResizeStartSidePadding = 0
     private var adjustingResizeStartBottomPadding = 0
+    private var adjustingLastUpdateTime = 0L
     private var lastAdjustingTouchX = 0f
     private var lastAdjustingTouchY = 0f
     private var adjustingStartKeyboardTop = 0
@@ -1456,6 +1468,10 @@ class InputView(
     private val returnKeyDrawable = ReturnKeyDrawableComponent()
     private val preeditEmptyState = PreeditEmptyStateComponent()
     private val preedit = PreeditComponent()
+    private val auxBarContainer = FlexboxLayout(context).apply {
+        visibility = View.GONE
+        flexWrap = FlexWrap.WRAP
+    }
     private val commonKeyActionListener = CommonKeyActionListener()
     private val windowManager = InputWindowManager()
     private val kawaiiBar = KawaiiBarComponent()
@@ -2422,9 +2438,12 @@ class InputView(
     fun getDockedKeyboardRegion(outRegion: Region) {
         val keyboardLocation = IntArray(2)
         keyboardView.getLocationInWindow(keyboardLocation)
+        val preeditLocation = IntArray(2)
+        preedit.ui.root.getLocationInWindow(preeditLocation)
+        val top = minOf(keyboardLocation[1], preeditLocation[1])
         val rect = Rect(
             keyboardLocation[0],
-            keyboardLocation[1],
+            top,
             keyboardLocation[0] + keyboardView.width,
             keyboardLocation[1] + keyboardView.height
         )
@@ -2819,6 +2838,11 @@ class InputView(
 
         updateKeyboardSize()
 
+        (preedit.ui.root as ViewGroup).addView(auxBarContainer, 0,
+            android.widget.LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = dp(6) }
+        )
         add(preedit.ui.root, lParams(matchParent, wrapContent) {
             bottomToTop = keyboardView.id
             centerHorizontally()
@@ -3367,4 +3391,62 @@ class InputView(
         super.onDetachedFromWindow()
     }
 
+    fun updateAuxBar(actions: List<org.fcitx.fcitx5.android.core.AuxBarAction>, listener: KeyActionListener) {
+        val container = auxBarContainer
+        container.removeAllViews()
+        if (actions.isEmpty()) {
+            container.visibility = View.GONE
+            return
+        }
+        val theme = ThemeManager.activeTheme
+        val prefs = ThemeManager.prefs
+        val keyBorder = prefs.keyBorder.getValue()
+        val bkgColor = if (!keyBorder && theme is Theme.Builtin) theme.barColor else theme.backgroundColor
+        val radius = dp(prefs.keyRadius.getValue().toFloat())
+        val padH = dp(8)
+        val padV = dp(4)
+        val gap = dp(4)
+        val textColor = theme.keyTextColor
+        for (action in actions) {
+            if (action.isSeparator) continue
+            val btn = TextView(context).apply {
+                text = action.text
+                gravity = Gravity.CENTER
+                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,
+                    FontProviders.getFontSize("preedit_font", 16f))
+                typeface = FontProviders.resolveTypeface("preedit_font", typeface)
+                setTextColor(textColor)
+                setPadding(padH, padV, padH, padV)
+                isSingleLine = true
+                isClickable = true
+                isFocusable = true
+                background = GradientDrawable().apply {
+                    setColor(bkgColor)
+                    cornerRadius = radius
+                }
+                setOnClickListener {
+                    listener?.onKeyAction(
+                        KeyAction.AuxBarTrigger(action.id),
+                        KeyActionListener.Source.Keyboard
+                    )
+                }
+            }
+            val lp = FlexboxLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = gap / 2
+                bottomMargin = gap / 2
+                marginEnd = gap
+            }
+            container.addView(btn, lp)
+        }
+        container.visibility = View.VISIBLE
+        container.requestLayout()
+    }
+
+    fun clearAuxBar() {
+        auxBarContainer.removeAllViews()
+        auxBarContainer.visibility = View.GONE
+    }
 }
