@@ -98,6 +98,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private var lastAuxActions = emptyList<AuxBarAction>()
     private var latchedLayerKey: String? = null
     private var oneShotLayerKey: String? = null
+    private var noConfigAuxBarFallbackActive = false
     private var companionHeightPercentOverride: Int? = null
     private var companionHeightPxOverride: Int? = null
 
@@ -203,12 +204,18 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         getOrCreateKeyboard(target)?.let {
             it.keyActionListener = keyActionListener
             it.popupActionListener = popupActionListener
+            it.auxBarListener = { scrollable, pinned ->
+                service.inputView?.updateAuxBar(
+                    (scrollable + pinned).filter { a -> !a.isSeparator }, keyActionListener
+                )
+            }
             keyboardView.apply { add(it, lParams(matchParent, matchParent)) }
             it.setTextScale(currentTextScale)
             it.onAttach()
             it.onReturnDrawableUpdate(returnKeyDrawable.resourceId)
             it.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)
             it.onInputMethodUpdate(fcitx.runImmediately { inputMethodEntryCached })
+            applyAuxActions(lastAuxActions)
             updateCompositionState()
         }
     }
@@ -228,6 +235,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                 } else {
                     clearCompanionKeyboardHeightOverride()
                 }
+                if (target != TextKeyboard.Name) {
+                    noConfigAuxBarFallbackActive = false
+                }
                 if (remember && target != TextKeyboard.Name) {
                     lastSymbolType = target
                 }
@@ -236,6 +246,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                         currentKeyboard?.onInputMethodUpdate(fcitx.runImmediately { inputMethodEntryCached })
                         updateCompositionState()
                     }
+                    applyAuxActions(lastAuxActions)
                     service.inputView?.onKeyboardHeightSourceChanged()
                     return@execute
                 }
@@ -267,19 +278,52 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private fun clearAllLayerOverrides() {
         latchedLayerKey = null
         oneShotLayerKey = null
+        noConfigAuxBarFallbackActive = false
         TextKeyboard.clearForcedLayoutKey()
+    }
+
+    private fun parseAuxActions(panel: FcitxEvent.InputPanelEvent.Data): List<AuxBarAction> {
+        return if (panel.auxBarActions.isNotEmpty()) {
+            panel.auxBarActions.toList()
+        } else {
+            panel.tabs.map { AuxBarAction(it.id, it.text, it.isSeparator) }
+        }
+    }
+
+    private fun applyAuxActions(actions: List<AuxBarAction>) {
+        currentKeyboard?.updateAuxBarActions(actions)
+        val current = currentKeyboard
+        val fallbackToPreedit = noConfigAuxBarFallbackActive &&
+            currentKeyboardName == TextKeyboard.Name &&
+            current?.auxBarPosition() == null
+        if (fallbackToPreedit) {
+            service.inputView?.updateAuxBar(actions.filter { a -> !a.isSeparator }, keyActionListener)
+            return
+        }
+        if (current?.auxBarPosition() == null) {
+            service.inputView?.clearAuxBar()
+        }
+    }
+
+    private fun refreshNoConfigAuxBarFallback(previousHadAuxBarConfig: Boolean) {
+        val currentHasAuxBarConfig = currentKeyboardName == TextKeyboard.Name &&
+            TextKeyboard.getAuxBarConfig() != null
+        noConfigAuxBarFallbackActive = previousHadAuxBarConfig && !currentHasAuxBarConfig
     }
 
     private fun consumeOneShotLayerIfNeeded(action: KeyAction) {
         if (oneShotLayerKey == null) return
         if (action is KeyAction.LayoutSwitchAction || action is KeyAction.LayerSwitchAction) return
         if (action is MacroAction && !action.hasExecutableStep()) return
+        val hadAuxBarConfig = TextKeyboard.getAuxBarConfig() != null
         oneShotLayerKey = null
         applyEffectiveTextLayer()
+        refreshNoConfigAuxBarFallback(hadAuxBarConfig)
         switchLayout(TextKeyboard.Name, remember = false)
     }
 
     private fun handleLayerSwitchAction(action: KeyAction.LayerSwitchAction) {
+        val hadAuxBarConfig = TextKeyboard.getAuxBarConfig() != null
         val resolved = TextKeyboard.resolveLayerTargetKey(action.target)
         if (resolved == null) {
             if (action.mode == KeyAction.LayerSwitchMode.TO) {
@@ -298,6 +342,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             }
         }
         applyEffectiveTextLayer()
+        refreshNoConfigAuxBarFallback(hadAuxBarConfig)
         switchLayout(TextKeyboard.Name, remember = false)
     }
 
@@ -344,18 +389,20 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     override fun onInputPanelUpdate(data: FcitxEvent.InputPanelEvent.Data) {
-        val auxActions = if (data.auxBarActions.isNotEmpty()) {
-            data.auxBarActions.toList()
-        } else {
-            data.tabs.map { AuxBarAction(it.id, it.text, it.isSeparator) }
-        }
+        val auxActions = parseAuxActions(data)
         lastAuxActions = auxActions
-        currentKeyboard?.updateAuxBarActions(auxActions)
+        applyAuxActions(auxActions)
     }
 
     override fun onCandidateUpdate(data: FcitxEvent.CandidateListEvent.Data) {
         candidateEmpty = data.candidates.isEmpty()
         updateCompositionState()
+        val panelData = fcitx.runImmediately { inputPanelCached }
+        val auxActions = parseAuxActions(panelData)
+        if (auxActions != lastAuxActions) {
+            lastAuxActions = auxActions
+            applyAuxActions(auxActions)
+        }
     }
 
     override fun onAttached() {
@@ -370,9 +417,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             }
             it.onAttach()
         }
-        if (lastAuxActions.isNotEmpty()) {
-            currentKeyboard?.updateAuxBarActions(lastAuxActions)
-        }
+        applyAuxActions(lastAuxActions)
         notifyBarLayoutChanged()
         service.inputView?.requestBlurRefresh(retryFrames = 8)
     }
