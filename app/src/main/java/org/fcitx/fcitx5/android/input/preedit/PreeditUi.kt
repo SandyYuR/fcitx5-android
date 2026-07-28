@@ -64,6 +64,28 @@ open class PreeditUi(
     var visible = false
         private set
 
+    val actualContentWidth: Int
+        get() {
+            if (!visible || root.visibility != View.VISIBLE) return 0
+            val upLayout = upView.layout
+            val downLayout = downView.layout
+            val upWidth = upLayout?.let { layout ->
+                if (upView.visibility == View.VISIBLE && layout.lineCount > 0) {
+                    var maxW = 0f
+                    for (i in 0 until layout.lineCount) maxW = maxW.coerceAtLeast(layout.getLineWidth(i))
+                    maxW.toInt() + upView.paddingLeft + upView.paddingRight
+                } else 0
+            } ?: 0
+            val downWidth = downLayout?.let { layout ->
+                if (downView.visibility == View.VISIBLE && layout.lineCount > 0) {
+                    var maxW = 0f
+                    for (i in 0 until layout.lineCount) maxW = maxW.coerceAtLeast(layout.getLineWidth(i))
+                    maxW.toInt() + downView.paddingLeft + downView.paddingRight
+                } else 0
+            } ?: 0
+            return upWidth.coerceAtLeast(downWidth)
+        }
+
     override val root: View = verticalLayout {
         add(upView, lParams())
         add(downView, lParams())
