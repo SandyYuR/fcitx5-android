@@ -2659,11 +2659,8 @@ class InputView(
                     }.getRealSize(it)
                 }.y
             }
-            val percent = when (resources.configuration.orientation) {
-                Configuration.ORIENTATION_LANDSCAPE -> keyboardHeightPercentLandscape
-                else -> keyboardHeightPercent
-            }.getValue()
-            val baseHeight = base * percent / 100
+            val percent = resolveEffectiveKeyboardHeightPercent()
+            val baseHeight = (base * percent / 100f).toInt()
             if (isEffectiveFloating) {
                 return (baseHeight * 0.8).toInt()
             }
