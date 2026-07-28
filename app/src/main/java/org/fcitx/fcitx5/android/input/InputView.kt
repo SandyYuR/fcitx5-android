@@ -2368,10 +2368,17 @@ class InputView(
 
         keyboardView.getHitRect(rect)
 
+        var preeditRectForRegion: Rect? = null
         if (preedit.ui.root.visibility == View.VISIBLE) {
-             val preeditRect = Rect()
-             preedit.ui.root.getHitRect(preeditRect)
-             rect.union(preeditRect)
+            val preeditRect = Rect()
+            preedit.ui.root.getHitRect(preeditRect)
+            val textWidth = preedit.ui.actualContentWidth
+            val auxWidth = auxBarContentWidth()
+            val actualWidth = maxOf(textWidth, auxWidth)
+            if (actualWidth > 0 && actualWidth < preeditRect.width()) {
+                preeditRect.right = preeditRect.left + actualWidth
+            }
+            preeditRectForRegion = preeditRect
         }
 
         if (floatingRightHandle.visibility == View.VISIBLE) {
@@ -2433,20 +2440,49 @@ class InputView(
         // No extra inset needed now as handles provide padding and coverage
 
         outRegion.set(rect)
+        if (preeditRectForRegion != null) {
+            outRegion.op(preeditRectForRegion, Region.Op.UNION)
+        }
+    }
+
+    private fun auxBarContentWidth(): Int {
+        if (auxBarContainer.visibility != View.VISIBLE || auxBarContainer.childCount == 0) return 0
+        var maxRight = 0
+        for (i in 0 until auxBarContainer.childCount) {
+            val child = auxBarContainer.getChildAt(i)
+            if (child.visibility == View.VISIBLE && child.right > maxRight) {
+                maxRight = child.right
+            }
+        }
+        return maxRight
     }
 
     fun getDockedKeyboardRegion(outRegion: Region) {
         val keyboardLocation = IntArray(2)
         keyboardView.getLocationInWindow(keyboardLocation)
-        val preeditLocation = IntArray(2)
-        preedit.ui.root.getLocationInWindow(preeditLocation)
-        val top = minOf(keyboardLocation[1], preeditLocation[1])
         val rect = Rect(
             keyboardLocation[0],
-            top,
+            keyboardLocation[1],
             keyboardLocation[0] + keyboardView.width,
             keyboardLocation[1] + keyboardView.height
         )
+
+        var preeditRectForRegion: Rect? = null
+        if (preedit.ui.root.visibility == View.VISIBLE) {
+            val preeditLocation = IntArray(2)
+            preedit.ui.root.getLocationInWindow(preeditLocation)
+            val textWidth = preedit.ui.actualContentWidth
+            val auxWidth = auxBarContentWidth()
+            val actualWidth = maxOf(textWidth, auxWidth)
+            if (actualWidth > 0) {
+                preeditRectForRegion = Rect(
+                    preeditLocation[0],
+                    preeditLocation[1],
+                    preeditLocation[0] + actualWidth,
+                    preeditLocation[1] + preedit.ui.root.height
+                )
+            }
+        }
 
         if (oneHandHandle.visibility == View.VISIBLE) {
             val handleLocation = IntArray(2)
@@ -2535,6 +2571,9 @@ class InputView(
         }
 
         outRegion.set(rect)
+        if (preeditRectForRegion != null) {
+            outRegion.op(preeditRectForRegion, Region.Op.UNION)
+        }
     }
 
     private fun updateFloatingState() {
