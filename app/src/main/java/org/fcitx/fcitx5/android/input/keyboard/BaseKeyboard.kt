@@ -402,13 +402,19 @@ abstract class BaseKeyboard(
     fun updateAuxBarActions(actions: List<AuxBarAction>) {
         val scrollable = actions.takeWhile { !it.isSeparator }
         val pinned = actions.drop(scrollable.size + 1).filter { !it.isSeparator }
-        if (auxBarConfig?.position == AuxBarPosition.AbovePreedit) {
+        val cfg = auxBarConfig
+        if (cfg?.position == AuxBarPosition.AbovePreedit) {
             auxBarListener?.invoke(scrollable, pinned)
             return
         }
-        auxBarScrollableAdapter?.updateActions(scrollable)
-        auxBarPinnedAdapter?.updateActions(pinned)
+        if (cfg != null) {
+            auxBarListener?.invoke(emptyList(), emptyList())
+            auxBarScrollableAdapter?.updateActions(scrollable)
+            auxBarPinnedAdapter?.updateActions(pinned)
+        }
     }
+
+    fun auxBarPosition(): AuxBarPosition? = auxBarConfig?.position
 
     private fun resolveRowHeightPercents(rows: List<List<KeyDef>>): List<Float> {
         if (rows.isEmpty()) return emptyList()
