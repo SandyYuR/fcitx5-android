@@ -139,7 +139,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private lateinit var decorView: View
     private lateinit var contentView: FrameLayout
     internal var inputView: InputView? = null
-    private var candidatesView: CandidatesView? = null
+    internal var candidatesView: CandidatesView? = null
 
     private val navbarMgr = NavigationBarManager()
     internal val inputDeviceManager = InputDeviceManager(
@@ -335,6 +335,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         contentView.addView(newCandidatesView)
         inputDeviceManager.setCandidatesView(newCandidatesView)
         candidatesView = newCandidatesView
+        candidatesView?.onPositionChanged = { inputView?.updateAuxBarPosition() }
         return newCandidatesView
     }
 
