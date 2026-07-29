@@ -98,6 +98,8 @@ class CandidatesView(
      */
     private var isVirtualKeyboardVisible = true
 
+    var onPositionChanged: (() -> Unit)? = null
+
     private var shouldUpdatePosition = false
 
     /**
@@ -216,6 +218,7 @@ class CandidatesView(
         // update touchEventReceiverWindow's position after CandidatesView's
         touchEventReceiverWindow.showAt(tX.roundToInt(), tY.roundToInt(), w, h)
         shouldUpdatePosition = false
+        onPositionChanged?.invoke()
     }
 
     private fun calculatePositionByCursorAnchor(
@@ -591,6 +594,7 @@ class CandidatesView(
             touchEventReceiverWindow.dismiss()
         }
         super.setVisibility(visibility)
+        onPositionChanged?.invoke()
     }
 
     override fun onDetachedFromWindow() {

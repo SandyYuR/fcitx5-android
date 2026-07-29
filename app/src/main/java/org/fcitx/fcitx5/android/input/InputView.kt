@@ -82,9 +82,13 @@ import org.fcitx.fcitx5.android.input.preedit.PreeditComponent
 import org.fcitx.fcitx5.android.input.status.ButtonsAdjustingWindow
 import org.fcitx.fcitx5.android.input.status.StatusAreaWindow
 import android.view.MotionEvent
+import androidx.core.widget.NestedScrollView
+import android.util.TypedValue
 import androidx.constraintlayout.widget.ConstraintLayout
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.utils.unset
+import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
+import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -1469,8 +1473,16 @@ class InputView(
     private val preeditEmptyState = PreeditEmptyStateComponent()
     private val preedit = PreeditComponent()
     private val auxBarContainer = FlexboxLayout(context).apply {
-        visibility = View.GONE
         flexWrap = FlexWrap.WRAP
+        alpha = 0.8f
+    }
+    private val auxBarScrollView = NestedScrollView(context).apply {
+        visibility = View.GONE
+        clipChildren = true
+        clipToPadding = true
+        isFillViewport = false
+        addView(auxBarContainer)
+        (auxBarContainer.layoutParams as android.widget.FrameLayout.LayoutParams).gravity = Gravity.BOTTOM
     }
     private val commonKeyActionListener = CommonKeyActionListener()
     private val windowManager = InputWindowManager()
@@ -2373,12 +2385,21 @@ class InputView(
             val preeditRect = Rect()
             preedit.ui.root.getHitRect(preeditRect)
             val textWidth = preedit.ui.actualContentWidth
-            val auxWidth = auxBarContentWidth()
-            val actualWidth = maxOf(textWidth, auxWidth)
-            if (actualWidth > 0 && actualWidth < preeditRect.width()) {
-                preeditRect.right = preeditRect.left + actualWidth
+            if (textWidth > 0 && textWidth < preeditRect.width()) {
+                preeditRect.right = preeditRect.left + textWidth
             }
             preeditRectForRegion = preeditRect
+        }
+
+        var auxBarRectForRegion: Rect? = null
+        if (auxBarScrollView.visibility == View.VISIBLE) {
+            val auxRect = Rect()
+            auxBarScrollView.getHitRect(auxRect)
+            val auxWidth = auxBarContentWidth()
+            if (auxWidth > 0 && auxWidth < auxRect.width()) {
+                auxRect.right = auxRect.left + auxWidth
+            }
+            auxBarRectForRegion = auxRect
         }
 
         if (floatingRightHandle.visibility == View.VISIBLE) {
@@ -2443,10 +2464,13 @@ class InputView(
         if (preeditRectForRegion != null) {
             outRegion.op(preeditRectForRegion, Region.Op.UNION)
         }
+        if (auxBarRectForRegion != null) {
+            outRegion.op(auxBarRectForRegion, Region.Op.UNION)
+        }
     }
 
     private fun auxBarContentWidth(): Int {
-        if (auxBarContainer.visibility != View.VISIBLE || auxBarContainer.childCount == 0) return 0
+        if (auxBarScrollView.visibility != View.VISIBLE || auxBarContainer.childCount == 0) return 0
         var maxRight = 0
         for (i in 0 until auxBarContainer.childCount) {
             val child = auxBarContainer.getChildAt(i)
@@ -2472,14 +2496,27 @@ class InputView(
             val preeditLocation = IntArray(2)
             preedit.ui.root.getLocationInWindow(preeditLocation)
             val textWidth = preedit.ui.actualContentWidth
-            val auxWidth = auxBarContentWidth()
-            val actualWidth = maxOf(textWidth, auxWidth)
-            if (actualWidth > 0) {
+            if (textWidth > 0) {
                 preeditRectForRegion = Rect(
                     preeditLocation[0],
                     preeditLocation[1],
-                    preeditLocation[0] + actualWidth,
+                    preeditLocation[0] + textWidth,
                     preeditLocation[1] + preedit.ui.root.height
+                )
+            }
+        }
+
+        var auxBarRectForRegion: Rect? = null
+        if (auxBarScrollView.visibility == View.VISIBLE) {
+            val auxLocation = IntArray(2)
+            auxBarScrollView.getLocationInWindow(auxLocation)
+            val auxWidth = auxBarContentWidth()
+            if (auxWidth > 0) {
+                auxBarRectForRegion = Rect(
+                    auxLocation[0],
+                    auxLocation[1],
+                    auxLocation[0] + auxWidth,
+                    auxLocation[1] + auxBarScrollView.height
                 )
             }
         }
@@ -2573,6 +2610,9 @@ class InputView(
         outRegion.set(rect)
         if (preeditRectForRegion != null) {
             outRegion.op(preeditRectForRegion, Region.Op.UNION)
+        }
+        if (auxBarRectForRegion != null) {
+            outRegion.op(auxBarRectForRegion, Region.Op.UNION)
         }
     }
 
@@ -2874,11 +2914,13 @@ class InputView(
 
         updateKeyboardSize()
 
-        (preedit.ui.root as ViewGroup).addView(auxBarContainer, 0,
-            android.widget.LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = dp(6) }
-        )
+        if (preedit.ui.root.id == View.NO_ID) {
+            preedit.ui.root.id = View.generateViewId()
+        }
+        add(auxBarScrollView, lParams(matchParent, wrapContent) {
+            bottomToTop = preedit.ui.root.id
+            bottomMargin = dp(2)
+        })
         add(preedit.ui.root, lParams(matchParent, wrapContent) {
             bottomToTop = keyboardView.id
             centerHorizontally()
@@ -3431,7 +3473,7 @@ class InputView(
         val container = auxBarContainer
         container.removeAllViews()
         if (actions.isEmpty()) {
-            container.visibility = View.GONE
+            auxBarScrollView.visibility = View.GONE
             return
         }
         val theme = ThemeManager.activeTheme
@@ -3440,7 +3482,7 @@ class InputView(
         val bkgColor = if (!keyBorder && theme is Theme.Builtin) theme.barColor else theme.backgroundColor
         val radius = dp(prefs.keyRadius.getValue().toFloat())
         val padH = dp(8)
-        val padV = dp(4)
+        val padV = dp(0)
         val gap = dp(4)
         val textColor = theme.keyTextColor
         for (action in actions) {
@@ -3477,12 +3519,112 @@ class InputView(
             }
             container.addView(btn, lp)
         }
-        container.visibility = View.VISIBLE
+        auxBarScrollView.visibility = View.VISIBLE
         container.requestLayout()
+        updateAuxBarPosition()
     }
 
     fun clearAuxBar() {
         auxBarContainer.removeAllViews()
-        auxBarContainer.visibility = View.GONE
+        auxBarScrollView.visibility = View.GONE
+    }
+
+    private val auxBarSingleRowMinHeight: Int by lazy {
+        val tv = TextView(context).apply {
+            text = "Mj"
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, FontProviders.getFontSize("preedit_font", 16f))
+            setPadding(0, dp(0), 0, dp(0))
+            measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+        }
+        tv.measuredHeight + dp(4) // topMargin + bottomMargin gap
+    }
+
+    fun updateAuxBarPosition() {
+        val scrollView = auxBarScrollView
+        if (scrollView.visibility != View.VISIBLE || auxBarContainer.childCount == 0) return
+        scrollView.post {
+            val useFloatingAlways = AppPrefs.getInstance().candidates.mode.getValue() == FloatingCandidatesMode.Always
+            if (useFloatingAlways) {
+                val cv = service.candidatesView
+                if (cv != null && cv.visibility == View.VISIBLE) {
+                    positionAuxBarForCandidates(cv, scrollView)
+                    return@post
+                }
+            }
+            positionAuxBarDefault(scrollView)
+        }
+    }
+
+    private fun positionAuxBarForCandidates(cv: View, scrollView: NestedScrollView) {
+        val position = AppPrefs.getInstance().candidates.virtualKeyboardPosition.getValue()
+        val cvLoc = IntArray(2)
+        cv.getLocationInWindow(cvLoc)
+        val inputLoc = IntArray(2)
+        getLocationInWindow(inputLoc)
+        val keyboardLoc = IntArray(2)
+        keyboardView.getLocationInWindow(keyboardLoc)
+
+        when (position) {
+            FloatingCandidatesVirtualKeyboardPosition.TopLeft,
+            FloatingCandidatesVirtualKeyboardPosition.TopRight -> {
+                val cvBottomInInput = cvLoc[1] + cv.height - inputLoc[1]
+                val keyboardTopInInput = keyboardLoc[1] - inputLoc[1]
+                val availableHeight = keyboardTopInInput - cvBottomInInput
+                if (availableHeight < auxBarSingleRowMinHeight) {
+                    scrollView.visibility = View.GONE
+                } else {
+                    scrollView.visibility = View.VISIBLE
+                    scrollView.translationY = 0f
+                    (scrollView.layoutParams as ConstraintLayout.LayoutParams).apply {
+                        height = 0
+                        matchConstraintDefaultHeight = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT_WRAP
+                        matchConstraintMaxHeight = availableHeight
+                        bottomToTop = keyboardView.id
+                        topToTop = ConstraintLayout.LayoutParams.UNSET
+                        topToBottom = ConstraintLayout.LayoutParams.UNSET
+                    }
+                    scrollView.requestLayout()
+                }
+            }
+            FloatingCandidatesVirtualKeyboardPosition.BottomLeft,
+            FloatingCandidatesVirtualKeyboardPosition.BottomRight -> {
+                val cvTopInInput = cvLoc[1] - inputLoc[1]
+                val availableHeight = cvTopInInput.coerceAtLeast(0)
+                if (availableHeight < auxBarSingleRowMinHeight) {
+                    scrollView.visibility = View.GONE
+                } else {
+                    scrollView.visibility = View.VISIBLE
+                    (scrollView.layoutParams as ConstraintLayout.LayoutParams).apply {
+                        height = 0
+                        matchConstraintDefaultHeight = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT_WRAP
+                        matchConstraintMaxHeight = availableHeight
+                        bottomToTop = ConstraintLayout.LayoutParams.UNSET
+                        topToTop = ConstraintLayout.LayoutParams.UNSET
+                        topToBottom = ConstraintLayout.LayoutParams.UNSET
+                    }
+                    scrollView.requestLayout()
+                    scrollView.post {
+                        scrollView.translationY = (cvTopInInput - scrollView.height).toFloat()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun positionAuxBarDefault(scrollView: NestedScrollView) {
+        scrollView.translationY = 0f
+        (scrollView.layoutParams as ConstraintLayout.LayoutParams).apply {
+            height = ConstraintLayout.LayoutParams.WRAP_CONTENT
+            bottomToTop = preedit.ui.root.id
+            bottomMargin = dp(2)
+            topToTop = ConstraintLayout.LayoutParams.UNSET
+            topToBottom = ConstraintLayout.LayoutParams.UNSET
+            matchConstraintDefaultHeight = 0
+            matchConstraintMaxHeight = 0
+        }
+        scrollView.requestLayout()
     }
 }
