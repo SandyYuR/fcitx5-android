@@ -71,7 +71,6 @@ zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 zxing-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingEmbedded" }
 xz = { module = "org.tukaani:xz", version.ref = "xz" }
 pictureselector = { module = "io.github.lucksiege:pictureselector", version.ref = "pictureselector" }
-jieba = { module = "com.huaban:jieba-analysis", version = "1.0.2" }
 sora-editor = { module = "io.github.Rosemoe.sora-editor:editor", version = "0.23.4" }
 androidsvg = { module = "com.caverock:androidsvg", version.ref = "androidsvg" }
 
