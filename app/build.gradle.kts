@@ -249,7 +249,6 @@ dependencies {
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.startup)
     implementation(libs.androidx.viewpager2)
-    implementation(libs.jieba)
     implementation(libs.material)
     implementation(libs.arrow.core)
     implementation(libs.arrow.functions)
