@@ -176,13 +176,14 @@ class TextKeyboard(
             val imeLayoutElement = json[currentIme.uniqueName] ?: json[currentIme.displayName]
             if (imeLayoutElement != null) {
                 val subModeLabel = currentIme.subMode.label
-                val subModeLayoutElement = if (imeLayoutElement is JsonObject) {
-                    imeLayoutElement[subModeLabel]
-                        ?: imeLayoutElement["default"]
-                        ?: imeLayoutElement[""]
-                } else {
-                    imeLayoutElement
-                }
+                val subModeName = currentIme.subMode.name
+                val schemaId = schemaIdFromSubModeIcon(currentIme.subMode.icon)
+                val subModeLayoutElement = resolveSubModeLayoutElement(
+                    imeLayoutElement = imeLayoutElement,
+                    subModeLabel = subModeLabel,
+                    schemaId = schemaId,
+                    subModeName = subModeName
+                )
                 if (parseLayoutArray(subModeLayoutElement) != null) {
                     return parseLayoutHeightPercentOverride(subModeLayoutElement)
                         ?: parseLayoutHeightPercentOverride(imeLayoutElement)
@@ -214,13 +215,63 @@ class TextKeyboard(
                 if (json != null && containsLayoutKey(json, forced)) return forced
             }
             val base = currentBaseLayoutKey() ?: return null
-            val subModeLabel = ime?.subMode?.label?.takeIf { it.isNotEmpty() }
-            val subModeKey = subModeLabel?.let { "$base:$it" }
-            return if (json != null && subModeKey != null && containsLayoutKey(json, subModeKey)) {
-                subModeKey
+            if (json == null) return base
+            val subMode = ime?.subMode
+            val subModeKey = resolveExistingSubModeKey(
+                json = json,
+                base = base,
+                subModeLabel = subMode?.label.orEmpty(),
+                schemaId = schemaIdFromSubModeIcon(subMode?.icon.orEmpty()),
+                subModeName = subMode?.name.orEmpty()
+            )
+            return subModeKey ?: base
+        }
+
+        private fun schemaIdFromSubModeIcon(icon: String): String {
+            return if (icon.startsWith("fcitx-rime:")) {
+                icon.substringAfter("fcitx-rime:")
             } else {
-                base
+                ""
             }
+        }
+
+        private fun subModeCandidates(
+            subModeLabel: String,
+            schemaId: String,
+            subModeName: String
+        ): List<String> {
+            return listOf(schemaId, subModeLabel, subModeName)
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .distinct()
+        }
+
+        private fun resolveSubModeLayoutElement(
+            imeLayoutElement: JsonElement,
+            subModeLabel: String,
+            schemaId: String,
+            subModeName: String
+        ): JsonElement? {
+            return if (imeLayoutElement is JsonObject) {
+                val matched = subModeCandidates(subModeLabel, schemaId, subModeName)
+                    .firstNotNullOfOrNull { key -> imeLayoutElement[key] }
+                matched ?: imeLayoutElement["default"] ?: imeLayoutElement[""]
+            } else {
+                imeLayoutElement
+            }
+        }
+
+        private fun resolveExistingSubModeKey(
+            json: JsonObject,
+            base: String,
+            subModeLabel: String,
+            schemaId: String,
+            subModeName: String
+        ): String? {
+            val candidate = subModeCandidates(subModeLabel, schemaId, subModeName)
+                .firstOrNull { sub -> containsLayoutKey(json, "$base:$sub") }
+                ?: return null
+            return "$base:$candidate"
         }
 
         @Synchronized
@@ -478,6 +529,8 @@ class TextKeyboard(
         fun getLayout(): List<List<KeyDef>> {
             val imeName = ime?.uniqueName
             val subModeLabel = ime?.subMode?.label ?: ""
+            val subModeName = ime?.subMode?.name ?: ""
+            val schemaId = schemaIdFromSubModeIcon(ime?.subMode?.icon ?: "")
             val showLangSwitch = AppPrefs.getInstance().keyboard.showLangSwitchKey.getValue()
             val json = textLayoutJson
 
@@ -519,16 +572,17 @@ class TextKeyboard(
                         ?: json[ime?.displayName]
 
                     if (imeLayoutElement != null) {
-                        // Check if this is a submode structure (JsonObject) or direct layout (JsonArray)
-                        val subModeLayoutElement = if (imeLayoutElement is JsonObject) {
-                            // Submode structure: try submode label, then "default", then empty string
-                            imeLayoutElement[subModeLabel]
-                                ?: imeLayoutElement["default"]
-                                ?: imeLayoutElement[""]
-                        } else {
-                            // Direct layout array, use as-is
-                            imeLayoutElement
-                        }
+                        val matchedSubModeKey = (imeLayoutElement as? JsonObject)
+                            ?.let { obj ->
+                                subModeCandidates(subModeLabel, schemaId, subModeName)
+                                    .firstOrNull { obj[it] != null }
+                            }
+                        val subModeLayoutElement = resolveSubModeLayoutElement(
+                            imeLayoutElement = imeLayoutElement,
+                            subModeLabel = subModeLabel,
+                            schemaId = schemaId,
+                            subModeName = subModeName
+                        )
 
                         val layoutArray = parseLayoutArray(subModeLayoutElement)
                         if (layoutArray != null) {
@@ -540,12 +594,13 @@ class TextKeyboard(
                                     ?: parseAuxBarConfig(imeLayoutElement)
                             // Use a cache key that includes submode and showLangSwitch for proper caching
                             // Include showLangSwitch in cache key so layout is re-created when setting changes
-                            val cacheKey = "$layoutKey:$subModeLabel:$showLangSwitch"
+                            val cacheSubMode = matchedSubModeKey ?: "default"
+                            val cacheKey = "$layoutKey:$cacheSubMode:$showLangSwitch"
                             cachedAuxBarConfigs[cacheKey] = resolvedAuxBarConfig
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                        .map { LayoutJsonUtils.createKeyDef(it, subModeLabel, ime?.subMode?.name ?: "") }
+                                        .map { LayoutJsonUtils.createKeyDef(it, subModeLabel, subModeName) }
                                 }
                             }
                         }
@@ -957,7 +1012,7 @@ class TextKeyboard(
 
     private fun updateSpaceLabel(ime: InputMethodEntry?) {
         if (ime == null) return
-        val subModeText = ime.subMode.run { label.ifEmpty { name.ifEmpty { "" } } }
+        val subModeText = ime.subMode.run { name.ifEmpty { label.ifEmpty { "" } } }
         val newText = when (spaceKeyLabelMode.getValue()) {
             SpaceKeyLabelMode.Default -> {
                 buildString {

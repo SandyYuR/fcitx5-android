@@ -23,6 +23,9 @@ class SubModeManager(
     private val entries: Map<String, List<List<Map<String, Any?>>>>
 ) {
 
+    var nameToIdMap: Map<String, String> = emptyMap()
+        private set
+
     /**
      * SubMode state data class
      *
@@ -91,7 +94,9 @@ class SubModeManager(
      */
     fun resolveSubModeState(layoutName: String, layoutLabels: List<String>): SubModeState {
         val (currentIme, fcitxLabels) = fetchCurrentImeAndSubModeLabels(layoutName)
-        val labels = (fcitxLabels + layoutLabels)
+        val idToNameMap = nameToIdMap.entries.associate { (name, id) -> id to name }
+        val normalizedLayoutLabels = layoutLabels.map { idToNameMap[it] ?: it }
+        val labels = (fcitxLabels + normalizedLayoutLabels)
             .map { it.trim() }
             .distinct()
             .filter { it.isNotBlank() }
@@ -170,6 +175,8 @@ class SubModeManager(
                     }.getOrNull() ?: statusAreaActionsCached
                     fromStatusMenu = extractLabelsFromStatusArea(actions, currentLabel)
                 }
+
+                nameToIdMap = SubModeMenuResolver.buildNameToIdMap(actions, currentLabel)
 
                 val baseLabels = when {
                     fromStatusMenu.isNotEmpty() -> fromStatusMenu
@@ -296,5 +303,22 @@ class SubModeManager(
          */
         private fun toMenuLabel(action: Action): String? =
             action.shortText.ifEmpty { action.longText }.ifEmpty { action.name }.trim().takeIf { it.isNotEmpty() }
+
+        fun buildNameToIdMap(
+            actions: Array<Action>,
+            currentLabel: String
+        ): Map<String, String> {
+            val menu = pickSchemeMenu(actions, currentLabel)
+                ?.let { takeItemsBeforeSeparator(it) }
+                ?.drop(1)
+                ?: return emptyMap()
+            val map = mutableMapOf<String, String>()
+            for (item in menu) {
+                val name = item.shortText.trim().takeIf { it.isNotEmpty() } ?: continue
+                val id = item.longText.trim().takeIf { it.isNotEmpty() } ?: continue
+                map[name] = id
+            }
+            return map
+        }
     }
 }

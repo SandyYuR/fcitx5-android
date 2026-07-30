@@ -55,7 +55,8 @@ class KeyboardPreviewManager(
     private val previewContainer: ViewGroup,
     private val entries: Map<String, List<List<Map<String, Any?>>>>,
     private val layoutHeightPercentOverrideProvider: (String) -> Int? = { null },
-    private val layoutAuxBarConfigProvider: (String) -> AuxBarConfig? = { null }
+    private val layoutAuxBarConfigProvider: (String) -> AuxBarConfig? = { null },
+    private val subModeNameToIdProvider: () -> Map<String, String> = { emptyMap() }
 ) {
     private var previewKeyboard: TextKeyboard? = null
     private val previewBlurMask by lazy { PreviewKeyBlurMaskView(context) }
@@ -75,8 +76,8 @@ class KeyboardPreviewManager(
         previewContainer.removeAllViews()
 
         // Try to load submode-specific layout first
-        val subModeKey = previewSubModeLabel?.let { "$layoutName:$it" }
-        val effectiveLayoutKey = subModeKey?.takeIf { entries.containsKey(it) } ?: layoutName
+        val effectiveSubModeKey = resolveEffectiveSubModeKey(layoutName, previewSubModeLabel)
+        val effectiveLayoutKey = effectiveSubModeKey ?: layoutName
         val rows = entries[effectiveLayoutKey] ?: return
 
         val theme = ThemeManager.activeTheme
@@ -91,7 +92,7 @@ class KeyboardPreviewManager(
         }
 
         // Build submode map with all available submodes for this layout
-        val subModeMap = buildSubModeMap(layoutName, subModeKey, rows, previewSubModeLabel)
+        val subModeMap = buildSubModeMap(layoutName, effectiveSubModeKey, rows, previewSubModeLabel)
 
         val tempJson = JsonObject(mapOf(layoutName to JsonObject(subModeMap)))
 
@@ -108,7 +109,7 @@ class KeyboardPreviewManager(
         var appliedPreviewIme: org.fcitx.fcitx5.android.core.InputMethodEntry? = null
 
         try {
-            appliedPreviewIme = createKeyboardPreview(layoutName, previewSubModeLabel, fcitxConnection)
+            appliedPreviewIme = createKeyboardPreview(layoutName, previewSubModeLabel, effectiveSubModeKey, fcitxConnection)
         } catch (e: Exception) {
             android.util.Log.e("KeyboardPreview", "Failed to create keyboard preview for layout: $layoutName, submode: $previewSubModeLabel", e)
             showError(e.message ?: "Unknown error")
@@ -199,6 +200,7 @@ class KeyboardPreviewManager(
     private fun createKeyboardPreview(
         layoutName: String,
         previewSubModeLabel: String?,
+        effectiveSubModeKey: String?,
         fcitxConnection: FcitxConnection
     ): org.fcitx.fcitx5.android.core.InputMethodEntry {
         val theme = ThemeManager.activeTheme
@@ -207,8 +209,7 @@ class KeyboardPreviewManager(
             val displayMetrics = context.resources.displayMetrics
             val screenHeight = displayMetrics.heightPixels
 
-            val subModeKey = previewSubModeLabel?.let { "$layoutName:$it" }
-            val effectiveLayoutKey = subModeKey?.takeIf { entries.containsKey(it) } ?: layoutName
+            val effectiveLayoutKey = effectiveSubModeKey ?: layoutName
             val rows = entries[effectiveLayoutKey].orEmpty()
 
             // Get keyboard height percentage from layout override or preferences
@@ -295,6 +296,18 @@ class KeyboardPreviewManager(
         if (sum <= 0f) return 1f
         val normalized = distributed.map { it * 100f / sum }
         return (normalized.sum() / 100f).coerceAtLeast(0.1f)
+    }
+
+    private fun resolveEffectiveSubModeKey(
+        layoutName: String,
+        previewSubModeLabel: String?
+    ): String? {
+        val label = previewSubModeLabel?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        val keyByLabel = "$layoutName:$label"
+        if (entries.containsKey(keyByLabel)) return keyByLabel
+        val keyById = subModeNameToIdProvider()[label]?.let { "$layoutName:$it" }
+        if (keyById != null && entries.containsKey(keyById)) return keyById
+        return null
     }
 
     /**
