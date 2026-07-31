@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_debug">小企鹅表码词典插件（调试）</string>
+    <string name="app_name_release">小企鹅表码词典插件</string>
+    <string name="description">小企鹅（Fcitx5）表码输入法词典数据（五笔、郑码等）</string>
+</resources>

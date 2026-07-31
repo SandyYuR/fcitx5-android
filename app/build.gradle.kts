@@ -207,7 +207,16 @@ fcitxComponent {
     } + listOf(
         // pinyin language model is shipped by the :plugin:pinyin-lm plugin instead
         "usr/share/libime/zh_CN.lm",
-        "usr/share/libime/zh_CN.lm.predict"
+        "usr/share/libime/zh_CN.lm.predict",
+        // table input methods and dictionaries are shipped by the :plugin:table-data plugin instead
+        "usr/share/fcitx5/inputmethod/db.conf",
+        "usr/share/fcitx5/inputmethod/wbpy.conf",
+        "usr/share/fcitx5/inputmethod/wbx.conf",
+        "usr/share/fcitx5/inputmethod/zrm.conf",
+        "usr/share/fcitx5/table/db.main.dict",
+        "usr/share/fcitx5/table/wbpy.main.dict",
+        "usr/share/fcitx5/table/wbx.main.dict",
+        "usr/share/fcitx5/table/zrm.main.dict"
     )
     installPrebuiltAssets = true
 }
