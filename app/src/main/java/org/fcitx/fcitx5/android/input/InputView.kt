@@ -2202,6 +2202,7 @@ class InputView(
         requestLayout()
         // Trigger insets update
         service.window.window?.decorView?.requestLayout()
+        updateAuxBarPosition()
     }
 
     private fun restoreFloatingAndOneHandState() {
@@ -2237,6 +2238,7 @@ class InputView(
             isFloating = false
             floatingModeEnabledPref = false
             kawaiiBar.setFloatingState(false)
+            updateAuxBarPosition()
         }
         isOneHanded = !isOneHanded
         oneHandModeEnabledPref = isOneHanded
@@ -3470,6 +3472,13 @@ class InputView(
     }
 
     fun updateAuxBar(actions: List<org.fcitx.fcitx5.android.core.AuxBarAction>, listener: KeyActionListener) {
+        // When floating keyboard or candidate window is active, disable external aux bar.
+        // Tabs are only displayed inside the keyboard when left/right/top/bottom position is configured.
+        if (isFloating || service.candidatesView?.visibility == View.VISIBLE) {
+            auxBarContainer.removeAllViews()
+            auxBarScrollView.visibility = View.GONE
+            return
+        }
         val container = auxBarContainer
         container.removeAllViews()
         if (actions.isEmpty()) {
@@ -3542,9 +3551,20 @@ class InputView(
         tv.measuredHeight + dp(4) // topMargin + bottomMargin gap
     }
 
+    private val statusBarHeight: Int by lazy {
+        val resourceId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0) context.resources.getDimensionPixelSize(resourceId) else 0
+    }
+
     fun updateAuxBarPosition() {
         val scrollView = auxBarScrollView
         if (scrollView.visibility != View.VISIBLE || auxBarContainer.childCount == 0) return
+        // When floating keyboard or candidate window is active, hide external aux bar.
+        // Tabs are only displayed inside the keyboard when left/right/top/bottom position is configured.
+        if (isFloating || service.candidatesView?.visibility == View.VISIBLE) {
+            scrollView.visibility = View.GONE
+            return
+        }
         scrollView.post {
             val useFloatingAlways = AppPrefs.getInstance().candidates.mode.getValue() == FloatingCandidatesMode.Always
             if (useFloatingAlways) {
@@ -3616,6 +3636,35 @@ class InputView(
 
     private fun positionAuxBarDefault(scrollView: NestedScrollView) {
         scrollView.translationY = 0f
+        // Measure content height upfront and decide the layout mode in a single
+        // layout pass, avoiding flicker from two-pass (default → detect → constrained).
+        if (statusBarHeight > 0 && auxBarContainer.childCount > 0 && scrollView.width > 0) {
+            auxBarContainer.measure(
+                View.MeasureSpec.makeMeasureSpec(scrollView.width, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            val preeditLoc = IntArray(2)
+            preedit.ui.root.getLocationInWindow(preeditLoc)
+            val availableHeight = preeditLoc[1] - dp(2) - statusBarHeight
+            if (auxBarContainer.measuredHeight > availableHeight && availableHeight > 0) {
+                // Dual-constraint mode: top anchored to status bar bottom,
+                // bottom anchored to preedit top, height fills available space.
+                (scrollView.layoutParams as ConstraintLayout.LayoutParams).apply {
+                    height = 0
+                    matchConstraintDefaultHeight = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT_WRAP
+                    matchConstraintMaxHeight = 0
+                    topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                    topMargin = statusBarHeight
+                    bottomToTop = preedit.ui.root.id
+                    bottomMargin = dp(2)
+                    topToBottom = ConstraintLayout.LayoutParams.UNSET
+                }
+                (auxBarContainer.layoutParams as android.widget.FrameLayout.LayoutParams).gravity = Gravity.TOP
+                scrollView.requestLayout()
+                return
+            }
+        }
+        // Default mode: bottom anchored to preedit, wrap content height.
         (scrollView.layoutParams as ConstraintLayout.LayoutParams).apply {
             height = ConstraintLayout.LayoutParams.WRAP_CONTENT
             bottomToTop = preedit.ui.root.id
@@ -3625,6 +3674,7 @@ class InputView(
             matchConstraintDefaultHeight = 0
             matchConstraintMaxHeight = 0
         }
+        (auxBarContainer.layoutParams as android.widget.FrameLayout.LayoutParams).gravity = Gravity.BOTTOM
         scrollView.requestLayout()
     }
 }

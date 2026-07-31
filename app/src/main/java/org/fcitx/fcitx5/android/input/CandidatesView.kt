@@ -173,11 +173,15 @@ class CandidatesView(
         preeditUi.update(inputPanel)
         preeditUi.root.visibility = if (preeditUi.visible) VISIBLE else GONE
         candidatesUi.update(paged, orientation)
+        val wasVisible = visibility == VISIBLE
         if (evaluateVisibility()) {
             visibility = VISIBLE
         } else {
             // RecyclerView won't update its items when ancestor view is GONE
             visibility = INVISIBLE
+        }
+        if (wasVisible != (visibility == VISIBLE)) {
+            onPositionChanged?.invoke()
         }
     }
 
