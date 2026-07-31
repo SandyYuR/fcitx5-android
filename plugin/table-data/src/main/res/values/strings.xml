@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_debug">Fcitx5 (Table Data Plugin | Debug)</string>
+    <string name="app_name_release">Fcitx5 (Table Data Plugin)</string>
+    <string name="description">Table input method data for Fcitx5 (Wubi, Zhengma, …)</string>
+</resources>

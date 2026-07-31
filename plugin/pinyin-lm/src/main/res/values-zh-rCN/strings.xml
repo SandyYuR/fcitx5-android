@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name_debug">Fcitx5（拼音模型插件 | 调试）</string>
-    <string name="app_name_release">Fcitx5（拼音模型插件）</string>
-    <string name="description">Fcitx5 的拼音语言模型数据，提供整句预测与候选排序</string>
+    <string name="app_name_debug">小企鹅拼音模型插件（调试）</string>
+    <string name="app_name_release">小企鹅拼音模型插件</string>
+    <string name="description">小企鹅（Fcitx5）的拼音语言模型数据，提供整句预测与候选排序</string>
 </resources>
