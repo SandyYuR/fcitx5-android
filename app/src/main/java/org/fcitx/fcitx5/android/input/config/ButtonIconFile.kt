@@ -218,7 +218,6 @@ object ButtonIconFile {
         } catch (e: Resources.NotFoundException) {
             Log.w(TAG, "Drawable resource not found while inflating xml icon (framework): $path (${e.message})")
             null
-            null
         } catch (e: RuntimeException) {
             Log.w(TAG, "Failed to inflate custom xml icon drawable (framework): $path (${e.message})")
             null

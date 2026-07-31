@@ -478,7 +478,7 @@ object ImeWebEditorBridgeServer {
                     if (fileUploads != null) {
                         val pngDir = IconThemeManager.pngDirForTheme(name)
                         fileUploads.forEach { (slotKey, fileValue) ->
-                            val base64 = fileValue.jsonPrimitive?.contentOrNull ?: return@forEach
+                            val base64 = fileValue.jsonPrimitive.contentOrNull ?: return@forEach
                             val (mime, data) = parseBase64DataUri(base64) ?: return@forEach
                             val ext = when {
                                 mime.contains("png") -> "png"
@@ -499,7 +499,7 @@ object ImeWebEditorBridgeServer {
                             target.writeBytes(data)
                         }
                     }
-                    val icons = iconsObj.mapValues { (_, v) -> v.jsonPrimitive?.contentOrNull ?: "" }
+                    val icons = iconsObj.mapValues { (_, v) -> v.jsonPrimitive.contentOrNull ?: "" }
                         .filterValues { it.isNotBlank() }
                     val theme = IconTheme(
                         name = name,

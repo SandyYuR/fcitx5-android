@@ -3512,7 +3512,7 @@ class InputView(
                     cornerRadius = radius
                 }
                 setOnClickListener {
-                    listener?.onKeyAction(
+                    listener.onKeyAction(
                         KeyAction.AuxBarTrigger(action.id),
                         KeyActionListener.Source.Keyboard
                     )
