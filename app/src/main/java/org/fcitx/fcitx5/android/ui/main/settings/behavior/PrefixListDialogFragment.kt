@@ -12,7 +12,6 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
-import androidx.core.os.bundleOf
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 
@@ -54,7 +53,7 @@ class PrefixListDialogFragment : DialogFragment() {
                 prefs.allowedPluginPrefixes.setValue(newPrefixes)
                 parentFragmentManager.setFragmentResult(
                     REQUEST_KEY,
-                    bundleOf(UPDATED_KEY to true)
+                    Bundle().apply { putBoolean(UPDATED_KEY, true) }
                 )
             }
             .setNegativeButton(android.R.string.cancel, null)
