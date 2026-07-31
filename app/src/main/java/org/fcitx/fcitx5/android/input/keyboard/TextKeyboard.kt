@@ -813,7 +813,7 @@ class TextKeyboard(
                         CapsState.Lock -> {
                             transformed = action.copy(
                                 act = action.act.uppercase(),
-                                states = KeyStates(KeyState.Virtual, KeyState.CapsLock)
+                                states = KeyStates(KeyState.Virtual, KeyState.Shift)
                             )
                         }
                     }
@@ -966,7 +966,7 @@ class TextKeyboard(
 
     override fun onAttach() {
         ensureSpecialKeyViewsInitialized()
-        capsState = CapsState.None
+        capsState = if (getService()?.isVirtualShiftLockOn() == true) CapsState.Lock else CapsState.None
         updateCapsButtonIcon()
         updateAlphabetKeys()
     }
@@ -1045,11 +1045,8 @@ class TextKeyboard(
         }
         // Re-find special key views after layout reload (or ensure initialized on first call)
         ensureSpecialKeyViewsInitialized()
-        updateAlphabetKeys()
         updateSpaceLabel(ime)
-        if (capsState != CapsState.None) {
-            switchCapsState()
-        }
+        refreshCapsPresentation()
     }
 
     override fun onStyleRefreshFinished() {
@@ -1119,7 +1116,7 @@ class TextKeyboard(
         val oldLocked = oldCapsState == CapsState.Lock
         val newLocked = capsState == CapsState.Lock
         if (oldLocked != newLocked) {
-            getService()?.setVirtualCapsLockState(newLocked)
+            getService()?.setVirtualShiftLockState(newLocked)
         }
         refreshCapsPresentation()
     }
