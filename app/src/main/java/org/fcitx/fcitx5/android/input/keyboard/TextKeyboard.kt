@@ -531,6 +531,12 @@ class TextKeyboard(
             val subModeLabel = ime?.subMode?.label ?: ""
             val subModeName = ime?.subMode?.name ?: ""
             val schemaId = schemaIdFromSubModeIcon(ime?.subMode?.icon ?: "")
+            val displayTextContextCacheKey = listOf(schemaId, subModeLabel, subModeName)
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .distinct()
+                .joinToString(separator = "|")
+                .ifEmpty { "none" }
             val showLangSwitch = AppPrefs.getInstance().keyboard.showLangSwitchKey.getValue()
             val json = textLayoutJson
 
@@ -538,7 +544,7 @@ class TextKeyboard(
                 if (json != null) {
                     val forcedLayout = findLayoutElementByKey(json, forced)
                     if (forcedLayout != null) {
-                        val cacheKey = "forced:$forced:$showLangSwitch"
+                        val cacheKey = "forced:$forced:$showLangSwitch:$displayTextContextCacheKey"
                         val baseName = forced.substringBefore(':')
                         val forcedSub = forced.substringAfter(':', "")
                         resolvedLayoutHeightPercentOverride = if (forcedSub.isNotEmpty()) {
@@ -557,7 +563,14 @@ class TextKeyboard(
                         return cachedKeyDefLayouts.getOrPut(cacheKey) {
                             forcedLayout.map { rowElement ->
                                 LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                    .map { LayoutJsonUtils.createKeyDef(it, subModeLabel, ime?.subMode?.name ?: "") }
+                                    .map {
+                                        LayoutJsonUtils.createKeyDef(
+                                            key = it,
+                                            subModeLabel = subModeLabel,
+                                            schemaId = schemaId,
+                                            subModeName = ime?.subMode?.name ?: ""
+                                        )
+                                    }
                             }
                         }
                     }
@@ -595,12 +608,19 @@ class TextKeyboard(
                             // Use a cache key that includes submode and showLangSwitch for proper caching
                             // Include showLangSwitch in cache key so layout is re-created when setting changes
                             val cacheSubMode = matchedSubModeKey ?: "default"
-                            val cacheKey = "$layoutKey:$cacheSubMode:$showLangSwitch"
+                            val cacheKey = "$layoutKey:$cacheSubMode:$showLangSwitch:$displayTextContextCacheKey"
                             cachedAuxBarConfigs[cacheKey] = resolvedAuxBarConfig
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                        .map { LayoutJsonUtils.createKeyDef(it, subModeLabel, subModeName) }
+                                        .map {
+                                            LayoutJsonUtils.createKeyDef(
+                                                key = it,
+                                                subModeLabel = subModeLabel,
+                                                schemaId = schemaId,
+                                                subModeName = subModeName
+                                            )
+                                        }
                                 }
                             }
                         }

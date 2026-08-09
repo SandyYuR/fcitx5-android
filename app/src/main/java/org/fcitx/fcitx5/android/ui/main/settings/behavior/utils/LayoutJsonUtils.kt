@@ -154,12 +154,15 @@ object LayoutJsonUtils {
      * 根据当前子模式标签和名称，从 displayText 中解析出正确的显示文本。
      *
      * 优先级：
-     * 1. 匹配 subModeLabel
-     * 2. 匹配 subModeName
-     * 3. 空字符串键 ""
-     * 4. 返回 default
+     * 1. 匹配 schemaId
+     * 2. 匹配 subModeLabel
+     * 3. 匹配 subModeName
+     * 4. 匹配 "default"
+     * 5. 匹配空字符串键 ""
+     * 6. 返回 default 参数
      *
      * @param displayText displayText JSON 元素
+     * @param schemaId 当前方案 ID（从 subMode icon 推导）
      * @param subModeLabel 当前子模式标签
      * @param subModeName 当前子模式名称
      * @param default 默认值
@@ -167,6 +170,7 @@ object LayoutJsonUtils {
      */
     fun resolveDisplayText(
         displayText: JsonElement?,
+        schemaId: String,
         subModeLabel: String,
         subModeName: String,
         default: String
@@ -174,19 +178,28 @@ object LayoutJsonUtils {
         return when {
             displayText == null -> default
             displayText is JsonPrimitive -> displayText.content
-            displayText is JsonObject -> resolveDisplayTextMap(displayText, subModeLabel, subModeName) ?: default
+            displayText is JsonObject -> resolveDisplayTextMap(displayText, schemaId, subModeLabel, subModeName) ?: default
             else -> default
         }
     }
 
     private fun resolveDisplayTextMap(
         map: JsonObject,
+        schemaId: String,
         subModeLabel: String,
         subModeName: String
     ): String? {
-        // 优先级：subModeLabel → subModeName
-        return map[subModeLabel]?.takeIf { it is JsonPrimitive && it !is JsonNull }?.jsonPrimitive?.content
-            ?: map[subModeName]?.takeIf { it is JsonPrimitive && it !is JsonNull }?.jsonPrimitive?.content
+        fun valueOf(key: String): String? {
+            if (key.isBlank()) return null
+            return map[key]?.takeIf { it is JsonPrimitive && it !is JsonNull }?.jsonPrimitive?.content
+        }
+
+        // 与文本键盘子模式匹配一致：schemaId → subModeLabel → subModeName → default → ""
+        return valueOf(schemaId)
+            ?: valueOf(subModeLabel)
+            ?: valueOf(subModeName)
+            ?: map["default"]?.takeIf { it is JsonPrimitive && it !is JsonNull }?.jsonPrimitive?.content
+            ?: map[""]?.takeIf { it is JsonPrimitive && it !is JsonNull }?.jsonPrimitive?.content
     }
 
     /**
@@ -672,13 +685,19 @@ object LayoutJsonUtils {
      * @param subModeName 当前子模式名称（用于解析 displayText）
      * @return 转换后的 KeyDef
      */
-    fun createKeyDef(key: KeyJson, subModeLabel: String = "", subModeName: String = ""): KeyDef {
+    fun createKeyDef(
+        key: KeyJson,
+        subModeLabel: String = "",
+        schemaId: String = "",
+        subModeName: String = ""
+    ): KeyDef {
         val keyDef = when (key.type) {
             "AlphabetKey" -> AlphabetKey(
                 character = key.main ?: "",
                 punctuation = key.alt ?: "",
                 displayText = resolveDisplayText(
                     key.displayText,
+                    schemaId,
                     subModeLabel,
                     subModeName,
                     key.main ?: ""
@@ -787,6 +806,7 @@ object LayoutJsonUtils {
                 val baseLabel = key.label ?: ""
                 val label = resolveDisplayText(
                     key.displayText,
+                    schemaId,
                     subModeLabel,
                     subModeName,
                     baseLabel  // 默认值为基础 label（displayText 中不需要 default 键）
@@ -819,6 +839,7 @@ object LayoutJsonUtils {
             val overrideDef = createKeyDef(
                 override.copy(composeOverride = null, weight = null, rowHeightPercent = null),
                 subModeLabel,
+                schemaId,
                 subModeName
             )
             overrideDef.independentColor = override.independentColor ?: false
