@@ -14,6 +14,7 @@ import androidx.annotation.Keep
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import androidx.core.view.allViews
 import java.lang.ref.WeakReference
+import java.util.WeakHashMap
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
@@ -704,6 +705,7 @@ class TextKeyboard(
         space = emptyList(),
         `return` = emptyList()
     )
+    private val specialIconTintCache = WeakHashMap<ImageView, ColorStateList>()
 
     data class SpecialKeyViews(
         val caps: List<ImageView>,
@@ -737,13 +739,18 @@ class TextKeyboard(
             }
         }
 
-        return SpecialKeyViews(
+        val specialViews = SpecialKeyViews(
             caps = caps,
             backspace = backspace,
             quickphrase = quickphrase,
             space = space,
             `return` = returnKeys
         )
+        (specialViews.caps + specialViews.backspace + specialViews.quickphrase + specialViews.`return`)
+            .forEach { iconView ->
+                iconView.imageTintList?.let { specialIconTintCache[iconView] = it }
+            }
+        return specialViews
     }
     
     private fun ensureSpecialKeyViewsInitialized() {
@@ -1167,17 +1174,20 @@ class TextKeyboard(
         }
         specialKeyViews.caps.forEach { cap ->
             cap.apply {
+                imageTintList?.let { specialIconTintCache[this] = it }
+                val themedTint = specialIconTintCache[this]
+                    ?: ColorStateList.valueOf(theme.altKeyTextColor)
                 if (iconInfo != null) {
                     setImageDrawable(iconInfo.drawable)
                     if (iconInfo.tintWithTheme) {
-                        imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
+                        imageTintList = themedTint
                     } else {
                         imageTintList = null
                         drawable?.setTintList(null)
                     }
                 } else {
                     imageResource = fallbackRes
-                    imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
+                    imageTintList = themedTint
                 }
             }
         }
