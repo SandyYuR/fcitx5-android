@@ -1747,9 +1747,17 @@ abstract class BaseKeyboard(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        // intercept ACTION_DOWN and all following events will go to parent's onTouchEvent
-        return if (vivoKeypressWorkaround && ev.actionMasked == MotionEvent.ACTION_DOWN) true
-        else super.onInterceptTouchEvent(ev)
+        // Intercept only key presses for the workaround. Auxiliary bar RecyclerViews
+        // must receive their own touch stream for scrolling and clicks.
+        return if (
+            vivoKeypressWorkaround &&
+            ev.actionMasked == MotionEvent.ACTION_DOWN &&
+            findTargetChild(ev.x, ev.y) != null
+        ) {
+            true
+        } else {
+            super.onInterceptTouchEvent(ev)
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

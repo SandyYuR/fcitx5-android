@@ -33,6 +33,7 @@ import splitties.views.dsl.constraintlayout.rightOfParent
 import splitties.views.dsl.constraintlayout.rightToLeftOf
 import splitties.views.dsl.constraintlayout.topOfParent
 import splitties.views.dsl.core.add
+import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 import splitties.views.dsl.recyclerview.recyclerView
 import splitties.views.imageResource
@@ -140,12 +141,12 @@ class ExpandedCandidateLayout(context: Context, theme: Theme) : ConstraintLayout
             bottomOfParent()
         })
         tabsContainer.apply {
-            add(scrollableTabs, lParams {
+            add(scrollableTabs, lParams(matchParent, 0) {
                 topOfParent()
                 centerHorizontally()
                 above(pinnedTabs)
             })
-            add(pinnedTabs, lParams(height = wrapContent) {
+            add(pinnedTabs, lParams(matchParent, wrapContent) {
                 bottomOfParent()
                 centerHorizontally()
             })
