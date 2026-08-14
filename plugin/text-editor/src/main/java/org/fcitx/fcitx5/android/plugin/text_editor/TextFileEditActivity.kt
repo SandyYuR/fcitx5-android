@@ -81,6 +81,8 @@ class TextFileEditActivity : AppCompatActivity() {
     private var externalChangeDialogShowing: Boolean = false
     private var externalCheckInFlight: Boolean = false
     private var externalPollScheduled: Boolean = false
+    private var fileOperationGeneration: Long = 0L
+    private var fileOperationInProgress: Boolean = false
     private val externalChangePoll = Runnable {
         externalPollScheduled = false
         maybeCheckExternalChange()
@@ -457,12 +459,13 @@ class TextFileEditActivity : AppCompatActivity() {
 
     private fun maybeCheckExternalChange() {
         // Not loaded yet, a prompt is already up, or a check is already running.
-        if (loadedFileSize < 0 || externalChangeDialogShowing || externalCheckInFlight) return
+        if (loadedFileSize < 0 || externalChangeDialogShowing || externalCheckInFlight || fileOperationInProgress) return
         val mode = prefs.getString(
             EditorOptionsActivity.PREF_EXTERNAL_CHANGE,
             EditorOptionsActivity.EXTERNAL_CHANGE_PROMPT
         )
         if (mode == EditorOptionsActivity.EXTERNAL_CHANGE_OFF) return
+        val generation = fileOperationGeneration
         externalCheckInFlight = true
         lifecycleScope.launch(crashHandler) {
             // Some providers stat slowly — keep the metadata query off the main thread so polling
@@ -475,6 +478,7 @@ class TextFileEditActivity : AppCompatActivity() {
             }
             externalCheckInFlight = false
             if (externalChangeDialogShowing) return@launch
+            if (generation != fileOperationGeneration) return@launch
             if (currentModified == loadedLastModified && currentSize == loadedFileSize) return@launch
             // Never silently discard unsaved edits — fall back to prompting even in auto mode.
             if (mode == EditorOptionsActivity.EXTERNAL_CHANGE_AUTO && !isDirty()) {
@@ -1123,6 +1127,8 @@ class TextFileEditActivity : AppCompatActivity() {
     }
 
     private fun saveFile(onSuccess: (() -> Unit)? = null) {
+        fileOperationGeneration++
+        fileOperationInProgress = true
         lifecycleScope.launch(crashHandler) {
             try {
                 if (isLargeFile) {
@@ -1148,6 +1154,8 @@ class TextFileEditActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Timber.e(e, "Failed to save $docUri")
                 toast(getString(R.string.error_save_file, e.message ?: ""))
+            } finally {
+                fileOperationInProgress = false
             }
         }
     }
@@ -1160,6 +1168,8 @@ class TextFileEditActivity : AppCompatActivity() {
     }
 
     private fun saveFileAsUri(uri: Uri) {
+        fileOperationGeneration++
+        fileOperationInProgress = true
         lifecycleScope.launch(crashHandler) {
             try {
                 val content = activeEditor().text.toString()
@@ -1184,6 +1194,8 @@ class TextFileEditActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Timber.e(e, "Failed to save as $uri")
                 toast(getString(R.string.error_save_file, e.message ?: ""))
+            } finally {
+                fileOperationInProgress = false
             }
         }
     }
