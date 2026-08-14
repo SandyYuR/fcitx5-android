@@ -6,8 +6,10 @@ package org.fcitx.fcitx5.android.input.picker
 
 import androidx.core.content.ContextCompat
 import androidx.transition.Transition
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.broadcast.ReturnKeyDrawableComponent
 import org.fcitx.fcitx5.android.input.dependency.theme
 import org.fcitx.fcitx5.android.input.font.FontProviders
@@ -50,6 +52,14 @@ class PickerWindow(
 
     private lateinit var pickerLayout: PickerLayout
     private lateinit var pickerPagesAdapter: PickerPagesAdapter
+
+    private val iconThemeListener = IconThemeManager.OnIconThemeChangeListener {
+        returnKeyDrawable.onIconThemeChanged()
+        pickerLayout.embeddedKeyboard.refreshIconTheme()
+        (pickerLayout.pager.getChildAt(0) as? RecyclerView)?.let {
+            pickerPagesAdapter.refreshIconTheme(it)
+        }
+    }
 
     override fun enterAnimation(lastWindow: InputWindow): Transition? = null
 
@@ -147,9 +157,11 @@ class PickerWindow(
     override fun onCreateBarExtension() = pickerLayout.tabsUi.root
 
     override fun onAttached() {
+        IconThemeManager.addOnChangedListener(iconThemeListener)
         pickerLayout.embeddedKeyboard.also {
             pickerPagesAdapter.refreshIfNeeded()
             it.onReturnDrawableUpdate(returnKeyDrawable.resourceId)
+            it.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)
             it.keyActionListener = keyActionListener
             it.onAttach()
             it.reapplyTextScale()
@@ -163,6 +175,7 @@ class PickerWindow(
     }
 
     override fun onDetached() {
+        IconThemeManager.removeOnChangedListener(iconThemeListener)
         popup.dismissAll()
         pickerLayout.embeddedKeyboard.also {
             it.onDetach()

@@ -11,6 +11,7 @@ import android.content.res.ColorStateList
 import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.StateListDrawable
 import androidx.annotation.DrawableRes
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
 import org.fcitx.fcitx5.android.input.keyboard.shadowedKeyBackgroundDrawable
@@ -95,8 +96,26 @@ class TextEditingButton(
 
     fun setIcon(@DrawableRes icon: Int) {
         imageView.imageResource = icon
+        imageView.imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
         removeView(textView)
         add(imageView, lParams(wrapContent, wrapContent, gravityCenter))
+    }
+
+    fun setThemedIcon(slot: String, @DrawableRes fallback: Int) {
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
+        if (iconInfo != null) {
+            removeView(textView)
+            add(imageView, lParams(wrapContent, wrapContent, gravityCenter))
+            imageView.setImageDrawable(iconInfo.drawable)
+            if (iconInfo.tintWithTheme) {
+                imageView.imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
+            } else {
+                imageView.imageTintList = null
+                imageView.drawable?.setTintList(null)
+            }
+        } else {
+            setIcon(fallback)
+        }
     }
 
     fun enableActivatedState() {

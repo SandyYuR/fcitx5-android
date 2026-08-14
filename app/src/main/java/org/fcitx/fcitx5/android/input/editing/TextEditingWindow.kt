@@ -9,6 +9,7 @@ import android.view.View
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
@@ -35,6 +36,10 @@ class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(),
 
     private var hasSelection = false
     private var userSelection = false
+
+    private val iconThemeListener = IconThemeManager.OnIconThemeChangeListener {
+        ui.refreshThemedIcons()
+    }
 
     private fun sendDirectionKey(keyEventCode: Int) {
         service.sendCombinationKeyEvents(keyEventCode, shift = hasSelection || userSelection)
@@ -101,11 +106,14 @@ class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(),
     override fun onCreateView(): View = ui.root
 
     override fun onAttached() {
+        IconThemeManager.addOnChangedListener(iconThemeListener)
         val range = service.currentInputSelection
         onSelectionUpdate(range.start, range.end)
     }
 
-    override fun onDetached() {}
+    override fun onDetached() {
+        IconThemeManager.removeOnChangedListener(iconThemeListener)
+    }
 
     override fun onSelectionUpdate(start: Int, end: Int) {
         hasSelection = start != end

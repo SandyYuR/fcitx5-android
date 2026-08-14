@@ -368,12 +368,14 @@ class CommaKey(
                 Popup.Menu.Item(
                     "Emoji",
                     R.drawable.ic_baseline_tag_faces_24,
-                    KeyAction.PickerSwitchAction()
+                    KeyAction.PickerSwitchAction(),
+                    iconSlot = "keys.emoji"
                 ),
                 Popup.Menu.Item(
                     "QuickPhrase",
                     R.drawable.ic_baseline_format_quote_24,
-                    KeyAction.QuickPhraseAction
+                    KeyAction.QuickPhraseAction,
+                    iconSlot = "keys.quickphrase"
                 ),
                 Popup.Menu.Item(
                     "Unicode",
@@ -495,7 +497,8 @@ class ReturnKey(
         Popup.Menu(
             arrayOf(
                 Popup.Menu.Item(
-                    "Emoji", R.drawable.ic_baseline_tag_faces_24, KeyAction.PickerSwitchAction()
+                    "Emoji", R.drawable.ic_baseline_tag_faces_24, KeyAction.PickerSwitchAction(),
+                    iconSlot = "keys.emoji"
                 )
             )
         )

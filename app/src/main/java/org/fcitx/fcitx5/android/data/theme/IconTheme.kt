@@ -62,7 +62,13 @@ data class IconTheme(
             "keys.symbols",
             "keys.unicode",
             "keys.pageup",
-            "keys.pagedown"
+            "keys.pagedown",
+            "keys.cursor_up",
+            "keys.cursor_down",
+            "keys.cursor_left",
+            "keys.cursor_right",
+            "keys.home",
+            "keys.end"
         )
 
         /**

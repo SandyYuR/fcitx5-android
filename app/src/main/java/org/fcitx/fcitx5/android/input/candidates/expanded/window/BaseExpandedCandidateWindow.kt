@@ -19,6 +19,7 @@ import org.fcitx.fcitx5.android.core.CandidateAction
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.BooleanKey.ExpandedCandidatesEmpty
 import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.TransitionEvent.ExpandedCandidatesAttached
 import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.TransitionEvent.ExpandedCandidatesDetached
@@ -62,6 +63,11 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
     protected val disableAnimation by AppPrefs.getInstance().advanced.disableAnimation
 
     private lateinit var candidateLayout: ExpandedCandidateLayout
+
+    private val iconThemeListener = IconThemeManager.OnIconThemeChangeListener {
+        returnKeyDrawable.onIconThemeChanged()
+        candidateLayout.embeddedKeyboard.refreshIconTheme()
+    }
 
     protected val dividerDrawable by lazy {
         ShapeDrawable(RectShape()).apply {
@@ -154,9 +160,11 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
     abstract fun nextPage()
 
     override fun onAttached() {
+        IconThemeManager.addOnChangedListener(iconThemeListener)
         bar.expandButtonStateMachine.push(ExpandedCandidatesAttached)
         candidateLayout.embeddedKeyboard.also {
             it.onReturnDrawableUpdate(returnKeyDrawable.resourceId)
+            it.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)
             it.keyActionListener = keyActionListener
         }
         updateTabs(fcitx.runImmediately { inputPanelCached.tabs })
@@ -203,6 +211,7 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
     }
 
     override fun onDetached() {
+        IconThemeManager.removeOnChangedListener(iconThemeListener)
         bar.expandButtonStateMachine.push(
             ExpandedCandidatesDetached,
             ExpandedCandidatesEmpty to (horizontalCandidate.adapter.total == adapter.offset)
@@ -216,6 +225,11 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
         if (empty) {
             windowManager.attachWindow(KeyboardWindow)
         }
+    }
+
+    override fun onReturnKeyDrawableUpdate(resourceId: Int) {
+        candidateLayout.embeddedKeyboard.onReturnDrawableUpdate(resourceId)
+        candidateLayout.embeddedKeyboard.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)
     }
 
     override fun onInputPanelUpdate(data: FcitxEvent.InputPanelEvent.Data) {
