@@ -10,6 +10,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.InputFeedbacks
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
 import splitties.dimensions.dp
@@ -41,24 +42,24 @@ class TextEditingUi(
             setText(id)
         }
 
-    private fun iconButton(@DrawableRes icon: Int, altStyle: Boolean = false) =
+    private fun themedIconButton(slot: String, @DrawableRes fallback: Int, altStyle: Boolean = false) =
         TextEditingButton(ctx, theme, ripple, border, radius, altStyle).apply {
-            setIcon(icon)
+            setThemedIcon(slot, fallback)
         }
 
-    val upButton = iconButton(R.drawable.ic_baseline_keyboard_arrow_up_24).apply {
+    val upButton = themedIconButton("keys.cursor_up", R.drawable.ic_baseline_keyboard_arrow_up_24).apply {
         contentDescription = ctx.getString(R.string.move_cursor_up)
     }
 
-    val rightButton = iconButton(R.drawable.ic_baseline_keyboard_arrow_right_24).apply {
+    val rightButton = themedIconButton("keys.cursor_right", R.drawable.ic_baseline_keyboard_arrow_right_24).apply {
         contentDescription = ctx.getString(R.string.move_cursor_right)
     }
 
-    val downButton = iconButton(R.drawable.ic_baseline_keyboard_arrow_down_24).apply {
+    val downButton = themedIconButton("keys.cursor_down", R.drawable.ic_baseline_keyboard_arrow_down_24).apply {
         contentDescription = ctx.getString(R.string.move_cursor_down)
     }
 
-    val leftButton = iconButton(R.drawable.ic_baseline_keyboard_arrow_left_24).apply {
+    val leftButton = themedIconButton("keys.cursor_left", R.drawable.ic_baseline_keyboard_arrow_left_24).apply {
         contentDescription = ctx.getString(R.string.move_cursor_left)
     }
 
@@ -66,11 +67,11 @@ class TextEditingUi(
         enableActivatedState()
     }
 
-    val homeButton = iconButton(R.drawable.ic_baseline_first_page_24).apply {
+    val homeButton = themedIconButton("keys.home", R.drawable.ic_baseline_first_page_24).apply {
         contentDescription = ctx.getString(R.string.move_cursor_to_start)
     }
 
-    val endButton = iconButton(R.drawable.ic_baseline_last_page_24).apply {
+    val endButton = themedIconButton("keys.end", R.drawable.ic_baseline_last_page_24).apply {
         contentDescription = ctx.getString(R.string.move_cursor_to_end)
     }
 
@@ -84,7 +85,7 @@ class TextEditingUi(
 
     val pasteButton = textButton(android.R.string.paste, altStyle = true)
 
-    val backspaceButton = iconButton(R.drawable.ic_baseline_backspace_24, altStyle = true).apply {
+    val backspaceButton = themedIconButton("keys.backspace", R.drawable.ic_baseline_backspace_24, altStyle = true).apply {
         soundEffect = InputFeedbacks.SoundEffect.Delete
         contentDescription = ctx.getString(R.string.backspace)
     }
@@ -192,6 +193,27 @@ class TextEditingUi(
 
     val clipboardButton = ToolButton(ctx, R.drawable.ic_clipboard, theme).apply {
         contentDescription = ctx.getString(R.string.clipboard)
+        applyThemeClipboardIcon(this)
+    }
+
+    private fun applyThemeClipboardIcon(button: ToolButton) {
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo("toolbar.clipboard")
+        if (iconInfo != null) {
+            button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
+        } else {
+            button.setIcon(R.drawable.ic_clipboard)
+        }
+    }
+
+    fun refreshThemedIcons() {
+        upButton.setThemedIcon("keys.cursor_up", R.drawable.ic_baseline_keyboard_arrow_up_24)
+        downButton.setThemedIcon("keys.cursor_down", R.drawable.ic_baseline_keyboard_arrow_down_24)
+        leftButton.setThemedIcon("keys.cursor_left", R.drawable.ic_baseline_keyboard_arrow_left_24)
+        rightButton.setThemedIcon("keys.cursor_right", R.drawable.ic_baseline_keyboard_arrow_right_24)
+        homeButton.setThemedIcon("keys.home", R.drawable.ic_baseline_first_page_24)
+        endButton.setThemedIcon("keys.end", R.drawable.ic_baseline_last_page_24)
+        backspaceButton.setThemedIcon("keys.backspace", R.drawable.ic_baseline_backspace_24)
+        applyThemeClipboardIcon(clipboardButton)
     }
 
     val extension = horizontalLayout {

@@ -636,6 +636,12 @@ class IconThemeEditorActivity : AppCompatActivity() {
         "keys.unicode" -> R.drawable.ic_logo_unicode
         "keys.pageup" -> R.drawable.ic_baseline_arrow_upward_24
         "keys.pagedown" -> R.drawable.ic_baseline_arrow_downward_24
+        "keys.cursor_up" -> R.drawable.ic_baseline_keyboard_arrow_up_24
+        "keys.cursor_down" -> R.drawable.ic_baseline_keyboard_arrow_down_24
+        "keys.cursor_left" -> R.drawable.ic_baseline_keyboard_arrow_left_24
+        "keys.cursor_right" -> R.drawable.ic_baseline_keyboard_arrow_right_24
+        "keys.home" -> R.drawable.ic_baseline_first_page_24
+        "keys.end" -> R.drawable.ic_baseline_last_page_24
         "toolbar.undo" -> R.drawable.ic_baseline_undo_24
         "toolbar.redo" -> R.drawable.ic_baseline_redo_24
         "toolbar.cursor_move" -> R.drawable.ic_cursor_move

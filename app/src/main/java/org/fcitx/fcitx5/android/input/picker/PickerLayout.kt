@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.picker
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.drawable.Drawable
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.viewpager2.widget.ViewPager2
 import org.fcitx.fcitx5.android.R
@@ -56,6 +57,12 @@ class PickerLayout(context: Context, theme: Theme, switchKey: KeyDef) :
 
         override fun onReturnDrawableUpdate(returnDrawable: Int) {
             `return`?.img?.imageResource = returnDrawable
+        }
+
+        override fun onReturnDrawableOverride(drawable: Drawable?) {
+            if (drawable != null) {
+                `return`?.img?.setImageDrawable(drawable)
+            }
         }
     }
 

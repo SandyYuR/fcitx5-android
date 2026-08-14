@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.input.candidates.expanded
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.drawable.Drawable
 import android.view.Gravity
 import androidx.constraintlayout.widget.ConstraintLayout
 import org.fcitx.fcitx5.android.R
@@ -82,6 +83,12 @@ class ExpandedCandidateLayout(context: Context, theme: Theme) : ConstraintLayout
 
         override fun onReturnDrawableUpdate(returnDrawable: Int) {
             `return`?.img?.imageResource = returnDrawable
+        }
+
+        override fun onReturnDrawableOverride(drawable: Drawable?) {
+            if (drawable != null) {
+                `return`?.img?.setImageDrawable(drawable)
+            }
         }
     }
 

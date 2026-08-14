@@ -908,6 +908,21 @@ abstract class BaseKeyboard(
         invalidate()
     }
 
+    fun refreshIconTheme() {
+        if (!::keyRows.isInitialized) return
+        keyRows.forEach { row ->
+            row.children.forEach { child ->
+                (child as? KeyView)?.let { keyView ->
+                    when (keyView) {
+                        is ImageAltTextKeyView -> keyView.reapplyIconThemeOverride()
+                        is ImageTextKeyView -> keyView.reapplyIconThemeOverride()
+                        is ImageKeyView -> keyView.reapplyIconThemeOverride()
+                    }
+                }
+            }
+        }
+    }
+
     fun setHorizontalGapScale(scale: Float) {
         val target = scale.coerceIn(0.5f, 1f)
         if (kotlin.math.abs(horizontalGapScale - target) < 0.01f) return

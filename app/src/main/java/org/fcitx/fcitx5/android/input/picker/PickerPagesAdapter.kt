@@ -72,6 +72,13 @@ class PickerPagesAdapter(
         }
     }
 
+    fun refreshIconTheme(recyclerView: RecyclerView) {
+        repeat(recyclerView.childCount) { index ->
+            val holder = recyclerView.getChildViewHolder(recyclerView.getChildAt(index))
+            (holder as? ViewHolder)?.ui?.refreshIconTheme()
+        }
+    }
+
     private val recentlyUsed = RecentlyUsed(recentlyUsedFileName, density.pageSize)
 
     fun insertRecent(text: String) {
