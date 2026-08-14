@@ -55,6 +55,11 @@ class PickerWindow(
 
     private val iconThemeListener = IconThemeManager.OnIconThemeChangeListener {
         returnKeyDrawable.onIconThemeChanged()
+        refreshIconTheme()
+    }
+
+    private fun refreshIconTheme() {
+        if (!::pickerLayout.isInitialized || !::pickerPagesAdapter.isInitialized) return
         pickerLayout.embeddedKeyboard.refreshIconTheme()
         (pickerLayout.pager.getChildAt(0) as? RecyclerView)?.let {
             pickerPagesAdapter.refreshIconTheme(it)
@@ -160,6 +165,7 @@ class PickerWindow(
         IconThemeManager.addOnChangedListener(iconThemeListener)
         pickerLayout.embeddedKeyboard.also {
             pickerPagesAdapter.refreshIfNeeded()
+            refreshIconTheme()
             it.onReturnDrawableUpdate(returnKeyDrawable.resourceId)
             it.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)
             it.keyActionListener = keyActionListener

@@ -204,8 +204,7 @@ object IconThemeManager {
             )
         }
         val isFileIcon = ButtonIconFile.isFileIcon(value)
-        val rootTag = detectXmlRootTag(value)
-        val isSvg = rootTag.equals("svg", ignoreCase = true) && isInlineSvg(value)
+        val isSvg = isInlineSvg(value)
         val loaded: Drawable = (if (isFileIcon) {
             ButtonIconFile.loadDrawable(value)?.let { normalizedDrawable(it) }
         } else if (isSvg) {
@@ -268,9 +267,11 @@ object IconThemeManager {
 
     /** True if the value is an inline SVG (handles xml decl/comments/BOM prefixes). */
     fun isInlineSvg(value: String): Boolean = try {
-        if (!detectXmlRootTag(value).equals("svg", ignoreCase = true)) return false
-        val clean = normalizeSvgContent(value)
-        com.caverock.androidsvg.SVG.getFromString(clean) != null
+        val normalized = normalizeSvgContent(value)
+        if (!Regex("^\\s*<svg\\b", RegexOption.IGNORE_CASE).containsMatchIn(normalized)) {
+            return false
+        }
+        svgCandidates(value).any { com.caverock.androidsvg.SVG.getFromString(it) != null }
     } catch (_: Exception) { false }
 
     fun shouldTintInlineSvg(value: String): Boolean {
@@ -308,17 +309,24 @@ object IconThemeManager {
     }
 
     private fun loadSvgDrawable(svgContent: String): Drawable? {
-        return try {
-            val clean = normalizeSvgContent(svgContent)
-            val svg = com.caverock.androidsvg.SVG.getFromString(clean)
-            val density = appContext.resources.displayMetrics.density
-            val size = (24 * density).toInt().coerceAtLeast(1)
-            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-            svg.renderToCanvas(canvas, android.graphics.RectF(0f, 0f, size.toFloat(), size.toFloat()))
-            BitmapDrawable(appContext.resources, bitmap)
-        } catch (_: Exception) { null }
+        val density = appContext.resources.displayMetrics.density
+        val size = (24 * density).toInt().coerceAtLeast(1)
+        for (candidate in svgCandidates(svgContent)) {
+            try {
+                val svg = com.caverock.androidsvg.SVG.getFromString(candidate)
+                val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                svg.renderToCanvas(canvas, android.graphics.RectF(0f, 0f, size.toFloat(), size.toFloat()))
+                return BitmapDrawable(appContext.resources, bitmap)
+            } catch (_: Exception) {
+                // Try the original SVG when normalization changed unsupported markup.
+            }
+        }
+        return null
     }
+
+    private fun svgCandidates(raw: String): List<String> =
+        listOf(normalizeSvgContent(raw), raw.trim()).distinct()
 
     /** Scale an oversized BitmapDrawable down to the standard icon size (24dp)
      *  so PNG file icons don't overflow key/toolbar button boundaries. */
