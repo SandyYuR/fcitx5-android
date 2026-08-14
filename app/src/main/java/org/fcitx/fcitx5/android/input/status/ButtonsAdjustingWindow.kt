@@ -302,7 +302,33 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                 val label = button.label
                     ?: action?.let { holder.itemView.context.getString(it.defaultLabelRes) }
                     ?: button.id
-                val themed = action?.iconSlot?.let { slot ->
+                val configured = if (!button.text.isNullOrEmpty()) {
+                    ui.bindTextIcon(button.text, label, disabled = false, theme = theme)
+                    true
+                } else if (button.icon != null) {
+                    if (button.icon.startsWith("file:")) {
+                        outer.loadFileIcon(button.icon)?.let {
+                            ui.bindDrawable(
+                                it,
+                                ButtonIconFile.shouldTintIcon(button.icon),
+                                label,
+                                disabled = false,
+                                theme = theme
+                            )
+                        } != null
+                    } else {
+                        val resId = holder.itemView.context.resources.getIdentifier(
+                            button.icon,
+                            "drawable",
+                            holder.itemView.context.packageName
+                        )
+                        if (resId != 0) {
+                            ui.bind(resId, label, disabled = false, theme = theme)
+                            true
+                        } else false
+                    }
+                } else false
+                val themed = if (!configured) action?.iconSlot?.let { slot ->
                     val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
                     val textValue = IconThemeManager.resolveIcon(slot)
                     when {
@@ -322,12 +348,10 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                         }
                         else -> false
                     }
-                } ?: false
+                } ?: false else false
                 if (themed) {
-                    // icon theme has highest priority
-                } else if (!button.text.isNullOrEmpty()) {
-                    ui.bindTextIcon(button.text, label, disabled = false, theme = theme)
-                } else if (button.icon != null) {
+                    // Icon theme is used when no configured icon/text is valid.
+                } else if (!configured && button.icon != null) {
                     if (button.icon.startsWith("file:")) {
                         val drawable = outer.loadFileIcon(button.icon)
                         if (drawable != null) {
@@ -496,11 +520,26 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             minimumWidth = minWidthPx
             image.scaleType = ImageView.ScaleType.CENTER_INSIDE
             setupTopButtonDrag(this, index)
-            if (applyIconThemeToTopButton(this, button.id)) {
-                // icon theme has highest priority
-            } else if (!button.text.isNullOrEmpty()) {
+            val configured = if (!button.text.isNullOrEmpty()) {
                 setText(button.text)
+                true
             } else if (button.icon != null) {
+                if (button.icon.startsWith("file:")) {
+                    loadFileIcon(button.icon)?.let {
+                        setIconFromDrawable(it, ButtonIconFile.shouldTintIcon(button.icon))
+                        true
+                    } ?: false
+                } else {
+                    val resId = context.resources.getIdentifier(button.icon, "drawable", context.packageName)
+                    if (resId != 0) {
+                        setIcon(resId)
+                        true
+                    } else false
+                }
+            } else false
+            if (!configured && applyIconThemeToTopButton(this, button.id)) {
+                // Icon theme is used when no configured icon/text is valid.
+            } else if (!configured && button.icon != null) {
                 if (button.icon.startsWith("file:")) {
                     val drawable = loadFileIcon(button.icon)
                     if (drawable != null) {

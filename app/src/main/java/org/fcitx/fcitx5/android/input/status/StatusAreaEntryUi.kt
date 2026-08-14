@@ -19,6 +19,7 @@ import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
+import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import splitties.views.dsl.constraintlayout.above
@@ -100,7 +101,13 @@ class StatusAreaEntryUi(override val ctx: Context, private val theme: Theme) : U
         val contentColor =
             if (entry.active) theme.genericActiveForegroundColor else theme.keyTextColor
 
-        // Check icon theme override for ActionEntry
+        // Configured text/icon takes precedence over icon themes and built-ins.
+        if (!entry.displayText.isNullOrEmpty()) {
+            showTextIcon(entry.displayText, contentColor)
+        } else if (showConfiguredIcon(entry, contentColor)) {
+            // Configuration was resolved.
+        } else {
+            // Check icon theme override for ActionEntry.
         val iconSlot = (entry as? StatusAreaEntry.ActionEntry)?.buttonAction?.iconSlot
 
         // Try icon theme drawable
@@ -130,6 +137,7 @@ class StatusAreaEntryUi(override val ctx: Context, private val theme: Theme) : U
             // Non-ActionEntry — use built-in icon
             showBuiltinIcon(entry, contentColor)
         }
+        }
 
         bkgDrawable.paint.color =
             if (entry.active) theme.genericActiveBackgroundColor else theme.keyBackgroundColor
@@ -149,6 +157,31 @@ class StatusAreaEntryUi(override val ctx: Context, private val theme: Theme) : U
             textIcon.text = entry.displayText ?: getFirstCharacter(entry.label)
             textIcon.setTextColor(contentColor)
         }
+    }
+
+    private fun showTextIcon(text: String, contentColor: Int) {
+        icon.visibility = View.GONE
+        textIcon.visibility = View.VISIBLE
+        textIcon.text = text
+        textIcon.setTextColor(contentColor)
+    }
+
+    private fun showConfiguredIcon(entry: StatusAreaEntry, contentColor: Int): Boolean {
+        val value = entry.customIcon ?: return false
+        val drawable = if (ButtonIconFile.isFileIcon(value)) {
+            ButtonIconFile.loadDrawable(value)
+        } else {
+            val resId = ctx.resources.getIdentifier(value, "drawable", ctx.packageName)
+            if (resId == 0) null else ctx.getDrawable(resId)
+        } ?: return false
+        icon.visibility = View.VISIBLE
+        textIcon.visibility = View.GONE
+        icon.imageDrawable = drawable.apply {
+            if (!ButtonIconFile.isFileIcon(value) || ButtonIconFile.shouldTintIcon(value)) {
+                setTint(contentColor)
+            }
+        }
+        return true
     }
 
     private fun getFirstCharacter(s: String): String {
