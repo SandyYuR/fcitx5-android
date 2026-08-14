@@ -15,7 +15,8 @@ sealed class StatusAreaEntry(
     @DrawableRes
     val icon: Int,
     val active: Boolean,
-    val displayText: String? = null
+    val displayText: String? = null,
+    val customIcon: String? = null
 ) {
     /**
      * Status Area entry backed by a ButtonAction
@@ -26,8 +27,9 @@ sealed class StatusAreaEntry(
         icon: Int,
         active: Boolean = false,
         val longPressAction: LongPressActionType? = null,
-        displayText: String? = null
-    ) : StatusAreaEntry(label, icon, active, displayText) {
+        displayText: String? = null,
+        customIcon: String? = null
+    ) : StatusAreaEntry(label, icon, active, displayText, customIcon) {
         enum class LongPressActionType {
             EnterAdjustingMode
         }
@@ -53,8 +55,9 @@ sealed class StatusAreaEntry(
         label: String,
         icon: Int,
         active: Boolean = false,
-        displayText: String? = null
-    ) : StatusAreaEntry(label, icon, active, displayText)
+        displayText: String? = null,
+        customIcon: String? = null
+    ) : StatusAreaEntry(label, icon, active, displayText, customIcon)
 
     companion object {
         private fun drawableFromIconName(icon: String) = when (icon) {

@@ -925,7 +925,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             // relative form so exports remain valid across build variants.
             val config = ButtonsLayoutConfig(
                 kawaiiBarButtons = kawaiiBarButtons.map { it.normalizedIcon() },
-                statusAreaButtons = statusAreaButtons.map { it.normalizedIcon() },
+                statusAreaButtons = statusAreaButtons
+                    .distinctBy { it.id }
+                    .map { it.normalizedIcon() },
                 toolbarToggleButton = toolbarToggleButton.normalizedIcon(),
                 hideKeyboardButton = hideKeyboardButton.normalizedIcon()
             )
