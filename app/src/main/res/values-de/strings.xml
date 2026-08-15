@@ -363,6 +363,7 @@
     <string name="automatic">Automatisch</string>
     <string name="horizontal">Horizontal</string>
     <string name="vertical">Vertikal</string>
+    <string name="vertical_reversed">Vertikal (umgekehrt)</string>
     <string name="always">Immer</string>
     <string name="candidates_position">Position des Kandidatenfensters</string>
     <string name="top_left">Oben links</string>

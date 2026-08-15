@@ -11,5 +11,6 @@ import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceEnum
 enum class FloatingCandidatesOrientation(override val stringRes: Int): ManagedPreferenceEnum {
     Automatic(R.string.automatic),
     Horizontal(R.string.horizontal),
-    Vertical(R.string.vertical)
+    Vertical(R.string.vertical),
+    VerticalReversed(R.string.vertical_reversed)
 }

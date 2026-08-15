@@ -460,6 +460,7 @@
     <string name="automatic">自動</string>
     <string name="horizontal">横</string>
     <string name="vertical">縦</string>
+    <string name="vertical_reversed">縦（逆順）</string>
     <string name="always">常に</string>
     <string name="candidates_position">候補ウィンドウの位置</string>
     <string name="top_left">左上</string>

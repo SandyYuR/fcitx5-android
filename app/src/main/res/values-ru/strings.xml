@@ -304,6 +304,7 @@
     <string name="automatic">Автоматическая</string>
     <string name="horizontal">Горизонтальная</string>
     <string name="vertical">Вертикальная</string>
+    <string name="vertical_reversed">Вертикальная (обратная)</string>
     <string name="always">Всегда</string>
     <string name="candidates_position">Позиция окна кандидатов</string>
     <string name="top_left">Вверху слева</string>

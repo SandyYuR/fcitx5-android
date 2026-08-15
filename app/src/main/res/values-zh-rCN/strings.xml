@@ -418,6 +418,7 @@
     <string name="automatic">自动</string>
     <string name="horizontal">横向</string>
     <string name="vertical">纵向</string>
+    <string name="vertical_reversed">纵向倒序</string>
     <string name="always">始终</string>
     <string name="candidates_position">候选窗口位置</string>
     <string name="top_left">左上</string>
