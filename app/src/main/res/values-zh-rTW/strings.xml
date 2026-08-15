@@ -50,6 +50,7 @@
     <string name="import_">匯入</string>
     <string name="synced">已同步！</string>
     <string name="loading">正在載入</string>
+    <string name="qr_image_decode_progress">正在解碼 QR 碼 %1$d/%2$d…</string>
     <string name="clipboard_listening">監聽剪貼簿</string>
     <string name="clipboard_limit">剪貼簿歷史紀錄限制</string>
     <string name="clipboard_enable">啟用剪貼簿</string>

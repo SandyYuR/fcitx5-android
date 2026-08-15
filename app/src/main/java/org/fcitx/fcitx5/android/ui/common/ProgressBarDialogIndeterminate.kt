@@ -81,3 +81,33 @@ fun LifecycleCoroutineScope.withLoadingDialog(
         }
     }
 }
+
+fun LifecycleCoroutineScope.withProgressLoadingDialog(
+    context: Context,
+    @StringRes title: Int = R.string.loading,
+    threshold: Long = 200L,
+    action: suspend (updateMessage: (String) -> Unit) -> Unit
+) {
+    var loadingDialog: AlertDialog? = null
+    var message = ""
+    val updateMessage: (String) -> Unit = { updated ->
+        launch(Dispatchers.Main) {
+            message = updated
+            loadingDialog?.setMessage(updated)
+        }
+    }
+    val loadingJob = launch(Dispatchers.Main) {
+        delay(threshold)
+        loadingDialog = context.ProgressBarDialogIndeterminate(title)
+            .setMessage(message)
+            .show()
+    }
+    launch {
+        try {
+            action(updateMessage)
+        } finally {
+            loadingJob.cancelAndJoin()
+            loadingDialog?.dismiss()
+        }
+    }
+}

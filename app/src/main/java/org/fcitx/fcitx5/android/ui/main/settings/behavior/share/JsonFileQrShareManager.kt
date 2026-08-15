@@ -6,15 +6,17 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.share
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import org.fcitx.fcitx5.android.BuildConfig
 import java.io.File
 import java.io.FileOutputStream
 
 object JsonFileQrShareManager {
+    private const val MAX_DECODE_PIXELS = 16_000_000L
+    private const val MIN_QR_DECODE_DIMENSION = 512
+
     fun encodeSavedJsonFileToChunks(
         file: File,
         transferType: Char? = null,
@@ -70,21 +72,46 @@ object JsonFileQrShareManager {
         )
     }
 
-    fun decodeQrChunksFromImage(context: Context, uri: Uri): List<String> {
-        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val src = android.graphics.ImageDecoder.createSource(context.contentResolver, uri)
-            android.graphics.ImageDecoder.decodeBitmap(src) { decoder, _, _ ->
-                decoder.allocator = android.graphics.ImageDecoder.ALLOCATOR_SOFTWARE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-        }
+    fun decodeQrChunksFromImage(
+        context: Context,
+        uri: Uri,
+        onProgress: (current: Int, total: Int) -> Unit = { _, _ -> }
+    ): List<String> {
+        val bitmap = decodeBitmapForQr(context, uri)
         return try {
-            LayoutQrBitmapUtil.decodeAllQrFromImage(bitmap)
+            LayoutQrBitmapUtil.decodeAllQrFromImage(bitmap, onProgress)
         } finally {
             bitmap.recycle()
         }
+    }
+
+    private fun decodeBitmapForQr(context: Context, uri: Uri): Bitmap {
+        val resolver = context.contentResolver
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+        require(bounds.outWidth > 0 && bounds.outHeight > 0) { "Unable to read image dimensions" }
+        val sampleSize = calculateDecodeSampleSize(bounds.outWidth, bounds.outHeight)
+
+        val options = BitmapFactory.Options().apply {
+            inSampleSize = sampleSize
+            // QR payloads are monochrome; retaining PNG alpha doubles the long-image footprint.
+            inPreferredConfig = Bitmap.Config.RGB_565
+        }
+        return resolver.openInputStream(uri)?.use {
+            BitmapFactory.decodeStream(it, null, options)
+        } ?: error("Unable to decode image")
+    }
+
+    private fun calculateDecodeSampleSize(width: Int, height: Int): Int {
+        val pixelSample = maxOf(
+            1,
+            kotlin.math.ceil(
+                kotlin.math.sqrt(width.toLong() * height.toDouble() / MAX_DECODE_PIXELS)
+            ).toInt()
+        )
+        val maximumSafeSample = maxOf(1, minOf(width, height) / MIN_QR_DECODE_DIMENSION)
+        require(pixelSample <= maximumSafeSample) { "QR image is too large to decode safely" }
+        return pixelSample
     }
 
     fun parseQrPayload(raw: String): LayoutQrTransferCodec.Chunk? {

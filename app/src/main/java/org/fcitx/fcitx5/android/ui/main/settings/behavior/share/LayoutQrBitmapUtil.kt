@@ -27,6 +27,7 @@ object LayoutQrBitmapUtil {
     private const val PAGE_PADDING = 24
     private const val TEXT_SIZE = 22f
     private const val TEXT_GAP = 12
+    private const val MAX_DECODER_PIXELS = 2_000_000L
 
     private data class ScaledPreview(val bitmap: Bitmap, val heightWithPadding: Int)
 
@@ -213,7 +214,10 @@ object LayoutQrBitmapUtil {
         return merged
     }
 
-    fun decodeAllQrFromImage(bitmap: Bitmap): List<String> {
+    fun decodeAllQrFromImage(
+        bitmap: Bitmap,
+        onProgress: (current: Int, total: Int) -> Unit = { _, _ -> }
+    ): List<String> {
         val hints = mapOf<DecodeHintType, Any>(
             DecodeHintType.TRY_HARDER to true,
             DecodeHintType.POSSIBLE_FORMATS to listOf(com.google.zxing.BarcodeFormat.QR_CODE)
@@ -253,6 +257,16 @@ object LayoutQrBitmapUtil {
             if (text == null) return AddResult(isNew = false, completed = false)
             val isNew = found.add(text)
             val completed = isNew && hasCompleteChunkSet()
+            if (isNew) {
+                val chunk = runCatching { LayoutQrTransferCodec.parseChunk(text) }.getOrNull()
+                if (chunk != null) {
+                    val current = found
+                        .asSequence()
+                        .mapNotNull { runCatching { LayoutQrTransferCodec.parseChunk(it) }.getOrNull() }
+                        .count { it.transferId == chunk.transferId && it.total == chunk.total }
+                    onProgress(current, chunk.total)
+                }
+            }
             return AddResult(isNew = isNew, completed = completed)
         }
 
@@ -274,11 +288,15 @@ object LayoutQrBitmapUtil {
             val baseW = target.width
             val baseH = target.height
             if (baseW <= 0 || baseH <= 0) return candidates.toList()
+            val maxScale = Math.sqrt(MAX_DECODER_PIXELS.toDouble() / (baseW.toLong() * baseH).toDouble()).toFloat()
             val scales = floatArrayOf(2.0f, 1.5f, 1.25f, 0.9f, 0.75f, 0.6f)
+            val scaledSizes = mutableSetOf<Pair<Int, Int>>()
             scales.forEach { factor ->
-                val scaledW = maxOf(24, (baseW * factor).toInt())
-                val scaledH = maxOf(24, (baseH * factor).toInt())
+                val safeFactor = minOf(factor, maxScale)
+                val scaledW = maxOf(24, (baseW * safeFactor).toInt())
+                val scaledH = maxOf(24, (baseH * safeFactor).toInt())
                 if (scaledW == baseW && scaledH == baseH) return@forEach
+                if (!scaledSizes.add(scaledW to scaledH)) return@forEach
                 val scaled = Bitmap.createScaledBitmap(target, scaledW, scaledH, false)
                 try {
                     collectFromBitmap(scaled)
@@ -296,10 +314,10 @@ object LayoutQrBitmapUtil {
             return false
         }
 
-        // Phase 0: follow web-editor strategy first: try full-image multi-QR detection,
-        // then page-window multi-QR detection before positional scanning.
-        if (decodeMultipleAndCollect(bitmap)) return found.toList()
-        if (!hasCompleteChunkSet()) {
+        // Multi-QR detection is only practical for small images. Long images use the
+        // page layout below so ZXing never repeatedly processes broad overlapping windows.
+        if (isSafeForDecoder(bitmap) && decodeMultipleAndCollect(bitmap)) return found.toList()
+        if (isSafeForDecoder(bitmap) && !hasCompleteChunkSet()) {
             val scanWindowHeight = maxOf(pageHeight, scaledQrSize + scaledPadding * 2)
             val scanStep = maxOf(1, pageHeight / 2)
             var top = 0
@@ -319,7 +337,8 @@ object LayoutQrBitmapUtil {
         fun decodeAtTop(
             qrTop: Int,
             xAdjust: Int = 0,
-            sizeMultiplier: Float = 1f
+            sizeMultiplier: Float = 1f,
+            allowFallback: Boolean = true
         ): String? {
             if (qrTop < 0 || qrTop >= bitmap.height) return null
             leftCandidates.forEach { left ->
@@ -329,6 +348,8 @@ object LayoutQrBitmapUtil {
                 if (actualCropSize <= 0) return@forEach
                 val cropped = Bitmap.createBitmap(bitmap, adjustedLeft, qrTop, actualCropSize, actualCropSize)
                 try {
+                    normalizeValidChunkText(decodeSingleFast(cropped, hints))?.let { return it }
+                    if (!allowFallback) return@forEach
                     decodeChunkCandidates(cropped).firstOrNull()?.let { return it }
                 } finally {
                     cropped.recycle()
@@ -337,12 +358,12 @@ object LayoutQrBitmapUtil {
             return null
         }
 
-        fun findFirstQrWithStep(step: Int): Int {
+        fun findFirstQrWithStep(step: Int, allowFallback: Boolean): Int {
             val actualStep = maxOf(1, step)
             var scanY = 0
             while (scanY + scaledPadding + scaledQrSize <= bitmap.height) {
                 val qrTop = scanY + scaledPadding
-                val text = decodeAtTop(qrTop)
+                val text = decodeAtTop(qrTop, allowFallback = allowFallback)
                 if (text != null) {
                     addDecodedText(text)
                     return qrTop
@@ -354,17 +375,19 @@ object LayoutQrBitmapUtil {
 
         // Phase 1: Find the first QR code.
         // First do a coarse scan, then a finer fallback scan for variable preview heights.
-        var firstQrAbsoluteY = findFirstQrWithStep(scaledPadding)
+        var firstQrAbsoluteY = findFirstQrWithStep(scaledPadding, allowFallback = false)
         if (firstQrAbsoluteY < 0) {
-            firstQrAbsoluteY = findFirstQrWithStep(maxOf(2, scaledPadding / 6))
+            firstQrAbsoluteY = findFirstQrWithStep(maxOf(2, scaledPadding / 6), allowFallback = true)
         }
         if (firstQrAbsoluteY < 0) {
-            firstQrAbsoluteY = findFirstQrWithStep(1)
+            firstQrAbsoluteY = findFirstQrWithStep(1, allowFallback = true)
         }
 
         if (firstQrAbsoluteY < 0) {
             // No QR found at regular positions; try full bitmap decode.
-            decodeSingle(bitmap, hints)?.let { return listOf(it) }
+            if (isSafeForDecoder(bitmap)) {
+                decodeSingle(bitmap, hints)?.let { return listOf(it) }
+            }
             return emptyList()
         }
 
@@ -378,7 +401,16 @@ object LayoutQrBitmapUtil {
             val expectedQrY = firstQrAbsoluteY + index * pageHeight
             if (expectedQrY - scanTolerance >= bitmap.height) break
 
-            // Try scanning around the expected position with tolerance.
+            val directText = decodeAtTop(expectedQrY, allowFallback = false)
+            if (directText != null) {
+                val result = addDecodedText(directText)
+                if (result.completed) return found.toList()
+                if (result.isNew) {
+                    index++
+                    continue
+                }
+            }
+            // Fall back to scanning around the expected position with tolerance.
             for (offset in -scanTolerance..scanTolerance step scanStep) {
                 val qrY = expectedQrY + offset
                 val text = decodeAtTop(qrY)
@@ -428,13 +460,18 @@ object LayoutQrBitmapUtil {
 
         return if (found.isNotEmpty()) found.toList()
         else {
-            decodeSingle(bitmap, hints)?.let { listOf(it) } ?: emptyList()
+            if (isSafeForDecoder(bitmap)) {
+                decodeSingle(bitmap, hints)?.let { listOf(it) } ?: emptyList()
+            } else {
+                emptyList()
+            }
         }
     }
 
     private fun decodeSingle(bitmap: Bitmap, hints: Map<DecodeHintType, Any>): String? {
         val width = bitmap.width
         val height = bitmap.height
+        if (!isSafeForDecoder(bitmap)) return null
         val pixels = IntArray(width * height)
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
         val source = RGBLuminanceSource(width, height, pixels)
@@ -454,10 +491,22 @@ object LayoutQrBitmapUtil {
         return null
     }
 
+    private fun decodeSingleFast(bitmap: Bitmap, hints: Map<DecodeHintType, Any>): String? {
+        if (!isSafeForDecoder(bitmap)) return null
+        val width = bitmap.width
+        val height = bitmap.height
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        val source = RGBLuminanceSource(width, height, pixels)
+        val binary = BinaryBitmap(HybridBinarizer(source))
+        val fastHints = hints - DecodeHintType.TRY_HARDER
+        return runCatching { QRCodeReader().decode(binary, fastHints).text }.getOrNull()
+    }
+
     private fun decodeMultiple(bitmap: Bitmap, hints: Map<DecodeHintType, Any>): List<String> {
         val width = bitmap.width
         val height = bitmap.height
-        if (width <= 0 || height <= 0) return emptyList()
+        if (!isSafeForDecoder(bitmap)) return emptyList()
         val pixels = IntArray(width * height)
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
         val source = RGBLuminanceSource(width, height, pixels)
@@ -485,4 +534,8 @@ object LayoutQrBitmapUtil {
         }
         return found.toList()
     }
+
+    private fun isSafeForDecoder(bitmap: Bitmap): Boolean =
+        bitmap.width > 0 && bitmap.height > 0 &&
+            bitmap.width.toLong() * bitmap.height <= MAX_DECODER_PIXELS
 }
