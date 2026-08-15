@@ -287,6 +287,7 @@
     <string name="automatic">자동</string>
     <string name="horizontal">가로</string>
     <string name="vertical">세로</string>
+    <string name="vertical_reversed">세로 (역순)</string>
     <string name="always">항상</string>
     <string name="candidates_position">후보 창 위치</string>
     <string name="top_left">왼쪽 상단</string>

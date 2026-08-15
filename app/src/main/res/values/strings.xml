@@ -434,6 +434,7 @@
     <string name="automatic">Automatic</string>
     <string name="horizontal">Horizontal</string>
     <string name="vertical">Vertical</string>
+    <string name="vertical_reversed">Vertical (reversed)</string>
     <string name="always">Always</string>
     <string name="candidates_position">Candidates window position</string>
     <string name="top_left">Top Left</string>

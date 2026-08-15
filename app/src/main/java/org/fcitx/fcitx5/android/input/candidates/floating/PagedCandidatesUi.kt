@@ -39,6 +39,8 @@ class PagedCandidatesUi(
 
     private var isVertical = false
 
+    private var isReversed = false
+
     sealed class UiHolder(open val ui: Ui) : RecyclerView.ViewHolder(ui.root) {
         class Candidate(override val ui: LabeledCandidateItemUi) : UiHolder(ui)
         class Pagination(override val ui: PaginationUi) : UiHolder(ui)
@@ -126,18 +128,21 @@ class PagedCandidatesUi(
         data: FcitxEvent.PagedCandidateEvent.Data,
         orientation: FloatingCandidatesOrientation
     ) {
-        val newIsVertical = when (orientation) {
-            FloatingCandidatesOrientation.Automatic -> data.layoutHint == LayoutHint.Vertical
-            else -> orientation == FloatingCandidatesOrientation.Vertical
+        val (newIsVertical, newIsReversed) = when (orientation) {
+            FloatingCandidatesOrientation.Automatic -> (data.layoutHint == LayoutHint.Vertical) to false
+            FloatingCandidatesOrientation.Horizontal -> false to false
+            FloatingCandidatesOrientation.Vertical -> true to false
+            FloatingCandidatesOrientation.VerticalReversed -> true to true
         }
         // Skip update if nothing changed to avoid unnecessary rebind/redraw.
-        if (this.data == data && this.isVertical == newIsVertical) return
+        if (this.data == data && this.isVertical == newIsVertical && this.isReversed == newIsReversed) return
 
         this.data = data
         this.isVertical = newIsVertical
+        this.isReversed = newIsReversed
         candidatesLayoutManager.apply {
             if (isVertical) {
-                flexDirection = FlexDirection.COLUMN
+                flexDirection = if (isReversed) FlexDirection.COLUMN_REVERSE else FlexDirection.COLUMN
                 alignItems = AlignItems.STRETCH
             } else {
                 flexDirection = FlexDirection.ROW
