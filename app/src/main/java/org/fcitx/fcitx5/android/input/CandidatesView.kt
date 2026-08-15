@@ -8,6 +8,7 @@ package org.fcitx.fcitx5.android.input
 import android.annotation.SuppressLint
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
@@ -15,6 +16,8 @@ import android.view.ViewTreeObserver.OnPreDrawListener
 import android.view.WindowInsets
 import android.widget.TextView
 import androidx.annotation.Size
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.updateLayoutParams
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
@@ -22,6 +25,7 @@ import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
+import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesOrientation
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
 import org.fcitx.fcitx5.android.input.candidates.floating.PagedCandidatesUi
 import org.fcitx.fcitx5.android.input.preedit.PreeditUi
@@ -173,6 +177,7 @@ class CandidatesView(
         preeditUi.update(inputPanel)
         preeditUi.root.visibility = if (preeditUi.visible) VISIBLE else GONE
         candidatesUi.update(paged, orientation)
+        updatePreeditPosition(orientation == FloatingCandidatesOrientation.VerticalReversed)
         val wasVisible = visibility == VISIBLE
         if (evaluateVisibility()) {
             visibility = VISIBLE
@@ -182,6 +187,20 @@ class CandidatesView(
         }
         if (wasVisible != (visibility == VISIBLE)) {
             onPositionChanged?.invoke()
+        }
+    }
+
+    private fun updatePreeditPosition(reversed: Boolean) {
+        preeditUi.root.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            topToTop = if (reversed) ConstraintLayout.LayoutParams.UNSET else ConstraintLayout.LayoutParams.PARENT_ID
+            topToBottom = if (reversed) candidatesUi.root.id else ConstraintLayout.LayoutParams.UNSET
+            bottomToBottom = if (reversed) ConstraintLayout.LayoutParams.PARENT_ID else ConstraintLayout.LayoutParams.UNSET
+        }
+        candidatesUi.root.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            topToTop = if (reversed) ConstraintLayout.LayoutParams.PARENT_ID else ConstraintLayout.LayoutParams.UNSET
+            topToBottom = if (reversed) ConstraintLayout.LayoutParams.UNSET else preeditUi.root.id
+            bottomToTop = if (reversed) preeditUi.root.id else ConstraintLayout.LayoutParams.UNSET
+            bottomToBottom = if (reversed) ConstraintLayout.LayoutParams.UNSET else ConstraintLayout.LayoutParams.PARENT_ID
         }
     }
 
@@ -550,6 +569,8 @@ class CandidatesView(
     init {
         // invisible by default
         visibility = INVISIBLE
+        preeditUi.root.id = View.generateViewId()
+        candidatesUi.root.id = View.generateViewId()
 
         minWidth = dp(windowMinWidth)
         padding = dp(windowPadding)
