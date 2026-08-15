@@ -50,6 +50,7 @@
     <string name="import_">导入</string>
     <string name="synced">已同步！</string>
     <string name="loading">加载中</string>
+    <string name="qr_image_decode_progress">正在解码二维码 %1$d/%2$d…</string>
     <string name="clipboard_listening">记录剪贴板历史</string>
     <string name="clipboard_limit">剪贴板历史记录上限</string>
     <string name="clipboard_enable">启用剪贴板</string>

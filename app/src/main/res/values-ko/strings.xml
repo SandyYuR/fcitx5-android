@@ -48,6 +48,7 @@
     <string name="import_">가져오기</string>
     <string name="synced">동기화되었습니다!</string>
     <string name="loading">불러오는 중</string>
+    <string name="qr_image_decode_progress">QR 코드 %1$d/%2$d 디코딩 중…</string>
     <string name="clipboard_listening">클립보드 수신 대기</string>
     <string name="clipboard_limit">클립보드 기록 제한</string>
     <string name="clipboard_enable">클립보드 활성화</string>

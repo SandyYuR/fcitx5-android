@@ -50,6 +50,7 @@
     <string name="import_">インポート</string>
     <string name="synced">同期完了!</string>
     <string name="loading">ロード中</string>
+    <string name="qr_image_decode_progress">QR コード %1$d/%2$d をデコード中…</string>
     <string name="clipboard_listening">クリップボードリスニング</string>
     <string name="clipboard_limit">クリップボード履歴の制限</string>
     <string name="clipboard_enable">クリップボードを有効にする</string>

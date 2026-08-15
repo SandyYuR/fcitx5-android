@@ -51,6 +51,7 @@
     <string name="import_">Импорт</string>
     <string name="synced">Синхронизировано!</string>
     <string name="loading">Загрузка</string>
+    <string name="qr_image_decode_progress">Декодирование QR-кода %1$d из %2$d…</string>
     <string name="clipboard_listening">Прослушивание буфера обмена</string>
     <string name="clipboard_limit">Лимит истории буфера обмена</string>
     <string name="clipboard_enable">Включить буфер обмена</string>

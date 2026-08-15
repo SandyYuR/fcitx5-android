@@ -50,6 +50,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeQrTransferCodec
+import org.fcitx.fcitx5.android.ui.common.withProgressLoadingDialog
 import org.fcitx.fcitx5.android.utils.queryFileName
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import java.io.File
@@ -63,6 +64,7 @@ class ShareReceiveManager(
     private val showMessage: (String, (() -> Unit)?) -> Unit
 ) {
     private val prefs by lazy { AppPrefs.getInstance() }
+    private var qrProgressUpdate: ((String) -> Unit)? = null
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
@@ -169,30 +171,35 @@ class ShareReceiveManager(
     }
 
     private fun handleSingleSource(source: SourcePayload) {
-        activity.lifecycleScope.launch {
-            val detected = runCatching { detectAutoImport(source) }.getOrNull()
-            if (detected != null) {
-                val autoImportError = runCatching { importAutoDetected(detected) }.exceptionOrNull()
-                if (autoImportError == null) {
-                    return@launch
-                }
-                if (source is SourcePayload.Text) {
-                    showMessage(autoImportError.localizedMessage ?: activity.getString(R.string.import_error), null)
-                    return@launch
-                }
-            }
-            when (source) {
-                is SourcePayload.UriPayload -> {
-                    runCatching {
-                        importSingleRawUri(source.uri)
-                    }.onFailure {
-                        showMessage(it.localizedMessage ?: activity.getString(R.string.import_error), null)
+        activity.lifecycleScope.withProgressLoadingDialog(activity) { updateProgress ->
+            qrProgressUpdate = updateProgress
+            try {
+                val detected = runCatching { detectAutoImport(source) }.getOrNull()
+                if (detected != null) {
+                    val autoImportError = runCatching { importAutoDetected(detected) }.exceptionOrNull()
+                    if (autoImportError == null) {
+                        return@withProgressLoadingDialog
+                    }
+                    if (source is SourcePayload.Text) {
+                        showMessage(autoImportError.localizedMessage ?: activity.getString(R.string.import_error), null)
+                        return@withProgressLoadingDialog
                     }
                 }
-                is SourcePayload.Text -> showMessage(
-                    activity.getString(R.string.share_receive_target_not_supported),
-                    null
-                )
+                when (source) {
+                    is SourcePayload.UriPayload -> {
+                        runCatching {
+                            importSingleRawUri(source.uri)
+                        }.onFailure {
+                            showMessage(it.localizedMessage ?: activity.getString(R.string.import_error), null)
+                        }
+                    }
+                    is SourcePayload.Text -> showMessage(
+                        activity.getString(R.string.share_receive_target_not_supported),
+                        null
+                    )
+                }
+            } finally {
+                qrProgressUpdate = null
             }
         }
     }
@@ -648,7 +655,11 @@ class ShareReceiveManager(
                 )
         ) {
             val chunks = withContext(Dispatchers.Default) {
-                JsonFileQrShareManager.decodeQrChunksFromImage(activity, uri)
+                JsonFileQrShareManager.decodeQrChunksFromImage(activity, uri) { current, total ->
+                    qrProgressUpdate?.invoke(
+                        activity.getString(R.string.qr_image_decode_progress, current, total)
+                    )
+                }
             }
             check(chunks.isNotEmpty()) { activity.getString(R.string.text_keyboard_layout_qr_import_no_chunk) }
             val transferId = runCatching { LayoutQrTransferCodec.parseChunk(chunks.first()).transferId }.getOrNull()

@@ -50,6 +50,7 @@
     <string name="import_">Importieren</string>
     <string name="synced">Synchronisiert!</string>
     <string name="loading">Wird geladen</string>
+    <string name="qr_image_decode_progress">QR-Code %1$d von %2$d wird decodiert…</string>
     <string name="clipboard_listening">Clipboard zeigen</string>
     <string name="clipboard_limit">Anzahl Clipboard Verlauf</string>
     <string name="clipboard_enable">Zwischenablage aktivieren</string>
