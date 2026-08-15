@@ -751,7 +751,7 @@
     <string name="icon_theme_keyboard_keys">Keyboard Keys</string>
     <string name="icon_theme_toolbar_buttons">Toolbar Buttons</string>
     <string name="icon_theme_system_buttons">System Buttons</string>
-    <string name="icon_theme_customized">%s (%d customized)</string>
+    <string name="icon_theme_customized">%1$s (%2$d customized)</string>
     <string name="icon_theme_builtin_ref">Built-in icon:</string>
     <string name="icon_theme_builtin_short">Built-in</string>
     <string name="icon_theme_custom_resource">Custom</string>
