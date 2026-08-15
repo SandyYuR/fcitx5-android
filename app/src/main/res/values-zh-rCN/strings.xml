@@ -816,7 +816,7 @@
     <string name="icon_theme_keyboard_keys">键盘按键</string>
     <string name="icon_theme_toolbar_buttons">工具栏按钮</string>
     <string name="icon_theme_system_buttons">系统按钮</string>
-    <string name="icon_theme_customized">%s（%d 个已自定义）</string>
+    <string name="icon_theme_customized">%1$s（%2$d 个已自定义）</string>
     <string name="icon_theme_builtin_ref">内置图标：</string>
     <string name="icon_theme_builtin_short">内置</string>
     <string name="icon_theme_custom_resource">自定义</string>

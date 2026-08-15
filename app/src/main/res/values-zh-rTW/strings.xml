@@ -797,7 +797,7 @@
     <string name="icon_theme_keyboard_keys">鍵盤按鍵</string>
     <string name="icon_theme_toolbar_buttons">工具列按鈕</string>
     <string name="icon_theme_system_buttons">系統按鈕</string>
-    <string name="icon_theme_customized">%s（%d 個已自訂）</string>
+    <string name="icon_theme_customized">%1$s（%2$d 個已自訂）</string>
     <string name="icon_theme_builtin_ref">內建圖示：</string>
     <string name="icon_theme_builtin_short">內建</string>
     <string name="icon_theme_custom_resource">自訂</string>
