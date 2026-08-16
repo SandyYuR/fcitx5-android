@@ -945,8 +945,6 @@ class CustomThemeActivity : AppCompatActivity() {
 
         fun hasStorageFiles(): Boolean =
             this::srcImageFile.isInitialized && this::croppedImageFile.isInitialized
-
-        fun hasCroppedBitmap(): Boolean = this::croppedBitmap.isInitialized
     }
 
     private val backgroundStates by lazy { BackgroundStates() }
@@ -1059,7 +1057,9 @@ class CustomThemeActivity : AppCompatActivity() {
                         )
                         brightnessSeekBar.progress = 70
                         blurRadiusSeekBar.progress = 10
+                        suppressVariantSwitchCallback = true
                         variantSwitch.isChecked = !theme.isDark
+                        suppressVariantSwitchCallback = false
                     }
                     updateBackgroundEditorVisibility()
                     updateBlurRadiusLabel(blurRadiusSeekBar.progress)
@@ -1273,21 +1273,6 @@ class CustomThemeActivity : AppCompatActivity() {
         lifecycleScope.withLoadingDialog(this) {
             try {
                 var outputTheme = theme
-                if (theme.backgroundImage == null &&
-                    backgroundStates.hasStorageFiles() &&
-                    backgroundStates.hasCroppedBitmap()
-                ) {
-                    theme = theme.copy(
-                        backgroundImage = Theme.Custom.CustomBackground(
-                            croppedFilePath = backgroundStates.croppedImageFile.absolutePath,
-                            srcFilePath = backgroundStates.srcImageFile.absolutePath,
-                            brightness = brightnessSeekBar.progress,
-                            cropRect = backgroundStates.cropRect,
-                            cropRotation = backgroundStates.cropRotation,
-                            blurRadius = blurRadiusSeekBar.progress.toFloat()
-                        )
-                    )
-                }
                 whenHasBackground {
                     withContext(Dispatchers.IO) {
                         if (srcImageDirty && pendingSrcUri != null) {
