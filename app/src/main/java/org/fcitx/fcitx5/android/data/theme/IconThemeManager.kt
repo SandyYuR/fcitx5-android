@@ -329,8 +329,8 @@ object IconThemeManager {
         listOf(normalizeSvgContent(raw), raw.trim()).distinct()
 
     /** Scale an oversized BitmapDrawable down to the standard icon size (24dp)
-     *  so PNG file icons don't overflow key/toolbar button boundaries. */
-    private fun normalizedDrawable(drawable: Drawable): Drawable {
+     *  so PNG/SVG file icons don't overflow key/toolbar button boundaries. */
+    internal fun normalizedDrawable(drawable: Drawable): Drawable {
         if (drawable !is BitmapDrawable) return drawable
         val bitmap = drawable.bitmap
         val w = bitmap.width.coerceAtLeast(1)

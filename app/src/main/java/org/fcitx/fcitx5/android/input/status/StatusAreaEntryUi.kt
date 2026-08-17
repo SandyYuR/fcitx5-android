@@ -169,7 +169,7 @@ class StatusAreaEntryUi(override val ctx: Context, private val theme: Theme) : U
     private fun showConfiguredIcon(entry: StatusAreaEntry, contentColor: Int): Boolean {
         val value = entry.customIcon ?: return false
         val drawable = if (ButtonIconFile.isFileIcon(value)) {
-            ButtonIconFile.loadDrawable(value)
+            ButtonIconFile.loadDrawable(value)?.let { IconThemeManager.normalizedDrawable(it) }
         } else {
             val resId = ctx.resources.getIdentifier(value, "drawable", ctx.packageName)
             if (resId == 0) null else ctx.getDrawable(resId)
