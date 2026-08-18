@@ -58,6 +58,7 @@ import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.utils.ClipboardSourceDeletionTarget
 import org.fcitx.fcitx5.android.utils.EventStateMachine
 import org.fcitx.fcitx5.android.utils.item
+import org.fcitx.fcitx5.android.utils.styledColorOrDefault
 import org.mechdancer.dependency.manager.must
 import splitties.dimensions.dp
 import splitties.resources.styledColor
@@ -338,7 +339,7 @@ class ClipboardWindow(
         promptMenu = PopupMenu(context, ui.deleteAllButton).apply {
             menu.add(buildSpannedString {
                 bold {
-                    color(context.styledColor(android.R.attr.colorAccent)) {
+                    color(context.styledColorOrDefault(android.R.attr.colorAccent, theme.genericActiveForegroundColor)) {
                         append(context.getString(if (skipPinned) R.string.delete_all_except_pinned else R.string.delete_all_pinned_items))
                     }
                 }
