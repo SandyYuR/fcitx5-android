@@ -309,6 +309,15 @@ abstract class BaseKeyboard(
         // Detach ripple-occluder listeners from views of the outgoing tree before it is
         // discarded or cached; the ripple view itself is recreated on every reload.
         keyboardWaterRippleView?.setOccluders(emptyList())
+        // Cached rows are nested in mainGridContainer rather than directly in this view.
+        // Removing the main grid does not clear the rows' parent, so detach them explicitly
+        // before a cached row is added to the new grid.
+        reusableRowsCache.values
+            .flatMap { it.containers }
+            .distinct()
+            .forEach { row ->
+                (row.parent as? ViewGroup)?.removeView(row)
+            }
         removeAllViews()
         auxBarInnerContainer = null
         auxBarScrollableAdapter = null
