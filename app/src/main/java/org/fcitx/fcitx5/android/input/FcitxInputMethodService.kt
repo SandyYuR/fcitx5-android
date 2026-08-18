@@ -94,6 +94,7 @@ import org.fcitx.fcitx5.android.utils.forceShowSelf
 import org.fcitx.fcitx5.android.utils.inputMethodManager
 import org.fcitx.fcitx5.android.utils.isTypeNull
 import org.fcitx.fcitx5.android.utils.monitorCursorAnchor
+import org.fcitx.fcitx5.android.utils.styledColorOrDefault
 import org.fcitx.fcitx5.android.utils.styledFloat
 import org.fcitx.fcitx5.android.utils.userManager
 import org.fcitx.fcitx5.android.utils.withBatchEdit
@@ -280,7 +281,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private var cursorUpdateIndex: Int = 0
 
-    private var highlightColor: Int = 0x66008577 // material_deep_teal_500 with alpha 0.4
+    private var highlightColor: Int = DefaultHighlightColor
 
     private val prefs = AppPrefs.getInstance()
     private val inlineSuggestions by prefs.keyboard.inlineSuggestions
@@ -990,11 +991,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onWindowShown() {
         super.onWindowShown()
-        try {
-            highlightColor = styledColor(android.R.attr.colorAccent).alpha(0.4f)
-        } catch (_: Exception) {
-            Timber.w("Device does not support android.R.attr.colorAccent which it should have.")
-        }
+        highlightColor =
+            styledColorOrDefault(android.R.attr.colorAccent, DefaultHighlightColor).alpha(0.4f)
         InputFeedbacks.syncSystemPrefs()
         applyPendingThemeIfPossible()
     }
@@ -1889,6 +1887,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     @Suppress("ConstPropertyName")
     companion object {
+        const val DefaultHighlightColor = 0x66008577 // material_deep_teal_500 with alpha 0.4
         const val DeleteSurroundingFlag = "org.fcitx.fcitx5.android.DELETE_SURROUNDING"
     }
 }
