@@ -113,7 +113,10 @@ fun executeMacroSteps(steps: List<MacroStep>, service: FcitxInputMethodService, 
                 if (step.keys.isNotEmpty()) hasOsLConsumingStep = true
                 step.keys.forEach { k ->
                     val kc = resolveKeyRefCode(k)
-                    if (kc != KeyEvent.KEYCODE_UNKNOWN) service.sendDownUpKeyEvents(kc)
+                    if (kc != KeyEvent.KEYCODE_UNKNOWN) {
+                        service.sendSimulatedKeyEventOrFallback(kc, true)
+                        service.sendSimulatedKeyEventOrFallback(kc, false)
+                    }
                 }
             }
             is MacroStep.Text -> {
@@ -214,16 +217,3 @@ private val SUPPORTED_SHORTCUT_MODIFIERS = setOf(
     "ISO_Level3_Shift",
     "ISO_Level5_Shift"
 )
-
-private fun FcitxInputMethodService.sendSimulatedKeyEventOrFallback(keyCode: Int, isDown: Boolean) {
-    val eventTime = android.os.SystemClock.uptimeMillis()
-    if (isDown) {
-        currentInputConnection?.sendKeyEvent(
-            KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, keyCode, 0)
-        )
-    } else {
-        currentInputConnection?.sendKeyEvent(
-            KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, keyCode, 0)
-        )
-    }
-}
