@@ -825,7 +825,8 @@ class MacroKey(
                     is MacroStep.Edit -> step.action.isNotBlank()
                     is MacroStep.AppAction -> step.id.isNotBlank()
                     is MacroStep.Shortcut -> true
-                    is MacroStep.LayerSwitch -> step.target.isNotBlank()
+                    is MacroStep.LayerSwitch ->
+                        step.mode == KeyAction.LayerSwitchMode.BACK || step.target.isNotBlank()
                 }
             }
         }

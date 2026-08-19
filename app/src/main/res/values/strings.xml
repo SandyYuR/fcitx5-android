@@ -626,6 +626,7 @@
     <string name="macro_editor_step_type_layer">Layer Switch</string>
     <string name="macro_editor_step_type_to">To Layer</string>
     <string name="macro_editor_step_type_osl">One-shot Layer</string>
+    <string name="macro_editor_step_type_back">Back to Previous Layer</string>
     <string name="macro_editor_step_type_down">Press Key</string>
     <string name="macro_editor_step_type_up">Release Key</string>
     <string name="macro_editor_step_type_text">Input Text</string>

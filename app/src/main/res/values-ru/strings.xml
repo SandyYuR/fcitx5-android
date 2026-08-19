@@ -547,6 +547,7 @@
     <string name="macro_editor_step_type_layer">Переключение слоя</string>
     <string name="macro_editor_step_type_to">Перейти к слою</string>
     <string name="macro_editor_step_type_osl">Одноразовый слой</string>
+    <string name="macro_editor_step_type_back">Вернуться к предыдущему слою</string>
     <string name="macro_editor_step_type_down">Нажать клавишу</string>
     <string name="macro_editor_step_type_up">Отпустить клавишу</string>
     <string name="macro_editor_step_type_text">Ввести текст</string>

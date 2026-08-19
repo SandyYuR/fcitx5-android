@@ -57,7 +57,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         refreshCurrentKeyboard()
     }
 
-    companion object : EssentialWindow.Key
+    companion object : EssentialWindow.Key {
+        private const val MAX_LAYER_HISTORY = 8
+    }
 
     override val key: EssentialWindow.Key
         get() = KeyboardWindow
@@ -98,6 +100,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private var lastAuxActions = emptyList<AuxBarAction>()
     private var latchedLayerKey: String? = null
     private var oneShotLayerKey: String? = null
+    private val layerHistory = ArrayDeque<String>()
     private var noConfigAuxBarFallbackActive = false
     private var companionHeightPercentOverride: Int? = null
     private var companionHeightPxOverride: Int? = null
@@ -287,6 +290,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private fun clearAllLayerOverrides() {
         latchedLayerKey = null
         oneShotLayerKey = null
+        layerHistory.clear()
         noConfigAuxBarFallbackActive = false
         TextKeyboard.clearForcedLayoutKey()
     }
@@ -334,6 +338,12 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private fun handleLayerSwitchAction(action: KeyAction.LayerSwitchAction) {
         val hadAuxBarConfig = TextKeyboard.getAuxBarConfig() != null
         val heightBefore = TextKeyboard.currentLayoutHeightPercentOverride()
+        if (action.mode == KeyAction.LayerSwitchMode.BACK) {
+            latchedLayerKey = layerHistory.removeLastOrNull()
+            oneShotLayerKey = null
+            applyLayerOverridesAndRelayout(hadAuxBarConfig, heightBefore)
+            return
+        }
         val resolved = TextKeyboard.resolveLayerTargetKey(action.target)
         if (resolved == null) {
             if (action.mode == KeyAction.LayerSwitchMode.TO) {
@@ -347,6 +357,14 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         }
         when (action.mode) {
             KeyAction.LayerSwitchMode.TO -> {
+                val oldEffective = oneShotLayerKey ?: latchedLayerKey
+                if (oldEffective != resolved) {
+                    // remember the previous layer so BACK can undo this switch
+                    oldEffective?.let { layerHistory.addLast(it) }
+                    if (layerHistory.size > MAX_LAYER_HISTORY) {
+                        layerHistory.removeFirst()
+                    }
+                }
                 latchedLayerKey = resolved
                 oneShotLayerKey = null
             }
@@ -354,6 +372,10 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                 oneShotLayerKey = resolved
             }
         }
+        applyLayerOverridesAndRelayout(hadAuxBarConfig, heightBefore)
+    }
+
+    private fun applyLayerOverridesAndRelayout(hadAuxBarConfig: Boolean, heightBefore: Int?) {
         applyEffectiveTextLayer()
         refreshNoConfigAuxBarFallback(hadAuxBarConfig)
         val heightAfter = TextKeyboard.currentLayoutHeightPercentOverride()
@@ -533,7 +555,8 @@ private fun MacroAction.hasExecutableStep(): Boolean {
             is MacroStep.Edit -> step.action.isNotBlank()
             is MacroStep.AppAction -> step.id.isNotBlank()
             is MacroStep.Shortcut -> true
-            is MacroStep.LayerSwitch -> step.target.isNotBlank()
+            is MacroStep.LayerSwitch ->
+                step.mode == KeyAction.LayerSwitchMode.BACK || step.target.isNotBlank()
         }
     }
 }

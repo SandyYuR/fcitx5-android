@@ -498,6 +498,7 @@
     <string name="macro_editor_step_type_layer">レイヤー切替</string>
     <string name="macro_editor_step_type_to">レイヤーへ切替</string>
     <string name="macro_editor_step_type_osl">ワンショットレイヤー</string>
+    <string name="macro_editor_step_type_back">前のレイヤーに戻る</string>
     <string name="macro_editor_step_type_down">キーを押す</string>
     <string name="macro_editor_step_type_up">キーを離す</string>
     <string name="macro_editor_step_type_text">テキストを入力</string>

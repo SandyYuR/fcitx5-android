@@ -1470,9 +1470,9 @@ class KeyEditorActivity : AppCompatActivity() {
                     "$type:\"$displayText\""
                 }
                 "layer" -> {
-                    val target = stepMap["target"] as? String ?: return@mapNotNull null
+                    val target = stepMap["target"] as? String ?: ""
                     val mode = (stepMap["mode"] as? String)?.uppercase() ?: "TO"
-                    "layer($mode):$target"
+                    if (target.isBlank()) "layer($mode)" else "layer($mode):$target"
                 }
                 else -> type
             }
