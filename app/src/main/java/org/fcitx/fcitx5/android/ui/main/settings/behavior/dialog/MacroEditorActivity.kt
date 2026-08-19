@@ -101,6 +101,7 @@ class MacroEditorActivity : AppCompatActivity() {
     private fun normalizeLayerMode(raw: String?): String {
         return when (raw?.lowercase()) {
             "osl" -> "osl"
+            "back" -> "back"
             else -> "to"
         }
     }
@@ -186,6 +187,7 @@ class MacroEditorActivity : AppCompatActivity() {
                         val mode = when ((m["mode"] as? String)?.uppercase()) {
                             "TO" -> KeyAction.LayerSwitchMode.TO
                             "OSL" -> KeyAction.LayerSwitchMode.OSL
+                            "BACK" -> KeyAction.LayerSwitchMode.BACK
                             else -> return@mapNotNull null
                         }
                         MacroStep.LayerSwitch(mode, m["target"] as? String ?: "")
@@ -847,7 +849,7 @@ class MacroEditorActivity : AppCompatActivity() {
                     }
                 }
                 "layer" -> {
-                    if (step.text.isBlank()) {
+                    if (normalizeLayerMode(step.keys.firstOrNull()?.code) != "back" && step.text.isBlank()) {
                         Toast.makeText(this, getString(R.string.macro_editor_step_layer_target_required, index + 1), Toast.LENGTH_SHORT).show()
                         return
                     }
@@ -893,7 +895,7 @@ class MacroEditorActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.macro_editor_step_app_action_required, index + 1), Toast.LENGTH_SHORT).show()
                 return
             }
-            if (step.type == "layer" && step.text.isBlank()) {
+            if (step.type == "layer" && normalizeLayerMode(step.keys.firstOrNull()?.code) != "back" && step.text.isBlank()) {
                 Toast.makeText(this, getString(R.string.macro_editor_step_layer_target_required, index + 1), Toast.LENGTH_SHORT).show()
                 return
             }
@@ -1836,8 +1838,12 @@ class MacroEditorActivity : AppCompatActivity() {
             onSelect: (mode: String, target: String) -> Unit
         ) {
             showLayerModePicker(currentMode) { mode ->
-                showLayerTargetPicker(currentTarget) { target ->
-                    onSelect(mode, target)
+                if (mode == "back") {
+                    onSelect(mode, "")
+                } else {
+                    showLayerTargetPicker(currentTarget) { target ->
+                        onSelect(mode, target)
+                    }
                 }
             }
         }
@@ -1845,20 +1851,26 @@ class MacroEditorActivity : AppCompatActivity() {
         private fun getLayerModeLabel(mode: String): String {
             return when (normalizeLayerMode(mode)) {
                 "osl" -> getString(R.string.macro_editor_step_type_osl)
+                "back" -> getString(R.string.macro_editor_step_type_back)
                 else -> getString(R.string.macro_editor_step_type_to)
             }
         }
 
         private fun getLayerActionLabel(mode: String, target: String): String {
             val modeLabel = getLayerModeLabel(mode)
-            return if (target.isNotBlank()) "$modeLabel -> $target" else modeLabel
+            return if (normalizeLayerMode(mode) != "back" && target.isNotBlank()) {
+                "$modeLabel -> $target"
+            } else {
+                modeLabel
+            }
         }
 
         private fun showLayerModePicker(currentMode: String, onSelect: (String) -> Unit) {
-            val modes = arrayOf("to", "osl")
+            val modes = arrayOf("to", "osl", "back")
             val labels = arrayOf(
                 getString(R.string.macro_editor_step_type_to),
-                getString(R.string.macro_editor_step_type_osl)
+                getString(R.string.macro_editor_step_type_osl),
+                getString(R.string.macro_editor_step_type_back)
             )
             AlertDialog.Builder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_layer_mode_picker_title)

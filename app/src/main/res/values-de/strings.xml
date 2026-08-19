@@ -401,6 +401,7 @@
     <string name="macro_editor_step_type_layer">Ebenenwechsel</string>
     <string name="macro_editor_step_type_to">Zu Ebene wechseln</string>
     <string name="macro_editor_step_type_osl">One-Shot-Ebene</string>
+    <string name="macro_editor_step_type_back">Zurück zur vorherigen Ebene</string>
     <string name="macro_editor_step_type_down">Taste drücken</string>
     <string name="macro_editor_step_type_up">Taste loslassen</string>
     <string name="macro_editor_step_type_text">Text eingeben</string>

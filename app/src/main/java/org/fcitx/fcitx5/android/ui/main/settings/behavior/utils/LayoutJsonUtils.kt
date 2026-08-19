@@ -321,6 +321,7 @@ object LayoutJsonUtils {
     private fun parseLayerSwitchMode(raw: String?): KeyAction.LayerSwitchMode {
         return when (raw?.lowercase()) {
             "osl" -> KeyAction.LayerSwitchMode.OSL
+            "back" -> KeyAction.LayerSwitchMode.BACK
             else -> KeyAction.LayerSwitchMode.TO
         }
     }
@@ -329,6 +330,7 @@ object LayoutJsonUtils {
         return when (mode) {
             KeyAction.LayerSwitchMode.TO -> "to"
             KeyAction.LayerSwitchMode.OSL -> "osl"
+            KeyAction.LayerSwitchMode.BACK -> "back"
         }
     }
 

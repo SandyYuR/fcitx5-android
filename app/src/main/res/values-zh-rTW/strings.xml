@@ -610,6 +610,7 @@
     <string name="macro_editor_step_type_layer">切層動作</string>
     <string name="macro_editor_step_type_to">切換到層</string>
     <string name="macro_editor_step_type_osl">單次層</string>
+    <string name="macro_editor_step_type_back">返回上一個圖層</string>
     <string name="macro_editor_step_type_down">按下按鍵</string>
     <string name="macro_editor_step_type_up">釋放按鍵</string>
     <string name="macro_editor_step_type_text">輸入文字</string>

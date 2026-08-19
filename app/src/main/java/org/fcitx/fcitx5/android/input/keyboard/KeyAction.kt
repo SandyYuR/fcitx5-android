@@ -62,7 +62,7 @@ data class MacroAction(val steps: List<MacroStep>) : KeyAction()
 
 sealed class KeyAction {
     @Serializable
-    enum class LayerSwitchMode { TO, OSL }
+    enum class LayerSwitchMode { TO, OSL, BACK }
 
     data class FcitxKeyAction(
         val act: String,

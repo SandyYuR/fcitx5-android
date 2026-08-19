@@ -328,6 +328,7 @@
     <string name="macro_editor_step_type_layer">레이어 전환</string>
     <string name="macro_editor_step_type_to">레이어로 전환</string>
     <string name="macro_editor_step_type_osl">원샷 레이어</string>
+    <string name="macro_editor_step_type_back">이전 레이어로 돌아가기</string>
     <string name="macro_editor_step_type_down">키 누르기</string>
     <string name="macro_editor_step_type_up">키 떼기</string>
     <string name="macro_editor_step_type_text">텍스트 입력</string>
