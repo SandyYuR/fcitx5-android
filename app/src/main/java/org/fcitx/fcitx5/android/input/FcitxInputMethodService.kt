@@ -1230,15 +1230,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         setVirtualCapsLockState(event.isCapsLockOn)
     }
 
-    public fun sendSimulatedKeyEvent(keyCode: Int, scanCode: Int, action: Int, fromMacro: Boolean = false) {
-        val eventTime = SystemClock.uptimeMillis()
-        if (action == KeyEvent.ACTION_DOWN) {
-            when (keyCode) {
-                KeyEvent.KEYCODE_CAPS_LOCK -> {
-                    simulatedCapsLockPressed = true
-                    simulatedCapsLockPressedFromMacro = fromMacro
-                }
-                KeyEvent.KEYCODE_NUM_LOCK -> simulatedNumLockPressed = true
+    /**
+     * Track modifier hold state for simulated key events (shared by the keyboard macro path
+     * [sendSimulatedKeyEvent] and the custom-button path [sendSimulatedKeyEventOrFallback]) so
+     * key taps/shortcuts carry the correct metaState (e.g. Ctrl+A is not just a plain "a").
+     */
+    private fun updateSimulatedModifierCount(keyCode: Int, action: Int) {
+        when (action) {
+            KeyEvent.ACTION_DOWN -> when (keyCode) {
                 KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT -> simulatedShiftPressedCount += 1
                 KeyEvent.KEYCODE_CTRL_LEFT, KeyEvent.KEYCODE_CTRL_RIGHT -> simulatedCtrlPressedCount += 1
                 KeyEvent.KEYCODE_ALT_LEFT -> simulatedAltPressedCount += 1
@@ -1249,29 +1248,26 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 KeyEvent.KEYCODE_META_LEFT, KeyEvent.KEYCODE_META_RIGHT -> simulatedMetaPressedCount += 1
                 KeyEvent.KEYCODE_FUNCTION -> simulatedFunctionPressedCount += 1
             }
-        } else if (action == KeyEvent.ACTION_UP) {
-            when (keyCode) {
-                KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT -> {
+            KeyEvent.ACTION_UP -> when (keyCode) {
+                KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_SHIFT_RIGHT ->
                     simulatedShiftPressedCount = (simulatedShiftPressedCount - 1).coerceAtLeast(0)
-                }
-                KeyEvent.KEYCODE_CTRL_LEFT, KeyEvent.KEYCODE_CTRL_RIGHT -> {
+                KeyEvent.KEYCODE_CTRL_LEFT, KeyEvent.KEYCODE_CTRL_RIGHT ->
                     simulatedCtrlPressedCount = (simulatedCtrlPressedCount - 1).coerceAtLeast(0)
-                }
-                KeyEvent.KEYCODE_ALT_LEFT -> {
+                KeyEvent.KEYCODE_ALT_LEFT ->
                     simulatedAltPressedCount = (simulatedAltPressedCount - 1).coerceAtLeast(0)
-                }
                 KeyEvent.KEYCODE_ALT_RIGHT -> {
                     simulatedAltPressedCount = (simulatedAltPressedCount - 1).coerceAtLeast(0)
                     simulatedAltRightPressedCount = (simulatedAltRightPressedCount - 1).coerceAtLeast(0)
                 }
-                KeyEvent.KEYCODE_META_LEFT, KeyEvent.KEYCODE_META_RIGHT -> {
+                KeyEvent.KEYCODE_META_LEFT, KeyEvent.KEYCODE_META_RIGHT ->
                     simulatedMetaPressedCount = (simulatedMetaPressedCount - 1).coerceAtLeast(0)
-                }
-                KeyEvent.KEYCODE_FUNCTION -> {
+                KeyEvent.KEYCODE_FUNCTION ->
                     simulatedFunctionPressedCount = (simulatedFunctionPressedCount - 1).coerceAtLeast(0)
-                }
             }
         }
+    }
+
+    private fun simulatedMetaState(): Int {
         var metaState = 0
         if (simulatedCapsLockOn) metaState = metaState or KeyEvent.META_CAPS_LOCK_ON
         if (simulatedNumLockOn) metaState = metaState or KeyEvent.META_NUM_LOCK_ON
@@ -1281,6 +1277,49 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (simulatedMetaPressedCount > 0) metaState = metaState or KeyEvent.META_META_ON
         if (simulatedFunctionPressedCount > 0) metaState = metaState or KeyEvent.META_FUNCTION_ON
         if (simulatedAltRightPressedCount > 0) metaState = metaState or KeyEvent.META_ALT_RIGHT_ON
+        return metaState
+    }
+
+    /**
+     * Send a simulated key event directly to the current input connection (custom buttons on the
+     * Kawaii bar / status area). Like [sendSimulatedKeyEvent], it tracks modifier hold state so
+     * shortcuts and modifier-composed macros carry the correct metaState to the app.
+     */
+    public fun sendSimulatedKeyEventOrFallback(keyCode: Int, isDown: Boolean) {
+        val action = if (isDown) KeyEvent.ACTION_DOWN else KeyEvent.ACTION_UP
+        updateSimulatedModifierCount(keyCode, action)
+        val eventTime = SystemClock.uptimeMillis()
+        val scanCode = getCachedScancode(keyCode)
+        currentInputConnection?.sendKeyEvent(
+            KeyEvent(
+                eventTime,
+                eventTime,
+                action,
+                keyCode,
+                0,
+                simulatedMetaState(),
+                KeyCharacterMap.VIRTUAL_KEYBOARD,
+                scanCode,
+                KeyEvent.FLAG_SOFT_KEYBOARD or KeyEvent.FLAG_KEEP_TOUCH_MODE
+            )
+        )
+    }
+
+    public fun sendSimulatedKeyEvent(keyCode: Int, scanCode: Int, action: Int, fromMacro: Boolean = false) {
+        val eventTime = SystemClock.uptimeMillis()
+        if (action == KeyEvent.ACTION_DOWN) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_CAPS_LOCK -> {
+                    simulatedCapsLockPressed = true
+                    simulatedCapsLockPressedFromMacro = fromMacro
+                }
+                KeyEvent.KEYCODE_NUM_LOCK -> simulatedNumLockPressed = true
+            }
+            updateSimulatedModifierCount(keyCode, action)
+        } else if (action == KeyEvent.ACTION_UP) {
+            updateSimulatedModifierCount(keyCode, action)
+        }
+        val metaState = simulatedMetaState()
         // Use InputDevice.SOURCE_KEYBOARD so the system uses the physical keyboard KeyCharacterMap
         // This makes function keys (F1-F12) return unicodeChar = 0 and follow the keyCodeToSym path
         val event = KeyEvent(
