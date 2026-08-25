@@ -28,6 +28,7 @@ import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.theme
+import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
@@ -112,6 +113,8 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private var oneShotLayerKey: String? = null
     private val layerHistory = ArrayDeque<String>()
     private var noConfigAuxBarFallbackActive = false
+    private var fontRefreshPending = false
+    private var lastRefreshedFontGeneration = -1L
     private var companionHeightPercentOverride: Int? = null
     private var companionHeightPxOverride: Int? = null
 
@@ -167,13 +170,36 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
      * Call this when keyboard is about to show.
      */
     fun checkAndApplyFontRefresh() {
-        if (org.fcitx.fcitx5.android.input.font.FontProviders.checkAndClearRefreshFlag()) {
-            // The refresh flag is consumed above, so the rows cache would otherwise
-            // reuse rows built with the previous font set. Clear it first so
-            // refreshAllKeyboards() rebuilds rows and re-applies configured fonts.
+        if (FontProviders.checkAndClearRefreshFlag()) {
+            // Keep the visible keyboard intact until the new font cache is ready. Rebuilding
+            // immediately would force cache-miss lookups onto the first input frame.
             keyboards.values.forEach { it.clearReusableRowsCache() }
-            refreshAllKeyboards()
+            preloadFontsForKeyboard()
         }
+    }
+
+    private fun preloadFontsForKeyboard() {
+        FontProviders.preloadFontsAsync {
+            ContextCompat.getMainExecutor(service).execute {
+                // The completion may also fire for reloads that produced identical font
+                // data (e.g. retry ticks while a configured font file is still missing).
+                // Gate on the served-data revision so rows are rebuilt exactly once per
+                // real font change; a stale callback can no longer drop the refresh (the
+                // old token was invalidated by onStartInput running right after
+                // checkAndApplyFontRefresh, which silently killed this path).
+                val generation = FontProviders.fontGeneration
+                if (generation == lastRefreshedFontGeneration) return@execute
+                lastRefreshedFontGeneration = generation
+                fontRefreshPending = true
+                applyPendingFontRefresh()
+            }
+        }
+    }
+
+    private fun applyPendingFontRefresh() {
+        if (!fontRefreshPending || !::keyboardView.isInitialized || !keyboardView.isAttachedToWindow) return
+        fontRefreshPending = false
+        refreshCurrentKeyboard()
     }
 
     private val keyActionListener = KeyActionListener { it, source ->
@@ -204,6 +230,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         TextKeyboard.ime = fcitx.runImmediately { inputMethodEntryCached }
         keyboardView = context.frameLayout(R.id.keyboard_view)
         attachLayout(TextKeyboard.Name)
+        preloadFontsForKeyboard()
         Log.i(
             "FcitxColdStart",
             "KeyboardWindow.onCreateView duration=${SystemClock.elapsedRealtime() - startedAt}ms"
@@ -532,6 +559,8 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             }
             it.onAttach()
         }
+        applyPendingFontRefresh()
+        keyboardView.post { applyPendingFontRefresh() }
         applyAuxActions(lastAuxActions)
         notifyBarLayoutChanged()
         service.inputView?.requestBlurRefresh(retryFrames = 8)
