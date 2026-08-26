@@ -185,6 +185,11 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         ) {
             soundOnKeyPress.getValue() != InputFeedbackMode.Disabled
         }
+        val customKeySound = ManagedPreference.PString(
+            sharedPreferences,
+            "custom_key_sound",
+            ""
+        ).apply { register() }
         val focusChangeResetKeyboard =
             switch(R.string.reset_keyboard_on_focus_change, "reset_keyboard_on_focus_change", true)
         val expandToolbarByDefault =
