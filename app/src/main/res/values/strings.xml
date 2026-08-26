@@ -319,6 +319,7 @@
     <string name="path_conflict">Path \"%1$s\" is already owned by %2$s</string>
     <string name="main_program">main program</string>
     <string name="edit_theme">Edit Theme</string>
+    <string name="reset_theme_colors">Reset theme colors</string>
     <string name="show_voice_input_button">Show voice input button</string>
     <string name="edit_fontset">Font Settings</string>
     <string name="edit_popup_preset">Popup Character Settings</string>

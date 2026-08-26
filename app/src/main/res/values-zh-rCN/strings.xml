@@ -307,6 +307,7 @@
     <string name="path_conflict">路径 \"%1$s\" 已被%2$s占用</string>
     <string name="main_program">主程序</string>
     <string name="edit_theme">编辑主题</string>
+    <string name="reset_theme_colors">重置主题颜色</string>
     <string name="edit_color">编辑颜色</string>
     <string name="theme_color_editor_argb_label">ARGB</string>
     <string name="show_voice_input_button">显示语音输入按钮</string>
