@@ -405,7 +405,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
                 "sound_on_keypress", "button_sound_volume", "custom_key_sound"
             ),
             GROUP_TOOLBAR to setOf(
-                "expand_toolbar_by_default", "toolbar_manually_toggled",
                 "inline_suggestions", "toolbar_num_row_on_password",
                 "horizontal_candidate_style", "highlight_first_candidate",
                 "expanded_candidate_style",

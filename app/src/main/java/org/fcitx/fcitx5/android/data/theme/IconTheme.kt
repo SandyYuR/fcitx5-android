@@ -97,7 +97,7 @@ data class IconTheme(
         )
 
         /**
-         * Slots for system buttons (toolbar toggle, hide keyboard, voice input).
+         * Slots for system buttons (status area, hide keyboard, voice input).
          * These support emoji/text and inline SVG.
          */
         val SYSTEM_SLOTS = listOf(

@@ -43,6 +43,7 @@ import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
+import org.fcitx.fcitx5.android.input.config.kawaiiBarButtonsWithThemeToggle
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
@@ -147,6 +148,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         ButtonDefinition("cursor_move", R.drawable.ic_cursor_move, R.string.text_editing),
         ButtonDefinition("floating_toggle", R.drawable.ic_floating_toggle_24, R.string.floating_keyboard),
         ButtonDefinition("clipboard", R.drawable.ic_clipboard, R.string.clipboard),
+        ButtonDefinition("theme_toggle", R.drawable.ic_theme_light_dark_24, R.string.toggle_day_night_theme),
         ButtonDefinition("language_switch", R.drawable.ic_baseline_language_24, R.string.language_switch),
         ButtonDefinition("theme", R.drawable.ic_baseline_palette_24, R.string.theme),
         ButtonDefinition("icon_theme", R.drawable.ic_icon_theme_24, R.string.icon_theme),
@@ -236,7 +238,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         items.add(ListItem.ButtonItem(toolbarToggleConfig, Section.SystemBar))
         items.add(ListItem.ButtonItem(hideKeyboardConfig, Section.SystemBar))
         // Kawaii Bar section buttons
-        config.kawaiiBarButtons.forEach { button ->
+        config.kawaiiBarButtonsWithThemeToggle().forEach { button ->
             items.add(ListItem.ButtonItem(button, Section.KawaiiBar))
         }
         // Add "+" button for Kawaii Bar
@@ -1077,7 +1079,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     val buttonDef = availableButtons.find { it.id == b.id }
                     val label = when {
                         buttonItem.section == Section.SystemBar -> when (b.id) {
-                            "toolbar_toggle" -> getString(R.string.expand_toolbar)
+                            "toolbar_toggle" -> getString(R.string.status_area)
                             "hide_keyboard" -> getString(R.string.hide_keyboard)
                             else -> b.id
                         }
@@ -1089,13 +1091,13 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                         b.icon != null -> {
                             val resId = resources.getIdentifier(b.icon, "drawable", packageName)
                             if (resId != 0) resId else (buttonDef?.iconRes ?: when (b.id) {
-                                "toolbar_toggle" -> R.drawable.ic_baseline_expand_more_24
+                                "toolbar_toggle" -> R.drawable.ic_baseline_more_horiz_24
                                 "hide_keyboard" -> R.drawable.ic_baseline_arrow_drop_down_24
                                 else -> 0
                             })
                         }
                         else -> (buttonDef?.iconRes ?: when (b.id) {
-                            "toolbar_toggle" -> R.drawable.ic_baseline_expand_more_24
+                            "toolbar_toggle" -> R.drawable.ic_baseline_more_horiz_24
                             "hide_keyboard" -> R.drawable.ic_baseline_arrow_drop_down_24
                             else -> 0
                         })

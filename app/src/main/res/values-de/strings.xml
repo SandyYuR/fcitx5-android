@@ -12,7 +12,6 @@
     <string name="advanced">Erweitert</string>
     <string name="ignore_sys_cursor">Position des Cursors ignorieren</string>
     <string name="hide_key_config">Hotkey-Konfigurationen ausblenden</string>
-    <string name="toolbar_manually_toggled">Symbolleiste manuell umgeschaltet</string>
     <string name="allow_original_plugins">Fcitx5-Plugins von Drittanbietern erlauben</string>
     <string name="allow_original_plugins_summary">Aktivieren, um Plugins von originalem Fcitx5 Android (Release und Debug) zu erlauben. Installieren Sie nicht gleichzeitig Original- und modifizierte Plugins mit gleicher Funktion.</string>
     <string name="allowed_plugin_prefixes">Erlaubte Plugin-Präfixe</string>
@@ -572,8 +571,6 @@
     <string name="exception_user_data_package_name_mismatch">Benutzerdaten passen nicht zu dieser App</string>
     <string name="expand_candidates_list">Kandidatenliste erweitern</string>
     <string name="expand_keypress_area">Tastenbereich bis zum Rand erweitern</string>
-    <string name="expand_toolbar">Werkzeugleiste erweitern</string>
-    <string name="expand_toolbar_by_default">Werkzeugleiste standardmäßig erweitern</string>
     <string name="expanded_candidate_grid_span_count">Spaltenanzahl bei erweiterter Kandidaten-Rasteransicht</string>
     <string name="expanded_candidate_style">Stil der erweiterten Kandidatenliste</string>
     <string name="expanded_candidate_style_grid">Raster</string>
@@ -595,7 +592,6 @@
     <string name="grant_permission">Berechtigung erteilen</string>
     <string name="hide_candidates_list">Ausblenden</string>
     <string name="hide_keyboard">Tastatur ausblenden</string>
-    <string name="hide_toolbar">Werkzeugleiste ausblenden</string>
     <string name="hide_unsupported_emojis">Nicht unterstützte Emojis ausblenden</string>
     <string name="horizontal_candidate_always_fill">Breite immer ausfüllen</string>
     <string name="horizontal_candidate_auto_fill">Breite bei Bedarf ausfüllen</string>
@@ -641,7 +637,8 @@
     <string name="popup_on_key_press">Zeichen beim Tastendruck als Popup anzeigen</string>
     <string name="popup_preset_saved_at">Gespeichert</string>
     <string name="preferred_voice_input">Bevorzugte Spracheingabe</string>
-    <string name="private_mode">Privatmodus (tippen, um die Werkzeugleiste umzuschalten)</string>
+    <string name="private_mode">Privatmodus (tippen, um den Statusbereich zu öffnen)</string>
+    <string name="return_to_toolbar">Zurück zur Werkzeugleiste</string>
     <string name="punctuation_pos_bottom">Unten</string>
     <string name="punctuation_pos_none">Keine</string>
     <string name="punctuation_position">Position der Satzzeichen</string>

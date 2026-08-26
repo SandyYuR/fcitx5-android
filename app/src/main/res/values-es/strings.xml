@@ -12,7 +12,6 @@
     <string name="advanced">Avanzado</string>
     <string name="ignore_sys_cursor">Ignorar posición del cursor del sistema</string>
     <string name="hide_key_config">Ocultar configuraciones de atajos</string>
-    <string name="toolbar_manually_toggled">Barra de herramientas alternada manualmente</string>
     <string name="allow_original_plugins">Permitir plugins de terceros de Fcitx5</string>
     <string name="allow_original_plugins_summary">Activa esto para permitir la conexión de plugins del Fcitx5 Android original (release y debug). No instales a la vez plugins originales y plugins modificados con la misma funcionalidad.</string>
     <string name="allowed_plugin_prefixes">Prefijos de plugins permitidos</string>
@@ -100,7 +99,6 @@
     <string name="navbar_bkg_color_only">Seguir color de teclado</string>
     <string name="navbar_bkg_full">Imagen de fondo de teclado</string>
     <string name="punctuation_position">Posición de puntuación</string>
-    <string name="expand_toolbar_by_default">Expandir barra de htas. de manera predeterminada</string>
     <string name="disable_animation">Desactivar animación</string>
     <string name="import_from_file">Importar desde archivo...</string>
     <string name="light_mode_theme">Tema en modo claro</string>
@@ -547,7 +545,6 @@
     <string name="exception_user_data_package_name_mismatch">Los datos de usuario no coinciden con la aplicacion actual (encontrado: %1$s)</string>
     <string name="expand_candidates_list">Expandir lista de candidatos</string>
     <string name="expand_keypress_area">Expandir area de pulsacion hasta el borde</string>
-    <string name="expand_toolbar">Expandir barra de herramientas</string>
     <string name="expanded_candidate_grid_span_count">Numero de columnas de candidatos expandidos en estilo de cuadricula</string>
     <string name="expanded_candidate_style">Estilo de candidatos expandidos</string>
     <string name="expanded_candidate_style_flexbox">Flexbox</string>
@@ -571,7 +568,6 @@
     <string name="grant_permission">Conceder permiso</string>
     <string name="hide_candidates_list">Ocultar lista de candidatos</string>
     <string name="hide_keyboard">Ocultar teclado</string>
-    <string name="hide_toolbar">Ocultar barra de herramientas</string>
     <string name="hide_unsupported_emojis">Ocultar emojis no compatibles</string>
     <string name="horizontal_candidate_always_fill">Rellenar ancho siempre</string>
     <string name="horizontal_candidate_auto_fill">Rellenar ancho segun necesidad</string>
@@ -630,7 +626,8 @@
     <string name="popup_on_key_press">Mostrar popup al pulsar tecla</string>
     <string name="popup_preset_saved_at">Guardado</string>
     <string name="preferred_voice_input">Entrada de voz preferida</string>
-    <string name="private_mode">Modo privado (toque para alternar la barra de herramientas)</string>
+    <string name="private_mode">Modo privado (toque para abrir el área de estado)</string>
+    <string name="return_to_toolbar">Volver a la barra de herramientas</string>
     <string name="punctuation_pos_bottom">Abajo</string>
     <string name="punctuation_pos_none">Ninguno</string>
     <string name="punctuation_pos_top_right">Arriba a la derecha</string>
