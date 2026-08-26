@@ -395,6 +395,10 @@
     <string name="following_system_settings">Follow system settings</string>
     <string name="button_sound">Sound on keypress</string>
     <string name="button_sound_volume">Keypress sound volume</string>
+    <string name="custom_key_sound">Custom keypress sound</string>
+    <string name="custom_key_sound_system_default">System default</string>
+    <string name="custom_key_sound_import">Import audio</string>
+    <string name="custom_key_sound_invalid">Please select a supported audio file</string>
     <string name="clipboard_return_after_paste">Return after pasting</string>
     <string name="theme_message_follow_system_day_night_mode_enabled">Cannot switch theme manually while \"Follow system day/night mode\" is enabled.</string>
     <string name="disable_it">Disable it</string>
