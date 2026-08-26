@@ -15,7 +15,7 @@ import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 data class ConfigurableButton(
     /**
      * Unique identifier for the button action.
-     * Examples: "undo", "redo", "cursor_move", "floating_toggle", "clipboard", "more",
+     * Examples: "undo", "redo", "cursor_move", "floating_toggle", "clipboard", "theme_toggle",
      *           "language_switch", "theme", "input_method_options", "reload_config", "virtual_keyboard", "one_handed_keyboard"
      */
     @SerialName("id")
@@ -70,7 +70,7 @@ data class ButtonsLayoutConfig(
     /**
      * List of buttons to display on Kawaii Bar, in order.
      * Maximum 6 buttons recommended for visual balance.
-     * Note: 'more' button is always added automatically and should not be in this list.
+     * The Status Area is opened by the fixed left-side button and should not be added here.
      */
     @SerialName("kawaiiBarButtons")
     val kawaiiBarButtons: List<ConfigurableButton>,
@@ -84,8 +84,8 @@ data class ButtonsLayoutConfig(
     val statusAreaButtons: List<ConfigurableButton>,
 
     /**
-     * Configuration for the toolbar toggle button (collapse/expand toolbar).
-     * Always present on the left side of the idle bar.
+     * Configuration for the Status Area button.
+     * Always present on the left side of the idle bar and opens additional settings.
      * Supports custom icon, text, and label.
      */
     @SerialName("toolbarToggleButton")
@@ -110,7 +110,8 @@ data class ButtonsLayoutConfig(
                 ConfigurableButton("redo"),
                 ConfigurableButton("cursor_move"),
                 ConfigurableButton("floating_toggle"),
-                ConfigurableButton("clipboard")
+                ConfigurableButton("clipboard"),
+                ConfigurableButton("theme_toggle")
             ),
             // Note: input_method_options is always added automatically at the end of Status Area
             statusAreaButtons = listOf(
@@ -121,6 +122,27 @@ data class ButtonsLayoutConfig(
                 ConfigurableButton("one_handed_keyboard")
             )
         )
+    }
+}
+
+private val legacyDefaultKawaiiBarButtonIds = listOf(
+    "undo",
+    "redo",
+    "cursor_move",
+    "floating_toggle",
+    "clipboard"
+)
+
+/**
+ * Adds the theme control to layouts saved before it became part of the default toolbar.
+ * Only the exact legacy default is migrated; all manually arranged layouts remain unchanged.
+ */
+fun ButtonsLayoutConfig.kawaiiBarButtonsWithThemeToggle(): List<ConfigurableButton> {
+    val buttons = kawaiiBarButtons.filter { it.id != "more" }
+    return if (buttons.map { it.id } == legacyDefaultKawaiiBarButtonIds) {
+        buttons + ConfigurableButton("theme_toggle")
+    } else {
+        buttons
     }
 }
 
@@ -141,7 +163,7 @@ data class KawaiiBarButtonsConfig(
     companion object {
         /**
          * Default Kawaii Bar button configuration.
-         * Note: 'more' button is always added automatically and is not part of this default config.
+         * The Status Area is opened by the fixed left-side button and is not part of this default config.
          */
         @Deprecated("Use ButtonsLayoutConfig.default() instead")
         @Suppress("DEPRECATION")

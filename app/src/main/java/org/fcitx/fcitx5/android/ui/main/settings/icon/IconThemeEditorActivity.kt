@@ -660,7 +660,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
         "toolbar.settings_ime" -> R.drawable.ic_baseline_language_24
         "toolbar.edit_layout" -> R.drawable.ic_baseline_keyboard_24
         "toolbar.edit_fontset" -> R.drawable.ic_baseline_text_format_24
-        "system.toolbar_toggle" -> R.drawable.ic_baseline_expand_more_24
+        "system.toolbar_toggle" -> R.drawable.ic_baseline_more_horiz_24
         "system.hide_keyboard" -> R.drawable.ic_baseline_arrow_drop_down_24
         "system.voice_input" -> R.drawable.ic_baseline_keyboard_voice_24
         else -> 0

@@ -162,8 +162,6 @@
     <string name="punctuation_pos_top_right">Top Right</string>
     <string name="punctuation_pos_top_center">Top Center</string>
     <string name="punctuation_pos_none">None</string>
-    <string name="expand_toolbar_by_default">Expand toolbar by default</string>
-    <string name="toolbar_manually_toggled">Toolbar manually toggled</string>
     <string name="popup_on_key_press">Popup on key press</string>
     <string name="disable_animation">Disable animation</string>
     <string name="import_from_file">Import from file…</string>
@@ -465,9 +463,8 @@
     <string name="hide_candidates_list">Hide candidates list</string>
     <string name="switch_to_voice_input">Switch to voice input</string>
     <string name="hide_keyboard">Hide keyboard</string>
-    <string name="private_mode">Private mode (tap to toggle toolbar)</string>
-    <string name="hide_toolbar">Hide toolbar</string>
-    <string name="expand_toolbar">Expand toolbar</string>
+    <string name="private_mode">Private mode (tap to open status area)</string>
+    <string name="return_to_toolbar">Return to toolbar</string>
     <string name="back_to_keyboard">Back to keyboard</string>
     <string name="backspace">Backspace</string>
     <string name="move_cursor_up">Move cursor up</string>

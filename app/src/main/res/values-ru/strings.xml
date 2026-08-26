@@ -12,7 +12,6 @@
     <string name="advanced">Расширенное</string>
     <string name="ignore_sys_cursor">Игнорировать позицию системного курсора</string>
     <string name="hide_key_config">Скрыть конфигурации горячих клавиш</string>
-    <string name="toolbar_manually_toggled">Панель инструментов переключается вручную</string>
     <string name="allow_original_plugins">Разрешить сторонние плагины Fcitx5</string>
     <string name="allow_original_plugins_summary">Включите, чтобы разрешить подключение плагинов от оригинального Fcitx5 Android (release и debug). Не устанавливайте одновременно оригинальные и модифицированные плагины с одинаковой функциональностью.</string>
     <string name="allowed_plugin_prefixes">Разрешенные префиксы плагинов</string>
@@ -145,7 +144,6 @@
     <string name="punctuation_pos_top_right">В правом верхнем углу</string>
     <string name="punctuation_pos_top_center">Сверху по центру</string>
     <string name="punctuation_pos_none">Нет</string>
-    <string name="expand_toolbar_by_default">Развернуть панель инструментов по умолчанию</string>
     <string name="popup_on_key_press">Всплывающее окно при нажатии клавиши</string>
     <string name="disable_animation">Отключить анимацию</string>
     <string name="import_from_file">Импорт из файла…</string>
@@ -334,9 +332,8 @@
     <string name="hide_candidates_list">Скрыть список кандидатов</string>
     <string name="switch_to_voice_input">Переключиться на голосовой ввод</string>
     <string name="hide_keyboard">Скрыть клавиатуру</string>
-    <string name="private_mode">Приватный режим (нажмите, чтобы переключить панель инструментов)</string>
-    <string name="hide_toolbar">Скрыть панель инструментов</string>
-    <string name="expand_toolbar">Развернуть панель инструментов</string>
+    <string name="private_mode">Приватный режим (нажмите, чтобы открыть область состояния)</string>
+    <string name="return_to_toolbar">Вернуться на панель инструментов</string>
     <string name="back_to_keyboard">Вернуться к клавиатуре</string>
     <string name="backspace">Backspace</string>
     <string name="move_cursor_up">Переместить курсор вверх</string>

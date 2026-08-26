@@ -34,6 +34,7 @@ import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
+import org.fcitx.fcitx5.android.input.config.kawaiiBarButtonsWithThemeToggle
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
@@ -871,7 +872,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             .toSet()
         val seen = mutableSetOf<String>()
         topButtons.clear()
-        config.kawaiiBarButtons.forEach { button ->
+        config.kawaiiBarButtonsWithThemeToggle().forEach { button ->
             if ((button.id in configurableIds || button.macroSteps != null) && seen.add(button.id)) topButtons.add(button)
         }
         bottomButtons.clear()

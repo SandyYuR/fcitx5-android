@@ -15,7 +15,6 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.AnimationSet
 import android.view.animation.TranslateAnimation
 import android.widget.LinearLayout
-import android.widget.Space
 import android.widget.TextView
 import android.widget.ViewAnimator
 import androidx.annotation.DrawableRes
@@ -66,10 +65,10 @@ class IdleUi(
 ) : Ui {
 
     enum class State {
-        Empty, Toolbar, Clipboard, NumberRow, InlineSuggestion
+        Toolbar, Clipboard, NumberRow, InlineSuggestion
     }
 
-    var currentState = State.Empty
+    var currentState = State.Toolbar
         private set
 
     private val disableAnimation by AppPrefs.getInstance().advanced.disableAnimation
@@ -82,28 +81,24 @@ class IdleUi(
 
     private val hasCustomMenuIcon get() = toolbarToggleConfig.icon != null || !toolbarToggleConfig.text.isNullOrEmpty()
     private var hideKeyboardInVoiceInputMode = false
-    private val menuButtonRotation
-        get() = when {
-            inPrivate -> 0f
-            currentState == State.Toolbar -> 90f * translateDirection
-            else -> -90f * translateDirection
-        }
+    private val menuButtonRotation = 0f
 
     @DrawableRes
-    private val defaultMenuIcon = R.drawable.ic_baseline_expand_more_24
+    private val defaultMenuIcon = R.drawable.ic_baseline_more_horiz_24
     @DrawableRes
     private val defaultHideKeyboardIcon = R.drawable.ic_baseline_arrow_drop_down_24
 
-    val menuButton = ToolButton(ctx, R.drawable.ic_baseline_expand_more_24, theme).apply {
+    val menuButton = ToolButton(ctx, R.drawable.ic_baseline_more_horiz_24, theme).apply {
         iconRotation = menuButtonRotation
         applySystemButtonConfig(this, toolbarToggleConfig, defaultMenuIcon)
+        if (toolbarToggleConfig.label.isNullOrEmpty()) {
+            contentDescription = ctx.getString(R.string.status_area)
+        }
     }
 
     val hideKeyboardButton = ToolButton(ctx, R.drawable.ic_baseline_arrow_drop_down_24, theme).apply {
         applySystemButtonConfig(this, hideKeyboardConfig, defaultHideKeyboardIcon)
     }
-
-    val emptyBar = Space(ctx)
 
     val buttonsUi = ButtonsBarUi(ctx, theme, buttonsConfig)
 
@@ -156,7 +151,6 @@ class IdleUi(
     }
 
     private val animator = ViewAnimator(ctx).apply {
-        add(emptyBar, lParams(matchParent, matchParent))
         add(buttonsUi.root, lParams(matchParent, matchParent))
         add(clipboardUi.root, lParams(matchParent, matchParent))
         add(inlineSuggestionsBar.root, lParams(matchParent, matchParent))
@@ -280,7 +274,7 @@ class IdleUi(
     fun reloadSystemButtonIcons() {
         val toolbarIcon = toolbarToggleConfig.icon
         if (toolbarIcon != null && toolbarIcon.startsWith("file:")) {
-            applySystemButtonConfig(menuButton, toolbarToggleConfig, defaultMenuIcon)
+            updateMenuButtonIcon()
         }
         val hideIcon = hideKeyboardConfig.icon
         if (hideIcon != null && hideIcon.startsWith("file:")) {
@@ -291,7 +285,7 @@ class IdleUi(
     /** Refresh all toolbar and system button icons (called when icon theme changes). */
     fun refreshAllIcons() {
         // Re-apply icon theme to system buttons
-        applySystemButtonConfig(menuButton, toolbarToggleConfig, defaultMenuIcon)
+        updateMenuButtonIcon()
         refreshHideKeyboardButtonIcon()
         // Rebind toolbar buttons
         buttonsUi.refreshLayout()
@@ -310,19 +304,22 @@ class IdleUi(
     }
 
     private fun updateMenuButtonIcon() {
-        if (inPrivate && !hasCustomMenuIcon) {
-            menuButton.setIcon(R.drawable.ic_view_private)
-            return
+        when {
+            currentState == State.Clipboard ->
+                menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
+            inPrivate && !hasCustomMenuIcon -> {
+                menuButton.setIcon(R.drawable.ic_view_private)
+            }
+            else -> applySystemButtonConfig(menuButton, toolbarToggleConfig, defaultMenuIcon)
         }
-        applySystemButtonConfig(menuButton, toolbarToggleConfig, defaultMenuIcon)
     }
 
     private fun updateMenuButtonContentDescription() {
         if (!toolbarToggleConfig.label.isNullOrEmpty()) return
         menuButton.contentDescription = when {
+            currentState == State.Clipboard -> ctx.getString(R.string.return_to_toolbar)
             inPrivate -> ctx.getString(R.string.private_mode)
-            currentState == State.Toolbar -> ctx.getString(R.string.hide_toolbar)
-            else -> ctx.getString(R.string.expand_toolbar)
+            else -> ctx.getString(R.string.status_area)
         }
     }
 
@@ -453,6 +450,7 @@ class IdleUi(
         Timber.d("Switch idle ui to $state")
         if (voiceStatusBar.visibility == View.VISIBLE && state != State.NumberRow) {
             currentState = state
+            updateMenuButtonIcon()
             updateMenuButtonContentDescription()
             updateMenuButtonRotation(instant = !fromUser)
             return
@@ -468,11 +466,10 @@ class IdleUi(
             setAnimation()
         }
         when (state) {
-            State.Empty -> animator.displayedChild = 0
-            State.Toolbar -> animator.displayedChild = 1
-            State.Clipboard -> animator.displayedChild = 2
+            State.Toolbar -> animator.displayedChild = 0
+            State.Clipboard -> animator.displayedChild = 1
             State.NumberRow -> {}
-            State.InlineSuggestion -> animator.displayedChild = 3
+            State.InlineSuggestion -> animator.displayedChild = 2
         }
         if (state == State.NumberRow) {
             numberRow.keyActionListener = commonKeyActionListener.listener
@@ -493,6 +490,7 @@ class IdleUi(
             popup.dismissAll()
         }
         currentState = state
+        updateMenuButtonIcon()
         updateMenuButtonContentDescription()
         updateMenuButtonRotation(instant = !fromUser)
     }

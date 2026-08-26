@@ -59,6 +59,7 @@ import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
+import org.fcitx.fcitx5.android.input.config.kawaiiBarButtonsWithThemeToggle
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
@@ -148,7 +149,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private val clipboardItemTimeout = prefs.clipboard.clipboardItemTimeout
     private val clipboardMaskSensitive by prefs.clipboard.clipboardMaskSensitive
     private val expandedCandidateStyle by prefs.keyboard.expandedCandidateStyle
-    private val expandToolbarByDefault by prefs.keyboard.expandToolbarByDefault
     private val toolbarNumRowOnPassword by prefs.keyboard.toolbarNumRowOnPassword
     private val showVoiceInputButton by prefs.keyboard.showVoiceInputButton
     private val preferredVoiceInput by prefs.keyboard.preferredVoiceInput
@@ -248,14 +248,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             isClipboardFresh -> IdleUi.State.Clipboard
             isInlineSuggestionPresent -> IdleUi.State.InlineSuggestion
             isCapabilityFlagsPassword && !isKeyboardLayoutNumber && numberRowState != NumberRowState.ForceHide -> IdleUi.State.NumberRow
-            /**
-             * state matrix:
-             *                               expandToolbarByDefault
-             *                          |   \   |    true |   false
-             * toolbarManuallyToggled   |  true |   Empty | Toolbar
-             *                          | false | Toolbar |   Empty
-             */
-            expandToolbarByDefault == prefs.keyboard.toolbarManuallyToggled.getValue() -> IdleUi.State.Empty
             else -> IdleUi.State.Toolbar
         }
         if (newState == idleUi.currentState) return
@@ -360,17 +352,12 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         InputMethodUtil.switchInputMethod(service, id, subtype)
     }
 
-    // Load buttons config from file or use default
-    // Note: 'more' button is always added automatically at the end if not present in config
+    // Load buttons config from file or use default. The Status Area is opened by IdleUi's
+    // fixed left-side control, so legacy "more" entries are excluded from the button row.
     private fun loadButtonsConfig(): Triple<List<ConfigurableButton>, ConfigurableButton, ConfigurableButton> {
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         val config = snapshot?.value ?: ButtonsLayoutConfig.default()
-
-        // Filter out 'more' button from config (it's always added automatically)
-        val filteredButtons = config.kawaiiBarButtons.filter { it.id != "more" }
-
-        // Always add 'more' button at the end
-        val buttons = filteredButtons + ConfigurableButton("more")
+        val buttons = config.kawaiiBarButtonsWithThemeToggle()
 
         // Update watched icon filenames for hot-reload
         val allButtons = buttons + listOf(config.toolbarToggleButton, config.hideKeyboardButton)
@@ -410,28 +397,20 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
         ui.menuButton.setOnClickListener {
             restoreVirtualKeyboardMode()
+            // When the clipboard hint is showing, the leftmost button dismisses it
+            // instead of opening the status area.
+            if (idleUi.currentState == IdleUi.State.Clipboard) {
+                clipboardTimeoutJob?.cancel()
+                clipboardTimeoutJob = null
+                isClipboardFresh = false
+                evalIdleUiState(fromUser = true)
+                return@setOnClickListener
+            }
             if (service.inputView?.isButtonsAdjustingOverlayVisible == true) {
                 service.inputView?.hideButtonsAdjustingOverlay()
                 return@setOnClickListener
             }
-            when (ui.currentState) {
-                IdleUi.State.Empty -> {
-                    prefs.keyboard.toolbarManuallyToggled.setValue(!expandToolbarByDefault)
-                    evalIdleUiState(fromUser = true)
-                }
-                IdleUi.State.Toolbar -> {
-                    prefs.keyboard.toolbarManuallyToggled.setValue(expandToolbarByDefault)
-                    evalIdleUiState(fromUser = true)
-                }
-                else -> {
-                    prefs.keyboard.toolbarManuallyToggled.setValue(!expandToolbarByDefault)
-                    ui.updateState(IdleUi.State.Toolbar, fromUser = true)
-                }
-            }
-            // reset timeout timer (if present) when user switch layout
-            if (clipboardTimeoutJob != null) {
-                launchClipboardTimeoutJob()
-            }
+            windowManager.attachWindow(StatusAreaWindow())
         }
         ui.menuButton.setOnLongClickListener {
             restoreVirtualKeyboardMode()
@@ -466,17 +445,23 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                             // Refresh UI state after action completion
                             when (action.id) {
                                 "floating_toggle" -> evalIdleUiState()
-                                "one_handed_keyboard" -> updateButtonsState()
+                                "one_handed_keyboard", "theme_toggle" -> updateButtonsState()
                             }
                         }
                     )
                 }
             }
             
-            // Special handling for 'more' button
-            setOnClickListener("more") {
+            setOnLongClickListener("theme_toggle") {
                 restoreVirtualKeyboardMode()
-                windowManager.attachWindow(StatusAreaWindow())
+                ButtonAction.fromId("theme_toggle")?.onLongPress(
+                    context = context,
+                    service = service,
+                    fcitx = fcitx,
+                    windowManager = windowManager,
+                    view = ui.buttonsUi.root
+                )
+                true
             }
 
             setOnClickListener("floating_toggle") {
@@ -600,7 +585,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         if (snapshot == null) return emptySet()
         val config = snapshot.value
-        val allButtons = config.kawaiiBarButtons + config.statusAreaButtons +
+        val allButtons = config.kawaiiBarButtonsWithThemeToggle() + config.statusAreaButtons +
             listOf(config.toolbarToggleButton, config.hideKeyboardButton)
         return extractIconFileNames(allButtons)
     }
