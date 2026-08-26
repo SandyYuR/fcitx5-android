@@ -378,6 +378,10 @@
     <string name="following_system_settings">跟随系统设置</string>
     <string name="button_sound">按键音</string>
     <string name="button_sound_volume">按键音音量</string>
+    <string name="custom_key_sound">自定义按键音</string>
+    <string name="custom_key_sound_system_default">系统默认</string>
+    <string name="custom_key_sound_import">导入音频</string>
+    <string name="custom_key_sound_invalid">请选择受支持的音频文件</string>
     <string name="clipboard_return_after_paste">粘贴后返回</string>
     <string name="theme_message_follow_system_day_night_mode_enabled">“跟随系统夜间模式”已启用，不能手动更换主题。</string>
     <string name="disable_it">禁用它</string>
