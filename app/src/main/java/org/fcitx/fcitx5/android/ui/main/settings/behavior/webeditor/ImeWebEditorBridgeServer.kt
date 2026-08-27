@@ -58,7 +58,10 @@ object ImeWebEditorBridgeServer {
         val apiBaseUrl: String get() = "http://$host:$port"
     }
 
-    private const val UPSTREAM_EDITOR_BASE = "https://fxliang.github.io/f5a-see-me/"
+    // Serve the web editor from our own fork's GitHub Pages (contains the layout-editor
+    // PR changes: NumPadKey/MiniSpaceKey editing, LayoutSwitchKey switch targets).
+    // Upstream fallback: https://fxliang.github.io/f5a-see-me/
+    private const val UPSTREAM_EDITOR_BASE = "https://sandyyur.github.io/f5a-see-me/"
     private const val UPSTREAM_EDITOR_INDEX = "${UPSTREAM_EDITOR_BASE}index.html"
     private const val CACHE_TTL_MS = 10 * 60 * 1000L
 
