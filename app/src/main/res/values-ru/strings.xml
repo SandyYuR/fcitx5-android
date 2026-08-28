@@ -611,6 +611,7 @@
     <string name="fontset_sample_candidate">Пример кандидата</string>
     <string name="fontset_sample_popup">Всплывающая клавиша</string>
     <string name="fontset_sample_preedit">Текст предредактирования</string>
+    <string name="fontset_sample_comment">Пример комментария</string>
     <string name="picker_category_fullwidth">Полноширинный</string>
     <string name="macro_editor_key_event_unmatched">Несоответствие событий клавиш: количество нажатий и отпусканий для %1$s не совпадает</string>
     <string name="text_keyboard_layout_qr_export">Поделиться через QR-изображение</string>
@@ -672,6 +673,7 @@
     <string name="fontset_entry_key_main">Основной шрифт клавиш</string>
     <string name="fontset_entry_popup_key">Шрифт всплывающей клавиши</string>
     <string name="fontset_entry_preedit">Шрифт предредактирования</string>
+    <string name="fontset_entry_comment">Шрифт комментариев</string>
     <string name="fontset_saved_at">Сохранено</string>
     <string name="no_fonts_found">Файлы шрифтов не найдены в fonts/</string>
     <string name="popup_preset_saved_at">Сохранено</string>
