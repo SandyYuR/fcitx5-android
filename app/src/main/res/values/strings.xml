@@ -379,6 +379,7 @@
     <string name="fontset_entry_candidate">Candidate Font</string>
     <string name="fontset_entry_popup_key">Popup Key Font</string>
     <string name="fontset_entry_preedit">Preedit Font</string>
+    <string name="fontset_entry_comment">Comment Font</string>
     <string name="font_size">Font Size</string>
     <string name="font_size_value">%1$d sp</string>
     <string name="font_size_editor_title">%1$s - Font Size</string>
@@ -696,6 +697,7 @@
     <string name="fontset_sample_candidate">Candidate Example</string>
     <string name="fontset_sample_popup">Popup Key</string>
     <string name="fontset_sample_preedit">Preedit Text</string>
+    <string name="fontset_sample_comment">Comment Note</string>
     <string name="picker_category_fullwidth">Fullwidth</string>
     <string name="text_keyboard_layout_display_text_mode_invalid">Please fill in row %1$d before adding a new mode</string>
     <string name="text_keyboard_layout_display_text_mode_duplicate">Mode name "%1$s" is already in use</string>

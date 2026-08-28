@@ -465,6 +465,7 @@
     <string name="fontset_sample_candidate">Beispielkandidat</string>
     <string name="fontset_sample_popup">Popup-Taste</string>
     <string name="fontset_sample_preedit">VorEditText</string>
+    <string name="fontset_sample_comment">Kommentar-Beispiel</string>
     <string name="picker_category_fullwidth">Vollbreite</string>
     <string name="text_keyboard_layout_qr_export">Per QR-Bild teilen</string>
     <string name="text_keyboard_layout_qr_import_scan">Per QR-Scan importieren</string>
@@ -591,6 +592,7 @@
     <string name="fontset_entry_key_main">Primäre Tastenschriftart</string>
     <string name="fontset_entry_popup_key">Popup-Tastenschriftart</string>
     <string name="fontset_entry_preedit">Preedit-Schriftart</string>
+    <string name="fontset_entry_comment">Kommentar-Schriftart</string>
     <string name="fontset_saved_at">Gespeichert</string>
     <string name="grant_permission">Berechtigung erteilen</string>
     <string name="hide_candidates_list">Ausblenden</string>
