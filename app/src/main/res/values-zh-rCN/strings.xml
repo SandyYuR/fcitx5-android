@@ -366,6 +366,7 @@
     <string name="fontset_entry_candidate">候选字体</string>
     <string name="fontset_entry_popup_key">弹出按键字体</string>
     <string name="fontset_entry_preedit">预编辑字体</string>
+    <string name="fontset_entry_comment">注释字体</string>
     <string name="fcitx_daemon">Fcitx 守护程序</string>
     <string name="restarting_fcitx">正在重新启动 Fcitx</string>
     <string name="plugin_needs_reload">检测到插件更改，点此重新加载</string>
@@ -697,6 +698,7 @@
     <string name="fontset_sample_candidate">候选词示例</string>
     <string name="fontset_sample_popup">弹出键</string>
     <string name="fontset_sample_preedit">预编辑文本</string>
+    <string name="fontset_sample_comment">注释示例</string>
     <string name="picker_category_fullwidth">全角</string>
     <string name="text_keyboard_layout_display_text_mode_invalid">请先填写第 %1$d 行的模式名称和显示文本</string>
     <string name="text_keyboard_layout_display_text_mode_duplicate">模式名称 "%1$s" 已被使用</string>
