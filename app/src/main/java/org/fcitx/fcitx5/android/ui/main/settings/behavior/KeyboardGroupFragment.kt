@@ -407,7 +407,8 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
             GROUP_TOOLBAR to setOf(
                 "expand_toolbar_by_default", "toolbar_manually_toggled",
                 "inline_suggestions", "toolbar_num_row_on_password",
-                "horizontal_candidate_style", "expanded_candidate_style",
+                "horizontal_candidate_style", "highlight_first_candidate",
+                "expanded_candidate_style",
                 "expanded_candidate_grid_span_count_portrait",
                 "show_voice_input_button", "preferred_voice_input",
             ),

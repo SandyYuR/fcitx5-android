@@ -481,6 +481,8 @@
     <string name="build_time">Hora de compilacion</string>
     <string name="button_up_haptic_feedback">Respuesta haptica al soltar tecla</string>
     <string name="candidate_highlight_radius">Radio de resaltado del candidato</string>
+    <string name="highlight_first_candidate">Resaltar el primer candidato de forma predeterminada</string>
+    <string name="highlight_first_candidate_summary">Mostrar el fondo de resaltado en el primer candidato hasta que se mueva la selección</string>
     <string name="candidates_window">Ventana de candidatos</string>
     <string name="candidates_window_radius">Radio de la ventana de candidatos</string>
     <string name="cannot_resolve_popup_preset">No se pudo resolver el archivo de preajustes emergentes</string>
