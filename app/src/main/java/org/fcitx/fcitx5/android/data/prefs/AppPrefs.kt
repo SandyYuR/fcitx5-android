@@ -357,6 +357,12 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "horizontal_candidate_style",
             HorizontalCandidateMode.AutoFillWidth
         )
+        val highlightFirstCandidate = switch(
+            R.string.highlight_first_candidate,
+            "highlight_first_candidate",
+            false,
+            R.string.highlight_first_candidate_summary
+        )
         val expandedCandidateStyle = enumList(
             R.string.expanded_candidate_style,
             "expanded_candidate_style",
