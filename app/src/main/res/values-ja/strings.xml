@@ -481,6 +481,8 @@
     <string name="candidates_font_size">候補のフォントサイズ</string>
     <string name="candidates_padding">候補のパディング</string>
     <string name="candidate_highlight_radius">候補のハイライト角半径</string>
+    <string name="highlight_first_candidate">既定で最初の候補をハイライトする</string>
+    <string name="highlight_first_candidate_summary">選択を移動するまで、最初の候補にハイライト背景を表示する</string>
     <string name="candidates_window_min_width">候補ウィンドウの最小幅</string>
     <string name="candidates_window_padding">候補ウィンドウのパディング</string>
     <string name="restart_fcitx_instance">Fcitx インスタンスを再起動</string>
