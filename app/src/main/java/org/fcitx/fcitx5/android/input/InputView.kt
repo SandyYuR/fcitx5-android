@@ -3434,6 +3434,22 @@ class InputView(
     }
 
     /**
+     * Notify the keyboard that a voice input session started so it can snapshot the
+     * layout the user is looking at (see [KeyboardWindow.onVoiceInputStarted]).
+     */
+    internal fun onVoiceInputStarted() {
+        keyboardWindow.onVoiceInputStarted()
+    }
+
+    /**
+     * Notify the keyboard that the voice input session ended so it can restore the
+     * layout captured at session start (see [KeyboardWindow.onVoiceInputFinished]).
+     */
+    internal fun onVoiceInputFinished() {
+        keyboardWindow.onVoiceInputFinished()
+    }
+
+    /**
      * Re-broadcast current IME state from fcitx cache.
      * Useful after InputView recreation (e.g. theme switch) to avoid waiting for next async IM event.
      */
