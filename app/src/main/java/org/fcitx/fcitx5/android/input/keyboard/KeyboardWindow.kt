@@ -96,13 +96,30 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private fun getOrCreateKeyboard(name: String): BaseKeyboard? {
         keyboards[name]?.let { return it }
         val keyboard = when (name) {
-            TextKeyboard.Name -> TextKeyboard(context, theme)
+            // Seed the instance with the current input method so its first layout pass already
+            // resolves the custom layout instead of building the default one twice.
+            TextKeyboard.Name -> TextKeyboard(context, theme, TextKeyboard.ime)
             NumberKeyboard.Name -> NumberKeyboard(context, theme)
             else -> return null
         }
         keyboards[name] = keyboard
         return keyboard
     }
+
+    /**
+     * Mirror the real keyboard's input method into [TextKeyboard.ime]. Each keyboard resolves
+     * its own layout from its instance state, so this companion field exists only for
+     * window-level state that must follow the real input method (keyboard height overrides,
+     * layer targets, the base entry of preview IMEs).
+     */
+    private fun syncCurrentInputMethod(ime: InputMethodEntry) {
+        TextKeyboard.ime = ime
+    }
+
+    /** Whether the text keyboard's own last layout pass resolved an aux bar config. */
+    private fun textKeyboardHasAuxBarConfig(): Boolean =
+        (keyboards[TextKeyboard.Name] as? TextKeyboard)?.resolvedAuxBarConfig != null
+
     private var currentKeyboardName = ""
     private var lastSymbolType: String by AppPrefs.getInstance().internal.lastSymbolLayout
     private var preeditEmpty = true
@@ -239,7 +256,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         // avoiding an initial default layout followed by an immediate custom-layout rebuild.
         val currentIme = fcitx.runImmediately { inputMethodEntryCached }
         inputLifecycleTracker.resetInputMethod(currentIme)
-        TextKeyboard.ime = currentIme
+        syncCurrentInputMethod(currentIme)
         keyboardView = context.frameLayout(R.id.keyboard_view)
         attachLayout(TextKeyboard.Name)
         preloadFontsForKeyboard()
@@ -261,6 +278,11 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     private fun attachLayout(target: String) {
         currentKeyboardName = target
+        // Publish the input method before creating/seeding the keyboard: getOrCreateKeyboard
+        // may construct a fresh TextKeyboard whose first layout pass must already see the
+        // freshest input method instead of a stale or absent companion mirror.
+        val attachIme = fcitx.runImmediately { inputMethodEntryCached }
+        syncCurrentInputMethod(attachIme)
         getOrCreateKeyboard(target)?.let {
             it.keyActionListener = keyActionListener
             it.popupActionListener = popupActionListener
@@ -274,7 +296,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             it.onAttach()
             it.onReturnDrawableUpdate(returnKeyDrawable.resourceId)
             it.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)
-            it.onInputMethodUpdate(fcitx.runImmediately { inputMethodEntryCached })
+            it.onInputMethodUpdate(attachIme)
             applyAuxActions(lastAuxActions)
             updateCompositionState()
         }
@@ -352,7 +374,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                 }
                 if (target == currentKeyboardName) {
                     if (target == TextKeyboard.Name) {
-                        currentKeyboard?.onInputMethodUpdate(fcitx.runImmediately { inputMethodEntryCached })
+                        val reaffirmedIme = fcitx.runImmediately { inputMethodEntryCached }
+                        syncCurrentInputMethod(reaffirmedIme)
+                        currentKeyboard?.onInputMethodUpdate(reaffirmedIme)
                         updateCompositionState()
                     }
                     applyAuxActions(lastAuxActions)
@@ -421,7 +445,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     private fun refreshNoConfigAuxBarFallback(previousHadAuxBarConfig: Boolean) {
         val currentHasAuxBarConfig = currentKeyboardName == TextKeyboard.Name &&
-            TextKeyboard.getAuxBarConfig() != null
+            textKeyboardHasAuxBarConfig()
         noConfigAuxBarFallbackActive = previousHadAuxBarConfig && !currentHasAuxBarConfig
     }
 
@@ -429,7 +453,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         if (oneShotLayerKey == null) return
         if (action is KeyAction.LayoutSwitchAction || action is KeyAction.LayerSwitchAction) return
         if (action is MacroAction && !action.hasExecutableStep()) return
-        val hadAuxBarConfig = TextKeyboard.getAuxBarConfig() != null
+        val hadAuxBarConfig = textKeyboardHasAuxBarConfig()
         oneShotLayerKey = null
         applyEffectiveTextLayer()
         refreshNoConfigAuxBarFallback(hadAuxBarConfig)
@@ -437,7 +461,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     private fun handleLayerSwitchAction(action: KeyAction.LayerSwitchAction) {
-        val hadAuxBarConfig = TextKeyboard.getAuxBarConfig() != null
+        val hadAuxBarConfig = textKeyboardHasAuxBarConfig()
         val heightBefore = TextKeyboard.currentLayoutHeightPercentOverride()
         if (action.mode == KeyAction.LayerSwitchMode.BACK) {
             latchedLayerKey = layerHistory.removeLastOrNull()
@@ -581,6 +605,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         }
         val heightBefore = TextKeyboard.currentLayoutHeightPercentOverride()
         clearAllLayerOverrides()
+        // Publish the new input method before resolving the height again: the comparison below
+        // relies on currentLayoutHeightPercentOverride() seeing the updated entry.
+        syncCurrentInputMethod(ime)
         currentKeyboard?.onInputMethodUpdate(ime)
         val heightAfter = TextKeyboard.currentLayoutHeightPercentOverride()
         // Avoid the IME-window height update path when the resolved keyboard height did not

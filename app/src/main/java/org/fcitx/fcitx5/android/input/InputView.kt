@@ -72,6 +72,7 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase.DisplayMetrics
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase.RealSize
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.picker.emojiPicker
 import org.fcitx.fcitx5.android.input.picker.emoticonPicker
@@ -3400,6 +3401,9 @@ class InputView(
         } else {
             // Fallback: directly update TextKeyboard if KeyboardWindow is not ready
             // This can happen during initial view setup
+            // These children are the real keyboards, so keep the companion mirror in sync too;
+            // window-level state (keyboard height overrides) resolves against it.
+            TextKeyboard.ime = ime
             val kv = keyboardView
             val viewGroup = kv as? ViewGroup
             val childCount = viewGroup?.childCount ?: 0
