@@ -82,7 +82,7 @@ class HorizontalCandidateComponent :
     private var lastRenderedActiveIndex = Int.MIN_VALUE
     private var pendingLegacyCandidateUpdate: Runnable? = null
 
-    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {
+    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
         // New input session should not inherit paged-candidate flow state from previous one.
         pagedCandidateFlowActive = false
         lastPagedEventUptimeMs = 0L

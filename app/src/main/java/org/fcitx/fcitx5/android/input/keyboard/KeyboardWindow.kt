@@ -117,8 +117,18 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private var lastRefreshedFontGeneration = -1L
     private var companionHeightPercentOverride: Int? = null
     private var companionHeightPxOverride: Int? = null
+    private val inputLifecycleTracker = KeyboardInputLifecycleTracker()
 
     internal val currentKeyboard: BaseKeyboard? get() = keyboards[currentKeyboardName]
+
+    /**
+     * Whether a numeric layout is on screen: either the built-in number keyboard, or the text
+     * keyboard rendering a numeric override (session or manual) resolved from the
+     * "numeric_layout_override" preference. Callers must have an attached layout, since an empty
+     * [currentKeyboardName] cannot tell the two apart.
+     */
+    private fun numericLayoutShowing(): Boolean =
+        currentKeyboardName == NumberKeyboard.Name || TextKeyboard.isNumericLayoutShowing()
 
     private fun clearCompanionKeyboardHeightOverride() {
         companionHeightPercentOverride = null
@@ -227,7 +237,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         val startedAt = SystemClock.elapsedRealtime()
         // Make the current IME available before TextKeyboard's constructor builds its layout,
         // avoiding an initial default layout followed by an immediate custom-layout rebuild.
-        TextKeyboard.ime = fcitx.runImmediately { inputMethodEntryCached }
+        val currentIme = fcitx.runImmediately { inputMethodEntryCached }
+        inputLifecycleTracker.resetInputMethod(currentIme)
+        TextKeyboard.ime = currentIme
         keyboardView = context.frameLayout(R.id.keyboard_view)
         attachLayout(TextKeyboard.Name)
         preloadFontsForKeyboard()
@@ -273,36 +285,41 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         remember: Boolean = true,
         inheritTextHeight: Boolean = true,
         notifyHeightChange: Boolean = true,
-        fromUserKey: Boolean = false
+        fromUserKey: Boolean = false,
+        restartKeepingLayout: Boolean = false
     ) {
         val requestedTarget = to.ifEmpty { lastSymbolType }
         var target = requestedTarget
-        // The built-in NumberKeyboard is short-circuited by the configured numeric layout
-        // no matter how it is reached: a numeric editor via onStartInput, a manual
-        // LayoutSwitchKey, the symbol picker numpad button, or a preset/macro key targeting
-        // the Number keyboard. In a numeric editor session the override is sticky; a manual
-        // switch from a text session is remembered so switching back to Text restores the
-        // normal text keyboard.
-        if (target == NumberKeyboard.Name) {
-            val override = TextKeyboard.resolveNumericLayoutKey()
-            if (override != null) {
-                target = TextKeyboard.Name
-                TextKeyboard.activateManualNumericLayout(override)
-            }
-        } else if (target == TextKeyboard.Name && fromUserKey) {
-            // An explicit user key targeting the text keyboard (e.g. an "ABC"-style
-            // LayoutSwitchKey) resets latched/one-shot layers so the normal text keyboard
-            // shows again even when a MacroKey layer switch is currently latched, and
-            // releases any numeric override for the rest of the session.
-            latchedLayerKey = null
-            oneShotLayerKey = null
-            layerHistory.clear()
-            noConfigAuxBarFallbackActive = false
-            applyEffectiveTextLayer()
-            if (TextKeyboard.isNumericLayoutActive()) {
-                TextKeyboard.dismissNumericLayoutOverride()
-            } else {
-                TextKeyboard.releaseManualNumericLayout()
+        // A restart re-affirming the layout the user is already looking at must not run either
+        // branch below: activateManualNumericLayout would newly latch a manual override the user
+        // never asked for, and the "ABC"-key path would release the one they did ask for.
+        if (!restartKeepingLayout) {
+            // The built-in NumberKeyboard is short-circuited by the configured numeric layout
+            // no matter how it is reached: a numeric editor via onStartInput, a manual
+            // LayoutSwitchKey, the symbol picker numpad button, or a preset/macro key targeting
+            // the Number keyboard. In a numeric editor session the override is sticky; a manual
+            // switch from a text session is remembered so switching back to Text restores the
+            // normal text keyboard.
+            if (target == NumberKeyboard.Name) {
+                val override = TextKeyboard.resolveNumericLayoutKey()
+                if (override != null && TextKeyboard.activateManualNumericLayout(override)) {
+                    target = TextKeyboard.Name
+                }
+            } else if (target == TextKeyboard.Name && fromUserKey) {
+                // An explicit user key targeting the text keyboard (e.g. an "ABC"-style
+                // LayoutSwitchKey) resets latched/one-shot layers so the normal text keyboard
+                // shows again even when a MacroKey layer switch is currently latched, and
+                // releases any numeric override for the rest of the session.
+                latchedLayerKey = null
+                oneShotLayerKey = null
+                layerHistory.clear()
+                noConfigAuxBarFallbackActive = false
+                applyEffectiveTextLayer()
+                if (TextKeyboard.isNumericLayoutActive()) {
+                    TextKeyboard.dismissNumericLayoutOverride()
+                } else {
+                    TextKeyboard.releaseManualNumericLayout()
+                }
             }
         }
         // Note: an internal Text -> Text switch (layer relayout, one-shot consumption,
@@ -311,12 +328,17 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         // clobber it back to the session fallback.
         ContextCompat.getMainExecutor(service).execute {
             if (target == TextKeyboard.Name || target == NumberKeyboard.Name) {
-                if (target == TextKeyboard.Name) {
-                    clearCompanionKeyboardHeightOverride()
-                } else if (inheritTextHeight) {
-                    prepareCompanionKeyboardHeightPercentOverride()
-                } else {
-                    clearCompanionKeyboardHeightOverride()
+                // A same-editor restart must not touch the companion height captured when the
+                // number pad was opened; re-capturing or clearing it would resize the visible
+                // keyboard on every committed character.
+                if (!restartKeepingLayout) {
+                    if (target == TextKeyboard.Name) {
+                        clearCompanionKeyboardHeightOverride()
+                    } else if (inheritTextHeight) {
+                        prepareCompanionKeyboardHeightPercentOverride()
+                    } else {
+                        clearCompanionKeyboardHeightOverride()
+                    }
                 }
                 if (target != TextKeyboard.Name) {
                     noConfigAuxBarFallbackActive = false
@@ -473,9 +495,10 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         consumeOneShotLayerIfNeeded(KeyAction.MacroConsumedAction)
     }
 
-    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags) {
-        // Clear latched/one-shot layer state and the BACK layer history; the forced layout
-        // slot is updated in one pass by TextKeyboard.setNumericLayoutKey below.
+    override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
+        // Clear latched/one-shot layer state and the BACK layer history. The forced layout slot
+        // is updated in one pass further down, by setNumericLayoutKey when EditorInfo is applied
+        // or by clearForcedLayoutKey when a hand-picked layout is kept across a restart.
         latchedLayerKey = null
         oneShotLayerKey = null
         layerHistory.clear()
@@ -487,22 +510,75 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         val inputClass = info.inputType and InputType.TYPE_MASK_CLASS
         val isNumericClass = inputClass == InputType.TYPE_CLASS_NUMBER ||
             inputClass == InputType.TYPE_CLASS_PHONE
-        // Numeric editors short-circuit the built-in number keyboard when the app
-        // preference "numeric_layout_override" names a resolvable custom layout. PIN-style
-        // numeric password fields are included; their candidate bar stays empty via the
-        // Password capability flag, mirroring text password fields.
-        val numericLayoutKey = if (isNumericClass) TextKeyboard.resolveNumericLayoutKey() else null
-        TextKeyboard.setNumericLayoutKey(numericLayoutKey)
-        val targetLayout = when {
-            numericLayoutKey != null -> TextKeyboard.Name
-            isNumericClass -> NumberKeyboard.Name
-            else -> TextKeyboard.Name
+        val inputClassChanged = inputLifecycleTracker.isInputClassChanged(inputClass)
+        inputLifecycleTracker.recordInputClass(inputClass)
+        // Some editors call restartInput after every committed character (Alipay's bank-card
+        // field) while keeping TYPE_CLASS_TEXT. Re-applying EditorInfo there would undo a
+        // hand-picked keyboard on every key press, so a selection that deviates from the
+        // input class is kept until the editor or its input class actually changes.
+        val keepLayoutRequested = currentKeyboardName.isNotEmpty() &&
+            shouldKeepCurrentLayoutOnStartInput(
+                restarting = restarting,
+                inputClassChanged = inputClassChanged,
+                numericLayoutShowing = numericLayoutShowing(),
+                numericLayoutExpected = isNumericClass
+            )
+        // A restart keeping the same editor may still arrive after the layout profile or the
+        // "numeric_layout_override" preference changed. Re-resolve the override before honouring
+        // the request: once it no longer resolves, EditorInfo must be re-applied so the editor
+        // falls back to the built-in number keyboard instead of a stale custom layout.
+        val overrideInvalidated = keepLayoutRequested && TextKeyboard.isNumericLayoutShowing() &&
+            TextKeyboard.revalidateNumericLayoutOverride()
+        val keepCurrentLayout = keepLayoutRequested && !overrideInvalidated
+        // Read before clearForcedLayoutKey below, which can change the resolved height.
+        val heightBefore =
+            if (keepCurrentLayout) TextKeyboard.currentLayoutHeightPercentOverride() else null
+        val targetLayout = if (keepCurrentLayout) {
+            // Only the temporary layer is dropped: clearForcedLayoutKey falls back to the
+            // remembered manual/session numeric layout, whereas setNumericLayoutKey below
+            // would wipe a manual custom number pad and re-arm a dismissed override.
+            TextKeyboard.clearForcedLayoutKey()
+            currentKeyboardName
+        } else {
+            // Numeric editors short-circuit the built-in number keyboard when the app
+            // preference "numeric_layout_override" names a resolvable custom layout. PIN-style
+            // numeric password fields are included; their candidate bar stays empty via the
+            // Password capability flag, mirroring text password fields.
+            val numericLayoutKey =
+                if (isNumericClass) TextKeyboard.resolveNumericLayoutKey() else null
+            TextKeyboard.setNumericLayoutKey(numericLayoutKey)
+            when {
+                numericLayoutKey != null -> TextKeyboard.Name
+                isNumericClass -> NumberKeyboard.Name
+                else -> TextKeyboard.Name
+            }
         }
-        switchLayout(targetLayout, remember = false, inheritTextHeight = false)
+        // Both paths converge on switchLayout so a same-layout restart still refreshes the
+        // aux bar. restartKeepingLayout tells it to leave the numeric override and the
+        // companion height alone; the normal path would clear the height and resize the
+        // visible keyboard on every committed character. The height-source notification is a
+        // window relayout, so on a keep-layout restart it only fires when the resolved height
+        // actually changed.
+        val notifyHeightChange = !keepCurrentLayout ||
+            heightBefore != TextKeyboard.currentLayoutHeightPercentOverride()
+        switchLayout(
+            targetLayout,
+            remember = false,
+            inheritTextHeight = false,
+            notifyHeightChange = notifyHeightChange,
+            restartKeepingLayout = keepCurrentLayout
+        )
         updateCompositionState()
     }
 
     override fun onImeUpdate(ime: InputMethodEntry) {
+        // Focus restarts deactivate/reactivate the same fcitx input method and can emit one
+        // or more duplicate IMChangeEvents. Only a real input-method/sub-mode change is an
+        // explicit user move away from a manually selected numeric layout. Releasing it for
+        // a duplicate event would undo the restart preservation above on every key press.
+        if (inputLifecycleTracker.onInputMethodUpdate(ime)) {
+            TextKeyboard.releaseManualNumericLayoutOnImeUpdate()
+        }
         val heightBefore = TextKeyboard.currentLayoutHeightPercentOverride()
         clearAllLayerOverrides()
         currentKeyboard?.onInputMethodUpdate(ime)
@@ -588,7 +664,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     // 1) the keyboard window was newly attached
     // 2) currently keyboard window is attached and switchLayout was used
     private fun notifyBarLayoutChanged() {
-        bar.onKeyboardLayoutSwitched(currentKeyboardName == NumberKeyboard.Name)
+        bar.onKeyboardLayoutSwitched(numericLayoutShowing())
     }
 
     fun updateBounds() {
