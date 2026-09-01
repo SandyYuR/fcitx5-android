@@ -136,6 +136,24 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private var companionHeightPxOverride: Int? = null
     private val inputLifecycleTracker = KeyboardInputLifecycleTracker()
 
+    /**
+     * Keyboard layout state captured when a voice input session starts, restored when it
+     * ends. Voice input commits text straight through the InputConnection, bypassing
+     * fcitx's preedit/candidate events, and some editors react to that commit by
+     * re-running an input restart that can leave the keyboard on a stale numeric
+     * layer/override. Restoring the pre-voice layout gives the same reset a chat-window
+     * switch would otherwise trigger.
+     */
+    private var voiceLayoutSnapshot: VoiceLayoutSnapshot? = null
+
+    private data class VoiceLayoutSnapshot(
+        val currentKeyboardName: String,
+        val latchedLayerKey: String?,
+        val oneShotLayerKey: String?,
+        val layerHistory: List<String>,
+        val numericOverride: NumericLayoutOverrideController.Snapshot
+    )
+
     internal val currentKeyboard: BaseKeyboard? get() = keyboards[currentKeyboardName]
 
     /**
@@ -519,6 +537,61 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         consumeOneShotLayerIfNeeded(KeyAction.MacroConsumedAction)
     }
 
+    /**
+     * Remember the keyboard layout the user is looking at when a voice session begins.
+     * No-op while a voice session is already active (e.g. provider auto-restart).
+     */
+    fun onVoiceInputStarted() {
+        if (voiceLayoutSnapshot != null) return
+        android.util.Log.i(
+            "FcitxVoiceKbd",
+            "voice started snapshot name=$currentKeyboardName latched=$latchedLayerKey " +
+                "oneShot=$oneShotLayerKey numeric=" + TextKeyboard.snapshotNumericLayoutOverride()
+        )
+        voiceLayoutSnapshot = VoiceLayoutSnapshot(
+            currentKeyboardName = currentKeyboardName,
+            latchedLayerKey = latchedLayerKey,
+            oneShotLayerKey = oneShotLayerKey,
+            layerHistory = layerHistory.toList(),
+            numericOverride = TextKeyboard.snapshotNumericLayoutOverride()
+        )
+    }
+
+    /**
+     * Restore the layout captured by [onVoiceInputStarted] once the voice session ends.
+     * Re-applies the same latched/one-shot layers and numeric override so the commit
+     * cannot leave a text editor stuck on a numeric layout.
+     */
+    fun onVoiceInputFinished() {
+        val snapshot = voiceLayoutSnapshot ?: return
+        voiceLayoutSnapshot = null
+        android.util.Log.i(
+            "FcitxVoiceKbd",
+            "voice finished restore name=${snapshot.currentKeyboardName} " +
+                "latched=${snapshot.latchedLayerKey} oneShot=${snapshot.oneShotLayerKey} " +
+                "numeric=${snapshot.numericOverride} currentName=$currentKeyboardName " +
+                "currentLatched=$latchedLayerKey currentOneShot=$oneShotLayerKey " +
+                "currentNumeric=" + TextKeyboard.snapshotNumericLayoutOverride()
+        )
+        latchedLayerKey = snapshot.latchedLayerKey
+        oneShotLayerKey = snapshot.oneShotLayerKey
+        layerHistory.clear()
+        layerHistory.addAll(snapshot.layerHistory)
+        TextKeyboard.restoreNumericLayoutOverride(snapshot.numericOverride)
+        applyEffectiveTextLayer()
+        if (currentKeyboardName != snapshot.currentKeyboardName) {
+            switchLayout(snapshot.currentKeyboardName, remember = false, restartKeepingLayout = true)
+        } else {
+            currentKeyboard?.refreshStyle()
+            notifyBarLayoutChanged()
+        }
+        android.util.Log.i(
+            "FcitxVoiceKbd",
+            "voice finished afterRestore name=$currentKeyboardName latched=$latchedLayerKey " +
+                "oneShot=$oneShotLayerKey numeric=" + TextKeyboard.snapshotNumericLayoutOverride()
+        )
+    }
+
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
         // Clear latched/one-shot layer state and the BACK layer history. The forced layout slot
         // is updated in one pass further down, by setNumericLayoutKey when EditorInfo is applied
@@ -536,6 +609,12 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             inputClass == InputType.TYPE_CLASS_PHONE
         val inputClassChanged = inputLifecycleTracker.isInputClassChanged(inputClass)
         inputLifecycleTracker.recordInputClass(inputClass)
+        // A genuinely different editor supersedes a pending voice layout restore; a same-editor
+        // restart does not, because the restart may have preserved a corrupted numeric layout
+        // that the voice-session end still needs to roll back.
+        if (voiceLayoutSnapshot != null && inputClassChanged) {
+            voiceLayoutSnapshot = null
+        }
         // Some editors call restartInput after every committed character (Alipay's bank-card
         // field) while keeping TYPE_CLASS_TEXT. Re-applying EditorInfo there would undo a
         // hand-picked keyboard on every key press, so a selection that deviates from the

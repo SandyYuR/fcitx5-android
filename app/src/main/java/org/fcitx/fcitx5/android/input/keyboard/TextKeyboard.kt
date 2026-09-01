@@ -319,6 +319,34 @@ class TextKeyboard private constructor(
             }
         }
 
+        /**
+         * Snapshot the current numeric override state (session/manual/forced slots).
+         * Voice input commits text directly through the InputConnection and bypasses
+         * fcitx's preedit pipeline, so [KeyboardWindow] snapshots this state before a
+         * voice session starts and restores it afterwards to keep the keyboard on the
+         * layout the user was looking at.
+         */
+        @Synchronized
+        internal fun snapshotNumericLayoutOverride(): NumericLayoutOverrideController.Snapshot =
+            numericOverride.snapshot()
+
+        /**
+         * Restore a numeric override state captured by [snapshotNumericLayoutOverride]
+         * and re-apply it to attached keyboards.
+         */
+        @Synchronized
+        internal fun restoreNumericLayoutOverride(snapshot: NumericLayoutOverrideController.Snapshot) {
+            numericOverride.restore(snapshot)
+            val normalized = numericOverride.forcedKey
+            if (forcedLayoutKey == normalized) return
+            forcedLayoutKey = normalized
+            forEachAttachedKeyboard { keyboard ->
+                keyboard.refreshStyle()
+                keyboard.markLayoutSignatureApplied()
+                keyboard.refreshSpaceLabelFromState()
+            }
+        }
+
         @Synchronized
         private fun forEachAttachedKeyboard(
             includePreview: Boolean = false,
