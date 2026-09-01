@@ -756,6 +756,9 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             idleUi.hideVoiceStatus()
             android.widget.Toast.makeText(service, msg, android.widget.Toast.LENGTH_SHORT).show()
         }
+        // Keep the keyboard on the layout the user was looking at across a voice session.
+        VoiceInputProviderManager.sessionStartedCallback = { service.inputView?.onVoiceInputStarted() }
+        VoiceInputProviderManager.sessionEndedCallback = { service.inputView?.onVoiceInputFinished() }
         IconThemeManager.addOnChangedListener(onIconThemeChangeListener)
     }
 

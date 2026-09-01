@@ -9,6 +9,24 @@ package org.fcitx.fcitx5.android.input.keyboard
  * The keyboard view remains responsible for applying state changes to attached views.
  */
 internal class NumericLayoutOverrideController {
+    internal data class Snapshot(
+        val sessionKey: String?,
+        val manualKey: String?,
+        val forcedKey: String?,
+        val manual: Boolean,
+        val dismissed: Boolean
+    )
+
+    fun snapshot(): Snapshot = Snapshot(sessionKey, manualKey, forcedKey, manual, dismissed)
+
+    fun restore(snapshot: Snapshot) {
+        sessionKey = snapshot.sessionKey
+        manualKey = snapshot.manualKey
+        forcedKey = snapshot.forcedKey
+        manual = snapshot.manual
+        dismissed = snapshot.dismissed
+    }
+
     var sessionKey: String? = null
         private set
     var manualKey: String? = null
