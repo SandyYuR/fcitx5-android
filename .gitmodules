@@ -14,15 +14,6 @@
 [submodule "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"]
 	path = lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons
 	url = https://github.com/fcitx/fcitx5-chinese-addons.git
-[submodule "plugin/anthy/src/main/cpp/anthy-cmake"]
-	path = plugin/anthy/src/main/cpp/anthy-cmake
-	url = https://github.com/fcitx5-android/anthy-cmake.git
-[submodule "plugin/anthy/src/main/cpp/fcitx5-anthy"]
-	path = plugin/anthy/src/main/cpp/fcitx5-anthy
-	url = https://github.com/fcitx/fcitx5-anthy.git
-[submodule "plugin/unikey/src/main/cpp/fcitx5-unikey"]
-	path = plugin/unikey/src/main/cpp/fcitx5-unikey
-	url = https://github.com/fcitx/fcitx5-unikey.git
 [submodule "plugin/rime/src/main/cpp/fcitx5-rime"]
 	path = plugin/rime/src/main/cpp/fcitx5-rime
 	url = https://github.com/fcitx/fcitx5-rime.git
@@ -38,21 +29,3 @@
 [submodule "plugin/rime/src/main/cpp/rime-stroke"]
 	path = plugin/rime/src/main/cpp/rime-stroke
 	url = https://github.com/rime/rime-stroke.git
-[submodule "plugin/hangul/src/main/cpp/fcitx5-hangul"]
-	path = plugin/hangul/src/main/cpp/fcitx5-hangul
-	url = https://github.com/fcitx/fcitx5-hangul.git
-[submodule "plugin/chewing/src/main/cpp/fcitx5-chewing"]
-	path = plugin/chewing/src/main/cpp/fcitx5-chewing
-	url = https://github.com/fcitx/fcitx5-chewing.git
-[submodule "plugin/sayura/src/main/cpp/fcitx5-sayura"]
-	path = plugin/sayura/src/main/cpp/fcitx5-sayura
-	url = https://github.com/fcitx/fcitx5-sayura.git
-[submodule "plugin/jyutping/src/main/cpp/libime-jyutping"]
-	path = plugin/jyutping/src/main/cpp/libime-jyutping
-	url = https://github.com/fcitx/libime-jyutping.git
-[submodule "plugin/clipboard-filter/ClearURLsRules"]
-	path = plugin/clipboard-filter/ClearURLsRules
-	url = https://github.com/ClearURLs/Rules.git
-[submodule "plugin/thai/src/main/cpp/fcitx5-libthai"]
-	path = plugin/thai/src/main/cpp/fcitx5-libthai
-	url = https://github.com/fcitx/fcitx5-libthai
