@@ -28,8 +28,6 @@ interface IFcitxRemoteService {
     );
 
 
-   /** Reload fcitx pinyin dictionary */
-   void reloadPinyinDict();
    /** Reload fcitx quick phrase */
    void reloadQuickPhrase();
 }

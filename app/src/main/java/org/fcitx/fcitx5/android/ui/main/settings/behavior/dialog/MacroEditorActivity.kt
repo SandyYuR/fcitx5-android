@@ -1568,7 +1568,6 @@ class MacroEditorActivity : AppCompatActivity() {
                 "settings_candidates_window",
                 "settings_clipboard",
                 "settings_symbol",
-                "settings_plugin",
                 "settings_advanced",
                 "settings_developer",
                 "settings_about",
@@ -1577,51 +1576,12 @@ class MacroEditorActivity : AppCompatActivity() {
                 "text_keyboard_layout_file_select",
                 "edit_fontset",
                 "addon_list",
-                "table_input_methods",
                 "quick_phrase_list",
-                "pinyin_custom_phrase",
-                "pinyin_dict",
                 "edit_buttons",
                 "split_keyboard_calibration",
                 "web_editor_bridge"
             )
-            val actionLabels = arrayOf(
-                getString(R.string.theme),
-                getString(R.string.icon_theme),
-                getString(R.string.virtual_keyboard),
-                getString(R.string.macro_editor_app_action_more),
-                getString(R.string.browse_user_data_dir),
-                getString(R.string.clipboard),
-                getString(R.string.text_editing),
-                getString(R.string.floating_keyboard),
-                getString(R.string.language_switch),
-                getString(R.string.reload_config),
-                getString(R.string.one_handed_keyboard),
-                getString(R.string.input_method_options),
-                getString(R.string.undo),
-                getString(R.string.redo),
-                getString(R.string.global_options),
-                getString(R.string.input_methods),
-                getString(R.string.candidates_window),
-                getString(R.string.clipboard),
-                getString(R.string.emoji_and_symbols),
-                getString(R.string.plugins),
-                getString(R.string.advanced),
-                getString(R.string.developer),
-                getString(R.string.about),
-                getString(R.string.license),
-                getString(R.string.edit_text_keyboard_layout),
-                getString(R.string.text_keyboard_layout_file_select_title),
-                getString(R.string.edit_fontset),
-                getString(R.string.addons),
-                getString(R.string.macro_editor_table_input_methods),
-                getString(R.string.quickphrase_editor),
-                getString(R.string.macro_editor_pinyin_custom_phrase),
-                getString(R.string.macro_editor_pinyin_dict),
-                getString(R.string.edit_buttons),
-                getString(R.string.split_keyboard_calibration_title),
-                getString(R.string.web_editor_bridge_title)
-            )
+            val actionLabels = actionIds.map { getAppActionLabel(it) }.toTypedArray()
             AlertDialog.Builder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_app_picker_title)
                 .setItems(actionLabels) { _, which ->
@@ -1652,7 +1612,6 @@ class MacroEditorActivity : AppCompatActivity() {
                 "settings_candidates_window" -> getString(R.string.candidates_window)
                 "settings_clipboard" -> getString(R.string.clipboard)
                 "settings_symbol" -> getString(R.string.emoji_and_symbols)
-                "settings_plugin" -> getString(R.string.plugins)
                 "settings_advanced" -> getString(R.string.advanced)
                 "settings_developer" -> getString(R.string.developer)
                 "settings_about" -> getString(R.string.about)

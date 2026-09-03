@@ -26,9 +26,6 @@ jobs:
           - ubuntu-22.04
         abi:
           - arm64-v8a
-        build_type:
-          - standard
-          - plugins
     env:
       BUILD_ABI: ${{ matrix.abi }}
       SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
@@ -83,38 +80,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Build Standard APK
-        if: matrix.build_type == 'standard'
+      - name: Build APK
         run: |
           ./gradlew :app:assembleFxRelease
 
-      - name: Build Plugins APK
-        if: matrix.build_type == 'plugins'
-        run: |
-          ./gradlew :assembleReleasePlugins
-
-      - name: Collect plugin APKs
-        if: matrix.build_type == 'plugins'
-        run: |
-          mkdir -p plugin-apks
-          for dir in plugin/*/; do
-            if [ -d "$dir" ]; then
-              if ls "$dir"build/outputs/apk/release/*.apk 1> /dev/null 2>&1; then
-                cp "$dir"build/outputs/apk/release/*.apk plugin-apks/
-              fi
-            fi
-          done
-
-      - name: Upload standard APK
-        if: matrix.build_type == 'standard'
+      - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
-          name: app-standard-${{ matrix.os }}-${{ matrix.abi }}
+          name: app-${{ matrix.os }}-${{ matrix.abi }}
           path: app/build/outputs/apk/fx/release/*.apk
 
-      - name: Upload plugin APKs
-        if: matrix.build_type == 'plugins'
-        uses: actions/upload-artifact@v7
-        with:
-          name: plugins-${{ matrix.os }}-${{ matrix.abi }}
-          path: plugin-apks/*.apk

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name_debug">小企鵝表碼詞典外掛（除錯）</string>
-    <string name="app_name_release">小企鵝表碼詞典外掛</string>
-    <string name="description">小企鵝（Fcitx5）表碼輸入法詞典資料（五筆、鄭碼等）</string>
-</resources>
