@@ -5,8 +5,12 @@
 
 package org.fcitx.fcitx5.android.input.candidates.horizontal
 
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.os.Looper
 import android.os.SystemClock
+import android.text.TextPaint
+import android.util.TypedValue
 import android.view.inputmethod.EditorInfo
 import android.content.res.Configuration
 import android.graphics.drawable.ShapeDrawable
@@ -38,8 +42,10 @@ import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputView
 import org.fcitx.fcitx5.android.input.dependency.theme
+import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.mechdancer.dependency.manager.must
 import splitties.dimensions.dp
+import kotlin.math.ceil
 import kotlin.math.max
 
 class HorizontalCandidateComponent :
@@ -262,6 +268,78 @@ class HorizontalCandidateComponent :
         }
     }
 
+    // Mirrors AutoScaleTextView#measureTextBounds(): the item TextView measures the
+    // flattened string with its base paint (spans only affect drawing), using ink
+    // bounds for a single code point and ceil(advance) otherwise.
+    private val candidateTextPaint = TextPaint()
+    private var candidateTextEpoch: Pair<Typeface?, Int>? = null
+    private val candidateTextWidthCache = HashMap<String, Int>()
+
+    private fun candidatePlainTextWidth(plainText: String): Int {
+        val font = FontProviders.resolveTypeface("cand_font", null)
+        val sizePx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP,
+            FontProviders.getFontSize("cand_font", 20f),
+            context.resources.displayMetrics
+        )
+        val epoch = font to sizePx.toRawBits()
+        if (epoch != candidateTextEpoch) {
+            candidateTextEpoch = epoch
+            candidateTextWidthCache.clear()
+            candidateTextPaint.typeface = font
+            candidateTextPaint.textSize = sizePx
+        }
+        if (candidateTextWidthCache.size > 512) {
+            candidateTextWidthCache.clear()
+        }
+        return candidateTextWidthCache.getOrPut(plainText) {
+            if (Character.codePointCount(plainText, 0, plainText.length) == 1) {
+                val bounds = Rect()
+                candidateTextPaint.getTextBounds(plainText, 0, plainText.length, bounds)
+                bounds.width()
+            } else {
+                ceil(candidateTextPaint.measureText(plainText)).toInt()
+            }
+        }
+    }
+
+    /**
+     * Predict whether [candidates] cannot all be displayed in one row — exactly the
+     * condition (childCount < candidates.size) that the second layout pass in
+     * [layoutManager]'s onLayoutCompleted discovers. Width math mirrors
+     * [HorizontalCandidateViewAdapter.onCreateViewHolder] + [CandidateItemUi]:
+     * item = max(textWidth, 40dp) + 20dp padding, coerced to layoutMinWidth,
+     * plus one divider inset per item.
+     */
+    private fun predictRowOverflow(candidates: Array<CandidateWord>): Boolean {
+        val available = view.width - view.paddingLeft - view.paddingRight
+        if (available <= 0 || candidates.isEmpty()) {
+            // Not laid out yet or nothing to display; fall back to discovery.
+            return false
+        }
+        val rootMinWidth = context.dp(40)
+        val rootPadding = context.dp(10) * 2
+        val divider = dividerDrawable.intrinsicWidth
+        var total = 0
+        for (candidate in candidates) {
+            val comment = candidate.comment
+            val plain = buildString {
+                append(candidate.text)
+                if (comment.isNotBlank()) {
+                    if (candidate.spaceBetweenComment) append(' ')
+                    append(comment)
+                }
+            }
+            val textWidth = candidatePlainTextWidth(plain)
+            val itemWidth = max(max(textWidth, rootMinWidth) + rootPadding, layoutMinWidth)
+            total += itemWidth + divider
+            if (total > available) {
+                return true
+            }
+        }
+        return false
+    }
+
     private var pendingEnsureVisible: Triple<Array<CandidateWord>, Int, Int>? = null
 
     private val ensureVisibleAfterLayout = object : RecyclerView.OnLayoutCompletedListener {
@@ -406,9 +484,14 @@ class HorizontalCandidateComponent :
             }
             AutoFillWidth -> {
                 layoutMinWidth = view.width / maxSpanCount - dividerDrawable.intrinsicWidth
-                layoutFlexGrow = if (candidates.size < maxSpanCount) 0f else 1f
+                val fewCandidates = candidates.size < maxSpanCount
+                // P1a: predict the overflow ([^2]) that the second layout pass would
+                // discover; when predicted, apply its outcome (stretch evenly via
+                // flexGrow=1) up front so the extra measure/layout pass is skipped.
+                val predictedOverflow = fewCandidates && predictRowOverflow(candidates)
+                layoutFlexGrow = if (!fewCandidates || predictedOverflow) 1f else 0f
                 // [^1] total candidates count < maxSpanCount
-                secondLayoutPassNeeded = candidates.size < maxSpanCount
+                secondLayoutPassNeeded = fewCandidates && !predictedOverflow
                 secondLayoutPassDone = false
             }
             AlwaysFillWidth -> {
