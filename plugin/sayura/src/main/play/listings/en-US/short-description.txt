@@ -1,1 +1,0 @@
-Sayura (Sinhala input method) engine support for Fcitx5
