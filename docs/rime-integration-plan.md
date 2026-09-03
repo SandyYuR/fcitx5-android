@@ -74,6 +74,7 @@
 - `git submodule update --init`（prebuilt 仓库大，约数 GB；Windows 建议 WSL/nix 路径，仓库自带 flake.nix/shell.nix）
 - 本地跑通 `:app:assembleFxDebug` 与 `:plugin:rime:assembleFxDebug`，真机安装冒烟，记录现状（截图存档）
 - 验证标准：基线 APK 功能与线上版本一致
+- **性能基线**（同机、万象同配置）：冷启动→首键可用耗时、首键延迟、连续输入 P95/P99、稳态内存、deploy 耗时；logcat 时间戳 + Perfetto 采集，Phase 2 完成后复测对比（§7）
 
 ### Phase 1 = 方案 A（纯减法，约 0.5 天）
 
@@ -125,13 +126,35 @@ Commit 3：CI 精简（删 fdroid.yml/pull_request.yml、mainline job）
 | 上游同步成本 | 中 | 删除动作拆小 commit；或定位为长期独立分支 |
 | 体积/行为回归 | 低 | Phase 2 出包后对比 APK 大小并跑验收清单 |
 
-## 7. 工作量与收益小结
+## 7. 性能视角：精简解决「轻」，不直接解决「快」
+
+> 动机校准：若主要痛点是「打字不够流畅」，需要明确本次精简在性能上的作用边界，避免产生错误预期。
+
+**能改善（启动 / 内存 / 体积）**
+
+- 启动即载的 addon 集变小：`androidkeyboard` 无 OnDemand 标记（`androidkeyboard.conf.in.in`，启动即载）；quickphrase / unicode / clipboard 被 `native-lib.cpp:92-94` 启动时显式拉起；chinese-addons / libime 删除后少 dlopen 若干 .so
+- 内存峰值与 APK 体积下降：不再携带拼音词典 / 模型与转换工具链
+
+**不改变（逐键流畅度）**
+
+- rime 激活时，拼音 / 码表引擎不在击键路径上，删除它们对逐键延迟收益 ≈ 0
+- UI / JNI 管线不变：按键仍是 KeyEvent → JNI → fcitx5 core → rime → 候选跨 JNI → Kotlin 刷新候选栏
+- 万象自身的逐键成本与本仓库无关：万象官方性能报告实测 ProcessKey P50=0.48ms、P95=14.3ms、P99=36.4ms、max≈68ms；TransSeg（翻译+过滤）占作文耗时 98%，是万象侧唯一值得优化的环节（`rime-wanxiang/docs/doc/profile-analysis.md`）
+
+**结论与动作**
+
+- 精简的价值在「轻」（体积 / 启动 / 内存 / 维护面）；「快」需要测量后另立专项
+- Phase 0 增加性能基线（见 §4 Phase 0）；同机、同万象配置与 Trime（同文）对照跑同一组指标，定位差距在 shell（UI / 分发层）还是 schema（lua / grammar）
+- 若差距在 schema：优化方向是万象的 rime 配置（lua 插件开关、grammar 权衡），与本仓库代码无关
+- 若差距在 UI 层：候选栏增量刷新、JNI 批量传递等 app 改造属于新专项，工作量另估，不并入本方案
+
+## 8. 工作量与收益小结
 
 - Phase 0：半天（含大仓库子模块下载）
 - Phase 1：0.5 天 · Phase 2：1–2 天（含真机回归）· Phase 3：+1 天（可选）
 - 收益：单 APK、体积净减（chinese-addons/libime/lua 出、librime 入）、启动少加载 8+ addon、设置页只剩 rime 相关、免装第二个 APK、CI 三合一、仓库少 11 个插件模块与 15+ 子模块。
 
-## 8. 待你确认（开工前置）
+## 9. 待你确认（开工前置）
 
 1. 方案档位（默认推荐 B，做完可评估是否继续 C）；
 2. 语音输入 / 剪贴板同步 / 检查更新：留 or 删（默认全留）；
@@ -146,6 +169,7 @@ Commit 3：CI 精简（删 fdroid.yml/pull_request.yml、mainline job）
 - 子代理 A（插件机制）：`DataManager.kt` 全链路、`FcitxPluginServices.kt`、plugin-base manifest 合并、无插件 fallback（TextKeyboard default 布局 / Not Available 占位）、内置 addon 清单
 - 子代理 B（rime 模块）：librime.a prebuilt（Rime 1.12.0 + lua/octagram/predict 内置）、rime-addon.conf 依赖声明、用户数据目录 `<extFiles>/data/rime`、翻译域注册、5 个耦合点、profile-manager 出自 fxliang fork 的判断
 - 子代理 C（构建系统）：mainline flavor 可删、jyutping 依赖、CI 目录遍历免改、keyboard-us 独立、opencc 陷阱、native-lib JNI/环境变量清单、fork 功能四层分类
+- 本轮补充：万象官方性能报告（`rime-wanxiang/docs/doc/profile-analysis.md`）、`androidkeyboard.conf.in.in` 无 OnDemand（启动即载）、`notifications.conf.in.in` OnDemand=True、`native-lib.cpp:92-94` 启动显式拉起 quickphrase/unicode/clipboard
 
 ## 附录 B：与可行性报告的差异（本方案 refinements）
 
