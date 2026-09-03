@@ -181,7 +181,9 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         withFcitxContext { activateUserInterfaceAction(id) }
 
     override suspend fun getCandidates(offset: Int, limit: Int): Array<CandidateWord> =
-        withFcitxContext { getFcitxCandidates(offset, limit) ?: emptyArray() }
+        withFcitxContext {
+            FcitxEvent.internCandidates(getFcitxCandidates(offset, limit) ?: emptyArray())
+        }
 
     override suspend fun getCandidateActions(idx: Int): Array<CandidateAction> =
         withFcitxContext { getFcitxCandidateActions(idx) ?: emptyArray() }
