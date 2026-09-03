@@ -196,7 +196,7 @@ class HorizontalCandidateComponent :
         val windowedCandidates = originalCandidates.copyOfRange(newOffset, originalCandidates.size)
         val windowedActiveIndex = activeIndex - newOffset
         adapter.updateCandidates(windowedCandidates, total, windowedActiveIndex, newOffset)
-        // Re-check visibility after the next layout pass via `ensureVisibleAfterLayout`
+        // Re-check visibility after the next layout pass (consumed in onLayoutCompleted)
         pendingEnsureVisible = Triple(originalCandidates, total, activeIndex)
     }
 
@@ -254,6 +254,10 @@ class HorizontalCandidateComponent :
                     }
                 }
                 refreshExpanded(cnt)
+                pendingEnsureVisible?.let {
+                    pendingEnsureVisible = null
+                    ensureActiveCandidateVisible(it.first, it.second, it.third)
+                }
             }
             // no need to override `generate{,Default}LayoutParams`, because HorizontalCandidateViewAdapter
             // guarantees ViewHolder's layoutParams to be `FlexboxLayoutManager.LayoutParams`
@@ -343,14 +347,6 @@ class HorizontalCandidateComponent :
 
     private var pendingEnsureVisible: Triple<Array<CandidateWord>, Int, Int>? = null
 
-    private val ensureVisibleAfterLayout = object : RecyclerView.OnLayoutCompletedListener {
-        override fun onLayoutCompleted(state: RecyclerView.State) {
-            val pending = pendingEnsureVisible ?: return
-            pendingEnsureVisible = null
-            ensureActiveCandidateVisible(pending.first, pending.second, pending.third)
-        }
-    }
-
     override val view by lazy {
         object : RecyclerView(context) {
             override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -368,7 +364,6 @@ class HorizontalCandidateComponent :
             adapter = this@HorizontalCandidateComponent.adapter
             layoutManager = this@HorizontalCandidateComponent.layoutManager
             addItemDecoration(FlexboxVerticalDecoration(dividerDrawable))
-            addOnLayoutCompletedListener(ensureVisibleAfterLayout)
         }
     }
 
