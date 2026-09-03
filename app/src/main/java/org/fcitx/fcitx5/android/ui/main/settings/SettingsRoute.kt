@@ -147,11 +147,6 @@ sealed class SettingsRoute : Parcelable {
     }
 
     @Serializable
-    data class PinyinDict(val uri: String? = null) : SettingsRoute() {
-        constructor(uri: Uri) : this(uri.toString())
-    }
-
-    @Serializable
     data class Punctuation(val title: String, val lang: String? = null) : SettingsRoute()
 
     @Serializable
@@ -188,12 +183,6 @@ sealed class SettingsRoute : Parcelable {
             }
         }
     }
-
-    @Serializable
-    data object TableInputMethods : SettingsRoute()
-
-    @Serializable
-    data object PinyinCustomPhrase : SettingsRoute()
 
     @Serializable
     data class MultiSelect(
@@ -273,9 +262,6 @@ sealed class SettingsRoute : Parcelable {
             fragment<ListFragment, ListConfig>(
                 typeMap = ListConfig.Params.TypeMap
             )
-            fragment<PinyinDictionaryFragment, PinyinDict> {
-                label = ctx.getString(R.string.pinyin_dict)
-            }
             fragment<PunctuationEditorFragment, Punctuation>()
             fragment<QuickPhraseListFragment, QuickPhraseList> {
                 label = ctx.getString(R.string.quickphrase_editor)
@@ -283,10 +269,6 @@ sealed class SettingsRoute : Parcelable {
             fragment<QuickPhraseEditFragment, QuickPhraseEdit>(
                 typeMap = QuickPhraseEdit.Param.TypeMap
             )
-            fragment<TableInputMethodFragment, TableInputMethods> {
-                label = ctx.getString(R.string.table_im)
-            }
-            fragment<PinyinCustomPhraseFragment, PinyinCustomPhrase>()
             fragment<GenericMultiSelectFragment, MultiSelect>()
             fragment<AddonDirProfileManagerFragment, AddonDirProfileManager>()
         }

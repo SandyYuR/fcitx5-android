@@ -226,37 +226,6 @@
                 <data android:mimeType="application/zip" />
                 <data android:mimeType="image/*" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="file" />
-                <data android:scheme="content" />
-                <data android:mimeType="*/*" />
-                <data android:host="*" />
-                <!--
-                  there has to be so many segments:
-                  https://stackoverflow.com/questions/3400072/pathpattern-to-match-file-extension/8599921#8599921
-                -->
-                <data android:pathPattern=".*\\.dict" />
-                <data android:pathPattern=".*\\..*\\.dict" />
-                <data android:pathPattern=".*\\..*\\..*\\.dict" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.dict" />
-                <data android:pathPattern=".*\\.scel" />
-                <data android:pathPattern=".*\\..*\\.scel" />
-                <data android:pathPattern=".*\\..*\\..*\\.scel" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.scel" />
-                <data android:pathPattern=".*\\.txt" />
-                <data android:pathPattern=".*\\..*\\.txt" />
-                <data android:pathPattern=".*\\..*\\..*\\.txt" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.txt" />
-                <!-- pathSuffix works on API 31+ -->
-                <data android:pathSuffix=".dict" />
-                <data android:pathSuffix=".scel" />
-                <data android:pathSuffix=".txt" />
-            </intent-filter>
         </activity>
 
         <activity

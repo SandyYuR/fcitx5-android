@@ -20,7 +20,6 @@ import kotlinx.coroutines.sync.withLock
 import org.fcitx.fcitx5.android.common.ipc.IClipboardEntryTransformer
 import org.fcitx.fcitx5.android.common.ipc.IFcitxRemoteService
 import org.fcitx.fcitx5.android.core.data.DataManager
-import org.fcitx.fcitx5.android.core.reloadPinyinDict
 import org.fcitx.fcitx5.android.core.reloadQuickPhrase
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
@@ -184,10 +183,6 @@ class FcitxRemoteService : Service() {
                     notifyListeners = false
                 )
             }
-        }
-
-        override fun reloadPinyinDict() {
-            FcitxDaemon.getFirstConnectionOrNull()?.runIfReady { reloadPinyinDict() }
         }
 
         override fun reloadQuickPhrase() {

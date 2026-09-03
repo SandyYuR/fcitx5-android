@@ -1568,7 +1568,6 @@ class MacroEditorActivity : AppCompatActivity() {
                 "settings_candidates_window",
                 "settings_clipboard",
                 "settings_symbol",
-                "settings_plugin",
                 "settings_advanced",
                 "settings_developer",
                 "settings_about",
@@ -1577,10 +1576,7 @@ class MacroEditorActivity : AppCompatActivity() {
                 "text_keyboard_layout_file_select",
                 "edit_fontset",
                 "addon_list",
-                "table_input_methods",
                 "quick_phrase_list",
-                "pinyin_custom_phrase",
-                "pinyin_dict",
                 "edit_buttons",
                 "split_keyboard_calibration",
                 "web_editor_bridge"
@@ -1652,7 +1648,6 @@ class MacroEditorActivity : AppCompatActivity() {
                 "settings_candidates_window" -> getString(R.string.candidates_window)
                 "settings_clipboard" -> getString(R.string.clipboard)
                 "settings_symbol" -> getString(R.string.emoji_and_symbols)
-                "settings_plugin" -> getString(R.string.plugins)
                 "settings_advanced" -> getString(R.string.advanced)
                 "settings_developer" -> getString(R.string.developer)
                 "settings_about" -> getString(R.string.about)
