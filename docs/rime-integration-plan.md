@@ -201,4 +201,35 @@ Commit 3：CI 精简（删 fdroid.yml/pull_request.yml、mainline job）
 - 两家**相同**：线程模型（同源的单原生线程执行器）、候选栏渲染技术（同为 RecyclerView）、librime 及 lua/octagram 插件捆绑
 - 两家**不同**：①fcitx5-android 每键多穿过一整层 fcitx5 core 分发；②每键事件推送为多条独立 JNI 消息，Trime 为单次打包响应（Trime 在 `rime_jni.cc:438-444` 明确做过此优化）③librime 版本与编译方式（prebuilt 1.12.0 vs 源码构建）
 - 因此「同文更流畅」的候选解释排序：①每键 marshalling/事件次数差异（多事件 vs 单包）②fcitx5 分发链长度 ③librime 版本差异。均为 µs–ms 级，需 §7 的 Perfetto 基线实测确认
-- **可借鉴的具体优化**：在 native 侧把每次按键产生的多条 fcitx 事件合并为一次批量 JNI 投递（模仿 Trime 的 RimeResponse 打包），列为性能专项候选——这是架构内可实现的，不需要抛弃 fcitx5 core
+- **可借鉴的具体优化**：在 native 侧把每次按键产生的多条 fcitx 事件合并为一次批量 JNI 投递（模仿 Trime 的 RimeResponse 打包），列为性能专项候选——这是架构内可实现的，不需要抛弃 fcitx5 core（详见附录 D 的完整优化清单）
+
+## 附录 D：打字跟手性（快速连击流畅度）优化研究
+
+逐键延迟链路（全部为本仓库实测代码锚点）：
+
+1. **DOWN 即时反馈（无短板）**：`CustomGestureView.kt:168-175` 同步执行高亮、hotspot、触觉、音效
+2. **UP 触发**：`CustomGestureView.kt:204-227` ACTION_UP → performClick（保证滑动/长按语义，不可提前）→ `TextKeyboard.kt:1285 onAction` → `CommonKeyActionListener.kt:134 postFcitxJob{ sendKey }`
+3. **引擎段**：postFcitxJob 顺序队列（`FcitxInputMethodService.kt:422-428`）→ FcitxDispatcher 单线程 → JNI → fcitx5 core → rime（万象实测 P50 0.48ms / 触发作文均值 3.9ms）
+4. **事件回流**：native 每事件独立 JNI 推送（`native-lib.cpp:622-727`，commit/preedit/候选/状态）→ `Fcitx.kt:402-406` tryEmit（eventFlow buffer 15 DROP_OLDEST）
+5. **主线程 UI 段（短板集中区）**：候选更新 → 快照比对（`HorizontalCandidateComponent.kt:328-334`，每键两次 asList 分配）→ `HorizontalCandidateViewAdapter.kt:79 notifyDataSetChanged()` **全量重绑** → FlexboxLayoutManager **双布局**（默认 AutoFillWidth 且候选数 < maxSpanCount 时 `secondLayoutPassNeeded=true`，`HorizontalCandidateComponent.kt:357-362`；AppPrefs.kt:348-352 默认值即 AutoFillWidth）→ `view.post{ ensureActiveCandidateVisible }`（:371-373）**再推迟一帧**；legacy CandidateListEvent 路径还额外 post 一层（:273-278）
+
+**已确认瓶颈（按影响排序）**：
+
+| # | 瓶颈 | 证据 | 影响 |
+|---|---|---|---|
+| 1 | 候选栏每键 notifyDataSetChanged 全量重绑 | HorizontalCandidateViewAdapter.kt:59-80 | 每键重绑全部可见 ViewHolder；连击时主线程负载线性叠加 |
+| 2 | Flexbox 双布局 | HorizontalCandidateComponent.kt:357-362 | 默认配置下常见场景每键两次 measure/layout |
+| 3 | 叠加的 view.post 帧延迟 | :273-278（legacy post）+ :371-373（ensureVisible post） | 候选显示最坏晚 1-2 帧（16-33ms），直接伤害跟手感 |
+| 4 | 每键多条事件各自唤醒主线程 | native-lib.cpp:622-727 | 线程切换与分配放大（附录 C 的 native 打包方案） |
+
+**优化项清单**：
+
+- **P0 候选栏细粒度刷新**：HorizontalCandidateViewAdapter 改前后缀 diff（notifyItemRangeInserted/Removed/Changed），复用已有 stableIds 与 contentEquals 守卫；改动局限于一个 adapter 类
+- **P1 消除双布局**：AutoFillWidth 下预计算并缓存候选宽度（text+font 为 key），省掉第二次 measure/layout
+- **P1 压缩帧延迟**：ensureActiveCandidateVisible 合并进同一次布局 pass（RecyclerView.OnLayoutCompletedListener）；legacy 路径在主线程时同步执行
+- **P2 native 事件合并**：每键的 commit/preedit/候选/状态在 native 侧打包为一次 JNI 投递（模仿 Trime `getRimeResponse` 的单包响应，见附录 C）
+- **P2 分配削减**：asList() 快照比对改数组 contentEquals；CandidateWord 缓存复用
+
+**测量方案（并入 Phase 0 基线）**：androidx.tracing 埋点点位——`KeyView ACTION_UP`、`sendKey 进入 JNI`、`fcitx 事件到达 HandleFcitxEvent`、`主线程收集开始/结束`、`notifyDataSetChanged`；Perfetto 中量化「UP→候选可见」的帧延迟分布（P50/P95）。
+
+**明确不做**：字母键 fire-on-DOWN（破坏滑动/长按语义）；关闭 UP 触觉反馈（行为偏好）；重写 Compose/View 层（收益不成比例）。
