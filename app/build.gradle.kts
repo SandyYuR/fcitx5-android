@@ -13,17 +13,12 @@ val packageBase = "org.fcitx.fcitx5.android"
 val appIdBase = packageBase
 val appIdFxSuffix = ".fx"
 val flavorFx = "fx"
-val flavorMainline = "mainline"
 val appLabelDefault = "@string/app_name"
-val appLabelMainlineRelease = "@string/app_name_mainline_release"
-val appLabelMainlineDebug = "@string/app_name_mainline_debug"
 val originalPluginManifestAction = "$packageBase.plugin.MANIFEST"
 val originalDebugPluginManifestAction = "$packageBase.debug.plugin.MANIFEST"
 val originalIpcAction = "$packageBase.IPC"
 val originalDebugIpcAction = "$packageBase.debug.IPC"
 val imeSettingsActivity = "$packageBase.ui.main.MainActivity"
-val includeMainlineFlavor =
-    providers.gradleProperty("includeMainlineFlavor").map(String::toBoolean).orElse(false)
 
 android {
     namespace = packageBase
@@ -64,10 +59,6 @@ android {
             applicationIdSuffix = appIdFxSuffix
             buildConfigField("boolean", "IS_FX_BUILD", "true")
         }
-        create(flavorMainline) {
-            dimension = "brand"
-            buildConfigField("boolean", "IS_FX_BUILD", "false")
-        }
     }
 
     buildFeatures {
@@ -104,99 +95,16 @@ android {
     }
 }
 
-    fun fallbackAliasFromFxTask(taskName: String): String? = when {
-        "FxDebug" in taskName -> taskName.replace("FxDebug", "Debug")
-        "FxRelease" in taskName -> taskName.replace("FxRelease", "Release")
-        else -> null
-}
-
-afterEvaluate {
-    val fxTasks = tasks.names
-        .filter { it.contains("FxDebug") || it.contains("FxRelease") }
-        .toList()
-    fxTasks.forEach { fxTaskName ->
-        val alias = fallbackAliasFromFxTask(fxTaskName) ?: return@forEach
-        if (tasks.findByName(alias) != null) return@forEach
-        val fxTask = tasks.findByName(fxTaskName) ?: return@forEach
-        tasks.register(alias) {
-            group = fxTask.group
-            description = "Alias of $fxTaskName"
-            dependsOn(fxTaskName)
-        }
-    }
-}
-
-fun String.capitalized(): String = replaceFirstChar { c ->
-    if (c.isLowerCase()) c.titlecase() else c.toString()
-}
-
-fun registerFxApkCompatCopy(buildType: String) {
-    val buildTypeCap = buildType.capitalized()
-    val assembleTask = "assembleFx$buildTypeCap"
-    val compatTask = "syncFx${buildTypeCap}ApkToLegacyDir"
-    tasks.register(compatTask) {
-        dependsOn(assembleTask)
-        doLast {
-            // clear old APKs in target folder to avoid confusion (delete only .apk files)
-            val destDir = layout.buildDirectory.dir("outputs/apk/$buildType").get().asFile
-            if (destDir.exists()) {
-                destDir.listFiles()?.filter { it.isFile && it.extension == "apk" }?.forEach { file ->
-                    try {
-                        file.delete()
-                    } catch (_: Exception) {
-                        // ignore deletion failures
-                    }
-                }
-            } else {
-                destDir.mkdirs()
-            }
-
-            // copy new fx APKs into legacy location
-            copy {
-                from(layout.buildDirectory.dir("outputs/apk/fx/$buildType"))
-                into(destDir)
-                include("*.apk")
-            }
-        }
-    }
-    tasks.matching { it.name == assembleTask }.configureEach {
-        finalizedBy(compatTask)
-    }
-}
-
-registerFxApkCompatCopy("debug")
-registerFxApkCompatCopy("release")
-
 androidComponents {
-    beforeVariants(selector().withFlavor("brand" to flavorMainline)) { variantBuilder ->
-        variantBuilder.enable = includeMainlineFlavor.get()
-    }
     onVariants { variant ->
-        when (variant.flavorName) {
-            flavorMainline -> {
-                val mainlineAppName = if (variant.buildType == "debug") {
-                    appLabelMainlineDebug
-                } else {
-                    appLabelMainlineRelease
-                }
-                variant.manifestPlaceholders.put("appLabel", mainlineAppName)
-                variant.outputs.forEach { output ->
-                    if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
-                        output.outputFileName.set(
-                            output.outputFileName.get().replace("-mainline-", "-")
-                        )
-                    }
-                }
-            }
-            flavorFx -> {
-                variant.outputs.forEach { output ->
-                    if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
-                        output.outputFileName.set(
-                            output.outputFileName.get()
-                                .replace("org.fcitx.fcitx5.android-", "org.fcitx.fcitx5.android.fx-")
-                                .replace("-fx-", "-")
-                        )
-                    }
+        if (variant.flavorName == flavorFx) {
+            variant.outputs.forEach { output ->
+                if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
+                    output.outputFileName.set(
+                        output.outputFileName.get()
+                            .replace("org.fcitx.fcitx5.android-", "org.fcitx.fcitx5.android.fx-")
+                            .replace("-fx-", "-")
+                    )
                 }
             }
         }

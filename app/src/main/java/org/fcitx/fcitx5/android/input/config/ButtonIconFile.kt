@@ -39,7 +39,7 @@ import org.xmlpull.v1.XmlPullParserException
  * package-specific external files dir, e.g.
  * `file:/storage/emulated/0/Android/data/org.fcitx.fcitx5.android.fx/files/button_icons/foo.png`.
  * Such paths break when the config is imported into a build with a different
- * applicationId (release vs debug, fx vs mainline), because the external files
+ * applicationId (release vs debug), because the external files
  * dir path changes even though the image file is copied over.
  *
  * The canonical form is now a relative path `file:button_icons/foo.png`, resolved
