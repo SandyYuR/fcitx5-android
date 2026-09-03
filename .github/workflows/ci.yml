@@ -86,7 +86,7 @@ jobs:
       - name: Build Standard APK
         if: matrix.build_type == 'standard'
         run: |
-          ./gradlew :app:assembleRelease
+          ./gradlew :app:assembleFxRelease
 
       - name: Build Plugins APK
         if: matrix.build_type == 'plugins'
@@ -110,7 +110,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: app-standard-${{ matrix.os }}-${{ matrix.abi }}
-          path: app/build/outputs/apk/release/*.apk
+          path: app/build/outputs/apk/fx/release/*.apk
 
       - name: Upload plugin APKs
         if: matrix.build_type == 'plugins'
