@@ -33,13 +33,6 @@
 #include <unicode_public.h>
 #include <clipboard_public.h>
 
-#include <libime/pinyin/pinyindictionary.h>
-#include <libime/table/tablebaseddictionary.h>
-
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/stream_buffer.hpp>
-#include "customphrase.h"
-
 #include "androidaddonloader/androidaddonloader.h"
 #include "androidfrontend/androidfrontend_public.h"
 #include "jni-utils.h"
@@ -549,22 +542,6 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_startupFcitx(
     const std::string data_home = fcitx::stringutils::joinPath(*extData_, "data");
     const std::string usr_share = fcitx::stringutils::joinPath(*appData_, "usr", "share");
     const std::string locale_dir = fcitx::stringutils::joinPath(usr_share, "locale");
-    const std::string libime_data = fcitx::stringutils::concat(
-            fcitx::stringutils::joinPath(*extData_, "data", "libime"), ":",
-            fcitx::stringutils::joinPath(usr_share, "libime")
-    );
-    const std::string lua_path = fcitx::stringutils::concat(
-            fcitx::stringutils::joinPath(data_home, "lua", "?.lua"), ";",
-            fcitx::stringutils::joinPath(data_home, "lua", "?", "init.lua"), ";",
-            fcitx::stringutils::joinPath(usr_share, "lua", "5.4", "?.lua"), ";",
-            fcitx::stringutils::joinPath(usr_share, "lua", "5.4", "?", "init.lua"), ";",
-            ";" // double semicolon, for default path defined in luaconf.h
-    );
-    const std::string lua_cpath = fcitx::stringutils::concat(
-            fcitx::stringutils::joinPath(data_home, "lua", "?.so"), ";",
-            fcitx::stringutils::joinPath(usr_share, "lua", "5.4", "?.so"), ";",
-            ";"
-    );
 
     // prevent StandardPath from resolving it's hardcoded installation path
     // setenv("SKIP_FCITX_PATH", "1", 1);
@@ -583,8 +560,6 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_startupFcitx(
     setenv("FCITX_DATA_HOME", data_home.c_str(), 1);
     // system StandardPath::Type::Addon
     setenv("FCITX_ADDON_DIRS", appLib_, 1);
-    // libime language model dir
-    setenv("LIBIME_MODEL_DIRS", libime_data.c_str(), 1);
     // user StandardPath::Type::Data
     setenv("XDG_DATA_HOME", data_home.c_str(), 1);
     // user StandardPath::Type::Cache
@@ -593,13 +568,9 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_startupFcitx(
     setenv("XDG_CONFIG_HOME", config_home.c_str(), 1);
     // user StandardPath::Type::Runtime
     setenv("XDG_RUNTIME_DIR", extCache_, 1);
-    setenv("LUA_PATH", lua_path.c_str(), 1);
-    setenv("LUA_CPATH", lua_cpath.c_str(), 1);
 
     const char *locale_dir_char = locale_dir.c_str();
     fcitx::registerDomain("fcitx5", locale_dir_char);
-    fcitx::registerDomain("fcitx5-lua", locale_dir_char);
-    fcitx::registerDomain("fcitx5-chinese-addons", locale_dir_char);
     fcitx::registerDomain("fcitx5-rime", locale_dir_char);
     fcitx::registerDomain("fcitx5-android", locale_dir_char);
 
@@ -1177,115 +1148,6 @@ Java_org_fcitx_fcitx5_android_core_Key_create(JNIEnv *env, jclass clazz, jint sy
             *JString(env, key.toString(fcitx::KeyStringFormat::Portable)),
             *JString(env, key.toString(fcitx::KeyStringFormat::Localized))
     );
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_org_fcitx_fcitx5_android_data_pinyin_PinyinDictManager_pinyinDictConv(JNIEnv *env, jclass clazz, jstring src, jstring dest, jboolean mode) {
-    using namespace libime;
-    PinyinDictionary dict;
-    try {
-        dict.load(PinyinDictionary::SystemDict, *CString(env, src),
-                  mode == JNI_TRUE ? PinyinDictFormat::Binary : PinyinDictFormat::Text);
-        std::ofstream out;
-        out.open(*CString(env, dest), std::ios::out | std::ios::binary);
-        dict.save(PinyinDictionary::SystemDict, out,
-                  mode == JNI_TRUE ? PinyinDictFormat::Text : PinyinDictFormat::Binary);
-    } catch (const std::exception &e) {
-        throwJavaException(env, e.what());
-    }
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_org_fcitx_fcitx5_android_data_table_TableManager_tableDictConv(JNIEnv *env, jclass clazz, jstring src, jstring dest, jboolean mode) {
-    using namespace libime;
-    TableBasedDictionary dict;
-    try {
-        dict.load(*CString(env, src), mode == JNI_TRUE ? TableFormat::Binary : TableFormat::Text);
-        std::ofstream out;
-        out.open(*CString(env, dest), std::ios::out | std::ios::binary);
-        dict.save(out, mode == JNI_TRUE ? TableFormat::Text : TableFormat::Binary);
-    } catch (const std::exception &e) {
-        throwJavaException(env, e.what());
-    }
-}
-
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_org_fcitx_fcitx5_android_data_table_TableManager_checkTableDictFormat(JNIEnv *env, jclass clazz, jstring src, jboolean user) {
-    using namespace libime;
-    TableBasedDictionary dict;
-    try {
-        if (user == JNI_TRUE) {
-            dict.loadUser(CString(env, src), TableFormat::Binary);
-        } else {
-            dict.load(*CString(env, src), TableFormat::Binary);
-        }
-    } catch (const std::exception &e) {
-        throwJavaException(env, e.what());
-    }
-    return JNI_TRUE;
-}
-
-extern "C"
-JNIEXPORT jobjectArray JNICALL
-Java_org_fcitx_fcitx5_android_data_pinyin_CustomPhraseManager_load(JNIEnv *env, jclass clazz) {
-    auto fp = fcitx::StandardPaths::global().open(fcitx::StandardPathsType::PkgData, "pinyin/customphrase");
-    if (fp.fd() < 0) {
-        FCITX_INFO() << "cannot open pinyin/customphrase";
-        return nullptr;
-    }
-    boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source>
-            buffer(fp.fd(), boost::iostreams::file_descriptor_flags::never_close_handle);
-    std::istream in(&buffer);
-    fcitx::CustomPhraseDict dict;
-    dict.load(in, true);
-    int size = 0;
-    dict.foreach([&](const std::string &key, std::vector<fcitx::CustomPhrase> &items) {
-        FCITX_UNUSED(key);
-        size += static_cast<int>(items.size());
-    });
-    int i = 0;
-    jobjectArray array = env->NewObjectArray(size, GlobalRef->PinyinCustomPhrase, nullptr);
-    dict.foreach([&](const std::string &key, std::vector<fcitx::CustomPhrase> &items) {
-        for (const auto &item: items) {
-            env->SetObjectArrayElement(array, i++,
-                                       JRef(env, env->NewObject(GlobalRef->PinyinCustomPhrase, GlobalRef->PinyinCustomPhraseInit,
-                                                                *JString(env, key),
-                                                                item.order(),
-                                                                *JString(env, item.value())
-                                            )
-                                       )
-            );
-        }
-    });
-    return array;
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_org_fcitx_fcitx5_android_data_pinyin_CustomPhraseManager_save(JNIEnv *env, jclass clazz, jobjectArray items) {
-    fcitx::CustomPhraseDict dict;
-    const int size = env->GetArrayLength(items);
-    for (int i = 0; i < size; i++) {
-        auto phrase = JRef(env, env->GetObjectArrayElement(items, i));
-        auto phraseKey = JRef<jstring>(env, env->GetObjectField(phrase, GlobalRef->PinyinCustomPhraseKey));
-        auto phraseOrder = env->GetIntField(phrase, GlobalRef->PinyinCustomPhraseOrder);
-        auto phraseValue = JRef<jstring>(env, env->GetObjectField(phrase, GlobalRef->PinyinCustomPhraseValue));
-        dict.addPhrase(*CString(env, phraseKey),
-                       *CString(env, phraseValue),
-                       static_cast<int>(phraseOrder));
-    }
-    fcitx::StandardPaths::global().safeSave(
-            fcitx::StandardPathsType::PkgData, "pinyin/customphrase",
-            [&](int fd) {
-                boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink>
-                        buffer(fd, boost::iostreams::file_descriptor_flags::never_close_handle);
-                std::ostream out(&buffer);
-                dict.save(out);
-                return true;
-            });
 }
 
 extern "C"
