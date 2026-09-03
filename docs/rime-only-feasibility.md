@@ -65,7 +65,7 @@ rime 插件的声明链：`plugin/rime/src/main/AndroidManifest.xml` 只剩 icon
 
 ### 1.6 CI 与构建
 
-`ci.yml` 三个 build_type（standard / plugins / mainline），`assembleReleasePlugins` 聚合 12 个插件 APK 并逐个收集上传；`prepare_personal_build.sh` 在构建前跑。裁剪后 CI 可缩为单 APK 构建。（fdroid.yml/publish.yml 同理需要同步精简。）
+`ci.yml` 三个 build_type（standard / plugins / mainline），`assembleReleasePlugins` 聚合 12 个插件 APK 并逐个收集上传；`prepare_personal_build.sh` 在构建前跑。插件 APK 收集是**目录遍历式**（plugin/*/build/outputs），删掉插件目录后该 job 无需改动。裁剪后 CI 可缩为单 APK 构建；个人 fork 可顺手删 `fdroid.yml`/`pull_request.yml`（`publish.yml` 只发布 build-logic/common/plugin-base 到 GitHub Packages，与 app 构建解耦，可留）。另：**mainline flavor** 仅在 `-PincludeMainlineFlavor=true` 时启用、作用只是产出与上游同包名的变体，对个人版用户无意义，可整体删除（连同无 Fx 前缀的任务别名与 APK 兼容拷贝逻辑，`app/build.gradle.kts:98-159`）。
 
 ### 1.7 ⚠️ 本地构建前置
 
@@ -77,7 +77,7 @@ rime 插件的声明链：`plugin/rime/src/main/AndroidManifest.xml` 只剩 icon
 
 ### 2.1 直接可删：其他语言引擎插件（独立 APK，互不影响）
 
-anthy / chewing / hangul / jyutping / sayura / thai / unikey / clipboard-filter / table-data / pinyin-lm / text-editor(+language-textmate)。不安装即无影响；从构建删除只动 `settings.gradle.kts` + `.gitmodules` + CI。table-data 与 pinyin-lm 纯粹是给内置拼音/码表供数据的，随 2.2 一并删。
+anthy / chewing / hangul / jyutping / sayura / thai / unikey / clipboard-filter / table-data / pinyin-lm / text-editor(+language-textmate)。不安装即无影响；从构建删除只动 `settings.gradle.kts` + `.gitmodules` + CI。table-data 与 pinyin-lm 纯粹是给内置拼音/码表供数据的，随 2.2 一并删。注意 **jyutping** 的 native 层依赖 libime + fcitx5-chinese-addons（还要 `Fcitx5ModulePunctuation`，见其 CMakeLists），本就属删除项，与 2.2 同批处理即可，无额外成本；其余语言插件只依赖 fcitx5 prefab，删除互不牵连。
 
 ### 2.2 主 APK 内置非 rime 引擎（方案 B 主战场）
 
@@ -90,7 +90,7 @@ anthy / chewing / hangul / jyutping / sayura / thai / unikey / clipboard-filter 
 
 ### 2.3 必须保留的引擎无关底盘
 
-fcitx5 核心 + androidfrontend/androidkeyboard/androidnotification 三个安卓模块；核心 addon：clipboard、quickphrase（app 有编辑 UI）、unicode、imselector、spell（英文键盘联想，可再议）；主题/键盘布局编辑器/候选栏/字体（含 fork 的候选注释独立字体、QR 分享）——全部与引擎无关，是你的核心竞争力，保留。
+fcitx5 核心 + androidfrontend/androidkeyboard/androidnotification 三个安卓模块；核心 addon：clipboard、quickphrase（app 有编辑 UI）、unicode、imselector、spell（英文键盘联想，可再议）；主题/键盘布局编辑器/候选栏/字体（含 fork 的候选注释独立字体、QR 分享）——全部与引擎无关，是你的核心竞争力，保留。英文直接输入由 app 内置 androidkeyboard 的 keyboard-us 条目提供（`androidkeyboard.cpp:167`），**不依赖 chinese-addons**，删内置拼音不影响英文键位。
 
 ### 2.4 fork 特色功能（与 rime 无关，需你拍板）
 
@@ -110,8 +110,8 @@ fcitx5 核心 + androidfrontend/androidkeyboard/androidnotification 三个安卓
 1. **native 合并**：把 `plugin/rime/src/main/cpp/CMakeLists.txt` 的目标（librime 静态导入 + fcitx5-rime 子目录 + rime-data 安装）并入 `app/src/main/cpp/CMakeLists.txt`；`default.yaml`、essay/prelude/luna/stroke 的 install 并入 app 的 prebuilt-assets。
 2. **数据描述符**：opencc 软链移入 app 的 `generateDataDescriptor.symlinks`（app 已安装 opencc 数据，链路不变）。
 3. **gradle**：`app/build.gradle.kts` 删 `:lib:libime`/`:lib:fcitx5-lua`/`:lib:fcitx5-chinese-addons` 依赖与 `fcitxComponent.includeLibs` 对应项；`settings.gradle.kts` 删全部其他插件模块。
-4. **app CMake**：删 `find_package(libime/fcitx5-lua/fcitx5-chinese-addons)`、copy 列表 7+1 个目标、`pinyin-customphrase` 静态库与 `LibIME::*` 链接、customphrase JNI、相关 prebuilt 资产 install。
-5. **Kotlin**：删 2.4 列出的 Fragment/路由/数据管理器与 manifest 导入 intent-filter；`fcitxComponent.excludeFiles` 中拼音/码表条目随之清空。
+4. **app CMake / native-lib**：删 `find_package(libime/fcitx5-lua/fcitx5-chinese-addons)`（app CMakeLists:16-25）、copy 列表 7+1 个目标（:65-82）、`pinyin-customphrase` 静态库（:42-45）与 `LibIME::*` 链接（:48-62）、相关 prebuilt 资产 install（**保留 opencc 那行**）；`native-lib.cpp` 同步删词典转换/自定义短语 JNI（:1183-1260）、`LIBIME_MODEL_DIRS` 与 lua 路径环境变量（:552-587）及 libime/customphrase 头文件 include（:36-41）。
+5. **Kotlin**：删 1.4 列出的 Fragment/路由/数据管理器（含 `CustomActionExecutor` 路由表与 `ConfigDescriptor.ETy` 中拼音/码表分支）与 manifest 导入 intent-filter；`fcitxComponent.excludeFiles` 中拼音/码表条目随之清空。
 6. **插件页**：`PluginFragment` 可隐藏（方案 B）或整页删除（方案 C）。
 
 验收：单 APK；IM 列表只出现 rime schema；拼音/码表/自定义短语/标点入口消失；rime 部署、用户目录（RimeUserDataDir 外部动作）、自定义 schema（万象等）正常；`saveNonRimeState` 不回归。
@@ -144,7 +144,7 @@ fcitx5 核心 + androidfrontend/androidkeyboard/androidnotification 三个安卓
 ## 7. 建议执行顺序
 
 1. **Phase 0**：init 子模块 → 本地跑通 `:app:assembleFxDebug`（基线可复现）。
-2. **Phase 1 = 方案 A**：删其他插件模块 + CI/.gitmodules 清理（独立 commit，可随时合并回 fx2）。
+2. **Phase 1 = 方案 A**：删其他插件模块 + CI/.gitmodules 清理；可选顺手删 mainline flavor、APK 兼容拷贝逻辑与 fdroid.yml（独立 commit，可随时合并回 fx2）。
 3. **Phase 2 = 方案 B**：rime 并入主 APK → 逐层删内置拼音链路（native → gradle → Kotlin → 设置入口），每步独立 commit、出包自测。
 4. **Phase 3 = 方案 C（可选）**：删插件框架；（你确认后）删语音/更新等 fork 功能。
 
