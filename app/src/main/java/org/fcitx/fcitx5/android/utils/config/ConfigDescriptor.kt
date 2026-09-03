@@ -177,19 +177,14 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
         val knownType: ETy? = null
     ) : ConfigDescriptor<ConfigType.TyExternal, Nothing>() {
         enum class ETy {
-            PinyinDict,
             Punctuation,
             QuickPhrase,
             Chttrans,
-            TableGlobal,
-            PinyinCustomPhrase,
             RimeUserDataDir,
             MultiSelect,
             AddonDirProfileManager,
             AddonAction,
 
-            // manually added on Android side for TableManager
-            AndroidTable
         }
 
         override val ty: ConfigType<ConfigType.TyExternal>
@@ -328,15 +323,11 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
                                 raw.findByName("External")?.value?.startsWith("fcitx://addon-action/") == true ->
                                     ConfigExternal.ETy.AddonAction
                                 else -> when (raw.name) {
-                                "DictManager" -> ConfigExternal.ETy.PinyinDict
                                 "Punctuation" -> ConfigExternal.ETy.Punctuation
                                 "QuickPhrase", "Editor" -> ConfigExternal.ETy.QuickPhrase
                                 "Chttrans" -> ConfigExternal.ETy.Chttrans
-                                "TableGlobal" -> ConfigExternal.ETy.TableGlobal
-                                "CustomPhrase" -> ConfigExternal.ETy.PinyinCustomPhrase
                                 "UserDataDir" -> ConfigExternal.ETy.RimeUserDataDir
                                 "MultiSelect" -> ConfigExternal.ETy.MultiSelect
-                                "AndroidTable" -> ConfigExternal.ETy.AndroidTable
                                 else -> null
                                 }
                             }

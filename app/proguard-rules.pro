@@ -10,10 +10,6 @@
 
 # Keep JNI interface
 -keep class org.fcitx.fcitx5.android.core.* { *; }
--keep class org.fcitx.fcitx5.android.data.pinyin.customphrase.PinyinCustomPhrase {
-    public <init>(...);
-}
-
 # Keep dependency magic
 -keep class ** extends org.mechdancer.dependency.Component {
     int hashCode();
