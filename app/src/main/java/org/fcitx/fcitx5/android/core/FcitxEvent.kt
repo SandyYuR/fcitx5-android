@@ -272,13 +272,41 @@ sealed class FcitxEvent<T>(open val data: T) {
 
         private val Types = EventType.entries.toTypedArray()
 
+        // Recent CandidateWords are interned so repeated keystrokes delivering the same
+        // candidates reuse identical instances; structural equality checks (snapshot
+        // compares, adapter prefix/suffix diff) then hit the identity fast path of the
+        // data-class equals instead of comparing strings every time.
+        private const val CANDIDATE_INTERN_MAX = 256
+        private val candidateInternCache =
+            LinkedHashMap<CandidateWord, CandidateWord>(128, 0.75f, true)
+
+        internal fun internCandidates(candidates: Array<CandidateWord>): Array<CandidateWord> {
+            synchronized(candidateInternCache) {
+                for (i in candidates.indices) {
+                    val word = candidates[i]
+                    val cached = candidateInternCache[word]
+                    if (cached == null) {
+                        if (candidateInternCache.size >= CANDIDATE_INTERN_MAX) {
+                            val eldest = candidateInternCache.entries.iterator()
+                            eldest.next()
+                            eldest.remove()
+                        }
+                        candidateInternCache[word] = word
+                    } else if (cached !== word) {
+                        candidates[i] = cached
+                    }
+                }
+            }
+            return candidates
+        }
+
         @Suppress("UNCHECKED_CAST")
         fun create(type: Int, params: Array<Any>) =
             when (Types[type]) {
                 EventType.Candidate -> CandidateListEvent(
                     CandidateListEvent.Data(
                         params[0] as Int,
-                        params[1] as Array<CandidateWord>
+                        internCandidates(params[1] as Array<CandidateWord>)
                     )
                 )
                 EventType.Commit -> CommitStringEvent(
@@ -321,7 +349,7 @@ sealed class FcitxEvent<T>(open val data: T) {
                 } else {
                     PagedCandidateEvent(
                         PagedCandidateEvent.Data(
-                            params[0] as Array<CandidateWord>,
+                            internCandidates(params[0] as Array<CandidateWord>),
                             params[1] as Int,
                             PagedCandidateEvent.LayoutHint.of(params[2] as Int),
                             params[3] as Boolean,

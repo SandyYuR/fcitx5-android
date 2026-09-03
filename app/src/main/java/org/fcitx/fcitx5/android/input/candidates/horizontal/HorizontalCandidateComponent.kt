@@ -101,13 +101,13 @@ class HorizontalCandidateComponent :
     private var secondLayoutPassNeeded = false
     private var secondLayoutPassDone = false
     private var highlightMovedInCurrentComposition = false
-    private var lastPagedCandidatesSnapshot: List<CandidateWord> = emptyList()
+    private var lastPagedCandidatesSnapshot: Array<CandidateWord> = emptyArray()
     private var lastPagedCursor = -1
     private var lastPagedHasPrev = false
     private var lastPagedData: PagedCandidateEvent.Data? = null
     private var pagedCandidateFlowActive = false
     private var lastPagedEventUptimeMs = 0L
-    private var lastRenderedCandidatesSnapshot: List<CandidateWord> = emptyList()
+    private var lastRenderedCandidatesSnapshot: Array<CandidateWord> = emptyArray()
     private var lastRenderedActiveIndex = Int.MIN_VALUE
 
     private var pendingLegacyCandidateUpdate: Runnable? = null
@@ -386,7 +386,7 @@ class HorizontalCandidateComponent :
             pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
         }
         lastPagedData = null
-        lastRenderedCandidatesSnapshot = emptyList()
+        lastRenderedCandidatesSnapshot = emptyArray()
         lastRenderedActiveIndex = Int.MIN_VALUE
         val candidates = data.candidates
         val total = data.total
@@ -425,7 +425,7 @@ class HorizontalCandidateComponent :
         }
 
         val isNewFirstPageSnapshot =
-            !data.hasPrev && candidates.asList() != lastPagedCandidatesSnapshot
+            !data.hasPrev && !candidates.contentEquals(lastPagedCandidatesSnapshot)
         if (isNewFirstPageSnapshot) {
             // New composing snapshot on the first page; keep it unhighlighted until moved
             // (unless the "highlight first candidate" preference is enabled).
@@ -453,18 +453,19 @@ class HorizontalCandidateComponent :
             normalizedCursor
         }
 
-        val renderedCandidates = candidates.asList()
         if (
-            renderedCandidates == lastRenderedCandidatesSnapshot &&
+            candidates.contentEquals(lastRenderedCandidatesSnapshot) &&
             effectiveActiveIndex == lastRenderedActiveIndex
         ) {
             return
         }
 
-        lastPagedCandidatesSnapshot = candidates.asList()
+        // Keep direct array references as snapshots; contentEquals avoids the
+        // per-keystroke asList() wrapper allocations.
+        lastPagedCandidatesSnapshot = candidates
         lastPagedCursor = normalizedCursor
         lastPagedHasPrev = data.hasPrev
-        lastRenderedCandidatesSnapshot = renderedCandidates
+        lastRenderedCandidatesSnapshot = candidates
         lastRenderedActiveIndex = effectiveActiveIndex
 
         updateCandidates(candidates, -1, effectiveActiveIndex)
