@@ -135,7 +135,6 @@ sealed class ButtonAction {
             SettingsCandidatesWindowAction,
             SettingsClipboardSettingsAction,
             SettingsSymbolSettingsAction,
-            SettingsPluginSettingsAction,
             SettingsAdvancedAction,
             SettingsDeveloperAction,
             SettingsAboutAction,
@@ -624,23 +623,6 @@ data object SettingsSymbolSettingsAction : ButtonAction() {
         onActionComplete: (() -> Unit)?
     ) {
         AppUtil.launchMainToRoute(context, SettingsRoute.Symbol)
-    }
-}
-
-data object SettingsPluginSettingsAction : ButtonAction() {
-    override val id = "settings_plugin"
-    override val defaultIcon = R.drawable.ic_baseline_android_24
-    override val defaultLabelRes = R.string.plugins
-
-    override fun execute(
-        context: Context,
-        service: FcitxInputMethodService,
-        fcitx: FcitxConnection,
-        windowManager: InputWindowManager,
-        view: View?,
-        onActionComplete: (() -> Unit)?
-    ) {
-        AppUtil.launchMainToRoute(context, SettingsRoute.Plugin)
     }
 }
 
