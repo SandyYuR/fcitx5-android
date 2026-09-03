@@ -18,6 +18,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Build
+import android.os.IBinder
 import android.os.PersistableBundle
 import android.os.PowerManager
 import android.os.SystemClock
@@ -390,6 +391,8 @@ class MainService : Service() {
         prefs.edit().putBoolean(PREF_IME_SYNC_ACTIVE, false).apply()
         createNotificationChannelIfNeeded()
     }
+
+    override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         ensureScope()
