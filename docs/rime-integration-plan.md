@@ -230,6 +230,8 @@ Commit 3：CI 精简（删 fdroid.yml/pull_request.yml、mainline job）
 - **P2 native 事件合并**：每键的 commit/preedit/候选/状态在 native 侧打包为一次 JNI 投递（模仿 Trime `getRimeResponse` 的单包响应，见附录 C）
 - **P2 分配削减**：asList() 快照比对改数组 contentEquals；CandidateWord 缓存复用
 
-**测量方案（并入 Phase 0 基线）**：androidx.tracing 埋点点位——`KeyView ACTION_UP`、`sendKey 进入 JNI`、`fcitx 事件到达 HandleFcitxEvent`、`主线程收集开始/结束`、`notifyDataSetChanged`；Perfetto 中量化「UP→候选可见」的帧延迟分布（P50/P95）。
+**测量方案（并入 Phase 0 基线）**：androidx.tracing 埋点点位——`KeyView ACTION_UP`、`sendKey 进入 JNI`、`fcitx 事件到达 HandleFcitxEvent`、`主线程收集开始/结束`、`notifyDataSetChanged`；Perfetto 中量化「UP→候选可见」的帧延迟分布（P50/P95）。埋点已落地（commit `a6edbc27`），Perfetto 采集需真机。
+
+**P2 native 事件合并评估结论（暂缓，测量门控）**：与 Trime 不同，fcitx5-android 的 commit/preedit/候选/状态事件来自注册进 fcitx5 core 的回调（`native-lib.cpp:583-659`），由 core 在按键处理过程中自行触发，native 侧不存在现成的「每键响应包」可打包。实现单包投递需要：① native 增加按按键会话的事件缓冲与冲刷点（sendKey JNI 返回边界）；② 新增复合 JNI 事件类型与 Kotlin 拆包层，并保持子事件顺序语义（commit 与候选的先后顺序并非固定）；③ 回归验证全部事件消费方。预期收益仅为每键 ~3 次 JNI 边界跨越与少量 vararg 数组分配（µs 级，见 §7 分析），且 §7 已将「JNI 批量传递」划为新专项（不并入本方案）。结论：待 Phase 0 真机 Perfetto 基线证明该段占比可观后再立项实施。
 
 **明确不做**：字母键 fire-on-DOWN（破坏滑动/长按语义）；关闭 UP 触觉反馈（行为偏好）；重写 Compose/View 层（收益不成比例）。
