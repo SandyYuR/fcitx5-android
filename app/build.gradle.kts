@@ -46,7 +46,9 @@ android {
                     // android specific modules
                     "androidfrontend",
                     "androidkeyboard",
-                    "androidnotification"
+                    "androidnotification",
+                    // fcitx5-rime addon (rime engine fused into main apk)
+                    "rime"
                 )
             }
         }
@@ -136,6 +138,11 @@ fcitxComponent {
         "usr/share/fcitx5/table/zrm.main.dict"
     )
     installPrebuiltAssets = true
+}
+
+generateDataDescriptor {
+    // rime-data ships its own copy of opencc data; link it to the shared one
+    symlinks.put("usr/share/rime-data/opencc", "usr/share/opencc")
 }
 
 ksp {

@@ -7,7 +7,7 @@ git remote add gh https://github.com/fxliang/fcitx5-rime.git || git remote set-u
 git fetch -v gh master
 git checkout gh/master
 popd
-sed -i 's|/fcitx/|/fxliang/|g' plugin/rime/licenses/libraries/fcitx5-rime.json
+sed -i 's|/fcitx/|/fxliang/|g' app/licenses/libraries/fcitx5-rime.json
 
 # apply fcitx5 patch from fcitx5-rime
 echo "applying fcitx5 patch"
