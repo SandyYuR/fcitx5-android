@@ -73,7 +73,7 @@ class FcitxRemoteService : Service() {
         }
 
         override fun registerClipboardEntryTransformer(transformer: IClipboardEntryTransformer) {
-            Timber.d("registerClipboardEntryTransformer: ${transformer.desc} from $callingPackage")
+            Timber.d("registerClipboardEntryTransformer: ${transformer.desc}")
             if (transformer.description.isNullOrBlank()) {
                 Timber.w("Cannot register ClipboardEntryTransformer of null or empty description")
                 return
