@@ -177,3 +177,28 @@ Commit 3：CI 精简（删 fdroid.yml/pull_request.yml、mainline job）
 2. Phase 2 增加 aboutlibraries 许可清单迁移（plugin/rime/licenses → app）；
 3. Phase 2 增加翻译域注册与 4 处 rime 挂钩的显式清单（来自 B 的深挖）；
 4. 验收清单补 lua/grammar/opencc 三条实测。
+## 附录 C：同文（Trime）按键管线调研（对照 fcitx5-android）
+
+调研版本：osfans/trime `develop` 分支。
+
+**Trime 逐键流程**：
+
+1. 入口：软键 → `ime/keyboard` 触点 → `postRimeJob{ processKey }`；硬键 → `onKeyDown/onKeyUp → forwardKeyEvent`（`TrimeInputMethodService.kt:717-744`）
+2. 线程：所有 rime 调用走单线程执行器 `rime-main`（`RimeDispatcher.kt:68-101`）——**注释明言 adapted from fcitx5-android 的 FcitxDispatcher**，即两家的线程模型同源
+3. 处理（`Rime.kt:317-349` processKeyInner）：`getRimeStatus`（En 提示）→ `processRimeKey`（JNI 直调 librime process_key，`rime_jni.cc:298-303`）→ `emitResponse`
+4. **响应打包**：`getRimeResponse(pagingMode)`（`rime_jni.cc:423-455`）一次 JNI 调用返回 commit + composition + 候选（paged/bulk）+ status；源码注释：paging 模式下布局选项在服务端一并查询，「避免每键额外一次 rime option 往返」
+5. 分发：`MutableSharedFlow<RimeMessage>`（buffer 15, DROP_OLDEST，`Rime.kt:474-478`）→ UI 收集；候选渲染为 RecyclerView（`ime/candidates/CandidateViewHolder.kt`）
+
+**fcitx5-android 逐键流程（对照）**：
+
+1. 入口：`TextKeyboard.kt:1285 onAction` → `Fcitx.kt:83 sendKey` → JNI → `androidfrontend.cpp:376-388 AndroidFrontend::keyEvent` → `activeIC_->keyEvent()`
+2. 中间层：**fcitx5 core 事件分发**（addon 链、输入上下文状态机、IM 管理）→ fcitx5-rime addon → librime
+3. 事件回流：native 侧为每种事件单独 JNI 推送（`native-lib.cpp:622-727`，commit/preedit/候选/状态等十余种）→ `FcitxEvent.kt` SharedFlow → UI 组件各自收集
+4. 未被消费的按键经 `keyEventCallback` 回 Kotlin，生成 Android KeyEvent 发给编辑器（`FcitxInputMethodService.kt:877-899`）
+
+**结论**：
+
+- 两家**相同**：线程模型（同源的单原生线程执行器）、候选栏渲染技术（同为 RecyclerView）、librime 及 lua/octagram 插件捆绑
+- 两家**不同**：①fcitx5-android 每键多穿过一整层 fcitx5 core 分发；②每键事件推送为多条独立 JNI 消息，Trime 为单次打包响应（Trime 在 `rime_jni.cc:438-444` 明确做过此优化）③librime 版本与编译方式（prebuilt 1.12.0 vs 源码构建）
+- 因此「同文更流畅」的候选解释排序：①每键 marshalling/事件次数差异（多事件 vs 单包）②fcitx5 分发链长度 ③librime 版本差异。均为 µs–ms 级，需 §7 的 Perfetto 基线实测确认
+- **可借鉴的具体优化**：在 native 侧把每次按键产生的多条 fcitx 事件合并为一次批量 JNI 投递（模仿 Trime 的 RimeResponse 打包），列为性能专项候选——这是架构内可实现的，不需要抛弃 fcitx5 core
