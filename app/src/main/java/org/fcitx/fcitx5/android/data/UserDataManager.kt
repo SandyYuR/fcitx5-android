@@ -74,7 +74,7 @@ object UserDataManager {
      * Write shared_prefs into the zip, renaming this build's package-specific
      * preferences XML (`<currentPkg>_preferences.xml`) to the canonical upstream name
      * (`org.fcitx.fcitx5.android_preferences.xml`) so the resulting zip is portable
-     * across upstream, fx and mainline builds. Other variants' preferences XML files
+     * across upstream and fx builds. Other variants' preferences XML files
      * are skipped (mirrors the importer's behavior).
      */
     private fun writeSharedPrefsTree(srcDir: File, dest: ZipOutputStream) {

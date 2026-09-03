@@ -11,7 +11,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.ClipboardEditActivity
 import org.fcitx.fcitx5.android.ui.main.MainActivity
@@ -22,13 +21,7 @@ object AppUtil {
 
     fun appLabel(context: Context): String = runCatching {
         context.applicationInfo.loadLabel(context.packageManager).toString()
-    }.getOrDefault(
-        when {
-            BuildConfig.IS_FX_BUILD -> context.getString(R.string.app_name)
-            BuildConfig.DEBUG -> context.getString(R.string.app_name_mainline_debug)
-            else -> context.getString(R.string.app_name_mainline_release)
-        }
-    )
+    }.getOrDefault(context.getString(R.string.app_name))
 
     fun launchMain(context: Context) {
         context.startActivity<MainActivity> {
