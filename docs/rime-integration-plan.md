@@ -47,7 +47,7 @@
 
 ### 3.2 必须保留
 
-- fcitx5 核心 + androidfrontend/androidkeyboard/androidnotification（rime 的 notifications 依赖靠 androidnotification 满足）
+- fcitx5 核心 + androidfrontend/androidkeyboard/androidnotification（rime 的 notifications 依赖靠 androidnotification 满足）。注意：**androidkeyboard 不是「非 rime 输入法引擎」**——它是虚拟键盘的英文直输 addon，提供 `keyboard-us` 条目（`androidkeyboard.cpp:167`），是工具栏一键 EN 切换的落点、密码/数字框直输的通道；rime 内部的 Shift 临时英文与它无关，删掉它会直接破坏中英切换 UX
 - 核心 addon：clipboard、quickphrase、unicode、spell（英文联想）、imselector
 - **rime 专属挂钩 4 处**：状态区 rime 图标/submode（`StatusIconMapping.kt:44-46`、`TextKeyboard.kt:491-492` 的 `fcitx-rime:` 前缀）、部署/同步按钮（AddonAction → setSubConfig deploy/sync）、Rime 用户数据目录入口（`PreferenceScreenFactory.kt:403-436`）、`saveNonRimeState` 旁路（`native-lib.cpp:445-460`）
 - opencc 数据安装 + `usr/share/rime-data/opencc -> usr/share/opencc` 软链（移入 app 的 descriptor symlinks）
@@ -65,6 +65,7 @@
 | 5 | mainline flavor | 删除（对个人版无意义） |
 | 6 | `:lib:fcitx5-lua` | 删（rime 用的是 librime 内置 lua；无 fcitx5 lua addon 使用方） |
 | 7 | spell/en_dict 英文联想 | 保留（收益太小不值得删） |
+| 8 | keyboard-us 英文直输条目（androidkeyboard addon） | 保留（EN 一键切换依赖；若坚持 IM 列表只显示 rime，可只隐藏条目，**addon 本体不可删**） |
 
 ## 4. 分阶段实施（commit 级）
 
