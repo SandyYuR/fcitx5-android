@@ -115,27 +115,7 @@ androidComponents {
 
 fcitxComponent {
     includeLibs = listOf(
-        "fcitx5",
-        "fcitx5-lua",
-        "libime",
-        "fcitx5-chinese-addons"
-    )
-    // exclude (delete immediately after install) tables that nobody would use
-    excludeFiles = listOf("cangjie", "erbi", "qxm", "wanfeng").map {
-        "usr/share/fcitx5/inputmethod/$it.conf"
-    } + listOf(
-        // pinyin language model is shipped by the :plugin:pinyin-lm plugin instead
-        "usr/share/libime/zh_CN.lm",
-        "usr/share/libime/zh_CN.lm.predict",
-        // table input methods and dictionaries are shipped by the :plugin:table-data plugin instead
-        "usr/share/fcitx5/inputmethod/db.conf",
-        "usr/share/fcitx5/inputmethod/wbpy.conf",
-        "usr/share/fcitx5/inputmethod/wbx.conf",
-        "usr/share/fcitx5/inputmethod/zrm.conf",
-        "usr/share/fcitx5/table/db.main.dict",
-        "usr/share/fcitx5/table/wbpy.main.dict",
-        "usr/share/fcitx5/table/wbx.main.dict",
-        "usr/share/fcitx5/table/zrm.main.dict"
+        "fcitx5"
     )
     installPrebuiltAssets = true
 }
@@ -152,9 +132,6 @@ ksp {
 dependencies {
     ksp(project(":codegen"))
     implementation(project(":lib:fcitx5"))
-    implementation(project(":lib:fcitx5-lua"))
-    implementation(project(":lib:libime"))
-    implementation(project(":lib:fcitx5-chinese-addons"))
     implementation(project(":lib:common"))
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kotlinx.serialization.json)

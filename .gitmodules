@@ -5,15 +5,6 @@
 	path = lib/fcitx5/src/main/cpp/prebuilt
 	url = https://github.com/fcitx5-android/prebuilt.git
 	shallow = true
-[submodule "lib/fcitx5-lua/src/main/cpp/fcitx5-lua"]
-	path = lib/fcitx5-lua/src/main/cpp/fcitx5-lua
-	url = https://github.com/fcitx/fcitx5-lua.git
-[submodule "lib/libime/src/main/cpp/libime"]
-	path = lib/libime/src/main/cpp/libime
-	url = https://github.com/fcitx/libime.git
-[submodule "lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons"]
-	path = lib/fcitx5-chinese-addons/src/main/cpp/fcitx5-chinese-addons
-	url = https://github.com/fcitx/fcitx5-chinese-addons.git
 [submodule "plugin/rime/src/main/cpp/fcitx5-rime"]
 	path = plugin/rime/src/main/cpp/fcitx5-rime
 	url = https://github.com/fcitx/fcitx5-rime.git
