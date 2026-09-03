@@ -40,7 +40,7 @@ rime 插件的声明链：`plugin/rime/src/main/AndroidManifest.xml` 只剩 icon
 
 ### 1.2 rime 插件的真实内容
 
-`plugin/rime/` 全部内容 = CMake 脚本 + `default.yaml` + 4 个 rime 子模块的 yaml/dict 资源 + 图标/字符串。native 侧：导入 prebuilt 的 `librime.a`（附 glog/leveldb/lua/marisa/opencc/yaml-cpp 静态依赖），编译 `fcitx5-rime` 子模块为 addon so，安装 rime-data 到 `usr/share/rime-data`；数据侧唯一特殊点是一条软链 `usr/share/rime-data/opencc -> usr/share/opencc`（`plugin/rime/build.gradle.kts` 的 `generateDataDescriptor.symlinks`），指向 **app 已内置安装的 opencc 数据**（`app/src/main/cpp/CMakeLists.txt:85-90`）。rime 的 native 构建不依赖 libime/chinese-addons/lua 模块——删它们不影响 rime 编译。
+`plugin/rime/` 全部内容 = CMake 脚本 + `default.yaml` + 4 个 rime 子模块的 yaml/dict 资源 + 图标/字符串。native 侧：导入 prebuilt 的 `librime.a`（附 glog/leveldb/lua/marisa/opencc/yaml-cpp 静态依赖），编译 `fcitx5-rime` 子模块为 addon so，安装 rime-data 到 `usr/share/rime-data`；数据侧唯一特殊点是一条软链 `usr/share/rime-data/opencc -> usr/share/opencc`（`plugin/rime/build.gradle.kts` 的 `generateDataDescriptor.symlinks`），指向 **app 已内置安装的 opencc 数据**（`app/src/main/cpp/CMakeLists.txt:85-90`）。rime 的 native 构建不依赖 libime/chinese-addons/lua 模块——删它们不影响 rime 编译。rime addon 对 fcitx5 核心的声明依赖（rime-addon.conf）只有 `Dependencies: core` + 可选的 `notifications、dbus`：Android 上 notifications 由 app 自带 androidnotification 满足、dbus 走 NO_DBUS 分支，**与 clipboard/quickphrase/unicode/spell/imselector 等核心 addon 无任何依赖关系**（fx2 全量数据流从插件 APK 的 nativeLibraryDir 与 assets 两条路进核心，见 1.1）。另一注意点：`prepare_personal_build.sh` 构建时会把 fcitx5-rime 子模块切到 fxliang fork 的 master（非 git pin 的上游 commit），profile-manager（多配置目录）等 fx2 定制大概率来自该 fork——裁剪时子模块链路保持现状即可。
 
 ### 1.3 主 APK 本身内置了整套拼音引擎（裁剪主战场）
 
@@ -113,6 +113,7 @@ fcitx5 核心 + androidfrontend/androidkeyboard/androidnotification 三个安卓
 4. **app CMake / native-lib**：删 `find_package(libime/fcitx5-lua/fcitx5-chinese-addons)`（app CMakeLists:16-25）、copy 列表 7+1 个目标（:65-82）、`pinyin-customphrase` 静态库（:42-45）与 `LibIME::*` 链接（:48-62）、相关 prebuilt 资产 install（**保留 opencc 那行**）；`native-lib.cpp` 同步删词典转换/自定义短语 JNI（:1183-1260）、`LIBIME_MODEL_DIRS` 与 lua 路径环境变量（:552-587）及 libime/customphrase 头文件 include（:36-41）。
 5. **Kotlin**：删 1.4 列出的 Fragment/路由/数据管理器（含 `CustomActionExecutor` 路由表与 `ConfigDescriptor.ETy` 中拼音/码表分支）与 manifest 导入 intent-filter；`fcitxComponent.excludeFiles` 中拼音/码表条目随之清空。
 6. **插件页**：`PluginFragment` 可隐藏（方案 B）或整页删除（方案 C）。
+7. **三个容易漏的融合点**：① `native-lib.cpp:605-609` 会把每个插件的 domain 注册为 gettext 翻译扩展域——rime 内置后 extDomains 为空，需手动把 `fcitx5-rime` 加入注册列表，否则 rime 设置项的中文翻译失效；② rime addon 声明的可选依赖 notifications 由 app 自带 androidnotification addon 满足（部署/维护提示），dbus 因核心 `ENABLE_DBUS=OFF` 走 `FCITX_RIME_NO_DBUS` 分支、无需处理；③ app 侧 4 处 rime 专属挂钩必须原样保留：状态区 rime 图标/submode（`StatusIconMapping.kt:44-46`、`TextKeyboard.kt:491-492` 的 `fcitx-rime:` 前缀）、设置里的 Rime 部署/同步按钮（通用 AddonAction → setSubConfig deploy/sync，`PreferenceScreenFactory.kt:234-241`）、Rime 用户数据目录入口（`PreferenceScreenFactory.kt:403-436`）、`saveNonRimeState` 旁路。
 
 验收：单 APK；IM 列表只出现 rime schema；拼音/码表/自定义短语/标点入口消失；rime 部署、用户目录（RimeUserDataDir 外部动作）、自定义 schema（万象等）正常；`saveNonRimeState` 不回归。
 
@@ -127,7 +128,7 @@ fcitx5 核心 + androidfrontend/androidkeyboard/androidnotification 三个安卓
 | 风险 | 说明 | 对策 |
 |---|---|---|
 | 旧安装兼容 | 老用户装过 rime 插件 APK | 方案 B 保留 detect 逻辑则插件照常被加载（同签名），兼容无痛；方案 C 下为孤儿包，提示卸载 |
-| rime-data 归属切换 | descriptor diff 会把 `usr/share/rime-data/*` 从插件文件改为 app 文件，重装这些默认 yaml | 默认 schema/yaml 重装无损；**rime 用户部署产物（.user.db 等）位置需真机验证**（升级后确认用户词库/部署结果未被清空） |
+| rime-data 归属切换 | descriptor diff 会把 `usr/share/rime-data/*` 从插件文件改为 app 文件，重装这些默认 yaml | **rime 用户数据与模板目录是分离的**：用户数据在 `<外部存储>/data/rime`（fcitx5-rime 取 PkgData/rime 为 user_data_dir，rimeengine.cpp:249-262；native-lib.cpp 把 extData 传为 HOME/FCITX_DATA_HOME），descriptor 同步只重装 `dataDir/usr/...` 下的只读模板，不碰用户数据——风险很低，Phase 2 真机回归一次即可 |
 | fcitx5 核心补丁 | `prepare_personal_build.sh` 的 alt-trigger 补丁必须继续生效 | 该脚本与裁剪正交，保持不动 |
 | 本地构建前置 | 子模块未 init，native 不可编译 | `git submodule update --init`；建议 WSL/nix 构建 |
 | 上游同步 | 方案 C 删除面大，rebase 冲突多 | 删除动作拆成边界清晰的小 commit；或接受长期独立分支定位 |
