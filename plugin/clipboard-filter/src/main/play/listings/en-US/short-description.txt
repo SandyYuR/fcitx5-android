@@ -1,1 +1,0 @@
-Apply ClearURLs on clipboard
