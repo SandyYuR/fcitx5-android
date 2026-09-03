@@ -82,7 +82,18 @@ jobs:
 
       - name: Build APK
         run: |
-          ./gradlew :app:assembleFxRelease
+          set -o pipefail
+          ./gradlew :app:assembleFxRelease 2>&1 | tee build-output.log
+
+      - name: Emit compile errors as annotations
+        if: failure()
+        shell: bash
+        run: |
+          if [ -f build-output.log ]; then
+            grep -aE '^e: |error: |FAILURE: Build failed|> Task .*FAILED' build-output.log | head -10 | while IFS= read -r line; do
+              echo "::error::${line:0:500}"
+            done
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v7
