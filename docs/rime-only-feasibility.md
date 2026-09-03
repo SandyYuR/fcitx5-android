@@ -134,6 +134,16 @@ fcitx5 核心 + androidfrontend/androidkeyboard/androidnotification 三个安卓
 | Room schema | 删 pinyin/table 相关表需迁移 | 方案 B 第一版**不删表只删 UI**，零迁移风险 |
 | 英文键盘 spell | 英文键位联想依赖 spell 模块 | 保留 spell 与 en_dict（收益小，不值得删） |
 
+### 5.1 FAQ：rime 的 Lua 脚本 / 八股文（octagram）语法模型会受裁剪影响吗？
+
+**不会，且有硬证据。** rime 方案常用的增强能力全部编译在 `librime.a` 内部，属于 librime 的内置插件，与 fcitx5 层被裁的模块（`:lib:fcitx5-lua`、`:lib:libime`、`:lib:fcitx5-chinese-addons`）零关系：
+
+- `plugin/rime/licenses/libraries/` 清单明确列出本构建打包了 **librime-lua**（hchunhui/librime-lua）、**librime-octagram**（lotem/librime-octagram，即八股文语法模型）、**librime-predict**（fxliang/librime-predict-leveldb）；
+- `plugin/rime/src/main/cpp/CMakeLists.txt:15-28`：librime.a 与 glog/leveldb/**lua_static**/marisa/opencc/yaml-cpp 全部来自 `PREBUILT_DIR` 静态库，以 `WHOLE_ARCHIVE` 方式链接，插件随 librime 自注册；
+- 被删的 `:lib:fcitx5-lua` 是 **fcitx5 自己的 Lua addon 加载器**（服务于 fcitx5 lua 插件），与 librime-lua 完全是两套东西；libime/chinese-addons 同理只在 fcitx5 引擎层。
+
+裁剪后 rime 方案需要的东西一样不缺：librime 内置的 lua/octagram/predict 随静态库打入主 APK；语法模型文件（如万象的 .gram）由用户方案自带、放 rime 用户目录；**opencc 数据保留在 app 安装列表**（简繁转换依赖）；`prepare_personal_build.sh` 补丁链保留。方案 B 验收时建议加两条实测：① 带 lua 脚本与 `grammar` 段的方案正常出候选；② 简繁切换（opencc）正常。
+
 ## 6. 预期收益
 
 - **体积**：减去 chinese-addons 全家 so + libime 数据 + lua addon，打入 librime addon（原在插件 APK 里那一份）。主 APK 预计净减；设备总占用（主 APK + rime 插件 APK）必净减。具体数值 Phase 2 出包后实测。
