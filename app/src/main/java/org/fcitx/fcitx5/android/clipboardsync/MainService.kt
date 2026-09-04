@@ -92,9 +92,11 @@ class MainService : FcitxPluginService() {
          * Poll interval while the screen is on but no text field is focused (see C17).
          *
          * Between the normal interval and the screen-off one: sync keeps working after the
-         * keyboard closes, without polling at typing frequency all day.
+         * keyboard closes, without polling at typing frequency all day. 10s was still ~360
+         * requests an hour with nobody typing, so this sits closer to the screen-off cadence;
+         * a real keystroke drops back to the user's own interval via RuntimeMode.NORMAL.
          */
-        private const val IME_IDLE_POLL_INTERVAL_SECONDS = 10L
+        private const val IME_IDLE_POLL_INTERVAL_SECONDS = 30L
 
         /**
          * Hard cap on an incoming binary clipboard payload (see A9).
@@ -344,10 +346,28 @@ class MainService : FcitxPluginService() {
                     Log.d(TAG, "[Power] Screen turned off, stop sync loops to reduce background power")
                     stopPeriodicSync()
                     stopHealthMonitor()
+                    // Release the foreground state with them: holding a dataSync notification
+                    // while nothing runs only burns the Android 15 quota (see
+                    // shouldRunInForeground). The process itself is the IME process, so it stays
+                    // alive regardless; ACTION_SCREEN_ON re-acquires the foreground state.
+                    updateForegroundState()
                 }
-                Intent.ACTION_SCREEN_ON -> scheduleReconnect("screen-on")
-                Intent.ACTION_USER_PRESENT -> scheduleReconnect("user-present")
-                PowerManager.ACTION_POWER_SAVE_MODE_CHANGED -> scheduleReconnect("power-save-mode")
+                Intent.ACTION_SCREEN_ON -> {
+                    scheduleReconnect("screen-on")
+                    // Also the recovery point after a dataSync quota timeout: onTimeout dropped
+                    // the foreground state, and a new 24h window may allow it again.
+                    updateForegroundState()
+                    refreshForegroundNotification()
+                }
+                Intent.ACTION_USER_PRESENT -> {
+                    scheduleReconnect("user-present")
+                    updateForegroundState()
+                    refreshForegroundNotification()
+                }
+                PowerManager.ACTION_POWER_SAVE_MODE_CHANGED -> {
+                    scheduleReconnect("power-save-mode")
+                    refreshForegroundNotification()
+                }
             }
         }
     }
@@ -381,6 +401,12 @@ class MainService : FcitxPluginService() {
         syncStateStore.migrateFromPreferences(prefs, MIGRATED_STATE_KEYS)
         loadPersistentSyncState()
         lastUploadedContent = syncStateStore.read(PREF_LAST_SYNCED_CONTENT)
+        // The "IME is in front" flag is persistent but describes a live condition. If the IME
+        // process died without onFinishInput (crash, low memory, force stop) it stayed true, and
+        // currentRuntimeMode() then reported NORMAL forever — polling at the user's base interval
+        // (3s by default) with no keyboard on screen. This service starting fresh means no IME
+        // session is attached yet; whoever attaches next sets the flag again.
+        prefs.edit().putBoolean(PREF_IME_SYNC_ACTIVE, false).apply()
         createNotificationChannelIfNeeded()
     }
 
@@ -397,6 +423,9 @@ class MainService : FcitxPluginService() {
         if (serviceRunning) {
             updateForegroundState()
             refreshSyncRuntime()
+            // This is the path an IME focus change takes (startSyncService / stopSyncService both
+            // end up here), and focus is what flips active <-> idle in the notification.
+            refreshForegroundNotification()
             ensureRemoteBinding()
             return
         }
@@ -475,6 +504,7 @@ class MainService : FcitxPluginService() {
             updateForegroundState()
             updateScreenshotWatcher()
             refreshSyncRuntime()
+            refreshForegroundNotification()
             if (key == PREF_QUICK_SYNC) {
                 QuickSyncTileService.requestTileRefresh(this)
             }
@@ -1061,6 +1091,12 @@ class MainService : FcitxPluginService() {
                 return
             }
         val downloadUri = resolveDownloadUri()
+        // Re-check the real size, not just the estimate: the pre-decode filter uses an upper
+        // bound, so a payload that decodes to more than the hard cap must still be dropped here.
+        if (bytes.size > MAX_INCOMING_BINARY_BYTES) {
+            Log.w(TAG, "[ClipCascade] Decoded image exceeds the size cap: $fileName")
+            return
+        }
         if (!shouldAcceptIncomingBinary(fileName, bytes.size.toLong())) {
             Log.d(TAG, "[ClipCascade] Rejected image payload by receive filter: $fileName")
             return
@@ -1094,6 +1130,11 @@ class MainService : FcitxPluginService() {
                 return
             }
         val downloadUri = resolveDownloadUri()
+        // Same post-decode re-check as handleClipCascadeImage.
+        if (bytes.size > MAX_INCOMING_BINARY_BYTES) {
+            Log.w(TAG, "[ClipCascade] Decoded file exceeds the size cap: $fileName")
+            return
+        }
         if (!shouldAcceptIncomingBinary(fileName, bytes.size.toLong())) {
             Log.d(TAG, "[ClipCascade] Rejected file payload by receive filter: $fileName")
             return
@@ -1115,11 +1156,17 @@ class MainService : FcitxPluginService() {
     /**
      * Decide whether a base64 ClipCascade payload is worth decoding.
      *
-     * Uses `length * 3 / 4` as the decoded-size estimate so both the receive filter and the hard
-     * cap are applied before the allocation, not after it (see A9).
+     * Uses `base64Chars * 3 / 4` as the decoded-size estimate so both the receive filter and the
+     * hard cap are applied before the allocation, not after it (see A9). The estimate is an upper
+     * bound (padding makes the real size 1-2 bytes smaller), so the callers re-check the decoded
+     * length against the hard cap.
      */
     private fun acceptsClipCascadePayload(fileName: String, payload: String): Boolean {
-        val estimatedBytes = payload.length.toLong() / 4L * 3L
+        // Count only base64 characters: MIME-style payloads carry a line break every 76
+        // characters, and including those overestimated the decoded size by up to ~3%, which
+        // rejected legitimate items sitting just under the user's size filter.
+        val encodedChars = payload.count { !it.isWhitespace() }.toLong()
+        val estimatedBytes = encodedChars / 4L * 3L
         if (estimatedBytes > MAX_INCOMING_BINARY_BYTES) {
             Log.w(
                 TAG,
@@ -1386,15 +1433,19 @@ class MainService : FcitxPluginService() {
     }
 
     /**
-     * Foreground state depends only on quick sync being enabled.
+     * Foreground state: quick sync enabled **and** the screen interactive.
      *
      * It used to also require the screenshot-sync preference, which produced two bad outcomes
      * (see C17): with screenshot sync off this was a plain background Service that Android 8+
      * kills at will, and with it on the notification was permanent while sync itself was
-     * suspended most of the time.
+     * suspended most of the time. Dropping that requirement alone went too far the other way:
+     * [shouldRunSyncLoops] is false while the screen is off, so the service held a dataSync
+     * foreground notification all night without running a single loop — and Android 15 grants
+     * dataSync only about 6 hours per 24, after which it refuses to start one at all. Screen-off
+     * therefore releases the foreground state, and ACTION_SCREEN_ON re-acquires it.
      */
     private fun shouldRunInForeground(): Boolean {
-        return prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)
+        return prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED) && isScreenInteractive()
     }
 
     private fun createNotificationChannelIfNeeded() {
@@ -1455,6 +1506,22 @@ class MainService : FcitxPluginService() {
         stopHealthMonitor()
         stopForegroundState()
         super.onTimeout(startId, fgsType)
+    }
+
+    /**
+     * Re-post the foreground notification so its state line matches reality.
+     *
+     * [buildForegroundNotificationText] derives active/idle/paused from the runtime mode, but the
+     * notification used to be built only when the foreground state was (re)entered — so after the
+     * screen went off it kept reading "syncing" while the loops were stopped. The state sources
+     * (screen, IME focus, power save, quota timeout) now call this.
+     */
+    private fun refreshForegroundNotification() {
+        if (!foregroundActive) return
+        runCatching {
+            (getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)
+                ?.notify(NOTIFICATION_ID, buildForegroundNotification())
+        }.onFailure { Log.w(TAG, "[Service] Failed to refresh foreground notification", it) }
     }
 
     private fun stopForegroundState() {
@@ -2077,13 +2144,13 @@ class MainService : FcitxPluginService() {
                 }
             }
 
-        storedRemoteRevisions.clear()
+        synchronized(storedRemoteRevisions) { storedRemoteRevisions.clear() }
         syncStateStore.read(PREF_REMOTE_REVISIONS)
             ?.let { serialized ->
                 runCatching {
                     stateJson.decodeFromString<Map<String, String>>(serialized)
                 }.onSuccess { restored ->
-                    storedRemoteRevisions.putAll(restored)
+                    synchronized(storedRemoteRevisions) { storedRemoteRevisions.putAll(restored) }
                 }.onFailure { error ->
                     Log.w(TAG, "[State] Failed to restore remote revisions", error)
                 }
@@ -2125,16 +2192,34 @@ class MainService : FcitxPluginService() {
         // Only persist entries small enough to be worth restoring; oversized ones stay in
         // memory for this session (see SyncStateStore.MAX_PERSISTED_CONTENT_LENGTH).
         val persistable = pendingUploads.filter { SyncStateStore.isPersistable(it.content) }
+        val dropped = pendingUploads.size - persistable.size
+        if (dropped > 0) {
+            // Say so: these uploads are lost if the process dies before they drain, and a silent
+            // difference between memory and disk is exactly what makes that hard to diagnose.
+            Log.w(TAG, "[State] $dropped pending upload(s) too large to persist")
+        }
         syncStateStore.write(PREF_PENDING_UPLOADS, stateJson.encodeToString(persistable))
     }
 
     private fun persistRemoteRevisions() {
-        syncStateStore.write(PREF_REMOTE_REVISIONS, stateJson.encodeToString(storedRemoteRevisions))
+        // Snapshot under the same lock the mutations use, like the other persist* helpers
+        // (see C18). encodeToString iterates the map, and only remoteFetchMutex happened to keep
+        // the writers away from it — an invariant nothing states or enforces.
+        val snapshot = synchronized(storedRemoteRevisions) { storedRemoteRevisions.toMap() }
+        syncStateStore.write(PREF_REMOTE_REVISIONS, stateJson.encodeToString(snapshot))
     }
 
     private fun persistSuppressedRemoteClipboardContents() {
-        val persistable = synchronized(suppressedRemoteClipboardContents) {
-            suppressedRemoteClipboardContents.filter { SyncStateStore.isPersistable(it) }
+        val persistable: List<String>
+        val total: Int
+        synchronized(suppressedRemoteClipboardContents) {
+            persistable = suppressedRemoteClipboardContents.filter { SyncStateStore.isPersistable(it) }
+            total = suppressedRemoteClipboardContents.size
+        }
+        if (total > persistable.size) {
+            // An unpersisted suppression means that remote item comes back after a restart.
+            val dropped = total - persistable.size
+            Log.w(TAG, "[State] $dropped suppressed item(s) too large to persist")
         }
         syncStateStore.write(
             PREF_SUPPRESSED_REMOTE_ITEMS,
@@ -2151,8 +2236,12 @@ class MainService : FcitxPluginService() {
 
     private fun persistLastSyncedContent(content: String) {
         if (!SyncStateStore.isPersistable(content)) {
-            // Too large to keep on disk; forget the stored value rather than leaving a stale one.
-            syncStateStore.write(PREF_LAST_SYNCED_CONTENT, null)
+            // Too large to keep on disk. Leave the previous value in place instead of deleting
+            // it: that value is content this device really did sync, so keeping it still
+            // suppresses one round trip, whereas clearing the key left the next start with no
+            // baseline at all — the remote item was re-imported and could be uploaded straight
+            // back by the local clipboard listener.
+            Log.w(TAG, "[State] Last synced content too large to persist (${content.length} chars)")
             return
         }
         syncStateStore.write(PREF_LAST_SYNCED_CONTENT, content)
@@ -2264,12 +2353,14 @@ class MainService : FcitxPluginService() {
             return
         }
         activeEndpointIdentity = endpoint.identity
-        lastRemoteRevision = storedRemoteRevisions[endpoint.identity]
+        lastRemoteRevision = synchronized(storedRemoteRevisions) {
+            storedRemoteRevisions[endpoint.identity]
+        }
         lastRemoteContent = null
     }
 
     private fun persistRemoteRevision(endpoint: ServerEndpoint, revision: String) {
-        storedRemoteRevisions[endpoint.identity] = revision
+        synchronized(storedRemoteRevisions) { storedRemoteRevisions[endpoint.identity] = revision }
         persistRemoteRevisions()
     }
 

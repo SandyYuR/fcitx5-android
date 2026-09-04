@@ -18,6 +18,7 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
@@ -57,13 +58,26 @@ class ClipCascadeClient(
         /**
          * Bounds for the server-provided PBKDF2 iteration count; see C19.
          *
-         * The lower bound is the previous client default, the upper bound keeps a hostile or
-         * misconfigured server from pinning the IO thread for minutes.
+         * [MAX_HASH_ROUNDS] is enforced — it keeps a hostile or misconfigured server from pinning
+         * the IO thread for minutes. [MIN_HASH_ROUNDS] is only a warning threshold: a server
+         * configured below it is unusual but its value still has to be used verbatim, or the
+         * derived key disagrees with every other client.
          */
         private const val MIN_HASH_ROUNDS = 100_000
         private const val MAX_HASH_ROUNDS = 2_000_000
         private const val GCM_NONCE_SIZE_BYTES = 16
         private const val GCM_TAG_SIZE_BYTES = 16
+
+        /** Read timeout for the plain HTTP calls; see [httpClient]. */
+        private const val HTTP_READ_TIMEOUT_SECONDS = 30L
+
+        /**
+         * Largest login / validate-session / user-info response body accepted.
+         *
+         * These are small JSON documents; reading them with an unbounded `string()` let a hostile
+         * or broken server allocate without limit inside the IME process (see A9).
+         */
+        private const val MAX_HTTP_BODY_BYTES = 1L * 1024 * 1024
     }
 
     private val json = Json {
@@ -75,12 +89,32 @@ class ClipCascadeClient(
 
     private val baseUrl = normalizeServerUrl(serverUrl)
     private val cookieJar = MemoryCookieJar()
+
+    /**
+     * Client for the websocket only: `readTimeout(0)` is required there, since a websocket may
+     * legitimately stay silent for as long as it likes.
+     */
     private val client = OkHttpClient.Builder()
         .cookieJar(cookieJar)
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
         .pingInterval(30, TimeUnit.SECONDS)
+        .build()
+
+    /**
+     * Client for the three plain HTTP calls of the handshake (login, validate-session, user-info).
+     *
+     * They used to share the websocket client, so they inherited `readTimeout(0)`: a server that
+     * accepted the connection and then said nothing parked `execute()` forever, and a blocking
+     * `execute()` does not observe coroutine cancellation either. The 15s handshake timeout in
+     * [connect] only covers the CONNECTED frame, i.e. everything *after* these three calls, so
+     * the hang C16 set out to remove was still reachable through them.
+     *
+     * Shares the connection pool and cookie jar with [client] — only the read timeout differs.
+     */
+    private val httpClient = client.newBuilder()
+        .readTimeout(HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .build()
 
     private val connected = AtomicBoolean(false)
@@ -114,6 +148,12 @@ class ClipCascadeClient(
         } catch (e: TimeoutCancellationException) {
             close()
             throw IOException("ClipCascade STOMP handshake timed out after ${HANDSHAKE_TIMEOUT_MS}ms", e)
+        } catch (t: Throwable) {
+            // The socket is already open at this point, so anything that aborts the wait —
+            // including plain cancellation — has to close it, or the connection and its listener
+            // leak for the life of the process.
+            close()
+            throw t
         }
     }
 
@@ -177,7 +217,7 @@ class ClipCascadeClient(
             )
             .build()
 
-        client.newCall(request).execute().use { response ->
+        httpClient.newCall(request).execute().use { response ->
             val location = response.header("Location").orEmpty()
             if (!response.isRedirect && !response.isSuccessful) {
                 throw IOException("ClipCascade login failed: ${response.code} ${response.message}")
@@ -194,11 +234,11 @@ class ClipCascadeClient(
             .get()
             .build()
 
-        client.newCall(request).execute().use { response ->
+        httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw IOException("ClipCascade session validation failed: ${response.code} ${response.message}")
             }
-            val body = response.body?.string().orEmpty()
+            val body = response.bodyStringAtMost()
             val validation = json.decodeFromString<ClipCascadeSessionValidationResponse>(body)
             if (!validation.valid) {
                 throw IOException("ClipCascade session is not valid")
@@ -212,18 +252,30 @@ class ClipCascadeClient(
             .get()
             .build()
 
-        client.newCall(request).execute().use { response ->
+        httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw IOException("ClipCascade user-info failed: ${response.code} ${response.message}")
             }
-            val body = response.body?.string().orEmpty()
+            val body = response.bodyStringAtMost()
             val userInfo = json.decodeFromString<ClipCascadeUserInfoResponse>(body)
-            // The iteration count comes straight off the wire. Unclamped, 1 downgrades the key
-            // to brute-forceable, 0 or negative makes PBEKeySpec throw, and a huge value spins
-            // the IO thread for minutes (see C19).
-            val rounds = userInfo.hashRounds.coerceIn(MIN_HASH_ROUNDS, MAX_HASH_ROUNDS)
-            if (rounds != userInfo.hashRounds) {
-                Log.w(TAG, "ClipCascade hash_rounds ${userInfo.hashRounds} out of range, using $rounds")
+            // The iteration count comes straight off the wire, and the derived key must match
+            // what every other client computes, so the server value is used as given (see C19).
+            // Two exceptions, both of which cannot be honoured at all:
+            //  - 0 or negative: PBEKeySpec rejects it outright;
+            //  - absurdly large: PBKDF2 would pin a thread for minutes, so cap it and let the
+            //    resulting key mismatch surface as a decryption error rather than a freeze.
+            // A value merely *below* MIN_HASH_ROUNDS is honoured with a warning: clamping it up
+            // produced a key that silently disagreed with the desktop client, which is the very
+            // failure C19 exists to remove.
+            val reported = userInfo.hashRounds
+            if (reported <= 0) {
+                throw IOException("ClipCascade reported an invalid hash_rounds of $reported")
+            }
+            val rounds = reported.coerceAtMost(MAX_HASH_ROUNDS)
+            if (rounds != reported) {
+                Log.w(TAG, "ClipCascade hash_rounds $reported above the cap, using $rounds")
+            } else if (rounds < MIN_HASH_ROUNDS) {
+                Log.w(TAG, "ClipCascade hash_rounds $rounds is weak but honoured for compatibility")
             }
             encryptionKey = deriveKey(
                 password = password,
@@ -481,6 +533,30 @@ class ClipCascadeClient(
         val headers: Map<String, String>,
         val body: String
     )
+
+    /** Bounded body read for the handshake responses; see [MAX_HTTP_BODY_BYTES]. */
+    private fun Response.bodyStringAtMost(limit: Long = MAX_HTTP_BODY_BYTES): String {
+        val body = this.body ?: return ""
+        val declared = body.contentLength()
+        if (declared > limit) {
+            throw IOException("ClipCascade response of $declared bytes exceeds ${limit / 1024}KB")
+        }
+        val charset = body.contentType()?.charset() ?: Charsets.UTF_8
+        val stream = body.byteStream()
+        val buffer = ByteArrayOutputStream()
+        val chunk = ByteArray(DEFAULT_BUFFER_SIZE)
+        var total = 0L
+        while (true) {
+            val read = stream.read(chunk)
+            if (read <= 0) break
+            total += read
+            if (total > limit) {
+                throw IOException("ClipCascade response exceeds ${limit / 1024}KB")
+            }
+            buffer.write(chunk, 0, read)
+        }
+        return String(buffer.toByteArray(), charset)
+    }
 
     private class MemoryCookieJar : CookieJar {
         private val store = ConcurrentHashMap<String, List<Cookie>>()
