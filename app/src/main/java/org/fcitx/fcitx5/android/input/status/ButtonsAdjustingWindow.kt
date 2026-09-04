@@ -52,6 +52,9 @@ private val prettyJson = kotlinx.serialization.json.Json { prettyPrint = true }
 private const val DRAG_FEEDBACK_DURATION_MS = 240L
 private const val DRAG_END_DURATION_MS = 280L
 
+/** Debounce window for persisting a drag reorder. */
+private const val SAVE_DEBOUNCE_MS = 400L
+
 data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjustingWindow>() {
 
     private val service: FcitxInputMethodService by manager.inputMethodService()
@@ -72,6 +75,14 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private val availableButtons = mutableListOf<ConfigurableButton>()
     private var originalTop = listOf<ConfigurableButton>()
     private var originalBottom = listOf<ConfigurableButton>()
+
+    /**
+     * Entries present in ButtonsLayout.json that this panel cannot render (id outside the
+     * configurable whitelist, or a duplicate within the same section), kept with their
+     * original index so [saveConfig] can write them back unchanged.
+     */
+    private val droppedTop = mutableListOf<Pair<Int, ConfigurableButton>>()
+    private val droppedBottom = mutableListOf<Pair<Int, ConfigurableButton>>()
     private var dragInProgress = false
 
     /**
@@ -879,6 +890,10 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                     lastTopScrollerWidth = topScroller.width
                     renderTopButtons()
                 }
+                // Persist here rather than only in onDetached(): the IME process can be
+                // killed or the user can switch input methods without this window ever being
+                // detached, which used to lose the reordering silently.
+                scheduleSaveAfterDrag()
             }
         }
         true
@@ -892,25 +907,57 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             .map { it.id }
             .filterNot { it in reservedIds }
             .toSet()
-        val seen = mutableSetOf<String>()
+        // Partition per section (see ButtonsPanelPartition): de-duplication must not be
+        // shared between the toolbar and the status area, and entries this panel cannot
+        // render have to be remembered so saveConfig() does not delete them.
+        // kawaiiBarButtonsWithThemeToggle() is the effective toolbar list (it drops the
+        // legacy "more" entry and back-fills theme_toggle for pre-existing default layouts),
+        // so the recorded indices refer to that same derived list.
+        val top = ButtonsPanelPartition.partition(
+            source = config.kawaiiBarButtonsWithThemeToggle(),
+            configurableIds = configurableIds
+        )
+        val bottom = ButtonsPanelPartition.partition(
+            source = config.statusAreaButtons,
+            configurableIds = configurableIds,
+            excludedIds = setOf("input_method_options")
+        )
         topButtons.clear()
-        config.kawaiiBarButtonsWithThemeToggle().forEach { button ->
-            if ((button.id in configurableIds || button.macroSteps != null) && seen.add(button.id)) topButtons.add(button)
-        }
+        topButtons.addAll(top.visible)
+        droppedTop.clear()
+        droppedTop.addAll(top.dropped)
         bottomButtons.clear()
-        config.statusAreaButtons.forEach { button ->
-            if (button.id != "input_method_options" && (button.id in configurableIds || button.macroSteps != null) && seen.add(button.id)) {
-                bottomButtons.add(button)
-            }
-        }
+        bottomButtons.addAll(bottom.visible)
+        droppedBottom.clear()
+        droppedBottom.addAll(bottom.dropped)
         availableButtons.clear()
+        val placed = (top.visible + bottom.visible).map { it.id }.toSet()
         ButtonAction.allConfigurableActions
             .filterNot { it.id in reservedIds }
             .forEach { action ->
-            if (action.id !in seen) availableButtons.add(ConfigurableButton(action.id))
+            if (action.id !in placed) availableButtons.add(ConfigurableButton(action.id))
         }
         originalTop = topButtons.toList()
         originalBottom = bottomButtons.toList()
+    }
+
+    /**
+     * Debounced save after a drag: a reorder is usually a burst of drags, and each write
+     * re-serializes the whole config file.
+     */
+    private fun scheduleSaveAfterDrag() {
+        root.removeCallbacks(saveAfterDragRunnable)
+        root.postDelayed(saveAfterDragRunnable, SAVE_DEBOUNCE_MS)
+    }
+
+    private val saveAfterDragRunnable = Runnable {
+        if (topButtons != originalTop || bottomButtons != originalBottom) {
+            saveConfig()
+            // Treat the saved state as the new baseline so onDetached() does not save again
+            // (and does not show a second "saved" toast).
+            originalTop = topButtons.toList()
+            originalBottom = bottomButtons.toList()
+        }
     }
 
     private fun saveConfig() {
@@ -920,8 +967,10 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             // Read existing config to preserve toolbarToggleButton and hideKeyboardButton
             val existing = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
             val config = ButtonsLayoutConfig(
-                kawaiiBarButtons = topButtons.toList(),
-                statusAreaButtons = bottomButtons.toList(),
+                // Merge back the entries loadState() could not render, so saving from this
+                // panel never deletes buttons it simply did not know how to show.
+                kawaiiBarButtons = ButtonsPanelPartition.merge(topButtons.toList(), droppedTop),
+                statusAreaButtons = ButtonsPanelPartition.merge(bottomButtons.toList(), droppedBottom),
                 toolbarToggleButton = existing?.toolbarToggleButton ?: ConfigurableButton("toolbar_toggle"),
                 hideKeyboardButton = existing?.hideKeyboardButton ?: ConfigurableButton("hide_keyboard")
             )
@@ -1067,6 +1116,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     }
 
     override fun onDetached() {
+        root.removeCallbacks(saveAfterDragRunnable)
         topScroller.removeOnLayoutChangeListener(topScrollerLayoutListener)
         topScroller.setOnDragListener(null)
         bottomList.setOnDragListener(null)
