@@ -3503,6 +3503,10 @@ class InputView(
         candidatesPrefs.unregisterOnChangeListener(onCandidatePreferenceChangeListener)
         ConfigProviders.removeButtonsLayoutListener(onButtonsLayoutChangeListener)
         ConfigProviders.removeIconChangeListener(onIconChangeListener)
+        // Components that register on process-scoped singletons must undo that here:
+        // scope.clear() below only drops the dependency graph, it does not reach into
+        // VoiceInputProviderManager / ClipboardManager / IconThemeManager.
+        kawaiiBar.onScopeTeardown()
         blurUpdateJob?.cancel()
         blurUpdateScope.cancel()
         // clear DynamicScope, implies that InputView should not be attached again after detached.
