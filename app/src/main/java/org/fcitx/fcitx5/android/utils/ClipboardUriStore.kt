@@ -34,6 +34,9 @@ object ClipboardUriStore {
     private const val OPEN_RETRY_COUNT = 5
     private const val OPEN_RETRY_DELAY_MS = 120L
 
+    /** How many staged clipboard files to keep. */
+    private const val MAX_CACHED_FILES = 32
+
     fun String.toClipboardUriOrNull(): Uri? {
         return if (startsWith("content://") || startsWith("file://")) Uri.parse(this) else null
     }
@@ -49,7 +52,11 @@ object ClipboardUriStore {
             return ClipboardSharedContent(uri, mimeType)
         }
         val displayName = resolveDisplayName(context, uri, mimeType)
-        val targetFile = File(cacheRoot(context), displayName)
+        // Prefix a monotonic id: naming the cache file after the source file made two
+        // different files with the same name (Download/IMG_001.jpg and
+        // Pictures/IMG_001.jpg) collide, so the second copy silently overwrote the first
+        // and both history entries pointed at the same content.
+        val targetFile = File(cacheRoot(context), uniqueStagedName(displayName))
         return try {
             openInputStreamWithRetry(context, uri)?.use { input ->
                 targetFile.outputStream().use { output -> input.copyTo(output) }
@@ -110,9 +117,29 @@ object ClipboardUriStore {
         return File(context.cacheDir, CACHE_DIR).apply { mkdirs() }
     }
 
+    /**
+     * Unique name for a staged copy: "<nanoTime>-<original name>". Keeping the original
+     * name as a suffix means the file name shown to the receiving app is still meaningful.
+     */
+    internal fun uniqueStagedName(displayName: String): String =
+        "${System.nanoTime()}-$displayName"
+
+    /**
+     * Set when [pruneCache] deletes staged files, so the clipboard database can drop the
+     * entries that referenced them. Wired up by ClipboardManager; kept as a callback here to
+     * avoid a dependency from utils into the data layer.
+     */
+    @Volatile
+    var onStagedFilesEvicted: ((List<File>) -> Unit)? = null
+
     private fun pruneCache(latest: File) {
         val files = latest.parentFile?.listFiles()?.sortedByDescending { it.lastModified() } ?: return
-        files.drop(32).forEach { it.delete() }
+        val evicted = files.drop(MAX_CACHED_FILES).filter { it.delete() }
+        if (evicted.isNotEmpty()) {
+            // Deleting the file alone left history entries pointing at a dead FileProvider
+            // URI: the thumbnail loader retried and gave up, and pasting produced nothing.
+            onStagedFilesEvicted?.invoke(evicted)
+        }
     }
 
     private fun openInputStream(context: Context, uri: Uri) = when (uri.scheme?.lowercase(Locale.ROOT)) {
