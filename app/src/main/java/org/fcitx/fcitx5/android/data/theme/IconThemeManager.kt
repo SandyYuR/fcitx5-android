@@ -20,6 +20,7 @@ import android.util.LruCache
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
+import org.fcitx.fcitx5.android.utils.FileNames
 import org.fcitx.fcitx5.android.utils.WeakHashSet
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.utils.appContext
@@ -502,8 +503,14 @@ object IconThemeManager {
         return File(extDir, "${ButtonIconFile.DIR}/${sanitizeFileName(name)}").also { it.mkdirs() }
     }
 
-    private fun sanitizeFileName(name: String): String =
-        name.replace(Regex("[/\\\\:*?\"<>|]"), "_").trim { it <= ' ' || it == '.' }
+    private fun sanitizeFileName(name: String): String = FileNames.sanitize(name)
+
+    /**
+     * Safe file name for an icon resource coming from a content provider or an import.
+     * See [FileNames.safeImageFileName]; null when the extension is not accepted.
+     */
+    fun safeIconFileName(rawName: String, fallbackBaseName: String = "image"): String? =
+        FileNames.safeImageFileName(rawName, fallbackBaseName)
 
     /** Collect all `file:` references in a theme's icons map. */
     fun collectFileReferences(theme: IconTheme): Set<String> =
