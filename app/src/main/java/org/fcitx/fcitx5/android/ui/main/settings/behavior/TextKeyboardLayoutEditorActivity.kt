@@ -481,30 +481,33 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         currentLayoutProfile = currentActiveProfile()
         layoutFile = provider.textKeyboardLayoutFile()
 
-        loadState()
-        // Restore an unsaved edit across a configuration change. loadState() has already
-        // read the file, so the draft (if any) simply replaces the in-memory entries.
-        savedInstanceState?.let(::restoreDraftState)
+        // loadState() reads the layout file on IO, so the rest of setup runs after it.
+        lifecycleScope.launch {
+            loadState()
+            // Restore an unsaved edit across a configuration change. loadState() has already
+            // read the file, so the draft (if any) simply replaces the in-memory entries.
+            savedInstanceState?.let(::restoreDraftState)
 
-        buildSpinner()
-        buildSubModeSpinner()
-        buildRows()
-        run { val layoutName = currentLayout ?: return@run; previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection) }
-        maybePromptSwitchToFcitxIme()
+            buildSpinner()
+            buildSubModeSpinner()
+            buildRows()
+            run { val layoutName = currentLayout ?: return@run; previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection) }
+            maybePromptSwitchToFcitxIme()
 
-        // Show toast to indicate current editing layout
-        // Only show submode-specific message if there's actually a dedicated submode layout
-        currentLayout?.let { layoutName ->
-            val subModeLabel = previewSubModeLabel
-            val subModeKey = subModeLabel?.let { "$layoutName:$it" }
-            val hasDedicatedSubModeLayout = subModeKey != null &&
-                (entries.containsKey(subModeKey) ||
-                    subModeManager.nameToIdMap[subModeLabel]?.let { entries.containsKey("$layoutName:$it") } == true)
+            // Show toast to indicate current editing layout
+            // Only show submode-specific message if there's actually a dedicated submode layout
+            currentLayout?.let { layoutName ->
+                val subModeLabel = previewSubModeLabel
+                val subModeKey = subModeLabel?.let { "$layoutName:$it" }
+                val hasDedicatedSubModeLayout = subModeKey != null &&
+                    (entries.containsKey(subModeKey) ||
+                        subModeManager.nameToIdMap[subModeLabel]?.let { entries.containsKey("$layoutName:$it") } == true)
 
-            if (hasDedicatedSubModeLayout) {
-                showToast(getString(R.string.text_keyboard_layout_editing_submode, subModeLabel))
-            } else {
-                showToast(getString(R.string.text_keyboard_layout_editing_default, layoutName))
+                if (hasDedicatedSubModeLayout) {
+                    showToast(getString(R.string.text_keyboard_layout_editing_submode, subModeLabel))
+                } else {
+                    showToast(getString(R.string.text_keyboard_layout_editing_default, layoutName))
+                }
             }
         }
     }
@@ -580,7 +583,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             true
         }
         MENU_SAVE_ID -> {
-            saveLayout()
+            lifecycleScope.launch { saveLayout() }
             true
         }
         MENU_LAYOUT_FILE_SWITCH_ID -> {
@@ -652,7 +655,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun loadState() {
+    /** Suspend because the file read/parse happens on IO (see D7). */
+    private suspend fun loadState() {
         val file = layoutFile
 
         // 获取 IMEs 用于 spinner 显示
@@ -660,8 +664,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             fcitxConnection.runImmediately { enabledIme() }
         }.getOrDefault(emptyArray())
 
-        // 使用 dataManager 加载数据
-        dataManager.loadFromFile(file)
+        // 使用 dataManager 加载数据（IO 线程）
+        dataManager.loadFromFileAsync(file)
 
         // 初始化 currentLayout 和 previewSubModeLabel（基于当前 IME 状态）
         val (currentIme, fcitxLabels) = subModeManager.fetchCurrentImeAndSubModeLabels(currentLayout.orEmpty())
@@ -2009,7 +2013,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun saveLayout(): Boolean {
+    /** Suspend because validation, backup, serialization and the write happen on IO (see D7). */
+    private suspend fun saveLayout(): Boolean {
         val file = layoutFile ?: run {
             showToast(getString(R.string.cannot_resolve_text_keyboard_layout))
             return false
@@ -2036,8 +2041,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             return false
         }
 
-        // 使用 dataManager 保存
-        if (dataManager.saveToFile(file)) {
+        // 使用 dataManager 保存（IO 线程）
+        if (dataManager.saveToFileAsync(file)) {
             showToast(getString(R.string.text_keyboard_layout_file_saved, file.name))
             // 通知 provider watcher 文件已更改
             ConfigProviders.ensureWatching()
@@ -2396,21 +2401,23 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         ConfigProviders.provider = ConfigProviders.provider
         currentLayoutProfile = normalized
         layoutFile = provider.textKeyboardLayoutFile()
-        loadState()
-        buildSpinner()
-        buildSubModeSpinner(forceResetSelection = true)
-        buildRows()
-        currentLayout?.let { layoutName ->
-            previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection)
-        }
-        updateSaveButtonState()
-        if (showSwitchToast) {
-            showToast(
-                getString(
-                    R.string.text_keyboard_layout_file_switched,
-                    displayProfile(normalized)
+        lifecycleScope.launch {
+            loadState()
+            buildSpinner()
+            buildSubModeSpinner(forceResetSelection = true)
+            buildRows()
+            currentLayout?.let { layoutName ->
+                previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection)
+            }
+            updateSaveButtonState()
+            if (showSwitchToast) {
+                showToast(
+                    getString(
+                        R.string.text_keyboard_layout_file_switched,
+                        displayProfile(normalized)
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -2569,9 +2576,12 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     showToast(getString(R.string.text_keyboard_layout_file_already_exists))
                     return@setOnClickListener
                 }
+                // saveLayout() suspends (the write is on IO, see D7), so the rename that
+                // depends on it has to run in a coroutine too.
+                lifecycleScope.launch {
                 if (hasChanges() && !saveLayout()) {
                     showToast(getString(R.string.text_keyboard_layout_save_failed))
-                    return@setOnClickListener
+                    return@launch
                 }
                 runCatching {
                     oldFile.parentFile?.mkdirs()
@@ -2623,6 +2633,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                             candidate.renameTo(File(candidate.parentFile, "$oldPrefix$suffix"))
                         }
                     }
+                }
                 }
             }
         }
@@ -2693,26 +2704,32 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     showToast(getString(R.string.text_keyboard_layout_file_already_exists))
                     return@setOnClickListener
                 }
-                runCatching {
-                    targetFile.parentFile?.mkdirs()
-                    if (copySwitch.isChecked) {
-                        val source = layoutFile
-                        if (source?.exists() == true) {
-                            source.copyTo(targetFile, overwrite = false)
-                        } else {
-                            val json = dataManager.exportCurrentJsonString()
-                            targetFile.writeText(json)
+                // File copy / template load / write are all disk work (see D7).
+                lifecycleScope.launch {
+                    val copyCurrent = copySwitch.isChecked
+                    val json = if (copyCurrent) dataManager.exportCurrentJsonString() else null
+                    withContext(Dispatchers.IO) {
+                        runCatching {
+                            targetFile.parentFile?.mkdirs()
+                            if (copyCurrent) {
+                                val source = layoutFile
+                                if (source?.exists() == true) {
+                                    source.copyTo(targetFile, overwrite = false)
+                                } else {
+                                    targetFile.writeText(json.orEmpty())
+                                }
+                            } else {
+                                val templateManager = LayoutDataManager(this@TextKeyboardLayoutEditorActivity)
+                                templateManager.loadFromFile(null)
+                                targetFile.writeText(templateManager.exportCurrentJsonString())
+                            }
                         }
-                    } else {
-                        val templateManager = LayoutDataManager(this)
-                        templateManager.loadFromFile(null)
-                        targetFile.writeText(templateManager.exportCurrentJsonString())
+                    }.onSuccess {
+                        switchToLayoutProfile(normalized)
+                        dialog.dismiss()
+                    }.onFailure {
+                        showToast(getString(R.string.text_keyboard_layout_save_failed))
                     }
-                }.onSuccess {
-                    switchToLayoutProfile(normalized)
-                    dialog.dismiss()
-                }.onFailure {
-                    showToast(getString(R.string.text_keyboard_layout_save_failed))
                 }
             }
         }
@@ -2729,29 +2746,39 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             showToast(getString(R.string.text_keyboard_layout_file_already_exists))
             return
         }
-        runCatching {
-            targetFile.parentFile?.mkdirs()
-            if (copyCurrent) {
-                val source = layoutFile
-                if (source?.exists() == true) {
-                    source.copyTo(targetFile, overwrite = false)
-                } else {
-                    val json = dataManager.exportCurrentJsonString()
-                    targetFile.writeText(json)
+        // File copy / template load / write are all disk work (see D7).
+        lifecycleScope.launch {
+            val json = if (copyCurrent) dataManager.exportCurrentJsonString() else null
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    targetFile.parentFile?.mkdirs()
+                    if (copyCurrent) {
+                        val source = layoutFile
+                        if (source?.exists() == true) {
+                            source.copyTo(targetFile, overwrite = false)
+                        } else {
+                            targetFile.writeText(json.orEmpty())
+                        }
+                    } else {
+                        val templateManager = LayoutDataManager(this@TextKeyboardLayoutEditorActivity)
+                        templateManager.loadFromFile(null)
+                        targetFile.writeText(templateManager.exportCurrentJsonString())
+                    }
                 }
-            } else {
-                val templateManager = LayoutDataManager(this)
-                templateManager.loadFromFile(null)
-                targetFile.writeText(templateManager.exportCurrentJsonString())
+            }.onSuccess {
+                switchToLayoutProfile(normalized)
+            }.onFailure {
+                showToast(getString(R.string.text_keyboard_layout_save_failed))
             }
-        }.onSuccess {
-            switchToLayoutProfile(normalized)
-        }.onFailure {
-            showToast(getString(R.string.text_keyboard_layout_save_failed))
         }
     }
 
     private fun renameLayoutProfileFromInput(newProfile: String) {
+        // saveLayout() suspends (see D7); the rename depends on its result.
+        lifecycleScope.launch { renameLayoutProfileFromInputSuspend(newProfile) }
+    }
+
+    private suspend fun renameLayoutProfileFromInputSuspend(newProfile: String) {
         val oldProfile = currentLayoutProfile
         val oldFile = layoutFile ?: UserConfigFiles.textKeyboardLayoutJson(oldProfile)
         if (oldFile == null) {
@@ -2840,7 +2867,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             )
             .setPositiveButton(R.string.text_keyboard_layout_corrupt_overwrite) { _, _ ->
                 dataManager.acknowledgeLoadWarning()
-                saveLayout()
+                lifecycleScope.launch { saveLayout() }
             }
             .setNegativeButton(android.R.string.cancel, null)
             .create()
@@ -2861,8 +2888,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             .setTitle(R.string.text_keyboard_layout_discard_changes_title)
             .setMessage(R.string.text_keyboard_layout_import_unsaved_changes_message)
             .setPositiveButton(R.string.text_keyboard_layout_import_save_and_continue) { _, _ ->
-                if (saveLayout()) {
-                    onReady()
+                lifecycleScope.launch {
+                    if (saveLayout()) {
+                        onReady()
+                    }
                 }
             }
             .setNeutralButton(R.string.text_keyboard_layout_import_discard_and_continue) { _, _ ->

@@ -30,9 +30,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.Theme
@@ -703,18 +705,23 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     ) {
         pendingMacroCallback = callback
         pendingMacroButtonId = targetButtonId
-        val intent = android.content.Intent(this, MacroEditorActivity::class.java).apply {
-            val stepsList = steps ?: emptyList()
-            putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS_JSON, macroJson.encodeToString(stepsList))
-            // Also include Map format for backward compatibility
-            putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, MacroEditorActivity.toStepsExtra(stepsList))
-            putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, getString(R.string.edit_button_macro_event_type))
-            putStringArrayListExtra(MacroEditorActivity.EXTRA_LAYOUT_TARGETS, ArrayList(availableLayoutTargets()))
-            // Carried through the result so the edit can be applied even if this Activity is
-            // recreated while the editor is in front (see macroEditorLauncher).
-            targetButtonId?.let { putExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN, it) }
+        // availableLayoutTargets() reads and parses the whole layout file, so it runs on IO
+        // (see D7) and the editor is launched once the list is ready.
+        lifecycleScope.launch {
+            val layoutTargets = availableLayoutTargets()
+            val intent = android.content.Intent(this@ButtonsCustomizerActivity, MacroEditorActivity::class.java).apply {
+                val stepsList = steps ?: emptyList()
+                putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS_JSON, macroJson.encodeToString(stepsList))
+                // Also include Map format for backward compatibility
+                putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, MacroEditorActivity.toStepsExtra(stepsList))
+                putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, getString(R.string.edit_button_macro_event_type))
+                putStringArrayListExtra(MacroEditorActivity.EXTRA_LAYOUT_TARGETS, ArrayList(layoutTargets))
+                // Carried through the result so the edit can be applied even if this Activity is
+                // recreated while the editor is in front (see macroEditorLauncher).
+                targetButtonId?.let { putExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN, it) }
+            }
+            macroEditorLauncher.launch(intent)
         }
-        macroEditorLauncher.launch(intent)
     }
 
     /**
@@ -730,9 +737,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         updateSaveButtonState()
     }
 
-    private fun availableLayoutTargets(): List<String> = runCatching {
+    private suspend fun availableLayoutTargets(): List<String> = runCatching {
         val dataManager = LayoutDataManager(this)
-        dataManager.loadFromFile(ConfigProviders.provider.textKeyboardLayoutFile())
+        dataManager.loadFromFileAsync(ConfigProviders.provider.textKeyboardLayoutFile())
         val entryKeys = dataManager.entries.keys.toList()
         val layerAliases = entryKeys.mapNotNull { key ->
             val subMode = key.substringAfter(':', "")
