@@ -131,6 +131,7 @@
     <string name="update_hosts_enable_title">Enable GitHub hosts mapping</string>
     <string name="update_hosts_enable_required">Enable hosts mapping first</string>
     <string name="update_hosts_source_required">Please enter hosts source URL</string>
+    <string name="update_hosts_source_invalid">Hosts source must be a valid https:// URL</string>
     <string name="update_hosts_update_button">Update hosts mapping</string>
     <string name="update_hosts_update_failed">Hosts update failed</string>
     <string name="update_hosts_updated_count">Hosts updated: %1$d entries</string>

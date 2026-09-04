@@ -69,6 +69,12 @@ class UpdateHostsSettingsActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.update_hosts_source_required), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            // Validate here rather than letting OkHttp throw IllegalArgumentException deep
+            // inside the fetch, where it was reported as a generic "update failed".
+            if (!UpdateRepository.isValidHttpUrl(source) || !source.startsWith("https://")) {
+                Toast.makeText(this, getString(R.string.update_hosts_source_invalid), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             if (!enableSwitch.isChecked) {
                 Toast.makeText(this, getString(R.string.update_hosts_enable_required), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
