@@ -18,7 +18,16 @@ import java.io.FileOutputStream
 
 object JsonFileQrShareManager {
     private const val MAX_DECODE_PIXELS = 16_000_000L
-    private const val MIN_QR_DECODE_DIMENSION = 512
+
+    /**
+     * Smallest QR square, in px, we are willing to hand to zxing after downsampling.
+     *
+     * A chunk QR is at most about 100 modules across, so 256px is roughly 2.6 px per module and
+     * the largest exportable image (which needs inSampleSize 2, leaving 384px) sits at about 3.8.
+     * This was 512, which combined with the whole-image bound made anything past ~23 chunks
+     * undecodable (see C27).
+     */
+    private const val MIN_QR_DECODE_DIMENSION = 256
 
     fun encodeSavedJsonFileToChunks(
         file: File,
@@ -116,6 +125,15 @@ object JsonFileQrShareManager {
         } ?: error("Unable to decode image")
     }
 
+    /**
+     * Downsample factor for decoding a QR long image.
+     *
+     * The safety bound is derived from the *QR square* size, not the whole image. A long image is
+     * always [LayoutQrBitmapUtil.LONG_IMAGE_WIDTH] px wide however many chunks it has, so the old
+     * `min(width, height) / 512` was permanently 1 and any image above [MAX_DECODE_PIXELS] — about
+     * 23 chunks, i.e. roughly 23KB of payload — was rejected as "too large to decode safely",
+     * including images this app had just produced (see C27).
+     */
     private fun calculateDecodeSampleSize(width: Int, height: Int): Int {
         val pixelSample = maxOf(
             1,
@@ -123,7 +141,9 @@ object JsonFileQrShareManager {
                 kotlin.math.sqrt(width.toLong() * height.toDouble() / MAX_DECODE_PIXELS)
             ).toInt()
         )
-        val maximumSafeSample = maxOf(1, minOf(width, height) / MIN_QR_DECODE_DIMENSION)
+        // How large one QR square is in this image, assuming the standard long-image layout.
+        val qrSquarePx = LayoutQrBitmapUtil.estimateQrSquareSize(width)
+        val maximumSafeSample = maxOf(1, qrSquarePx / MIN_QR_DECODE_DIMENSION)
         require(pixelSample <= maximumSafeSample) { "QR image is too large to decode safely" }
         return pixelSample
     }
