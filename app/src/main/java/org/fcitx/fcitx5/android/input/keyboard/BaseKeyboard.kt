@@ -209,7 +209,10 @@ abstract class BaseKeyboard(
         clipToPadding = false
         reloadLayout()
         spaceSwipeMoveCursor.registerOnChangeListener(spaceSwipeChangeListener)
-        splitKeyboardManager.registerListener(splitStateChangeListener)
+        // No listener registration on SplitKeyboardStateManager: it is an application-scoped
+        // singleton that never notified anyone (notifyListeners had no callers), while every
+        // registration pinned a keyboard view tree for the life of the process. Split state
+        // is computed directly via shouldUseSplitKeyboard() in reloadLayout().
     }
 
     /**
