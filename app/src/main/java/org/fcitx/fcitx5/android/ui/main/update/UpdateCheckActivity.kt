@@ -86,6 +86,15 @@ class UpdateCheckActivity : AppCompatActivity() {
     private val pollHandler = Handler(Looper.getMainLooper())
     private var polling = false
 
+    /** In-flight [validateFinishedDownloads] run; at most one at a time. */
+    private var validationJob: Job? = null
+
+    /**
+     * SHA-256 results keyed by identity of the file we hashed, so an unchanged package is
+     * not re-hashed on every validation pass.
+     */
+    private val hashCache = mutableMapOf<String, String>()
+
     private val mirrorEditorLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             reloadMirrors()
@@ -792,46 +801,71 @@ class UpdateCheckActivity : AppCompatActivity() {
         adapter.submitList(downloadStates.values.toList())
     }
 
+    /**
+     * Re-check downloads we believe are FINISHED and repair the UI state.
+     *
+     * The checks stat files, open content URIs and SHA-256 whole APKs, so they run on
+     * [Dispatchers.IO]; only the resulting state updates are applied on the main thread.
+     * Previously this ran synchronously from an 800ms main-thread poll, which hashed every
+     * finished package on every tick.
+     */
     private fun validateFinishedDownloads() {
-        var changed = false
-        val list = downloadStates.values.toList()
-        list.forEach { state ->
-            if (state.status != AssetStatus.FINISHED) return@forEach
+        if (validationJob?.isActive == true) return
+        val finished = downloadStates.values.filter { it.status == AssetStatus.FINISHED }
+        if (finished.isEmpty()) return
+        validationJob = lifecycleScope.launch {
+            val updates = withContext(Dispatchers.IO) { computeFinishedDownloadUpdates(finished) }
+            if (updates.isEmpty()) return@launch
+            var changed = false
+            updates.forEach { (url, updated) ->
+                val current = downloadStates[url] ?: return@forEach
+                // The state may have moved on while we were off the main thread.
+                if (current.status != AssetStatus.FINISHED) return@forEach
+                if (current != updated) {
+                    downloadStates[url] = updated
+                    changed = true
+                }
+            }
+            if (changed) {
+                adapter.submitList(downloadStates.values.toList())
+            }
+        }
+    }
+
+    /** Pure computation half of [validateFinishedDownloads]; safe to call off the main thread. */
+    private fun computeFinishedDownloadUpdates(
+        finished: List<AssetUiState>
+    ): Map<String, AssetUiState> {
+        val updates = mutableMapOf<String, AssetUiState>()
+        fun AssetUiState.reset() = copy(
+            status = AssetStatus.IDLE,
+            progressPercent = 0,
+            downloadedBytes = 0L,
+            speedBytesPerSec = 0L,
+            downloadId = null,
+            installUri = null
+        )
+        finished.forEach { state ->
+            val url = state.asset.browserDownloadUrl
             if (state.downloadId == null) {
                 val uri = state.installUri
                 val size = uri?.let { detectUriSize(it, state.totalBytes) } ?: -1L
                 if (uri == null ||
                     !uriUsable(uri) ||
-                    (state.asset.sizeBytes > 0 && size > 0 && size != state.asset.sizeBytes)
-                    || !hashMatchesAsset(null, uri, state.asset)
+                    (state.asset.sizeBytes > 0 && size > 0 && size != state.asset.sizeBytes) ||
+                    !hashMatchesAsset(null, uri, state.asset)
                 ) {
-                    downloadStates[state.asset.browserDownloadUrl] = state.copy(
-                        status = AssetStatus.IDLE,
-                        progressPercent = 0,
-                        downloadedBytes = 0L,
-                        speedBytesPerSec = 0L,
-                        downloadId = null,
-                        installUri = null
-                    )
-                    changed = true
+                    updates[url] = state.reset()
                 }
                 return@forEach
             }
             val hit = findLatestSuccessfulDownload(state.asset)
             if (hit == null) {
-                downloadStates[state.asset.browserDownloadUrl] = state.copy(
-                    status = AssetStatus.IDLE,
-                    progressPercent = 0,
-                    downloadedBytes = 0L,
-                    speedBytesPerSec = 0L,
-                    downloadId = null,
-                    installUri = null
-                )
-                changed = true
+                updates[url] = state.reset()
                 return@forEach
             }
             if (state.downloadId != hit.id || state.installUri != hit.uri || state.totalBytes != hit.sizeBytes) {
-                downloadStates[state.asset.browserDownloadUrl] = state.copy(
+                updates[url] = state.copy(
                     status = AssetStatus.FINISHED,
                     progressPercent = 100,
                     downloadedBytes = hit.sizeBytes,
@@ -840,24 +874,13 @@ class UpdateCheckActivity : AppCompatActivity() {
                     downloadId = hit.id,
                     installUri = hit.uri
                 )
-                changed = true
                 return@forEach
             }
             if (!uriUsable(hit.uri)) {
-                downloadStates[state.asset.browserDownloadUrl] = state.copy(
-                    status = AssetStatus.IDLE,
-                    progressPercent = 0,
-                    downloadedBytes = 0L,
-                    speedBytesPerSec = 0L,
-                    downloadId = null,
-                    installUri = null
-                )
-                changed = true
+                updates[url] = state.reset()
             }
         }
-        if (changed) {
-            adapter.submitList(downloadStates.values.toList())
-        }
+        return updates
     }
 
     private fun createPendingDownloadUri(displayName: String): Uri? {
@@ -886,8 +909,37 @@ class UpdateCheckActivity : AppCompatActivity() {
     private fun hashMatchesAsset(downloadId: Long?, localUri: Uri, asset: ReleaseAsset): Boolean {
         val expected = asset.sha256?.lowercase()?.trim().orEmpty()
         if (expected.isBlank()) return true
-        val actual = sha256Of(downloadId, localUri) ?: return false
+        val actual = cachedSha256Of(downloadId, localUri) ?: return false
         return actual.equals(expected, ignoreCase = true)
+    }
+
+    /**
+     * [sha256Of] with a cache keyed by (uri, size, last-modified). Hashing a 40MB package
+     * takes hundreds of milliseconds, and validation may be asked to re-check the same
+     * unchanged file repeatedly.
+     */
+    private fun cachedSha256Of(downloadId: Long?, localUri: Uri): String? {
+        val identity = fileIdentity(downloadId, localUri)
+        if (identity != null) {
+            synchronized(hashCache) { hashCache[identity] }?.let { return it }
+        }
+        val digest = sha256Of(downloadId, localUri) ?: return null
+        if (identity != null) {
+            synchronized(hashCache) { hashCache[identity] = digest }
+        }
+        return digest
+    }
+
+    /** Cheap identity for a local download: null when it cannot be determined. */
+    private fun fileIdentity(downloadId: Long?, localUri: Uri): String? {
+        if (localUri.scheme == "file") {
+            val file = File(localUri.path.orEmpty())
+            if (!file.exists()) return null
+            return "file:${file.absolutePath}:${file.length()}:${file.lastModified()}"
+        }
+        val size = detectUriSize(localUri, -1L)
+        if (size <= 0) return null
+        return "uri:${downloadId ?: -1}:$localUri:$size"
     }
 
     private fun sha256Of(downloadId: Long?, uri: Uri): String? {
