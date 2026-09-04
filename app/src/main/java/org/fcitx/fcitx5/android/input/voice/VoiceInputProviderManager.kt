@@ -103,6 +103,11 @@ object VoiceInputProviderManager {
     private var activeAudioFeedQueue: Channel<QueuedAudio>? = null
     private var activeSessionConfig = SessionConfig()
     private var activeProviderId: String? = null
+    /**
+     * Volatile like the other session flags: [armFinishWatchdog] reads it from a coroutine and
+     * the binder callbacks clear it, so it must not be cached per thread.
+     */
+    @Volatile
     private var finishing = false
     private var sessionActive = false
     @Volatile private var sessionReady = false
@@ -117,12 +122,23 @@ object VoiceInputProviderManager {
      * Monotonic id of the current session, bumped on every start.
      *
      * The finish watchdog captures it so a late fire cannot tear down a session the user
-     * started in the meantime.
+     * started in the meantime. Volatile for the same reason as [finishing].
      */
+    @Volatile
     private var sessionGeneration = 0
 
     /** Watchdog for the endStream -> onSessionEnded handshake; see [FINISH_WATCHDOG_MS]. */
     private var finishWatchdogJob: Job? = null
+
+    /**
+     * [sessionGeneration] whose onReady has already been handled.
+     *
+     * A provider may report onReady more than once per session. The duplicate was handled for the
+     * "pre-roll config matches" branch only; on the other branch it stopped the capture that was
+     * already recording and built a new AudioRecord, restarting the microphone mid-session and
+     * discarding whatever had been buffered (see C4).
+     */
+    private var readyHandledGeneration = -1
     @Volatile private var preRollActive: Boolean = false
     private val preRollBuffer = ArrayDeque<QueuedAudio>()
     private val preRollLock = Any()
@@ -521,6 +537,7 @@ object VoiceInputProviderManager {
         sessionReady = false
         sessionActive = true
         sessionGeneration++
+        readyHandledGeneration = -1
         // A new session supersedes any pending finish watchdog from the previous one.
         finishWatchdogJob?.cancel()
         finishWatchdogJob = null
@@ -890,9 +907,17 @@ object VoiceInputProviderManager {
         onLevel: (Int) -> Unit,
         onError: (String) -> Unit,
     ) {
+        val duplicateReady = readyHandledGeneration == sessionGeneration
+        readyHandledGeneration = sessionGeneration
         val preRollCapture = activeCapture
         val configMatches = activeSessionConfig.audio == VoiceInputAudioCapture.Config()
         if (preRollCapture == null || !configMatches) {
+            if (duplicateReady && preRollCapture != null) {
+                // Already capturing for this session: a repeated onReady must not tear the
+                // microphone down and start it again (see C4).
+                logW("duplicate onReady: keeping the running capture")
+                return
+            }
             if (preRollCapture != null) {
                 logI("discarding pre-roll: config mismatch desired=${activeSessionConfig.audio}")
                 resetPreRoll()
@@ -984,7 +1009,12 @@ object VoiceInputProviderManager {
             context = service,
             config = activeSessionConfig.audio,
             onPcm = { buf, off, len, pts ->
-                audioQueue.trySend(
+                // Read the field, do not capture `audioQueue`: a later onProviderReady may
+                // replace activeAudioFeedQueue and close the old channel while this capture is
+                // still running, and a closed channel makes trySend fail silently — the
+                // microphone stays on but not one packet reaches the provider. The pre-roll
+                // capture already reads the field for the same reason.
+                activeAudioFeedQueue?.trySend(
                     QueuedAudio(
                         pcm = buf.copyOfRange(off, off + len),
                         ptsMs = pts,
@@ -1043,11 +1073,15 @@ object VoiceInputProviderManager {
                 val drained = withTimeoutOrNull(FEED_DRAIN_TIMEOUT_MS) { feedJob.join() } != null
                 if (!drained) logW("feed queue drain timed out before endStream")
                 sendEndStream(context)
+                // Arm after the frame is actually out: draining may take up to
+                // FEED_DRAIN_TIMEOUT_MS, and arming beforehand spent that time out of the
+                // provider's response budget.
+                armFinishWatchdog(context)
             }
         } else {
             sendEndStream(context)
+            armFinishWatchdog(context)
         }
-        armFinishWatchdog(context)
     }
 
     /**
@@ -1059,7 +1093,13 @@ object VoiceInputProviderManager {
      * session the user started in the meantime.
      */
     private fun armFinishWatchdog(context: Context) {
-        val service = context as? FcitxInputMethodService ?: return
+        val service = context as? FcitxInputMethodService
+        if (service == null) {
+            // finish() defaults to appContext, so a caller that does not pass the IME service
+            // gets no watchdog — and with it the original "microphone button dead forever" bug.
+            logW("no IME service context: finish watchdog not armed")
+            return
+        }
         val generation = sessionGeneration
         finishWatchdogJob?.cancel()
         finishWatchdogJob = service.lifecycleScope.launch {
