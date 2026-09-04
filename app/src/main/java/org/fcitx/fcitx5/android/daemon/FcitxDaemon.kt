@@ -28,6 +28,16 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
+ * Thrown when an operation is attempted on a connection that has already been disconnected.
+ *
+ * An ordinary exception on purpose: this used to be a `CancellationException`, which coroutine
+ * machinery treats as normal cancellation and swallows, so callers never saw the failure
+ * (see C31).
+ */
+class FcitxDisconnectedException(connectionName: String) :
+    IllegalStateException("$connectionName is disconnected")
+
+/**
  * Manage the singleton instance of [Fcitx]
  *
  * To use fcitx, client should call [connect] to obtain a [FcitxConnection],
@@ -48,10 +58,17 @@ object FcitxDaemon {
 
     private fun mkConnection(name: String) = object : FcitxConnection {
 
+        /**
+         * Throws [FcitxDisconnectedException], not `CancellationException`.
+         *
+         * In coroutine semantics a CancellationException means "this work was cancelled
+         * normally", so structured concurrency swallowed it: callers could not tell a real
+         * failure from a cancellation and no catch/onFailure branch ever ran (see C31).
+         */
         private inline fun <T> ensureConnected(block: () -> T): T =
             if (name in clients)
                 block()
-            else throw kotlinx.coroutines.CancellationException("$name is disconnected")
+            else throw FcitxDisconnectedException(name)
 
         override fun <T> runImmediately(block: suspend FcitxAPI.() -> T): T {
             return try {
@@ -60,7 +77,7 @@ object FcitxDaemon {
                         block(fcitxImpl)
                     }
                 }
-            } catch (e: kotlinx.coroutines.CancellationException) {
+            } catch (e: FcitxDisconnectedException) {
                 Timber.d("Connection $name disconnected, cancelling operation")
                 throw e
             }
@@ -71,7 +88,7 @@ object FcitxDaemon {
                 ensureConnected {
                     realFcitx.lifecycle.whenReady { block(fcitxImpl) }
                 }
-            } catch (e: kotlinx.coroutines.CancellationException) {
+            } catch (e: FcitxDisconnectedException) {
                 Timber.d("Connection $name disconnected while waiting for ready")
                 throw e
             }
@@ -85,7 +102,9 @@ object FcitxDaemon {
                             block(fcitxImpl)
                         }
                 }
-            } catch (e: kotlinx.coroutines.CancellationException) {
+            } catch (e: FcitxDisconnectedException) {
+                // runIfReady is best-effort by contract, so this stays swallowed — but now it
+                // only swallows this one specific condition.
                 Timber.d("Connection $name disconnected, skipping operation")
             }
         }
