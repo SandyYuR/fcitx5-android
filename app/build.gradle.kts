@@ -93,6 +93,15 @@ android {
         @Suppress("UnstableApiUsage")
         generateLocaleConfig = true
     }
+
+    testOptions {
+        unitTests {
+            // Let JVM unit tests exercise code that logs via android.util.Log: the stubbed
+            // android.jar otherwise throws "Stub!" on every call. Tests here cover pure
+            // logic (parsers, validators, path sanitizing), not framework behavior.
+            isReturnDefaultValues = true
+        }
+    }
 }
 
     fun fallbackAliasFromFxTask(taskName: String): String? = when {
