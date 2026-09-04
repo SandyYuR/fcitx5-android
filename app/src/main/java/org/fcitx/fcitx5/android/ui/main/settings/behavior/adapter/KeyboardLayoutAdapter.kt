@@ -334,7 +334,6 @@ class KeyboardLayoutAdapter(
      */
     private fun bindRowKeys(holder: RowViewHolder, position: Int) {
         val row = rows[position]
-        holder.keysFlow.removeAllViews()
 
         // Setup drag listener for key reordering (once per row, not per key)
         if (holder.keysFlow is DraggableFlowLayout && holder.keysFlow.onDragListener == null) {
@@ -396,28 +395,47 @@ class KeyboardLayoutAdapter(
 
         val displayRow = buildDisplayRowForPreview(position, row)
 
+        // Reuse the chips already in this row. bindRowKeys runs on every partial refresh —
+        // roughly every 100ms while a key is being dragged — and it used to removeAllViews()
+        // and allocate a TextView plus a GradientDrawable per key each time (see E7).
+        // Child layout is: [key chips..., "+" chip], so the "+" is always last.
+        val flow = holder.keysFlow
+        val neededChildren = displayRow.size + 1
+        while (flow.childCount > neededChildren) {
+            flow.removeViewAt(flow.childCount - 1)
+        }
+
         // Add keys - short click to edit, with drag support (directly on the key)
         displayRow.forEachIndexed { keyIndex, key ->
             val actualKeyIndex = resolveActualKeyIndex(position, keyIndex)
             val type = key["type"] as? String ?: ""
             val isMacroKey = type == "MacroKey"
             val hasComposeOverride = key["composeOverride"] is Map<*, *>
-            val keyChip = TextView(context).apply {
+            val keyChip = flow.getChildAt(keyIndex) as? TextView ?: TextView(context).also { created ->
+                flow.addView(
+                    created,
+                    keyIndex,
+                    ViewGroup.MarginLayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        rightMargin = context.dp(6)
+                        bottomMargin = context.dp(4)
+                        topMargin = context.dp(4)
+                    }
+                )
+            }
+            keyChip.apply {
+                tag = null
                 text = buildKeyLabel(key)
                 textSize = 14f
+                setTypeface(null, android.graphics.Typeface.NORMAL)
                 setPadding(context.dp(10), context.dp(8), context.dp(10), context.dp(8))
                 gravity = Gravity.CENTER
-                background = android.graphics.drawable.GradientDrawable().apply {
-                    if (isMacroKey) {
-                        // MacroKey: 使用主题强调色区分
-                        setColor(context.styledColor(android.R.attr.colorAccent))
-                        setStroke(context.dp(2), context.styledColor(android.R.attr.colorControlHighlight))
-                    } else {
-                        setColor(context.styledColor(android.R.attr.colorButtonNormal))
-                        setStroke(context.dp(1), context.styledColor(android.R.attr.colorControlNormal))
-                    }
-                    cornerRadius = context.dp(4).toFloat()
-                }
+                // Reuse this chip's own drawable and only restyle it; a reused chip may have
+                // switched between the macro and normal style, so the style is re-applied every
+                // time (see E7).
+                applyChipStyle(this, macro = isMacroKey)
                 setTextColor(
                     when {
                         isMacroKey -> context.styledColor(android.R.attr.textColorPrimaryInverse)
@@ -432,19 +450,25 @@ class KeyboardLayoutAdapter(
                     }
                 }
             }
-
-            holder.keysFlow.addView(keyChip, ViewGroup.MarginLayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                rightMargin = context.dp(6)
-                bottomMargin = context.dp(4)
-                topMargin = context.dp(4)
-            })
         }
 
-        // Add button (same style as other keys)
-        val addKeyChip = TextView(context).apply {
+        // Add button (same style as other keys), always the last child.
+        val addIndex = displayRow.size
+        val addKeyChip = flow.getChildAt(addIndex) as? TextView ?: TextView(context).also { created ->
+            flow.addView(
+                created,
+                addIndex,
+                ViewGroup.MarginLayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    rightMargin = context.dp(6)
+                    bottomMargin = context.dp(4)
+                    topMargin = context.dp(4)
+                }
+            )
+        }
+        addKeyChip.apply {
             // Excluded from drag and drop: it has no entry in the layout data, so allowing a
             // key to be dropped past it produced an index the data layer silently rejected.
             tag = DraggableFlowLayout.TAG_NOT_DRAGGABLE
@@ -453,11 +477,8 @@ class KeyboardLayoutAdapter(
             setTypeface(null, android.graphics.Typeface.BOLD)
             setPadding(context.dp(10), context.dp(8), context.dp(10), context.dp(8))
             gravity = Gravity.CENTER
-            background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(context.styledColor(android.R.attr.colorPrimary))
-                setStroke(context.dp(1), context.styledColor(android.R.attr.colorControlNormal))
-                cornerRadius = context.dp(4).toFloat()
-            }
+            applyAddChipStyle(this)
+            setTextColor(context.styledColor(android.R.attr.textColorPrimary))
             setOnClickListener {
                 val adapterPosition = holder.bindingAdapterPosition
                 if (adapterPosition != RecyclerView.NO_POSITION) {
@@ -465,14 +486,36 @@ class KeyboardLayoutAdapter(
                 }
             }
         }
-        holder.keysFlow.addView(addKeyChip, ViewGroup.MarginLayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply {
-            rightMargin = context.dp(6)
-            bottomMargin = context.dp(4)
-            topMargin = context.dp(4)
-        })
+    }
+
+    /**
+     * Style [view]'s existing background in place, creating one only on first use.
+     *
+     * A fresh [GradientDrawable] per chip per bind was a large part of the drag-time allocation
+     * churn (see E7). A chip keeps its own drawable across binds; only the colours change, and
+     * they must be re-applied because a reused chip may have swapped macro/normal style.
+     */
+    private fun applyChipStyle(view: TextView, macro: Boolean) {
+        val drawable = view.background as? android.graphics.drawable.GradientDrawable
+            ?: android.graphics.drawable.GradientDrawable().also { view.background = it }
+        if (macro) {
+            // MacroKey: 使用主题强调色区分
+            drawable.setColor(context.styledColor(android.R.attr.colorAccent))
+            drawable.setStroke(context.dp(2), context.styledColor(android.R.attr.colorControlHighlight))
+        } else {
+            drawable.setColor(context.styledColor(android.R.attr.colorButtonNormal))
+            drawable.setStroke(context.dp(1), context.styledColor(android.R.attr.colorControlNormal))
+        }
+        drawable.cornerRadius = context.dp(4).toFloat()
+    }
+
+    /** As [applyChipStyle], for the trailing "+" chip. */
+    private fun applyAddChipStyle(view: TextView) {
+        val drawable = view.background as? android.graphics.drawable.GradientDrawable
+            ?: android.graphics.drawable.GradientDrawable().also { view.background = it }
+        drawable.setColor(context.styledColor(android.R.attr.colorPrimary))
+        drawable.setStroke(context.dp(1), context.styledColor(android.R.attr.colorControlNormal))
+        drawable.cornerRadius = context.dp(4).toFloat()
     }
 
     private fun buildDisplayRowForPreview(
