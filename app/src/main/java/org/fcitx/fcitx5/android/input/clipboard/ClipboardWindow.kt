@@ -243,8 +243,9 @@ class ClipboardWindow(
             }
 
             override fun onPaste(entry: ClipboardEntry) {
-                service.commitClipboardEntry(entry.text)
                 service.lifecycleScope.launch {
+                    // suspend: staging the file runs on IO now (see commitClipboardEntry).
+                    service.commitClipboardEntry(entry.text)
                     ClipboardManager.markUsed(entry.id)
                 }
                 if (clipboardReturnAfterPaste) windowManager.attachWindow(KeyboardWindow)
