@@ -742,24 +742,47 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         ClipboardManager.addOnUpdateListener(onClipboardUpdateListener)
         clipboardSuggestion.registerOnChangeListener(onClipboardSuggestionUpdateListener)
         clipboardItemTimeout.registerOnChangeListener(onClipboardTimeoutUpdateListener)
-        VoiceInputProviderManager.floatingCommitListener = { text ->
-            Log.i(VOICE_INPUT_TAG, "floating commit reflected in kawaii bar len=${text.length}")
-            idleUi.showVoiceStatus(service.getString(R.string.voice_status_committed))
-            idleUi.hideVoiceStatus()
-        }
-        // Shared callbacks for both kawaii bar button and space long-press.
-        VoiceInputProviderManager.voiceStatusCallback = { s -> idleUi.showVoiceStatus(s) }
-        VoiceInputProviderManager.voiceReadyCallback = { idleUi.showVoiceStatus(service.getString(R.string.voice_status_listening)) }
-        VoiceInputProviderManager.voiceLevelCallback = { rms -> idleUi.updateVoiceLevel(rms) }
-        VoiceInputProviderManager.voiceFinishedCallback = { idleUi.hideVoiceStatus() }
-        VoiceInputProviderManager.voiceErrorCallback = { msg ->
-            idleUi.hideVoiceStatus()
-            android.widget.Toast.makeText(service, msg, android.widget.Toast.LENGTH_SHORT).show()
-        }
-        // Keep the keyboard on the layout the user was looking at across a voice session.
-        VoiceInputProviderManager.sessionStartedCallback = { service.inputView?.onVoiceInputStarted() }
-        VoiceInputProviderManager.sessionEndedCallback = { service.inputView?.onVoiceInputFinished() }
+        // Installed under this component's identity so teardown can release exactly these
+        // callbacks (see VoiceInputProviderManager.releaseUiCallbacks). They capture idleUi
+        // and the service, so leaving them installed after detach pinned the whole InputView
+        // tree and made the *new* keyboard show no voice feedback at all.
+        VoiceInputProviderManager.setUiCallbacks(
+            owner = this,
+            floatingCommit = { text ->
+                Log.i(VOICE_INPUT_TAG, "floating commit reflected in kawaii bar len=${text.length}")
+                idleUi.showVoiceStatus(service.getString(R.string.voice_status_committed))
+                idleUi.hideVoiceStatus()
+            },
+            // Shared callbacks for both kawaii bar button and space long-press.
+            status = { s -> idleUi.showVoiceStatus(s) },
+            ready = { idleUi.showVoiceStatus(service.getString(R.string.voice_status_listening)) },
+            level = { rms -> idleUi.updateVoiceLevel(rms) },
+            finished = { idleUi.hideVoiceStatus() },
+            error = { msg ->
+                idleUi.hideVoiceStatus()
+                android.widget.Toast.makeText(service, msg, android.widget.Toast.LENGTH_SHORT).show()
+            },
+            // Keep the keyboard on the layout the user was looking at across a voice session.
+            sessionStarted = { service.inputView?.onVoiceInputStarted() },
+            sessionEnded = { service.inputView?.onVoiceInputFinished() }
+        )
         IconThemeManager.addOnChangedListener(onIconThemeChangeListener)
+    }
+
+    /**
+     * Release everything [onScopeSetupFinished] registered on process-scoped singletons.
+     *
+     * Called from [InputView.onDetachedFromWindow]. Without it the voice callbacks, the
+     * clipboard listener and the icon-theme listener all kept this component (and therefore
+     * the entire InputView tree and the IMS) alive for the life of the process, once per
+     * recreation.
+     */
+    fun onScopeTeardown() {
+        VoiceInputProviderManager.releaseUiCallbacks(this)
+        ClipboardManager.removeOnUpdateListener(onClipboardUpdateListener)
+        clipboardSuggestion.unregisterOnChangeListener(onClipboardSuggestionUpdateListener)
+        clipboardItemTimeout.unregisterOnChangeListener(onClipboardTimeoutUpdateListener)
+        IconThemeManager.removeOnChangedListener(onIconThemeChangeListener)
     }
 
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
