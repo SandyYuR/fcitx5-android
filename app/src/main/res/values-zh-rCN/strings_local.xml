@@ -164,6 +164,9 @@
     <string name="keep_alive_notification_title">ClipboardSync 正在后台同步</string>
     <string name="keep_alive_notification_text">当前服务端：%1$s</string>
     <string name="keep_alive_notification_text_battery">当前服务端：%1$s，建议放行电池优化</string>
+    <string name="keep_alive_notification_state_active">同步中</string>
+    <string name="keep_alive_notification_state_idle">空闲</string>
+    <string name="keep_alive_notification_state_paused">已暂停</string>
     <string name="keep_alive_notification_reconnect">重连</string>
     <string name="keep_alive_notification_pause">暂停</string>
     <string name="keep_alive_notification_capture">抓取并同步</string>
