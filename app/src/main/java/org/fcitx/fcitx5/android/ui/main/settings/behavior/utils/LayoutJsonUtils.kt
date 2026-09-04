@@ -238,15 +238,17 @@ object LayoutJsonUtils {
         } else null
         return KeyJson(
             type = type,
-            main = obj["main"]?.jsonPrimitive?.content,
-            alt = obj["alt"]?.jsonPrimitive?.content,
+            // contentOrNull, not content: JsonNull.content is the literal string "null",
+            // which would otherwise be rendered and committed as text on the key.
+            main = obj["main"]?.jsonPrimitive?.contentOrNull,
+            alt = obj["alt"]?.jsonPrimitive?.contentOrNull,
             displayText = obj["displayText"],  // AlphabetKey 和 MacroKey 共用
-            label = obj["label"]?.jsonPrimitive?.content,
-            altLabel = obj["altLabel"]?.jsonPrimitive?.content,
-            longPressLabel = obj["longPressLabel"]?.jsonPrimitive?.content,
-            subLabel = obj["subLabel"]?.jsonPrimitive?.content,
-            swipeLabel = obj["swipeLabel"]?.jsonPrimitive?.content,
-            sym = obj["sym"]?.jsonPrimitive?.content?.let { resolveKeysym(it) },
+            label = obj["label"]?.jsonPrimitive?.contentOrNull,
+            altLabel = obj["altLabel"]?.jsonPrimitive?.contentOrNull,
+            longPressLabel = obj["longPressLabel"]?.jsonPrimitive?.contentOrNull,
+            subLabel = obj["subLabel"]?.jsonPrimitive?.contentOrNull,
+            swipeLabel = obj["swipeLabel"]?.jsonPrimitive?.contentOrNull,
+            sym = obj["sym"]?.jsonPrimitive?.contentOrNull?.let { resolveKeysym(it) },
             weight = parseOptionalFloat(obj["weight"]),
             rowHeightPercent = parseOptionalFloat(obj["rowHeightPercent"]),
             textColor = parseOptionalInt(obj["textColor"]),
@@ -344,7 +346,14 @@ object LayoutJsonUtils {
      * @return 解析后的 MacroAction
      */
     fun parseMacroAction(obj: JsonObject): MacroAction {
-        val steps = obj["macro"]?.jsonArray?.map { parseMacroStep(it.jsonObject) } ?: emptyList()
+        // parseMacroStep/parseKeyRef throw on malformed input. This function is on the
+        // runtime keyboard path (parseKeyJsonArray -> parseKeyJson -> here), so a single
+        // bad step must not take down the whole layout: drop it and log instead.
+        val steps = obj["macro"]?.jsonArray?.mapNotNull { element ->
+            runCatching { parseMacroStep(element.jsonObject) }
+                .onFailure { Log.w(TAG, "Skipping invalid macro step: " + it.message) }
+                .getOrNull()
+        } ?: emptyList()
         return MacroAction(steps)
     }
 
@@ -357,7 +366,13 @@ object LayoutJsonUtils {
      */
     fun parseKeyJsonArray(rowArray: JsonArray, showLangSwitch: Boolean = true): List<KeyJson> {
         return rowArray.mapNotNull { element ->
-            val obj = element.jsonObject
+            // A malformed layout row may contain non-object elements (hand-edited or
+            // imported files). Skip them instead of throwing, otherwise every attempt to
+            // show the keyboard crashes. Mirrors parseLayoutRows' editor-side behavior.
+            val obj = element as? JsonObject ?: run {
+                Log.w(TAG, "Skipping non-object key element: " + element::class.simpleName)
+                return@mapNotNull null
+            }
             val type = obj["type"]?.jsonPrimitive?.content ?: ""
             // 如果 showLangSwitch 为 false，跳过 LanguageKey
             if (type == "LanguageKey" && !showLangSwitch) {
@@ -805,14 +820,15 @@ object LayoutJsonUtils {
      * @param key 解析后的 KeyJson
      * @param subModeLabel 当前子模式标签（用于解析 displayText）
      * @param subModeName 当前子模式名称（用于解析 displayText）
-     * @return 转换后的 KeyDef
+     * @return 转换后的 KeyDef，当该键的必填字段缺失时返回 null（调用方应跳过它，
+     *         而不是让单个坏键导致整个布局无法加载）
      */
     fun createKeyDef(
         key: KeyJson,
         subModeLabel: String = "",
         schemaId: String = "",
         subModeName: String = ""
-    ): KeyDef {
+    ): KeyDef? {
         val keyDef = when (key.type) {
             "AlphabetKey" -> AlphabetKey(
                 character = key.main ?: "",
@@ -942,7 +958,13 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "MacroKey" -> {
-                val tap = key.tap ?: throw IllegalArgumentException("MacroKey requires 'tap' action")
+                // A MacroKey without a tap action cannot do anything. Skip the key instead of
+                // throwing: the throw used to propagate out of BaseKeyboard.init and crash the
+                // keyboard for a config the editor itself was able to write.
+                val tap = key.tap ?: run {
+                    Log.w(TAG, "Skipping MacroKey without 'tap' action: label=" + key.label)
+                    return null
+                }
                 // 解析 label：基础 label + displayText 多模式覆盖
                 // 优先使用 displayText 中当前 submode 的值，否则使用基础 label
                 val baseLabel = key.label ?: ""
@@ -983,7 +1005,7 @@ object LayoutJsonUtils {
                 subModeLabel,
                 schemaId,
                 subModeName
-            )
+            ) ?: return@let
             overrideDef.independentColor = override.independentColor ?: false
             keyDef.composeOverride = overrideDef
         }
