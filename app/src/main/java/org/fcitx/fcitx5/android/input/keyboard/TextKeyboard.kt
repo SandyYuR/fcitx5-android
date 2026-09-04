@@ -217,6 +217,46 @@ class TextKeyboard private constructor(
         }
 
         /**
+         * Layout JSON a settings preview wants rendered, instead of the real layout file.
+         *
+         * The preview used to assign `ConfigProviders.provider`, a process-wide singleton, and
+         * then clear this whole cache twice per refresh. With the IME service alive in the same
+         * process (entering settings from the keyboard) the running keyboard could read the
+         * preview JSON, and every preview invalidated the real keyboard's parsed layouts (see E9).
+         */
+        @Volatile
+        private var previewLayoutOverride: JsonObject? = null
+
+        /** Distinguishes preview cache entries so [dropPreviewCacheEntries] can target them. */
+        private const val PREVIEW_CACHE_PREFIX = "preview|"
+
+        /**
+         * Render [json] as the layout source for the duration of [block].
+         *
+         * Only affects lookups made while [block] runs; the real provider and the real cache
+         * entries are untouched.
+         */
+        fun <T> withPreviewLayout(json: JsonObject, block: () -> T): T {
+            val previous = previewLayoutOverride
+            previewLayoutOverride = json
+            return try {
+                block()
+            } finally {
+                previewLayoutOverride = previous
+                dropPreviewCacheEntries()
+            }
+        }
+
+        private fun dropPreviewCacheEntries() {
+            val previewKeys = cachedKeyDefLayouts.keys.filter { it.startsWith(PREVIEW_CACHE_PREFIX) }
+            previewKeys.forEach { cachedKeyDefLayouts.remove(it) }
+        }
+
+        /** Cache-key prefix for the current lookup; see [previewLayoutOverride]. */
+        private fun cacheKeyPrefix(): String =
+            if (previewLayoutOverride != null) PREVIEW_CACHE_PREFIX else ""
+
+        /**
          * Force a latched/one-shot layer, or clear it (falling back to the numeric-input
          * layout when one is active). The numeric layout is configured per input session
          * by [setNumericLayoutKey], so input method updates that clear layer latches keep
@@ -776,6 +816,9 @@ class TextKeyboard private constructor(
         val textLayoutJson: JsonObject?
             @Synchronized
             get() {
+                // A preview supplies its own JSON and must not disturb the real snapshot or the
+                // file watcher (see E9).
+                previewLayoutOverride?.let { return it }
                 val providers = org.fcitx.fcitx5.android.input.config.ConfigProviders
                 val provider = providers.provider
                 val memoryJson = provider.textKeyboardLayoutJson()
@@ -847,7 +890,7 @@ class TextKeyboard private constructor(
                 if (json != null) {
                     val forcedLayout = findLayoutElementByKey(json, forced)
                     if (forcedLayout != null) {
-                        val cacheKey = "forced:$forced:$showLangSwitch:$displayTextContextCacheKey"
+                        val cacheKey = "${cacheKeyPrefix()}forced:$forced:$showLangSwitch:$displayTextContextCacheKey"
                         val baseName = forced.substringBefore(':')
                         val forcedSub = forced.substringAfter(':', "")
                         resolvedLayoutHeightPercentOverride = if (forcedSub.isNotEmpty()) {
@@ -919,7 +962,7 @@ class TextKeyboard private constructor(
                             // Use a cache key that includes submode and showLangSwitch for proper caching
                             // Include showLangSwitch in cache key so layout is re-created when setting changes
                             val cacheSubMode = matchedSubModeKey ?: "default"
-                            val cacheKey = "$layoutKey:$cacheSubMode:$showLangSwitch:$displayTextContextCacheKey"
+                            val cacheKey = "${cacheKeyPrefix()}$layoutKey:$cacheSubMode:$showLangSwitch:$displayTextContextCacheKey"
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
@@ -943,7 +986,7 @@ class TextKeyboard private constructor(
                         state.auxBarKeys = parseAuxBarKeys(layoutElement)
                         val layoutArray = parseLayoutArray(layoutElement)
                         if (layoutArray != null) {
-                            val cacheKey = "default:$showLangSwitch:$lastRawModified"
+                            val cacheKey = "${cacheKeyPrefix()}default:$showLangSwitch:$lastRawModified"
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
