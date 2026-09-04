@@ -23,6 +23,13 @@ import java.io.File
 @Serializable
 sealed class Theme : Parcelable {
 
+    /**
+     * Shared cache for wallpaper bitmaps, sized in KB.
+     *
+     * Holds both the downsampled source decode and the blurred result (distinct keys), so a
+     * themed keyboard costs at most two screen-sized bitmaps here instead of re-decoding the
+     * original on every use (see D5).
+     */
     private object BackgroundBlurBitmapCache {
         private val cache = object : LruCache<String, android.graphics.Bitmap>(16 * 1024) {
             override fun sizeOf(key: String, value: android.graphics.Bitmap): Int =
@@ -149,35 +156,66 @@ sealed class Theme : Parcelable {
                 }
             }
 
+            /**
+             * Decode the cropped wallpaper, downsampled to the screen and cached.
+             *
+             * Previously this decoded the file at full resolution on every call, with no
+             * inSampleSize and no caching, so a 12MP photo became a ~48MB ARGB_8888 bitmap.
+             * The keyboard is at most screen-sized, so anything beyond that is wasted decode
+             * time and memory.
+             */
             fun loadBitmapForRendering(): android.graphics.Bitmap? {
-                // Try direct path first (absolute path)
-                val cropped = File(croppedFilePath)
-                if (cropped.exists()) {
-                    return runCatching {
-                        BitmapFactory.decodeStream(cropped.inputStream())
-                    }.getOrNull()
-                }
-
-                // Try relative to theme directory
+                val file = resolveCroppedFile() ?: return null
                 return runCatching {
-                    val appFilesDir = appContext.getExternalFilesDir(null)
-                    if (appFilesDir != null) {
-                        val themeDir = File(appFilesDir, "theme")
-                        val relativeFile = File(themeDir, croppedFilePath)
-                        if (relativeFile.exists()) {
-                            relativeFile.inputStream().use { stream ->
-                                return@runCatching BitmapFactory.decodeStream(stream)
-                            }
-                        }
+                    BackgroundBlurBitmapCache.getOrPut(sourceCacheKey(file)) {
+                        decodeDownsampled(file)
                     }
-                    null
                 }.getOrNull()
             }
 
+            /** The cropped wallpaper file, absolute or relative to the theme directory. */
+            private fun resolveCroppedFile(): File? {
+                val cropped = File(croppedFilePath)
+                if (cropped.exists()) return cropped
+                val appFilesDir = appContext.getExternalFilesDir(null) ?: return null
+                return File(File(appFilesDir, "theme"), croppedFilePath).takeIf { it.exists() }
+            }
+
+            /**
+             * Decode [file] at no more than screen resolution.
+             *
+             * Two passes: bounds only, then the real decode with a power-of-two inSampleSize.
+             */
+            private fun decodeDownsampled(file: File): android.graphics.Bitmap {
+                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                file.inputStream().use { BitmapFactory.decodeStream(it, null, bounds) }
+                val metrics = appContext.resources.displayMetrics
+                val targetWidth = metrics.widthPixels.coerceAtLeast(1)
+                val targetHeight = metrics.heightPixels.coerceAtLeast(1)
+                var sample = 1
+                while (
+                    bounds.outWidth / (sample * 2) >= targetWidth &&
+                    bounds.outHeight / (sample * 2) >= targetHeight
+                ) {
+                    sample *= 2
+                }
+                val options = BitmapFactory.Options().apply { inSampleSize = sample }
+                return file.inputStream().use { BitmapFactory.decodeStream(it, null, options) }
+                    ?: error("Cannot decode wallpaper: ${file.name}")
+            }
+
+            /** Cache key for the *undecorated* decode, so blurred and plain entries differ. */
+            private fun sourceCacheKey(file: File): String =
+                "src|${file.absolutePath}|${file.lastModified()}"
+
             private fun blurCacheKey(): String {
-                val file = File(croppedFilePath)
-                val mtime = file.takeIf { it.exists() }?.lastModified() ?: 0L
-                return "$croppedFilePath|$blurRadius|$mtime"
+                // Resolve through the same helper as the decode: croppedFilePath may be
+                // relative to the theme directory, in which case File(croppedFilePath) does
+                // not exist and the key degraded to a constant mtime of 0 — a stale blur
+                // survived replacing the wallpaper file.
+                val file = resolveCroppedFile()
+                val mtime = file?.lastModified() ?: 0L
+                return "blur|$croppedFilePath|$blurRadius|$mtime"
             }
         }
 
