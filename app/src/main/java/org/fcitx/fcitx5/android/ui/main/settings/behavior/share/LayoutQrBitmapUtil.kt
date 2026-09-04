@@ -25,6 +25,36 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 object LayoutQrBitmapUtil {
     private const val QR_SIZE = 768
     private const val PAGE_PADDING = 24
+
+    /** Width of every long image this object produces, independent of the chunk count. */
+    const val LONG_IMAGE_WIDTH = QR_SIZE + PAGE_PADDING * 2
+
+    /**
+     * Size of one QR square in an image [imageWidth] px wide, assuming the standard layout.
+     *
+     * Used by the importer to decide how far it may downsample: the bound has to be about the QR
+     * modules, not about the image, whose width is constant (see C27).
+     */
+    fun estimateQrSquareSize(imageWidth: Int): Int {
+        if (imageWidth <= 0) return QR_SIZE
+        val scale = imageWidth.toFloat() / LONG_IMAGE_WIDTH
+        return maxOf(1, (QR_SIZE * scale).toInt())
+    }
+
+    /**
+     * Largest chunk count that fits in one long image.
+     *
+     * Each page is about 816x826 px, so 64 pages is roughly 53M pixels — about 106MB as
+     * ARGB_8888 and 53MB as RGB_565. Beyond that the export just OOMs, which is worse than a
+     * clear error (see C27). This is well above what the importer can now read back.
+     */
+    const val MAX_LONG_IMAGE_CHUNKS = 64
+
+    private fun requireExportableChunkCount(count: Int) {
+        require(count in 1..MAX_LONG_IMAGE_CHUNKS) {
+            "QR long image supports 1..$MAX_LONG_IMAGE_CHUNKS chunks, got $count"
+        }
+    }
     private const val TEXT_SIZE = 22f
     private const val TEXT_GAP = 12
     private const val MAX_DECODER_PIXELS = 2_000_000L
@@ -97,15 +127,18 @@ object LayoutQrBitmapUtil {
 
     fun composeLongImageStreaming(contents: List<String>, labels: List<String>): Bitmap {
         require(contents.size == labels.size) { "Content count must equal label count" }
+        requireExportableChunkCount(contents.size)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.BLACK
             textSize = TEXT_SIZE
             typeface = Typeface.DEFAULT_BOLD
         }
         val pageHeight = PAGE_PADDING + QR_SIZE + TEXT_GAP + TEXT_SIZE.toInt() + PAGE_PADDING
-        val width = QR_SIZE + PAGE_PADDING * 2
+        val width = LONG_IMAGE_WIDTH
         val totalHeight = pageHeight * contents.size
-        val merged = Bitmap.createBitmap(width, totalHeight, Bitmap.Config.ARGB_8888)
+        // RGB_565: a QR long image is monochrome, so alpha doubles the footprint for nothing.
+        // At 40 chunks ARGB_8888 was about 110MB (see C27).
+        val merged = Bitmap.createBitmap(width, totalHeight, Bitmap.Config.RGB_565)
         val canvas = Canvas(merged)
         canvas.drawColor(Color.WHITE)
         contents.forEachIndexed { index, content ->
@@ -178,17 +211,20 @@ object LayoutQrBitmapUtil {
         previewBitmap: Bitmap?
     ): Bitmap {
         require(contents.size == labels.size) { "Content count must equal label count" }
+        requireExportableChunkCount(contents.size)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.BLACK
             textSize = TEXT_SIZE
             typeface = Typeface.DEFAULT_BOLD
         }
         val pageHeight = PAGE_PADDING + QR_SIZE + TEXT_GAP + TEXT_SIZE.toInt() + PAGE_PADDING
-        val width = QR_SIZE + PAGE_PADDING * 2
+        val width = LONG_IMAGE_WIDTH
 
         val scaledPreview = buildScaledPreviewOrNull(previewBitmap, width)
         val previewSectionHeight = scaledPreview?.heightWithPadding ?: 0
         val totalHeight = previewSectionHeight + pageHeight * contents.size
+        // ARGB_8888 here: the preview strip at the top may have alpha. The chunk cap above keeps
+        // the total bounded (see C27).
         val merged = Bitmap.createBitmap(width, totalHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(merged)
         canvas.drawColor(Color.WHITE)
