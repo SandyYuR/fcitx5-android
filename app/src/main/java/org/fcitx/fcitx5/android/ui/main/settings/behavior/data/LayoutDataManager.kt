@@ -60,6 +60,33 @@ class LayoutDataManager(private val context: Context) {
      * 迁移管理器
      */
     private val migrationManager = DataMigrationManager(this)
+
+    /** 上一次加载中出现的、需要让用户知道的问题。 */
+    sealed interface LoadWarning {
+        /** 文件存在但解析失败：内存里现在是内置预设，直接保存会覆盖掉损坏但可能可修的文件。 */
+        data class ParseFailed(val fileName: String, val cause: Throwable?) : LoadWarning
+
+        /** 内存迁移失败，已放弃迁移结果并沿用磁盘内容。 */
+        data class MigrationFailed(val cause: Throwable) : LoadWarning
+    }
+
+    var lastLoadWarning: LoadWarning? = null
+        private set
+
+    /**
+     * 解析失败时为 true：此时 entries 是内置预设而不是用户数据，保存会覆盖原文件。
+     * 调用方应据此阻止或二次确认保存。
+     */
+    val loadedFromCorruptFile: Boolean
+        get() = lastLoadWarning is LoadWarning.ParseFailed
+
+    /**
+     * 用户已确认过该警告（例如同意用当前内存内容覆盖损坏的文件），
+     * 之后不再重复拦截保存。
+     */
+    fun acknowledgeLoadWarning() {
+        lastLoadWarning = null
+    }
     
     // ==================== 数据加载与保存 ====================
     
@@ -75,11 +102,19 @@ class LayoutDataManager(private val context: Context) {
         layoutHeightPercentOverridesLandscape.clear()
         layoutAuxBarConfigs.clear()
         layoutAuxBarKeys.clear()
+        lastLoadWarning = null
+        lastParseFailure = null
         
-        val parsed = if (file?.exists() == true && file.length() > 0) {
-            parseJsonText(file.readText(), file.name)
+        val fileHasContent = file?.exists() == true && file.length() > 0
+        val parsed = if (fileHasContent) {
+            parseJsonText(file!!.readText(), file.name)
         } else {
             loadDefaultPreset()
+        }
+        // 文件存在却解析失败与"文件不存在"是两回事：前者内存里现在是内置预设，
+        // 直接保存会永久覆盖用户的（可能只是小语法错的）布局文件。
+        if (fileHasContent && lastParseFailure != null) {
+            lastLoadWarning = LoadWarning.ParseFailed(file!!.name, lastParseFailure)
         }
         
         // 将解析结果复制到 entries
@@ -108,43 +143,18 @@ class LayoutDataManager(private val context: Context) {
             }
         }
 
-        // 执行迁移（如果需要）
-        if (file != null) {
+        // 迁移只在确实需要时执行：checkIfMigrationNeeded 原本写了却从未被调用，
+        // 导致每次打开编辑器都跑一遍纯内存迁移。
+        if (file != null && migrationManager.checkIfMigrationNeeded()) {
             runCatching {
                 migrationManager.migrateAllDisplayTextToSubmodeStructure()
             }.onFailure { e ->
-                android.util.Log.e("LayoutDataManager", "Migration failed", e)
-                migrationManager.restoreFromBackup(file)
-                // 迁移失败恢复备份后，重新加载数据确保内存与文件一致
-                entries.clear()
-                val restoredParsed = parseJsonText(file.readText(), file.name)
-                restoredParsed.toSortedMap().forEach { (k, v) ->
-                    entries[k] = v.map { row ->
-                        row.map { key -> key.toMutableMap() }.toMutableList()
-                    }.toMutableList()
-                }
-                layoutHeightPercentOverrides.clear()
-                layoutHeightPercentOverrides.putAll(lastParsedLayoutHeightPercentOverrides)
-                layoutHeightPercentOverridesLandscape.clear()
-                layoutHeightPercentOverridesLandscape.putAll(lastParsedLayoutHeightPercentOverridesLandscape)
-                layoutAuxBarConfigs.clear()
-                layoutAuxBarConfigs.putAll(lastParsedLayoutAuxBarConfigs)
-                layoutAuxBarKeys.clear()
-                layoutAuxBarKeys.putAll(
-                    lastParsedLayoutAuxBarKeys.mapValues { (_, keys) ->
-                        keys.map { it.toMutableMap() }.toMutableList()
-                    }
-                )
-                pruneLayoutHeightOverrides()
-                // 确保至少有一个布局
-                if (entries.isEmpty()) {
-                    val defaultLayout = loadDefaultPreset()
-                    defaultLayout.forEach { (k, v) ->
-                        entries[k] = v.map { row ->
-                            row.map { key -> key.toMutableMap() }.toMutableList()
-                        }.toMutableList()
-                    }
-                }
+                // 迁移是纯内存操作：失败时磁盘文件依然完好，用旧备份覆盖它
+                // 反而会把用户数据回退。这里只放弃本次内存迁移结果，重新按
+                // 磁盘内容还原内存状态，不触碰任何文件。
+                android.util.Log.e("LayoutDataManager", "Migration failed; keeping on-disk data", e)
+                reloadEntriesFromDisk(file)
+                lastLoadWarning = LoadWarning.MigrationFailed(e)
             }
         }
 
@@ -163,6 +173,44 @@ class LayoutDataManager(private val context: Context) {
      */
     private fun parseJsonFile(file: File): Map<String, List<List<Map<String, Any?>>>> {
         return parseJsonText(file.readText(), file.name)
+    }
+
+    /**
+     * 用磁盘上的内容重新填充内存状态，不写入任何文件。
+     * 用于内存迁移失败后放弃迁移结果。
+     */
+    private fun reloadEntriesFromDisk(file: File) {
+        entries.clear()
+        val restoredParsed = if (file.exists() && file.length() > 0) {
+            parseJsonText(file.readText(), file.name)
+        } else {
+            loadDefaultPreset()
+        }
+        restoredParsed.toSortedMap().forEach { (k, v) ->
+            entries[k] = v.map { row ->
+                row.map { key -> key.toMutableMap() }.toMutableList()
+            }.toMutableList()
+        }
+        layoutHeightPercentOverrides.clear()
+        layoutHeightPercentOverrides.putAll(lastParsedLayoutHeightPercentOverrides)
+        layoutHeightPercentOverridesLandscape.clear()
+        layoutHeightPercentOverridesLandscape.putAll(lastParsedLayoutHeightPercentOverridesLandscape)
+        layoutAuxBarConfigs.clear()
+        layoutAuxBarConfigs.putAll(lastParsedLayoutAuxBarConfigs)
+        layoutAuxBarKeys.clear()
+        layoutAuxBarKeys.putAll(
+            lastParsedLayoutAuxBarKeys.mapValues { (_, keys) ->
+                keys.map { it.toMutableMap() }.toMutableList()
+            }
+        )
+        pruneLayoutHeightOverrides()
+        if (entries.isEmpty()) {
+            loadDefaultPreset().forEach { (k, v) ->
+                entries[k] = v.map { row ->
+                    row.map { key -> key.toMutableMap() }.toMutableList()
+                }.toMutableList()
+            }
+        }
     }
 
     fun parseJsonText(
