@@ -1064,6 +1064,12 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     // Use empty label, "+" as circle text
                     holder.ui.setButton("", 0, "+")
                     holder.ui.root.setOnClickListener {
+                        // Same reasoning as the ButtonViewHolder click handler: resolve the
+                        // insertion index now, because a drag may have moved this row since
+                        // it was bound.
+                        val insertAt = holder.bindingAdapterPosition
+                            .takeIf { it != RecyclerView.NO_POSITION }
+                            ?: return@setOnClickListener
                         // Show add button dialog
                         val currentIds = items.filterIsInstance<ListItem.ButtonItem>().map { it.button.id }.toSet()
                         val availableIds = availableButtons.filter { button ->
@@ -1087,14 +1093,17 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                                     text = null,
                                     macroSteps = listOf(MacroStep.Text(""))
                                 )
-                                items.add(position, ListItem.ButtonItem(newButton, targetSection))
-                                adapter?.notifyItemInserted(position)
+                                items.add(insertAt, ListItem.ButtonItem(newButton, targetSection))
+                                adapter?.notifyItemInserted(insertAt)
                                 updateAddButtonsSection()
                                 adapter?.notifyDataSetChanged()
                                 updateSaveButtonState()
                                 // Open editor immediately so user can configure
                                 recyclerView.post {
-                                    openButtonEditor(newButton, position, targetSection)
+                                    val editAt = items.indexOfFirst {
+                                        it is ListItem.ButtonItem && it.button.id == customId
+                                    }
+                                    if (editAt >= 0) openButtonEditor(newButton, editAt, targetSection)
                                 }
                             } else {
                                 val buttonDef = availableButtons.find { getString(it.labelRes) == menuItem.title }
@@ -1105,8 +1114,8 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                                         icon = null,
                                         label = null,
                                     )
-                                    items.add(position, ListItem.ButtonItem(newButton, targetSection))
-                                    adapter?.notifyItemInserted(position)
+                                    items.add(insertAt, ListItem.ButtonItem(newButton, targetSection))
+                                    adapter?.notifyItemInserted(insertAt)
                                     updateAddButtonsSection()
                                     adapter?.notifyDataSetChanged()
                                     updateSaveButtonState()
@@ -1159,7 +1168,15 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
                     holder.ui.setButton(label, displayIconRes, previewText, drawable, tintCustomDrawable)
                     holder.ui.root.setOnClickListener {
-                        openButtonEditor(buttonItem.button, position, buttonItem.section)
+                        // Resolve the position when the click happens, not when we bound:
+                        // dragging only calls notifyItemMoved, so RecyclerView moves the view
+                        // without re-binding and a captured `position` goes stale. Editing or
+                        // deleting then landed on a different button.
+                        val livePosition = holder.bindingAdapterPosition
+                        if (livePosition == RecyclerView.NO_POSITION) return@setOnClickListener
+                        val liveItem = items.getOrNull(livePosition) as? ListItem.ButtonItem
+                            ?: return@setOnClickListener
+                        openButtonEditor(liveItem.button, livePosition, liveItem.section)
                     }
                     holder.ui.root.setOnLongClickListener(null)
                 }
