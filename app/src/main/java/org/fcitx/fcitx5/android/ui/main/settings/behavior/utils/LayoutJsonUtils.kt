@@ -238,15 +238,17 @@ object LayoutJsonUtils {
         } else null
         return KeyJson(
             type = type,
-            main = obj["main"]?.jsonPrimitive?.content,
-            alt = obj["alt"]?.jsonPrimitive?.content,
+            // contentOrNull, not content: JsonNull.content is the literal string "null",
+            // which would otherwise be rendered and committed as text on the key.
+            main = obj["main"]?.jsonPrimitive?.contentOrNull,
+            alt = obj["alt"]?.jsonPrimitive?.contentOrNull,
             displayText = obj["displayText"],  // AlphabetKey 和 MacroKey 共用
-            label = obj["label"]?.jsonPrimitive?.content,
-            altLabel = obj["altLabel"]?.jsonPrimitive?.content,
-            longPressLabel = obj["longPressLabel"]?.jsonPrimitive?.content,
-            subLabel = obj["subLabel"]?.jsonPrimitive?.content,
-            swipeLabel = obj["swipeLabel"]?.jsonPrimitive?.content,
-            sym = obj["sym"]?.jsonPrimitive?.content?.let { resolveKeysym(it) },
+            label = obj["label"]?.jsonPrimitive?.contentOrNull,
+            altLabel = obj["altLabel"]?.jsonPrimitive?.contentOrNull,
+            longPressLabel = obj["longPressLabel"]?.jsonPrimitive?.contentOrNull,
+            subLabel = obj["subLabel"]?.jsonPrimitive?.contentOrNull,
+            swipeLabel = obj["swipeLabel"]?.jsonPrimitive?.contentOrNull,
+            sym = obj["sym"]?.jsonPrimitive?.contentOrNull?.let { resolveKeysym(it) },
             weight = parseOptionalFloat(obj["weight"]),
             rowHeightPercent = parseOptionalFloat(obj["rowHeightPercent"]),
             textColor = parseOptionalInt(obj["textColor"]),

@@ -113,3 +113,55 @@ class LayoutJsonUtilsTest {
     }
 
     /** C23: "main": null must not become the literal string "null". */
+    @Test
+    fun jsonNullDoesNotBecomeLiteralNullString() {
+        val keys = LayoutJsonUtils.parseKeyJsonArray(
+            row("""[{"type": "AlphabetKey", "main": null, "alt": null, "label": null}]""")
+        )
+        assertEquals(1, keys.size)
+        assertNull(keys[0].main)
+        assertNull(keys[0].alt)
+        assertNull(keys[0].label)
+    }
+
+    /** C23: a genuine string value is still read. */
+    @Test
+    fun stringValuesArePreserved() {
+        val keys = LayoutJsonUtils.parseKeyJsonArray(
+            row("""[{"type": "AlphabetKey", "main": "q", "alt": "1", "label": "Q"}]""")
+        )
+        assertEquals("q", keys[0].main)
+        assertEquals("1", keys[0].alt)
+        assertEquals("Q", keys[0].label)
+    }
+
+    /** parseLayoutRows (editor path) skips the same malformed elements. */
+    @Test
+    fun parseLayoutRowsSkipsMalformedElements() {
+        val rows = LayoutJsonUtils.parseLayoutRows(
+            Json.parseToJsonElement(
+                """[["a", {"type": "AlphabetKey", "main": "q", "alt": "1"}, null]]"""
+            ) as JsonArray
+        )
+        assertEquals(1, rows.size)
+        assertEquals(1, rows[0].size)
+        assertEquals("AlphabetKey", rows[0][0]["type"])
+    }
+
+    /** Sanity check that the fixture helper really produces objects. */
+    @Test
+    fun wellFormedRowParsesEveryKey() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [
+                  {"type": "AlphabetKey", "main": "q", "alt": "1"},
+                  {"type": "AlphabetKey", "main": "w", "alt": "2"}
+                ]
+                """.trimIndent()
+            )
+        )
+        assertEquals(2, parsed.size)
+        assertTrue(parsed.all { it.type == "AlphabetKey" })
+    }
+}
