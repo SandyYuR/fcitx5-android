@@ -61,7 +61,6 @@ import java.io.File
 import java.io.InputStream
 import java.security.MessageDigest
 import java.util.Locale
-import java.util.regex.PatternSyntaxException
 import kotlin.coroutines.coroutineContext
 
 class UpdateCheckActivity : AppCompatActivity() {
@@ -475,7 +474,10 @@ class UpdateCheckActivity : AppCompatActivity() {
         val mirror = selectedMirror()
         val downloadUrl = try {
             UpdateRepository.applyMirror(state.asset.browserDownloadUrl, mirror)
-        } catch (_: PatternSyntaxException) {
+        } catch (_: Throwable) {
+            // Not just PatternSyntaxException: an illegal group reference in the
+            // replacement throws IndexOutOfBoundsException, and a trailing backslash
+            // throws IllegalArgumentException — neither is a PatternSyntaxException.
             Toast.makeText(this, getString(R.string.update_mirror_rule_invalid), Toast.LENGTH_SHORT).show()
             return
         }

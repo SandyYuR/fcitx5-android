@@ -160,9 +160,51 @@ object UpdateRepository {
         invalidateReleaseCache()
     }
 
+    /** True when [url] is a syntactically valid absolute http(s) URL. */
+    fun isValidHttpUrl(url: String): Boolean {
+        val trimmed = url.trim()
+        if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) return false
+        return runCatching { URL(trimmed).host.isNotBlank() }.getOrDefault(false)
+    }
+
     fun applyMirror(rawUrl: String, mirror: MirrorRule?): String {
         if (mirror == null) return rawUrl
         return Regex(mirror.pattern).replace(rawUrl, mirror.replacement)
+    }
+
+    /** Upper bound for a mirror pattern, to limit catastrophic-backtracking blowups. */
+    const val MAX_MIRROR_PATTERN_LENGTH = 256
+
+    /** A representative URL used to smoke-test a mirror rule before it is saved. */
+    const val MIRROR_VALIDATION_SAMPLE_URL =
+        "https://github.com/owner/repo/releases/download/v1.2.3/app-arm64-v8a-release.apk"
+
+    /**
+     * Outcome of validating a user-entered mirror rule. Compiling the pattern is not
+     * enough: [Regex.replace] resolves group references in the replacement lazily, so an
+     * illegal reference (`$1` with no capturing group) or a trailing backslash only blows
+     * up at download time — as IndexOutOfBoundsException / IllegalArgumentException, which
+     * a `catch (PatternSyntaxException)` cannot intercept.
+     */
+    enum class MirrorRuleValidation { VALID, PATTERN_INVALID, REPLACEMENT_INVALID }
+
+    fun validateMirrorRule(
+        pattern: String,
+        replacement: String,
+        sampleUrl: String = MIRROR_VALIDATION_SAMPLE_URL
+    ): MirrorRuleValidation {
+        if (pattern.length > MAX_MIRROR_PATTERN_LENGTH) return MirrorRuleValidation.PATTERN_INVALID
+        val regex = try {
+            Regex(pattern)
+        } catch (_: Throwable) {
+            return MirrorRuleValidation.PATTERN_INVALID
+        }
+        return try {
+            regex.replace(sampleUrl, replacement)
+            MirrorRuleValidation.VALID
+        } catch (_: Throwable) {
+            MirrorRuleValidation.REPLACEMENT_INVALID
+        }
     }
 
     fun isHostsEnabled(context: Context): Boolean {
