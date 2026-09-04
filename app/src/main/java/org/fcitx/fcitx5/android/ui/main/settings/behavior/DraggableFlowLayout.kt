@@ -349,7 +349,11 @@ open class DraggableFlowLayout @JvmOverloads constructor(
         }
 
         if (closestPosition == -1) {
-            if (childCount > 0) {
+            // Bound this fallback by draggableChildCount, not childCount: the trailing "+" chip
+            // has no data slot, so an index at or past it is one swapViews() rejects — the drag
+            // then simply did nothing instead of landing at the end (see C13).
+            val movableCount = draggableChildCount
+            if (movableCount > 0) {
                 val firstChild = getChildAt(0)
                 val location = IntArray(2)
                 firstChild.getLocationOnScreen(location)
@@ -364,7 +368,7 @@ open class DraggableFlowLayout @JvmOverloads constructor(
                     return 0
                 }
 
-                val lastChild = getChildAt(childCount - 1)
+                val lastChild = getChildAt(movableCount - 1)
                 val lastLocation = IntArray(2)
                 lastChild.getLocationOnScreen(lastLocation)
 
@@ -373,13 +377,13 @@ open class DraggableFlowLayout @JvmOverloads constructor(
                 val lastChildBottom = lastChildTop + lastChild.height
 
                 if (y >= lastChildTop && y <= lastChildBottom && x > lastChildRight) {
-                    return childCount
+                    return movableCount
                 }
             }
 
-            for (i in 0..childCount) {
+            for (i in 0..movableCount) {
                 if (i == 0) {
-                    val firstChild = if (childCount > 0) getChildAt(0) else null
+                    val firstChild = if (movableCount > 0) getChildAt(0) else null
                     if (firstChild != null) {
                         val location = IntArray(2)
                         firstChild.getLocationOnScreen(location)
@@ -396,7 +400,7 @@ open class DraggableFlowLayout @JvmOverloads constructor(
                     }
                 } else {
                     val prevChild = getChildAt(i - 1)
-                    val nextChild = if (i < childCount) getChildAt(i) else null
+                    val nextChild = if (i < movableCount) getChildAt(i) else null
 
                     val prevLocation = IntArray(2)
                     prevChild.getLocationOnScreen(prevLocation)

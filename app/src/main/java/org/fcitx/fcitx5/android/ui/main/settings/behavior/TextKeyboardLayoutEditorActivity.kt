@@ -512,6 +512,24 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Re-render the preview after a rotation.
+     *
+     * The manifest declares configChanges for orientation, so the Activity is not recreated — but
+     * the preview keyboard's height is computed once, in pixels, from the current orientation
+     * (KeyboardPreviewManager reads displayMetrics and the landscape/portrait height override).
+     * Without this hook it kept the height of the previous orientation. The row list itself is a
+     * LinearLayoutManager over FlowLayouts and reflows on its own.
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val layoutName = currentLayout ?: return
+        // clear() also resets the short-circuit signature, which is required here: the layout
+        // JSON is unchanged, so updatePreview alone would return early.
+        previewManager.clear()
+        previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection)
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         // Without this, a rotation re-ran loadState() and silently replaced the user's
@@ -528,6 +546,17 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     private fun restoreDraftState(state: Bundle) {
         val json = state.getString(STATE_DRAFT_LAYOUT_JSON) ?: return
+        // Only restore into the profile the draft was taken from. After a process death the
+        // active profile may have been switched elsewhere, and applying the draft then would
+        // write one profile's layout into another's file on the next save.
+        val draftProfile = state.getString(STATE_LAYOUT_PROFILE)
+        if (draftProfile != null && draftProfile != currentLayoutProfile) {
+            android.util.Log.i(
+                "LayoutEditor",
+                "Discarding draft for profile $draftProfile; now editing $currentLayoutProfile"
+            )
+            return
+        }
         val parsed = runCatching {
             dataManager.parseJsonText(json, "saved-instance-state", fallbackToDefault = false)
         }.getOrNull()
@@ -541,6 +570,17 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         dataManager.layoutHeightPercentOverridesLandscape.clear()
         dataManager.layoutHeightPercentOverridesLandscape.putAll(
             dataManager.latestParsedLayoutHeightPercentOverridesLandscape()
+        )
+        // The draft JSON carries the aux bar too, and loadFromFile restores it the same way. Left
+        // out, the aux bar silently fell back to the on-disk version while hasChanges() stayed
+        // true, so the next save wrote that stale version over the user's edit.
+        dataManager.layoutAuxBarConfigs.clear()
+        dataManager.layoutAuxBarConfigs.putAll(dataManager.latestParsedLayoutAuxBarConfigs())
+        dataManager.layoutAuxBarKeys.clear()
+        dataManager.layoutAuxBarKeys.putAll(
+            dataManager.latestParsedLayoutAuxBarKeys().mapValues { (_, keys) ->
+                keys.map { it.toMutableMap() }.toMutableList()
+            }
         )
         state.getString(STATE_CURRENT_LAYOUT)?.let { if (entries.containsKey(it)) currentLayout = it }
         previewSubModeLabel = state.getString(STATE_PREVIEW_SUBMODE)
