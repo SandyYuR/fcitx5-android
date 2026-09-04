@@ -11,7 +11,9 @@ plugins {
 
 val packageBase = "org.fcitx.fcitx5.android"
 val appIdBase = packageBase
-val appIdFxSuffix = ".fx"
+// Distinct from fx2 / upstream fx builds (org.fcitx.fcitx5.android.fx) so both
+// can be installed side by side on the same device.
+val appIdFxSuffix = ".fx.rime"
 val flavorFx = "fx"
 val appLabelDefault = "@string/app_name"
 val imeSettingsActivity = "$packageBase.ui.main.MainActivity"
@@ -94,7 +96,7 @@ androidComponents {
                 if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
                     output.outputFileName.set(
                         output.outputFileName.get()
-                            .replace("org.fcitx.fcitx5.android-", "org.fcitx.fcitx5.android.fx-")
+                            .replace("org.fcitx.fcitx5.android-", "org.fcitx.fcitx5.android.fx.rime-")
                             .replace("-fx-", "-")
                     )
                 }
