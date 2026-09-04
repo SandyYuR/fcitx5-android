@@ -80,7 +80,6 @@ target_link_libraries(native-lib
         Fcitx5::Utils
         Fcitx5::Config
         Fcitx5::Core
-        Fcitx5::Module::QuickPhrase
         Fcitx5::Module::Clipboard
         )
 
@@ -88,7 +87,6 @@ target_link_libraries(native-lib
 add_custom_target(copy-fcitx5-modules
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_PROPERTY:fcitx5::clipboard,IMPORTED_LOCATION>
-        $<TARGET_PROPERTY:fcitx5::quickphrase,IMPORTED_LOCATION>
         ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
         COMMENT "Copying fcitx5 module libraries to :app"
         )

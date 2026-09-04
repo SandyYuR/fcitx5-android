@@ -55,7 +55,6 @@ data class IconTheme(
             "keys.return.previous",
             "keys.return.done",
             "keys.language",
-            "keys.quickphrase",
             "keys.space",
             "keys.numpad",
             "keys.emoji",

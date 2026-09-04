@@ -70,8 +70,7 @@ private val EDIT_ACTION_MAP = mapOf(
 )
 
 private val ROUTE_MAP = mapOf(
-    "addon_list" to SettingsRoute.AddonList,
-    "quick_phrase_list" to SettingsRoute.QuickPhraseList,
+    "addon_list" to SettingsRoute.AddonList
 )
 
 fun resolveKeyCode(fcitxKey: String): Int {

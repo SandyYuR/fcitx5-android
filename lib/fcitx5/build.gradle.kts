@@ -25,8 +25,7 @@ android {
                     "Fcitx5Utils",
                     // fcitx5 modules
                     "clipboard",
-                    "notifications",
-                    "quickphrase"
+                    "notifications"
                 )
             }
         }
@@ -63,10 +62,6 @@ android {
             // module notifications is not built since dbus is disabled
             headerOnly = true
             headers = "$moduleHeadersPrefix/notifications"
-        }
-        create("quickphrase") {
-            libraryName = "libquickphrase"
-            headers = "$moduleHeadersPrefix/quickphrase"
         }
     }
 }

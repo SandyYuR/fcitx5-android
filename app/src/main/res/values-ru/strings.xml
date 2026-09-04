@@ -103,8 +103,6 @@
     <string name="edited_x">Отредактировано %1$s</string>
     <string name="invalid_value">Неверное значение</string>
     <string name="keyboard_long_press_delay">Задержка при длительном нажатии клавиши</string>
-    <string name="quickphrase_editor">Редактор быстрых фраз</string>
-    <string name="quickphrase_already_exists">Быстрая фраза уже существует</string>
     <string name="create_new">Создать новый</string>
     <string name="name">Имя</string>
     <string name="addon_dir_profile_create">Создать каталог данных</string>
@@ -113,8 +111,6 @@
     <string name="addon_dir_profile_delete_confirm">Удалить каталог данных "%1$s"?</string>
     <string name="addon_dir_profile_current_format">%1$s (текущий)</string>
     <string name="reset">Перезагрузить</string>
-    <string name="quickphrase_keyword">Ключевое слово</string>
-    <string name="quickphrase_phrase">Фраза</string>
     <string name="reload_config">Перезагрузить конфигурацию</string>
     <string name="input_method_options">Параметры метода ввода</string>
     <string name="theme">Тема</string>
@@ -147,8 +143,6 @@
     <string name="import_from_file">Импорт из файла…</string>
     <string name="duplicate_builtin_theme">Дублировать встроенную тему…</string>
     <string name="exception_logcat_created">Процесс Logcat уже создан</string>
-    <string name="exception_quickphrase_parse">Не удалось разобрать строку быстрой фразы: %1$s</string>
-    <string name="exception_quickphrase_filename">Расширение имени файла %1$s не указывает на быструю фразу</string>
     <string name="exception_theme_filename">Расширение имени файла %1$s не указывает на тему</string>
     <string name="exception_libime_dict_filename">Расширение имени файла %1$s не указывает на словарь libime</string>
     <string name="exception_text_dict_filename">Расширение имени файла %1$s не указывает на текстовый словарь</string>
