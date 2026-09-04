@@ -209,7 +209,10 @@ abstract class BaseKeyboard(
         clipToPadding = false
         reloadLayout()
         spaceSwipeMoveCursor.registerOnChangeListener(spaceSwipeChangeListener)
-        splitKeyboardManager.registerListener(splitStateChangeListener)
+        // No listener registration on SplitKeyboardStateManager: it is an application-scoped
+        // singleton that never notified anyone (notifyListeners had no callers), while every
+        // registration pinned a keyboard view tree for the life of the process. Split state
+        // is computed directly via shouldUseSplitKeyboard() in reloadLayout().
     }
 
     /**
@@ -1966,7 +1969,13 @@ abstract class BaseKeyboard(
             event.metaState, event.xPrecision, event.yPrecision,
             event.deviceId, event.edgeFlags
         )
-        target.view.dispatchTouchEvent(e)
+        try {
+            target.view.dispatchTouchEvent(e)
+        } finally {
+            // obtain() takes an event from a shared pool; return it. With the vivo
+            // workaround this runs once per pressed finger per ACTION_MOVE.
+            e.recycle()
+        }
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
