@@ -85,14 +85,14 @@ class TokenizedClipboardAdapter(
             selectedIndices.clear()
             selectedIndices.addAll(tokens.indices)
         }
-        notifyDataSetChanged()
+        notifySelectionChangedForAll()
         dispatchSelectionChanged()
     }
 
     fun clearSelection() {
         if (selectedIndices.isEmpty()) return
         selectedIndices.clear()
-        notifyDataSetChanged()
+        notifySelectionChangedForAll()
         dispatchSelectionChanged()
     }
 
@@ -105,8 +105,20 @@ class TokenizedClipboardAdapter(
                 selectedIndices.add(index)
             }
         }
-        notifyDataSetChanged()
+        notifySelectionChangedForAll()
         dispatchSelectionChanged()
+    }
+
+    /**
+     * Refresh only the selected/unselected visual state of every item.
+     *
+     * notifyDataSetChanged() made the flexbox layout manager re-measure and re-bind every
+     * token, which with a few hundred tokens froze the panel on each select-all / invert /
+     * clear. The payload path only calls setSelected() on the bound holders.
+     */
+    private fun notifySelectionChangedForAll() {
+        if (tokens.isEmpty()) return
+        notifyItemRangeChanged(0, tokens.size, PAYLOAD_SELECTION)
     }
 
     fun selectedTokens(): List<ClipboardToken> =
