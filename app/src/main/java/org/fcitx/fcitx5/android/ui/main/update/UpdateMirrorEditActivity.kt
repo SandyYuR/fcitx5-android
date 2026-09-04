@@ -19,7 +19,6 @@ import org.fcitx.fcitx5.android.R
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
-import java.util.regex.PatternSyntaxException
 
 class UpdateMirrorEditActivity : AppCompatActivity() {
     companion object {
@@ -102,11 +101,19 @@ class UpdateMirrorEditActivity : AppCompatActivity() {
             Toast.makeText(this, getString(R.string.update_mirror_fields_required), Toast.LENGTH_SHORT).show()
             return
         }
-        try {
-            Regex(pattern)
-        } catch (_: PatternSyntaxException) {
-            Toast.makeText(this, getString(R.string.update_mirror_pattern_invalid), Toast.LENGTH_SHORT).show()
-            return
+        // Validate by actually running the replacement on a sample URL: compiling the
+        // pattern alone does not catch illegal group references or a trailing backslash
+        // in the replacement, which would otherwise crash at download time.
+        when (UpdateRepository.validateMirrorRule(pattern, replacement)) {
+            UpdateRepository.MirrorRuleValidation.PATTERN_INVALID -> {
+                Toast.makeText(this, getString(R.string.update_mirror_pattern_invalid), Toast.LENGTH_SHORT).show()
+                return
+            }
+            UpdateRepository.MirrorRuleValidation.REPLACEMENT_INVALID -> {
+                Toast.makeText(this, getString(R.string.update_mirror_replacement_invalid), Toast.LENGTH_SHORT).show()
+                return
+            }
+            UpdateRepository.MirrorRuleValidation.VALID -> Unit
         }
         val list = UpdatePrefs.loadMirrorRules(this).toMutableList()
         val id = editingId
