@@ -243,18 +243,11 @@ class InputView(
                 rebuildKeyRegions()
             }
 
+            // One clip + one draw for every key region of this frame (see E1).
             var drewKeyRegion = false
-            keyClipRects.forEachIndexed { index, rect ->
+            if (hasKeyClipPath) {
                 val saveId = canvas.save()
-                val radius = keyClipRadii.getOrElse(index) { 0f }
-                if (radius > 0f) {
-                    clipRectF.set(rect)
-                    clipPath.reset()
-                    clipPath.addRoundRect(clipRectF, radius, radius, Path.Direction.CW)
-                    canvas.clipPath(clipPath)
-                } else {
-                    canvas.clipRect(rect)
-                }
+                canvas.clipPath(keyClipPath)
                 drawFullScreenBlur(canvas, bitmap)
                 canvas.restoreToCount(saveId)
                 drewKeyRegion = true
@@ -344,6 +337,8 @@ class InputView(
                 hasVisibleKey = false
                 keyClipRects.clear()
                 keyClipRadii.clear()
+                keyClipPath.reset()
+                hasKeyClipPath = false
                 blurTargetViews.forEach { target ->
                     if (!target.isShown) return@forEach
                     hasVisibleKey = true
@@ -372,14 +367,29 @@ class InputView(
                     )
                     if (!clipRect.intersect(0, 0, width, height)) return@forEach
                     keyClipRects.add(Rect(clipRect))
-                    keyClipRadii.add(radius.coerceIn(0f, minOf(clipRect.width(), clipRect.height()) * 0.5f))
+                    val clampedRadius = radius.coerceIn(
+                        0f,
+                        minOf(clipRect.width(), clipRect.height()) * 0.5f
+                    )
+                    keyClipRadii.add(clampedRadius)
+                    // Accumulate into the combined clip path (see E1). A rect is added as a
+                    // zero-radius round rect so both cases go through the same call.
+                    clipRectF.set(clipRect)
+                    keyClipPath.addRoundRect(clipRectF, clampedRadius, clampedRadius, Path.Direction.CW)
+                    hasKeyClipPath = true
                 }
             }
             buildClipRects()
-            if (!hasVisibleKey && blurTargetViews.isNotEmpty()) {
+            // Fallback: the cached target list is stale (all of them are hidden), so re-collect
+            // once. Guarded because collectBlurTargets walks the whole view tree, and this used
+            // to run on every rebuild while a window transition kept keys hidden (see E3).
+            if (!hasVisibleKey && blurTargetViews.isNotEmpty() && !retriedTargetCollection) {
+                retriedTargetCollection = true
                 blurTargetViews.clear()
                 collectBlurTargets(windowManager.view, blurTargetViews)
                 buildClipRects()
+            } else if (hasVisibleKey) {
+                retriedTargetCollection = false
             }
         }
 
