@@ -344,7 +344,14 @@ object LayoutJsonUtils {
      * @return 解析后的 MacroAction
      */
     fun parseMacroAction(obj: JsonObject): MacroAction {
-        val steps = obj["macro"]?.jsonArray?.map { parseMacroStep(it.jsonObject) } ?: emptyList()
+        // parseMacroStep/parseKeyRef throw on malformed input. This function is on the
+        // runtime keyboard path (parseKeyJsonArray -> parseKeyJson -> here), so a single
+        // bad step must not take down the whole layout: drop it and log instead.
+        val steps = obj["macro"]?.jsonArray?.mapNotNull { element ->
+            runCatching { parseMacroStep(element.jsonObject) }
+                .onFailure { Log.w(TAG, "Skipping invalid macro step: " + it.message) }
+                .getOrNull()
+        } ?: emptyList()
         return MacroAction(steps)
     }
 
@@ -811,14 +818,15 @@ object LayoutJsonUtils {
      * @param key 解析后的 KeyJson
      * @param subModeLabel 当前子模式标签（用于解析 displayText）
      * @param subModeName 当前子模式名称（用于解析 displayText）
-     * @return 转换后的 KeyDef
+     * @return 转换后的 KeyDef，当该键的必填字段缺失时返回 null（调用方应跳过它，
+     *         而不是让单个坏键导致整个布局无法加载）
      */
     fun createKeyDef(
         key: KeyJson,
         subModeLabel: String = "",
         schemaId: String = "",
         subModeName: String = ""
-    ): KeyDef {
+    ): KeyDef? {
         val keyDef = when (key.type) {
             "AlphabetKey" -> AlphabetKey(
                 character = key.main ?: "",
@@ -948,7 +956,13 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "MacroKey" -> {
-                val tap = key.tap ?: throw IllegalArgumentException("MacroKey requires 'tap' action")
+                // A MacroKey without a tap action cannot do anything. Skip the key instead of
+                // throwing: the throw used to propagate out of BaseKeyboard.init and crash the
+                // keyboard for a config the editor itself was able to write.
+                val tap = key.tap ?: run {
+                    Log.w(TAG, "Skipping MacroKey without 'tap' action: label=" + key.label)
+                    return null
+                }
                 // 解析 label：基础 label + displayText 多模式覆盖
                 // 优先使用 displayText 中当前 submode 的值，否则使用基础 label
                 val baseLabel = key.label ?: ""
@@ -989,7 +1003,7 @@ object LayoutJsonUtils {
                 subModeLabel,
                 schemaId,
                 subModeName
-            )
+            ) ?: return@let
             overrideDef.independentColor = override.independentColor ?: false
             keyDef.composeOverride = overrideDef
         }
