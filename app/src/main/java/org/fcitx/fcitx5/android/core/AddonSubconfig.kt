@@ -10,5 +10,3 @@ suspend fun FcitxAPI.getPunctuationConfig(lang: String) =
 suspend fun FcitxAPI.savePunctuationConfig(lang: String = "zh_CN", config: RawConfig) =
     setAddonSubConfig("punctuation", "punctuationmap/$lang", config)
 
-suspend fun FcitxAPI.reloadQuickPhrase() = setAddonSubConfig("quickphrase", "editor")
-

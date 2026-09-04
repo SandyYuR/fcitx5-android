@@ -112,8 +112,6 @@
     <string name="edited_x">已编辑 %1$s</string>
     <string name="invalid_value">无效的值</string>
     <string name="keyboard_long_press_delay">长按延迟</string>
-    <string name="quickphrase_editor">快速输入编辑器</string>
-    <string name="quickphrase_already_exists">快速输入已存在</string>
     <string name="create_new">新建</string>
     <string name="name">名称</string>
     <string name="addon_dir_profile_create">新建数据目录</string>
@@ -123,8 +121,6 @@
     <string name="addon_dir_profile_delete_last_forbidden">至少保留一个数据目录</string>
     <string name="addon_dir_profile_current_format">%1$s（当前）</string>
     <string name="reset">重置</string>
-    <string name="quickphrase_keyword">关键词</string>
-    <string name="quickphrase_phrase">短语</string>
     <string name="reload_config">重载配置</string>
     <string name="input_method_options">输入法设置</string>
     <string name="theme">主题</string>
@@ -158,8 +154,6 @@
     <string name="import_from_file">导入文件…</string>
     <string name="duplicate_builtin_theme">复制内置主题…</string>
     <string name="exception_logcat_created">Logcat 进程已创建</string>
-    <string name="exception_quickphrase_parse">无法解析快速输入条目： %1$s</string>
-    <string name="exception_quickphrase_filename">文件 %1$s 的拓展名不是快速输入</string>
     <string name="exception_theme_filename">文件 %1$s 的拓展名不是主题</string>
     <string name="exception_libime_dict_filename">文件 %1$s 的拓展名不是 libime 词库</string>
     <string name="exception_text_dict_filename">文件 %1$s 的拓展名不是纯文本词库</string>

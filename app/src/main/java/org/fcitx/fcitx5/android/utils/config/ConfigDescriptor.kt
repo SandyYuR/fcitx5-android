@@ -178,7 +178,6 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
     ) : ConfigDescriptor<ConfigType.TyExternal, Nothing>() {
         enum class ETy {
             Punctuation,
-            QuickPhrase,
             Chttrans,
             RimeUserDataDir,
             MultiSelect,
@@ -324,7 +323,6 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
                                     ConfigExternal.ETy.AddonAction
                                 else -> when (raw.name) {
                                 "Punctuation" -> ConfigExternal.ETy.Punctuation
-                                "QuickPhrase", "Editor" -> ConfigExternal.ETy.QuickPhrase
                                 "Chttrans" -> ConfigExternal.ETy.Chttrans
                                 "UserDataDir" -> ConfigExternal.ETy.RimeUserDataDir
                                 "MultiSelect" -> ConfigExternal.ETy.MultiSelect

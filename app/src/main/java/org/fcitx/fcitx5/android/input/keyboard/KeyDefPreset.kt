@@ -322,18 +322,6 @@ class BackspaceKey(
     iconSlot = "keys.backspace"
 )
 
-class QuickPhraseKey : KeyDef(
-    Appearance.Image(
-        src = R.drawable.ic_baseline_format_quote_24,
-        variant = Variant.Alternative,
-        viewId = R.id.button_quickphrase
-    ),
-    setOf(
-        Behavior.Press(KeyAction.QuickPhraseAction)
-    ),
-    iconSlot = "keys.quickphrase"
-)
-
 class CommaKey(
     percentWidth: Float,
     variant: Variant,
@@ -369,12 +357,6 @@ class CommaKey(
                     R.drawable.ic_baseline_tag_faces_24,
                     KeyAction.PickerSwitchAction(),
                     iconSlot = "keys.emoji"
-                ),
-                Popup.Menu.Item(
-                    "QuickPhrase",
-                    R.drawable.ic_baseline_format_quote_24,
-                    KeyAction.QuickPhraseAction,
-                    iconSlot = "keys.quickphrase"
                 )
             )
         )

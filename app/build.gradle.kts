@@ -108,13 +108,17 @@ fcitxComponent {
     includeLibs = listOf(
         "fcitx5"
     )
-    // rime 专版只保留 rime 输入法：imselector / spell / unicode 三个 fcitx5
-    // 模块已不再打包，其 addon .conf 一并从 assets 排除，避免出现在
-    // 附加组件设置页里。
+    // rime 专版只保留 rime 输入法：imselector / spell / unicode / quickphrase
+    // 等 fcitx5 模块已不再打包，其 addon .conf 与 quickphrase 词典一并从
+    // assets 排除，避免出现在附加组件设置页里。
     excludeFiles = listOf(
         "usr/share/fcitx5/addon/imselector.conf",
         "usr/share/fcitx5/addon/spell.conf",
-        "usr/share/fcitx5/addon/unicode.conf"
+        "usr/share/fcitx5/addon/unicode.conf",
+        "usr/share/fcitx5/addon/quickphrase.conf",
+        "usr/share/fcitx5/data/quickphrase.d/emoji.mb",
+        "usr/share/fcitx5/data/quickphrase.d/emoji-eac.mb",
+        "usr/share/fcitx5/data/quickphrase.d/latex.mb"
     )
     installPrebuiltAssets = true
 }

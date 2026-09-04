@@ -96,8 +96,6 @@ interface FcitxAPI {
     suspend fun addons(): Array<AddonInfo>
     suspend fun setAddonState(name: Array<String>, state: BooleanArray)
 
-    suspend fun triggerQuickPhrase()
-
     suspend fun focus(focus: Boolean = true)
     suspend fun focusOutIn()
     suspend fun activate(uid: Int, pkgName: String)

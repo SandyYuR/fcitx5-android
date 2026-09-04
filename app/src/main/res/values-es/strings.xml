@@ -70,8 +70,6 @@
     <string name="crash_logs">Registros de cierres inesperados</string>
     <string name="verbose_log">Registro a detalle</string>
     <string name="invalid_value">Valor no válido</string>
-    <string name="quickphrase_editor">Editor de frases rápidas</string>
-    <string name="quickphrase_already_exists">La frase rápida ya existe</string>
     <string name="create_new">Crear</string>
     <string name="name">Nombre</string>
     <string name="addon_dir_profile_create">Crear directorio de datos</string>
@@ -80,8 +78,6 @@
     <string name="addon_dir_profile_delete_confirm">¿Eliminar el directorio de datos "%1$s"?</string>
     <string name="addon_dir_profile_current_format">%1$s (actual)</string>
     <string name="reset">Restablecer</string>
-    <string name="quickphrase_keyword">Palabra clave</string>
-    <string name="quickphrase_phrase">Frase</string>
     <string name="reload_config">Recargar configuración</string>
     <string name="input_method_options">Opciones de método de entrada</string>
     <string name="theme">Tema</string>
@@ -522,8 +518,6 @@
     <string name="exception_dict_filename">La extension de %1$s no corresponde a un diccionario</string>
     <string name="exception_libime_dict_filename">La extension de %1$s no corresponde a un diccionario libime</string>
     <string name="exception_logcat_created">El proceso de Logcat ya fue creado</string>
-    <string name="exception_quickphrase_filename">La extension de %1$s no corresponde a una frase rapida</string>
-    <string name="exception_quickphrase_parse">No se pudo analizar la linea de frase rapida: %1$s</string>
     <string name="exception_sougou_dict_filename">La extension de %1$s no corresponde a un diccionario sogou</string>
     <string name="exception_table">No se encontro el diccionario del metodo de entrada de tabla (.dict o .txt)</string>
     <string name="exception_table_conf_filename">La extension de "%1$s" no corresponde a un archivo de configuracion de metodo de entrada de tabla (.conf o .conf.in)</string>

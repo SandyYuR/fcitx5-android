@@ -1054,7 +1054,6 @@ class TextKeyboard private constructor(
     private var specialKeyViews: SpecialKeyViews = SpecialKeyViews(
         caps = emptyList(),
         backspace = emptyList(),
-        quickphrase = emptyList(),
         space = emptyList(),
         `return` = emptyList()
     )
@@ -1063,7 +1062,6 @@ class TextKeyboard private constructor(
     data class SpecialKeyViews(
         val caps: List<ImageView>,
         val backspace: List<ImageView>,
-        val quickphrase: List<ImageView>,
         val space: List<TextKeyView>,
         val `return`: List<ImageView>
     )
@@ -1078,7 +1076,6 @@ class TextKeyboard private constructor(
     private fun findAllSpecialKeyViews(): SpecialKeyViews {
         val caps = mutableListOf<ImageView>()
         val backspace = mutableListOf<ImageView>()
-        val quickphrase = mutableListOf<ImageView>()
         val space = mutableListOf<TextKeyView>()
         val returnKeys = mutableListOf<ImageView>()
 
@@ -1086,7 +1083,6 @@ class TextKeyboard private constructor(
             when (view.tag) {
                 R.id.button_caps -> iconViewOf(view)?.let(caps::add)
                 R.id.button_backspace -> iconViewOf(view)?.let(backspace::add)
-                R.id.button_quickphrase -> iconViewOf(view)?.let(quickphrase::add)
                 R.id.button_space -> (view as? TextKeyView)?.let(space::add)
                 R.id.button_return -> iconViewOf(view)?.let(returnKeys::add)
             }
@@ -1095,11 +1091,10 @@ class TextKeyboard private constructor(
         val specialViews = SpecialKeyViews(
             caps = caps,
             backspace = backspace,
-            quickphrase = quickphrase,
             space = space,
             `return` = returnKeys
         )
-        (specialViews.caps + specialViews.backspace + specialViews.quickphrase + specialViews.`return`)
+        (specialViews.caps + specialViews.backspace + specialViews.`return`)
             .forEach { iconView ->
                 iconView.imageTintList?.let { specialIconTintCache[iconView] = it }
             }

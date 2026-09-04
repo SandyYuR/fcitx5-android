@@ -29,7 +29,6 @@
 #include <fcitx-utils/stringutils.h>
 #include <fcitx-config/iniparser.h>
 
-#include <quickphrase_public.h>
 #include <clipboard_public.h>
 
 #include "androidaddonloader/androidaddonloader.h"
@@ -81,7 +80,6 @@ public:
         p_instance->initialize();
         auto &addonMgr = p_instance->addonManager();
         p_frontend = addonMgr.addon("androidfrontend");
-        p_quickphrase = addonMgr.addon("quickphrase");
         p_clipboard = addonMgr.addon("clipboard", true);
         setupCallback(p_frontend);
     }
@@ -338,15 +336,6 @@ public:
         p_instance->reloadConfig();
     }
 
-    void triggerQuickPhrase() {
-        if (!p_quickphrase) return;
-        auto *ic = p_frontend->call<fcitx::IAndroidFrontend::activeInputContext>();
-        if (!ic) return;
-        p_quickphrase->call<fcitx::IQuickPhrase::trigger>(
-                ic, "", "", "", "", fcitx::Key{FcitxKey_None}
-        );
-    }
-
     void setClipboard(const std::string &string, bool password) {
         if (!p_clipboard) return;
         p_clipboard->call<fcitx::IClipboard::setClipboardV2>("", string, password);
@@ -464,14 +453,12 @@ private:
     std::unique_ptr<fcitx::Instance> p_instance;
     std::unique_ptr<fcitx::EventDispatcher> p_dispatcher;
     fcitx::AddonInstance *p_frontend = nullptr;
-    fcitx::AddonInstance *p_quickphrase = nullptr;
     fcitx::AddonInstance *p_clipboard = nullptr;
 
     void resetGlobalPointers() {
         p_instance.reset();
         p_dispatcher.reset();
         p_frontend = nullptr;
-        p_quickphrase = nullptr;
         p_clipboard = nullptr;
     }
 };
@@ -961,13 +948,6 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_setFcitxAddonState(JNIEnv *env, jclass 
     }
     env->ReleaseBooleanArrayElements(state, enabled, 0);
     Fcitx::Instance().setAddonState(map);
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_org_fcitx_fcitx5_android_core_Fcitx_triggerQuickPhraseInput(JNIEnv *env, jclass clazz) {
-    RETURN_IF_NOT_RUNNING
-    Fcitx::Instance().triggerQuickPhrase();
 }
 
 extern "C"

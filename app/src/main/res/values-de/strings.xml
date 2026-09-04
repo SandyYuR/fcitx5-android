@@ -103,8 +103,6 @@
     <string name="addon_dir_profile_delete_confirm">Datenverzeichnis "%1$s" löschen?</string>
     <string name="addon_dir_profile_current_format">%1$s (aktuell)</string>
     <string name="reset">Zurücksetzen</string>
-    <string name="quickphrase_keyword">Schlüsselwort</string>
-    <string name="quickphrase_phrase">Phrase</string>
     <string name="reload_config">Konfiguration neu laden</string>
     <string name="input_method_options">Optionen der Eingabemethode</string>
     <string name="theme">Thema</string>
@@ -554,8 +552,6 @@
     <string name="exception_dict_filename">Datei %1$s hat keine Wörterbuch-Erweiterung</string>
     <string name="exception_libime_dict_filename">Datei %1$s hat keine libime-Wörterbuch-Erweiterung</string>
     <string name="exception_logcat_created">Logcat-Prozess wurde erstellt</string>
-    <string name="exception_quickphrase_filename">Datei %1$s hat keine Schnellphrase-Erweiterung</string>
-    <string name="exception_quickphrase_parse">Schnellphrase-Eintrag kann nicht geparst werden: %1$s</string>
     <string name="exception_sougou_dict_filename">Datei %1$s hat keine Sogou-Zellenwörterbuch-Erweiterung</string>
     <string name="exception_table_conf_filename">"%1$s" hat keine Tabellen-IM-Konfigurations-Erweiterung (.conf oder .conf.in)</string>
     <string name="exception_text_dict_filename">Datei %1$s hat keine Textwörterbuch-Erweiterung</string>
@@ -642,8 +638,6 @@
     <string name="punctuation_pos_bottom">Unten</string>
     <string name="punctuation_pos_none">Keine</string>
     <string name="punctuation_position">Position der Satzzeichen</string>
-    <string name="quickphrase_already_exists">Schnellphrase existiert bereits</string>
-    <string name="quickphrase_editor">Schnellphrasen-Editor</string>
     <string name="reset_keyboard_on_focus_change">Bei Fokuswechsel zur Tastatur zurückschalten</string>
     <string name="restart_channel">App-Neustart</string>
     <string name="restart_notify_msg">App wurde neu gestartet, hier tippen zum Öffnen</string>

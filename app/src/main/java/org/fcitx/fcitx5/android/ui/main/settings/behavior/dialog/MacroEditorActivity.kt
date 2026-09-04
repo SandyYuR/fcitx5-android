@@ -1576,7 +1576,6 @@ class MacroEditorActivity : AppCompatActivity() {
                 "text_keyboard_layout_file_select",
                 "edit_fontset",
                 "addon_list",
-                "quick_phrase_list",
                 "edit_buttons",
                 "split_keyboard_calibration",
                 "web_editor_bridge"
@@ -1611,7 +1610,6 @@ class MacroEditorActivity : AppCompatActivity() {
                 getString(R.string.edit_fontset),
                 getString(R.string.addons),
                 getString(R.string.macro_editor_table_input_methods),
-                getString(R.string.quickphrase_editor),
                 getString(R.string.macro_editor_pinyin_custom_phrase),
                 getString(R.string.macro_editor_pinyin_dict),
                 getString(R.string.edit_buttons),
@@ -1657,7 +1655,6 @@ class MacroEditorActivity : AppCompatActivity() {
                 "edit_fontset" -> getString(R.string.edit_fontset)
                 "addon_list" -> getString(R.string.addons)
                 "table_input_methods" -> getString(R.string.macro_editor_table_input_methods)
-                "quick_phrase_list" -> getString(R.string.quickphrase_editor)
                 "pinyin_custom_phrase" -> getString(R.string.macro_editor_pinyin_custom_phrase)
                 "pinyin_dict" -> getString(R.string.macro_editor_pinyin_dict)
                 "edit_buttons" -> getString(R.string.edit_buttons)

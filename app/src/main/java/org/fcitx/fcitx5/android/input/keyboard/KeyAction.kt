@@ -77,8 +77,6 @@ sealed class KeyAction {
 
     data class CapsAction(val lock: Boolean) : KeyAction()
 
-    data object QuickPhraseAction : KeyAction()
-
     data object LangSwitchAction : KeyAction()
 
     data object ShowInputMethodPickerAction : KeyAction()

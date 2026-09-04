@@ -112,8 +112,6 @@
     <string name="edited_x">已編輯%1$s</string>
     <string name="invalid_value">無效的值</string>
     <string name="keyboard_long_press_delay">長按延遲</string>
-    <string name="quickphrase_editor">快速片語編輯器</string>
-    <string name="quickphrase_already_exists">快速片語已存在</string>
     <string name="create_new">新增</string>
     <string name="name">名稱</string>
     <string name="addon_dir_profile_create">新增資料目錄</string>
@@ -123,8 +121,6 @@
     <string name="addon_dir_profile_delete_last_forbidden">至少須保留一個資料目錄</string>
     <string name="addon_dir_profile_current_format">%1$s（目前）</string>
     <string name="reset">重設</string>
-    <string name="quickphrase_keyword">關鍵字</string>
-    <string name="quickphrase_phrase">片語</string>
     <string name="reload_config">重新讀取設定</string>
     <string name="input_method_options">輸入法設定</string>
     <string name="theme">主題</string>
@@ -157,8 +153,6 @@
     <string name="import_from_file">從檔案匯入…</string>
     <string name="duplicate_builtin_theme">複製內建主題…</string>
     <string name="exception_logcat_created">Logcat 程序已經建立</string>
-    <string name="exception_quickphrase_parse">剖析快速片語失敗：%1$s</string>
-    <string name="exception_quickphrase_filename">%1$s 副檔名並不是快速片語</string>
     <string name="exception_theme_filename">%1$s 的副檔名並不是主題</string>
     <string name="exception_libime_dict_filename">%1$s 的副檔名並不是 libime 詞庫</string>
     <string name="exception_text_dict_filename">%1$s的副檔名並不是純文字詞庫</string>
