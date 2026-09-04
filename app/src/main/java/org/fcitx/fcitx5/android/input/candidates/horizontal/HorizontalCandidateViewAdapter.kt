@@ -72,6 +72,17 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
         ) {
             return
         }
+        // Only the highlight moved: rebind the two affected items instead of the whole list.
+        // The adapter has stable ids and no item animator, so a full rebind is pure waste, and
+        // moving the cursor through a long candidate list did it once per step (see E5).
+        val onlyActiveIndexChanged = !fontChanged &&
+            this.total == total &&
+            this.indexOffset == indexOffset &&
+            this.candidates.contentEquals(data)
+        if (onlyActiveIndexChanged) {
+            updateActiveIndex(activeIndex)
+            return
+        }
         this.candidates = data
         this.total = total
         this.activeIndex = activeIndex
