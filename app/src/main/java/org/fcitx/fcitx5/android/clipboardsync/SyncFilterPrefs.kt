@@ -14,6 +14,15 @@ object SyncFilterPrefs {
     const val PREF_FILTER_MAX_TEXT_CHARS = "filter_max_text_chars"
     const val PREF_FILTER_PREVIEW = "sync_filter_preview"
 
+    /**
+     * Separator for the blocked-extension list.
+     *
+     * A top-level constant so the pattern is compiled once. [loadState] built it inline, and the
+     * receive filter called loadState once per history item — 50 entries meant 50 compilations
+     * (see G3).
+     */
+    private val EXTENSION_SEPARATOR = Regex("[,\\s]+")
+
     enum class FileSizeUnit(val prefValue: String, val bytes: Long) {
         KB("KB", 1024L),
         MB("MB", 1024L * 1024L),
@@ -53,7 +62,7 @@ object SyncFilterPrefs {
         ensureDefaults(prefs)
         val blockedExtensions = prefs.getString(PREF_FILTER_BLOCKED_EXTENSIONS, null)
             .orEmpty()
-            .split(Regex("[,\\s]+"))
+            .split(EXTENSION_SEPARATOR)
             .map { it.trim().removePrefix(".").lowercase(Locale.ROOT) }
             .filter { it.isNotEmpty() }
             .toSet()

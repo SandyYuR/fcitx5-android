@@ -461,6 +461,7 @@ class MainService : FcitxPluginService() {
             key == SyncFilterPrefs.PREF_FILTER_MAX_TEXT_CHARS
         ) {
             Log.d(TAG, "Receive filter changed: $key")
+            invalidateReceiveFilterCache()
         } else if (key == PREF_QUICK_SYNC || key == PREF_SYNC_INTERVAL || key == PREF_SCREENSHOT_SYNC) {
             Log.d(TAG, "Preference changed: $key, restarting sync")
             updateForegroundState()
