@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.update
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +40,7 @@ class UpdateAssetAdapter(
     private val onItemClick: (AssetUiState) -> Unit,
     private val onActionClick: (AssetUiState) -> Unit
 ) : RecyclerView.Adapter<UpdateAssetAdapter.VH>() {
+
     private companion object {
         const val VIEW_TYPE_ASSET = 0
         const val VIEW_TYPE_RELEASE_NOTES = 1
@@ -47,15 +49,41 @@ class UpdateAssetAdapter(
     private val items = mutableListOf<AssetUiState>()
     private var releaseNotes: CharSequence = ""
 
+    /**
+     * Replace the asset list, rebinding only the rows that actually changed.
+     *
+     * The update screen polls download progress every 800ms and called this each time, so a
+     * full [notifyDataSetChanged] rebound every row (and dropped scroll position and pressed
+     * state) several times a second (see E11).
+     */
+    @SuppressLint("NotifyDataSetChanged")
     fun submitList(newItems: List<AssetUiState>) {
+        val oldItems = items.toList()
         items.clear()
         items.addAll(newItems)
-        notifyDataSetChanged()
+        if (oldItems.size != newItems.size) {
+            // Row count changed, so positions shift; a full rebind is the honest option here.
+            notifyDataSetChanged()
+            return
+        }
+        newItems.forEachIndexed { index, item ->
+            if (oldItems[index] != item) {
+                notifyItemChanged(index)
+            }
+        }
     }
 
     fun setReleaseNotes(notes: CharSequence) {
+        if (releaseNotes.toString() == notes.toString()) return
+        val hadNotes = releaseNotes.isNotBlank()
         releaseNotes = notes
-        notifyDataSetChanged()
+        val hasNotes = releaseNotes.isNotBlank()
+        // The notes are a single trailing row; only its presence changes the row count.
+        when {
+            hadNotes && hasNotes -> notifyItemChanged(items.size)
+            hasNotes -> notifyItemInserted(items.size)
+            hadNotes -> notifyItemRemoved(items.size)
+        }
     }
 
     fun currentList(): List<AssetUiState> = items.toList()
