@@ -1977,52 +1977,57 @@ class MainService : FcitxPluginService() {
                 }
             }
 
-        recentUploadedFiles.clear()
-        prefs.getString(PREF_RECENT_UPLOADED_FILES, null)
-            ?.takeIf { it.isNotBlank() }
-            ?.let { serialized ->
-                runCatching {
-                    stateJson.decodeFromString<List<RecentUploadedFile>>(serialized)
-                }.onSuccess { restored ->
-                    recentUploadedFiles += restored
-                }.onFailure { error ->
-                    Log.w(TAG, "[State] Failed to restore recent uploaded files", error)
+        synchronized(recentUploadedFiles) {
+            recentUploadedFiles.clear()
+            syncStateStore.read(PREF_RECENT_UPLOADED_FILES)
+                ?.let { serialized ->
+                    runCatching {
+                        stateJson.decodeFromString<List<RecentUploadedFile>>(serialized)
+                    }.onSuccess { restored ->
+                        recentUploadedFiles += restored
+                    }.onFailure { error ->
+                        Log.w(TAG, "[State] Failed to restore recent uploaded files", error)
+                    }
                 }
-            }
+        }
         pruneRecentUploadedFiles()
     }
 
     private fun persistPendingUploadsLocked() {
-        prefs.edit()
-            .putString(PREF_PENDING_UPLOADS, stateJson.encodeToString(pendingUploads))
-            .apply()
+        // Only persist entries small enough to be worth restoring; oversized ones stay in
+        // memory for this session (see SyncStateStore.MAX_PERSISTED_CONTENT_LENGTH).
+        val persistable = pendingUploads.filter { SyncStateStore.isPersistable(it.content) }
+        syncStateStore.write(PREF_PENDING_UPLOADS, stateJson.encodeToString(persistable))
     }
 
     private fun persistRemoteRevisions() {
-        prefs.edit()
-            .putString(PREF_REMOTE_REVISIONS, stateJson.encodeToString(storedRemoteRevisions))
-            .apply()
+        syncStateStore.write(PREF_REMOTE_REVISIONS, stateJson.encodeToString(storedRemoteRevisions))
     }
 
     private fun persistSuppressedRemoteClipboardContents() {
-        prefs.edit()
-            .putString(
-                PREF_SUPPRESSED_REMOTE_ITEMS,
-                stateJson.encodeToString(suppressedRemoteClipboardContents.toList())
-            )
-            .apply()
+        val persistable = synchronized(suppressedRemoteClipboardContents) {
+            suppressedRemoteClipboardContents.filter { SyncStateStore.isPersistable(it) }
+        }
+        syncStateStore.write(
+            PREF_SUPPRESSED_REMOTE_ITEMS,
+            stateJson.encodeToString(persistable)
+        )
     }
 
     private fun persistRecentUploadedFiles() {
-        prefs.edit()
-            .putString(PREF_RECENT_UPLOADED_FILES, stateJson.encodeToString(recentUploadedFiles))
-            .apply()
+        // Snapshot inside the lock before serializing: this list is mutated from the upload
+        // path while the receive path prunes it, and encodeToString iterates it.
+        val snapshot = synchronized(recentUploadedFiles) { recentUploadedFiles.toList() }
+        syncStateStore.write(PREF_RECENT_UPLOADED_FILES, stateJson.encodeToString(snapshot))
     }
 
     private fun persistLastSyncedContent(content: String) {
-        prefs.edit()
-            .putString(PREF_LAST_SYNCED_CONTENT, content)
-            .apply()
+        if (!SyncStateStore.isPersistable(content)) {
+            // Too large to keep on disk; forget the stored value rather than leaving a stale one.
+            syncStateStore.write(PREF_LAST_SYNCED_CONTENT, null)
+            return
+        }
+        syncStateStore.write(PREF_LAST_SYNCED_CONTENT, content)
     }
 
     private suspend fun enqueuePendingUpload(content: String): Boolean {
