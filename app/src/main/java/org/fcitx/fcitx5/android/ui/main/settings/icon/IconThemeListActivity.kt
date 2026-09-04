@@ -109,6 +109,9 @@ class IconThemeListActivity : AppCompatActivity() {
         IconThemeManager.addOnListChangeListener(onListChangeListener)
         IconThemeManager.addOnChangedListener(onThemeChangeListener)
         ThemeManager.addOnChangedListener(onKeyboardThemeChangeListener)
+        // Scanning is no longer done in the object initializer (see D6), so make sure it has
+        // been kicked off; the list listener above refreshes this screen when it completes.
+        IconThemeManager.initAsync()
 
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
 

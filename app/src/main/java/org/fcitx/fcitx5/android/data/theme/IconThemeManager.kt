@@ -17,6 +17,10 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Xml
 import android.util.LruCache
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
@@ -79,7 +83,13 @@ object IconThemeManager {
         }
     }
 
-    /** The currently active icon theme. Defaults to builtin (all slots empty). */
+    /**
+     * The currently active icon theme. Defaults to builtin (all slots empty).
+     *
+     * Volatile because [initAsync] assigns it from an IO coroutine while the main thread reads
+     * it on every icon lookup.
+     */
+    @Volatile
     var activeTheme: IconTheme = builtinDefault
         set(value) {
             if (field == value) return
@@ -122,11 +132,31 @@ object IconThemeManager {
 
     private val restorePending = AtomicBoolean(false)
 
-    init {
-        refresh()
-        restoreActiveTheme()
-        if (restorePending.get()) {
-            registerUserUnlockReceiver()
+    /** Background scope for disk work; icon themes are process-scoped state. */
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /** Guards against a second scan when several entry points call [initAsync]. */
+    private val initStarted = AtomicBoolean(false)
+
+    /**
+     * Load installed icon themes off the main thread.
+     *
+     * This used to run in `init { refresh() }`, so merely *touching* the object from the main
+     * thread (first keyboard show, via IdleUi / ButtonsBarUi) did listFiles + readText + JSON
+     * parsing + SVG parsing for every icon, and could write thumbnail backfills to disk. Until
+     * this completes, resolveIcon* fall back to the builtin default, which resolves to no
+     * custom icon rather than a wrong one.
+     */
+    fun initAsync() {
+        if (!initStarted.compareAndSet(false, true)) return
+        scope.launch {
+            refresh()
+            restoreActiveTheme()
+            if (restorePending.get()) {
+                dispatchOnMain { registerUserUnlockReceiver() }
+            }
+            val themes = iconThemes
+            dispatchOnMain { onListChangeListeners.toList().forEach { it.onIconThemeListChange(themes) } }
         }
     }
 
@@ -146,7 +176,8 @@ object IconThemeManager {
         appContext.registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 context.unregisterReceiver(this)
-                restoreActiveTheme()
+                // onReceive is on the main thread; restoreActiveTheme reads SharedPreferences.
+                scope.launch { restoreActiveTheme() }
             }
         }, filter)
     }
