@@ -150,6 +150,7 @@
     <string name="update_mirror_fields_required">Please fill all mirror fields</string>
     <string name="update_mirror_pattern_invalid">Regex pattern is invalid</string>
     <string name="update_mirror_replacement_invalid">Replacement pattern is invalid</string>
+    <string name="exception_user_data_db_version_too_new">Backup was created by a newer version (clipboard database v%1$d, this build supports v%2$d). Update the app before importing.</string>
     <string name="keep_alive_notification_channel_name">ClipboardSync background sync</string>
     <string name="keep_alive_notification_channel_description">Keeps ClipboardSync running in the background</string>
     <string name="keep_alive_notification_title">ClipboardSync is syncing in background</string>

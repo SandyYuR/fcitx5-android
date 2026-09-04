@@ -20,6 +20,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardDao
+import org.fcitx.fcitx5.android.data.clipboard.db.CLIPBOARD_DATABASE_NAME
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardDatabase
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
@@ -216,11 +217,19 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
 
     fun init(context: Context) {
         clbDb = Room
-            .databaseBuilder(context, ClipboardDatabase::class.java, "clbdb")
-            // allow wipe the database instead of crashing when downgrade
-            .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
+            .databaseBuilder(context, ClipboardDatabase::class.java, CLIPBOARD_DATABASE_NAME)
+            // No fallbackToDestructiveMigrationOnDowngrade: wiping the tables silently
+            // discarded the user's pinned and favorite entries when a database written by a
+            // newer variant was opened here. Opening it now fails loudly instead, and the
+            // backup importer refuses a database with a higher user_version up front.
             .build()
         clbDao = clbDb.clipboardDao()
+        // Staged clipboard files are pruned by ClipboardUriStore; drop the history entries
+        // that pointed at the files it evicted, otherwise they linger with a dead
+        // FileProvider URI (blank thumbnail, paste does nothing).
+        ClipboardUriStore.onStagedFilesEvicted = { evicted ->
+            launch { removeEntriesForEvictedFiles(evicted) }
+        }
         enabledListener.onChange(enabledPref.key, enabledPref.getValue())
         enabledPref.registerOnChangeListener(enabledListener)
         limitListener.onChange(localLimitPref.key, localLimitPref.getValue())
