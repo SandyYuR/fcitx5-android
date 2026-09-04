@@ -210,6 +210,15 @@ object ImeWebEditorBridgeServer {
         val input = BufferedInputStream(socket.getInputStream())
         val output = BufferedOutputStream(socket.getOutputStream())
         val request = parseRequest(input) ?: return writeResponse(output, 400, "Bad Request", "text/plain", "bad request")
+        if (request.payloadTooLarge) {
+            return writeResponse(
+                output,
+                413,
+                "Payload Too Large",
+                "text/plain",
+                "request body exceeds ${MAX_REQUEST_BODY_BYTES} bytes"
+            )
+        }
         val path = request.path.substringBefore('?')
         val query = parseQuery(request.path.substringAfter('?', ""))
         if (request.method == "OPTIONS") {
@@ -798,7 +807,9 @@ object ImeWebEditorBridgeServer {
     private data class HttpRequest(
         val method: String,
         val path: String,
-        val body: ByteArray?
+        val body: ByteArray?,
+        /** True when the declared Content-Length exceeded [MAX_REQUEST_BODY_BYTES]. */
+        val payloadTooLarge: Boolean = false
     )
 
     private fun parseRequest(input: InputStream): HttpRequest? {
@@ -831,6 +842,13 @@ object ImeWebEditorBridgeServer {
             if (idx <= 0) null else it.substring(0, idx).trim().lowercase() to it.substring(idx + 1).trim()
         }.toMap()
         val contentLength = headers["content-length"]?.toIntOrNull()?.coerceAtLeast(0) ?: 0
+        // Never allocate from an attacker-controlled Content-Length: the header itself is
+        // capped at 64KB above, but the body used to be allocated at whatever size the client
+        // claimed. The payloads here are layout/theme JSON, so a few MB is generous.
+        if (contentLength > MAX_REQUEST_BODY_BYTES) {
+            Timber.w("Web editor bridge rejected a $contentLength byte body")
+            return HttpRequest(method = method, path = path, body = null, payloadTooLarge = true)
+        }
         val body = if (contentLength > 0) {
             val bytes = ByteArray(contentLength)
             var offset = 0
