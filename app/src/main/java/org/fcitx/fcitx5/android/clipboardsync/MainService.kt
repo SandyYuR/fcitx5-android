@@ -813,11 +813,13 @@ class MainService : FcitxPluginService() {
                 return
             }
 
-            val itemsToImport = if (backend == ServerBackend.SYNCCLIPBOARD) {
-                acceptedItems.takeLast(1)
-            } else {
-                acceptedItems
-            }
+            // Import every accepted item, for every backend. The SyncClipboard branch used
+            // to keep only the last one (takeLast(1)) even though fetchSyncClipboardHistory
+            // had already downloaded each item's payload to disk, and the revision cursor was
+            // advanced regardless — so the rest were never fetched again and their downloaded
+            // files were left orphaned. Updating the system clipboard is a separate step below
+            // and still uses only the newest item.
+            val itemsToImport = acceptedItems
             var importedAll = true
             itemsToImport.forEach { data ->
                 val remoteText = data.text
