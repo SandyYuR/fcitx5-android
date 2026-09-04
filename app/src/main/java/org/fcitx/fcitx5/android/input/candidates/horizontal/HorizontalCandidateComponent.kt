@@ -5,6 +5,7 @@
 
 package org.fcitx.fcitx5.android.input.candidates.horizontal
 
+import android.os.Looper
 import android.os.SystemClock
 import android.view.inputmethod.EditorInfo
 import android.content.res.Configuration
@@ -103,14 +104,6 @@ class HorizontalCandidateComponent :
     private var lastRenderedCandidatesSnapshot: List<CandidateWord> = emptyList()
     private var lastRenderedActiveIndex = Int.MIN_VALUE
 
-    /**
-     * Remaining follow-up [ensureActiveCandidateVisible] passes for the current candidate list.
-     *
-     * Refilled by updateCandidates. Without a budget the function re-posted itself after every
-     * one-slot shift, so scrolling the highlight far right cost one full rebind + layout per
-     * step (see E5).
-     */
-    private var activeVisibilityRetriesLeft = 0
     private var pendingLegacyCandidateUpdate: Runnable? = null
 
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
@@ -165,9 +158,8 @@ class HorizontalCandidateComponent :
      * Scroll the candidate window so the highlighted candidate sits in the first row.
      *
      * A pass needs a completed layout to know how many slots the first row holds, so one
-     * follow-up may be required; [activeVisibilityRetriesLeft] bounds that. Before, this
-     * re-posted itself after every single-slot shift, so moving the cursor far right cost a full
-     * rebind + layout per step until the highlight came into view (see E5).
+     * follow-up may be required; follow-ups are triggered by [pendingEnsureVisible] after the
+     * next layout pass instead of unconditional view.post recursion (see P1b).
      */
     private fun ensureActiveCandidateVisible(
         originalCandidates: Array<CandidateWord>,
@@ -197,15 +189,8 @@ class HorizontalCandidateComponent :
         val windowedCandidates = originalCandidates.copyOfRange(newOffset, originalCandidates.size)
         val windowedActiveIndex = activeIndex - newOffset
         adapter.updateCandidates(windowedCandidates, total, windowedActiveIndex, newOffset)
-        // At most one more pass: the new window changes how many candidates fit in the first
-        // row, which can only be measured after this update has been laid out. The budget is
-        // refilled by updateCandidates(), i.e. once per real candidate change.
-        if (activeVisibilityRetriesLeft > 0) {
-            activeVisibilityRetriesLeft--
-            view.post {
-                ensureActiveCandidateVisible(originalCandidates, total, activeIndex)
-            }
-        }
+        // Re-check visibility after the next layout pass via `ensureVisibleAfterLayout`
+        pendingEnsureVisible = Triple(originalCandidates, total, activeIndex)
     }
 
     val adapter: HorizontalCandidateViewAdapter by lazy {
@@ -277,6 +262,16 @@ class HorizontalCandidateComponent :
         }
     }
 
+    private var pendingEnsureVisible: Triple<Array<CandidateWord>, Int, Int>? = null
+
+    private val ensureVisibleAfterLayout = object : RecyclerView.OnLayoutCompletedListener {
+        override fun onLayoutCompleted(state: RecyclerView.State) {
+            val pending = pendingEnsureVisible ?: return
+            pendingEnsureVisible = null
+            ensureActiveCandidateVisible(pending.first, pending.second, pending.third)
+        }
+    }
+
     override val view by lazy {
         object : RecyclerView(context) {
             override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -294,6 +289,7 @@ class HorizontalCandidateComponent :
             adapter = this@HorizontalCandidateComponent.adapter
             layoutManager = this@HorizontalCandidateComponent.layoutManager
             addItemDecoration(FlexboxVerticalDecoration(dividerDrawable))
+            addOnLayoutCompletedListener(ensureVisibleAfterLayout)
         }
     }
 
@@ -317,11 +313,19 @@ class HorizontalCandidateComponent :
         val candidates = data.candidates
         val total = data.total
         pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
-        pendingLegacyCandidateUpdate = Runnable {
+        val update = Runnable {
             pendingLegacyCandidateUpdate = null
             // CandidateListEvent doesn't provide cursor info; the cursor is at 0 by default.
             updateCandidates(candidates, total, if (highlightFirstCandidate) 0 else -1)
-        }.also(view::post)
+        }
+        pendingLegacyCandidateUpdate = update
+        // Run synchronously when already on the main thread to avoid an extra frame delay;
+        // fall back to posting for off-main-thread delivery.
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            update.run()
+        } else {
+            view.post(update)
+        }
     }
 
     override fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data) {
@@ -414,24 +418,10 @@ class HorizontalCandidateComponent :
             }
         }
         adapter.updateCandidates(candidates, total, activeIndex, 0)
-        // Budget for the follow-up passes of this candidate change (see E5).
-        activeVisibilityRetriesLeft = MAX_ACTIVE_VISIBILITY_RETRIES
-        view.post {
-            ensureActiveCandidateVisible(candidates, total, activeIndex)
-        }
+        pendingEnsureVisible = Triple(candidates, total, activeIndex)
         // not sure why empty candidates won't trigger `FlexboxLayoutManager#onLayoutCompleted()`
         if (candidates.isEmpty()) {
             refreshExpanded(0)
         }
-    }
-
-    private companion object {
-        /**
-         * Follow-up [ensureActiveCandidateVisible] passes allowed per candidate change.
-         *
-         * One is enough in practice: the first pass computes the final offset, and the second
-         * only confirms it against the freshly measured first row.
-         */
-        const val MAX_ACTIVE_VISIBILITY_RETRIES = 1
     }
 }
