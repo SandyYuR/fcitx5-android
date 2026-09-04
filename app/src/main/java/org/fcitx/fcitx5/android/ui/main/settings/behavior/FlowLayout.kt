@@ -18,7 +18,11 @@ open class FlowLayout @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
         val widthSize = MeasureSpec.getSize(widthMeasureSpec)
-        val width = if (widthMode == MeasureSpec.EXACTLY) widthSize else Int.MAX_VALUE
+        // Only UNSPECIFIED means "as wide as you like". AT_MOST carries a real limit — the
+        // common case inside a ScrollView or a RecyclerView row — and treating it as unbounded
+        // made availableWidth effectively infinite, so children never wrapped: one long row ran
+        // off-screen instead of flowing onto the next line.
+        val width = if (widthMode == MeasureSpec.UNSPECIFIED) Int.MAX_VALUE else widthSize
 
         val paddingLeft = paddingLeft
         val paddingRight = paddingRight
@@ -27,32 +31,32 @@ open class FlowLayout @JvmOverloads constructor(
 
         val availableWidth = width - paddingLeft - paddingRight
 
-        var height = 0
-        var currentWidth = 0
-        var lineHeight = 0
-
-        val childCount = childCount
+        val measured = ArrayList<FlowLayoutLines.Child>(childCount)
         for (i in 0 until childCount) {
             val child = getChildAt(i)
-            measureChild(child, widthMeasureSpec, heightMeasureSpec)
+            if (child.visibility == View.GONE) continue
+            // measureChildWithMargins accounts for the margins this layout honours; measureChild
+            // ignored them, so a child with margins could be measured wider than the space it
+            // was then laid out in.
+            measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0)
             val lp = child.layoutParams as MarginLayoutParams
-            val childWidth = child.measuredWidth + lp.leftMargin + lp.rightMargin
-            val childHeight = child.measuredHeight + lp.topMargin + lp.bottomMargin
-
-            if (currentWidth + childWidth > availableWidth) {
-                height += lineHeight
-                currentWidth = 0
-                lineHeight = 0
-            }
-
-            currentWidth += childWidth
-            lineHeight = maxOf(lineHeight, childHeight)
+            measured += FlowLayoutLines.Child(
+                width = child.measuredWidth + lp.leftMargin + lp.rightMargin,
+                height = child.measuredHeight + lp.topMargin + lp.bottomMargin
+            )
         }
-        height += lineHeight
+        val lines = FlowLayoutLines.measure(measured, availableWidth)
 
+        // resolveSize honours the height spec instead of ignoring it, so a fixed or bounded
+        // height from the parent is respected rather than silently overflowing.
+        val measuredWidth = if (widthMode == MeasureSpec.EXACTLY) {
+            widthSize
+        } else {
+            resolveSize(lines.maxLineWidth + paddingLeft + paddingRight, widthMeasureSpec)
+        }
         setMeasuredDimension(
-            if (widthMode == MeasureSpec.EXACTLY) widthSize else minOf(width, currentWidth + paddingLeft + paddingRight),
-            height + paddingTop + paddingBottom
+            measuredWidth,
+            resolveSize(lines.totalHeight + paddingTop + paddingBottom, heightMeasureSpec)
         )
     }
 
@@ -71,11 +75,14 @@ open class FlowLayout @JvmOverloads constructor(
         val childCount = childCount
         for (i in 0 until childCount) {
             val child = getChildAt(i)
+            if (child.visibility == View.GONE) continue
             val lp = child.layoutParams as MarginLayoutParams
             val childWidth = child.measuredWidth
             val childHeight = child.measuredHeight
 
-            if (x + childWidth + lp.leftMargin + lp.rightMargin > availableWidth) {
+            // Mirror the wrap rule used while measuring, including "never wrap before the
+            // first child of a line"; otherwise layout and measure disagree about line breaks.
+            if (x > 0 && x + childWidth + lp.leftMargin + lp.rightMargin > availableWidth) {
                 x = 0
                 y += lineHeight
                 lineHeight = 0

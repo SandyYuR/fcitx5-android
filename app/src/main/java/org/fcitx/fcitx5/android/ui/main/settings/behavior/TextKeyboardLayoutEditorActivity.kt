@@ -1447,10 +1447,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     if (rowIndex < 0 || rowIndex >= currentRowsRef.size) return
                     val currentRow = currentRowsRef[rowIndex]
 
-                    if (from >= 0 && from < currentRow.size && to >= 0 && to < currentRow.size) {
-                        val item = currentRow.removeAt(from)
-                        currentRow.add(to, item)
-                    }
+                    if (from < 0 || from >= currentRow.size) return
+                    // Clamp instead of dropping the move: the view order has already changed,
+                    // so rejecting it here left views and data disagreeing until the next bind
+                    // silently reverted the drag. `to == size` is legitimate — it means "move to
+                    // the end" — and only becomes valid after the element is removed.
+                    val item = currentRow.removeAt(from)
+                    currentRow.add(to.coerceIn(0, currentRow.size), item)
                 }
 
                 override fun onKeyDragEnded(rowIndex: Int) {
