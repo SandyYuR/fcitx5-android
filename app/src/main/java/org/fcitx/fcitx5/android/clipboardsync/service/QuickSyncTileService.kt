@@ -9,6 +9,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.preference.PreferenceManager
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.clipboardsync.MainService
 
 @SuppressLint("NewApi")
 class QuickSyncTileService : TileService() {
@@ -36,6 +37,13 @@ class QuickSyncTileService : TileService() {
         refreshTile()
     }
 
+    /**
+     * Toggle quick sync, starting or stopping the service to match.
+     *
+     * Flipping the preference alone was not enough: `MainService.prefListener` only reacts while
+     * the service is already alive, so turning sync on from the tile left it ACTIVE with nothing
+     * running until the IME was next opened (see C20).
+     */
     override fun onClick() {
         super.onClick()
         val enabled = prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)
@@ -44,6 +52,12 @@ class QuickSyncTileService : TileService() {
             .putBoolean(PREF_QUICK_SYNC, newValue)
             .putBoolean(PREF_QUICK_SYNC_UNREACHABLE, false)
             .apply()
+        if (newValue) {
+            // forceEnableSync: the preference write above may not be visible to the service yet.
+            MainService.startSyncService(this, "qs-tile", forceEnableSync = true)
+        } else {
+            MainService.stopSyncService(this)
+        }
         refreshTile()
     }
 
