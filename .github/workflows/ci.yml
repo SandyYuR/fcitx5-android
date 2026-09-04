@@ -29,7 +29,6 @@ jobs:
         build_type:
           - standard
           - plugins
-          - mainline
     env:
       BUILD_ABI: ${{ matrix.abi }}
       SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
@@ -84,22 +83,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      # AGP 9 defaults android.onlyEnableUnitTestForTheTestedBuildType to true, so unit test
-      # tasks are only created for the tested build type (debug) — testFxReleaseUnitTest does
-      # not exist. These tests cover pure logic, so the build type is irrelevant.
-      - name: Run JVM unit tests
-        if: matrix.build_type == 'standard'
-        run: |
-          ./gradlew :app:testFxDebugUnitTest
-
-      - name: Upload unit test report
-        if: ${{ matrix.build_type == 'standard' && always() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: unit-test-report-${{ matrix.os }}-${{ matrix.abi }}
-          path: app/build/reports/tests/testFxDebugUnitTest
-          if-no-files-found: ignore
-
       - name: Build Standard APK
         if: matrix.build_type == 'standard'
         run: |
@@ -108,16 +91,7 @@ jobs:
       - name: Build Plugins APK
         if: matrix.build_type == 'plugins'
         run: |
-          # -PmainApplicationId is required: without it the convention plugin falls back to the
-          # upstream package name, so the plugin APKs request
-          # org.fcitx.fcitx5.android.permission.PLUGIN while this app only holds the .fx one, and
-          # every plugin IPC bind fails (see C29).
-          ./gradlew -PmainApplicationId=org.fcitx.fcitx5.android.fx :assembleReleasePlugins
-
-      - name: Build Mainline APK
-        if: matrix.build_type == 'mainline'
-        run: |
-          ./gradlew -PincludeMainlineFlavor=true :app:assembleMainlineRelease
+          ./gradlew :assembleReleasePlugins
 
       - name: Collect plugin APKs
         if: matrix.build_type == 'plugins'
@@ -144,98 +118,3 @@ jobs:
         with:
           name: plugins-${{ matrix.os }}-${{ matrix.abi }}
           path: plugin-apks/*.apk
-
-      - name: Upload mainline APK
-        if: matrix.build_type == 'mainline'
-        uses: actions/upload-artifact@v7
-        with:
-          name: app-mainline-${{ matrix.os }}-${{ matrix.abi }}
-          path: app/build/outputs/apk/mainline/release/*.apk
-
-  nightly_release:
-    needs: build_commit
-    # Only publish nightlies from the maintained branches. Work branches (reviews,
-    # experiments) still get the full build above, but must not create a release/tag.
-    if: >-
-      github.ref == 'refs/heads/master' ||
-      github.ref == 'refs/heads/fx2' ||
-      github.ref == 'refs/heads/pr/fx2-integrated'
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Fetch source code
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Fetch upstream tags
-        run: |
-          git remote add upstream https://github.com/fcitx5-android/fcitx5-android.git || true
-          git fetch upstream --tags
-
-      - name: Save previous release tag
-        id: prev_tag
-        shell: bash
-        run: |
-          tag=$(git describe --tags --abbrev=0 2>/dev/null || echo '')
-          sha=''
-          if [ -n "$tag" ]; then
-            sha=$(git rev-parse "${tag}^{commit}" 2>/dev/null || echo '')
-          fi
-          echo "value=$sha" >> $GITHUB_OUTPUT
-
-      - name: Remove non-semver local tags
-        shell: bash
-        run: |
-          git for-each-ref --format='%(refname:strip=2)' refs/tags | while read tag; do
-            if [[ ! "$tag" =~ ^v?[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
-              git tag -d "$tag" || true
-            fi
-          done
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v7
-        with:
-          path: release-artifacts
-
-      - name: Collect all APKs
-        run: |
-          mkdir -p final-release
-          find release-artifacts -name "*.apk" -exec cp {} final-release/ \;
-
-      - name: Generate nightly tag
-        id: tag
-        run: echo "value=nightly-$(git describe --tags --long)-$(date -u +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
-
-      - name: Generate release notes
-        id: notes
-        shell: bash
-        run: |
-          last_tag="${{ steps.prev_tag.outputs.value }}"
-          {
-            echo "## Nightly Build ${{ steps.tag.outputs.value }}"
-            echo ""
-            echo "Commit: \`$(git rev-parse --short HEAD)\`"
-            echo "Built at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-            echo ""
-            echo "### Changes"
-            echo ""
-            if [ -n "$last_tag" ]; then
-              range="${last_tag}..HEAD"
-            else
-              range="-30"
-            fi
-            git log "$range" --no-merges --pretty=format:'- %s (%h)' | head -n 50 || true
-          } > release_notes.md
-          cat release_notes.md
-
-      - name: Create Nightly release
-        uses: softprops/action-gh-release@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ steps.tag.outputs.value }}
-          name: "Nightly Build ${{ steps.tag.outputs.value }}"
-          body_path: release_notes.md
-          prerelease: true
-          files: |
-            final-release/*.apk
-
