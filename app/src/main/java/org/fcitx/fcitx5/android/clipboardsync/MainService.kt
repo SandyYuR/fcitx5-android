@@ -95,6 +95,14 @@ class MainService : FcitxPluginService() {
          * keyboard closes, without polling at typing frequency all day.
          */
         private const val IME_IDLE_POLL_INTERVAL_SECONDS = 10L
+
+        /**
+         * Hard cap on an incoming binary clipboard payload (see A9).
+         *
+         * Applies regardless of the user's receive filter: the whole payload passes through
+         * memory, so an unbounded one is an OOM in the IME process.
+         */
+        private const val MAX_INCOMING_BINARY_BYTES = 32L * 1024 * 1024
         private const val SCREEN_OFF_POLL_INTERVAL_SECONDS = 15L
         private const val POWER_SAVE_POLL_INTERVAL_SECONDS = 30L
         private const val AGGRESSIVE_POLL_INTERVAL_SECONDS = 60L
@@ -1042,13 +1050,17 @@ class MainService : FcitxPluginService() {
     }
 
     private suspend fun handleClipCascadeImage(data: ClipCascadeClipboardData, payloadFingerprint: String) {
+        val fileName = SyncClient.buildClipCascadeImageFileName(data.filename)
+        // Filter on the *estimated* size before decoding. Decoding first meant a STOMP text
+        // frame -> String -> JSON -> ByteArray chain peaking at 3-4x the payload, with the size
+        // check arriving far too late to prevent it (see A9).
+        if (!acceptsClipCascadePayload(fileName, data.payload)) return
         val bytes = runCatching { Base64.decode(data.payload, Base64.DEFAULT) }
             .getOrElse { error ->
                 Log.e(TAG, "[ClipCascade] Failed to decode image payload", error)
                 return
             }
         val downloadUri = resolveDownloadUri()
-        val fileName = SyncClient.buildClipCascadeImageFileName(data.filename)
         if (!shouldAcceptIncomingBinary(fileName, bytes.size.toLong())) {
             Log.d(TAG, "[ClipCascade] Rejected image payload by receive filter: $fileName")
             return
@@ -1070,16 +1082,18 @@ class MainService : FcitxPluginService() {
     }
 
     private suspend fun handleClipCascadeFileEager(data: ClipCascadeClipboardData, payloadFingerprint: String) {
+        val fileName = data.filename
+            ?.substringAfterLast('/')
+            ?.takeIf { it.isNotBlank() }
+            ?: "ClipCascade-${System.currentTimeMillis()}.bin"
+        // See handleClipCascadeImage: filter before decoding (A9).
+        if (!acceptsClipCascadePayload(fileName, data.payload)) return
         val bytes = runCatching { Base64.decode(data.payload, Base64.DEFAULT) }
             .getOrElse { error ->
                 Log.e(TAG, "[ClipCascade] Failed to decode file payload", error)
                 return
             }
         val downloadUri = resolveDownloadUri()
-        val fileName = data.filename
-            ?.substringAfterLast('/')
-            ?.takeIf { it.isNotBlank() }
-            ?: "ClipCascade-${System.currentTimeMillis()}.bin"
         if (!shouldAcceptIncomingBinary(fileName, bytes.size.toLong())) {
             Log.d(TAG, "[ClipCascade] Rejected file payload by receive filter: $fileName")
             return
@@ -1096,6 +1110,29 @@ class MainService : FcitxPluginService() {
                 updateSystemClipboardWithUri(savedUri, downloadUri)
             }
         }
+    }
+
+    /**
+     * Decide whether a base64 ClipCascade payload is worth decoding.
+     *
+     * Uses `length * 3 / 4` as the decoded-size estimate so both the receive filter and the hard
+     * cap are applied before the allocation, not after it (see A9).
+     */
+    private fun acceptsClipCascadePayload(fileName: String, payload: String): Boolean {
+        val estimatedBytes = payload.length.toLong() / 4L * 3L
+        if (estimatedBytes > MAX_INCOMING_BINARY_BYTES) {
+            Log.w(
+                TAG,
+                "[ClipCascade] Rejected payload of about ${estimatedBytes / (1024 * 1024)}MB " +
+                    "(limit ${MAX_INCOMING_BINARY_BYTES / (1024 * 1024)}MB): $fileName"
+            )
+            return false
+        }
+        if (!shouldAcceptIncomingBinary(fileName, estimatedBytes)) {
+            Log.d(TAG, "[ClipCascade] Rejected payload by receive filter before decoding: $fileName")
+            return false
+        }
+        return true
     }
 
     private fun buildClipCascadePayloadFingerprint(data: ClipCascadeClipboardData): String {

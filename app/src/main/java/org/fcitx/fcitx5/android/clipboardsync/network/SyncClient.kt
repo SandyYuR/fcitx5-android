@@ -17,8 +17,11 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
 import java.net.URLDecoder
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -51,6 +54,15 @@ object SyncClient {
     )
 
     private const val TAG = "FcitxClipboardSync"
+
+    /**
+     * Hard cap for anything that passes through memory in one piece (see A9).
+     *
+     * Applies to downloads and to reading a clipboard `content://` file. The user's receive
+     * filter is still applied on top; this is the floor that keeps a lying server or provider
+     * from OOM-ing the IME process.
+     */
+    private const val MAX_TRANSFER_BYTES = 32L * 1024 * 1024
     private const val SYNCCLIPBOARD_HISTORY_PAGE_SIZE = 50
     private const val SAVED_URI_READY_RETRY_COUNT = 10
     private const val SAVED_URI_READY_RETRY_DELAY_MS = 150L
@@ -591,7 +603,7 @@ object SyncClient {
 
         client.newCall(fileReq).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Failed to download file: $response")
-            val bytes = response.body?.bytes() ?: ByteArray(0)
+            val bytes = response.bodyBytesAtMost(MAX_TRANSFER_BYTES)
 
             if (data.hash.isNotEmpty()) {
                 val calculatedHash = if (data.type.equals("Text", ignoreCase = true)) {
@@ -729,7 +741,7 @@ object SyncClient {
             }
 
             val mimeType = response.body?.contentType()?.toString().orEmpty().ifBlank { "image/png" }
-            val bytes = response.body?.bytes() ?: ByteArray(0)
+            val bytes = response.bodyBytesAtMost(MAX_TRANSFER_BYTES)
             val fileName = buildOneClipImageFileName(itemId, timestamp, mimeType)
             val savedUri = saveIncomingBytes(
                 context = context,
@@ -811,7 +823,14 @@ object SyncClient {
     ): ClipCascadeClipboardData {
         val uri = content.toClipboardUriOrNull()
         if (uri != null) {
-            val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            // Pre-check the declared size so a huge file is rejected before it is read (A9).
+            val declaredSize = runCatching {
+                context.contentResolver.openFileDescriptor(uri, "r")?.use { it.statSize }
+            }.getOrNull() ?: -1L
+            if (declaredSize > MAX_TRANSFER_BYTES) {
+                throw IOException("Clipboard file of $declaredSize bytes exceeds ${MAX_TRANSFER_BYTES / (1024 * 1024)}MB")
+            }
+            val bytes = context.contentResolver.openInputStream(uri)?.use { it.readAtMost(MAX_TRANSFER_BYTES) }
             if (bytes != null) {
                 val fileName = getFileName(context, uri) ?: "clipcascade-file"
                 val payloadType = if (isImageUri(context, uri)) {
@@ -1225,7 +1244,7 @@ object SyncClient {
             }
 
             val mimeType = response.body?.contentType()?.toString().orEmpty().ifBlank { "application/octet-stream" }
-            val bytes = response.body?.bytes() ?: ByteArray(0)
+            val bytes = response.bodyBytesAtMost(MAX_TRANSFER_BYTES)
             val fileName = extractSyncClipboardHistoryFileName(
                 response.header("Content-Disposition"),
                 record,
@@ -1373,8 +1392,42 @@ object SyncClient {
 
     private fun readClipboardUriBytes(context: Context, uri: Uri): ByteArray? {
         return runCatching {
-            context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            context.contentResolver.openInputStream(uri)?.use { it.readAtMost(MAX_TRANSFER_BYTES) }
         }.getOrNull()
+    }
+
+    /**
+     * Read at most [limit] bytes, failing rather than allocating without bound.
+     *
+     * Every download and every clipboard-URI read used to be `bytes()` / `readBytes()`, i.e.
+     * whatever the server or provider claimed, with the size check applied afterwards (see A9).
+     */
+    private fun InputStream.readAtMost(limit: Long): ByteArray {
+        val buffer = ByteArrayOutputStream()
+        val chunk = ByteArray(DEFAULT_BUFFER_SIZE)
+        var total = 0L
+        while (true) {
+            val read = read(chunk)
+            if (read <= 0) break
+            total += read
+            if (total > limit) {
+                throw IOException("Payload exceeds ${limit / (1024 * 1024)}MB")
+            }
+            buffer.write(chunk, 0, read)
+        }
+        return buffer.toByteArray()
+    }
+
+    /**
+     * Read an HTTP response body with the same bound, rejecting early on Content-Length.
+     */
+    private fun Response.bodyBytesAtMost(limit: Long): ByteArray {
+        val body = this.body ?: return ByteArray(0)
+        val declared = body.contentLength()
+        if (declared > limit) {
+            throw IOException("Response body of $declared bytes exceeds ${limit / (1024 * 1024)}MB")
+        }
+        return body.byteStream().readAtMost(limit)
     }
 
     private fun String.toClipboardUriOrNull(): Uri? {
