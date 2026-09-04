@@ -1436,9 +1436,11 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 }
 
                 override fun onRowDragEnded() {
-                    // Refresh only affected rows after drag ends
                     rowsRecyclerView.post {
-                        rowsAdapter?.notifyDataSetChanged()
+                        // Row order changed but the row count did not, so rebind the range
+                        // instead of the whole table: notifyDataSetChanged() also dropped the
+                        // scroll position and any pressed state (see E7/E11).
+                        rowsAdapter?.let { it.notifyItemRangeChanged(0, it.itemCount) }
                         currentLayout?.let { name ->
                             previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection)
                             updateSaveButtonState()
@@ -3273,9 +3275,24 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             fun onAddKeyClick()
         }
 
+        /**
+         * Replace the aux bar key list.
+         *
+         * Rebinds only what changed while the row count is stable; this is called on every edit
+         * to an aux bar key (see E11). The trailing "+" chip is item [keys].size.
+         */
         fun updateKeys(newKeys: List<Map<String, Any?>>) {
+            val oldKeys = keys
             keys = newKeys
-            notifyDataSetChanged()
+            if (oldKeys.size != newKeys.size) {
+                notifyDataSetChanged()
+                return
+            }
+            newKeys.forEachIndexed { index, key ->
+                if (oldKeys[index] != key) {
+                    notifyItemChanged(index)
+                }
+            }
         }
 
         override fun getItemCount() = keys.size + 1
