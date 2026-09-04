@@ -115,7 +115,12 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
     }
 
     /**
-     * Update the layout mode based on current button count and available space
+     * Decide between even distribution and scroll mode.
+     *
+     * This is the single owner of that decision. The adapter's onBindViewHolder used to make it
+     * too and then call notifyDataSetChanged() from within bind, re-entering itself and leaving
+     * the current frame with stale widths (see E8). Since bind now only applies widths for the
+     * current mode, a real mode change has to ask for a rebind here.
      */
     internal fun updateLayoutMode() {
         val adapter = adapter ?: return
@@ -130,6 +135,7 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
 
             // If ideal width is less than minimum button width, use scroll mode
             val shouldDistribute = idealWidth >= kawaiiBarLayout.minButtonWidth
+            val modeChanged = shouldDistribute != kawaiiBarLayout.isEvenDistributionMode
 
             if (shouldDistribute) {
                 kawaiiBarLayout.setEvenDistributionMode()
@@ -139,6 +145,11 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
                 kawaiiBarLayout.setScrollMode()
                 // Enable horizontal scrolling when buttons need more space
                 isHorizontalScrollBarEnabled = true
+            }
+            if (modeChanged) {
+                // Widths are per-mode, so every bound button needs re-measuring. Safe here:
+                // this runs from a posted runnable, not from inside a bind.
+                adapter.notifyItemRangeChanged(0, childCount)
             }
         }
     }

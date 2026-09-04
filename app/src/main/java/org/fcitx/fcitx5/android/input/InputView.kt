@@ -3579,13 +3579,22 @@ class InputView(
         if (isFloating || service.candidatesView?.visibility == View.VISIBLE) {
             auxBarContainer.removeAllViews()
             auxBarScrollView.visibility = View.GONE
+            lastAuxBarPositionInputs = null
             return
         }
         val container = auxBarContainer
-        container.removeAllViews()
-        if (actions.isEmpty()) {
+        val visibleActions = actions.filterNot { it.isSeparator }
+        if (visibleActions.isEmpty()) {
+            container.removeAllViews()
             auxBarScrollView.visibility = View.GONE
+            lastAuxBarPositionInputs = null
             return
+        }
+        // Reuse the existing buttons: this is called on every aux bar update, and
+        // removeAllViews() + rebuild meant a fresh TextView and GradientDrawable per action
+        // each time (see E4). Only the count difference is added/removed.
+        while (container.childCount > visibleActions.size) {
+            container.removeViewAt(container.childCount - 1)
         }
         val theme = ThemeManager.activeTheme
         val prefs = ThemeManager.prefs
@@ -3596,22 +3605,42 @@ class InputView(
         val padV = dp(0)
         val gap = dp(4)
         val textColor = theme.keyTextColor
-        for (action in actions) {
-            if (action.isSeparator) continue
-            val btn = TextView(context).apply {
+        val fontSize = FontProviders.getFontSize("preedit_font", 16f)
+        visibleActions.forEachIndexed { index, action ->
+            val btn = container.getChildAt(index) as? TextView ?: TextView(context).also { created ->
+                val lp = FlexboxLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = gap / 2
+                    bottomMargin = gap / 2
+                    marginEnd = gap
+                }
+                // Explicit index: reuse is by position, so appending would desync if a child
+                // at this index somehow were not a TextView.
+                container.addView(created, index, lp)
+            }
+            btn.apply {
                 text = action.text
                 gravity = Gravity.CENTER
-                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,
-                    FontProviders.getFontSize("preedit_font", 16f))
+                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, fontSize)
                 typeface = FontProviders.resolveTypeface("preedit_font", typeface)
                 setTextColor(textColor)
                 setPadding(padH, padV, padH, padV)
                 isSingleLine = true
                 isClickable = true
                 isFocusable = true
-                background = GradientDrawable().apply {
-                    setColor(bkgColor)
-                    cornerRadius = radius
+                // Reuse the existing drawable when the style is unchanged; only its colour and
+                // radius are theme-dependent.
+                val existing = background as? GradientDrawable
+                if (existing != null) {
+                    existing.setColor(bkgColor)
+                    existing.cornerRadius = radius
+                } else {
+                    background = GradientDrawable().apply {
+                        setColor(bkgColor)
+                        cornerRadius = radius
+                    }
                 }
                 setOnClickListener {
                     listener.onKeyAction(
@@ -3620,24 +3649,18 @@ class InputView(
                     )
                 }
             }
-            val lp = FlexboxLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = gap / 2
-                bottomMargin = gap / 2
-                marginEnd = gap
-            }
-            container.addView(btn, lp)
         }
         auxBarScrollView.visibility = View.VISIBLE
         container.requestLayout()
+        // Content was rebuilt, so the cached position inputs no longer describe this bar.
+        lastAuxBarPositionInputs = null
         updateAuxBarPosition()
     }
 
     fun clearAuxBar() {
         auxBarContainer.removeAllViews()
         auxBarScrollView.visibility = View.GONE
+        lastAuxBarPositionInputs = null
     }
 
     private val auxBarSingleRowMinHeight: Int by lazy {
@@ -3658,12 +3681,40 @@ class InputView(
         if (resourceId > 0) context.resources.getDimensionPixelSize(resourceId) else 0
     }
 
+    /** Inputs that decide the aux bar position; see [updateAuxBarPosition]. */
+    private data class AuxBarPositionInputs(
+        val floating: Boolean,
+        val candidatesVisible: Boolean,
+        val candidatesHeight: Int,
+        val candidatesTop: Int,
+        val keyboardTop: Int,
+        val ownHeight: Int
+    )
+
+    private var lastAuxBarPositionInputs: AuxBarPositionInputs? = null
+
     fun updateAuxBarPosition() {
         val scrollView = auxBarScrollView
         if (scrollView.visibility != View.VISIBLE || auxBarContainer.childCount == 0) return
+        // Skip when nothing that affects the position changed. This is reached from the
+        // candidates view's visibility/size callbacks, i.e. potentially on every keystroke,
+        // and each run posts a re-layout of the bar (see E4).
+        val candidatesView = service.candidatesView
+        val candidatesLoc = IntArray(2).also { candidatesView?.getLocationInWindow(it) }
+        val keyboardLoc = IntArray(2).also { keyboardView.getLocationInWindow(it) }
+        val inputs = AuxBarPositionInputs(
+            floating = isFloating,
+            candidatesVisible = candidatesView?.visibility == View.VISIBLE,
+            candidatesHeight = candidatesView?.height ?: 0,
+            candidatesTop = candidatesLoc[1],
+            keyboardTop = keyboardLoc[1],
+            ownHeight = scrollView.height
+        )
+        if (inputs == lastAuxBarPositionInputs) return
+        lastAuxBarPositionInputs = inputs
         // When floating keyboard or candidate window is active, hide external aux bar.
         // Tabs are only displayed inside the keyboard when left/right/top/bottom position is configured.
-        if (isFloating || service.candidatesView?.visibility == View.VISIBLE) {
+        if (isFloating || candidatesView?.visibility == View.VISIBLE) {
             scrollView.visibility = View.GONE
             return
         }
