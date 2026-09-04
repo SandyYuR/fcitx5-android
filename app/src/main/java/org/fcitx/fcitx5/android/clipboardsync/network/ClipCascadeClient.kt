@@ -4,7 +4,9 @@ import android.util.Base64
 import android.util.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import okhttp3.Cookie
 import okhttp3.CookieJar
@@ -44,6 +46,22 @@ class ClipCascadeClient(
         private const val SUBSCRIPTION_DESTINATION = "/user/queue/cliptext"
         private const val SEND_DESTINATION = "/app/cliptext"
         private const val AES_KEY_SIZE_BITS = 256
+
+        /**
+         * Longest wait for the STOMP CONNECTED frame after the websocket opens.
+         *
+         * Needed because the OkHttp read timeout is 0 (unbounded) for the websocket; see C16.
+         */
+        private const val HANDSHAKE_TIMEOUT_MS = 15_000L
+
+        /**
+         * Bounds for the server-provided PBKDF2 iteration count; see C19.
+         *
+         * The lower bound is the previous client default, the upper bound keeps a hostile or
+         * misconfigured server from pinning the IO thread for minutes.
+         */
+        private const val MIN_HASH_ROUNDS = 100_000
+        private const val MAX_HASH_ROUNDS = 2_000_000
         private const val GCM_NONCE_SIZE_BYTES = 16
         private const val GCM_TAG_SIZE_BYTES = 16
     }
@@ -76,12 +94,27 @@ class ClipCascadeClient(
     @Volatile
     private var encryptionKey: ByteArray? = null
 
+    /**
+     * Log in, open the websocket and wait for the STOMP CONNECTED frame.
+     *
+     * The wait is bounded: [connectSignal] can only be completed from an OkHttp callback, and
+     * the client uses `readTimeout(0)` (unbounded, as a websocket must). A server that completes
+     * the TCP/websocket handshake but never sends CONNECTED — restarting, half-open reverse
+     * proxy, wrong service on the port — used to park the caller forever (see C16).
+     */
     suspend fun connect(onMessage: (ClipCascadeClipboardData) -> Unit) {
         login()
         validateSession()
         deriveEncryptionKey()
         openSocket(onMessage)
-        connectSignal.await()
+        try {
+            withTimeout(HANDSHAKE_TIMEOUT_MS) {
+                connectSignal.await()
+            }
+        } catch (e: TimeoutCancellationException) {
+            close()
+            throw IOException("ClipCascade STOMP handshake timed out after ${HANDSHAKE_TIMEOUT_MS}ms", e)
+        }
     }
 
     suspend fun sendClipboard(payload: String, type: String = "text", filename: String? = null) {
@@ -185,11 +218,18 @@ class ClipCascadeClient(
             }
             val body = response.body?.string().orEmpty()
             val userInfo = json.decodeFromString<ClipCascadeUserInfoResponse>(body)
+            // The iteration count comes straight off the wire. Unclamped, 1 downgrades the key
+            // to brute-forceable, 0 or negative makes PBEKeySpec throw, and a huge value spins
+            // the IO thread for minutes (see C19).
+            val rounds = userInfo.hashRounds.coerceIn(MIN_HASH_ROUNDS, MAX_HASH_ROUNDS)
+            if (rounds != userInfo.hashRounds) {
+                Log.w(TAG, "ClipCascade hash_rounds ${userInfo.hashRounds} out of range, using $rounds")
+            }
             encryptionKey = deriveKey(
                 password = password,
                 username = username,
                 salt = userInfo.salt,
-                rounds = userInfo.hashRounds
+                rounds = rounds
             )
         }
     }
@@ -332,11 +372,20 @@ class ClipCascadeClient(
     }
 
     private fun deriveKey(password: String, username: String, salt: String, rounds: Int): ByteArray {
+        // An empty salt means the server did not send one. Deriving anyway produces a key that
+        // silently disagrees with every other client (see C19).
+        if (salt.isBlank()) {
+            throw IOException("ClipCascade user-info did not include a salt")
+        }
         val saltBytes = (username + password + salt).toByteArray(StandardCharsets.UTF_8)
         val spec = PBEKeySpec(password.toCharArray(), saltBytes, rounds, AES_KEY_SIZE_BITS)
-        return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-            .generateSecret(spec)
-            .encoded
+        return try {
+            SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+                .generateSecret(spec)
+                .encoded
+        } catch (e: Exception) {
+            throw IOException("ClipCascade key derivation failed", e)
+        }
     }
 
     private fun encrypt(key: ByteArray, plaintext: ByteArray): ClipCascadeEncryptedPayload {
@@ -436,13 +485,36 @@ class ClipCascadeClient(
     private class MemoryCookieJar : CookieJar {
         private val store = ConcurrentHashMap<String, List<Cookie>>()
 
+        /**
+         * Merge by cookie name.
+         *
+         * This used to replace the host's whole cookie list, so any response carrying a single
+         * cookie dropped JSESSIONID — the session was lost and the client reconnected in a loop
+         * (see G2). Expired cookies are dropped rather than stored.
+         */
         override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-            store[url.host] = cookies
+            if (cookies.isEmpty()) return
+            store.compute(url.host) { _, existing ->
+                val merged = LinkedHashMap<String, Cookie>()
+                existing?.forEach { merged[it.name] = it }
+                val now = System.currentTimeMillis()
+                cookies.forEach { cookie ->
+                    if (cookie.expiresAt <= now) {
+                        // A "delete this cookie" response; honour it instead of storing a
+                        // cookie that loadForRequest would then have to filter out forever.
+                        merged.remove(cookie.name)
+                    } else {
+                        merged[cookie.name] = cookie
+                    }
+                }
+                merged.values.toList()
+            }
         }
 
         override fun loadForRequest(url: HttpUrl): List<Cookie> {
+            val now = System.currentTimeMillis()
             return store[url.host].orEmpty()
-                .filter { cookie -> cookie.matches(url) }
+                .filter { cookie -> cookie.expiresAt > now && cookie.matches(url) }
         }
     }
 }
