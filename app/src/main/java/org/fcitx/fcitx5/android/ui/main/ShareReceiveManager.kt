@@ -18,6 +18,7 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
@@ -970,7 +971,18 @@ class ShareReceiveManager(
     private fun listArchiveEntries(archiveFile: File, archiveType: ArchiveType): List<ArchiveEntrySpec> {
         return when (archiveType) {
             ArchiveType.ZIP -> listZipEntries(archiveFile)
-            ArchiveType.SEVEN_Z -> listSevenZEntries(archiveFile)
+            // detectArchiveType never returns SEVEN_Z below API 26; the check is here so the
+            // API level is provable at the call site (see A11).
+            ArchiveType.SEVEN_Z -> {
+                requireSevenZSupport()
+                listSevenZEntries(archiveFile)
+            }
+        }
+    }
+
+    private fun requireSevenZSupport() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            throw IllegalStateException("7z archives require Android 8.0 or newer")
         }
     }
 
@@ -1013,6 +1025,8 @@ class ShareReceiveManager(
         throw (lastError ?: IllegalStateException("Cannot read zip archive"))
     }
 
+    /** API 26+ only; see [detectArchiveType] for why. */
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun listSevenZEntries(archiveFile: File): List<ArchiveEntrySpec> {
         val entries = mutableListOf<ArchiveEntrySpec>()
         SevenZFile.builder().setFile(archiveFile).get().use { sevenZ ->
@@ -1048,7 +1062,10 @@ class ShareReceiveManager(
         canonicalTargetDirectory.mkdirs()
         return when (archiveType) {
             ArchiveType.ZIP -> extractZipArchive(archiveFile, canonicalTargetDirectory)
-            ArchiveType.SEVEN_Z -> extractSevenZArchive(archiveFile, canonicalTargetDirectory)
+            ArchiveType.SEVEN_Z -> {
+                requireSevenZSupport()
+                extractSevenZArchive(archiveFile, canonicalTargetDirectory)
+            }
         }
     }
 
@@ -1109,6 +1126,8 @@ class ShareReceiveManager(
         throw (lastError ?: IllegalStateException("Cannot extract zip archive"))
     }
 
+    /** API 26+ only; see [detectArchiveType] for why. */
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun extractSevenZArchive(archiveFile: File, targetDirectory: File): Int {
         var extractedCount = 0
         var totalEntries = 0
@@ -1711,12 +1730,24 @@ class ShareReceiveManager(
             displayName?.substringAfterLast('.', "")?.equals("zip", true) == true
     }
 
+    /**
+     * Classify a shared archive, or null when we cannot handle it.
+     *
+     * 7z requires API 26+: commons-compress' `SevenZFile.builder()` goes through
+     * `File.toPath()` / `Files.newByteChannel`, i.e. `java.nio.file`. Core library desugaring is
+     * on, but with `desugar_jdk_libs`, which does not cover `java.nio.file` (that needs
+     * `desugar_jdk_libs_nio`). Every zip branch in this file already had an SDK guard; only the
+     * 7z one did not, so on API 23-25 it reached commons-compress and threw (see A11).
+     */
     private fun detectArchiveType(displayName: String?, mimeType: String?): ArchiveType? {
+        val extension = displayName?.substringAfterLast('.', "")
         return when {
             mimeType == "application/zip" ||
-                displayName?.substringAfterLast('.', "")?.equals("zip", true) == true -> ArchiveType.ZIP
+                extension?.equals("zip", true) == true -> ArchiveType.ZIP
             mimeType == "application/x-7z-compressed" ||
-                displayName?.substringAfterLast('.', "")?.equals("7z", true) == true -> ArchiveType.SEVEN_Z
+                extension?.equals("7z", true) == true -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ArchiveType.SEVEN_Z else null
+            }
             else -> null
         }
     }
