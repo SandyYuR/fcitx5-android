@@ -25,29 +25,6 @@ class SplitKeyboardStateManager private constructor(private val context: Context
     private var lastSmallestWidthDp: Int = 0
 
     /**
-     * Listener for split keyboard state changes.
-     */
-    fun interface OnSplitStateChangeListener {
-        fun onSplitStateChanged(shouldSplit: Boolean)
-    }
-
-    private val listeners = mutableListOf<OnSplitStateChangeListener>()
-
-    /**
-     * Register a listener for split keyboard state changes.
-     */
-    fun registerListener(listener: OnSplitStateChangeListener) {
-        listeners.add(listener)
-    }
-
-    /**
-     * Unregister a listener for split keyboard state changes.
-     */
-    fun unregisterListener(listener: OnSplitStateChangeListener) {
-        listeners.remove(listener)
-    }
-
-    /**
      * Get current device info (cached).
      * 
      * Cache is refreshed when:
@@ -204,13 +181,6 @@ class SplitKeyboardStateManager private constructor(private val context: Context
             DeviceType.FOLDABLE -> 20
             else -> 18
         }
-    }
-
-    /**
-     * Notify all listeners of state change.
-     */
-    internal fun notifyListeners(shouldSplit: Boolean) {
-        listeners.forEach { it.onSplitStateChanged(shouldSplit) }
     }
 
     /**

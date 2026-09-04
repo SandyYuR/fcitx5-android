@@ -26,7 +26,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.CallSuper
-import androidx.annotation.Keep
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.Guideline
@@ -197,18 +196,6 @@ abstract class BaseKeyboard(
     /** Active pointer targets for the custom touch dispatch workaround. */
     private val touchTargets = hashMapOf<Int, TouchTarget>()
 
-    @Keep
-    private val splitStateChangeListener = SplitKeyboardStateManager.OnSplitStateChangeListener { shouldSplit ->
-        // Only reload if split state actually changed
-        if (shouldSplit != lastSplitLandscapeState) {
-            lastSplitLandscapeState = shouldSplit
-            reloadLayout()
-            reapplyTextScale()
-            requestLayout()
-            updateBounds()
-        }
-    }
-
     /**
      * Find a key view by its type tag. Returns the first matching view or null if not found.
      */
@@ -222,7 +209,10 @@ abstract class BaseKeyboard(
         clipToPadding = false
         reloadLayout()
         spaceSwipeMoveCursor.registerOnChangeListener(spaceSwipeChangeListener)
-        splitKeyboardManager.registerListener(splitStateChangeListener)
+        // No listener registration on SplitKeyboardStateManager: it is an application-scoped
+        // singleton that never notified anyone (notifyListeners had no callers), while every
+        // registration pinned a keyboard view tree for the life of the process. Split state
+        // is computed directly via shouldUseSplitKeyboard() in reloadLayout().
     }
 
     /**

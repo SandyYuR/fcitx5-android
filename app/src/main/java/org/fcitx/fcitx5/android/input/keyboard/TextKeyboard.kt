@@ -184,8 +184,6 @@ class TextKeyboard private constructor(
 
         // Cache for parsed KeyDef layouts to avoid recreating them on every reloadLayout()
         private val cachedKeyDefLayouts = mutableMapOf<String, List<List<KeyDef>>>()
-        private val cachedAuxBarConfigs = mutableMapOf<String, AuxBarConfig?>()
-        private var lastLayoutCacheInvalidated = 0L
         private var forcedLayoutKey: String? = null
         private val numericOverride = NumericLayoutOverrideController()
         private var numericLayoutFallbackTarget: WeakReference<NumericLayoutFallbackListener>? = null
@@ -195,8 +193,6 @@ class TextKeyboard private constructor(
          */
         fun clearCachedKeyDefLayouts() {
             cachedKeyDefLayouts.clear()
-            cachedAuxBarConfigs.clear()
-            lastLayoutCacheInvalidated = 0L
         }
 
         /**
@@ -770,7 +766,6 @@ class TextKeyboard private constructor(
                         // Keep an in-memory snapshot distinct from a missing default file,
                         // which also has a null path and zero last-modified timestamp.
                         lastRawModified = Long.MIN_VALUE
-                        lastLayoutCacheInvalidated = 0L
                         cachedKeyDefLayouts.clear()
                     }
                     return cachedRawLayoutJson
@@ -801,7 +796,6 @@ class TextKeyboard private constructor(
                     lastRawLayoutFile = currentFile
                     cachedRawLayoutJson = snapshot.value
                     // Invalidate KeyDef cache when JSON changes
-                    lastLayoutCacheInvalidated = snapshot.lastModified
                     cachedKeyDefLayouts.clear()
                 }
                 return cachedRawLayoutJson
@@ -853,7 +847,6 @@ class TextKeyboard private constructor(
                         } else {
                             parseAuxBarKeys(json[baseName])
                         }
-                        cachedAuxBarConfigs[cacheKey] = state.auxBarConfig
                         return cachedKeyDefLayouts.getOrPut(cacheKey) {
                             forcedLayout.map { rowElement ->
                                 LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
@@ -906,7 +899,6 @@ class TextKeyboard private constructor(
                             // Include showLangSwitch in cache key so layout is re-created when setting changes
                             val cacheSubMode = matchedSubModeKey ?: "default"
                             val cacheKey = "$layoutKey:$cacheSubMode:$showLangSwitch:$displayTextContextCacheKey"
-                            cachedAuxBarConfigs[cacheKey] = state.auxBarConfig
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
@@ -931,7 +923,6 @@ class TextKeyboard private constructor(
                         val layoutArray = parseLayoutArray(layoutElement)
                         if (layoutArray != null) {
                             val cacheKey = "default:$showLangSwitch:$lastRawModified"
-                            cachedAuxBarConfigs[cacheKey] = state.auxBarConfig
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
