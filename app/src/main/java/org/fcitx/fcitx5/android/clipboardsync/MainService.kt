@@ -1,5 +1,6 @@
 package org.fcitx.fcitx5.android.clipboardsync
 
+import android.app.Service
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -17,9 +18,6 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
 import android.os.PersistableBundle
 import android.os.PowerManager
 import android.os.SystemClock
@@ -38,11 +36,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.fcitx.fcitx5.android.common.ClipboardMetadata
-import org.fcitx.fcitx5.android.common.FcitxPluginService
-import org.fcitx.fcitx5.android.common.PluginMessage
 import org.fcitx.fcitx5.android.common.ipc.FcitxRemoteConnection
 import org.fcitx.fcitx5.android.common.ipc.IClipboardEntryTransformer
 import org.fcitx.fcitx5.android.common.ipc.bindFcitxRemoteService
+import org.fcitx.fcitx5.android.data.clipboard.HostClipboardFilter
 import org.fcitx.fcitx5.android.clipboardsync.ui.ClipboardSyncSettingsActivity
 import org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadeClient
 import org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadeClipboardData
@@ -59,7 +56,7 @@ import java.io.IOException
 import android.provider.OpenableColumns
 import java.util.Locale
 
-class MainService : FcitxPluginService() {
+class MainService : Service() {
 
     companion object {
         private const val TAG = "FcitxClipboardSync"
@@ -238,24 +235,6 @@ class MainService : FcitxPluginService() {
         }
     }
 
-    override val stopOnUnbind: Boolean = false
-    override val handler: Handler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(msg: Message) {
-            when (msg.what) {
-                PluginMessage.WHAT_LOCAL_CLIPBOARD_UPDATED -> {
-                    val content = msg.data?.getString(PluginMessage.KEY_CLIPBOARD_TEXT).orEmpty()
-                    handleLocalClipboardUpdate(content, "fcitx-sync-message")
-                }
-
-                PluginMessage.WHAT_UPLOAD_CLIPBOARD_REQUEST -> {
-                    val content = msg.data?.getString(PluginMessage.KEY_CLIPBOARD_TEXT).orEmpty()
-                    forceUploadClipboard(content, "fcitx-upload-request")
-                }
-
-                else -> super.handleMessage(msg)
-            }
-        }
-    }
 
     private lateinit var prefs: SharedPreferences
     private var connection: FcitxRemoteConnection? = null
@@ -420,7 +399,7 @@ class MainService : FcitxPluginService() {
         return START_NOT_STICKY
     }
 
-    override fun start() {
+    fun start() {
         ensureScope()
         if (serviceRunning) {
             // This is the path an IME focus change takes (startSyncService / stopSyncService both
@@ -445,7 +424,7 @@ class MainService : FcitxPluginService() {
         handleSystemClipboardChanged()
     }
 
-    override fun stop() {
+    fun stop() {
         if (!serviceRunning) return
         Log.d(TAG, "MainService stop")
         serviceRunning = false
@@ -514,19 +493,17 @@ class MainService : FcitxPluginService() {
 
     private fun handleLocalClipboardUpdate(content: String, origin: String) {
         if (content.isBlank()) return
-        // OutgoingClipboardFilter.transform loads and compiles the whole ClearURLs rule set on
-        // first use, and this is called from a clipboard listener on the main thread (see D11).
+        val normalizedContent = HostClipboardFilter.transform(content)
+        if (consumeIgnoredRemoteClipboardContent(normalizedContent)) {
+            return
+        }
+        if (normalizedContent == lastRemoteContent || normalizedContent == lastUploadedContent) {
+            return
+        }
+        if (normalizedContent != lastLocalContent) {
+            lastLocalContent = normalizedContent
+        }
         scope.launch {
-            val normalizedContent = OutgoingClipboardFilter.transform(this@MainService, connection?.remoteService, content)
-            if (consumeIgnoredRemoteClipboardContent(normalizedContent)) {
-                return@launch
-            }
-            if (normalizedContent == lastRemoteContent || normalizedContent == lastUploadedContent) {
-                return@launch
-            }
-            if (normalizedContent != lastLocalContent) {
-                lastLocalContent = normalizedContent
-            }
             val queued = enqueuePendingUpload(normalizedContent)
             if (!queued) {
                 return@launch
@@ -2445,9 +2422,8 @@ class MainService : FcitxPluginService() {
 
     private fun forceUploadClipboard(content: String, origin: String) {
         if (content.isBlank()) return
+        val normalizedContent = HostClipboardFilter.transform(content)
         scope.launch {
-            // See D11: rule compilation must not happen on the caller's thread.
-            val normalizedContent = OutgoingClipboardFilter.transform(this@MainService, connection?.remoteService, content)
             val queued = enqueuePendingUpload(normalizedContent)
             if (!queued) {
                 return@launch
