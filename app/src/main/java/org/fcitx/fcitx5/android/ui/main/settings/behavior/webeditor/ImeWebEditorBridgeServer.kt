@@ -34,6 +34,7 @@ import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
+import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
@@ -43,9 +44,13 @@ import java.net.NetworkInterface
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.URLDecoder
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.ThreadFactory
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -65,8 +70,47 @@ object ImeWebEditorBridgeServer {
     private const val UPSTREAM_EDITOR_INDEX = "${UPSTREAM_EDITOR_BASE}index.html"
     private const val CACHE_TTL_MS = 10 * 60 * 1000L
 
-    private val ioExecutor = Executors.newCachedThreadPool()
-    private val autoStopScheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+    /**
+     * Upper bound on concurrently served connections.
+     *
+     * This bridge serves a single local editor page, so a handful of workers is plenty.
+     * `newCachedThreadPool()` was unbounded: anything on the LAN could open sockets faster
+     * than they were served and spawn one thread each until the process died.
+     */
+    private const val MAX_CONCURRENT_CONNECTIONS = 8
+
+    /** Queue depth for connections waiting for a worker; beyond this they are refused. */
+    private const val CONNECTION_QUEUE_CAPACITY = 16
+
+    /**
+     * Largest request body accepted, in bytes. Requests here carry layout/theme JSON, so a
+     * few MB is far more than legitimate use needs.
+     */
+    private const val MAX_REQUEST_BODY_BYTES = 4 * 1024 * 1024
+
+    @Volatile
+    private var ioExecutor: ThreadPoolExecutor = newIoExecutor()
+
+    @Volatile
+    private var autoStopScheduler: ScheduledExecutorService = newAutoStopScheduler()
+
+    private fun newIoExecutor() = ThreadPoolExecutor(
+        1,
+        MAX_CONCURRENT_CONNECTIONS,
+        30L,
+        TimeUnit.SECONDS,
+        ArrayBlockingQueue(CONNECTION_QUEUE_CAPACITY),
+        // Named threads make a stuck bridge obvious in a thread dump.
+        ThreadFactory { r -> Thread(r, "ime-web-editor-bridge").apply { isDaemon = true } },
+        // Refuse instead of blocking the accept loop or growing without bound.
+        ThreadPoolExecutor.AbortPolicy()
+    )
+
+    private fun newAutoStopScheduler(): ScheduledExecutorService =
+        Executors.newSingleThreadScheduledExecutor { r ->
+            Thread(r, "ime-web-editor-autostop").apply { isDaemon = true }
+        }
+
     private const val AUTO_STOP_HOURS = 3L
     @Volatile
     private var autoStopFuture: ScheduledFuture<*>? = null
@@ -90,11 +134,16 @@ object ImeWebEditorBridgeServer {
     @Synchronized
     fun start(): Session {
         session?.let { if (running.get()) return it }
+        // stop() shuts the executors down, so a restart needs fresh ones.
+        if (ioExecutor.isShutdown) ioExecutor = newIoExecutor()
+        if (autoStopScheduler.isShutdown) autoStopScheduler = newAutoStopScheduler()
         val (socket, port) = bindServerSocket()
         val host = detectBestHostAddress() ?: "127.0.0.1"
         serverSocket = socket
         session = Session(host = host, port = port)
         running.set(true)
+        // The accept loop occupies one worker for the server's whole lifetime, so the pool
+        // must have room for it on top of the connection handlers.
         ioExecutor.execute { acceptLoop(socket) }
         scheduleAutoStop()
         return session!!
@@ -107,6 +156,10 @@ object ImeWebEditorBridgeServer {
         serverSocket = null
         session = null
         cancelAutoStop()
+        // Release the worker threads too: stop() used to leave the (unbounded) pool and the
+        // scheduler alive for the rest of the process.
+        runCatching { ioExecutor.shutdownNow() }
+        runCatching { autoStopScheduler.shutdownNow() }
     }
 
     fun currentSession(): Session? = session?.takeIf { running.get() }
@@ -138,8 +191,15 @@ object ImeWebEditorBridgeServer {
     private fun acceptLoop(socket: ServerSocket) {
         while (running.get()) {
             val client = runCatching { socket.accept() }.getOrNull() ?: break
-            ioExecutor.execute {
-                runCatching { handleClient(client) }
+            try {
+                ioExecutor.execute {
+                    runCatching { handleClient(client) }
+                    runCatching { client.close() }
+                }
+            } catch (rejected: RejectedExecutionException) {
+                // Pool and queue are full (or we are shutting down): drop this connection
+                // rather than queueing without bound.
+                Timber.w(rejected, "Web editor bridge refused a connection")
                 runCatching { client.close() }
             }
         }
