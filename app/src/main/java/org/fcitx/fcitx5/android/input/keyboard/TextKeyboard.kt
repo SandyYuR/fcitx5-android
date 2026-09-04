@@ -1065,6 +1065,9 @@ class TextKeyboard private constructor(
     
     private fun ensureSpecialKeyViewsInitialized() {
         specialKeyViews = findAllSpecialKeyViews()
+        // The key views may have been recreated, so the text-key cache has to be rebuilt too —
+        // lazily, on the next read, since not every caller here touches it (see E6).
+        textKeysDirty = true
     }
 
     private val showLangSwitchKey = AppPrefs.getInstance().keyboard.showLangSwitchKey
@@ -1076,6 +1079,8 @@ class TextKeyboard private constructor(
         cachedKeyDefLayouts.clear()
         // Reload layout to show/hide LanguageKey
         reloadLayout()
+        // The rows were rebuilt; the cached view lookups no longer refer to this tree.
+        ensureSpecialKeyViewsInitialized()
     }
 
     @Keep
@@ -1092,8 +1097,25 @@ class TextKeyboard private constructor(
         layoutState.ime?.let { lastLayoutSignature = layoutSignature(it) }
     }
 
+    /**
+     * Cached list of text keys, invalidated whenever the key views may have been recreated.
+     *
+     * This used to be `get() = allViews.filterIsInstance(...).toList()`, which re-walked the
+     * entire view tree and allocated a new list on every read — and it is read on every
+     * Shift/caps change and every composition-state flip, i.e. once per word in Chinese input
+     * (see E6). Rebuilt lazily so a caller that never touches text keys pays nothing.
+     */
+    private var cachedTextKeys: List<TextKeyView> = emptyList()
+    private var textKeysDirty = true
+
     private val textKeys: List<TextKeyView>
-        get() = allViews.filterIsInstance(TextKeyView::class.java).toList()
+        get() {
+            if (textKeysDirty) {
+                cachedTextKeys = allViews.filterIsInstance(TextKeyView::class.java).toList()
+                textKeysDirty = false
+            }
+            return cachedTextKeys
+        }
 
     private var capsState: CapsState = CapsState.None
 
