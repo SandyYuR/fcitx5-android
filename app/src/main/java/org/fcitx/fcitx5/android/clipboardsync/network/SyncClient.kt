@@ -7,6 +7,7 @@ import android.util.Base64
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -211,6 +212,11 @@ object SyncClient {
                 ServerBackend.CLIPCASCADE -> {
                     return runCatching {
                         ClipCascadeClient(serverUrl, username, pass).testConnection()
+                    }.onFailure {
+                        // runCatching swallows Throwable, cancellation included: connect()
+                        // suspends on the handshake, so a cancelled test would otherwise be
+                        // reported to the caller as a connection failure.
+                        if (it is CancellationException) throw it
                     }
                 }
             }
@@ -222,6 +228,8 @@ object SyncClient {
                     Result.failure(IOException("HTTP ${response.code}: ${response.message}"))
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "[Test] Error", e)
             Result.failure(e)
@@ -416,7 +424,7 @@ object SyncClient {
                 throw IOException("Failed to load OneClip current item: ${response.code} ${response.message}")
             }
 
-            val item = json.decodeFromString<ClipboardData>(response.body?.string().orEmpty())
+            val item = json.decodeFromString<ClipboardData>(response.bodyStringAtMost())
             if (item.id.isBlank()) {
                 return fetchResult(null, lastRevision)
             }
@@ -568,7 +576,7 @@ object SyncClient {
             }
 
             val newEtag = response.header("ETag")
-            var bodyString = response.body?.string() ?: ""
+            var bodyString = response.bodyStringAtMost()
             if (bodyString.startsWith("\uFEFF")) {
                 bodyString = bodyString.substring(1)
             }
@@ -678,7 +686,7 @@ object SyncClient {
                 throw IOException("OneClip text upload failed: ${response.code} ${response.message}")
             }
 
-            val resultBody = response.body?.string().orEmpty()
+            val resultBody = response.bodyStringAtMost()
             val result = runCatching { json.decodeFromString<OneClipUploadResponse>(resultBody) }.getOrNull()
             if (result != null && !result.status.equals("success", ignoreCase = true)) {
                 throw IOException(result.message.ifBlank { "OneClip text upload failed" })
@@ -700,7 +708,7 @@ object SyncClient {
                 throw IOException("OneClip image upload failed: ${response.code} ${response.message}")
             }
 
-            val resultBody = response.body?.string().orEmpty()
+            val resultBody = response.bodyStringAtMost()
             val result = runCatching { json.decodeFromString<OneClipUploadResponse>(resultBody) }.getOrNull()
             if (result != null && !result.status.equals("success", ignoreCase = true)) {
                 throw IOException(result.message.ifBlank { "OneClip image upload failed" })
@@ -878,6 +886,11 @@ object SyncClient {
             } else {
                 null
             }
+        } catch (e: CancellationException) {
+            // Must propagate: waitUntilReadable suspends on delay(), so cancelling the service
+            // lands here. Reporting it as "save failed" let the pull path carry on with an empty
+            // result and mark the item handled.
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "[Pull] Failed to save file", e)
             null
@@ -903,6 +916,9 @@ object SyncClient {
                 targetFile
             )
             waitUntilReadable(context, uri, bytes.size)
+        } catch (e: CancellationException) {
+            // See saveFile: cancellation is not a save failure.
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "[Pull] Failed to save file in app cache", e)
             null
@@ -1110,7 +1126,7 @@ object SyncClient {
                 throw IOException("Failed to query SyncClipboard history: ${response.code} ${response.message}")
             }
 
-            val body = response.body?.string().orEmpty()
+            val body = response.bodyStringAtMost()
             return json.decodeFromString(body)
         }
     }
@@ -1422,12 +1438,30 @@ object SyncClient {
      * Read an HTTP response body with the same bound, rejecting early on Content-Length.
      */
     private fun Response.bodyBytesAtMost(limit: Long): ByteArray {
-        val body = this.body ?: return ByteArray(0)
+        val body = this.body ?: throw IOException("Response has no body")
         val declared = body.contentLength()
         if (declared > limit) {
             throw IOException("Response body of $declared bytes exceeds ${limit / (1024 * 1024)}MB")
         }
         return body.byteStream().readAtMost(limit)
+    }
+
+    /**
+     * Read a text (JSON) response body with the same bound as the binary downloads.
+     *
+     * `body.string()` reads whatever arrives, so the 32MB cap only ever covered the three binary
+     * downloads while every JSON response — including SyncClipboard's, which carries the clipboard
+     * text itself, and the history/query lists — could still exhaust memory in the IME process
+     * (see A9). Charset comes from Content-Type, as `string()` does, defaulting to UTF-8.
+     */
+    private fun Response.bodyStringAtMost(limit: Long = MAX_TRANSFER_BYTES): String {
+        val body = this.body ?: return ""
+        val declared = body.contentLength()
+        if (declared > limit) {
+            throw IOException("Response body of $declared bytes exceeds ${limit / (1024 * 1024)}MB")
+        }
+        val charset = body.contentType()?.charset() ?: Charsets.UTF_8
+        return String(body.byteStream().readAtMost(limit), charset)
     }
 
     private fun String.toClipboardUriOrNull(): Uri? {
