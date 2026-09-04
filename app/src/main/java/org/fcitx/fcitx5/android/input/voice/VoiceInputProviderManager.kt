@@ -116,6 +116,67 @@ object VoiceInputProviderManager {
     var sessionStartedCallback: (() -> Unit)? = null
     var sessionEndedCallback: (() -> Unit)? = null
 
+    /**
+     * Identifies the owner of the UI callbacks above, so a stale owner cannot clear the
+     * callbacks of a newer one.
+     *
+     * These fields live on a process-scoped object but the lambdas capture an InputView's
+     * views. Every InputView recreation (theme change, rotation, a `recreateInputView` pref)
+     * used to overwrite them and leak the previous view tree, and — worse — a torn-down
+     * component clearing them unconditionally would silence the *current* keyboard: voice
+     * status and level feedback simply stopped appearing.
+     */
+    @Volatile
+    private var uiCallbackOwner: Any? = null
+
+    /**
+     * Install the shared voice UI callbacks on behalf of [owner].
+     *
+     * Pass the same [owner] to [releaseUiCallbacks] on teardown. A null argument leaves that
+     * particular callback untouched.
+     */
+    fun setUiCallbacks(
+        owner: Any,
+        status: ((String) -> Unit)? = null,
+        level: ((Int) -> Unit)? = null,
+        ready: (() -> Unit)? = null,
+        finished: (() -> Unit)? = null,
+        error: ((String) -> Unit)? = null,
+        sessionStarted: (() -> Unit)? = null,
+        sessionEnded: (() -> Unit)? = null,
+        floatingCommit: ((String) -> Unit)? = null
+    ) {
+        uiCallbackOwner = owner
+        status?.let { voiceStatusCallback = it }
+        level?.let { voiceLevelCallback = it }
+        ready?.let { voiceReadyCallback = it }
+        finished?.let { voiceFinishedCallback = it }
+        error?.let { voiceErrorCallback = it }
+        sessionStarted?.let { sessionStartedCallback = it }
+        sessionEnded?.let { sessionEndedCallback = it }
+        floatingCommit?.let { floatingCommitListener = it }
+    }
+
+    /**
+     * Drop the shared voice UI callbacks, but only if [owner] still owns them.
+     *
+     * The identity check matters during an InputView swap: the new component installs its
+     * callbacks before the old one is detached, so an unconditional clear would wipe the live
+     * ones and leave the new keyboard with no voice feedback at all.
+     */
+    fun releaseUiCallbacks(owner: Any) {
+        if (uiCallbackOwner !== owner) return
+        uiCallbackOwner = null
+        voiceStatusCallback = null
+        voiceLevelCallback = null
+        voiceReadyCallback = null
+        voiceFinishedCallback = null
+        voiceErrorCallback = null
+        sessionStartedCallback = null
+        sessionEndedCallback = null
+        floatingCommitListener = null
+    }
+
     private data class QueuedAudio(
         val pcm: ByteArray,
         val ptsMs: Long,
@@ -1071,7 +1132,12 @@ object VoiceInputProviderManager {
             runCatching { ContextCompat.startForegroundService(context, intent) }
                 .onFailure { Timber.w(it, "stop floating fallback failed") }
         }
-        ContextCompat.getMainExecutor(appContext).execute { sessionEndedCallback?.invoke() }
-        voiceFinishedCallback?.invoke()
+        // Both callbacks touch views, and this function can be reached from a binder thread
+        // (provider death / onError). Post them together instead of invoking voiceFinished
+        // inline on whatever thread we happen to be on.
+        ContextCompat.getMainExecutor(appContext).execute {
+            sessionEndedCallback?.invoke()
+            voiceFinishedCallback?.invoke()
+        }
     }
 }
