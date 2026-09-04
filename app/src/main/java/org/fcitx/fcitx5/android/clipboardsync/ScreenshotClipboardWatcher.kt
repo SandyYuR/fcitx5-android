@@ -17,8 +17,12 @@ import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager as FcitxClipboardManager
 
 class ScreenshotClipboardWatcher(
@@ -52,6 +56,9 @@ class ScreenshotClipboardWatcher(
     private var handledKeysLoaded = false
     private var pendingQuery = false
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /** The periodic MediaStore poll; cancelled by [stop] (it used to run forever). */
+    private var pollJob: Job? = null
 
     private val observer = object : ContentObserver(handler) {
         override fun onChange(selfChange: Boolean) {
@@ -94,28 +101,47 @@ class ScreenshotClipboardWatcher(
         }
         registered = false
         pendingQuery = false
+        // The poll loop and any in-flight query outlived stop() before (see D12): the scope was
+        // never cancelled, so a disabled watcher kept querying MediaStore every 5 seconds.
+        pollJob?.cancel()
+        pollJob = null
+        scope.coroutineContext.cancelChildren()
     }
 
+    /**
+     * Query MediaStore shortly after a change notification, retrying once.
+     *
+     * The query, the SharedPreferences bookkeeping and the Room insert all happen on [scope]
+     * (IO). They used to run on the main-thread Handler (see D12), which for a large gallery
+     * meant a full-table cursor walk on the UI thread every few seconds.
+     */
     private fun scheduleQuery() {
         if (!registered || pendingQuery) return
         pendingQuery = true
         handler.postDelayed({
             pendingQuery = false
-            queryLatestScreenshot()?.let(::copyScreenshotToClipboard)
-                ?: handler.postDelayed({
-                    queryLatestScreenshot()?.let(::copyScreenshotToClipboard)
-                }, RETRY_DELAY_MS)
+            if (!registered) return@postDelayed
+            scope.launch {
+                val found = queryLatestScreenshot()?.also { copyScreenshotToClipboard(it) }
+                if (found == null) {
+                    delay(RETRY_DELAY_MS)
+                    if (!registered) return@launch
+                    queryLatestScreenshot()?.let { copyScreenshotToClipboard(it) }
+                }
+            }
         }, 500L)
     }
 
+    /** Periodic fallback poll; runs entirely on [scope] for the same reason as [scheduleQuery]. */
     private fun schedulePeriodicQuery() {
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                if (!registered) return
-                queryLatestScreenshot()?.let(::copyScreenshotToClipboard)
-                handler.postDelayed(this, POLL_INTERVAL_MS)
+        pollJob?.cancel()
+        pollJob = scope.launch {
+            while (true) {
+                delay(POLL_INTERVAL_MS)
+                if (!registered) break
+                queryLatestScreenshot()?.let { copyScreenshotToClipboard(it) }
             }
-        }, POLL_INTERVAL_MS)
+        }
     }
 
     private fun queryLatestScreenshot(): ScreenshotCandidate? {
@@ -198,24 +224,30 @@ class ScreenshotClipboardWatcher(
         }.getOrNull()
     }
 
-    private fun copyScreenshotToClipboard(candidate: ScreenshotCandidate) {
+    /**
+     * Publish [candidate] to the system clipboard and the app's own history.
+     *
+     * Called from [scope] (IO), so the stream probe, the Room insert and the prefs write happen
+     * there; only setPrimaryClip and the host callback are posted back to the main thread.
+     */
+    private suspend fun copyScreenshotToClipboard(candidate: ScreenshotCandidate) {
         val uri = candidate.uri
         runCatching {
             context.contentResolver.openInputStream(uri)?.close()
             val mimeType = context.contentResolver.getType(uri) ?: "image/*"
-            scope.launch {
-                FcitxClipboardManager.importLocalEntry(
-                    text = uri.toString(),
-                    type = mimeType,
-                    timestamp = System.currentTimeMillis(),
-                    notifyListeners = true
-                )
-            }
-            clipboardManager.setPrimaryClip(
-                ClipData.newUri(context.contentResolver, "Screenshot", uri)
+            FcitxClipboardManager.importLocalEntry(
+                text = uri.toString(),
+                type = mimeType,
+                timestamp = System.currentTimeMillis(),
+                notifyListeners = true
             )
             markHandled(candidate.key)
-            onScreenshotClipboardUri(uri.toString())
+            withContext(Dispatchers.Main) {
+                clipboardManager.setPrimaryClip(
+                    ClipData.newUri(context.contentResolver, "Screenshot", uri)
+                )
+                onScreenshotClipboardUri(uri.toString())
+            }
             Log.d(TAG, "Copied screenshot URI to clipboard: $uri")
         }.onFailure {
             Log.w(TAG, "Failed to copy screenshot URI to clipboard: $uri", it)
@@ -230,13 +262,15 @@ class ScreenshotClipboardWatcher(
         return "$mediaId|$displayName|$dateAdded"
     }
 
-    private fun isHandled(key: String): Boolean {
-        ensureHandledKeysLoaded()
-        return key in handledScreenshotKeys
+    // The three functions below were main-thread-only; the query now runs on [scope], where the
+    // change-triggered and periodic paths can overlap. Guard the set and its prefs mirror.
+    private fun isHandled(key: String): Boolean = synchronized(handledScreenshotKeys) {
+        ensureHandledKeysLoadedLocked()
+        key in handledScreenshotKeys
     }
 
-    private fun markHandled(key: String) {
-        ensureHandledKeysLoaded()
+    private fun markHandled(key: String) = synchronized(handledScreenshotKeys) {
+        ensureHandledKeysLoadedLocked()
         handledScreenshotKeys.remove(key)
         handledScreenshotKeys.add(key)
         while (handledScreenshotKeys.size > MAX_HANDLED_SCREENSHOTS) {
@@ -248,7 +282,8 @@ class ScreenshotClipboardWatcher(
             .apply()
     }
 
-    private fun ensureHandledKeysLoaded() {
+    /** Call with the [handledScreenshotKeys] monitor held. */
+    private fun ensureHandledKeysLoadedLocked() {
         if (handledKeysLoaded) return
         handledScreenshotKeys.clear()
         handledScreenshotKeys.addAll(prefs.getStringSet(PREF_HANDLED_SCREENSHOTS, emptySet()).orEmpty())
