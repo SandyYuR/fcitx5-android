@@ -516,10 +516,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             // runImmediately throws FcitxDisconnectedException once this service's connection is
             // gone (see C31), and this collector lives as long as the service does, so a
             // disconnect racing onCreate/onDestroy must not become an uncaught exception.
-            runCatching { fcitx.runImmediately { eventFlow } }
-                .onFailure { Timber.d(it, "fcitx event flow unavailable") }
-                .getOrNull()
-                ?.collect { handleFcitxEvent(it) }
+            // Only that one exception is caught: runCatching would also swallow cancellation.
+            val events = try {
+                fcitx.runImmediately { eventFlow }
+            } catch (e: FcitxDisconnectedException) {
+                Timber.d(e, "fcitx event flow unavailable")
+                return@launch
+            }
+            events.collect { handleFcitxEvent(it) }
         }
         pkgNameCache = PackageNameCache(this)
         recreateInputViewPrefs.forEach {
