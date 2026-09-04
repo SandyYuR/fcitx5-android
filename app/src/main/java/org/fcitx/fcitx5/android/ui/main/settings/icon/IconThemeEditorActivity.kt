@@ -233,66 +233,17 @@ class IconThemeEditorActivity : AppCompatActivity() {
             val originalName = contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
                 if (cursor.moveToFirst()) cursor.getString(0) else null
             }?.takeIf { it.isNotBlank() } ?: "image.png"
-            val baseName = originalName.substringBeforeLast('.', originalName).takeIf { it.isNotBlank() } ?: "image"
-            val ext = originalName.substringAfterLast('.', originalName).takeIf { it.isNotBlank() } ?: "png"
-            val pngDir = IconThemeManager.pngDirForTheme(themeName)
-            var fileName = "$baseName.$ext"
-            var counter = 1
-            while (java.io.File(pngDir, fileName).exists()) {
-                fileName = "${baseName}_${counter}.$ext"
-                counter++
-            }
-            val targetFile = java.io.File(pngDir, fileName)
-            targetFile.writeBytes(bytes)
-            val value = ButtonIconFile.PREFIX + ButtonIconFile.DIR + "/" + targetFile.parentFile!!.name + "/" + fileName
-            mutableIcons[slot] = value
-            notifySlotChanged(slot)
-            currentDialog?.dismiss()
-        } catch (_: Exception) {
-            Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun handlePickedSvg(uri: Uri?) {
-        val slot = pendingSlot ?: return
-        pendingSlot = null
-        if (uri == null) return
-        try {
-            val valueToStore = contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use { reader ->
-                reader.readText().trim()
-            } ?: run {
-                Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
+            // Never build a path straight from the provider-supplied display name: it may
+            // contain separators or "..". safeIconFileName keeps the basename only and
+            // enforces an extension whitelist.
+            val safeName = IconThemeManager.safeIconFileName(originalName) ?: run {
+                Toast.makeText(this, getString(R.string.icon_theme_invalid_svg), Toast.LENGTH_SHORT).show()
                 return
             }
-            if (SlotRowUi.isSvgContent(valueToStore) || SlotRowUi.isDrawableXmlContent(valueToStore)) {
-                mutableIcons[slot] = valueToStore
-                notifySlotChanged(slot)
-                currentDialog?.dismiss()
-            } else {
-                Toast.makeText(this, getString(R.string.icon_theme_invalid_svg), Toast.LENGTH_SHORT).show()
-            }
-        } catch (_: Exception) {
-            Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun handlePickedPng(uri: Uri?) {
-        val slot = pendingSlot ?: return
-        pendingSlot = null
-        if (uri == null) return
-        try {
-            val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                ?: run {
-                    Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
-                    return
-                }
-            val originalName = contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
-                if (cursor.moveToFirst()) cursor.getString(0) else null
-            }?.takeIf { it.isNotBlank() } ?: "image.png"
-            val baseName = originalName.substringBeforeLast('.', originalName).takeIf { it.isNotBlank() } ?: "image"
-            val ext = originalName.substringAfterLast('.', originalName).takeIf { it.isNotBlank() } ?: "png"
+            val baseName = safeName.substringBeforeLast('.')
+            val ext = safeName.substringAfterLast('.')
             val pngDir = IconThemeManager.pngDirForTheme(themeName)
-            var fileName = "$baseName.$ext"
+            var fileName = safeName
             var counter = 1
             while (java.io.File(pngDir, fileName).exists()) {
                 fileName = "${baseName}_${counter}.$ext"
@@ -300,7 +251,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
             }
             val targetFile = java.io.File(pngDir, fileName)
             targetFile.writeBytes(bytes)
-            val value = ButtonIconFile.PREFIX + ButtonIconFile.DIR + "/" + targetFile.parentFile!!.name + "/" + fileName
+            val value = ButtonIconFile.PREFIX + ButtonIconFile.DIR + "/" + pngDir.name + "/" + fileName
             mutableIcons[slot] = value
             notifySlotChanged(slot)
             currentDialog?.dismiss()
