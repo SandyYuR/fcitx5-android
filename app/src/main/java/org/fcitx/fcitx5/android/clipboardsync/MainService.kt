@@ -1162,11 +1162,7 @@ class MainService : FcitxPluginService() {
      * length against the hard cap.
      */
     private fun acceptsClipCascadePayload(fileName: String, payload: String): Boolean {
-        // Count only base64 characters: MIME-style payloads carry a line break every 76
-        // characters, and including those overestimated the decoded size by up to ~3%, which
-        // rejected legitimate items sitting just under the user's size filter.
-        val encodedChars = payload.count { !it.isWhitespace() }.toLong()
-        val estimatedBytes = encodedChars / 4L * 3L
+        val estimatedBytes = Base64Payload.estimatedDecodedBytes(payload)
         if (estimatedBytes > MAX_INCOMING_BINARY_BYTES) {
             Log.w(
                 TAG,
