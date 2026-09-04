@@ -155,6 +155,7 @@
     <string name="update_mirror_fields_required">请完整填写镜像字段</string>
     <string name="update_mirror_pattern_invalid">正则 pattern 不合法</string>
     <string name="update_mirror_replacement_invalid">替换 pattern 不合法</string>
+    <string name="exception_user_data_db_version_too_new">备份来自更新的版本（剪贴板数据库 v%1$d，当前版本支持 v%2$d）。请先升级应用再导入。</string>
     <string name="keep_alive_notification_channel_name">ClipboardSync 后台同步</string>
     <string name="keep_alive_notification_channel_description">保持剪贴板同步插件在后台持续工作</string>
     <string name="keep_alive_notification_title">ClipboardSync 正在后台同步</string>

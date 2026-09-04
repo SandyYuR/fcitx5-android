@@ -110,6 +110,14 @@ object ClipboardUriStore {
         return File(context.cacheDir, CACHE_DIR).apply { mkdirs() }
     }
 
+    /**
+     * Set when [pruneCache] deletes staged files, so the clipboard database can drop the
+     * entries that referenced them. Wired up by ClipboardManager; kept as a callback here to
+     * avoid a dependency from utils into the data layer.
+     */
+    @Volatile
+    var onStagedFilesEvicted: ((List<File>) -> Unit)? = null
+
     private fun pruneCache(latest: File) {
         val files = latest.parentFile?.listFiles()?.sortedByDescending { it.lastModified() } ?: return
         files.drop(32).forEach { it.delete() }

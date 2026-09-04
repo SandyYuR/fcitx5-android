@@ -20,11 +20,13 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardDao
+import org.fcitx.fcitx5.android.data.clipboard.db.CLIPBOARD_DATABASE_NAME
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardDatabase
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.utils.ClipboardSourceDeletionTarget
+import org.fcitx.fcitx5.android.utils.ClipboardUriStore
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore.deleteClipboardSourceFile
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore.normalizeClipboardText
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore.originalClipboardTextOrEmpty
@@ -216,11 +218,19 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
 
     fun init(context: Context) {
         clbDb = Room
-            .databaseBuilder(context, ClipboardDatabase::class.java, "clbdb")
-            // allow wipe the database instead of crashing when downgrade
-            .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
+            .databaseBuilder(context, ClipboardDatabase::class.java, CLIPBOARD_DATABASE_NAME)
+            // No fallbackToDestructiveMigrationOnDowngrade: wiping the tables silently
+            // discarded the user's pinned and favorite entries when a database written by a
+            // newer variant was opened here. Opening it now fails loudly instead, and the
+            // backup importer refuses a database with a higher user_version up front.
             .build()
         clbDao = clbDb.clipboardDao()
+        // Staged clipboard files are pruned by ClipboardUriStore; drop the history entries
+        // that pointed at the files it evicted, otherwise they linger with a dead
+        // FileProvider URI (blank thumbnail, paste does nothing).
+        ClipboardUriStore.onStagedFilesEvicted = { evicted ->
+            launch { removeEntriesForEvictedFiles(evicted) }
+        }
         enabledListener.onChange(enabledPref.key, enabledPref.getValue())
         enabledPref.registerOnChangeListener(enabledListener)
         limitListener.onChange(localLimitPref.key, localLimitPref.getValue())
@@ -228,6 +238,30 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         remoteLimitPref.registerOnChangeListener(limitListener)
         mediaLimitPref.registerOnChangeListener(limitListener)
         launch { updateItemCount() }
+    }
+
+    /**
+     * Close the Room database before its files are overwritten (backup import).
+     *
+     * Without this, Room keeps the old database's file descriptors and page cache while the
+     * importer replaces clbdb (and its -wal/-shm) underneath it, which can leave the
+     * imported database inconsistent with the leftover WAL.
+     */
+    fun closeDatabase() {
+        if (!::clbDb.isInitialized) return
+        runCatching { clbDb.close() }
+            .onFailure { Timber.w(it, "Failed to close clipboard database") }
+    }
+
+    /**
+     * Flush the WAL into the main database file so an export contains a self-consistent
+     * snapshot even though only `clbdb` is copied.
+     */
+    fun checkpointDatabase() {
+        if (!::clbDb.isInitialized) return
+        runCatching {
+            clbDb.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(TRUNCATE)").use { it.moveToFirst() }
+        }.onFailure { Timber.w(it, "Failed to checkpoint clipboard database") }
     }
 
     suspend fun get(id: Int) = clbDao.get(id)
@@ -274,6 +308,26 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
             clearLastEntry()
         }
         updateItemCount()
+    }
+
+    /**
+     * Drop media entries whose staged cache file was just evicted. Their FileProvider URI is
+     * dead, so keeping them only produces broken thumbnails and failed pastes.
+     */
+    private suspend fun removeEntriesForEvictedFiles(evicted: List<java.io.File>) {
+        if (evicted.isEmpty()) return
+        val names = evicted.map { it.name }.toSet()
+        val stale = runCatching { clbDao.getAllMediaEntries() }.getOrNull() ?: return
+        val ids = stale.filter { entry ->
+            val last = entry.text.substringAfterLast('/').substringBefore('?')
+            last in names
+        }.map { it.id }
+        if (ids.isEmpty()) return
+        clbDao.markAsDeleted(*ids.toIntArray())
+        clbDao.realDelete()
+        if (lastEntry?.id in ids) clearLastEntry()
+        updateItemCount()
+        Timber.d("Dropped ${ids.size} clipboard entries whose staged file was evicted")
     }
 
     suspend fun deleteAll(category: ClipboardCategory, skipPinned: Boolean = true): IntArray {

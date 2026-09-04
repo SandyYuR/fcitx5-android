@@ -9,6 +9,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
+import org.fcitx.fcitx5.android.data.clipboard.db.CLIPBOARD_DATABASE_NAME
+import org.fcitx.fcitx5.android.data.clipboard.db.CLIPBOARD_DATABASE_VERSION
 import org.fcitx.fcitx5.android.utils.Const
 import org.fcitx.fcitx5.android.utils.appContext
 import org.fcitx.fcitx5.android.utils.errorRuntime
@@ -47,14 +50,19 @@ object UserDataManager {
         return packageName == allowedPackageNamePrefix || packageName.startsWith("$allowedPackageNamePrefix.")
     }
 
-    private fun writeFileTree(srcDir: File, destPrefix: String, dest: ZipOutputStream) {
+    private fun writeFileTree(
+        srcDir: File,
+        destPrefix: String,
+        dest: ZipOutputStream,
+        skip: (File) -> Boolean = { false }
+    ) {
         dest.putNextEntry(ZipEntry("$destPrefix/"))
         srcDir.walkTopDown().forEach { f ->
             val related = f.relativeTo(srcDir)
             if (related.path != "") {
                 if (f.isDirectory) {
                     dest.putNextEntry(ZipEntry("$destPrefix/${related.path}/"))
-                } else if (f.isFile) {
+                } else if (f.isFile && !skip(f)) {
                     dest.putNextEntry(ZipEntry("$destPrefix/${related.path}"))
                     f.inputStream().use { it.copyTo(dest) }
                 }
@@ -104,8 +112,11 @@ object UserDataManager {
         ZipOutputStream(dest.buffered()).use { zipStream ->
             // shared_prefs (current variant's prefs XML renamed to canonical upstream name)
             writeSharedPrefsTree(sharedPrefsDir, zipStream)
-            // databases
-            writeFileTree(dataBasesDir, "databases", zipStream)
+            // databases: checkpoint first so the main db file is self-consistent, then
+            // export it without the WAL/SHM side-cars (they are meaningless on another
+            // device and can contradict the db they are restored next to).
+            ClipboardManager.checkpointDatabase()
+            writeFileTree(dataBasesDir, "databases", zipStream) { isSqliteSideCar(it.name) }
             // external
             writeFileTree(externalDir, "external", zipStream)
             // recently_used moved to SharedPreference and shoud not be exported
@@ -151,6 +162,81 @@ object UserDataManager {
     }
 
     /**
+     * Refuse an incoming clipboard database whose schema is newer than this build's.
+     *
+     * The `user_version` header field holds the Room schema version, at a fixed offset in
+     * the SQLite file header, so this can be checked without opening the database.
+     */
+    private fun rejectNewerClipboardDatabase(databasesDir: File) {
+        val incoming = File(databasesDir, CLIPBOARD_DATABASE_NAME)
+        if (!incoming.isFile) return
+        val version = readSqliteUserVersion(incoming) ?: return
+        if (version > CLIPBOARD_DATABASE_VERSION) {
+            throw RuntimeException(
+                appContext.getString(
+                    R.string.exception_user_data_db_version_too_new,
+                    version,
+                    CLIPBOARD_DATABASE_VERSION
+                )
+            )
+        }
+    }
+
+    /**
+     * Read SQLite's `user_version` (big-endian int at byte offset 60 of the file header).
+     * Returns null when the file is too short or does not start with the SQLite magic.
+     */
+    private fun readSqliteUserVersion(file: File): Int? = runCatching {
+        file.inputStream().use { input ->
+            val header = ByteArray(64)
+            var read = 0
+            while (read < header.size) {
+                val n = input.read(header, read, header.size - read)
+                if (n <= 0) break
+                read += n
+            }
+            if (read < header.size) return@runCatching null
+            val magic = String(header, 0, 15, Charsets.US_ASCII)
+            if (magic != "SQLite format 3") return@runCatching null
+            ((header[60].toInt() and 0xff) shl 24) or
+                ((header[61].toInt() and 0xff) shl 16) or
+                ((header[62].toInt() and 0xff) shl 8) or
+                (header[63].toInt() and 0xff)
+        }
+    }.getOrNull()
+
+    /** SQLite side-car files; see [copyDatabases]. */
+    private fun isSqliteSideCar(name: String): Boolean =
+        name.endsWith("-wal") || name.endsWith("-shm") || name.endsWith("-journal")
+
+    /**
+     * Copy the databases directory, skipping WAL/SHM side-cars.
+     *
+     * A `-wal` from the exporting device does not match the `clbdb` we are writing here, and
+     * restoring both can leave SQLite reading a stale or mismatched log — the imported
+     * clipboard history then comes up empty or corrupt. The main database file is
+     * self-consistent because the exporter checkpoints before writing it.
+     */
+    private fun copyDatabases(source: File, target: File) {
+        if (!source.exists() || !source.isDirectory) return
+        target.mkdirs()
+        source.listFiles()?.forEach { file ->
+            if (file.isDirectory) {
+                copyDir(file, File(target, file.name))
+                return@forEach
+            }
+            if (!file.isFile) return@forEach
+            if (isSqliteSideCar(file.name)) return@forEach
+            file.copyTo(File(target, file.name), overwrite = true)
+        }
+        // Any leftover side-car from the previous database must go too: it describes a
+        // database file that no longer exists.
+        target.listFiles()?.forEach { file ->
+            if (file.isFile && isSqliteSideCar(file.name)) file.delete()
+        }
+    }
+
+    /**
      * Copy shared_prefs directory, renaming preference files to match current package name.
      * When importing between different build variants, we select the preferences file that
      * matches the exported package name and rename it to the current package name.
@@ -192,9 +278,15 @@ object UserDataManager {
                 if (!isAllowedPackageName(metadata.packageName)) {
                     errorRuntime(R.string.exception_user_data_package_name_mismatch, metadata.packageName)
                 }
+                // Refuse a clipboard database from a newer build before touching anything:
+                // Room can only open a downgraded schema by wiping it, which used to clear
+                // pinned and favorite entries with no warning at all.
+                rejectNewerClipboardDatabase(File(tempDir, "databases"))
+                // Release the current database's file handles before its files are replaced.
+                ClipboardManager.closeDatabase()
                 // Copy shared_prefs with package name renaming
                 copySharedPrefs(File(tempDir, "shared_prefs"), sharedPrefsDir, metadata.packageName)
-                copyDir(File(tempDir, "databases"), dataBasesDir)
+                copyDatabases(File(tempDir, "databases"), dataBasesDir)
                 copyDir(File(tempDir, "external"), externalDir)
                 // Rewrite absolute custom button icon paths (which embed the source
                 // build's applicationId) to the portable relative form, so imported
