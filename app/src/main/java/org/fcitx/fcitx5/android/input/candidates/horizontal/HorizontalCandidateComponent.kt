@@ -61,6 +61,27 @@ class HorizontalCandidateComponent :
         }
     }
 
+    /**
+     * Cached [maxSpanCountPref] value.
+     *
+     * Read on every candidate update before, i.e. potentially several times per keystroke, and
+     * ManagedPreference reads go through SharedPreferences (see E5). Invalidated by
+     * [invalidateMaxSpanCount], which the view-size change hook calls — the same point at which
+     * a span-count change can take visual effect anyway.
+     */
+    private var cachedMaxSpanCount = 0
+
+    private fun maxSpanCount(): Int {
+        if (cachedMaxSpanCount <= 0) {
+            cachedMaxSpanCount = maxSpanCountPref.getValue().coerceAtLeast(1)
+        }
+        return cachedMaxSpanCount
+    }
+
+    private fun invalidateMaxSpanCount() {
+        cachedMaxSpanCount = 0
+    }
+
     private var layoutMinWidth = 0
     private var layoutFlexGrow = 1f
 
@@ -81,6 +102,15 @@ class HorizontalCandidateComponent :
     private var lastPagedEventUptimeMs = 0L
     private var lastRenderedCandidatesSnapshot: List<CandidateWord> = emptyList()
     private var lastRenderedActiveIndex = Int.MIN_VALUE
+
+    /**
+     * Remaining follow-up [ensureActiveCandidateVisible] passes for the current candidate list.
+     *
+     * Refilled by updateCandidates. Without a budget the function re-posted itself after every
+     * one-slot shift, so scrolling the highlight far right cost one full rebind + layout per
+     * step (see E5).
+     */
+    private var activeVisibilityRetriesLeft = 0
     private var pendingLegacyCandidateUpdate: Runnable? = null
 
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
@@ -131,6 +161,14 @@ class HorizontalCandidateComponent :
         return visible.coerceIn(0, totalCandidates)
     }
 
+    /**
+     * Scroll the candidate window so the highlighted candidate sits in the first row.
+     *
+     * A pass needs a completed layout to know how many slots the first row holds, so one
+     * follow-up may be required; [activeVisibilityRetriesLeft] bounds that. Before, this
+     * re-posted itself after every single-slot shift, so moving the cursor far right cost a full
+     * rebind + layout per step until the highlight came into view (see E5).
+     */
     private fun ensureActiveCandidateVisible(
         originalCandidates: Array<CandidateWord>,
         total: Int,
@@ -159,8 +197,14 @@ class HorizontalCandidateComponent :
         val windowedCandidates = originalCandidates.copyOfRange(newOffset, originalCandidates.size)
         val windowedActiveIndex = activeIndex - newOffset
         adapter.updateCandidates(windowedCandidates, total, windowedActiveIndex, newOffset)
-        view.post {
-            ensureActiveCandidateVisible(originalCandidates, total, activeIndex)
+        // At most one more pass: the new window changes how many candidates fit in the first
+        // row, which can only be measured after this update has been laid out. The budget is
+        // refilled by updateCandidates(), i.e. once per real candidate change.
+        if (activeVisibilityRetriesLeft > 0) {
+            activeVisibilityRetriesLeft--
+            view.post {
+                ensureActiveCandidateVisible(originalCandidates, total, activeIndex)
+            }
         }
     }
 
@@ -237,9 +281,11 @@ class HorizontalCandidateComponent :
         object : RecyclerView(context) {
             override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
                 super.onSizeChanged(w, h, oldw, oldh)
+                // A size change is also when a span-count preference change becomes visible, so
+                // re-read it here instead of on every candidate update (see E5).
+                invalidateMaxSpanCount()
                 if (fillStyle == AutoFillWidth) {
-                    val maxSpanCount = maxSpanCountPref.getValue()
-                    layoutMinWidth = w / maxSpanCount - dividerDrawable.intrinsicWidth
+                    layoutMinWidth = w / maxSpanCount() - dividerDrawable.intrinsicWidth
                 }
             }
         }.apply {
@@ -347,7 +393,7 @@ class HorizontalCandidateComponent :
         total: Int,
         activeIndex: Int,
     ) {
-        val maxSpanCount = maxSpanCountPref.getValue()
+        val maxSpanCount = maxSpanCount()
         when (fillStyle) {
             NeverFillWidth -> {
                 layoutMinWidth = 0
@@ -368,6 +414,8 @@ class HorizontalCandidateComponent :
             }
         }
         adapter.updateCandidates(candidates, total, activeIndex, 0)
+        // Budget for the follow-up passes of this candidate change (see E5).
+        activeVisibilityRetriesLeft = MAX_ACTIVE_VISIBILITY_RETRIES
         view.post {
             ensureActiveCandidateVisible(candidates, total, activeIndex)
         }
@@ -375,5 +423,15 @@ class HorizontalCandidateComponent :
         if (candidates.isEmpty()) {
             refreshExpanded(0)
         }
+    }
+
+    private companion object {
+        /**
+         * Follow-up [ensureActiveCandidateVisible] passes allowed per candidate change.
+         *
+         * One is enough in practice: the first pass computes the final offset, and the second
+         * only confirms it against the freshly measured first row.
+         */
+        const val MAX_ACTIVE_VISIBILITY_RETRIES = 1
     }
 }

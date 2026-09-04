@@ -618,8 +618,15 @@ class CandidatesView(
         if (visibility != VISIBLE) {
             touchEventReceiverWindow.dismiss()
         }
+        val wasVisible = this.visibility == VISIBLE
         super.setVisibility(visibility)
-        onPositionChanged?.invoke()
+        // Only report a real change, as the evaluateVisibility path above already does.
+        // The listener re-positions the aux bar, and this was invoked on every call — the
+        // framework sets the same visibility repeatedly, so nearly every keystroke triggered
+        // an aux bar re-layout for nothing (see E4).
+        if (wasVisible != (visibility == VISIBLE)) {
+            onPositionChanged?.invoke()
+        }
     }
 
     override fun onDetachedFromWindow() {
