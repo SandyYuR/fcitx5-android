@@ -57,9 +57,25 @@ class DataMigrationManager(
      */
     fun createBackup(originalFile: File): File? {
         return runCatching {
+            // Second-resolution timestamps collide when two saves land in the same second
+            // (fast double tap, or a save immediately followed by an autosave); copyTo with
+            // overwrite = false then throws and the backup is silently lost. Disambiguate
+            // with a millisecond suffix, and keep probing if that still exists.
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-            val backupFileName = "${originalFile.nameWithoutExtension}_backup_$timestamp.json"
-            val backupFile = File(originalFile.parentFile, backupFileName)
+            val baseName = "${originalFile.nameWithoutExtension}_backup_$timestamp"
+            var backupFile = File(originalFile.parentFile, "$baseName.json")
+            if (backupFile.exists()) {
+                var suffix = System.currentTimeMillis() % 1000
+                var attempt = 0
+                while (backupFile.exists() && attempt < 1000) {
+                    backupFile = File(
+                        originalFile.parentFile,
+                        "%s_%03d.json".format(baseName, suffix)
+                    )
+                    suffix = (suffix + 1) % 1000
+                    attempt++
+                }
+            }
 
             originalFile.copyTo(backupFile, overwrite = false)
             Log.i(TAG, "Backup created: ${backupFile.absolutePath}")
