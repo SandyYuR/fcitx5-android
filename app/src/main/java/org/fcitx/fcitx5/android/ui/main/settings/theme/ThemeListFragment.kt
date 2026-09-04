@@ -125,8 +125,11 @@ class ThemeListFragment : Fragment() {
         }
         monetEditorLauncher = registerForActivityResult(MonetThemeEditorActivity.Contract()) { result ->
             if (result == null) return@registerForActivityResult
-            ThemeManager.refreshThemes()
-            updateSelectedThemes()
+            // refreshThemes() scans the theme directory on IO now (see D9).
+            lifecycleScope.launch {
+                ThemeManager.refreshThemes()
+                updateSelectedThemes()
+            }
         }
         importLauncher =
             registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -315,9 +318,12 @@ class ThemeListFragment : Fragment() {
     }
 
     private fun onThemeImported(newCreated: Boolean, theme: Theme.Custom, migrated: Boolean) {
-        ThemeManager.refreshThemes()
-        if (migrated) {
-            requireContext().toast(R.string.theme_migrated)
+        // refreshThemes() scans the theme directory on IO now (see D9).
+        lifecycleScope.launch {
+            ThemeManager.refreshThemes()
+            if (migrated) {
+                requireContext().toast(R.string.theme_migrated)
+            }
         }
     }
 

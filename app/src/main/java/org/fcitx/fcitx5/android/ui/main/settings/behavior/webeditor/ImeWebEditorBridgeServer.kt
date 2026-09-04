@@ -365,8 +365,12 @@ object ImeWebEditorBridgeServer {
                     val bytes = request.body ?: throw IllegalArgumentException("theme package is required")
                     val importedName = query["name"]?.takeIf { it.isNotBlank() }
                     val (_, importedTheme, _) = ThemeFilesManager.importTheme(bytes.inputStream(), importedName).getOrThrow()
+                    // Already on a bridge worker thread, so do the directory scan here and hand
+                    // the finished list to the main thread (refreshThemes() without arguments is
+                    // suspend now — see D9).
+                    val refreshedThemes = ThemeFilesManager.listThemes()
                     val save = {
-                        ThemeManager.refreshThemes()
+                        ThemeManager.refreshThemes(refreshedThemes)
                         val theme = ThemeManager.getTheme(importedTheme.name) ?: importedTheme
                         ThemeManager.setNormalModeTheme(theme)
                     }

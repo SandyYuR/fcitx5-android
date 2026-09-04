@@ -13,6 +13,8 @@ import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fcitx.fcitx5.android.data.theme.ThemeManager.activeTheme
@@ -94,8 +96,16 @@ object ThemeManager {
 
     fun getAllThemes() = customThemes + monetThemes + BuiltinThemes
 
-    fun refreshThemes() {
-        refreshThemes(ThemeFilesManager.listThemes())
+    /**
+     * Rescan the theme directory and publish the result.
+     *
+     * Suspend because [ThemeFilesManager.listThemes] walks the directory, reads and parses each
+     * theme file, and may write migrated files back — all on the calling thread, which for every
+     * caller was the main thread (see D9). The publish half still happens on the main thread.
+     */
+    suspend fun refreshThemes() {
+        val themes = withContext(Dispatchers.IO) { ThemeFilesManager.listThemes() }
+        refreshThemes(themes)
     }
 
     fun refreshThemes(refreshedCustomThemes: List<Theme.Custom>) {
