@@ -40,6 +40,7 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.CancellationException
@@ -160,6 +161,9 @@ class UpdateCheckActivity : AppCompatActivity() {
             onActionClick = { onAssetActionClicked(it) }
         )
         assetsView.layoutManager = LinearLayoutManager(this)
+        // Download progress is polled every 800ms and now dispatched as notifyItemChanged
+        // (see E11). Without this, each poll cross-fades the whole row.
+        (assetsView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
         assetsView.adapter = adapter
 
         if (requiresSharedReadPermission() && !hasSharedReadPermission()) {
