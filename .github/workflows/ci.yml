@@ -92,7 +92,11 @@ jobs:
       - name: Build Plugins APK
         if: matrix.build_type == 'plugins'
         run: |
-          ./gradlew :assembleReleasePlugins
+          # -PmainApplicationId is required: without it the convention plugin falls back to the
+          # upstream package name, so the plugin APKs request
+          # org.fcitx.fcitx5.android.permission.PLUGIN while this app only holds the .fx one, and
+          # every plugin IPC bind fails (see C29).
+          ./gradlew -PmainApplicationId=org.fcitx.fcitx5.android.fx :assembleReleasePlugins
 
       - name: Build Mainline APK
         if: matrix.build_type == 'mainline'

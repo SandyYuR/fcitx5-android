@@ -15,6 +15,12 @@ import org.gradle.kotlin.dsl.configure
 class AndroidPluginAppConventionPlugin : Plugin<Project> {
 
     override fun apply(target: Project) {
+        // Callers must pass -PmainApplicationId. CI did not, and no gradle.properties defines
+        // applicationId, so plugin APKs were built for the upstream package: they requested
+        // org.fcitx.fcitx5.android.permission.PLUGIN while the fx app declares and holds only the
+        // .fx one, and bindFcitxRemoteService setPackage()d a package that is not installed —
+        // every plugin IPC bind failed (see C29). Fixed in the workflows rather than here,
+        // because this fallback is also what a `mainline` flavor build wants.
         val mainApplicationId = target.findProperty("mainApplicationId")?.toString()
             ?: target.findProperty("applicationId")?.toString()
             ?: "org.fcitx.fcitx5.android"
@@ -59,5 +65,4 @@ class AndroidPluginAppConventionPlugin : Plugin<Project> {
             }
         }
     }
-
 }
