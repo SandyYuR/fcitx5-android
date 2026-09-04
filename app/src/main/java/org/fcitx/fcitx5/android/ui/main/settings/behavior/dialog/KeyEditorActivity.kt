@@ -158,6 +158,14 @@ class KeyEditorActivity : AppCompatActivity() {
     private var macroLongPressStepsData: List<Any> = emptyList()
     private var nonMacroSwipeStepsData: List<Any> = emptyList()
     private var macroEditCallback: ((List<Any>) -> Unit)? = null
+
+    /**
+     * Which macro slot ("tap"/"swipe"/"longPress") the open macro editor is editing.
+     *
+     * [macroEditCallback] dies with this Activity instance, so the slot is also persisted:
+     * a result that arrives after recreation is applied via [applyMacroStepsToSlot].
+     */
+    private var pendingMacroEventType: String? = null
     private var saveMenuItem: MenuItem? = null
     private var deleteMenuItem: MenuItem? = null
     private var baselineKeySnapshot: String = ""
@@ -218,7 +226,18 @@ class KeyEditorActivity : AppCompatActivity() {
             val data = result.data ?: return@registerForActivityResult
             if (result.resultCode != RESULT_OK) return@registerForActivityResult
             val steps = data.serializable<ArrayList<Map<*, *>>>(MacroEditorActivity.EXTRA_MACRO_RESULT) ?: return@registerForActivityResult
-            macroEditCallback?.invoke(steps.map { it as Any })
+            val resolved = steps.map { it as Any }
+            val callback = macroEditCallback
+            if (callback != null) {
+                callback.invoke(resolved)
+            } else {
+                // This Activity was recreated while the macro editor was in front, so the
+                // callback is gone; apply the result to the slot recorded in the Intent.
+                val slot = data.getStringExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN)
+                    ?: pendingMacroEventType
+                if (slot != null) applyMacroStepsToSlot(slot, resolved)
+            }
+            pendingMacroEventType = null
         }
 
     private val colorEditorLauncher =
@@ -262,6 +281,10 @@ class KeyEditorActivity : AppCompatActivity() {
 
         readIntentExtras()
         baselineKeySnapshot = snapshotOf(keyData)
+        // Restore the in-progress key edit after a configuration change. readIntentExtras()
+        // has already seeded keyData from the launching Intent, so the draft simply replaces
+        // it; baselineKeySnapshot stays as the original so "has changes" is still correct.
+        savedInstanceState?.let(::restoreDraftKeyData)
 
         val toolbarBaseTopPadding = toolbar.paddingTop
         ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
@@ -535,7 +558,7 @@ class KeyEditorActivity : AppCompatActivity() {
                     title = getString(R.string.text_keyboard_layout_macro_swipe_event),
                     previewText = buildMacroPreview(swipeMacroSteps),
                     onClick = {
-                        openMacroEditor(nonMacroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event)) { newSteps ->
+                        openMacroEditor(nonMacroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event), SLOT_SWIPE) { newSteps ->
                             val draft = buildDraftKeyData()
                             nonMacroSwipeStepsData = newSteps
                             if (newSteps.isNotEmpty()) {
@@ -581,7 +604,7 @@ class KeyEditorActivity : AppCompatActivity() {
                     title = getString(R.string.text_keyboard_layout_macro_swipe_event),
                     previewText = buildMacroPreview(swipeMacroSteps),
                     onClick = {
-                        openMacroEditor(nonMacroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event)) { newSteps ->
+                        openMacroEditor(nonMacroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event), SLOT_SWIPE) { newSteps ->
                             val draft = buildDraftKeyData()
                             nonMacroSwipeStepsData = newSteps
                             if (newSteps.isNotEmpty()) {
@@ -668,7 +691,7 @@ class KeyEditorActivity : AppCompatActivity() {
                     title = getString(R.string.text_keyboard_layout_macro_tap_event),
                     previewText = buildMacroPreview(tapMacroSteps),
                     onClick = {
-                        openMacroEditor(macroTapStepsData, getString(R.string.text_keyboard_layout_macro_tap_event)) { newSteps ->
+                        openMacroEditor(macroTapStepsData, getString(R.string.text_keyboard_layout_macro_tap_event), SLOT_TAP) { newSteps ->
                             val draft = buildDraftKeyData()
                             macroTapStepsData = newSteps
                             draft["tap"] = mapOf("macro" to newSteps)
@@ -683,7 +706,7 @@ class KeyEditorActivity : AppCompatActivity() {
                     title = getString(R.string.text_keyboard_layout_macro_swipe_event),
                     previewText = buildMacroPreview(swipeMacroSteps),
                     onClick = {
-                        openMacroEditor(macroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event)) { newSteps ->
+                        openMacroEditor(macroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event), SLOT_SWIPE) { newSteps ->
                             val draft = buildDraftKeyData()
                             macroSwipeStepsData = newSteps
                             draft["swipe"] = mapOf("macro" to newSteps)
@@ -698,7 +721,7 @@ class KeyEditorActivity : AppCompatActivity() {
                     title = getString(R.string.text_keyboard_layout_macro_longpress_event),
                     previewText = buildMacroPreview(longPressMacroSteps),
                     onClick = {
-                        openMacroEditor(macroLongPressStepsData, getString(R.string.text_keyboard_layout_macro_longpress_event)) { newSteps ->
+                        openMacroEditor(macroLongPressStepsData, getString(R.string.text_keyboard_layout_macro_longpress_event), SLOT_LONG_PRESS) { newSteps ->
                             val draft = buildDraftKeyData()
                             macroLongPressStepsData = newSteps
                             draft["longPress"] = mapOf("macro" to newSteps)
@@ -734,7 +757,7 @@ class KeyEditorActivity : AppCompatActivity() {
                     title = getString(R.string.text_keyboard_layout_macro_swipe_event),
                     previewText = buildMacroPreview(swipeMacroSteps),
                     onClick = {
-                        openMacroEditor(nonMacroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event)) { newSteps ->
+                        openMacroEditor(nonMacroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event), SLOT_SWIPE) { newSteps ->
                             val draft = buildDraftKeyData()
                             nonMacroSwipeStepsData = newSteps
                             if (newSteps.isNotEmpty()) {
@@ -939,6 +962,35 @@ class KeyEditorActivity : AppCompatActivity() {
         keyData.clear()
         keyData.putAll(buildDraftKeyData())
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Snapshot the draft (including edits typed into fields) so a rotation does not throw
+        // it away and silently fall back to the values passed in the Intent.
+        runCatching { toSerializableMap(buildDraftKeyData()) }
+            .onSuccess { outState.putSerializable(STATE_DRAFT_KEY_DATA, it) }
+            .onFailure { android.util.Log.w(TAG, "Failed to save draft key data", it) }
+        outState.putString(STATE_PENDING_MACRO_EVENT, pendingMacroEventType)
+    }
+
+    private fun restoreDraftKeyData(state: Bundle) {
+        pendingMacroEventType = state.getString(STATE_PENDING_MACRO_EVENT)
+        val draft = serializableBundleCompat<HashMap<String, Any?>>(state, STATE_DRAFT_KEY_DATA)
+            ?: return
+        keyData = draft.toMutableMap()
+        keyColorOverrides = extractColorOverrides(keyData)
+        selectedType = keyData["type"] as? String ?: selectedType
+        composeOverrideData = (keyData["composeOverride"] as? Map<*, *>)?.let { map ->
+            map.entries.associate { (k, v) -> k.toString() to v }.toMutableMap()
+        }
+        macroTapStepsData = macroStepsOf(keyData["tap"])
+        macroSwipeStepsData = macroStepsOf(keyData["swipe"])
+        macroLongPressStepsData = macroStepsOf(keyData["longPress"])
+        nonMacroSwipeStepsData = macroStepsOf(keyData["swipe"])
+    }
+
+    private fun macroStepsOf(action: Any?): List<Any> =
+        ((action as? Map<*, *>)?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
 
     private fun renderColorEditors() {
         val theme = ThemeManager.activeTheme
@@ -1502,10 +1554,14 @@ class KeyEditorActivity : AppCompatActivity() {
     private fun openMacroEditor(
         initialSteps: List<*>,
         eventType: String,
+        slot: String,
         callback: (List<Any>) -> Unit
     ) {
         persistCurrentDraft()
+        pendingMacroEventType = slot
         val intent = Intent(this, MacroEditorActivity::class.java)
+        // Echoed back in the result so a recreated host can still apply the edit.
+        intent.putExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN, slot)
         if (initialSteps.isNotEmpty()) {
             val serializableSteps = ArrayList<Map<*, *>>()
             initialSteps.forEach { step ->
@@ -1522,6 +1578,33 @@ class KeyEditorActivity : AppCompatActivity() {
         )
         macroEditCallback = callback
         macroEditorLauncher.launch(intent)
+    }
+
+    /**
+     * Write macro [steps] into the given key slot without going through the dialog callback,
+     * for results that arrive after this Activity was recreated.
+     */
+    private fun applyMacroStepsToSlot(slot: String, steps: List<Any>) {
+        val draft = buildDraftKeyData()
+        when (slot) {
+            SLOT_TAP -> {
+                macroTapStepsData = steps
+                draft["tap"] = mapOf("macro" to steps)
+            }
+            SLOT_SWIPE -> {
+                macroSwipeStepsData = steps
+                nonMacroSwipeStepsData = steps
+                if (steps.isNotEmpty()) draft["swipe"] = mapOf("macro" to steps) else draft.remove("swipe")
+            }
+            SLOT_LONG_PRESS -> {
+                macroLongPressStepsData = steps
+                draft["longPress"] = mapOf("macro" to steps)
+            }
+            else -> return
+        }
+        keyData = draft
+        rebuildFields()
+        updateActionButtonState()
     }
 
     private fun buildMacroPreview(macroSteps: List<*>?): String {
@@ -1971,6 +2054,26 @@ class KeyEditorActivity : AppCompatActivity() {
         private const val THEME_COLOR_REF_PREFIX = "theme:"
         private const val MENU_SAVE_ID = 5001
         private const val MENU_DELETE_ID = 5002
+        private const val TAG = "KeyEditor"
+
+        /** Bundle keys for the unsaved draft (see onSaveInstanceState). */
+        private const val STATE_DRAFT_KEY_DATA = "draft_key_data"
+        private const val STATE_PENDING_MACRO_EVENT = "pending_macro_event"
+
+        /** Macro slots, used as the target token passed to (and echoed by) MacroEditorActivity. */
+        private const val SLOT_TAP = "tap"
+        private const val SLOT_SWIPE = "swipe"
+        private const val SLOT_LONG_PRESS = "longPress"
+
+        @Suppress("DEPRECATION")
+        private inline fun <reified T : Serializable> serializableBundleCompat(
+            bundle: Bundle,
+            key: String
+        ): T? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            bundle.getSerializable(key, T::class.java)
+        } else {
+            bundle.getSerializable(key) as? T
+        }
 
         const val EXTRA_KEY_DATA = "key_data"
         const val EXTRA_ROW_INDEX = "row_index"
