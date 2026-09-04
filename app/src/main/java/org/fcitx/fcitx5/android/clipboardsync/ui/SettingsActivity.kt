@@ -30,7 +30,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.SwitchPreferenceCompat
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -149,6 +149,14 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private var testPushDialog: AlertDialog? = null
+
+        /**
+         * The "connecting..." dialog of an in-flight test, so [onDestroyView] can dismiss it.
+         *
+         * It used to be a local that only the coroutine's Main block dismissed, so backing out
+         * mid-request left it holding the destroyed Activity (see A4).
+         */
+        private var pendingProgressDialog: AlertDialog? = null
         private var testPushTextEdit: EditText? = null
         private var testPushSelectedFileView: TextView? = null
         private var testPushSelectedUri: Uri? = null
@@ -200,6 +208,16 @@ class SettingsActivity : AppCompatActivity() {
             "test_connection",
             "test_push"
         )
+
+        override fun onDestroyView() {
+            // A long test can outlive this view; dismiss so the dialog does not keep the
+            // destroyed Activity alive (see A4).
+            pendingProgressDialog?.dismiss()
+            pendingProgressDialog = null
+            testPushDialog?.dismiss()
+            testPushDialog = null
+            super.onDestroyView()
+        }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val prefs = preferenceManager.sharedPreferences ?: return
@@ -738,31 +756,41 @@ class SettingsActivity : AppCompatActivity() {
                 .setCancelable(false)
                 .create()
             progressDialog.show()
+            pendingProgressDialog = progressDialog
 
-            CoroutineScope(Dispatchers.IO).launch {
-                val result = runCatching {
-                    SyncClient.putClipboard(
-                        context = requireContext(),
-                        serverUrl = address,
-                        username = username,
-                        pass = password,
-                        backend = backend,
-                        content = content
-                    )
+            // viewLifecycleOwner, not a free CoroutineScope: connect+read timeouts total 40s, and
+            // rotating or backing out during that window used to crash — requireContext() throws
+            // once detached, Toast.makeText(null, ...) NPEs, and the dialog kept the destroyed
+            // Activity alive (see A4). appContext is captured before the IO hop for the same
+            // reason.
+            val appContext = requireContext().applicationContext
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    runCatching {
+                        SyncClient.putClipboard(
+                            context = appContext,
+                            serverUrl = address,
+                            username = username,
+                            pass = password,
+                            backend = backend,
+                            content = content
+                        )
+                    }
                 }
 
-                withContext(Dispatchers.Main) {
-                    progressDialog.dismiss()
-                    if (result.isSuccess) {
-                        Toast.makeText(context, R.string.local_test_push_success, Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
-                    } else {
-                        AlertDialog.Builder(context)
-                            .setTitle(R.string.local_test_push_failed)
-                            .setMessage(result.exceptionOrNull()?.message ?: getString(R.string.unknown_error))
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show()
-                    }
+                if (!isAdded) return@launch
+                progressDialog.dismiss()
+                pendingProgressDialog = null
+                val ctx = context ?: return@launch
+                if (result.isSuccess) {
+                    Toast.makeText(ctx, R.string.local_test_push_success, Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                } else {
+                    AlertDialog.Builder(ctx)
+                        .setTitle(R.string.local_test_push_failed)
+                        .setMessage(result.exceptionOrNull()?.message ?: getString(R.string.unknown_error))
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
                 }
             }
         }
@@ -914,21 +942,26 @@ class SettingsActivity : AppCompatActivity() {
                 .setCancelable(false)
                 .create()
             progressDialog.show()
+            pendingProgressDialog = progressDialog
 
-            CoroutineScope(Dispatchers.IO).launch {
-                val result = SyncClient.testConnection(address, username, password, backend)
+            // Same lifecycle handling as the test-push path above (see A4).
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    SyncClient.testConnection(address, username, password, backend)
+                }
 
-                withContext(Dispatchers.Main) {
-                    progressDialog.dismiss()
-                    if (result.isSuccess) {
-                        Toast.makeText(context, R.string.connection_success, Toast.LENGTH_SHORT).show()
-                    } else {
-                        AlertDialog.Builder(context)
-                            .setTitle(R.string.connection_failed)
-                            .setMessage(result.exceptionOrNull()?.message ?: getString(R.string.unknown_error))
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show()
-                    }
+                if (!isAdded) return@launch
+                progressDialog.dismiss()
+                pendingProgressDialog = null
+                val ctx = context ?: return@launch
+                if (result.isSuccess) {
+                    Toast.makeText(ctx, R.string.connection_success, Toast.LENGTH_SHORT).show()
+                } else {
+                    AlertDialog.Builder(ctx)
+                        .setTitle(R.string.connection_failed)
+                        .setMessage(result.exceptionOrNull()?.message ?: getString(R.string.unknown_error))
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
                 }
             }
         }
