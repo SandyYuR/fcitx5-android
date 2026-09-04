@@ -459,17 +459,19 @@ class MainService : FcitxPluginService() {
 
     private fun handleLocalClipboardUpdate(content: String, origin: String) {
         if (content.isBlank()) return
-        val normalizedContent = OutgoingClipboardFilter.transform(this, connection?.remoteService, content)
-        if (consumeIgnoredRemoteClipboardContent(normalizedContent)) {
-            return
-        }
-        if (normalizedContent == lastRemoteContent || normalizedContent == lastUploadedContent) {
-            return
-        }
-        if (normalizedContent != lastLocalContent) {
-            lastLocalContent = normalizedContent
-        }
+        // OutgoingClipboardFilter.transform loads and compiles the whole ClearURLs rule set on
+        // first use, and this is called from a clipboard listener on the main thread (see D11).
         scope.launch {
+            val normalizedContent = OutgoingClipboardFilter.transform(this@MainService, connection?.remoteService, content)
+            if (consumeIgnoredRemoteClipboardContent(normalizedContent)) {
+                return@launch
+            }
+            if (normalizedContent == lastRemoteContent || normalizedContent == lastUploadedContent) {
+                return@launch
+            }
+            if (normalizedContent != lastLocalContent) {
+                lastLocalContent = normalizedContent
+            }
             val queued = enqueuePendingUpload(normalizedContent)
             if (!queued) {
                 return@launch
@@ -2220,8 +2222,9 @@ class MainService : FcitxPluginService() {
 
     private fun forceUploadClipboard(content: String, origin: String) {
         if (content.isBlank()) return
-        val normalizedContent = OutgoingClipboardFilter.transform(this, connection?.remoteService, content)
         scope.launch {
+            // See D11: rule compilation must not happen on the caller's thread.
+            val normalizedContent = OutgoingClipboardFilter.transform(this@MainService, connection?.remoteService, content)
             val queued = enqueuePendingUpload(normalizedContent)
             if (!queued) {
                 return@launch
