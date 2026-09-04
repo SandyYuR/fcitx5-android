@@ -422,6 +422,14 @@ class UpdateCheckActivity : AppCompatActivity() {
         return null
     }
 
+    /**
+     * Find the newest MediaStore download matching [asset].
+     *
+     * The name filter and the ordering are pushed into the query. This used to pass
+     * `null, null, null` and pull the entire Downloads table into the cursor before filtering in
+     * Kotlin (see G4). [nameMatchesAsset] still runs on the results, because LIKE cannot express
+     * the exact `name(1).ext` duplicate form.
+     */
     private fun findLatestMediaStoreDownload(asset: ReleaseAsset): DownloadHit? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
         val base = MediaStore.Downloads.EXTERNAL_CONTENT_URI
@@ -431,7 +439,21 @@ class UpdateCheckActivity : AppCompatActivity() {
             MediaStore.Downloads.SIZE,
             MediaStore.Downloads.DATE_MODIFIED
         )
-        contentResolver.query(base, projection, null, null, null)?.use { c ->
+        // Matches both "name.ext" and the download manager's "name(1).ext" rename. The
+        // wildcards go in the argument, so the value stays parameterized.
+        val dot = asset.name.lastIndexOf('.')
+        // ESCAPE is required for the backslashes from escapeLikeLiteral to be treated as escapes
+        // rather than literal characters.
+        val selection = "${MediaStore.Downloads.DISPLAY_NAME} = ? OR " +
+            "${MediaStore.Downloads.DISPLAY_NAME} LIKE ? ESCAPE '\\'"
+        val likePattern = if (dot > 0) {
+            "${escapeLikeLiteral(asset.name.substring(0, dot))}(%)${escapeLikeLiteral(asset.name.substring(dot))}"
+        } else {
+            escapeLikeLiteral(asset.name)
+        }
+        val selectionArgs = arrayOf(asset.name, likePattern)
+        val sortOrder = "${MediaStore.Downloads.DATE_MODIFIED} DESC"
+        contentResolver.query(base, projection, selection, selectionArgs, sortOrder)?.use { c ->
             val idIdx = c.getColumnIndex(MediaStore.Downloads._ID)
             val nameIdx = c.getColumnIndex(MediaStore.Downloads.DISPLAY_NAME)
             val sizeIdx = c.getColumnIndex(MediaStore.Downloads.SIZE)
@@ -1059,6 +1081,14 @@ class UpdateCheckActivity : AppCompatActivity() {
             builder.append(text.substring(cursor))
         }
     }
+
+    /**
+     * Escape `%`, `_` and `\` so a literal can be embedded in a LIKE pattern; see
+     * [findLatestMediaStoreDownload]. Asset names contain dots and dashes, but escaping is
+     * cheap insurance against a release name that happens to contain a wildcard.
+     */
+    private fun escapeLikeLiteral(value: String): String =
+        value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
     private fun nameMatchesAsset(displayName: String, assetName: String): Boolean {
         if (displayName == assetName) return true
