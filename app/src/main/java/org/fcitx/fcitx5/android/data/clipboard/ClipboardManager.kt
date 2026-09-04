@@ -108,11 +108,12 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         }
     }
 
-    private fun normalizeEntry(entry: ClipboardEntry): ClipboardEntry {
+    private suspend fun normalizeEntry(entry: ClipboardEntry): ClipboardEntry {
         if (entry.text.startsWith("content://") || entry.text.startsWith("file://")) {
             // For URI entries (like clipboard images), try to stage the content
-            // so we have a local copy with proper permissions
-            val staged = normalizeClipboardText(appContext, entry.text)
+            // so we have a local copy with proper permissions. Staging copies the whole
+            // file, so run it on IO rather than the caller's dispatcher.
+            val staged = withContext(Dispatchers.IO) { normalizeClipboardText(appContext, entry.text) }
             return if (staged == entry.text) {
                 // Staging failed - check if this is an ExternalStorageProvider tree URI
                 // that we can handle by extracting the file path directly
@@ -120,7 +121,9 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
                 if (treeUri != null && isExternalStorageProviderTreeUri(treeUri)) {
                     val filePath = extractFilePathFromTreeUri(treeUri)
                     if (filePath != null) {
-                        val stagedFromPath = normalizeClipboardText(appContext, "file://$filePath")
+                        val stagedFromPath = withContext(Dispatchers.IO) {
+                            normalizeClipboardText(appContext, "file://$filePath")
+                        }
                         if (stagedFromPath != entry.text && !stagedFromPath.startsWith("content://com.android.externalstorage")) {
                             return entry.copy(text = stagedFromPath)
                         }
@@ -133,7 +136,7 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
                 entry.copy(text = staged)
             }
         }
-        val normalizedText = normalizeClipboardText(appContext, entry.text)
+        val normalizedText = withContext(Dispatchers.IO) { normalizeClipboardText(appContext, entry.text) }
         val normalizedOriginalText = when {
             entry.originalText.isNotEmpty() -> entry.originalText
             normalizedText == entry.text -> ""
@@ -548,7 +551,11 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
                 // while we have clipboard permission, so we have a local copy
                 var finalEntry = entry
                 if (entry.isUriEntry() && entry.type.startsWith("image/")) {
-                    val staged = stageForCommit(appContext, entry.text.toClipboardUriOrNull()!!)
+                    // IO: this copies the entire image while holding the clipboard lock; on
+                    // the Default dispatcher it kept every other clipboard operation waiting.
+                    val staged = withContext(Dispatchers.IO) {
+                        stageForCommit(appContext, entry.text.toClipboardUriOrNull()!!)
+                    }
                     if (staged != null) {
                         finalEntry = entry.copy(text = staged.uri.toString())
                         Timber.d("Staged clipboard image to local file: ${staged.uri}")

@@ -53,10 +53,12 @@ import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputContentInfoCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.core.CapabilityFlags
@@ -88,6 +90,7 @@ import org.fcitx.fcitx5.android.input.keyboard.SpaceLongPressBehavior
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
+import org.fcitx.fcitx5.android.utils.ClipboardSharedContent
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore
 import org.fcitx.fcitx5.android.utils.alpha
 import org.fcitx.fcitx5.android.utils.forceShowSelf
@@ -849,15 +852,27 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
-    fun commitClipboardEntry(text: String): Boolean {
-        return commitUriContent(text) || run {
+    /**
+     * Paste [text] into the editor: as rich content when it is a URI we can stage, else as
+     * plain text.
+     *
+     * Suspend, with staging on Dispatchers.IO: stageForCommit copies the *entire* file, and
+     * it used to run on the IME main thread — pasting a large image from the clipboard
+     * manager froze the keyboard for the duration of the copy.
+     */
+    suspend fun commitClipboardEntry(text: String): Boolean {
+        val staged = withContext(Dispatchers.IO) {
+            ClipboardUriStore.stageForCommit(this@FcitxInputMethodService, text)
+        }
+        return if (staged != null && commitStagedUriContent(staged)) {
+            true
+        } else {
             commitText(text)
             false
         }
     }
 
-    private fun commitUriContent(text: String): Boolean {
-        val staged = ClipboardUriStore.stageForCommit(this, text) ?: return false
+    private fun commitStagedUriContent(staged: ClipboardSharedContent): Boolean {
         val editorInfo = currentInputEditorInfo ?: return false
         val inputConnection = currentInputConnection ?: return false
         val packageName = editorInfo.packageName

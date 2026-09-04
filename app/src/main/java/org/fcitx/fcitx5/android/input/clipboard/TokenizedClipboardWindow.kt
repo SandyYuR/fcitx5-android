@@ -89,7 +89,9 @@ class TokenizedClipboardWindow(
                 Toast.makeText(context, R.string.tokenized_clipboard_empty_selection, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            service.commitClipboardEntry(joined)
+            service.lifecycleScope.launch {
+                service.commitClipboardEntry(joined)
+            }
             adapter.clearSelection()
         }
     }.root
