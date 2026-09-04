@@ -156,6 +156,9 @@
     <string name="update_mirror_pattern_invalid">正则 pattern 不合法</string>
     <string name="update_mirror_replacement_invalid">替换 pattern 不合法</string>
     <string name="exception_user_data_db_version_too_new">备份来自更新的版本（剪贴板数据库 v%1$d，当前版本支持 v%2$d）。请先升级应用再导入。</string>
+    <string name="text_keyboard_layout_corrupt_title">布局文件无法读取</string>
+    <string name="text_keyboard_layout_corrupt_message">“%1$s”解析失败（%2$s），编辑器当前显示的是内置布局。现在保存会覆盖该文件，原有内容将丢失。</string>
+    <string name="text_keyboard_layout_corrupt_overwrite">仍然覆盖</string>
     <string name="keep_alive_notification_channel_name">ClipboardSync 后台同步</string>
     <string name="keep_alive_notification_channel_description">保持剪贴板同步插件在后台持续工作</string>
     <string name="keep_alive_notification_title">ClipboardSync 正在后台同步</string>

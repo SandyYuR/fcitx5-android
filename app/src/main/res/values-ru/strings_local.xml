@@ -154,4 +154,7 @@
     <string name="update_mirror_pattern_invalid">Regex pattern is invalid</string>
     <string name="update_mirror_replacement_invalid">Replacement pattern is invalid</string>
     <string name="exception_user_data_db_version_too_new">Backup was created by a newer version (clipboard database v%1$d, this build supports v%2$d). Update the app before importing.</string>
+    <string name="text_keyboard_layout_corrupt_title">Layout file could not be read</string>
+    <string name="text_keyboard_layout_corrupt_message">"%1$s" could not be parsed (%2$s), so the editor is showing the built-in layout. Saving now replaces that file — the original content will be lost.</string>
+    <string name="text_keyboard_layout_corrupt_overwrite">Overwrite anyway</string>
 </resources>
