@@ -167,6 +167,23 @@ object UpdateRepository {
         return runCatching { URL(trimmed).host.isNotBlank() }.getOrDefault(false)
     }
 
+    /**
+     * Persist both hosts settings in one write, invalidating the release cache at most once.
+     * A no-op when nothing changed, so leaving the settings screen does not force the next
+     * update check to re-hit the GitHub API (anonymous rate limit is 60 requests/hour).
+     */
+    fun saveHostsSettings(context: Context, enabled: Boolean, sourceUrl: String) {
+        val config = UpdatePrefs.loadHostsConfig(context)
+        val trimmed = sourceUrl.trim()
+        val newSource = if (trimmed.isEmpty()) config.sourceUrl else trimmed
+        if (enabled == config.enabled && newSource == config.sourceUrl) return
+        UpdatePrefs.saveHostsConfig(
+            context,
+            config.copy(enabled = enabled, sourceUrl = newSource)
+        )
+        invalidateReleaseCache()
+    }
+
     fun applyMirror(rawUrl: String, mirror: MirrorRule?): String {
         if (mirror == null) return rawUrl
         return Regex(mirror.pattern).replace(rawUrl, mirror.replacement)

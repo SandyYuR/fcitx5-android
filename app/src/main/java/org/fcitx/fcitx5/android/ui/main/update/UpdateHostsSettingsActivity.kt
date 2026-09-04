@@ -60,6 +60,8 @@ class UpdateHostsSettingsActivity : AppCompatActivity() {
         enableSwitch.isChecked = config.enabled
         renderStatus(config)
         enableSwitch.setOnCheckedChangeListener { _, checked ->
+            // saveHostsEnabled is a no-op when the value is unchanged, so toggling back and
+            // forth does not repeatedly invalidate the release cache.
             UpdateRepository.saveHostsEnabled(this, checked)
         }
 
@@ -67,6 +69,12 @@ class UpdateHostsSettingsActivity : AppCompatActivity() {
             val source = sourceInput.text?.toString().orEmpty().trim()
             if (source.isEmpty()) {
                 Toast.makeText(this, getString(R.string.update_hosts_source_required), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            // Validate here rather than letting OkHttp throw IllegalArgumentException deep
+            // inside the fetch, where it was reported as a generic "update failed".
+            if (!UpdateRepository.isValidHttpUrl(source) || !source.startsWith("https://")) {
+                Toast.makeText(this, getString(R.string.update_hosts_source_invalid), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (!enableSwitch.isChecked) {
@@ -97,9 +105,12 @@ class UpdateHostsSettingsActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        // One write, and only when something actually changed: the previous unconditional
+        // pair of saves invalidated the release cache twice on every visit (and could store
+        // an empty source URL), forcing a fresh GitHub API call each time.
         val source = sourceInput.text?.toString().orEmpty().trim()
-        UpdateRepository.saveHostsEnabled(this, enableSwitch.isChecked)
-        UpdateRepository.saveHostsSource(this, source)
+        val validSource = if (source.isEmpty() || !UpdateRepository.isValidHttpUrl(source)) "" else source
+        UpdateRepository.saveHostsSettings(this, enableSwitch.isChecked, validSource)
     }
 
     override fun onSupportNavigateUp(): Boolean {

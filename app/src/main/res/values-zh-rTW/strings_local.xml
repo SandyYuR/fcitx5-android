@@ -128,6 +128,7 @@
     <string name="update_hosts_enable_title">啟用Github hosts映射</string>
     <string name="update_hosts_enable_required">請先啟用 hosts 映射</string>
     <string name="update_hosts_source_required">請輸入 hosts 來源 URL</string>
+    <string name="update_hosts_source_invalid">hosts 來源必須是合法的 https:// URL</string>
     <string name="update_hosts_update_button">更新 hosts 映射</string>
     <string name="update_hosts_update_failed">Hosts 更新失敗</string>
     <string name="update_hosts_updated_count">Hosts 已更新：%1$d 條域名</string>
