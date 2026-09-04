@@ -24,4 +24,5 @@ jobs:
       - name: Build Release APK
         run: |
           nix develop .#noAS --command ./gradlew :app:assembleRelease
-          nix develop .#noAS --command ./gradlew :assembleReleasePlugins
+          # See C29: the plugins must be built against this fork's application id.
+          nix develop .#noAS --command ./gradlew -PmainApplicationId=org.fcitx.fcitx5.android.fx :assembleReleasePlugins
