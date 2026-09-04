@@ -9,7 +9,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.BuildConfig
+import org.fcitx.fcitx5.android.utils.FileNames
 import java.io.File
 import java.io.FileOutputStream
 
@@ -59,18 +62,29 @@ object JsonFileQrShareManager {
         return LayoutQrBitmapUtil.composeLongImageStreaming(contents, labels) to bundle
     }
 
-    fun saveLongImageToShareCache(context: Context, bitmap: Bitmap, prefix: String): Uri {
-        val dir = File(context.cacheDir, "shared").apply { mkdirs() }
-        val file = File(dir, "$prefix-${System.currentTimeMillis()}.png")
-        FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+    /**
+     * PNG-encode [bitmap] into the share cache and return a FileProvider URI for it.
+     *
+     * Suspend, on Dispatchers.IO: compressing a QR long image (tens of MB) takes hundreds of
+     * milliseconds to seconds, and every caller invoked this straight from a lifecycleScope
+     * coroutine on the main thread (see D10).
+     *
+     * [prefix] is sanitized, because callers pass user-provided theme and layout names.
+     */
+    suspend fun saveLongImageToShareCache(context: Context, bitmap: Bitmap, prefix: String): Uri =
+        withContext(Dispatchers.IO) {
+            val dir = File(context.cacheDir, "shared").apply { mkdirs() }
+            val safePrefix = FileNames.sanitize(prefix).ifBlank { "share" }
+            val file = File(dir, "$safePrefix-${System.currentTimeMillis()}.png")
+            FileOutputStream(file).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+            FileProvider.getUriForFile(
+                context,
+                "${BuildConfig.APPLICATION_ID}.share.fileprovider",
+                file
+            )
         }
-        return FileProvider.getUriForFile(
-            context,
-            "${BuildConfig.APPLICATION_ID}.share.fileprovider",
-            file
-        )
-    }
 
     fun decodeQrChunksFromImage(
         context: Context,

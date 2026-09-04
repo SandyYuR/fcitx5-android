@@ -464,12 +464,22 @@ class ShareReceiveManager(
         )
     }
 
-    private suspend fun detectAutoImport(source: SourcePayload): AutoDetectedImport? {
-        return when (source) {
-            is SourcePayload.Text -> detectAutoImportFromText(source.value)
-            is SourcePayload.UriPayload -> detectAutoImportFromUri(source.uri)
+    /**
+     * Work out what was shared with us: theme / layout / popup / icon-theme, JSON or zip.
+     *
+     * Runs on [Dispatchers.Default]: this reads up to a 16MB zip, parses JSON, and does Base64 +
+     * XZ decompression. Only `cacheSharedZipToTempFile` and image QR decoding were off the main
+     * thread before; everything else ran on `Dispatchers.Main.immediate` via
+     * withProgressLoadingDialog (see D8). Dialogs and toasts are raised by the callers, which
+     * stay on the main thread.
+     */
+    private suspend fun detectAutoImport(source: SourcePayload): AutoDetectedImport? =
+        withContext(Dispatchers.Default) {
+            when (source) {
+                is SourcePayload.Text -> detectAutoImportFromText(source.value)
+                is SourcePayload.UriPayload -> detectAutoImportFromUri(source.uri)
+            }
         }
-    }
 
     private suspend fun detectAutoImportFromText(text: String): AutoDetectedImport? {
         val trimmed = text.trim()
