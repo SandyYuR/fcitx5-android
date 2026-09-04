@@ -68,6 +68,16 @@ object VoiceInputProviderManager {
     // Why: avoid tail-end word loss if the provider hangs in feedAudio.
     private const val FEED_DRAIN_TIMEOUT_MS = 1_000L
 
+    /**
+     * How long to wait for the provider to acknowledge endStream before forcing teardown.
+     *
+     * After endStream the session only ends when the provider calls back onSessionEnded or
+     * onError. A provider that dies or simply never answers left `finishing = true` forever,
+     * which made [toggle] refuse every later press: the microphone button was dead until the
+     * IME process restarted.
+     */
+    private const val FINISH_WATCHDOG_MS = 3_000L
+
     // Pre-roll window: capture starts immediately on toggle so audio spoken
     // before the provider reports onReady is replayed once the session opens.
     // Eliminates head-end word loss from cold-bind + model-load latency.
@@ -102,6 +112,17 @@ object VoiceInputProviderManager {
     private var keepAliveConnection: ServiceConnection? = null
     private var keepAliveLastAttemptElapsed = 0L
     private var voiceSessionTerminalized = false
+
+    /**
+     * Monotonic id of the current session, bumped on every start.
+     *
+     * The finish watchdog captures it so a late fire cannot tear down a session the user
+     * started in the meantime.
+     */
+    private var sessionGeneration = 0
+
+    /** Watchdog for the endStream -> onSessionEnded handshake; see [FINISH_WATCHDOG_MS]. */
+    private var finishWatchdogJob: Job? = null
     @Volatile private var preRollActive: Boolean = false
     private val preRollBuffer = ArrayDeque<QueuedAudio>()
     private val preRollLock = Any()
@@ -469,22 +490,28 @@ object VoiceInputProviderManager {
                 // Any partial that wasn't followed by a final (e.g. provider
                 // discarded it via speaker filter / VAD silence / cancel) is
                 // now an orphan — clear it instead of leaving stale composing.
+                //
+                // stopSession() runs inside this block, not on the binder thread that
+                // delivered the callback: it tears down activeCapture / activeCallback /
+                // sessionActive, which the main thread also reads and writes. Racing with
+                // start() left the AudioRecord unreleased with the microphone still open.
                 service.lifecycleScope.launch {
                     service.clearVoiceComposingText()
                     onFinished()
+                    stopSession(service, keepConnectionWarm = true)
                 }
-                stopSession(service, keepConnectionWarm = true)
             }
 
             override fun onError(code: Int, message: String?) {
                 logW("provider error $code: $message")
                 Timber.w("Voice provider error $code: $message")
+                // Same reason as onSessionEnded: keep the teardown on the main thread.
                 service.lifecycleScope.launch {
                     service.clearVoiceComposingText()
                     onFinished()
                     onError(message ?: appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_failed))
+                    stopSession(service, keepConnectionWarm = false)
                 }
-                stopSession(service, keepConnectionWarm = false)
             }
         }
 
@@ -493,6 +520,10 @@ object VoiceInputProviderManager {
         voiceSessionTerminalized = false
         sessionReady = false
         sessionActive = true
+        sessionGeneration++
+        // A new session supersedes any pending finish watchdog from the previous one.
+        finishWatchdogJob?.cancel()
+        finishWatchdogJob = null
         ContextCompat.getMainExecutor(appContext).execute { sessionStartedCallback?.invoke() }
 
         startPreRollCapture(service, onLevel, onError)
