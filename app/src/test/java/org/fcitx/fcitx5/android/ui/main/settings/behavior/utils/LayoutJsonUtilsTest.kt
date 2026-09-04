@@ -66,3 +66,50 @@ class LayoutJsonUtilsTest {
     }
 
     /** A2: a MacroKey without a tap action is skipped instead of throwing. */
+    @Test
+    fun macroKeyWithoutTapIsSkipped() {
+        val keys = LayoutJsonUtils.parseKeyJsonArray(
+            row("""[{"type": "MacroKey", "label": "M"}]""")
+        )
+        assertEquals(1, keys.size)
+        assertNull("createKeyDef reports the key as unusable", LayoutJsonUtils.createKeyDef(keys[0]))
+    }
+
+    /** A2: a MacroKey with a tap action still resolves. */
+    @Test
+    fun macroKeyWithTapIsCreated() {
+        val keys = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "MacroKey",
+                  "label": "M",
+                  "tap": {"macro": [{"type": "text", "text": "hi"}]}
+                }]
+                """.trimIndent()
+            )
+        )
+        assertEquals(1, keys.size)
+        val def = LayoutJsonUtils.createKeyDef(keys[0])
+        assertTrue("a MacroKey with tap produces a KeyDef", def != null)
+    }
+
+    /** A2: a malformed macro step is dropped, and does not take the whole key with it. */
+    @Test
+    fun malformedMacroStepIsDropped() {
+        val keys = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "MacroKey",
+                  "label": "M",
+                  "tap": {"macro": [{"type": "nonsense"}, {"type": "text", "text": "hi"}]}
+                }]
+                """.trimIndent()
+            )
+        )
+        assertEquals(1, keys.size)
+        assertEquals("only the valid step remains", 1, keys[0].tap?.steps?.size)
+    }
+
+    /** C23: "main": null must not become the literal string "null". */
