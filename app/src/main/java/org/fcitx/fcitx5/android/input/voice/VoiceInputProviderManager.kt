@@ -1033,6 +1033,32 @@ object VoiceInputProviderManager {
         } else {
             sendEndStream(context)
         }
+        armFinishWatchdog(context)
+    }
+
+    /**
+     * Force the session closed if the provider never answers endStream.
+     *
+     * Without this, a provider that dies (or hangs) after endStream leaves `finishing = true`
+     * permanently and [toggle] refuses every subsequent press — the microphone button stays
+     * dead for the rest of the process. The generation check keeps a late fire from killing a
+     * session the user started in the meantime.
+     */
+    private fun armFinishWatchdog(context: Context) {
+        val service = context as? FcitxInputMethodService ?: return
+        val generation = sessionGeneration
+        finishWatchdogJob?.cancel()
+        finishWatchdogJob = service.lifecycleScope.launch {
+            delay(FINISH_WATCHDOG_MS)
+            // A newer session already started, or the provider answered and cleared
+            // `finishing` — either way there is nothing to force.
+            if (sessionGeneration != generation || !finishing) return@launch
+            logW("provider did not acknowledge endStream in ${FINISH_WATCHDOG_MS}ms; forcing teardown")
+            Timber.w("Voice provider did not acknowledge endStream; forcing teardown")
+            runCatching { service.clearVoiceComposingText() }
+            voiceFinishedCallback?.invoke()
+            stopSession(service, keepConnectionWarm = false)
+        }
     }
 
     private fun sendEndStream(context: Context) {
@@ -1062,6 +1088,9 @@ object VoiceInputProviderManager {
 
     private fun stopSession(context: Context = appContext, keepConnectionWarm: Boolean) {
         voiceSessionTerminalized = true
+        // The handshake completed (or is being forced): the watchdog has nothing left to do.
+        finishWatchdogJob?.cancel()
+        finishWatchdogJob = null
         logI(
             "stop provider=${activeProvider != null} " +
                 "connection=${activeConnection != null} capture=${activeCapture != null} " +
