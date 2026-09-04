@@ -218,11 +218,18 @@ class ClipCascadeClient(
             }
             val body = response.body?.string().orEmpty()
             val userInfo = json.decodeFromString<ClipCascadeUserInfoResponse>(body)
+            // The iteration count comes straight off the wire. Unclamped, 1 downgrades the key
+            // to brute-forceable, 0 or negative makes PBEKeySpec throw, and a huge value spins
+            // the IO thread for minutes (see C19).
+            val rounds = userInfo.hashRounds.coerceIn(MIN_HASH_ROUNDS, MAX_HASH_ROUNDS)
+            if (rounds != userInfo.hashRounds) {
+                Log.w(TAG, "ClipCascade hash_rounds ${userInfo.hashRounds} out of range, using $rounds")
+            }
             encryptionKey = deriveKey(
                 password = password,
                 username = username,
                 salt = userInfo.salt,
-                rounds = userInfo.hashRounds
+                rounds = rounds
             )
         }
     }
@@ -365,11 +372,20 @@ class ClipCascadeClient(
     }
 
     private fun deriveKey(password: String, username: String, salt: String, rounds: Int): ByteArray {
+        // An empty salt means the server did not send one. Deriving anyway produces a key that
+        // silently disagrees with every other client (see C19).
+        if (salt.isBlank()) {
+            throw IOException("ClipCascade user-info did not include a salt")
+        }
         val saltBytes = (username + password + salt).toByteArray(StandardCharsets.UTF_8)
         val spec = PBEKeySpec(password.toCharArray(), saltBytes, rounds, AES_KEY_SIZE_BITS)
-        return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-            .generateSecret(spec)
-            .encoded
+        return try {
+            SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+                .generateSecret(spec)
+                .encoded
+        } catch (e: Exception) {
+            throw IOException("ClipCascade key derivation failed", e)
+        }
     }
 
     private fun encrypt(key: ByteArray, plaintext: ByteArray): ClipCascadeEncryptedPayload {

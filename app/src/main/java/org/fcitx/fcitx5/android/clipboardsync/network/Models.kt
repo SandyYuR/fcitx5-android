@@ -143,9 +143,21 @@ data class ClipCascadeSessionValidationResponse(
 @Serializable
 data class ClipCascadeUserInfoResponse(
     val salt: String = "",
+    /**
+     * PBKDF2 iteration count, as reported by the server.
+     *
+     * The fallback matches the ClipCascade upstream default (664937). It used to be 100000, so
+     * a server that omits `hash_rounds` made this client derive a completely different key from
+     * the desktop client — everything decrypted to garbage (see C19). The value is clamped by
+     * ClipCascadeClient before use.
+     */
     @SerialName("hash_rounds")
-    val hashRounds: Int = 100000
-)
+    val hashRounds: Int = DEFAULT_HASH_ROUNDS
+) {
+    companion object {
+        const val DEFAULT_HASH_ROUNDS = 664937
+    }
+}
 
 @Serializable
 data class ClipCascadeEncryptedPayload(
