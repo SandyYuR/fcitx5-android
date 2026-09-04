@@ -84,6 +84,22 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
+      # AGP 9 defaults android.onlyEnableUnitTestForTheTestedBuildType to true, so unit test
+      # tasks are only created for the tested build type (debug) — testFxReleaseUnitTest does
+      # not exist. These tests cover pure logic, so the build type is irrelevant.
+      - name: Run JVM unit tests
+        if: matrix.build_type == 'standard'
+        run: |
+          ./gradlew :app:testFxDebugUnitTest
+
+      - name: Upload unit test report
+        if: ${{ matrix.build_type == 'standard' && always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: unit-test-report-${{ matrix.os }}-${{ matrix.abi }}
+          path: app/build/reports/tests/testFxDebugUnitTest
+          if-no-files-found: ignore
+
       - name: Build Standard APK
         if: matrix.build_type == 'standard'
         run: |
@@ -134,6 +150,12 @@ jobs:
 
   nightly_release:
     needs: build_commit
+    # Only publish nightlies from the maintained branches. Work branches (reviews,
+    # experiments) still get the full build above, but must not create a release/tag.
+    if: >-
+      github.ref == 'refs/heads/master' ||
+      github.ref == 'refs/heads/fx2' ||
+      github.ref == 'refs/heads/pr/fx2-integrated'
     runs-on: ubuntu-22.04
     steps:
       - name: Fetch source code
