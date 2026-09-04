@@ -8,6 +8,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import timber.log.Timber
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 
 /**
  * File-backed storage for the clipboard-sync service's own state.
@@ -27,32 +29,53 @@ class SyncStateStore(context: Context) {
 
     private fun fileFor(key: String) = File(dir, "$key.json")
 
-    fun read(key: String): String? = runCatching {
-        val file = fileFor(key)
-        if (!file.isFile) null else file.readText().takeIf { it.isNotBlank() }
-    }.onFailure { Timber.w(it, "Failed to read sync state: $key") }.getOrNull()
+    /**
+     * Values already handed to [write] but possibly not yet on disk.
+     *
+     * [write] is asynchronous, so this keeps [read] consistent with what the caller last wrote
+     * without having to wait for the file.
+     */
+    private val pending = ConcurrentHashMap<String, String>()
+
+    fun read(key: String): String? {
+        pending[key]?.let { return it.takeIf { pendingValue -> pendingValue.isNotBlank() } }
+        return runCatching {
+            val file = fileFor(key)
+            if (!file.isFile) null else file.readText().takeIf { it.isNotBlank() }
+        }.onFailure { Timber.w(it, "Failed to read sync state: $key") }.getOrNull()
+    }
 
     /**
      * Persist [value] for [key], or delete the entry when [value] is null or blank.
      *
-     * Writes to a temporary file and renames, so a process death mid-write cannot leave a
-     * truncated JSON document that fails to parse on the next start.
+     * The file work is handed to [writeExecutor] rather than done inline: callers include
+     * [MainService.onStartCommand] and the clipboard listener, i.e. the main thread, and a
+     * suppressed-item set can serialize to megabytes. Writes for one key stay ordered because
+     * the executor is single-threaded.
+     *
+     * The write itself goes to a temporary file and renames, so a process death mid-write
+     * cannot leave a truncated JSON document that fails to parse on the next start.
      */
     fun write(key: String, value: String?) {
-        runCatching {
-            if (value.isNullOrBlank()) {
-                fileFor(key).delete()
-                return@runCatching
-            }
-            dir.mkdirs()
-            val target = fileFor(key)
-            val tmp = File(dir, "${target.name}.tmp")
-            tmp.writeText(value)
-            if (!tmp.renameTo(target)) {
-                target.writeText(value)
-                tmp.delete()
-            }
-        }.onFailure { Timber.w(it, "Failed to write sync state: $key") }
+        pending[key] = value.orEmpty()
+        writeExecutor.execute {
+            runCatching {
+                if (value.isNullOrBlank()) {
+                    fileFor(key).delete()
+                    return@runCatching
+                }
+                dir.mkdirs()
+                val target = fileFor(key)
+                val tmp = File(dir, "${target.name}.tmp")
+                tmp.writeText(value)
+                if (!tmp.renameTo(target)) {
+                    target.writeText(value)
+                    tmp.delete()
+                }
+            }.onFailure { Timber.w(it, "Failed to write sync state: $key") }
+            // Drop the overlay only if no newer write replaced it in the meantime.
+            pending.remove(key, value.orEmpty())
+        }
     }
 
     /**
@@ -64,9 +87,19 @@ class SyncStateStore(context: Context) {
         val editor = prefs.edit()
         var migrated = false
         keys.forEach { key ->
-            val legacy = runCatching { prefs.getString(key, null) }.getOrNull()
-            if (legacy.isNullOrBlank()) return@forEach
-            if (read(key) == null) write(key, legacy)
+            val legacy = runCatching { prefs.getString(key, null) }
+            if (legacy.isFailure) {
+                // A value of another type under this key (an older build wrote a different
+                // shape). It cannot be migrated, but it still has to go, or getString keeps
+                // throwing here on every start and the key never leaves the preferences file.
+                Timber.w(legacy.exceptionOrNull(), "Dropping unreadable legacy sync state: $key")
+                editor.remove(key)
+                migrated = true
+                return@forEach
+            }
+            val value = legacy.getOrNull()
+            if (value.isNullOrBlank()) return@forEach
+            if (read(key) == null) write(key, value)
             editor.remove(key)
             migrated = true
         }
@@ -78,6 +111,16 @@ class SyncStateStore(context: Context) {
 
     companion object {
         private const val DIR_NAME = "clipboardsync_state"
+
+        /**
+         * Single background thread for all state writes.
+         *
+         * Single-threaded on purpose: writes for the same key must not overtake each other, and
+         * the state files are small enough that one thread is never a bottleneck.
+         */
+        private val writeExecutor = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "clipboardsync-state").apply { isDaemon = true }
+        }
 
         /**
          * Upper bound on a single persisted clipboard payload, in characters.
