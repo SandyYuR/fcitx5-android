@@ -9,12 +9,20 @@ object StoragePathUtils {
     private const val PRIMARY_STORAGE_PREFIX = "/storage/emulated/0"
     private const val UTF_8_NAME = "UTF-8"
 
+    /**
+     * URLDecoder.decode throws IllegalArgumentException on a bare or truncated percent
+     * escape (e.g. a path literally named "100%"). Callers here run inside dialog
+     * callbacks, so fall back to the raw text instead of crashing.
+     */
+    private fun decodeOrRaw(value: String): String =
+        runCatching { URLDecoder.decode(value, UTF_8_NAME) }.getOrDefault(value)
+
     fun formatStoragePath(rawPath: String?): String? {
         if (rawPath.isNullOrBlank()) return null
 
         val trimmed = rawPath.trim()
         if (!trimmed.startsWith("content://")) {
-            return normalizeVisiblePath(URLDecoder.decode(trimmed, UTF_8_NAME))
+            return normalizeVisiblePath(decodeOrRaw(trimmed))
         }
 
         val uri = Uri.parse(trimmed)
@@ -22,7 +30,7 @@ object StoragePathUtils {
             runCatching { DocumentsContract.getDocumentId(uri) }.getOrElse {
                 DocumentsContract.getTreeDocumentId(uri)
             }
-        }.getOrNull() ?: return normalizeVisiblePath(URLDecoder.decode(trimmed, UTF_8_NAME))
+        }.getOrNull() ?: return normalizeVisiblePath(decodeOrRaw(trimmed))
 
         val (volume, relativePath) = documentPath.split(':', limit = 2)
             .let { it.firstOrNull().orEmpty() to it.getOrElse(1) { "" } }
@@ -49,7 +57,7 @@ object StoragePathUtils {
                 }
             }
 
-            else -> URLDecoder.decode(trimmed, UTF_8_NAME)
+            else -> decodeOrRaw(trimmed)
         }
 
         return normalizeVisiblePath(normalized)
