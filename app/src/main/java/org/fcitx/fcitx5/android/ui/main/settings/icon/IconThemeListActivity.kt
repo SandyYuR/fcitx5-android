@@ -38,6 +38,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.journeyapps.barcodescanner.ScanContract
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,6 +64,14 @@ class IconThemeListActivity : AppCompatActivity() {
         private const val MENU_IMPORT_QR_SCAN = 5
         private const val MENU_IMPORT_ZIP = 6
         private const val QR_PREVIEW_ICON_SIZE = 96
+
+        /**
+         * Largest icon-theme JSON accepted on import.
+         *
+         * These documents hold icon slot names and inline SVG; 1MB is already generous, and an
+         * unbounded read on the main thread was the original problem (see D10).
+         */
+        private const val MAX_IMPORT_JSON_BYTES = 1024 * 1024
     }
 
     private val themes get() = IconThemeManager.iconThemes
@@ -173,16 +182,41 @@ class IconThemeListActivity : AppCompatActivity() {
         else -> super.onOptionsItemSelected(item)
     }
 
+    /**
+     * Import an icon theme from a JSON document.
+     *
+     * The read + parse + write used to run on the main thread straight from the menu callback,
+     * with no size limit at all (see D10). Now on IO, and capped: an icon theme is a small
+     * document, so anything larger is not one.
+     */
     private fun importJson(uri: Uri) {
-        try {
-            val json = contentResolver.openInputStream(uri)?.bufferedReader()?.readText()
-            if (json != null) {
-                val theme = IconThemeManager.importTheme(json)
-                Toast.makeText(this, getString(R.string.icon_theme_imported, theme.name), Toast.LENGTH_SHORT).show()
-                refreshThemes()
+        lifecycleScope.launch {
+            val theme = withContext(Dispatchers.IO) {
+                runCatching {
+                    val json = contentResolver.openInputStream(uri)?.use { input ->
+                        val limited = ByteArray(MAX_IMPORT_JSON_BYTES + 1)
+                        var read = 0
+                        while (read < limited.size) {
+                            val n = input.read(limited, read, limited.size - read)
+                            if (n <= 0) break
+                            read += n
+                        }
+                        if (read > MAX_IMPORT_JSON_BYTES) {
+                            throw IllegalArgumentException("icon theme JSON exceeds $MAX_IMPORT_JSON_BYTES bytes")
+                        }
+                        String(limited, 0, read, Charsets.UTF_8)
+                    } ?: throw IllegalStateException("Cannot open JSON")
+                    IconThemeManager.importTheme(json)
+                }
             }
-        } catch (_: Exception) {
-            Toast.makeText(this, getString(R.string.icon_theme_import_json_failed), Toast.LENGTH_SHORT).show()
+            theme.onSuccess {
+                Toast.makeText(this@IconThemeListActivity,
+                    getString(R.string.icon_theme_imported, it.name), Toast.LENGTH_SHORT).show()
+                refreshThemes()
+            }.onFailure {
+                Toast.makeText(this@IconThemeListActivity,
+                    getString(R.string.icon_theme_import_json_failed), Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -429,7 +463,7 @@ class IconThemeListActivity : AppCompatActivity() {
     private fun importIconThemeZip(uri: Uri) {
         lifecycleScope.launch {
             try {
-                val theme = withContext(Dispatchers.Default) {
+                val theme = withContext(Dispatchers.IO) {
                     contentResolver.openInputStream(uri)?.use { input ->
                         IconThemeManager.importThemeFromZip(input).getOrThrow()
                     } ?: throw IllegalStateException("Cannot open ZIP")
@@ -437,9 +471,13 @@ class IconThemeListActivity : AppCompatActivity() {
                 Toast.makeText(this@IconThemeListActivity,
                     getString(R.string.icon_theme_imported, theme.name), Toast.LENGTH_SHORT).show()
                 refreshThemes()
-            } catch (e: Exception) {
+            } catch (e: CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                // Throwable, not Exception: a malformed archive could previously surface as an
+                // OutOfMemoryError, which is an Error and escaped as a process crash (see A6).
                 Toast.makeText(this@IconThemeListActivity,
-                    getString(R.string.icon_theme_import_zip_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
+                    getString(R.string.icon_theme_import_zip_failed, t.message ?: ""), Toast.LENGTH_SHORT).show()
             }
         }
     }
