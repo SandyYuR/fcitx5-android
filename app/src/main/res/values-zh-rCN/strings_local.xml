@@ -153,6 +153,7 @@
     <string name="update_release_notes_empty">更新说明：（空）</string>
     <string name="update_mirror_fields_required">请完整填写镜像字段</string>
     <string name="update_mirror_pattern_invalid">正则 pattern 不合法</string>
+    <string name="update_mirror_replacement_invalid">替换 pattern 不合法</string>
     <string name="keep_alive_notification_channel_name">ClipboardSync 后台同步</string>
     <string name="keep_alive_notification_channel_description">保持剪贴板同步插件在后台持续工作</string>
     <string name="keep_alive_notification_title">ClipboardSync 正在后台同步</string>

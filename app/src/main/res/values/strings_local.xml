@@ -148,6 +148,7 @@
     <string name="update_release_notes_empty">Release notes: (empty)</string>
     <string name="update_mirror_fields_required">Please fill all mirror fields</string>
     <string name="update_mirror_pattern_invalid">Regex pattern is invalid</string>
+    <string name="update_mirror_replacement_invalid">Replacement pattern is invalid</string>
     <string name="keep_alive_notification_channel_name">ClipboardSync background sync</string>
     <string name="keep_alive_notification_channel_description">Keeps ClipboardSync running in the background</string>
     <string name="keep_alive_notification_title">ClipboardSync is syncing in background</string>
