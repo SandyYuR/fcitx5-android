@@ -593,7 +593,23 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     // Macro editor launcher
 
     private val macroJson = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
+    /**
+     * In-dialog receiver for a macro edit result.
+     *
+     * Only valid while this Activity instance and its dialog are alive. The result is also
+     * applied straight to [items] via [applyMacroResultToButton] using the button id echoed
+     * back through the Intent, so a result that arrives after the host was recreated (rotation,
+     * process death) is still persisted instead of silently dropped.
+     */
     private var pendingMacroCallback: ((List<MacroStep>?) -> Unit)? = null
+
+    /** Button id whose macro is being edited; survives recreation via onSaveInstanceState. */
+    private var pendingMacroButtonId: String? = null
+
+    /** Button id whose icon is being picked; survives recreation via onSaveInstanceState. */
+    private var pendingIconButtonId: String? = null
+
     private val macroEditorLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -602,9 +618,20 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             val steps = if (json != null) {
                 try { macroJson.decodeFromString<List<MacroStep>>(json) } catch (_: Exception) { null }
             } else null
-            pendingMacroCallback?.invoke(steps ?: MacroEditorActivity.fromStepsExtra(
+            val resolvedSteps = steps ?: MacroEditorActivity.fromStepsExtra(
                 result.data?.serializable<ArrayList<Map<*, *>>>(MacroEditorActivity.EXTRA_MACRO_RESULT)
-            ))
+            )
+            val targetId = result.data?.getStringExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN)
+                ?: pendingMacroButtonId
+            val callback = pendingMacroCallback
+            if (callback != null) {
+                // Dialog is still up: let it update its own draft state.
+                callback.invoke(resolvedSteps)
+            } else if (targetId != null) {
+                // Host was recreated while the editor was open; apply directly.
+                applyMacroResultToButton(targetId, resolvedSteps)
+            }
+            pendingMacroButtonId = null
         }
     }
 
@@ -641,17 +668,41 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 }
                 // Store a portable relative path so the config survives export/import
                 // across build variants with different applicationIds.
-                pendingIconCallback?.invoke("${ButtonIconFile.PREFIX}${ButtonIconFile.DIR}/${destFile.name}")
+                val value = "${ButtonIconFile.PREFIX}${ButtonIconFile.DIR}/${destFile.name}"
+                val callback = pendingIconCallback
+                if (callback != null) {
+                    callback.invoke(value)
+                } else {
+                    // Dialog is gone (host recreated): apply straight to the item list so the
+                    // pick is not silently discarded.
+                    pendingIconButtonId?.let { applyIconToButton(it, value) }
+                }
             } catch (_: Exception) {
                 pendingIconCallback?.invoke(null)
             }
         } else {
             pendingIconCallback?.invoke(null)
         }
+        pendingIconButtonId = null
     }
 
-    private fun openMacroEditor(steps: List<MacroStep>?, callback: (List<MacroStep>?) -> Unit) {
+    /** Apply a picked icon path directly to [items]; see [applyMacroResultToButton]. */
+    private fun applyIconToButton(buttonId: String, iconValue: String) {
+        val index = items.indexOfFirst { it is ListItem.ButtonItem && it.button.id == buttonId }
+        if (index < 0) return
+        val current = items[index] as? ListItem.ButtonItem ?: return
+        items[index] = current.copy(button = current.button.copy(icon = iconValue))
+        adapter?.notifyItemChanged(index)
+        updateSaveButtonState()
+    }
+
+    private fun openMacroEditor(
+        steps: List<MacroStep>?,
+        targetButtonId: String?,
+        callback: (List<MacroStep>?) -> Unit
+    ) {
         pendingMacroCallback = callback
+        pendingMacroButtonId = targetButtonId
         val intent = android.content.Intent(this, MacroEditorActivity::class.java).apply {
             val stepsList = steps ?: emptyList()
             putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS_JSON, macroJson.encodeToString(stepsList))
@@ -659,8 +710,24 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, MacroEditorActivity.toStepsExtra(stepsList))
             putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, getString(R.string.edit_button_macro_event_type))
             putStringArrayListExtra(MacroEditorActivity.EXTRA_LAYOUT_TARGETS, ArrayList(availableLayoutTargets()))
+            // Carried through the result so the edit can be applied even if this Activity is
+            // recreated while the editor is in front (see macroEditorLauncher).
+            targetButtonId?.let { putExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN, it) }
         }
         macroEditorLauncher.launch(intent)
+    }
+
+    /**
+     * Apply a macro edit result directly to [items], for the case where the dialog (and its
+     * callback) no longer exists because this Activity was recreated.
+     */
+    private fun applyMacroResultToButton(buttonId: String, steps: List<MacroStep>?) {
+        val index = items.indexOfFirst { it is ListItem.ButtonItem && it.button.id == buttonId }
+        if (index < 0) return
+        val current = items[index] as? ListItem.ButtonItem ?: return
+        items[index] = current.copy(button = current.button.copy(macroSteps = steps))
+        adapter?.notifyItemChanged(index)
+        updateSaveButtonState()
     }
 
     private fun availableLayoutTargets(): List<String> = runCatching {
@@ -761,6 +828,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                         iconPathText.text = path.removePrefix("file:").takeLast(30)
                     }
                 }
+                // Remember which button this is for, so the picked icon can still be applied
+                // if this Activity is recreated while the document picker is in front.
+                pendingIconButtonId = button.id
                 iconPickerLauncher.launch(arrayOf("image/png", "image/webp", "image/svg+xml", "text/xml", "application/xml"))
             }
         }
@@ -792,7 +862,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 textSize = 12f
                 layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent).apply { topMargin = dp(4) }
                 setOnClickListener {
-                    openMacroEditor(currentSteps) { newSteps ->
+                    openMacroEditor(currentSteps, button.id) { newSteps ->
                         if (newSteps != null) {
                             currentSteps = newSteps.ifEmpty { null }
                             stepsSummaryText.text = stepsSummary()
