@@ -141,19 +141,46 @@ class InputView(
     }
 
     private inner class KeyBlurMaskView : View(context) {
+        /** Bounded retries for the "laid out but no clip rect yet" case; see [blurRetriesLeft]. */
+        private val MAX_BLUR_RETRIES = 4
+
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
         private val srcRect = Rect()
         private val dstRect = Rect()
         private val clipRect = Rect()
         private val clipRectF = RectF()
-        private val clipPath = Path()
         private val selfLoc = IntArray(2)
         private val keyLoc = IntArray(2)
         private val blurTargetViews = ArrayList<View>(128)
         private val keyClipRects = ArrayList<Rect>(96)
         private val keyClipRadii = ArrayList<Float>(96)
+
+        /**
+         * All key regions of the current frame as a single clip [Path].
+         *
+         * Built by [rebuildKeyRegions]. onDraw used to loop over [keyClipRects] and draw the
+         * whole blurred image once per key — with a capacity of 96 that is nearly a hundred
+         * full-screen drawBitmap/drawRenderNode calls plus a hundred clipPath calls per frame
+         * (see E1). One combined path means one clip and one draw.
+         */
+        private val keyClipPath = Path()
+
+        /** False when [keyClipPath] has no sub-paths, i.e. there is nothing to draw. */
+        private var hasKeyClipPath = false
+
+        /**
+         * True once the "all targets hidden" fallback re-walked the tree; reset as soon as a
+         * visible key is found again, so the walk happens at most once per hidden stretch.
+         */
+        private var retriedTargetCollection = false
+
+        /**
+         * Remaining "no clip rect yet" retries; reset whenever a frame draws normally.
+         *
+         * Replaces the old in-onDraw retry counter, which invalidated the view directly.
+         */
+        private var blurRetriesLeft = MAX_BLUR_RETRIES
         private var blurBitmap: Bitmap? = null
-        private var redrawRetryCount = 0
         private var keyRegionsDirty = true
         private var keyHierarchyDirty = true
         private var hasVisibleKey = false
@@ -206,6 +233,8 @@ class InputView(
             visibility = if (bitmap == null) GONE else VISIBLE
             keyRegionsDirty = true
             keyHierarchyDirty = true
+            retriedTargetCollection = false
+            blurRetriesLeft = MAX_BLUR_RETRIES
             invalidate()
         }
 
@@ -227,7 +256,6 @@ class InputView(
             // No key border => keys have no visible gaps, so use full-layer blur.
             if (!keyBorder) {
                 canvas.drawBitmap(bitmap, srcRect, dstRect, paint)
-                redrawRetryCount = 0
                 return
             }
 
@@ -235,7 +263,6 @@ class InputView(
             if (currentWindow is PickerWindow && currentWindow.key == PickerWindow.Key.Emoji) {
                 // Emoji pager contains large non-key areas; use full-layer blur to avoid transparent gaps.
                 drawFullScreenBlur(canvas, bitmap)
-                redrawRetryCount = 0
                 return
             }
 
@@ -286,14 +313,19 @@ class InputView(
                 }
             }
 
+            // Views are laid out but produced no clip rect yet (a window switch in flight).
+            // Retry through the existing scheduler instead of re-invalidating from inside
+            // onDraw, which drove up to 8 consecutive frames of "full tree walk +
+            // getLocationInWindow per key" (see E3). The counter still has to be bounded:
+            // requestBlurRefresh re-arms itself, so an unbounded re-request here would keep the
+            // invalidate/rebuild loop alive for as long as the condition holds.
             if (hasVisibleKey && !drewKeyRegion && keyClipRects.isEmpty()) {
-                if (redrawRetryCount < 8) {
-                    redrawRetryCount++
-                    keyRegionsDirty = true
-                    postInvalidateOnAnimation()
+                if (blurRetriesLeft > 0) {
+                    blurRetriesLeft--
+                    requestBlurRefresh(retryFrames = 1)
                 }
             } else {
-                redrawRetryCount = 0
+                blurRetriesLeft = MAX_BLUR_RETRIES
             }
         }
 
