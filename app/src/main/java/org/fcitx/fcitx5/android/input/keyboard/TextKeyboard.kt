@@ -182,8 +182,29 @@ class TextKeyboard private constructor(
                 }
             }
 
-        // Cache for parsed KeyDef layouts to avoid recreating them on every reloadLayout()
-        private val cachedKeyDefLayouts = mutableMapOf<String, List<List<KeyDef>>>()
+        /**
+         * Maximum number of parsed layouts kept in [cachedKeyDefLayouts].
+         *
+         * Cache keys combine input method, sub mode, showLangSwitch and display-text context,
+         * so the set of distinct keys grows with usage; the map is only cleared wholesale when
+         * the layout file changes. A bound keeps it proportional to what the user actually
+         * switches between, while still covering a normal rotation of layouts.
+         */
+        private const val MAX_CACHED_KEY_DEF_LAYOUTS = 12
+
+        /**
+         * Cache for parsed KeyDef layouts, to avoid recreating them on every reloadLayout().
+         *
+         * Access-ordered and size-bounded: the least recently used layout is evicted, which is
+         * the right policy here because the keyboard keeps returning to the layouts the user
+         * switches between most.
+         */
+        private val cachedKeyDefLayouts =
+            object : LinkedHashMap<String, List<List<KeyDef>>>(16, 0.75f, true) {
+                override fun removeEldestEntry(
+                    eldest: MutableMap.MutableEntry<String, List<List<KeyDef>>>?
+                ): Boolean = size > MAX_CACHED_KEY_DEF_LAYOUTS
+            }
         private var forcedLayoutKey: String? = null
         private val numericOverride = NumericLayoutOverrideController()
         private var numericLayoutFallbackTarget: WeakReference<NumericLayoutFallbackListener>? = null
