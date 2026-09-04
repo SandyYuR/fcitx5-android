@@ -30,7 +30,6 @@
 #include <fcitx-config/iniparser.h>
 
 #include <quickphrase_public.h>
-#include <unicode_public.h>
 #include <clipboard_public.h>
 
 #include "androidaddonloader/androidaddonloader.h"
@@ -83,7 +82,6 @@ public:
         auto &addonMgr = p_instance->addonManager();
         p_frontend = addonMgr.addon("androidfrontend");
         p_quickphrase = addonMgr.addon("quickphrase");
-        p_unicode = addonMgr.addon("unicode");
         p_clipboard = addonMgr.addon("clipboard", true);
         setupCallback(p_frontend);
     }
@@ -349,13 +347,6 @@ public:
         );
     }
 
-    void triggerUnicode() {
-        if (!p_unicode) return;
-        auto *ic = p_frontend->call<fcitx::IAndroidFrontend::activeInputContext>();
-        if (!ic) return;
-        p_unicode->call<fcitx::IUnicode::trigger>(ic);
-    }
-
     void setClipboard(const std::string &string, bool password) {
         if (!p_clipboard) return;
         p_clipboard->call<fcitx::IClipboard::setClipboardV2>("", string, password);
@@ -474,7 +465,6 @@ private:
     std::unique_ptr<fcitx::EventDispatcher> p_dispatcher;
     fcitx::AddonInstance *p_frontend = nullptr;
     fcitx::AddonInstance *p_quickphrase = nullptr;
-    fcitx::AddonInstance *p_unicode = nullptr;
     fcitx::AddonInstance *p_clipboard = nullptr;
 
     void resetGlobalPointers() {
@@ -482,7 +472,6 @@ private:
         p_dispatcher.reset();
         p_frontend = nullptr;
         p_quickphrase = nullptr;
-        p_unicode = nullptr;
         p_clipboard = nullptr;
     }
 };
@@ -979,13 +968,6 @@ JNIEXPORT void JNICALL
 Java_org_fcitx_fcitx5_android_core_Fcitx_triggerQuickPhraseInput(JNIEnv *env, jclass clazz) {
     RETURN_IF_NOT_RUNNING
     Fcitx::Instance().triggerQuickPhrase();
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_org_fcitx_fcitx5_android_core_Fcitx_triggerUnicodeInput(JNIEnv *env, jclass clazz) {
-    RETURN_IF_NOT_RUNNING
-    Fcitx::Instance().triggerUnicode();
 }
 
 extern "C"
