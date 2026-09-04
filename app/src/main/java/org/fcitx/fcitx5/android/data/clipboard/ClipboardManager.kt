@@ -26,6 +26,7 @@ import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.utils.ClipboardSourceDeletionTarget
+import org.fcitx.fcitx5.android.utils.ClipboardUriStore
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore.deleteClipboardSourceFile
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore.normalizeClipboardText
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore.originalClipboardTextOrEmpty
@@ -239,6 +240,30 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         launch { updateItemCount() }
     }
 
+    /**
+     * Close the Room database before its files are overwritten (backup import).
+     *
+     * Without this, Room keeps the old database's file descriptors and page cache while the
+     * importer replaces clbdb (and its -wal/-shm) underneath it, which can leave the
+     * imported database inconsistent with the leftover WAL.
+     */
+    fun closeDatabase() {
+        if (!::clbDb.isInitialized) return
+        runCatching { clbDb.close() }
+            .onFailure { Timber.w(it, "Failed to close clipboard database") }
+    }
+
+    /**
+     * Flush the WAL into the main database file so an export contains a self-consistent
+     * snapshot even though only `clbdb` is copied.
+     */
+    fun checkpointDatabase() {
+        if (!::clbDb.isInitialized) return
+        runCatching {
+            clbDb.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(TRUNCATE)").use { it.moveToFirst() }
+        }.onFailure { Timber.w(it, "Failed to checkpoint clipboard database") }
+    }
+
     suspend fun get(id: Int) = clbDao.get(id)
 
     suspend fun haveUnpinned(category: ClipboardCategory) = when (category) {
@@ -283,6 +308,26 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
             clearLastEntry()
         }
         updateItemCount()
+    }
+
+    /**
+     * Drop media entries whose staged cache file was just evicted. Their FileProvider URI is
+     * dead, so keeping them only produces broken thumbnails and failed pastes.
+     */
+    private suspend fun removeEntriesForEvictedFiles(evicted: List<java.io.File>) {
+        if (evicted.isEmpty()) return
+        val names = evicted.map { it.name }.toSet()
+        val stale = runCatching { clbDao.getAllMediaEntries() }.getOrNull() ?: return
+        val ids = stale.filter { entry ->
+            val last = entry.text.substringAfterLast('/').substringBefore('?')
+            last in names
+        }.map { it.id }
+        if (ids.isEmpty()) return
+        clbDao.markAsDeleted(*ids.toIntArray())
+        clbDao.realDelete()
+        if (lastEntry?.id in ids) clearLastEntry()
+        updateItemCount()
+        Timber.d("Dropped ${ids.size} clipboard entries whose staged file was evicted")
     }
 
     suspend fun deleteAll(category: ClipboardCategory, skipPinned: Boolean = true): IntArray {
