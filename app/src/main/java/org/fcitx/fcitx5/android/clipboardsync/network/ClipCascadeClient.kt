@@ -485,13 +485,36 @@ class ClipCascadeClient(
     private class MemoryCookieJar : CookieJar {
         private val store = ConcurrentHashMap<String, List<Cookie>>()
 
+        /**
+         * Merge by cookie name.
+         *
+         * This used to replace the host's whole cookie list, so any response carrying a single
+         * cookie dropped JSESSIONID — the session was lost and the client reconnected in a loop
+         * (see G2). Expired cookies are dropped rather than stored.
+         */
         override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-            store[url.host] = cookies
+            if (cookies.isEmpty()) return
+            store.compute(url.host) { _, existing ->
+                val merged = LinkedHashMap<String, Cookie>()
+                existing?.forEach { merged[it.name] = it }
+                val now = System.currentTimeMillis()
+                cookies.forEach { cookie ->
+                    if (cookie.expiresAt <= now) {
+                        // A "delete this cookie" response; honour it instead of storing a
+                        // cookie that loadForRequest would then have to filter out forever.
+                        merged.remove(cookie.name)
+                    } else {
+                        merged[cookie.name] = cookie
+                    }
+                }
+                merged.values.toList()
+            }
         }
 
         override fun loadForRequest(url: HttpUrl): List<Cookie> {
+            val now = System.currentTimeMillis()
             return store[url.host].orEmpty()
-                .filter { cookie -> cookie.matches(url) }
+                .filter { cookie -> cookie.expiresAt > now && cookie.matches(url) }
         }
     }
 }
