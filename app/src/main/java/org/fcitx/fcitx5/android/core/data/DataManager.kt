@@ -4,21 +4,14 @@
  */
 package org.fcitx.fcitx5.android.core.data
 
-import android.annotation.SuppressLint
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.os.Build
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.core.data.DataManager.dataDir
-import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.utils.FileUtil
-import org.fcitx.fcitx5.android.utils.PackageSignatures
 import org.fcitx.fcitx5.android.utils.appContext
-import org.fcitx.fcitx5.android.utils.isJavaIdentifier
-import org.xmlpull.v1.XmlPullParser
 import timber.log.Timber
 import java.io.File
 import java.util.concurrent.locks.ReentrantLock
@@ -31,13 +24,6 @@ import kotlin.concurrent.withLock
  */
 object DataManager {
 
-    data class PluginSet(
-        val loaded: Set<PluginDescriptor>,
-        val failed: Map<String, PluginLoadFailed>
-    )
-
-    const val PLUGIN_INTENT = "${BuildConfig.APPLICATION_ID}.plugin.MANIFEST"
-    private const val BUILTIN_ALLOWED_PLUGIN_PREFIX = "org.fcitx.fcitx5.android"
 
     private val lock = ReentrantLock()
 
@@ -71,14 +57,6 @@ object DataManager {
             .let { deserializeDataDescriptor(it) }
     }
 
-    private val loadedPlugins = mutableSetOf<PluginDescriptor>()
-    private val failedPlugins = mutableMapOf<String, PluginLoadFailed>()
-
-    fun getLoadedPlugins(): Set<PluginDescriptor> = loadedPlugins
-    fun getFailedPlugins(): Map<String, PluginLoadFailed> = failedPlugins
-
-    fun getSyncedPluginSet() = PluginSet(loadedPlugins.toSet(), failedPlugins.toMap())
-
     /**
      * Will be cleared after each sync
      */
@@ -86,161 +64,8 @@ object DataManager {
 
     fun addOnNextSyncedCallback(block: () -> Unit) =
         callbacks.add(block)
-
-    fun detectPlugins(): PluginSet {
-        val toLoad = mutableSetOf<PluginDescriptor>()
-        val preloadFailed = mutableMapOf<String, PluginLoadFailed>()
-
-        val pm = appContext.packageManager
-
-        // Query both current app's plugins and original Fcitx5 Android plugins
-        val pluginPackages = mutableSetOf<String>()
-        
-        // Query for current app's plugins
-        val currentPluginIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.queryIntentActivities(
-                Intent(PLUGIN_INTENT),
-                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong())
-            )
-        } else {
-            pm.queryIntentActivities(Intent(PLUGIN_INTENT), PackageManager.MATCH_ALL)
-        }.map { it.activityInfo.packageName }
-        
-        // Query for original Fcitx5 Android plugins
-        val originalPluginIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.queryIntentActivities(
-                Intent(BuildConfig.ORIGINAL_PLUGIN_MANIFEST_ACTION),
-                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong())
-            )
-        } else {
-            pm.queryIntentActivities(Intent(BuildConfig.ORIGINAL_PLUGIN_MANIFEST_ACTION), PackageManager.MATCH_ALL)
-        }.map { it.activityInfo.packageName }
-
-        // Query for original Fcitx5 Android debug plugins
-        val originalDebugPluginIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.queryIntentActivities(
-                Intent(BuildConfig.ORIGINAL_DEBUG_PLUGIN_MANIFEST_ACTION),
-                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong())
-            )
-        } else {
-            pm.queryIntentActivities(Intent(BuildConfig.ORIGINAL_DEBUG_PLUGIN_MANIFEST_ACTION), PackageManager.MATCH_ALL)
-        }.map { it.activityInfo.packageName }
-        
-        pluginPackages.addAll(currentPluginIntent)
-        pluginPackages.addAll(originalPluginIntent)
-        pluginPackages.addAll(originalDebugPluginIntent)
-
-        val allowThirdParty = AppPrefs.getInstance().advanced.allowOriginalPlugins.getValue()
-        val allowedPrefixes = AppPrefs.getInstance().advanced.allowedPluginPrefixes.getValue() +
-                BUILTIN_ALLOWED_PLUGIN_PREFIX
-        val filteredPluginPackages = pluginPackages.filter { packageName ->
-            if (hasSameSignature(packageName)) {
-                true
-            } else if (allowThirdParty) {
-                allowedPrefixes.any { prefix -> packageMatchesPrefix(packageName, prefix) }
-            } else {
-                false
-            }
-        }.toSet()
-
-        val rejectedPackages = pluginPackages - filteredPluginPackages
-        if (rejectedPackages.isNotEmpty()) {
-            Timber.d("Rejected plugin packages by compatibility policy: ${rejectedPackages.joinToString()}")
-        }
-        Timber.d("Detected plugin packages: ${filteredPluginPackages.joinToString()}")
-
-        // Parse plugin.xml
-        for (packageName in filteredPluginPackages) {
-            val res = pm.getResourcesForApplication(packageName)
-
-            @SuppressLint("DiscouragedApi")
-            val resId = res.getIdentifier("plugin", "xml", packageName)
-            if (resId == 0) {
-                Timber.w("Failed to get the plugin descriptor of $packageName")
-                failedPlugins[packageName] = PluginLoadFailed.MissingPluginDescriptor
-                continue
-            }
-            val parser = res.getXml(resId)
-            var eventType = parser.eventType
-            var domain: String? = null
-            var apiVersion: String? = null
-            var description: String? = null
-            var hasService = false
-            var text: String? = null
-            while ((eventType != XmlPullParser.END_DOCUMENT)) {
-                when (eventType) {
-                    XmlPullParser.TEXT -> text = parser.text
-                    XmlPullParser.END_TAG -> when (parser.name) {
-                        "apiVersion" -> apiVersion = text
-                        "domain" -> domain = text
-                        "description" -> description = text
-                        "hasService" -> hasService = text?.lowercase() == "true"
-                    }
-                }
-                eventType = parser.next()
-            }
-            parser.close()
-
-            if (description?.startsWith("@string/") == true) {
-                // Replace "@string/" with string resource
-                val s = description.substring(8)
-                if (s.isJavaIdentifier()) {
-                    @SuppressLint("DiscouragedApi")
-                    val id = res.getIdentifier(s, "string", packageName)
-                    if (id != 0) description = res.getString(id)
-                }
-            }
-
-            if (apiVersion != null && description != null) {
-                if (PluginDescriptor.pluginAPI == apiVersion) {
-                    val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        pm.getPackageInfo(
-                            packageName,
-                            PackageManager.PackageInfoFlags.of(PackageManager.GET_META_DATA.toLong())
-                        )
-                    } else {
-                        pm.getPackageInfo(packageName, PackageManager.GET_META_DATA)
-                    }
-                    toLoad.add(
-                        PluginDescriptor(
-                            packageName,
-                            apiVersion,
-                            domain,
-                            description,
-                            hasService,
-                            info.versionName ?: "",
-                            info.applicationInfo?.nativeLibraryDir ?: ""
-                        )
-                    )
-                } else {
-                    Timber.w("$packageName's api version [$apiVersion] doesn't match with the current [${PluginDescriptor.pluginAPI}]")
-                    preloadFailed[packageName] = PluginLoadFailed.PluginAPIIncompatible(apiVersion)
-                }
-            } else {
-                Timber.w("Failed to parse plugin descriptor of $packageName")
-                preloadFailed[packageName] = PluginLoadFailed.PluginDescriptorParseError
-            }
-        }
-        return PluginSet(toLoad, preloadFailed)
-    }
-
-    private fun packageMatchesPrefix(packageName: String, prefix: String): Boolean {
-        val normalized = prefix.trim().removeSuffix(".")
-        if (normalized.isEmpty()) return false
-        return packageName == normalized || packageName.startsWith("$normalized.")
-    }
-
-    private fun hasSameSignature(packageName: String): Boolean =
-        PackageSignatures.haveSameSignature(
-            appContext.packageManager,
-            appContext.packageName,
-            packageName
-        )
-
     fun sync() = lock.withLock {
         synced = false
-        loadedPlugins.clear()
-        failedPlugins.clear()
 
         val destDescriptorFile = File(dataDir, BuildConfig.DATA_DESCRIPTOR_NAME)
 
@@ -252,43 +77,12 @@ object DataManager {
         // load app's data descriptor
         val mainDescriptor = appContext.assets.getDataDescriptor()
 
-        val (parsedDescriptors, failed) = detectPlugins()
-        failedPlugins.putAll(failed)
-
-        Timber.d("Plugins to load: $parsedDescriptors")
 
         // Create an empty hierarchy
         val newHierarchy = DataHierarchy()
         // Always add app's first
         newHierarchy.install(mainDescriptor, FileSource.Main)
 
-        val pluginAssets = mutableMapOf<String, AssetManager>()
-
-        // Add plugin's one by one
-        for (plugin in parsedDescriptors) {
-            val pluginContext = appContext.createPackageContext(plugin.packageName, 0)
-            val assets = pluginContext.assets
-            val descriptor = runCatching { assets.getDataDescriptor() }.onFailure {
-                Timber.w("Failed to get or decode data descriptor of '${plugin.name}'")
-                Timber.w(it)
-            }.getOrNull() ?: continue
-            try {
-                newHierarchy.install(descriptor, FileSource.Plugin(plugin))
-            } catch (e: DataHierarchy.PathConflict) {
-                Timber.w("Path '${e.path}' has already been created by '${e.src}', cannot create file")
-                failedPlugins[plugin.packageName] =
-                    PluginLoadFailed.PathConflict(plugin, e.path, e.src)
-                continue
-            } catch (e: DataHierarchy.SymlinkConflict) {
-                Timber.w("Path '${e.path}' has already been created by '${e.src}', cannot create symlink")
-                failedPlugins[plugin.packageName] =
-                    PluginLoadFailed.PathConflict(plugin, e.path, e.src)
-                continue
-            }
-            pluginAssets[plugin.name] = assets
-            loadedPlugins.add(plugin)
-            Timber.d("Merged data hierarchy of ${plugin.name}")
-        }
 
         Timber.d("Hierarchy created")
 
@@ -298,9 +92,7 @@ object DataManager {
             Timber.d("Action: $it")
             when (it) {
                 is FileAction.CreateFile -> {
-                    val assets = if (it.src is FileSource.Plugin)
-                        pluginAssets.getValue(it.src.descriptor.name)
-                    else appContext.assets
+                    val assets = appContext.assets
                     assets.copyFile(it.path)
                 }
                 is FileAction.DeleteDir -> {
@@ -310,9 +102,7 @@ object DataManager {
                     removePath(it.path).getOrThrow()
                 }
                 is FileAction.UpdateFile -> {
-                    val assets = if (it.src is FileSource.Plugin)
-                        pluginAssets.getValue(it.src.descriptor.name)
-                    else appContext.assets
+                    val assets = appContext.assets
                     assets.copyFile(it.path)
                 }
                 is FileAction.CreateSymlink -> {

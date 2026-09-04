@@ -33,18 +33,7 @@
 
     <queries>
         <intent>
-            <action android:name="${applicationId}.plugin.MANIFEST" />
-        </intent>
-        <intent>
             <action android:name="${applicationId}.plugin.VOICE_INPUT" />
-        </intent>
-        <!-- Compatibility with original Fcitx5 Android plugins -->
-        <intent>
-            <action android:name="${originalPluginManifestAction}" />
-        </intent>
-        <!-- Compatibility with original Fcitx5 Android debug plugins -->
-        <intent>
-            <action android:name="${originalDebugPluginManifestAction}" />
         </intent>
         <intent>
             <action android:name="android.view.InputMethod" />
@@ -259,14 +248,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.IPC" />
-            </intent-filter>
-            <!-- Compatibility with original Fcitx5 Android plugins -->
-            <intent-filter>
-                <action android:name="${originalIpcAction}" />
-            </intent-filter>
-            <!-- Compatibility with original Fcitx5 Android debug plugins -->
-            <intent-filter>
-                <action android:name="${originalDebugIpcAction}" />
             </intent-filter>
         </service>
 
