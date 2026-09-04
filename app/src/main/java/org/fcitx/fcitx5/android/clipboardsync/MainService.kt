@@ -27,6 +27,7 @@ import android.util.Base64
 import android.util.Log
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
@@ -1355,10 +1356,11 @@ class MainService : FcitxPluginService() {
         val notification = buildForegroundNotification()
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Must match the manifest declaration, which is dataSync (see C21).
                 startForeground(
                     NOTIFICATION_ID,
                     notification,
-                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
                 )
             } else {
                 startForeground(NOTIFICATION_ID, notification)
@@ -1378,6 +1380,22 @@ class MainService : FcitxPluginService() {
             }
             foregroundActive = false
         }
+    }
+
+    /**
+     * Android 15+ dataSync quota expiry (roughly 6 hours per day).
+     *
+     * Without an override the system throws once the quota runs out. Degrade instead: drop the
+     * foreground state and stop the loops, keeping the process alive so the next IME activation
+     * can start a fresh foreground session (see C21).
+     */
+    @RequiresApi(35)
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        Log.w(TAG, "[Service] Foreground dataSync quota expired (startId=$startId), pausing sync loops")
+        stopPeriodicSync()
+        stopHealthMonitor()
+        stopForegroundState()
+        super.onTimeout(startId, fgsType)
     }
 
     private fun stopForegroundState() {
