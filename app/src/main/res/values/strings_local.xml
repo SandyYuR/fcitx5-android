@@ -159,6 +159,9 @@
     <string name="keep_alive_notification_title">ClipboardSync is syncing in background</string>
     <string name="keep_alive_notification_text">Current server: %1$s</string>
     <string name="keep_alive_notification_text_battery">Current server: %1$s, battery optimization exemption is recommended</string>
+    <string name="keep_alive_notification_state_active">Syncing</string>
+    <string name="keep_alive_notification_state_idle">Idle</string>
+    <string name="keep_alive_notification_state_paused">Paused</string>
     <string name="keep_alive_notification_reconnect">Reconnect</string>
     <string name="keep_alive_notification_pause">Pause</string>
     <string name="keep_alive_notification_capture">Capture and sync</string>
