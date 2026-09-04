@@ -62,6 +62,55 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private val currentTheme: Theme
         get() = ThemeManager.activeTheme
 
+    /**
+     * All view/adapter caches of this window, so they can be dropped together.
+     *
+     * This is a `data object`, i.e. a process-lived singleton, and its views used to be held in
+     * `by lazy` fields. The first InputView to open this panel therefore pinned its whole view
+     * tree — and through each view's themed context, that InputView and the IME service — for the
+     * life of the process, surviving every theme change and rotation (see F3).
+     */
+    private val viewCaches = mutableListOf<ContextScopedCache<*>>()
+
+    /** The context the cached views were built against; see [releaseViewsIfContextChanged]. */
+    private var cachedContext: android.content.Context? = null
+
+    private fun <T : Any> contextScoped(initializer: () -> T): ContextScopedCache<T> =
+        ContextScopedCache(initializer).also { viewCaches.add(it) }
+
+    /**
+     * Drop the cached views when a different InputView asks for this window.
+     *
+     * Called from [onCreateView] only: that is the single point at which a new view tree is
+     * requested, so nothing can be swapped out mid-gesture.
+     */
+    private fun releaseViewsIfContextChanged() {
+        val current = context
+        if (cachedContext === current) return
+        cachedContext = current
+        viewCaches.forEach { it.clear() }
+    }
+
+    private class ContextScopedCache<T : Any>(private val initializer: () -> T) {
+        private var cached: Any? = UNSET
+
+        operator fun getValue(thisRef: Any?, property: kotlin.reflect.KProperty<*>): T {
+            if (cached === UNSET) {
+                cached = initializer()
+            }
+            @Suppress("UNCHECKED_CAST")
+            return cached as T
+        }
+
+        fun clear() {
+            cached = UNSET
+        }
+
+        private companion object {
+            val UNSET = Any()
+        }
+    }
+
     override fun enterAnimation(lastWindow: InputWindow) = null
 
     override fun exitAnimation(nextWindow: InputWindow) = null
@@ -97,7 +146,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private var lastTopScrollerWidth = -1
     private var topBarAtBottom = false
     private val feedbackInterpolator = DecelerateInterpolator(1.6f)
-    private val minWidthPx by lazy { context.dp(40) }
+    private val minWidthPx by contextScoped { context.dp(40) }
     private val topScrollerLayoutListener =
         View.OnLayoutChangeListener { _, _, _, right, _, _, _, oldRight, _ ->
             val newWidth = right
@@ -121,7 +170,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             }
         }
 
-    private val topContainer by lazy {
+    private val topContainer by contextScoped {
         LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = ViewGroup.LayoutParams(
@@ -131,7 +180,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
-    private val topScroller by lazy {
+    private val topScroller by contextScoped {
         HorizontalScrollView(context).apply {
             isHorizontalScrollBarEnabled = false
             overScrollMode = View.OVER_SCROLL_NEVER
@@ -146,7 +195,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
-    private val collapseButton by lazy {
+    private val collapseButton by contextScoped {
         ToolButton(context, R.drawable.ic_baseline_keyboard_arrow_left_24, currentTheme).apply {
             layoutParams = LinearLayout.LayoutParams(
                 context.dp(KawaiiBarComponent.HEIGHT),
@@ -207,7 +256,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         return false
     }
 
-    private val moreButton by lazy {
+    private val moreButton by contextScoped {
         ToolButton(context, R.drawable.ic_baseline_arrow_drop_down_24, currentTheme).apply {
             layoutParams = LinearLayout.LayoutParams(
                 context.dp(KawaiiBarComponent.HEIGHT),
@@ -217,7 +266,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
-    private val topRow by lazy {
+    private val topRow by contextScoped {
         LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = ViewGroup.LayoutParams(
@@ -430,10 +479,10 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
-    private val bottomAdapter by lazy { SectionAdapter(this, Section.Bottom) }
-    private val availableAdapter by lazy { SectionAdapter(this, Section.Available) }
+    private val bottomAdapter by contextScoped { SectionAdapter(this, Section.Bottom) }
+    private val availableAdapter by contextScoped { SectionAdapter(this, Section.Available) }
 
-    private val bottomList by lazy {
+    private val bottomList by contextScoped {
         RecyclerView(context).apply {
             layoutManager = GridLayoutManager(context, 4)
             adapter = bottomAdapter
@@ -443,7 +492,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
-    private val availableList by lazy {
+    private val availableList by contextScoped {
         RecyclerView(context).apply {
             layoutManager = GridLayoutManager(context, 4)
             adapter = availableAdapter
@@ -980,7 +1029,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
-    private val divider by lazy {
+    private val divider by contextScoped {
         View(context).apply {
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, context.dp(1))
             setBackgroundColor(currentTheme.dividerColor)
@@ -988,7 +1037,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
-    private val sectionDivider by lazy {
+    private val sectionDivider by contextScoped {
         View(context).apply {
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, context.dp(1))
             setBackgroundColor(currentTheme.dividerColor)
@@ -996,7 +1045,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
-    private val centerScroll by lazy {
+    private val centerScroll by contextScoped {
         ScrollView(context).apply {
             isFillViewport = true
             overScrollMode = View.OVER_SCROLL_NEVER
@@ -1012,7 +1061,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
-    private val contentContainer by lazy {
+    private val contentContainer by contextScoped {
         LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             addView(topRow)
@@ -1040,7 +1089,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
         }
     }
 
-    private val root by lazy {
+    private val root by contextScoped {
         context.frameLayout {
             background = resolvedBackgroundDrawable(currentTheme)
             add(contentContainer, lParams(matchParent, matchParent))
@@ -1083,6 +1132,9 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     }
 
     override fun onCreateView(): View {
+        // Rebuild against the current InputView rather than reusing a tree built for a previous
+        // one (see F3).
+        releaseViewsIfContextChanged()
         (root.parent as? ViewGroup)?.removeView(root)
         return root
     }
@@ -1125,5 +1177,10 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             saveConfig()
             Toast.makeText(context, R.string.saved, Toast.LENGTH_SHORT).show()
         }
+        // Drop the tree now rather than holding it (and the InputView it was built against)
+        // until this panel is next opened (see F3). The next onCreateView rebuilds it.
+        (root.parent as? ViewGroup)?.removeView(root)
+        viewCaches.forEach { it.clear() }
+        cachedContext = null
     }
 }
