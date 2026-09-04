@@ -169,6 +169,17 @@ abstract class BaseKeyboard(
 
     private val composeAwareKeys = mutableListOf<ComposeAwareKey>()
 
+    /**
+     * Gesture configuration each [KeyView] was *built* with, keyed by the view.
+     *
+     * Needed because [applyBehaviorPopupBindings] replaces `onGestureListener` with a wrapper
+     * that delegates to the previous one. Recovering a "baseline" by reading the view back
+     * therefore captures the wrapper, and every reuse of a cached row wrapped it again — an
+     * unbounded listener chain, with every layer re-running the behavior checks on each move
+     * event. Weak keys so cached-but-discarded rows do not pin their views.
+     */
+    private val gestureBaselines = WeakHashMap<KeyView, GestureBaseline>()
+
     private data class ReusableRows(
         val defs: List<List<KeyDef>>,
         val containers: List<ConstraintLayout>
@@ -360,6 +371,11 @@ abstract class BaseKeyboard(
             built
         }
         lastRowsSignature = rowsSignature
+        // Text scale is applied to KeyViews after they are built, so it is not part of the
+        // row signature. Reusing a cached row set therefore brings back whatever scale those
+        // views were last given: after changing the key text size, switching layouts and back
+        // showed the old size until the next style refresh. Re-apply the current scale here.
+        reapplyTextScale()
 
         val auxBarConfig = auxBarConfig
         if (auxBarConfig != null && auxBarConfig.position != AuxBarPosition.AbovePreedit) {
@@ -2791,6 +2807,7 @@ abstract class BaseKeyboard(
      */
     private fun heldPopupViewIdOtherThan(viewId: Int): Int? {
         touchTargets.values.firstOrNull { it.view.id != viewId }?.let { return it.view.id }
+        if (!::keyRows.isInitialized) return null
         keyRows.forEach { row ->
             row.children.forEach { child ->
                 if (child is KeyView && child.isPressed && child.id != viewId) return child.id
