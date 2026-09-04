@@ -83,8 +83,20 @@ class PopupComponent :
         val popupPresetJson: Map<String, Array<String>>?
             @Synchronized
             get() {
+                // Compare the file stamp *before* reading: readPopupPreset() re-reads and
+                // re-parses the whole preset on every call, and this getter runs on long-press
+                // of every key. Skipping the read when the stamp is unchanged is what makes
+                // the cache actually save the work.
+                val file = org.fcitx.fcitx5.android.input.config.ConfigProviders.provider
+                    .popupPresetFile()
+                if (cachedPopupPreset != null && file != null && file.exists() &&
+                    file.lastModified() == lastModified
+                ) {
+                    return cachedPopupPreset
+                }
                 val snapshot = org.fcitx.fcitx5.android.input.config.ConfigProviders.readPopupPreset<Map<String, List<String>>>() ?: run {
                     cachedPopupPreset = null
+                    lastModified = 0L
                     return null
                 }
                 if (cachedPopupPreset == null || snapshot.lastModified != lastModified) {
