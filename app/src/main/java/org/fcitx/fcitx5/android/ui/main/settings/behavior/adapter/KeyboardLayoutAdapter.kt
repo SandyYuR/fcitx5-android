@@ -445,6 +445,9 @@ class KeyboardLayoutAdapter(
 
         // Add button (same style as other keys)
         val addKeyChip = TextView(context).apply {
+            // Excluded from drag and drop: it has no entry in the layout data, so allowing a
+            // key to be dropped past it produced an index the data layer silently rejected.
+            tag = DraggableFlowLayout.TAG_NOT_DRAGGABLE
             text = "+"
             textSize = 14f
             setTypeface(null, android.graphics.Typeface.BOLD)

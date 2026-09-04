@@ -11,12 +11,35 @@ import kotlin.math.sqrt
 
 /**
  * A FlowLayout that supports dragging child views to reorder them.
+ *
+ * Children tagged with [TAG_NOT_DRAGGABLE] are excluded from both dragging and drop targeting.
+ * The row editor appends a trailing "+" chip that has no counterpart in the data, so treating
+ * it as an ordinary child let the user drag a key past it — the views reordered but the data
+ * layer rejected the out-of-range index, silently reverting on the next bind.
  */
 open class DraggableFlowLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : FlowLayout(context, attrs, defStyleAttr) {
+
+    companion object {
+        /** Tag marking a child that is neither draggable nor a valid drop target. */
+        const val TAG_NOT_DRAGGABLE = "not_draggable"
+    }
+
+    /** True when [view] must be skipped by drag and drop handling. */
+    private fun isDraggableChild(view: View?): Boolean =
+        view != null && view.tag != TAG_NOT_DRAGGABLE
+
+    /**
+     * Number of leading children that participate in reordering.
+     *
+     * Non-draggable children are always appended last, so this is also the exclusive upper
+     * bound for a valid drop index.
+     */
+    private val draggableChildCount: Int
+        get() = (0 until childCount).count { isDraggableChild(getChildAt(it)) }
 
     interface OnDragListener {
         fun onDragStarted(view: View, position: Int)
@@ -66,6 +89,7 @@ open class DraggableFlowLayout @JvmOverloads constructor(
     }
 
     fun startDragForView(view: View) {
+        if (!isDraggableChild(view)) return
         val position = indexOfChild(view)
         if (position != -1 && !isDragging) {
             dragPosition = position
@@ -121,6 +145,9 @@ open class DraggableFlowLayout @JvmOverloads constructor(
     private fun findChildViewUnder(x: Float, y: Float, excludeDragView: Boolean = false): View? {
         for (i in childCount - 1 downTo 0) {
             val child = getChildAt(i)
+            // Skip the "+" chip and anything else marked non-draggable: it must not become a
+            // drag source nor shift positions.
+            if (!isDraggableChild(child)) continue
             if (child != null && child.visibility == View.VISIBLE && !(excludeDragView && child === dragView)) {
                 val isDraggedView = child === dragView && isDraggingInternal
 
@@ -216,7 +243,9 @@ open class DraggableFlowLayout @JvmOverloads constructor(
                     } else {
                         val boundaryPosition = when {
                             ev.rawX < containerLeft -> 0
-                            ev.rawX > containerRight -> childCount
+                            // draggableChildCount, not childCount: dropping "after everything"
+                            // must land before the trailing "+" chip, which has no data slot.
+                            ev.rawX > containerRight -> draggableChildCount
                             else -> -1
                         }
                         if (boundaryPosition != -1 && boundaryPosition != dragPosition) {
@@ -260,6 +289,7 @@ open class DraggableFlowLayout @JvmOverloads constructor(
         for (i in 0 until childCount) {
             val child = getChildAt(i)
             if (child === dragView) continue
+            if (!isDraggableChild(child)) continue
 
             val childCenterY = child.y + child.height / 2
 
@@ -298,6 +328,7 @@ open class DraggableFlowLayout @JvmOverloads constructor(
 
         for (i in 0 until childCount) {
             if (getChildAt(i) === dragView) continue
+            if (!isDraggableChild(getChildAt(i))) continue
 
             val location = IntArray(2)
             getChildAt(i).getLocationOnScreen(location)
@@ -423,6 +454,10 @@ open class DraggableFlowLayout @JvmOverloads constructor(
     
     private fun swapViews(from: Int, to: Int) {
         if (from == to || from < 0 || to < 0 || from >= childCount || to > childCount) return
+        // Never move a non-draggable child, and never move a key past one: the data layer has
+        // no slot beyond the last real key, so such a move only ever desynced views from data.
+        val movable = draggableChildCount
+        if (from >= movable || to > movable) return
 
         val viewToMove = getChildAt(from)
         if (viewToMove != null) {
