@@ -3090,6 +3090,17 @@ class InputView(
         updateKeyboardSize()
     }
 
+    /**
+     * Tear the adjusting panel down without re-measuring the keyboard, for use while this
+     * view is already being detached. [ButtonsAdjustingWindow.onDetached] is what persists
+     * pending reorders, so it must still run.
+     */
+    private fun teardownButtonsAdjustingOverlay() {
+        if (!isButtonsAdjustingOverlayVisible) return
+        ButtonsAdjustingWindow.onDetached()
+        buttonsAdjustingOverlayView.visibility = GONE
+    }
+
     private fun updateKeyboardSize() {
         applyStoredOneHandSideIfNeeded()
 
@@ -3482,6 +3493,10 @@ class InputView(
     }
 
     override fun onDetachedFromWindow() {
+        // The adjusting panel persists its state in onDetached(); this used to be the one
+        // teardown path that never called it, so pending reorders were lost when the IME
+        // view went away without the user collapsing the panel first.
+        teardownButtonsAdjustingOverlay()
         windowManager.onWindowChanged = null
         advancedPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
         keyboardPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
