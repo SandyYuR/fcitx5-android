@@ -323,6 +323,10 @@ abstract class BaseKeyboard(
             add(rippleView, lParams(matchParent, matchParent))
         }
         spaceKeys.clear()
+        // Drop queued recreations *before* releasing touch targets: that release flushes the
+        // queue, and the rows about to be rebuilt (or re-registered) supersede it anyway —
+        // those ComposeAwareKey entries point at views that may leave the tree.
+        pendingComposeRecreations = null
         releaseAllTouchTargets()
         composeAwareKeys.clear()
 
@@ -1249,7 +1253,12 @@ abstract class BaseKeyboard(
             applyBehaviorPopupBindings(u.item.keyView, u.item.baseline, u.activeDef.behaviors, u.activeDef.popup)
         }
 
-        val recreateList = updates.filter { it.needsRecreate }
+        // Never swap out a view that currently has a finger on it: the old instance owns the
+        // in-flight gesture (repeat job, long-press job, popup), and replacing it mid-press
+        // aborts backspace auto-repeat and leaves the popup orphaned. Defer those to the next
+        // UP/CANCEL, which calls flushDeferredComposeRecreations().
+        val recreateList = updates.filter { it.needsRecreate && !isKeyHeld(it.item.keyView) }
+        val deferred = updates.filter { it.needsRecreate && isKeyHeld(it.item.keyView) }
         if (recreateList.isNotEmpty()) {
             val parents = recreateList
                 .mapNotNull { it.item.keyView.parent as? ViewGroup }
@@ -1272,6 +1281,47 @@ abstract class BaseKeyboard(
             applyAppearance(u.item.keyView, u.activeAppearance)
             applyBehaviorPopupBindings(u.item.keyView, u.item.baseline, u.activeDef.behaviors, u.activeDef.popup)
         }
+
+        // Behaviors were already rebound above, so the held key acts on the new composition
+        // state; only the view swap waits.
+        pendingComposeRecreations = deferred.map { it.item }.takeIf { it.isNotEmpty() }
+    }
+
+    /**
+     * True while [view] is under a finger.
+     *
+     * Checks both the custom dispatch map (populated only under the vivo keypress workaround)
+     * and [View.isPressed], which the ordinary touch path maintains.
+     */
+    private fun isKeyHeld(view: KeyView): Boolean =
+        touchTargets.values.any { it.view === view } || view.isPressed
+
+    /**
+     * Recreate compose-aware views whose swap was postponed because the key was being pressed
+     * (see [onCompositionStateChanged]).
+     */
+    private fun flushDeferredComposeRecreations() {
+        val pending = pendingComposeRecreations ?: return
+        // Another finger may still be on one of them (this runs per pointer-up); keep waiting
+        // for those rather than swapping a view out mid-gesture again.
+        val (ready, stillHeld) = pending.partition { !isKeyHeld(it.keyView) }
+        pendingComposeRecreations = stillHeld.takeIf { it.isNotEmpty() }
+        if (ready.isEmpty()) return
+        val parents = ready.mapNotNull { it.keyView.parent as? ViewGroup }.distinct()
+        parents.forEach { it.suppressLayout(true) }
+        try {
+            ready.forEach { item ->
+                val (activeDef, activeAppearance) = resolveComposeActiveDef(item.baseDef)
+                if (shouldRecreateComposeAwareView(item.keyView.def, item.keyView, activeAppearance)) {
+                    recreateComposeAwareKeyView(item, activeDef, activeAppearance)
+                }
+            }
+        } finally {
+            parents.forEach { it.suppressLayout(false) }
+        }
+        keyboardWaterRippleView?.setOccluders(
+            keyRows.flatMap { row -> row.children.mapNotNull { it as? KeyView }.toList() }
+        )
     }
 
     private fun shouldRecreateComposeAwareView(
@@ -1938,6 +1988,7 @@ abstract class BaseKeyboard(
             onPopupAction(PopupAction.DismissAction(keyView.id))
         }
         touchTargets.clear()
+        flushDeferredComposeRecreations()
     }
 
     private fun findTouchTarget(event: MotionEvent, pointerIndex: Int): TouchTarget? {
@@ -1992,6 +2043,16 @@ abstract class BaseKeyboard(
         }
     }
 
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        val handled = super.dispatchTouchEvent(ev)
+        // The ordinary (non-vivo) path never populates touchTargets, so this is where a
+        // deferred compose recreation gets its chance to run once the gesture is over.
+        if (ev.actionMasked == MotionEvent.ACTION_UP || ev.actionMasked == MotionEvent.ACTION_CANCEL) {
+            flushDeferredComposeRecreations()
+        }
+        return handled
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (vivoKeypressWorkaround) {
             when (event.actionMasked) {
@@ -2025,6 +2086,7 @@ abstract class BaseKeyboard(
                     val target = touchTargets[pid] ?: return true
                     dispatchMotionEventToTarget(event, MotionEvent.ACTION_UP, i, target)
                     touchTargets.remove(pid)
+                    if (touchTargets.isEmpty()) flushDeferredComposeRecreations()
                     return true
                 }
                 MotionEvent.ACTION_UP -> {
@@ -2036,6 +2098,7 @@ abstract class BaseKeyboard(
                     }
                     dispatchMotionEventToTarget(event, MotionEvent.ACTION_UP, 0, target)
                     touchTargets.remove(pid)
+                    if (touchTargets.isEmpty()) flushDeferredComposeRecreations()
                     return true
                 }
                 MotionEvent.ACTION_CANCEL -> {

@@ -126,6 +126,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private var candidateEmpty = true
     private var composingState = false
     private var lastAuxActions = emptyList<AuxBarAction>()
+
+    /** Most recent input panel data received via [onInputPanelUpdate]. */
+    private var lastPanelData = FcitxEvent.InputPanelEvent.Data()
     private var latchedLayerKey: String? = null
     private var oneShotLayerKey: String? = null
     private val layerHistory = ArrayDeque<String>()
@@ -300,6 +303,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         // may construct a fresh TextKeyboard whose first layout pass must already see the
         // freshest input method instead of a stale or absent companion mirror.
         val attachIme = fcitx.runImmediately { inputMethodEntryCached }
+        // Seed the panel snapshot once per attach (low frequency, unlike onCandidateUpdate)
+        // so aux actions are correct even before the first InputPanelEvent arrives.
+        lastPanelData = fcitx.runImmediately { inputPanelCached }
         syncCurrentInputMethod(attachIme)
         getOrCreateKeyboard(target)?.let {
             it.keyActionListener = keyActionListener
@@ -712,6 +718,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     override fun onInputPanelUpdate(data: FcitxEvent.InputPanelEvent.Data) {
+        // Keep the raw panel data: onCandidateUpdate re-derives aux actions from it, and
+        // must not block on the fcitx thread to fetch it.
+        lastPanelData = data
         val auxActions = parseAuxActions(data)
         if (auxActions == lastAuxActions) return
         lastAuxActions = auxActions
@@ -721,8 +730,12 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     override fun onCandidateUpdate(data: FcitxEvent.CandidateListEvent.Data) {
         candidateEmpty = data.candidates.isEmpty()
         updateCompositionState()
-        val panelData = fcitx.runImmediately { inputPanelCached }
-        val auxActions = parseAuxActions(panelData)
+        // Use the panel snapshot broadcast to us rather than
+        // `fcitx.runImmediately { inputPanelCached }`: runImmediately is runBlocking on the
+        // fcitx single-thread dispatcher, and this callback fires on every keystroke, so it
+        // stalled the main thread behind whatever fcitx was doing (dictionary lookups,
+        // config reloads) — visible as typing lag and, on slow devices, an ANR.
+        val auxActions = parseAuxActions(lastPanelData)
         if (auxActions != lastAuxActions) {
             lastAuxActions = auxActions
             applyAuxActions(auxActions)

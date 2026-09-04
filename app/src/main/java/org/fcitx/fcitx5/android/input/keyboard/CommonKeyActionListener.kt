@@ -72,15 +72,24 @@ class CommonKeyActionListener :
     private var voiceHoldActive = false
 
     // there should be a new fcitx API for this
+    /**
+     * Commit whatever is being composed before a key that inserts its own text.
+     *
+     * Only an *active composition* is committed. Two problems with keying off the candidate
+     * list instead:
+     * - it was read as `horizontalCandidate.adapter.total`, a RecyclerView adapter, from the
+     *   fcitx dispatcher — a cross-thread read of state the main thread updates;
+     * - in prediction mode the preedit is empty while candidates are still shown (predictions
+     *   for the *previous* commit), so a symbol / quick phrase / unicode key selected one of
+     *   them and inserted a word the user never typed.
+     *
+     * Both go away by asking only about the preedit, which this thread already has cached.
+     */
     private suspend fun FcitxAPI.commitAndReset() {
+        val composing = clientPreeditCached.isNotEmpty() || inputPanelCached.preedit.isNotEmpty()
         if (inputMethodEntryCached.languageCode.startsWith("zh")) {
-            // Chinese: select 1st candidate if available
-            // Check for candidates in prediction mode (preedit empty but candidates available)
-            val hasCandidates = horizontalCandidate.adapter.total > 0
-            if (clientPreeditCached.isNotEmpty() || inputPanelCached.preedit.isNotEmpty() || hasCandidates) {
-                // preedit not empty or prediction candidates available, select the first candidate
-                select(0)
-            }
+            // Chinese: commit the composition by selecting the first candidate.
+            if (composing) select(0)
         } else {
             // Other languages: commit preedit as-is
             service.finishComposing()
@@ -110,12 +119,16 @@ class CommonKeyActionListener :
                 },
                 onPartialResult = {},
                 onError = { msg ->
+                    // The session is over, so a later key release must not try to stop it
+                    // (see VoiceInputHoldEnd).
+                    voiceHoldActive = false
                     VoiceInputProviderManager.voiceErrorCallback?.invoke(msg)
                 },
                 onLevel = { rms ->
                     VoiceInputProviderManager.voiceLevelCallback?.invoke(rms)
                 },
                 onFinished = {
+                    voiceHoldActive = false
                     VoiceInputProviderManager.voiceFinishedCallback?.invoke()
                 },
                 onStatus = { status ->
@@ -233,9 +246,18 @@ class CommonKeyActionListener :
                     }
                 }
                 is VoiceInputHoldEnd -> {
+                    // Releasing the key must stop the session, never start a new one.
+                    //
+                    // switchToVoiceInput() calls toggle(), which starts a session whenever none
+                    // is active. If the session had already ended on its own (silence timeout,
+                    // provider error, commit), voiceHoldActive was still true here, so the
+                    // release *opened a new recording* that nothing would ever stop — the
+                    // microphone stayed on until the process was killed.
                     if (voiceHoldActive) {
-                        switchToVoiceInput()
                         voiceHoldActive = false
+                        if (VoiceInputProviderManager.isActive()) {
+                            switchToVoiceInput()
+                        }
                     }
                 }
                 else -> {}
