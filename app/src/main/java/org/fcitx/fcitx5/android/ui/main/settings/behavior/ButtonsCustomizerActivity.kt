@@ -129,6 +129,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     private val provider: ConfigProvider = ConfigProviders.provider
     private val theme: Theme by lazy { ThemeManager.activeTheme }
 
+    /** Serializer for the draft config stashed in [onSaveInstanceState]. */
+    private val configJson = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+
     // System button configs (not part of the drag-and-drop list)
     private var toolbarToggleConfig: ConfigurableButton = ConfigurableButton("toolbar_toggle")
     private var hideKeyboardConfig: ConfigurableButton = ConfigurableButton("hide_keyboard")
@@ -201,7 +204,30 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         ViewCompat.requestApplyInsets(toolbar)
 
         loadState()
+        // Restore the in-progress edit after a configuration change instead of silently
+        // reverting to what is on disk.
+        savedInstanceState?.let(::restoreDraft)
         buildUi()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        runCatching {
+            outState.putString(STATE_DRAFT_CONFIG, configJson.encodeToString(buildDraftConfig()))
+        }.onFailure { android.util.Log.w(TAG, "Failed to save draft buttons config", it) }
+        outState.putString(STATE_PENDING_MACRO_BUTTON_ID, pendingMacroButtonId)
+        outState.putString(STATE_PENDING_ICON_BUTTON_ID, pendingIconButtonId)
+    }
+
+    private fun restoreDraft(state: Bundle) {
+        pendingMacroButtonId = state.getString(STATE_PENDING_MACRO_BUTTON_ID)
+        pendingIconButtonId = state.getString(STATE_PENDING_ICON_BUTTON_ID)
+        val json = state.getString(STATE_DRAFT_CONFIG) ?: return
+        val draft = runCatching { configJson.decodeFromString<ButtonsLayoutConfig>(json) }
+            .onFailure { android.util.Log.w(TAG, "Failed to restore draft buttons config", it) }
+            .getOrNull() ?: return
+        applyConfigToItems(draft, useThemeToggleMigration = false)
+        // originalItems stays as loaded from disk, so "has unsaved changes" remains correct.
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -227,33 +253,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         // Load unified buttons layout config
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         val config = snapshot?.value ?: ButtonsLayoutConfig.default()
-
-        // Store system button configs
-        toolbarToggleConfig = config.toolbarToggleButton.normalizedIcon()
-        hideKeyboardConfig = config.hideKeyboardButton.normalizedIcon()
-
-        // Build combined list
-        items.clear()
-        // System buttons section (fixed, not draggable)
-        items.add(ListItem.ButtonItem(toolbarToggleConfig, Section.SystemBar))
-        items.add(ListItem.ButtonItem(hideKeyboardConfig, Section.SystemBar))
-        // Kawaii Bar section buttons
-        config.kawaiiBarButtonsWithThemeToggle().forEach { button ->
-            items.add(ListItem.ButtonItem(button, Section.KawaiiBar))
-        }
-        // Add "+" button for Kawaii Bar
-        items.add(ListItem.AddButtonPlaceholder)
-        
-        // Status Area section buttons
-        // Filter out input_method_options as it's always added automatically at the end
-        config.statusAreaButtons.filter { it.id != "input_method_options" }.forEach { button ->
-            items.add(ListItem.ButtonItem(button, Section.StatusArea))
-        }
-        // Add "+" button for Status Area
-        items.add(ListItem.StatusAreaAddButtonPlaceholder)
-
-        updateAddButtonsSection()
-
+        applyConfigToItems(config)
         originalItems = items.toList()
     }
 
@@ -593,7 +593,23 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     // Macro editor launcher
 
     private val macroJson = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
+    /**
+     * In-dialog receiver for a macro edit result.
+     *
+     * Only valid while this Activity instance and its dialog are alive. The result is also
+     * applied straight to [items] via [applyMacroResultToButton] using the button id echoed
+     * back through the Intent, so a result that arrives after the host was recreated (rotation,
+     * process death) is still persisted instead of silently dropped.
+     */
     private var pendingMacroCallback: ((List<MacroStep>?) -> Unit)? = null
+
+    /** Button id whose macro is being edited; survives recreation via onSaveInstanceState. */
+    private var pendingMacroButtonId: String? = null
+
+    /** Button id whose icon is being picked; survives recreation via onSaveInstanceState. */
+    private var pendingIconButtonId: String? = null
+
     private val macroEditorLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -602,9 +618,20 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             val steps = if (json != null) {
                 try { macroJson.decodeFromString<List<MacroStep>>(json) } catch (_: Exception) { null }
             } else null
-            pendingMacroCallback?.invoke(steps ?: MacroEditorActivity.fromStepsExtra(
+            val resolvedSteps = steps ?: MacroEditorActivity.fromStepsExtra(
                 result.data?.serializable<ArrayList<Map<*, *>>>(MacroEditorActivity.EXTRA_MACRO_RESULT)
-            ))
+            )
+            val targetId = result.data?.getStringExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN)
+                ?: pendingMacroButtonId
+            val callback = pendingMacroCallback
+            if (callback != null) {
+                // Dialog is still up: let it update its own draft state.
+                callback.invoke(resolvedSteps)
+            } else if (targetId != null) {
+                // Host was recreated while the editor was open; apply directly.
+                applyMacroResultToButton(targetId, resolvedSteps)
+            }
+            pendingMacroButtonId = null
         }
     }
 
@@ -641,17 +668,41 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 }
                 // Store a portable relative path so the config survives export/import
                 // across build variants with different applicationIds.
-                pendingIconCallback?.invoke("${ButtonIconFile.PREFIX}${ButtonIconFile.DIR}/${destFile.name}")
+                val value = "${ButtonIconFile.PREFIX}${ButtonIconFile.DIR}/${destFile.name}"
+                val callback = pendingIconCallback
+                if (callback != null) {
+                    callback.invoke(value)
+                } else {
+                    // Dialog is gone (host recreated): apply straight to the item list so the
+                    // pick is not silently discarded.
+                    pendingIconButtonId?.let { applyIconToButton(it, value) }
+                }
             } catch (_: Exception) {
                 pendingIconCallback?.invoke(null)
             }
         } else {
             pendingIconCallback?.invoke(null)
         }
+        pendingIconButtonId = null
     }
 
-    private fun openMacroEditor(steps: List<MacroStep>?, callback: (List<MacroStep>?) -> Unit) {
+    /** Apply a picked icon path directly to [items]; see [applyMacroResultToButton]. */
+    private fun applyIconToButton(buttonId: String, iconValue: String) {
+        val index = items.indexOfFirst { it is ListItem.ButtonItem && it.button.id == buttonId }
+        if (index < 0) return
+        val current = items[index] as? ListItem.ButtonItem ?: return
+        items[index] = current.copy(button = current.button.copy(icon = iconValue))
+        adapter?.notifyItemChanged(index)
+        updateSaveButtonState()
+    }
+
+    private fun openMacroEditor(
+        steps: List<MacroStep>?,
+        targetButtonId: String?,
+        callback: (List<MacroStep>?) -> Unit
+    ) {
         pendingMacroCallback = callback
+        pendingMacroButtonId = targetButtonId
         val intent = android.content.Intent(this, MacroEditorActivity::class.java).apply {
             val stepsList = steps ?: emptyList()
             putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS_JSON, macroJson.encodeToString(stepsList))
@@ -659,8 +710,24 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, MacroEditorActivity.toStepsExtra(stepsList))
             putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, getString(R.string.edit_button_macro_event_type))
             putStringArrayListExtra(MacroEditorActivity.EXTRA_LAYOUT_TARGETS, ArrayList(availableLayoutTargets()))
+            // Carried through the result so the edit can be applied even if this Activity is
+            // recreated while the editor is in front (see macroEditorLauncher).
+            targetButtonId?.let { putExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN, it) }
         }
         macroEditorLauncher.launch(intent)
+    }
+
+    /**
+     * Apply a macro edit result directly to [items], for the case where the dialog (and its
+     * callback) no longer exists because this Activity was recreated.
+     */
+    private fun applyMacroResultToButton(buttonId: String, steps: List<MacroStep>?) {
+        val index = items.indexOfFirst { it is ListItem.ButtonItem && it.button.id == buttonId }
+        if (index < 0) return
+        val current = items[index] as? ListItem.ButtonItem ?: return
+        items[index] = current.copy(button = current.button.copy(macroSteps = steps))
+        adapter?.notifyItemChanged(index)
+        updateSaveButtonState()
     }
 
     private fun availableLayoutTargets(): List<String> = runCatching {
@@ -761,6 +828,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                         iconPathText.text = path.removePrefix("file:").takeLast(30)
                     }
                 }
+                // Remember which button this is for, so the picked icon can still be applied
+                // if this Activity is recreated while the document picker is in front.
+                pendingIconButtonId = button.id
                 iconPickerLauncher.launch(arrayOf("image/png", "image/webp", "image/svg+xml", "text/xml", "application/xml"))
             }
         }
@@ -792,7 +862,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 textSize = 12f
                 layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent).apply { topMargin = dp(4) }
                 setOnClickListener {
-                    openMacroEditor(currentSteps) { newSteps ->
+                    openMacroEditor(currentSteps, button.id) { newSteps ->
                         if (newSteps != null) {
                             currentSteps = newSteps.ifEmpty { null }
                             stepsSummaryText.text = stepsSummary()
@@ -880,6 +950,50 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    /** Snapshot of the current (possibly unsaved) edit, for [onSaveInstanceState]. */
+    private fun buildDraftConfig(): ButtonsLayoutConfig {
+        val buttonItems = items.filterIsInstance<ListItem.ButtonItem>()
+        val systemItems = buttonItems.filter { it.section == Section.SystemBar }
+        return ButtonsLayoutConfig(
+            kawaiiBarButtons = buttonItems.filter { it.section == Section.KawaiiBar }.map { it.button },
+            statusAreaButtons = buttonItems.filter { it.section == Section.StatusArea }.map { it.button },
+            toolbarToggleButton = systemItems.find { it.button.id == "toolbar_toggle" }?.button
+                ?: toolbarToggleConfig,
+            hideKeyboardButton = systemItems.find { it.button.id == "hide_keyboard" }?.button
+                ?: hideKeyboardConfig
+        )
+    }
+
+    /**
+     * Rebuild [items] from [config]; shared by initial load and draft restore.
+     *
+     * [useThemeToggleMigration] applies the legacy default back-fill; it is wanted when
+     * loading from disk but not when restoring an in-progress edit, which is already the
+     * effective list.
+     */
+    private fun applyConfigToItems(
+        config: ButtonsLayoutConfig,
+        useThemeToggleMigration: Boolean = true
+    ) {
+        toolbarToggleConfig = config.toolbarToggleButton.normalizedIcon()
+        hideKeyboardConfig = config.hideKeyboardButton.normalizedIcon()
+        items.clear()
+        items.add(ListItem.ButtonItem(toolbarToggleConfig, Section.SystemBar))
+        items.add(ListItem.ButtonItem(hideKeyboardConfig, Section.SystemBar))
+        val kawaiiBarButtons = if (useThemeToggleMigration) {
+            config.kawaiiBarButtonsWithThemeToggle()
+        } else {
+            config.kawaiiBarButtons
+        }
+        kawaiiBarButtons.forEach { items.add(ListItem.ButtonItem(it, Section.KawaiiBar)) }
+        items.add(ListItem.AddButtonPlaceholder)
+        config.statusAreaButtons
+            .filter { it.id != "input_method_options" }
+            .forEach { items.add(ListItem.ButtonItem(it, Section.StatusArea)) }
+        items.add(ListItem.StatusAreaAddButtonPlaceholder)
+        updateAddButtonsSection()
     }
 
     private fun generateCustomButtonId(): String {
@@ -1020,6 +1134,12 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                     // Use empty label, "+" as circle text
                     holder.ui.setButton("", 0, "+")
                     holder.ui.root.setOnClickListener {
+                        // Same reasoning as the ButtonViewHolder click handler: resolve the
+                        // insertion index now, because a drag may have moved this row since
+                        // it was bound.
+                        val insertAt = holder.bindingAdapterPosition
+                            .takeIf { it != RecyclerView.NO_POSITION }
+                            ?: return@setOnClickListener
                         // Show add button dialog
                         val currentIds = items.filterIsInstance<ListItem.ButtonItem>().map { it.button.id }.toSet()
                         val availableIds = availableButtons.filter { button ->
@@ -1043,14 +1163,17 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                                     text = null,
                                     macroSteps = listOf(MacroStep.Text(""))
                                 )
-                                items.add(position, ListItem.ButtonItem(newButton, targetSection))
-                                adapter?.notifyItemInserted(position)
+                                items.add(insertAt, ListItem.ButtonItem(newButton, targetSection))
+                                adapter?.notifyItemInserted(insertAt)
                                 updateAddButtonsSection()
                                 adapter?.notifyDataSetChanged()
                                 updateSaveButtonState()
                                 // Open editor immediately so user can configure
                                 recyclerView.post {
-                                    openButtonEditor(newButton, position, targetSection)
+                                    val editAt = items.indexOfFirst {
+                                        it is ListItem.ButtonItem && it.button.id == customId
+                                    }
+                                    if (editAt >= 0) openButtonEditor(newButton, editAt, targetSection)
                                 }
                             } else {
                                 val buttonDef = availableButtons.find { getString(it.labelRes) == menuItem.title }
@@ -1061,8 +1184,8 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                                         icon = null,
                                         label = null,
                                     )
-                                    items.add(position, ListItem.ButtonItem(newButton, targetSection))
-                                    adapter?.notifyItemInserted(position)
+                                    items.add(insertAt, ListItem.ButtonItem(newButton, targetSection))
+                                    adapter?.notifyItemInserted(insertAt)
                                     updateAddButtonsSection()
                                     adapter?.notifyDataSetChanged()
                                     updateSaveButtonState()
@@ -1115,7 +1238,15 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
                     holder.ui.setButton(label, displayIconRes, previewText, drawable, tintCustomDrawable)
                     holder.ui.root.setOnClickListener {
-                        openButtonEditor(buttonItem.button, position, buttonItem.section)
+                        // Resolve the position when the click happens, not when we bound:
+                        // dragging only calls notifyItemMoved, so RecyclerView moves the view
+                        // without re-binding and a captured `position` goes stale. Editing or
+                        // deleting then landed on a different button.
+                        val livePosition = holder.bindingAdapterPosition
+                        if (livePosition == RecyclerView.NO_POSITION) return@setOnClickListener
+                        val liveItem = items.getOrNull(livePosition) as? ListItem.ButtonItem
+                            ?: return@setOnClickListener
+                        openButtonEditor(liveItem.button, livePosition, liveItem.section)
                     }
                     holder.ui.root.setOnLongClickListener(null)
                 }
@@ -1269,3 +1400,10 @@ class ButtonEntryUi(
 }
 
 private const val MENU_SAVE_ID = 3001
+
+private const val TAG = "ButtonsCustomizer"
+
+/** Bundle key for the unsaved draft config (see onSaveInstanceState). */
+private const val STATE_DRAFT_CONFIG = "draft_buttons_config"
+private const val STATE_PENDING_MACRO_BUTTON_ID = "pending_macro_button_id"
+private const val STATE_PENDING_ICON_BUTTON_ID = "pending_icon_button_id"

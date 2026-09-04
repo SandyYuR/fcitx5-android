@@ -140,6 +140,15 @@ class MacroEditorActivity : AppCompatActivity() {
         const val EXTRA_MACRO_RESULT_JSON = "macro_result_json"
 
         /**
+         * Opaque token identifying what the caller is editing (a button id, a key position…),
+         * echoed back verbatim in the result Intent.
+         *
+         * This lets a caller apply the result after being recreated, instead of relying on a
+         * callback field that dies with the old instance.
+         */
+        const val EXTRA_TARGET_TOKEN = "target_token"
+
+        /**
          * Convert [MacroStep] list to [ArrayList] of [Map] for use as Intent extra.
          */
         fun toStepsExtra(steps: List<MacroStep>): ArrayList<Map<String, Any?>> {
@@ -991,6 +1000,8 @@ class MacroEditorActivity : AppCompatActivity() {
         // Also provide JSON format for reliable deserialization
         val macroSteps = fromStepsExtra(ArrayList(result))
         data.putExtra(EXTRA_MACRO_RESULT_JSON, macroJson.encodeToString(macroSteps))
+        // Echo the caller's token so it can locate the edit target even if it was recreated.
+        intent.getStringExtra(EXTRA_TARGET_TOKEN)?.let { data.putExtra(EXTRA_TARGET_TOKEN, it) }
         setResult(RESULT_OK, data)
         finish()
     }
