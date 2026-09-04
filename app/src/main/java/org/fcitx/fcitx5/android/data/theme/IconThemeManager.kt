@@ -30,9 +30,11 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.utils.appContext
 import timber.log.Timber
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.zip.ZipEntry
@@ -55,6 +57,19 @@ object IconThemeManager {
     }
 
     private val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
+
+    /**
+     * Limits for icon-theme ZIP import (see A6).
+     *
+     * An icon theme is a JSON document plus a handful of small images. These bounds are generous
+     * for a real theme and keep a zip bomb from turning into an OutOfMemoryError, which no
+     * `catch (Exception)` in the import path could contain.
+     */
+    private const val MAX_IMPORT_ARCHIVE_BYTES = 16 * 1024 * 1024
+    private const val MAX_IMPORT_JSON_BYTES = 1024 * 1024
+    private const val MAX_IMPORT_ENTRY_BYTES = 4L * 1024 * 1024
+    private const val MAX_IMPORT_TOTAL_BYTES = 32L * 1024 * 1024
+    private const val MAX_IMPORT_ENTRIES = 256
 
     private val themeDir: File? by lazy {
         val extDir = appContext.getExternalFilesDir(null)
@@ -632,15 +647,78 @@ object IconThemeManager {
      */
     fun importThemeFromZip(src: java.io.InputStream, importedName: String? = null): Result<IconTheme> =
         runCatching {
-            val zipBytes = src.readBytes()
+            // Read the archive once, with a cap. src.readBytes() was unbounded: the sharing path
+            // limits the *compressed* size to 16MB but nothing limited what came out of it, and
+            // an OutOfMemoryError is an Error, so neither this runCatching nor the Activity's
+            // catch(Exception) could contain it (see A6).
+            val zipBytes = src.readAtMost(MAX_IMPORT_ARCHIVE_BYTES) {
+                "Icon theme ZIP exceeds ${MAX_IMPORT_ARCHIVE_BYTES / (1024 * 1024)}MB"
+            }
             val encodings = listOf("UTF-8", "GBK", "Big5")
+            var lastFailure: Throwable? = null
             for (encoding in encodings) {
                 try {
                     return@runCatching importThemeFromZipWithEncoding(zipBytes.inputStream(), encoding, importedName)
-                } catch (_: Exception) { /* try next encoding */ }
+                } catch (t: Throwable) {
+                    // Throwable, not Exception: a malformed archive can surface as an Error, and
+                    // swallowing only Exception let those escape as a process crash (see A6).
+                    lastFailure = t
+                }
             }
-            error("Failed to decode icon theme ZIP with any encoding")
+            throw IllegalArgumentException(
+                "Failed to decode icon theme ZIP with any encoding",
+                lastFailure
+            )
         }
+
+    /**
+     * Read at most [limit] bytes, failing instead of allocating without bound.
+     */
+    private inline fun InputStream.readAtMost(limit: Int, message: () -> String): ByteArray {
+        val buffer = ByteArrayOutputStream()
+        val chunk = ByteArray(DEFAULT_BUFFER_SIZE)
+        var total = 0
+        while (true) {
+            val read = read(chunk)
+            if (read <= 0) break
+            total += read
+            if (total > limit) throw IllegalArgumentException(message())
+            buffer.write(chunk, 0, read)
+        }
+        return buffer.toByteArray()
+    }
+
+    /**
+     * Copy this stream to [target], bounded by both a per-entry and a remaining-total budget.
+     *
+     * @return the number of bytes written
+     */
+    private fun InputStream.copyAtMostTo(
+        target: File,
+        perEntryLimit: Long,
+        remainingTotal: Long
+    ): Long {
+        if (remainingTotal <= 0) {
+            throw IllegalArgumentException(
+                "Icon theme ZIP decompresses to more than ${MAX_IMPORT_TOTAL_BYTES / (1024 * 1024)}MB"
+            )
+        }
+        val limit = minOf(perEntryLimit, remainingTotal)
+        var written = 0L
+        target.outputStream().use { output ->
+            val chunk = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (true) {
+                val read = read(chunk)
+                if (read <= 0) break
+                written += read
+                if (written > limit) {
+                    throw IllegalArgumentException("Icon theme ZIP entry exceeds the allowed size")
+                }
+                output.write(chunk, 0, read)
+            }
+        }
+        return written
+    }
 
     private fun importThemeFromZipWithEncoding(
         src: java.io.InputStream,
@@ -651,22 +729,54 @@ object IconThemeManager {
         val extDir = appContext.getExternalFilesDir(null) ?: appContext.filesDir
         val btnIconsBase = File(extDir, ButtonIconFile.DIR)
 
-        // First pass: extract JSON
+        // Single streaming pass. Every entry used to be fully decompressed into a ByteArray and
+        // accumulated in a list, so a zip bomb decompressed straight into OOM (see A6). Icon
+        // files are now written to a staging directory as they are read, and three limits apply:
+        // entry count, per-entry size and total decompressed size.
         var jsonText: String? = null
-        val pngEntries = mutableListOf<Pair<String, ByteArray>>()
-        ZipInputStream(src, charset).use { zipStream ->
-            var entry = zipStream.nextEntry
-            while (entry != null) {
-                if (!entry.isDirectory) {
-                    val bytes = zipStream.readBytes()
-                    if (entry.name.endsWith(".json")) {
-                        jsonText = bytes.toString(Charsets.UTF_8)
-                    } else {
-                        pngEntries.add(entry.name to bytes)
+        val stagedIcons = mutableListOf<File>()
+        val stagingDir = File(appContext.cacheDir, "icon_theme_import").apply {
+            deleteRecursively()
+            mkdirs()
+        }
+        var entryCount = 0
+        var totalBytes = 0L
+        try {
+            ZipInputStream(src, charset).use { zipStream ->
+                var entry = zipStream.nextEntry
+                while (entry != null) {
+                    if (!entry.isDirectory) {
+                        if (++entryCount > MAX_IMPORT_ENTRIES) {
+                            throw IllegalArgumentException("Icon theme ZIP has more than $MAX_IMPORT_ENTRIES entries")
+                        }
+                        if (entry.name.endsWith(".json")) {
+                            val bytes = zipStream.readAtMost(MAX_IMPORT_JSON_BYTES) {
+                                "Icon theme JSON entry exceeds ${MAX_IMPORT_JSON_BYTES / 1024}KB"
+                            }
+                            totalBytes += bytes.size
+                            jsonText = bytes.toString(Charsets.UTF_8)
+                        } else {
+                            // File name only: an entry called "../../evil.png" must not escape
+                            // the staging directory.
+                            val fileName = FileNames.sanitize(File(entry.name).name)
+                            if (fileName.isNotBlank()) {
+                                val staged = File(stagingDir, fileName)
+                                val written = zipStream.copyAtMostTo(
+                                    staged,
+                                    perEntryLimit = MAX_IMPORT_ENTRY_BYTES,
+                                    remainingTotal = MAX_IMPORT_TOTAL_BYTES - totalBytes
+                                )
+                                totalBytes += written
+                                stagedIcons.add(staged)
+                            }
+                        }
                     }
+                    entry = zipStream.nextEntry
                 }
-                entry = zipStream.nextEntry
             }
+        } catch (t: Throwable) {
+            stagingDir.deleteRecursively()
+            throw t
         }
 
         val rawJson = jsonText ?: throw IllegalArgumentException("No JSON found in icon theme ZIP")
@@ -680,16 +790,20 @@ object IconThemeManager {
         val theme = json.decodeFromString<IconTheme>(normalizedJson)
         val finalName = importedName ?: theme.name
 
-        // Write PNG files to the theme's directory
-        pngEntries.forEach { (entryName, data) ->
+        // Move the staged icons into the theme directory. They are already on disk, so this is a
+        // rename (or a copy across filesystems) rather than another full-size allocation.
+        val pngDir = pngDirForTheme(finalName).apply { mkdirs() }
+        stagedIcons.forEach { staged ->
             runCatching {
-                val fileName = File(entryName).name
-                if (fileName.isBlank()) return@forEach
-                val targetFile = File(pngDirForTheme(finalName), fileName)
-                targetFile.parentFile?.mkdirs()
-                targetFile.writeBytes(data)
-            }.onFailure { Timber.w(it, "Failed to write PNG from ZIP: $entryName") }
+                val targetFile = File(pngDir, staged.name)
+                if (!staged.renameTo(targetFile)) {
+                    staged.inputStream().use { input ->
+                        targetFile.outputStream().use { output -> input.copyTo(output) }
+                    }
+                }
+            }.onFailure { Timber.w(it, "Failed to write icon from ZIP: ${staged.name}") }
         }
+        stagingDir.deleteRecursively()
 
         // Re-resolve file paths in the theme to point to the correct location
         val resolvedIcons = theme.icons.mapValues { (_, value) ->
