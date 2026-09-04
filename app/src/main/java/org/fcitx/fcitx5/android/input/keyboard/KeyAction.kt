@@ -79,8 +79,6 @@ sealed class KeyAction {
 
     data object QuickPhraseAction : KeyAction()
 
-    data object UnicodeAction : KeyAction()
-
     data object LangSwitchAction : KeyAction()
 
     data object ShowInputMethodPickerAction : KeyAction()

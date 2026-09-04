@@ -25,11 +25,8 @@ android {
                     "Fcitx5Utils",
                     // fcitx5 modules
                     "clipboard",
-                    "imselector",
                     "notifications",
-                    "quickphrase",
-                    "spell",
-                    "unicode"
+                    "quickphrase"
                 )
             }
         }
@@ -62,10 +59,6 @@ android {
             libraryName = "libclipboard"
             headers = "$moduleHeadersPrefix/clipboard"
         }
-        create("imselector") {
-            libraryName = "libimselector"
-            // module imselector has no public headers
-        }
         create("notifications") {
             // module notifications is not built since dbus is disabled
             headerOnly = true
@@ -74,14 +67,6 @@ android {
         create("quickphrase") {
             libraryName = "libquickphrase"
             headers = "$moduleHeadersPrefix/quickphrase"
-        }
-        create("spell") {
-            libraryName = "libspell"
-            headers = "$moduleHeadersPrefix/spell"
-        }
-        create("unicode") {
-            libraryName = "libunicode"
-            headers = "$moduleHeadersPrefix/unicode"
         }
     }
 }
