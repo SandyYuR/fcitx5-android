@@ -967,6 +967,17 @@ class LayoutDataManager(private val context: Context) {
         return lastParsedLayoutHeightPercentOverridesLandscape
     }
 
+    /**
+     * Aux bar configuration from the most recent [parseJsonText].
+     *
+     * Needed by callers that parse a document without going through [loadFromFile] — the editor's
+     * saved-instance-state restore does exactly that, and without these two accessors it restored
+     * the keys and the heights but left the aux bar at whatever was on disk (B1).
+     */
+    fun latestParsedLayoutAuxBarConfigs(): Map<String, AuxBarConfig?> = lastParsedLayoutAuxBarConfigs
+
+    fun latestParsedLayoutAuxBarKeys(): Map<String, List<Map<String, Any?>>> = lastParsedLayoutAuxBarKeys
+
     private fun parseLayoutHeightPercent(layoutObject: JsonObject): Int? {
         return parseLayoutHeightPercentMeta(layoutObject, LAYOUT_META_HEIGHT_PERCENT_KEY)
     }
