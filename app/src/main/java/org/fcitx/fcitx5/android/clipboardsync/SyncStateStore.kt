@@ -73,8 +73,11 @@ class SyncStateStore(context: Context) {
                     tmp.delete()
                 }
             }.onFailure { Timber.w(it, "Failed to write sync state: $key") }
-            // Drop the overlay only if no newer write replaced it in the meantime.
-            pending.remove(key, value.orEmpty())
+            // Drop the overlay only if no newer write replaced it in the meantime. Writes are
+            // serialized on this one thread, so comparing against what this call queued is enough.
+            if (pending[key] == value.orEmpty()) {
+                pending.remove(key)
+            }
         }
     }
 

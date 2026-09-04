@@ -354,18 +354,20 @@ class MainService : FcitxPluginService() {
                 }
                 Intent.ACTION_SCREEN_ON -> {
                     scheduleReconnect("screen-on")
-                    // Also the recovery point after a dataSync quota timeout: onTimeout dropped
-                    // the foreground state, and a new 24h window may allow it again.
+                    // Re-acquire the foreground state dropped at screen-off; this is also the
+                    // recovery point after a dataSync quota timeout, since a new 24h window may
+                    // allow it again. startForegroundCompat rebuilds the notification, so the
+                    // state line is current without a separate refresh.
                     updateForegroundState()
-                    refreshForegroundNotification()
                 }
                 Intent.ACTION_USER_PRESENT -> {
                     scheduleReconnect("user-present")
                     updateForegroundState()
-                    refreshForegroundNotification()
                 }
                 PowerManager.ACTION_POWER_SAVE_MODE_CHANGED -> {
                     scheduleReconnect("power-save-mode")
+                    // Power save only changes the cadence, not the foreground state, but it does
+                    // change active <-> idle in the notification text.
                     refreshForegroundNotification()
                 }
             }
@@ -421,11 +423,11 @@ class MainService : FcitxPluginService() {
     override fun start() {
         ensureScope()
         if (serviceRunning) {
+            // This is the path an IME focus change takes (startSyncService / stopSyncService both
+            // end up here), and focus is what flips active <-> idle in the notification;
+            // updateForegroundState rebuilds it.
             updateForegroundState()
             refreshSyncRuntime()
-            // This is the path an IME focus change takes (startSyncService / stopSyncService both
-            // end up here), and focus is what flips active <-> idle in the notification.
-            refreshForegroundNotification()
             ensureRemoteBinding()
             return
         }
@@ -504,7 +506,6 @@ class MainService : FcitxPluginService() {
             updateForegroundState()
             updateScreenshotWatcher()
             refreshSyncRuntime()
-            refreshForegroundNotification()
             if (key == PREF_QUICK_SYNC) {
                 QuickSyncTileService.requestTileRefresh(this)
             }
@@ -1421,11 +1422,19 @@ class MainService : FcitxPluginService() {
     }
 
     private fun updateForegroundState() {
-        if (shouldRunInForeground()) {
-            startForegroundCompat()
-        } else {
+        if (!shouldRunInForeground()) {
             stopForegroundState()
+            return
         }
+        if (foregroundActive) {
+            // Already in the foreground: only the notification text can be stale. Re-posting it
+            // with notify() rather than calling startForeground() again keeps this off the
+            // Android 12+ background-start path, whose failure branch would otherwise clear
+            // foregroundActive for a service that is in fact still in the foreground.
+            refreshForegroundNotification()
+            return
+        }
+        startForegroundCompat()
     }
 
     /**
@@ -2206,16 +2215,17 @@ class MainService : FcitxPluginService() {
     }
 
     private fun persistSuppressedRemoteClipboardContents() {
-        val persistable: List<String>
-        val total: Int
-        synchronized(suppressedRemoteClipboardContents) {
-            persistable = suppressedRemoteClipboardContents.filter { SyncStateStore.isPersistable(it) }
-            total = suppressedRemoteClipboardContents.size
+        // Snapshot inside the lock, filter outside it: the copy is private to this call.
+        val snapshot = synchronized(suppressedRemoteClipboardContents) {
+            suppressedRemoteClipboardContents.toList()
         }
-        if (total > persistable.size) {
+        val persistable = snapshot.filter { SyncStateStore.isPersistable(it) }
+        if (snapshot.size > persistable.size) {
             // An unpersisted suppression means that remote item comes back after a restart.
-            val dropped = total - persistable.size
-            Log.w(TAG, "[State] $dropped suppressed item(s) too large to persist")
+            Log.w(
+                TAG,
+                "[State] ${snapshot.size - persistable.size} suppressed item(s) too large to persist"
+            )
         }
         syncStateStore.write(
             PREF_SUPPRESSED_REMOTE_ITEMS,
