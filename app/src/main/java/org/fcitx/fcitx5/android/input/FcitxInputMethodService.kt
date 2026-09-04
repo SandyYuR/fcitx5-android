@@ -77,6 +77,7 @@ import org.fcitx.fcitx5.android.common.ipc.VoiceInputIpc
 import org.fcitx.fcitx5.android.clipboardsync.MainService
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
+import org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException
 import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
@@ -415,7 +416,16 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
      */
     fun postFcitxJob(block: suspend FcitxAPI.() -> Unit): Job {
         val job = fcitx.lifecycleScope.launch(start = CoroutineStart.LAZY) {
-            fcitx.runOnReady(block)
+            try {
+                fcitx.runOnReady(block)
+            } catch (e: FcitxDisconnectedException) {
+                // The connection went away between queueing and running this job — the service
+                // was destroyed, or fcitx restarted. Since C31 that is an ordinary exception
+                // rather than a CancellationException, so an uncaught one here would reach the
+                // default handler and take the process down instead of being absorbed by
+                // structured concurrency.
+                Timber.d(e, "Dropping queued fcitx job: connection is gone")
+            }
         }
         jobs.trySend(job)
         return job
@@ -503,9 +513,13 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             jobs.consumeEach { it.join() }
         }
         lifecycleScope.launch {
-            fcitx.runImmediately { eventFlow }.collect {
-                handleFcitxEvent(it)
-            }
+            // runImmediately throws FcitxDisconnectedException once this service's connection is
+            // gone (see C31), and this collector lives as long as the service does, so a
+            // disconnect racing onCreate/onDestroy must not become an uncaught exception.
+            runCatching { fcitx.runImmediately { eventFlow } }
+                .onFailure { Timber.d(it, "fcitx event flow unavailable") }
+                .getOrNull()
+                ?.collect { handleFcitxEvent(it) }
         }
         pkgNameCache = PackageNameCache(this)
         recreateInputViewPrefs.forEach {
