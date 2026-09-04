@@ -232,10 +232,14 @@ class DataMigrationManager(
                         val defaultValue = displayText["default"]?.toString()
                         val newValue = specificValue ?: defaultValue
 
-                        if (newValue != null) {
-                            key["displayText"] = newValue
-                        } else {
-                            key.remove("displayText")
+                        when {
+                            newValue != null -> key["displayText"] = newValue
+                            // An empty map carries no information, so drop it.
+                            displayText.isEmpty() -> key.remove("displayText")
+                            // Otherwise the map has entries, just none matching this submode.
+                            // "No value for this context" is not "invalid data": keep the map
+                            // so the user's per-submode texts for other submodes survive.
+                            else -> Unit
                         }
                     }
                 }
