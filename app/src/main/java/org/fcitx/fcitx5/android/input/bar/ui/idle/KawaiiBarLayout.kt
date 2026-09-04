@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.input.bar.ui.idle
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
@@ -106,6 +107,12 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
         isNestedScrollingEnabled = false
         // Ensure RecyclerView can scroll horizontally
         overScrollMode = View.OVER_SCROLL_NEVER
+        // No item animations, as for every other FlexboxLayoutManager-backed list in this
+        // project (PagedCandidatesUi, ExpandedCandidateLayout, HorizontalCandidateComponent,
+        // ClipboardWindow, ButtonsAdjustingWindow all do the same). FlexboxLayoutManager does
+        // not support predictive item animations, so an animated change of a laid-out bar
+        // translates buttons towards positions the animator computed from bad pre-layout info.
+        itemAnimator = null
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -118,20 +125,28 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
      * Decide between even distribution and scroll mode.
      *
      * This is the single owner of that decision. The adapter's onBindViewHolder used to make it
-     * too and then call notifyDataSetChanged() from within bind, re-entering itself and leaving
-     * the current frame with stale widths (see E8). Since bind now only applies widths for the
-     * current mode, a real mode change has to ask for a rebind here.
+     * too and then call notifyDataSetChanged() from *within* bind, re-entering itself and
+     * leaving the current frame with stale widths (see E8). Bind now only derives each button's
+     * width from the current bar width, read-only, so the mode change has to be published here.
+     *
+     * @param alwaysRebind rebind even when the mode is unchanged, for callers that changed
+     *   something else about the buttons (icons, labels, active state).
      */
-    internal fun updateLayoutMode() {
+    @SuppressLint("NotifyDataSetChanged")
+    internal fun updateLayoutMode(alwaysRebind: Boolean = false) {
         val adapter = adapter ?: return
         val childCount = adapter.itemCount
+        if (childCount == 0) return
 
         post {
+            val currentAdapter = this.adapter ?: return@post
+            val currentCount = currentAdapter.itemCount
+            if (currentCount == 0) return@post
             val parentWidth = width
-            if (parentWidth <= 0 || childCount == 0) return@post
+            if (parentWidth <= 0) return@post
 
             // Calculate ideal width for even distribution
-            val idealWidth = kawaiiBarLayout.calculateEvenDistributedWidth(childCount, parentWidth)
+            val idealWidth = kawaiiBarLayout.calculateEvenDistributedWidth(currentCount, parentWidth)
 
             // If ideal width is less than minimum button width, use scroll mode
             val shouldDistribute = idealWidth >= kawaiiBarLayout.minButtonWidth
@@ -146,10 +161,18 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
                 // Enable horizontal scrolling when buttons need more space
                 isHorizontalScrollBarEnabled = true
             }
-            if (modeChanged) {
-                // Widths are per-mode, so every bound button needs re-measuring. Safe here:
-                // this runs from a posted runnable, not from inside a bind.
-                adapter.notifyItemRangeChanged(0, childCount)
+            if (modeChanged || alwaysRebind) {
+                // notifyDataSetChanged, deliberately. FlexboxLayoutManager caches its flex
+                // lines, and an item-change notification does not invalidate that cache: the
+                // children keep the positions computed for the bar's previous measurement, which
+                // after a floating-mode toggle put every button outside the bar. Only a full
+                // "I know nothing" notification makes it discard the views and recompute.
+                //
+                // This is not a hot path: <= ~10 buttons, refreshed on config / icon-theme /
+                // layout-mode changes, never per keystroke. E8 was about the bind-time
+                // re-entrancy and the position-as-viewType bug, both fixed independently.
+                kawaiiBarLayout.requestLayout()
+                currentAdapter.notifyDataSetChanged()
             }
         }
     }
