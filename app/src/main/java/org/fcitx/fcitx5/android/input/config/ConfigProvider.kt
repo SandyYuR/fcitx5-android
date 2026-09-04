@@ -313,12 +313,21 @@ object ConfigProviders {
         if (memoryJson != null) {
             return UserJsonConfigStore.readJson<T>(memoryJson).also { ensureWatching() }
         }
-        // Fallback to file-based reading
-        return UserJsonConfigStore.readJson<T>(provider.textKeyboardLayoutFile()).also { ensureWatching() }
+        // Fallback to file-based reading. stripLineComments matches the editor, which both
+        // accepts and preserves `//` comments (LayoutDataManager.removeJsonComments); without
+        // it a commented layout parses in the editor but silently falls back to the built-in
+        // QWERTY layout on the real keyboard.
+        return UserJsonConfigStore.readJson<T>(
+            provider.textKeyboardLayoutFile(),
+            stripLineComments = true
+        ).also { ensureWatching() }
     }
 
     inline fun <reified T> readPopupPreset(): UserJsonConfigStore.JsonSnapshot<T>? =
-        UserJsonConfigStore.readJson<T>(provider.popupPresetFile()).also { ensureWatching() }
+        UserJsonConfigStore.readJson<T>(
+            provider.popupPresetFile(),
+            stripLineComments = true
+        ).also { ensureWatching() }
 
     /**
      * Read unified buttons layout configuration.

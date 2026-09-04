@@ -11,6 +11,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonPrimitive
+import timber.log.Timber
 import java.io.File
 
 object UserJsonConfigStore {
@@ -21,6 +22,25 @@ object UserJsonConfigStore {
         val file: File?
     )
 
+    /** Details of the most recent config parse failure, for surfacing in the UI. */
+    data class ReadFailure(val fileName: String, val cause: Throwable)
+
+    /**
+     * The most recent parse failure, or null if the last read succeeded. A failed read
+     * returns null and the caller falls back to a built-in default, which used to be
+     * completely silent; keeping the reason here lets callers report it.
+     */
+    @Volatile
+    @PublishedApi
+    internal var lastFailure: ReadFailure? = null
+
+    val lastReadFailure: ReadFailure?
+        get() = lastFailure
+
+    fun clearLastReadFailure() {
+        lastFailure = null
+    }
+
     @PublishedApi
     internal val parser = Json {
         ignoreUnknownKeys = true
@@ -30,8 +50,32 @@ object UserJsonConfigStore {
     @PublishedApi
     internal fun cleanJson(content: String, stripLineComments: Boolean): String {
         if (!stripLineComments) return content
-        return content.replace(Regex("//.*?\\n"), "")
+        return stripLineComments(content)
     }
+
+    /**
+     * Remove `//` line comments from a JSON document.
+     *
+     * Quote-aware: a `//` inside a string literal (a URL, for instance) is left alone, and
+     * escaped quotes do not confuse the string tracking. Line-based so it also handles a
+     * trailing comment on the last line, which a `//.*?\n` regex would miss.
+     */
+    fun stripLineComments(content: String): String =
+        content.lineSequence().joinToString("\n") { line ->
+            var inString = false
+            var index = 0
+            while (index < line.length) {
+                val c = line[index]
+                when {
+                    c == '\\' && inString -> index++ // skip the escaped character
+                    c == '"' -> inString = !inString
+                    !inString && c == '/' && index + 1 < line.length && line[index + 1] == '/' ->
+                        return@joinToString line.substring(0, index)
+                }
+                index++
+            }
+            line
+        }
 
     inline fun <reified T> readJson(
         file: File?,
@@ -41,9 +85,13 @@ object UserJsonConfigStore {
         return try {
             val content = cleanJson(file.readText(), stripLineComments)
             val decoded = parser.decodeFromString<T>(content)
+            lastFailure = null
             JsonSnapshot(decoded, file.lastModified(), file)
         } catch (exception: Exception) {
-            exception.printStackTrace()
+            // Record the failure so callers can tell the user their config could not be
+            // parsed, instead of silently falling back to the built-in layout.
+            lastFailure = ReadFailure(file.name, exception)
+            Timber.w(exception, "Failed to read JSON config: ${file.name}")
             null
         }
     }
@@ -65,7 +113,7 @@ object UserJsonConfigStore {
             val decoded = parser.decodeFromJsonElement<T>(json)
             JsonSnapshot(decoded, System.nanoTime(), null)
         } catch (exception: Exception) {
-            exception.printStackTrace()
+            Timber.w(exception, "Failed to decode in-memory JSON config")
             null
         }
     }
