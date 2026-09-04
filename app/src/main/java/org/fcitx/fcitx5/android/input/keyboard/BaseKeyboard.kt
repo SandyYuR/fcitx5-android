@@ -1969,7 +1969,13 @@ abstract class BaseKeyboard(
             event.metaState, event.xPrecision, event.yPrecision,
             event.deviceId, event.edgeFlags
         )
-        target.view.dispatchTouchEvent(e)
+        try {
+            target.view.dispatchTouchEvent(e)
+        } finally {
+            // obtain() takes an event from a shared pool; return it. With the vivo
+            // workaround this runs once per pressed finger per ACTION_MOVE.
+            e.recycle()
+        }
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
