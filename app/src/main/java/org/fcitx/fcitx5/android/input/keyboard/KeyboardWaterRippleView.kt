@@ -54,6 +54,19 @@ class KeyboardWaterRippleView @JvmOverloads constructor(
         xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     }
 
+    /**
+     * Cached radial gradient, keyed by ripple colour and quantized alpha.
+     *
+     * A new [RadialGradient] per ripple per frame was pure GC churn (see E2). The shader is
+     * built once at [SHADER_UNIT_RADIUS] centred on the origin; the draw transforms the canvas
+     * so one cached instance serves any centre and radius without being mutated.
+     *
+     * Alpha is quantized in [ALPHA_QUANTIZATION_STEP] units: a ripple fades continuously, so an
+     * exact key would never hit. 8 units gives 32 buckets across the fade, which at ~60fps is
+     * finer than one bucket per frame.
+     */
+    private val shaderCache = HashMap<Int, RadialGradient>()
+
     private val ripples = ArrayDeque<RippleState>()
     private var frameScheduled = false
     private var occluders: List<View> = emptyList()
@@ -214,18 +227,18 @@ class KeyboardWaterRippleView @JvmOverloads constructor(
                 continue
             }
 
-            val inner = colorWithAlpha(ripple.color, (alpha * 1.00f).toInt())
-            val mid = colorWithAlpha(ripple.color, (alpha * 0.62f).toInt())
-            val outer = colorWithAlpha(ripple.color, (alpha * 0.12f).toInt())
-            ripplePaint.shader = RadialGradient(
-                ripple.cx,
-                ripple.cy,
-                radius,
-                intArrayOf(inner, mid, outer),
-                floatArrayOf(0f, 0.62f, 1f),
-                Shader.TileMode.CLAMP
-            )
-            canvas.drawCircle(ripple.cx, ripple.cy, radius, ripplePaint)
+            // Cached shader (see E2), positioned by transforming the canvas rather than the
+            // shader: Shader.setLocalMatrix mutates the shared instance and discards its native
+            // counterpart, which would both re-allocate per draw and make a shader reused by two
+            // ripples in the same frame order-dependent. The cached gradient is built at the
+            // origin with SHADER_UNIT_RADIUS, so scaling the canvas lines it up exactly.
+            ripplePaint.shader = obtainRippleShader(ripple.color, alpha)
+            val saveId = canvas.save()
+            canvas.translate(ripple.cx, ripple.cy)
+            val scale = radius / SHADER_UNIT_RADIUS
+            canvas.scale(scale, scale)
+            canvas.drawCircle(0f, 0f, SHADER_UNIT_RADIUS, ripplePaint)
+            canvas.restoreToCount(saveId)
         }
         ripplePaint.shader = null
 
@@ -259,5 +272,46 @@ class KeyboardWaterRippleView @JvmOverloads constructor(
     private fun colorWithAlpha(@ColorInt color: Int, alpha: Int): Int {
         val a = alpha.coerceIn(0, 255)
         return (color and 0x00FFFFFF) or (a shl 24)
+    }
+
+    /**
+     * Gradient for [color] at [alpha], from the cache when possible.
+     *
+     * Built at [SHADER_UNIT_RADIUS] around (0, 0); the caller scales and translates the canvas.
+     */
+    private fun obtainRippleShader(@ColorInt color: Int, alpha: Int): RadialGradient {
+        val maxBucket = 255 / ALPHA_QUANTIZATION_STEP
+        val quantizedAlpha = (alpha / ALPHA_QUANTIZATION_STEP).coerceIn(0, maxBucket)
+        // RGB in the high 24 bits, alpha bucket in the low 8: no collisions.
+        val key = ((color and 0x00FFFFFF) shl 8) or quantizedAlpha
+        shaderCache[key]?.let { return it }
+        val effectiveAlpha = quantizedAlpha * ALPHA_QUANTIZATION_STEP
+        val shader = RadialGradient(
+            0f,
+            0f,
+            SHADER_UNIT_RADIUS,
+            intArrayOf(
+                colorWithAlpha(color, effectiveAlpha),
+                colorWithAlpha(color, (effectiveAlpha * 0.62f).toInt()),
+                colorWithAlpha(color, (effectiveAlpha * 0.12f).toInt())
+            ),
+            floatArrayOf(0f, 0.62f, 1f),
+            Shader.TileMode.CLAMP
+        )
+        // Bounded by construction: a keyboard uses one or two ripple colours, and alpha has
+        // 32 buckets. Clear anyway if a theme somehow produces many colours.
+        if (shaderCache.size >= MAX_CACHED_SHADERS) shaderCache.clear()
+        shaderCache[key] = shader
+        return shader
+    }
+
+    private companion object {
+        /** Radius the cached shaders are built at; scaled per draw. */
+        const val SHADER_UNIT_RADIUS = 256f
+
+        /** Alpha bucket width; 8 gives 32 buckets and no visible banding. */
+        const val ALPHA_QUANTIZATION_STEP = 8
+
+        const val MAX_CACHED_SHADERS = 128
     }
 }
