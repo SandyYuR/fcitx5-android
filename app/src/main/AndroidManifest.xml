@@ -113,22 +113,27 @@
             android:label="@string/edit_monet_theme" />
         <activity
             android:name=".ui.main.settings.behavior.FontsetEditorActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
             android:label="@string/edit_fontset" />
         <activity
             android:name=".ui.main.settings.behavior.PopupEditorActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
             android:label="@string/edit_popup_preset" />
         <activity
             android:name=".ui.main.settings.behavior.TextKeyboardLayoutEditorActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
             android:label="@string/edit_text_keyboard_layout" />
         <activity
             android:name=".ui.main.settings.behavior.dialog.KeyEditorActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
             android:label="@string/edit_text_keyboard_layout" />
         <activity
             android:name=".ui.main.settings.behavior.dialog.MacroEditorActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
             android:label="编辑 Macro" />
         <activity
@@ -177,6 +182,7 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".ui.main.settings.behavior.ButtonsCustomizerActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
             android:label="@string/edit_buttons" />
         <activity

@@ -262,6 +262,10 @@ class KeyEditorActivity : AppCompatActivity() {
 
         readIntentExtras()
         baselineKeySnapshot = snapshotOf(keyData)
+        // Restore the in-progress key edit after a configuration change. readIntentExtras()
+        // has already seeded keyData from the launching Intent, so the draft simply replaces
+        // it; baselineKeySnapshot stays as the original so "has changes" is still correct.
+        savedInstanceState?.let(::restoreDraftKeyData)
 
         val toolbarBaseTopPadding = toolbar.paddingTop
         ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
@@ -939,6 +943,35 @@ class KeyEditorActivity : AppCompatActivity() {
         keyData.clear()
         keyData.putAll(buildDraftKeyData())
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Snapshot the draft (including edits typed into fields) so a rotation does not throw
+        // it away and silently fall back to the values passed in the Intent.
+        runCatching { toSerializableMap(buildDraftKeyData()) }
+            .onSuccess { outState.putSerializable(STATE_DRAFT_KEY_DATA, it) }
+            .onFailure { android.util.Log.w(TAG, "Failed to save draft key data", it) }
+        outState.putString(STATE_PENDING_MACRO_EVENT, pendingMacroEventType)
+    }
+
+    private fun restoreDraftKeyData(state: Bundle) {
+        pendingMacroEventType = state.getString(STATE_PENDING_MACRO_EVENT)
+        val draft = serializableBundleCompat<HashMap<String, Any?>>(state, STATE_DRAFT_KEY_DATA)
+            ?: return
+        keyData = draft.toMutableMap()
+        keyColorOverrides = extractColorOverrides(keyData)
+        selectedType = keyData["type"] as? String ?: selectedType
+        composeOverrideData = (keyData["composeOverride"] as? Map<*, *>)?.let { map ->
+            map.entries.associate { (k, v) -> k.toString() to v }.toMutableMap()
+        }
+        macroTapStepsData = macroStepsOf(keyData["tap"])
+        macroSwipeStepsData = macroStepsOf(keyData["swipe"])
+        macroLongPressStepsData = macroStepsOf(keyData["longPress"])
+        nonMacroSwipeStepsData = macroStepsOf(keyData["swipe"])
+    }
+
+    private fun macroStepsOf(action: Any?): List<Any> =
+        ((action as? Map<*, *>)?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
 
     private fun renderColorEditors() {
         val theme = ThemeManager.activeTheme
@@ -1971,6 +2004,26 @@ class KeyEditorActivity : AppCompatActivity() {
         private const val THEME_COLOR_REF_PREFIX = "theme:"
         private const val MENU_SAVE_ID = 5001
         private const val MENU_DELETE_ID = 5002
+        private const val TAG = "KeyEditor"
+
+        /** Bundle keys for the unsaved draft (see onSaveInstanceState). */
+        private const val STATE_DRAFT_KEY_DATA = "draft_key_data"
+        private const val STATE_PENDING_MACRO_EVENT = "pending_macro_event"
+
+        /** Macro slots, used as the target token passed to (and echoed by) MacroEditorActivity. */
+        private const val SLOT_TAP = "tap"
+        private const val SLOT_SWIPE = "swipe"
+        private const val SLOT_LONG_PRESS = "longPress"
+
+        @Suppress("DEPRECATION")
+        private inline fun <reified T : Serializable> serializableBundleCompat(
+            bundle: Bundle,
+            key: String
+        ): T? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            bundle.getSerializable(key, T::class.java)
+        } else {
+            bundle.getSerializable(key) as? T
+        }
 
         const val EXTRA_KEY_DATA = "key_data"
         const val EXTRA_ROW_INDEX = "row_index"
