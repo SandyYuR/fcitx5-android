@@ -7,7 +7,7 @@
 
 ## 1. 目标形态
 
-1. **单 APK**：`org.fcitx.fcitx5.android.fx` 一个包搞定，不再需要单独安装 rime 插件 APK。
+1. **单 APK**：`org.fcitx.fcitx5.android.fx.rime` 一个包搞定，不再需要单独安装 rime 插件 APK（包名与 fx2 产物 `org.fcitx.fcitx5.android.fx` 刻意区分，便于同一设备共存安装试用）。
 2. **引擎唯一**：fcitx5 核心之上只有 rime addon（librime.a 内置 librime-lua / librime-octagram 八股文 / librime-predict，全部静态编入，随包携带）。
 3. **设置页干净**：拼音词典/码表/自定义短语/标点编辑/其他语言引擎相关页面全部消失；保留 rime 配置（通用 configdesc 渲染）、主题、键盘布局、候选栏等通用项。
 4. **fork 特色不丢**：Kawaii 工具栏、键盘布局编辑器、QR 分享、候选注释独立字体、webeditor 等纯 UI 特性原样保留（与引擎零耦合）。

@@ -9,7 +9,7 @@
 微信赞赏码
 <img width="600" height="600" src="https://github.com/user-attachments/assets/503063b1-4951-4d88-aaa3-463585135233" />
 
-默认通过 `./gradlew :app:assembleDebug` 等常规命令构建的是带 `.fx` 后缀的 fx 变体（包名 `org.fcitx.fcitx5.android.fx`、界面标题携带 `.fx`、APK 文件名体现 `.fx`、主要输出路径为 `app/build/outputs/apk/fx/<buildType>`，数据目录为 `/Android/data/org.fcitx.fcitx5.android.fx/...`）。同时为了兼容常见脚本，构建后会自动同步一份 APK 到 `app/build/outputs/apk/<buildType>`（不含 `fx/` 这一层）。想要生成与主仓命名一致的 mainline 变体时，可加上 `-PincludeMainlineFlavor=true` 并使用对应的 variant，例如：
+默认通过 `./gradlew :app:assembleDebug` 等常规命令构建的是带 `.fx.rime` 后缀的 fx 变体（包名 `org.fcitx.fcitx5.android.fx.rime`、界面标题携带 `.fx.rime`、APK 文件名体现 `.fx.rime`、主要输出路径为 `app/build/outputs/apk/fx/<buildType>`，数据目录为 `/Android/data/org.fcitx.fcitx5.android.fx.rime/...`）。本分支包名与 fx2 分支产物（`org.fcitx.fcitx5.android.fx`）不同，二者可在同一设备上共存安装、互不覆盖；数据目录相互独立，不会自动迁移。同时为了兼容常见脚本，构建后会自动同步一份 APK 到 `app/build/outputs/apk/<buildType>`（不含 `fx/` 这一层）。想要生成与主仓命名一致的 mainline 变体时，可加上 `-PincludeMainlineFlavor=true` 并使用对应的 variant，例如：
 
 ```
 ./gradlew -PincludeMainlineFlavor=true :app:assembleMainlineDebug
