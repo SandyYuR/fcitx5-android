@@ -482,6 +482,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         layoutFile = provider.textKeyboardLayoutFile()
 
         loadState()
+        // Restore an unsaved edit across a configuration change. loadState() has already
+        // read the file, so the draft (if any) simply replaces the in-memory entries.
+        savedInstanceState?.let(::restoreDraftState)
 
         buildSpinner()
         buildSubModeSpinner()
@@ -504,6 +507,41 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 showToast(getString(R.string.text_keyboard_layout_editing_default, layoutName))
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Without this, a rotation re-ran loadState() and silently replaced the user's
+        // unsaved edits with the on-disk file — and because originalEntries was refreshed at
+        // the same time, hasChanges() then reported "no changes" and the discard prompt never
+        // appeared either.
+        runCatching { dataManager.exportCurrentJsonString() }
+            .onSuccess { outState.putString(STATE_DRAFT_LAYOUT_JSON, it) }
+            .onFailure { android.util.Log.w("LayoutEditor", "Failed to save draft layout", it) }
+        outState.putString(STATE_CURRENT_LAYOUT, currentLayout)
+        outState.putString(STATE_PREVIEW_SUBMODE, previewSubModeLabel)
+        outState.putString(STATE_LAYOUT_PROFILE, currentLayoutProfile)
+    }
+
+    private fun restoreDraftState(state: Bundle) {
+        val json = state.getString(STATE_DRAFT_LAYOUT_JSON) ?: return
+        val parsed = runCatching {
+            dataManager.parseJsonText(json, "saved-instance-state", fallbackToDefault = false)
+        }.getOrNull()
+        if (parsed.isNullOrEmpty()) return
+        entries.clear()
+        parsed.toSortedMap().forEach { (k, v) ->
+            entries[k] = v.map { row -> row.map { key -> key.toMutableMap() }.toMutableList() }.toMutableList()
+        }
+        dataManager.layoutHeightPercentOverrides.clear()
+        dataManager.layoutHeightPercentOverrides.putAll(dataManager.latestParsedLayoutHeightPercentOverrides())
+        dataManager.layoutHeightPercentOverridesLandscape.clear()
+        dataManager.layoutHeightPercentOverridesLandscape.putAll(
+            dataManager.latestParsedLayoutHeightPercentOverridesLandscape()
+        )
+        state.getString(STATE_CURRENT_LAYOUT)?.let { if (entries.containsKey(it)) currentLayout = it }
+        previewSubModeLabel = state.getString(STATE_PREVIEW_SUBMODE)
+        // originalEntries stays as loaded from disk so hasChanges() still reflects reality.
     }
 
     override fun onDestroy() {
@@ -3139,6 +3177,12 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         private const val MENU_QR_IMPORT_SCAN_ID = 3008
         private const val MENU_QR_IMPORT_IMAGE_ID = 3009
         private const val FCITX_CONNECTION_NAME = "TextKeyboardLayoutEditorActivity"
+
+        /** Bundle keys for the unsaved draft (see onSaveInstanceState). */
+        private const val STATE_DRAFT_LAYOUT_JSON = "draft_layout_json"
+        private const val STATE_CURRENT_LAYOUT = "current_layout"
+        private const val STATE_PREVIEW_SUBMODE = "preview_submode"
+        private const val STATE_LAYOUT_PROFILE = "layout_profile"
         private const val DIALOG_LABEL_TEXT_SIZE_SP = 13f
         private const val DIALOG_CONTENT_TEXT_SIZE_SP = 14f
     }

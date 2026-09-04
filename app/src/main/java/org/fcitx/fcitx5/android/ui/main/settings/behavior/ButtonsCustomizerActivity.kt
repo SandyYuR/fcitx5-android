@@ -129,6 +129,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     private val provider: ConfigProvider = ConfigProviders.provider
     private val theme: Theme by lazy { ThemeManager.activeTheme }
 
+    /** Serializer for the draft config stashed in [onSaveInstanceState]. */
+    private val configJson = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+
     // System button configs (not part of the drag-and-drop list)
     private var toolbarToggleConfig: ConfigurableButton = ConfigurableButton("toolbar_toggle")
     private var hideKeyboardConfig: ConfigurableButton = ConfigurableButton("hide_keyboard")
@@ -201,7 +204,30 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         ViewCompat.requestApplyInsets(toolbar)
 
         loadState()
+        // Restore the in-progress edit after a configuration change instead of silently
+        // reverting to what is on disk.
+        savedInstanceState?.let(::restoreDraft)
         buildUi()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        runCatching {
+            outState.putString(STATE_DRAFT_CONFIG, configJson.encodeToString(buildDraftConfig()))
+        }.onFailure { android.util.Log.w(TAG, "Failed to save draft buttons config", it) }
+        outState.putString(STATE_PENDING_MACRO_BUTTON_ID, pendingMacroButtonId)
+        outState.putString(STATE_PENDING_ICON_BUTTON_ID, pendingIconButtonId)
+    }
+
+    private fun restoreDraft(state: Bundle) {
+        pendingMacroButtonId = state.getString(STATE_PENDING_MACRO_BUTTON_ID)
+        pendingIconButtonId = state.getString(STATE_PENDING_ICON_BUTTON_ID)
+        val json = state.getString(STATE_DRAFT_CONFIG) ?: return
+        val draft = runCatching { configJson.decodeFromString<ButtonsLayoutConfig>(json) }
+            .onFailure { android.util.Log.w(TAG, "Failed to restore draft buttons config", it) }
+            .getOrNull() ?: return
+        applyConfigToItems(draft, useThemeToggleMigration = false)
+        // originalItems stays as loaded from disk, so "has unsaved changes" remains correct.
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -227,33 +253,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         // Load unified buttons layout config
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         val config = snapshot?.value ?: ButtonsLayoutConfig.default()
-
-        // Store system button configs
-        toolbarToggleConfig = config.toolbarToggleButton.normalizedIcon()
-        hideKeyboardConfig = config.hideKeyboardButton.normalizedIcon()
-
-        // Build combined list
-        items.clear()
-        // System buttons section (fixed, not draggable)
-        items.add(ListItem.ButtonItem(toolbarToggleConfig, Section.SystemBar))
-        items.add(ListItem.ButtonItem(hideKeyboardConfig, Section.SystemBar))
-        // Kawaii Bar section buttons
-        config.kawaiiBarButtonsWithThemeToggle().forEach { button ->
-            items.add(ListItem.ButtonItem(button, Section.KawaiiBar))
-        }
-        // Add "+" button for Kawaii Bar
-        items.add(ListItem.AddButtonPlaceholder)
-        
-        // Status Area section buttons
-        // Filter out input_method_options as it's always added automatically at the end
-        config.statusAreaButtons.filter { it.id != "input_method_options" }.forEach { button ->
-            items.add(ListItem.ButtonItem(button, Section.StatusArea))
-        }
-        // Add "+" button for Status Area
-        items.add(ListItem.StatusAreaAddButtonPlaceholder)
-
-        updateAddButtonsSection()
-
+        applyConfigToItems(config)
         originalItems = items.toList()
     }
 
@@ -882,6 +882,50 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             .show()
     }
 
+    /** Snapshot of the current (possibly unsaved) edit, for [onSaveInstanceState]. */
+    private fun buildDraftConfig(): ButtonsLayoutConfig {
+        val buttonItems = items.filterIsInstance<ListItem.ButtonItem>()
+        val systemItems = buttonItems.filter { it.section == Section.SystemBar }
+        return ButtonsLayoutConfig(
+            kawaiiBarButtons = buttonItems.filter { it.section == Section.KawaiiBar }.map { it.button },
+            statusAreaButtons = buttonItems.filter { it.section == Section.StatusArea }.map { it.button },
+            toolbarToggleButton = systemItems.find { it.button.id == "toolbar_toggle" }?.button
+                ?: toolbarToggleConfig,
+            hideKeyboardButton = systemItems.find { it.button.id == "hide_keyboard" }?.button
+                ?: hideKeyboardConfig
+        )
+    }
+
+    /**
+     * Rebuild [items] from [config]; shared by initial load and draft restore.
+     *
+     * [useThemeToggleMigration] applies the legacy default back-fill; it is wanted when
+     * loading from disk but not when restoring an in-progress edit, which is already the
+     * effective list.
+     */
+    private fun applyConfigToItems(
+        config: ButtonsLayoutConfig,
+        useThemeToggleMigration: Boolean = true
+    ) {
+        toolbarToggleConfig = config.toolbarToggleButton.normalizedIcon()
+        hideKeyboardConfig = config.hideKeyboardButton.normalizedIcon()
+        items.clear()
+        items.add(ListItem.ButtonItem(toolbarToggleConfig, Section.SystemBar))
+        items.add(ListItem.ButtonItem(hideKeyboardConfig, Section.SystemBar))
+        val kawaiiBarButtons = if (useThemeToggleMigration) {
+            config.kawaiiBarButtonsWithThemeToggle()
+        } else {
+            config.kawaiiBarButtons
+        }
+        kawaiiBarButtons.forEach { items.add(ListItem.ButtonItem(it, Section.KawaiiBar)) }
+        items.add(ListItem.AddButtonPlaceholder)
+        config.statusAreaButtons
+            .filter { it.id != "input_method_options" }
+            .forEach { items.add(ListItem.ButtonItem(it, Section.StatusArea)) }
+        items.add(ListItem.StatusAreaAddButtonPlaceholder)
+        updateAddButtonsSection()
+    }
+
     private fun generateCustomButtonId(): String {
         val existingCustomIds = items.filterIsInstance<ListItem.ButtonItem>()
             .map { it.button.id }
@@ -1269,3 +1313,10 @@ class ButtonEntryUi(
 }
 
 private const val MENU_SAVE_ID = 3001
+
+private const val TAG = "ButtonsCustomizer"
+
+/** Bundle key for the unsaved draft config (see onSaveInstanceState). */
+private const val STATE_DRAFT_CONFIG = "draft_buttons_config"
+private const val STATE_PENDING_MACRO_BUTTON_ID = "pending_macro_button_id"
+private const val STATE_PENDING_ICON_BUTTON_ID = "pending_icon_button_id"
