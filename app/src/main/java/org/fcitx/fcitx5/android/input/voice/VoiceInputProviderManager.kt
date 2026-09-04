@@ -903,6 +903,12 @@ object VoiceInputProviderManager {
             startCapture(service, onLevel, onError)
             return
         }
+        // A provider may report onReady more than once for a single session (a retry after a
+        // ready timeout does exactly that). Overwriting the fields without closing the
+        // previous ones left an orphaned channel and a feed coroutine reading from it for the
+        // rest of the process, one pair per duplicate callback.
+        val previousQueue = activeAudioFeedQueue
+        val previousJob = activeAudioFeedJob
         val queue = Channel<QueuedAudio>(capacity = Channel.UNLIMITED)
         val drained: List<QueuedAudio>
         synchronized(preRollLock) {
@@ -910,6 +916,11 @@ object VoiceInputProviderManager {
             drained = preRollBuffer.toList()
             preRollBuffer.clear()
             preRollActive = false
+        }
+        if (previousQueue != null || previousJob != null) {
+            logW("duplicate onReady: closing the previous audio feed")
+            previousQueue?.close()
+            previousJob?.cancel()
         }
         logI("pre-roll flush: packets=${drained.size}")
         drained.forEach { queue.trySend(it) }
@@ -963,6 +974,9 @@ object VoiceInputProviderManager {
     ) {
         if (activeCapture != null) return
         activeProvider ?: return
+        // Same reason as in onProviderReady: never overwrite a live feed without closing it.
+        activeAudioFeedQueue?.close()
+        activeAudioFeedJob?.cancel()
         val audioQueue = Channel<QueuedAudio>(capacity = Channel.UNLIMITED)
         activeAudioFeedQueue = audioQueue
         activeAudioFeedJob = launchAudioFeedJob(service, audioQueue)
