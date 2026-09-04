@@ -12,7 +12,9 @@ import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
@@ -92,18 +94,32 @@ class TokenizedClipboardWindow(
         }
     }.root
 
+    /**
+     * Tokenizing job for the current attach. Tracked so [onDetached] can cancel it: it used
+     * to run on the service scope with no cancellation, so leaving and re-entering the window
+     * stacked up jobs that each pushed their result into an adapter no longer in the layout.
+     */
+    private var tokenizeJob: Job? = null
+
     override fun onAttached() {
         ui.setEmptyState(true, isLoading = true)
-        service.lifecycleScope.launch(Dispatchers.Default) {
-            tokens = ClipboardTextTokenizer.tokenize(sourceText)
-            service.lifecycleScope.launch(Dispatchers.Main) {
-                adapter.submitTokens(tokens)
-                ui.setEmptyState(tokens.isEmpty(), isLoading = false)
+        tokenizeJob?.cancel()
+        tokenizeJob = service.lifecycleScope.launch(Dispatchers.Default) {
+            val result = ClipboardTextTokenizer.tokenize(sourceText)
+            // withContext, not a nested launch: the nested launch escaped this job, so
+            // cancelling it could not stop the UI update.
+            withContext(Dispatchers.Main) {
+                tokens = result
+                adapter.submitTokens(result)
+                ui.setEmptyState(result.isEmpty(), isLoading = false)
             }
         }
     }
 
-    override fun onDetached() = Unit
+    override fun onDetached() {
+        tokenizeJob?.cancel()
+        tokenizeJob = null
+    }
 
     private fun currentSelectionText(): String =
         ClipboardTextTokenizer.joinSelection(sourceText, adapter.selectedTokens())
