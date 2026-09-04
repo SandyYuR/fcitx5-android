@@ -357,7 +357,13 @@ object LayoutJsonUtils {
      */
     fun parseKeyJsonArray(rowArray: JsonArray, showLangSwitch: Boolean = true): List<KeyJson> {
         return rowArray.mapNotNull { element ->
-            val obj = element.jsonObject
+            // A malformed layout row may contain non-object elements (hand-edited or
+            // imported files). Skip them instead of throwing, otherwise every attempt to
+            // show the keyboard crashes. Mirrors parseLayoutRows' editor-side behavior.
+            val obj = element as? JsonObject ?: run {
+                Log.w(TAG, "Skipping non-object key element: " + element::class.simpleName)
+                return@mapNotNull null
+            }
             val type = obj["type"]?.jsonPrimitive?.content ?: ""
             // 如果 showLangSwitch 为 false，跳过 LanguageKey
             if (type == "LanguageKey" && !showLangSwitch) {

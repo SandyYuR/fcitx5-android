@@ -847,11 +847,10 @@ class TextKeyboard private constructor(
                         } else {
                             parseAuxBarKeys(json[baseName])
                         }
-                        cachedAuxBarConfigs[cacheKey] = state.auxBarConfig
                         return cachedKeyDefLayouts.getOrPut(cacheKey) {
                             forcedLayout.map { rowElement ->
                                 LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                    .map {
+                                    .mapNotNull {
                                         LayoutJsonUtils.createKeyDef(
                                             key = it,
                                             subModeLabel = subModeLabel,
@@ -900,11 +899,10 @@ class TextKeyboard private constructor(
                             // Include showLangSwitch in cache key so layout is re-created when setting changes
                             val cacheSubMode = matchedSubModeKey ?: "default"
                             val cacheKey = "$layoutKey:$cacheSubMode:$showLangSwitch:$displayTextContextCacheKey"
-                            cachedAuxBarConfigs[cacheKey] = state.auxBarConfig
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                        .map {
+                                        .mapNotNull {
                                             LayoutJsonUtils.createKeyDef(
                                                 key = it,
                                                 subModeLabel = subModeLabel,
@@ -925,11 +923,10 @@ class TextKeyboard private constructor(
                         val layoutArray = parseLayoutArray(layoutElement)
                         if (layoutArray != null) {
                             val cacheKey = "default:$showLangSwitch:$lastRawModified"
-                            cachedAuxBarConfigs[cacheKey] = state.auxBarConfig
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                        .map { LayoutJsonUtils.createKeyDef(it) }
+                                        .mapNotNull { LayoutJsonUtils.createKeyDef(it) }
                                 }
                             }
                         }
