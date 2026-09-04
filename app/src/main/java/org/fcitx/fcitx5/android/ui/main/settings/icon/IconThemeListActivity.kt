@@ -210,7 +210,9 @@ class IconThemeListActivity : AppCompatActivity() {
             try {
                 val json = LayoutQrTransferCodec.decodeChunksToJson(chunks)
                 importThemeFromJson(json)
-            } catch (_: Exception) {
+            } catch (_: Throwable) {
+                // Throwable, not Exception: a forged/oversized payload can surface as
+                // OutOfMemoryError, which is an Error and would otherwise kill the process.
                 Toast.makeText(
                     this@IconThemeListActivity,
                     getString(R.string.icon_theme_decode_qr_failed),
