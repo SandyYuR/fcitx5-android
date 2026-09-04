@@ -23,14 +23,11 @@ import org.fcitx.fcitx5.android.core.AuxBarAction
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
-import org.fcitx.fcitx5.android.input.config.ConfigProvider
-import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import splitties.dimensions.dp
-import java.io.File
 
 /**
  * Keyboard preview manager, responsible for previewing keyboard layouts.
@@ -41,9 +38,10 @@ import java.io.File
  *
  * How it works:
  * 1. Build in-memory JSON to store current layout
- * 2. Temporarily replace ConfigProvider with PreviewConfigProvider (provides in-memory JSON)
+ * 2. Render inside [TextKeyboard.withPreviewLayout], which makes that JSON the layout source for
+ *    this thread's lookups only — the process-wide ConfigProvider is not touched (see E9)
  * 3. Load TextKeyboard for preview (reads from in-memory JSON, no disk I/O)
- * 4. Restore original ConfigProvider
+ * 4. Preview cache entries are dropped on the way out; the real keyboard's stay
  *
  * Usage example:
  * ```kotlin
@@ -64,6 +62,20 @@ class KeyboardPreviewManager(
     private val previewBlurMask by lazy { PreviewKeyBlurMaskView(context) }
 
     /**
+     * Everything the rendered preview depends on; see the short-circuit in [updatePreview].
+     */
+    private data class PreviewSignature(
+        val layoutName: String,
+        val subModeLabel: String?,
+        val effectiveSubModeKey: String?,
+        val themeName: String,
+        val keyBorder: Boolean,
+        val layoutJson: String
+    )
+
+    private var lastPreviewSignature: PreviewSignature? = null
+
+    /**
      * Update keyboard preview.
      *
      * @param layoutName Layout name
@@ -75,8 +87,6 @@ class KeyboardPreviewManager(
         previewSubModeLabel: String?,
         fcitxConnection: FcitxConnection
     ) {
-        previewContainer.removeAllViews()
-
         // Try to load submode-specific layout first
         val effectiveSubModeKey = resolveEffectiveSubModeKey(layoutName, previewSubModeLabel)
         val effectiveLayoutKey = effectiveSubModeKey ?: layoutName
@@ -84,6 +94,26 @@ class KeyboardPreviewManager(
 
         val theme = ThemeManager.activeTheme
         val keyBorder = ThemeManager.prefs.keyBorder.getValue()
+
+        // Build submode map with all available submodes for this layout
+        val subModeMap = buildSubModeMap(layoutName, effectiveSubModeKey, rows, previewSubModeLabel)
+        val tempJson = JsonObject(mapOf(layoutName to JsonObject(subModeMap)))
+
+        // Nothing that affects the rendering changed, so keep the existing preview. The editor
+        // calls this on every drag step, and each call otherwise rebuilt and re-measured a whole
+        // TextKeyboard (see E9).
+        val signature = PreviewSignature(
+            layoutName = layoutName,
+            subModeLabel = previewSubModeLabel,
+            effectiveSubModeKey = effectiveSubModeKey,
+            themeName = theme.name,
+            keyBorder = keyBorder,
+            layoutJson = tempJson.toString()
+        )
+        if (previewKeyboard != null && signature == lastPreviewSignature) return
+        lastPreviewSignature = signature
+
+        previewContainer.removeAllViews()
         previewContainer.background = theme.backgroundDrawable(keyBorder)
         previewBlurMask.bindKeyboard(null)
 
@@ -93,28 +123,18 @@ class KeyboardPreviewManager(
             previewKeyboard = null
         }
 
-        // Build submode map with all available submodes for this layout
-        val subModeMap = buildSubModeMap(layoutName, effectiveSubModeKey, rows, previewSubModeLabel)
-
-        val tempJson = JsonObject(mapOf(layoutName to JsonObject(subModeMap)))
-
-        // Temporarily replace the layout file and reload
-        val provider = ConfigProviders.provider
-        val tempProvider = PreviewConfigProvider(tempJson, provider)
-
-        ConfigProviders.provider = tempProvider
-        TextKeyboard.clearCachedKeyDefLayouts()
-
+        // Render with the preview JSON as an override rather than assigning
+        // ConfigProviders.provider. That singleton is process-wide, so with the IME service alive
+        // in this process the running keyboard could read the preview layout, and the two
+        // clearCachedKeyDefLayouts() calls threw away the real keyboard's parsed layouts on every
+        // refresh — which happens on every drag step in the editor (see E9).
         try {
-            createKeyboardPreview(layoutName, previewSubModeLabel, effectiveSubModeKey, fcitxConnection)
+            TextKeyboard.withPreviewLayout(tempJson) {
+                createKeyboardPreview(layoutName, previewSubModeLabel, effectiveSubModeKey, fcitxConnection)
+            }
         } catch (e: Exception) {
             android.util.Log.e("KeyboardPreview", "Failed to create keyboard preview for layout: $layoutName, submode: $previewSubModeLabel", e)
             showError(e.message ?: "Unknown error")
-        } finally {
-            // Restore the real layout provider after the preview has been built. The preview
-            // keyboard owns its layout state, so there is no shared IME left to restore.
-            ConfigProviders.provider = provider
-            TextKeyboard.clearCachedKeyDefLayouts()
         }
     }
 
@@ -347,6 +367,8 @@ class KeyboardPreviewManager(
             previewContainer.removeView(it)
             previewKeyboard = null
         }
+        // The next updatePreview must rebuild, not short-circuit against a preview we removed.
+        lastPreviewSignature = null
     }
 
     /**
@@ -376,21 +398,6 @@ class KeyboardPreviewManager(
         return bitmap
     }
 
-    /**
-     * Temporary config provider for preview using in-memory JSON.
-     */
-    private class PreviewConfigProvider(
-        private val tempJson: JsonObject,
-        private val delegate: ConfigProvider
-    ) : ConfigProvider {
-        override fun textKeyboardLayoutFile(): File? = null
-        override fun textKeyboardLayoutJson(): JsonObject = tempJson
-        override fun popupPresetFile(): File? = delegate.popupPresetFile()
-        override fun fontsetFile(): File? = delegate.fontsetFile()
-        override fun buttonsLayoutConfigFile(): File? = delegate.buttonsLayoutConfigFile()
-        override fun writeFontsetPathMap(pathMap: Map<String, List<String>>): Result<File> =
-            delegate.writeFontsetPathMap(pathMap)
-    }
 }
 
 /**
