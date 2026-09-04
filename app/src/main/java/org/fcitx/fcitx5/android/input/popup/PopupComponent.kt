@@ -290,6 +290,10 @@ class PopupComponent :
             if (timeLeft <= 0L) {
                 dismissPopupEntry(viewId, it)
             } else {
+                // Cancel any pending dismiss for this key first: overwriting the map entry
+                // left the previous coroutine running, and it removed the *new* entry after
+                // its own delay, so a later popup for the same key was dismissed early.
+                dismissJobs.remove(viewId)?.cancel()
                 dismissJobs[viewId] = service.lifecycleScope.launch {
                     delay(timeLeft)
                     dismissPopupEntry(viewId, it)
@@ -312,23 +316,27 @@ class PopupComponent :
         freeEntryUi.add(popup)
     }
 
-    fun dismissAll() {
-        // avoid modifying collection while iterating
-        dismissJobs.forEach { (_, job) ->
-            job.cancel()
+    /**
+     * Dismiss every popup except the one belonging to [exceptViewId], if given.
+     *
+     * The exception is needed for multi-touch: pressing a second key must not tear down the
+     * popup keyboard of a key still held under another finger, because its pending selection
+     * is lost and nothing is committed when that finger lifts.
+     */
+    fun dismissAll(exceptViewId: Int? = null) {
+        // Snapshot the ids first: the loops below remove from the same maps.
+        dismissJobs.keys.filterTo(mutableListOf()) { it != exceptViewId }.forEach { viewId ->
+            dismissJobs.remove(viewId)?.cancel()
         }
-        dismissJobs.clear()
-        // too
-        showingContainerUi.forEach { (_, container) ->
-            root.removeView(container.root)
+        showingContainerUi.keys.filterTo(mutableListOf()) { it != exceptViewId }.forEach { viewId ->
+            showingContainerUi.remove(viewId)?.let { root.removeView(it.root) }
         }
-        showingContainerUi.clear()
-        // too too
-        showingEntryUi.forEach { (_, entry) ->
-            root.removeView(entry.root)
-            freeEntryUi.add(entry)
+        showingEntryUi.keys.filterTo(mutableListOf()) { it != exceptViewId }.forEach { viewId ->
+            showingEntryUi.remove(viewId)?.let { entry ->
+                root.removeView(entry.root)
+                freeEntryUi.add(entry)
+            }
         }
-        showingEntryUi.clear()
     }
 
     val listener = PopupActionListener { action ->
@@ -336,7 +344,7 @@ class PopupComponent :
             when (this) {
                 is PopupAction.ChangeFocusAction -> outResult = changeFocus(viewId, x, y)
                 is PopupAction.DismissAction -> dismissPopup(viewId)
-                is PopupAction.DismissAllAction -> dismissAll()
+                is PopupAction.DismissAllAction -> dismissAll(action.exceptViewId)
                 is PopupAction.PreviewAction -> showPopup(viewId, content, bounds)
                 is PopupAction.PreviewUpdateAction -> updatePopup(viewId, content)
                 is PopupAction.ShowKeyboardAction -> showKeyboard(viewId, keyboard, bounds)
