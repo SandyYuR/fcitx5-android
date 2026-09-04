@@ -11,6 +11,7 @@ import android.os.Build
 import android.provider.DocumentsContract
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
@@ -41,12 +42,13 @@ object ClipboardUriStore {
         return if (startsWith("content://") || startsWith("file://")) Uri.parse(this) else null
     }
 
-    fun stageForCommit(context: Context, raw: String): ClipboardSharedContent? {
+    suspend fun stageForCommit(context: Context, raw: String): ClipboardSharedContent? {
         val uri = raw.toClipboardUriOrNull() ?: return null
         return stageForCommit(context, uri)
     }
 
-    fun stageForCommit(context: Context, uri: Uri): ClipboardSharedContent? {
+    /** Staging may retry opening the source, so this is suspend; call it from Dispatchers.IO. */
+    suspend fun stageForCommit(context: Context, uri: Uri): ClipboardSharedContent? {
         val mimeType = resolveMimeType(context, uri)
         if (uri.authority == context.packageName + FILE_PROVIDER_SUFFIX) {
             return ClipboardSharedContent(uri, mimeType)
@@ -76,7 +78,7 @@ object ClipboardUriStore {
         }
     }
 
-    fun normalizeClipboardText(context: Context, raw: String): String {
+    suspend fun normalizeClipboardText(context: Context, raw: String): String {
         return stageForCommit(context, raw)?.uri?.toString() ?: raw
     }
 
@@ -151,11 +153,13 @@ object ClipboardUriStore {
         else -> null
     }
 
-    private fun openInputStreamWithRetry(context: Context, uri: Uri) =
+    private suspend fun openInputStreamWithRetry(context: Context, uri: Uri) =
         (0 until OPEN_RETRY_COUNT).firstNotNullOfOrNull { attempt ->
             val stream = runCatching { openInputStream(context, uri) }.getOrNull()
             if (stream == null && attempt < OPEN_RETRY_COUNT - 1) {
-                Thread.sleep(OPEN_RETRY_DELAY_MS)
+                // delay, not Thread.sleep: with the caller on Dispatchers.IO, sleeping blocks
+                // a shared pool thread for up to 5 x 120ms per failed open.
+                delay(OPEN_RETRY_DELAY_MS)
             }
             stream
         }
