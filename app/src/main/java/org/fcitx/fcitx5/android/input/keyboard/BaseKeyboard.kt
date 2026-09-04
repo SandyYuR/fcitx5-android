@@ -1319,9 +1319,11 @@ abstract class BaseKeyboard(
         } finally {
             parents.forEach { it.suppressLayout(false) }
         }
-        keyboardWaterRippleView?.setOccluders(
-            keyRows.flatMap { row -> row.children.mapNotNull { it as? KeyView }.toList() }
-        )
+        if (::keyRows.isInitialized) {
+            keyboardWaterRippleView?.setOccluders(
+                keyRows.flatMap { row -> row.children.mapNotNull { it as? KeyView }.toList() }
+            )
+        }
     }
 
     private fun shouldRecreateComposeAwareView(
@@ -2766,13 +2768,35 @@ abstract class BaseKeyboard(
         if (action is PopupAction.PreviewAction || action is PopupAction.ShowKeyboardAction ||
             action is PopupAction.ShowLongPressKeyboardAction || action is PopupAction.ShowMenuAction
         ) {
-            dismissAllPopups()
+            // Clear the other popups but keep any belonging to a key still held by another
+            // finger. Dismissing that one discards its pending selection, so with two-finger
+            // typing the character chosen from a popup keyboard was never committed.
+            dismissAllPopups(exceptViewId = heldPopupViewIdOtherThan(action.viewId))
         }
         popupActionListener?.onPopupAction(action)
     }
 
-    private fun dismissAllPopups() {
-        popupActionListener?.onPopupAction(PopupAction.DismissAllAction())
+    private fun dismissAllPopups(exceptViewId: Int? = null) {
+        popupActionListener?.onPopupAction(PopupAction.DismissAllAction(exceptViewId = exceptViewId))
+    }
+
+    /**
+     * Id of a key that is currently pressed and is not [viewId], if any.
+     *
+     * Used to spare that key's popup when another key shows one. Only one id is returned
+     * because a popup keyboard can only be driven by one pointer at a time.
+     *
+     * Uses [View.isPressed] rather than [touchTargets], because the latter is only populated
+     * under the vivo keypress workaround while this race happens on every device.
+     */
+    private fun heldPopupViewIdOtherThan(viewId: Int): Int? {
+        touchTargets.values.firstOrNull { it.view.id != viewId }?.let { return it.view.id }
+        keyRows.forEach { row ->
+            row.children.forEach { child ->
+                if (child is KeyView && child.isPressed && child.id != viewId) return child.id
+            }
+        }
+        return null
     }
 
     private fun onPopupChangeFocus(viewId: Int, x: Float, y: Float): Boolean {
