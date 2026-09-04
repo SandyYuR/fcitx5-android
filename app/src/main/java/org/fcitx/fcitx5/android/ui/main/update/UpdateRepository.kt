@@ -119,11 +119,17 @@ object UpdateRepository {
 
     suspend fun updateHostsMapping(context: Context): Int = withContext(Dispatchers.IO) {
         val config = UpdatePrefs.loadHostsConfig(context)
+        // Require https and a well-formed URL: OkHttp's url() throws IllegalArgumentException
+        // on a scheme-less string, and this response rewrites DNS for update downloads, so it
+        // must not travel in the clear.
+        if (!config.sourceUrl.trim().startsWith("https://")) {
+            throw IOException("Hosts source URL must be an https:// URL")
+        }
         val request = Request.Builder()
-            .url(config.sourceUrl)
+            .url(config.sourceUrl.trim())
             .addHeader("User-Agent", "fcitx5-android-update")
             .build()
-        OkHttpClient().newCall(request).execute().use { response ->
+        sharedClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw IOException("Hosts source request failed: ${response.code}")
             }
@@ -144,27 +150,17 @@ object UpdateRepository {
 
     fun saveHostsSource(context: Context, sourceUrl: String) {
         val config = UpdatePrefs.loadHostsConfig(context)
-        UpdatePrefs.saveHostsConfig(
-            context,
-            config.copy(sourceUrl = sourceUrl.trim())
-        )
+        val trimmed = sourceUrl.trim()
+        if (trimmed == config.sourceUrl) return
+        UpdatePrefs.saveHostsConfig(context, config.copy(sourceUrl = trimmed))
         invalidateReleaseCache()
     }
 
     fun saveHostsEnabled(context: Context, enabled: Boolean) {
         val config = UpdatePrefs.loadHostsConfig(context)
-        UpdatePrefs.saveHostsConfig(
-            context,
-            config.copy(enabled = enabled)
-        )
+        if (enabled == config.enabled) return
+        UpdatePrefs.saveHostsConfig(context, config.copy(enabled = enabled))
         invalidateReleaseCache()
-    }
-
-    /** True when [url] is a syntactically valid absolute http(s) URL. */
-    fun isValidHttpUrl(url: String): Boolean {
-        val trimmed = url.trim()
-        if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) return false
-        return runCatching { URL(trimmed).host.isNotBlank() }.getOrDefault(false)
     }
 
     /**
@@ -182,6 +178,13 @@ object UpdateRepository {
             config.copy(enabled = enabled, sourceUrl = newSource)
         )
         invalidateReleaseCache()
+    }
+
+    /** True when [url] is a syntactically valid absolute http(s) URL. */
+    fun isValidHttpUrl(url: String): Boolean {
+        val trimmed = url.trim()
+        if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) return false
+        return runCatching { URL(trimmed).host.isNotBlank() }.getOrDefault(false)
     }
 
     fun applyMirror(rawUrl: String, mirror: MirrorRule?): String {
@@ -292,8 +295,17 @@ object UpdateRepository {
         return map
     }
 
+    /**
+     * Base client shared by every request from this object, so the connection pool and
+     * dispatcher thread pool are reused instead of rebuilt per call.
+     */
+    private val sharedClient: OkHttpClient by lazy { OkHttpClient() }
+
     private fun clientWithHosts(mapping: Map<String, List<String>>): OkHttpClient {
-        return OkHttpClient.Builder()
+        // No custom mapping: reuse the shared client as-is.
+        if (mapping.isEmpty()) return sharedClient
+        // newBuilder() keeps the shared connection pool and dispatcher.
+        return sharedClient.newBuilder()
             .dns(UpdateHostsDns(mapping))
             .build()
     }
