@@ -36,6 +36,9 @@ class VoiceInputAudioCapture(
         const val DEFAULT_BITS_PER_SAMPLE = 16
         const val DEFAULT_CHANNELS = 1
 
+        /** How long [stop] waits for the recording thread to observe `running = false`. */
+        private const val WORKER_JOIN_TIMEOUT_MS = 300L
+
         fun hasPermission(context: Context): Boolean =
             ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
                 PackageManager.PERMISSION_GRANTED
@@ -106,6 +109,10 @@ class VoiceInputAudioCapture(
                         }
                         continue
                     }
+                    // read() blocks, so running may have been cleared while we waited.
+                    // Re-check before delivering, otherwise audio from a stopped session
+                    // leaks into the next session's pre-roll buffer.
+                    if (!running) break
                     val pts = System.currentTimeMillis() - startedAt
                     onPcm(buf, 0, read, pts)
                     val rms = rmsOf(buf, read)
@@ -127,12 +134,25 @@ class VoiceInputAudioCapture(
         running = false
         val rec = recorder
         recorder = null
-        try { rec?.stop() } catch (_: Exception) {}
-        try { rec?.release() } catch (_: Exception) {}
-        worker?.let {
-            try { it.join(300) } catch (_: InterruptedException) {}
+        try { rec?.stop() } catch (t: Throwable) { Timber.w(t, "AudioRecord.stop() failed") }
+        try { rec?.release() } catch (t: Throwable) { Timber.w(t, "AudioRecord.release() failed") }
+        val thread = worker
+        if (thread != null) {
+            try {
+                thread.join(WORKER_JOIN_TIMEOUT_MS)
+            } catch (t: InterruptedException) {
+                Timber.w(t, "Interrupted while joining capture thread")
+                Thread.currentThread().interrupt()
+            }
+            if (thread.isAlive) {
+                // Keep the reference so a subsequent stop() can join it again; dropping it
+                // here would let a still-running worker keep pushing PCM into the next
+                // session's pre-roll buffer.
+                Timber.w("Capture thread still alive after ${WORKER_JOIN_TIMEOUT_MS}ms join")
+            } else {
+                worker = null
+            }
         }
-        worker = null
     }
 
     private fun rmsOf(buf: ByteArray, len: Int): Int {
