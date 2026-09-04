@@ -127,37 +127,32 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
 
     private fun resetState() {
         touchMovedOutside = false
-        if (longPressEnabled) {
-            longPressTriggered = false
-            longPressJob?.cancel()
-            longPressJob = null
-        }
-        if (repeatEnabled) {
-            repeatStarted = false
-            repeatJob?.cancel()
-            repeatJob = null
-        }
-        if (swipeEnabled) {
-            if (swipeRepeatEnabled) {
-                swipeRepeatTriggered = false
-            }
-            swipeXUnconsumed = 0f
-            swipeYUnconsumed = 0f
-            swipeTotalX = 0
-            swipeTotalY = 0
-            gestureConsumed = false
-        }
+        // Reset unconditionally rather than behind the *Enabled flags: a rebind
+        // (composition-state flip, applyBehaviorPopupBindings) clears those flags first,
+        // so gating on them would leave a running repeatJob spinning forever and
+        // repeatStarted stuck at true, which makes shouldPerformClick permanently false
+        // and the key stop responding to taps.
+        longPressTriggered = false
+        longPressJob?.cancel()
+        longPressJob = null
+        repeatStarted = false
+        repeatJob?.cancel()
+        repeatJob = null
+        swipeRepeatTriggered = false
+        swipeXUnconsumed = 0f
+        swipeYUnconsumed = 0f
+        swipeTotalX = 0
+        swipeTotalY = 0
+        gestureConsumed = false
         // double tap state should be preserved on touch up
     }
 
     fun cancelGestures() {
         isPressed = false
         resetState()
-        // reset double tap state on cancel
-        if (doubleTapEnabled) {
-            maybeDoubleTap = false
-            lastClickTime = 0
-        }
+        // reset double tap state on cancel; unconditional for the same reason as resetState
+        maybeDoubleTap = false
+        lastClickTime = 0
     }
 
     @SuppressLint("ClickableViewAccessibility")
