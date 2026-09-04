@@ -86,6 +86,7 @@ import splitties.views.dsl.core.wrapContent
 import splitties.views.dsl.recyclerview.recyclerView
 import splitties.views.gravityCenter
 import timber.log.Timber
+import java.util.WeakHashMap
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -120,8 +121,13 @@ abstract class BaseKeyboard(
     private val spaceSwipeMoveCursor = prefs.keyboard.spaceSwipeMoveCursor
     private val spaceKeys = mutableListOf<KeyView>()
     private val spaceSwipeChangeListener = ManagedPreference.OnChangeListener<Boolean> { _, v ->
-        spaceKeys.forEach {
-            it.swipeEnabled = v
+        spaceKeys.forEach { keyView ->
+            keyView.swipeEnabled = v
+            // Keep the recorded baseline in step, or the next rebind would restore the old
+            // value from it (see [gestureBaselines]).
+            gestureBaselines[keyView]?.let { baseline ->
+                gestureBaselines[keyView] = baseline.copy(swipeEnabled = v)
+            }
         }
     }
 
@@ -168,6 +174,17 @@ abstract class BaseKeyboard(
     )
 
     private val composeAwareKeys = mutableListOf<ComposeAwareKey>()
+
+    /**
+     * Gesture configuration each [KeyView] was *built* with, keyed by the view.
+     *
+     * Needed because [applyBehaviorPopupBindings] replaces `onGestureListener` with a wrapper
+     * that delegates to the previous one. Recovering a "baseline" by reading the view back
+     * therefore captures the wrapper, and every reuse of a cached row wrapped it again — an
+     * unbounded listener chain, with every layer re-running the behavior checks on each move
+     * event. Weak keys so cached-but-discarded rows do not pin their views.
+     */
+    private val gestureBaselines = WeakHashMap<KeyView, GestureBaseline>()
 
     private data class ReusableRows(
         val defs: List<List<KeyDef>>,
@@ -283,21 +300,31 @@ abstract class BaseKeyboard(
 
         validatedRows.forEach { row ->
             row.forEach { (def, keyView) ->
-                if ((def is SpaceKey || def is MiniSpaceKey) && !spaceKeys.contains(keyView)) {
-                    spaceKeys.add(keyView)
+                if (def is SpaceKey || def is MiniSpaceKey) {
+                    if (!spaceKeys.contains(keyView)) spaceKeys.add(keyView)
+                    // The pref is read once, when the view is built, so a reused row carries
+                    // the value from whenever it was first created: toggling "swipe space to
+                    // move cursor" had no effect on any layout already in the cache until the
+                    // app restarted. Re-apply the current value, and keep the recorded
+                    // baseline in step (see [gestureBaselines]).
+                    keyView.swipeEnabled = spaceSwipeMoveCursor.getValue()
+                    gestureBaselines[keyView]?.let { baseline ->
+                        gestureBaselines[keyView] = baseline.copy(swipeEnabled = keyView.swipeEnabled)
+                    }
                 }
                 if (def.composeOverride != null) {
-                    composeAwareKeys += ComposeAwareKey(
-                        def,
-                        keyView,
-                        GestureBaseline(
-                            swipeEnabled = keyView.swipeEnabled,
-                            swipeRepeatEnabled = keyView.swipeRepeatEnabled,
-                            swipeThresholdX = keyView.swipeThresholdX,
-                            swipeThresholdY = keyView.swipeThresholdY,
-                            onGestureListener = keyView.onGestureListener
-                        )
+                    // Use the baseline recorded when this view was built. Deriving it from the
+                    // view here would capture the *wrapped* gesture listener installed by the
+                    // last applyBehaviorPopupBindings, so each reuse nested another layer and
+                    // the chain grew without bound.
+                    val baseline = gestureBaselines[keyView] ?: GestureBaseline(
+                        swipeEnabled = keyView.swipeEnabled,
+                        swipeRepeatEnabled = keyView.swipeRepeatEnabled,
+                        swipeThresholdX = keyView.swipeThresholdX,
+                        swipeThresholdY = keyView.swipeThresholdY,
+                        onGestureListener = keyView.onGestureListener
                     )
+                    composeAwareKeys += ComposeAwareKey(def, keyView, baseline)
                 }
             }
         }
@@ -367,6 +394,11 @@ abstract class BaseKeyboard(
             built
         }
         lastRowsSignature = rowsSignature
+        // Text scale is applied to KeyViews after they are built, so it is not part of the
+        // row signature. Reusing a cached row set therefore brings back whatever scale those
+        // views were last given: after changing the key text size, switching layouts and back
+        // showed the old size until the next style refresh. Re-apply the current scale here.
+        reapplyTextScale()
 
         val auxBarConfig = auxBarConfig
         if (auxBarConfig != null && auxBarConfig.position != AuxBarPosition.AbovePreedit) {
@@ -1226,6 +1258,9 @@ abstract class BaseKeyboard(
                 swipeThresholdY = swipeThresholdY,
                 onGestureListener = onGestureListener
             )
+            // Record the pre-wrapping configuration before applyBehaviorPopupBindings installs
+            // its wrapper, so a later row reuse can recover the real baseline.
+            gestureBaselines[this] = baseline
             applyAppearance(this, activeAppearance)
             applyBehaviorPopupBindings(this, baseline, activeDef.behaviors, activeDef.popup)
             if (registerComposeAware && def.composeOverride != null) {
@@ -1414,7 +1449,9 @@ abstract class BaseKeyboard(
             parent.addView(newView, index)
         }
         item.keyView = newView
-        item.baseline = GestureBaseline(
+        // createKeyView already recorded the pre-wrapping baseline for newView; prefer it over
+        // reading the view back, which by now may hold a wrapped gesture listener.
+        item.baseline = gestureBaselines[newView] ?: GestureBaseline(
             swipeEnabled = newView.swipeEnabled,
             swipeRepeatEnabled = newView.swipeRepeatEnabled,
             swipeThresholdX = newView.swipeThresholdX,
@@ -2798,6 +2835,7 @@ abstract class BaseKeyboard(
      */
     private fun heldPopupViewIdOtherThan(viewId: Int): Int? {
         touchTargets.values.firstOrNull { it.view.id != viewId }?.let { return it.view.id }
+        if (!::keyRows.isInitialized) return null
         keyRows.forEach { row ->
             row.children.forEach { child ->
                 if (child is KeyView && child.isPressed && child.id != viewId) return child.id
