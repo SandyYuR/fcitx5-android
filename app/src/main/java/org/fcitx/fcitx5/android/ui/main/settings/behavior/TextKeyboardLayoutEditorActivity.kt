@@ -2014,6 +2014,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         if (!hasChanges() && file.exists() && file.length() > 0) {
             return true
         }
+        // The file exists but could not be parsed, so what is in memory is the built-in
+        // preset rather than the user's layout. Saving would overwrite a file that is very
+        // likely still repairable, so ask first instead of doing it silently.
+        (dataManager.lastLoadWarning as? LayoutDataManager.LoadWarning.ParseFailed)?.let { warning ->
+            confirmOverwriteCorruptLayout(warning)
+            return false
+        }
 
         // 验证数据
         val validationErrors = dataManager.validateEntries()
@@ -2812,6 +2819,30 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Warn before a save would replace a layout file that failed to parse (see B5). Choosing
+     * to continue clears the warning so the next save goes through.
+     */
+    private fun confirmOverwriteCorruptLayout(warning: LayoutDataManager.LoadWarning.ParseFailed) {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.text_keyboard_layout_corrupt_title)
+            .setMessage(
+                getString(
+                    R.string.text_keyboard_layout_corrupt_message,
+                    warning.fileName,
+                    warning.cause?.localizedMessage ?: warning.cause?.javaClass?.simpleName ?: ""
+                )
+            )
+            .setPositiveButton(R.string.text_keyboard_layout_corrupt_overwrite) { _, _ ->
+                dataManager.acknowledgeLoadWarning()
+                saveLayout()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+        dialog.setOnShowListener { styleDialogTypography(dialog) }
+        dialog.show()
     }
 
     private fun showToast(message: String) {
