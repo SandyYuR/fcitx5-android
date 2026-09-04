@@ -25,7 +25,6 @@ import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import splitties.dimensions.dp
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.view
-import kotlin.math.max
 
 class ButtonsBarUi(
     override val ctx: Context,
@@ -62,6 +61,9 @@ class ButtonsBarUi(
         val recyclerView = root
         // Recreate adapter to ensure clean state
         recyclerView.adapter = ButtonsBarAdapter()
+        // The button count decides even-distribution vs scroll mode, and bind no longer works
+        // that out for itself (see E8).
+        recyclerView.updateLayoutMode()
     }
 
     fun updateConfig(newButtons: List<ConfigurableButton>) {
@@ -189,10 +191,17 @@ class ButtonsBarUi(
         buttonMap["one_handed_keyboard"]?.setActive(isOneHanded)
     }
 
+    /**
+     * Re-evaluate the layout mode and rebind every button.
+     *
+     * The mode decision now lives in [KawaiiBarRecyclerView.updateLayoutMode] (see E8), so it
+     * has to be triggered here — the adapter no longer does it from within bind.
+     */
     fun refreshLayout() {
         val recyclerView = root
-        recyclerView.layoutManager?.requestLayout()
-        recyclerView.adapter?.notifyDataSetChanged()
+        // One rebind, issued from updateLayoutMode()'s posted runnable. Notifying here as well
+        // meant two overlapping change notifications per refresh.
+        recyclerView.updateLayoutMode(alwaysRebind = true)
         recyclerView.requestLayout()
     }
 
@@ -213,12 +222,18 @@ class ButtonsBarUi(
 
         override fun getItemCount(): Int = buttons.size
 
+        /**
+         * Creates an unconfigured button; everything position-dependent happens in
+         * [onBindViewHolder].
+         *
+         * This used to index `buttons[viewType]` — [getItemViewType] returned the position, so
+         * every position was its own view type, the recycler pool never hit, and a holder was
+         * created per button (see E8).
+         */
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ButtonViewHolder {
-            val config = buttons[viewType]
-            val iconRes = getIconResForButton(config.id, config.icon)
-            val button = ToolButton(ctx, iconRes, theme).apply {
-                contentDescription = config.label ?: getDefaultLabel(config.id)
-                tag = config.id
+            // Icon 0 means "no drawable yet"; onBindViewHolder always assigns a real one through
+            // applyIconAndText, which is also what a recycled holder goes through.
+            val button = ToolButton(ctx, 0, theme).apply {
                 // Ensure button always fills KawaiiBar height
                 minimumHeight = ctx.dp(KawaiiBarComponent.HEIGHT)
                 layoutParams = FlexboxLayoutManager.LayoutParams(
@@ -229,77 +244,53 @@ class ButtonsBarUi(
                     marginStart = ctx.dp(2)
                     marginEnd = ctx.dp(2)
                 }
-
-                // Apply click listeners
-                clickListeners[config.id]?.let { setOnClickListener(it) }
-                longClickListeners[config.id]?.let { setOnLongClickListener(it) }
             }
-            applyIconAndText(button, config)
-            buttonMap[config.id] = button
             return ButtonViewHolder(button)
         }
 
         override fun onBindViewHolder(holder: ButtonViewHolder, position: Int) {
             val recyclerView = root
-            val kawaiiBarLayout = recyclerView.layoutManager as KawaiiBarLayout
+            // as?, not as: the layout manager can legitimately be absent or replaced, and the
+            // unchecked cast crashed instead of skipping the width work (see E8).
+            val kawaiiBarLayout = recyclerView.layoutManager as? KawaiiBarLayout ?: return
             val parentWidth = recyclerView.width
             val childCount = itemCount
             val button = holder.button
             val config = buttons[position]
             buttonMap[config.id] = button
+            button.contentDescription = config.label ?: getDefaultLabel(config.id)
+            button.tag = config.id
+            // Listeners are keyed by button id, so they belong to bind, not create.
+            button.setOnClickListener(clickListeners[config.id])
+            button.setOnLongClickListener(longClickListeners[config.id])
             applyIconAndText(button, config)
 
             val params = holder.button.layoutParams as FlexboxLayoutManager.LayoutParams
 
-            // Calculate ideal width for even distribution
+            // Width is a pure function of the current bar width, computed read-only. It
+            // deliberately does not consult kawaiiBarLayout.isEvenDistributionMode, which is
+            // written by updateLayoutMode()'s posted runnable — reading it here would make each
+            // button's width depend on whether that runnable happened to have run yet. What
+            // bind must not do is *change* the mode or call notify* (see E8); deriving the same
+            // decision without side effects is fine.
             if (parentWidth > 0 && childCount > 0) {
                 val idealWidth = kawaiiBarLayout.calculateEvenDistributedWidth(childCount, parentWidth)
-
-                // Switch to scroll mode if ideal width is less than minimum
-                if (idealWidth < kawaiiBarLayout.minButtonWidth) {
-                    if (kawaiiBarLayout.isEvenDistributionMode) {
-                        kawaiiBarLayout.setScrollMode()
-                        recyclerView.isHorizontalScrollBarEnabled = true
-                        // Request relayout on next frame
-                        if (position == 0) {
-                            recyclerView.post {
-                                notifyDataSetChanged()
-                            }
-                            return
-                        }
-                    }
+                if (idealWidth >= kawaiiBarLayout.minButtonWidth) {
+                    // Even distribution: one fixed width per button.
+                    params.width = idealWidth
+                    params.minWidth = 0
+                } else {
                     // Scroll mode: WRAP_CONTENT with minimum width ensures buttons don't shrink
                     params.width = ViewGroup.LayoutParams.WRAP_CONTENT
                     params.minWidth = kawaiiBarLayout.minButtonWidth
-                    button.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-                } else {
-                    // Switch to even distribution mode if not already
-                    if (!kawaiiBarLayout.isEvenDistributionMode) {
-                        kawaiiBarLayout.setEvenDistributionMode()
-                        recyclerView.isHorizontalScrollBarEnabled = false
-                        if (position == 0) {
-                            recyclerView.post {
-                                notifyDataSetChanged()
-                            }
-                            return
-                        }
-                    }
-                    // Even distribution mode: Set fixed width for each button
-                    params.width = max(idealWidth, kawaiiBarLayout.minButtonWidth)
-                    params.minWidth = 0
-                    button.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
                 }
             } else {
-                // Fallback to scroll mode
+                // Width unknown yet; stay at the intrinsic size so nothing collapses.
                 params.width = ViewGroup.LayoutParams.WRAP_CONTENT
                 params.minWidth = kawaiiBarLayout.minButtonWidth
             }
+            button.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
             button.setActive(buttonActiveMap[config.id] == true)
-        }
-
-        override fun getItemViewType(position: Int): Int {
-            // Return position as view type since we recreate adapter on config changes
-            return position
         }
     }
 }
