@@ -419,6 +419,12 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         // will be called in fcitx main thread
         private fun onFirstRun() {
             Timber.i("onFirstRun")
+            // rime 专版：把默认启用的输入法固定为 rime。fcitx 全新配置生成的
+            // 默认分组只含 keyboard-us 条目，而本构建已移除 Android 英文键盘
+            // addon，该条目不存在；不在这里重设的话，输入法列表会指向一个
+            // 不存在的条目。
+            runCatching { setEnabledInputMethods(arrayOf("rime")) }
+                .onFailure { Timber.w(it, "Failed to seed rime as the default input method") }
         }
 
         /**
