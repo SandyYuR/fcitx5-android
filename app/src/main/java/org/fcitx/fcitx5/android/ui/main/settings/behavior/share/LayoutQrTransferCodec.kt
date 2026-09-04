@@ -29,6 +29,14 @@ object LayoutQrTransferCodec {
     private const val MAX_EXPORT_CHUNK_BYTES = 1024
     private const val MAX_IMPORT_CHUNK_BYTES_LEGACY = 1500
     private const val MAX_DECOMPRESSED_BYTES = 256 * 1024
+
+    /**
+     * Decoder memory budget handed to tukaani, in KiB. Our own payloads cap the LZMA2
+     * dictionary at the uncompressed size (<= [MAX_DECOMPRESSED_BYTES]), so a few MiB is
+     * far more than a legitimate transfer needs while still refusing the GB-scale
+     * dictionary a forged header could otherwise ask us to pre-allocate.
+     */
+    private const val MAX_DECOMPRESS_MEMORY_KIB = 4 * 1024
     const val TRANSFER_TYPE_LAYOUT = 'L'
     const val TRANSFER_TYPE_POPUP = 'P'
     const val TRANSFER_TYPE_THEME = 'T'
@@ -207,7 +215,11 @@ object LayoutQrTransferCodec {
     private fun decompress(raw: ByteArray): ByteArray {
         val buffer = ByteArrayOutputStream()
         val chunk = ByteArray(8 * 1024)
-        XZInputStream(ByteArrayInputStream(raw)).use { input ->
+        // memoryLimit (in KiB) makes tukaani reject an oversized LZMA2 dictionary declared
+        // in the header instead of pre-allocating it. Without it a forged QR payload can
+        // trigger a multi-GB allocation before MAX_DECOMPRESSED_BYTES ever applies, and the
+        // resulting OutOfMemoryError is an Error that callers' catch(Exception) misses.
+        XZInputStream(ByteArrayInputStream(raw), MAX_DECOMPRESS_MEMORY_KIB).use { input ->
             while (true) {
                 val read = input.read(chunk)
                 if (read < 0) break
