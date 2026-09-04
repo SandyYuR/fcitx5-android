@@ -119,11 +119,17 @@ object UpdateRepository {
 
     suspend fun updateHostsMapping(context: Context): Int = withContext(Dispatchers.IO) {
         val config = UpdatePrefs.loadHostsConfig(context)
+        // Require https and a well-formed URL: OkHttp's url() throws IllegalArgumentException
+        // on a scheme-less string, and this response rewrites DNS for update downloads, so it
+        // must not travel in the clear.
+        if (!config.sourceUrl.trim().startsWith("https://")) {
+            throw IOException("Hosts source URL must be an https:// URL")
+        }
         val request = Request.Builder()
-            .url(config.sourceUrl)
+            .url(config.sourceUrl.trim())
             .addHeader("User-Agent", "fcitx5-android-update")
             .build()
-        OkHttpClient().newCall(request).execute().use { response ->
+        sharedClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw IOException("Hosts source request failed: ${response.code}")
             }
@@ -144,25 +150,81 @@ object UpdateRepository {
 
     fun saveHostsSource(context: Context, sourceUrl: String) {
         val config = UpdatePrefs.loadHostsConfig(context)
-        UpdatePrefs.saveHostsConfig(
-            context,
-            config.copy(sourceUrl = sourceUrl.trim())
-        )
+        val trimmed = sourceUrl.trim()
+        if (trimmed == config.sourceUrl) return
+        UpdatePrefs.saveHostsConfig(context, config.copy(sourceUrl = trimmed))
         invalidateReleaseCache()
     }
 
     fun saveHostsEnabled(context: Context, enabled: Boolean) {
         val config = UpdatePrefs.loadHostsConfig(context)
+        if (enabled == config.enabled) return
+        UpdatePrefs.saveHostsConfig(context, config.copy(enabled = enabled))
+        invalidateReleaseCache()
+    }
+
+    /**
+     * Persist both hosts settings in one write, invalidating the release cache at most once.
+     * A no-op when nothing changed, so leaving the settings screen does not force the next
+     * update check to re-hit the GitHub API (anonymous rate limit is 60 requests/hour).
+     */
+    fun saveHostsSettings(context: Context, enabled: Boolean, sourceUrl: String) {
+        val config = UpdatePrefs.loadHostsConfig(context)
+        val trimmed = sourceUrl.trim()
+        val newSource = if (trimmed.isEmpty()) config.sourceUrl else trimmed
+        if (enabled == config.enabled && newSource == config.sourceUrl) return
         UpdatePrefs.saveHostsConfig(
             context,
-            config.copy(enabled = enabled)
+            config.copy(enabled = enabled, sourceUrl = newSource)
         )
         invalidateReleaseCache()
+    }
+
+    /** True when [url] is a syntactically valid absolute http(s) URL. */
+    fun isValidHttpUrl(url: String): Boolean {
+        val trimmed = url.trim()
+        if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) return false
+        return runCatching { URL(trimmed).host.isNotBlank() }.getOrDefault(false)
     }
 
     fun applyMirror(rawUrl: String, mirror: MirrorRule?): String {
         if (mirror == null) return rawUrl
         return Regex(mirror.pattern).replace(rawUrl, mirror.replacement)
+    }
+
+    /** Upper bound for a mirror pattern, to limit catastrophic-backtracking blowups. */
+    const val MAX_MIRROR_PATTERN_LENGTH = 256
+
+    /** A representative URL used to smoke-test a mirror rule before it is saved. */
+    const val MIRROR_VALIDATION_SAMPLE_URL =
+        "https://github.com/owner/repo/releases/download/v1.2.3/app-arm64-v8a-release.apk"
+
+    /**
+     * Outcome of validating a user-entered mirror rule. Compiling the pattern is not
+     * enough: [Regex.replace] resolves group references in the replacement lazily, so an
+     * illegal reference (`$1` with no capturing group) or a trailing backslash only blows
+     * up at download time — as IndexOutOfBoundsException / IllegalArgumentException, which
+     * a `catch (PatternSyntaxException)` cannot intercept.
+     */
+    enum class MirrorRuleValidation { VALID, PATTERN_INVALID, REPLACEMENT_INVALID }
+
+    fun validateMirrorRule(
+        pattern: String,
+        replacement: String,
+        sampleUrl: String = MIRROR_VALIDATION_SAMPLE_URL
+    ): MirrorRuleValidation {
+        if (pattern.length > MAX_MIRROR_PATTERN_LENGTH) return MirrorRuleValidation.PATTERN_INVALID
+        val regex = try {
+            Regex(pattern)
+        } catch (_: Throwable) {
+            return MirrorRuleValidation.PATTERN_INVALID
+        }
+        return try {
+            regex.replace(sampleUrl, replacement)
+            MirrorRuleValidation.VALID
+        } catch (_: Throwable) {
+            MirrorRuleValidation.REPLACEMENT_INVALID
+        }
     }
 
     fun isHostsEnabled(context: Context): Boolean {
@@ -233,8 +295,17 @@ object UpdateRepository {
         return map
     }
 
+    /**
+     * Base client shared by every request from this object, so the connection pool and
+     * dispatcher thread pool are reused instead of rebuilt per call.
+     */
+    private val sharedClient: OkHttpClient by lazy { OkHttpClient() }
+
     private fun clientWithHosts(mapping: Map<String, List<String>>): OkHttpClient {
-        return OkHttpClient.Builder()
+        // No custom mapping: reuse the shared client as-is.
+        if (mapping.isEmpty()) return sharedClient
+        // newBuilder() keeps the shared connection pool and dispatcher.
+        return sharedClient.newBuilder()
             .dns(UpdateHostsDns(mapping))
             .build()
     }
