@@ -86,6 +86,7 @@ import splitties.views.dsl.core.wrapContent
 import splitties.views.dsl.recyclerview.recyclerView
 import splitties.views.gravityCenter
 import timber.log.Timber
+import java.util.WeakHashMap
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -211,6 +212,13 @@ abstract class BaseKeyboard(
 
     /** Active pointer targets for the custom touch dispatch workaround. */
     private val touchTargets = hashMapOf<Int, TouchTarget>()
+
+    /**
+     * Compose-aware views whose recreation was deferred because a finger was on them.
+     *
+     * Flushed once no pointer is left; see [flushDeferredComposeRecreations].
+     */
+    private var pendingComposeRecreations: List<ComposeAwareKey>? = null
 
     /**
      * Find a key view by its type tag. Returns the first matching view or null if not found.
@@ -1250,6 +1258,9 @@ abstract class BaseKeyboard(
                 swipeThresholdY = swipeThresholdY,
                 onGestureListener = onGestureListener
             )
+            // Record the pre-wrapping configuration before applyBehaviorPopupBindings installs
+            // its wrapper, so a later row reuse can recover the real baseline.
+            gestureBaselines[this] = baseline
             applyAppearance(this, activeAppearance)
             applyBehaviorPopupBindings(this, baseline, activeDef.behaviors, activeDef.popup)
             if (registerComposeAware && def.composeOverride != null) {
@@ -1438,7 +1449,9 @@ abstract class BaseKeyboard(
             parent.addView(newView, index)
         }
         item.keyView = newView
-        item.baseline = GestureBaseline(
+        // createKeyView already recorded the pre-wrapping baseline for newView; prefer it over
+        // reading the view back, which by now may hold a wrapped gesture listener.
+        item.baseline = gestureBaselines[newView] ?: GestureBaseline(
             swipeEnabled = newView.swipeEnabled,
             swipeRepeatEnabled = newView.swipeRepeatEnabled,
             swipeThresholdX = newView.swipeThresholdX,
