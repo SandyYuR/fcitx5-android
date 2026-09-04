@@ -306,8 +306,14 @@ class LayoutDataManager(private val context: Context) {
             result
         }.onFailure { e ->
             android.util.Log.e("LayoutDataManager", "Failed to parse JSON from: $sourceName", e)
+            // 记下失败原因：调用方（loadFromFile）据此区分"文件不存在"与"文件损坏"，
+            // 损坏时必须阻止后续保存把内置预设覆盖上去。
+            lastParseFailure = e
         }.getOrNull() ?: if (fallbackToDefault) loadDefaultPreset() else emptyMap()
     }
+
+    /** [parseJsonText] 最近一次失败的异常，供 [loadFromFile] 判定文件是否损坏。 */
+    private var lastParseFailure: Throwable? = null
 
     fun exportCurrentJsonString(): String {
         val jsonElement = LayoutJsonUtils.convertToSaveJson(
@@ -380,7 +386,7 @@ class LayoutDataManager(private val context: Context) {
                 normalizedLayoutAuxBarKeys()
             )
             val compactJson = LayoutJsonUtils.formatJsonCompact(jsonElement)
-            file.writeText(compactJson + "\n")
+            writeAtomically(file, compactJson + "\n")
             
             // 清除缓存
             TextKeyboard.clearCachedKeyDefLayouts()
@@ -396,6 +402,32 @@ class LayoutDataManager(private val context: Context) {
         }.getOrElse { e ->
             android.util.Log.e("LayoutDataManager", "Save failed", e)
             false
+        }
+    }
+
+    /**
+     * 原子写入：先写同目录临时文件并 fsync，再 rename 覆盖目标。
+     *
+     * 直接 writeText 覆盖原文件时，若在写入过程中进程被杀（低内存、用户强杀），
+     * 磁盘上会留下被截断的半个 JSON —— 下次打开编辑器解析失败退回内置布局，
+     * 再保存一次用户的自定义布局就永久丢了。
+     */
+    private fun writeAtomically(file: File, content: String) {
+        val parent = file.parentFile
+        parent?.mkdirs()
+        val tmp = File(parent, "${file.name}.tmp")
+        java.io.FileOutputStream(tmp).use { out ->
+            out.write(content.toByteArray())
+            out.flush()
+            // 元数据 rename 是原子的，但内容必须先落盘，否则崩溃后可能
+            // rename 出一个内容为空的文件。
+            runCatching { out.fd.sync() }
+        }
+        if (!tmp.renameTo(file)) {
+            // 跨文件系统等极端情况下 rename 可能失败，退回直接写入（仍好过丢文件）。
+            android.util.Log.w("LayoutDataManager", "Atomic rename failed, falling back to direct write")
+            file.writeText(content)
+            tmp.delete()
         }
     }
     

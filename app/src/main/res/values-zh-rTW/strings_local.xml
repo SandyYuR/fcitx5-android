@@ -148,6 +148,9 @@
     <string name="update_mirror_pattern_invalid">正則 pattern 不合法</string>
     <string name="update_mirror_replacement_invalid">替換 pattern 不合法</string>
     <string name="exception_user_data_db_version_too_new">備份來自更新的版本（剪貼板資料庫 v%1$d，目前版本支援 v%2$d）。請先升級應用程式再匯入。</string>
+    <string name="text_keyboard_layout_corrupt_title">版面配置檔無法讀取</string>
+    <string name="text_keyboard_layout_corrupt_message">「%1$s」解析失敗（%2$s），編輯器目前顯示的是內建版面配置。現在儲存會覆寫該檔案，原有內容將遺失。</string>
+    <string name="text_keyboard_layout_corrupt_overwrite">仍然覆寫</string>
     <string name="about_build_version_title">目前建置版本號</string>
     <string name="about_build_version_unknown">未知</string>
     <string name="about_server_clipcascade_summary">點按開啟 ClipCascade GitHub 專案</string>
