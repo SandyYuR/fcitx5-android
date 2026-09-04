@@ -850,7 +850,7 @@ class TextKeyboard private constructor(
                         return cachedKeyDefLayouts.getOrPut(cacheKey) {
                             forcedLayout.map { rowElement ->
                                 LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                    .map {
+                                    .mapNotNull {
                                         LayoutJsonUtils.createKeyDef(
                                             key = it,
                                             subModeLabel = subModeLabel,
@@ -902,7 +902,7 @@ class TextKeyboard private constructor(
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                        .map {
+                                        .mapNotNull {
                                             LayoutJsonUtils.createKeyDef(
                                                 key = it,
                                                 subModeLabel = subModeLabel,
@@ -926,7 +926,7 @@ class TextKeyboard private constructor(
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                        .map { LayoutJsonUtils.createKeyDef(it) }
+                                        .mapNotNull { LayoutJsonUtils.createKeyDef(it) }
                                 }
                             }
                         }

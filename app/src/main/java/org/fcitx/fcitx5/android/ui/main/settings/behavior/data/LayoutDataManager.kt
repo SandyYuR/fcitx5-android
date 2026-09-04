@@ -763,6 +763,13 @@ class LayoutDataManager(private val context: Context) {
                     errors.add("布局 \"$layoutName\" 第 ${rowIndex + 1} 行第 ${keyIndex + 1} 个键 ($type) 缺少 label 字段")
                 }
             }
+            // 运行时解析要求 MacroKey 必须有 tap 动作，写入侧必须同样要求，
+            // 否则编辑器能保存出让键盘无法加载该键的配置。
+            "MacroKey" -> {
+                if (key["tap"] == null) {
+                    errors.add("布局 \"$layoutName\" 第 ${rowIndex + 1} 行第 ${keyIndex + 1} 个键 (MacroKey) 缺少 tap 动作")
+                }
+            }
         }
 
         // 验证 weight - 改进的类型检查
