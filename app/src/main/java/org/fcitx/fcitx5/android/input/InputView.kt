@@ -16,6 +16,7 @@ import android.graphics.PixelFormat
 import android.graphics.RectF
 import android.graphics.Rect
 import android.graphics.Region
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
@@ -674,40 +675,53 @@ class InputView(
     private var blurUpdateJob: Job? = null
     private var blurUpdateGeneration = 0
 
+    /**
+     * Load the wallpaper-derived rendering data off the main thread.
+     *
+     * Produces the keyboard background drawable and, when blur is enabled, the mask bitmap —
+     * from a single cached decode. Both used to be decoded separately, one of them on the main
+     * thread during construction (see D5).
+     */
     private fun updateBlurMaskThemeData() {
         blurUpdateGeneration++
         val generation = blurUpdateGeneration
         blurUpdateJob?.cancel()
-        val customTheme = theme as? Theme.Custom ?: run {
+        val bg = (theme as? Theme.Custom)?.backgroundImage
+        if (bg == null) {
+            // No wallpaper: backgroundDrawable() is a solid colour, cheap enough inline.
             keyBlurMaskView.setBlurBitmap(null)
+            customBackground.imageDrawable = theme.backgroundDrawable(keyBorder)
             return
         }
-        val bg = customTheme.backgroundImage
-        if (bg == null || bg.blurRadius <= 0f) {
-            keyBlurMaskView.setBlurBitmap(null)
-            return
-        }
+        val wantsBlurMask = bg.blurRadius > 0f
         val useGpuBlur = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        if (!wantsBlurMask) keyBlurMaskView.setBlurBitmap(null)
         blurUpdateJob = blurUpdateScope.launch {
-            val bitmap = withContext(Dispatchers.Default) {
-                if (useGpuBlur) {
-                    bg.loadBitmapForRendering()
-                } else {
-                    bg.loadBlurredBitmapForRendering()
+            val result = withContext(Dispatchers.Default) {
+                val maskBitmap = when {
+                    !wantsBlurMask -> null
+                    useGpuBlur -> bg.loadBitmapForRendering()
+                    else -> bg.loadBlurredBitmapForRendering()
                 }
+                // Same underlying decode as above, served from the Theme-level cache.
+                maskBitmap to theme.backgroundDrawable(keyBorder)
             }
             if (generation != blurUpdateGeneration) return@launch
-            if (useGpuBlur) {
-                keyBlurMaskView.setBlurBitmap(
-                    bitmap = bitmap,
-                    brightness = bg.brightness,
-                    blurRadius = bg.blurRadius,
-                    useRenderEffect = true
-                )
-            } else {
-                keyBlurMaskView.setBlurBitmap(bitmap, bg.brightness)
+            val (bitmap, backgroundDrawable) = result
+            customBackground.imageDrawable = backgroundDrawable
+            if (wantsBlurMask) {
+                if (useGpuBlur) {
+                    keyBlurMaskView.setBlurBitmap(
+                        bitmap = bitmap,
+                        brightness = bg.brightness,
+                        blurRadius = bg.blurRadius,
+                        useRenderEffect = true
+                    )
+                } else {
+                    keyBlurMaskView.setBlurBitmap(bitmap, bg.brightness)
+                }
+                refreshKeyboardBounds()
             }
-            refreshKeyboardBounds()
         }
     }
 
@@ -2835,7 +2849,10 @@ class InputView(
             val bg = theme.backgroundImage
             Timber.d("InputView: backgroundImage=${bg != null}, blurRadius=${bg?.blurRadius}")
         }
-        customBackground.imageDrawable = theme.backgroundDrawable(keyBorder)
+        // Stand-in until the wallpaper is decoded. updateBlurMaskThemeData() applies the real
+        // background — inline for a solid colour, from its background coroutine for a
+        // wallpaper — so the constructor no longer decodes anything (see D5).
+        customBackground.imageDrawable = ColorDrawable(theme.backgroundColor)
         updateBlurMaskThemeData()
         
         if (windowManager.view.id == View.NO_ID) {
