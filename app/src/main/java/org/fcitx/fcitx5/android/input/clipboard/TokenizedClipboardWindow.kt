@@ -124,5 +124,10 @@ class TokenizedClipboardWindow(
     }
 
     private fun currentSelectionText(): String =
-        ClipboardTextTokenizer.joinSelection(sourceText, adapter.selectedTokens())
+        // Token offsets index the normalized text, so joinSelection must be given the same
+        // string tokenize() saw — not the raw constructor argument.
+        ClipboardTextTokenizer.joinSelection(
+            ClipboardTextTokenizer.normalizeForTokens(sourceText),
+            adapter.selectedTokens()
+        )
 }
