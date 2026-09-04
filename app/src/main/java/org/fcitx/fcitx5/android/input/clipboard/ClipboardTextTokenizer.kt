@@ -15,6 +15,19 @@ data class ClipboardToken(
 
 object ClipboardTextTokenizer {
 
+    /**
+     * Longest prefix of the clipboard text that is tokenized.
+     *
+     * Tokenizing is regex scanning plus an ICU word break per CJK run, and every token also
+     * becomes a View in the picker. A clipboard entry can be an entire document, and there was
+     * no bound at all: pasting one froze the keyboard for seconds and could exhaust memory.
+     * Roughly a screenful of dense text is far more than anyone picks words from by hand.
+     */
+    const val MAX_TOKENIZE_LENGTH = 4_000
+
+    /** Upper bound on the number of tokens produced, whatever the input. */
+    const val MAX_TOKENS = 1_500
+
     private fun createWordBreaker() =
         BreakIterator.getWordInstance(Locale.CHINESE)
     private val coarseTokenPattern = Regex(
@@ -22,11 +35,18 @@ object ClipboardTextTokenizer {
     )
     private val hanPattern = Regex("""^\p{IsHan}+$""")
 
+    /**
+     * Split [text] into selectable tokens, bounded by [MAX_TOKENIZE_LENGTH] and [MAX_TOKENS].
+     *
+     * Token offsets refer to the *normalized* text (CRLF collapsed to LF), which is what
+     * [joinSelection] must be given as `sourceText`.
+     */
     fun tokenize(text: String): List<ClipboardToken> {
         if (text.isBlank()) return emptyList()
-        val normalized = text.replace("\r\n", "\n")
+        val normalized = text.replace("\r\n", "\n").take(MAX_TOKENIZE_LENGTH)
         val tokens = mutableListOf<ClipboardToken>()
-        coarseTokenPattern.findAll(normalized).forEach { match ->
+        for (match in coarseTokenPattern.findAll(normalized)) {
+            if (tokens.size >= MAX_TOKENS) break
             val chunk = match.value
             val start = match.range.first
             if (hanPattern.matches(chunk)) {
@@ -35,8 +55,13 @@ object ClipboardTextTokenizer {
                 tokens += ClipboardToken(chunk, start, start + chunk.length)
             }
         }
-        return tokens
+        // appendHanTokens can push past the limit within one CJK run.
+        return if (tokens.size > MAX_TOKENS) tokens.subList(0, MAX_TOKENS).toList() else tokens
     }
+
+    /** The text [tokenize] offsets refer to; also what [joinSelection] expects. */
+    fun normalizeForTokens(text: String): String =
+        text.replace("\r\n", "\n").take(MAX_TOKENIZE_LENGTH)
 
     fun joinSelection(sourceText: String, tokens: List<ClipboardToken>): String {
         if (tokens.isEmpty()) return ""
