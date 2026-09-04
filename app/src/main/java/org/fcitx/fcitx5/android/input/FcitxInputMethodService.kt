@@ -353,15 +353,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         return newCandidatesView
     }
 
-    private fun refreshViewsForFontChange() {
-        val theme = ThemeManager.activeTheme
-        inputView?.let {
-            replaceInputView(theme)
-        }
-        candidatesView?.let {
-            replaceCandidateView(theme)
-        }
-    }
 
     private fun replaceInputViews(theme: Theme) {
         window.window?.let {
@@ -1546,9 +1537,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             Timber.d("onStartInputView: restarting=$restarting")
             MainService.startSyncService(this, "ime-start-input-view", imeSyncActive = true)
             ensurePreferredVoiceInputProviderAvailable()
-            if (org.fcitx.fcitx5.android.input.font.FontProviders.needsRefresh()) {
-                refreshViewsForFontChange()
-            }
             postFcitxSessionJob(inputSessionGeneration) {
                 focus(true)
                 // Keep paged candidate mode enabled so candidate cursor/highlight is available.
@@ -1557,6 +1545,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             if (inputDeviceManager.evaluateOnStartInputView(info, this) ||
                 inputDeviceManager.isPhysicalCandidateBarMode
             ) {
+                // startInput -> KeyboardWindow.checkAndApplyFontRefresh() consumes the font
+                // refresh flag and rebuilds only the key rows. There used to be an extra
+                // whole-tree replacement above this branch; it read the flag without clearing
+                // it, so once a font had been changed *every* later focus event rebuilt
+                // everything, and the replacement also ran inside the input-lifecycle critical
+                // phase that canApplyPendingThemeNow() exists to keep InputView swaps out of.
                 inputView?.startInput(info, capabilityFlags, restarting)
             } else {
                 if (currentInputConnection?.monitorCursorAnchor() != true) {
@@ -1568,6 +1562,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 // anchor CandidatesView to bottom-left corner in case InputConnection does not
                 // support monitoring CursorAnchorInfo
                 candidatesView?.updateCursorAnchor(contentSize)
+                // This path never calls startInput, so nothing consumes the font refresh flag
+                // here. Queue a theme-style replacement instead of doing it inline: the finally
+                // block below runs applyPendingThemeIfPossible() once the critical phase ends.
+                if (org.fcitx.fcitx5.android.input.font.FontProviders.checkAndClearRefreshFlag()) {
+                    pendingThemeUpdate = ThemeManager.activeTheme
+                }
             }
         } finally {
             contentView.post {
