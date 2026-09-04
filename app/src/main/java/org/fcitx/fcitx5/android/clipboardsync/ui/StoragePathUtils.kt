@@ -9,13 +9,26 @@ object StoragePathUtils {
     private const val PRIMARY_STORAGE_PREFIX = "/storage/emulated/0"
     private const val UTF_8_NAME = "UTF-8"
 
+    /** Unicode replacement character; appears when a percent-decode is lossy. */
+    private const val REPLACEMENT_CHAR = '\uFFFD'
+
     /**
-     * URLDecoder.decode throws IllegalArgumentException on a bare or truncated percent
-     * escape (e.g. a path literally named "100%"). Callers here run inside dialog
-     * callbacks, so fall back to the raw text instead of crashing.
+     * Percent-decode [value], returning it unchanged when decoding is not possible.
+     *
+     * Two distinct failure modes, both of which previously produced a bad result:
+     * - a bare or truncated escape ("100%", "%zz") makes URLDecoder throw
+     *   IllegalArgumentException; these calls run inside dialog callbacks, so the exception
+     *   reached the framework and crashed the app;
+     * - a truncated multi-byte sequence ("%E4%B8") does not throw — URLDecoder substitutes
+     *   U+FFFD for the incomplete bytes, silently corrupting the path. Treat that as a failed
+     *   decode as well and keep the original text, which still reflects what the user typed.
      */
-    private fun decodeOrRaw(value: String): String =
-        runCatching { URLDecoder.decode(value, UTF_8_NAME) }.getOrDefault(value)
+    private fun decodeOrRaw(value: String): String {
+        val decoded = runCatching { URLDecoder.decode(value, UTF_8_NAME) }.getOrNull()
+            ?: return value
+        val lossy = decoded.contains(REPLACEMENT_CHAR) && !value.contains(REPLACEMENT_CHAR)
+        return if (lossy) value else decoded
+    }
 
     fun formatStoragePath(rawPath: String?): String? {
         if (rawPath.isNullOrBlank()) return null
