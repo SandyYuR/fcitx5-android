@@ -63,7 +63,8 @@ jobs:
       - name: Build Release APK
         run: |
           ./gradlew :app:assembleRelease
-          ./gradlew :assembleReleasePlugins
+          # See C29: the plugins must be built against this fork's application id.
+          ./gradlew -PmainApplicationId=org.fcitx.fcitx5.android.fx :assembleReleasePlugins
 
       - name: Upload app
         uses: actions/upload-artifact@v7
