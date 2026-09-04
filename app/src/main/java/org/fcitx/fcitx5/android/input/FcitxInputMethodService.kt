@@ -1041,8 +1041,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         win.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
     }
 
-    private var inputViewLocation = intArrayOf(0, 0)
-
     override fun onEvaluateFullscreenMode(): Boolean {
         // Always return false to prevent "Extract View" mode which hides the app.
         // We handle full screen window size manually via onConfigureWindow.

@@ -151,6 +151,15 @@
             android:name=".ui.main.update.UpdateMirrorEditActivity"
             android:exported="false"
             android:label="@string/update_mirror_edit_title" />
+        <!--
+            Registered even though no entry point navigates here yet: the class, its adapter
+            and its layout all exist, so an unregistered declaration is a latent
+            ActivityNotFoundException the moment an entry point is added.
+        -->
+        <activity
+            android:name=".ui.main.update.UpdateMirrorListActivity"
+            android:exported="false"
+            android:label="@string/update_mirror_settings_title" />
         <activity
             android:name=".ui.main.settings.behavior.dialog.TextKeyboardLayoutProfilePickerActivity"
             android:autoRemoveFromRecents="true"
