@@ -90,7 +90,7 @@ anthy / chewing / hangul / jyutping / sayura / thai / unikey / clipboard-filter 
 
 ### 2.3 必须保留的引擎无关底盘
 
-fcitx5 核心 + androidfrontend/androidkeyboard/androidnotification 三个安卓模块；核心 addon：clipboard、quickphrase（app 有编辑 UI）、unicode、imselector、spell（英文键盘联想，可再议）；主题/键盘布局编辑器/候选栏/字体（含 fork 的候选注释独立字体、QR 分享）——全部与引擎无关，是你的核心竞争力，保留。英文直接输入由 app 内置 androidkeyboard 的 keyboard-us 条目提供（`androidkeyboard.cpp:167`），**不依赖 chinese-addons**，删内置拼音不影响英文键位。
+fcitx5 核心 + androidfrontend/androidnotification 安卓模块；核心 addon：clipboard、quickphrase（app 有编辑 UI）；主题/键盘布局编辑器/候选栏/字体（含 fork 的候选注释独立字体、QR 分享）——全部与引擎无关，是你的核心竞争力，保留。（**2026 决策更新：androidkeyboard、unicode、imselector、spell 已按用户要求移除**，中英切换改走 rime ascii_mode + Shift 点击。）
 
 ### 2.4 fork 特色功能（与 rime 无关，需你拍板）
 

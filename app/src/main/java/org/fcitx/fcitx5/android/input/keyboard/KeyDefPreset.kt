@@ -329,8 +329,7 @@ class QuickPhraseKey : KeyDef(
         viewId = R.id.button_quickphrase
     ),
     setOf(
-        Behavior.Press(KeyAction.QuickPhraseAction),
-        Behavior.LongPress(KeyAction.UnicodeAction)
+        Behavior.Press(KeyAction.QuickPhraseAction)
     ),
     iconSlot = "keys.quickphrase"
 )
@@ -376,12 +375,6 @@ class CommaKey(
                     R.drawable.ic_baseline_format_quote_24,
                     KeyAction.QuickPhraseAction,
                     iconSlot = "keys.quickphrase"
-                ),
-                Popup.Menu.Item(
-                    "Unicode",
-                    R.drawable.ic_logo_unicode,
-                    KeyAction.UnicodeAction,
-                    iconSlot = "keys.unicode"
                 )
             )
         )

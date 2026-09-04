@@ -32,7 +32,6 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyAction.QuickPhraseAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.ShowInputMethodPickerAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.SpaceLongPressAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.SymAction
-import org.fcitx.fcitx5.android.input.keyboard.KeyAction.UnicodeAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.VoiceInputHoldEnd
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
@@ -157,10 +156,6 @@ class CommonKeyActionListener :
                 is QuickPhraseAction -> service.postFcitxJob {
                     commitAndReset()
                     triggerQuickPhrase()
-                }
-                is UnicodeAction -> service.postFcitxJob {
-                    commitAndReset()
-                    triggerUnicode()
                 }
                 is LangSwitchAction -> {
                     when (langSwitchKeyBehavior) {
