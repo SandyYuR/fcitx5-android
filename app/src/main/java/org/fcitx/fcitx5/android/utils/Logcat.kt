@@ -37,11 +37,15 @@ class Logcat(val pid: Int? = Process.myPid()) : CoroutineScope by CoroutineScope
      */
     fun getLogAsync(): Deferred<Result<List<String>>> = async {
         runCatching {
-            Runtime.getRuntime()
-                .exec(arrayOf("logcat", pid?.let { "--pid=$it" } ?: "", "-v", "threadtime", "-d"))
-                .inputStream
-                .bufferedReader()
-                .readLines()
+            val snapshotProcess = Runtime.getRuntime().exec(logcatArgv("-d"))
+            try {
+                snapshotProcess.inputStream.bufferedReader().use { it.readLines() }
+            } finally {
+                // Reap the child and close its pipes; otherwise the process object and its
+                // three file descriptors linger until GC.
+                runCatching { snapshotProcess.waitFor() }
+                snapshotProcess.destroy()
+            }
         }
     }
 
@@ -50,7 +54,14 @@ class Logcat(val pid: Int? = Process.myPid()) : CoroutineScope by CoroutineScope
      */
     fun clearLog(): Job =
         launch {
-            runCatching { Runtime.getRuntime().exec(arrayOf("logcat", "-c")) }
+            runCatching {
+                val clearProcess = Runtime.getRuntime().exec(arrayOf("logcat", "-c"))
+                try {
+                    clearProcess.waitFor()
+                } finally {
+                    clearProcess.destroy()
+                }
+            }
         }
 
     /**
@@ -63,7 +74,7 @@ class Logcat(val pid: Int? = Process.myPid()) : CoroutineScope by CoroutineScope
             runCatching {
                 Runtime
                     .getRuntime()
-                    .exec(arrayOf("logcat", pid?.let { "--pid=$it" } ?: "", "-v", "threadtime"))
+                    .exec(logcatArgv())
                     .also { process = it }
                     .inputStream
                     .bufferedReader()
@@ -79,9 +90,27 @@ class Logcat(val pid: Int? = Process.myPid()) : CoroutineScope by CoroutineScope
      * Destroy the reading process
      */
     fun shutdownLogFlow() {
-        process?.destroy()
+        val current = process
+        // Clear the field so a later initLogFlow() is not rejected by the `process != null`
+        // guard, and close the stream so the reader coroutine unblocks.
+        process = null
+        runCatching { current?.inputStream?.close() }
+        current?.destroy()
         emittingJob?.cancel()
+        emittingJob = null
     }
+
+    /**
+     * Build the logcat argv, omitting `--pid` when [pid] is null instead of passing an
+     * empty string as a bogus argument.
+     */
+    private fun logcatArgv(vararg extraArgs: String): Array<String> = buildList {
+        add("logcat")
+        pid?.let { add("--pid=$it") }
+        add("-v")
+        add("threadtime")
+        addAll(extraArgs)
+    }.toTypedArray()
 
     companion object {
         val default by lazy { Logcat() }
