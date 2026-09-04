@@ -387,6 +387,10 @@ class PopupEditorActivity : AppCompatActivity() {
 
             // 添加按钮 - 与候选词保持一致的高度和样式
             val addChip = TextView(this@PopupEditorActivity).apply {
+                // Excluded from dragging: it has no entry in `values`, so dropping a candidate
+                // past it produced an index the data side rejects (see C13, same as the row
+                // editor's "+" chip).
+                tag = DraggableFlowLayout.TAG_NOT_DRAGGABLE
                 text = getString(R.string.popup_editor_add_candidate_button)
                 textSize = 14f
                 setPadding(dp(10), dp(5), dp(10), dp(5))  // 与候选词相同的 padding
@@ -442,15 +446,13 @@ class PopupEditorActivity : AppCompatActivity() {
                 candidatesFlow.postDelayed({
                     // 根据 FlowLayout 中视图的最终顺序更新数据
                     val newOrder = mutableListOf<String>()
-                    val addButtonText = getString(R.string.popup_editor_add_candidate_button)
                     for (i in 0 until candidatesFlow.childCount) {
                         val child = candidatesFlow.getChildAt(i)
                         if (child is TextView) {
-                            val text = child.text.toString()
-                            // 跳过添加按钮
-                            if (text != addButtonText) {
-                                newOrder.add(text)
-                            }
+                            // Skip the add button by tag, not by comparing its label: a candidate
+                            // whose text happened to equal that label was dropped from the list.
+                            if (child.tag == DraggableFlowLayout.TAG_NOT_DRAGGABLE) continue
+                            newOrder.add(child.text.toString())
                         }
                     }
                     // 验证：新列表长度应该等于原列表长度，且内容相同（顺序可能不同）
