@@ -4,7 +4,9 @@ import android.util.Base64
 import android.util.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import okhttp3.Cookie
 import okhttp3.CookieJar
@@ -44,6 +46,22 @@ class ClipCascadeClient(
         private const val SUBSCRIPTION_DESTINATION = "/user/queue/cliptext"
         private const val SEND_DESTINATION = "/app/cliptext"
         private const val AES_KEY_SIZE_BITS = 256
+
+        /**
+         * Longest wait for the STOMP CONNECTED frame after the websocket opens.
+         *
+         * Needed because the OkHttp read timeout is 0 (unbounded) for the websocket; see C16.
+         */
+        private const val HANDSHAKE_TIMEOUT_MS = 15_000L
+
+        /**
+         * Bounds for the server-provided PBKDF2 iteration count; see C19.
+         *
+         * The lower bound is the previous client default, the upper bound keeps a hostile or
+         * misconfigured server from pinning the IO thread for minutes.
+         */
+        private const val MIN_HASH_ROUNDS = 100_000
+        private const val MAX_HASH_ROUNDS = 2_000_000
         private const val GCM_NONCE_SIZE_BYTES = 16
         private const val GCM_TAG_SIZE_BYTES = 16
     }
@@ -76,12 +94,27 @@ class ClipCascadeClient(
     @Volatile
     private var encryptionKey: ByteArray? = null
 
+    /**
+     * Log in, open the websocket and wait for the STOMP CONNECTED frame.
+     *
+     * The wait is bounded: [connectSignal] can only be completed from an OkHttp callback, and
+     * the client uses `readTimeout(0)` (unbounded, as a websocket must). A server that completes
+     * the TCP/websocket handshake but never sends CONNECTED — restarting, half-open reverse
+     * proxy, wrong service on the port — used to park the caller forever (see C16).
+     */
     suspend fun connect(onMessage: (ClipCascadeClipboardData) -> Unit) {
         login()
         validateSession()
         deriveEncryptionKey()
         openSocket(onMessage)
-        connectSignal.await()
+        try {
+            withTimeout(HANDSHAKE_TIMEOUT_MS) {
+                connectSignal.await()
+            }
+        } catch (e: TimeoutCancellationException) {
+            close()
+            throw IOException("ClipCascade STOMP handshake timed out after ${HANDSHAKE_TIMEOUT_MS}ms", e)
+        }
     }
 
     suspend fun sendClipboard(payload: String, type: String = "text", filename: String? = null) {

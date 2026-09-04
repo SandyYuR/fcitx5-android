@@ -7,7 +7,7 @@ import android.util.Base64
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.delay
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -81,7 +81,7 @@ object SyncClient {
         )
     }
 
-    fun fetchClipboard(
+    suspend fun fetchClipboard(
         context: Context,
         serverUrl: String,
         username: String,
@@ -116,7 +116,15 @@ object SyncClient {
         }
     }
 
-    fun putClipboard(
+    /**
+     * Suspend, not blocking: the CLIPCASCADE branch used `runBlocking`, which masks cancellation.
+     *
+     * That call sits on the health-monitor path, so a server that never completes the STOMP
+     * handshake pinned the monitor coroutine and `stopHealthMonitor()`'s cancel() did nothing —
+     * sync never recovered before a process restart (see C16). Every caller was already inside a
+     * coroutine.
+     */
+    suspend fun putClipboard(
         context: Context,
         serverUrl: String,
         username: String,
@@ -139,7 +147,7 @@ object SyncClient {
                 content = content
             )
 
-            ServerBackend.CLIPCASCADE -> runBlocking {
+            ServerBackend.CLIPCASCADE -> {
                 val client = ClipCascadeClient(
                     serverUrl = serverUrl,
                     username = username,
@@ -160,7 +168,8 @@ object SyncClient {
         }
     }
 
-    fun testConnection(
+    /** Suspend for the same reason as [putClipboard]; see C16. */
+    suspend fun testConnection(
         serverUrl: String,
         username: String,
         pass: String,
@@ -188,10 +197,8 @@ object SyncClient {
                 }
 
                 ServerBackend.CLIPCASCADE -> {
-                    return runBlocking {
-                        runCatching {
-                            ClipCascadeClient(serverUrl, username, pass).testConnection()
-                        }
+                    return runCatching {
+                        ClipCascadeClient(serverUrl, username, pass).testConnection()
                     }
                 }
             }
@@ -209,7 +216,7 @@ object SyncClient {
         }
     }
 
-    private fun fetchSyncClipboard(
+    private suspend fun fetchSyncClipboard(
         context: Context,
         serverUrl: String,
         username: String,
@@ -239,7 +246,7 @@ object SyncClient {
         )
     }
 
-    private fun fetchSyncClipboardCurrent(
+    private suspend fun fetchSyncClipboardCurrent(
         context: Context,
         serverUrl: String,
         username: String,
@@ -267,7 +274,7 @@ object SyncClient {
         return fetchResult(data, revision)
     }
 
-    private fun fetchSyncClipboardHistory(
+    private suspend fun fetchSyncClipboardHistory(
         context: Context,
         serverUrl: String,
         username: String,
@@ -380,7 +387,7 @@ object SyncClient {
         return FetchResult(items, encodeSyncClipboardHistoryCursor(nextCursor))
     }
 
-    private fun fetchOneClipClipboard(
+    private suspend fun fetchOneClipClipboard(
         context: Context,
         serverUrl: String,
         lastRevision: String?,
@@ -558,7 +565,7 @@ object SyncClient {
     }
 
     @Throws(IOException::class)
-    fun downloadDetails(
+    suspend fun downloadDetails(
         context: Context,
         serverUrl: String,
         username: String,
@@ -704,7 +711,7 @@ object SyncClient {
         }
     }
 
-    private fun downloadOneClipImage(
+    private suspend fun downloadOneClipImage(
         context: Context,
         serverUrl: String,
         itemId: String,
@@ -745,7 +752,7 @@ object SyncClient {
         }
     }
 
-    fun saveIncomingBytes(
+    suspend fun saveIncomingBytes(
         context: Context,
         dirUri: Uri?,
         fileName: String,
@@ -826,7 +833,7 @@ object SyncClient {
         )
     }
 
-    private fun saveFile(
+    private suspend fun saveFile(
         context: Context,
         dirUri: Uri,
         fileName: String,
@@ -858,7 +865,7 @@ object SyncClient {
         }
     }
 
-    private fun saveFileInAppCache(
+    private suspend fun saveFileInAppCache(
         context: Context,
         fileName: String,
         bytes: ByteArray
@@ -998,7 +1005,13 @@ object SyncClient {
         }.getOrDefault(false)
     }
 
-    private fun waitUntilReadable(context: Context, uri: Uri, expectedSize: Int): Uri? {
+    /**
+     * Wait until a just-saved file is fully readable.
+     *
+     * Suspend, with [delay] instead of `Thread.sleep`: this blocked an IO thread for up to 1.5s
+     * and was not cancellable (see C16).
+     */
+    private suspend fun waitUntilReadable(context: Context, uri: Uri, expectedSize: Int): Uri? {
         repeat(SAVED_URI_READY_RETRY_COUNT) { attempt ->
             val isReadable = runCatching {
                 context.contentResolver.openInputStream(uri)?.use { input ->
@@ -1021,7 +1034,7 @@ object SyncClient {
                 return uri
             }
             if (attempt < SAVED_URI_READY_RETRY_COUNT - 1) {
-                Thread.sleep(SAVED_URI_READY_RETRY_DELAY_MS)
+                delay(SAVED_URI_READY_RETRY_DELAY_MS)
             }
         }
         Log.w(TAG, "[Pull] Saved file is not readable yet: $uri")
@@ -1188,7 +1201,7 @@ object SyncClient {
         )
     }
 
-    private fun downloadSyncClipboardHistoryData(
+    private suspend fun downloadSyncClipboardHistoryData(
         context: Context,
         serverUrl: String,
         username: String,
