@@ -433,23 +433,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         ui.buttonsUi.apply {
             // Setup click listeners using ButtonAction
             ButtonAction.allConfigurableActions.forEach { action ->
-                setOnClickListener(action.id) {
-                    restoreVirtualKeyboardMode()
-                    action.execute(
-                        context = context,
-                        service = service,
-                        fcitx = fcitx,
-                        windowManager = windowManager,
-                        view = null,
-                        onActionComplete = {
-                            // Refresh UI state after action completion
-                            when (action.id) {
-                                "floating_toggle" -> evalIdleUiState()
-                                "one_handed_keyboard", "theme_toggle" -> updateButtonsState()
-                            }
-                        }
-                    )
-                }
+                setOnClickListener(action.id, defaultActionClickListener(action))
             }
             
             setOnLongClickListener("theme_toggle") {
@@ -619,16 +603,56 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         }
     }
 
+    /**
+     * Click listener that runs [action]'s built-in behavior.
+     *
+     * Extracted so [setupCustomActionListeners] can restore it on a button whose macro was
+     * removed.
+     */
+    private fun defaultActionClickListener(action: ButtonAction) = View.OnClickListener {
+        service.restoreVirtualKeyboardForKawaiiBarAction()
+        action.execute(
+            context = context,
+            service = service,
+            fcitx = fcitx,
+            windowManager = windowManager,
+            view = null,
+            onActionComplete = {
+                // Refresh UI state after action completion
+                when (action.id) {
+                    "floating_toggle" -> evalIdleUiState()
+                    "one_handed_keyboard", "theme_toggle" -> updateButtonsState()
+                }
+            }
+        )
+    }
+
+    /**
+     * Bind every configured button to either its macro or its default action.
+     *
+     * Iterating only the buttons that *have* macros was not enough: on reload the listener
+     * installed for a macro that has since been deleted stayed in place, so the button kept
+     * running the old macro (and a button converted from macro back to a built-in action did
+     * nothing at all). Rebinding every button makes the config the single source of truth.
+     */
     private fun setupCustomActionListeners(ui: IdleUi) {
         fun restoreVirtualKeyboardMode() {
             service.restoreVirtualKeyboardForKawaiiBarAction()
         }
         currentButtonsConfig.forEach { button ->
-            val steps = button.macroSteps ?: return@forEach
-            if (steps.isEmpty()) return@forEach
-            ui.buttonsUi.setOnClickListener(button.id) {
-                restoreVirtualKeyboardMode()
-                executeMacroSteps(steps, service, context)
+            val steps = button.macroSteps?.takeIf { it.isNotEmpty() }
+            if (steps != null) {
+                ui.buttonsUi.setOnClickListener(button.id) {
+                    restoreVirtualKeyboardMode()
+                    executeMacroSteps(steps, service, context)
+                }
+            } else {
+                // Restore the built-in behavior, or clear the listener entirely for an id with
+                // no known action (a leftover custom_N button whose macro was deleted).
+                ui.buttonsUi.setOnClickListener(
+                    button.id,
+                    ButtonAction.fromId(button.id)?.let { defaultActionClickListener(it) }
+                )
             }
         }
     }
