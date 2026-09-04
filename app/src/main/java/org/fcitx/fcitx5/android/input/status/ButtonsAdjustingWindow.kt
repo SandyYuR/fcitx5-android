@@ -52,6 +52,9 @@ private val prettyJson = kotlinx.serialization.json.Json { prettyPrint = true }
 private const val DRAG_FEEDBACK_DURATION_MS = 240L
 private const val DRAG_END_DURATION_MS = 280L
 
+/** Debounce window for persisting a drag reorder. */
+private const val SAVE_DEBOUNCE_MS = 400L
+
 data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjustingWindow>() {
 
     private val service: FcitxInputMethodService by manager.inputMethodService()
@@ -887,6 +890,10 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                     lastTopScrollerWidth = topScroller.width
                     renderTopButtons()
                 }
+                // Persist here rather than only in onDetached(): the IME process can be
+                // killed or the user can switch input methods without this window ever being
+                // detached, which used to lose the reordering silently.
+                scheduleSaveAfterDrag()
             }
         }
         true
@@ -1109,6 +1116,7 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     }
 
     override fun onDetached() {
+        root.removeCallbacks(saveAfterDragRunnable)
         topScroller.removeOnLayoutChangeListener(topScrollerLayoutListener)
         topScroller.setOnDragListener(null)
         bottomList.setOnDragListener(null)
