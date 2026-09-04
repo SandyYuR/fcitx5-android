@@ -473,6 +473,8 @@ class IconThemeListActivity : AppCompatActivity() {
                     if (preview != null && !preview.isRecycled) preview.recycle()
                     composed
                 }
+                // saveLongImageToShareCache now suspends (PNG encode is on IO) and sanitizes
+                // the prefix itself, so a theme name with path characters is safe here.
                 val uri = JsonFileQrShareManager.saveLongImageToShareCache(
                     this@IconThemeListActivity, image, "icon_theme_${theme.name}")
                 if (!image.isRecycled) image.recycle()
