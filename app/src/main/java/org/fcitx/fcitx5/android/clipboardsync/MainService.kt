@@ -1347,9 +1347,16 @@ class MainService : FcitxPluginService() {
         }
     }
 
+    /**
+     * Foreground state depends only on quick sync being enabled.
+     *
+     * It used to also require the screenshot-sync preference, which produced two bad outcomes
+     * (see C17): with screenshot sync off this was a plain background Service that Android 8+
+     * kills at will, and with it on the notification was permanent while sync itself was
+     * suspended most of the time.
+     */
     private fun shouldRunInForeground(): Boolean {
-        return prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED) &&
-            prefs.getBoolean(PREF_SCREENSHOT_SYNC, false)
+        return prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)
     }
 
     private fun createNotificationChannelIfNeeded() {
