@@ -73,6 +73,13 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
     private var originalTop = listOf<ConfigurableButton>()
     private var originalBottom = listOf<ConfigurableButton>()
     private var dragInProgress = false
+
+    /**
+     * Set when a layout change (rotation, one-handed toggle, requestLayout) asked for a top
+     * bar re-render while a drag was in flight. The re-render is deferred to DRAG_ENDED so
+     * removeAllViews() cannot detach the view being dragged mid-gesture.
+     */
+    private var topRenderDeferredByDrag = false
     private var indicatorSection: Section? = null
     private var indicatorIndex: Int = -1
     private var lastKnownOrientation = Configuration.ORIENTATION_UNDEFINED
@@ -85,6 +92,14 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
             val newWidth = right
             val oldWidth = oldRight
             if (newWidth <= 0) return@OnLayoutChangeListener
+            // renderTopButtons() calls removeAllViews(), which would detach the view
+            // currently being dragged: payload.index stops matching the real children and
+            // the DRAG_ENDED restore animation targets a detached view. Skip while dragging;
+            // DRAG_ENDED re-renders once the gesture is over.
+            if (dragInProgress) {
+                topRenderDeferredByDrag = true
+                return@OnLayoutChangeListener
+            }
             val orientation = context.resources.configuration.orientation
             val orientationChanged = orientation != lastKnownOrientation
             val widthChanged = newWidth != oldWidth && newWidth != lastTopScrollerWidth
@@ -857,6 +872,13 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
                     .setDuration(DRAG_END_DURATION_MS)
                     .setInterpolator(feedbackInterpolator)
                     .start()
+                // Catch up on any re-render we skipped while the drag was running.
+                if (topRenderDeferredByDrag) {
+                    topRenderDeferredByDrag = false
+                    lastKnownOrientation = context.resources.configuration.orientation
+                    lastTopScrollerWidth = topScroller.width
+                    renderTopButtons()
+                }
             }
         }
         true
@@ -1003,7 +1025,11 @@ data object ButtonsAdjustingWindow : InputWindow.SimpleInputWindow<ButtonsAdjust
 
     fun updateOverlayInsets(sidePadding: Int, bottomPadding: Int, topBarAtBottom: Boolean) {
         this.topBarAtBottom = topBarAtBottom
-        applyContentLayout()
+        // applyContentLayout() re-parents the panel's children; doing that mid-drag breaks
+        // the gesture the same way a top-bar re-render does. Padding is safe to apply.
+        if (!dragInProgress) {
+            applyContentLayout()
+        }
         root.setPadding(sidePadding, 0, sidePadding, bottomPadding)
     }
 
