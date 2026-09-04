@@ -15,6 +15,7 @@ import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.core.data.DataManager.dataDir
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.utils.FileUtil
+import org.fcitx.fcitx5.android.utils.PackageSignatures
 import org.fcitx.fcitx5.android.utils.appContext
 import org.fcitx.fcitx5.android.utils.isJavaIdentifier
 import org.xmlpull.v1.XmlPullParser
@@ -229,23 +230,12 @@ object DataManager {
         return packageName == normalized || packageName.startsWith("$normalized.")
     }
 
-    private fun hasSameSignature(packageName: String): Boolean {
-        val pm = appContext.packageManager
-        return try {
-            val mainSig = pm.getPackageInfo(
-                appContext.packageName,
-                PackageManager.GET_SIGNING_CERTIFICATES
-            )?.signingInfo?.apkContentsSigners ?: return false
-            val callerSig = pm.getPackageInfo(
-                packageName,
-                PackageManager.GET_SIGNING_CERTIFICATES
-            )?.signingInfo?.apkContentsSigners ?: return false
-            mainSig.contentEquals(callerSig)
-        } catch (e: Exception) {
-            Timber.w(e)
-            false
-        }
-    }
+    private fun hasSameSignature(packageName: String): Boolean =
+        PackageSignatures.haveSameSignature(
+            appContext.packageManager,
+            appContext.packageName,
+            packageName
+        )
 
     fun sync() = lock.withLock {
         synced = false

@@ -6,7 +6,6 @@ package org.fcitx.fcitx5.android
 
 import android.app.Service
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.IBinder
 import android.os.Process
@@ -28,6 +27,7 @@ import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.clipboard.HostClipboardFilter
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.utils.Const
+import org.fcitx.fcitx5.android.utils.PackageSignatures
 import org.fcitx.fcitx5.android.utils.desc
 import org.fcitx.fcitx5.android.utils.descEquals
 import timber.log.Timber
@@ -102,20 +102,7 @@ class FcitxRemoteService : Service() {
             return prefixes.any { packageMatchesPrefix(callingPackage, it) }
         } else {
             // When disabled: only allow same-signed builds (self-built)
-            return try {
-                val mainSig = packageManager.getPackageInfo(
-                    packageName,
-                    PackageManager.GET_SIGNING_CERTIFICATES
-                )?.signingInfo?.apkContentsSigners ?: return false
-                val callerSig = packageManager.getPackageInfo(
-                    callingPackage,
-                    PackageManager.GET_SIGNING_CERTIFICATES
-                )?.signingInfo?.apkContentsSigners ?: return false
-                mainSig.contentEquals(callerSig)
-            } catch (e: Exception) {
-                Timber.w(e)
-                false
-            }
+            return PackageSignatures.haveSameSignature(packageManager, packageName, callingPackage)
         }
     }
 
