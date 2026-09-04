@@ -24,6 +24,4 @@ interface IFcitxRemoteService {
     );
 
 
-   /** Reload fcitx quick phrase */
-   void reloadQuickPhrase();
 }

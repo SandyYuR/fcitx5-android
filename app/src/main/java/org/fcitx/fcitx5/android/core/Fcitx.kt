@@ -169,7 +169,6 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
     override suspend fun setAddonState(name: Array<String>, state: BooleanArray) =
         withFcitxContext { setFcitxAddonState(name, state) }
 
-    override suspend fun triggerQuickPhrase() = withFcitxContext { triggerQuickPhraseInput() }
     private suspend fun setClipboard(string: String, password: Boolean = false) =
         withFcitxContext { setFcitxClipboard(string, password) }
 
@@ -349,9 +348,6 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
 
         @JvmStatic
         external fun setFcitxAddonState(name: Array<String>, state: BooleanArray)
-
-        @JvmStatic
-        external fun triggerQuickPhraseInput()
 
         @JvmStatic
         external fun setFcitxClipboard(string: String, password: Boolean)

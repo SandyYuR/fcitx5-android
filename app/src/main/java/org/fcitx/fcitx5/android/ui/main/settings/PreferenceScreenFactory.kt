@@ -112,12 +112,6 @@ object PreferenceScreenFactory {
             }
         }
 
-        fun quickPhraseEditor() = Preference(context).apply {
-            setOnPreferenceClickListener {
-                navigate(SettingsRoute.QuickPhraseList)
-            }
-        }
-
         fun rimeUserDataDir(title: String): Preference = LongClickPreference(context).apply {
             setOnPreferenceClickListener {
                 AlertDialog.Builder(context)
@@ -189,7 +183,6 @@ object PreferenceScreenFactory {
                     // fcitx://config/addon/punctuation/punctuationmap/zh_CN
                     descriptor.uri?.substringAfterLast('/')
                 )
-                ConfigExternal.ETy.QuickPhrase -> quickPhraseEditor()
                 ConfigExternal.ETy.Chttrans -> addonConfigPreference("chttrans")
                 ConfigExternal.ETy.MultiSelect -> Preference(context).apply {
                     setOnPreferenceClickListener {

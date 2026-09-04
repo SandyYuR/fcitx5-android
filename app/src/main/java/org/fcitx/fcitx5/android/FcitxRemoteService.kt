@@ -18,7 +18,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.fcitx.fcitx5.android.common.ipc.IClipboardEntryTransformer
 import org.fcitx.fcitx5.android.common.ipc.IFcitxRemoteService
-import org.fcitx.fcitx5.android.core.reloadQuickPhrase
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.clipboard.HostClipboardFilter
@@ -126,10 +125,6 @@ class FcitxRemoteService : Service() {
                     notifyListeners = false
                 )
             }
-        }
-
-        override fun reloadQuickPhrase() {
-            FcitxDaemon.getFirstConnectionOrNull()?.runIfReady { reloadQuickPhrase() }
         }
     }
 
