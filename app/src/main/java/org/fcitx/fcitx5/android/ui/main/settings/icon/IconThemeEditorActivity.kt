@@ -45,6 +45,14 @@ class IconThemeEditorActivity : AppCompatActivity() {
         private const val MENU_DELETE = 1
         private const val MENU_RENAME = 2
         private const val MENU_SAVE = 3
+
+        /**
+         * Largest icon file accepted from the picker (see A6).
+         *
+         * A single toolbar icon: 2MB is far beyond any real PNG or SVG, and the read was
+         * previously unbounded on a stream the provider controls.
+         */
+        private const val MAX_ICON_BYTES = 2 * 1024 * 1024
     }
 
     private var theme: IconTheme = IconTheme.default()
@@ -206,7 +214,19 @@ class IconThemeEditorActivity : AppCompatActivity() {
     private fun handlePickedSvg(uri: Uri, slot: String) {
         try {
             val valueToStore = contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use { reader ->
-                reader.readText().trim()
+                // Bounded for the same reason as handlePickedPng (see A6).
+                val chars = CharArray(MAX_ICON_BYTES + 1)
+                var read = 0
+                while (read < chars.size) {
+                    val n = reader.read(chars, read, chars.size - read)
+                    if (n <= 0) break
+                    read += n
+                }
+                if (read > MAX_ICON_BYTES) {
+                    Toast.makeText(this, getString(R.string.icon_theme_invalid_svg), Toast.LENGTH_SHORT).show()
+                    return
+                }
+                String(chars, 0, read).trim()
             } ?: run {
                 Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
                 return
@@ -225,7 +245,22 @@ class IconThemeEditorActivity : AppCompatActivity() {
 
     private fun handlePickedPng(uri: Uri, slot: String) {
         try {
-            val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            // Bounded: an icon is a small image, and readBytes() on a provider-supplied stream is
+            // as unbounded as the provider chooses to be (see A6).
+            val bytes = contentResolver.openInputStream(uri)?.use { input ->
+                val limited = ByteArray(MAX_ICON_BYTES + 1)
+                var read = 0
+                while (read < limited.size) {
+                    val n = input.read(limited, read, limited.size - read)
+                    if (n <= 0) break
+                    read += n
+                }
+                if (read > MAX_ICON_BYTES) {
+                    Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
+                    return
+                }
+                limited.copyOf(read)
+            }
                 ?: run {
                     Toast.makeText(this, getString(R.string.icon_theme_read_svg_failed), Toast.LENGTH_SHORT).show()
                     return
