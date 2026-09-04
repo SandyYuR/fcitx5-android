@@ -2,6 +2,8 @@
 
 [Fcitx5](https://github.com/fcitx/fcitx5) input method framework and engines ported to Android.
 
+*** 停止更新了，留意相关fork可能有更优秀的修复隐藏bug或性能改善 ***
+
 本mod是基于原仓几乎全程 vibe coding 而成，在原仓上增加了相当若干特性，包名为了方便网友同时使用体验使用改成了`org.fcitx.fcitx5.android.fx`，总体上可以理解成原仓做的超集, 可在[releases](https://github.com/fxliang/fcitx5-android/releases)下面下载体验。
 
 如果你觉得本项目对你有帮助，欢迎支持我继续vibe改进
