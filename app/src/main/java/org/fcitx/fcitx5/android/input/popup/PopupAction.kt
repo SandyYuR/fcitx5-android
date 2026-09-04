@@ -27,8 +27,16 @@ sealed class PopupAction {
         override val viewId: Int
     ) : PopupAction()
 
+    /**
+     * Dismiss every popup, optionally sparing one.
+     *
+     * [exceptViewId] exists for multi-touch: showing a popup for a second key must not take
+     * down the popup of the key still held by the first finger, because dismissing it discards
+     * the pending selection and nothing gets committed on release.
+     */
     data class DismissAllAction(
-        override val viewId: Int = -1
+        override val viewId: Int = -1,
+        val exceptViewId: Int? = null
     ) : PopupAction()
 
     data class ShowKeyboardAction(
