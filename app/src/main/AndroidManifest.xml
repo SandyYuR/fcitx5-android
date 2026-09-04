@@ -17,7 +17,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
@@ -302,11 +301,15 @@
             </intent-filter>
         </service>
 
+        <!--
+          dataSync, not remoteMessaging: this service polls a clipboard server and uploads local
+          changes. Android 14+ requires the declared type to match actual use (see C21).
+        -->
         <service
             android:name=".clipboardsync.MainService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="remoteMessaging" />
+            android:foregroundServiceType="dataSync" />
 
         <activity
             android:name=".clipboardsync.ui.ClipboardSyncSettingsActivity"

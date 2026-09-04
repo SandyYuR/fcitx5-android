@@ -27,6 +27,7 @@ import android.util.Base64
 import android.util.Log
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
@@ -87,6 +88,13 @@ class MainService : FcitxPluginService() {
         private const val EVENT_BACKEND_HEALTH_CHECK_MS = 30_000L
         private const val EVENT_BACKEND_FALLBACK_PULL_MS = 60_000L
         private const val EVENT_BACKEND_STALE_RECONNECT_MS = 120_000L
+        /**
+         * Poll interval while the screen is on but no text field is focused (see C17).
+         *
+         * Between the normal interval and the screen-off one: sync keeps working after the
+         * keyboard closes, without polling at typing frequency all day.
+         */
+        private const val IME_IDLE_POLL_INTERVAL_SECONDS = 10L
         private const val SCREEN_OFF_POLL_INTERVAL_SECONDS = 15L
         private const val POWER_SAVE_POLL_INTERVAL_SECONDS = 30L
         private const val AGGRESSIVE_POLL_INTERVAL_SECONDS = 60L
@@ -176,6 +184,13 @@ class MainService : FcitxPluginService() {
             context.startService(intent)
         }
 
+        /**
+         * Called when the IME loses its input connection.
+         *
+         * Despite the name this no longer stops syncing while quick sync is on: it clears the
+         * "IME in front" flag, which now only lowers the polling frequency, and refreshes the
+         * service. Sync used to halt completely here and stay halted (see C17).
+         */
         fun stopSyncService(context: Context) {
             if (!isCredentialStorageUnlocked(context)) return
             val prefs = defaultSharedPreferencesOrNull(context) ?: return
@@ -1355,10 +1370,11 @@ class MainService : FcitxPluginService() {
         val notification = buildForegroundNotification()
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Must match the manifest declaration, which is dataSync (see C21).
                 startForeground(
                     NOTIFICATION_ID,
                     notification,
-                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
                 )
             } else {
                 startForeground(NOTIFICATION_ID, notification)
@@ -1378,6 +1394,22 @@ class MainService : FcitxPluginService() {
             }
             foregroundActive = false
         }
+    }
+
+    /**
+     * Android 15+ dataSync quota expiry (roughly 6 hours per day).
+     *
+     * Without an override the system throws once the quota runs out. Degrade instead: drop the
+     * foreground state and stop the loops, keeping the process alive so the next IME activation
+     * can start a fresh foreground session (see C21).
+     */
+    @RequiresApi(35)
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        Log.w(TAG, "[Service] Foreground dataSync quota expired (startId=$startId), pausing sync loops")
+        stopPeriodicSync()
+        stopHealthMonitor()
+        stopForegroundState()
+        super.onTimeout(startId, fgsType)
     }
 
     private fun stopForegroundState() {
@@ -1454,11 +1486,19 @@ class MainService : FcitxPluginService() {
         } else {
             true
         }
-        return if (ignoringBatteryOptimization) {
+        // Say what is actually happening. The notification used to read "syncing in background"
+        // even while the loops were stopped (see C17).
+        val stateLabel = when {
+            !shouldRunSyncLoops() -> getString(R.string.keep_alive_notification_state_paused)
+            currentRuntimeMode() == RuntimeMode.NORMAL -> getString(R.string.keep_alive_notification_state_active)
+            else -> getString(R.string.keep_alive_notification_state_idle)
+        }
+        val base = if (ignoringBatteryOptimization) {
             getString(R.string.keep_alive_notification_text, backendLabel)
         } else {
             getString(R.string.keep_alive_notification_text_battery, backendLabel)
         }
+        return "$stateLabel · $base"
     }
 
     private fun noteRemoteSyncSuccess() {
@@ -1565,11 +1605,23 @@ class MainService : FcitxPluginService() {
         )
     }
 
+    /**
+     * Whether the pull/health loops should run at all.
+     *
+     * Deliberately does **not** consult [PREF_IME_SYNC_ACTIVE]. That flag is set on
+     * `onStartInput` and cleared as soon as any text field loses focus, so sync stopped
+     * completely on every defocus and could not come back: `scheduleReconnect()` starts with
+     * this same check, so neither screen-on nor unlock recovered it — the user had to tap into a
+     * text field again (see C17). The IME being in front now only affects how often we poll,
+     * via [RuntimeMode.IME_IDLE].
+     */
     private fun shouldRunSyncLoops(): Boolean {
         val quickSyncEnabled = prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)
-        val imeSyncActive = prefs.getBoolean(PREF_IME_SYNC_ACTIVE, false)
-        return quickSyncEnabled && imeSyncActive && isScreenInteractive()
+        return quickSyncEnabled && isScreenInteractive()
     }
+
+    private fun isImeSyncActive(): Boolean =
+        prefs.getBoolean(PREF_IME_SYNC_ACTIVE, false)
 
     private fun isScreenInteractive(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
@@ -1588,6 +1640,7 @@ class MainService : FcitxPluginService() {
         return when {
             isPowerSaveEnabled() -> RuntimeMode.POWER_SAVE
             !isScreenInteractive() -> RuntimeMode.SCREEN_OFF
+            !isImeSyncActive() -> RuntimeMode.IME_IDLE
             else -> RuntimeMode.NORMAL
         }
     }
@@ -1595,6 +1648,7 @@ class MainService : FcitxPluginService() {
     private fun currentPollingIntervalSeconds(baseIntervalSeconds: Long): Long {
         return when (currentRuntimeMode()) {
             RuntimeMode.NORMAL -> baseIntervalSeconds
+            RuntimeMode.IME_IDLE -> maxOf(baseIntervalSeconds, IME_IDLE_POLL_INTERVAL_SECONDS)
             RuntimeMode.SCREEN_OFF -> maxOf(baseIntervalSeconds, SCREEN_OFF_POLL_INTERVAL_SECONDS)
             RuntimeMode.POWER_SAVE -> maxOf(baseIntervalSeconds, POWER_SAVE_POLL_INTERVAL_SECONDS)
             RuntimeMode.AGGRESSIVE -> maxOf(baseIntervalSeconds, AGGRESSIVE_POLL_INTERVAL_SECONDS)
@@ -1604,6 +1658,7 @@ class MainService : FcitxPluginService() {
     private fun currentHealthCheckDelayMs(): Long {
         return when (currentRuntimeMode()) {
             RuntimeMode.NORMAL -> EVENT_BACKEND_HEALTH_CHECK_MS
+            RuntimeMode.IME_IDLE -> maxOf(EVENT_BACKEND_HEALTH_CHECK_MS, SCREEN_OFF_HEALTH_CHECK_MS)
             RuntimeMode.SCREEN_OFF -> SCREEN_OFF_HEALTH_CHECK_MS
             RuntimeMode.POWER_SAVE -> POWER_SAVE_HEALTH_CHECK_MS
             RuntimeMode.AGGRESSIVE -> AGGRESSIVE_HEALTH_CHECK_MS
@@ -1613,6 +1668,7 @@ class MainService : FcitxPluginService() {
     private fun currentFallbackPullDelayMs(): Long {
         return when (currentRuntimeMode()) {
             RuntimeMode.NORMAL -> EVENT_BACKEND_FALLBACK_PULL_MS
+            RuntimeMode.IME_IDLE -> maxOf(EVENT_BACKEND_FALLBACK_PULL_MS, SCREEN_OFF_FALLBACK_PULL_MS)
             RuntimeMode.SCREEN_OFF -> SCREEN_OFF_FALLBACK_PULL_MS
             RuntimeMode.POWER_SAVE -> POWER_SAVE_FALLBACK_PULL_MS
             RuntimeMode.AGGRESSIVE -> AGGRESSIVE_FALLBACK_PULL_MS
@@ -1622,30 +1678,55 @@ class MainService : FcitxPluginService() {
     private fun currentStaleReconnectDelayMs(): Long {
         return when (currentRuntimeMode()) {
             RuntimeMode.NORMAL -> EVENT_BACKEND_STALE_RECONNECT_MS
+            RuntimeMode.IME_IDLE -> maxOf(EVENT_BACKEND_STALE_RECONNECT_MS, SCREEN_OFF_STALE_RECONNECT_MS)
             RuntimeMode.SCREEN_OFF -> SCREEN_OFF_STALE_RECONNECT_MS
             RuntimeMode.POWER_SAVE -> POWER_SAVE_STALE_RECONNECT_MS
             RuntimeMode.AGGRESSIVE -> AGGRESSIVE_STALE_RECONNECT_MS
         }
     }
 
+    /**
+     * Cached receive filter; cleared by [invalidateReceiveFilterCache].
+     *
+     * Volatile because the pull loop and the ClipCascade message handler read it from different
+     * coroutines while the preference listener clears it on the main thread.
+     */
+    @Volatile
+    private var cachedReceiveFilter: ReceiveFilter? = null
+
+    /**
+     * The active receive filter.
+     *
+     * Cached because this is called once per candidate item, and building it reads four
+     * preferences and splits a string with a regex — 50 history entries meant 50 rebuilds
+     * (see G3).
+     */
     private fun currentReceiveFilter(): ReceiveFilter {
+        cachedReceiveFilter?.let { return it }
         val state = SyncFilterPrefs.loadState(prefs)
-        if (!state.hasActiveRule) {
-            return ReceiveFilter(
+        val filter = if (!state.hasActiveRule) {
+            ReceiveFilter(
                 blockedExtensions = emptySet(),
                 minFileSizeBytes = null,
                 maxFileSizeBytes = null,
                 minTextChars = null,
                 maxTextChars = null
             )
+        } else {
+            ReceiveFilter(
+                blockedExtensions = state.blockedExtensions,
+                minFileSizeBytes = null,
+                maxFileSizeBytes = state.maxFileSizeBytes,
+                minTextChars = state.minTextChars,
+                maxTextChars = state.maxTextChars
+            ).normalized()
         }
-        return ReceiveFilter(
-            blockedExtensions = state.blockedExtensions,
-            minFileSizeBytes = null,
-            maxFileSizeBytes = state.maxFileSizeBytes,
-            minTextChars = state.minTextChars,
-            maxTextChars = state.maxTextChars
-        ).normalized()
+        cachedReceiveFilter = filter
+        return filter
+    }
+
+    private fun invalidateReceiveFilterCache() {
+        cachedReceiveFilter = null
     }
 
     private fun shouldAcceptIncomingMetadata(data: ClipboardData): Boolean {
@@ -2236,6 +2317,13 @@ class MainService : FcitxPluginService() {
 
     private enum class RuntimeMode {
         NORMAL,
+
+        /**
+         * Screen on, quick sync on, but no text field focused.
+         *
+         * Replaces the old behaviour of stopping the loops entirely in this state (see C17).
+         */
+        IME_IDLE,
         SCREEN_OFF,
         POWER_SAVE,
         AGGRESSIVE
