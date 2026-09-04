@@ -120,8 +120,13 @@ abstract class BaseKeyboard(
     private val spaceSwipeMoveCursor = prefs.keyboard.spaceSwipeMoveCursor
     private val spaceKeys = mutableListOf<KeyView>()
     private val spaceSwipeChangeListener = ManagedPreference.OnChangeListener<Boolean> { _, v ->
-        spaceKeys.forEach {
-            it.swipeEnabled = v
+        spaceKeys.forEach { keyView ->
+            keyView.swipeEnabled = v
+            // Keep the recorded baseline in step, or the next rebind would restore the old
+            // value from it (see [gestureBaselines]).
+            gestureBaselines[keyView]?.let { baseline ->
+                gestureBaselines[keyView] = baseline.copy(swipeEnabled = v)
+            }
         }
     }
 
@@ -287,21 +292,31 @@ abstract class BaseKeyboard(
 
         validatedRows.forEach { row ->
             row.forEach { (def, keyView) ->
-                if ((def is SpaceKey || def is MiniSpaceKey) && !spaceKeys.contains(keyView)) {
-                    spaceKeys.add(keyView)
+                if (def is SpaceKey || def is MiniSpaceKey) {
+                    if (!spaceKeys.contains(keyView)) spaceKeys.add(keyView)
+                    // The pref is read once, when the view is built, so a reused row carries
+                    // the value from whenever it was first created: toggling "swipe space to
+                    // move cursor" had no effect on any layout already in the cache until the
+                    // app restarted. Re-apply the current value, and keep the recorded
+                    // baseline in step (see [gestureBaselines]).
+                    keyView.swipeEnabled = spaceSwipeMoveCursor.getValue()
+                    gestureBaselines[keyView]?.let { baseline ->
+                        gestureBaselines[keyView] = baseline.copy(swipeEnabled = keyView.swipeEnabled)
+                    }
                 }
                 if (def.composeOverride != null) {
-                    composeAwareKeys += ComposeAwareKey(
-                        def,
-                        keyView,
-                        GestureBaseline(
-                            swipeEnabled = keyView.swipeEnabled,
-                            swipeRepeatEnabled = keyView.swipeRepeatEnabled,
-                            swipeThresholdX = keyView.swipeThresholdX,
-                            swipeThresholdY = keyView.swipeThresholdY,
-                            onGestureListener = keyView.onGestureListener
-                        )
+                    // Use the baseline recorded when this view was built. Deriving it from the
+                    // view here would capture the *wrapped* gesture listener installed by the
+                    // last applyBehaviorPopupBindings, so each reuse nested another layer and
+                    // the chain grew without bound.
+                    val baseline = gestureBaselines[keyView] ?: GestureBaseline(
+                        swipeEnabled = keyView.swipeEnabled,
+                        swipeRepeatEnabled = keyView.swipeRepeatEnabled,
+                        swipeThresholdX = keyView.swipeThresholdX,
+                        swipeThresholdY = keyView.swipeThresholdY,
+                        onGestureListener = keyView.onGestureListener
                     )
+                    composeAwareKeys += ComposeAwareKey(def, keyView, baseline)
                 }
             }
         }
