@@ -5,6 +5,8 @@
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.data
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition
@@ -96,6 +98,25 @@ class LayoutDataManager(private val context: Context) {
      * @param file 布局文件
      * @return 加载是否成功
      */
+    /**
+     * [loadFromFile] on [Dispatchers.IO].
+     *
+     * Reading + JSON parsing + migration of a layout file took long enough to drop frames when
+     * done on the main thread, which is where every caller ran (see D7).
+     */
+    suspend fun loadFromFileAsync(file: File?): Boolean = withContext(Dispatchers.IO) {
+        loadFromFile(file)
+    }
+
+    /**
+     * [saveToFile] on [Dispatchers.IO].
+     *
+     * Save does validation, a backup copy, serialization and an atomic write — all file work.
+     */
+    suspend fun saveToFileAsync(file: File): Boolean = withContext(Dispatchers.IO) {
+        saveToFile(file)
+    }
+
     fun loadFromFile(file: File?): Boolean {
         entries.clear()
         layoutHeightPercentOverrides.clear()
