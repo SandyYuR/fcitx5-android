@@ -1345,8 +1345,11 @@ abstract class BaseKeyboard(
     private fun flushDeferredComposeRecreations() {
         val pending = pendingComposeRecreations ?: return
         // Another finger may still be on one of them (this runs per pointer-up); keep waiting
-        // for those rather than swapping a view out mid-gesture again.
-        val (ready, stillHeld) = pending.partition { !isKeyHeld(it.keyView) }
+        // for those rather than swapping a view out mid-gesture again. Views that have left the
+        // tree are dropped rather than kept waiting: recreateComposeAwareKeyView needs a parent
+        // anyway, and an isPressed left stuck on a detached view would queue it forever.
+        val live = pending.filter { it.keyView.parent != null }
+        val (ready, stillHeld) = live.partition { !isKeyHeld(it.keyView) }
         pendingComposeRecreations = stillHeld.takeIf { it.isNotEmpty() }
         if (ready.isEmpty()) return
         val parents = ready.mapNotNull { it.keyView.parent as? ViewGroup }.distinct()
@@ -2093,8 +2096,13 @@ abstract class BaseKeyboard(
         val handled = super.dispatchTouchEvent(ev)
         // The ordinary (non-vivo) path never populates touchTargets, so this is where a
         // deferred compose recreation gets its chance to run once the gesture is over.
-        if (ev.actionMasked == MotionEvent.ACTION_UP || ev.actionMasked == MotionEvent.ACTION_CANCEL) {
-            flushDeferredComposeRecreations()
+        // POINTER_UP counts too: motion event splitting is on, so with two fingers down the
+        // first release arrives here as ACTION_POINTER_UP and only the last one as ACTION_UP —
+        // the key released first would otherwise wait for its neighbour.
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_UP,
+            MotionEvent.ACTION_POINTER_UP,
+            MotionEvent.ACTION_CANCEL -> flushDeferredComposeRecreations()
         }
         return handled
     }

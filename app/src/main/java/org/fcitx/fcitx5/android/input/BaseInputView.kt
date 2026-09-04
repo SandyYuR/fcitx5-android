@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
+import org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException
 import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
@@ -28,6 +29,7 @@ import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.navbarFrameHeight
 import org.fcitx.fcitx5.android.utils.styledColorOrDefault
 import splitties.views.dsl.core.withTheme
+import timber.log.Timber
 import kotlin.math.max
 
 abstract class BaseInputView(
@@ -47,9 +49,16 @@ abstract class BaseInputView(
 
     private fun setupFcitxEventHandler() {
         eventHandlerJob = service.lifecycleScope.launch {
-            fcitx.runImmediately { eventFlow }.collect {
-                handleFcitxEvent(it)
+            // A view can outlive its connection by a moment (service teardown, fcitx restart).
+            // Since C31 that surfaces as FcitxDisconnectedException instead of a
+            // CancellationException, so it has to be caught rather than left to crash.
+            val events = try {
+                fcitx.runImmediately { eventFlow }
+            } catch (e: FcitxDisconnectedException) {
+                Timber.d(e, "fcitx event flow unavailable for this view")
+                return@launch
             }
+            events.collect { handleFcitxEvent(it) }
         }
     }
 
