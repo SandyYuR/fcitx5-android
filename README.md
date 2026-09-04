@@ -6,7 +6,6 @@
 
 本mod是基于原仓几乎全程 vibe coding 而成，在原仓上增加了相当若干特性，包名为了方便网友同时使用体验使用改成了`org.fcitx.fcitx5.android.fx`，总体上可以理解成原仓做的超集, 可在[releases](https://github.com/fxliang/fcitx5-android/releases)下面下载体验。
 
-如果你觉得本项目对你有帮助，欢迎支持我继续vibe改进
 
 微信赞赏码
 <img width="600" height="600" src="https://github.com/user-attachments/assets/503063b1-4951-4d88-aaa3-463585135233" />
