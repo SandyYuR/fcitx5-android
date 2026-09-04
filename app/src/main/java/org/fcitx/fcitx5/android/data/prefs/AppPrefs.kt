@@ -90,18 +90,6 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val ignoreSystemWindowInsets = switch(
             R.string.ignore_system_window_insets, "ignore_system_window_insets", false
         )
-        val allowOriginalPlugins = switch(
-            R.string.allow_original_plugins,
-            "allow_original_plugins",
-            false,
-            R.string.allow_original_plugins_summary
-        )
-        val allowedPluginPrefixes = stringSet(
-            R.string.allowed_plugin_prefixes,
-            "allowed_plugin_prefixes",
-            emptySet(),
-            R.string.allowed_plugin_prefixes_summary
-        ) { allowOriginalPlugins.getValue() }
         val keyboardHeightPercentBase = enumList(
             R.string.keyboard_height_percent_base,
             "keyboard_height_percent_base",

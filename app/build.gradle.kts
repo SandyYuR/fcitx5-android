@@ -14,10 +14,6 @@ val appIdBase = packageBase
 val appIdFxSuffix = ".fx"
 val flavorFx = "fx"
 val appLabelDefault = "@string/app_name"
-val originalPluginManifestAction = "$packageBase.plugin.MANIFEST"
-val originalDebugPluginManifestAction = "$packageBase.debug.plugin.MANIFEST"
-val originalIpcAction = "$packageBase.IPC"
-val originalDebugIpcAction = "$packageBase.debug.IPC"
 val imeSettingsActivity = "$packageBase.ui.main.MainActivity"
 
 android {
@@ -27,12 +23,6 @@ android {
         applicationId = appIdBase
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["appLabel"] = appLabelDefault
-        manifestPlaceholders["originalPluginManifestAction"] = originalPluginManifestAction
-        manifestPlaceholders["originalDebugPluginManifestAction"] = originalDebugPluginManifestAction
-        manifestPlaceholders["originalIpcAction"] = originalIpcAction
-        manifestPlaceholders["originalDebugIpcAction"] = originalDebugIpcAction
-        buildConfigField("String", "ORIGINAL_PLUGIN_MANIFEST_ACTION", "\"$originalPluginManifestAction\"")
-        buildConfigField("String", "ORIGINAL_DEBUG_PLUGIN_MANIFEST_ACTION", "\"$originalDebugPluginManifestAction\"")
         resValue("string", "ime_settings_activity", imeSettingsActivity)
 
         @Suppress("UnstableApiUsage")

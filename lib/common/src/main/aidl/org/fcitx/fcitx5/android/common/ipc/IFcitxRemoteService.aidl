@@ -7,10 +7,6 @@ interface IFcitxRemoteService {
    String getVersionName();
    /** Get the process ID of fcitx app */
    int getPid();
-   /** Get loaded plugins in fcitx app */
-   Map<String, String> getLoadedPlugins();
-
-   /** Request fcitx daemon to restart fcitx */
    void restartFcitx();
 
    /** Register a clipboard transformer to fcitx app */
