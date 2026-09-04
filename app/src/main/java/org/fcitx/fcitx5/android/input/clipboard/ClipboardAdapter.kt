@@ -350,7 +350,11 @@ abstract class ClipboardAdapter(
     private fun ClipboardEntry.splittableText(): String? {
         if (isUriEntry()) return null
         val raw = text.trim()
-        return raw.takeIf { it.length > 10 }
+        // Upper bound as well as lower: the tokenizer truncates at MAX_TOKENIZE_LENGTH, so
+        // offering "split" on a much longer entry would silently only split its beginning.
+        return raw.takeIf {
+            it.length > 10 && it.length <= ClipboardTextTokenizer.MAX_TOKENIZE_LENGTH
+        }
     }
 
     private fun ClipboardEntry.dialableCnMobileNumber(): String? {
