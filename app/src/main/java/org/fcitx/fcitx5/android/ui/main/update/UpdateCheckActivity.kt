@@ -173,10 +173,24 @@ class UpdateCheckActivity : AppCompatActivity() {
         super.onResume()
         validateFinishedDownloads()
         pollDownloadProgress()
+        // onPause stopped the poll loop; restart it when something is still downloading.
+        if (downloadStates.values.any { it.status == AssetStatus.DOWNLOADING }) {
+            startPolling()
+        }
+    }
+
+    override fun onPause() {
+        // Stop the 800ms poll while we are not visible: it queries DownloadManager and
+        // (via validateFinishedDownloads) hashes finished APKs. onResume restarts it if any
+        // download is still running.
+        stopPolling()
+        super.onPause()
     }
 
     override fun onDestroy() {
         stopPolling()
+        validationJob?.cancel()
+        validationJob = null
         manualDownloadJobs.values.toList().forEach { it.cancel() }
         manualDownloadJobs.clear()
         super.onDestroy()
@@ -715,7 +729,9 @@ class UpdateCheckActivity : AppCompatActivity() {
 
     private fun stopPolling() {
         polling = false
-        pollHandler.removeCallbacksAndMessages(null)
+        // Remove only our own runnable; removeCallbacksAndMessages(null) would also drop
+        // unrelated work posted to this (main-thread) handler.
+        pollHandler.removeCallbacks(pollRunnable)
     }
 
     private fun pollDownloadProgress() {
