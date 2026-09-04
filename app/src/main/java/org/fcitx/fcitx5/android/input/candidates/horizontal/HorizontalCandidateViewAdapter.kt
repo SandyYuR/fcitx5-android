@@ -63,32 +63,59 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
         indexOffset: Int = this.indexOffset,
     ) {
         val fontChanged = refreshCandidateFontIfNeeded()
+        val old = candidates
         if (
             !fontChanged &&
             this.total == total &&
-            this.activeIndex == activeIndex &&
             this.indexOffset == indexOffset &&
-            this.candidates.contentEquals(data)
+            old.contentEquals(data)
         ) {
+            if (this.activeIndex != activeIndex) {
+                updateActiveIndex(activeIndex)
+            }
             return
         }
-        // Only the highlight moved: rebind the two affected items instead of the whole list.
-        // The adapter has stable ids and no item animator, so a full rebind is pure waste, and
-        // moving the cursor through a long candidate list did it once per step (see E5).
-        val onlyActiveIndexChanged = !fontChanged &&
-            this.total == total &&
-            this.indexOffset == indexOffset &&
-            this.candidates.contentEquals(data)
-        if (onlyActiveIndexChanged) {
-            updateActiveIndex(activeIndex)
-            return
-        }
+        val oldActive = this.activeIndex
         this.candidates = data
         this.total = total
         this.activeIndex = activeIndex
         this.indexOffset = indexOffset
-        notifyDataSetChanged()
+        // Structural diff on the common prefix/suffix: unchanged candidates keep their
+        // ViewHolders, only the differing middle range is (re)bound.
+        val minLen = minOf(old.size, data.size)
+        var prefix = 0
+        while (prefix < minLen && old[prefix] == data[prefix]) prefix++
+        var oldEnd = old.size
+        var newEnd = data.size
+        while (oldEnd > prefix && newEnd > prefix && old[oldEnd - 1] == data[newEnd - 1]) {
+            oldEnd--
+            newEnd--
+        }
+        if (prefix == old.size && prefix == data.size) {
+            // content is identical; only metadata (total/indexOffset/font) changed
+            notifyDataSetChanged()
+        } else {
+            val commonLen = minOf(oldEnd, newEnd) - prefix
+            if (commonLen > 0) {
+                notifyItemRangeChanged(prefix, commonLen)
+            }
+            if (newEnd > oldEnd) {
+                notifyItemRangeInserted(prefix + commonLen, newEnd - oldEnd)
+            } else if (oldEnd > newEnd) {
+                notifyItemRangeRemoved(prefix + commonLen, oldEnd - newEnd)
+            }
+            // Re-bind highlight for items outside the structurally changed range.
+            if (oldActive != activeIndex) {
+                if (oldActive in data.indices && (oldActive < prefix || oldActive >= newEnd)) {
+                    notifyItemChanged(oldActive)
+                }
+                if (activeIndex in data.indices && (activeIndex < prefix || activeIndex >= newEnd)) {
+                    notifyItemChanged(activeIndex)
+                }
+            }
+        }
     }
+
 
     fun updateActiveIndex(index: Int) {
         if (index == activeIndex) return
