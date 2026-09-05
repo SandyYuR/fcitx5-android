@@ -10,6 +10,7 @@ import android.graphics.Typeface
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.tracing.trace
 import com.google.android.flexbox.FlexboxLayoutManager
 import org.fcitx.fcitx5.android.core.CandidateWord
 import org.fcitx.fcitx5.android.data.theme.Theme
@@ -93,7 +94,7 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
         }
         if (prefix == old.size && prefix == data.size) {
             // content is identical; only metadata (total/indexOffset/font) changed
-            notifyDataSetChanged()
+            trace("notifyDataSetChanged") { notifyDataSetChanged() }
         } else {
             val commonLen = minOf(oldEnd, newEnd) - prefix
             if (commonLen > 0) {

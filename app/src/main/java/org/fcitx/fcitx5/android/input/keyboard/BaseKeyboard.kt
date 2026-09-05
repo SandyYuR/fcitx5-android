@@ -26,6 +26,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.CallSuper
+import androidx.tracing.trace
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.Guideline
@@ -2169,9 +2170,14 @@ abstract class BaseKeyboard(
         action: KeyAction,
         source: KeyActionListener.Source = KeyActionListener.Source.Keyboard
     ) {
-        when (action) {
-            is MacroAction -> executeMacro(preprocessMacroAction(action, source))
-            else -> keyActionListener?.onKeyAction(action, source)
+        // Phase 0 perf tracing: marks the UI-thread moment a key action (typically
+        // fired on ACTION_UP) enters the fcitx pipeline, for UP->candidates-visible
+        // latency measurement in Perfetto.
+        trace("KeyView ACTION_UP dispatch") {
+            when (action) {
+                is MacroAction -> executeMacro(preprocessMacroAction(action, source))
+                else -> keyActionListener?.onKeyAction(action, source)
+            }
         }
     }
 

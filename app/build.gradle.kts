@@ -148,6 +148,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.startup)
+    implementation(libs.androidx.tracing.ktx)
     implementation(libs.androidx.viewpager2)
     implementation(libs.material)
     implementation(libs.arrow.core)
