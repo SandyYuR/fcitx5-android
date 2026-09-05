@@ -2388,24 +2388,6 @@ abstract class BaseKeyboard(
     }
 
     /**
-     * Check whether it is a modifier key
-     * Includes Ctrl, Alt, Shift, Meta, Super, Hyper, and Mode_switch
-     */
-    private fun isModifierKey(code: String): Boolean {
-        return code in arrayOf(
-            "Ctrl_L", "Ctrl_R",
-            "Alt_L", "Alt_R",
-            "Shift_L", "Shift_R",
-            "Meta_L", "Meta_R",
-            "Super_L", "Super_R",
-            "Hyper_L", "Hyper_R",
-            "Mode_switch",
-            "ISO_Level3_Shift",
-            "ISO_Level5_Shift"
-        )
-    }
-
-    /**
      * Map Fcitx key name to Android key code
      */
     private fun mapFcitxToAndroidKey(code: String): Int {
@@ -2649,9 +2631,13 @@ abstract class BaseKeyboard(
             shouldShiftSymbol(code)
         }
         val fallbackAct = if (isLetter) code.lowercase() else code
-        // For modifier keys (e.g. Shift), keep press time longer so Rime can recognize standalone Shift
-        val isMod = isModifierKey(code)
-        val keyHoldDelayMs = if (isMod) 150L else 50L
+        // Every key is held for the same interval, modifiers included. Modifiers used to be held
+        // longer, on the theory that Rime needs it to recognize a standalone modifier tap; it does
+        // not. librime's AsciiComposer tells a lone modifier from a "modifier + key" combo by event
+        // order, not elapsed time, and only imposes an upper bound (release within 500ms). The hold
+        // exists only so the down/up pair looks like a real keystroke to apps that receive the
+        // forwarded events. Same value as FcitxInputMethodService.STANDALONE_MODIFIER_HOLD_MS.
+        val keyHoldDelayMs = 50L
 
         val keyCode = mapSpecialFcitxToAndroidKey(code) ?: mapFcitxToAndroidKey(code)
         val scanCode = mapFcitxToScanCode(code, keyCode)
