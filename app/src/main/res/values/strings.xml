@@ -411,8 +411,6 @@
     <string name="update_table">Update table</string>
     <string name="update_invalid_download_url">Invalid download URL.</string>
     <string name="table_dict_replace_message">Dictionary of table-based input method \"%1$s\" exists. You may import a new dict and replace it.</string>
-    <string name="lang_switch_key_behavior">Language switch key behavior</string>
-    <string name="lang_switch_behavior_next_ime_app">Switch to next input method App</string>
     <string name="_cannot_be_empty">%1$s cannot be empty</string>
     <string name="clipboard_mask_sensitive">Mask sensitive data (such as passwords)</string>
     <string name="open_rime_user_data_dir">Application data directory will be opened. RIME user data directory is inside \"data\" and depends on the current profile.</string>

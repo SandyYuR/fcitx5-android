@@ -57,6 +57,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
@@ -114,6 +115,15 @@ import kotlin.math.max
  * Android KeyCharacterMap resolves the digit/symbol characters instead of navigation keys.
  */
 private val NUMPAD_KEYCODE_RANGE = KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_RIGHT_PAREN
+
+/**
+ * How long a synthesized standalone modifier key is held down.
+ *
+ * Rime's `ascii_composer` only treats a modifier as a mode-switch key when press and release are
+ * distinguishable, so press and release must not land on the same instant. Same value as the
+ * modifier hold in `BaseKeyboard.sendFcitxKeyTap`.
+ */
+private const val STANDALONE_MODIFIER_HOLD_MS = 150L
 
 class FcitxInputMethodService : LifecycleInputMethodService() {
 
@@ -1446,6 +1456,43 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_DOWN, fromMacro = true)
         sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_UP, fromMacro = true)
+    }
+
+    /**
+     * Serializes [sendStandaloneShiftTap] so a fast double tap produces two separate taps
+     * instead of a nested down-down-up-up sequence (which the engine would see as one).
+     */
+    private var standaloneShiftTapJob: Job? = null
+
+    /**
+     * Send one standalone Shift tap (press, short hold, release).
+     *
+     * This is what the language key does: instead of switching input method itself, it hands a
+     * lone Shift to the engine and lets the engine decide. For Rime that is
+     * `ascii_composer/switch_key`, i.e. the Chinese/Latin (`ascii_mode`) toggle configured in
+     * the user's `default.custom.yaml`.
+     *
+     * Two details are load-bearing:
+     * - it goes through [sendSimulatedKeyEvent], never [sendSimulatedKeyEventOrFallback]: the
+     *   latter only reaches the application's InputConnection, so fcitx would never see the key;
+     * - the key is held briefly, matching the modifier hold in `BaseKeyboard.sendFcitxKeyTap`,
+     *   so press and release do not share a single timestamp.
+     */
+    fun sendStandaloneShiftTap() {
+        val keyCode = KeyEvent.KEYCODE_SHIFT_LEFT
+        val scanCode = getCachedScancode(keyCode)
+        val previous = standaloneShiftTapJob
+        standaloneShiftTapJob = lifecycleScope.launch {
+            previous?.join()
+            sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_DOWN)
+            try {
+                delay(STANDALONE_MODIFIER_HOLD_MS)
+            } finally {
+                // Never leave Shift held: the modifier hold state is shared with macros and
+                // shortcuts, so a missing release would silently add Shift to later keys.
+                sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_UP)
+            }
+        }
     }
 
     // Added in API level 14, deprecated in 29

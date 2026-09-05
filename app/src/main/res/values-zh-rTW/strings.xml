@@ -336,8 +336,6 @@
     <string name="update_storage_permission_denied">儲存權限遭拒</string>
     <string name="update_invalid_download_url">無效的下載連結。</string>
     <string name="table_dict_replace_message">碼表字典 \"%1$s\" 已存在。您可以匯入新字典並覆蓋原字典。</string>
-    <string name="lang_switch_key_behavior">語言切換鍵行為</string>
-    <string name="lang_switch_behavior_next_ime_app">切換至下一個輸入法</string>
     <string name="_cannot_be_empty">%1$s不能為空</string>
     <string name="clipboard_mask_sensitive">隱藏敏感訊息（如密碼）</string>
     <string name="open_rime_user_data_dir">即將開啟應用資料目錄。RIME 使用者資料目錄位於「data」下，並取決於目前目錄設定。</string>
