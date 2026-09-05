@@ -224,6 +224,51 @@ class MacroEditorActivity : AppCompatActivity() {
         val KEY_TYPES = arrayOf("fcitx", "android")
 
         /**
+         * App actions offered by the "app" step picker, in display order.
+         *
+         * Single source of truth: the picker derives each row's label from its id through
+         * getAppActionLabel instead of keeping a second array of labels. The two arrays this
+         * replaces had drifted apart when actions were removed (ids deleted, labels kept), so
+         * every row past the removal point selected the wrong id — picking "switch keyboard
+         * definition profile" stored `edit_fontset` — and the trailing rows had no id at all.
+         *
+         * Every id here must be executable by `CustomActionExecutor`: a [ButtonAction] id, a
+         * `ROUTE_MAP` entry, or one of its explicit special cases.
+         */
+        val APP_ACTION_IDS = arrayOf(
+            "theme",
+            "icon_theme",
+            "virtual_keyboard",
+            "more",
+            "browse_user_data_dir",
+            "clipboard",
+            "cursor_move",
+            "floating_toggle",
+            "language_switch",
+            "reload_config",
+            "one_handed_keyboard",
+            "input_method_options",
+            "undo",
+            "redo",
+            "settings_global_options",
+            "settings_input_methods",
+            "settings_candidates_window",
+            "settings_clipboard",
+            "settings_symbol",
+            "settings_advanced",
+            "settings_developer",
+            "settings_about",
+            "settings_license",
+            "edit_text_keyboard_layout",
+            "text_keyboard_layout_file_select",
+            "edit_fontset",
+            "addon_list",
+            "edit_buttons",
+            "split_keyboard_calibration",
+            "web_editor_bridge"
+        )
+
+        /**
          * Check if it's a modifier key
          * Includes Ctrl, Alt, Shift, Meta, Super, Hyper, and Mode_switch
          */
@@ -1548,78 +1593,12 @@ class MacroEditorActivity : AppCompatActivity() {
         }
 
         private fun showAppActionPicker(onSelect: (String) -> Unit) {
-            val actionIds = arrayOf(
-                "theme",
-                "icon_theme",
-                "virtual_keyboard",
-                "more",
-                "browse_user_data_dir",
-                "clipboard",
-                "cursor_move",
-                "floating_toggle",
-                "language_switch",
-                "reload_config",
-                "one_handed_keyboard",
-                "input_method_options",
-                "undo",
-                "redo",
-                "settings_global_options",
-                "settings_input_methods",
-                "settings_candidates_window",
-                "settings_clipboard",
-                "settings_symbol",
-                "settings_advanced",
-                "settings_developer",
-                "settings_about",
-                "settings_license",
-                "edit_text_keyboard_layout",
-                "text_keyboard_layout_file_select",
-                "edit_fontset",
-                "addon_list",
-                "edit_buttons",
-                "split_keyboard_calibration",
-                "web_editor_bridge"
-            )
-            val actionLabels = arrayOf(
-                getString(R.string.theme),
-                getString(R.string.icon_theme),
-                getString(R.string.virtual_keyboard),
-                getString(R.string.macro_editor_app_action_more),
-                getString(R.string.browse_user_data_dir),
-                getString(R.string.clipboard),
-                getString(R.string.text_editing),
-                getString(R.string.floating_keyboard),
-                getString(R.string.language_switch),
-                getString(R.string.reload_config),
-                getString(R.string.one_handed_keyboard),
-                getString(R.string.input_method_options),
-                getString(R.string.undo),
-                getString(R.string.redo),
-                getString(R.string.global_options),
-                getString(R.string.input_methods),
-                getString(R.string.candidates_window),
-                getString(R.string.clipboard),
-                getString(R.string.emoji_and_symbols),
-                getString(R.string.plugins),
-                getString(R.string.advanced),
-                getString(R.string.developer),
-                getString(R.string.about),
-                getString(R.string.license),
-                getString(R.string.edit_text_keyboard_layout),
-                getString(R.string.text_keyboard_layout_file_select_title),
-                getString(R.string.edit_fontset),
-                getString(R.string.addons),
-                getString(R.string.macro_editor_table_input_methods),
-                getString(R.string.macro_editor_pinyin_custom_phrase),
-                getString(R.string.macro_editor_pinyin_dict),
-                getString(R.string.edit_buttons),
-                getString(R.string.split_keyboard_calibration_title),
-                getString(R.string.web_editor_bridge_title)
-            )
+            // Labels are derived from the ids, so row N always selects APP_ACTION_IDS[N].
+            val actionLabels = APP_ACTION_IDS.map { getAppActionLabel(it) }.toTypedArray()
             AlertDialog.Builder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_app_picker_title)
                 .setItems(actionLabels) { _, which ->
-                    onSelect(actionIds[which])
+                    onSelect(APP_ACTION_IDS[which])
                 }
                 .setNegativeButton(R.string.macro_editor_picker_cancel, null)
                 .show()
