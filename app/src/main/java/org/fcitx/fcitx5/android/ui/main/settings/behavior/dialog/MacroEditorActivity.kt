@@ -251,7 +251,6 @@ class MacroEditorActivity : AppCompatActivity() {
             "undo",
             "redo",
             "settings_global_options",
-            "settings_input_methods",
             "settings_candidates_window",
             "settings_clipboard",
             "settings_symbol",
@@ -1621,6 +1620,7 @@ class MacroEditorActivity : AppCompatActivity() {
                 "undo" -> getString(R.string.undo)
                 "redo" -> getString(R.string.redo)
                 "settings_global_options" -> getString(R.string.global_options)
+                // no longer offered by the picker, but older macros may still carry it
                 "settings_input_methods" -> getString(R.string.input_methods)
                 "settings_candidates_window" -> getString(R.string.candidates_window)
                 "settings_clipboard" -> getString(R.string.clipboard)
