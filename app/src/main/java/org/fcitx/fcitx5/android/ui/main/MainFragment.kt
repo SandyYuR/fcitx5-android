@@ -55,6 +55,11 @@ class MainFragment : PaddingPreferenceFragment() {
         override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
     }
 
+    companion object {
+        /** The only input method of this build; seeded by Fcitx.onFirstRun. */
+        private const val RIME_INPUT_METHOD = "rime"
+    }
+
     private fun PreferenceCategory.addDestinationPreference(
         @StringRes title: Int,
         @DrawableRes icon: Int,
@@ -65,7 +70,18 @@ class MainFragment : PaddingPreferenceFragment() {
         }
     }
 
+    private fun PreferenceCategory.addDestinationPreference(
+        title: String,
+        @DrawableRes icon: Int,
+        route: SettingsRoute
+    ) {
+        addPreference(title, icon = icon) {
+            navigateWithAnim(route)
+        }
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        val rimeSettingsTitle = getString(R.string.rime_settings)
         preferenceScreen = preferenceManager.createPreferenceScreen(requireContext()).apply {
             addCategory("Fcitx") {
                 addDestinationPreference(
@@ -73,10 +89,12 @@ class MainFragment : PaddingPreferenceFragment() {
                     R.drawable.ic_baseline_tune_24,
                     SettingsRoute.GlobalConfig
                 )
+                // rime 专版只有一个输入法，输入法列表页没有意义：这一项直接进
+                // rime 引擎自己的配置页，和状态区“输入法设置”按钮是同一个页面。
                 addDestinationPreference(
-                    R.string.input_methods,
-                    R.drawable.ic_baseline_language_24,
-                    SettingsRoute.InputMethodList
+                    rimeSettingsTitle,
+                    R.drawable.ic_status_rime,
+                    SettingsRoute.InputMethodConfig(rimeSettingsTitle, RIME_INPUT_METHOD)
                 )
                 addDestinationPreference(
                     R.string.addons,

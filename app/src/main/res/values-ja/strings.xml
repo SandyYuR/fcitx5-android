@@ -4,6 +4,7 @@
     <string name="app_name_debug">Fcitx5.fx (デバッグ)</string>
     <string name="save">保存</string>
     <string name="input_methods">インプットメソッド</string>
+    <string name="rime_settings">Rime 設定</string>
     <string name="addons">アドオン</string>
     <string name="conf">設定</string>
     <string name="global_options">全般オプション</string>
