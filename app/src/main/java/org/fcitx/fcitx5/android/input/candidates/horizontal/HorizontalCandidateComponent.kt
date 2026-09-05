@@ -17,6 +17,7 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
+import androidx.tracing.trace
 import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -501,7 +502,10 @@ class HorizontalCandidateComponent :
                 secondLayoutPassNeeded = false
             }
         }
-        adapter.updateCandidates(candidates, total, activeIndex, 0)
+        // Phase 0 perf tracing: candidate binding/notify on the UI thread.
+        trace("updateCandidates") {
+            adapter.updateCandidates(candidates, total, activeIndex, 0)
+        }
         pendingEnsureVisible = Triple(candidates, total, activeIndex)
         // not sure why empty candidates won't trigger `FlexboxLayoutManager#onLayoutCompleted()`
         if (candidates.isEmpty()) {

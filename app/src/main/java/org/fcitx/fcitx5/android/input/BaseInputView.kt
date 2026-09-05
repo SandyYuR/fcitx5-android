@@ -14,6 +14,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.tracing.trace
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
@@ -58,7 +59,12 @@ abstract class BaseInputView(
                 Timber.d(e, "fcitx event flow unavailable for this view")
                 return@launch
             }
-            events.collect { handleFcitxEvent(it) }
+            events.collect {
+                // Phase 0 perf tracing: main-thread collection start/end per event.
+                trace("collectFcitxEvent") {
+                    handleFcitxEvent(it)
+                }
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.Keep
 import androidx.core.content.ContextCompat
+import androidx.tracing.trace
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -87,13 +88,19 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         up: Boolean,
         timestamp: Int
     ) =
-        withFcitxContext { sendKeyToFcitxString(key, states.toInt(), code, up, timestamp) }
+        withFcitxContext {
+            trace("sendKey JNI") { sendKeyToFcitxString(key, states.toInt(), code, up, timestamp) }
+        }
 
     override suspend fun sendKey(c: Char, states: UInt, code: Int, up: Boolean, timestamp: Int) =
-        withFcitxContext { sendKeyToFcitxChar(c, states.toInt(), code, up, timestamp) }
+        withFcitxContext {
+            trace("sendKey JNI") { sendKeyToFcitxChar(c, states.toInt(), code, up, timestamp) }
+        }
 
     override suspend fun sendKey(sym: Int, states: UInt, code: Int, up: Boolean, timestamp: Int) =
-        withFcitxContext { sendKeySymToFcitx(sym, states.toInt(), code, up, timestamp) }
+        withFcitxContext {
+            trace("sendKey JNI") { sendKeySymToFcitx(sym, states.toInt(), code, up, timestamp) }
+        }
 
     override suspend fun sendKey(
         sym: KeySym,
@@ -102,7 +109,9 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         up: Boolean,
         timestamp: Int
     ) =
-        withFcitxContext { sendKeySymToFcitx(sym.sym, states.toInt(), code, up, timestamp) }
+        withFcitxContext {
+            trace("sendKey JNI") { sendKeySymToFcitx(sym.sym, states.toInt(), code, up, timestamp) }
+        }
 
     override suspend fun select(idx: Int): Boolean = withFcitxContext { selectCandidate(idx) }
     override suspend fun isEmpty(): Boolean = withFcitxContext { isInputPanelEmpty() }
@@ -402,10 +411,13 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         @Suppress("unused")
         @JvmStatic
         fun handleFcitxEvent(type: Int, params: Array<Any>) {
-            val event = FcitxEvent.create(type, params)
-            Timber.d("Handling $event")
-            fcitxEventHandlers.forEach { it.invoke(event) }
-            eventFlow_.tryEmit(event)
+            // Phase 0 perf tracing: event arrival on the fcitx thread.
+            trace("HandleFcitxEvent") {
+                val event = FcitxEvent.create(type, params)
+                Timber.d("Handling $event")
+                fcitxEventHandlers.forEach { it.invoke(event) }
+                eventFlow_.tryEmit(event)
+            }
         }
 
         // will be called in fcitx main thread
