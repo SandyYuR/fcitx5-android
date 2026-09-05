@@ -112,8 +112,17 @@ fx2 3ad25fc9
 
 ⚠️ **CI 只跑 `assembleFxRelease`，不编译也不运行单元测试**，所以 `app/src/test/` 下那批测试（含
 `LayoutDraftStoreTest`）在 CI 里从未被编译或执行过——绿灯只代表主源码编译通过。
-`63d41b69` 当年启用过 `testDebugUnitTest`，现已不在 `ci.yml` 里。已向用户提议加一步
-`./gradlew :app:testFxReleaseUnitTest`，**等他点头**。
+
+来龙去脉：`63d41b69` 曾加过 "Run JVM unit tests" 步骤（`./gradlew :app:testFxDebugUnitTest`
++ 上传报告），但它带 `if: matrix.build_type == 'standard'` 条件；后来 `4f9a0a74`
+（移除 nightly release 与 mainline 构建）把 `build_type` 这个 matrix 轴一起删了，单测步骤
+**作为附带损失被删掉**，不是有意取消的。`app/build.gradle.kts` 里 `63d41b69` 加的
+`testOptions { unitTests { isReturnDefaultValues = true } }` 还在，所以恢复只需改 `ci.yml`。
+
+**任务名必须是 `testFxDebugUnitTest`**：AGP 9 默认
+`android.onlyEnableUnitTestForTheTestedBuildType = true`，只为被测 build type（debug）生成单测
+任务，`testFxReleaseUnitTest` **不存在**（这条注释就写在 `63d41b69` 加的 ci.yml 里）。这些测试都
+是纯逻辑，build type 无关紧要。已向用户提议恢复该步骤，**等他点头**。
 
 ---
 
@@ -147,7 +156,7 @@ Phase 0 埋点（`be92f13a`，androidx.tracing）；候选栏路径：`f0487b40`
 ### 3.4 修复（fix，约 75 提交）
 
 带编号（A/B/C/D/E/F/G + 数字）对应一次代码审查清单，覆盖：布局 JSON 健壮性（A1/A2/A3/A5/C22）、图标主题与 ZIP 上限（A6/A7/A10/8711cbe0）、备份与迁移（B5–B9/B12/fefa55f2）、编辑器 Activity 生命周期（B1/B2/B11/B3/B4/59d7b099）、语音输入（C1–C6/62049fc6）、按键与弹窗（C7–C14/C24/6824a935）、剪贴板同步与 HTTP 服务（C16–C21/C28/F7/F8/A8/d5832dea）、泄漏（F1/F4/F5/E10/92c21e59）、`1655bebe`（FlexboxLayoutManager `onLayoutCompleted` 消费 `pendingEnsureVisible`）、`7f6875db`（删悬空 `@Volatile`）、`6fc66749`（`MainService.onBind` 空实现）、`04bde6f7`（删残留 `callingPackage`）、`c1cbb213`（注册未声明 Activity）。
-测试：`587ca235` 修 `ThemeSerializationTest`；`63d41b69` 启用 `testDebugUnitTest`（注意 CI 现在**没有**跑单测步骤，只有 `assembleFxRelease`）。
+测试：`587ca235` 修 `ThemeSerializationTest`；`63d41b69` 启用 `testFxDebugUnitTest`（后被 `4f9a0a74` 附带删除，详见第 2 节末尾）。
 
 #### `fca0b3e5` 布局编辑器草稿改存私有文件（用户日志定位，2026-09-05）
 
@@ -186,7 +195,7 @@ at IActivityClientController$Stub$Proxy.activityStopped
 顺带修掉：`previewSubModeLabel` 之前被 Bundle 里的 null 无条件覆盖，现改为仅在有值时恢复，缺失
 时交回 `buildSubModeSpinner` 依 IME 重新推导。
 
-新增 `app/src/test/.../data/LayoutDraftStoreTest.kt`（13 例）。⚠️ **CI 不跑单测，这个文件从未被
+新增 `app/src/test/.../data/LayoutDraftStoreTest.kt`（15 例）。⚠️ **CI 不跑单测，这个文件从未被
 编译过**，见第 2 节末尾。
 
 **与 `77be0fb8`（语言键 Shift）无冲突**，已核对：文件零重叠；`77be0fb8` 删掉的
@@ -351,8 +360,9 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 ## 7. 建议的下一步顺序
 
 1. 确认 `git status` 干净（除未跟踪的 `日志/`）、`fx2-rime-fusion` 与 origin 同步（当前 `e0733388`）。
-2. 向用户确认是否给 `ci.yml` 加一步 `./gradlew :app:testFxReleaseUnitTest`——现在 `app/src/test/`
-   下 15 个测试文件在 CI 里从未被编译或执行，绿灯不覆盖它们。**等他点头**。
+2. 向用户确认是否给 `ci.yml` 恢复 "Run JVM unit tests" 步骤（`./gradlew :app:testFxDebugUnitTest`，
+   注意**不是** `...Release...`，理由见第 2 节末尾）——现在 `app/src/test/` 下 15 个测试文件在 CI
+   里从未被编译或执行，绿灯不覆盖它们。**等他点头**。
 3. 向用户确认是否加 **stderr→logcat** 那个诊断改动（第 5 节末）；同意的话独立提交 → push → 等 CI 绿，然后让用户复现一次导日志。
 4. 第 5 节"rime 无法成功部署"仍未闭环，等用户按建议对比目录后回话。
 5. 用户确认后再决定要不要删 `backup/fx2-rime-fusion-pre-merge` 与 `backup/fx2-rime-fusion-pre-rebase-20260904`。
