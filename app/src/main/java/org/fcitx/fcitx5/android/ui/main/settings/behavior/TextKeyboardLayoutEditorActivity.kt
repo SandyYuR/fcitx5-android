@@ -64,6 +64,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayout
 import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.SimpleDividerItemDecoration
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDraftStore
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.LayoutFileProfileInputActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.LayoutNameInputActivity
@@ -480,13 +481,21 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         subModeManager = SubModeManager(fcitxConnection, allImesFromJson, dataManager.entries)
         currentLayoutProfile = currentActiveProfile()
         layoutFile = provider.textKeyboardLayoutFile()
+        // Synchronous, because onSaveInstanceState may run before loadState() completes.
+        savedInstanceState?.let(::captureDraftReference)
 
         // loadState() reads the layout file on IO, so the rest of setup runs after it.
         lifecycleScope.launch {
             loadState()
             // Restore an unsaved edit across a configuration change. loadState() has already
             // read the file, so the draft (if any) simply replaces the in-memory entries.
-            savedInstanceState?.let(::restoreDraftState)
+            savedInstanceState?.let { restoreDraftState(it) }
+            // Only now do the in-memory entries represent the user's data; see
+            // onSaveInstanceState, which must not snapshot over the draft before this point.
+            // Clearing the inline copy in the same non-suspending stretch keeps that handover
+            // atomic: either the Bundle still carries it, or memory is authoritative.
+            pendingInlineDraftJson = null
+            stateLoaded = true
 
             buildSpinner()
             buildSubModeSpinner()
@@ -509,6 +518,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     showToast(getString(R.string.text_keyboard_layout_editing_default, layoutName))
                 }
             }
+
+            // Housekeeping last, so it never delays the editor appearing: a process killed
+            // outright leaves its draft snapshot behind, since onDestroy never ran.
+            pruneStaleDraftSnapshots()
         }
     }
 
@@ -532,20 +545,43 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        // Without this, a rotation re-ran loadState() and silently replaced the user's
-        // unsaved edits with the on-disk file — and because originalEntries was refreshed at
-        // the same time, hasChanges() then reported "no changes" and the discard prompt never
-        // appeared either.
-        runCatching { dataManager.exportCurrentJsonString() }
-            .onSuccess { outState.putString(STATE_DRAFT_LAYOUT_JSON, it) }
-            .onFailure { android.util.Log.w("LayoutEditor", "Failed to save draft layout", it) }
         outState.putString(STATE_CURRENT_LAYOUT, currentLayout)
         outState.putString(STATE_PREVIEW_SUBMODE, previewSubModeLabel)
         outState.putString(STATE_LAYOUT_PROFILE, currentLayoutProfile)
+        if (!stateLoaded) {
+            // Stopped before loadState() finished, so the in-memory entries are not the user's
+            // data yet. Pass the incoming draft reference through untouched instead of
+            // overwriting it with an empty layout or deleting it.
+            draftStore.snapshotName?.let { outState.putString(STATE_DRAFT_SNAPSHOT, it) }
+            pendingInlineDraftJson?.let { outState.putString(STATE_DRAFT_LAYOUT_JSON, it) }
+            return
+        }
+        // Without a draft, a recreation re-ran loadState() and silently replaced the user's
+        // unsaved edits with the on-disk file — and because originalEntries was refreshed at
+        // the same time, hasChanges() then reported "no changes" and the discard prompt never
+        // appeared either. With nothing unsaved the file on disk *is* the draft, so skip the
+        // snapshot entirely — that covers most stops, including every one after a save.
+        if (!hasChanges()) {
+            draftStore.delete()
+            return
+        }
+        val json = runCatching { dataManager.exportCurrentJsonCompact() }
+            .onFailure { android.util.Log.w("LayoutEditor", "Failed to save draft layout", it) }
+            .getOrNull() ?: return
+        // The draft itself must not go into the Bundle: it is parcelled to system_server on stop
+        // and a large layout blows the Binder budget (see LayoutDraftStore). Opening the key
+        // editor stops this Activity, so that used to crash on an ordinary key tap.
+        val snapshot = draftStore.write(json)
+        if (snapshot != null) {
+            outState.putString(STATE_DRAFT_SNAPSHOT, snapshot)
+        } else if (LayoutDraftStore.fitsInBundle(json)) {
+            // No snapshot file (unwritable dir, no space): a small draft still parcels safely,
+            // and keeping the edit beats dropping it.
+            outState.putString(STATE_DRAFT_LAYOUT_JSON, json)
+        }
     }
 
-    private fun restoreDraftState(state: Bundle) {
-        val json = state.getString(STATE_DRAFT_LAYOUT_JSON) ?: return
+    private suspend fun restoreDraftState(state: Bundle) {
         // Only restore into the profile the draft was taken from. After a process death the
         // active profile may have been switched elsewhere, and applying the draft then would
         // write one profile's layout into another's file on the next save.
@@ -555,11 +591,26 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 "LayoutEditor",
                 "Discarding draft for profile $draftProfile; now editing $currentLayoutProfile"
             )
+            discardPendingDraft()
             return
         }
-        val parsed = runCatching {
-            dataManager.parseJsonText(json, "saved-instance-state", fallbackToDefault = false)
-        }.getOrNull()
+        readPendingDraft()?.let { applyDraftLayout(it) }
+        // The spinner selection is the user's explicit choice, so restore it even when there is
+        // no draft to apply. A missing submode label is left to buildSubModeSpinner(), which
+        // re-derives one from the IME.
+        state.getString(STATE_CURRENT_LAYOUT)?.let { if (entries.containsKey(it)) currentLayout = it }
+        state.getString(STATE_PREVIEW_SUBMODE)?.let { previewSubModeLabel = it }
+    }
+
+    private suspend fun applyDraftLayout(json: String) {
+        // Parsing a few hundred KB of JSON is IO-thread work, same as loadState() (see D7).
+        val parsed = withContext(Dispatchers.IO) {
+            runCatching {
+                dataManager.parseJsonText(json, "saved-instance-state", fallbackToDefault = false)
+            }.getOrNull()
+        }
+        // A snapshot truncated by a kill mid-write fails to parse; falling back to the on-disk
+        // layout is the right answer then.
         if (parsed.isNullOrEmpty()) return
         entries.clear()
         parsed.toSortedMap().forEach { (k, v) ->
@@ -582,12 +633,55 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 keys.map { it.toMutableMap() }.toMutableList()
             }
         )
-        state.getString(STATE_CURRENT_LAYOUT)?.let { if (entries.containsKey(it)) currentLayout = it }
-        previewSubModeLabel = state.getString(STATE_PREVIEW_SUBMODE)
         // originalEntries stays as loaded from disk so hasChanges() still reflects reality.
     }
 
+    /** Unsaved-draft storage; see [LayoutDraftStore] for why it is not in the Bundle. */
+    private val draftStore by lazy {
+        LayoutDraftStore(File(noBackupFilesDir, DRAFT_SNAPSHOT_DIR))
+    }
+
+    /** Draft that arrived inline in the Bundle (snapshot-file fallback), pending restore. */
+    private var pendingInlineDraftJson: String? = null
+
+    /** True once loadState() has populated the entries; see onSaveInstanceState. */
+    private var stateLoaded = false
+
+    /**
+     * Adopt the incoming Bundle's draft reference synchronously, before the async loadState().
+     *
+     * onSaveInstanceState can run before that coroutine finishes, and it needs to know which
+     * snapshot this instance owns so it neither loses nor duplicates it.
+     */
+    private fun captureDraftReference(state: Bundle) {
+        draftStore.adopt(state.getString(STATE_DRAFT_SNAPSHOT))
+        pendingInlineDraftJson = state.getString(STATE_DRAFT_LAYOUT_JSON)
+    }
+
+    private suspend fun readPendingDraft(): String? {
+        pendingInlineDraftJson?.let { return it }
+        // A few hundred KB of file read belongs on IO, same as loadState() (see D7).
+        return withContext(Dispatchers.IO) { draftStore.read() }
+    }
+
+    private fun discardPendingDraft() {
+        pendingInlineDraftJson = null
+        draftStore.delete()
+    }
+
+    /**
+     * Delete snapshots nobody can claim any more.
+     *
+     * A process killed outright never runs onDestroy, so its snapshot would stay behind forever;
+     * the Bundle that referenced it died with the task, which makes old ones unreachable.
+     */
+    private suspend fun pruneStaleDraftSnapshots() {
+        withContext(Dispatchers.IO) { draftStore.pruneStale(LayoutDraftStore.MAX_AGE_MS) }
+    }
+
     override fun onDestroy() {
+        // A finishing editor's draft can never be restored, so do not leave the file behind.
+        if (isFinishing) discardPendingDraft()
         runCatching { FcitxDaemon.disconnect(FCITX_CONNECTION_NAME) }
         super.onDestroy()
     }
@@ -2085,6 +2179,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
         // 使用 dataManager 保存（IO 线程）
         if (dataManager.saveToFileAsync(file)) {
+            // The saved file is now the source of truth; a draft of it is dead weight.
+            discardPendingDraft()
             showToast(getString(R.string.text_keyboard_layout_file_saved, file.name))
             // 通知 provider watcher 文件已更改
             ConfigProviders.ensureWatching()
@@ -2443,8 +2539,14 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         ConfigProviders.provider = ConfigProviders.provider
         currentLayoutProfile = normalized
         layoutFile = provider.textKeyboardLayoutFile()
+        // Any pending draft belongs to the profile being left behind.
+        discardPendingDraft()
+        // The reload replaces every entry from IO; until it finishes the in-memory layout is not
+        // anyone's data, so a stop in that window must not snapshot it (see onSaveInstanceState).
+        stateLoaded = false
         lifecycleScope.launch {
             loadState()
+            stateLoaded = true
             buildSpinner()
             buildSubModeSpinner(forceResetSelection = true)
             buildRows()
@@ -3285,9 +3387,14 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
         /** Bundle keys for the unsaved draft (see onSaveInstanceState). */
         private const val STATE_DRAFT_LAYOUT_JSON = "draft_layout_json"
+        private const val STATE_DRAFT_SNAPSHOT = "draft_layout_snapshot"
         private const val STATE_CURRENT_LAYOUT = "current_layout"
         private const val STATE_PREVIEW_SUBMODE = "preview_submode"
         private const val STATE_LAYOUT_PROFILE = "layout_profile"
+
+        /** Draft snapshots live here, under noBackupFilesDir: transient, never worth backing up. */
+        private const val DRAFT_SNAPSHOT_DIR = "layout-editor-drafts"
+
         private const val DIALOG_LABEL_TEXT_SIZE_SP = 13f
         private const val DIALOG_CONTENT_TEXT_SIZE_SP = 14f
     }

@@ -337,16 +337,27 @@ class LayoutDataManager(private val context: Context) {
     private var lastParseFailure: Throwable? = null
 
     fun exportCurrentJsonString(): String {
-        val jsonElement = LayoutJsonUtils.convertToSaveJson(
-            entries,
-            layoutHeightPercentOverrides,
-            layoutHeightPercentOverridesLandscape,
-            layoutAuxBarConfigs,
-            normalizedLayoutAuxBarKeys()
-        )
         val prettyJson = Json { prettyPrint = true }
-        return prettyJson.encodeToString(jsonElement) + "\n"
+        return prettyJson.encodeToString(currentSaveJson()) + "\n"
     }
+
+    /**
+     * Same content as [exportCurrentJsonString] in the on-disk compact shape (one line per key).
+     *
+     * Used for the editor's draft snapshot, where size matters: the pretty-printed form of a
+     * heavily customized layout is several times larger, and the snapshot is written on the main
+     * thread while the Activity is stopping.
+     */
+    fun exportCurrentJsonCompact(): String =
+        LayoutJsonUtils.formatJsonCompact(currentSaveJson()) + "\n"
+
+    private fun currentSaveJson(): JsonObject = LayoutJsonUtils.convertToSaveJson(
+        entries,
+        layoutHeightPercentOverrides,
+        layoutHeightPercentOverridesLandscape,
+        layoutAuxBarConfigs,
+        normalizedLayoutAuxBarKeys()
+    )
     
     /**
      * 加载默认预设布局
