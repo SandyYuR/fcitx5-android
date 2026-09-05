@@ -50,9 +50,9 @@ CI 事实：
 
 ```
 fx2                3ad25fc9  ← 基线，未改动
-fx2-rime-fusion    01c1070e  ← 工作分支，= origin/fx2-rime-fusion（已同步）
-                             领先 fx2 共 138 个提交，线性历史
-                             761 files changed, +6869 / -37531
+fx2-rime-fusion    e0733388  ← 工作分支，= origin/fx2-rime-fusion（已同步）
+                             领先 fx2 共 145 个提交，线性历史
+                             767 files changed, +7476 / -37733
 ```
 
 历史结构（自底向上）：
@@ -60,8 +60,20 @@ fx2-rime-fusion    01c1070e  ← 工作分支，= origin/fx2-rime-fusion（已�
 fx2 3ad25fc9
   └─ 95 个提交（审查修复 + 性能，与 review-fx2-fixes-split 共有，止于 85de19be）
       └─ 6 个 review-fx2-fixes 新提交  5fdcb0db 763f4dcf 9c411dc1 f3abf5b3 920fed60 3ec1f6b2
-          └─ 37 个 rime 专版提交（SHA 已改写）  5d90019d … 01c1070e
+          └─ 44 个 rime 专版提交（SHA 已改写）  5d90019d … e0733388
 ```
+
+`01c1070e`（原报告写的 tip）之后又加了 7 个提交：
+
+| 提交 | 说明 |
+|---|---|
+| `5103b515` | docs: 交接报告同步 rebase 后的分支状态 |
+| `83890f1a` | fix(macro): 应用动作选择器 id 与标签错位 |
+| `77be0fb8` | feat: 语言键改为发送独立 Shift 敲击（第 4 节任务 4） |
+| `fca0b3e5` | fix(布局编辑器): 草稿改存私有文件，修 TransactionTooLarge 崩溃（第 3.4 节末） |
+| `a352280b` | feat(设置): 主设置页"输入法"改为"中州韵设置"，直达 rime 配置页 |
+| `bf645157` | refactor(设置): 清理其余通往输入法列表页的入口（删 `AddMoreInputMethodsPrompt`） |
+| `e0733388` | docs: 交接报告同步 `AddMoreInputMethodsPrompt` 已删除 |
 
 **rebase（2026-09-04 晚）**：应用户要求把 `review-fx2-fixes` 的 6 个提交插到本分支改动之前，做法
 `git rebase --onto review-fx2-fixes 85de19be fx2-rime-fusion`，随后
@@ -87,19 +99,25 @@ fx2 3ad25fc9
 
 其他分支（都别碰）：`review-fx2-fixes` `3ec1f6b2`、`review-fx2-fixes-split` `85de19be`、`backup/fx2-rime-fusion-pre-merge` `6129c833`、`backup/fx2-rime-fusion-pre-rebase-20260904` `281082cb`（都等用户确认后再删）、`backup/fx2-local`、`fx`、`review-fx`、`fx2-rime-only`。
 
-已验证 CI 状态（GitHub Actions）—— 注意这些是 **rebase 前的旧 SHA** 的结果；rebase 后新 SHA 的
-CI 由 force-push 触发，接手时用 `gh`/API 复查 `01c1070e`：
+已验证 CI 状态（GitHub Actions）—— 注意前四行是 **rebase 前的旧 SHA** 的结果：
 
-| 旧提交 | 说明 | CI |
+| 提交 | 说明 | CI |
 |---|---|---|
 | `54706725` | 移除 quickphrase 快速短语组件 | ✅ success |
 | `b3da4853` | 首次启动时预置 rime 为默认启用输入法 | ✅ success |
 | `03a70215` | 移除 androidkeyboard/imselector/spell/unicode 组件 | ✅ success |
 | `eaa85316` | 包名改为 `...fx.rime` | ✅ success |
+| `77be0fb8` | 语言键改为发送独立 Shift 敲击 | ✅ success（run #214，0 annotation） |
+| `fca0b3e5` | 布局编辑器草稿改存私有文件 | ✅ success（run #215，0 annotation） |
+
+⚠️ **CI 只跑 `assembleFxRelease`，不编译也不运行单元测试**，所以 `app/src/test/` 下那批测试（含
+`LayoutDraftStoreTest`）在 CI 里从未被编译或执行过——绿灯只代表主源码编译通过。
+`63d41b69` 当年启用过 `testDebugUnitTest`，现已不在 `ci.yml` 里。已向用户提议加一步
+`./gradlew :app:testFxReleaseUnitTest`，**等他点头**。
 
 ---
 
-## 3. 领先 fx2 的 138 个提交（按主题归类）
+## 3. 领先 fx2 的 145 个提交（按主题归类）
 
 ### 3.1 精简为 rime 专版（本轮核心，约 20 提交）
 
@@ -130,6 +148,53 @@ Phase 0 埋点（`be92f13a`，androidx.tracing）；候选栏路径：`f0487b40`
 
 带编号（A/B/C/D/E/F/G + 数字）对应一次代码审查清单，覆盖：布局 JSON 健壮性（A1/A2/A3/A5/C22）、图标主题与 ZIP 上限（A6/A7/A10/8711cbe0）、备份与迁移（B5–B9/B12/fefa55f2）、编辑器 Activity 生命周期（B1/B2/B11/B3/B4/59d7b099）、语音输入（C1–C6/62049fc6）、按键与弹窗（C7–C14/C24/6824a935）、剪贴板同步与 HTTP 服务（C16–C21/C28/F7/F8/A8/d5832dea）、泄漏（F1/F4/F5/E10/92c21e59）、`1655bebe`（FlexboxLayoutManager `onLayoutCompleted` 消费 `pendingEnsureVisible`）、`7f6875db`（删悬空 `@Volatile`）、`6fc66749`（`MainService.onBind` 空实现）、`04bde6f7`（删残留 `callingPackage`）、`c1cbb213`（注册未声明 Activity）。
 测试：`587ca235` 修 `ThemeSerializationTest`；`63d41b69` 启用 `testDebugUnitTest`（注意 CI 现在**没有**跑单测步骤，只有 `assembleFxRelease`）。
+
+#### `fca0b3e5` 布局编辑器草稿改存私有文件（用户日志定位，2026-09-05）
+
+用户报告"自定义键盘布局编辑过程中崩溃"，日志 `小企鹅转中洲鹅布局崩溃...2026-09-04T15_24_57Z.txt`
+（版本 `0.1.3-585-g54706725`）：
+
+```
+java.lang.RuntimeException: android.os.TransactionTooLargeException:
+    data parcel size 540248 bytes
+Bundle stats:
+  draft_layout_json [size=537176]
+at IActivityClientController$Stub$Proxy.activityStopped
+```
+日志 1011–1014 行的因果链：`Large Bundle: length=540104` → `Binder transaction failure ... error: -28`
+→ `FAILED BINDER TRANSACTION (parcel size = 540248)` → VM 退出。
+
+**根因**：`TextKeyboardLayoutEditorActivity.onSaveInstanceState` 把整份未保存布局 JSON
+（`exportCurrentJsonString`，pretty print）放进 saved-instance Bundle。该 Bundle 在 Activity stop
+时经 Binder 交给 system_server，而**整个进程**的事务预算只有约 1MB。用户这份布局 537KB，直接超限。
+**与"小企鹅转中洲鹅"这个布局本身无关，只跟布局体积有关**：时间线 23:24:53.28 打开
+`KeyEditorActivity`（点了一个按键）→ 编辑器 stop → 必崩，所以表现为"编辑时随机崩溃"。
+
+**改法**：草稿落到 `noBackupFilesDir/layout-editor-drafts/` 下的私有文件，Bundle 里只放文件名。
+新增 `data/LayoutDraftStore.kt` 封装 adopt/write/read/delete/pruneStale。要点：
+
+- 无未保存改动（`hasChanges()` 为 false）时**根本不写**快照——保存后、以及大多数 stop 都走这条；
+- 快照用 `formatJsonCompact`（与落盘格式一致），比 pretty print 小很多；
+- 内容哈希未变则跳过重写，避免每次 stop 都落盘；`adopt()` 会清哈希（文件内容未知，不可跳过）；
+- 保存成功 / 切换布局文件 / `isFinishing` 时删快照；进程被直接杀掉留下的快照按 7 天在下次进
+  编辑器时清理（`onCreate` 协程末尾，不挡首屏）；
+- 只有写文件失败（目录不可写、无空间）才退回 Bundle 内联，且限 32K 字符（`INLINE_MAX_CHARS`）；
+- `loadState()` 是异步的：新增 `stateLoaded` 门控，它完成前的 stop 只**透传**旧草稿引用，不会用
+  空布局覆盖或误删；`captureDraftReference()` 在 `onCreate` 里同步执行，早于那个协程；
+- 草稿的读取与解析移到 `Dispatchers.IO`（同 D7）。
+
+顺带修掉：`previewSubModeLabel` 之前被 Bundle 里的 null 无条件覆盖，现改为仅在有值时恢复，缺失
+时交回 `buildSubModeSpinner` 依 IME 重新推导。
+
+新增 `app/src/test/.../data/LayoutDraftStoreTest.kt`（13 例）。⚠️ **CI 不跑单测，这个文件从未被
+编译过**，见第 2 节末尾。
+
+**与 `77be0fb8`（语言键 Shift）无冲突**，已核对：文件零重叠；`77be0fb8` 删掉的
+`langSwitchKeyBehavior`/`LangSwitchBehavior` 全仓库零引用；保留的 `showLangSwitchKey` 仍被
+`LayoutDataManager` 与编辑器的 `getDefaultLayout(showLangSwitch = true)` 使用；`LanguageKey` 的
+KeyDef 与 JSON 序列化都没动，`77be0fb8` 只改按下它的运行时行为；编辑器预览键盘不接
+key action listener，点预览不会触发 `sendStandaloneShiftTap`。且 `77be0fb8` 是 `fca0b3e5` 的祖先，
+run #215 构建的就是两者合并后的树。
 
 ---
 
@@ -259,13 +324,35 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 - **rime 的两个目录**：shared data = APK assets 解出来的 `<deviceProtectedDataDir>/usr/share/rime-data`（`RIME_DATA_DIR` 编译期宏 + 运行时 `StandardPaths::locate(Data, "rime-data/default.yaml")` 定位）；user data = `getExternalFilesDir(null)/data/rime`（由 `native-lib.cpp` 的 `setenv("FCITX_DATA_HOME", <extData>/data)` + `XDG_DATA_HOME` 决定）。
 - **fcitx 环境变量**全在 `native-lib.cpp:522-546`（`LANG`/`FCITX_LOCALE`/`HOME`/`XDG_DATA_DIRS`/`FCITX_CONFIG_HOME`/`FCITX_DATA_HOME`/`FCITX_ADDON_DIRS`/`XDG_*`）。
 - **rime-data 资源清单**在 `app/src/main/cpp/CMakeLists.txt:52-69`（default.yaml、essay、prelude、luna-pinyin、stroke），`COMPONENT prebuilt-assets`；`app/build.gradle.kts` 的 `generateDataDescriptor { symlinks.put("usr/share/rime-data/opencc", "usr/share/opencc") }` 建软链。
+- **saved-instance Bundle 有硬上限**：Activity stop 时整份 Bundle 经 Binder 交给 system_server，
+  **整个进程**共享约 1MB 事务预算，超了就是 `TransactionTooLargeException` 硬崩（见第 3.4 节
+  `fca0b3e5`）。**任何"整份用户配置"都不要放进 `onSaveInstanceState` 或 Intent extra**，改用
+  `LayoutDraftStore` 那套"文件 + Bundle 只放文件名"。现存需要留意的同类写法：
+  `KeyEditorActivity` 的 `draft_key_data`（单个按键，正常几 KB，仅极端巨大 MacroKey 有理论风险）、
+  `ButtonsCustomizerActivity` 的 `draft_buttons_config`（按钮表，很小）。
+
+---
+
+## 6.1 用户日志的读法（这批日志很有用，别只看栈顶）
+
+用户导出的 logcat 带 `--------- Device Info` / `Crash stacktrace` 头，正文是完整 logcat，**崩溃点
+之前的时间线才是定位依据**。已归档在仓库根的 `日志/`（未跟踪，不要提交）。
+
+- `fca0b3e5` 就是靠 `Bundle stats: draft_layout_json [size=537176]` 这一行 + 崩溃前 0.6s 的
+  `KeyEditorActivity` 启动记录定位的：栈顶只说 `activityStopped` 失败，说不出为什么。
+- 小米设备的固定噪声，**不是本 app 的问题，直接跳过**：`getMiuiFreeformStackInfo ... null`（每帧一条）、
+  `ContentCatcherManager: failed to get ContentCatcherService`、
+  `SettingTrigger: NoSuchFieldException: No field mContentExtensionEnabled`、`RenderInspector` 超时警告。
+- 有用的自家 tag：`FcitxColdStart`、`[main] FcitxInputMethodService`、`FcitxClipboardSync`、
+  `LayoutDataManager`、`LayoutEditor`、`LayoutDraftStore`。
 
 ---
 
 ## 7. 建议的下一步顺序
 
-1. 确认 `git status` 干净（除那两个未跟踪文件）、`fx2-rime-fusion` 与 origin 同步（当前 `01c1070e`）。
-2. **复查 force-push 触发的 CI**（新 tip `01c1070e` 是 docs 提交，按路径过滤不触发；实际要看的是它前一个代码提交 `cefc481b`）。冲突解决动了 `BaseInputView.kt`，务必确认这一轮构建是绿的。
-3. ~~做**任务 4**（语言键 → Shift 点击）~~ **已完成**，见第 4 节任务 4；提交后 push → 等 CI 绿。
-4. 向用户确认是否加 **stderr→logcat** 那个诊断改动；同意的话独立提交 → push → 等 CI 绿，然后让用户复现一次导日志。
+1. 确认 `git status` 干净（除未跟踪的 `日志/`）、`fx2-rime-fusion` 与 origin 同步（当前 `e0733388`）。
+2. 向用户确认是否给 `ci.yml` 加一步 `./gradlew :app:testFxReleaseUnitTest`——现在 `app/src/test/`
+   下 15 个测试文件在 CI 里从未被编译或执行，绿灯不覆盖它们。**等他点头**。
+3. 向用户确认是否加 **stderr→logcat** 那个诊断改动（第 5 节末）；同意的话独立提交 → push → 等 CI 绿，然后让用户复现一次导日志。
+4. 第 5 节"rime 无法成功部署"仍未闭环，等用户按建议对比目录后回话。
 5. 用户确认后再决定要不要删 `backup/fx2-rime-fusion-pre-merge` 与 `backup/fx2-rime-fusion-pre-rebase-20260904`。
