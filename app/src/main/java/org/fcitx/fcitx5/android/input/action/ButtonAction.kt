@@ -16,14 +16,10 @@ import org.fcitx.fcitx5.android.core.SubtypeManager
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
-import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
-import org.fcitx.fcitx5.android.input.dialog.AddMoreInputMethodsPrompt
-import org.fcitx.fcitx5.android.input.dialog.InputMethodPickerDialog
 import org.fcitx.fcitx5.android.input.editing.TextEditingWindow
-import org.fcitx.fcitx5.android.input.keyboard.LangSwitchBehavior
 import org.fcitx.fcitx5.android.input.status.StatusAreaWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
@@ -32,8 +28,8 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEdit
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.TextKeyboardLayoutProfilePickerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeListActivity
 import org.fcitx.fcitx5.android.utils.AppUtil
+import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import org.fcitx.fcitx5.android.utils.buildDocumentsProviderIntent
-import org.fcitx.fcitx5.android.utils.switchToNextIME
 import org.fcitx.fcitx5.android.utils.toast
 
 /**
@@ -356,26 +352,10 @@ data object LanguageSwitchAction : ButtonAction() {
         view: View?,
         onActionComplete: (() -> Unit)?
     ) {
-        val behavior = AppPrefs.getInstance().keyboard.langSwitchKeyBehavior.getValue()
-        when (behavior) {
-            LangSwitchBehavior.Enumerate -> {
-                fcitx.launchOnReady { f ->
-                    if (f.enabledIme().size < 2) {
-                        service.lifecycleScope.launch {
-                            service.showDialog(AddMoreInputMethodsPrompt.build(context))
-                        }
-                    } else {
-                        f.enumerateIme()
-                    }
-                }
-            }
-            LangSwitchBehavior.ToggleActivate -> {
-                fcitx.launchOnReady { it.toggleIme() }
-            }
-            LangSwitchBehavior.NextInputMethodApp -> {
-                service.switchToNextIME()
-            }
-        }
+        // Same behavior as the keyboard's globe key (see CommonKeyActionListener): send one
+        // standalone Shift tap and let the engine decide. For Rime that is ascii_composer's
+        // ascii_mode (Chinese/Latin) toggle.
+        service.sendStandaloneShiftTap()
     }
 
     override fun onLongPress(
@@ -385,11 +365,7 @@ data object LanguageSwitchAction : ButtonAction() {
         windowManager: InputWindowManager,
         view: View
     ) {
-        fcitx.launchOnReady {
-            service.lifecycleScope.launch {
-                service.showDialog(InputMethodPickerDialog.build(it, service, context))
-            }
-        }
+        InputMethodUtil.showPicker()
     }
 }
 

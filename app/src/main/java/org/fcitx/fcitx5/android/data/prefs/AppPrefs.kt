@@ -18,7 +18,6 @@ import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesOrie
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase
-import org.fcitx.fcitx5.android.input.keyboard.LangSwitchBehavior
 import org.fcitx.fcitx5.android.input.keyboard.SpaceKeyLabelMode
 import org.fcitx.fcitx5.android.input.keyboard.SpaceLongPressBehavior
 import org.fcitx.fcitx5.android.input.keyboard.SwipeSymbolDirection
@@ -240,11 +239,6 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "numeric_layout_override",
             ""
         ).apply { register() }
-        val langSwitchKeyBehavior = enumList(
-            R.string.lang_switch_key_behavior,
-            "lang_switch_key_behavior",
-            LangSwitchBehavior.Enumerate
-        ) { showLangSwitchKey.getValue() }
 
         val keyboardHeightPercent: ManagedPreference.PInt
         val keyboardHeightPercentLandscape: ManagedPreference.PInt
