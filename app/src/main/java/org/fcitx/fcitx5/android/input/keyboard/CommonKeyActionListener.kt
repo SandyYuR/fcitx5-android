@@ -17,7 +17,6 @@ import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateC
 import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
-import org.fcitx.fcitx5.android.input.dialog.AddMoreInputMethodsPrompt
 import org.fcitx.fcitx5.android.input.dialog.InputMethodPickerDialog
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Reset
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Selection
@@ -36,7 +35,6 @@ import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
-import org.fcitx.fcitx5.android.utils.switchToNextIME
 import org.mechdancer.dependency.Dependent
 import org.mechdancer.dependency.UniqueComponent
 import org.mechdancer.dependency.manager.ManagedHandler
@@ -62,7 +60,6 @@ class CommonKeyActionListener :
     private val kbdPrefs = AppPrefs.getInstance().keyboard
 
     private val spaceKeyLongPressBehavior by kbdPrefs.spaceKeyLongPressBehavior
-    private val langSwitchKeyBehavior by kbdPrefs.langSwitchKeyBehavior
     private val preferredVoiceInput by kbdPrefs.preferredVoiceInput
 
     private var backspaceSwipeState = Stopped
@@ -153,29 +150,12 @@ class CommonKeyActionListener :
                     service.lifecycleScope.launch { service.commitText(action.text) }
                 }
                 is LangSwitchAction -> {
-                    when (langSwitchKeyBehavior) {
-                        LangSwitchBehavior.Enumerate -> {
-                            service.postFcitxJob {
-                                if (enabledIme().size < 2) {
-                                    service.lifecycleScope.launch {
-                                        service.showDialog(AddMoreInputMethodsPrompt.build(context))
-                                    }
-                                } else {
-                                    enumerateIme()
-                                }
-                            }
-                        }
-                        LangSwitchBehavior.ToggleActivate -> {
-                            service.postFcitxJob {
-                                toggleIme()
-                            }
-                        }
-                        LangSwitchBehavior.NextInputMethodApp -> {
-                            service.switchToNextIME()
-                        }
-                    }
+                    // Rime edition: the language key no longer rotates input methods. It sends
+                    // one standalone Shift tap and lets the engine act on it — for Rime that is
+                    // ascii_composer's ascii_mode (Chinese/Latin) toggle.
+                    service.sendStandaloneShiftTap()
                 }
-                is ShowInputMethodPickerAction -> showInputMethodPicker()
+                is ShowInputMethodPickerAction -> InputMethodUtil.showPicker()
                 is MoveSelectionAction -> {
                     when (backspaceSwipeState) {
                         Stopped -> {

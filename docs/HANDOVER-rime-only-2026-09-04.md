@@ -180,63 +180,36 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 
 没有用户布局 json 时（`ConfigProviders`/`UserConfigFiles` 返回 null），`TextKeyboard.getLayout()` 会落到代码内置的 `getDefaultLayout(showLangSwitch)`——就是标准 QWERTY，且在 `showLangSwitchKey`（默认 true）时带 `LanguageKey`。**已经是要求的状态，不要为此改动任何文件。**
 
-### ⬜ 任务 4 — 语言切换键改成"发一次 Shift 点击"（**未开始，下一个接手的从这里做**）
+### ✅ 任务 4 — 语言切换键改成"发一次 Shift 点击"（**已完成**）
 
-目标：按一下语言键 = 向 rime 发一次独立的 Shift 按下+抬起，靠用户 rime 配置里的 `ascii_mode` 切中英；同时删掉现在那个"语言切换键行为"偏好（三选一：枚举/切换激活/切下一个输入法 App），因为只剩 rime 一个 IM，这个偏好没意义。
+`072c0e87` 的提交信息里写了"中英切换后续改由语言键发送 Shift 点击走 rime ascii_mode"，但当时**只写了这句话、没有落代码**，语言键仍在轮换输入法。现已实现。
 
-**改动清单（行号基于 rebase 后的 `fx2-rime-fusion@01c1070e`，已复核）**
+行为（键盘上的 🌐 与工具栏/状态区的"语言切换"按钮完全一致）：
 
-1. `app/src/main/java/.../input/keyboard/CommonKeyActionListener.kt`
-   - `:65` 删 `private val langSwitchKeyBehavior by kbdPrefs.langSwitchKeyBehavior`
-   - `:155-177` 把 `is LangSwitchAction -> { when (langSwitchKeyBehavior) { ... } }` 整段换成发一次 Shift 点击（`:178` 是 `is ShowInputMethodPickerAction`，到这行为止）
-   - 清理随之不用的 import（`AddMoreInputMethodsPrompt`、`InputMethodUtil`、`switchToNextIME`——**动手前用 grep 确认文件内确实没有别的用处**；`InputMethodPickerDialog` 要留，长按还用）
-2. `app/src/main/java/.../input/action/ButtonAction.kt`（状态栏/工具栏上的"语言切换"按钮）
-   - `:26` 删 `import ...LangSwitchBehavior`
-   - `:359-378` `LanguageSwitchAction.execute()` 里的 `when (behavior)`（`:359` 取 pref，`:375` 是最后一个分支 `NextInputMethodApp`）换成同一套 Shift 点击逻辑
-   - `onLongPress` 保持不变（仍弹 `InputMethodPickerDialog`）
-3. 删文件 `app/src/main/java/.../input/keyboard/LangSwitchBehavior.kt`（整个 enum）
-4. `app/src/main/java/.../data/prefs/AppPrefs.kt`
-   - `:21` 删 import
-   - `:243-247` 删 `langSwitchKeyBehavior = enumList(...)`（**保留 `:228` 的 `show_lang_switch_key` 开关**）
-5. `app/src/main/java/.../ui/main/settings/behavior/KeyboardGroupFragment.kt`
-   - `:400` 从 `GROUP_BEHAVIOR` 集合里删 `"lang_switch_key_behavior",`
-6. `app/src/main/res/values/strings.xml` 删 `lang_switch_key_behavior`、`lang_switch_behavior_next_ime_app` 两条
-   - **必须保留** `show_lang_switch_key`；**必须保留** `space_behavior_enumerate` / `space_behavior_activate`（`SpaceLongPressBehavior` 还在用）
-   - 各语言目录同名两条一并删（`values-de:610,611`、`values-es:596,597`、`values-ja:269`、`values-ko/ru/zh-rCN/zh-rTW` 同理，用 `git grep -n 'lang_switch_key_behavior\|lang_switch_behavior_next_ime_app'` 定位）
-7. **不要动**：`KeyAction.kt:80` 的 `data object LangSwitchAction`（还要用）、`KeyDefPreset.kt:389` 的 `Behavior.Press(KeyAction.LangSwitchAction)`（就是那个语言键）
+| 手势 | 行为 |
+|---|---|
+| 单击 | 发一次**独立 Shift 敲击**（down → 150ms → up），交给引擎处理；rime 侧由 `ascii_composer/switch_key` 的 `Shift_L` 决定，默认 `inline_ascii`，想要整体切中英应在 `default.custom.yaml` 改成 `commit_text` 或 `commit_code` |
+| 长按 | 弹**系统**输入法切换菜单（`InputMethodManager.showInputMethodPicker()`），不再是 app 内自绘的 `InputMethodPickerDialog` |
 
-**怎么发 Shift（照抄仓库里已验证的写法，不要自己发明）**
+实现要点：
 
-关键事实：只有走"物理键盘路径"rime 才认得独立的 Shift。`FcitxInputMethodService.sendSimulatedKeyEvent(keyCode, scanCode, action, fromMacro = false)`（`FcitxInputMethodService.kt:1345`，public）内部用 `InputDevice.SOURCE_KEYBOARD` + `KeyEvent.FLAG_FROM_SYSTEM` 造事件，然后 `forwardKeyEvent(event, preserveModifierState = true)`。**不要**用 `sendSimulatedKeyEventOrFallback`（那是走 `currentInputConnection.sendKeyEvent`，rime 收不到）。
+1. `FcitxInputMethodService.sendStandaloneShiftTap()`（新增，单一入口，两处共用）
+   - 走 `sendSimulatedKeyEvent`（`InputDevice.SOURCE_KEYBOARD` + `FLAG_FROM_SYSTEM` → `forwardKeyEvent(preserveModifierState = true)`），**不能**用 `sendSimulatedKeyEventOrFallback`（那条路只到应用的 InputConnection，fcitx 收不到）；
+   - 按住 `STANDALONE_MODIFIER_HOLD_MS = 150L`（同 `BaseKeyboard.sendFcitxKeyTap` 的修饰键时长），press/release 不能落在同一瞬间；
+   - 用 `standaloneShiftTapJob` 串行化，连点两次得到两次独立敲击而不是嵌套的 down-down-up-up；`delay` 外面套 `try/finally` 保证任何取消路径都补发 up（修饰键按住状态是全局的，漏掉 up 会让后续按键都带 Shift）。
+2. `CommonKeyActionListener`：`is LangSwitchAction ->` 调 `service.sendStandaloneShiftTap()`；`is ShowInputMethodPickerAction ->` 改成 `InputMethodUtil.showPicker()`。
+   注意 `showInputMethodPicker()` 那个私有方法**还要留**——空格长按的 `SpaceLongPressBehavior.ShowPicker` 仍用它弹 app 内对话框。
+3. `ButtonAction.LanguageSwitchAction`：`execute()` 同上；`onLongPress()` 改成 `InputMethodUtil.showPicker()`。
+4. 删掉 `LangSwitchBehavior.kt`（整个 enum）、`AppPrefs.langSwitchKeyBehavior`、`KeyboardGroupFragment` 的 `"lang_switch_key_behavior"`、以及 8 个 `strings.xml` 里的 `lang_switch_key_behavior` / `lang_switch_behavior_next_ime_app`。
+   **保留**：`show_lang_switch_key`（显示开关）、`space_behavior_enumerate` / `space_behavior_activate`（`SpaceLongPressBehavior` 还在用）、`KeyAction.LangSwitchAction`、`KeyDefPreset.LanguageKey`。
+   `AddMoreInputMethodsPrompt` / `switchToNextIME` 已无调用方，但文件留着没删。
 
-现成参考实现在 `BaseKeyboard.kt`：
-- `:115` `private val shiftKeyCode = KeyEvent.KEYCODE_SHIFT_LEFT`
-- `:116` `private val shiftScanCode by lazy { mapFcitxToScanCode("Shift_L", shiftKeyCode) }`
-- `:2642` `sendFcitxKeyTap()`，`:2654` `val keyHoldDelayMs = if (isMod) 150L else 50L`，`:2663`/`:2667`/`:2671` 是 Shift down → `delay` → Shift up 的实际写法：修饰键按住 **150ms** 后再抬，rime 才能识别为"独立 Shift 敲击"。
+**为什么 Shift 能到 rime（已核对上游源码）**：
+- fcitx5 core 的 hotkey watcher 与引擎在**同一 phase**、且排在引擎**之前**，`Hotkey/AltTriggerKeys` 默认就是 `Shift_L`；但每个分支都要过 `Instance::canTrigger()`（`currentGroup().inputMethodList().size() > 1`）。本分支只有 rime 一个 IM，所以 core 不会 filter，press/release 都会落到引擎。
+- 更稳的一层：CI 用的 **fxliang/fcitx5-rime**（见第 0 节 `prepare_personal_build.sh`）带 `fcitx5-alt-trigger-v4point1.patch`，给 `canAltTrigger` 加了 `InputMethodEngineV4Point1::supportsAltTrigger()` 钩子，而 `RimeEngine::supportsAltTrigger()` 默认返回 `false`（配置项 `ShiftKeyBehavior`，默认 `DisableFcitxToggle`）。即使以后 IM 变成多个，Shift_L 也仍归 rime。
+- `RimeState::keyEvent` 不丢 release：release 会带上 `1 << 30`（IBUS_RELEASE_MASK）喂给 `process_key`，正是 librime `AsciiComposer` 判定"独立 Shift 敲击"所需（它只在 release 且 500ms 内才 toggle）。
 
-在 `CommonKeyActionListener` / `ButtonAction` 里没有 `BaseKeyboard` 的那两个私有字段，自己取 scancode：
-`org.fcitx.fcitx5.android.core.ScancodeMapping.keyCodeToScancode(KeyEvent.KEYCODE_SHIFT_LEFT)`（`KEYCODE_SHIFT_LEFT` = 59）。
-
-建议形状（放在 `service.lifecycleScope.launch { }` 里，因为要 `delay`）：
-
-```kotlin
-is LangSwitchAction -> {
-    // rime 专版：语言键发一次独立的 Shift 敲击，由 rime 的 ascii_mode 切中英。
-    // 必须走 sendSimulatedKeyEvent 的物理键盘通道，rime 才认独立 Shift；
-    // 修饰键需要约 150ms 的按住时长（同 BaseKeyboard.sendFcitxKeyTap）。
-    val keyCode = KeyEvent.KEYCODE_SHIFT_LEFT
-    val scanCode = ScancodeMapping.keyCodeToScancode(keyCode)
-    service.lifecycleScope.launch {
-        service.sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_DOWN)
-        delay(150)
-        service.sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_UP)
-    }
-}
-```
-
-`fromMacro` 留默认 `false`（`true` 会额外清 kawaii bar 焦点状态，这里不需要）。两处（键盘上的键、状态栏按钮）逻辑一致，可以抽个小 helper，也可以各写一遍——按仓库现有风格，重复两遍更省事、也不引入新抽象。
-
-**验证**：`./gradlew :app:assembleFxRelease` 能过（本地没装 Android SDK 就靠 CI）；装机后按语言键应能在 rime 状态栏看到 `ascii_mode` 的 `中文 → 英文` 开关翻转。
+**验证**：`./gradlew :app:assembleFxRelease`（本机无 JDK/Android SDK，靠 CI）；装机后按语言键应能看到 rime 的 `ascii_mode` 中/英翻转，长按弹出系统输入法菜单。
 
 ---
 
@@ -293,6 +266,6 @@ is LangSwitchAction -> {
 
 1. 确认 `git status` 干净（除那两个未跟踪文件）、`fx2-rime-fusion` 与 origin 同步（当前 `01c1070e`）。
 2. **复查 force-push 触发的 CI**（新 tip `01c1070e` 是 docs 提交，按路径过滤不触发；实际要看的是它前一个代码提交 `cefc481b`）。冲突解决动了 `BaseInputView.kt`，务必确认这一轮构建是绿的。
-3. 做**任务 4**（语言键 → Shift 点击）：一个中文提交 → push → 等 CI 绿。
+3. ~~做**任务 4**（语言键 → Shift 点击）~~ **已完成**，见第 4 节任务 4；提交后 push → 等 CI 绿。
 4. 向用户确认是否加 **stderr→logcat** 那个诊断改动；同意的话独立提交 → push → 等 CI 绿，然后让用户复现一次导日志。
 5. 用户确认后再决定要不要删 `backup/fx2-rime-fusion-pre-merge` 与 `backup/fx2-rime-fusion-pre-rebase-20260904`。

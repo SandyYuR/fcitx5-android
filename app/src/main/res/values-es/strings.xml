@@ -593,8 +593,6 @@
     <string name="keyboard_side_padding">Relleno lateral del teclado</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Usar barra horizontal con teclado fisico</string>
     <string name="physical_keyboard_horizontal_candidate_bar_summary">Mostrar la barra Kawaii y los candidatos horizontales abajo al escribir con un teclado fisico</string>
-    <string name="lang_switch_behavior_next_ime_app">Cambiar a la siguiente app de metodo de entrada</string>
-    <string name="lang_switch_key_behavior">Comportamiento de tecla de cambio de idioma</string>
     <string name="manage_table_im">Administrar metodos de entrada de tabla</string>
     <string name="missing_data_descriptor">Falta descriptor de datos</string>
     <string name="missing_plugin_descriptor">Falta descriptor de complemento</string>

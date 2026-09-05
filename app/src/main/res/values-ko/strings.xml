@@ -576,8 +576,6 @@
     <string name="physical_keyboard_horizontal_candidate_bar">물리 키보드에서 가로 후보 바 사용</string>
     <string name="physical_keyboard_horizontal_candidate_bar_summary">물리 키보드로 입력할 때 Kawaii 바와 가로 후보 바를 하단에 표시</string>
     <string name="landscape">가로</string>
-    <string name="lang_switch_behavior_next_ime_app">다음 입력기 앱으로 전환</string>
-    <string name="lang_switch_key_behavior">언어 전환 키 동작</string>
     <string name="light_mode_theme">라이트 모드 테마</string>
     <string name="main_program">메인 프로그램</string>
     <string name="manage_table_im">테이블 입력기 관리</string>
