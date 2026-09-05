@@ -4,6 +4,7 @@
     <string name="app_name_debug">Fcitx5.fx (Debug)</string>
     <string name="save">Guardar</string>
     <string name="input_methods">Métodos de entrada</string>
+    <string name="rime_settings">Ajustes de Rime</string>
     <string name="addons">Complementos</string>
     <string name="conf">Configuración</string>
     <string name="global_options">Opciones globales</string>

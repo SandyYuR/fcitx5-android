@@ -4,6 +4,7 @@
     <string name="app_name_debug">小企鵝輸入法.fx (除錯)</string>
     <string name="save">儲存</string>
     <string name="input_methods">輸入法</string>
+    <string name="rime_settings">中州韻設定</string>
     <string name="addons">附加元件</string>
     <string name="conf">設定</string>
     <string name="global_options">全域選項</string>
