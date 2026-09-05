@@ -119,11 +119,27 @@ private val NUMPAD_KEYCODE_RANGE = KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_N
 /**
  * How long a synthesized standalone modifier key is held down.
  *
- * Rime's `ascii_composer` only treats a modifier as a mode-switch key when press and release are
- * distinguishable, so press and release must not land on the same instant. Same value as the
- * modifier hold in `BaseKeyboard.sendFcitxKeyTap`.
+ * Only an *upper* bound matters, and this value is far below every one of them:
+ * - librime's `AsciiComposer` only toggles `ascii_mode` when the modifier is released within
+ *   500ms of its press (`toggle_duration_limit`);
+ * - fcitx5 core's modifier-only hotkeys require release within `ModifierOnlyKeyTimeout`
+ *   (default 250ms), for the branches that pass `Instance::canTrigger()`.
+ *
+ * There is no lower bound. What distinguishes a standalone modifier tap from a
+ * "modifier + letter" combo is event *order*, not elapsed time: `AsciiComposer` clears
+ * `shift_key_pressed_` as soon as any non-modifier key arrives, so a combo can never toggle.
+ * Ordering is already guaranteed independently of wall-clock time — `forwardKeyEvent` tags each
+ * event with a self-incrementing index precisely because down/up can share a timestamp, and
+ * `postFcitxJob` drains its queue sequentially.
+ *
+ * So this hold is kept short: it is pure added latency on the language key (the toggle only fires
+ * on release), and it is also the window in which a letter typed right after the tap could pick up
+ * the shared simulated-Shift state. This value is not a safety margin against the engine — it is
+ * only kept at the low end of the typical human key-hold range so the pair still looks like a real
+ * keystroke to apps that receive the forwarded events. Same value as `keyHoldDelayMs` in
+ * `BaseKeyboard.sendFcitxKeyTap`, which no longer holds modifiers longer than ordinary keys either.
  */
-private const val STANDALONE_MODIFIER_HOLD_MS = 150L
+private const val STANDALONE_MODIFIER_HOLD_MS = 50L
 
 class FcitxInputMethodService : LifecycleInputMethodService() {
 
@@ -1475,8 +1491,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
      * Two details are load-bearing:
      * - it goes through [sendSimulatedKeyEvent], never [sendSimulatedKeyEventOrFallback]: the
      *   latter only reaches the application's InputConnection, so fcitx would never see the key;
-     * - the key is held briefly, matching the modifier hold in `BaseKeyboard.sendFcitxKeyTap`,
-     *   so press and release do not share a single timestamp.
+     * - the key is held for [STANDALONE_MODIFIER_HOLD_MS], comfortably inside librime's 500ms
+     *   `toggle_duration_limit`, so the release still counts as a standalone modifier tap.
      */
     fun sendStandaloneShiftTap() {
         val keyCode = KeyEvent.KEYCODE_SHIFT_LEFT
