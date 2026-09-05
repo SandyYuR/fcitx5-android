@@ -4,6 +4,7 @@
     <string name="app_name_debug">Fcitx5.fx (디버그)</string>
     <string name="save">저장</string>
     <string name="input_methods">입력기</string>
+    <string name="rime_settings">Rime 설정</string>
     <string name="addons">애드온</string>
     <string name="conf">구성</string>
     <string name="global_options">전역 옵션</string>

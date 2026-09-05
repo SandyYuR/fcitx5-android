@@ -4,6 +4,7 @@
     <string name="app_name_debug">Fcitx5.fx.rime (Debug)</string>
     <string name="save">Save</string>
     <string name="input_methods">Input Methods</string>
+    <string name="rime_settings">Rime Settings</string>
     <string name="addons">Addons</string>
     <string name="conf">Configuration</string>
     <string name="global_options">Global Options</string>

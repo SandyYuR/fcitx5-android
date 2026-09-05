@@ -4,6 +4,7 @@
     <string name="app_name_debug">小企鹅输入法.fx (调试)</string>
     <string name="save">保存</string>
     <string name="input_methods">输入法</string>
+    <string name="rime_settings">中州韵设置</string>
     <string name="addons">附加组件</string>
     <string name="conf">配置</string>
     <string name="global_options">全局选项</string>

@@ -4,6 +4,7 @@
     <string name="app_name_debug">Fcitx5.fx (Отладка)</string>
     <string name="save">Сохранить</string>
     <string name="input_methods">Методы ввода</string>
+    <string name="rime_settings">Настройки Rime</string>
     <string name="addons">Дополнения</string>
     <string name="conf">Конфигурация</string>
     <string name="global_options">Глобальные параметры</string>
