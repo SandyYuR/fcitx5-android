@@ -3,6 +3,9 @@
 > 本文写给接手的下一个代理。仓库 `SandyYuR/fcitx5-android`（fcitx5-android 的 fork）。
 > 目标分支 **`fx2-rime-fusion`**，基线 **`fx2`**（`3ad25fc9`，**必须保持不动**）。
 > 本文只描述"领先 fx2 的全部改动"与"未完成的工作"。
+>
+> **2026-09-04 晚更新**：分支已把 `review-fx2-fixes` 的 6 个新提交 rebase 到本分支所有改动**之前**，
+> 因此本分支 **37 个提交的 SHA 全部改写**、已 force-push。第 2 节有新旧对照与新 SHA。
 
 ---
 
@@ -10,7 +13,7 @@
 
 | 事项 | 说明 |
 |---|---|
-| **工作区当前不在目标分支** | `D:\GitHub\code review` 现在 checkout 的是 `review-fx2-fixes`。动手前先 `git checkout fx2-rime-fusion`。 |
+| 工作区分支 | `D:\GitHub\code review` 当前已 checkout `fx2-rime-fusion`（与 origin 同步）。动手前先 `git status` 确认。 |
 | 存在第二个 worktree | `D:/GitHub/code review-fx2` → `codex/fx2-nonblocking-font-coldstart`。不要在两个 worktree 里同时切同一分支。 |
 | 未跟踪文件 | 根目录有 `_myreview.diff`、`org.fcitx.fcitx5.android.fx.rime-2026-09-04T09_05_50Z.txt`（用户给的 logcat）。不要提交它们。 |
 | 子模块未初始化 | 本地 `lib/fcitx5/src/main/cpp/fcitx5`、`plugin/rime/src/main/cpp/fcitx5-rime` 等都是空的 gitlink，`git grep` 查不到内容。要看源码用 jsDelivr：`https://cdn.jsdelivr.net/gh/<owner>/<repo>@<sha>/<path>?x=N`（`?x=N` 变化用于绕缓存；raw.githubusercontent 拉大文件会超 30s 工具超时）。 |
@@ -47,16 +50,47 @@ CI 事实：
 
 ```
 fx2                3ad25fc9  ← 基线，未改动
-fx2-rime-fusion    54706725  ← 工作分支，= origin/fx2-rime-fusion（已同步）
-                             领先 fx2 共 131 个提交，线性历史
-                             757 files changed, +6066 / -37493
+fx2-rime-fusion    01c1070e  ← 工作分支，= origin/fx2-rime-fusion（已同步）
+                             领先 fx2 共 138 个提交，线性历史
+                             761 files changed, +6869 / -37531
 ```
 
-其他分支（都别碰）：`review-fx2-fixes` `3ec1f6b2`、`review-fx2-fixes-split` `85de19be`、`backup/fx2-rime-fusion-pre-merge` `6129c833`（用户确认前保留）、`backup/fx2-local`、`fx`、`review-fx`、`fx2-rime-only`。
+历史结构（自底向上）：
+```
+fx2 3ad25fc9
+  └─ 95 个提交（审查修复 + 性能，与 review-fx2-fixes-split 共有，止于 85de19be）
+      └─ 6 个 review-fx2-fixes 新提交  5fdcb0db 763f4dcf 9c411dc1 f3abf5b3 920fed60 3ec1f6b2
+          └─ 37 个 rime 专版提交（SHA 已改写）  5d90019d … 01c1070e
+```
 
-已验证 CI 状态（GitHub Actions）：
+**rebase（2026-09-04 晚）**：应用户要求把 `review-fx2-fixes` 的 6 个提交插到本分支改动之前，做法
+`git rebase --onto review-fx2-fixes 85de19be fx2-rime-fusion`，随后
+`git push --force-with-lease`。旧 tip `281082cb` 保存在
+**`backup/fx2-rime-fusion-pre-rebase-20260904`**（本地分支，未推送）。
+只有 1 处冲突：`BaseInputView.kt` 的 `setupFcitxEventHandler()`，`3ec1f6b2`（C31 断连兜底
+`try/catch FcitxDisconnectedException`）与 `be92f13a`（Phase 0 `trace("collectFcitxEvent")`）
+改同一段——已**两者都保留**（先 try 取 flow，再在 `events.collect` 内部包 trace）。
+其余 13 个文件全部自动合并。已验证：`git diff 旧tip 新tip` 恰好等于那 6 个提交的内容
+（14 文件 +590/-88），无冲突标记残留。
 
-| 提交 | 说明 | CI |
+常用新旧 SHA 对照（其余按提交标题一一对应，标题未改）：
+
+| 提交标题 | 旧 SHA | 新 SHA |
+|---|---|---|
+| docs: rime 专版交接报告（2026-09-04） | `281082cb` | `01c1070e` |
+| 移除 quickphrase 快速短语组件 | `54706725` | `cefc481b` |
+| fix: 首次启动时预置 rime 为默认启用输入法 | `b3da4853` | `dc0db868` |
+| 移除 androidkeyboard/imselector/spell/unicode 组件 | `03a70215` | `072c0e87` |
+| feat: 包名改为 `...fx.rime` | `eaa85316` | `6be71bf5` |
+| perf: Phase 0 性能埋点 (androidx.tracing) | `be92f13a` | `bb3a578b`（含冲突解决） |
+| feat: 将 fcitx5-rime 并入主 APK | `b7742505` | `127e7924` |
+
+其他分支（都别碰）：`review-fx2-fixes` `3ec1f6b2`、`review-fx2-fixes-split` `85de19be`、`backup/fx2-rime-fusion-pre-merge` `6129c833`、`backup/fx2-rime-fusion-pre-rebase-20260904` `281082cb`（都等用户确认后再删）、`backup/fx2-local`、`fx`、`review-fx`、`fx2-rime-only`。
+
+已验证 CI 状态（GitHub Actions）—— 注意这些是 **rebase 前的旧 SHA** 的结果；rebase 后新 SHA 的
+CI 由 force-push 触发，接手时用 `gh`/API 复查 `01c1070e`：
+
+| 旧提交 | 说明 | CI |
 |---|---|---|
 | `54706725` | 移除 quickphrase 快速短语组件 | ✅ success |
 | `b3da4853` | 首次启动时预置 rime 为默认启用输入法 | ✅ success |
@@ -65,7 +99,7 @@ fx2-rime-fusion    54706725  ← 工作分支，= origin/fx2-rime-fusion（已�
 
 ---
 
-## 3. 领先 fx2 的 131 个提交（按主题归类）
+## 3. 领先 fx2 的 138 个提交（按主题归类）
 
 ### 3.1 精简为 rime 专版（本轮核心，约 20 提交）
 
@@ -150,15 +184,15 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 
 目标：按一下语言键 = 向 rime 发一次独立的 Shift 按下+抬起，靠用户 rime 配置里的 `ascii_mode` 切中英；同时删掉现在那个"语言切换键行为"偏好（三选一：枚举/切换激活/切下一个输入法 App），因为只剩 rime 一个 IM，这个偏好没意义。
 
-**改动清单（行号基于 `fx2-rime-fusion@54706725`）**
+**改动清单（行号基于 rebase 后的 `fx2-rime-fusion@01c1070e`，已复核）**
 
 1. `app/src/main/java/.../input/keyboard/CommonKeyActionListener.kt`
    - `:65` 删 `private val langSwitchKeyBehavior by kbdPrefs.langSwitchKeyBehavior`
-   - `:155-181` 把 `is LangSwitchAction -> { when (langSwitchKeyBehavior) { ... } }` 整段换成发一次 Shift 点击
+   - `:155-177` 把 `is LangSwitchAction -> { when (langSwitchKeyBehavior) { ... } }` 整段换成发一次 Shift 点击（`:178` 是 `is ShowInputMethodPickerAction`，到这行为止）
    - 清理随之不用的 import（`AddMoreInputMethodsPrompt`、`InputMethodUtil`、`switchToNextIME`——**动手前用 grep 确认文件内确实没有别的用处**；`InputMethodPickerDialog` 要留，长按还用）
 2. `app/src/main/java/.../input/action/ButtonAction.kt`（状态栏/工具栏上的"语言切换"按钮）
    - `:26` 删 `import ...LangSwitchBehavior`
-   - `:359-379` `LanguageSwitchAction.execute()` 里的 `when (behavior)` 换成同一套 Shift 点击逻辑
+   - `:359-378` `LanguageSwitchAction.execute()` 里的 `when (behavior)`（`:359` 取 pref，`:375` 是最后一个分支 `NextInputMethodApp`）换成同一套 Shift 点击逻辑
    - `onLongPress` 保持不变（仍弹 `InputMethodPickerDialog`）
 3. 删文件 `app/src/main/java/.../input/keyboard/LangSwitchBehavior.kt`（整个 enum）
 4. `app/src/main/java/.../data/prefs/AppPrefs.kt`
@@ -173,12 +207,12 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 
 **怎么发 Shift（照抄仓库里已验证的写法，不要自己发明）**
 
-关键事实：只有走"物理键盘路径"rime 才认得独立的 Shift。`FcitxInputMethodService.sendSimulatedKeyEvent(keyCode, scanCode, action, fromMacro = false)`（`FcitxInputMethodService.kt:1327`，public）内部用 `InputDevice.SOURCE_KEYBOARD` + `KeyEvent.FLAG_FROM_SYSTEM` 造事件，然后 `forwardKeyEvent(event, preserveModifierState = true)`。**不要**用 `sendSimulatedKeyEventOrFallback`（那是走 `currentInputConnection.sendKeyEvent`，rime 收不到）。
+关键事实：只有走"物理键盘路径"rime 才认得独立的 Shift。`FcitxInputMethodService.sendSimulatedKeyEvent(keyCode, scanCode, action, fromMacro = false)`（`FcitxInputMethodService.kt:1345`，public）内部用 `InputDevice.SOURCE_KEYBOARD` + `KeyEvent.FLAG_FROM_SYSTEM` 造事件，然后 `forwardKeyEvent(event, preserveModifierState = true)`。**不要**用 `sendSimulatedKeyEventOrFallback`（那是走 `currentInputConnection.sendKeyEvent`，rime 收不到）。
 
 现成参考实现在 `BaseKeyboard.kt`：
 - `:115` `private val shiftKeyCode = KeyEvent.KEYCODE_SHIFT_LEFT`
 - `:116` `private val shiftScanCode by lazy { mapFcitxToScanCode("Shift_L", shiftKeyCode) }`
-- `:2650-2665` `sendFcitxKeyTap()`：修饰键按住 **150ms** 后再抬（`keyHoldDelayMs = if (isMod) 150L else 50L`），rime 才能识别为"独立 Shift 敲击"。
+- `:2642` `sendFcitxKeyTap()`，`:2654` `val keyHoldDelayMs = if (isMod) 150L else 50L`，`:2663`/`:2667`/`:2671` 是 Shift down → `delay` → Shift up 的实际写法：修饰键按住 **150ms** 后再抬，rime 才能识别为"独立 Shift 敲击"。
 
 在 `CommonKeyActionListener` / `ButtonAction` 里没有 `BaseKeyboard` 的那两个私有字段，自己取 scancode：
 `org.fcitx.fcitx5.android.core.ScancodeMapping.keyCodeToScancode(KeyEvent.KEYCODE_SHIFT_LEFT)`（`KEYCODE_SHIFT_LEFT` = 59）。
@@ -208,7 +242,7 @@ is LangSwitchAction -> {
 
 ## 5. 待处理问题：用户反馈"rime 无法成功部署"
 
-用户提供 `org.fcitx.fcitx5.android.fx.rime-2026-09-04T09_05_50Z.txt`（版本 `0.1.3-585-g54706725`，即上面最后一个提交的产物）。
+用户提供 `org.fcitx.fcitx5.android.fx.rime-2026-09-04T09_05_50Z.txt`（版本 `0.1.3-585-g54706725`，即 rebase 前 quickphrase 提交的产物；对应 rebase 后的 `cefc481b`）。
 
 ### 已查明的事实
 
@@ -228,7 +262,7 @@ is LangSwitchAction -> {
 
 推断：用户 rime 用户目录是从 fx2 的目录复制来的（包名从 `...fx` 变成 `...fx.rime`，数据目录是两套），**`build/` 复制过来了但源 YAML/词典没复制全**，于是重新部署一开始就失败、词典也加载不出来。
 
-**已排除是本轮改动造成**：`git diff --name-only eaa85316..54706725` 里除两份 `docs/*.md` 外没有任何 rime/opencc/prebuilt/submodule 路径；rime addon 的依赖只有 `notifications`/`dbus`（见 fxliang fork 的 `src/rime-addon.conf.in.in`），与被删的 spell/unicode/quickphrase/imselector 无关。
+**已排除是本轮改动造成**：`git diff --name-only 6be71bf5..cefc481b`（旧 SHA：`eaa85316..54706725`）里除两份 `docs/*.md` 外没有任何 rime/opencc/prebuilt/submodule 路径；rime addon 的依赖只有 `notifications`/`dbus`（见 fxliang fork 的 `src/rime-addon.conf.in.in`），与被删的 spell/unicode/quickphrase/imselector 无关。
 
 ### 给用户的建议（已答复，供参考）
 
@@ -257,7 +291,8 @@ is LangSwitchAction -> {
 
 ## 7. 建议的下一步顺序
 
-1. `git checkout fx2-rime-fusion` 并确认 `git status` 干净（除那两个未跟踪文件）。
-2. 做**任务 4**（语言键 → Shift 点击）：一个中文提交 → push → 等 CI 绿。
-3. 向用户确认是否加 **stderr→logcat** 那个诊断改动；同意的话独立提交 → push → 等 CI 绿，然后让用户复现一次导日志。
-4. 用户确认后再决定要不要删 `backup/fx2-rime-fusion-pre-merge`。
+1. 确认 `git status` 干净（除那两个未跟踪文件）、`fx2-rime-fusion` 与 origin 同步（当前 `01c1070e`）。
+2. **复查 force-push 触发的 CI**（新 tip `01c1070e` 是 docs 提交，按路径过滤不触发；实际要看的是它前一个代码提交 `cefc481b`）。冲突解决动了 `BaseInputView.kt`，务必确认这一轮构建是绿的。
+3. 做**任务 4**（语言键 → Shift 点击）：一个中文提交 → push → 等 CI 绿。
+4. 向用户确认是否加 **stderr→logcat** 那个诊断改动；同意的话独立提交 → push → 等 CI 绿，然后让用户复现一次导日志。
+5. 用户确认后再决定要不要删 `backup/fx2-rime-fusion-pre-merge` 与 `backup/fx2-rime-fusion-pre-rebase-20260904`。
