@@ -19,7 +19,7 @@
 | 未跟踪文件 | 当前仅有根目录下的 `日志/` 目录，内含 8 个用户日志/布局文件；均未跟踪，不要提交。完整清单见下方。 |
 | 子模块未初始化 | 本地 `lib/fcitx5/src/main/cpp/fcitx5`、`plugin/rime/src/main/cpp/fcitx5-rime` 等都是空的 gitlink，`git grep` 查不到内容。要看源码用 jsDelivr：`https://cdn.jsdelivr.net/gh/<owner>/<repo>@<sha>/<path>?x=N`（`?x=N` 变化用于绕缓存；raw.githubusercontent 拉大文件会超 30s 工具超时）。 |
 | **CI 实际构建的 rime 源码不是仓库 pin 的那个** | `prepare_personal_build.sh` 会把 `fcitx5-rime` 切到 **fxliang/fcitx5-rime@master**、`prebuilt` 切到 **fxliang/prebuilt@master**，并给 fcitx5 打 `fcitx5-alt-trigger-v4point1.patch`。所以看 rime 行为要读 **fxliang fork**，仓库里 pin 的 `4e996319`（上游 bump version）只是占位。 |
-| grep 工具在仓库根会报错 | `app/src/main/play/listings/en-US/graphics/icon/icon.png` 是坏条目（os error 2），`grep` 传 `path=<repo root>` 会 exit 2。用 `git grep`（走 pwsh）或把 `path` 缩小到子目录。 |
+| grep 工具 | `app/src/main/play/listings/en-US/graphics/icon/icon.png` 的失效符号链接已修正为指向 `app/src/fx/res/mipmap-xxxhdpi/ic_launcher.png`，现在可以从仓库根目录搜索。若以后再次出现 `os error 2`，先检查该链接目标是否仍存在。 |
 | read 工具 | `offset`/`limit` 必须是明确数字（传 undefined 会报 "binding arguments must be lossless JSON"），`limit` ≤ 2000。 |
 | GitHub API 返回会被截断 | `/actions/runs` 的 JSON 超 100000 字符会 `Unterminated string`。用 `per_page=3` 或正则抽 token，别整体 `JSON.parse`。 |
 
