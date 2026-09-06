@@ -7,7 +7,7 @@
 > **2026-09-04 晚更新**：分支已把 `review-fx2-fixes` 的 6 个新提交 rebase 到本分支所有改动**之前**，
 > 因此当时已有的 **37 个 rime 专版提交的 SHA 全部改写**、已 force-push。第 2 节有新旧对照与新 SHA。
 > **2026-09-05 更新**：已同步当前工作区路径、worktree、未跟踪文件和分支状态；此前已解决的事项不再列入待处理问题。
-> **2026-09-06 更新**：① 工作区重组——主仓库移入 `D:\GitHub\fx2-rime\fx2-rime-fusion\`，项目根下新增三个引擎相关 fork 的本地克隆，`日志/` 移出 git 工作区；② CI 的 rime 来源从 fxliang fork 换成 **SandyYuR 自己的 fork**（fcitx5-rime 已合并上游最新，prebuilt 保持 fxliang 终态快照），见第 0 节新表格。
+> **2026-09-06 更新**：① 工作区重组——主仓库移入 `D:\GitHub\fx2-rime\fx2-rime-fusion\`，项目根下新增三个引擎相关 fork 的本地克隆，`日志/` 移出 git 工作区；② CI 的 rime 来源从 fxliang fork 换成 **SandyYuR 自己的 fork**（fcitx5-rime 已合并上游最新，prebuilt 保持 fxliang 终态快照），见第 0 节新表格；③ **rime 引擎更新流水线打通**——librime 从 `1.17.0-1d0df6e` 更新到 `1.17.0-3cbe4af`（上游最新，fxliang 补丁全保留），完整 runbook 见**第 0.5 节**。
 
 ---
 
@@ -18,7 +18,7 @@
 | 目录布局（2026-09-06 重组） | 项目根 `D:\GitHub\fx2-rime` 下四样东西：`fx2-rime-fusion/` = 主仓库工作区（本分支，git 命令在这里跑）；`fcitx5-rime/`、`prebuilt/`、`prebuilder/` = 三个引擎相关 fork 仓库的完整克隆（remote `origin` = SandyYuR 同名 fork，`upstream` = fxliang 终态）；`日志/` = 用户日志（已移出 git 工作区）。动手前先 `git status` 确认。 |
 | worktree | 唯一 worktree：`D:/GitHub/fx2-rime/fx2-rime-fusion` → `fx2-rime-fusion`，与 `origin/fx2-rime-fusion` 同步。没有第二个 worktree，不要自行新增或切换到同一分支。 |
 | 三个 fork 的分工与更新方式 | **`SandyYuR/fcitx5-rime`** = rime addon 源码（已合并上游 `fcitx/fcitx5-rime` 至 `1ec9515`：ascii mode 大小写图标、schema 自定义 ascii 名、xkb state 修复、app_options 示例修正；fxliang 的 profile-manager/schema 选择器/ShiftKeyBehavior 等定制全部保留）。**`SandyYuR/prebuilt`** = librime.a 等引擎二进制，**故意不合上游**——上游是官方无补丁流水线产物，合并会换掉 fxliang 定制引擎；其 master 由自己的 prebuilder 流水线产出（见下）。**`SandyYuR/prebuilder`** = 构建配方（已合并上游 3 提交 + 2026-09-06 引擎更新）。**addon 更新 = 在 fcitx5-rime fork 里 merge 上游 → push；引擎更新见下节专属流程。** |
-| **rime 引擎更新流水线（2026-09-06 打通，已产出新引擎）** | 引擎 = `SandyYuR/prebuilt` 里的 `librime.a`，由 **`SandyYuR/prebuilder`** 的 CI（`ci.yml`，手动 `workflow_dispatch` 触发，约 15-90 分钟）构建并自动推回 prebuilt（"Auto update" 提交，bot 身份）。已配置：fork 的 `BOT_TOKEN` secret（值=本机 GCM 的 GitHub token，需 contents 写权限，**token 轮换后要重配**）；ci.yml 推送目标已改为 SandyYuR 仓库、删掉了 fxliang 仓库的元数据步骤。**引擎更新操作**：① 在 prebuilder 里 bump `librime` 子模块 gitlink（`git update-index --cacheinfo "160000,<sha>,librime"`）；② 若 `patches/librime*.patch` 与上游冲突（必然发生在上游动了 `syllabifier/prism/user_dictionary/rime_api*` 时）：克隆 librime → checkout 新 pin → `git apply --reject` 三补丁 → 手工合并 .rej → **用中间状态法重新生成补丁**（state1/2/3 提交后 `git diff` 导出 patch1'/patch2'，userdict-cache 通常不用动）→ **回环验证**（干净 master 顺序应用三补丁后与 state3 做 `git diff --cached` 必须零差异）；③ push prebuilder → Actions 页手动触发 CI → 等绿；④ 主仓库更新 `app/licenses/libraries/librime.json` 的 artifactVersion（格式 `<CMake 版本>-<短sha>`，如 `1.17.0-3cbe4af`）→ push 触发 APK CI。当前引擎：**librime 1.17.0-3cbe4af**（上游 13 提交：CandidatePreview API、user_dictionary unweighted/最小 tick 修复、calculus 修复等 + fxliang tabs/缓存/预测全套）。注意 `librime-predict-leveldb` 子模块指向 fxliang 的仓库（停更，保持原样）。 |
+| **rime 引擎更新流水线（2026-09-06 打通，已产出新引擎）** | 引擎 = `SandyYuR/prebuilt` 里的 `librime.a`，由 **`SandyYuR/prebuilder`** 的 CI（`ci.yml`，手动 `workflow_dispatch` 触发，约 15-90 分钟）构建并自动推回 prebuilt（"Auto update" 提交，bot 身份）。已配置 `BOT_TOKEN` secret（token 轮换后要重配）。**完整操作手册见第 0.5 节 runbook（含全部命令、SHA 对照与踩坑记录）**。当前引擎：**librime 1.17.0-3cbe4af**（上游 13 提交 + fxliang tabs/缓存/预测全套）。 |
 | **CI 构建的 rime 来源已换成自己的 fork** | `prepare_personal_build.sh`（`4e1990e9` 起）把 `fcitx5-rime`、`prebuilt` 切到 **SandyYuR fork@master**，不再依赖 fxliang 账号存续；fcitx5 补丁不变（`fcitx5-alt-trigger-v4point1.patch`）。看 rime 行为直接读 `D:\GitHub\fx2-rime\fcitx5-rime\`（addon）/ `D:\GitHub\fx2-rime\librime-src\`（引擎源码，浅克隆+三补丁工作区） / `D:\GitHub\fx2-rime\prebuilt\`（引擎二进制）。仓库 pin 的 `4e996319` 仍只是占位。 |
 | 日志文件 | 在项目根 `D:\GitHub\fx2-rime\日志\`（8 个用户日志/布局文件），不在 git 工作区内，不可能被误提交。 |
 | 子模块未初始化 | 主仓库工作区里 `lib/fcitx5/src/main/cpp/fcitx5`、`plugin/rime/src/main/cpp/fcitx5-rime` 等仍是空 gitlink。fcitx5-rime 的源码看 `D:\GitHub\fx2-rime\fcitx5-rime\`；fcitx5 核心与 prebuilt 的其他内容仍可用 jsDelivr：`https://cdn.jsdelivr.net/gh/<owner>/<repo>@<sha>/<path>?x=N`（`?x=N` 绕缓存；raw.githubusercontent 拉大文件会超 30s 超时）。prebuilt 也有本地克隆 `D:\GitHub\fx2-rime\prebuilt\`。 |
@@ -33,6 +33,120 @@
 1. **run #220 `installProjectConfig` 失败**：po 合并脚本的分块假设不成立——fxliang 的 ja.po 里部分条目之间只有一个换行（无空行），脚本把两条目粘成一块，上游同名条目再独立插入 → "All"/"Clear" 重复，msgfmt 硬错误。修复：`b88c57d` 删重复条目。
 2. **run #221 `buildCMakeRelWithDebInfo` 失败**：手动解 `rimeengine.h` 冲突时把 `FCITX_CONFIGURATION` 块最后一个成员结尾写成 `false});`，丢了成员声明的分号（正确是 `false};);`）。run #220 死在 msgfmt 没暴露它。修复：`dad45bc`。
 3. 教训：**解完冲突必须对照两个父版本（`git show <sha>:<path>`）核对合并块的每一个结尾标点**，"结构看起来对"不算数；po 合并后要跑重复检查；CI 挂了先拉完整 job 日志再动手，别靠猜。
+
+---
+
+## 0.5 rime 引擎更新 runbook（2026-09-06 首次实战打通，照此复制）
+
+> 引擎 = `SandyYuR/prebuilt` 里的 `librime.a`（四 ABI）。它**不跟上游自动更新**，要更新就照本节走一遍。
+> 首战成果：librime `1.17.0-1d0df6e`（2026-07-28）→ **`1.17.0-3cbe4af`**（上游 master tip，含 13 个新提交），fxliang 补丁集全保留。全程约 1.5 小时人工 + 1 小时 CI。
+
+### 0.5.0 架构认知（动手前必须懂）
+
+```
+SandyYuR/prebuilder（配方仓库，.gitmodules 里 librime → rime/librime 上游本尊）
+  ├─ librime gitlink（pin 一个上游 SHA，不需要 fork librime！）
+  ├─ patches/librime*.patch（fxliang 三补丁，构建期 git apply 到检出的源码上）
+  └─ .github/workflows/ci.yml（手动 workflow_dispatch 触发，archlinux 容器，
+       构建四 ABI 全部静态库 → 用 BOT_TOKEN 推回 SandyYuR/prebuilt "Auto update"）
+SandyYuR/prebuilt（产物仓库，引擎二进制的唯一事实源）
+主仓库 CI（prepare_personal_build.sh 把 prebuilt 子模块切到 SandyYuR/prebuilt@master → 链接进 APK）
+```
+
+- **为什么不 fork librime**：pin 的 SHA 永远是上游存在的 commit，CI 从 `rime/librime` 本尊检出（CI 日志可证：`Submodule 'librime' (https://github.com/rime/librime) registered`）。fxliang 架构 = pin 上游 + 构建期打补丁，没有 librime fork 的位置。
+- **为什么 prebuilt 不合上游**：上游 prebuilt 是官方无补丁流水线产物，合并=静默换掉 fxliang 定制引擎。
+- 本地 `D:\GitHub\fx2-rime\librime-src\` 只是补丁适配工作台（含 state1/2/3 提交与合并中的文件），**成果已全部物化进 prebuilder 的补丁文件**，不需要推送到任何远端；更新前 `git reset --hard && git clean -fd` 清场即可复用。
+
+### 0.5.1 本次实绩（所有 SHA 对照）
+
+| 环节 | 提交/位置 | 说明 |
+|---|---|---|
+| prebuilder 引擎更新 | `SandyYuR/prebuilder@509a029` | librime gitlink → `3cbe4afb`；重生成 `librime.patch` 与 `librime-perf-syllabifier-...patch`（适配上游 CandidatePreview 基线）；ci.yml 推送目标 `fxliang/*` → `SandyYuR/prebuilt`，删除推 fxliang/fcitx5-android 元数据的两个死步骤 |
+| prebuilder secret | Actions secret `BOT_TOKEN` | 值 = 本机 GCM 的 GitHub token（gho_ 开头 OAuth，有 contents:write + workflow 权限）。**token 轮换后失效，用 `set-secret.mjs` 重设** |
+| 引擎构建 | prebuilder run #1（workflow_dispatch，job 101480898181） | 11:46 → 12:00 UTC，绿灯；`does not apply` 0 条 = 三补丁干净应用 |
+| 引擎产物 | `SandyYuR/prebuilt@3f2e22b` | "Auto update"（bot 提交），librime.a 19,155,724 bytes（arm64） |
+| 主仓库接入 | `92208fd1`（`librime.json` → `1.17.0-3cbe4af`） | run #223 绿灯，APK 已带新引擎 |
+
+### 0.5.2 操作步骤
+
+**第 1 步：侦察上游 delta**
+```powershell
+cd D:\GitHub\fx2-rime\librime-src
+git -c http.sslBackend=openssl fetch origin master --tags
+git log --oneline <旧pin>..origin/master          # 新提交数
+git diff --name-only <旧pin>..origin/master       # 改动文件
+# 重点看是否动了：syllabifier.* / prism.* / user_dictionary.* / rime_api* / context.*
+# （不动这些 = 补丁大概率干净应用，可跳到第 4 步）
+```
+
+**第 2 步：实测补丁可应用性**（prebuilder `src/Rules/Librime.hs` 定义应用顺序）
+```powershell
+git checkout -q origin/master; git reset --hard -q; git clean -fdq   # 先清场！
+git apply --check D:\GitHub\fx2-rime\prebuilder\patches\librime.patch
+git apply --check D:\GitHub\fx2-rime\prebuilder\patches\librime-perf-syllabifier-cache-repeated-QuerySpelling-iterat.patch
+git apply --check D:\GitHub\fx2-rime\prebuilder\patches\librime-userdict-cache.patch
+# 失败的用 --reject 定位：git apply --reject <patch>，得到 <file>.rej + 干净应用的其余文件
+```
+本次实况：patch1 拒 4 文件（`rime_api.h`/`rime_api_impl.h`/`context.cc`/`script_translator.h`，全是"锚点后插入"型——上游在同一锚点插了 CandidatePreview）；patch2 拒 1 文件（`syllabifier_test.cc`，上游加了 CanonicalizeSyllabifierTest）；patch3 干净。
+
+**第 3 步：手工合并 .rej + 中间状态法重生成补丁**（核心，别跳验证）
+```powershell
+# 3a. 逐个 .rej 手工并入（参照两个父版本 git show <pin>:<path> / git show upstream/master:<path>）
+#     合并完删 .rej；补丁文件里每个 hunk 的内容都要有落点
+# 3b. 在 patch1 合并结果上继续 --reject 应用 patch2，再手工并（顺序必须与 Librime.hs 一致）
+# 3c. 应用 patch3（通常干净）
+# 3d. 提交中间状态并导出新补丁：
+git add -A; git commit -m "state3: master + patch1' + patch2' + patch3"
+git apply -R <旧patch3> 后再提交 state2      # 反向剥掉 patch3
+git apply -R --reject <旧patch2>; git checkout master -- test/syllabifier_test.cc; 提交 state1
+git diff <master> <state1> --output=<新patch1>       # → prebuilder/patches/librime.patch
+git diff <state1> <state2> --output=<新patch2>       # → prebuilder/patches/librime-perf-....patch
+#     ⚠️ 别用分支名引用 state！三条 state 都在同一分支上时，分支名指向最后一条。
+#     用 git rev-parse --short HEAD 记下每条 state 的 SHA 再操作。
+# 3e. 回环验证（必须零差异）：
+git checkout <master>; git reset --hard -q; git clean -fdq
+git apply <新patch1>; git apply <新patch2>; git apply <旧patch3>
+git add -A; git diff --cached <state3的SHA> --stat    # 输出必须为空
+```
+
+**第 4 步：改 prebuilder 并推送**
+```powershell
+cd D:\GitHub\fx2-rime\prebuilder
+Copy-Item <新patch1> patches\librime.patch -Force       # 注意 LF：确认 git index 内 blob 无 CR
+Copy-Item <新patch2> patches\librime-perf-....patch -Force
+git update-index --cacheinfo "160000,<新pin全SHA>,librime"   # pwsh 里参数必须整体加引号！
+git add -A; git commit -m "更新 librime 至上游 master <sha>（适配补丁到 <上游新特性> 基线）"
+D:\GitHub\fx2-rime\push-with-gcm.ps1 -RepoDir $PWD -Remote origin -Branch master
+```
+
+**第 5 步：触发引擎构建并等待**
+```powershell
+# fork 的 push 触发可能不生效（fork 默认静默），用 API 手动 dispatch：
+$env:GH_TOKEN = <GCM token>; $env:DISPATCH_REPO='SandyYuR/prebuilder'; $env:DISPATCH_WF='ci.yml'
+node D:\GitHub\fx2-rime\dispatch-any.mjs
+```
+等 15-90 分钟。失败诊断：拉 job 日志搜 `does not apply`（补丁问题）/ `error:`（编译问题）；shake 的 `cmd_` 静默，`git apply` 的报错会带出来。绿灯后确认 `SandyYuR/prebuilt` 收到新 "Auto update" 提交。
+
+**第 6 步：主仓库接入 + 验证新引擎**
+```powershell
+cd D:\GitHub\fx2-rime\prebuilt; git -c http.sslBackend=openssl fetch origin master; git checkout -q origin/master
+# 二进制验证（ASCII 字符串 Contains，C API 符号不会被裁剪）：
+#   fxliang 补丁符号 RimeGetInputTabs/RimeSelectTab 应在；本次新增的 RimeGetCandidatePreview 也应在
+cd D:\GitHub\fx2-rime\fx2-rime-fusion
+# 更新 app/licenses/libraries/librime.json 的 artifactVersion = "<rime_version>-<短sha>"
+#   （版本号看 librime-src/CMakeLists.txt 的 set(rime_version X.Y.Z)；短 sha = 新 pin 前 7 位）
+git add ...; git commit -m "chore: 更新 librime 引擎版本元数据至 <ver>-<sha>"
+push-with-gcm.ps1 ...   # push 触发 APK CI（约 11 分钟），等 run 绿
+```
+
+### 0.5.3 本次踩的坑（下次省时间）
+
+1. **state 分支命名陷阱**：三条 state 提交都落在 `state3` 分支上，分支名≠state3 内容；用 `git diff --cached state3` 验证回环时对比的是分支 tip（state1），得出"8 文件不一致"的假阳性。**一律用显式 SHA**。
+2. **pwsh 的 `git update-index --cacheinfo a,b,c` 逗号会被解析成数组** → 整个参数加引号。
+3. **`api.mjs` 只打印前 3000 字符**，tree API 的 librime 条目在截断区——要写专用小脚本拿全量。
+4. **引擎 .a 验证**：`SharedBlockCache` 等 static 函数名查不到是正常的（内联）；归档成员名是 `user_dictionary.cc.o/` 后缀；可靠判据是导出 C API 符号。
+5. **BOT_TOKEN**：gho_ OAuth token 有 workflow 写权限（能推 ci.yml 改动），fork 的 Actions 显示 active 但 push 不触发 run——**别指望 push 触发，直接 dispatch**。
+6. `librime-predict-leveldb` 子模块指向 fxliang 的仓库（停更），gitlink 永远保持 `0c30981a` 原样，**别动**。
 
 ---
 
