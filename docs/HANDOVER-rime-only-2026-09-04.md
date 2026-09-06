@@ -7,6 +7,7 @@
 > **2026-09-04 晚更新**：分支已把 `review-fx2-fixes` 的 6 个新提交 rebase 到本分支所有改动**之前**，
 > 因此当时已有的 **37 个 rime 专版提交的 SHA 全部改写**、已 force-push。第 2 节有新旧对照与新 SHA。
 > **2026-09-05 更新**：已同步当前工作区路径、worktree、未跟踪文件和分支状态；此前已解决的事项不再列入待处理问题。
+> **2026-09-06 更新**：① 工作区重组——主仓库移入 `D:\GitHub\fx2-rime\fx2-rime-fusion\`，项目根下新增三个引擎相关 fork 的本地克隆，`日志/` 移出 git 工作区；② CI 的 rime 来源从 fxliang fork 换成 **SandyYuR 自己的 fork**（fcitx5-rime 已合并上游最新，prebuilt 保持 fxliang 终态快照），见第 0 节新表格。
 
 ---
 
@@ -14,25 +15,16 @@
 
 | 事项 | 说明 |
 |---|---|
-| 工作区分支 | 当前工作区为 `D:\GitHub\fx2-rime`，已 checkout `fx2-rime-fusion`，与 `origin/fx2-rime-fusion` 同步。动手前先 `git status` 确认。 |
-| worktree | 当前仅有一个 worktree：`D:/GitHub/fx2-rime` → `fx2-rime-fusion`；没有第二个 worktree。不要自行新增或切换到同一分支。 |
-| 未跟踪文件 | 当前仅有根目录下的 `日志/` 目录，内含 8 个用户日志/布局文件；均未跟踪，不要提交。完整清单见下方。 |
-| 子模块未初始化 | 本地 `lib/fcitx5/src/main/cpp/fcitx5`、`plugin/rime/src/main/cpp/fcitx5-rime` 等都是空的 gitlink，`git grep` 查不到内容。要看源码用 jsDelivr：`https://cdn.jsdelivr.net/gh/<owner>/<repo>@<sha>/<path>?x=N`（`?x=N` 变化用于绕缓存；raw.githubusercontent 拉大文件会超 30s 工具超时）。 |
-| **CI 实际构建的 rime 源码不是仓库 pin 的那个** | `prepare_personal_build.sh` 会把 `fcitx5-rime` 切到 **fxliang/fcitx5-rime@master**、`prebuilt` 切到 **fxliang/prebuilt@master**，并给 fcitx5 打 `fcitx5-alt-trigger-v4point1.patch`。所以看 rime 行为要读 **fxliang fork**，仓库里 pin 的 `4e996319`（上游 bump version）只是占位。 |
+| 目录布局（2026-09-06 重组） | 项目根 `D:\GitHub\fx2-rime` 下四样东西：`fx2-rime-fusion/` = 主仓库工作区（本分支，git 命令在这里跑）；`fcitx5-rime/`、`prebuilt/`、`prebuilder/` = 三个引擎相关 fork 仓库的完整克隆（remote `origin` = SandyYuR 同名 fork，`upstream` = fxliang 终态）；`日志/` = 用户日志（已移出 git 工作区）。动手前先 `git status` 确认。 |
+| worktree | 唯一 worktree：`D:/GitHub/fx2-rime/fx2-rime-fusion` → `fx2-rime-fusion`，与 `origin/fx2-rime-fusion` 同步。没有第二个 worktree，不要自行新增或切换到同一分支。 |
+| 三个 fork 的分工与更新方式 | **`SandyYuR/fcitx5-rime`** = rime addon 源码（已合并上游 `fcitx/fcitx5-rime` 至 `1ec9515`：ascii mode 大小写图标、schema 自定义 ascii 名、xkb state 修复、app_options 示例修正；fxliang 的 profile-manager/schema 选择器/ShiftKeyBehavior 等定制全部保留）。**`SandyYuR/prebuilt`** = librime.a 等引擎二进制，**故意不合上游**——上游是官方无补丁流水线产物（一次 Auto update 动 4914 文件含四架构 librime.a），合并会换掉 fxliang 的 tabs/预测/用户词典缓存引擎；要保持 fxliang 终态快照，将来重建引擎需用自己的 `prebuilder` 跑流水线。**`SandyYuR/prebuilder`** = 构建配方（已合并上游 rust toolchain/marisa 并发修复/libime lm 更新 3 提交）。**更新引擎流程 = 在对应 fork 里 merge 上游 → push fork → 主仓库不用动，CI 自动跟 fork 的 master**。 |
+| **CI 构建的 rime 来源已换成自己的 fork** | `prepare_personal_build.sh`（`4e1990e9` 起）把 `fcitx5-rime`、`prebuilt` 切到 **SandyYuR fork@master**，不再依赖 fxliang 账号存续；fcitx5 补丁不变（`fcitx5-alt-trigger-v4point1.patch`）。看 rime 行为直接读 `D:\GitHub\fx2-rime\fcitx5-rime\`（完整克隆，可直接 grep/读文件，不用再走 jsDelivr）。仓库 pin 的 `4e996319` 仍只是占位。 |
+| 日志文件 | 在项目根 `D:\GitHub\fx2-rime\日志\`（8 个用户日志/布局文件），不在 git 工作区内，不可能被误提交。 |
+| 子模块未初始化 | 主仓库工作区里 `lib/fcitx5/src/main/cpp/fcitx5`、`plugin/rime/src/main/cpp/fcitx5-rime` 等仍是空 gitlink。fcitx5-rime 的源码看 `D:\GitHub\fx2-rime\fcitx5-rime\`；fcitx5 核心与 prebuilt 的其他内容仍可用 jsDelivr：`https://cdn.jsdelivr.net/gh/<owner>/<repo>@<sha>/<path>?x=N`（`?x=N` 绕缓存；raw.githubusercontent 拉大文件会超 30s 超时）。prebuilt 也有本地克隆 `D:\GitHub\fx2-rime\prebuilt\`。 |
 | grep 工具 | `app/src/main/play/listings/en-US/graphics/icon/icon.png` 的失效符号链接已修正为指向 `app/src/fx/res/mipmap-xxxhdpi/ic_launcher.png`，现在可以从仓库根目录搜索。若以后再次出现 `os error 2`，先检查该链接目标是否仍存在。 |
 | read 工具 | `offset`/`limit` 必须是明确数字（传 undefined 会报 "binding arguments must be lossless JSON"），`limit` ≤ 2000。 |
 | GitHub API 返回会被截断 | `/actions/runs` 的 JSON 超 100000 字符会 `Unterminated string`。用 `per_page=3` 或正则抽 token，别整体 `JSON.parse`。 |
-
-当前未跟踪文件（`git status --short -uall`，均不要提交）：
-
-- `日志/TextKeyboardLayout.行之26.json`
-- `日志/切换键盘定义配置org.fcitx.fcitx5.and2026-09-04T16_30_08Z.txt`
-- `日志/切输入法1org.fcitx.fcitx5.android.fx.rime-2026-09-05T14_06_26Z.txt`
-- `日志/切输入法2org.fcitx.fcitx5.android.fx.rime-2026-09-05T14_06_56Z.txt`
-- `日志/小企鹅转中洲鹅布局崩溃org.fcitx.fcitx5.android.fx.rime-2026-09-04T15_24_57Z.txt`
-- `日志/稳定复现打完字以后跳数字界面了org.fcitx.fcitx5.android.fx.rime-2026-09-04T13_07_06Z.txt`
-- `日志/跳数字盘1org.fcitx.fcitx5.android.fx.rime-2026-09-05T14_31_50Z.txt`
-- `日志/跳数字盘2org.fcitx.fcitx5.android.fx.rime-2026-09-05T14_32_41Z.txt`
+| 沙箱内 git 网络的坑 | 本机 pwsh 沙箱内 MSYS 程序（ssh/bash/sh）无法创建命名管道：**git push 走 SSH 必失败**（`couldn't create signal pipe`），git 凭证 helper 的 prompt 链也死。可用：`git -c http.sslBackend=openssl`（匿名 fetch/clone 公开仓库，schannel 后端会报 `SEC_E_NO_CREDENTIALS`）；**推送**用 `D:\GitHub\fx2-rime\push-with-gcm.ps1 -RepoDir <路径> -Remote origin -Branch <分支>`（pwsh 直接调 GCM exe 取凭证后 HTTPS 推送，token 不落盘）。 |
 
 ---
 
