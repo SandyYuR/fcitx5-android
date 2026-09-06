@@ -1,11 +1,12 @@
-# 交接报告 — fx2-rime-fusion（rime 专版）2026-09-04
+# 交接报告 — fx2-rime-fusion（rime 专版）2026-09-05
 
 > 本文写给接手的下一个代理。仓库 `SandyYuR/fcitx5-android`（fcitx5-android 的 fork）。
 > 目标分支 **`fx2-rime-fusion`**，基线 **`fx2`**（`3ad25fc9`，**必须保持不动**）。
 > 本文只描述"领先 fx2 的全部改动"与"未完成的工作"。
 >
 > **2026-09-04 晚更新**：分支已把 `review-fx2-fixes` 的 6 个新提交 rebase 到本分支所有改动**之前**，
-> 因此本分支 **37 个提交的 SHA 全部改写**、已 force-push。第 2 节有新旧对照与新 SHA。
+> 因此当时已有的 **37 个 rime 专版提交的 SHA 全部改写**、已 force-push。第 2 节有新旧对照与新 SHA。
+> **2026-09-05 更新**：已同步当前工作区路径、worktree、未跟踪文件和分支状态；此前已解决的事项不再列入待处理问题。
 
 ---
 
@@ -13,14 +14,25 @@
 
 | 事项 | 说明 |
 |---|---|
-| 工作区分支 | `D:\GitHub\code review` 当前已 checkout `fx2-rime-fusion`（与 origin 同步）。动手前先 `git status` 确认。 |
-| 存在第二个 worktree | `D:/GitHub/code review-fx2` → `codex/fx2-nonblocking-font-coldstart`。不要在两个 worktree 里同时切同一分支。 |
-| 未跟踪文件 | 根目录有 `_myreview.diff`、`org.fcitx.fcitx5.android.fx.rime-2026-09-04T09_05_50Z.txt`（用户给的 logcat）。不要提交它们。 |
+| 工作区分支 | 当前工作区为 `D:\GitHub\fx2-rime`，已 checkout `fx2-rime-fusion`，与 `origin/fx2-rime-fusion` 同步。动手前先 `git status` 确认。 |
+| worktree | 当前仅有一个 worktree：`D:/GitHub/fx2-rime` → `fx2-rime-fusion`；没有第二个 worktree。不要自行新增或切换到同一分支。 |
+| 未跟踪文件 | 当前仅有根目录下的 `日志/` 目录，内含 8 个用户日志/布局文件；均未跟踪，不要提交。完整清单见下方。 |
 | 子模块未初始化 | 本地 `lib/fcitx5/src/main/cpp/fcitx5`、`plugin/rime/src/main/cpp/fcitx5-rime` 等都是空的 gitlink，`git grep` 查不到内容。要看源码用 jsDelivr：`https://cdn.jsdelivr.net/gh/<owner>/<repo>@<sha>/<path>?x=N`（`?x=N` 变化用于绕缓存；raw.githubusercontent 拉大文件会超 30s 工具超时）。 |
 | **CI 实际构建的 rime 源码不是仓库 pin 的那个** | `prepare_personal_build.sh` 会把 `fcitx5-rime` 切到 **fxliang/fcitx5-rime@master**、`prebuilt` 切到 **fxliang/prebuilt@master**，并给 fcitx5 打 `fcitx5-alt-trigger-v4point1.patch`。所以看 rime 行为要读 **fxliang fork**，仓库里 pin 的 `4e996319`（上游 bump version）只是占位。 |
 | grep 工具在仓库根会报错 | `app/src/main/play/listings/en-US/graphics/icon/icon.png` 是坏条目（os error 2），`grep` 传 `path=<repo root>` 会 exit 2。用 `git grep`（走 pwsh）或把 `path` 缩小到子目录。 |
 | read 工具 | `offset`/`limit` 必须是明确数字（传 undefined 会报 "binding arguments must be lossless JSON"），`limit` ≤ 2000。 |
 | GitHub API 返回会被截断 | `/actions/runs` 的 JSON 超 100000 字符会 `Unterminated string`。用 `per_page=3` 或正则抽 token，别整体 `JSON.parse`。 |
+
+当前未跟踪文件（`git status --short -uall`，均不要提交）：
+
+- `日志/TextKeyboardLayout.行之26.json`
+- `日志/切换键盘定义配置org.fcitx.fcitx5.and2026-09-04T16_30_08Z.txt`
+- `日志/切输入法1org.fcitx.fcitx5.android.fx.rime-2026-09-05T14_06_26Z.txt`
+- `日志/切输入法2org.fcitx.fcitx5.android.fx.rime-2026-09-05T14_06_56Z.txt`
+- `日志/小企鹅转中洲鹅布局崩溃org.fcitx.fcitx5.android.fx.rime-2026-09-04T15_24_57Z.txt`
+- `日志/稳定复现打完字以后跳数字界面了org.fcitx.fcitx5.android.fx.rime-2026-09-04T13_07_06Z.txt`
+- `日志/跳数字盘1org.fcitx.fcitx5.android.fx.rime-2026-09-05T14_31_50Z.txt`
+- `日志/跳数字盘2org.fcitx.fcitx5.android.fx.rime-2026-09-05T14_32_41Z.txt`
 
 ---
 
@@ -50,9 +62,9 @@ CI 事实：
 
 ```
 fx2                3ad25fc9  ← 基线，未改动
-fx2-rime-fusion    e0733388  ← 工作分支，= origin/fx2-rime-fusion（已同步）
-                             领先 fx2 共 145 个提交，线性历史
-                             767 files changed, +7476 / -37733
+fx2-rime-fusion    ef320bfb  ← 工作分支，= origin/fx2-rime-fusion（已同步）
+                             领先 fx2 共 148 个提交，线性历史
+                             767 files changed, +7597 / -37754
 ```
 
 历史结构（自底向上）：
@@ -60,10 +72,10 @@ fx2-rime-fusion    e0733388  ← 工作分支，= origin/fx2-rime-fusion（已�
 fx2 3ad25fc9
   └─ 95 个提交（审查修复 + 性能，与 review-fx2-fixes-split 共有，止于 85de19be）
       └─ 6 个 review-fx2-fixes 新提交  5fdcb0db 763f4dcf 9c411dc1 f3abf5b3 920fed60 3ec1f6b2
-          └─ 44 个 rime 专版提交（SHA 已改写）  5d90019d … e0733388
+          └─ 47 个 rime 专版提交（SHA 已改写）  5d90019d … ef320bfb
 ```
 
-`01c1070e`（原报告写的 tip）之后又加了 7 个提交：
+`01c1070e`（原报告写的 tip）之后又加了 10 个提交：
 
 | 提交 | 说明 |
 |---|---|
@@ -74,6 +86,9 @@ fx2 3ad25fc9
 | `a352280b` | feat(设置): 主设置页"输入法"改为"中州韵设置"，直达 rime 配置页 |
 | `bf645157` | refactor(设置): 清理其余通往输入法列表页的入口（删 `AddMoreInputMethodsPrompt`） |
 | `e0733388` | docs: 交接报告同步 `AddMoreInputMethodsPrompt` 已删除 |
+| `6da44099` | docs: 交接报告补记布局编辑器草稿修复与分支现状 |
+| `441650a6` | docs: 更正交接报告里的单测任务名与测试例数 |
+| `ef320bfb` | perf(input): 修饰键保持时长 150ms 降到 50ms，并更正其依据 |
 
 **rebase（2026-09-04 晚）**：应用户要求把 `review-fx2-fixes` 的 6 个提交插到本分支改动之前，做法
 `git rebase --onto review-fx2-fixes 85de19be fx2-rime-fusion`，随后
@@ -126,7 +141,7 @@ fx2 3ad25fc9
 
 ---
 
-## 3. 领先 fx2 的 145 个提交（按主题归类）
+## 3. 领先 fx2 的 148 个提交（按主题归类）
 
 ### 3.1 精简为 rime 专版（本轮核心，约 20 提交）
 
@@ -288,44 +303,7 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 
 ---
 
-## 5. 待处理问题：用户反馈"rime 无法成功部署"
-
-用户提供 `org.fcitx.fcitx5.android.fx.rime-2026-09-04T09_05_50Z.txt`（版本 `0.1.3-585-g54706725`，即 rebase 前 quickphrase 提交的产物；对应 rebase 后的 `cefc481b`）。
-
-### 已查明的事实
-
-```
-17:05:29.856 rimeengine.cpp:983  Rime deploy(): restartRime(fullcheck=true)
-17:05:29.859 rimeengine.cpp:401  Rime Start: fullcheck=1, currentDataDir=rime
-17:05:29.859 rimeengine.cpp:407  Rime data directory:
-             "/storage/emulated/0/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime"
-17:05:29.863 rimeengine.cpp:455  Rime Start: maintenanceMode=1
-17:05:29.863 rimeengine.cpp:843  Notification: 0 deploy start
-17:05:29.943 rimeengine.cpp:843  Notification: 0 deploy failure   ← 仅 80ms
-```
-
-1. **部署 80ms 就失败** → 不是编译超时/内存不足，是编译前的前置错误（文件缺失 / YAML 解析失败 / 目录不可写）。
-2. **方案能读到**：状态栏有 `wanxiang`、`wanxiang_english`，以及 `ascii_mode/ascii_punct/full_shape/emoji/tone_hint/toneless_hint/super_tips/charset_filter/char_priority/english` 全套开关 → 说明 `build/` 里有已编译的 `wanxiang.schema.yaml`。
-3. **打字没候选**：`preedit=y`、`preedit=j` 正常，但 `PagedCandidateEvent(candidates=[])` 恒空 → 词典 `*.table.bin`/`*.prism.bin` 没加载。
-
-推断：用户 rime 用户目录是从 fx2 的目录复制来的（包名从 `...fx` 变成 `...fx.rime`，数据目录是两套），**`build/` 复制过来了但源 YAML/词典没复制全**，于是重新部署一开始就失败、词典也加载不出来。
-
-**已排除是本轮改动造成**：`git diff --name-only 6be71bf5..cefc481b`（旧 SHA：`eaa85316..54706725`）里除两份 `docs/*.md` 外没有任何 rime/opencc/prebuilt/submodule 路径；rime addon 的依赖只有 `notifications`/`dbus`（见 fxliang fork 的 `src/rime-addon.conf.in.in`），与被删的 spell/unicode/quickphrase/imselector 无关。
-
-### 给用户的建议（已答复，供参考）
-
-对比新旧目录、完整重新复制整个 `rime` 目录、删掉新目录里的 `build/` 和 `installation.yaml` 再重新部署、确认剩余空间。
-
-### 诊断盲区与建议的下一步改动（**已向用户提议，等他确认**）
-
-`fcitx5-rime` 把 `fcitx_rime_traits.log_dir` 设成空串 → librime 走 `google::LogToStderr()`（见 librime 1.12.0 `src/rime/setup.cc:76-82`），而 Android 应用进程的原生 stderr 默认指向 `/dev/null`。**整份 logcat 里没有一条 librime 自己的日志**（已确认：无任何 glog 格式行；`app/src/main/cpp` 下没有任何 `dup2`/stderr 重定向代码）。所以"具体哪个文件、哪行 YAML 出错"全被丢掉了。
-
-建议改动：在 `app/src/main/cpp/native-lib.cpp` 里把原生 stderr 接进 logcat（`pipe()` + `dup2(STDERR_FILENO)` + 读取线程 → `__android_log_write`），做成独立提交、push、跑 CI。仓库里已有 `nativestreambuf.h`（`native_streambuf` 把 `std::ostream` 写进 android log，按首字符猜日志级别）可作风格参考，但它只接 fcitx 自己的 `fcitx::Log` 流，**接不到 librime 的 stderr**。
-⚠️ 用户还没点头，**动手前先问**。
-
----
-
-## 6. 需要知道的机制（省得重新摸索）
+## 5. 需要知道的机制（省得重新摸索）
 
 - **addon 打包链路**：addon 的 `.so` 由 cmake target 拷进 jniLibs；`.conf` 由 `install(... COMPONENT config)` 装到 `usr/share/fcitx5/addon/` → 进 APK assets → 显示在"附加组件"设置页。要让某个组件从设置页消失，除了不构建它，还要在 `app/build.gradle.kts` 的 `fcitxComponent.excludeFiles` 里列出它的 conf 路径。
 - **`excludeFiles` 语义**（`build-logic/convention/src/main/kotlin/FcitxComponentPlugin.kt:49-58`）：`deleteFcitxComponentExcludeFiles` 任务在 install 之后对 `assetsDir.resolve(it).delete()`——**文件不存在也不会报错**，所以多列几条是安全的。
@@ -343,7 +321,7 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 
 ---
 
-## 6.1 用户日志的读法（这批日志很有用，别只看栈顶）
+## 6. 用户日志的读法（这批日志很有用，别只看栈顶）
 
 用户导出的 logcat 带 `--------- Device Info` / `Crash stacktrace` 头，正文是完整 logcat，**崩溃点
 之前的时间线才是定位依据**。已归档在仓库根的 `日志/`（未跟踪，不要提交）。
@@ -360,10 +338,7 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 
 ## 7. 建议的下一步顺序
 
-1. 确认 `git status` 干净（除未跟踪的 `日志/`）、`fx2-rime-fusion` 与 origin 同步（当前 `e0733388`）。
-2. 向用户确认是否给 `ci.yml` 恢复 "Run JVM unit tests" 步骤（`./gradlew :app:testFxDebugUnitTest`，
+1. 向用户确认是否给 `ci.yml` 恢复 "Run JVM unit tests" 步骤（`./gradlew :app:testFxDebugUnitTest`，
    注意**不是** `...Release...`，理由见第 2 节末尾）——现在 `app/src/test/` 下 15 个测试文件在 CI
    里从未被编译或执行，绿灯不覆盖它们。**等他点头**。
-3. 向用户确认是否加 **stderr→logcat** 那个诊断改动（第 5 节末）；同意的话独立提交 → push → 等 CI 绿，然后让用户复现一次导日志。
-4. 第 5 节"rime 无法成功部署"仍未闭环，等用户按建议对比目录后回话。
-5. 用户确认后再决定要不要删 `backup/fx2-rime-fusion-pre-merge` 与 `backup/fx2-rime-fusion-pre-rebase-20260904`。
+2. 用户确认后再决定要不要删 `backup/fx2-rime-fusion-pre-merge` 与 `backup/fx2-rime-fusion-pre-rebase-20260904`。
