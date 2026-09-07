@@ -51,7 +51,7 @@
 
 **教训（合并上游的暗礁）**：git 自动合并成功 ≠ 语义无损。上游删掉的"看似无关"代码可能正是本分支特性的隐藏依赖——尤其是这种"A 创建状态、B 消费状态"跨函数的时序依赖，git 完全看不出来。**合并 fcitx5-rime 上游后必须实测：打字→点 tab→选词全链路**（本次 CI 绿灯只证明能编译）。
 
-**推送通道备用**（本次 github.com:443 曾被断连 ~10 分钟）：`api-push.mjs`（走 api.github.com 的 Git Data API 推单文件提交，blob SHA 与本地比对确保内容一致）；dispatch 别忘 `DISPATCH_REF=fx2-rime-fusion`（默认 master 会 422）。网络恢复后 `fetch + reset --hard origin/master` 对齐（API 提交与本地提交 SHA 不同但 tree 相同）。
+**推送通道备用**（github.com:443 曾多次断连，每次约 10 分钟）：**首选 `ssh-push.ps1`**（走 SSH：关键发现是 mingw git 对含空格/反斜杠的 `GIT_SSH_COMMAND` 会用 MSYS `sh.exe -c` 包装（沙箱内必死 `couldn't create signal pipe`），而**正斜杠单 token 路径 `C:/Windows/System32/OpenSSH/ssh.exe` 让 git 直接 exec Windows 原生 ssh.exe**，绕开一切 MSYS；本机 `~/.ssh/config` 已配 ssh.github.com:443 + ed25519）；**备选 `api-push.mjs`**（走 api.github.com 的 Git Data API 推单文件提交，blob SHA 与本地比对确保内容一致，适合多文件改动时逐文件推或 github.com 整个不可达时）；dispatch 别忘 `DISPATCH_REF=fx2-rime-fusion`（默认 master 会 422）。SSH/API 推完的网络恢复后 `fetch + reset --hard origin/master` 对齐（提交 SHA 与本地不同但 tree 相同）。
 
 ---
 
