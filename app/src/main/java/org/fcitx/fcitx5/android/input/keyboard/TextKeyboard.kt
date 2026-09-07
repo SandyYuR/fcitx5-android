@@ -238,6 +238,19 @@ class TextKeyboard private constructor(
         }
 
         /**
+         * Drop only the manually activated numeric layout because a latching layer switch
+         * (see [NumericLayoutOverrideController.releaseManualOnLayerSwitch]) moved the
+         * keyboard to another layer. Unlike [releaseManualNumericLayout] this does not
+         * re-apply the forced layout by itself: the caller applies the new layer right
+         * after via [setForcedLayoutKey], which performs that single refresh and also
+         * corrects the transient [forcedLayoutKey] mismatch the controller-side drop
+         * leaves behind.
+         */
+        @Synchronized
+        fun releaseManualNumericLayoutOnLayerSwitch(target: String?): Boolean =
+            numericOverride.releaseManualOnLayerSwitch(target)
+
+        /**
          * Release ONLY the manually activated numeric layout because the input method
          * changed (language switch). Called from [KeyboardWindow.onImeUpdate] BEFORE the
          * layer latches are cleared; otherwise the forced-layout fallback would resurrect
@@ -298,6 +311,16 @@ class TextKeyboard private constructor(
         @Synchronized
         fun isNumericLayoutShowing(): Boolean =
             numericOverride.sessionKey != null || numericOverride.manualKey != null
+
+        /**
+         * Whether the manually activated numeric layout is the layout currently being
+         * rendered (see [NumericLayoutOverrideController.isManualNumericShowing]).
+         * KeyboardWindow uses this to tell a first "?123" entry (which must be recorded
+         * in the layer history so BACK can undo the jump) from a re-affirming press.
+         */
+        @Synchronized
+        internal fun isManualNumericLayoutShowing(): Boolean =
+            numericOverride.isManualNumericShowing()
 
         /**
          * Release the numeric-input layout override for the rest of the current session,

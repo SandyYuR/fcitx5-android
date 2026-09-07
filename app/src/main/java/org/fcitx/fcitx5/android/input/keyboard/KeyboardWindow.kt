@@ -342,7 +342,24 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             // normal text keyboard.
             if (target == NumberKeyboard.Name) {
                 val override = TextKeyboard.resolveNumericLayoutKey()
+                // Read before activateManualNumericLayout() flips the state below.
+                val wasManualShowing = TextKeyboard.isManualNumericLayoutShowing()
                 if (override != null && TextKeyboard.activateManualNumericLayout(override)) {
+                    // A user key jumping to the (overridden) number pad is a latching layer
+                    // change just like "layer to": remember the layer the user is leaving so
+                    // BACK can undo this jump. A re-affirming press while the manual numeric
+                    // layout already shows records nothing; entering from the unlatched base
+                    // layer records nothing either, and BACK falls back through the manual
+                    // slot itself (see handleLayerSwitchAction).
+                    if (fromUserKey && !wasManualShowing) {
+                        val previous = oneShotLayerKey ?: latchedLayerKey
+                        if (previous != null && layerHistory.lastOrNull() != previous) {
+                            layerHistory.addLast(previous)
+                            if (layerHistory.size > MAX_LAYER_HISTORY) {
+                                layerHistory.removeFirst()
+                            }
+                        }
+                    }
                     target = TextKeyboard.Name
                 }
             } else if (target == TextKeyboard.Name && fromUserKey) {
@@ -484,6 +501,20 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         if (action.mode == KeyAction.LayerSwitchMode.BACK) {
             latchedLayerKey = layerHistory.removeLastOrNull()
             oneShotLayerKey = null
+            // Latching back to a remembered layer is an explicit departure from a manually
+            // activated numeric layout; drop its memory so it cannot be resurrected later
+            // (e.g. by the input restart an app runs when its send button clears the
+            // editor).
+            if (latchedLayerKey != null) {
+                TextKeyboard.releaseManualNumericLayoutOnLayerSwitch(latchedLayerKey)
+            } else {
+                // Nothing recorded to pop, but a manually activated numeric layout ("?123")
+                // may be on screen: BACK still means "leave it", so release the manual slot
+                // and let the relayout below fall back to the base text keyboard. This is a
+                // no-op when no manual override is showing — in particular a numeric
+                // editor's session override keeps its BACK no-op behavior.
+                TextKeyboard.releaseManualNumericLayout()
+            }
             applyLayerOverridesAndRelayout(hadAuxBarConfig, heightBefore)
             return
         }
@@ -510,6 +541,11 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                 }
                 latchedLayerKey = resolved
                 oneShotLayerKey = null
+                // Latching to another layer is an explicit departure from a manually
+                // activated numeric layout; drop its memory so it cannot be resurrected
+                // later (e.g. by the input restart an app runs when its send button
+                // clears the editor). One-shot peeks keep returning to the number pad.
+                TextKeyboard.releaseManualNumericLayoutOnLayerSwitch(resolved)
             }
             KeyAction.LayerSwitchMode.OSL -> {
                 oneShotLayerKey = resolved
