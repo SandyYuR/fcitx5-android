@@ -189,6 +189,53 @@ class LayoutDraftStoreTest {
     }
 
     /**
+     * A hostile saved-state value must not become a file path: adopt() rejects anything this
+     * store could not have written, so there is simply no draft to restore and nothing
+     * outside the snapshot directory is ever touched.
+     */
+    @Test
+    fun hostileAdoptedNameIsRejected() {
+        val dir = tempFolder.root.resolve("drafts")
+        dir.mkdirs()
+        val outside = tempFolder.root.resolve("outside.json").apply { writeText("secret") }
+        for (hostile in listOf("../../outside", "../outside.json", "/abs/path.json", "draft-../../evil.json", "notes.txt", "", "draft-.json")) {
+            val store = store(dir)
+            store.adopt(hostile)
+            assertNull("adopt must reject '$hostile'", store.snapshotName)
+            assertNull(store.read())
+        }
+        assertTrue("rejected names must not touch sibling files", outside.isFile)
+        assertEquals(0, dir.listFiles()!!.size)
+    }
+
+    /** Pruning reclaims only this store's snapshots; foreign files are left alone. */
+    @Test
+    fun pruneStaleLeavesForeignFilesAlone() {
+        val dir = tempFolder.root.resolve("drafts")
+        dir.mkdirs()
+        val orphan = File(dir, "draft-orphan.json").apply { writeText("{}") }
+        val foreign = File(dir, "notes.txt").apply { writeText("leave me alone") }
+        val traversal = File(dir, "draft-..-evil.json").apply { writeText("{}") }
+        val future = System.currentTimeMillis() + 10 * MAX_AGE
+        assertEquals(1, store(dir).pruneStale(MAX_AGE, future))
+        assertFalse(orphan.exists())
+        assertTrue(foreign.isFile)
+        assertTrue(traversal.isFile)
+    }
+
+    /** Only `draft-<uuid>.json` names validate; separators and foreign names do not. */
+    @Test
+    fun snapshotNameValidation() {
+        assertTrue(LayoutDraftStore.isValidSnapshotName("draft-550e8400-e29b-41d4-a716-446655440000.json"))
+        assertFalse(LayoutDraftStore.isValidSnapshotName("../../evil"))
+        assertFalse(LayoutDraftStore.isValidSnapshotName("draft-../../evil.json"))
+        assertFalse(LayoutDraftStore.isValidSnapshotName("/abs/path.json"))
+        assertFalse(LayoutDraftStore.isValidSnapshotName("notes.txt"))
+        assertFalse(LayoutDraftStore.isValidSnapshotName("draft-.json"))
+        assertFalse(LayoutDraftStore.isValidSnapshotName(""))
+    }
+
+    /**
      * The inline fallback threshold has to stay well under the Binder budget: the crash in the
      * report was a 540248-byte parcel.
      */
