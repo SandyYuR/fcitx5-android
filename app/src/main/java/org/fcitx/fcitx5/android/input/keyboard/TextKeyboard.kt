@@ -370,6 +370,16 @@ class TextKeyboard private constructor(
             numericOverride.sessionKey != null || numericOverride.manualKey != null
 
         /**
+         * Whether the manually activated numeric layout is the layout currently being
+         * rendered (see [NumericLayoutOverrideController.isManualNumericShowing]).
+         * KeyboardWindow uses this to tell a first "?123" entry (which must be recorded
+         * in the layer history so BACK can undo the jump) from a re-affirming press.
+         */
+        @Synchronized
+        internal fun isManualNumericLayoutShowing(): Boolean =
+            numericOverride.isManualNumericShowing()
+
+        /**
          * Release the numeric-input layout override for the rest of the current session,
          * clearing both the session slot and the forced slot. Used when the user explicitly
          * switches back to the text keyboard (e.g. an "ABC"-style key in the custom numeric
