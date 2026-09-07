@@ -36,9 +36,14 @@ class LayoutDraftStore(private val dir: File) {
      *
      * Called before the (asynchronous) initial load, so a stop that happens in between neither
      * loses the snapshot nor writes a second one alongside it.
+     *
+     * The name arrives from saved-instance state, which is untrusted input: a corrupted or
+     * hostile value (path traversal, absolute path, foreign file) must never become a file
+     * path, so anything this store could not have written is rejected and there is simply
+     * no draft to restore. See [isValidSnapshotName].
      */
     fun adopt(name: String?) {
-        snapshotName = name
+        snapshotName = name?.takeIf { isValidSnapshotName(it) }
         // The adopted file's content is unknown until it is read, so nothing may be skipped.
         lastWrittenHash = null
     }
@@ -49,14 +54,14 @@ class LayoutDraftStore(private val dir: File) {
      * Reuses the existing file name, so repeated stops do not accumulate snapshots.
      */
     fun write(json: String): String? {
-        val existing = snapshotName
-        if (existing != null && lastWrittenHash == json.hashCode() && File(dir, existing).isFile) {
+        val existing = snapshotName?.takeIf { isValidSnapshotName(it) }
+        if (existing != null && lastWrittenHash == json.hashCode() && resolve(existing)?.isFile == true) {
             return existing
         }
         return runCatching {
             dir.mkdirs()
             val name = existing ?: "draft-${UUID.randomUUID()}.json"
-            File(dir, name).writeText(json)
+            resolve(name)?.writeText(json) ?: error("invalid snapshot name: $name")
             snapshotName = name
             lastWrittenHash = json.hashCode()
             name
@@ -68,7 +73,7 @@ class LayoutDraftStore(private val dir: File) {
     /** Content of the owned snapshot, or null when there is none or it cannot be read. */
     fun read(): String? {
         val name = snapshotName ?: return null
-        return runCatching { File(dir, name).takeIf { it.isFile }?.readText() }
+        return runCatching { resolve(name)?.takeIf { it.isFile }?.readText() }
             .onFailure { android.util.Log.w(TAG, "Failed to read draft snapshot", it) }
             .getOrNull()
             // Now that the file's content is known, an identical draft needs no rewrite.
@@ -80,8 +85,25 @@ class LayoutDraftStore(private val dir: File) {
         val name = snapshotName ?: return
         snapshotName = null
         lastWrittenHash = null
-        runCatching { File(dir, name).delete() }
+        runCatching { resolve(name)?.delete() }
             .onFailure { android.util.Log.w(TAG, "Failed to delete draft snapshot", it) }
+    }
+
+    /**
+     * Resolve [name] to a file inside [dir], or null when the name is not one this store
+     * could have written.
+     *
+     * `File(dir, name)` alone is not enough: a name containing separators or an absolute
+     * path would address files outside the snapshot directory, so the name is validated
+     * first and the resolved canonical path must stay within the directory.
+     */
+    private fun resolve(name: String): File? {
+        if (!isValidSnapshotName(name)) return null
+        return runCatching {
+            val base = dir.canonicalFile
+            val file = File(base, name).canonicalFile
+            if (file.parentFile?.canonicalPath == base.canonicalPath) file else null
+        }.getOrNull()
     }
 
     /**
@@ -98,6 +120,10 @@ class LayoutDraftStore(private val dir: File) {
         return runCatching {
             var deleted = 0
             dir.listFiles()?.forEach { file ->
+                if (!file.isFile) return@forEach
+                // Only snapshots this store could have written are ever reclaimed; anything
+                // else in the directory (logs, other features' files) is left alone.
+                if (!isValidSnapshotName(file.name)) return@forEach
                 if (file.name == keep) return@forEach
                 if (now - file.lastModified() > maxAgeMs && file.delete()) deleted++
             }
@@ -121,6 +147,20 @@ class LayoutDraftStore(private val dir: File) {
 
         /** Snapshots older than this belong to a task that is gone; see [pruneStale]. */
         const val MAX_AGE_MS = 7L * 24 * 60 * 60 * 1000
+
+        /** Snapshot files this store writes: `draft-<uuid>.json` (see [LayoutDraftStore.write]). */
+        private val SNAPSHOT_NAME = Regex("^draft-[A-Za-z0-9-]{1,64}\\.json$")
+
+        /**
+         * Whether [name] is a snapshot file name this store could have written.
+         *
+         * Saved-instance state is untrusted input — a corrupted Bundle value or a draft id
+         * from another store/version must never resolve to a path outside the snapshot
+         * directory. The pattern below matches only `draft-<uuid>.json` names with no
+         * separators, so hostile values like `../../evil` or `/abs/path` are rejected before
+         * any file is touched.
+         */
+        fun isValidSnapshotName(name: String): Boolean = SNAPSHOT_NAME.matches(name)
 
         fun fitsInBundle(json: String): Boolean = json.length <= INLINE_MAX_CHARS
     }
