@@ -101,3 +101,84 @@ jobs:
           name: app-${{ matrix.os }}-${{ matrix.abi }}
           path: app/build/outputs/apk/fx/release/*.apk
 
+  nightly_release:
+    needs: build_commit
+    if: github.ref == 'refs/heads/fx-rime-only'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Fetch source code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Fetch upstream tags
+        run: |
+          git remote add upstream https://github.com/fcitx5-android/fcitx5-android.git || true
+          git fetch upstream --tags
+
+      - name: Save previous release tag
+        id: prev_tag
+        shell: bash
+        run: |
+          tag=$(git describe --tags --abbrev=0 2>/dev/null || echo '')
+          sha=''
+          if [ -n "$tag" ]; then
+            sha=$(git rev-parse "${tag}^{commit}" 2>/dev/null || echo '')
+          fi
+          echo "value=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Remove non-semver local tags
+        shell: bash
+        run: |
+          git for-each-ref --format='%(refname:strip=2)' refs/tags | while read tag; do
+            if [[ ! "$tag" =~ ^v?[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
+              git tag -d "$tag" || true
+            fi
+          done
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: release-artifacts
+
+      - name: Collect APKs
+        run: |
+          mkdir -p final-release
+          find release-artifacts -name "*.apk" -exec cp {} final-release/ \;
+          test -n "$(find final-release -maxdepth 1 -name '*.apk' -print -quit)"
+
+      - name: Generate nightly tag
+        id: tag
+        run: echo "value=nightly-$(git describe --tags --long)-$(date -u +'%Y%m%d-%H%M%S')" >> "$GITHUB_OUTPUT"
+
+      - name: Generate release notes
+        shell: bash
+        run: |
+          last_tag="${{ steps.prev_tag.outputs.value }}"
+          {
+            echo "## Nightly Build ${{ steps.tag.outputs.value }}"
+            echo ""
+            echo "Commit: $(git rev-parse --short HEAD)"
+            echo "Built at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            echo ""
+            echo "### Changes"
+            echo ""
+            if [ -n "$last_tag" ]; then
+              range="${last_tag}..HEAD"
+            else
+              range="-30"
+            fi
+            git log "$range" --no-merges --pretty=format:'- %s (%h)' | head -n 50 || true
+          } > release_notes.md
+          cat release_notes.md
+
+      - name: Create Nightly release
+        uses: softprops/action-gh-release@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.tag.outputs.value }}
+          name: "Nightly Build ${{ steps.tag.outputs.value }}"
+          body_path: release_notes.md
+          prerelease: true
+          files: final-release/*.apk
+
