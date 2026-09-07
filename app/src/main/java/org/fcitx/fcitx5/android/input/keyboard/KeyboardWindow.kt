@@ -490,6 +490,14 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         if (action.mode == KeyAction.LayerSwitchMode.BACK) {
             latchedLayerKey = layerHistory.removeLastOrNull()
             oneShotLayerKey = null
+            // Latching back to a remembered layer is an explicit departure from a manually
+            // activated numeric layout; drop its memory so it cannot be resurrected later
+            // (e.g. by the input restart an app runs when its send button clears the
+            // editor). A BACK with nothing recorded pops no layer and keeps the override,
+            // staying consistent with its previous no-op on the number pad.
+            if (latchedLayerKey != null) {
+                TextKeyboard.releaseManualNumericLayoutOnLayerSwitch(latchedLayerKey)
+            }
             applyLayerOverridesAndRelayout(hadAuxBarConfig, heightBefore)
             return
         }
@@ -516,6 +524,11 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                 }
                 latchedLayerKey = resolved
                 oneShotLayerKey = null
+                // Latching to another layer is an explicit departure from a manually
+                // activated numeric layout; drop its memory so it cannot be resurrected
+                // later (e.g. by the input restart an app runs when its send button
+                // clears the editor). One-shot peeks keep returning to the number pad.
+                TextKeyboard.releaseManualNumericLayoutOnLayerSwitch(resolved)
             }
             KeyAction.LayerSwitchMode.OSL -> {
                 oneShotLayerKey = resolved
