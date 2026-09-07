@@ -334,125 +334,52 @@ KeyDef 与 JSON 序列化都没动，`77be0fb8` 只改按下它的运行时行�
 key action listener，点预览不会触发 `sendStandaloneShiftTap`。且 `77be0fb8` 是 `fca0b3e5` 的祖先，
 run #215 构建的就是两者合并后的树。
 
+#### `b65fbb4d` 发送后跳回数字盘：宏 layer to 离开数字层时释放手动数字布局记忆（用户日志定位，2026-09-07）
+
+用户报告（QQ 聊天，稳定复现）：「使用 layoutswitch 切换到数字键盘层后，再使用宏按键定义的
+layer to 切换到 rime 文本布局，此时输入文字，然后点击 app 的发送按键，输入框文字会清空，
+键盘也会跳回至数字键盘」。日志 `跳数字盘1/2...2026-09-05T14_3*.txt` + 用户布局
+`TextKeyboardLayout.行之26.json`。
+
+日志证据链（`跳数字盘1` 为例）：
+
+- 全程 **0 条 `NumberKeyboard.reloadLayout`**，只有 `TextKeyboard.reloadLayout` → 证明 `?123`
+  被 `numeric_layout_override`（=数字 层）短路，数字盘由 TextKeyboard 渲染；
+- `22:31:17.378 TextKeyboard.reloadLayout rows=4`（无宏日志、纯触摸）= 按 `?123`（数字层 4 行）；
+- `22:31:18.336 TO target=符号` → rows=5（符号层 5 行）→ `22:31:19.577 TO target=rime` → rows=4；
+- 打字、`22:31:22.921 CommitStringEvent`，随后 `22:31:23.699 onStartInput restarting=true`
+  （QQ 清空输入框触发的原地重启）→ `22:31:23.718 TextKeyboard.reloadLayout rows=4` = **跳回数字层**；
+- 用户只能再按一次 `㞢`（TO rime）逃回文字盘（`22:31:27.442`），下一轮发送再次跳回。
+
+**根因**（两条路径共同触发）：
+
+1. `?123` 走 `switchLayout(Number)` → `activateManualNumericLayout("数字")`，在
+   `NumericLayoutOverrideController` 留下 manualKey="数字"；
+2. 宏 `layer to rime` 走 `handleLayerSwitchAction`，只设 `latchedLayerKey`，**manualKey 原样残留**——
+   释放手动槽位的只有 ABC 键（switchLayout 的 fromUserKey 分支）和真实 IME 变化两条路；
+3. 点发送 → `onStartInput(restarting=true, inputClass 未变)`：
+   - `isNumericLayoutShowing()` 因 manualKey!=null **误报**“数字层在屏”（屏幕上是 rime 文字盘）→
+     `shouldKeepCurrentLayoutOnStartInput` 判定偏差、走保留分支；
+   - 保留分支 `clearForcedLayoutKey()` → `force(null)` 回落 manualKey="数字" → 键盘跳回数字层。
+   （日志里的 `reloadLayout rows=4` 正是这一步；rime 层也是 4 行，靠用户“再按一次㞢 才回文字盘”
+   与 `TO rime` 后必跟一次 reloadLayout 反推出跳的确实是数字层。）
+
+**改法**：锁存式切层（`layer to` / BACK 弹出实际层）视同 ABC 键/切输入法一样的“显式离开数字盘”
+手势，释放手动数字布局记忆：
+
+- `NumericLayoutOverrideController.releaseManualOnLayerSwitch(target)`：manualKey==target（重申
+  同一数字层）不算离开、保持记忆；否则 `releaseManual()`。另加 `isManualNumericShowing()`
+  （forcedKey==manualKey 才算真在屏）；
+- `TextKeyboard.releaseManualNumericLayoutOnLayerSwitch()`：只清状态不自带 refresh，随后调用方的
+  `setForcedLayoutKey` 一次完成重排并纠正瞬时的 forcedLayoutKey 不同步；
+- `KeyboardWindow.handleLayerSwitchAction` 的 TO 分支与 BACK 分支（仅弹出实际层时）调用之。
+
+**保持不变**（已逐一核对）：数字编辑框的 session 覆盖跨层保留；`?123` 后不切层直接打字再发送
+（支付宝式逐字 restartInput）仍保留数字盘；OSL 单次层结束后仍回落数字盘；BACK 空历史仍 no-op。
+
+新增 `app/src/test/.../keyboard/NumericLayoutOverrideControllerTest.kt`（6 例纯 JVM 单测）。⚠️ CI
+只有 `assembleFxRelease` 不跑单测，该文件编译验证依赖本地 IDE；run #225（`b65fbb4d`）已绿。
+
 ---
 
 ## 4. 今天这一轮的四项任务（用户原话与进度）
-
-用户原话：
-> 「去掉附加组件里面的 Android 英文键盘，输入法选择器，拼写，unicode。输入法安装就是默认启用 rime，且只有 rime 可用，其他无关组件都清除。默认键盘就是 rime 的 default 键盘，语言切换键改成按下发送一次 shift 点击事件，利用 ascii mode 来做到切换中英文输入」
-
-追加：
-> 「快速输入组件也去掉」
-
-拆成四项：
-
-### ✅ 任务 1 — 清除无关组件（`03a70215` + `54706725`，均已 push、CI 绿）
-
-**`03a70215` 移除 androidkeyboard / imselector / spell / unicode：**
-- `app/build.gradle.kts`：cmake targets 去掉 `"androidkeyboard"`；新增 `fcitxComponent { excludeFiles = [...] }` 排除 `imselector.conf`/`spell.conf`/`unicode.conf`。
-- `app/src/main/cpp/CMakeLists.txt`：删 `add_subdirectory(androidkeyboard)`、`Fcitx5::Module::Unicode` 链接、`copy-fcitx5-modules` 里 imselector/spell/unicode 的拷贝、spell 词典 install。
-- 删目录 `app/src/main/cpp/androidkeyboard/`（4 个文件）。
-- `lib/fcitx5/build.gradle.kts`：去掉 imselector/spell/unicode 的 cmake target 与 prefab。
-- `native-lib.cpp`：删 unicode include / `p_unicode` / `triggerUnicode()` / JNI。
-- Kotlin：`Fcitx.kt`/`FcitxAPI.kt` 删 `triggerUnicode`，`CommonKeyActionListener.kt`/`KeyAction.kt` 删 `UnicodeAction`，`KeyDefPreset.kt` 删 unicode 长按与逗号键弹窗里的 Unicode 项。
-
-**`54706725` 移除 quickphrase（37 文件，-1161 行）：**
-- 构建：`lib/fcitx5/build.gradle.kts` 去 target+prefab；`app/src/main/cpp/CMakeLists.txt` 去 `Fcitx5::Module::QuickPhrase` 链接与 `fcitx5::quickphrase` 拷贝；`app/build.gradle.kts` `excludeFiles` 增加 `quickphrase.conf` 与 `usr/share/fcitx5/data/quickphrase.d/{emoji,emoji-eac,latex}.mb`。
-- native：`native-lib.cpp` 删 include / `p_quickphrase` / `triggerQuickPhrase()` / `triggerQuickPhraseInput` JNI（6 处）。
-- Kotlin 删除：`data/quickphrase/`（7 文件）、`QuickPhraseEditFragment.kt`、`QuickPhraseListFragment.kt`。
-- Kotlin 改动：`Fcitx.kt`、`FcitxAPI.kt`、`AddonSubconfig.kt`（删 `reloadQuickPhrase`）、`FcitxRemoteService.kt`、`CommonKeyActionListener.kt`、`KeyAction.kt`（删 `QuickPhraseAction`）、`KeyDefPreset.kt`（删 `QuickPhraseKey` 与逗号弹窗项）、`TextKeyboard.kt`（`SpecialKeyViews` 去 quickphrase 字段，6 处）、`PreferenceScreenFactory.kt`、`SettingsRoute.kt`（删 `QuickPhraseList`/`QuickPhraseEdit` 路由）、`ConfigDescriptor.kt`（`ETy` 去 `QuickPhrase`，去 `"QuickPhrase","Editor"` 映射）、`CustomActionExecutor.kt`（`ROUTE_MAP` 去 `quick_phrase_list`）、`IconTheme.kt`（去 `keys.quickphrase` 槽位）、`MacroEditorActivity.kt`（去动作 id/标签/映射 3 处）。
-- 资源：`values/keyboard_26_ids.xml` 去 `button_quickphrase`；`values/strings.xml` 去 6 条；7 个语言目录（de/es/ja/ko/ru/zh-rCN/zh-rTW）各去对应条目。
-- AIDL：`IFcitxRemoteService.aidl` 去 `reloadQuickPhrase()`。
-
-**故意保留的无害残留**（别再动）：`IconThemeEditorActivity.kt:617` 的 `"keys.quickphrase" -> R.drawable.ic_baseline_format_quote_24` 图标映射、`lib/fcitx5/.../cmake/FindFcitx5Module.cmake:6` 的 `FCITX5_MODULE_NAMES` 列表（只是接口别名工厂，列了不等于构建）、`app/src/main/play/release-notes/*.txt` 里的历史发布说明。
-
-### ✅ 任务 2 — 首次启动只启用 rime（`b3da4853`，已 push、CI 绿）
-
-`app/src/main/java/.../core/Fcitx.kt` 的 `onFirstRun()` 加：
-
-```kotlin
-runCatching { setEnabledInputMethods(arrayOf("rime")) }
-    .onFailure { Timber.w(it, "Failed to seed rime as the default input method") }
-```
-
-**为什么必须加**：fcitx5 核心 `Instance::buildDefaultGroup()` 在全新配置时会无条件塞一个 `keyboard-us` 条目，而本分支已经把 androidkeyboard addon 删了 → 该条目指向不存在的 IM，`listInputMethods()` 会返回空条目、有崩溃风险。
-**为什么放这里是安全的**：`Instance::initialize()` 里 addon/IM 条目加载发生在 `ReadyEvent` 之前，`onFirstRun()`（由 `AppPrefs.internal.firstRun` 门控）执行时 IM 列表已就绪。
-副作用：日志里会有一条无害的 `instance.cpp:1454 Couldn't find keyboard-us`。
-
-### ✅ 任务 3 — 默认键盘 = rime 的 default 键盘（**无需改代码，已确认**）
-
-没有用户布局 json 时（`ConfigProviders`/`UserConfigFiles` 返回 null），`TextKeyboard.getLayout()` 会落到代码内置的 `getDefaultLayout(showLangSwitch)`——就是标准 QWERTY，且在 `showLangSwitchKey`（默认 true）时带 `LanguageKey`。**已经是要求的状态，不要为此改动任何文件。**
-
-### ✅ 任务 4 — 语言切换键改成"发一次 Shift 点击"（**已完成**）
-
-`072c0e87` 的提交信息里写了"中英切换后续改由语言键发送 Shift 点击走 rime ascii_mode"，但当时**只写了这句话、没有落代码**，语言键仍在轮换输入法。现已实现。
-
-行为（键盘上的 🌐 与工具栏/状态区的"语言切换"按钮完全一致）：
-
-| 手势 | 行为 |
-|---|---|
-| 单击 | 发一次**独立 Shift 敲击**（down → 50ms → up），交给引擎处理；rime 侧由 `ascii_composer/switch_key` 的 `Shift_L` 决定，默认 `inline_ascii`，想要整体切中英应在 `default.custom.yaml` 改成 `commit_text` 或 `commit_code` |
-| 长按 | 弹**系统**输入法切换菜单（`InputMethodManager.showInputMethodPicker()`），不再是 app 内自绘的 `InputMethodPickerDialog` |
-
-实现要点：
-
-1. `FcitxInputMethodService.sendStandaloneShiftTap()`（新增，单一入口，两处共用）
-   - 走 `sendSimulatedKeyEvent`（`InputDevice.SOURCE_KEYBOARD` + `FLAG_FROM_SYSTEM` → `forwardKeyEvent(preserveModifierState = true)`），**不能**用 `sendSimulatedKeyEventOrFallback`（那条路只到应用的 InputConnection，fcitx 收不到）；
-   - 按住 `STANDALONE_MODIFIER_HOLD_MS = 50L`。这个值**只有上限、没有下限**：librime `AsciiComposer` 要求修饰键在 press 后 500ms 内 release（`toggle_duration_limit`），fcitx5 core 的 modifier-only 热键要求在 `ModifierOnlyKeyTimeout`（默认 250ms）内 release；而区分"独立修饰键"与"修饰键+字母"靠的是**事件顺序**不是时长（`AsciiComposer` 一收到非修饰键就清 `shift_key_pressed_`），顺序由 `forwardKeyEvent` 的自增 timestamp 索引 + `postFcitxJob` 顺序队列保证，与墙钟时间无关。所以取短值：这段延迟是语言键纯粹的手感损失（toggle 只在 release 时发生），同时也是紧接着敲字母可能被共享的 simulated-Shift 状态波及的窗口；50ms 不是给引擎留的安全余量（引擎侧没有下限），只是取真人敲键按住时长区间的下沿，让 down/up 对外仍像一次真实敲击。
-   - 用 `standaloneShiftTapJob` 串行化，连点两次得到两次独立敲击而不是嵌套的 down-down-up-up；`delay` 外面套 `try/finally` 保证任何取消路径都补发 up（修饰键按住状态是全局的，漏掉 up 会让后续按键都带 Shift）。
-   - 与之对齐：`BaseKeyboard.sendFcitxKeyTap` 的 `keyHoldDelayMs` 原本是 `if (isMod) 150L else 50L`，现在**取消修饰键分支**、所有键统一 `50L`。那是宏（`executeMacro` 的 Tap 步骤）与快捷键（`executeShortcut`）路径，**语言键不经过它**，两处只是取值一致；它原来的注释 "keep press time longer so Rime can recognize standalone Shift" 与上面那条是同一个误解，已改写。分支去掉后 `isModifierKey()`（private，唯一调用方就是该分支）成了死代码，一并删除——`MacroEditorActivity` 里那个同名方法是另一份实现，仍在用，别混淆。宏里每步都会累加这个时长，修饰键从 150ms 降到 50ms 对长宏的整体执行速度有肉眼可见的收益。
-2. `CommonKeyActionListener`：`is LangSwitchAction ->` 调 `service.sendStandaloneShiftTap()`；`is ShowInputMethodPickerAction ->` 改成 `InputMethodUtil.showPicker()`。
-   注意 `showInputMethodPicker()` 那个私有方法**还要留**——空格长按的 `SpaceLongPressBehavior.ShowPicker` 仍用它弹 app 内对话框。
-3. `ButtonAction.LanguageSwitchAction`：`execute()` 同上；`onLongPress()` 改成 `InputMethodUtil.showPicker()`。
-4. 删掉 `LangSwitchBehavior.kt`（整个 enum）、`AppPrefs.langSwitchKeyBehavior`、`KeyboardGroupFragment` 的 `"lang_switch_key_behavior"`、以及 8 个 `strings.xml` 里的 `lang_switch_key_behavior` / `lang_switch_behavior_next_ime_app`。
-   **保留**：`show_lang_switch_key`（显示开关）、`space_behavior_enumerate` / `space_behavior_activate`（`SpaceLongPressBehavior` 还在用）、`KeyAction.LangSwitchAction`、`KeyDefPreset.LanguageKey`。
-   `switchToNextIME` 已无调用方，但留着没删。（`AddMoreInputMethodsPrompt` 已在“主设置页输入法项改成中州韵设置”那一轮删掉。）
-
-**为什么 Shift 能到 rime（已核对上游源码）**：
-- fcitx5 core 的 hotkey watcher 与引擎在**同一 phase**、且排在引擎**之前**，`Hotkey/AltTriggerKeys` 默认就是 `Shift_L`；但每个分支都要过 `Instance::canTrigger()`（`currentGroup().inputMethodList().size() > 1`）。本分支只有 rime 一个 IM，所以 core 不会 filter，press/release 都会落到引擎。
-- 更稳的一层：CI 用的 **fxliang/fcitx5-rime**（见第 0 节 `prepare_personal_build.sh`）带 `fcitx5-alt-trigger-v4point1.patch`，给 `canAltTrigger` 加了 `InputMethodEngineV4Point1::supportsAltTrigger()` 钩子，而 `RimeEngine::supportsAltTrigger()` 默认返回 `false`（配置项 `ShiftKeyBehavior`，默认 `DisableFcitxToggle`）。即使以后 IM 变成多个，Shift_L 也仍归 rime。
-- `RimeState::keyEvent` 不丢 release：release 会带上 `1 << 30`（IBUS_RELEASE_MASK）喂给 `process_key`，正是 librime `AsciiComposer` 判定"独立 Shift 敲击"所需（它只在 release 且 500ms 内才 toggle）。
-
-**验证**：`./gradlew :app:assembleFxRelease`（本机无 JDK/Android SDK，靠 CI）；装机后按语言键应能看到 rime 的 `ascii_mode` 中/英翻转，长按弹出系统输入法菜单。
-
----
-
-## 5. 需要知道的机制（省得重新摸索）
-
-- **addon 打包链路**：addon 的 `.so` 由 cmake target 拷进 jniLibs；`.conf` 由 `install(... COMPONENT config)` 装到 `usr/share/fcitx5/addon/` → 进 APK assets → 显示在"附加组件"设置页。要让某个组件从设置页消失，除了不构建它，还要在 `app/build.gradle.kts` 的 `fcitxComponent.excludeFiles` 里列出它的 conf 路径。
-- **`excludeFiles` 语义**（`build-logic/convention/src/main/kotlin/FcitxComponentPlugin.kt:49-58`）：`deleteFcitxComponentExcludeFiles` 任务在 install 之后对 `assetsDir.resolve(it).delete()`——**文件不存在也不会报错**，所以多列几条是安全的。
-- **`generateDataDescriptor`** 依赖 `installFcitxComponent` + `deleteFcitxComponentExcludeFiles`（`AndroidAppConventionPlugin.kt:130-135`），descriptor 里不会包含被排除的文件。
-- **`DataManager.sync()`** 只按 `descriptor.json` 的差异新增/更新/删除文件；用户自己放的、不在 assets 清单里的文件永远不会被覆盖或删除。
-- **rime 的两个目录**：shared data = APK assets 解出来的 `<deviceProtectedDataDir>/usr/share/rime-data`（`RIME_DATA_DIR` 编译期宏 + 运行时 `StandardPaths::locate(Data, "rime-data/default.yaml")` 定位）；user data = `getExternalFilesDir(null)/data/rime`（由 `native-lib.cpp` 的 `setenv("FCITX_DATA_HOME", <extData>/data)` + `XDG_DATA_HOME` 决定）。
-- **fcitx 环境变量**全在 `native-lib.cpp:522-546`（`LANG`/`FCITX_LOCALE`/`HOME`/`XDG_DATA_DIRS`/`FCITX_CONFIG_HOME`/`FCITX_DATA_HOME`/`FCITX_ADDON_DIRS`/`XDG_*`）。
-- **rime-data 资源清单**在 `app/src/main/cpp/CMakeLists.txt:52-69`（default.yaml、essay、prelude、luna-pinyin、stroke），`COMPONENT prebuilt-assets`；`app/build.gradle.kts` 的 `generateDataDescriptor { symlinks.put("usr/share/rime-data/opencc", "usr/share/opencc") }` 建软链。
-- **saved-instance Bundle 有硬上限**：Activity stop 时整份 Bundle 经 Binder 交给 system_server，
-  **整个进程**共享约 1MB 事务预算，超了就是 `TransactionTooLargeException` 硬崩（见第 3.4 节
-  `fca0b3e5`）。**任何"整份用户配置"都不要放进 `onSaveInstanceState` 或 Intent extra**，改用
-  `LayoutDraftStore` 那套"文件 + Bundle 只放文件名"。现存需要留意的同类写法：
-  `KeyEditorActivity` 的 `draft_key_data`（单个按键，正常几 KB，仅极端巨大 MacroKey 有理论风险）、
-  `ButtonsCustomizerActivity` 的 `draft_buttons_config`（按钮表，很小）。
-
----
-
-## 6. 用户日志的读法（这批日志很有用，别只看栈顶）
-
-用户导出的 logcat 带 `--------- Device Info` / `Crash stacktrace` 头，正文是完整 logcat，**崩溃点
-之前的时间线才是定位依据**。已归档在仓库根的 `日志/`（未跟踪，不要提交）。
-
-- `fca0b3e5` 就是靠 `Bundle stats: draft_layout_json [size=537176]` 这一行 + 崩溃前 0.6s 的
-  `KeyEditorActivity` 启动记录定位的：栈顶只说 `activityStopped` 失败，说不出为什么。
-- 小米设备的固定噪声，**不是本 app 的问题，直接跳过**：`getMiuiFreeformStackInfo ... null`（每帧一条）、
-  `ContentCatcherManager: failed to get ContentCatcherService`、
-  `SettingTrigger: NoSuchFieldException: No field mContentExtensionEnabled`、`RenderInspector` 超时警告。
-- 有用的自家 tag：`FcitxColdStart`、`[main] FcitxInputMethodService`、`FcitxClipboardSync`、
-  `LayoutDataManager`、`LayoutEditor`、`LayoutDraftStore`。
-
----
-
-## 7. 建议的下一步顺序
-
-1. 向用户确认是否给 `ci.yml` 恢复 "Run JVM unit tests" 步骤（`./gradlew :app:testFxDebugUnitTest`，
-   注意**不是** `...Release...`，理由见第 2 节末尾）——现在 `app/src/test/` 下 15 个测试文件在 CI
-   里从未被编译或执行，绿灯不覆盖它们。**等他点头**。
-2. 用户确认后再决定要不要删 `backup/fx2-rime-fusion-pre-merge` 与 `backup/fx2-rime-fusion-pre-rebase-20260904`。
