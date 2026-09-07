@@ -98,8 +98,8 @@ class NumericLayoutOverrideControllerTest {
         val controller = NumericLayoutOverrideController()
 
         assertTrue(controller.activateManual("数字"))
-        // BACK pops the layer history; latching back to another layer (or to none)
-        // is an explicit departure just like "layer to".
+        // BACK pops the layer history; latching back to a remembered layer is an
+        // explicit departure just like "layer to".
         assertTrue(controller.releaseManualOnLayerSwitch("符号"))
         controller.force(null)
         assertNull(controller.forcedKey)
