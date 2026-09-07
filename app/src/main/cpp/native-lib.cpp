@@ -433,13 +433,27 @@ public:
     }
 
     void exit() {
-        // Make sure that the exec doesn't get blocked
+        // Stop the event loop in case anything tries to drive it again
+        // during teardown (previously this unblocked eventLoop().exec()).
         uv_stop(get_event_base());
-        // Normally, we would use exec to drive the event loop.
-        // Since we are calling loopOnce in JVM repeatedly, we shouldn't have used this function.
-        // However, exit events would lose chance to be called in this case.
-        // To fix that, we call exec on exit to execute exit events.
-        p_instance->eventLoop().exec();
+        // Historically this ran eventLoop().exec() so fcitx5's exit events
+        // would still fire (the JVM drives the loop with loopOnce, so they
+        // would never run otherwise). The only exit event registered in this
+        // build is fcitx5's Instance::save() ("Running save..."), whose
+        // AddonManager::saveAll() also saves the rime addon. RimeEngine's
+        // save() is sync_user_data(): it queues a deployment task that
+        // merges every user dict with every snapshot under rime/sync/ on
+        // librime's work thread, and ~RimeEngine's finalize() then joins
+        // that thread before nativeExit() can return. With large user dicts
+        // this blocked for 10+ seconds while FcitxDispatcher.stop() holds
+        // the Android main thread, so every IME switch froze the process
+        // ("Skipped 1378 frames") and the keyboard could only come back
+        // after the next service's onCreate finally got to run. Save
+        // explicitly without rime instead — same policy as the settings
+        // path (saveWithoutRime / saveNonRimeState, commit c24fce8a). Full
+        // sync is still available from the status menu's sync action and at
+        // device shutdown (ACTION_SHUTDOWN -> save()).
+        saveWithoutRime();
         p_dispatcher->detach();
         p_instance->exit();
         resetGlobalPointers();
