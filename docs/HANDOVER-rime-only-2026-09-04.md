@@ -35,6 +35,24 @@
 2. **run #221 `buildCMakeRelWithDebInfo` 失败**：手动解 `rimeengine.h` 冲突时把 `FCITX_CONFIGURATION` 块最后一个成员结尾写成 `false});`，丢了成员声明的分号（正确是 `false};);`）。run #220 死在 msgfmt 没暴露它。修复：`dad45bc`。
 3. 教训：**解完冲突必须对照两个父版本（`git show <sha>:<path>`）核对合并块的每一个结尾标点**，"结构看起来对"不算数；po 合并后要跑重复检查；CI 挂了先拉完整 job 日志再动手，别靠猜。
 
+### 2026-09-07 九键音节选择器首次点击无响应（已修复：addon `ce4c038`）
+
+**现象**（日志 `日志/音节选择器...2026-09-07T08_58_32Z.txt`）：打完字后点 tab 无反应（连点 29 次零响应），点一下"清除"就恢复。同日志里 BackSpace 后 tab 又能用。
+
+**根因**：合并上游时，`8bb9234`（ascii 图标提交）顺手删除了 `rimestate.cpp` updateUI 里的 `emptyExceptAux` 逻辑，把面板序列化条件 `!keyRelease || !oldEmptyExceptAux || !newEmptyExceptAux` 收窄为 `!keyRelease`。上游自己没有 tab 功能所以无害，但 **fxliang 的 tab 功能隐藏依赖 release 时的序列化**：
+
+- 每次 keyEvent（press 和 release）都跑 `updateUI(ic, isRelease)`，它总是 `setCandidateList(make_unique<RimeCandidateList>(...))` 换一个新列表；
+- 新列表的 `tabLabels_/tabSpans_` **只在序列化时**（frontend `updateInputPanel()` → `tabActions()`）填充；
+- press 走 `updateUI(false)` 会序列化（tabLabels_ 填好）；release 走 `updateUI(true)` 不 reset 面板但**换了列表且不再序列化** → UI 显示的还是旧 tabs，实际列表的 tabLabels_ 是空的；
+- 点 tab（id≥0）→ `RimeState::selectTab` 的 `tabId >= labels.size()` **静默 return**（连 updateUI 都不调，日志零输出）；点"清除"（id=-1）→ `clearTabs()` 强制 `updateUI(false)` → 序列化 → tabLabels_ 重填 → 恢复。
+- 日志佐证：BackSpace 只发 press 不发 release（列表未被污染）→ tab 能用；数字键（宏路径）press+release 齐全 → release 污染列表 → 全部点击死掉。
+
+**修复**（`SandyYuR/fcitx5-rime@ce4c038`）：恢复"面板有内容（新旧任一非空）时 release 也序列化"的判定 + release 时清除残留 aux 的补全（用 e84ffa1 修正过的判空，含 clientPreedit）；上游 `lastMode_` 无条件显示 IM 信息的改进保留。
+
+**教训（合并上游的暗礁）**：git 自动合并成功 ≠ 语义无损。上游删掉的"看似无关"代码可能正是本分支特性的隐藏依赖——尤其是这种"A 创建状态、B 消费状态"跨函数的时序依赖，git 完全看不出来。**合并 fcitx5-rime 上游后必须实测：打字→点 tab→选词全链路**（本次 CI 绿灯只证明能编译）。
+
+**推送通道备用**（本次 github.com:443 曾被断连 ~10 分钟）：`api-push.mjs`（走 api.github.com 的 Git Data API 推单文件提交，blob SHA 与本地比对确保内容一致）；dispatch 别忘 `DISPATCH_REF=fx2-rime-fusion`（默认 master 会 422）。网络恢复后 `fetch + reset --hard origin/master` 对齐（API 提交与本地提交 SHA 不同但 tree 相同）。
+
 ---
 
 ## 0.5 rime 引擎更新 runbook（2026-09-06 首次实战打通，照此复制）
@@ -375,8 +393,20 @@ layer to 切换到 rime 文本布局，此时输入文字，然后点击 app 的
   `setForcedLayoutKey` 一次完成重排并纠正瞬时的 forcedLayoutKey 不同步；
 - `KeyboardWindow.handleLayerSwitchAction` 的 TO 分支与 BACK 分支（仅弹出实际层时）调用之。
 
+**后续修正（2026-09-07，用户日志 `返回图层...09_22_07Z` 定位）**：`?123` 跳数字盘与 BACK 的
+历史栈脱节——`switchLayout(Number)` 重定向到手动数字布局时**不压 layerHistory**，导致 ① 干净状态
+下数字盘上 BACK 空弹栈 no-op（用户预期回到文字盘）；② 先 `TO A`→`TO B`→`?123` 后 BACK 弹出的是
+进数字盘之前的旧记录 A。修法：
+
+- `switchLayout` 的 Number 重定向分支：`fromUserKey` 且手动数字布局未在屏（读于 activate 之前，
+  新增 `TextKeyboard.isManualNumericLayoutShowing()`）时，把离开前的有效层（oneShot ?: latched）
+  压入 layerHistory，使 BACK 可撤销这次跳转；重复按 `?123` 不重复压栈；
+- `handleLayerSwitchAction` BACK 分支：弹出为空但 `releaseManualNumericLayout()` 成功（手动数字
+  布局在屏）时释放手动槽，回落基础文字层。
+
 **保持不变**（已逐一核对）：数字编辑框的 session 覆盖跨层保留；`?123` 后不切层直接打字再发送
-（支付宝式逐字 restartInput）仍保留数字盘；OSL 单次层结束后仍回落数字盘；BACK 空历史仍 no-op。
+（支付宝式逐字 restartInput）仍保留数字盘；OSL 单次层结束后仍回落数字盘；数字编辑框（session，
+非手动）上的 BACK 空/有历史均不动 session 覆盖。
 
 新增 `app/src/test/.../keyboard/NumericLayoutOverrideControllerTest.kt`（6 例纯 JVM 单测）。⚠️ CI
 只有 `assembleFxRelease` 不跑单测，该文件编译验证依赖本地 IDE；run #225（`b65fbb4d`）已绿。
