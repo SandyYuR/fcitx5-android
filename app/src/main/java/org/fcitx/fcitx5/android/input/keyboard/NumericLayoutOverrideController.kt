@@ -69,6 +69,26 @@ internal class NumericLayoutOverrideController {
     }
 
     /**
+     * Release the manually activated override because an explicit layer switch moved the
+     * keyboard to [target].
+     *
+     * A latching layer switch ("layer to"/BACK, as opposed to a one-shot OSL peek) is as
+     * deliberate a "leave the number pad" gesture as the "ABC"-style layout switch key or a
+     * language switch. While the manual slot stayed latched, a later [force] with no layer
+     * of its own fell back to it and resurrected the number pad on top of the layer the user
+     * actually chose — most visibly on the in-place input restart an app performs when its
+     * send button clears the editor. Re-affirming the same layer is not a departure, so the
+     * override stays remembered. Only the manual slot is dropped; the session slot for
+     * numeric editors legitimately survives layer switches.
+     *
+     * @return whether a manual override was present and cleared.
+     */
+    fun releaseManualOnLayerSwitch(target: String?): Boolean {
+        if (manualKey == target) return false
+        return releaseManual()
+    }
+
+    /**
      * Release the manually activated override because the input method changed.
      * A language / input-method switch is an explicit user move away from the
      * previously shown layout, so a manual override picked earlier in the session
@@ -91,6 +111,14 @@ internal class NumericLayoutOverrideController {
         manual = false
         dismissed = true
     }
+
+    /**
+     * Whether the manual numeric layout is the layout currently being rendered, i.e. the
+     * remembered manual key has not been superseded by a layer latch. This is the
+     * truth "a number pad is on screen right now", as opposed to [manualKey] merely
+     * being remembered.
+     */
+    fun isManualNumericShowing(): Boolean = manualKey != null && forcedKey == manualKey
 
     fun revalidateSession(resolved: String?): Boolean {
         val current = sessionKey ?: return false
