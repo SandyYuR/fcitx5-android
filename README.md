@@ -1,34 +1,36 @@
 # 靓企鹅·中州韵（Rime-only）
 
-基于 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) 的 `fx2` 分支继续开发，将 Rime 深度内置进主 APK，并裁剪为只提供 Rime 输入法的 Android 版本。项目不是 Fcitx5 或 Rime 官方发行版。
+基于 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) 的 `fx` 分支继续开发，将 Rime 深度内置进主 APK，并裁剪为只提供 Rime 输入法的 Android 版本。项目不是 Fcitx5 或 Rime 官方发行版。
 
 - 简体/繁体中文应用名：**靓企鹅·中州韵**
 - 其他语言应用名：**Fcitx5.fx.rime**
 - 包名：`org.fcitx.fcitx5.android.fx.rime`
 - 默认分支：`fx-rime-only`
+- 用户手册：[Rime-only 简体中文用户指南](docs/RIME_ONLY_USER_GUIDE_zh-CN.md)
 - 下载：[GitHub Releases](https://github.com/SandyYuR/fcitx5-android/releases)
 
-## fx2 相对 fxliang 的主要改动
+## 相对 fxliang 的主要改动
 
 在 fxliang/fx 的基础上，全部使用 vibe coding 做出改动。目前主要做了这些改动：
 
+- 移除与Rime无关组件，将Rime插件内置。
 - 重新组织 Kawaii Bar：左侧按钮固定作为“状态区”入口，剪贴板提示显示时可直接点击关闭。
 - 工具栏新增亮/暗主题一键切换，并支持一键恢复 Monet 默认配色映射。
 - 支持导入、选择和持久化自定义按键音，支持 WAV、MP3、OGG、M4A 和 FLAC；音效不可用时回退到系统音效。
 - 候选正文与注释支持分别配置字体和字号，并增加可选的“默认高亮第一个候选”设置。
-- 改进输入会话状态管理，修复手动数字布局在输入框重启、输入法或语言切换，以及语音输入结束后的布局恢复问题。
-- 优化字体加载、键盘和候选栏刷新及缓存处理，减少不必要的重建与卡顿。
-- 提升设置、布局数据和剪贴板同步的可靠性，改进原子保存、网络请求和数据传输限制，降低卡死、数据损坏和内存占用风险。
 
 在这些功能改动之外，本分支还继续完善了性能、稳定性和安全性：
 
+- 改进输入会话状态管理，修复手动数字布局在输入框重启、输入法或语言切换，以及语音输入结束后的布局恢复问题。
+- 优化字体加载、键盘和候选栏刷新及缓存处理，减少不必要的重建与卡顿。
+- 提升设置、布局数据和剪贴板同步的可靠性，改进原子保存、网络请求和数据传输限制，降低卡死、数据损坏和内存占用风险。
 - 候选栏使用结构 diff，减少额外帧延迟、重复 measure/layout 和每键分配。
 - 将布局、主题、字体、剪贴板图片、分享和网络等 IO 工作移出主线程，并为缓存、ZIP、图片、HTTP 和同步数据设置边界。
 - 修复语音输入、剪贴板同步、备份迁移、键盘弹窗、多点触控、布局编辑器生命周期等问题。
 - 布局编辑器草稿改存私有文件，避免 TransactionTooLargeException；快照名经过白名单和 canonical path 校验，阻止路径穿越。
 - 修复数字布局覆盖、?123 与 BACK 的层历史，并避免 IME 退出时触发 Rime 全量同步造成切回键盘卡顿。
 
-本 Rime-only 分支以 fxliang 的 `fx2` 分支、提交 `3ad25fc9` 为基线继续专用化。详细历史和维护注意事项见 [交接文档](docs/HANDOVER-rime-only.md)。
+本 Rime-only 分支以 fxliang 的 `fx` 分支、提交 `3ad25fc9` 为基线继续专用化。详细历史和维护注意事项见 [交接文档](docs/HANDOVER-rime-only.md)。
 
 ## Rime-only 改动
 
