@@ -119,7 +119,11 @@ object PreferenceScreenFactory {
                     .setMessage(R.string.open_rime_user_data_dir)
                     .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
-                        openCurrentRimeDataDir(context)
+                        try {
+                            context.startActivity(buildDocumentsProviderIntent())
+                        } catch (e: Exception) {
+                            context.toast(e)
+                        }
                     }
                     .show()
                 true
@@ -372,16 +376,6 @@ object PreferenceScreenFactory {
     }
 
     private fun openCurrentRimeDataDir(context: Context): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            return try {
-                context.startActivity(buildDocumentsProviderIntent())
-                true
-            } catch (e: Exception) {
-                context.toast(e)
-                false
-            }
-        }
-
         FcitxApplication.getInstance().coroutineScope.launch {
             val connectionName = "settings-rime-user-dir-${System.nanoTime()}"
             val conn = FcitxDaemon.connect(connectionName)
