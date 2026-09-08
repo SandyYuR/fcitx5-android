@@ -497,8 +497,16 @@ open class DraggableFlowLayout @JvmOverloads constructor(
         isDraggingInternal = false
         val view = dragView
 
+        // 拖拽过程中 chip 的位置是靠 x/y（即 translation）跟手的，而收尾动画此前只恢复
+        // alpha 和 translationZ，从不清零平移——chip 会停在手指松开的位置，相对 FlowLayout
+        // 实际分配的槽位留有一段偏移。旧代码靠 bindRowKeys 每次 removeAllViews 重建掩盖了
+        // 这一点；chip 复用（E7）之后偏移就暴露出来了。这里把平移动画归零（而不是把 x/y
+        // 动画到松手时刻捕获的槽位）：跨行松手后 onDragEnded 会立即 commit 预览并重绑两行，
+        // chip 可能被重排到新的槽位，平移目标为 0 永远指向“当前槽位”，不受重排影响。
         view?.apply {
             animate()
+                .translationX(0f)
+                .translationY(0f)
                 .alpha(1.0f)
                 .translationZ(0f)
                 .setDuration(250)
