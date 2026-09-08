@@ -156,7 +156,13 @@ jobs:
         run: |
           last_tag="${{ steps.prev_tag.outputs.value }}"
           {
-            echo "## Nightly Build ${{ steps.tag.outputs.value }}"
+            # Release 标题/正文统一为「靓企鹅·中州韵（Rime-only）」固定头 + Rime-only
+            # 注意事项（与 627 版手工格式一致），nightly 不再需要发完手工改标题。
+            echo "## 靓企鹅·中州韵（Rime-only） ${{ steps.tag.outputs.value }}"
+            echo ""
+            echo "### 注意：此版有且仅有Rime插件（已集成）"
+            echo "### 包名变更：org.fcitx.fcitx5.android.fx.rime"
+            echo ""
             echo ""
             echo "Commit: $(git rev-parse --short HEAD)"
             echo "Built at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
@@ -177,7 +183,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.tag.outputs.value }}
-          name: "Nightly Build ${{ steps.tag.outputs.value }}"
+          name: "靓企鹅·中州韵（Rime-only） ${{ steps.tag.outputs.value }}"
           body_path: release_notes.md
           prerelease: true
           files: final-release/*.apk
