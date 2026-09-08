@@ -427,6 +427,11 @@ class KeyboardLayoutAdapter(
             }
             keyChip.apply {
                 tag = null
+                // 复用的 chip 可能带着上一次拖拽残留的平移（finishDrag 的归位动画只覆盖
+                // 被拖的那个 chip，跨行提交/ViewHolder 回收等路径仍可能留下脏平移），
+                // 每次 bind 都强制对齐到 FlowLayout 分配的槽位。
+                translationX = 0f
+                translationY = 0f
                 text = buildKeyLabel(key)
                 textSize = 14f
                 setTypeface(null, android.graphics.Typeface.NORMAL)
@@ -472,6 +477,8 @@ class KeyboardLayoutAdapter(
             // Excluded from drag and drop: it has no entry in the layout data, so allowing a
             // key to be dropped past it produced an index the data layer silently rejected.
             tag = DraggableFlowLayout.TAG_NOT_DRAGGABLE
+            translationX = 0f
+            translationY = 0f
             text = "+"
             textSize = 14f
             setTypeface(null, android.graphics.Typeface.BOLD)
