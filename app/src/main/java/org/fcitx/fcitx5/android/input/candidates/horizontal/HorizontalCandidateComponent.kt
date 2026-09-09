@@ -173,6 +173,13 @@ class HorizontalCandidateComponent :
         total: Int,
         activeIndex: Int,
     ) {
+        if (view.isComputingLayout) {
+            // The posted drain can still lose a race with a newer layout pass;
+            // never notify from inside layout — re-queue and return.
+            pendingEnsureVisible = Triple(originalCandidates, total, activeIndex)
+            scheduleEnsureVisibleDrain()
+            return
+        }
         if (activeIndex !in originalCandidates.indices) {
             return
         }
@@ -242,21 +249,29 @@ class HorizontalCandidateComponent :
                         // [^2] RecyclerView can't display all candidates
                         // update LayoutParams in onLayoutCompleted would trigger another
                         // onLayoutCompleted, skip the second one to avoid infinite loop
-                        if (secondLayoutPassDone) return
-                        secondLayoutPassDone = true
-                        for (i in 0 until cnt) {
-                            getChildAt(i)!!.updateLayoutParams<LayoutParams> {
-                                flexGrow = 1f
+                        if (!secondLayoutPassDone) {
+                            secondLayoutPassDone = true
+                            for (i in 0 until cnt) {
+                                getChildAt(i)?.updateLayoutParams<LayoutParams> {
+                                    flexGrow = 1f
+                                }
                             }
                         }
+                        // Fall through to refreshExpanded + drain scheduling below:
+                        // the early `return` used to strand a pendingEnsureVisible
+                        // set by an interleaved drain when the second pass runs.
                     } else {
                         secondLayoutPassNeeded = false
                     }
                 }
                 refreshExpanded(cnt)
-                pendingEnsureVisible?.let {
-                    pendingEnsureVisible = null
-                    ensureActiveCandidateVisible(it.first, it.second, it.third)
+                // Must not touch the adapter synchronously here: we are inside
+                // dispatchLayout, and any notify* crashes with "Cannot call this
+                // method while RecyclerView is computing a layout or scrolling"
+                // (double-slash repro). Coalesce into one posted drain so a stale
+                // first-slash follow-up can never clobber a newer second-slash list.
+                if (pendingEnsureVisible != null) {
+                    scheduleEnsureVisibleDrain()
                 }
             }
             // no need to override `generate{,Default}LayoutParams`, because HorizontalCandidateViewAdapter
@@ -346,6 +361,29 @@ class HorizontalCandidateComponent :
     }
 
     private var pendingEnsureVisible: Triple<Array<CandidateWord>, Int, Int>? = null
+    private var ensureVisibleDrainScheduled = false
+
+    /**
+     * Drain [pendingEnsureVisible] outside the layout pass.
+     *
+     * Called only from a posted runnable, never synchronously from
+     * `onLayoutCompleted`: adapter notify* calls (notably
+     * notifyItemRangeRemoved) throw IllegalStateException while RecyclerView is
+     * computing a layout or scrolling, which is exactly the context of
+     * onLayoutCompleted (double-slash repro). Pending requests are coalesced:
+     * only the newest candidate list is drained, and a newer [updateCandidates]
+     * list that arrives while a drain is queued replaces the stale one.
+     */
+    private fun scheduleEnsureVisibleDrain() {
+        if (ensureVisibleDrainScheduled) return
+        ensureVisibleDrainScheduled = true
+        view.post {
+            ensureVisibleDrainScheduled = false
+            val pending = pendingEnsureVisible ?: return@post
+            pendingEnsureVisible = null
+            ensureActiveCandidateVisible(pending.first, pending.second, pending.third)
+        }
+    }
 
     override val view by lazy {
         object : RecyclerView(context) {
