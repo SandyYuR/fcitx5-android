@@ -10,8 +10,8 @@
 > **2026-09-05 更新**：已同步当前工作区路径、worktree、未跟踪文件和分支状态；此前已解决的事项不再列入待处理问题。
 > **2026-09-06 更新**：① 工作区重组——主仓库移入 `D:\GitHub\fx2-rime\fx2-rime-fusion\`，项目根下新增三个引擎相关 fork 的本地克隆，`日志/` 移出 git 工作区；② CI 的 rime 来源从 fxliang fork 换成 **SandyYuR 自己的 fork**（fcitx5-rime 已合并上游最新，prebuilt 保持 fxliang 终态快照），见第 0 节新表格；③ **rime 引擎更新流水线打通**——librime 从 `1.17.0-1d0df6e` 更新到 `1.17.0-3cbe4af`（上游最新，fxliang 补丁全保留），完整 runbook 见**第 0.5 节**。
 > **2026-09-07 更新**：修复「切走再切回输入法，键盘好几秒弹不出来」——IME 退出路径改为直接调 `saveWithoutRime()`，不再触发 Rime 全量用户数据同步（见 3.4 节 `92561244`）。
-> **2026-09-09 更新**：① prebuilder 合并 fxliang 3 个新提交（`ad491c7`，**0.5.4 节**新 runbook 实录），新引擎已构建落地 `prebuilt@9aa8104c`；② fcitx5-rime 当日晨已合并官方 5.1.16（`e74ddb6`，官方 updateUI 修复替代 `ce4c038` 定制，见第 0 节补注）；③ 主仓库新增 11 提交（`0a082669..a8c28d5a`），分支更名 `fx-rime-only`、恢复 nightly release、新增 `agent.md` 操作指南；④ librime 上游另有 2 个 streaming_chord 新提交待下次引擎更新（见 0.5.4 末尾）。
-> **当前快照**：`HEAD = origin/fx-rime-only = a8c28d5a`，相对基线 `3ad25fc9` 领先 **177** 个提交；`fx2` 分支已于 09-07 重建推进至 `3ec76d37`（见第 2 节注），"fx2 保持不动"不再是事实。
+> **2026-09-09 更新**：① prebuilder 合并 fxliang 3 个新提交（`ad491c7`，**0.5.4 节**新 runbook 实录），新引擎已构建落地 `prebuilt@9aa8104c`；② fcitx5-rime 当日晨已合并官方 5.1.16（`e74ddb6`，官方 updateUI 修复替代 `ce4c038` 定制，见第 0 节补注）；③ 主仓库新增 11 提交（`0a082669..a8c28d5a`），分支更名 `fx-rime-only`、恢复 nightly release、新增 `agent.md` 操作指南；④ librime 上游另有 2 个 streaming_chord 新提交待下次引擎更新（见 0.5.4 末尾）；⑤ **`fx2` 分支连同其 release/CI 已按用户要求全部删除**（见第 2 节注），仓库现存分支仅 `fx-rime-only`、`pr/fx2-integrated`、`docs`、`master`。
+> **当前快照**：`HEAD = origin/fx-rime-only`（相对基线 `3ad25fc9` 领先约 179 个提交，含本日两次文档提交，以 git 实测为准）；`fx2` 已删除，基线提交 `3ad25fc9` 仍是 `fx-rime-only` 的祖先，计数口径不变。
 
 ---
 
@@ -211,7 +211,7 @@ git diff 3cbe4afb <state2的SHA> --output=新librime.patch
 2. 推送 `fx-rime-only`（2026-09-07 由 `fx2-rime-fusion` 更名）；代码/构建改动会触发 CI，纯 `*.md` / `docs/**` / `.gitignore` 被 paths 排除；必要时再手动 `workflow_dispatch`；
 3. 确认 CI 绿 + 有产物；
 4. ~~**绝对不要创建 release / tag**~~ **2026-09-07 起按用户后续要求恢复 nightly release**（`20604d6b`）：`fx-rime-only` 构建成功后自动创建时间戳 nightly prerelease（`nightly_release` job，`needs: build_commit`，`if: github.ref == 'refs/heads/fx-rime-only'`）；**手动正式 release / 语义化 tag 仍禁止**；
-5. ~~`fx2`、`review-fx2-fixes`、`backup/*` 全部**不要动**~~ `fx2` 已于 09-07 被重建推进（见第 2 节注），`review-fx2-fixes`/`backup/*` 的 refs 已不存在；对这些分支仍无明确要求不碰；
+5. ~~`fx2`、`review-fx2-fixes`、`backup/*` 全部**不要动**~~ **`fx2` 分支及其衍生 release/CI 已于 09-09 按用户要求删除**（见第 2 节注）；`review-fx2-fixes`/`backup/*` 的 refs 早已不存在；现存的 `pr/fx2-integrated`（用户明确选择保留）、`docs`、`master` 分支无明确要求不碰；
 6. 已 push 的提交**不要 amend**，新改动开新提交。
 
 Git/发布纪律的权威版本是 `agent.md` 第 11 节：**每次任务的 push/外部 workflow 触发都要以当次用户的明确要求为准**，不沿用历史授权。
@@ -227,7 +227,7 @@ CI 事实（2026-09-09 实测 `ci.yml`）：
 
 ## 2. 分支现状
 
-2026-09-09 实测：`HEAD = origin/fx-rime-only = a8c28d5a`；相对 `3ad25fc9` 领先 **177** 个提交；工作树干净。分支 09-07 由 `fx2-rime-fusion` 更名为 `fx-rime-only`（更名无提交痕迹，旧 refs 已随删除消失）。
+2026-09-09 实测：`HEAD = origin/fx-rime-only`（当日推进至文档提交，相对 `3ad25fc9` 领先 178→179 个提交，以 git 实测为准）；工作树干净。分支 09-07 由 `fx2-rime-fusion` 更名为 `fx-rime-only`（更名无提交痕迹，旧 refs 已随删除消失）。
 
 历史范围（左开右闭）：`3ad25fc9..85de19be` 95 个；`85de19be..3ec1f6b2` 6 个；`3ec1f6b2..4dff487a` 65 个，其中 `ef320bfb..4dff487a` 18 个；`4dff487a..a8c28d5a` 11 个（2026-09-07~09-09，见下表）。
 
@@ -294,7 +294,7 @@ CI 事实（2026-09-09 实测 `ci.yml`）：
 
 历史上存在 review/backup 分支；当前 `show-ref` 已无这些 refs。不要重建或破坏清理，需旧内容时按 SHA 查询。
 
-**`fx2` 分支已推进（2026-09-07，旧规则作废）**：`origin/fx2 = 3ec76d37`（push 触发 CI run 34101224455 绿）——内容为 fxliang:fx 合并线 + README 更新 + A~G 审查修复/perf 全套（与 `fx-rime-only` 对应部分**内容等价、SHA 不同**，是平行血统，`85de19be` 不在其内）+ 3 个 cherry-pick 通用修复：`0431cff8`（布局草稿落盘，对应 `fca0b3e5`）、`002a4062`（IME 退出跳过 Rime 同步，对应 `92561244`）、`3ec76d37`（数字层记忆释放，对应 `b65fbb4d`）。`3ad25fc9` 仍只是**计数基线**，"fx2 必须保持不动"不再是事实；动 `fx2` 前仍需用户明确要求。
+**`fx2` 分支已删除（2026-09-09，按用户要求，含全部衍生资产）**：删除时 `origin/fx2 = 3ec76d37`（09-07 曾被重建推进），内容为 fxliang:fx 合并线 + README 更新 + A~G 审查修复/perf 全套（与 `fx-rime-only` 对应部分**内容等价、SHA 不同**，是平行血统）+ 3 个 cherry-pick 通用修复（`0431cff8` 草稿落盘、`002a4062` IME 退出跳同步、`3ec76d37` 数字层记忆释放——分别对应本分支 `fca0b3e5`/`92561244`/`b65fbb4d`）——**无独有改动，删之无损失**。一并删除的衍生资产：CI run `34101224455`（该分支唯一 run）、release `383945931`「靓企鹅-Sandy版（带各个插件）」与 `380373220`「向fxliang提交PR前的测试版」及两个 nightly tag（远端 tag 一并清掉；本地克隆中对应 tag 亦已删）。其提交对象在 GC 前仍可按 SHA 访问。`pr/fx2-integrated` 分支及其 09-01 CI run 按用户选择**保留**。基线 `3ad25fc9` 仍是 `fx-rime-only` 的祖先，计数口径不受影响。
 
 已验证 CI 状态（GitHub Actions）—— 注意前四行是 **rebase 前的旧 SHA** 的结果：
 
