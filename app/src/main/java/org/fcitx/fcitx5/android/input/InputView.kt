@@ -41,6 +41,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.updateLayoutParams
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlags
@@ -1655,6 +1656,16 @@ class InputView(
     private var floatingHeightLegacyPref by internalPrefs.floatingKeyboardHeightLegacy
     private var floatingWidthPx = 0
     private var floatingHeightPx = 0
+    // Runtime pixel sizes are valid only for the display configuration they were resolved from.
+    // Keep the key so a reused InputView cannot carry a portrait/old-window size into landscape.
+    private var floatingSizeConfigurationKey: FloatingSizeConfigurationKey? = null
+    private var floatingToggleRefreshPending = false
+    private data class FloatingSizeConfigurationKey(
+        val orientation: Int,
+        val widthPixels: Int,
+        val heightPixels: Int,
+        val densityDpi: Int,
+    )
     private var floatingXPortraitRatio by internalPrefs.floatingKeyboardXPortraitRatio
     private var floatingYPortraitRatio by internalPrefs.floatingKeyboardYPortraitRatio
     private var floatingXLandscapeRatio by internalPrefs.floatingKeyboardXLandscapeRatio
@@ -1699,6 +1710,22 @@ class InputView(
             if (isLandscapeOrientation) oneHandWidthLandscapeRatioPref = value
             else oneHandWidthPortraitRatioPref = value
         }
+
+    private fun invalidateSizeCachesIfConfigurationChanged() {
+        val metrics = resources.displayMetrics
+        val currentKey = FloatingSizeConfigurationKey(
+            orientation = resources.configuration.orientation,
+            widthPixels = metrics.widthPixels,
+            heightPixels = metrics.heightPixels,
+            densityDpi = metrics.densityDpi,
+        )
+        if (floatingSizeConfigurationKey != currentKey) {
+            floatingWidthPx = 0
+            floatingHeightPx = 0
+            oneHandWidthPx = 0
+            floatingSizeConfigurationKey = currentKey
+        }
+    }
 
     // Whether layout-related preferences should be treated as landscape.
     // Enabled when device is landscape OR when "use landscape layout when split" is enabled and split keyboard is active.
@@ -1874,6 +1901,7 @@ class InputView(
         get() = resources.displayMetrics.widthPixels.coerceAtLeast(minOneHandWidthPx)
 
     private fun resolveOneHandWidth(): Int {
+        invalidateSizeCachesIfConfigurationChanged()
         if (oneHandWidthPx <= 0) {
             val legacyRatio = oneHandWidthRatioLegacyPref
             val legacyPx = oneHandWidthLegacyPref
@@ -1903,6 +1931,7 @@ class InputView(
     }
 
     private fun resolveFloatingWidth(): Int {
+        invalidateSizeCachesIfConfigurationChanged()
         if (floatingWidthPx <= 0) {
             val legacyRatio = floatingWidthRatioLegacyPref
             val legacyPx = floatingWidthLegacyPref
@@ -1932,6 +1961,7 @@ class InputView(
     }
 
     private fun resolveFloatingHeight(): Int {
+        invalidateSizeCachesIfConfigurationChanged()
         if (floatingHeightPx <= 0) {
             val legacyRatio = floatingHeightRatioLegacyPref
             val legacyPx = floatingHeightLegacyPref
@@ -2253,7 +2283,15 @@ class InputView(
         // this for free via setHorizontalGapScale -> refreshStyle, but the floating
         // toggle keeps the gap scale at 1f, so without this a top-center label can
         // get stuck in the top-right fallback after returning from floating mode.
-        (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)?.refreshCurrentKeyboard()
+        // Defer the rebuild until keyboardView finishes the floating/docked layout pass,
+        // so BaseKeyboard.reloadLayout reads the final width instead of the stale one.
+        if (!floatingToggleRefreshPending) {
+            floatingToggleRefreshPending = true
+            keyboardView.doOnNextLayout {
+                floatingToggleRefreshPending = false
+                (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)?.refreshCurrentKeyboard()
+            }
+        }
         service.updateFullscreenMode()
         // Force layout update
         requestLayout()
