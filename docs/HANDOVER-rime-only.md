@@ -11,7 +11,7 @@
 > **2026-09-06 更新**：① 工作区重组——主仓库移入 `D:\GitHub\fx2-rime\fx2-rime-fusion\`，项目根下新增三个引擎相关 fork 的本地克隆，`日志/` 移出 git 工作区；② CI 的 rime 来源从 fxliang fork 换成 **SandyYuR 自己的 fork**（fcitx5-rime 已合并上游最新，prebuilt 保持 fxliang 终态快照），见第 0 节新表格；③ **rime 引擎更新流水线打通**——librime 从 `1.17.0-1d0df6e` 更新到 `1.17.0-3cbe4af`（上游最新，fxliang 补丁全保留），完整 runbook 见**第 0.5 节**。
 > **2026-09-07 更新**：修复「切走再切回输入法，键盘好几秒弹不出来」——IME 退出路径改为直接调 `saveWithoutRime()`，不再触发 Rime 全量用户数据同步（见 3.4 节 `92561244`）。
 > **2026-09-09 更新**：① prebuilder 合并 fxliang 3 个新提交（`ad491c7`，**0.5.4 节**新 runbook 实录），新引擎已构建落地 `prebuilt@9aa8104c`；② fcitx5-rime 当日晨已合并官方 5.1.16（`e74ddb6`，官方 updateUI 修复替代 `ce4c038` 定制，见第 0 节补注）；③ 主仓库新增 11 提交（`0a082669..a8c28d5a`），分支更名 `fx-rime-only`、恢复 nightly release、新增 `agent.md` 操作指南；④ librime 上游 streaming_chord 新提交待下次引擎更新（09-10 起并入 0.5.5 表统一跟踪）；⑤ **`fx2` 分支连同其 release/CI 已按用户要求全部删除**（见第 2 节注），仓库现存分支仅 `fx-rime-only`、`pr/fx2-integrated`、`docs`、`master`。
-> **2026-09-10 更新**：fxliang/prebuilder 又添 1 新提交（`4fdb494`，userdict 缓存"外部更新失效"补洞——已在工作台预检四补丁栈可干净应用，**本次未合并未推送**，见 **0.5.5 节**）；rime 引擎链路全仓库核对完毕——fcitx5-rime 两侧上游无新增、fxliang 官方 prebuilt 的 2 个新 Auto update **明确不得合并**、librime 上游新增 1 个纯 CI 提交（见 0.5.5 表）。
+> **2026-09-10 更新**：① prebuilder 合并 fxliang `4fdb494`（userdict 外部更新失效修复，自动合并零冲突）并 bump librime pin `3cbe4afb`→`35f23e97`（四补丁栈实测全部干净应用 + 回环零差异），已推送 `SandyYuR/prebuilder@446d1ea`，CI run 34472331394 绿，新引擎落地 `prebuilt@9e631eb9`（四 ABI .a 全更新，`rime_api.h` blob 与补丁产物一致、tabs/para 全符号在列），主仓库已接 `librime.json → 1.17.0-35f23e9`（**0.5.6 节**第三次实战）；② 全链路其余检查点零新增（fcitx5-rime 两侧上游、librime 上游仅纯 CI 提交、fxliang 官方 prebuilt 禁合，见 0.5.5 表）。
 > **当前快照**：`HEAD = origin/fx-rime-only`（相对基线 `3ad25fc9` 领先约 179 个提交，含本日两次文档提交，以 git 实测为准）；`fx2` 已删除，基线提交 `3ad25fc9` 仍是 `fx-rime-only` 的祖先，计数口径不变。
 
 ---
@@ -22,8 +22,8 @@
 |---|---|
 | 目录布局（2026-09-09 实测） | `D:\GitHub\fx2-rime\fx2-rime-fusion` 是主仓库（检出 `fx-rime-only`）；`fcitx5-rime/`、`prebuilt/`、`prebuilder/` 是引擎 fork；`librime-src/` 是补丁工作台；`日志/` 当前 9 个文件（8 txt + 1 json）。分别在目标仓库运行 `git status`。 |
 | worktree | 唯一 worktree：`D:/GitHub/fx2-rime/fx2-rime-fusion` → `fx-rime-only`，与 `origin/fx-rime-only` 同步（目录名沿用旧分支名，未改）。没有第二个 worktree，不要自行新增或切换到同一分支。 |
-| 三个 fork 的分工与更新方式 | 当前远端（2026-09-09 实测，09-10 复核）：`SandyYuR/fcitx5-rime@e74ddb6`（官方 5.1.16 基线 + fxliang 全部定制，`b90bd7ca` 已在血统内）、`SandyYuR/prebuilt@9aa8104c`（09-09 新引擎）、`SandyYuR/prebuilder@ad491c7`（09-09 合并 fxliang 3 提交；fxliang 09-10 又添 `4fdb494` 待合并，见 0.5.5）。本地 remote-tracking ref 可能过时，使用前先 fetch（断连时走 SSH，见 0.5.3 第 8 条）。 |
-| **rime 引擎更新流水线（2026-09-06 打通，09-09 第二次实战）** | 引擎 = `SandyYuR/prebuilt` 里的 `librime.a`，由 **`SandyYuR/prebuilder`** 的 CI（`ci.yml`，手动 `workflow_dispatch` 触发，约 15-90 分钟）构建并自动推回 prebuilt（"Auto update" 提交，bot 身份）。已配置 `BOT_TOKEN` secret（token 轮换后要重配）。**完整操作手册见第 0.5 节 runbook + 0.5.4 第二次实战**。当前引擎（09-09，`prebuilt@9aa8104c`）：**librime 1.17.0-3cbe4af + fxliang 补丁集**（tabs + syllabifier 缓存 + **para deploy 词典并行编译** + **userdict 缓存重写/跨 session 修复**）。版本号不变（pin 未动），主仓库 `librime.json` 无需更新，下次主仓库构建自动携带（prebuilt 浮动 master）。 |
+| 三个 fork 的分工与更新方式 | 当前远端（2026-09-10 实测）：`SandyYuR/fcitx5-rime@e74ddb6`（官方 5.1.16 基线 + fxliang 全部定制，`b90bd7ca` 已在血统内）、`SandyYuR/prebuilt@9e631eb9`（09-10 新引擎，含 streaming_chord + userdict 外部失效修复）、`SandyYuR/prebuilder@446d1ea`（09-10：合并 fxliang `4fdb494` + bump librime pin 至 `35f23e97`，见 0.5.6）。本地 remote-tracking ref 可能过时，使用前先 fetch（断连时走 SSH，见 0.5.3 第 8 条）。 |
+| **rime 引擎更新流水线（2026-09-06 打通，09-10 第三次实战）** | 引擎 = `SandyYuR/prebuilt` 里的 `librime.a`，由 **`SandyYuR/prebuilder`** 的 CI（`ci.yml`，手动 `workflow_dispatch` 触发，约 15-90 分钟）构建并自动推回 prebuilt（"Auto update" 提交，bot 身份）。已配置 `BOT_TOKEN` secret（token 轮换后要重配）。**完整操作手册见第 0.5 节 runbook + 0.5.4/0.5.6 实战**。当前引擎（09-10，`prebuilt@9e631eb9`）：**librime 1.17.0-35f23e9 + fxliang 补丁集**（tabs + syllabifier 缓存 + para deploy 词典并行编译 + **userdict 缓存重写/跨 session/外部更新三连修复** + streaming_chord 并击[上游原生，非补丁]）。pin 动了，主仓库 `librime.json` 已同步（`793a4a6f`）；下次主仓库构建自动携带新引擎。 |
 | **CI 构建的 rime 来源** | `prepare_personal_build.sh` fetch/checkout SandyYuR 的 fcitx5-rime 与 prebuilt master（均浮动）；fcitx5-rime 适配层现为 `e74ddb6`（官方 5.1.16 + fxliang 定制）；主仓库 gitlink只是占位。`.gitmodules` 仍写官方 URL，license website 仍写 fxliang，属于元数据残留。 |
 | 日志文件 | `D:\GitHub\fx2-rime\日志\` 当前 **9** 个文件（8 txt + 1 json）；新增三份与近期修复对应：`双击斜杠崩溃...09-08`（→`e0816fa0`）、`横屏状态切换悬浮...09-08`（→`c0a23af1`）、`剪贴板搜索框数字...09-09`（→`a8c28d5a`）。部分早期日志已移除或改名。 |
 | 子模块未初始化 | 主仓库工作区里 `lib/fcitx5/src/main/cpp/fcitx5`、`plugin/rime/src/main/cpp/fcitx5-rime` 等仍是空 gitlink。fcitx5-rime 的源码看 `D:\GitHub\fx2-rime\fcitx5-rime\`；fcitx5 核心与 prebuilt 的其他内容仍可用 jsDelivr：`https://cdn.jsdelivr.net/gh/<owner>/<repo>@<sha>/<path>?x=N`（`?x=N` 绕缓存；raw.githubusercontent 拉大文件会超 30s 超时）。prebuilt 也有本地克隆 `D:\GitHub\fx2-rime\prebuilt\`。 |
@@ -215,6 +215,18 @@ git diff 3cbe4afb <state2的SHA> --output=新librime.patch
 **Context（为什么新 userdict 一直干净不了、这次却干净了）**：09-06 首战时旧 userdict 补丁是按上游旧版编写、锚点全部错位；09-09 合并时新版 userdict（`6f4eb56` 版）索引头写的是 `1d0df6e` 时代的 blob（`2944c2db..d9712ffa`），但 hunk 内容恰好落在 3cbe4afb 未改动的行区间 → `--check` 干净。上游 `1d0df6e`→`3cbe4afb` 之间对 `user_dictionary.*` 的唯一改动（`kDiscardThreshold` + `RIME_DLL` 签名）与补丁行不重叠，这是根本原因——**不是运气，是可复现的判断方法**：`git diff <旧pin>..<新pin> -- <补丁文件>` 与补丁 hunk 无交集 ⇒ 大概率干净，但仍必须实测。
 
 **待合并时操作**（沿用 0.5.4 的 A/B 参照树法或直接 `--check`）：① 取 `upstream/master:patches/librime-userdict-cache.patch`；② 在 `3cbe4afb`（或新 pin）上依序应用验证；③ 本次无需重生成 `librime.patch`（4fdb494 只动 userdict 文件，与 tabs 无交集——但仍需 `git diff` 双向核对确认）；④ 提交信息注明"合并 fxliang/prebuilder `4fdb494`（userdict 外部更新失效修复），四补丁栈在 <pin> 干净应用"；⑤ 推送 + dispatch + 取消重复 run（见 0.5.3 第 7 条）。
+
+### 0.5.6 2026-09-10 第三次实战（4fdb494 合并 + pin bump + 主仓库接入，一气呵成）
+
+**prebuilder 侧**（`SandyYuR/prebuilder@446d1ea`，本地领先远端 3 提交后推送 `ad491c7..446d1ea`）：① `git merge upstream/master`——merge-base 恰为 `6f4eb56`（纯线性后继），ort **自动合并零冲突**（仅 userdict 补丁文件 +360/-5），merge 信息原样保留；② `git update-index --cacheinfo` bump `librime` gitlink `3cbe4afb`→`35f23e97`（单 gitlink 提交）。注意：fetch 曾两次断连（origin 443 超时 / upstream 连接重置），但 `upstream/master@{18:50}` 经 API 确认即远端 tip（`4fdb494` 当日唯一新增）后才 merge——**fetch 失败时用 reflog 时间 + API 双重确认再动手，不硬 merge 过期 ref**。
+
+**工作台验证**（`librime-src`，干净 `35f23e97`，已恢复原状）：四补丁按 CI 顺序 `apply` 全零退出；从零重放 == S4 **回环零差异**。唯一注记：`4fdb494` 自带的测试文件 `test/user_dictionary_test.cc` 有 332 行行尾空格 warning（上游补丁原文问题），`apply` 通过且 CI 本来就 `git clean -xdf test`，无影响。
+
+**引擎产物**（`prebuilt@9e631eb9`，CI run 34472331394 绿，push 触发的重复 run 34472292686 依惯例取消）：四 ABI `.a` 全更新（arm64 19,233,430 → 19,308,390 字节，约 +75KB——streaming_chord 新 processor + userdict 失效逻辑）；**header 零变化**（`9aa8104c..9e631eb9` 的 `rime_api.h` diff 为空——两次上游增量都不碰公共头）；工作台 `35f23e97`+四补丁产出的 `rime_api.h` blob `030ff78a` 与出货 header **逐字节一致**；arm64 `.a` 含全部定制符号（`RimeGetInputTabs`/`RimeSelectTab`/`RimeGetCandidateCode`/`RimeGetCandidatePreview`/`CompileDictionary`）。本地 prebuilt 已 FF 到 `9e631eb9`。
+
+**主仓库接入**（`793a4a6f`）：pin 动了所以 `librime.json → 1.17.0-35f23e9` + README 同步（含补丁清单措辞更新：功能/音节缓存/**词典并行部署**/用户词典缓存）。`rime_version` 仍 `1.17.0`（上游未发新版），短 SHA 取新 pin 前 7 位。**下一个主仓库 CI 自动带新引擎**。
+
+**教训**：`35f23e97` 这类"纯 CI 提交"单独看确实不值得更新引擎，但它正好把之前待吃的 streaming_chord 一起打包——**bump 前先看 `git diff --name-only <旧pin>..<新pin>`，把排队的 delta 一次性评估**（见 0.5.5 表行 ④）。
 
 ---
 
