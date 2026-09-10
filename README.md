@@ -69,9 +69,9 @@ Rime 适配层源码来自 [SandyYuR/fcitx5-rime](https://github.com/SandyYuR/fc
 
 ## librime 引擎更新
 
-当前引擎版本：**librime 1.17.0-3cbe4af**。
+当前引擎版本：**librime 1.17.0-35f23e9**。
 
-1. [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder) pin 官方 rime/librime 提交，并按顺序应用 fxliang 的功能、音节缓存和用户词典缓存补丁。
+1. [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder) pin 官方 rime/librime 提交，并按顺序应用 fxliang 的功能、音节缓存、词典并行部署和用户词典缓存补丁。
 2. prebuilder 的 workflow_dispatch 构建四 ABI 静态库，通过 BOT_TOKEN 自动推送到 [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)。
 3. 主仓库 CI checkout prebuilt master，将对应 ABI 的 librime.a 静态链接进 APK。
 4. 更新后同步 app/licenses/libraries/librime.json，并验证 RimeGetInputTabs / RimeSelectTab 等定制 API、新增 API、APK 构建和真机行为。
