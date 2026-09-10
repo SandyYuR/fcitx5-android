@@ -13,7 +13,8 @@
 > **2026-09-09 更新**：① prebuilder 合并 fxliang 3 个新提交（`ad491c7`，**0.5.4 节**新 runbook 实录），新引擎已构建落地 `prebuilt@9aa8104c`；② fcitx5-rime 当日晨已合并官方 5.1.16（`e74ddb6`，官方 updateUI 修复替代 `ce4c038` 定制，见第 0 节补注）；③ 主仓库新增 11 提交（`0a082669..a8c28d5a`），分支更名 `fx-rime-only`、恢复 nightly release、新增 `agent.md` 操作指南；④ librime 上游 streaming_chord 新提交待下次引擎更新（09-10 起并入 0.5.5 表统一跟踪）；⑤ **`fx2` 分支连同其 release/CI 已按用户要求全部删除**（见第 2 节注），仓库现存分支仅 `fx-rime-only`、`pr/fx2-integrated`、`docs`、`master`。
 > **2026-09-10 更新**：① prebuilder 合并 fxliang `4fdb494`（userdict 外部更新失效修复，自动合并零冲突）并 bump librime pin `3cbe4afb`→`35f23e97`（四补丁栈实测全部干净应用 + 回环零差异），已推送 `SandyYuR/prebuilder@446d1ea`，CI run 34472331394 绿，新引擎落地 `prebuilt@9e631eb9`（四 ABI .a 全更新，`rime_api.h` blob 与补丁产物一致、tabs/para 全符号在列），主仓库已接 `librime.json → 1.17.0-35f23e9`（**0.5.6 节**第三次实战）；② 全链路其余检查点零新增（fcitx5-rime 两侧上游、librime 上游仅纯 CI 提交、fxliang 官方 prebuilt 禁合，见 0.5.5 表）。
 > **2026-09-10 文档分拆**：应用户要求，项目文档集中到 **`rime-docs`** 分支维护（孤儿分支，只含文档文件；上游遗留的 `docs` 分支是 GitHub Pages 文档站，勿混淆）。`fx-rime-only` 已重写历史：剥离 31 个纯文档提交、从 6 个混合提交中移除文档部分（README.md 的代码性改动保留），重写后 154 个提交（基线 `3ad25fc9` 之上）。**本文档内引用的 fx-rime-only SHA 均为重写前历史**——完整保存在 tag `archive/pre-doc-split`（指向重写前 tip `b3da998e`，184 提交全量）与本地 `backup/pre-doc-split` 分支；重写后的新 SHA 以 git 实测为准。`agent.md` 移出仓库，落地本机 `D:\GitHub\fx2-rime\AGENTS.md`（DSH 自动加载，内容已同步本次分拆）。
-> **当前快照**：`HEAD = origin/fx-rime-only`（相对基线 `3ad25fc9` 领先约 179 个提交，含本日两次文档提交，以 git 实测为准）；`fx2` 已删除，基线提交 `3ad25fc9` 仍是 `fx-rime-only` 的祖先，计数口径不变。
+> **2026-09-10 提交标题重写**：应用户要求，`fx-rime-only` 历史第二次重写——全部提交标题统一为 `类型(模块): 内容` 格式（旧标题多为 `fix(C32)` 这类审查编号，模块不可见），并把 19 组同模块同类型的相邻提交合并，154 → 128 个提交；随后按用户要求将 CI release 描述改为「注意：此版仅可使用Rime输入方案（插件已合并）」。**源码零改动**（重写前后 tree hash 完全相等）。当前 129 个提交（含 release 描述修改）。旧→新 SHA 对照：合并组正文自带合并清单；完整映射表在本机 `D:\GitHub\fx2-rime\_retitle_map_old_new.txt`。
+> **当前快照**（2026-09-10 晚）：`fx-rime-only` 相对基线 `3ad25fc9` 共 129 个提交，工作树干净；逐提交明细以 `git log --oneline` 为准（标题已自描述，本文不再维护提交清单表格，见第 2 节）。`fx2` 已删除，基线 `3ad25fc9` 仍是祖先，计数口径不变。
 
 ---
 
@@ -258,133 +259,64 @@ CI 事实（2026-09-09 实测 `ci.yml`）：
 
 ## 2. 分支现状
 
-2026-09-09 实测：`HEAD = origin/fx-rime-only`（当日推进至文档提交，相对 `3ad25fc9` 领先 178→179 个提交，以 git 实测为准）；工作树干净。分支 09-07 由 `fx2-rime-fusion` 更名为 `fx-rime-only`（更名无提交痕迹，旧 refs 已随删除消失）。
+2026-09-10 晚实测：工作树干净，基线 `3ad25fc9` 之上 129 个提交。分支 09-07 由 `fx2-rime-fusion` 更名，本地目录 09-10 同步更名为 `fx-rime-only`。**提交标题已于 09-10 全部重写为 `类型(模块): 内容` 格式，逐提交明细直接看 `git log --oneline`**——本文原有的两张逐提交表格已删除（内容被自描述标题取代），仅保留 git log 里看不出来的历史事件与机制说明。
 
-历史范围（左开右闭）：`3ad25fc9..85de19be` 95 个；`85de19be..3ec1f6b2` 6 个；`3ec1f6b2..4dff487a` 65 个，其中 `ef320bfb..4dff487a` 18 个；`4dff487a..a8c28d5a` 11 个（2026-09-07~09-09，见下表）。
+### 历史 SHA 的三个纪元（引用旧材料里的 SHA 前必读）
 
-### `01c1070e` 后的 28 个提交
+`fx-rime-only` 的提交 SHA 经历两次重写，旧材料（用户日志、CI run、release notes、更早的交接记录）里的 SHA 分属三个纪元：
 
-| 提交 | 说明 |
-|---|---|
-| `5103b515` `e0733388` `6da44099` `441650a6` | 交接文档同步与口径修正 |
-| `83890f1a` | 宏动作选择器修正 |
-| `77be0fb8` `ef320bfb` | 语言键 Shift 与 50ms 延迟 |
-| `fca0b3e5` | 草稿文件化，修 TransactionTooLarge |
-| `a352280b` `bf645157` | 中州韵设置入口与列表入口清理 |
-| `a8ab254e` `716accb3` `a47abdf3` | 交接、fork、CI 排障文档 |
-| `eea62a38` | Play 图标链接修复 |
-| `4e1990e9` | CI 改取 SandyYuR fork |
-| `92208fd1` | librime 元数据更新 |
-| `a27c9aad` `72478967` | 引擎 runbook |
-| `b65fbb4d` `f961a85c` | 数字层记忆、?123/BACK 历史修复 |
-| `88f7115d` | BACK 测试注释 |
-| `92561244` | IME 退出跳过 Rime 全量同步 |
-| `4b5f50c7` `1320214b` | 修复证据链文档 |
-| `7557c2b4` | 九键 tab 根因文档 |
-| `4ee31e44` | 草稿路径穿越硬化 |
-| `bab4558c` | 简繁中文名改为“靓企鹅.中州韵” |
-| `4dff487a` | Windows OpenSSH 推送说明 |
-
-**rebase（2026-09-04 晚）**：应用户要求把 `review-fx2-fixes` 的 6 个提交插到本分支改动之前，做法
-`git rebase --onto review-fx2-fixes 85de19be fx2-rime-fusion`，随后
-`git push --force-with-lease`。旧 tip `281082cb` 曾保存于 backup ref；当前已无该 ref，但对象仍可按 SHA 读取。
-只有 1 处冲突：`BaseInputView.kt` 的 `setupFcitxEventHandler()`，`3ec1f6b2`（C31 断连兜底
-`try/catch FcitxDisconnectedException`）与 `be92f13a`（Phase 0 `trace("collectFcitxEvent")`）
-改同一段——已**两者都保留**（先 try 取 flow，再在 `events.collect` 内部包 trace）。
-其余 13 个文件全部自动合并。已验证：`git diff 旧tip 新tip` 恰好等于那 6 个提交的内容
-（14 文件 +590/-88），无冲突标记残留。
-
-常用新旧 SHA 对照（其余按提交标题一一对应，标题未改）：
-
-| 提交标题 | 旧 SHA | 新 SHA |
+| 纪元 | 内容 | 查看方式 |
 |---|---|---|
-| docs: rime 专版交接报告（2026-09-04） | `281082cb` | `01c1070e` |
-| 移除 quickphrase 快速短语组件 | `54706725` | `cefc481b` |
-| fix: 首次启动时预置 rime 为默认启用输入法 | `b3da4853` | `dc0db868` |
-| 移除 androidkeyboard/imselector/spell/unicode 组件 | `03a70215` | `072c0e87` |
-| feat: 包名改为 `...fx.rime` | `eaa85316` | `6be71bf5` |
-| perf: Phase 0 性能埋点 (androidx.tracing) | `be92f13a` | `bb3a578b`（含冲突解决） |
-| feat: 将 fcitx5-rime 并入主 APK | `b7742505` | `127e7924` |
+| ① 分拆前完整历史 | 184 提交（153 代码 + 31 文档），tip `b3da998e`；本文档与两份审阅报告里的绝大多数 SHA | tag `archive/pre-doc-split`；本地另有 `backup/pre-doc-split` 分支 |
+| ② 分拆后、标题重写前 | 154 提交，tip `143fe9fa`；仅中间材料引用 | 本地 `backup/pre-retitle` 分支（未推送） |
+| ③ 当前历史 | 129 提交（标题重写 + 19 组合并 + release 描述修改） | `git log fx-rime-only` |
 
-### `4dff487a` 后的 11 个提交（2026-09-07 ~ 09-09）
+**旧 SHA 追溯链**：旧 SHA → 在 `archive/pre-doc-split`（或 `backup/pre-retitle`）下 `git show` 得到标题与正文 → 按标题（或合并清单）在当前 `git log` 定位。19 个合并组的新提交正文自带被合并成员的旧短 SHA 与旧标题；`fix(C32)` 这类审查编号完整保留在正文里（标题已改为模块化描述）。
 
-| 提交 | 说明 |
-|---|---|
-| `0a082669` `136c23a1` | 交接文档更新并更名 rime-only、按历史改动修订 |
-| `20604d6b` | **恢复 rime-only nightly release**（ci.yml `nightly_release` job +81 行；README 重写；推翻旧约定"不要 release"，见第 1 节） |
-| `e51afd88` | 应用名定为 **靓企鹅·中州韵**（间隔号 ·，替换 `bab4558c` 的句点版本）+ README 功能说明 |
-| `32abc890` | Rime-only 用户手册（`RIME_ONLY_USER_GUIDE_zh-CN.md`）与代码/性能审阅报告（`*_REVIEW_REPORT_2026-09-07.md`） |
-| `aeb6c9a4` | 设置里"用户数据目录"点击改开**应用 DocumentsProvider 根目录**（避免 DocumentsUI 打不开 Android/data 深层路径），长按保留物理目录入口；**数据未搬迁**，只改入口 |
-| `f892aa4f` | **`agent.md` 操作指南**：信息源优先级（本文档降至第 4 位）、验证门禁矩阵、引擎更新纪律、Git/发布纪律 |
-| `4c51ca13` | 布局编辑器拖拽松手后按键不归位（停在原地错位显示）修复 |
-| `e0816fa0` | 双击斜杠崩溃修复：推迟 `onLayoutCompleted` 内候选窗口跟随更新（日志 `双击斜杠崩溃...09-08`） |
-| `c0a23af1` | 横屏切换悬浮键盘错乱修复：延迟刷新 + 按配置失效尺寸缓存（日志 `横屏状态切换悬浮...09-08`） |
-| `a8c28d5a` | **剪贴板历史实时搜索**（工具栏入口 + 辅助栏结果；日志 `剪贴板搜索框数字...09-09`） |
+### 关键历史事件
 
-以上全部 CI 绿；最新 run 34316104477（`a8c28d5a`，09-09 05:44 UTC）已自动采用 fcitx5-rime@`e74ddb6` 新适配层（浮动来源，晚于其推送 41 分钟）——但 updateUI 被官方重写，tab 全链路真机回归仍待做（见第 0 节补注）。
+- **rebase（2026-09-04 晚）**：应用户要求把 `review-fx2-fixes` 的 6 个提交插到本分支所有改动之前（`git rebase --onto review-fx2-fixes 85de19be`）并 force-push；仅 1 处冲突（`BaseInputView.kt` 的 `setupFcitxEventHandler()`：C31 断连兜底与 Phase 0 trace 改同一段，两者都保留）。此后 A~G 审查修复以「评审项逐项独立提交」落地（正文带根因/位置/级别），即 `fix(A1)`~`fix(G5)`、`perf(D2)`~`perf(E11)` 系列——09-10 标题重写后这批提交按模块合并为 19 组，正文全保留。
+
+2026-09-07~09-09 的 11 个提交（nightly 恢复、应用名定为靓企鹅·中州韵、用户手册与审阅报告、剪贴板搜索等）明细见 `git log`；用户日志对应的三个修复（双击斜杠崩溃 `e0816fa0`、横屏悬浮错乱 `c0a23af1`、剪贴板搜索 `a8c28d5a`，SHA 属纪元①）的根因分析见第 3.4 节。09-09 起 CI 自动采用 fcitx5-rime@`e74ddb6` 适配层，但官方重写 updateUI 后 **tab 全链路真机回归仍待做**（见第 0 节补注）。
 
 历史上存在 review/backup 分支；当前 `show-ref` 已无这些 refs。不要重建或破坏清理，需旧内容时按 SHA 查询。
 
 **`fx2` 分支已删除（2026-09-09，按用户要求，含全部衍生资产）**：删除时 `origin/fx2 = 3ec76d37`（09-07 曾被重建推进），内容为 fxliang:fx 合并线 + README 更新 + A~G 审查修复/perf 全套（与 `fx-rime-only` 对应部分**内容等价、SHA 不同**，是平行血统）+ 3 个 cherry-pick 通用修复（`0431cff8` 草稿落盘、`002a4062` IME 退出跳同步、`3ec76d37` 数字层记忆释放——分别对应本分支 `fca0b3e5`/`92561244`/`b65fbb4d`）——**无独有改动，删之无损失**。一并删除的衍生资产：CI run `34101224455`（该分支唯一 run）、release `383945931`「靓企鹅-Sandy版（带各个插件）」与 `380373220`「向fxliang提交PR前的测试版」及两个 nightly tag（远端 tag 一并清掉；本地克隆中对应 tag 亦已删）。其提交对象在 GC 前仍可按 SHA 访问。`pr/fx2-integrated` 分支及其 09-01 CI run 按用户选择**保留**。基线 `3ad25fc9` 仍是 `fx-rime-only` 的祖先，计数口径不受影响。
 
-已验证 CI 状态（GitHub Actions）—— 注意前四行是 **rebase 前的旧 SHA** 的结果：
+### CI 与 JVM 单测（机制说明）
 
-| 提交 | 说明 | CI |
-|---|---|---|
-| `54706725` | 移除 quickphrase 快速短语组件 | ✅ success |
-| `b3da4853` | 首次启动时预置 rime 为默认启用输入法 | ✅ success |
-| `03a70215` | 移除 androidkeyboard/imselector/spell/unicode 组件 | ✅ success |
-| `eaa85316` | 包名改为 `...fx.rime` | ✅ success |
-| `77be0fb8` | 语言键改为发送独立 Shift 敲击 | ✅ success（run #214，0 annotation） |
-| `fca0b3e5` | 布局编辑器草稿改存私有文件 | ✅ success（run #215，0 annotation） |
+⚠️ **CI 只跑 `assembleFxRelease`，不编译也不运行单元测试**——`app/src/test/` 下的测试（含 `LayoutDraftStoreTest`）在 CI 里从未被编译或执行，绿灯只代表主源码编译通过。
 
-⚠️ **CI 只跑 `assembleFxRelease`，不编译也不运行单元测试**，所以 `app/src/test/` 下那批测试（含
-`LayoutDraftStoreTest`）在 CI 里从未被编译或执行过——绿灯只代表主源码编译通过。
-
-来龙去脉：`63d41b69` 曾加过 "Run JVM unit tests" 步骤（`./gradlew :app:testFxDebugUnitTest`
-+ 上传报告），但它带 `if: matrix.build_type == 'standard'` 条件；后来 `4f9a0a74`
-（移除 nightly release 与 mainline 构建）把 `build_type` 这个 matrix 轴一起删了，单测步骤
-**作为附带损失被删掉**，不是有意取消的。`app/build.gradle.kts` 里 `63d41b69` 加的
-`testOptions { unitTests { isReturnDefaultValues = true } }` 还在，所以恢复只需改 `ci.yml`。
-
-**任务名必须是 `testFxDebugUnitTest`**：AGP 9 默认
-`android.onlyEnableUnitTestForTheTestedBuildType = true`，只为被测 build type（debug）生成单测
-任务，`testFxReleaseUnitTest` **不存在**（这条注释就写在 `63d41b69` 加的 ci.yml 里）。这些测试都
-是纯逻辑，build type 无关紧要。已向用户提议恢复该步骤，**等他点头**。
+恢复单测的要点：`63d41b69`（纪元①）曾加过 "Run JVM unit tests" 步骤，随 `4f9a0a74` 删除 matrix 轴时被附带删除（非有意取消）；`app/build.gradle.kts` 的 `testOptions { unitTests { isReturnDefaultValues = true } }` 仍在，恢复只需改 `ci.yml`。**任务名必须精确为 `testFxDebugUnitTest`**：AGP 9 默认 `onlyEnableUnitTestForTheTestedBuildType = true`，只为被测 build type（debug）生成单测任务，`testFxReleaseUnitTest` 不存在。已向用户提议恢复该步骤，等他点头。
 
 ---
 
-## 3. 领先基线的核心改动（截至 `4dff487a` 的 166 提交快照；其后 11 个见第 2 节表）
+## 3. 领先基线的核心改动（语义分组；SHA 属纪元①，逐提交明细看 `git log`）
 
-### 3.1 精简为 rime 专版（本轮核心，约 20 提交）
+> 本节按主题概括改动。09-10 起 `git log` 标题已自描述（`类型(模块): 内容`），此处不再逐条列 SHA，仅保留 git log 里看不出来的结构与取舍。
 
-- `b7742505` **把 fcitx5-rime 并入主 APK**：librime 静态链接 + rime-data 资源 + opencc 软链。rime 从"插件 APK"变成主包内置 addon。
-- `2b5f71ae` 删内置拼音 native 链路（libime / pinyin / table / customphrase），**保留 opencc**。
-- `a0966f68` 删 gradle 依赖与 lib 模块（`lib/libime`、`lib/fcitx5-lua`、`lib/fcitx5-chinese-addons`、`plugin/pinyin-lm`、`plugin/table-data`），CI 去掉 plugins 构建。
-- `24b74492` 删拼音/码表 UI（`data/pinyin`、`data/table`、相关 Fragment/Route、JNI GlobalRef 注册、AIDL `reloadPinyinDict`）。
-- `68059b76` 删 9 个其他语言/功能插件模块（anthy/chewing/hangul/jyutping/sayura/thai/unikey/text-editor/clipboard-filter）。
-- `0916d513` `f06f77a2` `03d05aa2` `8e81536f` 删整套插件检测/运行时框架：`DataManager.detectPlugins`、签名白名单、`PluginFragment`、`FcitxPluginServices`、`lib/plugin-base`、`FcitxPluginService`/`PluginMessage`/`ClearUrlsPluginRuntime`（`MainService` 改继承 `Service`，出站过滤走 `HostClipboardFilter`）。
-- `826657d3` 移除 mainline flavor 及其任务别名/APK 兼容拷贝。
-- `576d543c` `1a2d7d5f` `39c60cf9` `63d41b69` CI 精简：只留 `ci.yml`（删 fdroid/pull_request/nix/publish），删 nightly release 与 mainline 构建，编译错误输出成 annotations。
-- `eaa85316` **包名 `org.fcitx.fcitx5.android.fx.rime`**（`appIdFxSuffix = ".fx.rime"`），可与 fx2 并存安装；APK 文件名同步替换。
-- `03a70215` `b3da4853` `54706725` — **今天这三个是本轮任务的产出，详见第 4 节**。
+### 3.1 精简为 rime 专版（本轮核心）
 
-### 3.2 文档（不触发 CI）
+- **fcitx5-rime 并入主 APK**：librime 静态链接 + rime-data 资源 + opencc 软链，rime 从"插件 APK"变成主包内置 addon。
+- **删除内置拼音/码表链路**：native（libime/pinyin/table/customphrase，**保留 opencc**）、gradle 依赖与 lib 模块（含 `plugin/pinyin-lm`、`plugin/table-data`）、拼音/码表管理 UI 与 AIDL `reloadPinyinDict`。
+- **删除 9 个其他语言/功能插件模块**（anthy/chewing/hangul/jyutping/sayura/thai/unikey/text-editor/clipboard-filter）与整套插件检测/运行时框架（`DataManager.detectPlugins`、签名白名单、`PluginFragment`、`FcitxPluginServices`、`lib/plugin-base`、`FcitxPluginService`/`PluginMessage`/`ClearUrlsPluginRuntime`；`MainService` 改继承 `Service`，出站过滤走 `HostClipboardFilter`）。
+- **移除 mainline flavor** 及任务别名/APK 兼容拷贝；CI 精简为单一 `ci.yml`（删 fdroid/pull_request/nix/publish），编译错误输出成 annotations。
+- **包名 `org.fcitx.fcitx5.android.fx.rime`**（`appIdFxSuffix = ".fx.rime"`），可与 fx2 并存安装；APK 文件名同步替换。
+- 首批三任务（quickphrase 移除、预置 rime 默认启用、androidkeyboard/imselector/spell/unicode 裁剪）详见第 4 节。
 
-`7933d505` `0b079cf6` `22accb8c` `cc504a58` `4ad2855d` `6fc12079` `897dc60a` `77aa1447` `db56acd4` — 现存两份：
-- `docs/rime-only-feasibility.md`：Rime 专用化裁剪可行性报告；
-- `docs/rime-integration-plan.md`：实施方案（含附录 C 按键管线调研、附录 D 打字跟手性研究）。
-- ⚠️ 这两份文档里早期"建议保留 androidkeyboard/unicode/spell/imselector"的结论**已在 `03a70215` 里加注推翻**，读的时候注意注解。
+### 3.2 文档（已迁至本 rime-docs 分支）
 
-### 3.3 性能（perf，约 35 提交）
+现存历史设计文档两份：`docs/rime-only-feasibility.md`（可行性报告）、`docs/rime-integration-plan.md`（实施方案，含附录 C 按键管线调研、附录 D 打字跟手性研究）。⚠️ 两份文档早期"建议保留 androidkeyboard/unicode/spell/imselector"的结论已被加注推翻，读时注意注解。
 
-Phase 0 埋点（`be92f13a`，androidx.tracing）；候选栏路径：`f0487b40`(P1a 预计算宽度省第二次 measure) `01192969`(P1b 去多余帧延迟) `03c60934`(P2 削减每键分配) `cf5aa7ef`(前后缀 diff 替代 notifyDataSetChanged) `58b952db`(增量刷新去递归 view.post)；模糊/水波纹 `39f880cb` `9c588066` `5a184f4e`；主线程搬迁一大批 `d95e7ded` `be655834` `8711cbe0` `b5a905d6` `4f3d52fa` `c2cdb022` `3e03523b` `5f1af44b` `2c0fc33c` `ec81b4b8` `9b7b3146` `bb2bf7ae`；列表/视图复用 `1ab77310` `4d0e9521` `01f565d2` `386cc951` `39bef309` `aee75076`；网络 `6d891ce7` `141eb7e7` `bdfe8a38` `79dcb15d` `2150103e`。
-`a9a64d5d` 记录了"P2 native 事件合并"评估结论：**暂缓，需测量门控**。
+### 3.3 性能（perf）
 
-### 3.4 修复（fix，约 75 提交）
+- Phase 0 埋点（androidx.tracing）；候选栏路径优化（宽度预计算、去帧延迟、每键分配削减、前后缀结构 diff、增量刷新去递归 view.post）；模糊遮罩与水波纹绘制优化。
+- 主线程搬迁一大批（主题/图标/壁纸/布局解析/分享接收/剪贴板图片/ClearURLs 规则/截图查询等）；列表与视图复用（行 chip、textKeys 缓存、ButtonsBarUi viewType）；网络客户端复用与流式上限。
+- "P2 native 事件合并"评估结论：**暂缓，需测量门控**。
 
-带编号（A/B/C/D/E/F/G + 数字）对应一次代码审查清单，覆盖：布局 JSON 健壮性（A1/A2/A3/A5/C22）、图标主题与 ZIP 上限（A6/A7/A10/8711cbe0）、备份与迁移（B5–B9/B12/fefa55f2）、编辑器 Activity 生命周期（B1/B2/B11/B3/B4/59d7b099）、语音输入（C1–C6/62049fc6）、按键与弹窗（C7–C14/C24/6824a935）、剪贴板同步与 HTTP 服务（C16–C21/C28/F7/F8/A8/d5832dea）、泄漏（F1/F4/F5/E10/92c21e59）、`1655bebe`（FlexboxLayoutManager `onLayoutCompleted` 消费 `pendingEnsureVisible`）、`7f6875db`（删悬空 `@Volatile`）、`6fc66749`（`MainService.onBind` 空实现）、`04bde6f7`（删残留 `callingPackage`）、`c1cbb213`（注册未声明 Activity）。
-测试：`587ca235` 修 `ThemeSerializationTest`；`63d41b69` 启用 `testFxDebugUnitTest`（后被 `4f9a0a74` 附带删除，详见第 2 节末尾）。
+### 3.4 修复（fix）与根因分析
+
+带编号（A/B/C/D/E/F/G + 数字）对应一次代码审查清单，按主题覆盖：布局 JSON 健壮性、图标主题与 ZIP 上限、备份与迁移、编辑器 Activity 生命周期、语音输入、按键与弹窗、剪贴板同步与内嵌 HTTP 服务、内存泄漏、引擎守护与事件流。各修复的根因/位置/级别分析**完整保留在当前历史的提交正文里**（09-10 重写未删；审查编号在正文可搜）。下列小节是其中值得单独沉淀的深度分析（SHA 属纪元①，按标题可在 `archive/pre-doc-split` 或当前 git log 追溯）。
 
 #### `fca0b3e5` 布局编辑器草稿改存私有文件（用户日志定位，2026-09-05）
 
