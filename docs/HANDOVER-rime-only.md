@@ -242,9 +242,10 @@ git diff 3cbe4afb <state2的SHA> --output=新librime.patch
 3. 确认 CI 绿 + 有产物；
 4. ~~**绝对不要创建 release / tag**~~ **2026-09-07 起按用户后续要求恢复 nightly release**（`20604d6b`）：`fx-rime-only` 构建成功后自动创建时间戳 nightly prerelease（`nightly_release` job，`needs: build_commit`，`if: github.ref == 'refs/heads/fx-rime-only'`）；**手动正式 release / 语义化 tag 仍禁止**；
 5. ~~`fx2`、`review-fx2-fixes`、`backup/*` 全部**不要动**~~ **`fx2` 分支及其衍生 release/CI 已于 09-09 按用户要求删除**（见第 2 节注）；`review-fx2-fixes`/`backup/*` 的 refs 早已不存在；现存的 `pr/fx2-integrated`（用户明确选择保留）、`docs`、`master` 分支无明确要求不碰；
-6. 已 push 的提交**不要 amend**，新改动开新提交。
+6. 已 push 的提交**不要 amend**，新改动开新提交；
+7. **重要功能性改动必须及时更新文档**（2026-09-10 用户约定）：新功能、用户可见行为/配置/数据路径变化、引擎与流水线变化、CI/发布流程变化，须在**同一任务内**同步更新对应文档——用户可见行为 → `docs/RIME_ONLY_USER_GUIDE_zh-CN.md`（本分支）；引擎更新/流水线/故障经验 → 本文档；风险状态 → 审阅报告；构建与产品概览 → `README.md`（随代码改动提交在 `fx-rime-only`）。文档提交推送到本 `rime-docs` 分支；当改动影响操作规范/工作流本身时，一并更新本机 `D:\GitHub\fx2-rime\AGENTS.md`。
 
-Git/发布纪律的权威版本是 `agent.md` 第 11 节：**每次任务的 push/外部 workflow 触发都要以当次用户的明确要求为准**，不沿用历史授权。
+Git/发布纪律的权威版本是本机 `D:\GitHub\fx2-rime\AGENTS.md` 第 11 节：**每次任务的 push/外部 workflow 触发都要以当次用户的明确要求为准**，不沿用历史授权。
 
 CI 事实（2026-09-09 实测 `ci.yml`）：
 - workflow 名 `Commit CI`，两个 job：`build_commit`（`ubuntu-22.04` × `arm64-v8a`）+ `nightly_release`（仅 `fx-rime-only`，见上）；
