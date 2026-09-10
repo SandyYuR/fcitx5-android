@@ -160,7 +160,7 @@ jobs:
             # 注意事项（与 627 版手工格式一致），nightly 不再需要发完手工改标题。
             echo "## 靓企鹅·中州韵（Rime-only） ${{ steps.tag.outputs.value }}"
             echo ""
-            echo "### 注意：此版有且仅有Rime插件（已集成）"
+            echo "### 注意：此版仅可使用Rime输入方案（插件已合并）"
             echo "### 包名变更：org.fcitx.fcitx5.android.fx.rime"
             echo ""
             echo ""
