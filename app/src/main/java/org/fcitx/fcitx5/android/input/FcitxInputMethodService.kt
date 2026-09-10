@@ -1413,27 +1413,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     public fun sendSimulatedKeyEvent(keyCode: Int, scanCode: Int, action: Int, fromMacro: Boolean = false) {
-        // 剪贴板历史搜索会话期间：模拟物理键盘的字符/退格直接进入查询，
-        // 从源头吞掉，不再构造 KeyEvent（否则会穿透到目标编辑器上屏）。
-        if (ClipboardSearchController.isActive && action == KeyEvent.ACTION_DOWN) {
-            when (keyCode) {
-                KeyEvent.KEYCODE_DEL, KeyEvent.KEYCODE_FORWARD_DEL -> {
-                    ClipboardSearchController.onPhysicalBackspace()
-                    return
-                }
-                KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER,
-                KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT,
-                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> return
-                else -> {
-                    val unicode = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD)
-                        .get(keyCode, simulatedMetaState(keyCode))
-                    if (unicode > 0) {
-                        ClipboardSearchController.onPhysicalChar(unicode.toChar())
-                        return
-                    }
-                }
-            }
-        }
         val eventTime = SystemClock.uptimeMillis()
         if (action == KeyEvent.ACTION_DOWN) {
             when (keyCode) {
