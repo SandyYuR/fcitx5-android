@@ -6,7 +6,8 @@
 - 其他语言应用名：**Fcitx5.fx.rime**
 - 包名：`org.fcitx.fcitx5.android.fx.rime`
 - 默认分支：`fx-rime-only`
-- 用户手册：[Rime-only 简体中文用户指南](docs/RIME_ONLY_USER_GUIDE_zh-CN.md)
+- 项目文档：集中在 [`rime-docs` 分支](https://github.com/SandyYuR/fcitx5-android/tree/rime-docs)维护（用户手册、交接文档、审阅报告）
+- 用户手册：[Rime-only 简体中文用户指南](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md)
 - 下载：[GitHub Releases](https://github.com/SandyYuR/fcitx5-android/releases)
 
 ## 相对 fxliang 的主要改动
@@ -30,7 +31,7 @@
 - 布局编辑器草稿改存私有文件，避免 TransactionTooLargeException；快照名经过白名单和 canonical path 校验，阻止路径穿越。
 - 修复数字布局覆盖、?123 与 BACK 的层历史，并避免 IME 退出时触发 Rime 全量同步造成切回键盘卡顿。
 
-本 Rime-only 分支以 fxliang 的 `fx` 分支、提交 `3ad25fc9` 为基线继续专用化。详细历史和维护注意事项见 [交接文档](docs/HANDOVER-rime-only.md)。
+本 Rime-only 分支以 fxliang 的 `fx` 分支、提交 `3ad25fc9` 为基线继续专用化。详细历史和维护注意事项见 [交接文档](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/HANDOVER-rime-only.md)（`rime-docs` 分支）。
 
 ## Rime-only 改动
 
@@ -76,7 +77,7 @@ Rime 适配层源码来自 [SandyYuR/fcitx5-rime](https://github.com/SandyYuR/fc
 3. 主仓库 CI checkout prebuilt master，将对应 ABI 的 librime.a 静态链接进 APK。
 4. 更新后同步 app/licenses/libraries/librime.json，并验证 RimeGetInputTabs / RimeSelectTab 等定制 API、新增 API、APK 构建和真机行为。
 
-librime 不需要单独 fork：官方提交由 prebuilder gitlink 固定，定制保存在补丁中。不要直接合并官方 prebuilt，否则会换成不含 fxliang 定制补丁的引擎。完整步骤见交接文档的 Rime 引擎更新 runbook。
+librime 不需要单独 fork：官方提交由 prebuilder gitlink 固定，定制保存在补丁中。不要直接合并官方 prebuilt，否则会换成不含 fxliang 定制补丁的引擎。完整步骤见 [交接文档](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/HANDOVER-rime-only.md)的 Rime 引擎更新 runbook（`rime-docs` 分支）。
 
 ## 构建
 
