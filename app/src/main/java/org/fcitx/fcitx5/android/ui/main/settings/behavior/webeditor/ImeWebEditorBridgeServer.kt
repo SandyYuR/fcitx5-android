@@ -95,8 +95,15 @@ object ImeWebEditorBridgeServer {
     private var autoStopScheduler: ScheduledExecutorService = newAutoStopScheduler()
 
     private fun newIoExecutor() = ThreadPoolExecutor(
-        1,
-        MAX_CONCURRENT_CONNECTIONS,
+        // Core must equal max, and must cover the accept loop on top of the handlers.
+        // With the previous corePoolSize=1 the accept loop held the only core slot
+        // forever (blocked in accept()), and ThreadPoolExecutor only grows past core
+        // once the queue is FULL — so every connection handler sat in the queue and no
+        // request was ever served: LAN clients completed the TCP handshake but never
+        // got a response. The +1 reserves the accept loop's lifelong slot, leaving
+        // MAX_CONCURRENT_CONNECTIONS workers for actual requests.
+        MAX_CONCURRENT_CONNECTIONS + 1,
+        MAX_CONCURRENT_CONNECTIONS + 1,
         30L,
         TimeUnit.SECONDS,
         ArrayBlockingQueue(CONNECTION_QUEUE_CAPACITY),
@@ -104,7 +111,11 @@ object ImeWebEditorBridgeServer {
         ThreadFactory { r -> Thread(r, "ime-web-editor-bridge").apply { isDaemon = true } },
         // Refuse instead of blocking the accept loop or growing without bound.
         ThreadPoolExecutor.AbortPolicy()
-    )
+    ).apply {
+        // Idle workers (everyone except the accept loop, which is always busy) exit
+        // after the keep-alive, so a quiet or stopped bridge leaves no threads behind.
+        allowCoreThreadTimeOut(true)
+    }
 
     private fun newAutoStopScheduler(): ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor { r ->
