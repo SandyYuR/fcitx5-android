@@ -103,6 +103,7 @@
     <string name="clear">清除</string>
     <string name="copy">複製</string>
     <string name="search">搜尋</string>
+    <string name="clipboard_search_no_results">無結果</string>
     <string name="export">匯出</string>
     <string name="app_crash">應用程式當機</string>
     <string name="app_crash_message">抱歉，但我們為您帶來了一些紀錄檔以供調查。</string>

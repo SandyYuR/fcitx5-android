@@ -99,12 +99,18 @@ class ClipboardUi(override val ctx: Context, private val theme: Theme) : Ui {
         contentDescription = ctx.getString(R.string.delete_all)
     }
 
+    val searchButton = ToolButton(ctx, R.drawable.ic_clipboard_history_search_24, theme).apply {
+        contentDescription = ctx.getString(R.string.search)
+    }
+
     val extension = horizontalLayout {
         add(deleteAllButton, lParams(dp(40), dp(40)))
+        add(searchButton, lParams(dp(40), dp(40)))
     }
 
     private fun setDeleteButtonShown(enabled: Boolean) {
         deleteAllButton.visibility = if (enabled) View.VISIBLE else View.INVISIBLE
+        searchButton.visibility = if (enabled) View.VISIBLE else View.INVISIBLE
     }
 
     private fun createCategoryButton(textRes: Int) = textView {

@@ -103,6 +103,7 @@
     <string name="clear">清空</string>
     <string name="copy">复制</string>
     <string name="search">搜索</string>
+    <string name="clipboard_search_no_results">无结果</string>
     <string name="export">导出</string>
     <string name="app_crash">应用崩溃</string>
     <string name="app_crash_message">抱歉，但我们提供了日志以供调查。</string>

@@ -279,6 +279,14 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
 
     fun allEntries() = clbDao.allEntries()
 
+    suspend fun searchEntries(query: String): List<ClipboardEntry> {
+        if (query.isEmpty()) return emptyList()
+        return clbDao.allEntriesForSearch().filter { entry ->
+            entry.text.contains(query, ignoreCase = true) ||
+                entry.originalText.contains(query, ignoreCase = true)
+        }
+    }
+
     fun favoriteEntries() = clbDao.favoriteEntries()
 
     fun localTextEntries() = clbDao.textEntriesBySource(ClipboardEntry.SOURCE_LOCAL)

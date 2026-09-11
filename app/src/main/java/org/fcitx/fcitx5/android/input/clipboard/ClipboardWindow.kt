@@ -323,6 +323,10 @@ class ClipboardWindow(
                     promptDeleteAll(ClipboardManager.haveUnpinned(currentCategory))
                 }
             }
+            searchButton.setOnClickListener {
+                service.startClipboardSearch()
+                windowManager.attachWindow(KeyboardWindow)
+            }
         }
     }
 
