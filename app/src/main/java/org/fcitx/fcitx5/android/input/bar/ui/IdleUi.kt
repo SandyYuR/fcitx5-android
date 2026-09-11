@@ -65,7 +65,7 @@ class IdleUi(
 ) : Ui {
 
     enum class State {
-        Toolbar, Clipboard, NumberRow, InlineSuggestion
+        Toolbar, Clipboard, NumberRow, InlineSuggestion, Search
     }
 
     var currentState = State.Toolbar
@@ -109,6 +109,8 @@ class IdleUi(
     }
 
     val inlineSuggestionsBar = InlineSuggestionsUi(ctx)
+
+    val searchUi = ClipboardSearchUi(ctx, theme)
 
     private val voiceStatusText: TextView = textView {
         text = "Recording"
@@ -154,6 +156,12 @@ class IdleUi(
         add(buttonsUi.root, lParams(matchParent, matchParent))
         add(clipboardUi.root, lParams(matchParent, matchParent))
         add(inlineSuggestionsBar.root, lParams(matchParent, matchParent))
+        add(searchUi.root, lParams(matchParent, matchParent))
+    }
+
+    /** 工具栏搜索框：显示已提交查询与下划线 preedit，搜索会话专用。 */
+    fun updateSearchQuery(committed: String, preedit: String) {
+        searchUi.updateQuery(committed, preedit)
     }
 
     private val inAnimation by lazy {
@@ -305,7 +313,7 @@ class IdleUi(
 
     private fun updateMenuButtonIcon() {
         when {
-            currentState == State.Clipboard ->
+            currentState == State.Search || currentState == State.Clipboard ->
                 menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
             inPrivate && !hasCustomMenuIcon -> {
                 menuButton.setIcon(R.drawable.ic_view_private)
@@ -317,7 +325,7 @@ class IdleUi(
     private fun updateMenuButtonContentDescription() {
         if (!toolbarToggleConfig.label.isNullOrEmpty()) return
         menuButton.contentDescription = when {
-            currentState == State.Clipboard -> ctx.getString(R.string.return_to_toolbar)
+            currentState == State.Search || currentState == State.Clipboard -> ctx.getString(R.string.return_to_toolbar)
             inPrivate -> ctx.getString(R.string.private_mode)
             else -> ctx.getString(R.string.status_area)
         }
@@ -470,6 +478,7 @@ class IdleUi(
             State.Clipboard -> animator.displayedChild = 1
             State.NumberRow -> {}
             State.InlineSuggestion -> animator.displayedChild = 2
+            State.Search -> animator.displayedChild = 3
         }
         if (state == State.NumberRow) {
             numberRow.keyActionListener = commonKeyActionListener.listener

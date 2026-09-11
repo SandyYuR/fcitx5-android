@@ -25,6 +25,7 @@ import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.broadcast.ReturnKeyDrawableComponent
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
+import org.fcitx.fcitx5.android.input.clipboard.ClipboardSearchController
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.theme
@@ -469,8 +470,15 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         }
     }
 
+    /** 键盘切回后重建辅助栏：搜索会话期间由搜索结果接管，此处直接重绘。 */
+    fun refreshAuxBar() {
+        applyAuxActions(lastAuxActions)
+    }
+
     private fun applyAuxActions(actions: List<AuxBarAction>) {
         currentKeyboard?.updateAuxBarActions(actions)
+        // 剪贴板搜索会话期间辅助栏归搜索结果所有。
+        if (ClipboardSearchController.isActive) return
         val current = currentKeyboard
         val fallbackToPreedit = noConfigAuxBarFallbackActive &&
             currentKeyboardName == TextKeyboard.Name &&
@@ -792,7 +800,12 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         }
         applyPendingFontRefresh()
         keyboardView.post { applyPendingFontRefresh() }
-        applyAuxActions(lastAuxActions)
+        if (ClipboardSearchController.isActive) {
+            // 搜索会话中回到键盘（如从状态区返回）：恢复搜索结果而非键盘常规辅助内容。
+            service.inputView?.refreshClipboardSearchUi()
+        } else {
+            applyAuxActions(lastAuxActions)
+        }
         notifyBarLayoutChanged()
         service.inputView?.requestBlurRefresh(retryFrames = 8)
     }
