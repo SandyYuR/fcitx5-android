@@ -845,9 +845,38 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_LEFT,
-            KeyEvent.KEYCODE_DPAD_RIGHT,
-            KeyEvent.KEYCODE_DPAD_UP,
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                // 水平移动光标不走 DPAD 键事件：文本边界处的 DPAD_LEFT/RIGHT 会被部分编辑框
+                // （微信/QQ 聊天输入框等）交给焦点导航，把焦点移出输入框（表现为光标跑到
+                // app 内其他控件上）。改用 setSelection：它不会触发焦点导航，越界目标也会被
+                // BaseInputConnection 安全忽略（光标停在边界不动）。
+                val (start, end) = selection.latest
+                if (start < 0 || end < 0) {
+                    // 编辑器尚未上报光标位置，无法计算目标，退回键事件
+                    sendDownUpKeyEvents(keyCode)
+                    return
+                }
+                // 有选区时折叠到选区边界，无选区时移动一格
+                val offset = if (start == end) 1 else 0
+                val target =
+                    if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) start - offset else end + offset
+                if (target >= 0) {
+                    // predict 让同一次手势内的连续按键立即读到最新预测位置，
+                    // 否则 onUpdateSelection 回报前会重复计算同一目标导致丢步
+                    selection.predict(target)
+                    ic.setSelection(target, target)
+                }
+                // target < 0：光标已在文本最前端，保持不动
+            }
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                // 偏移 0 一定在第一行：此时 DPAD_UP 会被编辑框交给焦点导航导致失焦，直接跳过。
+                // 以编辑器的真实文本为准（跟踪值可能在快速连击时滞后）。
+                if (ic.getTextBeforeCursor(1, 0)?.isEmpty() == true) return
+                sendDownUpKeyEvents(keyCode)
+            }
             KeyEvent.KEYCODE_DPAD_DOWN -> {
+                // 文本末尾一定在最后一行：此时 DPAD_DOWN 同样会逃逸编辑框，跳过
+                if (ic.getTextAfterCursor(1, 0)?.isEmpty() == true) return
                 sendDownUpKeyEvents(keyCode)
             }
         }
