@@ -87,6 +87,7 @@ class NumberRow(ctx: Context, theme: Theme) : BaseKeyboard(ctx, theme, ::Layout,
                     KeyDef.Appearance.Text(
                         displayText = digit,
                         textSize = 21f,
+                        variant = KeyDef.Appearance.Variant.AltForeground,
                         border = KeyDef.Appearance.Border.Off,
                         margin = false
                     ),
