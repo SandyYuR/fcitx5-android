@@ -65,7 +65,7 @@ class IdleUi(
 ) : Ui {
 
     enum class State {
-        Toolbar, Clipboard, NumberRow, InlineSuggestion, Search
+        Hidden, Toolbar, Clipboard, NumberRow, InlineSuggestion, Search
     }
 
     var currentState = State.Toolbar
@@ -152,7 +152,13 @@ class IdleUi(
         }
     }
 
+    private val hiddenBar = View(ctx).apply {
+        isClickable = false
+        isFocusable = false
+    }
+
     private val animator = ViewAnimator(ctx).apply {
+        add(hiddenBar, lParams(matchParent, matchParent))
         add(buttonsUi.root, lParams(matchParent, matchParent))
         add(clipboardUi.root, lParams(matchParent, matchParent))
         add(inlineSuggestionsBar.root, lParams(matchParent, matchParent))
@@ -312,6 +318,11 @@ class IdleUi(
     }
 
     private fun updateMenuButtonIcon() {
+        if (currentState == State.Hidden) {
+            menuButton.visibility = View.GONE
+            return
+        }
+        menuButton.visibility = View.VISIBLE
         when {
             currentState == State.Search || currentState == State.Clipboard ->
                 menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
@@ -417,8 +428,27 @@ class IdleUi(
         if (voiceStatusBar.visibility == View.GONE) return
         stopVoiceWave()
         voiceStatusBar.visibility = View.GONE
-        animator.visibility = View.VISIBLE
-        idleBody.visibility = View.VISIBLE
+        if (currentState == State.NumberRow) {
+            numberRow.keyActionListener = commonKeyActionListener.listener
+            numberRow.popupActionListener = popup.listener
+            numberRow.visibility = View.VISIBLE
+            idleBody.visibility = View.GONE
+        } else {
+            displayContentForState(currentState)
+            animator.visibility = View.VISIBLE
+            idleBody.visibility = View.VISIBLE
+        }
+    }
+
+    private fun displayContentForState(state: State) {
+        when (state) {
+            State.Hidden -> animator.displayedChild = 0
+            State.Toolbar -> animator.displayedChild = 1
+            State.Clipboard -> animator.displayedChild = 2
+            State.NumberRow -> {}
+            State.InlineSuggestion -> animator.displayedChild = 3
+            State.Search -> animator.displayedChild = 4
+        }
     }
 
     private fun startVoiceWave() {
@@ -456,8 +486,9 @@ class IdleUi(
 
     fun updateState(state: State, fromUser: Boolean = false) {
         Timber.d("Switch idle ui to $state")
-        if (voiceStatusBar.visibility == View.VISIBLE && state != State.NumberRow) {
+        if (voiceStatusBar.visibility == View.VISIBLE) {
             currentState = state
+            displayContentForState(state)
             updateMenuButtonIcon()
             updateMenuButtonContentDescription()
             updateMenuButtonRotation(instant = !fromUser)
@@ -473,13 +504,7 @@ class IdleUi(
         } else {
             setAnimation()
         }
-        when (state) {
-            State.Toolbar -> animator.displayedChild = 0
-            State.Clipboard -> animator.displayedChild = 1
-            State.NumberRow -> {}
-            State.InlineSuggestion -> animator.displayedChild = 2
-            State.Search -> animator.displayedChild = 3
-        }
+        displayContentForState(state)
         if (state == State.NumberRow) {
             numberRow.keyActionListener = commonKeyActionListener.listener
             numberRow.popupActionListener = popup.listener
