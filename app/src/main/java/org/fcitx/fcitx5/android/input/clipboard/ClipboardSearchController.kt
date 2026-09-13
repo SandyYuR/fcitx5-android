@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * 剪贴板历史搜索的会话状态。
@@ -19,6 +20,9 @@ import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
  * 参考 SyncClipboard 历史搜索的匹配语义：实时输入、大小写不敏感的子串匹配。
  * 搜索会话激活期间，键盘输入被拦截为查询文本（见 FcitxInputMethodService），
  * 不再写入目标编辑器；匹配结果复用预编辑上方的辅助选择栏展示。
+ *
+ * 注意本对象是进程级单例，而渲染搜索界面的 InputView 会被整体替换：
+ * 状态回调必须按实例注册/注销（见下方 stateChangedListeners），不能是单槽回调。
  */
 object ClipboardSearchController {
 
@@ -44,10 +48,26 @@ object ClipboardSearchController {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     /**
-     * 状态/查询/结果变化时回调，由 InputView 安装并负责刷新工具栏搜索框与辅助栏。
-     * 为避免后台常驻引用，InputView 在 onDetachedFromWindow 时必须置空。
+     * 状态/查询/结果变化时的监听器集合，由 InputView 在构造时注册、在
+     * onDetachedFromWindow 时用同一个实例注销，负责刷新工具栏搜索框与辅助栏。
+     *
+     * 这里刻意不用单槽回调：InputView 会因主题/偏好变更被整体替换
+     * （FcitxInputMethodService.replaceInputView），新实例先构造（注册）、旧实例随后
+     * 才 detach（注销），单槽回调会被旧实例清空，此后搜索框文本与结果栏再也不会刷新
+     * （2026-09-13 反馈的“打字进不了搜索框、返回退不出搜索”）。按实例注销只影响
+     * 自己的注册，不会波及新实例。
+     *
+     * 仅保存已注册视图的引用，视图销毁时必须注销，避免常驻引用。
      */
-    var onStateChanged: (() -> Unit)? = null
+    private val stateChangedListeners = CopyOnWriteArrayList<() -> Unit>()
+
+    fun addOnStateChangedListener(listener: () -> Unit) {
+        if (!stateChangedListeners.contains(listener)) stateChangedListeners.add(listener)
+    }
+
+    fun removeOnStateChangedListener(listener: () -> Unit) {
+        stateChangedListeners.remove(listener)
+    }
 
     fun start() {
         if (isActive) return
@@ -144,6 +164,6 @@ object ClipboardSearchController {
     }
 
     private fun notifyChanged() {
-        onStateChanged?.invoke()
+        stateChangedListeners.forEach { it() }
     }
 }
