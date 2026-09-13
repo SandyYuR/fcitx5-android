@@ -109,7 +109,7 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
         overScrollMode = View.OVER_SCROLL_NEVER
         // No item animations, as for every other FlexboxLayoutManager-backed list in this
         // project (PagedCandidatesUi, ExpandedCandidateLayout, HorizontalCandidateComponent,
-        // ClipboardWindow, ButtonsAdjustingWindow all do the same). FlexboxLayoutManager does
+        // ClipboardWindow all do the same). FlexboxLayoutManager does
         // not support predictive item animations, so an animated change of a laid-out bar
         // translates buttons towards positions the animator computed from bad pre-layout info.
         itemAnimator = null
