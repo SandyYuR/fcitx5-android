@@ -26,14 +26,9 @@ sealed class StatusAreaEntry(
         label: String,
         icon: Int,
         active: Boolean = false,
-        val longPressAction: LongPressActionType? = null,
         displayText: String? = null,
         customIcon: String? = null
-    ) : StatusAreaEntry(label, icon, active, displayText, customIcon) {
-        enum class LongPressActionType {
-            EnterAdjustingMode
-        }
-    }
+    ) : StatusAreaEntry(label, icon, active, displayText, customIcon)
 
     class Android(label: String, icon: Int, val type: Type, active: Boolean = false) :
         StatusAreaEntry(label, icon, active) {

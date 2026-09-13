@@ -83,6 +83,13 @@ sealed class ButtonAction {
     open fun isActive(service: FcitxInputMethodService): Boolean = false
 
     /**
+     * Whether this action overrides [onLongPress] with an actual behavior. Toolbar buttons
+     * consult this to decide whether a long press is handled; when false the press falls
+     * through to a normal click on release.
+     */
+    open val hasLongPress: Boolean = false
+
+    /**
      * Long press action for this button, if different from short press.
      * @param context Android context
      * @param service Input method service
@@ -234,6 +241,7 @@ data object FloatingToggleAction : ButtonAction() {
     override val defaultIcon = R.drawable.ic_floating_toggle_24
     override val defaultLabelRes = R.string.floating_keyboard
     override val iconSlot = "toolbar.floating_toggle"
+    override val hasLongPress = true
 
     override fun isActive(service: FcitxInputMethodService): Boolean {
         return service.inputView?.isFloating == true
@@ -308,6 +316,7 @@ data object ThemeToggleAction : ButtonAction() {
     override val defaultIcon = R.drawable.ic_theme_light_dark_24
     override val defaultLabelRes = R.string.toggle_day_night_theme
     override val iconSlot = "toolbar.theme_toggle"
+    override val hasLongPress = true
 
     override fun isActive(service: FcitxInputMethodService): Boolean {
         return ThemeManager.isUsingConfiguredDarkTheme()
@@ -343,6 +352,7 @@ data object LanguageSwitchAction : ButtonAction() {
     override val defaultIcon = R.drawable.ic_baseline_language_24
     override val defaultLabelRes = R.string.language_switch
     override val iconSlot = "toolbar.language_switch"
+    override val hasLongPress = true
 
     override fun execute(
         context: Context,
