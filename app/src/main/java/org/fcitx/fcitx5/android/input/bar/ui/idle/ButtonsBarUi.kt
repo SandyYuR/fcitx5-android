@@ -59,11 +59,12 @@ class ButtonsBarUi(
     private fun buildButtons() {
         buttonMap.clear()
         val recyclerView = root
-        // Recreate adapter to ensure clean state
+        // Recreate adapter to ensure clean state.
         recyclerView.adapter = ButtonsBarAdapter()
-        // The button count decides even-distribution vs scroll mode, and bind no longer works
-        // that out for itself (see E8).
-        recyclerView.updateLayoutMode()
+        // Adapter replacement must also discard the previous Flexbox anchor. The input-method
+        // window is frequently hidden and shown again at exactly the same size, so onSizeChanged
+        // is not guaranteed to repair stale/off-screen children.
+        recyclerView.updateLayoutMode(alwaysRebind = true, resetScroll = true)
     }
 
     fun updateConfig(newButtons: List<ConfigurableButton>) {
@@ -201,7 +202,7 @@ class ButtonsBarUi(
         val recyclerView = root
         // One rebind, issued from updateLayoutMode()'s posted runnable. Notifying here as well
         // meant two overlapping change notifications per refresh.
-        recyclerView.updateLayoutMode(alwaysRebind = true)
+        recyclerView.updateLayoutMode(alwaysRebind = true, resetScroll = true)
         recyclerView.requestLayout()
     }
 
@@ -250,9 +251,6 @@ class ButtonsBarUi(
 
         override fun onBindViewHolder(holder: ButtonViewHolder, position: Int) {
             val recyclerView = root
-            // as?, not as: the layout manager can legitimately be absent or replaced, and the
-            // unchecked cast crashed instead of skipping the width work (see E8).
-            val kawaiiBarLayout = recyclerView.layoutManager as? KawaiiBarLayout ?: return
             val parentWidth = recyclerView.width
             val childCount = itemCount
             val button = holder.button
@@ -264,7 +262,13 @@ class ButtonsBarUi(
             button.setOnClickListener(clickListeners[config.id])
             button.setOnLongClickListener(longClickListeners[config.id])
             applyIconAndText(button, config)
+            button.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
+            button.setActive(buttonActiveMap[config.id] == true)
 
+            // Content binding must not depend on the layout manager. RecyclerView can invoke a
+            // bind around manager/adapter replacement; returning before the work above leaves an
+            // otherwise valid holder completely blank until another notification happens.
+            val kawaiiBarLayout = recyclerView.layoutManager as? KawaiiBarLayout ?: return
             val params = holder.button.layoutParams as FlexboxLayoutManager.LayoutParams
 
             // Width is a pure function of the current bar width, computed read-only. It
@@ -289,8 +293,6 @@ class ButtonsBarUi(
                 params.width = ViewGroup.LayoutParams.WRAP_CONTENT
                 params.minWidth = kawaiiBarLayout.minButtonWidth
             }
-            button.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            button.setActive(buttonActiveMap[config.id] == true)
         }
     }
 }

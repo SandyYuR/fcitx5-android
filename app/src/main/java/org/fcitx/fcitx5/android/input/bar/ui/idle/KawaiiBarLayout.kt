@@ -115,66 +115,79 @@ class KawaiiBarRecyclerView(context: Context) : RecyclerView(context) {
         itemAnimator = null
     }
 
+    private var pendingRebind = false
+    private var pendingScrollReset = false
+
+    @SuppressLint("NotifyDataSetChanged")
+    private val updateLayoutRunnable = Runnable {
+        val currentAdapter = adapter ?: return@Runnable
+        val currentCount = currentAdapter.itemCount
+        val parentWidth = width
+        if (currentCount == 0 || parentWidth <= 0) return@Runnable
+
+        val alwaysRebind = pendingRebind
+        val resetScroll = pendingScrollReset
+        pendingRebind = false
+        pendingScrollReset = false
+
+        val idealWidth = kawaiiBarLayout.calculateEvenDistributedWidth(currentCount, parentWidth)
+        val shouldDistribute = idealWidth >= kawaiiBarLayout.minButtonWidth
+        val modeChanged = shouldDistribute != kawaiiBarLayout.isEvenDistributionMode
+
+        if (shouldDistribute) {
+            kawaiiBarLayout.setEvenDistributionMode()
+            isHorizontalScrollBarEnabled = false
+        } else {
+            kawaiiBarLayout.setScrollMode()
+            isHorizontalScrollBarEnabled = true
+        }
+        if (modeChanged || alwaysRebind) {
+            // FlexboxLayoutManager retains flex lines and the scroll anchor across an IME window
+            // hide/show. A same-sized window does not call onSizeChanged, which can otherwise
+            // leave every recycled child outside this center strip while the fixed edge buttons
+            // remain visible. A full rebind plus an anchor reset gives the list one authoritative
+            // layout whenever its size or window visibility becomes usable again.
+            stopScroll()
+            if (modeChanged || resetScroll) scrollToPosition(0)
+            kawaiiBarLayout.requestLayout()
+            currentAdapter.notifyDataSetChanged()
+            requestLayout()
+        }
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        // Update layout mode when size changes
-        updateLayoutMode()
+        // Width affects every item's calculated width even when the distribution mode is unchanged.
+        updateLayoutMode(alwaysRebind = true, resetScroll = true)
+    }
+
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        if (visibility == View.VISIBLE) {
+            // InputMethodService commonly reuses this view after its window surface was hidden.
+            updateLayoutMode(alwaysRebind = true, resetScroll = true)
+        }
     }
 
     /**
-     * Decide between even distribution and scroll mode.
+     * Decide between even distribution and scroll mode and coalesce refresh requests per frame.
      *
-     * This is the single owner of that decision. The adapter's onBindViewHolder used to make it
-     * too and then call notifyDataSetChanged() from *within* bind, re-entering itself and
-     * leaving the current frame with stale widths (see E8). Bind now only derives each button's
-     * width from the current bar width, read-only, so the mode change has to be published here.
+     * The adapter must not call notify methods from onBindViewHolder. All invalidation lives here,
+     * outside RecyclerView's layout/bind pass.
      *
-     * @param alwaysRebind rebind even when the mode is unchanged, for callers that changed
-     *   something else about the buttons (icons, labels, active state).
+     * @param alwaysRebind rebind even when the distribution mode is unchanged.
+     * @param resetScroll discard a possibly stale Flexbox scroll anchor before relayout.
      */
-    @SuppressLint("NotifyDataSetChanged")
-    internal fun updateLayoutMode(alwaysRebind: Boolean = false) {
-        val adapter = adapter ?: return
-        val childCount = adapter.itemCount
-        if (childCount == 0) return
-
-        post {
-            val currentAdapter = this.adapter ?: return@post
-            val currentCount = currentAdapter.itemCount
-            if (currentCount == 0) return@post
-            val parentWidth = width
-            if (parentWidth <= 0) return@post
-
-            // Calculate ideal width for even distribution
-            val idealWidth = kawaiiBarLayout.calculateEvenDistributedWidth(currentCount, parentWidth)
-
-            // If ideal width is less than minimum button width, use scroll mode
-            val shouldDistribute = idealWidth >= kawaiiBarLayout.minButtonWidth
-            val modeChanged = shouldDistribute != kawaiiBarLayout.isEvenDistributionMode
-
-            if (shouldDistribute) {
-                kawaiiBarLayout.setEvenDistributionMode()
-                // Disable horizontal scrolling when in even distribution mode
-                isHorizontalScrollBarEnabled = false
-            } else {
-                kawaiiBarLayout.setScrollMode()
-                // Enable horizontal scrolling when buttons need more space
-                isHorizontalScrollBarEnabled = true
-            }
-            if (modeChanged || alwaysRebind) {
-                // notifyDataSetChanged, deliberately. FlexboxLayoutManager caches its flex
-                // lines, and an item-change notification does not invalidate that cache: the
-                // children keep the positions computed for the bar's previous measurement, which
-                // after a floating-mode toggle put every button outside the bar. Only a full
-                // "I know nothing" notification makes it discard the views and recompute.
-                //
-                // This is not a hot path: <= ~10 buttons, refreshed on config / icon-theme /
-                // layout-mode changes, never per keystroke. E8 was about the bind-time
-                // re-entrancy and the position-as-viewType bug, both fixed independently.
-                kawaiiBarLayout.requestLayout()
-                currentAdapter.notifyDataSetChanged()
-            }
-        }
+    internal fun updateLayoutMode(
+        alwaysRebind: Boolean = false,
+        resetScroll: Boolean = false
+    ) {
+        val currentAdapter = adapter ?: return
+        if (currentAdapter.itemCount == 0) return
+        pendingRebind = pendingRebind || alwaysRebind
+        pendingScrollReset = pendingScrollReset || resetScroll
+        removeCallbacks(updateLayoutRunnable)
+        post(updateLayoutRunnable)
     }
 
     /**

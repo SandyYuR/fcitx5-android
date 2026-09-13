@@ -859,6 +859,10 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         )
         */
         evalIdleUiState()
+        // A reused IME window can restart input without changing the toolbar width. Rebuild the
+        // center row here as well as on size/visibility changes so stale Flexbox anchors cannot
+        // leave only the two fixed edge controls visible.
+        idleUi.buttonsUi.refreshLayout()
     }
 
     override fun onImeUpdate(ime: InputMethodEntry) {
