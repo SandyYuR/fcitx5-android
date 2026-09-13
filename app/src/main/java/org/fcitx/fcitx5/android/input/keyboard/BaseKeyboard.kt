@@ -1139,6 +1139,7 @@ abstract class BaseKeyboard(
         val (activeDef, resolvedAppearance) = resolveComposeActiveDef(def)
         val activeAppearance = appearanceOverride ?: resolvedAppearance
         return when (activeAppearance) {
+            is KeyDef.Appearance.ToolbarText -> ToolbarTextKeyView(context, theme, activeAppearance, horizontalGapScale)
             is KeyDef.Appearance.AltText -> AltTextKeyView(context, theme, activeAppearance, horizontalGapScale)
             is KeyDef.Appearance.ImageAltText -> ImageAltTextKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
             is KeyDef.Appearance.ImageText -> ImageTextKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
@@ -1408,13 +1409,15 @@ abstract class BaseKeyboard(
 
     private fun isAppearanceCompatible(view: KeyView, appearance: KeyDef.Appearance): Boolean {
         return when (view) {
+            is ToolbarTextKeyView -> appearance is KeyDef.Appearance.ToolbarText
             is AltTextKeyView -> appearance is KeyDef.Appearance.AltText
             is ImageAltTextKeyView -> appearance is KeyDef.Appearance.ImageAltText
             is ImageTextKeyView -> appearance is KeyDef.Appearance.ImageText
             is ImageKeyView -> appearance is KeyDef.Appearance.Image
             is TextKeyView -> appearance is KeyDef.Appearance.Text &&
                     appearance !is KeyDef.Appearance.AltText &&
-                    appearance !is KeyDef.Appearance.ImageText
+                    appearance !is KeyDef.Appearance.ImageText &&
+                    appearance !is KeyDef.Appearance.ToolbarText
             else -> false
         }
     }
@@ -1468,6 +1471,10 @@ abstract class BaseKeyboard(
     private fun applyConfiguredFonts(keyView: KeyView) {
         // Check AltTextKeyView before TextKeyView since AltTextKeyView is a subclass of TextKeyView.
         when (keyView) {
+            // ToolbarTextKeyView keeps the canonical fixed dp size and skips text-scale
+            // settings (fixed height toolbar rows must never be shrunk to invisible), but its
+            // label still follows the user's configured key typeface like every other key.
+            is ToolbarTextKeyView -> keyView.label.setFontTypeFace("key_main_font")
             is AltTextKeyView -> {
                 keyView.mainText.setFontTypeFace("key_main_font")
                 keyView.altText.setFontTypeFace("key_alt_font")
@@ -1491,6 +1498,9 @@ abstract class BaseKeyboard(
     private fun KeyDef.Appearance.withTextMetricsFrom(source: KeyDef.Appearance): KeyDef.Appearance {
         val sourceText = source as? KeyDef.Appearance.Text ?: return this
         return when (this) {
+            // ToolbarText must never be rebuilt as plain Text: that would drop it back into
+            // the text-scale pipeline and can shrink toolbar digits to invisibility.
+            is KeyDef.Appearance.ToolbarText -> this
             is KeyDef.Appearance.AltText -> KeyDef.Appearance.AltText(
                 displayText = displayText,
                 altText = altText,
@@ -1554,6 +1564,8 @@ abstract class BaseKeyboard(
     }
 
     private fun KeyDef.Appearance.withIdentityFrom(source: KeyDef.Appearance): KeyDef.Appearance = when (this) {
+        // See withTextMetricsFrom: never flatten ToolbarText into plain Text.
+        is KeyDef.Appearance.ToolbarText -> this
         is KeyDef.Appearance.AltText -> KeyDef.Appearance.AltText(
             displayText = displayText,
             altText = altText,
@@ -1650,6 +1662,8 @@ abstract class BaseKeyboard(
     }
 
     private fun KeyDef.Appearance.withColorsFrom(source: KeyDef.Appearance): KeyDef.Appearance = when (this) {
+        // See withTextMetricsFrom: never flatten ToolbarText into plain Text.
+        is KeyDef.Appearance.ToolbarText -> this
         is KeyDef.Appearance.AltText -> KeyDef.Appearance.AltText(
             displayText = displayText,
             altText = altText,
@@ -1762,6 +1776,9 @@ abstract class BaseKeyboard(
                 view.mainText.text = appearance.displayText
                 view.img.setImageResource(appearance.src)
                 view.reapplyIconThemeOverride()
+            }
+            is ToolbarTextKeyView -> if (appearance is KeyDef.Appearance.ToolbarText) {
+                view.label.text = appearance.displayText
             }
             is TextKeyView -> if (appearance is KeyDef.Appearance.Text) {
                 view.mainText.text = appearance.displayText

@@ -84,10 +84,9 @@ class NumberRow(ctx: Context, theme: Theme) : BaseKeyboard(ctx, theme, ::Layout,
         val Layout = listOf(
             listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0").map { digit ->
                 KeyDef(
-                    KeyDef.Appearance.Text(
+                    KeyDef.Appearance.ToolbarText(
                         displayText = digit,
                         textSize = 21f,
-                        variant = KeyDef.Appearance.Variant.AltForeground,
                         border = KeyDef.Appearance.Border.Off,
                         margin = false
                     ),

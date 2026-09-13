@@ -11,14 +11,21 @@ import org.junit.Test
 class NumberRowTest {
 
     @Test
-    fun numberRowUsesToolbarForegroundVariant() {
+    fun numberRowUsesToolbarRendererWithKeyFont() {
         val appearances = NumberRow.Layout
             .single()
             .map { it.appearance }
 
         assertEquals(10, appearances.size)
         appearances.forEach { appearance ->
-            assertEquals(KeyDef.Appearance.Variant.AltForeground, appearance.variant)
+            // ToolbarText keeps the label out of the keyboard text-scale pipeline but still
+            // renders through the normal key-label font path, so digits stay visible while
+            // following the user's configured key typeface and font size.
+            assertEquals(KeyDef.Appearance.ToolbarText::class, appearance::class)
+            assertEquals(KeyDef.Appearance.Variant.Normal, appearance.variant)
+            assertEquals(21f, appearance.textSize, 0f)
+            assertEquals(KeyDef.Appearance.Border.Off, appearance.border)
+            assertEquals(false, appearance.margin)
         }
     }
 }

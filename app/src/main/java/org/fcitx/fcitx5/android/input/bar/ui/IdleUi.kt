@@ -214,6 +214,16 @@ class IdleUi(
         add(numberRow, lParams(matchParent, matchParent))
     }
 
+    init {
+        // ViewAnimator's displayedChild defaults to 0, which is the password Hidden page
+        // added as the first child; currentState starts at Toolbar. updateState() only runs
+        // on an actual state transition, so without this sync a freshly created bar that
+        // never transitions (no clipboard hint, no password field, no number row) keeps
+        // showing the blank Hidden page in the center while the fixed left/right buttons
+        // stay visible — exactly the intermittent "center toolbar missing" report.
+        displayContentForState(currentState)
+    }
+
     fun clearTransientPressState() {
         menuButton.clearTransientPressState()
         hideKeyboardButton.clearTransientPressState()

@@ -433,6 +433,95 @@ abstract class KeyView(
 }
 
 @SuppressLint("ViewConstructor")
+class ToolbarTextKeyView(
+    ctx: Context,
+    theme: Theme,
+    def: KeyDef.Appearance.ToolbarText,
+    horizontalGapScale: Float = 1f
+) : KeyView(ctx, theme, def, horizontalGapScale) {
+    /**
+     * AutoScale label that keeps the canonical fixed dp size: unlike keyboard keys it never
+     * participates in the configurable text-scale setting (a 40dp toolbar row scaled to a
+     * fraction of 21dp is what made these digits invisible), but it is still a real
+     * [AutoScaleTextView] wired to the "key_main_font" slot, so the user's configured key
+     * typeface and keyboard font size settings keep applying. BaseKeyboard applies the
+     * typeface in batch via [org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard.applyConfiguredFonts];
+     * here we seed the configured size directly so the first frame is already correct.
+     */
+    val label = view(::AutoScaleTextView) {
+        isClickable = false
+        isFocusable = false
+        background = null
+        gravity = Gravity.CENTER
+        text = def.displayText
+        setTextSize(
+            TypedValue.COMPLEX_UNIT_SP,
+            org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
+                "key_main_font", def.textSize
+            )
+        )
+        textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
+        fontKey = "key_main_font"
+        setTypeface(typeface, def.textStyle)
+        setTextColor(
+            resolveTextColor(
+                when (def.variant) {
+                    Variant.Normal -> theme.keyTextColor
+                    Variant.AltForeground, Variant.Alternative -> theme.altKeyTextColor
+                    Variant.Accent -> theme.accentKeyTextColor
+                }
+            )
+        )
+    }
+
+    init {
+        appearanceView.apply {
+            add(label, lParams(matchParent, matchParent) {
+                centerInParent()
+            })
+        }
+    }
+
+    /**
+     * Re-read the configured size, ignoring the keyboard text-scale argument.
+     *
+     * [BaseKeyboard.reapplyTextScale] runs after every layout reload, which makes this the
+     * reliable hook for "key_main_font_size" changes: the typeface map comparison that bumps
+     * [org.fcitx.fcitx5.android.input.font.FontProviders.fontGeneration] only covers typefaces,
+     * so a size-only edit does not invalidate the row cache by itself, but the reload triggered
+     * by the fontset save re-runs this override with the fresh size. The scale argument is
+     * deliberately ignored — toolbar digits must never be shrunk to invisibility.
+     */
+    override fun setTextScale(scale: Float) {
+        // In a method body `def` is the inherited KeyView.def (KeyDef.Appearance), so smart
+        // cast to ToolbarText before reading the size — same idiom as TextKeyView above.
+        if (def is KeyDef.Appearance.ToolbarText) {
+            label.setTextSize(
+                TypedValue.COMPLEX_UNIT_SP,
+                org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
+                    "key_main_font", def.textSize
+                )
+            )
+            label.requestLayout()
+            label.invalidate()
+        }
+    }
+
+    override fun updateTheme(newTheme: Theme) {
+        super.updateTheme(newTheme)
+        label.setTextColor(
+            resolveTextColor(
+                when (def.variant) {
+                    Variant.Normal -> newTheme.keyTextColor
+                    Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
+                    Variant.Accent -> newTheme.accentKeyTextColor
+                }
+            )
+        )
+    }
+}
+
+@SuppressLint("ViewConstructor")
 open class TextKeyView(
     ctx: Context,
     theme: Theme,
