@@ -120,7 +120,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private val popup: PopupComponent by manager.must()
 
     var onFloatingToggleListener: (() -> Unit)? = null
-    var onFloatingLongPressListener: (() -> Unit)? = null
 
     fun setFloatingState(isFloating: Boolean) {
         idleUi.buttonsUi.setFloatingState(isFloating)
@@ -436,20 +435,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 evalIdleUiState(fromUser = true)
                 return@setOnClickListener
             }
-            if (service.inputView?.isButtonsAdjustingOverlayVisible == true) {
-                service.inputView?.hideButtonsAdjustingOverlay()
-                return@setOnClickListener
-            }
             windowManager.attachWindow(StatusAreaWindow())
-        }
-        ui.menuButton.setOnLongClickListener {
-            restoreVirtualKeyboardMode()
-            if (service.inputView?.isButtonsAdjustingOverlayVisible == true) {
-                service.inputView?.hideButtonsAdjustingOverlay()
-            } else {
-                service.inputView?.showButtonsAdjustingOverlay()
-            }
-            true
         }
         ui.hideKeyboardButton.apply {
             setOnClickListener {
@@ -498,17 +484,13 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
             setOnLongClickListener("floating_toggle") {
                 restoreVirtualKeyboardMode()
-                if (onFloatingLongPressListener != null) {
-                    onFloatingLongPressListener?.invoke()
-                } else {
-                    ButtonAction.fromId("floating_toggle")?.onLongPress(
-                        context = context,
-                        service = service,
-                        fcitx = fcitx,
-                        windowManager = windowManager,
-                        view = ui.buttonsUi.root
-                    )
-                }
+                ButtonAction.fromId("floating_toggle")?.onLongPress(
+                    context = context,
+                    service = service,
+                    fcitx = fcitx,
+                    windowManager = windowManager,
+                    view = ui.buttonsUi.root
+                )
                 true
             }
 

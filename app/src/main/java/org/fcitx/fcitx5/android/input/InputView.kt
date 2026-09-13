@@ -86,7 +86,6 @@ import org.fcitx.fcitx5.android.input.picker.symbolPicker
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.input.preedit.PreeditComponent
-import org.fcitx.fcitx5.android.input.status.ButtonsAdjustingWindow
 import org.fcitx.fcitx5.android.input.status.StatusAreaWindow
 import android.text.TextUtils
 import android.view.MotionEvent
@@ -1556,11 +1555,6 @@ class InputView(
     private val symbolPicker = symbolPicker()
     private val emojiPicker = emojiPicker()
     private val emoticonPicker = emoticonPicker()
-    private val buttonsAdjustingOverlayView by lazy {
-        ButtonsAdjustingWindow.onCreateView().apply {
-            visibility = GONE
-        }
-    }
 
     private fun setupScope() {
         scope += this@InputView.wrapToUniqueComponent()
@@ -1578,7 +1572,6 @@ class InputView(
         scope += windowManager
         scope += kawaiiBar
         scope += horizontalCandidate
-        scope += ButtonsAdjustingWindow
         broadcaster.onScopeSetupFinished(scope)
     }
 
@@ -3092,12 +3085,6 @@ class InputView(
             centerVertically()
             centerHorizontally()
         })
-        add(buttonsAdjustingOverlayView, lParams(matchParent, matchParent) {
-            topToTop = keyboardView.id
-            bottomToBottom = keyboardView.id
-            startToStart = keyboardView.id
-            endToEnd = keyboardView.id
-        })
         keyboardPrefs.registerOnChangeListener(onKeyboardSizeChangeListener)
         advancedPrefs.registerOnChangeListener(onKeyboardSizeChangeListener)
         candidatesPrefs.registerOnChangeListener(onCandidatePreferenceChangeListener)
@@ -3118,12 +3105,6 @@ class InputView(
                 toggleAdjustingMode()
             } else {
                 toggleFloatingMode()
-            }
-        }
-        kawaiiBar.onFloatingLongPressListener = {
-            // If not in floating mode and not in one-handed mode, allow entering adjusting mode
-            if (!isFloating && !isOneHanded) {
-                toggleAdjustingMode()
             }
         }
 
@@ -3169,56 +3150,15 @@ class InputView(
         }
     }
 
-    internal val isButtonsAdjustingOverlayVisible: Boolean
-        get() = buttonsAdjustingOverlayView.visibility == VISIBLE
-
-    internal fun showButtonsAdjustingOverlay() {
-        if (isButtonsAdjustingOverlayVisible) return
-        popup.dismissAll()
-        ButtonsAdjustingWindow.updateOverlayInsets(
-            keyboardSidePaddingPx,
-            keyboardBottomPaddingPx,
-            isPhysicalCandidateBarMode
-        )
-        ButtonsAdjustingWindow.onAttached()
-        buttonsAdjustingOverlayView.bringToFront()
-        buttonsAdjustingOverlayView.visibility = VISIBLE
-        updateKeyboardSize()
-    }
-
-    internal fun hideButtonsAdjustingOverlay() {
-        if (!isButtonsAdjustingOverlayVisible) return
-        ButtonsAdjustingWindow.onDetached()
-        buttonsAdjustingOverlayView.visibility = GONE
-        updateKeyboardSize()
-    }
-
-    /**
-     * Tear the adjusting panel down without re-measuring the keyboard, for use while this
-     * view is already being detached. [ButtonsAdjustingWindow.onDetached] is what persists
-     * pending reorders, so it must still run.
-     */
-    private fun teardownButtonsAdjustingOverlay() {
-        if (!isButtonsAdjustingOverlayVisible) return
-        ButtonsAdjustingWindow.onDetached()
-        buttonsAdjustingOverlayView.visibility = GONE
-    }
-
     private fun updateKeyboardSize() {
         applyStoredOneHandSideIfNeeded()
 
-        ButtonsAdjustingWindow.updateOverlayInsets(
-            keyboardSidePaddingPx,
-            keyboardBottomPaddingPx,
-            isPhysicalCandidateBarMode
-        )
         updateKeyboardTopBarPosition()
 
         val collapseKeyboardWindow =
             isPhysicalCandidateBarMode &&
                 windowManager.currentWindowOrNull() is KeyboardWindow &&
-                !isAdjustingMode &&
-                !isButtonsAdjustingOverlayVisible
+                !isAdjustingMode
         val targetHeight = when {
             collapseKeyboardWindow -> 1
             isEffectiveFloating -> resolveFloatingHeight()
@@ -3398,7 +3338,6 @@ class InputView(
         if (isAdjustingMode) {
             exitAdjustingMode()
         }
-        hideButtonsAdjustingOverlay()
         keyboardWindow.checkAndApplyFontRefresh()
         broadcaster.onStartInput(info, capFlags, restarting)
         returnKeyDrawable.updateDrawableOnEditorInfo(info)
@@ -3603,10 +3542,6 @@ class InputView(
         if (ClipboardSearchController.isActive) {
             service.stopClipboardSearch()
         }
-        // The adjusting panel persists its state in onDetached(); this used to be the one
-        // teardown path that never called it, so pending reorders were lost when the IME
-        // view went away without the user collapsing the panel first.
-        teardownButtonsAdjustingOverlay()
         windowManager.onWindowChanged = null
         advancedPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
         keyboardPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
