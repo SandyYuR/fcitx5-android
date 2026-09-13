@@ -113,19 +113,11 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
             // Check if button should be active
             val active = action.isActive(service)
 
-            // Check if button has long press action
-            val longPressAction = if (action.id == "floating_toggle") {
-                StatusAreaEntry.ActionEntry.LongPressActionType.EnterAdjustingMode
-            } else {
-                null
-            }
-
             StatusAreaEntry.ActionEntry(
                 action,
                 label,
                 iconRes,
                 active,
-                longPressAction,
                 displayText = button.text,
                 customIcon = button.icon
             )
@@ -137,8 +129,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
             inputMethodOptionsAction,
             context.getString(inputMethodOptionsAction.defaultLabelRes),
             inputMethodOptionsAction.defaultIcon,
-            active = false,
-            longPressAction = null
+            active = false
         )
 
         return (configurableEntries + inputMethodOptionsEntry).toTypedArray()
@@ -310,19 +301,20 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                 }
             }
 
-            override fun onItemLongClick(
-                view: View,
-                entry: StatusAreaEntry,
-                action: StatusAreaEntry.ActionEntry.LongPressActionType
-            ): Boolean {
-                return when (action) {
-                    StatusAreaEntry.ActionEntry.LongPressActionType.EnterAdjustingMode -> {
-                        service.inputView?.enterAdjustingMode()
-                        // Close Status Area window and return to text keyboard
-                        windowManager.attachWindow(KeyboardWindow)
-                        true
-                    }
-                }
+            override fun onItemLongClick(view: View, entry: StatusAreaEntry): Boolean {
+                if (entry !is StatusAreaEntry.ActionEntry) return false
+                val action = entry.buttonAction
+                if (!action.hasLongPress) return false
+                action.onLongPress(
+                    context = context,
+                    service = service,
+                    fcitx = fcitx,
+                    windowManager = windowManager,
+                    view = view
+                )
+                // Close Status Area window and return to text keyboard
+                windowManager.attachWindow(KeyboardWindow)
+                return true
             }
 
             override val theme = this@StatusAreaWindow.theme
