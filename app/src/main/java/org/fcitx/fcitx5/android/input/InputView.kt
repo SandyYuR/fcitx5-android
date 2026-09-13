@@ -3527,18 +3527,27 @@ class InputView(
         kawaiiBar.reloadButtonIcons()
     }
 
+    /**
+     * 剪贴板搜索的状态回调。必须作为属性持有同一个实例：注册在构造时、注销在
+     * onDetachedFromWindow，[ClipboardSearchController] 是进程级单例而本视图会被
+     * 主题/偏好变更整体替换（replaceInputView），按实例注销才能保证旧视图销毁时
+     * 不会清掉新视图的注册（否则搜索框文本与结果栏再也无法刷新）。
+     */
+    private val clipboardSearchStateListener: () -> Unit = { refreshClipboardSearchUi() }
+
     init {
         // Register listener for buttons layout config changes
         ConfigProviders.addButtonsLayoutListener(onButtonsLayoutChangeListener)
         // Register listener for button icon file changes (hot-reload)
         ConfigProviders.addIconChangeListener(onIconChangeListener)
         // 剪贴板搜索：状态变化时同步工具栏搜索框与辅助栏结果。
-        ClipboardSearchController.onStateChanged = { refreshClipboardSearchUi() }
+        ClipboardSearchController.addOnStateChangedListener(clipboardSearchStateListener)
     }
 
     override fun onDetachedFromWindow() {
-        // 视图销毁时结束搜索会话（先解绑回调，避免回调触碰已分离的视图）。
-        ClipboardSearchController.onStateChanged = null
+        // 视图销毁时先注销自己的回调（避免回调触碰已分离的视图），再结束搜索会话。
+        // 注销只影响本实例：若本视图已被新实例替换，会话结束的状态刷新会落到新视图上。
+        ClipboardSearchController.removeOnStateChangedListener(clipboardSearchStateListener)
         if (ClipboardSearchController.isActive) {
             service.stopClipboardSearch()
         }
@@ -3661,7 +3670,7 @@ class InputView(
      * 2. 按“单条最多 3 行文字”构建结果卡片并渲染到辅助栏；
      * 3. 会话结束时清理辅助栏并让键盘恢复常规辅助内容。
      *
-     * 由 ClipboardSearchController.onStateChanged 驱动，同样可被键盘窗口
+     * 由 ClipboardSearchController 的状态监听驱动，同样可被键盘窗口
      * 重新附着等场景显式调用以重建结果视图。
      */
     fun refreshClipboardSearchUi() {

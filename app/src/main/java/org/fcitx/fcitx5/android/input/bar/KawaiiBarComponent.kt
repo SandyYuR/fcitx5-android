@@ -424,6 +424,9 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             // 剪贴板历史搜索期间，最左侧返回箭头即搜索关闭按钮。
             if (idleUi.currentState == IdleUi.State.Search) {
                 service.stopClipboardSearch()
+                // 会话可能已经结束（如输入目标切换触发的自动结束）而没有刷新到工具栏，
+                // 这里按当前会话状态兜底重算一次，保证返回箭头一定退出搜索页。
+                evalIdleUiState()
                 return@setOnClickListener
             }
             // When the clipboard hint is showing, the leftmost button dismisses it
