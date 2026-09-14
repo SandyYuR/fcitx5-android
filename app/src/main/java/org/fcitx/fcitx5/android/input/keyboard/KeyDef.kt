@@ -100,6 +100,31 @@ open class KeyDef(
             shadowColorMonet
         )
 
+        /**
+         * Compact toolbar label (NumberRow in the Kawaii bar).
+         *
+         * The label keeps the canonical fixed [textSize] and never participates in the
+         * keyboard text-scale setting — a 40dp toolbar row with a scaled-down font is what made
+         * the digits invisible — but it still renders through the normal key-label pipeline, so
+         * the user's configured key typeface ("key_main_font") and font-size settings apply.
+         * Text color follows the active theme via the inherited [variant].
+         */
+        class ToolbarText(
+            displayText: String,
+            textSize: Float,
+            percentWidth: Float = 0.1f,
+            variant: Variant = Variant.Normal,
+            border: Border = Border.Off,
+            margin: Boolean = false
+        ) : Text(
+            displayText = displayText,
+            textSize = textSize,
+            percentWidth = percentWidth,
+            variant = variant,
+            border = border,
+            margin = margin
+        )
+
         class AltText(
             displayText: String,
             val altText: String,

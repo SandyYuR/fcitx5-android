@@ -157,7 +157,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     private var isClipboardFresh: Boolean = false
     private var isInlineSuggestionPresent: Boolean = false
-    private var isCapabilityFlagsPassword: Boolean = false
+    private var isPasswordField: Boolean = false
     private var isKeyboardLayoutNumber: Boolean = false
 
     private enum class NumberRowState { Auto, ForceShow, ForceHide }
@@ -243,20 +243,32 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     private fun evalIdleUiState(fromUser: Boolean = false) {
-        val newState = when {
-            numberRowState == NumberRowState.ForceShow -> IdleUi.State.NumberRow
-            isClipboardFresh -> IdleUi.State.Clipboard
-            isInlineSuggestionPresent -> IdleUi.State.InlineSuggestion
-            isCapabilityFlagsPassword && !isKeyboardLayoutNumber && numberRowState != NumberRowState.ForceHide -> IdleUi.State.NumberRow
-            /**
-             * state matrix:
-             *                               expandToolbarByDefault
-             *                          |   \   |    true |   false
-             * toolbarManuallyToggled   |  true |   Empty | Toolbar
-             *                          | false | Toolbar |   Empty
-             */
-            expandToolbarByDefault == prefs.keyboard.toolbarManuallyToggled.getValue() -> IdleUi.State.Empty
-            else -> IdleUi.State.Toolbar
+        val passwordMode = resolvePasswordToolbarMode(
+            isPasswordField = isPasswordField,
+            showNumberRow = toolbarNumRowOnPassword,
+            isNumberLayout = isKeyboardLayoutNumber,
+            numberRowDismissed = numberRowState == NumberRowState.ForceHide
+        )
+        val content = resolveIdleToolbarContent(
+            clipboardFresh = isClipboardFresh,
+            inlineSuggestionPresent = isInlineSuggestionPresent,
+            forceNumberRow = numberRowState == NumberRowState.ForceShow &&
+                isPasswordField && toolbarNumRowOnPassword && !isKeyboardLayoutNumber,
+            passwordMode = passwordMode,
+            // The expand/collapse matrix lives in the toggle button below; keep it here so every
+            // eval path — focus change, clipboard, icon theme, manual toggle — agrees on it.
+            toolbarCollapsed = isToolbarCollapsed(
+                expandToolbarByDefault = expandToolbarByDefault,
+                toolbarManuallyToggled = prefs.keyboard.toolbarManuallyToggled.getValue()
+            )
+        )
+        val newState = when (content) {
+            IdleToolbarContent.Clipboard -> IdleUi.State.Clipboard
+            IdleToolbarContent.InlineSuggestion -> IdleUi.State.InlineSuggestion
+            IdleToolbarContent.NumberRow -> IdleUi.State.NumberRow
+            IdleToolbarContent.Hidden -> IdleUi.State.Hidden
+            IdleToolbarContent.Empty -> IdleUi.State.Empty
+            IdleToolbarContent.Toolbar -> IdleUi.State.Toolbar
         }
         if (newState == idleUi.currentState) return
         idleUi.updateState(newState, fromUser)
@@ -283,7 +295,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     // - If vertical is dominant and down, hide keyboard.
     private val swipeHideKeyboardCallback = CustomGestureView.OnGestureListener { v, e ->
         require(v is ToolButton)
-        val numberRowAvailable = isCapabilityFlagsPassword && !isKeyboardLayoutNumber
+        val numberRowAvailable = isPasswordField && toolbarNumRowOnPassword && !isKeyboardLayoutNumber
         if (numberRowAvailable) {
             val dir = if (context.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_LTR) 1 else -1
             // `e.x` and `e.y` are relative to the view's top-left corner
@@ -781,7 +793,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             idleUi.privateMode(info.imeOptions.hasFlag(EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING))
         }
-        isCapabilityFlagsPassword = toolbarNumRowOnPassword && capFlags.has(CapabilityFlag.Password)
+        isPasswordField = capFlags.has(CapabilityFlag.Password)
         isInlineSuggestionPresent = false
         numberRowState = NumberRowState.Auto
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -806,7 +818,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         val shouldShowVoiceInput =
             showVoiceInputButton &&
                 (voiceInputSubtype != null || hasPluginProvider) &&
-                !isCapabilityFlagsPassword
+                !isPasswordField
         Log.i(
             VOICE_INPUT_TAG,
             "refreshVoiceButton showVoice=$showVoiceInputButton preferred=$preferredVoiceInput " +

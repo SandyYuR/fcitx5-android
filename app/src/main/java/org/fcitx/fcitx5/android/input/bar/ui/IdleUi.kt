@@ -66,7 +66,7 @@ class IdleUi(
 ) : Ui {
 
     enum class State {
-        Empty, Toolbar, Clipboard, NumberRow, InlineSuggestion
+        Empty, Toolbar, Clipboard, NumberRow, InlineSuggestion, Hidden
     }
 
     var currentState = State.Empty
@@ -155,11 +155,30 @@ class IdleUi(
         }
     }
 
+    private val hiddenBar = View(ctx).apply {
+        isClickable = false
+        isFocusable = false
+    }
+
     private val animator = ViewAnimator(ctx).apply {
         add(emptyBar, lParams(matchParent, matchParent))
         add(buttonsUi.root, lParams(matchParent, matchParent))
         add(clipboardUi.root, lParams(matchParent, matchParent))
         add(inlineSuggestionsBar.root, lParams(matchParent, matchParent))
+        add(hiddenBar, lParams(matchParent, matchParent))
+    }
+
+    init {
+        // ViewAnimator's displayedChild defaults to 0; keep it in sync with the initial
+        // currentState so a freshly created bar that never transitions shows the right page.
+        animator.displayedChild = when (currentState) {
+            State.Empty -> 0
+            State.Toolbar -> 1
+            State.Clipboard -> 2
+            State.NumberRow -> animator.displayedChild
+            State.InlineSuggestion -> 3
+            State.Hidden -> 4
+        }
     }
 
     private val inAnimation by lazy {
@@ -204,6 +223,15 @@ class IdleUi(
     override val root = frameLayout {
         add(idleBody, lParams(matchParent, matchParent))
         add(numberRow, lParams(matchParent, matchParent))
+    }
+
+    init {
+        // ViewAnimator's displayedChild defaults to 0; keep it in sync with the initial
+        // currentState so a freshly created bar that never transitions shows the right page.
+        // Centralize the center strip's visibility in one place so a freshly created bar can
+        // never keep showing a blank page in the center while the fixed left/right buttons
+        // stay visible — exactly the intermittent "center toolbar missing" report.
+        applyCenterVisibility()
     }
 
     fun clearTransientPressState() {
@@ -293,8 +321,8 @@ class IdleUi(
         // Re-apply icon theme to system buttons
         applySystemButtonConfig(menuButton, toolbarToggleConfig, defaultMenuIcon)
         refreshHideKeyboardButtonIcon()
-        // Rebind toolbar buttons
-        buttonsUi.refreshLayout()
+        // Re-resolve every center button's icon from the current icon theme
+        buttonsUi.reloadIcons()
     }
 
     fun updateSystemButtonConfigs(
@@ -310,6 +338,11 @@ class IdleUi(
     }
 
     private fun updateMenuButtonIcon() {
+        if (currentState == State.Hidden) {
+            menuButton.visibility = View.GONE
+            return
+        }
+        menuButton.visibility = View.VISIBLE
         if (inPrivate && !hasCustomMenuIcon) {
             menuButton.setIcon(R.drawable.ic_view_private)
             return
@@ -367,9 +400,7 @@ class IdleUi(
     fun showVoiceStatus(label: String = "Recording") {
         voiceStatusText.text = label
         voiceStatusBar.visibility = View.VISIBLE
-        animator.visibility = View.GONE
-        idleBody.visibility = View.VISIBLE
-        numberRow.visibility = View.GONE
+        applyCenterVisibility()
         startVoiceWave()
     }
 
@@ -412,8 +443,49 @@ class IdleUi(
         if (voiceStatusBar.visibility == View.GONE) return
         stopVoiceWave()
         voiceStatusBar.visibility = View.GONE
+        if (currentState == State.NumberRow) {
+            numberRow.keyActionListener = commonKeyActionListener.listener
+            numberRow.popupActionListener = popup.listener
+        }
+        applyCenterVisibility()
+    }
+
+    private fun displayContentForState(state: State) {
+        when (state) {
+            State.Empty -> animator.displayedChild = 0
+            State.Toolbar -> animator.displayedChild = 1
+            State.Clipboard -> animator.displayedChild = 2
+            State.NumberRow -> {}
+            State.InlineSuggestion -> animator.displayedChild = 3
+            State.Hidden -> animator.displayedChild = 4
+        }
+    }
+
+    /**
+     * Single owner of the center strip's contents.
+     *
+     * The strip shows exactly one of the voice status, the number row, or the page selected by
+     * [currentState]. Deriving all three views' visibility in one place keeps every path — voice
+     * status, password number row, clipboard pages, extended windows — from leaving the strip on
+     * a page that draws nothing while the fixed edge buttons stay visible.
+     */
+    private fun applyCenterVisibility() {
+        displayContentForState(currentState)
+        if (voiceStatusBar.visibility == View.VISIBLE) {
+            animator.visibility = View.GONE
+            idleBody.visibility = View.VISIBLE
+            numberRow.visibility = View.GONE
+            return
+        }
+        voiceStatusBar.visibility = View.GONE
         animator.visibility = View.VISIBLE
-        idleBody.visibility = View.VISIBLE
+        if (currentState == State.NumberRow) {
+            idleBody.visibility = View.GONE
+            numberRow.visibility = View.VISIBLE
+        } else {
+            idleBody.visibility = View.VISIBLE
+            numberRow.visibility = View.GONE
+        }
     }
 
     private fun startVoiceWave() {
@@ -451,8 +523,14 @@ class IdleUi(
 
     fun updateState(state: State, fromUser: Boolean = false) {
         Timber.d("Switch idle ui to $state")
-        if (voiceStatusBar.visibility == View.VISIBLE && state != State.NumberRow) {
+        if (voiceStatusBar.visibility == View.VISIBLE) {
+            // The voice status owns the strip while it is visible; applyCenterVisibility()
+            // restores the page for this state as soon as the voice status is hidden.
             currentState = state
+            if (state != State.NumberRow) {
+                displayContentForState(state)
+            }
+            updateMenuButtonIcon()
             updateMenuButtonContentDescription()
             updateMenuButtonRotation(instant = !fromUser)
             return
@@ -467,32 +545,26 @@ class IdleUi(
         } else {
             setAnimation()
         }
-        when (state) {
-            State.Empty -> animator.displayedChild = 0
-            State.Toolbar -> animator.displayedChild = 1
-            State.Clipboard -> animator.displayedChild = 2
-            State.NumberRow -> {}
-            State.InlineSuggestion -> animator.displayedChild = 3
-        }
+        // Publish the target page before the slide transition is captured, so the transition
+        // only animates the number row sliding in/out.
+        displayContentForState(state)
         if (state == State.NumberRow) {
             numberRow.keyActionListener = commonKeyActionListener.listener
             numberRow.popupActionListener = popup.listener
             if (fromUser && !disableAnimation) {
                 enableSlideTransition(numberRow, idleBody, Gravity.END, Gravity.START)
             }
-            numberRow.visibility = View.VISIBLE
-            idleBody.visibility = View.GONE
         } else if (currentState == State.NumberRow) {
             if (fromUser && !disableAnimation) {
                 enableSlideTransition(idleBody, numberRow, Gravity.START, Gravity.END)
             }
-            idleBody.visibility = View.VISIBLE
-            numberRow.visibility = View.GONE
             numberRow.keyActionListener = null
             numberRow.popupActionListener = null
             popup.dismissAll()
         }
         currentState = state
+        applyCenterVisibility()
+        updateMenuButtonIcon()
         updateMenuButtonContentDescription()
         updateMenuButtonRotation(instant = !fromUser)
     }
