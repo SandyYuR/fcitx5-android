@@ -101,6 +101,53 @@ jobs:
           name: app-${{ matrix.os }}-${{ matrix.abi }}
           path: app/build/outputs/apk/fx/release/*.apk
 
+  # JVM 单测单独成一个 job。
+  # 背景：此前 CI 只构建 Release APK，从不编译 app/src/test/**，于是单测源集即使编译不过
+  # 也没人知道（9be829bb 引入的 NumberRowTest 编译错误就是这样潜伏了一整天，详见
+  # rime-docs 分支 docs/HANDOVER-rime-only.md 第 0 节）。
+  # 刻意不写进 nightly_release 的 needs：单测失败会在提交上显示红叉，但不阻塞 Nightly 出包。
+  unit_test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Fetch source code
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Setup Android environment
+        uses: android-actions/setup-android@v4
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Run JVM unit tests
+        run: |
+          set -o pipefail
+          ./gradlew :app:testFxDebugUnitTest 2>&1 | tee unit-test-output.log
+
+      - name: Emit test failures as annotations
+        if: failure()
+        shell: bash
+        run: |
+          if [ -f unit-test-output.log ]; then
+            grep -aE '^e: |^.*FAILED$|There were failing tests|> Task .*FAILED' unit-test-output.log | head -10 | while IFS= read -r line; do
+              echo "::error::${line:0:500}"
+            done
+          fi
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: unit-test-reports
+          path: app/build/reports/tests/testFxDebugUnitTest/
+
   nightly_release:
     needs: build_commit
     if: github.ref == 'refs/heads/fx-rime-only'
