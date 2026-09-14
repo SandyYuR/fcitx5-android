@@ -5,7 +5,6 @@
 
 package org.fcitx.fcitx5.android.input.candidates.horizontal
 
-import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
@@ -56,7 +55,6 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     var indexOffset = 0
         private set
 
-    @SuppressLint("NotifyDataSetChanged")
     fun updateCandidates(
         data: Array<CandidateWord>,
         total: Int,
@@ -81,39 +79,37 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
         this.total = total
         this.activeIndex = activeIndex
         this.indexOffset = indexOffset
-        // Structural diff on the common prefix/suffix: unchanged candidates keep their
-        // ViewHolders, only the differing middle range is (re)bound.
-        val minLen = minOf(old.size, data.size)
-        var prefix = 0
-        while (prefix < minLen && old[prefix] == data[prefix]) prefix++
-        var oldEnd = old.size
-        var newEnd = data.size
-        while (oldEnd > prefix && newEnd > prefix && old[oldEnd - 1] == data[newEnd - 1]) {
-            oldEnd--
-            newEnd--
-        }
-        if (prefix == old.size && prefix == data.size) {
-            // content is identical; only metadata (total/indexOffset/font) changed
+        // "content is identical; only metadata (total/indexOffset/font) changed"
+        // keeps its notifyDataSetChanged: a structural plan would emit no ops at
+        // all, and RecyclerView would keep stale ViewHolder styling.
+        if (old.contentEquals(data)) {
             trace("notifyDataSetChanged") { notifyDataSetChanged() }
-        } else {
-            val commonLen = minOf(oldEnd, newEnd) - prefix
-            if (commonLen > 0) {
-                notifyItemRangeChanged(prefix, commonLen)
+            return
+        }
+        // Structural diff on the common prefix/suffix: unchanged candidates keep
+        // their ViewHolders, only the differing middle range is (re)bound. The
+        // highlight rebind positions are resolved by [CandidateUpdatePlan] with
+        // the insert/remove shift applied.
+        val plan = CandidateUpdatePlan.compute(old, data, oldActive, activeIndex)
+        if (plan.changedCount > 0) {
+            trace("notifyItemRangeChanged") {
+                notifyItemRangeChanged(plan.changedStart, plan.changedCount)
             }
-            if (newEnd > oldEnd) {
-                notifyItemRangeInserted(prefix + commonLen, newEnd - oldEnd)
-            } else if (oldEnd > newEnd) {
-                notifyItemRangeRemoved(prefix + commonLen, oldEnd - newEnd)
-            }
-            // Re-bind highlight for items outside the structurally changed range.
-            if (oldActive != activeIndex) {
-                if (oldActive in data.indices && (oldActive < prefix || oldActive >= newEnd)) {
-                    notifyItemChanged(oldActive)
-                }
-                if (activeIndex in data.indices && (activeIndex < prefix || activeIndex >= newEnd)) {
-                    notifyItemChanged(activeIndex)
-                }
-            }
+        }
+        if (plan.insertCount > 0) {
+            notifyItemRangeInserted(plan.insertPosition, plan.insertCount)
+        } else if (plan.removeCount > 0) {
+            notifyItemRangeRemoved(plan.removePosition, plan.removeCount)
+        }
+        // Re-bind the highlight outside the structurally changed range. Positions
+        // are resolved by [CandidateUpdatePlan] AFTER the insert/remove shift; a
+        // naive notifyItemChanged(oldActive) targets the wrong item once items
+        // before it were inserted/removed (double-highlight repro, 2026-09-14).
+        if (plan.unhighlightPosition != CandidateUpdatePlan.NONE) {
+            notifyItemChanged(plan.unhighlightPosition)
+        }
+        if (plan.highlightPosition != CandidateUpdatePlan.NONE) {
+            notifyItemChanged(plan.highlightPosition)
         }
     }
 
