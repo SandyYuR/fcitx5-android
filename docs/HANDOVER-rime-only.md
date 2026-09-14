@@ -493,6 +493,47 @@ androidfrontend/androidnotification、SandyYuR fcitx5-rime fork 均无 `addExitE
 - 切回后 `service.onCreate begin` 到 `onStartInputView` 约 130ms，rime 引擎约 1s 就绪；
 - 手动点状态栏"同步"仍会跑完整 3 任务部署并弹部署成功通知。
 
+#### `5dbe1f6c` 候选栏双高亮：结构 diff 位移后高亮重绑打到错误位置（用户日志定位，2026-09-14）
+
+用户报告"连续按键移动候选时，上一个候选和当前候选同时高亮"，且强调**不是每次按键都出现**——日志
+`日志/候选高亮...2026-09-14T10_32_47Z.txt`（OnePlus PJD110，debug 构建版本
+`nightly-0.1.3-454-...-135-g07206012`）里两轮标点场景各 5 次移动，**只有第 4 次按键**（cursor 2→3）
+出现双高亮。这个"偶发但每次复现都在同一步"的特征正是定位钥匙。
+
+**日志读法**（第 6 节方法的又一次实战）：fcitx 引擎侧 `PagedCandidateEvent` 每一步都正确（cursorIndex
+0→1→2→3→4、候选数组内容不变），状态机 `CandidatesUpdated didn't change the state` 也正常——引擎与
+事件分发无嫌疑，问题只能在 **Kotlin 侧候选栏的 UI 增量刷新**。候选内容两轮完全相同（`、､/／÷` 五个
+标点，带〔全角〕〔半角〕注释），唯一随按键变化的是 cursorIndex，第 4 步恰好是
+`HorizontalCandidateComponent.ensureActiveCandidateVisible` **首次触发窗口滑动**的那一步（前 3 个
+候选项已占满首行，高亮移到第 4 个时窗口前移一位）。
+
+**根因**：`HorizontalCandidateViewAdapter.updateCandidates` 用前后缀结构 diff 发
+`notifyItemRangeInserted/Removed`（性能优化 `73497f6e` 引入）——RecyclerView 收到 insert/remove 只
+**位移既有 ViewHolder，不重新 bind**；而高亮重绑却按**位移前**的旧下标发
+`notifyItemChanged(oldActive)`。插入/删除发生在旧高亮项之前时，真正还带着 active 背景的 ViewHolder
+已经移到别的位置，这条通知打在错误的位置上，旧高亮无人取消 → 与新高亮同屏。
+完整链路：cursor 3 时窗口化 `updateCandidates([､,/,／,÷], active=2, offset=1)`；cursor 4 时恢复整列
+`updateCandidates([、,､,/,／,÷], active=4, offset=0)`——恢复动作以 `notifyItemRangeInserted(0,1)`
+在队首补回 `、`，前一状态里的 active（`／`，ViewHolder 视觉态仍在）从位置 2 位移到 3，而
+`notifyItemChanged(oldActive=2)` 重绑的是位移后位置 2 上的 `/`（本来就不活跃）→ `／` 高亮残留 +
+`÷` 新高亮 = 双高亮。**注意该缺陷与 d1e5bafc（onLayoutCompleted 推迟 drain）无关**——drain 时序
+正确，错的只是 diff 后的重绑坐标。窗口"滑出再滑回"的结构位移是必要条件，所以只有窗口边界那一步
+出问题（第 4 次），前 3 次与第 5 次都正常。
+
+**改法（`5dbe1f6c`）**：结构 diff 抽成纯 JVM 可测的 `CandidateUpdatePlan`（notify 计划 =
+changed/insert/remove 四元组 + **位移后坐标系**的两个高亮重绑位置）；计划阶段计算旧 active
+ViewHolder 在 insert/remove 之后的新位置（保留前缀/被替换区间/匹配后缀三分支映射），并跳过会被
+结构通知覆盖的范围；`updateCandidates` 按计划发通知。"内容相同仅元数据变化"路径保留
+`notifyDataSetChanged` 兜底（结构计划此时零操作，会导致 ViewHolder 样式滞留）。
+
+**验证**：新增 `CandidateUpdatePlanTest` 12 例（含按日志复现的
+`headInsertOfNewItemShiftsPreviousActiveRebindPosition`，旧逻辑下该用例的期望值必错），
+`:app:testFxDebugUnitTest` 133 例全绿；debug APK 真机（同日志设备）复现路径实测通过后提交推送。
+
+**不变式（改这块必须守住）**：对带"结构 diff + 局部 notify"的 RecyclerView 适配器，**高亮/选中态的
+重绑位置必须在 insert/remove 位移之后的新坐标系里计算**；把"被位移的视觉态"当作"会被重绑的状态"
+是这类双高亮/双选中的通病。凡结构 notify 与状态 notify 混用的适配器都要按此检查。
+
 ---
 
 ### 3.5 用户可见名称（`bab4558c`，09-07 `e51afd88` 更新）
