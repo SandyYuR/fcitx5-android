@@ -131,10 +131,10 @@ generateDataDescriptor {
     excludes.addAll(
         listOf(
             "bundled",
-            "bundled/键盘布局",
-            "bundled/键盘布局/PopupPreset.json",
-            "bundled/主题",
-            "bundled/图标主题"
+            "bundled/keyboard_layouts",
+            "bundled/keyboard_layouts/PopupPreset.json",
+            "bundled/themes",
+            "bundled/icon_themes"
         )
     )
 }

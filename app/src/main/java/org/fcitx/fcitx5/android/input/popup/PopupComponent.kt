@@ -91,7 +91,7 @@ class PopupComponent :
 
         /**
          * 弹出候选定义：用户配置（config/PopupPreset.json）优先，缺失时回退到
-         * 内置的 bundled/键盘布局/PopupPreset.json（不落盘，避免覆盖用户编辑入口）。
+         * 内置的 bundled/keyboard_layouts/PopupPreset.json（不落盘，避免覆盖用户编辑入口）。
          */
         val popupPresetJson: Map<String, Array<String>>?
             @Synchronized

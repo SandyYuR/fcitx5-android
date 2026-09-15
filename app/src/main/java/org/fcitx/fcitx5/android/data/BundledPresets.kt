@@ -23,10 +23,10 @@ import java.io.File
  * 这些资源随 APK 打包在 `assets/bundled/` 下，首次启动时解包到应用外部
  * 文件目录的对应位置，实现"开箱即用"：
  *
- * - `bundled/键盘布局/TextKeyboardLayout.<名称>.json` → `config/`，并注册对应 profile
- * - `bundled/键盘布局/PopupPreset.json`               → 不落盘，作为运行时默认弹出定义
- * - `bundled/主题/<主题名>.json`                      → `theme/`（自定义主题目录）
- * - `bundled/图标主题/<主题名>.json`                  → `icon_themes/`
+ * - `bundled/keyboard_layouts/TextKeyboardLayout.<名称>.json` → `config/`，并注册对应 profile
+ * - `bundled/keyboard_layouts/PopupPreset.json`               → 不落盘，作为运行时默认弹出定义
+ * - `bundled/themes/<主题名>.json`                            → `theme/`（自定义主题目录）
+ * - `bundled/icon_themes/<主题名>.json`                       → `icon_themes/`
  *
  * 安装幂等且不覆盖：每个资源以"asset 路径 + 字节数"为版本标记记录在
  * SharedPreferences 中；目标文件已存在（用户自建或已安装）时绝不覆盖，
@@ -85,7 +85,7 @@ object BundledPresets {
         "长日将烬.json"
     )
 
-    const val POPUP_PRESET_ASSET = "bundled/键盘布局/PopupPreset.json"
+    const val POPUP_PRESET_ASSET = "bundled/keyboard_layouts/PopupPreset.json"
 
     /** 布局文件名 → profile 名（去掉 TextKeyboardLayout. 前缀与 .json 后缀）。 */
     fun layoutProfileOf(fileName: String): String? {
@@ -111,7 +111,7 @@ object BundledPresets {
         // 键盘布局：安装到 config/
         val configDir = UserConfigFiles.configDir() ?: File(extDir, "config").apply { mkdirs() }
         layoutAssets.forEach { name ->
-            installAsset("bundled/键盘布局/$name", File(configDir, name)).let { installedCount += it }
+            installAsset("bundled/keyboard_layouts/$name", File(configDir, name)).let { installedCount += it }
         }
         if (installedCount > 0) {
             ensureLayoutProfile()
@@ -120,13 +120,13 @@ object BundledPresets {
         // 主题：安装到 theme/（与用户自定义主题同目录）
         val themeDir = File(extDir, "theme").apply { mkdirs() }
         themeAssets.forEach { name ->
-            installAsset("bundled/主题/$name", File(themeDir, name)).let { installedCount += it }
+            installAsset("bundled/themes/$name", File(themeDir, name)).let { installedCount += it }
         }
 
         // 图标主题：安装到 icon_themes/
         val iconThemeDir = File(extDir, "icon_themes").apply { mkdirs() }
         iconThemeAssets.forEach { name ->
-            installAsset("bundled/图标主题/$name", File(iconThemeDir, name)).let { installedCount += it }
+            installAsset("bundled/icon_themes/$name", File(iconThemeDir, name)).let { installedCount += it }
         }
 
         if (installedCount > 0) {
