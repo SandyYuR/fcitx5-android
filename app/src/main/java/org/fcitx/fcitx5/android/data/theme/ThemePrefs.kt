@@ -34,14 +34,14 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         return pref
     }
 
-    val keyBorder = switch(R.string.key_border, "key_border", false)
+    val keyBorder = switch(R.string.key_border, "key_border", true)
 
     val keyBorderStroke = switch(
         R.string.key_border_stroke, "key_border_stroke", false,
         enableUiOn = { keyBorder.getValue() }
     )
 
-    val specialKeyOvalShape = switch(R.string.special_key_oval_shape, "special_key_oval_shape", false)
+    val specialKeyOvalShape = switch(R.string.special_key_oval_shape, "special_key_oval_shape", true)
 
     val keyRippleEffect = switch(R.string.key_ripple_effect, "key_ripple_effect", false)
 
@@ -53,7 +53,7 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
             R.string.key_horizontal_margin,
             R.string.portrait,
             "key_horizontal_margin",
-            3,
+            2,
             R.string.landscape,
             "key_horizontal_margin_landscape",
             3,
@@ -73,7 +73,7 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
             R.string.key_vertical_margin,
             R.string.portrait,
             "key_vertical_margin",
-            7,
+            3,
             R.string.landscape,
             "key_vertical_margin_landscape",
             4,
@@ -85,13 +85,13 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         keyVerticalMarginLandscape = secondary
     }
 
-    val keyRadius = int(R.string.key_radius, "key_radius", 4, 0, 48, "dp")
+    val keyRadius = int(R.string.key_radius, "key_radius", 12, 0, 48, "dp")
 
     val textEditingButtonRadius =
-        int(R.string.text_editing_button_radius, "text_editing_button_radius", 8, 0, 48, "dp")
+        int(R.string.text_editing_button_radius, "text_editing_button_radius", 12, 0, 48, "dp")
 
     val clipboardEntryRadius =
-        int(R.string.clipboard_entry_radius, "clipboard_entry_radius", 2, 0, 48, "dp")
+        int(R.string.clipboard_entry_radius, "clipboard_entry_radius", 8, 0, 48, "dp")
 
     enum class PunctuationPosition(override val stringRes: Int) : ManagedPreferenceEnum {
         None(R.string.punctuation_pos_none),

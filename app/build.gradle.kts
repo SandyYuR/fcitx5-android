@@ -126,6 +126,17 @@ fcitxComponent {
 generateDataDescriptor {
     // rime-data ships its own copy of opencc data; link it to the shared one
     symlinks.put("usr/share/rime-data/opencc", "usr/share/opencc")
+    // 内置布局/主题/图标主题只随 APK 分发、由 BundledPresets 在运行时解包到
+    // 外部存储，不参与 dataDir 资源同步（避免占用 data 目录且保持清单驱动）。
+    excludes.addAll(
+        listOf(
+            "bundled",
+            "bundled/keyboard_layouts",
+            "bundled/keyboard_layouts/PopupPreset.json",
+            "bundled/themes",
+            "bundled/icon_themes"
+        )
+    )
 }
 
 ksp {
