@@ -56,12 +56,20 @@ object BundledPresets {
 
     /** Android assets 无法可靠列举中文文件名，直接维护清单最可靠。 */
     private val layoutAssets = listOf(
-        "TextKeyboardLayout.9+18+26keys.json",
+        "TextKeyboardLayout.大同-9+18+26keys.json",
         "TextKeyboardLayout.九键布局.json",
         "TextKeyboardLayout.行之-26键.json",
         "TextKeyboardLayout.行之-万象九键v2.json",
         "TextKeyboardLayout.QM-朝花.json",
         "TextKeyboardLayout.Sandy-数字行26+万象九键.json"
+    )
+
+    /**
+     * 内置资源字节大小，作为安装器版本标记的一部分：更新某个资源的内容后
+     * 同步更新这里的字节数，老用户才能收到新版本（见类注释的更新策略）。
+     */
+    private val assetSizes = mapOf(
+        "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 14611
     )
 
     private val themeAssets = listOf(
@@ -141,7 +149,14 @@ object BundledPresets {
         val bytes = readAsset(assetPath) ?: return 0
         val tag = "$assetPath#${bytes.size}"
         if (tag in handled) return 0
-        if (!dest.exists()) {
+        // 内容有更新的内置资源（assetSizes 中登记了新字节数）：只有用户从未改过
+        // 本地文件（大小仍等于上一版内置内容）时才原位替换；否则保留用户版本。
+        val newSize = assetSizes[assetPath]
+        if (newSize != null && dest.exists() && dest.length() != newSize.toLong()) {
+            mark(tag)
+            return 1
+        }
+        if (!dest.exists() || newSize != null) {
             runCatching {
                 dest.parentFile?.mkdirs()
                 val tmp = File(dest.absolutePath + ".tmp")
