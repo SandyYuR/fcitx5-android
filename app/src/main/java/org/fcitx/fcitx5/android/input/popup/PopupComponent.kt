@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.fcitx.fcitx5.android.data.BundledPresets
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.broadcast.PunctuationComponent
 import org.fcitx.fcitx5.android.input.dependency.context
@@ -73,6 +74,7 @@ class PopupComponent :
     companion object {
         private var lastModified = 0L
         private var cachedPopupPreset: Map<String, Array<String>>? = null
+        private var cachedBundledPreset: Map<String, Array<String>>? = null
 
         @Synchronized
         private fun invalidatePopupPresetCache() {
@@ -80,6 +82,17 @@ class PopupComponent :
             lastModified = 0L
         }
 
+        @Synchronized
+        private fun bundledPopupPreset(): Map<String, Array<String>>? {
+            cachedBundledPreset?.let { return it }
+            val preset = BundledPresets.readBundledPopupPreset() ?: return null
+            return preset.mapValues { it.value.toTypedArray() }.also { cachedBundledPreset = it }
+        }
+
+        /**
+         * 弹出候选定义：用户配置（config/PopupPreset.json）优先，缺失时回退到
+         * 内置的 bundled/键盘布局/PopupPreset.json（不落盘，避免覆盖用户编辑入口）。
+         */
         val popupPresetJson: Map<String, Array<String>>?
             @Synchronized
             get() {
@@ -94,10 +107,10 @@ class PopupComponent :
                 ) {
                     return cachedPopupPreset
                 }
-                val snapshot = org.fcitx.fcitx5.android.input.config.ConfigProviders.readPopupPreset<Map<String, List<String>>>() ?: run {
-                    cachedPopupPreset = null
-                    lastModified = 0L
-                    return null
+                val snapshot = org.fcitx.fcitx5.android.input.config.ConfigProviders.readPopupPreset<Map<String, List<String>>>()
+                if (snapshot == null) {
+                    // 用户未自定义时使用内置默认弹出定义
+                    return bundledPopupPreset()
                 }
                 if (cachedPopupPreset == null || snapshot.lastModified != lastModified) {
                     lastModified = snapshot.lastModified
