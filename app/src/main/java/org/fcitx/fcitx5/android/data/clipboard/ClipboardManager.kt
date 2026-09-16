@@ -42,6 +42,16 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
     private lateinit var clbDb: ClipboardDatabase
     private lateinit var clbDao: ClipboardDao
 
+    /**
+     * Upper bound on rows returned by [searchEntries].
+     *
+     * The live-search UI only displays 50 entries (see `ClipboardSearchController.MAX_RESULTS`),
+     * so pulling the whole history across the cursor is pure waste. 200 leaves generous headroom
+     * for entries that the display side may still drop, while keeping one query's row set small
+     * and bounded regardless of how large the history grows.
+     */
+    private const val SEARCH_LIMIT = 200
+
     fun interface OnClipboardUpdateListener {
         fun onUpdate(entry: ClipboardEntry)
     }
@@ -279,13 +289,39 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
 
     fun allEntries() = clbDao.allEntries()
 
+    /**
+     * History search: newest first, filtered in SQLite and capped at [SEARCH_LIMIT] rows.
+     *
+     * This used to call `allEntriesForSearch()` and then filter in Kotlin, which materialized
+     * every entry in the history on every keystroke — the live-search box (ClipboardSearchController)
+     * re-runs this on each input change, so the cost scaled with the history size. The filtering
+     * now happens in SQLite and only a bounded row set crosses the cursor.
+     *
+     * Two behaviours are preserved deliberately:
+     *  - the search is case-insensitive and matches `text` as well as `originalText`;
+     *  - the newest entries win when the limit truncates.
+     *
+     * Known difference from the old in-memory filter: SQLite's LIKE folds case for ASCII only,
+     * while Kotlin's `contains(ignoreCase = true)` folds a wider Unicode set. The two agree for
+     * ASCII, for CJK (no case), and for the accented Latin text this history holds in practice;
+     * they can differ for scripts with non-ASCII case pairs (Greek, Cyrillic, Turkish dotted I).
+     */
     suspend fun searchEntries(query: String): List<ClipboardEntry> {
         if (query.isEmpty()) return emptyList()
-        return clbDao.allEntriesForSearch().filter { entry ->
-            entry.text.contains(query, ignoreCase = true) ||
-                entry.originalText.contains(query, ignoreCase = true)
-        }
+        return clbDao.searchEntries(escapeLikePattern(query), SEARCH_LIMIT)
     }
+
+    /**
+     * Escape LIKE metacharacters in a user-typed query.
+     *
+     * `%`, `_` and the escape character itself are pattern syntax; without escaping, typing `%`
+     * would match every entry and `_` would match any single character. The DAO passes
+     * `ESCAPE '\'`, so a literal backslash must be doubled.
+     */
+    private fun escapeLikePattern(query: String): String = query
+        .replace("\\", "\\\\")
+        .replace("%", "\\%")
+        .replace("_", "\\_")
 
     fun favoriteEntries() = clbDao.favoriteEntries()
 
@@ -578,16 +614,19 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
 
     private suspend fun removeOutdated() {
         var deletedAny = false
+        // 只取 id：旧实现把三类条目的完整 ClipboardEntry 全读出来再排序求保留集，
+        // 每次插入的成本都随历史规模线性增长（含长文本载荷的整对象物化）。
+        // 保留规则完全不变——仍是"按 id 保留最大的 limit 条"，见 trimOutdatedEntries。
         deletedAny = trimOutdatedEntries(
-            clbDao.getAllUnpinnedTextEntriesBySource(ClipboardEntry.SOURCE_LOCAL),
+            clbDao.findUnpinnedTextEntryIdsBySource(ClipboardEntry.SOURCE_LOCAL),
             localLimitPref.getValue()
         ) || deletedAny
         deletedAny = trimOutdatedEntries(
-            clbDao.getAllUnpinnedTextEntriesBySource(ClipboardEntry.SOURCE_REMOTE),
+            clbDao.findUnpinnedTextEntryIdsBySource(ClipboardEntry.SOURCE_REMOTE),
             remoteLimitPref.getValue()
         ) || deletedAny
         deletedAny = trimOutdatedEntries(
-            clbDao.getAllUnpinnedMediaEntries(),
+            clbDao.findUnpinnedMediaEntryIds(),
             mediaLimitPref.getValue()
         ) || deletedAny
         if (deletedAny) {
@@ -595,23 +634,25 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         }
     }
 
-    private suspend fun trimOutdatedEntries(entries: List<ClipboardEntry>, limit: Int): Boolean {
-        if (entries.size <= limit) {
+    /**
+     * 按 id 裁剪一类条目，保留 id 最大的 [limit] 条。
+     *
+     * 与旧实现 `entries.sortedBy { it.id }.takeLast(limit)` 等价：DAO 的 id 查询不保证顺序，
+     * 所以这里自己排序——排 IntArray 比排一堆实体对象便宜得多，也不物化任何文本载荷。
+     * 数量未超限时**不做任何写操作**（与旧实现一致，避免每次插入都触发一次无害但多余的写）。
+     */
+    private suspend fun trimOutdatedEntries(entryIds: IntArray, limit: Int): Boolean {
+        val keep = limit.coerceAtLeast(0)
+        if (entryIds.size <= keep) {
             return false
         }
-        val retained = entries
-            .sortedBy { it.id }
-            .takeLast(limit.coerceAtLeast(0))
-            .mapTo(hashSetOf()) { it.id }
-        val toDelete = entries
-            .asSequence()
-            .map { it.id }
-            .filter { it !in retained }
-            .toList()
+        val ascending = entryIds.sortedArray()
+        // 升序后取前 (size - keep) 个即为待删的"较旧"部分
+        val toDelete = IntArray(ascending.size - keep) { ascending[it] }
         if (toDelete.isEmpty()) {
             return false
         }
-        clbDao.markAsDeleted(*toDelete.toIntArray())
+        clbDao.markAsDeleted(*toDelete)
         return true
     }
 
