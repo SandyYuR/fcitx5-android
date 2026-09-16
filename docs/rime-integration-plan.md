@@ -1,5 +1,7 @@
-# f5a 输入法精简与 Rime 整合实施方案
+# f5 输入法精简与 Rime 整合实施方案
 
+> **【2026-09-16 状态注记：本方案已全部实施完毕】** Phase 1/2/3 的全部动作已在 `fx-rime-only` 分支落地（含方案 C），并按"任务 1~4"追加了 quickphrase/ spell/unicode 等裁剪与语言键 Shift 改造。提交对应：Phase 1 = `67198256`/`b1bba67b`/`a5a75db4`/`2215cc23`；Phase 2 = `7bc89b99`/`16d5444d`/`c86c32c3`/`dcc1046f`；Phase 3 = `d85068c0`/`cc2f2d6b`；追加任务 = `480cdd26`/`47ee56fd`/`870ab1c8`/`26fc1454`。决策点 8（keyboard-us/androidkeyboard 保留）被用户后续决策推翻（已删）；验收清单与 §7 性能边界分析仍然有效。下文保留原方案原文作为设计依据，"待办/建议"语气一律按已完成理解。
+>
 > 本文是《可行性报告》（`docs/rime-only-feasibility.md`）的落地版：把我的第一手核对与三个并行子代理（插件机制 / rime 插件 / 构建系统）的报告交叉验证后，整理成可直接执行的方案。
 > 工作分支：`fx2-rime-only`（自 fx2 @ 3ad25fc9 切出）。基线 commit 3ad25fc9，所有结论附证据位置。
 
@@ -54,7 +56,7 @@
 - `prepare_personal_build.sh` 补丁链（fcitx5-rime 切 fxliang fork、核心 alt-trigger 补丁、prebuilt 更新）
 - opencc/librime-lua/librime-octagram/librime-predict（见 FAQ，已证与裁剪正交）
 
-### 3.3 需要你拍板的决策点
+### 3.3 需要你拍板的决策点【已拍板，实际执行见文首注记】
 
 | # | 决策 | 默认建议 |
 |---|---|---|
@@ -154,12 +156,12 @@ Commit 3：CI 精简（删 fdroid.yml/pull_request.yml、mainline job）
 - Phase 1：0.5 天 · Phase 2：1–2 天（含真机回归）· Phase 3：+1 天（可选）
 - 收益：单 APK、体积净减（chinese-addons/libime/lua 出、librime 入）、启动少加载 8+ addon、设置页只剩 rime 相关、免装第二个 APK、CI 三合一、仓库少 11 个插件模块与 15+ 子模块。
 
-## 9. 待你确认（开工前置）
+## 9. 待你确认（开工前置）——【已确认并执行完毕】
 
-1. 方案档位（默认推荐 B，做完可评估是否继续 C）；
-2. 语音输入 / 剪贴板同步 / 检查更新：留 or 删（默认全留）；
-3. mainline flavor 删除（默认删）；
-4. 允许我执行 `git submodule update --init`（prebuilt 较大）并开始 Phase 0。
+1. 方案档位（默认推荐 B，做完可评估是否继续 C）——**实际：B 做完后继续做完了 C**；
+2. 语音输入 / 剪贴板同步 / 检查更新：留 or 删（默认全留）——**实际：全留**；
+3. mainline flavor 删除（默认删）——**实际：已删**；
+4. 允许我执行 `git submodule update --init`（prebuilt 较大）并开始 Phase 0——**实际：已初始化并多轮构建**。
 
 ---
 

@@ -6,11 +6,11 @@
 ## 文档索引
 
 - [交接文档](docs/HANDOVER-rime-only.md) —— 项目历史、rime 引擎更新 runbook、故障经验；信息密度最高，建议从这份读起
-- [Rime-only 简体中文用户指南](docs/RIME_ONLY_USER_GUIDE_zh-CN.md) —— 安装、配置、迁移与 FAQ
-- [代码审阅报告（2026-09-07）](docs/CODE_REVIEW_REPORT_2026-09-07.md) —— 风险清单与验证建议
-- [性能审阅报告（2026-09-07）](docs/PERFORMANCE_REVIEW_REPORT_2026-09-07.md) —— 热点分析与测量门控
-- [Rime 整合实施方案](docs/rime-integration-plan.md) —— 历史设计文档
-- [Rime 专用化可行性报告](docs/rime-only-feasibility.md) —— 历史设计文档
+- [靓企鹅·中州韵 简体中文用户指南](docs/RIME_ONLY_USER_GUIDE_zh-CN.md) —— 安装、配置、迁移与 FAQ
+- [代码审阅报告（2026-09-07）](docs/CODE_REVIEW_REPORT_2026-09-07.md) —— 风险清单与验证建议（历史基线快照，风险状态以当前代码复核为准）
+- [性能审阅报告（2026-09-07）](docs/PERFORMANCE_REVIEW_REPORT_2026-09-07.md) —— 热点分析与测量门控（历史基线快照，热点状态以当前代码复核为准）
+- [Rime 整合实施方案](docs/rime-integration-plan.md) —— 历史设计文档（已实施完毕，见文首状态注记）
+- [Rime 专用化可行性报告](docs/rime-only-feasibility.md) —— 历史设计文档（已实施完毕，见文首状态注记）
 
 ## 关于历史
 
