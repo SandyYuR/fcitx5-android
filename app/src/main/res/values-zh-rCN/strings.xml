@@ -165,6 +165,10 @@
     <string name="exception_theme_name_clash">主题名称与内置主题冲突</string>
     <string name="exception_theme_src_image">无法保存主题背景原图片</string>
     <string name="exception_theme_cropped_image">无法保存裁切后的主题背景图片</string>
+    <string name="exception_theme_zip_too_large">主题压缩包超过 %1$d MB</string>
+    <string name="exception_theme_zip_too_many_entries">主题压缩包内的条目超过 %1$d 个</string>
+    <string name="exception_theme_zip_entry_too_large">主题压缩包内的条目“%1$s”超过 %2$d MB</string>
+    <string name="exception_theme_zip_unsafe_entry">主题压缩包内含有不安全的路径：%1$s</string>
     <string name="config_protocol_not_supported_title">配置协议不受支持</string>
     <string name="config_protocol_not_supported_summary">此插件要求应用协议 v%1$d，而当前应用最高支持 v%2$d。请升级应用。</string>
     <string name="follow_system_day_night_theme">跟随系统夜间模式</string>

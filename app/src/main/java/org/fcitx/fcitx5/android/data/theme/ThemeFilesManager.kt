@@ -4,9 +4,9 @@ import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.appContext
 import org.fcitx.fcitx5.android.utils.errorRuntime
-import org.fcitx.fcitx5.android.utils.extract
 import org.fcitx.fcitx5.android.utils.withTempDir
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileFilter
 import java.io.InputStream
@@ -18,6 +18,33 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 object ThemeFilesManager {
+
+    /**
+     * 主题 ZIP 的限额，做法与常量风格对齐 [IconThemeManager] 的 A6 修复（不另造一套）。
+     *
+     * 主题包就是一个 JSON 加两张图片，这些上限对正常包非常宽松，目的是把压缩炸弹/超大包
+     * 变成可处理的失败，而不是让 [InputStream.readBytes] 把整个归档读进堆（OOM 是 Error，
+     * `runCatching` 和上层的 `catch (Exception)` 都拦不住），或让逐条目解压把 cache 目录写满。
+     *
+     * 单条目上限取 16MB 而不是 IconThemeManager 的 4MB：图标主题的图片是按钮小图，
+     * 主题包的背景图是整屏壁纸（导出时原图与裁切图一起打包），4MB 会误伤正常主题。
+     */
+    private const val MAX_IMPORT_ARCHIVE_BYTES = 16 * 1024 * 1024
+    private const val MAX_IMPORT_JSON_BYTES = 1024 * 1024
+    private const val MAX_IMPORT_ENTRY_BYTES = 16L * 1024 * 1024
+    private const val MAX_IMPORT_TOTAL_BYTES = 32L * 1024 * 1024
+    private const val MAX_IMPORT_ENTRIES = 256
+
+    /** Windows 盘符式前缀，用于拒绝 "C:/..." 这类条目名。 */
+    private val DRIVE_LETTER_PREFIX = Regex("^[A-Za-z]:")
+
+    /**
+     * 主题 ZIP 被限额或路径校验拒绝时抛出的内部异常。
+     *
+     * 单独一个类型，是为了让"UTF-8 → GBK → Big5 各试一遍"的回退逻辑认出：
+     * 这跟编码无关，换编码不可能成功，必须立刻放弃，而不是把炸弹再解析两遍。
+     */
+    private class ThemeArchiveRejectedException(message: String) : IllegalArgumentException(message)
 
     private val themeRootDir: File by lazy {
         File(appContext.getExternalFilesDir(null), "theme").also { it.mkdirs() }
@@ -347,14 +374,18 @@ object ThemeFilesManager {
      */
     fun importTheme(src: InputStream, importedName: String? = null): Result<Triple<Boolean, Theme.Custom, Boolean>> =
         runCatching {
-            // Read entire ZIP to byte array for multiple encoding attempts
-            val zipBytes = src.readBytes()
+            // 三种编码要把同一份归档完整解析三遍，所以先有界地读进内存一次（原来是无界
+            // readBytes()，超大 zip 会直接 OOM）。
+            val zipBytes = src.readAtMost(MAX_IMPORT_ARCHIVE_BYTES) { rejectArchiveTooLarge() }
             // Try importing with different ZIP encodings (UTF-8, GBK, Big5)
             // This handles ZIP files created on Windows with non-UTF-8 encodings
             val encodings = listOf("UTF-8", "GBK", "Big5")
             for (encoding in encodings) {
                 try {
                     return@runCatching importThemeWithEncoding(zipBytes.inputStream(), encoding, importedName)
+                } catch (e: ThemeArchiveRejectedException) {
+                    // 限额/路径校验失败与编码无关，再换编码也只是把同一个归档重放一遍。
+                    throw e
                 } catch (e: Exception) {
                     // Try next encoding
                 }
@@ -366,11 +397,14 @@ object ThemeFilesManager {
 
     fun decodeTheme(src: InputStream): Result<Theme.Custom> =
         runCatching {
-            val zipBytes = src.readBytes()
+            val zipBytes = src.readAtMost(MAX_IMPORT_ARCHIVE_BYTES) { rejectArchiveTooLarge() }
             val encodings = listOf("UTF-8", "GBK", "Big5")
             for (encoding in encodings) {
                 try {
                     return@runCatching decodeThemeWithEncoding(zipBytes.inputStream(), encoding)
+                } catch (e: ThemeArchiveRejectedException) {
+                    // 同 importTheme。
+                    throw e
                 } catch (e: Exception) {
                     // Try next encoding
                 }
@@ -381,9 +415,22 @@ object ThemeFilesManager {
     private fun decodeThemeWithEncoding(src: InputStream, encoding: String): Theme.Custom {
         return ZipInputStream(src, Charset.forName(encoding)).use { zipStream ->
             var entry = zipStream.nextEntry
+            var entryCount = 0
+            var totalBytes = 0L
             while (entry != null) {
+                if (!entry.isDirectory) {
+                    entryCount++
+                    if (entryCount > MAX_IMPORT_ENTRIES) rejectTooManyEntries()
+                }
                 if (!entry.isDirectory && entry.name.endsWith(".json")) {
-                    val rawJson = zipStream.readBytes().toString(Charsets.UTF_8)
+                    // 取成 val 再进 lambda：entry 是可变的局部变量（循环末尾会重新赋值），
+                    // 直接把 entry 捕获进闭包会丢掉非空智能转换。
+                    val entryName = entry.name
+                    // 改成有界读取：一个声称 100MB 的 JSON 条目过去会被整份读进堆。
+                    // 不用 entry.size 预判——ZipInputStream 的流式头不填 size（实测恒为 -1）。
+                    val rawJson = zipStream.readAtMost(MAX_IMPORT_JSON_BYTES) {
+                        rejectEntryTooLarge(entryName, MAX_IMPORT_JSON_BYTES.toLong())
+                    }.toString(Charsets.UTF_8)
                     val normalizedJson = rawJson.replace(
                         Regex("""/Android/data/[^/]+/files"""),
                         "/Android/data/${appContext.packageName}/files"
@@ -394,11 +441,140 @@ object ThemeFilesManager {
                     )
                     return theme
                 }
+                // 这条路径不需要图片内容，但必须把条目读完 nextEntry 才会推进；用固定缓冲区
+                // 丢弃并计总量，解压炸弹就不会靠 CPU/磁盘把这台设备拖垮（与解压路径同一套限额）。
+                if (!entry.isDirectory) {
+                    totalBytes += zipStream.discardAtMost(MAX_IMPORT_ENTRY_BYTES, entry.name)
+                    if (totalBytes > MAX_IMPORT_TOTAL_BYTES) rejectArchiveTooLarge(MAX_IMPORT_TOTAL_BYTES)
+                }
                 entry = zipStream.nextEntry
             }
             errorRuntime(R.string.exception_theme_json)
         }
     }
+
+    /**
+     * 有界读取 [limit] 字节；超限时调用 [reject] 抛出对应的本地化错误。
+     *
+     * 与 [IconThemeManager] 的 `readAtMost` 同一套做法，只是错误文案由调用方决定，
+     * 保证用户看到的是翻译过的文案而不是裸英文异常。
+     */
+    private inline fun InputStream.readAtMost(limit: Int, reject: () -> Nothing): ByteArray {
+        val buffer = ByteArrayOutputStream()
+        val chunk = ByteArray(DEFAULT_BUFFER_SIZE)
+        var total = 0
+        while (true) {
+            val read = read(chunk)
+            if (read <= 0) break
+            total += read
+            if (total > limit) reject()
+            buffer.write(chunk, 0, read)
+        }
+        return buffer.toByteArray()
+    }
+
+    /**
+     * 把一个条目解压到 [target]，同时受单条目 [perEntryLimit] 与剩余总量预算约束；
+     * 返回实际写入的字节数。
+     *
+     * 用固定缓冲区，所以无论条目声称多大，峰值内存都是常量；超限直接失败，
+     * 而不是把 cache 目录写满。超的是哪一条限额就报哪一条的本地化文案。
+     */
+    private fun InputStream.copyAtMostTo(
+        target: File,
+        perEntryLimit: Long,
+        remainingTotal: Long,
+        entryName: String
+    ): Long {
+        if (remainingTotal <= 0) rejectArchiveTooLarge(MAX_IMPORT_TOTAL_BYTES)
+        val limit = minOf(perEntryLimit, remainingTotal)
+        val overTotal = remainingTotal < perEntryLimit
+        var written = 0L
+        target.outputStream().use { output ->
+            val chunk = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (true) {
+                val read = read(chunk)
+                if (read <= 0) break
+                written += read
+                if (written > limit) {
+                    if (overTotal) {
+                        rejectArchiveTooLarge(MAX_IMPORT_TOTAL_BYTES)
+                    } else {
+                        rejectEntryTooLarge(entryName, perEntryLimit)
+                    }
+                }
+                output.write(chunk, 0, read)
+            }
+        }
+        return written
+    }
+
+    /**
+     * 把 ZIP 条目名解析成 [tempDir] 内的文件，拒绝任何逃逸出临时目录的条目。
+     *
+     * 原来是 `File(tempDir, entry.name)`：`entry.name` 直接来自归档，`/abs/path`、`C:\...`
+     * 或 `../../x` 都能落到 tempDir 之外（路径穿越）。这里既做名字层面的快速拒绝
+     * （换编码不可能改变结果，所以在回退循环里会直接失败），也在解压前用 canonical path
+     * 复核一次，确保解析结果确实在 tempDir 之内。
+     */
+    private fun resolveEntryTarget(tempDir: File, entryName: String): File {
+        val normalized = entryName.replace('\\', '/')
+        val isUnsafe = normalized.isEmpty() ||
+            normalized.startsWith("/") ||
+            DRIVE_LETTER_PREFIX.containsMatchIn(normalized) ||
+            normalized.split('/').any { it == ".." }
+        if (isUnsafe) rejectUnsafeEntryPath(entryName)
+        val target = File(tempDir, entryName)
+        val canonicalRoot = tempDir.canonicalFile
+        val canonicalTarget = target.canonicalFile
+        if (canonicalTarget != canonicalRoot &&
+            !canonicalTarget.path.startsWith(canonicalRoot.path + File.separator)
+        ) {
+            rejectUnsafeEntryPath(entryName)
+        }
+        return target
+    }
+
+    /** 丢弃一个条目的内容，最多 [limit] 字节，超限即失败；返回实际丢弃的字节数。 */
+    private fun InputStream.discardAtMost(limit: Long, entryName: String): Long {
+        val chunk = ByteArray(DEFAULT_BUFFER_SIZE)
+        var total = 0L
+        while (true) {
+            val read = read(chunk)
+            if (read <= 0) break
+            total += read
+            if (total > limit) rejectEntryTooLarge(entryName, limit)
+        }
+        return total
+    }
+
+    /** 归档读入内存的字节数超出限额（[MAX_IMPORT_ARCHIVE_BYTES] 或解压总量 [MAX_IMPORT_TOTAL_BYTES]）。 */
+    private fun rejectArchiveTooLarge(limitBytes: Long = MAX_IMPORT_ARCHIVE_BYTES.toLong()): Nothing =
+        throw ThemeArchiveRejectedException(
+            appContext.getString(
+                R.string.exception_theme_zip_too_large,
+                limitBytes / (1024 * 1024)
+            )
+        )
+
+    private fun rejectEntryTooLarge(
+        entryName: String,
+        limitBytes: Long = MAX_IMPORT_ENTRY_BYTES
+    ): Nothing = throw ThemeArchiveRejectedException(
+        appContext.getString(
+            R.string.exception_theme_zip_entry_too_large,
+            entryName.take(64),
+            limitBytes / (1024 * 1024)
+        )
+    )
+
+    private fun rejectTooManyEntries(): Nothing = throw ThemeArchiveRejectedException(
+        appContext.getString(R.string.exception_theme_zip_too_many_entries, MAX_IMPORT_ENTRIES)
+    )
+
+    private fun rejectUnsafeEntryPath(entryName: String): Nothing = throw ThemeArchiveRejectedException(
+        appContext.getString(R.string.exception_theme_zip_unsafe_entry, entryName.take(64))
+    )
     
     /**
      * Import theme with specific ZIP entry encoding.
@@ -417,11 +593,23 @@ object ThemeFilesManager {
                 var jsonFile: File? = null
 
                 var entry = zipStream.nextEntry
+                var entryCount = 0
+                var totalBytes = 0L
                 while (entry != null) {
                     if (!entry.isDirectory) {
-                        val file = File(tempDir, entry.name)
+                        // 条目数/解压总量与单条目上限：原来 copyTo 是无界的，一个 zip 炸弹
+                        // 可以把 cache 目录写满（见任务 C）。
+                        entryCount++
+                        if (entryCount > MAX_IMPORT_ENTRIES) rejectTooManyEntries()
+                        val file = resolveEntryTarget(tempDir, entry.name)
                         file.parentFile?.mkdirs()
-                        zipStream.copyTo(file.outputStream())
+                        val written = zipStream.copyAtMostTo(
+                            target = file,
+                            perEntryLimit = MAX_IMPORT_ENTRY_BYTES,
+                            remainingTotal = MAX_IMPORT_TOTAL_BYTES - totalBytes,
+                            entryName = entry.name
+                        )
+                        totalBytes += written
                         extractedPaths[entry.name] = file
                         if (entry.name.endsWith(".json")) {
                             jsonFile = file

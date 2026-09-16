@@ -172,6 +172,10 @@
     <string name="exception_theme_name_clash">Theme name clashes with builtin themes</string>
     <string name="exception_theme_src_image">Unable to save source image of theme background</string>
     <string name="exception_theme_cropped_image">Unable to save cropped image of theme background</string>
+    <string name="exception_theme_zip_too_large">Theme ZIP is larger than %1$d MB</string>
+    <string name="exception_theme_zip_too_many_entries">Theme ZIP contains more than %1$d entries</string>
+    <string name="exception_theme_zip_entry_too_large">Theme ZIP entry \"%1$s\" is larger than %2$d MB</string>
+    <string name="exception_theme_zip_unsafe_entry">Theme ZIP contains an unsafe path: %1$s</string>
     <string name="config_protocol_not_supported_title">Unsupported configuration protocol</string>
     <string name="config_protocol_not_supported_summary">This plugin requires app protocol v%1$d, but current app supports up to v%2$d. Please update the app.</string>
     <string name="follow_system_day_night_theme">Follow system day/night theme</string>
