@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.util.Log
+import android.util.LruCache
 import android.util.Xml
 import android.util.AttributeSet
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
@@ -51,6 +52,45 @@ object ButtonIconFile {
     const val PREFIX = "file:"
     const val DIR = "button_icons"
     private const val TAG = "ButtonIconFile"
+
+    /**
+     * 已解析图标的 ConstantState 缓存（条数上限）。
+     *
+     * `loadDrawable` 在 UI bind 路径上被调用（ButtonsBarUi 每次绑定按钮都会走），而它每次都要
+     * 重新 resolvePath（几次 `exists()`）、读文件、再解析：XML 要依次尝试框架/平台 vector/compat
+     * vector/简易 vector 四种解析器，位图走 `Drawable.createFromPath`。使用自定义 `file:` 图标的
+     * 用户因此每抬一次键盘就重复一遍同样的磁盘 I/O 与解析。
+     *
+     * 缓存 ConstantState 而不是 Drawable 实例：Drawable 自身带 bounds/level/alpha/tint 可变状态，
+     * 同一个实例被多个 View 复用会互相串状态；ConstantState 只描述内容，每次命中都产出一个新实例。
+     * `android.util.LruCache` 的读写自带同步，无需额外加锁。
+     */
+    private const val ICON_CACHE_ENTRIES = 32
+    private val constantStateCache = LruCache<String, Drawable.ConstantState>(ICON_CACHE_ENTRIES)
+
+    /**
+     * 缓存 key：路径 + 文件大小 + 修改时间。
+     *
+     * 大小与 mtime 一起足以让"文件被替换"自动失效（编辑器重新导入会生成新文件名，手动替换同名
+     * 文件则会改变 mtime）。文件不存在时返回 null —— 不缓存失败结果，否则用户刚放进去的图标
+     * 在进程存活期间会一直解析不出来。
+     */
+    private fun cacheKeyFor(path: String): String? {
+        val file = File(path)
+        if (!file.isFile) return null
+        return "$path|${file.length()}|${file.lastModified()}"
+    }
+
+    /**
+     * 清空图标解析缓存。
+     *
+     * 正常情况下不需要调用：key 里的 size/mtime 已经覆盖了"文件内容变化"，图标导入路径也总是
+     * 生成新文件名（见 ButtonsCustomizerActivity）。保留它是为了给将来可能出现的"原地覆盖同名
+     * 图标且 mtime 未变"场景一个显式出口，不要在别处随手调用。
+     */
+    fun invalidateCache() {
+        constantStateCache.evictAll()
+    }
 
     fun isFileIcon(icon: String?): Boolean = icon != null && icon.startsWith(PREFIX)
 
@@ -99,13 +139,34 @@ object ButtonIconFile {
 
     /**
      * Load the drawable for a file icon value, or null when it cannot be resolved.
+     *
+     * Resolution + parsing are cached (see [constantStateCache]); a hit returns a fresh instance
+     * built from the cached [Drawable.ConstantState], so callers own their bounds/alpha/tint.
+     * Failures and unresolvable paths are never cached.
      */
     fun loadDrawable(icon: String): Drawable? {
         val path = resolvePath(icon) ?: run {
             Log.w(TAG, "Failed to resolve custom icon path: $icon")
             return null
         }
-        Log.i(TAG, "Loading custom icon: $icon -> $path")
+        val cacheKey = cacheKeyFor(path)
+        if (cacheKey != null) {
+            constantStateCache.get(cacheKey)?.let { state ->
+                // newDrawable 产出独立实例；拿不到 ConstantState 的路径从不入缓存，所以这里
+                // 不会把"无状态"的 Drawable 变成共享实例。
+                runCatching { state.newDrawable() }.getOrNull()?.let { return it }
+            }
+        }
+        val loaded = loadDrawableUncached(path) ?: return null
+        if (cacheKey != null) {
+            loaded.constantState?.let { constantStateCache.put(cacheKey, it) }
+        }
+        return loaded
+    }
+
+    /** The resolution/parse work behind [loadDrawable]; only reached on a cache miss. */
+    private fun loadDrawableUncached(path: String): Drawable? {
+        Log.i(TAG, "Loading custom icon: $path")
         return if (path.endsWith(".xml", ignoreCase = true)) {
             loadXmlDrawable(path).also {
                 if (it == null) {
