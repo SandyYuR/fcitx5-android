@@ -22,6 +22,7 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.utils.ImmutableGraph
 import org.fcitx.fcitx5.android.utils.Locales
 import org.fcitx.fcitx5.android.utils.appContext
+import org.fcitx.fcitx5.android.utils.timberDebugEnabled
 import org.fcitx.fcitx5.android.utils.toast
 import timber.log.Timber
 import java.util.concurrent.CopyOnWriteArrayList
@@ -406,7 +407,13 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
             // Phase 0 perf tracing: event arrival on the fcitx thread.
             trace("HandleFcitxEvent") {
                 val event = FcitxEvent.create(type, params)
-                Timber.d("Handling $event")
+                // Guard before interpolating: a release build with verbose logging off drops
+                // DEBUG inside ConciseTree.log(), i.e. only after this string and the event's
+                // toString() (a candidate event joins its candidates) have been built. This runs
+                // once per native event — several times per keystroke.
+                if (timberDebugEnabled) {
+                    Timber.d("Handling $event")
+                }
                 fcitxEventHandlers.forEach { it.invoke(event) }
                 eventFlow_.tryEmit(event)
             }
