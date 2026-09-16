@@ -30,6 +30,7 @@ import org.fcitx.fcitx5.android.common.ipc.VoiceInputIpc
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.utils.appContext
 import timber.log.Timber
+import java.util.concurrent.atomic.AtomicInteger
 
 data class VoiceInputProviderInfo(
     val id: String,
@@ -82,6 +83,61 @@ object VoiceInputProviderManager {
     // before the provider reports onReady is replayed once the session opens.
     // Eliminates head-end word loss from cold-bind + model-load latency.
     private const val PRE_ROLL_MAX_MS = 3_000L
+
+    /**
+     * 语音 PCM 队列最多能缓存多少毫秒音频。容量由它换算成包数，而不是拍一个包数或字节数。
+     *
+     * 为什么按时长：采集层固定 100ms 一包（见 [VoiceInputAudioCapture]，按 `sampleRate / 10`
+     * 采样切包），采样格式一变（provider 可用 preferredConfig 指定采样率），同样包数代表的
+     * 延迟就变了；而积压超过几百毫秒后，识别结果已经不是用户此刻说的那句话（高延迟识别）。
+     * 取 3 秒与预滚窗口 [PRE_ROLL_MAX_MS] 一致——会话能容忍的"最老音频"上限就是 3 秒。
+     *
+     * 内存上界（换算见 [VoicePcmQueueBudget]）：默认 16kHz/16bit/单声道 = 3200 B/包，
+     * 31 包 ≈ 97KB，与预滚缓冲同量级。改前是 Channel.UNLIMITED，堆按会话时长线性增长
+     * （≈32KB/s，外加包数组与队列节点开销），长会话可能 GC 抖动甚至 OOM。
+     */
+    private const val MAX_BUFFERED_AUDIO_MS = 3_000L
+
+    /** 队列容量（包数）。生产端 [offerAudioPacket] 用它判定过载。 */
+    private val MAX_BUFFERED_AUDIO_PACKETS =
+        VoicePcmQueueBudget.capacityPackets(MAX_BUFFERED_AUDIO_MS)
+
+    /**
+     * 预滚缓冲的硬上限（包数），与 [PRE_ROLL_MAX_MS] 同一预算推导。
+     *
+     * 预滚本身是滚动窗口、天然淘汰最旧的包（见 [startPreRollCapture]），正常路径下这个
+     * 上限不会被触及；它只兜住 pts 不再前进的病态情况（例如系统时钟被回拨，
+     * `pts - 队首.pts` 永远超不过窗口）。
+     */
+    private val PRE_ROLL_MAX_PACKETS = VoicePcmQueueBudget.capacityPackets(PRE_ROLL_MAX_MS)
+
+    /** 单次 Binder feedAudio 超过该耗时即视为 provider 偏慢（记入统计并限频告警）。 */
+    private const val FEED_SLOW_WARN_MS = 200L
+
+    /** 慢调用告警的限频间隔，避免"provider 慢"自己制造日志风暴。 */
+    private const val SLOW_FEED_WARN_INTERVAL_MS = 1_000L
+
+    /**
+     * 队列满时报告给调用方的失败原因（provider-too-slow 语义）。
+     *
+     * 复用既有的 provider→onError 回调链，与 [launchAudioFeedJob] 里 Binder 死亡时写的
+     * "Provider disconnected" 同一形式；字符串最终会作为 Toast / 语音状态提示展示。
+     * 注意：voice_error_* 的本地化文案在 res/ 下，本次改动范围只允许 input/voice/，
+     * 所以沿用本文件已有的字面量写法，精确原因同时写进 release 可见的 Timber 日志。
+     */
+    private const val PROVIDER_TOO_SLOW_MESSAGE = "Provider too slow: voice PCM queue full"
+
+    /** 本次会话的 PCM 队列统计：深度高水位、最旧包年龄、feedAudio 耗时、过载次数。 */
+    private val pcmQueueMetrics = VoicePcmQueueMetrics()
+
+    /**
+     * 已经因过载中止过的 [sessionGeneration]，保证同一会话只中止一次
+     * （队列满之后采集线程还可能投递一两个包）。
+     */
+    private val overflowAbortGeneration = AtomicInteger(-1)
+
+    /** 慢调用告警限频时间戳；只在 feed 协程（单消费者）里读写。 */
+    private var lastSlowFeedWarnElapsed = 0L
 
     private val actions = buildSet {
         val appId = BuildConfig.APPLICATION_ID
@@ -538,6 +594,9 @@ object VoiceInputProviderManager {
         sessionActive = true
         sessionGeneration++
         readyHandledGeneration = -1
+        // 新会话：清空上一个会话的队列统计与过载中止标记。
+        pcmQueueMetrics.reset()
+        lastSlowFeedWarnElapsed = 0L
         // A new session supersedes any pending finish watchdog from the previous one.
         finishWatchdogJob?.cancel()
         finishWatchdogJob = null
@@ -873,9 +932,15 @@ object VoiceInputProviderManager {
                 val pushDirect = synchronized(preRollLock) {
                     if (preRollActive) {
                         preRollBuffer.addLast(packet)
+                        // 滚动窗口：预算窗口内最多保留首尾两个端点包，超出的最旧包被淘汰
+                        // （预滚语义天然允许丢弃最旧音频，这与 feed 队列的"不丢包"不同）。
                         while (preRollBuffer.size > 1 &&
                             pts - preRollBuffer.first().ptsMs > PRE_ROLL_MAX_MS
                         ) {
+                            preRollBuffer.removeFirst()
+                        }
+                        // 硬上限兜底：pts 不前进时上面的按时间淘汰会失效，只保留最新的一段。
+                        while (preRollBuffer.size > PRE_ROLL_MAX_PACKETS) {
                             preRollBuffer.removeFirst()
                         }
                         false
@@ -884,7 +949,8 @@ object VoiceInputProviderManager {
                     }
                 }
                 if (pushDirect) {
-                    activeAudioFeedQueue?.trySend(packet)
+                    // 生产端绝不阻塞：队列满即判过载并中止会话，不在这里丢包。
+                    offerAudioPacket(service, packet)
                 }
             },
             onLevel = { rms -> service.lifecycleScope.launch { onLevel(rms) } },
@@ -934,7 +1000,8 @@ object VoiceInputProviderManager {
         // rest of the process, one pair per duplicate callback.
         val previousQueue = activeAudioFeedQueue
         val previousJob = activeAudioFeedJob
-        val queue = Channel<QueuedAudio>(capacity = Channel.UNLIMITED)
+        // 有界队列：容量按 MAX_BUFFERED_AUDIO_MS 的时长预算推导（见该常量）。
+        val queue = Channel<QueuedAudio>(capacity = MAX_BUFFERED_AUDIO_PACKETS)
         val drained: List<QueuedAudio>
         synchronized(preRollLock) {
             activeAudioFeedQueue = queue
@@ -948,6 +1015,8 @@ object VoiceInputProviderManager {
             previousJob?.cancel()
         }
         logI("pre-roll flush: packets=${drained.size}")
+        // 容量 ≥ PRE_ROLL_MAX_PACKETS 且此刻 feed 协程尚未启动（无人消费），回灌必然全部成功，
+        // 不会因为容量不足在这里丢包。
         drained.forEach { queue.trySend(it) }
         activeAudioFeedJob = launchAudioFeedJob(service, queue)
     }
@@ -957,7 +1026,13 @@ object VoiceInputProviderManager {
         queue: Channel<QueuedAudio>,
     ): Job = service.lifecycleScope.launch(Dispatchers.IO) {
         for (packet in queue) {
-            val currentProvider = activeProvider ?: continue
+            val currentProvider = activeProvider
+            if (currentProvider == null) {
+                pcmQueueMetrics.onFedSkipped()
+                continue
+            }
+            // 单次 Binder 调用耗时（观测用）：只做一次 nanoTime 差值，不改变提交顺序与参数。
+            val startedNanos = System.nanoTime()
             try {
                 currentProvider.feedAudio(
                     packet.pcm, 0, packet.pcm.size, packet.ptsMs,
@@ -982,6 +1057,105 @@ object VoiceInputProviderManager {
                 }
                 return@launch
             }
+            val elapsedMs = (System.nanoTime() - startedNanos) / 1_000_000L
+            pcmQueueMetrics.onFed(elapsedMs)
+            if (elapsedMs >= FEED_SLOW_WARN_MS) {
+                pcmQueueMetrics.onSlowFeed()
+                // logW 与慢调用告警一致：只记日志、不抛异常，provider 变慢时 feedAudio 仍然正常返回。
+                logW("feedAudio slow: ${elapsedMs}ms (threshold ${FEED_SLOW_WARN_MS}ms)")
+                warnSlowFeed(elapsedMs)
+            }
+        }
+    }
+
+    /**
+     * 生产端（AudioRecord 采集线程，见 [VoiceInputAudioCapture]）唯一的入队入口，绝不阻塞。
+     *
+     * 过载语义固定为"不丢单个音频包"：队列满说明 provider 处理不过来，积压音频已经在变成
+     * 高延迟错误识别，此时中止当前会话并报告 provider-too-slow，而不是把包丢掉继续跑。
+     *
+     * 队列已关闭（会话结束 / 队列被新一轮 onReady 替换）不算过载——这时丢包是既有设计
+     * （见 [startCapture] 里对读取字段而非捕获 channel 的说明），保持原行为。
+     */
+    private fun offerAudioPacket(service: FcitxInputMethodService, packet: QueuedAudio) {
+        val queue = activeAudioFeedQueue ?: return
+        val result = queue.trySend(packet)
+        if (result.isSuccess) {
+            pcmQueueMetrics.onEnqueued(packet.ptsMs)
+            return
+        }
+        if (queue.isClosedForSend) return
+        // 队列满：provider 处理不过来。
+        onAudioQueueOverflow(service, packet.ptsMs)
+    }
+
+    /**
+     * 队列满（provider 处理不过来）时的中止路径。
+     *
+     * 复用既有的会话失败/停止路径：provider 还活着就走 [IVoiceInputCallback.onError]
+     * →[start] 里注册的 callback→stopSession（与 Binder 死亡、provider 报错完全同一条链，
+     * 会清 composing、回调 onFinished/onError、释放 AudioRecord、解绑 provider）；
+     * 没有回调时直接走 stopSession 的兜底分支。
+     *
+     * 调用点在采集线程上，所以真正的清理放到主线程协程里做：这里只记一次统计和日志。
+     */
+    private fun onAudioQueueOverflow(service: FcitxInputMethodService, ptsMs: Long) {
+        val generation = sessionGeneration
+        // 同一会话只中止一次：队列满之后采集线程可能还投递一两个包。
+        if (overflowAbortGeneration.getAndSet(generation) == generation) return
+        val overloads = pcmQueueMetrics.onOverflow()
+        Timber.w(
+            "Voice PCM queue full (provider too slow): generation=$generation " +
+                "capacity=$MAX_BUFFERED_AUDIO_PACKETS packets " +
+                "budgetMs=$MAX_BUFFERED_AUDIO_MS ptsMs=$ptsMs overloads=$overloads " +
+                pcmQueueMetrics.summary()
+        )
+        service.lifecycleScope.launch { abortForOverload(service, generation) }
+    }
+
+    /** 主线程上的过载清理；[stopSession] 与 callback 都要求在主线程执行。 */
+    private fun abortForOverload(service: FcitxInputMethodService, generation: Int) {
+        if (generation != sessionGeneration) return
+        val cb = activeCallback
+        if (cb == null) {
+            // 兜底：没有活跃回调时直接收尾（voiceFinished/voiceError 只做 UI 清理，不触碰会话状态）。
+            service.clearVoiceComposingText()
+            voiceFinishedCallback?.invoke()
+            voiceErrorCallback?.invoke(PROVIDER_TOO_SLOW_MESSAGE)
+        }
+        if (generation != sessionGeneration) return
+        // 立刻停止采集、释放 AudioRecord：队列里的残留包仍会被 feed 协程送完，
+        // 随后 stopSession 取消该协程。
+        activeCapture?.let {
+            runCatching { it.stop() }.onFailure { e -> Timber.w(e, "capture stop on overflow") }
+        }
+        activeCapture = null
+        resetPreRoll()
+        if (cb != null) {
+            runCatching {
+                cb.onError(VoiceInputIpc.ErrorCodes.UNKNOWN, PROVIDER_TOO_SLOW_MESSAGE)
+            }.onFailure { e -> Timber.w(e, "onError(provider too slow) failed") }
+        } else {
+            stopSession(service, keepConnectionWarm = false)
+        }
+    }
+
+    /** 慢调用告警（限频）：provider 慢是过载的前兆，重新走一遍基线时靠它定位。 */
+    private fun warnSlowFeed(elapsedMs: Long) {
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastSlowFeedWarnElapsed < SLOW_FEED_WARN_INTERVAL_MS) return
+        lastSlowFeedWarnElapsed = now
+        Timber.w(
+            "feedAudio slow: ${elapsedMs}ms (threshold ${FEED_SLOW_WARN_MS}ms) " +
+                pcmQueueMetrics.summary()
+        )
+    }
+
+    /** 会话结束时的队列统计汇总（一次字符串拼接，不影响正常路径）。 */
+    private fun logPcmQueueSummary(reason: String) {
+        logI("PCM queue stats ($reason): ${pcmQueueMetrics.summary()}")
+        if (pcmQueueMetrics.overloads > 0) {
+            Timber.w("Voice PCM queue overloaded ($reason): ${pcmQueueMetrics.summary()}")
         }
     }
 
@@ -1002,7 +1176,8 @@ object VoiceInputProviderManager {
         // Same reason as in onProviderReady: never overwrite a live feed without closing it.
         activeAudioFeedQueue?.close()
         activeAudioFeedJob?.cancel()
-        val audioQueue = Channel<QueuedAudio>(capacity = Channel.UNLIMITED)
+        // 有界队列：容量按 MAX_BUFFERED_AUDIO_MS 的时长预算推导（见该常量）。
+        val audioQueue = Channel<QueuedAudio>(capacity = MAX_BUFFERED_AUDIO_PACKETS)
         activeAudioFeedQueue = audioQueue
         activeAudioFeedJob = launchAudioFeedJob(service, audioQueue)
         val capture = VoiceInputAudioCapture(
@@ -1014,7 +1189,11 @@ object VoiceInputProviderManager {
                 // still running, and a closed channel makes trySend fail silently — the
                 // microphone stays on but not one packet reaches the provider. The pre-roll
                 // capture already reads the field for the same reason.
-                activeAudioFeedQueue?.trySend(
+                //
+                // offerAudioPacket 内部是 trySend 语义（绝不阻塞采集线程）；队列满即判过载
+                // 并中止会话，不在这里丢包。
+                offerAudioPacket(
+                    service,
                     QueuedAudio(
                         pcm = buf.copyOfRange(off, off + len),
                         ptsMs = pts,
@@ -1137,11 +1316,16 @@ object VoiceInputProviderManager {
             stopFloatingFallback(context)
             return
         }
+        // 语音状态栏里选"停止"不经过 finish()，但既然不再采集，就把队列统计收尾一次。
+        // 统计字段本身不会被清零（reset 只在新会话开始时做），重复记录不会丢信息。
+        logPcmQueueSummary("stop")
         stopSession(context, keepConnectionWarm = false)
     }
 
     private fun stopSession(context: Context = appContext, keepConnectionWarm: Boolean) {
         voiceSessionTerminalized = true
+        // 会话收尾：把本会话的队列高水位/最旧包年龄/feedAudio 耗时/过载次数落到日志。
+        logPcmQueueSummary("stopSession")
         // The handshake completed (or is being forced): the watchdog has nothing left to do.
         finishWatchdogJob?.cancel()
         finishWatchdogJob = null
