@@ -132,6 +132,19 @@ class ScreenshotClipboardWatcher(
         }, 500L)
     }
 
+    /**
+     * Query once right now, for use when the watcher is (re)started.
+     *
+     * Screen-off calls [stop], so a screenshot taken while the screen was off produces no
+     * observer callback for this instance; the caller issues one compensating query on restart
+     * instead of waiting for the periodic poll. Coalesced with any in-flight query by
+     * [scheduleQuery], and a no-op when the watcher is not registered.
+     */
+    fun requestImmediateQuery() {
+        if (!registered) return
+        scheduleQuery()
+    }
+
     /** Periodic fallback poll; runs entirely on [scope] for the same reason as [scheduleQuery]. */
     private fun schedulePeriodicQuery() {
         pollJob?.cancel()
