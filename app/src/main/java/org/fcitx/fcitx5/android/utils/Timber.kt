@@ -23,9 +23,31 @@ class ConciseTree : Timber.Tree() {
     }
 }
 
+/**
+ * Whether a DEBUG log would actually be printed right now.
+ *
+ * `setupForest` plants [VerboseTree] in debug builds or when the verbose preference is on, and
+ * [ConciseTree] drops everything below INFO otherwise. Dropping happens inside `log()`, so the
+ * message string has already been built by then — and on the input hot path that string is the
+ * expensive part: every native event built `"Handling $event"`, and a candidate event's
+ * `toString()` joins its candidates.
+ *
+ * Callers use this to skip building the string in the first place. Never call it in a loop
+ * condition that already has a cheaper guard, and keep it out of per-pixel/per-sample paths: it is
+ * a volatile read, which is far cheaper than the formatting it replaces.
+ *
+ * Set by [setupForest], so it stays correct when the user flips the verbose preference
+ * (DeveloperFragment re-plants the forest).
+ */
+@Volatile
+var timberDebugEnabled: Boolean = BuildConfig.DEBUG
+    private set
+
 fun Timber.Forest.setupForest(verbose: Boolean) {
     if (treeCount > 0) {
         uprootAll()
     }
-    plant(if (BuildConfig.DEBUG || verbose) VerboseTree() else ConciseTree())
+    val debugEnabled = BuildConfig.DEBUG || verbose
+    timberDebugEnabled = debugEnabled
+    plant(if (debugEnabled) VerboseTree() else ConciseTree())
 }
