@@ -914,6 +914,9 @@ class InputView(
             // the view itself is larger.
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    // 新手势开始前先把上一次手势可能残留的待提交尺寸落地并清空，
+                    // 避免把上一轮的尺寸带到这一次（或反过来丢掉上一次最后一次调整）。
+                    flushPendingSizeCommit()
                     floatingResizeStartWidth = resolveFloatingWidth()
                     lastResizeTouchX = event.rawX
                     v.parent?.requestDisallowInterceptTouchEvent(true)
@@ -924,13 +927,18 @@ class InputView(
                     val delta = (event.rawX - lastResizeTouchX).toInt()
                     floatingWidthPx =
                         (floatingResizeStartWidth + delta).coerceIn(minFloatingWidthPx, maxFloatingWidthPx)
-                    applyFloatingWidth()
+                    // 只记录待提交尺寸（尺寸字段即最后一次的值），合并到每帧最多提交一次；
+                    // clamp 规则与提交内容与原来逐次调用 applyFloatingWidth() 完全一致。
+                    pendingFloatingWidthCommit = true
+                    schedulePendingSizeCommit()
                     // Handle position update is called in applyFloatingWidth
                     true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     v.parent?.requestDisallowInterceptTouchEvent(false)
                     v.isPressed = false
+                    // 手势结束：最后一次调整必须立刻落地，不能等下一帧回调
+                    flushPendingSizeCommit()
                     persistFloatingWidth()
                     // Also save position as resizing might have moved handlers
                     saveFloatingPosition(
@@ -952,6 +960,8 @@ class InputView(
             if (!isEffectiveFloating) return@setOnTouchListener false
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    // 与宽度手柄同理：先落地上一次手势的残留待提交值
+                    flushPendingSizeCommit()
                     floatingResizeStartHeight = resolveFloatingHeight()
                     lastResizeTouchY = event.rawY
                     v.parent?.requestDisallowInterceptTouchEvent(true)
@@ -962,13 +972,17 @@ class InputView(
                     val delta = (event.rawY - lastResizeTouchY).toInt()
                     floatingHeightPx =
                         (floatingResizeStartHeight + delta).coerceIn(minFloatingHeightPx, maxFloatingHeightPx)
-                    applyFloatingHeight()
+                    // 合并到每帧最多一次；提交时才读 floatingHeightPx，所以同帧多次 MOVE 只留最后一次
+                    pendingFloatingHeightCommit = true
+                    schedulePendingSizeCommit()
                     // Handle position update is called in applyFloatingHeight
                     true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     v.parent?.requestDisallowInterceptTouchEvent(false)
                     v.isPressed = false
+                    // 手势结束：立即同步 flush，保证最后一次高度调整落地
+                    flushPendingSizeCommit()
                     persistFloatingHeight()
                     // Also save position as resizing might have moved handlers
                     saveFloatingPosition(
@@ -1486,6 +1500,8 @@ class InputView(
             if (!isDockedOneHandMode) return@setOnTouchListener false
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    // 与浮动缩放手柄一致：新手势开始前先落地上一次的残留待提交值
+                    flushPendingSizeCommit()
                     oneHandResizeStartWidth = resolveOneHandWidth()
                     lastOneHandTouchX = event.rawX
                     oneHandDragging = false
@@ -1506,7 +1522,9 @@ class InputView(
                             oneHandResizeStartWidth + delta.toInt()
                         }
                         oneHandWidthPx = target.coerceIn(minOneHandWidthPx, maxOneHandWidthPx)
-                        applyOneHandWidth()
+                        // 同样走按帧合并：单指模式下键盘宽度每次 MOVE 也改 LayoutParams
+                        pendingOneHandWidthCommit = true
+                        schedulePendingSizeCommit()
                         updateOneHandGapScale()
                     }
                     true
@@ -1514,6 +1532,9 @@ class InputView(
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     v.parent?.requestDisallowInterceptTouchEvent(false)
                     v.isPressed = false
+                    // 手势结束：先把最终宽度落地，后面的 performClick / 列间距比例 / 持久化
+                    // 才会读到最终几何
+                    flushPendingSizeCommit()
                     if (!oneHandDragging && event.actionMasked == MotionEvent.ACTION_UP) {
                         v.performClick()
                     } else if (oneHandDragging) {
@@ -1880,6 +1901,75 @@ class InputView(
     private var floatingResizeStartHeight = 0
     private var lastResizeTouchX = 0f
     private var lastResizeTouchY = 0f
+
+    // ==== 缩放手柄 ACTION_MOVE 的按帧合并 ====
+    // 触摸采样可达 60–120Hz，而一次尺寸提交要改 LayoutParams + requestLayout（键盘有几十个
+    // KeyView，一次 measure/layout 很贵）；同一帧内可能来好几个 MOVE，于是同一帧被反复
+    // traversal，缩放时掉帧。这里 MOVE 只记录"待提交尺寸"（尺寸字段本身就是最后一次的值）
+    // 并预约一帧回调，由 commitPendingSize() 每帧最多真正提交一次——同一帧内多次 MOVE 天然
+    // 只保留最后一次的值（提交时才去读尺寸字段）。
+    // 未开始缩放时不会 post 任何回调，常态下没有额外开销。
+    private var pendingFloatingWidthCommit = false
+    private var pendingFloatingHeightCommit = false
+    private var pendingOneHandWidthCommit = false
+    private var sizeCommitScheduled = false
+    private val sizeCommitRunnable = Runnable {
+        // 回调已被 Choreographer 从队列取走，这里只需复位标志
+        sizeCommitScheduled = false
+        commitPendingSize()
+    }
+
+    private fun schedulePendingSizeCommit() {
+        if (sizeCommitScheduled) return
+        sizeCommitScheduled = true
+        // postOnAnimation 走 Choreographer 的 CALLBACK_ANIMATION，在同一帧的 traversal 之前
+        // 执行，所以"本帧提交 + 本帧布局"不会多拖一帧。
+        postOnAnimation(sizeCommitRunnable)
+    }
+
+    private fun commitPendingSize() {
+        val commitFloatingWidth = pendingFloatingWidthCommit
+        val commitFloatingHeight = pendingFloatingHeightCommit
+        val commitOneHandWidth = pendingOneHandWidthCommit
+        // 先清标志再提交：提交过程会 requestLayout/触发模式相关逻辑，避免重入时重复提交
+        pendingFloatingWidthCommit = false
+        pendingFloatingHeightCommit = false
+        pendingOneHandWidthCommit = false
+        if (commitFloatingWidth) applyFloatingWidth()
+        if (commitFloatingHeight) applyFloatingHeight()
+        if (commitOneHandWidth) applyOneHandWidth()
+    }
+
+    /**
+     * 立即同步提交挂起的尺寸，不依赖下一帧回调。
+     *
+     * ACTION_UP / ACTION_CANCEL / 新手势开始前调用：手势可能就此结束，若等下一帧回调，
+     * 最后一次调整要么被后续逻辑（persist / saveFloatingPosition / 模式切换）读到旧几何，
+     * 要么直接丢失。无挂起时是纯粹的几次布尔判断，没有额外布局开销。
+     */
+    private fun flushPendingSizeCommit() {
+        if (!pendingFloatingWidthCommit && !pendingFloatingHeightCommit && !pendingOneHandWidthCommit) {
+            return
+        }
+        removeCallbacks(sizeCommitRunnable)
+        sizeCommitScheduled = false
+        commitPendingSize()
+    }
+
+    /**
+     * 丢弃挂起的尺寸并取消帧回调（视图 detach 时用）。
+     *
+     * detach 时视图即将销毁，commit 出来的几何毫无意义且会在拆解过程中触碰
+     * windowManager / 往已 detach 的 keyboardView 上 post 任务；但回调必须取消、
+     * 待提交标志必须清空，否则残留值会被下一次手势的 flush 提交出去。
+     */
+    private fun cancelPendingSizeCommit() {
+        removeCallbacks(sizeCommitRunnable)
+        sizeCommitScheduled = false
+        pendingFloatingWidthCommit = false
+        pendingFloatingHeightCommit = false
+        pendingOneHandWidthCommit = false
+    }
 
     private val minFloatingWidthPx: Int
         get() = dp(180).coerceAtMost(resources.displayMetrics.widthPixels)
@@ -2256,6 +2346,10 @@ class InputView(
 
     internal fun toggleFloatingMode() {
         popup.dismissAll()
+        // 模式切换（例如缩放手势进行中通过工具栏切走）前先落地待提交尺寸：
+        // updateFloatingState()/updateKeyboardSize() 会按最终几何重算宽度、把手和命中区域，
+        // 带着未提交的尺寸进去就会用旧几何覆盖掉用户刚拖出来的尺寸。
+        flushPendingSizeCommit()
         if (!isFloating && isPhysicalCandidateBarMode) {
             setPhysicalCandidateBarMode(false)
         }
@@ -2324,6 +2418,9 @@ class InputView(
 
     fun toggleOneHandMode() {
         popup.dismissAll()
+        // 模式切换前先落地待提交尺寸（同 toggleFloatingMode）：下面的 updateFloatingState()/
+        // updateKeyboardSize() 会按最终几何重算，未提交的尺寸会被旧几何覆盖或残留到之后的手势。
+        flushPendingSizeCommit()
         if (isFloating) {
             saveFloatingPosition(
                 keyboardView.translationX.toInt(),
@@ -2355,6 +2452,10 @@ class InputView(
 
     private fun toggleAdjustingMode() {
         popup.dismissAll()
+        // 进入调整模式会强制退出浮动（下面 updateFloatingState / updateKeyboardSize 会按最终
+        // 几何重算），若此刻缩放手势还没结束，先落地待提交尺寸，避免旧的浮动宽度被当成
+        // docked 状态下的最终几何、或残留到之后的手势。
+        flushPendingSizeCommit()
         if (isAdjustingMode) {
             adjustingPendingHeightPercent = null
         }
@@ -3408,6 +3509,9 @@ class InputView(
 
     internal fun setPhysicalCandidateBarMode(enabled: Boolean) {
         if (isPhysicalCandidateBarMode == enabled) return
+        // 进入/退出实机候选栏模式会强制退出浮动（下方 syncPhysicalCandidateBarLayout 会
+        // updateFloatingState + updateKeyboardSize），先落地待提交尺寸避免被旧几何覆盖。
+        flushPendingSizeCommit()
         if (enabled && isFloating) {
             isFloating = false
         }
@@ -3545,6 +3649,11 @@ class InputView(
     }
 
     override fun onDetachedFromWindow() {
+        // 视图即将销毁：取消缩放手柄的按帧提交回调并清空挂起尺寸。
+        // 这里不 flush——detach 时提交出来的几何没有任何意义（视图随即被换掉），却会在拆解
+        // 过程中触碰 windowManager 并往已 detach 的 keyboardView 上 post 任务；但回调和
+        // 挂起标志必须清掉，否则残留的待提交值会被下一次手势的 flush 提交出去。
+        cancelPendingSizeCommit()
         // 视图销毁时先注销自己的回调（避免回调触碰已分离的视图），再结束搜索会话。
         // 注销只影响本实例：若本视图已被新实例替换，会话结束的状态刷新会落到新视图上。
         ClipboardSearchController.removeOnStateChangedListener(clipboardSearchStateListener)
