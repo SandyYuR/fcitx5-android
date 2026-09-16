@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
@@ -31,6 +32,20 @@ object ClipboardSearchController {
      * 构建过多卡片；结果本身已按时间倒序排列，截断只丢弃最旧的条目。
      */
     private const val MAX_RESULTS = 50
+
+    /**
+     * How long typing must pause before a query actually hits the database.
+     *
+     * Every query change re-runs a LIKE search over the history; without a debounce, typing a
+     * five-character query issued five searches, cancelling the previous one midway each time.
+     * 120 ms is below the ~150–200 ms a fast typist leaves between keystrokes, so it collapses a
+     * burst without being felt as lag — the results panel updates after a short pause in typing.
+     *
+     * Cancellation is safe: the coroutine that sleeps is the only writer of [results], and a
+     * superseded delay throws CancellationException before it queries anything, so the last
+     * keystroke's search always runs and always wins.
+     */
+    private const val SEARCH_DEBOUNCE_MS = 120L
 
     var isActive = false
         private set
@@ -154,6 +169,10 @@ object ClipboardSearchController {
             return
         }
         searchJob = scope.launch {
+            // 防抖：连续打字时只有停顿后的那一次查询真正执行，避免每个键都打一次数据库。
+            // 被取代的协程在 delay 处收到 CancellationException，不会写入任何结果，
+            // 所以「最后一次输入的结果一定会到达」。
+            delay(SEARCH_DEBOUNCE_MS)
             val found = withContext(Dispatchers.Default) {
                 runCatching { ClipboardManager.searchEntries(query) }.getOrDefault(emptyList())
             }
