@@ -930,7 +930,7 @@ object SyncClient {
         if (!existing.exists()) {
             return existing
         }
-        if (runCatching { existing.readBytes().contentEquals(bytes) }.getOrDefault(false)) {
+        if (fileContentEquals(existing, bytes)) {
             return existing
         }
         val contentHash = HashUtils.sha256(bytes).take(8)
@@ -939,11 +939,40 @@ object SyncClient {
             if (!candidate.exists()) {
                 return candidate
             }
-            if (runCatching { candidate.readBytes().contentEquals(bytes) }.getOrDefault(false)) {
+            if (fileContentEquals(candidate, bytes)) {
                 return candidate
             }
         }
         throw IOException("Unable to allocate cache file for $fileName")
+    }
+
+    /**
+     * 与 [bytes] 逐字节比较磁盘文件内容，内存占用为常量。
+     *
+     * 原来用 `readBytes().contentEquals(bytes)`：下载大文件又撞上大量同名冲突时，每一轮
+     * 比较都要把候选文件整份读进堆再分配一个同样大的数组。这里先比长度（长度不同必然不等，
+     * 省掉一次读盘），长度相同才用固定缓冲区分块比较，任一块不同立即返回 false。
+     * 判定结果与 `contentEquals` 完全一致，包括 0 字节文件（长度都是 0，循环不执行即相等）。
+     * 读失败（文件被删、无权限）通过 runCatching 视为"不相等"，与原来一致。
+     */
+    private fun fileContentEquals(file: File, bytes: ByteArray): Boolean {
+        return runCatching {
+            if (file.length() != bytes.size.toLong()) return@runCatching false
+            file.inputStream().use { input ->
+                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                var offset = 0
+                while (offset < bytes.size) {
+                    val toRead = minOf(buffer.size, bytes.size - offset)
+                    val read = input.read(buffer, 0, toRead)
+                    if (read != toRead) return@use false
+                    for (index in 0 until read) {
+                        if (buffer[index] != bytes[offset + index]) return@use false
+                    }
+                    offset += read
+                }
+                true
+            }
+        }.getOrDefault(false)
     }
 
     private fun sanitizeFileName(fileName: String): String {
