@@ -269,6 +269,16 @@ class MainService : Service() {
     private var connectionSessionId = 0
     private var activeEndpointIdentity: String? = null
 
+    /**
+     * Identity of the connection configuration the running sync runtime was built for.
+     *
+     * Keeps an IME focus change from tearing down and rebuilding a healthy polling/SSE/WebSocket
+     * session (see [start]). Deliberately excludes the polling, health, fallback and stale
+     * cadences: every loop re-reads [currentRuntimeMode] on each iteration, so a cadence change
+     * must not trigger a rebuild.
+     */
+    private var activeRuntimeFingerprint: String? = null
+
     // Cache to avoid circular updates (Pull -> Local -> Push -> Loop)
     private var lastLocalContent: String? = null
     private var lastRemoteContent: String? = null
@@ -326,6 +336,14 @@ class MainService : Service() {
                     Log.d(TAG, "[Power] Screen turned off, stop sync loops to reduce background power")
                     stopPeriodicSync()
                     stopHealthMonitor()
+                    // The screenshot watcher has to stop here too: its ContentObserver plus its
+                    // fixed 5-second fallback poll were unaffected by screen-off, so a
+                    // non-interactive device kept querying MediaStore (720 queries/hour in theory;
+                    // Doze defers some, but the path was live). stop() is called directly instead
+                    // of going through updateScreenshotWatcher(), whose start branch now depends on
+                    // isScreenInteractive() and could still see the screen as interactive depending
+                    // on broadcast ordering.
+                    screenshotClipboardWatcher.stop()
                     // Release the foreground state with them: holding a dataSync notification
                     // while nothing runs only burns the Android 15 quota (see
                     // shouldRunInForeground). The process itself is the IME process, so it stays
@@ -334,6 +352,10 @@ class MainService : Service() {
                 }
                 Intent.ACTION_SCREEN_ON -> {
                     scheduleReconnect("screen-on")
+                    // Re-register the watcher that screen-off stopped. updateScreenshotWatcher()
+                    // issues one compensating query immediately, so a screenshot taken while the
+                    // screen was off is not missed until the next observer callback.
+                    updateScreenshotWatcher()
                     // Re-acquire the foreground state dropped at screen-off; this is also the
                     // recovery point after a dataSync quota timeout, since a new 24h window may
                     // allow it again. startForegroundCompat rebuilds the notification, so the
@@ -409,7 +431,18 @@ class MainService : Service() {
             // end up here), and focus is what flips active <-> idle in the notification;
             // updateForegroundState rebuilds it.
             updateForegroundState()
-            refreshSyncRuntime()
+            // refreshSyncRuntime() used to run unconditionally here, and its startPeriodicSync()
+            // starts by calling stopPeriodicSync(): the polling loop / SSE / WebSocket was torn
+            // down and rebuilt — followed by an immediate pull — on every focus in and out.
+            // Focus only changes the polling cadence (RuntimeMode.IME_IDLE), and each loop
+            // re-reads it every iteration, so it no longer needs a rebuild. Rebuild only when the
+            // connection identity actually changed, or when the runtime is not running at all
+            // (the health monitor self-heals a silently dead loop as well).
+            val fingerprint = currentRuntimeFingerprint()
+            val runtimeAlive = syncJob?.isActive == true || healthMonitorJob?.isActive == true
+            if (fingerprint != activeRuntimeFingerprint || !runtimeAlive) {
+                refreshSyncRuntime()
+            }
             ensureRemoteBinding()
             return
         }
@@ -438,6 +471,7 @@ class MainService : Service() {
         screenshotClipboardWatcher.stop()
         stopPeriodicSync()
         stopHealthMonitor()
+        activeRuntimeFingerprint = null
         stopForegroundState()
         connectionSessionId += 1
         val activeConnection = connection
@@ -525,20 +559,48 @@ class MainService : Service() {
         if (!shouldRunSyncLoops()) {
             stopPeriodicSync()
             stopHealthMonitor()
+            activeRuntimeFingerprint = null
             return
         }
         ensureSelfStarted()
+        activeRuntimeFingerprint = currentRuntimeFingerprint()
         startPeriodicSync()
         startHealthMonitor()
+    }
+
+    /**
+     * Configuration identity the sync runtime is built from.
+     *
+     * Credentials are intentionally absent: any credential preference change already goes
+     * through [prefListener], which resets the remote cache and calls [refreshSyncRuntime]
+     * unconditionally, so it never relies on this comparison.
+     */
+    private fun currentRuntimeFingerprint(): String {
+        val endpoint = currentEndpoint()
+        return buildString {
+            append(endpoint.identity)
+            append('|')
+            append(endpoint.backend.name)
+            append('|')
+            append(prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED))
+            append('|')
+            append(isScreenInteractive())
+        }
     }
 
     private fun updateScreenshotWatcher() {
         if (
             serviceRunning &&
+            isScreenInteractive() &&
             prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED) &&
             prefs.getBoolean(PREF_SCREENSHOT_SYNC, false)
         ) {
             screenshotClipboardWatcher.start()
+            // Compensating query: the periodic poll only fires after POLL_INTERVAL_MS, and after
+            // a screen-on (or a fresh enable) a screenshot from the gap would otherwise wait for
+            // the next MediaStore change callback. Safe when already running: scheduleQuery()
+            // coalesces into a single pending query.
+            screenshotClipboardWatcher.requestImmediateQuery()
         } else {
             screenshotClipboardWatcher.stop()
         }
@@ -580,7 +642,17 @@ class MainService : Service() {
                 }
 
                 val now = SystemClock.elapsedRealtime()
-                if (now - lastSuccessfulRemoteSyncAt >= currentFallbackPullDelayMs()) {
+                // Only SyncClipboard takes the fallback pull. ClipCascade is a pure event-stream
+                // backend: SyncClient.fetchClipboard throws UnsupportedOperationException for it.
+                // This block used to run unconditionally, so a healthy idle websocket still issued
+                // a fetch that was guaranteed to fail — and the failure then entered the full
+                // connectivity path (login, PBKDF2, extra HTTP round trips) and could mark a
+                // healthy connection unreachable. ClipCascade liveness is decided by isConnected()
+                // above and the stale threshold below. OneClip keeps its fallback: polling is a
+                // supported, revision-aware path for it.
+                if (backend == ServerBackend.SYNCCLIPBOARD &&
+                    now - lastSuccessfulRemoteSyncAt >= currentFallbackPullDelayMs()
+                ) {
                     try {
                         checkRemoteClipboard()
                         flushPendingUploads("health-fallback")
@@ -1396,6 +1468,7 @@ class MainService : Service() {
                 delay(NETWORK_RECONNECT_DEBOUNCE_MS)
             }
             Log.d(TAG, "[Reconnect] Restarting sync runtime: $reason")
+            activeRuntimeFingerprint = currentRuntimeFingerprint()
             startPeriodicSync()
             startHealthMonitor()
         }
@@ -2282,16 +2355,20 @@ class MainService : Service() {
             .takeIf { it.startsWith("content://") || it.startsWith("file://") }
             ?.let(Uri::parse)
             ?: return
-        val bytes = runCatching {
-            contentResolver.openInputStream(uri)?.use { it.readBytes() }
+        // 只读一遍，同时拿到 size 与 hash：这里原先用 readBytes() 把整个文件（上限 32MB）
+        // 读进堆，只为算一个哈希，峰值内存与 GC 压力都随文件大小走；改为固定缓冲区流式摘要后
+        // 峰值内存是常量。runCatching 的失败语义保持不变——打不开或读失败直接 return，
+        // 不写入任何记录，也不向调用方抛新异常。
+        val (size, hash) = runCatching {
+            contentResolver.openInputStream(uri)?.use { HashUtils.sha256AndSize(it) }
         }.getOrNull() ?: return
         val fileName = queryDisplayName(uri)
             ?: uri.lastPathSegment?.substringAfterLast('/')
             ?: return
         val uploaded = RecentUploadedFile(
             fileName = fileName,
-            size = bytes.size.toLong(),
-            hash = HashUtils.sha256(bytes)
+            size = size,
+            hash = hash
         )
         synchronized(recentUploadedFiles) {
             recentUploadedFiles.removeAll {
