@@ -1307,6 +1307,13 @@ abstract class BaseKeyboard(
                 swipeThresholdY = if (def.swipe != null) inputSwipeThreshold else disabledSwipeThreshold
                 onGestureListener = OnGestureListener { view, event ->
                     when (event.type) {
+                        GestureType.Down -> {
+                            // 转发"退格键被按下"给退格边界保护：长按删空抬手后极短时间内
+                            // 又开始的新按压是抬手抖动/回弹，不应删掉正文（见
+                            // BackspaceBoundaryGuard.onBackspacePressStarted）。
+                            getService()?.backspaceBoundaryGuard?.onBackspacePressStarted()
+                            false
+                        }
                         GestureType.Move -> {
                             val count = event.countX
                             if (count != 0) {
@@ -1328,7 +1335,6 @@ abstract class BaseKeyboard(
                                 false
                             }
                         }
-                        else -> false
                     }
                 }
             }
