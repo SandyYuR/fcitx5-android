@@ -249,6 +249,37 @@ git diff 3cbe4afb <state2的SHA> --output=新librime.patch
 
 **教训**：`35f23e97` 这类"纯 CI 提交"单独看确实不值得更新引擎，但它正好把之前待吃的 streaming_chord 一起打包——**bump 前先看 `git diff --name-only <旧pin>..<新pin>`，把排队的 delta 一次性评估**（见 0.5.5 表行 ④）。
 
+### 0.5.7 2026-09-17 第四次实战（用户报障 → 定位上游缺陷 → 新增补丁 + pin bump + fcitx5-rime 合并）
+
+**起因**：用户部署万象方案的自定义短语词库报错，日志 `日志/部署org.fcitx.fcitx5.android.fx.rime-2026-09-17T10_59_44Z.txt` 显示 `custom_phrase` 编译到最后一步 `building prism...` 时 `invalid metadata` → `dictionary 'custom_phrase' failed to compile`；同一份词库在 PC 的 Weasel 上不报错。**先给结论：词库写法没问题，是上游 librime 的缺陷。**
+
+**根因**：`MappedFile::Allocate()` 容量不足时 `Resize()`（内部 `Close()` 解除映射）→ `OpenReadWrite()` 重新映射，**映射基址变化，此前通过 `Allocate()`/`CreateArray()` 取得的裸指针全部失效**（文件内的 `OffsetPtr` 因为存的是相对偏移而自愈，不受影响）。而 `Table::Build()` 在 `OnBuildFinish()` 之后仍拿扩容前的 `metadata_` 去 `strncpy(metadata_->format, kTableFormatLatest, ...)`，写入落到已解除映射的内存 → 文件头 `format` 全零 → 下次 `Table::Load()` 的 `strncmp(metadata_->format, "Rime::Table/")` 失败。`Prism::Build()`、`ReverseDb::Build()`、`CopyString()`/`CreateString()` 有同型缺陷。
+
+**触发条件（关键，别误判成词库问题）**：`Table::Build()` 的 `estimated_file_size = 4096 + 32*音节数 + 64*词条数` **完全没算 marisa 字符串表镜像**，小词典时该镜像的固定开销占绝对主导（本次 7 词条实测约 4.8KB）。日志自证：`estimated file size: 4736` → `resize file to: 9472`（=4736×2）→ `ShrinkToFit` 后实际 **5036 字节**。**词条少 + 单条文本长 ⇒ 必然扩容 ⇒ 必现**（两条上百字的执勤模板正好踩中）。Windows/Weasel 上重新映射常拿到同一地址而侥幸不报错，Android/Linux 地址一变就必现——**"PC 上不报错"不能反证词库正确**。注意这不只影响 custom_phrase：**任何"需要重建 table"的场景（首次部署、词典内容变更、改短语后重新部署）都会踩**；反过来，像 wanxiang 那种 checksum 未变、直接复用已有 `table.bin` 的词典不会走这条路，所以之前没暴露。
+
+**修复与验证**：新增 `patches/librime-fix-mapped-file-remap.patch`（**第 5 个补丁**，排在 `librime-userdict-cache.patch` 之后）：在 `MappedFile` 增加 `OffsetOf()`/`Rebase()` 重定位辅助，并修正 `Table::Build`/`OnBuildFinish`/`BuildHeadIndex`/`BuildTrunkIndex`/`BuildTailIndex`/`BuildEntryList`、`Prism::Build`、`ReverseDb::Build`、`CopyString`/`CreateString`，共 5 文件（+111/−38）。验证两条：① 用 NDK clang++ 以 Android 目标对 4 个改动文件做 `-fsyntax-only`，**全部零退出**（技巧：`RIME_ENABLE_LOGGING` 未定义时 `common.h` 走 librime 自带的 `no_logging.h`，于是不需要 glog；只需给 `marisa.h`、4 个 boost 头、`rime/build_config.h` 写最小 stub 即可，本机无 MSVC/g++ 也能验语法）；② 在干净 `8d8276f4` 上依序重放 5 个补丁**全部零退出**，且 `mapped_file.h/cc`、`table.cc`、`reverse_lookup_dictionary.cc` 与工作台分支 `fix/mapped-file-remap` 的 diff **零差异**（`prism.cc` 因同时被 perf 补丁改过，单独确认新代码在文件内即可）；③ **运行时复现验证**（用 JDK 跑 `.verify/RemapRepro.java`，按日志反推的真实尺寸建模：`estimated=4736`、metadata 68、syllabary 28、head index 76、entries 56、字符串表镜像 4808）：缺陷版在 `Resize(9472)` 重新映射后**丢失 15 次写操作**、文件头 `format` 为空 → `strncmp` 校验失败（即用户看到的 `invalid metadata`）；修复版同样扩容但**零丢失**、`format` 为 `Rime::Table/4.0` → 校验通过。模拟出的 `Resize(9472)` 与最终 5036 字节和现场日志逐项吻合。
+
+**pin bump**：`35f23e97` → `8d8276f4`（再 +10 提交）。`git diff --name-only 35f23e97..8d8276f4` 只有 `.dockerignore`、4 个 workflow、`Dockerfile`、`deps/opencc`——**`src/` 与 `plugins/` 零变更**，纯 CI 配置 + opencc gitlink 1.4.2。**opencc 变更确认不影响本产物**：CI `submodules: true` 是非递归的（ci.yml 注释明说不要 librime 的递归子模块），`librime/deps/opencc` 根本不会被 checkout，opencc 由 prebuilder 自建并经 `CMAKE_FIND_ROOT_PATH` 提供；且 librime 侧 `src/` 零变更 ⇒ 不会引入新的 opencc API 要求。于是 0.5.5/0.5.6 遗留的"评估 opencc 升级对简繁转换的影响"**就此解除**，本仓库 `AGENTS.md` 第 7.2 节的相应警告已同步改写。
+
+**fcitx5-rime 同步更新**：官方 `fcitx/fcitx5-rime` 新增 `00be19a`（drop librime 1.7 compatibility code，#171），内容只是删掉 `FCITX_RIME_NO_DELETE_CANDIDATE` 条件编译。我们跑 librime 1.17.0、从未定义该宏，**行为零变化**，纯清理。把 `fcitx-up/master` 合入 `SandyYuR/fcitx5-rime` master **零冲突**（ort 自动合并 4 文件），新 master `9b6abe0`；主仓库子模块指针对齐到它。顺带修正 `app/licenses/libraries/fcitx5-rime.json` 的 `artifactVersion`：5.1.14 → 5.1.16（`CMakeLists.txt` 早就是 5.1.16，上次合漏的元数据）。
+
+**未做（有意排除，不是遗漏）**：`fcitx/fcitx5` 上游领先本地 `442edbc9` 共 **25 提交**（GitHub compare API 实测），但内容集中在 Wayland launcher coroutine、cairo SVG pattern、pixel buffer 尺寸、UnixFD 传参、macOS CI、翻译更新，外加一次 `Bump C++ standard to 23` 又自行 revert——**对 Android 目标无实质影响**，而升 core 必须重验 `fcitx5-alt-trigger-v4point1.patch` 的落点。本地 core 版本 5.1.22 恰好满足 fcitx5-rime 的 `REQUIRED_FCITX_VERSION 5.1.22`，没有版本压力，留作专门任务单独做。
+
+**下次务必注意**：prebuilder `ci.yml` 的 "Detect librime related changes" 步骤**只监视 `librime` 与 `librime-predict-leveldb` 两个 gitlink 路径**。**如果只改 `patches/**` 而不动 `librime` gitlink，`needs_update` 会是 false，下游不会跟进**。本次因为同时 bump 了 pin 才正常触发；将来做"纯补丁修复"时要记得连 gitlink 一起动（或改成手动 dispatch）。
+
+**执行结果（09-17 当日闭环）**：CI [run 35227272085](https://github.com/SandyYuR/prebuilder/actions/runs/35227272085) **success**（13:28:19 → 13:46:52，18 分 33 秒）；`SandyYuR/prebuilt` 由 `9e631eb9` 前进到 **`5593312a`**，四个 ABI 的 `librime.a` 全部更新（arm64 19,308,390 → 19,310,814，**+2,424 字节**，恰为新增重定位代码的增量；其余依赖库零变化，符合"只动 librime 源码"的预期），`toolchain-versions.json` 的 `prebuilder` 字段变为 `2032af4...`，据此反查产物来源。用 `.verify/check-prebuilt.ps1` 核对：四 ABI 齐全、来源匹配、`RimeGetInputTabs`/`RimeSelectTab`/`RimeGetCandidateCode`/`RimeGetCandidatePreview`/`CompileDictionary` 五个定制符号全在。主仓库已把 prebuilt gitlink 指向 `5593312a`、fcitx5-rime gitlink 指向 `9b6abe0`，并同步元数据（`librime.json` → `1.17.0-8d8276f`、`fcitx5-rime.json` → `5.1.16`）与 README 的引擎版本/补丁清单。
+
+**新踩的坑：prebuilt 子模块是 shallow + partial clone，bump 指针后 checkout 会走 HTTPS 拉 blob 而失败**。`lib/fcitx5/src/main/cpp/prebuilt` 在 `.gitmodules` 里标了 `shallow = true`，实际还是 promisor/partial clone（`fetch` 只取 commit 与 tree，blob 留到 checkout 时按需拉）。于是 `git checkout <新sha>` 会向 promisor remote 请求缺失 blob，而该 remote URL 是 HTTPS —— 本机 schannel 拿不到凭据，报 `could not fetch <blob> from promisor remote` 和 `unable to read tree`。**解法**（已写进该子模块的仓库级配置，可复用）：
+
+~~~powershell
+$env:GIT_SSH='C:/Windows/System32/OpenSSH/ssh.exe'; $env:GIT_SSH_VARIANT='ssh'
+git -C lib/fcitx5/src/main/cpp/prebuilt config 'url.ssh://git@ssh.github.com:443/.insteadOf' 'https://github.com/'
+git -C lib/fcitx5/src/main/cpp/prebuilt fetch --depth 1 gh master      # remote.gh 已指向 SandyYuR/prebuilt
+git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
+~~~
+
+两个关键点：① **`fetch` 成功不代表 `checkout` 会成功**——blob 是 checkout 阶段才拉的，必须两步分别验证；② 直接向 GitHub 拉四个 ABI 的大 `.a` 容易 `early EOF`，必要时改从已完整更新的独立克隆 `D:\GitHub\fx2-rime\prebuilt` 走本地传输，或只做浅拉取（`--depth 1`）。
+
 ---
 
 ## 1. 用户给的长期约定（必须遵守）
