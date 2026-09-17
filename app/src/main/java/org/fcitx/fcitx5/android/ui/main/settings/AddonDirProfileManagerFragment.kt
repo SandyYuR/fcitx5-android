@@ -15,13 +15,16 @@ import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.RawConfig
+import org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException
 import org.fcitx.fcitx5.android.ui.common.BaseDynamicListUi
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
 import org.fcitx.fcitx5.android.utils.lazyRoute
 import org.fcitx.fcitx5.android.utils.toast
+import timber.log.Timber
 
 class AddonDirProfileManagerFragment : Fragment() {
 
@@ -51,7 +54,10 @@ class AddonDirProfileManagerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel.setToolbarTitle(args.title)
         viewModel.disableToolbarEditButton()
-        lifecycleScope.launch {
+        // Bind to viewLifecycleOwner instead of fragment lifecycle: `lifecycleScope` survives
+        // `onDestroyView`, so a render job waiting on fcitx could resume after the view was torn
+        // down and crash on `requireContext()` (crash report 2026-09-17, "create rime dir").
+        viewLifecycleOwner.lifecycleScope.launch {
             renderLatestState()
         }
     }
@@ -82,7 +88,15 @@ class AddonDirProfileManagerFragment : Fragment() {
     }
 
     private suspend fun renderLatestState() {
-        val state = loadState()
+        val state = try {
+            loadState()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to load addon dir profile state")
+            if (isAdded) requireContext().toast(e)
+            return
+        }
         latestState = state
         if (state.error.isNotBlank()) {
             requireContext().toast(state.error)
@@ -98,7 +112,7 @@ class AddonDirProfileManagerFragment : Fragment() {
                 isChecked = item.active
                 setOnCheckedChangeListener { _, checked ->
                     if (!checked || item.active) return@setOnCheckedChangeListener
-                    lifecycleScope.launch {
+                    viewLifecycleOwner.lifecycleScope.launch {
                         runAction(action = "switch", name = item.name)
                     }
                 }
@@ -147,7 +161,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 val value = input.text?.toString()?.trim().orEmpty()
                 if (value.isNotEmpty()) {
-                    lifecycleScope.launch {
+                    viewLifecycleOwner.lifecycleScope.launch {
                         runAction(action = "create", name = value)
                     }
                 }
@@ -171,7 +185,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 val newName = input.text?.toString()?.trim().orEmpty()
                 if (newName.isNotEmpty() && newName != oldName) {
-                    lifecycleScope.launch {
+                    viewLifecycleOwner.lifecycleScope.launch {
                         runAction(action = "rename", name = oldName, newName = newName)
                     }
                 }
@@ -189,7 +203,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             .setMessage(getString(R.string.addon_dir_profile_delete_confirm, name))
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                lifecycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     runAction(action = "delete", name = name)
                 }
             }
@@ -206,7 +220,9 @@ class AddonDirProfileManagerFragment : Fragment() {
             .setTitle(item.name)
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> lifecycleScope.launch { runAction(action = "switch", name = item.name) }
+                    0 -> viewLifecycleOwner.lifecycleScope.launch {
+                        runAction(action = "switch", name = item.name)
+                    }
                     1 -> showRenameDialog(item.name)
                     2 -> showDeleteDialog(item.name)
                 }
@@ -222,8 +238,17 @@ class AddonDirProfileManagerFragment : Fragment() {
         if (newName.isNotBlank()) {
             items.add(RawConfig("NewName", newName))
         }
-        viewModel.fcitx.runOnReady {
-            setAddonSubConfig(args.addon, args.path, RawConfig(items.toTypedArray()))
+        try {
+            viewModel.fcitx.runOnReady {
+                setAddonSubConfig(args.addon, args.path, RawConfig(items.toTypedArray()))
+            }
+        } catch (e: FcitxDisconnectedException) {
+            Timber.w("Skip rendering after disconnected action '$action': $e")
+            return
+        } catch (e: Exception) {
+            // surface the failure instead of crashing on the follow-up render
+            requireContext().toast(e)
+            return
         }
         renderLatestState()
     }
