@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.core.CapabilityFlag
 import org.fcitx.fcitx5.android.core.CapabilityFlags
 import org.fcitx.fcitx5.android.core.FcitxAPI
+import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
@@ -138,6 +139,22 @@ class CommonKeyActionListener :
 
     val listener by lazy {
         KeyActionListener { action, _ ->
+            // 退格边界保护：任何"非退格按键"的用户动作都表示当前退格按住序列已经结束。
+            // 关键来源是退格键抬起时键盘发出的 DeleteSelectionAction
+            // （BaseKeyboard 的 BackspaceKey 手势 Up 分支），以及其它任何键、
+            // 上屏宏、语言切换等动作。以下两类不算结束信号：
+            // - 退格键自身的按下/重复（SymAction(FcitxKey_BackSpace)）——长按期间
+            //   正是靠它们持续被吞；
+            // - MoveSelectionAction：那是手指在键上横向滑动（可能正是同一个按着退格的
+            //   手指在滑），属于按住过程中的移动，不是抬起。
+            val keepsProtection = when (action) {
+                is SymAction -> action.sym.sym == FcitxKeyMapping.FcitxKey_BackSpace
+                is MoveSelectionAction -> true
+                else -> false
+            }
+            if (!keepsProtection) {
+                service.backspaceBoundaryGuard.onUserKeyAction()
+            }
             when (action) {
                 is FcitxKeyAction -> service.postFcitxJob {
                     sendKey(action.act, action.states.states, action.code, action.up)

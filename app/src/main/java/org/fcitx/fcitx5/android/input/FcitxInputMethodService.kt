@@ -291,6 +291,47 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private val selection = CursorTracker()
 
+    /**
+     * 万象退格保护的 Android 应用层实现（持按住序列，直到手指抬起）。
+     *
+     * 背景见 [BackspaceBoundaryGuard] 类文档：Lua 侧的
+     * `super_processor/enable_backspace_limit` 在移动端恒不拦截，且空 composing 的
+     * BackSpace 在本链路会回落到 Java 直删编辑器正文。这里在"删空编码"之后接管退格，
+     * 同一按住序列内的重复退格全部吞掉，直到手指抬起。
+     *
+     * 状态机输入（全部在 IME 主线程，详见 guard 类文档）：
+     * - ClientPreeditEvent/InputPanelEvent → composing 状态（合并两部分后喂入）；
+     * - 任何非退格按键动作（含退格键抬起发出的 DeleteSelection/MoveSelection）
+     *   → onUserKeyAction，见 [CommonKeyActionListener]；
+     * - CommitStringEvent/回车/字符提交 → onCommit（抑制上屏清空）；
+     * - 会话切换/剪贴板搜索启停 → onSessionChanged（复位+抑制）；
+     * - [handleBackspaceKey]：退格到达、引擎未消费、直删编辑器之前 → 判决。
+     */
+    internal val backspaceBoundaryGuard = BackspaceBoundaryGuard()
+
+    // client preedit 与 panel preedit 是同一输入区的两部分，事件各自到达、只带自己
+    // 那一半；缓存两部分后合并成"composing 是否非空"再喂给退格保护。
+    private var backspaceGuardClientPreeditNotEmpty = false
+    private var backspaceGuardPanelPreeditNotEmpty = false
+
+    private fun feedBackspaceGuardComposingState() {
+        backspaceBoundaryGuard.onComposingStateChanged(
+            backspaceGuardClientPreeditNotEmpty || backspaceGuardPanelPreeditNotEmpty
+        )
+    }
+
+    /** 输入会话切换时同时清掉 composing 缓存，避免旧会话状态污染新编辑器。 */
+    private fun resetBackspaceGuardComposingCache() {
+        backspaceGuardClientPreeditNotEmpty = false
+        backspaceGuardPanelPreeditNotEmpty = false
+    }
+
+    /** 会话切换/搜索启停：复位退格保护并清 composing 缓存。 */
+    private fun onBackspaceGuardSessionChanged() {
+        backspaceBoundaryGuard.onSessionChanged()
+        resetBackspaceGuardComposingCache()
+    }
+
     val currentInputSelection: CursorRange
         get() = selection.latest
 
@@ -604,6 +645,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 rebindCurrentInputStateToFcitx()
             }
             is FcitxEvent.CommitStringEvent -> {
+                backspaceBoundaryGuard.onCommit()
                 commitText(event.data.text, event.data.cursor)
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
@@ -624,14 +666,34 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                         }
                     }
                     // KeyEvent from virtual keyboard
+                    //
+                    // 退格保护：这里只处理"退格到达"和"其它按键结束退格按住序列"。
+                    // 退格删码自身产生的 preedit 变化由 onComposingStateChanged 的
+                    // 边沿检测处理，不在这里复位。
                     when (it.sym.sym) {
                         FcitxKeyMapping.FcitxKey_BackSpace -> handleBackspaceKey()
-                        FcitxKeyMapping.FcitxKey_Return -> handleReturnKey()
-                        FcitxKeyMapping.FcitxKey_Left -> handleArrowKey(KeyEvent.KEYCODE_DPAD_LEFT)
-                        FcitxKeyMapping.FcitxKey_Right -> handleArrowKey(KeyEvent.KEYCODE_DPAD_RIGHT)
-                        FcitxKeyMapping.FcitxKey_Up -> handleArrowKey(KeyEvent.KEYCODE_DPAD_UP)
-                        FcitxKeyMapping.FcitxKey_Down -> handleArrowKey(KeyEvent.KEYCODE_DPAD_DOWN)
+                        FcitxKeyMapping.FcitxKey_Return -> {
+                            backspaceBoundaryGuard.onCommit()
+                            handleReturnKey()
+                        }
+                        FcitxKeyMapping.FcitxKey_Left -> {
+                            backspaceBoundaryGuard.onUserKeyAction()
+                            handleArrowKey(KeyEvent.KEYCODE_DPAD_LEFT)
+                        }
+                        FcitxKeyMapping.FcitxKey_Right -> {
+                            backspaceBoundaryGuard.onUserKeyAction()
+                            handleArrowKey(KeyEvent.KEYCODE_DPAD_RIGHT)
+                        }
+                        FcitxKeyMapping.FcitxKey_Up -> {
+                            backspaceBoundaryGuard.onUserKeyAction()
+                            handleArrowKey(KeyEvent.KEYCODE_DPAD_UP)
+                        }
+                        FcitxKeyMapping.FcitxKey_Down -> {
+                            backspaceBoundaryGuard.onUserKeyAction()
+                            handleArrowKey(KeyEvent.KEYCODE_DPAD_DOWN)
+                        }
                         else -> if (it.unicode > 0) {
+                            backspaceBoundaryGuard.onCommit()
                             commitText(Character.toString(it.unicode))
                         } else {
                             Timber.w("Unhandled Virtual KeyEvent: $it")
@@ -714,9 +776,19 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 }
             }
             is FcitxEvent.ClientPreeditEvent -> {
+                // client preedit 与 panel preedit 是同一输入区的两部分，各自事件只带
+                // 自己那一半，必须分别缓存后合并再喂给退格保护，否则 Android 上
+                // （Rime 配置为 PreeditMode::No，client preedit 恒空）会把"正在输入"
+                // 误判成"删空"。
+                backspaceGuardClientPreeditNotEmpty = event.data.isNotEmpty()
+                feedBackspaceGuardComposingState()
                 if (!ClipboardSearchController.onPreeditChanged(event.data.toString())) {
                     updateComposingText(event.data)
                 }
+            }
+            is FcitxEvent.InputPanelEvent -> {
+                backspaceGuardPanelPreeditNotEmpty = event.data.preedit.isNotEmpty()
+                feedBackspaceGuardComposingState()
             }
             is FcitxEvent.DeleteSurroundingEvent -> {
                 // 搜索会话期间绝不触碰目标编辑器的文本。
@@ -767,6 +839,17 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     private fun handleBackspaceKey() {
+        // 退格保护：到达这里说明引擎没有消费这次退格。
+        // - 有码可删时 Rime 会 accept，根本走不到这里；
+        // - "删空之后紧接着的这次"由 guard 吞掉（桌面 Lua 吃掉的那一次）；
+        // - 其余情况（无码普通删除）放行。
+        when (backspaceBoundaryGuard.onBackspace()) {
+            BackspaceBoundaryGuard.Decision.Consume -> {
+                Timber.d("handleBackspaceKey: consumed at composing boundary")
+                return
+            }
+            BackspaceBoundaryGuard.Decision.PassThrough -> {}
+        }
         handleBackspaceDirectly()
     }
 
@@ -1602,6 +1685,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onBindInput() {
         resetCandidatePagingModeCache()
+        onBackspaceGuardSessionChanged()
         val uid = currentInputBinding.uid
         val pkgName = pkgNameCache.forUid(uid)
         val bindingGeneration = ++inputBindingGeneration
@@ -1659,17 +1743,20 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
      */
     fun startClipboardSearch() {
         ClipboardSearchController.start()
+        onBackspaceGuardSessionChanged()
         postFcitxJob { reset() }
     }
 
     fun stopClipboardSearch() {
         ClipboardSearchController.stop()
+        onBackspaceGuardSessionChanged()
         postFcitxJob { reset() }
     }
 
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         android.util.Log.i("FcitxColdStart", "service.onStartInput restarting=$restarting")
         isInInputLifecycleCriticalPhase = true
+        onBackspaceGuardSessionChanged()
         try {
             val inputSessionGeneration = ++this.inputSessionGeneration
             MainService.startSyncService(this, "ime-start-input", imeSyncActive = true)
@@ -2046,6 +2133,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onFinishInputView(finishingInput: Boolean) {
         Timber.d("onFinishInputView: finishingInput=$finishingInput")
+        onBackspaceGuardSessionChanged()
         MainService.stopSyncService(this)
         if (VoiceInputProviderManager.isActive()) {
             VoiceInputProviderManager.stop(this)
@@ -2067,6 +2155,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onFinishInput() {
         Timber.d("onFinishInput")
+        onBackspaceGuardSessionChanged()
         MainService.stopSyncService(this)
         val inputSessionGeneration = this.inputSessionGeneration
         postFcitxSessionJob(inputSessionGeneration) {
@@ -2080,6 +2169,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         cachedKeyEventIndex = 0
         cursorUpdateIndex = 0
         resetCandidatePagingModeCache()
+        onBackspaceGuardSessionChanged()
         // currentInputBinding can be null on some devices under some special Multi-screen mode
         val uid = currentInputBinding?.uid ?: return
         val bindingGeneration = inputBindingGeneration
