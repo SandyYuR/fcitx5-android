@@ -857,10 +857,29 @@ class InputView(
             height = viewThickness
         }
 
-        // Move handle (centered horizontally above keyboard)
+        // Move handle: centered horizontally; above the keyboard by default, but flipped
+        // below it when there is no room on top (otherwise the handle ends up off-screen
+        // and the keyboard can no longer be dragged). See FloatingMoveHandlePlacement.
         val moveHandleSize = dp(24)
+        val moveGapAbove = dp(8)
+        // 下方留更大间距，避开底部缩放手柄向键盘外延伸的触摸区（约 15dp）。
+        val moveGapBelow = dp(20)
+        val containerHeight =
+            if (height > 0) height.toFloat() else resources.displayMetrics.heightPixels.toFloat()
+        floatingMoveHandleAbove = FloatingMoveHandlePlacement.placement(
+            keyboardTop = kY,
+            keyboardHeight = kHeight.toFloat(),
+            containerHeight = containerHeight,
+            needAbove = (moveHandleSize + moveGapAbove).toFloat(),
+            needBelow = (moveHandleSize + moveGapBelow).toFloat(),
+            currentlyAbove = floatingMoveHandleAbove
+        ) == FloatingMoveHandlePlacement.ABOVE
         adjustableHandle.translationX = kX + (kWidth - moveHandleSize) / 2
-        adjustableHandle.translationY = kY - moveHandleSize - dp(8)
+        adjustableHandle.translationY = if (floatingMoveHandleAbove != false) {
+            kY - moveHandleSize - moveGapAbove
+        } else {
+            kY + kHeight + moveGapBelow
+        }
 
         val moveBgDrawable = createHandleDrawable(moveHandleSize / 2f)
         val moveIconDrawable = ContextCompat.getDrawable(context, R.drawable.ic_move_handle_cross)?.mutate()
@@ -1901,6 +1920,12 @@ class InputView(
     private var floatingResizeStartHeight = 0
     private var lastResizeTouchX = 0f
     private var lastResizeTouchY = 0f
+    /**
+     * 悬浮移动把手当前在键盘上方(true)/下方(false)，null 表示尚未摆放。
+     * 由 [updateHandlePosition] 按 [FloatingMoveHandlePlacement] 更新，带迟滞，
+     * 避免键盘在临界高度附近拖动时把手来回横跳。
+     */
+    private var floatingMoveHandleAbove: Boolean? = null
 
     // ==== 缩放手柄 ACTION_MOVE 的按帧合并 ====
     // 触摸采样可达 60–120Hz，而一次尺寸提交要改 LayoutParams + requestLayout（键盘有几十个
@@ -2255,21 +2280,9 @@ class InputView(
             }
             adjustingDefaultButton.translationX = buttonGroupStartX
             adjustingDefaultButton.translationY = buttonsY
-        } else if (isEffectiveFloating) {
-            // In floating mode, position according to original floating logic
-            val kX = keyboardView.translationX
-            val kY = keyboardView.translationY
-            val kWidth = if (keyboardView.width > 0) keyboardView.width else resolveFloatingWidth()
-            val moveHandleSize = dp(24)
-            adjustableHandle.translationX = kX + (kWidth - moveHandleSize) / 2
-            adjustableHandle.translationY = kY - moveHandleSize - dp(8)
-            
-            // Update layout params for floating mode
-            adjustableHandle.updateLayoutParams {
-                width = moveHandleSize
-                height = moveHandleSize
-            }
         }
+        // 注意：进入调整模式会强制退出悬浮（见 toggleAdjustingMode），所以这里不需要
+        // isEffectiveFloating 分支——悬浮移动把手的摆放只由 updateHandlePosition 负责。
 
         // Ensure all handles are brought to front to be above the overlay
         adjustingHeightHandle.bringToFront()
