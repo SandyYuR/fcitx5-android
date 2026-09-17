@@ -175,7 +175,15 @@ class ExpandedCandidateLayout(context: Context, theme: Theme) : ConstraintLayout
         })
     }
 
-    fun resetPosition() {
-        recyclerView.scrollToPosition(0)
+    fun resetPosition() = resetPosition(0)
+
+    /**
+     * 回到列表中的 [position]。
+     *
+     * 滚动目标必须与 adapter 的 `offset`（= 已绑定数据的全局起点）一致，
+     * 否则 `idx = position + offset` 会指向别的候选，点击/长按就会选错词。
+     */
+    fun resetPosition(position: Int) {
+        recyclerView.scrollToPosition(position)
     }
 }

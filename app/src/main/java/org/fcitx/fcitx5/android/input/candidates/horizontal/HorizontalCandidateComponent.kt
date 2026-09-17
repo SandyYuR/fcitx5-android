@@ -34,6 +34,8 @@ import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.TransitionEve
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder
+import org.fcitx.fcitx5.android.input.candidates.expanded.CandidateGenerationTracker
+import org.fcitx.fcitx5.android.input.candidates.expanded.ExpandedCandidateRefreshRequest
 import org.fcitx.fcitx5.android.input.candidates.expanded.decoration.FlexboxVerticalDecoration
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode.AlwaysFillWidth
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode.AutoFillWidth
@@ -113,25 +115,54 @@ class HorizontalCandidateComponent :
 
     private var pendingLegacyCandidateUpdate: Runnable? = null
 
+    /**
+     * 候选数据版本号，只在候选内容（或总数）真的变化时前进；
+     * 展开面板的取数请求同时带上 offset 和它，见 [ExpandedCandidateRefreshRequest]。
+     */
+    private val candidateGeneration = CandidateGenerationTracker()
+
+    /**
+     * 最近一次真正下发过的展开面板取数请求。
+     *
+     * 布局每完成一次都会请求一次刷新，同一个 (offset, generation) 重复下发会让展开面板
+     * 反复 `resetPosition()` + 重新分页（全部可见项 rebind）。
+     * 新会话（[onStartInput]）会清空它，保证 Rime 重启 / 输入法切换后第一次请求一定通过。
+     */
+    private var lastExpandedRefreshRequest: ExpandedCandidateRefreshRequest? = null
+
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
         // New input session should not inherit paged-candidate flow state from previous one.
         pagedCandidateFlowActive = false
         lastPagedEventUptimeMs = 0L
         lastPagedData = null
+        // 新会话（含 Rime 重启、切换输入法）的 generation 必须前进：否则即使新会话的候选
+        // 内容与旧会话完全一样，(offset, generation) 也会与上次相同而被去重吞掉，展开面板
+        // 会继续显示旧会话分页到的那一段候选。
+        candidateGeneration.onSessionStart()
+        lastExpandedRefreshRequest = null
     }
 
     // Since expanded candidate window is created once the expand button was clicked,
-    // we need to replay the last offset
-    private val _expandedCandidateOffset = MutableSharedFlow<Int>(
+    // we need to replay the last refresh request
+    private val _expandedCandidateRefresh = MutableSharedFlow<ExpandedCandidateRefreshRequest>(
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
-    val expandedCandidateOffset = _expandedCandidateOffset.asSharedFlow()
+    val expandedCandidateRefresh = _expandedCandidateRefresh.asSharedFlow()
 
     private fun refreshExpanded(childCount: Int) {
         val expandedOffset = (adapter.indexOffset + childCount).coerceAtLeast(0)
-        _expandedCandidateOffset.tryEmit(expandedOffset)
+        val request = ExpandedCandidateRefreshRequest(expandedOffset, candidateGeneration.value)
+        // 一次按键可以触发多个布局 pass（双斜杠期间每个 pass 都会走到这里），
+        // 只有 (offset, generation) 真的变了才下发。
+        // 另外注意：下发失败时不能记账，否则一次真正需要的刷新会被吞掉。
+        if (
+            ExpandedCandidateRefreshRequest.shouldEmit(lastExpandedRefreshRequest, request) &&
+            _expandedCandidateRefresh.tryEmit(request)
+        ) {
+            lastExpandedRefreshRequest = request
+        }
         bar.expandButtonStateMachine.push(
             ExpandedCandidatesUpdated,
             ExpandedCandidatesEmpty to (adapter.total >= 0 && adapter.total <= expandedOffset)
@@ -216,7 +247,7 @@ class HorizontalCandidateComponent :
                     flexGrow = layoutFlexGrow
                 }
                 holder.itemView.setOnClickListener {
-                    val idx = holder.idx
+                    val idx = holder.currentIndex(adapter.indexOffset)
                     val total = adapter.total
                     if (idx < 0 || (total >= 0 && idx >= total)) {
                         return@setOnClickListener
@@ -224,7 +255,8 @@ class HorizontalCandidateComponent :
                     fcitx.launchOnReady { it.select(idx) }
                 }
                 holder.itemView.setOnLongClickListener {
-                    inputView.showCandidateActionMenu(holder.idx, holder.candidate.text, holder.ui.root)
+                    val idx = holder.currentIndex(adapter.indexOffset)
+                    inputView.showCandidateActionMenu(idx, holder.candidate.text, holder.ui.root)
                     true
                 }
             }
@@ -510,6 +542,10 @@ class HorizontalCandidateComponent :
         total: Int,
         activeIndex: Int,
     ) {
+        // 先推进 generation 再更新 adapter：adapter 的 notify 会触发一次布局，
+        // 那次布局的 onLayoutCompleted 正是读取 generation 的地方。
+        // 候选内容没变（例如只移动了高亮）时 generation 不动，展开面板就不会重新分页。
+        candidateGeneration.onCandidates(candidates, total)
         val maxSpanCount = maxSpanCount()
         when (fillStyle) {
             NeverFillWidth -> {
