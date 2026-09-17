@@ -25,6 +25,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.annotation.CallSuper
 import androidx.tracing.trace
 import androidx.annotation.DrawableRes
@@ -159,6 +160,19 @@ abstract class BaseKeyboard(
     private var auxBarScrollableRv: RecyclerView? = null
     private var auxBarKeyAdapter: AuxBarKeyAdapter? = null
     private var mainGridContainer: ConstraintLayout? = null
+    // 纵向（Left/Right）辅助栏的 scrollable 区容器：跟主键盘一样按 item 数量
+    // 均分高度，主题上下间距由 item 自身 padding 表达。高度变化（悬浮 resize）
+    // 时由 layout 回调重算每个 item 高度，按钮之间不留空隙。
+    private var auxBarScrollableContainer: LinearLayout? = null
+    // 纵向辅助栏当前 scrollable 区里实际展示的 item view 列表，
+    // 高度变化时逐个重设 LayoutParams 高度（权重需要容器先有确定高度，
+    // 而悬浮 resize 过程中容器高度连续变化，直接写 px 高度更跟手）。
+    private val auxBarScrollableItemViews = mutableListOf<View>()
+    // scrollable 容器高度变化时均分 item 高；挂在容器自身上，随容器一起回收。
+    private val auxBarScrollableContainerLayoutListener =
+        View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            relayoutVerticalAuxBarItems()
+        }
 
     private data class GestureBaseline(
         val swipeEnabled: Boolean,
@@ -351,6 +365,8 @@ abstract class BaseKeyboard(
         auxBarScrollableAdapter = null
         auxBarPinnedAdapter = null
         auxBarScrollableRv = null
+        auxBarScrollableContainer = null
+        auxBarScrollableItemViews.clear()
         auxBarKeyAdapter = null
         mainGridContainer = null
         cachedWaterRippleColor = null
@@ -413,9 +429,11 @@ abstract class BaseKeyboard(
                 (if (isLandscape) keyPrefs.keyHorizontalMarginLandscape else keyPrefs.keyHorizontalMargin).getValue()
             )
             val auxBarInnerLayout = constraintLayout()
+            // 横向（Top/Bottom）辅助栏：item 高 MATCH_PARENT 自动跟随容器，
+            // 继续沿用 RecyclerView 方案。
             val scrollableRv = recyclerView {
                 layoutManager = LinearLayoutManager(context).apply {
-                    orientation = if (isVertical) LinearLayoutManager.VERTICAL else LinearLayoutManager.HORIZONTAL
+                    orientation = LinearLayoutManager.HORIZONTAL
                 }
                 overScrollMode = OVER_SCROLL_NEVER
                 isVerticalScrollBarEnabled = false
@@ -454,9 +472,21 @@ abstract class BaseKeyboard(
             }
             pinnedRv.adapter = pinnedAdapter
 
+            // 纵向（Left/Right）辅助栏跟主键盘一样按行排布：LinearLayout 容器顶底
+            // 撑满，按 item 数量均分 scrollable 区高度（pinned 固定在底部），主题
+            // 上下间距由 item 自身 padding 表达。这样缩小高度时只压缩按键本体，
+            // 按钮之间不会留空隙；容器高度变化时由 layout 回调逐个重设 item 高。
             if (isVertical) {
-                auxBarInnerLayout.add(scrollableRv, lParams {
+                val scrollableContainer = LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    gravity = Gravity.CENTER
+                    addOnLayoutChangeListener(auxBarScrollableContainerLayoutListener)
+                }
+                auxBarScrollableContainer = scrollableContainer
+                auxBarScrollableItemViews.clear()
+                auxBarInnerLayout.add(scrollableContainer, lParams {
                     topOfParent()
+                    bottomOfParent()
                     centerHorizontally()
                     above(pinnedRv)
                 })
@@ -545,23 +575,14 @@ abstract class BaseKeyboard(
             // Keep aux bar usable before first candidate update (e.g. in preview or idle startup):
             // if no tabs are available, show configured fallback keys immediately.
             applyAuxBarContent(emptyList(), emptyList())
-            keyRows.firstOrNull()?.let { firstRow ->
+            if (!isVertical) {
                 post {
-                    val rowHeight = firstRow.height
-                    if (rowHeight > 0) {
-                        val visualHeight = rowHeight - 2 * vMargin
-                        if (visualHeight > 0) {
-                            scrollableAdapter.setMinItemHeight(visualHeight)
-                            pinnedAdapter.setMinItemHeight(visualHeight)
-                        }
-                        if (rowHeight > 0) {
-                            // KeyView already includes key vertical margins in its own drawing logic,
-                            // so use full row height to keep aux bar key height aligned with normal rows.
-                            keyAdapter.setMinItemHeight(rowHeight)
-                        }
+                    auxBarScrollableAdapter?.let { adapter ->
+                        auxBarScrollableRv?.let { rv -> adapter.applyConfiguredFonts(rv) }
                     }
-                    auxBarScrollableAdapter?.applyConfiguredFonts(scrollableRv)
-                    auxBarPinnedAdapter?.applyConfiguredFonts(pinnedRv)
+                    auxBarPinnedAdapter?.let { adapter ->
+                        auxBarScrollableRv?.let { rv -> adapter.applyConfiguredFonts(rv) }
+                    }
                 }
             }
         } else {
@@ -606,27 +627,85 @@ abstract class BaseKeyboard(
         val cfg = auxBarConfig ?: return
         val customKeys = auxBarKeyDefs
         val hasTabs = scrollable.isNotEmpty() || pinned.isNotEmpty()
-        val maxKeyCount = when (cfg.position) {
-            AuxBarPosition.Left, AuxBarPosition.Right -> keyRows.size
-            else -> Int.MAX_VALUE
+        if (cfg.position == AuxBarPosition.Left || cfg.position == AuxBarPosition.Right) {
+            applyVerticalAuxBarContent(scrollable, pinned, customKeys)
+            return
         }
-        val visibleCustomKeys = customKeys.take(maxKeyCount)
-        if (!hasTabs && visibleCustomKeys.isNotEmpty() && auxBarKeyAdapter != null) {
-            // No tabs: fill the aux bar with the user-configured custom keys.
-            // For left/right aux bar, clamp count to keyboard row count.
-            val rv = auxBarScrollableRv
-            if (rv?.adapter != auxBarKeyAdapter) {
-                rv?.adapter = auxBarKeyAdapter
+        val rv = auxBarScrollableRv
+        if (rv?.adapter != auxBarScrollableAdapter) {
+            rv?.adapter = auxBarScrollableAdapter
+        }
+        auxBarScrollableAdapter?.updateActions(scrollable)
+        auxBarPinnedAdapter?.updateActions(pinned)
+    }
+
+    /**
+     * 纵向（Left/Right）辅助栏内容：跟主键盘一样按 item 数量均分 scrollable 区
+     * 高度。主题上下间距由 item 自身 padding 表达（[AuxBarAdapter] 纵向分支），
+     * 所以缩小高度时只压缩按键本体，按钮之间不留空隙。
+     *
+     * tabs（[AuxBarAction]）和无 tabs 时的自定义按键（[KeyDef]）走同一套均分
+     * 逻辑：有 tabs 显示 tabs，无 tabs 显示配置的自定义按键（数量按键盘行数截断）。
+     */
+    private fun applyVerticalAuxBarContent(
+        scrollable: List<AuxBarAction>,
+        pinned: List<AuxBarAction>,
+        customKeys: List<KeyDef>
+    ) {
+        val container = auxBarScrollableContainer ?: return
+        val scrollableAdapter = auxBarScrollableAdapter ?: return
+        val hasTabs = scrollable.isNotEmpty() || pinned.isNotEmpty()
+        container.removeAllViews()
+        auxBarScrollableItemViews.clear()
+        if (hasTabs) {
+            for (action in scrollable) {
+                val item = scrollableAdapter.createItemView(container)
+                scrollableAdapter.bindItemView(item, action)
+                container.addView(item)
+                auxBarScrollableItemViews.add(item)
             }
-            auxBarKeyAdapter?.updateKeys(visibleCustomKeys)
-            auxBarPinnedAdapter?.updateActions(emptyList())
-        } else {
-            val rv = auxBarScrollableRv
-            if (rv?.adapter != auxBarScrollableAdapter) {
-                rv?.adapter = auxBarScrollableAdapter
-            }
-            auxBarScrollableAdapter?.updateActions(scrollable)
             auxBarPinnedAdapter?.updateActions(pinned)
+        } else {
+            val visibleCustomKeys = customKeys.take(keyRows.size)
+            val keyAdapter = auxBarKeyAdapter
+            if (visibleCustomKeys.isNotEmpty() && keyAdapter != null) {
+                for (key in visibleCustomKeys) {
+                    val item = keyAdapter.createItemView(container, key)
+                    container.addView(item)
+                    auxBarScrollableItemViews.add(item)
+                }
+            }
+            auxBarPinnedAdapter?.updateActions(emptyList())
+        }
+        relayoutVerticalAuxBarItems()
+    }
+
+    /**
+     * 按容器当前高度均分每个 item 的高度。容器高度变化（悬浮 resize、pinned
+     * 区出现/消失）时由 layout 回调触发，直接写 px 高度，比权重方案更跟手。
+     */
+    private fun relayoutVerticalAuxBarItems() {
+        val container = auxBarScrollableContainer ?: return
+        val count = auxBarScrollableItemViews.size
+        if (count == 0) return
+        val height = container.height
+        if (height <= 0) {
+            container.post { relayoutVerticalAuxBarItems() }
+            return
+        }
+        val itemHeight = height / count
+        if (itemHeight <= 0) return
+        for (item in auxBarScrollableItemViews) {
+            val lp = item.layoutParams as? LinearLayout.LayoutParams
+                ?: LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            if (lp.height != itemHeight) {
+                lp.height = itemHeight
+                lp.width = LinearLayout.LayoutParams.MATCH_PARENT
+                item.layoutParams = lp
+            }
         }
     }
 
@@ -2916,14 +2995,6 @@ class AuxBarAdapter(
     private val keyBorder: Boolean by lazy { ThemeManager.prefs.keyBorder.getValue() }
     private val keyBorderStroke: Boolean by lazy { ThemeManager.prefs.keyBorderStroke.getValue() }
     private var radius: Float = 0f
-    private var minItemHeightPx: Int = -1
-
-    fun setMinItemHeight(px: Int) {
-        if (px > 0 && px != minItemHeightPx) {
-            minItemHeightPx = px
-            notifyDataSetChanged()
-        }
-    }
 
     fun updateActions(newActions: List<AuxBarAction>) {
         if (newActions == actions) return
@@ -2962,14 +3033,57 @@ class AuxBarAdapter(
             }
             val childLp = ViewGroup.LayoutParams(
                 if (isHorizontal) ViewGroup.LayoutParams.WRAP_CONTENT else ViewGroup.LayoutParams.MATCH_PARENT,
-                if (isHorizontal) ViewGroup.LayoutParams.MATCH_PARENT else
-                    if (minItemHeightPx > 0) minItemHeightPx else ctx.dp(52)
+                ViewGroup.LayoutParams.MATCH_PARENT
             )
             addView(label, childLp)
             tag = label
         }
         applyThemeStyling(view)
         return ViewHolder(view)
+    }
+
+    /**
+     * 纵向（Left/Right）辅助栏不再走 RecyclerView：纵向 LinearLayoutManager
+     * 按累计 item 高排布，容器变矮、item 变小后多余空间沉底，按钮之间留空隙。
+     * 这里直接建一个跟主键盘按键同结构的 item view（padding 表达主题上下间距，
+     * 本体填满调用方分配的行高），由调用方按 item 数量均分容器高度。
+     */
+    fun createItemView(parent: ViewGroup): View {
+        val ctx = parent.context
+        radius = ctx.dp(ThemeManager.prefs.keyRadius.getValue().toFloat())
+        val view = CustomGestureView(ctx).apply {
+            setPadding(hMargin, vMargin, hMargin, vMargin)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            val label = AutoScaleTextView(ctx).apply {
+                scaleMode = AutoScaleTextView.Mode.Proportional
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, FontProviders.getFontSize("key_main_font", keyTextSize))
+                typeface = Typeface.DEFAULT
+                fontKey = "key_main_font"
+                isSingleLine = true
+                gravity = gravityCenter
+                setTextColor(theme.keyTextColor)
+            }
+            addView(
+                label,
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            )
+            tag = label
+        }
+        applyThemeStyling(view)
+        return view
+    }
+
+    fun bindItemView(item: View, action: AuxBarAction) {
+        val label = item.tag as? AutoScaleTextView ?: return
+        label.text = action.text
+        label.setFontTypeFace("key_main_font")
+        item.setOnClickListener { onTrigger(action.id) }
     }
 
     private fun applyThemeStyling(view: CustomGestureView) {
@@ -3181,6 +3295,41 @@ class AuxBarKeyAdapter(
                 }
             }
         }
+    }
+
+    /**
+     * 纵向（Left/Right）无 tabs 时的自定义按键：直接建一个 KeyView，
+     * 由调用方按均分高度排布（跟有 tabs 的纵向 item 一样，高度由调用方分配）。
+     */
+    fun createItemView(parent: ViewGroup, key: KeyDef): View {
+        val container = FrameLayout(parent.context).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+        val keyView = keyViewFactory(key).also { created ->
+            created.setOnTouchListener { v, event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                        v.parent?.requestDisallowInterceptTouchEvent(true)
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        v.parent?.requestDisallowInterceptTouchEvent(false)
+                    }
+                }
+                false
+            }
+            container.addView(
+                created,
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            )
+        }
+        container.tag = keyView
+        return container
     }
 
     private fun buildKeySignature(key: KeyDef): String {
