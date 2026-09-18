@@ -1917,7 +1917,12 @@ abstract class BaseKeyboard(
                     view.repeatEnabled = true
                     view.onRepeatListener = { currentView ->
                         onAction(it.action)
-                        if (hapticOnRepeat) InputFeedbacks.hapticFeedback(currentView)
+                        // 退格保护段内被吞掉的重复退格不再触发按键反馈：长按删空编码进入
+                        // 保护后，后续重复退格不删正文，也不应继续震动（见
+                        // isBackspaceRepeatConsumed 与 BackspaceBoundaryGuard）。
+                        if (hapticOnRepeat && !isBackspaceRepeatConsumed(it.action)) {
+                            InputFeedbacks.hapticFeedback(currentView)
+                        }
                     }
                 }
                 is KeyDef.Behavior.Swipe -> {
@@ -2856,6 +2861,17 @@ abstract class BaseKeyboard(
 
     protected fun isSimulatedCapsLockOn(): Boolean {
         return getService()?.isSimulatedCapsLockOn() == true
+    }
+
+    /**
+     * 长按重复的这次退格是否会被退格边界保护吞掉——是则不触发按键反馈（震动）。
+     * 仅对指向 BackSpace 的重复动作生效，其它键（含滑动移动光标）不受影响。
+     */
+    private fun isBackspaceRepeatConsumed(action: KeyAction): Boolean {
+        val isBackspace = action is KeyAction.SymAction &&
+            action.sym.sym == FcitxKeyMapping.FcitxKey_BackSpace
+        if (!isBackspace) return false
+        return getService()?.backspaceBoundaryGuard?.isConsumingBackspaces() == true
     }
 
     /**

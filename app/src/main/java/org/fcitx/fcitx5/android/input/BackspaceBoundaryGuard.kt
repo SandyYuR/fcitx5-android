@@ -218,6 +218,26 @@ class BackspaceBoundaryGuard(
         suppressClearUntilMs = uptimeMillis() + armWindowMs
     }
 
+    /**
+     * 供 UI 层查询：当前退格是否处于（或即将进入）"被吞"状态，用于抑制长按连续退格
+     * 在保护段内的按键反馈（震动/按键音）。
+     *
+     * 判决真正发生在 [onBackspace]（引擎异步回调时），而按键反馈在 UI 线程即时触发，
+     * 因此这里读的是"上一次回调后的状态"：删码阶段 composing 非空、未删空，返回
+     * false，反馈照常；删空后 [clearedAtMs] 落在 [armWindowMs] 窗口内、或已进入保护态、
+     * 或处于抬手沉降/抖动吸收窗口内，返回 true。由于"变空"事件通常早于下一次重复
+     * （间隔约 50ms）到达，边界那一次起就能静音。
+     *
+     * 无副作用：仅读状态，不改变任何字段，可在渲染/反馈路径安全调用。
+     */
+    fun isConsumingBackspaces(): Boolean {
+        if (protecting) return true
+        val now = uptimeMillis()
+        if (now <= settleUntilMs) return true
+        if (now <= bounceAbsorbUntilMs) return true
+        return clearedAtMs >= 0L && now - clearedAtMs <= armWindowMs
+    }
+
     private fun endProtection() {
         protecting = false
         lastProtectedAtMs = -1L
