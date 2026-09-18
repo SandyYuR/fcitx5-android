@@ -279,4 +279,71 @@ class BackspaceBoundaryGuardTest {
         guard.onComposingStateChanged(nonEmpty = false)
         assertEquals(BackspaceBoundaryGuard.Decision.Consume, guard.onBackspace())
     }
+
+    // --- isConsumingBackspaces()：供 UI 层抑制被吞退格的按键反馈 ---
+
+    /** 删码阶段（composing 仍非空、未删空）不抑制反馈。 */
+    @Test
+    fun feedbackNotSuppressedWhileComposing() {
+        val clock = Clock()
+        val guard = guard(clock)
+        guard.onComposingStateChanged(nonEmpty = true)
+        assertEquals(false, guard.isConsumingBackspaces())
+    }
+
+    /** 从未输入时的普通退格不抑制反馈（删正文应有反馈）。 */
+    @Test
+    fun feedbackNotSuppressedWhenIdle() {
+        val clock = Clock()
+        val guard = guard(clock)
+        assertEquals(false, guard.isConsumingBackspaces())
+    }
+
+    /** 删空后边界那一次起就抑制反馈（clearedAt 落在 armWindow 内，先于判决）。 */
+    @Test
+    fun feedbackSuppressedRightAfterClearBeforeConsume() {
+        val clock = Clock()
+        val guard = guard(clock)
+        guard.onComposingStateChanged(nonEmpty = true)
+        guard.onComposingStateChanged(nonEmpty = false)
+        // 此刻 onBackspace 还没被调（判决未发生），但已应抑制反馈。
+        assertEquals(true, guard.isConsumingBackspaces())
+    }
+
+    /** 进入保护态后持续抑制反馈。 */
+    @Test
+    fun feedbackSuppressedWhileProtecting() {
+        val clock = Clock()
+        val guard = guard(clock)
+        guard.onComposingStateChanged(nonEmpty = true)
+        guard.onComposingStateChanged(nonEmpty = false)
+        assertEquals(BackspaceBoundaryGuard.Decision.Consume, guard.onBackspace())
+        clock.advance(50)
+        assertEquals(true, guard.isConsumingBackspaces())
+    }
+
+    /** 手指抬起后（保护结束、走过所有窗口）恢复反馈。 */
+    @Test
+    fun feedbackRestoredAfterLift() {
+        val clock = Clock()
+        val guard = guard(clock)
+        guard.onComposingStateChanged(nonEmpty = true)
+        guard.onComposingStateChanged(nonEmpty = false)
+        assertEquals(BackspaceBoundaryGuard.Decision.Consume, guard.onBackspace())
+        guard.onUserKeyAction()
+        // 走过沉降与抖动吸收窗口。
+        clock.advance(BackspaceBoundaryGuard.DefaultBounceAbsorbTtlMs + 1)
+        assertEquals(false, guard.isConsumingBackspaces())
+    }
+
+    /** armWindow 过期而未按退格：不再抑制（视为普通删正文）。 */
+    @Test
+    fun feedbackNotSuppressedAfterArmWindowExpires() {
+        val clock = Clock()
+        val guard = guard(clock)
+        guard.onComposingStateChanged(nonEmpty = true)
+        guard.onComposingStateChanged(nonEmpty = false)
+        clock.advance(BackspaceBoundaryGuard.DefaultArmWindowMs + 1)
+        assertEquals(false, guard.isConsumingBackspaces())
+    }
 }
