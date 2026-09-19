@@ -81,6 +81,25 @@
 
 **教训（测试腐坏）**：`9be829bb` 引入的 `NumberRowTest` 读取了基类不存在的 `textSize`，这个编译错误**潜伏了一整天没人发现**——因为 CI 只跑 `:app:assembleFxRelease`、**从不编译 `app/src/test/**`**，单测源集事实上处于"编译不过"的状态，任何 JVM 单测都跑不起来（已修：改成先断言实际类型再读属性）。装上本机工具链后第一次 `testFxDebugUnitTest` 就撞出来了。**改测试后必须本地跑一次 `build-debug.ps1 -Test`**；是否把单测纳入 CI 见第 7 节。
 
+### 2026-09-19 自定义 SVG 图标把 Kawaii Bar 按钮撑宽（左右各多一块空隙）
+
+**现象**（用户反馈）：在 Kawaii Bar 上新建一个按钮、图标导入自定义 SVG 后，该按钮**左右各出现一块异常空隙**，把整排按钮挤窄。
+
+**复现需要的设备事实**（先读，别猜）：`adb-shell 'cat /storage/emulated/0/Android/data/<pkg>/files/config/ButtonsLayout.json'` —— 用户当时 13 个中间按钮，`custom_1` 的 `icon` 为 `file:button_icons/classification-290.svg`；图标本体也读出来看（该 SVG 的根标签只有 `viewBox="0 0 1024 1024"`，**没有 `width`/`height`**，尺寸写在 `style="width: 1em;height: 1em"` 里）。
+
+**根因**（两层叠加，缺一不可）：
+1. `ButtonIconFile.loadSvgDrawable` 用 `svg.renderToPicture()`。androidsvg 只有在根元素有**非百分比** `width`/`height` 时才拿它当画布尺寸；该 SVG 的宽高只写在 `style` 属性里，而 androidsvg 的 `processStyleProperty` **根本不处理 width/height**（只有 fill/stroke/font 那一批），于是退回内置 `DEFAULT_PICTURE_WIDTH/HEIGHT = 512×512`。渲染出 512×512 位图 → `BitmapDrawable` 的 intrinsic 尺寸 = `bitmap.getScaledWidth(targetDensity)`，在 density 640 的设备上是 `512 * 640 / 160 = 2048px ≈ 128dp`。
+2. 中央按钮行的按钮是 `wrap_content + minimumWidth = 40dp` 的 `ToolButton`，而 `KawaiiBarRowLayout` 在均分模式下虽然给子 View EXACTLY 宽度，**均分阈值判定**用的是 `(availableWidth - spacing*count) / count >= minButtonWidth`；按钮被撑宽后该行进入滚动模式，按各自测量宽度排列 → 这个按钮独宽约 148dp，24dp 的图标在 `CENTER_INSIDE` 下居中绘制，左右各空出约 62dp。**空隙不是 padding 或 margin 造成的**，改 2dp 间距、改 `minimumWidth` 都不会消失。
+
+**定位捷径（下次照抄）**：这类"某个按钮特别宽"的问题，先怀疑 **drawable 的 intrinsic 尺寸**，而不是布局代码——布局读的是 `measuredWidth`，而 `wrap_content` 的测量结果直接来自 intrinsic 尺寸。核对方式：`BitmapDrawable.getIntrinsicWidth()` 返回 `bitmap.getScaledWidth(targetDensity)`（AOSP `computeBitmapSize()`），所以**位图像素数与 intrinsic 宽度差一个 density 倍率**，别只看位图是 512 就以为只有 512px。
+
+**修复**（`ButtonIconFile.kt` / 新增 `IconSize.kt`）：
+- SVG 改为**直接给定 viewPort** 渲染到标准图标尺寸（`svg.renderToCanvas(canvas, RectF(0f, 0f, size, size))`），既绕开 `renderToPicture()` 的 512×512 兜底，也省掉一张大位图；宽高比由 SVG 自己的 `preserveAspectRatio` 保持。
+- `loadDrawable` 出口统一归一化（`fitToStandardIconSize`）：按 **intrinsic 尺寸**判断是否需要缩放，纯函数 `fitIconSize(width, height, targetSize)` 放在 `IconSize.kt` 里做 JVM 单测（`IconSizeTest`）。
+- 删除 `IconThemeManager.normalizedDrawable` 及其两处调用点（`IconThemeManager.resolveIconDrawableInfo`、`StatusAreaEntryUi.showConfiguredIcon`）——出口已经保证尺寸，调用方不必也不能再各归一化一遍；**新增取用自定义文件图标的界面同样不要再写归一化**。
+
+**验证**：本地 `IconSizeTest` 6 例绿、全量 `:app:testFxDebugUnitTest` 绿、`:app:assembleFxDebug` 出包且签名与已装 debug 版一致；`:app:lintFxDebug` 仍为既有 157 个 error，本次改动文件只有 `LogNotTimber` 一类警告（本仓库 lint 未纳入门禁）。**真机视觉回归（装新 debug 包后看按钮是否与内置图标等宽）待用户安装确认**——容器内无 install 通道，`pm install` 被设备策略拦截。
+
 ---
 
 ## 0.5 rime 引擎更新 runbook（2026-09-06 首次实战打通，照此复制）
