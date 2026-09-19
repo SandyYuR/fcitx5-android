@@ -14,7 +14,7 @@
 > **2026-09-10 更新**：① prebuilder 合并 fxliang `4fdb494`（userdict 外部更新失效修复，自动合并零冲突）并 bump librime pin `3cbe4afb`→`35f23e97`（四补丁栈实测全部干净应用 + 回环零差异），已推送 `SandyYuR/prebuilder@446d1ea`，CI run 34472331394 绿，新引擎落地 `prebuilt@9e631eb9`（四 ABI .a 全更新，`rime_api.h` blob 与补丁产物一致、tabs/para 全符号在列），主仓库已接 `librime.json → 1.17.0-35f23e9`（**0.5.6 节**第三次实战）；② 全链路其余检查点零新增（fcitx5-rime 两侧上游、librime 上游仅纯 CI 提交、fxliang 官方 prebuilt 禁合，见 0.5.5 表）。
 > **2026-09-10 文档分拆**：应用户要求，项目文档集中到 **`rime-docs`** 分支维护（孤儿分支，只含文档文件；上游遗留的 `docs` 分支是 GitHub Pages 文档站，勿混淆）。`fx-rime-only` 已重写历史：剥离 31 个纯文档提交、从 6 个混合提交中移除文档部分（README.md 的代码性改动保留），重写后 154 个提交（基线 `3ad25fc9` 之上）。**本文档内引用的 fx-rime-only SHA 均为重写前历史**——完整保存在 tag `archive/pre-doc-split`（指向重写前 tip `b3da998e`，184 提交全量）与本地 `backup/pre-doc-split` 分支；重写后的新 SHA 以 git 实测为准。`agent.md` 移出仓库，落地本机 `D:\GitHub\fx2-rime\AGENTS.md`（DSH 自动加载，内容已同步本次分拆）。
 > **2026-09-10 提交标题重写**：应用户要求，`fx-rime-only` 历史第二次重写——全部提交标题统一为 `类型(模块): 内容` 格式（旧标题多为 `fix(C32)` 这类审查编号，模块不可见），并把 19 组同模块同类型的相邻提交合并，154 → 128 个提交；随后按用户要求将 CI release 描述改为「注意：此版仅可使用Rime输入方案（插件已合并）」。**源码零改动**（重写前后 tree hash 完全相等）。当前 129 个提交（含 release 描述修改）。旧→新 SHA 对照：合并组正文自带合并清单；完整映射表在本机 `D:\GitHub\fx2-rime\日志\提交SHA映射-标题重写-2026-09-10.txt`（2026-09-16 复核：原写的工作区根 `_retitle_map_old_new.txt` 已移入该位置）。
-> **2026-09-19 更新**：① 修复「长按忘记词汇一次删掉两个同音词」——上游 librime 的 `delete_notifier` 是多播信号，多个继承 `Memory` 的 translator 各自订阅、且旧代码在信号分发中途重建 composition，后续订阅者因此删到另一个候选；新增**第 6 个补丁** `librime-defer-composition-refresh-on-delete.patch` 把重建推迟到分发结束，详见 **0.5.8 节**；CI run 35435515145 绿，引擎落地 `prebuilt@6b5b2ee6`，**pin 未变**（仍 `8d8276f4`，`librime.json` 无需动）；② 同任务新增候选词**上滑选字**（`fx-rime-only` `ed6422a8`，移植 boomker/fcitx5-android `7085b3f0` 的上滑部分，长按菜单与下滑词频重置不在范围内）。
+> **2026-09-19 更新**：① 修复「长按忘记词汇一次删掉两个同音词」——上游 librime 的 `delete_notifier` 是多播信号，多个继承 `Memory` 的 translator 各自订阅、且旧代码在信号分发中途重建 composition，后续订阅者因此删到另一个候选；新增**第 6 个补丁** `librime-defer-composition-refresh-on-delete.patch` 把重建推迟到分发结束，详见 **0.5.8 节**；CI run 35435515145 绿，引擎落地 `prebuilt@6b5b2ee6`，**pin 未变**（仍 `8d8276f4`，`librime.json` 无需动）；② 候选词手势定型为**按住后滑动**（`fx-rime-only` `2a19ddd3`，CI run 35460755786 绿，Nightly `0.1.3-617-g2a19ddd3`）：按住上滑弹选字窗提交单字、按住下滑呼出操作菜单、按住不动仍是原有长按菜单、未按住时滑动归列表自身——修正了先前直接上滑实现会让展开候选面板无法翻页的问题，设计不变式见本节下一条。
 > **2026-09-16 快照更新**：`fx-rime-only` 相对基线 `3ad25fc9` 共 **143** 个提交（09-10 晚为 129，其后新增 14 个：中央工具栏确定性布局修复、剪贴板实时搜索、内置布局/主题/图标主题三连、CI 单测 job 与 setup-android 修复、候选栏双高亮修复等）；逐提交明细与工作树状态一律以 git 实测为准（标题已自描述，本文不再维护提交清单表格，见第 2 节）。`fx2` 已删除，基线 `3ad25fc9` 仍是祖先，计数口径不变。`提交SHA映射-标题重写-2026-09-10.txt` 已从工作区根移入 `日志\` 目录（下文第 16 行注写的 `D:\GitHub\fx2-rime\_retitle_map_old_new.txt` 为旧路径）。
 
 ---
@@ -323,6 +323,27 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 1. **先核对日志再改代码**。第一次修复做成"删全同文来源（`GetGenuineCandidates`）"，前提是"一个词删不干净"；但日志两次删的是**不同的词**，方向就错了。该错误补丁的产物 `e7e50893` 一度被推上 prebuilt——**绝不能把主仓库指针 bump 到它**。
 2. **配方（`LibRime.hs`）的 `do` 块只有最后一条 `cmd_` 带逗号**。把新行插在带逗号那行之后 → GHC `parse error on input '('`，`Build everything` **6 秒即挂**（配方编译阶段，与补丁无关）。已修正：逗号移到列表末行。
 3. **判断补丁行尾要用对象库字节，不要用 `Out-String` 测量**。一度误判"补丁 CRLF 导致 CI 失败"，实测 `git cat-file -p <sha>:patches/...` 为 1370 字节、零 CRLF，判断作废。另注意：**取消 CI run 后 `Push to prebuilt` 可能已经执行完**，要核对产物父链确认拿到的是哪一版补丁构建的。
+
+### 0.5.9 2026-09-19 候选词手势定型：按住后滑动（选字 / 操作菜单）
+
+**起因**：用户反馈——先前移植的直接「上滑弹选字窗」用起来**展开候选列表没法滑动翻页**了。原因不在选字逻辑，而在触发方式：`CustomGestureView.swipeEnabled` 路径在 `ACTION_DOWN` 就派发 `GestureType.Down`、监听者随即 `requestDisallowInterceptTouchEvent(true)`，**手指刚按下触摸就被候选条目夺走**，父级 RecyclerView 收不到滚动事件。
+
+**修法（`2a19ddd3`，4 文件 +125/−16）**：`CustomGestureView` 新增 **`holdSwipeEnabled`**「按住后滑动」模式，与 `swipeEnabled` 走独立分支、阈值复用 `swipeThresholdY`：
+
+- `ACTION_DOWN`：**不派发 Down、不夺拦截**，只起一个 `longPressDelay` 计时（`holdSwipeJob`）；未进入已按住时的 `ACTION_MOVE` 全部放行给父容器（只更新 `swipeLastX/Y`，供进入已按住后起算，避免按住瞬间误触发），因此展开面板照常翻页；
+- 计时到期：置 `holdSwipeArmed = true`、给长按触感反馈、**此时才补发 `GestureType.Down`**，监听者在这一刻调 `requestDisallowInterceptTouchEvent(true)` 接管；
+- `ACTION_MOVE`（已按住）：只走 Y 轴 `consumeSwipe` 并派发 `Move`；
+- `ACTION_UP`：**只在已按住时才配对派发 `Up`**（未按住时本视图从未发过 Down）；已按住且 `gestureConsumed == false`（原地没怎么动）→ 回落 `performLongClick()`，保住「长按弹菜单」语义；已按住时**不再触发 `performClick`**（否则按住后滑动会被当成选词）。`ACTION_CANCEL` 同一配对规则。
+- `BaseInputView.bindCandidateGesture(view, text, resolveIndex)`：`resolveIndex` 在触发时才求值（与既有 click/长按监听一致，避免 DiffUtil 不 rebind 时下标停在旧起点）。`Move` 上用 `directionLocked` 保证一次按住只走一个方向：`totalY < 0` 弹选字窗（`totalY` 累计位移，由 `consumeSwipe` 维护），`totalY > 0` 调 `showCandidateActionMenu(...)`。
+
+**不变式（改候选词手势必须守住）**：候选条目**不得在 `ACTION_DOWN` 就派发 Down 或夺走父容器拦截**——一旦这么做，展开候选面板立即失去滚动能力。要区分「轻滑」与「按住后滑」，只能在按满判定时间后再接管。这与第 0 节 Kawaii Bar 那条同源：**手势/布局都不得依赖"按下瞬间"的抢占式状态**。
+
+**验证与遗留**：
+- 已做：`:app:testFxDebugUnitTest` 全绿、`:app:assembleFxDebug` 出包、`git diff --check` 干净、CI [run 35460755786](https://github.com/SandyYuR/fcitx5-android/actions/runs/35460755786) 三个 job 全绿（Nightly `0.1.3-617-g2a19ddd3`）。lint 仍为存量失败（`MissingTranslation` 123、`NewApi` 23 等），本次只新增 2 条 `ClickableViewAccessibility` warning，无新增 error。
+- **未做（重要）**：**真机手势回归没做**。改动期间 `adb devices` 一直为空，设备离线。手感相关项（默认 300 ms 判定是否合适、按住后滑动是否跟手、展开面板翻页是否确实恢复、按住不动抬手是否稳定弹菜单）**必须真机确认**，符号与单测通过不等于交互可用。
+- 已知细微遗留：同一候选词在一次删除分发里会被两个订阅者各删一次（日志同一毫秒两条 `deleting entry`）。功能无害（同一精确键、词库只减 1 条），但会把 `commits` 从 `-N` 覆写为 `-1`，影响该词被重新输入「复活」时的初始权重。若要收敛需再加幂等守卫补丁（第 7 个）。
+
+**顺带修正的文档口径**：本仓库 `README.md` 与用户指南 5.6 节已按定型后的手势改写；此前 0.5.8 节摘要里「同任务新增候选词上滑选字（`ed6422a8`）」的描述已被本次取代，`ed6422a8` 仍是历史提交，但其「直接上滑」的交互**不再是当前行为**。
 
 ---
 
