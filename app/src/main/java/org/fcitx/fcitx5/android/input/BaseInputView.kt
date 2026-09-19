@@ -111,17 +111,31 @@ abstract class BaseInputView(
     private var candidateCharacterPopup: CandidateCharacterPopup? = null
 
     /**
-     * 给候选词条目绑定“上滑弹选字窗”手势（上游 `7085b3f0` 的上滑部分移植）。
+     * 给候选词条目绑定「按住后滑动」手势。
      *
-     * 只处理向上滑动；向下滑动不做任何事（上游的下滑重置词频不在本项目移植范围内）。
-     * 点击、长按（忘记词汇菜单）走条目原有的 click / long-click 监听，本函数不动它们。
+     * 按住（判定阈值同长按）后：
+     * - 向上滑 → 弹出单字窗，滑到哪个字就高亮哪个，抬手提交该字；弹窗外抬手取消；
+     * - 向下滑 → 呼出候选操作菜单（忘记词汇等）。
+     * 按住不动直接抬手 → 回落到原有的长按菜单，行为与改动前一致。
+     *
+     * 之所以用按住后滑动而不是直接滑动：直接滑动要在按下时就夺走父容器的触摸拦截，
+     * 展开候选列表就没法上下滚动翻页了。按住后才接管，未按住时的滑动完全留给父容器。
+     *
+     * [resolveIndex] 在触发菜单/提交时才求值，与既有 click / long-click 监听一致，
+     * 避免 DiffUtil 不 rebind 时下标停在旧起点。
      */
-    fun bindCandidateGesture(view: CustomGestureView, text: String) {
+    fun bindCandidateGesture(
+        view: CustomGestureView,
+        text: String,
+        resolveIndex: () -> Int
+    ) {
         val characters = text.candidateCharacters()
         var gestureCancelled = false
         var popup: CandidateCharacterPopup? = null
+        // 本次按住是否已经选定方向（上滑弹字窗 / 下滑弹菜单）；选定后不再改向。
+        var directionLocked = false
 
-        view.swipeEnabled = true
+        view.holdSwipeEnabled = true
         view.swipeThresholdY = resources.displayMetrics.density * 20f
         // 仅用于感知 ACTION_CANCEL（手势被 RecyclerView 滚动等打断时关闭弹窗）；
         // 返回 false，不消费点击/长按事件。无障碍点击委托给 CustomGestureView 自身。
@@ -129,6 +143,7 @@ abstract class BaseInputView(
             if (event.actionMasked == MotionEvent.ACTION_CANCEL) {
                 gestureCancelled = true
                 popup = null
+                directionLocked = false
                 dismissCandidateCharacterPopup()
                 view.parent?.requestDisallowInterceptTouchEvent(false)
             }
@@ -136,28 +151,42 @@ abstract class BaseInputView(
         }
         view.onGestureListener = CustomGestureView.OnGestureListener { _, event ->
             when (event.type) {
+                // 长按判定到期、进入「已按住」时才收到 Down：此刻开始由本视图接管触摸。
                 CustomGestureView.GestureType.Down -> {
                     dismissCandidateCharacterPopup()
                     gestureCancelled = false
                     popup = null
+                    directionLocked = false
                     view.parent?.requestDisallowInterceptTouchEvent(true)
                     false
                 }
 
                 CustomGestureView.GestureType.Move -> {
                     when {
+                        // 方向已定：字窗跟随手指更新高亮
                         popup != null -> {
                             popup?.updateFocus(event.x, event.y)
                             true
                         }
 
+                        directionLocked -> true
+
+                        // 向上滑：弹单字窗
                         event.totalY < 0 && characters.isNotEmpty() -> {
+                            directionLocked = true
                             popup = CandidateCharacterPopup(view, characters, theme).also {
                                 candidateCharacterPopup = it
                                 it.show()
                                 it.updateFocus(event.x, event.y)
                             }
                             InputFeedbacks.hapticFeedback(view, longPress = true)
+                            true
+                        }
+
+                        // 向下滑：呼出候选操作菜单（忘记词汇等）
+                        event.totalY > 0 -> {
+                            directionLocked = true
+                            showCandidateActionMenu(resolveIndex(), text, view)
                             true
                         }
 
@@ -178,7 +207,8 @@ abstract class BaseInputView(
                         popup = null
                         return@OnGestureListener true
                     }
-                    event.consumed
+                    // 下滑分支：菜单已弹出，消费掉抬手，避免再触发一次长按回落。
+                    directionLocked || event.consumed
                 }
             }
         }
@@ -188,7 +218,7 @@ abstract class BaseInputView(
         dismissCandidateCharacterPopup()
         view.setOnTouchListener(null)
         view.onGestureListener = null
-        view.swipeEnabled = false
+        view.holdSwipeEnabled = false
         view.parent?.requestDisallowInterceptTouchEvent(false)
     }
 
