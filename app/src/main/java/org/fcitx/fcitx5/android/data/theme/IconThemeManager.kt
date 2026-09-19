@@ -253,7 +253,8 @@ object IconThemeManager {
         val isFileIcon = ButtonIconFile.isFileIcon(value)
         val isSvg = isInlineSvg(value)
         val loaded: Drawable = (if (isFileIcon) {
-            ButtonIconFile.loadDrawable(value)?.let { normalizedDrawable(it) }
+            // 文件图标已在 ButtonIconFile.loadDrawable 出口统一归一到标准图标尺寸。
+            ButtonIconFile.loadDrawable(value)
         } else if (isSvg) {
             loadSvgDrawable(value)
         } else {
@@ -374,26 +375,6 @@ object IconThemeManager {
 
     private fun svgCandidates(raw: String): List<String> =
         listOf(normalizeSvgContent(raw), raw.trim()).distinct()
-
-    /** Scale an oversized BitmapDrawable down to the standard icon size (24dp)
-     *  so PNG/SVG file icons don't overflow key/toolbar button boundaries. */
-    internal fun normalizedDrawable(drawable: Drawable): Drawable {
-        if (drawable !is BitmapDrawable) return drawable
-        val bitmap = drawable.bitmap
-        val w = bitmap.width.coerceAtLeast(1)
-        val h = bitmap.height.coerceAtLeast(1)
-        val density = appContext.resources.displayMetrics.density
-        val targetSize = (24 * density).toInt()
-        if (w <= targetSize && h <= targetSize) return drawable
-        val scale = minOf(targetSize.toFloat() / w, targetSize.toFloat() / h)
-        val scaled = Bitmap.createScaledBitmap(
-            bitmap,
-            (w * scale).toInt().coerceAtLeast(1),
-            (h * scale).toInt().coerceAtLeast(1),
-            true
-        )
-        return BitmapDrawable(appContext.resources, scaled)
-    }
 
     private fun cloneDrawable(drawable: Drawable): Drawable {
         val cloned = drawable.constantState?.newDrawable(appContext.resources) ?: drawable
