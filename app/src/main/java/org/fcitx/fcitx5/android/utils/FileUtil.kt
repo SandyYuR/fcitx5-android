@@ -48,4 +48,33 @@ object FileUtil {
         target.parentFile?.mkdirs()
         Os.symlink(source.path, target.path)
     }
+
+    /**
+     * 原子写入文本：先写同目录临时文件并 fsync，再 rename 覆盖目标。
+     *
+     * 直接 `file.writeText(...)` 在进程中途被杀时会留下被截断的半个文件，调用方
+     * 下次读取只能解析失败并退回默认值（例如 DataManager 会退化成"全量重同步"）。
+     * rename 在同一文件系统内是原子的，因此读到的要么是旧内容、要么是新内容。
+     */
+    fun writeAtomically(file: File, content: String) {
+        val parent = file.parentFile
+        parent?.mkdirs()
+        val tmp = File(parent, "${file.name}.tmp")
+        try {
+            java.io.FileOutputStream(tmp).use { out ->
+                out.write(content.toByteArray(Charsets.UTF_8))
+                out.flush()
+                // 元数据 rename 是原子的，但内容必须先落盘，否则崩溃后可能 rename 出空文件。
+                runCatching { out.fd.sync() }
+            }
+            if (!tmp.renameTo(file)) {
+                // 跨文件系统等极端情况下 rename 可能失败，退回直接写入（仍好过丢文件）。
+                file.writeText(content)
+                tmp.delete()
+            }
+        } catch (e: Throwable) {
+            tmp.delete()
+            throw e
+        }
+    }
 }

@@ -112,9 +112,12 @@ object DataManager {
             }
         }
         // save the new hierarchy as the data descriptor to be used in the next run
-        destDescriptorFile.bufferedWriter().use {
-            it.write(serializeDataDescriptor(newHierarchy.downToDataDescriptor()))
-        }
+        // 原子写：进程在写中途被杀会留下半截 JSON，下次启动解析失败会退回空 descriptor
+        // 并把所有 Delete/Create 动作重排一遍（表现为启动变慢 + 全量重同步）。
+        FileUtil.writeAtomically(
+            destDescriptorFile,
+            serializeDataDescriptor(newHierarchy.downToDataDescriptor())
+        )
         callbacks.forEach { it() }
         callbacks.clear()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
