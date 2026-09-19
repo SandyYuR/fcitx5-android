@@ -29,9 +29,11 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
+import android.graphics.RectF
 import android.util.TypedValue
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
+import kotlin.math.roundToInt
 
 /**
  * Helpers for custom button icons stored under `<externalFilesDir>/button_icons/`.
@@ -94,6 +96,38 @@ object ButtonIconFile {
 
     fun isFileIcon(icon: String?): Boolean = icon != null && icon.startsWith(PREFIX)
 
+    /** 标准图标边长（24dp 的像素值），与内置 vector 图标一致。 */
+    private fun standardIconSize(): Int =
+        (24 * appContext.resources.displayMetrics.density).toInt().coerceAtLeast(1)
+
+    /**
+     * 把自定义图标缩放到标准图标尺寸；已经够小的返回原实例。
+     *
+     * 判据是 **intrinsic 尺寸**而不是位图像素：参与布局的是 intrinsic 宽度，
+     * 一个 intrinsic 偏大的图标会把 `wrap_content` 按钮撑宽，图标居中后左右各留一块空隙
+     * （工具栏中间按钮行就是按子 View 的测量宽度排列的）。按 intrinsic 比例换算，
+     * 缩放后的位图沿用原密度，新的 intrinsic 正好落进标准尺寸。
+     *
+     * 只在 [loadDrawable] 出口处做一次，所有取用自定义图标的界面（工具栏中间按钮、
+     * 状态区按钮、图标主题）因此拿到一致尺寸；调用方不需要各自再归一化一遍。
+     */
+    private fun fitToStandardIconSize(drawable: Drawable): Drawable {
+        if (drawable !is BitmapDrawable) return drawable
+        val bitmap = drawable.bitmap ?: return drawable
+        val intrinsicWidth = drawable.intrinsicWidth
+        val intrinsicHeight = drawable.intrinsicHeight
+        val fitted = fitIconSize(intrinsicWidth, intrinsicHeight, standardIconSize()) ?: return drawable
+        val scaleX = fitted.width.toFloat() / intrinsicWidth.coerceAtLeast(1)
+        val scaleY = fitted.height.toFloat() / intrinsicHeight.coerceAtLeast(1)
+        val scaled = Bitmap.createScaledBitmap(
+            bitmap,
+            (bitmap.width * scaleX).roundToInt().coerceAtLeast(1),
+            (bitmap.height * scaleY).roundToInt().coerceAtLeast(1),
+            true
+        )
+        return BitmapDrawable(appContext.resources, scaled)
+    }
+
     /**
      * Extract the `button_icons`-relative name from a raw path (prefix stripped).
      * Falls back to the plain file name when the marker is absent.
@@ -143,6 +177,10 @@ object ButtonIconFile {
      * Resolution + parsing are cached (see [constantStateCache]); a hit returns a fresh instance
      * built from the cached [Drawable.ConstantState], so callers own their bounds/alpha/tint.
      * Failures and unresolvable paths are never cached.
+     *
+     * The returned drawable is already fitted to the standard icon size (24dp), so every caller
+     * — toolbar center buttons, status area entries, icon themes — lays out at the same width as a
+     * built-in icon without having to normalize it again.
      */
     fun loadDrawable(icon: String): Drawable? {
         val path = resolvePath(icon) ?: run {
@@ -157,7 +195,7 @@ object ButtonIconFile {
                 runCatching { state.newDrawable() }.getOrNull()?.let { return it }
             }
         }
-        val loaded = loadDrawableUncached(path) ?: return null
+        val loaded = loadDrawableUncached(path)?.let { fitToStandardIconSize(it) } ?: return null
         if (cacheKey != null) {
             loaded.constantState?.let { constantStateCache.put(cacheKey, it) }
         }
@@ -445,21 +483,22 @@ object ButtonIconFile {
         return r == g && g == b
     }
 
+    /**
+     * 把 SVG 渲染为**标准图标尺寸**的位图。
+     *
+     * 这里不能走 `renderToPicture()` —— 图标型 SVG 通常只声明 `viewBox`，没有 `width`/`height`
+     * （即便有也常写在 `style` 里，而 androidsvg 的样式解析不处理宽高），此时 androidsvg 会退回
+     * 内置的 512x512 画布，渲染出的位图 intrinsic 尺寸远大于一个图标，按钮被撑宽后图标居中，
+     * 左右就各空出一块。给定 viewPort 直接渲染既省掉一张大位图，也让 intrinsic 尺寸等于图标尺寸。
+     * 宽高比由 SVG 自己的 `preserveAspectRatio` 保持，非正方形图标居中留白，与内置图标一致。
+     */
     private fun loadSvgDrawable(path: String): Drawable? {
         try {
             val svg = com.caverock.androidsvg.SVG.getFromInputStream(File(path).inputStream())
-            val picture = svg.renderToPicture()
-            val w = picture.width.coerceAtLeast(1)
-            val h = picture.height.coerceAtLeast(1)
-            // Cap at a reasonable max dimension
-            val maxDim = 256f
-            val scale = minOf(maxDim / w, maxDim / h, 1f)
-            val bitW = (w * scale).toInt().coerceAtLeast(1)
-            val bitH = (h * scale).toInt().coerceAtLeast(1)
-            val bitmap = Bitmap.createBitmap(bitW, bitH, Bitmap.Config.ARGB_8888)
+            val size = standardIconSize()
+            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
-            canvas.scale(bitW.toFloat() / w, bitH.toFloat() / h)
-            canvas.drawPicture(picture)
+            svg.renderToCanvas(canvas, RectF(0f, 0f, size.toFloat(), size.toFloat()))
             return BitmapDrawable(appContext.resources, bitmap)
         } catch (e: Exception) {
             Log.w(TAG, "Failed to load SVG: $path", e)
