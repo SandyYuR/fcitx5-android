@@ -29,6 +29,8 @@ class SaturationValuePickerView(context: Context) : View(context) {
     private val saturationPaint = Paint()
     private val valuePaint = Paint()
     private val markerPaint = Paint()
+    // 内圈标记笔（随当前颜色变化）：预先建好，避免 onDraw 每帧 new Paint（lint DrawAllocation）。
+    private val innerMarkerPaint = Paint().apply { style = Paint.Style.FILL }
 
     private var hue = 0f
     private var saturation = 1f
@@ -39,6 +41,13 @@ class SaturationValuePickerView(context: Context) : View(context) {
     private var markerY = 0f
 
     private val dp: (Float) -> Int = { (it * resources.displayMetrics.density + 0.5f).toInt() }
+
+    // 两个渐变只依赖尺寸与 hue，缓存后可避免每帧分配 LinearGradient + IntArray。
+    // hue 每帧都可能变（拖动色环），此时只需重建横向那一条。
+    private var cachedHue = Float.NaN
+    private var cachedWidth = -1
+    private var cachedHeight = -1
+    private val svStops = intArrayOf(0, 0)
 
     init {
         markerPaint.color = Color.WHITE
@@ -66,38 +75,44 @@ class SaturationValuePickerView(context: Context) : View(context) {
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         rect.set(0f, 0f, w.toFloat(), h.toFloat())
+        cachedWidth = -1
+        cachedHeight = -1
         updateMarkerPosition()
     }
 
-    override fun onDraw(canvas: Canvas) {
-        // Draw hue background (current hue with full saturation and value)
-        huePaint.shader = LinearGradient(
-            0f, 0f, width.toFloat(), 0f,
-            intArrayOf(
-                Color.HSVToColor(floatArrayOf(hue, 0f, 1f)),  // Left: white (saturation 0)
-                Color.HSVToColor(floatArrayOf(hue, 1f, 1f))   // Right: full color
-            ),
-            null,
-            Shader.TileMode.CLAMP
-        )
-        canvas.drawRect(rect, huePaint)
+    private fun updateShaders() {
+        val w = width
+        val h = height
+        if (w <= 0 || h <= 0) return
+        if (w != cachedWidth || hue != cachedHue) {
+            cachedWidth = w
+            cachedHue = hue
+            // 左侧白（饱和度 0）→ 右侧当前色（饱和度 1）。hue 不变时复用同一对颜色。
+            svStops[0] = Color.HSVToColor(floatArrayOf(hue, 0f, 1f))
+            svStops[1] = Color.HSVToColor(floatArrayOf(hue, 1f, 1f))
+            huePaint.shader = LinearGradient(
+                0f, 0f, w.toFloat(), 0f, svStops, null, Shader.TileMode.CLAMP
+            )
+        }
+        if (h != cachedHeight) {
+            cachedHeight = h
+            valuePaint.shader = LinearGradient(
+                0f, 0f, 0f, h.toFloat(),
+                intArrayOf(Color.TRANSPARENT, Color.BLACK),
+                floatArrayOf(0f, 1f),
+                Shader.TileMode.CLAMP
+            )
+        }
+    }
 
-        // Draw value gradient (transparent to black, top to bottom)
-        valuePaint.shader = LinearGradient(
-            0f, 0f, 0f, height.toFloat(),
-            intArrayOf(Color.TRANSPARENT, Color.BLACK),
-            floatArrayOf(0f, 1f),
-            Shader.TileMode.CLAMP
-        )
+    override fun onDraw(canvas: Canvas) {
+        updateShaders()
+        canvas.drawRect(rect, huePaint)
         canvas.drawRect(rect, valuePaint)
 
-        // Draw marker
         canvas.drawCircle(markerX, markerY, dp(10f).toFloat(), markerPaint)
-        
-        val innerMarkerPaint = Paint().apply {
-            color = Color.HSVToColor(floatArrayOf(hue, saturation, value))
-            style = Paint.Style.FILL
-        }
+
+        innerMarkerPaint.color = Color.HSVToColor(floatArrayOf(hue, saturation, value))
         canvas.drawCircle(markerX, markerY, dp(8f).toFloat(), innerMarkerPaint)
     }
 

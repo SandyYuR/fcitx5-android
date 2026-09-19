@@ -25,29 +25,39 @@ class HueSliderView(context: Context) : View(context) {
         strokeWidth = (2f * resources.displayMetrics.density)
     }
 
+    // 渐变只随高度变化：在 onDraw 里每次 new LinearGradient + intArrayOf 会让每帧都
+    // 分配两个对象（lint DrawAllocation）。按高度缓存，尺寸变化时重建一次即可。
+    private var gradientHeight = -1
+    private val hueStops = intArrayOf(
+        0xFFFF0000.toInt(),
+        0xFFFFFF00.toInt(),
+        0xFF00FF00.toInt(),
+        0xFF00FFFF.toInt(),
+        0xFF0000FF.toInt(),
+        0xFFFF00FF.toInt(),
+        0xFFFF0000.toInt()
+    )
+
     fun setHue(hue: Float) {
         this.hue = hue.coerceIn(0f, 360f)
         invalidate()
     }
 
-    override fun onDraw(canvas: Canvas) {
+    private fun updateGradient(h: Int) {
+        if (h == gradientHeight) return
+        gradientHeight = h
         gradientPaint.shader = LinearGradient(
-            0f,
-            0f,
-            0f,
-            height.toFloat(),
-            intArrayOf(
-                0xFFFF0000.toInt(),
-                0xFFFFFF00.toInt(),
-                0xFF00FF00.toInt(),
-                0xFF00FFFF.toInt(),
-                0xFF0000FF.toInt(),
-                0xFFFF00FF.toInt(),
-                0xFFFF0000.toInt()
-            ),
-            null,
-            Shader.TileMode.CLAMP
+            0f, 0f, 0f, h.toFloat(), hueStops, null, Shader.TileMode.CLAMP
         )
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        updateGradient(h)
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        updateGradient(height)
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), gradientPaint)
 
         val y = (hue / 360f) * height
