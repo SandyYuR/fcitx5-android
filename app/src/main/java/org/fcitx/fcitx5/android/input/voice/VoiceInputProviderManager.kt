@@ -536,7 +536,9 @@ object VoiceInputProviderManager {
             override fun onPartialResult(text: String?) {
                 val t = text.orEmpty()
                 if (t.isNotBlank()) {
-                    logI("partial result len=${t.length}: $t")
+                    // 只记长度：识别文本属 AGENTS.md §8.5 禁止进入日志的输入内容
+                    // （logI/tlogI 虽只在 debug 输出，但内容一旦落日志文件就留在设备上）。
+                    logI("partial result len=${t.length}")
                     service.lifecycleScope.launch {
                         service.setVoiceComposingText(t)
                         onPartialResult(t)
@@ -547,8 +549,9 @@ object VoiceInputProviderManager {
             override fun onSegmentFinal(text: String?) {
                 val t = text.orEmpty()
                 if (t.isNotBlank()) {
-                    logI("segment final len=${t.length}: $t")
-                    tlogI("Voice segment final: $t")
+                    // 同上：只记长度，不记识别文本。
+                    logI("segment final len=${t.length}")
+                    tlogI("Voice segment final len=${t.length}")
                     service.lifecycleScope.launch { service.commitText(t) }
                 } else {
                     logI("segment final blank")
