@@ -377,14 +377,16 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             when (intent?.action) {
                 BuildConfig.APPLICATION_ID + VoiceInputIpc.PARTIAL_ACTION_SUFFIX -> {
                     val text = intent.getStringExtra(VoiceInputIpc.EXTRA_PARTIAL_TEXT).orEmpty()
-                    android.util.Log.i("FcitxVoiceInput", "floating partial received len=${text.length}: $text")
+                    // 只记长度：release 也会输出（android.util.Log 不受 timberDebugEnabled 控制），
+                    // 完整识别文本属 AGENTS.md §8.5 禁止进入日志的输入内容。
+                    android.util.Log.i("FcitxVoiceInput", "floating partial received len=${text.length}")
                     if (text.isNotBlank()) {
                         lifecycleScope.launch { setVoiceComposingText(text) }
                     }
                 }
                 BuildConfig.APPLICATION_ID + VoiceInputIpc.COMMIT_ACTION_SUFFIX -> {
                     val text = intent.getStringExtra(VoiceInputIpc.EXTRA_COMMIT_TEXT).orEmpty()
-                    android.util.Log.i("FcitxVoiceInput", "floating commit received len=${text.length}: $text")
+                    android.util.Log.i("FcitxVoiceInput", "floating commit received len=${text.length}")
                     if (text.isNotBlank()) {
                         lifecycleScope.launch { commitVoiceText(text) }
                         VoiceInputProviderManager.floatingCommitListener?.invoke(text)
@@ -2020,7 +2022,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
         } else {
             // composing text content changed
-            Timber.d("updateComposingText: '$text' lastSelection=$lastSelection")
+            Timber.d("updateComposingText: len=${text.length} lastSelection=$lastSelection")
             if (text.isEmpty()) {
                 if (composing.isEmpty()) {
                     // do not reset saved selection range when incoming composing

@@ -913,7 +913,7 @@ class MainService : Service() {
                         continue
                     }
                     if (isSuppressedRemoteClipboard(data)) {
-                        Log.d(TAG, "[Pull] Skipping locally suppressed remote clipboard item: type=${data.type} text=${data.text}")
+                        Log.d(TAG, "[Pull] Skipping locally suppressed remote clipboard item: type=${data.type} textLength=${data.text.length}")
                         continue
                     }
                     if (data.text.isBlank() && !data.type.equals("Text", ignoreCase = true)) {

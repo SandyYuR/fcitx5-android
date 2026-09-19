@@ -604,7 +604,9 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
                         finalEntry = entry.copy(text = staged.uri.toString())
                         Timber.d("Staged clipboard image to local file: ${staged.uri}")
                     } else {
-                        Timber.w("Failed to stage clipboard image URI: ${entry.text}")
+                        // 只记长度：Timber.w 在 release 经 ConciseTree 仍会输出（只丢弃 < INFO），
+                        // 剪贴板原文属 AGENTS.md §8.5 禁止进入日志的内容。
+                        Timber.w("Failed to stage clipboard image URI, text length=${entry.text.length}")
                     }
                 }
                 insertOrUpdateEntry(finalEntry, notifyListeners = true)
