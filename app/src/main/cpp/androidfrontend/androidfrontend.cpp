@@ -504,6 +504,12 @@ void AndroidFrontend::showToast(const std::string &s) {
 
 void AndroidFrontend::setCandidatePagingMode(const int mode) {
     pagingMode_ = mode;
+    // 同文件其余入口都有这道判断，这里漏了：Kotlin 侧 onUnbindInput 会先
+    // resetCandidatePagingModeCache() 再重新 apply，此时若已 deactivate，
+    // activeIC_ 为 null，下面两行就是空指针解引用。
+    // 没有活动 IC 时只记下模式：候选刷新由后续 flush 事件按 pagingMode_ 分支完成，
+    // 无需在这里补刷新。
+    if (!activeIC_) return;
     if (mode == 0) {
         activeIC_->updateCandidatesBulk();
     } else {
