@@ -14,6 +14,7 @@
 > **2026-09-10 更新**：① prebuilder 合并 fxliang `4fdb494`（userdict 外部更新失效修复，自动合并零冲突）并 bump librime pin `3cbe4afb`→`35f23e97`（四补丁栈实测全部干净应用 + 回环零差异），已推送 `SandyYuR/prebuilder@446d1ea`，CI run 34472331394 绿，新引擎落地 `prebuilt@9e631eb9`（四 ABI .a 全更新，`rime_api.h` blob 与补丁产物一致、tabs/para 全符号在列），主仓库已接 `librime.json → 1.17.0-35f23e9`（**0.5.6 节**第三次实战）；② 全链路其余检查点零新增（fcitx5-rime 两侧上游、librime 上游仅纯 CI 提交、fxliang 官方 prebuilt 禁合，见 0.5.5 表）。
 > **2026-09-10 文档分拆**：应用户要求，项目文档集中到 **`rime-docs`** 分支维护（孤儿分支，只含文档文件；上游遗留的 `docs` 分支是 GitHub Pages 文档站，勿混淆）。`fx-rime-only` 已重写历史：剥离 31 个纯文档提交、从 6 个混合提交中移除文档部分（README.md 的代码性改动保留），重写后 154 个提交（基线 `3ad25fc9` 之上）。**本文档内引用的 fx-rime-only SHA 均为重写前历史**——完整保存在 tag `archive/pre-doc-split`（指向重写前 tip `b3da998e`，184 提交全量）与本地 `backup/pre-doc-split` 分支；重写后的新 SHA 以 git 实测为准。`agent.md` 移出仓库，落地本机 `D:\GitHub\fx2-rime\AGENTS.md`（DSH 自动加载，内容已同步本次分拆）。
 > **2026-09-10 提交标题重写**：应用户要求，`fx-rime-only` 历史第二次重写——全部提交标题统一为 `类型(模块): 内容` 格式（旧标题多为 `fix(C32)` 这类审查编号，模块不可见），并把 19 组同模块同类型的相邻提交合并，154 → 128 个提交；随后按用户要求将 CI release 描述改为「注意：此版仅可使用Rime输入方案（插件已合并）」。**源码零改动**（重写前后 tree hash 完全相等）。当前 129 个提交（含 release 描述修改）。旧→新 SHA 对照：合并组正文自带合并清单；完整映射表在本机 `D:\GitHub\fx2-rime\日志\提交SHA映射-标题重写-2026-09-10.txt`（2026-09-16 复核：原写的工作区根 `_retitle_map_old_new.txt` 已移入该位置）。
+> **2026-09-19 更新**：① 修复「长按忘记词汇一次删掉两个同音词」——上游 librime 的 `delete_notifier` 是多播信号，多个继承 `Memory` 的 translator 各自订阅、且旧代码在信号分发中途重建 composition，后续订阅者因此删到另一个候选；新增**第 6 个补丁** `librime-defer-composition-refresh-on-delete.patch` 把重建推迟到分发结束，详见 **0.5.8 节**；CI run 35435515145 绿，引擎落地 `prebuilt@6b5b2ee6`，**pin 未变**（仍 `8d8276f4`，`librime.json` 无需动）；② 同任务新增候选词**上滑选字**（`fx-rime-only` `ed6422a8`，移植 boomker/fcitx5-android `7085b3f0` 的上滑部分，长按菜单与下滑词频重置不在范围内）。
 > **2026-09-16 快照更新**：`fx-rime-only` 相对基线 `3ad25fc9` 共 **143** 个提交（09-10 晚为 129，其后新增 14 个：中央工具栏确定性布局修复、剪贴板实时搜索、内置布局/主题/图标主题三连、CI 单测 job 与 setup-android 修复、候选栏双高亮修复等）；逐提交明细与工作树状态一律以 git 实测为准（标题已自描述，本文不再维护提交清单表格，见第 2 节）。`fx2` 已删除，基线 `3ad25fc9` 仍是祖先，计数口径不变。`提交SHA映射-标题重写-2026-09-10.txt` 已从工作区根移入 `日志\` 目录（下文第 16 行注写的 `D:\GitHub\fx2-rime\_retitle_map_old_new.txt` 为旧路径）。
 
 ---
@@ -279,6 +280,30 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 ~~~
 
 两个关键点：① **`fetch` 成功不代表 `checkout` 会成功**——blob 是 checkout 阶段才拉的，必须两步分别验证；② 直接向 GitHub 拉四个 ABI 的大 `.a` 容易 `early EOF`，必要时改从已完整更新的独立克隆 `D:\GitHub\fx2-rime\prebuilt` 走本地传输，或只做浅拉取（`--depth 1`）。
+
+### 0.5.8 2026-09-19 第五次实战（用户报障 → 定位上游缺陷 → 新增第 6 个补丁，纯补丁不动 pin）
+
+**起因**：用户报障——在候选词上长按点「忘记词汇」，结果**连带把同音的另一个词也忘了**（"忘一个，丢两个"）。日志（debug 版实测，输入 `ni zhe`、只长按第 1 个候选点**一次**）：
+`15:35:49.897 deleting entry: '你这'` → 64ms 后 `15:35:49.961 deleting entry: '逆着'`，两次删除之间**没有任何新的点击事件**（只有弹窗失焦/销毁），故排除应用层重复调用。
+
+**根因（先验证再改代码，前两次判断都被证据推翻）**：
+1. `Context::delete_notifier_` 是 `boost::signals2::signal`，**多播**；
+2. `Memory` 构造函数订阅一次，而 `ScriptTranslator`、`TableTranslator`（`reverse_lookup_translator` 只继承 `Translator`，不订阅）**都继承 `Memory`**，每个实例各订阅一次；
+3. 同一方案里多个 translator 常配置**同一个 `user_dict`**（同语言）→ 共享一份词库（这是复现的必要条件）；
+4. `Context::DeleteCandidate` 先 `seg.selected_index = index`，**只发一次**通知，但 N 个订阅者**各跑一遍** `OnDeleteEntry`；
+5. 旧代码每个订阅者末尾都立刻 `ctx->RefreshNonConfirmedComposition()` → **在信号分发中途重建 composition**，`TranslateSegments` 把 `selected_index` 重置为 0 → 下一个订阅者读到的是重建后的**另一个**候选，把它也删了。
+
+**修复**：新增 `patches/librime-defer-composition-refresh-on-delete.patch`（**第 6 个补丁**，排在 `librime-fix-mapped-file-remap.patch` 之后，3 文件 +26/−1）——把重建从"每个订阅者内部"推迟到"全部分发完成后"：
+- `src/rime/gear/memory.cc`：`OnDeleteEntry` 改调 `ctx->requestCompositionRefresh()`，不在分发中途刷新；
+- `src/rime/context.h`：新增 `requestCompositionRefresh()` 与私有标记 `composition_refresh_pending_`；
+- `src/rime/context.cc`：`DeleteCandidate` 分发前清标记，分发后若被请求则统一 `RefreshNonConfirmedComposition()` 一次。
+
+**验证**：① Node 逻辑模型（`.verify` 之外，临时脚本）复现——旧实现删掉 `你这`+`逆着`（**与真机日志逐字一致**），新实现只删 `你这`；另覆盖单订阅者无回归、语言不匹配不删词、标记不残留；② 干净 `8d8276f4` 依序重放 **6 个补丁全部零退出**，且 `context.cc`/`context.h`/`memory.cc` 三个 blob 与工作台一致；③ CI [run 35435515145](https://github.com/SandyYuR/prebuilder/actions/runs/35435515145) **success**（约 18 分），`SandyYuR/prebuilt` `e7e50893` → **`6b5b2ee6`**（四 ABI `.a` 全更新，arm64 19,310,814 → 19,311,312，+498 字节）；④ APK 内 `librime.so` 含 `rime::Context::requestCompositionRefresh()` 符号（`llvm-nm` 实测），旧产物无此符号。主仓库 gitlink → `6b5b2ee6`；**pin 未变**（仍 `8d8276f4`），`librime.json` 无需改。
+
+**过程中的三个教训（下次省时间）**：
+1. **先核对日志再改代码**。第一次修复做成"删全同文来源（`GetGenuineCandidates`）"，前提是"一个词删不干净"；但日志两次删的是**不同的词**，方向就错了。该错误补丁的产物 `e7e50893` 一度被推上 prebuilt——**绝不能把主仓库指针 bump 到它**。
+2. **配方（`LibRime.hs`）的 `do` 块只有最后一条 `cmd_` 带逗号**。把新行插在带逗号那行之后 → GHC `parse error on input '('`，`Build everything` **6 秒即挂**（配方编译阶段，与补丁无关）。已修正：逗号移到列表末行。
+3. **判断补丁行尾要用对象库字节，不要用 `Out-String` 测量**。一度误判"补丁 CRLF 导致 CI 失败"，实测 `git cat-file -p <sha>:patches/...` 为 1370 字节、零 CRLF，判断作废。另注意：**取消 CI run 后 `Push to prebuilt` 可能已经执行完**，要核对产物父链确认拿到的是哪一版补丁构建的。
 
 ---
 
