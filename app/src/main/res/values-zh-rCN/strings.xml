@@ -183,6 +183,7 @@
     <string name="theme_migrated">主题已迁移到当前版本</string>
     <string name="keep_keyboard_letters_uppercase">键盘字母保持大写</string>
     <string name="choose_input_method">选择输入法</string>
+    <string name="rime_schema_menu">Rime 方案选单</string>
     <string name="edit_clipboard">编辑剪贴板</string>
     <string name="clipboard_edit_text_hint">剪贴板内容</string>
     <string name="config_addon_not_loaded">无可用配置项，该附加组件可能在 Fcitx 启动时处于禁用状态。</string>
@@ -314,6 +315,7 @@
     <string name="kawaii_bar_section">Kawaii Bar（顶行）</string>
     <string name="status_area_section">Status Area（菜单）</string>
     <string name="language_switch">语言切换</string>
+    <string name="switch_input_method">切换输入法</string>
     <string name="all_buttons_added">所有可用按钮已添加</string>
     <string name="add_button_to_section_title">添加到区域</string>
     <string name="custom_label_hint">图标下方显示的名称</string>

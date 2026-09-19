@@ -145,6 +145,8 @@ sealed class ButtonAction {
             EditTextKeyboardLayoutAction,
             TextKeyboardLayoutFileSelectAction,
             EditFontsetAction,
+            SwitchInputMethodAction,
+            RimeSchemaMenuAction,
             MoreAction
         )
 
@@ -433,6 +435,58 @@ data object InputMethodOptionsAction : ButtonAction() {
     ) {
         fcitx.runImmediately { inputMethodEntryCached }.let {
             AppUtil.launchMainToInputMethodConfig(context, it.uniqueName, it.displayName)
+        }
+    }
+}
+
+/**
+ * Rime 专版：直接呼出系统输入法选择器。
+ * 与 [LanguageSwitchAction] 的中/西文切换不同，这个动作不经过引擎，
+ * 只做系统级输入法切换。供宏按键「应用操作」和自定义按钮使用。
+ */
+data object SwitchInputMethodAction : ButtonAction() {
+    override val id = "switch_input_method"
+    override val defaultIcon = R.drawable.ic_baseline_keyboard_24
+    override val defaultLabelRes = R.string.switch_input_method
+    override val iconSlot = "toolbar.switch_input_method"
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        InputMethodUtil.showPicker()
+    }
+}
+
+/**
+ * Rime 专版：弹出 Rime 方案切换菜单。
+ * 与语言键长按同一入口（RimeSchemaMenuDialog），供宏按键「应用操作」和自定义按钮使用。
+ * @see org.fcitx.fcitx5.android.input.dialog.RimeSchemaMenuDialog
+ */
+data object RimeSchemaMenuAction : ButtonAction() {
+    override val id = "rime_schema_menu"
+    override val defaultIcon = R.drawable.ic_baseline_library_books_24
+    override val defaultLabelRes = R.string.rime_schema_menu
+    override val iconSlot = "toolbar.rime_schema_menu"
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        fcitx.launchOnReady {
+            service.lifecycleScope.launch {
+                service.showDialog(
+                    org.fcitx.fcitx5.android.input.dialog.RimeSchemaMenuDialog.build(it, service, context)
+                )
+            }
         }
     }
 }

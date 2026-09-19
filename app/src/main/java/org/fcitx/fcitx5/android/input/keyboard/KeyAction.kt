@@ -81,6 +81,9 @@ sealed class KeyAction {
 
     data object ShowInputMethodPickerAction : KeyAction()
 
+    /** Rime 专版：打开 Rime 方案切换菜单（从状态区方案菜单读取可用方案列表）。 */
+    data object ShowRimeSchemaMenuAction : KeyAction()
+
     data class LayoutSwitchAction(val act: String = "") : KeyAction()
 
     data class MoveSelectionAction(val start: Int = 0, val end: Int = 0) : KeyAction()

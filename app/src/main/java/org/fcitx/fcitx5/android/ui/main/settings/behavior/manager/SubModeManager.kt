@@ -26,6 +26,31 @@ class SubModeManager(
     var nameToIdMap: Map<String, String> = emptyMap()
         private set
 
+    companion object {
+        /**
+         * 把 selector 语义暴露给运行时：从状态区动作解析方案菜单。
+         *
+         * 与布局编辑器共用同一个解析（状态区方案菜单 → 分隔符之前的条目 → 去掉首位
+         * 西文伪条目），返回方案条目（显示名 → 动作 id），无菜单时为空。
+         *
+         * @see RimeSchemaMenuDialog
+         */
+        fun resolveSchemaMenuEntries(actions: Array<Action>): List<Pair<String, Int>> {
+            val currentLabels = actions.mapNotNull { SubModeMenuResolver.toMenuLabel(it) }
+            for (currentLabel in currentLabels) {
+                val picked = SubModeMenuResolver.pickSchemeMenu(actions, currentLabel) ?: continue
+                val result = SubModeMenuResolver.takeItemsBeforeSeparator(picked)
+                    .drop(1)
+                    .mapNotNull { item ->
+                        val name = item.shortText.trim().takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+                        name to item.id
+                    }
+                if (result.isNotEmpty()) return result
+            }
+            return emptyList()
+        }
+    }
+
     /**
      * SubMode state data class
      *
@@ -258,7 +283,7 @@ class SubModeManager(
          * @param currentLabel Current submode label
          * @return Scheme menu list
          */
-        private fun pickSchemeMenu(
+        internal fun pickSchemeMenu(
             actions: Array<Action>,
             currentLabel: String
         ): List<Action>? {
@@ -287,7 +312,7 @@ class SubModeManager(
          * @param items Actions list
          * @return Items before separator
          */
-        private fun takeItemsBeforeSeparator(
+        internal fun takeItemsBeforeSeparator(
             items: List<Action>
         ): List<Action> {
             val separatorIndex = items.indexOfFirst { it.isSeparator }
@@ -301,7 +326,7 @@ class SubModeManager(
          * @param action Action
          * @return Menu label
          */
-        private fun toMenuLabel(action: Action): String? =
+        internal fun toMenuLabel(action: Action): String? =
             action.shortText.ifEmpty { action.longText }.ifEmpty { action.name }.trim().takeIf { it.isNotEmpty() }
 
         fun buildNameToIdMap(
