@@ -387,7 +387,10 @@ class LanguageKey(
     ),
     setOf(
         Behavior.Press(KeyAction.LangSwitchAction),
-        Behavior.LongPress(KeyAction.ShowInputMethodPickerAction)
+        // Rime 专版：语言键短按做中/西文切换（CommonKeyActionListener），长按弹出
+        // Rime 方案切换菜单（RimeSchemaMenuDialog），系统输入法选单仍可长按工具栏
+        // 语言切换按钮进入。
+        Behavior.LongPress(KeyAction.ShowRimeSchemaMenuAction)
     ),
     iconSlot = "keys.language"
 )

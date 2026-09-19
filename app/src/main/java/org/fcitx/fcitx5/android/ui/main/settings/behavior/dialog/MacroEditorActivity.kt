@@ -245,6 +245,8 @@ class MacroEditorActivity : AppCompatActivity() {
             "cursor_move",
             "floating_toggle",
             "language_switch",
+            "switch_input_method",
+            "rime_schema_menu",
             "reload_config",
             "one_handed_keyboard",
             "input_method_options",
@@ -1614,6 +1616,8 @@ class MacroEditorActivity : AppCompatActivity() {
                 "cursor_move" -> getString(R.string.text_editing)
                 "floating_toggle" -> getString(R.string.floating_keyboard)
                 "language_switch" -> getString(R.string.language_switch)
+                "switch_input_method" -> getString(R.string.switch_input_method)
+                "rime_schema_menu" -> getString(R.string.rime_schema_menu)
                 "reload_config" -> getString(R.string.reload_config)
                 "one_handed_keyboard" -> getString(R.string.one_handed_keyboard)
                 "input_method_options" -> getString(R.string.input_method_options)

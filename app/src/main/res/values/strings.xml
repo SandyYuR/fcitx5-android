@@ -195,6 +195,7 @@
     <string name="theme_migrated">Theme has been migrated to the current version</string>
     <string name="keep_keyboard_letters_uppercase">Keep keyboard letters uppercase</string>
     <string name="choose_input_method">Choose input method</string>
+    <string name="rime_schema_menu">Rime schemas</string>
     <string name="edit_clipboard">Edit clipboard</string>
     <string name="clipboard_edit_text_hint">Clipboard content</string>
     <string name="config_addon_not_loaded">No configuration options available, maybe this addon is disabled when fcitx starts?</string>
@@ -325,6 +326,7 @@
     <string name="kawaii_bar_section">Kawaii Bar (Top Row)</string>
     <string name="status_area_section">Status Area (Menu)</string>
     <string name="language_switch">Language Switch</string>
+    <string name="switch_input_method">Switch Input Method</string>
     <string name="all_buttons_added">All available buttons have been added</string>
     <string name="add_button_to_section_title">Add to Section</string>
     <string name="custom_label_hint">display name shown below icon</string>

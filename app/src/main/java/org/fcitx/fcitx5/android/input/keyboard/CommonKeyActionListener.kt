@@ -19,6 +19,7 @@ import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dialog.InputMethodPickerDialog
+import org.fcitx.fcitx5.android.input.dialog.RimeSchemaMenuDialog
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Reset
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Selection
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Stopped
@@ -29,6 +30,7 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyAction.LangSwitchAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.MoveSelectionAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.PickerSwitchAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.ShowInputMethodPickerAction
+import org.fcitx.fcitx5.android.input.keyboard.KeyAction.ShowRimeSchemaMenuAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.SpaceLongPressAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.SymAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.VoiceInputHoldEnd
@@ -97,6 +99,19 @@ class CommonKeyActionListener :
         fcitx.launchOnReady {
             service.lifecycleScope.launch {
                 service.showDialog(InputMethodPickerDialog.build(it, service, context))
+            }
+        }
+    }
+
+    /**
+     * Rime 专版：语言键长按弹出 Rime 方案切换菜单。
+     * 方案名/id 从 SubModeManager 的状态区方案菜单解析（与「不同方案不同布局」共用
+     * 同一 selector 语义），点选后走 activateAction 写回引擎。
+     */
+    private fun showRimeSchemaMenu() {
+        fcitx.launchOnReady {
+            service.lifecycleScope.launch {
+                service.showDialog(RimeSchemaMenuDialog.build(it, service, context))
             }
         }
     }
@@ -173,6 +188,7 @@ class CommonKeyActionListener :
                     service.sendStandaloneShiftTap()
                 }
                 is ShowInputMethodPickerAction -> InputMethodUtil.showPicker()
+                is ShowRimeSchemaMenuAction -> showRimeSchemaMenu()
                 is MoveSelectionAction -> {
                     when (backspaceSwipeState) {
                         Stopped -> {
