@@ -279,11 +279,13 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
             inputView.showCandidateActionMenu(idx, holder.candidate.text, holder.ui.root)
             true
         }
+        inputView.bindCandidateGesture(holder.ui.root, holder.candidate.text)
     }
 
     fun recycleCandidateViewHolder(holder: CandidateViewHolder) {
         holder.itemView.setOnClickListener(null)
         holder.itemView.setOnLongClickListener(null)
+        inputView.unbindCandidateGesture(holder.ui.root)
     }
 
     override fun onDetached() {

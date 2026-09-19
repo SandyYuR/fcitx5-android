@@ -259,11 +259,13 @@ class HorizontalCandidateComponent :
                     inputView.showCandidateActionMenu(idx, holder.candidate.text, holder.ui.root)
                     true
                 }
+                inputView.bindCandidateGesture(holder.ui.root, holder.candidate.text)
             }
 
             override fun onViewRecycled(holder: CandidateViewHolder) {
                 holder.itemView.setOnClickListener(null)
                 holder.itemView.setOnLongClickListener(null)
+                inputView.unbindCandidateGesture(holder.ui.root)
                 super.onViewRecycled(holder)
             }
         }
