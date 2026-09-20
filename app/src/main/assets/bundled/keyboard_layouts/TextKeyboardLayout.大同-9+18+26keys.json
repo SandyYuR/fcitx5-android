@@ -1,9 +1,5 @@
 {
   "rime": {
-    "__meta__": {
-      "keyboard_height_percent":24,
-      "keyboard_height_percent_landscape":24
-    },
     "default": [
       [
         {"type":"AlphabetKey","main":"Q","alt":"1","displayText":"Q","rowHeightPercent":21.1},
@@ -49,10 +45,6 @@
       ]
     ],
     "wanxiang_zrm_18keys": {
-      "__meta__": {
-        "keyboard_height_percent":28,
-        "keyboard_height_percent_landscape":28
-      },
       "default": [
         [
           {"type":"NumPadKey","label":"1","sym":"KP_1"},
@@ -104,8 +96,6 @@
     },
     "wanxiang_t9": {
       "__meta__": {
-        "keyboard_height_percent":30,
-        "keyboard_height_percent_landscape":30,
         "aux_bar": {
           "position": "left",
           "size_percent": 18.0,
@@ -145,10 +135,6 @@
       ]
     },
     "数字": {
-      "__meta__": {
-        "keyboard_height_percent":30,
-        "keyboard_height_percent_landscape":30
-      },
       "default": [
         [
           {"type":"LayoutSwitchKey","label":"符号","subLabel":"Symbol","weight":0.13,"rowHeightPercent":25.0,"composeOverride":{"altLabel":"Esc","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"⎋","type":"MacroKey","backgroundColorMonet":"theme:altKeyBackgroundColor","independentColor":true}},

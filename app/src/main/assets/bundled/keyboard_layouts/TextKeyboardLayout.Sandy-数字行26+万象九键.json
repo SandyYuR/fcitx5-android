@@ -159,7 +159,7 @@
     [
       {"type":"LayoutSwitchKey","label":"?123","subLabel":"Number","weight":0.15,"rowHeightPercent":21.1,"composeOverride":{"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Tab"}]}]},"label":"↹","type":"MacroKey","independentColor":false},"textColorMonet":"theme:accentKeyTextColor","backgroundColorMonet":"theme:accentKeyBackgroundColor"},
       {"type":"CommaKey"},
-      {"type":"MacroKey","label":"⌨","altLabel":"A","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Shift_L"}]}]},"longPress":{"macro":[{"type":"shortcut","modifiers":[{"fcitx":"Shift_L"}],"key":{"fcitx":"Space"}}]},"composeOverride":{"altLabel":"Esc","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"⎋","type":"MacroKey","backgroundColorMonet":"theme:altKeyBackgroundColor","independentColor":true},"backgroundColorMonet":"theme:barColor","longPressLabel":"En~"},
+      {"type":"MacroKey","label":"⌨","altLabel":"A","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Shift_L"}]}]},"longPress":{"macro":[{"type":"app","id":"rime_schema_menu"}]},"composeOverride":{"altLabel":"Esc","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"⎋","type":"MacroKey","backgroundColorMonet":"theme:altKeyBackgroundColor","independentColor":true},"backgroundColorMonet":"theme:barColor","longPressLabel":"㞢"},
       {"type":"SpaceKey","weight":0.0},
       {"type":"SymbolKey","label":".","swipeLabel":"Sym.","swipe":{"macro":[{"type":"layer","mode":"osl","target":"[公共] 英符键盘"}]}},
       {"type":"ReturnKey","weight":0.15}
@@ -216,7 +216,7 @@
       [
         {"type":"LayoutSwitchKey","label":"?123","subLabel":"Number","weight":0.15,"rowHeightPercent":21.1,"composeOverride":{"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Tab"}]}]},"label":"↹","type":"MacroKey","independentColor":false},"textColorMonet":"theme:accentKeyTextColor","backgroundColorMonet":"theme:accentKeyBackgroundColor"},
         {"type":"CommaKey"},
-        {"type":"MacroKey","label":"⌨","altLabel":"A","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Shift_L"}]}]},"longPress":{"macro":[{"type":"shortcut","modifiers":[{"fcitx":"Shift_L"}],"key":{"fcitx":"Space"}}]},"composeOverride":{"altLabel":"Esc","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"⎋","type":"MacroKey","backgroundColorMonet":"theme:altKeyBackgroundColor","independentColor":true},"backgroundColorMonet":"theme:barColor","longPressLabel":"En~"},
+        {"type":"MacroKey","label":"⌨","altLabel":"A","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Shift_L"}]}]},"longPress":{"macro":[{"type":"app","id":"rime_schema_menu"}]},"composeOverride":{"altLabel":"Esc","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"⎋","type":"MacroKey","backgroundColorMonet":"theme:altKeyBackgroundColor","independentColor":true},"backgroundColorMonet":"theme:barColor","longPressLabel":"㞢"},
         {"type":"SpaceKey","weight":0.0},
         {"type":"SymbolKey","label":".","swipeLabel":"Sym.","swipe":{"macro":[{"type":"layer","mode":"osl","target":"[公共] 英符键盘"}]}},
         {"type":"ReturnKey","weight":0.15}
@@ -272,7 +272,7 @@
       [
         {"type":"LayoutSwitchKey","label":"?123","subLabel":"Number","weight":0.15,"rowHeightPercent":21.1,"composeOverride":{"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Tab"}]}]},"label":"↹","type":"MacroKey","independentColor":false},"textColorMonet":"theme:accentKeyTextColor","backgroundColorMonet":"theme:accentKeyBackgroundColor"},
         {"type":"CommaKey"},
-        {"type":"MacroKey","label":"⌨","altLabel":"中","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Shift_L"}]}]},"longPress":{"macro":[{"type":"shortcut","modifiers":[{"fcitx":"Shift_L"}],"key":{"fcitx":"Space"}}]},"composeOverride":{"altLabel":"Esc","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"⎋","type":"MacroKey","backgroundColorMonet":"theme:altKeyBackgroundColor","independentColor":true},"backgroundColorMonet":"theme:barColor","longPressLabel":"En~"},
+        {"type":"MacroKey","label":"⌨","altLabel":"中","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Shift_L"}]}]},"longPress":{"macro":[{"type":"app","id":"rime_schema_menu"}]},"composeOverride":{"altLabel":"Esc","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"⎋","type":"MacroKey","backgroundColorMonet":"theme:altKeyBackgroundColor","independentColor":true},"backgroundColorMonet":"theme:barColor","longPressLabel":"㞢"},
         {"type":"SpaceKey","weight":0.0},
         {"type":"SymbolKey","label":".","swipeLabel":"符号","swipe":{"macro":[{"type":"layer","mode":"osl","target":"[公共] 中符键盘"}]}},
         {"type":"ReturnKey","weight":0.15}
@@ -328,7 +328,7 @@
       [
         {"type":"LayoutSwitchKey","label":"?123","subLabel":"Number","weight":0.15,"rowHeightPercent":21.1,"composeOverride":{"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Tab"}]}]},"label":"↹","type":"MacroKey","independentColor":false},"textColorMonet":"theme:accentKeyTextColor","backgroundColorMonet":"theme:accentKeyBackgroundColor"},
         {"type":"CommaKey"},
-        {"type":"MacroKey","label":"⌨","altLabel":"En~","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Shift_L"}]}]},"longPress":{"macro":[{"type":"shortcut","modifiers":[{"fcitx":"Shift_L"}],"key":{"fcitx":"Space"}}]},"composeOverride":{"altLabel":"Esc","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"⎋","type":"MacroKey","backgroundColorMonet":"theme:altKeyBackgroundColor","independentColor":true},"backgroundColorMonet":"theme:barColor","longPressLabel":"中~"},
+        {"type":"MacroKey","label":"⌨","altLabel":"En~","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Shift_L"}]}]},"longPress":{"macro":[{"type":"app","id":"rime_schema_menu"}]},"composeOverride":{"altLabel":"Esc","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"⎋","type":"MacroKey","backgroundColorMonet":"theme:altKeyBackgroundColor","independentColor":true},"backgroundColorMonet":"theme:barColor","longPressLabel":"㞢"},
         {"type":"SpaceKey","weight":0.0},
         {"type":"SymbolKey","label":".","swipeLabel":"Sym.","swipe":{"macro":[{"type":"layer","mode":"osl","target":"[公共] 英符键盘"}]}},
         {"type":"ReturnKey","weight":0.15}
@@ -367,7 +367,7 @@
           {"type":"MacroKey","label":"    粘贴    ","altLabel":"0","weight":0.17,"tap":{"macro":[{"type":"edit","action":"paste"}]},"swipe":{"macro":[{"type":"text","text":"0"}]},"longPress":{"macro":[{"type":"app","id":"edit_text_keyboard_layout"}]},"composeOverride":{"altLabel":"）","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Down"}]},{"type":"tap","keys":[{"fcitx":"Down"},{"fcitx":"Space"}]}]},"label":"3️⃣","type":"MacroKey","swipe":{"macro":[{"type":"tap","keys":[{"fcitx":"parenright"}]}]},"independentColor":false},"backgroundColorMonet":"theme:altKeyBackgroundColor","longPressLabel":"改布局"}
         ],
         [
-          {"type":"LanguageKey","weight":0.15,"composeOverride":{"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"    ESC    ","type":"MacroKey","independentColor":false},"backgroundColorMonet":"theme:altKeyBackgroundColor"},
+          {"type":"MacroKey","label":"⌨","altLabel":"T9","weight":0.15,"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Shift_L"}]}]},"longPress":{"macro":[{"type":"app","id":"rime_schema_menu"}]},"composeOverride":{"altLabel":"Esc","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"Escape"}]}]},"label":"⎋","type":"MacroKey","independentColor":false},"backgroundColorMonet":"theme:barColor","longPressLabel":"㞢"},
           {"type":"SpaceKey"},
           {"type":"SymbolKey","label":".","weight":0.14,"composeOverride":{"altLabel":"~","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"asciicircum"}]}]},"label":"……","type":"MacroKey","swipe":{"macro":[{"type":"tap","keys":[{"fcitx":"asciitilde"}]}]},"independentColor":false},"backgroundColorMonet":"theme:altKeyBackgroundColor"},
           {"type":"ReturnKey","weight":0.17}
