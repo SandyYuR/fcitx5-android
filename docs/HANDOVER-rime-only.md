@@ -16,6 +16,7 @@
 > **2026-09-10 提交标题重写**：应用户要求，`fx-rime-only` 历史第二次重写——全部提交标题统一为 `类型(模块): 内容` 格式（旧标题多为 `fix(C32)` 这类审查编号，模块不可见），并把 19 组同模块同类型的相邻提交合并，154 → 128 个提交；随后按用户要求将 CI release 描述改为「注意：此版仅可使用Rime输入方案（插件已合并）」。**源码零改动**（重写前后 tree hash 完全相等）。当前 129 个提交（含 release 描述修改）。旧→新 SHA 对照：合并组正文自带合并清单；完整映射表在本机 `D:\GitHub\fx2-rime\日志\提交SHA映射-标题重写-2026-09-10.txt`（2026-09-16 复核：原写的工作区根 `_retitle_map_old_new.txt` 已移入该位置）。
 > **2026-09-19 更新**：① 修复「长按忘记词汇一次删掉两个同音词」——上游 librime 的 `delete_notifier` 是多播信号，多个继承 `Memory` 的 translator 各自订阅、且旧代码在信号分发中途重建 composition，后续订阅者因此删到另一个候选；新增**第 6 个补丁** `librime-defer-composition-refresh-on-delete.patch` 把重建推迟到分发结束，详见 **0.5.8 节**；CI run 35435515145 绿，引擎落地 `prebuilt@6b5b2ee6`，**pin 未变**（仍 `8d8276f4`，`librime.json` 无需动）；② 候选词手势定型为**按住后滑动**（`fx-rime-only` `2a19ddd3`，CI run 35460755786 绿，Nightly `0.1.3-617-g2a19ddd3`）：按住上滑弹选字窗提交单字、按住下滑呼出操作菜单、按住不动仍是原有长按菜单、未按住时滑动归列表自身——修正了先前直接上滑实现会让展开候选面板无法翻页的问题，设计不变式见本节下一条。
 > **2026-09-20 更新（历史第四次重写 + 内置布局更新）**：① `fx-rime-only` 第四次重写历史（纪元③ → 纪元④）：把「两个内置布局更新」从 `e45f041a` 里拆出来做成独立提交 `6bdf2a86`（大同 + Sandy + `BundledPresets.assetSizes`），并合并两组同类提交——`b9358dc0`+`a3da6483` → `caef1547`（键盘布局编辑两个修复）、`09b0e0e6`+`75fbf97c` → `8843b858`（引擎启停，同时消解 `09b0e0e6` 的叙述时序倒置）。14 提交 → 13 提交，逐条 `git diff` 比对树全部为空，最终树相对纪元③**只多** Sandy 布局与 `assetSizes` 两项。**尚未推送**（远程仍是纪元③ `59a3a1ab`）。SHA 对照与新机制见第 2 节。② 内置布局内容更新：大同布局去掉 4 处 `keyboard_height_percent` 覆盖（14611 → 14191），Sandy 布局的 `⌨` 键长按改接 Rime 方案选单宏（45949 → 45963）。**更新内置资源必须同步登记 `assetSizes` 的旧字节数**，详见第 5 节新条目。
+> **2026-09-20 更新（第六次引擎实战：合入万象 PR #1232）**：bump librime pin `8d8276f4`→**`74bd5dc4`**，并新增**第 7 个补丁** `librime-pr1232-rewrite-filter.patch`——上游 [rime/librime#1232](https://github.com/rime/librime/pull/1232)「rewrite 改写工具」（作者 **amzxyz / 万象**）。`SandyYuR/prebuilder@6e202a0` 已推送，CI [run 35498252597](https://github.com/SandyYuR/prebuilder/actions/runs/35498252597) 绿，产物 **`prebuilt@a8423ad2`**（arm64 `.a` 19,311,312 → 19,775,858）；主仓库 `ab06dbfd` 已接指针与 `librime.json → 1.17.0-74bd5dc`（**已提交到本地、尚未推送**）。**新踩的坑：本机 `prebuilder` 是 `autocrlf=true`，worktree 里的补丁是 CRLF，直接 `git apply` 会假失败——必须先归一化为 LF**。完整实录见 **0.5.10 节**。
 > **2026-09-16 快照更新（纪元③ 记录，SHA 已被纪元④ 部分改写）**：`fx-rime-only` 相对基线 `3ad25fc9` 共 **143** 个提交（09-10 晚为 129，其后新增 14 个：中央工具栏确定性布局修复、剪贴板实时搜索、内置布局/主题/图标主题三连、CI 单测 job 与 setup-android 修复、候选栏双高亮修复等）；逐提交明细与工作树状态一律以 git 实测为准（标题已自描述，本文不再维护提交清单表格，见第 2 节）。`fx2` 已删除，基线 `3ad25fc9` 仍是祖先，计数口径不变。`提交SHA映射-标题重写-2026-09-10.txt` 已从工作区根移入 `日志\` 目录（第 16 行注写的 `D:\GitHub\fx2-rime\_retitle_map_old_new.txt` 为旧路径）。
 
 ---
@@ -345,6 +346,45 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 - 已知细微遗留：同一候选词在一次删除分发里会被两个订阅者各删一次（日志同一毫秒两条 `deleting entry`）。功能无害（同一精确键、词库只减 1 条），但会把 `commits` 从 `-N` 覆写为 `-1`，影响该词被重新输入「复活」时的初始权重。若要收敛需再加幂等守卫补丁（第 7 个）。
 
 **顺带修正的文档口径**：本仓库 `README.md` 与用户指南 5.6 节已按定型后的手势改写；此前 0.5.8 节摘要里「同任务新增候选词上滑选字（`ed6422a8`）」的描述已被本次取代，`ed6422a8` 仍是历史提交，但其「直接上滑」的交互**不再是当前行为**。
+
+### 0.5.10 2026-09-20 第六次实战（合入万象作者 PR #1232「rewrite」滤镜 + bump pin，方案 B）
+
+**起因**：用户发现上游新 PR [rime/librime#1232](https://github.com/rime/librime/pull/1232)「feat: 新增高效自定义滤镜组件rewrite(改写工具)」（作者 **amzxyz**，即**万象**输入方案作者），要求合入本项目，并选择**方案 B：连带把 pin 一起更新**（而非保守地只在旧 pin 上打补丁）。
+
+**PR 是什么**：单提交 `e3c91382`，+2572/−0，8 文件——新增 `dict/rewrite_pack.{cc,h}`、`gear/rewriter.{cc,h}`、`lever/rewrite_compiler.{cc,h}`，并改 `gear/gears_module.cc`（注册 `rewriter` 组件）、`lever/deployment_tasks.cc`（`SchemaUpdate::Run` 内编译 `.rwp`）。**base 是 `74bd5dc4`（上游当时 tip），我们原 pin 是 `8d8276f4`（落后 2 提交）**，这两个提交是 `b2a5c5ea`（chord_composer factory dispatch）与 `74bd5dc4`（ascii_composer `commit_raw_input`）。
+
+**关键语义（回归必看）**：`RewriteCompiler::Compile()` 在方案**未声明 `rewriter` 段时直接 `return true`**、无任何副作用 → 对既有方案零影响。但一旦声明了 `rewriter`，**编译失败会让整个部署失败**（`SchemaUpdate::Run` 返回 false）。`.rwp` 写在 `deployer_->staging_dir`，按源校验和判断是否 up-to-date。schema id 做了路径合法性校验（拒绝绝对路径/含父目录）。
+
+**工作台实测（`librime-src`，全在临时 worktree 里做，未污染主工作区）**：
+
+| 实验 | 结果 |
+|---|---|
+| 既有 6 补丁 → `8d8276f4` / `74bd5dc4` | 均全部干净 |
+| 6 补丁 + cherry-pick PR → 两基线 | 均**无冲突**（自动合并 `gears_module.cc`、`deployment_tasks.cc`） |
+| 配方式普通 `git apply` PR diff → 两基线 | 均 exit=0 |
+
+**两条基线都能干净合**，不必为这个 PR 强行升级引擎；选方案 B 是因为补丁写在 `74bd5dc4` 上，bump 后**正好落在其原始创作基线**，无上下文漂移。
+
+**⚠️ 本机 CRLF 陷阱（新踩，务必记住）**：`prebuilder` 是 `core.autocrlf=true` 的 Windows checkout，`git ls-files --eol` 显示补丁在 worktree 为 `w/crlf`、索引里为 `i/lf`。**直接在 worktree 里对补丁 `git apply` 会得到假失败**（`librime-perf-deploy-...` 与 `librime-userdict-cache` 两个补丁初次就报 `patch does not apply`）。把行尾归一化为纯 LF 后**全部 exit=0**。CI 是 Linux、拿到的一直是 LF，所以历史上从未暴露。**结论：本机任何 `git apply` 前先确认补丁为纯 LF**（或用 `git cat-file blob` 取索引版本）。这与 0.5.8 教训 ③「判断补丁行尾要用对象库字节」互补：那次教训是**别误判**，这次是**别被本地转换坑**。
+
+**改动落地**：
+- `prebuilder@6e202a0`（已推送）：新增第 7 个补丁 `patches/librime-pr1232-rewrite-filter.patch`（由 `git diff 74bd5dc4 e3c91382` 直出，**纯 LF、无邮件头**，87237 字节），`src/Rules/LibRime.hs` 在序列**末尾**追加 `git apply`（注释说明 additive 语义），`librime` gitlink `8d8276f4`→`74bd5dc4`。注意逗号移到新的末行（0.5.8 教训 ②）。
+- CI [run 35498252597](https://github.com/SandyYuR/prebuilder/actions/runs/35498252597) **绿**（约 16 分钟），产物落地 **`prebuilt@a8423ad2`**。
+- 主仓库 `ab06dbfd`：prebuilt 指针 `6b5b2ee6`→`a8423ad2`、`librime.json` `1.17.0-8d8276f`→`1.17.0-74bd5dc`、README 补丁清单加入万象补丁说明与版本号。**已提交到本地，尚未推送**（远程仍是纪元③ `59a3a1ab`，见第 2 节）。
+
+**产物核对（四层，不能只看文件在）**：
+1. arm64 `librime.a` 19,311,312 → **19,775,858** 字节（+464,546，即 rewrite 三个新模块）；
+2. 二进制字符串检查：新 `.a` 含 `RewritePack`/`RewriteCompiler`/`rewriter`，**旧 `.a` 三个都没有**；既有定制 API（`RimeGetInputTabs`/`RimeSelectTab`/`RimeGetCandidateCode`/`RimeGetCandidatePreview`）在新旧产物都在；
+3. 出货 `rime_api.h` blob `030ff78a`（22607 字节）与工作台「`74bd5dc4` + 7 补丁依序重放」产物**逐字节一致**；
+4. 回环零差异：7 补丁方案 vs「6 补丁 + cherry-pick PR」结果树 `git diff --quiet` exit=0。
+
+**⚠️ 符号检查方法（避免误判）**：`RimeGetInputTabs` / `RimeSelectTab` / `RimeGetCandidateCode` / `RimeGetCandidatePreview` 在 `rime_api_impl.h` 里是 **`static` 函数**，通过 `s_api.get_input_tabs = &RimeGetInputTabs` **挂进 API vtable**，**不是独立导出符号**——`llvm-nm` 搜不到是**正常的**，不能用 `nm` 判定定制是否存在。可靠做法：`llvm-nm --defined-only` 找 C++ 符号（如 `rime::RewriteCompiler`），或直接在二进制里搜名字字符串；APK 里的 `librime.so` 被 strip，只能靠字符串表/动态符号表判断。
+
+**本机 debug 包验证**：`build-debug.ps1` 出包 25.64 MB（arm64-v8a，9 个原生库），版本号含 `16-gab06dbfd`；`adb install -r` 到设备 `e09303ba` 成功。APK 内 `lib/arm64-v8a/librime.so` 字符串表含 `RewritePack`/`RewriteCompiler`/`rewriter`。
+
+**未做（重要）**：**真机输入回归没做**。本次是 JNI/C++ 引擎替换，且 bump 顺带引入两个上游按键域行为变更——`ascii_composer` 新增 `commit_raw_input`（Shift+Return / Shift+KP_Enter / Shift+space）与 `chord_composer` factory dispatch，与我们自己的 Shift/alt-trigger 定制**同属按键域**，风险面重叠。必须真机覆盖：① 打字→点音节 tab→选词；② 语言键短按 Shift 切换、**长按弹方案选单**（注意：工具栏语言按钮长按才是系统输入法选择器，两者不同，见 AGENTS.md 第 6 节）；③ **Shift+Return / Shift+空格 / Shift+KP_Enter**（上游新行为）；④ 并击（chord_composer）；⑤ 首次部署与重新部署（`SchemaUpdate::Run` 新增编译调用会让部署失败路径变多）；⑥ 忘记词汇（第 6 补丁路径，见 0.5.8）。**编译通过、符号在列都不等于交互可用**。
+
+**遗留的幂等守卫**：见 0.5.9 末尾——同一次删除分发里同一候选被两个订阅者各删一次，若要收敛需再加幂等补丁（**若加，将是第 8 个补丁**；注意本节新增的是第 7 个，序号别混）。
 
 ---
 
