@@ -30,6 +30,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.text.HtmlCompat
 import androidx.core.view.ViewCompat
@@ -469,6 +470,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle(R.string.edit_text_keyboard_layout)
 
+        // Intercept back before any state loads, so an unsaved exit is always caught.
+        registerBackCallback()
+
         val toolbarBaseTopPadding = toolbar.paddingTop
         ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
             val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
@@ -767,9 +771,18 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         else -> super.onOptionsItemSelected(item)
     }
 
-    @Deprecated("Use onBackPressedDispatcher.dispatchOnBackPressed() when available", ReplaceWith("super.onBackPressed()"))
-    override fun onBackPressed() {
-        attemptExit()
+    /**
+     * Intercept the system back gesture.
+     *
+     * Must go through [onBackPressedDispatcher], not an `onBackPressed()` override: the app
+     * targets SDK 36, so predictive back is enabled and the system delivers back through
+     * `OnBackInvokedDispatcher`. With no registered callback the dispatcher falls back to a
+     * non-virtual `Activity.onBackPressed()` call, which bypasses any override — the override
+     * therefore never ran, [attemptExit] was skipped entirely, and the editor closed without
+     * ever prompting, silently dropping the user's unsaved edits.
+     */
+    private fun registerBackCallback() {
+        onBackPressedDispatcher.addCallback(this) { attemptExit() }
     }
 
     private fun attemptExit() {

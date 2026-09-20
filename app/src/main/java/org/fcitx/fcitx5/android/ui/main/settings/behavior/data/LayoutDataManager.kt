@@ -418,17 +418,37 @@ class LayoutDataManager(private val context: Context) {
                 normalizedLayoutAuxBarKeys()
             )
             val compactJson = LayoutJsonUtils.formatJsonCompact(jsonElement)
+
+            // 写盘前先把「即将写入磁盘的那份数据」固化成快照。
+            //
+            // 这几行过去放在 writeAtomically 之后、重新读一遍 entries：保存是异步的
+            // （saveToFileAsync 跑在 Dispatchers.IO），写盘期间用户继续编辑的话，那些
+            // 新编辑会被并进基线，hasChanges() 随即返回 false —— 退出时不再弹「放弃
+            // 修改」，这段编辑就永久丢了。放到写盘之前后，保存期间产生的新编辑仍计入
+            // hasChanges()，退出提示正常出现。
+            //
+            // 附带好处：规范化/序列化阶段的异常（例如主线程并发修改导致的
+            // ConcurrentModificationException）现在会在写盘前抛出，磁盘保留上一份
+            // 完好文件，而不是写完之后才失败。
+            val snapshotEntries = normalizedEntries()
+            val snapshotHeightOverrides = layoutHeightPercentOverrides.toSortedMap()
+            val snapshotHeightOverridesLandscape = layoutHeightPercentOverridesLandscape.toSortedMap()
+            val snapshotAuxBarConfigs = layoutAuxBarConfigs.toSortedMap()
+            val snapshotAuxBarKeys = normalizedLayoutAuxBarKeys()
+
             writeAtomically(file, compactJson + "\n")
             
             // 清除缓存
             TextKeyboard.clearCachedKeyDefLayouts()
             
-            // 更新原始数据快照
-            originalEntries = normalizedEntries()
-            originalLayoutHeightPercentOverrides = layoutHeightPercentOverrides.toSortedMap()
-            originalLayoutHeightPercentOverridesLandscape = layoutHeightPercentOverridesLandscape.toSortedMap()
-            originalLayoutAuxBarConfigs = layoutAuxBarConfigs.toSortedMap()
-            originalLayoutAuxBarKeys = normalizedLayoutAuxBarKeys()
+            // 更新原始数据快照：用写盘前固化的那份（见上方说明），不能在这里重新读
+            // entries —— 否则写盘期间到达的新编辑会被并进基线，hasChanges() 随即为
+            // false，退出提示消失、编辑丢失。
+            originalEntries = snapshotEntries
+            originalLayoutHeightPercentOverrides = snapshotHeightOverrides
+            originalLayoutHeightPercentOverridesLandscape = snapshotHeightOverridesLandscape
+            originalLayoutAuxBarConfigs = snapshotAuxBarConfigs
+            originalLayoutAuxBarKeys = snapshotAuxBarKeys
             
             true
         }.getOrElse { e ->
