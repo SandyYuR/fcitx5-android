@@ -92,7 +92,10 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val keyboardHeightPercentBase = enumList(
             R.string.keyboard_height_percent_base,
             "keyboard_height_percent_base",
-            KeyboardHeightPercentBase.DisplayMetrics
+            // Base the height percent on the real screen size (Display.getRealSize)
+            // instead of Resources.getDisplayMetrics, so the same percentage yields
+            // a keyboard height that matches the physical screen.
+            KeyboardHeightPercentBase.RealSize
         )
     }
 
