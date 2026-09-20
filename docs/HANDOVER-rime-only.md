@@ -16,7 +16,7 @@
 > **2026-09-10 提交标题重写**：应用户要求，`fx-rime-only` 历史第二次重写——全部提交标题统一为 `类型(模块): 内容` 格式（旧标题多为 `fix(C32)` 这类审查编号，模块不可见），并把 19 组同模块同类型的相邻提交合并，154 → 128 个提交；随后按用户要求将 CI release 描述改为「注意：此版仅可使用Rime输入方案（插件已合并）」。**源码零改动**（重写前后 tree hash 完全相等）。当前 129 个提交（含 release 描述修改）。旧→新 SHA 对照：合并组正文自带合并清单；完整映射表在本机 `D:\GitHub\fx2-rime\日志\提交SHA映射-标题重写-2026-09-10.txt`（2026-09-16 复核：原写的工作区根 `_retitle_map_old_new.txt` 已移入该位置）。
 > **2026-09-19 更新**：① 修复「长按忘记词汇一次删掉两个同音词」——上游 librime 的 `delete_notifier` 是多播信号，多个继承 `Memory` 的 translator 各自订阅、且旧代码在信号分发中途重建 composition，后续订阅者因此删到另一个候选；新增**第 6 个补丁** `librime-defer-composition-refresh-on-delete.patch` 把重建推迟到分发结束，详见 **0.5.8 节**；CI run 35435515145 绿，引擎落地 `prebuilt@6b5b2ee6`，**pin 未变**（仍 `8d8276f4`，`librime.json` 无需动）；② 候选词手势定型为**按住后滑动**（`fx-rime-only` `2a19ddd3`，CI run 35460755786 绿，Nightly `0.1.3-617-g2a19ddd3`）：按住上滑弹选字窗提交单字、按住下滑呼出操作菜单、按住不动仍是原有长按菜单、未按住时滑动归列表自身——修正了先前直接上滑实现会让展开候选面板无法翻页的问题，设计不变式见本节下一条。
 > **2026-09-20 更新（历史第四次重写 + 内置布局更新）**：① `fx-rime-only` 第四次重写历史（纪元③ → 纪元④）：把「两个内置布局更新」从 `e45f041a` 里拆出来做成独立提交 `6bdf2a86`（大同 + Sandy + `BundledPresets.assetSizes`），并合并两组同类提交——`b9358dc0`+`a3da6483` → `caef1547`（键盘布局编辑两个修复）、`09b0e0e6`+`75fbf97c` → `8843b858`（引擎启停，同时消解 `09b0e0e6` 的叙述时序倒置）。14 提交 → 13 提交，逐条 `git diff` 比对树全部为空，最终树相对纪元③**只多** Sandy 布局与 `assetSizes` 两项。**尚未推送**（远程仍是纪元③ `59a3a1ab`）。SHA 对照与新机制见第 2 节。② 内置布局内容更新：大同布局去掉 4 处 `keyboard_height_percent` 覆盖（14611 → 14191），Sandy 布局的 `⌨` 键长按改接 Rime 方案选单宏（45949 → 45963）。**更新内置资源必须同步登记 `assetSizes` 的旧字节数**，详见第 5 节新条目。
-> **2026-09-20 更新（第六次引擎实战：合入万象 PR #1232）**：bump librime pin `8d8276f4`→**`74bd5dc4`**，并新增**第 7 个补丁** `librime-pr1232-rewrite-filter.patch`——上游 [rime/librime#1232](https://github.com/rime/librime/pull/1232)「rewrite 改写工具」（作者 **amzxyz / 万象**）。`SandyYuR/prebuilder@6e202a0` 已推送，CI [run 35498252597](https://github.com/SandyYuR/prebuilder/actions/runs/35498252597) 绿，产物 **`prebuilt@a8423ad2`**（arm64 `.a` 19,311,312 → 19,775,858）；主仓库 `ab06dbfd` 已接指针与 `librime.json → 1.17.0-74bd5dc`（**已提交到本地、尚未推送**）。**新踩的坑：本机 `prebuilder` 是 `autocrlf=true`，worktree 里的补丁是 CRLF，直接 `git apply` 会假失败——必须先归一化为 LF**。完整实录见 **0.5.10 节**。
+> **2026-09-20 更新（第六次引擎实战：合入万象 PR #1232）**：bump librime pin `8d8276f4`→**`74bd5dc4`**，并新增**第 7 个补丁** `librime-pr1232-rewrite-filter.patch`——上游 [rime/librime#1232](https://github.com/rime/librime/pull/1232)「rewrite 改写工具」（作者 **amzxyz / 万象**）。分两轮落地：① `SandyYuR/prebuilder@6e202a0`，CI [run 35498252597](https://github.com/SandyYuR/prebuilder/actions/runs/35498252597) 绿，产物 `prebuilt@a8423ad2`（arm64 `.a` 19,311,312 → 19,775,858），主仓库 `ab06dbfd` 接指针；② **作者于同日 force-push 重写该提交**（`e3c91382`→`16f72b0c`，加 starter filter），跟进为 `prebuilder@2886a2c`，CI [run 35501800444](https://github.com/SandyYuR/prebuilder/actions/runs/35501800444) 绿，产物 **`prebuilt@6c226341`**（19,775,858 → 19,778,482），主仓库该 commit **已 amend 重写为 `45550041` 并 force-push**。`fx-rime-only@45550041` 与 `rime-docs` 均已推送。**两个新坑：① 本机 `prebuilder` 是 `autocrlf=true`，worktree 里的补丁是 CRLF，直接 `git apply` 会假失败——必须先归一化为 LF；② 上游 PR 作者可能 force-push，引用其 head SHA 前必须重新核对（本次就是靠 `git merge-base --is-ancestor` 发现「旧 head 不是新 head 的祖先」才确认被重写）**。完整实录见 **0.5.10 节**。
 > **2026-09-16 快照更新（纪元③ 记录，SHA 已被纪元④ 部分改写）**：`fx-rime-only` 相对基线 `3ad25fc9` 共 **143** 个提交（09-10 晚为 129，其后新增 14 个：中央工具栏确定性布局修复、剪贴板实时搜索、内置布局/主题/图标主题三连、CI 单测 job 与 setup-android 修复、候选栏双高亮修复等）；逐提交明细与工作树状态一律以 git 实测为准（标题已自描述，本文不再维护提交清单表格，见第 2 节）。`fx2` 已删除，基线 `3ad25fc9` 仍是祖先，计数口径不变。`提交SHA映射-标题重写-2026-09-10.txt` 已从工作区根移入 `日志\` 目录（第 16 行注写的 `D:\GitHub\fx2-rime\_retitle_map_old_new.txt` 为旧路径）。
 
 ---
@@ -385,6 +385,32 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 **未做（重要）**：**真机输入回归没做**。本次是 JNI/C++ 引擎替换，且 bump 顺带引入两个上游按键域行为变更——`ascii_composer` 新增 `commit_raw_input`（Shift+Return / Shift+KP_Enter / Shift+space）与 `chord_composer` factory dispatch，与我们自己的 Shift/alt-trigger 定制**同属按键域**，风险面重叠。必须真机覆盖：① 打字→点音节 tab→选词；② 语言键短按 Shift 切换、**长按弹方案选单**（注意：工具栏语言按钮长按才是系统输入法选择器，两者不同，见 AGENTS.md 第 6 节）；③ **Shift+Return / Shift+空格 / Shift+KP_Enter**（上游新行为）；④ 并击（chord_composer）；⑤ 首次部署与重新部署（`SchemaUpdate::Run` 新增编译调用会让部署失败路径变多）；⑥ 忘记词汇（第 6 补丁路径，见 0.5.8）。**编译通过、符号在列都不等于交互可用**。
 
 **遗留的幂等守卫**：见 0.5.9 末尾——同一次删除分发里同一候选被两个订阅者各删一次，若要收敛需再加幂等补丁（**若加，将是第 8 个补丁**；注意本节新增的是第 7 个，序号别混）。
+
+#### 0.5.10 续 作者 force-push 后的跟进（同日第二轮）
+
+**发现方式（重要，可复用）**：用户提醒「PR 好像被强推了」。核对 `GET /repos/rime/librime/pulls/1232` 得 head `e3c91382` → **`16f72b0c`**，`updated_at` 变了；决定性判据是 **`git merge-base --is-ancestor e3c91382 16f72b0c` 返回失败**——若为纯追加则应为成功。**引用外部 PR 的 head SHA 前必须重新核对，不能沿用上一轮记录的值。**
+
+**差异范围极小**：`e3c91382 → 16f72b0c` 只改 `src/rime/dict/rewrite_pack.cc`（+169/−7），**其余 7 文件与全部头文件零变化**；base 仍是 `74bd5dc4`。改动量 +2572 → **+2734**。
+
+**新版加了什么（starter filter，性能优化）**：
+- 每个 stage 附带 **8KB 位图**（`kStarterFilterBitCount = 1<<16`，双 FNV seed 布隆式），记录"哪些字符能作为词条起始"；
+- **关键：那 16 字节早就预留了**——旧版 `WriteStageRecord` 末尾写的是 `WriteU64(out, 0); WriteU64(out, 0)`（offset 48/56 补零），新版才真正填 `starter_filter_offset/size`。**记录布局未移位**，故结构兼容；
+- 新增 `kStageFlagHasStarterFilter = 1U << 1`。`Open()` 校验：置位则过滤表尺寸必须精确等于 8KB 且在文件范围内；**未置位则 offset/size 必须为 0**（即对旧 pack 的兼容分支）；
+- 新增 `ValidUtf8CharSize()`（严格 UTF-8 校验）与 `SkipUnmatchable()`：**跳过连续"不可能起始"的字符段，省掉 marisa `Agent` 查询**——性能收益来源；
+- 畸形 key → `starter_filter.fill(0xff)` **饱和整个表**（注释明说 "saturating disables skipping but preserves exact behavior"），保证行为与旧版一致；
+- 新增 `kBuildIdRevision = 2` 折进 `ComputeBuildId()`；**`IsUpToDate()` 现在要求 `HasStarterFilter` 置位**，否则返回 false。
+
+**兼容性结论**：`kFormatVersion` **仍是 4**（未升版本号）；但 `IsUpToDate` 的新条件 + build id 多了 revision，会让**已部署的旧 `.rwp` 判为过期 → 下次部署自动重建**。这是安全的自动迁移路径，不需手工清缓存。
+
+**落地与验证**：
+- `prebuilder@2886a2c`（已推送，仅改补丁文件 +171/−9）：补丁由 `git diff 74bd5dc4 16f72b0c` 重出（纯 LF、93379 字节、2806 行）；`LibRime.hs` 无需改（文件名与位置不变）。
+- 验证：新补丁在干净 `74bd5dc4` 上单独 `--check` exit=0；6 补丁 + 新补丁依序应用 **7/7 exit=0**；与「6 补丁 + cherry-pick `16f72b0c`」结果树回环对比 **`git diff --quiet` exit=0 零差异**。
+- CI [run 35501800444](https://github.com/SandyYuR/prebuilder/actions/runs/35501800444) **绿**（约 18 分钟），产物 **`prebuilt@6c226341`**。arm64 `.a` **19,775,858 → 19,778,482**（+2,624，即过滤表代码）；**`rime_api.h` blob 仍是 `030ff78a`**（头部零变化，符合预期）。
+- 二进制字符串检查：新 `.a` 含 `RewritePack`/`RewriteCompiler`/`rewriter` 与既有四个定制 API。
+- 主仓库该指针 commit：**amend 重写为 `45550041`**（`ab06dbfd` → `45550041`，prebuilt 指针 `a8423ad2`→`6c226341`，正文补记 force-push 与 starter filter），用 `--force-with-lease` 带显式期望值推送。**改历史前先建回退点 `backup/pre-startfilter-bump` → `ab06dbfd`**（纪律见第 2 节）。
+- 本机 debug 包：`build-debug.ps1` 出包 25.64 MB，版本号含 `16-g45550041`，`adb install -r` 到设备 `e09303ba` 成功；APK 内 `librime.so` 动态符号表可见 `rime::RewriteCompiler::Compile()`、`rime::RewritePack::Open()` 等。
+
+**教训**：跟踪**未合并的上游 PR** 时，作者随时可能 force-push。若已把其提交产出打进了产物链，跟进成本是一条完整流水线（CI 15-20 分钟 + prebuilt + 主仓库指针 + 重出包）；**建议：要么等 PR 合并/稳定再合，要么明确接受可能连续跟进**。本次两轮之间隔约 1 小时。
 
 ---
 
