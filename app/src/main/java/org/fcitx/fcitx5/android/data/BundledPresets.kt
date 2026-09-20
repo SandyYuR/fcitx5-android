@@ -65,11 +65,17 @@ object BundledPresets {
     )
 
     /**
-     * 内置资源字节大小，作为安装器版本标记的一部分：更新某个资源的内容后
-     * 同步更新这里的字节数，老用户才能收到新版本（见类注释的更新策略）。
+     * 「上一版内置内容」的字节大小，用于区分用户是否改过本地文件：
+     * [installAsset] 只在 `dest.length()` 等于这里的登记值时才原位替换，
+     * 长度不同即视为用户自己编辑过、保留用户版本。
+     *
+     * 因此每次更新某个资源后，要把这里的值改成**更新前那一版的字节数**
+     * （不是新版本的字节数），否则新内容对存量用户永不生效；未登记的
+     * 资源则只在目标文件不存在时才写出。
      */
     private val assetSizes = mapOf(
-        "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 14611
+        "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 14611,
+        "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to 45949
     )
 
     private val themeAssets = listOf(
