@@ -39,21 +39,13 @@ set(RIME_TARGET $<LINK_LIBRARY:WHOLE_ARCHIVE,Rime_static>)
 set(RIME_DATA_DIR "${CMAKE_INSTALL_DATADIR}/rime-data")
 add_subdirectory(fcitx5-rime)
 
+# 不预置任何输入方案，也不装 essay.txt 预置词汇表；只装通用预设资源。
+# 清单需与 app/src/main/cpp/CMakeLists.txt 保持一致，原因见那里的注释。
 install(FILES
         "default.yaml"
-        "rime-essay/essay.txt"
         "rime-prelude/key_bindings.yaml"
         "rime-prelude/punctuation.yaml"
         "rime-prelude/symbols.yaml"
-        "rime-luna-pinyin/luna_pinyin_fluency.schema.yaml"
-        "rime-luna-pinyin/luna_pinyin_simp.schema.yaml"
-        "rime-luna-pinyin/luna_pinyin_tw.schema.yaml"
-        "rime-luna-pinyin/luna_pinyin.dict.yaml"
-        "rime-luna-pinyin/luna_pinyin.schema.yaml"
-        "rime-luna-pinyin/luna_quanpin.schema.yaml"
-        "rime-luna-pinyin/pinyin.yaml"
-        "rime-stroke/stroke.dict.yaml"
-        "rime-stroke/stroke.schema.yaml"
         DESTINATION "${FCITX_INSTALL_DATADIR}/rime-data"
         COMPONENT prebuilt-assets
         )
