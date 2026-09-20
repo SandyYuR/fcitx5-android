@@ -259,7 +259,10 @@ class HorizontalCandidateComponent :
                     inputView.showCandidateActionMenu(idx, holder.candidate.text, holder.ui.root)
                     true
                 }
-                inputView.bindCandidateGesture(holder.ui.root, holder.candidate.text)
+                inputView.bindCandidateGesture(
+                    holder.ui.root,
+                    holder.candidate.text
+                ) { holder.currentIndex(adapter.indexOffset) }
             }
 
             override fun onViewRecycled(holder: CandidateViewHolder) {
