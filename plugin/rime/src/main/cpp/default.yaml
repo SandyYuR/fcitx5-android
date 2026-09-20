@@ -3,12 +3,17 @@
 
 config_version: '0.40'
 
-schema_list:
-  - schema: luna_pinyin
-  - schema: luna_pinyin_tw
-  - schema: luna_pinyin_simp
-  - schema: luna_pinyin_fluency
-  - schema: stroke
+# 不预置任何输入方案：首次安装后引擎可正常运行，但没有可用方案，
+# 用户需自行把方案文件放入 Rime 用户数据目录，并在 default.custom.yaml
+# 中 patch schema_list 后触发部署。
+#
+# 注意：本文件同时是共享数据目录的定位锚点（fcitx5-rime 的 RimeEngine
+# 通过 locate "rime-data/default.yaml" 取得 sharedDataDir），
+# 即使 schema_list 为空也绝不能删除本文件。
+#
+# 用空列表而非删除该键：键缺失会让 WorkspaceUpdate 记录
+# "schema list not defined." 并判定部署失败。空列表部署成功且无方案。
+schema_list: []
 
 switcher:
   caption: 〔方案選單〕

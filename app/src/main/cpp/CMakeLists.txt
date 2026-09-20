@@ -49,21 +49,26 @@ set(RIME_DATA_DIR "${CMAKE_INSTALL_DATADIR}/rime-data")
 add_subdirectory("${RIME_PLUGIN_CPP_DIR}/fcitx5-rime" fcitx5-rime)
 
 # install rime data (same list as plugin/rime prebuilt-assets)
+#
+# 不装任何输入方案（schema / dictionary），也不装 essay.txt 预置词汇表：
+# 本版首次安装后引擎可正常运行，但 schema_list 为空、无可用方案，用户需
+# 自行放入方案并部署。这里只装被 schema_list 之外的机制引用、且是第三方
+# 方案公共依赖的通用预设资源：
+#   - default.yaml          共享数据目录定位锚点（RimeEngine 构造时 locate），
+#                           且提供 punctuator/key_binder/recognizer 等基础配置
+#   - key_bindings.yaml     default.yaml 的 key_binder 引用
+#   - punctuation.yaml      default.yaml 的 punctuator 引用
+#   - symbols.yaml          方案普遍以 `punctuator: import_preset: symbols` 引用
+#
+# 关于 essay.txt：方案以 `use_preset_vocabulary: true` 声明依赖它，缺失时
+# PresetVocabulary::OpenReadOnly 只记一条 ERROR 后静默降级（词典少一批预置
+# 短语与词频），不会导致部署失败；用户也可在用户数据目录自备同名文件生效
+# （vocabulary 资源以 user_data_dir 为 root、shared_data_dir 为 fallback）。
 install(FILES
         "${RIME_PLUGIN_CPP_DIR}/default.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-essay/essay.txt"
         "${RIME_PLUGIN_CPP_DIR}/rime-prelude/key_bindings.yaml"
         "${RIME_PLUGIN_CPP_DIR}/rime-prelude/punctuation.yaml"
         "${RIME_PLUGIN_CPP_DIR}/rime-prelude/symbols.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_pinyin_fluency.schema.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_pinyin_simp.schema.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_pinyin_tw.schema.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_pinyin.dict.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_pinyin.schema.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_quanpin.schema.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/pinyin.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-stroke/stroke.dict.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-stroke/stroke.schema.yaml"
         DESTINATION "${FCITX_INSTALL_DATADIR}/rime-data"
         COMPONENT prebuilt-assets
         )

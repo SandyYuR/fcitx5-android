@@ -41,7 +41,8 @@
 ### Rime 内置
 
 - 将原独立的 fcitx5-rime 插件并入主 APK，静态链接 `librime.a`。
-- 随 APK 安装 Rime prelude、essay、luna-pinyin、stroke 和默认配置，Rime 数据复用共享 OpenCC 资源。
+- **不预置任何输入方案**：只随 APK 安装 Rime prelude（`default.yaml`/`key_bindings.yaml`/`punctuation.yaml`/`symbols.yaml`）。首次安装后引擎可正常运行，但没有可用方案，需用户自行放入方案文件并在 `default.custom.yaml` 中 patch `schema_list` 后部署。Rime 数据复用共享 OpenCC 资源。
+- 不附带 `essay.txt` 预置词汇表（约 6 MB）。方案以 `use_preset_vocabulary: true` 声明依赖它时，缺失只会静默降级（少一批预置短语与词频），不影响部署；用户可在用户数据目录自备 `essay.txt` 生效。
 - 首次启动只启用 `rime`；主设置页直接进入“中州韵设置”。
 - 默认虚拟键盘是应用内置 TextKeyboard QWERTY 布局，不是另一个输入法引擎。
 
@@ -101,7 +102,7 @@ APK 输出：
 
 当前没有 mainline flavor，也没有 assembleMainline 任务。包名与 fx2 的 org.fcitx.fcitx5.android.fx 不同，因此可共存安装；两者数据隔离，不会自动迁移。
 
-Rime shared data 位于应用内部 usr/share/rime-data；用户数据位于该包 external files 目录下 data/rime。
+Rime shared data 位于应用内部 usr/share/rime-data（仅含 prelude 通用预设资源，无输入方案与词汇表）；用户数据位于该包 external files 目录下 data/rime，用户自备的方案和 `essay.txt` 放入此处。
 
 ## CI 与 Release
 
