@@ -71,6 +71,27 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
     var swipeThresholdX = 24f
     var swipeThresholdY = 24f
 
+    /**
+     * 按住后滑动模式（候选词手势专用）。
+     *
+     * 与 [swipeEnabled] 互斥：本模式走自己的分支，不读 [swipeEnabled]，阈值复用
+     * [swipeThresholdY]。与 [swipeEnabled] 的关键差异：
+     * - 按下时**不派发 `GestureType.Down`**，也不阻止父容器拦截 —— 未按住时的
+     *   上下滑动完全不消费，留给父容器（展开候选列表靠它翻页滚动）。这正是
+     *   [swipeEnabled] 做不到的：它在按下时就夺走拦截权，展开面板无法滚动。
+     * - 按满长按判定时间才进入「已按住」，此时才补发 `GestureType.Down`；监听者
+     *   收到 Down 后调用 `requestDisallowInterceptTouchEvent(true)`，此后位移归本视图。
+     * - 已按住但一次滑动都没发生（原地不动）时，抬手回落到 [performLongClick]，
+     *   保持「长按弹出菜单」的既有语义。
+     * - 本模式不启动常规 [longPressEnabled] 的 job（否则每次按住都会先弹菜单），
+     *   长按语义由抬手时的 [performLongClick] 回落承担。
+     */
+    var holdSwipeEnabled = false
+
+    @Volatile
+    private var holdSwipeArmed = false
+    private var holdSwipeJob: Job? = null
+
     private var swipeRepeatTriggered = false
     private var swipeLastX = -1f
     private var swipeLastY = -1f
@@ -144,6 +165,9 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         swipeTotalX = 0
         swipeTotalY = 0
         gestureConsumed = false
+        holdSwipeArmed = false
+        holdSwipeJob?.cancel()
+        holdSwipeJob = null
         // double tap state should be preserved on touch up
     }
 
@@ -167,8 +191,24 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 isPressed = true
                 InputFeedbacks.hapticFeedback(this)
                 InputFeedbacks.soundEffect(soundEffect)
-                dispatchGestureEvent(GestureType.Down, x, y)
-                if (longPressEnabled) {
+                if (holdSwipeEnabled) {
+                    // 按住后滑动：先不派发 Down、不夺拦截，等按满长按判定时间
+                    // 才进入「已按住」，这样未按住时的上下滑动留给父容器翻页。
+                    holdSwipeArmed = false
+                    holdSwipeJob?.cancel()
+                    holdSwipeJob = lifecycleScope.launch {
+                        delay(longPressDelayMillis)
+                        holdSwipeArmed = true
+                        // 反馈对齐常规长按，提示「已按住、可以滑了」
+                        if (longPressFeedbackEnabled) {
+                            InputFeedbacks.hapticFeedback(this@CustomGestureView, true)
+                        }
+                        dispatchGestureEvent(GestureType.Down, x, y)
+                    }
+                } else {
+                    dispatchGestureEvent(GestureType.Down, x, y)
+                }
+                if (longPressEnabled && !holdSwipeEnabled) {
                     longPressJob?.cancel()
                     longPressJob = lifecycleScope.launch {
                         delay(longPressDelayMillis)
@@ -191,7 +231,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                         }
                     }
                 }
-                if (swipeEnabled) {
+                if (swipeEnabled || holdSwipeEnabled) {
                     swipeLastX = x
                     swipeLastY = y
                 }
@@ -199,14 +239,26 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
             MotionEvent.ACTION_UP -> {
                 isPressed = false
                 InputFeedbacks.hapticFeedback(this, longPress = true, keyUp = true)
-                dispatchGestureEvent(GestureType.Up, event.x, event.y)
-                val shouldPerformClick = !(touchMovedOutside ||
+                // 按住后滑动模式：只在「已按住」时才配对派发 Up（未按住时本视图
+                // 从未派发过 Down）。其它模式行为不变。
+                val holdSwipeWasArmed = holdSwipeEnabled && holdSwipeArmed
+                if (!holdSwipeEnabled || holdSwipeWasArmed) {
+                    dispatchGestureEvent(GestureType.Up, event.x, event.y)
+                }
+                // 已按住但一次滑动都没被消费（原地没怎么动）：回落到长按语义，
+                // 候选词那里就是呼出操作菜单。必须在 resetState() 前取值。
+                val holdSwipeFallbackLongClick = holdSwipeWasArmed && !gestureConsumed
+                // 未进入「已按住」的快速点击照常触发 click（候选词即选词）；
+                // 已按住时不再触发 click，由上面的长按回落/手势监听接管。
+                val shouldPerformClick = !holdSwipeWasArmed && !(touchMovedOutside ||
                         longPressTriggered ||
                         repeatStarted ||
                         swipeRepeatTriggered ||
                         gestureConsumed)
                 resetState()
-                if (shouldPerformClick) {
+                if (holdSwipeFallbackLongClick) {
+                    performLongClick()
+                } else if (shouldPerformClick) {
                     if (doubleTapEnabled) {
                         val now = System.currentTimeMillis()
                         if (maybeDoubleTap && now - lastClickTime <= longPressDelay) {
@@ -226,6 +278,24 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
             MotionEvent.ACTION_MOVE -> {
                 if (!isEnabled) return false
                 drawableHotspotChanged(x, y)
+                if (holdSwipeEnabled) {
+                    if (!holdSwipeArmed) {
+                        // 尚未「已按住」：不消费也不派发位移，交给父容器
+                        // （展开候选列表靠它翻页滚动）。只记住最新位置，
+                        // 等进入「已按住」后从这里起算，避免按住瞬间误触发。
+                        swipeLastX = x
+                        swipeLastY = y
+                        return true
+                    }
+                    if (!touchMovedOutside && !pointInView(x, y)) {
+                        touchMovedOutside = true
+                    }
+                    val countY = consumeSwipe(y, SwipeAxis.Y)
+                    dispatchGestureEvent(GestureType.Move, x, y, 0, countY)
+                    swipeLastX = x
+                    swipeLastY = y
+                    return true
+                }
                 if (!touchMovedOutside && !pointInView(x, y)) {
                     touchMovedOutside = true
                     if (longPressEnabled) {
@@ -249,7 +319,10 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 return true
             }
             MotionEvent.ACTION_CANCEL -> {
-                dispatchGestureEvent(GestureType.Up, event.x, event.y)
+                // 与 ACTION_UP 同样的配对规则：只有派发过 Down 才派发 Up。
+                if (!holdSwipeEnabled || holdSwipeArmed) {
+                    dispatchGestureEvent(GestureType.Up, event.x, event.y)
+                }
                 cancelGestures()
                 return true
             }
