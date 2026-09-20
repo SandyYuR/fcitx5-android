@@ -66,6 +66,7 @@ import org.fcitx.fcitx5.android.core.CapabilityFlags
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
+import org.fcitx.fcitx5.android.core.FcitxNotRunningException
 import org.fcitx.fcitx5.android.core.FormattedText
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
@@ -495,6 +496,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 // default handler and take the process down instead of being absorbed by
                 // structured concurrency.
                 Timber.d(e, "Dropping queued fcitx job: connection is gone")
+            } catch (e: FcitxNotRunningException) {
+                // The engine entered teardown between the READY wait and the dispatch, so the
+                // work was refused. Also an ordinary exception, also must not crash the process.
+                // FcitxDispatcher now runs queued work during teardown, so this only covers jobs
+                // arriving after every queue drain has finished.
+                Timber.d(e, "Dropping queued fcitx job: engine is stopping")
             }
         }
         jobs.trySend(job)

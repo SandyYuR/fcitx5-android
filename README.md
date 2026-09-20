@@ -59,8 +59,9 @@ OpenCC、Fcitx 核心底盘、剪贴板、主题、候选栏、语音输入、�
 ### 中英文切换
 
 - 语言键单击向 Rime 发送一次独立 Shift（down → 50 ms → up），交给 ascii_composer/switch_key 处理。
-- 语言键长按打开 Android 系统输入法选择器。
+- 语言键长按弹出 Rime 方案选单，点选即切换方案；如需打开 Android 系统输入法选择器，请长按**工具栏**的语言切换按钮。
 - Rime 默认 Shift_L 行为是 inline_ascii；如需整体切换中英文，可在用户配置中改为 commit_text 或 commit_code。
+- 宏按键的「应用操作」支持切换系统输入法与弹出 Rime 方案选单两个动作。
 
 ## Rime addon 更新
 

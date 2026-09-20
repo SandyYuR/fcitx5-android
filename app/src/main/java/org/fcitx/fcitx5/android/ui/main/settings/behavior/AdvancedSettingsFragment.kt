@@ -58,8 +58,12 @@ class AdvancedSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance(
                         return@withLoadingDialog
                     }
                     try {
-                        // stop fcitx before overwriting files
-                        FcitxDaemon.stopFcitx()
+                        // stop fcitx before overwriting files; stopFcitx() waits for the native
+                        // side to be really gone (on IO) and reports whether it made it.
+                        if (!FcitxDaemon.stopFcitx()) {
+                            ctx.importErrorDialog(R.string.text_keyboard_layout_save_failed)
+                            return@withLoadingDialog
+                        }
                         val metadata = withContext(Dispatchers.IO) {
                             val inputStream = cr.openInputStream(uri)!!
                             UserDataManager.import(inputStream).getOrThrow()
