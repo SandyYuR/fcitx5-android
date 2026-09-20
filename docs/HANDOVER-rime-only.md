@@ -324,6 +324,32 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 2. **配方（`LibRime.hs`）的 `do` 块只有最后一条 `cmd_` 带逗号**。把新行插在带逗号那行之后 → GHC `parse error on input '('`，`Build everything` **6 秒即挂**（配方编译阶段，与补丁无关）。已修正：逗号移到列表末行。
 3. **判断补丁行尾要用对象库字节，不要用 `Out-String` 测量**。一度误判"补丁 CRLF 导致 CI 失败"，实测 `git cat-file -p <sha>:patches/...` 为 1370 字节、零 CRLF，判断作废。另注意：**取消 CI run 后 `Push to prebuilt` 可能已经执行完**，要核对产物父链确认拿到的是哪一版补丁构建的。
 
+### 0.5.9 2026-09-20 第六次实战（同一 PR 二次 force-push → 补丁原地升级，pin 不变）
+
+**起因**：用户报「PR #1232 好像又更新了」。核对发现 prebuilder 的 `librime-pr1232-rewrite-filter.patch` 停在 `2886a2c2`（跟进的是**上一次** force-push 的 starter filter 版），而 PR head 已是 `bf704201`（09-20 11:12 UTC），**晚于配方提交时间 09:14 UTC**——作者第二次 force-push，把 pack 的加速结构整体换掉了。**pin 未变**（仍上游 `74bd5dc4`），只换补丁。
+
+**新版改了什么（RWP4 → RWP5，硬性不兼容）**：
+
+| 项 | 旧版（上一轮接入） | 新版（`bf704201`） |
+| --- | --- | --- |
+| magic / `kFormatVersion` | `RIMERWP4` / 4 | `RIMERWP5` / **5** |
+| `kStageRecordSize` | 64 | **72**（新增 dispatch 表偏移与大小字段） |
+| 加速结构 | 每 stage 附 8KB「起始字符位图」 | 换成 code point → **直接分派表**寻址 |
+| 新增 | — | `kDispatchPhraseStarter`(`1U<<31`) 标记短语起始、`kDispatchKeyMask` 取编码后 key id |
+| 删除 | `kStageFlagHasStarterFilter` + 位图 | — |
+| `kBuildIdRevision` | 2 | 1 |
+
+规模 8 文件 +2817 行（旧版 +2734）。`Compile()` 在方案未声明 `rewriter` 段时提前返回，**既有方案不受影响**；但已生成的 `.rwp` 会因版本号不匹配被 `IsUpToDate()` 判为过期，**重新部署该方案即可重建，无需迁移数据**。
+
+**做了什么**：① 从 PR 拉取新补丁（`https://api.github.com/repos/rime/librime/pulls/1232` 带 `Accept: application/vnd.github.v3.patch`，注意 `pull/1232.patch` 直链易被限流返回 HTML）；② 生成 prebuilder 风格的替换补丁（**在已提交的 6 补丁 base 上**再应用 PR 补丁，`git diff --cached`）覆盖 `patches/librime-pr1232-rewrite-filter.patch`（+553/−470）；③ 提交 `04d488c` 推送 prebuilder，CI [run 35517987608](https://github.com/SandyYuR/prebuilder/actions/runs/35517987608) **success**（约 18 分）；④ 主仓库 prebuilt 指针 `6c226341` → **`f4225ada`**（arm64 `librime.a` 19,778,482 → 19,821,890 字节）；⑤ 主仓库把原引擎提交 **重写**（`45550041` → `56af1ae5`，仅 prebuilt gitlink 一处差异），并 cherry-pick 其后的 `77ec794f` → `1364e59c`，**只本地提交，未推送**。
+
+**验证**：① 按 `LibRime.hs` 配方顺序在干净 `74bd5dc4` 上依序重放**全部 7 个补丁零退出**；② 6 个纯新增文件（`rewrite_pack.cc/.h`、`rewriter.cc/.h`、`rewrite_compiler.cc/.h`）与 PR head 真实文件 `cmp` **逐字节一致**；③ 回环重放与逐字节比对树 `diff -rq` **零差异**；④ `:app:assembleFxDebug` 构建成功（3m24s），APK 内 `librime.so` 含 `RIMERWP5` magic 与 RWP5 专有报错串（`key count exceeds the RWP5 direct-dispatch limit`、`character dispatch table exceeds the RWP5 limit`）。
+
+**三个教训**：
+1. **上游 force-push 后，先核对 prebuilder 配方是否跟上**（比提交时间与 PR head 时间）。这次 PR head（11:12 UTC）比配方（09:14 UTC）晚，属于"配方滞后"，不必改配方结构，只需换补丁文件内容。判断"有没有更新"不能只比补丁大小，要落到 `kFormatVersion` 这类语义特征上（本次 93,379 → 95,672 字节）。
+2. **用 `git diff` 生成补丁前必须先把基线提交掉**。第一次在"已应用 6 补丁但未提交"的树上直接 `git diff --cached`，把前 6 个补丁的改动一并卷进来，得到 40 文件 / 6765 行的废补丁。正确做法：`git add -A && git commit`（base 6 补丁）→ 应用 PR 补丁 → `git diff --cached`，得到干净的 8 文件 / 2889 行。
+3. **定制 C API 在 `.a` 里是内部链接符号（`_ZL`），别用 `nm -D` 查**。`RimeGetInputTabs`/`RimeSelectTab`/`RimeGetCandidatePreview` 都查不到动态表（查得 0），会被误判成"补丁丢了"。用宽松 `strings librime.a | grep -c` 可稳定得到 4 处，**且新旧产物数值一致**（old=4 / new=4）才说明无回归。另：APK 里只有 `librime.so`，没有独立的 `libfcitx5-rime.so`，适配层已静态链接进去。
+
 ---
 
 ## 1. 用户给的长期约定（必须遵守）
