@@ -372,6 +372,27 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 2. **用 `git diff` 生成补丁前必须先把基线提交掉**。第一次在"已应用 6 补丁但未提交"的树上直接 `git diff --cached`，把前 6 个补丁的改动一并卷进来，得到 40 文件 / 6765 行的废补丁。正确做法：`git add -A && git commit`（base 6 补丁）→ 应用 PR 补丁 → `git diff --cached`，得到干净的 8 文件 / 2889 行。
 3. **定制 C API 在 `.a` 里是内部链接符号（`_ZL`），别用 `nm -D` 查**。`RimeGetInputTabs`/`RimeSelectTab`/`RimeGetCandidatePreview` 都查不到动态表（查得 0），会被误判成"补丁丢了"。用宽松 `strings librime.a | grep -c` 可稳定得到 4 处，**且新旧产物数值一致**（old=4 / new=4）才说明无回归。另：APK 里只有 `librime.so`，没有独立的 `libfcitx5-rime.so`，适配层已静态链接进去。
 
+### 0.5.10 2026-09-21 第七次实战（同一 PR 第三次 force-push：RWP5 内部加固，base 前进但 pin 不动）
+
+**起因**：用户报「好像又更新了」。核对发现 PR head 从 `bf704201` 再变为 `abbdacea`，且**这次 `base` 也前进了**（`74bd5dc4` → 上游 `1809d072`，master 已到 `14f14cba`，中间夹着 streaming_chord 系列与 key_binder 修复）。与上次不同：**格式仍为 RWP5**（magic/`kFormatVersion` 5、`kStageRecordSize` 72 均未变），只是 RWP5 内部的精修，**与已接入版本二进制兼容**。
+
+**新版改了什么（+2890 行 / 旧 +2817）**：
+1. **安全加固**（本次最主要）：新增 `ValidatePhraseTrieBounds()`——校验 Darts 短语 trie 的 unit 数为 256 的整数倍、在 uint32 范围内，并逐个检查 `i ^ DartsUnitOffset(unit)` 的转移基址不越界；越界时 `LOG(ERROR) "contains a malformed phrase trie in section ...; redeploy the schema to rebuild the pack."` 并拒绝加载。原因是 Darts 查询会把状态索引与偏移 XOR 后直接索引数组，恶意/损坏的 `.rwp` 可造成映射区外的非受检访问。
+2. **配置项重构**：`key_projection` → **`key_xlit`**（新增 `BuildKeyXlit()` 与 `"key_xlit converted source key ..."` 诊断）；`prefer_types` → **`promote_on_types`**；`Mode::kAppend` → `kDerive`；`CommentMode` 拆成 `CommentSource`（`kComment` 归入 `kInherit`）。
+3. `AppliesToSegment()` 由内联改为记录 segment 范围（`has_segment_range_`）。
+4. 新增配置键：`candidate_type`/`comment_source`/`comment_template`/`enable_sentence`/`insert_count`/`insert_position`/`promote_on_types`。
+
+⚠️ **第 2 条是用户可见的配置项改名**：已有方案若写了 `key_projection` / `prefer_types`，升级后会失效，需改成 `key_xlit` / `promote_on_types`。本次未改用户指南（尚无用户实际使用 rewrite 段的记录），若后续有反馈要补进 `RIME_ONLY_USER_GUIDE_zh-CN.md`。
+
+**做了什么**：① 拉取新补丁；② 在已提交的 6 补丁 base 上生成 prebuilder 风格替换补丁（+268/−195）覆盖 `patches/librime-pr1232-rewrite-filter.patch`；③ 提交 `487683c` 推送 prebuilder，CI [run 35558511253](https://github.com/SandyYuR/prebuilder/actions/runs/35558511253) **success**；④ 主仓库 prebuilt 指针 `f4225ada` → **`a1865519`**（arm64 `librime.a` 19,821,890 → 19,822,336 字节）；⑤ 按要求**在 `56af1ae5` 上重写**（→ `f8119628`，仅 prebuilt gitlink 一处差异），并 cherry-pick 其后的 `1364e59c` → `746271df`，**只本地提交，未推送**。
+
+**验证**：① 配方顺序重放全部 7 个补丁零退出；② 6 个纯新增文件与 PR head（`abbdacea`）真实文件 `cmp` 逐字节一致；③ 回环重放与逐字节比对树零差异；④ 新 `.a` 含 RWP5 magic 及本次新特性特征串（`ValidatePhraseTrieBounds`/`key_xlit`/`promote_on_types`/`BuildKeyXlit` 共 6 处）；⑤ 既有定制 API 符号计数与上一版**一致**（`RimeGetInputTabs`/`RimeSelectTab`/`RimeGetCandidatePreview` 均 4 处）。
+
+**三个教训**：
+1. **PR 的 `base` 前进 ≠ 必须 bump pin**。这次 base 从 `74bd5dc4` 跳到 `1809d072`，看起来该跟上游；但补丁**在现 pin 上实测仍干净应用**（`git apply --check` 零退出）。判断依据是「补丁能否应用到当前 pin」，不是「PR 的 base 是什么」。
+2. **同一次 PR 的 force-push 未必是破坏性变更**。前两次分别是 RWP4→RWP5 的结构替换（不兼容）；这次仍 RWP5，只是内部加固 + 改名（二进制兼容，既有 `.rwp` 无需重部署）。**先比 `kMagic`/`kFormatVersion`/`kStageRecordSize` 这类结构常量再下结论**，不要因为补丁变大就假定需要重新部署。
+3. **base 前进时要注意上游新增提交**（本次夹了 streaming_chord 三连 + key_binder 修复）。它们不在定制补丁范围内、也不在 pin 变动范围内——**pin 不动就不会进入产物**，不要误以为「base 变了就等于上游已合入」。
+
 ---
 
 ## 1. 用户给的长期约定（必须遵守）
