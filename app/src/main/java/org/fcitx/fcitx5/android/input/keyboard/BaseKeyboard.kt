@@ -26,6 +26,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.tracing.trace
 import androidx.annotation.DrawableRes
@@ -41,6 +43,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.AuxBarAction
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.core.InputMethodEntry
@@ -138,6 +141,10 @@ abstract class BaseKeyboard(
     private val hapticOnRepeat by prefs.keyboard.hapticOnRepeat
 
     var popupActionListener: PopupActionListener? = null
+
+    // 退格键"上滑清空"：长按进入连删后弹出提示条，手指滑进提示条区域即清空正文。
+    private var backspaceClearPopup: PopupWindow? = null
+    private var backspaceClearTriggered = false
 
     private val selectionSwipeThreshold = dp(10f)
     private val inputSwipeThreshold = dp(36f)
@@ -347,6 +354,7 @@ abstract class BaseKeyboard(
     }
 
     protected open fun reloadLayout() {
+        dismissBackspaceClearPopup()
         val startedAt = SystemClock.elapsedRealtime()
         // Detach ripple-occluder listeners from views of the outgoing tree before it is
         // discarded or cached; the ripple view itself is recreated on every reload.
@@ -1323,6 +1331,13 @@ abstract class BaseKeyboard(
                             } else false
                         }
                         GestureType.Up -> {
+                            dismissBackspaceClearPopup()
+                            // 本次按住期间是否刚执行过清空。用完立即复位：移植版本只在
+                            // 下一次长按弹出提示条时才复位，标志会一直留着，导致此后
+                            // 普通点击退格的抬手也不再发 DeleteSelectionAction ——
+                            // 那正是退格保护序列（BackspaceBoundaryGuard）的结束信号。
+                            val clearedThisPress = backspaceClearTriggered
+                            backspaceClearTriggered = false
                             if (
                                 def.swipe != null &&
                                 kotlin.math.abs(event.totalY) > kotlin.math.abs(event.totalX) &&
@@ -1331,7 +1346,11 @@ abstract class BaseKeyboard(
                                 onAction(def.swipe)
                                 true
                             } else {
-                                onAction(KeyAction.DeleteSelectionAction(event.totalX))
+                                // 清空已经执行过时不再补一次滑删：否则抬手会被当成
+                                // 一次普通滑动退格，多删一个字/一段选区。
+                                if (!clearedThisPress) {
+                                    onAction(KeyAction.DeleteSelectionAction(event.totalX))
+                                }
                                 false
                             }
                         }
@@ -1350,6 +1369,21 @@ abstract class BaseKeyboard(
             gestureBaselines[this] = baseline
             applyAppearance(this, activeAppearance)
             applyBehaviorPopupBindings(this, baseline, activeDef.behaviors, activeDef.popup)
+            if (def is BackspaceKey) {
+                // 长按退格进入连删时弹出"上滑清空"提示条；手指滑进提示条区域即清空。
+                // 必须在 applyBehaviorPopupBindings 之后绑定：它会先把这两个回调清空。
+                this.onRepeatStartListener = { v ->
+                    showBackspaceClearPopup(v)
+                }
+                this.onRepeatMoveListener = { v, x, y ->
+                    if (!backspaceClearTriggered && checkBackspaceClearPopupHit(v, x, y)) {
+                        backspaceClearTriggered = true
+                        InputFeedbacks.hapticFeedback(v, true)
+                        executeClearAll()
+                        dismissBackspaceClearPopup()
+                    }
+                }
+            }
             if (registerComposeAware && def.composeOverride != null) {
                 composeAwareKeys += ComposeAwareKey(def, this, baseline)
             }
@@ -1885,6 +1919,8 @@ abstract class BaseKeyboard(
         view.setOnLongClickListener(null)
         view.repeatEnabled = false
         view.onRepeatListener = null
+        view.onRepeatStartListener = null
+        view.onRepeatMoveListener = null
         view.doubleTapEnabled = false
         view.onDoubleTapListener = null
         view.swipeEnabled = baseline.swipeEnabled
@@ -2488,6 +2524,82 @@ abstract class BaseKeyboard(
     }
 
     /**
+     * 弹出"上滑清空"提示条。
+     *
+     * 由退格键长按进入连删（[CustomGestureView.onRepeatStartListener]）时调用，
+     * 提示条显示在退格键正上方，手指滑进其区域即触发清空。
+     */
+    private fun showBackspaceClearPopup(anchorView: View) {
+        dismissBackspaceClearPopup()
+        backspaceClearTriggered = false
+        val popupWidth = anchorView.width * 2
+        val popupHeight = dp(40)
+        val textView = TextView(context).apply {
+            text = context.getString(R.string.backspace_swipe_to_clear)
+            gravity = gravityCenter
+            setTextColor(theme.keyTextColor)
+            textSize = 14f
+            background = GradientDrawable().apply {
+                setColor(theme.altKeyBackgroundColor)
+                cornerRadius = dp(8f)
+            }
+            setPadding(dp(8), dp(6), dp(8), dp(6))
+        }
+        val popup = PopupWindow(textView, popupWidth, popupHeight, false).apply {
+            isTouchable = false
+            isOutsideTouchable = false
+            animationStyle = 0
+        }
+        val xOffset = -(anchorView.width / 2)
+        val yOffset = -(popupHeight + anchorView.height)
+        popup.showAsDropDown(anchorView, xOffset, yOffset)
+        backspaceClearPopup = popup
+    }
+
+    private fun dismissBackspaceClearPopup() {
+        backspaceClearPopup?.dismiss()
+        backspaceClearPopup = null
+    }
+
+    /**
+     * 手指是否落在提示条区域内。
+     *
+     * 坐标是相对退格键的：提示条横向以键中心对齐、宽度为键宽的两倍，纵向位于键上方
+     * 一个提示条高度的范围内。
+     */
+    private fun checkBackspaceClearPopupHit(anchorView: View, touchX: Float, touchY: Float): Boolean {
+        backspaceClearPopup ?: return false
+        val popupWidth = anchorView.width * 2
+        val popupHeight = dp(40)
+        val popupLeft = -(anchorView.width / 2).toFloat()
+        val popupRight = popupLeft + popupWidth
+        return touchX in popupLeft..popupRight && touchY in -(popupHeight.toFloat())..0f
+    }
+
+    /**
+     * 清空当前编辑器里的全部文字。
+     *
+     * 走 `InputConnection` 的"全选 + 覆写空串"，与引擎无关，因此对 Rime 之外的
+     * 任何编辑器一致生效（移植自 boomker 的实现，见其提交 5dcdf17a）。
+     *
+     * 尾部对退格保护的复位是**本仓库特有**的必要处理：本条路径在抬手时会跳过
+     * `DeleteSelectionAction`（见 [createKeyView] 的 Up 分支），而那个动作正是退格保护
+     * 序列的结束信号。不复位的话，一旦清空发生在受保护的按住序列内
+     * （[BackspaceBoundaryGuard] 的 protecting 态），保护会一直残留到空闲超时，
+     * 清空后紧接着的退格会被白吞掉。`onCommit()` 同时抑制随后的空 composing 事件
+     * 被误判成"删空"。
+     */
+    private fun executeClearAll() {
+        val service = getService() ?: return
+        val ic = service.currentInputConnection ?: return
+        ic.beginBatchEdit()
+        ic.performContextMenuAction(android.R.id.selectAll)
+        ic.commitText("", 1)
+        ic.endBatchEdit()
+        service.backspaceBoundaryGuard.onCommit()
+    }
+
+    /**
      * Check whether it is a function key (F1-F12)
      */
     private fun isFunctionKey(code: String): Boolean {
@@ -2998,6 +3110,9 @@ abstract class BaseKeyboard(
     }
 
     open fun onDetach() {
+        // 键盘摘除（隐藏/切换）时释放提示条，否则 PopupWindow 会作为独立窗口留在
+        // 屏幕上，且持有已脱树的锚点视图。
+        dismissBackspaceClearPopup()
         releaseAllTouchTargets()
     }
 

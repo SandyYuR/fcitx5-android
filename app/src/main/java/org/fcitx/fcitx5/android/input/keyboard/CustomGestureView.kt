@@ -107,6 +107,11 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
 
     var onDoubleTapListener: ((View) -> Unit)? = null
     var onRepeatListener: ((View) -> Unit)? = null
+    // 长按自动重复的进入与移动回调。常规 [swipeEnabled] 滑动在 repeatStarted 后会被
+    // 上面的早退分支挡掉，因此按住退格键继续上滑时收不到 Move 事件；这两个回调让
+    // 调用方仍能感知"已按住"与按坐标变化（退格上滑清空即依赖它）。
+    var onRepeatStartListener: ((View) -> Unit)? = null
+    var onRepeatMoveListener: ((View, Float, Float) -> Unit)? = null
     var onGestureListener: OnGestureListener? = null
 
     var soundEffect: InputFeedbacks.SoundEffect = InputFeedbacks.SoundEffect.Standard
@@ -223,6 +228,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                     repeatJob = lifecycleScope.launch {
                         delay(longPressDelayMillis)
                         repeatStarted = true
+                        onRepeatStartListener?.invoke(this@CustomGestureView)
                         while (isActive && isEnabled) {
                             val lastTriggerTime = SystemClock.uptimeMillis()
                             onRepeatListener?.invoke(this@CustomGestureView)
@@ -310,7 +316,14 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                         isPressed = false
                     }
                 }
-                if (!swipeEnabled || longPressTriggered || repeatStarted) return true
+                if (!swipeEnabled || longPressTriggered || repeatStarted) {
+                    // 已进入长按重复：滑动分支不再派发 Move，改由专用回调上报坐标，
+                    // 让按住退格继续上滑时仍能被识别（退格上滑清空）。
+                    if (repeatStarted) {
+                        onRepeatMoveListener?.invoke(this, x, y)
+                    }
+                    return true
+                }
                 val countX = consumeSwipe(x, SwipeAxis.X)
                 val countY = consumeSwipe(y, SwipeAxis.Y)
                 dispatchGestureEvent(GestureType.Move, x, y, countX, countY)
