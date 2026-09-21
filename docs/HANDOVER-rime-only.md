@@ -25,9 +25,9 @@
 |---|---|
 | 目录布局（2026-09-09 实测，09-10 目录更名，09-16 复核文件数） | `D:\GitHub\fx2-rime\fx-rime-only` 是主仓库（检出 `fx-rime-only`）；`fcitx5-rime/`、`prebuilt/`、`prebuilder/` 是引擎 fork；`librime-src/` 是补丁工作台；`rime-docs-worktree/` 是文档 worktree；`布局主题/` 是用户自己的布局/主题/图标主题资料（非 git 内容）；`日志/` 当前 2 个文件（见下方"日志文件"行）。分别在目标仓库运行 `git status`。 |
 | worktree | 两个 worktree（09-14 实测）：`D:/GitHub/fx2-rime/fx-rime-only` → `fx-rime-only`（主仓库，与 `origin/fx-rime-only` 同步），`D:/GitHub/fx2-rime/rime-docs-worktree` → `rime-docs`（文档分支）。**文档改动只在 rime-docs worktree 里做**，不要在同一个 worktree 里切分支（切到 rime-docs 会把代码工作树和子模块目录一起掀掉）。 |
-| 三个 fork 的分工与更新方式 | 当前远端（**2026-09-16 ls-remote 实测无变化**）：`SandyYuR/fcitx5-rime@e74ddb6`（官方 5.1.16 基线 + fxliang 全部定制，`b90bd7ca` 已在血统内）、`SandyYuR/prebuilt@9e631eb9`（09-10 新引擎，含 streaming_chord + userdict 外部失效修复）、`SandyYuR/prebuilder@446d1ea`（09-10：合并 fxliang `4fdb494` + bump librime pin 至 `35f23e97`，见 0.5.6）。本地 remote-tracking ref 可能过时，使用前先 fetch（断连时走 SSH，见 0.5.3 第 8 条）。 |
+| 三个 fork 的分工与更新方式 | **本行是 2026-09-16 ls-remote 快照，已过期**：`SandyYuR/fcitx5-rime` 已于 09-20 前进到 **`fc3f98b`**（移除辅助栏"清除"按钮，见第 0 节末；09-16 时为 `e74ddb6` = 官方 5.1.16 基线 + fxliang 全部定制，`b90bd7ca` 已在血统内）、`SandyYuR/prebuilt`（09-16 时为 `9e631eb9`，其后经历 `6b5b2ee6`/`6c226341`/`f4225ada` 等多次 Auto update）、`SandyYuR/prebuilder@446d1ea`（09-10：合并 fxliang `4fdb494` + bump librime pin 至 `35f23e97`，见 0.5.6）。**三者 SHA 一律以 fetch 实测为准**；本地 remote-tracking ref 可能过时，使用前先 fetch（断连时走 SSH，见 0.5.3 第 8 条）。 |
 | **rime 引擎更新流水线（2026-09-06 打通，09-10 第三次实战）** | 引擎 = `SandyYuR/prebuilt` 里的 `librime.a`，由 **`SandyYuR/prebuilder`** 的 CI（`ci.yml`，手动 `workflow_dispatch` 触发，约 15-90 分钟）构建并自动推回 prebuilt（"Auto update" 提交，bot 身份）。已配置 `BOT_TOKEN` secret（token 轮换后要重配）。**完整操作手册见第 0.5 节 runbook + 0.5.4/0.5.6 实战**。当前引擎（09-10，`prebuilt@9e631eb9`）：**librime 1.17.0-35f23e9 + fxliang 补丁集**（tabs + syllabifier 缓存 + para deploy 词典并行编译 + **userdict 缓存重写/跨 session/外部更新三连修复** + streaming_chord 并击[上游原生，非补丁]）。pin 动了，主仓库 `librime.json` 已同步（`793a4a6f`）；下次主仓库构建自动携带新引擎。⚠️ **librime 上游已有 10 个新提交**（`35f23e97..8d8276f4`，09-16 实测：streaming_chord 补完 + opencc 升 1.4.2 + Docker/CI 一批），**其中 opencc 子模块升级碰依赖**，下次引擎更新不能只 bump gitlink 了事，按 0.5.2 第 1-2 步先实测补丁（详见第 7 节待办）。 |
-| **CI 构建的 rime 来源** | `prepare_personal_build.sh` fetch/checkout SandyYuR 的 fcitx5-rime 与 prebuilt master（均浮动）；fcitx5-rime 适配层现为 `e74ddb6`（官方 5.1.16 + fxliang 定制）；主仓库 gitlink只是占位。`.gitmodules` 仍写官方 URL，license website 仍写 fxliang，属于元数据残留。 |
+| **CI 构建的 rime 来源** | `prepare_personal_build.sh` fetch/checkout SandyYuR 的 fcitx5-rime 与 prebuilt master（均浮动）；fcitx5-rime 适配层现为 `fc3f98b`（官方 5.1.16 + fxliang 定制，2026-09-20 移除纵向辅助栏的"清除"按钮，见第 0 节末）；主仓库 gitlink 已按该 SHA 对齐（不再是占位）。`.gitmodules` 仍写官方 URL、`fcitx5-rime.json` 的 website 上游仍写 fxliang（本机 `prepare_personal_build.sh` 会 sed 成 SandyYuR），属于元数据残留。 |
 | 日志文件 | `D:\GitHub\fx2-rime\日志\` 当前 **2** 个文件：`工具栏不显示，后来又显示了…`（已被清理）等 09-13 的工具栏相关文件已随问题解决移除；现仅存 `候选高亮…2026-09-14T10_32_47Z.txt`（对应第 3.4 节双高亮修复）与 `提交SHA映射-标题重写-2026-09-10.txt`。历史日志按下文记录为准，目录内容以实测为准。 |
 | 子模块（09-14 已初始化） | 主仓库 7 个 gitlink 已全部检出：用 `git submodule update --init --recursive --depth 1 --jobs 4`，并把 GitHub URL 改写成 SSH（`git -c url.ssh://git@ssh.github.com:443/.insteadOf=https://github.com/`）——HTTPS 拉大文件在本机会被限速（25 分钟只下 19MB，SSH 浅克隆 7 分钟完成）。`plugin/rime/src/main/cpp/fcitx5-rime` 与 `lib/fcitx5/src/main/cpp/prebuilt` 已切到 `SandyYuR` fork 的 master（等同 `prepare_personal_build.sh` 的结果），fcitx5 核心的 `fcitx5-alt-trigger-v4point1.patch` 已应用；**prebuilt 是稀疏检出**（只留 `*/arm64-v8a/**` + `opencc/data/**` + `toolchain-versions.json`，约 34MB）。要构建其它 ABI 先 `git sparse-checkout disable`。完整工具链路径见 `AGENTS.md` 第 5 节。 |
 | grep 工具 | `app/src/main/play/listings/en-US/graphics/icon/icon.png` 的失效符号链接已修正为指向 `app/src/fx/res/mipmap-xxxhdpi/ic_launcher.png`，现在可以从仓库根目录搜索。若以后再次出现 `os error 2`，先检查该链接目标是否仍存在。 |
@@ -47,6 +47,8 @@
 
 **现象**（日志 `日志/音节选择器...2026-09-07T08_58_32Z.txt`）：打完字后点 tab 无反应（连点 29 次零响应），点一下"清除"就恢复。同日志里 BackSpace 后 tab 又能用。
 
+> ⚠️ 下文的"清除"按钮**已于 2026-09-20 由适配层 `fc3f98b` 移除**（它曾固定占用纵向辅助栏底部、挤压音节 tab 高度，见第 0 节末尾）。本条 bug 的真正修复是 `e74ddb6`，与"清除"按钮是否存在无关，故移除不影响该场景。
+
 **根因**：合并上游时，`8bb9234`（ascii 图标提交）顺手删除了 `rimestate.cpp` updateUI 里的 `emptyExceptAux` 逻辑，把面板序列化条件 `!keyRelease || !oldEmptyExceptAux || !newEmptyExceptAux` 收窄为 `!keyRelease`。上游自己没有 tab 功能所以无害，但 **fxliang 的 tab 功能隐藏依赖 release 时的序列化**：
 
 - 每次 keyEvent（press 和 release）都跑 `updateUI(ic, isRelease)`，它总是 `setCandidateList(make_unique<RimeCandidateList>(...))` 换一个新列表；
@@ -60,6 +62,8 @@
 **教训（合并上游的暗礁）**：git 自动合并成功 ≠ 语义无损。上游删掉的"看似无关"代码可能正是本分支特性的隐藏依赖——尤其是这种"A 创建状态、B 消费状态"跨函数的时序依赖，git 完全看不出来。**合并 fcitx5-rime 上游后必须实测：打字→点 tab→选词全链路**（本次 CI 绿灯只证明能编译）。
 
 **2026-09-09 后续**：`ce4c038` 的定制修复已被 **`e74ddb6`**（当日晨合并官方 fcitx/fcitx5-rime `ce38ca9`，版本 **5.1.16**）替代——上游 `8c952c1` "Further clean up the updateUI code with key release (#169)" 官方实现了 release 无条件序列化，`rimestate.cpp` 净删 21 行定制逻辑（`6737036..e74ddb6` 共 5 文件 +14/-35）。fxliang fork 全部定制（含 `b90bd7ca` schema_id info，07-30）均已在 `e74ddb6` 血统内，无待合并增量；官方与 fxliang 两侧上游均无新提交（09-16 ls-remote 复核仍无）。⚠️ 官方重写 updateUI 后，**"打字→点 tab→选词"全链路真机回归仍未做**（见第 7 节）。
+
+**2026-09-20 后续**：适配层在 `e74ddb6` 之上前进到 **`fc3f98b`**（移除纵向辅助栏"清除"按钮，见本节末），主仓库 gitlink 已对齐（`1364e59c`）。该提交只删代码、不改序列化时序，与本条 bug 的修复无关联。
 
 **推送通道备用**（github.com:443 曾多次断连，每次约 10 分钟）：**首选工作区外 `D:\GitHub\fx2-rime\ssh-push.ps1`**（走 SSH：关键发现是 mingw git 对含空格/反斜杠的 `GIT_SSH_COMMAND` 会用 MSYS `sh.exe -c` 包装（沙箱内必死 `couldn't create signal pipe`），而**正斜杠单 token 路径 `C:/Windows/System32/OpenSSH/ssh.exe` 让 git 直接 exec Windows 原生 ssh.exe**，绕开一切 MSYS；本机 `~/.ssh/config` 已配 ssh.github.com:443 + ed25519）；**备选 `api-push.mjs`**（走 api.github.com 的 Git Data API 推单文件提交，blob SHA 与本地比对确保内容一致，适合多文件改动时逐文件推或 github.com 整个不可达时）；dispatch 别忘 `DISPATCH_REF=fx-rime-only`（默认 master 会 422；09-09 起分支名由此前的 fx2-rime-fusion 更名）。SSH/API 推完的网络恢复后 `fetch + reset --hard origin/master` 对齐（提交 SHA 与本地不同但 tree 相同）。
 
@@ -99,6 +103,24 @@
 - 删除 `IconThemeManager.normalizedDrawable` 及其两处调用点（`IconThemeManager.resolveIconDrawableInfo`、`StatusAreaEntryUi.showConfiguredIcon`）——出口已经保证尺寸，调用方不必也不能再各归一化一遍；**新增取用自定义文件图标的界面同样不要再写归一化**。
 
 **验证**：本地 `IconSizeTest` 6 例绿、全量 `:app:testFxDebugUnitTest` 绿、`:app:assembleFxDebug` 出包且签名与已装 debug 版一致；`:app:lintFxDebug` 仍为既有 157 个 error，本次改动文件只有 `LogNotTimber` 一类警告（本仓库 lint 未纳入门禁）。**真机视觉回归（装新 debug 包后看按钮是否与内置图标等宽）待用户安装确认**——容器内无 install 通道，`pm install` 被设备策略拦截。
+
+### 2026-09-20 纵向辅助栏"清除"按钮移除（适配层 `fc3f98b`）
+
+**现象**（用户反馈）：万象九键方案 + 左侧辅助选择栏，组字时的音节选择按钮**全部同时展示**，可选音节一多每个按钮就被压得很小，难以点按（用户预期是固定几个、超出可滑动）。
+
+**根因**（两层，靠读代码定位；当时 logcat 只有系统层输出，应用自有日志已滚出缓冲，日志对本问题无用）：
+1. 适配层 `rimecandidate.cpp` 的 `tabActions()` 在全部音节 tab 之后追加一个分隔符（id=-2）和一个 id=-1 的"清除"按钮。
+2. App 侧 `BaseKeyboard.updateAuxBarActions()` 用 `takeWhile { !isSeparator }` / `drop(size + 1)` 把动作切成 scrollable / pinned 两组 → "清除"被固定进 pinned 区（纵向辅助栏贴底）；而纵向辅助栏（`AuxBarPosition.Left/Right`）自 `7a480550` 起不再走 RecyclerView，改为纯 `LinearLayout` **按 item 数量均分容器高度**（`relayoutVerticalAuxBarItems()`：`itemHeight = height / count`，**无下限**），外层也没有任何滚动容器 → 音节越多每个 tab 越矮，item 内的 `AutoScaleTextView(Proportional)` 又按比例缩字。两者叠加 = 按钮越来越小、越来越挤。
+
+**修复**（`SandyYuR/fcitx5-rime@fc3f98b`，主仓库 gitlink `1364e59c`）：`tabActions()` 不再追加分隔符与"清除"，全部 tab 落回 scrollable 组；配套删除**只服务于该按钮**的管线——`TAB_ACTION_CLEAR` 常量、`triggerTabAction` 的 `id == TAB_ACTION_CLEAR` 分支、`RimeState::clearTabs()` 及其声明（同一提交 `7671adc` 引入，此后无其它调用方；全仓库 `grep` 确认 App 侧从未引用，已零残留）。
+
+**副作用与开放问题**：删除后适配层不再暴露 `clear_tabs` 这条 C API 的调用路径（App 侧本来就无引用），**即界面上不再有"一键清空音节约束"的入口**。音节约束绑定在 composition 上，正常打字/提交会自然推进，用户装机实测（2026-09-20）未发现不便；但若日后出现"需要显式清空约束"的场景，须重新引入入口（不能只靠 App 侧过滤，因为动作来源就是适配层）。
+
+**注意**：第 0 节「九键音节选择器首次点击无响应」里"点一下清除就恢复"是当时那条 bug 的**恢复手段**，不是修复本身；那条 bug 早已由 `e74ddb6`（官方 `8c952c1` 实现 release 无条件序列化）真正修掉，所以移除"清除"不影响该场景。
+
+**教训（可复用）**：这是"适配层多塞了一个 UI 动作"引发的布局退化——适配层往 tab 列表尾部追加非音节动作，App 侧按分隔符分组后把固定动作排进 pinned 区，两边单独看都合理，组合起来就抢占了内容区高度。**往后在 `tabActions()` 里追加任何非 tab 动作，都要先想 App 侧的分组语义**（scrollable vs pinned）。
+
+**验证**：`:app:assembleFxDebug` 出包（8m23s）；用 `strings`/字节匹配核对产物——`librime.so` 含插件字面量（`fcitx-rime-separator`、`Schema Selector`、`fcitx-rime-deploy`，证明该 so 就是适配层本体且检测方法有效）但**不再含"清除"**；APK 内无独立 `libfcitx5-rime.so`，适配层静态链入 `librime.so`。用户装机确认辅助栏行为正常（2026-09-20）。**注意**：本次只解决了"清除按钮抢高度"，**音节 tab 仍然全部展示、按数量均分高度（无最小行高、不可滑动）**——用户明确要求此项暂不改，见第 7 节待办。
 
 ---
 
@@ -757,8 +779,9 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 ## 7. 建议的下一步顺序
 
 1. **单测是否纳入 CI（已落地）**：2026-09-15 起 CI 新增独立 `unit_test` job（`a2db421a`），跑 `:app:testFxDebugUnitTest`，失败在提交上显示红叉但**刻意不 gate Nightly**（不写进 `nightly_release` 的 needs）。现状 **20 个测试文件、133 例**（2026-09-16 本地实测）。仍欠 KeyboardWindow layerHistory 集成测试。
-2. 决定是否同步 Play 中文标题及 fcitx5-rime license/.gitmodules 来源元数据。
-3. 使用外部 fork 前先 fetch 并核对（2026-09-16 ls-remote 实测无变化：`fcitx5-rime@e74ddb6`、`prebuilt@9e631eb9`、`prebuilder@446d1ea`）。
-4. 当前没有 backup/review refs 可删（本地 `backup/pre-doc-split`、`backup/pre-retitle` 是 SHA 追溯用本地分支，保留）；未经明确要求不要破坏旧对象、reflog 或 tags。
-5. **真机回归待办**（两次上游合并都欠着）：① `e74ddb6` 官方重写 updateUI 后"打字→点 tab→选词"全链路；② 当前引擎 `9e631eb9`（para deploy + userdict 缓存重写）装机冒烟——主仓库构建自动携带，无需改动；装后验证词典部署并行与跨 session 用户词缓存。
-6. **librime 上游待吃进已从 2 个涨到 10 个提交**（`35f23e97..8d8276f4`，2026-09-16 实测）：streaming_chord 两个（`74a7467e`+`74db0d18`，09-10 就排队了）+ 纯 CI/构建环境一批（runner 镜像、release action、Docker）。⚠️ 其中 `2479df58` **把 opencc 依赖升到 1.4.2**、Docker 提交动了构建环境——不再是"只 bump gitlink"的无风险更新，照 0.5.2 第 1-2 步先实测补丁可应用性，并评估 opencc 升级对简繁转换行为的影响，再决定 bump。
+2. 决定是否同步 Play 中文标题及 fcitx5-rime license/.gitmodules 来源元数据。（现状：`.gitmodules` 仍写官方 `fcitx/fcitx5-rime` URL，`fcitx5-rime.json` 的 `website` 上游仍写 fxliang、靠本机 `prepare_personal_build.sh` 的 sed 改成 SandyYuR——两边都不在仓库里固化。）
+3. 使用外部 fork 前先 fetch 并核对（**2026-09-16 的快照已过期**，勿照抄：当时 `fcitx5-rime@e74ddb6`、`prebuilt@9e631eb9`、`prebuilder@446d1ea`；09-20 实测 `fcitx5-rime` 已是 `fc3f98b`，prebuilt 亦多次前进）。
+4. 当前没有 backup/review refs 可删（本地 `backup/pre-doc-split`、`backup/pre-retitle` 是 SHA 追溯用本地分支，保留）；另 09-20 为上游历史重写留了本地 `backup/fx-rime-only-20260920-59a3a1ab`（旧 `59a3a1ab` 的等价内容已在重写后历史中，确认无用后可删）。未经明确要求不要破坏旧对象、reflog 或 tags。
+5. **真机回归待办**：① `e74ddb6` 官方重写 updateUI 后"打字→点 tab→选词"全链路；② 引擎多次前进后的装机冒烟（当前 prebuilt 已是 09-20 的 `f4225ada` 一系，para deploy + userdict 缓存 + rewrite 滤镜）；③ **`fc3f98b` 移除"清除"按钮后的辅助栏真机回归**——用户 09-20 已装机确认可用，但**未刻意覆盖"音节 tab 极多"与"取消约束"两类边界场景**。
+6. **纵向辅助栏均分高度无下限（未修，用户明确要求暂不改）**：`BaseKeyboard.relayoutVerticalAuxBarItems()` 的 `itemHeight = height / count` 没设最小行高，外层也不是滚动容器，所以 Left/Right 辅助栏在 item 很多时全部压缩展示、无法滑动（横向 Top/Bottom 走 RecyclerView 不受影响）。09-17 的 `7a480550` 是有意为之（修悬浮 resize 时按钮间留空隙），**要改必须同时满足"保留 resize 均分"和"恢复最小行高 + 可滚动"，别只回退该提交**。
+7. **librime 上游待吃进已从 2 个涨到 10 个提交**（`35f23e97..8d8276f4`，2026-09-16 实测）：streaming_chord 两个（`74a7467e`+`74db0d18`，09-10 就排队了）+ 纯 CI/构建环境一批（runner 镜像、release action、Docker）。⚠️ 其中 `2479df58` **把 opencc 依赖升到 1.4.2**、Docker 提交动了构建环境——不再是"只 bump gitlink"的无风险更新，照 0.5.2 第 1-2 步先实测补丁可应用性，并评估 opencc 升级对简繁转换行为的影响，再决定 bump。
