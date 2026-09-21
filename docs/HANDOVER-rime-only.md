@@ -14,8 +14,10 @@
 > **2026-09-10 更新**：① prebuilder 合并 fxliang `4fdb494`（userdict 外部更新失效修复，自动合并零冲突）并 bump librime pin `3cbe4afb`→`35f23e97`（四补丁栈实测全部干净应用 + 回环零差异），已推送 `SandyYuR/prebuilder@446d1ea`，CI run 34472331394 绿，新引擎落地 `prebuilt@9e631eb9`（四 ABI .a 全更新，`rime_api.h` blob 与补丁产物一致、tabs/para 全符号在列），主仓库已接 `librime.json → 1.17.0-35f23e9`（**0.5.6 节**第三次实战）；② 全链路其余检查点零新增（fcitx5-rime 两侧上游、librime 上游仅纯 CI 提交、fxliang 官方 prebuilt 禁合，见 0.5.5 表）。
 > **2026-09-10 文档分拆**：应用户要求，项目文档集中到 **`rime-docs`** 分支维护（孤儿分支，只含文档文件；上游遗留的 `docs` 分支是 GitHub Pages 文档站，勿混淆）。`fx-rime-only` 已重写历史：剥离 31 个纯文档提交、从 6 个混合提交中移除文档部分（README.md 的代码性改动保留），重写后 154 个提交（基线 `3ad25fc9` 之上）。**本文档内引用的 fx-rime-only SHA 均为重写前历史**——完整保存在 tag `archive/pre-doc-split`（指向重写前 tip `b3da998e`，184 提交全量）与本地 `backup/pre-doc-split` 分支；重写后的新 SHA 以 git 实测为准。`agent.md` 移出仓库，落地本机 `D:\GitHub\fx2-rime\AGENTS.md`（DSH 自动加载，内容已同步本次分拆）。
 > **2026-09-10 提交标题重写**：应用户要求，`fx-rime-only` 历史第二次重写——全部提交标题统一为 `类型(模块): 内容` 格式（旧标题多为 `fix(C32)` 这类审查编号，模块不可见），并把 19 组同模块同类型的相邻提交合并，154 → 128 个提交；随后按用户要求将 CI release 描述改为「注意：此版仅可使用Rime输入方案（插件已合并）」。**源码零改动**（重写前后 tree hash 完全相等）。当前 129 个提交（含 release 描述修改）。旧→新 SHA 对照：合并组正文自带合并清单；完整映射表在本机 `D:\GitHub\fx2-rime\日志\提交SHA映射-标题重写-2026-09-10.txt`（2026-09-16 复核：原写的工作区根 `_retitle_map_old_new.txt` 已移入该位置）。
-> **2026-09-19 更新**：① 修复「长按忘记词汇一次删掉两个同音词」——上游 librime 的 `delete_notifier` 是多播信号，多个继承 `Memory` 的 translator 各自订阅、且旧代码在信号分发中途重建 composition，后续订阅者因此删到另一个候选；新增**第 6 个补丁** `librime-defer-composition-refresh-on-delete.patch` 把重建推迟到分发结束，详见 **0.5.8 节**；CI run 35435515145 绿，引擎落地 `prebuilt@6b5b2ee6`，**pin 未变**（仍 `8d8276f4`，`librime.json` 无需动）；② 同任务新增候选词**上滑选字**（`fx-rime-only` `ed6422a8`，移植 boomker/fcitx5-android `7085b3f0` 的上滑部分，长按菜单与下滑词频重置不在范围内）。
-> **2026-09-16 快照更新**：`fx-rime-only` 相对基线 `3ad25fc9` 共 **143** 个提交（09-10 晚为 129，其后新增 14 个：中央工具栏确定性布局修复、剪贴板实时搜索、内置布局/主题/图标主题三连、CI 单测 job 与 setup-android 修复、候选栏双高亮修复等）；逐提交明细与工作树状态一律以 git 实测为准（标题已自描述，本文不再维护提交清单表格，见第 2 节）。`fx2` 已删除，基线 `3ad25fc9` 仍是祖先，计数口径不变。`提交SHA映射-标题重写-2026-09-10.txt` 已从工作区根移入 `日志\` 目录（下文第 16 行注写的 `D:\GitHub\fx2-rime\_retitle_map_old_new.txt` 为旧路径）。
+> **2026-09-19 更新**：① 修复「长按忘记词汇一次删掉两个同音词」——上游 librime 的 `delete_notifier` 是多播信号，多个继承 `Memory` 的 translator 各自订阅、且旧代码在信号分发中途重建 composition，后续订阅者因此删到另一个候选；新增**第 6 个补丁** `librime-defer-composition-refresh-on-delete.patch` 把重建推迟到分发结束，详见 **0.5.8 节**；CI run 35435515145 绿，引擎落地 `prebuilt@6b5b2ee6`，**pin 未变**（仍 `8d8276f4`，`librime.json` 无需动）；② 候选词手势定型为**按住后滑动**（`fx-rime-only` `2a19ddd3`，CI run 35460755786 绿，Nightly `0.1.3-617-g2a19ddd3`）：按住上滑弹选字窗提交单字、按住下滑呼出操作菜单、按住不动仍是原有长按菜单、未按住时滑动归列表自身——修正了先前直接上滑实现会让展开候选面板无法翻页的问题，设计不变式见本节下一条。
+> **2026-09-20 更新（历史第四次重写 + 内置布局更新）**：① `fx-rime-only` 第四次重写历史（纪元③ → 纪元④）：把「两个内置布局更新」从 `e45f041a` 里拆出来做成独立提交 `6bdf2a86`（大同 + Sandy + `BundledPresets.assetSizes`），并合并两组同类提交——`b9358dc0`+`a3da6483` → `caef1547`（键盘布局编辑两个修复）、`09b0e0e6`+`75fbf97c` → `8843b858`（引擎启停，同时消解 `09b0e0e6` 的叙述时序倒置）。14 提交 → 13 提交，逐条 `git diff` 比对树全部为空，最终树相对纪元③**只多** Sandy 布局与 `assetSizes` 两项。**尚未推送**（远程仍是纪元③ `59a3a1ab`）。SHA 对照与新机制见第 2 节。② 内置布局内容更新：大同布局去掉 4 处 `keyboard_height_percent` 覆盖（14611 → 14191），Sandy 布局的 `⌨` 键长按改接 Rime 方案选单宏（45949 → 45963）。**更新内置资源必须同步登记 `assetSizes` 的旧字节数**，详见第 5 节新条目。
+> **2026-09-20 更新（第六次引擎实战：合入万象 PR #1232）**：bump librime pin `8d8276f4`→**`74bd5dc4`**，并新增**第 7 个补丁** `librime-pr1232-rewrite-filter.patch`——上游 [rime/librime#1232](https://github.com/rime/librime/pull/1232)「rewrite 改写工具」（作者 **amzxyz / 万象**）。分两轮落地：① `SandyYuR/prebuilder@6e202a0`，CI [run 35498252597](https://github.com/SandyYuR/prebuilder/actions/runs/35498252597) 绿，产物 `prebuilt@a8423ad2`（arm64 `.a` 19,311,312 → 19,775,858），主仓库 `ab06dbfd` 接指针；② **作者于同日 force-push 重写该提交**（`e3c91382`→`16f72b0c`，加 starter filter），跟进为 `prebuilder@2886a2c`，CI [run 35501800444](https://github.com/SandyYuR/prebuilder/actions/runs/35501800444) 绿，产物 **`prebuilt@6c226341`**（19,775,858 → 19,778,482），主仓库该 commit **已 amend 重写为 `45550041` 并 force-push**。`fx-rime-only@45550041` 与 `rime-docs` 均已推送。**两个新坑：① 本机 `prebuilder` 是 `autocrlf=true`，worktree 里的补丁是 CRLF，直接 `git apply` 会假失败——必须先归一化为 LF；② 上游 PR 作者可能 force-push，引用其 head SHA 前必须重新核对（本次就是靠 `git merge-base --is-ancestor` 发现「旧 head 不是新 head 的祖先」才确认被重写）**。完整实录见 **0.5.10 节**。
+> **2026-09-16 快照更新（纪元③ 记录，SHA 已被纪元④ 部分改写）**：`fx-rime-only` 相对基线 `3ad25fc9` 共 **143** 个提交（09-10 晚为 129，其后新增 14 个：中央工具栏确定性布局修复、剪贴板实时搜索、内置布局/主题/图标主题三连、CI 单测 job 与 setup-android 修复、候选栏双高亮修复等）；逐提交明细与工作树状态一律以 git 实测为准（标题已自描述，本文不再维护提交清单表格，见第 2 节）。`fx2` 已删除，基线 `3ad25fc9` 仍是祖先，计数口径不变。`提交SHA映射-标题重写-2026-09-10.txt` 已从工作区根移入 `日志\` 目录（第 16 行注写的 `D:\GitHub\fx2-rime\_retitle_map_old_new.txt` 为旧路径）。
 
 ---
 
@@ -346,7 +348,93 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 2. **配方（`LibRime.hs`）的 `do` 块只有最后一条 `cmd_` 带逗号**。把新行插在带逗号那行之后 → GHC `parse error on input '('`，`Build everything` **6 秒即挂**（配方编译阶段，与补丁无关）。已修正：逗号移到列表末行。
 3. **判断补丁行尾要用对象库字节，不要用 `Out-String` 测量**。一度误判"补丁 CRLF 导致 CI 失败"，实测 `git cat-file -p <sha>:patches/...` 为 1370 字节、零 CRLF，判断作废。另注意：**取消 CI run 后 `Push to prebuilt` 可能已经执行完**，要核对产物父链确认拿到的是哪一版补丁构建的。
 
-### 0.5.9 2026-09-20 第六次实战（同一 PR 二次 force-push → 补丁原地升级，pin 不变）
+### 0.5.9 2026-09-19 候选词手势定型：按住后滑动（选字 / 操作菜单）
+
+**起因**：用户反馈——先前移植的直接「上滑弹选字窗」用起来**展开候选列表没法滑动翻页**了。原因不在选字逻辑，而在触发方式：`CustomGestureView.swipeEnabled` 路径在 `ACTION_DOWN` 就派发 `GestureType.Down`、监听者随即 `requestDisallowInterceptTouchEvent(true)`，**手指刚按下触摸就被候选条目夺走**，父级 RecyclerView 收不到滚动事件。
+
+**修法（纪元③ `2a19ddd3` → 纪元④ `87ed7f06`，5 文件 +126/−16）**：`CustomGestureView` 新增 **`holdSwipeEnabled`**「按住后滑动」模式，与 `swipeEnabled` 走独立分支、阈值复用 `swipeThresholdY`：
+
+- `ACTION_DOWN`：**不派发 Down、不夺拦截**，只起一个 `longPressDelay` 计时（`holdSwipeJob`）；未进入已按住时的 `ACTION_MOVE` 全部放行给父容器（只更新 `swipeLastX/Y`，供进入已按住后起算，避免按住瞬间误触发），因此展开面板照常翻页；
+- 计时到期：置 `holdSwipeArmed = true`、给长按触感反馈、**此时才补发 `GestureType.Down`**，监听者在这一刻调 `requestDisallowInterceptTouchEvent(true)` 接管；
+- `ACTION_MOVE`（已按住）：只走 Y 轴 `consumeSwipe` 并派发 `Move`；
+- `ACTION_UP`：**只在已按住时才配对派发 `Up`**（未按住时本视图从未发过 Down）；已按住且 `gestureConsumed == false`（原地没怎么动）→ 回落 `performLongClick()`，保住「长按弹菜单」语义；已按住时**不再触发 `performClick`**（否则按住后滑动会被当成选词）。`ACTION_CANCEL` 同一配对规则。
+- `BaseInputView.bindCandidateGesture(view, text, resolveIndex)`：`resolveIndex` 在触发时才求值（与既有 click/长按监听一致，避免 DiffUtil 不 rebind 时下标停在旧起点）。`Move` 上用 `directionLocked` 保证一次按住只走一个方向：`totalY < 0` 弹选字窗（`totalY` 累计位移，由 `consumeSwipe` 维护），`totalY > 0` 调 `showCandidateActionMenu(...)`。
+
+**不变式（改候选词手势必须守住）**：候选条目**不得在 `ACTION_DOWN` 就派发 Down 或夺走父容器拦截**——一旦这么做，展开候选面板立即失去滚动能力。要区分「轻滑」与「按住后滑」，只能在按满判定时间后再接管。这与第 0 节 Kawaii Bar 那条同源：**手势/布局都不得依赖"按下瞬间"的抢占式状态**。
+
+**验证与遗留**：
+- 已做：`:app:testFxDebugUnitTest` 全绿、`:app:assembleFxDebug` 出包、`git diff --check` 干净、CI [run 35460755786](https://github.com/SandyYuR/fcitx5-android/actions/runs/35460755786) 三个 job 全绿（Nightly `0.1.3-617-g2a19ddd3`，纪元③ 的 run）。lint 仍为存量失败（`MissingTranslation` 123、`NewApi` 23 等），本次只新增 2 条 `ClickableViewAccessibility` warning，无新增 error。**纪元④ 重写后该 run/ Nightly tag 对应的是旧 `2a19ddd3`**；重写后的同一内容已重新本地验证（`build-debug.ps1 -Test` 与出包均为 exit 0），但**尚未推送、因此没有对应 CI run**。
+- **未做（重要）**：**真机手势回归没做**。改动期间 `adb devices` 一直为空，设备离线。手感相关项（默认 300 ms 判定是否合适、按住后滑动是否跟手、展开面板翻页是否确实恢复、按住不动抬手是否稳定弹菜单）**必须真机确认**，符号与单测通过不等于交互可用。
+- 已知细微遗留：同一候选词在一次删除分发里会被两个订阅者各删一次（日志同一毫秒两条 `deleting entry`）。功能无害（同一精确键、词库只减 1 条），但会把 `commits` 从 `-N` 覆写为 `-1`，影响该词被重新输入「复活」时的初始权重。若要收敛需再加幂等守卫补丁（第 7 个）。
+
+**顺带修正的文档口径**：本仓库 `README.md` 与用户指南 5.6 节已按定型后的手势改写；此前 0.5.8 节摘要里「同任务新增候选词上滑选字（`ed6422a8`）」的描述已被本次取代，`ed6422a8` 仍是历史提交，但其「直接上滑」的交互**不再是当前行为**。
+
+### 0.5.10 2026-09-20 第六次实战（合入万象作者 PR #1232「rewrite」滤镜 + bump pin，方案 B）
+
+**起因**：用户发现上游新 PR [rime/librime#1232](https://github.com/rime/librime/pull/1232)「feat: 新增高效自定义滤镜组件rewrite(改写工具)」（作者 **amzxyz**，即**万象**输入方案作者），要求合入本项目，并选择**方案 B：连带把 pin 一起更新**（而非保守地只在旧 pin 上打补丁）。
+
+**PR 是什么**：单提交 `e3c91382`，+2572/−0，8 文件——新增 `dict/rewrite_pack.{cc,h}`、`gear/rewriter.{cc,h}`、`lever/rewrite_compiler.{cc,h}`，并改 `gear/gears_module.cc`（注册 `rewriter` 组件）、`lever/deployment_tasks.cc`（`SchemaUpdate::Run` 内编译 `.rwp`）。**base 是 `74bd5dc4`（上游当时 tip），我们原 pin 是 `8d8276f4`（落后 2 提交）**，这两个提交是 `b2a5c5ea`（chord_composer factory dispatch）与 `74bd5dc4`（ascii_composer `commit_raw_input`）。
+
+**关键语义（回归必看）**：`RewriteCompiler::Compile()` 在方案**未声明 `rewriter` 段时直接 `return true`**、无任何副作用 → 对既有方案零影响。但一旦声明了 `rewriter`，**编译失败会让整个部署失败**（`SchemaUpdate::Run` 返回 false）。`.rwp` 写在 `deployer_->staging_dir`，按源校验和判断是否 up-to-date。schema id 做了路径合法性校验（拒绝绝对路径/含父目录）。
+
+**工作台实测（`librime-src`，全在临时 worktree 里做，未污染主工作区）**：
+
+| 实验 | 结果 |
+|---|---|
+| 既有 6 补丁 → `8d8276f4` / `74bd5dc4` | 均全部干净 |
+| 6 补丁 + cherry-pick PR → 两基线 | 均**无冲突**（自动合并 `gears_module.cc`、`deployment_tasks.cc`） |
+| 配方式普通 `git apply` PR diff → 两基线 | 均 exit=0 |
+
+**两条基线都能干净合**，不必为这个 PR 强行升级引擎；选方案 B 是因为补丁写在 `74bd5dc4` 上，bump 后**正好落在其原始创作基线**，无上下文漂移。
+
+**⚠️ 本机 CRLF 陷阱（新踩，务必记住）**：`prebuilder` 是 `core.autocrlf=true` 的 Windows checkout，`git ls-files --eol` 显示补丁在 worktree 为 `w/crlf`、索引里为 `i/lf`。**直接在 worktree 里对补丁 `git apply` 会得到假失败**（`librime-perf-deploy-...` 与 `librime-userdict-cache` 两个补丁初次就报 `patch does not apply`）。把行尾归一化为纯 LF 后**全部 exit=0**。CI 是 Linux、拿到的一直是 LF，所以历史上从未暴露。**结论：本机任何 `git apply` 前先确认补丁为纯 LF**（或用 `git cat-file blob` 取索引版本）。这与 0.5.8 教训 ③「判断补丁行尾要用对象库字节」互补：那次教训是**别误判**，这次是**别被本地转换坑**。
+
+**改动落地**：
+- `prebuilder@6e202a0`（已推送）：新增第 7 个补丁 `patches/librime-pr1232-rewrite-filter.patch`（由 `git diff 74bd5dc4 e3c91382` 直出，**纯 LF、无邮件头**，87237 字节），`src/Rules/LibRime.hs` 在序列**末尾**追加 `git apply`（注释说明 additive 语义），`librime` gitlink `8d8276f4`→`74bd5dc4`。注意逗号移到新的末行（0.5.8 教训 ②）。
+- CI [run 35498252597](https://github.com/SandyYuR/prebuilder/actions/runs/35498252597) **绿**（约 16 分钟），产物落地 **`prebuilt@a8423ad2`**。
+- 主仓库 `ab06dbfd`：prebuilt 指针 `6b5b2ee6`→`a8423ad2`、`librime.json` `1.17.0-8d8276f`→`1.17.0-74bd5dc`、README 补丁清单加入万象补丁说明与版本号。**已提交到本地，尚未推送**（远程仍是纪元③ `59a3a1ab`，见第 2 节）。
+
+**产物核对（四层，不能只看文件在）**：
+1. arm64 `librime.a` 19,311,312 → **19,775,858** 字节（+464,546，即 rewrite 三个新模块）；
+2. 二进制字符串检查：新 `.a` 含 `RewritePack`/`RewriteCompiler`/`rewriter`，**旧 `.a` 三个都没有**；既有定制 API（`RimeGetInputTabs`/`RimeSelectTab`/`RimeGetCandidateCode`/`RimeGetCandidatePreview`）在新旧产物都在；
+3. 出货 `rime_api.h` blob `030ff78a`（22607 字节）与工作台「`74bd5dc4` + 7 补丁依序重放」产物**逐字节一致**；
+4. 回环零差异：7 补丁方案 vs「6 补丁 + cherry-pick PR」结果树 `git diff --quiet` exit=0。
+
+**⚠️ 符号检查方法（避免误判）**：`RimeGetInputTabs` / `RimeSelectTab` / `RimeGetCandidateCode` / `RimeGetCandidatePreview` 在 `rime_api_impl.h` 里是 **`static` 函数**，通过 `s_api.get_input_tabs = &RimeGetInputTabs` **挂进 API vtable**，**不是独立导出符号**——`llvm-nm` 搜不到是**正常的**，不能用 `nm` 判定定制是否存在。可靠做法：`llvm-nm --defined-only` 找 C++ 符号（如 `rime::RewriteCompiler`），或直接在二进制里搜名字字符串；APK 里的 `librime.so` 被 strip，只能靠字符串表/动态符号表判断。
+
+**本机 debug 包验证**：`build-debug.ps1` 出包 25.64 MB（arm64-v8a，9 个原生库），版本号含 `16-gab06dbfd`；`adb install -r` 到设备 `e09303ba` 成功。APK 内 `lib/arm64-v8a/librime.so` 字符串表含 `RewritePack`/`RewriteCompiler`/`rewriter`。
+
+**未做（重要）**：**真机输入回归没做**。本次是 JNI/C++ 引擎替换，且 bump 顺带引入两个上游按键域行为变更——`ascii_composer` 新增 `commit_raw_input`（Shift+Return / Shift+KP_Enter / Shift+space）与 `chord_composer` factory dispatch，与我们自己的 Shift/alt-trigger 定制**同属按键域**，风险面重叠。必须真机覆盖：① 打字→点音节 tab→选词；② 语言键短按 Shift 切换、**长按弹方案选单**（注意：工具栏语言按钮长按才是系统输入法选择器，两者不同，见 AGENTS.md 第 6 节）；③ **Shift+Return / Shift+空格 / Shift+KP_Enter**（上游新行为）；④ 并击（chord_composer）；⑤ 首次部署与重新部署（`SchemaUpdate::Run` 新增编译调用会让部署失败路径变多）；⑥ 忘记词汇（第 6 补丁路径，见 0.5.8）。**编译通过、符号在列都不等于交互可用**。
+
+**遗留的幂等守卫**：见 0.5.9 末尾——同一次删除分发里同一候选被两个订阅者各删一次，若要收敛需再加幂等补丁（**若加，将是第 8 个补丁**；注意本节新增的是第 7 个，序号别混）。
+
+#### 0.5.10 续 作者 force-push 后的跟进（同日第二轮）
+
+**发现方式（重要，可复用）**：用户提醒「PR 好像被强推了」。核对 `GET /repos/rime/librime/pulls/1232` 得 head `e3c91382` → **`16f72b0c`**，`updated_at` 变了；决定性判据是 **`git merge-base --is-ancestor e3c91382 16f72b0c` 返回失败**——若为纯追加则应为成功。**引用外部 PR 的 head SHA 前必须重新核对，不能沿用上一轮记录的值。**
+
+**差异范围极小**：`e3c91382 → 16f72b0c` 只改 `src/rime/dict/rewrite_pack.cc`（+169/−7），**其余 7 文件与全部头文件零变化**；base 仍是 `74bd5dc4`。改动量 +2572 → **+2734**。
+
+**新版加了什么（starter filter，性能优化）**：
+- 每个 stage 附带 **8KB 位图**（`kStarterFilterBitCount = 1<<16`，双 FNV seed 布隆式），记录"哪些字符能作为词条起始"；
+- **关键：那 16 字节早就预留了**——旧版 `WriteStageRecord` 末尾写的是 `WriteU64(out, 0); WriteU64(out, 0)`（offset 48/56 补零），新版才真正填 `starter_filter_offset/size`。**记录布局未移位**，故结构兼容；
+- 新增 `kStageFlagHasStarterFilter = 1U << 1`。`Open()` 校验：置位则过滤表尺寸必须精确等于 8KB 且在文件范围内；**未置位则 offset/size 必须为 0**（即对旧 pack 的兼容分支）；
+- 新增 `ValidUtf8CharSize()`（严格 UTF-8 校验）与 `SkipUnmatchable()`：**跳过连续"不可能起始"的字符段，省掉 marisa `Agent` 查询**——性能收益来源；
+- 畸形 key → `starter_filter.fill(0xff)` **饱和整个表**（注释明说 "saturating disables skipping but preserves exact behavior"），保证行为与旧版一致；
+- 新增 `kBuildIdRevision = 2` 折进 `ComputeBuildId()`；**`IsUpToDate()` 现在要求 `HasStarterFilter` 置位**，否则返回 false。
+
+**兼容性结论**：`kFormatVersion` **仍是 4**（未升版本号）；但 `IsUpToDate` 的新条件 + build id 多了 revision，会让**已部署的旧 `.rwp` 判为过期 → 下次部署自动重建**。这是安全的自动迁移路径，不需手工清缓存。
+
+**落地与验证**：
+- `prebuilder@2886a2c`（已推送，仅改补丁文件 +171/−9）：补丁由 `git diff 74bd5dc4 16f72b0c` 重出（纯 LF、93379 字节、2806 行）；`LibRime.hs` 无需改（文件名与位置不变）。
+- 验证：新补丁在干净 `74bd5dc4` 上单独 `--check` exit=0；6 补丁 + 新补丁依序应用 **7/7 exit=0**；与「6 补丁 + cherry-pick `16f72b0c`」结果树回环对比 **`git diff --quiet` exit=0 零差异**。
+- CI [run 35501800444](https://github.com/SandyYuR/prebuilder/actions/runs/35501800444) **绿**（约 18 分钟），产物 **`prebuilt@6c226341`**。arm64 `.a` **19,775,858 → 19,778,482**（+2,624，即过滤表代码）；**`rime_api.h` blob 仍是 `030ff78a`**（头部零变化，符合预期）。
+- 二进制字符串检查：新 `.a` 含 `RewritePack`/`RewriteCompiler`/`rewriter` 与既有四个定制 API。
+- 主仓库该指针 commit：**amend 重写为 `45550041`**（`ab06dbfd` → `45550041`，prebuilt 指针 `a8423ad2`→`6c226341`，正文补记 force-push 与 starter filter），用 `--force-with-lease` 带显式期望值推送。**改历史前先建回退点 `backup/pre-startfilter-bump` → `ab06dbfd`**（纪律见第 2 节）。
+- 本机 debug 包：`build-debug.ps1` 出包 25.64 MB，版本号含 `16-g45550041`，`adb install -r` 到设备 `e09303ba` 成功；APK 内 `librime.so` 动态符号表可见 `rime::RewriteCompiler::Compile()`、`rime::RewritePack::Open()` 等。
+
+**教训**：跟踪**未合并的上游 PR** 时，作者随时可能 force-push。若已把其提交产出打进了产物链，跟进成本是一条完整流水线（CI 15-20 分钟 + prebuilt + 主仓库指针 + 重出包）；**建议：要么等 PR 合并/稳定再合，要么明确接受可能连续跟进**。本次两轮之间隔约 1 小时。
+
+### 0.5.11 2026-09-20 第七次实战（同一 PR 二次 force-push → 补丁原地升级，pin 不变）
 
 **起因**：用户报「PR #1232 好像又更新了」。核对发现 prebuilder 的 `librime-pr1232-rewrite-filter.patch` 停在 `2886a2c2`（跟进的是**上一次** force-push 的 starter filter 版），而 PR head 已是 `bf704201`（09-20 11:12 UTC），**晚于配方提交时间 09:14 UTC**——作者第二次 force-push，把 pack 的加速结构整体换掉了。**pin 未变**（仍上游 `74bd5dc4`），只换补丁。
 
@@ -372,7 +460,7 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 2. **用 `git diff` 生成补丁前必须先把基线提交掉**。第一次在"已应用 6 补丁但未提交"的树上直接 `git diff --cached`，把前 6 个补丁的改动一并卷进来，得到 40 文件 / 6765 行的废补丁。正确做法：`git add -A && git commit`（base 6 补丁）→ 应用 PR 补丁 → `git diff --cached`，得到干净的 8 文件 / 2889 行。
 3. **定制 C API 在 `.a` 里是内部链接符号（`_ZL`），别用 `nm -D` 查**。`RimeGetInputTabs`/`RimeSelectTab`/`RimeGetCandidatePreview` 都查不到动态表（查得 0），会被误判成"补丁丢了"。用宽松 `strings librime.a | grep -c` 可稳定得到 4 处，**且新旧产物数值一致**（old=4 / new=4）才说明无回归。另：APK 里只有 `librime.so`，没有独立的 `libfcitx5-rime.so`，适配层已静态链接进去。
 
-### 0.5.10 2026-09-21 第七次实战（同一 PR 第三次 force-push：RWP5 内部加固，base 前进但 pin 不动）
+### 0.5.12 2026-09-21 第八次实战（同一 PR 第三次 force-push：RWP5 内部加固，base 前进但 pin 不动）
 
 **起因**：用户报「好像又更新了」。核对发现 PR head 从 `bf704201` 再变为 `abbdacea`，且**这次 `base` 也前进了**（`74bd5dc4` → 上游 `1809d072`，master 已到 `14f14cba`，中间夹着 streaming_chord 系列与 key_binder 修复）。与上次不同：**格式仍为 RWP5**（magic/`kFormatVersion` 5、`kStageRecordSize` 72 均未变），只是 RWP5 内部的精修，**与已接入版本二进制兼容**。
 
@@ -424,25 +512,56 @@ CI 事实（2026-09-15 实测 `ci.yml`，`a2db421a` 加单测 job 后）：
 
 2026-09-10 晚实测：工作树干净，基线 `3ad25fc9` 之上 129 个提交。分支 09-07 由 `fx2-rime-fusion` 更名，本地目录 09-10 同步更名为 `fx-rime-only`。**提交标题已于 09-10 全部重写为 `类型(模块): 内容` 格式，逐提交明细直接看 `git log --oneline`**——本文原有的两张逐提交表格已删除（内容被自描述标题取代），仅保留 git log 里看不出来的历史事件与机制说明。
 
-### 历史 SHA 的三个纪元（引用旧材料里的 SHA 前必读）
+> 2026-09-20 复核：基线 `3ad25fc9` 之上 172 个提交（纪元④）。此前 09-16 记录的 143 个属纪元③、其 SHA 在纪元④ 部分改写，计数与 SHA 一律以 git 实测为准。
 
-`fx-rime-only` 的提交 SHA 经历两次重写，旧材料（用户日志、CI run、release notes、更早的交接记录）里的 SHA 分属三个纪元：
+### 历史 SHA 的四个纪元（引用旧材料里的 SHA 前必读）
+
+`fx-rime-only` 的提交 SHA 已重写三次，旧材料（用户日志、CI run、release notes、更早的交接记录）里的 SHA 分属四个纪元：
 
 | 纪元 | 内容 | 查看方式 |
 |---|---|---|
 | ① 分拆前完整历史 | 184 提交（153 代码 + 31 文档），tip `b3da998e`；本文档与两份审阅报告里的绝大多数 SHA | tag `archive/pre-doc-split`；本地另有 `backup/pre-doc-split` 分支 |
 | ② 分拆后、标题重写前 | 154 提交，tip `143fe9fa`；仅中间材料引用 | 本地 `backup/pre-retitle` 分支（未推送） |
-| ③ 当前历史 | 129 提交（标题重写 + 19 组合并 + release 描述修改） | `git log fx-rime-only` |
+| ③ 标题重写后 | 129 提交（标题重写 + 19 组合并 + release 描述修改），tip `a3da6483`；0.5.9 节与 CI run 35460755786、Nightly `0.1.3-617` 属于此纪元 | 本地 `backup/pre-layout-split` 分支 |
+| ④ 当前历史（2026-09-20） | 基线之上 **172** 提交（纪元③ 173，其中 `08e48eac` 之后的 14 条重排为 13 条）；改动为：布局更新拆出为独立提交、两组同类提交合并 | `git log fx-rime-only` |
 
-**旧 SHA 追溯链**：旧 SHA → 在 `archive/pre-doc-split`（或 `backup/pre-retitle`）下 `git show` 得到标题与正文 → 按标题（或合并清单）在当前 `git log` 定位。19 个合并组的新提交正文自带被合并成员的旧短 SHA 与旧标题；`fix(C32)` 这类审查编号完整保留在正文里（标题已改为模块化描述）。
+**旧 SHA 追溯链**：旧 SHA → 在 `archive/pre-doc-split`（或 `backup/pre-retitle`、`backup/pre-layout-split`）下 `git show` 得到标题与正文 → 按标题（或合并清单）在当前 `git log` 定位。19 个合并组的新提交正文自带被合并成员的旧短 SHA 与旧标题；`fix(C32)` 这类审查编号完整保留在正文里（标题已改为模块化描述）；纪元④ 两次合并的成员旧 SHA 见下方历史事件。
+
+**纪元④ 的 SHA 对照（仅此区间受影响，`08e48eac` 之前一律不变）**：
+
+| 纪元③ SHA | 纪元④ SHA | 说明 |
+|---|---|---|
+| `ed6422a8` | `2f9d84cf` | 候选词上滑选字窗（内容不变） |
+| `86d7c6c6` | `1539e99b` | prebuilt 指针（内容不变） |
+| `04b9864d` | `d1d4eba0` | 工具栏图标归一（内容不变） |
+| `e45f041a` | `87ed7f06` | 候选词按住后滑动（**剥离布局改动**，message 去掉布局段） |
+| `ca67f689` | `8a149332` | Rime 不预置方案（内容不变） |
+| `6f6571cd` | `4cc4c8e4` | 高度基准 RealSize（内容不变） |
+| `41937738` | `927b90e4` | 日志脱敏（内容不变） |
+| `fcf1240d` | `91afccc3` | 主题编辑器渐变缓存（内容不变） |
+| `3f18e8cb` | `815aa4c3` | 候选分页 native 空判（内容不变） |
+| `6eb05ede` | `41032347` | 数据目录原子写（内容不变） |
+| `b9358dc0` + `a3da6483` | `caef1547` | 两条键盘布局编辑修复合并为一条 |
+| `09b0e0e6` + `75fbf97c` | `8843b858` | 引擎启停：suspend 适配并入状态机修复 |
+| —（新增） | `6bdf2a86` | 内置布局更新独立提交（大同 + Sandy + `assetSizes`） |
+
+> 注意 `09b0e0e6` 在纪元③里**位置本身是错的**：它声称"适配 stopFcitx/restartFcitx 改为挂起函数"，但其子提交 `75fbf97c` 才真正把这两个函数改成 `suspend`（该时点 `FcitxDaemon` 仍是 `fun stopFcitx()`）。它能编译（非 suspend 函数也能放进 `launch`），只是叙述与代码时序倒置；纪元④ 合并两条后该问题自然消解。
 
 ### 关键历史事件
 
+- **2026-09-20 布局拆分与同类项合并（纪元③ → 纪元④）**：应用户要求把 `e45f041a` 里的两个内置布局改动**单独拿出来放一个提交**，并顺带整理同类项。做法与结果：
+  - **拆出**：`6bdf2a86`（内置布局更新）含三项——大同布局去 4 处 `keyboard_height_percent` 覆盖、Sandy 布局换新版、`BundledPresets.assetSizes` 登记 Sandy 旧字节数；`87ed7f06` 剥离布局后只留 Kotlin + README。
+  - **合并 A**：`09b0e0e6`+`75fbf97c` → `8843b858`（引擎启停）。两者文件零重叠，合并后调用方适配与 suspend 化成为一个自洽提交，并消解 `09b0e0e6` 的叙述时序倒置。
+  - **合并 B**：`b9358dc0`+`a3da6483` → `caef1547`（键盘布局编辑两个"未落盘编辑被静默丢弃"缺陷，模块相同、文件零重叠）。
+  - **不合并**：`ed6422a8`+`e45f041a` 虽同打 `feat(候选词)`，但后者**推翻**了前者的交互（直接上滑 → 按住后滑动），合并会丢失这次设计反复的来龙去脉，故保持独立。
+  - 其余提交（候选词上滑选字窗、prebuilt 指针、工具栏图标、Rime 方案、键盘高度、日志脱敏、主题编辑器、候选分页、数据目录）模块主题各异，各自独立；13 条中 2 条为合并产物、11 条为单一来源（含新增的布局提交）。
+  - **验证方法**：临时分支上 `git cherry-pick` 逐条重放，再对每个非布局提交做 `git diff <新> <旧>`（排除布局路径）**必须为空**；最终树相对纪元③ 只多 Sandy 布局与 `assetSizes` 两项。本地 `build-debug.ps1 -Test` 与出包均 exit 0。
+  - **两个可复用操作细节**：① 备份分支必须**在切到临时分支之前**建（`git branch backup/xxx` 取的是当时的 HEAD；先 `git switch -c tmp/xxx <base>` 再建备份，备到的就是临时分支的位置），本次顺序正确，`backup/pre-layout-split` 落在 `a3da6483`；② 合并两条提交用连续两次 `git cherry-pick -n`，暂存区天然就是两条的合并结果，`commit` 时补一份合并后的 message 即可。
 - **rebase（2026-09-04 晚）**：应用户要求把 `review-fx2-fixes` 的 6 个提交插到本分支所有改动之前（`git rebase --onto review-fx2-fixes 85de19be`）并 force-push；仅 1 处冲突（`BaseInputView.kt` 的 `setupFcitxEventHandler()`：C31 断连兜底与 Phase 0 trace 改同一段，两者都保留）。此后 A~G 审查修复以「评审项逐项独立提交」落地（正文带根因/位置/级别），即 `fix(A1)`~`fix(G5)`、`perf(D2)`~`perf(E11)` 系列——09-10 标题重写后这批提交按模块合并为 19 组，正文全保留。
 
 2026-09-07~09-09 的 11 个提交（nightly 恢复 `686c47c7`、应用名两连 `80338944`/`d4eedecb`、用户手册与审阅报告、剪贴板搜索 `e3d69269` 等）明细见 `git log`；用户日志对应的三个修复（双击斜杠崩溃 `d1e5bafc`、横屏悬浮错乱 `1a883904`、剪贴板搜索 `e3d69269`）的根因分析见第 3.4 节。09-09 起 CI 自动采用 fcitx5-rime@`e74ddb6` 适配层，但官方重写 updateUI 后 **tab 全链路真机回归仍待做**（见第 0 节补注）。
 
-历史上存在 review/backup 分支；当前 `show-ref` 已无这些 refs。不要重建或破坏清理，需旧内容时按 SHA 查询。
+历史上存在 review/backup 分支；当前 `show-ref` 已无这些 refs。不要重建或破坏清理，需旧内容时按 SHA 查询。**现有三个本地 backup 分支是 SHA 追溯用的，未经明确要求不要删除**：`backup/pre-doc-split`（纪元①）、`backup/pre-retitle`（纪元②）、`backup/pre-layout-split`（纪元③ tip `a3da6483`）。
 
 **`fx2` 分支已删除（2026-09-09，按用户要求，含全部衍生资产）**：删除时 `origin/fx2 = 3ec76d37`（09-07 曾被重建推进），内容为 fxliang:fx 合并线 + README 更新 + A~G 审查修复/perf 全套（与 `fx-rime-only` 对应部分**内容等价、SHA 不同**，是平行血统）+ 3 个 cherry-pick 通用修复（`0431cff8` 草稿落盘、`002a4062` IME 退出跳同步、`3ec76d37` 数字层记忆释放——分别对应本分支 `fca0b3e5`/`92561244`/`b65fbb4d`）——**无独有改动，删之无损失**。一并删除的衍生资产：CI run `34101224455`（该分支唯一 run）、release `383945931`「靓企鹅-Sandy版（带各个插件）」与 `380373220`「向fxliang提交PR前的测试版」及两个 nightly tag（远端 tag 一并清掉；本地克隆中对应 tag 亦已删）。其提交对象在 GC 前仍可按 SHA 访问。`pr/fx2-integrated` 分支及其 09-01 CI run 按用户选择**保留**。基线 `3ad25fc9` 仍是 `fx-rime-only` 的祖先，计数口径不受影响。
 
@@ -773,7 +892,11 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 - **`DataManager.sync()`** 只按 `descriptor.json` 的差异新增/更新/删除文件；用户自己放的、不在 assets 清单里的文件永远不会被覆盖或删除。
 - **rime 的两个目录**：shared data = APK assets 解出来的 `<deviceProtectedDataDir>/usr/share/rime-data`（`RIME_DATA_DIR` 编译期宏 + 运行时 `StandardPaths::locate(Data, "rime-data/default.yaml")` 定位）；user data = `getExternalFilesDir(null)/data/<当前profile>`（由 `native-lib.cpp` 的 `setenv("FCITX_DATA_HOME", <extData>/data)` + `XDG_DATA_HOME` 决定；profile-manager 支持 `data/rime` 之外的多个配置目录，`5cc57c0d` 起"用户数据目录"入口长按直达**当前** profile 目录）。
 - **fcitx 环境变量**全在 `native-lib.cpp:539-560`（`LANG`/`LANGUAGE`/`FCITX_LOCALE`/`HOME`/`XDG_DATA_DIRS`/`FCITX_CONFIG_HOME`/`FCITX_DATA_HOME`/`FCITX_ADDON_DIRS`/`XDG_*`）；gettext 翻译域注册在 `:563-565`（`fcitx5`/`fcitx5-rime`/`fcitx5-android`），rime 内置后手动注册的 `fcitx5-rime` 域就在这里。
-- **rime-data 资源清单**在 `app/src/main/cpp/CMakeLists.txt:52-69`（default.yaml、essay、prelude 的 key_bindings/punctuation/symbols、luna_pinyin 全家、stroke），`COMPONENT prebuilt-assets`；`app/build.gradle.kts` 的 `generateDataDescriptor { symlinks.put("usr/share/rime-data/opencc", "usr/share/opencc") }` 建软链。
+- **rime-data 资源清单**在 `app/src/main/cpp/CMakeLists.txt`（`plugin/rime/src/main/cpp/CMakeLists.txt` 有一份需同步维护的镜像清单），`COMPONENT prebuilt-assets`；`app/build.gradle.kts` 的 `generateDataDescriptor { symlinks.put("usr/share/rime-data/opencc", "usr/share/opencc") }` 建软链。
+- **本版不预置任何输入方案，也不附带 `essay.txt`**（2026-09-20 起）：清单只装 `default.yaml` + prelude 的 `key_bindings/punctuation/symbols`。三条不能踩的线：① `default.yaml` 是 `RimeEngine` 构造时 `locate("rime-data/default.yaml")` 定位 sharedDataDir 的锚点，删了直接抛异常；② `key_bindings/punctuation/symbols.yaml` 是**非可选**公共依赖，第三方方案普遍以 `punctuator: import_preset: symbols`、`key_binder: import_preset: default` 引用，删了用户自带方案会失效；③ `default.yaml` 里 `schema_list` 必须写成**空列表 `[]`**，写成 `schema_list:`（无值）会被 yaml-cpp 解析成 Null，`WorkspaceUpdate` 记录 "schema list not defined." 并判定部署失败（空列表则部署成功且无方案）。
+- **`essay.txt` 缺失是静默降级而非部署失败**：方案以 `use_preset_vocabulary: true` 声明依赖它，但 `PresetVocabulary::OpenReadOnly` 失败只记一条 ERROR，`GetNextEntry` 随即返回 false，`ChecksumComputer::ProcessFile` 对不存在的文件直接 return——部署照常成功，只是词典少一批预置短语与词频。**用户可自备**：`vocabulary` 资源以 `user_data_dir` 为 root、`shared_data_dir` 为 fallback（`service.cc:167-170`），放进用户数据目录即生效。
+- **内置资源（`BundledPresets`）的更新机制**：`assets/bundled/` 下的内置布局/主题/图标主题在首次启动时解包到用户目录（布局 → `config/`，主题 → `theme/`，图标主题 → `icon_themes/`），以"asset 路径 + 字节数"记进 SharedPreferences 做幂等标记，**目标文件已存在时绝不覆盖**（用户删掉的文件也不会被塞回）。要让存量用户拿到更新，必须把该资源加进 `assetSizes` 并**登记上一版的字节数**——`installAsset` 只在 `dest.length()` 等于登记值时才原位替换，长度不等即视为用户自己改过而保留用户版本；**未登记的资源只在目标文件不存在时才写出**。所以漏登记 = 更新只对全新安装生效，且 `git status`、单测、APK 出包都看不出来。2026-09-20 Sandy 布局 45949 → 45963，登记值填 **45949**；大同布局 14611 → 14191，登记值保持 **14611** 不动。，`app/src/main/assets/usr/share/rime-data/` 里被移出清单的文件不会自动消失，会被 `generateDataDescriptor` 收进 descriptor 和 APK。改清单后必须手工删掉残留（该目录被 `.gitignore` 忽略，`git status` 看不出来），再用 `unzip`/`ZipFile` 核对 APK 内的实际打包内容。
+- **验证体积必须 `clean` 后打包**：assets 增减后直接 `assembleFxDebug` 走增量合并会虚高体积（本轮实测增量 29.45 MB vs clean 后 25.58 MB，差异来自旧的压缩产物未重建）。
 - **saved-instance Bundle 有硬上限**：Activity stop 时整份 Bundle 经 Binder 交给 system_server，
   **整个进程**共享约 1MB 事务预算，超了就是 `TransactionTooLargeException` 硬崩（见第 3.4 节
   `fca0b3e5`）。**任何"整份用户配置"都不要放进 `onSaveInstanceState` 或 Intent extra**，改用
@@ -802,7 +925,7 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 1. **单测是否纳入 CI（已落地）**：2026-09-15 起 CI 新增独立 `unit_test` job（`a2db421a`），跑 `:app:testFxDebugUnitTest`，失败在提交上显示红叉但**刻意不 gate Nightly**（不写进 `nightly_release` 的 needs）。现状 **20 个测试文件、133 例**（2026-09-16 本地实测）。仍欠 KeyboardWindow layerHistory 集成测试。
 2. 决定是否同步 Play 中文标题及 fcitx5-rime license/.gitmodules 来源元数据。（现状：`.gitmodules` 仍写官方 `fcitx/fcitx5-rime` URL，`fcitx5-rime.json` 的 `website` 上游仍写 fxliang、靠本机 `prepare_personal_build.sh` 的 sed 改成 SandyYuR——两边都不在仓库里固化。）
 3. 使用外部 fork 前先 fetch 并核对（**2026-09-16 的快照已过期**，勿照抄：当时 `fcitx5-rime@e74ddb6`、`prebuilt@9e631eb9`、`prebuilder@446d1ea`；09-20 实测 `fcitx5-rime` 已是 `fc3f98b`，prebuilt 亦多次前进）。
-4. 当前没有 backup/review refs 可删（本地 `backup/pre-doc-split`、`backup/pre-retitle` 是 SHA 追溯用本地分支，保留）；另 09-20 为上游历史重写留了本地 `backup/fx-rime-only-20260920-59a3a1ab`（旧 `59a3a1ab` 的等价内容已在重写后历史中，确认无用后可删）。未经明确要求不要破坏旧对象、reflog 或 tags。
+4. 本地 SHA 追溯用 refs：`backup/pre-doc-split`、`backup/pre-retitle`、`backup/pre-layout-split` 三个 backup 分支保留；纪元④ 重写的临时分支 `tmp/layout-split` 可删可留（内容与正式分支一致）；09-20 为上游历史重写另留 `backup/fx-rime-only-20260920-59a3a1ab`（旧 `59a3a1ab` 的等价内容已在重写后历史中，确认无用后可删）。当前没有 review refs 可删；未经明确要求不要破坏旧对象、reflog 或 tags。
 5. **真机回归待办**：① `e74ddb6` 官方重写 updateUI 后"打字→点 tab→选词"全链路；② 引擎多次前进后的装机冒烟（当前 prebuilt 已是 09-20 的 `f4225ada` 一系，para deploy + userdict 缓存 + rewrite 滤镜）；③ **`fc3f98b` 移除"清除"按钮后的辅助栏真机回归**——用户 09-20 已装机确认可用，但**未刻意覆盖"音节 tab 极多"与"取消约束"两类边界场景**。
 6. **纵向辅助栏均分高度无下限（未修，用户明确要求暂不改）**：`BaseKeyboard.relayoutVerticalAuxBarItems()` 的 `itemHeight = height / count` 没设最小行高，外层也不是滚动容器，所以 Left/Right 辅助栏在 item 很多时全部压缩展示、无法滑动（横向 Top/Bottom 走 RecyclerView 不受影响）。09-17 的 `7a480550` 是有意为之（修悬浮 resize 时按钮间留空隙），**要改必须同时满足"保留 resize 均分"和"恢复最小行高 + 可滚动"，别只回退该提交**。
 7. **librime 上游待吃进已从 2 个涨到 10 个提交**（`35f23e97..8d8276f4`，2026-09-16 实测）：streaming_chord 两个（`74a7467e`+`74db0d18`，09-10 就排队了）+ 纯 CI/构建环境一批（runner 镜像、release action、Docker）。⚠️ 其中 `2479df58` **把 opencc 依赖升到 1.4.2**、Docker 提交动了构建环境——不再是"只 bump gitlink"的无风险更新，照 0.5.2 第 1-2 步先实测补丁可应用性，并评估 opencc 升级对简繁转换行为的影响，再决定 bump。
