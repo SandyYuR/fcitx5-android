@@ -481,6 +481,93 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 2. **同一次 PR 的 force-push 未必是破坏性变更**。前两次分别是 RWP4→RWP5 的结构替换（不兼容）；这次仍 RWP5，只是内部加固 + 改名（二进制兼容，既有 `.rwp` 无需重部署）。**先比 `kMagic`/`kFormatVersion`/`kStageRecordSize` 这类结构常量再下结论**，不要因为补丁变大就假定需要重新部署。
 3. **base 前进时要注意上游新增提交**（本次夹了 streaming_chord 三连 + key_binder 修复）。它们不在定制补丁范围内、也不在 pin 变动范围内——**pin 不动就不会进入产物**，不要误以为「base 变了就等于上游已合入」。
 
+### 0.5.13 2026-09-21 第九次实战（PR 第四次更新：架构改为共享 store + 首次 bump pin）
+
+**起因**：用户要求「再次跟进 PR #1232，顺便看 librime 其他新改动有无可合并」。核对发现 PR head 从 `abbdacea` 变为 **`7e503855`**，规模由 8 文件 +2890 行扩到 **10 文件 +4518 行**；同时上游 master 已到 `ef1a16aa`（比上次多 7 个提交）。
+
+**PR 新版改了什么（架构级重构）**：从「每方案一个 `.rwp`」改为「staging 下单一共享 `rewriter.rwp` + 部署期事务」：
+1. **新增 `src/rime/dict/rewrite_store.{cc,h}`**（+1569 行）：`RewriteStore` / `RewriteStoreReader` / `RewriteStoreWriter`，按 stage id 去重存储各方案数据；带 workspace 事务（`BeginWorkspace` / `AbortWorkspace` / `RetainSchemas` / `Compact`）；用 mutex 串行化 store 与 workspace 访问。
+2. `RewriteCompiler` 新增 `BeginWorkspace` / `AbortWorkspace` / `FinalizeWorkspace` 三个静态方法，`Compile()` 改为写入共享 store。
+3. `WorkspaceUpdate::Run` 包裹整个部署：开始 `BeginWorkspace`，结束 `ReleaseStagesForDeployment` + `FinalizeWorkspace`，失败则 `AbortWorkspace` 回滚。
+4. `SchemaUpdate::Run` 改为在词典编译前后各调一次 `compile_rewriter()`，且**方案无 `translator/dictionary` 时也编译**。
+5. `ResolveDataFile` 拒绝绝对路径与 `..` 组件，只接受数据根目录下的相对路径。
+6. 格式仍为 **RWP5**（`kFormatVersion` 5、`kStageRecordSize` 72 未变），既有 `.rwp` 二进制兼容。
+
+**上游可合并项（本次一并 bump pin：`74bd5dc4` → `ef1a16aa`）**：
+
+| 提交 | 内容 | 对本项目 |
+| --- | --- | --- |
+| `1809d0725d` | `fix(key_binder): restore period after paging` | **直接相关**（见下） |
+| `899089a6cf` / `3381859eed` / `662761f01f` | streaming_chord 三连：dual role keys、delimiter after open chords、chord with action suffix | 无影响（本项目未启用 chord） |
+| `14f14cba9d` | `fix(streaming_chord)`：>1 个 dual role 键的修复 | 无影响 |
+| `82bb921a6b` | `chore: fix tests on windows`（`engine.cc` 的 `ApplySchema` 支持原位重载） | 无影响（不改变行为） |
+| `ef1a16aa2c` | `docs: chording architecture & configuration` | 无影响 |
+
+**key_binder 修复为何相关**：`plugin/rime/src/main/cpp/default.yaml` 启用了 `key_bindings:/paging_with_comma_period`（`{when: paging, accept: comma, send: Page_Up}` 与 `{when: has_menu, accept: period, send: Page_Down}`）。旧实现用 `last_key_` 只记上一次按键，在「句号翻页后接字母」时会误吞句号；新实现改为记录「真正执行了翻页」的键（`last_paging_key_`）与次数（`paging_keystroke_count_`），**仅在句号确实用作翻页键、且恰好按过一次、后接字母时**才把句号还原给 ascii_composer（用于敲域名）。另有 `key_event.modifier() != 0` 提前返回、以及未命中绑定时清记录的改动。**这是用户可感知的输入行为修复**。
+
+**补丁冲突与手工合并（本次重点）**：新 PR 补丁在**纯上游基线**上干净应用，但与我们的 `librime-perf-deploy-compile-independent-dictionaries-in-para.patch` **冲突**（`deployment_tasks.cc` 两个 hunk 被拒）。原因：该补丁把 `WorkspaceUpdate::Run` 的 schema 循环**内联**（`process_schema`）并按依赖关系收集 `SchemaCompileUnit` 并行编译词典，**不再经过 `SchemaUpdate::Run`**，而新版恰好把 rewriter 编译挂在那里。合并方式：
+- 在内联路径的 schema 配置加载成功后调用 `compile_rewriter(schema_id)`——位置刻意选在 `translator/dictionary` 分支判断**之前**，从而同时覆盖「有词典」与「无词典」两条分支，与上游 `SchemaUpdate::Run` 的两处调用等价；
+- 保留 `BeginWorkspace` / `FinalizeWorkspace` 对 `WorkspaceUpdate::Run` 的包裹，`active_schema_ids` 在 `process_schema` 内收集；
+- **额外修一处泄漏**：`MaybeCreateDirectory(deployer->staging_dir)` 失败会直接 `return false`，此时 workspace 事务仍是活动状态，会让**同一进程后续每次部署**都因 `"rewrite workspace transaction already active"` 失败。已在早退分支补 `AbortWorkspace(deployer)`。上游原版无此早退路径（其 `SchemaUpdate` 内部自己创建目录），内联路径才有，属于合并引入的新风险点。
+
+**做了什么**：① 拉取新补丁并逐字节核对；② 手工合并后生成 prebuilder 风格补丁（10 文件 / 4681 行）覆盖 `patches/librime-pr1232-rewrite-filter.patch`；③ **`git update-index --cacheinfo` 把 prebuilder 的 librime gitlink 从 `74bd5dc4` 前移到 `ef1a16aa`**；④ 提交 `0fa3e9e` 推送 prebuilder，CI [run 35633474637](https://github.com/SandyYuR/prebuilder/actions/runs/35633474637) **success**；⑤ 主仓库 prebuilt 指针 `a1865519` → **`eb5bc82e`**（arm64 `librime.a` 19,822,336 → 20,149,324 字节）；⑥ `librime.json` 与 README 引擎版本同步到 `1.17.0-ef1a16a`；⑦ **按要求新建提交（不重写历史），只本地提交，未推送**。该提交后与 0.5.14 的提交**一并合并为 `a560aabe`**（见 0.5.14 末注），本节记录的是合并前的中间状态。
+
+**验证**：① 6 个定制补丁在新 pin 上依序应用全部零退出；② 新补丁在「`ef1a16aa` + 6 补丁」树上干净应用；③ 8 个纯新增文件与 PR head（`7e503855`）真实文件 `cmp` **逐字节一致**，`gears_module.cc` 亦一致；④ 回环重放与逐字节比对树零差异；⑤ 新 `.a` 含 RWP5 magic 与 `RewriteStore`/`RewriteStoreWriter`/`ValidatePhraseTrieBounds`/`key_xlit` 符号；⑥ **`key_binder.cc.o` 由 125,136 增至 125,184 字节**（key_binder 修复确已编入产物）；⑦ 既有定制 API 计数与上一版一致（均 4 处）；⑧ 四 ABI 归档齐全；⑨ `:app:assembleFxDebug` 成功（9m26s，25.71 MiB），APK 内 `librime.so` 含 `RewriteStore` 系列符号与 `RIMERWP5`，`rime-data` 仍为 4 个通用预设文件（无方案残留）；⑩ `:app:testFxDebugUnitTest` 通过（2m39s）。
+
+**三条教训**：
+1. **「PR 更新」可能带来架构级变化，不能只看行数**。前三次都是同一套文件里的精修，这次新增了 `rewrite_store.{cc,h}` 把「每方案一包」换成「共享 store + 事务」，`deployment_tasks.cc` 的挂钩点也从 `SchemaUpdate::Run` 单点变成「`WorkspaceUpdate::Run` 首尾包裹 + `SchemaUpdate` 内两处调用」。**先看 `git diff --stat` 的文件清单有没有新增文件**，再看结构常量。
+2. **冲突往往来自我们自己的补丁，而非上游**。新 PR 补丁在纯上游干净、在「纯上游 + 我们的 perf 补丁」上失败——定位手法是先在两棵纯基线上分别 `git apply --check`，逐步排除，确认冲突源是 `librime-perf-deploy` 的内联改写。**「上游补丁应用不了」不等于上游有问题**。
+3. **合并引入的早退路径要单独审事务/锁的生命周期**。上游的 `BeginWorkspace` 与 `FinalizeWorkspace` 之间没有 `return`，但我们的内联路径有 `MaybeCreateDirectory` 早退。**凡是把「成对 acquire/release」跨接进自己的代码路径，都要把该函数内所有 `return` 数一遍**，逐个补上回滚。
+
+**符号检查方法再次确认**：定制 C API（`RimeGetInputTabs` / `RimeSelectTab` / `RimeGetCandidatePreview`）在 `.a` 里是 **`static` 内部链接**（`_ZL` 前缀），`nm -D` 与 APK 内 strip 过的 `librime.so` 都查不到，**查得 0 是正常的**。可靠做法：`strings librime.a | grep -c` 与上一版对比数值（本次 old=4 / new=4），或用 `strings librime.so | grep -oE "_ZL[0-9]+Rime(GetInputTabs|SelectTab|GetCandidatePreview)[A-Za-z]*"` 看到 `_ZL` 名字。
+
+### 0.5.14 2026-09-23 第十次实战（PR 第五次更新：抽内部头 + preset 目录，pin 不变）
+
+**起因**：用户再次要求跟进 PR #1232。核对发现 PR head 从 `7e503855` 变为 **`c4cdc749`**，规模 10 文件 +4518 行 → **13 文件 +4546 行**；同时 PR 的 `base` 恰好是 `ef1a16aa`——**与我们当前 pin 相同**，且上游 master 自上次接入后**一个提交都没前进**。所以本次**只需换补丁，pin 不动**：`librime.json` 与 README 版本行保持 `1.17.0-ef1a16a`，只更新 prebuilt 指针。
+
+**补丁变化**：
+1. **新增 `src/rime/dict/rewrite_internal.h`**（+197 行）：把 `RewritePack` / `RewriteStore` 共用的二进制布局辅助（`ReadU32`/`WriteU32`、`boost::align` 对齐、`boost::endian`、临时文件创建等）抽成独立内部头。`rewrite_pack.cc` 因而由 1502 行降到 1078 行——**这是纯粹的重构，不是功能增删**。
+2. **新增 `src/rime/lever/rewrite_preset.{cc,h}`**（+183 行）：`RewritePresetCatalog` / `RewritePresetStage`，支持方案以 **preset 名**引用一组预置 rewrite 数据，而不是逐个列 `files`。
+3. **`kFormatVersion` 由 5 回落为 1**。这不是「回退到旧 RWP4 结构」——`kStageRecordSize` 仍 72，dispatch 短语起始位（`kDispatchPhraseStarter`）与 preedit 标志都还在，属于作者重构期间**重置了格式号**。影响：上次接入生成的 RWP5 包会因版本号不匹配被判过期（`version != kFormatVersion` → `LOG(ERROR)` 提示 `redeploy`），重新部署该方案即可重建。
+4. **保持不变**：`ValidatePhraseTrieBounds`（Darts 短语 trie 边界校验）与 `ValidateStageRecord` 两个安全校验仍在；`RewriteCompiler` 的 `BeginWorkspace` / `AbortWorkspace` / `FinalizeWorkspace` 静态接口、以及 `RewriteStore` 共享 store 架构均未变。
+
+⚠️ **作者的 WIP 自述**：「本次提交暂未处理 OpenCC 原始 txt 数据在共享目录中的获取、安装及打包。preset 当前依赖 `<共享目录>/opencc` 下的 `presets.yaml` 与相关 txt 数据；该数据部署机制将另行提交，在此之前缺少对应文件时 preset 不可用。」——**方案未声明 preset 时不受影响**；声明了但因缺文件而不可用属于上游已知缺口，不是我们的合并问题。
+
+**冲突与合并**：新补丁在**纯上游基线**上依然干净，但仍与我们的 `librime-perf-deploy-compile-independent-dictionaries-in-para.patch` **冲突**（`deployment_tasks.cc` 两个 hunk 被拒，与 0.5.13 完全相同的位置）。合并照抄 0.5.13 的四步：① `BeginWorkspace` + `active_schema_ids` 声明；② `process_schema` 内收集 schema id；③ schema 配置加载成功后调 `compile_rewriter(schema_id)`（置于 `translator/dictionary` 分支**之前**，覆盖有/无词典两条路径）；④ `#endif` 之后、`finished updating schemas` 之前插入 `FinalizeWorkspace` 包裹。外加**沿用上次发现的泄漏修复**：`MaybeCreateDirectory` 早退时补 `AbortWorkspace(deployer)`。
+
+**做了什么**：① 拉取新补丁；② 手工合并后生成 prebuilder 风格补丁（13 文件 / 4722 行）覆盖 `patches/librime-pr1232-rewrite-filter.patch`（+1592/−1551）；③ 提交 `e4d99c8` 推送 prebuilder（**pin 未改**），CI [run 35808587609](https://github.com/SandyYuR/prebuilder/actions/runs/35808587609) **success**；④ 主仓库 prebuilt 指针 `eb5bc82e` → **`8ad0193f`**（arm64 `librime.a` 20,149,324 → 20,321,046 字节）；⑤ **新建提交（不重写历史，只动 prebuilt gitlink 一个文件）**，只本地提交、未推送。
+
+> **合并说明（2026-09-24）**：本会话针对 PR #1232 的**全部**引擎跟进提交（pin bump、第四次至第六次补丁更新，先后共 5 条）同为引擎元数据改动，按用户要求**合并为一条 `a560aabe`**（`feat(引擎): 引擎 pin 前移至 ef1a16aa，rewrite 补丁跟进 PR #1232 至 8530499b`，相对父提交 `acb1d3b9` 净变化 3 文件 +3/−3）。0.5.13、0.5.14、0.5.15 三节正文记录的中间 SHA 已被合并取代，**不再存在于分支历史**；prebuilder 侧的 `0fa3e9e` / `e4d99c8` / `c2ef978` 与 CI run 编号仍然有效，是追溯产物来源的可靠依据。
+
+**验证**：① 6 个定制补丁在 pin 上依序应用全部零退出；② 新补丁在「`ef1a16aa` + 6 补丁」树上干净应用；③ **12 个纯新增/替换文件与 PR head（`c4cdc749`）真实文件 `cmp` 逐字节一致**；④ 回环重放与逐字节比对树零差异；⑤ 新 `.a` 含 `RewriteStore`(128)/`RewritePresetCatalog`(21)/`RewritePack`(86)/`rewrite_internal`(32) 符号；⑥ 既有定制 API 计数与上一版一致（均 4 处）；⑦ 四 ABI 归档齐全；⑧ `:app:assembleFxDebug` 成功。
+
+**三条教训**：
+1. **PR 的 `base` == 我们的 pin 时，pin 一定不用动**——这次是首次遇到「PR base 自己前进来对齐我们的 pin」。判断链条很短：先比 PR base 与当前 pin，相等即跳过 pin 决策；再确认上游 master 有没有新提交（本次无）。
+2. **`kFormatVersion` 变化要看「是否伴随结构变化」**，不能只看到数字变小就判定「回退」。本次版本号 5→1 但 `kStageRecordSize` 仍 72、dispatch 标志仍在，说明是重构期重置。**判据是结构常量集合是否一致，不是版本号本身的大小方向**。
+3. **「文件行数大变动」可能只是搬家**。`rewrite_pack.cc` 少了 424 行、多出一个 197 行的 `rewrite_internal.h`，净变化很小——先看新增/删除文件清单，再看逐文件行数差，避免把纯重构误判成重写。
+
+### 0.5.15 2026-09-24 第十一次实战（PR 由单提交变 3 提交：两处查询性能修复）
+
+**起因**：用户报告「PR 又有更新」。核对发现 PR head 从 `c4cdc749` 变为 **`8530499b`**，规模 13 文件 +4546 行 → **13 文件 +5235 行**；同时 PR **结构发生变化——由单提交改为 3 个提交**（`commits: 3`）。base 仍为上游 `ef1a16aa`（等于我们的 pin），上游 master 依旧未前进，所以**依旧只换补丁、pin 不动**。
+
+**三个提交**：
+1. `c4cdc749` `feat: 新增高效自定义滤镜组件 rewrite（改写工具）`——13 文件 +4546 行，内容与上次接入的版本一致。
+2. `6e31439b` `fix: 根据前缀结果递进查询`——`rewrite_pack.cc` +132/−18，查询改为按已匹配前缀的结果递进，减少无效查找。
+3. `8530499b` `fix: 优化长句转换性能`——8 文件 +666/−91，`rewrite_pack.cc` 改动最大（+404 行），`rewriter.cc/.h`、`rewrite_compiler.cc`、`rewrite_store.cc/.h`、`rewrite_preset.cc` 同步调整。**这是本次的主体**。
+
+`kFormatVersion` 仍为 1、`kStageRecordSize` 仍 72、`ValidatePhraseTrieBounds` 与 `RewritePresetCatalog` 均保留。
+
+**冲突与合并**：新补丁在纯上游基线干净，仍与 `librime-perf-deploy-compile-independent-dictionaries-in-para.patch` 冲突——`deployment_tasks.cc` 的 `BeginWorkspace` 与 `FinalizeWorkspace` **两个 hunk 被拒，位置与上两轮完全一致**（已是第三次同点冲突）。合并直接沿用 0.5.13/0.5.14 的五步：① `BeginWorkspace` + `active_schema_ids` 声明；② `process_schema` 内收集 schema id；③ schema 配置加载成功后调 `compile_rewriter`（置于 `translator/dictionary` 分支**之前**，覆盖有/无词典两条路径）；④ `#endif` 后插入 `FinalizeWorkspace` 包裹；⑤ `MaybeCreateDirectory` 早退时补 `AbortWorkspace` 防事务泄漏。
+
+**做了什么**：① 拉取新补丁（注意 `pull/1232.patch` 直链易被限流，用 `Accept: application/vnd.github.v3.patch` 走 API）；② 手工合并后生成 prebuilder 风格补丁（13 文件 / 5411 行，+800/−111）覆盖 `patches/librime-pr1232-rewrite-filter.patch`；③ 提交 `c2ef978` 推送 prebuilder（**pin 未改**），CI [run 35947584015](https://github.com/SandyYuR/prebuilder/actions/runs/35947584015) **success**；④ 主仓库 prebuilt 指针 `8ad0193f` → **`750f6e4f`**（arm64 `librime.a` 20,321,046 → 20,467,248 字节）；⑤ **新建提交（只动 prebuilt gitlink）**，只本地提交、未推送。该提交与前述各次引擎跟进提交**一并合并为 `a560aabe`**（见上一节末注）。
+
+**验证**：① 6 个定制补丁在 pin 上依序应用全部零退出；② 新补丁在「`ef1a16aa` + 6 补丁」树上干净应用；③ 12 个纯新增/替换文件与 PR head（`8530499b`）真实文件 `cmp` 逐字节一致（`gears_module.cc` 亦一致）；④ 回环重放与逐字节比对树零差异；⑤ 新 `.a` 含 `RewriteStore`(136)/`RewritePresetCatalog`(21)/`RewritePack`(88)/`ValidatePhraseTrieBounds` 符号；⑥ 既有定制 API 计数与上一版一致（均 4 处）；⑦ 四 ABI 归档齐全。
+
+**三条教训**：
+1. **PR 可以从「单提交」变成「多提交」**——这次 `commits` 由 1 变 3。看 `git log`/`commits` 字段和补丁里的 `^From ` 行数（本次 3 行、`Subject: [PATCH n/3]`），别以为一个 PR 永远只有一个提交。
+2. **同一冲突点可能连续三轮重复出现**，此时合并步骤可以固化成模板（本次五步与前两轮逐字相同）。把「改哪个文件、插在哪、为什么」写进交接文档后，后续同类更新基本是机械套用。
+3. **`raw.githubusercontent.com` 并发下载可能静默失败**。本次 12 个文件批量下载时 `gears_module.cc` 缺失，导致逐字节比对误报 `DIFFER`；重新单独下载后 `cmp` 为零差异。**逐字节比对报差异时，先确认目标文件真的下全了**（`ls -l` 看大小），再怀疑内容。
+
 ---
 
 ## 1. 用户给的长期约定（必须遵守）
