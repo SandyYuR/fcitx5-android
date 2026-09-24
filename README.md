@@ -75,7 +75,7 @@ Rime 适配层源码来自 [SandyYuR/fcitx5-rime](https://github.com/SandyYuR/fc
 
 ## librime 引擎更新
 
-当前引擎版本：**librime 1.17.0-74bd5dc**。
+当前引擎版本：**librime 1.17.0-ef1a16a**。
 
 1. [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder) pin 官方 rime/librime 提交，并按顺序应用 fxliang 的功能、音节缓存、词典并行部署、用户词典缓存、词典文件重映射修复补丁，以及万象（amzxyz）的 `rewrite` 自定义滤镜（PR #1232）。
 2. prebuilder 的 workflow_dispatch 构建四 ABI 静态库，通过 BOT_TOKEN 自动推送到 [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)。
