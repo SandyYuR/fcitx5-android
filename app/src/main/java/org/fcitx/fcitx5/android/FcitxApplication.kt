@@ -57,15 +57,11 @@ class FcitxApplication : Application() {
             if (intent.action != Intent.ACTION_USER_UNLOCKED) return
             if (!isDirectBootMode) return
             Timber.d("Device unlocked, app will exit now and restart to normal mode")
-            // stopFcitx() now suspends (it waits for the native side to be really gone before the
-            // import overwrites engine files), so it cannot run inline in a broadcast receiver.
-            coroutineScope.launch {
-                if (FcitxDaemon.getFirstConnectionOrNull() != null) {
-                    // try to shutdown fcitx gracefully
-                    FcitxDaemon.stopFcitx()
-                }
-                AppUtil.exit()
+            FcitxDaemon.getFirstConnectionOrNull()?.also {
+                // try to shutdown fcitx gracefully
+                FcitxDaemon.stopFcitx()
             }
+            AppUtil.exit()
         }
     }
 
@@ -74,7 +70,7 @@ class FcitxApplication : Application() {
             if (intent.action != ACTION_RESTART_FCITX_INSTANCE) return
             if (FcitxDaemon.getFirstConnectionOrNull() != null) {
                 Timber.i("Received broadcast '${intent.action}', try to restart fcitx instance ...")
-                coroutineScope.launch { FcitxDaemon.restartFcitx() }
+                FcitxDaemon.restartFcitx()
             } else {
                 Timber.i("Received broadcast '${intent.action}', but there's no fcitx instance")
             }

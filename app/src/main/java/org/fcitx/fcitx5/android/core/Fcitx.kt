@@ -487,51 +487,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
             exitFcitx()
         }
 
-        /**
-         * Runs on the fcitx thread once the native loop is over — after a normal stop *and* after
-         * a startup or loop failure.
-         *
-         * Everything that used to happen inline at the tail of `Fcitx.stop()` happens here
-         * instead, because `stop()` no longer waits for the native side (that wait blocked the
-         * Android main thread on every IME teardown, see `FcitxDispatcher.stopAndWait`).
-         *
-         * Converging from any state is what closes the "stuck at STARTING" hole: a failure in
-         * `nativeStartup()` (DataManager.sync / startupFcitx) previously rolled back the dispatcher
-         * flags only, leaving the lifecycle at STARTING — after which every `start()` and `stop()`
-         * was rejected and every `runOnReady` caller stayed suspended forever.
-         */
-        override fun onStopped(error: Throwable?) {
-            if (error != null) {
-                Timber.e(error, "Fcitx stopped because the native loop failed")
-            } else {
-                Timber.i("Fcitx stopped")
-            }
-            convergeToStopped()
-        }
-
     })
-
-    /**
-     * Bring the lifecycle to STOPPED from whatever state it is in and drop per-run resources.
-     *
-     * Safe to call more than once; a no-op once already STOPPED.
-     */
-    private fun convergeToStopped() {
-        val state = lifecycle.currentState
-        if (state == FcitxLifecycle.State.STOPPED) return
-        if (state != FcitxLifecycle.State.STOPPING) {
-            // STARTING or READY: take the ON_STOP edge first. STARTING is accepted now (see
-            // FcitxLifecycleRegistry.postEvent), which is what makes "stop during startup" work
-            // instead of being silently dropped.
-            lifecycleRegistry.postEvent(FcitxLifecycle.Event.ON_STOP)
-        }
-        lifecycleRegistry.postEvent(FcitxLifecycle.Event.ON_STOPPED)
-        ClipboardManager.removeOnUpdateListener(onClipboardUpdate)
-        unregisterFcitxEventHandler(::handleFcitxEvent)
-        // clear addon graph
-        addonGraph = null
-        addonReverseDependencies.clear()
-    }
 
     private suspend inline fun <T> withFcitxContext(crossinline block: suspend () -> T): T =
         withContext(dispatcher) {
@@ -585,15 +541,10 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         }
     }
 
-    /**
-     * Start the engine.
-     *
-     * @return true when this call actually started the engine.
-     */
-    fun start(): Boolean {
+    fun start() {
         if (lifecycle.currentState != FcitxLifecycle.State.STOPPED) {
             Timber.w("Skip starting fcitx: not at stopped state!")
-            return false
+            return
         }
         if (firstRun) {
             registerFcitxEventHandler(::handleFirstRunReadyEvent)
@@ -602,51 +553,26 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         lifecycleRegistry.postEvent(FcitxLifecycle.Event.ON_START)
         ClipboardManager.addOnUpdateListener(onClipboardUpdate)
         setupLogStream(AppPrefs.getInstance().internal.verboseLog.getValue())
-        return dispatcher.start()
+        dispatcher.start()
     }
 
-    /**
-     * Ask the engine to stop. Returns immediately.
-     *
-     * This must not block — every IME teardown calls it on the Android main thread, and waiting
-     * for the native loop there froze the process (the "blocked for 10+ seconds / Skipped 1378
-     * frames" incident in native-lib.cpp). The lifecycle reaches STOPPED from
-     * [FcitxDispatcher.FcitxController.onStopped]; code that needs the engine really gone uses
-     * [stopAndWait].
-     *
-     * Also works while the engine is still STARTING: the previous implementation required READY
-     * and silently dropped the request, so the engine stayed resident with zero clients and any
-     * later `start()` was refused.
-     */
-    fun stop(): Boolean {
-        val state = lifecycle.currentState
-        if (state == FcitxLifecycle.State.STOPPED) {
-            Timber.w("Skip stopping fcitx: already stopped!")
-            return false
+    fun stop() {
+        if (lifecycle.currentState != FcitxLifecycle.State.READY) {
+            Timber.w("Skip stopping fcitx: not at ready state!")
+            return
         }
+        lifecycleRegistry.postEvent(FcitxLifecycle.Event.ON_STOP)
         Timber.i("Fcitx stop()")
-        if (state != FcitxLifecycle.State.STOPPING) {
-            lifecycleRegistry.postEvent(FcitxLifecycle.Event.ON_STOP)
+        ClipboardManager.removeOnUpdateListener(onClipboardUpdate)
+        dispatcher.stop().let {
+            if (it.isNotEmpty())
+                Timber.w("${it.size} job(s) didn't get a chance to run!")
         }
-        dispatcher.stop()
-        return true
-    }
-
-    /**
-     * Ask the engine to stop and block until the native side is fully gone.
-     *
-     * **Never call this from the main thread.** Only for callers that replace engine files
-     * underneath (`AdvancedSettingsFragment` user-data import) or otherwise need the native side
-     * quiesced; returns false if the wait timed out.
-     */
-    fun stopAndWait(timeoutMs: Long = FcitxDispatcher.STOP_TIMEOUT_MS): Boolean {
-        val state = lifecycle.currentState
-        if (state == FcitxLifecycle.State.STOPPED) return true
-        Timber.i("Fcitx stopAndWait()")
-        if (state != FcitxLifecycle.State.STOPPING) {
-            lifecycleRegistry.postEvent(FcitxLifecycle.Event.ON_STOP)
-        }
-        return dispatcher.stopAndWait(timeoutMs)
+        lifecycleRegistry.postEvent(FcitxLifecycle.Event.ON_STOPPED)
+        unregisterFcitxEventHandler(::handleFcitxEvent)
+        // clear addon graph
+        addonGraph = null
+        addonReverseDependencies.clear()
     }
 
 }
