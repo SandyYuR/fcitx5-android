@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: LGPL-2.1-or-later
- * SPDX-FileCopyrightText: Copyright 2021-2026 Fcitx5 for Android Contributors
+ * SPDX-FileCopyrightText: Copyright 2021-2023 Fcitx5 for Android Contributors
  */
 package org.fcitx.fcitx5.android.daemon
 
@@ -9,13 +9,9 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.Fcitx
@@ -23,7 +19,6 @@ import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.FcitxLifecycle
 import org.fcitx.fcitx5.android.core.lifeCycleScope
 import org.fcitx.fcitx5.android.core.whenReady
-import org.fcitx.fcitx5.android.core.whenStopped
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon.connect
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon.disconnect
 import org.fcitx.fcitx5.android.utils.appContext
@@ -49,8 +44,8 @@ class FcitxDisconnectedException(connectionName: String) :
  * and call [disconnect] on client destroyed. Client should not leak the instance of [FcitxAPI],
  * and must use [FcitxConnection] to access fcitx functionalities.
  *
- * The instance of [Fcitx] always exists, but whether the dispatcher runs and callback works
- * depends on clients, i.e. if no clients are connected, [Fcitx.stop] will be called.
+ * The instance of [Fcitx] always exists,but whether the dispatcher runs and callback works depend on clients, i.e.
+ * if no clients are connected, [Fcitx.stop] will be called.
  *
  * Functions are thread-safe in this class.
  */
@@ -119,24 +114,7 @@ object FcitxDaemon {
 
     }
 
-    /**
-     * Guards [clients]. Never held across a blocking engine transition: waiting for the native
-     * side to go away can take seconds, and holding this lock would stall every other
-     * `connect`/`disconnect` caller.
-     */
     private val lock = ReentrantLock()
-
-    /** Serializes engine transitions (restart / forced stop) against each other. */
-    private val transition = Mutex()
-
-    /**
-     * Scope for work that must outlive a lifecycle transition.
-     *
-     * Deliberately **not** `realFcitx.lifecycleScope`: `FcitxLifecycleRegistry.postEvent` calls
-     * `cancelChildren()` on both the STOPPING and the STOPPED edge, so a coroutine parked in
-     * `launchWhenStopped` would be cancelled exactly when the state it waits for arrives.
-     */
-    private val daemonScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val clients = mutableMapOf<String, FcitxConnection>()
 
@@ -146,44 +124,17 @@ object FcitxDaemon {
     fun connect(name: String): FcitxConnection = lock.withLock {
         if (name in clients)
             return@withLock clients.getValue(name)
-        when (realFcitx.lifecycle.currentState) {
-            FcitxLifecycle.State.STOPPED -> {
-                Timber.d("FcitxDaemon start fcitx")
-                realFcitx.start()
-            }
-
-            FcitxLifecycle.State.STOPPING -> {
-                // A stop is in flight. Starting now would be refused by the state check while the
-                // client is already registered, so the engine would stay absent for a connected
-                // client for good. Wait for the stop to settle and start then — but only if this
-                // client is still connected by that point.
-                Timber.d("FcitxDaemon defer start until the pending stop settles")
-                daemonScope.launch {
-                    realFcitx.lifecycle.whenStopped {
-                        if (isConnected(name)) {
-                            Timber.d("FcitxDaemon start fcitx (deferred)")
-                            realFcitx.start()
-                        }
-                    }
-                }
-            }
-
-            // STARTING / READY: already on its way up, or up.
-            else -> Unit
+        if (realFcitx.lifecycle.currentState == FcitxLifecycle.State.STOPPED) {
+            Timber.d("FcitxDaemon start fcitx")
+            realFcitx.start()
         }
         val new = mkConnection(name)
         clients[name] = new
         return@withLock new
     }
 
-    private fun isConnected(name: String): Boolean = lock.withLock { name in clients }
-
     /**
      * Dispose the connection
-     *
-     * The stop request is not waited for: [Fcitx.stop] returns immediately and the lifecycle
-     * converges from the dispatcher callback. This is what keeps IME teardown off the
-     * main-thread blocking path it used to take.
      */
     fun disconnect(name: String): Unit = lock.withLock {
         if (name !in clients)
@@ -196,17 +147,9 @@ object FcitxDaemon {
     }
 
     /**
-     * Restart fcitx instance while keeping the clients connected.
-     *
-     * Suspending: the old instance has to be fully gone before the new one can start (the start
-     * path requires STOPPED), and that wait runs on [Dispatchers.IO] so callers may invoke this
-     * from the main thread.
-     *
-     * Previously this was `stop(); start()` back to back with both sides silently guarded. When
-     * the engine happened to be STARTING, the stop was a no-op and the start was refused, so the
-     * restart did nothing at all while still posting its progress notification.
+     * Restart fcitx instance while keep the clients connected
      */
-    suspend fun restartFcitx() {
+    fun restartFcitx() = lock.withLock {
         val id = RESTART_ID++
         NotificationCompat.Builder(appContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_baseline_sync_24)
@@ -216,23 +159,8 @@ object FcitxDaemon {
             .setProgress(100, 0, true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build().let { appContext.notificationManager.notify(id, it) }
-        var restarted = false
-        try {
-            transition.withLock {
-                withContext(Dispatchers.IO) {
-                    // Blocks, but off the caller's thread.
-                    if (!realFcitx.stopAndWait()) {
-                        Timber.e("Fcitx did not stop in time; restarting anyway")
-                    }
-                }
-                restarted = realFcitx.start()
-            }
-        } finally {
-            if (!restarted) {
-                // Never leave a progress spinner behind for a restart that did not happen.
-                appContext.notificationManager.cancel(id)
-            }
-        }
+        realFcitx.stop()
+        realFcitx.start()
         FcitxApplication.getInstance().coroutineScope.launch {
             // cancel notification on ready
             realFcitx.lifecycle.whenReady {
@@ -242,16 +170,14 @@ object FcitxDaemon {
     }
 
     /**
-     * Stop fcitx instance regardless of connected clients, waiting until the native side is gone.
+     * Stop fcitx instance regardless of connected clients.
      * Should only be used before importing user configuration files,
      * then the App must be restarted as soon as possible.
      *
-     * Suspending, with the wait on [Dispatchers.IO] — the previous blocking version could run on
-     * the main thread. Returns false if the engine did not stop within the timeout, so callers
-     * that are about to overwrite engine files can react instead of racing the old instance.
+     * This method blocks until fully stopped.
      */
-    suspend fun stopFcitx(): Boolean = transition.withLock {
-        withContext(Dispatchers.IO) { realFcitx.stopAndWait() }
+    fun stopFcitx() {
+        realFcitx.stop()
     }
 
     /**
@@ -280,7 +206,7 @@ object FcitxDaemon {
     /**
      * Reuse a connection for remote service
      */
-    fun getFirstConnectionOrNull() = lock.withLock { clients.firstNotNullOfOrNull { it.value } }
+    fun getFirstConnectionOrNull() = clients.firstNotNullOfOrNull { it.value }
 
 
     private const val CHANNEL_ID = "fcitx-daemon"

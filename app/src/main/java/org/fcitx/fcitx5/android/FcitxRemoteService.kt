@@ -68,10 +68,7 @@ class FcitxRemoteService : Service() {
 
         override fun getPid(): Int = Process.myPid()
         override fun restartFcitx() {
-            // restartFcitx() suspends now (it waits for the old instance to be fully gone before
-            // starting the new one), so it runs on this service's own scope rather than inline on
-            // the Binder thread.
-            scope.launch { FcitxDaemon.restartFcitx() }
+            FcitxDaemon.restartFcitx()
         }
 
         override fun registerClipboardEntryTransformer(transformer: IClipboardEntryTransformer) {
