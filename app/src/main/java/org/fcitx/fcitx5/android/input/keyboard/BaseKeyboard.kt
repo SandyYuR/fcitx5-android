@@ -124,14 +124,74 @@ abstract class BaseKeyboard(
     private val swipeSymbolDirection by prefs.keyboard.swipeSymbolDirection
 
     private val spaceSwipeMoveCursor = prefs.keyboard.spaceSwipeMoveCursor
-    private val spaceKeys = mutableListOf<KeyView>()
-    private val spaceSwipeChangeListener = ManagedPreference.OnChangeListener<Boolean> { _, v ->
-        spaceKeys.forEach { keyView ->
-            keyView.swipeEnabled = v
-            // Keep the recorded baseline in step, or the next rebind would restore the old
-            // value from it (see [gestureBaselines]).
-            gestureBaselines[keyView]?.let { baseline ->
-                gestureBaselines[keyView] = baseline.copy(swipeEnabled = v)
+
+    /**
+     * 空格键（[SpaceKey]/[MiniSpaceKey]）注册表：视图 + 它在布局里配置的划动动作。
+     *
+     * 空格键是唯一一个手势语义被设置开关接管的键：`spaceSwipeMoveCursor` 开启时横向/
+     * 纵向划动移动光标，关闭时才让位给按键在布局编辑器里配置的划动动作。两种模式互斥，
+     * 且**都不注册** [KeyDef.Behavior.Swipe]——通用 Swipe 绑定会把横向阈值改写成
+     * `disabledSwipeThreshold`，那会直接废掉光标模式的移动（见 [createKeyView]）。
+     */
+    private data class SpaceKeyEntry(val keyView: KeyView, val swipeAction: MacroAction?)
+
+    private val spaceKeys = mutableListOf<SpaceKeyEntry>()
+
+    /**
+     * 空格键是否参与划动手势。
+     *
+     * 开关开启 → 光标手势接管；关闭 → 只有配了划动动作才接管。两者都不成立时保持
+     * `swipeEnabled = false`，这样手指在空格键上移动不会取消长按（语音输入的按住说话
+     * 依赖长按判定，误取消会让录音半途中断）。
+     */
+    private fun spaceSwipeEnabledFor(swipeAction: MacroAction?): Boolean =
+        resolveSpaceSwipeEnabled(spaceSwipeMoveCursor.getValue(), swipeAction)
+
+    /**
+     * 按当前开关设定空格键的两轴阈值。两种模式互斥，所以同一时刻只有一套阈值生效。
+     *
+     * 光标模式用小的选择阈值（逐格移动光标）；划动模式关掉横向、纵向用常规输入阈值
+     * （与其它键的 [KeyDef.Behavior.Swipe] 一致）。
+     */
+    private fun applySpaceSwipeThresholds(view: KeyView) {
+        if (spaceSwipeMoveCursor.getValue()) {
+            view.swipeThresholdX = selectionSwipeThreshold
+            view.swipeThresholdY = selectionSwipeThreshold * 1.5f
+        } else {
+            view.swipeThresholdX = disabledSwipeThreshold
+            view.swipeThresholdY = inputSwipeThreshold
+        }
+    }
+
+    /**
+     * 登记/更新一个空格键条目。
+     *
+     * 按**视图身份**（`===`）定位并就地替换，不能用 `indexOf`/`contains`：`SpaceKeyEntry`
+     * 是 data class，其 `equals` 会逐字段比较，两个内容相同的条目（同一布局里多个空格键
+     * 配了同一动作）会互相匹配到对方的槽位，把动作写到错的视图上。
+     */
+    private fun registerSpaceKeyEntry(view: KeyView, swipeAction: MacroAction?) {
+        for (i in spaceKeys.indices) {
+            if (spaceKeys[i].keyView === view) {
+                spaceKeys[i] = SpaceKeyEntry(view, swipeAction)
+                return
+            }
+        }
+        spaceKeys.add(SpaceKeyEntry(view, swipeAction))
+    }
+
+    private val spaceSwipeChangeListener = ManagedPreference.OnChangeListener<Boolean> { _, _ ->
+        // 手势监听器运行时读取开关（见 createKeyView），因此切模式只需同步"是否参与
+        // 手势"与阈值。已记录的基线也要一起更新，否则下一次重绑会从基线恢复出旧值。
+        spaceKeys.forEach { entry ->
+            entry.keyView.swipeEnabled = spaceSwipeEnabledFor(entry.swipeAction)
+            applySpaceSwipeThresholds(entry.keyView)
+            gestureBaselines[entry.keyView]?.let { baseline ->
+                gestureBaselines[entry.keyView] = baseline.copy(
+                    swipeEnabled = entry.keyView.swipeEnabled,
+                    swipeThresholdX = entry.keyView.swipeThresholdX,
+                    swipeThresholdY = entry.keyView.swipeThresholdY
+                )
             }
         }
     }
@@ -323,15 +383,21 @@ abstract class BaseKeyboard(
         validatedRows.forEach { row ->
             row.forEach { (def, keyView) ->
                 if (def is SpaceKey || def is MiniSpaceKey) {
-                    if (!spaceKeys.contains(keyView)) spaceKeys.add(keyView)
                     // The pref is read once, when the view is built, so a reused row carries
-                    // the value from whenever it was first created: toggling "swipe space to
+                    // the values from whenever it was first created: toggling "swipe space to
                     // move cursor" had no effect on any layout already in the cache until the
-                    // app restarted. Re-apply the current value, and keep the recorded
-                    // baseline in step (see [gestureBaselines]).
-                    keyView.swipeEnabled = spaceSwipeMoveCursor.getValue()
+                    // app restarted. Re-register and re-apply both the flag and the thresholds,
+                    // and keep the recorded baseline in step (see [gestureBaselines]).
+                    val swipeAction = (def as? SpaceKey)?.swipe
+                    registerSpaceKeyEntry(keyView, swipeAction)
+                    keyView.swipeEnabled = spaceSwipeEnabledFor(swipeAction)
+                    applySpaceSwipeThresholds(keyView)
                     gestureBaselines[keyView]?.let { baseline ->
-                        gestureBaselines[keyView] = baseline.copy(swipeEnabled = keyView.swipeEnabled)
+                        gestureBaselines[keyView] = baseline.copy(
+                            swipeEnabled = keyView.swipeEnabled,
+                            swipeThresholdX = keyView.swipeThresholdX,
+                            swipeThresholdY = keyView.swipeThresholdY
+                        )
                     }
                 }
                 if (def.composeOverride != null) {
@@ -1242,68 +1308,89 @@ abstract class BaseKeyboard(
                 else -> InputFeedbacks.SoundEffect.Standard
             }
             if (def is SpaceKey || def is MiniSpaceKey) {
-                spaceKeys.add(this)
-                swipeEnabled = spaceSwipeMoveCursor.getValue()
+                // 仅 SpaceKey 支持在布局编辑器里配置划动动作；MiniSpaceKey 保持纯光标语义。
+                val swipeAction = (def as? SpaceKey)?.swipe
+                registerSpaceKeyEntry(this, swipeAction)
+                swipeEnabled = spaceSwipeEnabledFor(swipeAction)
                 swipeRepeatEnabled = true
-                swipeThresholdX = selectionSwipeThreshold
-                // Use a larger threshold for Y axis to avoid accidental up/down triggers
-                // when user intends to swipe left/right
-                swipeThresholdY = selectionSwipeThreshold * 1.5f
+                applySpaceSwipeThresholds(this)
                 // Track the locked swipe direction to avoid conflicting gestures
                 var swipeDirectionLocked: SwipeAxis? = null
                 onGestureListener = OnGestureListener { view, event ->
+                    // 每次事件都重读开关：设置里切换后无需重建键盘即可生效，且复用的
+                    // 缓存行也不会拿着旧模式的判断继续跑。
+                    val cursorMode = spaceSwipeMoveCursor.getValue()
                     when (event.type) {
                         GestureType.Move -> {
-                            val countX = event.countX
-                            val countY = event.countY
+                            if (!cursorMode) {
+                                // 划动模式：位移一律不消费，等抬手时按总位移方向判定一次。
+                                // 这里返回 false 也保证 gestureConsumed 不被置位，抬手时
+                                // 才能看到真实的 totalX/totalY。
+                                false
+                            } else {
+                                val countX = event.countX
+                                val countY = event.countY
 
-                            // Lock direction on first swipe
-                            if (swipeDirectionLocked == null && (countX != 0 || countY != 0)) {
-                                swipeDirectionLocked = if (kotlin.math.abs(countX) >= kotlin.math.abs(countY)) {
-                                    SwipeAxis.X
-                                } else {
-                                    SwipeAxis.Y
-                                }
-                            }
-
-                            val handled = when (swipeDirectionLocked) {
-                                SwipeAxis.X -> {
-                                    if (countX != 0) {
-                                        val sym =
-                                            if (countX > 0) FcitxKeyMapping.FcitxKey_Right else FcitxKeyMapping.FcitxKey_Left
-                                        val action = KeyAction.SymAction(KeySym(sym), KeyStates.Virtual)
-                                        repeat(countX.absoluteValue) {
-                                            onAction(action)
-                                            if (hapticOnRepeat) InputFeedbacks.hapticFeedback(view)
-                                        }
-                                        true
+                                // Lock direction on first swipe
+                                if (swipeDirectionLocked == null && (countX != 0 || countY != 0)) {
+                                    swipeDirectionLocked = if (kotlin.math.abs(countX) >= kotlin.math.abs(countY)) {
+                                        SwipeAxis.X
                                     } else {
-                                        false
+                                        SwipeAxis.Y
                                     }
                                 }
-                                SwipeAxis.Y -> {
-                                    if (countY != 0) {
-                                        val sym =
-                                            if (countY > 0) FcitxKeyMapping.FcitxKey_Down else FcitxKeyMapping.FcitxKey_Up
-                                        val action = KeyAction.SymAction(KeySym(sym), KeyStates.Virtual)
-                                        repeat(countY.absoluteValue) {
-                                            onAction(action)
-                                            if (hapticOnRepeat) InputFeedbacks.hapticFeedback(view)
+
+                                val handled = when (swipeDirectionLocked) {
+                                    SwipeAxis.X -> {
+                                        if (countX != 0) {
+                                            val sym =
+                                                if (countX > 0) FcitxKeyMapping.FcitxKey_Right else FcitxKeyMapping.FcitxKey_Left
+                                            val action = KeyAction.SymAction(KeySym(sym), KeyStates.Virtual)
+                                            repeat(countX.absoluteValue) {
+                                                onAction(action)
+                                                if (hapticOnRepeat) InputFeedbacks.hapticFeedback(view)
+                                            }
+                                            true
+                                        } else {
+                                            false
                                         }
-                                        true
-                                    } else {
-                                        false
                                     }
+                                    SwipeAxis.Y -> {
+                                        if (countY != 0) {
+                                            val sym =
+                                                if (countY > 0) FcitxKeyMapping.FcitxKey_Down else FcitxKeyMapping.FcitxKey_Up
+                                            val action = KeyAction.SymAction(KeySym(sym), KeyStates.Virtual)
+                                            repeat(countY.absoluteValue) {
+                                                onAction(action)
+                                                if (hapticOnRepeat) InputFeedbacks.hapticFeedback(view)
+                                            }
+                                            true
+                                        } else {
+                                            false
+                                        }
+                                    }
+                                    null -> false
                                 }
-                                null -> false
+                                handled
                             }
-                            handled
                         }
                         GestureType.Up -> {
                             // Reset direction lock on finger up
                             swipeDirectionLocked = null
                             onAction(KeyAction.VoiceInputHoldEnd)
-                            false
+                            // 划动模式：抬手时按总位移方向触发用户配置的动作，语义与其它
+                            // 键的 Behavior.Swipe 一致（一次划动只触发一次）。光标模式不触发。
+                            if (
+                                !cursorMode &&
+                                swipeAction != null &&
+                                !event.consumed &&
+                                shouldTriggerSymbolBySwipe(view, event.totalY)
+                            ) {
+                                onAction(swipeAction)
+                                true
+                            } else {
+                                false
+                            }
                         }
                         else -> false
                     }

@@ -603,6 +603,7 @@
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (共 %2$d 步)</string>
     <string name="text_keyboard_layout_alt_label">副標籤</string>
     <string name="text_keyboard_layout_swipe_label">劃動標籤</string>
+    <string name="text_keyboard_layout_space_swipe_hint">僅在關閉「划動空格以移動游標」後生效；開啟時劃動空格鍵用於移動游標。</string>
     <string name="text_keyboard_layout_switch_target">目標</string>
     <string name="text_keyboard_layout_switch_target_default">預設（?123 / 上次符號佈局）</string>
     <string name="text_keyboard_layout_switch_target_text">文字鍵盤</string>

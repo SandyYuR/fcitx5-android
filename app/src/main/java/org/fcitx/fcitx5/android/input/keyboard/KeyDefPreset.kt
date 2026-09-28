@@ -395,6 +395,18 @@ class LanguageKey(
     iconSlot = "keys.language"
 )
 
+/**
+ * 空格键。
+ *
+ * @param swipe 划动时执行的 macro（可选）。**与「划动空格键以移动光标」开关互斥**：
+ *   开关开启时光标手势完全接管空格键，这里配置的划动动作不生效；关闭开关后划动动作
+ *   才接管（判定见 `SpaceSwipeMode.resolveSpaceSwipeEnabled`）。注意这里**不注册**
+ *   [KeyDef.Behavior.Swipe]：通用 Swipe 绑定会把阈值改写成
+ *   `disabledSwipeThreshold`/`inputSwipeThreshold`，那会直接打断光标模式的横向移动，
+ *   因此空格键的手势在 `BaseKeyboard.createKeyView` 里自建。
+ * @param swipeLabel 划动动作的提示文字（可选）。非空时改用 `AltText` 外观，
+ *   让它像其它可划动键一样在键面上显示划动提示。
+ */
 class SpaceKey(
     percentWidth: Float = 0f,
     textColor: Int? = null,
@@ -402,22 +414,42 @@ class SpaceKey(
     backgroundColor: Int? = null,
     backgroundColorMonet: String? = null,
     shadowColor: Int? = null,
-    shadowColorMonet: String? = null
+    shadowColorMonet: String? = null,
+    val swipe: MacroAction? = null,
+    val swipeLabel: String? = null
 ) : KeyDef(
-    Appearance.Text(
-        displayText = " ",
-        textSize = 13f,
-        percentWidth = percentWidth,
-        border = Border.Special,
-        viewId = R.id.button_space,
-        soundEffect = InputFeedbacks.SoundEffect.SpaceBar,
-        textColor = textColor,
-        textColorMonet = textColorMonet,
-        backgroundColor = backgroundColor,
-        backgroundColorMonet = backgroundColorMonet,
-        shadowColor = shadowColor,
-        shadowColorMonet = shadowColorMonet
-    ),
+    if (swipeLabel.isNullOrEmpty()) {
+        Appearance.Text(
+            displayText = " ",
+            textSize = 13f,
+            percentWidth = percentWidth,
+            border = Border.Special,
+            viewId = R.id.button_space,
+            soundEffect = InputFeedbacks.SoundEffect.SpaceBar,
+            textColor = textColor,
+            textColorMonet = textColorMonet,
+            backgroundColor = backgroundColor,
+            backgroundColorMonet = backgroundColorMonet,
+            shadowColor = shadowColor,
+            shadowColorMonet = shadowColorMonet
+        )
+    } else {
+        Appearance.AltText(
+            displayText = " ",
+            altText = swipeLabel,
+            character = " ",
+            textSize = 13f,
+            percentWidth = percentWidth,
+            border = Border.Special,
+            viewId = R.id.button_space,
+            textColor = textColor,
+            textColorMonet = textColorMonet,
+            backgroundColor = backgroundColor,
+            backgroundColorMonet = backgroundColorMonet,
+            shadowColor = shadowColor,
+            shadowColorMonet = shadowColorMonet
+        )
+    },
     setOf(
         Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_space))),
         Behavior.LongPress(KeyAction.SpaceLongPressAction)

@@ -773,7 +773,7 @@ class KeyEditorActivity : AppCompatActivity() {
                 ).forEach { fieldsContainer.addView(it) }
             }
 
-            "CommaKey", "LanguageKey", "SpaceKey" -> {
+            "CommaKey", "LanguageKey" -> {
                 if (!disableWeightEditing) {
                     val weightEdit = uiBuilder.createEditField(
                         getString(R.string.text_keyboard_layout_key_weight),
@@ -782,6 +782,54 @@ class KeyEditorActivity : AppCompatActivity() {
                     simpleWeightEdit = weightEdit.second
                     fieldsContainer.addView(weightEdit.first)
                 }
+            }
+
+            "SpaceKey" -> {
+                if (!disableWeightEditing) {
+                    val weightEdit = uiBuilder.createEditField(
+                        getString(R.string.text_keyboard_layout_key_weight),
+                        (keyData["weight"] as? Number)?.toString() ?: ""
+                    )
+                    simpleWeightEdit = weightEdit.second
+                    fieldsContainer.addView(weightEdit.first)
+                }
+
+                // 空格键的划动动作与「滑动空格键移动光标」开关互斥：开关开启时光标手势
+                // 完全接管，这里的配置不生效。显式提示，避免用户以为配置丢了。
+                fieldsContainer.addView(
+                    uiBuilder.createNoticeField(
+                        getString(R.string.text_keyboard_layout_space_swipe_hint)
+                    )
+                )
+
+                val swipeLabelEdit = uiBuilder.createEditField(
+                    getString(R.string.text_keyboard_layout_swipe_label),
+                    keyData["swipeLabel"] as? String ?: ""
+                )
+                nonMacroSwipeLabelEdit = swipeLabelEdit.second
+                fieldsContainer.addView(swipeLabelEdit.first)
+
+                val swipeAction = keyData["swipe"] as? Map<*, *>
+                val swipeMacroSteps = (swipeAction?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
+                nonMacroSwipeStepsData = swipeMacroSteps
+                createMacroEditorButton(
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_event),
+                    previewText = buildMacroPreview(swipeMacroSteps),
+                    onClick = {
+                        openMacroEditor(nonMacroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event), SLOT_SWIPE) { newSteps ->
+                            val draft = buildDraftKeyData()
+                            nonMacroSwipeStepsData = newSteps
+                            if (newSteps.isNotEmpty()) {
+                                draft["swipe"] = mapOf("macro" to newSteps)
+                            } else {
+                                draft.remove("swipe")
+                            }
+                            keyData = draft
+                            rebuildFields()
+                            updateActionButtonState()
+                        }
+                    }
+                ).forEach { fieldsContainer.addView(it) }
             }
 
             "NumPadKey" -> {
@@ -1451,9 +1499,20 @@ class KeyEditorActivity : AppCompatActivity() {
                 }
             }
 
-            "CommaKey", "LanguageKey", "SpaceKey" -> {
+            "CommaKey", "LanguageKey" -> {
                 if (!disableWeightEditing) {
                     parseWeight(simpleWeightEdit?.text?.toString())?.let { draft["weight"] = it }
+                }
+            }
+
+            "SpaceKey" -> {
+                if (!disableWeightEditing) {
+                    parseWeight(simpleWeightEdit?.text?.toString())?.let { draft["weight"] = it }
+                }
+                val swipeLabel = nonMacroSwipeLabelEdit?.text?.toString()?.trim().orEmpty()
+                if (swipeLabel.isNotEmpty()) draft["swipeLabel"] = swipeLabel
+                if (nonMacroSwipeStepsData.isNotEmpty()) {
+                    draft["swipe"] = mapOf("macro" to nonMacroSwipeStepsData)
                 }
             }
 
@@ -1948,9 +2007,20 @@ class KeyEditorActivity : AppCompatActivity() {
                 }
             }
 
-            "CommaKey", "LanguageKey", "SpaceKey" -> {
+            "CommaKey", "LanguageKey" -> {
                 if (!disableWeightEditing) {
                     parseWeight(simpleWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
+                }
+            }
+
+            "SpaceKey" -> {
+                if (!disableWeightEditing) {
+                    parseWeight(simpleWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
+                }
+                val swipeLabel = nonMacroSwipeLabelEdit?.text?.toString()?.trim().orEmpty()
+                if (swipeLabel.isNotEmpty()) newKey["swipeLabel"] = swipeLabel
+                if (nonMacroSwipeStepsData.isNotEmpty()) {
+                    newKey["swipe"] = mapOf("macro" to nonMacroSwipeStepsData)
                 }
             }
 

@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.utils
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import org.fcitx.fcitx5.android.input.keyboard.SpaceKey
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -163,5 +164,54 @@ class LayoutJsonUtilsTest {
         )
         assertEquals(2, parsed.size)
         assertTrue(parsed.all { it.type == "AlphabetKey" })
+    }
+
+    /**
+     * 空格键的划动动作必须能完整往返：解析出 `swipe`/`swipeLabel`，再序列化回去也不丢。
+     *
+     * 漏掉任一侧都会让用户在布局编辑器里配好的空格划动动作在保存/重载后静默消失，
+     * 而键盘本身照常工作，很难从现象上判断。
+     */
+    @Test
+    fun spaceKeySwipeActionSurvivesRoundTrip() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "SpaceKey",
+                  "weight": 0.3,
+                  "swipeLabel": "⌫",
+                  "swipe": {"macro": [{"type": "tap", "keys": [{"fcitx": "BackSpace"}]}]}
+                }]
+                """.trimIndent()
+            )
+        )
+        assertEquals(1, parsed.size)
+        assertEquals("SpaceKey", parsed[0].type)
+        assertEquals("⌫", parsed[0].swipeLabel)
+        assertEquals("swipe is parsed", 1, parsed[0].swipe?.steps?.size)
+
+        val def = LayoutJsonUtils.createKeyDef(parsed[0])
+        assertTrue("a SpaceKey with a swipe action produces a KeyDef", def is SpaceKey)
+        val spaceKey = def as SpaceKey
+        assertEquals("the swipe action reaches the KeyDef", 1, spaceKey.swipe?.steps?.size)
+        assertEquals("the swipe label reaches the KeyDef", "⌫", spaceKey.swipeLabel)
+
+        val json = LayoutJsonUtils.keyDefToJson(spaceKey)
+        assertEquals("SpaceKey", json["type"])
+        assertEquals("⌫", json["swipeLabel"])
+        assertEquals("swipe is written back on save", 1, (json["swipe"] as? Map<*, *>)?.get("macro").let {
+            (it as? List<*>)?.size
+        })
+    }
+
+    /** 未配置划动动作的空格键不应写出 `swipe`/`swipeLabel` 字段。 */
+    @Test
+    fun plainSpaceKeyWritesNoSwipeFields() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(row("""[{"type": "SpaceKey"}]"""))
+        val def = LayoutJsonUtils.createKeyDef(parsed[0]) as SpaceKey
+        val json = LayoutJsonUtils.keyDefToJson(def)
+        assertNull(json["swipe"])
+        assertNull(json["swipeLabel"])
     }
 }

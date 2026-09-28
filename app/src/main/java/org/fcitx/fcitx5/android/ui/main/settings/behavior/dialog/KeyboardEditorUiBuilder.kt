@@ -175,6 +175,22 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
     }
 
     /**
+     * Create a read-only explanatory line for a field group.
+     *
+     * Used where a field's effect depends on another setting (e.g. the space key's swipe
+     * action is superseded by "swipe space to move cursor"), so the editor can state the
+     * precedence instead of leaving the user to guess why a configured action does nothing.
+     */
+    fun createNoticeField(text: String): TextView {
+        return TextView(activity).apply {
+            this.text = text
+            textSize = DIALOG_LABEL_TEXT_SIZE_SP
+            setTextColor(activity.styledColor(android.R.attr.textColorSecondary))
+            setPadding(0, activity.dp(2), 0, activity.dp(6))
+        }
+    }
+
+    /**
      * Create a dropdown selector for a [LayoutSwitchKey]'s switch target (stored as the
      * key's `subLabel`). Preselects the entry matching [currentValue]; empty matches the
      * default option.

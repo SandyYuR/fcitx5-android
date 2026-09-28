@@ -628,6 +628,7 @@
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (共 %2$d 步)</string>
     <string name="text_keyboard_layout_alt_label">副标签</string>
     <string name="text_keyboard_layout_swipe_label">划动标签</string>
+    <string name="text_keyboard_layout_space_swipe_hint">仅在关闭「划动空格键以移动光标」后生效；开启时划动空格键用于移动光标。</string>
     <string name="text_keyboard_layout_switch_target">目标</string>
     <string name="text_keyboard_layout_switch_target_default">默认（?123 / 上次符号布局）</string>
     <string name="text_keyboard_layout_switch_target_text">文本键盘</string>

@@ -613,6 +613,7 @@
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (%2$d steps total)</string>
     <string name="text_keyboard_layout_alt_label">Alt Label</string>
     <string name="text_keyboard_layout_swipe_label">Swipe Label</string>
+    <string name="text_keyboard_layout_space_swipe_hint">Only takes effect when "Swipe on space key to move cursor" is turned off; while it is on, swiping the space key moves the cursor instead.</string>
     <string name="text_keyboard_layout_switch_target">Target</string>
     <string name="text_keyboard_layout_switch_target_default">Default (?123 / last symbol layout)</string>
     <string name="text_keyboard_layout_switch_target_text">Text keyboard</string>
