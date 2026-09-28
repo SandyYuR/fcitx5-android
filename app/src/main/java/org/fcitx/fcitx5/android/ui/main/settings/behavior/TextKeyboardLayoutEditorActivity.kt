@@ -235,6 +235,47 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         return "${displayProfile(currentLayoutProfile)}:$editing"
     }
 
+    /**
+     * 某个子模式选项实际编辑的条目键。
+     *
+     * 方案有专用布局时就是它自己；否则回落到基础布局。返回的 `"$layoutName:default"` 不是真实
+     * 条目，只作为"正在编辑基础布局"的标记，与本文件既有约定一致。
+     *
+     * @param subModeLabel 下拉框选中的子模式标签；null 表示选中的是「默认」项
+     */
+    private fun editingTargetFor(layoutName: String, subModeLabel: String?): String {
+        if (subModeLabel != null) {
+            "$layoutName:$subModeLabel"
+                .takeIf { entries.containsKey(it) }
+                ?.let { return it }
+            subModeManager.nameToIdMap[subModeLabel]
+                ?.let { id -> "$layoutName:$id".takeIf { entries.containsKey(it) } }
+                ?.let { return it }
+        }
+        return "$layoutName:default"
+    }
+
+    /**
+     * 按"实际会被编辑的条目"提示用户：方案有专用布局就报方案名，否则说明编辑的是默认（基础）布局。
+     *
+     * 提示只反映真实编辑目标，避免"下拉框停在某方案、实际改的却是基础布局"这种无声错位。
+     */
+    private fun showEditingTargetToast(layoutName: String, subModeLabel: String?) {
+        if (subModeLabel != null && editingTargetFor(layoutName, subModeLabel) != "$layoutName:default") {
+            showToast(getString(R.string.text_keyboard_layout_editing_submode, subModeLabel))
+        } else {
+            showToast(getString(R.string.text_keyboard_layout_editing_default, layoutName))
+        }
+    }
+
+    /**
+     * 在当前布局的候选子模式里挑一个"确实有专用布局"的标签。
+     *
+     * 没有这种标签时返回 null，表示应当停在「默认」项，也就是编辑基础布局。
+     */
+    private fun firstLabelWithDedicatedLayout(layoutName: String, labels: List<String>): String? =
+        labels.firstOrNull { editingTargetFor(layoutName, it) != "$layoutName:default" }
+
     private val provider: ConfigProvider = ConfigProviders.provider
     private var layoutFile: File? = null
     private var currentLayoutProfile: String = UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE
@@ -436,6 +477,16 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             field = value
             updateToolbarSubtitle()
         }
+
+    /**
+     * 子模式下拉框的「显示位置 → 子模式标签」映射，见 [SubModeManager.buildSpinnerSelectionMap]。
+     * null（位置 0）是显式「默认」项，代表基础布局。
+     *
+     * 读下拉框选中的值时必须查这张表，不能读 `selectedItem` 文本：首项显示的是「默认」这类
+     * 本地化文案，直接当标签用会去找 `entries["rime:默认"]` 这种不存在的键。
+     */
+    private var subModeSpinnerSelectionMap: List<String?> = emptyList()
+
     private var lastEditingTarget: String? = null
     private var saveMenuItem: MenuItem? = null
     private val qrChunkCollector = QrChunkCollector()
@@ -551,6 +602,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         outState.putString(STATE_CURRENT_LAYOUT, currentLayout)
         outState.putString(STATE_PREVIEW_SUBMODE, previewSubModeLabel)
+        // previewSubModeLabel == null 是"选中了默认项"这一有效选择，与"Bundle 里没有这个键"
+        // 无法用 putString 区分（两者读出来都是 null）。不额外标记的话，旋转后 loadState()
+        // 会把选择顶回当前方案，用户的默认项选择被无声丢弃。
+        outState.putBoolean(STATE_PREVIEW_SUBMODE_IS_DEFAULT_ITEM, previewSubModeLabel == null)
         outState.putString(STATE_LAYOUT_PROFILE, currentLayoutProfile)
         if (!stateLoaded) {
             // Stopped before loadState() finished, so the in-memory entries are not the user's
@@ -603,7 +658,11 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         // no draft to apply. A missing submode label is left to buildSubModeSpinner(), which
         // re-derives one from the IME.
         state.getString(STATE_CURRENT_LAYOUT)?.let { if (entries.containsKey(it)) currentLayout = it }
-        state.getString(STATE_PREVIEW_SUBMODE)?.let { previewSubModeLabel = it }
+        if (state.getBoolean(STATE_PREVIEW_SUBMODE_IS_DEFAULT_ITEM, false)) {
+            previewSubModeLabel = null
+        } else {
+            state.getString(STATE_PREVIEW_SUBMODE)?.let { previewSubModeLabel = it }
+        }
     }
 
     private suspend fun applyDraftLayout(json: String) {
@@ -841,10 +900,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         val layoutLabels = subModeManager.extractSubModeLabelsFromLayout(currentLayout.orEmpty())
         val allLabels = (fcitxLabels + layoutLabels).distinct().filter { it.isNotBlank() }
 
-        if (allLabels.isNotEmpty() && currentSubModeLabel != null) {
-            previewSubModeLabel = currentSubModeLabel.takeIf { it in allLabels } ?: allLabels.first()
-        } else if (allLabels.isNotEmpty()) {
-            previewSubModeLabel = allLabels.first()
+        // 只选中"当前方案且确有专用布局"的那一项；否则停在「默认」项（=基础布局），
+        // 这正是该方案在运行时实际使用的布局。停在方案名上却编辑基础布局会造成无声错位。
+        if (allLabels.isNotEmpty()) {
+            val layoutNameForTarget = currentLayout.orEmpty()
+            previewSubModeLabel = currentSubModeLabel
+                ?.takeIf { it in allLabels }
+                ?.takeIf { editingTargetFor(layoutNameForTarget, it) != "$layoutNameForTarget:default" }
         }
 
         // 初始化 lastEditingTarget
@@ -856,7 +918,6 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 "$layout:default"
             }
         }
-
         originalEntries = dataManager.normalizedEntries()
         updateToolbarSubtitle()
     }
@@ -952,23 +1013,12 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 // Show toast when switching IME/layout - only if editing target changed
                 val layoutName = currentLayout ?: return@onItemSelected
                 val subModeLabel = previewSubModeLabel
-                val subModeKey = "$layoutName:${subModeLabel ?: "default"}"
-                val hasEntry = entries.containsKey(subModeKey) ||
-                    subModeLabel?.let { subModeManager.nameToIdMap[it]?.let { entries.containsKey("$layoutName:$it") } } == true
-                val newEditingTarget = if (hasEntry) {
-                    subModeKey
-                } else {
-                    "$layoutName:default"
-                }
+                val newEditingTarget = editingTargetFor(layoutName, subModeLabel)
 
                 // Only show toast if the editing target changed
                 if (newEditingTarget != lastEditingTarget) {
                     lastEditingTarget = newEditingTarget
-                    if (hasEntry) {
-                        showToast(getString(R.string.text_keyboard_layout_editing_submode, previewSubModeLabel ?: "default"))
-                    } else {
-                        showToast(getString(R.string.text_keyboard_layout_editing_default, layoutName))
-                    }
+                    showEditingTargetToast(layoutName, subModeLabel)
                 }
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -1023,15 +1073,18 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             ?.ifEmpty { currentIme.subMode.name }
             ?.takeIf { it.isNotBlank() }
 
-        // Only reset selection if current previewSubModeLabel is not in labels
-        // This preserves user's selection when adding/editing submode layouts
-        if (previewSubModeLabel.isNullOrBlank() || previewSubModeLabel !in labels) {
-            // If forceResetSelection, prefer current IME submode, otherwise use first available
-            previewSubModeLabel = if (forceResetSelection) {
-                currentLabel?.takeIf { it in labels } ?: labels.first()
-            } else {
-                labels.first()
-            }
+        // 只在确实需要时改动选择，避免顶掉用户的当前选择：
+        // - forceResetSelection 是调用方明确要求回到当前方案；该方案没有专用布局时停到「默认」项，
+        //   与运行时实际使用的布局保持一致；
+        // - 否则仅在原选中方案已失效（换了布局文件、方案被删）时另选一个确有专用布局的方案；
+        // - previewSubModeLabel == null 表示选中的是「默认」项（基础布局），是有效选择，
+        //   不能再被自动顶成某个方案——正是这一点让基础布局此前无法编辑。
+        if (forceResetSelection) {
+            previewSubModeLabel = currentLabel
+                ?.takeIf { it in labels }
+                ?.takeIf { editingTargetFor(layoutName, it) != "$layoutName:default" }
+        } else if (previewSubModeLabel != null && previewSubModeLabel !in labels) {
+            previewSubModeLabel = firstLabelWithDedicatedLayout(layoutName, labels)
         }
 
         // Show submode spinner - add it after layoutSpinner, before buttons
@@ -1069,6 +1122,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         (subModeSpinner.parent as? ViewGroup)?.removeView(subModeSpinner)
 
         // Reset submode state to ensure consistency
+        subModeSpinnerSelectionMap = emptyList()
         previewSubModeLabel = null
 
         // Restore button behavior for base layout
@@ -1102,16 +1156,22 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 addLayoutButton.alpha = 1.0f
             }
             
-            // Update delete button: delete submode layout if it exists, otherwise delete base layout
+            // 删除只对"真实存在的专用布局"生效。方案没有专用布局时，编辑区显示的是基础布局
+            // 回落出来的行；此时删基础布局会让用户以为删的是这个方案，改为明确提示且不做任何修改。
             deleteLayoutButton.setOnClickListener {
                 if (hasSubModeLayout) {
                     confirmDeleteSubModeLayout(layoutName, subModeLabel)
                 } else {
-                    confirmDeleteBaseLayout(layoutName)
+                    showToast(
+                        getString(
+                            R.string.text_keyboard_layout_submode_has_no_dedicated_layout,
+                            subModeLabel
+                        )
+                    )
                 }
             }
         } else {
-            // No submode selected - restore default behavior
+            // 选中的是「默认」项：编辑基础布局本身（布局 JSON 里 "rime": { "default": [...] } 的 default）
             addLayoutButton.setOnClickListener { openLayoutEditor(null) }
             addLayoutButton.alpha = 1.0f
             deleteLayoutButton.setOnClickListener { confirmDeleteCurrentEditingLayout() }
@@ -1189,27 +1249,39 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     private fun bindSubModeSpinner(labels: List<String>) {
+        // 位置 0 是显式「默认」项（基础布局），其后才是各方案。首项显示文本随系统语言变化，
+        // 因此选中值一律按位置查 subModeSpinnerSelectionMap，绝不读 selectedItem 文本——
+        // 否则会去找 entries["rime:默认"] 这种不存在的键。
+        val selectionMap = SubModeManager.buildSpinnerSelectionMap(labels)
+        subModeSpinnerSelectionMap = selectionMap
+        val displayItems = selectionMap.map { label -> label ?: getString(R.string.default_) }
         val adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
-            labels.toTypedArray()
+            displayItems
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         subModeSpinner.adapter = adapter
 
-        val selectedIndex = labels.indexOf(previewSubModeLabel).takeIf { it >= 0 } ?: 0
+        val selectedIndex = selectionMap.indexOf(previewSubModeLabel).takeIf { it >= 0 } ?: 0
         subModeSpinner.setSelection(selectedIndex)
-        previewSubModeLabel = labels[selectedIndex]
+        // 回写一次，保证内存状态与下拉框显示的是同一项（含"回落成默认项"的情形）
+        previewSubModeLabel = selectionMap[selectedIndex]
 
         subModeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selected = labels.getOrNull(position) ?: return
+                // 位置 0 的「默认」项映射值**就是** null（表示基础布局），这是合法取值而非"取不到"。
+                // 用 `getOrNull(position) ?: return` 会把这一项误判成越界而直接返回：下拉框视觉上
+                // 已经切回「默认」，内存里的 previewSubModeLabel 却仍停在原方案、编辑区继续显示原方案的
+                // 按键——这正是"选回默认 rime 布局却切不过去"的原因。必须按位置有效性判断。
+                if (!SubModeManager.isValidSpinnerPosition(subModeSpinnerSelectionMap, position)) return
+                val selected = subModeSpinnerSelectionMap[position]
                 if (selected == previewSubModeLabel) return
-                
+
                 // Save state for potential rollback
                 val oldSubModeLabel = previewSubModeLabel
                 val oldLastEditingTarget = lastEditingTarget
-                
+
                 try {
                     previewSubModeLabel = selected
                     // Update preview and editor rows to show the selected submode layout
@@ -1219,29 +1291,28 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
                     // Show toast only when switching between different editing targets
                     val layoutName = currentLayout ?: return
-                    val subModeKey = "$layoutName:$selected"
-                    val hasEntry = entries.containsKey(subModeKey) ||
-                        subModeManager.nameToIdMap[selected]?.let { entries.containsKey("$layoutName:$it") } == true
-                    val newEditingTarget = if (hasEntry) {
-                        subModeKey
-                    } else {
-                        "$layoutName:default"
-                    }
-
+                    val newEditingTarget = editingTargetFor(layoutName, selected)
                     if (newEditingTarget != lastEditingTarget) {
                         lastEditingTarget = newEditingTarget
-                        if (hasEntry) {
-                            showToast(getString(R.string.text_keyboard_layout_editing_submode, selected))
-                        } else {
-                            showToast(getString(R.string.text_keyboard_layout_editing_default, layoutName))
-                        }
+                        showEditingTargetToast(layoutName, selected)
                     }
                 } catch (e: Exception) {
                     // Rollback state on failure
                     previewSubModeLabel = oldSubModeLabel
                     lastEditingTarget = oldLastEditingTarget
-                    android.util.Log.e("TextKeyboardLayoutEditor", "Failed to switch submode to: $selected", e)
-                    showToast(getString(R.string.text_keyboard_layout_switch_submode_failed, selected))
+                    // selected 可能为 null：那表示用户选的是「默认」项（基础布局）。提示文本必须
+                    // 换成「默认」的本地化文案，否则格式化出来的是 "null"。
+                    android.util.Log.e(
+                        "TextKeyboardLayoutEditor",
+                        "Failed to switch submode to: ${selected ?: "default"}",
+                        e
+                    )
+                    showToast(
+                        getString(
+                            R.string.text_keyboard_layout_switch_submode_failed,
+                            selected ?: getString(R.string.default_)
+                        )
+                    )
                 }
             }
 
@@ -1376,9 +1447,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    // Deleted a submode layout, switch to default or first available
+                    // 删掉的是子模式布局：优先切到另一个确有专用布局的方案，否则停在「默认」项
                     val remainingLabels = subModeManager.extractSubModeLabelsFromLayout(layoutName)
-                    previewSubModeLabel = remainingLabels.firstOrNull()
+                    previewSubModeLabel = firstLabelWithDedicatedLayout(layoutName, remainingLabels)
                     lastEditingTarget = previewSubModeLabel?.let { "$layoutName:$it" } ?: "$layoutName:default"
                 }
 
@@ -1425,53 +1496,11 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 val nameKey = "$layoutName:$subModeLabel"
                 if (nameKey != actualKey) entries.remove(nameKey)
 
-                // Switch to default or first available submode
+                // 删掉的是子模式布局：优先切到另一个确有专用布局的方案，否则停在「默认」项
                 val remainingLabels = subModeManager.extractSubModeLabelsFromLayout(layoutName)
-                previewSubModeLabel = remainingLabels.firstOrNull()
+                previewSubModeLabel = firstLabelWithDedicatedLayout(layoutName, remainingLabels)
                 lastEditingTarget = previewSubModeLabel?.let { "$layoutName:$it" } ?: "$layoutName:default"
 
-                buildSubModeSpinner(forceResetSelection = true)
-                buildRows()
-                run { val name = currentLayout ?: return@run; previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection) }
-                updateSaveButtonState()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    /**
-     * Confirm and delete the base layout.
-     */
-    private fun confirmDeleteBaseLayout(layoutName: String) {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.delete)
-            .setMessage(getString(R.string.text_keyboard_layout_delete_layout_confirm, layoutName))
-            .setPositiveButton(R.string.delete) { _, _ ->
-                // Remove base layout and all submode layouts
-                val allKeysForIme = entries.keys.filter {
-                    it == layoutName || it.startsWith("$layoutName:")
-                }.toList()
-                allKeysForIme.forEach { entries.remove(it) }
-                dataManager.setLayoutHeightPercentOverride(layoutName, null)
-
-                // Switch to another base layout
-                currentLayout = entries.keys.firstOrNull { !it.contains(':') }
-                previewSubModeLabel = null
-                lastEditingTarget = currentLayout?.let { "$it:default" }
-
-                // If no layouts left, load default from TextKeyboard.kt
-                if (currentLayout == null) {
-                    val defaultLayout = readDefaultPresetFromTextKeyboardKt()
-                    defaultLayout.forEach { (k, v) ->
-                        entries[k] = v.map { row ->
-                            row.map { key -> key.toMutableMap() }.toMutableList()
-                        }.toMutableList()
-                    }
-                    currentLayout = "default"
-                    lastEditingTarget = "default:default"
-                }
-
-                buildSpinner()
                 buildSubModeSpinner(forceResetSelection = true)
                 buildRows()
                 run { val name = currentLayout ?: return@run; previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection) }
@@ -2227,12 +2256,15 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         if (selectedLayout != null) {
             currentLayout = selectedLayout
         }
+        val spinnerPosition = subModeSpinner.selectedItemPosition
         previewSubModeLabel = if (
             subModeSpinner.visibility == View.VISIBLE &&
             subModeSpinner.adapter != null &&
-            subModeSpinner.selectedItemPosition >= 0
+            SubModeManager.isValidSpinnerPosition(subModeSpinnerSelectionMap, spinnerPosition)
         ) {
-            (subModeSpinner.selectedItem as? String)?.takeIf { it.isNotBlank() }
+            // 按位置查映射表，不读 selectedItem 文本：首项显示的是「默认」这类本地化文案。
+            // 位置 0 命中「默认」项时这里正确地得到 null（=基础布局）。
+            subModeSpinnerSelectionMap[spinnerPosition]
         } else {
             null
         }
@@ -3403,6 +3435,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         private const val STATE_DRAFT_SNAPSHOT = "draft_layout_snapshot"
         private const val STATE_CURRENT_LAYOUT = "current_layout"
         private const val STATE_PREVIEW_SUBMODE = "preview_submode"
+        private const val STATE_PREVIEW_SUBMODE_IS_DEFAULT_ITEM = "preview_submode_is_default_item"
         private const val STATE_LAYOUT_PROFILE = "layout_profile"
 
         /** Draft snapshots live here, under noBackupFilesDir: transient, never worth backing up. */

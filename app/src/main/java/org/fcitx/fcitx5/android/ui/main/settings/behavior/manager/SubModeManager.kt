@@ -49,6 +49,36 @@ class SubModeManager(
             }
             return emptyList()
         }
+
+        /**
+         * 子模式下拉框的「显示位置 → 子模式标签」映射。
+         *
+         * 位置 0 固定为显式「默认」项，映射为 null——它代表基础布局，即布局 JSON 里
+         * `"rime": { "default": [...] }` 的 default。此前下拉框只列方案名，基础布局在编辑器
+         * 里没有任何入口：某个方案一旦有了专用布局，基础布局就既看不到也改不了，而它正是
+         * 其它（无专用布局的）方案在运行时实际使用的布局。
+         *
+         * 用位置而不是显示文本建立映射：首项的显示文本随系统语言变化（「默认」/Default），
+         * 直接拿文本当标签会去查 `entries["rime:默认"]` 这种不存在的键。
+         *
+         * @param labels 可用子模式标签（方案名等）
+         * @return 下标即下拉框位置，值为子模式标签；null 表示首位的「默认」项
+         */
+        fun buildSpinnerSelectionMap(labels: List<String>): List<String?> =
+            listOf<String?>(null) + labels
+
+        /**
+         * 下拉框位置是否有效。
+         *
+         * 位置 0 的映射值是 null（显式「默认」项 = 基础布局），这是**合法取值**，不能用
+         * `getOrNull(position) ?: return` 这类写法把"值恰好是 null"当成"取不到"：那会让
+         * 「默认」项永远点不动——用户看着下拉框回到「默认」、编辑区却仍是原方案。
+         *
+         * @param selectionMap 见 [buildSpinnerSelectionMap]
+         * @param position 下拉框选中位置
+         */
+        fun isValidSpinnerPosition(selectionMap: List<String?>, position: Int): Boolean =
+            position in selectionMap.indices
     }
 
     /**
