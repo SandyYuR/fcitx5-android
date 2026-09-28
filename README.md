@@ -2,6 +2,8 @@
 
 > **`rime-docs`** 是文档专用**孤儿分支**（与代码分支无共同历史，只含文档文件）。
 > 代码、构建与 CI 以 [`fx-rime-only`](https://github.com/SandyYuR/fcitx5-android/tree/fx-rime-only) 分支为准，项目主页见该分支 README。
+>
+> 本文档更新至 2026-09-28。分支名、提交数、引擎 pin、CI 行为等动态事实随时会变，引用前请用 Git 重新核对。
 
 ## 文档索引
 
