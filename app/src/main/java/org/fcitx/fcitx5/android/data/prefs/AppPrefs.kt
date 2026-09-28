@@ -21,7 +21,9 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase
 import org.fcitx.fcitx5.android.input.keyboard.SpaceKeyLabelMode
 import org.fcitx.fcitx5.android.input.keyboard.SpaceLongPressBehavior
 import org.fcitx.fcitx5.android.input.keyboard.SwipeSymbolDirection
+import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
+import org.fcitx.fcitx5.android.input.picker.SymbolCatalogType
 import org.fcitx.fcitx5.android.input.popup.EmojiModifier
 import org.fcitx.fcitx5.android.utils.DeviceUtil
 import org.fcitx.fcitx5.android.utils.appContext
@@ -528,6 +530,32 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "default_emoji_skin_tone",
             EmojiModifier.SkinTone.Default,
         )
+
+        /**
+         * 三份符号 catalog 当前选中的文件；[UserConfigFiles.SYMBOL_CATALOG_BUILTIN]
+         * 表示使用 APK 内置数据，否则是用户自备 catalog 的文件名。
+         *
+         * 对应 Foxy 的 `foxy_symbol_catalogs`（键为 SYMBOLS/EMOJI/KAOMOJI，默认 `__builtin__`）。
+         * 这里不注册 UI：选项来自目录扫描，用 [ManagedPreference.PString] + 自定义入口。
+         */
+        val symbolCatalogSymbols = ManagedPreference.PString(
+            sharedPreferences, "symbol_catalog_symbols", UserConfigFiles.SYMBOL_CATALOG_BUILTIN
+        ).apply { register() }
+
+        val symbolCatalogEmoji = ManagedPreference.PString(
+            sharedPreferences, "symbol_catalog_emoji", UserConfigFiles.SYMBOL_CATALOG_BUILTIN
+        ).apply { register() }
+
+        val symbolCatalogKaomoji = ManagedPreference.PString(
+            sharedPreferences, "symbol_catalog_kaomoji", UserConfigFiles.SYMBOL_CATALOG_BUILTIN
+        ).apply { register() }
+
+        /** 按 catalog 种类取对应的选择偏好。 */
+        fun catalogPreference(type: SymbolCatalogType): ManagedPreference.PString = when (type) {
+            SymbolCatalogType.Symbols -> symbolCatalogSymbols
+            SymbolCatalogType.Emoji -> symbolCatalogEmoji
+            SymbolCatalogType.Kaomoji -> symbolCatalogKaomoji
+        }
     }
 
     private val providers = mutableListOf<ManagedPreferenceProvider>()

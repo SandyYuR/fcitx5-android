@@ -436,15 +436,19 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                     notifyBarLayoutChanged()
                 }
             } else {
+                // 符号面板：目标名取自 PickerWindow.Key（Symbol / Emoji / Kaomoji）。
+                // 早先这里写死 Key.Symbol，导致布局或宏里指定 Emoji / 颜文字也只能
+                // 打开符号面板；现在按名字路由。
+                val pickerKey = PickerWindow.Key.ofName(requestedTarget) ?: PickerWindow.Key.Symbol
                 if (remember) {
-                    lastSymbolType = PickerWindow.Key.Symbol.name
+                    lastSymbolType = pickerKey.name
                 }
                 if (inheritTextHeight) {
                     prepareCompanionKeyboardHeightPercentOverride()
                 } else {
                     clearCompanionKeyboardHeightOverride()
                 }
-                windowManager.attachWindow(PickerWindow.Key.Symbol)
+                windowManager.attachWindow(pickerKey)
             }
         }
     }
@@ -510,6 +514,18 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     private fun handleLayerSwitchAction(action: KeyAction.LayerSwitchAction) {
+        // 目标是符号面板（Symbol / Emoji / Kaomoji）时走窗口切换，而不是文本层层切换：
+        // 面板不是文本键盘的一层，塞进 TextKeyboard.resolveLayerTargetKey 只会解析失败
+        // 并被当成「无此层」丢弃。仅 TO 模式有意义 —— OSL 是「用完即回」的一次性层，
+        // 面板本身已经是独立窗口，没有可回退的层语义。
+        if (action.mode == KeyAction.LayerSwitchMode.TO) {
+            val pickerKey = PickerWindow.Key.ofName(action.target)
+            if (pickerKey != null) {
+                prepareCompanionKeyboardHeightPercentOverride()
+                windowManager.attachWindow(pickerKey)
+                return
+            }
+        }
         val hadAuxBarConfig = textKeyboardHasAuxBarConfig()
         val heightBefore = TextKeyboard.currentLayoutHeightPercentOverride()
         if (action.mode == KeyAction.LayerSwitchMode.BACK) {

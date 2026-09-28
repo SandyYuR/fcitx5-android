@@ -30,6 +30,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
+import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.utils.serializable
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FlowLayout
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.SimpleDividerItemDecoration
@@ -701,7 +702,15 @@ class MacroEditorActivity : AppCompatActivity() {
         supportActionBar?.title = getString(R.string.macro_editor_title, eventType)
 
         // Receive macro data
-        availableLayoutTargets = intent.getStringArrayListExtra(EXTRA_LAYOUT_TARGETS)?.toList() ?: emptyList()
+        // 三个符号面板（Symbol / Emoji / Kaomoji）也是合法的切层目标：运行时由
+        // KeyboardWindow.handleLayerSwitchAction 路由到对应窗口。它们不是布局里的层，
+        // 不会出现在 EXTRA_LAYOUT_TARGETS 里，因此显式并入候选。
+        // 放在这里（而不是各个调用方）是因为两个宏编辑入口
+        // （ButtonsCustomizerActivity 与 KeyEditorActivity）都最终汇聚到本 Activity。
+        availableLayoutTargets = buildList {
+            addAll(intent.getStringArrayListExtra(EXTRA_LAYOUT_TARGETS)?.toList() ?: emptyList())
+            addAll(PickerWindow.Key.layerTargetNames)
+        }.distinct()
         val initialSteps = intent.serializable<ArrayList<Map<*, *>>>(EXTRA_MACRO_STEPS)
         originalSteps = initialSteps
         android.util.Log.d("MacroEditor", "Received initialSteps: $originalSteps")
@@ -1809,13 +1818,33 @@ class MacroEditorActivity : AppCompatActivity() {
                 Toast.makeText(this@MacroEditorActivity, R.string.macro_editor_layer_target_empty, Toast.LENGTH_SHORT).show()
                 return
             }
+            // 列表显示可读文本，选中后回传的仍是原始目标名（存进配置的就是它）。
+            val labels = targets.map { layerTargetDisplayName(it) }
             AlertDialog.Builder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_layer_target_picker_title)
-                .setItems(targets.toTypedArray()) { _, which ->
+                .setItems(labels.toTypedArray()) { _, which ->
                     onSelect(targets[which])
                 }
                 .setNegativeButton(R.string.macro_editor_cancel, null)
                 .show()
+        }
+
+        /**
+         * 把层目标名转成给用户看的文本。
+         *
+         * 符号面板的目标名是 [PickerWindow.Key] 的枚举名（`Symbol` / `Emoji` / `Kaomoji`）：
+         * 写进配置、参与持久化的就是这个名字，**不能改**；但枚举名是英文，
+         * 光看 `Kaomoji` 认不出是「颜文字面板」，所以显示时补一个中文提示。
+         * 其余目标（真·布局层）原样返回。
+         */
+        private fun layerTargetDisplayName(target: String): String {
+            val res = when (PickerWindow.Key.ofName(target)) {
+                PickerWindow.Key.Symbol -> R.string.macro_editor_layer_target_symbol
+                PickerWindow.Key.Emoji -> R.string.macro_editor_layer_target_emoji
+                PickerWindow.Key.Kaomoji -> R.string.macro_editor_layer_target_kaomoji
+                null -> null
+            }
+            return res?.let { getString(it) } ?: target
         }
 
         private fun showLayerModeThenTargetPicker(
@@ -1845,7 +1874,9 @@ class MacroEditorActivity : AppCompatActivity() {
         private fun getLayerActionLabel(mode: String, target: String): String {
             val modeLabel = getLayerModeLabel(mode)
             return if (normalizeLayerMode(mode) != "back" && target.isNotBlank()) {
-                "$modeLabel -> $target"
+                // 与目标选择列表用同一套显示文本，否则选完后面板目标又变回英文名，
+                // 看起来像没生效。
+                "$modeLabel -> ${layerTargetDisplayName(target)}"
             } else {
                 modeLabel
             }

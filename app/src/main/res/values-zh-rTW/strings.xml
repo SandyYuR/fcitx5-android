@@ -607,6 +607,8 @@
     <string name="text_keyboard_layout_switch_target_text">文字鍵盤</string>
     <string name="text_keyboard_layout_switch_target_number">數字鍵盤</string>
     <string name="text_keyboard_layout_switch_target_symbol">符號選擇器</string>
+    <string name="text_keyboard_layout_switch_target_emoji">表情選擇器</string>
+    <string name="text_keyboard_layout_switch_target_kaomoji">顏文字選擇器</string>
     <string name="text_keyboard_layout_numpad_symbol">數字鍵盤符號</string>
 
     <!-- Macro Editor -->
@@ -649,6 +651,10 @@
     <string name="macro_editor_layer_target_hint">點擊選擇目標層</string>
     <string name="macro_editor_layer_target_picker_title">選擇目標層</string>
     <string name="macro_editor_layer_target_empty">暫無可選目標層</string>
+    <!-- 前綴必須與 PickerWindow.Key 列舉名逐字相同（它才是寫進設定的值）。 -->
+    <string name="macro_editor_layer_target_symbol">Symbol（符號面板）</string>
+    <string name="macro_editor_layer_target_emoji">Emoji（表情面板）</string>
+    <string name="macro_editor_layer_target_kaomoji">Kaomoji（顏文字面板）</string>
     <string name="macro_editor_layer_mode_picker_title">選擇切層模式</string>
     <string name="macro_editor_type_change_title">更改步驟類型</string>
     <string name="macro_editor_type_change_message">更改步驟類型將清除當前數據。是否繼續？</string>
@@ -673,6 +679,18 @@
     <string name="fontset_sample_preedit">預編輯文字</string>
     <string name="fontset_sample_comment">註釋範例</string>
     <string name="picker_category_fullwidth">全形</string>
+    <string name="symbol_panel_recent">最近</string>
+    <string name="symbol_catalog_symbols_title">符號資料</string>
+    <string name="symbol_catalog_emoji_title">表情資料</string>
+    <string name="symbol_catalog_kaomoji_title">顏文字資料</string>
+    <string name="symbol_catalog_builtin">內建資料</string>
+    <string name="symbol_catalog_summary_builtin">使用應用程式內建資料</string>
+    <string name="symbol_catalog_summary_custom">自訂：%1$s</string>
+    <string name="symbol_catalog_summary_missing">自訂檔案缺失，改用內建：%1$s</string>
+    <string name="symbol_catalog_import">匯入</string>
+    <string name="symbol_catalog_import_ok">已匯入並選用：%1$s</string>
+    <string name="symbol_catalog_import_failed">匯入失敗：不是有效的符號資料檔</string>
+    <string name="symbol_catalog_dir_hint">自訂資料檔存放目錄：\n%1$s</string>
     <string name="macro_editor_key_event_unmatched">按鍵事件不匹配：%1$s 的按下和釋放次數不等</string>
     <string name="text_keyboard_layout_qr_export">透過二維碼圖片分享</string>
     <string name="text_keyboard_layout_qr_import_scan">掃碼匯入</string>

@@ -83,6 +83,14 @@ class IdleUi(
     private var hideKeyboardInVoiceInputMode = false
     private val menuButtonRotation = 0f
 
+    /**
+     * 「返回键盘」模式：符号面板显示时为 `true`。
+     *
+     * 此时工具栏内容完全不变（仍是主键盘那套按钮），只把最左侧按钮的图标换成返回箭头；
+     * 点击行为由 `KawaiiBarComponent` 按当前窗口判定。
+     */
+    private var backToKeyboardMode = false
+
     @DrawableRes
     private val defaultMenuIcon = R.drawable.ic_baseline_more_horiz_24
     @DrawableRes
@@ -335,6 +343,9 @@ class IdleUi(
         when {
             currentState == State.Search || currentState == State.Clipboard ->
                 menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
+            // 符号面板占据键盘时：工具栏整体保持主键盘的样子，只把最左按钮换成返回箭头
+            backToKeyboardMode ->
+                menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
             inPrivate && !hasCustomMenuIcon -> {
                 menuButton.setIcon(R.drawable.ic_view_private)
             }
@@ -343,12 +354,30 @@ class IdleUi(
     }
 
     private fun updateMenuButtonContentDescription() {
+        if (backToKeyboardMode) {
+            menuButton.contentDescription = ctx.getString(R.string.back_to_keyboard)
+            return
+        }
         if (!toolbarToggleConfig.label.isNullOrEmpty()) return
         menuButton.contentDescription = when {
             currentState == State.Search || currentState == State.Clipboard -> ctx.getString(R.string.return_to_toolbar)
             inPrivate -> ctx.getString(R.string.private_mode)
             else -> ctx.getString(R.string.status_area)
         }
+    }
+
+    /**
+     * 进入 / 退出「返回键盘」模式。
+     *
+     * 符号面板（[PickerWindow]）不是扩展窗口，它借用主键盘那套工具栏；按用户要求，
+     * 工具栏内容一概不变，只把最左侧按钮从「状态区」换成返回箭头。点击行为在
+     * `KawaiiBarComponent` 里按当前窗口判定。
+     */
+    fun setBackToKeyboardMode(active: Boolean) {
+        if (backToKeyboardMode == active) return
+        backToKeyboardMode = active
+        updateMenuButtonIcon()
+        updateMenuButtonContentDescription()
     }
 
     private fun updateMenuButtonRotation(instant: Boolean = false) {

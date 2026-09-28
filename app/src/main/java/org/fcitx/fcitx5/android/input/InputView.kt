@@ -81,7 +81,7 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.picker.emojiPicker
-import org.fcitx.fcitx5.android.input.picker.emoticonPicker
+import org.fcitx.fcitx5.android.input.picker.kaomojiPicker
 import org.fcitx.fcitx5.android.input.picker.symbolPicker
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import org.fcitx.fcitx5.android.input.font.FontProviders
@@ -266,8 +266,10 @@ class InputView(
             }
 
             val currentWindow = windowManager.currentWindowOrNull()
-            if (currentWindow is PickerWindow && currentWindow.key == PickerWindow.Key.Emoji) {
-                // Emoji pager contains large non-key areas; use full-layer blur to avoid transparent gaps.
+            if (currentWindow is PickerWindow) {
+                // 三个符号面板都是「左侧分组栏 + 右侧网格」布局，含大片非按键区域
+                // （分组栏背景、网格行间空白）；按按键区域裁剪会在这些地方留下
+                // 未模糊的透明缺口，故整层模糊。
                 drawFullScreenBlur(canvas, bitmap)
                 return
             }
@@ -1594,7 +1596,7 @@ class InputView(
     private val keyboardWindow = KeyboardWindow()
     private val symbolPicker = symbolPicker()
     private val emojiPicker = emojiPicker()
-    private val emoticonPicker = emoticonPicker()
+    private val kaomojiPicker = kaomojiPicker()
 
     private fun setupScope() {
         scope += this@InputView.wrapToUniqueComponent()
@@ -3022,7 +3024,7 @@ class InputView(
         windowManager.addEssentialWindow(keyboardWindow, createView = true)
         windowManager.addEssentialWindow(symbolPicker)
         windowManager.addEssentialWindow(emojiPicker)
-        windowManager.addEssentialWindow(emoticonPicker)
+        windowManager.addEssentialWindow(kaomojiPicker)
         // show KeyboardWindow by default
         windowManager.attachWindow(KeyboardWindow)
         windowManager.onWindowChanged = {

@@ -6,17 +6,11 @@ package org.fcitx.fcitx5.android.input.picker
 
 import androidx.core.content.ContextCompat
 import androidx.transition.Transition
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
-import org.fcitx.fcitx5.android.data.theme.ThemeManager
-import org.fcitx.fcitx5.android.data.theme.IconThemeManager
-import org.fcitx.fcitx5.android.input.broadcast.ReturnKeyDrawableComponent
+import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.theme
-import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyActionListener
-import org.fcitx.fcitx5.android.input.keyboard.KeyDef
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
@@ -26,45 +20,80 @@ import org.fcitx.fcitx5.android.input.wm.InputWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.mechdancer.dependency.manager.must
 
+/**
+ * 符号 / 表情 / 颜文字面板窗口。
+ *
+ * UI 按 Foxy 输入法（`com.fxliang.foxy`）的符号面板模型重建：
+ * 左侧竖向分组栏 + 右侧符号网格，**面板独占整个键盘区域**。
+ *
+ * ### 为什么是 [InputWindow.SimpleInputWindow] 而不是 `ExtendedInputWindow`
+ *
+ * 本项目里 `ExtendedInputWindow` 会让工具栏（Kawaii Bar）整体切换到「标题栏」形态
+ * （`KawaiiBarStateMachine.State.Title`），把主键盘那套按钮整片换掉。这不是想要的效果：
+ * 用户要求**工具栏保持主键盘原样**，只把最左侧按钮换成返回箭头。
+ *
+ * 因此这里用普通窗口：窗口切换时工具栏不做任何形态切换，仍显示 `IdleUi`（主键盘工具栏），
+ * 再由 `KawaiiBarComponent` 通过 `IdleUi.setBackToKeyboardMode` 只替换最左图标。
+ *
+ * 面板自身的键盘级操作（返回键盘 / 退格）只有左栏底部两枚键，见 [SymbolPanelUi]；
+ * **面板之间的跳转不在这里**，由布局按键或宏配置（见 [Key.layerTargetNames]）。
+ */
 class PickerWindow(
     override val key: Key,
-    private val data: List<Pair<PickerData.Category, Array<String>>>,
-    private val density: PickerPageUi.Density,
-    private val switchKey: KeyDef,
-    private val popupPreview: Boolean = true,
-    private val followKeyBorder: Boolean = true,
+    private val catalogType: SymbolCatalogType,
+    private val columns: Int,
+    private val textSize: Float,
     private val policy: PickerPolicy = DefaultPickerPolicy()
-) : InputWindow.ExtendedInputWindow<PickerWindow>(), EssentialWindow {
+) : InputWindow.SimpleInputWindow<PickerWindow>(), EssentialWindow {
 
     enum class Key : EssentialWindow.Key {
         Symbol,
         Emoji,
-        Emoticon
+        Kaomoji;
+
+        companion object {
+            /**
+             * 颜文字面板的旧名。
+             *
+             * 2026-09-28 之前这个枚举叫 `Emoticon`，该名字**已经写进用户数据**：
+             * 布局按键的 `subLabel`、宏的切层 `target`、`lastPickerType` 偏好。
+             * 改名后必须继续能解析，否则存量用户的按键会变成「无效目标」而静默失效。
+             */
+            private const val LEGACY_KAOMOJI = "Emoticon"
+
+            /**
+             * 把布局文件 / 宏里保存的目标名解析成面板 [Key]。
+             *
+             * 命名沿用枚举名（`Symbol` / `Emoji` / `Kaomoji`），大小写不敏感；
+             * 旧名 `Emoticon` 作为别名一并接受（见 [LEGACY_KAOMOJI]）。
+             *
+             * 返回 null 表示该目标不是符号面板，调用方应继续按文本层处理。
+             */
+            fun ofName(raw: String?): Key? {
+                if (raw.isNullOrBlank()) return null
+                val trimmed = raw.trim()
+                if (trimmed.equals(LEGACY_KAOMOJI, ignoreCase = true)) return Kaomoji
+                return entries.firstOrNull { it.name.equals(trimmed, ignoreCase = true) }
+            }
+
+            /**
+             * 三个面板的层目标名，供宏编辑器的「切层目标」候选列表使用。
+             *
+             * 这几个名字同时是 [KeyAction.LayoutSwitchAction] 与
+             * [KeyAction.LayerSwitchAction] 的合法目标（见 [KeyboardWindow.switchLayout]
+             * 和 `handleLayerSwitchAction` 的 picker 路由），因此布局编辑器与宏编辑器
+             * 共用同一份定义，避免两处漂移。
+             */
+            val layerTargetNames: List<String> = entries.map { it.name }
+        }
     }
 
     private val theme by manager.theme()
     private val windowManager: InputWindowManager by manager.must()
     private val commonKeyActionListener: CommonKeyActionListener by manager.must()
     private val popup: PopupComponent by manager.must()
-    private val returnKeyDrawable: ReturnKeyDrawableComponent by manager.must()
-
-    private val keyBorder by ThemeManager.prefs.keyBorder
 
     private lateinit var pickerLayout: PickerLayout
-    private lateinit var pickerPagesAdapter: PickerPagesAdapter
-
-    private val iconThemeListener = IconThemeManager.OnIconThemeChangeListener {
-        returnKeyDrawable.onIconThemeChanged()
-        refreshIconTheme()
-    }
-
-    private fun refreshIconTheme() {
-        if (!::pickerLayout.isInitialized || !::pickerPagesAdapter.isInitialized) return
-        pickerLayout.embeddedKeyboard.refreshIconTheme()
-        (pickerLayout.pager.getChildAt(0) as? RecyclerView)?.let {
-            pickerPagesAdapter.refreshIconTheme(it)
-        }
-    }
 
     override fun enterAnimation(lastWindow: InputWindow): Transition? = null
 
@@ -83,6 +112,13 @@ class PickerWindow(
                 }
             }
 
+            is KeyAction.PickerSwitchAction -> {
+                // 交给 CommonKeyActionListener：它还会调用
+                // KeyboardWindow.prepareCompanionKeyboardHeightPercentOverride()，
+                // 保证面板沿用主键盘的高度；自己 attach 会漏掉这一步导致高度跳变。
+                commonKeyActionListener.listener.onKeyAction(it, source)
+            }
+
             is KeyAction.FcitxKeyAction -> {
                 // we want the behavior of CommitAction (commit the character as-is),
                 // but don't want to include it in recently used list
@@ -90,9 +126,6 @@ class PickerWindow(
             }
 
             else -> {
-                if (it is KeyAction.CommitAction) {
-                    pickerPagesAdapter.insertRecent(it.text)
-                }
                 commonKeyActionListener.listener.onKeyAction(it, source)
             }
         }
@@ -101,16 +134,9 @@ class PickerWindow(
     private val popupActionListener: PopupActionListener by lazy {
         PopupActionListener {
             when (it) {
-                is PopupAction.PreviewAction -> {
-                    if (!popupPreview) return@PopupActionListener
-                }
                 is PopupAction.ShowKeyboardAction -> {
-                    // prevent ViewPager from consuming swipe gesture when popup keyboard shown
-                    pickerLayout.pager.isUserInputEnabled = false
-                }
-                is PopupAction.DismissAction -> {
-                    // restore ViewPager scrolling
-                    pickerLayout.pager.isUserInputEnabled = true
+                    // 长按弹出键盘展示期间不要移动底层列表
+                    pickerLayout.symbolPanel.scrollToTop()
                 }
                 else -> {}
             }
@@ -118,76 +144,28 @@ class PickerWindow(
         }
     }
 
-    override fun onCreateView() = PickerLayout(context, theme, switchKey).apply {
+    override fun onCreateView() = PickerLayout(
+        context,
+        theme,
+        catalogType,
+        columns,
+        textSize,
+        policy,
+        keyActionListener,
+        popupActionListener
+    ).apply {
         pickerLayout = this
-        val bordered = followKeyBorder && keyBorder
-        pickerPagesAdapter = PickerPagesAdapter(
-            theme, keyActionListener, popupActionListener, data,
-            density, key.name, bordered, policy
-        )
-        tabsUi.apply {
-            setTabs(pickerPagesAdapter.getCategoryList())
-            setOnTabClickListener { i ->
-                pager.setCurrentItem(pickerPagesAdapter.getRangeOfCategoryIndex(i).first, false)
-            }
-        }
-        pager.apply {
-            adapter = pickerPagesAdapter
-            // show first symbol category by default, rather than recently used
-            val range = pickerPagesAdapter.getRangeOfCategoryIndex(1)
-            setCurrentItem(range.first, false)
-            // update initial tab and page manually to avoid
-            // "Adding or removing callbacks during dispatch to callbacks"
-            tabsUi.activateTab(1)
-            paginationUi.updatePageCount(range.run { last - first + 1 })
-            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageScrolled(
-                    position: Int,
-                    positionOffset: Float,
-                    positionOffsetPixels: Int
-                ) {
-                    val range = pickerPagesAdapter.getCategoryRangeOfPage(position)
-                    paginationUi.updatePageCount(range.run { last - first + 1 })
-                    paginationUi.updateScrollProgress(position - range.first, positionOffset)
-                }
-
-                override fun onPageSelected(position: Int) {
-                    tabsUi.activateTab(pickerPagesAdapter.getCategoryIndexOfPage(position))
-                    popup.dismissAll()
-                }
-            })
-        }
     }
 
-    override fun onCreateBarExtension() = pickerLayout.tabsUi.root
-
     override fun onAttached() {
-        IconThemeManager.addOnChangedListener(iconThemeListener)
-        pickerLayout.embeddedKeyboard.also {
-            pickerPagesAdapter.refreshIfNeeded()
-            refreshIconTheme()
-            it.onReturnDrawableUpdate(returnKeyDrawable.resourceId)
-            it.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)
-            it.keyActionListener = keyActionListener
-            it.onAttach()
-            it.reapplyTextScale()
-            it.requestLayout()
-            it.invalidate()
-        }
-        if (FontProviders.needsRefresh()) {
-            pickerLayout.embeddedKeyboard.refreshStyle()
-            pickerPagesAdapter.notifyDataSetChanged()
+        pickerLayout.symbolPanel.apply {
+            // 重建同时会按当前字体配置重新绑定可见项
+            refresh()
+            scrollToTop()
         }
     }
 
     override fun onDetached() {
-        IconThemeManager.removeOnChangedListener(iconThemeListener)
         popup.dismissAll()
-        pickerLayout.embeddedKeyboard.also {
-            it.onDetach()
-            it.keyActionListener = null
-        }
     }
-
-    override val showTitle = false
 }

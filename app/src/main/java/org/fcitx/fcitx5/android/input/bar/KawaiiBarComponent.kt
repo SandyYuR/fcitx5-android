@@ -79,6 +79,7 @@ import org.fcitx.fcitx5.android.input.editing.TextEditingWindow
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import org.fcitx.fcitx5.android.input.status.StatusAreaWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindow
@@ -421,6 +422,11 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
         ui.menuButton.setOnClickListener {
             restoreVirtualKeyboardMode()
+            // 符号面板显示时，最左侧按钮已换成返回箭头，点击即回到文字键盘。
+            if (windowManager.currentWindowOrNull() is PickerWindow) {
+                windowManager.attachWindow(KeyboardWindow)
+                return@setOnClickListener
+            }
             // 剪贴板历史搜索期间，最左侧返回箭头即搜索关闭按钮。
             if (idleUi.currentState == IdleUi.State.Search) {
                 service.stopClipboardSearch()
@@ -897,6 +903,12 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     override fun onWindowAttached(window: InputWindow) {
+        // 符号面板借用主键盘那一套工具栏：整条栏的形态与按钮都不变，只把最左侧按钮
+        // 换成「返回键盘」箭头（见 IdleUi.setBackToKeyboardMode）。
+        //
+        // 这里在 when 之前统一设置：窗口切换的次序是「先 detach 旧、再 attach 新」，
+        // 因此本行执行后该状态一定是最新的，面板之间互切也不会闪回。
+        idleUi.setBackToKeyboardMode(window is PickerWindow)
         when (window) {
             is InputWindow.ExtendedInputWindow<*> -> {
                 titleUi.setTitle(window.title)

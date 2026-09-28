@@ -617,6 +617,8 @@
     <string name="text_keyboard_layout_switch_target_text">Text keyboard</string>
     <string name="text_keyboard_layout_switch_target_number">Number keyboard</string>
     <string name="text_keyboard_layout_switch_target_symbol">Symbol picker</string>
+    <string name="text_keyboard_layout_switch_target_emoji">Emoji picker</string>
+    <string name="text_keyboard_layout_switch_target_kaomoji">Kaomoji picker</string>
     <string name="text_keyboard_layout_numpad_symbol">Numpad Symbol</string>
     <string name="text_keyboard_layout_display_value_hint">Display value</string>
     <string name="text_keyboard_layout_key_label_caps">Caps</string>
@@ -671,6 +673,11 @@
     <string name="macro_editor_layer_target_hint">Tap to choose layer target</string>
     <string name="macro_editor_layer_target_picker_title">Select Layer Target</string>
     <string name="macro_editor_layer_target_empty">No layout target available</string>
+    <!-- 三个符号面板的层目标显示名。前缀必须与 PickerWindow.Key 的枚举名逐字相同（它才是写进配置的值），
+         括号里是给用户看的中文/说明，避免只看 "Emoticon" 认不出是颜文字面板。 -->
+    <string name="macro_editor_layer_target_symbol">Symbol (symbol panel)</string>
+    <string name="macro_editor_layer_target_emoji">Emoji (emoji panel)</string>
+    <string name="macro_editor_layer_target_kaomoji">Kaomoji (kaomoji panel)</string>
     <string name="macro_editor_layer_mode_picker_title">Select Layer Mode</string>
     <string name="macro_editor_type_change_title">Change Step Type</string>
     <string name="macro_editor_type_change_message">Changing step type will clear current data. Continue?</string>
@@ -695,6 +702,18 @@
     <string name="fontset_sample_preedit">Preedit Text</string>
     <string name="fontset_sample_comment">Comment Note</string>
     <string name="picker_category_fullwidth">Fullwidth</string>
+    <string name="symbol_panel_recent">Recent</string>
+    <string name="symbol_catalog_symbols_title">Symbol data</string>
+    <string name="symbol_catalog_emoji_title">Emoji data</string>
+    <string name="symbol_catalog_kaomoji_title">Kaomoji data</string>
+    <string name="symbol_catalog_builtin">Built-in</string>
+    <string name="symbol_catalog_summary_builtin">Built-in data from the app</string>
+    <string name="symbol_catalog_summary_custom">Custom: %1$s</string>
+    <string name="symbol_catalog_summary_missing">Custom file missing, using built-in instead: %1$s</string>
+    <string name="symbol_catalog_import">Import</string>
+    <string name="symbol_catalog_import_ok">Imported and selected: %1$s</string>
+    <string name="symbol_catalog_import_failed">Import failed: not a valid symbol catalog</string>
+    <string name="symbol_catalog_dir_hint">Custom catalogs are stored in:\n%1$s</string>
     <string name="text_keyboard_layout_display_text_mode_invalid">Please fill in row %1$d before adding a new mode</string>
     <string name="text_keyboard_layout_display_text_mode_duplicate">Mode name "%1$s" is already in use</string>
     <string name="text_keyboard_layout_compose_override_title">Compose-state override</string>

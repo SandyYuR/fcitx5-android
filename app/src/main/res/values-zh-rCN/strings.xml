@@ -632,6 +632,8 @@
     <string name="text_keyboard_layout_switch_target_text">文本键盘</string>
     <string name="text_keyboard_layout_switch_target_number">数字键盘</string>
     <string name="text_keyboard_layout_switch_target_symbol">符号选择器</string>
+    <string name="text_keyboard_layout_switch_target_emoji">表情选择器</string>
+    <string name="text_keyboard_layout_switch_target_kaomoji">颜文字选择器</string>
     <string name="text_keyboard_layout_numpad_symbol">数字键盘符号</string>
     <string name="text_keyboard_layout_validation_error">验证错误</string>
 
@@ -675,6 +677,10 @@
     <string name="macro_editor_layer_target_hint">点击选择目标层</string>
     <string name="macro_editor_layer_target_picker_title">选择目标层</string>
     <string name="macro_editor_layer_target_empty">暂无可选目标层</string>
+    <!-- 前缀必须与 PickerWindow.Key 枚举名逐字相同（它才是写进配置的值）。 -->
+    <string name="macro_editor_layer_target_symbol">Symbol（符号面板）</string>
+    <string name="macro_editor_layer_target_emoji">Emoji（表情面板）</string>
+    <string name="macro_editor_layer_target_kaomoji">Kaomoji（颜文字面板）</string>
     <string name="macro_editor_layer_mode_picker_title">选择切层模式</string>
     <string name="macro_editor_type_change_title">更改步骤类型</string>
     <string name="macro_editor_type_change_message">更改步骤类型将清除当前数据。是否继续？</string>
@@ -699,6 +705,18 @@
     <string name="fontset_sample_preedit">预编辑文本</string>
     <string name="fontset_sample_comment">注释示例</string>
     <string name="picker_category_fullwidth">全角</string>
+    <string name="symbol_panel_recent">最近</string>
+    <string name="symbol_catalog_symbols_title">符号数据</string>
+    <string name="symbol_catalog_emoji_title">表情数据</string>
+    <string name="symbol_catalog_kaomoji_title">颜文字数据</string>
+    <string name="symbol_catalog_builtin">内置数据</string>
+    <string name="symbol_catalog_summary_builtin">使用应用内置数据</string>
+    <string name="symbol_catalog_summary_custom">自定义：%1$s</string>
+    <string name="symbol_catalog_summary_missing">自定义文件缺失，改用内置：%1$s</string>
+    <string name="symbol_catalog_import">导入</string>
+    <string name="symbol_catalog_import_ok">已导入并选用：%1$s</string>
+    <string name="symbol_catalog_import_failed">导入失败：不是有效的符号数据文件</string>
+    <string name="symbol_catalog_dir_hint">自定义数据文件存放目录：\n%1$s</string>
     <string name="text_keyboard_layout_display_text_mode_invalid">请先填写第 %1$d 行的模式名称和显示文本</string>
     <string name="text_keyboard_layout_display_text_mode_duplicate">模式名称 "%1$s" 已被使用</string>
     <string name="cannot_resolve_text_keyboard_layout">无法定位文本键盘布局文件</string>

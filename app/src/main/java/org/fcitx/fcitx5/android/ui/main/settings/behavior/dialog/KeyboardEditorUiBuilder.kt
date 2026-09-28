@@ -66,7 +66,11 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             SwitchTargetOption("", R.string.text_keyboard_layout_switch_target_default),
             SwitchTargetOption("Text", R.string.text_keyboard_layout_switch_target_text),
             SwitchTargetOption("Number", R.string.text_keyboard_layout_switch_target_number),
-            SwitchTargetOption("Symbol", R.string.text_keyboard_layout_switch_target_symbol)
+            SwitchTargetOption("Symbol", R.string.text_keyboard_layout_switch_target_symbol),
+            // 三个符号面板的数据源分别独立（见 SymbolCatalogType），因此各给一个直接入口。
+            // 目标名必须是 PickerWindow.Key 的枚举名，运行时由 Key.ofName 路由。
+            SwitchTargetOption("Emoji", R.string.text_keyboard_layout_switch_target_emoji),
+            SwitchTargetOption("Kaomoji", R.string.text_keyboard_layout_switch_target_kaomoji)
         )
 
         val NUMPAD_OPTIONS = listOf(

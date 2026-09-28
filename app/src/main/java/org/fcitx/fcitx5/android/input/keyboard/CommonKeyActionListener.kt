@@ -221,7 +221,9 @@ class CommonKeyActionListener :
                 is PickerSwitchAction -> {
                     // update lastSymbolType only when specified explicitly
                     val key = action.key?.also { k -> lastPickerType = k.name }
-                        ?: runCatching { PickerWindow.Key.valueOf(lastPickerType) }.getOrNull()
+                        // 用 ofName 而不是 valueOf：存量用户偏好里可能存着旧名
+                        // Emoticon（颜文字面板改名前），valueOf 会抛异常并静默退回 Emoji。
+                        ?: PickerWindow.Key.ofName(lastPickerType)
                         ?: PickerWindow.Key.Emoji
                     ContextCompat.getMainExecutor(service).execute {
                         (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)
