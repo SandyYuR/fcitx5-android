@@ -651,7 +651,7 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 7. **`AdvancedSettingsFragment` 已瘦身**：用户数据导入/导出/浏览目录移到 `DataBackupFragment`（纯动作、无 managed preference，故直接继承 `PaddingPreferenceFragment`）。键盘分组有 `GROUP_CANDIDATE`(5) 与 `GROUP_VOICE`(6)：候选栏样式与语音从 `GROUP_TOOLBAR` 拆出，`KEYS_BY_GROUP` 与 `groupTitleRes` 必须同步。
 8. **「未实现类型」不再渲染给用户**：`PreferenceScreenFactory.general` 原先为上游有、本应用未实现的配置类型渲染一行「⛔ 未实现类型 'xxx'」。那是开发者诊断信息，现改为**不加入页面 + `Timber.w` 记一条**（开发者仍可在「实时日志」看到）。实现上 `when` 分支现在返回 `Preference?`，由局部变量 `built` 承接后再 `built?.apply { ... }`。
 
-**IA 调整（09-29）**：「中州韵设置」与「全局选项」放「输入与候选」，「附加组件」与「隐藏快捷键配置」放「高级」，**「引擎配置」这一层已取消**（路径少一次点击）；「虚拟键盘 → 键盘工具」改名「键盘自定义」。四条重复路径已消除（按键行为、候选栏样式、中州韵设置、附加组件各只剩一个入口）。
+**IA 调整（09-29）**：「中州韵设置」与「全局选项」放「输入与候选」，「附加组件」与「隐藏快捷键配置」放「高级」，**「引擎配置」这一层已取消**（路径少一次点击）；「虚拟键盘 → 键盘工具」→「键盘自定义」→ 再改「键盘布局自定义」（末次改名因为该组内容全是布局定义类工具，见 `KeyboardGroupFragment.GROUP_EDITORS`）。「弹出字符设定」由「外观」移入该组。四条重复路径已消除（按键行为、候选栏样式、中州韵设置、附加组件各只剩一个入口）。
 
 ### 0.6.4 搜索跳转的滚动定位与高亮（2026-09-28 ~ 09-29）
 
