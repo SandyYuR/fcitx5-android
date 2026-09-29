@@ -73,8 +73,8 @@
     <string name="keyboard_category_layout">布局与尺寸</string>
     <string name="keyboard_category_behavior">按键行为</string>
     <string name="keyboard_category_feedback">按键反馈</string>
-    <string name="keyboard_category_toolbar">工具栏与候选栏</string>
-    <string name="keyboard_category_editors">增强选项</string>
+    <string name="keyboard_category_toolbar">工具栏</string>
+    <string name="keyboard_category_editors">键盘自定义</string>
     <string name="one_handed_keyboard">单手键盘</string>
     <string name="clipboard_suggestion_timeout">剪贴板提示超时</string>
     <string name="version">版本</string>
@@ -175,6 +175,7 @@
     <string name="follow_system_day_night_theme_summary">覆盖手动主题选择</string>
     <string name="light_mode_theme">亮色模式主题</string>
     <string name="dark_mode_theme">暗色模式主题</string>
+    <string name="candidates_preset_title">快速预设</string>
     <string name="new_theme">新增主题</string>
     <string name="theme_name">主题名称</string>
     <string name="theme_name_empty">主题名称不能为空</string>
@@ -885,4 +886,40 @@
     <string name="icon_theme_import_dialog_title">导入图标主题</string>
     <string name="icon_theme_overwrite_confirm">覆盖已存在的图标主题 \"%s\"？</string>
     <string name="icon_theme_new">新建</string>
+
+    <!-- 设置搜索 -->
+    <string name="settings_search_hint">搜索设置项</string>
+    <string name="settings_search_group_android">应用设置</string>
+    <string name="settings_search_no_result">没有找到匹配的设置</string>
+    <string name="settings_search_result_count">找到 %1$d 项</string>
+
+    <!-- 设置首页分组 -->
+    <string name="settings_home_category_daily">日常调整</string>
+    <string name="settings_home_category_more">按需进入</string>
+    <string name="settings_group_input">输入与候选</string>
+    <string name="settings_group_input_summary">中州韵方案与部署、Fcitx 全局选项、候选栏与候选窗口</string>
+    <string name="settings_group_keyboard">键盘</string>
+    <string name="settings_group_keyboard_summary">尺寸边距、按键行为与反馈、工具栏、键盘形态与自定义</string>
+    <string name="settings_group_appearance">外观</string>
+    <string name="settings_group_appearance_summary">主题、图标、字体与键盘形态</string>
+    <string name="settings_group_convenience">便捷功能</string>
+    <string name="settings_group_convenience_summary">剪贴板、表情符号与语音输入</string>
+    <string name="settings_group_data">数据与备份</string>
+    <string name="settings_group_data_summary">导入导出用户数据、用户数据目录</string>
+    <string name="settings_group_advanced">高级</string>
+    <string name="settings_group_advanced_summary">附加组件、兼容性开关与开发者选项</string>
+
+    <!-- 键盘形态 -->
+    <string name="keyboard_modes_title">浮动与单手键盘</string>
+    <string name="keyboard_modes_summary">拖动即可移动与缩放键盘</string>
+    <string name="floating_keyboard_enabled">启用浮动键盘</string>
+    <string name="floating_keyboard_enabled_summary">键盘脱离屏幕底部，位置可自由拖动</string>
+    <string name="one_hand_keyboard_enabled">启用单手键盘</string>
+    <string name="one_hand_keyboard_enabled_summary">键盘缩窄到一侧，方便单手拇指触达</string>
+    <string name="one_hand_keyboard_on_right">靠右显示</string>
+    <string name="one_hand_keyboard_on_right_summary">关闭后单手键盘显示在左侧</string>
+
+    <!-- 拆分后的键盘分组名 -->
+    <string name="keyboard_category_candidate">候选栏样式</string>
+    <string name="keyboard_category_voice">语音输入</string>
 </resources>

@@ -91,9 +91,16 @@ object PreferenceScreenFactory {
             return
         }
 
-        fun stubPreference() = Preference(context).apply {
-            summary =
-                "${context.getString(R.string.unimplemented_type)} '${ConfigType.pretty(descriptor.ty)}'"
+        // 上游配置树里出现、而本应用尚未实现的类型。
+        //
+        // 原先会渲染成一行「⛔ 未实现类型 'xxx'」：那是写给开发者的诊断信息，
+        // 普通用户既看不懂也无法操作，只会在设置页里制造噪音。现在改成
+        // 不渲染 + 记一条日志（开发者可在「实时日志」中看到同样的信息）。
+        fun unsupported(): Preference? {
+            Timber.w(
+                "Unsupported config type: ${ConfigType.pretty(descriptor.ty)} (name=${descriptor.name})"
+            )
+            return null
         }
 
         fun <T : Any> navigate(route: T): Boolean {
@@ -169,7 +176,8 @@ object PreferenceScreenFactory {
             }
         }
 
-        when (descriptor) {
+        // 用可空局部变量承接：未实现的类型返回 null，此时整项都不加入页面。
+        val built: Preference? = when (descriptor) {
             is ConfigBool -> MySwitchPreference(context).apply {
                 summary = descriptor.tooltip
                 setDefaultValue(descriptor.defaultValue)
@@ -217,7 +225,7 @@ object PreferenceScreenFactory {
                 ConfigExternal.ETy.RimeUserDataDir -> rimeUserDataDir(
                     descriptor.description ?: descriptor.name
                 )
-                else -> stubPreference()
+                else -> unsupported()
             }
             is ConfigInt -> {
                 val min = descriptor.intMin
@@ -245,13 +253,15 @@ object PreferenceScreenFactory {
             is ConfigList -> if (descriptor.ty.subtype in ListFragment.supportedSubtypes)
                 listPreference(descriptor.ty.subtype)
             else
-                stubPreference()
+                unsupported()
             is ConfigString -> EditTextPreference(context).apply {
                 summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
                 setDefaultValue(descriptor.defaultValue)
             }
             is ConfigCustom -> throw IllegalAccessException("Impossible!")
-        }.apply {
+        }
+        // null 表示该类型本应用不支持：整项不渲染，也不再套用通用样式。
+        built?.apply {
             key = descriptor.name
             title = descriptor.description ?: descriptor.name
             isSingleLineTitle = false

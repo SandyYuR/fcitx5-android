@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  设置搜索输入框。
+
+  这是一个自定义 Preference 的布局：整行就是输入框本身，没有标题/摘要。
+  注意两点：
+  1. 根布局设了 focusable / focusableInTouchMode + descendantFocusability=
+     beforeDescendants，目的是**进入设置页时不自动聚焦输入框**。否则 EditText 拿到焦点
+     会让系统弹出软键盘（TextView 的 softInputShownOnFocus 默认为真），一进设置页
+     就被键盘占掉半屏。让根布局自己先接住焦点即可避免；点输入框时仍由触摸正常聚焦，
+     不影响输入。
+  2. 列表刷新时 RecyclerView 会复用这个布局，因此 onBindViewHolder 里**不能无条件
+     回写文本**，否则用户每打一个字都会被重置（只在文本与当前查询串不一致时才补写）。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="beforeDescendants"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <EditText
+        android:id="@+id/settings_search_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:background="@android:color/transparent"
+        android:drawableStart="@drawable/ic_baseline_search_24"
+        android:drawablePadding="8dp"
+        android:hint="@string/settings_search_hint"
+        android:imeOptions="actionSearch|flagNoExtractUi"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLines="1"
+        android:minHeight="44dp"
+        android:textSize="15sp" />
+
+</LinearLayout>

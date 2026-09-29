@@ -72,8 +72,8 @@
     <string name="keyboard_category_layout">レイアウトとサイズ</string>
     <string name="keyboard_category_behavior">キー動作</string>
     <string name="keyboard_category_feedback">キーフィードバック</string>
-    <string name="keyboard_category_toolbar">ツールバーと候補</string>
-    <string name="keyboard_category_editors">拡張オプション</string>
+    <string name="keyboard_category_toolbar">ツールバー</string>
+    <string name="keyboard_category_editors">キーボードのカスタマイズ</string>
     <string name="one_handed_keyboard">片手キーボード</string>
     <string name="clipboard_suggestion_timeout">クリップボード候補のタイムアウト</string>
     <string name="version">バージョン</string>

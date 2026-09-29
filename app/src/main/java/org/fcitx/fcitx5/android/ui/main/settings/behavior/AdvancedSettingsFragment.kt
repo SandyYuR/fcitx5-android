@@ -1,142 +1,43 @@
 /*
  * SPDX-License-Identifier: LGPL-2.1-or-later
- * SPDX-FileCopyrightText: Copyright 2021-2024 Fcitx5 for Android Contributors
+ * SPDX-FileCopyrightText: Copyright 2021-2026 Fcitx5 for Android Contributors
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
-import android.os.Build
 import android.os.Bundle
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
-import org.fcitx.fcitx5.android.daemon.FcitxDaemon
-import org.fcitx.fcitx5.android.data.UserDataManager
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceFragment
-import org.fcitx.fcitx5.android.ui.common.withLoadingDialog
-import org.fcitx.fcitx5.android.ui.main.MainViewModel
-import org.fcitx.fcitx5.android.utils.AppUtil
+import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.utils.addPreference
-import org.fcitx.fcitx5.android.utils.buildDocumentsProviderIntent
-import org.fcitx.fcitx5.android.utils.buildPrimaryStorageIntent
-import org.fcitx.fcitx5.android.utils.formatDateTime
-import org.fcitx.fcitx5.android.utils.importErrorDialog
-import org.fcitx.fcitx5.android.utils.iso8601UTCDateTime
-import org.fcitx.fcitx5.android.utils.queryFileName
-import org.fcitx.fcitx5.android.utils.toast
+import org.fcitx.fcitx5.android.utils.navigateWithAnim
 
+/**
+ * 「高级」页：兼容性开关 + 引擎附加组件入口。
+ *
+ * 内容来源有两处：
+ * - 开关项由 [AppPrefs.getInstance().advanced] 的 UI 元数据自动渲染
+ *   （含 `hide_key_config`——它控制「全局选项」里 Fcitx 快捷键族的显隐，
+ *   2026-09-29 由「引擎配置」中转页移回本页，因为那个中转分组已取消）；
+ * - 「附加组件」是一个手工跳转项。
+ *
+ * 原先这里挂着「引擎配置」二级入口，收着 Fcitx 全局选项 / 中州韵设置 / 附加组件三页。
+ * 2026-09-29 按「用户想调什么」重新分层：全局选项与中州韵设置是「怎么输入」，
+ * 上移到「输入与候选」；只有附加组件留在这里——它是引擎侧插件管理，
+ * 与兼容性开关同属「平时不动、需要时才来」的一类。
+ *
+ * 「浏览用户数据目录 / 导出 / 导入」已拆到 [DataBackupFragment]——导入导出是用户
+ * 主动执行的一次性任务，与开关混在一页会让「高级」既不像是危险操作区、也不像是设置区。
+ */
 class AdvancedSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance().advanced) {
 
-    private val viewModel: MainViewModel by activityViewModels()
-
-    private var exportTimestamp = System.currentTimeMillis()
-
-    private lateinit var exportLauncher: ActivityResultLauncher<String>
-
-    private lateinit var importLauncher: ActivityResultLauncher<String>
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        importLauncher =
-            registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-                if (uri == null) return@registerForActivityResult
-                val ctx = requireContext()
-                val cr = ctx.contentResolver
-                lifecycleScope.withLoadingDialog(ctx) {
-                    val name = cr.queryFileName(uri) ?: return@withLoadingDialog
-                    if (!name.endsWith(".zip")) {
-                        ctx.importErrorDialog(R.string.exception_user_data_filename, name)
-                        return@withLoadingDialog
-                    }
-                    try {
-                        // stop fcitx before overwriting files
-                        FcitxDaemon.stopFcitx()
-                        val metadata = withContext(Dispatchers.IO) {
-                            val inputStream = cr.openInputStream(uri)!!
-                            UserDataManager.import(inputStream).getOrThrow()
-                        }
-                        AppUtil.showRestartNotification(ctx)
-                        val exportTime = formatDateTime(metadata.exportTime)
-                        ctx.toast(getString(R.string.user_data_imported, exportTime))
-                        // delay exit to ensure Notification and Toast has been created
-                        lifecycleScope.launch {
-                            delay(400L)
-                            AppUtil.exit()
-                        }
-                    } catch (e: Exception) {
-                        // restart fcitx in case importing failed
-                        FcitxDaemon.startFcitx()
-                        ctx.importErrorDialog(e)
-                    }
-                }
-            }
-        exportLauncher =
-            registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
-                if (uri == null) return@registerForActivityResult
-                val ctx = requireContext()
-                lifecycleScope.withLoadingDialog(ctx) {
-                    try {
-                        withContext(Dispatchers.IO) {
-                            val outputStream = ctx.contentResolver.openOutputStream(uri)!!
-                            UserDataManager.export(outputStream, exportTimestamp).getOrThrow()
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        ctx.toast(e)
-                    }
-                }
-            }
-
-    }
-
     override fun onPreferenceUiCreated(screen: PreferenceScreen) {
-        val ctx = requireContext()
-
         screen.addPreference(
-            R.string.browse_user_data_dir,
+            R.string.addons,
             onClick = {
-                try {
-                    ctx.startActivity(buildDocumentsProviderIntent())
-                } catch (e: Exception) {
-                    ctx.toast(e)
-                }
-            },
-            onLongClick = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ({
-                try {
-                    ctx.startActivity(buildPrimaryStorageIntent())
-                } catch (e: Exception) {
-                    ctx.toast(e)
-                }
-            }) else null
-        )
-        screen.addPreference(R.string.export_user_data) {
-            lifecycleScope.withLoadingDialog(ctx) {
-                viewModel.fcitx.runOnReady {
-                    save()
-                }
-                exportTimestamp = System.currentTimeMillis()
-                exportLauncher.launch("fcitx5-android_${iso8601UTCDateTime(exportTimestamp)}.zip")
+                navigateWithAnim(SettingsRoute.AddonList)
             }
-        }
-        screen.addPreference(R.string.import_user_data) {
-            AlertDialog.Builder(ctx)
-                .setIconAttribute(android.R.attr.alertDialogIcon)
-                .setTitle(R.string.import_user_data)
-                .setMessage(R.string.confirm_import_user_data)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    importLauncher.launch("application/zip")
-                }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
-        }
+        )
     }
 }

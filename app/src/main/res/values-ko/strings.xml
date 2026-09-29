@@ -69,8 +69,8 @@
     <string name="keyboard_category_layout">레이아웃 및 크기</string>
     <string name="keyboard_category_behavior">키 동작</string>
     <string name="keyboard_category_feedback">키 피드백</string>
-    <string name="keyboard_category_toolbar">도구 모음 및 후보</string>
-    <string name="keyboard_category_editors">확장 옵션</string>
+    <string name="keyboard_category_toolbar">도구 모음</string>
+    <string name="keyboard_category_editors">키보드 사용자 지정</string>
     <string name="one_handed_keyboard">한손 키보드</string>
     <string name="version">버전</string>
     <string name="build_time">빌드 시간</string>

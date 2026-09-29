@@ -73,8 +73,8 @@
     <string name="keyboard_category_layout">Раскладка и размер</string>
     <string name="keyboard_category_behavior">Поведение клавиш</string>
     <string name="keyboard_category_feedback">Отклик клавиш</string>
-    <string name="keyboard_category_toolbar">Панель и кандидаты</string>
-    <string name="keyboard_category_editors">Дополнительно</string>
+    <string name="keyboard_category_toolbar">Панель инструментов</string>
+    <string name="keyboard_category_editors">Настройка клавиатуры</string>
     <string name="one_handed_keyboard">Одноручная клавиатура</string>
     <string name="clipboard_suggestion_timeout">Тайм-аут предложения буфера обмена</string>
     <string name="version">Версия</string>

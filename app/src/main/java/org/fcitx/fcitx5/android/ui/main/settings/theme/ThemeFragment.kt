@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import androidx.annotation.Keep
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -20,6 +21,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.ui.main.MainViewModel
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
@@ -36,6 +38,9 @@ import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 
 class ThemeFragment : Fragment() {
+
+    private val viewModel: MainViewModel by activityViewModels()
+
     private lateinit var previewUi: KeyboardPreviewUi
 
     private lateinit var tabLayout: TabLayout
@@ -124,11 +129,33 @@ class ThemeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         previewUi.setTheme(ThemeManager.activeTheme)
+        maybeOpenConfigTab()
+    }
+
+    /**
+     * 搜索跳转过来的目标项若属于「配置」tab，先把 ViewPager 切过去。
+     *
+     * 必要性：两个 tab 由 [FragmentStateAdapter] 惰性创建，默认只建 tab 0。
+     * 若不切换，`ThemeSettingsFragment` 根本不会被创建，也就没人去消费
+     * [MainViewModel] 里的滚动键——用户会停在主题列表页，看不到跳转效果。
+     *
+     * 判断依据是「该键是否登记在 ThemePrefs」而不是硬编码键名，
+     * 这样以后往 ThemePrefs 加项不必同步改这里。
+     */
+    private fun maybeOpenConfigTab() {
+        val key = viewModel.peekPendingPreferenceScrollKey() ?: return
+        if (ThemeManager.prefs.managedPreferences.containsKey(key)) {
+            viewPager.setCurrentItem(CONFIG_TAB_INDEX, false)
+        }
     }
 
     override fun onDestroy() {
         ThemeManager.removeOnChangedListener(onThemeChangeListener)
         super.onDestroy()
+    }
+
+    private companion object {
+        const val CONFIG_TAB_INDEX = 1
     }
 
 }

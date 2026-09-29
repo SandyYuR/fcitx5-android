@@ -23,6 +23,7 @@ import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.common.withLoadingDialog
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
+import org.fcitx.fcitx5.android.ui.main.settings.search.scrollToPendingPreference
 import org.fcitx.fcitx5.android.utils.addPreference
 
 abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
@@ -93,7 +94,11 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // make sure to create preference only once since `onViewCreated` is also called on Fragment resume
-        if (preferenceScreen?.isEmpty() == false) return
+        if (preferenceScreen?.isEmpty() == false) {
+            // 列表已建好（例如从子页面返回）：直接消费待处理的滚动定位。
+            scrollToPendingPreference(viewModel)
+            return
+        }
         val context = requireContext()
         lifecycleScope.withLoadingDialog(context) {
             raw = fcitx.runOnReady { obtainConfig(this) }
@@ -125,6 +130,11 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
                     addPreference(R.string.config_addon_not_loaded)
                 }
             }
+            // 搜索跳转的滚动定位。本页的列表是**异步**建成的（要等引擎返回 `desc` 树），
+            // 所以只能放在赋值 `preferenceScreen` 之后——若像其它页那样写在
+            // `onViewCreated` 末尾，那时 `preferenceScreen` 还是空的，`findPreference`
+            // 必然找不到目标项，表现为「跳对了页面但不滚动」且无日志。
+            scrollToPendingPreference(viewModel)
         }
     }
 

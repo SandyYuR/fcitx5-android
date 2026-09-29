@@ -5,15 +5,21 @@
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
 import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.activityViewModels
 import androidx.preference.Preference
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
+import org.fcitx.fcitx5.android.ui.main.MainViewModel
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.webeditor.ImeWebEditorBridgeServer
+import org.fcitx.fcitx5.android.ui.main.settings.search.scrollToPendingPreference
 import org.fcitx.fcitx5.android.utils.addPreference
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
 
 class KeyboardSettingsFragment : PaddingPreferenceFragment() {
+
+    private val viewModel: MainViewModel by activityViewModels()
 
     private var editorsPref: Preference? = null
 
@@ -31,6 +37,13 @@ class KeyboardSettingsFragment : PaddingPreferenceFragment() {
             addPreference(R.string.keyboard_category_toolbar) {
                 navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_TOOLBAR))
             }
+            // 2026-09-29：候选栏样式不再从本页挂出——它已归「输入与候选」，
+            // 同一目标挂两条路径会让用户怀疑哪个才是真的。本页的「工具栏」组
+            // 现在只剩工具栏自身两项（见 KEYS_BY_GROUP），标题也据此改了名。
+            // 浮动/单手键盘原先没有任何设置入口，只能靠工具栏图标发现。
+            addPreference(R.string.keyboard_modes_title, R.string.keyboard_modes_summary) {
+                navigateWithAnim(SettingsRoute.KeyboardModes)
+            }
             val p = Preference(context).apply {
                 key = "editors_category"
                 isSingleLineTitle = false
@@ -44,6 +57,18 @@ class KeyboardSettingsFragment : PaddingPreferenceFragment() {
             editorsPref = p
             addPreference(p)
         }
+    }
+
+    /**
+     * 搜索跳转的滚动定位。
+     *
+     * 本页是 `PaddingPreferenceFragment` 的子类而非 `ManagedPreferenceFragment`，
+     * 不会自动接入，需要手工调用。放在 `onViewCreated`（super 之后）：
+     * `onCreatePreferences` 执行时 `listView` 还可能为空。
+     */
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        scrollToPendingPreference(viewModel)
     }
 
     override fun onResume() {

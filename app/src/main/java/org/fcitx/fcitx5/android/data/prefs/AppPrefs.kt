@@ -78,6 +78,9 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
     inner class Advanced : ManagedPreferenceCategory(R.string.advanced, sharedPreferences) {
         val ignoreSystemCursor = switch(R.string.ignore_sys_cursor, "ignore_system_cursor", false)
+        // 控制「全局选项」里 Fcitx 快捷键族是否显示。2026-09-29 从「高级 → 引擎配置」
+        // 再上移到「高级」本页：引擎配置那个中转分组已取消，全局选项与中州韵设置
+        // 改挂「输入与候选」下，附加组件与这个开关一起回到「高级」。
         val hideKeyConfig = switch(R.string.hide_key_config, "hide_key_config", true)
         val disableAnimation = switch(R.string.disable_animation, "disable_animation", false)
         val vivoKeypressWorkaround = switch(

@@ -80,8 +80,8 @@
     <string name="keyboard_category_layout">Layout &amp; Size</string>
     <string name="keyboard_category_behavior">Key Behavior</string>
     <string name="keyboard_category_feedback">Key Feedback</string>
-    <string name="keyboard_category_toolbar">Toolbar &amp; Candidates</string>
-    <string name="keyboard_category_editors">Extra Options</string>
+    <string name="keyboard_category_toolbar">Toolbar</string>
+    <string name="keyboard_category_editors">Keyboard customization</string>
     <string name="one_handed_keyboard">One-handed Keyboard</string>
     <string name="clipboard_suggestion_timeout">Clipboard suggestion timeout</string>
     <string name="version">Version</string>
@@ -182,6 +182,7 @@
     <string name="follow_system_day_night_theme_summary">Override manual theme selection</string>
     <string name="light_mode_theme">Light mode theme</string>
     <string name="dark_mode_theme">Dark mode theme</string>
+    <string name="candidates_preset_title">Quick preset</string>
     <string name="new_theme">New theme</string>
     <string name="theme_name">Theme name</string>
     <string name="theme_name_empty">Theme name cannot be empty</string>
@@ -889,4 +890,40 @@
     <string name="voice_error_audio_construct">AudioRecord construct denied: %s</string>
     <string name="voice_error_audio_not_init">AudioRecord not initialized</string>
     <string name="voice_error_audio_start_failed">startRecording failed: %s</string>
+
+    <!-- 设置搜索 -->
+    <string name="settings_search_hint">Search settings</string>
+    <string name="settings_search_group_android">Android</string>
+    <string name="settings_search_no_result">No matching settings</string>
+    <string name="settings_search_result_count">%1$d results</string>
+
+    <!-- 设置首页分组 -->
+    <string name="settings_home_category_daily">Everyday</string>
+    <string name="settings_home_category_more">Occasional</string>
+    <string name="settings_group_input">Input &amp; candidates</string>
+    <string name="settings_group_input_summary">Rime schema and deployment, Fcitx global options, candidate bar and window</string>
+    <string name="settings_group_keyboard">Keyboard</string>
+    <string name="settings_group_keyboard_summary">Size and margins, key behavior and feedback, toolbar, keyboard forms and customization</string>
+    <string name="settings_group_appearance">Appearance</string>
+    <string name="settings_group_appearance_summary">Theme, icons, fonts and keyboard modes</string>
+    <string name="settings_group_convenience">Convenience</string>
+    <string name="settings_group_convenience_summary">Clipboard, symbols and voice input</string>
+    <string name="settings_group_data">Data &amp; backup</string>
+    <string name="settings_group_data_summary">Import, export and user data directory</string>
+    <string name="settings_group_advanced">Advanced</string>
+    <string name="settings_group_advanced_summary">Addons, compatibility switches, developer options</string>
+
+    <!-- 键盘形态 -->
+    <string name="keyboard_modes_title">Floating &amp; one-handed keyboard</string>
+    <string name="keyboard_modes_summary">Move and resize the keyboard by dragging</string>
+    <string name="floating_keyboard_enabled">Enable floating keyboard</string>
+    <string name="floating_keyboard_enabled_summary">The keyboard detaches from the bottom edge and can be dragged around</string>
+    <string name="one_hand_keyboard_enabled">Enable one-handed keyboard</string>
+    <string name="one_hand_keyboard_enabled_summary">Shrinks the keyboard to one side so it is reachable with one thumb</string>
+    <string name="one_hand_keyboard_on_right">Place on the right side</string>
+    <string name="one_hand_keyboard_on_right_summary">Turn off to place the one-handed keyboard on the left</string>
+
+    <!-- 拆分后的键盘分组名 -->
+    <string name="keyboard_category_candidate">Candidate bar style</string>
+    <string name="keyboard_category_voice">Voice input</string>
 </resources>

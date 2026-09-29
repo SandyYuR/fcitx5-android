@@ -26,10 +26,14 @@ import org.fcitx.fcitx5.android.ui.main.settings.addon.AddonListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.CandidatesSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.ClipboardSettingsFragment
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.DataBackupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardGroupFragment
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardModesFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.SymbolSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.global.GlobalConfigFragment
+import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
+import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodConfigFragment
 import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeFragment
@@ -66,6 +70,13 @@ sealed class SettingsRoute : Parcelable {
 
     /* ========== Android ========== */
 
+    /**
+     * 首页一级入口下的分组页，由 [SettingsGroupSpecs] 驱动。
+     * 用 id 标识分组，避免为每个分组各建一个路由类与 Fragment。
+     */
+    @Serializable
+    data class SettingsGroup(val id: String) : SettingsRoute()
+
     @Serializable
     data object Theme : SettingsRoute()
 
@@ -87,6 +98,13 @@ sealed class SettingsRoute : Parcelable {
     @Serializable
     data object Symbol : SettingsRoute()
 
+    /** 浮动键盘与单手键盘。原先没有任何设置入口，只能靠工具栏按钮触发。 */
+    @Serializable
+    data object KeyboardModes : SettingsRoute()
+
+    /** 数据与备份：从「高级」拆出，避免与兼容性开关混在一起。 */
+    @Serializable
+    data object DataBackup : SettingsRoute()
 
     @Serializable
     data object Advanced : SettingsRoute()
@@ -193,6 +211,11 @@ sealed class SettingsRoute : Parcelable {
                 label = ctx.getString(R.string.virtual_keyboard)
             }
             fragment<KeyboardGroupFragment, KeyboardGroup>()
+            fragment<KeyboardModesFragment, KeyboardModes> {
+                label = ctx.getString(R.string.keyboard_modes_title)
+            }
+            // 分组页标题由规格表给出，这里不设 label，由 Fragment 在 onResume 里设置。
+            fragment<SettingsGroupFragment, SettingsGroup>()
             fragment<CandidatesSettingsFragment, CandidatesWindow> {
                 label = ctx.getString(R.string.candidates_window)
             }
@@ -204,6 +227,10 @@ sealed class SettingsRoute : Parcelable {
             }
             fragment<AdvancedSettingsFragment, Advanced> {
                 label = ctx.getString(R.string.advanced)
+            }
+            // 数据与备份从「高级」拆出，见 DataBackupFragment 的说明。
+            fragment<DataBackupFragment, DataBackup> {
+                label = ctx.getString(R.string.settings_group_data)
             }
             fragment<DeveloperFragment, Developer> {
                 label = ctx.getString(R.string.developer)

@@ -69,8 +69,8 @@
     <string name="keyboard_category_layout">Layout &amp; Größe</string>
     <string name="keyboard_category_behavior">Tastenverhalten</string>
     <string name="keyboard_category_feedback">Tasten-Feedback</string>
-    <string name="keyboard_category_toolbar">Werkzeugleiste &amp; Kandidaten</string>
-    <string name="keyboard_category_editors">Erweiterte Optionen</string>
+    <string name="keyboard_category_toolbar">Werkzeugleiste</string>
+    <string name="keyboard_category_editors">Tastatur-Anpassung</string>
     <string name="one_handed_keyboard">Einhandtastatur</string>
     <string name="version">Version</string>
     <string name="build_git_hash">Git Hash erzeugen</string>

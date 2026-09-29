@@ -96,16 +96,10 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
             AppPrefs.getInstance().keyboard.registerOnChangeListener(onSplitEnabledChangeListener)
         }
 
-        // Group 5 extras: customization tool entries
+        // Group 5 extras: keyboard definition tools
+        // 注意：字体设定与弹出字符设定已移到「外观」分组（见 SettingsGroupSpecs），
+        // 本页不再重复提供入口——同一功能出现在两个地方会让人怀疑它们不是同一项设置。
         if (group == GROUP_EDITORS) {
-            addTool(screen, "tool_fontset_editor",
-                R.string.edit_fontset, ""
-            ) { startActivity(Intent(requireContext(), FontsetEditorActivity::class.java)) }
-
-            addTool(screen, "tool_popup_editor",
-                R.string.edit_popup_preset, ""
-            ) { startActivity(Intent(requireContext(), PopupEditorActivity::class.java)) }
-
             addTool(screen, "tool_text_layout_editor",
                 R.string.edit_text_keyboard_layout, ""
             ) { startActivity(Intent(requireContext(), TextKeyboardLayoutEditorActivity::class.java)) }
@@ -385,6 +379,12 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
         const val GROUP_TOOLBAR = 3
         const val GROUP_EDITORS = 4
 
+        /** 候选栏样式：从 [GROUP_TOOLBAR] 拆出，与「候选窗口」同属一族。 */
+        const val GROUP_CANDIDATE = 5
+
+        /** 语音输入：从 [GROUP_TOOLBAR] 拆出，语音是一种输入方式而非工具栏属性。 */
+        const val GROUP_VOICE = 6
+
         val KEYS_BY_GROUP: Map<Int, Set<String>> = mapOf(
             GROUP_LAYOUT to setOf(
                 "keyboard_height_percent", "keyboard_side_padding",
@@ -403,11 +403,16 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
                 "button_vibration_press_milliseconds", "button_vibration_press_amplitude",
                 "sound_on_keypress", "button_sound_volume", "custom_key_sound"
             ),
+            // 工具栏只保留真正属于工具栏自身的项；候选栏样式与语音已各自成组。
             GROUP_TOOLBAR to setOf(
                 "inline_suggestions", "toolbar_num_row_on_password",
+            ),
+            GROUP_CANDIDATE to setOf(
                 "horizontal_candidate_style", "highlight_first_candidate",
                 "expanded_candidate_style",
                 "expanded_candidate_grid_span_count_portrait",
+            ),
+            GROUP_VOICE to setOf(
                 "show_voice_input_button", "preferred_voice_input",
             ),
             GROUP_EDITORS to emptySet(),
@@ -419,6 +424,8 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
             GROUP_FEEDBACK -> R.string.keyboard_category_feedback
             GROUP_TOOLBAR -> R.string.keyboard_category_toolbar
             GROUP_EDITORS -> R.string.keyboard_category_editors
+            GROUP_CANDIDATE -> R.string.keyboard_category_candidate
+            GROUP_VOICE -> R.string.keyboard_category_voice
             else -> throw IllegalArgumentException("Unknown group: $group")
         }
     }
