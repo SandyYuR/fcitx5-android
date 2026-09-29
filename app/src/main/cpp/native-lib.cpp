@@ -718,7 +718,9 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_org_fcitx_fcitx5_android_core_Fcitx_getFcitxTranslation(JNIEnv *env, jclass clazz, jstring domain, jstring str) {
     const char *t = fcitx::translateDomain(*CString(env, domain), *CString(env, str));
-    return env->NewStringUTF(t);
+    // .mo 文件里的译文同样可能带非法字节；非法 UTF-8 会让 CheckJNI 直接 abort 进程。
+    std::string sanitized = sanitizeUtf8(t);
+    return env->NewStringUTF(sanitized.c_str());
 }
 
 extern "C"
