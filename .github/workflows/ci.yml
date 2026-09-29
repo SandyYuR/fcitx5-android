@@ -210,14 +210,8 @@ jobs:
         run: |
           last_tag="${{ steps.prev_tag.outputs.value }}"
           {
-            # Release 标题/正文统一为「靓企鹅·中州韵（Rime-only）」固定头 + Rime-only
-            # 注意事项（与 627 版手工格式一致），nightly 不再需要发完手工改标题。
-            echo "## 靓企鹅·中州韵（Rime-only） ${{ steps.tag.outputs.value }}"
-            echo ""
-            echo "### 注意：此版仅可使用Rime输入方案（插件已合并）"
-            echo "### 包名变更：org.fcitx.fcitx5.android.fx.rime"
-            echo ""
-            echo ""
+            # 正文只留构建信息与提交列表；固定的品牌标题与 Rime-only 注意事项已移除
+            # （发布标题仍由下方 release 的 name 字段提供）。
             echo "Commit: $(git rev-parse --short HEAD)"
             echo "Built at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
             echo ""
