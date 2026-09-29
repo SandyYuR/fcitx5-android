@@ -711,6 +711,81 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 
 ---
 
+### 0.6.9 宏键显示文本优先级与 JNI UTF-8 净化（2026-09-29）
+
+#### 宏键 displayText 优先于 label
+
+起因是用户反馈「宏键设成大写显示文本，键盘上却显示小写，跟字母键一样，不够自定义」。
+
+**根因**：MacroKey 的外观就是 `KeyDef.Appearance.AltText`，而 `TextKeyboard.updateAlphabetKeys()` 对所有 `AltText` 键统一做 Shift/Caps 大小写改写——用户填的 `A` 在 Shift 关闭时被强制改成 `a`，与 AlphabetKey 无从区分。
+
+**改法**：`KeyDef.Appearance.AltText` 新增 `keepDisplayTextCase: Boolean`（默认 false，故 AlphabetKey 等既有键不受影响）；`MacroKey` 新增 `displayText` 参数，非空即 `keepDisplayTextCase = true`。`updateAlphabetKeys()` 里该标记走**独立分支**：
+
+```kotlin
+if (keyDef.keepDisplayTextCase) {
+    it.mainText.text = if (displayIsSingleLetter && (displayUppercase || keepLettersUppercase))
+        displayText.uppercase() else displayText
+    return@forEach
+}
+```
+
+⚠️ **只应用「大写」那一支，不应用「小写」那一支**——这正是修复点。别为了「严格原样」把大写支也删掉，否则用户要的「按 Shift 字母仍变大写」的兼容行为会丢。
+
+**解析侧的坑**：`LayoutJsonUtils.createKeyDef` 里 `label` 与 `displayText` 必须**分别保留**。原先 `resolveDisplayText` 的默认值直接传 `baseLabel`，于是「displayText 未命中当前子模式」与「用户根本没填」无法区分，会误把 label 当显式显示文本。现在传空串默认值、再 `.takeIf { it.isNotEmpty() }`，把「未命中」归为「未设置」，由 `MacroKey` 回落 label。
+
+**同步改的三处**（漏任一处就会出现「编辑器所见 ≠ 键盘所打」）：保存侧 `keyDefToJson` 写出 `displayText`（不写空串）；布局列表预览 `KeyboardLayoutAdapter.buildKeyLabel` 与 `TextKeyboardLayoutEditorActivity.buildKeyLabelForEditor` 都改为显示文本优先（displayText 为子模式 Map 时取 `default` 项）。`buildPopup` 也改用「实际显示的文本」。
+
+回归用例 5 个在 `LayoutJsonUtilsTest`（优先级、回落、往返保存、未设置不写空串、子模式未命中回落）。
+
+#### JNI 边界净化非法 UTF-8（崩溃修复）
+
+**现象**：打字途中输入法整个消失，`/data/app/.../libnative-lib.so`、线程 `fcitx-main`、signal 6，**Java 侧拿不到任何堆栈**。
+
+**墓碑**：
+
+```
+JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal start byte 0x81
+    input: '<0x81>'
+    in call to NewStringUTF
+    from void org.fcitx.fcitx5.android.core.Fcitx.sendKeySymToFcitx(int,int,int,boolean,int)
+```
+
+**根因**：Rime 候选栏 tab 的 label 里带了**孤立的续字节 0x81**。CheckJNI 校验非法 Modified UTF-8 时直接 `abort()` 整个进程。用 NDK `llvm-addr2line` 还原（`libnative-lib.so` / `libandroidfrontend.so` 的 Debug 产物）：
+
+```
+#10 NewStringUTF                                          jni.h:840
+#11 JString::JString(JNIEnv*, const char*)                jni-utils.h:64
+#13 fcitxCandidateActionToObject  ← act.text              object-conversion.h:169
+#14 inputPanelCallback 的 tabs 循环                       native-lib.cpp:609
+#19 AndroidFrontend::updateInputPanel                     androidfrontend.cpp:404
+#36 fcitx::InputContext::keyEvent
+#43 Java_..._sendKeySymToFcitx
+```
+
+注意这是**上游数据脏**（Rime `get_input_tabs()` 的返回值），不是我们的代码写错。但桥接层不该因此让整个进程 abort。
+
+**改法**：`jni-utils.h` 新增 `sanitizeUtf8()`——逐字节校验，非法序列替换为 `U+FFFD`，合法序列（含 4 字节 emoji）原样通过；覆盖过长编码、UTF-16 代理对半区、超出 `U+10FFFF`。`JString` 构造函数与 `getFcitxTranslation` 两个出口都改走它，并打一条 `Fcitx5Jni` WARN 便于定位脏数据来源。
+
+⚠️ **`JString(const char*)` 是唯一入口**，全仓库只有它和 `getFcitxTranslation` 两处 `NewStringUTF`；新增任何 `NewStringUTF` 调用都必须过净化，否则同类崩溃会从新路径复发。
+
+**验证方式**（真机无 adb 时也可做）：把**真实的** `jni-utils.h` 配上最小 `jni.h` 桩（`NewStringUTF` 桩模拟 CheckJNI 严格校验、非法即记录「这里真机会 abort」），用 NDK clang `--target=aarch64-linux-android28` 交叉编译成可执行文件推到设备实跑——26 项用例全过，含崩溃现场那个 0x81、各种截断序列与 emoji 通行性。
+
+#### 内置 26 键字母布局去掉冗余显示文本
+
+按用户要求，把「26 键字母布局」里**当作字母使用**的宏键的 `displayText` 字段删掉（22 个层、68 处）。判据与注意事项：
+
+- **判据是「该层字母覆盖满 26 个」**，不是「布局名字里有 26」。用户明确叮嘱 18 键之类非 26 键布局不要动——大同布局的 `wanxiang_zrm_18keys`（18 键，4 个宏字母键）与万象九键v2 的 `符号` 层（借字母当符号，3 个）都被自动排除，共 7 个键保持原样。
+- **删除前必须逐项确认 `displayText == label`**，否则删掉会改变键面显示。「是字母」判定要求 `tap` 恰好是**单个** `{"type":"tap"}` 步骤、**单个** fcitx 键、且该键名是单个 ASCII 字母。
+- 改法是**按字节范围剔除成员**（含前导逗号），不是 `JSON.parse` + `stringify` 重排——后者会把整份手写格式化的文件重排，diff 无法审阅。
+- 验证四道：① 仍能解析；② 文件恰好缩短被删字段的字节数、行尾（CRLF/LF）不变；③ 语义深比对差异叶子**全部**位于 `displayText`；④ 重扫 22 个 26 键层，字母宏键携带 `displayText` 的为 0。
+- ⚠️ 这类内置资源改动**不会自动下发**给存量用户：`BundledPresets.assetSizes` 未登记这几个文件，已存在的 `config/` 布局不会被覆盖。要生效需卸载重装或清数据（会连用户自定义布局一起清，先备份）。
+
+#### Nightly 正文去掉固定品牌头
+
+`.github/workflows/ci.yml` 的 release notes 生成段原先硬编码三行固定文案（`## 靓企鹅·中州韵（Rime-only） <tag>` 与两行 Rime-only 注意事项），按用户要求删除，正文只留 `Commit` / `Built at` / `### Changes`。发布页**标题**仍由 softprops 步骤的 `name:` 字段提供，不受影响——改这里别顺手把 `name:` 也删了。
+
+---
+
 ## 1. 用户给的长期约定（必须遵守）
 
 原话：**「全部做，从 fx2 分支复制到另一个分支，在新复制的分支上面改动，每改好一处就推送上去一次，手动触发一次 ci，但是不要 release」**
