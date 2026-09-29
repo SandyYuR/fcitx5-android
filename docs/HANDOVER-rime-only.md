@@ -603,6 +603,114 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 
 ---
 
+## 0.6 设置界面与符号面板重构（2026-09-27 ~ 09-29）
+
+> 本节是细节记录（**为什么这么做、踩了什么坑**）。`AGENTS.md` 第 12 节只保留其中的**不变式**（不许做什么），两者互补：改这块代码前先读本节。
+
+### 0.6.1 符号 / 表情 / 颜文字面板换成 Foxy 风格（2026-09-27）
+
+**旧实现已整体删除**：`PickerData`（硬编码 3 组数据）+ `PickerTabsUi` / `PickerPagesAdapter` / `PickerPageUi` / `PickerPaginationUi` 四个文件。改为读取 Foxy 输入法（`com.fxliang.foxy`，Foxy 反编译产物）的 catalog JSON，并按 Foxy 的布局模型重建面板。
+
+- **数据**：`app/src/main/assets/bundled/symbols/{symbols,emoji,kaomoji}.json`（60KB / 28KB / 28KB），解析器 `input/picker/SymbolCatalog.kt`。格式 `{multiLine, groups:[{names:{zh,zh-Hant,en}, symbols:[...]}]}`——**`names` 是多语言字典**，组名要走 locale 回退链：完整标签 → `zh-TW/HK/MO` 特判 `zh-Hant` → 语言主标签 → 首个值。
+- **UI**：`input/picker/SymbolPanelUi.kt`（左侧竖向分组栏 + 右侧网格 + 「最近」分组）。**颜文字必须单列**（`columns = 1`）——Foxy 的 `multiLine=true` 就是这个语义，条目最长 63 字符，多列会被 `AutoScaleTextView` 压到看不清。
+- **面板独占整个键盘区域，底部不再有键盘行**（2026-09-28 修正）。早期版本底部保留了一行 `ABC , <切换> 空格 . 回车`，那是照抄旧 `PickerLayout` 结构的错误：面板按键本身是「点一下即时上屏」，空格/回车/逗号毫无意义，还白吃掉约 1/4 键盘高度。**键盘级操作只剩左栏（宽 84dp，同 Foxy 的 `b(84)`）底部两枚小键**：`⌨` 返回文字键盘、`⌫` 退格（长按连删），字形与 Foxy 的 `ly.j` / `ly.k` 一一对应。
+- ⚠️ **不要在面板里加第三枚「切换面板」键**（09-28 用户明确要求删除）。面板互切**和 Foxy 一样属于布局/宏的配置**，不是面板内建的：Foxy 的 `ly` 只有 `⌨`/`⌫` 两枚，互切由布局文件的按键（`k5("emoji")` 等）驱动。本项目对应两个入口：① LayoutSwitchKey 的 `Emoji` / `Kaomoji` 目标；② 宏的「切层」动作指向这三个面板。两条通道已接通，因此面板内不需要也不允许硬编码切换键。
+- **工具栏保持主键盘原样，只把最左侧按钮换成返回箭头**（09-28 修正）。这一点**不能**靠 `ExtendedInputWindow` 实现——那会让整个工具栏切到 `KawaiiBarStateMachine.State.Title` 标题栏形态（按钮整片换掉）。正解：`PickerWindow` 继承 `InputWindow.SimpleInputWindow`，再由 `KawaiiBarComponent.onWindowAttached` 调 `IdleUi.setBackToKeyboardMode(window is PickerWindow)`，只替换最左图标；点击行为在主键盘工具栏的 `menuButton` 监听里按「当前窗口是不是 PickerWindow」判定。**判据来自 Foxy 源码**：`ly` 只是 `cv` 内部一个 overlay（`cv.java:150-156` 只 `setVisibility`），**根本不是窗口**，所以 Foxy 全程不碰工具栏；它的 `⌨` 走 `a(new k5("default"))` 回默认键盘、`⌫` 走 `a(new wz(j30.BACKSPACE, 0))` 发退格。
+- 列数/尺寸只在 `PickerWindowPreset.kt` 调：符号 6 列/18f、表情 6 列/22f、颜文字 1 列/15f。
+- **有意偏离 Foxy 的两点**：① 用 `RecyclerView` 复用视图，而不是像 Foxy 的 `ly.c()` 那样一次性把整份 catalog（符号 4773 条）全 `new` 成 View；② 保留长按弹出（emoji 肤色），Foxy 面板无此交互。
+- ⚠️ **「最近使用」的存储键是历史值，不要跟着枚举改名**：`SymbolCatalogType.recentKey` = `Symbol` / `Emoji` / `Emoticon`。它既是 SharedPreferences 的键（`picker_recently_used`），也是旧版 `filesDir/recently_used/` 迁移文件的文件名（`RecentlyUsed.migrate`），改了会**静默丢**存量用户的最近使用记录。颜文字那项仍写 `Emoticon` 就是 09-28 改名的遗留。
+- ⚠️ **颜文字面板的 Key 已由 `Emoticon` 改名为 `Kaomoji`**（09-28，用户要求）。旧名**已经写进用户数据**（布局按键的 `subLabel`、宏的 `target`、`lastPickerType` 偏好），所以：`PickerWindow.Key.ofName` 必须继续接受 `Emoticon`（见 `LEGACY_KAOMOJI`），`CommonKeyActionListener` 读 `lastPickerType` 也改用 `ofName` 而非 `valueOf`，否则存量用户偏好会抛异常并静默退回 Emoji；布局编辑器 `SWITCH_TARGET_OPTIONS` 与宏的切层候选/白名单都要放行旧名（网页编辑器同理，见 `pickerLegacyLayerTargets`）；网页编辑器「按键对话框」还需在 `subLabel` 不在预设项内时把它追加成一个选项，否则 `<select>` 回落成「默认」，用户一保存就悄悄改了配置（app 侧 `createSwitchTargetSpinner` 本就有该兜底）。
+- `PickerWindow.Key` 枚举（`Symbol`/`Emoji`/`Kaomoji`）是**窗口标识**，被 `AppPrefs.lastSymbolLayout`/`lastPickerType`、`PickerSwitchAction`、`NumberKeyboard`、`KeyboardWindow` 等多处引用，不能顺手删。
+- `bundled/symbols` 已加进 `app/build.gradle.kts` 的 `generateDataDescriptor` **excludes**：这些 catalog 只随 APK 分发、由 `SymbolCatalogs` 直接从 assets 读，**不参与 dataDir 资源同步**，也不走 `BundledPresets`（因此与 `assetSizes` 那套版本标记无关）。
+- `InputView` 的背景模糊策略已改为「任何 `PickerWindow` 都整层模糊」：新面板含大片非按键区域（分组栏、行间空白），再按按键区域裁剪会留下未模糊的缺口。
+
+### 0.6.2 符号 catalog 支持用户自定义（2026-09-27，对应 Foxy 的「符号布局」设置）
+
+三类数据可各自换成用户 JSON：
+
+- 路径 `config/symbol_catalogs/<symbols|emoji|kaomoji>/<名>.json`，由 `UserConfigFiles.symbolCatalogDir` / `symbolCatalogFile` / `listSymbolCatalogFiles` 解析；选择存于 `AppPrefs.symbols.symbolCatalog{Symbols,Emoji,Kaomoji}`，默认 `UserConfigFiles.SYMBOL_CATALOG_BUILTIN`（= Foxy 的 `__builtin__`）。
+- **回退语义是「自定义不可用就用内置」，不是「变空」**：文件不存在 / 解析异常 / 解析后零有效分组，都在 `SymbolCatalogs.load` 里回退内置（对齐 Foxy `lv0.c`）。改动这里必须保持该行为，否则用户换个坏文件就整个面板空白。
+- `SymbolCatalogs.get` 的缓存键是 **"种类|所选文件"**，且 `SymbolPanelUi.rebuild()` 每次重新取 catalog——因为用户可能在设置页切了数据源。切换时必须 `SymbolCatalogs.invalidate()`，否则面板仍显示旧内容。
+- 设置页入口在 `SymbolSettingsFragment`（原文件只有一行继承，已扩展为带三项 catalog 选择 + SAF 导入）。**导入先解析校验再落盘**，避免把坏文件装进去。
+- **`UserConfigFiles.isValidCatalogName` 是安全边界**：文件名会拼进路径，必须拒绝路径分隔符 / 控制字符 / 超长名（对齐 Foxy `mv0.a` 的 `.json` 后缀 + length > 5）。已有单测 `SymbolCatalogNameTest` 覆盖穿越用例。
+- 列目录时**不能**用 `canonicalPath != absolutePath` 判软链接：Android 上 `getExternalFilesDir` 返回路径本身常含软链接（`/storage/emulated/0`），那样会把所有正常文件判成软链接。改用「规范化后的文件路径必须以规范化目录路径开头」。
+- 自定义 catalog **不参与 `BundledPresets`/`assetSizes`**，也与 dataDir 同步无关：它们纯属用户数据。
+- **术语**：这套 catalog 的中文一律用「自定义」（简）/「自訂」（繁），**不要写「自备」**——`Custom` 在本项目其它字符串（`custom_key_sound`、`icon_theme_custom_resource` 等）都译作「自定义」，混用会造成同一概念两个词。
+- **三项标题 2026-09-29 按用户要求统一加前缀**：`symbol_catalog_{symbols,emoji,kaomoji}_title` → 「自定义符号数据 / 自定义表情数据 / 自定义颜文字数据」（繁中「自訂…」，英文 `Custom symbol data` / `Custom emoji data` / `Custom kaomoji data`）。**只有 `values`、`values-zh-rCN`、`values-zh-rTW` 三处有这组字符串**，其余 5 个 locale 本就没有，别去找。用户指南 §5.9 的路径同步为「表情和符号 → 自定义符号数据 / 自定义表情数据 / 自定义颜文字数据」。
+
+### 0.6.3 设置首页重构为「两层 + 6 入口 + 搜索框」（2026-09-28）
+
+首页结构由 `MainFragment` 决定：第 0 项是常驻搜索框，下面是「日常调整」（输入与候选 / 键盘 / 外观 / 便捷功能）与「按需进入」（数据与备份 / 高级）两个分类。
+
+1. **分组页 = 一张规格表 + 一个通用 Fragment**：`settings/group/SettingsGroupSpecs.kt` 定义分组与条目，`SettingsGroupFragment` 渲染。要加/改分组只动规格表，**别新建 Fragment**——分组内容全是「带图标的跳转项」，没有各自独有的状态。**「键盘」不在规格表里**：它直接复用既有的 `VirtualKeyboard` 页（那边已是子分组列表），再套一层分组页会产生两个重复入口。
+2. **搜索索引是静态目录，必须手工维护**：`settings/search/SettingsSearchIndex.kt` 是一张 `SettingsSearchEntry` 列表，**新增/改名/移动设置项时必须同步登记**，否则该项搜不到。不用反射遍历 PreferenceScreen 的原因：设置项分散在三种载体（ManagedPreference、引擎动态配置树、独立 Activity），且静态目录才能给条目补同义词/英文别名。
+3. **匹配规则抽在 `SettingsSearchQuery`（纯函数，有单测）**：按空白切词、**每个词都要命中**（AND 语义）、`Locale.ROOT` 小写转换、空查询返回 `false`。`SettingsSearchQueryTest` 钉住这四条——尤其「空查询不匹配一切」，否则调用方会在没搜东西时渲染出整份目录。
+4. **搜索时用 `isVisible` 逐条切换，不增删 Preference**：增删会触发整份列表重新绑定，正在输入的 EditText 有丢焦点、软键盘收起的风险。`MainFragment.collectNormalPreferences` 递归收集常规条目（含分类与子项），不依赖「隐藏 PreferenceGroup 会自动隐藏子项」这一未在文档中承诺的行为。
+5. **`SettingsSearchPreference` 的绑定阶段**：TextWatcher 必须**复用同一实例且注册前先 remove**（直接 `doAfterTextChanged` 会每绑定一次加一个 listener，刷新几轮后一次按键触发多次搜索）；文本只在**与 `query` 不一致时**才补写，且注册 watcher 必须在那次补写**之前**。`onBindViewHolder` 中**不得**在绑定阶段 `requestFocus`，否则一进设置页就弹键盘——首焦点由布局层 `focusable`/`focusableInTouchMode`/`descendantFocusability="beforeDescendants"` 挡掉（`preference_settings_search.xml`）。
+6. **`KeyboardModesFragment` 的互斥逻辑必须用 `onPreferenceChange`，不能用 `onPreferenceTreeClick`**：`SwitchPreference.onClick` 先调 `super.onClick()`（派发 tree click）再切换取值，在 tree click 里读到的是**旧值**，判断必然出错。浮动与单手键盘互斥（开其一自动关另一个），「靠右显示」只在单手开启时可用。
+7. **`AdvancedSettingsFragment` 已瘦身**：用户数据导入/导出/浏览目录移到 `DataBackupFragment`（纯动作、无 managed preference，故直接继承 `PaddingPreferenceFragment`）。键盘分组有 `GROUP_CANDIDATE`(5) 与 `GROUP_VOICE`(6)：候选栏样式与语音从 `GROUP_TOOLBAR` 拆出，`KEYS_BY_GROUP` 与 `groupTitleRes` 必须同步。
+8. **「未实现类型」不再渲染给用户**：`PreferenceScreenFactory.general` 原先为上游有、本应用未实现的配置类型渲染一行「⛔ 未实现类型 'xxx'」。那是开发者诊断信息，现改为**不加入页面 + `Timber.w` 记一条**（开发者仍可在「实时日志」看到）。实现上 `when` 分支现在返回 `Preference?`，由局部变量 `built` 承接后再 `built?.apply { ... }`。
+
+**IA 调整（09-29）**：「中州韵设置」与「全局选项」放「输入与候选」，「附加组件」与「隐藏快捷键配置」放「高级」，**「引擎配置」这一层已取消**（路径少一次点击）；「虚拟键盘 → 键盘工具」改名「键盘自定义」。四条重复路径已消除（按键行为、候选栏样式、中州韵设置、附加组件各只剩一个入口）。
+
+### 0.6.4 搜索跳转的滚动定位与高亮（2026-09-28 ~ 09-29）
+
+点搜索结果先 `MainViewModel.requestPreferenceScroll(key)` 存键，再导航；目标页在自己的 `onViewCreated` 里调 `scrollToPendingPreference(viewModel)` 消费。
+
+- **键由 `SettingsSearchIndex.PREFERENCE_KEYS` 按标题统一映射**（集中一张表，改键名只动一处），条目也可自带 `preferenceKey` 覆盖。**只登记确实会单独成行的项**：分组/页面级条目与纯动作项（如「导出用户数据」「实时日志」——它们的 Preference 压根没有 key）登记了也找不到目标行，只会让键挂着不被消费。
+- **不要自己写 ViewHolder 轮询等高**：`PreferenceFragmentCompat.scrollToPreference` 已公开提供，内部会在目标项尚未进入 adapter 时注册 `ScrollToPreferenceObserver` 等待，且在列表未就绪时把动作存进 `mSelectPreferenceRunnable` 于 `bindPreferences()` 后执行。调用点必须是 **`onViewCreated`（super 之后）**，不能用 `onCreatePreferences`——那时 `listView` 还可能为空。
+- **键只在目标页命中时才消费**（`consumePendingPreferenceScrollKey` 校验键相同才清空）。这样「同一标题存在于多页、A 页没有 B 页才有」的场景不会把键提前清掉。另外目标项若 `isVisible == false`（如「首选语音输入」要等语音按钮打开）也算处理完毕，要主动消费——否则下次进本页会莫名滚动。
+- **Activity 型目标不记键**（图标主题、字体设定等不是 PreferenceFragment，没人消费）。**`ThemeFragment` 例外需特殊处理**：它的「配置」tab 由 `FragmentStateAdapter` 惰性创建，目标项若属于该 tab，得先在 `onResume` 里 `maybeOpenConfigTab()` 切过去——判断依据是「键是否登记在 `ThemePrefs.managedPreferences`」，不硬编码键名。
+- 已接入的页：`ManagedPreferenceFragment` 的子类（含 `KeyboardGroupFragment`、`ThemeSettingsFragment`、候选窗口/剪贴板/符号/高级）自动生效；`KeyboardModesFragment`、`DeveloperFragment`、`ThemeFragment`、`KeyboardSettingsFragment`、`FcitxPreferenceFragment`（引擎页）手工接入。
+
+**⚠️ 高亮试过又移除（09-29）—— 这段教训值得留着，避免后人重走**。曾用 `foreground` 叠半透明 `colorPrimary` 淡出高亮目标行，**真机上用户始终看不见**。两轮修正都无效：① 补上「等 adapter 位置 + 等 ViewHolder」的两级轮询、延长时长、改用实色起步、加 `Timber.w` 诊断；② 换 `postOnAnimation` 上限 180 帧。最终按要求删除，现在只做滚动定位。若将来重做，先看清这两条 API 事实：
+
+- `scrollToPreference` 内部是 `RecyclerView.scrollToPosition`（**瞬时定位，不是平滑滚动**，别按平滑推断）；
+- 调用点 `onViewCreated` 时列表尚未 measure，`getPreferenceAdapterPosition` 会返 `NO_POSITION`——官方 API 对这种情况会挂 `ScrollToPreferenceObserver` 兜住，**所以滚动正常、只有附加的高亮会静默丢失**。想加高亮必须自己把这两级等待都做进轮询。
+
+另有一条通用教训：`ColorDrawable.setAlpha` 是**直接改写颜色的 alpha 通道**（不是与原 alpha 相乘），行为在不同系统版本上有差异；要稳定就用每帧写入成品颜色。**更重要的教训是流程**：本项目当时无真机（`adb devices` 为空），UI 观感类改动**无法自我验证**，连续两轮靠猜推进都失败——这类改动应当先向用户说明「无法验证」，而不是反复盲调参数。
+
+### 0.6.5 空格键的划动动作（2026-09-28）
+
+为空格键加「布局编辑器里可配划动动作」时定的规则：**开关（`AppPrefs.keyboard.spaceSwipeMoveCursor`）优先级更高**——开启时光标手势完全接管、配置的划动动作**不生效**；关闭且配了动作才由动作接管；两者都不成立时不参与手势（`swipeEnabled = false`，否则手指在空格上移动会取消长按，语音的「按住说话」会半途中断）。
+
+**两个坑**：
+
+1. 通用 `Behavior.Swipe` 绑定会把 `swipeThresholdX` 改写成 `disabledSwipeThreshold`（`BaseKeyboard.applyBehaviorPopupBindings`），直接废掉光标模式的横向移动。因此**空格键的手势只能在 `createKeyView` 里自建、不能走 Swipe 分支**。
+2. 手势监听器必须**每次事件重读开关**，因为缓存行（`reusableRowsCache`）会带着旧模式沿用——开关切换时同时要刷新 `swipeEnabled`、两轴阈值**和** `gestureBaselines`，漏了基线就会在下次重绑时恢复旧值。
+
+优先级规则抽在 `SpaceSwipeMode.kt` 的 `resolveSpaceSwipeEnabled`，由 `SpaceSwipeModeTest` 钉住；划动动作与标签的 JSON 往返由 `LayoutJsonUtilsTest` 覆盖（漏任一侧都会让用户配好的动作在保存/重载后静默消失）。仅 `SpaceKey` 支持划动动作，`MiniSpaceKey` 保持纯光标语义。
+
+### 0.6.6 候选预设 / 颜色项本地化 / 导出按钮（2026-09-28 第二轮）
+
+- **候选预设**（`behavior/CandidatesPresets.kt`）：紧凑/标准/宽松三组，一次写好 7 个纯数值外观参数。**是动作不是模式**——不做「当前属于哪个预设」判定，那要给每个参数引入「谁写的」这种持久化难题。范围须与 `AppPrefs.Candidates` 的 min/max 一致，由 `CandidatesPresetsTest` 钉住（越界会被 SeekBar 夹到边界，表现为「预设没生效」且无日志）。刷新界面用**重建 PreferenceScreen**：`notifyChanged()` 是 `protected` 调不到，而 `SeekBarPreference.value = x` 会再写一次偏好。
+- **颜色项本地化 + 分组折叠**：22 个（`CustomThemeActivity`）+ 21 个 Monet 项原先只有单个英文 `name`，**同时充当显示文案与 map 键**，所以没法翻译。已拆成 `titleRes` + `id`；并按语义分 5 组、默认只展开前 2 组（`groupRes` + `EXPANDED_GROUP_COUNT`，**同组项必须相邻**，否则组头会重复出现；条目要 add 进组容器、否则折叠只藏住组头）。**前提**：这些名字**不参与持久化**（主题 JSON 存 `waterRippleColor` 这类属性名），故改名不影响已存主题。
+- **导出补可见入口**（主题卡片左下角，原先只能长按触发）；Monet 编辑门禁不再静默 `return`，改为明确提示。
+- **`hide_key_config` 终态在「高级」本页**（`AppPrefs.advanced` 的 `switch`，由 `switchNoUi()` 改为普通 `switch()`）。它控制「全局选项」里 Fcitx 快捷键族的显隐。**改位置必须同步 `SettingsSearchIndex` 的跳转目标**——搬过两次都漏改，表现是搜索仍指向旧页。
+- **索引归属要跟着分组走**：条目里的面包屑（`P_*`）与 `route` 是硬编码的，分组一改必须同批更新，否则搜索结果指向已不存在的页面。
+
+### 0.6.7 主题「外观模式」试做又整体回退（2026-09-28 ~ 09-29）
+
+**做过的**：把 `follow_system_dark_mode` 的界面从「跟随系统夜间模式」开关改写为「外观模式（跟随系统 / 手动指定）」，模式名写在开关标题上、摘要随取值切换，并把 `normal_mode_theme` 从内部偏好提升为带 UI 的 `themePreference(...)`（跟随系统开启时置灰）。
+
+**用户随后明确要求「改回以前的样子和逻辑」，已全部撤销**：`ThemePrefs`、`ThemeSettingsFragment`、`ThemeManager.setNormalModeTheme` 与 HEAD 逐字一致；`normal_mode_theme` 重新是 `ManagedThemePreference` 内部偏好（**不**在 `dayNightModePrefNames` 里）；新增的 6 条文案（`follow_system_day_night_theme_summary_manual`、`switch_to_manual_mode`、`light_mode_theme_summary`、`dark_mode_theme_summary`、`normal_mode_theme`、`normal_mode_theme_summary`）在 8 种语言中删净；`theme_message_follow_system_day_night_mode_enabled` 还原旧文案；`SettingsSearchIndex` 里 `normal_mode_theme` 条目删除、`follow_system_day_night_theme` 别名去掉「外观」相关词；用户指南 §3.4 改回「手动选择主题」。
+
+**⚠️ 回退时才发现的一条因果（很隐蔽，务必记住）**：把 `normal_mode_theme.key` 加进 `dayNightModePrefNames` 会**打断主题列表的点击换主题**。`setNormalModeTheme()` 先把 `_activeTheme` 直接写成目标主题，随后 `setValue()` 触发偏好回调；该回调若发现键在集合里，就走「重算生效主题」分支 `activeTheme = evaluateActiveTheme()`——此时值已相同，setter 提前 return、**不再 `fireChange()`**，于是列表勾选与键盘样式都不刷新。**用户现象就是「点主题项换不了主题」**。它不在集合里时走 `else` 分支照常 `fireChange()`，所以原本是好的。
+
+> 另有两条曾被写错的结论，已就地更正：① 方案文档曾称「外观页预览不实时、调圆角等于盲调」——**是错的**。改 `ThemePrefs` 任一项会让 `ThemeManager` 通知 `ThemeFragment` 走 `refreshStyle()` 重建；`BaseKeyboard.currentRowsSignature()` 也已纳入 `keyBorder`/`keyRadius`/`keyHorizontalMargin`/`keyRippleEffect`。**教训：转述前自己走一遍链路。** ② 搜索高亮曾以为「平滑滚动导致等不到」，实际是 `scrollToPosition` 瞬时定位（见 0.6.4）。
+
+### 0.6.8 搜索索引的静默失败，由 `SettingsSearchIndexCoverageTest` 守住
+
+人工审计发现 **13 项从未登记**（分体键盘横屏布局、候选方向/最小宽度/高亮圆角、物理键盘水平候选栏、远端与媒体剪贴板上限、剪贴板提示超时、边框描边、Gboard 风格操作键、文本编辑按钮圆角、剪贴板条目圆角、键盘高度基准）；用户搜不到且**无任何提示**。三个断言各守一类：
+
+- **覆盖**：带 UI 的偏好项都已登记。**必须只扫 `buildEntries` 的条目块**——`PREFERENCE_KEYS` 里也有同名资源，只扫全文件的话，**删掉条目后名字仍留在映射表里、测试照样通过**（初版就是绿的，靠反向验证才发现）。收紧后立刻抓出第 14 个遗漏 `haptic_on_repeat`。
+- **孤儿键**：映射表里有、却无条目引用的键（实例 `verbose_log`；它的标题由 `DeveloperFragment` 用 `setTitle()` 设置，覆盖断言扫不到，两者互补）。
+- **键名拼错**：映射值必须是真实偏好键。写错一个字母时 `findPreference` 返回 null、`PreferenceScrollHelper` 会**保留键**，表现为「跳对页面但不滚动」且无日志。
+- 另断言**条目数与映射条数下限**，否则正则失效时差集断言恒真、测试空转变绿。解析用严格字面量匹配，**只漏匹配、不多匹配**；确有不希望被搜到的项时加进 `INTENTIONALLY_UNSEARCHABLE` 并写明理由，别为变绿放宽断言。当前该集合为空（**61 项全部已登记**）。
+- ⚠️ **反向验证的陷阱（本轮真踩到）**：`.\gradlew.bat ... | Select-String ... | Select-Object -First N` 会提前关闭管道、**杀掉 gradle**，而上一轮的 `test-results/*.xml` 还在，于是读到**旧的成功结果**，看起来像「注入了错误却没失败」。正解：输出重定向到文件（`*> out.txt`），看 `$LASTEXITCODE`，并核对 XML 的 `LastWriteTime`。**别用会截断的管道跑测试——它会伪造成功。**
+
+---
+
 ## 1. 用户给的长期约定（必须遵守）
 
 原话：**「全部做，从 fx2 分支复制到另一个分支，在新复制的分支上面改动，每改好一处就推送上去一次，手动触发一次 ci，但是不要 release」**
