@@ -1788,7 +1788,8 @@ abstract class BaseKeyboard(
                 backgroundColor = backgroundColor,
                 backgroundColorMonet = backgroundColorMonet,
                 shadowColor = shadowColor,
-                shadowColorMonet = shadowColorMonet
+                shadowColorMonet = shadowColorMonet,
+                keepDisplayTextCase = keepDisplayTextCase
             )
             is KeyDef.Appearance.ImageText -> KeyDef.Appearance.ImageText(
                 displayText = displayText,
@@ -1853,7 +1854,8 @@ abstract class BaseKeyboard(
             backgroundColor = backgroundColor,
             backgroundColorMonet = backgroundColorMonet,
             shadowColor = shadowColor,
-            shadowColorMonet = shadowColorMonet
+            shadowColorMonet = shadowColorMonet,
+            keepDisplayTextCase = keepDisplayTextCase
         )
         is KeyDef.Appearance.ImageAltText -> KeyDef.Appearance.ImageAltText(
             src = src,
@@ -1951,7 +1953,8 @@ abstract class BaseKeyboard(
             backgroundColor = source.backgroundColor,
             backgroundColorMonet = source.backgroundColorMonet,
             shadowColor = source.shadowColor,
-            shadowColorMonet = source.shadowColorMonet
+            shadowColorMonet = source.shadowColorMonet,
+            keepDisplayTextCase = keepDisplayTextCase
         )
         is KeyDef.Appearance.ImageAltText -> KeyDef.Appearance.ImageAltText(
             src = src,

@@ -3562,8 +3562,16 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             "ReturnKey" -> getString(R.string.text_keyboard_layout_key_label_enter)
             "BackspaceKey" -> "⌫"
             "MacroKey" -> {
+                // 与运行时渲染一致：显式设置的 displayText 优先，未设置时回落到 label。
+                // displayText 若是按子模式分组的 Map，这里没有子模式上下文，取 "default" 项。
                 val label = key["label"] as? String ?: "M"
-                label.ifEmpty { "M" }
+                val displayText = when (val raw = key["displayText"]) {
+                    is String -> raw
+                    is Map<*, *> -> raw["default"] as? String
+                    else -> null
+                }
+                displayText?.takeIf { it.isNotEmpty() }
+                    ?: label.ifEmpty { "M" }
             }
             else -> type
         }

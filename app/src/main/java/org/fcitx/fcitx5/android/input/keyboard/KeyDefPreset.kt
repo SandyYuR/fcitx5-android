@@ -637,7 +637,13 @@ class NumPadKey(
 
 /**
  * Macro 按键，支持自定义 tap/swipe/longPress 行为
- * @param label 显示文本（点击行为）
+ *
+ * 显示文本的取值优先级：显式设置的 [displayText] > [label]（标签文本）。
+ * 前者按用户填写的原样渲染（不做 Shift/Caps 大小写改写），因为那是用户的显式选择；
+ * 未填 displayText 时回落到 label，并保留原有的 Shift 大写行为。
+ *
+ * @param label 标签文本（未设置 displayText 时作为显示文本）
+ * @param displayText 用户显式设置的显示文本（可选，优先级高于 label）
  * @param altLabel 备选显示文本（划动行为，可选）
  * @param longPressLabel 长按时在 Popup 选单中显示的标签文本（可选）
  * @param tap 点击时执行的 macro
@@ -649,6 +655,7 @@ class NumPadKey(
  */
 class MacroKey(
     val label: String,
+    val displayText: String? = null,
     val character: String = label,
     val altLabel: String? = null,
     val longPressLabel: String? = null,
@@ -668,7 +675,7 @@ class MacroKey(
     shadowColorMonet: String? = null
 ) : KeyDef(
     Appearance.AltText(
-        displayText = label,
+        displayText = displayText?.takeIf { it.isNotEmpty() } ?: label,
         altText = altLabel ?: "",
         character = character,
         textSize = 23f,
@@ -681,10 +688,13 @@ class MacroKey(
         backgroundColor = backgroundColor,
         backgroundColorMonet = backgroundColorMonet,
         shadowColor = shadowColor,
-        shadowColorMonet = shadowColorMonet
+        shadowColorMonet = shadowColorMonet,
+        keepDisplayTextCase = !displayText.isNullOrEmpty()
     ),
     buildBehaviors(tap, swipe, longPress),
-    buildPopup(popup, tap, label, longPress, longPressLabel)
+    // Popup 候选沿用「实际显示的文本」：显式 displayText 优先，未设置时回落到标签文本，
+    // 与改动前（label 即显示文本）的候选列表保持一致。
+    buildPopup(popup, tap, displayText?.takeIf { it.isNotEmpty() } ?: label, longPress, longPressLabel)
 ) {
     private companion object {
         private val FCITX_SYMBOL_LABELS = mapOf(

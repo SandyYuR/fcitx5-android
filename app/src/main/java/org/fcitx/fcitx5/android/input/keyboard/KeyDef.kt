@@ -147,7 +147,18 @@ open class KeyDef(
             backgroundColor: Int? = null,
             backgroundColorMonet: String? = null,
             shadowColor: Int? = null,
-            shadowColorMonet: String? = null
+            shadowColorMonet: String? = null,
+            /**
+             * True when [displayText] was explicitly configured by the user (as opposed to being
+             * derived from the key's label). Such a label is never rewritten to lower case by the
+             * Shift/Caps transform in TextKeyboard.updateAlphabetKeys(): a MacroKey whose
+             * displayText is "A" would otherwise still be drawn as "a" at Shift-off, which is
+             * exactly the "not really customizable" complaint this flag exists to fix.
+             *
+             * Turning a single lower-case letter into upper case on Shift is still allowed, so the
+             * usual Shift behaviour is preserved.
+             */
+            val keepDisplayTextCase: Boolean = false
         ) : Text(
             displayText,
             textSize,

@@ -807,16 +807,16 @@ class KeyboardLayoutAdapter(
             "NumPadKey" -> key["label"] as? String ?: "0"
             "MiniSpaceKey" -> context.getString(R.string.text_keyboard_layout_key_label_minispace)
             "MacroKey" -> {
-                // 显示 label 值，如果有 labelText 且当前在 submode 中，优先显示 labelText
+                // 与运行时渲染一致：显式设置的 displayText 优先，未设置时回落到 label。
+                // displayText 若是按子模式分组的 Map，这里没有子模式上下文，取 "default" 项。
                 val label = key["label"] as? String ?: "M"
-                val labelText = key["labelText"]
-                if (labelText is Map<*, *>) {
-                    // 如果有 labelText Map，尝试获取当前 submode 的值
-                    // 但由于这里没有 submode 上下文，返回 label 并依靠 UI 样式区分
-                    label.ifEmpty { "M" }
-                } else {
-                    label.ifEmpty { "M" }
+                val displayText = when (val raw = key["displayText"]) {
+                    is String -> raw
+                    is Map<*, *> -> raw["default"] as? String
+                    else -> null
                 }
+                displayText?.takeIf { it.isNotEmpty() }
+                    ?: label.ifEmpty { "M" }
             }
             else -> type
         }

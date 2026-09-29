@@ -715,6 +715,7 @@ object LayoutJsonUtils {
             }
             is MacroKey -> {
                 json["label"] = keyDef.label
+                keyDef.displayText?.takeIf { it.isNotEmpty() }?.let { json["displayText"] = it }
                 if (keyDef.altLabel != null) {
                     json["altLabel"] = keyDef.altLabel
                 }
@@ -969,21 +970,23 @@ object LayoutJsonUtils {
                     Log.w(TAG, "Skipping MacroKey without 'tap' action: label=" + key.label)
                     return null
                 }
-                // 解析 label：基础 label + displayText 多模式覆盖
-                // 优先使用 displayText 中当前 submode 的值，否则使用基础 label
+                // label 与 displayText 分别保留：label 始终是标签文本，displayText 只在用户
+                // 显式填写时非空，并优先于 label 参与渲染。空默认值让"未设置"可区分于
+                // "设置了空串"，未设置时才会回落到 label（保留 Shift 大写行为）。
                 val baseLabel = key.label ?: ""
-                val label = resolveDisplayText(
+                val resolvedDisplayText = resolveDisplayText(
                     key.displayText,
                     schemaId,
                     subModeLabel,
                     subModeName,
-                    baseLabel  // 默认值为基础 label（displayText 中不需要 default 键）
-                )
+                    ""  // displayText 未命中任何 submode 条目时视为"未设置"，由 label 兜底
+                ).takeIf { it.isNotEmpty() }
                 // altLabel 不随 submode 变化（像 AlphabetKey 的 alt 那样）
                 val altLabel = key.altLabel ?: ""
                 MacroKey(
-                    label = label,
-                    character = baseLabel.ifEmpty { label },
+                    label = baseLabel,
+                    displayText = resolvedDisplayText,
+                    character = baseLabel.ifEmpty { resolvedDisplayText ?: "" },
                     altLabel = altLabel.ifEmpty { null },
                     longPressLabel = key.longPressLabel,
                     tap = tap,

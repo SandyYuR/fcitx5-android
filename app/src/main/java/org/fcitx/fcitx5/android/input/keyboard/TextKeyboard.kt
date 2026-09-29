@@ -1779,6 +1779,20 @@ class TextKeyboard private constructor(
                 val character = keyDef.character
                 val displayIsSingleLetter = displayText.length == 1
                     && (displayText[0] in 'A'..'Z' || displayText[0] in 'a'..'z')
+                // 用户显式设置的 displayText（MacroKey）按原样显示：这里绝不能把它改写成小写，
+                // 否则设成 "A" 的键在 Shift 关闭时仍显示 "a"，跟 AlphabetKey 毫无区别，
+                // 显示文本这个设置就等于没生效。但 Shift/Caps 的"小写变大写"仍然保留（见下方
+                // 的兼容注释），所以只应用大写那一支，不应用小写那一支。
+                if (keyDef.keepDisplayTextCase) {
+                    it.mainText.text = if (
+                        displayIsSingleLetter && (displayUppercase || keepLettersUppercase)
+                    ) {
+                        displayText.uppercase()
+                    } else {
+                        displayText
+                    }
+                    return@forEach
+                }
                 val characterIsSingleLetter = sourceFromDef && character.length == 1
                     && (character[0] in 'A'..'Z' || character[0] in 'a'..'z')
 

@@ -14,7 +14,7 @@
         {"type":"AlphabetKey","main":"P","alt":"0","displayText":"P"}
       ],
       [
-        {"type":"MacroKey","displayText":"A","label":"A","altLabel":"全选","rowHeightPercent":21.1,"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"A"}]}]},"swipe":{"macro":[{"type":"edit","action":"selectAll"}]}},
+        {"type":"MacroKey","label":"A","altLabel":"全选","rowHeightPercent":21.1,"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"A"}]}]},"swipe":{"macro":[{"type":"edit","action":"selectAll"}]}},
         {"type":"AlphabetKey","main":"S","alt":"*","displayText":"S"},
         {"type":"AlphabetKey","main":"d","alt":"#","displayText":"D"},
         {"type":"AlphabetKey","main":"f","alt":"@","displayText":"F"},
@@ -27,9 +27,9 @@
       [
         {"type":"CapsKey","weight":0.15,"rowHeightPercent":21.1},
         {"type":"AlphabetKey","main":"Z","alt":"`"},
-        {"type":"MacroKey","displayText":"X","label":"X","altLabel":"剪切","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"X"}]}]},"swipe":{"macro":[{"type":"edit","action":"cut"}]}},
-        {"type":"MacroKey","displayText":"C","label":"C","altLabel":"复制","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"C"}]}]},"swipe":{"macro":[{"type":"edit","action":"copy"}]}},
-        {"type":"MacroKey","displayText":"V","label":"V","altLabel":"粘贴","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"V"}]}]},"swipe":{"macro":[{"type":"edit","action":"paste"}]}},
+        {"type":"MacroKey","label":"X","altLabel":"剪切","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"X"}]}]},"swipe":{"macro":[{"type":"edit","action":"cut"}]}},
+        {"type":"MacroKey","label":"C","altLabel":"复制","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"C"}]}]},"swipe":{"macro":[{"type":"edit","action":"copy"}]}},
+        {"type":"MacroKey","label":"V","altLabel":"粘贴","tap":{"macro":[{"type":"tap","keys":[{"fcitx":"V"}]}]},"swipe":{"macro":[{"type":"edit","action":"paste"}]}},
         {"type":"AlphabetKey","main":"B","alt":"!","displayText":"B"},
         {"type":"AlphabetKey","main":"N","alt":"?","displayText":"N"},
         {"type":"AlphabetKey","main":"M","alt":"\\","displayText":"M"},
