@@ -90,6 +90,20 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         contentDescription = "Edit theme"
     }
 
+    /**
+     * 导出按钮。
+     *
+     * 导出原先只能长按卡片触发，界面上没有任何可见线索。放在**左下角**：
+     * 右上已被编辑按钮占用、左上被动态图标占用，左下是这张卡片仅剩的空白角
+     * （右下有 returnKey 与 spaceBar）。
+     */
+    val exportButton = imageView {
+        setPaddingDp(4, 16, 16, 4)
+        scaleType = ImageView.ScaleType.FIT_CENTER
+        imageResource = R.drawable.ic_baseline_share_24
+        contentDescription = "Export theme"
+    }
+
     val dynamicIcon = imageView {
         setPaddingDp(5, 5, 5, 5)
         scaleType = ImageView.ScaleType.FIT_CENTER
@@ -124,6 +138,10 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             topOfParent()
             endOfParent()
         })
+        add(exportButton, lParams(dp(44), dp(44)) {
+            bottomOfParent()
+            startOfParent()
+        })
     }
 
     override val root = thumbnailView
@@ -157,6 +175,15 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
                 }
             background = rippleDrawable(theme.keyPressHighlightColor)
             imageTintList = foregroundTint
+        }
+        exportButton.apply {
+            // 只有可导出的主题才显示：内置主题没有对应的可导出文件，
+            // 显示一个点了没反应的按钮比不显示更糟。
+            visibility =
+                if (theme is Theme.Custom || theme is Theme.Monet) View.VISIBLE else View.GONE
+            background = rippleDrawable(theme.keyPressHighlightColor)
+            imageTintList = foregroundTint
+            contentDescription = ctx.getString(R.string.theme_export_this)
         }
         dynamicIcon.apply {
             visibility =

@@ -182,7 +182,48 @@
     <string name="follow_system_day_night_theme_summary">Override manual theme selection</string>
     <string name="light_mode_theme">Light mode theme</string>
     <string name="dark_mode_theme">Dark mode theme</string>
+
+    <!-- 主题颜色项名称。显示用，不参与持久化（主题 JSON 存的是属性名）。 -->
+    <string name="theme_color_background">Background</string>
+    <string name="theme_color_bar">Top bar</string>
+    <string name="theme_color_keyboard">Keyboard background</string>
+    <string name="theme_color_key_background">Key background</string>
+    <string name="theme_color_key_text">Key text</string>
+    <string name="theme_color_alt_key_background">Alt key background</string>
+    <string name="theme_color_alt_key_text">Alt key text</string>
+    <string name="theme_color_accent_key_background">Accent key background</string>
+    <string name="theme_color_accent_key_text">Accent key text</string>
+    <string name="theme_color_candidate_text">Candidate text</string>
+    <string name="theme_color_candidate_label">Candidate index</string>
+    <string name="theme_color_candidate_comment">Candidate comment</string>
+    <string name="theme_color_key_press_highlight">Key press highlight</string>
+    <string name="theme_color_key_shadow">Key shadow</string>
+    <string name="theme_color_water_ripple">Ripple effect</string>
+    <string name="theme_color_popup_background">Popup background</string>
+    <string name="theme_color_popup_text">Popup text</string>
+    <string name="theme_color_space_bar">Space bar</string>
+    <string name="theme_color_divider">Divider</string>
+    <string name="theme_color_clipboard_entry">Clipboard entry</string>
+    <string name="theme_color_generic_active_background">Selected item background</string>
+    <string name="theme_color_generic_active_foreground">Selected item foreground</string>
+
+    <!-- 主题颜色项的分组标题 -->
+    <string name="theme_color_group_background">Background &amp; bar</string>
+    <string name="theme_color_group_keys">Keys</string>
+    <string name="theme_color_group_candidates">Candidates</string>
+    <string name="theme_color_group_popup">Popup &amp; clipboard</string>
+    <string name="theme_color_group_misc">Divider &amp; selection</string>
+
+    <!-- 候选窗口快速预设 -->
     <string name="candidates_preset_title">Quick preset</string>
+    <string name="candidates_preset_summary">Apply a set of common values at once</string>
+    <string name="candidates_preset_compact">Compact</string>
+    <string name="candidates_preset_standard">Standard</string>
+    <string name="candidates_preset_relaxed">Relaxed</string>
+    <string name="candidates_preset_applied">Applied the \"%1$s\" preset</string>
+
+    <string name="monet_editor_unavailable">Color mapping is not supported on this device</string>
+    <string name="theme_export_this">Export this theme</string>
     <string name="new_theme">New theme</string>
     <string name="theme_name">Theme name</string>
     <string name="theme_name_empty">Theme name cannot be empty</string>

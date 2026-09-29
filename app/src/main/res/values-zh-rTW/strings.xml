@@ -174,7 +174,48 @@
     <string name="follow_system_day_night_theme_summary">覆蓋目前的主題</string>
     <string name="light_mode_theme">日間模式主題</string>
     <string name="dark_mode_theme">夜間模式主題</string>
+
+    <!-- 主題顏色項名稱。顯示用，不參與持久化（主題 JSON 存的是屬性名）。 -->
+    <string name="theme_color_background">整體背景</string>
+    <string name="theme_color_bar">頂欄</string>
+    <string name="theme_color_keyboard">鍵盤背景</string>
+    <string name="theme_color_key_background">按鍵背景</string>
+    <string name="theme_color_key_text">按鍵文字</string>
+    <string name="theme_color_alt_key_background">副按鍵背景</string>
+    <string name="theme_color_alt_key_text">副按鍵文字</string>
+    <string name="theme_color_accent_key_background">強調鍵背景</string>
+    <string name="theme_color_accent_key_text">強調鍵文字</string>
+    <string name="theme_color_candidate_text">候選文字</string>
+    <string name="theme_color_candidate_label">候選序號</string>
+    <string name="theme_color_candidate_comment">候選註解</string>
+    <string name="theme_color_key_press_highlight">按鍵按下高亮</string>
+    <string name="theme_color_key_shadow">按鍵陰影</string>
+    <string name="theme_color_water_ripple">水波紋效果</string>
+    <string name="theme_color_popup_background">彈出背景</string>
+    <string name="theme_color_popup_text">彈出文字</string>
+    <string name="theme_color_space_bar">空格鍵</string>
+    <string name="theme_color_divider">分隔線</string>
+    <string name="theme_color_clipboard_entry">剪貼簿項目</string>
+    <string name="theme_color_generic_active_background">選取項背景</string>
+    <string name="theme_color_generic_active_foreground">選取項文字</string>
+
+    <!-- 主題顏色項的分組標題 -->
+    <string name="theme_color_group_background">背景與頂欄</string>
+    <string name="theme_color_group_keys">按鍵</string>
+    <string name="theme_color_group_candidates">候選區</string>
+    <string name="theme_color_group_popup">彈出與剪貼簿</string>
+    <string name="theme_color_group_misc">分隔線與選取態</string>
+
+    <!-- 候選視窗快速預設 -->
     <string name="candidates_preset_title">快速預設</string>
+    <string name="candidates_preset_summary">一次套用一組常用數值</string>
+    <string name="candidates_preset_compact">緊湊</string>
+    <string name="candidates_preset_standard">標準</string>
+    <string name="candidates_preset_relaxed">寬鬆</string>
+    <string name="candidates_preset_applied">已套用「%1$s」預設</string>
+
+    <string name="monet_editor_unavailable">目前裝置不支援自訂顏色對應</string>
+    <string name="theme_export_this">匯出此主題</string>
     <string name="new_theme">新主題</string>
     <string name="theme_name">主題名稱</string>
     <string name="theme_name_empty">主題名稱不能為空</string>

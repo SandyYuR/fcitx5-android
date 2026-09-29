@@ -18,6 +18,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -77,27 +78,27 @@ class MonetThemeEditorActivity : AppCompatActivity() {
     
     // 颜色编辑项列表
     private val colorEditItems = listOf<ColorEditItem>(
-        ColorEditItem("Background", { it.backgroundColor }, { m, c -> m.copy(backgroundColor = c) }),
-        ColorEditItem("Bar", { it.barColor }, { m, c -> m.copy(barColor = c) }),
-        ColorEditItem("Keyboard", { it.keyboardColor }, { m, c -> m.copy(keyboardColor = c) }),
-        ColorEditItem("Key Background", { it.keyBackgroundColor }, { m, c -> m.copy(keyBackgroundColor = c) }),
-        ColorEditItem("Key Text", { it.keyTextColor }, { m, c -> m.copy(keyTextColor = c) }),
-        ColorEditItem("Candidate Text", { it.candidateTextColor }, { m, c -> m.copy(candidateTextColor = c) }),
-        ColorEditItem("Candidate Label", { it.candidateLabelColor }, { m, c -> m.copy(candidateLabelColor = c) }),
-        ColorEditItem("Candidate Comment", { it.candidateCommentColor }, { m, c -> m.copy(candidateCommentColor = c) }),
-        ColorEditItem("Alt Key Background", { it.altKeyBackgroundColor }, { m, c -> m.copy(altKeyBackgroundColor = c) }),
-        ColorEditItem("Alt Key Text", { it.altKeyTextColor }, { m, c -> m.copy(altKeyTextColor = c) }),
-        ColorEditItem("Accent Key Background", { it.accentKeyBackgroundColor }, { m, c -> m.copy(accentKeyBackgroundColor = c) }),
-        ColorEditItem("Accent Key Text", { it.accentKeyTextColor }, { m, c -> m.copy(accentKeyTextColor = c) }),
-        ColorEditItem("Key Press Highlight", { it.keyPressHighlightColor }, { m, c -> m.copy(keyPressHighlightColor = c) }),
-        ColorEditItem("Key Shadow", { it.keyShadowColor }, { m, c -> m.copy(keyShadowColor = c) }),
-        ColorEditItem("Popup Background", { it.popupBackgroundColor }, { m, c -> m.copy(popupBackgroundColor = c) }),
-        ColorEditItem("Popup Text", { it.popupTextColor }, { m, c -> m.copy(popupTextColor = c) }),
-        ColorEditItem("Space Bar", { it.spaceBarColor }, { m, c -> m.copy(spaceBarColor = c) }),
-        ColorEditItem("Divider", { it.dividerColor }, { m, c -> m.copy(dividerColor = c) }),
-        ColorEditItem("Clipboard Entry", { it.clipboardEntryColor }, { m, c -> m.copy(clipboardEntryColor = c) }),
-        ColorEditItem("Generic Active Background", { it.genericActiveBackgroundColor }, { m, c -> m.copy(genericActiveBackgroundColor = c) }),
-        ColorEditItem("Generic Active Foreground", { it.genericActiveForegroundColor }, { m, c -> m.copy(genericActiveForegroundColor = c) })
+        ColorEditItem(R.string.theme_color_background, "Background", { it.backgroundColor }, { m, c -> m.copy(backgroundColor = c) }),
+        ColorEditItem(R.string.theme_color_bar, "Bar", { it.barColor }, { m, c -> m.copy(barColor = c) }),
+        ColorEditItem(R.string.theme_color_keyboard, "Keyboard", { it.keyboardColor }, { m, c -> m.copy(keyboardColor = c) }),
+        ColorEditItem(R.string.theme_color_key_background, "Key Background", { it.keyBackgroundColor }, { m, c -> m.copy(keyBackgroundColor = c) }),
+        ColorEditItem(R.string.theme_color_key_text, "Key Text", { it.keyTextColor }, { m, c -> m.copy(keyTextColor = c) }),
+        ColorEditItem(R.string.theme_color_candidate_text, "Candidate Text", { it.candidateTextColor }, { m, c -> m.copy(candidateTextColor = c) }),
+        ColorEditItem(R.string.theme_color_candidate_label, "Candidate Label", { it.candidateLabelColor }, { m, c -> m.copy(candidateLabelColor = c) }),
+        ColorEditItem(R.string.theme_color_candidate_comment, "Candidate Comment", { it.candidateCommentColor }, { m, c -> m.copy(candidateCommentColor = c) }),
+        ColorEditItem(R.string.theme_color_alt_key_background, "Alt Key Background", { it.altKeyBackgroundColor }, { m, c -> m.copy(altKeyBackgroundColor = c) }),
+        ColorEditItem(R.string.theme_color_alt_key_text, "Alt Key Text", { it.altKeyTextColor }, { m, c -> m.copy(altKeyTextColor = c) }),
+        ColorEditItem(R.string.theme_color_accent_key_background, "Accent Key Background", { it.accentKeyBackgroundColor }, { m, c -> m.copy(accentKeyBackgroundColor = c) }),
+        ColorEditItem(R.string.theme_color_accent_key_text, "Accent Key Text", { it.accentKeyTextColor }, { m, c -> m.copy(accentKeyTextColor = c) }),
+        ColorEditItem(R.string.theme_color_key_press_highlight, "Key Press Highlight", { it.keyPressHighlightColor }, { m, c -> m.copy(keyPressHighlightColor = c) }),
+        ColorEditItem(R.string.theme_color_key_shadow, "Key Shadow", { it.keyShadowColor }, { m, c -> m.copy(keyShadowColor = c) }),
+        ColorEditItem(R.string.theme_color_popup_background, "Popup Background", { it.popupBackgroundColor }, { m, c -> m.copy(popupBackgroundColor = c) }),
+        ColorEditItem(R.string.theme_color_popup_text, "Popup Text", { it.popupTextColor }, { m, c -> m.copy(popupTextColor = c) }),
+        ColorEditItem(R.string.theme_color_space_bar, "Space Bar", { it.spaceBarColor }, { m, c -> m.copy(spaceBarColor = c) }),
+        ColorEditItem(R.string.theme_color_divider, "Divider", { it.dividerColor }, { m, c -> m.copy(dividerColor = c) }),
+        ColorEditItem(R.string.theme_color_clipboard_entry, "Clipboard Entry", { it.clipboardEntryColor }, { m, c -> m.copy(clipboardEntryColor = c) }),
+        ColorEditItem(R.string.theme_color_generic_active_background, "Generic Active Background", { it.genericActiveBackgroundColor }, { m, c -> m.copy(genericActiveBackgroundColor = c) }),
+        ColorEditItem(R.string.theme_color_generic_active_foreground, "Generic Active Foreground", { it.genericActiveForegroundColor }, { m, c -> m.copy(genericActiveForegroundColor = c) })
     )
     
     // 存储颜色编辑器视图以便更新
@@ -313,7 +314,7 @@ class MonetThemeEditorActivity : AppCompatActivity() {
 
             // 颜色名称
             TextView(this@MonetThemeEditorActivity).apply {
-                text = item.name
+                text = getString(item.titleRes)
                 layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                     weight = 1f
                 }
@@ -332,7 +333,7 @@ class MonetThemeEditorActivity : AppCompatActivity() {
             addView(resourceNameText)
             
             // 存储视图引用
-            colorEditorViews[item.name] = ColorEditorViewHolder(colorPreview, resourceNameText, item)
+            colorEditorViews[item.id] = ColorEditorViewHolder(colorPreview, resourceNameText, item)
             setOnClickListener { showColorResourcePicker(item) }
         }
     }
@@ -431,7 +432,7 @@ class MonetThemeEditorActivity : AppCompatActivity() {
     }
 
     private fun updateColorEditorUi(item: ColorEditItem, resourceId: SystemColorResourceId) {
-        val holder = colorEditorViews[item.name] ?: return
+        val holder = colorEditorViews[item.id] ?: return
         val color = getColorForResource(resourceId)
         
         // 更新颜色预览
@@ -580,8 +581,16 @@ class MonetThemeEditorActivity : AppCompatActivity() {
     }
 }
 
+/**
+ * Monet 颜色编辑器里的一行。
+ *
+ * [id] 与 [titleRes] 分开的原因同 `ThemeColorEditItem`：原先单个英文 `name`
+ * 既当显示文案又当 map 键，无法本地化。Monet 的映射存成 JSON 数组（按顺序），
+ * 也不依赖显示名，因此解耦是安全的。
+ */
 data class ColorEditItem(
-    val name: String,
+    @StringRes val titleRes: Int,
+    val id: String,
     val getter: (MonetThemeMapping) -> SystemColorResourceId,
     val setter: (MonetThemeMapping, SystemColorResourceId) -> MonetThemeMapping
 )

@@ -178,6 +178,15 @@ abstract class ThemeListAdapter : RecyclerView.Adapter<ThemeListAdapter.ViewHold
                         else -> Unit
                     }
                 }
+                // 可见的导出入口。长按仍然可用（保留给习惯长按的用户），
+                // 但不再需要用户去猜。
+                exportButton.setOnClickListener {
+                    when (theme) {
+                        is Theme.Custom -> onExportTheme(theme)
+                        is Theme.Monet -> onExportTheme(theme.toCustom())
+                        else -> Unit
+                    }
+                }
             }
             else -> throw IllegalArgumentException(INVALID_TYPE + it)
         }

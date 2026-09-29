@@ -65,6 +65,7 @@ import org.fcitx.fcitx5.android.utils.DeviceUtil
 import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.parcelable
 import org.fcitx.fcitx5.android.utils.toast
+import androidx.core.view.isVisible
 import splitties.dimensions.dp
 import splitties.resources.color
 import splitties.resources.resolveThemeAttribute
@@ -136,37 +137,45 @@ class CustomThemeActivity : AppCompatActivity() {
     private var previewScale = 1f
     private val colorPreviewDrawables = mutableMapOf<String, GradientDrawable>()
     private val colorEditItems = listOf(
-        ThemeColorEditItem("Background", { t: Theme.Custom -> t.backgroundColor }, { t: Theme.Custom, c: Int -> t.copy(backgroundColor = c) }),
-        ThemeColorEditItem("Bar", { t: Theme.Custom -> t.barColor }, { t: Theme.Custom, c: Int -> t.copy(barColor = c) }),
-        ThemeColorEditItem("Keyboard", { t: Theme.Custom -> t.keyboardColor }, { t: Theme.Custom, c: Int -> t.copy(keyboardColor = c) }),
-        ThemeColorEditItem("Key Background", { t: Theme.Custom -> t.keyBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(keyBackgroundColor = c) }),
-        ThemeColorEditItem("Key Text", { t: Theme.Custom -> t.keyTextColor }, { t: Theme.Custom, c: Int -> t.copy(keyTextColor = c) }),
-        ThemeColorEditItem("Alt Key Background", { t: Theme.Custom -> t.altKeyBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(altKeyBackgroundColor = c) }),
-        ThemeColorEditItem("Alt Key Text", { t: Theme.Custom -> t.altKeyTextColor }, { t: Theme.Custom, c: Int -> t.copy(altKeyTextColor = c) }),
-        ThemeColorEditItem("Accent Key Background", { t: Theme.Custom -> t.accentKeyBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(accentKeyBackgroundColor = c) }),
-        ThemeColorEditItem("Accent Key Text", { t: Theme.Custom -> t.accentKeyTextColor }, { t: Theme.Custom, c: Int -> t.copy(accentKeyTextColor = c) }),
-        ThemeColorEditItem("Candidate Text", { t: Theme.Custom -> t.candidateTextColor }, { t: Theme.Custom, c: Int -> t.copy(candidateTextColor = c) }),
-        ThemeColorEditItem("Candidate Label", { t: Theme.Custom -> t.candidateLabelColor }, { t: Theme.Custom, c: Int -> t.copy(candidateLabelColor = c) }),
-        ThemeColorEditItem("Candidate Comment", { t: Theme.Custom -> t.candidateCommentColor }, { t: Theme.Custom, c: Int -> t.copy(candidateCommentColor = c) }),
-        ThemeColorEditItem("Key Press Highlight", { t: Theme.Custom -> t.keyPressHighlightColor }, { t: Theme.Custom, c: Int -> t.copy(keyPressHighlightColor = c) }),
-        ThemeColorEditItem("Key Shadow", { t: Theme.Custom -> t.keyShadowColor }, { t: Theme.Custom, c: Int -> t.copy(keyShadowColor = c) }),
-        ThemeColorEditItem("Water Ripple", { t: Theme.Custom -> t.waterRippleColor ?: computeWaterRippleColor(t) }, { t: Theme.Custom, c: Int -> t.copy(waterRippleColor = c) }),
-        ThemeColorEditItem("Popup Background", { t: Theme.Custom -> t.popupBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(popupBackgroundColor = c) }),
-        ThemeColorEditItem("Popup Text", { t: Theme.Custom -> t.popupTextColor }, { t: Theme.Custom, c: Int -> t.copy(popupTextColor = c) }),
-        ThemeColorEditItem("Space Bar", { t: Theme.Custom -> t.spaceBarColor }, { t: Theme.Custom, c: Int -> t.copy(spaceBarColor = c) }),
-        ThemeColorEditItem("Divider", { t: Theme.Custom -> t.dividerColor }, { t: Theme.Custom, c: Int -> t.copy(dividerColor = c) }),
-        ThemeColorEditItem("Clipboard Entry", { t: Theme.Custom -> t.clipboardEntryColor }, { t: Theme.Custom, c: Int -> t.copy(clipboardEntryColor = c) }),
-        ThemeColorEditItem("Generic Active Background", { t: Theme.Custom -> t.genericActiveBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(genericActiveBackgroundColor = c) }),
-        ThemeColorEditItem("Generic Active Foreground", { t: Theme.Custom -> t.genericActiveForegroundColor }, { t: Theme.Custom, c: Int -> t.copy(genericActiveForegroundColor = c) })
+        ThemeColorEditItem(R.string.theme_color_background, "Background", R.string.theme_color_group_background, { t: Theme.Custom -> t.backgroundColor }, { t: Theme.Custom, c: Int -> t.copy(backgroundColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_bar, "Bar", R.string.theme_color_group_background, { t: Theme.Custom -> t.barColor }, { t: Theme.Custom, c: Int -> t.copy(barColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_keyboard, "Keyboard", R.string.theme_color_group_background, { t: Theme.Custom -> t.keyboardColor }, { t: Theme.Custom, c: Int -> t.copy(keyboardColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_key_background, "Key Background", R.string.theme_color_group_keys, { t: Theme.Custom -> t.keyBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(keyBackgroundColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_key_text, "Key Text", R.string.theme_color_group_keys, { t: Theme.Custom -> t.keyTextColor }, { t: Theme.Custom, c: Int -> t.copy(keyTextColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_alt_key_background, "Alt Key Background", R.string.theme_color_group_keys, { t: Theme.Custom -> t.altKeyBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(altKeyBackgroundColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_alt_key_text, "Alt Key Text", R.string.theme_color_group_keys, { t: Theme.Custom -> t.altKeyTextColor }, { t: Theme.Custom, c: Int -> t.copy(altKeyTextColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_accent_key_background, "Accent Key Background", R.string.theme_color_group_keys, { t: Theme.Custom -> t.accentKeyBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(accentKeyBackgroundColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_accent_key_text, "Accent Key Text", R.string.theme_color_group_keys, { t: Theme.Custom -> t.accentKeyTextColor }, { t: Theme.Custom, c: Int -> t.copy(accentKeyTextColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_key_press_highlight, "Key Press Highlight", R.string.theme_color_group_keys, { t: Theme.Custom -> t.keyPressHighlightColor }, { t: Theme.Custom, c: Int -> t.copy(keyPressHighlightColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_key_shadow, "Key Shadow", R.string.theme_color_group_keys, { t: Theme.Custom -> t.keyShadowColor }, { t: Theme.Custom, c: Int -> t.copy(keyShadowColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_water_ripple, ThemeColorEditItem.ID_WATER_RIPPLE, R.string.theme_color_group_keys, { t: Theme.Custom -> t.waterRippleColor ?: computeWaterRippleColor(t) }, { t: Theme.Custom, c: Int -> t.copy(waterRippleColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_space_bar, "Space Bar", R.string.theme_color_group_keys, { t: Theme.Custom -> t.spaceBarColor }, { t: Theme.Custom, c: Int -> t.copy(spaceBarColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_candidate_text, "Candidate Text", R.string.theme_color_group_candidates, { t: Theme.Custom -> t.candidateTextColor }, { t: Theme.Custom, c: Int -> t.copy(candidateTextColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_candidate_label, "Candidate Label", R.string.theme_color_group_candidates, { t: Theme.Custom -> t.candidateLabelColor }, { t: Theme.Custom, c: Int -> t.copy(candidateLabelColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_candidate_comment, "Candidate Comment", R.string.theme_color_group_candidates, { t: Theme.Custom -> t.candidateCommentColor }, { t: Theme.Custom, c: Int -> t.copy(candidateCommentColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_popup_background, "Popup Background", R.string.theme_color_group_popup, { t: Theme.Custom -> t.popupBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(popupBackgroundColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_popup_text, "Popup Text", R.string.theme_color_group_popup, { t: Theme.Custom -> t.popupTextColor }, { t: Theme.Custom, c: Int -> t.copy(popupTextColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_clipboard_entry, "Clipboard Entry", R.string.theme_color_group_popup, { t: Theme.Custom -> t.clipboardEntryColor }, { t: Theme.Custom, c: Int -> t.copy(clipboardEntryColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_divider, "Divider", R.string.theme_color_group_misc, { t: Theme.Custom -> t.dividerColor }, { t: Theme.Custom, c: Int -> t.copy(dividerColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_generic_active_background, "Generic Active Background", R.string.theme_color_group_misc, { t: Theme.Custom -> t.genericActiveBackgroundColor }, { t: Theme.Custom, c: Int -> t.copy(genericActiveBackgroundColor = c) }),
+        ThemeColorEditItem(R.string.theme_color_generic_active_foreground, "Generic Active Foreground", R.string.theme_color_group_misc, { t: Theme.Custom -> t.genericActiveForegroundColor }, { t: Theme.Custom, c: Int -> t.copy(genericActiveForegroundColor = c) })
     )
+
+    /**
+     * 不变式：[colorEditItems] 中**同组项必须相邻**。
+     *
+     * 渲染时按 `groupRes` 变化插入小标题（见 [scrollView]），因此只要同组项相邻，
+     * 每个分组头就恰好出现一次。挪动某项时连它的 `groupRes` 一起改即可，
+     * 不需要同步维护第二张分组表。
+     */
     private val colorEditorLauncher =
         registerForActivityResult(ThemeColorEditorActivity.Contract()) { result ->
             result ?: return@registerForActivityResult
-            val item = colorEditItems.firstOrNull { it.name == result.fieldName } ?: return@registerForActivityResult
+            val item = colorEditItems.firstOrNull { it.id == result.fieldName } ?: return@registerForActivityResult
             if (result.color == null) {
-                if (item.name == "Water Ripple") {
+                if (item.id == ThemeColorEditItem.ID_WATER_RIPPLE) {
                     theme = theme.copy(waterRippleColor = null)
-                    colorPreviewDrawables[item.name]?.setColor(computeWaterRippleColor(theme))
+                    colorPreviewDrawables[item.id]?.setColor(computeWaterRippleColor(theme))
                     applyThemePreview(theme)
                     refreshSaveButtonState()
                 }
@@ -176,7 +185,7 @@ class CustomThemeActivity : AppCompatActivity() {
             val originalColor = item.getter(originalTheme)
             if (result.color == originalColor) return@registerForActivityResult
             theme = item.setter(originalTheme, result.color)
-            colorPreviewDrawables[item.name]?.setColor(result.color)
+            colorPreviewDrawables[item.id]?.setColor(result.color)
             applyThemePreview(theme)
             refreshSaveButtonState()
         }
@@ -191,6 +200,26 @@ class CustomThemeActivity : AppCompatActivity() {
             ColorUtils.blendARGB(shadow, theme.accentKeyBackgroundColor, 0.28f)
         }
     }
+
+    /**
+     * 颜色分组的小标题。
+     *
+     * 刻意做成**不可点击**（不加 ripple、不设点击监听）：它只是视觉分隔，
+     * 若沿用 [createTextView] 的 `ripple = true`，用户会以为点它有反应。
+     */
+    private fun createColorGroupHeader(@StringRes string: Int) = textView {
+        setText(string)
+        gravity = gravityVerticalCenter
+        textSize = 13f
+        setTextColor(styledColor(android.R.attr.textColorSecondary))
+        horizontalPadding = dp(16)
+        topPadding = dp(12)
+        background = styledDrawable(android.R.attr.selectableItemBackground)
+    }
+
+    /** 折叠指示图标：展开时朝上、收起时朝下。 */
+    private fun expandIcon(expanded: Boolean) =
+        if (expanded) R.drawable.ic_baseline_expand_less_24 else R.drawable.ic_baseline_expand_more_24
 
     private fun createTextView(@StringRes string: Int? = null, ripple: Boolean = false) = textView {
         if (string != null) {
@@ -719,9 +748,36 @@ class CustomThemeActivity : AppCompatActivity() {
             val lineHeight = dp(48)
             var inlinePreviewDirty = false
 
+            // 22 项平铺是一长串，用户很难定位「我想改候选的字色」该往下翻到哪里。
+            // 按语义分组 + 可折叠：默认只展开前 EXPANDED_GROUP_COUNT 组，
+            // 其余收起（计划「该隐藏的隐藏」：细节收进折叠）。
+            // 同组项在 colorEditItems 里相邻，故每组只建一个容器。
+            var lastGroupRes = 0
+            var groupContainer: LinearLayout? = null
+            var groupIndex = 0
             for (item in colorEditItems) {
+                if (item.groupRes != lastGroupRes) {
+                    lastGroupRes = item.groupRes
+                    val group = verticalLayout { }
+                    val expanded = groupIndex < EXPANDED_GROUP_COUNT
+                    group.isVisible = expanded
+                    val header = createColorGroupHeader(item.groupRes).apply {
+                        compoundDrawablePadding = dp(8)
+                        setCompoundDrawablesWithIntrinsicBounds(0, 0, expandIcon(expanded), 0)
+                        setOnClickListener {
+                            group.isVisible = !group.isVisible
+                            setCompoundDrawablesWithIntrinsicBounds(
+                                0, 0, expandIcon(group.isVisible), 0
+                            )
+                        }
+                    }
+                    add(header, android.widget.LinearLayout.LayoutParams(matchParent, wrapContent))
+                    add(group, android.widget.LinearLayout.LayoutParams(matchParent, wrapContent))
+                    groupContainer = group
+                    groupIndex++
+                }
                 val label = createTextView(null, ripple = true).apply {
-                    text = item.name
+                    text = getString(item.titleRes)
                 }
                 val preview = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
@@ -729,7 +785,7 @@ class CustomThemeActivity : AppCompatActivity() {
                     setSize(dp(28), dp(28))
                     setColor(item.getter(theme))
                 }
-                colorPreviewDrawables[item.name] = preview
+                colorPreviewDrawables[item.id] = preview
                 label.setCompoundDrawablesWithIntrinsicBounds(null, null, preview, null)
                 label.compoundDrawablePadding = dp(12)
                 label.setOnClickListener {
@@ -737,10 +793,10 @@ class CustomThemeActivity : AppCompatActivity() {
                     if (DeviceUtil.isHMOS) {
                         colorEditorLauncher.launch(
                             ThemeColorEditorActivity.EditorInput(
-                                fieldName = item.name,
+                                fieldName = item.id,
                                 titleRes = R.string.edit_color,
                                 initialColor = displayedColor,
-                                allowClear = item.name == "Water Ripple"
+                                allowClear = item.id == ThemeColorEditItem.ID_WATER_RIPPLE
                             )
                         )
                         return@setOnClickListener
@@ -769,7 +825,7 @@ class CustomThemeActivity : AppCompatActivity() {
                     val originalColor = displayedColor
                     val editor = createInlineColorEditor(
                         initialColor = originalColor,
-                        allowClear = item.name == "Water Ripple",
+                        allowClear = item.id == ThemeColorEditItem.ID_WATER_RIPPLE,
                         onPreview = { c ->
                             val changed = c != originalColor
                             if (changed) {
@@ -806,7 +862,11 @@ class CustomThemeActivity : AppCompatActivity() {
                     )
                     parent.addView(editor, insertIndex)
                 }
-                add(label, android.widget.LinearLayout.LayoutParams(matchParent, lineHeight))
+                // 加进当前分组容器而不是外层：否则折叠只会藏住组头、条目仍全部可见。
+                groupContainer?.add(
+                    label,
+                    android.widget.LinearLayout.LayoutParams(matchParent, lineHeight)
+                )
             }
         }
 
@@ -1432,11 +1492,39 @@ class CustomThemeActivity : AppCompatActivity() {
         private const val INLINE_COLOR_EDITOR_TAG = "inline_color_editor"
         const val RESULT = "result"
         const val ORIGIN_THEME = "origin_theme"
+
+        /**
+         * 默认展开的颜色分组数（其余收起，点组头展开）。
+         *
+         * 取 2 = 「背景与顶栏」+「按键」：这两组覆盖用户最常改的项，
+         * 而候选/弹出/分隔线留待需要时展开。数值按计划「细节收进折叠」定。
+         */
+        private const val EXPANDED_GROUP_COUNT = 2
     }
 }
 
+/**
+ * 主题编辑器里的一行颜色项。
+ *
+ * [id] 与 [titleRes] **必须分开**（2026-09-28 解耦）：
+ * 原先只有一个英文 `name`，它同时承担「显示给用户」和「逻辑标识」两个职责，
+ * 于是没法本地化——一改显示文案就会破坏 `colorPreviewDrawables` 的 map 键、
+ * `fieldName` 往返匹配和「水波纹可清除」的判断。
+ *
+ * - [id]：稳定的内部标识，只用于 map 键、匹配和 Intent 往返，**不参与持久化**
+ *   （主题以 JSON 存盘，字段名来自 `Theme.Custom` 的属性名，与此无关）。
+ * - [titleRes]：只用于界面显示，可自由翻译。
+ */
 data class ThemeColorEditItem(
-    val name: String,
+    @StringRes val titleRes: Int,
+    val id: String,
+    /** 所属分组的小标题，用于在编辑器里插入分组头。 */
+    @StringRes val groupRes: Int,
     val getter: (Theme.Custom) -> Int,
     val setter: (Theme.Custom, Int) -> Theme.Custom
-)
+) {
+    companion object {
+        /** 唯一允许「清除」（回落自动计算）的颜色项。 */
+        const val ID_WATER_RIPPLE = "Water Ripple"
+    }
+}

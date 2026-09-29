@@ -175,7 +175,48 @@
     <string name="follow_system_day_night_theme_summary">覆盖手动主题选择</string>
     <string name="light_mode_theme">亮色模式主题</string>
     <string name="dark_mode_theme">暗色模式主题</string>
+
+    <!-- 主题颜色项名称。显示用，不参与持久化（主题 JSON 存的是属性名）。 -->
+    <string name="theme_color_background">整体背景</string>
+    <string name="theme_color_bar">顶栏</string>
+    <string name="theme_color_keyboard">键盘背景</string>
+    <string name="theme_color_key_background">按键背景</string>
+    <string name="theme_color_key_text">按键文字</string>
+    <string name="theme_color_alt_key_background">副按键背景</string>
+    <string name="theme_color_alt_key_text">副按键文字</string>
+    <string name="theme_color_accent_key_background">强调键背景</string>
+    <string name="theme_color_accent_key_text">强调键文字</string>
+    <string name="theme_color_candidate_text">候选文字</string>
+    <string name="theme_color_candidate_label">候选序号</string>
+    <string name="theme_color_candidate_comment">候选注释</string>
+    <string name="theme_color_key_press_highlight">按键按下高亮</string>
+    <string name="theme_color_key_shadow">按键阴影</string>
+    <string name="theme_color_water_ripple">水波纹效果</string>
+    <string name="theme_color_popup_background">弹出背景</string>
+    <string name="theme_color_popup_text">弹出文字</string>
+    <string name="theme_color_space_bar">空格键</string>
+    <string name="theme_color_divider">分隔线</string>
+    <string name="theme_color_clipboard_entry">剪贴板条目</string>
+    <string name="theme_color_generic_active_background">选中项背景</string>
+    <string name="theme_color_generic_active_foreground">选中项文字</string>
+
+    <!-- 主题颜色项的分组标题 -->
+    <string name="theme_color_group_background">背景与顶栏</string>
+    <string name="theme_color_group_keys">按键</string>
+    <string name="theme_color_group_candidates">候选区</string>
+    <string name="theme_color_group_popup">弹出与剪贴板</string>
+    <string name="theme_color_group_misc">分隔线与选中态</string>
+
+    <!-- 候选窗口快速预设 -->
     <string name="candidates_preset_title">快速预设</string>
+    <string name="candidates_preset_summary">一次性套用一组常用数值</string>
+    <string name="candidates_preset_compact">紧凑</string>
+    <string name="candidates_preset_standard">标准</string>
+    <string name="candidates_preset_relaxed">宽松</string>
+    <string name="candidates_preset_applied">已套用「%1$s」预设</string>
+
+    <string name="monet_editor_unavailable">当前设备不支持自定义颜色映射</string>
+    <string name="theme_export_this">导出此主题</string>
     <string name="new_theme">新增主题</string>
     <string name="theme_name">主题名称</string>
     <string name="theme_name_empty">主题名称不能为空</string>

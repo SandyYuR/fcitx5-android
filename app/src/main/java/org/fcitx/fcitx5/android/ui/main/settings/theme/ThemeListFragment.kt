@@ -308,7 +308,12 @@ class ThemeListFragment : Fragment() {
     }
 
     private fun editMonetTheme(theme: Theme.Monet) {
-        if (!ThemeMonet.supportsCustomMappingEditor(requireContext())) return
+        // 设备不支持自定义映射时原先是静默 return：用户点了编辑按钮、什么也没发生，
+        // 既不知道被拒绝也不知道为什么。改成明确提示。
+        if (!ThemeMonet.supportsCustomMappingEditor(requireContext())) {
+            requireContext().toast(R.string.monet_editor_unavailable)
+            return
+        }
         monetEditorLauncher.launch(theme)
     }
 
