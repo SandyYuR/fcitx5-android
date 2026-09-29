@@ -315,6 +315,7 @@
     <string name="toolbar_num_row_on_password">输入密码时在工具栏上显示数字行</string>
     <string name="space_long_press_behavior">空格键长按行为</string>
     <string name="space_behavior_none">无</string>
+    <string name="space_behavior_repeat">重复输入空格（按住连续输入）</string>
     <string name="space_behavior_enumerate">轮换输入法</string>
     <string name="space_behavior_activate">在当前输入法和第一个输入法之间切换</string>
     <string name="space_behavior_picker">显示输入法选择对话框</string>

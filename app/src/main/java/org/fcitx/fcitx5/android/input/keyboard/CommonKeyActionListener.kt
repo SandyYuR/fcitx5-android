@@ -234,6 +234,10 @@ class CommonKeyActionListener :
                 is SpaceLongPressAction -> {
                     when (spaceKeyLongPressBehavior) {
                         SpaceLongPressBehavior.None -> {}
+                        // 重复输入空格不在这里处理：它由键盘侧的 KeyView.repeatEnabled 驱动
+                        // （见 BaseKeyboard.applySpaceRepeatBinding），这样重复节奏与抬手
+                        // 停止都复用退格键连删那套已验证的机制。此处仅作占位，保持 when 穷尽。
+                        SpaceLongPressBehavior.Repeat -> {}
                         SpaceLongPressBehavior.Enumerate -> service.postFcitxJob {
                             enumerateIme()
                         }

@@ -180,6 +180,16 @@ abstract class BaseKeyboard(
         spaceKeys.add(SpaceKeyEntry(view, swipeAction))
     }
 
+    /**
+     * 摘掉某个视图的空格键记录。
+     *
+     * compose 重绑会换掉视图实例，旧实例必须跟着离开注册表：否则设置监听器会一直去
+     * 修改已经脱离视图树的旧视图，且每次 compose 往返都会留下一条记录、无界增长。
+     */
+    private fun removeSpaceKeyEntry(view: KeyView) {
+        spaceKeys.removeAll { it.keyView === view }
+    }
+
     private val spaceSwipeChangeListener = ManagedPreference.OnChangeListener<Boolean> { _, _ ->
         // 手势监听器运行时读取开关（见 createKeyView），因此切模式只需同步"是否参与
         // 手势"与阈值。已记录的基线也要一起更新，否则下一次重绑会从基线恢复出旧值。
@@ -195,6 +205,50 @@ abstract class BaseKeyboard(
             }
         }
     }
+
+    /**
+     * 「空格键长按行为」偏好。与划动开关不同，它**不是**布尔开关，而是枚举；
+     * 只有 [SpaceLongPressBehavior.Repeat] 这一个取值会改变键盘侧的行为。
+     */
+    private val spaceKeyLongPressBehavior = prefs.keyboard.spaceKeyLongPressBehavior
+
+    private fun isSpaceRepeatEnabled(): Boolean =
+        spaceKeyLongPressBehavior.getValue() == SpaceLongPressBehavior.Repeat
+
+    /**
+     * 按当前偏好给空格键绑定/解绑「长按重复输入空格」。
+     *
+     * **不走 [KeyDef.Behavior.Repeat]**：那要往 [SpaceKey] 的 behaviors 里加项，而 KeyDef
+     * 只在布局加载时构造一次，缓存行的签名也不含这个维度，改设置就不会重建 → 开关失效。
+     * 这里按视图绑定（与划动开关同一套做法），设置变化由 [spaceLongPressChangeListener]
+     * 同步。
+     *
+     * 必须在 [applyBehaviorPopupBindings] **之后**调用：它会先把 `repeatEnabled` 与
+     * `onRepeatListener` 清空。
+     */
+    private fun applySpaceRepeatBinding(view: KeyView) {
+        if (!isSpaceRepeatEnabled()) {
+            view.repeatEnabled = false
+            view.onRepeatListener = null
+            return
+        }
+        view.repeatEnabled = true
+        view.onRepeatListener = { currentView ->
+            // 与空格键的 Behavior.Press 发同一个 keysym，保证重复出来的就是普通空格。
+            onAction(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_space)))
+            if (hapticOnRepeat) InputFeedbacks.hapticFeedback(currentView)
+        }
+    }
+
+    /** 只对空格键生效的重绑入口（供 compose 重绑等通用路径调用）。 */
+    private fun refreshSpaceRepeatBinding(view: KeyView) {
+        if (spaceKeys.any { it.keyView === view }) applySpaceRepeatBinding(view)
+    }
+
+    private val spaceLongPressChangeListener =
+        ManagedPreference.OnChangeListener<SpaceLongPressBehavior> { _, _ ->
+            spaceKeys.forEach { entry -> applySpaceRepeatBinding(entry.keyView) }
+        }
 
     private val vivoKeypressWorkaround by prefs.advanced.vivoKeypressWorkaround
 
@@ -315,6 +369,7 @@ abstract class BaseKeyboard(
         clipToPadding = false
         reloadLayout()
         spaceSwipeMoveCursor.registerOnChangeListener(spaceSwipeChangeListener)
+        spaceKeyLongPressBehavior.registerOnChangeListener(spaceLongPressChangeListener)
         // No listener registration on SplitKeyboardStateManager: it is an application-scoped
         // singleton that never notified anyone (notifyListeners had no callers), while every
         // registration pinned a keyboard view tree for the life of the process. Split state
@@ -392,6 +447,9 @@ abstract class BaseKeyboard(
                     registerSpaceKeyEntry(keyView, swipeAction)
                     keyView.swipeEnabled = spaceSwipeEnabledFor(swipeAction)
                     applySpaceSwipeThresholds(keyView)
+                    // 复用行不会走 applyBehaviorPopupBindings，重复绑定要在这一起重放
+                    // （与划动开关同一理由：视图保留着上次创建时的值）。
+                    applySpaceRepeatBinding(keyView)
                     gestureBaselines[keyView]?.let { baseline ->
                         gestureBaselines[keyView] = baseline.copy(
                             swipeEnabled = keyView.swipeEnabled,
@@ -1455,6 +1513,8 @@ abstract class BaseKeyboard(
             // its wrapper, so a later row reuse can recover the real baseline.
             gestureBaselines[this] = baseline
             applyAppearance(this, activeAppearance)
+            // 空格键的「长按重复输入」在 applyBehaviorPopupBindings 内部按视图重绑
+            // （它会先清空 repeat 回调，所以由它自己收尾最稳），这里不再单独调用。
             applyBehaviorPopupBindings(this, baseline, activeDef.behaviors, activeDef.popup)
             if (def is BackspaceKey) {
                 // 长按退格进入连删时弹出"上滑清空"提示条；手指滑进提示条区域即清空。
@@ -1662,6 +1722,9 @@ abstract class BaseKeyboard(
             parent.addView(newView, index)
         }
         item.keyView = newView
+        // createKeyView 已把 newView 登记进 spaceKeys（若它是空格键）；旧实例必须出表，
+        // 否则设置监听器会继续改脱离视图树的旧视图，且每次重绑都留一条记录。
+        removeSpaceKeyEntry(oldView)
         // createKeyView already recorded the pre-wrapping baseline for newView; prefer it over
         // reading the view back, which by now may hold a wrapped gesture listener.
         item.baseline = gestureBaselines[newView] ?: GestureBaseline(
@@ -2020,6 +2083,11 @@ abstract class BaseKeyboard(
         view.isEnabled = interactive
         view.isClickable = interactive
         if (!interactive) return
+
+        // 空格键的「长按重复输入空格」由设置驱动，不写在 KeyDef 的 behaviors 里
+        // （那样缓存行会带着旧值，改设置不生效）。方法开头刚清空过 repeat 回调，
+        // 这里统一重绑：创建、compose 重绑、行复用之外的路径都经过本方法。
+        refreshSpaceRepeatBinding(view)
 
         var hasLongPressBehavior = false
         behaviors.forEach {

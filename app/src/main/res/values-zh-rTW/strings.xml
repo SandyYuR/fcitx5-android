@@ -274,6 +274,7 @@
     <string name="toolbar_num_row_on_password">輸入密碼時在工具欄上顯示數字列</string>
     <string name="space_long_press_behavior">空格鍵長按行為</string>
     <string name="space_behavior_none">無</string>
+    <string name="space_behavior_repeat">重複輸入空格（按住連續輸入）</string>
     <string name="space_behavior_enumerate">輪換輸入法</string>
     <string name="space_behavior_activate">在目前輸入法與第一個輸入法之間切換</string>
     <string name="space_behavior_picker">顯示選擇輸入法對話框</string>

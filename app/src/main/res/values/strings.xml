@@ -327,6 +327,7 @@
     <string name="toolbar_num_row_on_password">Show number row on toolbar when inputting password</string>
     <string name="space_long_press_behavior">Space key long press behavior</string>
     <string name="space_behavior_none">None</string>
+    <string name="space_behavior_repeat">Repeat space (hold to type spaces)</string>
     <string name="space_behavior_enumerate">Enumerate input methods</string>
     <string name="space_behavior_activate">Toggle input method activate state</string>
     <string name="space_behavior_picker">Show input method picker dialog</string>
