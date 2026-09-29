@@ -47,6 +47,14 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         private const val DIALOG_LABEL_TEXT_SIZE_SP = 13f
         private const val DIALOG_CONTENT_TEXT_SIZE_SP = 14f
 
+        /**
+         * 按键类型的**配置值**，这些字符串会写进布局 JSON，必须保持英文原名。
+         *
+         * 下拉框显示的是「英文名 + 本地化说明」（见 [KEY_TYPE_LABELS] 与
+         * [describeKeyType]）；读取选中项一律按位置查本数组，不要读 `selectedItem`
+         * 文本（与 subMode 下拉框同一纪律，见 TextKeyboardLayoutEditorActivity 的
+         * subModeSpinnerSelectionMap）。
+         */
         val KEY_TYPES = arrayOf(
             "AlphabetKey",
             "CapsKey",
@@ -60,6 +68,27 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             "NumPadKey",
             "MiniSpaceKey",
             "MacroKey"
+        )
+
+        /**
+         * 各按键类型的说明文案，**顺序与 [KEY_TYPES] 一一对应**。
+         *
+         * 两者必须同步增删：位置错位会让下拉框显示成另一个类型的中文说明，而选中值
+         * 仍按位置取 [KEY_TYPES]，外观上完全看不出来。
+         */
+        val KEY_TYPE_LABELS = arrayOf(
+            R.string.text_keyboard_layout_key_type_alphabet,
+            R.string.text_keyboard_layout_key_type_caps,
+            R.string.text_keyboard_layout_key_type_layout_switch,
+            R.string.text_keyboard_layout_key_type_comma,
+            R.string.text_keyboard_layout_key_type_language,
+            R.string.text_keyboard_layout_key_type_space,
+            R.string.text_keyboard_layout_key_type_symbol,
+            R.string.text_keyboard_layout_key_type_return,
+            R.string.text_keyboard_layout_key_type_backspace,
+            R.string.text_keyboard_layout_key_type_numpad,
+            R.string.text_keyboard_layout_key_type_mini_space,
+            R.string.text_keyboard_layout_key_type_macro
         )
 
         val SWITCH_TARGET_OPTIONS = listOf(
@@ -97,6 +126,9 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
     /**
      * Create type selector spinner
      *
+     * 下拉框显示「英文类型名（本地化说明）」，但选中值始终按**位置**取 [KEY_TYPES]，
+     * 所以显示文案里带中文不会影响写进布局 JSON 的值。
+     *
      * @param container Parent container
      * @param keyData Current key data
      * @return Spinner instance
@@ -119,7 +151,11 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
                 weight = 1f
             }
         }
-        val typeAdapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, KEY_TYPES)
+        // 按位置取中英对照文案，不往数据数组里塞显示文本：KEY_TYPES 是写入 JSON 的值。
+        val displayNames = Array(KEY_TYPES.size) { index ->
+            describeKeyType(index)
+        }
+        val typeAdapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, displayNames)
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         typeSpinner.adapter = typeAdapter
 
@@ -137,6 +173,25 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         container.addView(typeRow)
 
         return typeSpinner
+    }
+
+    /**
+     * 按键类型的下拉框文案：「英文类型名 + 本地化说明」。
+     *
+     * 连接符走 [R.string.text_keyboard_layout_key_type_format] 而不是写死括号：中文用全角
+     * 、英文用半角，各语言可自行决定。越界时只回退到英文名，不抛异常——
+     * [KEY_TYPES] 与 [KEY_TYPE_LABELS] 一旦不同步，这里退化成"只有英文"，
+     * 比让编辑器崩溃或显示错位的说明更安全。
+     */
+    fun describeKeyType(index: Int): String {
+        val type = KEY_TYPES.getOrNull(index) ?: return ""
+        val labelRes = KEY_TYPE_LABELS.getOrNull(index)
+            ?: return type
+        return activity.getString(
+            R.string.text_keyboard_layout_key_type_format,
+            type,
+            activity.getString(labelRes)
+        )
     }
 
     /**

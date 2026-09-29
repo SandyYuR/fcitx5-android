@@ -595,6 +595,20 @@
     <string name="text_keyboard_layout_add_row">添加行</string>
     <string name="text_keyboard_layout_add_key">添加按键</string>
     <string name="text_keyboard_layout_key_type">按键类型</string>
+    <!-- 按键类型下拉框的说明文案，顺序必须与 KeyboardEditorUiBuilder.KEY_TYPES 一一对应 -->
+    <string name="text_keyboard_layout_key_type_format">%1$s（%2$s）</string>
+    <string name="text_keyboard_layout_key_type_alphabet">字母键</string>
+    <string name="text_keyboard_layout_key_type_caps">大小写切换</string>
+    <string name="text_keyboard_layout_key_type_layout_switch">切换键盘布局/层</string>
+    <string name="text_keyboard_layout_key_type_comma">逗号</string>
+    <string name="text_keyboard_layout_key_type_language">中英文切换</string>
+    <string name="text_keyboard_layout_key_type_space">空格</string>
+    <string name="text_keyboard_layout_key_type_symbol">符号/标点</string>
+    <string name="text_keyboard_layout_key_type_return">回车（换行）</string>
+    <string name="text_keyboard_layout_key_type_backspace">退格</string>
+    <string name="text_keyboard_layout_key_type_numpad">数字键盘数字键</string>
+    <string name="text_keyboard_layout_key_type_mini_space">小空格（图标）</string>
+    <string name="text_keyboard_layout_key_type_macro">宏（自定义动作）</string>
     <string name="text_keyboard_layout_key_main">主字符</string>
     <string name="text_keyboard_layout_key_alt">副字符</string>
     <string name="text_keyboard_layout_key_display_text">显示文本</string>
@@ -750,9 +764,9 @@
     <string name="fontset_sample_comment">注释示例</string>
     <string name="picker_category_fullwidth">全角</string>
     <string name="symbol_panel_recent">最近</string>
-    <string name="symbol_catalog_symbols_title">符号数据</string>
-    <string name="symbol_catalog_emoji_title">表情数据</string>
-    <string name="symbol_catalog_kaomoji_title">颜文字数据</string>
+    <string name="symbol_catalog_symbols_title">自定义符号数据</string>
+    <string name="symbol_catalog_emoji_title">自定义表情数据</string>
+    <string name="symbol_catalog_kaomoji_title">自定义颜文字数据</string>
     <string name="symbol_catalog_builtin">内置数据</string>
     <string name="symbol_catalog_summary_builtin">使用应用内置数据</string>
     <string name="symbol_catalog_summary_custom">自定义：%1$s</string>

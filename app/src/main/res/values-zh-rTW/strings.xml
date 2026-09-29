@@ -488,6 +488,20 @@
     <string name="text_keyboard_layout_add_row">新增列</string>
     <string name="text_keyboard_layout_add_key">新增按鍵</string>
     <string name="text_keyboard_layout_key_type">按鍵類型</string>
+    <!-- 按鍵類型下拉框的說明文案，順序必須與 KeyboardEditorUiBuilder.KEY_TYPES 一一對應 -->
+    <string name="text_keyboard_layout_key_type_format">%1$s（%2$s）</string>
+    <string name="text_keyboard_layout_key_type_alphabet">字母鍵</string>
+    <string name="text_keyboard_layout_key_type_caps">大小寫切換</string>
+    <string name="text_keyboard_layout_key_type_layout_switch">切換鍵盤佈局/層</string>
+    <string name="text_keyboard_layout_key_type_comma">逗號</string>
+    <string name="text_keyboard_layout_key_type_language">中英文切換</string>
+    <string name="text_keyboard_layout_key_type_space">空格</string>
+    <string name="text_keyboard_layout_key_type_symbol">符號/標點</string>
+    <string name="text_keyboard_layout_key_type_return">換行（Enter）</string>
+    <string name="text_keyboard_layout_key_type_backspace">退格</string>
+    <string name="text_keyboard_layout_key_type_numpad">數字鍵盤數字鍵</string>
+    <string name="text_keyboard_layout_key_type_mini_space">小空格（圖示）</string>
+    <string name="text_keyboard_layout_key_type_macro">巨集（自訂動作）</string>
     <string name="text_keyboard_layout_key_main">主字元</string>
     <string name="text_keyboard_layout_key_alt">副字元</string>
     <string name="text_keyboard_layout_key_display_text">顯示文字</string>
@@ -724,9 +738,9 @@
     <string name="fontset_sample_comment">註釋範例</string>
     <string name="picker_category_fullwidth">全形</string>
     <string name="symbol_panel_recent">最近</string>
-    <string name="symbol_catalog_symbols_title">符號資料</string>
-    <string name="symbol_catalog_emoji_title">表情資料</string>
-    <string name="symbol_catalog_kaomoji_title">顏文字資料</string>
+    <string name="symbol_catalog_symbols_title">自訂符號資料</string>
+    <string name="symbol_catalog_emoji_title">自訂表情資料</string>
+    <string name="symbol_catalog_kaomoji_title">自訂顏文字資料</string>
     <string name="symbol_catalog_builtin">內建資料</string>
     <string name="symbol_catalog_summary_builtin">使用應用程式內建資料</string>
     <string name="symbol_catalog_summary_custom">自訂：%1$s</string>

@@ -608,6 +608,20 @@
     <string name="text_keyboard_layout_add_row">Add Row</string>
     <string name="text_keyboard_layout_add_key">Add Key</string>
     <string name="text_keyboard_layout_key_type">Key Type</string>
+    <!-- 按键类型下拉框的说明文案，顺序必须与 KeyboardEditorUiBuilder.KEY_TYPES 一一对应 -->
+    <string name="text_keyboard_layout_key_type_format">%1$s (%2$s)</string>
+    <string name="text_keyboard_layout_key_type_alphabet">letter key</string>
+    <string name="text_keyboard_layout_key_type_caps">case switch (Shift/Caps)</string>
+    <string name="text_keyboard_layout_key_type_layout_switch">switch keyboard layout/layer</string>
+    <string name="text_keyboard_layout_key_type_comma">comma</string>
+    <string name="text_keyboard_layout_key_type_language">Chinese/Latin switch</string>
+    <string name="text_keyboard_layout_key_type_space">space</string>
+    <string name="text_keyboard_layout_key_type_symbol">symbol / punctuation</string>
+    <string name="text_keyboard_layout_key_type_return">enter (newline)</string>
+    <string name="text_keyboard_layout_key_type_backspace">backspace</string>
+    <string name="text_keyboard_layout_key_type_numpad">number pad digit</string>
+    <string name="text_keyboard_layout_key_type_mini_space">compact space (icon)</string>
+    <string name="text_keyboard_layout_key_type_macro">macro (custom action)</string>
     <string name="text_keyboard_layout_key_main">Main Character</string>
     <string name="text_keyboard_layout_key_alt">Alt Character</string>
     <string name="text_keyboard_layout_key_display_text">Display Text</string>
@@ -747,9 +761,9 @@
     <string name="fontset_sample_comment">Comment Note</string>
     <string name="picker_category_fullwidth">Fullwidth</string>
     <string name="symbol_panel_recent">Recent</string>
-    <string name="symbol_catalog_symbols_title">Symbol data</string>
-    <string name="symbol_catalog_emoji_title">Emoji data</string>
-    <string name="symbol_catalog_kaomoji_title">Kaomoji data</string>
+    <string name="symbol_catalog_symbols_title">Custom symbol data</string>
+    <string name="symbol_catalog_emoji_title">Custom emoji data</string>
+    <string name="symbol_catalog_kaomoji_title">Custom kaomoji data</string>
     <string name="symbol_catalog_builtin">Built-in</string>
     <string name="symbol_catalog_summary_builtin">Built-in data from the app</string>
     <string name="symbol_catalog_summary_custom">Custom: %1$s</string>
