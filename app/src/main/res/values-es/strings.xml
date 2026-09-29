@@ -55,7 +55,7 @@
     <string name="keyboard_category_behavior">Comportamiento de teclas</string>
     <string name="keyboard_category_feedback">Retroalimentación</string>
     <string name="keyboard_category_toolbar">Barra de herramientas</string>
-    <string name="keyboard_category_editors">Personalización del teclado</string>
+    <string name="keyboard_category_editors">Personalización de la distribución del teclado</string>
     <string name="one_handed_keyboard">Teclado con una mano</string>
     <string name="version">Versión</string>
     <string name="source_code">Código fuente</string>

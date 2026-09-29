@@ -568,20 +568,21 @@ object SettingsSearchIndex {
 
         SettingsSearchEntry(
             R.string.keyboard_category_editors, P_KEYBOARD,
-            listOf("editors", "自定义", "键盘自定义", "增强选项", "工具"),
+            listOf("editors", "自定义", "键盘布局自定义", "键盘自定义", "增强选项", "工具"),
             route = keyboard(EDITORS)
         ),
-        // 「字体设定」与「弹出字符设定」原先藏在「增强选项」这个空容器里，
-        // 2026-09-28 移到「外观」分组下——它们是外观类设置，不是键盘工具。
-        // 搜索结果直接拉起编辑器本身，不经分组页中转（少一层点击）。
+        // 「字体设定」原先藏在「增强选项」这个空容器里，2026-09-28 移到「外观」分组下。
+        // 「弹出字符设定」2026-09-29 又移到「键盘 → 键盘布局自定义」：它编辑的是长按按键
+        // 弹出的字符映射，属于键盘的内容定义，不是外观。
+        // 两项都是 Activity，搜索结果直接拉起编辑器本身，不经分组页中转（少一层点击）。
         SettingsSearchEntry(
             R.string.edit_fontset, P_APPEARANCE,
             listOf("font", "字体", "ziti", "字型"),
             activityClass = FontsetEditorActivity::class.java
         ),
         SettingsSearchEntry(
-            R.string.edit_popup_preset, P_APPEARANCE,
-            listOf("popup preset", "弹出字符", "长按候选"),
+            R.string.edit_popup_preset, P_KEYBOARD,
+            listOf("popup preset", "弹出字符", "长按候选", "长按字符"),
             activityClass = PopupEditorActivity::class.java
         ),
         SettingsSearchEntry(

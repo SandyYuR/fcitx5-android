@@ -13,7 +13,6 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardGroupFragment
-import org.fcitx.fcitx5.android.ui.main.settings.behavior.PopupEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeListActivity
 
 /** 分组内一条目的跳转目标。 */
@@ -132,12 +131,11 @@ object SettingsGroupSpecs {
                         R.string.edit_fontset,
                         R.drawable.ic_baseline_text_format_24,
                         FontsetEditorActivity::class.java
-                    ),
-                    SettingsGroupEntry.activity(
-                        R.string.edit_popup_preset,
-                        R.drawable.ic_baseline_emoji_objects_24,
-                        PopupEditorActivity::class.java
                     )
+                    // 2026-09-29：「弹出字符设定」改挂「键盘 → 键盘布局自定义」组
+                    // （`KeyboardGroupFragment.GROUP_EDITORS`）——它改的是长按按键弹出的
+                    // 字符映射，属于键盘的内容/定义，与外观无关；放在这里会让「外观」
+                    // 的小字（主题、图标和字体）对不上内容。
                 )
             }
         ),

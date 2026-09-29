@@ -74,7 +74,7 @@
     <string name="keyboard_category_behavior">按键行为</string>
     <string name="keyboard_category_feedback">按键反馈</string>
     <string name="keyboard_category_toolbar">工具栏</string>
-    <string name="keyboard_category_editors">键盘自定义</string>
+    <string name="keyboard_category_editors">键盘布局自定义</string>
     <string name="one_handed_keyboard">单手键盘</string>
     <string name="clipboard_suggestion_timeout">剪贴板提示超时</string>
     <string name="version">版本</string>
@@ -953,11 +953,11 @@
     <string name="settings_home_category_daily">日常调整</string>
     <string name="settings_home_category_more">按需进入</string>
     <string name="settings_group_input">输入与候选</string>
-    <string name="settings_group_input_summary">中州韵方案与部署、Fcitx 全局选项、候选栏与候选窗口</string>
+    <string name="settings_group_input_summary">中州韵设置、全局选项、候选栏和候选窗口</string>
     <string name="settings_group_keyboard">键盘</string>
-    <string name="settings_group_keyboard_summary">尺寸边距、按键行为与反馈、工具栏、键盘形态与自定义</string>
+    <string name="settings_group_keyboard_summary">键盘、按键和工具栏设置、键盘布局自定义</string>
     <string name="settings_group_appearance">外观</string>
-    <string name="settings_group_appearance_summary">主题、图标、字体与键盘形态</string>
+    <string name="settings_group_appearance_summary">主题、图标和字体</string>
     <string name="settings_group_convenience">便捷功能</string>
     <string name="settings_group_convenience_summary">剪贴板、表情符号与语音输入</string>
     <string name="settings_group_data">数据与备份</string>

@@ -97,8 +97,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
         }
 
         // Group 5 extras: keyboard definition tools
-        // 注意：字体设定与弹出字符设定已移到「外观」分组（见 SettingsGroupSpecs），
-        // 本页不再重复提供入口——同一功能出现在两个地方会让人怀疑它们不是同一项设置。
         if (group == GROUP_EDITORS) {
             addTool(screen, "tool_text_layout_editor",
                 R.string.edit_text_keyboard_layout, ""
@@ -113,6 +111,13 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
                 R.string.numeric_layout_override_title,
                 buildNumericLayoutOverrideSummary()
             ) { showNumericLayoutOverrideDialog() }
+
+            // 2026-09-29 由「外观」移来：它编辑的是**长按按键弹出的字符映射**，
+            // 属于键盘的内容定义，与「布局编辑」同类；放在外观下与「主题/图标」
+            // 并列会让外观的小字对不上内容。
+            addTool(screen, "tool_popup_editor",
+                R.string.edit_popup_preset, ""
+            ) { startActivity(Intent(requireContext(), PopupEditorActivity::class.java)) }
 
             webEditorBridgePreference = addTool(screen, "tool_web_editor_bridge",
                 R.string.web_editor_bridge_title, ""

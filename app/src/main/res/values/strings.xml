@@ -81,7 +81,7 @@
     <string name="keyboard_category_behavior">Key Behavior</string>
     <string name="keyboard_category_feedback">Key Feedback</string>
     <string name="keyboard_category_toolbar">Toolbar</string>
-    <string name="keyboard_category_editors">Keyboard customization</string>
+    <string name="keyboard_category_editors">Keyboard layout customization</string>
     <string name="one_handed_keyboard">One-handed Keyboard</string>
     <string name="clipboard_suggestion_timeout">Clipboard suggestion timeout</string>
     <string name="version">Version</string>
@@ -957,11 +957,11 @@
     <string name="settings_home_category_daily">Everyday</string>
     <string name="settings_home_category_more">Occasional</string>
     <string name="settings_group_input">Input &amp; candidates</string>
-    <string name="settings_group_input_summary">Rime schema and deployment, Fcitx global options, candidate bar and window</string>
+    <string name="settings_group_input_summary">Rime settings, global options, candidate bar and candidate window</string>
     <string name="settings_group_keyboard">Keyboard</string>
-    <string name="settings_group_keyboard_summary">Size and margins, key behavior and feedback, toolbar, keyboard forms and customization</string>
+    <string name="settings_group_keyboard_summary">Keyboard, key and toolbar settings, keyboard layout customization</string>
     <string name="settings_group_appearance">Appearance</string>
-    <string name="settings_group_appearance_summary">Theme, icons, fonts and keyboard modes</string>
+    <string name="settings_group_appearance_summary">Themes, icons and fonts</string>
     <string name="settings_group_convenience">Convenience</string>
     <string name="settings_group_convenience_summary">Clipboard, symbols and voice input</string>
     <string name="settings_group_data">Data &amp; backup</string>
