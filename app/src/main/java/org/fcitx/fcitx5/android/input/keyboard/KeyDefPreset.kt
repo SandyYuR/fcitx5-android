@@ -76,10 +76,28 @@ class SymbolKey(
     )
 )
 
+/**
+ * 字母按键。
+ *
+ * 显示文本语义与 [MacroKey] 一致：**显式设置的 [displayText] 优先，并按原样显示**
+ * （不做 Shift/Caps 大小写改写）。
+ *
+ * ⚠️「是否显式设置」以 **JSON 里有没有这个字段**为准，**不要**拿它与 [character] 比较。
+ * 早先那版判定写的是「与主字符相同即视为未设置」，看起来能省掉冗余字段，实际会把
+ * 「主字符大写 Q + 显示文本大写 Q」这种合理诉求静默丢掉——编辑器存不住该字段，手改
+ * 配置文件也不生效，用户只能绕道把主字符改成小写。同值不等于没有意图。
+ *
+ * 未设置时（字段缺失，或按方案分组但当前方案没有取值）回落到 [character]，并保留
+ * 字母键固有的 Shift 大小写切换。
+ *
+ * @param character 实际输入的字符
+ * @param punctuation 划动输入的备选字符
+ * @param displayText 键面显示文本；null / 空串表示未设置
+ */
 class AlphabetKey(
     val character: String,
     val punctuation: String,
-    val displayText: String = character,
+    val displayText: String? = null,
     variant: Variant = Variant.Normal,
     popup: Array<Popup>? = null,
     weight: Float? = null,
@@ -93,7 +111,7 @@ class AlphabetKey(
     shadowColorMonet: String? = null
 ) : KeyDef(
     Appearance.AltText(
-        displayText = displayText,
+        displayText = displayText?.takeIf { it.isNotEmpty() } ?: character,
         altText = punctuation,
         character = character,
         textSize = 23f,
@@ -106,7 +124,8 @@ class AlphabetKey(
         backgroundColor = backgroundColor,
         backgroundColorMonet = backgroundColorMonet,
         shadowColor = shadowColor,
-        shadowColorMonet = shadowColorMonet
+        shadowColorMonet = shadowColorMonet,
+        keepDisplayTextCase = !displayText.isNullOrEmpty()
     ),
     setOf(
         Behavior.Press(KeyAction.FcitxKeyAction(character)),

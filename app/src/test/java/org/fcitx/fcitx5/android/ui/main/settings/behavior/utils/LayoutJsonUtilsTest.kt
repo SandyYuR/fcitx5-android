@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.utils
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import org.fcitx.fcitx5.android.input.keyboard.AlphabetKey
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
 import org.fcitx.fcitx5.android.input.keyboard.MacroKey
 import org.fcitx.fcitx5.android.input.keyboard.SpaceKey
@@ -299,5 +300,136 @@ class LayoutJsonUtilsTest {
         val appearance = def.appearance as KeyDef.Appearance.AltText
         assertEquals("未命中子模式时回落到标签", "M", appearance.displayText)
         assertTrue(!appearance.keepDisplayTextCase)
+    }
+
+    private fun alphabetKey(main: String, displayText: String?): AlphabetKey {
+        val displayFragment = displayText?.let { """"displayText": "$it",""" }.orEmpty()
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "AlphabetKey",
+                  "main": "$main",
+                  "alt": "1",
+                  $displayFragment
+                  "weight": 0.1
+                }]
+                """.trimIndent()
+            )
+        )
+        return LayoutJsonUtils.createKeyDef(parsed[0]) as AlphabetKey
+    }
+
+    /**
+     * 与主字符**同值**的 displayText 也是显式设置：键面恒定显示该大小写。
+     *
+     * 回归点：早先的判定是「与主字符相同即视为未设置」，看起来能省掉冗余字段，实际把
+     * 「主字符大写 Q + 显示文本大写 Q」这种合理诉求静默丢掉——编辑器存不住该字段，
+     * 手改配置文件也不生效，用户只能绕道把主字符改成小写。同值不等于没有意图。
+     */
+    @Test
+    fun alphabetKeyDisplayTextEqualToMainIsExplicit() {
+        val def = alphabetKey(main = "Q", displayText = "Q")
+        val appearance = def.appearance as KeyDef.Appearance.AltText
+        assertEquals("Q", appearance.displayText)
+        assertTrue("同值也是显式设置，须原样渲染（恒定大写）", appearance.keepDisplayTextCase)
+    }
+
+    /** 缺字段才是「未设置」：回落到主字符，并保留字母键固有的 Shift 切换。 */
+    @Test
+    fun alphabetKeyWithoutDisplayTextKeepsShiftBehaviour() {
+        val def = alphabetKey(main = "Q", displayText = null)
+        val appearance = def.appearance as KeyDef.Appearance.AltText
+        assertEquals("Q", appearance.displayText)
+        assertTrue("未设置时保留 Shift 行为", !appearance.keepDisplayTextCase)
+    }
+
+    /**
+     * 与主字符真正不同的 displayText 按原样显示（keepDisplayTextCase）。
+     *
+     * 这既覆盖「恒定大小写」的诉求（main=d 显示 D），也覆盖多字符标签
+     * （main=W 显示 "W E"，旧代码在 Shift 下会把它截断成 "W"）。
+     */
+    @Test
+    fun alphabetKeyDistinctDisplayTextIsKeptVerbatim() {
+        val upper = alphabetKey(main = "d", displayText = "D")
+        val upperAppearance = upper.appearance as KeyDef.Appearance.AltText
+        assertEquals("D", upperAppearance.displayText)
+        assertTrue("显式设置必须原样渲染", upperAppearance.keepDisplayTextCase)
+
+        val pair = alphabetKey(main = "W", displayText = "W E")
+        val pairAppearance = pair.appearance as KeyDef.Appearance.AltText
+        assertEquals("W E", pairAppearance.displayText)
+        assertTrue(pairAppearance.keepDisplayTextCase)
+    }
+
+    /** 子模式取值命中且与主字符不同时，同样是显式设置。 */
+    @Test
+    fun alphabetKeySubModeDisplayTextIsKeptVerbatim() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "AlphabetKey",
+                  "main": "Q",
+                  "alt": "1",
+                  "displayText": {"倉頡五代": "手"}
+                }]
+                """.trimIndent()
+            )
+        )
+        val def = LayoutJsonUtils.createKeyDef(parsed[0], subModeLabel = "倉頡五代") as AlphabetKey
+        val appearance = def.appearance as KeyDef.Appearance.AltText
+        assertEquals("手", appearance.displayText)
+        assertTrue(appearance.keepDisplayTextCase)
+    }
+
+    /** 子模式未命中时回落到主字符，此时等于未设置。 */
+    @Test
+    fun alphabetKeySubModeMissFallsBackToMain() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "AlphabetKey",
+                  "main": "Q",
+                  "alt": "1",
+                  "displayText": {"倉頡五代": "手"}
+                }]
+                """.trimIndent()
+            )
+        )
+        val def = LayoutJsonUtils.createKeyDef(parsed[0], subModeLabel = "拼音") as AlphabetKey
+        val appearance = def.appearance as KeyDef.Appearance.AltText
+        assertEquals("Q", appearance.displayText)
+        assertTrue(!appearance.keepDisplayTextCase)
+    }
+
+    /**
+     * 保存时必须写回与主字符同值的 displayText。
+     *
+     * 这正是用户报的那个 bug：编辑器把「主字符大写 + 显示文本大写」当成冗余丢掉，
+     * 表现就是「填了却存不住、重进编辑框显示文本是空的」。判据只能是「用户填了没有」，
+     * 不能是「填的值跟主字符像不像」。
+     */
+    @Test
+    fun alphabetKeyWritesDisplayTextEvenWhenEqualToMain() {
+        assertEquals("Q", LayoutJsonUtils.keyDefToJson(alphabetKey(main = "Q", displayText = "Q"))["displayText"])
+        assertNull("未设置时不写该字段", LayoutJsonUtils.keyDefToJson(alphabetKey(main = "Q", displayText = null))["displayText"])
+    }
+
+    /** 与主字符不同的取值同样写出。 */
+    @Test
+    fun alphabetKeyWritesDistinctDisplayTextOnSave() {
+        assertEquals("D", LayoutJsonUtils.keyDefToJson(alphabetKey(main = "d", displayText = "D"))["displayText"])
+        assertEquals("W E", LayoutJsonUtils.keyDefToJson(alphabetKey(main = "W", displayText = "W E"))["displayText"])
+    }
+
+    /** 真实主字符不被显示文本改写：main 始终是输入字符。 */
+    @Test
+    fun alphabetKeyDisplayTextDoesNotChangeTypedCharacter() {
+        val def = alphabetKey(main = "d", displayText = "D")
+        assertEquals("d", def.character)
+        assertEquals("1", def.punctuation)
     }
 }

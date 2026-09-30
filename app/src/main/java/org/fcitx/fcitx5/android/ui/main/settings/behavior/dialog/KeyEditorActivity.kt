@@ -1398,6 +1398,8 @@ class KeyEditorActivity : AppCompatActivity() {
                     alphabetDisplayTextRowBindings.forEach { binding ->
                         val modeName = binding.modeEdit.text?.toString()?.trim().orEmpty()
                         val modeValue = binding.valueEdit.text?.toString()?.trim().orEmpty()
+                        // 空值不算设置；显式填写的取值一律保留，**哪怕与主字符相同**——
+                        // 那正是「键面恒定显示该大小写」的诉求（见 AlphabetKey 的说明）。
                         if (modeName.isNotEmpty() && modeValue.isNotEmpty()) {
                             displayTextMap[modeName] = modeValue
                         }
@@ -1891,7 +1893,8 @@ class KeyEditorActivity : AppCompatActivity() {
 
         when (selectedType) {
             "AlphabetKey" -> {
-                newKey["main"] = alphabetMainEdit?.text?.toString().orEmpty()
+                val main = alphabetMainEdit?.text?.toString().orEmpty()
+                newKey["main"] = main
                 newKey["alt"] = alphabetAltEdit?.text?.toString().orEmpty()
                 if (!disableWeightEditing) {
                     parseWeight(alphabetWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
@@ -1902,6 +1905,8 @@ class KeyEditorActivity : AppCompatActivity() {
                     alphabetDisplayTextRowBindings.forEach { binding ->
                         val modeName = binding.modeEdit.text?.toString()?.trim().orEmpty()
                         val modeValue = binding.valueEdit.text?.toString()?.trim().orEmpty()
+                        // 空值不算设置；显式填写的取值一律保留，**哪怕与主字符相同**——
+                        // 那正是「键面恒定显示该大小写」的诉求（见 AlphabetKey 的说明）。
                         if (modeName.isNotEmpty() && modeValue.isNotEmpty()) {
                             displayTextMap[modeName] = modeValue
                         }

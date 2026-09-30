@@ -791,7 +791,15 @@ class KeyboardLayoutAdapter(
         return when (type) {
             "AlphabetKey" -> {
                 val main = key["main"] as? String ?: ""
-                main.ifEmpty { "?" }
+                // 与运行时渲染一致：显式设置的显示文本优先，**哪怕与主字符相同**（那就表示
+                // 键面恒定显示该大小写）。只有「为空 / 缺失」才算未设置，回落到主字符。
+                // 显示文本若按子模式分组，这里没有子模式上下文，取 "default" 项。
+                val displayText = when (val raw = key["displayText"]) {
+                    is String -> raw.takeIf { it.isNotEmpty() }
+                    is Map<*, *> -> (raw["default"] as? String)?.takeIf { it.isNotEmpty() }
+                    else -> null
+                }
+                (displayText ?: main).ifEmpty { "?" }
             }
             "CapsKey" -> context.getString(R.string.text_keyboard_layout_key_label_caps)
             "LayoutSwitchKey" -> {

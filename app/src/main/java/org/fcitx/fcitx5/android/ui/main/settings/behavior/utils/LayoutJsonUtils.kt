@@ -663,7 +663,9 @@ object LayoutJsonUtils {
             is AlphabetKey -> {
                 json["main"] = keyDef.character
                 json["alt"] = keyDef.punctuation
-                json["displayText"] = keyDef.displayText
+                // 未设置（null / 空串）时不写该字段；显式填写的一律写回，**哪怕取值与 main
+                // 相同**——那正是「键面恒定显示这个大小写」的诉求，不能因为同值就丢掉。
+                keyDef.displayText?.takeIf { it.isNotEmpty() }?.let { json["displayText"] = it }
                 json["weight"] = appearance.percentWidth.takeIf { it != 0.1f }
             }
             is CapsKey -> {
@@ -836,13 +838,16 @@ object LayoutJsonUtils {
             "AlphabetKey" -> AlphabetKey(
                 character = key.main ?: "",
                 punctuation = key.alt ?: "",
+                // 空串代表「未设置」：字段缺失，或按方案分组但当前方案没有取值。
+                // 是否为 null 决定「回落到主字符 + 保留 Shift」还是「原样显示」，所以这里
+                // 必须用空串兜底——早先用 main 兜底，导致两者再也分不出来。
                 displayText = resolveDisplayText(
                     key.displayText,
                     schemaId,
                     subModeLabel,
                     subModeName,
-                    key.main ?: ""
-                ),
+                    ""
+                ).takeIf { it.isNotEmpty() },
                 weight = key.weight,
                 textColor = key.textColor,
                 textColorMonet = key.textColorMonet,
