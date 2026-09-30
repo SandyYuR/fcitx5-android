@@ -873,13 +873,19 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         // 使用 dataManager 加载数据（IO 线程）
         dataManager.loadFromFileAsync(file)
 
+        val initialLayout = intent.getStringExtra(EXTRA_INITIAL_LAYOUT)
+            ?.takeIf { entries.containsKey(it) }
+        if (initialLayout != null) {
+            currentLayout = initialLayout
+        }
+
         // 初始化 currentLayout 和 previewSubModeLabel（基于当前 IME 状态）
         val (currentIme, fcitxLabels) = subModeManager.fetchCurrentImeAndSubModeLabels(currentLayout.orEmpty())
         val currentImeUniqueName = currentIme?.uniqueName
         val currentSubModeLabel = currentIme?.subMode?.label?.ifEmpty { currentIme.subMode.name }?.takeIf { it.isNotBlank() }
 
         // 查找与当前 IME 匹配的布局
-        if (currentImeUniqueName != null) {
+        if (currentLayout == null && currentImeUniqueName != null) {
             val matchingLayoutKey = entries.keys.find { key ->
                 key == currentImeUniqueName ||
                 key == currentIme.displayName ||
@@ -1191,15 +1197,60 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 ?: layoutName
             } ?: layoutName
         }
-        val copySourceOptions = entries.keys.sorted()
+        val copySourceOptions = entries.keys.sorted().toMutableList()
+        val copySourceLabels = copySourceOptions.map {
+            if (it == TEXT_EDITOR_LAYOUT_NAME) {
+                getString(R.string.text_keyboard_layout_copy_source_text_editor)
+            } else {
+                it
+            }
+        }.toMutableList()
+        if (TEXT_EDITOR_LAYOUT_NAME !in copySourceOptions) {
+            copySourceOptions += TEXT_EDITOR_LAYOUT_NAME
+            copySourceLabels += getString(R.string.text_keyboard_layout_copy_source_text_editor)
+        }
         val intent = Intent(this, LayoutNameInputActivity::class.java).apply {
             putExtra(LayoutNameInputActivity.EXTRA_TITLE, getString(R.string.text_keyboard_layout_add_layout))
             putExtra(LayoutNameInputActivity.EXTRA_LABEL, getString(R.string.text_keyboard_layout_layout_name))
             putExtra(LayoutNameInputActivity.EXTRA_HINT, getString(R.string.text_keyboard_layout_layout_name_hint))
             putStringArrayListExtra(LayoutNameInputActivity.EXTRA_COPY_SOURCE_OPTIONS, ArrayList(copySourceOptions))
+            putStringArrayListExtra(LayoutNameInputActivity.EXTRA_COPY_SOURCE_LABELS, ArrayList(copySourceLabels))
             putExtra(LayoutNameInputActivity.EXTRA_COPY_SOURCE_DEFAULT, currentEditingLayoutKey)
         }
         layoutNameInputLauncher.launch(intent)
+    }
+
+    private fun defaultTextEditorRows(): MutableList<MutableList<MutableMap<String, Any?>>> {
+        val weight = 1f / 6f
+        fun editKey(label: String, action: String): MutableMap<String, Any?> = mutableMapOf(
+            "type" to "MacroKey",
+            "label" to label,
+            "displayText" to label,
+            "weight" to weight,
+            "tap" to mapOf(
+                "macro" to listOf(
+                    mapOf("type" to "edit", "action" to action)
+                )
+            )
+        )
+        return mutableListOf(
+            mutableListOf(
+                mutableMapOf(
+                    "type" to "LayoutSwitchKey",
+                    "label" to "ABC",
+                    "subLabel" to "",
+                    "weight" to weight
+                ),
+                editKey("All", "selectAll"),
+                editKey("Cut", "cut"),
+                editKey("Copy", "copy"),
+                editKey("Paste", "paste"),
+                mutableMapOf(
+                    "type" to "BackspaceKey",
+                    "weight" to weight
+                )
+            )
+        )
     }
 
     private fun createGlobalSharedLayout(rawName: String, copySourceKey: String? = null) {
@@ -1224,14 +1275,20 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             return
         }
 
-        val sourceRows = copySourceKey
-            ?.takeIf { it.isNotBlank() }
-            ?.let { entries[it] }
-            ?: currentRowsRef.takeIf { it.isNotEmpty() }
-            ?: currentLayout?.let { name ->
-                previewSubModeLabel?.let { label -> entries["$name:$label"] } ?: entries[name]
-            }
-            ?: mutableListOf()
+        val sourceRows = if (
+            copySourceKey == TEXT_EDITOR_LAYOUT_NAME && !entries.containsKey(TEXT_EDITOR_LAYOUT_NAME)
+        ) {
+            defaultTextEditorRows()
+        } else {
+            copySourceKey
+                ?.takeIf { it.isNotBlank() }
+                ?.let { entries[it] }
+                ?: currentRowsRef.takeIf { it.isNotEmpty() }
+                ?: currentLayout?.let { name ->
+                    previewSubModeLabel?.let { label -> entries["$name:$label"] } ?: entries[name]
+                }
+                ?: mutableListOf()
+        }
 
         entries[newName] = sourceRows.map { row ->
             row.map { key -> key.toMutableMap() }.toMutableList()
@@ -3418,6 +3475,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val EXTRA_INITIAL_LAYOUT = "text_keyboard_layout_initial_layout"
+        private const val TEXT_EDITOR_LAYOUT_NAME = "text_editor"
         private const val MENU_SAVE_ID = 3001
         private const val MENU_LAYOUT_FILE_SWITCH_ID = 3002
         private const val MENU_LAYOUT_FILE_CREATE_ID = 3003

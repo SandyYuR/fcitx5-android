@@ -93,6 +93,8 @@ object SettingsSearchIndex {
     private val P_DATA = listOf(R.string.settings_search_group_android, R.string.settings_group_data)
     private val P_APPEARANCE =
         listOf(R.string.settings_search_group_android, R.string.settings_group_appearance)
+    private val P_CONVENIENCE =
+        listOf(R.string.settings_search_group_android, R.string.settings_group_convenience)
     /** 「输入与候选」：2026-09-29 起收着中州韵设置与全局选项。 */
     private val P_INPUT =
         listOf(R.string.settings_search_group_android, R.string.settings_group_input)
@@ -192,6 +194,11 @@ object SettingsSearchIndex {
         R.string.hide_unsupported_emojis to "hide_unsupported_emojis",
         R.string.default_emoji_skin_tone to "default_emoji_skin_tone",
 
+        /* 文本编辑 */
+        R.string.text_editing_style to "text_editing_style",
+        R.string.text_editing_cursor_step to "text_editing_cursor_step_dp",
+        R.string.text_editing_cursor_long_press_delay to "text_editing_cursor_long_press_delay",
+
         /* 高级 */
         R.string.ignore_sys_cursor to "ignore_system_cursor",
         R.string.hide_key_config to "hide_key_config",
@@ -269,6 +276,26 @@ object SettingsSearchIndex {
             R.string.settings_group_convenience, P_ANDROID,
             listOf("convenience", "便捷", "bianjie", "工具"),
             route = groupRoute(SettingsGroupSpecs.ID_CONVENIENCE)
+        ),
+        SettingsSearchEntry(
+            R.string.text_editing, P_CONVENIENCE,
+            listOf("text editing", "文本编辑", "编辑器", "foxy", "滑动", "触控板"),
+            route = SettingsRoute.TextEditing
+        ),
+        SettingsSearchEntry(
+            R.string.text_editing_style, P_CONVENIENCE,
+            listOf("text editing style", "编辑风格", "默认风格", "Foxy滑动风格"),
+            route = SettingsRoute.TextEditing
+        ),
+        SettingsSearchEntry(
+            R.string.text_editing_cursor_step, P_CONVENIENCE,
+            listOf("cursor step", "光标步长", "触控板步长", "dp"),
+            route = SettingsRoute.TextEditing
+        ),
+        SettingsSearchEntry(
+            R.string.text_editing_cursor_long_press_delay, P_CONVENIENCE,
+            listOf("long press delay", "长按延迟", "选取延迟", "ms"),
+            route = SettingsRoute.TextEditing
         ),
         SettingsSearchEntry(
             R.string.keyboard_modes_title, P_KEYBOARD,

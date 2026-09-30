@@ -21,6 +21,7 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase
 import org.fcitx.fcitx5.android.input.keyboard.SpaceKeyLabelMode
 import org.fcitx.fcitx5.android.input.keyboard.SpaceLongPressBehavior
 import org.fcitx.fcitx5.android.input.keyboard.SwipeSymbolDirection
+import org.fcitx.fcitx5.android.input.editing.TextEditingStyle
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.picker.SymbolCatalogType
@@ -373,8 +374,60 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
     }
 
-    inner class Candidates :
-        ManagedPreferenceCategory(R.string.candidates_window, sharedPreferences) {
+    inner class TextEditing :
+        ManagedPreferenceCategory(R.string.text_editing, sharedPreferences) {
+        private val foxyEnabled: () -> Boolean = {
+            style.getValue() == TextEditingStyle.FoxySwipe
+        }
+
+        val style = enumList(
+            R.string.text_editing_style,
+            "text_editing_style",
+            TextEditingStyle.Default
+        )
+        val cursorStepDp = int(
+            R.string.text_editing_cursor_step,
+            "text_editing_cursor_step_dp",
+            18,
+            4,
+            80,
+            "dp",
+            enableUiOn = foxyEnabled
+        )
+        val cursorLongPressDelay = int(
+            R.string.text_editing_cursor_long_press_delay,
+            "text_editing_cursor_long_press_delay",
+            300,
+            100,
+            1200,
+            "ms",
+            10,
+            enableUiOn = foxyEnabled
+        )
+
+        val cursorPromptMove = ManagedPreference.PString(
+            sharedPreferences,
+            "text_editing_cursor_prompt_move",
+            ""
+        ).apply { register() }
+        val cursorPromptLongPress = ManagedPreference.PString(
+            sharedPreferences,
+            "text_editing_cursor_prompt_long_press",
+            ""
+        ).apply { register() }
+        val cursorPromptSelecting = ManagedPreference.PString(
+            sharedPreferences,
+            "text_editing_cursor_prompt_selecting",
+            ""
+        ).apply { register() }
+        val cursorPromptReleaseSelection = ManagedPreference.PString(
+            sharedPreferences,
+            "text_editing_cursor_prompt_release_selection",
+            ""
+        ).apply { register() }
+    }
+
+    inner class Candidates : ManagedPreferenceCategory(R.string.candidates_window, sharedPreferences) {
         val mode = enumList(
             R.string.show_candidates_window,
             "show_candidates_window",
@@ -577,6 +630,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
     val internal = Internal().register()
     val keyboard = Keyboard().register()
+    val textEditing = TextEditing().register()
     val candidates = Candidates().register()
     val clipboard = Clipboard().register()
     val symbols = Symbols().register()
@@ -621,6 +675,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             }
             listOf(
                 keyboard,
+                textEditing,
                 candidates,
                 clipboard
             ).forEach { category ->

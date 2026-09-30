@@ -31,6 +31,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardModesFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.SymbolSettingsFragment
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextEditingSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.global.GlobalConfigFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
@@ -97,6 +98,9 @@ sealed class SettingsRoute : Parcelable {
 
     @Serializable
     data object Symbol : SettingsRoute()
+
+    @Serializable
+    data object TextEditing : SettingsRoute()
 
     /** 浮动键盘与单手键盘。原先没有任何设置入口，只能靠工具栏按钮触发。 */
     @Serializable
@@ -224,6 +228,9 @@ sealed class SettingsRoute : Parcelable {
             }
             fragment<SymbolSettingsFragment, Symbol> {
                 label = ctx.getString(R.string.emoji_and_symbols)
+            }
+            fragment<TextEditingSettingsFragment, TextEditing> {
+                label = ctx.getString(R.string.text_editing)
             }
             fragment<AdvancedSettingsFragment, Advanced> {
                 label = ctx.getString(R.string.advanced)

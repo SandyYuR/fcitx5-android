@@ -34,6 +34,7 @@ class LayoutNameInputActivity : AppCompatActivity() {
         const val EXTRA_HINT = "hint"
         const val EXTRA_INITIAL_VALUE = "initial_value"
         const val EXTRA_COPY_SOURCE_OPTIONS = "copy_source_options"
+        const val EXTRA_COPY_SOURCE_LABELS = "copy_source_labels"
         const val EXTRA_COPY_SOURCE_DEFAULT = "copy_source_default"
         const val EXTRA_RESULT_LAYOUT_NAME = "result_layout_name"
         const val EXTRA_RESULT_COPY_SOURCE = "result_copy_source"
@@ -51,6 +52,7 @@ class LayoutNameInputActivity : AppCompatActivity() {
     private lateinit var input: AppCompatEditText
     private var copySourceSpinner: Spinner? = null
     private var copySources: List<String> = emptyList()
+    private var copySourceLabels: List<String> = emptyList()
 
     private val content by lazy {
         LinearLayout(this).apply {
@@ -76,6 +78,9 @@ class LayoutNameInputActivity : AppCompatActivity() {
             addView(input, LinearLayout.LayoutParams(matchParent, wrapContent))
 
             copySources = intent.getStringArrayListExtra(EXTRA_COPY_SOURCE_OPTIONS)?.toList().orEmpty()
+            copySourceLabels = intent.getStringArrayListExtra(EXTRA_COPY_SOURCE_LABELS)?.toList()
+                ?.takeIf { it.size == copySources.size }
+                ?: copySources
             if (copySources.isNotEmpty()) {
                 addView(TextView(this@LayoutNameInputActivity).apply {
                     text = getString(R.string.text_keyboard_layout_copy_from)
@@ -86,7 +91,7 @@ class LayoutNameInputActivity : AppCompatActivity() {
                 val adapter = ArrayAdapter(
                     this@LayoutNameInputActivity,
                     android.R.layout.simple_spinner_item,
-                    copySources
+                    copySourceLabels
                 )
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 copySourceSpinner = Spinner(this@LayoutNameInputActivity).apply {
@@ -147,9 +152,9 @@ class LayoutNameInputActivity : AppCompatActivity() {
                 }
                 setResult(RESULT_OK, Intent().apply {
                     putExtra(EXTRA_RESULT_LAYOUT_NAME, name)
-                    copySourceSpinner?.selectedItem?.toString()?.let {
-                        putExtra(EXTRA_RESULT_COPY_SOURCE, it)
-                    }
+                    copySourceSpinner?.selectedItemPosition
+                        ?.let { copySources.getOrNull(it) }
+                        ?.let { putExtra(EXTRA_RESULT_COPY_SOURCE, it) }
                 })
                 finish()
                 true

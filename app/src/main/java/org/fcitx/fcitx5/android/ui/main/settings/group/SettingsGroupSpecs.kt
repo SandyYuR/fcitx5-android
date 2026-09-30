@@ -153,6 +153,11 @@ object SettingsGroupSpecs {
                         SettingsRoute.Clipboard
                     ),
                     SettingsGroupEntry.route(
+                        R.string.text_editing,
+                        R.drawable.ic_cursor_move,
+                        SettingsRoute.TextEditing
+                    ),
+                    SettingsGroupEntry.route(
                         R.string.emoji_and_symbols,
                         R.drawable.ic_baseline_emoji_symbols_24,
                         SettingsRoute.Symbol

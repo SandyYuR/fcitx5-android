@@ -8,6 +8,9 @@ package org.fcitx.fcitx5.android.input.editing
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.StateListDrawable
 import androidx.annotation.DrawableRes
@@ -16,9 +19,6 @@ import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
 import org.fcitx.fcitx5.android.input.keyboard.shadowedKeyBackgroundDrawable
 import org.fcitx.fcitx5.android.input.keyboard.insetRadiusDrawable
-import org.fcitx.fcitx5.android.utils.borderDrawable
-import org.fcitx.fcitx5.android.utils.pressHighlightDrawable
-import org.fcitx.fcitx5.android.utils.rippleDrawable
 import splitties.dimensions.dp
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.imageView
@@ -47,6 +47,31 @@ class TextEditingButton(
     // !bordered
     private val lineWidth = max(1, dp(1) / 2)
 
+    private fun roundedBorderDrawable(backgroundColor: Int = Color.TRANSPARENT): Drawable =
+        GradientDrawable().apply {
+            setColor(backgroundColor)
+            setStroke(lineWidth, theme.dividerColor)
+            cornerRadius = radius
+        }
+
+    private fun roundedPressDrawable(color: Int): Drawable =
+        insetRadiusDrawable(0, 0, radius, color)
+
+    private fun roundedPressForeground(): Drawable = if (rippled) {
+        RippleDrawable(
+            ColorStateList.valueOf(theme.keyPressHighlightColor),
+            null,
+            roundedPressDrawable(Color.WHITE)
+        )
+    } else {
+        StateListDrawable().apply {
+            addState(
+                intArrayOf(android.R.attr.state_pressed),
+                roundedPressDrawable(theme.keyPressHighlightColor)
+            )
+        }
+    }
+
     init {
         if (bordered) {
             val bkgColor = if (altStyle) theme.altKeyBackgroundColor else theme.keyBackgroundColor
@@ -68,10 +93,8 @@ class TextEditingButton(
                 }
             }
         } else {
-            background = borderDrawable(lineWidth, theme.dividerColor)
-            foreground =
-                if (rippled) rippleDrawable(theme.keyPressHighlightColor)
-                else pressHighlightDrawable(theme.keyPressHighlightColor)
+            background = roundedBorderDrawable()
+            foreground = roundedPressForeground()
         }
     }
 
@@ -88,23 +111,32 @@ class TextEditingButton(
         imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
     }
 
+    private fun detachContentViews() {
+        if (textView.parent === this) removeView(textView)
+        if (imageView.parent === this) removeView(imageView)
+    }
+
     fun setText(id: Int) {
-        textView.setText(id)
-        removeView(imageView)
+        setText(context.getText(id))
+    }
+
+    fun setText(text: CharSequence) {
+        textView.text = text
+        detachContentViews()
         add(textView, lParams(wrapContent, wrapContent, gravityCenter))
     }
 
     fun setIcon(@DrawableRes icon: Int) {
         imageView.imageResource = icon
         imageView.imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
-        removeView(textView)
+        detachContentViews()
         add(imageView, lParams(wrapContent, wrapContent, gravityCenter))
     }
 
     fun setThemedIcon(slot: String, @DrawableRes fallback: Int) {
         val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
         if (iconInfo != null) {
-            removeView(textView)
+            detachContentViews()
             add(imageView, lParams(wrapContent, wrapContent, gravityCenter))
             imageView.setImageDrawable(iconInfo.drawable)
             if (iconInfo.tintWithTheme) {
@@ -162,15 +194,11 @@ class TextEditingButton(
             StateListDrawable().apply {
                 addState(
                     intArrayOf(android.R.attr.state_activated),
-                    borderDrawable(
-                        lineWidth,
-                        theme.dividerColor,
-                        theme.genericActiveBackgroundColor
-                    )
+                    roundedBorderDrawable(theme.genericActiveBackgroundColor)
                 )
                 addState(
                     intArrayOf(android.R.attr.state_enabled),
-                    borderDrawable(lineWidth, theme.dividerColor)
+                    roundedBorderDrawable()
                 )
             }
         }

@@ -24,6 +24,8 @@ import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
+import org.fcitx.fcitx5.android.input.editing.FoxyTextEditingUi
+import org.fcitx.fcitx5.android.input.editing.TextEditingLayoutLoader
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
@@ -59,6 +61,7 @@ class KeyboardPreviewManager(
     private val subModeNameToIdProvider: () -> Map<String, String> = { emptyMap() }
 ) {
     private var previewKeyboard: TextKeyboard? = null
+    private var previewTextEditingView: View? = null
     private val previewBlurMask by lazy { PreviewKeyBlurMaskView(context) }
 
     /**
@@ -90,7 +93,8 @@ class KeyboardPreviewManager(
         // Try to load submode-specific layout first
         val effectiveSubModeKey = resolveEffectiveSubModeKey(layoutName, previewSubModeLabel)
         val effectiveLayoutKey = effectiveSubModeKey ?: layoutName
-        val rows = entries[effectiveLayoutKey] ?: return
+        val rows = entries[effectiveLayoutKey]
+            ?: if (layoutName == TEXT_EDITOR_LAYOUT_NAME) emptyList() else return
 
         val theme = ThemeManager.activeTheme
         val keyBorder = ThemeManager.prefs.keyBorder.getValue()
@@ -110,7 +114,7 @@ class KeyboardPreviewManager(
             keyBorder = keyBorder,
             layoutJson = tempJson.toString()
         )
-        if (previewKeyboard != null && signature == lastPreviewSignature) return
+        if ((previewKeyboard != null || previewTextEditingView != null) && signature == lastPreviewSignature) return
         lastPreviewSignature = signature
 
         previewContainer.removeAllViews()
@@ -123,14 +127,16 @@ class KeyboardPreviewManager(
             previewKeyboard = null
         }
 
-        // Render with the preview JSON as an override rather than assigning
-        // ConfigProviders.provider. That singleton is process-wide, so with the IME service alive
-        // in this process the running keyboard could read the preview layout, and the two
-        // clearCachedKeyDefLayouts() calls threw away the real keyboard's parsed layouts on every
-        // refresh — which happens on every drag step in the editor (see E9).
+        previewKeyboard = null
+        previewTextEditingView = null
+
         try {
-            TextKeyboard.withPreviewLayout(tempJson) {
-                createKeyboardPreview(layoutName, previewSubModeLabel, effectiveSubModeKey, fcitxConnection)
+            if (layoutName == TEXT_EDITOR_LAYOUT_NAME) {
+                createTextEditorPreview(rows, theme)
+            } else {
+                TextKeyboard.withPreviewLayout(tempJson) {
+                    createKeyboardPreview(layoutName, previewSubModeLabel, effectiveSubModeKey, fcitxConnection)
+                }
             }
         } catch (e: Exception) {
             android.util.Log.e("KeyboardPreview", "Failed to create keyboard preview for layout: $layoutName, submode: $previewSubModeLabel", e)
@@ -138,9 +144,50 @@ class KeyboardPreviewManager(
         }
     }
 
-    /**
-     * Build submode map for temporary JSON file.
-     */
+    private fun createTextEditorPreview(
+        rows: List<List<Map<String, Any?>>>,
+        theme: org.fcitx.fcitx5.android.data.theme.Theme
+    ) {
+        val layout = TextEditingLayoutLoader.fromRows(rows)
+        val prefs = AppPrefs.getInstance()
+        val textEditing = prefs.textEditing
+        val keyboard = prefs.keyboard
+        val isLandscape = context.resources.configuration.orientation ==
+            android.content.res.Configuration.ORIENTATION_LANDSCAPE
+        val globalPercent = if (isLandscape) {
+            keyboard.keyboardHeightPercentLandscape.getValue()
+        } else {
+            keyboard.keyboardHeightPercent.getValue()
+        }
+        val displayMetrics = context.resources.displayMetrics
+        val rowScale = computeRowHeightScale(rows)
+        val keyboardHeight = (
+            displayMetrics.heightPixels * globalPercent * rowScale / 100f
+        ).toInt().coerceAtLeast(context.dp(120))
+        val ui = FoxyTextEditingUi(
+            context,
+            theme,
+            ThemeManager.prefs.keyRippleEffect.getValue(),
+            ThemeManager.prefs.keyBorder.getValue(),
+            context.dp(ThemeManager.prefs.textEditingButtonRadius.getValue().toFloat()),
+            textEditing.cursorStepDp.getValue(),
+            textEditing.cursorLongPressDelay.getValue().toLong(),
+            textEditing.cursorPromptMove.getValue(),
+            textEditing.cursorPromptLongPress.getValue(),
+            textEditing.cursorPromptSelecting.getValue(),
+            textEditing.cursorPromptReleaseSelection.getValue(),
+            layout,
+            null
+        )
+        previewTextEditingView = ui.root
+        previewContainer.addView(
+            ui.root,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, keyboardHeight)
+        )
+        ui.root.requestLayout()
+        ui.root.invalidate()
+    }
+
     private fun buildSubModeMap(
         layoutName: String,
         subModeKey: String?,
@@ -358,14 +405,19 @@ class KeyboardPreviewManager(
         previewContainer.addView(errorText)
     }
 
-    /**
-     * Clear preview keyboard.
-     */
+    private companion object {
+        private const val TEXT_EDITOR_LAYOUT_NAME = "text_editor"
+    }
+
     fun clear() {
         previewBlurMask.bindKeyboard(null)
         previewKeyboard?.let {
             previewContainer.removeView(it)
             previewKeyboard = null
+        }
+        previewTextEditingView?.let {
+            previewContainer.removeView(it)
+            previewTextEditingView = null
         }
         // The next updatePreview must rebuild, not short-circuit against a preview we removed.
         lastPreviewSignature = null

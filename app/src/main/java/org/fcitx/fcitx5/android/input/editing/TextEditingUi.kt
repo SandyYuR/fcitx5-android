@@ -29,7 +29,7 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.horizontalLayout
 import splitties.views.dsl.core.lParams
 
-class TextEditingUi(
+open class TextEditingUi(
     override val ctx: Context,
     private val theme: Theme,
     private val ripple: Boolean,
@@ -90,7 +90,7 @@ class TextEditingUi(
         contentDescription = ctx.getString(R.string.backspace)
     }
 
-    override val root = constraintLayout {
+    open override val root: View = constraintLayout {
         add(leftButton, lParams {
             topOfParent()
             leftOfParent()
@@ -172,7 +172,7 @@ class TextEditingUi(
         })
     }
 
-    fun updateSelection(hasSelection: Boolean, userSelection: Boolean) {
+    open fun updateSelection(hasSelection: Boolean, userSelection: Boolean) {
         selectButton.isActivated = (hasSelection || userSelection)
         if (hasSelection) {
             selectAllButton.apply {
@@ -191,18 +191,32 @@ class TextEditingUi(
         }
     }
 
+    val undoButton = ToolButton(ctx, R.drawable.ic_baseline_undo_24, theme).apply {
+        contentDescription = ctx.getString(R.string.undo)
+        applyThemeToolbarIcon(this, "toolbar.undo", R.drawable.ic_baseline_undo_24)
+    }
+
+    val redoButton = ToolButton(ctx, R.drawable.ic_baseline_redo_24, theme).apply {
+        contentDescription = ctx.getString(R.string.redo)
+        applyThemeToolbarIcon(this, "toolbar.redo", R.drawable.ic_baseline_redo_24)
+    }
+
     val clipboardButton = ToolButton(ctx, R.drawable.ic_clipboard, theme).apply {
         contentDescription = ctx.getString(R.string.clipboard)
         applyThemeClipboardIcon(this)
     }
 
-    private fun applyThemeClipboardIcon(button: ToolButton) {
-        val iconInfo = IconThemeManager.resolveIconDrawableInfo("toolbar.clipboard")
+    private fun applyThemeToolbarIcon(button: ToolButton, slot: String, fallback: Int) {
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
         if (iconInfo != null) {
             button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
         } else {
-            button.setIcon(R.drawable.ic_clipboard)
+            button.setIcon(fallback)
         }
+    }
+
+    private fun applyThemeClipboardIcon(button: ToolButton) {
+        applyThemeToolbarIcon(button, "toolbar.clipboard", R.drawable.ic_clipboard)
     }
 
     fun refreshThemedIcons() {
@@ -213,10 +227,14 @@ class TextEditingUi(
         homeButton.setThemedIcon("keys.home", R.drawable.ic_baseline_first_page_24)
         endButton.setThemedIcon("keys.end", R.drawable.ic_baseline_last_page_24)
         backspaceButton.setThemedIcon("keys.backspace", R.drawable.ic_baseline_backspace_24)
+        applyThemeToolbarIcon(undoButton, "toolbar.undo", R.drawable.ic_baseline_undo_24)
+        applyThemeToolbarIcon(redoButton, "toolbar.redo", R.drawable.ic_baseline_redo_24)
         applyThemeClipboardIcon(clipboardButton)
     }
 
     val extension = horizontalLayout {
+        add(undoButton, lParams(dp(40), dp(40)))
+        add(redoButton, lParams(dp(40), dp(40)))
         add(clipboardButton, lParams(dp(40), dp(40)))
     }
 }
