@@ -289,7 +289,10 @@ abstract class BaseKeyboard(
     // 高度变化时逐个重设 LayoutParams 高度（权重需要容器先有确定高度，
     // 而浮动 resize 过程中容器高度连续变化，直接写 px 高度更跟手）。
     private val auxBarScrollableItemViews = mutableListOf<View>()
-    // scrollable 容器高度变化时均分 item 高；挂在容器自身上，随容器一起回收。
+    // 与 [auxBarScrollableItemViews] 一一对应的自定义行高（KeyDef.rowHeightPercent）。
+    // null = 该 item 没有自定义行高：tabs（音节选择器）整列都是 null，继续按数量均分。
+    private val auxBarScrollableItemRowHeights = mutableListOf<Float?>()
+    // scrollable 容器高度变化时重排 item 高；挂在容器自身上，随容器一起回收。
     private val auxBarScrollableContainerLayoutListener =
         View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             relayoutVerticalAuxBarItems()
@@ -516,6 +519,7 @@ abstract class BaseKeyboard(
         auxBarScrollableRv = null
         auxBarScrollableContainer = null
         auxBarScrollableItemViews.clear()
+        auxBarScrollableItemRowHeights.clear()
         auxBarKeyAdapter = null
         mainGridContainer = null
         cachedWaterRippleColor = null
@@ -636,6 +640,7 @@ abstract class BaseKeyboard(
                 }
                 auxBarScrollableContainer = scrollableContainer
                 auxBarScrollableItemViews.clear()
+                auxBarScrollableItemRowHeights.clear()
                 auxBarInnerLayout.add(scrollableContainer, lParams {
                     topOfParent()
                     bottomOfParent()
@@ -792,12 +797,15 @@ abstract class BaseKeyboard(
     }
 
     /**
-     * 纵向（Left/Right）辅助栏内容：跟主键盘一样按 item 数量均分 scrollable 区
+     * 纵向（Left/Right）辅助栏内容：默认跟主键盘一样按 item 数量均分 scrollable 区
      * 高度。主题上下间距由 item 自身 padding 表达（[AuxBarAdapter] 纵向分支），
      * 所以缩小高度时只压缩按键本体，按钮之间不留空隙。
      *
-     * tabs（[AuxBarAction]）和无 tabs 时的自定义按键（[KeyDef]）走同一套均分
-     * 逻辑：有 tabs 显示 tabs，无 tabs 显示配置的自定义按键（数量按键盘行数截断）。
+     * tabs（[AuxBarAction]）和无 tabs 时的自定义按键（[KeyDef]）共用同一套排布：
+     * 有 tabs 显示 tabs，无 tabs 显示配置的自定义按键（数量按键盘行数截断）。
+     * 区别只在高度来源——tabs（音节选择器）没有行高配置，保持按数量均分；
+     * 自定义按键则带上各自的 `rowHeightPercent`，由 [relayoutVerticalAuxBarItems]
+     * 按行高比例分配（未配置行高的按键平分剩余比例）。
      */
     private fun applyVerticalAuxBarContent(
         scrollable: List<AuxBarAction>,
@@ -809,12 +817,14 @@ abstract class BaseKeyboard(
         val hasTabs = scrollable.isNotEmpty() || pinned.isNotEmpty()
         container.removeAllViews()
         auxBarScrollableItemViews.clear()
+        auxBarScrollableItemRowHeights.clear()
         if (hasTabs) {
             for (action in scrollable) {
                 val item = scrollableAdapter.createItemView(container)
                 scrollableAdapter.bindItemView(item, action)
                 container.addView(item)
                 auxBarScrollableItemViews.add(item)
+                auxBarScrollableItemRowHeights.add(null)
             }
             auxBarPinnedAdapter?.updateActions(pinned)
         } else {
@@ -825,6 +835,7 @@ abstract class BaseKeyboard(
                     val item = keyAdapter.createItemView(container, key)
                     container.addView(item)
                     auxBarScrollableItemViews.add(item)
+                    auxBarScrollableItemRowHeights.add(key.rowHeightPercent?.takeIf { it in 1f..100f })
                 }
             }
             auxBarPinnedAdapter?.updateActions(emptyList())
@@ -833,8 +844,13 @@ abstract class BaseKeyboard(
     }
 
     /**
-     * 按容器当前高度均分每个 item 的高度。容器高度变化（浮动 resize、pinned
+     * 按容器当前高度排布每个 item 的高度。容器高度变化（浮动 resize、pinned
      * 区出现/消失）时由 layout 回调触发，直接写 px 高度，比权重方案更跟手。
+     *
+     * tabs（音节选择器）没有行高配置：保持按 item 数量整数均分，不动。
+     * 自定义按键带 `rowHeightPercent` 时按比例分配，未配置的平分剩余比例
+     * （与主键盘 [resolveRowHeightPercents] 同一套归一化规则）；最后一项用
+     * 剩余高度补齐，避免取整误差在底部留下空隙。
      */
     private fun relayoutVerticalAuxBarItems() {
         val container = auxBarScrollableContainer ?: return
@@ -845,15 +861,19 @@ abstract class BaseKeyboard(
             container.post { relayoutVerticalAuxBarItems() }
             return
         }
-        val itemHeight = height / count
-        if (itemHeight <= 0) return
-        for (item in auxBarScrollableItemViews) {
+        val customRowHeights = hasCustomVerticalAuxBarRowHeights(count)
+        val heights = resolveVerticalAuxBarItemHeights(height, count, customRowHeights)
+        auxBarScrollableItemViews.forEachIndexed { index, item ->
+            val itemHeight = heights[index]
+            // tabs（音节选择器）均分不足 1px 时沿用旧行为：不写 LayoutParams。
+            // 自定义行高时按分配结果写死高度，含被压成 0 的项（权重 0 不占高度）。
+            if (itemHeight <= 0 && !customRowHeights) return@forEachIndexed
             val lp = item.layoutParams as? LinearLayout.LayoutParams
                 ?: LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
-            if (lp.height != itemHeight) {
+            if (lp.height != itemHeight || lp.width != LinearLayout.LayoutParams.MATCH_PARENT) {
                 lp.height = itemHeight
                 lp.width = LinearLayout.LayoutParams.MATCH_PARENT
                 item.layoutParams = lp
@@ -861,31 +881,67 @@ abstract class BaseKeyboard(
         }
     }
 
+    private fun hasCustomVerticalAuxBarRowHeights(count: Int): Boolean =
+        auxBarScrollableItemRowHeights.size == count &&
+            auxBarScrollableItemRowHeights.any { it != null }
+
+    private fun resolveVerticalAuxBarItemHeights(
+        containerHeight: Int,
+        count: Int,
+        hasCustomRowHeight: Boolean
+    ): IntArray {
+        if (!hasCustomRowHeight) {
+            val itemHeight = containerHeight / count
+            return IntArray(count) { itemHeight }
+        }
+        val percents = resolveHeightPercents(auxBarScrollableItemRowHeights)
+        val heights = IntArray(count)
+        var used = 0
+        for (index in 0 until count) {
+            val itemHeight = if (index == count - 1) {
+                containerHeight - used
+            } else {
+                (containerHeight * percents[index] / 100f).roundToInt()
+            }
+            heights[index] = itemHeight.coerceAtLeast(0)
+            used += heights[index]
+        }
+        return heights
+    }
+
     fun auxBarPosition(): AuxBarPosition? = auxBarConfig?.position
 
-    private fun resolveRowHeightPercents(rows: List<List<KeyDef>>): List<Float> {
-        if (rows.isEmpty()) return emptyList()
+    private fun resolveRowHeightPercents(rows: List<List<KeyDef>>): List<Float> =
+        resolveHeightPercents(
+            rows.map { row ->
+                row.mapNotNull { it.rowHeightPercent }
+                    .maxOrNull()
+                    ?.takeIf { it in 1f..100f }
+            }
+        )
 
-        val parsedPercents = rows.map { row ->
-            row.mapNotNull { it.rowHeightPercent }
-                .maxOrNull()
-                ?.takeIf { it in 1f..100f }
-        }
-        val definedSum = parsedPercents.filterNotNull().sum()
-        val undefinedCount = parsedPercents.count { it == null }
+    /**
+     * 把每个 item 的行高百分比归一化到总和 100：未配置（null）的项平分剩余
+     * 比例；没有任何有效比例时退回 [defaultRowHeightPercent] 的等分值。
+     */
+    private fun resolveHeightPercents(percents: List<Float?>): List<Float> {
+        if (percents.isEmpty()) return emptyList()
+
+        val definedSum = percents.filterNotNull().sum()
+        val undefinedCount = percents.count { it == null }
 
         val distributed = if (undefinedCount == 0) {
-            parsedPercents.map { it ?: 0f }
+            percents.map { it ?: 0f }
         } else {
             val remaining = (100f - definedSum).coerceAtLeast(0f)
             val avg = remaining / undefinedCount
-            parsedPercents.map { it ?: avg }
+            percents.map { it ?: avg }
         }
 
         val sum = distributed.sum()
         if (sum <= 0f) {
-            val fallback = defaultRowHeightPercent(rows.size)
-            return List(rows.size) { fallback }
+            val fallback = defaultRowHeightPercent(percents.size)
+            return List(percents.size) { fallback }
         }
 
         return distributed.map { it * 100f / sum }
