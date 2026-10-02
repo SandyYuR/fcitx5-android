@@ -2476,7 +2476,8 @@ class InputView(
         }
         isAdjustingMode = !isAdjustingMode
         // In adjusting mode, force non-floating state for better UX
-        if (isAdjustingMode && isFloating) {
+        val leftFloatingForAdjusting = isAdjustingMode && isFloating
+        if (leftFloatingForAdjusting) {
             saveFloatingPosition(
                 keyboardView.translationX.toInt(),
                 keyboardView.translationY.toInt()
@@ -2489,6 +2490,18 @@ class InputView(
         if (isAdjustingMode) {
             clampKeyboardSidePaddingToSafeRange()
             updateKeyboardSize()
+        }
+        // 从浮动强制切到停靠（尤其横屏）后，键盘行仍是按浮动窄宽度烘焙的：横屏下浮动宽度
+        // 与停靠全宽常落在同一侧 split 判定，BaseKeyboard.onSizeChanged 的 split 重判
+        // 不触发（shouldSplit 未变），行几何不会自愈，表现为"按键全部挤在一行内"。
+        // 必须显式重建一次，且与 toggleFloatingMode 同理延迟到 keyboardView 完成这次布局
+        // 之后再 reload，否则 BaseKeyboard.reloadLayout 读到的仍是切换前的宽度（见 1a883904）。
+        if (leftFloatingForAdjusting && !floatingToggleRefreshPending) {
+            floatingToggleRefreshPending = true
+            keyboardView.doOnNextLayout {
+                floatingToggleRefreshPending = false
+                (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)?.refreshCurrentKeyboard()
+            }
         }
         updateAdjustingModeUi()
         requestLayout()

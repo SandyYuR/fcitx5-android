@@ -344,6 +344,13 @@ abstract class BaseKeyboard(
 
     private var lastSplitLandscapeState = false
 
+    // onSizeChanged 在**布局过程中**被调用：此时同步 reloadLayout（removeAllViews + 重新 addView）
+    // 会在当前 measure/layout 途中改动视图树，刚加回来的行可能这一趟没被测量，留下 0 高度——
+    // 浮动键盘来回拖宽、反复越过分体阈值时就表现为"按键全部挤到一行"，要等下一次宽度变化
+    // 才恢复。改为把 reload 推迟到本趟布局之后（post），并用此标志合并连续的 onSizeChanged，
+    // 避免拖动期间重复排队。
+    private var pendingSplitReload = false
+
     private class TouchTarget(val view: KeyView)
 
     /** Active pointer targets for the custom touch dispatch workaround. */
@@ -2270,14 +2277,26 @@ abstract class BaseKeyboard(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        // Re-evaluate split keyboard when view width changes
+        // Re-evaluate split keyboard when view width changes.
+        // 推迟到本趟布局结束后再 reload：onSizeChanged 期间改视图树会让新行漏测量而塌成一行
+        // （浮动键盘来回拖宽反复越过阈值时必现）。post 保证在稳定态重建，随后的 requestLayout
+        // 触发一趟干净布局；pendingSplitReload 合并连续回调，拖动期间不重复排队。
         if (w != oldw) {
             val shouldSplit = splitKeyboardManager.shouldUseSplitKeyboard(w)
-            if (shouldSplit != lastSplitLandscapeState) {
-                reloadLayout()
-                reapplyTextScale()
-                onStyleRefreshFinished()
-                requestLayout()
+            if (shouldSplit != lastSplitLandscapeState && !pendingSplitReload) {
+                pendingSplitReload = true
+                post {
+                    pendingSplitReload = false
+                    if (!isAttachedToWindow) return@post
+                    // 拖动可能已把宽度改到别处，按最新宽度重判，避免基于过期决定重建。
+                    val latestShouldSplit = splitKeyboardManager.shouldUseSplitKeyboard(width)
+                    if (latestShouldSplit != lastSplitLandscapeState) {
+                        reloadLayout()
+                        reapplyTextScale()
+                        onStyleRefreshFinished()
+                        requestLayout()
+                    }
+                }
             }
         }
 
