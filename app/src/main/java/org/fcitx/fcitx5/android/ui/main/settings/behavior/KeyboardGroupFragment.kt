@@ -18,7 +18,6 @@ import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceFragment
-import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
@@ -37,7 +36,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
     private val group: Int get() = arguments?.getInt("group", -1) ?: -1
     private val viewModel: MainViewModel by activityViewModels()
 
-    private var calibrationPreference: Preference? = null
     private var textLayoutFileSelectPreference: Preference? = null
     private var webEditorBridgePreference: Preference? = null
     private var numericLayoutOverridePreference: Preference? = null
@@ -56,16 +54,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
     )
     private var layoutLayerCache: LayoutLayerCache? = null
 
-    private val onSplitEnabledChangeListener = ManagedPreferenceProvider.OnChangeListener { key ->
-        if (key == "split_keyboard_enabled") {
-            val enabled = AppPrefs.getInstance().keyboard.splitKeyboardEnabled.getValue()
-            calibrationPreference?.isEnabled = enabled
-            val useLandscapePref = preferenceScreen
-                .findPreference<Preference>("split_keyboard_use_landscape_layout")
-            useLandscapePref?.isEnabled = enabled
-        }
-    }
-
     override fun onPreferenceUiCreated(screen: PreferenceScreen) {
         val groupKeys = KEYS_BY_GROUP[group] ?: emptySet()
 
@@ -78,23 +66,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
             }
         }
         toRemove.forEach { screen.removePreference(it) }
-
-        // Group 0 extras: split calibration
-        if (group == GROUP_LAYOUT) {
-            calibrationPreference = addTool(screen, CALIBRATION_PREF_KEY,
-                R.string.split_keyboard_calibration_title,
-                ""
-            ) {
-                startActivity(Intent(requireContext(), SplitKeyboardCalibrationActivity::class.java))
-            }
-            calibrationPreference?.isEnabled =
-                AppPrefs.getInstance().keyboard.splitKeyboardEnabled.getValue()
-            val useLandscapePref = screen
-                .findPreference<Preference>("split_keyboard_use_landscape_layout")
-            useLandscapePref?.isEnabled =
-                AppPrefs.getInstance().keyboard.splitKeyboardEnabled.getValue()
-            AppPrefs.getInstance().keyboard.registerOnChangeListener(onSplitEnabledChangeListener)
-        }
 
         // Group 5 extras: keyboard definition tools
         if (group == GROUP_EDITORS) {
@@ -153,14 +124,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
             numericLayoutOverridePreference?.summary = buildNumericLayoutOverrideSummary()
             updateWebEditorBridgeStatus()
         }
-    }
-
-    override fun onDestroy() {
-        if (group == GROUP_LAYOUT) {
-            AppPrefs.getInstance().keyboard
-                .unregisterOnChangeListener(onSplitEnabledChangeListener)
-        }
-        super.onDestroy()
     }
 
     // ---- helpers ----
@@ -375,7 +338,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
     }
 
     companion object {
-        private const val CALIBRATION_PREF_KEY = "split_keyboard_calibration"
         private const val TEXT_LAYOUT_FILE_SELECT_PREF_KEY = "text_keyboard_layout_file_select"
 
         const val GROUP_LAYOUT = 0
@@ -394,7 +356,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
             GROUP_LAYOUT to setOf(
                 "keyboard_height_percent", "keyboard_side_padding",
                 "keyboard_bottom_padding", "expand_keypress_area",
-                "split_keyboard_enabled", "split_keyboard_use_landscape_layout",
             ),
             GROUP_BEHAVIOR to setOf(
                 "popup_on_key_press", "keyboard_long_press_delay",

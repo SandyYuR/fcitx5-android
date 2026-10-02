@@ -70,7 +70,7 @@
     <string name="clipboard">剪貼簿</string>
     <string name="keyboard_height">鍵盤高度</string>
     <string name="virtual_keyboard">虛擬鍵盤</string>
-    <string name="keyboard_category_layout">佈局與尺寸</string>
+    <string name="keyboard_category_layout">鍵盤尺寸</string>
     <string name="keyboard_category_behavior">按鍵行為</string>
     <string name="keyboard_category_feedback">按鍵回饋</string>
     <string name="keyboard_category_toolbar">工具列</string>
@@ -978,9 +978,12 @@
     <string name="settings_group_advanced">進階</string>
     <string name="settings_group_advanced_summary">附加元件、相容性開關與開發者選項</string>
 
-    <!-- 鍵盤形態 -->
-    <string name="keyboard_modes_title">浮動與單手鍵盤</string>
-    <string name="keyboard_modes_summary">拖曳即可移動與縮放鍵盤</string>
+    <!-- 鍵盤形態：分體、浮動與單手 -->
+    <string name="keyboard_modes_title">分體、浮動與單手鍵盤</string>
+    <string name="keyboard_modes_summary">分體鍵盤、拖曳移動與縮放、單手佈局</string>
+    <string name="keyboard_modes_category_split">分體鍵盤</string>
+    <string name="keyboard_modes_category_floating">浮動鍵盤</string>
+    <string name="keyboard_modes_category_one_hand">單手鍵盤</string>
     <string name="floating_keyboard_enabled">啟用浮動鍵盤</string>
     <string name="floating_keyboard_enabled_summary">鍵盤脫離螢幕底部，位置可自由拖曳</string>
     <string name="one_hand_keyboard_enabled">啟用單手鍵盤</string>

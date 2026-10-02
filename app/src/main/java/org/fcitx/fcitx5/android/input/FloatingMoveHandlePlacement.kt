@@ -5,11 +5,11 @@
 package org.fcitx.fcitx5.android.input
 
 /**
- * 悬浮键盘移动把手的摆放决策。
+ * 浮动键盘移动把手的摆放决策。
  *
  * 背景（用户反馈）：移动把手平时居中悬在键盘**顶部之上**（`keyboardY - 把手高 - 间距`）。
  * 当键盘被拖到太靠近屏幕顶部时，把手整体跑到 InputView 之外——手指松开后看到的
- * 键盘再也拖不动（把手点不到），只能退出悬浮重进。
+ * 键盘再也拖不动（把手点不到），只能退出浮动重进。
  *
  * 决策：当把手顶部空间不足时，把把手翻到键盘**底部之下**；底部也没空间时
  * （键盘几乎占满整个高度的极端情形），退回顶部，保证行为与旧版本一致而不是乱跳。
@@ -29,7 +29,7 @@ object FloatingMoveHandlePlacement {
      *
      * @param keyboardTop 键盘顶部相对 InputView 的 Y（即 keyboardView.translationY）。
      * @param keyboardHeight 键盘总高度（含工具栏与底部边距）。
-     * @param containerHeight InputView 高度（悬浮时为 matchParent，即整屏可用高度）。
+     * @param containerHeight InputView 高度（浮动时为 matchParent，即整屏可用高度）。
      * @param needAbove 把手摆在上方时，键盘顶部上方需要的最小空间（把手高 + 间距）。
      * @param needBelow 把手摆在下方时，键盘底部下方需要的最小空间（把手高 + 间距
      *   + 底部缩放手柄触摸区的一半，避让两者触摸区重叠）。

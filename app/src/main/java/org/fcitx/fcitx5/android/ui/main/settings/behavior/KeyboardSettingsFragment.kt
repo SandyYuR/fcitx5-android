@@ -28,21 +28,23 @@ class KeyboardSettingsFragment : PaddingPreferenceFragment() {
             addPreference(R.string.keyboard_category_layout) {
                 navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_LAYOUT))
             }
+            // 「分体、浮动与单手键盘」紧跟「键盘尺寸」：两者都是键盘整体尺寸/形态的调整，
+            // 放一起比夹在工具栏之后更符合用户查找直觉。分体/浮动/单手原先要么散落在
+            // 「键盘尺寸」里（分体），要么完全没有设置入口（浮动/单手，只能靠工具栏图标发现）。
+            addPreference(R.string.keyboard_modes_title, R.string.keyboard_modes_summary) {
+                navigateWithAnim(SettingsRoute.KeyboardModes)
+            }
             addPreference(R.string.keyboard_category_behavior) {
                 navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_BEHAVIOR))
             }
             addPreference(R.string.keyboard_category_feedback) {
                 navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_FEEDBACK))
             }
-            addPreference(R.string.keyboard_category_toolbar) {
-                navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_TOOLBAR))
-            }
             // 2026-09-29：候选栏样式不再从本页挂出——它已归「输入与候选」，
             // 同一目标挂两条路径会让用户怀疑哪个才是真的。本页的「工具栏」组
             // 现在只剩工具栏自身两项（见 KEYS_BY_GROUP），标题也据此改了名。
-            // 浮动/单手键盘原先没有任何设置入口，只能靠工具栏图标发现。
-            addPreference(R.string.keyboard_modes_title, R.string.keyboard_modes_summary) {
-                navigateWithAnim(SettingsRoute.KeyboardModes)
+            addPreference(R.string.keyboard_category_toolbar) {
+                navigateWithAnim(SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_TOOLBAR))
             }
             val p = Preference(context).apply {
                 key = "editors_category"

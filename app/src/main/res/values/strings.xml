@@ -77,7 +77,7 @@
     <string name="clipboard">Clipboard</string>
     <string name="keyboard_height">Keyboard height</string>
     <string name="virtual_keyboard">Virtual Keyboard</string>
-    <string name="keyboard_category_layout">Layout &amp; Size</string>
+    <string name="keyboard_category_layout">Keyboard size</string>
     <string name="keyboard_category_behavior">Key Behavior</string>
     <string name="keyboard_category_feedback">Key Feedback</string>
     <string name="keyboard_category_toolbar">Toolbar</string>
@@ -992,9 +992,12 @@
     <string name="settings_group_advanced">Advanced</string>
     <string name="settings_group_advanced_summary">Addons, compatibility switches, developer options</string>
 
-    <!-- 键盘形态 -->
-    <string name="keyboard_modes_title">Floating &amp; one-handed keyboard</string>
-    <string name="keyboard_modes_summary">Move and resize the keyboard by dragging</string>
+    <!-- 键盘形态：分体、浮动与单手 -->
+    <string name="keyboard_modes_title">Split, floating &amp; one-handed keyboard</string>
+    <string name="keyboard_modes_summary">Split keyboard, drag to move and resize, one-handed layout</string>
+    <string name="keyboard_modes_category_split">Split keyboard</string>
+    <string name="keyboard_modes_category_floating">Floating keyboard</string>
+    <string name="keyboard_modes_category_one_hand">One-handed keyboard</string>
     <string name="floating_keyboard_enabled">Enable floating keyboard</string>
     <string name="floating_keyboard_enabled_summary">The keyboard detaches from the bottom edge and can be dragged around</string>
     <string name="one_hand_keyboard_enabled">Enable one-handed keyboard</string>

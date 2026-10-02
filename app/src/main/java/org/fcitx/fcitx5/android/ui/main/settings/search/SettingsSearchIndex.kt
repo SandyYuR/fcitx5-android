@@ -299,7 +299,7 @@ object SettingsSearchIndex {
         ),
         SettingsSearchEntry(
             R.string.keyboard_modes_title, P_KEYBOARD,
-            listOf("floating", "one hand", "浮动", "单手", "fudong", "danshou", "拖动"),
+            listOf("floating", "one hand", "split", "浮动", "单手", "分体", "fudong", "danshou", "fenti", "拖动"),
             route = SettingsRoute.KeyboardModes
         ),
         SettingsSearchEntry(
@@ -424,17 +424,17 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.split_keyboard_enabled, P_KEYBOARD,
             listOf("split", "分体", "fenti", "折叠屏", "平板", "双手"),
-            route = keyboard(LAYOUT)
+            route = SettingsRoute.KeyboardModes
         ),
         SettingsSearchEntry(
             R.string.split_keyboard_calibration_title, P_KEYBOARD,
             listOf("calibration", "校准", "阈值", "中缝", "gap"),
-            route = keyboard(LAYOUT)
+            route = SettingsRoute.KeyboardModes
         ),
         SettingsSearchEntry(
             R.string.split_keyboard_use_landscape_layout, P_KEYBOARD,
             listOf("landscape", "横屏", "分体横屏", "折叠屏尺寸"),
-            route = keyboard(LAYOUT)
+            route = SettingsRoute.KeyboardModes
         ),
 
         SettingsSearchEntry(

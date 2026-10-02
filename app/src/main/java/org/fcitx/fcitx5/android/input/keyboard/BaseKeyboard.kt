@@ -282,12 +282,12 @@ abstract class BaseKeyboard(
     private var auxBarKeyAdapter: AuxBarKeyAdapter? = null
     private var mainGridContainer: ConstraintLayout? = null
     // 纵向（Left/Right）辅助栏的 scrollable 区容器：跟主键盘一样按 item 数量
-    // 均分高度，主题上下间距由 item 自身 padding 表达。高度变化（悬浮 resize）
+    // 均分高度，主题上下间距由 item 自身 padding 表达。高度变化（浮动 resize）
     // 时由 layout 回调重算每个 item 高度，按钮之间不留空隙。
     private var auxBarScrollableContainer: LinearLayout? = null
     // 纵向辅助栏当前 scrollable 区里实际展示的 item view 列表，
     // 高度变化时逐个重设 LayoutParams 高度（权重需要容器先有确定高度，
-    // 而悬浮 resize 过程中容器高度连续变化，直接写 px 高度更跟手）。
+    // 而浮动 resize 过程中容器高度连续变化，直接写 px 高度更跟手）。
     private val auxBarScrollableItemViews = mutableListOf<View>()
     // scrollable 容器高度变化时均分 item 高；挂在容器自身上，随容器一起回收。
     private val auxBarScrollableContainerLayoutListener =
@@ -820,7 +820,7 @@ abstract class BaseKeyboard(
     }
 
     /**
-     * 按容器当前高度均分每个 item 的高度。容器高度变化（悬浮 resize、pinned
+     * 按容器当前高度均分每个 item 的高度。容器高度变化（浮动 resize、pinned
      * 区出现/消失）时由 layout 回调触发，直接写 px 高度，比权重方案更跟手。
      */
     private fun relayoutVerticalAuxBarItems() {

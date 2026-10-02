@@ -5,11 +5,12 @@
 
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.preference.Preference
-import androidx.preference.PreferenceScreen
+import androidx.preference.PreferenceCategory
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
@@ -18,47 +19,107 @@ import org.fcitx.fcitx5.android.ui.main.modified.MySwitchPreference
 import org.fcitx.fcitx5.android.ui.main.settings.search.scrollToPendingPreference
 
 /**
- * 浮动键盘与单手键盘。
+ * 分体、浮动与单手键盘。
  *
- * 这两个功能原本**没有任何设置入口**：状态存在 `AppPrefs.internal` 里，
- * 只能通过工具栏/状态区按钮切换，位置与大小则靠拖拽隐式保存。用户若不碰巧
- * 点到那个图标，永远不知道功能存在——这就是本页存在的理由。
+ * 本页集中呈现三种"键盘形态"：
+ * - **分体键盘**（`AppPrefs.keyboard` 下的 `split_keyboard_enabled` /
+ *   `split_keyboard_use_landscape_layout` 两个开关，加一个校准 Activity 入口）。
+ *   这几项原先挂在「键盘尺寸」分组里，2026 年归并到本页——分体同样是一种整体形态，
+ *   与浮动/单手同族，放在尺寸几何里并不自解释。
+ * - **浮动键盘**：启用开关，外加「横屏时自动使用浮动键盘」。
+ * - **单手键盘**：启用开关与「靠右显示」。
  *
- * 这里直接操作 `internal` 偏好（它们注册在 `ManagedPreferenceInternal` 上，
- * 没有 UI 元数据），所以不用 `ManagedPreferenceFragment`，而是显式建 Preference。
- * 开关的 `key` 与偏好键一致，`SwitchPreference` 落盘的正是同一份 SharedPreferences。
+ * 浮动/单手的状态存在 `AppPrefs.internal` 里，原本**没有任何设置入口**，只能靠工具栏/
+ * 状态区按钮切换。这里直接按偏好键建 `SwitchPreference`——它们落盘的是同一份
+ * SharedPreferences，`key` 一致即可，与偏好注册在 `internal` 还是 `keyboard` 无关。
+ * 分体开关改动经全局 `OnSharedPreferenceChangeListener` 仍会驱动 `InputView` 刷新
+ * （`keyboard` 分组注册了这些键），本页只是换了个入口，不触碰刷新链路。
  */
 class KeyboardModesFragment : PaddingPreferenceFragment() {
 
     private val viewModel: MainViewModel by activityViewModels()
 
+    private var splitSwitch: Preference? = null
+    private var splitLandscapeSwitch: Preference? = null
+    private var calibrationPref: Preference? = null
+
     private var floatingSwitch: Preference? = null
+
     private var oneHandSwitch: Preference? = null
     private var oneHandRightSwitch: Preference? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        val prefs = AppPrefs.getInstance().internal
+        val ctx = requireContext()
+        val internal = AppPrefs.getInstance().internal
+        val keyboard = AppPrefs.getInstance().keyboard
+        val screen = preferenceManager.createPreferenceScreen(ctx)
 
-        val floating = MySwitchPreference(requireContext()).apply {
-            key = prefs.floatingModeEnabled.key
+        // ===== 分体键盘 =====
+        val splitCategory = category(R.string.keyboard_modes_category_split)
+        screen.addPreference(splitCategory)
+
+        val split = MySwitchPreference(ctx).apply {
+            key = keyboard.splitKeyboardEnabled.key
+            setTitle(R.string.split_keyboard_enabled)
+            setDefaultValue(true)
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+            // 用 onPreferenceChange 读到的是**新值**，可据此联动下属项的可用性。
+            setOnPreferenceChangeListener { _, newValue ->
+                syncSplitOptions(newValue == true)
+                true
+            }
+        }
+        val splitLandscape = MySwitchPreference(ctx).apply {
+            key = keyboard.splitKeyboardUseLandscapeLayout.key
+            setTitle(R.string.split_keyboard_use_landscape_layout)
+            setDefaultValue(false)
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+        }
+        val calibration = Preference(ctx).apply {
+            setTitle(R.string.split_keyboard_calibration_title)
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+            setOnPreferenceClickListener {
+                startActivity(Intent(requireContext(), SplitKeyboardCalibrationActivity::class.java))
+                true
+            }
+        }
+        splitSwitch = split
+        splitLandscapeSwitch = splitLandscape
+        calibrationPref = calibration
+        splitCategory.addPreference(split)
+        splitCategory.addPreference(splitLandscape)
+        splitCategory.addPreference(calibration)
+
+        // ===== 浮动键盘 =====
+        val floatingCategory = category(R.string.keyboard_modes_category_floating)
+        screen.addPreference(floatingCategory)
+
+        // 浮动与单手是互斥的两种形态，同时开启没有意义，故打开其一时关掉另一个。
+        val floating = MySwitchPreference(ctx).apply {
+            key = internal.floatingModeEnabled.key
             setTitle(R.string.floating_keyboard_enabled)
             setSummary(R.string.floating_keyboard_enabled_summary)
             setDefaultValue(false)
             isIconSpaceReserved = false
             isSingleLineTitle = false
-            // 用 onPreferenceChange 而不是 onPreferenceTreeClick：SwitchPreference
-            // 的 onClick 先调 super.onClick()（即先派发 tree click）再切换取值，
-            // 在 tree click 里读到的是**旧值**，判断必然出错。
             setOnPreferenceChangeListener { _, newValue ->
                 if (newValue == true) oneHandSwitch?.let { (it as MySwitchPreference).isChecked = false }
                 syncOneHandOptions()
                 true
             }
         }
+        floatingSwitch = floating
+        floatingCategory.addPreference(floating)
 
-        // 浮动与单手是互斥的两种形态，同时开启没有意义，故打开其一时关掉另一个。
-        val oneHand = MySwitchPreference(requireContext()).apply {
-            key = prefs.oneHandModeEnabled.key
+        // ===== 单手键盘 =====
+        val oneHandCategory = category(R.string.keyboard_modes_category_one_hand)
+        screen.addPreference(oneHandCategory)
+
+        val oneHand = MySwitchPreference(ctx).apply {
+            key = internal.oneHandModeEnabled.key
             setTitle(R.string.one_hand_keyboard_enabled)
             setSummary(R.string.one_hand_keyboard_enabled_summary)
             setDefaultValue(false)
@@ -70,25 +131,26 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
                 true
             }
         }
-
-        val oneHandRight = MySwitchPreference(requireContext()).apply {
-            key = prefs.oneHandOnRightPortrait.key
+        val oneHandRight = MySwitchPreference(ctx).apply {
+            key = internal.oneHandOnRightPortrait.key
             setTitle(R.string.one_hand_keyboard_on_right)
             setSummary(R.string.one_hand_keyboard_on_right_summary)
             setDefaultValue(true)
             isIconSpaceReserved = false
             isSingleLineTitle = false
         }
-
-        floatingSwitch = floating
         oneHandSwitch = oneHand
         oneHandRightSwitch = oneHandRight
+        oneHandCategory.addPreference(oneHand)
+        oneHandCategory.addPreference(oneHandRight)
 
-        preferenceScreen = preferenceManager.createPreferenceScreen(requireContext()).apply {
-            addPreference(floating)
-            addPreference(oneHand)
-            addPreference(oneHandRight)
-        }
+        preferenceScreen = screen
+    }
+
+    private fun category(titleRes: Int) = PreferenceCategory(requireContext()).apply {
+        setTitle(titleRes)
+        isIconSpaceReserved = false
+        isSingleLineTitle = false
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -103,12 +165,21 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
         syncSwitchStates()
     }
 
-    /** 把两个开关的勾选状态与底层偏好对齐（工具栏按钮也能改它们）。 */
+    /** 把各开关的勾选状态与底层偏好对齐（工具栏按钮也能改浮动/单手）。 */
     private fun syncSwitchStates() {
-        val prefs = AppPrefs.getInstance().internal
-        (floatingSwitch as? MySwitchPreference)?.isChecked = prefs.floatingModeEnabled.getValue()
-        (oneHandSwitch as? MySwitchPreference)?.isChecked = prefs.oneHandModeEnabled.getValue()
+        val internal = AppPrefs.getInstance().internal
+        val keyboard = AppPrefs.getInstance().keyboard
+        (splitSwitch as? MySwitchPreference)?.isChecked = keyboard.splitKeyboardEnabled.getValue()
+        (floatingSwitch as? MySwitchPreference)?.isChecked = internal.floatingModeEnabled.getValue()
+        (oneHandSwitch as? MySwitchPreference)?.isChecked = internal.oneHandModeEnabled.getValue()
+        syncSplitOptions(keyboard.splitKeyboardEnabled.getValue())
         syncOneHandOptions()
+    }
+
+    /** 「分体时采用横屏布局」与「校准」只在分体开启时才有意义。 */
+    private fun syncSplitOptions(enabled: Boolean) {
+        splitLandscapeSwitch?.isEnabled = enabled
+        calibrationPref?.isEnabled = enabled
     }
 
     /** 「靠右显示」只在单手键盘开启时才有意义。 */

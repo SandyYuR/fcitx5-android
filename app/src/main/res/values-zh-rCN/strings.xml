@@ -70,7 +70,7 @@
     <string name="clipboard">剪贴板</string>
     <string name="keyboard_height">键盘高度</string>
     <string name="virtual_keyboard">虚拟键盘</string>
-    <string name="keyboard_category_layout">布局与尺寸</string>
+    <string name="keyboard_category_layout">键盘尺寸</string>
     <string name="keyboard_category_behavior">按键行为</string>
     <string name="keyboard_category_feedback">按键反馈</string>
     <string name="keyboard_category_toolbar">工具栏</string>
@@ -988,9 +988,12 @@
     <string name="settings_group_advanced">高级</string>
     <string name="settings_group_advanced_summary">附加组件、兼容性开关与开发者选项</string>
 
-    <!-- 键盘形态 -->
-    <string name="keyboard_modes_title">浮动与单手键盘</string>
-    <string name="keyboard_modes_summary">拖动即可移动与缩放键盘</string>
+    <!-- 键盘形态：分体、浮动与单手 -->
+    <string name="keyboard_modes_title">分体、浮动与单手键盘</string>
+    <string name="keyboard_modes_summary">分体键盘、拖动移动与缩放、单手布局</string>
+    <string name="keyboard_modes_category_split">分体键盘</string>
+    <string name="keyboard_modes_category_floating">浮动键盘</string>
+    <string name="keyboard_modes_category_one_hand">单手键盘</string>
     <string name="floating_keyboard_enabled">启用浮动键盘</string>
     <string name="floating_keyboard_enabled_summary">键盘脱离屏幕底部，位置可自由拖动</string>
     <string name="one_hand_keyboard_enabled">启用单手键盘</string>

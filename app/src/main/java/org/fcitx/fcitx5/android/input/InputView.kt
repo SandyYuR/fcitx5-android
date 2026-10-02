@@ -1923,7 +1923,7 @@ class InputView(
     private var lastResizeTouchX = 0f
     private var lastResizeTouchY = 0f
     /**
-     * 悬浮移动把手当前在键盘上方(true)/下方(false)，null 表示尚未摆放。
+     * 浮动移动把手当前在键盘上方(true)/下方(false)，null 表示尚未摆放。
      * 由 [updateHandlePosition] 按 [FloatingMoveHandlePlacement] 更新，带迟滞，
      * 避免键盘在临界高度附近拖动时把手来回横跳。
      */
@@ -2283,8 +2283,8 @@ class InputView(
             adjustingDefaultButton.translationX = buttonGroupStartX
             adjustingDefaultButton.translationY = buttonsY
         }
-        // 注意：进入调整模式会强制退出悬浮（见 toggleAdjustingMode），所以这里不需要
-        // isEffectiveFloating 分支——悬浮移动把手的摆放只由 updateHandlePosition 负责。
+        // 注意：进入调整模式会强制退出浮动（见 toggleAdjustingMode），所以这里不需要
+        // isEffectiveFloating 分支——浮动移动把手的摆放只由 updateHandlePosition 负责。
 
         // Ensure all handles are brought to front to be above the overlay
         adjustingHeightHandle.bringToFront()
