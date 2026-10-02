@@ -220,6 +220,8 @@ object SettingsSearchIndex {
         R.string.special_key_oval_shape to "special_key_oval_shape",
         R.string.text_editing_button_radius to "text_editing_button_radius",
         R.string.clipboard_entry_radius to "clipboard_entry_radius",
+        R.string.candidate_bar_highlight_radius to "candidate_bar_highlight_radius",
+        R.string.candidate_bar_highlight_inset to "candidate_bar_highlight_inset",
         R.string.punctuation_position to "punctuation_position",
         R.string.navbar_background to "navbar_background",
         R.string.follow_system_day_night_theme to "follow_system_dark_mode",
@@ -364,6 +366,16 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.clipboard_entry_radius, P_THEME,
             listOf("clipboard radius", "剪贴板圆角", "条目圆角"),
+            route = SettingsRoute.Theme
+        ),
+        SettingsSearchEntry(
+            R.string.candidate_bar_highlight_radius, P_THEME,
+            listOf("candidate bar highlight", "候选栏高亮圆角", "候选高亮圆角", "工具栏候选圆角", "houxuanlan"),
+            route = SettingsRoute.Theme
+        ),
+        SettingsSearchEntry(
+            R.string.candidate_bar_highlight_inset, P_THEME,
+            listOf("candidate bar highlight padding", "候选栏高亮边距", "高亮边距", "工具栏候选边距"),
             route = SettingsRoute.Theme
         ),
         SettingsSearchEntry(

@@ -155,6 +155,8 @@
     <string name="key_radius">按鍵圓角半徑</string>
     <string name="text_editing_button_radius">文本編輯按鈕圓角半徑</string>
     <string name="clipboard_entry_radius">剪貼簿條目圓角半徑</string>
+    <string name="candidate_bar_highlight_radius">候選列高亮圓角半徑</string>
+    <string name="candidate_bar_highlight_inset">候選列高亮邊距</string>
     <string name="key_horizontal_margin">按鍵橫向邊距</string>
     <string name="key_vertical_margin">按鍵垂直邊距</string>
     <string name="configure">配置</string>

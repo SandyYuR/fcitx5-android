@@ -7,13 +7,16 @@ package org.fcitx.fcitx5.android.input.candidates
 
 import android.content.Context
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.InsetDrawable
 import android.text.style.AbsoluteSizeSpan
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.text.inSpans
 import org.fcitx.fcitx5.android.core.CandidateWord
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import kotlin.math.roundToInt
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.candidates.CustomTypefaceSpan
@@ -55,9 +58,17 @@ class CandidateItemUi(
 
     private val normalBackground = pressHighlightDrawable(theme.keyPressHighlightColor)
 
-    private val activeBackground = GradientDrawable().apply {
-        setColor(theme.genericActiveBackgroundColor)
-        cornerRadius = 8f
+    private val activeBackground: Drawable = run {
+        val density = ctx.resources.displayMetrics.density
+        val pill = GradientDrawable().apply {
+            setColor(theme.genericActiveBackgroundColor)
+            // 高亮圆角由主题配置项「候选栏高亮圆角半径」控制（dp）。读构造时的值即可：候选项
+            // 每次编码更新都会重建，改设置后下一次输入即生效。独立候选窗口不走这里。
+            cornerRadius = ThemeManager.prefs.candidateBarHighlightRadius.getValue() * density
+        }
+        // 「候选栏高亮边距」四周内缩，控制高亮与候选条边缘的距离；0 则铺满整格（旧行为）。
+        val inset = (ThemeManager.prefs.candidateBarHighlightInset.getValue() * density).roundToInt()
+        if (inset > 0) InsetDrawable(pill, inset) else pill
     }
 
     private var active = false

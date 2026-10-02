@@ -93,6 +93,17 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     val clipboardEntryRadius =
         int(R.string.clipboard_entry_radius, "clipboard_entry_radius", 8, 0, 48, "dp")
 
+    // 工具栏候选条里被选中候选的高亮圆角（dp）。注意**不是**独立候选窗口——那边由
+    // AppPrefs.candidates.candidateHighlightRadius 控制。此项作用于 CandidateItemUi
+    // 的 activeBackground。
+    val candidateBarHighlightRadius =
+        int(R.string.candidate_bar_highlight_radius, "candidate_bar_highlight_radius", 4, 0, 48, "dp")
+
+    // 工具栏候选高亮与候选条边缘的距离（dp，四周内缩）。0 表示高亮铺满整格（旧行为）。
+    // 作用于 CandidateItemUi 的 activeBackground，独立候选窗口不受影响。
+    val candidateBarHighlightInset =
+        int(R.string.candidate_bar_highlight_inset, "candidate_bar_highlight_inset", 0, 0, 24, "dp")
+
     enum class PunctuationPosition(override val stringRes: Int) : ManagedPreferenceEnum {
         None(R.string.punctuation_pos_none),
         Bottom(R.string.punctuation_pos_bottom),
