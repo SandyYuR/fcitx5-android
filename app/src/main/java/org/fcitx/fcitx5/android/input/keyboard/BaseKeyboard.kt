@@ -351,6 +351,12 @@ abstract class BaseKeyboard(
     // 避免拖动期间重复排队。
     private var pendingSplitReload = false
 
+    // 分体用的行集合缓存：对奇数字符行复制中间键后的结果，按源行集合的实例身份记忆，
+    // 使上层行缓存（按 defs 身份比较）仍能命中。详见 splitRowsForLayout。
+    private var splitRowsSource: List<List<KeyDef>>? = null
+    private var splitRowsCached: List<List<KeyDef>>? = null
+    private var splitRowsDuplicateEnabled = false
+
     private class TouchTarget(val view: KeyView)
 
     /** Active pointer targets for the custom touch dispatch workaround. */
@@ -396,6 +402,10 @@ abstract class BaseKeyboard(
         return buildString {
             append(currentLayoutSignature())
             append("|split:").append(splitKeyboard)
+            // 分体中间键复制开关影响行结构，纳入签名以免切换后复用到旧的行集合。
+            append("|splitDup:").append(
+                splitKeyboard && AppPrefs.getInstance().keyboard.splitKeyboardDuplicateMiddleKey.getValue()
+            )
             append("|orient:").append(resources.configuration.orientation)
             append("|composing:").append(composing)
             append("|gapScale:").append(horizontalGapScale)
@@ -523,19 +533,22 @@ abstract class BaseKeyboard(
         val splitKeyboard = splitKeyboardManager.shouldUseSplitKeyboard(width)
         lastSplitLandscapeState = splitKeyboard
         val rows = keyLayout
-        rowHeightPercents = resolveRowHeightPercents(rows)
+        // 分体时对奇数字符行复制中间键，让左右两半对称可触达（见 splitRowsForLayout）。
+        // 非分体用原始行；返回实例按源身份记忆，故行缓存命中率不受影响。
+        val effectiveRows = if (splitKeyboard) splitRowsForLayout(rows) else rows
+        rowHeightPercents = resolveRowHeightPercents(effectiveRows)
 
         val rowsSignature = currentRowsSignature(splitKeyboard)
         val cachedRows = reusableRowsCache[rowsSignature]
         // Reuse only when the cached rows were built from the exact same KeyDef instances;
         // providers that re-create defs on every call (e.g. the builtin fallback layout)
         // then rebuild instead of silently re-registering mismatched state.
-        keyRows = if (cachedRows != null && cachedRows.defs === rows &&
-            registerReusableRowState(rows, cachedRows.containers)
+        keyRows = if (cachedRows != null && cachedRows.defs === effectiveRows &&
+            registerReusableRowState(effectiveRows, cachedRows.containers)
         ) {
             cachedRows.containers
         } else {
-            val built = rows.map { row ->
+            val built = effectiveRows.map { row ->
                 val keyViews = row.map(::createKeyView).apply {
                     // Batch apply fontset mappings for all key labels.
                     forEach(::applyConfiguredFonts)
@@ -546,7 +559,7 @@ abstract class BaseKeyboard(
                     buildRegularRow(row, keyViews)
                 }
             }
-            reusableRowsCache[rowsSignature] = ReusableRows(rows, built)
+            reusableRowsCache[rowsSignature] = ReusableRows(effectiveRows, built)
             built
         }
         lastRowsSignature = rowsSignature
@@ -957,6 +970,67 @@ abstract class BaseKeyboard(
         return bestIndex
     }
 
+    // ===== 分体键盘：奇数字符行复制中间键 =====
+    // QWERTY 的 asdfghjkl(9 键)、zxcvbnm(7 键) 等字母行按键数为奇数，无法对半分体——
+    // 中间那枚（g / v）只能落到某一侧，另一只手够不到，影响盲打。做法：分体时把**几何
+    // 中间**的字符键复制一份，左右两半各保留一枚，两侧对称、都能触达（两枚输入同一字符）。
+    //
+    // 识别方式刻意**不写死 g / v**，而是「按键数为奇数 + 行内无空格桥接键 + 中间键能产出
+    // 字符」。好处：Dvorak/Colemak/其它语言/自定义布局同样适用，换布局或改键都不失效；
+    // 偶数行（数字行、QWERTY 顶行 10 键）本就能对半分，不受影响；含空格的行走 bridge
+    // 分支、中缝由空格承担，也跳过。
+    //
+    // 「能产出字符」覆盖两类键：
+    // - AlphabetKey：内置与 JSON 自定义布局的字母键（见 LayoutJsonUtils.createKeyDef）。
+    // - MacroKey：当 tap 宏是**纯字符/文本输出**（仅 Text/Tap 步，无 layer_switch、edit、
+    //   app_action、shortcut 等有状态/修饰步）时才算——这样"全 MacroKey 自定义布局"里只敲
+    //   字符的键也能复制，而换层、退格之类的功能宏键不会被误复制到两侧。
+
+    /**
+     * 分体用的行集合：对满足条件的奇数字符行复制中间键。按 [source] 实例身份记忆并返回
+     * 稳定实例，使 reloadLayout 的行缓存（按 `defs` 身份比较）仍能命中、不被破坏。
+     * 整层都无需复制时直接返回 [source] 本身。
+     */
+    private fun splitRowsForLayout(source: List<List<KeyDef>>): List<List<KeyDef>> {
+        val dupEnabled = AppPrefs.getInstance().keyboard.splitKeyboardDuplicateMiddleKey.getValue()
+        if (splitRowsSource === source && splitRowsCached != null &&
+            splitRowsDuplicateEnabled == dupEnabled
+        ) {
+            return splitRowsCached!!
+        }
+        val transformed = if (dupEnabled) source.map { duplicateMiddleKeyForSplit(it) } else source
+        val result = if (transformed.indices.all { transformed[it] === source[it] }) source else transformed
+        splitRowsSource = source
+        splitRowsCached = result
+        splitRowsDuplicateEnabled = dupEnabled
+        return result
+    }
+
+    /** 奇数字符行：在几何中间键之后再插入它自身一份，使左右两半对称。否则原样返回。 */
+    private fun duplicateMiddleKeyForSplit(row: List<KeyDef>): List<KeyDef> {
+        if (row.size < 3 || row.size % 2 == 0) return row
+        if (row.any { it is SpaceKey || it is MiniSpaceKey }) return row
+        val midIndex = row.size / 2
+        val mid = row[midIndex]
+        if (!isSplitDuplicatableKey(mid)) return row
+        return buildList(row.size + 1) {
+            addAll(row.subList(0, midIndex + 1))
+            add(mid)
+            addAll(row.subList(midIndex + 1, row.size))
+        }
+    }
+
+    /** 该键在分体时是否可安全地两侧各放一枚（产出同一字符、与位置/状态无关）。 */
+    private fun isSplitDuplicatableKey(def: KeyDef): Boolean = when (def) {
+        is AlphabetKey -> true
+        is MacroKey -> def.tap.isPureCharacterOutput()
+        else -> false
+    }
+
+    /** 宏是否为纯字符/文本输出：非空且所有步都是 Text 或 Tap（无换层/编辑/应用动作/快捷键）。 */
+    private fun MacroAction.isPureCharacterOutput(): Boolean =
+        steps.isNotEmpty() && steps.all { it is MacroStep.Text || it is MacroStep.Tap }
+
     private fun buildSplitRow(row: List<KeyDef>, keyViews: List<KeyView>): ConstraintLayout = constraintLayout {
         clipChildren = false
         clipToPadding = false
@@ -1287,6 +1361,8 @@ abstract class BaseKeyboard(
     fun clearReusableRowsCache() {
         reusableRowsCache.clear()
         lastRowsSignature = null
+        splitRowsSource = null
+        splitRowsCached = null
     }
 
     /**

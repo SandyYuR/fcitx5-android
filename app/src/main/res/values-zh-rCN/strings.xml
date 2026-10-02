@@ -299,6 +299,8 @@
     <string name="split_keyboard_auto_calibrate_toast">✅ 已应用推荐值：%1$ddp，间隙 %2$d%%（%3$s）</string>
     <string name="split_keyboard_reset_toast">已重置为默认值</string>
     <string name="split_keyboard_use_landscape_layout">分体键盘时采用横屏布局参数</string>
+    <string name="split_keyboard_duplicate_middle">分体时复制中间字母键</string>
+    <string name="split_keyboard_duplicate_middle_summary">当存在奇数按键时，复制处于中间的单个字母按键</string>
     <string name="disable_addon_warn_title">禁用附加组件</string>
     <string name="disable_addon_warn_name">禁用%1$s将同时：</string>
     <string name="disable_addon_warn_dep">禁用%1$s</string>

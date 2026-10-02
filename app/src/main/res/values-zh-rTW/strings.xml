@@ -589,6 +589,8 @@
     <string name="split_keyboard_auto_calibrate">自動校準</string>
     <string name="split_keyboard_reset">重置</string>
     <string name="split_keyboard_use_landscape_layout">分體鍵盤啟用橫向佈局</string>
+    <string name="split_keyboard_duplicate_middle">分體時複製中間字母鍵</string>
+    <string name="split_keyboard_duplicate_middle_summary">當存在奇數按鍵時，複製處於中間的單個字母按鍵</string>
     <string name="split_keyboard_preview_load_failed">預覽載入失敗：%1$s</string>
     <string name="split_keyboard_info_type">類型</string>
     <string name="split_keyboard_info_orientation">方向</string>

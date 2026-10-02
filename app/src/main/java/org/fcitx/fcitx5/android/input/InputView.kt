@@ -1648,6 +1648,7 @@ class InputView(
         keyboardPrefs.splitKeyboardThreshold,
         keyboardPrefs.splitKeyboardGapPercent,
         splitKeyboardUseLandscapeLayout,
+        keyboardPrefs.splitKeyboardDuplicateMiddleKey,
         keyboardHeightPercentBase,
     )
 
@@ -3047,6 +3048,7 @@ class InputView(
             if (key == keyboardPrefs.splitKeyboardEnabled.key ||
                 key == keyboardPrefs.splitKeyboardThreshold.key ||
                 key == keyboardPrefs.splitKeyboardGapPercent.key ||
+                key == keyboardPrefs.splitKeyboardDuplicateMiddleKey.key ||
                 key == textKeyboardLayoutProfile.key) {
                 (windowManager.getEssentialWindow(KeyboardWindow) as? KeyboardWindow)?.refreshAllKeyboards()
             }

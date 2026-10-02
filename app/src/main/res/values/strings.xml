@@ -311,6 +311,8 @@
     <string name="split_keyboard_auto_calibrate_toast">Applied: %1$ddp, Gap %2$d%% (%3$s)</string>
     <string name="split_keyboard_reset_toast">Reset to defaults</string>
     <string name="split_keyboard_use_landscape_layout">Use landscape layout when split keyboard active</string>
+    <string name="split_keyboard_duplicate_middle">Duplicate the middle letter key when split</string>
+    <string name="split_keyboard_duplicate_middle_summary">When a row has an odd number of keys, duplicate the single letter key in the middle</string>
     <string name="disable_addon_warn_title">Disable Addon</string>
     <string name="disable_addon_warn_name">Disabling %1$s will also:</string>
     <string name="disable_addon_warn_dep">Disable %1$s</string>

@@ -346,6 +346,15 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             false
         )
 
+        // 分体时，对奇数字符行（如 QWERTY 的 asdfghjkl / zxcvbnm）把几何中间键复制一份，
+        // 左右两半各保留一枚（如 g、v），避免中间键只落在一侧够不到。默认开启。
+        val splitKeyboardDuplicateMiddleKey = switch(
+            R.string.split_keyboard_duplicate_middle,
+            "split_keyboard_duplicate_middle",
+            true,
+            R.string.split_keyboard_duplicate_middle_summary
+        )
+
         val horizontalCandidateStyle = enumList(
             R.string.horizontal_candidate_style,
             "horizontal_candidate_style",
