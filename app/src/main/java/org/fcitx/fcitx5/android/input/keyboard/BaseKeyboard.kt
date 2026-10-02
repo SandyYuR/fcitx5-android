@@ -1609,7 +1609,13 @@ abstract class BaseKeyboard(
                     if (!backspaceClearTriggered && checkBackspaceClearPopupHit(v, x, y)) {
                         backspaceClearTriggered = true
                         InputFeedbacks.hapticFeedback(v, true)
-                        executeClearAll()
+                        if (composing) {
+                            // 合成中：上滑只清掉正在打的码（发 Escape，等同引擎取消当前
+                            // 编码区），不动已上屏正文；非合成时才清空整个输入框。
+                            onAction(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Escape)))
+                        } else {
+                            executeClearAll()
+                        }
                         dismissBackspaceClearPopup()
                     }
                 }
@@ -2788,7 +2794,9 @@ abstract class BaseKeyboard(
         val popupWidth = anchorView.width * 2
         val popupHeight = dp(40)
         val textView = TextView(context).apply {
-            text = context.getString(R.string.backspace_swipe_to_clear)
+            // 合成中上滑只清编码区（发 Escape），提示条显示 "Esc"；非合成时清空整个
+            // 输入框，沿用原"上滑清空"文案。
+            text = if (composing) "Esc" else context.getString(R.string.backspace_swipe_to_clear)
             gravity = gravityCenter
             setTextColor(theme.keyTextColor)
             textSize = 14f
