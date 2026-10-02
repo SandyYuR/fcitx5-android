@@ -996,6 +996,8 @@
     <string name="keyboard_modes_category_one_hand">单手键盘</string>
     <string name="floating_keyboard_enabled">启用浮动键盘</string>
     <string name="floating_keyboard_enabled_summary">键盘脱离屏幕底部，位置可自由拖动</string>
+    <string name="auto_floating_landscape">横屏时自动使用浮动键盘</string>
+    <string name="auto_floating_landscape_summary">开启后，进入横屏时自动切换为浮动键盘，竖屏恢复为停靠键盘</string>
     <string name="one_hand_keyboard_enabled">启用单手键盘</string>
     <string name="one_hand_keyboard_enabled_summary">键盘缩窄到一侧，方便单手拇指触达</string>
     <string name="one_hand_keyboard_on_right">靠右显示</string>

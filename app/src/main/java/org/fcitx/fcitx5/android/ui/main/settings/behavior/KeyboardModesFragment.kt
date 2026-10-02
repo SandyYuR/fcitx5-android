@@ -44,6 +44,7 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
     private var calibrationPref: Preference? = null
 
     private var floatingSwitch: Preference? = null
+    private var autoFloatingSwitch: Preference? = null
 
     private var oneHandSwitch: Preference? = null
     private var oneHandRightSwitch: Preference? = null
@@ -111,8 +112,18 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
                 true
             }
         }
+        val autoFloating = MySwitchPreference(ctx).apply {
+            key = internal.autoFloatingLandscape.key
+            setTitle(R.string.auto_floating_landscape)
+            setSummary(R.string.auto_floating_landscape_summary)
+            setDefaultValue(false)
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+        }
         floatingSwitch = floating
+        autoFloatingSwitch = autoFloating
         floatingCategory.addPreference(floating)
+        floatingCategory.addPreference(autoFloating)
 
         // ===== 单手键盘 =====
         val oneHandCategory = category(R.string.keyboard_modes_category_one_hand)

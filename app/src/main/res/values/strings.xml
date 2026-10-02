@@ -998,6 +998,8 @@
     <string name="keyboard_modes_category_split">Split keyboard</string>
     <string name="keyboard_modes_category_floating">Floating keyboard</string>
     <string name="keyboard_modes_category_one_hand">One-handed keyboard</string>
+    <string name="auto_floating_landscape">Use floating keyboard in landscape</string>
+    <string name="auto_floating_landscape_summary">Switches to the floating keyboard when the screen turns to landscape, and returns to the docked keyboard in portrait</string>
     <string name="floating_keyboard_enabled">Enable floating keyboard</string>
     <string name="floating_keyboard_enabled_summary">The keyboard detaches from the bottom edge and can be dragged around</string>
     <string name="one_hand_keyboard_enabled">Enable one-handed keyboard</string>

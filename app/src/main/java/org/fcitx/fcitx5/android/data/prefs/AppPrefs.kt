@@ -63,6 +63,16 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val oneHandOnRightLandscape = bool("one_hand_on_right_landscape", true)
         val floatingModeEnabled = bool("floating_mode_enabled", false)
         val oneHandModeEnabled = bool("one_hand_mode_enabled", false)
+
+        /**
+         * 横屏时自动使用浮动键盘（竖屏恢复停靠）。
+         *
+         * 与 [floatingModeEnabled] 是两回事：后者记录**用户手动**选择的键盘形态，
+         * 前者只是一个「横屏自动切过去」的规则。因此自动切换只改运行时的 `isFloating`，
+         * 不写回 [floatingModeEnabled]——否则一次横屏就把用户的选择永久改写成浮动，
+         * 转回竖屏再也恢复不了停靠。
+         */
+        val autoFloatingLandscape = bool("auto_floating_landscape", false)
         val oneHandKeyboardWidthPortraitRatio = float("one_hand_keyboard_width_portrait_ratio", 0f)
         val oneHandKeyboardWidthLandscapeRatio = float("one_hand_keyboard_width_landscape_ratio", 0f)
         // legacy single (orientation-agnostic) ratio pref kept for one-time migration

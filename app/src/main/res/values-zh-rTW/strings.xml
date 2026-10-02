@@ -986,6 +986,8 @@
     <string name="keyboard_modes_category_one_hand">單手鍵盤</string>
     <string name="floating_keyboard_enabled">啟用浮動鍵盤</string>
     <string name="floating_keyboard_enabled_summary">鍵盤脫離螢幕底部，位置可自由拖曳</string>
+    <string name="auto_floating_landscape">橫屏時自動使用浮動鍵盤</string>
+    <string name="auto_floating_landscape_summary">開啟後，進入橫屏時自動切換為浮動鍵盤，直屏恢復為停靠鍵盤</string>
     <string name="one_hand_keyboard_enabled">啟用單手鍵盤</string>
     <string name="one_hand_keyboard_enabled_summary">鍵盤縮窄到一側，方便單手拇指觸及</string>
     <string name="one_hand_keyboard_on_right">靠右顯示</string>

@@ -1719,6 +1719,10 @@ class InputView(
     private var oneHandOnRightLandscape by internalPrefs.oneHandOnRightLandscape
     private var floatingModeEnabledPref by internalPrefs.floatingModeEnabled
     private var oneHandModeEnabledPref by internalPrefs.oneHandModeEnabled
+    private val autoFloatingLandscapePref = internalPrefs.autoFloatingLandscape
+    // 当前浮动是否由「横屏自动浮动」规则触发（而非用户手动）。只有自动触发的浮动才会在
+    // 转回竖屏时被自动收回；用户手动开的浮动不受此规则影响。
+    private var autoFloatingActive = false
     private var oneHandWidthPortraitRatioPref by internalPrefs.oneHandKeyboardWidthPortraitRatio
     private var oneHandWidthLandscapeRatioPref by internalPrefs.oneHandKeyboardWidthLandscapeRatio
     private var oneHandWidthRatioLegacyPref by internalPrefs.oneHandKeyboardWidthRatio
@@ -2359,12 +2363,17 @@ class InputView(
         requestLayout()
     }
 
-    internal fun toggleFloatingMode() {
+    internal fun toggleFloatingMode(persist: Boolean = true) {
         popup.dismissAll()
         // 模式切换（例如缩放手势进行中通过工具栏切走）前先落地待提交尺寸：
         // updateFloatingState()/updateKeyboardSize() 会按最终几何重算宽度、把手和命中区域，
         // 带着未提交的尺寸进去就会用旧几何覆盖掉用户刚拖出来的尺寸。
         flushPendingSizeCommit()
+        // persist=true 表示这是用户的手动切换：手动动作接管形态，清掉"自动浮动"标记，
+        // 使其不再被转屏逻辑自动收回（下一次转屏仍会按设置重新评估）。
+        // persist=false 由"横屏自动浮动"规则调用：只改运行时形态，不写回偏好，
+        // 否则一次横屏就把用户手动选择的形态永久改写成浮动，转回竖屏再也恢复不了。
+        if (persist) autoFloatingActive = false
         if (!isFloating && isPhysicalCandidateBarMode) {
             setPhysicalCandidateBarMode(false)
         }
@@ -2376,10 +2385,10 @@ class InputView(
         }
         if (!isFloating && isOneHanded) {
             isOneHanded = false
-            oneHandModeEnabledPref = false
+            if (persist) oneHandModeEnabledPref = false
         }
         isFloating = !isFloating
-        floatingModeEnabledPref = isFloating
+        if (persist) floatingModeEnabledPref = isFloating
         kawaiiBar.setFloatingState(isEffectiveFloating)
         updateFloatingState()
         updateFloatingHandlesVisibility()
@@ -2417,6 +2426,48 @@ class InputView(
             isFloating = false
             resolveOneHandWidth()
         }
+        // 「横屏时自动使用浮动键盘」：仅在用户未手动开浮动/单手时介入。这里是 InputView
+        // 刚创建（含转屏后由框架重建）的路径，直接设 isFloating 标记即可——随后的
+        // updateFloatingState() 会据此布局；不走 toggleFloatingMode（init 期视图尚未成型，
+        // 且不应写回偏好）。标记 autoFloatingActive，使其在转回竖屏时能被自动收回。
+        if (autoFloatingLandscapePref.getValue() && isLandscapeOrientation &&
+            !isFloating && !isOneHanded
+        ) {
+            isFloating = true
+            autoFloatingActive = true
+        }
+    }
+
+    /**
+     * 响应屏幕方向变化，应用「横屏时自动使用浮动键盘」规则。
+     *
+     * 用于 InputView 被复用（未随转屏重建）时的路径；重建路径由
+     * [restoreFloatingAndOneHandState] 覆盖。只改运行时形态、不写回偏好
+     * （[toggleFloatingMode] persist=false）。单手与调整模式下不介入。
+     */
+    private fun applyAutoFloatingForOrientation() {
+        if (isAdjustingMode) return
+        val enabled = autoFloatingLandscapePref.getValue()
+        if (isLandscapeOrientation) {
+            // 进入横屏：规则开启、且当前既非浮动也非单手时自动切到浮动。
+            if (enabled && !isFloating && !isOneHanded) {
+                autoFloatingActive = true
+                toggleFloatingMode(persist = false)
+            }
+        } else {
+            // 回到竖屏：只收回「自动开」的浮动，用户手动开的浮动保留。
+            if (autoFloatingActive && isFloating) {
+                autoFloatingActive = false
+                toggleFloatingMode(persist = false)
+            } else {
+                autoFloatingActive = false
+            }
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        applyAutoFloatingForOrientation()
     }
 
     internal fun enterAdjustingMode() {
