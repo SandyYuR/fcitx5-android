@@ -104,17 +104,18 @@ class DataMigrationManager(
         }
 
         layoutGroups.forEach { (baseName, keys) ->
-            val hasSubModeLayouts = keys.any { it.contains(':') && it != "$baseName:default" }
+            // 只认**真实子布局**：分体排列条目是子布局的一个属性，不是另一个方案。
+            // 把它当成方案，会让"用户配了分体排列"凭空触发一次 displayText 迁移，
+            // 而那份分体排列的键面文本会因为这次迁移被改写成某个方案专用。
+            if (!LayoutJsonUtils.hasSubLayouts(keys, baseName)) return@forEach
 
-            if (hasSubModeLayouts) {
-                val baseKey = keys.firstOrNull { it == baseName || it == "$baseName:default" }
-                val baseLayout = baseKey?.let { entries[it] }
-                baseLayout?.forEach { row ->
-                    row.forEach { key ->
-                        val displayText = key["displayText"]
-                        if (displayText is Map<*, *> && displayText.isNotEmpty()) {
-                            return true
-                        }
+            val baseKey = keys.firstOrNull { it == baseName || it == "$baseName:default" }
+            val baseLayout = baseKey?.let { entries[it] }
+            baseLayout?.forEach { row ->
+                row.forEach { key ->
+                    val displayText = key["displayText"]
+                    if (displayText is Map<*, *> && displayText.isNotEmpty()) {
+                        return true
                     }
                 }
             }
@@ -194,7 +195,9 @@ class DataMigrationManager(
         }
 
         layoutGroups.forEach { (baseName, keys) ->
-            val subModeKeys = keys.filter { it.contains(':') && it != "$baseName:default" }
+            // 分体排列条目不是方案（见 checkIfMigrationNeeded）：迁移只针对子布局本身。
+            val subLayoutLabels = LayoutJsonUtils.subLayoutLabelsOf(keys, baseName)
+            val subModeKeys = subLayoutLabels.map { "$baseName:$it" }
 
             if (subModeKeys.isEmpty()) {
                 val baseKey = keys.firstOrNull { it == baseName || it == "$baseName:default" }
@@ -253,19 +256,17 @@ class DataMigrationManager(
     internal fun cleanupBaseLayoutDisplayText(layoutName: String) {
         val baseLayout = entries[layoutName] ?: return
 
-        val subModeKeys = entries.keys.filter {
-            it.startsWith("$layoutName:") && it != "$layoutName:default"
-        }
+        // 真实子布局标签（不含分体排列条目）：见 checkIfMigrationNeeded。
+        val subModeLabels = LayoutJsonUtils.subLayoutLabelsOf(entries.keys, layoutName)
 
-        if (subModeKeys.isEmpty()) return
+        if (subModeLabels.isEmpty()) return
 
         for (row in baseLayout) {
             for (key in row) {
                 val displayText = key["displayText"]
                 when (displayText) {
                     is MutableMap<*, *> -> {
-                        val keysToRemove = subModeKeys.map { it.substringAfter("$layoutName:") }
-                            .filter { it in displayText.keys }
+                        val keysToRemove = subModeLabels.filter { it in displayText.keys }
                         keysToRemove.forEach { keyToRemove ->
                             displayText.remove(keyToRemove)
                         }

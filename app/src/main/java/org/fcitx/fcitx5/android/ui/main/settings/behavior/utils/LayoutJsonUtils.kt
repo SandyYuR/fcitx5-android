@@ -27,6 +27,99 @@ object LayoutJsonUtils {
 
     private const val TAG = "LayoutJsonUtils"
     const val LAYER_SUBMODE_PREFIX = "__layer__:"
+
+    /**
+     * 排列形态变体条目的保留前缀，形如 `"__variant__:split"`。
+     *
+     * 分体排列刻意做成"一个子布局条目"，而不是布局里多一个字段：这样它自动获得子布局
+     * 已有的全部能力——编辑器的浏览与编辑、`__meta__`、保存时的 JSON 往返、QR 分享，
+     * 都不需要另写一套。
+     *
+     * 与 [LAYER_SUBMODE_PREFIX] 同理，用保留前缀而不是让用户看得见的方案名，避免与真实
+     * 子模式标签冲突。取值见 [org.fcitx.fcitx5.android.input.keyboard.LayoutVariant.jsonKey]。
+     */
+    const val VARIANT_SUBMODE_PREFIX = "__variant__:"
+
+    /**
+     * 一个布局条目的身份：属于哪个布局文件条目、哪个**子布局**、哪种**排列**。
+     *
+     * 排列挂在子布局上而不是整个布局上——用户要的是"给倉頡五代单独配一套分体排列"，
+     * 而不是"给 rime 配一套、所有方案共用"。于是磁盘上的结构是每个子布局内部各自
+     * 带一份分体排列：
+     *
+     * ```json
+     * "rime": {
+     *   "default": [...],
+     *   "__variant__:split": [...],              // 默认子布局的分体排列
+     *   "倉頡五代": {
+     *     "default": [...],
+     *     "__variant__:split": [...]             // 倉頡五代 自己的分体排列
+     *   }
+     * }
+     * ```
+     *
+     * 编辑器内部把所有条目压平在 [LayoutDataManager.entries] 里，靠条目键区分：
+     * `rime`、`rime:倉頡五代`、`rime:__variant__:split`、`rime:倉頡五代:__variant__:split`。
+     * **本类是这套键的唯一权威解析/生成处**，别处请一律调用它，不要自己 substring。
+     */
+    data class EntryKey(
+        val layoutName: String,
+        /** 子布局标签；null 表示布局本体（「默认」子布局）。 */
+        val subLayout: String?,
+        val variant: LayoutVariant
+    ) {
+        /** 该身份在 [entries] 里的键。 */
+        fun toEntryKey(): String {
+            val head = subLayout?.let { "$layoutName:$it" } ?: layoutName
+            val jsonKey = variant.jsonKey ?: return head
+            return "$head:$VARIANT_SUBMODE_PREFIX$jsonKey"
+        }
+
+        val isSplit: Boolean get() = variant.isSplit
+
+        /** 是否是分体排列条目（而非子布局本身）。 */
+        val isSplitEntry: Boolean get() = variant.isSplit
+    }
+
+    private fun splitLayoutNameFrom(head: String): Pair<String, String?>? {
+        if (head.isEmpty()) return null
+        val separator = head.indexOf(':')
+        if (separator < 0) return head to null
+        val layoutName = head.substring(0, separator)
+        val subLayout = head.substring(separator + 1)
+        if (layoutName.isEmpty() || subLayout.isEmpty()) return null
+        return layoutName to subLayout
+    }
+
+    /**
+     * 解析条目键；结构不符合预期时返回 null（调用方应视为"无法识别的条目"并跳过）。
+     *
+     * 布局名与子布局标签都不允许含 `:`，但**保留前缀自带冒号**（`__layer__:x`、
+     * `__variant__:split`），所以不能简单地按最后一个冒号切。这里的做法是先把排列那一段
+     * 摘掉，再在剩下的部分里按**第一个**冒号分成"布局名 / 子布局"。
+     *
+     * 认不出的排列键（例如手写的 `__variant__:横屏`）按**普通子布局**处理，与加这个功能
+     * 之前的行为一致——这样它至少能被原样读进来、原样写回去，而不是在保存时被静默删掉。
+     */
+    fun parseEntryKey(key: String): EntryKey? {
+        val marker = ":$VARIANT_SUBMODE_PREFIX"
+        val markerIndex = key.indexOf(marker)
+        if (markerIndex >= 0) {
+            val variantJsonKey = key.substring(markerIndex + marker.length)
+            val known = LayoutVariant.fromJsonKey(variantJsonKey)
+            if (known != null) {
+                val (layoutName, subLayout) = splitLayoutNameFrom(key.substring(0, markerIndex)) ?: return null
+                return EntryKey(layoutName, subLayout, known)
+            }
+        }
+        val (layoutName, subLayout) = splitLayoutNameFrom(key) ?: return null
+        return EntryKey(layoutName, subLayout, LayoutVariant.Docked)
+    }
+
+    /** 生成条目键（[EntryKey.toEntryKey] 的便捷写法）。 */
+    fun entryKeyOf(layoutName: String, subLayout: String?, variant: LayoutVariant): String =
+        EntryKey(layoutName, subLayout, variant).toEntryKey()
+
     private val KEY_FIELD_ORDER = listOf(
         "type",
         "main",
@@ -39,6 +132,11 @@ object LayoutJsonUtils {
         "sym",
         "weight",
         "rowHeightPercent",
+        "splitAfter",
+        // 空白占位键是否完全不画键底。放在颜色字段之前，读起来是一句"这个键透明吗，
+        // 不透明的话是什么颜色"。
+        "transparent",
+
         "tap",
         "swipe",
         "longPress",
@@ -61,21 +159,66 @@ object LayoutJsonUtils {
     fun childNameFromLayerLabel(label: String): String =
         label.removePrefix(LAYER_SUBMODE_PREFIX)
 
-    fun baseLayoutNameFromEntryKey(key: String): String {
-        return when {
-            key.contains(":$LAYER_SUBMODE_PREFIX") -> key.substringBefore(":$LAYER_SUBMODE_PREFIX")
-            key.contains(':') -> key.substringBeforeLast(':')
-            else -> key
-        }
+    /** 分体排列条目的子布局标签，形如 `__variant__:split`。 */
+    fun toVariantSubModeLabel(variantKey: String): String = "$VARIANT_SUBMODE_PREFIX$variantKey"
+
+    fun isVariantSubModeLabel(label: String): Boolean = label.startsWith(VARIANT_SUBMODE_PREFIX)
+
+    /** 变体键（`split`）；不是变体标签时返回 null。 */
+    fun variantKeyFromLabel(label: String): String? =
+        label.removePrefix(VARIANT_SUBMODE_PREFIX).takeIf { isVariantSubModeLabel(label) }
+
+    /**
+     * 该子布局标签是否是"机器生成、不该出现在方案下拉框里"的条目。
+     *
+     * 层子布局（`__layer__:`）与分体排列（`__variant__:`）都属于此列：它们是布局结构的
+     * 一部分，不是用户可切换的输入方案。编辑器的下拉框、方案标签收集、以及网页编辑器
+     * 的目标白名单都应当用本函数过滤，否则用户会看到一串 `__variant__:split` 这样的选项。
+     */
+    fun isReservedSubModeLabel(label: String): Boolean =
+        isLayerSubModeLabel(label) || isVariantSubModeLabel(label)
+
+    fun baseLayoutNameFromEntryKey(key: String): String =
+        parseEntryKey(key)?.layoutName ?: key.substringBefore(':')
+
+    /**
+     * 条目对应的**子布局**标签：布局本体（「默认」子布局）返回 null，其余返回标签。
+     *
+     * 排列那一段已经被去掉：`rime:倉頡五代:__variant__:split` 的子布局是 `倉頡五代`
+     * 而不是 `倉頡五代:__variant__:split`——分体排列是子布局的一个属性，不是另一个子布局。
+     */
+    fun subLayoutLabelFromEntryKey(key: String, baseName: String): String? {
+        val parsed = parseEntryKey(key)
+        if (parsed != null && parsed.layoutName == baseName) return parsed.subLayout
+        // 结构不符合预期（手工造的畸形键）：退回旧的按前缀切的做法，至少不丢内容。
+        if (key == baseName || key == "$baseName:default") return null
+        val rest = key.removePrefix("$baseName:")
+        return rest.takeIf { !isVariantSubModeLabel(it) }
     }
 
-    fun subModeLabelFromEntryKey(key: String, baseName: String): String {
-        return if (key == baseName) {
-            "default"
-        } else {
-            key.removePrefix("$baseName:")
-        }
-    }
+    fun subModeLabelFromEntryKey(key: String, baseName: String): String =
+        subLayoutLabelFromEntryKey(key, baseName) ?: "default"
+
+    /**
+     * [keys] 里属于 [baseName] 这个布局的**子布局**标签（输入方案、层子布局）。
+     *
+     * 分体排列条目（`rime:__variant__:split`、`rime:倉頡五代:__variant__:split`）**不算**
+     * 子布局：它是某个子布局的一个属性。把它混进来，用户会在方案下拉框里看到一个删不掉、
+     * 点了没反应的"方案"，而迁移逻辑还会把它当成一个方案去改写 displayText。
+     *
+     * 层子布局（`__layer__:x`）**算**子布局：它确实是一份独立的行集合，迁移与清理
+     * 都应当认它。要在方案下拉框里隐藏它，请另外用 [isReservedSubModeLabel] 过滤。
+     */
+    fun subLayoutLabelsOf(keys: Iterable<String>, baseName: String): List<String> =
+        keys.mapNotNull { key ->
+            val parsed = parseEntryKey(key) ?: return@mapNotNull null
+            if (parsed.layoutName != baseName || parsed.isSplitEntry) return@mapNotNull null
+            parsed.subLayout
+        }.distinct()
+
+    /** [keys] 里是否存在属于 [baseName] 的子布局（层子布局算，分体排列条目不算）。 */
+    fun hasSubLayouts(keys: Iterable<String>, baseName: String): Boolean =
+        subLayoutLabelsOf(keys, baseName).isNotEmpty()
 
     // ==================== 解析功能 ====================
 
@@ -251,6 +394,8 @@ object LayoutJsonUtils {
             sym = obj["sym"]?.jsonPrimitive?.contentOrNull?.let { resolveKeysym(it) },
             weight = parseOptionalFloat(obj["weight"]),
             rowHeightPercent = parseOptionalFloat(obj["rowHeightPercent"]),
+            splitAfter = obj["splitAfter"]?.jsonPrimitive?.booleanOrNull,
+            transparent = obj["transparent"]?.jsonPrimitive?.booleanOrNull,
             textColor = parseOptionalInt(obj["textColor"]),
             textColorMonet = obj["textColorMonet"]?.jsonPrimitive?.contentOrNull,
             altTextColor = parseOptionalInt(obj["altTextColor"]),
@@ -622,6 +767,16 @@ object LayoutJsonUtils {
         val longPress: MacroAction? = null,  // MacroKey 使用
         val independentColor: Boolean? = null,
         val rowHeightPercent: Float? = null,
+        /** 分体键盘的手动分界：本键之后把这一行断开（见 `KeyDef.splitAfter`）。 */
+        val splitAfter: Boolean? = null,
+        /**
+         * 空白占位键是否完全不绘制键底（见 `KeyDef.Appearance.transparentBackground`）。
+         *
+         * `null` 表示字段缺失，按该类型的默认值处理：PlaceholderKey 默认透明。
+         * 之所以要能显式写 `false`，是因为"填了字符+颜色"的装饰占位键需要一块真实的
+         * 底色，那时透明反过来才是错的。
+         */
+        val transparent: Boolean? = null,
         val composeOverride: KeyJson? = null
     )
 
@@ -645,6 +800,7 @@ object LayoutJsonUtils {
             is MacroKey -> "MacroKey"
             is NumPadKey -> "NumPadKey"
             is MiniSpaceKey -> "MiniSpaceKey"
+            is PlaceholderKey -> "PlaceholderKey"
             else -> "SpaceKey"
         }
 
@@ -715,6 +871,17 @@ object LayoutJsonUtils {
             is MiniSpaceKey -> {
                 json["weight"] = appearance.percentWidth.takeIf { it != 0.15f }
             }
+            is PlaceholderKey -> {
+                // 主/副字符都允许为空（那正是"完全空白"的形态），因此**按是否存在**写字段，
+                // 而不是像其它键那样用 `?: "0"` 之类兜底——兜底会把"留空"变成一个可见字符。
+                val text = (appearance as? KeyDef.Appearance.AltText)
+                text?.displayText?.takeIf { it.isNotEmpty() }?.let { json["main"] = it }
+                text?.altText?.takeIf { it.isNotEmpty() }?.let { json["alt"] = it }
+                json["weight"] = appearance.percentWidth.takeIf { it != 0.1f }
+                // 只在"与默认相反"时写：占位键默认透明，写 false 的唯一理由是用户开了
+                // 自定义颜色、需要一块真实底色（见 KeyJson.transparent 的说明）。
+                if (!appearance.transparentBackground) json["transparent"] = false
+            }
             is MacroKey -> {
                 json["label"] = keyDef.label
                 keyDef.displayText?.takeIf { it.isNotEmpty() }?.let { json["displayText"] = it }
@@ -745,6 +912,10 @@ object LayoutJsonUtils {
         }
         keyDef.rowHeightPercent?.let { rowHeight ->
             json["rowHeightPercent"] = rowHeight
+        }
+        // 只有置位的键才写出该字段；见 createKeyDef 的说明。
+        if (keyDef.splitAfter) {
+            json["splitAfter"] = true
         }
 
         return json
@@ -967,6 +1138,22 @@ object LayoutJsonUtils {
                 shadowColor = key.shadowColor,
                 shadowColorMonet = key.shadowColorMonet
             )
+            "PlaceholderKey" -> PlaceholderKey(
+                displayText = key.main ?: "",
+                altText = key.alt ?: "",
+                percentWidth = key.weight ?: 0.1f,
+                // 字段缺失 = 该类型的默认形态（完全空白、透明底）。只有显式写了 false
+                // 才画底，那是"填了字符+自定义颜色"的装饰占位键。
+                transparentBackground = key.transparent ?: true,
+                textColor = key.textColor,
+                textColorMonet = key.textColorMonet,
+                altTextColor = key.altTextColor,
+                altTextColorMonet = key.altTextColorMonet,
+                backgroundColor = key.backgroundColor,
+                backgroundColorMonet = key.backgroundColorMonet,
+                shadowColor = key.shadowColor,
+                shadowColorMonet = key.shadowColorMonet
+            )
             "MacroKey" -> {
                 // A MacroKey without a tap action cannot do anything. Skip the key instead of
                 // throwing: the throw used to propagate out of BaseKeyboard.init and crash the
@@ -1011,6 +1198,9 @@ object LayoutJsonUtils {
             else -> SpaceKey() // Fallback
         }
         keyDef.rowHeightPercent = key.rowHeightPercent?.takeIf { it in 1f..100f }
+        // 分界标记只在显式设置时写入：绝大多数键没有它，把 false 也写出去会让每个
+        // 布局文件平白多出一整片 `"splitAfter": false`，QR 分享的载荷也跟着膨胀。
+        if (key.splitAfter == true) keyDef.splitAfter = true
         key.composeOverride?.let { override ->
             val overrideDef = createKeyDef(
                 override.copy(composeOverride = null, weight = null, rowHeightPercent = null),
@@ -1048,8 +1238,6 @@ object LayoutJsonUtils {
         layoutAuxBarConfigs: Map<String, AuxBarConfig?> = emptyMap(),
         layoutAuxBarKeys: Map<String, List<Map<String, Any?>>> = emptyMap()
     ): JsonObject {
-        val layoutMap = mutableMapOf<String, JsonElement>()
-
         fun buildMeta(overrideKey: String): JsonObject? {
             val portrait = layoutHeightPercentOverrides[overrideKey]?.takeIf { it in 10..90 }
             val landscape = layoutHeightPercentOverridesLandscape[overrideKey]?.takeIf { it in 10..90 }
@@ -1084,81 +1272,107 @@ object LayoutJsonUtils {
             return JsonObject(meta)
         }
 
-        val baseLayoutNames = entries.keys.map { key ->
-            baseLayoutNameFromEntryKey(key)
-        }.distinct()
-
-        for (baseName in baseLayoutNames) {
-            val subModeKeys = entries.keys.filter { key ->
-                key == baseName || key.startsWith("$baseName:")
-            }
-
-            val hasSubModeKeys = subModeKeys.any { key ->
-                key != baseName && key.startsWith("$baseName:")
-            }
-
-            if (hasSubModeKeys) {
-                val subModeMap = mutableMapOf<String, JsonElement>()
-                buildMeta(baseName)?.let { subModeMap["__meta__"] = it }
-
-                for (key in subModeKeys) {
-                    val subModeLabel = subModeLabelFromEntryKey(key, baseName)
-
-                    val rows = entries[key]!!
-                    val jsonArray = JsonArray(rows.map { row ->
-                        JsonArray(row.map { keyMap ->
-                            val ordered = orderKeyFieldsForSave(keyMap)
-                            JsonObject(
-                                ordered
-                                    .filterValues { it != null }
-                                    .mapValues { (_, v) -> convertToJsonProperty(v) }
-                            )
-                        })
-                    })
-                    val overrideKey = if (subModeLabel == "default") {
-                        baseName
-                    } else {
-                        "$baseName:$subModeLabel"
-                    }
-                    val subModeMeta = if (subModeLabel != "default") buildMeta(overrideKey) else null
-                    subModeMap[subModeLabel] = if (subModeMeta != null) {
-                        JsonObject(
-                            mapOf(
-                                "__meta__" to subModeMeta,
-                                "default" to jsonArray
-                            )
-                        )
-                    } else {
-                        jsonArray
-                    }
-                }
-
-                layoutMap[baseName] = JsonObject(subModeMap.toSortedMap())
-            } else {
-                val key = subModeKeys.firstOrNull() ?: baseName
-                val rows = entries[key] ?: continue
-                val jsonArray = JsonArray(rows.map { row ->
-                    JsonArray(row.map { keyMap ->
-                        val ordered = orderKeyFieldsForSave(keyMap)
-                        JsonObject(
-                            ordered
-                                .filterValues { it != null }
-                                .mapValues { (_, v) -> convertToJsonProperty(v) }
-                        )
-                    })
-                })
-                val overrideMeta = buildMeta(baseName)
-                layoutMap[baseName] = if (overrideMeta == null) {
-                    jsonArray
-                } else {
+        fun rowsOf(entryKey: String): JsonArray? = entries[entryKey]?.let { rows ->
+            JsonArray(rows.map { row ->
+                JsonArray(row.map { keyMap ->
+                    val ordered = orderKeyFieldsForSave(keyMap)
                     JsonObject(
-                        mapOf(
-                            "__meta__" to overrideMeta,
-                            "default" to jsonArray
-                        )
+                        ordered
+                            .filterValues { it != null }
+                            .mapValues { (_, v) -> convertToJsonProperty(v) }
                     )
-                }
+                })
+            })
+        }
+
+        /**
+         * 一个子布局（或布局本体）的 JSON 元素：普通排列 + 它自己的分体排列。
+         *
+         * 分体条目写在同一层里、`default` 的**旁边**（不是嵌套一层），因为读那一侧
+         * （[org.fcitx.fcitx5.android.input.keyboard.LayoutVariantResolver]）就是这么找的：
+         * `obj["default"]` 取普通排列，`obj["__variant__:split"]` 取分体排列。
+         */
+        fun subLayoutElement(docked: JsonArray?, split: JsonArray?, meta: JsonObject?): JsonElement? {
+            if (docked == null && split == null && meta == null) return null
+            if (split == null && meta == null && docked != null) return docked
+            return JsonObject(
+                mapOfNotNull(
+                    meta?.let { "__meta__" to it },
+                    docked?.let { "default" to it },
+                    split?.let { toVariantSubModeLabel(LayoutVariant.Split.jsonKey!!) to it }
+                )
+            )
+        }
+
+        // 按「布局 → 子布局 → 排列」把压平在 entries 里的条目重新组织起来。
+        // 认不出的键（结构畸形）按布局本体处理，至少不让内容消失。
+        data class Bucket(
+            val docked: MutableMap<String?, JsonArray> = mutableMapOf(),
+            val split: MutableMap<String?, JsonArray> = mutableMapOf()
+        )
+
+        val buckets = LinkedHashMap<String, Bucket>()
+        entries.keys.forEach { key ->
+            val parsed = parseEntryKey(key)
+            val layoutName = parsed?.layoutName ?: baseLayoutNameFromEntryKey(key)
+            val subLayout = parsed?.subLayout
+            // 认不出的键当作布局本体：它多半是"布局名里带冒号"的历史数据，
+            // 归到本体比被静默丢弃安全。
+            val effectiveSub = if (parsed == null) null else subLayout
+            val rows = rowsOf(key) ?: return@forEach
+            val bucket = buckets.getOrPut(layoutName) { Bucket() }
+            if (parsed?.variant?.isSplit == true) {
+                bucket.split[effectiveSub] = rows
+            } else {
+                bucket.docked.putIfAbsent(effectiveSub, rows)
             }
+        }
+        // 布局本体没有内容、却有子布局时，本体键仍要保留（否则该布局整体消失）。
+        entries.keys.forEach { key ->
+            if (!key.contains(':')) buckets.getOrPut(key) { Bucket() }
+        }
+
+        val layoutMap = mutableMapOf<String, JsonElement>()
+        buckets.forEach { (layoutName, bucket) ->
+            val bodyMeta = buildMeta(layoutName)
+            val bodyDocked = bucket.docked[null]
+            val bodySplit = bucket.split[null]
+            val children = (bucket.docked.keys + bucket.split.keys)
+                .filterNotNull()
+                .distinct()
+                .sorted()
+
+            if (children.isEmpty() && bodySplit == null) {
+                // 没有子布局、也没有分体排列：保持与加这个功能之前**完全一致**的形状
+                // （平铺数组，或带高度覆盖时的 `{__meta__, default}`）。绝大多数布局文件
+                // 都属于这一支，回归差异必须为零。
+                val rows = bodyDocked ?: return@forEach
+                layoutMap[layoutName] = if (bodyMeta == null) {
+                    rows
+                } else {
+                    JsonObject(mapOf("__meta__" to bodyMeta, "default" to rows))
+                }
+                return@forEach
+            }
+
+            val layoutObject = mutableMapOf<String, JsonElement>()
+            bodyMeta?.let { layoutObject["__meta__"] = it }
+            bodyDocked?.let { layoutObject["default"] = it }
+            bodySplit?.let {
+                layoutObject[toVariantSubModeLabel(LayoutVariant.Split.jsonKey!!)] = it
+            }
+            children.forEach { child ->
+                val childKey = "$layoutName:$child"
+                // 子布局的高度/辅助栏覆盖记在它自己的键上（`rime:倉頡五代`），
+                // 这就是"每个子布局都能单独设分体排列与键盘高度"的落点。
+                val childMeta = buildMeta(childKey)
+                subLayoutElement(
+                    docked = bucket.docked[child],
+                    split = bucket.split[child],
+                    meta = childMeta
+                )?.let { layoutObject[child] = it }
+            }
+            layoutMap[layoutName] = JsonObject(layoutObject.toSortedMap())
         }
 
         return JsonObject(layoutMap.toSortedMap())
@@ -1263,8 +1477,11 @@ object LayoutJsonUtils {
         }
     }
 
-    private fun orderKeyFieldsForSave(keyMap: Map<String, Any?>): LinkedHashMap<String, Any?> {
-        val ordered = LinkedHashMap<String, Any?>()
+    /** 只保留非 null 项，构建 map。用于「有没有这份内容」本身就是信息的场景。 */
+    private fun <K, V : Any> mapOfNotNull(vararg pairs: Pair<K, V>?): Map<K, V> =
+        pairs.filterNotNull().toMap()
+
+    private fun orderKeyFieldsForSave(keyMap: Map<String, Any?>): LinkedHashMap<String, Any?> {        val ordered = LinkedHashMap<String, Any?>()
         KEY_FIELD_ORDER.forEach { key ->
             if (keyMap.containsKey(key)) {
                 ordered[key] = if (key == "sym" && keyMap["type"] == "NumPadKey") {

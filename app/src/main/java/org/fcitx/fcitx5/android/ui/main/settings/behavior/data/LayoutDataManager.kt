@@ -11,6 +11,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
+import org.fcitx.fcitx5.android.input.keyboard.LayoutVariant
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.migration.DataMigrationManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
@@ -234,6 +235,89 @@ class LayoutDataManager(private val context: Context) {
         }
     }
 
+    /**
+     * 解析一个布局对象里的各层子布局，把每一层**连同它自己的分体排列**展开成扁平条目。
+     *
+     * 磁盘上的结构是"每个子布局内部各带一份分体排列"：
+     *
+     * ```json
+     * "rime": {
+     *   "default": [...],
+     *   "__variant__:split": [...],          // 默认子布局的分体排列
+     *   "倉頡五代": {
+     *     "default": [...],
+     *     "__variant__:split": [...]         // 倉頡五代 自己的分体排列
+     *   }
+     * }
+     * ```
+     *
+     * 于是每一层都要先按 [LayoutJsonUtils.parseEntryKey] 拆出"子布局 + 排列"，再决定条目键。
+     * 直接把 `__variant__:split` 当子布局名拼成 `rime:倉頡五代:__variant__:split` 是错的——
+     * 那样分体排列会挂到布局本体上，用户给方案配的分体排列就跑到别的子布局去了。
+     */
+    private fun parseSubLayouts(
+        container: JsonObject,
+        entryKey: String,
+        result: MutableMap<String, List<List<Map<String, Any?>>>>,
+        heightOverrides: MutableMap<String, Int>,
+        heightOverridesLandscape: MutableMap<String, Int>,
+        auxBarConfigs: MutableMap<String, AuxBarConfig?>,
+        auxBarKeys: MutableMap<String, List<Map<String, Any?>>>
+    ) {
+        container.entries.forEach { (subModeLabel, subModeValue) ->
+            if (subModeLabel == LAYOUT_META_KEY) return@forEach
+
+            // 该标签对应的条目身份（子布局 + 排列）。认不出来就跳过这一层，
+            // 而不是把它当成子布局塞进去：一个 `__variant__:横屏` 这样的手写笔误会
+            // 变成一个删不掉、点了没反应的方案选项。
+            val identity = LayoutJsonUtils.parseEntryKey(
+                if (subModeLabel == "default" || subModeLabel == "") entryKey else "$entryKey:$subModeLabel"
+            ) ?: run {
+                android.util.Log.w(
+                    "LayoutDataManager",
+                    "Skipping unrecognized sub layout '$subModeLabel' under '$entryKey'"
+                )
+                return@forEach
+            }
+            val key = identity.toEntryKey()
+
+            fun recordMeta(element: JsonObject) {
+                parseLayoutHeightPercent(element)?.let { heightOverrides[key] = it }
+                parseLayoutHeightPercentLandscape(element)?.let { heightOverridesLandscape[key] = it }
+                parseLayoutAuxBar(element)?.let { auxBarConfigs[key] = it }
+                parseLayoutAuxBarKeys(element)?.let { auxBarKeys[key] = it }
+            }
+
+            val rowsElement: JsonArray? = when (subModeValue) {
+                is JsonArray -> subModeValue
+                is JsonObject -> {
+                    recordMeta(subModeValue)
+                    // 这一层里可能还带它自己的分体排列（`__variant__:split` 写在 default 旁边），
+                    // 递归展开；本体自身的行集合则回到本函数处理。
+                    parseSubLayouts(
+                        container = subModeValue,
+                        entryKey = key,
+                        result = result,
+                        heightOverrides = heightOverrides,
+                        heightOverridesLandscape = heightOverridesLandscape,
+                        auxBarConfigs = auxBarConfigs,
+                        auxBarKeys = auxBarKeys
+                    )
+                    (subModeValue["default"] as? JsonArray) ?: (subModeValue[""] as? JsonArray)
+                }
+                else -> null
+            }
+
+            if (rowsElement != null) {
+                result[key] = normalizeRowsForParsedData(LayoutJsonUtils.parseLayoutRows(rowsElement))
+            }
+            // 这一层只带分体排列、没有普通排列时**不**补一个空条目：普通排列由上层回退
+            // （子布局 → 布局本体）提供，编辑器也照这个规则解析。补空条目反而会让
+            // 「这一层还没配普通排列」变成一条"有布局但一行都没有"的脏数据，
+            // 保存时被 validateEntries 拦下、用户却看不出哪里错了。
+        }
+    }
+
     fun parseJsonText(
         jsonText: String,
         sourceName: String = "<memory>",
@@ -274,34 +358,15 @@ class LayoutDataManager(private val context: Context) {
                             parseLayoutHeightPercentLandscape(layoutValue)?.let { parsedLayoutHeightOverridesLandscape[layoutName] = it }
                             parseLayoutAuxBar(layoutValue)?.let { parsedAuxBarConfigs[layoutName] = it }
                             parseLayoutAuxBarKeys(layoutValue)?.let { parsedAuxBarKeys[layoutName] = it }
-                            layoutValue.jsonObject.entries.forEach { (subModeLabel, subModeValue) ->
-                                if (subModeLabel == LAYOUT_META_KEY) return@forEach
-                                val rowsElement = when (subModeValue) {
-                                    is JsonArray -> subModeValue
-                                    is JsonObject -> {
-                                        val subKey = if (subModeLabel == "default") layoutName else "$layoutName:$subModeLabel"
-                                        parseLayoutHeightPercent(subModeValue)?.let { subPercent ->
-                                            parsedLayoutHeightOverrides[subKey] = subPercent
-                                        }
-                                        parseLayoutHeightPercentLandscape(subModeValue)?.let { subPercent ->
-                                            parsedLayoutHeightOverridesLandscape[subKey] = subPercent
-                                        }
-                                        parseLayoutAuxBar(subModeValue)?.let { parsedAuxBarConfigs[subKey] = it }
-                                        parseLayoutAuxBarKeys(subModeValue)?.let { parsedAuxBarKeys[subKey] = it }
-                                        (subModeValue["default"] as? JsonArray) ?: (subModeValue[""] as? JsonArray)
-                                    }
-                                    else -> null
-                                }
-                                if (rowsElement != null) {
-                                    val rows = normalizeRowsForParsedData(LayoutJsonUtils.parseLayoutRows(rowsElement))
-                                    val key = if (subModeLabel == "default") {
-                                        layoutName
-                                    } else {
-                                        "$layoutName:$subModeLabel"
-                                    }
-                                    result[key] = rows
-                                }
-                            }
+                            parseSubLayouts(
+                                container = layoutValue.jsonObject,
+                                entryKey = layoutName,
+                                result = result,
+                                heightOverrides = parsedLayoutHeightOverrides,
+                                heightOverridesLandscape = parsedLayoutHeightOverridesLandscape,
+                                auxBarConfigs = parsedAuxBarConfigs,
+                                auxBarKeys = parsedAuxBarKeys
+                            )
                         }
                         else -> {
                             android.util.Log.w("LayoutDataManager", "Skipping invalid layout value for: $layoutName, type: ${layoutValue::class.simpleName}")
@@ -398,10 +463,7 @@ class LayoutDataManager(private val context: Context) {
             
             // Only clear base layout displayText for layouts that actually have submode variants
             baseLayoutNames.forEach { layoutName ->
-                val hasSubModeLayouts = entries.keys.any { 
-                    it.startsWith("$layoutName:") && it != "$layoutName:default" 
-                }
-                if (hasSubModeLayouts) {
+                if (LayoutJsonUtils.hasSubLayouts(entries.keys, layoutName)) {
                     migrationManager.cleanupBaseLayoutDisplayText(layoutName)
                 }
             }
@@ -587,6 +649,57 @@ class LayoutDataManager(private val context: Context) {
     }
 
     /**
+     * 为某个**子布局**新建分体排列。
+     *
+     * 分体排列属于一个具体的子布局（方案 / 层 / 布局本体的「默认」），不是整个布局共用一份：
+     * 「给倉頡五代单独配一套分体排列」是这个功能最主要的诉求，而共用一份做不出这件事。
+     *
+     * 与 [addSubModeLayout] 的关键差别是**不做 displayText 迁移**：分体排列是同一批方案的
+     * 另一套排列，键面上按方案分组的显示文本必须原样保留；若按 [addSubModeLayout] 那样把
+     * 显示文本重写成某个方案专用，切回普通排列后同一份内容就被改写了。这里只深拷贝行数据。
+     *
+     * @param layoutName 基础布局名称
+     * @param subLayout 子布局标签；null 表示布局本体（「默认」子布局）
+     * @param variant 目标排列（[LayoutVariant.Docked] 没有条目，返回 null）
+     * @return 新建/复用后的完整条目键，失败返回 null
+     */
+    fun addVariantLayout(layoutName: String, subLayout: String?, variant: LayoutVariant): String? {
+        val variantKey = variant.jsonKey ?: return null
+        val entryKey = LayoutJsonUtils.entryKeyOf(layoutName, subLayout, variant)
+        if (entries.containsKey(entryKey)) return entryKey
+
+        // 初值取该子布局的**普通排列**（没有就再往上找布局本体的普通排列）。
+        // 分体排列是拿普通排列改出来的：断点位置、空格怎么放，都是在本来的行上调整。
+        val source = entries[LayoutJsonUtils.entryKeyOf(layoutName, subLayout, LayoutVariant.Docked)]
+            ?: subLayout?.let { child ->
+                entries[LayoutJsonUtils.entryKeyOf(layoutName, null, LayoutVariant.Docked)]
+            }
+        val sourceRows = source ?: return null
+
+        entries[entryKey] = copyLayout(sourceRows)
+        return entryKey
+    }
+
+    /**
+     * 删除某个子布局的分体排列。
+     *
+     * @return 是否确实删掉了条目
+     */
+    fun deleteVariantLayout(layoutName: String, subLayout: String?, variant: LayoutVariant): Boolean {
+        val variantKey = variant.jsonKey ?: return false
+        return entries.remove(LayoutJsonUtils.entryKeyOf(layoutName, subLayout, variant)) != null
+    }
+
+    /** 某个子布局是否已经配了独立的分体排列。 */
+    fun hasSplitLayout(layoutName: String, subLayout: String?): Boolean =
+        entries.containsKey(LayoutJsonUtils.entryKeyOf(layoutName, subLayout, LayoutVariant.Split))
+
+    /** 某个子布局的分体排列条目键；没配时返回 null。 */
+    fun splitLayoutEntryKey(layoutName: String, subLayout: String?): String? =
+        LayoutJsonUtils.entryKeyOf(layoutName, subLayout, LayoutVariant.Split)
+            .takeIf { entries.containsKey(it) }
+
+    /**
      * 添加子布局（用于层切换功能）。
      *
      * 子布局使用保留前缀，避免与真实 submode 标签冲突。
@@ -753,18 +866,19 @@ class LayoutDataManager(private val context: Context) {
     }
     
     /**
-     * 获取子模式标签列表
+     * 获取子模式标签列表。
+     *
+     * 分体排列条目不算子模式：它是某个子布局的属性，不是用户可切换的输入方案。
      */
     fun getSubModeLabels(layoutName: String): List<String> {
         val labels = linkedSetOf<String>()
-        
+
         // 从子模式布局键收集
-        entries.keys.forEach { key ->
-            if (key.startsWith("$layoutName:")) {
-                val subModeLabel = key.substringAfter("$layoutName:")
-                if (subModeLabel.isNotEmpty() && subModeLabel != "default") {
-                    labels.add(subModeLabel)
-                }
+        LayoutJsonUtils.subLayoutLabelsOf(entries.keys, layoutName).forEach { label ->
+            if (label.isNotEmpty() && label != "default" &&
+                !LayoutJsonUtils.isReservedSubModeLabel(label)
+            ) {
+                labels.add(label)
             }
         }
         
@@ -900,6 +1014,17 @@ class LayoutDataManager(private val context: Context) {
             "MacroKey" -> {
                 if (key["tap"] == null) {
                     errors.add("布局 \"$layoutName\" 第 ${rowIndex + 1} 行第 ${keyIndex + 1} 个键 (MacroKey) 缺少 tap 动作")
+                }
+            }
+            // 空白占位键**故意没有任何必填字段**：主副字符全空就是它最常用的形态
+            // （键盘上一块看不见的空白），这里绝不能像其它键型那样补一条"缺少 main"。
+            // 它唯一写得出错的字段是 transparent——写个字符串进去会让真假判断失真。
+            "PlaceholderKey" -> {
+                val transparent = key["transparent"]
+                if (transparent != null && transparent !is Boolean) {
+                    errors.add(
+                        "布局 \"$layoutName\" 第 ${rowIndex + 1} 行第 ${keyIndex + 1} 个键 (PlaceholderKey) 的 transparent 字段必须是 true 或 false，但得到：${transparent::class.simpleName}"
+                    )
                 }
             }
         }

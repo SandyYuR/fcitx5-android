@@ -8,6 +8,7 @@ import kotlinx.serialization.json.JsonObject
 import org.fcitx.fcitx5.android.core.Action
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 
 /**
  * SubMode manager for handling keyboard layout submode-related logic.
@@ -102,12 +103,13 @@ class SubModeManager(
         // Collect from submode layout keys
         val labels = linkedSetOf<String>()
 
-        entries.keys.forEach { key ->
-            if (key.startsWith("$layoutName:")) {
-                val subModeLabel = key.substringAfter("$layoutName:")
-                if (subModeLabel.isNotEmpty() && subModeLabel != "default") {
-                    labels.add(subModeLabel)
-                }
+        // 保留标签（层子布局 __layer__: 、分体排列 __variant__:）不是输入方案，出现在方案
+        // 下拉框里只会让用户困惑；见 LayoutJsonUtils.isReservedSubModeLabel。
+        LayoutJsonUtils.subLayoutLabelsOf(entries.keys, layoutName).forEach { subModeLabel ->
+            if (subModeLabel.isNotEmpty() && subModeLabel != "default" &&
+                !LayoutJsonUtils.isReservedSubModeLabel(subModeLabel)
+            ) {
+                labels.add(subModeLabel)
             }
         }
 

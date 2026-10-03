@@ -60,6 +60,7 @@ import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
+import org.fcitx.fcitx5.android.input.keyboard.LayoutVariant
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapter
 import org.fcitx.fcitx5.android.utils.AppUtil
@@ -159,6 +160,60 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 「分体键盘布局」勾选框，紧跟在子布局下拉框下面。
+     *
+     * 勾上就进入**当前子布局**的分体布局编辑；该子布局还没有分体布局时，先弹一个
+     * 确认框问是否从它当前的排列新建一份——不静默创建，因为"新建"是一次真实的未保存
+     * 修改，用户可能只是想看看有没有。
+     *
+     * 没有做成下拉框里的第三个选项：分体布局不是"另一份子布局"，而是当前子布局的一个
+     * 附加排列。做成下拉项会让"仓颉的分体布局"和"仓颉"看起来是并列的两份，用户很容易
+     * 以为要先把下拉框切到某个选项才能改分体。
+     */
+    private val splitLayoutCheckBox by lazy {
+        android.widget.CheckBox(this).apply {
+            text = getString(R.string.text_keyboard_layout_split_layout)
+            textSize = 13f
+            setPadding(dp(4), dp(2), dp(4), dp(2))
+            setOnCheckedChangeListener { _, isChecked ->
+                onSplitCheckBoxToggled(isChecked)
+            }
+            // 长按给一次完整解释：这一行只有"勾选框 + 一句状态"，而它管的是"哪个子布局的
+            // 分体布局"，光靠标签看不出来。用长按而不是常驻一行说明，是为了不把工具栏撑高。
+            setOnLongClickListener {
+                showToast(getString(R.string.text_keyboard_layout_split_layout_helper))
+                true
+            }
+        }
+    }
+
+    /** 子布局下拉框 + 「分体键盘布局」勾选框那一列（画在 spinnerContainer 下面）。 */
+    private val subModeOptionsColumn by lazy {
+        LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, 0, 0, dp(2))
+            addView(
+                splitLayoutCheckBox,
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply { weight = 1f }
+            )
+            addView(
+                splitLayoutStatusLabel,
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            )
+        }
+    }
+
+    /** 勾选框右侧的状态说明：「已有独立的…」/「未单独设置…」。 */
+    private val splitLayoutStatusLabel by lazy {
+        TextView(this).apply {
+            textSize = 11f
+            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setPadding(dp(8), 0, dp(4), 0)
+        }
+    }
+
     private val addLayoutButton by lazy {
         TextView(this).apply {
             text = "+"
@@ -222,6 +277,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     private fun currentEditingSubtitle(): String? {
         val layoutName = currentLayout?.takeIf { it.isNotBlank() } ?: return null
+        val splitEntryKey = editingSplitEntryKey()
+        if (splitEntryKey != null) {
+            return "${displayProfile(currentLayoutProfile)}:${splitLayoutTargetLabel(layoutName)}"
+        }
         val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() }
         val subModeKey = subModeLabel?.let { "$layoutName:$it" }
         val hasDedicatedSubModeLayout = subModeKey != null &&
@@ -234,6 +293,16 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
         return "${displayProfile(currentLayoutProfile)}:$editing"
     }
+
+    /**
+     * 当前正在编辑的那个**子布局**的显示名：方案名，或「默认」。
+     *
+     * 分体排列挂在子布局上，提示文案要说清"是哪一份子布局的分体布局"，否则用户在
+     * 「仓颉 + 分体」下看到一句"正在编辑分体布局"，无从判断改的是不是自己想的那个方案。
+     */
+    private fun splitLayoutTargetLabel(layoutName: String): String =
+        previewSubModeLabel?.takeIf { it.isNotBlank() }
+            ?: getString(R.string.default_)
 
     /**
      * 某个子模式选项实际编辑的条目键。
@@ -261,6 +330,15 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
      * 提示只反映真实编辑目标，避免"下拉框停在某方案、实际改的却是基础布局"这种无声错位。
      */
     private fun showEditingTargetToast(layoutName: String, subModeLabel: String?) {
+        if (editingSplitEntryKey() != null) {
+            showToast(
+                getString(
+                    R.string.text_keyboard_layout_editing_split_layout,
+                    splitLayoutTargetLabel(layoutName)
+                )
+            )
+            return
+        }
         if (subModeLabel != null && editingTargetFor(layoutName, subModeLabel) != "$layoutName:default") {
             showToast(getString(R.string.text_keyboard_layout_editing_submode, subModeLabel))
         } else {
@@ -316,6 +394,11 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             },
             subModeNameToIdProvider = {
                 subModeManager.nameToIdMap
+            },
+            // 预览键盘宽度永远够不到分体阈值，不强制的话，用户编辑分体布局时看到的
+            // 却是普通排列的渲染——"改了没生效"的经典误判。
+            forcedVariantProvider = {
+                if (editingSplit) LayoutVariant.Split else null
             }
         )
     }
@@ -332,10 +415,12 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 ?.takeIf { it >= 0 }
 
             val layoutName = currentLayout ?: return@registerForActivityResult
-            val id = previewSubModeLabel?.let { subModeManager.nameToIdMap[it] }
-            val subModeKey = previewSubModeLabel?.let { "$layoutName:$it" }
-            val idKey = id?.let { "$layoutName:$it" }
-            val actualSubModeKey = listOfNotNull(subModeKey, idKey).firstOrNull { entries.containsKey(it) }
+            val actualSubModeKey = editingSplitEntryKey()?.takeIf { entries.containsKey(it) }
+                ?: previewSubModeLabel?.let { label ->
+                    val id = subModeManager.nameToIdMap[label]
+                    listOfNotNull("$layoutName:$label", id?.let { "$layoutName:$it" })
+                        .firstOrNull { entries.containsKey(it) }
+                }
             val key = actualSubModeKey ?: layoutName
             val rows = entries[key] ?: return@registerForActivityResult
 
@@ -479,6 +564,23 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
 
     /**
+     * 是否正在编辑**当前子布局**的分体键盘布局。
+     *
+     * 与 [previewSubModeLabel]（选哪个方案）正交：两者一起决定编辑的是
+     * `rime:倉頡五代:__variant__:split` 这样一个具体条目。勾选框就长在方案下拉框下面，
+     * 所以"哪个子布局"永远是用户此刻在下拉框里选中的那个——不会出现"以为在改仓颉、
+     * 实际改的是布局本体"这种错位。
+     *
+     * 它同时是预览键盘的形态强制源：预览容器不够宽、永远判定不出分体，不强制的话用户
+     * 编辑分体布局时看到的仍是普通排列。
+     */
+    private var editingSplit: Boolean = false
+        set(value) {
+            field = value
+            updateToolbarSubtitle()
+        }
+
+    /**
      * 子模式下拉框的「显示位置 → 子模式标签」映射，见 [SubModeManager.buildSpinnerSelectionMap]。
      * null（位置 0）是显式「默认」项，代表基础布局。
      *
@@ -554,6 +656,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
             buildSpinner()
             buildSubModeSpinner()
+            normalizeEditingSplit()
             buildRows()
             run { val layoutName = currentLayout ?: return@run; previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection) }
             maybePromptSwitchToFcitxIme()
@@ -606,6 +709,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         // 无法用 putString 区分（两者读出来都是 null）。不额外标记的话，旋转后 loadState()
         // 会把选择顶回当前方案，用户的默认项选择被无声丢弃。
         outState.putBoolean(STATE_PREVIEW_SUBMODE_IS_DEFAULT_ITEM, previewSubModeLabel == null)
+        // 分体勾选框同样要跨重建保留。勾选状态映射到具体的条目，重建后由
+        // normalizeEditingSplit() 校验它是否仍然存在。
+        outState.putBoolean(STATE_EDITING_SPLIT, editingSplit)
         outState.putString(STATE_LAYOUT_PROFILE, currentLayoutProfile)
         if (!stateLoaded) {
             // Stopped before loadState() finished, so the in-memory entries are not the user's
@@ -663,6 +769,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         } else {
             state.getString(STATE_PREVIEW_SUBMODE)?.let { previewSubModeLabel = it }
         }
+        editingSplit = state.getBoolean(STATE_EDITING_SPLIT, false)
+        normalizeEditingSplit()
     }
 
     private suspend fun applyDraftLayout(json: String) {
@@ -1007,6 +1115,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
                 // Build submode spinner without forcing reset
                 buildSubModeSpinner(forceResetSelection = false)
+                // 新布局/新方案可能没有对应的分体布局；不清理会让编辑区与副标题对不上。
+                normalizeEditingSplit()
 
                 // If the new layout doesn't have the old submode, reset to default
                 if (oldSubModeLabel != null && previewSubModeLabel != oldSubModeLabel) {
@@ -1103,9 +1213,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         // Bind submode spinner data
         bindSubModeSpinner(labels)
 
+        // 上面可能刚刚改过 previewSubModeLabel（换布局后原方案失效），勾选框指向的子布局
+        // 随之变化：不校正就回填，会显示成"勾着、但那是上一个子布局的分体布局"。
+        normalizeEditingSplit()
+        syncSplitCheckBoxState()
+
         // Update button behavior for submode
         updateLayoutButtonBehavior()
-
         // Restore previous IME state to avoid affecting external real input method
         // Only restore if we activated a different IME and the previous IME is still available
         if (targetImeUniqueName != null && previousIme != null && previousIme.uniqueName != targetImeUniqueName) {
@@ -1130,6 +1244,11 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         // Reset submode state to ensure consistency
         subModeSpinnerSelectionMap = emptyList()
         previewSubModeLabel = null
+        // 勾选框本身保留：没有方案下拉框时它指的是布局本体（「默认」子布局）的分体布局，
+        // 那是最常见的用法，不能跟着一起消失。先校正指向、再回填状态，顺序不能反——
+        // 反了会有一瞬间显示成"勾着、但那份分体布局并不存在"。
+        normalizeEditingSplit()
+        syncSplitCheckBoxState()
 
         // Restore button behavior for base layout
         updateLayoutButtonBehavior()
@@ -1144,7 +1263,39 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     private fun updateLayoutButtonBehavior() {
         val layoutName = currentLayout ?: return
         val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() }
-        
+        val splitKey = editingSplitEntryKey()
+
+        if (splitKey != null) {
+            // 正在编辑当前子布局的分体布局：🗑 删掉这一份分体布局，且只针对它，绝不落到
+            // 基础/方案布局上（编辑区显示的确实是分体那份行，此时删方案布局会连带删掉
+            // 用户没在看的内容）。
+            //
+            // 「+」在这个状态下没有对应动作——工具栏那两个按钮的规律是"新建/删除正在编辑
+            // 的那一层"，而分体布局要么已经被你打开（就是现在），要么由勾选框负责新建。
+            // 与其让它去干一件用户没预期的事，不如明确置灰。
+            addLayoutButton.setOnClickListener(null)
+            addLayoutButton.alpha = 0.3f
+            deleteLayoutButton.setOnClickListener {
+                val target = splitLayoutTargetLabel(layoutName)
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.delete)
+                    .setMessage(getString(R.string.text_keyboard_layout_split_layout_delete_confirm, target))
+                    .setPositiveButton(R.string.delete) { _, _ ->
+                        dataManager.deleteVariantLayout(layoutName, currentSubLayoutLabel(), LayoutVariant.Split)
+                        // 删掉之后勾选框必须自己弹回来，否则编辑区会继续指向一个已经不存在的
+                        // 条目、静默回落到普通排列，用户看着却仍是"正在编辑分体布局"。
+                        editingSplit = false
+                        refreshAfterSplitChange()
+                        showToast(getString(R.string.text_keyboard_layout_split_layout_deleted, target))
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+            }
+            return
+        }
+        // 离开分体布局编辑时恢复「+」与 🗑 的正常外观（它们在上面那支里被改过）。
+        addLayoutButton.alpha = 1.0f
+
         if (subModeLabel != null) {
             val actualLabel = subModeManager.nameToIdMap[subModeLabel] ?: subModeLabel
             val subModeKey = "$layoutName:$subModeLabel"
@@ -1343,7 +1494,12 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     previewSubModeLabel = selected
                     // Update preview and editor rows to show the selected submode layout
                     run { val layoutName = currentLayout ?: return@run; previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection) }
+                    // 换了子布局，原来勾着的分体布局多半属于上一个子布局：先校验再重建行，
+                    // 否则编辑区会显示新子布局的普通排列、副标题却还说"正在编辑分体布局"。
+                    normalizeEditingSplit()
+                    syncSplitCheckBoxState()
                     buildRows()
+                    updateLayoutButtonBehavior()
                     updateSaveButtonState()
 
                     // Show toast only when switching between different editing targets
@@ -1464,11 +1620,14 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
                 // If deleting base layout and there are submode layouts, promote first submode to base
                 if (keyToDelete == layoutName) {
-                    val remainingSubModeKeys = entries.keys.filter { it.startsWith("$layoutName:") }
-                    if (remainingSubModeKeys.isNotEmpty()) {
+                    // 子布局标签要从条目身份里取：`__variant__:split` 这类保留前缀自带冒号，
+                    // 用 substringAfterLast(':') 会切出一个不存在的"方案"名，然后拿它去提升。
+                    val remainingSubModes = LayoutJsonUtils.subLayoutLabelsOf(entries.keys, layoutName)
+                        .filter { !LayoutJsonUtils.isReservedSubModeLabel(it) }
+                    if (remainingSubModes.isNotEmpty()) {
                         // Promote first submode to base layout
-                        val firstSubModeKey = remainingSubModeKeys.first()
-                        val firstSubModeLabel = firstSubModeKey.substringAfterLast(':')
+                        val firstSubModeLabel = remainingSubModes.first()
+                        val firstSubModeKey = "$layoutName:$firstSubModeLabel"
                         val subModeLayout = entries[firstSubModeKey]
                         if (subModeLayout != null) {
                             entries[layoutName] = subModeLayout
@@ -1503,6 +1662,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                             lastEditingTarget = "default:default"
                         }
                     }
+                    editingSplit = false
                 } else {
                     // 删掉的是子模式布局：优先切到另一个确有专用布局的方案，否则停在「默认」项
                     val remainingLabels = subModeManager.extractSubModeLabelsFromLayout(layoutName)
@@ -1552,11 +1712,17 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 entries.remove(actualKey)
                 val nameKey = "$layoutName:$subModeLabel"
                 if (nameKey != actualKey) entries.remove(nameKey)
+                // 该方案的分体布局跟着一起删：它是这份子布局的一个属性，子布局没了它就成
+                // 了一个谁也访问不到、却还留在文件里的孤儿条目。
+                listOf(actualLabel, subModeLabel).distinct().forEach { label ->
+                    dataManager.deleteVariantLayout(layoutName, label, LayoutVariant.Split)
+                }
 
                 // 删掉的是子模式布局：优先切到另一个确有专用布局的方案，否则停在「默认」项
                 val remainingLabels = subModeManager.extractSubModeLabelsFromLayout(layoutName)
                 previewSubModeLabel = firstLabelWithDedicatedLayout(layoutName, remainingLabels)
                 lastEditingTarget = previewSubModeLabel?.let { "$layoutName:$it" } ?: "$layoutName:default"
+                normalizeEditingSplit()
 
                 buildSubModeSpinner(forceResetSelection = true)
                 buildRows()
@@ -1593,13 +1759,18 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     private fun buildRows() {
         val layoutName = currentLayout ?: return
 
-        // Try to load submode-specific layout first (try both name and id key formats)
+        // 勾选框指向的条目可能已经不存在（换了布局/方案、或另一处删掉了它）：
+        // 不先校正就会静默编辑普通排列，而副标题仍说"正在编辑分体布局"。
+        normalizeEditingSplit()
+
+        // 编辑分体布局时直接编辑那份条目；否则按方案专用布局 → 基础布局回落（原有行为）。
+        val splitKey = editingSplitEntryKey()
         val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() }
         val id = subModeLabel?.let { subModeManager.nameToIdMap[it] }
         val subModeKey = subModeLabel?.let { "$layoutName:$it" }
         val idKey = id?.let { "$layoutName:$it" }
         val actualSubModeKey = listOfNotNull(subModeKey, idKey).firstOrNull { entries.containsKey(it) }
-        val key = actualSubModeKey ?: layoutName
+        val key = splitKey ?: actualSubModeKey ?: layoutName
 
         val rows = entries[key]
 
@@ -1609,6 +1780,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             if (validLayout != null) {
                 currentLayout = validLayout
                 previewSubModeLabel = null
+                editingSplit = false
                 buildSubModeSpinner(forceResetSelection = true)
                 currentRowsRef = entries[validLayout] ?: mutableListOf()
                 rowsAdapter?.updateRows(currentRowsRef)
@@ -1629,6 +1801,8 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
             // Add spinner container to list container
             listContainer.addView(spinnerContainer)
+            // 「分体键盘布局」勾选框紧跟在方案下拉框下面（见 subModeOptionsColumn）。
+            listContainer.addView(subModeOptionsColumn)
 
             // Add divider between spinner and content
             val divider = View(this).apply {
@@ -1803,7 +1977,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         } else {
             rowsAdapter?.updateRows(rows)
         }
-
+        syncSplitCheckBoxState()
         // Update button behavior based on current submode state
         updateLayoutButtonBehavior()
     }
@@ -2617,12 +2791,131 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     private fun currentEditingLayoutKey(): String? {
         val base = currentLayout ?: return null
+        // 编辑分体布局时，编辑目标就是那份分体条目（形如 `rime:倉頡五代:__variant__:split`），
+        // 它和"方案专用布局"是并列的两条分支，不能混在一起回退。
+        editingSplitEntryKey()?.let { return it }
         val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() } ?: return base
         val subModeKey = "$base:$subModeLabel"
         if (entries.containsKey(subModeKey)) return subModeKey
         val id = subModeManager.nameToIdMap[subModeLabel]?.let { "$base:$it" }
         if (id != null && entries.containsKey(id)) return id
         return base
+    }
+
+    /** 当前**子布局**标签；null 表示布局本体（「默认」子布局）。 */
+    private fun currentSubLayoutLabel(): String? =
+        previewSubModeLabel?.takeIf { it.isNotBlank() }
+
+    /**
+     * 当前子布局的分体布局条目键；不在编辑分体布局、或它还没建立时返回 null。
+     *
+     * 分体布局挂在**子布局**上：`仓颉 + 勾选分体` 得到 `rime:倉頡五代:__variant__:split`，
+     * `默认 + 勾选分体` 得到 `rime:__variant__:split`。这就是"每个子布局都能各配一套
+     * 分体键盘布局"的落点。
+     */
+    private fun editingSplitEntryKey(): String? {
+        if (!editingSplit) return null
+        val base = currentLayout ?: return null
+        return dataManager.splitLayoutEntryKey(base, currentSubLayoutLabel())
+    }
+
+    /**
+     * 切换子布局或换布局后，勾选框指向的条目可能根本不存在。
+     *
+     * 不清理的后果很隐蔽：编辑区会静默回落到普通排列（[editingSplitEntryKey] 返回 null），
+     * 而副标题、预览仍在说"正在编辑分体布局"——用户改的其实是普通排列，之后切回键盘
+     * 才发现分体布局没变。这里统一取消勾选并重画。
+     */
+    private fun normalizeEditingSplit() {
+        if (editingSplit && editingSplitEntryKey() == null) {
+            editingSplit = false
+        }
+    }
+
+    /**
+     * 勾选框被拨动：进入/退出分体布局编辑，必要时先问是否新建。
+     *
+     * 新建走确认框而不是静默创建：那是一次真实的未保存修改，用户可能只是想知道
+     * "我到底配没配过"。
+     */
+    private fun onSplitCheckBoxToggled(isChecked: Boolean) {
+        val layoutName = currentLayout ?: run {
+            splitLayoutCheckBox.isChecked = false
+            return
+        }
+        if (!isChecked) {
+            editingSplit = false
+            refreshAfterSplitChange()
+            return
+        }
+        val subLayout = currentSubLayoutLabel()
+        if (dataManager.hasSplitLayout(layoutName, subLayout)) {
+            editingSplit = true
+            refreshAfterSplitChange()
+            return
+        }
+        val target = subLayout ?: getString(R.string.default_)
+        // 拨动过了才弹框，因此失败/取消时要把勾选框拨回去——不然界面显示"已勾选"、
+        // 实际编辑的却还是普通排列。
+        AlertDialog.Builder(this)
+            .setTitle(R.string.text_keyboard_layout_split_layout_create_title)
+            .setMessage(getString(R.string.text_keyboard_layout_split_layout_create_message, target))
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val created = dataManager.addVariantLayout(layoutName, subLayout, LayoutVariant.Split)
+                if (created == null) {
+                    splitLayoutCheckBox.isChecked = false
+                    showToast(getString(R.string.text_keyboard_layout_split_layout_unavailable))
+                    return@setPositiveButton
+                }
+                editingSplit = true
+                refreshAfterSplitChange()
+                showToast(getString(R.string.text_keyboard_layout_split_layout_created, target))
+            }
+            .setNegativeButton(android.R.string.cancel) { _, _ ->
+                splitLayoutCheckBox.isChecked = false
+            }
+            .setOnCancelListener {
+                splitLayoutCheckBox.isChecked = false
+            }
+            .show()
+    }
+
+    /**
+     * 分体勾选状态变化后统一刷新：行列表、预览、保存按钮、副标题、勾选框自身。
+     *
+     * 保存按钮必须一起刷新：新建/删除一份分体布局就是一次真实的未保存修改，否则用户会
+     * 以为已经落盘而直接退出（脏检查漏掉这条路径是静默丢配置）。
+     */
+    private fun refreshAfterSplitChange() {
+        syncSplitCheckBoxState()
+        buildRows()
+        updateLayoutButtonBehavior()
+        currentLayout?.let { name ->
+            previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection)
+        }
+        updateSaveButtonState()
+        updateToolbarSubtitle()
+    }
+
+    /**
+     * 按当前子布局刷新勾选框的勾选状态与右侧说明文案。
+     *
+     * 勾选框**始终可见**：没有方案下拉框的布局（非 Rime、或还没配任何方案专用布局）
+     * 同样能配分体布局——那正是"给这份布局的默认排列配一套分体键盘"最常见的情形。
+     */
+    private fun syncSplitCheckBoxState() {
+        val layoutName = currentLayout
+        val subLayout = currentSubLayoutLabel()
+        val hasOwn = layoutName != null && dataManager.hasSplitLayout(layoutName, subLayout)
+        // 先摘掉监听再改 isChecked：否则程序性地回填状态会再触发一次 onSplitCheckBoxToggled，
+        // 在那里又弹一次"要不要新建"的确认框。
+        splitLayoutCheckBox.setOnCheckedChangeListener(null)
+        splitLayoutCheckBox.isChecked = editingSplit && hasOwn
+        splitLayoutCheckBox.setOnCheckedChangeListener { _, isChecked -> onSplitCheckBoxToggled(isChecked) }
+        splitLayoutStatusLabel.text = getString(
+            if (hasOwn) R.string.text_keyboard_layout_split_layout_configured
+            else R.string.text_keyboard_layout_split_layout_not_configured
+        )
     }
 
     private fun currentActiveProfile(): String {
@@ -3495,6 +3788,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         private const val STATE_CURRENT_LAYOUT = "current_layout"
         private const val STATE_PREVIEW_SUBMODE = "preview_submode"
         private const val STATE_PREVIEW_SUBMODE_IS_DEFAULT_ITEM = "preview_submode_is_default_item"
+        private const val STATE_EDITING_SPLIT = "editing_split"
         private const val STATE_LAYOUT_PROFILE = "layout_profile"
 
         /** Draft snapshots live here, under noBackupFilesDir: transient, never worth backing up. */
@@ -3631,6 +3925,15 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             "SymbolKey" -> key["label"] as? String ?: "."
             "ReturnKey" -> getString(R.string.text_keyboard_layout_key_label_enter)
             "BackspaceKey" -> "⌫"
+            "PlaceholderKey" -> {
+                // 空白占位键在键列表里必须有个可见记号：它的键面本来就什么都不显示，
+                // 列表里再留空，用户会以为这一格是"丢了一个键"或者没保存上。
+                // 填了字符的就显示字符，没填的显示中点。
+                val main = key["main"] as? String
+                val alt = key["alt"] as? String
+                listOfNotNull(main, alt).firstOrNull { !it.isNullOrEmpty() }
+                    ?: getString(R.string.text_keyboard_layout_key_label_placeholder)
+            }
             "MacroKey" -> {
                 // 与运行时渲染一致：显式设置的 displayText 优先，未设置时回落到 label。
                 // displayText 若是按子模式分组的 Map，这里没有子模式上下文，取 "default" 项。

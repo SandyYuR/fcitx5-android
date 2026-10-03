@@ -42,6 +42,7 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
     private var splitSwitch: Preference? = null
     private var splitLandscapeSwitch: Preference? = null
     private var splitDuplicateSwitch: Preference? = null
+    private var splitAlignHalvesSwitch: Preference? = null
     private var calibrationPref: Preference? = null
 
     private var floatingSwitch: Preference? = null
@@ -87,6 +88,14 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
             isIconSpaceReserved = false
             isSingleLineTitle = false
         }
+        val splitAlignHalves = MySwitchPreference(ctx).apply {
+            key = keyboard.splitKeyboardAlignHalves.key
+            setTitle(R.string.split_keyboard_align_halves)
+            setSummary(R.string.split_keyboard_align_halves_summary)
+            setDefaultValue(true)
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+        }
         val calibration = Preference(ctx).apply {
             setTitle(R.string.split_keyboard_calibration_title)
             isIconSpaceReserved = false
@@ -99,10 +108,12 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
         splitSwitch = split
         splitLandscapeSwitch = splitLandscape
         splitDuplicateSwitch = splitDuplicate
+        splitAlignHalvesSwitch = splitAlignHalves
         calibrationPref = calibration
         splitCategory.addPreference(split)
         splitCategory.addPreference(splitLandscape)
         splitCategory.addPreference(splitDuplicate)
+        splitCategory.addPreference(splitAlignHalves)
         splitCategory.addPreference(calibration)
 
         // ===== 浮动键盘 =====
@@ -198,10 +209,11 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
         syncOneHandOptions()
     }
 
-    /** 「分体时采用横屏布局」「中间键两侧各一枚」与「校准」只在分体开启时才有意义。 */
+    /** 「分体时采用横屏布局」「中间键两侧各一枚」「中缝强制对齐」与「校准」只在分体开启时才有意义。 */
     private fun syncSplitOptions(enabled: Boolean) {
         splitLandscapeSwitch?.isEnabled = enabled
         splitDuplicateSwitch?.isEnabled = enabled
+        splitAlignHalvesSwitch?.isEnabled = enabled
         calibrationPref?.isEnabled = enabled
     }
 

@@ -18,7 +18,7 @@ import timber.log.Timber
 import kotlin.math.abs
 
 @SuppressLint("ViewConstructor")
-class NumberRow(ctx: Context, theme: Theme) : BaseKeyboard(ctx, theme, ::Layout, { null }) {
+class NumberRow(ctx: Context, theme: Theme) : BaseKeyboard(ctx, theme, { Layout }, { null }) {
 
     override fun currentLayoutSignature(): String = "NumberRow"
 

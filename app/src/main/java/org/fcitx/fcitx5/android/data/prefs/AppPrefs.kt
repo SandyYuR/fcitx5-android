@@ -355,6 +355,25 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             R.string.split_keyboard_duplicate_middle_summary
         )
 
+        // 分体时是否强制左右两半在中缝处对齐（各自占满 (1-中缝)/2 的宽度）。
+        //
+        // 开启（默认，也是既有行为）：两侧都缩放到恰好半宽，中缝严格居中、上下行对齐。
+        // 代价是**按键宽度被强行改写**——某一侧键多（或用户用 splitAfter 把断点大幅
+        // 挪偏）时，该侧每一枚键都要被压窄到刚好填满半宽，与另一侧和合体状态下的键宽
+        // 都不一致。
+        //
+        // 关闭：每枚键都保持**合体时的宽度**（弹性键同样只按行内剩余空间算，不受分体
+        // 影响），两侧各自靠外沿固定，中缝不再是预留的固定宽度、而是两侧排完后**剩下的
+        // 空间**。于是往一行里加空白占位键就能把这一侧往中缝方向推——占位键占多宽就推
+        // 多远，且不会影响同行其它键的宽度（见 SplitRowWidths.unalignedWidths）。
+        // 代价是中缝实际宽度随行内容变化、各行断点位置可能不齐。
+        val splitKeyboardAlignHalves = switch(
+            R.string.split_keyboard_align_halves,
+            "split_keyboard_align_halves",
+            true,
+            R.string.split_keyboard_align_halves_summary
+        )
+
         val horizontalCandidateStyle = enumList(
             R.string.horizontal_candidate_style,
             "horizontal_candidate_style",

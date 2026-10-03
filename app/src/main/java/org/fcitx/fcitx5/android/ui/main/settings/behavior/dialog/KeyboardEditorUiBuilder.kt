@@ -67,6 +67,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             "BackspaceKey",
             "NumPadKey",
             "MiniSpaceKey",
+            "PlaceholderKey",
             "MacroKey"
         )
 
@@ -88,6 +89,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             R.string.text_keyboard_layout_key_type_backspace,
             R.string.text_keyboard_layout_key_type_numpad,
             R.string.text_keyboard_layout_key_type_mini_space,
+            R.string.text_keyboard_layout_key_type_placeholder,
             R.string.text_keyboard_layout_key_type_macro
         )
 
@@ -243,6 +245,29 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             setTextColor(activity.styledColor(android.R.attr.textColorSecondary))
             setPadding(0, activity.dp(2), 0, activity.dp(6))
         }
+    }
+
+    /**
+     * 「分体键盘在本键之后断开」勾选项（写入 `splitAfter`）。
+     *
+     * 分体键盘默认按宽度取几何中点断开，遇到自定义行（空格桥接键、不等宽键）结果不可预测；
+     * 勾上这里就按用户指定位置断。同一行勾了多个时以**最后**一个为准。
+     */
+    fun createSplitBoundaryCheckbox(
+        container: LinearLayout,
+        checked: Boolean
+    ): android.widget.CheckBox {
+        val checkBox = android.widget.CheckBox(activity).apply {
+            text = activity.getString(R.string.text_keyboard_layout_key_split_after)
+            textSize = DIALOG_CONTENT_TEXT_SIZE_SP
+            isChecked = checked
+            setPadding(0, activity.dp(4), 0, 0)
+        }
+        container.addView(checkBox)
+        container.addView(
+            createNoticeField(activity.getString(R.string.text_keyboard_layout_key_split_after_helper))
+        )
+        return checkBox
     }
 
     /**

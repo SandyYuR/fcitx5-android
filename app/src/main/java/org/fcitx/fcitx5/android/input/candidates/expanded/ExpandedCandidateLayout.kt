@@ -42,7 +42,7 @@ import splitties.views.imageResource
 @SuppressLint("ViewConstructor")
 class ExpandedCandidateLayout(context: Context, theme: Theme) : ConstraintLayout(context) {
 
-    class Keyboard(context: Context, theme: Theme) : BaseKeyboard(context, theme, ::Layout, { null }) {
+    class Keyboard(context: Context, theme: Theme) : BaseKeyboard(context, theme, { Layout }, { null }) {
         override fun currentLayoutSignature(): String = "ExpandedCandidate"
 
         companion object {

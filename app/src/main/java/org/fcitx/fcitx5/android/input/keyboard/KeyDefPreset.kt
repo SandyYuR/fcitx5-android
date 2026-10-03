@@ -597,6 +597,68 @@ class TextPickerSwitchKey(
     )
 )
 
+/**
+ * 空白占位键：占据布局宽度、不接收任何输入、也不参与任何状态改写的纯外观键。
+ *
+ * ## 两种形态
+ *
+ * - **完全空白**（主/副字符都留空、自定义颜色关闭，即默认）：键面什么都不画，
+ *   键底完全透明，看起来就是键盘上的一块空白区域。用途是把某一行的按键挤到想要的
+ *   位置，或者留出一块拇指休息区。
+ * - **纯装饰**（填了字符或打开自定义颜色）：键面画用户指定的文字，但**依然不可点击**。
+ *   与"把普通键的点击动作做成空宏"有本质区别——后者仍会震动、仍有按压高亮、仍会
+ *   进入长按/滑动的判定，用户会以为自己点到了什么却没反应。
+ *
+ * ## 为什么不可点击这件事必须在类型层面成立
+ *
+ * [behaviors] 与 [popup] 都为空，`BaseKeyboard.applyBehaviorPopupBindings` 会据此把
+ * 视图置为 `isEnabled = false` / `isClickable = false`——触摸事件根本不进入这个视图。
+ * 这不是"点了没反应"，而是**完全不参与触摸**，因此也不会挡住同一位置上父容器的滚动。
+ */
+class PlaceholderKey(
+    displayText: String = "",
+    altText: String = "",
+    percentWidth: Float = 0.1f,
+    transparentBackground: Boolean = true,
+    textColor: Int? = null,
+    textColorMonet: String? = null,
+    altTextColor: Int? = null,
+    altTextColorMonet: String? = null,
+    backgroundColor: Int? = null,
+    backgroundColorMonet: String? = null,
+    shadowColor: Int? = null,
+    shadowColorMonet: String? = null,
+    textSize: Float = 16f
+) : KeyDef(
+    Appearance.AltText(
+        displayText = displayText,
+        altText = altText,
+        character = displayText,
+        textSize = textSize,
+        percentWidth = percentWidth,
+        // 两种形态的"外形"要一起切，不能只切 transparentBackground：
+        // - 完全空白：不画边框、不留外边距。留了外边距会在相邻键之间露出底色缝隙；
+        //   而 Border 一旦不是 Off，KeyView 就会走 applyStandardBackground 画出键底。
+        // - 纯装饰：反过来——用默认边框与默认间距，才是一枚"和别的键一样、只是点不动"的键。
+        border = if (transparentBackground) Border.Off else Border.Default,
+        margin = !transparentBackground,
+        textColor = textColor,
+        textColorMonet = textColorMonet,
+        altTextColor = altTextColor,
+        altTextColorMonet = altTextColorMonet,
+        backgroundColor = backgroundColor,
+        backgroundColorMonet = backgroundColorMonet,
+        shadowColor = shadowColor,
+        shadowColorMonet = shadowColorMonet
+    ).apply {
+        this.transparentBackground = transparentBackground
+        this.staticDisplay = true
+    },
+    // 空集 + 无 popup = 不可点击、无长按、无滑动，见类注释。
+    emptySet(),
+    null
+)
+
 class MiniSpaceKey(
     percentWidth: Float = 0.15f,
     textColor: Int? = null,

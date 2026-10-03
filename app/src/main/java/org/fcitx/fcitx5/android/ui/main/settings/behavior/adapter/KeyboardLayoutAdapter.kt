@@ -814,6 +814,14 @@ class KeyboardLayoutAdapter(
             "BackspaceKey" -> "⌫"
             "NumPadKey" -> key["label"] as? String ?: "0"
             "MiniSpaceKey" -> context.getString(R.string.text_keyboard_layout_key_label_minispace)
+            "PlaceholderKey" -> {
+                // 与运行时渲染一致：空字符就是"完全空白"，列表里要给一个可见的占位符号，
+                // 否则这一格在编辑器里看起来像"少了一个键"，用户会以为自己删错了。
+                val main = key["main"] as? String
+                val alt = key["alt"] as? String
+                val text = listOfNotNull(main, alt).firstOrNull { !it.isNullOrEmpty() }
+                text ?: context.getString(R.string.text_keyboard_layout_key_label_placeholder)
+            }
             "MacroKey" -> {
                 // 与运行时渲染一致：显式设置的 displayText 优先，未设置时回落到 label。
                 // displayText 若是按子模式分组的 Map，这里没有子模式上下文，取 "default" 项。

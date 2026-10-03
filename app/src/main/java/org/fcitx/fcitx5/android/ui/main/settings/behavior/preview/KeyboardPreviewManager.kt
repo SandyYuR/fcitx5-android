@@ -24,6 +24,7 @@ import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
+import org.fcitx.fcitx5.android.input.keyboard.LayoutVariant
 import org.fcitx.fcitx5.android.input.editing.FoxyTextEditingUi
 import org.fcitx.fcitx5.android.input.editing.TextEditingLayoutLoader
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
@@ -58,7 +59,15 @@ class KeyboardPreviewManager(
     private val layoutHeightPercentOverrideProvider: (String) -> Int? = { null },
     private val layoutAuxBarConfigProvider: (String) -> AuxBarConfig? = { null },
     private val layoutAuxBarKeysProvider: (String) -> List<Map<String, Any?>> = { emptyList() },
-    private val subModeNameToIdProvider: () -> Map<String, String> = { emptyMap() }
+    private val subModeNameToIdProvider: () -> Map<String, String> = { emptyMap() },
+    /**
+     * 编辑器当前正在编辑的排列；null 表示"普通排列"。
+     *
+     * 放进预览的意义是：预览键盘的宽度是它所在容器的宽度，永远够不到分体阈值，用户正在
+     * 编辑分体布局时预览却按普通排列渲染——"改了没生效"的既视感。这里把排列强制过去，
+     * 预览就渲染用户正在编辑的那份行集合。
+     */
+    private val forcedVariantProvider: () -> LayoutVariant? = { null }
 ) {
     private var previewKeyboard: TextKeyboard? = null
     private var previewTextEditingView: View? = null
@@ -73,9 +82,10 @@ class KeyboardPreviewManager(
         val effectiveSubModeKey: String?,
         val themeName: String,
         val keyBorder: Boolean,
-        val layoutJson: String
+        val layoutJson: String,
+        /** 强制预览的排列形态；null 表示按键盘宽度自动判定。 */
+        val forcedVariant: String?
     )
-
     private var lastPreviewSignature: PreviewSignature? = null
 
     /**
@@ -92,7 +102,15 @@ class KeyboardPreviewManager(
     ) {
         // Try to load submode-specific layout first
         val effectiveSubModeKey = resolveEffectiveSubModeKey(layoutName, previewSubModeLabel)
-        val effectiveLayoutKey = effectiveSubModeKey ?: layoutName
+        val forcedVariant = forcedVariantProvider()
+        // 正在编辑分体布局时，预览的就是那一份。它挂在**当前子布局**下面
+        // （`rime:倉頡五代:__variant__:split`），与方案专用布局是并列的两条分支，必须单独解析。
+        val variantEntryKey = splitEntryKey(
+            layoutName = layoutName,
+            subModeLabel = previewSubModeLabel,
+            editingSplit = forcedVariant?.isSplit == true
+        )
+        val effectiveLayoutKey = variantEntryKey ?: effectiveSubModeKey ?: layoutName
         val rows = entries[effectiveLayoutKey]
             ?: if (layoutName == TEXT_EDITOR_LAYOUT_NAME) emptyList() else return
 
@@ -100,7 +118,14 @@ class KeyboardPreviewManager(
         val keyBorder = ThemeManager.prefs.keyBorder.getValue()
 
         // Build submode map with all available submodes for this layout
-        val subModeMap = buildSubModeMap(layoutName, effectiveSubModeKey, rows, previewSubModeLabel)
+        val subModeMap = buildSubModeMap(
+            layoutName = layoutName,
+            subModeKey = effectiveSubModeKey,
+            currentRows = rows,
+            previewSubModeLabel = previewSubModeLabel,
+            forcedVariant = forcedVariant,
+            variantEntryKey = variantEntryKey
+        )
         val tempJson = JsonObject(mapOf(layoutName to JsonObject(subModeMap)))
 
         // Nothing that affects the rendering changed, so keep the existing preview. The editor
@@ -109,10 +134,11 @@ class KeyboardPreviewManager(
         val signature = PreviewSignature(
             layoutName = layoutName,
             subModeLabel = previewSubModeLabel,
-            effectiveSubModeKey = effectiveSubModeKey,
+            effectiveSubModeKey = effectiveLayoutKey,
             themeName = theme.name,
             keyBorder = keyBorder,
-            layoutJson = tempJson.toString()
+            layoutJson = tempJson.toString(),
+            forcedVariant = forcedVariant?.name
         )
         if ((previewKeyboard != null || previewTextEditingView != null) && signature == lastPreviewSignature) return
         lastPreviewSignature = signature
@@ -135,7 +161,13 @@ class KeyboardPreviewManager(
                 createTextEditorPreview(rows, theme)
             } else {
                 TextKeyboard.withPreviewLayout(tempJson) {
-                    createKeyboardPreview(layoutName, previewSubModeLabel, effectiveSubModeKey, fcitxConnection)
+                    createKeyboardPreview(
+                        layoutName,
+                        previewSubModeLabel,
+                        effectiveLayoutKey,
+                        fcitxConnection,
+                        forcedVariant
+                    )
                 }
             }
         } catch (e: Exception) {
@@ -192,19 +224,17 @@ class KeyboardPreviewManager(
         layoutName: String,
         subModeKey: String?,
         currentRows: List<List<Map<String, Any?>>>,
-        previewSubModeLabel: String?
+        previewSubModeLabel: String?,
+        forcedVariant: LayoutVariant?,
+        variantEntryKey: String?
     ): MutableMap<String, JsonElement> {
         val subModeMap = mutableMapOf<String, JsonElement>()
 
-        val currentRowsArray = JsonArray(currentRows.map { row ->
-            JsonArray(row.map { key ->
-                JsonObject(key.entries.associate { (k, v) ->
-                    k to LayoutJsonUtils.convertToJsonProperty(v)
-                })
-            })
-        })
+        val currentRowsArray = rowsArrayOf(currentRows)
 
-        val effectiveKey = subModeKey ?: layoutName
+        // 高度/辅助栏按"当前实际编辑的那份条目"取：正在编辑分体布局时，高度覆盖也记在
+        // 分体条目的键上（编辑器的高度对话框写的就是这个键），用布局名去查会查不到。
+        val effectiveKey = variantEntryKey ?: subModeKey ?: layoutName
         val auxBarConfig = if (layoutAuxBarConfigProvider(effectiveKey)?.position == org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition.AbovePreedit) null
             else layoutAuxBarConfigProvider(effectiveKey)
         val auxBarKeys = layoutAuxBarKeysProvider(effectiveKey)
@@ -243,6 +273,33 @@ class KeyboardPreviewManager(
             ))
         } else null
 
+        if (variantEntryKey != null) {
+            // 正在编辑分体布局：把它作为 `__variant__:split` 条目写进临时 JSON 里**该子布局
+            // 所在的这一层**，并同时放入该子布局的普通排列作为回退。两份内容可能完全相同
+            // （用户还没改），但都写才能让预览走的是真实键盘那条解析路径——否则"预览对了、
+            // 真机不对"这种偏差无从暴露。
+            val splitElement: JsonElement = if (meta != null) {
+                JsonObject(mapOf("__meta__" to meta, "default" to currentRowsArray))
+            } else {
+                currentRowsArray
+            }
+            val splitLabel = LayoutJsonUtils.toVariantSubModeLabel(LayoutVariant.Split.jsonKey!!)
+            if (subModeKey != null && entries.containsKey(subModeKey)) {
+                // 方案自己的分体布局：嵌在该方案条目内部，普通排列取该方案的。
+                val dockedRows = rowsArrayOf(entries[subModeKey])
+                subModeMap[previewSubModeLabel ?: "default"] = JsonObject(
+                    mapOf("default" to dockedRows, splitLabel to splitElement)
+                )
+                entries[layoutName]?.let { subModeMap["default"] = rowsArrayOf(it) }
+            } else {
+                // 布局本体的分体布局：与 `default` 平级。
+                val dockedRows = entries[layoutName]?.let { rowsArrayOf(it) } ?: currentRowsArray
+                subModeMap["default"] = dockedRows
+                subModeMap[splitLabel] = splitElement
+            }
+            return subModeMap
+        }
+
         if (subModeKey != null && entries.containsKey(subModeKey)) {
             // Editing a submode layout - add it with its label
             val subModeEntry: JsonElement = if (meta != null) {
@@ -254,14 +311,7 @@ class KeyboardPreviewManager(
             // Also add default layout if it exists (for fallback)
             val defaultRows = entries[layoutName]
             if (defaultRows != null) {
-                val defaultRowsArray = JsonArray(defaultRows.map { row ->
-                    JsonArray(row.map { key ->
-                        JsonObject(key.entries.associate { (k, v) ->
-                            k to LayoutJsonUtils.convertToJsonProperty(v)
-                        })
-                    })
-                })
-                subModeMap["default"] = defaultRowsArray
+                subModeMap["default"] = rowsArrayOf(defaultRows)
             }
         } else {
             // Editing default layout
@@ -282,7 +332,8 @@ class KeyboardPreviewManager(
         layoutName: String,
         previewSubModeLabel: String?,
         effectiveSubModeKey: String?,
-        fcitxConnection: FcitxConnection
+        fcitxConnection: FcitxConnection,
+        forcedVariant: LayoutVariant?
     ) {
         val theme = ThemeManager.activeTheme
 
@@ -298,6 +349,10 @@ class KeyboardPreviewManager(
         )
 
         previewKeyboard = TextKeyboard(context, theme, previewIme, isPreview = true).apply {
+            // 形态覆盖要在 [onAttach]/[refreshStyle] **之前**设好：预览容器宽度永远够不到
+            // 分体阈值，不覆盖的话第一趟布局就会退回竖屏停靠，多一次重建不说，那一帧的
+            // 按键位置也是错的。
+            if (forcedVariant != null) setLayoutVariantOverride(forcedVariant)
             val displayMetrics = context.resources.displayMetrics
             val screenHeight = displayMetrics.heightPixels
 
@@ -390,6 +445,40 @@ class KeyboardPreviewManager(
         if (keyById != null && entries.containsKey(keyById)) return keyById
         return null
     }
+
+    /**
+     * 正在编辑的那个**子布局的分体布局**条目键；不在编辑分体布局、或它不存在时返回 null。
+     *
+     * 分体布局挂在子布局上：`仓颉 + 分体` → `rime:倉頡五代:__variant__:split`，
+     * `默认 + 分体` → `rime:__variant__:split`。方案既可能以标签为键、也可能以 id 为键
+     * （[subModeNameToIdProvider]），两条都要试。
+     */
+    private fun splitEntryKey(
+        layoutName: String,
+        subModeLabel: String?,
+        editingSplit: Boolean
+    ): String? {
+        if (!editingSplit) return null
+        val label = subModeLabel?.trim()?.takeIf { it.isNotEmpty() }
+        val candidates = listOfNotNull(label, label?.let { subModeNameToIdProvider()[it] }).distinct()
+        candidates.forEach { candidate ->
+            val key = LayoutJsonUtils.entryKeyOf(layoutName, candidate, LayoutVariant.Split)
+            if (entries.containsKey(key)) return key
+        }
+        if (label != null) return null
+        return LayoutJsonUtils.entryKeyOf(layoutName, null, LayoutVariant.Split)
+            .takeIf { entries.containsKey(it) }
+    }
+
+    /** 编辑器内部的行集合转成 JSON 数组（预览用的临时布局）。 */
+    private fun rowsArrayOf(rows: List<List<Map<String, Any?>>>?): JsonArray =
+        JsonArray((rows ?: emptyList()).map { row ->
+            JsonArray(row.map { key ->
+                JsonObject(key.entries.associate { (k, v) ->
+                    k to LayoutJsonUtils.convertToJsonProperty(v)
+                })
+            })
+        })
 
     /**
      * Show error message in preview container.

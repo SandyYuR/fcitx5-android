@@ -129,6 +129,7 @@ object SettingsSearchIndex {
         R.string.split_keyboard_enabled to "split_keyboard_enabled",
         R.string.split_keyboard_use_landscape_layout to "split_keyboard_use_landscape_layout",
         R.string.split_keyboard_duplicate_middle to "split_keyboard_duplicate_middle",
+        R.string.split_keyboard_align_halves to "split_keyboard_align_halves",
 
         /* 键盘 · 按键行为 */
         R.string.popup_on_key_press to "popup_on_key_press",
@@ -458,6 +459,14 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.split_keyboard_duplicate_middle, P_KEYBOARD,
             listOf("duplicate middle", "mirror", "中间键", "复制中间键", "双侧", "g v", "靠边字母"),
+            route = SettingsRoute.KeyboardModes
+        ),
+        SettingsSearchEntry(
+            R.string.split_keyboard_align_halves, P_KEYBOARD,
+            listOf(
+                "align", "centre", "center", "squeeze", "narrow", "gap",
+                "对齐", "中缝", "居中", "压缩", "变窄", "键宽", "键宽度"
+            ),
             route = SettingsRoute.KeyboardModes
         ),
 

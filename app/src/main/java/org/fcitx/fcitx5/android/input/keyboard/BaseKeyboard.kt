@@ -99,13 +99,50 @@ import kotlin.math.roundToInt
 abstract class BaseKeyboard(
     context: Context,
     protected var theme: Theme,
-    private val layoutProvider: () ->List<List<KeyDef>>,
+    private val layoutProvider: (LayoutVariant) -> List<List<KeyDef>>,
     private val auxBarConfigProvider: () -> AuxBarConfig? = { null },
     private val auxBarKeysProvider: () -> List<KeyDef> = { emptyList() }
 ) : ConstraintLayout(context) {
 
+    /**
+     * 当前生效的排列：普通还是分体。在每次 [reloadLayout] 开头重算，行内容与分体几何都读它，
+     * 保证同一趟布局里「用哪份行」与「要不要断开」永远一致。
+     */
+    private var currentLayoutVariant: LayoutVariant = LayoutVariant.Docked
+
+    /**
+     * 排列的强制覆盖；null 表示按键盘实际宽度自动判定（真实键盘的常态）。
+     *
+     * 只被设置页的布局预览用：预览键盘的宽度是它所在容器的宽度，永远够不到分体阈值，
+     * 于是用户**看不到**自己正在编辑的那份分体布局——编辑分体布局却预览成普通排列，
+     * 是最容易让人以为"改了没生效"的形态。覆盖放在实例上而不是静态字段，预览之间
+     * 以及预览与真实键盘之间互不干扰（同 E9 的教训）。
+     */
+    private var layoutVariantOverride: LayoutVariant? = null
+
+    /**
+     * 强制该键盘按 [variant] 排列（null 恢复自动判定）并立即重建。
+     *
+     * 构造期之后才能调用：构造过程中 [reloadLayout] 已经跑过一次，此时覆盖值还没设进去。
+     */
+    fun setLayoutVariantOverride(variant: LayoutVariant?) {
+        if (layoutVariantOverride == variant) return
+        layoutVariantOverride = variant
+        refreshStyle()
+    }
+
+    /** 当前排列是否为分体。分体几何（左半/右半断开、中缝宽度）读它，而不是再查一次
+     * 阈值：覆盖生效时两者会不一致。
+     */
+    protected val isSplitLayout: Boolean
+        get() = currentLayoutVariant.isSplit
+
+    /** 当前生效的排列；子类据此解析自己那份布局（见 `TextKeyboard.selectedLayoutArray`）。 */
+    protected val layoutVariant: LayoutVariant
+        get() = currentLayoutVariant
+
     private val keyLayout: List<List<KeyDef>>
-        get() = layoutProvider()
+        get() = layoutProvider(currentLayoutVariant)
     private val auxBarConfig: AuxBarConfig?
         get() = auxBarConfigProvider()
     private val auxBarKeyDefs: List<KeyDef>
@@ -400,15 +437,21 @@ abstract class BaseKeyboard(
      */
     protected abstract fun currentLayoutSignature(): String
 
-    private fun currentRowsSignature(splitKeyboard: Boolean): String {
+    private fun currentRowsSignature(variant: LayoutVariant): String {
         val prefs = ThemeManager.prefs
         return buildString {
             append(currentLayoutSignature())
-            append("|split:").append(splitKeyboard)
+            append("|split:").append(variant.isSplit)
             // 分体中间键复制开关影响行结构，纳入签名以免切换后复用到旧的行集合。
             append("|splitDup:").append(
-                splitKeyboard && AppPrefs.getInstance().keyboard.splitKeyboardDuplicateMiddleKey.getValue()
+                variant.isSplit && AppPrefs.getInstance().keyboard.splitKeyboardDuplicateMiddleKey.getValue()
             )
+            // 中缝对齐开关改变的是每一枚键的**宽度**（见 buildSplitRow），同样不能复用旧行。
+            append("|splitAlign:").append(
+                variant.isSplit && AppPrefs.getInstance().keyboard.splitKeyboardAlignHalves.getValue()
+            )
+            // 形态决定用哪份行集合（横屏/分体可能有各自的排列），必须进签名。
+            append("|variant:").append(variant.name)
             append("|orient:").append(resources.configuration.orientation)
             append("|composing:").append(composing)
             append("|gapScale:").append(horizontalGapScale)
@@ -535,14 +578,18 @@ abstract class BaseKeyboard(
         composeAwareKeys.clear()
 
         val splitKeyboard = splitKeyboardManager.shouldUseSplitKeyboard(width)
+        // 自动判定结果单独留存：onSizeChanged 靠它判断"这一趟宽度变化是否改变了自动分体
+        // 状态"，预览的强制覆盖不该参与那个比较（预览宽度不会自己变到阈值）。
         lastSplitLandscapeState = splitKeyboard
+        currentLayoutVariant = layoutVariantOverride ?: LayoutVariant.of(splitKeyboard)
+        val splitLayout = currentLayoutVariant.isSplit
         val rows = keyLayout
         // 分体时对奇数字符行复制中间键，让左右两半对称可触达（见 splitRowsForLayout）。
         // 非分体用原始行；返回实例按源身份记忆，故行缓存命中率不受影响。
-        val effectiveRows = if (splitKeyboard) splitRowsForLayout(rows) else rows
+        val effectiveRows = if (splitLayout) splitRowsForLayout(rows) else rows
         rowHeightPercents = resolveRowHeightPercents(effectiveRows)
 
-        val rowsSignature = currentRowsSignature(splitKeyboard)
+        val rowsSignature = currentRowsSignature(currentLayoutVariant)
         val cachedRows = reusableRowsCache[rowsSignature]
         // Reuse only when the cached rows were built from the exact same KeyDef instances;
         // providers that re-create defs on every call (e.g. the builtin fallback layout)
@@ -557,7 +604,7 @@ abstract class BaseKeyboard(
                     // Batch apply fontset mappings for all key labels.
                     forEach(::applyConfiguredFonts)
                 }
-                if (splitKeyboard) {
+                if (splitLayout) {
                     buildSplitRow(row, keyViews)
                 } else {
                     buildRegularRow(row, keyViews)
@@ -963,7 +1010,15 @@ abstract class BaseKeyboard(
         return splitKeyboardManager.getSplitGapPercent()
     }
 
-    private fun resolveRowWidths(row: List<KeyDef>): List<Float> {
+    /**
+     * 每一枚键在**布局里写的**绝对宽度（未按行归一化）：显式写了宽度的键用自己那个值，
+     * 弹性键（`percentWidth <= 0`）平分固定宽度之外的剩余空间。
+     *
+     * 合体渲染（[buildRegularRow]）直接把它当 `matchConstraintPercentWidth` 用，所以这就是
+     * **合体状态下的键宽**。分体关闭中缝对齐时也以它为准（见 [SplitRowWidths.unalignedWidths]），
+     * 这样"分体不该改写按键宽度"才在数字上真的成立。
+     */
+    private fun resolveAbsoluteRowWidths(row: List<KeyDef>): List<Float> {
         if (row.isEmpty()) return emptyList()
         val fixedSum = row.sumOf { def ->
             val width = def.appearance.percentWidth
@@ -972,10 +1027,15 @@ abstract class BaseKeyboard(
         val flexCount = row.count { it.appearance.percentWidth <= 0f }
         val remaining = (1f - fixedSum).coerceAtLeast(0f)
         val flexWidth = if (flexCount > 0) remaining / flexCount else 0f
-        val widths = row.map { def ->
+        return row.map { def ->
             val width = def.appearance.percentWidth
             if (width > 0f) width else flexWidth
         }
+    }
+
+    private fun resolveRowWidths(row: List<KeyDef>): List<Float> {
+        val widths = resolveAbsoluteRowWidths(row)
+        if (widths.isEmpty()) return widths
         val sum = widths.sum()
         return if (sum > 0f) {
             widths.map { it / sum }
@@ -987,6 +1047,12 @@ abstract class BaseKeyboard(
 
     private fun chooseSplitIndex(row: List<KeyDef>, normalizedWidths: List<Float>): Int {
         if (row.size <= 1) return 0
+        // 布局在键上显式指定了分界（`KeyDef.splitAfter`）时以它为准，不再按宽度猜中点：
+        // 自动分界按"累计宽度首次过半"取断点，遇到空格桥接键还会再挪一次，用户无法预测
+        // 某个自定义行会从哪里断开。同一行有多个标记时取最后一个，见 splitAfter 的说明。
+        val manual = row.indexOfLast { it.splitAfter && row.size > 1 }
+            .takeIf { it in 0 until row.lastIndex }
+        if (manual != null) return manual
         val candidates = (0 until row.lastIndex)
         var prefix = 0f
         var bestIndex = 0
@@ -1066,6 +1132,9 @@ abstract class BaseKeyboard(
     private fun duplicateMiddleKeyForSplit(row: List<KeyDef>): List<KeyDef> {
         if (row.size < 3 || row.size % 2 == 0) return row
         if (row.any { it is SpaceKey || it is MiniSpaceKey }) return row
+        // 手动分界是用户对这个行的明确布置（常见于"中间键只留一侧"），复制中间键会
+        // 让几何位置与分界点错开一位、分界落到另一枚键后面。两者互斥：有手动标记就不复制。
+        if (row.any { it.splitAfter }) return row
         val midIndex = row.size / 2
         val mid = row[midIndex]
         if (!isSplitDuplicatableKey(mid)) return row
@@ -1100,6 +1169,12 @@ abstract class BaseKeyboard(
         }
         if (row.isEmpty()) return@constraintLayout
         val gap = splitGapPercent()
+        // 关闭中缝对齐时用的是**绝对**宽度（= 合体状态下的键宽），见 SplitRowWidths.unalignedWidths。
+        val absoluteWidths = resolveAbsoluteRowWidths(row)
+        // 空白占位键不参与承载键池：它只按自己的宽度占位，不该把同一行的其它键挤窄。
+        // 这正是用户要的手感——往 asdfghjkl 两侧各加一枚占位键，两枚 g 就向中缝凸出，
+        // 而 a~l 本身的宽度一点不变。
+        val pooled = row.map { it !is PlaceholderKey }
         val normalizedWidths = resolveRowWidths(row)
 
         val flexCount = row.count { it.appearance.percentWidth <= 0f }
@@ -1201,64 +1276,65 @@ abstract class BaseKeyboard(
             return@constraintLayout
         }
 
-        val splitIndex = chooseSplitIndex(row, normalizedWidths)
-        val sideCapacity = ((1f - gap) / 2f).coerceAtLeast(0.05f)
+        // 断点用"只看承载键"的宽度向量挑：占位键是位移工具而不是内容，不该把断点推偏
+        // （否则 asdfghjkl 两端各加一枚占位键后，断点会从两枚 g 之间滑到 f|g）。
+        val splitIndex = chooseSplitIndex(
+            row,
+            SplitRowWidths.breakpointWidths(absoluteWidths, pooled)
+        )
+        // 是否强制左右两半在中缝处对齐（见 AppPrefs.splitKeyboardAlignHalves）。
+        // 关闭时不再为"两侧宽度相等"改写按键宽度，代价是断点位置各行不再一致。
+        // 具体分配见 SplitRowWidths（那里有完整说明与单测）。
+        val alignHalves = AppPrefs.getInstance().keyboard.splitKeyboardAlignHalves.getValue()
 
-        val leftIndices = 0..splitIndex
-        val rightIndices = (splitIndex + 1)..keyViews.lastIndex
+        val isFixed = { index: Int -> row[index].appearance.percentWidth > 0f }
+        var leftAdjusted = SplitRowWidths.forSide(
+            indices = 0..splitIndex,
+            normalizedWidths = normalizedWidths,
+            absoluteWidths = absoluteWidths,
+            pooled = pooled,
+            isFixed = isFixed,
+            gap = gap,
+            alignHalves = alignHalves
+        )
+        var rightAdjusted = SplitRowWidths.forSide(
+            indices = (splitIndex + 1)..keyViews.lastIndex,
+            normalizedWidths = normalizedWidths,
+            absoluteWidths = absoluteWidths,
+            pooled = pooled,
+            isFixed = isFixed,
+            gap = gap,
+            alignHalves = alignHalves
+        )
 
-        fun adjustedSideWidths(indices: IntRange): Map<Int, Float> {
-            if (indices.isEmpty()) return emptyMap()
-            val base = indices.associateWith { normalizedWidths[it] }
-            val flexible = indices.filter { row[it].appearance.percentWidth <= 0f }
-            val fixed = indices.filter { row[it].appearance.percentWidth > 0f }
-
-            val fixedSum = fixed.sumOf { (base[it] ?: 0f).toDouble() }.toFloat()
-            val flexSum = flexible.sumOf { (base[it] ?: 0f).toDouble() }.toFloat()
-            val total = (fixedSum + flexSum).coerceAtLeast(0.0001f)
-
-            // Side without flexible keys: just scale proportionally to side capacity.
-            if (flexible.isEmpty()) {
-                val ratio = sideCapacity / total
-                return base.mapValues { (_, w) -> w * ratio }
-            }
-
-            // Keep at least part of side capacity for flexible keys (e.g. Space)
-            // to avoid "space key too tiny" when gap is large.
-            val minFlexShare = (0.30f + (gap - 0.20f) * 0.80f).coerceIn(0.30f, 0.55f)
-            val targetFlex = maxOf(
-                sideCapacity * minFlexShare,
-                (sideCapacity - fixedSum).coerceAtLeast(0f)
-            ).coerceAtMost(sideCapacity)
-            val targetFixed = (sideCapacity - targetFlex).coerceAtLeast(0f)
-
-            val fixedScale = if (fixedSum > 0f) targetFixed / fixedSum else 0f
-            val result = mutableMapOf<Int, Float>()
-            fixed.forEach { idx ->
-                result[idx] = (base[idx] ?: 0f) * fixedScale
-            }
-            val flexScale = if (flexSum > 0f) targetFlex / flexSum else 0f
-            flexible.forEach { idx ->
-                result[idx] = (base[idx] ?: 0f) * flexScale
-            }
-            return result
+        // 关闭对齐时，两侧按原宽排布，中缝是"被挤剩下的"空间——空白占位键加得越多，
+        // 中缝越窄、两侧的键越往中间凸。加过头（两侧之和 > 1）时才会重新压窄按键，
+        // 见 SplitRowWidths.fitSides。
+        if (!alignHalves) {
+            val fitted = SplitRowWidths.fitSides(leftAdjusted, rightAdjusted)
+            leftAdjusted = fitted.first
+            rightAdjusted = fitted.second
         }
 
-        val leftAdjusted = adjustedSideWidths(leftIndices)
-        val rightAdjusted = adjustedSideWidths(rightIndices)
+        // 中缝两侧的定位线按**实际算出的半宽**放，而不是固定的 0.5±中缝/2。
+        // 对齐开启时两者本就相等（两侧都被缩放成恰好半宽），行为与之前一致；关闭时
+        // 定位线落在两侧真实边界上，于是行里多出来的空间全部落进中缝，键宽不再被牵动。
+        // 夹取范围放宽到 [0.02, 0.98]：对齐开启时值域恒在 [0.2, 0.8] 内，不受影响。
+        val leftGuidePercent = leftAdjusted.total.coerceIn(0.02f, 0.98f)
+        val rightGuidePercent = (1f - rightAdjusted.total).coerceIn(0.02f, 0.98f)
 
         val leftGuide = Guideline(context).apply {
             id = View.generateViewId()
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
                 orientation = LayoutParams.VERTICAL
-                guidePercent = (0.5f - gap / 2f).coerceIn(0.2f, 0.8f)
+                guidePercent = leftGuidePercent
             }
         }
         val rightGuide = Guideline(context).apply {
             id = View.generateViewId()
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
                 orientation = LayoutParams.VERTICAL
-                guidePercent = (0.5f + gap / 2f).coerceIn(0.2f, 0.8f)
+                guidePercent = rightGuidePercent
             }
         }
         addView(leftGuide)
@@ -1906,8 +1982,25 @@ abstract class BaseKeyboard(
         } else {
             overrideDef.appearance.withColorsFrom(baseDef.appearance)
         }.withTextMetricsFrom(baseDef.appearance)
+            // 外观开关连的是"这个键长什么样"，不是配色也不是字号：无论覆盖键自带配色与否，
+            // 都必须跟着**基础键**走（见 inheritPresentationFlagsFrom 的说明）。
+            .inheritPresentationFlagsFrom(baseDef.appearance)
         return overrideDef to appearance
     }
+
+    /**
+     * 把「不进构造参数的外观开关」从源外观搬到重建出来的外观上。
+     *
+     * [KeyDef.Appearance.transparentBackground] 与 [KeyDef.Appearance.staticDisplay] 是
+     * `var`（见 KeyDef 里为什么不放进六个子类的构造参数），代价就是下面几个 `withXxxFrom`
+     * 重建实例时会**静默丢值**：空白占位键一旦进入合成态、又恰好带了 composeOverride，
+     * 就会突然画出键底、并重新参与 Shift 大小写改写——而这一切只在打字打到一半时可见。
+     */
+    private fun KeyDef.Appearance.inheritPresentationFlagsFrom(source: KeyDef.Appearance): KeyDef.Appearance =
+        apply {
+            transparentBackground = source.transparentBackground
+            staticDisplay = source.staticDisplay
+        }
 
     private fun KeyDef.Appearance.withTextMetricsFrom(source: KeyDef.Appearance): KeyDef.Appearance {
         val sourceText = source as? KeyDef.Appearance.Text ?: return this

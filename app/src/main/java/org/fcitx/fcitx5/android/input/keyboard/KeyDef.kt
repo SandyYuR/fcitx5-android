@@ -26,6 +26,18 @@ open class KeyDef(
     var rowHeightPercent: Float? = null
 
     /**
+     * 分体键盘的手动分界标记：为 true 时表示「本键之后把这一行断开成左右两半」。
+     *
+     * 仅在该键所属行**没有任何**手动标记时才走自动分界（按宽度取几何中点，见
+     * `BaseKeyboard.chooseSplitIndex`）。同一行出现多个标记时以**最后一个**为准，
+     * 这样复制中间键、拖动按键之后标记仍然跟着键走、结果可预期。
+     *
+     * 有意做成「键上的一枚开关」而不是行上的一个下标：下标会在增删/拖动按键后错位，
+     * 而标记随 `KeyDef` 一起被复制、移动，不需要任何同步逻辑。
+     */
+    var splitAfter: Boolean = false
+
+    /**
      * Optional key definition that is used while IME is in composing state.
      * This must keep the same key type/size semantics as the base key.
      */
@@ -53,6 +65,29 @@ open class KeyDef(
         val shadowColor: Int? = null,
         val shadowColorMonet: String? = null
     ) {
+        /**
+         * 完全不绘制键底、边框、阴影与按压高亮，键面直接透出键盘底色。
+         *
+         * 这是「空白占位键」关闭自定义颜色时的形态：用户要的就是一个看不见的占位，
+         * 而 [Border.Off] 只能做到"不画边框"——主题开着描边/阴影时仍会留下一块可见的
+         * 底和投影，看起来像个没字的按键，而不是不存在。
+         *
+         * 做成独立字段而不是构造参数，与 [KeyDef.splitAfter] 同一理由：只有占位键需要它，
+         * 为它给六个 Appearance 子类各加一个构造参数，就意味着每次增删键型都要再同步
+         * `withColorsFrom` / `withIdentityFrom` 的一整排拷贝分支——那正是"改个颜色就把
+         * 透底弄丢"最容易被漏掉的地方。
+         */
+        var transparentBackground: Boolean = false
+
+        /**
+         * 纯外观键：键面内容由用户原样指定，不参与任何状态改写，也不因"不可点击"而变淡。
+         *
+         * 影响两处：① `TextKeyboard` 的 Shift/Caps 大小写与标点映射都跳过它——占位键上写
+         * 一个 `G` 就是想要 `G`，跟着 Shift 变来变去毫无意义；② `KeyView.setEnabled`
+         * 不再套用 `disabledAlpha`，否则装饰文字会一直显示成半透明。
+         */
+        var staticDisplay: Boolean = false
+
         enum class Variant {
             Normal, AltForeground, Alternative, Accent
         }

@@ -152,6 +152,25 @@ class KeyEditorActivity : AppCompatActivity() {
     private var simpleWeightEdit: EditText? = null
     private var rowHeightPercentEdit: EditText? = null
     private var nonMacroSwipeLabelEdit: EditText? = null
+    private var splitAfterCheckBox: android.widget.CheckBox? = null
+
+    // 空白占位键专用字段。
+    private var placeholderMainEdit: EditText? = null
+    private var placeholderAltEdit: EditText? = null
+    private var placeholderWeightEdit: EditText? = null
+
+    /**
+     * 空白占位键是否使用自定义颜色。
+     *
+     * 关闭（默认）时这个键**连键底都不画**，只有文字可见；打开后才允许设置各种颜色并
+     * 画出真实的键底。因此它同时决定了写进 JSON 的 `transparent` 字段（见
+     * [buildDraftKeyData]）与颜色编辑区是否可用（见 [renderColorEditors]）。
+     *
+     * 不复用 [independentColor]：那个字段的语义是"合成态覆盖键是否自带配色"，只在
+     * `composeOverrideEditorMode` 下有意义，普通键的颜色编辑区**始终**可用。两者叠在
+     * 一起会让"占位键关掉自定义颜色"顺手把别的键型的颜色编辑也关掉。
+     */
+    private var placeholderCustomColor: Boolean = false
 
     private var macroTapStepsData: List<Any> = emptyList()
     private var macroSwipeStepsData: List<Any> = emptyList()
@@ -351,6 +370,10 @@ class KeyEditorActivity : AppCompatActivity() {
             ?: keyData["type"] as? String
             ?: "AlphabetKey"
         keyData["type"] = selectedType
+        // 占位键的「自定义颜色」开关：显式写了 transparent=false 就是开着；此外只要这份
+        // 键数据里**本来就有颜色取值**（手写 JSON 的情况，用户可能没写 transparent），
+        // 也视为开着——否则那些颜色会被界面显示成"不可用"，用户一保存就被抹掉。
+        placeholderCustomColor = keyData["transparent"] == false || keyColorOverrides.isNotEmpty()
         composeOverrideData = (keyData["composeOverride"] as? Map<*, *>)?.let { map ->
             map.entries.associate { (k, v) -> k.toString() to v }.toMutableMap()
         }
@@ -387,6 +410,10 @@ class KeyEditorActivity : AppCompatActivity() {
             typeSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
                     selectedType = KeyboardEditorUiBuilder.KEY_TYPES[position]
+                    // 换成占位键时按这份键数据重推开关初值，否则它会带着上一个键型的状态
+                    // （例如刚在字母键上配过颜色）进来，用户看到的是"我没开却已经开着"。
+                    placeholderCustomColor =
+                        keyData["transparent"] == false || keyColorOverrides.isNotEmpty()
                     rebuildFields()
                     updateActionButtonState()
                 }
@@ -428,6 +455,10 @@ class KeyEditorActivity : AppCompatActivity() {
         simpleWeightEdit = null
         rowHeightPercentEdit = null
         nonMacroSwipeLabelEdit = null
+        splitAfterCheckBox = null
+        placeholderMainEdit = null
+        placeholderAltEdit = null
+        placeholderWeightEdit = null
         nonMacroSwipeStepsData = emptyList()
 
         initDisplayText(
@@ -461,6 +492,11 @@ class KeyEditorActivity : AppCompatActivity() {
             )
             fieldsContainer.addView(rowHeightEdit.first)
             rowHeightPercentEdit = rowHeightEdit.second
+
+            splitAfterCheckBox = uiBuilder.createSplitBoundaryCheckbox(
+                fieldsContainer,
+                keyData["splitAfter"] == true
+            )
         }
 
         when (selectedType) {
@@ -887,10 +923,47 @@ class KeyEditorActivity : AppCompatActivity() {
                     fieldsContainer.addView(weightEdit.first)
                 }
             }
+
+            "PlaceholderKey" -> {
+                // 主/副字符**都可以留空**——留空 + 关闭自定义颜色就是"完全不可见"的占位，
+                // 这也是默认形态，故不给任何兜底默认字符（见 LayoutJsonUtils 的写入分支）。
+                val mainEdit = uiBuilder.createEditField(
+                    getString(R.string.text_keyboard_layout_key_main),
+                    keyData["main"] as? String ?: ""
+                )
+                val altEdit = uiBuilder.createEditField(
+                    getString(R.string.text_keyboard_layout_key_alt),
+                    keyData["alt"] as? String ?: ""
+                )
+                fieldsContainer.addView(mainEdit.first)
+                fieldsContainer.addView(altEdit.first)
+                placeholderMainEdit = mainEdit.second
+                placeholderAltEdit = altEdit.second
+
+                if (!disableWeightEditing) {
+                    val weightEdit = uiBuilder.createEditField(
+                        getString(R.string.text_keyboard_layout_key_weight),
+                        (keyData["weight"] as? Number)?.toString() ?: ""
+                    )
+                    fieldsContainer.addView(weightEdit.first)
+                    placeholderWeightEdit = weightEdit.second
+                }
+
+                // 自定义颜色开关要放在颜色编辑区**之前**：它决定下面那几行是否可用
+                // （见 renderColorEditors），放在后面会让人先看到一堆灰掉的项。
+                renderPlaceholderCustomColorToggle()
+                fieldsContainer.addView(
+                    uiBuilder.createNoticeField(
+                        getString(R.string.text_keyboard_layout_key_type_placeholder_helper)
+                    )
+                )
+            }
         }
 
         if (!composeOverrideEditorMode) {
-            renderComposeOverrideEditorEntry()
+            // 空白占位键不显示「合成态按键」入口：它不可点击，永远进不了合成态，
+            // 那个入口只会误导用户去配一个永远不会生效的东西。
+            if (selectedType != "PlaceholderKey") renderComposeOverrideEditorEntry()
         } else {
             renderFollowBaseKeyColorsToggle()
         }
@@ -984,6 +1057,50 @@ class KeyEditorActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * 「自定义颜色」开关（仅空白占位键）。
+     *
+     * 关掉时这个键连键底都不画，只有文字可见——这正是"完全空白的占位"那一半需求；
+     * 打开后才画真实键底并允许设置各种颜色，用于"不可点击的纯外观键"。
+     *
+     * 切换时要 `rebuildFields()`：颜色编辑区的可用状态由它决定，不重建的话开关拨过去
+     * 下面几行还是灰的，用户会以为开关没生效。
+     */
+    private fun renderPlaceholderCustomColorToggle() {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, dp(8), 0, dp(4))
+        }
+        val label = TextView(this).apply {
+            text = getString(R.string.text_keyboard_layout_placeholder_custom_color)
+            textSize = 13f
+            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                weight = 1f
+            }
+        }
+        val switchView = SwitchCompat(this).apply {
+            isChecked = placeholderCustomColor
+            setOnCheckedChangeListener { _, isChecked ->
+                if (placeholderCustomColor == isChecked) return@setOnCheckedChangeListener
+                persistCurrentDraft()
+                placeholderCustomColor = isChecked
+                rebuildFields()
+                updateActionButtonState()
+            }
+        }
+        row.addView(label)
+        row.addView(switchView)
+        fieldsContainer.addView(
+            row,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+    }
+
     private fun openComposeOverrideEditor() {
         persistCurrentDraft()
         val hasOverride = composeOverrideData != null
@@ -1042,7 +1159,10 @@ class KeyEditorActivity : AppCompatActivity() {
 
     private fun renderColorEditors() {
         val theme = ThemeManager.activeTheme
-        val colorEditorEnabled = !composeOverrideEditorMode || independentColor
+        // 空白占位键的配色由「自定义颜色」开关统一管辖：关着的时候这个键连底都不画，
+        // 摆出一排可点的颜色项只会让人以为"改了没生效"。
+        val colorEditorEnabled = (!composeOverrideEditorMode || independentColor) &&
+            (selectedType != "PlaceholderKey" || placeholderCustomColor)
         availableColorFields().forEach { field ->
             val title = getString(field.labelRes)
             val colorSource = if (colorEditorEnabled) keyColorOverrides else inheritedBaseKeyColorData
@@ -1129,6 +1249,7 @@ class KeyEditorActivity : AppCompatActivity() {
 
     private fun showColorFieldOptions(field: EditableColorField) {
         if (composeOverrideEditorMode && !independentColor) return
+        if (selectedType == "PlaceholderKey" && !placeholderCustomColor) return
         val supportsMonet = ThemeMonet.supportsCustomMappingEditor(this)
         val options = mutableListOf<String>()
         val actions = mutableListOf<() -> Unit>()
@@ -1534,9 +1655,25 @@ class KeyEditorActivity : AppCompatActivity() {
                     parseWeight(simpleWeightEdit?.text?.toString())?.let { draft["weight"] = it }
                 }
             }
+
+            "PlaceholderKey" -> {
+                // 空串不写字段：留空是"这个键上什么都不显示"的合法形态，不是缺省值。
+                placeholderMainEdit?.text?.toString()?.takeIf { it.isNotEmpty() }
+                    ?.let { draft["main"] = it }
+                placeholderAltEdit?.text?.toString()?.takeIf { it.isNotEmpty() }
+                    ?.let { draft["alt"] = it }
+                if (!disableWeightEditing) {
+                    parseWeight(placeholderWeightEdit?.text?.toString())?.let { draft["weight"] = it }
+                }
+                // 写 false 而不是"省略"：省略会让运行时按类型默认值（透明）处理，
+                // 与用户刚打开的自定义颜色相反。见 KeyJson.transparent 的说明。
+                if (placeholderCustomColor) draft["transparent"] = false
+            }
         }
         if (!composeOverrideEditorMode) {
             parseRowHeightPercent(rowHeightPercentEdit?.text?.toString())?.let { draft["rowHeightPercent"] = it }
+            // 只在勾选时写入：默认关掉的项不该给每个键都加一个 false 字段。
+            if (splitAfterCheckBox?.isChecked == true) draft["splitAfter"] = true
         }
         composeOverrideData?.let { draft["composeOverride"] = toSerializableMap(it) }
         if (composeOverrideEditorMode) {
@@ -2044,9 +2181,23 @@ class KeyEditorActivity : AppCompatActivity() {
                     parseWeight(simpleWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
                 }
             }
+
+            "PlaceholderKey" -> {
+                // 与 buildDraftKeyData 完全一致：空串不写字段，见那里的说明。
+                placeholderMainEdit?.text?.toString()?.takeIf { it.isNotEmpty() }
+                    ?.let { newKey["main"] = it }
+                placeholderAltEdit?.text?.toString()?.takeIf { it.isNotEmpty() }
+                    ?.let { newKey["alt"] = it }
+                if (!disableWeightEditing) {
+                    parseWeight(placeholderWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
+                }
+                if (placeholderCustomColor) newKey["transparent"] = false
+            }
         }
         if (!composeOverrideEditorMode) {
             parseRowHeightPercent(rowHeightPercentEdit?.text?.toString())?.let { newKey["rowHeightPercent"] = it }
+            // 与草稿生成保持一致：只在勾选时写入，取消勾选就把字段去掉（而不是写成 false）。
+            if (splitAfterCheckBox?.isChecked == true) newKey["splitAfter"] = true
         }
         composeOverrideData?.let { newKey["composeOverride"] = toSerializableMap(it) }
         if (composeOverrideEditorMode) {
@@ -2060,6 +2211,9 @@ class KeyEditorActivity : AppCompatActivity() {
 
     private fun appendColorOverrides(target: MutableMap<String, Any?>) {
         if (composeOverrideEditorMode && !independentColor) return
+        // 占位键关掉自定义颜色时不写出任何颜色字段：那些值可能是从上一份键数据继承来的，
+        // 留着会让保存结果与界面显示的"全透明"对不上。
+        if (selectedType == "PlaceholderKey" && !placeholderCustomColor) return
         availableColorFields().forEach { field ->
             val monet = (keyColorOverrides[field.monetKey] as? String)?.takeIf { it.isNotBlank() }
             if (monet != null) {

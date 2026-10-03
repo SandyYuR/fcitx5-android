@@ -6,6 +6,9 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.utils
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 import org.fcitx.fcitx5.android.input.keyboard.AlphabetKey
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
 import org.fcitx.fcitx5.android.input.keyboard.MacroKey
@@ -431,5 +434,193 @@ class LayoutJsonUtilsTest {
         val def = alphabetKey(main = "d", displayText = "D")
         assertEquals("d", def.character)
         assertEquals("1", def.punctuation)
+    }
+
+    // ==================== 分体键盘的手动分界 splitAfter ====================
+
+    @Test
+    fun splitAfterIsParsedIntoTheKeyDef() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row("""[{"type": "AlphabetKey", "main": "g", "alt": "5", "splitAfter": true}]""")
+        )
+        val def = LayoutJsonUtils.createKeyDef(parsed[0])
+        assertEquals(true, def?.splitAfter)
+    }
+
+    @Test
+    fun absentOrFalseSplitAfterLeavesTheFlagOff() {
+        val absent = LayoutJsonUtils.parseKeyJsonArray(
+            row("""[{"type": "AlphabetKey", "main": "g", "alt": "5"}]""")
+        )
+        assertEquals(false, LayoutJsonUtils.createKeyDef(absent[0])?.splitAfter)
+
+        val explicitFalse = LayoutJsonUtils.parseKeyJsonArray(
+            row("""[{"type": "AlphabetKey", "main": "g", "alt": "5", "splitAfter": false}]""")
+        )
+        assertEquals(false, LayoutJsonUtils.createKeyDef(explicitFalse[0])?.splitAfter)
+    }
+
+    /**
+     * 只在勾选时写出 `splitAfter`。
+     *
+     * 这条不是洁癖：`false` 一旦被写出来，每个键都会多一个字段——布局文件平白膨胀，
+     * 二维码分享的分块数跟着上涨，而这一切对用户毫无意义。
+     */
+    @Test
+    fun splitAfterIsOnlyWrittenWhenTrue() {
+        // 同一个键：勾选 / 未勾选，序列化结果只差这一个字段。
+        fun defWith(splitAfter: Boolean): KeyDef {
+            val parsed = LayoutJsonUtils.parseKeyJsonArray(
+                row("""[{"type": "AlphabetKey", "main": "g", "alt": "5"}]""")
+            )
+            return LayoutJsonUtils.createKeyDef(parsed[0])!!.apply { this.splitAfter = splitAfter }
+        }
+
+        assertEquals(true, LayoutJsonUtils.keyDefToJson(defWith(true))["splitAfter"])
+        assertNull(
+            "未标记时不应写出该字段",
+            LayoutJsonUtils.keyDefToJson(defWith(false))["splitAfter"]
+        )
+    }
+
+    /** 从 JSON 解析再写回，标记必须原样保留（编辑器保存/二维码往返都要靠它）。 */
+    @Test
+    fun splitAfterSurvivesAJsonRoundTrip() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row("""[{"type": "AlphabetKey", "main": "g", "alt": "5", "splitAfter": true}]""")
+        )
+        val def = LayoutJsonUtils.createKeyDef(parsed[0])!!
+        // keyDefToJson 产出的是编辑器内部用的 Map，转成 JSON 对象即"保存进文件"的形状。
+        val written = JsonObject(
+            LayoutJsonUtils.keyDefToJson(def).mapValues { (_, v) -> LayoutJsonUtils.convertToJsonProperty(v) }
+        )
+        assertEquals(true, (written["splitAfter"] as? JsonPrimitive)?.booleanOrNull)
+
+        // 再解析一次（模拟用户保存后重新打开编辑器）
+        val reparsed = LayoutJsonUtils.parseKeyJsonArray(JsonArray(listOf(written)))
+        assertEquals(true, LayoutJsonUtils.createKeyDef(reparsed[0])?.splitAfter)
+    }
+
+    // ==================== 空白占位键 PlaceholderKey ====================
+
+    private fun placeholderOf(json: String): KeyDef =
+        LayoutJsonUtils.createKeyDef(LayoutJsonUtils.parseKeyJsonArray(row(json))[0])!!
+
+    /**
+     * 空白占位键的核心契约：**不可点击**。
+     *
+     * 这不是靠界面禁用做出来的效果，而是根本没有行为可绑——`BaseKeyboard` 据此把视图
+     * 置为不可交互，触摸事件连进都不会进。一旦有人往这里加了一条 Behavior，占位键就会
+     * 开始震动、出现按压高亮，并挡住同一位置父容器的滚动，而外观上完全看不出来。
+     */
+    @Test
+    fun placeholderKeyHasNoBehaviorsAndNoPopup() {
+        val def = placeholderOf("""[{"type": "PlaceholderKey"}]""")
+        assertEquals(0, def.behaviors.size)
+        assertNull("没有 popup 才不会触发长按/滑动的候选面板", def.popup)
+        assertTrue("必须标成纯外观键，供运行时跳过状态改写", def.appearance.staticDisplay)
+    }
+
+    /** 默认形态：完全空白（无字符）且键底透明。 */
+    @Test
+    fun placeholderKeyDefaultsToInvisible() {
+        val def = placeholderOf("""[{"type": "PlaceholderKey"}]""")
+        val appearance = def.appearance
+        assertTrue("默认不绘制键底", appearance.transparentBackground)
+        val text = appearance as KeyDef.Appearance.AltText
+        assertEquals("主字符默认留空", "", text.displayText)
+        assertEquals("副字符默认留空", "", text.altText)
+        assertEquals(
+            "不画边框",
+            KeyDef.Appearance.Border.Off,
+            appearance.border
+        )
+    }
+
+    /** 填了字符时按原样保存，绝不给任何兜底默认字符。 */
+    @Test
+    fun placeholderKeyKeepsUserCharactersVerbatim() {
+        val def = placeholderOf("""[{"type": "PlaceholderKey", "main": "G", "alt": "5"}]""")
+        val text = def.appearance as KeyDef.Appearance.AltText
+        assertEquals("G", text.displayText)
+        assertEquals("5", text.altText)
+
+        val json = LayoutJsonUtils.keyDefToJson(def)
+        assertEquals("G", json["main"])
+        assertEquals("5", json["alt"])
+    }
+
+    /**
+     * 留空就是留空：不能像别的键型那样用 `?: "0"` 之类兜底。
+     *
+     * 这条守的是"完全不可见的占位"那一半需求——一旦写入侧兜底出一个字符，用户得到的
+     * 就是一个看得见的按键，而界面上明明什么都没填。
+     */
+    @Test
+    fun placeholderKeyWritesNoCharacterFieldsWhenBlank() {
+        val json = LayoutJsonUtils.keyDefToJson(placeholderOf("""[{"type": "PlaceholderKey"}]"""))
+        assertNull("空主字符不应写出 main", json["main"])
+        assertNull("空副字符不应写出 alt", json["alt"])
+    }
+
+    /** 打开自定义颜色（`transparent: false`）后要画真实键底。 */
+    @Test
+    fun placeholderKeyWithCustomColorDrawsItsBackground() {
+        val def = placeholderOf(
+            """[{"type": "PlaceholderKey", "transparent": false, "backgroundColor": -16777216}]"""
+        )
+        assertTrue("显式 false 表示要画底", !def.appearance.transparentBackground)
+        assertEquals(-16777216, def.appearance.backgroundColor)
+
+        // 写回时必须保留这个 false——省略会让运行时按类型默认值（透明）处理，
+        // 与用户刚打开的开关相反。
+        assertEquals(false, LayoutJsonUtils.keyDefToJson(def)["transparent"])
+    }
+
+    /** 透明是默认形态，不该往每个占位键都写一个 `"transparent": true`。 */
+    @Test
+    fun placeholderKeyOmitsTransparentWhenItIsTheDefault() {
+        val json = LayoutJsonUtils.keyDefToJson(placeholderOf("""[{"type": "PlaceholderKey"}]"""))
+        assertNull("透明是默认值，无需写出", json["transparent"])
+    }
+
+    /** 权重与行高百分比照常生效（占位键最常见的用法就是用它调位置）。 */
+    @Test
+    fun placeholderKeyCarriesWeightAndRowHeight() {
+        val def = placeholderOf(
+            """[{"type": "PlaceholderKey", "weight": 0.25, "rowHeightPercent": 30}]"""
+        )
+        assertEquals(0.25f, def.appearance.percentWidth, 1e-5f)
+        assertEquals(30f, def.rowHeightPercent!!, 1e-5f)
+    }
+
+    /** 完整往返：编辑器保存后再读回来必须还是同一个占位键。 */
+    @Test
+    fun placeholderKeySurvivesAJsonRoundTrip() {
+        val def = placeholderOf(
+            """[{"type": "PlaceholderKey", "main": "·", "alt": "!", "weight": 0.2, "transparent": false}]"""
+        )
+        val written = JsonObject(
+            LayoutJsonUtils.keyDefToJson(def).mapValues { (_, v) -> LayoutJsonUtils.convertToJsonProperty(v) }
+        )
+        assertEquals("PlaceholderKey", (written["type"] as? JsonPrimitive)?.content)
+
+        val reparsed = LayoutJsonUtils.createKeyDef(
+            LayoutJsonUtils.parseKeyJsonArray(JsonArray(listOf(written)))[0]
+        )!!
+        assertEquals("PlaceholderKey", LayoutJsonUtils.keyDefToJson(reparsed)["type"])
+        assertEquals(0.2f, reparsed.appearance.percentWidth, 1e-5f)
+        val text = reparsed.appearance as KeyDef.Appearance.AltText
+        assertEquals("·", text.displayText)
+        assertEquals("!", text.altText)
+    }
+
+    /** 类型名是写进布局文件的值，改它会让已有布局里的占位键全部失效。 */
+    @Test
+    fun placeholderKeyTypeNameIsStable() {
+        assertEquals(
+            "PlaceholderKey",
+            LayoutJsonUtils.keyDefToJson(placeholderOf("""[{"type": "PlaceholderKey"}]"""))["type"]
+        )
     }
 }

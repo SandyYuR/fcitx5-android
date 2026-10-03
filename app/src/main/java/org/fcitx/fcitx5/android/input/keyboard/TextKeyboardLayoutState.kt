@@ -18,13 +18,25 @@ import org.fcitx.fcitx5.android.core.InputMethodEntry
 internal class TextKeyboardLayoutState(
     var ime: InputMethodEntry? = null
 ) {
+    /**
+     * 本次布局要用的排列（普通 / 分体），由 [BaseKeyboard] 每趟布局开始时写入，
+     * 见 `BaseKeyboard.reloadLayout`。
+     *
+     * 放在实例状态里而不是读全局：设置页的预览键盘可能被强制成另一种排列（用户正在编辑
+     * 的正是那一份），它绝不能顺手把真实键盘的排列也改掉。
+     */
+    var variant: LayoutVariant = LayoutVariant.Docked
+
     /** Aux bar config resolved by the last layout pass of this keyboard. */
     var auxBarConfig: AuxBarConfig? = null
 
     /** Raw aux bar keys resolved by the last layout pass of this keyboard. */
     var auxBarKeys: List<Map<String, Any?>> = emptyList()
 
-    fun getLayout(): List<List<KeyDef>> = TextKeyboard.getLayout(this)
+    fun getLayout(variant: LayoutVariant): List<List<KeyDef>> {
+        this.variant = variant
+        return TextKeyboard.getLayout(this)
+    }
 
     fun getAuxBarKeyDefs(): List<KeyDef> = TextKeyboard.getAuxBarKeyDefs(this)
 }

@@ -47,7 +47,6 @@ class TextKeyboard private constructor(
     { initialLayoutState.auxBarConfig },
     initialLayoutState::getAuxBarKeyDefs
 ) {
-
     /**
      * @param initialIme the input method this keyboard renders for. Previews pass their own
      * preview entry, so they can no longer overwrite the real keyboard's layout state; the
@@ -518,14 +517,17 @@ class TextKeyboard private constructor(
                 val subModeLabel = currentIme.subMode.label
                 val subModeName = currentIme.subMode.name
                 val schemaId = schemaIdFromSubModeIcon(currentIme.subMode.icon)
-                val subModeLayoutElement = resolveSubModeLayoutElement(
-                    imeLayoutElement = imeLayoutElement,
+                // 键盘高度只按屏幕方向取（keyboard_height_percent_landscape），与排列形态无关：
+                // 分体与否取决于键盘宽度，这里读不到（本函数是窗口级调用，可能先于任何键盘存在）。
+                val rowsElement = resolveVariantRowsElement(
+                    layoutElement = imeLayoutElement,
+                    variant = LayoutVariant.Docked,
                     subModeLabel = subModeLabel,
                     schemaId = schemaId,
                     subModeName = subModeName
                 )
-                if (parseLayoutArray(subModeLayoutElement) != null) {
-                    return parseLayoutHeightPercentOverride(subModeLayoutElement)
+                if (parseLayoutArray(rowsElement) != null) {
+                    return parseLayoutHeightPercentOverride(rowsElement)
                         ?: parseLayoutHeightPercentOverride(imeLayoutElement)
                 }
             }
@@ -593,9 +595,7 @@ class TextKeyboard private constructor(
             subModeName: String
         ): JsonElement? {
             return if (imeLayoutElement is JsonObject) {
-                val matched = subModeCandidates(subModeLabel, schemaId, subModeName)
-                    .firstNotNullOfOrNull { key -> imeLayoutElement[key] }
-                matched ?: imeLayoutElement["default"] ?: imeLayoutElement[""]
+                matchSubMode(imeLayoutElement, subModeLabel, schemaId, subModeName) ?: imeLayoutElement
             } else {
                 imeLayoutElement
             }
@@ -644,19 +644,21 @@ class TextKeyboard private constructor(
             return candidate.takeIf { containsLayoutKey(json, it) }
         }
 
+        /**
+         * 认得出 [layoutKey] 这个条目名（布局名、或 `布局:子布局`）——不要求它一定给得出
+         * 行集合。
+         *
+         * 不能拿 [findLayoutElementByKey] 兼作这个用途。分体布局按**子布局**存放之后，
+         * `rime:倉頡五代:__variant__:split` 这种条目确实存在，但它是"倉頡五代这一层的分体
+         * 排列"，不是 `rime:倉頡五代` 这个条目本身；要求它必须解析出行集合，会让这类键被
+         * 判成"不存在"。这里的 key 只用于 `ime:` 分支的签名，宽松一点是对的。
+         */
         private fun containsLayoutKey(json: JsonObject, layoutKey: String): Boolean {
             val base = layoutKey.substringBefore(':')
-            val sub = layoutKey.substringAfter(':', "")
             val element = json[base] ?: return false
-            if (sub.isEmpty()) {
-                return when (element) {
-                    is JsonArray -> true
-                    is JsonObject -> parseLayoutArray(element["default"]) != null || parseLayoutArray(element[""]) != null
-                    else -> false
-                }
-            }
-            val subElement = (element as? JsonObject)?.get(sub) ?: return false
-            return parseLayoutArray(subElement) != null
+            val sub = layoutKey.substringAfter(':', "")
+            if (sub.isEmpty()) return true
+            return (element as? JsonObject)?.containsKey(sub) == true
         }
 
         private fun findLayoutElementByKey(json: JsonObject, layoutKey: String): JsonArray? {
@@ -681,6 +683,42 @@ class TextKeyboard private constructor(
                 else -> null
             }
         }
+
+        /**
+         * 在 [layoutElement] 里按当前 [variant] 挑出该形态的行集合元素。
+         *
+         * 形态变体是布局对象里以保留前缀命名的普通条目，磁盘上形如
+         * `"rime": { "default": [...], "__variant__:split_landscape": [...] }`
+         * （见 [LayoutJsonUtils.VARIANT_SUBMODE_PREFIX]）。
+         *
+         * 判定逻辑全在 [LayoutVariantResolver.resolveRowsElement]（那里有完整说明与单测），
+         * 这里只负责把方案候选键算出来。
+         */
+        private fun resolveVariantRowsElement(
+            layoutElement: JsonElement?,
+            variant: LayoutVariant,
+            subModeLabel: String,
+            schemaId: String,
+            subModeName: String
+        ): JsonElement? = LayoutVariantResolver.resolveRowsElement(
+            layoutElement = layoutElement,
+            variant = variant,
+            subModeCandidates = subModeCandidates(subModeLabel, schemaId, subModeName)
+        )
+
+        /**
+         * 本层按方案（子模式）细分：命中方案 → `default` → `""`，都没有则返回 null。
+         */
+        private fun matchSubMode(
+            container: JsonObject,
+            subModeLabel: String,
+            schemaId: String,
+            subModeName: String
+        ): JsonElement? =
+            subModeCandidates(subModeLabel, schemaId, subModeName)
+                .firstNotNullOfOrNull { key -> container[key] }
+                ?: container["default"]
+                ?: container[""]
 
         private fun isLandscapeNow(): Boolean =
             android.content.res.Resources.getSystem().configuration.orientation ==
@@ -907,35 +945,57 @@ class TextKeyboard private constructor(
                 .joinToString(separator = "|")
                 .ifEmpty { "none" }
             val showLangSwitch = AppPrefs.getInstance().keyboard.showLangSwitchKey.getValue()
+            val variant = state.variant
             val json = textLayoutJson
 
             forcedLayoutKey?.let { forced ->
                 if (json != null) {
                     val forcedLayout = findLayoutElementByKey(json, forced)
                     if (forcedLayout != null) {
-                        val cacheKey = "${cacheKeyPrefix()}forced:$forced:$showLangSwitch:$displayTextContextCacheKey"
+                        val cacheKey = "${cacheKeyPrefix()}forced:$forced:${state.variant.name}:$showLangSwitch:$displayTextContextCacheKey"
                         val baseName = forced.substringBefore(':')
                         val forcedSub = forced.substringAfter(':', "")
+                        val forcedElement: JsonElement = if (forcedSub.isNotEmpty()) {
+                            (json[baseName] as? JsonObject)?.get(forcedSub) ?: json[baseName] ?: forcedLayout
+                        } else {
+                            json[baseName] ?: forcedLayout
+                        }
+                        // 强制层（数字键盘 / 层切换目标）同样支持形态变体：横屏分体下把
+                        // 数字层换成一套更宽的排列是常见诉求。
+                        val rowsElement = resolveVariantRowsElement(
+                            layoutElement = forcedElement,
+                            variant = state.variant,
+                            subModeLabel = subModeLabel,
+                            schemaId = schemaId,
+                            subModeName = subModeName
+                        ) ?: forcedElement
+                        val forcedRows = parseLayoutArray(rowsElement) ?: forcedLayout
                         resolvedLayoutHeightPercentOverride = if (forcedSub.isNotEmpty()) {
-                            parseLayoutHeightPercentOverride((json[baseName] as? JsonObject)?.get(forcedSub))
+                            parseLayoutHeightPercentOverride(rowsElement)
+                                ?: parseLayoutHeightPercentOverride((json[baseName] as? JsonObject)?.get(forcedSub))
                                 ?: parseLayoutHeightPercentOverride(json[baseName])
                         } else {
-                            parseLayoutHeightPercentOverride(json[baseName])
+                            parseLayoutHeightPercentOverride(rowsElement)
+                                ?: parseLayoutHeightPercentOverride(json[baseName])
                         }
                         state.auxBarConfig = if (forcedSub.isNotEmpty()) {
-                            parseAuxBarConfig((json[baseName] as? JsonObject)?.get(forcedSub))
+                            parseAuxBarConfig(rowsElement)
+                                ?: parseAuxBarConfig((json[baseName] as? JsonObject)?.get(forcedSub))
                                 ?: parseAuxBarConfig(json[baseName])
                         } else {
-                            parseAuxBarConfig(json[baseName])
+                            parseAuxBarConfig(rowsElement)
+                                ?: parseAuxBarConfig(json[baseName])
                         }
                         state.auxBarKeys = if (forcedSub.isNotEmpty()) {
-                            parseAuxBarKeys((json[baseName] as? JsonObject)?.get(forcedSub))
+                            parseAuxBarKeys(rowsElement)
+                                .ifEmpty { parseAuxBarKeys((json[baseName] as? JsonObject)?.get(forcedSub)) }
                                 .ifEmpty { parseAuxBarKeys(json[baseName]) }
                         } else {
-                            parseAuxBarKeys(json[baseName])
+                            parseAuxBarKeys(rowsElement)
+                                .ifEmpty { parseAuxBarKeys(json[baseName]) }
                         }
                         return cachedKeyDefLayouts.getOrPut(cacheKey) {
-                            forcedLayout.map { rowElement ->
+                            forcedRows.map { rowElement ->
                                 LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
                                     .mapNotNull {
                                         LayoutJsonUtils.createKeyDef(
@@ -964,28 +1024,31 @@ class TextKeyboard private constructor(
                                 subModeCandidates(subModeLabel, schemaId, subModeName)
                                     .firstOrNull { obj[it] != null }
                             }
-                        val subModeLayoutElement = resolveSubModeLayoutElement(
-                            imeLayoutElement = imeLayoutElement,
+                        // 先按排列形态挑行（横屏 / 分体 / 横屏分体），没配就回退到
+                        // 竖屏停靠那份；详见 resolveVariantRowsElement。
+                        val rowsElement = resolveVariantRowsElement(
+                            layoutElement = imeLayoutElement,
+                            variant = variant,
                             subModeLabel = subModeLabel,
                             schemaId = schemaId,
                             subModeName = subModeName
                         )
 
-                        val layoutArray = parseLayoutArray(subModeLayoutElement)
+                        val layoutArray = parseLayoutArray(rowsElement)
                         if (layoutArray != null) {
                             resolvedLayoutHeightPercentOverride =
-                                parseLayoutHeightPercentOverride(subModeLayoutElement)
+                                parseLayoutHeightPercentOverride(rowsElement)
                                     ?: parseLayoutHeightPercentOverride(imeLayoutElement)
                             state.auxBarConfig =
-                                parseAuxBarConfig(subModeLayoutElement)
+                                parseAuxBarConfig(rowsElement)
                                     ?: parseAuxBarConfig(imeLayoutElement)
                             state.auxBarKeys =
-                                parseAuxBarKeys(subModeLayoutElement)
+                                parseAuxBarKeys(rowsElement)
                                     .ifEmpty { parseAuxBarKeys(imeLayoutElement) }
                             // Use a cache key that includes submode and showLangSwitch for proper caching
                             // Include showLangSwitch in cache key so layout is re-created when setting changes
                             val cacheSubMode = matchedSubModeKey ?: "default"
-                            val cacheKey = "${cacheKeyPrefix()}$layoutKey:$cacheSubMode:$showLangSwitch:$displayTextContextCacheKey"
+                            val cacheKey = "${cacheKeyPrefix()}$layoutKey:$cacheSubMode:${variant.name}:$showLangSwitch:$displayTextContextCacheKey"
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
@@ -1004,12 +1067,22 @@ class TextKeyboard private constructor(
 
                     // Fallback to global "default" layout
                     json["default"]?.let { layoutElement ->
-                        resolvedLayoutHeightPercentOverride = parseLayoutHeightPercentOverride(layoutElement)
-                        state.auxBarConfig = parseAuxBarConfig(layoutElement)
-                        state.auxBarKeys = parseAuxBarKeys(layoutElement)
-                        val layoutArray = parseLayoutArray(layoutElement)
+                        val rowsElement = resolveVariantRowsElement(
+                            layoutElement = layoutElement,
+                            variant = variant,
+                            subModeLabel = subModeLabel,
+                            schemaId = schemaId,
+                            subModeName = subModeName
+                        )
+                        resolvedLayoutHeightPercentOverride = parseLayoutHeightPercentOverride(rowsElement)
+                            ?: parseLayoutHeightPercentOverride(layoutElement)
+                        state.auxBarConfig = parseAuxBarConfig(rowsElement)
+                            ?: parseAuxBarConfig(layoutElement)
+                        state.auxBarKeys = parseAuxBarKeys(rowsElement)
+                            .ifEmpty { parseAuxBarKeys(layoutElement) }
+                        val layoutArray = parseLayoutArray(rowsElement)
                         if (layoutArray != null) {
-                            val cacheKey = "${cacheKeyPrefix()}default:$showLangSwitch:$lastRawModified"
+                            val cacheKey = "${cacheKeyPrefix()}default:${variant.name}:$showLangSwitch:$lastRawModified"
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
@@ -1198,15 +1271,34 @@ class TextKeyboard private constructor(
     private fun selectedLayoutArray(ime: InputMethodEntry): JsonArray? {
         val json = textLayoutJson ?: return null
         forcedLayoutKey?.let { forced ->
-            return findLayoutElementByKey(json, forced)
+            val base = forced.substringBefore(':')
+            val sub = forced.substringAfter(':', "")
+            val element = if (sub.isNotEmpty()) {
+                (json[base] as? JsonObject)?.get(sub) ?: json[base]
+            } else {
+                json[base]
+            }
+            return element?.let {
+                parseLayoutArray(
+                    resolveVariantRowsElement(
+                        layoutElement = it,
+                        variant = layoutVariant,
+                        subModeLabel = ime.subMode.label,
+                        schemaId = schemaIdFromSubModeIcon(ime.subMode.icon),
+                        subModeName = ime.subMode.name
+                    )
+                )
+            } ?: findLayoutElementByKey(json, forced)
         }
         val imeLayoutElement = json[ime.uniqueName] ?: json[ime.displayName]
         if (imeLayoutElement != null) {
             val subModeLabel = ime.subMode.run { label.ifEmpty { name.ifEmpty { "" } } }
             val schemaId = schemaIdFromSubModeIcon(ime.subMode.icon)
             val subModeName = ime.subMode.name
-            val subModeLayoutElement = resolveSubModeLayoutElement(
-                imeLayoutElement = imeLayoutElement,
+            // 形态优先：本层的形态变体 → 方案细分 → 方案条目内部的形态变体。
+            val rowsElement = resolveVariantRowsElement(
+                layoutElement = imeLayoutElement,
+                variant = layoutVariant,
                 subModeLabel = subModeLabel,
                 schemaId = schemaId,
                 subModeName = subModeName
@@ -1215,11 +1307,20 @@ class TextKeyboard private constructor(
             // so without grouping a non-null first operand would NOT return here
             // and the function would fall through to the "default" lookup (and
             // wrongly report null for flat layouts that have no "default" key).
-            val layoutArray = parseLayoutArray(subModeLayoutElement)
+            val layoutArray = parseLayoutArray(rowsElement)
                 ?: parseLayoutArray(imeLayoutElement)
             if (layoutArray != null) return layoutArray
         }
-        return parseLayoutArray(json["default"])
+        val defaultElement = json["default"] ?: return null
+        return parseLayoutArray(
+            resolveVariantRowsElement(
+                layoutElement = defaultElement,
+                variant = layoutVariant,
+                subModeLabel = ime.subMode.label,
+                schemaId = schemaIdFromSubModeIcon(ime.subMode.icon),
+                subModeName = ime.subMode.name
+            )
+        ) ?: parseLayoutArray(defaultElement)
     }
 
     private fun layoutArrayUsesSubMode(rows: JsonArray): Boolean {
@@ -1251,6 +1352,7 @@ class TextKeyboard private constructor(
             append('|').append(ime.subMode.label)
             append('|').append(ime.subMode.name)
             append('|').append(ime.subMode.icon)
+            append('|').append(layoutVariant.name)
             append('|').append(lastRawModified)
         }
         if (cachedUsesSubModeKey == cacheKey) return cachedUsesSubModeValue
@@ -1272,6 +1374,10 @@ class TextKeyboard private constructor(
                 key != LAYOUT_META_KEY &&
                     key != "default" &&
                     key != "" &&
+                    // 排列形态变体（__variant__:...）是布局结构的一部分，不是"按方案细分"，
+                    // 不能让它把平铺布局判成"随子模式变化"——那会让行缓存在每次 Shift
+                    // 切换子模式时全部失效（见 usesSubMode 的说明）。
+                    !LayoutJsonUtils.isVariantSubModeLabel(key) &&
                     parseLayoutArray(baseElement[key]) != null
             }
             if (hasSubModeLayout) return true
@@ -1343,18 +1449,19 @@ class TextKeyboard private constructor(
                 (json[imeName] != null || displayName?.let { json[it] } != null) -> {
                 val imeLayoutElement = json[imeName] ?: displayName?.let { json[it] }
                 if (imeLayoutElement != null) {
-                    val subModeLayoutElement = resolveSubModeLayoutElement(
-                        imeLayoutElement = imeLayoutElement,
+                    val rowsElement = resolveVariantRowsElement(
+                        layoutElement = imeLayoutElement,
+                        variant = layoutVariant,
                         subModeLabel = subModeLabel,
                         schemaId = schemaId,
                         subModeName = subModeName
                     )
-                    if (parseLayoutArray(subModeLayoutElement) != null) {
+                    if (parseLayoutArray(rowsElement) != null) {
                         val matchedSubModeKey = (imeLayoutElement as? JsonObject)?.let { obj ->
                             subModeCandidates(subModeLabel, schemaId, subModeName)
                                 .firstOrNull { obj[it] != null }
                         } ?: "default"
-                        "ime:$imeName:$matchedSubModeKey"
+                        "ime:$imeName:$matchedSubModeKey:${layoutVariant.name}"
                     } else if (json["default"]?.let { parseLayoutArray(it) } != null) {
                         "default"
                     } else {
@@ -1771,6 +1878,9 @@ class TextKeyboard private constructor(
         val displayUppercase = isDisplayCapsOn()
         textKeys.forEach {
             val keyDef = it.def
+            // 纯外观键（空白占位键）：文字是用户指定的装饰内容，不参与任何状态改写。
+            // 放在最前面短路，键面上写 "G" 就恒定是 "G"，不跟着 Shift/Caps 变。
+            if (keyDef.staticDisplay) return@forEach
             if (keyDef is KeyDef.Appearance.AltText) {
                 val renderedText = it.mainText.text.toString()
                 val sourceFromDef = renderedText.isEmpty() || renderedText == keyDef.displayText
@@ -1825,6 +1935,7 @@ class TextKeyboard private constructor(
 
     private fun updatePunctuationKeys() {
         textKeys.forEach {
+            if (it.def.staticDisplay) return@forEach
             if (it is AltTextKeyView) {
                 it.def as KeyDef.Appearance.AltText
                 it.altText.text = transformPunctuation(it.def.altText)

@@ -527,6 +527,10 @@
     <string name="text_keyboard_layout_key_type_backspace">退格</string>
     <string name="text_keyboard_layout_key_type_numpad">數字鍵盤數字鍵</string>
     <string name="text_keyboard_layout_key_type_mini_space">小空格（圖示）</string>
+    <string name="text_keyboard_layout_key_type_placeholder">空白佔位鍵（不可點擊）</string>
+    <string name="text_keyboard_layout_key_type_placeholder_helper">這個鍵不回應點擊、長按與滑動，只佔位置。主副字元都留空、並關閉自訂顏色，它就是鍵盤上一塊完全看不見的空白；填了字元或開啟自訂顏色則是純裝飾鍵（依然點不動）。</string>
+    <string name="text_keyboard_layout_placeholder_custom_color">自訂顏色</string>
+    <string name="text_keyboard_layout_key_label_placeholder">·</string>
     <string name="text_keyboard_layout_key_type_macro">巨集（自訂動作）</string>
     <string name="text_keyboard_layout_key_main">主字元</string>
     <string name="text_keyboard_layout_key_alt">副字元</string>
@@ -593,6 +597,8 @@
     <string name="split_keyboard_use_landscape_layout">分體鍵盤啟用橫向佈局</string>
     <string name="split_keyboard_duplicate_middle">分體時複製中間字母鍵</string>
     <string name="split_keyboard_duplicate_middle_summary">當存在奇數按鍵時，複製處於中間的單個字母按鍵</string>
+    <string name="split_keyboard_align_halves">強制左右兩半在中縫處對齊</string>
+    <string name="split_keyboard_align_halves_summary">開啟：兩側各佔鍵盤的一半寬，各列斷點嚴格對齊；某一側按鍵較多時，該側按鍵會被壓窄以塞進半寬。關閉：每枚鍵都保持合體時的寬度，兩側各自靠外沿固定，中縫是兩側排完後剩下的空間——在某一列加一枚空白佔位鍵，就能把這一側往中縫推；代價是各列斷點位置可能不一致。</string>
     <string name="split_keyboard_preview_load_failed">預覽載入失敗：%1$s</string>
     <string name="split_keyboard_info_type">類型</string>
     <string name="split_keyboard_info_orientation">方向</string>
@@ -872,6 +878,19 @@
     <string name="text_keyboard_layout_layout_height_percent_invalid">佈局鍵盤高度必須在 10 到 90 之間</string>
     <string name="text_keyboard_layout_key_row_height_percent">行高百分比</string>
     <string name="text_keyboard_layout_row_height_percent_invalid">行高百分比必須在 1 到 100 之間</string>
+    <string name="text_keyboard_layout_key_split_after">分體鍵盤在本鍵之後斷開</string>
+    <string name="text_keyboard_layout_key_split_after_helper">只影響分體鍵盤。分體時每列預設從中間斷開，勾選這裡就改為在你指定的位置斷開。同一列勾了多個時，以最後一個為準。</string>
+    <string name="text_keyboard_layout_split_layout">分體鍵盤佈局</string>
+    <string name="text_keyboard_layout_split_layout_helper">這份子佈局在分體鍵盤下單獨使用的一套按鍵。它只決定按鍵怎麼排，鍵盤高度仍由佈局高度設定控制。</string>
+    <string name="text_keyboard_layout_split_layout_configured">已有獨立的分體佈局</string>
+    <string name="text_keyboard_layout_split_layout_not_configured">未單獨設定，分體時沿用一般佈局</string>
+    <string name="text_keyboard_layout_split_layout_create_title">還沒有分體鍵盤佈局</string>
+    <string name="text_keyboard_layout_split_layout_create_message">「%1$s」還沒有自己的分體佈局。要從它目前的排列複製一份、開始編輯嗎？</string>
+    <string name="text_keyboard_layout_split_layout_created">已為「%1$s」新增分體佈局</string>
+    <string name="text_keyboard_layout_split_layout_deleted">已刪除「%1$s」的分體佈局</string>
+    <string name="text_keyboard_layout_split_layout_delete_confirm">刪除「%1$s」的分體佈局？分體鍵盤將回到它的一般排列。</string>
+    <string name="text_keyboard_layout_split_layout_unavailable">沒有可複製的排列</string>
+    <string name="text_keyboard_layout_editing_split_layout">正在編輯分體佈局：%1$s</string>
 
     <!-- Voice input status -->
     <string name="voice_status_connecting">連線中…</string>

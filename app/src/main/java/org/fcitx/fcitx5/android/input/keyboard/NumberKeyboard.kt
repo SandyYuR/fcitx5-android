@@ -17,7 +17,7 @@ import splitties.views.imageResource
 class NumberKeyboard(
     context: Context,
     theme: Theme,
-) : BaseKeyboard(context, theme, ::Layout, { null }) {
+) : BaseKeyboard(context, theme, { Layout }, { null }) {
 
     override fun currentLayoutSignature(): String = Name
 

@@ -148,7 +148,13 @@ abstract class KeyView(
             id = View.generateViewId()
             tag = def.viewId
         }
-        if (usesSpecialBackground()) {
+        if (def.transparentBackground) {
+            // 空白占位键：底、边框、阴影、按压高亮一概不画，键面直接透出键盘底色。
+            // 放在最前面判断，是为了不被下面任何一支"主题开着描边/圆角"的分支接管——
+            // 用户要的是"看不见的占位"，任何一层底色都会让它变成"没字的按键"。
+            appearanceView.background = null
+            appearanceView.foreground = null
+        } else if (usesSpecialBackground()) {
             appearanceView.background = null
             appearanceView.foreground = null
         } else if ((bordered && def.border != Border.Off) || def.border == Border.On) {
@@ -326,7 +332,10 @@ abstract class KeyView(
 
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
-        appearanceView.alpha = if (enabled) 1f else styledFloat(android.R.attr.disabledAlpha)
+        // 纯外观键（空白占位键）永远保持不透明：它的 isEnabled 为 false 只是因为
+        // "不该接收点击"，键面文字却是用户特意设置的装饰内容，套用 disabledAlpha
+        // 会把它一直显示成半透明——那不是用户要的效果。
+        appearanceView.alpha = if (enabled || def.staticDisplay) 1f else styledFloat(android.R.attr.disabledAlpha)
     }
 
     fun updateBounds() {
@@ -414,7 +423,11 @@ abstract class KeyView(
     open fun updateTheme(newTheme: Theme) {
         theme = newTheme
 
-        if (usesSpecialBackground()) {
+        if (def.transparentBackground) {
+            // 换主题不能把占位键的"看不见"弄丢：见 init 里的同一分支。
+            appearanceView.background = null
+            appearanceView.foreground = null
+        } else if (usesSpecialBackground()) {
             appearanceView.background = null
             appearanceView.foreground = null
         } else if ((bordered && def.border != Border.Off) || def.border == Border.On) {
