@@ -18,6 +18,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.ViewAnimator
 import androidx.annotation.DrawableRes
+import androidx.core.view.updateLayoutParams
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
@@ -196,7 +197,7 @@ class IdleUi(
     }
 
     private val idleBody = constraintLayout {
-        val size = dp(KawaiiBarComponent.HEIGHT)
+        val size = KawaiiBarComponent.resolveHeightPx(ctx)
         add(menuButton, lParams(size, size) {
             startOfParent()
             centerVertically()
@@ -220,6 +221,34 @@ class IdleUi(
     override val root = frameLayout {
         add(idleBody, lParams(matchParent, matchParent))
         add(numberRow, lParams(matchParent, matchParent))
+    }
+
+    /**
+     * 应用「工具栏大小」缩放。
+     *
+     * 两个固定按钮（状态区、隐藏键盘）的边长在这里显式更新：它们在 [idleBody] 里是按
+     * 构造时的 40dp 写进 ConstraintLayout.LayoutParams 的，工具栏变高后若不动，
+     * 点击热区会小于视觉上的栏高。图标缩放由 [ToolButton.applyToolbarScale] 负责。
+     *
+     * 调用方：[KawaiiBarComponent.refreshButtonsLayout]（设置变化时）与
+     * [KawaiiBarComponent.view] 的首次构建，因此这里是唯一的尺寸来源。
+     */
+    fun applyToolbarScale() {
+        val scale = KawaiiBarComponent.resolveScale()
+        val size = KawaiiBarComponent.resolveHeightPx(ctx)
+        // 这两个按钮是**正方形**（边长 = 栏高），所以图标上限跟着栏高走：
+        // 栏调高它们才有空间长大，栏压矮时又被自动收住。
+        val slotDp = KawaiiBarComponent.resolveHeightDp()
+        listOf(menuButton, hideKeyboardButton).forEach { button ->
+            button.updateLayoutParams<androidx.constraintlayout.widget.ConstraintLayout.LayoutParams> {
+                width = size
+                height = size
+            }
+            button.applyToolbarScale(scale, slotDp)
+        }
+        // 下滑隐藏键盘的手势阈值按栏高算；改了栏高却不改阈值，用户会滑不动（或一碰就触发）。
+        hideKeyboardButton.swipeThresholdY = size.toFloat()
+        buttonsUi.refreshLayout()
     }
 
     init {

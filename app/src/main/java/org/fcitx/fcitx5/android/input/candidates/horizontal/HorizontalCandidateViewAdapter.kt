@@ -134,8 +134,9 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CandidateViewHolder {
         val ui = CandidateItemUi(parent.context, theme, candFont, commentFont)
         ui.root.apply {
-            minimumWidth = dp(40)
-            setPaddingDp(10, 0, 10, 0)
+            minimumWidth = dp(HorizontalCandidateComponent.itemMinWidthDp())
+            val hPad = HorizontalCandidateComponent.itemHorizontalPaddingDp()
+            setPaddingDp(hPad, 0, hPad, 0)
             layoutParams = FlexboxLayoutManager.LayoutParams(wrapContent, matchParent)
         }
         return CandidateViewHolder(ui)

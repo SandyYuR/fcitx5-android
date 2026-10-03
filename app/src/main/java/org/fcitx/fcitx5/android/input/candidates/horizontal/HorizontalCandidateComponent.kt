@@ -96,6 +96,30 @@ class HorizontalCandidateComponent :
     private var layoutFlexGrow = 1f
 
     /**
+     * 候选项的最小宽度与左右内边距。
+     *
+     * 这些数值同时被两处使用：真正的 item 测量（[HorizontalCandidateViewAdapter.onCreateViewHolder]）
+     * 与 [predictRowOverflow] 的宽度预测。放在同一处是为了让两边**永远同一个口径**
+     * ——一旦分叉，预测就会与真实布局不符，候选行会在两种排布之间抖动。
+     *
+     * **不跟随「工具栏大小」**：候选格子若跟着工具栏一起长大，可见候选个数会骤减
+     * （候选条总宽是屏宽，不随百分比变化），而且与候选字号的观感会脱节。
+     * 工具栏百分比只管工具栏自身。
+     */
+    private fun candidateItemMinWidth(): Int = context.dp(ITEM_MIN_WIDTH_DP)
+
+    private fun candidateItemHorizontalPadding(): Int = context.dp(ITEM_HORIZONTAL_PADDING_DP)
+
+    companion object {
+        private const val ITEM_MIN_WIDTH_DP = 40
+        private const val ITEM_HORIZONTAL_PADDING_DP = 10
+
+        fun itemMinWidthDp(): Int = ITEM_MIN_WIDTH_DP
+
+        fun itemHorizontalPaddingDp(): Int = ITEM_HORIZONTAL_PADDING_DP
+    }
+
+    /**
      * (for [HorizontalCandidateMode.AutoFillWidth] only)
      * Second layout pass is needed when:
      * [^1] total candidates count < maxSpanCount && [^2] RecyclerView cannot display all of them
@@ -334,6 +358,9 @@ class HorizontalCandidateComponent :
 
     private fun candidatePlainTextWidth(plainText: String): Int {
         val font = FontProviders.resolveTypeface("cand_font", null)
+        // 与 CandidateItemUi 用同一套字号（只来自「字体设定」）：这里算的是**预测**宽度，
+        // 一旦和真正的 item 测量口径不一致，predictRowOverflow 就会误判，候选行会在
+        // "挤成一行"和"换行/滚动"之间抖动。
         val sizePx = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
             FontProviders.getFontSize("cand_font", 20f),
@@ -374,8 +401,8 @@ class HorizontalCandidateComponent :
             // Not laid out yet or nothing to display; fall back to discovery.
             return false
         }
-        val rootMinWidth = context.dp(40)
-        val rootPadding = context.dp(10) * 2
+        val rootMinWidth = candidateItemMinWidth()
+        val rootPadding = candidateItemHorizontalPadding() * 2
         val divider = dividerDrawable.intrinsicWidth
         var total = 0
         for (candidate in candidates) {

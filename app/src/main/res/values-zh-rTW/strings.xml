@@ -257,6 +257,7 @@
     <string name="landscape">横向畫面</string>
     <string name="keyboard_bottom_padding">鍵盤底部邊距</string>
     <string name="keyboard_side_padding">鍵盤兩側邊距</string>
+    <string name="toolbar_height_percent">工具列大小</string>
     <string name="physical_keyboard_horizontal_candidate_bar">實體鍵盤使用水平候選欄</string>
     <string name="physical_keyboard_horizontal_candidate_bar_summary">使用實體鍵盤輸入時，在底部顯示 Kawaii 欄和水平候選欄</string>
     <string name="clipboard_suggestion">顯示剪貼簿建議</string>

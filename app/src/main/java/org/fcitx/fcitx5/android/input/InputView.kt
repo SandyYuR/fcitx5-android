@@ -816,7 +816,8 @@ class InputView(
         val kWidth = if (keyboardView.width > 0) keyboardView.width else resolveFloatingWidth()
         val kHeight = if (keyboardView.height > 0) keyboardView.height else {
             // Default components height estimate
-            resolveFloatingHeight() + dp(KawaiiBarComponent.HEIGHT) + keyboardBottomPaddingPx
+            resolveFloatingHeight() +
+                KawaiiBarComponent.resolveHeightPx(context) + keyboardBottomPaddingPx
         }
         // Visual dimensions
         val handleThickness = dp(6)
@@ -909,7 +910,8 @@ class InputView(
         val keyboardHeight = if (keyboardView.height > 0) {
             keyboardView.height
         } else {
-            resolveFloatingHeight() + dp(KawaiiBarComponent.HEIGHT) + keyboardBottomPaddingPx
+            resolveFloatingHeight() +
+                KawaiiBarComponent.resolveHeightPx(context) + keyboardBottomPaddingPx
         }
 
         val maxX = (containerWidth - keyboardWidth).coerceAtLeast(0)
@@ -1651,6 +1653,9 @@ class InputView(
         keyboardPrefs.splitKeyboardDuplicateMiddleKey,
         keyboardPrefs.splitKeyboardAlignHalves,
         keyboardHeightPercentBase,
+        // 「工具栏大小」也走同一条刷新链路：它改的是 kawaiiBar 的高度约束与内部缩放，
+        // 和键盘高度一样属于"整体几何"变化（updateKeyboardSize → applyToolbarHeight）。
+        keyboardPrefs.toolbarHeightPercent,
     )
 
     var isFloating = false
@@ -3140,7 +3145,7 @@ class InputView(
                 startOfParent()
                 endOfParent()
             })
-            add(kawaiiBar.view, lParams(matchParent, dp(KawaiiBarComponent.HEIGHT)) {
+            add(kawaiiBar.view, lParams(matchParent, KawaiiBarComponent.resolveHeightPx(context)) {
                 topOfParent()
                 centerHorizontally()
             })
@@ -3334,10 +3339,32 @@ class InputView(
         }
     }
 
+    /**
+     * 把「工具栏大小」应用到 Kawaii Bar 的高度。
+     *
+     * 高度写在 [keyboardView] 的 ConstraintLayout 约束里（`kawaiiBar.view` 的 height），
+     * 键盘窗口、左右边距、预编辑都靠 `below(kawaiiBar.view)` 定位，所以改高度必须重设
+     * 这些 LayoutParams，光 requestLayout 不够。
+     *
+     * `windowManager.view` 的约束（`topToBottom = kawaiiBar.view.id`）不需要动：
+     * ConstraintLayout 会在下一趟布局里按新高度重算它的可用空间。
+     */
+    private fun applyToolbarHeight() {
+        val target = KawaiiBarComponent.resolveHeightPx(context)
+        val lp = kawaiiBar.view.layoutParams as? ConstraintLayout.LayoutParams ?: return
+        if (lp.height == target) return
+        lp.height = target
+        kawaiiBar.view.layoutParams = lp
+    }
+
     private fun updateKeyboardSize() {
         applyStoredOneHandSideIfNeeded()
 
         updateKeyboardTopBarPosition()
+        // 工具栏高度由「工具栏大小」决定；窗口模式下它不再随键盘高度变化而自动重算，
+        // 因此每次尺寸刷新都显式重设一次，并让三个页面重放各自的缩放值。
+        applyToolbarHeight()
+        kawaiiBar.refreshButtonsLayout()
 
         val collapseKeyboardWindow =
             isPhysicalCandidateBarMode &&
@@ -3432,6 +3459,7 @@ class InputView(
             }
             kawaiiBar.view.updateLayoutParams<LayoutParams> {
                 width = LayoutParams.MATCH_PARENT
+                height = KawaiiBarComponent.resolveHeightPx(context)
                 startToEnd = unset
                 endToStart = unset
                 startToStart = ConstraintLayout.LayoutParams.PARENT_ID

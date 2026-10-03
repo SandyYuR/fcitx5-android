@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.input.bar
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.util.Log
@@ -130,8 +131,16 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         idleUi.buttonsUi.setOneHandKeyboardState(isOneHanded)
     }
 
+    /**
+     * 重新应用「工具栏大小」并按新尺寸重排。
+     *
+     * 三个页面（Idle / Candidate / Title）都要走：它们各自持有按尺寸算好的固定值
+     * （按钮边长、候选项字号、标题字号），只 requestLayout 不会把这些值重算。
+     * 设置页改完「工具栏大小」和键盘尺寸变化都会走到这里。
+     */
     fun refreshButtonsLayout() {
-        idleUi.buttonsUi.refreshLayout()
+        applyToolbarScaleToPages()
+        view.requestLayout()
     }
 
     /**
@@ -452,7 +461,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 hideKeyboardCallback.onClick(it)
             }
             swipeEnabled = true
-            swipeThresholdY = dp(HEIGHT.toFloat())
+            swipeThresholdY = dp(resolveHeightDp().toFloat())
             onGestureListener = swipeHideKeyboardCallback
         }
         ui.buttonsUi.apply {
@@ -680,9 +689,10 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     private val candidateUi by lazy {
         CandidateUi(context, theme, horizontalCandidate.view).apply {
+            applyToolbarScale()
             expandButton.apply {
                 swipeEnabled = true
-                swipeThresholdY = dp(HEIGHT.toFloat())
+                swipeThresholdY = dp(resolveHeightDp().toFloat())
                 onGestureListener = swipeDownExpandCallback
             }
         }
@@ -773,7 +783,25 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             add(idleUi.root, lParams(matchParent, matchParent))
             add(candidateUi.root, lParams(matchParent, matchParent))
             add(titleUi.root, lParams(matchParent, matchParent))
+            // 三个页面各自持有按尺寸算好的固定值，构建完成后按当前偏好统一重放一次，
+            // 保证「工具栏大小」在第一次显示时就生效（而不是等设置页动过才生效）。
+            //
+            // 这里**不能**调 [refreshButtonsLayout]：它内部会读 `view`，而 `view` 的 lazy
+            // 初始化此刻还没返回（同一线程可重入），会无限递归。直接操作用 `this`。
+            applyToolbarScaleToPages()
+            requestLayout()
         }
+    }
+
+    /** 让三个页面各自重放一次「工具栏大小」缩放（不触碰 [view] 本身）。 */
+    private fun applyToolbarScaleToPages() {
+        idleUi.applyToolbarScale()
+        candidateUi.applyToolbarScale()
+        titleUi.applyToolbarScale()
+        // 展开候选列表 / 下滑隐藏键盘的手势阈值都按栏高算，跟着一起更新。
+        val height = resolveHeightPx(context).toFloat()
+        candidateUi.expandButton.swipeThresholdY = height
+        idleUi.hideKeyboardButton.swipeThresholdY = height
     }
 
     override fun onScopeSetupFinished(scope: DynamicScope) {
@@ -929,7 +957,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     private val suggestionSize by lazy {
-        Size(ViewGroup.LayoutParams.WRAP_CONTENT, context.dp(HEIGHT))
+        Size(ViewGroup.LayoutParams.WRAP_CONTENT, resolveHeightPx(context))
     }
 
     private val directExecutor by lazy {
@@ -988,7 +1016,26 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     companion object {
-        const val HEIGHT = 40
+        /**
+         * 工具栏的**基准**（100%）高度，即历史上写死的 40dp。
+         *
+         * 实际高度由「工具栏大小」偏好决定，必须用 [resolveHeightPx] / [resolveScale] 取，
+         * 不要再直接把本常量当布局尺寸用——那样「工具栏大小」设置会失效。
+         */
+        const val HEIGHT = ToolbarMetrics.BASE_HEIGHT_DP
+
+        /** 「工具栏大小」百分比（80..200）。 */
+        fun toolbarHeightPercent(): Int =
+            AppPrefs.getInstance().keyboard.toolbarHeightPercent.getValue()
+
+        /** 当前工具栏缩放系数（0.8f..2.0f）。 */
+        fun resolveScale(): Float = ToolbarMetrics.scale(toolbarHeightPercent())
+
+        /** 按「工具栏大小」换算出的实际工具栏高度（dp）。 */
+        fun resolveHeightDp(): Int = ToolbarMetrics.heightDp(toolbarHeightPercent())
+
+        /** 按「工具栏大小」换算出的实际工具栏高度（像素）。 */
+        fun resolveHeightPx(context: Context): Int = context.dp(resolveHeightDp())
     }
 
     private fun updateButtonsState() {

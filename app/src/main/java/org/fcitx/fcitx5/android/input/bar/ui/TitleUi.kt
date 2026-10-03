@@ -8,8 +8,10 @@ import android.content.Context
 import android.graphics.Typeface
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import splitties.dimensions.dp
 import splitties.views.dsl.constraintlayout.after
 import splitties.views.dsl.constraintlayout.bottomOfParent
@@ -88,6 +90,31 @@ class TitleUi(override val ctx: Context, theme: Theme) : Ui {
         extension?.let {
             root.removeView(it)
             extension = null
+        }
+    }
+
+    /**
+     * 标题栏随「工具栏大小」缩放。
+     *
+     * 标题栏（扩展窗口，如符号面板/剪贴板）与候选栏共用同一条 Kawaii Bar，高度由
+     * `InputView` 按偏好设定。若不缩放，工具栏放大后标题会被挤在栏顶一小条里。
+     * 内部控件用 `MATCH_PARENT`/wrapContent，改字号与按钮边长即可。
+     */
+    fun applyToolbarScale() {
+        val scale = KawaiiBarComponent.resolveScale()
+        val size = KawaiiBarComponent.resolveHeightPx(ctx)
+        backButton.updateLayoutParams<androidx.constraintlayout.widget.ConstraintLayout.LayoutParams> {
+            width = size
+            height = size
+        }
+        titleText.updateLayoutParams<androidx.constraintlayout.widget.ConstraintLayout.LayoutParams> {
+            height = size
+        }
+        titleText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 16f * scale)
+        // 返回按钮同样是正方形（边长 = 栏高），图标上限跟着栏高走。
+        backButton.applyToolbarScale(scale, KawaiiBarComponent.resolveHeightDp())
+        extension?.updateLayoutParams<androidx.constraintlayout.widget.ConstraintLayout.LayoutParams> {
+            height = size
         }
     }
 }

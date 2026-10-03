@@ -370,7 +370,9 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
                 "sound_on_keypress", "button_sound_volume", "custom_key_sound"
             ),
             // 工具栏只保留真正属于工具栏自身的项；候选栏样式与语音已各自成组。
+            // 「工具栏大小」是工具栏自身尺寸，放这里才符合"工具栏的设置进工具栏组"的直觉。
             GROUP_TOOLBAR to setOf(
+                "toolbar_height_percent",
                 "inline_suggestions", "toolbar_num_row_on_password",
             ),
             GROUP_CANDIDATE to setOf(

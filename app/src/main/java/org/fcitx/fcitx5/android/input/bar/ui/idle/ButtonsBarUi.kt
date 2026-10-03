@@ -8,13 +8,13 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import android.widget.ImageView
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.action.ButtonAction
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
+import org.fcitx.fcitx5.android.input.bar.ToolbarMetrics
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
@@ -56,6 +56,11 @@ class ButtonsBarUi(
     private fun buildButtons() {
         root.removeAllViews()
         buttonMap.clear()
+        val scale = KawaiiBarComponent.resolveScale()
+        // 横向足迹固定 44dp，**不随「工具栏大小」变化**：见 ToolbarMetrics 的类注释。
+        // 足迹跟着百分比长大的话，8 个按钮很快就不再满足「平分宽度」，整行退回横向滚动，
+        // 用户只看得见 3 个——那正是这次要修的现象。
+        val footprintDp = ToolbarMetrics.BUTTON_FOOTPRINT_DP
         buttons.forEach { config ->
             val button = ToolButton(ctx, 0, theme)
             button.layoutParams = MarginLayoutParams(
@@ -66,16 +71,14 @@ class ButtonsBarUi(
                 marginStart = ctx.dp(2)
                 marginEnd = ctx.dp(2)
             }
-            // Scroll mode measures buttons with their intrinsic width; this keeps them at the
-            // icon size instead of shrinking below it.
-            button.minimumWidth = root.minButtonWidth
-            button.minimumHeight = ctx.dp(KawaiiBarComponent.HEIGHT)
             button.contentDescription = config.label ?: getDefaultLabel(config.id)
             button.tag = config.id
             button.setOnClickListener(clickListeners[config.id])
             button.setOnLongClickListener(longClickListeners[config.id])
             applyIconAndText(button, config)
-            button.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
+            button.applyHorizontalFootprint(footprintDp)
+            button.minimumHeight = KawaiiBarComponent.resolveHeightPx(ctx)
+            button.applyToolbarScale(scale)
             button.setActive(buttonActiveMap[config.id] == true)
             buttonMap[config.id] = button
             root.addView(button)
@@ -204,10 +207,26 @@ class ButtonsBarUi(
      * The row derives every button's width from the width it is measured with, so a plain layout
      * request is all that is needed to bring it back in sync — there is no cached flex/scroll
      * state to invalidate, and no rebind to schedule.
+     *
+     * 「工具栏大小」变化也走这里（[KawaiiBarComponent.refreshButtonsLayout]）：几何值全部
+     * 现读偏好，但按钮的 minimumHeight 与图标缩放是**写进 View 实例**的，必须逐个重放，
+     * 否则设置页调完大小后行高变了、图标却还是旧的。
      */
     fun refreshLayout() {
+        applyToolbarScale()
         root.requestLayout()
         root.invalidate()
+    }
+
+    /** 把当前的「工具栏大小」重新应用到每个按钮（尺寸设置变化后调用）。 */
+    private fun applyToolbarScale() {
+        val scale = KawaiiBarComponent.resolveScale()
+        val height = KawaiiBarComponent.resolveHeightPx(ctx)
+        buttonMap.values.forEach { button ->
+            button.applyHorizontalFootprint(ToolbarMetrics.BUTTON_FOOTPRINT_DP)
+            button.minimumHeight = height
+            button.applyToolbarScale(scale)
+        }
     }
 
     /**

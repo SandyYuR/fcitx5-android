@@ -153,6 +153,7 @@ object SettingsSearchIndex {
         R.string.custom_key_sound to "custom_key_sound",
 
         /* 键盘 · 工具栏 */
+        R.string.toolbar_height_percent to "toolbar_height_percent",
         R.string.inline_suggestions to "inline_suggestions",
         R.string.toolbar_num_row_on_password to "toolbar_num_row_on_password",
 
@@ -580,6 +581,18 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.toolbar_num_row_on_password, P_KEYBOARD,
             listOf("password", "密码", "mima", "数字行"),
+            route = keyboard(TOOLBAR)
+        ),
+        // 用户想"让工具栏更高/按钮更大"时会来搜这些词。
+        // 注意同义词里**保留**了「候选栏」「候选项」「候选大小」这类说法：用户想放大候选项时
+        // 直觉上会这么搜，而这里的正解是先把它调高（给字腾出高度），再去「字体设定」调大
+        // `cand_font`——工具栏百分比本身不再改候选字号（见 ToolbarMetrics 类注释）。
+        SettingsSearchEntry(
+            R.string.toolbar_height_percent, P_KEYBOARD,
+            listOf(
+                "toolbar size", "工具栏", "工具栏大小", "gongjulan", "size",
+                "候选栏", "候选项", "候选字", "候选大小", "放大", "houxuan"
+            ),
             route = keyboard(TOOLBAR)
         ),
         // 候选栏样式已从「工具栏」拆出，2026-09-29 起只从「输入与候选」进入

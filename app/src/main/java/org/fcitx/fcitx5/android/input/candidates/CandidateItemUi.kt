@@ -42,11 +42,11 @@ class CandidateItemUi(
 
     private val text = view(::AutoScaleTextView) {
         scaleMode = AutoScaleTextView.Mode.Proportional
-        // Use configured font size with fallback to default (20f)
-        val fontSize = org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
-            "cand_font", 20f
-        )
-        textSize = fontSize
+        // Use configured font size with fallback to default (20f).
+        // 字号**只**由「字体设定」决定，不跟随「工具栏大小」：那是用户为"字多大"专门准备的
+        // 旋钮，工具栏百分比管的是栏本身（高度/图标/按钮）。曾让两者联动，结果是只想加高
+        // 工具栏的人被迫接受更大的字，还得回头调字体设定抵消——详见 ToolbarMetrics 类注释。
+        textSize = org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize("cand_font", 20f)
         isSingleLine = true
         gravity = gravityCenter
         setTextColor(theme.candidateTextColor)

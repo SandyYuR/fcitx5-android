@@ -13,6 +13,7 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.OverScroller
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
+import org.fcitx.fcitx5.android.input.bar.ToolbarMetrics
 import splitties.dimensions.dp
 import timber.log.Timber
 import kotlin.math.abs
@@ -37,13 +38,23 @@ import kotlin.math.abs
  */
 class KawaiiBarRowLayout(context: Context) : ViewGroup(context) {
 
-    /** Minimum button width: 40dp to match icon size. */
-    val minButtonWidth: Int = context.dp(40)
+    /**
+     * 行布局的「平分宽度」阈值：每格低于它整行就退回横向滚动。
+     *
+     * **不随「工具栏大小」变化**是重点——这是「调大工具栏不会让可见按钮个数骤减」的
+     * 根本保证。阈值若跟着百分比长大，8 个按钮很快就满足不了，整行退回横向滚动，
+     * 用户只看得见 3 个（初版 200% 时就是这样）。
+     *
+     * 取值 40dp 与改动前一致，避免默认外观漂移；行里每个按钮实际占 [BUTTON_FOOTPRINT_DP]。
+     */
+    val minButtonWidth: Int
+        get() = context.dp(ToolbarMetrics.MIN_BUTTON_WIDTH_DP)
 
     /** Total horizontal margin consumed by one button (2dp on each side). */
     private val buttonSpacing: Int = context.dp(4)
 
-    private val barHeight: Int = context.dp(KawaiiBarComponent.HEIGHT)
+    private val barHeight: Int
+        get() = KawaiiBarComponent.resolveHeightPx(context)
 
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     private val minimumFlingVelocity = ViewConfiguration.get(context).scaledMinimumFlingVelocity
@@ -104,8 +115,14 @@ class KawaiiBarRowLayout(context: Context) : ViewGroup(context) {
                 metrics.evenDistribution && metrics.buttonWidth > 0 ->
                     MeasureSpec.makeMeasureSpec(metrics.buttonWidth, MeasureSpec.EXACTLY)
 
-                // Scroll mode: intrinsic width, never below the button's own minimum width.
-                viewport > 0 -> MeasureSpec.makeMeasureSpec(viewport, MeasureSpec.AT_MOST)
+                // Scroll mode: intrinsic width, capped at one button's 44dp footprint. The cap
+                // is what keeps the (possibly enlarged) icon inside its own格子 instead of
+                // stretching the row into showing fewer buttons.
+                viewport > 0 ->
+                    MeasureSpec.makeMeasureSpec(
+                        minOf(viewport, context.dp(ToolbarMetrics.BUTTON_FOOTPRINT_DP)),
+                        MeasureSpec.AT_MOST
+                    )
 
                 // Width still unknown (first pass of a not yet measured parent): keep the
                 // intrinsic size instead of squeezing the buttons to zero. The next pass with a

@@ -326,6 +326,30 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             keyboardBottomPaddingLandscape = secondary
         }
 
+        /**
+         * 工具栏（Kawaii Bar）自身尺寸百分比：栏高、图标、栏内按钮与文字标签一起缩放。
+         *
+         * 工具栏高度长期写死 40dp，用户无法让它更高更醒目，这个百分比就是把高度交出去。
+         *
+         * **候选项字号不在此列**。候选字由「字体设定」（`fontset.json` 的 `cand_font`）独立控制，
+         * 那是用户为"字多大"专门准备的旋钮。曾让两者联动，结果是只想加高工具栏的人被顺手
+         * 放大了字，还得回头调字体设定抵消；`AutoScaleTextView` 的 Proportional 模式又**只缩
+         * 不放**，调大 `cand_font` 也顶不出栏高。两个旋钮必须分开。
+         * 想让候选字更大：先把工具栏调高（给字腾出高度），再在「字体设定」里调大 `cand_font`。
+         *
+         * 换算逻辑在 [org.fcitx.fcitx5.android.input.bar.ToolbarMetrics]（纯函数，有单测）。
+         * 下限 80% 而不是更小：工具栏同时承载状态区/隐藏键盘等按钮，再小图标就不可点了。
+         */
+        val toolbarHeightPercent = int(
+            R.string.toolbar_height_percent,
+            "toolbar_height_percent",
+            100,
+            80,
+            200,
+            "%",
+            10
+        )
+
         // ===== Split keyboard settings =====
         // Note: Threshold and gap are managed exclusively via SplitKeyboardCalibrationActivity
         // They are stored in Keyboard category to trigger InputView refresh when changed

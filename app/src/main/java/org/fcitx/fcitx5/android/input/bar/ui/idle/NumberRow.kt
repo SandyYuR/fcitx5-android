@@ -13,7 +13,6 @@ import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
-import splitties.dimensions.dp
 import timber.log.Timber
 import kotlin.math.abs
 
@@ -34,7 +33,7 @@ class NumberRow(ctx: Context, theme: Theme) : BaseKeyboard(ctx, theme, { Layout 
             val dir = if (context.resources.configuration.layoutDirection == LAYOUT_DIRECTION_LTR) 1 else -1
             val sx = startEvent.x * dir
             val cx = ev.getX(ev.actionIndex) * dir
-            val shouldCollapse = cx > sx && abs(cx - sx) > dp(KawaiiBarComponent.HEIGHT)
+            val shouldCollapse = cx > sx && abs(cx - sx) > KawaiiBarComponent.resolveHeightPx(context)
             if (shouldCollapse) {
                 Timber.d("NumberRow: intercepted gesture from child keyboard to handle swipe")
                 resetState()

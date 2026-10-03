@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
+import org.fcitx.fcitx5.android.input.bar.ToolbarMetrics
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemePrefs.NavbarBackground
@@ -103,6 +104,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
 
     private val navbarBackground = ThemeManager.prefs.navbarBackground
     private val keyBorder by ThemeManager.prefs.keyBorder
+    private val toolbarHeightPercent by AppPrefs.getInstance().keyboard.toolbarHeightPercent
 
     private val navbarBkgChangeListener = ManagedPreference.OnChangeListener<Any> { _, _ ->
         recalculateSize()
@@ -115,7 +117,12 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         visibility = View.GONE
     }
 
-    private val barHeight = ctx.dp(40)
+    /**
+     * 工具栏高度（像素）。跟随「工具栏大小」，与真实键盘一致——预览里工具栏若固定 40dp，
+     * 用户改完设置后看到的预览和实际键盘会不一样。
+     */
+    private val barHeight: Int
+        get() = ctx.dp(ToolbarMetrics.heightDp(toolbarHeightPercent))
     private val fakeKawaiiBar = view(::View)
 
     private var keyboardWidth = -1
@@ -462,7 +469,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             startOfParent()
             endOfParent()
         })
-        add(fakeKawaiiBar, lParams(matchConstraints, dp(40)) {
+        add(fakeKawaiiBar, lParams(matchConstraints, barHeight) {
             topOfParent()
             centerHorizontally()
         })
@@ -523,6 +530,9 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         fakeKeyboardWindow.updateLayoutParams<ConstraintLayout.LayoutParams> {
             height = keyboardHeight
             horizontalMargin = keyboardSidePaddingPx
+        }
+        fakeKawaiiBar.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            height = barHeight
         }
         intrinsicWidth = keyboardWidth
         // KawaiiBar height + WindowManager view height
