@@ -99,10 +99,23 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     val candidateBarHighlightRadius =
         int(R.string.candidate_bar_highlight_radius, "candidate_bar_highlight_radius", 4, 0, 48, "dp")
 
-    // 工具栏候选高亮与候选条边缘的距离（dp，四周内缩）。0 表示高亮铺满整格（旧行为）。
-    // 作用于 CandidateItemUi 的 activeBackground，独立候选窗口不受影响。
+    // 工具栏候选高亮**内部**的水平内边距（dp），即「高亮边框 ↔ 候选文字」的左右间距。
+    // 作用于 CandidateItemUi 的高亮层（内层 content），独立候选窗口不受影响。0 表示文字
+    // 紧贴高亮边框。
+    //
+    // 它不再是「高亮距格子边缘的距离」：格子边缘 ↔ 高亮之间固定为 4dp（上下左右都一样，
+    // 见 HorizontalCandidateComponent.ITEM_HORIZONTAL_PADDING_DP），所以高亮整体离格子边缘
+    // 的距离恒为 `4dp + 本项`，且**上下也不再贴边**。
+    //
+    // 之所以把内缩改到「高亮层自己的内边距」上，是因为高亮此前画在 item 根视图上并按格子宽度
+    // 铺满，文字到高亮边框的间距 = 格子内边距 − 内缩量，短候选时只剩 2dp 左右，看起来就是
+    // 文字贴着高亮框（且候选变长/被 flexGrow 拉宽时还会再变）。现在高亮层宽度恒等于
+    // 「文字 + 左右各本项」，间距与候选长短、拉伸都无关。
+    //
+    // 默认值 8dp 与 boomker/fcitx5-android 的 HORIZONTAL_CANDIDATE_HIGHLIGHT_PADDING_DP 一致；
+    // 改默认值不影响已经调过此项的老用户（SharedPreferences 里存过值就以存值为准）。
     val candidateBarHighlightInset =
-        int(R.string.candidate_bar_highlight_inset, "candidate_bar_highlight_inset", 0, 0, 24, "dp")
+        int(R.string.candidate_bar_highlight_inset, "candidate_bar_highlight_inset", 8, 0, 24, "dp")
 
     enum class PunctuationPosition(override val stringRes: Int) : ManagedPreferenceEnum {
         None(R.string.punctuation_pos_none),

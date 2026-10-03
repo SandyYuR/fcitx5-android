@@ -28,6 +28,7 @@ import org.fcitx.fcitx5.android.core.CandidateWord
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.core.FcitxEvent.PagedCandidateEvent
 import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.BooleanKey.ExpandedCandidatesEmpty
 import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.TransitionEvent.ExpandedCandidatesUpdated
@@ -96,7 +97,7 @@ class HorizontalCandidateComponent :
     private var layoutFlexGrow = 1f
 
     /**
-     * 候选项的最小宽度与左右内边距。
+     * 候选项的尺寸常量。
      *
      * 这些数值同时被两处使用：真正的 item 测量（[HorizontalCandidateViewAdapter.onCreateViewHolder]）
      * 与 [predictRowOverflow] 的宽度预测。放在同一处是为了让两边**永远同一个口径**
@@ -105,6 +106,11 @@ class HorizontalCandidateComponent :
      * **不跟随「工具栏大小」**：候选格子若跟着工具栏一起长大，可见候选个数会骤减
      * （候选条总宽是屏宽，不随百分比变化），而且与候选字号的观感会脱节。
      * 工具栏百分比只管工具栏自身。
+     *
+     * 结构上，一个候选项有三层（详见 [CandidateItemUi]）：
+     * `root`(格子，四边各留 [ITEM_HORIZONTAL_PADDING_DP] 外间距)
+     * → `content`(高亮层，左右再收 [candidateHighlightPaddingDp]) → `text`。
+     * 所以格子的实际占用宽 = `文字宽 + 2 * (外间距 + 高亮边距)`。
      */
     private fun candidateItemMinWidth(): Int = context.dp(ITEM_MIN_WIDTH_DP)
 
@@ -112,11 +118,32 @@ class HorizontalCandidateComponent :
 
     companion object {
         private const val ITEM_MIN_WIDTH_DP = 40
-        private const val ITEM_HORIZONTAL_PADDING_DP = 10
+
+        /**
+         * 格子边缘 ↔ 高亮之间的外间距（dp），**四边相同**：左右决定格子之间的留白，上下决定
+         * 高亮距格子上下的距离（高亮不再上下贴边）。
+         *
+         * 取 4，与 boomker/fcitx5-android 的 `HORIZONTAL_CANDIDATE_OUTER_PADDING_DP` /
+         * `HORIZONTAL_CANDIDATE_VERTICAL_PADDING_DP`（两者同值）一致。历史值是 10：那时高亮直接
+         * 铺满整格，格子间距就是这 10dp；现在高亮改画在内层 content 上、格子留白由「外间距 +
+         * 高亮边距」共同构成，若外间距仍留 10，则最小宽格子留给文字的可用宽只剩
+         * `40 − 2*10 − 2*8 = 4dp`，短候选会被 AutoScaleTextView 压扁。
+         */
+        private const val ITEM_HORIZONTAL_PADDING_DP = 4
 
         fun itemMinWidthDp(): Int = ITEM_MIN_WIDTH_DP
 
         fun itemHorizontalPaddingDp(): Int = ITEM_HORIZONTAL_PADDING_DP
+
+        /**
+         * 高亮边框 ↔ 文字之间的水平间距（dp），由主题配置项「候选栏高亮边距」控制。
+         *
+         * 适配器（真实测量）与 [predictRowOverflow]（宽度预测）都必须走这里取值，保证同口径。
+         * 这里**现读**偏好而不是缓存成常量：候选项每次编码更新都会重建，改设置后下一次输入即
+         * 生效，符合 `CandidateItemUi` 不注册偏好监听的设计（见 AGENTS.md 相关条目）。
+         */
+        fun candidateHighlightPaddingDp(): Int =
+            ThemeManager.prefs.candidateBarHighlightInset.getValue()
     }
 
     /**
@@ -392,8 +419,8 @@ class HorizontalCandidateComponent :
      * condition (childCount < candidates.size) that the second layout pass in
      * [layoutManager]'s onLayoutCompleted discovers. Width math mirrors
      * [HorizontalCandidateViewAdapter.onCreateViewHolder] + [CandidateItemUi]:
-     * item = max(textWidth, 40dp) + 20dp padding, coerced to layoutMinWidth,
-     * plus one divider inset per item.
+     * item = max(textWidth + 2 * highlightPadding, 40dp) + 2 * 4dp outer padding,
+     * coerced to layoutMinWidth, plus one divider inset per item.
      */
     private fun predictRowOverflow(candidates: Array<CandidateWord>): Boolean {
         val available = view.width - view.paddingLeft - view.paddingRight
@@ -403,6 +430,8 @@ class HorizontalCandidateComponent :
         }
         val rootMinWidth = candidateItemMinWidth()
         val rootPadding = candidateItemHorizontalPadding() * 2
+        // 高亮层的内边距把文字再往里收，文字所在的 content 宽度 = 文字宽 + 2 * 高亮边距。
+        val highlightPadding = context.dp(candidateHighlightPaddingDp()) * 2
         val divider = dividerDrawable.intrinsicWidth
         var total = 0
         for (candidate in candidates) {
@@ -415,7 +444,8 @@ class HorizontalCandidateComponent :
                 }
             }
             val textWidth = candidatePlainTextWidth(plain)
-            val itemWidth = max(max(textWidth, rootMinWidth) + rootPadding, layoutMinWidth)
+            val itemWidth =
+                max(max(textWidth + highlightPadding, rootMinWidth) + rootPadding, layoutMinWidth)
             total += itemWidth + divider
             if (total > available) {
                 return true

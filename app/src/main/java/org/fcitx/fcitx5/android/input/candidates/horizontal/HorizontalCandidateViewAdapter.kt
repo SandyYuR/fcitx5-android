@@ -19,7 +19,6 @@ import org.fcitx.fcitx5.android.input.font.FontProviders
 import splitties.dimensions.dp
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
-import splitties.views.setPaddingDp
 
 open class HorizontalCandidateViewAdapter(val theme: Theme) :
     RecyclerView.Adapter<CandidateViewHolder>() {
@@ -135,10 +134,18 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
         val ui = CandidateItemUi(parent.context, theme, candFont, commentFont)
         ui.root.apply {
             minimumWidth = dp(HorizontalCandidateComponent.itemMinWidthDp())
-            val hPad = HorizontalCandidateComponent.itemHorizontalPaddingDp()
-            setPaddingDp(hPad, 0, hPad, 0)
             layoutParams = FlexboxLayoutManager.LayoutParams(wrapContent, matchParent)
         }
+        // 高亮外间距/内间距与 HorizontalCandidateComponent.predictRowOverflow 同口径：
+        // 外间距 4dp（格子边缘 ↔ 高亮，上下左右都一样），内间距 = 「候选栏高亮边距」设置项
+        // （高亮边框 ↔ 文字，左右）。前者让高亮不再上下贴边，后者保证文字与高亮边框的间距
+        // 与候选长短无关。
+        ui.configureHighlightSpacing(
+            outerPadding = parent.context.dp(HorizontalCandidateComponent.itemHorizontalPaddingDp()),
+            highlightPadding = parent.context.dp(
+                HorizontalCandidateComponent.candidateHighlightPaddingDp()
+            ),
+        )
         return CandidateViewHolder(ui)
     }
 

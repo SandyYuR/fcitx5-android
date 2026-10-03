@@ -9,15 +9,14 @@ import android.content.Context
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.InsetDrawable
 import android.text.style.AbsoluteSizeSpan
+import android.widget.FrameLayout
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.text.inSpans
 import org.fcitx.fcitx5.android.core.CandidateWord
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
-import kotlin.math.roundToInt
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.candidates.CustomTypefaceSpan
 import org.fcitx.fcitx5.android.input.font.FontProviders
@@ -58,17 +57,53 @@ class CandidateItemUi(
 
     private val normalBackground = pressHighlightDrawable(theme.keyPressHighlightColor)
 
-    private val activeBackground: Drawable = run {
-        val density = ctx.resources.displayMetrics.density
-        val pill = GradientDrawable().apply {
-            setColor(theme.genericActiveBackgroundColor)
-            // 高亮圆角由主题配置项「候选栏高亮圆角半径」控制（dp）。读构造时的值即可：候选项
-            // 每次编码更新都会重建，改设置后下一次输入即生效。独立候选窗口不走这里。
-            cornerRadius = ThemeManager.prefs.candidateBarHighlightRadius.getValue() * density
-        }
-        // 「候选栏高亮边距」四周内缩，控制高亮与候选条边缘的距离；0 则铺满整格（旧行为）。
-        val inset = (ThemeManager.prefs.candidateBarHighlightInset.getValue() * density).roundToInt()
-        if (inset > 0) InsetDrawable(pill, inset) else pill
+    private val activeBackground: Drawable = GradientDrawable().apply {
+        setColor(theme.genericActiveBackgroundColor)
+        // 高亮圆角由主题配置项「候选栏高亮圆角半径」控制（dp）。读构造时的值即可：候选项
+        // 每次编码更新都会重建，改设置后下一次输入即生效。独立候选窗口不走这里。
+        cornerRadius = ThemeManager.prefs.candidateBarHighlightRadius.getValue() *
+            ctx.resources.displayMetrics.density
+    }
+
+    /**
+     * 夹在 [root] 与 [text] 之间的内层容器：**高亮背景画在这一层**。
+     *
+     * 这正是 boomker/fcitx5-android 的 e2cd625（Decouple horizontal candidate highlight from
+     * item spacing）的做法——把高亮背景与 item 的触摸区内边距解耦：
+     *
+     * - 宽度 `wrapContent`：高亮恒等于「文字 + 左右各 highlightPadding」，因此**候选文字离高亮
+     *   边框的间距与候选长短无关**，也不会因为 flexGrow/`layoutMinWidth` 把格子拉宽而变近
+     *   （此前高亮画在 [root] 上并按 item 宽度铺满，间距 = 格子内边距 − 内缩量，短候选时会缩到
+     *   2dp 左右，观感上就是文字贴着高亮框）。被拉宽的格子里高亮仍紧贴文字居中。
+     * - 上下 `matchParent`：高亮的垂直范围 = [root] 的内容区，即格子上下各留一格 root 的垂直
+     *   内边距（水平候选项取与左右相同的 4dp），不再上下贴边。
+     *
+     * 内边距由 [configureHighlightSpacing] 设置，默认全 0（九宫格展开页就是这种情况：高亮铺满
+     * 整格，与改造前一致）。
+     *
+     * ⚠️ 这一层会改变 item 的测量口径（文字可用宽 = 格子宽 − root 内边距 − 本层内边距），
+     * [HorizontalCandidateComponent.predictRowOverflow] 的宽度预测必须与此同步，否则候选行会
+     * 在「挤一行」与「换行/滚动」之间抖动。
+     */
+    private val content = view(::FrameLayout) {
+        add(text, lParams(wrapContent, matchParent) {
+            gravity = gravityCenter
+        })
+    }
+
+    /**
+     * 配置高亮的间距（单位 px），由水平候选栏的适配器在创建 ViewHolder 时调用。
+     *
+     * @param outerPadding 格子边缘 ↔ 高亮之间的外间距（左右、上下）
+     * @param highlightPadding 高亮边框 ↔ 文字之间的间距（左右；上下固定 0）
+     *
+     * 调用点与 [HorizontalCandidateComponent.predictRowOverflow] 必须取同一份数值
+     * （见 [HorizontalCandidateComponent.itemHorizontalPaddingDp] /
+     * [HorizontalCandidateComponent.candidateHighlightPaddingDp]）。
+     */
+    fun configureHighlightSpacing(outerPadding: Int, highlightPadding: Int) {
+        root.setPadding(outerPadding, outerPadding, outerPadding, outerPadding)
+        content.setPadding(highlightPadding, 0, highlightPadding, 0)
     }
 
     private var active = false
@@ -97,7 +132,9 @@ class CandidateItemUi(
         }
         text.setTextColor(if (this.active) theme.genericActiveForegroundColor else theme.candidateTextColor)
         text.background = null
-        root.background = if (this.active) activeBackground else normalBackground
+        // 高亮画在内层 [content] 上（紧贴文字），按压反馈仍铺满 [root] 整格。
+        content.background = if (this.active) activeBackground else null
+        root.background = normalBackground
     }
 
     override val root = view(::CustomGestureView) {
@@ -106,7 +143,7 @@ class CandidateItemUi(
          * candidate long press feedback is handled by [org.fcitx.fcitx5.android.input.BaseInputView.showCandidateActionMenu]
          */
         longPressFeedbackEnabled = false
-        add(text, lParams(wrapContent, matchParent) {
+        add(content, lParams(wrapContent, matchParent) {
             gravity = gravityCenter
         })
     }
