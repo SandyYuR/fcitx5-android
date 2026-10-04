@@ -10,6 +10,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.text.style.AbsoluteSizeSpan
+import android.util.TypedValue
 import android.widget.FrameLayout
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
@@ -39,13 +40,30 @@ class CandidateItemUi(
 ) : Ui {
     private var cachedCommentFont: Typeface? = commentFont
 
+    /** 已应用到 [text] 的字号（sp）；用于避免无谓的 setTextSize/重排。 */
+    private var appliedTextSizeSp = FontProviders.DEFAULT_CANDIDATE_FONT_SIZE
+
+    /**
+     * 已真正渲染进富文本 span 的「注释字体 + 注释字号」。
+     *
+     * 注释字号是在 [renderCandidate] 里现读的，而 [CandidateViewHolder.update] 在候选内容
+     * 未变时会跳过重渲染，所以「字体设定」保存后的刷新必须拿这个签名比对，否则字号/字体改了
+     * 但候选文字没变时 span 会留在旧值上。
+     */
+    private var renderedCommentSignature: Pair<Typeface?, Int>? = null
+
+    private fun resolveCandidateFontSize(): Float =
+        FontProviders.getFontSize("cand_font", FontProviders.DEFAULT_CANDIDATE_FONT_SIZE)
+
     private val text = view(::AutoScaleTextView) {
         scaleMode = AutoScaleTextView.Mode.Proportional
         // Use configured font size with fallback to default (20f).
         // 字号**只**由「字体设定」决定，不跟随「工具栏大小」：那是用户为"字多大"专门准备的
         // 旋钮，工具栏百分比管的是栏本身（高度/图标/按钮）。曾让两者联动，结果是只想加高
         // 工具栏的人被迫接受更大的字，还得回头调字体设定抵消——详见 ToolbarMetrics 类注释。
-        textSize = org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize("cand_font", 20f)
+        val size = resolveCandidateFontSize()
+        appliedTextSizeSp = size
+        textSize = size
         isSingleLine = true
         gravity = gravityCenter
         setTextColor(theme.candidateTextColor)
@@ -118,6 +136,42 @@ class CandidateItemUi(
     }
 
     /**
+     * 重新读取「字体设定」里的候选字号（`cand_font`）。
+     *
+     * 字号此前只在构造 lambda 里求值一次，于是 ViewHolder 被复用（未重建）时改字号永远不生效
+     * ——那正是「改完字体设定要强杀重启、且只有一部分候选换掉」的成因。刷新入口必须能改字号，
+     * 而不是只改 typeface。
+     *
+     * 与 [applyConfiguredTypeface] 成对调用；调用方在两个 adapter 里按字体数据版本号判定。
+     */
+    fun applyConfiguredTextSize() {
+        val size = resolveCandidateFontSize()
+        if (size != appliedTextSizeSp) {
+            appliedTextSizeSp = size
+            text.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+            text.requestLayout()
+            text.invalidate()
+        }
+    }
+
+    /**
+     * 一次性重读并应用候选字体与字号，并在字号/注释字体变化时强制重渲染。
+     *
+     * 之所以要在这里补重渲染：注释部分走的是 [renderCandidate] 里的 span（注释字体 + 注释
+     * 字号），而 [CandidateViewHolder.update] 只在候选内容变化时才重渲染——改字号时候选内容
+     * 通常一个字符都没变，光调 typeface/setTextSize 会让旧 span 留在原地。
+     */
+    fun refreshConfiguredFont(fontOverride: Typeface? = font) {
+        applyConfiguredTypeface(fontOverride)
+        applyConfiguredTextSize()
+        val commentTypeface = cachedCommentFont ?: FontProviders.resolveCommentTypeface(text.typeface)
+        val signature = commentTypeface to FontProviders.commentFontSizePx(ctx)
+        if (signature != renderedCommentSignature) {
+            renderCandidate()
+        }
+    }
+
+    /**
      * Cache the comment typeface for the next render. Falls back to the
      * configured comment_font, then cand_font, then the current view typeface.
      */
@@ -158,6 +212,7 @@ class CandidateItemUi(
         val altFg = if (active) theme.genericActiveForegroundColor else theme.candidateCommentColor
         val commentTypeface = cachedCommentFont ?: FontProviders.resolveCommentTypeface(text.typeface)
         val commentSizePx = FontProviders.commentFontSizePx(ctx)
+        renderedCommentSignature = commentTypeface to commentSizePx
         text.text = buildSpannedString {
             color(fg) {
                 append(candidate.text)

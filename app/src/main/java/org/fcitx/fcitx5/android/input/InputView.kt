@@ -4006,18 +4006,36 @@ class InputView(
         }
     }
 
-    private val auxBarSingleRowMinHeight: Int by lazy {
-        val tv = TextView(context).apply {
-            text = "Mj"
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, FontProviders.getFontSize("preedit_font", 16f))
-            setPadding(0, dp(0), 0, dp(0))
-            measure(
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            )
+    /**
+     * 「辅助栏放得下一行」所需的最小高度（px），按 `preedit_font` 的字号实测一次。
+     *
+     * 结果依赖字号，所以缓存要按 [FontProviders.fontGeneration] 失效：此前它是
+     * `by lazy`，改完「字体设定」里的预编辑字号后仍按旧字号测高，浮动候选窗模式下
+     * 辅助栏会在明明放得下时被 [positionAuxBarForCandidates] 判为放不下而隐藏。
+     */
+    private var auxBarSingleRowMinHeightCache: Int = 0
+    private var auxBarSingleRowMinHeightGeneration: Long = -1L
+
+    private val auxBarSingleRowMinHeight: Int
+        get() {
+            val generation = FontProviders.fontGeneration
+            if (auxBarSingleRowMinHeightGeneration == generation) {
+                return auxBarSingleRowMinHeightCache
+            }
+            val tv = TextView(context).apply {
+                text = "Mj"
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, FontProviders.getFontSize("preedit_font", 16f))
+                setPadding(0, dp(0), 0, dp(0))
+                measure(
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                )
+            }
+            val height = tv.measuredHeight + dp(4) // topMargin + bottomMargin gap
+            auxBarSingleRowMinHeightCache = height
+            auxBarSingleRowMinHeightGeneration = generation
+            return height
         }
-        tv.measuredHeight + dp(4) // topMargin + bottomMargin gap
-    }
 
     private val statusBarHeight: Int by lazy {
         val resourceId = context.resources.getIdentifier("status_bar_height", "dimen", "android")

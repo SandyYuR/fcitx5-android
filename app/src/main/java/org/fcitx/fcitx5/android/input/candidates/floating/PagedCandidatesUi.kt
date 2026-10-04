@@ -21,6 +21,7 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.FcitxEvent.PagedCandidateEvent.LayoutHint
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.font.FontProviders
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.recyclerview.recyclerView
 
@@ -40,6 +41,14 @@ class PagedCandidatesUi(
     private var isVertical = false
 
     private var isReversed = false
+
+    /**
+     * 上一次整体重绑时观察到的字体数据版本号（见 [FontProviders.fontGeneration]）。
+     *
+     * 只改字体/字号时候选内容一个字符都没变，[update] 的「无变化就跳过」判断会把这次
+     * 刷新整个吞掉，所以版本号必须参与判定。
+     */
+    private var appliedFontGeneration = FontProviders.fontGeneration
 
     sealed class UiHolder(open val ui: Ui) : RecyclerView.ViewHolder(ui.root) {
         class Candidate(override val ui: LabeledCandidateItemUi) : UiHolder(ui)
@@ -135,8 +144,14 @@ class PagedCandidatesUi(
             FloatingCandidatesOrientation.VerticalReversed -> true to true
         }
         // Skip update if nothing changed to avoid unnecessary rebind/redraw.
-        if (this.data == data && this.isVertical == newIsVertical && this.isReversed == newIsReversed) return
+        // 字体数据版本号变化时必须放行，否则改完「字体设定」后浮动候选窗
+        // 会停在旧字体上，直到候选内容本身变化才肯重绑。
+        val fontGeneration = FontProviders.fontGeneration
+        if (this.data == data && this.isVertical == newIsVertical &&
+            this.isReversed == newIsReversed && fontGeneration == appliedFontGeneration
+        ) return
 
+        appliedFontGeneration = fontGeneration
         this.data = data
         this.isVertical = newIsVertical
         this.isReversed = newIsReversed

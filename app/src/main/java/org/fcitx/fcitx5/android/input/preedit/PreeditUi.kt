@@ -41,20 +41,58 @@ open class PreeditUi(
         override fun getDrawable() = drawable
     }
 
-    private val cursorSpan by lazy {
-        CursorSpan(ctx, theme.keyTextColor, upView.paint.fontMetricsInt)
+    /**
+     * 光标条的绘制度量取自 [upView] 的字体度量，字号一变就必须重建，
+     * 否则改完「字体设定」里的预编辑字号后，光标条还按旧字号的高度画。
+     */
+    private var cursorSpanCache: CursorSpan? = null
+
+    private val cursorSpan: CursorSpan
+        get() = cursorSpanCache
+            ?: CursorSpan(ctx, theme.keyTextColor, upView.paint.fontMetricsInt)
+                .also { cursorSpanCache = it }
+
+    /**
+     * [applyConfiguredFont] 最近一次应用到的字体数据版本号
+     * （见 [org.fcitx.fcitx5.android.input.font.FontProviders.fontGeneration]）。
+     *
+     * 预编辑视图只在构造时读一次 `preedit_font` 的字号与字体，而 `PreeditUi` 实例会长期
+     * 存活（`PreeditComponent.ui` 与浮动候选窗的 `CandidatesView` 各持一个），所以在
+     * 「字体设定」保存后，不改字号就只能等下一个输入会话重建视图 —— 与候选栏同类的问题。
+     */
+    private var appliedFontGeneration = FontProviders.fontGeneration
+
+    private fun applyConfiguredFont(view: TextView) {
+        // Apply preedit font settings after external setup to avoid being overridden
+        // by candidate window style hooks.
+        val fontSize = FontProviders.getFontSize("preedit_font", 16f)
+        view.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, fontSize)
+        view.typeface = FontProviders.resolveTypeface("preedit_font", view.typeface)
     }
 
     private fun createTextView() = textView {
         setTextColor(theme.keyTextColor)
         setupTextView?.invoke(this)
-        // Apply preedit font settings after external setup to avoid being overridden
-        // by candidate window style hooks.
-        val fontSize = org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
-            "preedit_font", 16f
-        )
-        setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, fontSize)
-        typeface = FontProviders.resolveTypeface("preedit_font", typeface)
+        applyConfiguredFont(this)
+    }
+
+    /**
+     * 字体数据版本号前进时重读 `preedit_font` 的字号与字体。
+     *
+     * 挂在 [update] 上（每次输入面板事件都会走），因为预编辑只在合成中可见：用户改完
+     * 字体设定回到键盘、打出第一个编码时，这一帧就会用上新字号，不会先按旧字号画一次。
+     * 无变化时只做一次 [FontProviders.fontGeneration] 读，开销可忽略。
+     */
+    private fun refreshConfiguredFontIfNeeded() {
+        val generation = FontProviders.fontGeneration
+        if (generation == appliedFontGeneration) return
+        appliedFontGeneration = generation
+        applyConfiguredFont(upView)
+        applyConfiguredFont(downView)
+        // 度量变了，光标条重建；两个视图都要重新测高。
+        cursorSpanCache = null
+        upView.requestLayout()
+        downView.requestLayout()
     }
 
     private val upView = createTextView()
@@ -97,6 +135,7 @@ open class PreeditUi(
     }
 
     fun update(inputPanel: FcitxEvent.InputPanelEvent.Data) {
+        refreshConfiguredFontIfNeeded()
         val activeBkg = theme.genericActiveBackgroundColor
         val upString: SpannedString
         val upCursor: Int

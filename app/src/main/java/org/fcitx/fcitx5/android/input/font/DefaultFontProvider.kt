@@ -47,10 +47,12 @@ class DefaultFontProvider : FontProviderApi {
     private var preloadPending = false
     private var cacheGeneration = 0L
 
-    // Revision of the served font data. It only changes when the served content actually
-    // changes (a publish with different content, e.g. after a fontset edit or when a
-    // previously missing font file becomes available), so consumers can refresh exactly
-    // once per real change instead of on every preload retry tick.
+    // Revision of the served font data: **typefaces and sizes**. It only changes when the
+    // served content actually changes (a publish with different content, e.g. after a fontset
+    // edit or when a previously missing font file becomes available), so consumers can refresh
+    // exactly once per real change instead of on every preload retry tick. A size-only edit
+    // never changes the typeface map, so the publish step compares the size map as well;
+    // otherwise a size change would be invisible to every revision-gated consumer.
     @Volatile
     private var fontGeneration = 0L
     private val preloadCallbacks = mutableListOf<(MutableMap<String, Typeface?>) -> Unit>()
@@ -118,7 +120,10 @@ class DefaultFontProvider : FontProviderApi {
                 val (activeGeneration, config) = fontConfigSnapshot()
                 val keys = config?.paths?.keys?.filterNot { it.endsWith("_size") }.orEmpty()
                 if (activeGeneration != generation) return@execute
-                cacheFontSizes(config, activeGeneration)
+                // Sizes are resolved here but only published together with the typefaces
+                // below: a reader that observes the new revision must never see the new
+                // typefaces with the previous sizes (or a size that no revision accounts for).
+                val freshSizes = config?.let(::resolveFontSizes)
                 // Build the replacement map in isolation; the currently served map stays
                 // untouched so concurrent view creation keeps seeing the old fonts.
                 val fresh = mutableMapOf<String, Typeface?>()
@@ -141,11 +146,14 @@ class DefaultFontProvider : FontProviderApi {
                             // publish when a config was resolved, or when nothing has
                             // ever been served yet (initial empty state).
                             if (config != null || servedFontTypefaceMap.isEmpty()) {
-                                if (servedFontTypefaceMap != fresh) {
+                                val fontsChanged = servedFontTypefaceMap != fresh
+                                val sizesChanged = freshSizes != null && cachedFontSizeMap != freshSizes
+                                if (fontsChanged || sizesChanged) {
                                     // Swap before bumping the revision: a reader that sees the
                                     // new revision must never be able to rebuild rows from the
-                                    // previous map and cache them under the new revision.
-                                    servedFontTypefaceMap = fresh
+                                    // previous data and cache them under the new revision.
+                                    if (fontsChanged) servedFontTypefaceMap = fresh
+                                    if (sizesChanged) cachedFontSizeMap = freshSizes
                                     fontGeneration++
                                 }
                             }
@@ -339,21 +347,26 @@ class DefaultFontProvider : FontProviderApi {
             return mutableMapOf()
         }
 
-    private fun cacheFontSizes(config: FontConfig?, generation: Long) {
-        val sizes = config?.paths
-            ?.filterKeys { it.endsWith("_size") }
-            ?.mapValues { (_, values) ->
+    /**
+     * Parse the configured font sizes out of a resolved config.
+     *
+     * Resolution is kept separate from publication: the worker resolves sizes up front and
+     * hands them to the publish block, which swaps them in together with the typefaces and
+     * bumps the revision. Assigning here would let the new sizes become visible under the
+     * previous revision, and a reader that cached that combination would never be told to
+     * rebuild once the revision finally moved.
+     *
+     * A config that could not be resolved yields an empty map; the caller must keep the
+     * previous size map in that case, because an empty map would make every size fall back
+     * to its default until the next successful reload.
+     */
+    private fun resolveFontSizes(config: FontConfig): MutableMap<String, Float> =
+        config.paths
+            .filterKeys { it.endsWith("_size") }
+            .mapValues { (_, values) ->
                 values.firstOrNull()?.trim()?.toFloatOrNull()?.coerceIn(8f, 72f)
             }
-            ?.filterValues { it != null }
-            ?.mapValues { it.value!! }
-            ?.toMutableMap()
-            ?: mutableMapOf()
-        synchronized(this) {
-            // Keep the previous size map when the config could not be resolved; an
-            // empty map would make every size fall back to its default until the
-            // next successful reload.
-            if (cacheGeneration == generation && config != null) cachedFontSizeMap = sizes
-        }
-    }
+            .filterValues { it != null }
+            .mapValues { it.value!! }
+            .toMutableMap()
 }

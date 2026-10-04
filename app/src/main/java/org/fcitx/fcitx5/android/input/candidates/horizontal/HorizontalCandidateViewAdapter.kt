@@ -27,15 +27,28 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     private var candFont: Typeface? = FontProviders.resolveTypeface("cand_font", null)
     private var commentFont: Typeface? = resolveCommentFont()
 
+    /**
+     * 上面两个字段是在哪个字体数据版本号下解析出来的。
+     *
+     * 版本号由 [FontProviders.fontGeneration] 提供，**同时覆盖字体与字号**。
+     * 旧实现读的是一次性标志 `FontProviders.needsRefresh()`：该标志在
+     * `KeyboardWindow.checkAndApplyFontRefresh()` 里先被消费并清零，候选侧永远读到 false，
+     * 于是只有被回收重建的那部分 ViewHolder 才换上新字，表现为「换一部分、打几个字就好了」。
+     */
+    private var appliedFontGeneration = FontProviders.fontGeneration
+
     private fun resolveCommentFont(): Typeface? = FontProviders.resolveCommentTypeface(null)
 
+    /**
+     * 字体数据版本号前进时刷新缓存的字体并返回 true（调用方需要整表重绑）。
+     */
     private fun refreshCandidateFontIfNeeded(): Boolean {
-        if (FontProviders.needsRefresh()) {
-            candFont = FontProviders.resolveTypeface("cand_font", null)
-            commentFont = resolveCommentFont()
-            return true
-        }
-        return false
+        val generation = FontProviders.fontGeneration
+        if (generation == appliedFontGeneration) return false
+        appliedFontGeneration = generation
+        candFont = FontProviders.resolveTypeface("cand_font", null)
+        commentFont = resolveCommentFont()
+        return true
     }
 
     init {
@@ -152,8 +165,10 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     @CallSuper
     override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
         refreshCandidateFontIfNeeded()
-        holder.ui.applyConfiguredTypeface(candFont)
         holder.ui.applyConfiguredCommentTypeface(commentFont)
+        // 字体 + 字号一起重读：字号必须在每次绑定时都对齐版本号，否则被复用的
+        // ViewHolder 会一直停在构造时那次求值的旧字号上。
+        holder.ui.refreshConfiguredFont(candFont)
         holder.ui.setActive(position == activeIndex)
         holder.update(position + indexOffset, candidates[position])
     }

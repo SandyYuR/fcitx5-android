@@ -43,6 +43,13 @@ object FontProviders {
      */
     const val DEFAULT_COMMENT_FONT_SIZE = 14f
 
+    /**
+     * Default candidate font size in sp, used when `cand_font` has no configured
+     * size in the font set. Candidate text never follows the toolbar size
+     * percentage, so this constant is the fallback for "字多大" only.
+     */
+    const val DEFAULT_CANDIDATE_FONT_SIZE = 20f
+
     @Volatile
     var provider: FontProviderApi = DefaultFontProvider()
         set(value) {
@@ -99,16 +106,6 @@ object FontProviders {
         val result = needsRefresh
         needsRefresh = false
         result
-    }
-
-    fun clearCache() {
-        provider.clearCache()
-        synchronized(fontSizeResultCache) {
-            fontSizeResultCache.clear()
-        }
-        synchronized(refreshLock) {
-            needsRefresh = true
-        }
     }
 
     val fontTypefaceMap: MutableMap<String, Typeface?>
@@ -182,11 +179,6 @@ object FontProviders {
     fun commentFontSizePx(context: Context): Int =
         (getFontSize(KEY_COMMENT_FONT, DEFAULT_COMMENT_FONT_SIZE) *
             context.resources.displayMetrics.scaledDensity).roundToInt()
-
-    /**
-     * Returns true if current refresh flag is set, without consuming it.
-     */
-    fun needsRefresh(): Boolean = needsRefresh
 
     /**
      * Preload fonts asynchronously. Call this before keyboard is shown.

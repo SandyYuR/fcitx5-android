@@ -65,10 +65,6 @@ class AutoScaleTextView @JvmOverloads constructor(
     private var textScaleY = 1.0f
 
     companion object {
-        fun clearFontCache() {
-            FontProviders.clearCache()
-        }
-
         val fontTypefaceMap: MutableMap<String, Typeface?>
             get() = FontProviders.fontTypefaceMap
     }

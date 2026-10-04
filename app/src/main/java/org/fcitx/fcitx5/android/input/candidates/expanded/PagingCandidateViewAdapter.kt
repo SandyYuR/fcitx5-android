@@ -22,13 +22,23 @@ open class PagingCandidateViewAdapter(val theme: Theme) :
     private var candFont: Typeface? = FontProviders.resolveTypeface("cand_font", null)
     private var commentFont: Typeface? = resolveCommentFont()
 
+    /**
+     * 上面两个字段是在哪个字体数据版本号下解析出来的（[FontProviders.fontGeneration]
+     * 同时覆盖字体与字号）。旧实现读的是一次性标志 `needsRefresh()`，会被键盘侧先消费清零，
+     * 候选侧永远读到 false；改按版本号比对后，字号/字体的真实变化一定能被观察到。
+     */
+    private var appliedFontGeneration = FontProviders.fontGeneration
+
     private fun resolveCommentFont(): Typeface? = FontProviders.resolveCommentTypeface(null)
 
-    private fun refreshCandidateFontIfNeeded() {
-        if (FontProviders.needsRefresh()) {
-            candFont = FontProviders.resolveTypeface("cand_font", null)
-            commentFont = resolveCommentFont()
-        }
+    /** 字体数据版本号前进时刷新缓存的字体并返回 true（调用方需要重新绑定）。 */
+    private fun refreshCandidateFontIfNeeded(): Boolean {
+        val generation = FontProviders.fontGeneration
+        if (generation == appliedFontGeneration) return false
+        appliedFontGeneration = generation
+        candFont = FontProviders.resolveTypeface("cand_font", null)
+        commentFont = resolveCommentFont()
+        return true
     }
 
     companion object {
@@ -65,10 +75,14 @@ open class PagingCandidateViewAdapter(val theme: Theme) :
      * @param generation 候选内容版本；offset 一样时也用它判断“这只是重复请求”。
      */
     fun refreshWithOffset(offset: Int, generation: Long) {
-        refreshCandidateFontIfNeeded()
-        if (offset == this.offset && generation == this.generation) return
-        this.offset = offset
-        this.generation = generation
+        // 字体/字号变化时即使 (offset, generation) 没变也必须重绑：下面那句早退会让整个
+        // 展开面板停在旧字号上（`PagingDataAdapter.refresh()` 是 final 的，没法拦截 notify）。
+        val fontChanged = refreshCandidateFontIfNeeded()
+        if (!fontChanged && offset == this.offset && generation == this.generation) return
+        if (!fontChanged) {
+            this.offset = offset
+            this.generation = generation
+        }
         refresh()
     }
 
@@ -79,8 +93,9 @@ open class PagingCandidateViewAdapter(val theme: Theme) :
 
     override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
         refreshCandidateFontIfNeeded()
-        holder.ui.applyConfiguredTypeface(candFont)
         holder.ui.applyConfiguredCommentTypeface(commentFont)
+        // 字体 + 字号一起重读，理由同 HorizontalCandidateViewAdapter.onBindViewHolder。
+        holder.ui.refreshConfiguredFont(candFont)
         val candidate = getItem(position) ?: CandidateWord.Empty
         holder.update(position + offset, candidate)
     }

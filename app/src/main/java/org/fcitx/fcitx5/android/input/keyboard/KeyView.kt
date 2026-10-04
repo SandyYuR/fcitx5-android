@@ -499,11 +499,10 @@ class ToolbarTextKeyView(
      * Re-read the configured size, ignoring the keyboard text-scale argument.
      *
      * [BaseKeyboard.reapplyTextScale] runs after every layout reload, which makes this the
-     * reliable hook for "key_main_font_size" changes: the typeface map comparison that bumps
-     * [org.fcitx.fcitx5.android.input.font.FontProviders.fontGeneration] only covers typefaces,
-     * so a size-only edit does not invalidate the row cache by itself, but the reload triggered
-     * by the fontset save re-runs this override with the fresh size. The scale argument is
-     * deliberately ignored — toolbar digits must never be shrunk to invisibility.
+     * reliable hook for "key_main_font_size" changes: [org.fcitx.fcitx5.android.input.font.FontProviders.fontGeneration]
+     * now covers sizes as well as typefaces, so a size-only edit invalidates the row cache and
+     * the reload re-runs this override with the fresh size. The scale argument is deliberately
+     * ignored — toolbar digits must never be shrunk to invisibility.
      */
     override fun setTextScale(scale: Float) {
         // In a method body `def` is the inherited KeyView.def (KeyDef.Appearance), so smart
@@ -542,11 +541,29 @@ open class TextKeyView(
     horizontalGapScale: Float = 1f
 ) :
     KeyView(ctx, theme, def, horizontalGapScale) {
-    private val baseMainTextSizeSp: Float = when (def.viewId) {
-        R.id.button_space -> def.textSize
-        R.id.button_layout_switch -> def.textSize
+    /**
+     * 构造期的外观定义，保留 [KeyDef.Appearance.Text] 静态类型。
+     *
+     * 基类的 `def` 是 `KeyDef.Appearance`，方法体里拿不到 `textSize`；而构造参数只做
+     * 属性初始化、不进入方法体，所以这里显式留一份引用。
+     */
+    private val textAppearance: KeyDef.Appearance.Text = def
+
+    /**
+     * 主标签的基准字号（sp），不含手势/单手模式的缩放系数。
+     *
+     * 以前这是 `private val`，即「构造期快照」：KeyView 实例会被长期复用（KeyboardWindow
+     * 把 keyboard 实例缓存进 map，BaseKeyboard 又复用 reusableRowsCache 里的行），所以只在
+     * 构造时读一次配置字号的话，用户改完 fontset 后就必须等「行被真正重建」才能看到新字号
+     * ——候选侧此前那个「保存后不即时生效、要打几个字才好」是同一类问题。
+     * 改成方法后，[setTextScale] 每次都能取到最新配置。
+     * `getFontSize` 自带结果缓存，重复调用开销可忽略。
+     */
+    private fun resolveBaseMainTextSizeSp(): Float = when (textAppearance.viewId) {
+        R.id.button_space -> textAppearance.textSize
+        R.id.button_layout_switch -> textAppearance.textSize
         else -> org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
-            "key_main_font", def.textSize
+            "key_main_font", textAppearance.textSize
         )
     }
 
@@ -557,7 +574,7 @@ open class TextKeyView(
         scaleMode = AutoScaleTextView.Mode.Proportional
         gravity = Gravity.CENTER
         text = def.displayText
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, baseMainTextSizeSp)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseMainTextSizeSp())
         textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
         // Set font key for batch setting in BaseKeyboard.reloadLayout()
         fontKey = "key_main_font"
@@ -591,10 +608,11 @@ open class TextKeyView(
     }
 
     override fun setTextScale(scale: Float) {
-        if (def is KeyDef.Appearance.Text) {
-            mainText.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseMainTextSizeSp * scale)
-            mainText.requestLayout()
-        }
+        // 每次都重读配置字号（而不是用构造期快照乘 scale）：复用旧行、只走
+        // reapplyTextScale() 的刷新路径也能自愈，见 resolveBaseMainTextSizeSp 的说明。
+        val baseSize = resolveBaseMainTextSizeSp()
+        mainText.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseSize * scale)
+        mainText.requestLayout()
     }
 
     override fun updateTheme(newTheme: Theme) {
@@ -626,9 +644,15 @@ class AltTextKeyView(
         Hidden
     }
 
-    private val baseAltTextSizeSp = org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
-        "key_alt_font", 10.666667f
-    )
+    /**
+     * 副标签的基准字号（sp）。与 [TextKeyView.resolveBaseMainTextSizeSp] 同理，不用
+     * 构造期快照，改由 [setTextScale] 每次重读，避免复用旧行时拿不到新字号。
+     */
+    private fun resolveBaseAltTextSizeSp(): Float =
+        org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
+            "key_alt_font", 10.666667f
+        )
+
     private var lastLayoutMode: AltTextLayoutMode? = null
 
     val altText = view(::AutoScaleTextView) {
@@ -637,7 +661,7 @@ class AltTextKeyView(
         scaleMode = AutoScaleTextView.Mode.Proportional
         gravity = Gravity.CENTER
         setPadding(hMargin, 0, hMargin, 0)
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseAltTextSizeSp())
         // Set font key for batch setting in BaseKeyboard.reloadLayout()
         fontKey = "key_alt_font"
         setTypeface(typeface, Typeface.BOLD)
@@ -670,7 +694,7 @@ class AltTextKeyView(
 
     override fun setTextScale(scale: Float) {
         super.setTextScale(scale)
-        altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp * scale)
+        altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseAltTextSizeSp() * scale)
         altText.requestLayout()
         lastLayoutMode = null
         applyLayout()
@@ -864,9 +888,15 @@ class ImageAltTextKeyView(
         Hidden
     }
 
-    private val baseAltTextSizeSp = org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
-        "key_alt_font", 10.666667f
-    )
+    /**
+     * 副标签基准字号（sp）；同 [AltTextKeyView]，每次 [setTextScale] 重读配置，
+     * 不复用构造期快照，这样沿用旧行也能跟上 fontset 的字号改动。
+     */
+    private fun resolveBaseAltTextSizeSp(): Float =
+        org.fcitx.fcitx5.android.input.font.FontProviders.getFontSize(
+            "key_alt_font", 10.666667f
+        )
+
     private var currentMainTextScale = 1f
     private var lastLayoutMode: AltTextLayoutMode? = null
     private var iconThemeTintWithTheme: Boolean? = null
@@ -900,7 +930,7 @@ class ImageAltTextKeyView(
         scaleMode = AutoScaleTextView.Mode.Proportional
         gravity = Gravity.CENTER
         setPadding(hMargin, 0, hMargin, 0)
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseAltTextSizeSp())
         fontKey = "key_alt_font"
         setTypeface(typeface, Typeface.BOLD)
         text = def.altText
@@ -965,7 +995,7 @@ class ImageAltTextKeyView(
 
     override fun setTextScale(scale: Float) {
         currentMainTextScale = scale
-        altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, baseAltTextSizeSp * scale)
+        altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseAltTextSizeSp() * scale)
         altText.requestLayout()
         invalidateTextMetricsCache()
         lastLayoutMode = null

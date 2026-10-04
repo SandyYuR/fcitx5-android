@@ -465,7 +465,6 @@ abstract class BaseKeyboard(
                 .append(",").append(prefs.keyVerticalMarginLandscape.getValue())
             append("|expandKeys:").append(AppPrefs.getInstance().keyboard.expandKeypressArea.getValue())
             append("|splitGap:").append(splitKeyboardManager.getSplitGapPercent())
-            append("|fontRefresh:").append(FontProviders.needsRefresh())
             // Rows are baked with the typefaces served at build time. Bump the signature
             // whenever the served font data changes so rows built while a font reload was
             // still in flight are rebuilt with the new fonts instead of being reused.

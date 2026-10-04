@@ -15,6 +15,7 @@ import android.view.inputmethod.EditorInfo
 import android.content.res.Configuration
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
+import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import androidx.tracing.trace
@@ -164,6 +165,19 @@ class HorizontalCandidateComponent :
     private var lastRenderedCandidatesSnapshot: Array<CandidateWord> = emptyArray()
     private var lastRenderedActiveIndex = Int.MIN_VALUE
 
+    /**
+     * 最近一次真正渲染候选时所用的字体数据版本号（见 [FontProviders.fontGeneration]）。
+     *
+     * 本文件里的两道去重早退只看「候选内容 + 高亮」，在用户只改了「字体设定」里的
+     * 候选字体/字号、而候选内容一个字都没变的场景下会把刷新整个吃掉 —— 候选栏就会
+     * 一直停在旧字号上，直到用户打出下一个编码（即「换一部分、打几个字才好」的那一半）。
+     * 所以去重必须把版本号一并纳入比较。
+     */
+    private var lastRenderedFontGeneration = FontProviders.fontGeneration
+
+    private fun fontDataChanged(): Boolean =
+        FontProviders.fontGeneration != lastRenderedFontGeneration
+
     private var pendingLegacyCandidateUpdate: Runnable? = null
 
     /**
@@ -191,6 +205,20 @@ class HorizontalCandidateComponent :
         // 会继续显示旧会话分页到的那一段候选。
         candidateGeneration.onSessionStart()
         lastExpandedRefreshRequest = null
+        // 候选侧没有「字体设定已保存」的事件入口：KeyboardWindow.checkAndApplyFontRefresh()
+        // 只重建按键行，而候选内容没变时上面的去重会把候选栏继续钉在旧字号上，只有下一个
+        // 编码（新候选事件）才会换 —— 用户看到的正是「换一部分、打几个字才好」。
+        // 这里搭上键盘侧同一趟 preload 的回调：新的字体/字号真正发布（版本号前进）后再重下发
+        // 一次当前候选。版本号没动时 adapter.updateCandidates 会立刻早退，无额外开销。
+        FontProviders.preloadFontsAsync {
+            ContextCompat.getMainExecutor(context).execute {
+                val current = adapter
+                current.updateCandidates(
+                    current.candidates, current.total,
+                    current.activeIndex, current.indexOffset
+                )
+            }
+        }
     }
 
     // Since expanded candidate window is created once the expand button was clicked,
@@ -390,7 +418,7 @@ class HorizontalCandidateComponent :
         // "挤成一行"和"换行/滚动"之间抖动。
         val sizePx = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
-            FontProviders.getFontSize("cand_font", 20f),
+            FontProviders.getFontSize("cand_font", FontProviders.DEFAULT_CANDIDATE_FONT_SIZE),
             context.resources.displayMetrics
         )
         val epoch = font to sizePx.toRawBits()
@@ -583,7 +611,8 @@ class HorizontalCandidateComponent :
 
         if (
             candidates.contentEquals(lastRenderedCandidatesSnapshot) &&
-            effectiveActiveIndex == lastRenderedActiveIndex
+            effectiveActiveIndex == lastRenderedActiveIndex &&
+            !fontDataChanged()
         ) {
             return
         }
@@ -604,6 +633,7 @@ class HorizontalCandidateComponent :
         total: Int,
         activeIndex: Int,
     ) {
+        lastRenderedFontGeneration = FontProviders.fontGeneration
         // 先推进 generation 再更新 adapter：adapter 的 notify 会触发一次布局，
         // 那次布局的 onLayoutCompleted 正是读取 generation 的地方。
         // 候选内容没变（例如只移动了高亮）时 generation 不动，展开面板就不会重新分页。
