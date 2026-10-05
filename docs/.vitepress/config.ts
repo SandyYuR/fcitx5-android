@@ -43,6 +43,18 @@ export default defineConfig({
           { text: '更新检查器', link: '/features/update-checker' },
         ],
       },
+      { text: '手册', link: '/manual/RIME_ONLY_USER_GUIDE_zh-CN' },
+      {
+        text: '维护',
+        items: [
+          { text: '交接报告', link: '/maintainer/HANDOVER-rime-only' },
+          { text: '代码审阅报告（2026-09-07）', link: '/maintainer/CODE_REVIEW_REPORT_2026-09-07' },
+          { text: '性能审阅报告（2026-09-07）', link: '/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07' },
+          { text: '字体刷新评估报告（2026-10-04）', link: '/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04' },
+          { text: '历史设计：实施方案', link: '/archive/rime-integration-plan' },
+          { text: '历史设计：可行性报告', link: '/archive/rime-only-feasibility' },
+        ],
+      },
       { text: '疑难解答', link: '/troubleshooting/faq' },
       {
         text: '关于',
@@ -138,6 +150,34 @@ export default defineConfig({
             { text: '共享导入与解压', link: '/features/shared-import' },
             { text: '文本编辑底部栏', link: '/features/text-editor' },
             { text: '在线编辑器', link: '/features/online-editor' },
+          ],
+        },
+      ],
+      '/manual/': [
+        {
+          text: '用户手册',
+          items: [
+            { text: '用户指南（Rime-only 版）', link: '/manual/RIME_ONLY_USER_GUIDE_zh-CN' },
+          ],
+        },
+      ],
+      '/maintainer/': [
+        {
+          text: '维护者文档',
+          items: [
+            { text: '交接报告', link: '/maintainer/HANDOVER-rime-only' },
+            { text: '代码审阅报告（2026-09-07）', link: '/maintainer/CODE_REVIEW_REPORT_2026-09-07' },
+            { text: '性能审阅报告（2026-09-07）', link: '/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07' },
+            { text: '字体刷新评估报告（2026-10-04）', link: '/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04' },
+          ],
+        },
+      ],
+      '/archive/': [
+        {
+          text: '历史设计归档',
+          items: [
+            { text: '可行性报告', link: '/archive/rime-only-feasibility' },
+            { text: '实施方案', link: '/archive/rime-integration-plan' },
           ],
         },
       ],

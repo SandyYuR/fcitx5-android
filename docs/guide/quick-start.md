@@ -81,4 +81,4 @@
 - 想维护多套键盘布局？查看 [键盘布局编辑器](/features/editor/layout-editor)
 - 想了解全部功能？查看 [功能总览](/features/overview)
 - 遇到问题？查看 [常见问题](/troubleshooting/faq)（「有键盘但没有候选」「部署失败」等都在那里）
-- 想要逐项的完整操作手册？查看 [用户指南（rime-docs 分支）](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md)
+- 想要逐项的完整操作手册？查看 [用户指南](/manual/RIME_ONLY_USER_GUIDE_zh-CN)

@@ -39,6 +39,9 @@ npm --prefix docs run dev
 - 导航和侧栏：`docs/.vitepress/config.ts`
 - 指南：`docs/guide/`
 - 功能说明：`docs/features/`
+- 用户手册：`docs/manual/`（自 `rime-docs` 分支迁入）
+- 维护者文档：`docs/maintainer/`（交接报告与审阅报告，自 `rime-docs` 分支迁入）
+- 历史设计归档：`docs/archive/`
 - 疑难解答：`docs/troubleshooting/`
 - 关于页面：`docs/about/`
 - 静态图片：`docs/public/`

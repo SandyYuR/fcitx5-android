@@ -9,8 +9,7 @@ fcitx5-android/fcitx5-android  (上游 / upstream)
                           │
                           └──fork──▶  SandyYuR/fcitx5-android  ◀── 本仓库
                                         └─ fx-rime-only 分支  Rime 专版（本文档对象）
-                                        └─ rime-docs 分支     维护者文档
-                                        └─ docs 分支          本文档站
+                                        └─ docs 分支          本文档站（指南 + 用户手册 + 维护者文档）
 ```
 
 本仓库的 **`fx-rime-only` 分支**以 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) 的 `fx` 分支（提交 `3ad25fc9`）为基线，把「Rime 只是众多输入法之一」专用化为「**Rime 是唯一的输入引擎**」，并在此之上持续开发自己的功能。

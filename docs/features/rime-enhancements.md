@@ -61,4 +61,4 @@ librime 定制补丁包括（按应用顺序）：fxliang 功能补丁（tabs �
 - [核心概念](/guide/concepts)
 - [从上游迁移](/guide/migrate-from-upstream)
 - [常见问题](/troubleshooting/faq)
-- [用户指南（rime-docs 分支）](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md)
+- [用户指南](/manual/RIME_ONLY_USER_GUIDE_zh-CN)

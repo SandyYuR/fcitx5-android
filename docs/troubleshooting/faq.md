@@ -72,4 +72,4 @@ Rime 配置一般需要**重新部署**才生效。确认改的是当前 profile
 
 ## 反馈
 
-如果你的问题不在以上列表中，请前往 [反馈问题](/troubleshooting/report-issue) 查看如何提交 issue。更完整的逐项排查见 [用户指南 §11 故障排查](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md)。
+如果你的问题不在以上列表中，请前往 [反馈问题](/troubleshooting/report-issue) 查看如何提交 issue。更完整的逐项排查见 [用户指南 §11 故障排查](/manual/RIME_ONLY_USER_GUIDE_zh-CN)。
