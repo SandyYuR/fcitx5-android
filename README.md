@@ -8,8 +8,8 @@
 | 其他语言应用名 | Fcitx5.fx.rime |
 | 包名 | `org.fcitx.fcitx5.android.fx.rime` |
 | 下载安装 | [GitHub Releases](https://github.com/SandyYuR/fcitx5-android/releases)（含带时间戳的 Nightly 预发布版） |
-| 用户手册 | [靓企鹅·中州韵 简体中文用户指南](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md) |
-| 开发分支 | `fx-rime-only`（文档集中在 [`rime-docs` 分支](https://github.com/SandyYuR/fcitx5-android/tree/rime-docs)） |
+| 用户手册 | [靓企鹅·中州韵 文档站 · 用户指南](https://sandyyur.github.io/fcitx5-android/manual/RIME_ONLY_USER_GUIDE_zh-CN) |
+| 开发分支 | `fx-rime-only`（文档集中在 [`docs` 分支的文档站](https://sandyyur.github.io/fcitx5-android/)） |
 
 > ⚠️ **本版不预置任何输入方案。** 装好、启用之后键盘能正常弹出，但**打不出汉字**——这是预期状态，不是故障。必须自己放入方案并部署一次才能使用，步骤如下。
 
@@ -58,7 +58,7 @@
 
 ## 相对 fxliang 的主要改动
 
-本分支以 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) 的 `fx` 分支、提交 `3ad25fc9` 为基线继续专用化，全部改动由 vibe coding 完成；截至 2026-09-29 领先基线 **196 个提交**。下面按主题列出改动的全貌（逐条明细见 `git log --oneline 3ad25fc9..HEAD`）。
+本分支以 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) 的 `fx` 分支、提交 `3ad25fc9` 为基线继续专用化，全部改动由 vibe coding 完成；截至 2026-10-05 领先基线 **214 个提交**（随时增长，以 `git rev-list --count 3ad25fc9..HEAD` 现取为准）。下面按主题列出改动的全貌（逐条明细见 `git log --oneline 3ad25fc9..HEAD`）。
 
 ### 一、裁剪为 Rime 专版
 
@@ -131,7 +131,7 @@
 
 - 中文应用名定为**靓企鹅·中州韵**（仅简繁中文，其余语言保持 `Fcitx5.fx.rime`）。
 - **CI**：push 触发 `arm64-v8a` Release 构建，另有独立单测 job（失败只标红叉、**不阻塞出包**）；`fx-rime-only` 构建成功后自动创建带时间戳的 **Nightly 预发布版**并附带 APK。
-- 文档迁到独立的 [`rime-docs` 分支](https://github.com/SandyYuR/fcitx5-android/tree/rime-docs)，代码分支保持纯代码历史。
+- 文档集中在 [`docs` 分支的文档站](https://sandyyur.github.io/fcitx5-android/)（用户指南、维护者交接与审阅报告；2026-10-05 起，原 `rime-docs` 分支已并入），代码分支保持纯代码历史。
 
 ## 「Rime-only」的含义
 
@@ -143,7 +143,7 @@
 
 ## 更多帮助
 
-安装、迁移、Rime 配置、布局与宏、主题、剪贴板同步、更新和**故障排查（第 11 节）**都在[用户指南](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md)里。常用的几条：
+安装、迁移、Rime 配置、布局与宏、主题、剪贴板同步、更新和**故障排查（第 11 节）**都在[用户指南](https://sandyyur.github.io/fcitx5-android/manual/RIME_ONLY_USER_GUIDE_zh-CN)里。常用的几条：
 
 - **键盘不出现**：确认已在系统中启用本输入法，并用系统输入法切换器重新选择。
 - **有键盘但没有候选**：先按上面「快速上手」放入方案并部署。
@@ -174,12 +174,12 @@ Rime 共享数据位于应用内部 `usr/share/rime-data`（只含 `default.yaml
 
 ### Rime 引擎来源
 
-- **适配层**（tabs、schema 选单、Shift/alt-trigger 定制）来自 [SandyYuR/fcitx5-rime](https://github.com/SandyYuR/fcitx5-rime)。CI 运行 `prepare_personal_build.sh` 动态 checkout 其 master（当前 `9bf94e6`，含部署期按键吞掉与键盘内提示两处修复），并把 `fcitx5-alt-trigger-v4point1.patch` 应用到 Fcitx5 core。
+- **适配层**（tabs、schema 选单、Shift/alt-trigger 定制）来自 [SandyYuR/fcitx5-rime](https://github.com/SandyYuR/fcitx5-rime)。CI 运行 `prepare_personal_build.sh` 动态 checkout 其 master（当前 `107502d`，官方 5.1.17 基线 + fxliang 全部定制 + 部署期按键吞掉、键盘内部署提示与非法音节 tab 过滤等修复），并把 `fcitx5-alt-trigger-v4point1.patch` 应用到 Fcitx5 core。
 - **librime 静态库**来自 [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)，由 [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder) 固定官方 librime 提交（当前 `1.17.0-ef1a16a`）并按固定顺序应用 8 个定制补丁——fxliang 功能补丁、音节缓存、词典并行部署、用户词典缓存、词典文件重映射修复、忘记词汇连删同音词修复、万象（amzxyz）的 `rewrite` 滤镜（PR #1232），以及**必须排在末位**的配置指纹补丁——构建四 ABI 静态库后自动推回 prebuilt，主仓库再静态链接进 APK。
 - 更新后需同步 `app/licenses/libraries/` 下的版本元数据，并验证 `RimeGetInputTabs` / `RimeSelectTab` 等定制 API、APK 构建与真机输入行为。
 - ⚠️ 补丁顺序是契约的一部分，末位的指纹补丁必须始终最后应用；**不要**用官方 prebuilt 覆盖 SandyYuR 产物，否则会静默丢掉 tabs、音节缓存、用户词典缓存等定制。
 
-需要改引擎、改 CI 或重写历史前，请先读[交接文档](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/HANDOVER-rime-only.md)（`rime-docs` 分支）：里面有完整的引擎更新 runbook、故障经验与易错点。本分支以 fxliang 的 `fx` 分支、提交 `3ad25fc9` 为基线继续专用化，逐条改动明细见 `git log`。
+需要改引擎、改 CI 或重写历史前，请先读[交接报告](https://sandyyur.github.io/fcitx5-android/maintainer/HANDOVER-rime-only)（文档站 `docs` 分支）：里面有完整的引擎更新 runbook、故障经验与易错点。本分支以 fxliang 的 `fx` 分支、提交 `3ad25fc9` 为基线继续专用化，逐条改动明细见 `git log`。
 
 ## 致谢与许可证
 
