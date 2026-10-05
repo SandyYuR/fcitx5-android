@@ -147,7 +147,9 @@ class FcitxApplication : Application() {
         ThemeManager.init(resources.configuration)
         // 安装内置键盘布局/主题/图标主题（幂等，后台执行，开箱即用）
         if (!isDirectBootMode) {
-            BundledPresets.installAsync()
+            BundledPresets.installAsync {
+                IconThemeManager.refreshAsync()
+            }
         }
         // Start custom font I/O while the IME daemon is initializing so first view creation can
         // reuse the cached typefaces instead of doing all file work on the main thread.

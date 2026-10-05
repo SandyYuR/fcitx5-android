@@ -21,6 +21,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
@@ -153,6 +155,9 @@ object IconThemeManager {
     /** Guards against a second scan when several entry points call [initAsync]. */
     private val initStarted = AtomicBoolean(false)
 
+    /** Serializes the initial scan and post-install rescans. */
+    private val refreshMutex = Mutex()
+
     /**
      * Load installed icon themes off the main thread.
      *
@@ -165,9 +170,31 @@ object IconThemeManager {
     fun initAsync() {
         if (!initStarted.compareAndSet(false, true)) return
         scope.launch {
+            loadAndNotify(registerUnlockReceiver = true)
+        }
+    }
+
+    /**
+     * Re-scan themes after an asynchronous resource installer has finished writing them.
+     *
+     * The initial scan may legitimately see an empty directory on a fresh install. A later scan
+     * must be allowed even after [initAsync] has marked initialization as started.
+     */
+    fun refreshAsync() {
+        if (!initStarted.get()) {
+            initAsync()
+            return
+        }
+        scope.launch {
+            loadAndNotify(registerUnlockReceiver = false)
+        }
+    }
+
+    private suspend fun loadAndNotify(registerUnlockReceiver: Boolean) {
+        refreshMutex.withLock {
             refresh()
             restoreActiveTheme()
-            if (restorePending.get()) {
+            if (registerUnlockReceiver && restorePending.get()) {
                 dispatchOnMain { registerUserUnlockReceiver() }
             }
             val themes = iconThemes

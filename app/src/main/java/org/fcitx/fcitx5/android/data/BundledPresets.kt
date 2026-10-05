@@ -109,12 +109,14 @@ object BundledPresets {
 
     /**
      * 在后台安装内置资源。重复调用是安全的；安装失败只记录日志，不影响启动。
+     * [onComplete] 在本次安装尝试结束后于后台线程调用。
      */
-    fun installAsync() {
+    fun installAsync(onComplete: () -> Unit = {}) {
         scope.launch {
             runCatching { install() }.onFailure {
                 Timber.w(it, "Failed to install bundled presets")
             }
+            onComplete()
         }
     }
 
