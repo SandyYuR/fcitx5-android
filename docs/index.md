@@ -80,15 +80,17 @@ features:
 - 覆盖 **Rime 专版行为**（方案部署、语言键、候选手势等）与**继承自 fx 分支的应用层功能**（键盘形态、编辑器、主题等）
 - Fcitx5 框架与 Rime 本身的通用用法请参考 [上游 Wiki](https://github.com/fcitx5-android/fcitx5-android/wiki) 与 [Rime 官方文档](https://github.com/rime/home/wiki)
 - 目标读者：**使用者**，不是开发者
-- 更完整的逐项操作手册见 [`rime-docs` 分支的用户指南](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md)
+- 更完整的逐项操作手册见 [用户指南](/manual/RIME_ONLY_USER_GUIDE_zh-CN)
 
 ## 快速导航
 
 - 第一次使用？→ [安装](/guide/installation) → [快速上手](/guide/quick-start)（含放入方案与部署）
 - 想知道这个版本能做什么？→ [功能总览](/features/overview)
 - 想配置 Rime 方案？→ [Rime 引擎（内置）](/features/rime-enhancements)
+- 想要逐项的完整操作手册？→ [用户指南](/manual/RIME_ONLY_USER_GUIDE_zh-CN)
 - 想自定义键盘外观？→ [主题编辑器](/features/theme/theme-editor) / [布局编辑器](/features/editor/layout-editor)
 - 想用浮动键盘？→ [浮动键盘](/features/keyboard/float-keyboard)
 - 从上游 / fxliang 迁移数据？→ [从上游迁移](/guide/migrate-from-upstream)
 - 遇到问题？→ [常见问题](/troubleshooting/faq)
+- 维护者（引擎 runbook / 审阅报告）？→ [交接报告](/maintainer/HANDOVER-rime-only) / [审阅报告](/maintainer/CODE_REVIEW_REPORT_2026-09-07)
 - 想了解与 fxliang / 上游的关系与致谢？→ [关于](/about/credits)

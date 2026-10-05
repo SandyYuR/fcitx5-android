@@ -47,7 +47,7 @@ Fcitx5 框架的扩展模块。上游以独立 APK 分发；**本版将 Rime 直
 
 ## 符号 / 表情 / 颜文字面板
 
-Foxy 风格的 catalog 驱动实现：左侧分组栏 + 右侧网格，约 6900 条内置条目（符号 4773、表情 1926、颜文字 999）；三类数据都可换成自定义 JSON（导入前先校验格式，解析失败自动回退内置）。见 [用户指南 §5.8–5.9](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md)。
+Foxy 风格的 catalog 驱动实现：左侧分组栏 + 右侧网格，约 6900 条内置条目（符号 4773、表情 1926、颜文字 999）；三类数据都可换成自定义 JSON（导入前先校验格式，解析失败自动回退内置）。见 [用户指南 §5.8–5.9](/manual/RIME_ONLY_USER_GUIDE_zh-CN)。
 
 ## 用户数据
 

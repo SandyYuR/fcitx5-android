@@ -41,4 +41,4 @@
 不要上传：完整备份 ZIP、剪贴板数据库、同步密码、私钥、真实输入内容或包含个人信息的截图。能够用最小配置复现时，优先提供最小配置，日志先脱敏。
 :::
 
-更完整的清单见 [用户指南 §12](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md)。
+更完整的清单见 [用户指南 §12](/manual/RIME_ONLY_USER_GUIDE_zh-CN)。

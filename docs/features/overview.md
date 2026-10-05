@@ -75,8 +75,8 @@
 | 更新检查器 | 检查本仓库 Release（含 Nightly），镜像规则 + 自定义 hosts，平滑速度显示 | [查看](/features/update-checker) |
 | 共享导入与解压 | 系统分享自动识别导入，支持 ZIP/7z 自动解压 | [查看](/features/shared-import) |
 | 在线编辑器 | 局域网 Web 编辑布局/Popup/主题（注意仅在可信网络开启） | [查看](/features/online-editor) |
-| 设置搜索 | 首页搜索框支持中文名/英文别名/拼音，多词都要命中，点结果直达并滚动定位 | [查看](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md) |
-| 自定义按键音 | 导入 WAV/MP3/OGG/M4A/FLAC，不可用时回退系统音效 | [查看](https://github.com/SandyYuR/fcitx5-android/blob/rime-docs/docs/RIME_ONLY_USER_GUIDE_zh-CN.md) |
+| 设置搜索 | 首页搜索框支持中文名/英文别名/拼音，多词都要命中，点结果直达并滚动定位 | [查看](/manual/RIME_ONLY_USER_GUIDE_zh-CN) |
+| 自定义按键音 | 导入 WAV/MP3/OGG/M4A/FLAC，不可用时回退系统音效 | [查看](/manual/RIME_ONLY_USER_GUIDE_zh-CN) |
 
 ## 数据来源
 
