@@ -19,7 +19,8 @@
 | `ReturnKey` | 回车键 | — | [详情](/features/keys/return-key) |
 | `SpaceKey` | 空格键，含切换/光标移动等隐含行为 | — | [详情](/features/keys/space-key) |
 | `CommaKey` | 逗号键（含表情符号快捷菜单） | — | [详情](/features/keys/comma-key) |
-| `LanguageKey` | 输入法 / 子模式语言切换 | — | [详情](/features/keys/language-key) |
+| `LanguageKey` | 语言键：短按发 Shift 切中英文，长按弹 Rime 方案选单 | — | [详情](/features/keys/language-key) |
+| `PlaceholderKey` | **空白占位键**（本版新增）——只占位、完全不接收触摸 | —（`weight` 常用） | 见下方[说明](#空白占位键-placeholderkey-本版新增) |
 
 ## 几乎所有按键都通用的字段
 
@@ -137,7 +138,22 @@
 `AlphabetKey` / `MacroKey` 等支持的 `displayText` 字段，可以是：
 
 - 普通字符串：`"displayText": "A"` —— 永远显示这个文字
-- 模式 → 文本映射：`{"倉頡五代": "手"}` —— 当前 Rime 子模式 label 或 name 匹配 key 时显示对应值；未匹配时回退到该按键的基础文本
+- 模式 → 文本映射：`{"倉頡五代": "手"}` —— 当前 Rime 子模式 label 或 name 匹配 key 时显示对应值；未匹配时视为「未设置」，回退到该按键的基础文本
+
+**显式设置的显示文本按原样渲染**：不参与 Shift / Caps 大小写改写，也不做标点映射——这是「是否显式设置」以 JSON 里字段**存不存在**为准（未设置时字段完全不写出）。未设置时键面显示 `main` / `label`，照常参与 Shift 变换。
+
+## 空白占位键 PlaceholderKey（本版新增）
+
+`"type": "PlaceholderKey"` 是**不可交互的重量占位**：`behaviors` 与 `popup` 都为空，触摸事件根本不会落在它上面——不震动、无按压高亮、不吃掉落在其上的滚动，也永不参与长按、候选或宏。
+
+- 主/副字符都可留空：默认形态是键盘上一块**完全看不见的空白**；填了字符或打开「自定义颜色」（写 `"transparent": false`）则画成**纯装饰键**（有底色、可单独配色，但仍点不动）
+- 字符按原样显示，不参与 Shift/Caps 与标点映射；`weight` / `rowHeightPercent` 与其它键一致（`weight` 是调整占位宽度的主要手段）
+- 典型用途：调位置（空出一段或把按键挤到一侧）、**分体时把按键往中缝方向推**（见[分体键盘](/features/keyboard/split-keyboard)）、拇指休息区、纯装饰图例键
+- 编辑器的键列表里占位键显示为 `·` 记号；它不参与「分体时复制中间字母键」，也不会进入合成态（composeOverride 不适用）
+
+```json
+{ "type": "PlaceholderKey", "weight": 0.5 }
+```
 
 ## 真实 JSON 片段
 
