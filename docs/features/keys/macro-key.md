@@ -14,7 +14,7 @@
 | `label` | string | ✓ | 键面主标签 |
 | `altLabel` | string |  | swipe 时显示的副标签 |
 | `longPressLabel` | string |  | 长按弹出菜单中的提示标签 |
-| `displayText` | string \| map |  | 与 [overview](/features/keys/overview#显示文本-displaytext-的多模式格式) 一致的多模式显示文本 |
+| `displayText` | string \| map |  | 与 [overview](/features/keys/overview#显示文本-displaytext-的多模式格式) 一致的多模式显示文本；**填了就按原样显示**，见下文「显示文本优先」 |
 | **`tap`** | object | ✓ | 点击时执行的 [MacroAction](#macroaction-结构) |
 | `swipe` | object |  | 滑动时执行的 MacroAction |
 | `longPress` | object |  | 长按时执行的 MacroAction |
@@ -149,9 +149,27 @@ modifier 键 + 主键的组合，比手写 `down`/`up` 简单且自动处理释�
 
 触发 Fcitx5-android 内置的应用级动作，`id` 为动作标识。常见用法：打开特定设置页、切换主题、触发字体集等。具体 id 列表以 [MacroKey 编辑器](/features/editor/macrokey-editor) 中可选项为准。
 
+本版给「应用操作」新增了两个动作，可把方案切换挂到任意按键上：
+
+- **切换系统输入法**：弹出 Android 输入法选择器（与工具栏语言按钮长按同效果）；
+- **弹出 Rime 方案选单**：与长按语言键同一入口。
+
 ```json
 { "type": "app", "id": "open_settings" }
 ```
+
+## 显示文本优先于标签（本版）
+
+宏按键有两个文字字段，取值规则如下：
+
+| 情况 | 键面显示 |
+|------|----------|
+| **填了显示文本** | 按**原样**显示——填 `A` 就是大写 `A`，不会因没按 Shift 被改写成小写；填多字符（如 `全选`、`Ctrl`）完全不受 Shift 影响 |
+| 留空显示文本 | 回落到 `label`，此时像字母键一样随 Shift 变换大小写 |
+| 例外：单个**小写**字母 | 即使填了显示文本，按住 Shift 时仍会**临时**显示为大写、松开恢复（保留字母键习惯） |
+
+- 子模式专用布局里可以按方案分别设置显示文本；某方案没有对应取值时视为「未填写」，回落到标签；
+- 内置 26 键字母布局中宏键的冗余显示文本已统一清除（取值与标签相同的不再写出）。
 
 ### 8. `layer` 布局层切换
 
