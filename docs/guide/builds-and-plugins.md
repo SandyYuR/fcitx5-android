@@ -1,113 +1,57 @@
-# 构建版本与插件兼容性
+# 构建版本与数据共存
 
-fx 的 Release 同时提供两个版本的主程序 APK，以及一套魔改插件。理解它们的关系可以让你在 **保留上游 / 替换上游 / 双装并用** 之间自由选择。
+靓企鹅·中州韵只有**一个构建版本**、**没有插件**。这一页说明它与上游、fxliang 版本在同一台设备上的共存关系，以及用户数据的边界。
 
-## 主程序：两个构建版本
+## 主程序：唯一构建
 
-| 维度 | **fx 构建**（推荐） | **mainline 构建** |
-|------|------|------|
-| 包名 | `org.fcitx.fcitx5.android.fx` | `org.fcitx.fcitx5.android` |
-| 与上游能否共存 | ✅ 可以（包名不同） | ❌ 不能（包名相同，会互相覆盖） |
-| 应用名 | Fcitx5 默认名 | Fcitx5 Mainline / Fcitx5 Mainline (debug) |
-| Release 文件名 | `org.fcitx.fcitx5.android.fx-<ver>.apk` | `org.fcitx.fcitx5.android-<ver>.apk` |
-| 适合场景 | 想保留上游版本，作为额外的"魔改版"双装 | 想用魔改版**完全替换**上游 |
+| 维度 | 靓企鹅·中州韵 |
+|------|------|
+| 包名 | `org.fcitx.fcitx5.android.fx.rime` |
+| Rime 引擎 | **内置**（静态链接 `librime.a`，无需插件 APK） |
+| mainline 构建 / 插件 APK | **不存在**（已随 Rime-only 化裁剪） |
+| debug 变体 | 包名 `org.fcitx.fcitx5.android.fx.rime.debug`，可与 Release 版并存 |
+| 下载来源 | [SandyYuR/fcitx5-android Releases](https://github.com/SandyYuR/fcitx5-android/releases)（含时间戳 Nightly 预发布） |
+| 应用内更新检查 | 默认查询本仓库的 Release |
 
-::: tip 不知道选哪个？
-**先装 fx 构建**。它不会动你已有的上游版本；如果用得满意，再决定是否卸载上游。
+## 与上游 / fxliang 的并存关系
+
+三个版本的包名互不相同，**可以在同一台设备上并存**：
+
+| 版本 | 包名 | 与本版 |
+|------|------|--------|
+| 上游 fcitx5-android | `org.fcitx.fcitx5.android` | ✅ 并存，互不影响 |
+| fxliang fx 构建 | `org.fcitx.fcitx5.android.fx` | ✅ 并存，互不影响 |
+| **靓企鹅·中州韵** | `org.fcitx.fcitx5.android.fx.rime` | —— |
+
+并存时注意：
+
+- 三者的应用私有目录**完全隔离**，各自的布局、主题、Rime 数据互不共享；
+- **数据不会自动迁移**——从旧版本换到本版请走 [从上游迁移](/guide/migrate-from-upstream)；
+- 系统的「默认输入法」同一时刻只能选一个，可在系统输入法切换器里随时换。
+
+::: info 为什么没有「插件兼容性矩阵」
+本版把 fcitx5-rime 直接编入主 APK，并删除了整套插件框架（插件发现、签名白名单、PluginFragment 等）。不存在需要主程序加载的外部插件 APK，自然也没有签名匹配、第三方插件放行这些概念。如果你需要拼音、码表或其他语言方案，请使用 fxliang 版本或上游。
 :::
 
-### 怎么区分下载到的是哪个
+## 用户数据边界
 
-- 文件名里 **含 `.fx`** → fx 构建
-- 文件名 **不含 `.fx`**（即 `org.fcitx.fcitx5.android-<ver>.apk`） → mainline 构建
+- 用户数据（Rime 方案与用户词典、布局 JSON、主题、剪贴板历史、偏好设置）存放在本版自己的私有目录；Rime 用户数据目录位于应用外部文件目录下的 **`data/rime`**，可在 **中州韵设置** 中打开；
+- **升级应用（同包名覆盖安装）不会删除用户数据**，也不会删除你放入的方案；
+- **卸载应用会清空全部私有数据**——卸载前请先 **数据与备份 → 导出用户数据**；
+- 备份 ZIP **未加密**且可能包含剪贴板历史等敏感内容，请妥善保管。
 
-应用安装后，在 **设置 → 关于** 中也能看到当前版本来自哪一个构建。
+## 备份互通性
 
-## 插件兼容性矩阵
+本版的导入器接受以 `org.fcitx.fcitx5.android` 开头的构建变体备份（含上游、fxliang fork 与本版），并会自动处理包名相关的偏好文件名。也就是说：
 
-魔改插件（Rime、chinese-addons、五笔、仓颉、注音、Anthy、Hangul、Sayura、Thai、Unikey、Jyutping、Chewing、Clipboard-Filter、Text-Editor 等）的包名 **沿用上游**，例如：
+- 从上游 / fxliang 迁入：旧应用导出的备份可直接导入本版；
+- 从本版导出的备份同样可供上游 / fxliang 导入。
 
-```
-org.fcitx.fcitx5.android.plugin.rime
-org.fcitx.fcitx5.android.plugin.chinese-addons
-...
-```
-
-所以同一个插件包名只能存在一份 —— **fxliang 插件与上游同名插件不能并存安装**。
-
-### 签名才是关键
-
-插件能否被加载，**实际由 APK 签名决定**（包名相同只是 Android 系统级要求，不代表可加载）。规则如下：
-
-- **同签名**：主程序与插件由同一密钥签名 → 直接放行
-- **不同签名**：必须主程序提供"放行口"才能加载
-
-fxliang 主程序（fx / mainline 两种构建都用 fxliang 的同一套密钥签名）提供了 **"允许第三方 Fcitx5 插件"** 开关；**上游主程序没有这个开关**。
-
-|                        | 上游原版插件（upstream 签名） | fxliang 魔改插件（fxliang 签名） |
-|-----------------------|:------------:|:----------------:|
-| **fx** 主程序（fxliang 签名）  | ✅ 需开启"允许第三方 Fcitx5 插件" | ✅ 默认 |
-| **mainline** 主程序（fxliang 签名） | ✅ 需开启"允许第三方 Fcitx5 插件" | ✅ 默认 |
-| **上游官方** 主程序（upstream 签名） | ✅ 默认 | ❌ 上游无放行机制，签名不匹配，无法加载 |
-
-::: warning 上游主程序无法使用 fxliang 魔改插件
-即使你看到上游主程序"识别到了" fxliang 插件，加载步骤会因签名校验失败而拒绝。这是 Android 安全模型，不是 bug。想用魔改插件，必须用 fxliang 主程序（fx 或 mainline）。
-:::
-
-### "允许第三方 Fcitx5 插件" 开关
-
-- 路径：**设置 → 高级 → 允许第三方 Fcitx5 插件**
-- 默认 **关闭**
-- 启用后：主程序在加载阶段对"包名前缀在白名单内、但签名与主程序不一致"的插件放行（默认白名单前缀 `org.fcitx.fcitx5.android`，可在同页加自定义）
-
-::: warning 不要装重复功能的插件
-启用上述开关后请勿同时安装"功能相同的上游原版插件 + fxliang 魔改插件" —— 同名包根本装不上；即便靠 debug / release 不同变体绕开，候选流程会异常。
-:::
-
-## 常见组合策略
-
-### 策略 A：双装（推荐新手）
-
-- 主程序：fx 构建（与上游并存）
-- 插件：用 fxliang Release 的全套魔改插件
-- 体验完整魔改特性，但保留上游主程序随时回退
-
-### 策略 B：替换上游
-
-- 卸载上游主程序与插件
-- 装 mainline 构建 + fxliang 魔改插件
-- 应用图标、包名都是"上游同款"，对其他依赖此包名的应用 / 自动化脚本透明
-
-### 策略 C：fx + 上游插件
-
-- 主程序：fx 构建
-- 插件：来自上游
-- 开启 "允许第三方 Fcitx5 插件"
-- 适合：想要魔改的主程序功能（编辑器、QR 分享等），但坚持上游官方的方案插件
-
-::: tip
-策略 A 与策略 C 都能让你 **同一台手机同时拥有两份键盘**（fx + 保留的上游），根据使用场景在系统输入法切换里选用。
-:::
-
-::: info 为什么没有"上游主程序 + fxliang 魔改插件"策略
-上游主程序无放行开关，会因签名不匹配拒绝 fxliang 签名的插件 —— 详见上方[签名校验规则](#签名才是关键)。
-:::
-
-## 切回上游 / 卸载
-
-- **fx 构建**：作为独立包卸载，不影响上游
-- **mainline 构建**：卸载后从 [上游 Release](https://github.com/fcitx5-android/fcitx5-android/releases) 重装即可
-- 用户数据（自定义词库、Rime 配置、布局、主题等）存放在 **各自的应用私有目录**：
-  - fx 构建 ↔ `org.fcitx.fcitx5.android.fx`
-  - mainline 构建 ↔ `org.fcitx.fcitx5.android`
-  - 两者数据 **不共享**；切换 / 双装时通过 [备份与导入](/guide/migrate-from-upstream) 在两端来回搬
-
-## 用户数据迁移
-
-上游、fx 构建、mainline 构建三者的备份格式互通 —— 同一份 zip 备份可在任意一端导出、任意一端导入。完整流程与注意事项见 [从上游迁移](/guide/migrate-from-upstream)。
+完整流程与注意事项见 [从上游迁移](/guide/migrate-from-upstream)。
 
 ## 相关页面
 
 - [安装](/guide/installation)
+- [从上游迁移](/guide/migrate-from-upstream)
 - [反馈问题](/troubleshooting/report-issue)
 - [关于：致谢与差异说明](/about/credits)

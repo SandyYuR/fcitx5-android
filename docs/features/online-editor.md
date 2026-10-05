@@ -2,7 +2,7 @@
 
 fx 提供一个可在电脑浏览器中使用的在线编辑器：
 
-[打开在线编辑器](https://fxliang.github.io/f5a-see-me/){target="_blank" rel="noopener"}
+[打开在线编辑器](https://sandyyur.github.io/f5a-see-me/){target="_blank" rel="noopener"}
 
 它适合在更大的屏幕上修改配置，再通过二维码导入到手机端。
 

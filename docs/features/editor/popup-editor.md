@@ -16,7 +16,7 @@ fx 增加了 **PopupPreset 编辑器**，配合 `config/PopupPreset.json` 配置
 
 进入 **配置 → 键盘 → Popup 预设**（具体路径以应用内为准）。
 
-也可以在电脑浏览器中使用 [在线编辑器](https://fxliang.github.io/f5a-see-me/){target="_blank" rel="noopener"} 修改 Popup 预设，再通过二维码导入到手机端。
+也可以在电脑浏览器中使用 [在线编辑器](https://sandyyur.github.io/f5a-see-me/){target="_blank" rel="noopener"} 修改 Popup 预设，再通过二维码导入到手机端。
 
 ## 配置文件
 
