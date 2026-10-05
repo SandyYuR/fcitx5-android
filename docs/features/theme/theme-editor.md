@@ -29,7 +29,7 @@ fx 增加了 Gboard 风格的圆角 action key 选项。
 
 进入 **配置 → 主题 → 创建新主题** 或对已有主题点击 **编辑**。
 
-也可以在电脑浏览器中使用 [在线编辑器](https://fxliang.github.io/f5a-see-me/){target="_blank" rel="noopener"} 修改主题，再通过二维码导入到手机端。
+也可以在电脑浏览器中使用 [在线编辑器](https://sandyyur.github.io/f5a-see-me/){target="_blank" rel="noopener"} 修改主题，再通过二维码导入到手机端。
 
 ## 相关页面
 

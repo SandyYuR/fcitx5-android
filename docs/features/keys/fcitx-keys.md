@@ -140,7 +140,7 @@
 
 ## 完整列表去哪查
 
-本页列的是常用子集。代码侧的"完整支持列表"由 `KeyMapping` 常量定义（约 100+ 项），通过 codegen 生成。如果你需要的某个键名不在本页，但属于标准 X11 keysym 命名，多数也能用 —— 实在不确定可在 [issues](https://github.com/fxliang/fcitx5-android/issues) 中问。
+本页列的是常用子集。代码侧的"完整支持列表"由 `KeyMapping` 常量定义（约 100+ 项），通过 codegen 生成。如果你需要的某个键名不在本页，但属于标准 X11 keysym 命名，多数也能用 —— 实在不确定可在 [issues](https://github.com/SandyYuR/fcitx5-android/issues) 中问。
 
 ## 相关页面
 

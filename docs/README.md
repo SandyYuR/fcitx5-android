@@ -5,7 +5,7 @@
 ## 1. 克隆 docs 分支最新提交
 
 ```bash
-git clone --depth 1 --single-branch --branch docs https://github.com/fxliang/fcitx5-android.git
+git clone --depth 1 --single-branch --branch docs https://github.com/SandyYuR/fcitx5-android.git
 cd fcitx5-android
 ```
 
@@ -41,7 +41,7 @@ git commit -m "docs: update documentation"
 
 ## 5. 提交修改
 
-1. 有仓库写权限：直接推送到 `docs` 分支。  
+1. 有仓库写权限：直接推送到 `docs` 分支（GitHub Actions 的 **Docs** 工作流会自动构建并发布到 GitHub Pages）。
 2. 无写权限：推送到 fork 分支后发 Pull Request，目标分支选择 `docs`。
 
 ---

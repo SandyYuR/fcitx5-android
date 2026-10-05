@@ -1,18 +1,18 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Fcitx5 for Android · fx',
-  description: 'fxliang/fcitx5-android (fx 分支) 的最终用户文档 —— 聚焦相对上游新增与修改的功能',
+  title: '靓企鹅·中州韵',
+  description: '靓企鹅·中州韵（Fcitx5.fx.rime，Rime-only）的最终用户文档 —— Rime 引擎内置的 Android 输入法，基于 fxliang/fcitx5-android fx 分支继续开发',
   lang: 'zh-CN',
   lastUpdated: true,
   cleanUrls: true,
 
-  // 部署到 https://fxliang.github.io/fcitx5-android/ 时使用此 base
+  // 部署到 https://sandyyur.github.io/fcitx5-android/ 时使用此 base
   base: '/fcitx5-android/',
 
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/fcitx5-android/logo.png' }],
-    ['meta', { name: 'theme-color', content: '#5b73e8' }],
+    ['meta', { name: 'theme-color', content: '#24292e' }],
     ['script', { defer: '', src: 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js' }],
   ],
 
@@ -21,18 +21,19 @@ export default defineConfig({
       {
         text: '指南',
         items: [
-          { text: '介绍（fx 是什么）', link: '/guide/introduction' },
+          { text: '介绍（这个版本是什么）', link: '/guide/introduction' },
           { text: '安装', link: '/guide/installation' },
-          { text: '构建版本与插件兼容性', link: '/guide/builds-and-plugins' },
-          { text: '从上游迁移', link: '/guide/migrate-from-upstream' },
           { text: '快速上手', link: '/guide/quick-start' },
+          { text: '构建版本与数据共存', link: '/guide/builds-and-plugins' },
+          { text: '从上游迁移', link: '/guide/migrate-from-upstream' },
+          { text: '核心概念', link: '/guide/concepts' },
         ],
       },
       {
         text: '功能',
         items: [
           { text: '功能总览', link: '/features/overview' },
-          { text: '在线编辑器', link: '/features/online-editor' },
+          { text: 'Rime 引擎（内置）', link: '/features/rime-enhancements' },
           { text: '键盘特性', link: '/features/keyboard/float-keyboard' },
           { text: '编辑器', link: '/features/editor/layout-editor' },
           { text: '主题增强', link: '/features/theme/theme-editor' },
@@ -43,15 +44,15 @@ export default defineConfig({
         ],
       },
       { text: '疑难解答', link: '/troubleshooting/faq' },
-      { text: '捐赠', link: '/about/donate' },
       {
         text: '关于',
         items: [
-          { text: '参与文档修改', link: '/about/contribute-docs' },
           { text: '致谢与差异说明', link: '/about/credits' },
+          { text: '参与文档修改', link: '/about/contribute-docs' },
+          { text: '支持与捐赠', link: '/about/donate' },
         ],
       },
-      { text: 'GitHub', link: 'https://github.com/fxliang/fcitx5-android' },
+      { text: 'GitHub', link: 'https://github.com/SandyYuR/fcitx5-android' },
     ],
 
     sidebar: {
@@ -59,11 +60,11 @@ export default defineConfig({
         {
           text: '入门',
           items: [
-            { text: '介绍（fx 是什么）', link: '/guide/introduction' },
+            { text: '介绍（这个版本是什么）', link: '/guide/introduction' },
             { text: '安装', link: '/guide/installation' },
-            { text: '构建版本与插件兼容性', link: '/guide/builds-and-plugins' },
-            { text: '从上游迁移', link: '/guide/migrate-from-upstream' },
             { text: '快速上手', link: '/guide/quick-start' },
+            { text: '构建版本与数据共存', link: '/guide/builds-and-plugins' },
+            { text: '从上游迁移', link: '/guide/migrate-from-upstream' },
             { text: '核心概念', link: '/guide/concepts' },
           ],
         },
@@ -72,8 +73,8 @@ export default defineConfig({
         {
           text: '总览',
           items: [
-            { text: 'fx 功能总览', link: '/features/overview' },
-            { text: '在线编辑器', link: '/features/online-editor' },
+            { text: '功能总览', link: '/features/overview' },
+            { text: 'Rime 引擎（内置）', link: '/features/rime-enhancements' },
           ],
         },
         {
@@ -130,13 +131,13 @@ export default defineConfig({
           ],
         },
         {
-          text: '其他增强',
+          text: '其他功能',
           items: [
             { text: '剪贴板同步（内置）', link: '/features/clipboard-sync' },
             { text: '更新检查器与镜像', link: '/features/update-checker' },
             { text: '共享导入与解压', link: '/features/shared-import' },
-            { text: '文本编辑器插件', link: '/features/text-editor' },
-            { text: 'Rime 集成增强', link: '/features/rime-enhancements' },
+            { text: '文本编辑底部栏', link: '/features/text-editor' },
+            { text: '在线编辑器', link: '/features/online-editor' },
           ],
         },
       ],
@@ -145,7 +146,7 @@ export default defineConfig({
           text: '疑难解答',
           items: [
             { text: '常见问题', link: '/troubleshooting/faq' },
-            { text: 'OEM 关联启动', link: '/troubleshooting/oem-startup' },
+            { text: 'OEM 自启动与后台限制', link: '/troubleshooting/oem-startup' },
             { text: '反馈问题', link: '/troubleshooting/report-issue' },
           ],
         },
@@ -154,27 +155,27 @@ export default defineConfig({
         {
           text: '关于',
           items: [
-            { text: '捐赠', link: '/about/donate' },
-            { text: '参与文档修改', link: '/about/contribute-docs' },
             { text: '致谢与差异说明', link: '/about/credits' },
+            { text: '参与文档修改', link: '/about/contribute-docs' },
+            { text: '支持与捐赠', link: '/about/donate' },
           ],
         },
       ],
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/fxliang/fcitx5-android' },
+      { icon: 'github', link: 'https://github.com/SandyYuR/fcitx5-android' },
     ],
 
     footer: {
       message:
-        '本项目基于 <a href="https://github.com/fcitx5-android/fcitx5-android">fcitx5-android/fcitx5-android</a> 修改。源码与文档以 LGPL-2.1 发布。',
+        '本项目基于 <a href="https://github.com/fxliang/fcitx5-android">fxliang/fcitx5-android</a> 的 fx 分支继续开发，上游为 <a href="https://github.com/fcitx5-android/fcitx5-android">fcitx5-android/fcitx5-android</a>。源码与文档以 LGPL-2.1+ 发布。',
       copyright:
-        '© fxliang & Fcitx5 for Android contributors<br><span id="busuanzi_container_page_pv">本页访问量 <span id="busuanzi_value_page_pv"></span> 次</span>',
+        '© SandyYuR & Fcitx5 for Android contributors<br><span id="busuanzi_container_page_pv">本页访问量 <span id="busuanzi_value_page_pv"></span> 次</span>',
     },
 
     editLink: {
-      pattern: 'https://github.com/fxliang/fcitx5-android/edit/fx/docs/:path',
+      pattern: 'https://github.com/SandyYuR/fcitx5-android/edit/docs/docs/:path',
       text: '在 GitHub 上编辑此页',
     },
 

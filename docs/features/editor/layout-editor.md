@@ -27,7 +27,7 @@ fx 提供完整的 **应用内键盘布局编辑器**，配合底层的 JSON 配
 
 进入 **配置 → 键盘 → 文本键盘布局**（具体路径以应用内为准），从列表中选择一个布局进入编辑器。
 
-也可以在电脑浏览器中使用 [在线编辑器](https://fxliang.github.io/f5a-see-me/){target="_blank" rel="noopener"} 修改布局，再通过二维码导入到手机端。
+也可以在电脑浏览器中使用 [在线编辑器](https://sandyyur.github.io/f5a-see-me/){target="_blank" rel="noopener"} 修改布局，再通过二维码导入到手机端。
 
 ## 布局 Profile 与切换
 

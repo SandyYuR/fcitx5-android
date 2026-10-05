@@ -1,90 +1,71 @@
 # 安装
 
-::: tip 两个构建版本
-fx 提供 **fx 构建**（与上游可共存）与 **mainline 构建**（替换上游）两个版本，配合两套插件兼容关系。**多数用户选 fx 构建即可**。详细差异、共存策略与插件矩阵见 [构建版本与插件兼容性](/guide/builds-and-plugins)。
+::: tip 只有一个构建版本
+靓企鹅·中州韵只有一个 APK：包名 `org.fcitx.fcitx5.android.fx.rime`，**Rime 引擎已内置**，不需要安装任何插件。它可以与上游 fcitx5-android、fxliang fx 构建**并存安装**（详见 [构建版本与数据共存](/guide/builds-and-plugins)）。
 :::
 
-::: tip 已经在用上游？
-上游导出的用户数据备份可以直接导入到 fxliang —— 一次拿到所有上游里的自定义配置（Rime / 词库 / 主题 / SharedPreferences 等）。完整步骤见 [从上游迁移](/guide/migrate-from-upstream)。
+::: warning 装完打不出汉字是预期状态
+本版 **不预置任何输入方案**。安装、启用之后键盘能正常弹出，但需要自己放入 Rime 方案并部署一次才能输入中文——步骤见 [快速上手](/guide/quick-start)。
 :::
 
 ## 一、下载渠道
 
-### 1. fxliang/fcitx5-android Releases（推荐）
+### 1. SandyYuR/fcitx5-android Releases（推荐）
 
-前往 [fxliang/fcitx5-android Releases](https://github.com/fxliang/fcitx5-android/releases) 下载最新版本：
+前往 [SandyYuR/fcitx5-android Releases](https://github.com/SandyYuR/fcitx5-android/releases) 下载最新版本：
 
-**主程序**（二选一）：
-
-| 文件名样式 | 是哪一个 | 与上游 |
-|------------|----------|--------|
-| `org.fcitx.fcitx5.android.fx-<ver>.apk` | **fx 构建**（推荐） | 可共存 |
-| `org.fcitx.fcitx5.android-<ver>.apk` | mainline 构建 | 互相覆盖 |
-
-**插件**（按需，单个 APK 同时兼容两种主程序构建）：
-
-- `org.fcitx.fcitx5.android.plugin.rime-<version>.apk` —— Rime 输入引擎
-- `org.fcitx.fcitx5.android.plugin.chinese-addons-<version>.apk` —— 拼音 / 双拼等中文方案
-- `org.fcitx.fcitx5.android.plugin.text_editor-<version>.apk` —— 应用内文本编辑器（fx 新增）
-- 其他方案插件（五笔、仓颉、新酷音、Anthy、Hangul、Sayura、Thai、Unikey、Jyutping、Chewing、Clipboard-Filter 等）
+- **正式意义的时间戳 Nightly 预发布**：`fx-rime-only` 分支每次构建成功都会自动创建一个带时间戳的 Nightly 预发布版并附带 APK，适合愿意尝鲜和反馈的用户；
+- Release 里的主程序 APK 文件名形如 `org.fcitx.fcitx5.android.fx.rime-<version>.apk`。
 
 ::: tip 选择正确的 ABI
-若不确定设备架构，下载文件名含 `arm64-v8a` 的版本即可（覆盖大多数现代设备）。
+CI 构建与验证的是 **`arm64-v8a`**（覆盖大多数现代设备）。其他 ABI 是否提供以具体 Release 产物为准。
 :::
 
 ### 2. 应用内更新检查（已安装后）
 
-进入 **设置 → 关于 → 检查更新**，可自动从 GitHub 拉取 fxliang 仓库的最新 Release，支持镜像下载（详见 [更新检查器](/features/update-checker)）。
+打开应用 → 右上角菜单 → **关于 → 当前版本**，可检查更新、查看发布说明并下载安装包。它拉取的是本仓库的 Release（含 Nightly 预发布），支持镜像规则与自定义 hosts 加速（详见 [更新检查器](/features/update-checker)）。
 
 ::: info 为什么没有 F-Droid
-这是个人魔改分支，未上架 F-Droid。如需 F-Droid 渠道请使用上游版本。
+这是个人定制分支，未上架 F-Droid。如需 F-Droid 渠道请使用上游版本。
 :::
 
 ## 二、安装步骤
 
-### 1. 卸载冲突版本（按构建判断）
+### 1. 安装主程序 APK
 
-- 安装 **fx 构建**：无需卸载上游 —— 它会作为独立应用并存
-- 安装 **mainline 构建**：若已装上游版本，直接覆盖或先卸载（覆盖保留配置，卸载会清除配置）
+在文件管理器或浏览器中点击下载的 APK。首次安装可能需要授予 **允许安装未知来源应用** 权限（只应为当前使用的文件管理器或浏览器临时授权，安装后可关闭）。
 
-### 2. 安装主程序 APK
+- 全新安装：直接装即可；
+- 覆盖升级：确认新 APK 的包名与签名与已安装版本一致（不同签名的 APK 不能直接覆盖）；
+- **不需要、也没有任何插件 APK 可装**——Rime 引擎、Rime 共享数据（`default.yaml`、`symbols.yaml` 等公共预设资源）都在主包内。
 
-在文件管理器或浏览器中点击下载的 APK。首次安装可能需要授予 **允许安装未知来源应用** 权限。
+### 2. 启用输入法
 
-### 3. 安装所需插件
+首次打开应用会出现两步向导：
 
-如需使用 Rime、拼音等方案，安装对应插件 APK。插件本身不可独立启动，安装后会自动被主程序识别。
+1. 点 **启用输入法**，跳转到系统 **设置 → 系统 → 语言和输入法 → 屏幕键盘 / 管理键盘**（不同 ROM 命名略有差异），找到 **Fcitx5.fx.rime / 靓企鹅·中州韵** 并开启开关；
+2. 返回应用，点 **选择输入法**，将其设为当前输入法。
 
-::: tip 想同时使用上游 / fxliang 两种插件？
-默认主程序只识别"匹配自身构建"的插件。在 **设置 → 高级 → 允许第三方 Fcitx5 插件** 中可放开。详见 [构建版本与插件兼容性 → 兼容性矩阵](/guide/builds-and-plugins#插件兼容性矩阵)。
-:::
+也可以在任意可输入文本的位置，通过键盘右下角的 **切换输入法** 按钮或系统设置完成切换。
 
-### 4. 启用输入法
+### 3. 放入 Rime 方案并部署
 
-进入系统 **设置 → 系统 → 语言和输入法 → 屏幕键盘 / 管理键盘**（不同 ROM 命名略有差异），找到对应的 Fcitx5 项并开启开关。
-
-### 5. 切换为默认输入法
-
-在任意可输入文本的位置（如短信、备忘录），调出键盘，点击键盘右下角的 **切换输入法** 按钮，选择对应的 Fcitx5。
-
-或在系统设置中将其设为默认输入法。
+这是与"其他发行版"最不同的一步：**首次启用后没有任何可用方案**。把方案文件放进用户数据目录、patch `schema_list`、执行部署，详见 [快速上手](/guide/quick-start)。
 
 ## 三、权限说明
 
 - **悬浮窗 / 显示在其他应用上层**：用于浮动键盘等
-- **存储**：用于读取自定义词库、Rime 配置、导入主题/布局等
-- **通知**：用于更新检查与下载进度提示
+- **存储**：用于读取方案文件、自定义词库、Rime 配置、导入主题/布局等
+- **通知**：用于剪贴板同步、更新检查与下载进度提示
 - **相机**：扫描二维码导入布局/主题/Popup 配置时使用（详见 [QR 分享](/features/theme/share-import)）
+- **麦克风**：语音输入入口
 
-## 四、OEM 关联启动（重要）
+## 四、OEM 自启动与后台限制（建议）
 
-在 **小米 (MIUI/HyperOS)、华为 (EMUI/HarmonyOS)、OPPO (ColorOS)、vivo (OriginOS)** 等国产定制 ROM 上，**必须** 手动为主程序和插件开启「关联启动 / 自启动」权限，否则插件可能无法被主程序识别。
+部分国产 ROM（小米、华为、OPPO、vivo 等）会限制输入法进程的常驻与后台活动，可能表现为键盘调起变慢、剪贴板同步不稳定。建议为本应用开启 **自启动 / 关联启动** 并放宽省电限制，详见 [OEM 自启动与后台限制](/troubleshooting/oem-startup)。
 
-详细操作步骤见 [OEM 关联启动](/troubleshooting/oem-startup)。
+## 五、卸载
 
-## 五、卸载与切回上游
-
-- 卸载主程序前建议先取消其默认输入法状态
-- 插件可独立卸载，不影响主程序
-- 自定义配置存放于应用私有目录，**fx 构建与 mainline 构建数据不互通**；卸载时会一并删除（请先用应用内 **设置 → 高级 → 导出用户数据** 备份，详见 [从上游迁移](/guide/migrate-from-upstream)）
-- 卸载后可前往 [上游 Release](https://github.com/fcitx5-android/fcitx5-android/releases) 重新安装上游版本
+- 卸载前建议先取消其默认输入法状态；
+- 自定义配置存放于应用私有目录，**卸载会一并删除**——请先用 **数据与备份 → 导出用户数据** 备份（详见 [从上游迁移](/guide/migrate-from-upstream)）；
+- 卸载不影响同机并存的上游 / fxliang 版本，反之亦然。
