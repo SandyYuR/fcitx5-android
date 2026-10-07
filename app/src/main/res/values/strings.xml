@@ -326,6 +326,7 @@
     <string name="swipe_symbol_behavior">Symbol swipe direction (when symbols are hidden)</string>
     <string name="swipe_down">Swipe down</string>
     <string name="swipe_up">Swipe up</string>
+    <string name="swipe_auto">Automatic</string>
     <string name="disabled">Disabled</string>
     <string name="system_default">System default</string>
     <string name="editor_info_inspector">EditorInfo Inspector</string>
@@ -711,6 +712,8 @@
     <string name="text_keyboard_layout_mode_name_hint">Mode name</string>
     <string name="text_keyboard_layout_macro_tap_event">Tap Event</string>
     <string name="text_keyboard_layout_macro_swipe_event">Swipe Event</string>
+    <string name="text_keyboard_layout_macro_swipe_up_event">Swipe Event (Up)</string>
+    <string name="text_keyboard_layout_macro_swipe_down_event">Swipe Event (Down)</string>
     <string name="text_keyboard_layout_macro_longpress_event">Long Press Event</string>
     <string name="text_keyboard_layout_longpress_label">Long Press Label</string>
     <string name="text_keyboard_layout_longpress_label_fallback_hint">Empty means using Label in popup</string>
@@ -719,6 +722,8 @@
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (%2$d steps total)</string>
     <string name="text_keyboard_layout_alt_label">Alt Label</string>
     <string name="text_keyboard_layout_swipe_label">Swipe Label</string>
+    <string name="text_keyboard_layout_swipe_up_label">Swipe Up Label</string>
+    <string name="text_keyboard_layout_swipe_down_label">Swipe Down Label</string>
     <string name="text_keyboard_layout_space_swipe_hint">Only takes effect when "Swipe on space key to move cursor" is turned off; while it is on, swiping the space key moves the cursor instead.</string>
     <string name="text_keyboard_layout_switch_target">Target</string>
     <string name="text_keyboard_layout_switch_target_default">Default (?123 / last symbol layout)</string>

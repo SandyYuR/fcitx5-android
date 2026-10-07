@@ -648,6 +648,7 @@
     <string name="swipe_down">아래로 스와이프</string>
     <string name="swipe_symbol_behavior">기호 숨김 시 기호 스와이프 방향</string>
     <string name="swipe_up">위로 스와이프</string>
+    <string name="swipe_auto">자동</string>
     <string name="switch_to_voice_input">음성 입력으로 전환</string>
     <string name="system_default">시스템 기본값</string>
     <string name="table_already_exists">테이블 입력기 설정 파일 "%1$s"가 이미 존재합니다</string>

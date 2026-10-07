@@ -146,6 +146,7 @@
     <string name="disable_addon_warn_confirm">Sicher, dass Sie es deaktivieren wollen?</string>
     <string name="swipe_down">Nach unten wischen</string>
     <string name="swipe_up">Nach oben wischen</string>
+    <string name="swipe_auto">Automatisch</string>
     <string name="disabled">Deaktiviert</string>
     <string name="system_default">Systemstandard</string>
     <string name="default_">Standard</string>

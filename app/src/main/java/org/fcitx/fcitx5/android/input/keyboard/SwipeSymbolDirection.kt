@@ -10,8 +10,10 @@ import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceEnum
 enum class SwipeSymbolDirection(override val stringRes: Int): ManagedPreferenceEnum {
     Up(R.string.swipe_up),
     Down(R.string.swipe_down),
+    Auto(R.string.swipe_auto),
     Disabled(R.string.disabled);
 
     fun checkY(totalY: Int): Boolean =
-        (this != Disabled) && (totalY != 0) && ((totalY > 0) == (this == Down))
+        (this != Disabled) && (totalY != 0) &&
+            (this == Auto || (totalY > 0) == (this == Down))
 }

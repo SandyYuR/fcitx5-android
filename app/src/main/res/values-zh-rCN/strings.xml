@@ -314,6 +314,7 @@
     <string name="swipe_symbol_behavior">符号划动方向（符号隐藏时）</string>
     <string name="swipe_down">下划</string>
     <string name="swipe_up">上划</string>
+    <string name="swipe_auto">自动</string>
     <string name="disabled">禁用</string>
     <string name="system_default">系统默认</string>
     <string name="editor_info_inspector">编辑器信息 (EditorInfo) 检查器</string>
@@ -726,6 +727,8 @@
     <string name="text_keyboard_layout_macro_key_label_required">标签不能为空</string>
     <string name="text_keyboard_layout_macro_tap_event">点击事件</string>
     <string name="text_keyboard_layout_macro_swipe_event">划动事件</string>
+    <string name="text_keyboard_layout_macro_swipe_up_event">上划事件</string>
+    <string name="text_keyboard_layout_macro_swipe_down_event">下划事件</string>
     <string name="text_keyboard_layout_macro_longpress_event">长按事件</string>
     <string name="text_keyboard_layout_longpress_label">长按标签</string>
     <string name="text_keyboard_layout_longpress_label_fallback_hint">留空则在弹出菜单中使用“标签”</string>
@@ -734,6 +737,8 @@
     <string name="text_keyboard_layout_macro_event_preview">%1$s → … (共 %2$d 步)</string>
     <string name="text_keyboard_layout_alt_label">副标签</string>
     <string name="text_keyboard_layout_swipe_label">划动标签</string>
+    <string name="text_keyboard_layout_swipe_up_label">上划标签</string>
+    <string name="text_keyboard_layout_swipe_down_label">下划标签</string>
     <string name="text_keyboard_layout_space_swipe_hint">仅在关闭「划动空格键以移动光标」后生效；开启时划动空格键用于移动光标。</string>
     <string name="text_keyboard_layout_switch_target">目标</string>
     <string name="text_keyboard_layout_switch_target_default">默认（?123 / 上次符号布局）</string>

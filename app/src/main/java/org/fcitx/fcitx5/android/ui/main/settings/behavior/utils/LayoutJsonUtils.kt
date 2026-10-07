@@ -129,6 +129,8 @@ object LayoutJsonUtils {
         "altLabel",
         "subLabel",
         "swipeLabel",
+        "swipeUpLabel",
+        "swipeDownLabel",
         "sym",
         "weight",
         "rowHeightPercent",
@@ -138,6 +140,8 @@ object LayoutJsonUtils {
         "transparent",
 
         "tap",
+        "swipeUp",
+        "swipeDown",
         "swipe",
         "longPress",
         "composeOverride",
@@ -391,6 +395,8 @@ object LayoutJsonUtils {
             longPressLabel = obj["longPressLabel"]?.jsonPrimitive?.contentOrNull,
             subLabel = obj["subLabel"]?.jsonPrimitive?.contentOrNull,
             swipeLabel = obj["swipeLabel"]?.jsonPrimitive?.contentOrNull,
+            swipeUpLabel = obj["swipeUpLabel"]?.jsonPrimitive?.contentOrNull,
+            swipeDownLabel = obj["swipeDownLabel"]?.jsonPrimitive?.contentOrNull,
             sym = obj["sym"]?.jsonPrimitive?.contentOrNull?.let { resolveKeysym(it) },
             weight = parseOptionalFloat(obj["weight"]),
             rowHeightPercent = parseOptionalFloat(obj["rowHeightPercent"]),
@@ -405,6 +411,8 @@ object LayoutJsonUtils {
             shadowColor = parseOptionalInt(obj["shadowColor"]),
             shadowColorMonet = obj["shadowColorMonet"]?.jsonPrimitive?.contentOrNull,
             tap = obj["tap"]?.jsonObject?.let { parseMacroAction(it) },
+            swipeUp = obj["swipeUp"]?.jsonObject?.let { parseMacroAction(it) },
+            swipeDown = obj["swipeDown"]?.jsonObject?.let { parseMacroAction(it) },
             swipe = obj["swipe"]?.jsonObject?.let { parseMacroAction(it) },
             longPress = obj["longPress"]?.jsonObject?.let { parseMacroAction(it) },
             independentColor = independentColor,
@@ -558,6 +566,80 @@ object LayoutJsonUtils {
         return rows
     }
 
+    /**
+     * 将旧版单一 swipe 槽位迁移为物理上划或下划槽位。
+     *
+     * 迁移只处理支持方向宏的键型；SpaceKey 保留旧专用滑动语义。功能键属于非字母键，旧字段固定
+     * 迁移到下滑槽；MacroKey 才按 legacyToDown 决定方向。宏字段和标签字段分别判断：各自已有
+     * 方向字段时删除对应旧字段，否则迁移旧字段，避免部分新配置覆盖另一类仍需保留的旧数据。
+     */
+    fun migrateDirectionalSwipeFields(
+        entries: MutableMap<String, MutableList<MutableList<MutableMap<String, Any?>>>>,
+        legacyToDown: Boolean
+    ): Boolean {
+        val directionalTypes = setOf(
+            "CapsKey", "LayoutSwitchKey", "SymbolKey", "ReturnKey", "BackspaceKey", "MacroKey"
+        )
+        var changed = false
+
+        fun migrateKey(key: MutableMap<String, Any?>, inheritedType: String? = null): Boolean {
+            val type = key["type"] as? String ?: inheritedType
+            var keyChanged = false
+            if (type in directionalTypes) {
+                val legacyToDownForKey = type != "MacroKey" || legacyToDown
+                val hasNewMacro = key.containsKey("swipeUp") || key.containsKey("swipeDown")
+                if (hasNewMacro) {
+                    key.remove("swipe")?.let { keyChanged = true }
+                } else {
+                    val targetMacro = if (legacyToDownForKey) "swipeDown" else "swipeUp"
+                    if (key.containsKey("swipe")) {
+                        key[targetMacro] = key.remove("swipe")
+                        keyChanged = true
+                    }
+                }
+                val hasNewLabel = key.containsKey("swipeUpLabel") ||
+                    key.containsKey("swipeDownLabel")
+                if (type == "MacroKey") {
+                    if (hasNewLabel) {
+                        key.remove("altLabel")?.let { keyChanged = true }
+                    } else if (key.containsKey("altLabel")) {
+                        val targetLabel = if (legacyToDownForKey) "swipeDownLabel" else "swipeUpLabel"
+                        key[targetLabel] = key.remove("altLabel")
+                        keyChanged = true
+                    }
+                } else if (hasNewLabel) {
+                    key.remove("swipeLabel")?.let { keyChanged = true }
+                } else {
+                    val targetLabel = if (legacyToDownForKey) "swipeDownLabel" else "swipeUpLabel"
+                    if (key.containsKey("swipeLabel")) {
+                        key[targetLabel] = key.remove("swipeLabel")
+                        keyChanged = true
+                    }
+                }
+            }
+
+            val composeOverride = key["composeOverride"] as? Map<*, *>
+            if (composeOverride != null) {
+                val nested = composeOverride.entries
+                    .associate { (name, value) -> name.toString() to value }
+                    .toMutableMap()
+                if (migrateKey(nested, type)) {
+                    key["composeOverride"] = nested
+                    keyChanged = true
+                }
+            }
+            return keyChanged
+        }
+
+        entries.values.forEach { rows ->
+            rows.forEach { row ->
+                row.forEach { key ->
+                    if (migrateKey(key)) changed = true
+                }
+            }
+        }
+        return changed
+    }
     /**
      * 规范化键值，特别处理 weight 字段。
      *
@@ -751,7 +833,9 @@ object LayoutJsonUtils {
         val altLabel: String? = null,  // MacroKey 使用
         val longPressLabel: String? = null,  // MacroKey 使用
         val subLabel: String? = null,  // LayoutSwitchKey 使用
-        val swipeLabel: String? = null,  // 非 Macro 的 swipe 提示
+        val swipeLabel: String? = null,  // 旧版非 Macro 划动提示
+         val swipeUpLabel: String? = null,
+         val swipeDownLabel: String? = null,
         val sym: Int? = null,  // NumPadKey 使用（Fcitx keysym）
         val weight: Float? = null,
         val textColor: Int? = null,
@@ -763,7 +847,9 @@ object LayoutJsonUtils {
         val shadowColor: Int? = null,
         val shadowColorMonet: String? = null,
         val tap: MacroAction? = null,  // MacroKey 使用
-        val swipe: MacroAction? = null,  // MacroKey 使用
+        val swipeUp: MacroAction? = null,
+         val swipeDown: MacroAction? = null,
+         val swipe: MacroAction? = null,  // 旧版单一划动宏
         val longPress: MacroAction? = null,  // MacroKey 使用
         val independentColor: Boolean? = null,
         val rowHeightPercent: Float? = null,
@@ -780,6 +866,60 @@ object LayoutJsonUtils {
         val composeOverride: KeyJson? = null
     )
 
+    private fun putDirectionalSwipeFieldsForKey(
+        json: MutableMap<String, Any?>,
+        keyDef: KeyDef
+    ) {
+        when (keyDef) {
+            is CapsKey -> putDirectionalSwipeFields(
+                json, keyDef.swipeLabel, keyDef.swipeUpLabel, keyDef.swipeDownLabel,
+                keyDef.swipe, keyDef.swipeUp, keyDef.swipeDown
+            )
+            is LayoutSwitchKey -> putDirectionalSwipeFields(
+                json, keyDef.swipeLabel, keyDef.swipeUpLabel, keyDef.swipeDownLabel,
+                keyDef.swipe, keyDef.swipeUp, keyDef.swipeDown
+            )
+            is SymbolKey -> putDirectionalSwipeFields(
+                json, keyDef.swipeLabel, keyDef.swipeUpLabel, keyDef.swipeDownLabel,
+                keyDef.swipe, keyDef.swipeUp, keyDef.swipeDown
+            )
+            is ReturnKey -> putDirectionalSwipeFields(
+                json, keyDef.swipeLabel, keyDef.swipeUpLabel, keyDef.swipeDownLabel,
+                keyDef.swipe, keyDef.swipeUp, keyDef.swipeDown
+            )
+            is BackspaceKey -> putDirectionalSwipeFields(
+                json, keyDef.swipeLabel, keyDef.swipeUpLabel, keyDef.swipeDownLabel,
+                keyDef.swipe, keyDef.swipeUp, keyDef.swipeDown
+            )
+            is MacroKey -> putDirectionalSwipeFields(
+                json, null, keyDef.swipeUpLabel, keyDef.swipeDownLabel, keyDef.swipe,
+                keyDef.swipeUp, keyDef.swipeDown
+            )
+            else -> Unit
+        }
+    }
+    private fun putDirectionalSwipeFields(
+        json: MutableMap<String, Any?>,
+        legacyLabel: String?,
+        upLabel: String?,
+        downLabel: String?,
+        legacyMacro: MacroAction?,
+        upMacro: MacroAction?,
+        downMacro: MacroAction?
+    ) {
+        if (upLabel != null || downLabel != null) json.remove("swipeLabel")
+        if (upMacro != null || downMacro != null) json.remove("swipe")
+        upLabel?.let { json["swipeUpLabel"] = it }
+        downLabel?.let { json["swipeDownLabel"] = it }
+        if (upLabel == null && downLabel == null) {
+            legacyLabel?.let { json["swipeLabel"] = it }
+        }
+        upMacro?.let { json["swipeUp"] = macroActionToJson(it) }
+        downMacro?.let { json["swipeDown"] = macroActionToJson(it) }
+        if (upMacro == null && downMacro == null) {
+            legacyMacro?.let { json["swipe"] = macroActionToJson(it) }
+        }
+    }
     /**
      * 将 KeyDef 转换为 JSON 地图用于保存。
      *
@@ -826,15 +966,13 @@ object LayoutJsonUtils {
             }
             is CapsKey -> {
                 json["weight"] = appearance.percentWidth
-                keyDef.swipeLabel?.let { json["swipeLabel"] = it }
-                keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                putDirectionalSwipeFieldsForKey(json, keyDef)
             }
             is LayoutSwitchKey -> {
                 json["label"] = (appearance as? KeyDef.Appearance.Text)?.displayText
                 json["subLabel"] = keyDef.to
                 json["weight"] = appearance.percentWidth
-                keyDef.swipeLabel?.let { json["swipeLabel"] = it }
-                keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                putDirectionalSwipeFieldsForKey(json, keyDef)
             }
             is CommaKey -> {
                 json["weight"] = appearance.percentWidth
@@ -850,18 +988,15 @@ object LayoutJsonUtils {
             is SymbolKey -> {
                 json["label"] = keyDef.symbol
                 json["weight"] = appearance.percentWidth
-                keyDef.swipeLabel?.let { json["swipeLabel"] = it }
-                keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                putDirectionalSwipeFieldsForKey(json, keyDef)
             }
             is ReturnKey -> {
                 json["weight"] = appearance.percentWidth
-                keyDef.swipeLabel?.let { json["swipeLabel"] = it }
-                keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                putDirectionalSwipeFieldsForKey(json, keyDef)
             }
             is BackspaceKey -> {
                 json["weight"] = appearance.percentWidth
-                keyDef.swipeLabel?.let { json["swipeLabel"] = it }
-                keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                putDirectionalSwipeFieldsForKey(json, keyDef)
             }
             is NumPadKey -> {
                 json["label"] = (appearance as? KeyDef.Appearance.Text)?.displayText
@@ -885,14 +1020,11 @@ object LayoutJsonUtils {
             is MacroKey -> {
                 json["label"] = keyDef.label
                 keyDef.displayText?.takeIf { it.isNotEmpty() }?.let { json["displayText"] = it }
-                if (keyDef.altLabel != null) {
-                    json["altLabel"] = keyDef.altLabel
-                }
                 if (keyDef.longPressLabel != null) {
                     json["longPressLabel"] = keyDef.longPressLabel
                 }
                 json["tap"] = macroActionToJson(keyDef.tap)
-                keyDef.swipe?.let { json["swipe"] = macroActionToJson(it) }
+                putDirectionalSwipeFieldsForKey(json, keyDef)
                 keyDef.longPress?.let { json["longPress"] = macroActionToJson(it) }
                 json["weight"] = appearance.percentWidth.takeIf { it != 0.1f }
             }
@@ -1030,6 +1162,10 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "CapsKey" -> CapsKey(
+                 swipeUp = key.swipeUp,
+                 swipeDown = key.swipeDown,
+                 swipeUpLabel = key.swipeUpLabel,
+                 swipeDownLabel = key.swipeDownLabel,
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
                 percentWidth = key.weight ?: 0.15f,
@@ -1041,6 +1177,10 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "LayoutSwitchKey" -> LayoutSwitchKey(
+                 swipeUp = key.swipeUp,
+                 swipeDown = key.swipeDown,
+                 swipeUpLabel = key.swipeUpLabel,
+                 swipeDownLabel = key.swipeDownLabel,
                 displayText = key.label ?: "?123",
                 to = key.subLabel ?: "",
                 swipe = key.swipe,
@@ -1084,6 +1224,10 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "SymbolKey" -> SymbolKey(
+                 swipeUp = key.swipeUp,
+                 swipeDown = key.swipeDown,
+                 swipeUpLabel = key.swipeUpLabel,
+                 swipeDownLabel = key.swipeDownLabel,
                 symbol = key.label ?: ".",
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
@@ -1097,6 +1241,10 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "ReturnKey" -> ReturnKey(
+                 swipeUp = key.swipeUp,
+                 swipeDown = key.swipeDown,
+                 swipeUpLabel = key.swipeUpLabel,
+                 swipeDownLabel = key.swipeDownLabel,
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
                 percentWidth = key.weight ?: 0.15f,
@@ -1108,6 +1256,10 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "BackspaceKey" -> BackspaceKey(
+                 swipeUp = key.swipeUp,
+                 swipeDown = key.swipeDown,
+                 swipeUpLabel = key.swipeUpLabel,
+                 swipeDownLabel = key.swipeDownLabel,
                 swipe = key.swipe,
                 swipeLabel = key.swipeLabel,
                 percentWidth = key.weight ?: 0.15f,
@@ -1155,6 +1307,8 @@ object LayoutJsonUtils {
                 shadowColorMonet = key.shadowColorMonet
             )
             "MacroKey" -> {
+                 // 上划/下划宏可同时存在；旧 swipe 仍作为未迁移文件的回退。
+
                 // A MacroKey without a tap action cannot do anything. Skip the key instead of
                 // throwing: the throw used to propagate out of BaseKeyboard.init and crash the
                 // keyboard for a config the editor itself was able to write.
@@ -1180,9 +1334,13 @@ object LayoutJsonUtils {
                     displayText = resolvedDisplayText,
                     character = baseLabel.ifEmpty { resolvedDisplayText ?: "" },
                     altLabel = altLabel.ifEmpty { null },
+                    swipeUpLabel = key.swipeUpLabel,
+                    swipeDownLabel = key.swipeDownLabel,
                     longPressLabel = key.longPressLabel,
                     tap = tap,
-                    swipe = key.swipe,
+                     swipeUp = key.swipeUp,
+                     swipeDown = key.swipeDown,
+                     swipe = key.swipe,
                     longPress = key.longPress,
                     percentWidth = key.weight ?: 0.1f,
                     textColor = key.textColor,

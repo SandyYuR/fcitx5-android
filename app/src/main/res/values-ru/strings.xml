@@ -185,6 +185,7 @@
     <string name="swipe_symbol_behavior">Направление свайпа для символов (когда символы скрыты)</string>
     <string name="swipe_down">Провести вниз</string>
     <string name="swipe_up">Провести вверх</string>
+    <string name="swipe_auto">Автоматически</string>
     <string name="disabled">Отключено</string>
     <string name="system_default">Системные установки по умолчанию</string>
     <string name="editor_info_inspector">Инспектор EditorInfo</string>

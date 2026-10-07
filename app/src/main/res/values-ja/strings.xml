@@ -179,6 +179,7 @@
     <string name="swipe_symbol_behavior">記号非表示時のスワイプ方向</string>
     <string name="swipe_down">下にスワイプ</string>
     <string name="swipe_up">上にスワイプ</string>
+    <string name="swipe_auto">自動</string>
     <string name="disabled">無効</string>
     <string name="system_default">システムのデフォルト</string>
     <string name="editor_info_inspector">エディター情報の調査</string>

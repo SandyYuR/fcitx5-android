@@ -269,6 +269,7 @@
     <string name="swipe_symbol_behavior">符號滑動方向（符號隱藏時）</string>
     <string name="swipe_down">下划</string>
     <string name="swipe_up">上划</string>
+    <string name="swipe_auto">自動</string>
     <string name="disabled">已停用</string>
     <string name="system_default">系統預設</string>
     <string name="editor_info_inspector">EditorInfo 檢查器</string>

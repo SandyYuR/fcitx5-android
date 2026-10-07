@@ -656,6 +656,7 @@
     <string name="swipe_down">Deslizar hacia abajo</string>
     <string name="swipe_symbol_behavior">Dirección de deslizamiento para símbolos (cuando los símbolos están ocultos)</string>
     <string name="swipe_up">Deslizar hacia arriba</string>
+    <string name="swipe_auto">Automático</string>
     <string name="switch_to_voice_input">Cambiar a entrada de voz</string>
     <string name="synced">¡Sincronizado!</string>
     <string name="table_already_exists">El archivo de configuracion del metodo de entrada de tabla "%1$s" ya existe</string>

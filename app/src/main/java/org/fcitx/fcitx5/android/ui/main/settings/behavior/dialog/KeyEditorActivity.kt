@@ -34,6 +34,7 @@ import kotlinx.serialization.json.JsonObject
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.SystemColorResourceId
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.data.theme.ThemePrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeMonet
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fcitx.fcitx5.android.ui.main.settings.theme.SystemColorResourcePickerDialog
@@ -145,13 +146,14 @@ class KeyEditorActivity : AppCompatActivity() {
     private var macroDisplayTextSimpleValue = ""
     private val macroDisplayTextModeItems = mutableListOf<KeyboardEditorUiBuilder.DisplayTextItem>()
     private val macroDisplayTextRowBindings = mutableListOf<KeyboardEditorUiBuilder.DisplayTextRowBinding>()
-    private var macroAltLabelEdit: EditText? = null
     private var macroLongPressLabelEdit: EditText? = null
     private var macroWeightEdit: EditText? = null
 
     private var simpleWeightEdit: EditText? = null
     private var rowHeightPercentEdit: EditText? = null
     private var nonMacroSwipeLabelEdit: EditText? = null
+    private var nonMacroSwipeUpLabelEdit: EditText? = null
+    private var nonMacroSwipeDownLabelEdit: EditText? = null
     private var splitAfterCheckBox: android.widget.CheckBox? = null
 
     // 空白占位键专用字段。
@@ -173,8 +175,11 @@ class KeyEditorActivity : AppCompatActivity() {
     private var placeholderCustomColor: Boolean = false
 
     private var macroTapStepsData: List<Any> = emptyList()
-    private var macroSwipeStepsData: List<Any> = emptyList()
+    private var macroSwipeUpStepsData: List<Any> = emptyList()
+    private var macroSwipeDownStepsData: List<Any> = emptyList()
     private var macroLongPressStepsData: List<Any> = emptyList()
+    private var nonMacroSwipeUpStepsData: List<Any> = emptyList()
+    private var nonMacroSwipeDownStepsData: List<Any> = emptyList()
     private var nonMacroSwipeStepsData: List<Any> = emptyList()
     private var macroEditCallback: ((List<Any>) -> Unit)? = null
 
@@ -450,16 +455,21 @@ class KeyEditorActivity : AppCompatActivity() {
         macroDisplayTextSimpleValue = ""
         macroDisplayTextModeItems.clear()
         macroDisplayTextRowBindings.clear()
-        macroAltLabelEdit = null
         macroWeightEdit = null
         simpleWeightEdit = null
         rowHeightPercentEdit = null
         nonMacroSwipeLabelEdit = null
+        nonMacroSwipeUpLabelEdit = null
+        nonMacroSwipeDownLabelEdit = null
         splitAfterCheckBox = null
         placeholderMainEdit = null
         placeholderAltEdit = null
         placeholderWeightEdit = null
         nonMacroSwipeStepsData = emptyList()
+        nonMacroSwipeUpStepsData = emptyList()
+        nonMacroSwipeDownStepsData = emptyList()
+        macroSwipeUpStepsData = emptyList()
+        macroSwipeDownStepsData = emptyList()
 
         initDisplayText(
             keyData,
@@ -580,28 +590,35 @@ class KeyEditorActivity : AppCompatActivity() {
                     layoutSwitchWeightEdit = weightEdit.second
                 }
 
-                val swipeLabelEdit = uiBuilder.createEditField(
-                    getString(R.string.text_keyboard_layout_swipe_label),
-                    keyData["swipeLabel"] as? String ?: ""
-                )
-                nonMacroSwipeLabelEdit = swipeLabelEdit.second
-                fieldsContainer.addView(swipeLabelEdit.first)
+                addDirectionalSwipeLabelEditors(keyData)
 
-                val swipeAction = keyData["swipe"] as? Map<*, *>
-                val swipeMacroSteps = (swipeAction?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
-                nonMacroSwipeStepsData = swipeMacroSteps
+                val (swipeUpMacroSteps, swipeDownMacroSteps) = directionalSwipeStepsOf(keyData)
+                nonMacroSwipeUpStepsData = swipeUpMacroSteps
+                nonMacroSwipeDownStepsData = swipeDownMacroSteps
                 createMacroEditorButton(
-                    title = getString(R.string.text_keyboard_layout_macro_swipe_event),
-                    previewText = buildMacroPreview(swipeMacroSteps),
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_up_event),
+                    previewText = buildMacroPreview(swipeUpMacroSteps),
                     onClick = {
-                        openMacroEditor(nonMacroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event), SLOT_SWIPE) { newSteps ->
+                        openMacroEditor(nonMacroSwipeUpStepsData, getString(R.string.text_keyboard_layout_macro_swipe_up_event), SLOT_SWIPE_UP) { newSteps ->
                             val draft = buildDraftKeyData()
-                            nonMacroSwipeStepsData = newSteps
-                            if (newSteps.isNotEmpty()) {
-                                draft["swipe"] = mapOf("macro" to newSteps)
-                            } else {
-                                draft.remove("swipe")
-                            }
+                            nonMacroSwipeUpStepsData = newSteps
+                            applyDirectionalSwipeDraft(draft, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
+                            appendDirectionalSwipeLabels(draft)
+                            keyData = draft
+                            rebuildFields()
+                            updateActionButtonState()
+                        }
+                    }
+                ).forEach { fieldsContainer.addView(it) }
+                createMacroEditorButton(
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_down_event),
+                    previewText = buildMacroPreview(swipeDownMacroSteps),
+                    onClick = {
+                        openMacroEditor(nonMacroSwipeDownStepsData, getString(R.string.text_keyboard_layout_macro_swipe_down_event), SLOT_SWIPE_DOWN) { newSteps ->
+                            val draft = buildDraftKeyData()
+                            nonMacroSwipeDownStepsData = newSteps
+                            applyDirectionalSwipeDraft(draft, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
+                            appendDirectionalSwipeLabels(draft)
                             keyData = draft
                             rebuildFields()
                             updateActionButtonState()
@@ -626,28 +643,35 @@ class KeyEditorActivity : AppCompatActivity() {
                     fieldsContainer.addView(weightEdit.first)
                 }
 
-                val swipeLabelEdit = uiBuilder.createEditField(
-                    getString(R.string.text_keyboard_layout_swipe_label),
-                    keyData["swipeLabel"] as? String ?: ""
-                )
-                nonMacroSwipeLabelEdit = swipeLabelEdit.second
-                fieldsContainer.addView(swipeLabelEdit.first)
+                addDirectionalSwipeLabelEditors(keyData)
 
-                val swipeAction = keyData["swipe"] as? Map<*, *>
-                val swipeMacroSteps = (swipeAction?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
-                nonMacroSwipeStepsData = swipeMacroSteps
+                val (swipeUpMacroSteps, swipeDownMacroSteps) = directionalSwipeStepsOf(keyData)
+                nonMacroSwipeUpStepsData = swipeUpMacroSteps
+                nonMacroSwipeDownStepsData = swipeDownMacroSteps
                 createMacroEditorButton(
-                    title = getString(R.string.text_keyboard_layout_macro_swipe_event),
-                    previewText = buildMacroPreview(swipeMacroSteps),
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_up_event),
+                    previewText = buildMacroPreview(swipeUpMacroSteps),
                     onClick = {
-                        openMacroEditor(nonMacroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event), SLOT_SWIPE) { newSteps ->
+                        openMacroEditor(nonMacroSwipeUpStepsData, getString(R.string.text_keyboard_layout_macro_swipe_up_event), SLOT_SWIPE_UP) { newSteps ->
                             val draft = buildDraftKeyData()
-                            nonMacroSwipeStepsData = newSteps
-                            if (newSteps.isNotEmpty()) {
-                                draft["swipe"] = mapOf("macro" to newSteps)
-                            } else {
-                                draft.remove("swipe")
-                            }
+                            nonMacroSwipeUpStepsData = newSteps
+                            applyDirectionalSwipeDraft(draft, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
+                            appendDirectionalSwipeLabels(draft)
+                            keyData = draft
+                            rebuildFields()
+                            updateActionButtonState()
+                        }
+                    }
+                ).forEach { fieldsContainer.addView(it) }
+                createMacroEditorButton(
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_down_event),
+                    previewText = buildMacroPreview(swipeDownMacroSteps),
+                    onClick = {
+                        openMacroEditor(nonMacroSwipeDownStepsData, getString(R.string.text_keyboard_layout_macro_swipe_down_event), SLOT_SWIPE_DOWN) { newSteps ->
+                            val draft = buildDraftKeyData()
+                            nonMacroSwipeDownStepsData = newSteps
+                            applyDirectionalSwipeDraft(draft, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
+                            appendDirectionalSwipeLabels(draft)
                             keyData = draft
                             rebuildFields()
                             updateActionButtonState()
@@ -661,17 +685,13 @@ class KeyEditorActivity : AppCompatActivity() {
                     getString(R.string.text_keyboard_layout_key_label),
                     keyData["label"] as? String ?: ""
                 )
-                val altLabelEdit = uiBuilder.createEditField(
-                    getString(R.string.text_keyboard_layout_alt_label),
-                    keyData["altLabel"] as? String ?: ""
-                )
                 val longPressLabelEdit = uiBuilder.createEditField(
                     getString(R.string.text_keyboard_layout_longpress_label),
                     keyData["longPressLabel"] as? String ?: ""
                 )
                 longPressLabelEdit.second.hint = getString(R.string.text_keyboard_layout_longpress_label_fallback_hint)
                 fieldsContainer.addView(labelEdit.first)
-                fieldsContainer.addView(altLabelEdit.first)
+                addDirectionalSwipeLabelEditors(keyData)
                 fieldsContainer.addView(longPressLabelEdit.first)
                 if (!disableWeightEditing) {
                     val weightEdit = uiBuilder.createEditField(
@@ -683,7 +703,6 @@ class KeyEditorActivity : AppCompatActivity() {
                 }
 
                 macroLabelEdit = labelEdit.second
-                macroAltLabelEdit = altLabelEdit.second
                 macroLongPressLabelEdit = longPressLabelEdit.second
 
                 val labelTextContainer = LinearLayout(this).apply {
@@ -712,15 +731,15 @@ class KeyEditorActivity : AppCompatActivity() {
                 )
 
                 val tapAction = keyData["tap"] as? Map<*, *>
-                val swipeAction = keyData["swipe"] as? Map<*, *>
                 val longPressAction = keyData["longPress"] as? Map<*, *>
+                val (swipeUpMacroSteps, swipeDownMacroSteps) = directionalSwipeStepsOf(keyData)
 
                 val tapMacroSteps = (tapAction?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
-                val swipeMacroSteps = (swipeAction?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
                 val longPressMacroSteps = (longPressAction?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
 
                 macroTapStepsData = tapMacroSteps
-                macroSwipeStepsData = swipeMacroSteps
+                macroSwipeUpStepsData = swipeUpMacroSteps
+                macroSwipeDownStepsData = swipeDownMacroSteps
                 macroLongPressStepsData = longPressMacroSteps
 
                 createMacroEditorButton(
@@ -739,13 +758,28 @@ class KeyEditorActivity : AppCompatActivity() {
                 ).forEach { fieldsContainer.addView(it) }
 
                 createMacroEditorButton(
-                    title = getString(R.string.text_keyboard_layout_macro_swipe_event),
-                    previewText = buildMacroPreview(swipeMacroSteps),
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_up_event),
+                    previewText = buildMacroPreview(swipeUpMacroSteps),
                     onClick = {
-                        openMacroEditor(macroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event), SLOT_SWIPE) { newSteps ->
+                        openMacroEditor(macroSwipeUpStepsData, getString(R.string.text_keyboard_layout_macro_swipe_up_event), SLOT_SWIPE_UP) { newSteps ->
                             val draft = buildDraftKeyData()
-                            macroSwipeStepsData = newSteps
-                            draft["swipe"] = mapOf("macro" to newSteps)
+                            macroSwipeUpStepsData = newSteps
+                            applyDirectionalSwipeDraft(draft, macroSwipeUpStepsData, macroSwipeDownStepsData)
+                            keyData = draft
+                            rebuildFields()
+                            updateActionButtonState()
+                        }
+                    }
+                ).forEach { fieldsContainer.addView(it) }
+
+                createMacroEditorButton(
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_down_event),
+                    previewText = buildMacroPreview(swipeDownMacroSteps),
+                    onClick = {
+                        openMacroEditor(macroSwipeDownStepsData, getString(R.string.text_keyboard_layout_macro_swipe_down_event), SLOT_SWIPE_DOWN) { newSteps ->
+                            val draft = buildDraftKeyData()
+                            macroSwipeDownStepsData = newSteps
+                            applyDirectionalSwipeDraft(draft, macroSwipeUpStepsData, macroSwipeDownStepsData)
                             keyData = draft
                             rebuildFields()
                             updateActionButtonState()
@@ -779,28 +813,35 @@ class KeyEditorActivity : AppCompatActivity() {
                     fieldsContainer.addView(weightEdit.first)
                 }
 
-                val swipeLabelEdit = uiBuilder.createEditField(
-                    getString(R.string.text_keyboard_layout_swipe_label),
-                    keyData["swipeLabel"] as? String ?: ""
-                )
-                nonMacroSwipeLabelEdit = swipeLabelEdit.second
-                fieldsContainer.addView(swipeLabelEdit.first)
+                addDirectionalSwipeLabelEditors(keyData)
 
-                val swipeAction = keyData["swipe"] as? Map<*, *>
-                val swipeMacroSteps = (swipeAction?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
-                nonMacroSwipeStepsData = swipeMacroSteps
+                val (swipeUpMacroSteps, swipeDownMacroSteps) = directionalSwipeStepsOf(keyData)
+                nonMacroSwipeUpStepsData = swipeUpMacroSteps
+                nonMacroSwipeDownStepsData = swipeDownMacroSteps
                 createMacroEditorButton(
-                    title = getString(R.string.text_keyboard_layout_macro_swipe_event),
-                    previewText = buildMacroPreview(swipeMacroSteps),
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_up_event),
+                    previewText = buildMacroPreview(swipeUpMacroSteps),
                     onClick = {
-                        openMacroEditor(nonMacroSwipeStepsData, getString(R.string.text_keyboard_layout_macro_swipe_event), SLOT_SWIPE) { newSteps ->
+                        openMacroEditor(nonMacroSwipeUpStepsData, getString(R.string.text_keyboard_layout_macro_swipe_up_event), SLOT_SWIPE_UP) { newSteps ->
                             val draft = buildDraftKeyData()
-                            nonMacroSwipeStepsData = newSteps
-                            if (newSteps.isNotEmpty()) {
-                                draft["swipe"] = mapOf("macro" to newSteps)
-                            } else {
-                                draft.remove("swipe")
-                            }
+                            nonMacroSwipeUpStepsData = newSteps
+                            applyDirectionalSwipeDraft(draft, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
+                            appendDirectionalSwipeLabels(draft)
+                            keyData = draft
+                            rebuildFields()
+                            updateActionButtonState()
+                        }
+                    }
+                ).forEach { fieldsContainer.addView(it) }
+                createMacroEditorButton(
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_down_event),
+                    previewText = buildMacroPreview(swipeDownMacroSteps),
+                    onClick = {
+                        openMacroEditor(nonMacroSwipeDownStepsData, getString(R.string.text_keyboard_layout_macro_swipe_down_event), SLOT_SWIPE_DOWN) { newSteps ->
+                            val draft = buildDraftKeyData()
+                            nonMacroSwipeDownStepsData = newSteps
+                            applyDirectionalSwipeDraft(draft, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
+                            appendDirectionalSwipeLabels(draft)
                             keyData = draft
                             rebuildFields()
                             updateActionButtonState()
@@ -1149,13 +1190,78 @@ class KeyEditorActivity : AppCompatActivity() {
             map.entries.associate { (k, v) -> k.toString() to v }.toMutableMap()
         }
         macroTapStepsData = macroStepsOf(keyData["tap"])
-        macroSwipeStepsData = macroStepsOf(keyData["swipe"])
+        val (macroSwipeUpSteps, macroSwipeDownSteps) = directionalSwipeStepsOf(keyData)
+        macroSwipeUpStepsData = macroSwipeUpSteps
+        macroSwipeDownStepsData = macroSwipeDownSteps
         macroLongPressStepsData = macroStepsOf(keyData["longPress"])
         nonMacroSwipeStepsData = macroStepsOf(keyData["swipe"])
+        val (nonMacroSwipeUpSteps, nonMacroSwipeDownSteps) = directionalSwipeStepsOf(keyData)
+        nonMacroSwipeUpStepsData = nonMacroSwipeUpSteps
+        nonMacroSwipeDownStepsData = nonMacroSwipeDownSteps
     }
 
     private fun macroStepsOf(action: Any?): List<Any> =
         ((action as? Map<*, *>)?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
+
+    private fun legacySwipeToDown(keyType: String? = keyData["type"] as? String): Boolean =
+        keyType != "MacroKey" ||
+            ThemeManager.prefs.punctuationPosition.getValue() == ThemePrefs.PunctuationPosition.Bottom
+
+    private fun directionalSwipeStepsOf(keyData: Map<String, Any?>): Pair<List<Any>, List<Any>> {
+        val up = macroStepsOf(keyData["swipeUp"])
+        val down = macroStepsOf(keyData["swipeDown"])
+        val hasDirectional = keyData.containsKey("swipeUp") || keyData.containsKey("swipeDown")
+        if (hasDirectional) return up to down
+        val legacy = macroStepsOf(keyData["swipe"])
+        return if (legacySwipeToDown()) emptyList<Any>() to legacy else legacy to emptyList()
+    }
+
+    private fun applyDirectionalSwipeDraft(
+        draft: MutableMap<String, Any?>,
+        upSteps: List<Any>,
+        downSteps: List<Any>
+    ) {
+        draft.remove("swipe")
+        if (upSteps.isNotEmpty()) draft["swipeUp"] = mapOf("macro" to upSteps)
+        else draft.remove("swipeUp")
+        if (downSteps.isNotEmpty()) draft["swipeDown"] = mapOf("macro" to downSteps)
+        else draft.remove("swipeDown")
+    }
+
+    private fun addDirectionalSwipeLabelEditors(keyData: Map<String, Any?>) {
+        val hasDirectionalLabel = keyData.containsKey("swipeUpLabel") || keyData.containsKey("swipeDownLabel")
+        val legacyLabel = if (keyData["type"] == "MacroKey") {
+            keyData["altLabel"] as? String
+        } else {
+            keyData["swipeLabel"] as? String
+        }
+        val upLabel = keyData["swipeUpLabel"] as? String
+            ?: if (!hasDirectionalLabel && !legacySwipeToDown()) legacyLabel.orEmpty() else ""
+        val downLabel = keyData["swipeDownLabel"] as? String
+            ?: if (!hasDirectionalLabel && legacySwipeToDown()) legacyLabel.orEmpty() else ""
+        val up = uiBuilder.createEditField(
+            getString(R.string.text_keyboard_layout_swipe_up_label),
+            upLabel
+        )
+        val down = uiBuilder.createEditField(
+            getString(R.string.text_keyboard_layout_swipe_down_label),
+            downLabel
+        )
+        nonMacroSwipeUpLabelEdit = up.second
+        nonMacroSwipeDownLabelEdit = down.second
+        fieldsContainer.addView(up.first)
+        fieldsContainer.addView(down.first)
+    }
+
+    private fun appendDirectionalSwipeLabels(draft: MutableMap<String, Any?>) {
+        draft.remove("swipeLabel")
+        draft.remove("swipeUpLabel")
+        draft.remove("swipeDownLabel")
+        nonMacroSwipeUpLabelEdit?.text?.toString()?.trim()?.takeIf { it.isNotEmpty() }
+            ?.let { draft["swipeUpLabel"] = it }
+        nonMacroSwipeDownLabelEdit?.text?.toString()?.trim()?.takeIf { it.isNotEmpty() }
+            ?.let { draft["swipeDownLabel"] = it }
+    }
 
     private fun renderColorEditors() {
         val theme = ThemeManager.activeTheme
@@ -1544,34 +1650,27 @@ class KeyEditorActivity : AppCompatActivity() {
                     ?.value
                     .orEmpty()
                 if (!target.isNullOrEmpty()) draft["subLabel"] = target
-                val swipeLabel = nonMacroSwipeLabelEdit?.text?.toString()?.trim().orEmpty()
-                if (swipeLabel.isNotEmpty()) draft["swipeLabel"] = swipeLabel
+                appendDirectionalSwipeLabels(draft)
                 if (!disableWeightEditing) {
                     parseWeight(layoutSwitchWeightEdit?.text?.toString())?.let { draft["weight"] = it }
                 }
-                if (nonMacroSwipeStepsData.isNotEmpty()) {
-                    draft["swipe"] = mapOf("macro" to nonMacroSwipeStepsData)
-                }
+                applyDirectionalSwipeDraft(draft, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
             }
 
             "SymbolKey" -> {
                 val label = symbolLabelEdit?.text?.toString()?.ifEmpty { "." }.orEmpty()
                 if (label.isNotEmpty()) draft["label"] = label
-                val swipeLabel = nonMacroSwipeLabelEdit?.text?.toString()?.trim().orEmpty()
-                if (swipeLabel.isNotEmpty()) draft["swipeLabel"] = swipeLabel
+                appendDirectionalSwipeLabels(draft)
                 if (!disableWeightEditing) {
                     parseWeight(symbolWeightEdit?.text?.toString())?.let { draft["weight"] = it }
                 }
-                if (nonMacroSwipeStepsData.isNotEmpty()) {
-                    draft["swipe"] = mapOf("macro" to nonMacroSwipeStepsData)
-                }
+                applyDirectionalSwipeDraft(draft, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
             }
 
             "MacroKey" -> {
                 val baseLabel = macroLabelEdit?.text?.toString().orEmpty()
                 if (baseLabel.isNotEmpty()) draft["label"] = baseLabel
-                val altLabel = macroAltLabelEdit?.text?.toString().orEmpty()
-                if (altLabel.isNotEmpty()) draft["altLabel"] = altLabel
+                appendDirectionalSwipeLabels(draft)
                 val longPressLabel = macroLongPressLabelEdit?.text?.toString().orEmpty()
                 if (longPressLabel.isNotEmpty()) draft["longPressLabel"] = longPressLabel
                 if (!disableWeightEditing) {
@@ -1602,9 +1701,7 @@ class KeyEditorActivity : AppCompatActivity() {
                     draft["tap"] = mapOf("macro" to macroTapStepsData)
                 }
 
-                if (macroSwipeStepsData.isNotEmpty()) {
-                    draft["swipe"] = mapOf("macro" to macroSwipeStepsData)
-                }
+                applyDirectionalSwipeDraft(draft, macroSwipeUpStepsData, macroSwipeDownStepsData)
 
                 if (macroLongPressStepsData.isNotEmpty()) {
                     draft["longPress"] = mapOf("macro" to macroLongPressStepsData)
@@ -1612,14 +1709,11 @@ class KeyEditorActivity : AppCompatActivity() {
             }
 
             "CapsKey", "ReturnKey", "BackspaceKey" -> {
-                val swipeLabel = nonMacroSwipeLabelEdit?.text?.toString()?.trim().orEmpty()
-                if (swipeLabel.isNotEmpty()) draft["swipeLabel"] = swipeLabel
+                appendDirectionalSwipeLabels(draft)
                 if (!disableWeightEditing) {
                     parseWeight(simpleWeightEdit?.text?.toString())?.let { draft["weight"] = it }
                 }
-                if (nonMacroSwipeStepsData.isNotEmpty()) {
-                    draft["swipe"] = mapOf("macro" to nonMacroSwipeStepsData)
-                }
+                applyDirectionalSwipeDraft(draft, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
             }
 
             "CommaKey", "LanguageKey" -> {
@@ -1784,13 +1878,49 @@ class KeyEditorActivity : AppCompatActivity() {
      */
     private fun applyMacroStepsToSlot(slot: String, steps: List<Any>) {
         val draft = buildDraftKeyData()
+        val isMacroKey = keyData["type"] == "MacroKey"
         when (slot) {
             SLOT_TAP -> {
                 macroTapStepsData = steps
                 draft["tap"] = mapOf("macro" to steps)
             }
+            SLOT_SWIPE_UP -> {
+                if (isMacroKey) {
+                    macroSwipeUpStepsData = steps
+                    applyDirectionalSwipeDraft(
+                        draft,
+                        macroSwipeUpStepsData,
+                        macroSwipeDownStepsData
+                    )
+                } else {
+                    nonMacroSwipeUpStepsData = steps
+                    appendDirectionalSwipeLabels(draft)
+                    applyDirectionalSwipeDraft(
+                        draft,
+                        nonMacroSwipeUpStepsData,
+                        nonMacroSwipeDownStepsData
+                    )
+                }
+            }
+            SLOT_SWIPE_DOWN -> {
+                if (isMacroKey) {
+                    macroSwipeDownStepsData = steps
+                    applyDirectionalSwipeDraft(
+                        draft,
+                        macroSwipeUpStepsData,
+                        macroSwipeDownStepsData
+                    )
+                } else {
+                    nonMacroSwipeDownStepsData = steps
+                    appendDirectionalSwipeLabels(draft)
+                    applyDirectionalSwipeDraft(
+                        draft,
+                        nonMacroSwipeUpStepsData,
+                        nonMacroSwipeDownStepsData
+                    )
+                }
+            }
             SLOT_SWIPE -> {
-                macroSwipeStepsData = steps
                 nonMacroSwipeStepsData = steps
                 if (steps.isNotEmpty()) draft["swipe"] = mapOf("macro" to steps) else draft.remove("swipe")
             }
@@ -1885,7 +2015,6 @@ class KeyEditorActivity : AppCompatActivity() {
             macroDisplayTextSimpleValue,
             macroDisplayTextModeItems,
             macroDisplayTextRowBindings,
-            macroAltLabelEdit,
             macroLongPressLabelEdit,
             macroWeightEdit,
             simpleWeightEdit
@@ -1978,7 +2107,6 @@ class KeyEditorActivity : AppCompatActivity() {
         macroDisplayTextSimpleValue: String,
         macroDisplayTextModeItems: List<KeyboardEditorUiBuilder.DisplayTextItem>,
         macroDisplayTextRowBindings: List<KeyboardEditorUiBuilder.DisplayTextRowBinding>,
-        macroAltLabelEdit: EditText?,
         macroLongPressLabelEdit: EditText?,
         macroWeightEdit: EditText?,
         simpleWeightEdit: EditText?
@@ -2066,33 +2194,26 @@ class KeyEditorActivity : AppCompatActivity() {
                     ?.value
                     .orEmpty()
                 if (!target.isNullOrEmpty()) newKey["subLabel"] = target
-                val swipeLabel = nonMacroSwipeLabelEdit?.text?.toString()?.trim().orEmpty()
-                if (swipeLabel.isNotEmpty()) newKey["swipeLabel"] = swipeLabel
+                appendDirectionalSwipeLabels(newKey)
                 if (!disableWeightEditing) {
                     parseWeight(layoutSwitchWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
                 }
-                if (nonMacroSwipeStepsData.isNotEmpty()) {
-                    newKey["swipe"] = mapOf("macro" to nonMacroSwipeStepsData)
-                }
+                applyDirectionalSwipeDraft(newKey, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
             }
 
             "SymbolKey" -> {
                 newKey["label"] = symbolLabelEdit?.text?.toString()?.ifEmpty { "." }.orEmpty()
-                val swipeLabel = nonMacroSwipeLabelEdit?.text?.toString()?.trim().orEmpty()
-                if (swipeLabel.isNotEmpty()) newKey["swipeLabel"] = swipeLabel
+                appendDirectionalSwipeLabels(newKey)
                 if (!disableWeightEditing) {
                     parseWeight(symbolWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
                 }
-                if (nonMacroSwipeStepsData.isNotEmpty()) {
-                    newKey["swipe"] = mapOf("macro" to nonMacroSwipeStepsData)
-                }
+                applyDirectionalSwipeDraft(newKey, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
             }
 
             "MacroKey" -> {
                 val baseLabel = macroLabelEdit?.text?.toString().orEmpty()
                 newKey["label"] = baseLabel
-                val altLabel = macroAltLabelEdit?.text?.toString().orEmpty()
-                if (altLabel.isNotEmpty()) newKey["altLabel"] = altLabel
+                appendDirectionalSwipeLabels(newKey)
                 val longPressLabel = macroLongPressLabelEdit?.text?.toString().orEmpty()
                 if (longPressLabel.isNotEmpty()) newKey["longPressLabel"] = longPressLabel
                 if (!disableWeightEditing) {
@@ -2129,9 +2250,7 @@ class KeyEditorActivity : AppCompatActivity() {
                     )
                 }
 
-                if (macroSwipeStepsData.isNotEmpty()) {
-                    newKey["swipe"] = mapOf("macro" to macroSwipeStepsData)
-                }
+                applyDirectionalSwipeDraft(newKey, macroSwipeUpStepsData, macroSwipeDownStepsData)
 
                 if (macroLongPressStepsData.isNotEmpty()) {
                     newKey["longPress"] = mapOf("macro" to macroLongPressStepsData)
@@ -2139,14 +2258,11 @@ class KeyEditorActivity : AppCompatActivity() {
             }
 
             "CapsKey", "ReturnKey", "BackspaceKey" -> {
-                val swipeLabel = nonMacroSwipeLabelEdit?.text?.toString()?.trim().orEmpty()
-                if (swipeLabel.isNotEmpty()) newKey["swipeLabel"] = swipeLabel
+                appendDirectionalSwipeLabels(newKey)
                 if (!disableWeightEditing) {
                     parseWeight(simpleWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
                 }
-                if (nonMacroSwipeStepsData.isNotEmpty()) {
-                    newKey["swipe"] = mapOf("macro" to nonMacroSwipeStepsData)
-                }
+                applyDirectionalSwipeDraft(newKey, nonMacroSwipeUpStepsData, nonMacroSwipeDownStepsData)
             }
 
             "CommaKey", "LanguageKey" -> {
@@ -2291,6 +2407,8 @@ class KeyEditorActivity : AppCompatActivity() {
 
         /** Macro slots, used as the target token passed to (and echoed by) MacroEditorActivity. */
         private const val SLOT_TAP = "tap"
+        private const val SLOT_SWIPE_UP = "swipeUp"
+        private const val SLOT_SWIPE_DOWN = "swipeDown"
         private const val SLOT_SWIPE = "swipe"
         private const val SLOT_LONG_PRESS = "longPress"
 

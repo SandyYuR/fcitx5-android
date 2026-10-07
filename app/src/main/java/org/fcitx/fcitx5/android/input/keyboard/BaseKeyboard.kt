@@ -1671,7 +1671,10 @@ abstract class BaseKeyboard(
                 swipeEnabled = true
                 swipeRepeatEnabled = true
                 swipeThresholdX = selectionSwipeThreshold
-                swipeThresholdY = if (def.swipe != null) inputSwipeThreshold else disabledSwipeThreshold
+                swipeThresholdY = if (
+                    def.swipe != null || def.swipeUp != null || def.swipeDown != null
+                ) inputSwipeThreshold else disabledSwipeThreshold
+                var backspaceSwipeAxis: SwipeAxis? = null
                 onGestureListener = OnGestureListener { view, event ->
                     when (event.type) {
                         GestureType.Down -> {
@@ -1682,9 +1685,17 @@ abstract class BaseKeyboard(
                             false
                         }
                         GestureType.Move -> {
-                            val count = event.countX
-                            if (count != 0) {
-                                onAction(KeyAction.MoveSelectionAction(count))
+                            val countX = event.countX
+                            val countY = event.countY
+                            if (backspaceSwipeAxis == null && (countX != 0 || countY != 0)) {
+                                backspaceSwipeAxis = if (kotlin.math.abs(countX) >= kotlin.math.abs(countY)) {
+                                    SwipeAxis.X
+                                } else {
+                                    SwipeAxis.Y
+                                }
+                            }
+                            if (backspaceSwipeAxis == SwipeAxis.X && countX != 0) {
+                                onAction(KeyAction.MoveSelectionAction(countX))
                                 if (hapticOnRepeat) InputFeedbacks.hapticFeedback(view)
                                 true
                             } else false
@@ -1697,12 +1708,26 @@ abstract class BaseKeyboard(
                             // 那正是退格保护序列（BackspaceBoundaryGuard）的结束信号。
                             val clearedThisPress = backspaceClearTriggered
                             backspaceClearTriggered = false
+                            val swipeAxis = backspaceSwipeAxis ?: if (
+                                kotlin.math.abs(event.totalY) > kotlin.math.abs(event.totalX)
+                            ) SwipeAxis.Y else SwipeAxis.X
+                            backspaceSwipeAxis = null
+                            val swipeAction = selectSwipeAction(
+                                view,
+                                event.totalY,
+                                KeyDef.Behavior.Swipe(
+                                    upMacro = def.swipeUp,
+                                    downMacro = def.swipeDown,
+                                    legacyMacro = def.swipe,
+                                    overrideDefaults = true
+                                )
+                            )
                             if (
-                                def.swipe != null &&
+                                swipeAxis == SwipeAxis.Y &&
                                 kotlin.math.abs(event.totalY) > kotlin.math.abs(event.totalX) &&
-                                shouldTriggerSymbolBySwipe(view, event.totalY)
+                                swipeAction != null
                             ) {
-                                onAction(def.swipe)
+                                onAction(swipeAction)
                                 true
                             } else {
                                 // 清空已经执行过时不再补一次滑删：否则抬手会被当成
@@ -1967,8 +1992,12 @@ abstract class BaseKeyboard(
             is AltTextKeyView -> {
                 keyView.mainText.setFontTypeFace("key_main_font")
                 keyView.altText.setFontTypeFace("key_alt_font")
+                keyView.altText1.setFontTypeFace("key_alt_font")
             }
-            is ImageAltTextKeyView -> keyView.altText.setFontTypeFace("key_alt_font")
+            is ImageAltTextKeyView -> {
+                keyView.altText.setFontTypeFace("key_alt_font")
+                keyView.altText1.setFontTypeFace("key_alt_font")
+            }
             is TextKeyView -> keyView.mainText.setFontTypeFace("key_main_font")
         }
     }
@@ -2003,6 +2032,7 @@ abstract class BaseKeyboard(
 
     private fun KeyDef.Appearance.withTextMetricsFrom(source: KeyDef.Appearance): KeyDef.Appearance {
         val sourceText = source as? KeyDef.Appearance.Text ?: return this
+        val directionalLabels = directionalSwipeLabels
         return when (this) {
             // ToolbarText must never be rebuilt as plain Text: that would drop it back into
             // the text-scale pipeline and can shrink toolbar digits to invisibility.
@@ -2026,7 +2056,8 @@ abstract class BaseKeyboard(
                 backgroundColorMonet = backgroundColorMonet,
                 shadowColor = shadowColor,
                 shadowColorMonet = shadowColorMonet,
-                keepDisplayTextCase = keepDisplayTextCase
+                keepDisplayTextCase = keepDisplayTextCase,
+                altText1 = altText1
             )
             is KeyDef.Appearance.ImageText -> KeyDef.Appearance.ImageText(
                 displayText = displayText,
@@ -2067,6 +2098,8 @@ abstract class BaseKeyboard(
                 shadowColorMonet = shadowColorMonet
             )
             else -> this
+        }.apply {
+            directionalSwipeLabels = directionalLabels
         }
     }
 
@@ -2092,11 +2125,13 @@ abstract class BaseKeyboard(
             backgroundColorMonet = backgroundColorMonet,
             shadowColor = shadowColor,
             shadowColorMonet = shadowColorMonet,
-            keepDisplayTextCase = keepDisplayTextCase
+            keepDisplayTextCase = keepDisplayTextCase,
+            altText1 = altText1
         )
         is KeyDef.Appearance.ImageAltText -> KeyDef.Appearance.ImageAltText(
             src = src,
             altText = altText,
+            altText1 = altText1,
             percentWidth = percentWidth,
             variant = source.variant,
             border = source.border,
@@ -2166,7 +2201,11 @@ abstract class BaseKeyboard(
             backgroundColorMonet = backgroundColorMonet,
             shadowColor = shadowColor,
             shadowColorMonet = shadowColorMonet
-        )
+        ).apply {
+            directionalSwipeLabels = source.directionalSwipeLabels
+        }
+    }.apply {
+        directionalSwipeLabels = source.directionalSwipeLabels
     }
 
     private fun KeyDef.Appearance.withColorsFrom(source: KeyDef.Appearance): KeyDef.Appearance = when (this) {
@@ -2191,11 +2230,13 @@ abstract class BaseKeyboard(
             backgroundColorMonet = source.backgroundColorMonet,
             shadowColor = source.shadowColor,
             shadowColorMonet = source.shadowColorMonet,
-            keepDisplayTextCase = keepDisplayTextCase
+            keepDisplayTextCase = keepDisplayTextCase,
+            altText1 = altText1
         )
         is KeyDef.Appearance.ImageAltText -> KeyDef.Appearance.ImageAltText(
             src = src,
             altText = altText,
+            altText1 = altText1,
             percentWidth = percentWidth,
             variant = source.variant,
             border = source.border,
@@ -2265,7 +2306,11 @@ abstract class BaseKeyboard(
             backgroundColorMonet = source.backgroundColorMonet,
             shadowColor = source.shadowColor,
             shadowColorMonet = source.shadowColorMonet
-        )
+        ).apply {
+            directionalSwipeLabels = source.directionalSwipeLabels
+        }
+    }.apply {
+        directionalSwipeLabels = source.directionalSwipeLabels
     }
 
     private fun applyAppearance(view: KeyView, appearance: KeyDef.Appearance) {
@@ -2273,12 +2318,16 @@ abstract class BaseKeyboard(
             is AltTextKeyView -> if (appearance is KeyDef.Appearance.AltText) {
                 view.mainText.text = appearance.displayText
                 view.altText.text = appearance.altText
+                view.altText1.text = appearance.altText1 ?: ""
+                view.def.directionalSwipeLabels = appearance.directionalSwipeLabels
                 view.refreshAltTextLayout()
             }
             is ImageAltTextKeyView -> if (appearance is KeyDef.Appearance.ImageAltText) {
                 view.img.setImageResource(appearance.src)
                 view.reapplyIconThemeOverride()
                 view.altText.text = appearance.altText
+                view.altText1.text = appearance.altText1 ?: ""
+                view.def.directionalSwipeLabels = appearance.directionalSwipeLabels
                 view.refreshAltTextLayout()
             }
             is ImageTextKeyView -> if (appearance is KeyDef.Appearance.ImageText) {
@@ -2364,8 +2413,9 @@ abstract class BaseKeyboard(
                     view.onGestureListener = OnGestureListener { currentView, event ->
                         when (event.type) {
                             GestureType.Up -> {
-                                if (!event.consumed && shouldTriggerSymbolBySwipe(currentView, event.totalY)) {
-                                    onAction(it.action)
+                                val action = selectSwipeAction(currentView, event.totalY, it)
+                                if (!event.consumed && action != null) {
+                                    onAction(action)
                                     true
                                 } else {
                                     false
@@ -2729,6 +2779,32 @@ abstract class BaseKeyboard(
                 else -> keyActionListener?.onKeyAction(action, source)
             }
         }
+    }
+
+    private fun selectPhysicalSwipeMacro(
+        totalY: Int,
+        behavior: KeyDef.Behavior.Swipe
+    ): KeyAction? {
+        if (totalY == 0) return null
+        if (behavior.overrideDefaults) {
+            return if (totalY < 0) behavior.upMacro else behavior.downMacro
+        }
+        return when (swipeSymbolDirection) {
+            SwipeSymbolDirection.Disabled -> null
+            SwipeSymbolDirection.Up -> behavior.upMacro?.takeIf { totalY < 0 }
+            SwipeSymbolDirection.Down -> behavior.downMacro?.takeIf { totalY > 0 }
+            SwipeSymbolDirection.Auto -> if (totalY < 0) behavior.upMacro else behavior.downMacro
+        }
+    }
+
+    private fun selectSwipeAction(
+        view: View,
+        totalY: Int,
+        behavior: KeyDef.Behavior.Swipe
+    ): KeyAction? {
+        selectPhysicalSwipeMacro(totalY, behavior)?.let { return it }
+        if (!shouldTriggerSymbolBySwipe(view, totalY)) return null
+        return behavior.action ?: behavior.downAction ?: behavior.legacyMacro
     }
 
     private fun shouldTriggerSymbolBySwipe(view: View, totalY: Int): Boolean {

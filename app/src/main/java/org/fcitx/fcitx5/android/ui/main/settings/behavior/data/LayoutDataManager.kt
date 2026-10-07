@@ -9,9 +9,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.data.theme.ThemePrefs
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 import org.fcitx.fcitx5.android.input.keyboard.LayoutVariant
+import org.fcitx.fcitx5.android.input.keyboard.SwipeSymbolDirection
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.migration.DataMigrationManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
@@ -32,6 +36,16 @@ class LayoutDataManager(private val context: Context) {
         private const val LAYOUT_META_HEIGHT_PERCENT_KEY = "keyboard_height_percent"
         private const val LAYOUT_META_HEIGHT_PERCENT_LANDSCAPE_KEY = "keyboard_height_percent_landscape"
         private const val LAYOUT_META_AUX_BAR_KEY = "aux_bar"
+    }
+
+    private fun legacyToDownForMigration(): Boolean = when (
+        AppPrefs.getInstance().keyboard.swipeSymbolDirection.getValue()
+    ) {
+        SwipeSymbolDirection.Down -> true
+        SwipeSymbolDirection.Up -> false
+        SwipeSymbolDirection.Auto,
+        SwipeSymbolDirection.Disabled ->
+            ThemeManager.prefs.punctuationPosition.getValue() == ThemePrefs.PunctuationPosition.Bottom
     }
     
     /**
@@ -145,6 +159,10 @@ class LayoutDataManager(private val context: Context) {
                 row.map { key -> key.toMutableMap() }.toMutableList()
             }.toMutableList()
         }
+        if (fileHasContent) {
+            val legacyToDown = legacyToDownForMigration()
+            LayoutJsonUtils.migrateDirectionalSwipeFields(entries, legacyToDown)
+        }
         layoutHeightPercentOverrides.putAll(lastParsedLayoutHeightPercentOverrides)
         layoutHeightPercentOverridesLandscape.putAll(lastParsedLayoutHeightPercentOverridesLandscape)
         layoutAuxBarConfigs.putAll(lastParsedLayoutAuxBarConfigs)
@@ -213,6 +231,8 @@ class LayoutDataManager(private val context: Context) {
                 row.map { key -> key.toMutableMap() }.toMutableList()
             }.toMutableList()
         }
+        val legacyToDown = legacyToDownForMigration()
+        LayoutJsonUtils.migrateDirectionalSwipeFields(entries, legacyToDown)
         layoutHeightPercentOverrides.clear()
         layoutHeightPercentOverrides.putAll(lastParsedLayoutHeightPercentOverrides)
         layoutHeightPercentOverridesLandscape.clear()

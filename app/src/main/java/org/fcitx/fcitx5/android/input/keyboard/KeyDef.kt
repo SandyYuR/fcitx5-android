@@ -88,6 +88,11 @@ open class KeyDef(
          */
         var staticDisplay: Boolean = false
 
+        /**
+         * Whether altText and altText1 are independent physical up/down labels.
+         */
+        var directionalSwipeLabels: Boolean = false
+
         enum class Variant {
             Normal, AltForeground, Alternative, Accent
         }
@@ -193,7 +198,8 @@ open class KeyDef(
              * Turning a single lower-case letter into upper case on Shift is still allowed, so the
              * usual Shift behaviour is preserved.
              */
-            val keepDisplayTextCase: Boolean = false
+            val keepDisplayTextCase: Boolean = false,
+            val altText1: String? = null
         ) : Text(
             displayText,
             textSize,
@@ -265,7 +271,8 @@ open class KeyDef(
             backgroundColor: Int? = null,
             backgroundColorMonet: String? = null,
             shadowColor: Int? = null,
-            shadowColorMonet: String? = null
+            shadowColorMonet: String? = null,
+            val altText1: String? = null
         ) : Appearance(
             percentWidth,
             variant,
@@ -341,7 +348,18 @@ open class KeyDef(
         ) : Behavior()
 
         class Swipe(
-            val action: KeyAction
+            /** Existing alt-label or legacy swipe action. */
+            val action: KeyAction? = null,
+            /** Existing secondary alt-label action. */
+            val downAction: KeyAction? = null,
+            /** Explicit physical up-swipe macro. */
+            val upMacro: KeyAction? = null,
+            /** Explicit physical down-swipe macro. */
+            val downMacro: KeyAction? = null,
+            /** Legacy single swipe macro kept for unmigrated layouts. */
+            val legacyMacro: KeyAction? = null,
+            /** Function-key direction macros ignore the global swipe direction preference. */
+            val overrideDefaults: Boolean = false
         ) : Behavior()
 
         class DoubleTap(

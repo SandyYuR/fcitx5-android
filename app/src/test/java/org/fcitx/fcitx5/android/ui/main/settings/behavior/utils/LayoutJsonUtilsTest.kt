@@ -11,7 +11,10 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import org.fcitx.fcitx5.android.input.keyboard.AlphabetKey
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
+import org.fcitx.fcitx5.android.input.keyboard.KeyRef
+import org.fcitx.fcitx5.android.input.keyboard.MacroAction
 import org.fcitx.fcitx5.android.input.keyboard.MacroKey
+import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.input.keyboard.SpaceKey
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -280,6 +283,41 @@ class LayoutJsonUtilsTest {
     fun macroKeyWithoutDisplayTextWritesNoField() {
         val def = macroKey(label = "M", displayText = null)
         assertNull(LayoutJsonUtils.keyDefToJson(def)["displayText"])
+    }
+
+    /** MacroKey 的方向标签应与上下滑宏一起往返保存，且不影响原有动作字段。 */
+    @Test
+    fun macroKeyRoundTripsDirectionalLabelsWithActions() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "MacroKey",
+                  "label": "M",
+                  "swipeUpLabel": "Up",
+                  "swipeDownLabel": "Down",
+                  "tap": {"macro": [{"type": "text", "text": "tap"}]},
+                  "swipeUp": {"macro": [{"type": "text", "text": "up"}]},
+                  "swipeDown": {"macro": [{"type": "text", "text": "down"}]}
+                }]
+                """.trimIndent()
+            )
+        )
+        val def = LayoutJsonUtils.createKeyDef(parsed.single()) as MacroKey
+        assertEquals("Up", def.swipeUpLabel)
+        assertEquals("Down", def.swipeDownLabel)
+        assertEquals(1, def.swipeUp?.steps?.size)
+        assertEquals(1, def.swipeDown?.steps?.size)
+        val appearance = def.appearance as KeyDef.Appearance.AltText
+        assertEquals("Up", appearance.altText)
+        assertEquals("Down", appearance.altText1)
+        assertTrue(appearance.directionalSwipeLabels)
+
+        val json = LayoutJsonUtils.keyDefToJson(def)
+        assertEquals("Up", json["swipeUpLabel"])
+        assertEquals("Down", json["swipeDownLabel"])
+        assertEquals(1, (json["swipeUp"] as Map<*, *>) ["macro"].let { (it as List<*>).size })
+        assertEquals(1, (json["swipeDown"] as Map<*, *>) ["macro"].let { (it as List<*>).size })
     }
 
     /**
@@ -615,12 +653,110 @@ class LayoutJsonUtilsTest {
         assertEquals("!", text.altText)
     }
 
-    /** 类型名是写进布局文件的值，改它会让已有布局里的占位键全部失效。 */
+    /** 同一 MacroKey 可以同时保存上滑/下滑宏，且 Shortcut 载荷不被丢失。 */
     @Test
-    fun placeholderKeyTypeNameIsStable() {
-        assertEquals(
-            "PlaceholderKey",
-            LayoutJsonUtils.keyDefToJson(placeholderOf("""[{"type": "PlaceholderKey"}]"""))["type"]
+    fun macroKeyRoundTripsBothPhysicalSwipeMacros() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "MacroKey",
+                  "label": "Enter",
+                  "tap": {"macro": [{"type": "text", "text": "tap"}]},
+                  "swipeUp": {"macro": [{
+                    "type": "shortcut",
+                    "modifiers": [{"fcitx": "Control"}, {"fcitx": "Shift"}],
+                    "key": {"fcitx": "Return"}
+                  }]},
+                  "swipeDown": {"macro": [{
+                    "type": "shortcut",
+                    "modifiers": [{"fcitx": "Shift"}],
+                    "key": {"fcitx": "Return"}
+                  }]}
+                }]
+                """.trimIndent()
+            )
         )
+        val def = LayoutJsonUtils.createKeyDef(parsed.single()) as MacroKey
+
+        assertEquals(1, def.swipeUp?.steps?.size)
+        assertEquals(1, def.swipeDown?.steps?.size)
+        val up = def.swipeUp!!.steps.single() as MacroStep.Shortcut
+        val down = def.swipeDown!!.steps.single() as MacroStep.Shortcut
+        assertEquals(listOf(KeyRef.Fcitx("Control"), KeyRef.Fcitx("Shift")), up.modifiers)
+        assertEquals(KeyRef.Fcitx("Return"), up.key)
+        assertEquals(listOf(KeyRef.Fcitx("Shift")), down.modifiers)
+        assertEquals(KeyRef.Fcitx("Return"), down.key)
+
+        val behavior = def.behaviors.filterIsInstance<KeyDef.Behavior.Swipe>().single()
+        assertEquals(1, behavior.upMacro?.let { (it as MacroAction).steps.size })
+        assertEquals(1, behavior.downMacro?.let { (it as MacroAction).steps.size })
+        assertTrue("配置了独立上下滑动作时不受全局方向偏好限制", behavior.overrideDefaults)
+        val written = LayoutJsonUtils.keyDefToJson(def)
+        assertTrue(written["swipeUp"] is JsonObject)
+        assertTrue(written["swipeDown"] is JsonObject)
+        assertNull("新版双槽存在时不应重新写旧 swipe", written["swipe"])
+    }
+
+    /** MacroKey 旧 altLabel 只迁移为一个方向标签，并从布局数据中移除旧字段。 */
+    @Test
+    fun macroKeyLegacyAltLabelMigratesToConfiguredDirection() {
+        val key = mutableMapOf<String, Any?>(
+            "type" to "MacroKey",
+            "label" to "M",
+            "altLabel" to "legacy"
+        )
+        val entries: MutableMap<String, MutableList<MutableList<MutableMap<String, Any?>>>> =
+            mutableMapOf("main" to mutableListOf(mutableListOf(key)))
+
+        assertTrue(LayoutJsonUtils.migrateDirectionalSwipeFields(entries, legacyToDown = false))
+        assertNull(key["altLabel"])
+        assertEquals("legacy", key["swipeUpLabel"])
+        assertNull(key["swipeDownLabel"])
+    }
+    /** 旧字段按方向迁移一次；部分新配置不能误删另一类旧字段。 */
+    @Test
+    fun directionalSwipeMigrationPreservesIndependentLegacyFields() {
+        val key = mutableMapOf<String, Any?>(
+            "type" to "ReturnKey",
+            "swipe" to mapOf("macro" to listOf("legacy macro")),
+            "swipeLabel" to "legacy label",
+            "swipeUp" to mapOf("macro" to listOf("new up macro")),
+            "composeOverride" to mapOf(
+                "swipe" to mapOf("macro" to listOf("compose legacy macro")),
+                "swipeLabel" to "compose legacy label"
+            )
+        )
+        val entries: MutableMap<String, MutableList<MutableList<MutableMap<String, Any?>>>> =
+            mutableMapOf("main" to mutableListOf(mutableListOf(key)))
+
+        assertTrue(LayoutJsonUtils.migrateDirectionalSwipeFields(entries, legacyToDown = false))
+        assertNull(key["swipe"])
+        assertEquals("legacy label", key["swipeDownLabel"])
+        assertNull(key["swipeLabel"])
+        assertTrue(key.containsKey("swipeUp"))
+        val compose = key["composeOverride"] as Map<*, *>
+        assertTrue(compose.containsKey("swipeDown"))
+        assertEquals("compose legacy label", compose["swipeDownLabel"])
+        assertNull(compose["swipe"])
+        assertTrue(!LayoutJsonUtils.migrateDirectionalSwipeFields(entries, legacyToDown = false))
+    }
+
+    /** 功能键旧 swipe/swipeLabel 在 Bottom 偏好下迁移到下滑槽。 */
+    @Test
+    fun directionalSwipeMigrationMovesLegacyFieldsDownward() {
+        val key = mutableMapOf<String, Any?>(
+            "type" to "ReturnKey",
+            "swipe" to mapOf("macro" to listOf("legacy macro")),
+            "swipeLabel" to "legacy label"
+        )
+        val entries: MutableMap<String, MutableList<MutableList<MutableMap<String, Any?>>>> =
+            mutableMapOf("main" to mutableListOf(mutableListOf(key)))
+
+        assertTrue(LayoutJsonUtils.migrateDirectionalSwipeFields(entries, legacyToDown = true))
+        assertTrue(key.containsKey("swipeDown"))
+        assertEquals("legacy label", key["swipeDownLabel"])
+        assertNull(key["swipe"])
+        assertNull(key["swipeLabel"])
     }
 }

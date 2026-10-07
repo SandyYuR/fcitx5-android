@@ -225,6 +225,15 @@ abstract class KeyView(
         return resolveColorOverride(def.altTextColor, def.altTextColorMonet) ?: defaultColor
     }
 
+    protected fun punctuationPositionForKey(): PunctuationPosition {
+        val character = (def as? KeyDef.Appearance.AltText)?.character?.singleOrNull()
+        return if (character != null && (character in 'a'..'z' || character in 'A'..'Z')) {
+            ThemeManager.prefs.punctuationPosition.getValue()
+        } else {
+            PunctuationPosition.Bottom
+        }
+    }
+
     private fun defaultBackgroundColor(theme: Theme): Int = when (def.variant) {
         Variant.Normal, Variant.AltForeground -> theme.keyBackgroundColor
         Variant.Alternative -> theme.altKeyBackgroundColor
@@ -641,6 +650,7 @@ class AltTextKeyView(
         TopRight,
         TopCenter,
         Bottom,
+        DirectionalTopBottom,
         Hidden
     }
 
@@ -677,6 +687,27 @@ class AltTextKeyView(
         )
     }
 
+    val altText1 = view(::AutoScaleTextView) {
+        isClickable = false
+        isFocusable = false
+        scaleMode = AutoScaleTextView.Mode.Proportional
+        gravity = Gravity.CENTER
+        setPadding(hMargin, 0, hMargin, 0)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseAltTextSizeSp())
+        fontKey = "key_alt_font"
+        setTypeface(typeface, Typeface.BOLD)
+        text = def.altText1 ?: ""
+        textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
+        setTextColor(
+            resolveAltTextColor(
+                when (def.variant) {
+                    Variant.Normal, Variant.AltForeground, Variant.Alternative -> theme.altKeyTextColor
+                    Variant.Accent -> theme.accentKeyTextColor
+                }
+            )
+        )
+    }
+
     private fun applyTopRightAltTextPadding() {
         altText.setPaddingRelative(0, 0, cornerLabelHorizontalSafeInset, 0)
     }
@@ -688,6 +719,7 @@ class AltTextKeyView(
     init {
         appearanceView.apply {
             add(altText, lParams(0, wrapContent))
+            add(altText1, lParams(0, wrapContent))
         }
         applyLayout()
     }
@@ -696,6 +728,8 @@ class AltTextKeyView(
         super.setTextScale(scale)
         altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseAltTextSizeSp() * scale)
         altText.requestLayout()
+        altText1.setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseAltTextSizeSp() * scale)
+        altText1.requestLayout()
         lastLayoutMode = null
         applyLayout()
     }
@@ -770,6 +804,46 @@ class AltTextKeyView(
         altText.gravity = Gravity.CENTER
     }
 
+    private fun applyDirectionalTopBottomAltTextPosition() {
+        val hasUpLabel = !altText.text.isNullOrBlank()
+        val hasDownLabel = !altText1.text.isNullOrBlank()
+        altText.visibility = if (hasUpLabel) View.VISIBLE else View.GONE
+        altText1.visibility = if (hasDownLabel) View.VISIBLE else View.GONE
+        altText.gravity = Gravity.CENTER
+        altText1.gravity = Gravity.CENTER
+        altText.setPadding(hMargin, 0, hMargin, 0)
+        altText1.setPadding(hMargin, 0, hMargin, 0)
+
+        altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            width = 0
+            topToTop = parentId
+            bottomToTop = if (hasUpLabel) mainText.existingOrNewId else unset
+            bottomToBottom = if (hasUpLabel) unset else parentId
+            leftToLeft = parentId
+            rightToRight = parentId
+            topMargin = vMargin
+            bottomMargin = 0
+        }
+        altText1.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            width = 0
+            topToTop = if (hasDownLabel) unset else parentId
+            topToBottom = if (hasDownLabel) mainText.existingOrNewId else unset
+            bottomToBottom = parentId
+            leftToLeft = parentId
+            rightToRight = parentId
+            topMargin = 0
+            bottomMargin = vMargin + dp(2)
+        }
+        mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            topToTop = if (hasUpLabel) unset else parentId
+            topToBottom = if (hasUpLabel) altText.existingOrNewId else unset
+            bottomToBottom = if (hasDownLabel) unset else parentId
+            bottomToTop = if (hasDownLabel) altText1.existingOrNewId else unset
+            topMargin = 0
+            bottomMargin = 0
+        }
+    }
+
     private fun applyNoAltTextPosition() {
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             // reset
@@ -780,14 +854,23 @@ class AltTextKeyView(
             bottomToBottom = parentId
         }
         altText.visibility = View.GONE
+        altText1.visibility = View.GONE
         applyBottomAltTextPadding()
         altText.gravity = Gravity.CENTER
     }
 
     private fun resolveLayoutMode(keyHeight: Int): AltTextLayoutMode {
+        val pref = punctuationPositionForKey()
+        if (def.directionalSwipeLabels) {
+            return if (pref == PunctuationPosition.None) {
+                AltTextLayoutMode.Hidden
+            } else if (altText.text.isNullOrBlank() && altText1.text.isNullOrBlank()) {
+                AltTextLayoutMode.Hidden
+            } else {
+                AltTextLayoutMode.DirectionalTopBottom
+            }
+        }
         if (altText.text.isNullOrBlank()) return AltTextLayoutMode.Hidden
-        val pref = ThemeManager.prefs.punctuationPosition.getValue()
-        if (pref == PunctuationPosition.None) return AltTextLayoutMode.Hidden
 
         val preferred = when (pref) {
             PunctuationPosition.TopRight -> AltTextLayoutMode.TopRight
@@ -819,6 +902,7 @@ class AltTextKeyView(
                 contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
                 else -> AltTextLayoutMode.Hidden
             }
+            AltTextLayoutMode.DirectionalTopBottom -> AltTextLayoutMode.DirectionalTopBottom
             AltTextLayoutMode.Hidden -> AltTextLayoutMode.Hidden
         }
     }
@@ -831,6 +915,7 @@ class AltTextKeyView(
             AltTextLayoutMode.Bottom -> applyBottomAltTextPosition()
             AltTextLayoutMode.TopRight -> applyTopRightAltTextPosition()
             AltTextLayoutMode.TopCenter -> applyTopCenterAltTextPosition()
+            AltTextLayoutMode.DirectionalTopBottom -> applyDirectionalTopBottomAltTextPosition()
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
     }
@@ -845,6 +930,11 @@ class AltTextKeyView(
         return when (lastLayoutMode ?: resolveLayoutMode(appearanceView.height)) {
             AltTextLayoutMode.Bottom -> totalY > 0
             AltTextLayoutMode.TopRight, AltTextLayoutMode.TopCenter -> totalY < 0
+            AltTextLayoutMode.DirectionalTopBottom -> when {
+                totalY < 0 -> !altText.text.isNullOrBlank()
+                totalY > 0 -> !altText1.text.isNullOrBlank()
+                else -> false
+            }
             AltTextLayoutMode.Hidden -> fallback.checkY(totalY)
         }
     }
@@ -861,6 +951,14 @@ class AltTextKeyView(
     override fun updateTheme(newTheme: Theme) {
         super.updateTheme(newTheme)
         altText.setTextColor(
+            resolveAltTextColor(
+                when (def.variant) {
+                    Variant.Normal, Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
+                    Variant.Accent -> newTheme.accentKeyTextColor
+                }
+            )
+        )
+        altText1.setTextColor(
             resolveAltTextColor(
                 when (def.variant) {
                     Variant.Normal, Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
@@ -885,6 +983,7 @@ class ImageAltTextKeyView(
         TopRight,
         TopCenter,
         Bottom,
+        DirectionalTopBottom,
         Hidden
     }
 
@@ -945,6 +1044,27 @@ class ImageAltTextKeyView(
         )
     }
 
+    val altText1 = view(::AutoScaleTextView) {
+        isClickable = false
+        isFocusable = false
+        scaleMode = AutoScaleTextView.Mode.Proportional
+        gravity = Gravity.CENTER
+        setPadding(hMargin, 0, hMargin, 0)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseAltTextSizeSp())
+        fontKey = "key_alt_font"
+        setTypeface(typeface, Typeface.BOLD)
+        text = def.altText1 ?: ""
+        textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
+        setTextColor(
+            resolveAltTextColor(
+                when (def.variant) {
+                    Variant.Normal, Variant.AltForeground, Variant.Alternative -> theme.altKeyTextColor
+                    Variant.Accent -> theme.accentKeyTextColor
+                }
+            )
+        )
+    }
+
     private fun applyTopRightAltTextPadding() {
         altText.setPaddingRelative(0, 0, cornerLabelHorizontalSafeInset, 0)
     }
@@ -957,6 +1077,7 @@ class ImageAltTextKeyView(
         appearanceView.apply {
             add(img, lParams(wrapContent, wrapContent))
             add(altText, lParams(0, wrapContent))
+            add(altText1, lParams(0, wrapContent))
         }
         reapplyIconThemeOverride()
         applyLayout()
@@ -997,6 +1118,8 @@ class ImageAltTextKeyView(
         currentMainTextScale = scale
         altText.setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseAltTextSizeSp() * scale)
         altText.requestLayout()
+        altText1.setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveBaseAltTextSizeSp() * scale)
+        altText1.requestLayout()
         invalidateTextMetricsCache()
         lastLayoutMode = null
         applyLayout()
@@ -1067,6 +1190,46 @@ class ImageAltTextKeyView(
         altText.gravity = Gravity.CENTER
     }
 
+    private fun applyDirectionalTopBottomAltTextPosition() {
+        val hasUpLabel = !altText.text.isNullOrBlank()
+        val hasDownLabel = !altText1.text.isNullOrBlank()
+        altText.visibility = if (hasUpLabel) View.VISIBLE else View.GONE
+        altText1.visibility = if (hasDownLabel) View.VISIBLE else View.GONE
+        altText.gravity = Gravity.CENTER
+        altText1.gravity = Gravity.CENTER
+        altText.setPadding(hMargin, 0, hMargin, 0)
+        altText1.setPadding(hMargin, 0, hMargin, 0)
+
+        altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            width = 0
+            topToTop = parentId
+            bottomToTop = if (hasUpLabel) img.existingOrNewId else unset
+            bottomToBottom = if (hasUpLabel) unset else parentId
+            leftToLeft = parentId
+            rightToRight = parentId
+            topMargin = vMargin
+            bottomMargin = 0
+        }
+        altText1.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            width = 0
+            topToTop = if (hasDownLabel) unset else parentId
+            topToBottom = if (hasDownLabel) img.existingOrNewId else unset
+            bottomToBottom = parentId
+            leftToLeft = parentId
+            rightToRight = parentId
+            topMargin = 0
+            bottomMargin = vMargin + dp(2)
+        }
+        img.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            topToTop = if (hasUpLabel) unset else parentId
+            topToBottom = if (hasUpLabel) altText.existingOrNewId else unset
+            bottomToBottom = if (hasDownLabel) unset else parentId
+            bottomToTop = if (hasDownLabel) altText1.existingOrNewId else unset
+            topMargin = 0
+            bottomMargin = 0
+        }
+    }
+
     private fun applyNoAltTextPosition() {
         img.updateLayoutParams<ConstraintLayout.LayoutParams> {
             topToTop = parentId
@@ -1078,14 +1241,23 @@ class ImageAltTextKeyView(
             bottomToTop = unset
         }
         altText.visibility = View.GONE
+        altText1.visibility = View.GONE
         applyBottomAltTextPadding()
         altText.gravity = Gravity.CENTER
     }
 
     private fun resolveLayoutMode(keyHeight: Int): AltTextLayoutMode {
+        val pref = punctuationPositionForKey()
+        if (def.directionalSwipeLabels) {
+            return if (pref == PunctuationPosition.None) {
+                AltTextLayoutMode.Hidden
+            } else if (altText.text.isNullOrBlank() && altText1.text.isNullOrBlank()) {
+                AltTextLayoutMode.Hidden
+            } else {
+                AltTextLayoutMode.DirectionalTopBottom
+            }
+        }
         if (altText.text.isNullOrBlank()) return AltTextLayoutMode.Hidden
-        val pref = ThemeManager.prefs.punctuationPosition.getValue()
-        if (pref == PunctuationPosition.None) return AltTextLayoutMode.Hidden
 
         val preferred = when (pref) {
             PunctuationPosition.TopRight -> AltTextLayoutMode.TopRight
@@ -1139,6 +1311,7 @@ class ImageAltTextKeyView(
                 contentHeight >= compactMinHeight -> AltTextLayoutMode.TopRight
                 else -> AltTextLayoutMode.Hidden
             }
+            AltTextLayoutMode.DirectionalTopBottom -> AltTextLayoutMode.DirectionalTopBottom
             AltTextLayoutMode.Hidden -> AltTextLayoutMode.Hidden
         }
     }
@@ -1151,6 +1324,7 @@ class ImageAltTextKeyView(
             AltTextLayoutMode.Bottom -> applyBottomAltTextPosition()
             AltTextLayoutMode.TopRight -> applyTopRightAltTextPosition()
             AltTextLayoutMode.TopCenter -> applyTopCenterAltTextPosition()
+            AltTextLayoutMode.DirectionalTopBottom -> applyDirectionalTopBottomAltTextPosition()
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
     }
@@ -1165,6 +1339,11 @@ class ImageAltTextKeyView(
         return when (lastLayoutMode ?: resolveLayoutMode(appearanceView.height)) {
             AltTextLayoutMode.Bottom -> totalY > 0
             AltTextLayoutMode.TopRight, AltTextLayoutMode.TopCenter -> totalY < 0
+            AltTextLayoutMode.DirectionalTopBottom -> when {
+                totalY < 0 -> !altText.text.isNullOrBlank()
+                totalY > 0 -> !altText1.text.isNullOrBlank()
+                else -> false
+            }
             AltTextLayoutMode.Hidden -> fallback.checkY(totalY)
         }
     }
@@ -1183,6 +1362,14 @@ class ImageAltTextKeyView(
         super.updateTheme(newTheme)
         applyIconTint(newTheme)
         altText.setTextColor(
+            resolveAltTextColor(
+                when (def.variant) {
+                    Variant.Normal, Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
+                    Variant.Accent -> newTheme.accentKeyTextColor
+                }
+            )
+        )
+        altText1.setTextColor(
             resolveAltTextColor(
                 when (def.variant) {
                     Variant.Normal, Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
