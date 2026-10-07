@@ -315,6 +315,8 @@
     <string name="horizontal_candidate_never_fill">從不填充寬度</string>
     <string name="horizontal_candidate_auto_fill">按需填充寬度</string>
     <string name="horizontal_candidate_always_fill">總是填充寬度</string>
+    <string name="horizontal_candidate_overflow_scroll">長候選詞橫向捲動</string>
+    <string name="horizontal_candidate_overflow_scroll_summary">保留候選詞完整寬度，透過橫向捲動查看超出部分</string>
     <string name="inline_suggestions">顯示內嵌自動填充建議</string>
     <string name="delete_all_except_pinned">要刪除所有未置頂條目嗎？</string>
     <string name="num_items_deleted">已刪除 %1$d 項</string>

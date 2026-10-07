@@ -67,6 +67,10 @@ class HorizontalCandidateComponent :
 
     private val fillStyle by AppPrefs.getInstance().keyboard.horizontalCandidateStyle
     private val highlightFirstCandidate by AppPrefs.getInstance().keyboard.highlightFirstCandidate
+    private val horizontalCandidateOverflowScroll =
+        AppPrefs.getInstance().keyboard.horizontalCandidateOverflowScroll
+    private var horizontalOverflowEnabled = horizontalCandidateOverflowScroll.getValue()
+    private var adapterCreated = false
     private val maxSpanCountPref by lazy {
         AppPrefs.getInstance().keyboard.run {
             if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
@@ -320,8 +324,17 @@ class HorizontalCandidateComponent :
         pendingEnsureVisible = Triple(originalCandidates, total, activeIndex)
     }
 
+    fun setHorizontalOverflowEnabled(enabled: Boolean) {
+        if (horizontalOverflowEnabled == enabled) return
+        horizontalOverflowEnabled = enabled
+        if (adapterCreated) {
+            adapter.setHorizontalOverflowEnabled(enabled)
+        }
+    }
+
     val adapter: HorizontalCandidateViewAdapter by lazy {
-        object : HorizontalCandidateViewAdapter(theme) {
+        adapterCreated = true
+        object : HorizontalCandidateViewAdapter(theme, horizontalOverflowEnabled) {
             override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
                 super.onBindViewHolder(holder, position)
                 holder.itemView.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {

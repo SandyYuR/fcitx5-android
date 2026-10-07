@@ -1632,6 +1632,8 @@ class InputView(
     private val candidatesPrefs = AppPrefs.getInstance().candidates
     private val physicalKeyboardHorizontalCandidateBar =
         candidatesPrefs.physicalKeyboardHorizontalCandidateBar
+    private val horizontalCandidateOverflowScroll =
+        keyboardPrefs.horizontalCandidateOverflowScroll
     private val splitKeyboardUseLandscapeLayout = keyboardPrefs.splitKeyboardUseLandscapeLayout
     private val textKeyboardLayoutProfile = keyboardPrefs.textKeyboardLayoutProfile
 
@@ -3074,6 +3076,9 @@ class InputView(
         if (key == physicalKeyboardHorizontalCandidateBar.key) {
             service.inputDeviceManager.onPhysicalKeyboardHorizontalCandidateBarChanged()
         }
+        if (key == horizontalCandidateOverflowScroll.key) {
+            horizontalCandidate.setHorizontalOverflowEnabled(horizontalCandidateOverflowScroll.getValue())
+        }
     }
 
     val keyboardView: View
@@ -3276,6 +3281,7 @@ class InputView(
         })
         keyboardPrefs.registerOnChangeListener(onKeyboardSizeChangeListener)
         advancedPrefs.registerOnChangeListener(onKeyboardSizeChangeListener)
+        keyboardPrefs.registerOnChangeListener(onCandidatePreferenceChangeListener)
         candidatesPrefs.registerOnChangeListener(onCandidatePreferenceChangeListener)
         restoreFloatingAndOneHandState()
         updateFloatingState()
@@ -3774,6 +3780,7 @@ class InputView(
         windowManager.onWindowChanged = null
         advancedPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
         keyboardPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
+        keyboardPrefs.unregisterOnChangeListener(onCandidatePreferenceChangeListener)
         candidatesPrefs.unregisterOnChangeListener(onCandidatePreferenceChangeListener)
         ConfigProviders.removeButtonsLayoutListener(onButtonsLayoutChangeListener)
         ConfigProviders.removeIconChangeListener(onIconChangeListener)

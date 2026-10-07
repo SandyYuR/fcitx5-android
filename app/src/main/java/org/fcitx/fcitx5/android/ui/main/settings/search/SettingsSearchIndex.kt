@@ -159,6 +159,8 @@ object SettingsSearchIndex {
 
         /* 键盘 · 候选栏样式 */
         R.string.horizontal_candidate_style to "horizontal_candidate_style",
+        R.string.horizontal_candidate_overflow_scroll to
+            "horizontal_candidate_overflow_scroll",
         R.string.highlight_first_candidate to "highlight_first_candidate",
         R.string.expanded_candidate_style to "expanded_candidate_style",
 
@@ -615,6 +617,11 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.expanded_candidate_style, P_INPUT,
             listOf("expanded candidate", "展开候选", "候选列表"),
+            route = keyboard(CANDIDATE)
+        ),
+        SettingsSearchEntry(
+            R.string.horizontal_candidate_overflow_scroll, P_INPUT,
+            listOf("candidate scroll", "候选滚动", "长候选", "候选词过长", "横向滚动"),
             route = keyboard(CANDIDATE)
         ),
         // 语音是一种输入方式，已从工具栏组拆出。

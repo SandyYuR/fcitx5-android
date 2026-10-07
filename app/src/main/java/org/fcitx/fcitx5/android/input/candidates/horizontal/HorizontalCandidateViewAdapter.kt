@@ -20,8 +20,12 @@ import splitties.dimensions.dp
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 
-open class HorizontalCandidateViewAdapter(val theme: Theme) :
-    RecyclerView.Adapter<CandidateViewHolder>() {
+open class HorizontalCandidateViewAdapter(
+    val theme: Theme,
+    initialHorizontalOverflowEnabled: Boolean = true,
+) : RecyclerView.Adapter<CandidateViewHolder>() {
+
+    private var horizontalOverflowEnabled = initialHorizontalOverflowEnabled
 
     // Cache candidate/comment fonts and refresh only when font configuration changes.
     private var candFont: Typeface? = FontProviders.resolveTypeface("cand_font", null)
@@ -54,6 +58,13 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     init {
         setHasStableIds(true)
     }
+
+    fun setHorizontalOverflowEnabled(enabled: Boolean) {
+        if (horizontalOverflowEnabled == enabled) return
+        horizontalOverflowEnabled = enabled
+        notifyDataSetChanged()
+    }
+
 
     var candidates: Array<CandidateWord> = arrayOf()
         private set
@@ -145,6 +156,7 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     @CallSuper
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CandidateViewHolder {
         val ui = CandidateItemUi(parent.context, theme, candFont, commentFont)
+        ui.setHorizontalOverflowEnabled(horizontalOverflowEnabled)
         ui.root.apply {
             minimumWidth = dp(HorizontalCandidateComponent.itemMinWidthDp())
             layoutParams = FlexboxLayoutManager.LayoutParams(wrapContent, matchParent)
@@ -165,6 +177,7 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     @CallSuper
     override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
         refreshCandidateFontIfNeeded()
+        holder.ui.setHorizontalOverflowEnabled(horizontalOverflowEnabled)
         holder.ui.applyConfiguredCommentTypeface(commentFont)
         // 字体 + 字号一起重读：字号必须在每次绑定时都对齐版本号，否则被复用的
         // ViewHolder 会一直停在构造时那次求值的旧字号上。

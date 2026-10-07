@@ -403,6 +403,12 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "horizontal_candidate_style",
             HorizontalCandidateMode.AutoFillWidth
         )
+        val horizontalCandidateOverflowScroll = switch(
+            R.string.horizontal_candidate_overflow_scroll,
+            "horizontal_candidate_overflow_scroll",
+            true,
+            R.string.horizontal_candidate_overflow_scroll_summary
+        )
         val highlightFirstCandidate = switch(
             R.string.highlight_first_candidate,
             "highlight_first_candidate",

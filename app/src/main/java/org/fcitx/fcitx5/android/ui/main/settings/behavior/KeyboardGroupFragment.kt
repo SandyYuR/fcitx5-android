@@ -376,8 +376,8 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
                 "inline_suggestions", "toolbar_num_row_on_password",
             ),
             GROUP_CANDIDATE to setOf(
-                "horizontal_candidate_style", "highlight_first_candidate",
-                "expanded_candidate_style",
+                "horizontal_candidate_style", "horizontal_candidate_overflow_scroll",
+                "highlight_first_candidate", "expanded_candidate_style",
                 "expanded_candidate_grid_span_count_portrait",
             ),
             GROUP_VOICE to setOf(
