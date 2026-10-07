@@ -5,7 +5,6 @@
 
 package org.fcitx.fcitx5.android.input.candidates.horizontal
 
-import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.Looper
 import android.os.SystemClock
@@ -15,7 +14,10 @@ import android.view.inputmethod.EditorInfo
 import android.content.res.Configuration
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
+import android.text.style.AbsoluteSizeSpan
 import androidx.core.content.ContextCompat
+import androidx.core.text.buildSpannedString
+import androidx.core.text.inSpans
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import androidx.tracing.trace
@@ -35,7 +37,9 @@ import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.BooleanKey.Ex
 import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.TransitionEvent.ExpandedCandidatesUpdated
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
+import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder
+import org.fcitx.fcitx5.android.input.candidates.CustomTypefaceSpan
 import org.fcitx.fcitx5.android.input.candidates.expanded.CandidateGenerationTracker
 import org.fcitx.fcitx5.android.input.candidates.expanded.ExpandedCandidateRefreshRequest
 import org.fcitx.fcitx5.android.input.candidates.expanded.decoration.FlexboxVerticalDecoration
@@ -50,7 +54,6 @@ import org.fcitx.fcitx5.android.input.dependency.theme
 import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.mechdancer.dependency.manager.must
 import splitties.dimensions.dp
-import kotlin.math.ceil
 import kotlin.math.max
 
 class HorizontalCandidateComponent :
@@ -404,41 +407,53 @@ class HorizontalCandidateComponent :
         }
     }
 
-    // Mirrors AutoScaleTextView#measureTextBounds(): the item TextView measures the
-    // flattened string with its base paint (spans only affect drawing), using ink
-    // bounds for a single code point and ceil(advance) otherwise.
-    private val candidateTextPaint = TextPaint()
-    private var candidateTextEpoch: Pair<Typeface?, Int>? = null
-    private val candidateTextWidthCache = HashMap<String, Int>()
+    // Mirrors CandidateItemUi's span-aware text measurement so the overflow prediction uses
+    // the same width as the item that will actually be laid out.
+    private data class CandidateTextEpoch(
+        val candidateFont: Typeface?,
+        val candidateSizePx: Float,
+        val commentFont: Typeface,
+        val commentSizePx: Int,
+    )
 
-    private fun candidatePlainTextWidth(plainText: String): Int {
-        val font = FontProviders.resolveTypeface("cand_font", null)
-        // 与 CandidateItemUi 用同一套字号（只来自「字体设定」）：这里算的是**预测**宽度，
-        // 一旦和真正的 item 测量口径不一致，predictRowOverflow 就会误判，候选行会在
-        // "挤成一行"和"换行/滚动"之间抖动。
-        val sizePx = TypedValue.applyDimension(
+    private val candidateTextPaint = TextPaint()
+    private var candidateTextEpoch: CandidateTextEpoch? = null
+    private val candidateTextWidthCache = HashMap<CandidateWord, Int>()
+
+    private fun candidateTextWidth(candidate: CandidateWord): Int {
+        val candidateFont = FontProviders.resolveTypeface("cand_font", null)
+        // CandidateItemUi resolves the same fallback chain when it creates the comment span.
+        val commentFont = FontProviders.resolveCommentTypeface(null)
+        val candidateSizePx = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP,
             FontProviders.getFontSize("cand_font", FontProviders.DEFAULT_CANDIDATE_FONT_SIZE),
             context.resources.displayMetrics
         )
-        val epoch = font to sizePx.toRawBits()
+        val commentSizePx = FontProviders.commentFontSizePx(context)
+        val epoch = CandidateTextEpoch(candidateFont, candidateSizePx, commentFont, commentSizePx)
         if (epoch != candidateTextEpoch) {
             candidateTextEpoch = epoch
             candidateTextWidthCache.clear()
-            candidateTextPaint.typeface = font
-            candidateTextPaint.textSize = sizePx
+            candidateTextPaint.typeface = candidateFont
+            candidateTextPaint.textSize = candidateSizePx
         }
         if (candidateTextWidthCache.size > 512) {
             candidateTextWidthCache.clear()
         }
-        return candidateTextWidthCache.getOrPut(plainText) {
-            if (Character.codePointCount(plainText, 0, plainText.length) == 1) {
-                val bounds = Rect()
-                candidateTextPaint.getTextBounds(plainText, 0, plainText.length, bounds)
-                bounds.width()
-            } else {
-                ceil(candidateTextPaint.measureText(plainText)).toInt()
+        return candidateTextWidthCache.getOrPut(candidate) {
+            val text = buildSpannedString {
+                append(candidate.text)
+                if (candidate.comment.isNotBlank()) {
+                    if (candidate.spaceBetweenComment) append(' ')
+                    inSpans(
+                        CustomTypefaceSpan(commentFont),
+                        AbsoluteSizeSpan(commentSizePx, false),
+                    ) {
+                        append(candidate.comment)
+                    }
+                }
             }
+            AutoScaleTextView.measureTextWidth(text, candidateTextPaint)
         }
     }
 
@@ -463,15 +478,7 @@ class HorizontalCandidateComponent :
         val divider = dividerDrawable.intrinsicWidth
         var total = 0
         for (candidate in candidates) {
-            val comment = candidate.comment
-            val plain = buildString {
-                append(candidate.text)
-                if (comment.isNotBlank()) {
-                    if (candidate.spaceBetweenComment) append(' ')
-                    append(comment)
-                }
-            }
-            val textWidth = candidatePlainTextWidth(plain)
+            val textWidth = candidateTextWidth(candidate)
             val itemWidth =
                 max(max(textWidth + highlightPadding, rootMinWidth) + rootPadding, layoutMinWidth)
             total += itemWidth + divider

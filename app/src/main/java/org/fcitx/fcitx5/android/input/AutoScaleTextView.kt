@@ -24,6 +24,30 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.CharacterStyle
 
+private inline fun forEachTextRun(
+    text: CharSequence,
+    paint: TextPaint,
+    block: (plainText: String, start: Int, end: Int, runPaint: TextPaint) -> Unit,
+) {
+    val plainText = text.toString()
+    val spanned = text as? Spanned
+    if (spanned == null) {
+        block(plainText, 0, plainText.length, paint)
+        return
+    }
+
+    var start = 0
+    while (start < plainText.length) {
+        val end = spanned.nextSpanTransition(start, plainText.length, CharacterStyle::class.java)
+        val runPaint = TextPaint(paint)
+        spanned.getSpans(start, end, CharacterStyle::class.java).forEach {
+            it.updateDrawState(runPaint)
+        }
+        block(plainText, start, end, runPaint)
+        start = end
+    }
+}
+
 @SuppressLint("AppCompatCustomView")
 class AutoScaleTextView @JvmOverloads constructor(
     context: Context?,
@@ -67,6 +91,28 @@ class AutoScaleTextView @JvmOverloads constructor(
     companion object {
         val fontTypefaceMap: MutableMap<String, Typeface?>
             get() = FontProviders.fontTypefaceMap
+
+        /**
+         * Measure the horizontal width using the same CharacterStyle runs as drawing.
+         * Single-code-point text keeps the existing ink-bounds behavior; longer text uses
+         * the sum of each run's advance so metric-affecting spans are accounted for.
+         */
+        internal fun measureTextWidth(text: CharSequence, paint: TextPaint): Int {
+            val plainText = text.toString()
+            if (Character.codePointCount(plainText, 0, plainText.length) == 1) {
+                val bounds = Rect()
+                forEachTextRun(text, paint) { runText, start, end, runPaint ->
+                    runPaint.getTextBounds(runText, start, end, bounds)
+                }
+                return bounds.width()
+            }
+
+            var width = 0.0f
+            forEachTextRun(text, paint) { runText, start, end, runPaint ->
+                width += runPaint.measureText(runText, start, end)
+            }
+            return ceil(width).toInt()
+        }
     }
 
     fun setFontTypeFace(key: String) {
@@ -143,14 +189,15 @@ class AutoScaleTextView @JvmOverloads constructor(
             paint.getFontMetrics(fontMetrics)
             val codePointCount = Character.codePointCount(plainText, 0, plainText.length)
             if (codePointCount == 1) {
-                // use actual text bounds when there is only one "character",
-                // e.g. full-width punctuation
-                paint.getTextBounds(plainText, 0, plainText.length, textBounds)
+                // Keep actual ink bounds for one code point, applying any spans first.
+                forEachTextRun(text, paint) { runText, start, end, runPaint ->
+                    runPaint.getTextBounds(runText, start, end, textBounds)
+                }
             } else {
                 textBounds.set(
                     /* left = */ 0,
                     /* top = */ floor(fontMetrics.top).toInt(),
-                    /* right = */ ceil(paint.measureText(plainText)).toInt(),
+                    /* right = */ measureTextWidth(text, paint),
                     /* bottom = */ ceil(fontMetrics.bottom).toInt()
                 )
             }
@@ -264,24 +311,11 @@ class AutoScaleTextView @JvmOverloads constructor(
         }
     }
 
-    private fun drawTextWithSpans(canvas: Canvas, paint: Paint) {
-        val spanned = text as? Spanned
-        if (spanned == null) {
-            canvas.drawText(plainText, 0f, 0f, paint)
-            return
-        }
-        val length = plainText.length
-        var start = 0
+    private fun drawTextWithSpans(canvas: Canvas, paint: TextPaint) {
         var x = 0f
-        while (start < length) {
-            val end = spanned.nextSpanTransition(start, length, CharacterStyle::class.java)
-            val runPaint = TextPaint(paint)
-            spanned.getSpans(start, end, CharacterStyle::class.java).forEach {
-                it.updateDrawState(runPaint)
-            }
-            canvas.drawText(plainText, start, end, x, 0f, runPaint)
-            x += runPaint.measureText(plainText, start, end)
-            start = end
+        forEachTextRun(text, paint) { runText, start, end, runPaint ->
+            canvas.drawText(runText, start, end, x, 0f, runPaint)
+            x += runPaint.measureText(runText, start, end)
         }
     }
 
