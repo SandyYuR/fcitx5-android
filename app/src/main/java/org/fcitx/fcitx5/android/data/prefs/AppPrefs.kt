@@ -97,10 +97,8 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val vivoKeypressWorkaround = switch(
             R.string.vivo_keypress_workaround,
             "vivo_keypress_workaround",
-            // Some vendor input windows can dispatch a key gesture more than once.
-            DeviceUtil.isVivoOriginOS ||
-                DeviceUtil.isMIUI ||
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+            // Some vivo input windows can dispatch a key gesture more than once.
+            DeviceUtil.isVivoOriginOS
         )
         val ignoreSystemWindowInsets = switch(
             R.string.ignore_system_window_insets, "ignore_system_window_insets", false

@@ -24,6 +24,7 @@ import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.data.BundledPresets
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.prefs.AppPrefsMigration
 import org.fcitx.fcitx5.android.data.prefs.SmartDefaultInitializer
 import org.fcitx.fcitx5.android.data.prefs.SplitKeyboardStateManager
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
@@ -133,6 +134,7 @@ class FcitxApplication : Application() {
         Timber.d("isDirectBootMode=$isDirectBootMode")
 
         AppPrefs.init(sharedPrefs)
+        AppPrefsMigration.apply(sharedPrefs)
         SplitKeyboardStateManager.init(this)
         // Smart settings initialization (on first install)
         SmartDefaultInitializer.initialize(this, AppPrefs.getInstance())
