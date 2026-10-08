@@ -168,6 +168,6 @@ class LongPressPopupKeyboardUi(
         }
         // Otherwise, return the key action for the selected item
         val key = keys.getOrNull(focusedIndex) ?: return null
-        return KeyAction.FcitxKeyAction(key)
+        return popupKeyAction(key)
     }
 }
