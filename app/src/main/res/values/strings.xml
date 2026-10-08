@@ -158,6 +158,7 @@
     <string name="theme">Theme</string>
     <string name="toggle_day_night_theme">Day/Night Theme</string>
     <string name="key_ripple_effect">Enable key ripple effect</string>
+    <string name="move_main_text_for_alt_label">Move main key text for alternative labels</string>
     <string name="key_border">Enable key border</string>
     <string name="brightness">Brightness</string>
     <string name="key_radius">Key radius</string>
