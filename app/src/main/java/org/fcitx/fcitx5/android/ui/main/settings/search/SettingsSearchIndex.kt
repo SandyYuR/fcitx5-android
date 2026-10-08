@@ -221,6 +221,7 @@ object SettingsSearchIndex {
         R.string.key_border to "key_border",
         R.string.key_border_stroke to "key_border_stroke",
         R.string.key_ripple_effect to "key_ripple_effect",
+        R.string.move_main_text_for_alt_label to "move_main_text_for_alt_label",
         R.string.special_key_oval_shape to "special_key_oval_shape",
         R.string.text_editing_button_radius to "text_editing_button_radius",
         R.string.clipboard_entry_radius to "clipboard_entry_radius",
@@ -385,6 +386,11 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.key_ripple_effect, P_THEME,
             listOf("ripple", "水波纹", "shuiwewen", "波纹", "涟漪"),
+            route = SettingsRoute.Theme
+        ),
+        SettingsSearchEntry(
+            R.string.move_main_text_for_alt_label, P_THEME,
+            listOf("main text", "主字符", "主标签", "副标签", "居中", "按键文字", "center"),
             route = SettingsRoute.Theme
         ),
         SettingsSearchEntry(

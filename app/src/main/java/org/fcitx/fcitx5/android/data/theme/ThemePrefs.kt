@@ -45,6 +45,12 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
 
     val keyRippleEffect = switch(R.string.key_ripple_effect, "key_ripple_effect", false)
 
+    val moveMainTextForAltLabel = switch(
+        R.string.move_main_text_for_alt_label,
+        "move_main_text_for_alt_label",
+        true
+    )
+
     val keyHorizontalMargin: ManagedPreference.PInt
     val keyHorizontalMarginLandscape: ManagedPreference.PInt
 
