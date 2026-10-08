@@ -131,7 +131,7 @@
 ### 七、品牌与分发
 
 - 中文应用名定为**靓企鹅·中州韵**（仅简繁中文，其余语言保持 `Fcitx5.fx.rime`）。
-- **CI**：push 触发 `arm64-v8a` Release 构建，另有独立单测 job（失败只标红叉、**不阻塞出包**）；`fx-rime-only` 构建成功后自动创建带时间戳的 **Nightly 预发布版**并附带 APK。
+- **CI**：`push` 触发 `arm64-v8a` Release 构建，`pull_request` 触发无签名的 JVM 单测与 Debug APK 构建；`fx-rime-only` 构建成功后自动创建带时间戳的 **Nightly 预发布版**并附带 APK。
 - 文档集中在 [`docs` 分支的文档站](https://sandyyur.github.io/fcitx5-android/)（用户指南、维护者交接与审阅报告；2026-10-05 起，原 `rime-docs` 分支已并入），代码分支保持纯代码历史。
 
 ## 「Rime-only」的含义
