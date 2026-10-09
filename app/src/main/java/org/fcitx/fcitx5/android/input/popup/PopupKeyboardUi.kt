@@ -79,7 +79,7 @@ class PopupKeyboardUi(
 
     private val inactiveBackground = GradientDrawable().apply {
         cornerRadius = radius
-        setColor(theme.popupBackgroundColor)
+        setColor(theme.backgroundColor)
     }
 
     private val focusBackground = GradientDrawable().apply {

@@ -50,7 +50,7 @@ internal class CandidateCharacterPopup(
 
     private val inactiveBackground = GradientDrawable().apply {
         cornerRadius = dp(8f).toFloat()
-        setColor(theme.popupBackgroundColor)
+        setColor(theme.backgroundColor)
     }
     private val focusedBackground = GradientDrawable().apply {
         cornerRadius = dp(6f).toFloat()
@@ -76,7 +76,7 @@ internal class CandidateCharacterPopup(
                     gravity = Gravity.CENTER
                     scaleMode = AutoScaleTextView.Mode.Proportional
                     setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22f)
-                    setTextColor(theme.popupTextColor)
+                    setTextColor(theme.keyTextColor)
                     typeface = FontProviders.resolveTypeface("popup_key_font", typeface)
                     text = characters.getOrNull(characterIndex).orEmpty()
                 }
@@ -167,7 +167,7 @@ internal class CandidateCharacterPopup(
     private fun markInactive(index: Int) {
         characterViews.getOrNull(index)?.apply {
             background = null
-            setTextColor(theme.popupTextColor)
+            setTextColor(theme.keyTextColor)
         }
     }
 }

@@ -30,7 +30,7 @@ class PopupEntryUi(override val ctx: Context, theme: Theme, keyHeight: Int, radi
         // Use configured font size with fallback to default (23f)
         setTextSize(TypedValue.COMPLEX_UNIT_SP, resolveConfiguredFontSize())
         gravity = gravityCenter
-        setTextColor(theme.popupTextColor)
+        setTextColor(theme.keyTextColor)
         setFontTypeFace("popup_key_font")
     }
 
@@ -55,7 +55,7 @@ class PopupEntryUi(override val ctx: Context, theme: Theme, keyHeight: Int, radi
     override val root = constraintLayout {
         background = GradientDrawable().apply {
             cornerRadius = radius
-            setColor(theme.popupBackgroundColor)
+            setColor(theme.backgroundColor)
         }
         outlineProvider = ViewOutlineProvider.BACKGROUND
         elevation = dp(2f)
