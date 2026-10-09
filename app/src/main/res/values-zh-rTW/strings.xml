@@ -149,6 +149,12 @@
     <string name="reload_config">重新讀取設定</string>
     <string name="input_method_options">輸入法設定</string>
     <string name="theme">主題</string>
+    <string name="random_theme">隨機主題</string>
+    <string name="random_theme_score">美學評分：%1$d/100（對比度 %2$d，色相 %3$d，飽和度 %4$d，明度 %5$d）</string>
+    <string name="random_theme_score_short">評分 %1$d/100</string>
+    <string name="random_theme_copy">複製為自訂主題</string>
+    <string name="random_theme_generate">重新隨機</string>
+    <string name="random_theme_toast">隨機主題：%1$d/100（對比度 %2$d，色相 %3$d，飽和度 %4$d，明度 %5$d）</string>
     <string name="key_ripple_effect">啟用按鍵水波紋特效</string>
     <string name="move_main_text_for_alt_label">副標籤存在時移動主字符</string>
     <string name="key_border">啟用按鍵邊框</string>
@@ -245,6 +251,7 @@
     <string name="new_theme">新主題</string>
     <string name="theme_name">主題名稱</string>
     <string name="theme_name_empty">主題名稱不能為空</string>
+    <string name="random_theme_name_reserved">此名稱保留給隨機主題使用</string>
     <string name="skip">跳過</string>
     <string name="none">無</string>
     <string name="theme_migrated">主題已遷移至目前版本</string>

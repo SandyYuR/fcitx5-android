@@ -316,6 +316,7 @@ class CustomThemeActivity : AppCompatActivity() {
     private lateinit var dividerPreview: View
     private lateinit var clipboardPreview: TextView
     private lateinit var genericActivePreview: TextView
+    private lateinit var scorePreview: TextView
 
     private fun updateSupplementColorPreview(themeForPreview: Theme.Custom) {
         candidateTextPreview.setTextColor(themeForPreview.candidateTextColor)
@@ -341,9 +342,48 @@ class CustomThemeActivity : AppCompatActivity() {
         genericActivePreview.setTextColor(themeForPreview.genericActiveForegroundColor)
     }
 
-    private fun applyThemePreview(themeForPreview: Theme.Custom, background: BitmapDrawable? = currentBackgroundDrawable(themeForPreview)) {
+    private fun applyThemePreview(
+        themeForPreview: Theme.Custom,
+        background: BitmapDrawable? = currentBackgroundDrawable(themeForPreview),
+        persistRandomTheme: Boolean = true
+    ) {
+        if (persistRandomTheme && ThemeManager.isRandomTheme(themeForPreview) &&
+            ThemeManager.currentRandomTheme != themeForPreview
+        ) {
+            ThemeManager.updateRandomTheme(themeForPreview)
+        }
         previewUi.setTheme(themeForPreview, background)
         updateSupplementColorPreview(themeForPreview)
+        updateScorePreview(themeForPreview)
+    }
+
+    private fun updateScorePreview(themeForPreview: Theme.Custom = theme) {
+        if (!::scorePreview.isInitialized) return
+        if (!ThemeManager.isRandomTheme(themeForPreview)) {
+            scorePreview.visibility = View.GONE
+            return
+        }
+        val score = if (ThemeManager.currentRandomTheme == themeForPreview) {
+            ThemeManager.randomThemeScore ?: ThemeManager.scoreTheme(themeForPreview)
+        } else {
+            ThemeManager.scoreTheme(themeForPreview)
+        }
+        scorePreview.visibility = View.VISIBLE
+        scorePreview.text = getString(
+            R.string.random_theme_score,
+            score.total,
+            score.contrast,
+            score.hue,
+            score.sat,
+            score.light
+        )
+        scorePreview.setTextColor(themeForPreview.altKeyTextColor)
+    }
+
+    private fun refreshColorPreviews() {
+        colorEditItems.forEach { item ->
+            colorPreviewDrawables[item.id]?.setColor(item.getter(theme))
+        }
     }
 
     private fun updatePreviewScale() {
@@ -711,6 +751,12 @@ class CustomThemeActivity : AppCompatActivity() {
                     setPadding(hp, vp, hp, vp)
                 }
 
+                scorePreview = TextView(this@CustomThemeActivity).apply {
+                    textSize = 12f
+                    gravity = Gravity.CENTER
+                    setPadding(0, dp(4), 0, dp(4))
+                }
+
                 addView(candidateTextPreview)
                 addGap()
                 addView(candidateLabelPreview)
@@ -724,6 +770,8 @@ class CustomThemeActivity : AppCompatActivity() {
                 addView(clipboardPreview)
                 addGap()
                 addView(genericActivePreview)
+                addGap()
+                addView(scorePreview)
             }
 
             val scroll = android.widget.HorizontalScrollView(this@CustomThemeActivity).apply {
@@ -831,7 +879,11 @@ class CustomThemeActivity : AppCompatActivity() {
                             if (changed) {
                                 inlinePreviewDirty = true
                                 val tmpTheme = item.setter(originalTheme, c)
-                                applyThemePreview(tmpTheme, currentBackgroundDrawable(originalTheme))
+                                applyThemePreview(
+                                    tmpTheme,
+                                    currentBackgroundDrawable(originalTheme),
+                                    persistRandomTheme = false
+                                )
                             } else if (inlinePreviewDirty) {
                                 inlinePreviewDirty = false
                                 applyThemePreview(theme)
@@ -971,6 +1023,9 @@ class CustomThemeActivity : AppCompatActivity() {
     private var suppressVariantSwitchCallback = false
     private var saveMenuItem: MenuItem? = null
 
+    private val isRandomMode: Boolean
+        get() = ThemeManager.isRandomTheme(theme)
+
     private fun effectiveThemeForDirtyCheck(): Theme.Custom {
         val bg = theme.backgroundImage ?: return theme
         return theme.copy(
@@ -1065,10 +1120,11 @@ class CustomThemeActivity : AppCompatActivity() {
 
     private fun updateBackgroundEditorVisibility() {
         val hasBackground = theme.backgroundImage != null
+        chooseImageLabel.visibility = if (isRandomMode) View.GONE else View.VISIBLE
         chooseImageLabel.setText(
             if (hasBackground) R.string.change_background_image else R.string.add_background_image
         )
-        val visibility = if (hasBackground) View.VISIBLE else View.GONE
+        val visibility = if (!isRandomMode && hasBackground) View.VISIBLE else View.GONE
         cropLabel.visibility = visibility
         variantLabel.visibility = visibility
         variantSwitch.visibility = visibility
@@ -1457,21 +1513,89 @@ class CustomThemeActivity : AppCompatActivity() {
             .show()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (!newCreated) {
-            val iconTint = color(R.color.red_400)
-            menu.item(R.string.save, R.drawable.ic_baseline_delete_24, iconTint, true) {
-                promptDelete()
+    private fun randomizeInEditor() {
+        val result = ThemeManager.randomizeTheme()
+        theme = result.theme
+        initialThemeSnapshot = theme
+        refreshColorPreviews()
+        applyThemePreview(theme)
+        toast(
+            getString(
+                R.string.random_theme_toast,
+                result.total,
+                result.contrast,
+                result.hue,
+                result.sat,
+                result.light
+            )
+        )
+        refreshSaveButtonState()
+    }
+
+    private fun promptCopyAsCustomTheme() {
+        val input = EditText(this).apply {
+            setText("")
+            hint = getString(R.string.theme_name)
+            isSingleLine = true
+        }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.random_theme_copy)
+            .setView(input)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val name = input.text?.toString()?.trim().orEmpty()
+                if (name.isEmpty()) {
+                    toast(R.string.theme_name_empty)
+                    return@setOnClickListener
+                }
+                if (name == ThemeManager.RANDOM_THEME_NAME) {
+                    toast(R.string.random_theme_name_reserved)
+                    return@setOnClickListener
+                }
+                if (ThemeManager.getTheme(name) != null) {
+                    toast(R.string.exception_theme_name_clash)
+                    return@setOnClickListener
+                }
+                setResult(
+                    RESULT_OK,
+                    Intent().apply {
+                        putExtra(RESULT, BackgroundResult.Created(theme.copy(name = name)))
+                    }
+                )
+                finish()
             }
         }
+        dialog.show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val iconTint = styledColor(android.R.attr.colorControlNormal)
-        menu.item(R.string.theme_name, R.drawable.ic_baseline_edit_24, iconTint, true) {
-            promptRenameTheme()
-        }
-        saveMenuItem = menu.item(R.string.save, R.drawable.ic_baseline_check_24, iconTint, true) {
-            done()
+        if (isRandomMode) {
+            menu.item(R.string.random_theme_generate, R.drawable.ic_random_theme_24, iconTint, true) {
+                randomizeInEditor()
+            }
+            menu.item(R.string.random_theme_copy, R.drawable.ic_baseline_content_copy_24, iconTint, true) {
+                promptCopyAsCustomTheme()
+            }
+        } else {
+            if (!newCreated) {
+                val deleteTint = color(R.color.red_400)
+                menu.item(R.string.save, R.drawable.ic_baseline_delete_24, deleteTint, true) {
+                    promptDelete()
+                }
+            }
+            menu.item(R.string.theme_name, R.drawable.ic_baseline_edit_24, iconTint, true) {
+                promptRenameTheme()
+            }
+            saveMenuItem = menu.item(R.string.save, R.drawable.ic_baseline_check_24, iconTint, true) {
+                done()
+            }
         }
         refreshSaveButtonState()
+        updateScorePreview()
         return true
     }
 

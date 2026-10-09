@@ -110,6 +110,14 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         imageResource = R.drawable.ic_baseline_auto_awesome_24
     }
 
+    val scoreText = textView {
+        textSize = 10f
+        maxLines = 1
+        gravity = Gravity.CENTER
+        isClickable = false
+        isFocusable = false
+    }
+
     val thumbnailView = constraintLayout {
         outlineProvider = ViewOutlineProvider.BOUNDS
         elevation = dp(2f)
@@ -130,6 +138,10 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         add(dynamicIcon, lParams(dp(32), dp(32)) {
             topOfParent(dp(2))
             startOfParent(dp(2))
+        })
+        add(scoreText, lParams(matchParent, wrapContent) {
+            bottomOfParent(dp(18))
+            centerHorizontally()
         })
         add(checkMark, lParams(dp(60), dp(60)) {
             centerInParent()
@@ -157,6 +169,12 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             text = formatThemeName(theme.name)
             setTextColor(theme.keyTextColor)
         }
+        scoreText.apply {
+            val score = if (ThemeManager.isRandomTheme(theme)) ThemeManager.randomThemeScore else null
+            text = score?.let { ctx.getString(R.string.random_theme_score_short, it.total) } ?: ""
+            setTextColor(theme.altKeyTextColor)
+            visibility = if (score == null) View.GONE else View.VISIBLE
+        }
         spaceBar.background = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = ctx.dp(2f)
@@ -168,7 +186,8 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         val foregroundTint = ColorStateList.valueOf(theme.altKeyTextColor)
         editButton.apply {
             visibility =
-                if (theme is Theme.Custom || (theme is Theme.Monet && ThemeMonet.supportsCustomMappingEditor(ctx))) {
+                if (ThemeManager.isRandomTheme(theme) || theme is Theme.Custom ||
+                    (theme is Theme.Monet && ThemeMonet.supportsCustomMappingEditor(ctx))) {
                     View.VISIBLE
                 } else {
                     View.GONE
@@ -180,14 +199,23 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             // 只有可导出的主题才显示：内置主题没有对应的可导出文件，
             // 显示一个点了没反应的按钮比不显示更糟。
             visibility =
-                if (theme is Theme.Custom || theme is Theme.Monet) View.VISIBLE else View.GONE
+                if ((theme is Theme.Custom && !ThemeManager.isRandomTheme(theme)) || theme is Theme.Monet) {
+                    View.VISIBLE
+                } else View.GONE
             background = rippleDrawable(theme.keyPressHighlightColor)
             imageTintList = foregroundTint
             contentDescription = ctx.getString(R.string.theme_export_this)
         }
         dynamicIcon.apply {
-            visibility =
-                if (theme is Theme.Monet && ThemeMonet.supportsCustomMappingEditor(ctx)) View.VISIBLE else View.GONE
+            imageResource = if (ThemeManager.isRandomTheme(theme)) {
+                R.drawable.ic_random_theme_24
+            } else {
+                R.drawable.ic_baseline_auto_awesome_24
+            }
+            visibility = if (ThemeManager.isRandomTheme(theme) ||
+                (theme is Theme.Monet && ThemeMonet.supportsCustomMappingEditor(ctx))) {
+                View.VISIBLE
+            } else View.GONE
             imageTintList = foregroundTint
         }
         checkMark.imageTintList = foregroundTint
@@ -256,5 +284,10 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         loadJob?.cancel()
         loadGeneration++
         bkg.imageDrawable = null
+    }
+
+    fun setRandomAction(onClick: (() -> Unit)?) {
+        dynamicIcon.setOnClickListener(onClick?.let { listener -> View.OnClickListener { listener() } })
+        dynamicIcon.contentDescription = if (onClick == null) null else ctx.getString(R.string.random_theme)
     }
 }

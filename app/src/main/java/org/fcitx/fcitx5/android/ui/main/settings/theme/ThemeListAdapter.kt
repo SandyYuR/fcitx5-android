@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.theme
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import splitties.views.dsl.core.Ui
 import kotlin.math.sign
 
@@ -159,11 +160,12 @@ abstract class ThemeListAdapter : RecyclerView.Adapter<ThemeListAdapter.ViewHold
                         else -> ThemeThumbnailUi.State.Normal
                     }
                 )
+                val isRandom = ThemeManager.isRandomTheme(theme)
                 root.setOnClickListener {
                     onSelectTheme(theme)
                 }
                 root.setOnLongClickListener {
-                    if (theme is Theme.Custom) {
+                    if (theme is Theme.Custom && !isRandom) {
                         onExportTheme(theme)
                         true
                     } else if (theme is Theme.Monet) {
@@ -172,18 +174,21 @@ abstract class ThemeListAdapter : RecyclerView.Adapter<ThemeListAdapter.ViewHold
                     } else false
                 }
                 editButton.setOnClickListener {
-                    when (theme) {
-                        is Theme.Custom -> onEditTheme(theme)
-                        is Theme.Monet -> onEditMonetTheme(theme)
+                    when {
+                        isRandom -> onEditRandomTheme(theme as Theme.Custom)
+                        theme is Theme.Custom -> onEditTheme(theme)
+                        theme is Theme.Monet -> onEditMonetTheme(theme)
                         else -> Unit
                     }
                 }
+                setRandomAction(if (isRandom) ({ onRandomizeTheme() }) else null)
                 // 可见的导出入口。长按仍然可用（保留给习惯长按的用户），
                 // 但不再需要用户去猜。
                 exportButton.setOnClickListener {
-                    when (theme) {
-                        is Theme.Custom -> onExportTheme(theme)
-                        is Theme.Monet -> onExportTheme(theme.toCustom())
+                    when {
+                        isRandom -> onRandomizeTheme()
+                        theme is Theme.Custom -> onExportTheme(theme)
+                        theme is Theme.Monet -> onExportTheme(theme.toCustom())
                         else -> Unit
                     }
                 }
@@ -203,6 +208,10 @@ abstract class ThemeListAdapter : RecyclerView.Adapter<ThemeListAdapter.ViewHold
     abstract fun onEditTheme(theme: Theme.Custom)
 
     abstract fun onEditMonetTheme(theme: Theme.Monet)
+
+    abstract fun onEditRandomTheme(theme: Theme.Custom)
+
+    abstract fun onRandomizeTheme()
 
     abstract fun onExportTheme(theme: Theme.Custom)
 

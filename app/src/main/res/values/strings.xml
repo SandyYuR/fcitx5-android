@@ -156,6 +156,12 @@
     <string name="reload_config">Reload Config</string>
     <string name="input_method_options">Input Method Options</string>
     <string name="theme">Theme</string>
+    <string name="random_theme">Random theme</string>
+    <string name="random_theme_score">Aesthetic score: %1$d/100 (contrast %2$d, hue %3$d, saturation %4$d, lightness %5$d)</string>
+    <string name="random_theme_score_short">Score %1$d/100</string>
+    <string name="random_theme_copy">Copy as custom theme</string>
+    <string name="random_theme_generate">Randomize</string>
+    <string name="random_theme_toast">Random theme: %1$d/100 (contrast %2$d, hue %3$d, saturation %4$d, lightness %5$d)</string>
     <string name="toggle_day_night_theme">Day/Night Theme</string>
     <string name="key_ripple_effect">Enable key ripple effect</string>
     <string name="move_main_text_for_alt_label">Move main key text for alternative labels</string>
@@ -253,6 +259,7 @@
     <string name="new_theme">New theme</string>
     <string name="theme_name">Theme name</string>
     <string name="theme_name_empty">Theme name cannot be empty</string>
+    <string name="random_theme_name_reserved">This name is reserved for the random theme</string>
     <string name="monet_editor_select_color_resource">Select Color Resource</string>
     <string name="monet_editor_select">Select</string>
     <string name="monet_editor_color_mapping_title">Color Mapping</string>
