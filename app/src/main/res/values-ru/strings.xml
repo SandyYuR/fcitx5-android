@@ -311,6 +311,8 @@
     <string name="candidate_highlight_radius">Радиус скругления выделения кандидата</string>
     <string name="highlight_first_candidate">Подсвечивать первый кандидат по умолчанию</string>
     <string name="highlight_first_candidate_summary">Показывать фон выделения на первом кандидате, пока выбор не перемещён</string>
+    <string name="show_candidate_index_badge">Показывать номера кандидатов</string>
+    <string name="candidate_index_badge_position">Положение номера кандидата</string>
     <string name="candidates_window_min_width">Минимальная ширина окна кандидата</string>
     <string name="candidates_window_padding">Поле окна кандидата</string>
     <string name="restart_fcitx_instance">Перезапустить экземпляр fcitx</string>

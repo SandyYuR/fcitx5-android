@@ -13,6 +13,7 @@ import androidx.tracing.trace
 import com.google.android.flexbox.FlexboxLayoutManager
 import org.fcitx.fcitx5.android.core.CandidateWord
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgePosition
 import org.fcitx.fcitx5.android.input.candidates.CandidateItemUi
 import org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder
 import org.fcitx.fcitx5.android.input.font.FontProviders
@@ -23,9 +24,13 @@ import splitties.views.dsl.core.wrapContent
 open class HorizontalCandidateViewAdapter(
     val theme: Theme,
     initialHorizontalOverflowEnabled: Boolean = true,
+    initialCandidateIndexBadgeEnabled: Boolean = false,
+    initialCandidateIndexBadgePosition: CandidateIndexBadgePosition = CandidateIndexBadgePosition.TopLeft,
 ) : RecyclerView.Adapter<CandidateViewHolder>() {
 
     private var horizontalOverflowEnabled = initialHorizontalOverflowEnabled
+    private var candidateIndexBadgeEnabled = initialCandidateIndexBadgeEnabled
+    private var candidateIndexBadgePosition = initialCandidateIndexBadgePosition
 
     // Cache candidate/comment fonts and refresh only when font configuration changes.
     private var candFont: Typeface? = FontProviders.resolveTypeface("cand_font", null)
@@ -62,6 +67,18 @@ open class HorizontalCandidateViewAdapter(
     fun setHorizontalOverflowEnabled(enabled: Boolean) {
         if (horizontalOverflowEnabled == enabled) return
         horizontalOverflowEnabled = enabled
+        notifyDataSetChanged()
+    }
+
+    fun setCandidateIndexBadgeEnabled(enabled: Boolean) {
+        if (candidateIndexBadgeEnabled == enabled) return
+        candidateIndexBadgeEnabled = enabled
+        notifyDataSetChanged()
+    }
+
+    fun setCandidateIndexBadgePosition(position: CandidateIndexBadgePosition) {
+        if (candidateIndexBadgePosition == position) return
+        candidateIndexBadgePosition = position
         notifyDataSetChanged()
     }
 
@@ -183,6 +200,10 @@ open class HorizontalCandidateViewAdapter(
         // ViewHolder 会一直停在构造时那次求值的旧字号上。
         holder.ui.refreshConfiguredFont(candFont)
         holder.ui.setActive(position == activeIndex)
+        holder.ui.setIndexBadge(
+            if (candidateIndexBadgeEnabled) position + 1 else null,
+            candidateIndexBadgePosition,
+        )
         holder.update(position + indexOffset, candidates[position])
     }
 

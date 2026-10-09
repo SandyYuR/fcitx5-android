@@ -38,6 +38,8 @@ import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.TransitionEve
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
+import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgePosition
+import org.fcitx.fcitx5.android.input.candidates.CandidateItemUi
 import org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder
 import org.fcitx.fcitx5.android.input.candidates.CustomTypefaceSpan
 import org.fcitx.fcitx5.android.input.candidates.expanded.CandidateGenerationTracker
@@ -69,7 +71,12 @@ class HorizontalCandidateComponent :
     private val highlightFirstCandidate by AppPrefs.getInstance().keyboard.highlightFirstCandidate
     private val horizontalCandidateOverflowScroll =
         AppPrefs.getInstance().keyboard.horizontalCandidateOverflowScroll
+    private val candidateIndexBadgePref = AppPrefs.getInstance().keyboard.showCandidateIndexBadge
+    private val candidateIndexBadgePositionPref =
+        AppPrefs.getInstance().keyboard.candidateIndexBadgePosition
     private var horizontalOverflowEnabled = horizontalCandidateOverflowScroll.getValue()
+    private var candidateIndexBadgeEnabled = candidateIndexBadgePref.getValue()
+    private var candidateIndexBadgePosition = candidateIndexBadgePositionPref.getValue()
     private var adapterCreated = false
     private val maxSpanCountPref by lazy {
         AppPrefs.getInstance().keyboard.run {
@@ -332,9 +339,31 @@ class HorizontalCandidateComponent :
         }
     }
 
+    fun setCandidateIndexBadgeEnabled(enabled: Boolean) {
+        if (candidateIndexBadgeEnabled == enabled) return
+        candidateIndexBadgeEnabled = enabled
+        if (adapterCreated) {
+            adapter.setCandidateIndexBadgeEnabled(enabled)
+            updateCandidates(adapter.candidates, adapter.total, adapter.activeIndex)
+        }
+    }
+
+    fun setCandidateIndexBadgePosition(position: CandidateIndexBadgePosition) {
+        if (candidateIndexBadgePosition == position) return
+        candidateIndexBadgePosition = position
+        if (adapterCreated) {
+            adapter.setCandidateIndexBadgePosition(position)
+        }
+    }
+
     val adapter: HorizontalCandidateViewAdapter by lazy {
         adapterCreated = true
-        object : HorizontalCandidateViewAdapter(theme, horizontalOverflowEnabled) {
+        object : HorizontalCandidateViewAdapter(
+            theme,
+            horizontalOverflowEnabled,
+            candidateIndexBadgeEnabled,
+            candidateIndexBadgePosition,
+        ) {
             override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
                 super.onBindViewHolder(holder, position)
                 holder.itemView.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {

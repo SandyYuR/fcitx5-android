@@ -5,6 +5,7 @@
 
 package org.fcitx.fcitx5.android.input.candidates
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
@@ -14,7 +15,10 @@ import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.Gravity
 import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.core.graphics.ColorUtils
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.text.inSpans
@@ -27,6 +31,7 @@ import org.fcitx.fcitx5.android.input.candidates.CustomTypefaceSpan
 import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
 import org.fcitx.fcitx5.android.utils.pressHighlightDrawable
+import splitties.dimensions.dp
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.lParams
@@ -113,6 +118,17 @@ class CandidateItemUi(
         })
     }
 
+    private val indexBadge = view(::TextView) {
+        includeFontPadding = false
+        textSize = 10f
+        gravity = Gravity.TOP or Gravity.START
+        setTextColor(theme.candidateLabelColor)
+        isClickable = false
+        isFocusable = false
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        visibility = View.GONE
+    }
+
     /**
      * Enable natural-width text and horizontal overflow scrolling for the horizontal candidate bar.
      * Expanded candidate windows intentionally keep the proportional text behavior.
@@ -150,6 +166,51 @@ class CandidateItemUi(
 
     private var active = false
     private var candidate = CandidateWord.Empty
+    private var indexBadgeNumber: Int? = null
+    private var indexBadgePosition = CandidateIndexBadgePosition.TopLeft
+
+    private companion object {
+        const val INDEX_BADGE_HORIZONTAL_MARGIN_DP = 2
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun setIndexBadge(number: Int?, position: CandidateIndexBadgePosition) {
+        if (indexBadgeNumber == number && indexBadgePosition == position) return
+        indexBadgeNumber = number
+        indexBadgePosition = position
+        indexBadge.text = number?.toString().orEmpty()
+        indexBadge.visibility = if (number == null) View.GONE else View.VISIBLE
+        applyIndexBadgeLayout()
+        refreshIndexBadgeColor()
+    }
+
+    private fun applyIndexBadgeLayout() {
+        val params = indexBadge.layoutParams as? FrameLayout.LayoutParams ?: return
+        val horizontalMargin = ctx.dp(INDEX_BADGE_HORIZONTAL_MARGIN_DP)
+        val isLeft = indexBadgePosition == CandidateIndexBadgePosition.TopLeft ||
+            indexBadgePosition == CandidateIndexBadgePosition.BottomLeft
+        params.gravity = when (indexBadgePosition) {
+            CandidateIndexBadgePosition.TopLeft -> Gravity.TOP or Gravity.START
+            CandidateIndexBadgePosition.TopRight -> Gravity.TOP or Gravity.END
+            CandidateIndexBadgePosition.BottomRight -> Gravity.BOTTOM or Gravity.END
+            CandidateIndexBadgePosition.BottomLeft -> Gravity.BOTTOM or Gravity.START
+        }
+        params.marginStart = if (isLeft) horizontalMargin else 0
+        params.marginEnd = if (!isLeft) horizontalMargin else 0
+        params.topMargin = 0
+        params.bottomMargin = 0
+        indexBadge.layoutParams = params
+    }
+
+    private fun refreshIndexBadgeColor() {
+        indexBadge.setTextColor(
+            if (active) {
+                ColorUtils.setAlphaComponent(theme.genericActiveForegroundColor, 190)
+            } else {
+                theme.candidateLabelColor
+            }
+        )
+    }
 
     fun applyConfiguredTypeface(fontOverride: Typeface? = font) {
         // Priority: explicit override > constructor font > cand_font > font > current/system default
@@ -209,6 +270,7 @@ class CandidateItemUi(
             renderCandidate()
         }
         text.setTextColor(if (this.active) theme.genericActiveForegroundColor else theme.candidateTextColor)
+        refreshIndexBadgeColor()
         text.background = null
         // 高亮画在内层 [content] 上（紧贴文字），按压反馈仍铺满 [root] 整格。
         content.background = if (this.active) activeBackground else null
@@ -223,6 +285,10 @@ class CandidateItemUi(
         longPressFeedbackEnabled = false
         add(content, lParams(wrapContent, matchParent) {
             gravity = gravityCenter
+        })
+        add(indexBadge, lParams(wrapContent, wrapContent) {
+            gravity = Gravity.TOP or Gravity.START
+            marginStart = ctx.dp(INDEX_BADGE_HORIZONTAL_MARGIN_DP)
         })
     }
 

@@ -384,6 +384,8 @@
     <string name="candidate_highlight_radius">Eckradius Kandidaten-Hervorhebung</string>
     <string name="highlight_first_candidate">Ersten Kandidaten standardmäßig hervorheben</string>
     <string name="highlight_first_candidate_summary">Hervorhebungs-Hintergrund auf dem ersten Kandidaten anzeigen, bis die Auswahl bewegt wird</string>
+    <string name="show_candidate_index_badge">Kandidaten-Indexmarkierungen anzeigen</string>
+    <string name="candidate_index_badge_position">Position der Kandidaten-Indexmarkierung</string>
     <string name="candidates_window_min_width">Minimale Breite Kandidatenfenster</string>
     <string name="candidates_window_padding">Abstand Kandidatenfenster</string>
     <string name="restart_fcitx_instance">Fcitx-Instanz neu starten</string>
