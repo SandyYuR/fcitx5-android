@@ -36,7 +36,7 @@ class PopupMenuUi(
 
     private val inactiveBackground = InsetDrawable(
         ShapeDrawable(OvalShape()).apply {
-            paint.color = theme.accentKeyBackgroundColor
+            paint.color = theme.backgroundColor
         },
         (keySize - ctx.dp(33)) / 2
     )
@@ -45,7 +45,7 @@ class PopupMenuUi(
         ShapeDrawable(OvalShape()).apply {
             paint.color = ColorUtils.compositeColors(
                 theme.keyPressHighlightColor,
-                theme.accentKeyBackgroundColor
+                theme.backgroundColor
             )
         },
         (keySize - ctx.dp(34)) / 2
@@ -68,7 +68,7 @@ class PopupMenuUi(
             background = inactiveBackground
             scaleType = ImageView.ScaleType.CENTER_INSIDE
             imageDrawable = (resolvedIcon ?: drawable(item.icon))!!.apply {
-                setTint(theme.accentKeyTextColor)
+                setTint(theme.keyTextColor)
             }
         }
     }

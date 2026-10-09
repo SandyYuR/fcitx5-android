@@ -8,11 +8,7 @@ package org.fcitx.fcitx5.android.input
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
-import android.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.text.bold
-import androidx.core.text.buildSpannedString
-import androidx.core.text.color
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.tracing.trace
@@ -20,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException
@@ -32,10 +27,11 @@ import org.fcitx.fcitx5.android.data.theme.ThemePrefs
 import org.fcitx.fcitx5.android.input.candidates.CandidateCharacterPopup
 import org.fcitx.fcitx5.android.input.candidates.candidateCharacters
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
+import org.fcitx.fcitx5.android.input.popup.ThemedPopupMenu
 import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.navbarFrameHeight
-import org.fcitx.fcitx5.android.utils.styledColorOrDefault
 import splitties.views.dsl.core.withTheme
+import org.fcitx.fcitx5.android.R
 import timber.log.Timber
 import kotlin.math.max
 
@@ -227,7 +223,7 @@ abstract class BaseInputView(
         candidateCharacterPopup = null
     }
 
-    private var candidateActionMenu: PopupMenu? = null
+    private var candidateActionMenu: ThemedPopupMenu? = null
 
     val themedContext = context.withTheme(R.style.Theme_InputViewTheme)
 
@@ -238,30 +234,30 @@ abstract class BaseInputView(
             val actions = fcitx.runOnReady { getCandidateActions(idx) }
             if (actions.isEmpty()) return@launch
             InputFeedbacks.hapticFeedback(view, longPress = true)
-            candidateActionMenu = PopupMenu(themedContext, view).apply {
-                menu.add(buildSpannedString {
-                    bold {
-                        color(
-                            context.styledColorOrDefault(
-                                android.R.attr.colorAccent,
-                                theme.genericActiveForegroundColor
+            candidateActionMenu = ThemedPopupMenu(context, theme) {
+                candidateActionMenu = null
+            }.also { menu ->
+                menu.show(
+                    anchor = view,
+                    items = buildList {
+                        add(
+                            ThemedPopupMenu.Item.Action(
+                                label = text,
+                                onClick = {},
+                                enabled = false,
+                                bold = true,
                             )
-                        ) {
-                            append(text)
+                        )
+                        actions.forEach { action ->
+                            add(
+                                ThemedPopupMenu.Item.Action(
+                                    label = action.text,
+                                    onClick = { triggerCandidateAction(idx, action.id) },
+                                )
+                            )
                         }
                     }
-                }).apply {
-                    isEnabled = false
-                }
-                actions.forEach { action ->
-                    menu.item(action.text) {
-                        triggerCandidateAction(idx, action.id)
-                    }
-                }
-                setOnDismissListener {
-                    candidateActionMenu = null
-                }
-                show()
+                )
             }
         }
     }

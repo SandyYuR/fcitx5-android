@@ -7,10 +7,7 @@ package org.fcitx.fcitx5.android.input.status
 import android.net.Uri
 import android.os.Build
 import android.view.View
-import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.core.text.buildSpannedString
-import androidx.core.text.color
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
@@ -22,10 +19,10 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
-import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
-import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.action.ButtonAction
 import org.fcitx.fcitx5.android.input.action.executeMacroSteps
+import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
+import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigChangeListener
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
@@ -35,16 +32,14 @@ import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.theme
 import org.fcitx.fcitx5.android.input.editorinfo.EditorInfoWindow
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+import org.fcitx.fcitx5.android.input.popup.ThemedPopupMenu
 import org.fcitx.fcitx5.android.input.status.StatusAreaEntry.ActionEntry
 import org.fcitx.fcitx5.android.input.wm.InputWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.utils.AppUtil
-import org.fcitx.fcitx5.android.utils.DeviceUtil
-import org.fcitx.fcitx5.android.utils.alpha
 import org.mechdancer.dependency.manager.must
 import splitties.dimensions.dp
-import splitties.resources.styledColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.horizontalLayout
@@ -199,7 +194,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
         }
     }
 
-    var popupMenu: PopupMenu? = null
+    var popupMenu: ThemedPopupMenu? = null
 
     private val adapter: StatusAreaAdapter by lazy {
         object : StatusAreaAdapter() {
@@ -211,42 +206,27 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                             activateAction(entry.action)
                             return
                         }
-                        val popup = PopupMenu(context, view)
-                        val menu = popup.menu
-                        val hasDivider =
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !DeviceUtil.isHMOS && !DeviceUtil.isHonorMagicOS) {
-                                menu.setGroupDividerEnabled(true)
-                                true
-                            } else {
-                                false
-                            }
-                        var groupId = 0 // Menu.NONE; ungrouped
-                        actions.forEach {
-                            if (it.isSeparator) {
-                                if (hasDivider) {
-                                    groupId++
+                        lateinit var popup: ThemedPopupMenu
+                        popup = ThemedPopupMenu(context, theme) {
+                            if (popupMenu === popup) popupMenu = null
+                        }
+                        val items = buildList {
+                            actions.forEach { action ->
+                                if (action.isSeparator) {
+                                    add(ThemedPopupMenu.Item.Divider)
                                 } else {
-                                    val dividerString = buildSpannedString {
-                                        color(context.styledColor(android.R.attr.colorForeground).alpha(0.4f)) {
-                                            append("──────────")
-                                        }
-                                    }
-                                    menu.add(groupId, 0, 0, dividerString).apply {
-                                        isEnabled = false
-                                    }
-                                }
-                            } else {
-                                menu.add(groupId, 0, 0, it.shortText).apply {
-                                    setOnMenuItemClickListener { _ ->
-                                        activateAction(it)
-                                        true
-                                    }
+                                    add(
+                                        ThemedPopupMenu.Item.Action(
+                                            label = action.shortText,
+                                            onClick = { activateAction(action) },
+                                        )
+                                    )
                                 }
                             }
                         }
                         popupMenu?.dismiss()
                         popupMenu = popup
-                        popup.show()
+                        popup.show(view, items)
                     }
                     is StatusAreaEntry.Android -> when (entry.type) {
                         StatusAreaEntry.Android.Type.InputMethod -> fcitx.runImmediately { inputMethodEntryCached }.let {

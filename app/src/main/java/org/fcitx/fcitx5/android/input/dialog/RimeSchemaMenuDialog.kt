@@ -14,6 +14,7 @@ import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.manager.SubModeManager
+import splitties.dimensions.dp
 import timber.log.Timber
 
 /**
@@ -29,6 +30,7 @@ object RimeSchemaMenuDialog {
         service: FcitxInputMethodService,
         context: Context
     ): AlertDialog {
+        val theme = org.fcitx.fcitx5.android.data.theme.ThemeManager.activeTheme
         val entries: List<Pair<String, Int>> =
             runCatching { SubModeManager.resolveSchemaMenuEntries(fcitx.statusArea()) }
                 .onFailure { Timber.w(it, "Failed to resolve rime schema menu") }
@@ -42,17 +44,55 @@ object RimeSchemaMenuDialog {
         // enabledIndex 找不到时传 -1（无高亮），与 InputMethodListAdapter 约定一致。
         val enabledIndex: Int = enabledName?.let { labels.indexOf(it) } ?: -1
         lateinit var dialog: AlertDialog
-        dialog = AlertDialog.Builder(context)
-            .setTitle(R.string.rime_schema_menu)
-            .setSingleChoiceItems(labels.toTypedArray(), enabledIndex) { _, which: Int ->
-                val actionId: Int? = entries.getOrNull(which)?.second
-                if (actionId != null) {
+        val root = android.widget.LinearLayout(context).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            minimumWidth = context.dp(280)
+            setPadding(context.dp(20), context.dp(18), context.dp(20), context.dp(12))
+            background = android.graphics.drawable.GradientDrawable().apply {
+                cornerRadius = context.dp(28f)
+                setColor(theme.backgroundColor)
+            }
+        }
+        root.addView(android.widget.TextView(context).apply {
+            text = context.getString(R.string.rime_schema_menu)
+            setTextColor(theme.keyTextColor)
+            textSize = 20f
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setPadding(0, 0, 0, context.dp(8))
+        }, android.widget.LinearLayout.LayoutParams(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+        val buttonTint = android.content.res.ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+            intArrayOf(theme.accentKeyBackgroundColor, theme.keyTextColor)
+        )
+        entries.forEachIndexed { index, (label, actionId) ->
+            root.addView(android.widget.RadioButton(context).apply {
+                text = label
+                isChecked = index == enabledIndex
+                buttonTintList = buttonTint
+                setTextColor(theme.keyTextColor)
+                minHeight = context.dp(48)
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(0, 0, 0, 0)
+                setOnClickListener {
                     val connection: FcitxConnection = service.fcitx
                     connection.launchOnReady { api: FcitxAPI -> api.activateAction(actionId) }
+                    dialog.dismiss()
                 }
-                dialog.dismiss()
-            }
+            }, android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                context.dp(48)
+            ))
+        }
+        dialog = AlertDialog.Builder(context)
+            .setView(root)
             .create()
+        dialog.window?.apply {
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+            decorView.setPadding(0, 0, 0, 0)
+        }
         return dialog
     }
 }
