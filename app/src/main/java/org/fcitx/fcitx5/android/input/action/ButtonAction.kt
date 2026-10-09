@@ -118,67 +118,78 @@ sealed class ButtonAction {
         /**
          * All available button actions.
          */
-        val allActions = listOf(
-            UndoAction,
-            RedoAction,
-            CursorMoveAction,
-            FloatingToggleAction,
-            ClipboardAction,
-            ThemeToggleAction,
-            LanguageSwitchAction,
-            ThemeAction,
-            IconThemeAction,
-            InputMethodOptionsAction,
-            ReloadConfigAction,
-            VirtualKeyboardAction,
-            OneHandedKeyboardAction,
-            BrowseUserDataDirAction,
-            SettingsGlobalOptionsAction,
-            SettingsInputMethodsAction,
-            SettingsCandidatesWindowAction,
-            SettingsClipboardSettingsAction,
-            SettingsSymbolSettingsAction,
-            SettingsAdvancedAction,
-            SettingsDeveloperAction,
-            SettingsAboutAction,
-            SettingsLicenseAction,
-            EditTextKeyboardLayoutAction,
-            TextKeyboardLayoutFileSelectAction,
-            EditFontsetAction,
-            SwitchInputMethodAction,
-            RimeSchemaMenuAction,
-            MoreAction
-        )
+        val allActions by lazy {
+            listOf(
+                UndoAction,
+                RedoAction,
+                CursorMoveAction,
+                FloatingToggleAction,
+                ClipboardAction,
+                ThemeToggleAction,
+                RandomThemeAction,
+                LanguageSwitchAction,
+                ThemeAction,
+                IconThemeAction,
+                InputMethodOptionsAction,
+                ReloadConfigAction,
+                VirtualKeyboardAction,
+                OneHandedKeyboardAction,
+                BrowseUserDataDirAction,
+                SettingsGlobalOptionsAction,
+                SettingsInputMethodsAction,
+                SettingsCandidatesWindowAction,
+                SettingsClipboardSettingsAction,
+                SettingsSymbolSettingsAction,
+                SettingsAdvancedAction,
+                SettingsDeveloperAction,
+                SettingsAboutAction,
+                SettingsLicenseAction,
+                EditTextKeyboardLayoutAction,
+                TextKeyboardLayoutFileSelectAction,
+                EditFontsetAction,
+                SwitchInputMethodAction,
+                RimeSchemaMenuAction,
+                MoreAction
+            )
+        }
 
         /**
          * Button actions available for Kawaii Bar.
          */
-        val kawaiiBarActions = listOf(
-            UndoAction,
-            RedoAction,
-            CursorMoveAction,
-            FloatingToggleAction,
-            ClipboardAction,
-            ThemeToggleAction
-        )
+        val kawaiiBarActions by lazy {
+            listOf(
+                UndoAction,
+                RedoAction,
+                CursorMoveAction,
+                FloatingToggleAction,
+                ClipboardAction,
+                ThemeToggleAction,
+                RandomThemeAction
+            )
+        }
 
         /**
          * Button actions available for Status Area.
          */
-        val statusAreaActions = listOf(
-            LanguageSwitchAction,
-            ThemeAction,
-            IconThemeAction,
-            InputMethodOptionsAction,
-            ReloadConfigAction,
-            VirtualKeyboardAction,
-            OneHandedKeyboardAction
-        )
+        val statusAreaActions by lazy {
+            listOf(
+                LanguageSwitchAction,
+                ThemeAction,
+                RandomThemeAction,
+                IconThemeAction,
+                InputMethodOptionsAction,
+                ReloadConfigAction,
+                VirtualKeyboardAction,
+                OneHandedKeyboardAction
+            )
+        }
 
         /**
          * All actions that can be added to either section.
          */
-        val allConfigurableActions = kawaiiBarActions + statusAreaActions
+        val allConfigurableActions by lazy {
+            (kawaiiBarActions + statusAreaActions).distinctBy { it.id }
+        }
     }
 }
 
@@ -344,6 +355,35 @@ data object ThemeToggleAction : ButtonAction() {
         view: View
     ) {
         AppUtil.launchMainToThemeList(context)
+    }
+}
+
+data object RandomThemeAction : ButtonAction() {
+    override val id = "random_theme"
+    override val defaultIcon = R.drawable.ic_random_theme_24
+    override val defaultLabelRes = R.string.random_theme
+    override val iconSlot = "toolbar.random_theme"
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        val result = ThemeManager.randomizeTheme()
+        context.toast(
+            context.getString(
+                R.string.random_theme_toast,
+                result.total,
+                result.contrast,
+                result.hue,
+                result.sat,
+                result.light
+            )
+        )
+        onActionComplete?.invoke()
     }
 }
 

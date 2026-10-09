@@ -1,0 +1,50 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="32"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M448,341.37V170.61A32,32 0,0 0,432.11,143l-152,-88.46a47.94,47.94 0,0 0,-48.24,0L79.89,143A32,32 0,0 0,64,170.61V341.37A32,32 0,0 0,79.89,369l152,88.46a48,48 0,0 0,48.24,0l152,-88.46A32,32 0,0 0,448,341.37Z" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="32"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M69,153.99L256,263.99L443,153.99" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="32"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M256,463.99L256,263.99" />
+
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M280,152a24,16 0,1 1,-48,0a24,16 0,1 1,48,0Z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M224,296a16,24 0,1 1,-32,0a16,24 0,1 1,32,0Z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M128,328a16,24 0,1 1,-32,0a16,24 0,1 1,32,0Z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M320,296a16,24 0,1 1,-32,0a16,24 0,1 1,32,0Z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M416,240a16,24 0,1 1,-32,0a16,24 0,1 1,32,0Z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M320,384a16,24 0,1 1,-32,0a16,24 0,1 1,32,0Z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M416,328a16,24 0,1 1,-32,0a16,24 0,1 1,32,0Z" />
+</vector>

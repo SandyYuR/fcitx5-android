@@ -193,6 +193,8 @@ class ThemeListFragment : Fragment() {
             override fun onSelectTheme(theme: Theme) = selectTheme(theme)
             override fun onEditTheme(theme: Theme.Custom) = editTheme(theme)
             override fun onEditMonetTheme(theme: Theme.Monet) = editMonetTheme(theme)
+            override fun onEditRandomTheme(theme: Theme.Custom) = editRandomTheme(theme)
+            override fun onRandomizeTheme() = randomizeTheme()
             override fun onExportTheme(theme: Theme.Custom) = exportTheme(theme)
         }
         themeListAdapter.setThemes(ThemeManager.getAllThemes())
@@ -305,6 +307,25 @@ class ThemeListFragment : Fragment() {
 
     private fun editTheme(theme: Theme.Custom) {
         imageLauncher.launch(theme)
+    }
+
+    private fun editRandomTheme(theme: Theme.Custom) {
+        imageLauncher.launch(theme)
+    }
+
+    private fun randomizeTheme() {
+        val result = ThemeManager.randomizeTheme()
+        requireContext().toast(
+            getString(
+                R.string.random_theme_toast,
+                result.total,
+                result.contrast,
+                result.hue,
+                result.sat,
+                result.light
+            )
+        )
+        updateSelectedThemes()
     }
 
     private fun editMonetTheme(theme: Theme.Monet) {

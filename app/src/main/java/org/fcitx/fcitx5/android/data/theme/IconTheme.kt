@@ -83,6 +83,7 @@ data class IconTheme(
             "toolbar.more",
             "toolbar.language_switch",
             "toolbar.theme",
+            "toolbar.random_theme",
             "toolbar.icon_theme",
             "toolbar.input_method_options",
             "toolbar.reload_config",

@@ -636,6 +636,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
         "toolbar.more" -> R.drawable.ic_baseline_more_horiz_24
         "toolbar.language_switch" -> R.drawable.ic_baseline_language_24
         "toolbar.theme" -> R.drawable.ic_baseline_palette_24
+        "toolbar.random_theme" -> R.drawable.ic_random_theme_24
         "toolbar.icon_theme" -> R.drawable.ic_icon_theme_24
         "toolbar.input_method_options" -> R.drawable.ic_baseline_language_24
         "toolbar.reload_config" -> R.drawable.ic_baseline_sync_24
