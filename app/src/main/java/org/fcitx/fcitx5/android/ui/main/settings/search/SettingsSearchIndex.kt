@@ -162,6 +162,8 @@ object SettingsSearchIndex {
         R.string.horizontal_candidate_overflow_scroll to
             "horizontal_candidate_overflow_scroll",
         R.string.highlight_first_candidate to "highlight_first_candidate",
+        R.string.show_candidate_index_badge to "show_candidate_index_badge",
+        R.string.candidate_index_badge_position to "candidate_index_badge_position",
         R.string.expanded_candidate_style to "expanded_candidate_style",
 
         /* 键盘 · 语音 */
@@ -618,6 +620,16 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.highlight_first_candidate, P_INPUT,
             listOf("highlight", "高亮", "gaoliang", "第一个候选"),
+            route = keyboard(CANDIDATE)
+        ),
+        SettingsSearchEntry(
+            R.string.show_candidate_index_badge, P_INPUT,
+            listOf("candidate index", "candidate number", "候选序号", "候选项序号", "角标"),
+            route = keyboard(CANDIDATE)
+        ),
+        SettingsSearchEntry(
+            R.string.candidate_index_badge_position, P_INPUT,
+            listOf("candidate badge position", "候选角标位置", "角标位置", "左上", "右上", "右下", "左下"),
             route = keyboard(CANDIDATE)
         ),
         SettingsSearchEntry(

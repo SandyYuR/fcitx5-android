@@ -454,6 +454,8 @@
     <string name="candidate_highlight_radius">후보 강조 모서리 반경</string>
     <string name="highlight_first_candidate">기본적으로 첫 번째 후보 강조</string>
     <string name="highlight_first_candidate_summary">선택을 이동할 때까지 첫 번째 후보에 강조 배경을 표시</string>
+    <string name="show_candidate_index_badge">후보 항목 번호 배지 표시</string>
+    <string name="candidate_index_badge_position">후보 항목 번호 배지 위치</string>
     <string name="candidates_window">후보 창</string>
     <string name="candidates_window_radius">후보 창 모서리 반경</string>
     <string name="cannot_resolve_popup_preset">팝업 프리셋 파일을 찾을 수 없습니다</string>

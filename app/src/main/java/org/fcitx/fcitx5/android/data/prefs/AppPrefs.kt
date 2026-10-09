@@ -12,6 +12,7 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.InputFeedbacks.InputFeedbackMode
+import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgePosition
 import org.fcitx.fcitx5.android.input.candidates.expanded.ExpandedCandidateStyle
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesOrientation
@@ -412,6 +413,17 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "highlight_first_candidate",
             false,
             R.string.highlight_first_candidate_summary
+        )
+        val showCandidateIndexBadge = switch(
+            R.string.show_candidate_index_badge,
+            "show_candidate_index_badge",
+            false
+        )
+        val candidateIndexBadgePosition = enumList(
+            R.string.candidate_index_badge_position,
+            "candidate_index_badge_position",
+            CandidateIndexBadgePosition.TopLeft,
+            enableUiOn = { showCandidateIndexBadge.getValue() }
         )
         val expandedCandidateStyle = enumList(
             R.string.expanded_candidate_style,

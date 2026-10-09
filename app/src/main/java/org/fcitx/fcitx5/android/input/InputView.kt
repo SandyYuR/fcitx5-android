@@ -1634,6 +1634,10 @@ class InputView(
         candidatesPrefs.physicalKeyboardHorizontalCandidateBar
     private val horizontalCandidateOverflowScroll =
         keyboardPrefs.horizontalCandidateOverflowScroll
+    private val showCandidateIndexBadge =
+        keyboardPrefs.showCandidateIndexBadge
+    private val candidateIndexBadgePosition =
+        keyboardPrefs.candidateIndexBadgePosition
     private val splitKeyboardUseLandscapeLayout = keyboardPrefs.splitKeyboardUseLandscapeLayout
     private val textKeyboardLayoutProfile = keyboardPrefs.textKeyboardLayoutProfile
 
@@ -3078,6 +3082,12 @@ class InputView(
         }
         if (key == horizontalCandidateOverflowScroll.key) {
             horizontalCandidate.setHorizontalOverflowEnabled(horizontalCandidateOverflowScroll.getValue())
+        }
+        if (key == showCandidateIndexBadge.key) {
+            horizontalCandidate.setCandidateIndexBadgeEnabled(showCandidateIndexBadge.getValue())
+        }
+        if (key == candidateIndexBadgePosition.key) {
+            horizontalCandidate.setCandidateIndexBadgePosition(candidateIndexBadgePosition.getValue())
         }
     }
 
