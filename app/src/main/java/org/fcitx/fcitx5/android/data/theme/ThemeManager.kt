@@ -472,6 +472,29 @@ object ThemeManager {
         // fire all `OnThemeChangedListener`s on theme preferences change
         prefs.registerOnChangeListener(onThemePrefsChange)
         _activeTheme = evaluateActiveTheme()
+        // 新装/升级用户从未用过随机主题时，主题列表也要直接出现随机主题卡片：
+        // 这里仅生成并持久化槽位，不切换用户当前主题。
+        ensureRandomSlotSeeded()
+    }
+
+    /**
+     * 保证随机主题槽位存在；存在则直接返回，不覆盖已有结果。
+     *
+     * 仅生成并持久化，不调用 applyRandomTheme()——不能在用户只是打开主题列表时
+     * 擅自切换他正在用的主题。
+     */
+    fun ensureRandomSlotSeeded(): RandomThemeResult {
+        randomSlot?.let { slot ->
+            val candidate = slot.candidate
+            val score = slot.score
+                ?: candidate?.let { ThemeAestheticScore.scoreTheme(it) }
+                ?: scoreCustomTheme(slot.theme, candidate?.scheme ?: "mono").second
+            return RandomThemeResult(slot.theme, candidate ?: scoreCustomTheme(slot.theme).first, score, slot.attempts)
+        }
+        val result = ThemeRandomizer.generateBestRandomTheme(name = RANDOM_THEME_NAME)
+        randomSlot = RandomThemeSlot(result.theme, result.candidate, result.score, result.attempts)
+        persistRandomSlot(requireNotNull(randomSlot))
+        return result
     }
 
     fun onSystemPlatteChange(newConfig: Configuration) {
