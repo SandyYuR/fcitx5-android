@@ -34,7 +34,6 @@ import kotlinx.serialization.json.JsonObject
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.SystemColorResourceId
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
-import org.fcitx.fcitx5.android.data.theme.ThemePrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeMonet
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fcitx.fcitx5.android.ui.main.settings.theme.SystemColorResourcePickerDialog
@@ -1203,9 +1202,20 @@ class KeyEditorActivity : AppCompatActivity() {
     private fun macroStepsOf(action: Any?): List<Any> =
         ((action as? Map<*, *>)?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
 
-    private fun legacySwipeToDown(keyType: String? = keyData["type"] as? String): Boolean =
-        keyType != "MacroKey" ||
-            ThemeManager.prefs.punctuationPosition.getValue() == ThemePrefs.PunctuationPosition.Bottom
+    /**
+     * 旧版单槽划动（`swipe` / `altLabel` / `swipeLabel`）在编辑器里解析到哪个方向。
+     *
+     * 与 [LayoutJsonUtils.legacySwipeTargetsUp] 同一条规则（默认下滑，只有同侧的上划槽位
+     * 才解读为上滑），与运行时解析和迁移保持一致；**不读主题的「标点位置」**——那个设置
+     * 只负责摆放字母键的标点副标签，让编辑器按它预览方向会与真机行为分叉。
+     */
+    private fun legacySwipeToDown(keyData: Map<String, Any?>): Boolean =
+        !LayoutJsonUtils.legacySwipeTargetsUp(
+            hasUpMacro = keyData.containsKey("swipeUp"),
+            hasDownMacro = keyData.containsKey("swipeDown"),
+            hasUpLabel = keyData.containsKey("swipeUpLabel"),
+            hasDownLabel = keyData.containsKey("swipeDownLabel")
+        )
 
     private fun directionalSwipeStepsOf(keyData: Map<String, Any?>): Pair<List<Any>, List<Any>> {
         val up = macroStepsOf(keyData["swipeUp"])
@@ -1213,7 +1223,7 @@ class KeyEditorActivity : AppCompatActivity() {
         val hasDirectional = keyData.containsKey("swipeUp") || keyData.containsKey("swipeDown")
         if (hasDirectional) return up to down
         val legacy = macroStepsOf(keyData["swipe"])
-        return if (legacySwipeToDown()) emptyList<Any>() to legacy else legacy to emptyList()
+        return if (legacySwipeToDown(keyData)) emptyList<Any>() to legacy else legacy to emptyList()
     }
 
     private fun applyDirectionalSwipeDraft(
@@ -1236,9 +1246,9 @@ class KeyEditorActivity : AppCompatActivity() {
             keyData["swipeLabel"] as? String
         }
         val upLabel = keyData["swipeUpLabel"] as? String
-            ?: if (!hasDirectionalLabel && !legacySwipeToDown()) legacyLabel.orEmpty() else ""
+            ?: if (!hasDirectionalLabel && !legacySwipeToDown(keyData)) legacyLabel.orEmpty() else ""
         val downLabel = keyData["swipeDownLabel"] as? String
-            ?: if (!hasDirectionalLabel && legacySwipeToDown()) legacyLabel.orEmpty() else ""
+            ?: if (!hasDirectionalLabel && legacySwipeToDown(keyData)) legacyLabel.orEmpty() else ""
         val up = uiBuilder.createEditField(
             getString(R.string.text_keyboard_layout_swipe_up_label),
             upLabel
@@ -1255,6 +1265,9 @@ class KeyEditorActivity : AppCompatActivity() {
 
     private fun appendDirectionalSwipeLabels(draft: MutableMap<String, Any?>) {
         draft.remove("swipeLabel")
+        // MacroKey 的旧字段也要清掉：编辑器保存的是原始 JSON 映射，不清的话会和新的方向标签
+        // 并存，下次解析时旧值虽被忽略，用户却会看到一份自相矛盾的布局文件。
+        draft.remove("altLabel")
         draft.remove("swipeUpLabel")
         draft.remove("swipeDownLabel")
         nonMacroSwipeUpLabelEdit?.text?.toString()?.trim()?.takeIf { it.isNotEmpty() }
