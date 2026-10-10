@@ -44,6 +44,8 @@
 | 功能 | 说明 | 链接 |
 |------|------|------|
 | 主题编辑器 | HSV 色板、颜色项语义分组折叠、子目录主题、多编码 ZIP 导入 | [查看](/features/theme/theme-editor) |
+| 随机主题 | 生成随机配色并按对比度/色相/饱和度/明度给 0–100 美学评分；可一键应用、重新随机、复制为自定义主题 | [查看](/features/theme/theme-editor) |
+| 编码区 / 工具栏圆角 | 编码区圆角半径与工具栏上方圆角半径（0–48dp）接续成一条连续弧线 | [查看](/features/theme/theme-editor) |
 | Monet 编辑器 | 基于系统 Monet 动态取色生成主题；不支持时明确提示 | [查看](/features/theme/monet) |
 | 磨砂按键 | Frosted blur 效果，含预览同步 | [查看](/features/theme/frosted-blur) |
 | QR 分享与导入 | 通过二维码分享布局/Popup/主题，扫码/扫文件导入 | [查看](/features/theme/share-import) |
@@ -53,6 +55,8 @@
 | 功能 | 说明 | 链接 |
 |------|------|------|
 | 候选窗增强 | 浮动候选窗"始终显示"、定位修复、滚动候选、高亮圆角 | [查看](/features/candidate-window) |
+| 候选项序号角标 | 工具栏候选栏候选项显示序号；位置可选左上 / 右上 / 右下 / 左下 | [查看](/features/candidate-window) |
+| 长候选横向滚动 | 超长候选保留完整宽度，横向拖拽查看被挡住的文字，不再截断 | [查看](/features/candidate-window) |
 | Kawaii Bar 增强 | 横向滚动、按钮均布、工具栏大小（80%–200%，横向足迹恒定）、亮暗主题一键切换、拖拽自定义 | [查看](/features/kawaii-bar) |
 | 候选栏预设 | 紧凑 / 标准 / 宽松三组预设；候选正文与注释字体字号分别配置 | [查看](/features/candidate-window) |
 

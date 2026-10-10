@@ -37,6 +37,6 @@ Kawaii Bar 是位于键盘上方的功能状态栏：左侧状态区、中间一
 
 ## 相关页面
 
-- [候选窗增强](/features/candidate-window) —— 工具栏候选栏与高亮
+- [候选窗增强](/features/candidate-window) —— 工具栏候选栏、高亮、候选项序号角标与长候选横向滚动
 - [剪贴板同步（内置）](/features/clipboard-sync) —— 工具栏入口与历史实时搜索
 - [Rime 引擎（内置）](/features/rime-enhancements)
