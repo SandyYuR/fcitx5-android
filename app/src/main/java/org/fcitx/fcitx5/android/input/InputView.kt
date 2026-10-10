@@ -1656,6 +1656,8 @@ class InputView(
         keyboardPrefs.showCandidateIndexBadge
     private val candidateIndexBadgePosition =
         keyboardPrefs.candidateIndexBadgePosition
+    private val candidateIndexBadgeContent =
+        keyboardPrefs.candidateIndexBadgeContent
     private val splitKeyboardUseLandscapeLayout = keyboardPrefs.splitKeyboardUseLandscapeLayout
     private val textKeyboardLayoutProfile = keyboardPrefs.textKeyboardLayoutProfile
 
@@ -3146,6 +3148,9 @@ class InputView(
         }
         if (key == candidateIndexBadgePosition.key) {
             horizontalCandidate.setCandidateIndexBadgePosition(candidateIndexBadgePosition.getValue())
+        }
+        if (key == candidateIndexBadgeContent.key) {
+            horizontalCandidate.setCandidateIndexBadgeContent(candidateIndexBadgeContent.getValue())
         }
     }
 

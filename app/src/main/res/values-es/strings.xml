@@ -480,6 +480,10 @@
     <string name="highlight_first_candidate_summary">Mostrar el fondo de resaltado en el primer candidato hasta que se mueva la selección</string>
     <string name="show_candidate_index_badge">Mostrar insignias de índice de candidatos</string>
     <string name="candidate_index_badge_position">Posición de la insignia del índice del candidato</string>
+    <string name="candidate_index_badge_content">Contenido de la insignia del índice del candidato</string>
+    <string name="candidate_index_badge_content_sequence_one_based">Numeración desde 1</string>
+    <string name="candidate_index_badge_content_sequence_zero_based">Numeración desde 0</string>
+    <string name="candidate_index_badge_content_engine_label">Seguir las etiquetas de selección del esquema</string>
     <string name="candidates_window">Ventana de candidatos</string>
     <string name="candidates_window_radius">Radio de la ventana de candidatos</string>
     <string name="cannot_resolve_popup_preset">No se pudo resolver el archivo de preajustes emergentes</string>

@@ -536,6 +536,10 @@
     <string name="highlight_first_candidate_summary">Show the highlight background on the first candidate until the selection is moved</string>
     <string name="show_candidate_index_badge">Show candidate index badges</string>
     <string name="candidate_index_badge_position">Candidate index badge position</string>
+    <string name="candidate_index_badge_content">Candidate index badge content</string>
+    <string name="candidate_index_badge_content_sequence_one_based">Sequence numbers from 1</string>
+    <string name="candidate_index_badge_content_sequence_zero_based">Sequence numbers from 0</string>
+    <string name="candidate_index_badge_content_engine_label">Selection labels from the schema</string>
     <string name="candidates_window_min_width">Candidate window minimum width</string>
     <string name="candidates_window_padding">Candidate window padding</string>
     <string name="horizontal_candidate_overflow_scroll">Scroll long candidate text horizontally</string>

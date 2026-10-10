@@ -38,6 +38,7 @@ import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.TransitionEve
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
+import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeContent
 import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgePosition
 import org.fcitx.fcitx5.android.input.candidates.CandidateItemUi
 import org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder
@@ -74,9 +75,12 @@ class HorizontalCandidateComponent :
     private val candidateIndexBadgePref = AppPrefs.getInstance().keyboard.showCandidateIndexBadge
     private val candidateIndexBadgePositionPref =
         AppPrefs.getInstance().keyboard.candidateIndexBadgePosition
+    private val candidateIndexBadgeContentPref =
+        AppPrefs.getInstance().keyboard.candidateIndexBadgeContent
     private var horizontalOverflowEnabled = horizontalCandidateOverflowScroll.getValue()
     private var candidateIndexBadgeEnabled = candidateIndexBadgePref.getValue()
     private var candidateIndexBadgePosition = candidateIndexBadgePositionPref.getValue()
+    private var candidateIndexBadgeContent = candidateIndexBadgeContentPref.getValue()
     private var adapterCreated = false
     private val maxSpanCountPref by lazy {
         AppPrefs.getInstance().keyboard.run {
@@ -356,6 +360,14 @@ class HorizontalCandidateComponent :
         }
     }
 
+    fun setCandidateIndexBadgeContent(content: CandidateIndexBadgeContent) {
+        if (candidateIndexBadgeContent == content) return
+        candidateIndexBadgeContent = content
+        if (adapterCreated) {
+            adapter.setCandidateIndexBadgeContent(content)
+        }
+    }
+
     val adapter: HorizontalCandidateViewAdapter by lazy {
         adapterCreated = true
         object : HorizontalCandidateViewAdapter(
@@ -363,6 +375,7 @@ class HorizontalCandidateComponent :
             horizontalOverflowEnabled,
             candidateIndexBadgeEnabled,
             candidateIndexBadgePosition,
+            candidateIndexBadgeContent,
         ) {
             override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
                 super.onBindViewHolder(holder, position)
