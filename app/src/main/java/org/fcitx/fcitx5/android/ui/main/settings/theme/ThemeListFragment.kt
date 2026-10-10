@@ -197,7 +197,7 @@ class ThemeListFragment : Fragment() {
             override fun onRandomizeTheme() = randomizeTheme()
             override fun onExportTheme(theme: Theme.Custom) = exportTheme(theme)
         }
-        themeListAdapter.setThemes(ThemeManager.getAllThemes())
+        themeListAdapter.setThemes(ThemeManager.ensureRandomSlotSeeded().let { ThemeManager.getAllThemes() })
         updateSelectedThemes()
         lifecycleScope.launch {
             val themes = withContext(Dispatchers.IO) {
