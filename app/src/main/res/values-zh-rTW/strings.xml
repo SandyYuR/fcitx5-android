@@ -160,6 +160,8 @@
     <string name="key_border">啟用按鍵邊框</string>
     <string name="brightness">亮度</string>
     <string name="key_radius">按鍵圓角半徑</string>
+    <string name="preedit_radius">輸入區圓角半徑</string>
+    <string name="toolbar_radius">工具列上方圓角半徑</string>
     <string name="text_editing_button_radius">文本編輯按鈕圓角半徑</string>
     <string name="clipboard_entry_radius">剪貼簿條目圓角半徑</string>
     <string name="candidate_bar_highlight_radius">候選列高亮圓角半徑</string>

@@ -39,7 +39,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
+import org.fcitx.fcitx5.android.input.bar.ContinuousCornerGeometry
 import org.fcitx.fcitx5.android.input.bar.ToolbarMetrics
+import org.fcitx.fcitx5.android.input.bar.CardOutlineProvider
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemePrefs.NavbarBackground
@@ -125,6 +127,20 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         get() = ctx.dp(ToolbarMetrics.heightDp(toolbarHeightPercent))
     private val fakeKawaiiBar = view(::View)
 
+    private fun toolbarRadiusPx(): Float =
+        ctx.dp(ThemeManager.prefs.toolbarRadius.getValue()).toFloat()
+
+    /**
+     * 预览里的「键盘卡片」圆角：与真机一样做在卡片容器（[fakeInputView]）上，
+     * 而不是工具栏条本身——`keyBorder` 打开时工具栏条背景透明，在它上面做圆角看不见，
+     * 且不透明时会在角上露出下层底色形成缺口。
+     */
+    private fun applyFakeCardShape() {
+        fakeInputView.clipToOutline = true
+        fakeInputView.outlineProvider = CardOutlineProvider(::toolbarRadiusPx)
+        fakeInputView.invalidateOutline()
+    }
+
     private var keyboardWidth = -1
     private var keyboardHeight = -1
     private var sizeScale = 1f
@@ -141,6 +157,9 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         private val dstRect = Rect()
         private val clipRect = Rect()
         private val clipRectF = RectF()
+        private val toolbarClipRectF = RectF()
+        private val canvasBoundsRectF = RectF()
+        private val toolbarClipPath = Path()
         private val clipPath = Path()
         private val keyViews = ArrayList<KeyView>(64)
         private val keyClipRects = ArrayList<Rect>(64)
@@ -242,18 +261,27 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             }
 
             if (fakeKawaiiBar.isShown && fakeKawaiiBar.width > 0 && fakeKawaiiBar.height > 0) {
-                val barSaveId = canvas.save()
-                clipRect.set(
-                    fakeKawaiiBar.left,
-                    fakeKawaiiBar.top,
-                    fakeKawaiiBar.right,
-                    fakeKawaiiBar.bottom
+                toolbarClipRectF.set(
+                    fakeKawaiiBar.left.toFloat(),
+                    fakeKawaiiBar.top.toFloat(),
+                    fakeKawaiiBar.right.toFloat(),
+                    fakeKawaiiBar.bottom.toFloat()
                 )
-                if (clipRect.intersect(0, 0, width, height)) {
-                    canvas.clipRect(clipRect)
+                canvasBoundsRectF.set(0f, 0f, width.toFloat(), height.toFloat())
+                if (RectF.intersects(toolbarClipRectF, canvasBoundsRectF)) {
+                    // 与真机一致：裁剪 = 工具栏矩形 ∩ 卡片形状，卡片上圆角之外不留模糊墨迹。
+                    val barSaveId = canvas.save()
+                    canvas.clipRect(toolbarClipRectF)
+                    ContinuousCornerGeometry.addCardPath(
+                        toolbarClipPath,
+                        canvasBoundsRectF,
+                        toolbarRadiusPx(),
+                        0f
+                    )
+                    canvas.clipPath(toolbarClipPath)
                     drawFullScreenBlur(canvas, bitmap)
+                    canvas.restoreToCount(barSaveId)
                 }
-                canvas.restoreToCount(barSaveId)
             }
 
             if (hasVisibleKey && !drewKeyRegion) {
@@ -605,8 +633,10 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             fakeKeyboardWindow = TextKeyboard(ctx, theme, previewIme, isPreview = true)
             currentTheme = theme
 
-            // Match KawaiiBar behavior: use barColor for Builtin themes without border
+            // KawaiiBar 背景色沿用既有逻辑（keyBorder 时透明、否则 barColor），
+            // 卡片圆角做在容器上，见 applyFakeCardShape。
             fakeKawaiiBar.backgroundColor = if (keyBorder) Color.TRANSPARENT else theme.barColor
+            applyFakeCardShape()
 
             fakeInputView.apply {
                 add(fakeKeyboardWindow, lParams(matchConstraints, keyboardHeight) {
@@ -641,8 +671,9 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
                 isUpdatingTheme = false
             }
         } else {
-            // Update KawaiiBar background color
+            // Update KawaiiBar background color and the shared card corner geometry.
             fakeKawaiiBar.backgroundColor = if (keyBorder) Color.TRANSPARENT else theme.barColor
+            applyFakeCardShape()
 
             fakeKeyboardWindow.post {
                 try {

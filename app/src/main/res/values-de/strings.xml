@@ -109,6 +109,8 @@
     <string name="theme">Thema</string>
     <string name="brightness">Helligkeit</string>
     <string name="key_radius">Tastenradius</string>
+    <string name="preedit_radius">Radius des Eingabebereichs</string>
+    <string name="toolbar_radius">Radius der oberen Werkzeugleisten-Ecken</string>
     <string name="key_horizontal_margin">Horizontaler Tastenrand</string>
     <string name="key_vertical_margin">Vertikaler Tastenrand</string>
     <string name="choose_image">Bild wählen ...</string>

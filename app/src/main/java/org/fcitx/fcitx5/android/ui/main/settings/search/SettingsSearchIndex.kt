@@ -220,6 +220,8 @@ object SettingsSearchIndex {
 
         /* 主题 · 配置 tab（在 ThemeFragment 内，由该页自行滚动） */
         R.string.key_radius to "key_radius",
+        R.string.preedit_radius to "preedit_radius",
+        R.string.toolbar_radius to "toolbar_radius",
         R.string.key_border to "key_border",
         R.string.key_border_stroke to "key_border_stroke",
         R.string.key_ripple_effect to "key_ripple_effect",
@@ -348,6 +350,19 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.key_radius, P_THEME,
             listOf("radius", "圆角", "yuanjiao", "corner"),
+            route = SettingsRoute.Theme
+        ),
+        SettingsSearchEntry(
+            R.string.preedit_radius, P_THEME,
+            listOf("preedit", "预编辑", "编码区", "输入区", "圆角", "radius", "corner"),
+            route = SettingsRoute.Theme
+        ),
+        SettingsSearchEntry(
+            R.string.toolbar_radius, P_THEME,
+            listOf(
+                "toolbar radius", "toolbar corner", "top corner", "工具栏圆角", "工具栏上方圆角",
+                "顶部圆角", "工具栏", "圆角", "radius"
+            ),
             route = SettingsRoute.Theme
         ),
         SettingsSearchEntry(

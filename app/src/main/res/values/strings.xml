@@ -168,6 +168,8 @@
     <string name="key_border">Enable key border</string>
     <string name="brightness">Brightness</string>
     <string name="key_radius">Key radius</string>
+    <string name="preedit_radius">Preedit area radius</string>
+    <string name="toolbar_radius">Toolbar top corner radius</string>
     <string name="text_editing_button_radius">Text editing button radius</string>
     <string name="clipboard_entry_radius">Clipboard entry radius</string>
     <string name="candidate_bar_highlight_radius">Candidate bar highlight radius</string>

@@ -118,6 +118,8 @@
     <string name="key_border">キーの枠を有効にする</string>
     <string name="brightness">明るさ</string>
     <string name="key_radius">キーの角半径</string>
+    <string name="preedit_radius">入力エリアの角半径</string>
+    <string name="toolbar_radius">ツールバー上部の角半径</string>
     <string name="key_horizontal_margin">キーの左右間隔</string>
     <string name="key_vertical_margin">キーの上下間隔</string>
     <string name="configure">設定</string>
