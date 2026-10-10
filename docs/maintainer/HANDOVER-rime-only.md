@@ -24,7 +24,8 @@
 > **2026-09-26 更新（状态机改动回退，仅作对照）**：`e7e32462` 回退 `8843b858` 对 Fcitx/FcitxDispatcher/FcitxLifecycle/FcitxDaemon 等 8 个文件的改动，用于排查间歇性「打不出编码 + 状态区空白 + 切换才恢复」是否由该提交引入。**注意这是对照包而非正式修复**：它同时带回了 `8843b858` 原本修掉的三个 P0 缺陷（STARTING 不可停止、启动失败卡非 STOPPED、stop 阻塞主线程）。当前分支**处于这次回退后的状态**——接手时若要处理卡键问题，先读本节末尾的说明。
 > **2026-09-28 更新（第十二次引擎实战 + 两个用户可见功能）**：① 新增**第 8 个补丁** `librime-detect-modifications-fingerprint.patch`，修掉「每次冷启动都全量部署、部署期按键直接上屏」——详见 **0.5.16 节**；② 适配层新增两处配套改动 `583e908`（部署期按键吞掉）与 `9bf94e6`（部署提示改为键盘内显示），主仓库 gitlink 前进到 `9bf94e6`；③ 符号/表情/颜文字面板整体换成 Foxy 风格（`4f93612f`），④ 布局编辑器子模式下拉框补「默认」项（`afc57f4b`）。三者均在 `fx-rime-only` 且已推送。
 > **2026-10-05 更新（文档迁移 + 近期改动补记）**：① 全部文档自 `rime-docs` 分支迁入文档站 `docs` 分支（`docs/manual/`、`docs/maintainer/`、`docs/archive/` 三个分区），`rime-docs` 分支按用户要求删除；文档站随 push 自动构建发布到 GitHub Pages（`github-pages` 环境需允许 `docs` 分支部署）。② 补记 10-04~10-05 尚未入账的三条：候选栏高亮改三层结构（`18619aef`，见 0.6.10 节新增条目——内距默认 0→8、`ITEM_HORIZONTAL_PADDING_DP` 10→4 且语义变为「格子↔高亮」四边外间距）；工具栏 100% 高度下图标尺寸回归修复（`3664ef31`，恢复 24dp/10dp 设计值）；内置图标主题安装后刷新主题列表（`49c7c169`，修复全新安装时内置图标主题落盘晚于首次扫描、设置页列表为空，安装后触发重扫并串行化首次扫描与重扫）。用户指南 §8.1 候选栏高亮描述已同步修订。
-> **2026-10-10 更新（方向性划动标签脱离「标点位置」）**：用户报障「个别按键配了下滑操作，主题把标点位置设为上方居中后标签跑到上方、手势也变成只能上滑」。两条独立分叉一起修：① `KeyView` 的方向性标签分支不再读 `punctuationPositionForKey()`——上滑标签恒在上、下滑标签恒在下（紧凑高度退同侧角落），`shouldTriggerAltBySwipe` 只按标签方向判定；② 旧单槽 `swipe` / `swipeLabel` / `altLabel` 的方向判定统一到 `LayoutJsonUtils.legacySwipeTargetsUp`（只有「同侧且唯一」才算上滑），读/迁移/编辑三处共用，`punctuationPosition` 与 `swipeSymbolDirection` 都不再参与；**无线索的旧 `swipe` 保持旧槽位**，运行时仍按「符号划动方向（符号隐藏时）」决定。详见 **0.6.13 节**。
+> **2026-10-10 更新（方向性划动标签脱离「标点位置」，`4eae6539`）**：用户报障「个别按键配了下滑操作，主题把标点位置设为上方居中后标签跑到上方、手势也变成只能上滑」。两条独立分叉一起修：① `KeyView` 的方向性标签分支不再读 `punctuationPositionForKey()`——上滑标签恒在上、下滑标签恒在下（紧凑高度退同侧角落），`shouldTriggerAltBySwipe` 只按标签方向判定；② 旧单槽 `swipe` / `swipeLabel` / `altLabel` 的方向判定统一到 `LayoutJsonUtils.legacySwipeTargetsUp`（只有「同侧且唯一」才算上滑），读/迁移/编辑三处共用，`punctuationPosition` 与 `swipeSymbolDirection` 都不再参与；**无线索的旧 `swipe` 保持旧槽位**，运行时仍按「符号划动方向（符号隐藏时）」决定。详见 **0.6.13 节**。
+> **2026-10-10 更新（10-07~10-10 一批改动补记）**：主仓库本批 15 个提交（`751480cd`..`4eae6539`）此前未入账，现补记。① 候选栏：长候选横向滚动（`751480cd`）+ 候选项序号角标开关（`635d3aa2`）→ **0.6.14**；② 键盘：同一按键分别配置上/下划动宏（`d156052b` + `4f0d6fb8`）→ **0.6.15**（**方向判定规则已在 0.6.13，本节只补字段/编辑器/迁移面**）；③ 键盘标签：双标签高度回退布局统一（`ed38a31b`）→ **0.6.16**；④ 音节选择栏：超出六项改为可滚动（`098ec596`）→ **0.6.17**（**本文多处"音节 tab 全部展示、不可滑动"随之过时，已在 0.6.17 / 第 132 行 / §0.6.10 / §7 第 6 条就地修正**）；⑤ 弹出键盘：多字符候选改走 CommitAction（`b94106da` + `598897b7`）→ **0.6.18**；⑥ PR 工作流与设备按键兼容开关（`0077c401` / `2609dc2d` / `897ece50`）→ **0.6.19**；⑦ 弹出菜单跟随主题整体背景色（`d786dd78`）→ **0.6.20**；⑧ 随机主题评分与即时应用（`43e16fb6`）→ **0.6.21**；⑨ 编码区圆角与工具栏上方圆角接续（`01d0dfee`）→ **0.6.22**。`4eae6539` 即上一段，已由 0.6.13 覆盖（SHA 已补入该段）。**除个别提交外均只做了单测与出包，真机回归未做**（逐条注明）。
 
 ---
 
@@ -129,7 +130,7 @@
 
 **教训（可复用）**：这是"适配层多塞了一个 UI 动作"引发的布局退化——适配层往 tab 列表尾部追加非音节动作，App 侧按分隔符分组后把固定动作排进 pinned 区，两边单独看都合理，组合起来就抢占了内容区高度。**往后在 `tabActions()` 里追加任何非 tab 动作，都要先想 App 侧的分组语义**（scrollable vs pinned）。
 
-**验证**：`:app:assembleFxDebug` 出包（8m23s）；用 `strings`/字节匹配核对产物——`librime.so` 含插件字面量（`fcitx-rime-separator`、`Schema Selector`、`fcitx-rime-deploy`，证明该 so 就是适配层本体且检测方法有效）但**不再含"清除"**；APK 内无独立 `libfcitx5-rime.so`，适配层静态链入 `librime.so`。用户装机确认辅助栏行为正常（2026-09-20）。**注意**：本次只解决了"清除按钮抢高度"，**音节 tab 仍然全部展示、按数量均分高度（无最小行高、不可滑动）**——用户明确要求此项暂不改，见第 7 节待办。
+**验证**：`:app:assembleFxDebug` 出包（8m23s）；用 `strings`/字节匹配核对产物——`librime.so` 含插件字面量（`fcitx-rime-separator`、`Schema Selector`、`fcitx-rime-deploy`，证明该 so 就是适配层本体且检测方法有效）但**不再含"清除"**；APK 内无独立 `libfcitx5-rime.so`，适配层静态链入 `librime.so`。用户装机确认辅助栏行为正常（2026-09-20）。**注意**：本次只解决了"清除按钮抢高度"——当时**音节 tab 仍全部展示、按数量均分高度（无最小行高、不可滑动）**；⚠️ **该状态已于 2026-10-08 `098ec596` 改变：超过六项的音节 tab 改为可滚动（视口约 6.5 行），见 §0.6.17**（本条其余内容仍有效）。
 
 ---
 
@@ -724,7 +725,7 @@ git -C lib/fcitx5/src/main/cpp/prebuilt checkout <新sha>
 - **覆盖**：带 UI 的偏好项都已登记。**必须只扫 `buildEntries` 的条目块**——`PREFERENCE_KEYS` 里也有同名资源，只扫全文件的话，**删掉条目后名字仍留在映射表里、测试照样通过**（初版就是绿的，靠反向验证才发现）。收紧后立刻抓出第 14 个遗漏 `haptic_on_repeat`。
 - **孤儿键**：映射表里有、却无条目引用的键（实例 `verbose_log`；它的标题由 `DeveloperFragment` 用 `setTitle()` 设置，覆盖断言扫不到，两者互补）。
 - **键名拼错**：映射值必须是真实偏好键。写错一个字母时 `findPreference` 返回 null、`PreferenceScrollHelper` 会**保留键**，表现为「跳对页面但不滚动」且无日志。
-- 另断言**条目数与映射条数下限**，否则正则失效时差集断言恒真、测试空转变绿。解析用严格字面量匹配，**只漏匹配、不多匹配**；确有不希望被搜到的项时加进 `INTENTIONALLY_UNSEARCHABLE` 并写明理由，别为变绿放宽断言。当前该集合为空（**61 项全部已登记**）。
+- 另断言**条目数与映射条数下限**，否则正则失效时差集断言恒真、测试空转变绿。解析用严格字面量匹配，**只漏匹配、不多匹配**；确有不希望被搜到的项时加进 `INTENTIONALLY_UNSEARCHABLE` 并写明理由，别为变绿放宽断言。当前该集合为空。**条目数已因 10-07~10-10 一批新设置项过期，不再写死数字**（本条旧记「61 项全部已登记」已不适用）：新增设置项包括 `horizontal_candidate_overflow_scroll`、`show_candidate_index_badge`、`candidate_index_badge_position`、`move_main_text_for_alt_label`、`preedit_radius`、`toolbar_radius`（共 6 条已登记进 `SettingsSearchIndex`）；**以实测现取**——`grep -c "SettingsSearchEntry(" …/SettingsSearchIndex.kt` 数 `buildEntries` 里的条目（`SettingsSearchIndexCoverageTest` 会守住覆盖/孤儿/拼写/下限四类断言）。
 - ⚠️ **反向验证的陷阱（本轮真踩到）**：`.\gradlew.bat ... | Select-String ... | Select-Object -First N` 会提前关闭管道、**杀掉 gradle**，而上一轮的 `test-results/*.xml` 还在，于是读到**旧的成功结果**，看起来像「注入了错误却没失败」。正解：输出重定向到文件（`*> out.txt`），看 `$LASTEXITCODE`，并核对 XML 的 `LastWriteTime`。**别用会截断的管道跑测试——它会伪造成功。**
 
 ---
@@ -868,7 +869,7 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 #### 纵向辅助选择栏按行高百分比分配（`584bddaa`）
 
-原缺陷：纵向辅助栏**无条件**按 item 数量整除容器高度，布局编辑器给的行高百分比被完全忽略。改法：新增与 `auxBarScrollableItemViews` **一一对应**的 `auxBarScrollableItemRowHeights`（`null` = 无自定义行高，**tabs 整列都是 null、继续按数量均分**）；`resolveHeightPercents` 归一化到总和 100（未配置项平分剩余），**最后一项用剩余高度补齐**，被压成 0 的项**显式写高度 0**（不退回 `WRAP_CONTENT`）。横向（Top/Bottom）不在范围内。`resolveRowHeightPercents(rows)` 被改写为对它的复用（主键盘行为不变，是抽取而非改语义）。
+原缺陷：纵向辅助栏**无条件**按 item 数量整除容器高度，布局编辑器给的行高百分比被完全忽略。改法：新增与 `auxBarScrollableItemViews` **一一对应**的 `auxBarScrollableItemRowHeights`（`null` = 无自定义行高）；`resolveHeightPercents` 归一化到总和 100（未配置项平分剩余），**最后一项用剩余高度补齐**，被压成 0 的项**显式写高度 0**（不退回 `WRAP_CONTENT`）。横向（Top/Bottom）不在范围内。`resolveRowHeightPercents(rows)` 被改写为对它的复用（主键盘行为不变，是抽取而非改语义）。⚠️ 本条当时写「**tabs 整列都是 null、继续按数量均分**」——**2026-10-08 `098ec596` 后已不成立**：纵向 tabs 改走 `RecyclerView`、超过六项可滚动（见 §0.6.17），`rowHeightPercent` 分配只作用于自定义辅助按键。
 
 #### 退格手势上滑分两义（`2501375f`）
 
@@ -910,7 +911,7 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 ---
 
-### 0.6.13 方向性划动标签不再受「标点位置」影响（2026-10-10）
+### 0.6.13 方向性划动标签不再受「标点位置」影响（2026-10-10，`4eae6539`）
 
 **现象（用户报障）**：布局里给个别按键配了下滑动作（如 `{"type":"MacroKey","swipeDownLabel":"撤销",...}`），主题设置把「标点位置」设为**上方居中**后，这些键的副标签跑到键的上方，划动手势也**只认上滑**——用户按下滑不再触发自己配置的动作。
 
@@ -932,6 +933,170 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 ---
 
+### 0.6.14 候选栏：长候选横向滚动 + 候选项序号角标（2026-10-07 / 10-09，`751480cd` / `635d3aa2`）
+
+两个**候选栏样式**开关（`AppPrefs.candidates`，路由「键盘 → 候选栏」，搜索索引已登记）。两条互不重叠，合并为一条。
+
+#### 长候选横向滚动（`751480cd`）
+
+**偏好**：`horizontal_candidate_overflow_scroll`「长候选词横向滚动」（`R.string.horizontal_candidate_overflow_scroll`，默认 **true**，带摘要文案 `…_summary`「保留候选词完整宽度，通过横向滚动查看超出部分」）。**默认开启 = 新行为**；关闭后恢复旧的等比缩放（`AutoScaleTextView.Mode.Proportional`）。
+
+**实现**（`CandidateItemUi.kt` / `HorizontalCandidateComponent.kt` / `HorizontalCandidateViewAdapter.kt` / `InputView.kt` 热更新）：候选文字改为**自然宽度**（`AutoScaleTextView.Mode.None`），套一层 `CandidateOverflowViewport`（`FrameLayout`）作为视口：视口宽度仍约束在候选格子内，文字超出部分通过子视图 `translationX` 平移查看。新增手势类 `ScrollableCandidateGestureView` 支持横向拖拽（`scrollByDistance`），候选更新或视口尺寸变化时 `followTextUpdate()` 自动滚到尾部（看到候选的结尾）。`InputView.kt` 加运行时热更新入口（改开关即时生效，无需重启键盘）。**判据/边界**：`hasOverflow = overflowEnabled && maxScroll > 0f`，`scrollByDistance` 把 `translationX` 夹在 `[-maxScroll, 0]`；`onMeasure` 在 overflow 模式下以 `UNSPECIFIED` 量出整段文字宽、再 `resolveSize` 把视口收回槽位。
+
+**测试**：新增 **androidTest** `CandidateOverflowTest.kt`（`androidTest` 源集，非 JVM 单测）——断言文字保持自然宽、视口内展示尾部（`translationX == -(text.width - viewport.width)`）。
+
+#### 候选项序号角标开关（`635d3aa2`）
+
+**偏好**：`show_candidate_index_badge`「显示候选项序号角标」（`R.string.show_candidate_index_badge`，默认 **false**）+ `candidate_index_badge_position`「候选项序号角标位置」（`R.string.candidate_index_badge_position`，默认 `TopLeft`，**仅在角标开启时可改**——`enableUiOn = { showCandidateIndexBadge.getValue() }`）。
+
+**四位置枚举**（`input/candidates/CandidateIndexBadgePosition.kt`）：`TopLeft` / `TopRight` / `BottomRight` / `BottomLeft`（`ManagedPreferenceEnum`，文案复用 `top_left`/`top_right`/`bottom_right`/`bottom_left`）。
+
+**实现**（`CandidateItemUi.kt`）：`indexBadge` 是叠在格子根视图上的小 `TextView`（`textSize = 10f`，颜色 `theme.candidateLabelColor`，随高亮态 `refreshIndexBadgeColor()` 刷新）；`setIndexBadge(number, position)` 幂等（同 number+position 直接 return），按位置映射 `FrameLayout.LayoutParams.gravity`（`TOP/BOTTOM` × `START/END`），水平留 `INDEX_BADGE_HORIZONTAL_MARGIN_DP = 2`。`HorizontalCandidateComponent` / `HorizontalCandidateViewAdapter` 负责把「候选在列表中的序号（从 1 起）」与位置下发到每个 `CandidateItemUi`。
+
+**测试**：新增 **androidTest** `CandidateIndexBadgeTest.kt`（同样在 `androidTest` 源集，非 JVM 单测）——覆盖四角内边距、旧 margin 复位等。
+
+**真机回归未做**（两项都只有 JVM/androidTest 与出包；横向拖拽手感、角标在长/短候选与四角下的可见性需装机确认）。设置搜索索引已同步（`SettingsSearchIndex` 加 3 条：`horizontal_candidate_overflow_scroll`、`show_candidate_index_badge`、`candidate_index_badge_position`）。
+
+---
+
+### 0.6.15 键盘：同一按键分别配置上/下划动宏（2026-10-07 / 10-08，`d156052b` + `4f0d6fb8`）
+
+> **本节只补「字段 / 编辑器 / 迁移」这三面缺失；方向判定规则（`legacySwipeTargetsUp`、标点位置只影响字母键、无线索旧 `swipe` 保持旧槽）已在 §0.6.13，不重复。**
+
+**起因**：原先一个按键只有一个划动事件，无法让 Enter 等键的上划与下划分别执行不同的快捷键宏。
+
+**新增字段（`KeyDefPreset.kt` / `KeyDef.kt` / `LayoutJsonUtils.kt`）**：`swipeUp` / `swipeDown`（独立上/下划动宏动作）与 `swipeUpLabel` / `swipeDownLabel`（独立上/下滑标签文本）；`KeyDef.Appearance.Text` 新增 `altText1`（第二副标签），`Appearance` 新增 `altText1`，`Appearance` 新增标记 `directionalSwipeLabels`（`altText`/`altText1` 是否为独立物理上/下标签）。`Behavior.Swipe` 扩容为 `action` / `downAction` / `upMacro` / `downMacro` / `legacyMacro` / `overrideDefaults`（`overrideDefaults = 显式上/下宏存在时置位`，使功能键方向宏**不受全局划动方向偏好阻断**）。
+
+**「自动」划动方向（`SwipeSymbolDirection.kt`）**：枚举加 `Auto`（`R.string.swipe_auto`「自动」），`checkY` 在 `Auto` 时任意非零位移都成立；**符号划动方向默认值改为 `Auto`**，使升级后未明确设方向的 MacroKey 上下划都能触发。**保留 `SpaceKey` 原有专用划动语义**（空格键不走这套，见 §0.6.5）。
+
+**编辑器（`KeyEditorActivity.kt`）**：把单一「划动事件」拆成 **「上划事件」/「下划事件」**（`R.string.text_keyboard_layout_macro_swipe_up_event` / `…_swipe_down_event`），可分别配置如 `Ctrl+Shift+Enter` 与 `Shift+Enter`；标签编辑器加 **「上划标签」/「下划标签」**（`…_swipe_up_label` / `…_swipe_down_label`）。非宏键（回车/退格/大小写/符号/布局切换）也接入同一套上/下划编辑器。
+
+**迁移（`migrateDirectionalSwipeFields`，`LayoutJsonUtils.kt`，在 `LayoutDataManager` 两处调用）**：旧单槽 `swipe`/`swipeLabel`/`altLabel` 按 `legacySwipeTargetsUp` 判定目标方向后迁入 `swipeUp`/`swipeDown` 与对应标签，并**移除旧字段**（`KeyEditorActivity.appendDirectionalSwipeLabels` 同时清 MacroKey 的旧 `altLabel`，避免新旧字段并存）。`4f0d6fb8` 是这条迁移与 MacroKey 上下划标签的修复：**保留已存在的 `swipeUp`/`swipeDown` 宏动作不改绑**、给 MacroKey 补独立上/下滑标签、按符号划动方向迁移旧 `altLabel` 并删旧字段、符号位置为「隐藏」时隐藏上下滑标签。
+
+**测试**：`LayoutJsonUtilsTest`（方向选择 / Shortcut 往返 / 旧字段迁移）、新增 `SwipeSymbolDirectionTest`；`:app:testFxDebugUnitTest` 通过、`build-debug.ps1` 完整 arm64-v8a Debug 构建通过、`git diff --check` 干净。**真机回归未做**：`d156052b` 正文明确「真机上划/下划 Enter 输入行为尚未验证」；需装机核对「同一键上划/下划分别触发不同宏、旧布局升级后方向正确」。
+
+---
+
+### 0.6.16 键盘标签：双标签高度回退布局统一（2026-10-08，`ed38a31b`）
+
+**新增主题设置**（`ThemePrefs`，路由 Theme，搜索索引已登记）：`move_main_text_for_alt_label`「副标签存在时移动主字符」（`R.string.move_main_text_for_alt_label`，**默认 true**）。
+
+**改了什么**（`KeyView.kt`，+467/−131）：统一 MacroKey 与普通按键的单副标签布局；**保留双标签上下显示**，仅在「主字符 + 一个副标签」都无法容纳时才回退到右上角，并新增**圆角安全边距** `cornerLabelHorizontalSafeInset = max(dp(3), min((radius*0.5f).roundToInt(), dp(12)))` / `cornerLabelTopSafeInset = max(dp(1), min((radius*0.2f).roundToInt(), dp(4)))`（旧的固定 3dp/1dp 在大圆角键上会把字形压到圆角上）。`move_main_text_for_alt_label` 控制主字符是否随副标签位移（关时不位移、主字符居中）。
+
+**测试**：该提交**本身零测试**（只有 strings / ThemePrefs / KeyView / 搜索索引）。**真机回归未做**（纯布局观感改动，需装机核对不同键高/圆角下双标签与回退形态）。
+
+---
+
+### 0.6.17 音节选择栏：超过六项改为可滚动（2026-10-08，`098ec596`）
+
+**这是本文多处「音节 tab 全部展示、按数量均分、不可滑动」描述的失效点**（见本节末「过时描述修正」）。
+
+**新增 `input/keyboard/AuxBarTabLayout.kt`**（纯函数，可 JVM 单测）：
+
+- `VERTICAL_AUX_BAR_TAB_MAX_FULL_ITEMS = 6`、`VERTICAL_AUX_BAR_TAB_VISIBLE_ROWS = 6.5f`；
+- `resolveVerticalAuxBarTabItemHeights(containerHeight, itemCount)`：**≤ 6 项**沿用旧的整数均分（余数摊到前几项，总和 = 容器高）；**> 6 项**每项高度 = `floor(containerHeight / 6.5)`（下限 1px），即视口只显示约 **6.5 行**，第 7 项露出一半，列表可自然滚动。
+
+**`BaseKeyboard.kt` 改法**：纵向（Left/Right）辅助栏的 **tabs 改走 `RecyclerView`**（`LinearLayoutManager.VERTICAL`，`isNestedScrollingEnabled = true`，挂 `auxBarScrollableRvLayoutListener` 在尺寸变化时重算行高 `relayoutVerticalAuxBarTabs()`）；自定义辅助按键仍走 `LinearLayout` + `rowHeightPercent`（§0.6.10 的 `584bddaa` 逻辑不变），两者**共享同一 scrollable 区域、按可见性切换**，pinned 区恒在底部。`AuxBarAdapter.updateActions` 返回值改为 `Boolean`（列表变化时让调用方 `scrollToPosition(0)`），新增 `setVerticalItemHeights`。
+
+**测试**：新增 JVM 单测 `AuxBarTabLayoutTest.kt`（无效输入返回空、≤6 项均分且总和=容器高、>6 项返回 6.5 行高）。**真机回归未做**（需装机核对滚动流畅度与第 7 项的半露效果）。
+
+**过时描述修正（三处已就地改）**：
+
+- 文首/第 0 节（原「音节 tab 仍然全部展示、按数量均分高度（无最小行高、不可滑动）」）——已改；
+- §0.6.10 `584bddaa` 条目（原「tabs 整列都是 null、继续按数量均分」）——已改；
+- §7 第 6 条（原「音节选择器 tabs 仍整列均分、逐像素不变」）——已改。
+
+---
+
+### 0.6.18 弹出键盘：多字符候选改用 CommitAction 提交（2026-10-08，`b94106da` + `598897b7`）
+
+**起因**：长按弹出键盘里的候选若是**多字符**字符串（emoji、组合字符等），原走 `KeyAction.FcitxKeyAction`——但 `FcitxKeyAction` 只取 `act[0]` 算 scancode，多字符不是合法 fcitx 按键名，fcitx 侧解析失败**静默丢弃**，点候选没反应。
+
+**两步落地**：
+
+1. `b94106da`：`PopupKeyboardUi` / `LongPressPopupKeyboardUi` 的 `onTrigger` 由恒 `FcitxKeyAction` 改为**按 `codePointCount == 1` 分流**——单码点仍 `FcitxKeyAction`，多码点改 `CommitAction`（参考 MacroKey 的 text 操作）。
+2. `598897b7`：把判据抽成新文件 **`input/popup/PopupKeyAction.kt`** 的 `popupKeyAction(text, isValidFcitxKey)`：**单码点且 `isValidFcitxKey(text)`**（`Key.parse` 成功、非 `Key.None`、且 `portableString == text`）才用 `FcitxKeyAction`，否则一律 `CommitAction`（含空串）。两处 `onTrigger` 统一调用它。**判据比第一步更严**：单码点但**不是合法按键名**（如某些符号）也改走 `CommitAction`，不再被 fcitx 静默丢弃。
+
+**测试**：新增 JVM 单测 `PopupKeyActionTest.kt`（合法单码点走 Fcitx、多码点/非法单码点/空串走 Commit）。**真机回归未做**（需装机核对长按弹出多字符候选（emoji/组合字符）能正常上屏）。
+
+---
+
+### 0.6.19 PR 工作流 + 设备按键兼容开关（2026-10-08，`0077c401` / `2609dc2d` / `897ece50`）
+
+#### 新增 PR CI 工作流（`0077c401`）
+
+新增 **`.github/workflows/pr.yml`**（workflow 名 `PR CI`）：`pull_request` 触发（目标分支 `fx-rime-only`，paths 排除 `*.md` / `.gitignore` / `docs/**`），两个 job——
+
+- `unit_test`「JVM unit tests」：`./gradlew :app:testFxDebugUnitTest`；
+- `debug_build`「Debug APK build」：装 `cmake;3.22.1` 与 `extra-cmake-modules`/`gettext`、跑 `./prepare_personal_build.sh` 后 `./gradlew :app:assembleFxDebug`。
+
+均 `ubuntu-22.04`、`contents: read`。**注意：第 1032 行曾记「删掉 pull_request workflow」，本次是重新引入**（旧的是被删的 mainline 时代 CI；`pr.yml` 是新写的、只服务本分支），**不是自相矛盾**——第 3.1 节与 §1/§2 已同步注明。
+
+#### vivo / 小米按键兼容开关默认值调整（`2609dc2d` + `897ece50`）
+
+**背景**：`AppPrefs.vivoKeypressWorkaround`（键 `vivo_keypress_workaround`）原默认值随 SDK 与厂商浮动，且**老用户升级后默认值不会重算**（SharedPreferences 里没存过才用默认）。
+
+- `2609dc2d`：默认值**收窄为「仅 `DeviceUtil.isVivoOriginOS` 才默认开启」**（去掉 `isMIUI` 与 `SDK >= VANILLA_ICE_CREAM` 两项）；并**新增 `AppPrefsMigration.kt`**（`object`，`apply(sharedPreferences)`）在 `FcitxApplication` 初始化 `AppPrefs` 之后调用，用 `app_prefs_migration_version` 做一次性迁移——**版本 1**：把 `vivo_keypress_workaround` 按 `DeviceUtil.isVivoOriginOS` 覆写，让存量用户也吃到新默认。
+- `897ece50`：把默认值**扩回「vivo 或小米」**（`DeviceUtil.isVivoOriginOS || DeviceUtil.isMIUI`），迁移版本 **1 → 2**、常量改名 `KEYPRESS_WORKAROUND_MIGRATION_VERSION`，迁移逻辑同步为 `isVivoOriginOS || isMIUI`。
+
+**关键点**：这是一次**有意的默认值纠偏**——先用迁移版本 1 收窄到 vivo，随即（同批）用版本 2 扩回 vivo+小米；因为迁移是**按版本号单向推进**的，最终升级路径落点就是「vivo 或小米默认开启」。改这类开关**必须连带 bump 迁移版本号**，否则存量用户的旧值不会被纠正。
+
+**测试**：`0077c401` 无测试（CI 配置）；`2609dc2d`/`897ece50` 无测试（纯默认值/迁移逻辑）。**真机回归未做**（需在 vivo OriginOS 与小米设备上核对默认开启后的按键行为）。
+
+---
+
+### 0.6.20 弹出菜单跟随主题使用整体背景色（2026-10-09，`d786dd78`）
+
+**新增 `input/popup/ThemedPopupMenu.kt`**：一套跟随主题配色的 `ListPopupWindow` 封装——背景用 `GradientDrawable`（`cornerRadius = 4dp`，`setColor(theme.backgroundColor)`，即**主题整体背景色**，不再用 `popupBackgroundColor`）；条目文字 `theme.keyTextColor`、按下高亮 `theme.keyPressHighlightColor`、分隔线由 `keyTextColor` 24% alpha 生成；宽 `196dp`（不超过屏宽 − 24dp）、行高 `48dp`。支持 `Item.Action`（label/onClick/enabled/bold）与 `Item.Divider`。
+
+**改用主题整体背景色的调用点**：
+
+- `RimeSchemaMenuDialog.kt`：自绘圆角卡片（`cornerRadius = 28dp`，`setColor(theme.backgroundColor)`）+ 单选按钮（`buttonTintList` 选中 `accentKeyBackgroundColor`、未选 `keyTextColor`），替代原 `AlertDialog` 的 `setSingleChoiceItems`；
+- `CandidateCharacterPopup.kt`：背景 `popupBackgroundColor → backgroundColor`、文字 `popupTextColor → keyTextColor`；
+- `PopupMenuUi.kt`：`paint.color` 与背景 `accentKeyBackgroundColor → backgroundColor`、图标 tint `accentKeyTextColor → keyTextColor`；
+- `StatusAreaWindow.kt`：状态区菜单改用 `ThemedPopupMenu`（原 `PopupMenu` + `buildSpannedString`）；
+- `BaseInputView.kt`：候选操作菜单改用 `ThemedPopupMenu`；`PopupEntryUi` / `PopupKeyboardUi` / `LongPressPopupKeyboardUi` 同步。
+
+**测试**：该提交**本身零测试**。**真机回归未做**（观感类改动，需装机核对各弹出菜单与主题一致性）。
+
+---
+
+### 0.6.21 随机主题：配色评分与即时应用入口（2026-10-09，`43e16fb6`）
+
+**新增文件**：`data/theme/ThemeRandomizer.kt`（+369）、`data/theme/ThemeAestheticScore.kt`（+354）；图标 `ic_random_theme_24.xml`。
+
+**评分模型（`ThemeAestheticScore.kt`，从网站 `ime.lutrip.com/theme.html` 精确移植）**：`scoreTheme(candidate): ThemeScore`，总分 100，四个维度——
+
+- **对比度（contrast）**：按 9 组前景/背景配对（各自权重 2~6）算 WCAG 对比度比，加权平均后 ×40；若最低对比度 < 2.0 则整体 ×0.25、< 3.0 则 ×0.55（硬惩罚）；
+- **色相（hue）**、**饱和度（saturation）**、**明度（lightness）**：其余分项。
+`ThemeScore(total, contrast, hue, saturation, lightness)`。`ThemeRandomizer`：`MAX_ATTEMPTS = 100`、`EARLY_STOP_SCORE = 88`（提前停止）、5 种配色方案 `analogous/complementary/triadic/split-comp/mono`，`generateBestRandomTheme` 取评分最高者。
+
+**设置项 / 文案**（默认 `values` + `zh-rCN`/`zh-rTW` 三份）：`random_theme`「随机主题」、`random_theme_score`「美学评分：%1$d/100（对比度 %2$d，色相 %3$d，饱和度 %4$d，明度 %5$d）」、`random_theme_score_short`「评分 %1$d/100」、`random_theme_copy`「复制为自定义主题」、`random_theme_generate`「重新随机」、`random_theme_toast`、`random_theme_name_reserved`「此名称保留给随机主题使用」。
+
+**入口与机制**：
+
+- `ThemeManager`：随机主题存于独立 slot（`theme_random_slot`），**名称固定 `RANDOM_THEME_NAME = "随机主题"`**（主题列表里被过滤掉、不重复出现；`random_theme_name_reserved` 即阻止用户用该名）；`randomizeTheme()` 重新随机并即时应用（`applyRandomTheme` 会关掉「跟随系统夜间模式」再 `setNormalModeTheme`）；
+- `ButtonAction.RandomThemeAction`（工具栏/键盘按钮，`ButtonsCustomizerActivity` 加 `ButtonDefinition("random_theme", …)`）；
+- `CustomThemeActivity` / `ThemeListAdapter` / `ThemeListFragment` / `ThemeThumbnailUi`：随机主题卡片显示评分，「重新随机」「复制为自定义主题」入口。
+
+**测试**：新增 JVM 单测 `ThemeRandomizerTest.kt`、`RandomThemeActionTest.kt`。**真机回归未做**（需装机核对随机主题即时应用、评分显示与「复制为自定义主题」流程）。
+
+---
+
+### 0.6.22 主题：编码区圆角与工具栏上方圆角接续（2026-10-10，`01d0dfee`）
+
+**新增两个主题设置**（`ThemePrefs`，路由 Theme，0–48dp、**默认 0**（保持既有外观），8 份 strings 与搜索索引已同步）：`preedit_radius`「编码区圆角半径」、`toolbar_radius`「工具栏上方圆角半径」。
+
+**新增 `input/bar/ContinuousCornerGeometry.kt`**（+231，纯几何，可 JVM 单测）：把编码区（预编辑）胶囊的**底部反向圆角**与键盘卡片**上方圆角**做成一条连续弧线——胶囊主体左缘相对卡片左缘位移 `preeditBodyOffset = (toolbarRadius - inset).coerceAtLeast(0) + preeditRadius`（`inset` = 侧边距/单手留白），反向弧向左/右外扩 `preeditRadius`，正好收在卡片上圆角与顶边的切点（两弧在该点同切于卡片顶边）；反向弧水平半径**严格等于 `preeditRadius`**，垂直半径不够高时才 `flareVerticalRadius` 收敛到半高。`clampRadius` 把半径夹在 `min(w,h)/2`。
+
+**其它要点**：编码区高度不变（胶囊仍在原文字行高内让出弧线，不额外加高）；**卡片圆角做在 `keyboardView` 上而非工具栏条**（`keyBorder` 打开时工具栏背景透明，做在条上不可见且会露出下层底色缺口）；浮动形态取与既有 10dp 圆角的较大值，四角同半径时仍走 `setRoundRect`（避免吃掉浮动键盘高度阴影）；模糊层 `KeyBlurMaskView` 与主题预览 `KeyboardPreviewUi` 裁剪同步改为卡片形状。
+
+**坑（已记）**：`PreeditShapeDrawable` 里必须写 `paint.color = this.color`——在 `Paint` 的 `apply` 作用域里裸写 `color` 会解析成 `Paint.color` 自己（编译为 `setColor(getColor())`），画笔静默保留默认黑色；提交正文记明已用 `javap`/`jadx` 核对字节码与最终 APK 的 DEX。
+
+**测试**：新增 JVM 单测 `ContinuousCornerGeometryTest.kt`；`:app:testFxDebugUnitTest` 全量 **379 例**通过、`:app:assembleFxDebug` 成功。**真机回归未做**（提交正文明确「未做真机验证，adb 无设备」）。
+
+---
+
 ## 1. 用户给的长期约定（必须遵守）
 
 原话：**「全部做，从 fx2 分支复制到另一个分支，在新复制的分支上面改动，每改好一处就推送上去一次，手动触发一次 ci，但是不要 release」**
@@ -948,12 +1113,13 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 Git/发布纪律的权威版本是本机 `D:\GitHub\fx2-rime\AGENTS.md` 第 11 节：**每次任务的 push/外部 workflow 触发都要以当次用户的明确要求为准**，不沿用历史授权。
 
-CI 事实（2026-09-15 实测 `ci.yml`，`a2db421a` 加单测 job 后）：
-- workflow 名 `Commit CI`，三个 job：`build_commit`（`ubuntu-22.04` × `arm64-v8a`）+ `unit_test`（独立 JVM 单测 job，失败不阻塞 Nightly）+ `nightly_release`（仅 `fx-rime-only`，见上）；
+CI 事实（2026-09-15 实测 `ci.yml`，`a2db421a` 加单测 job 后；2026-10-08 新增 `pr.yml`）：
+- **`ci.yml`**（workflow 名 `Commit CI`）三个 job：`build_commit`（`ubuntu-22.04` × `arm64-v8a`）+ `unit_test`（独立 JVM 单测 job，失败不阻塞 Nightly）+ `nightly_release`（仅 `fx-rime-only`，见上）；
 - push 触发**所有分支**（`branches: '*'`，tags 忽略语义化版本号）；
 - 构建命令 `./gradlew :app:assembleFxRelease`，约 10 分钟；
 - 产物 artifact 名 `app-ubuntu-22.04-arm64-v8a`，路径 `app/build/outputs/apk/fx/release/*.apk`；
 - 纯 Markdown / `docs/**` 提交不触发 CI。
+- **`pr.yml`（2026-10-08 `0077c401` 新增，workflow 名 `PR CI`）**：`pull_request` 触发（目标分支 `fx-rime-only`，paths 同样排除 `*.md`/`.gitignore`/`docs/**`），两个 job——`unit_test`（`:app:testFxDebugUnitTest`）+ `debug_build`（`./prepare_personal_build.sh` 后 `:app:assembleFxDebug`）。⚠️ **§3.1 曾记「删掉 pull_request workflow」，那是 mainline 时代的旧 CI；本次是重新引入一份新写的工作流**，两者不矛盾。详见 §0.6.19。
 
 ---
 
@@ -1016,7 +1182,7 @@ CI 事实（2026-09-15 实测 `ci.yml`，`a2db421a` 加单测 job 后）：
 
 ### CI 与 JVM 单测（机制说明）
 
-✅ **2026-09-15 起 CI 已有独立 `unit_test` job**（`a2db421a`），编译并运行 `app/src/test/**`（`:app:testFxDebugUnitTest`），失败不阻塞 Nightly 出包（刻意不写进 `nightly_release` 的 needs）——09-13 那类"测试编译错误潜伏一整天"的窗口已关闭。`testOptions { unitTests { isReturnDefaultValues = true } }` 仍在。**任务名必须精确为 `testFxDebugUnitTest`**：AGP 9 默认 `onlyEnableUnitTestForTheTestedBuildType = true`，只为被测 build type（debug）生成单测任务，`testFxReleaseUnitTest` 不存在。
+✅ **2026-09-15 起 CI 已有独立 `unit_test` job**（`a2db421a`），编译并运行 `app/src/test/**`（`:app:testFxDebugUnitTest`），失败不阻塞 Nightly 出包（刻意不写进 `nightly_release` 的 needs）——09-13 那类"测试编译错误潜伏一整天"的窗口已关闭。**2026-10-08 `0077c401` 又新增 `pr.yml`（`PR CI`）**：`pull_request`（目标 `fx-rime-only`）触发 `unit_test` + `debug_build` 两个 job，把单测与 Debug 构建前置到 PR 阶段（与 `ci.yml` 的 push 触发并存，见 §1/§0.6.19）。`testOptions { unitTests { isReturnDefaultValues = true } }` 仍在。**任务名必须精确为 `testFxDebugUnitTest`**：AGP 9 默认 `onlyEnableUnitTestForTheTestedBuildType = true`，只为被测 build type（debug）生成单测任务，`testFxReleaseUnitTest` 不存在。
 
 ---
 
@@ -1029,7 +1195,7 @@ CI 事实（2026-09-15 实测 `ci.yml`，`a2db421a` 加单测 job 后）：
 - **fcitx5-rime 并入主 APK**：librime 静态链接 + rime-data 资源 + opencc 软链，rime 从"插件 APK"变成主包内置 addon。
 - **删除内置拼音/码表链路**：native（libime/pinyin/table/customphrase，**保留 opencc**）、gradle 依赖与 lib 模块（含 `plugin/pinyin-lm`、`plugin/table-data`）、拼音/码表管理 UI 与 AIDL `reloadPinyinDict`。
 - **删除 9 个其他语言/功能插件模块**（anthy/chewing/hangul/jyutping/sayura/thai/unikey/text-editor/clipboard-filter）与整套插件检测/运行时框架（`DataManager.detectPlugins`、签名白名单、`PluginFragment`、`FcitxPluginServices`、`lib/plugin-base`、`FcitxPluginService`/`PluginMessage`/`ClearUrlsPluginRuntime`；`MainService` 改继承 `Service`，出站过滤走 `HostClipboardFilter`）。
-- **移除 mainline flavor** 及任务别名/APK 兼容拷贝；CI 精简为单一 `ci.yml`（删 fdroid/pull_request/nix/publish），编译错误输出成 annotations。
+- **移除 mainline flavor** 及任务别名/APK 兼容拷贝；CI 精简为单一 `ci.yml`（删 fdroid/pull_request/nix/publish），编译错误输出成 annotations。⚠️ 这里的「删 pull_request workflow」是 mainline 时代的旧 CI；**2026-10-08 `0077c401` 重新引入了一份新写的 `pr.yml`**（见 §1/§0.6.19），与本次删除不矛盾。
 - **包名 `org.fcitx.fcitx5.android.fx.rime`**（`appIdFxSuffix = ".fx.rime"`），可与 fx2 并存安装；APK 文件名同步替换。
 - 首批三任务（quickphrase 移除、预置 rime 默认启用、androidkeyboard/imselector/spell/unicode 裁剪）详见第 4 节。
 
@@ -1396,12 +1562,12 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 
 ## 7. 建议的下一步顺序
 
-1. **单测是否纳入 CI（已落地）**：2026-09-15 起 CI 新增独立 `unit_test` job（`a2db421a`），跑 `:app:testFxDebugUnitTest`，失败在提交上显示红叉但**刻意不 gate Nightly**（不写进 `nightly_release` 的 needs）。现状 **41 个测试文件、351 例**（2026-10-03 本地实测；09-28 时为 31 文件 / 225 例）。**别照抄这个数字**，用 `Get-ChildItem -Recurse app/src/test -Filter *.kt` 与数 `@Test` 现取。仍欠 KeyboardWindow layerHistory 集成测试。
+1. **单测是否纳入 CI（已落地）**：2026-09-15 起 CI 新增独立 `unit_test` job（`a2db421a`），跑 `:app:testFxDebugUnitTest`，失败在提交上显示红叉但**刻意不 gate Nightly**（不写进 `nightly_release` 的 needs）；2026-10-08 起 `pr.yml`（`0077c401`）也在 PR 阶段跑同一任务 + Debug 构建。**测试文件/用例计数已因 10-07~10-10 一批改动过期，不再写死数字**（旧记「41 文件 / 351 例」为 2026-10-03 快照，已不适用）：本批新增 **7 个 JVM 单测文件**——`AuxBarTabLayoutTest`（`098ec596`）、`DirectionalSwipeLabelDefTest` + `SwipeSymbolDirectionTest`（`d156052b`/`4f0d6fb8`）、`PopupKeyActionTest`（`598897b7`）、`ThemeRandomizerTest` + `RandomThemeActionTest`（`43e16fb6`）、`ContinuousCornerGeometryTest`（`01d0dfee`），并改了 `LayoutJsonUtilsTest`；另新增 **2 个 `androidTest`** 文件（`CandidateOverflowTest` / `CandidateIndexBadgeTest`，**在 `androidTest` 源集、不计入 `:app:testFxDebugUnitTest`**）。**别照抄任何数字**，用 `Get-ChildItem -Recurse app/src/test -Filter *.kt` 与数 `@Test` 现取。仍欠 KeyboardWindow layerHistory 集成测试。
 2. 决定是否同步 Play 中文标题及 fcitx5-rime license/.gitmodules 来源元数据。（现状：`.gitmodules` 仍写官方 `fcitx/fcitx5-rime` URL，`fcitx5-rime.json` 的 `website` 上游仍写 fxliang、靠本机 `prepare_personal_build.sh` 的 sed 改成 SandyYuR——两边都不在仓库里固化。）
 3. 使用外部 fork 前先 fetch 并核对（**旧快照一律勿照抄**：2026-09-16 时 `fcitx5-rime@e74ddb6`、`prebuilt@9e631eb9`、`prebuilder@446d1ea`；**2026-10-03 实测**：`fcitx5-rime@107502d`、`prebuilt@1126616c`、`prebuilder@4121ce6`（其 `librime` gitlink 仍 `ef1a16aa`）；三者均随每次引擎更新前进，**引用前必须 fetch 复核**，现取命令 `git -C D:\GitHub\fx2-rime\fx-rime-only ls-tree HEAD <path>`）。
 4. 本地 SHA 追溯只能靠 **tag**：`refs/tags/archive/pre-doc-split`（`f719df11`）、`refs/tags/backup-pre-squash`（`1feab280`）、`refs/tags/backup/pre-date-fix`（`fe263507`）、`refs/tags/backup/pre-squash-alphabet`（`f28c5d6a`）——⚠️ **2026-10-03 核实：`backup/pre-doc-split`、`backup/pre-retitle`、`backup/pre-layout-split` 三个分支已不存在**（这里曾是它们，现已只剩 tag），而纪元② tip `143fe9fa`、纪元③ tip `a3da6483` 的提交对象虽仍在本地对象库、**已无任何分支/tag 指向**，`git gc --prune` 后会永久丢失。另留 `backup/fx-rime-only-20260920-59a3a1ab`（09-20 上游历史重写的等价内容已在重写后历史中，确认无用后可删）。当前没有 review refs 可删；未经明确要求不要破坏旧对象、reflog 或 tags。
-5. **真机回归待办**：① `e74ddb6` 官方重写 updateUI 后"打字→点 tab→选词"全链路；② 引擎多次前进后的装机冒烟（当前 prebuilt 是 09-28 的 `1126616c` 一系：para deploy + userdict 缓存 + rewrite 滤镜 + 配置指纹）；③ **`fc3f98b` 移除"清除"按钮后的辅助栏真机回归**——用户 09-20 已装机确认可用，但**未刻意覆盖"音节 tab 极多"与"取消约束"两类边界场景**；④ **09-28 的部署期改动**（配置指纹 + 按键吞掉 + 键盘内「正在部署」提示）**尚未做真机回归**——本次只跑了单测与出包，未验证 "切回输入法→立即打字" 的实际手感，也未覆盖"首次安装/真实改配置后部署"这条仍会走部署的路径。
+5. **真机回归待办**：① `e74ddb6` 官方重写 updateUI 后"打字→点 tab→选词"全链路；② 引擎多次前进后的装机冒烟（当前 prebuilt 是 09-28 的 `1126616c` 一系：para deploy + userdict 缓存 + rewrite 滤镜 + 配置指纹）；③ **`fc3f98b` 移除"清除"按钮后的辅助栏真机回归**——用户 09-20 已装机确认可用，但**未刻意覆盖"音节 tab 极多"与"取消约束"两类边界场景**；④ **09-28 的部署期改动**（配置指纹 + 按键吞掉 + 键盘内「正在部署」提示）**尚未做真机回归**——本次只跑了单测与出包，未验证 "切回输入法→立即打字" 的实际手感，也未覆盖"首次安装/真实改配置后部署"这条仍会走部署的路径；⑤ **10-07~10-10 这批 15 个提交全部未做真机回归**（逐条见 §0.6.14~0.6.22）：重点核对——长候选横向拖拽手感与序号角标可见性（§0.6.14）、同一键上/下划分别触发不同宏且旧布局升级方向正确（§0.6.15）、双标签/回退在不同键高与圆角下的形态（§0.6.16）、音节 tab 滚动流畅度与第 7 项半露（§0.6.17）、长按弹出多字符候选能上屏（§0.6.18）、vivo/小米兼容开关默认开启后的按键行为（§0.6.19）、各弹出菜单与主题一致性（§0.6.20）、随机主题即时应用/评分/复制流程（§0.6.21）、编码区与工具栏圆角接续的观感（§0.6.22）。
 
 > **已实机验证（2026-09-28 用户确认）**：符号/表情/颜文字面板的 Foxy 重写（`4f93612f`）与布局编辑器子模式下拉框「默认」项（`afc57f4b`）**均已装机验证通过**。注意 `afc57f4b` 的提交正文写着"未做真机回归"，那是**提交时的状态**，此后已补做——引用提交正文时别把它当成当前结论。
-6. **纵向辅助栏均分高度无下限（未修，用户明确要求暂不改）**：`BaseKeyboard.relayoutVerticalAuxBarItems()` 的 `itemHeight = height / count` 没设最小行高，外层也不是滚动容器，所以 Left/Right 辅助栏在 item 很多时全部压缩展示、无法滑动（横向 Top/Bottom 走 RecyclerView 不受影响）。09-17 的 `7a480550` 是有意为之（修悬浮 resize 时按钮间留空隙），**要改必须同时满足"保留 resize 均分"和"恢复最小行高 + 可滚动"，别只回退该提交**。⚠️ **2026-10-02 `584bddaa` 已给「自定义按键」加了按 `rowHeightPercent`（1f..100f）分配的能力**（音节选择器 tabs 仍整列均分、逐像素不变，见 §0.6.10）——本条「无下限」针对的是**未配置行高**的那条路径，改之前先分清走的是哪条。
+6. **纵向辅助栏均分高度无下限（已部分修复，用户明确要求暂不改的那部分仍存在）**：`BaseKeyboard.relayoutVerticalAuxBarItems()` 的 `itemHeight = height / count` 没设最小行高，外层也不是滚动容器，所以 Left/Right 辅助栏在 item 很多时全部压缩展示、无法滑动（横向 Top/Bottom 走 RecyclerView 不受影响）。09-17 的 `7a480550` 是有意为之（修悬浮 resize 时按钮间留空隙），**要改必须同时满足"保留 resize 均分"和"恢复最小行高 + 可滚动"，别只回退该提交**。⚠️ **2026-10-02 `584bddaa` 已给「自定义按键」加了按 `rowHeightPercent`（1f..100f）分配的能力**；⚠️ **2026-10-08 `098ec596` 已把音节 tab 从这条路径移出——纵向 tabs 改走 `RecyclerView`、超过六项可滚动（视口约 6.5 行，见 §0.6.17）**。因此本条「无下限」现在只针对**未配置行高的自定义辅助按键**那条路径（tabs 已不适用），改之前先分清走的是哪条。
 7. **librime 上游待吃进已从 2 个涨到 10 个提交**（`35f23e97..8d8276f4`，2026-09-16 实测）：streaming_chord 两个（`74a7467e`+`74db0d18`，09-10 就排队了）+ 纯 CI/构建环境一批（runner 镜像、release action、Docker）。⚠️ 其中 `2479df58` **把 opencc 依赖升到 1.4.2**、Docker 提交动了构建环境——不再是"只 bump gitlink"的无风险更新，照 0.5.2 第 1-2 步先实测补丁可应用性，并评估 opencc 升级对简繁转换行为的影响，再决定 bump。
