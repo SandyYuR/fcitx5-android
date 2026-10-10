@@ -955,6 +955,8 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 **测试**：新增 **androidTest** `CandidateIndexBadgeTest.kt`（同样在 `androidTest` 源集，非 JVM 单测）——覆盖四角内边距、旧 margin 复位等。
 
+**内容选项（2026-10-10，`fdb765a3`）**：新增 `candidate_index_badge_content`（默认 `EngineLabel`，仅角标开启时可改）：`SequenceOneBased`（栏内从 1 起，历史行为）/ `SequenceZeroBased`（栏内从 0 起）/ `EngineLabel`（`CandidateWord.label` trim 后原样显示，即方案的 `alternative_select_labels` / `select_keys`，为空回退栏内序号；无方案默认 `(i+1)%10`，第 10 个是 `0`）。`CandidateItemUi.setIndexBadge` 改收 `String?`（文本由 adapter 算好）；**栏内序号永远是栏内位置（`position`），不加 `indexOffset`**——角标只描述当前这一栏第几个，不承诺全局下标。
+
 **真机回归未做**（两项都只有 JVM/androidTest 与出包；横向拖拽手感、角标在长/短候选与四角下的可见性需装机确认）。设置搜索索引已同步（`SettingsSearchIndex` 加 3 条：`horizontal_candidate_overflow_scroll`、`show_candidate_index_badge`、`candidate_index_badge_position`）。
 
 ---
@@ -1080,6 +1082,8 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 - `CustomThemeActivity` / `ThemeListAdapter` / `ThemeListFragment` / `ThemeThumbnailUi`：随机主题卡片显示评分，「重新随机」「复制为自定义主题」入口。
 
 **测试**：新增 JVM 单测 `ThemeRandomizerTest.kt`、`RandomThemeActionTest.kt`。**真机回归未做**（需装机核对随机主题即时应用、评分显示与「复制为自定义主题」流程）。
+
+**行为契约（2026-10-10，`2ad85b93`）**：新装 / 升级后打开主题列表，随机主题卡片默认常驻——`ThemeListFragment` 经 `ThemeManager.ensureRandomSlotSeeded()` 预生成并持久化槽位。**只允许 seeding，绝不允许顺手切换**：该函数只写 slot、不调 `applyRandomTheme()`、不动 `_activeTheme`。将来动这块时若把「保证卡片存在」与「应用主题」合在一起，用户一打开主题列表就会被换主题。
 
 ---
 
