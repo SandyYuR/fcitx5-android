@@ -38,8 +38,10 @@
 | `backgroundColorMonet` | string | 同上的 Monet 版 |
 | `shadowColor` | int / hex | 阴影颜色（按键浮雕） |
 | `shadowColorMonet` | string | 同上的 Monet 版 |
-| `swipe` | object | 一个 [MacroAction](/features/keys/macro-key#step-类型清单) 对象（部分按键支持） |
+| `swipe` | object | 一个 [MacroAction](/features/keys/macro-key#step-类型清单) 对象（部分按键支持）。**无方向**，方向由「符号划动方向（符号隐藏时）」决定；填了 `swipeLabel` 时按方向解析一次（见[滑动操作](/features/keyboard/swipe-actions#单个划动槽位-swipe-swipelabel)） |
 | `swipeLabel` | string | 在键面上显示的滑动提示文字 |
+| `swipeUp` / `swipeDown` | object | 上滑 / 下滑分别执行的 MacroAction（方向**只由字段决定**，不受全局划动方向影响） |
+| `swipeUpLabel` / `swipeDownLabel` | string | 上滑 / 下滑标签：上滑画在键上方、下滑画在键下方，**不受主题「标点位置」影响** |
 | `composeOverride` | object | 输入过程中（IME composing 状态）的样式覆盖 |
 
 ## 宽度 weight 规则
