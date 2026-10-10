@@ -119,6 +119,8 @@
     <string name="key_border">Включить границы клавиш</string>
     <string name="brightness">Яркость</string>
     <string name="key_radius">Радиус клавиш</string>
+    <string name="preedit_radius">Радиус области ввода</string>
+    <string name="toolbar_radius">Радиус верхних углов панели инструментов</string>
     <string name="text_editing_button_radius">Радиус кнопки редактирования текста</string>
     <string name="clipboard_entry_radius">Радиус входа в буфер обмена</string>
     <string name="key_horizontal_margin">Горизонтальное поле клавиш</string>

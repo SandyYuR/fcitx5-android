@@ -93,6 +93,10 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
 
     val keyRadius = int(R.string.key_radius, "key_radius", 12, 0, 48, "dp")
 
+    val preeditRadius = int(R.string.preedit_radius, "preedit_radius", 0, 0, 48, "dp")
+
+    val toolbarRadius = int(R.string.toolbar_radius, "toolbar_radius", 0, 0, 48, "dp")
+
     val textEditingButtonRadius =
         int(R.string.text_editing_button_radius, "text_editing_button_radius", 12, 0, 48, "dp")
 

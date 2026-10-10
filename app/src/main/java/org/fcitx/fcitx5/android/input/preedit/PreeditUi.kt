@@ -12,11 +12,15 @@ import android.text.Spanned
 import android.text.SpannedString
 import android.text.style.DynamicDrawableSpan
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.text.buildSpannedString
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.bar.ContinuousCornerGeometry
+import org.fcitx.fcitx5.android.input.bar.PreeditShapeDrawable
 import org.fcitx.fcitx5.android.input.font.FontProviders
 import splitties.dimensions.dp
 import splitties.views.dsl.core.Ui
@@ -28,7 +32,9 @@ import splitties.views.dsl.core.verticalLayout
 open class PreeditUi(
     override val ctx: Context,
     private val theme: Theme,
-    private val setupTextView: (TextView.() -> Unit)? = null
+    private val setupTextView: (TextView.() -> Unit)? = null,
+    private val cardTopRadiusProvider: () -> Float = { 0f },
+    private val preeditRadiusProvider: () -> Float = { 0f }
 ) : Ui {
 
     class CursorSpan(ctx: Context, @ColorInt color: Int, metrics: Paint.FontMetricsInt) :
@@ -99,34 +105,100 @@ open class PreeditUi(
 
     private val downView = createTextView()
 
+    private val content = verticalLayout {
+        add(upView, lParams())
+        add(downView, lParams())
+    }
+
+    /**
+     * 承载预编辑文字的容器，也是编码区胶囊背景的绘制者。
+     *
+     * 视图高度等于文字行高（与原实现一致），胶囊主体左缘相对本视图左缘右移
+     * [ContinuousCornerGeometry.preeditBodyOffset]，底部两侧的反向圆角在**这段高度内部**
+     * 让出，弧线收在键盘卡片上圆角与顶边的切点处。
+     * 本视图左缘通常不落在卡片左缘（键盘侧边距、单手模式留白），这段差值由父布局
+     * 的 padding 决定，每次测量/绘制现取，因此运行期改变留白无需重建。
+     */
+    private class ContentWrapper(
+        context: Context,
+        private val content: View,
+        private val cardTopRadiusProvider: () -> Float,
+        private val preeditRadiusProvider: () -> Float
+    ) : FrameLayout(context) {
+
+        /** 本视图左缘相对键盘卡片左缘的内缩（等于父布局左 padding）。 */
+        private fun cardInset(): Float = (parent as? View)?.paddingLeft?.toFloat() ?: 0f
+
+        /** 胶囊主体左缘相对本视图左缘的位移。 */
+        private fun bodyOffset(): Float = ContinuousCornerGeometry.preeditBodyOffset(
+            cardTopRadiusProvider(),
+            cardInset(),
+            preeditRadiusProvider()
+        )
+
+        /** 反向圆角的外扩宽度（水平半径），与 [ContinuousCornerGeometry.addPreeditPath] 一致。 */
+        private fun flareWidth(): Float = preeditRadiusProvider().coerceAtLeast(0f)
+
+        init {
+            clipChildren = false
+            clipToPadding = false
+            addView(content)
+        }
+
+        fun configureDecoration(@ColorInt color: Int) {
+            background = PreeditShapeDrawable(
+                color = color,
+                insetProvider = ::cardInset,
+                cardTopRadiusProvider = cardTopRadiusProvider,
+                preeditRadiusProvider = preeditRadiusProvider
+            )
+            invalidate()
+        }
+
+        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            measureChild(content, widthMeasureSpec, heightMeasureSpec)
+            // 反向圆角从原有高度里让出，不额外加高：视图高度仍等于文字行高，
+            // 否则底对齐的整块（连同文字）会被顶高一个圆角半径。
+            val height = content.measuredHeight
+            val desiredWidth = bodyOffset() + content.measuredWidth + flareWidth()
+            setMeasuredDimension(
+                resolveSize(desiredWidth.toInt(), widthMeasureSpec),
+                resolveSize(height, heightMeasureSpec)
+            )
+        }
+
+        override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+            val offset = bodyOffset().toInt()
+            content.layout(offset, 0, offset + content.measuredWidth, content.measuredHeight)
+        }
+    }
+
+    private val wrapper = ContentWrapper(ctx, content, cardTopRadiusProvider, preeditRadiusProvider)
+
+    override val root: View = FrameLayout(ctx).apply {
+        clipChildren = false
+        clipToPadding = false
+        addView(wrapper, ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
+    }
+
     var visible = false
         private set
 
+    /**
+     * 胶囊在**根视图坐标系**里可见的宽度（含两侧反向圆角与外扩出去的部分），
+     * 即键盘触摸区域需要覆盖的范围。根视图左缘即键盘卡片左缘。
+     */
     val actualContentWidth: Int
         get() {
             if (!visible || root.visibility != View.VISIBLE) return 0
-            val upLayout = upView.layout
-            val downLayout = downView.layout
-            val upWidth = upLayout?.let { layout ->
-                if (upView.visibility == View.VISIBLE && layout.lineCount > 0) {
-                    var maxW = 0f
-                    for (i in 0 until layout.lineCount) maxW = maxW.coerceAtLeast(layout.getLineWidth(i))
-                    maxW.toInt() + upView.paddingLeft + upView.paddingRight
-                } else 0
-            } ?: 0
-            val downWidth = downLayout?.let { layout ->
-                if (downView.visibility == View.VISIBLE && layout.lineCount > 0) {
-                    var maxW = 0f
-                    for (i in 0 until layout.lineCount) maxW = maxW.coerceAtLeast(layout.getLineWidth(i))
-                    maxW.toInt() + downView.paddingLeft + downView.paddingRight
-                } else 0
-            } ?: 0
-            return upWidth.coerceAtLeast(downWidth)
+            return (wrapper.left + wrapper.width).coerceAtMost(root.width)
         }
 
-    override val root: View = verticalLayout {
-        add(upView, lParams())
-        add(downView, lParams())
+    fun configureDecoration(@ColorInt color: Int) {
+        wrapper.configureDecoration(color)
     }
 
     private fun updateTextView(view: TextView, str: CharSequence, visible: Boolean) {

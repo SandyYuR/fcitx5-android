@@ -573,6 +573,8 @@
     <string name="special_key_oval_shape">Gboard 스타일 동작 키 사용</string>
     <string name="key_horizontal_margin">키 가로 여백</string>
     <string name="key_radius">키 모서리 반경</string>
+    <string name="preedit_radius">입력 영역 모서리 반경</string>
+    <string name="toolbar_radius">툴바 상단 모서리 반경</string>
     <string name="key_ripple_effect">키 물결 효과 활성화</string>
     <string name="key_vertical_margin">키 세로 여백</string>
     <string name="keyboard_bottom_padding">키보드 하단 여백</string>

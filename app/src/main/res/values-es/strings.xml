@@ -590,6 +590,8 @@
     <string name="special_key_oval_shape">Usar teclas de acción estilo Gboard</string>
     <string name="key_horizontal_margin">Margen horizontal de tecla</string>
     <string name="key_radius">Radio de tecla</string>
+    <string name="preedit_radius">Radio del área de entrada</string>
+    <string name="toolbar_radius">Radio de las esquinas superiores de la barra de herramientas</string>
     <string name="key_ripple_effect">Habilitar efecto ondulado de tecla</string>
     <string name="key_vertical_margin">Margen vertical de tecla</string>
     <string name="keyboard_bottom_padding">Relleno inferior del teclado</string>

@@ -55,6 +55,7 @@ import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.flexbox.FlexWrap
+import org.fcitx.fcitx5.android.input.bar.ContinuousCornerGeometry
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.utils.DarkenColorFilter
 import org.fcitx.fcitx5.android.input.config.ConfigChangeListener
@@ -155,6 +156,9 @@ class InputView(
         private val dstRect = Rect()
         private val clipRect = Rect()
         private val clipRectF = RectF()
+        private val toolbarClipRectF = RectF()
+        private val canvasBoundsRectF = RectF()
+        private val toolbarClipPath = Path()
         private val selfLoc = IntArray(2)
         private val keyLoc = IntArray(2)
         private val blurTargetViews = ArrayList<View>(128)
@@ -307,15 +311,26 @@ class InputView(
             }
 
             if (kawaiiBar.view.isShown && kawaiiBar.view.width > 0 && kawaiiBar.view.height > 0) {
-                clipRect.set(
-                    kawaiiBar.view.left,
-                    kawaiiBar.view.top,
-                    kawaiiBar.view.right,
-                    kawaiiBar.view.bottom
+                toolbarClipRectF.set(
+                    kawaiiBar.view.left.toFloat(),
+                    kawaiiBar.view.top.toFloat(),
+                    kawaiiBar.view.right.toFloat(),
+                    kawaiiBar.view.bottom.toFloat()
                 )
-                if (clipRect.intersect(0, 0, width, height)) {
+                canvasBoundsRectF.set(0f, 0f, width.toFloat(), height.toFloat())
+                if (RectF.intersects(toolbarClipRectF, canvasBoundsRectF)) {
+                    // 工具栏条与键盘卡片共享顶边。裁剪 = 工具栏矩形 ∩ 卡片形状，
+                    // 这样卡片上圆角之外不会露出模糊墨迹，单手模式里被挤到一侧的
+                    // 工具栏也不会在卡片顶边中部凭空多出圆角。
                     val saveId = canvas.save()
-                    canvas.clipRect(clipRect)
+                    canvas.clipRect(toolbarClipRectF)
+                    ContinuousCornerGeometry.addCardPath(
+                        toolbarClipPath,
+                        canvasBoundsRectF,
+                        cardTopCornerRadiusPx,
+                        0f
+                    )
+                    canvas.clipPath(toolbarClipPath)
                     drawFullScreenBlur(canvas, bitmap)
                     canvas.restoreToCount(saveId)
                 }
@@ -1578,7 +1593,10 @@ class InputView(
     private val punctuation = PunctuationComponent()
     private val returnKeyDrawable = ReturnKeyDrawableComponent()
     private val preeditEmptyState = PreeditEmptyStateComponent()
-    private val preedit = PreeditComponent()
+    private val preedit = PreeditComponent().apply {
+        // 浮动形态下卡片自带 10dp 圆角，编码区的反向弧要按两者较大值收口。
+        cardTopRadiusProvider = { cardTopCornerRadiusPx }
+    }
     private val auxBarContainer = FlexboxLayout(context).apply {
         flexWrap = FlexWrap.WRAP
         alpha = 0.8f
@@ -1687,15 +1705,55 @@ class InputView(
     private val floatingCornerRadiusPx: Int
         get() = dp(10)
 
+    /**
+     * 「工具栏上方圆角」设置值（px）。
+     */
+    private val toolbarCornerRadiusPx: Float
+        get() = dp(ThemeManager.prefs.toolbarRadius.getValue()).toFloat()
+
+    /**
+     * 键盘卡片上方的实际圆角半径：停靠时就是设置值；浮动形态下卡片本来就带
+     * [floatingCornerRadiusPx] 的圆角，取两者较大者，既不改动默认外观，也不会让
+     * 编码区的反向圆角孤零零地悬在卡片圆角之外。
+     */
+    private val cardTopCornerRadiusPx: Float
+        get() = if (isEffectiveFloating) {
+            maxOf(floatingCornerRadiusPx.toFloat(), toolbarCornerRadiusPx)
+        } else {
+            toolbarCornerRadiusPx
+        }
+
     private val keyboardOutlineProvider = object : ViewOutlineProvider() {
         override fun getOutline(view: View, outline: Outline) {
             val width = view.width
             val height = view.height
             if (width <= 0 || height <= 0) return
-            val radius = if (isEffectiveFloating) floatingCornerRadiusPx.toFloat() else 0f
-            outline.setRoundRect(0, 0, width, height, radius)
+            val topRadius = cardTopCornerRadiusPx
+            val bottomRadius = if (isEffectiveFloating) floatingCornerRadiusPx.toFloat() else 0f
+            if (topRadius <= 0f && bottomRadius <= 0f) {
+                outline.setRect(0, 0, width, height)
+            } else if (topRadius == bottomRadius) {
+                // 四角同半径是普通圆角矩形：用 setRoundRect 而不是路径，浮动键盘的
+                // 高度阴影（elevation）才不会被吃掉。
+                outline.setRoundRect(0, 0, width, height, topRadius)
+            } else {
+                cardOutlinePath.reset()
+                cardOutlineBounds.set(0f, 0f, width.toFloat(), height.toFloat())
+                ContinuousCornerGeometry.addCardPath(
+                    cardOutlinePath, cardOutlineBounds, topRadius, bottomRadius
+                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    outline.setPath(cardOutlinePath)
+                } else {
+                    @Suppress("DEPRECATION")
+                    outline.setConvexPath(cardOutlinePath)
+                }
+            }
         }
     }
+
+    private val cardOutlinePath = Path()
+    private val cardOutlineBounds = RectF()
 
     // Persistent storage for floating state and one-handed mode
     private val internalPrefs = AppPrefs.getInstance().internal
