@@ -12,11 +12,13 @@
 |------|------|:----:|------|
 | `type` | string | ✓ | 固定为 `"MacroKey"` |
 | `label` | string | ✓ | 键面主标签 |
-| `altLabel` | string |  | swipe 时显示的副标签 |
+| `altLabel` | string |  | 旧式单槽滑动副标签（按[旧字段规则](/features/keyboard/swipe-actions#单个划动槽位-swipe-swipelabel)解析） |
 | `longPressLabel` | string |  | 长按弹出菜单中的提示标签 |
 | `displayText` | string \| map |  | 与 [overview](/features/keys/overview#显示文本-displaytext-的多模式格式) 一致的多模式显示文本；**填了就按原样显示**，见下文「显示文本优先」 |
 | **`tap`** | object | ✓ | 点击时执行的 [MacroAction](#macroaction-结构) |
-| `swipe` | object |  | 滑动时执行的 MacroAction |
+| `swipe` | object |  | 旧式单槽滑动 MacroAction（无方向，见[滑动操作](/features/keyboard/swipe-actions#单个划动槽位-swipe-swipelabel)） |
+| `swipeUp` / `swipeDown` | object |  | 上滑 / 下滑分别执行的 MacroAction（方向只由字段决定） |
+| `swipeUpLabel` / `swipeDownLabel` | string |  | 上滑 / 下滑标签（上滑在上、下滑在下，不受主题「标点位置」影响） |
 | `longPress` | object |  | 长按时执行的 MacroAction |
 | `weight` / `rowHeightPercent` / 颜色字段 | — |  | 与[共通字段](/features/keys/overview#几乎所有按键都通用的字段)相同 |
 
@@ -202,6 +204,24 @@ modifier 键 + 主键的组合，比手写 `down`/`up` 简单且自动处理释�
   "swipe": { "macro": [ { "type": "text", "text": ".com" } ] }
 }
 ```
+:::
+
+::: details 上滑 / 下滑分别配置（各自带标签）
+上滑撤销、下滑重做，标签分别画在键的上方与下方：
+
+```json
+{
+  "type": "MacroKey",
+  "label": "✎",
+  "tap":       { "macro": [ { "type": "edit", "action": "undo" } ] },
+  "swipeUp":   { "macro": [ { "type": "edit", "action": "redo" } ] },
+  "swipeDown": { "macro": [ { "type": "edit", "action": "selectAll" } ] },
+  "swipeUpLabel": "重做",
+  "swipeDownLabel": "全选"
+}
+```
+
+方向由字段本身决定（上滑只认上滑、下滑只认下滑），两个标签也都按各自方向摆放——改主题的「标点位置」不会让它们互换。
 :::
 
 ::: details 复制 / 剪切 / 粘贴一键三态

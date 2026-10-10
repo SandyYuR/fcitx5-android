@@ -11,6 +11,8 @@
 | `subLabel` | string |  | 目标布局名；留空表示回到默认文本键盘 |
 | `swipe` | object |  | 一个 [MacroAction](/features/keys/macro-key#macroaction-结构)，可用作滑动备用动作 |
 | `swipeLabel` | string |  | 滑动时显示的提示文字 |
+| `swipeUp` / `swipeDown` | object |  | 上滑 / 下滑分别执行的 MacroAction（方向只由字段决定） |
+| `swipeUpLabel` / `swipeDownLabel` | string |  | 上滑 / 下滑标签：上滑在上、下滑在下，不受主题「标点位置」影响 |
 | `weight` / `rowHeightPercent` / 颜色字段 | — |  | 与[共通字段](/features/keys/overview#几乎所有按键都通用的字段)相同 |
 
 ::: tip 切换"层" vs 切换"布局文件"
