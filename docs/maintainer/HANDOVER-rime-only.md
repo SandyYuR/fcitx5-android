@@ -24,6 +24,7 @@
 > **2026-09-26 更新（状态机改动回退，仅作对照）**：`e7e32462` 回退 `8843b858` 对 Fcitx/FcitxDispatcher/FcitxLifecycle/FcitxDaemon 等 8 个文件的改动，用于排查间歇性「打不出编码 + 状态区空白 + 切换才恢复」是否由该提交引入。**注意这是对照包而非正式修复**：它同时带回了 `8843b858` 原本修掉的三个 P0 缺陷（STARTING 不可停止、启动失败卡非 STOPPED、stop 阻塞主线程）。当前分支**处于这次回退后的状态**——接手时若要处理卡键问题，先读本节末尾的说明。
 > **2026-09-28 更新（第十二次引擎实战 + 两个用户可见功能）**：① 新增**第 8 个补丁** `librime-detect-modifications-fingerprint.patch`，修掉「每次冷启动都全量部署、部署期按键直接上屏」——详见 **0.5.16 节**；② 适配层新增两处配套改动 `583e908`（部署期按键吞掉）与 `9bf94e6`（部署提示改为键盘内显示），主仓库 gitlink 前进到 `9bf94e6`；③ 符号/表情/颜文字面板整体换成 Foxy 风格（`4f93612f`），④ 布局编辑器子模式下拉框补「默认」项（`afc57f4b`）。三者均在 `fx-rime-only` 且已推送。
 > **2026-10-05 更新（文档迁移 + 近期改动补记）**：① 全部文档自 `rime-docs` 分支迁入文档站 `docs` 分支（`docs/manual/`、`docs/maintainer/`、`docs/archive/` 三个分区），`rime-docs` 分支按用户要求删除；文档站随 push 自动构建发布到 GitHub Pages（`github-pages` 环境需允许 `docs` 分支部署）。② 补记 10-04~10-05 尚未入账的三条：候选栏高亮改三层结构（`18619aef`，见 0.6.10 节新增条目——内距默认 0→8、`ITEM_HORIZONTAL_PADDING_DP` 10→4 且语义变为「格子↔高亮」四边外间距）；工具栏 100% 高度下图标尺寸回归修复（`3664ef31`，恢复 24dp/10dp 设计值）；内置图标主题安装后刷新主题列表（`49c7c169`，修复全新安装时内置图标主题落盘晚于首次扫描、设置页列表为空，安装后触发重扫并串行化首次扫描与重扫）。用户指南 §8.1 候选栏高亮描述已同步修订。
+> **2026-10-10 更新（方向性划动标签脱离「标点位置」）**：用户报障「个别按键配了下滑操作，主题把标点位置设为上方居中后标签跑到上方、手势也变成只能上滑」。两条独立分叉一起修：① `KeyView` 的方向性标签分支不再读 `punctuationPositionForKey()`——上滑标签恒在上、下滑标签恒在下（紧凑高度退同侧角落），`shouldTriggerAltBySwipe` 只按标签方向判定；② 旧单槽 `swipe` / `swipeLabel` / `altLabel` 的方向判定统一到 `LayoutJsonUtils.legacySwipeTargetsUp`（只有「同侧且唯一」才算上滑），读/迁移/编辑三处共用，`punctuationPosition` 与 `swipeSymbolDirection` 都不再参与；**无线索的旧 `swipe` 保持旧槽位**，运行时仍按「符号划动方向（符号隐藏时）」决定。详见 **0.6.13 节**。
 
 ---
 
@@ -906,6 +907,28 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 `KeyboardEditorUiBuilder.KEY_TYPES` 12 项顺序逐字为 `"AlphabetKey","CapsKey","LayoutSwitchKey","CommaKey","LanguageKey","SpaceKey","SymbolKey","ReturnKey","BackspaceKey","NumPadKey","MiniSpaceKey","MacroKey"`——**这些英文名会写进 JSON，必须保持原样**；`KEY_TYPE_LABELS` 按**位置**一一对应，**读取选中值永远取 `KEY_TYPES[position]`**。两者错位时**不会改选中值、也不报错**，只是显示成另一种中文说明，外观上完全看不出来。`describeKeyType(index)` 对越界只回退英文名，不抛异常。新增 `R.string.text_keyboard_layout_key_type_format`（en `%1$s (%2$s)`、中文 `%1$s（%2$s）`），**只有 values / zh-rCN / zh-rTW 三份**。与 `subModeSpinnerSelectionMap`（0.6.x 子模式下拉框）同一纪律。
 
 同提交还给 `symbol_catalog_{symbols,emoji,kaomoji}_title` 加了「自定义」前缀（zh-rCN「自定义符号数据 / 自定义表情数据 / 自定义颜文字数据」）。
+
+---
+
+### 0.6.13 方向性划动标签不再受「标点位置」影响（2026-10-10）
+
+**现象（用户报障）**：布局里给个别按键配了下滑动作（如 `{"type":"MacroKey","swipeDownLabel":"撤销",...}`），主题设置把「标点位置」设为**上方居中**后，这些键的副标签跑到键的上方，划动手势也**只认上滑**——用户按下滑不再触发自己配置的动作。
+
+**根因（两处独立的分叉，都必须修）**：
+
+1. **渲染**：`KeyView.resolveLayoutMode()` 的方向分支里，**单侧**方向标签的摆放位置是拿 `punctuationPositionForKey()`（主题「标点位置」，非字母键也返回 `Bottom`）算出来的，`shouldTriggerAltBySwipe()` 又照该摆放位置反推触发方向。于是主题一改，下滑标签被画到上方、动作也跟着翻成上滑。**双标签**（上下都配）不受影响，所以现象只出在「个别按键」。
+2. **数据**：旧版单槽划动（`swipe` / `altLabel` / `swipeLabel`）没有方向字段，方向由 `punctuationPosition` + `swipeSymbolDirection` 联合推断（`LayoutDataManager.legacyToDownForMigration` 与 `KeyEditorActivity.legacySwipeToDown`）。改了主题后，迁移/编辑会把同一个键解读成另一个方向。
+
+**修法**：
+
+- `KeyView` 的方向分支**彻底不读「标点位置」**：新枚举 `DirectionalUpTopCenter` / `DirectionalUpTopRight` / `DirectionalDownBottom` / `DirectionalDownBottomRight` / `DirectionalTopBottom` / `DirectionalCorners`——上滑标签恒在上（居中，键高不够时退右上角）、下滑标签恒在下（居中，键高不够时**退右下角**，不再被翻到上方），双标签在空间不足时改为**各自退到一个角**（此前只保留右上角，会把下滑标签整条吞掉）。`shouldTriggerAltBySwipe` 只按标签方向判定。`KeyView` 里的 `ImageAltTextKeyView`（图标键）同步镜像。
+- **方向判定统一到一条规则**：`LayoutJsonUtils.legacySwipeTargetsUp(hasUpMacro, hasDownMacro, hasUpLabel, hasDownLabel)` —— **只有「同侧且唯一」的槽位才算上滑**，其余（默认、两侧都有、只有下侧）都按下滑。读（`createKeyDef`）、迁移（`migrateDirectionalSwipeFields`）、编辑（`KeyEditorActivity.legacySwipeToDown`）三处共用，`punctuationPosition` 与 `swipeSymbolDirection` **都不再参与方向解析**。
+- **无方向线索的旧 `swipe` 不迁移**：既没有标签、也没有方向字段时保持旧槽位，运行时继续由「符号划动方向（符号隐藏时）」决定（默认 `Auto` = 上下都响应）。钉死到某一侧会悄悄丢掉另一个方向——这批键是「符号隐藏时划动唤出符号」的原用途。
+- **编辑器清掉 MacroKey 的 `altLabel`**：`appendDirectionalSwipeLabels` 原先只 `remove("swipeLabel")`，MacroKey 的旧字段会与新方向标签并存于同一份 JSON。
+
+**留下的不变式**：**「标点位置」只作用于字母键的标点副标签**。凡是带方向性划动标签/动作的键型（`CapsKey` / `LayoutSwitchKey` / `SymbolKey` / `ReturnKey` / `BackspaceKey` / `MacroKey` 的带标签形态），标签位置与触发方向都只由布局配置决定。改这块前先读 `DirectionalSwipeLabelDefTest` 与 `LayoutJsonUtilsTest` 钉住的不变式：标签落槽、标签不凭空生成动作、显式上下宏走 `overrideDefaults`、旧单槽方向规则。
+
+测试：`LayoutJsonUtilsTest`（legacy 规则 / 迁移跟随同侧 / 解析落槽 / 无线索保留旧槽）、新增 `DirectionalSwipeLabelDefTest`；全量 `:app:testFxDebugUnitTest`（388 项）与 `:app:assembleFxDebug` 通过。**真机回归未做**（容器内无设备）：需要人工核对「下滑键在三种标点位置下标签都在下方且下滑可触发」。
 
 ---
 
