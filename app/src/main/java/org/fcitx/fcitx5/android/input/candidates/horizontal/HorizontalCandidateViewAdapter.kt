@@ -13,6 +13,7 @@ import androidx.tracing.trace
 import com.google.android.flexbox.FlexboxLayoutManager
 import org.fcitx.fcitx5.android.core.CandidateWord
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeContent
 import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgePosition
 import org.fcitx.fcitx5.android.input.candidates.CandidateItemUi
 import org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder
@@ -26,11 +27,13 @@ open class HorizontalCandidateViewAdapter(
     initialHorizontalOverflowEnabled: Boolean = true,
     initialCandidateIndexBadgeEnabled: Boolean = false,
     initialCandidateIndexBadgePosition: CandidateIndexBadgePosition = CandidateIndexBadgePosition.TopLeft,
+    initialCandidateIndexBadgeContent: CandidateIndexBadgeContent = CandidateIndexBadgeContent.EngineLabel,
 ) : RecyclerView.Adapter<CandidateViewHolder>() {
 
     private var horizontalOverflowEnabled = initialHorizontalOverflowEnabled
     private var candidateIndexBadgeEnabled = initialCandidateIndexBadgeEnabled
     private var candidateIndexBadgePosition = initialCandidateIndexBadgePosition
+    private var candidateIndexBadgeContent = initialCandidateIndexBadgeContent
 
     // Cache candidate/comment fonts and refresh only when font configuration changes.
     private var candFont: Typeface? = FontProviders.resolveTypeface("cand_font", null)
@@ -79,6 +82,12 @@ open class HorizontalCandidateViewAdapter(
     fun setCandidateIndexBadgePosition(position: CandidateIndexBadgePosition) {
         if (candidateIndexBadgePosition == position) return
         candidateIndexBadgePosition = position
+        notifyDataSetChanged()
+    }
+
+    fun setCandidateIndexBadgeContent(content: CandidateIndexBadgeContent) {
+        if (candidateIndexBadgeContent == content) return
+        candidateIndexBadgeContent = content
         notifyDataSetChanged()
     }
 
@@ -170,6 +179,27 @@ open class HorizontalCandidateViewAdapter(
 
     override fun getItemId(position: Int) = candidates.getOrNull(position).hashCode().toLong()
 
+    /**
+     * 按当前的 [candidateIndexBadgeContent] 算出该位置候选的角标文本（引擎标签为空时
+     * 或候选下标越界时返回 null 表示隐藏）。
+     *
+     * - 引擎标签取 `CandidateWord.label`（适配层已按 `select_labels → select_keys →
+     *   (i+1)%10` 算好并带了尾空格，这里只做 trim）。
+     * - 栏内序号用的是**栏内位置**（`position`，不是全局 `position + indexOffset`）：
+     *   与 `635d3aa2` 引入时一致，角标永远描述当前这一栏里第几个。它不承诺指向
+     *   全局候选下标——翻页/窗口平移后角标按新栏重算。
+     */
+    private fun resolveCandidateIndexBadgeText(position: Int, candidate: CandidateWord): String? {
+        if (position !in candidates.indices) return null
+        return when (candidateIndexBadgeContent) {
+            CandidateIndexBadgeContent.SequenceOneBased -> (position + 1).toString()
+            CandidateIndexBadgeContent.SequenceZeroBased -> position.toString()
+            CandidateIndexBadgeContent.EngineLabel -> candidate.label.trim().ifEmpty {
+                (position + 1).toString()
+            }
+        }
+    }
+
     @CallSuper
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CandidateViewHolder {
         val ui = CandidateItemUi(parent.context, theme, candFont, commentFont)
@@ -200,11 +230,16 @@ open class HorizontalCandidateViewAdapter(
         // ViewHolder 会一直停在构造时那次求值的旧字号上。
         holder.ui.refreshConfiguredFont(candFont)
         holder.ui.setActive(position == activeIndex)
+        val candidate = candidates[position]
         holder.ui.setIndexBadge(
-            if (candidateIndexBadgeEnabled) position + 1 else null,
+            if (candidateIndexBadgeEnabled) {
+                resolveCandidateIndexBadgeText(position, candidate)
+            } else {
+                null
+            },
             candidateIndexBadgePosition,
         )
-        holder.update(position + indexOffset, candidates[position])
+        holder.update(position + indexOffset, candidate)
     }
 
     @CallSuper

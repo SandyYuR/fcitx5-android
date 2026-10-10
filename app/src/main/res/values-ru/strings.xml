@@ -315,6 +315,10 @@
     <string name="highlight_first_candidate_summary">Показывать фон выделения на первом кандидате, пока выбор не перемещён</string>
     <string name="show_candidate_index_badge">Показывать номера кандидатов</string>
     <string name="candidate_index_badge_position">Положение номера кандидата</string>
+    <string name="candidate_index_badge_content">Содержимое номера кандидата</string>
+    <string name="candidate_index_badge_content_sequence_one_based">Порядковые номера с 1</string>
+    <string name="candidate_index_badge_content_sequence_zero_based">Порядковые номера с 0</string>
+    <string name="candidate_index_badge_content_engine_label">Метки выбора из схемы</string>
     <string name="candidates_window_min_width">Минимальная ширина окна кандидата</string>
     <string name="candidates_window_padding">Поле окна кандидата</string>
     <string name="restart_fcitx_instance">Перезапустить экземпляр fcitx</string>

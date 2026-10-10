@@ -478,6 +478,10 @@
     <string name="highlight_first_candidate_summary">選択を移動するまで、最初の候補にハイライト背景を表示する</string>
     <string name="show_candidate_index_badge">候補項目の番号バッジを表示</string>
     <string name="candidate_index_badge_position">候補項目の番号バッジの位置</string>
+    <string name="candidate_index_badge_content">候補項目の番号バッジの内容</string>
+    <string name="candidate_index_badge_content_sequence_one_based">欄内の連番（1 から）</string>
+    <string name="candidate_index_badge_content_sequence_zero_based">欄内の連番（0 から）</string>
+    <string name="candidate_index_badge_content_engine_label">スキーマの選択ラベルに従う</string>
     <string name="candidates_window_min_width">候補ウィンドウの最小幅</string>
     <string name="candidates_window_padding">候補ウィンドウのパディング</string>
     <string name="restart_fcitx_instance">Fcitx インスタンスを再起動</string>

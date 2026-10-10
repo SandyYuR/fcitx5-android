@@ -164,6 +164,7 @@ object SettingsSearchIndex {
         R.string.highlight_first_candidate to "highlight_first_candidate",
         R.string.show_candidate_index_badge to "show_candidate_index_badge",
         R.string.candidate_index_badge_position to "candidate_index_badge_position",
+        R.string.candidate_index_badge_content to "candidate_index_badge_content",
         R.string.expanded_candidate_style to "expanded_candidate_style",
 
         /* 键盘 · 语音 */
@@ -645,6 +646,11 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.candidate_index_badge_position, P_INPUT,
             listOf("candidate badge position", "候选角标位置", "角标位置", "左上", "右上", "右下", "左下"),
+            route = keyboard(CANDIDATE)
+        ),
+        SettingsSearchEntry(
+            R.string.candidate_index_badge_content, P_INPUT,
+            listOf("candidate badge content", "角标内容", "从0开始", "从1开始", "选词标签", "alternative_select_labels", "select_labels"),
             route = keyboard(CANDIDATE)
         ),
         SettingsSearchEntry(

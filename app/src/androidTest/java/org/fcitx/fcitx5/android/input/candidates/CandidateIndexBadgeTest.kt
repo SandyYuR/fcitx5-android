@@ -48,9 +48,9 @@ class CandidateIndexBadgeTest {
                     topMargin = -context.dp(4)
                     bottomMargin = -context.dp(4)
                 }
-                ui.setIndexBadge(number, position)
+                ui.setIndexBadge(number.toString(), position)
                 layout(ui)
-                assertBadgeLayout(ui, number, position)
+                assertBadgeLayout(ui, number.toString(), position)
             }
         }
     }
@@ -87,9 +87,9 @@ class CandidateIndexBadgeTest {
                         "overflow=$enableOverflow, wrap=$wrapWidth"
                     for (number in NUMBERS) {
                         for (position in CandidateIndexBadgePosition.entries) {
-                            ui.setIndexBadge(number, position)
+                            ui.setIndexBadge(number.toString(), position)
                             layout(ui, wrapWidth)
-                            assertBadgeLayout(ui, number, position)
+                            assertBadgeLayout(ui, number.toString(), position)
                             assertEquals("$scenario, $number/$position", before, geometry(ui))
 
                             ui.setIndexBadge(null, position)
@@ -129,14 +129,14 @@ class CandidateIndexBadgeTest {
                 adapter.onBindViewHolder(holder, number - 1)
                 fixInstanceFonts(holder.ui)
                 layout(holder.ui)
-                assertBadgeLayout(holder.ui, number, CandidateIndexBadgePosition.TopLeft)
+                assertBadgeLayout(holder.ui, number.toString(), CandidateIndexBadgePosition.TopLeft)
             }
             for (position in CandidateIndexBadgePosition.entries) {
                 adapter.setCandidateIndexBadgePosition(position)
                 adapter.onBindViewHolder(holder, 9)
                 fixInstanceFonts(holder.ui)
                 layout(holder.ui)
-                assertBadgeLayout(holder.ui, 10, position)
+                assertBadgeLayout(holder.ui, "10", position)
             }
 
             adapter.setCandidateIndexBadgeEnabled(false)
@@ -196,7 +196,7 @@ class CandidateIndexBadgeTest {
 
     private fun assertBadgeLayout(
         ui: CandidateItemUi,
-        number: Int,
+        text: String,
         position: CandidateIndexBadgePosition,
     ) {
         val root = ui.root
@@ -209,7 +209,7 @@ class CandidateIndexBadgeTest {
         val expectedGravity = (if (atTop) Gravity.TOP else Gravity.BOTTOM) or
             (if (atStart) Gravity.START else Gravity.END)
         assertEquals(View.VISIBLE, badge.visibility)
-        assertEquals(number.toString(), badge.text.toString())
+        assertEquals(text, badge.text.toString())
         assertFalse(badge.includeFontPadding)
         assertEquals(sp(10f), badge.textSize, 0.01f)
         assertEquals(0f, badge.translationX, 0f)
@@ -231,7 +231,7 @@ class CandidateIndexBadgeTest {
             root.width - outerPadding,
             root.height - outerPadding,
         )
-        assertTrue("$number/$position: ${bounds(badge)} outside $clip", clip.contains(bounds(badge)))
+        assertTrue("$text/$position: ${bounds(badge)} outside $clip", clip.contains(bounds(badge)))
         assertEquals(
             context.dp(2),
             if (atStart) badge.left - clip.left else clip.right - badge.right,

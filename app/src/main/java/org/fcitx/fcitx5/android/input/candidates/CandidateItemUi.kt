@@ -5,7 +5,6 @@
 
 package org.fcitx.fcitx5.android.input.candidates
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
@@ -166,20 +165,23 @@ class CandidateItemUi(
 
     private var active = false
     private var candidate = CandidateWord.Empty
-    private var indexBadgeNumber: Int? = null
+    private var indexBadgeText: String? = null
     private var indexBadgePosition = CandidateIndexBadgePosition.TopLeft
 
     private companion object {
         const val INDEX_BADGE_HORIZONTAL_MARGIN_DP = 2
     }
 
-    @SuppressLint("SetTextI18n")
-    fun setIndexBadge(number: Int?, position: CandidateIndexBadgePosition) {
-        if (indexBadgeNumber == number && indexBadgePosition == position) return
-        indexBadgeNumber = number
+    /**
+     * @param text 角标文本；`null` 表示隐藏。调用方（adapter）负责按设置把栏内序号或
+     * 引擎选词标签算好再传进来，这里只管显示。
+     */
+    fun setIndexBadge(text: String?, position: CandidateIndexBadgePosition) {
+        if (indexBadgeText == text && indexBadgePosition == position) return
+        indexBadgeText = text
         indexBadgePosition = position
-        indexBadge.text = number?.toString().orEmpty()
-        indexBadge.visibility = if (number == null) View.GONE else View.VISIBLE
+        indexBadge.text = text.orEmpty()
+        indexBadge.visibility = if (text == null) View.GONE else View.VISIBLE
         applyIndexBadgeLayout()
         refreshIndexBadgeColor()
     }
