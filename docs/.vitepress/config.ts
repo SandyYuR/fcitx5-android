@@ -49,6 +49,7 @@ export default defineConfig({
         items: [
           { text: '交接报告', link: '/maintainer/HANDOVER-rime-only' },
           { text: '代码审阅报告（2026-09-07）', link: '/maintainer/CODE_REVIEW_REPORT_2026-09-07' },
+          { text: 'fx2 代码复审报告（2026-10-11）', link: '/maintainer/CODE_REVIEW_fx2_2026-10-11' },
           { text: '性能审阅报告（2026-09-07）', link: '/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07' },
           { text: '字体刷新评估报告（2026-10-04）', link: '/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04' },
           { text: 'Foxy 符号面板复盘（2026-10-07）', link: '/maintainer/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07' },
@@ -170,6 +171,7 @@ export default defineConfig({
           items: [
             { text: '交接报告', link: '/maintainer/HANDOVER-rime-only' },
             { text: '代码审阅报告（2026-09-07）', link: '/maintainer/CODE_REVIEW_REPORT_2026-09-07' },
+          { text: 'fx2 代码复审报告（2026-10-11）', link: '/maintainer/CODE_REVIEW_fx2_2026-10-11' },
             { text: '性能审阅报告（2026-09-07）', link: '/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07' },
             { text: '字体刷新评估报告（2026-10-04）', link: '/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04' },
             { text: 'Foxy 符号面板复盘（2026-10-07）', link: '/maintainer/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07' },
