@@ -6,8 +6,7 @@ package org.fcitx.fcitx5.android.input.bar
 
 internal enum class PasswordToolbarMode {
     NotPassword,
-    NumberRow,
-    HideButtons
+    NumberRow
 }
 
 internal enum class IdleToolbarContent {
@@ -15,13 +14,13 @@ internal enum class IdleToolbarContent {
     Clipboard,
     InlineSuggestion,
     NumberRow,
-    Hidden,
     Toolbar
 }
 
 /**
- * Resolves the password-specific fallback shown after higher-priority clipboard and inline
- * suggestion content has been considered.
+ * Resolves the password-specific number row shown after higher-priority clipboard and inline
+ * suggestion content has been considered. Password fields never hide the normal toolbar:
+ * without the number row they fall through to the regular toolbar like any other field.
  */
 internal fun resolvePasswordToolbarMode(
     isPasswordField: Boolean,
@@ -29,9 +28,9 @@ internal fun resolvePasswordToolbarMode(
     isNumberLayout: Boolean,
     numberRowDismissed: Boolean
 ): PasswordToolbarMode = when {
-    !isPasswordField -> PasswordToolbarMode.NotPassword
-    showNumberRow && !isNumberLayout && !numberRowDismissed -> PasswordToolbarMode.NumberRow
-    else -> PasswordToolbarMode.HideButtons
+    isPasswordField && showNumberRow && !isNumberLayout && !numberRowDismissed ->
+        PasswordToolbarMode.NumberRow
+    else -> PasswordToolbarMode.NotPassword
 }
 
 internal fun resolveIdleToolbarContent(
@@ -45,6 +44,5 @@ internal fun resolveIdleToolbarContent(
     clipboardFresh -> IdleToolbarContent.Clipboard
     inlineSuggestionPresent -> IdleToolbarContent.InlineSuggestion
     forceNumberRow || passwordMode == PasswordToolbarMode.NumberRow -> IdleToolbarContent.NumberRow
-    passwordMode == PasswordToolbarMode.HideButtons -> IdleToolbarContent.Hidden
     else -> IdleToolbarContent.Toolbar
 }
