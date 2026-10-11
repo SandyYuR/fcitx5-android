@@ -66,7 +66,7 @@ class IdleUi(
 ) : Ui {
 
     enum class State {
-        Hidden, Toolbar, Clipboard, NumberRow, InlineSuggestion, Search
+        Toolbar, Clipboard, NumberRow, InlineSuggestion, Search
     }
 
     var currentState = State.Toolbar
@@ -161,13 +161,7 @@ class IdleUi(
         }
     }
 
-    private val hiddenBar = View(ctx).apply {
-        isClickable = false
-        isFocusable = false
-    }
-
     private val animator = ViewAnimator(ctx).apply {
-        add(hiddenBar, lParams(matchParent, matchParent))
         add(buttonsUi.root, lParams(matchParent, matchParent))
         add(clipboardUi.root, lParams(matchParent, matchParent))
         add(inlineSuggestionsBar.root, lParams(matchParent, matchParent))
@@ -252,10 +246,10 @@ class IdleUi(
     }
 
     init {
-        // ViewAnimator's displayedChild defaults to 0, which is the password Hidden page
-        // added as the first child; currentState starts at Toolbar. Centralize the center
-        // strip's visibility in one place so a freshly created bar can never keep showing the
-        // blank Hidden page in the center while the fixed left/right buttons stay visible —
+        // Keep the center strip on the initial Toolbar page: updateState() only runs on an
+        // actual state transition, so without this sync a freshly created bar that never
+        // transitions (no clipboard hint, no password field, no number row) keeps showing
+        // the animator's default child while the fixed left/right buttons stay visible —
         // exactly the intermittent "center toolbar missing" report.
         applyCenterVisibility()
     }
@@ -364,11 +358,6 @@ class IdleUi(
     }
 
     private fun updateMenuButtonIcon() {
-        if (currentState == State.Hidden) {
-            menuButton.visibility = View.GONE
-            return
-        }
-        menuButton.visibility = View.VISIBLE
         when {
             currentState == State.Search || currentState == State.Clipboard ->
                 menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
@@ -502,12 +491,11 @@ class IdleUi(
 
     private fun displayContentForState(state: State) {
         when (state) {
-            State.Hidden -> animator.displayedChild = 0
-            State.Toolbar -> animator.displayedChild = 1
-            State.Clipboard -> animator.displayedChild = 2
+            State.Toolbar -> animator.displayedChild = 0
+            State.Clipboard -> animator.displayedChild = 1
             State.NumberRow -> {}
-            State.InlineSuggestion -> animator.displayedChild = 3
-            State.Search -> animator.displayedChild = 4
+            State.InlineSuggestion -> animator.displayedChild = 2
+            State.Search -> animator.displayedChild = 3
         }
     }
 

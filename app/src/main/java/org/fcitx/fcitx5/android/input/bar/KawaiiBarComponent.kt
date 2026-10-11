@@ -272,7 +272,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             IdleToolbarContent.Clipboard -> IdleUi.State.Clipboard
             IdleToolbarContent.InlineSuggestion -> IdleUi.State.InlineSuggestion
             IdleToolbarContent.NumberRow -> IdleUi.State.NumberRow
-            IdleToolbarContent.Hidden -> IdleUi.State.Hidden
             IdleToolbarContent.Toolbar -> IdleUi.State.Toolbar
         }
         if (newState == idleUi.currentState) return

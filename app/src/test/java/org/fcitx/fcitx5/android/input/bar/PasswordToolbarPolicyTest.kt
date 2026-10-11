@@ -56,13 +56,13 @@ class PasswordToolbarPolicyTest {
             )
         )
         assertEquals(
-            IdleToolbarContent.Hidden,
+            IdleToolbarContent.Toolbar,
             resolveIdleToolbarContent(
                 searchActive = false,
                 clipboardFresh = false,
                 inlineSuggestionPresent = false,
                 forceNumberRow = false,
-                passwordMode = PasswordToolbarMode.HideButtons
+                passwordMode = PasswordToolbarMode.NotPassword
             )
         )
     }
@@ -94,9 +94,9 @@ class PasswordToolbarPolicyTest {
     }
 
     @Test
-    fun disabledPreferenceHidesPasswordToolbarButtons() {
+    fun disabledPreferenceFallsBackToNormalToolbar() {
         assertEquals(
-            PasswordToolbarMode.HideButtons,
+            PasswordToolbarMode.NotPassword,
             resolvePasswordToolbarMode(
                 isPasswordField = true,
                 showNumberRow = false,
@@ -107,9 +107,9 @@ class PasswordToolbarPolicyTest {
     }
 
     @Test
-    fun numericPasswordLayoutStillHidesToolbarButtons() {
+    fun numericPasswordLayoutFallsBackToNormalToolbar() {
         assertEquals(
-            PasswordToolbarMode.HideButtons,
+            PasswordToolbarMode.NotPassword,
             resolvePasswordToolbarMode(
                 isPasswordField = true,
                 showNumberRow = true,
@@ -120,9 +120,9 @@ class PasswordToolbarPolicyTest {
     }
 
     @Test
-    fun dismissingNumberRowDoesNotExposeToolbarButtons() {
+    fun dismissingNumberRowFallsBackToNormalToolbar() {
         assertEquals(
-            PasswordToolbarMode.HideButtons,
+            PasswordToolbarMode.NotPassword,
             resolvePasswordToolbarMode(
                 isPasswordField = true,
                 showNumberRow = true,
