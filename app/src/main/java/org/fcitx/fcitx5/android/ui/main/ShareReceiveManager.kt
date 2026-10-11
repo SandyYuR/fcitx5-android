@@ -24,6 +24,8 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -51,7 +53,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeQrTransferCodec
-import org.fcitx.fcitx5.android.ui.common.withProgressLoadingDialog
+import org.fcitx.fcitx5.android.ui.common.ProgressBarDialogIndeterminate
 import org.fcitx.fcitx5.android.utils.queryFileName
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import java.io.File
@@ -172,35 +174,49 @@ class ShareReceiveManager(
     }
 
     private fun handleSingleSource(source: SourcePayload) {
-        activity.lifecycleScope.withProgressLoadingDialog(activity) { updateProgress ->
-            qrProgressUpdate = updateProgress
-            try {
-                val detected = runCatching { detectAutoImport(source) }.getOrNull()
-                if (detected != null) {
-                    val autoImportError = runCatching { importAutoDetected(detected) }.exceptionOrNull()
-                    if (autoImportError == null) {
-                        return@withProgressLoadingDialog
-                    }
-                    if (source is SourcePayload.Text) {
-                        showMessage(autoImportError.localizedMessage ?: activity.getString(R.string.import_error), null)
-                        return@withProgressLoadingDialog
+        // Loading只覆盖纯后台的detect阶段：detect一旦结束就dismiss，后续的目录选择/
+        // 解压确认/覆盖确认等交互对话框不再被不可取消的Loading盖住（md/yaml分享时曾出现
+        // 选择框空白且点不到）。QR图片解码进度仍在detect阶段内显示。
+        activity.lifecycleScope.launch {
+            var loadingDialog: AlertDialog? = null
+            val loadingJob = launch(Dispatchers.Main) {
+                delay(200L)
+                loadingDialog = activity.ProgressBarDialogIndeterminate(R.string.loading).show()
+            }
+            val detected = try {
+                qrProgressUpdate = { updated ->
+                    launch(Dispatchers.Main) {
+                        loadingDialog?.setMessage(updated)
                     }
                 }
-                when (source) {
-                    is SourcePayload.UriPayload -> {
-                        runCatching {
-                            importSingleRawUri(source.uri)
-                        }.onFailure {
-                            showMessage(it.localizedMessage ?: activity.getString(R.string.import_error), null)
-                        }
-                    }
-                    is SourcePayload.Text -> showMessage(
-                        activity.getString(R.string.share_receive_target_not_supported),
-                        null
-                    )
-                }
+                runCatching { detectAutoImport(source) }.getOrNull()
             } finally {
                 qrProgressUpdate = null
+                loadingJob.cancelAndJoin()
+                loadingDialog?.dismiss()
+            }
+            if (detected != null) {
+                val autoImportError = runCatching { importAutoDetected(detected) }.exceptionOrNull()
+                if (autoImportError == null) {
+                    return@launch
+                }
+                if (source is SourcePayload.Text) {
+                    showMessage(autoImportError.localizedMessage ?: activity.getString(R.string.import_error), null)
+                    return@launch
+                }
+            }
+            when (source) {
+                is SourcePayload.UriPayload -> {
+                    runCatching {
+                        importSingleRawUri(source.uri)
+                    }.onFailure {
+                        showMessage(it.localizedMessage ?: activity.getString(R.string.import_error), null)
+                    }
+                }
+                is SourcePayload.Text -> showMessage(
+                    activity.getString(R.string.share_receive_target_not_supported),
+                    null
+                )
             }
         }
     }
