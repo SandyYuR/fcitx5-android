@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "重构方案：6 个入口，按「多久改一次」分两层",
+    "quality_profile": "showcase",
+    "viewBox": [1250, 400]
+  },
+  "components": [
+    { "id": "entry", "type": "frontend", "label": "设置", "sublabel": "一级入口", "pos": [24, 170], "size": [120, 52] },
+
+    { "id": "hub_daily", "type": "frontend", "label": "日常调整", "sublabel": "默认展开 · 4 页", "pos": [168, 80], "size": [140, 50] },
+    { "id": "p_input", "type": "frontend", "label": "输入与候选", "sublabel": "Rime 引擎 · 候选栏 · 按键行为 · 方案词库", "pos": [340, 10], "size": [230, 60] },
+    { "id": "p_keyboard", "type": "frontend", "label": "键盘", "sublabel": "尺寸边距 · 工具栏按钮 · 反馈 · 键盘工具", "pos": [340, 78], "size": [230, 60] },
+    { "id": "p_appearance", "type": "frontend", "label": "外观", "sublabel": "主题 · 图标 · 字体弹出 · 按键外观 · 浮动键盘", "pos": [340, 146], "size": [230, 60] },
+    { "id": "p_convenience", "type": "frontend", "label": "便捷功能", "sublabel": "剪贴板同步 · 表情符号 · 语音输入", "pos": [340, 214], "size": [230, 60] },
+
+    { "id": "hub_rare", "type": "backend", "label": "按需进入", "sublabel": "默认折叠 · 2 页", "pos": [168, 290], "size": [140, 50] },
+    { "id": "p_data", "type": "backend", "label": "数据与备份", "sublabel": "导入导出 · 用户数据目录", "pos": [620, 262], "size": [230, 60] },
+    { "id": "p_expert", "type": "backend", "label": "高级", "sublabel": "引擎配置 · 兼容开关 · 开发者", "pos": [620, 330], "size": [230, 60] }
+  ],
+  "connections": [
+    { "id": "e-daily", "from": "entry", "to": "hub_daily", "variant": "emphasis" },
+    { "id": "e-rare", "from": "entry", "to": "hub_rare", "variant": "dashed" },
+    { "id": "d-input", "from": "hub_daily", "to": "p_input" },
+    { "id": "d-keyboard", "from": "hub_daily", "to": "p_keyboard" },
+    { "id": "d-appearance", "from": "hub_daily", "to": "p_appearance" },
+    { "id": "d-convenience", "from": "hub_daily", "to": "p_convenience" },
+    { "id": "r-data", "from": "hub_rare", "to": "p_data" },
+    { "id": "r-expert", "from": "hub_rare", "to": "p_expert" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "重新分组",
+      "items": [
+        "「主题 › 配置」里的按键外观参数并入「外观」，与键盘尺寸彻底分开",
+        "候选栏样式从「工具栏与候选栏」拆出，与「候选窗口」合并成一页",
+        "语音输入从工具栏页移到「便捷功能」——它是一种输入方式，不是工具栏属性"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "该默认的默认，该隐藏的隐藏",
+      "items": [
+        "夜间模式改三态单选，消除「点主题被弹窗拦住、手动选择却无入口」的死结",
+        "候选窗口 10 项样式收敛为「紧凑/标准/宽松」预设，细节收进自定义",
+        "Fcitx 三页收进「高级 › 引擎配置」，不再占一级入口；开发者项再收进二级折叠",
+        "系统兼容开关按设备能力自动显示，无关设备上完全隐藏"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "补入口与命名",
+      "items": [
+        "新增「浮动与单手键盘」设置入口——这两个功能现在完全没有入口",
+        "「增强选项」拆解：字体/弹出样式归外观，键盘定义/数字布局归键盘工具",
+        "图标主题槽位弹窗改显示中文名，不再暴露内部键名",
+        "22 个主题颜色项补中文名，但必须先解耦显示名与存储标识，否则会改坏已存主题"
+      ]
+    }
+  ]
+}
