@@ -1101,6 +1101,24 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 ---
 
+### 0.6.23 密码输入框：无活动输入法下的崩溃防护、default 布局与空格键提示（2026-10-12，`393ba91` + `0ca7903` + `70298bc`）
+
+**大背景**：本版已移除英文裸键盘 `keyboard-us` addon。fcitx 对**密码框 / Disable 字段**（`!allowInputMethodForPassword`，默认 false）会把 `Instance::inputMethod()` 回退成 `keyboard-<默认布局>` 即 `keyboard-us`——该条目不存在 → 返回空 → **该 InputContext 没有活动输入法**（`inputMethodEntry/inputMethodEngine` 为空）。由此派生三个后果，三处分别处理（都在主仓库，不涉及 fcitx5-rime fork）：
+
+1. **崩溃（必修）**：`InputMethodStatus` 构造函数（`helper-types.h`）无条件 `entry->uniqueName()` / `engine->subMode()`，entry 空（切 Rime 方案瞬间、或密码框）即空指针崩。两条调用路径都中招：`Fcitx::inputMethodStatus()`（`currentIme`）与 `AndroidFrontend::makeInputMethodStatus()`（状态区 flush，`UserInterfaceManager::flush → postEvent`）。tombstone 栈顶 `fcitx::InputMethodEntry::uniqueName() const+0`（空 `this`）。修复：构造函数空安全（entry 空直接返回、engine/ic 空跳过 subMode）；`native-lib.cpp` 的 `inputMethodStatus()` 在 entry/engine 空时返回 `nullptr`（Kotlin 侧 `inputMethodStatus() ?: inputMethodEntryCached` 本就兜底）；`androidfrontend.cpp` 状态区 flush 在 entry 空时跳过回调。**先只堵 inputMethodStatus 一条会"菜单能弹出但点选方案仍崩"**——两条路径都要堵。
+
+2. **键盘视图停留在旧方案布局**：entry 空 → `currentIme()` 回退缓存的旧 Rime entry → 布局按旧方案（九键/二十六键）渲染。修复：`TextKeyboard` 的 `passwordDefaultLayout` 标记，由 `KeyboardWindow.onStartInput` 按 `capFlags.has(Password)` 增删（**含数字 PIN**）。`getLayout` 回退链取每个条目的 **default 变体**（不按方案子模式挑）：当前输入法键（通常 `rime`）→ 显式 `rime` → 全局 `default` → `keyboard-us` → 内置 QWERTY。⚠️ **优先级必须是 `forcedLayoutKey`（数字盘/层）> `passwordDefaultLayout` > 常规方案解析**——放反了会「密码框按 ?123 切自定义数字盘无反应」（passwordDefault 把 forced 吞掉）。**四处顺序必须一致**：`getLayout` / `currentLayoutSignature` / `layoutSignature` / `resolveCurrentLayoutHeightPercentOverride`。其中 `layoutSignature` 尤其坑：它是 `onInputMethodUpdate`「签名变了才 reloadLayout」的判据，而 `switchLayout` 在 `target==current=="Text"` 时走**早退分支**（不 detach/attach，只 `onInputMethodUpdate`），所以进/出密码框、密码框内切数字盘都必须让 `layoutSignature` 变化（pwd 占位 + 始终追加 `forced`），否则视图不重建、表现为"毫无反应"。
+
+3. **空格键显示旧方案名或占位「（不可用）」**：修复 `updateSpaceLabel`：`passwordDefaultLayout` 为真时显示**新字符串** `space_bar_password_hint`「（密码输入）」。⚠️ 这是独立新串，**不要动 `_not_available_`**（「（不可用）」仍用于 fcitx 未就绪等非密码场景）；只在密码框里覆盖空格标签，**别做全局替换**（用户明确要求）。
+
+**同批另一处 fix（数字盘 dismissed 重新武装）**：`NumericLayoutOverrideController.dismiss()`（用户按 ABC 切到文本键盘）置 `dismissed=true` 且清 `sessionKey`；之后按 ?123（配了自定义数字盘覆盖时）`activateManual` 的 `if (dismissed) return false` 把它挡住 → 回退到内置默认数字盘（表现为"文本↔数字往返后数字盘变内置"）。修复：`activateManual(key, userRequested)`——隐式回退（`force()`/IME 更新）**仍**挡住（dismiss 原意不破坏），但**显式用户 ?123（`switchLayout` 的 `fromUserKey`）清 `dismissed` 并重新激活**。`NumericLayoutOverrideControllerTest` 新增 `dismissBlocksImplicitButNotExplicitReactivation` 钉住。
+
+**为什么密码框还能打字**：无活动输入法时 `AndroidFrontend::keyEvent` 的按键 `!accepted` 会走 `keyEventCallback` **转发原始键**直接上屏，所以密码框直录英文可用（这也是设计上密码框安全直录的来路）。其余 `keyboard-us` 引用（`Fcitx.onFirstRun` 固定 `rime`、`SubtypeManager.IM_KEYBOARD` 占位标签、`setDefaultLayout("us")`）均良性，不会"回退调用失败"。
+
+**测试**：`NumericLayoutOverrideControllerTest` 7 例通过、`:app:testFxDebugUnitTest` 全绿、`:app:assembleFxDebug` 成功；真机由用户逐轮验证（崩溃消失、密码框 default 布局、?123↔ABC 往返、空格提示「（密码输入）」）。
+
+---
+
 ## 1. 用户给的长期约定（必须遵守）
 
 原话：**「全部做，从 fx2 分支复制到另一个分支，在新复制的分支上面改动，每改好一处就推送上去一次，手动触发一次 ci，但是不要 release」**
