@@ -365,7 +365,14 @@ AndroidFrontend::AndroidFrontend(Instance *instance)
                         break;
                     }
                     case UserInterfaceComponent::StatusArea: {
-                        statusAreaUpdateCallback(makeStatusAreaActions(activeIC_), makeInputMethodStatus(activeIC_));
+                        // Skip the update while the active input context has no
+                        // input method (e.g. mid Rime schema-switch, which flushes
+                        // the status area before the new schema's IM is active):
+                        // there is nothing meaningful to show and makeInputMethodStatus
+                        // would otherwise build a status from a null entry.
+                        if (instance_->inputMethodEntry(activeIC_)) {
+                            statusAreaUpdateCallback(makeStatusAreaActions(activeIC_), makeInputMethodStatus(activeIC_));
+                        }
                         break;
                     }
                 }

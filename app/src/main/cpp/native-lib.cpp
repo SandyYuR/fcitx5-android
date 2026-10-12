@@ -144,6 +144,15 @@ public:
         if (!ic) return nullptr;
         auto *entry = p_instance->inputMethodEntry(ic);
         auto *engine = p_instance->inputMethodEngine(ic);
+        // A password field (or any input context without an active input method,
+        // e.g. transiently while switching Rime schema) can leave both
+        // inputMethodEntry() and inputMethodEngine() null. The InputMethodStatus
+        // constructor unconditionally dereferences them (entry->uniqueName(),
+        // engine->subMode(...)), so returning the status here would crash with a
+        // null-pointer dereference in InputMethodEntry::uniqueName(). Bail out to
+        // null instead: currentIme() already falls back to inputMethodEntryCached
+        // (Fcitx.kt: `inputMethodStatus() ?: inputMethodEntryCached`).
+        if (!entry || !engine) return nullptr;
         return std::make_unique<InputMethodStatus>(entry, engine, ic);
     }
 

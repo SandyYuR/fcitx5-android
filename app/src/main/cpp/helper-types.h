@@ -34,6 +34,16 @@ public:
     InputMethodStatus(const fcitx::InputMethodEntry *entry,
                       fcitx::InputMethodEngine *engine,
                       fcitx::InputContext *ic) {
+        // entry/engine can be null for an input context that currently has no
+        // active input method (e.g. transiently while switching Rime schema in
+        // a password field). Dereferencing them crashed with a null `this` in
+        // InputMethodEntry::uniqueName(); guard every access and leave the
+        // corresponding fields empty instead. Callers that need the
+        // "no input method" case distinguished (Fcitx::inputMethodStatus) check
+        // for null before constructing and return null to Kotlin.
+        if (!entry) {
+            return;
+        }
         uniqueName = entry->uniqueName();
         name = entry->name();
         nativeName = entry->nativeName();
@@ -42,9 +52,11 @@ public:
         languageCode = entry->languageCode();
         addon = entry->addon();
         configurable = entry->isConfigurable();
-        subMode = engine->subMode(*entry, *ic);
-        subModeLabel = engine->subModeLabel(*entry, *ic);
-        subModeIcon = engine->subModeIcon(*entry, *ic);
+        if (engine && ic) {
+            subMode = engine->subMode(*entry, *ic);
+            subModeLabel = engine->subModeLabel(*entry, *ic);
+            subModeIcon = engine->subModeIcon(*entry, *ic);
+        }
     }
 };
 
