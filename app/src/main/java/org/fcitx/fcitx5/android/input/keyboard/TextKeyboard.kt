@@ -278,8 +278,8 @@ class TextKeyboard private constructor(
         fun clearForcedLayoutKey() = setForcedLayoutKey(null)
 
         @Synchronized
-        fun activateManualNumericLayout(layoutKey: String): Boolean {
-            if (!numericOverride.activateManual(layoutKey)) {
+        fun activateManualNumericLayout(layoutKey: String, userRequested: Boolean = false): Boolean {
+            if (!numericOverride.activateManual(layoutKey, userRequested)) {
                 return false
             }
             setForcedLayoutKey(layoutKey)

@@ -104,4 +104,34 @@ class NumericLayoutOverrideControllerTest {
         controller.force(null)
         assertNull(controller.forcedKey)
     }
+
+    @Test
+    fun dismissBlocksImplicitButNotExplicitReactivation() {
+        val controller = NumericLayoutOverrideController()
+
+        // Numeric editor opens its custom number pad via the session slot.
+        controller.beginSession("数字")
+        assertEquals("数字", controller.sessionKey)
+
+        // User switches to the text keyboard ("ABC" key) -> dismiss.
+        controller.dismiss()
+        assertTrue(controller.dismissed)
+        assertNull(controller.sessionKey)
+        assertNull(controller.forcedKey)
+
+        // An implicit re-activation (force fallback / IME update path) stays blocked:
+        // the number pad must not resurrect itself after the user left it.
+        assertFalse(controller.activateManual("数字"))
+        assertTrue(controller.dismissed)
+        assertNull(controller.forcedKey)
+
+        // But an explicit user "?123" press re-arms the override and shows the
+        // custom number pad again (regression: it used to fall back to the
+        // built-in number keyboard after a text<->number round trip).
+        assertTrue(controller.activateManual("数字", userRequested = true))
+        assertFalse(controller.dismissed)
+        assertEquals("数字", controller.manualKey)
+        assertEquals("数字", controller.forcedKey)
+        assertTrue(controller.isManualNumericShowing())
+    }
 }

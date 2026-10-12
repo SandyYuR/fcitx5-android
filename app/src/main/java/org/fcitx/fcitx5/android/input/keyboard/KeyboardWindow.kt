@@ -351,7 +351,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                 val override = TextKeyboard.resolveNumericLayoutKey()
                 // Read before activateManualNumericLayout() flips the state below.
                 val wasManualShowing = TextKeyboard.isManualNumericLayoutShowing()
-                if (override != null && TextKeyboard.activateManualNumericLayout(override)) {
+                if (override != null && TextKeyboard.activateManualNumericLayout(override, userRequested = fromUserKey)) {
                     // A user key jumping to the (overridden) number pad is a latching layer
                     // change just like "layer to": remember the layer the user is leaving so
                     // BACK can undo this jump. A re-affirming press while the manual numeric

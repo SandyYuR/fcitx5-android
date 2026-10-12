@@ -50,8 +50,16 @@ internal class NumericLayoutOverrideController {
         forcedKey = key?.trim()?.takeIf { it.isNotEmpty() } ?: manualKey ?: sessionKey
     }
 
-    fun activateManual(key: String): Boolean {
-        if (dismissed) return false
+    fun activateManual(key: String, userRequested: Boolean = false): Boolean {
+        if (dismissed) {
+            // A dismissed override normally stays dismissed until the next onStartInput,
+            // so force()/IME-update fallbacks cannot resurrect the number pad after the
+            // user switched to text. But an explicit user request to show the number pad
+            // (the "?123" layout-switch key) is exactly the intent to see it again, so
+            // re-arm instead of falling through to the built-in number keyboard.
+            if (!userRequested) return false
+            dismissed = false
+        }
         if (sessionKey == null) {
             manual = true
             manualKey = key
