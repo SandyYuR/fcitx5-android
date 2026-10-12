@@ -205,8 +205,27 @@ class TextKeyboard private constructor(
                 ): Boolean = size > MAX_CACHED_KEY_DEF_LAYOUTS
             }
         private var forcedLayoutKey: String? = null
+        // 密码输入框专用：fcitx 对密码框回退成裸键盘（keyboard-us），编码不走 Rime，
+        // 但 currentIme() 会回退到缓存的上一个 Rime 方案，导致键盘视图仍显示上次的
+        // 九键/二十六键。开启此标记后，getLayout 一律用布局文件里的全局 "default"
+        // 排列（ascii 直录用的那套），优先级高于 forcedLayoutKey 与方案变体解析，
+        // 且不受 onImeUpdate 的 clearAllLayerOverrides 影响（只有 onStartInput 按
+        // Password 能力增删它）。
+        private var passwordDefaultLayout = false
         private val numericOverride = NumericLayoutOverrideController()
         private var numericLayoutFallbackTarget: WeakReference<NumericLayoutFallbackListener>? = null
+
+        /**
+         * 密码框是否固定使用全局 "default" 布局。仅由 [KeyboardWindow.onStartInput]
+         * 依据 Password 能力增删。返回是否发生变化（变化时调用方需要触发重排）。
+         */
+        fun setPasswordDefaultLayout(active: Boolean): Boolean {
+            if (passwordDefaultLayout == active) return false
+            passwordDefaultLayout = active
+            return true
+        }
+
+        fun isPasswordDefaultLayout(): Boolean = passwordDefaultLayout
 
         /**
          * Clear KeyDef layout cache. Call this after saving layout changes.
@@ -498,6 +517,7 @@ class TextKeyboard private constructor(
             val currentIme = ime ?: return null
             val json = textLayoutJson ?: return null
 
+            // forced（数字盘/层）优先于密码默认布局，顺序与 getLayout 一致。
             forcedLayoutKey?.let { forced ->
                 val forcedLayout = findLayoutElementByKey(json, forced)
                 if (forcedLayout != null) {
@@ -510,6 +530,9 @@ class TextKeyboard private constructor(
                         parseLayoutHeightPercentOverride(json[baseName])
                     }
                 }
+            }
+            if (passwordDefaultLayout) {
+                return parseLayoutHeightPercentOverride(json["default"])
             }
 
             val imeLayoutElement = json[currentIme.uniqueName] ?: json[currentIme.displayName]
@@ -1011,12 +1034,53 @@ class TextKeyboard private constructor(
                 }
             }
 
+            // 密码框固定走「default 布局」回退链（忽略可能是缓存的当前 Rime 方案）。
+            // 优先级在 forcedLayoutKey 之下：用户在密码框里按 ?123 / 层切换等显式动作
+            // 产生的 forcedLayoutKey（含自定义数字盘、层）仍然优先，密码默认布局只作为
+            // 「没有任何强制层时」的基础布局。回退顺序取每个条目的 default 变体（即
+            // ascii 直录那套，不按方案子模式挑变体）：
+            //   1) 当前输入法键名（通常是 rime）→ 即 rime/default；
+            //   2) 显式写死的 "rime"；3) 全局 "default"；4) "keyboard-us"；5) 内置 QWERTY。
+            if (passwordDefaultLayout) {
+                if (json != null) {
+                    val candidateKeys = buildList {
+                        imeName?.let { add(it) }
+                        ime?.displayName?.let { add(it) }
+                        add("rime")
+                        add("default")
+                        add("keyboard-us")
+                    }.distinct()
+                    for (key in candidateKeys) {
+                        val element = json[key] ?: continue
+                        // 取该布局的 default 变体（忽略方案子模式），与 ascii 模式一致。
+                        val rows = findLayoutElementByKey(json, key) ?: continue
+                        resolvedLayoutHeightPercentOverride =
+                            parseLayoutHeightPercentOverride(element)
+                        state.auxBarConfig = parseAuxBarConfig(element)
+                        state.auxBarKeys = parseAuxBarKeys(element)
+                        val cacheKey = "${cacheKeyPrefix()}pwd:$key:${variant.name}:$showLangSwitch:$lastRawModified"
+                        return cachedKeyDefLayouts.getOrPut(cacheKey) {
+                            rows.map { rowElement ->
+                                LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
+                                    .mapNotNull { LayoutJsonUtils.createKeyDef(it) }
+                            }
+                        }
+                    }
+                }
+                // 布局文件里一个候选键都没命中 → 退回内置默认 QWERTY 布局。
+                resolvedLayoutHeightPercentOverride = null
+                state.auxBarConfig = null
+                state.auxBarKeys = emptyList()
+                return getDefaultLayout(showLangSwitch)
+            }
+
             if (imeName != null) {
                 if (json != null) {
                     // Try uniqueName first, then displayName
                     val layoutKey = imeName
+                    // imeName (= ime?.uniqueName) is non-null here, so ime is smart-cast non-null.
                     val imeLayoutElement = json[layoutKey]
-                        ?: json[ime?.displayName]
+                        ?: json[ime.displayName]
 
                     if (imeLayoutElement != null) {
                         val matchedSubModeKey = (imeLayoutElement as? JsonObject)
@@ -1395,10 +1459,18 @@ class TextKeyboard private constructor(
         val subModeLabel = ime.subMode.run { label.ifEmpty { name.ifEmpty { "" } } }
         val forced = forcedLayoutKey ?: ""
         return buildString {
-            append(layoutSource)
-            if (layoutUsesSubMode(ime)) {
-                append('|')
-                append(subModeLabel)
+            // 密码框固定走 default 回退链：基础段用 "pwd-default" 占位。forced 永远追加在
+            // 后面，所以密码框里按 ?123/层切换设置了 forcedLayoutKey 时签名也会变化，
+            // onInputMethodUpdate 的「签名变了才 reloadLayout」据此在进/出密码框、以及
+            // 密码框内切到数字盘/层时都能触发重排。
+            if (passwordDefaultLayout) {
+                append("pwd-default")
+            } else {
+                append(layoutSource)
+                if (layoutUsesSubMode(ime)) {
+                    append('|')
+                    append(subModeLabel)
+                }
             }
             append('|')
             append(forced)
@@ -1445,6 +1517,7 @@ class TextKeyboard private constructor(
         val branch = when {
             forced != null && json != null && findLayoutElementByKey(json, forced) != null ->
                 "forced:$forced"
+            passwordDefaultLayout -> "pwd-default:${layoutVariant.name}"
             imeName != null && json != null &&
                 (json[imeName] != null || displayName?.let { json[it] } != null) -> {
                 val imeLayoutElement = json[imeName] ?: displayName?.let { json[it] }
@@ -1717,6 +1790,17 @@ class TextKeyboard private constructor(
     }
 
     private fun updateSpaceLabel(ime: InputMethodEntry?) {
+        // 密码框固定走 default 布局、输入法不参与（keyboard-us 已移除，该 IC 无活动输入法，
+        // 按键直接转发上屏）。此时空格键不应再显示上一次 Rime 方案名，改成有辨识度的提示，
+        // 明确「这里不走输入法」。
+        if (passwordDefaultLayout) {
+            val hint = context.getString(R.string.space_bar_password_hint)
+            ensureSpecialKeyViewsInitialized()
+            specialKeyViews.space.forEach { spaceKey ->
+                spaceKey.mainText.text = hint
+            }
+            return
+        }
         if (ime == null) return
         val subModeText = ime.subMode.run { name.ifEmpty { label.ifEmpty { "" } } }
         val newText = when (spaceKeyLabelMode.getValue()) {
