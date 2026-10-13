@@ -28,6 +28,7 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.lParams
 import splitties.views.dsl.core.textView
 import splitties.views.dsl.core.verticalLayout
+import kotlin.math.ceil
 
 open class PreeditUi(
     override val ctx: Context,
@@ -126,29 +127,41 @@ open class PreeditUi(
         private val preeditRadiusProvider: () -> Float
     ) : FrameLayout(context) {
 
-        /** 本视图左缘相对键盘卡片左缘的内缩（等于父布局左 padding）。 */
-        private fun cardInset(): Float = (parent as? View)?.paddingLeft?.toFloat() ?: 0f
+        /** 父布局的两侧 padding 分别对应卡片两侧的内缩（单手模式下可能不相等）。 */
+        private fun leftCardInset(): Float = (parent as? View)?.paddingLeft?.toFloat() ?: 0f
+
+        private fun rightCardInset(): Float = (parent as? View)?.paddingRight?.toFloat() ?: 0f
 
         /** 胶囊主体左缘相对本视图左缘的位移。 */
         private fun bodyOffset(): Float = ContinuousCornerGeometry.preeditBodyOffset(
             cardTopRadiusProvider(),
-            cardInset(),
+            leftCardInset(),
+            preeditRadiusProvider()
+        )
+
+        /** 主体右缘到本视图右缘的留白，和左侧使用同一圆角接续规则。 */
+        private fun rightBodyOffset(): Float = ContinuousCornerGeometry.preeditBodyOffset(
+            cardTopRadiusProvider(),
+            rightCardInset(),
             preeditRadiusProvider()
         )
 
         /** 反向圆角的外扩宽度（水平半径），与 [ContinuousCornerGeometry.addPreeditPath] 一致。 */
         private fun flareWidth(): Float = preeditRadiusProvider().coerceAtLeast(0f)
 
+        /** 扣掉右侧只供卡片圆角使用的透明留白，供触摸区域取实际背景宽度。 */
+        val decoratedWidth: Int
+            get() = ceil(width - rightBodyOffset() + flareWidth()).toInt().coerceIn(0, width)
+
         init {
-            clipChildren = false
-            clipToPadding = false
             addView(content)
         }
 
         fun configureDecoration(@ColorInt color: Int) {
             background = PreeditShapeDrawable(
                 color = color,
-                insetProvider = ::cardInset,
+                insetProvider = ::leftCardInset,
+                rightInsetProvider = ::rightCardInset,
                 cardTopRadiusProvider = cardTopRadiusProvider,
                 preeditRadiusProvider = preeditRadiusProvider
             )
@@ -156,19 +169,26 @@ open class PreeditUi(
         }
 
         override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-            measureChild(content, widthMeasureSpec, heightMeasureSpec)
+            // 必须在文字测量前扣掉两侧主体位移。先按整宽测量再平移会让长文本越界，
+            // 也会把右侧反向弧推到卡片的圆角外。
+            val leftOffset = ceil(bodyOffset()).toInt()
+            val rightOffset = ceil(rightBodyOffset()).toInt()
+            content.measure(
+                getChildMeasureSpec(widthMeasureSpec, leftOffset + rightOffset, content.layoutParams.width),
+                getChildMeasureSpec(heightMeasureSpec, 0, content.layoutParams.height)
+            )
             // 反向圆角从原有高度里让出，不额外加高：视图高度仍等于文字行高，
             // 否则底对齐的整块（连同文字）会被顶高一个圆角半径。
             val height = content.measuredHeight
-            val desiredWidth = bodyOffset() + content.measuredWidth + flareWidth()
+            val desiredWidth = leftOffset + content.measuredWidth + rightOffset
             setMeasuredDimension(
-                resolveSize(desiredWidth.toInt(), widthMeasureSpec),
+                resolveSize(desiredWidth, widthMeasureSpec),
                 resolveSize(height, heightMeasureSpec)
             )
         }
 
         override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-            val offset = bodyOffset().toInt()
+            val offset = ceil(bodyOffset()).toInt()
             content.layout(offset, 0, offset + content.measuredWidth, content.measuredHeight)
         }
     }
@@ -194,7 +214,7 @@ open class PreeditUi(
     val actualContentWidth: Int
         get() {
             if (!visible || root.visibility != View.VISIBLE) return 0
-            return (wrapper.left + wrapper.width).coerceAtMost(root.width)
+            return (wrapper.left + wrapper.decoratedWidth).coerceAtMost(root.width)
         }
 
     fun configureDecoration(@ColorInt color: Int) {

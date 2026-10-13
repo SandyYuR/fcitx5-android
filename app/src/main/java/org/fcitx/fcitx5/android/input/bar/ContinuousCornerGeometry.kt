@@ -150,20 +150,27 @@ object ContinuousCornerGeometry {
 
     /**
      * 编码区胶囊：主体左缘位于 `bounds.left + bodyOffset`，右缘位于
-     * `bounds.right - cornerRadius`（调用方给出的 bounds 必须已为右侧反向弧留出这部分宽度）。
+     * `bounds.right - rightBodyOffset`。左右位移都包含反向弧所需宽度；右侧还有卡片圆角
+     * 对应的透明留白，长编码铺满可用宽度时，两侧主体和反向弧仍对称地收在卡片内。
      * 底部两角是**反向圆角**：水平半径固定为 [cornerRadius]（弧线水平落点仍是卡片圆角的
      * 切点），垂直半径按可用高度收敛到 [flareVerticalRadius]；底部弧线正好落在
      * `bounds.bottom`（键盘卡片顶边）。顶部两角是普通圆角（半径取 [cornerRadius] 与
      * 可用空间的较小值）。
      */
-    fun addPreeditPath(path: Path, bounds: RectF, bodyOffset: Float, cornerRadius: Float) {
+    fun addPreeditPath(
+        path: Path,
+        bounds: RectF,
+        bodyOffset: Float,
+        cornerRadius: Float,
+        rightBodyOffset: Float = cornerRadius
+    ) {
         path.reset()
         val height = bounds.height()
         if (bounds.width() <= 0f || height <= 0f) return
         val rx = cornerRadius.coerceAtLeast(0f)
         val ry = flareVerticalRadius(cornerRadius, height)
         val bodyLeft = bounds.left + bodyOffset.coerceAtLeast(0f)
-        val bodyRight = (bounds.right - rx).coerceAtLeast(bodyLeft)
+        val bodyRight = (bounds.right - rightBodyOffset.coerceAtLeast(0f)).coerceAtLeast(bodyLeft)
         val bodyTop = bounds.top
         val bodyBottom = bounds.bottom - ry
         if (bodyRight <= bodyLeft || bodyBottom <= bodyTop) {
@@ -208,12 +215,13 @@ object ContinuousCornerGeometry {
 
 /**
  * 编码区胶囊背景。几何每次绘制时按当前参数重算：
- * [insetProvider] 给出胶囊绘制区左缘相对键盘卡片左缘的内缩（父布局 padding），
+ * [insetProvider] / [rightInsetProvider] 给出两侧相对键盘卡片的内缩（父布局 padding），
  * 运行期改变侧边距、单手留白都不需要重建 drawable。
  */
 class PreeditShapeDrawable(
     @ColorInt private val color: Int,
     private val insetProvider: () -> Float,
+    private val rightInsetProvider: () -> Float,
     private val cardTopRadiusProvider: () -> Float,
     private val preeditRadiusProvider: () -> Float
 ) : Drawable() {
@@ -241,7 +249,12 @@ class PreeditShapeDrawable(
                 insetProvider(),
                 preeditRadius
             ),
-            cornerRadius = preeditRadius
+            cornerRadius = preeditRadius,
+            rightBodyOffset = ContinuousCornerGeometry.preeditBodyOffset(
+                cardTopRadiusProvider(),
+                rightInsetProvider(),
+                preeditRadius
+            )
         )
         canvas.drawPath(path, paint)
     }
