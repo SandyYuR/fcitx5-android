@@ -1123,6 +1123,143 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 ---
 
+## 0.7 本地构建工具链与环境细节（2026-10-12 自 AGENTS.md 迁入）
+
+> 本节是 2026-10-12 `AGENTS.md` 按「agent 指南只留可执行要点」原则精简时**整体迁入**的操作细节。`AGENTS.md` 只保留每条的入口命令与禁令,完整环境变量、路径、原理与故障解法以本节为准。
+
+### 0.7.1 本机工具链清单（2026-09-14 安装,Windows 原生,无 MSYS2/WSL)
+
+路径与用途(全部在用户可写目录,不需要管理员权限):
+
+- **JDK 17**:`C:\dev\jdk-17`(Microsoft OpenJDK 17.0.20)。
+- **Android SDK**:`C:\dev\android-sdk`(`platform-tools`、`platforms;android-36`、`build-tools;36.1.0`、`ndk;28.0.13004108`、`cmake;3.31.6`);`fx-rime-only/local.properties`(已 gitignore)已写入 `sdk.dir`。
+- **Gradle 9.6.1**:已预热到 `~/.gradle/wrapper/dists`(`services.gradle.org` 在本机经常超时;需要时改用镜像 `https://mirrors.cloud.tencent.com/gradle/gradle-9.6.1-bin.zip` 手工放入该目录并补 `.ok` 标记,或在用户级 `~/.gradle/gradle.properties` 放宽 `systemProp.org.gradle.internal.http.*Timeout`)。
+- **ECM**:`C:\dev\ecm`(用 ECM 5.92.0 源码 + SDK 自带 Ninja 安装,版本与 CI 的 Ubuntu 22.04 一致)。**构建时必须设 `ECM_DIR=C:/dev/ecm/share/ECM/cmake`**,因为 `lib/fcitx5/src/main/cpp/cmake/FindECM.cmake` 只认环境变量或写死的 `/usr/share/ECM/cmake`、`C:/msys64/...`。
+- **gettext**:`C:\dev\gettext`(mlocati 静态包 + 从 gettext 0.22.5 源码补的 `share/gettext/its` 规则)。**构建时必须把 `C:\dev\gettext\bin` 加入 PATH 并设 `GETTEXTDATADIR=C:/dev/gettext/share/gettext`**,否则 `generate-desktop-file` 目标会以 `cannot locate ITS rules` 失败。
+- **用户级 `~/.gradle/gradle.properties`**:`-Xmx4096m` + 放宽 HTTP 超时(本机网络抖动,属本地配置,不入库)。
+
+### 0.7.2 子模块与本机等价状态(HTTPS 在大文件上会被限速,全程用 SSH 改写)
+
+- `git submodule update --init --recursive --depth 1 --jobs 4` 即可;`--depth 1` 对固定 SHA 有效。改写命令:`git config url.ssh://git@ssh.github.com:443/.insteadOf https://github.com/`。
+- `plugin/rime/src/main/cpp/fcitx5-rime` 与 `lib/fcitx5/src/main/cpp/prebuilt` 已切到 `SandyYuR` fork 的 master(等同 `prepare_personal_build.sh` 的最终来源),fcitx5 core 上的 `fcitx5-alt-trigger-v4point1.patch` 已应用。
+- 主仓库内 prebuilt 子模块采用**稀疏检出**,只保留 `*/arm64-v8a/**`、`opencc/data/**`、`toolchain-versions.json`(工作区约 35MB;fork 仓库全量约 527MB)。要构建其它 ABI 先执行 `git sparse-checkout disable` 再拉取。
+- **prebuilt 子模块是 shallow + partial clone(promisor)**:完整故障现象、解法命令与两步验证要求见 §0.5.7 尾部的「prebuilt 子模块是 shallow + partial clone」段(2026-09-19 首次踩坑)。要点重申:① `fetch` 成功不代表 `checkout` 会成功(blob 是 checkout 阶段才拉的),两步都要分别验证;② 直连 GitHub 拉四个 ABI 的大 `.a` 容易 `early EOF`,必要时从远端重拉(浅克隆 + 稀疏检出,只取所需 ABI)。
+
+### 0.7.3 本地 Release 签名细节(已接通,2026-09-14)
+
+- 密钥目录 `D:\GitHub\fcitx5-signing`(**不在任何 git 仓库内**,不要移入仓库、不要提交):`release.keystore`、`release.keystore.b64`(CI secret `SIGN_KEY_BASE64` 的同一份)、`keystore-password.txt`。
+- GitHub Actions 的 secret 只能写不能读(API 仅列名字),**无法从 GitHub 取回**;本地这份即权威来源。证书 `CN=fcitx5-android`,SHA-256 `ba43006e1bfa3f60f46b2a9056f593a3a61445bd2571319fb1869e49cc36b1fe`。
+- 工程通过环境变量读取签名(`build-logic/.../ProjectExtensions.kt`):`SIGN_KEY_FILE`(密钥库路径)、`SIGN_KEY_PWD`(store 与 key 同一口令)、`SIGN_KEY_ALIAS`;三者缺一则 release 变体不签名。
+- 一键:`pwsh -File D:\GitHub\fx2-rime\build-release.ps1 [-Install] [-VerifyOnly]`。脚本运行时才从口令文件读取口令、用 `keytool` 解析别名,**不把密钥或口令写入脚本/仓库/日志**(对话与日志里只出现公开的证书指纹)。
+- 已验证:本地 `:app:assembleFxRelease` 产物与 CI 官方包的签名 DN/SHA-256/SHA-1/MD5 完全一致 → 可 `adb install -r` 覆盖 CI 版并保留应用数据。
+- **versionName 差异**:本地 `versionName` 由 `git describe` 得出,会带上本地的 nightly tag(如 `nightly-0.1.3-454-...-135-g07206012`),与 CI 的 `0.1.3-589-g...` 不同;仅显示差异,不影响安装。CI 会先删除非 semver tag 再 describe,本地如需一致可临时删除这些 tag 或传 `BUILD_VERSION_NAME`。
+
+### 0.7.4 `prepare_personal_build.sh` 行为细节(会联网并修改子模块工作区)
+
+- 把 fcitx5-rime checkout 到 `SandyYuR/fcitx5-rime` 的远端分支;
+- 在 Fcitx5 core 内先执行 `git checkout -- .`,再应用适配补丁;
+- 把 prebuilt checkout 到 `SandyYuR/prebuilt` 的远端分支。
+
+因此:
+
+- 文档或纯 Kotlin 小改动不需要无条件运行此脚本。
+- 运行前必须确认上述子模块没有需要保留的本地修改。
+- 脚本当前使用浮动远端来源,且补丁失败可能只输出提示;必须检查输出、实际 checkout SHA 和补丁结果,不能只看脚本退出码。
+- 对供应链或发布可复现性进行修改时,应优先固定完整 SHA、让补丁失败立即终止,并记录最终来源 SHA。
+- debug 变体包名为 `org.fcitx.fcitx5.android.fx.rime.debug`,**可与 CI 的 Release 版共存**,适合真机对照测试(2026-09-14 验证)。
+
+### 0.7.5 验证门禁与真机回归清单(自 AGENTS.md §6 迁入)
+
+按改动类型选择最低验证(追加验证详见原文对应审阅报告):
+
+| 改动类型 | 最低验证 | 追加验证 |
+| --- | --- | --- |
+| 文档 | 链接、路径、术语、命令人工核对;`git diff --check` | 与当前 README、脚本、CI 交叉检查 |
+| 纯 Kotlin/工具函数 | 目标 JVM 测试 | 全量 unit test、lint、Debug build |
+| UI、IME 生命周期、协程 | 目标测试、lint、Debug build | 真机切换输入框/应用/输入法与进程恢复 |
+| JNI、C++、Fcitx/Rime | 初始化来源、检查补丁、native APK build | Release 真机输入回归;涉及发布声明时验证目标 ABI |
+| Room、备份、ZIP、文件迁移 | 目标测试、schema/迁移检查 | 旧版本升级、失败回滚、恶意/超限输入测试 |
+| 网络、Binder、权限、剪贴板 | 目标测试、lint、manifest/config 审阅 | 鉴权、TLS、跨应用、断网重连与隐私测试 |
+| Release/签名/ABI | CI 等价 Release build | `apksigner verify`、证书指纹、安装和关键路径冒烟 |
+
+涉及真实输入行为时,至少回归:
+
+1. 首次启用后只加载 Rime,键盘和候选正常出现。
+2. 连续打字、候选刷新、选词、提交、删除和按键顺序无丢失、重复或乱序。
+3. 快速切换输入框、应用、输入法和屏幕状态后,旧会话事件不会写入新编辑器。
+4. 「打字 → 点击音节 tab → 选词」正常。
+5. 语言键短按产生一次 Shift 切换、**长按弹出 Rime 方案选单**(`ShowRimeSchemaMenuAction`/`RimeSchemaMenuDialog`);**工具栏**语言按钮长按才是打开系统输入法选择器(`InputMethodUtil.showPicker()`)。两者不是同一个入口,别混。
+6. 受影响的部署/同步、布局/宏、主题、语音、剪贴板和备份路径正常。
+
+若环境、凭据、子模块、设备或时间限制阻止验证,明确写出未运行项、原因和剩余风险;禁止伪造成功、耗时或性能数字。
+
+### 0.7.6 正确性/安全边界详细清单(自 AGENTS.md §8 迁入)
+
+代码审阅报告(同目录 `CODE_REVIEW_REPORT_2026-09-07.md`)中的高风险面在当前代码确认修复前一律视为待验证,尤其包括:
+
+- LAN Web 编辑桥的绑定地址、随机凭据、Origin、端口、超时和写/删确认;
+- 导出 Binder/AIDL 服务的 signature 权限、调用者身份和资源限额;
+- 主题/备份 ZIP、SAF、文件迁移的路径穿越、symlink、压缩炸弹、事务与回滚;
+- 剪贴板/截图/语音/备份中的敏感数据、明文 HTTP、日志与 Android 云备份;
+- Fcitx 启停状态机、dispatcher teardown、native handle 和 InputContext 生命周期;
+- 输入 session/generation 身份、异步回调过期以及跨编辑器污染;
+- SharedFlow/Channel 容量、背压和事件丢失。
+
+不可破坏的输入约束(违反任何一条都是回归):
+
+1. commit、delete、key down/up 等有副作用事件必须无损、严格有序;不能用 `DROP_OLDEST`、忽略 `tryEmit` 失败或丢键来换取性能。
+2. 所有延迟/异步输入结果必须绑定 InputContext 或单调 session/generation,并在消费前再次校验。
+3. 发送 DOWN 后必须保证对应 UP;取消、异常、`finishInput` 和销毁路径都要兜底释放 modifier。
+4. 生命周期修复必须覆盖 STARTING/READY/STOPPING/STOPPED、异常启动、零客户端和切换竞态。
+5. 不在 release 日志中记录完整剪贴板、语音文本、输入内容、凭据、token 或私有路径。
+
+外部网络上传代码/日志/用户数据、权限或安全边界弱化、依赖新增/升级、签名与发布、生产或外部仓库变更都属于高影响操作:先说明范围、风险和回退方式,并取得明确授权。新增依赖必须核对来源并固定明确版本。
+
+### 0.7.7 性能修改原则(自 AGENTS.md §9 迁入)
+
+动手前先读同目录 `PERFORMANCE_REVIEW_REPORT_2026-09-07.md`(文首有迁移/快照注记),区分「当前热点」「条件性热点」「仅测量后实施」和「历史已修复」,再用当前源码复核。
+
+- 正确性优先于吞吐量和平均延迟;不得把事件丢失包装成优化。
+- 在 Release 真机上建立改前/改后基线,关注 input-to-candidate 的 P50/P95/P99、丢键/乱序、主线程帧、队列深度、内存、网络重连和后台功耗。
+- 优先消除重复连接、轮询、全量刷新、主线程 I/O、无界队列和 release 热路径无效日志。
+- JNI batching、输入/UI 架构重写、fire-on-DOWN、禁用触感、候选缓存策略变化均需 profile 证据与正确性回归。
+- 不重复立项已经修复的旧热点;先用 Git 和代码证明问题仍存在。
+
+性能结论必须附测试设备、构建类型、场景、样本量和指标。没有运行测量时只能称为静态推断。
+
+### 0.7.8 引擎链路两分法的细节依据
+
+AGENTS.md 只保留「两条链路 + pin/补丁以 prebuilder gitlink 为权威 + runbook 见 0.5 节」的入口。细节依据:
+
+- fcitx5-rime 适配层与 Fcitx core 补丁的完整更新流程、SHA 核对方法:见 §0.5.2(操作步骤)。
+- `prebuilder/patches/` 补丁顺序、`LibRime.hs` 唯一权威、配置指纹补丁必须排最后的教训:见 §0.5.16(含各补丁实测状态与上次回环验证)。
+- 部署期按键吞键约束(两处 `event.filterAndAccept()`、`deployStatusMessage_` 成员):见 §0.5.16。
+- remap 补丁与重建 table 场景:见 §0.5.7。
+- 适配层指针以 `git -C <主仓库> ls-tree HEAD plugin/rime/src/main/cpp/fcitx5-rime` 现取为准;prebuilder pin 以 `git -C prebuilder ls-tree HEAD librime` 现取为准,与 `app/licenses/libraries/librime.json` 的 `artifactVersion` 对应。
+- librime 静态归档的 cmake 固定参数:`-DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC=ON -DBUILD_TEST=OFF -DBUILD_TOOLS=OFF -DALSO_LOG_TO_STDERR=ON`(prebuilder 配方内;改动需同步 §0.5 runbook)。
+
+### 0.7.9 交接与完成清单(自 AGENTS.md §13 迁入)
+
+任务结束前执行适用项:
+
+~~~bash
+git diff --check
+git diff --stat
+git status --short --branch
+~~~
+
+并完成:
+
+1. 复读 diff,确认只有预期文件,无 secrets、构建产物、临时日志、绝对本机路径或无关格式化。
+2. 运行最相关的目标测试,再运行可承受的 unit/lint/build;修复由本次改动引入的问题。
+3. 重要功能性改动:已按 §1 用户约定在同一任务内更新对应文档;影响操作规范时已同步更新本机 `AGENTS.md`。
+4. 若修改 native、输入时序或生命周期,记录真机验证场景和结果。
+5. 若没有运行某项验证,说明具体原因和下一步,不笼统写「未测试」。
+6. 最终报告列出主要修改文件、行为变化、验证命令/结果、已知限制;不要宣称未验证的 ABI、安全性、性能或真机行为。
+7. 若要交给下一位 Agent,留下:目标与范围、当前 branch/HEAD、工作树状态、已改文件、已运行验证、失败输出摘要、剩余风险和下一条可执行命令。动态信息放在交接消息中,不写死进本指南。
+
+---
+
 ## 1. 用户给的长期约定（必须遵守）
 
 原话：**「全部做，从 fx2 分支复制到另一个分支，在新复制的分支上面改动，每改好一处就推送上去一次，手动触发一次 ci，但是不要 release」**
