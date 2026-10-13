@@ -440,7 +440,7 @@ abstract class BaseKeyboard(
      */
     protected abstract fun currentLayoutSignature(): String
 
-    private fun currentRowsSignature(variant: LayoutVariant): String {
+    private fun currentRowsSignature(variant: LayoutVariant, splitKeyAreaScale: Float): String {
         val prefs = ThemeManager.prefs
         return buildString {
             append(currentLayoutSignature())
@@ -468,6 +468,7 @@ abstract class BaseKeyboard(
                 .append(",").append(prefs.keyVerticalMarginLandscape.getValue())
             append("|expandKeys:").append(AppPrefs.getInstance().keyboard.expandKeypressArea.getValue())
             append("|splitGap:").append(splitKeyboardManager.getSplitGapPercent())
+            append("|splitKeyAreaScale:").append(splitKeyAreaScale)
             // Rows are baked with the typefaces served at build time. Bump the signature
             // whenever the served font data changes so rows built while a font reload was
             // still in flight are rebuilt with the new fonts instead of being reused.
@@ -586,12 +587,14 @@ abstract class BaseKeyboard(
         currentLayoutVariant = layoutVariantOverride ?: LayoutVariant.of(splitKeyboard)
         val splitLayout = currentLayoutVariant.isSplit
         val rows = keyLayout
+        val auxBarConfig = auxBarConfig
+        val splitKeyAreaScale = auxBarConfig?.resolveKeyAreaScale(currentLayoutVariant, splitGapPercent()) ?: 1f
         // 分体时对奇数字符行复制中间键，让左右两半对称可触达（见 splitRowsForLayout）。
         // 非分体用原始行；返回实例按源身份记忆，故行缓存命中率不受影响。
         val effectiveRows = if (splitLayout) splitRowsForLayout(rows) else rows
         rowHeightPercents = resolveRowHeightPercents(effectiveRows)
 
-        val rowsSignature = currentRowsSignature(currentLayoutVariant)
+        val rowsSignature = currentRowsSignature(currentLayoutVariant, splitKeyAreaScale)
         val cachedRows = reusableRowsCache[rowsSignature]
         // Reuse only when the cached rows were built from the exact same KeyDef instances;
         // providers that re-create defs on every call (e.g. the builtin fallback layout)
@@ -607,7 +610,7 @@ abstract class BaseKeyboard(
                     forEach(::applyConfiguredFonts)
                 }
                 if (splitLayout) {
-                    buildSplitRow(row, keyViews)
+                    buildSplitRow(row, keyViews, splitKeyAreaScale)
                 } else {
                     buildRegularRow(row, keyViews)
                 }
@@ -622,7 +625,6 @@ abstract class BaseKeyboard(
         // showed the old size until the next style refresh. Re-apply the current scale here.
         reapplyTextScale()
 
-        val auxBarConfig = auxBarConfig
         if (auxBarConfig != null && auxBarConfig.position != AuxBarPosition.AbovePreedit) {
             val isVertical = auxBarConfig.position == AuxBarPosition.Left || auxBarConfig.position == AuxBarPosition.Right
             val keyPrefs = ThemeManager.prefs
@@ -740,7 +742,7 @@ abstract class BaseKeyboard(
                 })
             }
 
-            val sizeFraction = auxBarConfig.sizePercent / 100f
+            val sizeFraction = auxBarConfig.resolveSizeFraction(currentLayoutVariant, splitGapPercent())
             when (auxBarConfig.position) {
                 AuxBarPosition.Left -> {
                     add(auxBarInnerLayout, lParams {
@@ -1192,7 +1194,7 @@ abstract class BaseKeyboard(
     private fun MacroAction.isPureCharacterOutput(): Boolean =
         steps.isNotEmpty() && steps.all { it is MacroStep.Text || it is MacroStep.Tap }
 
-    private fun buildSplitRow(row: List<KeyDef>, keyViews: List<KeyView>): ConstraintLayout = constraintLayout {
+    private fun buildSplitRow(row: List<KeyDef>, keyViews: List<KeyView>, keyAreaScale: Float): ConstraintLayout = constraintLayout {
         clipChildren = false
         clipToPadding = false
         keyViews.forEach { keyView ->
@@ -1244,7 +1246,7 @@ abstract class BaseKeyboard(
             nonBridgeIndices.forEach { index ->
                 val width = row[index].appearance.percentWidth
                 val baseWidth = if (width > 0f) width else referenceNormalWidth
-                desiredNonBridgeWidths[index] = baseWidth * splitScale
+                desiredNonBridgeWidths[index] = baseWidth * splitScale * keyAreaScale
             }
 
             val assignedNonBridgeWidths = desiredNonBridgeWidths.toMutableMap()
@@ -1342,6 +1344,11 @@ abstract class BaseKeyboard(
             gap = gap,
             alignHalves = alignHalves
         )
+
+        // 侧栏收窄后主区变宽，行内百分比需换回普通排列的主区基准。
+        // 否则有侧栏的九键会在切到无侧栏的数字布局时发生键宽跳变。
+        leftAdjusted = leftAdjusted.scaled(keyAreaScale)
+        rightAdjusted = rightAdjusted.scaled(keyAreaScale)
 
         // 关闭对齐时，两侧按原宽排布，中缝是"被挤剩下的"空间——空白占位键加得越多，
         // 中缝越窄、两侧的键越往中间凸。加过头（两侧之和 > 1）时才会重新压窄按键，
