@@ -1176,36 +1176,38 @@ class LayoutDataManager(private val context: Context) {
     }
 
     fun getLayoutAuxBarConfig(layoutName: String): AuxBarConfig? {
-        return layoutAuxBarConfigs[layoutName]
+        return layoutAuxBarConfigs[LayoutJsonUtils.auxBarOwnerKey(layoutName)]
     }
 
     fun setLayoutAuxBarConfig(layoutName: String, config: AuxBarConfig?) {
+        val ownerKey = LayoutJsonUtils.auxBarOwnerKey(layoutName)
         if (config == null) {
-            layoutAuxBarConfigs.remove(layoutName)
+            layoutAuxBarConfigs.remove(ownerKey)
         } else {
             val normalizedSize = config.sizePercent
                 .takeIf { it.isFinite() }
                 ?.coerceIn(5f, 95f)
                 ?: 5f
-            layoutAuxBarConfigs[layoutName] = config.copy(
+            layoutAuxBarConfigs[ownerKey] = config.copy(
                 sizePercent = normalizedSize
             )
         }
     }
 
     fun getLayoutAuxBarKeys(layoutName: String): List<Map<String, Any?>> {
-        return layoutAuxBarKeys[layoutName]?.map { it.toMap() } ?: emptyList()
+        return layoutAuxBarKeys[LayoutJsonUtils.auxBarOwnerKey(layoutName)]?.map { it.toMap() } ?: emptyList()
     }
 
     fun getLayoutAuxBarKeysRef(layoutName: String): MutableList<MutableMap<String, Any?>> {
-        return layoutAuxBarKeys.getOrPut(layoutName) { mutableListOf() }
+        return layoutAuxBarKeys.getOrPut(LayoutJsonUtils.auxBarOwnerKey(layoutName)) { mutableListOf() }
     }
 
     fun setLayoutAuxBarKeys(layoutName: String, keys: List<Map<String, Any?>>) {
+        val ownerKey = LayoutJsonUtils.auxBarOwnerKey(layoutName)
         if (keys.isEmpty()) {
-            layoutAuxBarKeys.remove(layoutName)
+            layoutAuxBarKeys.remove(ownerKey)
         } else {
-            layoutAuxBarKeys[layoutName] = keys.map { it.toMutableMap() }.toMutableList()
+            layoutAuxBarKeys[ownerKey] = keys.map { it.toMutableMap() }.toMutableList()
         }
     }
 

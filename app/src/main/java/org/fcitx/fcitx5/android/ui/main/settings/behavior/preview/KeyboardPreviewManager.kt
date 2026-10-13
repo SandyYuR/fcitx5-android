@@ -232,9 +232,8 @@ class KeyboardPreviewManager(
 
         val currentRowsArray = rowsArrayOf(currentRows)
 
-        // 高度/辅助栏按"当前实际编辑的那份条目"取：正在编辑分体布局时，高度覆盖也记在
-        // 分体条目的键上（编辑器的高度对话框写的就是这个键），用布局名去查会查不到。
-        val effectiveKey = variantEntryKey ?: subModeKey ?: layoutName
+        // 辅助栏属于子布局，普通/分体预览均读取同一份设置。
+        val effectiveKey = LayoutJsonUtils.auxBarOwnerKey(variantEntryKey ?: subModeKey ?: layoutName)
         val auxBarConfig = if (layoutAuxBarConfigProvider(effectiveKey)?.position == org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition.AbovePreedit) null
             else layoutAuxBarConfigProvider(effectiveKey)
         val auxBarKeys = layoutAuxBarKeysProvider(effectiveKey)
@@ -278,24 +277,24 @@ class KeyboardPreviewManager(
             // 所在的这一层**，并同时放入该子布局的普通排列作为回退。两份内容可能完全相同
             // （用户还没改），但都写才能让预览走的是真实键盘那条解析路径——否则"预览对了、
             // 真机不对"这种偏差无从暴露。
-            val splitElement: JsonElement = if (meta != null) {
-                JsonObject(mapOf("__meta__" to meta, "default" to currentRowsArray))
-            } else {
-                currentRowsArray
-            }
             val splitLabel = LayoutJsonUtils.toVariantSubModeLabel(LayoutVariant.Split.jsonKey!!)
-            if (subModeKey != null && entries.containsKey(subModeKey)) {
-                // 方案自己的分体布局：嵌在该方案条目内部，普通排列取该方案的。
-                val dockedRows = rowsArrayOf(entries[subModeKey])
+            val splitOwner = LayoutJsonUtils.parseEntryKey(variantEntryKey)?.subLayout
+            if (splitOwner != null) {
+                // 方案自己的分体布局，即使没有普通排列也必须嵌在该方案内部。
+                val dockedRows = subModeKey?.let { entries[it] }
                 subModeMap[previewSubModeLabel ?: "default"] = JsonObject(
-                    mapOf("default" to dockedRows, splitLabel to splitElement)
+                    mutableMapOf<String, JsonElement>(splitLabel to currentRowsArray).apply {
+                        dockedRows?.let { this["default"] = rowsArrayOf(it) }
+                        meta?.let { this["__meta__"] = it }
+                    }
                 )
                 entries[layoutName]?.let { subModeMap["default"] = rowsArrayOf(it) }
             } else {
                 // 布局本体的分体布局：与 `default` 平级。
                 val dockedRows = entries[layoutName]?.let { rowsArrayOf(it) } ?: currentRowsArray
                 subModeMap["default"] = dockedRows
-                subModeMap[splitLabel] = splitElement
+                subModeMap[splitLabel] = currentRowsArray
+                meta?.let { subModeMap["__meta__"] = it }
             }
             return subModeMap
         }
@@ -438,20 +437,23 @@ class KeyboardPreviewManager(
         layoutName: String,
         previewSubModeLabel: String?
     ): String? {
-        val label = previewSubModeLabel?.trim()?.takeIf { it.isNotEmpty() } ?: return null
-        val keyByLabel = "$layoutName:$label"
-        if (entries.containsKey(keyByLabel)) return keyByLabel
-        val keyById = subModeNameToIdProvider()[label]?.let { "$layoutName:$it" }
-        if (keyById != null && entries.containsKey(keyById)) return keyById
-        return null
+        val storedLabel = resolveStorageLabel(layoutName, previewSubModeLabel) ?: return null
+        return LayoutJsonUtils.entryKeyOf(layoutName, storedLabel, LayoutVariant.Docked)
+            .takeIf { entries.containsKey(it) }
     }
+
+    private fun resolveStorageLabel(layoutName: String, displayLabel: String?): String? =
+        LayoutJsonUtils.resolveSubLayoutStorageLabel(
+            entries.keys, layoutName, displayLabel,
+            displayLabel?.trim()?.let { subModeNameToIdProvider()[it] }
+        )
 
     /**
      * 正在编辑的那个**子布局的分体布局**条目键；不在编辑分体布局、或它不存在时返回 null。
      *
      * 分体布局挂在子布局上：`仓颉 + 分体` → `rime:倉頡五代:__variant__:split`，
      * `默认 + 分体` → `rime:__variant__:split`。方案既可能以标签为键、也可能以 id 为键
-     * （[subModeNameToIdProvider]），两条都要试。
+     * （[subModeNameToIdProvider]），与编辑器按同一规则选择已有键。
      */
     private fun splitEntryKey(
         layoutName: String,
@@ -459,14 +461,8 @@ class KeyboardPreviewManager(
         editingSplit: Boolean
     ): String? {
         if (!editingSplit) return null
-        val label = subModeLabel?.trim()?.takeIf { it.isNotEmpty() }
-        val candidates = listOfNotNull(label, label?.let { subModeNameToIdProvider()[it] }).distinct()
-        candidates.forEach { candidate ->
-            val key = LayoutJsonUtils.entryKeyOf(layoutName, candidate, LayoutVariant.Split)
-            if (entries.containsKey(key)) return key
-        }
-        if (label != null) return null
-        return LayoutJsonUtils.entryKeyOf(layoutName, null, LayoutVariant.Split)
+        val storedLabel = resolveStorageLabel(layoutName, subModeLabel)
+        return LayoutJsonUtils.entryKeyOf(layoutName, storedLabel, LayoutVariant.Split)
             .takeIf { entries.containsKey(it) }
     }
 

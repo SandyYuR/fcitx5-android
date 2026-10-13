@@ -11,6 +11,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.fcitx.fcitx5.android.input.keyboard.LayoutVariant
 import org.fcitx.fcitx5.android.input.keyboard.LayoutVariantResolver
+import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
+import org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -177,6 +179,48 @@ class SplitLayoutSaveJsonTest {
         assertTrue(schema["__meta__"] is JsonObject)
         assertEquals("c", marker(schema["default"]))
         assertEquals("C", marker(schema["__variant__:split"]))
+    }
+
+    @Test
+    fun splitAuxBarEditsSaveOnTheSubLayoutAndRoundTrip() {
+        val splitKey = "rime:万象九键:__variant__:split"
+        val ownerKey = LayoutJsonUtils.auxBarOwnerKey(splitKey)
+        val keys = listOf(mapOf<String, Any?>(
+            "type" to "MacroKey", "label" to "，",
+            "tap" to mapOf("macro" to listOf(mapOf(
+                "type" to "tap", "keys" to listOf(mapOf("fcitx" to "comma"))
+            )))
+        ))
+        val json = LayoutJsonUtils.convertToSaveJson(
+            mapOf("rime" to rows("q"), "rime:万象九键" to rows("c"), splitKey to rows("C")),
+            layoutAuxBarConfigs = mapOf(ownerKey to AuxBarConfig(AuxBarPosition.Left, 15f)),
+            layoutAuxBarKeys = mapOf(ownerKey to keys)
+        )
+        val reloaded = Json.parseToJsonElement(json.toString()) as JsonObject
+        val layout = containerOf(reloaded, "rime")
+        val schema = layout["万象九键"] as JsonObject
+        val aux = (schema["__meta__"] as JsonObject)["aux_bar"] as JsonObject
+        assertEquals("left", (aux["position"] as JsonPrimitive).content)
+        assertEquals(15f, (aux["size_percent"] as JsonPrimitive).content.toFloat())
+        assertEquals(keys, LayoutJsonUtils.parseLayoutRows(JsonArray(listOf(aux["keys"]!!))).single())
+        assertTrue("分体排列只保存按键，辅助栏保留在所属子布局顶层", schema["__variant__:split"] is JsonArray)
+        LayoutVariant.entries.forEach { variant ->
+            assertEquals(schema, LayoutVariantResolver.resolveAuxBarElement(layout, variant, listOf("万象九键")))
+        }
+    }
+
+    @Test
+    fun auxBarOwnerKeysPreserveSchemaAndLayerIdentity() {
+        mapOf(
+            "rime" to "rime",
+            "rime:万象九键" to "rime:万象九键",
+            "rime:__variant__:split" to "rime",
+            "rime:万象九键:__variant__:split" to "rime:万象九键",
+            "rime:__layer__:num:__variant__:split" to "rime:__layer__:num",
+            "rime:__variant__:unknown" to "rime:__variant__:unknown"
+        ).forEach { (entry, owner) ->
+            assertEquals(owner, LayoutJsonUtils.auxBarOwnerKey(entry))
+        }
     }
 
     /** 层子布局（`__layer__:`）同样能带自己的分体排列，且前缀不会被切坏。 */

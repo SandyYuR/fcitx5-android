@@ -211,6 +211,70 @@ class LayoutVariantResolverTest {
         assertEquals(listOf("base-split"), resolve(layout, LayoutVariant.Split))
     }
 
+    @Test
+    fun schemaSplitReusesItsParentAuxBar() {
+        val layout = obj(
+            """{
+              "default": ["base"],
+              "万象九键": {
+                "__meta__": {"aux_bar": {"position": "left", "size_percent": 15,
+                  "keys": [{"type": "MacroKey", "label": "，"}]}},
+                "default": ["schema"],
+                "__variant__:split": ["schema-split"]
+              }
+            }"""
+        )
+        LayoutVariant.entries.forEach { variant ->
+            assertSame(
+                "普通与分体必须读取同一个子布局对象的辅助栏",
+                layout["万象九键"],
+                LayoutVariantResolver.resolveAuxBarElement(layout, variant, listOf("万象九键"))
+            )
+        }
+        assertEquals(listOf("schema-split"), resolve(layout, LayoutVariant.Split, listOf("万象九键")))
+    }
+
+    @Test
+    fun bodySplitUsesBodyAuxBarWhenSchemaHasNoSplit() {
+        val layout = obj(
+            """{
+              "__meta__": {"aux_bar": {"position": "right", "size_percent": 10}},
+              "default": ["base"], "__variant__:split": ["base-split"],
+              "万象九键": {
+                "__meta__": {"aux_bar": {"position": "left", "size_percent": 15}},
+                "default": ["schema"]
+              }
+            }"""
+        )
+        assertSame(layout, LayoutVariantResolver.resolveAuxBarElement(layout, LayoutVariant.Split, listOf("万象九键")))
+        assertSame(layout["万象九键"], LayoutVariantResolver.resolveAuxBarElement(layout, LayoutVariant.Docked, listOf("万象九键")))
+    }
+
+    @Test
+    fun malformedSchemaSplitFallsBackWithoutLosingSchemaAuxBar() {
+        val layout = obj(
+            """{"default": ["base"], "万象九键": {
+              "__meta__": {"aux_bar": {"position": "left", "size_percent": 15}},
+              "default": ["schema"], "__variant__:split": "invalid"
+            }}"""
+        )
+        assertEquals(listOf("schema"), resolve(layout, LayoutVariant.Split, listOf("万象九键")))
+        assertSame(layout["万象九键"], LayoutVariantResolver.resolveAuxBarElement(layout, LayoutVariant.Split, listOf("万象九键")))
+        assertSame(layout, LayoutVariantResolver.resolveAuxBarElement(layout, LayoutVariant.Split, listOf("其他方案")))
+    }
+
+    @Test
+    fun forcedLayerAndSplitOnlySchemaKeepTheirAuxBarOwner() {
+        val layer = obj(
+            """{"__meta__": {"aux_bar": {"position": "above_preedit"}},
+              "__variant__:split": ["layer-split"]}"""
+        )
+        assertSame(layer, LayoutVariantResolver.resolveAuxBarElement(layer, LayoutVariant.Split, emptyList()))
+        val layout = JsonObject(mapOf("__layer__:num" to layer))
+        assertSame(layer, LayoutVariantResolver.resolveAuxBarElement(layout, LayoutVariant.Split, listOf("__layer__:num")))
+        assertNull(LayoutVariantResolver.resolveAuxBarElement(null, LayoutVariant.Split, emptyList()))
+    }
+
     /** `""` 也是合法的本体键（老文件/手写文件里出现过），不能被漏掉。 */
     @Test
     fun emptyStringKeyCountsAsLayoutBody() {

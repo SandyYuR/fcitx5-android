@@ -971,6 +971,13 @@ class TextKeyboard private constructor(
             val variant = state.variant
             val json = textLayoutJson
 
+            fun auxBarElement(layoutElement: JsonElement?): JsonElement? =
+                LayoutVariantResolver.resolveAuxBarElement(
+                    layoutElement,
+                    variant,
+                    subModeCandidates(subModeLabel, schemaId, subModeName)
+                )
+
             forcedLayoutKey?.let { forced ->
                 if (json != null) {
                     val forcedLayout = findLayoutElementByKey(json, forced)
@@ -1001,22 +1008,15 @@ class TextKeyboard private constructor(
                             parseLayoutHeightPercentOverride(rowsElement)
                                 ?: parseLayoutHeightPercentOverride(json[baseName])
                         }
-                        state.auxBarConfig = if (forcedSub.isNotEmpty()) {
-                            parseAuxBarConfig(rowsElement)
-                                ?: parseAuxBarConfig((json[baseName] as? JsonObject)?.get(forcedSub))
-                                ?: parseAuxBarConfig(json[baseName])
-                        } else {
-                            parseAuxBarConfig(rowsElement)
-                                ?: parseAuxBarConfig(json[baseName])
-                        }
-                        state.auxBarKeys = if (forcedSub.isNotEmpty()) {
-                            parseAuxBarKeys(rowsElement)
-                                .ifEmpty { parseAuxBarKeys((json[baseName] as? JsonObject)?.get(forcedSub)) }
-                                .ifEmpty { parseAuxBarKeys(json[baseName]) }
-                        } else {
-                            parseAuxBarKeys(rowsElement)
-                                .ifEmpty { parseAuxBarKeys(json[baseName]) }
-                        }
+                        val auxElement = auxBarElement(forcedElement)
+                        state.auxBarConfig = parseAuxBarConfig(auxElement)
+                            ?: parseAuxBarConfig(rowsElement)
+                            ?: parseAuxBarConfig(forcedElement)
+                            ?: parseAuxBarConfig(json[baseName])
+                        state.auxBarKeys = parseAuxBarKeys(auxElement)
+                            .ifEmpty { parseAuxBarKeys(rowsElement) }
+                            .ifEmpty { parseAuxBarKeys(forcedElement) }
+                            .ifEmpty { parseAuxBarKeys(json[baseName]) }
                         return cachedKeyDefLayouts.getOrPut(cacheKey) {
                             forcedRows.map { rowElement ->
                                 LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
@@ -1103,11 +1103,14 @@ class TextKeyboard private constructor(
                             resolvedLayoutHeightPercentOverride =
                                 parseLayoutHeightPercentOverride(rowsElement)
                                     ?: parseLayoutHeightPercentOverride(imeLayoutElement)
+                            val auxElement = auxBarElement(imeLayoutElement)
                             state.auxBarConfig =
-                                parseAuxBarConfig(rowsElement)
+                                parseAuxBarConfig(auxElement)
+                                    ?: parseAuxBarConfig(rowsElement)
                                     ?: parseAuxBarConfig(imeLayoutElement)
                             state.auxBarKeys =
-                                parseAuxBarKeys(rowsElement)
+                                parseAuxBarKeys(auxElement)
+                                    .ifEmpty { parseAuxBarKeys(rowsElement) }
                                     .ifEmpty { parseAuxBarKeys(imeLayoutElement) }
                             // Use a cache key that includes submode and showLangSwitch for proper caching
                             // Include showLangSwitch in cache key so layout is re-created when setting changes
@@ -1140,9 +1143,12 @@ class TextKeyboard private constructor(
                         )
                         resolvedLayoutHeightPercentOverride = parseLayoutHeightPercentOverride(rowsElement)
                             ?: parseLayoutHeightPercentOverride(layoutElement)
-                        state.auxBarConfig = parseAuxBarConfig(rowsElement)
+                        val auxElement = auxBarElement(layoutElement)
+                        state.auxBarConfig = parseAuxBarConfig(auxElement)
+                            ?: parseAuxBarConfig(rowsElement)
                             ?: parseAuxBarConfig(layoutElement)
-                        state.auxBarKeys = parseAuxBarKeys(rowsElement)
+                        state.auxBarKeys = parseAuxBarKeys(auxElement)
+                            .ifEmpty { parseAuxBarKeys(rowsElement) }
                             .ifEmpty { parseAuxBarKeys(layoutElement) }
                         val layoutArray = parseLayoutArray(rowsElement)
                         if (layoutArray != null) {

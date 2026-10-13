@@ -90,21 +90,40 @@ object LayoutVariantResolver {
         layoutElement: JsonElement?,
         variant: LayoutVariant,
         subModeCandidates: List<String>
-    ): JsonElement? {
-        val obj = layoutElement as? JsonObject ?: return layoutElement
+    ): JsonElement? = resolve(layoutElement, variant, subModeCandidates).rowsElement
+
+    /** 辅助栏属于子布局，普通/分体排列共用其顶层 `__meta__.aux_bar`。 */
+    fun resolveAuxBarElement(
+        layoutElement: JsonElement?,
+        variant: LayoutVariant,
+        subModeCandidates: List<String>
+    ): JsonElement? = resolve(layoutElement, variant, subModeCandidates).auxBarElement
+
+    private data class ResolvedLayout(
+        val rowsElement: JsonElement?,
+        val auxBarElement: JsonElement?
+    )
+
+    private fun resolve(
+        layoutElement: JsonElement?,
+        variant: LayoutVariant,
+        subModeCandidates: List<String>
+    ): ResolvedLayout {
+        val obj = layoutElement as? JsonObject
+            ?: return ResolvedLayout(layoutElement, layoutElement)
 
         val schemaEntry = subModeCandidates.firstNotNullOfOrNull { key ->
             obj[key]?.takeIf { hasRowsFor(it, variant) }
         }
 
         if (variant.isSplit) {
-            schemaEntry?.let { entry -> variantEntryOf(entry, variant)?.let { return it } }
-            variantEntry(obj, variant)?.let { return it }
+            schemaEntry?.let { entry ->
+                variantEntryOf(entry, variant)?.let { return ResolvedLayout(it, entry) }
+            }
+            variantEntry(obj, variant)?.let { return ResolvedLayout(it, obj) }
         }
 
-        schemaEntry?.let { return it }
-        return obj["default"]
-            ?: obj[""]
-            ?: obj
+        schemaEntry?.let { return ResolvedLayout(it, it) }
+        return ResolvedLayout(obj["default"] ?: obj[""] ?: obj, obj)
     }
 }

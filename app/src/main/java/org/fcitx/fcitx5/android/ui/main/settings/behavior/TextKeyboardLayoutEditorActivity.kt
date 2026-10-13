@@ -267,12 +267,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         previewSubModeLabel?.takeIf { it.isNotBlank() }
 
     private fun resolveExistingSubModeKey(layoutName: String): String? {
-        val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() } ?: return null
-        val subModeKey = "$layoutName:$subModeLabel"
-        if (entries.containsKey(subModeKey)) return subModeKey
-        val idKey = subModeManager.nameToIdMap[subModeLabel]?.let { "$layoutName:$it" }
-        if (idKey != null && entries.containsKey(idKey)) return idKey
-        return null
+        val storedLabel = subModeManager.resolveStorageLabel(layoutName, previewSubModeLabel) ?: return null
+        return LayoutJsonUtils.entryKeyOf(layoutName, storedLabel, LayoutVariant.Docked)
+            .takeIf { entries.containsKey(it) }
     }
 
     private fun currentEditingSubtitle(): String? {
@@ -282,10 +279,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             return "${displayProfile(currentLayoutProfile)}:${splitLayoutTargetLabel(layoutName)}"
         }
         val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() }
-        val subModeKey = subModeLabel?.let { "$layoutName:$it" }
-        val hasDedicatedSubModeLayout = subModeKey != null &&
-            (entries.containsKey(subModeKey) ||
-                subModeManager.nameToIdMap[subModeLabel]?.let { entries.containsKey("$layoutName:$it") } == true)
+        val hasDedicatedSubModeLayout = resolveExistingSubModeKey(layoutName) != null
         val editing = if (hasDedicatedSubModeLayout) {
             "$layoutName:$subModeLabel"
         } else {
@@ -313,13 +307,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
      * @param subModeLabel 下拉框选中的子模式标签；null 表示选中的是「默认」项
      */
     private fun editingTargetFor(layoutName: String, subModeLabel: String?): String {
-        if (subModeLabel != null) {
-            "$layoutName:$subModeLabel"
-                .takeIf { entries.containsKey(it) }
-                ?.let { return it }
-            subModeManager.nameToIdMap[subModeLabel]
-                ?.let { id -> "$layoutName:$id".takeIf { entries.containsKey(it) } }
-                ?.let { return it }
+        subModeManager.resolveStorageLabel(layoutName, subModeLabel)?.let { storedLabel ->
+            LayoutJsonUtils.entryKeyOf(layoutName, storedLabel, LayoutVariant.Docked)
+                .takeIf { entries.containsKey(it) }?.let { return it }
         }
         return "$layoutName:default"
     }
@@ -386,6 +376,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             },
             layoutAuxBarConfigProvider = { layoutKey ->
                 dataManager.getLayoutAuxBarConfig(layoutKey)
+                    ?: dataManager.getLayoutAuxBarConfig(LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutKey))
             },
             layoutAuxBarKeysProvider = { layoutKey ->
                 val baseKey = LayoutJsonUtils.baseLayoutNameFromEntryKey(layoutKey)
@@ -414,14 +405,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 ?.getIntExtra(KeyEditorActivity.EXTRA_KEY_INDEX, -1)
                 ?.takeIf { it >= 0 }
 
-            val layoutName = currentLayout ?: return@registerForActivityResult
-            val actualSubModeKey = editingSplitEntryKey()?.takeIf { entries.containsKey(it) }
-                ?: previewSubModeLabel?.let { label ->
-                    val id = subModeManager.nameToIdMap[label]
-                    listOfNotNull("$layoutName:$label", id?.let { "$layoutName:$it" })
-                        .firstOrNull { entries.containsKey(it) }
-                }
-            val key = actualSubModeKey ?: layoutName
+            val key = currentEditingLayoutKey() ?: return@registerForActivityResult
             val rows = entries[key] ?: return@registerForActivityResult
 
             when (action) {
@@ -665,10 +649,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             // Only show submode-specific message if there's actually a dedicated submode layout
             currentLayout?.let { layoutName ->
                 val subModeLabel = previewSubModeLabel
-                val subModeKey = subModeLabel?.let { "$layoutName:$it" }
-                val hasDedicatedSubModeLayout = subModeKey != null &&
-                    (entries.containsKey(subModeKey) ||
-                        subModeManager.nameToIdMap[subModeLabel]?.let { entries.containsKey("$layoutName:$it") } == true)
+                val hasDedicatedSubModeLayout = resolveExistingSubModeKey(layoutName) != null
 
                 if (hasDedicatedSubModeLayout) {
                     showToast(getString(R.string.text_keyboard_layout_editing_submode, subModeLabel))
@@ -1297,11 +1278,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         addLayoutButton.alpha = 1.0f
 
         if (subModeLabel != null) {
-            val actualLabel = subModeManager.nameToIdMap[subModeLabel] ?: subModeLabel
-            val subModeKey = "$layoutName:$subModeLabel"
-            val actualKey = if (actualLabel != subModeLabel) "$layoutName:$actualLabel" else null
-            val hasSubModeLayout = entries.containsKey(subModeKey) ||
-                (actualKey != null && entries.containsKey(actualKey))
+            val hasSubModeLayout = resolveExistingSubModeKey(layoutName) != null
             
             // Update add button: add submode layout if it doesn't exist
             if (!hasSubModeLayout) {
@@ -1340,14 +1317,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     private fun openGlobalLayoutNameInput() {
-        val currentEditingLayoutKey = currentLayout?.let { layoutName ->
-            previewSubModeLabel?.let { label ->
-                val subModeKey = "$layoutName:$label"
-                if (entries.containsKey(subModeKey)) subModeKey
-                else subModeManager.nameToIdMap[label]?.let { "$layoutName:$it" }?.takeIf { entries.containsKey(it) }
-                ?: layoutName
-            } ?: layoutName
-        }
+        val currentEditingLayoutKey = currentEditingLayoutKey()
         val copySourceOptions = entries.keys.sorted().toMutableList()
         val copySourceLabels = copySourceOptions.map {
             if (it == TEXT_EDITOR_LAYOUT_NAME) {
@@ -1435,9 +1405,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 ?.takeIf { it.isNotBlank() }
                 ?.let { entries[it] }
                 ?: currentRowsRef.takeIf { it.isNotEmpty() }
-                ?: currentLayout?.let { name ->
-                    previewSubModeLabel?.let { label -> entries["$name:$label"] } ?: entries[name]
-                }
+                ?: currentEditingLayoutKey()?.let { entries[it] }
                 ?: mutableListOf()
         }
 
@@ -1562,9 +1530,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
         
         // Check if submode layout already exists
-        val subModeKey = "$layoutName:$currentSubModeLabel"
-        val idKey = subModeManager.nameToIdMap[currentSubModeLabel]?.let { "$layoutName:$it" }
-        if (entries.containsKey(subModeKey) || (idKey != null && entries.containsKey(idKey))) {
+        if (resolveExistingSubModeKey(layoutName) != null) {
             // Submode layout already exists - show toast
             showToast(getString(R.string.text_keyboard_layout_submode_already_exists, currentSubModeLabel))
             return
@@ -1703,20 +1669,16 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
      * Confirm and delete a submode-specific layout.
      */
     private fun confirmDeleteSubModeLayout(layoutName: String, subModeLabel: String) {
-        val actualLabel = subModeManager.nameToIdMap[subModeLabel] ?: subModeLabel
+        val actualLabel = subModeManager.resolveStorageLabel(layoutName, subModeLabel) ?: return
         val actualKey = "$layoutName:$actualLabel"
         AlertDialog.Builder(this)
             .setTitle(R.string.delete)
             .setMessage(getString(R.string.text_keyboard_layout_delete_submode_layout_confirm, subModeLabel))
             .setPositiveButton(R.string.delete) { _, _ ->
                 entries.remove(actualKey)
-                val nameKey = "$layoutName:$subModeLabel"
-                if (nameKey != actualKey) entries.remove(nameKey)
                 // 该方案的分体布局跟着一起删：它是这份子布局的一个属性，子布局没了它就成
                 // 了一个谁也访问不到、却还留在文件里的孤儿条目。
-                listOf(actualLabel, subModeLabel).distinct().forEach { label ->
-                    dataManager.deleteVariantLayout(layoutName, label, LayoutVariant.Split)
-                }
+                dataManager.deleteVariantLayout(layoutName, actualLabel, LayoutVariant.Split)
 
                 // 删掉的是子模式布局：优先切到另一个确有专用布局的方案，否则停在「默认」项
                 val remainingLabels = subModeManager.extractSubModeLabelsFromLayout(layoutName)
@@ -1734,7 +1696,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     private fun addSubModeLayout(layoutName: String, subModeLabel: String) {
-        val actualLabel = subModeManager.nameToIdMap[subModeLabel] ?: subModeLabel
+        val actualLabel = subModeManager.resolveStorageLabel(layoutName, subModeLabel) ?: return
         val subModeKey = "$layoutName:$actualLabel"
 
         if (dataManager.addSubModeLayout(layoutName, actualLabel)) {
@@ -1764,13 +1726,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         normalizeEditingSplit()
 
         // 编辑分体布局时直接编辑那份条目；否则按方案专用布局 → 基础布局回落（原有行为）。
-        val splitKey = editingSplitEntryKey()
-        val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() }
-        val id = subModeLabel?.let { subModeManager.nameToIdMap[it] }
-        val subModeKey = subModeLabel?.let { "$layoutName:$it" }
-        val idKey = id?.let { "$layoutName:$it" }
-        val actualSubModeKey = listOfNotNull(subModeKey, idKey).firstOrNull { entries.containsKey(it) }
-        val key = splitKey ?: actualSubModeKey ?: layoutName
+        val key = currentEditingLayoutKey() ?: return
 
         val rows = entries[key]
 
@@ -2638,7 +2594,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     private fun openAuxBarDialog() {
-        val layoutName = currentEditingLayoutKey() ?: return
+        val layoutName = currentEditingLayoutKey()?.let(LayoutJsonUtils::auxBarOwnerKey) ?: return
         val currentConfig = dataManager.getLayoutAuxBarConfig(layoutName)
 
         val container = LinearLayout(this).apply {
@@ -2794,17 +2750,12 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         // 编辑分体布局时，编辑目标就是那份分体条目（形如 `rime:倉頡五代:__variant__:split`），
         // 它和"方案专用布局"是并列的两条分支，不能混在一起回退。
         editingSplitEntryKey()?.let { return it }
-        val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() } ?: return base
-        val subModeKey = "$base:$subModeLabel"
-        if (entries.containsKey(subModeKey)) return subModeKey
-        val id = subModeManager.nameToIdMap[subModeLabel]?.let { "$base:$it" }
-        if (id != null && entries.containsKey(id)) return id
-        return base
+        return resolveExistingSubModeKey(base) ?: base
     }
 
     /** 当前**子布局**标签；null 表示布局本体（「默认」子布局）。 */
     private fun currentSubLayoutLabel(): String? =
-        previewSubModeLabel?.takeIf { it.isNotBlank() }
+        currentLayout?.let { subModeManager.resolveStorageLabel(it, previewSubModeLabel) }
 
     /**
      * 当前子布局的分体布局条目键；不在编辑分体布局、或它还没建立时返回 null。
@@ -2854,7 +2805,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             refreshAfterSplitChange()
             return
         }
-        val target = subLayout ?: getString(R.string.default_)
+        val target = splitLayoutTargetLabel(layoutName)
         // 拨动过了才弹框，因此失败/取消时要把勾选框拨回去——不然界面显示"已勾选"、
         // 实际编辑的却还是普通排列。
         AlertDialog.Builder(this)

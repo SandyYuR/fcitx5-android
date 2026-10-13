@@ -32,8 +32,8 @@ object LayoutJsonUtils {
      * 排列形态变体条目的保留前缀，形如 `"__variant__:split"`。
      *
      * 分体排列刻意做成"一个子布局条目"，而不是布局里多一个字段：这样它自动获得子布局
-     * 已有的全部能力——编辑器的浏览与编辑、`__meta__`、保存时的 JSON 往返、QR 分享，
-     * 都不需要另写一套。
+     * 已有的浏览与编辑、保存时的 JSON 往返、QR 分享能力。辅助栏则属于子布局顶层的
+     * `__meta__.aux_bar`，普通/分体排列共用一份。
      *
      * 与 [LAYER_SUBMODE_PREFIX] 同理，用保留前缀而不是让用户看得见的方案名，避免与真实
      * 子模式标签冲突。取值见 [org.fcitx.fcitx5.android.input.keyboard.LayoutVariant.jsonKey]。
@@ -119,6 +119,30 @@ object LayoutJsonUtils {
     /** 生成条目键（[EntryKey.toEntryKey] 的便捷写法）。 */
     fun entryKeyOf(layoutName: String, subLayout: String?, variant: LayoutVariant): String =
         EntryKey(layoutName, subLayout, variant).toEntryKey()
+
+    /** 普通/分体排列共用所属子布局的辅助栏；未知排列键保持原样。 */
+    fun auxBarOwnerKey(entryKey: String): String =
+        parseEntryKey(entryKey)?.copy(variant = LayoutVariant.Docked)?.toEntryKey() ?: entryKey
+
+    /**
+     * 编辑器显示名与磁盘子布局键分离：沿用已有键，没有条目时优先使用方案 ID。
+     * 仅有分体排列也算已有子布局；ID 与名称同时存在时按运行时的 ID 优先级选择。
+     * 取不到 ID 时保留显示名，不能凭名称猜测或重命名用户数据。
+     */
+    fun resolveSubLayoutStorageLabel(
+        entryKeys: Iterable<String>,
+        layoutName: String,
+        displayLabel: String?,
+        schemaId: String?
+    ): String? {
+        val label = displayLabel?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        val id = schemaId?.trim()?.takeIf { it.isNotEmpty() }
+        val candidates = listOfNotNull(id, label).distinct()
+        val existing = entryKeys.mapNotNull { key ->
+            parseEntryKey(key)?.takeIf { it.layoutName == layoutName }?.subLayout
+        }.toSet()
+        return candidates.firstOrNull { it in existing } ?: id ?: label
+    }
 
     private val KEY_FIELD_ORDER = listOf(
         "type",

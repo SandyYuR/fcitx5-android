@@ -27,6 +27,15 @@ class SubModeManager(
     var nameToIdMap: Map<String, String> = emptyMap()
         private set
 
+    /** 显示方案名只用于界面，编辑/新建统一使用文件中已有的键或方案 ID。 */
+    fun resolveStorageLabel(layoutName: String, displayLabel: String?): String? =
+        LayoutJsonUtils.resolveSubLayoutStorageLabel(
+            entries.keys,
+            layoutName,
+            displayLabel,
+            displayLabel?.trim()?.let { nameToIdMap[it] }
+        )
+
     companion object {
         /**
          * 把 selector 语义暴露给运行时：从状态区动作解析方案菜单。
