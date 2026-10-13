@@ -1584,8 +1584,27 @@ runCatching { setEnabledInputMethods(arrayOf("rime")) }
 
 ## 7. 建议的下一步顺序
 
+### 外部数据目录与备份的维护契约
+
+- 注册名和实际路径分离。`ExternalPathsV2` 持久化、`PathsV2` 管理界面字段均使用 UTF-8 字节的十六进制 `名称|路径` 对；不得按明文第一个 `|` 切名称。读取旧 `ExternalPaths` 时优先匹配完整且最长的已登记 profile 名，再迁移保存。旧兼容字段只写能够无损解码的条目。
+- Android 11 及以上验证所有文件访问，Android 6–9 请求运行时写权限，Android 10 明确禁用原生外部路径。SAF 只负责选目录；仅 `com.android.externalstorage.documents` 的主存储/标准 SD 卡卷 ID 可以转换为绝对路径，云提供方不能这样转换。
+- 浏览当前 Rime 目录必须消费引擎实际路径，不能再拼 `data/<profile>`。外部目录重命名/删除只操作注册；失败不能改当前目录状态，运行日志不写完整路径。
+- 完整备份必须包含已注册外部目录的实际文件，归档放到 `external/data/<profile>`。`rime-profiles.json` v2 保存 `externalProfiles` 与 `originalPaths`，原路径是提示元数据，不得直接作为导入写入目标；归档运行配置先清除外部路径映射。导入为每个 profile 提供原目录（有原路径时预选）、其他本机外部目录、应用目录三项选择，经检查和最终确认后再写入选定的 `ExternalPathsV2` 映射。
+- v1 完整备份仍可导入，因未保存原路径而预选应用目录，也可重新选择外部目录；没有 manifest 的普通旧备份保持兼容。仅含外部路径、没有实际文件的旧备份仍拒绝导入。
+- 导出不能只调用 `save()` 后复制运行中的词库：Rime/LevelDB 仍可能继续写文件。导出持有独立连接，等待 ready 并保存状态，暂停原生引擎并阻止 connect/restart 重启，缓存 ZIP 完整生成后恢复引擎并等待 ready，随后才启动 CreateDocument。失败或取消也必须恢复引擎并清理缓存；保存阶段失败只尝试删除本次 CreateDocument 创建的文件，不能删除用户已有文件。保存提供方拒绝删除时明确提示手动清理。共享目录中的其他程序仍可能改写文件，文件变化检查不得删除或绕过。
+- 外部存储的时间戳比较不能直接等同于内容改变。Android 8.1 及以上使用同一打开描述符的 `fstat` 比较大小、修改时间和身份，路径身份另行检查；旧 API 保留打开后的时间戳/描述符长度检查。若只有时间戳变化、大小和身份未变，必须重新读取并与已复制字节的 SHA-256 比较，相同才接受；大小、身份或内容变化仍拒绝，不能仅重试 stat 或取消检查。
+- 设备备份回归只运行 `org.fcitx.fcitx5.android.data.UserDataBackupSnapshotTest`（`connectedFxDebugAndroidTest` 的 `android.testInstrumentationRunnerArguments.class`，或对已编译测试包执行 `adb shell am instrument -w -e class <上述类> <Debug包名>.test/androidx.test.runner.AndroidJUnitRunner`）。测试读取当前注册目录、只在应用缓存生成和删除临时 ZIP，并验证失败恢复引擎，不执行导入。不要运行历史 `FcitxTest` 的其他引擎用例来验证 Rime-only。
+- 权限不足、存储卷不可用、目录冲突时返回选择界面，不静默切换目标。外部目标必须是本机共享存储中的独立 Rime 子目录；禁止卷根、公共父目录、Android 目录、应用数据及目标之间的包含关系。最终确认逐项列出实际路径，并明确说明整个目录替换会移除备份中不存在的旧文件。取消或校验失败不得先停引擎或改现有文件。
+- 导入先在应用缓存中解压并校验 ZIP（文件和目录都检查路径边界、重复条目、数量与总字节数），随后询问目标；最终确认后持有独立引擎连接、等待 ready 并保存状态，再进入恢复保护并确认引擎已停。恢复期间 connect/restart 不得重启引擎；失败解除保护并恢复连接，成功保持保护直到进程退出。实际替换和失败恢复不得被界面生命周期取消打断。
+- 在各目标文件系统暂存，应用与外部目标原件保留到全部替换成功；中途失败按逆序回滚。暂存时先捕获目标的 canonical 路径，临时目录与原件副本在该实际目录的父目录下创建；提交前及逐项替换前，将请求路径重新解析后与捕获值比较，并复核暂存、副本路径。Android 的 `/data/data`、`/data/user/0` 等稳定路径别名不代表目标改变，不能用原始 absolute 与 canonical 不相等作为拒绝理由。先复核全部目标再开始替换，目标存在和已有文件不阻止用户确认后的整目录覆盖。回滚也失败时保留原目录并报错，不能清除恢复副本。进程强杀后的自动事务恢复尚未实现。
+- 准备脚本从父仓库 gitlink 取完整 SHA，适配层和 prebuilt 都禁止静默回退到 master；有本地修改时中止，core 补丁必须正向或反向检查成功，不能用 `git checkout -- .` 清掉用户修改。
+- 配套引擎 PR 合并前如临时使用作者 fork，合并后须同步恢复 `.gitmodules` 与准备脚本的自有仓库来源，并更新 gitlink、版本元数据与 README。GitHub 线性合并或 squash 可能生成新 SHA，不能沿用作者分支提交号；先核对合并后实际提交、对应 CI、从自有仓库拉取的可用性及代码树一致性，再更新 Android PR。保留严格 pin 与本地修改保护，不把脚本整体回退到旧逻辑。
+- 原生编码回归测试使用 `-DENABLE_DATA_DIR_TESTS=ON` 和 `ctest --test-dir build`。本地修改未提交前直接构建现有源码，不运行会检出已提交 pin 的准备脚本。首次合入须先提交适配层修复，再更新主仓库 gitlink 到该修复提交；未经用户授权不创建这些提交或推送。
+
+### 其他待办
+
 1. **单测是否纳入 CI（已落地）**：2026-09-15 起 CI 新增独立 `unit_test` job（`a2db421a`），跑 `:app:testFxDebugUnitTest`，失败在提交上显示红叉但**刻意不 gate Nightly**（不写进 `nightly_release` 的 needs）；2026-10-08 起 `pr.yml`（`0077c401`）也在 PR 阶段跑同一任务 + Debug 构建。**测试文件/用例计数已因 10-07~10-10 一批改动过期，不再写死数字**（旧记「41 文件 / 351 例」为 2026-10-03 快照，已不适用）：本批新增 **7 个 JVM 单测文件**——`AuxBarTabLayoutTest`（`098ec596`）、`DirectionalSwipeLabelDefTest` + `SwipeSymbolDirectionTest`（`d156052b`/`4f0d6fb8`）、`PopupKeyActionTest`（`598897b7`）、`ThemeRandomizerTest` + `RandomThemeActionTest`（`43e16fb6`）、`ContinuousCornerGeometryTest`（`01d0dfee`），并改了 `LayoutJsonUtilsTest`；另新增 **2 个 `androidTest`** 文件（`CandidateOverflowTest` / `CandidateIndexBadgeTest`，**在 `androidTest` 源集、不计入 `:app:testFxDebugUnitTest`**）。**别照抄任何数字**，用 `Get-ChildItem -Recurse app/src/test -Filter *.kt` 与数 `@Test` 现取。仍欠 KeyboardWindow layerHistory 集成测试。
-2. 决定是否同步 Play 中文标题及 fcitx5-rime license/.gitmodules 来源元数据。（现状：`.gitmodules` 仍写官方 `fcitx/fcitx5-rime` URL，`fcitx5-rime.json` 的 `website` 上游仍写 fxliang、靠本机 `prepare_personal_build.sh` 的 sed 改成 SandyYuR——两边都不在仓库里固化。）
+2. 决定是否同步 Play 中文标题。外部目录配套改动已把 fcitx5-rime 的 `.gitmodules` 与 license website 固定到 SandyYuR，后续核对当前代码，不再依赖准备脚本 sed 修正。
 3. 使用外部 fork 前先 fetch 并核对（**旧快照一律勿照抄**：2026-09-16 时 `fcitx5-rime@e74ddb6`、`prebuilt@9e631eb9`、`prebuilder@446d1ea`；**2026-10-03 实测**：`fcitx5-rime@107502d`、`prebuilt@1126616c`、`prebuilder@4121ce6`（其 `librime` gitlink 仍 `ef1a16aa`）；三者均随每次引擎更新前进，**引用前必须 fetch 复核**，现取命令 `git -C D:\GitHub\fx2-rime\fx-rime-only ls-tree HEAD <path>`）。
 4. 本地 SHA 追溯只能靠 **tag**：`refs/tags/archive/pre-doc-split`（`f719df11`）、`refs/tags/backup-pre-squash`（`1feab280`）、`refs/tags/backup/pre-date-fix`（`fe263507`）、`refs/tags/backup/pre-squash-alphabet`（`f28c5d6a`）——⚠️ **2026-10-03 核实：`backup/pre-doc-split`、`backup/pre-retitle`、`backup/pre-layout-split` 三个分支已不存在**（这里曾是它们，现已只剩 tag），而纪元② tip `143fe9fa`、纪元③ tip `a3da6483` 的提交对象虽仍在本地对象库、**已无任何分支/tag 指向**，`git gc --prune` 后会永久丢失。另留 `backup/fx-rime-only-20260920-59a3a1ab`（09-20 上游历史重写的等价内容已在重写后历史中，确认无用后可删）。当前没有 review refs 可删；未经明确要求不要破坏旧对象、reflog 或 tags。
 5. **真机回归待办**：① `e74ddb6` 官方重写 updateUI 后"打字→点 tab→选词"全链路；② 引擎多次前进后的装机冒烟（当前 prebuilt 是 09-28 的 `1126616c` 一系：para deploy + userdict 缓存 + rewrite 滤镜 + 配置指纹）；③ **`fc3f98b` 移除"清除"按钮后的辅助栏真机回归**——用户 09-20 已装机确认可用，但**未刻意覆盖"音节 tab 极多"与"取消约束"两类边界场景**；④ **09-28 的部署期改动**（配置指纹 + 按键吞掉 + 键盘内「正在部署」提示）**尚未做真机回归**——本次只跑了单测与出包，未验证 "切回输入法→立即打字" 的实际手感，也未覆盖"首次安装/真实改配置后部署"这条仍会走部署的路径；⑤ **10-07~10-10 这批 15 个提交全部未做真机回归**（逐条见 §0.6.14~0.6.22）：重点核对——长候选横向拖拽手感与序号角标可见性（§0.6.14）、同一键上/下划分别触发不同宏且旧布局升级方向正确（§0.6.15）、双标签/回退在不同键高与圆角下的形态（§0.6.16）、音节 tab 滚动流畅度与第 7 项半露（§0.6.17）、长按弹出多字符候选能上屏（§0.6.18）、vivo/小米兼容开关默认开启后的按键行为（§0.6.19）、各弹出菜单与主题一致性（§0.6.20）、随机主题即时应用/评分/复制流程（§0.6.21）、编码区与工具栏圆角接续的观感（§0.6.22）。
