@@ -117,6 +117,7 @@ object FcitxDaemon {
     private val lock = ReentrantLock()
 
     private val clients = mutableMapOf<String, FcitxConnection>()
+    private var userDataIoInProgress = false
 
     /**
      * Create a connection
@@ -124,7 +125,7 @@ object FcitxDaemon {
     fun connect(name: String): FcitxConnection = lock.withLock {
         if (name in clients)
             return@withLock clients.getValue(name)
-        if (realFcitx.lifecycle.currentState == FcitxLifecycle.State.STOPPED) {
+        if (!userDataIoInProgress && realFcitx.lifecycle.currentState == FcitxLifecycle.State.STOPPED) {
             Timber.d("FcitxDaemon start fcitx")
             realFcitx.start()
         }
@@ -140,7 +141,7 @@ object FcitxDaemon {
         if (name !in clients)
             return
         clients -= name
-        if (clients.isEmpty()) {
+        if (clients.isEmpty() && !userDataIoInProgress) {
             Timber.d("FcitxDaemon stop fcitx")
             realFcitx.stop()
         }
@@ -150,6 +151,10 @@ object FcitxDaemon {
      * Restart fcitx instance while keep the clients connected
      */
     fun restartFcitx() = lock.withLock {
+        if (userDataIoInProgress) {
+            Timber.d("Skip restarting fcitx during user data backup or restore")
+            return@withLock
+        }
         val id = RESTART_ID++
         NotificationCompat.Builder(appContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_baseline_sync_24)
@@ -185,8 +190,38 @@ object FcitxDaemon {
      * Should only be used when it has been stopped **AND** user data importing failed.
      */
     fun startFcitx() {
-        realFcitx.start()
+        lock.withLock { if (!userDataIoInProgress) realFcitx.start() }
     }
+
+    /** Caller holds a ready connection. Keep new clients from starting during replacement. */
+    fun beginUserDataRestore() = beginUserDataIo()
+
+    fun beginUserDataBackup() = beginUserDataIo()
+
+    private fun beginUserDataIo() {
+        lock.withLock {
+            check(!userDataIoInProgress) { "A user data backup or restore is already in progress." }
+            userDataIoInProgress = true
+        }
+        try {
+            realFcitx.stop()
+            check(realFcitx.lifecycle.currentState == FcitxLifecycle.State.STOPPED) {
+                "The input engine could not be stopped for user data backup or restore."
+            }
+        } catch (e: Exception) {
+            finishFailedUserDataRestore()
+            throw e
+        }
+    }
+
+    /** On success the process exits with the guard held; on failure resume connected clients. */
+    fun finishFailedUserDataRestore() = lock.withLock {
+        userDataIoInProgress = false
+        if (clients.isNotEmpty() && realFcitx.lifecycle.currentState == FcitxLifecycle.State.STOPPED) realFcitx.start()
+    }
+
+    /** Backup resumes the engine on both success and failure, before opening the save picker. */
+    fun finishUserDataBackup() = finishFailedUserDataRestore()
 
     init {
         createNotificationChannel()

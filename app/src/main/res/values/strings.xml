@@ -152,6 +152,12 @@
     <string name="addon_dir_profile_delete_confirm">Delete data directory "%1$s"?</string>
     <string name="addon_dir_profile_delete_last_forbidden">At least one data directory must remain</string>
     <string name="addon_dir_profile_current_format">%1$s (current)</string>
+    <string name="addon_dir_profile_use_external_path">Use external path</string>
+    <string name="addon_dir_profile_all_files_permission_required">Please grant \"All files access\" first</string>
+    <string name="addon_dir_profile_external_dir_invalid">Unable to use the selected directory</string>
+    <string name="addon_dir_profile_storage_permission_required">Please grant storage access first</string>
+    <string name="addon_dir_profile_android10_unsupported">Android 10 cannot use external Rime directories. Use the application data directory. Android 11 and newer support this feature.</string>
+    <string name="addon_dir_profile_open_failed">Unable to open the current Rime directory. Check its path and storage access.</string>
     <string name="reset">Reset</string>
     <string name="reload_config">Reload Config</string>
     <string name="input_method_options">Input Method Options</string>
@@ -1058,4 +1064,17 @@
     <!-- 拆分后的键盘分组名 -->
     <string name="keyboard_category_candidate">Candidate bar style</string>
     <string name="keyboard_category_voice">Voice input</string>
+    <string name="rime_restore_profile_title">Restore Rime directory: %1$s</string>
+    <string name="rime_restore_original">Restore to the original directory\n%1$s</string>
+    <string name="rime_restore_other">Restore to another external directory</string>
+    <string name="rime_restore_app">Restore to the application directory</string>
+    <string name="rime_restore_original_unknown">The original path was not recorded in this backup.</string>
+    <string name="rime_restore_permission_fallback">External storage access was not granted or is unsupported. Grant access and try again, or restore to the application directory.</string>
+    <string name="rime_restore_target_unavailable">Cannot restore %1$s to:\n%2$s\n\nCheck storage and permissions, then select another external directory or the application directory.</string>
+    <string name="rime_restore_conflicting_targets">The destinations are unavailable, overlap each other or overlap application data. Select separate Rime subdirectories. Storage roots and shared parent folders cannot be replaced.</string>
+    <string name="rime_restore_target_line">%1$s → %2$s</string>
+    <string name="rime_restore_replace_warning">The following directories will be completely replaced, including schemas, compiled files, user dictionaries and other files. Existing files absent from the backup will also be removed:\n\n%1$s\n\nProceed?</string>
+    <string name="user_data_export_changed">A data file was still modified during backup. Pause external synchronization or editing and try again.</string>
+    <string name="user_data_exported">Backup saved.</string>
+    <string name="user_data_export_cleanup_failed">Backup writing failed and the incomplete output could not be removed. Delete that file manually and try again.</string>
 </resources>

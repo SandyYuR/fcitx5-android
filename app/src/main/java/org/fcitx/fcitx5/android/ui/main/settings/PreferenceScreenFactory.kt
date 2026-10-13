@@ -26,11 +26,12 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.Key
 import org.fcitx.fcitx5.android.core.RawConfig
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
+import org.fcitx.fcitx5.android.data.RimeDataDirectoryState
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.ui.main.modified.MySwitchPreference
 import org.fcitx.fcitx5.android.utils.LongClickPreference
 import org.fcitx.fcitx5.android.utils.buildDocumentsProviderIntent
-import org.fcitx.fcitx5.android.utils.buildPrimaryStorageIntent
+import org.fcitx.fcitx5.android.utils.buildStorageDirectoryIntent
 import org.fcitx.fcitx5.android.utils.config.ConfigDescriptor
 import org.fcitx.fcitx5.android.utils.config.ConfigDescriptor.ConfigBool
 import org.fcitx.fcitx5.android.utils.config.ConfigDescriptor.ConfigCustom
@@ -392,23 +393,21 @@ object PreferenceScreenFactory {
             val currentDir = try {
                 conn.runOnReady {
                     val raw = getAddonSubConfig("rime", "profile-manager")
-                    val cfg = raw.findByName("cfg") ?: raw
-                    cfg.findByName("Current")?.value?.trim().orEmpty().ifBlank { "rime" }
+                    val state = RimeDataDirectoryState.fromConfig(
+                        raw, context.getExternalFilesDir(null)!!.resolve("data")
+                    )
+                    state.paths.getValue(state.current)
                 }
             } catch (e: Exception) {
-                Timber.w("Unable to get current rime directory: $e")
-                "rime"
+                context.toast(R.string.addon_dir_profile_open_failed)
+                return@launch
             } finally {
                 FcitxDaemon.disconnect(connectionName)
             }
             try {
-                context.startActivity(buildPrimaryStorageIntent("data/$currentDir"))
+                context.startActivity(buildStorageDirectoryIntent(currentDir))
             } catch (e: Exception) {
-                try {
-                    context.startActivity(buildDocumentsProviderIntent())
-                } catch (fallback: Exception) {
-                    context.toast(fallback)
-                }
+                context.toast(R.string.addon_dir_profile_open_failed)
             }
         }
         return true

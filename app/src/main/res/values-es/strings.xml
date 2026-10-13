@@ -767,4 +767,23 @@
         <string name="macro_editor_table_input_methods">Método de entrada por tabla</string>
     <string name="macro_editor_pinyin_custom_phrase">Frases personalizadas de Pinyin</string>
     <string name="macro_editor_pinyin_dict">Diccionario Pinyin</string>
+    <string name="addon_dir_profile_use_external_path">Usar ruta externa</string>
+    <string name="addon_dir_profile_all_files_permission_required">Concede primero el acceso a todos los archivos</string>
+    <string name="addon_dir_profile_external_dir_invalid">No se puede usar el directorio seleccionado</string>
+    <string name="addon_dir_profile_storage_permission_required">Concede primero el acceso al almacenamiento</string>
+    <string name="addon_dir_profile_android10_unsupported">Android 10 no admite directorios externos de Rime. Usa el directorio de datos de la aplicación. Esta función está disponible en Android 11 y posteriores.</string>
+    <string name="addon_dir_profile_open_failed">No se puede abrir el directorio actual de Rime. Comprueba la ruta y el permiso de acceso al almacenamiento.</string>
+    <string name="rime_restore_profile_title">Restaurar directorio Rime: %1$s</string>
+    <string name="rime_restore_original">Restaurar en el directorio original\n%1$s</string>
+    <string name="rime_restore_other">Restaurar en otro directorio externo</string>
+    <string name="rime_restore_app">Restaurar en el directorio de la aplicación</string>
+    <string name="rime_restore_original_unknown">Esta copia no incluye la ruta original.</string>
+    <string name="rime_restore_permission_fallback">No se concedió el acceso al almacenamiento externo o no es compatible. Conceda acceso y vuelva a intentar, o restaure en el directorio de la aplicación.</string>
+    <string name="rime_restore_target_unavailable">No se puede restaurar %1$s en:\n%2$s\n\nCompruebe el almacenamiento y los permisos, o elija otro directorio externo o el de la aplicación.</string>
+    <string name="rime_restore_conflicting_targets">Los destinos no están disponibles, se superponen o incluyen datos de la aplicación. Elija subdirectorios Rime separados. No se pueden reemplazar las raíces de almacenamiento ni las carpetas públicas superiores.</string>
+    <string name="rime_restore_target_line">%1$s → %2$s</string>
+    <string name="rime_restore_replace_warning">Los siguientes directorios se reemplazarán por completo, incluidos esquemas, archivos compilados, diccionarios de usuario y otros archivos. También se eliminarán los archivos existentes que no estén en la copia:\n\n%1$s\n\n¿Continuar?</string>
+    <string name="user_data_export_changed">Un archivo siguió cambiando durante la copia. Pause la sincronización externa o la edición y vuelva a intentar.</string>
+    <string name="user_data_exported">Copia guardada.</string>
+    <string name="user_data_export_cleanup_failed">No se pudo escribir la copia ni eliminar el archivo incompleto. Elimine ese archivo manualmente y vuelva a intentar.</string>
 </resources>

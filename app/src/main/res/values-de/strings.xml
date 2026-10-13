@@ -763,4 +763,23 @@
         <string name="macro_editor_table_input_methods">Tabellebeneingabe</string>
     <string name="macro_editor_pinyin_custom_phrase">Pinyin benutzerdefinierte Phrasen</string>
     <string name="macro_editor_pinyin_dict">Pinyin-Wörterbuch</string>
+    <string name="addon_dir_profile_use_external_path">Externen Pfad verwenden</string>
+    <string name="addon_dir_profile_all_files_permission_required">Bitte zuerst den Zugriff auf alle Dateien erlauben</string>
+    <string name="addon_dir_profile_external_dir_invalid">Das ausgewählte Verzeichnis kann nicht verwendet werden</string>
+    <string name="addon_dir_profile_storage_permission_required">Bitte zuerst den Speicherzugriff erlauben</string>
+    <string name="addon_dir_profile_android10_unsupported">Android 10 unterstützt keine externen Rime-Verzeichnisse. Verwenden Sie das App-Datenverzeichnis. Ab Android 11 ist diese Funktion verfügbar.</string>
+    <string name="addon_dir_profile_open_failed">Das aktuelle Rime-Verzeichnis kann nicht geöffnet werden. Prüfen Sie den Pfad und die Speicherberechtigung.</string>
+    <string name="rime_restore_profile_title">Rime-Verzeichnis wiederherstellen: %1$s</string>
+    <string name="rime_restore_original">Im ursprünglichen Verzeichnis wiederherstellen\n%1$s</string>
+    <string name="rime_restore_other">In einem anderen externen Verzeichnis wiederherstellen</string>
+    <string name="rime_restore_app">Im Anwendungsverzeichnis wiederherstellen</string>
+    <string name="rime_restore_original_unknown">Der ursprüngliche Pfad wurde in dieser Sicherung nicht gespeichert.</string>
+    <string name="rime_restore_permission_fallback">Der Zugriff auf den externen Speicher wurde nicht gewährt oder wird nicht unterstützt. Zugriff gewähren und erneut versuchen oder im Anwendungsverzeichnis wiederherstellen.</string>
+    <string name="rime_restore_target_unavailable">%1$s kann nicht hier wiederhergestellt werden:\n%2$s\n\nSpeicher und Berechtigungen prüfen oder ein anderes externes Verzeichnis bzw. das Anwendungsverzeichnis wählen.</string>
+    <string name="rime_restore_conflicting_targets">Die Ziele sind nicht verfügbar, überschneiden sich oder enthalten Anwendungsdaten. Getrennte Rime-Unterverzeichnisse wählen. Speicherwurzeln und öffentliche übergeordnete Ordner dürfen nicht ersetzt werden.</string>
+    <string name="rime_restore_target_line">%1$s → %2$s</string>
+    <string name="rime_restore_replace_warning">Die folgenden Verzeichnisse werden vollständig ersetzt, einschließlich Schemata, kompilierter Dateien, Benutzerwörterbücher und anderer Dateien. Vorhandene Dateien, die nicht in der Sicherung enthalten sind, werden ebenfalls entfernt:\n\n%1$s\n\nFortfahren?</string>
+    <string name="user_data_export_changed">Eine Datei wurde während der Sicherung weiterhin geändert. Externe Synchronisierung oder Bearbeitung pausieren und erneut versuchen.</string>
+    <string name="user_data_exported">Sicherung gespeichert.</string>
+    <string name="user_data_export_cleanup_failed">Die Sicherung konnte nicht geschrieben und die unvollständige Datei nicht entfernt werden. Die Datei manuell löschen und erneut versuchen.</string>
 </resources>

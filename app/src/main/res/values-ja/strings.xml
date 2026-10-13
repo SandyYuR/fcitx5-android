@@ -765,4 +765,23 @@
         <string name="macro_editor_table_input_methods">テーブル入力方式</string>
     <string name="macro_editor_pinyin_custom_phrase">拼音カスタムフレーズ</string>
     <string name="macro_editor_pinyin_dict">拼音辞書</string>
+    <string name="addon_dir_profile_use_external_path">外部パスを使用</string>
+    <string name="addon_dir_profile_all_files_permission_required">先に「すべてのファイルへのアクセス」を許可してください</string>
+    <string name="addon_dir_profile_external_dir_invalid">選択したディレクトリは使用できません</string>
+    <string name="addon_dir_profile_storage_permission_required">先にストレージへのアクセスを許可してください</string>
+    <string name="addon_dir_profile_android10_unsupported">Android 10 は外部 Rime ディレクトリに対応していません。アプリのデータディレクトリを使用してください。Android 11 以降ではこの機能を使用できます。</string>
+    <string name="addon_dir_profile_open_failed">現在の Rime ディレクトリを開けません。パスとストレージへのアクセス権限を確認してください。</string>
+    <string name="rime_restore_profile_title">Rime ディレクトリの復元：%1$s</string>
+    <string name="rime_restore_original">元のディレクトリに復元\n%1$s</string>
+    <string name="rime_restore_other">別の外部ディレクトリに復元</string>
+    <string name="rime_restore_app">アプリのディレクトリに復元</string>
+    <string name="rime_restore_original_unknown">このバックアップには元のパスが記録されていません。</string>
+    <string name="rime_restore_permission_fallback">外部ストレージへのアクセスが許可されていないか、非対応です。許可して再試行するか、アプリのディレクトリに復元してください。</string>
+    <string name="rime_restore_target_unavailable">%1$s を次の場所に復元できません：\n%2$s\n\nストレージと権限を確認するか、別の外部ディレクトリまたはアプリのディレクトリを選択してください。</string>
+    <string name="rime_restore_conflicting_targets">復元先にアクセスできないか、互いに重複しているか、アプリのデータと重複しています。独立した Rime サブディレクトリを選択してください。ストレージのルートや共有の親フォルダは置き換えられません。</string>
+    <string name="rime_restore_target_line">%1$s → %2$s</string>
+    <string name="rime_restore_replace_warning">次のディレクトリ内のスキーマ、コンパイル済みファイル、ユーザー辞書、その他のファイルをすべて置き換えます。バックアップにない既存のファイルも削除されます：\n\n%1$s\n\n続行しますか？</string>
+    <string name="user_data_export_changed">バックアップ中にデータファイルが変更されました。外部同期や編集を一時停止して再試行してください。</string>
+    <string name="user_data_exported">バックアップを保存しました。</string>
+    <string name="user_data_export_cleanup_failed">バックアップの書き込みに失敗し、未完成のファイルを削除できませんでした。そのファイルを手動で削除して再試行してください。</string>
 </resources>

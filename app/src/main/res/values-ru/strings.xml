@@ -766,4 +766,23 @@
     <string name="macro_editor_pinyin_custom_phrase">Пользовательские фразы пиньинь</string>
     <string name="macro_editor_pinyin_dict">Словарь пиньинь</string>
     <string name="edit_text_playground">Тестовое поле EditText</string>
+    <string name="addon_dir_profile_use_external_path">Использовать внешний путь</string>
+    <string name="addon_dir_profile_all_files_permission_required">Сначала разрешите доступ ко всем файлам</string>
+    <string name="addon_dir_profile_external_dir_invalid">Невозможно использовать выбранный каталог</string>
+    <string name="addon_dir_profile_storage_permission_required">Сначала разрешите доступ к хранилищу</string>
+    <string name="addon_dir_profile_android10_unsupported">Android 10 не поддерживает внешние каталоги Rime. Используйте каталог данных приложения. Эта функция доступна на Android 11 и новее.</string>
+    <string name="addon_dir_profile_open_failed">Не удалось открыть текущий каталог Rime. Проверьте путь и разрешение на доступ к хранилищу.</string>
+    <string name="rime_restore_profile_title">Восстановить каталог Rime: %1$s</string>
+    <string name="rime_restore_original">Восстановить в исходный каталог\n%1$s</string>
+    <string name="rime_restore_other">Восстановить в другой внешний каталог</string>
+    <string name="rime_restore_app">Восстановить в каталог приложения</string>
+    <string name="rime_restore_original_unknown">Исходный путь не записан в этой резервной копии.</string>
+    <string name="rime_restore_permission_fallback">Доступ к внешнему хранилищу не предоставлен или не поддерживается. Разрешите доступ и повторите попытку либо восстановите в каталог приложения.</string>
+    <string name="rime_restore_target_unavailable">Невозможно восстановить %1$s в:\n%2$s\n\nПроверьте хранилище и разрешения либо выберите другой внешний каталог или каталог приложения.</string>
+    <string name="rime_restore_conflicting_targets">Цели недоступны, пересекаются друг с другом или с данными приложения. Выберите отдельные подкаталоги Rime. Корни хранилищ и общие родительские папки заменять нельзя.</string>
+    <string name="rime_restore_target_line">%1$s → %2$s</string>
+    <string name="rime_restore_replace_warning">Следующие каталоги будут полностью заменены, включая схемы, скомпилированные файлы, пользовательские словари и другие файлы. Существующие файлы, отсутствующие в резервной копии, также будут удалены:\n\n%1$s\n\nПродолжить?</string>
+    <string name="user_data_export_changed">Файл данных продолжал изменяться во время резервного копирования. Приостановите внешнюю синхронизацию или редактирование и повторите попытку.</string>
+    <string name="user_data_exported">Резервная копия сохранена.</string>
+    <string name="user_data_export_cleanup_failed">Не удалось записать резервную копию и удалить неполный файл. Удалите этот файл вручную и повторите попытку.</string>
 </resources>

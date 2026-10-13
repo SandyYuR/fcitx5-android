@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.ui.common
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import org.fcitx.fcitx5.android.R
 import splitties.dimensions.dp
 import splitties.resources.drawable
@@ -15,14 +16,18 @@ import splitties.resources.styledColor
 import splitties.resources.styledDimenPxSize
 import splitties.resources.styledDrawable
 import splitties.views.backgroundColor
+import splitties.views.dsl.constraintlayout.above
 import splitties.views.dsl.constraintlayout.after
 import splitties.views.dsl.constraintlayout.before
+import splitties.views.dsl.constraintlayout.below
+import splitties.views.dsl.constraintlayout.bottomOfParent
 import splitties.views.dsl.constraintlayout.centerVertically
 import splitties.views.dsl.constraintlayout.constraintLayout
 import splitties.views.dsl.constraintlayout.endOfParent
 import splitties.views.dsl.constraintlayout.lParams
 import splitties.views.dsl.constraintlayout.matchConstraints
 import splitties.views.dsl.constraintlayout.startOfParent
+import splitties.views.dsl.constraintlayout.topOfParent
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.checkBox
@@ -51,6 +56,13 @@ class DynamicListEntryUi(override val ctx: Context) : Ui {
     val nameText = textView {
         setPaddingDp(0, 16, 0, 16)
         textAppearance = ctx.resolveThemeAttribute(android.R.attr.textAppearanceListItem)
+    }
+
+    val subText = textView {
+        setPaddingDp(0, 0, 0, 12)
+        visibility = View.GONE
+        textAppearance = ctx.resolveThemeAttribute(android.R.attr.textAppearanceSmall)
+        setTextColor(styledColor(android.R.attr.textColorSecondary))
     }
 
     val editButton = imageButton {
@@ -98,7 +110,18 @@ class DynamicListEntryUi(override val ctx: Context) : Ui {
         add(nameText, lParams {
             width = matchConstraints
             height = wrapContent
-            centerVertically()
+            topOfParent()
+            above(subText)
+            after(checkBox, paddingStart)
+            before(editButton)
+            verticalChainStyle = ConstraintLayout.LayoutParams.CHAIN_PACKED
+        })
+
+        add(subText, lParams {
+            width = matchConstraints
+            height = wrapContent
+            below(nameText)
+            bottomOfParent()
             after(checkBox, paddingStart)
             before(editButton)
         })

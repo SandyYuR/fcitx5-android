@@ -145,6 +145,12 @@
     <string name="addon_dir_profile_delete_confirm">删除数据目录“%1$s”？</string>
     <string name="addon_dir_profile_delete_last_forbidden">至少保留一个数据目录</string>
     <string name="addon_dir_profile_current_format">%1$s（当前）</string>
+    <string name="addon_dir_profile_use_external_path">使用外部路径</string>
+    <string name="addon_dir_profile_all_files_permission_required">请先授予“所有文件访问”权限</string>
+    <string name="addon_dir_profile_external_dir_invalid">无法使用所选择的目录</string>
+    <string name="addon_dir_profile_storage_permission_required">请先授予存储访问权限</string>
+    <string name="addon_dir_profile_android10_unsupported">Android 10 不支持外部 Rime 目录，请使用应用数据目录。Android 11 及以上可使用此功能。</string>
+    <string name="addon_dir_profile_open_failed">无法打开当前 Rime 目录，请检查目录路径和存储访问权限。</string>
     <string name="reset">重置</string>
     <string name="reload_config">重载配置</string>
     <string name="input_method_options">输入法设置</string>
@@ -1054,4 +1060,17 @@
     <!-- 拆分后的键盘分组名 -->
     <string name="keyboard_category_candidate">候选栏样式</string>
     <string name="keyboard_category_voice">语音输入</string>
+    <string name="rime_restore_profile_title">恢复 Rime 目录：%1$s</string>
+    <string name="rime_restore_original">恢复到原目录\n%1$s</string>
+    <string name="rime_restore_other">恢复到其他外部目录</string>
+    <string name="rime_restore_app">恢复到应用目录</string>
+    <string name="rime_restore_original_unknown">此备份未记录原路径。</string>
+    <string name="rime_restore_permission_fallback">未获得外部存储访问权限，或系统版本不支持。请授权后重试，或选择恢复到应用目录。</string>
+    <string name="rime_restore_target_unavailable">无法将 %1$s 恢复到：\n%2$s\n\n请检查存储和权限，或重新选择其他外部目录、应用目录。</string>
+    <string name="rime_restore_conflicting_targets">目标目录不可用、互相包含或与应用数据重叠。请重新选择独立的 Rime 子目录；不能替换存储根目录或 Documents、Download 等公共父目录。</string>
+    <string name="rime_restore_target_line">%1$s → %2$s</string>
+    <string name="rime_restore_replace_warning">将完整替换以下目录中的方案、编译产物、用户词典及其他文件。现有但备份中没有的文件也会移除：\n\n%1$s\n\n是否继续？</string>
+    <string name="user_data_export_changed">备份过程中数据文件仍被修改。请暂停外部同步或编辑后重试。</string>
+    <string name="user_data_exported">备份已保存。</string>
+    <string name="user_data_export_cleanup_failed">备份写入失败，未能删除保存位置的未完成文件。请手动删除该文件后重试。</string>
 </resources>

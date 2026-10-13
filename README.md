@@ -76,7 +76,7 @@
 
 ### 二、引擎与构建链
 
-- **构建不再依赖 fxliang 账号**：rime 源码与 prebuilt 改用自有 fork，CI 运行 `prepare_personal_build.sh` 动态 checkout。
+- **构建不再依赖 fxliang 账号**：rime 源码与 prebuilt 改用自有 fork，CI 运行 `prepare_personal_build.sh` 按主仓库 gitlink 固定提交检出；取不到指定提交时中止，不回退到 master。
 - **librime 补丁链**（构建期依次应用，共 8 个）：fxliang 功能补丁、音节缓存、词典并行部署、用户词典缓存、词典文件重映射修复、忘记词汇连删同音词修复、万象（amzxyz）的 `rewrite` 滤镜，以及**必须排在末位**的配置指纹补丁。补丁顺序是契约的一部分。
 - **配置指纹替代时间戳**：原版 Rime 用数据目录时间戳判断配置是否改动，而用户词典落盘、垃圾清理、同步临时目录等无关活动都会推新时间戳，导致冷启动每次全量部署；现在对配置文件求内容指纹，只有配置真的变了才部署。
 - **部署期间的按键不再「漏」到输入框**：此前这些键既没进编码区、又被当作普通字符直接上屏，表现为「刚切回输入法打前几个字母，字母没进编码却直接出现在文字里」；现在按键只被丢弃，并在键盘上显示「正在部署」提示。
@@ -170,7 +170,7 @@ git submodule update --init --recursive
 
 产物分别在 `app/build/outputs/apk/fx/debug/` 与 `app/build/outputs/apk/fx/release/`。debug 变体包名为 `org.fcitx.fcitx5.android.fx.rime.debug`，**可与 Release 版共存安装**，适合真机对照测试。当前没有 `mainline` flavor，也没有 `assembleMainline` 任务。
 
-Rime 共享数据位于应用内部 `usr/share/rime-data`（只含 `default.yaml` 等 prelude 通用预设资源）；用户数据位于该包 external files 目录下的 `data/rime`。
+Rime 共享数据位于应用内部 `usr/share/rime-data`（只含 `default.yaml` 等 prelude 通用预设资源）；默认用户数据位于该包 external files 目录下的 `data/rime`。数据目录管理可注册本机共享存储目录；Android 11 及以上需授予「所有文件访问」，Android 6–9 需存储权限，Android 10 使用应用目录。完整备份包含已注册外部目录的实际文件和原路径；导入时逐项选择恢复到原目录、其他外部目录或应用目录，经权限检查及替换范围确认后再恢复。
 
 ### CI 与发布
 
@@ -180,9 +180,9 @@ Rime 共享数据位于应用内部 `usr/share/rime-data`（只含 `default.yaml
 
 ### Rime 引擎来源
 
-- **适配层**（tabs、schema 选单、Shift/alt-trigger 定制）来自 [SandyYuR/fcitx5-rime](https://github.com/SandyYuR/fcitx5-rime)。CI 运行 `prepare_personal_build.sh` 动态 checkout 其 master（当前 `107502d`，官方 5.1.17 基线 + fxliang 全部定制 + 部署期按键吞掉、键盘内部署提示与非法音节 tab 过滤等修复），并把 `fcitx5-alt-trigger-v4point1.patch` 应用到 Fcitx5 core。
+- **适配层**（tabs、schema 选单、Shift/alt-trigger 定制）来自 [SandyYuR/fcitx5-rime](https://github.com/SandyYuR/fcitx5-rime)。外部数据目录的配套引擎 PR 已合并，子模块与准备脚本均从自有 fork 获取固定提交。CI 按主仓库 gitlink 检出指定提交，并把 `fcitx5-alt-trigger-v4point1.patch` 应用到 Fcitx5 core；已应用的补丁会检查，补丁不匹配时中止。准备脚本不清除本地源码修改。
 - **librime 静态库**来自 [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)，由 [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder) 固定官方 librime 提交（当前 `1.17.0-ef1a16a`）并按固定顺序应用 8 个定制补丁——fxliang 功能补丁、音节缓存、词典并行部署、用户词典缓存、词典文件重映射修复、忘记词汇连删同音词修复、万象（amzxyz）的 `rewrite` 滤镜（PR #1232），以及**必须排在末位**的配置指纹补丁——构建四 ABI 静态库后自动推回 prebuilt，主仓库再静态链接进 APK。
-- 更新后需同步 `app/licenses/libraries/` 下的版本元数据，并验证 `RimeGetInputTabs` / `RimeSelectTab` 等定制 API、APK 构建与真机输入行为。
+- prebuilt 也按主仓库 gitlink 固定提交检出。更新后需同步 `app/licenses/libraries/` 下的版本元数据，并验证 `RimeGetInputTabs` / `RimeSelectTab` 等定制 API、APK 构建与真机输入行为。
 - ⚠️ 补丁顺序是契约的一部分，末位的指纹补丁必须始终最后应用；**不要**用官方 prebuilt 覆盖 SandyYuR 产物，否则会静默丢掉 tabs、音节缓存、用户词典缓存等定制。
 
 需要改引擎、改 CI 或重写历史前，请先读[交接报告](https://sandyyur.github.io/fcitx5-android/maintainer/HANDOVER-rime-only)（文档站 `docs` 分支）：里面有完整的引擎更新 runbook、故障经验与易错点。本分支以 fxliang 的 `fx` 分支、提交 `3ad25fc9` 为基线继续专用化，逐条改动明细见 `git log`。

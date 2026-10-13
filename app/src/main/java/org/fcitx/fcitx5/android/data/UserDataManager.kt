@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.data
 
+import android.os.Environment
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -13,17 +14,19 @@ import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.clipboard.db.CLIPBOARD_DATABASE_NAME
 import org.fcitx.fcitx5.android.data.clipboard.db.CLIPBOARD_DATABASE_VERSION
 import org.fcitx.fcitx5.android.utils.Const
+import org.fcitx.fcitx5.android.utils.ExternalRimeStorage
 import org.fcitx.fcitx5.android.utils.appContext
 import org.fcitx.fcitx5.android.utils.errorRuntime
 import org.fcitx.fcitx5.android.utils.extract
 import org.fcitx.fcitx5.android.utils.versionCodeCompat
-import org.fcitx.fcitx5.android.utils.withTempDir
 import java.io.File
 import java.io.InputStream
+import java.io.IOException
 import java.io.OutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import java.util.UUID
 
 object UserDataManager {
 
@@ -108,7 +111,8 @@ object UserDataManager {
     private val recentlyUsedDir = appContext.filesDir.resolve(RecentlyUsed.DIR_NAME)
 
     @OptIn(ExperimentalSerializationApi::class)
-    fun export(dest: OutputStream, timestamp: Long = System.currentTimeMillis()) = runCatching {
+    fun export(dest: OutputStream, rimeDirectories: RimeDataDirectoryState,
+               timestamp: Long = System.currentTimeMillis()) = runCatching {
         ZipOutputStream(dest.buffered()).use { zipStream ->
             // shared_prefs (current variant's prefs XML renamed to canonical upstream name)
             writeSharedPrefsTree(sharedPrefsDir, zipStream)
@@ -118,7 +122,7 @@ object UserDataManager {
             ClipboardManager.checkpointDatabase()
             writeFileTree(dataBasesDir, "databases", zipStream) { isSqliteSideCar(it.name) }
             // external
-            writeFileTree(externalDir, "external", zipStream)
+            RimeProfileBackup.write(externalDir, rimeDirectories, zipStream)
             // recently_used moved to SharedPreference and shoud not be exported
             // metadata — write canonical upstream package name so upstream's import accepts it
             zipStream.putNextEntry(ZipEntry("metadata.json"))
@@ -154,11 +158,7 @@ object UserDataManager {
     }
 
     private fun copyDir(source: File, target: File) {
-        val exists = source.exists()
-        val isDir = source.isDirectory
-        if (exists && isDir) {
-            source.copyRecursively(target, overwrite = true)
-        }
+        BackupFileTree.copy(source, target)
     }
 
     /**
@@ -268,12 +268,24 @@ object UserDataManager {
         }
     }
 
-    fun import(src: InputStream) = runCatching {
-        ZipInputStream(src).use { zipStream ->
-            withTempDir { tempDir ->
-                val extracted = zipStream.extract(tempDir)
-                val metadataFile = extracted.find { it.name == "metadata.json" }
+    class PreparedImport internal constructor(
+        internal val directory: File,
+        val metadata: Metadata,
+        val rimeProfiles: RimeProfileBackup.Manifest
+    ) : AutoCloseable {
+        override fun close() { directory.deleteRecursively() }
+    }
+
+    /** Extract and validate once, before asking for destinations or stopping the engine. */
+    fun prepareImport(src: InputStream): PreparedImport {
+        val tempDir = File(appContext.cacheDir, "user-data-import-${UUID.randomUUID()}")
+        if (!tempDir.mkdir()) throw IOException("Unable to prepare user data import.")
+        try {
+            ZipInputStream(src).use { zipStream ->
+                zipStream.extract(tempDir)
+                val metadataFile = File(tempDir, "metadata.json").takeIf { it.isFile }
                     ?: errorRuntime(R.string.exception_user_data_metadata)
+                require(metadataFile.length() <= 1024 * 1024) { "Backup metadata is too large." }
                 val metadata = json.decodeFromString<Metadata>(metadataFile.readText())
                 if (!isAllowedPackageName(metadata.packageName)) {
                     errorRuntime(R.string.exception_user_data_package_name_mismatch, metadata.packageName)
@@ -282,20 +294,51 @@ object UserDataManager {
                 // Room can only open a downgraded schema by wiping it, which used to clear
                 // pinned and favorite entries with no warning at all.
                 rejectNewerClipboardDatabase(File(tempDir, "databases"))
-                // Release the current database's file handles before its files are replaced.
-                ClipboardManager.closeDatabase()
-                // Copy shared_prefs with package name renaming
-                copySharedPrefs(File(tempDir, "shared_prefs"), sharedPrefsDir, metadata.packageName)
-                copyDatabases(File(tempDir, "databases"), dataBasesDir)
-                copyDir(File(tempDir, "external"), externalDir)
-                // Rewrite absolute custom button icon paths (which embed the source
-                // build's applicationId) to the portable relative form, so imported
-                // configs keep working across build variants.
-                normalizeButtonIconPaths(File(externalDir, "config/ButtonsLayout.json"))
-                // keep importing recently_used for backwords compatibility
-                copyDir(File(tempDir, "recently_used"), recentlyUsedDir)
-                metadata
+                return PreparedImport(tempDir, metadata, RimeProfileBackup.readManifest(tempDir))
             }
+        } catch (e: Exception) {
+            tempDir.deleteRecursively()
+            throw e
         }
+    }
+
+    /** Recheck after confirmation too: mounts, permissions and directory contents can change. */
+    fun validateRestore(prepared: PreparedImport, plan: RimeProfileRestorePlan) {
+        require(prepared.directory.isDirectory) { "The prepared backup is no longer available." }
+        val primary = Environment.getExternalStorageDirectory().canonicalPath
+        plan.destinations.values.filterNotNull().forEach { target ->
+            val volume = ExternalRimeStorage.restoreVolumeRoot(target.canonicalPath, primary)
+                ?: throw IOException("Choose a Rime subdirectory on local shared storage.")
+            if (!File(volume).isDirectory) throw IOException("The destination storage volume is unavailable.")
+        }
+        plan.validate(prepared.rimeProfiles, listOf(File(appContext.applicationInfo.dataDir), externalDir))
+    }
+
+    /** The caller stops Fcitx only after the user has confirmed the complete restore plan. */
+    fun restore(prepared: PreparedImport, plan: RimeProfileRestorePlan) = runCatching {
+        validateRestore(prepared, plan)
+        val tempDir = prepared.directory
+        val metadata = prepared.metadata
+        ClipboardManager.closeDatabase()
+        UserDataRestoreTransaction().use { restore ->
+            restore.stage(sharedPrefsDir) { staged ->
+                copySharedPrefs(File(tempDir, "shared_prefs"), staged, metadata.packageName)
+            }
+            restore.stage(dataBasesDir) { staged ->
+                copyDatabases(File(tempDir, "databases"), staged)
+            }
+            restore.stage(externalDir) { staged ->
+                plan.copyApplicationData(tempDir, staged)
+                normalizeButtonIconPaths(File(staged, "config/ButtonsLayout.json"))
+            }
+            if (File(tempDir, "recently_used").exists()) {
+                restore.stage(recentlyUsedDir) { staged ->
+                    copyDir(File(tempDir, "recently_used"), staged)
+                }
+            }
+            plan.stageExternalProfiles(tempDir, restore)
+            restore.commit()
+        }
+        metadata
     }
 }

@@ -145,6 +145,12 @@
     <string name="addon_dir_profile_delete_confirm">刪除資料目錄「%1$s」？</string>
     <string name="addon_dir_profile_delete_last_forbidden">至少須保留一個資料目錄</string>
     <string name="addon_dir_profile_current_format">%1$s（目前）</string>
+    <string name="addon_dir_profile_use_external_path">使用外部路徑</string>
+    <string name="addon_dir_profile_all_files_permission_required">請先授予「所有檔案存取」權限</string>
+    <string name="addon_dir_profile_external_dir_invalid">無法使用所選的目錄</string>
+    <string name="addon_dir_profile_storage_permission_required">請先授予儲存空間存取權限</string>
+    <string name="addon_dir_profile_android10_unsupported">Android 10 不支援外部 Rime 目錄，請使用應用程式資料目錄。Android 11 以上可使用此功能。</string>
+    <string name="addon_dir_profile_open_failed">無法開啟目前的 Rime 目錄，請檢查目錄路徑和儲存空間存取權限。</string>
     <string name="reset">重設</string>
     <string name="reload_config">重新讀取設定</string>
     <string name="input_method_options">輸入法設定</string>
@@ -1040,4 +1046,17 @@
     <!-- 拆分後的鍵盤分組名 -->
     <string name="keyboard_category_candidate">候選列樣式</string>
     <string name="keyboard_category_voice">語音輸入</string>
+    <string name="rime_restore_profile_title">還原 Rime 目錄：%1$s</string>
+    <string name="rime_restore_original">還原到原目錄\n%1$s</string>
+    <string name="rime_restore_other">還原到其他外部目錄</string>
+    <string name="rime_restore_app">還原到應用程式目錄</string>
+    <string name="rime_restore_original_unknown">此備份未記錄原路徑。</string>
+    <string name="rime_restore_permission_fallback">未取得外部儲存存取權限，或系統版本不支援。請授權後重試，或選擇還原到應用程式目錄。</string>
+    <string name="rime_restore_target_unavailable">無法將 %1$s 還原到：\n%2$s\n\n請檢查儲存空間和權限，或重新選擇其他外部目錄、應用程式目錄。</string>
+    <string name="rime_restore_conflicting_targets">目標目錄無法存取、互相包含或與應用程式資料重疊。請重新選擇獨立的 Rime 子目錄；不能取代儲存根目錄或 Documents、Download 等公共父目錄。</string>
+    <string name="rime_restore_target_line">%1$s → %2$s</string>
+    <string name="rime_restore_replace_warning">將完整取代以下目錄中的方案、編譯檔案、使用者詞典及其他檔案。現有但備份中沒有的檔案也會移除：\n\n%1$s\n\n是否繼續？</string>
+    <string name="user_data_export_changed">備份過程中資料檔案仍被修改。請暫停外部同步或編輯後重試。</string>
+    <string name="user_data_exported">備份已儲存。</string>
+    <string name="user_data_export_cleanup_failed">備份寫入失敗，無法刪除儲存位置的未完成檔案。請手動刪除該檔案後重試。</string>
 </resources>

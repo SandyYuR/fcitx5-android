@@ -767,4 +767,23 @@
         <string name="macro_editor_table_input_methods">테이블 입력 방식</string>
     <string name="macro_editor_pinyin_custom_phrase">병음 사용자 정의 구문</string>
     <string name="macro_editor_pinyin_dict">병음 사전</string>
+    <string name="addon_dir_profile_use_external_path">외부 경로 사용</string>
+    <string name="addon_dir_profile_all_files_permission_required">먼저 모든 파일에 대한 액세스를 허용하세요</string>
+    <string name="addon_dir_profile_external_dir_invalid">선택한 디렉터리를 사용할 수 없습니다</string>
+    <string name="addon_dir_profile_storage_permission_required">먼저 저장소 액세스를 허용하세요</string>
+    <string name="addon_dir_profile_android10_unsupported">Android 10에서는 외부 Rime 디렉터리를 지원하지 않습니다. 앱 데이터 디렉터리를 사용하세요. Android 11 이상에서는 이 기능을 사용할 수 있습니다.</string>
+    <string name="addon_dir_profile_open_failed">현재 Rime 디렉터리를 열 수 없습니다. 경로와 저장소 액세스 권한을 확인하세요.</string>
+    <string name="rime_restore_profile_title">Rime 디렉터리 복원: %1$s</string>
+    <string name="rime_restore_original">원래 디렉터리에 복원\n%1$s</string>
+    <string name="rime_restore_other">다른 외부 디렉터리에 복원</string>
+    <string name="rime_restore_app">앱 디렉터리에 복원</string>
+    <string name="rime_restore_original_unknown">이 백업에는 원래 경로가 기록되어 있지 않습니다.</string>
+    <string name="rime_restore_permission_fallback">외부 저장소 접근 권한이 없거나 지원되지 않습니다. 권한을 허용하고 다시 시도하거나 앱 디렉터리에 복원하세요.</string>
+    <string name="rime_restore_target_unavailable">%1$s을(를) 다음 위치에 복원할 수 없습니다:\n%2$s\n\n저장소와 권한을 확인하거나 다른 외부 디렉터리 또는 앱 디렉터리를 선택하세요.</string>
+    <string name="rime_restore_conflicting_targets">대상에 접근할 수 없거나 서로 겹치거나 앱 데이터와 겹칩니다. 별도의 Rime 하위 디렉터리를 선택하세요. 저장소 루트와 공용 상위 폴더는 교체할 수 없습니다.</string>
+    <string name="rime_restore_target_line">%1$s → %2$s</string>
+    <string name="rime_restore_replace_warning">다음 디렉터리의 스키마, 컴파일된 파일, 사용자 사전 및 기타 파일을 모두 교체합니다. 백업에 없는 기존 파일도 삭제됩니다:\n\n%1$s\n\n계속하시겠습니까?</string>
+    <string name="user_data_export_changed">백업 중에 데이터 파일이 계속 변경되었습니다. 외부 동기화나 편집을 일시 중지하고 다시 시도하세요.</string>
+    <string name="user_data_exported">백업을 저장했습니다.</string>
+    <string name="user_data_export_cleanup_failed">백업 쓰기에 실패했고 불완전한 파일을 삭제하지 못했습니다. 해당 파일을 수동으로 삭제하고 다시 시도하세요.</string>
 </resources>
