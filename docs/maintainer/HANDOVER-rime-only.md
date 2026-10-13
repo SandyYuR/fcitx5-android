@@ -1099,6 +1099,10 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 **测试**：新增 JVM 单测 `ContinuousCornerGeometryTest.kt`；`:app:testFxDebugUnitTest` 全量 **379 例**通过、`:app:assembleFxDebug` 成功。**真机回归未做**（提交正文明确「未做真机验证，adb 无设备」）。
 
+**2026-10-13 长编码边界修复**：旧 `ContentWrapper.onMeasure` 先用整块可用宽度测量文字，再加左侧主体偏移和右侧反向弧；容器宽度被父布局限制后，文字仍保持原测量宽度，右侧背景也只减编码区半径，未给工具栏圆角留白。现文字测量前分别扣除 `preeditBodyOffset(toolbarRadius, paddingLeft, preeditRadius)` 与右侧同式（使用 `paddingRight`），背景绘制共用这两侧位移。长编码的主体和反向弧都在两侧卡片圆角以内，短编码仍按内容收缩；浮动候选窗的零圆角默认值保持原行为。`actualContentWidth` 必须排除右侧只供卡片圆角使用的透明留白，避免扩大浮动键盘触摸范围。回归用 `PreeditLayoutTest` 在 Android 上检查真实测量、换行、绘制像素左右对称、侧边距/单手不等留白、长短文本切换及宽度变化。
+
+**本次验证**：`:app:testFxDebugUnitTest` 468 例通过，arm64-v8a 的 Debug APK 与 Android 测试 APK 构建成功；PJD110 设备上上述 4 项布局测试通过。未切换正式版输入法做真实 Rime 输入回归。`:app:lintFxDebug` 独立运行仍因既有的 318 个错误失败（主要为翻译缺失和 API 兼容性）；本次修改的两个源码文件及新增测试没有 lint 报告项。lint 与打包同批调用时还会触发既有的 `generateDataDescriptor` / `generateFxDebugLintReportModel` 隐式依赖校验错误，应分开执行，不能把这一失败记为检查通过。
+
 ---
 
 ### 0.6.23 密码输入框：无活动输入法下的崩溃防护、default 布局与空格键提示（2026-10-12，`393ba91` + `0ca7903` + `70298bc`）
