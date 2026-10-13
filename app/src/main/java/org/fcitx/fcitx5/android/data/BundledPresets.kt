@@ -29,9 +29,9 @@ import java.io.File
  * - `bundled/icon_themes/<主题名>.json`                       → `icon_themes/`
  *
  * 安装幂等且不覆盖：每个资源以"asset 路径 + 字节数"为版本标记记录在
- * SharedPreferences 中；目标文件已存在（用户自建或已安装）时绝不覆盖，
- * 用户删除已安装的文件后也不会被再次塞回。资源在后续版本更新时，修改
- * 文件内容（改变字节数）即可让新版本被重新安装。
+ * SharedPreferences 中；默认不覆盖已存在的文件，显式登记更新的资源只在
+ * 文件大小仍等于上一版内置内容时替换，保留用户自行修改的版本。
+ * 用户删除已处理版本的文件后不会被再次塞回；更新资源须同步登记旧字节数。
  */
 object BundledPresets {
 
@@ -75,7 +75,7 @@ object BundledPresets {
      */
     private val assetSizes = mapOf(
         "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 14611,
-        "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to 45949
+        "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to 36265
     )
 
     private val themeAssets = listOf(
@@ -157,14 +157,14 @@ object BundledPresets {
         val bytes = readAsset(assetPath) ?: return 0
         val tag = "$assetPath#${bytes.size}"
         if (tag in handled) return 0
-        // 内容有更新的内置资源（assetSizes 中登记了新字节数）：只有用户从未改过
+        // 内容有更新的内置资源（assetSizes 中登记了上一版字节数）：只有用户从未改过
         // 本地文件（大小仍等于上一版内置内容）时才原位替换；否则保留用户版本。
-        val newSize = assetSizes[assetPath]
-        if (newSize != null && dest.exists() && dest.length() != newSize.toLong()) {
+        val previousSize = assetSizes[assetPath]
+        if (previousSize != null && dest.exists() && dest.length() != previousSize.toLong()) {
             mark(tag)
             return 1
         }
-        if (!dest.exists() || newSize != null) {
+        if (!dest.exists() || previousSize != null) {
             runCatching {
                 dest.parentFile?.mkdirs()
                 val tmp = File(dest.absolutePath + ".tmp")
