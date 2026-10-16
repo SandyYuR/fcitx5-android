@@ -18,7 +18,9 @@ class InputConnectionSmokeTest {
         FileInputStream(it.fileDescriptor).bufferedReader().use { reader -> reader.readText().trim() }
     }
     private fun await(message: String, predicate: () -> Boolean) {
-        val deadline = SystemClock.uptimeMillis() + 30_000
+        val waitMs = InstrumentationRegistry.getArguments().getString("waitMs")?.toLongOrNull() ?: 30_000L
+        require(waitMs in 1_000..180_000)
+        val deadline = SystemClock.uptimeMillis() + waitMs
         while (!predicate() && SystemClock.uptimeMillis() < deadline) SystemClock.sleep(50)
         assertTrue(message, predicate())
     }
@@ -49,7 +51,13 @@ class InputConnectionSmokeTest {
                 instrumentation.waitForIdleSync()
                 await("Rime session did not become ready") {
                     if (direct) !RimeRuntime.blocked
-                    else (context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager).isActive(editor)
+                    else {
+                        // A hardware-keyboard IME may use a floating candidate
+                        // window with zero IME insets. Wait for the service's
+                        // view lifecycle, not a particular keyboard geometry.
+                        (context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager).isActive(editor) &&
+                            "mInputViewStarted=true" in shell("dumpsys activity service $component")
+                    }
                 }
                 val delay = InstrumentationRegistry.getArguments().getString("readyDelayMs")?.toLongOrNull() ?: 0L
                 require(delay in 0..30_000)

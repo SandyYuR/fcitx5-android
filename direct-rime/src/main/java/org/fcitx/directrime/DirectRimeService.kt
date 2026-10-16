@@ -119,9 +119,13 @@ class DirectRimeService : InputMethodService() {
                     if (expected != generation || !RimeRuntime.current(expected) || next.gate == 3) return@withLock
                     // A commit is a transaction result consumed once here on the main thread.
                     // It is never replayed by render(), view recreation, or a state collector.
-                    Trace.beginSection("rime.direct.commit")
+                    Trace.beginSection("rime.direct.editor_update")
                     try {
-                        if (next.commit.isNotEmpty()) currentInputConnection?.commitText(next.commit, 1)
+                        if (next.commit.isNotEmpty()) {
+                            Trace.beginSection("rime.direct.commit")
+                            try { currentInputConnection?.commitText(next.commit, 1) }
+                            finally { Trace.endSection() }
+                        }
                         currentInputConnection?.setComposingText(next.preedit, 1)
                     }
                     finally { Trace.endSection() }

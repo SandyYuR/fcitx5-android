@@ -85,6 +85,8 @@ python3 tools/input-perf/summarize.py baseline.perfetto-trace --trace-processor 
 ```
 
 同样捕获直连 APK。Perfetto 配置已包含两个 Debug 包名。默认配置关闭原链路诊断计数。
+采集脚本等待所有 data source 启动后提示可以输入，并等待 trace 完整刷盘后下载；
+不要在 `--background` 刚返回或发送停止信号后立刻拷贝尚未完成的 trace。
 
 | 位置 | trace / counter |
 | --- | --- |
@@ -93,6 +95,7 @@ python3 tools/input-perf/summarize.py baseline.perfetto-trace --trace-processor 
 | librime 查询 | `rime.fcitx.process_key` / `rime.direct.process_key` |
 | 回调与消费 | 已有 `HandleFcitxEvent`、`rime.fcitx.consume` |
 | 编辑器提交 | `rime.fcitx.commit` / `rime.direct.commit` |
+| 直连编辑器状态更新（含预编辑） | `rime.direct.editor_update` |
 | 候选更新 | 已有 `updateCandidates` / `rime.direct.render` |
 | 直连状态打包、启动、部署 | `rime.direct.snapshot/startup/deploy` |
 | 原事件流 | `rime.events.produced/received/sequence_gaps/pending/age_ns` |
@@ -159,7 +162,41 @@ adb shell am instrument -w io.github.sandyyur.rime.direct.test/androidx.test.run
 | 真实 InputConnection | `ni` → `你`、切换编辑框后 `hao` → `好`，第一框内容保持不变 |
 | 原版 + 诊断开关 | ARM64 Debug 构建通过，468 项 JVM 测试通过 |
 | 重复执行源码准备脚本 | 通过，保持固定 gitlink 和已知补丁 |
+| GitHub Actions | 独立 APK 构建/原生契约与 Android smoke 两个 job 已通过 |
 
 这些检查没有覆盖低端真机性能、完整输入法功能等价、所有编辑器和所有 compose 序列。
 `InputConnectionSmokeTest` 也接受 `-e imeComponent package/Service`，可在已准备相同测试方案的
 基线输入法上复用相同编辑器和按键序列。该参数不安装或修改基线方案；必须使用一次性测试设备。
+软件模拟器可加 `-e waitMs 120000`；基线会等待 `mInputViewStarted`，
+硬件键盘下的浮动候选窗口不能用“IME insets 高度大于零”判断就绪。
+
+补测中发现原版首次生成 InputView 在该 TCG 模拟器上耗时约 52 秒，超过最初测试的 30 秒等待。
+测试结束切换输入法后，旧视图的 `post { syncImeFromCache() }` 继续访问已断开的连接并抛出
+`FcitxDisconnectedException`。现在只捕获这个明确的断开异常并丢弃过期刷新，正常缓存更新不变。
+此修复后的 x86_64 Debug 构建及 468 项 JVM 测试再次通过。
+
+已经导出真实直连 runtime trace 并运行统计脚本：包含 9 个 `rime.direct.process_key`、
+19 个 `rime.direct.snapshot`，以及启动和部署片段。原始 trace SHA-256：
+`3193386a45b6cfaff3b071d7066b530beb772208dd74368480bc8d3f598df1b7`。
+该样本仅证明采集与解析链路有效，样本量、模拟器环境和最小 UI 都不支持性能结论。
+
+最后以同一测试编辑框与 `ni`/`hao` 按键序列复测，原版和直连均上屏“你”“好”，焦点切换验证通过。
+原版 trace 含 14 个 `process_key`、14 个 route 和 2 个 commit；受控重放中事件生产/消费均为 49，
+观察到的序号缺口为 0。这只描述该次重放。最终直连三项测试再次全部通过，trace 中实际 commit 为 2，
+预编辑与编辑器更新另记为 `rime.direct.editor_update`。
+
+完整环境、测试数、trace SHA-256 和片段数量见
+[机器可读验证记录](direct-rime-validation-2026-10-16.json)。
+基线 trace 使用一次性 AOSP ATD 模拟器的全新 Debug 安装，在应用自己的
+`Android/data/org.fcitx.fcitx5.android.fx.rime.debug/files/data/rime` 放入
+`direct-rime/src/main/assets/smoke/` 中三个测试文件，然后运行：
+
+```bash
+adb shell am instrument -w \
+  -e class org.fcitx.directrime.InputConnectionSmokeTest \
+  -e imeComponent org.fcitx.fcitx5.android.fx.rime.debug/org.fcitx.fcitx5.android.input.FcitxInputMethodService \
+  -e waitMs 120000 \
+  io.github.sandyyur.rime.direct.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+对应输入法必须已安装；测试临时启用和选择它，结束后恢复原选择。
