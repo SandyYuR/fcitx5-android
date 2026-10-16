@@ -23,11 +23,14 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.After
 import org.junit.Test
+import org.junit.Rule
+import org.junit.rules.TestName
 import java.io.File
 import java.io.FileInputStream
 
 /** Disposable emulator only: original UI on the direct backend, not the small lab service. */
 class DirectRimeFrontendTest {
+    @get:Rule val testName = TestName()
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.targetContext
     private val connection by lazy { FcitxDaemon.connect(javaClass.name) }
@@ -55,6 +58,7 @@ class DirectRimeFrontendTest {
         instrumentation.context.assets.list("smoke")!!.forEach { name ->
             instrumentation.context.assets.open("smoke/$name").use { input -> File(directory, name).outputStream().use { input.copyTo(it) } }
         }
+        if (testName.methodName == "schemaCommentsAndSwitchGroupsMatchRime") writeCommentFixture(directory)
         File(directory, "second.schema.yaml").writeText(File(directory, "direct_smoke.schema.yaml").readText()
             .replace("schema_id: direct_smoke", "schema_id: second").replace("name: 直连测试", "name: 第二方案"))
         File(directory, "default.yaml").appendText("\n")
@@ -79,10 +83,9 @@ class DirectRimeFrontendTest {
         }
         FcitxDaemon.disconnect(javaClass.name)
     }
-    @Test fun schemaCommentsAndSwitchGroupsMatchRime(): Unit = runBlocking {
+    private fun writeCommentFixture(directory: File) {
         // Wanxiang uses a three-way comment group and Lua to rewrite/clear comments.
         // Reproduce that contract with a tiny dictionary, without bundling its data.
-        val directory = File(context.getExternalFilesDir(null), "data/$profile")
         val schema = File(directory, "direct_smoke.schema.yaml")
         schema.writeText(schema.readText().replace("engine:\n", """
   - name: emoji
@@ -110,6 +113,8 @@ return function(input, env)
   end
 end
 """.trimIndent())
+    }
+    @Test fun schemaCommentsAndSwitchGroupsMatchRime(): Unit = runBlocking {
         val candidates = Channel<Array<CandidateWord>>(Channel.UNLIMITED)
         val flow = connection.runImmediately { eventFlow }
         val collector = scope.launch(start = CoroutineStart.UNDISPATCHED) {
@@ -125,7 +130,6 @@ end
         }
         try {
             connection.runOnReady {
-                setAddonSubConfig("rime", "deploy", RawConfig())
                 setCandidatePagingMode(1)
                 val actions = statusArea()
                 val menu = actions.first { it.name == "rime" }.menu!!
