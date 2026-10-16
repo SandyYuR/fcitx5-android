@@ -2,7 +2,7 @@
 
 > 适用范围：本仓库 `fx-rime-only` 分支构建的 Android 应用（应用 ID `org.fcitx.fcitx5.android.fx.rime`；简繁中文显示名"靓企鹅·中州韵"，其他语言显示 Fcitx5.fx.rime）。本文面向普通用户，说明安装、迁移、Rime 配置、键盘布局、宏、主题、剪贴板同步、更新与常见问题。
 >
-> [交接报告](/maintainer/HANDOVER-rime-only)、[实施方案](/archive/rime-integration-plan) 和 [可行性报告](/archive/rime-only-feasibility) 是维护者交接或历史方案资料，不应作为当前版本的用户操作手册。若本文与应用实际界面不一致，请以当前版本界面和发布说明为准。
+> [交接报告](/maintainer/HANDOVER-rime-only)、[实施方案](/maintainer/ARCHIVE_RIME_INTEGRATION_PLAN) 和 [可行性报告](/maintainer/ARCHIVE_RIME_ONLY_FEASIBILITY) 是维护者交接或历史方案资料，不应作为当前版本的用户操作手册。若本文与应用实际界面不一致，请以当前版本界面和发布说明为准。
 
 ## 1. 这个版本是什么
 
