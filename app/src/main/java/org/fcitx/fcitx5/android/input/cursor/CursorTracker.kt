@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.input.cursor
 
+import org.fcitx.fcitx5.android.utils.timberDebugEnabled
 import timber.log.Timber
 import java.util.ArrayDeque
 
@@ -25,7 +26,9 @@ class CursorTracker {
         if (!latest.rangeEquals(new)) {
             predictions.add(new)
         }
-        Timber.d("current: $current; predicted: ${predictions.joinToString()}")
+        if (timberDebugEnabled) {
+            Timber.d("current: $current; predictionCount=${predictions.size}")
+        }
     }
 
     fun predict(start: Int, end: Int = start) {

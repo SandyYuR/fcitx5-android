@@ -11,6 +11,7 @@ import androidx.core.content.edit
 import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.FcitxApplication
 import timber.log.Timber
+import java.util.ArrayDeque
 
 class RecentlyUsed(val type: String, val limit: Int) {
 
@@ -23,8 +24,16 @@ class RecentlyUsed(val type: String, val limit: Int) {
     private val sharedPreferences = FcitxApplication.getInstance().directBootAwareContext
         .getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
 
-    private val map = LinkedHashMap<String, Boolean>(limit).apply {
-        (migrate() ?: load()).forEach { put(it, true) }
+    private val maxItems = limit.coerceAtLeast(0)
+    private val map = LinkedHashMap<String, Boolean>(maxItems)
+
+    init {
+        val loadedItems = migrate() ?: load()
+        loadedItems.forEach { map[it] = true }
+        val trimmed = trimToLimit()
+        if (trimmed || loadedItems.size != map.size) {
+            save()
+        }
     }
 
     val items: List<String> get() = map.keys.reversed()
@@ -60,7 +69,19 @@ class RecentlyUsed(val type: String, val limit: Int) {
             }
             map.put(item, true)
         }
+        trimToLimit()
         save()
+    }
+
+    /** Remove the oldest entries until the configured recent list bound is satisfied. */
+    private fun trimToLimit(): Boolean {
+        var trimmed = false
+        while (map.size > maxItems) {
+            val oldest = map.keys.firstOrNull() ?: break
+            map.remove(oldest)
+            trimmed = true
+        }
+        return trimmed
     }
 
     fun migrate(): List<String>? {
@@ -68,7 +89,18 @@ class RecentlyUsed(val type: String, val limit: Int) {
         val file = dir.resolve(type)
         if (file.exists()) {
             try {
-                val lines = file.readLines()
+                val lines = if (maxItems == 0) {
+                    emptyList()
+                } else {
+                    file.useLines { source ->
+                        val recent = ArrayDeque<String>()
+                        source.forEach { line ->
+                            if (recent.size == maxItems) recent.removeFirst()
+                            recent.addLast(line)
+                        }
+                        recent.toList()
+                    }
+                }
                 // save to sharedPreferences before deleting old file
                 sharedPreferences.edit {
                     putString(type, Json.encodeToString<List<String>>(lines))
