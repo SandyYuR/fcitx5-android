@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -64,10 +65,8 @@ class RimeImportActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (!BuildConfig.DIRECT_RIME) { finish(); return }
         connection
-        val palette = obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary, android.R.attr.colorAccent))
-        val foreground = palette.getColor(0, android.graphics.Color.BLACK)
-        val accent = palette.getColor(1, 0xff008577.toInt())
-        palette.recycle()
+        val foreground = MaterialColors.getColor(this, android.R.attr.textColorPrimary, android.graphics.Color.BLACK)
+        val accent = MaterialColors.getColor(this, android.R.attr.colorAccent, 0xff008577.toInt())
         val onAccent = if (androidx.core.graphics.ColorUtils.calculateContrast(android.graphics.Color.WHITE, accent) >= 4.5)
             android.graphics.Color.WHITE else android.graphics.Color.BLACK
         val padding = (20 * resources.displayMetrics.density).toInt()
