@@ -50,10 +50,10 @@ add_subdirectory("${RIME_PLUGIN_CPP_DIR}/fcitx5-rime" fcitx5-rime)
 
 # install rime data (same list as plugin/rime prebuilt-assets)
 #
-# 不装任何输入方案（schema / dictionary），也不装 essay.txt 预置词汇表：
-# 本版首次安装后引擎可正常运行，但 schema_list 为空、无可用方案，用户需
-# 自行放入方案并部署。这里只装被 schema_list 之外的机制引用、且是第三方
-# 方案公共依赖的通用预设资源：
+# 试打字包：预置朙月拼音（luna_pinyin）方案 + essay.txt 预置词汇表，
+# 让引擎开箱即有可用方案。default.yaml 的 schema_list 仍保持 []，
+# 方案选择走 default.custom.yaml patch（见 DirectRimeEngine 注释），
+# 保持"定位锚点不删、schema_list 空写 []"两条红线。
 #   - default.yaml          共享数据目录定位锚点（RimeEngine 构造时 locate），
 #                           且提供 punctuator/key_binder/recognizer 等基础配置
 #   - key_bindings.yaml     default.yaml 的 key_binder 引用
@@ -69,6 +69,16 @@ install(FILES
         "${RIME_PLUGIN_CPP_DIR}/rime-prelude/key_bindings.yaml"
         "${RIME_PLUGIN_CPP_DIR}/rime-prelude/punctuation.yaml"
         "${RIME_PLUGIN_CPP_DIR}/rime-prelude/symbols.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-essay/essay.txt"
+        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_pinyin.dict.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_pinyin.schema.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_pinyin_fluency.schema.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_pinyin_simp.schema.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_pinyin_tw.schema.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/luna_quanpin.schema.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-luna-pinyin/pinyin.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-stroke/stroke.dict.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-stroke/stroke.schema.yaml"
         DESTINATION "${FCITX_INSTALL_DATADIR}/rime-data"
         COMPONENT prebuilt-assets
         )
@@ -87,6 +97,31 @@ target_link_libraries(native-lib
         Fcitx5::Core
         Fcitx5::Module::Clipboard
         )
+
+# ---- 直连 librime 的桥接层 ----
+#
+# 这是「去 fcitx5 中间层」的第一步落地：在保留现有 Fcitx 链路（上面 native-lib 与
+# fcitx5-rime 照原样构建，UI、键盘、候选栏、主题等一切不动）的同时，把不经过 fcitx5
+# 的直连通道也打进同一个 APK。
+#
+# 为什么先并存而不是直接删：报告 §6 阶段 B 要求原型「保留显式线程 owner 与 session
+# generation，不要让 librime 调用从任意 coroutine 并发进入；出错能切回」。并存才能
+# A/B 对照与回滚——直连通道出问题时切回 Fcitx 路径即可，用户数据格式不变。
+#
+# 桥接层源码在仓库根 native/ 下，只依赖预编译 librime.a，不链接 fcitx5。
+# PREBUILT_DIR / ANDROID_ABI 由主仓库构建逻辑注入（见 build-logic/convention/
+# src/main/kotlin/NativeBaseConventionPlugin.kt:30），与本文件现有用法同构。
+# cpp -> main -> src -> app -> 仓库根，共 4 级
+set(DIRECT_RIME_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../native")
+if(EXISTS "${DIRECT_RIME_DIR}/CMakeLists.txt")
+    add_subdirectory("${DIRECT_RIME_DIR}" direct-rime-build)
+    # AGP 不会自动编译/打包 add_subdirectory 进来的外部 target（它有自己认识的
+    # target 清单）。这里显式加一个依赖 + 复制步骤：让 native-lib 的构建顺带
+    # 构建直连库，并把产物复制到 AGP 会打包的 jniLibs 目录。
+    add_dependencies(native-lib direct_rime)
+else()
+    message(STATUS "跳过直连桥接层：未找到 ${DIRECT_RIME_DIR}/CMakeLists.txt")
+endif()
 
 # copy module libraries from dependency lib
 add_custom_target(copy-fcitx5-modules

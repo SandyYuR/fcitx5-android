@@ -9,23 +9,46 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// namespace 保持不动：它决定 Kotlin 源码包名、R 类、AIDL 接口与 ProGuard keep 规则，
+// 改动会波及 500+ 个文件，与「安装后包名不含 fcitx」这个目标无关。
 val packageBase = "org.fcitx.fcitx5.android"
-val appIdBase = packageBase
-// Distinct from fx2 / upstream fx builds (org.fcitx.fcitx5.android.fx) so both
-// can be installed side by side on the same device.
-val appIdFxSuffix = ".fx.rime"
+
+// 应用 ID 去 fcitx 化 —— 这是安装到设备后唯一可见的标识。
+// 与 fx-rime-only 的 org.fcitx.fcitx5.android.fx.rime 不同名，两者可共存。
+val appIdBase = "org.fxrime"
+val appIdFxSuffix = ".ime"
 val flavorFx = "fx"
 val appLabelDefault = "@string/app_name"
 val imeSettingsActivity = "$packageBase.ui.main.MainActivity"
 
+// 允许指向另一个 NDK。本机 C:\dev\android-sdk\ndk\28.0.13004108 有 48 个文件被零字节
+// 损坏（含 CMake 钩子脚本与 C++ 标准库头文件），native 构建会在 configure 阶段直接失败。
+// 用 NDK_PATH 环境变量或 -PndkPath 指向完好的 NDK 即可绕开；两者都不设时行为不变，
+// 仍按 NDK_VERSION / ndkVersion 从 ANDROID_HOME/ndk/ 下查找。
+val ndkPathOverride: String? =
+    System.getenv("NDK_PATH")?.takeIf { it.isNotBlank() }
+        ?: runCatching { property("ndkPath")!!.toString() }.getOrNull()?.takeIf { it.isNotBlank() }
+
 android {
     namespace = packageBase
+
+    if (ndkPathOverride != null) {
+        ndkPath = ndkPathOverride
+    }
 
     defaultConfig {
         applicationId = appIdBase
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["appLabel"] = appLabelDefault
         resValue("string", "ime_settings_activity", imeSettingsActivity)
+        // 引擎回退开关。false = Kotlin/JNI 直连 librime（本仓库的目标形态）；
+        // true = 回退到原有 fcitx5 链路，用于 A/B 对照与直连出问题时的退路。
+        // 可用 -PFXRIME_ENGINE_FALLBACK=true 覆盖，不必改这里。
+        buildConfigField(
+            "boolean",
+            "FXRIME_ENGINE_FALLBACK",
+            (project.findProperty("FXRIME_ENGINE_FALLBACK") as String? ?: "false")
+        )
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
@@ -95,7 +118,7 @@ androidComponents {
                 if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
                     output.outputFileName.set(
                         output.outputFileName.get()
-                            .replace("org.fcitx.fcitx5.android-", "org.fcitx.fcitx5.android.fx.rime-")
+                            .replace("org.fxrime-", "org.fxrime.ime-")
                             .replace("-fx-", "-")
                     )
                 }
