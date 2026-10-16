@@ -15,14 +15,14 @@ git submodule update --init --recursive
 ```
 
 产物：`app/build/outputs/apk/fx/debug/io.github.sandyyur.rime.direct-*-arm64-v8a-debug.apk`。
-应用名称 **Rime 直连**，包名 **`io.github.sandyyur.rime.direct`**，与第一轮实验 APK 相同。
+应用名称 **中州鹅**，包名 **`io.github.sandyyur.rime.direct`**，与第一轮实验 APK 相同。
 完整界面版可覆盖同签名的实验包；与原输入法包名不同，独立存储，可以并存。
 GitHub Actions 的 `direct-rime-frontend-arm64-debug` artifact 是完整界面版。
 `direct-rime-arm64-debug` artifact 仍是底层诊断工具。
 
 安装后：
 
-1. 打开「Rime 直连」，按原应用的引导启用并切换输入法。
+1. 打开「中州鹅」，按原应用的引导启用并切换输入法。
 2. 第一轮实验包已部署的数据会从 `files/rime/user` 复制到新的默认 Rime 目录。
    原数据保留；目标已有文件时不覆盖。由于输入法服务组件更换，需要在系统中重新选择一次输入法。
 3. 新安装可进入「Rime 设置 → 导入 Rime 方案 ZIP」。ZIP 根目录包含 `default.yaml`
@@ -32,6 +32,10 @@ GitHub Actions 的 `direct-rime-frontend-arm64-debug` artifact 是完整界面�
 5. 长按语言键可打开方案菜单；候选栏可选字、翻页、展开和长按忘词。
 
 不内置完整中文词库；沿用原版由用户部署方案的方式。诊断模块中的微型测试词库不随完整界面 APK 分发。
+
+中文界面的空格键默认显示「中州韵（方案名）」，紧凑模式使用「㞢（方案名）」，
+英文模式显示为「英文模式」。内部 `Latin Mode` 标识保留，用于兼容已有布局匹配。
+非中文界面保留 `Rime` / `Latin Mode` 显示。
 
 ## 实现
 

@@ -11,6 +11,7 @@ import org.fcitx.directrime.Native
 import org.fcitx.directrime.ProfileArchive
 import org.fcitx.directrime.Snapshot
 import org.fcitx.fcitx5.android.FcitxApplication
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.data.DataManager
 import timber.log.Timber
 import java.io.File
@@ -177,7 +178,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         batch.forEach { it.inputSession = value.generation }
         events.trySend(batch)
     }
-    private fun entry(value: Snapshot?) = InputMethodEntry("rime", "Rime", "fcitx-rime", "中州韵", "中", "zh", "rime", true,
+    private fun entry(value: Snapshot?) = InputMethodEntry("rime", context.getString(R.string.direct_rime_ime_name), "fcitx-rime", "中州韵", "㞢", "zh", "rime", true,
         InputMethodSubMode(if (value?.ascii == true) "Latin Mode" else value?.schemaName.orEmpty(),
             if (value?.ascii == true) "abc" else value?.schemaName.orEmpty(),
             if (value?.ascii == true) "fcitx_rime_latin" else "fcitx-rime:${value?.schema.orEmpty()}"))

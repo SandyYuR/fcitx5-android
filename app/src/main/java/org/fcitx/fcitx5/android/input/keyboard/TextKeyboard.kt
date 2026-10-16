@@ -17,6 +17,7 @@ import androidx.core.view.allViews
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
@@ -1808,17 +1809,21 @@ class TextKeyboard private constructor(
             return
         }
         if (ime == null) return
-        val subModeText = ime.subMode.run { name.ifEmpty { label.ifEmpty { "" } } }
+        val directRime = BuildConfig.DIRECT_RIME && ime.uniqueName == "rime"
+        // Keep the canonical mode name for existing layout keys; localize its display only.
+        val subModeText = if (directRime && ime.subMode.name == "Latin Mode") {
+            context.getString(R.string.direct_rime_ascii_mode)
+        } else ime.subMode.run { name.ifEmpty { label.ifEmpty { "" } } }
+        fun combinedLabel(name: String) = when {
+            subModeText.isEmpty() -> name
+            directRime -> context.getString(R.string.direct_rime_space_label, name, subModeText)
+            else -> "$name ($subModeText)"
+        }
         val newText = when (spaceKeyLabelMode.getValue()) {
-            SpaceKeyLabelMode.Default -> {
-                buildString {
-                    append(ime.displayName)
-                    if (subModeText.isNotEmpty()) append(" ($subModeText)")
-                }
-            }
+            SpaceKeyLabelMode.Default -> combinedLabel(ime.displayName)
             SpaceKeyLabelMode.CompactWhenSubMode -> {
                 val imeText = if (subModeText.isNotEmpty()) ime.label.ifEmpty { ime.displayName } else ime.displayName
-                val combined = if (subModeText.isNotEmpty()) "$imeText ($subModeText)" else imeText
+                val combined = combinedLabel(imeText)
                 if (subModeText.isNotEmpty() && combined.length > 10) subModeText else combined
             }
             SpaceKeyLabelMode.SubModeOnly -> {
