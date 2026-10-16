@@ -54,6 +54,7 @@ if command('shell', 'id', '-u').stdout.strip() != '0':
 print('Emulator ready. Stop host compilers before collecting timing results.', flush=True)
 command('install', '-r', str(baseline))
 command('install', '-r', str(test))
+command('shell', 'run-as', package, 'mkdir', '-p', 'files')
 if args.wanxiang:
     source_hash = checksum(args.wanxiang)
     existing = command('shell', 'run-as', package, 'sha256sum', 'files/wanxiang-perf.zip', check=False)
@@ -64,7 +65,7 @@ if args.wanxiang:
 # A valid restoration profile makes each replay independent of other test runs.
 command('shell', 'am', 'force-stop', package)
 base = '/storage/emulated/0/Android/data/' + package + '/files'
-command('shell', 'mkdir', '-p', base + '/data/perf-home')
+command('shell', 'mkdir', '-p', base + '/data/perf-home', base + '/config/conf')
 payload = io.BytesIO()
 with tarfile.open(fileobj=payload, mode='w') as tar:
     for path in (Path(__file__).resolve().parents[2] / 'direct-rime/src/main/assets/smoke').iterdir():
