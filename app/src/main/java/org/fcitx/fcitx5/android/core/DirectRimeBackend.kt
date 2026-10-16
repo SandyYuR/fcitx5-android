@@ -154,6 +154,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             FormattedText.Empty, tabs
         )
         val ime = entry(value)
+        val imeChanged = ime != inputMethodEntryCached
         val actions = buildActions(value)
         clientPreeditCached = client
         inputPanelCached = panel
@@ -171,7 +172,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         if (pagingMode != 0) batch += FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data(
             candidates, value.highlighted, FcitxEvent.PagedCandidateEvent.LayoutHint.NotSet, value.page > 0, !value.lastPage))
         else batch += FcitxEvent.CandidateListEvent(FcitxEvent.CandidateListEvent.Data(-1, candidates))
-        batch += FcitxEvent.IMChangeEvent(ime)
+        if (imeChanged) batch += FcitxEvent.IMChangeEvent(ime)
         batch += FcitxEvent.StatusAreaEvent(FcitxEvent.StatusAreaEvent.Data(actions, ime))
         batch.forEach { it.inputSession = value.generation }
         events.trySend(batch)
