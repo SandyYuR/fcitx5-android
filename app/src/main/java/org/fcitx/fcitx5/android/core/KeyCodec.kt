@@ -8,6 +8,7 @@ internal object KeyCodec {
         val bySym = HashMap<Int, String>()
         val byUnicode = HashMap<Int, Int>()
         val unicodeBySym = HashMap<Int, Int>()
+        val displayBySym = HashMap<Int, String>()
         init {
             checkNotNull(KeyCodec::class.java.getResourceAsStream("/keysym-compat.tsv")).bufferedReader().useLines { lines ->
                 lines.filter { it.isNotEmpty() && !it.startsWith('#') }.forEach { line ->
@@ -15,6 +16,7 @@ internal object KeyCodec {
                     val sym = fields[1].toInt(16)
                     byName[fields[0]] = sym
                     if (fields[2] == "1") bySym[sym] = fields[0]
+                    fields.getOrNull(4)?.takeIf { it.isNotEmpty() }?.let { displayBySym[sym] = it }
                     fields.getOrNull(3)?.takeIf { it.isNotEmpty() }?.toInt(16)?.let { cp ->
                         unicodeBySym[sym] = cp
                         if (sym < (byUnicode[cp] ?: Int.MAX_VALUE)) byUnicode[cp] = sym
@@ -84,6 +86,7 @@ internal object KeyCodec {
             0xffeb, 0xffec, 0xffed, 0xffee -> 64
             else -> 0
         }
-        return Key(sym, states, prefix(states) + portable, prefix(states and ownModifier.inv()) + character.ifEmpty { portable })
+        val display = names.displayBySym[normalized] ?: character.ifEmpty { portable }
+        return Key(sym, states, prefix(states) + portable, prefix(states and ownModifier.inv()) + display)
     }
 }

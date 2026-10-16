@@ -30,6 +30,8 @@ class KeyCodecTest {
             assertEquals(text, key.localizedString)
         }
         assertEquals("Tab", KeyCodec.create(0xfe20, 0).portableString)
-        assertEquals("Control_L", KeyCodec.create(0xffe3, 4).localizedString)
+        assertEquals("Left Control", KeyCodec.create(0xffe3, 4).localizedString)
+        assertEquals("Control+Space", KeyCodec.parse("Control+space").localizedString)
+        assertEquals("Page Up", KeyCodec.parse("Page_Up").localizedString)
     }
 }
