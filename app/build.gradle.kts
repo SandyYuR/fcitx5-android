@@ -17,23 +17,26 @@ val appIdFxSuffix = ".fx.rime"
 val flavorFx = "fx"
 val appLabelDefault = "@string/app_name"
 val imeSettingsActivity = "$packageBase.ui.main.MainActivity"
+val directRimeFrontend = providers.gradleProperty("directRimeFrontend").orNull == "true"
 val inputDiagnostics = providers.gradleProperty("inputDiagnostics").orNull == "true"
 
 android {
     namespace = packageBase
 
     defaultConfig {
-        applicationId = appIdBase
+        applicationId = if (directRimeFrontend) "io.github.sandyyur.rime.direct" else appIdBase
+        buildConfigField("boolean", "DIRECT_RIME", directRimeFrontend.toString())
         buildConfigField("boolean", "INPUT_DIAGNOSTICS", inputDiagnostics.toString())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["appLabel"] = appLabelDefault
+        manifestPlaceholders["appLabel"] = if (directRimeFrontend) "@string/direct_rime_app_name" else appLabelDefault
         resValue("string", "ime_settings_activity", imeSettingsActivity)
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
             cmake {
+                arguments("-DDIRECT_RIME_FRONTEND=${if (directRimeFrontend) "ON" else "OFF"}")
                 arguments("-DINPUT_DIAGNOSTICS=${if (inputDiagnostics) "ON" else "OFF"}")
-                targets(
+                if (directRimeFrontend) targets("direct-rime") else targets(
                     // jni
                     "native-lib",
                     // copy fcitx5 built-in addon libraries
@@ -52,7 +55,7 @@ android {
     productFlavors {
         create(flavorFx) {
             dimension = "brand"
-            applicationIdSuffix = appIdFxSuffix
+            if (!directRimeFrontend) applicationIdSuffix = appIdFxSuffix
             buildConfigField("boolean", "IS_FX_BUILD", "true")
         }
     }
@@ -70,11 +73,16 @@ android {
             proguardFile("proguard-rules.pro")
         }
         debug {
+            if (directRimeFrontend) applicationIdSuffix = ""
             resValue("mipmap", "app_icon", "@mipmap/ic_launcher_debug")
             resValue("mipmap", "app_icon_round", "@mipmap/ic_launcher_round_debug")
             resValue("string", "app_name", "@string/app_name_debug")
         }
     }
+
+
+    sourceSets.getByName("main").kotlin.srcDir("../direct-rime/src/engine/java")
+    sourceSets.getByName("androidTest").assets.srcDir("../direct-rime/src/main/assets")
 
     androidResources {
         @Suppress("UnstableApiUsage")
@@ -93,7 +101,7 @@ android {
 
 androidComponents {
     onVariants { variant ->
-        if (variant.flavorName == flavorFx) {
+        if (variant.flavorName == flavorFx && !directRimeFrontend) {
             variant.outputs.forEach { output ->
                 if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
                     output.outputFileName.set(

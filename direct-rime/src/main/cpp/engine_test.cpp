@@ -11,7 +11,8 @@ struct Fake {
     bool maintenance = false, exists = true, hasSchema = true, failDeploy = false;
     int keys = 0, mask = 0, created = 0, destroyed = 0, freedCommit = 0;
     int setups = 0, finalized = 0, selected = -1, freedTabs = 0, freedCodes = 0;
-    size_t selectedSpan = 0;
+    size_t selectedSpan = 0, selectedGlobal = 999, deletedGlobal = 999, caret = 999;
+    int freedIterator = 0;
     std::string commit, selectedLabel;
     RimeNotificationHandler callback = nullptr;
     void* context = nullptr;
@@ -31,6 +32,7 @@ RimeApi api() {
     a.create_session = []() -> RimeSessionId { ++f.created; return 7; };
     a.find_session = [](RimeSessionId) -> Bool { return f.exists; };
     a.destroy_session = [](RimeSessionId) -> Bool { ++f.destroyed; return true; };
+    a.set_option = [](RimeSessionId, const char*, Bool) {};
     a.set_property = [](RimeSessionId, const char*, const char*) {};
     a.process_key = [](RimeSessionId, int, int mask) -> Bool { ++f.keys; f.mask = mask; return false; };
     a.get_commit = [](RimeSessionId, RimeCommit* c) -> Bool {
@@ -42,13 +44,24 @@ RimeApi api() {
         static RimeCandidate candidates[] = {{const_cast<char*>("你😀"), const_cast<char*>("注释"), nullptr}};
         c->composition.preedit = const_cast<char*>("ni"); c->composition.cursor_pos = 2;
         c->menu.candidates = candidates; c->menu.num_candidates = 1; c->menu.page_size = 3;
-        c->menu.page_no = 1; return true;
+        c->menu.page_no = 1; c->menu.select_keys = const_cast<char*>("abc"); return true;
     };
     a.free_context = [](RimeContext*) -> Bool { return true; };
     a.get_status = [](RimeSessionId, RimeStatus* s) -> Bool { s->schema_id = const_cast<char*>("test"); return true; };
     a.free_status = [](RimeStatus*) -> Bool { return true; };
     a.clear_composition = [](RimeSessionId) {};
     a.select_candidate_on_current_page = [](RimeSessionId, size_t i) -> Bool { f.selected = i; return true; };
+    a.select_candidate = [](RimeSessionId, size_t i) -> Bool { f.selectedGlobal = i; return true; };
+    a.delete_candidate = [](RimeSessionId, size_t i) -> Bool { f.deletedGlobal = i; return true; };
+    a.set_caret_pos = [](RimeSessionId, size_t i) { f.caret = i; };
+    a.candidate_list_from_index = [](RimeSessionId, RimeCandidateListIterator* iter, int offset) -> Bool {
+        iter->index = offset - 1; return true;
+    };
+    a.candidate_list_next = [](RimeCandidateListIterator* iter) -> Bool {
+        if (++iter->index >= 4) return false;
+        iter->candidate.text = const_cast<char*>("词😀"); iter->candidate.comment = const_cast<char*>("注释"); return true;
+    };
+    a.candidate_list_end = [](RimeCandidateListIterator*) { ++f.freedIterator; };
     a.select_schema = [](RimeSessionId, const char*) -> Bool { return true; };
     a.get_schema_list = [](RimeSchemaList* list) -> Bool {
         static RimeSchemaListItem items[] = {{const_cast<char*>("test"), const_cast<char*>("Test"), nullptr}};
@@ -79,6 +92,7 @@ void testInputContract() {
     CHECK(!result.handled && result.gate == Ready && result.commit == "你😀");
     CHECK(f.keys == 1 && f.mask == (1 | 2 | 4 | 8 | 64 | (1 << 26) | (1 << 30)));
     CHECK(f.freedCommit == 1 && result.candidates[0] == "你😀" && result.codes[0] == "ni");
+    CHECK(result.labels[0] == "a ");
     CHECK(result.tabs.size() == 1 && result.tabs[0] == "ni" && f.freedTabs > 0 && f.freedCodes > 0);
     auto selected = engine.action(1, result.revision, 4, 0, "");
     CHECK(f.selectedLabel == "ni" && f.selectedSpan == 3 && selected.commit.empty());
@@ -113,6 +127,21 @@ void testMaintenanceAndAbi() {
     f = {}; f.hasSchema = false; auto b = api(); Engine empty(&b); empty.start("shared", "user");
     CHECK(empty.begin(1, "editor").gate == NoSession && f.created == 0); empty.stop();
 }
+void testFrontendExtensions() {
+    f = {}; auto a = api(); Engine engine(&a); engine.start("shared", "user");
+    auto value = engine.begin(1, "editor");
+    CHECK(engine.schemaEntries() == std::vector<std::string>({"test", "Test"}));
+    CHECK(engine.schemaSelection().empty()); // Levers is optional, including on a shorter API.
+    auto words = engine.candidates(1, 1, 10);
+    CHECK(words.size() == 6 && words[0] == "词😀" && words[1] == "注释" && f.freedIterator == 1);
+    CHECK(engine.candidates(1, -1, 10).empty() && engine.candidates(1, 0, 257).empty());
+    value = engine.action(1, value.revision, 11, 3, ""); CHECK(f.selectedGlobal == 3);
+    value = engine.action(1, value.revision, 12, 2, ""); CHECK(f.deletedGlobal == 2);
+    value = engine.action(1, value.revision, 9, 1, ""); CHECK(f.caret == 1);
+    engine.begin(2, "second");
+    CHECK(engine.candidates(1, 0, 10).empty() && f.freedIterator == 1);
+    engine.stop();
+}
 void testUnicode() {
     std::u16string decoded;
     CHECK(utf16("你😀", decoded) && decoded.size() == 3);
@@ -121,6 +150,6 @@ void testUnicode() {
 }
 }
 int main() {
-    try { testInputContract(); testMaintenanceAndAbi(); testUnicode(); std::cout << "engine contract: passed\n"; }
+    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testUnicode(); std::cout << "engine contract: passed\n"; }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

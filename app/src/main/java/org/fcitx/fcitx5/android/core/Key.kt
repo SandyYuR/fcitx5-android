@@ -24,6 +24,10 @@ data class Key(
     override fun toString() = portableString
 
     companion object {
+        init {
+            if (org.fcitx.fcitx5.android.BuildConfig.DIRECT_RIME) System.loadLibrary("direct-rime")
+        }
+
         val None = Key(0, 0, "", "")
 
         @JvmStatic

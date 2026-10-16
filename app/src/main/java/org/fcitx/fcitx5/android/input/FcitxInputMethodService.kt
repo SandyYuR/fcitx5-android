@@ -503,6 +503,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         return job
     }
 
+    /** Capture at the time of the key, before either the service or native owner queues it. */
+    fun postFcitxKeyJob(block: suspend FcitxAPI.() -> Unit): Job {
+        val session = FcitxDaemon.captureInputSession()
+        return postFcitxJob {
+            if (session != null && FcitxDaemon.isCurrentInputSession(session)) block()
+        }
+    }
+
     private suspend fun FcitxAPI.applyCandidatePagingModeIfNeeded(mode: Int) {
         if (appliedCandidatePagingMode == mode) return
         setCandidatePagingMode(mode)
@@ -596,7 +604,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 return@launch
             }
             events.collect { event ->
-                androidx.tracing.trace("rime.fcitx.consume") { handleFcitxEvent(event) }
+                if (!FcitxDaemon.isCurrentInputSession(event.inputSession)) return@collect
+                androidx.tracing.trace(if (BuildConfig.DIRECT_RIME) "rime.direct.consume" else "rime.fcitx.consume") { handleFcitxEvent(event) }
             }
         }
         pkgNameCache = PackageNameCache(this)
@@ -653,7 +662,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
             is FcitxEvent.CommitStringEvent -> {
                 backspaceBoundaryGuard.onCommit()
-                androidx.tracing.trace("rime.fcitx.commit") { commitText(event.data.text, event.data.cursor) }
+                androidx.tracing.trace(if (BuildConfig.DIRECT_RIME) "rime.direct.commit" else "rime.fcitx.commit") { commitText(event.data.text, event.data.cursor) }
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {
@@ -1374,7 +1383,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
             val adjustedSym = adjustAlphabetSymForCaps(sym, states)
             val up = forwardedEvent.action == KeyEvent.ACTION_UP
-            postFcitxJob {
+            postFcitxKeyJob {
                 sendKey(adjustedSym, states, forwardedEvent.scanCode, up, timestamp)
             }
             return true
@@ -1762,6 +1771,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         android.util.Log.i("FcitxColdStart", "service.onStartInput restarting=$restarting")
+        val engineGeneration = FcitxDaemon.invalidateInputSession()
         isInInputLifecycleCriticalPhase = true
         onBackspaceGuardSessionChanged()
         try {
@@ -1778,6 +1788,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 if (restarting) {
                     focus(false)
                 }
+                startInputSession(engineGeneration, attribute.packageName.orEmpty())
                 setCapFlags(flags)
                 if (!isNullType) {
                     focus(true)
@@ -2161,6 +2172,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onFinishInput() {
+        FcitxDaemon.invalidateInputSession()
         Timber.d("onFinishInput")
         onBackspaceGuardSessionChanged()
         MainService.stopSyncService(this)
@@ -2172,6 +2184,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onUnbindInput() {
+        FcitxDaemon.invalidateInputSession()
         cachedKeyEvents.evictAll()
         cachedKeyEventIndex = 0
         cursorUpdateIndex = 0
@@ -2187,6 +2200,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onDestroy() {
+        FcitxDaemon.invalidateInputSession()
         MainService.stopSyncService(this)
         recreateInputViewPrefs.forEach {
             it.unregisterOnChangeListener(recreateInputViewListener)

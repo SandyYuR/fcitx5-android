@@ -22,6 +22,8 @@ android {
         path = file("src/main/cpp/CMakeLists.txt")
         version = providers.gradleProperty("cmakeVersion").getOrElse("3.31.6")
     }
+    sourceSets.getByName("main").kotlin.srcDir("src/engine/java")
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

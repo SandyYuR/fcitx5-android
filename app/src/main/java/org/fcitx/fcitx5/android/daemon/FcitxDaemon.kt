@@ -13,6 +13,9 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.fcitx.fcitx5.android.FcitxApplication
+import org.fcitx.fcitx5.android.BuildConfig
+import org.fcitx.fcitx5.android.core.InputEngine
+import org.fcitx.fcitx5.android.core.DirectRimeBackend
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.Fcitx
 import org.fcitx.fcitx5.android.core.FcitxAPI
@@ -51,10 +54,18 @@ class FcitxDisconnectedException(connectionName: String) :
  */
 object FcitxDaemon {
 
-    private val realFcitx by lazy { Fcitx(appContext) }
+    private val realFcitx: InputEngine by lazy {
+        if (BuildConfig.DIRECT_RIME) DirectRimeBackend(appContext) else Fcitx(appContext)
+    }
 
     // don't leak fcitx instance
     private val fcitxImpl by lazy { object : FcitxAPI by realFcitx {} }
+
+    fun captureInputSession(): Long? = realFcitx.inputSession.takeIf { realFcitx.acceptsInput }
+
+    fun invalidateInputSession(): Long = realFcitx.invalidateInputSession()
+
+    fun isCurrentInputSession(generation: Long): Boolean = generation == 0L || generation == realFcitx.inputSession
 
     private fun mkConnection(name: String) = object : FcitxConnection {
 

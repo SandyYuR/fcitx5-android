@@ -160,9 +160,10 @@
 
 ### 构建
 
-独立 librime 直连实验 APK（`io.github.sandyyur.rime.direct`）及验证方法见
-[直连实验实现记录](docs/maintainer/DIRECT_RIME_IMPLEMENTATION_2026-10-16.md)。
-以 `-PdirectRimePrototype=true :direct-rime:assembleDebug` 显式构建，可与当前版本共存。
+带原应用完整界面的 librime 直连版（`io.github.sandyyur.rime.direct`）见
+[界面接入与安装说明](docs/maintainer/DIRECT_RIME_FRONTEND_2026-10-16.md)。
+使用 `-PdirectRimeFrontend=true :app:assembleFxDebug` 构建，可与原版并存。
+最小引擎诊断工具仍可用 `-PdirectRimePrototype=true :direct-rime:assembleDebug` 单独构建。
 
 需要 Java 17、Android SDK/NDK 与 CMake：
 

@@ -16,7 +16,11 @@ class Snapshot(
     val candidates: Array<String>,
     val comments: Array<String>,
     val codes: Array<String>,
-    val tabs: Array<String>
+    val tabs: Array<String>,
+    val schemaName: String,
+    val highlighted: Int,
+    val preview: String,
+    val labels: Array<String>
 ) {
     val ready get() = gate == 0
     val cursorUtf16 get() = preedit.toByteArray(Charsets.UTF_8).let {
@@ -25,7 +29,7 @@ class Snapshot(
     val gateMessage get() = when (gate) {
         0 -> if (ascii) "英文" else schema
         1 -> "部署中，按键已拦截"
-        2 -> "无可用方案，请在实验室导入并部署"
+        2 -> "无可用方案，请导入方案并部署"
         3 -> "会话已过期"
         4 -> "部署失败，请检查方案后重新部署"
         else -> "引擎不可用"
@@ -42,4 +46,10 @@ internal object Native {
     external fun action(generation: Long, revision: Long, action: Int, index: Int, value: String): Snapshot
     external fun deploy(): Boolean
     external fun schemas(): Array<String>
+    external fun schemaEntries(): Array<String>
+    external fun options(): Array<String>
+    external fun schemaSelection(): String
+    external fun selectSchemas(ids: Array<String>): Boolean
+    external fun sync(): Boolean
+    external fun candidates(generation: Long, offset: Int, limit: Int): Array<String>
 }

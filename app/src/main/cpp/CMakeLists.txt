@@ -16,6 +16,42 @@ find_package(ECM MODULE)
 
 include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
 
+set(RIME_PLUGIN_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../plugin/rime/src/main/cpp")
+
+# install rime data (same list as plugin/rime prebuilt-assets)
+#
+# 不装任何输入方案（schema / dictionary），也不装 essay.txt 预置词汇表：
+# 本版首次安装后引擎可正常运行，但 schema_list 为空、无可用方案，用户需
+# 自行放入方案并部署。这里只装被 schema_list 之外的机制引用、且是第三方
+# 方案公共依赖的通用预设资源：
+#   - default.yaml          共享数据目录定位锚点（RimeEngine 构造时 locate），
+#                           且提供 punctuator/key_binder/recognizer 等基础配置
+#   - key_bindings.yaml     default.yaml 的 key_binder 引用
+#   - punctuation.yaml      default.yaml 的 punctuator 引用
+#   - symbols.yaml          方案普遍以 `punctuator: import_preset: symbols` 引用
+#
+# 关于 essay.txt：方案以 `use_preset_vocabulary: true` 声明依赖它，缺失时
+# PresetVocabulary::OpenReadOnly 只记一条 ERROR 后静默降级（词典少一批预置
+# 短语与词频），不会导致部署失败；用户也可在用户数据目录自备同名文件生效
+# （vocabulary 资源以 user_data_dir 为 root、shared_data_dir 为 fallback）。
+install(FILES
+        "${RIME_PLUGIN_CPP_DIR}/default.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-prelude/key_bindings.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-prelude/punctuation.yaml"
+        "${RIME_PLUGIN_CPP_DIR}/rime-prelude/symbols.yaml"
+        DESTINATION "${FCITX_INSTALL_DATADIR}/rime-data"
+        COMPONENT prebuilt-assets
+        )
+install(DIRECTORY "${PREBUILT_DIR}/opencc/data/" DESTINATION "${FCITX_INSTALL_DATADIR}/opencc" COMPONENT prebuilt-assets)
+
+if(DIRECT_RIME_FRONTEND)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../../../direct-rime/src/main/cpp" direct-rime)
+    target_sources(direct-rime PRIVATE frontend-utils.cpp)
+    target_compile_features(direct-rime PRIVATE cxx_std_20)
+    target_link_libraries(direct-rime PRIVATE Fcitx5::Utils Fcitx5::Config)
+    return()
+endif()
+
 add_subdirectory(po)
 add_subdirectory(androidfrontend)
 add_subdirectory(androidnotification)
@@ -51,31 +87,6 @@ if(INPUT_DIAGNOSTICS)
     target_compile_definitions(rime PRIVATE RIME_INPUT_DIAGNOSTICS=1)
     target_link_libraries(rime android)
 endif()
-
-# install rime data (same list as plugin/rime prebuilt-assets)
-#
-# 不装任何输入方案（schema / dictionary），也不装 essay.txt 预置词汇表：
-# 本版首次安装后引擎可正常运行，但 schema_list 为空、无可用方案，用户需
-# 自行放入方案并部署。这里只装被 schema_list 之外的机制引用、且是第三方
-# 方案公共依赖的通用预设资源：
-#   - default.yaml          共享数据目录定位锚点（RimeEngine 构造时 locate），
-#                           且提供 punctuator/key_binder/recognizer 等基础配置
-#   - key_bindings.yaml     default.yaml 的 key_binder 引用
-#   - punctuation.yaml      default.yaml 的 punctuator 引用
-#   - symbols.yaml          方案普遍以 `punctuator: import_preset: symbols` 引用
-#
-# 关于 essay.txt：方案以 `use_preset_vocabulary: true` 声明依赖它，缺失时
-# PresetVocabulary::OpenReadOnly 只记一条 ERROR 后静默降级（词典少一批预置
-# 短语与词频），不会导致部署失败；用户也可在用户数据目录自备同名文件生效
-# （vocabulary 资源以 user_data_dir 为 root、shared_data_dir 为 fallback）。
-install(FILES
-        "${RIME_PLUGIN_CPP_DIR}/default.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-prelude/key_bindings.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-prelude/punctuation.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-prelude/symbols.yaml"
-        DESTINATION "${FCITX_INSTALL_DATADIR}/rime-data"
-        COMPONENT prebuilt-assets
-        )
 
 # prebuilt libuv
 set(libuv_DIR "${PREBUILT_DIR}/libuv/${ANDROID_ABI}/lib/cmake/libuv")

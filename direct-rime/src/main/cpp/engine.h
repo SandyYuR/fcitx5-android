@@ -13,9 +13,9 @@ struct Snapshot {
     int64_t generation = 0, revision = 0;
     bool handled = true, ascii = false, lastPage = true;
     Gate gate = NoSession;
-    int cursor = 0, page = 0;
-    std::string commit, preedit, schema;
-    std::vector<std::string> candidates, comments, codes, tabs;
+    int cursor = 0, page = 0, highlighted = -1;
+    std::string commit, preedit, schema, schemaName, preview;
+    std::vector<std::string> candidates, comments, codes, tabs, labels;
 };
 struct Tab { std::string label; size_t span; };
 
@@ -32,6 +32,12 @@ public:
                     const std::string& value);
     bool deploy();
     std::vector<std::string> schemas();
+    std::vector<std::string> schemaEntries();
+    std::vector<std::string> options();
+    std::string schemaSelection();
+    bool selectSchemas(const std::vector<std::string>& ids);
+    bool sync();
+    std::vector<std::string> candidates(int64_t generation, int offset, int limit);
 private:
     void owner() const;
     Gate gate(int64_t generation) const;

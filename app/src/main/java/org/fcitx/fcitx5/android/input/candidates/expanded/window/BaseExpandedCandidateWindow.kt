@@ -268,7 +268,7 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
             if (idx < 0 || (total >= 0 && idx >= total)) {
                 return@setOnClickListener
             }
-            fcitx.launchOnReady { it.select(idx) }
+            fcitx.launchOnReady { it.selectGlobal(idx) }
         }
         holder.itemView.setOnLongClickListener {
             val idx = holder.currentIndex(adapter.offset)
@@ -276,7 +276,7 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
             if (idx < 0 || (total >= 0 && idx >= total)) {
                 return@setOnLongClickListener true
             }
-            inputView.showCandidateActionMenu(idx, holder.candidate.text, holder.ui.root)
+            inputView.showCandidateActionMenu(idx, holder.candidate.text, holder.ui.root, global = true)
             true
         }
         inputView.bindCandidateGesture(

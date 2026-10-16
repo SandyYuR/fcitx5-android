@@ -44,6 +44,10 @@ value class Ini(val core: RawConfig) {
     }
 
     companion object {
+        init {
+            if (org.fcitx.fcitx5.android.BuildConfig.DIRECT_RIME) System.loadLibrary("direct-rime")
+        }
+
         @JvmStatic
         private external fun readFromIni(src: String): RawConfig?
 

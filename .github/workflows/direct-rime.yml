@@ -4,7 +4,7 @@ on:
   push:
     branches: [feat/direct-rime-prototype]
   pull_request:
-    paths: ['direct-rime/**', 'patches/**', 'tools/input-perf/**', '.github/workflows/direct-rime.yml', 'settings.gradle.kts']
+    paths: ['app/**', 'direct-rime/**', 'patches/**', 'tools/input-perf/**', '.github/workflows/direct-rime.yml', 'settings.gradle.kts']
 permissions:
   contents: read
 jobs:
@@ -74,3 +74,65 @@ jobs:
         with:
           name: direct-rime-android-smoke-results
           path: direct-rime/build/reports/androidTests/connected/
+  frontend:
+    name: Full frontend ARM64 APK
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: Install native build tools
+        run: sudo apt-get update && sudo apt-get install -y extra-cmake-modules gettext
+      - run: ./prepare_personal_build.sh
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build the original UI on direct librime and run JVM tests
+        run: ./gradlew -PdirectRimeFrontend=true -PbuildABI=arm64-v8a :app:assembleFxDebug :app:testFxDebugUnitTest
+      - uses: actions/upload-artifact@v7
+        with:
+          name: direct-rime-frontend-arm64-debug
+          path: |
+            app/build/outputs/apk/fx/debug/*.apk
+            app/build/reports/tests/testFxDebugUnitTest/
+  frontend_android:
+    name: Full frontend touch and engine tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: Install native build tools
+        run: sudo apt-get update && sudo apt-get install -y extra-cmake-modules gettext
+      - run: ./prepare_personal_build.sh
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: aosp_atd
+          arch: x86_64
+          disable-animations: true
+          script: ./gradlew -PdirectRimeFrontend=true -PbuildABI=x86_64 -Pandroid.testInstrumentationRunnerArguments.class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest :app:connectedFxDebugAndroidTest
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: direct-rime-frontend-android-results
+          path: app/build/reports/androidTests/connected/

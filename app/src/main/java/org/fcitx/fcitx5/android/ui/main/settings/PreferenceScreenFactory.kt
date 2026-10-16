@@ -223,6 +223,13 @@ object PreferenceScreenFactory {
                         runAddonAction(context, parsed.first, parsed.second)
                     }
                 }
+                ConfigExternal.ETy.RimeImport -> Preference(context).apply {
+                    setOnPreferenceClickListener {
+                        context.startActivity(android.content.Intent(context,
+                            org.fcitx.fcitx5.android.ui.main.settings.im.RimeImportActivity::class.java))
+                        true
+                    }
+                }
                 ConfigExternal.ETy.RimeUserDataDir -> rimeUserDataDir(
                     descriptor.description ?: descriptor.name
                 )
