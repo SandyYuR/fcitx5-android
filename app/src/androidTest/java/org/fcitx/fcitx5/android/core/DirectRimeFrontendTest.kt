@@ -1,12 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.core
 
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Intent
 import android.graphics.Rect
 import android.os.SystemClock
-import android.view.accessibility.AccessibilityNodeInfo
-import android.view.accessibility.AccessibilityWindowInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.test.platform.app.InstrumentationRegistry
@@ -146,20 +143,32 @@ class DirectRimeFrontendTest {
                 (context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager)
                     .showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT)
             }
-            instrumentation.uiAutomation.serviceInfo = instrumentation.uiAutomation.serviceInfo.apply {
-                flags = flags or AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+            // Use the public window inspector to find the actual custom TextView.
+            // AutoScaleTextView draws its own text instead of updating TextView.mText,
+            // so AccessibilityNodeInfo.text is empty for these existing keyboard cells.
+            fun key(text: String): Rect? {
+                var result: Rect? = null
+                instrumentation.runOnMainSync {
+                    fun find(view: android.view.View): Rect? {
+                        if (!view.isShown) return null
+                        if (view is org.fcitx.fcitx5.android.input.AutoScaleTextView) {
+                            val label = view.text.toString().trim()
+                            if (label.equals(text, ignoreCase = true) || (text == "你" && label.startsWith(text))) {
+                                val rect = Rect()
+                                if (view.getGlobalVisibleRect(rect) && !rect.isEmpty) return rect
+                            }
+                        }
+                        if (view is android.view.ViewGroup) for (i in 0 until view.childCount)
+                            find(view.getChildAt(i))?.let { return it }
+                        return null
+                    }
+                    result = android.view.inspector.WindowInspector.getGlobalWindowViews().firstNotNullOfOrNull { find(it) }
+                }
+                return result
             }
-            fun find(node: AccessibilityNodeInfo?, text: String): AccessibilityNodeInfo? {
-                if (node == null) return null
-                if (node.text?.toString()?.equals(text, ignoreCase = true) == true) return node
-                for (i in 0 until node.childCount) find(node.getChild(i), text)?.let { return it }
-                return null
-            }
-            fun key(text: String): AccessibilityNodeInfo? = instrumentation.uiAutomation.windows
-                .filter { it.type == AccessibilityWindowInfo.TYPE_INPUT_METHOD }.firstNotNullOfOrNull { find(it.root, text) }
             fun tap(text: String) {
                 await("Original keyboard did not show key '$text'") { key(text) != null }
-                val bounds = Rect(); key(text)!!.getBoundsInScreen(bounds)
+                val bounds = key(text)!!
                 shell("input tap ${bounds.centerX()} ${bounds.centerY()}")
             }
             tap("n"); tap("i")

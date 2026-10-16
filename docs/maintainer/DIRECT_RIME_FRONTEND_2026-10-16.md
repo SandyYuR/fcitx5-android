@@ -90,6 +90,8 @@ ZIP 导入先在新目录检查路径、文件数量和解压容量，再注册�
 `DirectRimeFrontendTest` 使用一次性测试 profile，验证候选、翻页、展开后的全局选择、方案菜单、
 预编辑切换、失效会话和提交不重放，并通过原软键盘的触摸事件与原候选适配器向真实 EditText 上屏中文。
 测试结束恢复原 profile、输入法选择和键盘偏好。请在一次性模拟器运行。
+AOSP ATD 镜像默认关闭绘制，触屏/截图测试前需执行
+`adb shell setprop debug.hwui.drawing_enabled true`；CI 已显式开启。
 软件模拟器可将 instrumentation 参数 `waitMs` 调到 `120000`。
 
 本机无 KVM，TCG 在大体积 debug DEX 的首次校验阶段可能超出 Android 进程启动时限。

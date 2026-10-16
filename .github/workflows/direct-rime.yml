@@ -130,7 +130,9 @@ jobs:
           target: aosp_atd
           arch: x86_64
           disable-animations: true
-          script: ./gradlew -PdirectRimeFrontend=true -PbuildABI=x86_64 -Pandroid.testInstrumentationRunnerArguments.class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest :app:connectedFxDebugAndroidTest
+          script: |
+            adb shell setprop debug.hwui.drawing_enabled true
+            ./gradlew -PdirectRimeFrontend=true -PbuildABI=x86_64 -Pandroid.testInstrumentationRunnerArguments.class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest :app:connectedFxDebugAndroidTest
       - uses: actions/upload-artifact@v7
         if: always()
         with:
