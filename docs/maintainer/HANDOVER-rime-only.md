@@ -1364,7 +1364,7 @@ CI 事实（2026-09-15 实测 `ci.yml`，`a2db421a` 加单测 job 后；2026-10-
 
 ### 3.2 文档（已迁至文档站 docs 分支）
 
-现存历史设计文档两份：`docs/archive/rime-only-feasibility.md`（可行性报告）、`docs/archive/rime-integration-plan.md`（实施方案，含附录 C 按键管线调研、附录 D 打字跟手性研究），与用户指南、审阅报告等同住文档站 `docs` 分支（2026-10-05 自 `rime-docs` 分支迁入，后者已删除）。⚠️ 两份文档早期"建议保留 androidkeyboard/unicode/spell/imselector"的结论已被加注推翻，读时注意注解。
+现存历史设计文档三份，均在 `docs/maintainer/` 下以 `ARCHIVE_` 前缀存放（2026-10-16 自 `docs/archive/` 并入，目录已删）：`ARCHIVE_RIME_ONLY_FEASIBILITY.md`（可行性报告）、`ARCHIVE_RIME_INTEGRATION_PLAN.md`（实施方案，含附录 C 按键管线调研、附录 D 打字跟手性研究）、`ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md`（直连中间层可行性原文），与用户指南、审阅报告等同住文档站 `docs` 分支（2026-10-05 自 `rime-docs` 分支迁入，后者已删除）。⚠️ 前两份文档早期"建议保留 androidkeyboard/unicode/spell/imselector"的结论已被加注推翻，读时注意注解。
 
 ### 3.3 性能（perf）
 
