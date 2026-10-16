@@ -415,6 +415,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
                     Timber.d("Handling $event")
                 }
                 fcitxEventHandlers.forEach { it.invoke(event) }
+                InputDiagnostics.emitting(event)
                 eventFlow_.tryEmit(event)
             }
         }
@@ -532,7 +533,9 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
                 if (im != inputMethodEntryCached) {
                     inputMethodEntryCached = im
                     // notify downstream consumers that engine subMode has changed
-                    eventFlow_.tryEmit(FcitxEvent.IMChangeEvent(im))
+                    val changed = FcitxEvent.IMChangeEvent(im)
+                    InputDiagnostics.emitting(changed)
+                    eventFlow_.tryEmit(changed)
                 }
             }
             is FcitxEvent.ClientPreeditEvent -> clientPreeditCached = event.data

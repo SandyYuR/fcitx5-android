@@ -17,12 +17,14 @@ val appIdFxSuffix = ".fx.rime"
 val flavorFx = "fx"
 val appLabelDefault = "@string/app_name"
 val imeSettingsActivity = "$packageBase.ui.main.MainActivity"
+val inputDiagnostics = providers.gradleProperty("inputDiagnostics").orNull == "true"
 
 android {
     namespace = packageBase
 
     defaultConfig {
         applicationId = appIdBase
+        buildConfigField("boolean", "INPUT_DIAGNOSTICS", inputDiagnostics.toString())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["appLabel"] = appLabelDefault
         resValue("string", "ime_settings_activity", imeSettingsActivity)
@@ -30,6 +32,7 @@ android {
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
             cmake {
+                arguments("-DINPUT_DIAGNOSTICS=${if (inputDiagnostics) "ON" else "OFF"}")
                 targets(
                     // jni
                     "native-lib",

@@ -21,7 +21,15 @@ prepare_pinned_source() {
   popd
 }
 
+TRACE_PATCH="$ROOT/patches/fcitx5-rime-input-tracing.patch"
+if git -C plugin/rime/src/main/cpp/fcitx5-rime apply --reverse --check "$TRACE_PATCH" 2>/dev/null; then
+  git -C plugin/rime/src/main/cpp/fcitx5-rime apply --reverse "$TRACE_PATCH"
+fi
 prepare_pinned_source plugin/rime/src/main/cpp/fcitx5-rime https://github.com/SandyYuR/fcitx5-rime.git
+
+# Optional baseline traces are compiled only with -PinputDiagnostics=true.
+# Keep the addon gitlink pinned; the local patch changes no input semantics.
+git -C plugin/rime/src/main/cpp/fcitx5-rime apply "$TRACE_PATCH"
 
 # Preserve local core edits and fail when the required patch cannot be applied.
 PATCH="$ROOT/plugin/rime/src/main/cpp/fcitx5-rime/fcitx5-alt-trigger-v4point1.patch"

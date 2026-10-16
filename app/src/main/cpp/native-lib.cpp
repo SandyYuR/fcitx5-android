@@ -11,6 +11,7 @@
 #include <fstream>
 
 #include <android/log.h>
+#include <android/trace.h>
 
 #include <uv.h>
 
@@ -101,6 +102,12 @@ public:
     }
 
     void sendKey(fcitx::Key key, bool up, int timestamp) {
+#ifdef RIME_INPUT_DIAGNOSTICS
+        struct Scope {
+            Scope() { ATrace_beginSection("rime.fcitx.route"); }
+            ~Scope() { ATrace_endSection(); }
+        } scope;
+#endif
         p_frontend->call<fcitx::IAndroidFrontend::keyEvent>(key, up, timestamp);
     }
 

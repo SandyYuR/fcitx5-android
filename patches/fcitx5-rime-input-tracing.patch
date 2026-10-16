@@ -1,0 +1,51 @@
+diff --git a/src/rimestate.cpp b/src/rimestate.cpp
+index 20e715d..eba4bbf 100644
+--- a/src/rimestate.cpp
++++ b/src/rimestate.cpp
+@@ -5,6 +5,9 @@
+  */
+ 
+ #include "rimestate.h"
++#ifdef RIME_INPUT_DIAGNOSTICS
++#include <android/trace.h>
++#endif
+ #include "rimeaction.h"
+ #include "rimecandidate.h"
+ #include "rimeengine.h"
+@@ -40,7 +43,17 @@
+ 
+ namespace fcitx::rime {
+ 
+-namespace {} // namespace
++namespace {
++bool tracedProcessKey(RimeApi *api, RimeSessionId session, int sym, int mask) {
++#ifdef RIME_INPUT_DIAGNOSTICS
++    struct Scope {
++        Scope() { ATrace_beginSection("rime.fcitx.process_key"); }
++        ~Scope() { ATrace_endSection(); }
++    } scope;
++#endif
++    return api->process_key(session, sym, mask);
++}
++} // namespace
+ 
+ RimeState::RimeState(RimeEngine *engine, InputContext &ic)
+     : engine_(engine), ic_(ic) {}
+@@ -225,7 +238,7 @@ void RimeState::keyEvent(KeyEvent &event) {
+             auto c = utf8::getChar(composeResult);
+             auto sym = Key::keySymFromUnicode(c);
+             if (sym != FcitxKey_None) {
+-                result = api->process_key(session, sym, intStates);
++                result = tracedProcessKey(api, session, sym, intStates);
+             }
+         }
+         if (!result) {
+@@ -235,7 +248,7 @@ void RimeState::keyEvent(KeyEvent &event) {
+         }
+     } else {
+         auto result =
+-            api->process_key(session, event.rawKey().sym(), intStates);
++            tracedProcessKey(api, session, event.rawKey().sym(), intStates);
+         if (result) {
+             event.filterAndAccept();
+         }

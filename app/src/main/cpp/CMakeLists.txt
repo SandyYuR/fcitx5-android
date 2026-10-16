@@ -47,6 +47,10 @@ set_target_properties(Rime_static PROPERTIES
 set(RIME_TARGET $<LINK_LIBRARY:WHOLE_ARCHIVE,Rime_static>)
 set(RIME_DATA_DIR "${CMAKE_INSTALL_DATADIR}/rime-data")
 add_subdirectory("${RIME_PLUGIN_CPP_DIR}/fcitx5-rime" fcitx5-rime)
+if(INPUT_DIAGNOSTICS)
+    target_compile_definitions(rime PRIVATE RIME_INPUT_DIAGNOSTICS=1)
+    target_link_libraries(rime android)
+endif()
 
 # install rime data (same list as plugin/rime prebuilt-assets)
 #
@@ -81,12 +85,16 @@ find_package(libuv)
 add_library(native-lib SHARED native-lib.cpp androidaddonloader/androidaddonloader.cpp)
 target_link_libraries(native-lib
         log
+        android
         libuv::uv_a
         Fcitx5::Utils
         Fcitx5::Config
         Fcitx5::Core
         Fcitx5::Module::Clipboard
         )
+if(INPUT_DIAGNOSTICS)
+    target_compile_definitions(native-lib PRIVATE RIME_INPUT_DIAGNOSTICS=1)
+endif()
 
 # copy module libraries from dependency lib
 add_custom_target(copy-fcitx5-modules

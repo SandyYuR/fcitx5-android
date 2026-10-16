@@ -144,6 +144,8 @@ private const val STANDALONE_MODIFIER_HOLD_MS = 50L
 
 class FcitxInputMethodService : LifecycleInputMethodService() {
 
+    private val inputDeliveryDiagnostics = org.fcitx.fcitx5.android.core.InputDiagnostics.Collector()
+
     internal lateinit var fcitx: FcitxConnection
 
     private var jobs = Channel<Job>(capacity = Channel.UNLIMITED)
@@ -593,7 +595,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 Timber.d(e, "fcitx event flow unavailable")
                 return@launch
             }
-            events.collect { handleFcitxEvent(it) }
+            events.collect { event ->
+                androidx.tracing.trace("rime.fcitx.consume") { handleFcitxEvent(event) }
+            }
         }
         pkgNameCache = PackageNameCache(this)
         recreateInputViewPrefs.forEach {
@@ -641,6 +645,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     private fun handleFcitxEvent(event: FcitxEvent<*>) {
+        inputDeliveryDiagnostics.received(event)
         when (event) {
             is FcitxEvent.ReadyEvent -> {
                 resetCandidatePagingModeCache()
@@ -648,7 +653,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
             is FcitxEvent.CommitStringEvent -> {
                 backspaceBoundaryGuard.onCommit()
-                commitText(event.data.text, event.data.cursor)
+                androidx.tracing.trace("rime.fcitx.commit") { commitText(event.data.text, event.data.cursor) }
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {

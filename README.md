@@ -160,6 +160,10 @@
 
 ### 构建
 
+独立 librime 直连实验 APK（`io.github.sandyyur.rime.direct`）及验证方法见
+[直连实验实现记录](docs/maintainer/DIRECT_RIME_IMPLEMENTATION_2026-10-16.md)。
+以 `-PdirectRimePrototype=true :direct-rime:assembleDebug` 显式构建，可与当前版本共存。
+
 需要 Java 17、Android SDK/NDK 与 CMake：
 
 ```bash
