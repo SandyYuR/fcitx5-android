@@ -4,7 +4,7 @@ on:
   push:
     branches: [feat/direct-rime-prototype]
   pull_request:
-    paths: ['app/**', 'direct-rime/**', 'patches/**', 'tools/input-perf/**', '.github/workflows/direct-rime.yml', 'settings.gradle.kts']
+    paths: ['app/**', 'direct-rime/**', 'patches/**', 'tools/input-perf/**', 'tools/test-direct-rime-frontend.sh', '.github/workflows/direct-rime.yml', 'settings.gradle.kts']
 permissions:
   contents: read
 jobs:
@@ -130,11 +130,9 @@ jobs:
           target: aosp_atd
           arch: x86_64
           disable-animations: true
-          script: |
-            adb shell setprop debug.hwui.drawing_enabled true
-            ./gradlew -PdirectRimeFrontend=true -PbuildABI=x86_64 -Pandroid.testInstrumentationRunnerArguments.class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest :app:connectedFxDebugAndroidTest
+          script: bash tools/test-direct-rime-frontend.sh
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: direct-rime-frontend-android-results
-          path: app/build/reports/androidTests/connected/
+          path: app/build/reports/androidTests/

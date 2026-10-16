@@ -4,6 +4,7 @@ package org.fcitx.fcitx5.android.core
 import android.content.Intent
 import android.graphics.Rect
 import android.os.SystemClock
+import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.test.platform.app.InstrumentationRegistry
@@ -157,9 +158,8 @@ class DirectRimeFrontendTest {
                                 val rect = Rect()
                                 if (view.getGlobalVisibleRect(rect) && !rect.isEmpty) {
                                     val origin = IntArray(2)
-                                    view.rootView.getLocationOnScreen(origin)
-                                    rect.offset(origin[0], origin[1])
-                                    return rect
+                                    view.getLocationOnScreen(origin)
+                                    return Rect(origin[0], origin[1], origin[0] + view.width, origin[1] + view.height)
                                 }
                             }
                         }
@@ -172,12 +172,42 @@ class DirectRimeFrontendTest {
                 return result
             }
             fun tap(text: String) {
-                await("Original keyboard did not show key '$text'") { key(text) != null }
-                val bounds = key(text)!!
-                shell("input tap ${bounds.centerX()} ${bounds.centerY()}")
+                // Showing the first preedit can resize the IME window. Wait for
+                // its actual screen position before injecting the next touch.
+                var bounds: Rect? = null
+                var stable = 0
+                await("Original keyboard did not settle key '$text'") {
+                    val next = key(text)
+                    stable = if (next != null && next == bounds) stable + 1 else 0
+                    bounds = next
+                    stable >= 5
+                }
+                val target = bounds!!
+                val down = SystemClock.uptimeMillis()
+                fun inject(action: Int) {
+                    val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action,
+                        target.exactCenterX(), target.exactCenterY(), 0)
+                    event.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
+                    try { assertTrue("Touch injection failed for '$text' at $target",
+                        instrumentation.uiAutomation.injectInputEvent(event, true)) }
+                    finally { event.recycle() }
+                }
+                inject(MotionEvent.ACTION_DOWN)
+                SystemClock.sleep(50)
+                inject(MotionEvent.ACTION_UP)
+                instrumentation.waitForIdleSync()
             }
-            tap("n"); tap("i")
-            await("Touch keys did not reach librime") { connection.runImmediately { inputPanelCached.preedit.toString() } == "ni" }
+            fun expectPreedit(expected: String) {
+                try { await("Touch keys did not produce '$expected'") {
+                    connection.runImmediately { inputPanelCached.preedit.toString() } == expected
+                } } catch (e: AssertionError) {
+                    shell("screencap -p /data/local/tmp/direct-frontend-failure.png")
+                    throw AssertionError("${e.message}; actual='${connection.runImmediately { inputPanelCached.preedit }}'; " +
+                        "ime=${connection.runImmediately { inputMethodEntryCached }}", e)
+                }
+            }
+            tap("n"); expectPreedit("n")
+            tap("i"); expectPreedit("ni")
             shell("screencap -p /data/local/tmp/direct-frontend-keyboard.png")
             // Candidate taps exercise the original candidate adapter, not a hardware-space shortcut.
             await("Original candidate bar did not show Chinese") { key("你") != null }
