@@ -62,12 +62,20 @@ adb shell am instrument -w -r \
 adb shell run-as io.github.sandyyur.rime.direct cat files/direct-rime-replay.json
 ```
 
+固定 APK 对照可使用 `tools/input-perf/compare-apks.py BEFORE.apk AFTER.apk TESTS.apk`，
+提供 `--wanxiang /path/to/fixture.zip` 则同时测试完整方案。工具只接受可 root 的一次性 AOSP 模拟器，
+会准备独立的恢复目录、校验上屏序列，并把原始结果、APK SHA256 和模型映射保存在 `--output` 目录。
+
 万象对照夹具来自官方 v18.1.3 `rime-wanxiang-base.zip`，加入官方 LTS
 `wanxiang-lts-zh-hans.gram`；方案与模型均不随 APK 分发，也不写入用户自己的 profile。
 对照需使用同一模拟器、相同档案与模型、相同预热及输入序列，并校验实际 APK 的 SHA256。
 宿主编译负载、软件模拟和 JIT 都会影响耗时，不能据此承诺真机提升比例。
 
 测量结果和最终构建验证将在完成回放后补入本页。
+
+已完成的构建检查：472 项完整应用 JVM 测试（其中 468 项沿用原项目，4 项验证独立按键与 INI），
+2 项诊断模块 JVM 测试，native AddressSanitizer/UBSan，以及 ARM64/x86_64 APK 依赖与资源校验。
+`aaf403b` 的直连 CI 四项任务全部通过，完整界面设备回归共 6 项；构建任务没有检出 Fcitx Core/addon 源码。
 
 ## 万象的可选方向
 

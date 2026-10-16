@@ -73,7 +73,8 @@ internal object KeyCodec {
             else -> names.unicodeBySym[normalized] ?: 0
         }
         val character = if (cp in 0x20..0x10ffff && cp !in 0xd800..0xdfff) String(Character.toChars(cp)) else ""
-        val portable = if (normalized in 'a'.code..'z'.code || normalized in 'A'.code..'Z'.code || normalized in '0'.code..'9'.code)
+        val ordinary = normalized in 'a'.code..'z'.code || normalized in 'A'.code..'Z'.code || normalized in '0'.code..'9'.code
+        val portable = if (ordinary)
             normalized.toChar().toString() else names.bySym[normalized] ?: character
         if (portable.isEmpty()) return Key(sym, states, "", "")
         fun prefix(mask: Int) = modifiers.filter { (_, bit) ->
@@ -86,7 +87,7 @@ internal object KeyCodec {
             0xffeb, 0xffec, 0xffed, 0xffee -> 64
             else -> 0
         }
-        val display = names.displayBySym[normalized] ?: character.ifEmpty { portable }
+        val display = if (ordinary) character else names.displayBySym[normalized] ?: character.ifEmpty { portable }
         return Key(sym, states, prefix(states) + portable, prefix(states and ownModifier.inv()) + display)
     }
 }
