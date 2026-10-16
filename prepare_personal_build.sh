@@ -44,4 +44,4 @@ else
 fi
 popd
 
-prepare_pinned_source lib/fcitx5/src/main/cpp/prebuilt https://github.com/SandyYuR/prebuilt.git
+prepare_pinned_source native/prebuilt https://github.com/SandyYuR/prebuilt.git

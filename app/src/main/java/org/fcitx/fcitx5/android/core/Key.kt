@@ -24,17 +24,13 @@ data class Key(
     override fun toString() = portableString
 
     companion object {
-        init {
-            if (org.fcitx.fcitx5.android.BuildConfig.DIRECT_RIME) System.loadLibrary("direct-rime")
-        }
-
         val None = Key(0, 0, "", "")
 
         @JvmStatic
-        external fun parse(raw: String): Key
+        fun parse(raw: String): Key = KeyCodec.parse(raw)
 
         @JvmStatic
-        private external fun create(sym: Int, states: Int): Key
+        private fun create(sym: Int, states: Int): Key = KeyCodec.create(sym, states)
 
         @JvmStatic
         fun create(sym: KeySym, states: KeyStates): Key = create(sym.sym, states.toInt())

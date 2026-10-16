@@ -63,7 +63,9 @@ android {
     buildFeatures {
         viewBinding = true
         resValues = true
+        prefab = !directRimeFrontend
     }
+    if (directRimeFrontend) externalNativeBuild.cmake.path = file("../direct-rime/src/main/cpp/CMakeLists.txt")
 
     buildTypes {
         release {
@@ -116,7 +118,7 @@ androidComponents {
 }
 
 fcitxComponent {
-    includeLibs = listOf(
+    includeLibs = if (directRimeFrontend) emptyList() else listOf(
         "fcitx5"
     )
     // rime 专版只保留 rime 输入法：imselector / spell / unicode / quickphrase
@@ -131,7 +133,26 @@ fcitxComponent {
         "usr/share/fcitx5/data/quickphrase.d/emoji-eac.mb",
         "usr/share/fcitx5/data/quickphrase.d/latex.mb"
     )
-    installPrebuiltAssets = true
+    installPrebuiltAssets = !directRimeFrontend
+}
+
+if (directRimeFrontend) {
+    val directAssets = layout.buildDirectory.dir("generated/direct-assets")
+    val prepareDirectRimeAssets = tasks.register<Sync>("prepareDirectRimeAssets") {
+        into(directAssets)
+        from("src/main/assets") { exclude("usr/**", "descriptor.json") }
+        into("usr/share/rime-data") {
+            from(rootProject.file("native/rime-data"))
+            from(rootProject.file("native/rime-prelude")) { include("key_bindings.yaml", "punctuation.yaml", "symbols.yaml") }
+        }
+        into("usr/share/opencc") { from(rootProject.file("native/prebuilt/opencc/data")) }
+    }
+    android.sourceSets.getByName("main").assets.setSrcDirs(listOf(directAssets))
+    tasks.named<DataDescriptorPlugin.DataDescriptorTask>("generateDataDescriptor") {
+        dependsOn(prepareDirectRimeAssets)
+        inputDir.set(directAssets)
+        outputFile.set(directAssets.map { it.file("descriptor.json") })
+    }
 }
 
 generateDataDescriptor {
@@ -161,7 +182,7 @@ ksp {
 
 dependencies {
     ksp(project(":codegen"))
-    implementation(project(":lib:fcitx5"))
+    if (!directRimeFrontend) implementation(project(":lib:fcitx5"))
     implementation(project(":lib:common"))
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kotlinx.serialization.json)

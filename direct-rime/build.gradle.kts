@@ -35,11 +35,11 @@ android {
 // Reuse exactly the parent's pinned data and patched prebuilt; never fetch a new engine.
 val prepareRimeAssets = tasks.register<Sync>("prepareRimeAssets") {
     into(layout.buildDirectory.dir("rime-assets/shared"))
-    from(rootProject.file("plugin/rime/src/main/cpp")) { include("default.yaml") }
-    from(rootProject.file("plugin/rime/src/main/cpp/rime-prelude")) {
+    from(rootProject.file("native/rime-data")) { include("default.yaml") }
+    from(rootProject.file("native/rime-prelude")) {
         include("key_bindings.yaml", "punctuation.yaml", "symbols.yaml")
     }
-    into("opencc") { from(rootProject.file("lib/fcitx5/src/main/cpp/prebuilt/opencc/data")) }
+    into("opencc") { from(rootProject.file("native/prebuilt/opencc/data")) }
 }
 tasks.named("preBuild") { dependsOn(prepareRimeAssets) }
 

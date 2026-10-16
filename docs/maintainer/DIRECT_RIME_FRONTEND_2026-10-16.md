@@ -8,8 +8,7 @@
 ## 构建与安装
 
 ```bash
-git submodule update --init --recursive
-./prepare_personal_build.sh
+git submodule update --init --depth 1 native/prebuilt native/rime-prelude
 ./gradlew -PdirectRimeFrontend=true -PbuildABI=arm64-v8a \
   :app:assembleFxDebug :app:testFxDebugUnitTest
 ```
@@ -52,9 +51,10 @@ GitHub Actions 的 `direct-rime-frontend-arm64-debug` artifact 是完整界面�
 
 - `InputEngine` 把 daemon 管理的启停与界面 API 分开。默认仍实例化 `Fcitx`，
   仅显式传入 `-PdirectRimeFrontend=true` 才实例化 `DirectRimeBackend`。
-- 直连 APK 的动态库只有 `direct-rime`、C++ runtime、`Fcitx5Utils` 和 `Fcitx5Config`。
-  后两者仅复用布局按键语法与 INI 文件读写；没有打包或启动 Fcitx Core、AndroidFrontend、
-  addon loader 或 fcitx5-rime 路由。
+- 直连 APK 的动态库只有 `libdirect-rime.so` 和 `libc++_shared.so`。
+  按键解析与 INI 读写已改为 Kotlin，删除 `frontend-utils.cpp` 及 `Fcitx5Utils`、`Fcitx5Config` 链接。
+  直连构建不再包含 `:lib:fcitx5`，也不需要检出 Fcitx Core 或 fcitx5-rime 的源码。
+  共用的固定版本 librime 及其依赖在 `native/prebuilt`，共享配置在 `native/rime-data` 和 `native/rime-prelude`。
 - JNI 共用第一轮的线程、generation、revision 和 UTF-16 边界，新增原界面所需的方案名、
   候选高亮、commit preview、全局候选遍历、光标定位、方案开关与 levers 方案选择。
 - 保留原候选事件模型、状态区菜单模型和缓存，因此布局随方案切换、语言键、布局编辑器的方案下拉框
@@ -79,6 +79,9 @@ ZIP 导入先在新目录检查路径、文件数量和解压容量，再注册�
 部署失败时切回原目录；失败导入的文件仍可检查修复。第一轮数据迁移也使用独立临时目录，保留来源文件。
 
 ## 验证
+
+后续解耦、CI 修复、回放方法和性能对照见
+[依赖清理与性能记录](DIRECT_RIME_DECOUPLING_2026-10-16.md)。下面保留首轮完整界面回归的记录。
 
 原生契约测试继续使用第一轮文档中的 AddressSanitizer/UBSan 命令，新增全局候选、迭代器释放、
 全局选字/忘词、UTF-8 光标位置和可选 levers 缺失的检查。

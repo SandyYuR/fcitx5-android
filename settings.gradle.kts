@@ -19,7 +19,7 @@ dependencyResolutionManagement {
 rootProject.name = "fcitx5-android"
 
 include(":lib:common")
-include(":lib:fcitx5")
+if (providers.gradleProperty("directRimeFrontend").orNull != "true") include(":lib:fcitx5")
 include(":codegen")
 include(":app")
 

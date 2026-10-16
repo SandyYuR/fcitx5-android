@@ -18,15 +18,15 @@ using namespace direct_rime::jni;
 jobject snapshot(JNIEnv* env, const direct_rime::Snapshot& s) {
     auto type = env->FindClass("org/fcitx/directrime/Snapshot");
     auto constructor = env->GetMethodID(type, "<init>",
-        "(JJZILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ZIZI[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;[Ljava/lang/String;)V");
+        "(JJJZILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ZIZI[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;[Ljava/lang/String;)V");
     if (!constructor) return nullptr;
     // One JNI result owns the commit and the corresponding UI state. Nothing is
     // delivered through a dropping SharedFlow or a native background callback.
-    return env->NewObject(type, constructor, static_cast<jlong>(s.generation), static_cast<jlong>(s.revision),
+    return env->NewObject(type, constructor, static_cast<jlong>(s.generation), static_cast<jlong>(s.revision), static_cast<jlong>(s.optionsRevision),
         static_cast<jboolean>(s.handled), static_cast<jint>(s.gate), string(env, s.commit), string(env, s.preedit),
         string(env, s.schema), static_cast<jboolean>(s.ascii), static_cast<jint>(s.page),
         static_cast<jboolean>(s.lastPage), static_cast<jint>(s.cursor), strings(env, s.candidates),
-        strings(env, s.comments), strings(env, s.codes), strings(env, s.tabs),
+        strings(env, s.comments), strings(env, s.tabs),
         string(env, s.schemaName), static_cast<jint>(s.highlighted), string(env, s.preview), strings(env, s.labels));
 }
 void error(JNIEnv* env, const std::exception& e) {

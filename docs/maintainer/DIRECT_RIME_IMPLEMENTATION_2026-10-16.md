@@ -14,9 +14,7 @@
 它使用自己的进程、应用私有目录和输入法服务，可以与原版及靓企鹅同时安装。
 
 ```bash
-git submodule init
-git config submodule.lib/fcitx5/src/main/cpp/prebuilt.url https://github.com/SandyYuR/prebuilt.git
-git submodule update --depth 1 --jobs 4
+git submodule update --init --depth 1 native/prebuilt native/rime-prelude
 ./gradlew -PdirectRimePrototype=true -PbuildABI=arm64-v8a \
   :direct-rime:assembleDebug :direct-rime:testDebugUnitTest :direct-rime:lintDebug
 ```
@@ -120,7 +118,7 @@ trace 的 render/updateCandidates 是 UI 更新调用耗时，**不是屏幕显�
 
 ```bash
 c++ -std=c++17 -Wall -Wextra -Werror -pthread -fsanitize=address,undefined -g \
-  -I lib/fcitx5/src/main/cpp/prebuilt/librime/arm64-v8a/include \
+  -I native/prebuilt/librime/arm64-v8a/include \
   direct-rime/src/main/cpp/engine.cpp direct-rime/src/main/cpp/engine_test.cpp -o /tmp/engine-test
 /tmp/engine-test
 ```

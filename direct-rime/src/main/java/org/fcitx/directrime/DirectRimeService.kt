@@ -148,7 +148,6 @@ class DirectRimeService : InputMethodService() {
                 val label = buildString {
                     append(text)
                     next.comments.getOrNull(index)?.takeIf { it.isNotEmpty() }?.let { append(" $it") }
-                    next.codes.getOrNull(index)?.takeIf { it.isNotEmpty() }?.let { append(" [$it]") }
                 }
                 candidates.addView(button(label) { action(1, index, expected = next) }.apply {
                     setOnLongClickListener { action(5, index, expected = next); true }

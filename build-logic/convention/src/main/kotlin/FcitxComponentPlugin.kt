@@ -35,6 +35,13 @@ class FcitxComponentPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         val installTask = target.tasks.register(INSTALL_TASK)
         val deleteTask = target.tasks.register(DELETE_TASK)
+        if (target.providers.gradleProperty("directRimeFrontend").orNull == "true") {
+            // The direct frontend prepares Rime data with an ordinary Gradle Sync task.
+            // Do not configure a Fcitx CMake target, translation, or library project.
+            target.extensions.create<FcitxComponentExtension>(EXTENSION)
+            target.tasks.register(CLEAN_TASK)
+            return
+        }
         registerCMakeTask(target, "generate-desktop-file", "config")
         registerCMakeTask(target, "translation-file", "translation")
         registerCleanTask(target)

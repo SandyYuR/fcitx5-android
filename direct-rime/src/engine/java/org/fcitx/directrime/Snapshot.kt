@@ -4,6 +4,7 @@ package org.fcitx.directrime
 class Snapshot(
     val generation: Long,
     val revision: Long,
+    val optionsRevision: Long,
     val handled: Boolean,
     val gate: Int,
     val commit: String,
@@ -15,7 +16,6 @@ class Snapshot(
     val cursorBytes: Int,
     val candidates: Array<String>,
     val comments: Array<String>,
-    val codes: Array<String>,
     val tabs: Array<String>,
     val schemaName: String,
     val highlighted: Int,

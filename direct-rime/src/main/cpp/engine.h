@@ -10,12 +10,12 @@ namespace direct_rime {
 // No Android/Fcitx dependencies: exercise the safety contract against a fake RimeApi.
 enum Gate { Ready = 0, Maintenance = 1, NoSession = 2, Stale = 3, DeployFailed = 4 };
 struct Snapshot {
-    int64_t generation = 0, revision = 0;
+    int64_t generation = 0, revision = 0, optionsRevision = 0;
     bool handled = true, ascii = false, lastPage = true;
     Gate gate = NoSession;
     int cursor = 0, page = 0, highlighted = -1;
     std::string commit, preedit, schema, schemaName, preview;
-    std::vector<std::string> candidates, comments, codes, tabs, labels;
+    std::vector<std::string> candidates, comments, tabs, labels;
 };
 struct Tab { std::string label; size_t span; };
 
@@ -47,6 +47,7 @@ private:
     const std::thread::id owner_;
     bool started_ = false, setup_ = false;
     std::atomic<bool> deployFailed_{false};
+    std::atomic<int64_t> optionsRevision_{0};
     RimeSessionId session_ = 0;
     int64_t generation_ = 0, revision_ = 0;
     std::string shared_, user_;

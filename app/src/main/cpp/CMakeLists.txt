@@ -35,22 +35,14 @@ set(RIME_PLUGIN_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../plugin/rime/src
 # 短语与词频），不会导致部署失败；用户也可在用户数据目录自备同名文件生效
 # （vocabulary 资源以 user_data_dir 为 root、shared_data_dir 为 fallback）。
 install(FILES
-        "${RIME_PLUGIN_CPP_DIR}/default.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-prelude/key_bindings.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-prelude/punctuation.yaml"
-        "${RIME_PLUGIN_CPP_DIR}/rime-prelude/symbols.yaml"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../../../native/rime-data/default.yaml"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../../../native/rime-prelude/key_bindings.yaml"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../../../native/rime-prelude/punctuation.yaml"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../../../native/rime-prelude/symbols.yaml"
         DESTINATION "${FCITX_INSTALL_DATADIR}/rime-data"
         COMPONENT prebuilt-assets
         )
 install(DIRECTORY "${PREBUILT_DIR}/opencc/data/" DESTINATION "${FCITX_INSTALL_DATADIR}/opencc" COMPONENT prebuilt-assets)
-
-if(DIRECT_RIME_FRONTEND)
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../../../direct-rime/src/main/cpp" direct-rime)
-    target_sources(direct-rime PRIVATE frontend-utils.cpp)
-    target_compile_features(direct-rime PRIVATE cxx_std_20)
-    target_link_libraries(direct-rime PRIVATE Fcitx5::Utils Fcitx5::Config)
-    return()
-endif()
 
 add_subdirectory(po)
 add_subdirectory(androidfrontend)

@@ -58,6 +58,8 @@ void Engine::owner() const {
 }
 void Engine::notification(void* context, RimeSessionId, const char* type, const char* value) {
     // librime can call this from its maintenance thread. Do not touch JNI/session state.
+    if (std::strcmp(type, "schema") == 0 || std::strcmp(type, "option") == 0)
+        ++static_cast<Engine*>(context)->optionsRevision_;
     if (std::strcmp(type, "deploy") == 0)
         static_cast<Engine*>(context)->deployFailed_.store(std::strcmp(value, "failure") == 0);
 }
@@ -97,6 +99,7 @@ Gate Engine::gate(int64_t generation) const {
 Snapshot Engine::begin(int64_t generation, const std::string& program) {
     owner();
     if (generation <= generation_) { Snapshot s; s.generation = generation; s.gate = Stale; return s; }
+    ++optionsRevision_;
     if (session_) api_->destroy_session(session_);
     session_ = 0; generation_ = generation;
     if (started_ && !api_->is_maintenance_mode() && !deployFailed_.load() && !schemas().empty()) {
@@ -170,15 +173,6 @@ Snapshot Engine::snapshot(int64_t generation, bool handled) {
                 : i < static_cast<int>(keys.size()) ? keys.substr(i, 1) + " " : std::to_string((i + 1) % 10) + " ");
             s.candidates.push_back(safe(context.menu.candidates[i].text));
             s.comments.push_back(safe(context.menu.candidates[i].comment));
-            std::string code;
-            if (RIME_API_AVAILABLE(api_, get_candidate_code) && RIME_API_AVAILABLE(api_, free_candidate_code)) {
-                char** segments = nullptr; size_t count = 0, matching = 0;
-                if (api_->get_candidate_code(session_, s.page * context.menu.page_size + i, &segments, &count, &matching)) {
-                    for (size_t j = 0; j < count; ++j) { if (j) code += " "; code += safe(segments[j]); }
-                    api_->free_candidate_code(segments, count);
-                }
-            }
-            s.codes.push_back(code);
         }
         api_->free_context(&context);
     }
@@ -199,6 +193,7 @@ Snapshot Engine::snapshot(int64_t generation, bool handled) {
             api_->free_input_tabs(labels, spans, sources, count);
         }
     }
+    s.optionsRevision = optionsRevision_.load();
     return s;
 }
 bool Engine::deploy() {

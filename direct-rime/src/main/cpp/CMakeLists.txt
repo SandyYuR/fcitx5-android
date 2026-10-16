@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 project(direct_rime LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(PREBUILT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../lib/fcitx5/src/main/cpp/prebuilt")
+set(PREBUILT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../native/prebuilt")
 
 if(ANDROID)
     add_library(rime STATIC IMPORTED)

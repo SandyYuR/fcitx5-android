@@ -91,9 +91,10 @@ void testInputContract() {
     auto result = engine.key(1, 'n', 0xffffffff, true);
     CHECK(!result.handled && result.gate == Ready && result.commit == "你😀");
     CHECK(f.keys == 1 && f.mask == (1 | 2 | 4 | 8 | 64 | (1 << 26) | (1 << 30)));
-    CHECK(f.freedCommit == 1 && result.candidates[0] == "你😀" && result.codes[0] == "ni");
+    CHECK(f.freedCommit == 1 && result.candidates[0] == "你😀" && f.freedCodes == 0);
     CHECK(result.labels[0] == "a ");
-    CHECK(result.tabs.size() == 1 && result.tabs[0] == "ni" && f.freedTabs > 0 && f.freedCodes > 0);
+    CHECK(result.tabs.size() == 1 && result.tabs[0] == "ni" && f.freedTabs > 0);
+    CHECK(result.optionsRevision == initial.optionsRevision);
     auto selected = engine.action(1, result.revision, 4, 0, "");
     CHECK(f.selectedLabel == "ni" && f.selectedSpan == 3 && selected.commit.empty());
     CHECK(engine.action(1, result.revision, 1, 0, "").gate == Stale && f.selected == -1);
@@ -148,8 +149,20 @@ void testUnicode() {
     CHECK(!utf16("\xc0\xaf", decoded)); CHECK(!utf16("\xed\xa0\x80", decoded));
     CHECK(!utf16("\xf4\x90\x80\x80", decoded)); CHECK(!utf16("\xe4\xbd", decoded));
 }
+void testOptionInvalidation() {
+    f = {}; auto a = api(); Engine engine(&a); engine.start("shared", "user");
+    auto initial = engine.begin(1, "editor");
+    CHECK(engine.key(1, 'n', 0, false).optionsRevision == initial.optionsRevision);
+    f.callback(f.context, 7, "option", "ascii_mode");
+    auto changed = engine.key(1, 'i', 0, false);
+    CHECK(changed.optionsRevision > initial.optionsRevision);
+    f.callback(f.context, 7, "schema", "second");
+    CHECK(engine.key(1, 'i', 0, false).optionsRevision > changed.optionsRevision);
+    CHECK(engine.begin(2, "second").optionsRevision > changed.optionsRevision);
+    engine.stop();
+}
 }
 int main() {
-    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testUnicode(); std::cout << "engine contract: passed\n"; }
+    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testUnicode(); testOptionInvalidation(); std::cout << "engine contract: passed\n"; }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

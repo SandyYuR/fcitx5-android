@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+"""Fail if the full direct frontend packages or links a Fcitx component."""
+import argparse
+import json
+import struct
+import zipfile
+from pathlib import Path
+
+
+def dependencies(data):
+    assert data[:4] == b"\x7fELF", "Not an ELF library"
+    wide = data[4] == 2
+    order = "<" if data[5] == 1 else ">"
+    phoff = struct.unpack_from(order + ("Q" if wide else "I"), data, 32 if wide else 28)[0]
+    size, count = struct.unpack_from(order + "HH", data, 54 if wide else 42)
+    loads, dynamic = [], None
+    for i in range(count):
+        fields = struct.unpack_from(order + ("IIQQQQQQ" if wide else "IIIIIIII"), data, phoff + i * size)
+        kind = fields[0]
+        off, addr, length = (fields[2], fields[3], fields[5]) if wide else (fields[1], fields[2], fields[4])
+        if kind == 1:
+            loads.append((addr, off, length))
+            assert fields[7] >= 16384, "Library does not support 16 KiB pages"
+        if kind == 2:
+            dynamic = (off, length)
+    assert dynamic is not None, "No dynamic section"
+    needed, strings = [], None
+    stride = 16 if wide else 8
+    for off in range(dynamic[0], sum(dynamic), stride):
+        tag, value = struct.unpack_from(order + ("qQ" if wide else "iI"), data, off)
+        if tag == 0:
+            break
+        if tag == 1:
+            needed.append(value)
+        if tag == 5:
+            strings = value
+    assert strings is not None, "No dynamic string table"
+    base = next(off + strings - addr for addr, off, length in loads if addr <= strings < addr + length)
+    return [data[base + n:data.index(b"\0", base + n)].decode() for n in needed]
+
+
+def verify(path):
+    allowed = {"libdirect-rime.so", "libc++_shared.so"}
+    system = {"libc.so", "libm.so", "libdl.so", "liblog.so", "libandroid.so"}
+    with zipfile.ZipFile(path) as apk:
+        # aapt2 writes UTF-8 names without consistently setting ZIP's UTF-8 flag.
+        def decoded_name(info):
+            if info.flag_bits & 0x800:
+                return info.filename
+            try:
+                return info.filename.encode("cp437").decode("utf-8")
+            except UnicodeError:
+                return info.filename
+        names = {decoded_name(info) for info in apk.infolist()}
+        libs = sorted(n for n in names if n.startswith("lib/") and n.endswith(".so"))
+        assert libs, "APK has no native engine"
+        for abi in {n.split('/')[1] for n in libs}:
+            packaged = {n.split('/')[2] for n in libs if n.split('/')[1] == abi}
+            assert packaged == allowed, f"Unexpected {abi} libraries: {packaged}"
+        for name in libs:
+            needed = dependencies(apk.read(name))
+            assert set(needed) <= allowed | system, f"Unexpected dependency in {name}: {needed}"
+        assert not any(n.startswith("assets/usr/share/fcitx5/") for n in names), "Fcitx assets remain"
+        descriptor = json.loads(apk.read("assets/descriptor.json"))
+        for name, digest in descriptor["files"].items():
+            if digest:
+                assert f"assets/{name}" in names, f"Descriptor refers to missing asset: {name}"
+    print(json.dumps({"apk": str(path), "native_libraries": libs, "fcitx_dependencies": [], "page_size": 16384}))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("apk", type=Path)
+    verify(parser.parse_args().apk)

@@ -1,12 +1,13 @@
 name: Direct Rime experiment
 on:
   workflow_dispatch:
-  push:
-    branches: [feat/direct-rime-prototype]
   pull_request:
-    paths: ['app/**', 'direct-rime/**', 'patches/**', 'tools/input-perf/**', 'tools/test-direct-rime-frontend.sh', '.github/workflows/direct-rime.yml', 'settings.gradle.kts']
+    paths: ['app/**', 'direct-rime/**', 'patches/**', 'tools/input-perf/**', 'tools/test-direct-rime-frontend.sh', 'tools/verify-direct-rime-apk.py', '.github/workflows/direct-rime.yml', 'settings.gradle.kts', 'native/**', 'build-logic/**', '.gitmodules']
 permissions:
   contents: read
+concurrency:
+  group: direct-rime-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   prototype:
     runs-on: ubuntu-22.04
@@ -15,8 +16,7 @@ jobs:
       - name: Fetch pinned submodules from the configured engine fork
         run: |
           git submodule init
-          git config submodule.lib/fcitx5/src/main/cpp/prebuilt.url https://github.com/SandyYuR/prebuilt.git
-          git submodule update --depth 1 --jobs 4
+          git submodule update --init --depth 1 native/prebuilt native/rime-prelude
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -28,7 +28,7 @@ jobs:
       - name: Test native engine safety contract
         run: |
           c++ -std=c++17 -Wall -Wextra -Werror -pthread -fsanitize=address,undefined -g \
-            -I lib/fcitx5/src/main/cpp/prebuilt/librime/arm64-v8a/include \
+            -I native/prebuilt/librime/arm64-v8a/include \
             direct-rime/src/main/cpp/engine.cpp direct-rime/src/main/cpp/engine_test.cpp -o /tmp/engine-test
           /tmp/engine-test
       - name: Build isolated APK and run JVM tests
@@ -47,8 +47,7 @@ jobs:
       - name: Fetch pinned submodules
         run: |
           git submodule init
-          git config submodule.lib/fcitx5/src/main/cpp/prebuilt.url https://github.com/SandyYuR/prebuilt.git
-          git submodule update --depth 1 --jobs 4
+          git submodule update --init --depth 1 native/prebuilt native/rime-prelude
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -81,7 +80,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          submodules: recursive
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -89,12 +87,17 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
-      - name: Install native build tools
-        run: sudo apt-get update && sudo apt-get install -y extra-cmake-modules gettext
-      - run: ./prepare_personal_build.sh
+      - name: Fetch only the pinned Rime dependencies
+        run: git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+      - name: Verify Fcitx sources are absent
+        run: |
+          test ! -f lib/fcitx5/src/main/cpp/fcitx5/CMakeLists.txt
+          test ! -f plugin/rime/src/main/cpp/fcitx5-rime/CMakeLists.txt
       - uses: gradle/actions/setup-gradle@v6
       - name: Build the original UI on direct librime and run JVM tests
         run: ./gradlew -PdirectRimeFrontend=true -PbuildABI=arm64-v8a :app:assembleFxDebug :app:testFxDebugUnitTest
+      - name: Verify APK dependencies and assets
+        run: python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/debug/*.apk
       - uses: actions/upload-artifact@v7
         with:
           name: direct-rime-frontend-arm64-debug
@@ -106,8 +109,6 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v7
-        with:
-          submodules: recursive
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -115,9 +116,8 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
-      - name: Install native build tools
-        run: sudo apt-get update && sudo apt-get install -y extra-cmake-modules gettext
-      - run: ./prepare_personal_build.sh
+      - name: Fetch only the pinned Rime dependencies
+        run: git submodule update --init --depth 1 native/prebuilt native/rime-prelude
       - uses: gradle/actions/setup-gradle@v6
       - name: Enable KVM
         run: |

@@ -38,6 +38,7 @@ class DirectRimeFrontendTest {
     private val commits = Channel<String>(Channel.UNLIMITED)
     private var previousProfile = "rime"
     private val createdImports = mutableListOf<String>()
+    private val fixtureArchive = InstrumentationRegistry.getArguments().getString("fixtureArchive")
     private val profile = "frontend-test-${System.currentTimeMillis()}"
     private fun shell(command: String) = instrumentation.uiAutomation.executeShellCommand(command).use {
         FileInputStream(it.fileDescriptor).bufferedReader().use { it.readText().trim() }
@@ -55,15 +56,22 @@ class DirectRimeFrontendTest {
             setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "create"), RawConfig("Name", profile))))
         }
         val directory = File(context.getExternalFilesDir(null), "data/$profile")
-        instrumentation.context.assets.list("smoke")!!.forEach { name ->
-            instrumentation.context.assets.open("smoke/$name").use { input -> File(directory, name).outputStream().use { input.copyTo(it) } }
+        if (fixtureArchive != null) {
+            val archive = File(context.filesDir, fixtureArchive)
+            require(archive.canonicalFile.parentFile == context.filesDir.canonicalFile)
+            check(directory.delete())
+            archive.inputStream().use { org.fcitx.directrime.ProfileArchive.extract(it, directory) }
+        } else {
+            instrumentation.context.assets.list("smoke")!!.forEach { name ->
+                instrumentation.context.assets.open("smoke/$name").use { input -> File(directory, name).outputStream().use { input.copyTo(it) } }
+            }
+            if (testName.methodName == "schemaCommentsAndSwitchGroupsMatchRime") writeCommentFixture(directory)
+            File(directory, "second.schema.yaml").writeText(File(directory, "direct_smoke.schema.yaml").readText()
+                .replace("schema_id: direct_smoke", "schema_id: second").replace("name: 直连测试", "name: 第二方案"))
+            File(directory, "default.yaml").appendText("\n")
+            val default = File(directory, "default.yaml")
+            default.writeText(default.readText().replace("- schema: direct_smoke", "- schema: direct_smoke\n  - schema: second"))
         }
-        if (testName.methodName == "schemaCommentsAndSwitchGroupsMatchRime") writeCommentFixture(directory)
-        File(directory, "second.schema.yaml").writeText(File(directory, "direct_smoke.schema.yaml").readText()
-            .replace("schema_id: direct_smoke", "schema_id: second").replace("name: 直连测试", "name: 第二方案"))
-        File(directory, "default.yaml").appendText("\n")
-        val default = File(directory, "default.yaml")
-        default.writeText(default.readText().replace("- schema: direct_smoke", "- schema: direct_smoke\n  - schema: second"))
         connection.runOnReady {
             setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "switch"), RawConfig("Name", profile))))
             setImConfig("rime", RawConfig(arrayOf(RawConfig("PreeditMode", "No"))))
@@ -113,6 +121,51 @@ return function(input, env)
   end
 end
 """.trimIndent())
+    }
+    /** Reproducible adapter measurements; deliberately not a UI latency benchmark. */
+    @Test fun replayPerformanceWorkload(): Unit = runBlocking {
+        val eventCounts = java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.atomic.AtomicInteger>()
+        val collector = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            connection.runImmediately { eventFlow }.collect {
+                eventCounts.getOrPut(it.javaClass.simpleName) { java.util.concurrent.atomic.AtomicInteger() }.incrementAndGet()
+            }
+        }
+        val durations = mutableListOf<Long>()
+        val delivered = mutableListOf<String>()
+        val inputs = if (fixtureArchive == null) listOf("ni") else listOf("nihao", "zhongguo", "shurufa", "wode", "xingneng", "zhongzhou", "fangan", "zhongwen")
+        suspend fun word(input: String, measure: Boolean) {
+            for (key in input.map { it.toString() } + "space") {
+                val start = System.nanoTime()
+                connection.runOnReady { sendKey(key, KeyState.Virtual.state) }
+                if (measure) durations += System.nanoTime() - start
+            }
+            val text = withTimeout(30_000) { commits.receive() }
+            if (fixtureArchive == null) assertEquals("Every replayed word must commit exactly once", "你", text)
+            else assertTrue("Wanxiang must produce a Chinese commit", text.any { it.code in 0x3400..0x9fff })
+            if (measure) delivered += text
+        }
+        try {
+            repeat(20) { word(inputs[it % inputs.size], false) }
+            delay(150)
+            eventCounts.clear()
+            repeat(100) { word(inputs[it % inputs.size], true) }
+            delay(150)
+            assertNull("No duplicate commits after replay", withTimeoutOrNull(250) { commits.receive() })
+            val sorted = durations.sorted()
+            fun percentile(p: Int) = sorted[((sorted.size * p + 99) / 100 - 1).coerceAtLeast(0)] / 1_000_000.0
+            val result = org.json.JSONObject().apply {
+                put("metric", "sendKey completion including adapter and native owner; not input-to-display latency")
+                put("harness_commit", BuildConfig.BUILD_GIT_HASH)
+                put("fixture", fixtureArchive ?: "bundled-smoke")
+                put("commits", org.json.JSONArray(delivered))
+                put("words", 100)
+                put("keys", sorted.size)
+                put("p50_ms", percentile(50)); put("p95_ms", percentile(95)); put("p99_ms", percentile(99))
+                put("events", org.json.JSONObject(eventCounts.mapValues { it.value.get() }))
+            }
+            File(context.filesDir, "direct-rime-replay.json").writeText(result.toString(2))
+            android.util.Log.i("DirectRimeReplay", result.toString())
+        } finally { collector.cancelAndJoin() }
     }
     @Test fun schemaCommentsAndSwitchGroupsMatchRime(): Unit = runBlocking {
         val candidates = Channel<Array<CandidateWord>>(Channel.UNLIMITED)
@@ -301,7 +354,9 @@ end
             assertTrue("The original app must install its layout presets", File(context.getExternalFilesDir(null), "config")
                 .listFiles().orEmpty().any { it.name.startsWith("TextKeyboardLayout.") })
             val maps = File("/proc/self/maps").readText()
-            assertFalse("Fcitx routing must not be loaded in the direct APK", maps.contains("libFcitx5Core.so") || maps.contains("libnative-lib.so") || maps.contains("librime.so"))
+            assertFalse("Fcitx libraries must not be loaded in the direct APK", maps.contains("libFcitx5Core.so") ||
+                maps.contains("libFcitx5Utils.so") || maps.contains("libFcitx5Config.so") ||
+                maps.contains("libnative-lib.so") || maps.contains("librime.so"))
         } finally {
             activity?.let { instrumentation.runOnMainSync { it.finish() } }
             instrumentation.runOnMainSync {

@@ -43,6 +43,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private var preferredAscii: Boolean? = null
     private var schemas = emptyList<Pair<String, String>>()
     private var optionRows = emptyList<List<String>>()
+    private var optionsRevision = Long.MIN_VALUE
+    private var publishedGeneration = Long.MIN_VALUE
+    private var candidateEventCached: FcitxEvent<*>? = null
     private val forwardedKeys = mutableSetOf<Pair<Int, Int>>()
     private var startupError = ""
     @Volatile private var maintenance = false
@@ -137,11 +140,17 @@ class DirectRimeBackend(context: Context) : InputEngine {
 
     private fun publish(value: Snapshot) {
         if (value.generation != inputSession || value.gate == 3) return
+        val previous = snapshot
         snapshot = value
+        val newSession = publishedGeneration != value.generation
+        val optionsChanged = value.ready && value.optionsRevision != optionsRevision
         if (value.ready) {
             preferredSchema = value.schema
             preferredAscii = value.ascii
-            optionRows = Native.options().toList().chunked(4)
+            if (optionsChanged) {
+                optionRows = Native.options().toList().chunked(4)
+                optionsRevision = value.optionsRevision
+            }
         }
         val client = when (config.preeditMode) {
             "ComposingText" -> formatted(value.preedit, value.cursorUtf16, true)
@@ -156,27 +165,36 @@ class DirectRimeBackend(context: Context) : InputEngine {
         )
         val ime = entry(value)
         val imeChanged = ime != inputMethodEntryCached
-        val actions = buildActions(value)
+        val statusChanged = newSession || optionsChanged || imeChanged || statusAreaActionsCached.isEmpty()
+        val actions = if (statusChanged) buildActions(value) else statusAreaActionsCached
+        val clientChanged = newSession || client != clientPreeditCached
+        val panelChanged = newSession || panel != inputPanelCached
         clientPreeditCached = client
         inputPanelCached = panel
         inputMethodEntryCached = ime
         statusAreaActionsCached = actions
         val batch = mutableListOf<FcitxEvent<*>>()
         if (value.commit.isNotEmpty()) batch += FcitxEvent.CommitStringEvent(FcitxEvent.CommitStringEvent.Data(value.commit, -1))
-        batch += FcitxEvent.ClientPreeditEvent(client)
-        batch += FcitxEvent.InputPanelEvent(panel)
+        if (clientChanged) batch += FcitxEvent.ClientPreeditEvent(client)
+        if (panelChanged) batch += FcitxEvent.InputPanelEvent(panel)
         val candidates = value.candidates.mapIndexed { i, text ->
             // Candidate codes are separate metadata, not a schema's visible comment.
             // Appending them would bypass Lua filters such as Wanxiang's comment switch.
             CandidateWord(value.labels.getOrElse(i) { "${(i + 1) % 10} " }, text, value.comments.getOrElse(i) { "" })
         }.toTypedArray()
-        if (pagingMode != 0) batch += FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data(
+        val candidateEvent = if (pagingMode != 0) FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data(
             candidates, value.highlighted, FcitxEvent.PagedCandidateEvent.LayoutHint.NotSet, value.page > 0, !value.lastPage))
-        else batch += FcitxEvent.CandidateListEvent(FcitxEvent.CandidateListEvent.Data(-1, candidates))
+        else FcitxEvent.CandidateListEvent(FcitxEvent.CandidateListEvent.Data(-1, candidates))
+        // An unchanged first page can hide a changed tail of a lazy translation.
+        // Keep handled keys/actions and composition changes invalidating expanded pages.
+        if (newSession || value.handled || optionsChanged || previous?.preedit != value.preedit ||
+            previous?.cursorBytes != value.cursorBytes || candidateEvent != candidateEventCached) batch += candidateEvent
+        candidateEventCached = candidateEvent
         if (imeChanged) batch += FcitxEvent.IMChangeEvent(ime)
-        batch += FcitxEvent.StatusAreaEvent(FcitxEvent.StatusAreaEvent.Data(actions, ime))
+        if (statusChanged) batch += FcitxEvent.StatusAreaEvent(FcitxEvent.StatusAreaEvent.Data(actions, ime))
         batch.forEach { it.inputSession = value.generation }
-        events.trySend(batch)
+        publishedGeneration = value.generation
+        if (batch.isNotEmpty()) events.trySend(batch)
     }
     private fun entry(value: Snapshot?) = InputMethodEntry("rime", context.getString(R.string.direct_rime_ime_name), "fcitx-rime", "中州韵", "㞢", "zh", "rime", true,
         InputMethodSubMode(if (value?.ascii == true) "Latin Mode" else value?.schemaName.orEmpty(),
