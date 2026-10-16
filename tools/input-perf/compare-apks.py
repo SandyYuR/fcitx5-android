@@ -10,6 +10,13 @@ import io
 import tarfile
 from pathlib import Path
 
+def checksum(path):
+    digest = hashlib.sha256()
+    with path.open('rb') as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("before", type=Path)
 parser.add_argument("after", type=Path)
@@ -48,7 +55,7 @@ print('Emulator ready. Stop host compilers before collecting timing results.', f
 command('install', '-r', str(baseline))
 command('install', '-r', str(test))
 if args.wanxiang:
-    source_hash = hashlib.file_digest(args.wanxiang.open('rb'), 'sha256').hexdigest()
+    source_hash = checksum(args.wanxiang)
     existing = command('shell', 'run-as', package, 'sha256sum', 'files/wanxiang-perf.zip', check=False)
     if not existing.stdout.startswith(source_hash):
         command('push', str(args.wanxiang), '/data/local/tmp/direct-wanxiang-perf.zip')
@@ -102,8 +109,8 @@ def replay(label, apk, full):
         stop.set()
         if full: monitor.join(timeout=15)
     result = json.loads(command('shell', 'run-as', package, 'cat', 'files/direct-rime-replay.json').stdout)
-    result['apk_sha256'] = hashlib.file_digest(apk.open('rb'), 'sha256').hexdigest()
-    result['model_mapped'] = bool(model_mapped) if full else None
+    result['apk_sha256'] = checksum(apk)
+    result['model_mapped'] = (result.get('model_mapped', False) or bool(model_mapped)) if full else None
     result['fixture_sha256'] = source_hash if full else None
     (artifacts / (label + '.json')).write_text(json.dumps(result, ensure_ascii=False, indent=2))
     print(json.dumps({k:v for k,v in result.items() if k not in ('commits',)},ensure_ascii=False), flush=True)

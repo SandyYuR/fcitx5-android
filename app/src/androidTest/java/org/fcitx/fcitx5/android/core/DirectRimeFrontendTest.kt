@@ -146,6 +146,7 @@ end
         }
         try {
             repeat(20) { word(inputs[it % inputs.size], false) }
+            val modelMapped = fixtureArchive != null && File("/proc/self/maps").readText().contains("wanxiang-lts-zh-hans.gram")
             delay(150)
             eventCounts.clear()
             repeat(100) { word(inputs[it % inputs.size], true) }
@@ -157,6 +158,7 @@ end
                 put("metric", "sendKey completion including adapter and native owner; not input-to-display latency")
                 put("harness_commit", BuildConfig.BUILD_GIT_HASH)
                 put("fixture", fixtureArchive ?: "bundled-smoke")
+                put("model_mapped", modelMapped)
                 put("commits", org.json.JSONArray(delivered))
                 put("words", 100)
                 put("keys", sorted.size)
