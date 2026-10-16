@@ -79,6 +79,30 @@ ZIP 导入先在新目录检查路径、文件数量和解压容量，再注册�
 原生契约测试继续使用第一轮文档中的 AddressSanitizer/UBSan 命令，新增全局候选、迭代器释放、
 全局选字/忘词、UTF-8 光标位置和可选 levers 缺失的检查。
 
+本轮 ARM64 和 x86_64 完整界面 APK 已构建，468 项原应用 JVM 测试全部通过。
+Android 15 x86_64 模拟器的 4 项设备测试全部通过，覆盖实际点按原键盘、候选上屏、
+原设置与主题页面、布局编辑器、方案选择、ZIP 导入和第一轮数据迁移。
+模拟器测试确认实际进程没有加载 Fcitx Core 或 AndroidFrontend 动态库。
+最终提交 `826ba31e` 的 [云端验证](https://github.com/SandyYuR/fcitx5-android/actions/runs/38905886844)
+四个任务全部成功，Android 15 KVM 模拟器的 4 项完整界面测试全部通过。
+下列截图来自这次云端测试。
+
+干净云端模拟器另外暴露了停用输入法后后台方案更新仍调用系统子类型切换的问题。
+直连版只有一个 Android 子类型，现已让方案/中西文变化只在 librime 内完成，
+并仅在输入法信息实际变化时发送 `IMChangeEvent`，避免每个按键重复刷新布局。
+
+可核对的截图：[原主界面](direct-rime-frontend/settings.png)、
+[Rime 设置](direct-rime-frontend/rime-settings.png)、
+[布局编辑器](direct-rime-frontend/layout-editor.png)、
+[原键盘向真实编辑器上屏「你」](direct-rime-frontend/commit.png)。
+机器可读交付记录见 [验证记录](direct-rime-frontend-validation-2026-10-16.json)。
+
+全量 `:app:lintFxDebug` 未通过：318 errors、615 warnings，其中 286 项错误为缺失翻译。
+已逐项核对这 318 项错误定位的源码行，均存在于默认分支基线 `a714feff`，
+本轮新增直连与导入页面没有剩余的 Lint error。本次没有屏蔽这些原有问题或声称全量 Lint 通过。
+现有原生资源生成任务需要同一任务图先配置 CMake，复查时使用
+`./gradlew -PdirectRimeFrontend=true -PbuildABI=arm64-v8a,x86_64 :app:assembleFxDebug :app:lintFxDebug`。
+
 完整界面的设备测试：
 
 ```bash
@@ -92,6 +116,8 @@ ZIP 导入先在新目录检查路径、文件数量和解压容量，再注册�
 测试结束恢复原 profile、输入法选择和键盘偏好。请在一次性模拟器运行。
 AOSP ATD 镜像默认关闭绘制，触屏/截图测试前需执行
 `adb shell setprop debug.hwui.drawing_enabled true`；CI 已显式开启。
+云端使用 `bash tools/test-direct-rime-frontend.sh`，在每个实际触点前等待窗口位置稳定，
+分别确认首键与后续键的编码，并在结束前保存截图和 logcat 至测试 artifact。
 软件模拟器可将 instrumentation 参数 `waitMs` 调到 `120000`。
 
 本机无 KVM，TCG 在大体积 debug DEX 的首次校验阶段可能超出 Android 进程启动时限。
