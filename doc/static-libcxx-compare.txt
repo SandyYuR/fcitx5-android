@@ -1,0 +1,10 @@
+# C++ 运行时打包方式对比（由本命令现取，勿手改）
+date: 2026-10-15T04:37:43Z
+
+## 默认档 libdirect_rime.so
+size: 6916848
+be27e406cc38acf69141b38fbdde0e90 *build/arm64-v8a/libdirect_rime.so
+
+## 静态链档 libdirect_rime.static.so
+size: 15060768
+de87e0d8e29bada00ff9e3714c5c9529 *build/arm64-v8a/libdirect_rime.static.so

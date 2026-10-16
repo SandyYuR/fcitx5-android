@@ -1,0 +1,99 @@
+# 产物清点（由 tools/artifacts.sh 现取，勿手改）
+date: 2026-10-15T04:38:14Z
+
+## 1. 源码与脚本
+    83 kotlin/org/fxrime/direct/DeployKeyGate.kt
+   169 kotlin/org/fxrime/direct/RimeBridge.kt
+   131 kotlin/org/fxrime/direct/RimeSnapshot.kt
+   101 kotlin/org/fxrime/direct/RimeThreadOwner.kt
+    80 kotlin/org/fxrime/direct/SessionGenerationGate.kt
+   124 native/build.sh
+    97 native/direct_rime.h
+   222 native/keymap.c
+   593 native/rime_bridge.c
+   352 test/kotlin/GateTests.kt
+   229 test/run-keymap.mjs
+    84 tools/artifacts.sh
+   147 tools/kotlin-mutation.sh
+    62 tools/kotlin-test.sh
+    42 tools/kotlinc.sh
+   373 README.md
+    15 .gitignore
+
+## 2. native 产物
+-rw-r--r-- 1 yurun yurun     1592 Oct 15 12:35 build/arm64-v8a/keymap.wasm
+-rw-r--r-- 1 yurun yurun  6916848 Oct 15 12:35 build/arm64-v8a/libdirect_rime.so
+-rw-r--r-- 1 yurun yurun 15060768 Oct 15 12:35 build/arm64-v8a/libdirect_rime.static.so
+--- 核验读数（引自 build/arm64-v8a/verify.txt，默认档）---
+  Class:                             ELF64
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+0
+27
+## rime_get_api 符号（证明 librime 已静态链入）
+00000000001fc5c4 T rime_get_api
+## 产物 md5（复跑一致性凭据：重跑后此值应与上次相同）
+--- 核验读数（引自 build/arm64-v8a/verify-static.txt，静态链档）---
+  Class:                             ELF64
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+0
+27
+## rime_get_api 符号（证明 librime 已静态链入）
+000000000025ee74 T rime_get_api
+## 产物 md5（复跑一致性凭据：重跑后此值应与上次相同）
+--- 两档动态依赖对比 ---
+## NEEDED 动态依赖（静态链档应不含 libc++_shared.so）
+  0x0000000000000001 (NEEDED)       Shared library: [liblog.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libc++_shared.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libc.so]
+  （静态链档）
+## NEEDED 动态依赖（静态链档应不含 libc++_shared.so）
+  0x0000000000000001 (NEEDED)       Shared library: [liblog.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libc.so]
+
+## 3. Kotlin 产物
+11
+build/classes/org/fxrime/direct/DeployKeyGate.class
+build/classes/org/fxrime/direct/RimeBridge.class
+build/classes/org/fxrime/direct/RimeCandidate.class
+build/classes/org/fxrime/direct/RimeNotificationSink.class
+build/classes/org/fxrime/direct/RimeSnapshot$Companion.class
+build/classes/org/fxrime/direct/RimeSnapshot.class
+build/classes/org/fxrime/direct/RimeSnapshotSlots.class
+build/classes/org/fxrime/direct/RimeThreadOwner$factory$1.class
+build/classes/org/fxrime/direct/RimeThreadOwner.class
+build/classes/org/fxrime/direct/SessionGenerationGate$Pending.class
+build/classes/org/fxrime/direct/SessionGenerationGate.class
+
+## 4. 真跑记录
+--- wasm（Node）---
+## 结果: passed=59 failed=0
+--- Kotlin 门控类（JVM）---
+编译退出码: 0
+## 结果: passed=86 failed=0
+运行退出码: 0
+--- 变异检验 ---
+## 总结: 6 个变异全部被检出，用例有效
+
+## 5. 六个现有仓库复验（与 baseline-repos.txt 比对）
+fx-rime-only         changed=1
+docs-site-worktree   changed=0
+fcitx5-rime          changed=0
+prebuilder           changed=0
+librime-src          changed=0
+f5a-see-me           changed=69
+
+注：本任务只在 direct-rime-proto 内作业。上表任一仓库行数高于基线，
+    须先核实成因（并行工作线 / 构建产物污染 / 本任务误伤）再下结论。
+
+## 6. 本仓库
+toplevel: D:/GitHub/fx2-rime/direct-rime-proto
+commit 数: 10
+未跟踪/已改: 8

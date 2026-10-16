@@ -1,0 +1,61 @@
+# libdirect_rime.so 核验结果（由 native/build.sh 生成，勿手改）
+date: 2026-10-15T04:35:39Z
+abi: arm64-v8a   api: 24   static_libcxx: 0
+clang: Android (13624864, based on r530567e) clang version 19.0.1 (https://android.googlesource.com/toolchain/llvm-project 97a699bf4812a18fb657c2779f5296a4ab2694d2)
+
+## readelf -h
+  Class:                             ELF64
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+
+## NEEDED 动态依赖（静态链档应不含 libc++_shared.so）
+  0x0000000000000001 (NEEDED)       Shared library: [liblog.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libc++_shared.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libc.so]
+
+## C++ 运行时未定义符号数（静态链档应为 0；>0 说明运行时没链进去）
+0
+
+## JNI 导出条数（前缀 Java_org_fxrime_direct_RimeBridge_）
+27
+
+## JNI 导出清单
+Java_org_fxrime_direct_RimeBridge_nativeChangePage
+Java_org_fxrime_direct_RimeBridge_nativeClearComposition
+Java_org_fxrime_direct_RimeBridge_nativeClearTabs
+Java_org_fxrime_direct_RimeBridge_nativeCommitComposition
+Java_org_fxrime_direct_RimeBridge_nativeCreateSession
+Java_org_fxrime_direct_RimeBridge_nativeDeleteCandidate
+Java_org_fxrime_direct_RimeBridge_nativeDestroySession
+Java_org_fxrime_direct_RimeBridge_nativeFinalize
+Java_org_fxrime_direct_RimeBridge_nativeFindSession
+Java_org_fxrime_direct_RimeBridge_nativeGetCandidateCode
+Java_org_fxrime_direct_RimeBridge_nativeGetCaretPos
+Java_org_fxrime_direct_RimeBridge_nativeGetInput
+Java_org_fxrime_direct_RimeBridge_nativeGetInputTabs
+Java_org_fxrime_direct_RimeBridge_nativeGetOption
+Java_org_fxrime_direct_RimeBridge_nativeGetSchemaList
+Java_org_fxrime_direct_RimeBridge_nativeGetVersion
+Java_org_fxrime_direct_RimeBridge_nativeIsMaintenanceMode
+Java_org_fxrime_direct_RimeBridge_nativeJoinMaintenanceThread
+Java_org_fxrime_direct_RimeBridge_nativeProcessKey
+Java_org_fxrime_direct_RimeBridge_nativeSelectCandidate
+Java_org_fxrime_direct_RimeBridge_nativeSelectCandidateOnCurrentPage
+Java_org_fxrime_direct_RimeBridge_nativeSelectSchema
+Java_org_fxrime_direct_RimeBridge_nativeSelectTab
+Java_org_fxrime_direct_RimeBridge_nativeSetOption
+Java_org_fxrime_direct_RimeBridge_nativeSetup
+Java_org_fxrime_direct_RimeBridge_nativeStartMaintenance
+Java_org_fxrime_direct_RimeBridge_nativeSyncUserData
+
+## rime_get_api 符号（证明 librime 已静态链入）
+00000000001fc5c4 T rime_get_api
+
+## 产物大小（字节）
+6916848 /cygdrive/d/GitHub/fx2-rime/direct-rime-proto/build/arm64-v8a/libdirect_rime.so
+
+## 产物 md5（复跑一致性凭据：重跑后此值应与上次相同）
+be27e406cc38acf69141b38fbdde0e90 */cygdrive/d/GitHub/fx2-rime/direct-rime-proto/build/arm64-v8a/libdirect_rime.so

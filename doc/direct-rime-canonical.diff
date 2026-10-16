@@ -1,0 +1,201 @@
+warning: in the working copy of 'kotlin/org/fxrime/direct/RimeBridge.kt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'kotlin/org/fxrime/direct/RimeSnapshot.kt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'native/direct_rime.h', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'native/rime_bridge.c', LF will be replaced by CRLF the next time Git touches it
+diff --git a/kotlin/org/fxrime/direct/RimeBridge.kt b/kotlin/org/fxrime/direct/RimeBridge.kt
+index a058468..0e0bf19 100644
+--- a/kotlin/org/fxrime/direct/RimeBridge.kt
++++ b/kotlin/org/fxrime/direct/RimeBridge.kt
+@@ -25,6 +25,7 @@ object RimeBridge {
+ 
+     // ---- 生命周期 ----
+ 
++    @JvmStatic
+     external fun nativeSetup(
+         sharedDir: String,
+         userDir: String,
+@@ -32,16 +33,21 @@ object RimeBridge {
+         appName: String?
+     ): Boolean
+ 
++    @JvmStatic
+     external fun nativeFinalize()
+ 
++    @JvmStatic
+     external fun nativeGetVersion(): String?
+ 
+     // ---- 会话 ----
+ 
++    @JvmStatic
+     external fun nativeCreateSession(): Long
+ 
++    @JvmStatic
+     external fun nativeFindSession(session: Long): Boolean
+ 
++    @JvmStatic
+     external fun nativeDestroySession(session: Long): Boolean
+ 
+     // ---- 按键：唯一的批量入口 ----
+@@ -53,6 +59,7 @@ object RimeBridge {
+      * @param action    0 = DOWN, 1 = UP（与 native DR_ACTION_DOWN/UP 同值）
+      * @return 打包状态；null 表示 native 侧出错（引擎未初始化等），调用方不得当成空状态
+      */
++    @JvmStatic
+     external fun nativeProcessKey(
+         session: Long,
+         keyCode: Int,
+@@ -63,34 +70,46 @@ object RimeBridge {
+ 
+     // ---- 候选操作 ----
+ 
++    @JvmStatic
+     external fun nativeSelectCandidate(session: Long, index: Int): Array<Any>?
+ 
++    @JvmStatic
+     external fun nativeSelectCandidateOnCurrentPage(session: Long, index: Int): Array<Any>?
+ 
++    @JvmStatic
+     external fun nativeChangePage(session: Long, backward: Boolean): Array<Any>?
+ 
++    @JvmStatic
+     external fun nativeDeleteCandidate(session: Long, index: Int): Array<Any>?
+ 
++    @JvmStatic
+     external fun nativeCommitComposition(session: Long): Array<Any>?
+ 
++    @JvmStatic
+     external fun nativeClearComposition(session: Long): Array<Any>?
+ 
+     // ---- 开关与方案 ----
+ 
++    @JvmStatic
+     external fun nativeSetOption(session: Long, option: String, value: Boolean)
+ 
++    @JvmStatic
+     external fun nativeGetOption(session: Long, option: String): Boolean
+ 
+     /** 返回 [id0, name0, id1, name1, ...] 的扁平数组。 */
++    @JvmStatic
+     external fun nativeGetSchemaList(): Array<Any>?
+ 
++    @JvmStatic
+     external fun nativeSelectSchema(session: Long, schemaId: String): Boolean
+ 
+     // ---- 定制能力（报告 §2.4 点名，不是可选） ----
+ 
+     /** 返回每个 tab 三槽的扁平数组：[label, span, source, ...]。 */
++    @JvmStatic
+     external fun nativeGetInputTabs(session: Long, position: Int): Array<Any>?
+ 
++    @JvmStatic
+     external fun nativeSelectTab(
+         session: Long,
+         position: Int,
+@@ -98,25 +117,33 @@ object RimeBridge {
+         span: Int
+     ): Array<Any>?
+ 
++    @JvmStatic
+     external fun nativeClearTabs(session: Long): Array<Any>?
+ 
+     /** 返回 [matchingSegments, seg0, seg1, ...]。 */
++    @JvmStatic
+     external fun nativeGetCandidateCode(session: Long, index: Int): Array<Any>?
+ 
+     // ---- 部署 / 维护 ----
+ 
++    @JvmStatic
+     external fun nativeIsMaintenanceMode(): Boolean
+ 
++    @JvmStatic
+     external fun nativeStartMaintenance(fullCheck: Boolean): Boolean
+ 
++    @JvmStatic
+     external fun nativeJoinMaintenanceThread()
+ 
++    @JvmStatic
+     external fun nativeSyncUserData(): Boolean
+ 
+     // ---- 杂项 ----
+ 
++    @JvmStatic
+     external fun nativeGetInput(session: Long): String?
+ 
++    @JvmStatic
+     external fun nativeGetCaretPos(session: Long): Int
+ 
+     // ---- native → Java 的回调 ----
+diff --git a/kotlin/org/fxrime/direct/RimeSnapshot.kt b/kotlin/org/fxrime/direct/RimeSnapshot.kt
+index 49a0319..c711a28 100644
+--- a/kotlin/org/fxrime/direct/RimeSnapshot.kt
++++ b/kotlin/org/fxrime/direct/RimeSnapshot.kt
+@@ -33,6 +33,9 @@ object RimeSnapshotSlots {
+     const val DISPATCH_TO_RIME = 0
+     const val DISPATCH_SWALLOW = 1
+     const val DISPATCH_DROP = 2
++    /* 进了 librime 但它不处理（process_key 返回 false）：按键必须落回编辑器，
++     * 既不能吞也不能当空状态——否则用户按了键没有任何反应。 */
++    const val DISPATCH_PASSTHROUGH = 3
+ 
+     /* status 位压缩，与 native pack_state 的 flags 位序一致 */
+     const val FLAG_DISABLED = 1 shl 0
+diff --git a/native/direct_rime.h b/native/direct_rime.h
+index 67241d6..8b76cc1 100644
+--- a/native/direct_rime.h
++++ b/native/direct_rime.h
+@@ -69,9 +69,10 @@ int dr_build_key(int android_keycode, int android_metastate, int unicode_char, i
+ 
+ /* ---------- 按键门控：决定这次按键该走哪条路 ---------- */
+ typedef enum {
+-    DR_DISPATCH_TO_RIME = 0,  /* 正常交给 process_key */
+-    DR_DISPATCH_SWALLOW = 1,  /* 吞掉：down 与 up 都不进引擎、也不给编辑器 */
+-    DR_DISPATCH_DROP    = 2   /* 无法映射，直接丢 */
++    DR_DISPATCH_TO_RIME = 0,     /* 正常交给 process_key 且 librime 已消费 */
++    DR_DISPATCH_SWALLOW = 1,     /* 吞掉：down 与 up 都不进引擎、也不给编辑器 */
++    DR_DISPATCH_DROP    = 2,     /* 无法映射，直接丢 */
++    DR_DISPATCH_PASSTHROUGH = 3  /* 进了引擎但 librime 不处理，应原样透传给编辑器 */
+ } dr_dispatch;
+ 
+ /*
+diff --git a/native/rime_bridge.c b/native/rime_bridge.c
+index 5fdaf23..b7bfddf 100644
+--- a/native/rime_bridge.c
++++ b/native/rime_bridge.c
+@@ -67,6 +67,13 @@ static void notification_handler(void* context_object,
+ 
+     /* 回调 Java。真机才走得到这里，本机无设备，故这条路径标注为未验证。 */
+     if (!g_vm || !g_bridge_class || !g_notify_method) return;
++    // notification 回调跑在 librime 自己的线程上（部署线程/引擎线程），
++    // 不是 JVM 创建的线程。AttachCurrentThread 会把本线程与 JVM 绑定，
++    // 但 Detach 必须配对且不能在仍有 Java 帧运行时调——部署回调里调
++    // DetachCurrentThread 会把 librime 部署线程的 JNI 绑定撕掉，
++    // 下一次回调/ native 调用进同一线程即 abort（"attempting to detach
++    // while still running code"）。这里只 Attach 不 Detach：线程退出时
++    // ART 自动回收绑定，少量线程泄漏的绑定不影响输入法进程。
+     JNIEnv* env = NULL;
+     if ((*g_vm)->AttachCurrentThread(g_vm, &env, NULL) != JNI_OK || !env) return;
+     jstring jtype = (*env)->NewStringUTF(env, message_type ? message_type : "");
+@@ -75,7 +82,6 @@ static void notification_handler(void* context_object,
+                                  (jlong)session_id, jtype, jvalue);
+     (*env)->DeleteLocalRef(env, jtype);
+     (*env)->DeleteLocalRef(env, jvalue);
+-    (*g_vm)->DetachCurrentThread(g_vm);
+ }
+ 
+ static RimeApi* api_of(JNIEnv* env) {
+@@ -334,8 +340,13 @@ Java_org_fxrime_direct_RimeBridge_nativeProcessKey(JNIEnv* env, jclass cls, jlon
+         return pack_state(env, (RimeSessionId)session, (jint)d);
+     }
+ 
+-    api->process_key((RimeSessionId)session, keysym, (int)mask);
+-    return pack_state(env, (RimeSessionId)session, (jint)DR_DISPATCH_TO_RIME);
++    /* process_key 返回 Bool：true = librime 已消费此键，false = 引擎不处理。
++     * 必须回传这个结果，否则引擎不处理的键会凭空消失——既不进 librime，
++     * 也不落回编辑器，用户按了键却没有任何反应（输入正确性红线，AGENTS.md §0.7.6）。
++     * 原链路 rimestate.cpp:238-243 正是用这个返回值决定要不要 filterAndAccept。*/
++    int consumed = api->process_key((RimeSessionId)session, keysym, (int)mask) ? 1 : 0;
++    jint dispatch = consumed ? (jint)DR_DISPATCH_TO_RIME : (jint)DR_DISPATCH_PASSTHROUGH;
++    return pack_state(env, (RimeSessionId)session, dispatch);
+ }
+ 
+ /* ---- 候选操作：都返回同一份批量状态 ---- */

@@ -1,0 +1,29 @@
+# Kotlin 侧编译记录（由 tools/kotlinc.sh 复现，勿手改）
+date: 2026-10-14T18:52:39Z
+
+## 命令
+bash tools/kotlinc.sh kotlin build/classes
+
+## 输出
+compile exit=0
+
+## 产物
+build/classes/org/fxrime/direct/DeployKeyGate.class
+build/classes/org/fxrime/direct/RimeBridge.class
+build/classes/org/fxrime/direct/RimeCandidate.class
+build/classes/org/fxrime/direct/RimeNotificationSink.class
+build/classes/org/fxrime/direct/RimeSnapshot$Companion.class
+build/classes/org/fxrime/direct/RimeSnapshot.class
+build/classes/org/fxrime/direct/RimeSnapshotSlots.class
+build/classes/org/fxrime/direct/RimeThreadOwner$factory$1.class
+build/classes/org/fxrime/direct/RimeThreadOwner.class
+build/classes/org/fxrime/direct/SessionGenerationGate$Pending.class
+build/classes/org/fxrime/direct/SessionGenerationGate.class
+
+## 行数
+   83 kotlin/org/fxrime/direct/DeployKeyGate.kt
+  169 kotlin/org/fxrime/direct/RimeBridge.kt
+  131 kotlin/org/fxrime/direct/RimeSnapshot.kt
+  101 kotlin/org/fxrime/direct/RimeThreadOwner.kt
+   80 kotlin/org/fxrime/direct/SessionGenerationGate.kt
+  564 total

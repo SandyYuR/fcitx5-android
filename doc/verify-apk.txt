@@ -1,0 +1,22 @@
+# 直连库打进 APK 的核验（勿手改）
+date: 2026-10-15T15:32:59Z
+apk: appbuild/app/build/outputs/apk/fx/debug/org.fxrime.ime-10e9e31-arm64-v8a-debug.apk
+size: 31686560 字节
+
+## APK 内全部 .so
+lib/arm64-v8a/libFcitx5Config.so
+lib/arm64-v8a/libFcitx5Core.so
+lib/arm64-v8a/libFcitx5Utils.so
+lib/arm64-v8a/libandroidfrontend.so
+lib/arm64-v8a/libandroidnotification.so
+lib/arm64-v8a/libc++_shared.so
+lib/arm64-v8a/libclipboard.so
+lib/arm64-v8a/libdirect_rime.so
+lib/arm64-v8a/libnative-lib.so
+lib/arm64-v8a/librime.so
+
+## 直连库在包内的路径
+lib/arm64-v8a/libdirect_rime.so
+
+## 包内直连库大小
+5063472 bytes

@@ -1,0 +1,45 @@
+# 变异检验记录
+# 命令: bash tools/kotlin-mutation.sh
+# 目的: 注入已知缺陷，确认 GateTests.kt 会变红；全绿=该路径没被覆盖
+
+### 变异1：部署期只吞 down 不吞 up（破坏成对吞）
+## 结果: passed=81 failed=5
+  - 无 session 时 up 被吞 — 期望=1 实际=0
+  - 一 down 一 up 后无未配对 — 期望=0 实际=1
+  - 部署中 up 被吞 — 期望=1 实际=0
+  - 映射失败不计入吞键统计 — 期望=0 实际=2
+  - 未配对 down 数可读 — 期望=2 实际=4
+
+### 变异2：代次门控不校验代次
+## 结果: passed=80 failed=6
+  - 过期结果被丢弃 — 期望=null 实际=候选A
+  - droppedStale 自增 — 期望=1 实际=0
+  - 丢弃不计入 accepted — 期望=1 实际=2
+  - consumeAll 计入 accepted — 期望=3 实际=4
+  - consumeAll 计入 dropped — 期望=2 实际=1
+  - 跨焦点切换的旧候选被拦下
+
+### 变异3：退出时静默丢弃排队任务且不上报
+## 结果: passed=84 failed=2
+  - 超时关闭上报被丢弃的排队任务数 — 实际 dropped=0
+  - 丢弃数即排队任务数 — 期望=4 实际=0
+
+### 变异4：关闭后提交静默拒绝不计数
+## 结果: passed=83 failed=3
+  - 关闭后 runOnRime 抛 IllegalStateException
+  - rejectedAfterShutdown 计数 — 期望=1 实际=0
+  - submitOnRime 被拒也计数 — 期望=2 实际=1
+
+### 变异5：解包槽位错位（COMMIT 读成 PREEDIT）
+## 结果: passed=85 failed=1
+  - commitText — 期望=你好 实际=nihao
+
+### 变异6：候选解包步长错（+2 改 +3）
+## 结果: passed=79 failed=4
+  - 候选条数 — 期望=2 实际=1
+  - 候选条数不足时跳过逐条断言 — 实际解出 1 条，期望 2 条
+  - SWALLOW 时仍带完整候选 — 期望=2 实际=1
+  - 超长 COUNT 只解出实际存在的候选 — 期望=2 实际=1
+
+---
+## 总结: 6 个变异全部被检出，用例有效

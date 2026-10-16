@@ -1,0 +1,14 @@
+# 基线快照（本次直连原型动手前记录，2026-10-15）
+# 用途：证明本次工作不新增任何现有仓库改动。判据按「不新增」计，下列既有改动与本任务无关。
+
+[fx-rime-only]
+ m lib/fcitx5/src/main/cpp/fcitx5      # 子模块指针偏移，动手前已存在
+
+[docs-site-worktree]  (clean)
+[fcitx5-rime]         (clean)
+[prebuilder]          (clean)
+[librime-src]         (clean)
+
+[f5a-see-me]          4 项已跟踪文件修改 + 30 项未跟踪，均属上一任务（f5a 编辑器能力）的未提交产物，动手前已存在
+
+# 复验方式：git -C <repo> status --short | wc -l，与上述行数逐项比对

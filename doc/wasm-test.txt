@@ -1,0 +1,9 @@
+# keymap wasm 真跑记录（由 test/run-keymap.mjs 生成，勿手改）
+date: 2026-10-14T18:55:48.091Z
+node: v26.10.0
+wasm: D:\GitHub\fx2-rime\direct-rime-proto\build\arm64-v8a\keymap.wasm (1592 bytes)
+
+## 结果: passed=59 failed=0
+
+全部用例通过。
+

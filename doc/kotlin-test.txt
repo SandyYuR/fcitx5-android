@@ -1,0 +1,12 @@
+# Kotlin 门控类单测（JVM，不依赖真机与 librime）
+# 命令: bash tools/kotlin-test.sh
+
+## 1. 编译（源码 + 用例）
+编译退出码: 0
+
+## 2. 运行
+# Kotlin 门控类单测（JVM，不依赖真机与 librime）
+
+## 结果: passed=86 failed=0
+运行退出码: 0
+

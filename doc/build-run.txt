@@ -1,0 +1,52 @@
+[1/3] 编译 C 目标文件 ...
+[2/3] 链接 libdirect_rime.so ...
+[3/3] 核验产物 ...
+# libdirect_rime.so 核验结果（由 native/build.sh 生成，勿手改）
+date: 2026-10-14T18:49:14Z
+abi: arm64-v8a   api: 24
+clang: Android (13624864, based on r530567e) clang version 19.0.1 (https://android.googlesource.com/toolchain/llvm-project 97a699bf4812a18fb657c2779f5296a4ab2694d2)
+
+## readelf -h
+  Class:                             ELF64
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+
+## JNI 导出条数（前缀 Java_org_fxrime_direct_RimeBridge_）
+27
+
+## JNI 导出清单
+Java_org_fxrime_direct_RimeBridge_nativeChangePage
+Java_org_fxrime_direct_RimeBridge_nativeClearComposition
+Java_org_fxrime_direct_RimeBridge_nativeClearTabs
+Java_org_fxrime_direct_RimeBridge_nativeCommitComposition
+Java_org_fxrime_direct_RimeBridge_nativeCreateSession
+Java_org_fxrime_direct_RimeBridge_nativeDeleteCandidate
+Java_org_fxrime_direct_RimeBridge_nativeDestroySession
+Java_org_fxrime_direct_RimeBridge_nativeFinalize
+Java_org_fxrime_direct_RimeBridge_nativeFindSession
+Java_org_fxrime_direct_RimeBridge_nativeGetCandidateCode
+Java_org_fxrime_direct_RimeBridge_nativeGetCaretPos
+Java_org_fxrime_direct_RimeBridge_nativeGetInput
+Java_org_fxrime_direct_RimeBridge_nativeGetInputTabs
+Java_org_fxrime_direct_RimeBridge_nativeGetOption
+Java_org_fxrime_direct_RimeBridge_nativeGetSchemaList
+Java_org_fxrime_direct_RimeBridge_nativeGetVersion
+Java_org_fxrime_direct_RimeBridge_nativeIsMaintenanceMode
+Java_org_fxrime_direct_RimeBridge_nativeJoinMaintenanceThread
+Java_org_fxrime_direct_RimeBridge_nativeProcessKey
+Java_org_fxrime_direct_RimeBridge_nativeSelectCandidate
+Java_org_fxrime_direct_RimeBridge_nativeSelectCandidateOnCurrentPage
+Java_org_fxrime_direct_RimeBridge_nativeSelectSchema
+Java_org_fxrime_direct_RimeBridge_nativeSelectTab
+Java_org_fxrime_direct_RimeBridge_nativeSetOption
+Java_org_fxrime_direct_RimeBridge_nativeSetup
+Java_org_fxrime_direct_RimeBridge_nativeStartMaintenance
+Java_org_fxrime_direct_RimeBridge_nativeSyncUserData
+
+## rime_get_api 符号（证明 librime 已静态链入）
+00000000001fc5c4 T rime_get_api
+
+## 产物大小（字节）
+6916848 /cygdrive/d/GitHub/fx2-rime/direct-rime-proto/build/arm64-v8a/libdirect_rime.so
+[可选] 按键映射逻辑编 wasm（Node 里真跑用）...
+-rw-r--r-- 1 yurun yurun 1592 Oct 15 02:49 /cygdrive/d/GitHub/fx2-rime/direct-rime-proto/build/arm64-v8a/keymap.wasm

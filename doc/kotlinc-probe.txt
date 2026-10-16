@@ -1,0 +1,33 @@
+# kotlinc 本机工具链探活（由 tools/kotlinc.sh 复现，勿手改）
+date: 2026-10-14T18:47:58Z
+
+## java
+openjdk version "21.0.12.1" 2026-08-18 LTS
+OpenJDK Runtime Environment Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS, mixed mode, sharing)
+
+## kotlinc -version
+info: kotlinc-jvm 2.3.21 (JRE 21.0.12.1+1-LTS)
+warning: unable to find kotlin-stdlib.jar in the Kotlin home directory. Pass either '-no-stdlib' to prevent adding it to the classpath, or the correct '-kotlin-home'
+warning: unable to find kotlin-script-runtime.jar in the Kotlin home directory. Pass either '-no-stdlib' to prevent adding it to the classpath, or the correct '-kotlin-home'
+
+## 依赖 jar（缺一即 NoClassDefFoundError）
+compiler-embeddable 2.3.21: C:/Users/yurun/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.3.21/c4b47f8e33cdbeedd8c1415ab9f9ade870388162/kotlin-compiler-embeddable-2.3.21.jar
+daemon-embeddable   2.3.21: C:/Users/yurun/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-daemon-embeddable/2.3.21/384c12222b10aaa06fdd2163435709efdade5a02/kotlin-daemon-embeddable-2.3.21.jar
+stdlib              2.3.21: C:/Users/yurun/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.3.21/a2ee2c4e220fee522f0451b723bab2a43f3481a7/kotlin-stdlib-2.3.21.jar
+reflect             2.3.21: C:/Users/yurun/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/2.3.21/6acc55c52691ce3fd41b20a0472f3513106521a5/kotlin-reflect-2.3.21.jar
+coroutines-core-jvm 1.10.2: C:/Users/yurun/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.10.2/4a9f78ef49483748e2c129f3d124b8fa249dafbf/kotlinx-coroutines-core-jvm-1.10.2.jar
+
+## 编译命令原文
+java -Dkotlin.compiler.execution.strategy=in-process -cp <5 jars> \
+  org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -cp <stdlib;reflect;coroutines> \
+  -d build/probe/out build/probe/Hello.kt
+
+## 探活结果
+compile exit=0
+产物:
+build/probe/out/probe/HelloKt.class
+
+## 运行验证
+kotlinc-probe-ok
+run exit=0

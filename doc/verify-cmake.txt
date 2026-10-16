@@ -1,0 +1,23 @@
+# CMake 构建产物核验（由 tools/verify-cmake.sh 生成，勿手改）
+date: 2026-10-15T15:23:49Z
+## readelf -h
+  Class:                             ELF64
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+
+## NEEDED
+  0x0000000000000001 (NEEDED)       Shared library: [liblog.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)       Shared library: [libc.so]
+
+## rime_get_api
+0000000000255cec T rime_get_api
+
+## JNI 导出条数 新=27  旧=27
+## 大小 新=15067952  旧=6916848
+## md5 新=26ed67ec58741213da98a52d0533a05e  旧=be27e406cc38acf69141b38fbdde0e90
+
+## 导出清单差异（diff 为空 = 逐条一致）
+（无差异：27 条导出逐条一致）
