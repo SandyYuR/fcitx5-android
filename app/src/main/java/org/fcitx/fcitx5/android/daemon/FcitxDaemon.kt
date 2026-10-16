@@ -12,13 +12,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.Fcitx
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.FcitxLifecycle
+import org.fcitx.fcitx5.android.core.InputEngineBackend
 import org.fcitx.fcitx5.android.core.lifeCycleScope
 import org.fcitx.fcitx5.android.core.whenReady
+import org.fxrime.direct.DirectRimeEngine
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon.connect
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon.disconnect
 import org.fcitx.fcitx5.android.utils.appContext
@@ -51,7 +54,31 @@ class FcitxDisconnectedException(connectionName: String) :
  */
 object FcitxDaemon {
 
-    private val realFcitx by lazy { Fcitx(appContext) }
+    /**
+     * 引擎后端选择。
+     *
+     * - [InputEngineBackend]：Fcitx（走 fcitx5）与 DirectRimeEngine（Kotlin/JNI 直连
+     *   librime）实现同一接口，daemon 只依赖接口，不关心底下是不是 fcitx5。
+     * - 为什么保留切换开关而不是直接删掉 Fcitx：报告 §6 阶段 B 要求原型「出错能切回」。
+     *   迁移应先把入口抽象出来再换实现，而不是一次性删除后无法回退。
+     * - 默认走直连。要回退到 fcitx5 路径，用
+     *   `-PFXRIME_ENGINE_FALLBACK=true` 重新构建即可（见 app/build.gradle.kts 的字段定义）。
+     */
+    private val backend: InputEngineBackend by lazy {
+        // 回退开关：构建期 BuildConfig 常量。默认 false = 走直连。
+        // 要回退到 fcitx5 引擎，改这里的默认值或用 -PFXRIME_ENGINE_FALLBACK=true 覆盖。
+        // 不用系统属性：读 android.os.SystemProperties 是隐藏 API，要反射，且属性名
+        // 写错时静默走默认值，反而不易排查。
+        if (BuildConfig.FXRIME_ENGINE_FALLBACK) {
+            Timber.w("FcitxDaemon: 构建开关开启，回退到 fcitx5 引擎")
+            Fcitx(appContext)
+        } else {
+            Timber.i("FcitxDaemon: 使用直连 librime 引擎")
+            DirectRimeEngine(appContext)
+        }
+    }
+
+    private val realFcitx: InputEngineBackend get() = backend
 
     // don't leak fcitx instance
     private val fcitxImpl by lazy { object : FcitxAPI by realFcitx {} }

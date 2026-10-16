@@ -30,7 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 /**
  * Do not use this class directly, accessing fcitx via daemon instead
  */
-class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
+class Fcitx(private val context: Context) : InputEngineBackend {
 
     private val lifecycleRegistry = FcitxLifecycleRegistry()
 
@@ -541,7 +541,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         }
     }
 
-    fun start() {
+    override fun start() {
         if (lifecycle.currentState != FcitxLifecycle.State.STOPPED) {
             Timber.w("Skip starting fcitx: not at stopped state!")
             return
@@ -556,7 +556,7 @@ class Fcitx(private val context: Context) : FcitxAPI, FcitxLifecycleOwner {
         dispatcher.start()
     }
 
-    fun stop() {
+    override fun stop() {
         if (lifecycle.currentState != FcitxLifecycle.State.READY) {
             Timber.w("Skip stopping fcitx: not at ready state!")
             return
