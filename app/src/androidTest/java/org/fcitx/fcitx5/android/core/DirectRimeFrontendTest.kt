@@ -79,6 +79,84 @@ class DirectRimeFrontendTest {
         }
         FcitxDaemon.disconnect(javaClass.name)
     }
+    @Test fun schemaCommentsAndSwitchGroupsMatchRime(): Unit = runBlocking {
+        // Wanxiang uses a three-way comment group and Lua to rewrite/clear comments.
+        // Reproduce that contract with a tiny dictionary, without bundling its data.
+        val directory = File(context.getExternalFilesDir(null), "data/$profile")
+        val schema = File(directory, "direct_smoke.schema.yaml")
+        schema.writeText(schema.readText().replace("engine:\n", """
+  - name: emoji
+    reset: 0
+    states: [表情关, 表情开]
+  - options: [raw_input, tone_display, full_pinyin]
+    reset: 0
+    states: [原编码, 有声调, 无声调]
+  - options: [comment_off, tone_hint, toneless_hint]
+    reset: 0
+    states: [注释关, 有声调, 无声调]
+  - name: internal_hint
+engine:
+""".trimStart('\n')).replace("  translators: [table_translator]",
+            "  translators: [table_translator]\n  filters: [lua_filter@*frontend_comment_test]"))
+        File(directory, "lua").mkdirs()
+        File(directory, "lua/frontend_comment_test.lua").writeText("""
+return function(input, env)
+  local context = env.engine.context
+  for candidate in input:iter() do
+    local comment = ""
+    if context:get_option("tone_hint") then comment = "nǐ"
+    elseif context:get_option("toneless_hint") then comment = "ni" end
+    yield(ShadowCandidate(candidate, candidate.type, candidate.text, comment))
+  end
+end
+""".trimIndent())
+        val candidates = Channel<Array<CandidateWord>>(Channel.UNLIMITED)
+        val flow = connection.runImmediately { eventFlow }
+        val collector = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            flow.collect { if (it is FcitxEvent.PagedCandidateEvent && FcitxDaemon.isCurrentInputSession(it.inputSession))
+                candidates.send(it.data.candidates) }
+        }
+        suspend fun expectComment(comment: String) {
+            withTimeout(10_000) {
+                while (candidates.receive().firstOrNull { it.text == "你" }?.comment != comment) { }
+            }
+            assertEquals("Expanded candidates must show the same schema comment", comment,
+                connection.runOnReady { getCandidates(0, 10) }.first { it.text == "你" }.comment)
+        }
+        try {
+            connection.runOnReady {
+                setAddonSubConfig("rime", "deploy", RawConfig())
+                setCandidatePagingMode(1)
+                val actions = statusArea()
+                val menu = actions.first { it.name == "rime" }.menu!!
+                assertFalse("Schema menu must not repeat option switches", menu.any { it.name in
+                    listOf("emoji", "comment_off", "tone_hint", "toneless_hint", "raw_input") || it.name.startsWith("select-") })
+                assertFalse("Switches without states stay hidden", actions.any { it.name == "internal_hint" })
+                val groups = actions.filter { it.menu?.size == 3 }
+                assertEquals("Each options group needs its own button", 2, groups.size)
+                assertEquals("原编码", groups.first { it.name == "select-raw_input" }.shortText)
+                assertEquals("注释关", groups.first { it.name == "select-comment_off" }.shortText)
+                val toggle = actions.first { it.name == "emoji" }
+                assertEquals("表情关 → 表情开", toggle.shortText)
+                activateAction(toggle.id)
+                assertEquals("表情开 → 表情关", statusArea().first { it.name == "emoji" }.shortText)
+                sendKey('n', KeyState.Virtual.state); sendKey('i', KeyState.Virtual.state)
+            }
+            expectComment("")
+            for ((option, label, comment) in listOf(Triple("tone_hint", "有声调", "nǐ"),
+                Triple("toneless_hint", "无声调", "ni"), Triple("comment_off", "注释关", ""))) {
+                connection.runOnReady {
+                    val group = statusArea().first { it.name == "select-comment_off" }
+                    activateAction(group.menu!!.first { it.name == option }.id)
+                    val changed = statusArea().first { it.name == group.name }
+                    assertEquals(label, changed.shortText)
+                    assertEquals(listOf(option), changed.menu!!.filter { it.isChecked }.map { it.name })
+                    assertEquals("原编码", statusArea().first { it.name == "select-raw_input" }.shortText)
+                }
+                expectComment(comment)
+            }
+        } finally { collector.cancelAndJoin(); candidates.close() }
+    }
     @Test fun candidateSchemaAndEditorContracts(): Unit = runBlocking {
         connection.runOnReady {
             assertTrue(ConfigDescriptor.parseTopLevel(getImConfig("rime")["desc"]).isRight())

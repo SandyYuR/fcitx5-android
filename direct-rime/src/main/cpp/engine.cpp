@@ -248,14 +248,21 @@ std::vector<std::string> Engine::options() {
     auto get = [&](const std::string& key) { return safe(api_->config_get_cstring(&config, key.c_str())); };
     for (size_t i = 0; i < api_->config_list_size(&config, "switches"); ++i) {
         auto prefix = "switches/@" + std::to_string(i);
+        const auto states = api_->config_list_size(&config, (prefix + "/states").c_str());
+        // A switch without states is intentionally hidden, as in fcitx5-rime.
+        if (states <= 1) continue;
         auto name = get(prefix + "/name");
         auto group = std::to_string(i);
         if (!name.empty()) {
+            if (states != 2) continue;
             auto state = api_->get_option(session_, name.c_str());
-            auto label = get(prefix + "/states/@" + (state ? "1" : "0"));
-            result.insert(result.end(), {name, label.empty() ? name : label, state ? "1" : "0", ""});
+            auto current = get(prefix + "/states/@" + (state ? "1" : "0"));
+            auto target = get(prefix + "/states/@" + (state ? "0" : "1"));
+            result.insert(result.end(), {name, current + " → " + target, state ? "1" : "0", ""});
         } else {
-            for (size_t j = 0; j < api_->config_list_size(&config, (prefix + "/options").c_str()); ++j) {
+            const auto count = api_->config_list_size(&config, (prefix + "/options").c_str());
+            if (count != states) continue;
+            for (size_t j = 0; j < count; ++j) {
                 name = get(prefix + "/options/@" + std::to_string(j));
                 if (name.empty()) continue;
                 auto label = get(prefix + "/states/@" + std::to_string(j));

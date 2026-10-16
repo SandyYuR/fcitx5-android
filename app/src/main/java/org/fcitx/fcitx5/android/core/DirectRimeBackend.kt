@@ -165,9 +165,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
         batch += FcitxEvent.ClientPreeditEvent(client)
         batch += FcitxEvent.InputPanelEvent(panel)
         val candidates = value.candidates.mapIndexed { i, text ->
-            val comment = listOf(value.comments.getOrElse(i) { "" }, value.codes.getOrElse(i) { "" })
-                .filter { it.isNotBlank() }.distinct().joinToString(" ")
-            CandidateWord(value.labels.getOrElse(i) { "${(i + 1) % 10} " }, text, comment)
+            // Candidate codes are separate metadata, not a schema's visible comment.
+            // Appending them would bypass Lua filters such as Wanxiang's comment switch.
+            CandidateWord(value.labels.getOrElse(i) { "${(i + 1) % 10} " }, text, value.comments.getOrElse(i) { "" })
         }.toTypedArray()
         if (pagingMode != 0) batch += FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data(
             candidates, value.highlighted, FcitxEvent.PagedCandidateEvent.LayoutHint.NotSet, value.page > 0, !value.lastPage))
@@ -188,8 +188,23 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val menu = mutableListOf(action(10, "ascii_mode", "西文", value.ascii))
         schemas.forEachIndexed { i, (id, name) -> menu += action(100 + i, id, name, id == value.schema) }
         menu += action(9, "separator", separator = true)
-        val options = optionRows.mapIndexed { i, row -> action(1000 + i, row[0], row[1], row[2] == "1") }
-        menu += options
+        val options = buildList {
+            val groups = mutableSetOf<String>()
+            optionRows.forEachIndexed { i, row ->
+                if (row[3].isEmpty()) {
+                    // Like fcitx5-rime ToggleAction: current state → target state.
+                    add(action(1000 + i, row[0], row[1]))
+                } else if (groups.add(row[3])) {
+                    // Like SelectAction: one button per mutually exclusive group.
+                    val members = optionRows.withIndex().filter { it.value[3] == row[3] }
+                    val selected = members.firstOrNull { it.value[2] == "1" } ?: members.first()
+                    val children = members.map { (index, member) ->
+                        action(1000 + index, member[0], member[1], member[2] == "1")
+                    }.toTypedArray()
+                    add(action(-1000 - i, "select-${row[0]}", selected.value[1], menu = children))
+                }
+            }
+        }
         menu += action(11, "deploy", "重新部署")
         menu += action(12, "sync", "同步用户词典")
         val label = if (value.ascii) "西文" else value.schemaName.ifEmpty { "Rime" }

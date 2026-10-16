@@ -125,6 +125,20 @@ AOSP ATD 镜像默认关闭绘制，触屏/截图测试前需执行
 停止构建用的空闲 JVM 释放内存，并通过 `cmd package compile -m verify -f <package>`
 预先完成校验后，再运行设备测试；GitHub Actions 使用 KVM。
 
+## 万象注释与开关修正
+
+候选栏现在仅显示 librime 的 `candidate.comment`，与展开候选保持一致，不再把
+`get_candidate_code` 取得的编码追加到注释。这让万象的 `comment_off / tone_hint / toneless_hint`
+及其 Lua 注释过滤器决定实际显示内容。
+
+功能开关只在展开状态区展示，不再重复添加到方案菜单。对齐 fcitx5-rime 的动作模型：
+二态开关显示「当前状态 → 目标状态」；每个 `options` 互斥组只占一个按钮，显示当前选项，
+点击展开该组选择列表。没有 `states` 的内部开关不展示。
+
+新增 `schemaCommentsAndSwitchGroupsMatchRime` 设备回归：使用微型 Lua 过滤器和万象同结构的
+两组三态开关，验证关/带调/无调注释、普通与展开候选一致、组间独立、切换方向和方案菜单去重。
+此测试不下载或打包万象的完整词库，完整界面测试类现共 5 项。
+
 ## 仍需验证的范围
 
 此轮解决原界面、布局和设置缺失的问题，没有给出性能提升结论。
