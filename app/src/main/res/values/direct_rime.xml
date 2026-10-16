@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="direct_rime_app_name">Rime 直连</string>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="direct_rime_app_name" translatable="false">Rime 直连</string>
     <string name="direct_rime_import">Import Rime profile</string>
     <string name="direct_rime_import_description">Choose a ZIP containing your Rime user files. Put default.yaml or default.custom.yaml at the root of the archive. The profile will be deployed in a new directory; your existing profiles stay available in the directory manager.</string>
     <string name="direct_rime_choose_zip">Choose profile ZIP</string>

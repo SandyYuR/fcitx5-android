@@ -155,7 +155,12 @@ class DirectRimeFrontendTest {
                             val label = view.text.toString().trim()
                             if (label.equals(text, ignoreCase = true) || (text == "你" && label.startsWith(text))) {
                                 val rect = Rect()
-                                if (view.getGlobalVisibleRect(rect) && !rect.isEmpty) return rect
+                                if (view.getGlobalVisibleRect(rect) && !rect.isEmpty) {
+                                    val origin = IntArray(2)
+                                    view.rootView.getLocationOnScreen(origin)
+                                    rect.offset(origin[0], origin[1])
+                                    return rect
+                                }
                             }
                         }
                         if (view is android.view.ViewGroup) for (i in 0 until view.childCount)
@@ -225,6 +230,7 @@ class DirectRimeFrontendTest {
                 var rejected = false
                 try { setAddonSubConfig("rime", "import-profile", RawConfig(arrayOf(RawConfig("Archive", archive.absolutePath)))) }
                 catch (e: IllegalArgumentException) { rejected = true }
+                catch (e: java.util.zip.ZipException) { rejected = true } // Android 14+ validates before our own path check.
                 assertTrue("Unsafe archive must be rejected", rejected)
                 assertEquals(imported, getAddonSubConfig("rime", "profile-manager")["Current"].value)
                 sendKey('n', KeyState.Virtual.state); sendKey('i', KeyState.Virtual.state); select(0)
@@ -248,6 +254,10 @@ class DirectRimeFrontendTest {
         } finally { isolated.deleteRecursively() }
     }
     @Test fun originalSettingsAndLayoutEditorOpen(): Unit = runBlocking {
+        val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
+        val previous = shell("settings get secure default_input_method")
+        val enabled = component in shell("ime list -s")
+        shell("ime enable $component"); shell("ime set $component")
         shell("pm grant ${context.packageName} android.permission.POST_NOTIFICATIONS")
         val main = instrumentation.startActivitySync(Intent(context, org.fcitx.fcitx5.android.ui.main.MainActivity::class.java)
             .setAction(Intent.ACTION_RUN).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -274,7 +284,9 @@ class DirectRimeFrontendTest {
                 org.fcitx.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as org.fcitx.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivity
             fun rows(view: android.view.View): Boolean {
-                if (view is androidx.recyclerview.widget.RecyclerView && (view.adapter?.itemCount ?: 0) > 0) return true
+                if (view is androidx.recyclerview.widget.RecyclerView &&
+                    view.adapter is org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapter &&
+                    (view.adapter?.itemCount ?: 0) > 1) return true
                 if (view is android.view.ViewGroup) for (i in 0 until view.childCount) if (rows(view.getChildAt(i))) return true
                 return false
             }
@@ -286,6 +298,8 @@ class DirectRimeFrontendTest {
             shell("screencap -p /data/local/tmp/direct-frontend-layout-editor.png")
         } finally {
             instrumentation.runOnMainSync { editor?.finish(); main.finish() }
+            if (previous.isNotBlank() && previous != "null") shell("ime set $previous")
+            if (!enabled) shell("ime disable $component")
         }
     }
 }

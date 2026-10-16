@@ -64,11 +64,19 @@ class RimeImportActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (!BuildConfig.DIRECT_RIME) { finish(); return }
         connection
+        val palette = obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary, android.R.attr.colorAccent))
+        val foreground = palette.getColor(0, android.graphics.Color.BLACK)
+        val accent = palette.getColor(1, 0xff008577.toInt())
+        palette.recycle()
+        val onAccent = if (androidx.core.graphics.ColorUtils.calculateContrast(android.graphics.Color.WHITE, accent) >= 4.5)
+            android.graphics.Color.WHITE else android.graphics.Color.BLACK
         val padding = (20 * resources.displayMetrics.density).toInt()
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         val toolbar = Toolbar(this).apply {
             setTitle(R.string.direct_rime_import)
             setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+            navigationIcon?.mutate()?.setTint(foreground)
+            setNavigationContentDescription(androidx.appcompat.R.string.abc_action_bar_up_description)
             setNavigationOnClickListener { finish() }
         }
         root.addView(toolbar)
@@ -79,6 +87,8 @@ class RimeImportActivity : AppCompatActivity() {
         content.addView(TextView(this).apply { setText(R.string.direct_rime_import_description); textSize = 16f })
         choose = MaterialButton(this).apply {
             setText(R.string.direct_rime_choose_zip)
+            backgroundTintList = android.content.res.ColorStateList.valueOf(accent)
+            setTextColor(onAccent)
             setOnClickListener { picker.launch(arrayOf("application/zip", "application/octet-stream", "application/x-zip-compressed")) }
         }
         content.addView(choose)

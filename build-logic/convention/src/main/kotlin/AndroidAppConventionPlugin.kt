@@ -121,7 +121,15 @@ class AndroidAppConventionPlugin : AndroidBaseConventionPlugin() {
                     tasks.findByName(DataDescriptorPlugin.TASK)?.also {
                         tasks.findByName("merge${variantName}Assets")?.dependsOn(it)
                         tasks.findByName("lintVitalAnalyze${variantName}")?.dependsOn(it)
-                        tasks.findByName("generate${variantName}LintVitalReportModel")?.dependsOn(it)
+                        tasks.matching { task -> task.name in setOf(
+                            "lintAnalyze${variantName}",
+                            "lintAnalyze${variantName}AndroidTest",
+                            "lintAnalyze${variantName}UnitTest",
+                            "generate${variantName}LintVitalReportModel",
+                            "generate${variantName}LintReportModel",
+                            "generate${variantName}AndroidTestLintModel",
+                            "generate${variantName}UnitTestLintModel"
+                        ) }.configureEach { dependsOn(it) }
                     }
                 }
             }
