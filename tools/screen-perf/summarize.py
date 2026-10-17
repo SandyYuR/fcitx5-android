@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Summarise completed runs; retain per-run values instead of pooling correlated keys."""
 import json
+import gzip
 import statistics as st
 import sys
 from pathlib import Path
@@ -11,7 +12,8 @@ measured = []
 for item in runs:
     if item['mode'] != 'touch': continue
     directory = root/item['label']
-    details = json.loads((directory/'result.json').read_text())
+    source = directory/'result.json'
+    details = json.loads(source.read_text() if source.exists() else gzip.decompress(source.with_suffix('.json.gz').read_bytes()))
     analysis = json.loads((directory/'analysis.json').read_text())
     measured.append({**item, 'analysis': analysis, 'typing_cpu_ms': details['typing_cpu_ms'],
                      'typing_end_pss_kib': details['typing_end_pss_kib'], 'commit': details['commit'],

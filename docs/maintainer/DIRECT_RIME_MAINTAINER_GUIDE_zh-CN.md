@@ -107,7 +107,7 @@ Release 的 vital lint 通过不代表全量 `lintFxDebug` 没有历史问题。
 结果是模拟器中 API 到事件观察器的耗时，不包含触屏到屏幕显示完成，也不代表所有真机和长期用户库。
 
 测试工具在 `tools/input-perf/`，数据在 `docs/maintainer/perf/`。
-三个性能工作流保留手动触发：`wanxiang-perf.yml` 比较两个历史直连版本，
+历史三个性能工作流保留手动触发：`wanxiang-perf.yml` 比较两个历史直连版本，
 `fcitx-direct-perf.yml` 比较历史 Fcitx 与当前直连，`fcitx-direct-profile.yml` 追踪固定 APK。
 原来四个 `perf/` 分支只是运行这些实验的临时入口，提交已进入工作分支，
 用途和恢复 SHA 见[工作区整理记录](DIRECT_RIME_WORKSPACE_CLEANUP_2026-10-17.md)。
@@ -115,6 +115,21 @@ Release 的 vital lint 通过不代表全量 `lintFxDebug` 没有历史问题。
 固定 APK 的追踪任务依赖指定比较运行的 4 个 APK artifact；artifact 有保存期限。
 重新使用时先运行比较任务产生新 artifact，再把新的 run ID 传入追踪任务。
 历史 Actions 运行保留审计价值，不能只因显示红色就删除；不需要为整理列表重跑所有旧实验。
+
+[触摸与录屏报告](DIRECT_RIME_SCREEN_PERF_2026-10-17.md)使用用户上传的画面差分工具和 YAML，
+比较默认分支 `cecea494` 与直连产品 `cfd0ddc4`，固定万象 v18.1.3 base + LTS。
+工具在 `tools/screen-perf/`，专用中立编辑器、同一份 instrumentation 和独立色块对时用于两版，
+按真实键位触摸并比较完整上屏文本。完整矩阵有三轮常速、快速和抖动场景，共 4,752 次触摸。
+
+```sh
+gh workflow run wanxiang-screen-perf.yml --ref feat/direct-rime-prototype -f pilot=false
+```
+
+可先用 `pilot=true` 校准；`reuse_run=<run ID>` 只复用该工作流的 `screen-comparison-apks`，
+并核对 instrumentation 源码哈希。这个 APK artifact 保存 3 天，不能当作永久下载入口。
+录屏及完整结果保存 14 天，报告中的压缩差分、时间戳、原始事件及摘要随分支永久归档。
+LTS 标签可变；下载哈希不一致时应明确选择并记录新的模型版本，不能跳过检查。
+当前回放用一次性 KVM 模拟器，勿在个人日用输入法数据上运行：它会重置专用测试档案及学习库。
 
 ## 设置中保留的兼容内容
 

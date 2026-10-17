@@ -16,6 +16,7 @@
 | 旧后端清理 | `a49eb9b8` 删除旧原生后端、构建工程和子模块，[验证记录](DIRECT_RIME_CLEANUP_2026-10-17.md) |
 | 无调用方清理 | `6c470b8b` 删除 FcitxUtils 等工具及旧 JNI 转换，[清单](DIRECT_RIME_UNUSED_CODE_AUDIT_2026-10-17.md) |
 | 当前设置整理 | 模式/方案编码区提示、单一 Rime 设置入口、重写关于页、旧快捷方式兼容转向 |
+| 用户工具包实测 | 默认分支 Fcitx 与直连版，使用用户 YAML、万象 v18.1.3 base + LTS，[触摸与录屏报告](DIRECT_RIME_SCREEN_PERF_2026-10-17.md) |
 
 ## 已确认的运行结构
 
@@ -26,7 +27,10 @@ APK 仅打包直连桥接库和 C++ 运行库。原 Android 前端、键盘、�
 
 当前万象历史对照结果：候选事件 P50 约降低 6%、P95 约降低 7%，
 其范围限于固定 Debug 模拟器回放，不是本轮设置调整的新性能结论。
-个人长期词库、长句、快速连击、完整 compose 和按应用行为等价仍需继续验证。
+另有用户工具包的触摸／画面对照，独立于上述 API 指标，见[新报告](DIRECT_RIME_SCREEN_PERF_2026-10-17.md)。
+完整矩阵 14 轮通过，共 4,752 次触摸；常速候选 P50 119.7 → 119.0ms，CPU/PSS 基本持平，
+未证明稳定整链路提速。计划 120ms 的快速轮实际约 164–166ms，不能算作达到该目标压力。
+其固定语料包含长句、快速和抖动输入；个人长期词库、广泛真机、完整 compose 和按应用行为等价仍需继续验证。
 
 ## 验证证据
 
@@ -36,6 +40,10 @@ APK 仅打包直连桥接库和 C++ 运行库。原 Android 前端、键盘、�
   [CI 归档](direct-rime-unused-code-ci-2026-10-17.json)。
 - 当前设置与提示版本的源码、APK 哈希、签名、构建及设备回归结果见
   [当前设置版验证](direct-rime-settings-validation-2026-10-17.json)。
+- 测试工具提交 `e8fffb64` 的 [PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39025159601)
+  与 [Direct Rime experiment](https://github.com/SandyYuR/fcitx5-android/actions/runs/39025159583) 全通过，
+  包含 471 项 JVM 单测和 7 项前端设备测试。模式提示测试先等待编辑器输入连接稳定，
+  避免将前一测试留下的可见键盘误认为本轮连接已经就绪；提示断言保留。
 
 当前主应用安装包为 `zhongzhougoose-settings-arm64-v8a-debug.apk`。
 APK 二进制保留在本会话 artifacts，仓库只保存版本来源与校验摘要。
