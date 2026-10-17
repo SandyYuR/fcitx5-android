@@ -1,22 +1,7 @@
-[submodule "lib/fcitx5/src/main/cpp/fcitx5"]
-	path = lib/fcitx5/src/main/cpp/fcitx5
-	url = https://github.com/fcitx/fcitx5.git
 [submodule "native/prebuilt"]
 	path = native/prebuilt
 	url = https://github.com/SandyYuR/prebuilt.git
 	shallow = true
-[submodule "plugin/rime/src/main/cpp/fcitx5-rime"]
-	path = plugin/rime/src/main/cpp/fcitx5-rime
-	url = https://github.com/SandyYuR/fcitx5-rime.git
 [submodule "native/rime-prelude"]
 	path = native/rime-prelude
 	url = https://github.com/rime/rime-prelude.git
-[submodule "plugin/rime/src/main/cpp/rime-essay"]
-	path = plugin/rime/src/main/cpp/rime-essay
-	url = https://github.com/rime/rime-essay.git
-[submodule "plugin/rime/src/main/cpp/rime-luna-pinyin"]
-	path = plugin/rime/src/main/cpp/rime-luna-pinyin
-	url = https://github.com/rime/rime-luna-pinyin.git
-[submodule "plugin/rime/src/main/cpp/rime-stroke"]
-	path = plugin/rime/src/main/cpp/rime-stroke
-	url = https://github.com/rime/rime-stroke.git

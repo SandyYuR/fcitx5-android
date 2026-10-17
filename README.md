@@ -1,22 +1,22 @@
-# 靓企鹅·中州韵（Rime-only）
+# 中州鹅（Direct Rime）
 
-把 [Rime 中州韵](https://github.com/rime) 深度内置进 Android 输入法的版本：一个 APK 里同时包含 Fcitx5 底盘、Rime 引擎与键盘界面，**Rime 是唯一的输入引擎**。基于 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) 的 `fx` 分支继续开发，全部改动由 vibe coding 完成。本项目不是 Fcitx5 或 Rime 的官方发行版。
+保留原 Android 键盘、候选、布局编辑器、主题与设置界面，直接调用 [Rime 中州韵](https://github.com/rime)。本分支已删除 Fcitx 原生后端及其构建入口，普通构建即为直连版。项目基于 [Fcitx5 for Android](https://github.com/fcitx5-android/fcitx5-android) 和 [fxliang 的 fx 分支](https://github.com/fxliang/fcitx5-android) 继续开发，保留原作者署名；不是 Fcitx5 或 Rime 的官方发行版。
 
-| | |
+| 项目 | 当前分支 |
 |---|---|
-| 中文应用名 | **靓企鹅·中州韵** |
-| 其他语言应用名 | Fcitx5.fx.rime |
-| 包名 | `org.fcitx.fcitx5.android.fx.rime` |
-| 下载安装 | [GitHub Releases](https://github.com/SandyYuR/fcitx5-android/releases)（含带时间戳的 Nightly 预发布版） |
-| 用户手册 | [靓企鹅·中州韵 文档站 · 用户指南](https://sandyyur.github.io/fcitx5-android/manual/RIME_ONLY_USER_GUIDE_zh-CN) |
-| 开发分支 | `fx-rime-only`（文档集中在 [`docs` 分支的文档站](https://sandyyur.github.io/fcitx5-android/)） |
+| 应用名 | **中州鹅** |
+| 包名 | `io.github.sandyyur.rime.direct` |
+| 开发分支 | `feat/direct-rime-prototype` |
+| 构建产物 | 本分支 CI 的主应用产物或下方本地构建 |
+| 历史 Fcitx 版 | 默认分支 `fx-rime-only`；性能基线固定为 `a714feff` |
+| 清理与兼容范围 | [旧后端清理记录](docs/maintainer/DIRECT_RIME_CLEANUP_2026-10-17.md) |
 
 > ⚠️ **本版不预置任何输入方案。** 装好、启用之后键盘能正常弹出，但**打不出汉字**——这是预期状态，不是故障。必须自己放入方案并部署一次才能使用，步骤如下。
 
 ## 快速上手
 
-1. **安装**：从 [Releases](https://github.com/SandyYuR/fcitx5-android/releases) 下载 APK 安装（CI 构建的是 `arm64-v8a`）。包名与原版及旧版不同，可以共存安装，但数据互相隔离、不会自动迁移。
-2. **启用**：在系统「设置 → 语言和输入法」中启用**靓企鹅·中州韵**。
+1. **安装**：安装本分支 CI 的主应用 APK 或自行构建（常用手机选择 `arm64-v8a`）。包名与历史 Fcitx 版不同，可以共存；已有直连版可以按原签名覆盖升级。
+2. **启用**：在系统「设置 → 语言和输入法」中启用**中州鹅**。
 3. **放入方案**：打开应用主页 → **中州韵设置**，进入用户数据目录（`data/rime`），把方案文件（`*.schema.yaml` 及其依赖的 `*.dict.yaml`）复制进去。
 4. **声明方案**：在同一目录的 `default.custom.yaml` 中 patch `schema_list`：
 
@@ -58,7 +58,9 @@
 - **弹出菜单跟随主题**：Rime 方案选单、候选字符弹出、弹出菜单与状态区改用主题的**整体背景色**，不再是割裂的默认底色。
 - 应用内「关于 → 当前版本」可检查更新并查看发布说明。
 
-## 相对 fxliang 的主要改动
+## 继承自历史 Rime-only 版的改动
+
+本节记录迁移到直连前的功能历史；其中旧品牌、包名和 Fcitx 构建说明仅描述历史版本。当前构建方式与清理范围以本页开头和下文为准。
 
 本分支以 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) 的 `fx` 分支、提交 `3ad25fc9` 为基线继续专用化，全部改动由 vibe coding 完成；截至 2026-10-10 领先基线约 **231 个提交**（2026-10-05 记 214，其后新增 17 个；随时增长，以 `git rev-list --count 3ad25fc9..HEAD` 现取为准）。下面按主题列出改动的全貌（逐条明细见 `git log --oneline 3ad25fc9..HEAD`）。
 
@@ -139,13 +141,11 @@
 - **CI**：`push` 触发 `arm64-v8a` Release 构建，`pull_request` 触发无签名的 JVM 单测与 Debug APK 构建；`fx-rime-only` 构建成功后自动创建带时间戳的 **Nightly 预发布版**并附带 APK。
 - 文档集中在 [`docs` 分支的文档站](https://sandyyur.github.io/fcitx5-android/)（用户指南、维护者交接与审阅报告；2026-10-05 起，原 `rime-docs` 分支已并入），代码分支保持纯代码历史。
 
-## 「Rime-only」的含义
+## 当前引擎与前端
 
-- 原独立的 fcitx5-rime 插件**已并入主 APK**（静态链接 `librime.a`），不需要再安装插件。
-- 原版的拼音、码表、custom phrase native 链路及其相关模块，以及其他语言/功能插件（anthy、chewing、hangul、jyutping、sayura、thai、unikey、text-editor、clipboard-filter）、Android 英文键盘 addon、第三方插件发现与运行时框架**均已移除**；`mainline` flavor 也已删除，只保留 `fx`。
-- **保留**：OpenCC、Fcitx 核心底盘、剪贴板、主题、候选栏、语音输入、数据同步，以及 librime 自带的 Lua/octagram 等能力。
-
-也就是说，「Rime-only」只表示**只提供 Rime 作为输入引擎**，不表示删掉应用的其他辅助功能。应用内不预置方案，也不附带 `essay.txt`（约 6 MB）。
+- 主应用通过独立 JNI 和单一 owner 线程直接调用 librime；APK 只包含直连库与 C++ 运行库，不构建或加载 Fcitx Core、AndroidFrontend、fcitx5-rime、Utils、Config 或 libuv。
+- 保留 OpenCC、Rime 的 Lua/octagram 与定制 tabs 能力，以及应用自己的剪贴板、语音、同步、主题和完整键盘界面；不预置方案、词典或 `essay.txt`。
+- 原 Kotlin 前端接口、`fcitx://` 和布局/备份协议继续兼容。配置模型收口和部分行为等价仍未完成，见[迁移审计](docs/maintainer/DIRECT_RIME_AUDIT_2026-10-17.md)与[最新清理记录](docs/maintainer/DIRECT_RIME_CLEANUP_2026-10-17.md)。
 
 ## 更多帮助
 
@@ -160,32 +160,30 @@
 
 ### 构建
 
-带原应用完整界面的 librime 直连版（`io.github.sandyyur.rime.direct`）见
-[界面接入与安装说明](docs/maintainer/DIRECT_RIME_FRONTEND_2026-10-16.md)。
-使用 `-PdirectRimeFrontend=true :app:assembleFxDebug` 构建，可与原版并存。
-最小引擎诊断工具仍可用 `-PdirectRimePrototype=true :direct-rime:assembleDebug` 单独构建。
-
-需要 Java 17、Android SDK/NDK 与 CMake：
+需要 Java 17、Android SDK、NDK 28.0.13004108 与 CMake 3.31.6。普通命令直接构建带完整界面的中州鹅：
 
 ```bash
-git submodule update --init --recursive
-./prepare_personal_build.sh
-./gradlew :app:assembleFxDebug    # 或 :app:assembleFxRelease
+./prepare_personal_build.sh  # 只检出固定的 Rime prebuilt / prelude
+./gradlew -PbuildABI=arm64-v8a :app:assembleFxDebug
+python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/debug/*.apk
+# Release：:app:assembleFxRelease
 ```
 
-产物分别在 `app/build/outputs/apk/fx/debug/` 与 `app/build/outputs/apk/fx/release/`。debug 变体包名为 `org.fcitx.fcitx5.android.fx.rime.debug`，**可与 Release 版共存安装**，适合真机对照测试。当前没有 `mainline` flavor，也没有 `assembleMainline` 任务。
+产物位于 `app/build/outputs/apk/fx/debug/` 或 `app/build/outputs/apk/fx/release/`，包名均为 `io.github.sandyyur.rime.direct`。覆盖安装需使用相同签名。无需再传 `-PdirectRimeFrontend=true`；旧命令中的 true 仍兼容，false 会明确报错，不会生成 Fcitx 包。
+
+最小引擎诊断工具仍可用 `-PdirectRimePrototype=true :direct-rime:assembleDebug` 单独构建，专用于原生与 InputConnection 测试；日常安装使用主应用 APK。
 
 Rime 共享数据位于应用内部 `usr/share/rime-data`（只含 `default.yaml` 等 prelude 通用预设资源）；默认用户数据位于该包 external files 目录下的 `data/rime`。数据目录管理可注册本机共享存储目录；Android 11 及以上需授予「所有文件访问」，Android 6–9 需存储权限，Android 10 使用应用目录。完整备份包含已注册外部目录的实际文件和原路径；导入时逐项选择恢复到原目录、其他外部目录或应用目录，经权限检查及替换范围确认后再恢复。
 
 ### CI 与发布
 
-- push 触发 Commit CI：Ubuntu 22.04 / `arm64-v8a` 构建 `:app:assembleFxRelease`；另有独立 `unit_test` job 运行 `:app:testFxDebugUnitTest`，其失败会在提交上显示红叉但**不阻塞出包**。`pull_request` 触发 PR CI（`pr.yml`）：JVM 单测 + Debug APK 构建。lint 与 instrumentation 不在 CI 覆盖范围内。
-- `fx-rime-only` 构建成功后自动创建带时间戳的 Nightly prerelease，并附带 APK。
+- Commit CI 构建 ARM64 Release 并运行 JVM 单测；PR CI 构建 Debug、运行 JVM 单测，并核验原生依赖和 DEX。独立直连工作流还执行 native ASan/UBSan、Android smoke 与完整前端设备测试。
+- 本功能分支的推送不会发布默认分支的 Nightly；默认分支与其历史发布保持独立。
 - Release 签名依赖仓库 secrets：`SIGNING_KEY`、`KEY_ALIAS`、`KEY_PASSWORD`。
 
 ### Rime 引擎来源
 
-- **适配层**（tabs、schema 选单、Shift/alt-trigger 定制）来自 [SandyYuR/fcitx5-rime](https://github.com/SandyYuR/fcitx5-rime)。外部数据目录的配套引擎 PR 已合并，子模块与准备脚本均从自有 fork 获取固定提交。CI 按主仓库 gitlink 检出指定提交，并把 `fcitx5-alt-trigger-v4point1.patch` 应用到 Fcitx5 core；已应用的补丁会检查，补丁不匹配时中止。准备脚本不清除本地源码修改。
+- **直连适配层**在 `direct-rime/src/main/cpp/` 与 `DirectRimeBackend.kt` 中，直接处理 session、候选、schema、options 和部署，不再检出或应用 Fcitx Core/addon 的补丁。历史对照工具会在独立 checkout 中使用旧提交自己的准备脚本。
 - **librime 静态库**来自 [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)，由 [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder) 固定官方 librime 提交（当前 `1.17.0-ef1a16a`）并按固定顺序应用 8 个定制补丁——fxliang 功能补丁、音节缓存、词典并行部署、用户词典缓存、词典文件重映射修复、忘记词汇连删同音词修复、万象（amzxyz）的 `rewrite` 滤镜（PR #1232），以及**必须排在末位**的配置指纹补丁——构建四 ABI 静态库后自动推回 prebuilt，主仓库再静态链接进 APK。
 - prebuilt 也按主仓库 gitlink 固定提交检出。更新后需同步 `app/licenses/libraries/` 下的版本元数据，并验证 `RimeGetInputTabs` / `RimeSelectTab` 等定制 API、APK 构建与真机输入行为。
 - ⚠️ 补丁顺序是契约的一部分，末位的指纹补丁必须始终最后应用；**不要**用官方 prebuilt 覆盖 SandyYuR 产物，否则会静默丢掉 tabs、音节缓存、用户词典缓存等定制。

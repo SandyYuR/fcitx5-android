@@ -133,14 +133,7 @@ class AndroidAppConventionPlugin : AndroidBaseConventionPlugin() {
                     }
                 }
             }
-            // Make data descriptor depend on fcitx component if have
-            // Since we are using finalizeDsl, there is no need to do afterEvaluate
             finalizeDsl {
-                target.tasks.findByName(DataDescriptorPlugin.TASK)?.also { dataDescriptorTask ->
-                    FcitxComponentPlugin.DEPENDENT_TASKS
-                        .mapNotNull { taskName -> target.tasks.findByName(taskName) }
-                        .forEach { componentTask -> dataDescriptorTask.dependsOn(componentTask) }
-                }
                 // applicationId is not set upon apply
                 it.defaultConfig {
                     // https://www.norio.be/blog/archivesBaseName-removed-from-gradle9.html

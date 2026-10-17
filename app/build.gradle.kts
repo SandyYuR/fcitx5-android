@@ -3,50 +3,31 @@ plugins {
     id("org.fcitx.fcitx5.android.native-app-convention")
     id("org.fcitx.fcitx5.android.build-metadata")
     id("org.fcitx.fcitx5.android.data-descriptor")
-    id("org.fcitx.fcitx5.android.fcitx-component")
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
 
 val packageBase = "org.fcitx.fcitx5.android"
-val appIdBase = packageBase
-// Distinct from fx2 / upstream fx builds (org.fcitx.fcitx5.android.fx) so both
-// can be installed side by side on the same device.
-val appIdFxSuffix = ".fx.rime"
 val flavorFx = "fx"
-val appLabelDefault = "@string/app_name"
 val imeSettingsActivity = "$packageBase.ui.main.MainActivity"
-val directRimeFrontend = providers.gradleProperty("directRimeFrontend").orNull == "true"
 val inputDiagnostics = providers.gradleProperty("inputDiagnostics").orNull == "true"
 
 android {
     namespace = packageBase
 
     defaultConfig {
-        applicationId = if (directRimeFrontend) "io.github.sandyyur.rime.direct" else appIdBase
-        buildConfigField("boolean", "DIRECT_RIME", directRimeFrontend.toString())
+        applicationId = "io.github.sandyyur.rime.direct"
         buildConfigField("boolean", "INPUT_DIAGNOSTICS", inputDiagnostics.toString())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["appLabel"] = if (directRimeFrontend) "@string/direct_rime_app_name" else appLabelDefault
+        manifestPlaceholders["appLabel"] = "@string/direct_rime_app_name"
         resValue("string", "ime_settings_activity", imeSettingsActivity)
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
             cmake {
-                arguments("-DDIRECT_RIME_FRONTEND=${if (directRimeFrontend) "ON" else "OFF"}")
                 arguments("-DINPUT_DIAGNOSTICS=${if (inputDiagnostics) "ON" else "OFF"}")
-                if (directRimeFrontend) targets("direct-rime") else targets(
-                    // jni
-                    "native-lib",
-                    // copy fcitx5 built-in addon libraries
-                    "copy-fcitx5-modules",
-                    // android specific modules
-                    "androidfrontend",
-                    "androidnotification",
-                    // fcitx5-rime addon (rime engine fused into main apk)
-                    "rime"
-                )
+                targets("direct-rime")
             }
         }
     }
@@ -55,7 +36,6 @@ android {
     productFlavors {
         create(flavorFx) {
             dimension = "brand"
-            if (!directRimeFrontend) applicationIdSuffix = appIdFxSuffix
             buildConfigField("boolean", "IS_FX_BUILD", "true")
         }
     }
@@ -63,22 +43,22 @@ android {
     buildFeatures {
         viewBinding = true
         resValues = true
-        prefab = !directRimeFrontend
+        prefab = false
     }
-    if (directRimeFrontend) externalNativeBuild.cmake.path = file("../direct-rime/src/main/cpp/CMakeLists.txt")
+    externalNativeBuild.cmake.path = file("../direct-rime/src/main/cpp/CMakeLists.txt")
 
     buildTypes {
         release {
             resValue("mipmap", "app_icon", "@mipmap/ic_launcher")
             resValue("mipmap", "app_icon_round", "@mipmap/ic_launcher_round")
-            resValue("string", "app_name", if (directRimeFrontend) "中州鹅" else "@string/app_name_release")
+            resValue("string", "app_name", "中州鹅")
             proguardFile("proguard-rules.pro")
         }
         debug {
-            if (directRimeFrontend) applicationIdSuffix = ""
+            applicationIdSuffix = ""
             resValue("mipmap", "app_icon", "@mipmap/ic_launcher_debug")
             resValue("mipmap", "app_icon_round", "@mipmap/ic_launcher_round_debug")
-            resValue("string", "app_name", if (directRimeFrontend) "中州鹅" else "@string/app_name_debug")
+            resValue("string", "app_name", "中州鹅")
         }
     }
 
@@ -101,42 +81,7 @@ android {
     }
 }
 
-androidComponents {
-    onVariants { variant ->
-        if (variant.flavorName == flavorFx && !directRimeFrontend) {
-            variant.outputs.forEach { output ->
-                if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
-                    output.outputFileName.set(
-                        output.outputFileName.get()
-                            .replace("org.fcitx.fcitx5.android-", "org.fcitx.fcitx5.android.fx.rime-")
-                            .replace("-fx-", "-")
-                    )
-                }
-            }
-        }
-    }
-}
-
-fcitxComponent {
-    includeLibs = if (directRimeFrontend) emptyList() else listOf(
-        "fcitx5"
-    )
-    // rime 专版只保留 rime 输入法：imselector / spell / unicode / quickphrase
-    // 等 fcitx5 模块已不再打包，其 addon .conf 与 quickphrase 词典一并从
-    // assets 排除，避免出现在附加组件设置页里。
-    excludeFiles = listOf(
-        "usr/share/fcitx5/addon/imselector.conf",
-        "usr/share/fcitx5/addon/spell.conf",
-        "usr/share/fcitx5/addon/unicode.conf",
-        "usr/share/fcitx5/addon/quickphrase.conf",
-        "usr/share/fcitx5/data/quickphrase.d/emoji.mb",
-        "usr/share/fcitx5/data/quickphrase.d/emoji-eac.mb",
-        "usr/share/fcitx5/data/quickphrase.d/latex.mb"
-    )
-    installPrebuiltAssets = !directRimeFrontend
-}
-
-if (directRimeFrontend) {
+run {
     val directAssets = layout.buildDirectory.dir("generated/direct-assets")
     val prepareDirectRimeAssets = tasks.register<Sync>("prepareDirectRimeAssets") {
         into(directAssets)
@@ -182,7 +127,6 @@ ksp {
 
 dependencies {
     ksp(project(":codegen"))
-    if (!directRimeFrontend) implementation(project(":lib:fcitx5"))
     implementation(project(":lib:common"))
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kotlinx.serialization.json)

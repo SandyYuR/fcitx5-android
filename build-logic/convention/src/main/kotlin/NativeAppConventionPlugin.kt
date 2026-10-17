@@ -22,9 +22,6 @@ class NativeAppConventionPlugin : NativeBaseConventionPlugin() {
                     useLegacyPackaging = true
                 }
             }
-            buildFeatures {
-                prefab = true
-            }
         }
 
         target.extensions.configure<ApplicationAndroidComponentsExtension> {

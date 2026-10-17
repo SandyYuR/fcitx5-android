@@ -1,47 +1,8 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
-ROOT=$(git rev-parse --show-toplevel)
-cd "$ROOT"
+cd "$(git rev-parse --show-toplevel)"
 
-# Use the parent repository's gitlinks, not a previous local submodule checkout.
-# A missing pin is an error; falling back to master can silently remove features.
-prepare_pinned_source() {
-  local path="$1" remote="$2" pinned
-  pinned=$(git rev-parse "HEAD:$path")
-  pushd "$path"
-  if [ -n "$(git status --porcelain)" ]; then
-    echo "Refusing to overwrite local changes in $path" >&2
-    exit 1
-  fi
-  git remote add gh "$remote" 2>/dev/null || git remote set-url gh "$remote"
-  git fetch -v gh "$pinned"
-  git checkout --detach "$pinned"
-  echo "$path: using gitlink-pinned $pinned"
-  popd
-}
-
-TRACE_PATCH="$ROOT/patches/fcitx5-rime-input-tracing.patch"
-if git -C plugin/rime/src/main/cpp/fcitx5-rime apply --reverse --check "$TRACE_PATCH" 2>/dev/null; then
-  git -C plugin/rime/src/main/cpp/fcitx5-rime apply --reverse "$TRACE_PATCH"
-fi
-prepare_pinned_source plugin/rime/src/main/cpp/fcitx5-rime https://github.com/SandyYuR/fcitx5-rime.git
-
-# Optional baseline traces are compiled only with -PinputDiagnostics=true.
-# Keep the addon gitlink pinned; the local patch changes no input semantics.
-git -C plugin/rime/src/main/cpp/fcitx5-rime apply "$TRACE_PATCH"
-
-# Preserve local core edits and fail when the required patch cannot be applied.
-PATCH="$ROOT/plugin/rime/src/main/cpp/fcitx5-rime/fcitx5-alt-trigger-v4point1.patch"
-pushd lib/fcitx5/src/main/cpp/fcitx5
-if git apply --check "$PATCH"; then
-  git apply "$PATCH"
-elif git apply --reverse --check "$PATCH"; then
-  echo "fcitx5 patch already applied"
-else
-  echo "Required fcitx5 patch does not match this checkout" >&2
-  exit 1
-fi
-popd
-
-prepare_pinned_source native/prebuilt https://github.com/SandyYuR/prebuilt.git
+# Use the checked-in Rime gitlinks. Never fetch a moving branch or overwrite
+# local changes with --force; the old Fcitx Core/addon patches are no longer used.
+git submodule update --init --depth 1 native/prebuilt native/rime-prelude

@@ -17,7 +17,6 @@ import androidx.core.view.allViews
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 import org.fcitx.fcitx5.android.R
-import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
@@ -1809,7 +1808,7 @@ class TextKeyboard private constructor(
             return
         }
         if (ime == null) return
-        val directRime = BuildConfig.DIRECT_RIME && ime.uniqueName == "rime"
+        val directRime = ime.uniqueName == "rime"
         // Keep the canonical mode name for existing layout keys; localize its display only.
         val subModeText = if (directRime && ime.subMode.name == "Latin Mode") {
             context.getString(R.string.direct_rime_ascii_mode)

@@ -2,9 +2,31 @@
 """Fail if the full direct frontend packages or links a Fcitx component."""
 import argparse
 import json
+import re
 import struct
 import zipfile
 from pathlib import Path
+
+
+def dex_classes(data):
+    """Read class definitions, rather than mistaking a string reference for a class."""
+    assert data[:4] == b"dex\n", "Not a standard APK DEX file"
+    strings = struct.unpack_from("<I", data, 60)[0]
+    types = struct.unpack_from("<I", data, 68)[0]
+    count, classes = struct.unpack_from("<II", data, 96)
+    for index in range(count):
+        type_index = struct.unpack_from("<I", data, classes + index * 32)[0]
+        string_index = struct.unpack_from("<I", data, types + type_index * 4)[0]
+        offset = struct.unpack_from("<I", data, strings + string_index * 4)[0]
+        # Skip the ULEB128 UTF-16 length; these descriptors end at the NUL byte.
+        for _ in range(5):
+            byte = data[offset]
+            offset += 1
+            if byte < 0x80:
+                break
+        else:
+            raise ValueError("Invalid DEX string length")
+        yield data[offset:data.index(b"\0", offset)].decode("utf-8", errors="replace")
 
 
 def dependencies(data):
@@ -52,6 +74,12 @@ def verify(path):
             except UnicodeError:
                 return info.filename
         names = {decoded_name(info) for info in apk.infolist()}
+        dex_files = sorted(n for n in names if re.fullmatch(r"classes\d*\.dex", n))
+        assert dex_files, "APK has no application DEX"
+        obsolete = ("Lorg/fcitx/fcitx5/android/core/Fcitx", "Lorg/fcitx/fcitx5/android/core/FcitxDispatcher")
+        legacy = sorted(name for dex in dex_files for name in dex_classes(apk.read(dex))
+                        if any(name == prefix + ";" or name.startswith(prefix + "$") for prefix in obsolete))
+        assert not legacy, f"Unused legacy backend classes remain: {legacy}"
         libs = sorted(n for n in names if n.startswith("lib/") and n.endswith(".so"))
         assert libs, "APK has no native engine"
         for abi in {n.split('/')[1] for n in libs}:
@@ -65,7 +93,8 @@ def verify(path):
         for name, digest in descriptor["files"].items():
             if digest:
                 assert f"assets/{name}" in names, f"Descriptor refers to missing asset: {name}"
-    print(json.dumps({"apk": str(path), "native_libraries": libs, "fcitx_dependencies": [], "page_size": 16384}))
+    print(json.dumps({"apk": str(path), "native_libraries": libs, "fcitx_dependencies": [],
+                      "legacy_backend_classes": legacy, "dex_files_checked": len(dex_files), "page_size": 16384}))
 
 
 if __name__ == "__main__":

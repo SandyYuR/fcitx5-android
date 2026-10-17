@@ -56,7 +56,7 @@ jobs:
       - name: Build the direct frontend with the identical test source
         run: |
           cp tools/input-perf/EngineComparisonTest.kt app/src/androidTest/java/org/fcitx/fcitx5/android/core/
-          ./gradlew -PdirectRimeFrontend=true -PbuildABI=x86_64 -Pkotlin.compiler.execution.strategy=in-process --max-workers=2 :app:assembleFxDebug :app:assembleFxDebugAndroidTest
+          ./gradlew -PbuildABI=x86_64 -Pkotlin.compiler.execution.strategy=in-process --max-workers=2 :app:assembleFxDebug :app:assembleFxDebugAndroidTest
           cp app/build/outputs/apk/fx/debug/*.apk "$RUNNER_TEMP/direct-current.apk"
           cp app/build/outputs/apk/androidTest/fx/debug/*.apk "$RUNNER_TEMP/direct-current-tests.apk"
           python3 tools/verify-direct-rime-apk.py "$RUNNER_TEMP/direct-current.apk"

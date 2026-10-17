@@ -50,7 +50,7 @@ class DirectRimeFrontendTest {
         assertTrue(message, condition())
     }
     @Before fun prepare(): Unit = runBlocking {
-        assertTrue("Build with -PdirectRimeFrontend=true", BuildConfig.DIRECT_RIME)
+        assertEquals("io.github.sandyyur.rime.direct", context.packageName)
         connection.runOnReady {
             previousProfile = getAddonSubConfig("rime", "profile-manager")["Current"].value
             setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "create"), RawConfig("Name", profile))))

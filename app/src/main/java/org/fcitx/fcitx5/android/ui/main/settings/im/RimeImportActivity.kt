@@ -18,7 +18,6 @@ import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.RawConfig
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
@@ -63,7 +62,6 @@ class RimeImportActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (!BuildConfig.DIRECT_RIME) { finish(); return }
         connection
         val foreground = MaterialColors.getColor(this, android.R.attr.textColorPrimary, android.graphics.Color.BLACK)
         val accent = MaterialColors.getColor(this, android.R.attr.colorAccent, 0xff008577.toInt())
@@ -109,6 +107,6 @@ class RimeImportActivity : AppCompatActivity() {
     }
     override fun onDestroy() {
         super.onDestroy()
-        if (BuildConfig.DIRECT_RIME) FcitxDaemon.disconnect(javaClass.name)
+        FcitxDaemon.disconnect(javaClass.name)
     }
 }

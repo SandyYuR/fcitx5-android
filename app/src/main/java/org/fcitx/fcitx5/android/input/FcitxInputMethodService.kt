@@ -605,7 +605,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
             events.collect { event ->
                 if (!FcitxDaemon.isCurrentInputSession(event.inputSession)) return@collect
-                androidx.tracing.trace(if (BuildConfig.DIRECT_RIME) "rime.direct.consume" else "rime.fcitx.consume") { handleFcitxEvent(event) }
+                androidx.tracing.trace("rime.direct.consume") { handleFcitxEvent(event) }
             }
         }
         pkgNameCache = PackageNameCache(this)
@@ -662,7 +662,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
             is FcitxEvent.CommitStringEvent -> {
                 backspaceBoundaryGuard.onCommit()
-                androidx.tracing.trace(if (BuildConfig.DIRECT_RIME) "rime.direct.commit" else "rime.fcitx.commit") { commitText(event.data.text, event.data.cursor) }
+                androidx.tracing.trace("rime.direct.commit") { commitText(event.data.text, event.data.cursor) }
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {
@@ -814,15 +814,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 }
             }
             is FcitxEvent.IMChangeEvent -> {
-                // Direct Rime has one Android subtype. Schema/ascii changes belong
-                // to librime and must not reselect a possibly disabled system IME.
-                if (!BuildConfig.DIRECT_RIME && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    val im = event.data.uniqueName
-                    val subtype = SubtypeManager.subtypeOf(im) ?: return
-                    skipNextSubtypeChange = im
-                    // [^1]: notify system that input method subtype has changed
-                    switchInputMethod(InputMethodUtil.componentName, subtype)
-                }
+                // Rime schema/ascii changes keep the same Android IME subtype.
                 // Update space key label in "Always" floating mode
                 inputView?.updateSpaceLabelOnFloatingMode()
                 if (inputDeviceManager.evaluateOnInputMethodActivate()) {
@@ -1729,26 +1721,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
-    /**
-     * When input method changes internally (eg. via language switch key or keyboard shortcut),
-     * we want to notify system that subtype has changed (see [^1]), then ignore the incoming
-     * [onCurrentInputMethodSubtypeChanged] callback.
-     * Input method should only be changed when user changes subtype in system input method picker
-     * manually.
-     */
-    private var skipNextSubtypeChange: String? = null
-
     override fun onCurrentInputMethodSubtypeChanged(newSubtype: InputMethodSubtype) {
         super.onCurrentInputMethodSubtypeChanged(newSubtype)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             val im = SubtypeManager.inputMethodOf(newSubtype)
             Timber.d("onCurrentInputMethodSubtypeChanged: im=$im")
-            // don't change input method if this "subtype change" was our notify to system
-            // see [^1]
-            if (skipNextSubtypeChange == im) {
-                skipNextSubtypeChange = null
-                return
-            }
             postFcitxJob {
                 activateIme(im)
             }
