@@ -23,6 +23,9 @@ interface ClipboardDao {
     @Query("UPDATE ${ClipboardEntry.TABLE_NAME} SET timestamp=:timestamp WHERE id=:id")
     suspend fun updateTime(id: Int, timestamp: Long)
 
+    @Query("UPDATE ${ClipboardEntry.TABLE_NAME} SET originalText=:originalText WHERE id=:id AND originalText=''")
+    suspend fun updateOriginalTextIfEmpty(id: Int, originalText: String)
+
     @Query("SELECT COUNT(*) FROM ${ClipboardEntry.TABLE_NAME} WHERE deleted=0")
     suspend fun itemCount(): Int
 
@@ -94,6 +97,14 @@ interface ClipboardDao {
         sensitive: Boolean = false,
         source: String = ClipboardEntry.SOURCE_LOCAL
     ): ClipboardEntry?
+
+    @Query(
+        "SELECT * FROM ${ClipboardEntry.TABLE_NAME} " +
+            "WHERE source=:source AND sensitive=:sensitive AND deleted=0 AND type LIKE 'image/%' " +
+            "AND (text LIKE 'content://%' OR text LIKE 'file://%') " +
+            "ORDER BY timestamp DESC LIMIT :limit"
+    )
+    suspend fun recentMediaEntries(source: String, sensitive: Boolean, limit: Int): List<ClipboardEntry>
 
     @Query("SELECT id FROM ${ClipboardEntry.TABLE_NAME} WHERE deleted=0")
     suspend fun findAllIds(): IntArray
