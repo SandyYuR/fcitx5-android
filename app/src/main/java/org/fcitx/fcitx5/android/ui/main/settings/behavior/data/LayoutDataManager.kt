@@ -9,6 +9,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 import org.fcitx.fcitx5.android.input.keyboard.LayoutVariant
@@ -33,6 +35,12 @@ class LayoutDataManager(private val context: Context) {
         private const val LAYOUT_META_HEIGHT_PERCENT_LANDSCAPE_KEY = "keyboard_height_percent_landscape"
         private const val LAYOUT_META_AUX_BAR_KEY = "aux_bar"
     }
+
+    private fun legacySwipeTargetIsUp(): Boolean =
+        LayoutJsonUtils.legacySwipeTargetsUpFromSettings(
+            AppPrefs.getInstance().keyboard.swipeSymbolDirection.getValue(),
+            ThemeManager.prefs.punctuationPosition.getValue()
+        )
 
     /**
      * 所有布局条目
@@ -146,7 +154,10 @@ class LayoutDataManager(private val context: Context) {
             }.toMutableList()
         }
         if (fileHasContent) {
-            LayoutJsonUtils.migrateDirectionalSwipeFields(entries)
+            LayoutJsonUtils.migrateDirectionalSwipeFields(
+                entries,
+                legacyTargetIsUp = legacySwipeTargetIsUp()
+            )
         }
         layoutHeightPercentOverrides.putAll(lastParsedLayoutHeightPercentOverrides)
         layoutHeightPercentOverridesLandscape.putAll(lastParsedLayoutHeightPercentOverridesLandscape)
@@ -216,7 +227,10 @@ class LayoutDataManager(private val context: Context) {
                 row.map { key -> key.toMutableMap() }.toMutableList()
             }.toMutableList()
         }
-        LayoutJsonUtils.migrateDirectionalSwipeFields(entries)
+        LayoutJsonUtils.migrateDirectionalSwipeFields(
+            entries,
+            legacyTargetIsUp = legacySwipeTargetIsUp()
+        )
         layoutHeightPercentOverrides.clear()
         layoutHeightPercentOverrides.putAll(lastParsedLayoutHeightPercentOverrides)
         layoutHeightPercentOverridesLandscape.clear()

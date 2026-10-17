@@ -24,6 +24,8 @@ import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.data.theme.ThemePrefs
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import splitties.views.imageResource
 import kotlinx.serialization.json.*
@@ -82,6 +84,12 @@ class TextKeyboard private constructor(
         private const val LAYOUT_META_HEIGHT_PERCENT_KEY = "keyboard_height_percent"
         private const val LAYOUT_META_HEIGHT_PERCENT_LANDSCAPE_KEY = "keyboard_height_percent_landscape"
         private const val LAYOUT_META_AUX_BAR_KEY = "aux_bar"
+
+        private fun legacySwipeTargetIsUp(): Boolean =
+            LayoutJsonUtils.legacySwipeTargetsUpFromSettings(
+                AppPrefs.getInstance().keyboard.swipeSymbolDirection.getValue(),
+                ThemeManager.prefs.punctuationPosition.getValue()
+            )
         private var lastModified = 0L
 
         /**
@@ -802,13 +810,20 @@ class TextKeyboard private constructor(
             val subModeLabel = currentIme?.subMode?.label.orEmpty()
             val subModeName = currentIme?.subMode?.name.orEmpty()
             val schemaId = schemaIdFromSubModeIcon(currentIme?.subMode?.icon.orEmpty())
+            val legacyTargetIsUp = legacySwipeTargetIsUp()
             return state.auxBarKeys.mapNotNull { keyMap ->
                 runCatching {
                     val jsonObject = JsonObject(
                         keyMap.mapValues { (_, v) -> LayoutJsonUtils.convertToJsonProperty(v) }
                     )
                     val keyJson = LayoutJsonUtils.parseKeyJson(jsonObject) ?: return@runCatching null
-                    LayoutJsonUtils.createKeyDef(keyJson, subModeLabel, schemaId, subModeName)
+                    LayoutJsonUtils.createKeyDef(
+                        keyJson,
+                        subModeLabel,
+                        schemaId,
+                        subModeName,
+                        legacyTargetIsUp
+                    )
                 }.getOrNull()
             }
         }
@@ -968,6 +983,7 @@ class TextKeyboard private constructor(
                 .joinToString(separator = "|")
                 .ifEmpty { "none" }
             val showLangSwitch = AppPrefs.getInstance().keyboard.showLangSwitchKey.getValue()
+            val legacyTargetIsUp = legacySwipeTargetIsUp()
             val variant = state.variant
             val json = textLayoutJson
 
@@ -982,7 +998,7 @@ class TextKeyboard private constructor(
                 if (json != null) {
                     val forcedLayout = findLayoutElementByKey(json, forced)
                     if (forcedLayout != null) {
-                        val cacheKey = "${cacheKeyPrefix()}forced:$forced:${state.variant.name}:$showLangSwitch:$displayTextContextCacheKey"
+                        val cacheKey = "${cacheKeyPrefix()}forced:$forced:${state.variant.name}:$showLangSwitch:$displayTextContextCacheKey:legacyUp=$legacyTargetIsUp"
                         val baseName = forced.substringBefore(':')
                         val forcedSub = forced.substringAfter(':', "")
                         val forcedElement: JsonElement = if (forcedSub.isNotEmpty()) {
@@ -1025,7 +1041,8 @@ class TextKeyboard private constructor(
                                             key = it,
                                             subModeLabel = subModeLabel,
                                             schemaId = schemaId,
-                                            subModeName = ime?.subMode?.name ?: ""
+                                            subModeName = ime?.subMode?.name ?: "",
+                                            legacyTargetIsUp = legacyTargetIsUp
                                         )
                                     }
                             }
@@ -1058,11 +1075,16 @@ class TextKeyboard private constructor(
                             parseLayoutHeightPercentOverride(element)
                         state.auxBarConfig = parseAuxBarConfig(element)
                         state.auxBarKeys = parseAuxBarKeys(element)
-                        val cacheKey = "${cacheKeyPrefix()}pwd:$key:${variant.name}:$showLangSwitch:$lastRawModified"
+                        val cacheKey = "${cacheKeyPrefix()}pwd:$key:${variant.name}:$showLangSwitch:$lastRawModified:legacyUp=$legacyTargetIsUp"
                         return cachedKeyDefLayouts.getOrPut(cacheKey) {
                             rows.map { rowElement ->
                                 LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                    .mapNotNull { LayoutJsonUtils.createKeyDef(it) }
+                                    .mapNotNull {
+                                        LayoutJsonUtils.createKeyDef(
+                                            it,
+                                            legacyTargetIsUp = legacyTargetIsUp
+                                        )
+                                    }
                             }
                         }
                     }
@@ -1115,7 +1137,7 @@ class TextKeyboard private constructor(
                             // Use a cache key that includes submode and showLangSwitch for proper caching
                             // Include showLangSwitch in cache key so layout is re-created when setting changes
                             val cacheSubMode = matchedSubModeKey ?: "default"
-                            val cacheKey = "${cacheKeyPrefix()}$layoutKey:$cacheSubMode:${variant.name}:$showLangSwitch:$displayTextContextCacheKey"
+                            val cacheKey = "${cacheKeyPrefix()}$layoutKey:$cacheSubMode:${variant.name}:$showLangSwitch:$displayTextContextCacheKey:legacyUp=$legacyTargetIsUp"
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
@@ -1124,7 +1146,8 @@ class TextKeyboard private constructor(
                                                 key = it,
                                                 subModeLabel = subModeLabel,
                                                 schemaId = schemaId,
-                                                subModeName = subModeName
+                                                subModeName = subModeName,
+                                                legacyTargetIsUp = legacyTargetIsUp
                                             )
                                         }
                                 }
@@ -1152,11 +1175,16 @@ class TextKeyboard private constructor(
                             .ifEmpty { parseAuxBarKeys(layoutElement) }
                         val layoutArray = parseLayoutArray(rowsElement)
                         if (layoutArray != null) {
-                            val cacheKey = "${cacheKeyPrefix()}default:${variant.name}:$showLangSwitch:$lastRawModified"
+                            val cacheKey = "${cacheKeyPrefix()}default:${variant.name}:$showLangSwitch:$lastRawModified:legacyUp=$legacyTargetIsUp"
                             return cachedKeyDefLayouts.getOrPut(cacheKey) {
                                 layoutArray.map { rowElement ->
                                     LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                        .mapNotNull { LayoutJsonUtils.createKeyDef(it) }
+                                        .mapNotNull {
+                                            LayoutJsonUtils.createKeyDef(
+                                                it,
+                                                legacyTargetIsUp = legacyTargetIsUp
+                                            )
+                                        }
                                 }
                             }
                         }
@@ -1276,6 +1304,14 @@ class TextKeyboard private constructor(
 
     private val showLangSwitchKey = AppPrefs.getInstance().keyboard.showLangSwitchKey
     private val spaceKeyLabelMode = AppPrefs.getInstance().keyboard.spaceKeyLabelMode
+    private val swipeSymbolDirection = AppPrefs.getInstance().keyboard.swipeSymbolDirection
+    private val punctuationPosition = ThemeManager.prefs.punctuationPosition
+
+    private fun refreshLegacySwipeDirections() {
+        cachedKeyDefLayouts.clear()
+        reloadLayout()
+        ensureSpecialKeyViewsInitialized()
+    }
 
     @Keep
     private val showLangSwitchKeyListener = ManagedPreference.OnChangeListener<Boolean> { _, _ ->
@@ -1286,6 +1322,18 @@ class TextKeyboard private constructor(
         // The rows were rebuilt; the cached view lookups no longer refer to this tree.
         ensureSpecialKeyViewsInitialized()
     }
+
+    @Keep
+    private val swipeSymbolDirectionListener =
+        ManagedPreference.OnChangeListener<SwipeSymbolDirection> { _, _ ->
+            refreshLegacySwipeDirections()
+        }
+
+    @Keep
+    private val punctuationPositionListener =
+        ManagedPreference.OnChangeListener<ThemePrefs.PunctuationPosition> { _, _ ->
+            refreshLegacySwipeDirections()
+        }
 
     @Keep
     private val spaceKeyLabelModeListener = ManagedPreference.OnChangeListener<SpaceKeyLabelMode> { _, _ ->
@@ -1482,6 +1530,8 @@ class TextKeyboard private constructor(
             append(forced)
             append('|')
             append(lastRawModified)
+            append('|')
+            append(legacySwipeTargetIsUp())
         }
     }
 
@@ -1560,6 +1610,7 @@ class TextKeyboard private constructor(
             append('|').append(showLangSwitch)
             append('|').append(contextKey)
             append('|').append(lastRawModified)
+            append('|').append(legacySwipeTargetIsUp())
         }
     }
 
@@ -1758,12 +1809,16 @@ class TextKeyboard private constructor(
         registerKeyboard(this)
         showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
         spaceKeyLabelMode.registerOnChangeListener(spaceKeyLabelModeListener)
+        swipeSymbolDirection.registerOnChangeListener(swipeSymbolDirectionListener)
+        punctuationPosition.registerOnChangeListener(punctuationPositionListener)
     }
 
     override fun onDetachedFromWindow() {
         unregisterKeyboard(this)
         showLangSwitchKey.unregisterOnChangeListener(showLangSwitchKeyListener)
         spaceKeyLabelMode.unregisterOnChangeListener(spaceKeyLabelModeListener)
+        swipeSymbolDirection.unregisterOnChangeListener(swipeSymbolDirectionListener)
+        punctuationPosition.unregisterOnChangeListener(punctuationPositionListener)
         super.onDetachedFromWindow()
     }
 
