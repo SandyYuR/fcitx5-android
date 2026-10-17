@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.fcitx.fcitx5.android.common.ClipboardMetadata
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardDao
 import org.fcitx.fcitx5.android.data.clipboard.db.CLIPBOARD_DATABASE_NAME
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardDatabase
@@ -573,6 +574,14 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
 
     override fun onPrimaryClipChanged() {
         val clip = clipboardManager.primaryClip ?: return
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+            clip.description.extras?.getBoolean(ClipboardMetadata.EXTRA_SCREENSHOT_WATCHER) == true
+        ) {
+            // ScreenshotClipboardWatcher already inserted this staged URI into history. Ignore
+            // its system-clipboard notification so it is not staged into a second cache file.
+            return
+        }
         /**
          * skip duplicate ClipData
          * https://developer.android.com/reference/android/content/ClipboardManager.OnPrimaryClipChangedListener#onPrimaryClipChanged()

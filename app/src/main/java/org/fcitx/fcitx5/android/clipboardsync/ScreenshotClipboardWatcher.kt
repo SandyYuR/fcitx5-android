@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.PersistableBundle
 import android.provider.MediaStore
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -23,6 +24,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.fcitx.fcitx5.android.common.ClipboardMetadata
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager as FcitxClipboardManager
 
 class ScreenshotClipboardWatcher(
@@ -53,6 +55,7 @@ class ScreenshotClipboardWatcher(
     private var registered = false
     private var startedAtSeconds = 0L
     private val handledScreenshotKeys = linkedSetOf<String>()
+    private val inFlightScreenshotKeys = mutableSetOf<String>()
     private var handledKeysLoaded = false
     private var pendingQuery = false
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -244,26 +247,40 @@ class ScreenshotClipboardWatcher(
      * there; only setPrimaryClip and the host callback are posted back to the main thread.
      */
     private suspend fun copyScreenshotToClipboard(candidate: ScreenshotCandidate) {
+        if (!tryClaim(candidate.key)) return
         val uri = candidate.uri
-        runCatching {
+        try {
             context.contentResolver.openInputStream(uri)?.close()
             val mimeType = context.contentResolver.getType(uri) ?: "image/*"
-            FcitxClipboardManager.importLocalEntry(
+            val entry = FcitxClipboardManager.importLocalEntry(
                 text = uri.toString(),
                 type = mimeType,
                 timestamp = System.currentTimeMillis(),
                 notifyListeners = true
-            )
+            ) ?: return
+            // Reuse the staged history URI in the system clipboard. Staging the original
+            // MediaStore URI again from ClipboardManager creates a different cache URI and
+            // defeats its normal same-entry deduplication.
+            val clipboardUri = Uri.parse(entry.text)
             markHandled(candidate.key)
             withContext(Dispatchers.Main) {
-                clipboardManager.setPrimaryClip(
-                    ClipData.newUri(context.contentResolver, "Screenshot", uri)
-                )
-                onScreenshotClipboardUri(uri.toString())
+                // Queue the upload and install its echo guard before setPrimaryClip notifies the
+                // sync service's independent clipboard listener.
+                onScreenshotClipboardUri(clipboardUri.toString())
+                val clip = ClipData.newUri(context.contentResolver, "Screenshot", clipboardUri).also {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        it.description.extras = PersistableBundle().apply {
+                            putBoolean(ClipboardMetadata.EXTRA_SCREENSHOT_WATCHER, true)
+                        }
+                    }
+                }
+                clipboardManager.setPrimaryClip(clip)
             }
-            Log.d(TAG, "Copied screenshot URI to clipboard: $uri")
-        }.onFailure {
-            Log.w(TAG, "Failed to copy screenshot URI to clipboard: $uri", it)
+            Log.d(TAG, "Copied screenshot URI to clipboard: $clipboardUri")
+        } catch (error: Exception) {
+            Log.w(TAG, "Failed to copy screenshot URI to clipboard: $uri", error)
+        } finally {
+            releaseClaim(candidate.key)
         }
     }
 
@@ -279,11 +296,21 @@ class ScreenshotClipboardWatcher(
     // change-triggered and periodic paths can overlap. Guard the set and its prefs mirror.
     private fun isHandled(key: String): Boolean = synchronized(handledScreenshotKeys) {
         ensureHandledKeysLoadedLocked()
-        key in handledScreenshotKeys
+        key in handledScreenshotKeys || key in inFlightScreenshotKeys
+    }
+
+    private fun tryClaim(key: String): Boolean = synchronized(handledScreenshotKeys) {
+        ensureHandledKeysLoadedLocked()
+        key !in handledScreenshotKeys && inFlightScreenshotKeys.add(key)
+    }
+
+    private fun releaseClaim(key: String) = synchronized(handledScreenshotKeys) {
+        inFlightScreenshotKeys.remove(key)
     }
 
     private fun markHandled(key: String) = synchronized(handledScreenshotKeys) {
         ensureHandledKeysLoadedLocked()
+        inFlightScreenshotKeys.remove(key)
         handledScreenshotKeys.remove(key)
         handledScreenshotKeys.add(key)
         while (handledScreenshotKeys.size > MAX_HANDLED_SCREENSHOTS) {
