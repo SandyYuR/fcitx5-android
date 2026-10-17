@@ -71,11 +71,73 @@ adb shell run-as io.github.sandyyur.rime.direct cat files/direct-rime-replay.jso
 对照需使用同一模拟器、相同档案与模型、相同预热及输入序列，并校验实际 APK 的 SHA256。
 宿主编译负载、软件模拟和 JIT 都会影响耗时，不能据此承诺真机提升比例。
 
-测量结果和最终构建验证将在完成回放后补入本页。
+## 2026-10-17 对照结果
 
-已完成的构建检查：472 项完整应用 JVM 测试（其中 468 项沿用原项目，4 项验证独立按键与 INI），
-2 项诊断模块 JVM 测试，native AddressSanitizer/UBSan，以及 ARM64/x86_64 APK 依赖与资源校验。
-`aaf403b` 的直连 CI 四项任务全部通过，完整界面设备回归共 6 项；构建任务没有检出 Fcitx Core/addon 源码。
+[完整回放工作流](https://github.com/SandyYuR/fcitx5-android/actions/runs/38985522871)通过。
+同一 GitHub Ubuntu 22.04/KVM 任务、Android 35 `aosp_atd` x86_64 模拟器，
+对照 `a713cccde9d47beaffcbcd3344a8f919c6e50a26` 与
+`c50f767754c7476d594c9ca467fb51ad9421a870` 构建的 APK。
+**基线已经是直连 Rime 完整界面版**；这次测量只比较本轮依赖清理与按键优化，
+不能用于计算从原 Fcitx 引擎切换为直连后的收益。
+
+万象输入循环为 `nihao, zhongguo, shurufa, wode, xingneng, zhongzhou, fangan, zhongwen`，
+预热 20 词后测量 100 词、784 键；微型方案为 100 词、300 键。
+执行顺序为优化前微型、优化前万象、优化后万象、优化后微型。
+两次万象回放均在应用进程的 `/proc/self/maps` 中确认 LTS 模型已映射。
+每组优化前后的 100 条上屏文本逐项相同，上屏事件数量均为 100。
+
+| 方案 | 版本 | P50 / ms | P95 / ms | P99 / ms | 事件总数 |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 微型词库 | 优化前 | 0.490 | 0.786 | 0.913 | 1,300 |
+| 微型词库 | 优化后 | 0.468 | 0.782 | 0.976 | 700 |
+| 万象 + LTS | 优化前 | 9.749 | 13.009 | 25.374 | 3,236 |
+| 万象 + LTS | 优化后 | 9.472 | 13.536 | 25.771 | 1,668 |
+
+万象的状态区、客户端预编辑原本各推送 784 次；内容未变时现在各为 0 次。
+候选和输入面板仍各 784 次，上屏仍为 100 次，总事件量减少约 48.5%。
+P50 略降，P95/P99 略升；**这一轮没有证明按键耗时有稳定提升**。
+这只有一组顺序对照，没有真机显示延迟、冷启动或部署耗时数据；
+也没有足够的分段采样把总耗时归因到 Lua、模型或候选快照。
+
+原始 JSON 与 instrumentation 输出保存在
+[perf/2026-10-17-wanxiang-direct](perf/2026-10-17-wanxiang-direct/)。
+两版使用同一个测试 APK，因此 JSON 的 `harness_commit` 均指测试包构建时的基线提交，
+实际被测应用由 `apk_sha256` 区分。固定输入、模型映射、上屏序列和事件计数均可复核。
+
+| 输入或产物 | SHA256 |
+| --- | --- |
+| 官方万象 v18.1.3 ZIP | `fc6495ba8489a898737ca29883dedaf61ff3baf593c78900dc59102c919d0e63` |
+| 官方 LTS 模型 | `20f968dfe5dc461d23c355b93aa63925d6d36a5fb8f459ccd5c4dcd1cae6e6b9` |
+| 组合测试夹具 ZIP | `b02fc8d87352564ac25f025caeb6e4a474c37a002f1c23f02e14b837a64be34c` |
+| CI 优化前 APK | `51b11598b28d8c17a871a04e8a5b0f2aac1ea0deccda1e9440713e7bcfba4698` |
+| CI 优化后 APK | `f60c75d3650e1c036a01333d7e63e049a05ab542d839a7c16e3763b43165690e` |
+
+来源：[万象 v18.1.3](https://github.com/amzxyz/rime-wanxiang/releases/tag/v18.1.3)、
+[LTS 模型](https://github.com/amzxyz/rime-wanxiang-data/releases/tag/LTS)。
+`tools/input-perf/prepare-wanxiang.py` 校验源文件 SHA256 并生成固定 ZIP；
+这些词库和模型没有加入仓库，也不增加正式 APK 的大小。
+
+## 构建验证与安装包
+
+已完成 472 项完整应用 JVM 测试（其中 468 项沿用原项目，4 项验证独立按键与 INI），
+2 项诊断模块 JVM 测试、native AddressSanitizer/UBSan，以及 ARM64/x86_64 APK 依赖与资源校验。
+完整界面设备回归共 6 项，包含触摸输入、候选操作、密码/会话切换、布局与设置入口、
+方案导入迁移、注释和开关分组，以及固定输入回放。
+[直连 CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/38984375720)
+四项任务全部通过，构建没有检出 Fcitx Core/addon 源码；
+[原构建与 JVM CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/38985525823)
+也通过，保留的旧版构建入口可用。
+
+本次交付的本地 debug APK 构建自 `47155a5099ea1632d68fb0b91eecd0da2b1a0a18`；
+后续提交只改对照工具、工作流与记录，产品代码相同。它们与 CI 自行生成的调试签名区分：
+本地 APK 继续使用之前交付版本的签名，可覆盖安装。
+
+| 本地交付 APK | SHA256 |
+| --- | --- |
+| `zhongzhougoose-decoupled-final-arm64-v8a-debug.apk` | `c593ac9ed5f25ce8f4f475eb42e3efac52facf525f6bf9b5131707cebeb36cbf` |
+| `zhongzhougoose-decoupled-final-x86_64-debug.apk` | `d8078038abe48a700ea3e58f4cff586282cafc465f8c725db9139840ceebae15` |
+
+签名证书 SHA256：`49554e18dbb5c87805b824e09a06db8d994f5e39c904621f17b1248517b9bcd5`。
 
 ## 万象的可选方向
 
