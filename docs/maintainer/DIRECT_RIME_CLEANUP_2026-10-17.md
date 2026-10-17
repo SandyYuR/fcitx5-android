@@ -36,10 +36,12 @@ python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/debug/*.apk
 
 ## 检查方式
 
-`verify-direct-rime-apk.py` 除了检查原生库白名单、ELF 依赖、16 KiB 页与资源清单，
+`verify-direct-rime-apk.py` 除了检查原生库白名单、ELF 依赖、64 位 ABI 的 16 KiB 对齐与资源清单，
 还读取每个 DEX 的 class definitions，拒绝 `Fcitx`、`FcitxDispatcher` 及其内部类。
 这不会把注释、字符串引用或仍在使用的 `FcitxAPI` 等兼容类型误判成旧后端。
 新规则对上轮交付 APK 的负向检查已确认能够检出其中未执行的旧类。
+检查器支持一次核验多个 ABI 的 APK；ARMv7/x86 按 Android 的 32 位要求检查 4 KiB，
+避免把 NDK 自带 32 位 C++ 运行库误判为 16 KiB 不兼容。64 位要求保持 16 KiB。
 
 本地验证使用普通构建命令（不传直连开关），产品代码提交为 `a49eb9b8`：
 

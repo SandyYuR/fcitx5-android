@@ -42,7 +42,10 @@ def dependencies(data):
         off, addr, length = (fields[2], fields[3], fields[5]) if wide else (fields[1], fields[2], fields[4])
         if kind == 1:
             loads.append((addr, off, length))
-            assert fields[7] >= 16384, "Library does not support 16 KiB pages"
+            # Android's 16 KiB requirement applies to 64-bit ABIs. The NDK's
+            # ARMv7/x86 C++ runtimes correctly retain 4 KiB alignment.
+            required_alignment = 16384 if wide else 4096
+            assert fields[7] >= required_alignment, f"ELF load alignment is below {required_alignment} bytes"
         if kind == 2:
             dynamic = (off, length)
     assert dynamic is not None, "No dynamic section"
@@ -82,6 +85,7 @@ def verify(path):
         assert not legacy, f"Unused legacy backend classes remain: {legacy}"
         libs = sorted(n for n in names if n.startswith("lib/") and n.endswith(".so"))
         assert libs, "APK has no native engine"
+        alignments = {n.split('/')[1]: 16384 if n.split('/')[1] in {"arm64-v8a", "x86_64"} else 4096 for n in libs}
         for abi in {n.split('/')[1] for n in libs}:
             packaged = {n.split('/')[2] for n in libs if n.split('/')[1] == abi}
             assert packaged == allowed, f"Unexpected {abi} libraries: {packaged}"
@@ -94,7 +98,8 @@ def verify(path):
             if digest:
                 assert f"assets/{name}" in names, f"Descriptor refers to missing asset: {name}"
     print(json.dumps({"apk": str(path), "native_libraries": libs, "fcitx_dependencies": [],
-                      "legacy_backend_classes": legacy, "dex_files_checked": len(dex_files), "page_size": 16384}))
+                      "legacy_backend_classes": legacy, "dex_files_checked": len(dex_files),
+                      "page_size": max(alignments.values()), "required_alignment_by_abi": alignments}))
 
 
 if __name__ == "__main__":
