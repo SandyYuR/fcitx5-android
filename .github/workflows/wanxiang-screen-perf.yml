@@ -1,0 +1,65 @@
+name: Wanxiang touch and screen comparison
+on:
+  workflow_dispatch:
+    inputs:
+      pilot:
+        description: Short calibration run only
+        type: boolean
+        default: false
+  push:
+    branches: [feat/direct-rime-prototype]
+    paths: ['tools/screen-perf/**', '.github/workflows/wanxiang-screen-perf.yml']
+permissions:
+  contents: read
+concurrency:
+  group: wanxiang-screen-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build independently pinned products and neutral editor
+        run: |
+          bash tools/screen-perf/build-products.sh "$RUNNER_TEMP/screen-apks"
+          bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/screen-host"
+          python3 tools/screen-perf/prepare.py "$RUNNER_TEMP/screen-wanxiang.zip"
+          mkdir -p build/screen-comparison
+          cp "$RUNNER_TEMP/screen-wanxiang.manifest.json" "$RUNNER_TEMP/screen-apks/apk-sha256.txt" build/screen-comparison/
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -cores 2 -memory 3072 -camera-back none -camera-front none
+          disable-animations: true
+          script: python3 tools/screen-perf/run.py --apks "$RUNNER_TEMP/screen-apks" --fixture "$RUNNER_TEMP/screen-wanxiang.zip" --host "$RUNNER_TEMP/screen-host/host.apk" --output build/screen-comparison ${{ (github.event_name == 'push' || inputs.pilot == true) && '--pilot' || '' }}
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: wanxiang-touch-screen-comparison
+          path: build/screen-comparison/
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screen-comparison-apks
+          path: ${{ runner.temp }}/screen-apks/
+          retention-days: 3
