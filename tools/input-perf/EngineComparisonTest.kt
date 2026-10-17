@@ -93,6 +93,9 @@ class EngineComparisonTest {
         var created = false
         try {
             connection.runOnReady {
+                // Direct profile changes create their session immediately. Set the same
+                // client application before either backend creates that session.
+                activate(31001, "perf.replay")
                 previous = profileState()["Current"].value
                 setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "create"), RawConfig("Name", profile))))
                 val state = profileState()
@@ -106,7 +109,6 @@ class EngineComparisonTest {
                 setImConfig("rime", RawConfig(arrayOf(RawConfig("PreeditMode", "No"))))
                 setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "switch"), RawConfig("Name", profile))))
                 check(profileState()["Current"].value == profile)
-                activate(31001, "perf.replay")
                 setCapFlags(CapabilityFlags.DefaultFlags)
                 setCandidatePagingMode(1)
                 activateIme("rime")
