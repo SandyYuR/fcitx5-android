@@ -9,12 +9,14 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
+import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
+import java.security.MessageDigest
 import java.util.Locale
 
 data class ClipboardSharedContent(
@@ -27,6 +29,16 @@ data class ClipboardSourceDeletionTarget(
     val rootUri: String
 )
 
+data class ClipboardUriMetadata(
+    val displayName: String,
+    val sizeBytes: Long?
+)
+
+data class ClipboardUriFingerprint(
+    val sizeBytes: Long,
+    val sha256: String
+)
+
 object ClipboardUriStore {
     private const val CACHE_DIR = "clipboard_shared"
     private const val FILE_PROVIDER_SUFFIX = ".fileprovider"
@@ -34,6 +46,10 @@ object ClipboardUriStore {
     private const val EXTERNAL_STORAGE_AUTHORITY = "com.android.externalstorage.documents"
     private const val OPEN_RETRY_COUNT = 5
     private const val OPEN_RETRY_DELAY_MS = 120L
+    private const val MAX_FINGERPRINT_BYTES = 64L * 1024 * 1024
+    private const val FINGERPRINT_BUFFER_SIZE = 8 * 1024
+    private const val HEX_DIGITS = "0123456789abcdef"
+    private const val DATA_COLUMN = "_data"
 
     /** How many staged clipboard files to keep. */
     private const val MAX_CACHED_FILES = 32
@@ -82,6 +98,88 @@ object ClipboardUriStore {
         return stageForCommit(context, raw)?.uri?.toString() ?: raw
     }
 
+    /** Compare URI aliases that resolve to one canonical provider URI, document ID, or file path. */
+    fun refersToSameFile(context: Context, first: Uri, second: Uri): Boolean {
+        if (first.normalizeScheme() == second.normalizeScheme()) return true
+
+        val firstCanonical = runCatching { context.contentResolver.canonicalize(first) }.getOrNull()
+        val secondCanonical = runCatching { context.contentResolver.canonicalize(second) }.getOrNull()
+        if (firstCanonical != null && secondCanonical != null && firstCanonical == secondCanonical) return true
+
+        val firstDocument = documentIdentity(context, first)
+        val secondDocument = documentIdentity(context, second)
+        if (firstDocument != null && firstDocument == secondDocument) return true
+
+        val firstPath = resolveUnderlyingFile(context, first)?.let { runCatching { it.canonicalPath }.getOrNull() }
+        val secondPath = resolveUnderlyingFile(context, second)?.let { runCatching { it.canonicalPath }.getOrNull() }
+        return firstPath != null && secondPath != null && firstPath == secondPath
+    }
+
+    /** Cheap name/size lookup used to avoid hashing unrelated recent media entries. */
+    fun queryMetadata(context: Context, uri: Uri): ClipboardUriMetadata? {
+        var displayName: String? = null
+        var sizeBytes: Long? = null
+        runCatching {
+            context.contentResolver.query(
+                uri,
+                arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex >= 0) displayName = cursor.getString(nameIndex)
+                    val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                    if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) {
+                        sizeBytes = cursor.getLong(sizeIndex).takeIf { it >= 0L }
+                    }
+                }
+            }
+        }
+        val file = resolveUnderlyingFile(context, uri)
+        val name = displayName
+            ?.substringAfterLast('/')
+            ?.substringAfterLast('\\')
+            ?.takeIf { it.isNotBlank() }
+            ?: file?.name
+            ?: uri.lastPathSegment?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
+            ?: return null
+        if (sizeBytes == null) sizeBytes = file?.takeIf { it.exists() }?.length()
+        return ClipboardUriMetadata(name, sizeBytes)
+    }
+
+    /** Stream a bounded SHA-256 fingerprint when URI aliases cannot be resolved directly. */
+    suspend fun fingerprint(context: Context, uri: Uri): ClipboardUriFingerprint? {
+        queryMetadata(context, uri)?.sizeBytes?.let { size ->
+            if (size > MAX_FINGERPRINT_BYTES) return null
+        }
+        val input = openInputStreamWithRetry(context, uri) ?: return null
+        return try {
+            val digest = MessageDigest.getInstance("SHA-256")
+            val buffer = ByteArray(FINGERPRINT_BUFFER_SIZE)
+            var total = 0L
+            input.use { stream ->
+                while (true) {
+                    val read = stream.read(buffer)
+                    if (read <= 0) break
+                    total += read
+                    if (total > MAX_FINGERPRINT_BYTES) return null
+                    digest.update(buffer, 0, read)
+                }
+            }
+            ClipboardUriFingerprint(total, digest.digest().toHexString())
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun normalizedDisplayName(name: String): String = name
+        .substringAfterLast('/')
+        .substringAfterLast('\\')
+        .replaceFirst(Regex("^\\d{10,}-"), "")
+        .lowercase(Locale.ROOT)
+
     fun originalClipboardTextOrEmpty(raw: String, normalized: String): String {
         return if (raw != normalized && raw.toClipboardUriOrNull() != null) raw else ""
     }
@@ -117,6 +215,60 @@ object ClipboardUriStore {
 
     private fun cacheRoot(context: Context): File {
         return File(context.cacheDir, CACHE_DIR).apply { mkdirs() }
+    }
+
+    private fun documentIdentity(context: Context, uri: Uri): String? {
+        if (uri.scheme != ContentResolver.SCHEME_CONTENT) return null
+        return runCatching {
+            if (DocumentsContract.isDocumentUri(context, uri)) {
+                "${uri.authority}:${DocumentsContract.getDocumentId(uri)}"
+            } else {
+                null
+            }
+        }.getOrNull()
+    }
+
+    private fun resolveUnderlyingFile(context: Context, uri: Uri): File? {
+        return when (uri.scheme?.lowercase(Locale.ROOT)) {
+            ContentResolver.SCHEME_FILE -> uri.path?.let(::File)
+            ContentResolver.SCHEME_CONTENT -> {
+                when {
+                    uri.authority == context.packageName + FILE_PROVIDER_SUFFIX &&
+                        uri.pathSegments.firstOrNull() == CACHE_DIR -> {
+                        uri.pathSegments.getOrNull(1)?.let { File(cacheRoot(context), it) }
+                    }
+                    uri.authority == EXTERNAL_STORAGE_AUTHORITY -> resolveExternalStorageFile(uri)
+                    else -> runCatching {
+                        context.contentResolver.query(
+                            uri,
+                            arrayOf(DATA_COLUMN),
+                            null,
+                            null,
+                            null
+                        )?.use { cursor ->
+                            if (cursor.moveToFirst()) {
+                                val index = cursor.getColumnIndex(DATA_COLUMN)
+                                if (index >= 0) cursor.getString(index)?.takeIf { it.isNotBlank() }?.let(::File)
+                                else null
+                            } else {
+                                null
+                            }
+                        }
+                    }.getOrNull()
+                }
+            }
+            else -> null
+        }
+    }
+
+    private fun ByteArray.toHexString(): String {
+        val chars = CharArray(size * 2)
+        for (index in indices) {
+            val value = this[index].toInt() and 0xFF
+            chars[index * 2] = HEX_DIGITS[value ushr 4]
+            chars[index * 2 + 1] = HEX_DIGITS[value and 0x0F]
+        }
+        return String(chars)
     }
 
     /**

@@ -270,7 +270,7 @@ class ScreenshotClipboardWatcher(
                 val clip = ClipData.newUri(context.contentResolver, "Screenshot", clipboardUri).also {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         it.description.extras = PersistableBundle().apply {
-                            putBoolean(ClipboardMetadata.EXTRA_SCREENSHOT_WATCHER, true)
+                            putBoolean(ClipboardMetadata.EXTRA_ENTRY_ALREADY_IMPORTED, true)
                         }
                     }
                 }

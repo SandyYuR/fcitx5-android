@@ -947,15 +947,19 @@ class MainService : Service() {
             // and still uses only the newest item.
             val itemsToImport = acceptedItems
             var importedAll = true
-            itemsToImport.forEach { data ->
+            var latestItemAlreadyInHistory = false
+            itemsToImport.forEachIndexed { index, data ->
                 val remoteText = data.text
                 Log.d(TAG, "[Pull] Processed data: type=${data.type}, text=$remoteText")
                 acknowledgePendingUploads(remoteText)
                 if (shouldSkipRemoteImportForLocalEcho(data, remoteText)) {
                     Log.d(TAG, "[Pull] Skipping echoed local clipboard item in remote history")
-                    return@forEach
+                    if (index == itemsToImport.lastIndex) latestItemAlreadyInHistory = true
+                    return@forEachIndexed
                 }
-                importedAll = importRemoteClipboardEntry(data, downloadUri) && importedAll
+                val imported = importRemoteClipboardEntry(data, downloadUri)
+                if (index == itemsToImport.lastIndex) latestItemAlreadyInHistory = imported
+                importedAll = imported && importedAll
             }
 
             if (endpoint.backend == ServerBackend.SYNCCLIPBOARD && !importedAll) {
@@ -983,7 +987,11 @@ class MainService : Service() {
                     if (latestItem.type.equals("Text", ignoreCase = true)) {
                         updateSystemClipboard(remoteText)
                     } else {
-                        updateSystemClipboardWithUri(Uri.parse(remoteText), downloadUri)
+                        updateSystemClipboardWithUri(
+                            Uri.parse(remoteText),
+                            downloadUri,
+                            historyEntryAlreadyPresent = latestItemAlreadyInHistory
+                        )
                     }
                 }
             }
@@ -1049,7 +1057,7 @@ class MainService : Service() {
     private fun updateSystemClipboard(text: String) {
         try {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("SyncClipboard", text).also(::markRemoteClip)
+            val clip = ClipData.newPlainText("SyncClipboard", text).also { markRemoteClip(it) }
             clipboard.setPrimaryClip(clip)
             Log.d(TAG, "[Pull] System clipboard updated (Text)")
         } catch (e: Exception) {
@@ -1057,12 +1065,16 @@ class MainService : Service() {
         }
     }
 
-    private fun updateSystemClipboardWithUri(uri: Uri, rootUri: Uri? = null) {
+    private fun updateSystemClipboardWithUri(
+        uri: Uri,
+        rootUri: Uri? = null,
+        historyEntryAlreadyPresent: Boolean = false
+    ) {
         try {
             grantRemoteClipboardPermissions(uri.toString(), rootUri)
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newUri(contentResolver, "SyncClipboard", uri).also {
-                markRemoteClip(it, rootUri)
+                markRemoteClip(it, rootUri, historyEntryAlreadyPresent)
             }
             clipboard.setPrimaryClip(clip)
             Log.d(TAG, "[Pull] System clipboard updated with URI: $uri")
@@ -1071,10 +1083,17 @@ class MainService : Service() {
         }
     }
 
-    private fun markRemoteClip(clip: ClipData, rootUri: Uri? = null) {
+    private fun markRemoteClip(
+        clip: ClipData,
+        rootUri: Uri? = null,
+        historyEntryAlreadyPresent: Boolean = false
+    ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return
         clip.description.extras = PersistableBundle().apply {
             putString(ClipboardMetadata.EXTRA_SOURCE, ClipboardMetadata.SOURCE_REMOTE)
+            if (historyEntryAlreadyPresent) {
+                putBoolean(ClipboardMetadata.EXTRA_ENTRY_ALREADY_IMPORTED, true)
+            }
             rootUri?.toString()?.takeIf { it.isNotBlank() }?.let {
                 putString(ClipboardMetadata.EXTRA_REMOTE_ROOT_URI, it)
             }

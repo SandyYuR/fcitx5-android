@@ -12,6 +12,7 @@ import android.provider.DocumentsContract
 import androidx.annotation.Keep
 import androidx.room.Room
 import androidx.room.withTransaction
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,10 +29,11 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.utils.ClipboardSourceDeletionTarget
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore
+import org.fcitx.fcitx5.android.utils.ClipboardUriFingerprint
+import org.fcitx.fcitx5.android.utils.ClipboardUriMetadata
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore.deleteClipboardSourceFile
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore.normalizeClipboardText
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore.originalClipboardTextOrEmpty
-import org.fcitx.fcitx5.android.utils.ClipboardUriStore.stageForCommit
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore.toClipboardUriOrNull
 import org.fcitx.fcitx5.android.utils.WeakHashSet
 import org.fcitx.fcitx5.android.utils.appContext
@@ -52,6 +54,8 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
      * and bounded regardless of how large the history grows.
      */
     private const val SEARCH_LIMIT = 200
+    private const val MEDIA_DEDUP_CANDIDATE_LIMIT = 32
+    private const val URI_ALIAS_CANDIDATE_LIMIT = 8
 
     fun interface OnClipboardUpdateListener {
         fun onUpdate(entry: ClipboardEntry)
@@ -136,7 +140,10 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
                             normalizeClipboardText(appContext, "file://$filePath")
                         }
                         if (stagedFromPath != entry.text && !stagedFromPath.startsWith("content://com.android.externalstorage")) {
-                            return entry.copy(text = stagedFromPath)
+                            return entry.copy(
+                                text = stagedFromPath,
+                                originalText = entry.originalText.ifEmpty { entry.text }
+                            )
                         }
                     }
                 }
@@ -144,7 +151,7 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
                 entry
             } else {
                 // Staging succeeded, use FileProvider URI
-                entry.copy(text = staged)
+                entry.copy(text = staged, originalText = entry.originalText.ifEmpty { entry.text })
             }
         }
         val normalizedText = withContext(Dispatchers.IO) { normalizeClipboardText(appContext, entry.text) }
@@ -193,6 +200,34 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         entry: ClipboardEntry,
         notifyListeners: Boolean
     ): ClipboardEntry {
+        val equivalentEntry = try {
+            findEquivalentRecentMediaEntry(entry)
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            Timber.w("Failed to compare clipboard image with recent entries")
+            null
+        }
+        equivalentEntry?.let { existing ->
+            val sourceUri = entry.originalText.toClipboardUriOrNull()?.toString()
+                ?: entry.text.toClipboardUriOrNull()?.toString().orEmpty()
+            val updated = existing.copy(
+                timestamp = entry.timestamp,
+                originalText = existing.originalText.ifEmpty { sourceUri }
+            )
+            try {
+                clbDao.updateTime(existing.id, entry.timestamp)
+                if (updated.originalText != existing.originalText) {
+                    clbDao.updateOriginalTextIfEmpty(existing.id, sourceUri)
+                }
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                Timber.w("Failed to update matching clipboard image")
+            }
+            if (notifyListeners) updateLastEntry(updated)
+            return updated
+        }
         val normalizedEntry = normalizeEntry(entry)
         if (normalizedEntry.text.isBlank()) return normalizedEntry
         return try {
@@ -227,6 +262,80 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
                 updateLastEntry(normalizedEntry)
             }
             normalizedEntry
+        }
+    }
+
+    /**
+     * Find a recent image whose original URI or content identifies the same file. URI and path
+     * checks cover aliases exposed by one provider; a bounded hash covers copied/staged URIs.
+     */
+    private suspend fun findEquivalentRecentMediaEntry(entry: ClipboardEntry): ClipboardEntry? {
+        if (!entry.type.startsWith("image/") || !entry.isUriEntry()) return null
+        val incomingIdentityText = entry.originalText.toClipboardUriOrNull()?.toString() ?: entry.text
+        val incomingIdentityUri = incomingIdentityText.toClipboardUriOrNull() ?: return null
+        val recentEntries = try {
+            clbDao.recentMediaEntries(entry.source, entry.sensitive, MEDIA_DEDUP_CANDIDATE_LIMIT)
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (_: Exception) {
+            return null
+        }
+        if (recentEntries.isEmpty()) return null
+
+        return withContext(Dispatchers.IO) {
+            for (existing in recentEntries) {
+                val existingIdentityUri = existing.originalText.toClipboardUriOrNull()
+                    ?: existing.text.toClipboardUriOrNull()
+                    ?: continue
+                if (incomingIdentityUri.normalizeScheme() == existingIdentityUri.normalizeScheme()) {
+                    return@withContext existing
+                }
+            }
+
+            // Provider canonicalization and path resolution can query the content provider.
+            // Check only the most recent rows directly; older staged copies are covered by the
+            // cheap metadata plus fingerprint fallback below.
+            for (existing in recentEntries.take(URI_ALIAS_CANDIDATE_LIMIT)) {
+                val existingIdentityUri = existing.originalText.toClipboardUriOrNull()
+                    ?: existing.text.toClipboardUriOrNull()
+                    ?: continue
+                val existingContentUri = existing.text.toClipboardUriOrNull() ?: existingIdentityUri
+                if (
+                    ClipboardUriStore.refersToSameFile(appContext, incomingIdentityUri, existingIdentityUri) ||
+                    ClipboardUriStore.refersToSameFile(appContext, incomingIdentityUri, existingContentUri)
+                ) {
+                    return@withContext existing
+                }
+            }
+
+            val incomingMetadata = ClipboardUriStore.queryMetadata(appContext, incomingIdentityUri)
+                ?: return@withContext null
+            var incomingFingerprint: ClipboardUriFingerprint? = null
+            var incomingFingerprintChecked = false
+            for (existing in recentEntries) {
+                val existingIdentityUri = existing.originalText.toClipboardUriOrNull()
+                    ?: existing.text.toClipboardUriOrNull()
+                    ?: continue
+                val existingContentUri = existing.text.toClipboardUriOrNull() ?: existingIdentityUri
+                val existingMetadata = ClipboardUriStore.queryMetadata(appContext, existingContentUri) ?: continue
+                if (
+                    ClipboardUriStore.normalizedDisplayName(incomingMetadata.displayName) !=
+                    ClipboardUriStore.normalizedDisplayName(existingMetadata.displayName)
+                ) continue
+                if (
+                    incomingMetadata.sizeBytes != null && existingMetadata.sizeBytes != null &&
+                    incomingMetadata.sizeBytes != existingMetadata.sizeBytes
+                ) continue
+
+                if (!incomingFingerprintChecked) {
+                    incomingFingerprint = ClipboardUriStore.fingerprint(appContext, incomingIdentityUri)
+                    incomingFingerprintChecked = true
+                }
+                val candidateFingerprint = incomingFingerprint ?: continue
+                val existingFingerprint = ClipboardUriStore.fingerprint(appContext, existingContentUri) ?: continue
+                if (candidateFingerprint == existingFingerprint) return@withContext existing
+            }
+            null
         }
     }
 
@@ -576,10 +685,13 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         val clip = clipboardManager.primaryClip ?: return
         if (
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
-            clip.description.extras?.getBoolean(ClipboardMetadata.EXTRA_SCREENSHOT_WATCHER) == true
+            (
+                clip.description.extras?.getBoolean(ClipboardMetadata.EXTRA_ENTRY_ALREADY_IMPORTED) == true ||
+                    clip.description.extras?.getBoolean(ClipboardMetadata.EXTRA_SCREENSHOT_WATCHER) == true
+                )
         ) {
-            // ScreenshotClipboardWatcher already inserted this staged URI into history. Ignore
-            // its system-clipboard notification so it is not staged into a second cache file.
+            // The producer already inserted this media URI into history. Ignore its system-
+            // clipboard notification so it is not staged into a second cache file.
             return
         }
         /**
@@ -600,25 +712,7 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         launch {
             mutex.withLock {
                 val entry = ClipboardEntry.fromClipData(clip, transformer) ?: return@withLock
-                // For URI entries (clipboard images), try to stage the content immediately
-                // while we have clipboard permission, so we have a local copy
-                var finalEntry = entry
-                if (entry.isUriEntry() && entry.type.startsWith("image/")) {
-                    // IO: this copies the entire image while holding the clipboard lock; on
-                    // the Default dispatcher it kept every other clipboard operation waiting.
-                    val staged = withContext(Dispatchers.IO) {
-                        stageForCommit(appContext, entry.text.toClipboardUriOrNull()!!)
-                    }
-                    if (staged != null) {
-                        finalEntry = entry.copy(text = staged.uri.toString())
-                        Timber.d("Staged clipboard image to local file: ${staged.uri}")
-                    } else {
-                        // 只记长度：Timber.w 在 release 经 ConciseTree 仍会输出（只丢弃 < INFO），
-                        // 剪贴板原文属 AGENTS.md §8.5 禁止进入日志的内容。
-                        Timber.w("Failed to stage clipboard image URI, text length=${entry.text.length}")
-                    }
-                }
-                insertOrUpdateEntry(finalEntry, notifyListeners = true)
+                insertOrUpdateEntry(entry, notifyListeners = true)
             }
         }
     }
