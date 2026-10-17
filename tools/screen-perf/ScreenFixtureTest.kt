@@ -145,6 +145,11 @@ class ScreenFixtureTest {
             delay(1500)
             connection.runOnReady {
                 // Set after the real editor has created its input session.
+                // Android 34+ first binding can select the manifest's Latin subtype.
+                activateIme("rime"); focus(true)
+            }
+            withTimeout(30_000) { while (connection.runOnReady { currentIme().subMode.icon } != "fcitx-rime:wanxiang") delay(100) }
+            connection.runOnReady {
                 // User requested context reorder ON; their YAML lacks its saved option.
                 val action = statusArea().firstOrNull { it.shortText.startsWith("上下文关") }
                 if (action != null) activateAction(action.id)

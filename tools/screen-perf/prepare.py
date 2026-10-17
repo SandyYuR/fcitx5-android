@@ -24,3 +24,4 @@ with zipfile.ZipFile(output, 'a') as archive:
 manifest = {'sources': fixture.SOURCES, 'model_asset_id': 650124920, 'model_updated_at': '2026-10-17T09:59:19Z',
             'config_sha256': {p.name: fixture.checksum(p) for p in (here / 'config').glob('*.yaml')}, 'fixture_sha256': fixture.checksum(output)}
 output.with_suffix('.manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
+print('User-config fixture sha256:' + manifest['fixture_sha256'])
