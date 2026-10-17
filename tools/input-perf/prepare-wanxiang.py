@@ -2,6 +2,7 @@
 """Build a reproducible Wanxiang v18.1.3 + LTS fixture, without shipping it in an APK."""
 import argparse
 import hashlib
+import json
 import shutil
 import urllib.request
 import zipfile
@@ -27,6 +28,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('output', type=Path)
     parser.add_argument('--cache', type=Path, default=Path('build/wanxiang-source'))
+    parser.add_argument('--preset', choices=('upstream-default', 'user-full-pinyin'), default='upstream-default',
+                        help='user-full-pinyin enables context reorder, abbreviations and the small charset')
     args = parser.parse_args()
     args.cache.mkdir(parents=True, exist_ok=True)
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -47,6 +50,19 @@ def main():
         entry = zipfile.ZipInfo(SOURCES[1][0], (2026, 10, 16, 0, 0, 0))
         with (args.cache / SOURCES[1][0]).open('rb') as contents, out.open(entry, 'w') as target:
             shutil.copyfileobj(contents, target, 1024 * 1024)
+        if args.preset == 'user-full-pinyin':
+            # This exact upstream schema is checksum-pinned above. Keep spelling, dictionaries,
+            # comments and all other features intact; override only the requested switches.
+            assert 'wanxiang.custom.yaml' not in source.namelist()
+            schema = source.read('wanxiang.schema.yaml').decode('utf-8-sig')
+            for name in ('context_reorder', 'abbrev', 'charset_filter'):
+                assert '  - name: ' + name in schema
+            switches = [line.strip()[2:].strip() for line in schema.split('switches:\n', 1)[1].split('\nengine:', 1)[0].splitlines()
+                        if line.startswith('  - ')]
+            patch = {'patch': {'switches/@' + str(switches.index('name: ' + name)) + '/reset': 1
+                               for name in ('context_reorder', 'abbrev', 'charset_filter')}}
+            entry = zipfile.ZipInfo('wanxiang.custom.yaml', (2026, 10, 16, 0, 0, 0))
+            out.writestr(entry, json.dumps(patch, ensure_ascii=False, indent=2).encode('utf-8'))
     print(str(args.output) + ' sha256:' + checksum(args.output))
 
 

@@ -28,6 +28,7 @@ def main():
     parser.add_argument('--wanxiang', type=Path, required=True)
     parser.add_argument('--output', type=Path, default=Path('build/engine-comparison'))
     parser.add_argument('--profile', action='store_true', help='Capture one extra direct run, outside the timing comparison')
+    parser.add_argument('--preset', choices=('upstream-default', 'user-full-pinyin'), default='upstream-default')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     sdk = Path(os.environ.get('ANDROID_HOME', os.environ.get('ANDROID_SDK_ROOT', '')))
@@ -70,6 +71,7 @@ def main():
             run = subprocess.run(['adb', 'shell', 'am', 'instrument', '-w', '-r',
                 '-e', 'class', 'org.fcitx.fcitx5.android.core.EngineComparisonTest#wanxiangReplay',
                 '-e', 'backend', backend, '-e', 'round', round_name,
+                '-e', 'fixturePreset', args.preset,
                 package + '.test/androidx.test.runner.AndroidJUnitRunner'],
                 stdout=log, stderr=subprocess.STDOUT, timeout=1200)
         output = (args.output / (label + '-instrumentation.txt')).read_text()
@@ -98,6 +100,7 @@ def main():
         'order': [f"{item['round']}-{item['backend']}" for item in results],
         'identical_commits': True, 'identical_candidate_texts': True,
         'harness_sha256': harness_hash, 'fixture_sha256': fixture_hash,
+        'fixture_preset': args.preset,
         'apk_sha256': hashes, 'packaged_native_libraries': libraries,
         'metrics': {backend: [{
             'round': r['round'], 'wall_ms': r['wall_ms'], 'process_cpu_ms': r['process_cpu_ms'],

@@ -2,7 +2,7 @@ name: Wanxiang Fcitx versus direct comparison
 on:
   workflow_dispatch:
   push:
-    branches: [perf/fcitx-vs-direct-20261017]
+    branches: [perf/fcitx-vs-direct-20261017, perf/fcitx-vs-direct-user-20261017]
 permissions:
   contents: read
 concurrency:
@@ -60,10 +60,30 @@ jobs:
           cp app/build/outputs/apk/fx/debug/*.apk "$RUNNER_TEMP/direct-current.apk"
           cp app/build/outputs/apk/androidTest/fx/debug/*.apk "$RUNNER_TEMP/direct-current-tests.apk"
           python3 tools/verify-direct-rime-apk.py "$RUNNER_TEMP/direct-current.apk"
-          python3 tools/input-perf/prepare-wanxiang.py "$RUNNER_TEMP/wanxiang-perf.zip"
+          python3 tools/input-perf/prepare-wanxiang.py "$RUNNER_TEMP/wanxiang-perf.zip" --preset user-full-pinyin
           ./gradlew --stop
           compiler_pids=$(jps -l | awk '$2 == "org.jetbrains.kotlin.daemon.KotlinCompileDaemon" {print $1}')
           if [ -n "$compiler_pids" ]; then kill $compiler_pids; fi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: comparison-fcitx-apk
+          path: ${{ runner.temp }}/fcitx-default.apk
+          retention-days: 3
+      - uses: actions/upload-artifact@v7
+        with:
+          name: comparison-fcitx-tests
+          path: ${{ runner.temp }}/fcitx-default-tests.apk
+          retention-days: 3
+      - uses: actions/upload-artifact@v7
+        with:
+          name: comparison-direct-apk
+          path: ${{ runner.temp }}/direct-current.apk
+          retention-days: 3
+      - uses: actions/upload-artifact@v7
+        with:
+          name: comparison-direct-tests
+          path: ${{ runner.temp }}/direct-current-tests.apk
+          retention-days: 3
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -75,7 +95,7 @@ jobs:
           target: aosp_atd
           arch: x86_64
           disable-animations: true
-          script: python3 tools/input-perf/compare-engines.py "$RUNNER_TEMP/fcitx-default.apk" "$RUNNER_TEMP/fcitx-default-tests.apk" "$RUNNER_TEMP/direct-current.apk" "$RUNNER_TEMP/direct-current-tests.apk" --wanxiang "$RUNNER_TEMP/wanxiang-perf.zip" --output build/engine-comparison --profile
+          script: python3 tools/input-perf/compare-engines.py "$RUNNER_TEMP/fcitx-default.apk" "$RUNNER_TEMP/fcitx-default-tests.apk" "$RUNNER_TEMP/direct-current.apk" "$RUNNER_TEMP/direct-current-tests.apk" --wanxiang "$RUNNER_TEMP/wanxiang-perf.zip" --preset user-full-pinyin --output build/engine-comparison --profile
       - uses: actions/upload-artifact@v7
         if: always()
         with:

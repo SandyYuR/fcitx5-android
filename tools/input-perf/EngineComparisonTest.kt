@@ -116,6 +116,12 @@ class EngineComparisonTest {
             withTimeout(180_000) {
                 while (connection.runOnReady { focus(true); currentIme().subMode.icon } != "fcitx-rime:wanxiang") delay(100)
             }
+            val switchLabels = connection.runOnReady { statusArea().map { it.shortText } }
+            if (arguments.getString("fixturePreset") == "user-full-pinyin") {
+                for (label in listOf("上下文开", "简码开", "小字集")) {
+                    assertTrue("Requested switch must be active: $label; $switchLabels", switchLabels.any { it.startsWith(label) })
+                }
+            }
             val collector = scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 connection.runImmediately { eventFlow }.collect { event ->
                     val at = System.nanoTime()
@@ -192,6 +198,8 @@ class EngineComparisonTest {
             val result = JSONObject().apply {
                 put("backend", backend); put("app_commit", BuildConfig.BUILD_GIT_HASH)
                 put("package", context.packageName); put("round", arguments.getString("round"))
+                put("fixture_preset", arguments.getString("fixturePreset") ?: "upstream-default")
+                put("switch_labels", JSONArray(switchLabels))
                 put("metric", "API call to candidate/commit event observed by the same collector; excludes touch handling and display rendering")
                 put("warmup_words", 20); put("words", 100); put("keys", keyReturn.size)
                 put("inputs", JSONArray(inputs)); put("commits", JSONArray(output))
