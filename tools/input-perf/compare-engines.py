@@ -28,6 +28,7 @@ def main():
     parser.add_argument('--wanxiang', type=Path, required=True)
     parser.add_argument('--output', type=Path, default=Path('build/engine-comparison'))
     parser.add_argument('--profile', action='store_true', help='Capture one extra direct run, outside the timing comparison')
+    parser.add_argument('--profile-only', action='store_true', help='Reuse fixed APKs and collect only the extra direct trace')
     parser.add_argument('--preset', choices=('upstream-default', 'user-full-pinyin'), default='upstream-default')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -90,13 +91,16 @@ def main():
     # Three fresh-profile runs per backend, with order reversal to expose warm/host drift.
     results = []
     for round_name, order in [('round1', ['fcitx', 'direct']), ('round2', ['direct', 'fcitx']), ('round3', ['fcitx', 'direct'])]:
+        if args.profile_only:
+            break
         for backend in order:
             results.append(replay(backend, round_name))
-    first = results[0]
+    first = results[0] if results else None
     for result in results:
         assert result['commits'] == first['commits'], 'Input output changed between backends or rounds'
         assert result['candidate_text_sha256'] == first['candidate_text_sha256'], 'Visible candidate order changed'
-    (args.output / 'comparison.json').write_text(json.dumps({
+    if results:
+        (args.output / 'comparison.json').write_text(json.dumps({
         'order': [f"{item['round']}-{item['backend']}" for item in results],
         'identical_commits': True, 'identical_candidate_texts': True,
         'harness_sha256': harness_hash, 'fixture_sha256': fixture_hash,
@@ -108,13 +112,15 @@ def main():
             **{metric: {key: value for key, value in r[metric].items() if key != 'raw_ns'}
                for metric in ('send_key_return', 'key_to_candidates', 'space_to_commit', 'word_to_result')}
         } for r in results if r['backend'] == backend] for backend in apks}
-    }, ensure_ascii=False, indent=2) + '\n')
-    print('All six runs preserved all commits and candidate texts.', flush=True)
+        }, ensure_ascii=False, indent=2) + '\n')
+        print('All six runs preserved all commits and candidate texts.', flush=True)
 
-    if args.profile:
+    if args.profile or args.profile_only:
         remote = '/data/misc/perfetto-traces/wanxiang-direct.perfetto-trace'
         config = f'''buffers {{ size_kb: 32768 fill_policy: RING_BUFFER }}
-duration_ms: 180000
+duration_ms: 120000
+write_into_file: true
+file_write_period_ms: 1000
 data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
   ftrace_events: "sched/sched_switch"
   ftrace_events: "sched/sched_waking"
@@ -126,11 +132,10 @@ data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ pr
 '''
         pid = adb('shell', 'perfetto', '--background-wait', '--txt', '-c', '-', '-o', remote, input=config).stdout.strip()
         assert pid.isdigit(), 'Perfetto did not report its capture PID: ' + pid
-        try:
-            replay('direct', 'profile')
-        finally:
-            adb('shell', 'kill', '-INT', pid)
-        for _ in range(120):
+        replay('direct', 'profile')
+        # Let Perfetto finish naturally. Killing the consumer can leave an empty output;
+        # process exit and a non-empty, fully flushed trace are both required.
+        for _ in range(300):
             alive = subprocess.run(['adb', 'shell', 'kill', '-0', pid], capture_output=True).returncode == 0
             if not alive:
                 break
@@ -138,6 +143,7 @@ data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ pr
         else:
             raise RuntimeError('Perfetto did not finish flushing')
         adb('pull', remote, str(args.output / 'wanxiang-direct.perfetto-trace'))
+        assert (args.output / 'wanxiang-direct.perfetto-trace').stat().st_size > 0, 'Perfetto produced an empty trace'
 
 
 if __name__ == '__main__':

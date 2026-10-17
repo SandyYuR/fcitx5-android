@@ -1,0 +1,66 @@
+name: Profile fixed Wanxiang comparison APKs
+on:
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: Run that uploaded the four comparison APK artifacts
+        default: '39002393966'
+        required: true
+  push:
+    branches: [perf/fcitx-direct-profile-20261017]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  profile:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      PERF_SOURCE_RUN: ${{ inputs.source_run || '39002393966' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: Wait for the fixed binaries, without rebuilding either engine
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [[ "$PERF_SOURCE_RUN" =~ ^[0-9]+$ ]]
+          for attempt in $(seq 1 120); do
+            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PERF_SOURCE_RUN/artifacts" --jq '[.artifacts[] | select(.name | startswith("comparison-"))] | length')
+            if [ "$count" = 4 ]; then exit 0; fi
+            sleep 10
+          done
+          echo 'The source run did not publish all four APKs.' >&2
+          exit 1
+      - uses: actions/download-artifact@v6
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ env.PERF_SOURCE_RUN }}
+          pattern: comparison-*
+          merge-multiple: true
+          path: build/fixed-apks
+      - name: Prepare the identical user-options fixture
+        run: python3 tools/input-perf/prepare-wanxiang.py "$RUNNER_TEMP/wanxiang-perf.zip" --preset user-full-pinyin
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: aosp_atd
+          arch: x86_64
+          disable-animations: true
+          script: python3 tools/input-perf/compare-engines.py build/fixed-apks/fcitx-default.apk build/fixed-apks/fcitx-default-tests.apk build/fixed-apks/direct-current.apk build/fixed-apks/direct-current-tests.apk --wanxiang "$RUNNER_TEMP/wanxiang-perf.zip" --preset user-full-pinyin --profile-only --output build/wanxiang-native-profile
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: wanxiang-native-profile
+          path: build/wanxiang-native-profile/
