@@ -99,5 +99,6 @@ def verify(path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("apk", type=Path)
-    verify(parser.parse_args().apk)
+    parser.add_argument("apk", type=Path, nargs="+")
+    for path in parser.parse_args().apk:
+        verify(path)

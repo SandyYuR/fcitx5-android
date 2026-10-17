@@ -41,7 +41,31 @@ python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/debug/*.apk
 这不会把注释、字符串引用或仍在使用的 `FcitxAPI` 等兼容类型误判成旧后端。
 新规则对上轮交付 APK 的负向检查已确认能够检出其中未执行的旧类。
 
-构建、单测、设备回归及交付 APK 的验证结果将在本轮完成后记录于本页。
+本地验证使用普通构建命令（不传直连开关），产品代码提交为 `a49eb9b8`：
+
+| 检查 | 结果 |
+| --- | --- |
+| ARM64 Debug、测试 APK、Release（含 R8 与 vital lint） | 构建通过 |
+| 应用 JVM 单测 | 472 项通过，0 失败、0 跳过 |
+| Debug APK | 22 个 DEX；旧后端及内部类定义为 0 |
+| Release APK | 2 个 DEX；旧后端及内部类定义为 0 |
+| 两种 APK 的原生依赖、16 KiB 页与资源清单 | 均通过，仅直连库和 C++ 运行库 |
+| 普通 Gradle 工程清单 | 无 `:lib:fcitx5` |
+| 显式旧后端选择 | 按预期拒绝，提示历史基线 |
+| 历史基线源码、准备脚本及 gitlink | 保留且核对通过，Rime prebuilt pin 相同 |
+
+交付 Debug 包为 `zhongzhougoose-cleanup-arm64-v8a-debug.apk`，23,182,134 字节，
+SHA256 为 `184b687139fdbd8c196d1cc57cc6908679d002eff8696a2f40064d68a80a255e`。
+签名证书 SHA256 为 `49554e18dbb5c87805b824e09a06db8d994f5e39c904621f17b1248517b9bcd5`，
+与此前交付直连包相同，可以覆盖升级。Release 本地检查使用未签名包，不作为安装交付。
+机器可读结果见[验证记录](direct-rime-cleanup-validation-2026-10-17.json)。
+
+本轮源码的设备回归由 [PR #4 的 Checks](https://github.com/SandyYuR/fcitx5-android/pull/4/checks)
+中的 `Full frontend touch and engine tests` 及独立引擎 smoke 任务执行；
+它们与 JVM、native ASan/UBSan 和多 ABI APK 检查一起提供对应提交的回归结果。
+
+首次 Release 依赖下载遇到本地 Gradle 未使用环境代理的问题，使用环境代理及系统 CA 后
+完整构建通过；没有把代理或证书路径写入仓库配置。
 
 ## 仍在使用的代码与未完成事项
 
