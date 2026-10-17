@@ -55,7 +55,7 @@ def analyze(run):
     filters += [''.join(f'[p{i}]' for i in range(6))+'vstack=inputs=6,format=rgb24[v]']
     raw = run/'stack.rgb'
     sp.run(['ffmpeg', '-v', 'error', '-y', '-threads', '1', '-i', str(run/'run.mp4'), '-filter_complex_threads', '1',
-        '-filter_complex', ';'.join(filters), '-map', '[v]', '-fps_mode', 'passthrough', '-f', 'rawvideo', str(raw)], check=True)
+        '-filter_complex', ';'.join(filters), '-map', '[v]', '-vsync', '0', '-enc_time_base', '-1', '-f', 'rawvideo', str(raw)], check=True)
     assert raw.stat().st_size == len(pts)*outw*23*3, 'PTS/frame count mismatch'
     classes = run.parent/'java-classes'; classes.mkdir(exist_ok=True)
     sp.run(['javac', '-d', str(classes), str(HERE/'upstream/BenchTrace.java')], check=True)
@@ -68,7 +68,7 @@ def analyze(run):
     marker_rect = scaled(host['marker'])
     mx, my = (marker_rect[0]+marker_rect[2])//2-8, (marker_rect[1]+marker_rect[3])//2-8
     sp.run(['ffmpeg', '-v', 'error', '-y', '-threads', '1', '-i', str(run/'run.mp4'),
-        '-vf', f'crop=16:16:{mx}:{my},scale=1:1:flags=area,format=rgb24', '-fps_mode', 'passthrough', '-f', 'rawvideo', str(marker)], check=True)
+        '-vf', f'crop=16:16:{mx}:{my},scale=1:1:flags=area,format=rgb24', '-vsync', '0', '-enc_time_base', '-1', '-f', 'rawvideo', str(marker)], check=True)
     colors = marker.read_bytes(); assert len(colors) == len(pts)*3
     states = [colors[i] > colors[i+2] for i in range(0, len(colors), 3)]
     edges = [i for i in range(1, len(states)) if states[i] != states[i-1]]
