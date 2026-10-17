@@ -4,6 +4,9 @@
 默认分支 `fx-rime-only` 不修改；历史 Fcitx 对照仍固定为 `a714feff`，
 通过独立 checkout 构建，原始数据见[迁移审计](DIRECT_RIME_AUDIT_2026-10-17.md)。
 
+后续纯 Kotlin 工具、旧 JNI 转换与无调用方辅助代码的清理另见
+[无调用方代码审计](DIRECT_RIME_UNUSED_CODE_AUDIT_2026-10-17.md)。
+
 ## 已清理
 
 - 删除旧 `Fcitx.kt`、`FcitxDispatcher.kt` 和依赖已移除拼音引擎的旧 `FcitxTest`。
