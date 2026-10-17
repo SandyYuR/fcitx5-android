@@ -376,6 +376,19 @@ end
                 }
             }
             await("Keyboard must be visible before mode switching") { key("n") != null }
+            // A previous test can leave its keyboard window visible while Android is
+            // still binding this editor. A new input session correctly clears hints.
+            var settledSession = Long.MIN_VALUE
+            var settledSince = SystemClock.uptimeMillis()
+            await("The editor's input session must settle before checking a transient hint") {
+                val session = connection.runImmediately { inputSession }
+                if (session != settledSession) {
+                    settledSession = session
+                    settledSince = SystemClock.uptimeMillis()
+                }
+                (context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .isActive(editor) && SystemClock.uptimeMillis() - settledSince >= 750
+            }
             fun hintIsVisible(text: String): Boolean {
                 var visible = false
                 instrumentation.runOnMainSync {
@@ -388,7 +401,11 @@ end
                 }
                 return visible
             }
-            connection.runOnReady { toggleIme() }
+            connection.runOnReady {
+                toggleIme()
+                assertEquals("Mode hint must belong to the settled editor session",
+                    context.getString(R.string.direct_rime_ascii_mode), inputPanelCached.auxUp.toString())
+            }
             await("English-mode hint was not displayed in the preedit area") {
                 hintIsVisible(context.getString(R.string.direct_rime_ascii_mode))
             }

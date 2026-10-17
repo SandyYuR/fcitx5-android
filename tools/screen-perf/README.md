@@ -9,13 +9,15 @@
 ## 工具来源与调整
 
 用户提供的《输入法性能对比报告与测试工具包.zip》采用按键触摸、录屏、区域压缩、
-逐帧差分。这里原样使用其中的 `BenchTrace.java`：
+逐帧差分，原 ZIP SHA-256 为
+`0f4b36b6c637369162e3f363628dde53475e933ed642b5b60bb37ceeacc66883`。
+这里原样使用其中的 `BenchTrace.java`：
 SHA-256 `fe4c318b71acb700b101304873dd586b91ee7673ef3d1da19c93b02a8aa38454`。
 它不是本项目原创代码；工具包未附独立许可证，本目录只留用户指定测试所需的一份源文件，
 不把原报告中的其他输入法数据写成这次结果。
 
 - Windows 路径、1200×2670 和笔记应用坐标改为 Linux／Android 实际键位与中立编辑器。
-- 原工具的固定编码串不是全拼，改用 `run.py` 中固定的 30 个全拼词组。
+- 原工具的固定编码串不是全拼，改用 `run.py` 中固定的 32 个全拼片段，含两个较长短句。
 - 触摸仍走 Android 输入分发和真实输入法窗口，由相同 instrumentation 注入 DOWN／UP；
   每键按住 32ms，避免每键启动一个 `adb input` 进程造成节奏失控。
 - 保留四行键盘、三行候选和十六行编辑区的压缩与帧差流程，RGB 差阈值固定为原工具的 60。
@@ -29,6 +31,10 @@ SHA-256 `fe4c318b71acb700b101304873dd586b91ee7673ef3d1da19c93b02a8aa38454`。
 ## 配置及正确性
 
 v18.1.3 base 与官方 LTS 模型均验 SHA-256，`prepare.py` 加入用户原样提供的两份 YAML。
+LTS 在测试准备期间于 2026-10-17 09:59:19 UTC 更新，本工具固定该 asset 650124920，
+模型 SHA-256 为 `1849e5e4acbdbfaf41fceeb86b739d5d0c85d574bd8a688562cba1e6beb78488`。
+旧 API 回放的模型固定值保持原样。LTS 是可变标签，以后哈希不符时应核实上游版本，
+不能直接取消校验；复现本次结果需要保留这份模型。
 用户要求开启上下文调频，但 `user.yaml` 没有保存 `context_reorder`；故两边都在测试前
 通过各自正常状态开关明确开启，并断言“上下文开／简码开／小字集”实际存在。
 模糊音、页大小 6、候选注释等其余配置均保留。所有有效方案与开关随每轮结果存档。
@@ -44,11 +50,15 @@ v18.1.3 base 与官方 LTS 模型均验 SHA-256，`prepare.py` 加入用户原�
 
 ## 运行和产物
 
-在功能分支运行 `Wanxiang touch and screen comparison`。push 只触发短轮校准；
-校准通过后 `workflow_dispatch` 输入 `pilot=false` 跑完整矩阵。工作流会构建 APK、
-安装 Android 35 Google APIs x86_64 模拟器，保留视频、截图、逐帧 TSV、视频 PTS、
+在功能分支手动运行 `Wanxiang touch and screen comparison`，先输入 `pilot=true` 校准；
+校准通过后输入 `pilot=false` 跑完整矩阵。可传入通过校准的
+`reuse_run`，直接下载其 APK 并校验 instrumentation 源码哈希，不重新构建产品。
+工作流安装 Android 35 Google APIs x86_64 模拟器，保留视频、截图、逐帧 TSV、视频 PTS、
 实际注入时刻、模型和 APK 校验值、有效方案、硬件参考文本及结果。
 视频和模型不进 Git；小型结果和方法说明归入直连版维护文档。
+结构化结果与视频分为两个 artifact，保存 14 天；永久归档保留配置、实际事件、
+逐帧轨迹、时钟残差、版本及校验值。`summarize.py` 取每轮分位数的中位数并保留范围，
+不把同一轮内的几百个相关按键当作几百次独立实验。
 
 `forward_candidate` 是每键之后的下一次候选区域变化；未改变画面的键可能匹配到
 后一个键的变化。`attributed_candidate` 是画面变化归到之前最近一键，不能称为纯

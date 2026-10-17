@@ -10,9 +10,6 @@ on:
         description: Reuse identical pinned APKs from a successful calibration run (optional)
         type: string
         default: ''
-  push:
-    branches: [feat/direct-rime-prototype]
-    paths: ['tools/screen-perf/**', '.github/workflows/wanxiang-screen-perf.yml']
 permissions:
   contents: read
   actions: read
@@ -39,7 +36,7 @@ jobs:
           cache-read-only: false
       - name: Download fixed APKs from calibration
         if: inputs.reuse_run != '' && github.event_name == 'workflow_dispatch'
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: screen-comparison-apks
           run-id: ${{ inputs.reuse_run }}

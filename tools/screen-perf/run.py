@@ -16,7 +16,8 @@ HOST = 'io.github.sandyyur.inputbench'
 PHRASES = ['jintian', 'tianqi', 'henhao', 'women', 'yiqi', 'shiyong', 'zhongwen', 'shurufa',
            'ceshi', 'xingneng', 'houxuan', 'fangan', 'qiehuan', 'shuru', 'zhongguo', 'nihao',
            'shenghuo', 'gongzuo', 'xuexi', 'kuaile', 'shijie', 'pengyou', 'shijian', 'wenti',
-           'fangfa', 'jiandan', 'qingchu', 'wending', 'sudu', 'zhongzhou']
+           'fangfa', 'jiandan', 'qingchu', 'wending', 'sudu', 'zhongzhou',
+           'jintiantianqihenhao', 'womenyiqiceshishurufa']
 TEXT = ' '.join(PHRASES) + ' '
 
 def adb(*args, check=True, timeout=300):
@@ -47,7 +48,8 @@ def main():
     sdk = Path(os.environ['ANDROID_HOME'])
     aapt = sorted(sdk.glob('build-tools/*/aapt2'))[-1]
     packages = {}
-    provenance = {'products': {}, 'harness_sha256': harness_hash}
+    provenance = {'products': {}, 'harness_sha256': harness_hash,
+                  'host_apk_sha256':hashlib.sha256(args.host.read_bytes()).hexdigest()}
     for backend in ('fcitx', 'direct'):
         apk = args.apks/f'{backend}.apk'
         badging = sp.check_output([str(aapt), 'dump', 'badging', str(apk)], text=True)
@@ -156,6 +158,7 @@ def main():
                 (run/'logcat.txt').write_text(adb('logcat', '-d', '-t', '1500'))
             if mode == 'touch':
                 sp.run(['python3', str(HERE/'analyze.py'), str(run)], check=True)
+    sp.run(['python3', str(HERE/'summarize.py'), str(out)], check=True)
     print('ALL RUNS COMPLETE', flush=True)
 
 if __name__ == '__main__': main()
