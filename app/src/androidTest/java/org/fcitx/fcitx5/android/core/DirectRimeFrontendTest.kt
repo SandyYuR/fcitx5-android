@@ -256,6 +256,38 @@ end
         assertEquals("好", withTimeout(10_000) { commits.receive() })
         assertNull("A UI refresh must not repeat a commit", withTimeoutOrNull(250) { commits.receive() })
     }
+    @Test fun modeAndSchemaHintsExpireWithoutReplayingCommits(): Unit = runBlocking {
+        connection.runOnReady {
+            assertTrue("New sessions must not show a switch hint", inputPanelCached.auxUp.isEmpty())
+            toggleIme()
+            assertEquals(context.getString(R.string.direct_rime_ascii_mode), inputPanelCached.auxUp.toString())
+            // Releasing a key must not immediately erase a mode hint.
+            sendKey("Control_L", KeyState.Virtual.state, up = true)
+            assertTrue(inputPanelCached.auxUp.isNotEmpty())
+        }
+        delay(1800)
+        connection.runOnReady {
+            assertTrue("Mode hints should expire", inputPanelCached.auxUp.isEmpty())
+            toggleIme()
+            assertEquals(context.getString(R.string.direct_rime_chinese_mode), inputPanelCached.auxUp.toString())
+            val second = statusArea().first { it.name == "rime" }.menu!!.first { it.name == "second" }
+            activateAction(second.id)
+            assertEquals("第二方案", inputPanelCached.auxUp.toString())
+            sendKey('n', KeyState.Virtual.state)
+            assertTrue("Typing must replace the hint with composition", inputPanelCached.auxUp.isEmpty())
+            sendKey('i', KeyState.Virtual.state)
+            select(0)
+        }
+        assertEquals("你", withTimeout(10_000) { commits.receive() })
+        delay(1800)
+        assertNull("Hint expiry must never replay a commit", withTimeoutOrNull(250) { commits.receive() })
+        connection.runOnReady {
+            toggleIme()
+            startInputSession(invalidateInputSession(), "hint.new-editor")
+            assertTrue("Hints must not leak across input sessions", inputPanelCached.auxUp.isEmpty())
+        }
+    }
+
     @Test fun originalKeyboardCanTypeUsingTouch(): Unit = runBlocking {
         val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
         val previous = shell("settings get secure default_input_method")
@@ -342,6 +374,31 @@ end
                     throw AssertionError("${e.message}; actual='${connection.runImmediately { inputPanelCached.preedit }}'; " +
                         "ime=${connection.runImmediately { inputMethodEntryCached }}", e)
                 }
+            }
+            await("Keyboard must be visible before mode switching") { key("n") != null }
+            fun hintIsVisible(text: String): Boolean {
+                var visible = false
+                instrumentation.runOnMainSync {
+                    fun contains(view: android.view.View): Boolean {
+                        if (!view.isShown) return false
+                        if (view is android.widget.TextView && view.text.toString() == text) return true
+                        return view is android.view.ViewGroup && (0 until view.childCount).any { contains(view.getChildAt(it)) }
+                    }
+                    visible = android.view.inspector.WindowInspector.getGlobalWindowViews().any(::contains)
+                }
+                return visible
+            }
+            connection.runOnReady { toggleIme() }
+            await("English-mode hint was not displayed in the preedit area") {
+                hintIsVisible(context.getString(R.string.direct_rime_ascii_mode))
+            }
+            connection.runOnReady {
+                toggleIme()
+                activateAction(statusArea().first { it.name == "rime" }.menu!!.first { it.name == "second" }.id)
+            }
+            await("Schema hint was not displayed in the preedit area") { hintIsVisible("第二方案") }
+            connection.runOnReady {
+                activateAction(statusArea().first { it.name == "rime" }.menu!!.first { it.name == "direct_smoke" }.id)
             }
             tap("n"); expectPreedit("n")
             tap("i"); expectPreedit("ni")
@@ -447,6 +504,21 @@ end
             }
             shell("screencap -p /data/local/tmp/direct-frontend-settings.png")
             page(org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute.InputMethodConfig("Rime", "rime"), "InputMethodConfigFragment", "direct-frontend-rime-settings")
+            page(org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute.GlobalConfig, "InputMethodConfigFragment", "direct-frontend-legacy-settings")
+            val entries = org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs.find("input")!!.entries(context)
+            assertFalse(entries.any { it.title == R.string.global_options })
+            page(org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute.About, "AboutFragment", "direct-frontend-about")
+            instrumentation.runOnMainSync {
+                val about = host.childFragmentManager.primaryNavigationFragment as androidx.preference.PreferenceFragmentCompat
+                fun titles(group: androidx.preference.PreferenceGroup): List<String> = (0 until group.preferenceCount).flatMap {
+                    val item = group.getPreference(it)
+                    listOf(item.title.toString()) + if (item is androidx.preference.PreferenceGroup) titles(item) else emptyList()
+                }
+                val visible = titles(about.preferenceScreen)
+                assertTrue(visible.contains(context.getString(R.string.direct_rime_app_name)))
+                assertTrue(visible.contains(context.getString(R.string.direct_rime_about_builds)))
+                assertTrue(visible.contains(context.getString(R.string.direct_rime_about_package)))
+            }
             page(org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute.Theme, "ThemeFragment", "direct-frontend-themes")
             page(org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute.VirtualKeyboard, "KeyboardSettingsFragment", "direct-frontend-keyboard-settings")
             editor = instrumentation.startActivitySync(Intent(context,

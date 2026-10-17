@@ -27,7 +27,6 @@ import org.fcitx.fcitx5.android.core.Key
 import org.fcitx.fcitx5.android.core.RawConfig
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.data.RimeDataDirectoryState
-import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.ui.main.modified.MySwitchPreference
 import org.fcitx.fcitx5.android.utils.LongClickPreference
 import org.fcitx.fcitx5.android.utils.buildDocumentsProviderIntent
@@ -49,8 +48,6 @@ import org.fcitx.fcitx5.android.utils.toast
 import timber.log.Timber
 
 object PreferenceScreenFactory {
-
-    private val hideKeyConfig by AppPrefs.getInstance().advanced.hideKeyConfig
 
     fun create(
         preferenceManager: PreferenceManager,
@@ -81,11 +78,6 @@ object PreferenceScreenFactory {
         store: PreferenceDataStore,
         save: () -> Unit
     ) {
-
-        // Hide key related configs
-        if (hideKeyConfig && ConfigType.pretty(descriptor.ty).contains("Key")) {
-            return
-        }
 
         if (descriptor is ConfigCustom) {
             custom(context, fragmentManager, cfg, screen, descriptor, save)

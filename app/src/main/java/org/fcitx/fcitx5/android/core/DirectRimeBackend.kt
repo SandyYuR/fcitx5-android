@@ -48,6 +48,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private var candidateEventCached: FcitxEvent<*>? = null
     private val forwardedKeys = mutableSetOf<Pair<Int, Int>>()
     private var startupError = ""
+    private var statusHint = ""
+    private var statusHintJob: Job? = null
     @Volatile private var maintenance = false
     override val acceptsInput get() = isReady && !maintenance
     @Volatile override var inputMethodEntryCached = entry(null)
@@ -99,6 +101,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         invalidateInputSession()
         runBlocking(owner) {
             registry.postEvent(FcitxLifecycle.Event.ON_STOP)
+            clearStatusHint()
             if (started) Native.stop()
             started = false
             snapshot = null
@@ -143,6 +146,14 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val previous = snapshot
         snapshot = value
         val newSession = publishedGeneration != value.generation
+        val modeChanged = !newSession && previous?.ready == true && value.ready &&
+            (previous.schema != value.schema || previous.ascii != value.ascii)
+        if (modeChanged) {
+            showStatusHint(value, if (previous!!.schema != value.schema) value.schemaName.ifEmpty { value.schema } else
+                context.getString(if (value.ascii) R.string.direct_rime_ascii_mode else R.string.direct_rime_chinese_mode))
+        } else if (newSession || !value.ready || value.preedit.isNotEmpty() || value.commit.isNotEmpty()) {
+            clearStatusHint()
+        }
         val optionsChanged = value.ready && value.optionsRevision != optionsRevision
         if (value.ready) {
             preferredSchema = value.schema
@@ -160,7 +171,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val tabs = value.tabs.mapIndexed { i, text -> CandidateAction(i, text, false, "", false, false) }.toTypedArray()
         val panel = FcitxEvent.InputPanelEvent.Data(
             if (config.preeditMode == "No") formatted(value.preedit, value.cursorUtf16) else FormattedText.Empty,
-            if (value.ready) FormattedText.Empty else formatted(startupError.ifEmpty { value.gateMessage }),
+            if (value.ready) formatted(statusHint) else formatted(startupError.ifEmpty { value.gateMessage }),
             FormattedText.Empty, tabs
         )
         val ime = entry(value)
@@ -195,6 +206,29 @@ class DirectRimeBackend(context: Context) : InputEngine {
         batch.forEach { it.inputSession = value.generation }
         publishedGeneration = value.generation
         if (batch.isNotEmpty()) events.trySend(batch)
+    }
+
+    private fun clearStatusHint() {
+        statusHintJob?.cancel()
+        statusHintJob = null
+        statusHint = ""
+    }
+
+    private fun showStatusHint(value: Snapshot, text: String) {
+        clearStatusHint()
+        statusHint = text
+        statusHintJob = engineScope.launch {
+            delay(1500)
+            statusHintJob = null
+            statusHint = ""
+            if (!started || value.generation != inputSession) return@launch
+            // Expire only the presentation text, without refreshing native state or replaying commits.
+            val panel = inputPanelCached.copy(auxUp = FormattedText.Empty)
+            if (panel != inputPanelCached) {
+                inputPanelCached = panel
+                events.trySend(listOf(FcitxEvent.InputPanelEvent(panel).apply { inputSession = value.generation }))
+            }
+        }
     }
     private fun entry(value: Snapshot?) = InputMethodEntry("rime", context.getString(R.string.direct_rime_ime_name), "fcitx-rime", "中州韵", "㞢", "zh", "rime", true,
         InputMethodSubMode(if (value?.ascii == true) "Latin Mode" else value?.schemaName.orEmpty(),
@@ -240,6 +274,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         onOwner {
             if (expected != inputSession || maintenance || !started) return@onOwner
             val bypass = flags.flags and (CapabilityFlag.Password.flag or CapabilityFlag.Disable.flag) != 0UL
+            if (!up) clearStatusHint()
             val result = if (bypass) null else Native.key(expected, sym, states.toInt(), up)
             if (result != null) publish(result)
             val keyId = sym to code

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="direct_rime_chinese_mode">Chinese mode</string>
+    <string name="direct_rime_config_unavailable">Rime settings are unavailable. Wait for initialization to finish and try again.</string>
+    <string name="direct_rime_restart_engine">Restart input engine</string>
+    <string name="direct_rime_restart_engine_confirm">Restart the Rime input engine? Input will be temporarily unavailable.</string>
+    <string name="direct_rime_engine_service">Input engine service</string>
+    <string name="direct_rime_engine_restarting">Restarting Rime…</string>
+    <string name="direct_rime_about_description">An Android keyboard powered directly by Rime, with customizable layouts, themes, candidates and clipboard tools.</string>
+    <string name="direct_rime_about_package">Application ID</string>
+    <string name="direct_rime_about_guide">User guide</string>
+    <string name="direct_rime_about_guide_summary">Install schemes, configure Wanxiang, customize the keyboard and back up your data</string>
+    <string name="direct_rime_about_builds">Get Direct Rime builds</string>
+    <string name="direct_rime_about_builds_summary">Open builds for this branch; choose an APK with the same application ID and signing certificate</string>
+    <string name="direct_rime_about_engine">Input engine</string>
+    <string name="direct_rime_about_engine_summary">Rime / librime · schemes and user dictionaries run locally</string>
+    <string name="direct_rime_about_privacy_summary">Local input data, optional network features and backup contents</string>
+    <string name="direct_rime_about_credits">Acknowledgements</string>
+    <string name="direct_rime_about_credits_summary">Based on the Android frontend by Fcitx5 for Android and fxliang, with the Rime engine. Thanks to the upstream authors and community contributors. This is an independent project.</string>
+    <string name="direct_rime_input_summary">Rime settings, candidate bar and candidate window</string>
+</resources>

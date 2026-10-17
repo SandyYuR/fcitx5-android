@@ -94,10 +94,10 @@ class DeveloperFragment : PaddingPreferenceFragment() {
                 isIconSpaceReserved = false
                 isSingleLineTitle = false
             })
-            addPreference(R.string.restart_fcitx_instance) {
+            addPreference(R.string.direct_rime_restart_engine) {
                 AlertDialog.Builder(context)
-                    .setTitle(R.string.restart_fcitx_instance)
-                    .setMessage(R.string.restart_fcitx_instance_confirm)
+                    .setTitle(R.string.direct_rime_restart_engine)
+                    .setMessage(R.string.direct_rime_restart_engine_confirm)
                     .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
                         lifecycleScope.launch {

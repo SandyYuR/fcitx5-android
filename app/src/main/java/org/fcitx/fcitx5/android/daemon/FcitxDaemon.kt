@@ -160,8 +160,8 @@ object FcitxDaemon {
         val id = RESTART_ID++
         NotificationCompat.Builder(appContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_baseline_sync_24)
-            .setContentTitle(appContext.getString(R.string.fcitx_daemon))
-            .setContentText(appContext.getString(R.string.restarting_fcitx))
+            .setContentTitle(appContext.getString(R.string.direct_rime_engine_service))
+            .setContentText(appContext.getString(R.string.direct_rime_engine_restarting))
             .setOngoing(true)
             .setProgress(100, 0, true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -233,7 +233,7 @@ object FcitxDaemon {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                appContext.getText(R.string.fcitx_daemon),
+                appContext.getText(R.string.direct_rime_engine_service),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply { description = CHANNEL_ID }
             appContext.notificationManager.createNotificationChannel(channel)
