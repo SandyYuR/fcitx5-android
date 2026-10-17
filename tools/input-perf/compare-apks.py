@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-"""Compare direct frontend APKs on a disposable, root-capable AOSP emulator."""
+"""Compare direct frontend APKs on a disposable Android emulator."""
 import argparse
 import hashlib
 import json
 import subprocess
-import threading
 import time
-import io
-import tarfile
 from pathlib import Path
 
 def checksum(path):
@@ -46,11 +43,7 @@ else:
     raise RuntimeError('Emulator did not finish booting')
 serial = command('get-serialno').stdout.strip()
 if not serial.startswith('emulator-'):
-    raise SystemExit('Use a disposable emulator; this tool resets its test profile registrations.')
-command('root')
-command('wait-for-device')
-if command('shell', 'id', '-u').stdout.strip() != '0':
-    raise SystemExit('Use a root-capable AOSP emulator.')
+    raise SystemExit('Use a disposable emulator; the replay changes test IME settings.')
 print('Emulator ready. Stop host compilers before collecting timing results.', flush=True)
 command('install', '-r', str(baseline))
 command('install', '-r', str(test))
@@ -62,18 +55,7 @@ if args.wanxiang:
         command('push', str(args.wanxiang), '/data/local/tmp/direct-wanxiang-perf.zip')
         command('shell', "cat /data/local/tmp/direct-wanxiang-perf.zip | run-as io.github.sandyyur.rime.direct sh -c 'cat > files/wanxiang-perf.zip'")
         command('shell', 'rm', '/data/local/tmp/direct-wanxiang-perf.zip')
-# A valid restoration profile makes each replay independent of other test runs.
-command('shell', 'am', 'force-stop', package)
-base = '/storage/emulated/0/Android/data/' + package + '/files'
-command('shell', 'mkdir', '-p', base + '/data/perf-home', base + '/config/conf')
-payload = io.BytesIO()
-with tarfile.open(fileobj=payload, mode='w') as tar:
-    for path in (Path(__file__).resolve().parents[2] / 'direct-rime/src/main/assets/smoke').iterdir():
-        tar.add(path, arcname=path.name)
-subprocess.run([adb,'shell','tar','xf','-','-C',base+'/data/perf-home'],input=payload.getvalue(),check=True,timeout=60)
-subprocess.run([adb,'shell',"cat > " + base + "/config/conf/rime-data-dir.conf"],
-               input=b'Current=perf-home\nProfiles=perf-home\n',check=True,timeout=60)
-print('Isolated replay profiles prepared.', flush=True)
+print('Replay archives staged; profile creation stays inside the test app.', flush=True)
 
 def replay(label, apk, full):
     print('Starting ' + label, flush=True)
@@ -82,36 +64,15 @@ def replay(label, apk, full):
     if full:
         args += ['-e', 'fixtureArchive', 'wanxiang-perf.zip']
     args += [package + '.test/androidx.test.runner.AndroidJUnitRunner']
-    stop = threading.Event()
-    model_mapped = []
-    def inspect_model():
-        while not stop.wait(10):
-            try:
-                pid = command('shell', 'pidof', package, timeout=10, check=False).stdout.strip()
-                if not pid.isdigit(): continue
-                maps = command('shell', 'cat', '/proc/' + pid + '/maps', timeout=10, check=False)
-                if 'wanxiang-lts-zh-hans.gram' in maps.stdout:
-                    (artifacts / (label + '-maps.txt')).write_text(maps.stdout)
-                    model_mapped.append(True)
-                    print(label + ': LTS model memory mapping verified.', flush=True)
-                    return
-            except subprocess.TimeoutExpired:
-                pass
-    monitor = threading.Thread(target=inspect_model, daemon=True)
-    if full: monitor.start()
     log_path = artifacts / (label + '-instrumentation.txt')
-    try:
-        with log_path.open('w') as log:
-            run = subprocess.run(args, stdout=log, stderr=subprocess.STDOUT, timeout=2400)
-        output = log_path.read_text()
-        if run.returncode != 0 or 'OK (1 test)' not in output:
-            raise RuntimeError(label + ' failed; see ' + str(log_path))
-    finally:
-        stop.set()
-        if full: monitor.join(timeout=15)
+    with log_path.open('w') as log:
+        run = subprocess.run(args, stdout=log, stderr=subprocess.STDOUT, timeout=2400)
+    output = log_path.read_text()
+    if run.returncode != 0 or 'OK (1 test)' not in output:
+        raise RuntimeError(label + ' failed; see ' + str(log_path))
     result = json.loads(command('shell', 'run-as', package, 'cat', 'files/direct-rime-replay.json').stdout)
     result['apk_sha256'] = checksum(apk)
-    result['model_mapped'] = (result.get('model_mapped', False) or bool(model_mapped)) if full else None
+    result['model_mapped'] = result.get('model_mapped', False) if full else None
     result['fixture_sha256'] = source_hash if full else None
     (artifacts / (label + '.json')).write_text(json.dumps(result, ensure_ascii=False, indent=2))
     print(json.dumps({k:v for k,v in result.items() if k not in ('commits',)},ensure_ascii=False), flush=True)

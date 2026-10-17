@@ -63,8 +63,8 @@ adb shell run-as io.github.sandyyur.rime.direct cat files/direct-rime-replay.jso
 ```
 
 固定 APK 对照可使用 `tools/input-perf/compare-apks.py BEFORE.apk AFTER.apk TESTS.apk`，
-提供 `--wanxiang /path/to/fixture.zip` 则同时测试完整方案。工具只接受可 root 的一次性 AOSP 模拟器，
-会准备独立的恢复目录、校验上屏序列，并把原始结果、APK SHA256 和模型映射保存在 `--output` 目录。
+提供 `--wanxiang /path/to/fixture.zip` 则同时测试完整方案。工具只接受一次性模拟器，
+通过应用 API 创建和清理测试目录、校验上屏序列，并把原始结果、APK SHA256 和模型映射保存在 `--output` 目录。
 
 万象对照夹具来自官方 v18.1.3 `rime-wanxiang-base.zip`，加入官方 LTS
 `wanxiang-lts-zh-hans.gram`；方案与模型均不随 APK 分发，也不写入用户自己的 profile。
