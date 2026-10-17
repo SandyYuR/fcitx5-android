@@ -9,6 +9,7 @@ import kotlinx.serialization.json.*
 import org.fcitx.fcitx5.android.input.keyboard.*
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
+import org.fcitx.fcitx5.android.data.theme.ThemePrefs
 
 // Import Macro types explicitly
 import org.fcitx.fcitx5.android.input.keyboard.MacroAction
@@ -591,18 +592,12 @@ object LayoutJsonUtils {
     }
 
     /**
-     * 旧版**单槽**划动配置（`swipe` / `altLabel` / `swipeLabel`）没有物理方向，读取、
-     * 迁移与编辑时都按同一条规则解析，保证三处结果一致：
+     * 按已有新版方向槽解析旧版**单槽**字段（`swipe` / `altLabel` / `swipeLabel`）：
+     * 只有键上**仅有上划一侧**的动作或标签时旧字段跟到上滑槽；其余情况跟到下滑槽。
+     * 这保证已有方向配置下，标签和动作不会因各自解析而落到相反两侧。
      *
-     * - 键上**只有**上划一侧的槽位（上划动作或上滑标签）时，旧字段跟到上滑槽；
-     * - 其余情况（两侧都有、都没有、只有下划一侧）一律落到下滑槽。
-     *
-     * 之所以要「跟随同侧槽位」：标签摆在上面、动作却在下面（或反过来）会让用户看到的方向
-     * 与实际触发方向不符；跟随同侧后「标签显示在哪边，哪边就是触发方向」恒成立。
-     *
-     * ⚠️ **绝不能让主题的「标点位置」或「符号划动方向」参与解析**。前者的语义只是摆放
-     * 字母键的标点副标签，后者的语义是「符号隐藏时用哪个方向唤出符号」；让它们决定划动
-     * 方向会出现在换一次主题/设置后，用户配好的下滑键被整体翻成上滑、副标签也跑到上方。
+     * 没有新版方向槽时，布局迁移与编辑器应使用
+     * [legacySwipeTargetsUpFromSettings]，按当前设置固定旧字段方向。
      */
     fun legacySwipeTargetsUp(
         hasUpMacro: Boolean,
@@ -612,18 +607,34 @@ object LayoutJsonUtils {
     ): Boolean = (hasUpMacro || hasUpLabel) && !(hasDownMacro || hasDownLabel)
 
     /**
+     * 解析旧单槽划动在当前设置下应落入的物理方向。
+     * 明确选择上/下划时直接采用该设置；「自动」和「禁用」没有单一方向，沿用主题的符号位置
+     * 作为旧布局升级时的固定方向（底部落下滑，其余位置落上滑）。
+     */
+    fun legacySwipeTargetsUpFromSettings(
+        direction: SwipeSymbolDirection,
+        punctuationPosition: ThemePrefs.PunctuationPosition
+    ): Boolean = when (direction) {
+        SwipeSymbolDirection.Up -> true
+        SwipeSymbolDirection.Down -> false
+        SwipeSymbolDirection.Auto,
+        SwipeSymbolDirection.Disabled -> punctuationPosition != ThemePrefs.PunctuationPosition.Bottom
+    }
+
+    /**
      * 将旧版单一 swipe 槽位迁移为物理上划或下划槽位。
      *
-     * 迁移只处理支持方向宏的键型；SpaceKey 保留旧专用滑动语义。**只有带方向线索的键才会
-     * 迁移**（有划动标签，或已有 swipeUp/swipeDown 任一侧），目标方向由 [legacySwipeTargetsUp]
-     * 决定（默认下滑）；没有方向线索、也没有标签的旧 `swipe` 原样保留，运行时继续按
-     * 「符号划动方向（符号隐藏时）」决定——钉死到某一侧会悄悄丢掉另一个方向的触发。
+     * 迁移只处理支持方向宏的键型；SpaceKey 保留旧专用滑动语义。已有新版方向槽时，旧字段按
+     * [legacySwipeTargetsUp] 跟随唯一的一侧；没有新版方向槽时，调用方传入的
+     * [legacyTargetIsUp] 决定旧字段落点。这样单独存在的旧 `swipe` 动作也会按加载时的用户设置
+     * 固定到上/下槽，旧标签与动作落在同一侧。
      *
      * 宏字段和标签字段分别判断：各自已有方向字段时删除对应旧字段，否则迁移旧字段，
      * 避免部分新配置覆盖另一类仍需保留的旧数据。
      */
     fun migrateDirectionalSwipeFields(
-        entries: MutableMap<String, MutableList<MutableList<MutableMap<String, Any?>>>>
+        entries: MutableMap<String, MutableList<MutableList<MutableMap<String, Any?>>>>,
+        legacyTargetIsUp: Boolean? = null
     ): Boolean {
         val directionalTypes = setOf(
             "CapsKey", "LayoutSwitchKey", "SymbolKey", "ReturnKey", "BackspaceKey", "MacroKey"
@@ -638,14 +649,22 @@ object LayoutJsonUtils {
                 val hasNewMacro = key.containsKey("swipeUp") || key.containsKey("swipeDown")
                 val hasNewLabel = key.containsKey("swipeUpLabel") ||
                     key.containsKey("swipeDownLabel")
+                val hasLegacySwipe = key.containsKey("swipe")
                 val hasLegacyLabel = !((key[legacyLabelField] as? String).isNullOrEmpty())
-                if (hasLegacyLabel || hasNewMacro || hasNewLabel) {
-                    val targetsUp = legacySwipeTargetsUp(
-                        hasUpMacro = key.containsKey("swipeUp"),
-                        hasDownMacro = key.containsKey("swipeDown"),
-                        hasUpLabel = key.containsKey("swipeUpLabel"),
-                        hasDownLabel = key.containsKey("swipeDownLabel")
-                    )
+                if (hasLegacyLabel || hasNewMacro || hasNewLabel ||
+                    (hasLegacySwipe && legacyTargetIsUp != null)
+                ) {
+                    val hasDirectionalSlots = hasNewMacro || hasNewLabel
+                    val targetsUp = if (hasDirectionalSlots) {
+                        legacySwipeTargetsUp(
+                            hasUpMacro = key.containsKey("swipeUp"),
+                            hasDownMacro = key.containsKey("swipeDown"),
+                            hasUpLabel = key.containsKey("swipeUpLabel"),
+                            hasDownLabel = key.containsKey("swipeDownLabel")
+                        )
+                    } else {
+                        legacyTargetIsUp ?: false
+                    }
                     if (hasNewMacro) {
                         key.remove("swipe")?.let { keyChanged = true }
                     } else if (key.containsKey("swipe")) {
@@ -1180,29 +1199,32 @@ object LayoutJsonUtils {
         key: KeyJson,
         subModeLabel: String = "",
         schemaId: String = "",
-        subModeName: String = ""
+        subModeName: String = "",
+        legacyTargetIsUp: Boolean? = null
     ): KeyDef? {
-        // 旧版单槽划动（`swipe` / `altLabel` / `swipeLabel`）没有物理方向，历史上方向是由
-        // 主题的「标点位置」推断的，于是改一次主题就会把用户按下滑配好的键整体翻成上滑，
-        // 副标签也跟着跑到上方。这里的处理分两种：
+        // 旧版单槽划动（`swipe` / `altLabel` / `swipeLabel`）没有物理方向。调用方提供当前
+        // 设置时，动作与标签按统一迁移规则固定到对应方向；已有方向字段优先于设置。
+        // 不提供设置的旧调用方仍沿用旧的结构性判断，保持原有解析行为。
         //
-        // - **带方向线索**（有划动标签，或已有 swipeUp/swipeDown 任一侧）：把旧字段固定成
-        //   方向字段（见 [legacySwipeTargetsUp]），方向从此只由配置本身决定；
-        //   已经有明确方向字段时旧字段整体丢弃，避免旧动作从另一个方向漏出来。
-        // - **不带任何线索**（无标签、无方向字段）：保持旧 `swipe` 槽位不动，运行时仍按
-        //   「符号划动方向（符号隐藏时）」决定（默认「自动」= 上下都能触发）。这类键没有
-        //   标签，用户看不到方向承诺，把它钉死到某一侧反而会悄悄丢掉另一个方向。
+        // 已有方向字段时旧字段跟随唯一一侧；没有方向字段时使用调用方的设置判定，
+        // 使旧动作和标签落在同一侧。
         val legacyLabel = if (key.type == "MacroKey") key.altLabel else key.swipeLabel
         val hasLegacyLabel = !legacyLabel.isNullOrEmpty()
         val hasDirectionalLabel = key.swipeUpLabel != null || key.swipeDownLabel != null
         val hasDirectionalMacro = key.swipeUp != null || key.swipeDown != null
-        val pinLegacySwipe = hasLegacyLabel || hasDirectionalLabel || hasDirectionalMacro
-        val legacyTargetsUp = legacySwipeTargetsUp(
-            hasUpMacro = key.swipeUp != null,
-            hasDownMacro = key.swipeDown != null,
-            hasUpLabel = key.swipeUpLabel != null,
-            hasDownLabel = key.swipeDownLabel != null
-        )
+        val hasDirectionalSlots = hasDirectionalLabel || hasDirectionalMacro
+        val pinLegacySwipe = hasLegacyLabel || hasDirectionalSlots ||
+            (key.swipe != null && legacyTargetIsUp != null)
+        val legacyTargetsUp = if (hasDirectionalSlots) {
+            legacySwipeTargetsUp(
+                hasUpMacro = key.swipeUp != null,
+                hasDownMacro = key.swipeDown != null,
+                hasUpLabel = key.swipeUpLabel != null,
+                hasDownLabel = key.swipeDownLabel != null
+            )
+        } else {
+            legacyTargetIsUp ?: false
+        }
         val directionalUpLabel = key.swipeUpLabel
             ?: legacyLabel?.takeIf { hasLegacyLabel && !hasDirectionalLabel && legacyTargetsUp }
         val directionalDownLabel = key.swipeDownLabel
@@ -1430,7 +1452,8 @@ object LayoutJsonUtils {
                 override.copy(composeOverride = null, weight = null, rowHeightPercent = null),
                 subModeLabel,
                 schemaId,
-                subModeName
+                subModeName,
+                legacyTargetIsUp
             ) ?: return@let
             overrideDef.independentColor = override.independentColor ?: false
             keyDef.composeOverride = overrideDef

@@ -32,6 +32,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import kotlinx.serialization.json.JsonObject
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.SystemColorResourceId
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemeMonet
@@ -1202,20 +1203,27 @@ class KeyEditorActivity : AppCompatActivity() {
     private fun macroStepsOf(action: Any?): List<Any> =
         ((action as? Map<*, *>)?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
 
-    /**
-     * 旧版单槽划动（`swipe` / `altLabel` / `swipeLabel`）在编辑器里解析到哪个方向。
-     *
-     * 与 [LayoutJsonUtils.legacySwipeTargetsUp] 同一条规则（默认下滑，只有同侧的上划槽位
-     * 才解读为上滑），与运行时解析和迁移保持一致；**不读主题的「标点位置」**——那个设置
-     * 只负责摆放字母键的标点副标签，让编辑器按它预览方向会与真机行为分叉。
-     */
-    private fun legacySwipeToDown(keyData: Map<String, Any?>): Boolean =
-        !LayoutJsonUtils.legacySwipeTargetsUp(
-            hasUpMacro = keyData.containsKey("swipeUp"),
-            hasDownMacro = keyData.containsKey("swipeDown"),
-            hasUpLabel = keyData.containsKey("swipeUpLabel"),
-            hasDownLabel = keyData.containsKey("swipeDownLabel")
-        )
+    /** 旧单槽字段编辑时跟随已有的新方向槽；否则采用当前方向设置和主题符号位置。 */
+    private fun legacySwipeToDown(keyData: Map<String, Any?>): Boolean {
+        val hasDirectionalSlots = keyData.containsKey("swipeUp") ||
+            keyData.containsKey("swipeDown") ||
+            keyData.containsKey("swipeUpLabel") ||
+            keyData.containsKey("swipeDownLabel")
+        val targetsUp = if (hasDirectionalSlots) {
+            LayoutJsonUtils.legacySwipeTargetsUp(
+                hasUpMacro = keyData.containsKey("swipeUp"),
+                hasDownMacro = keyData.containsKey("swipeDown"),
+                hasUpLabel = keyData.containsKey("swipeUpLabel"),
+                hasDownLabel = keyData.containsKey("swipeDownLabel")
+            )
+        } else {
+            LayoutJsonUtils.legacySwipeTargetsUpFromSettings(
+                AppPrefs.getInstance().keyboard.swipeSymbolDirection.getValue(),
+                ThemeManager.prefs.punctuationPosition.getValue()
+            )
+        }
+        return !targetsUp
+    }
 
     private fun directionalSwipeStepsOf(keyData: Map<String, Any?>): Pair<List<Any>, List<Any>> {
         val up = macroStepsOf(keyData["swipeUp"])
