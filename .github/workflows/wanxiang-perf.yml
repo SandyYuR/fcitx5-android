@@ -35,11 +35,14 @@ jobs:
           git clone --shared --no-checkout "$GITHUB_WORKSPACE" "$baseline_dir"
           git -C "$baseline_dir" checkout --detach a713cccde9d47beaffcbcd3344a8f919c6e50a26
           git -C "$baseline_dir" submodule update --init --depth 1 lib/fcitx5/src/main/cpp/fcitx5 plugin/rime/src/main/cpp/fcitx5-rime
+          git -C "$baseline_dir" submodule init lib/fcitx5/src/main/cpp/prebuilt plugin/rime/src/main/cpp/rime-prelude
           for item in prebuilt rime-prelude; do
             if [ "$item" = prebuilt ]; then destination="$baseline_dir/lib/fcitx5/src/main/cpp/prebuilt"; else destination="$baseline_dir/plugin/rime/src/main/cpp/rime-prelude"; fi
             if [ -d "$destination" ]; then rmdir "$destination"; fi
-            ln -s "$GITHUB_WORKSPACE/native/$item" "$destination"
+            git clone --shared --no-checkout "$GITHUB_WORKSPACE/native/$item" "$destination"
+            git -C "$destination" checkout --detach "$(git -C "$GITHUB_WORKSPACE/native/$item" rev-parse HEAD)"
           done
+          git -C "$baseline_dir" submodule absorbgitdirs lib/fcitx5/src/main/cpp/prebuilt plugin/rime/src/main/cpp/rime-prelude
           cp app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt "$baseline_dir/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt"
           cd "$baseline_dir"
           ./prepare_personal_build.sh
