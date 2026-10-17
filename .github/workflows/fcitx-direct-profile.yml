@@ -4,10 +4,7 @@ on:
     inputs:
       source_run:
         description: Run that uploaded the four comparison APK artifacts
-        default: '39002393966'
         required: true
-  push:
-    branches: [perf/fcitx-direct-profile-20261017]
 permissions:
   contents: read
   actions: read
@@ -16,7 +13,7 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
-      PERF_SOURCE_RUN: ${{ inputs.source_run || '39002393966' }}
+      PERF_SOURCE_RUN: ${{ inputs.source_run }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v5

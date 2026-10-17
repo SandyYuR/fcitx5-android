@@ -1,8 +1,6 @@
 name: Wanxiang direct frontend comparison
 on:
   workflow_dispatch:
-  push:
-    branches: [perf/direct-rime-wanxiang-20261016]
 permissions:
   contents: read
 concurrency:

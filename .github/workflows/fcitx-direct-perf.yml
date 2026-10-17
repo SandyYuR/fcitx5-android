@@ -1,8 +1,6 @@
 name: Wanxiang Fcitx versus direct comparison
 on:
   workflow_dispatch:
-  push:
-    branches: [perf/fcitx-vs-direct-20261017, perf/fcitx-vs-direct-user-20261017]
 permissions:
   contents: read
 concurrency:
