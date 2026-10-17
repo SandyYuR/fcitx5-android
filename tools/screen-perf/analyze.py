@@ -78,12 +78,14 @@ def analyze(run):
     commits = [float(r['t'])*1000+offset for r in trace if int(r['ed_p']) >= 2 and keytimes[0] <= float(r['t'])*1000+offset <= end]
     # All-key forward metric preserves the supplied tool's definition. It is not per-key
     # engine latency: an unchanged candidate can make it refer to a later key's update.
-    forward, attributed, commit = [], [], []
+    forward, attributed, commit, in_window = [], [], [], []
     matches = []
     for i, t in enumerate(keytimes):
         j = bisect.bisect_left(cand, t)
         if j < len(cand) and cand[j]-t <= 500:
             forward.append(cand[j]-t); matches.append(j)
+            if cand[j] < (keytimes[i+1] if i+1 < len(keytimes) else end):
+                in_window.append(cand[j]-t)
         if events[i]['key'] == ' ':
             j = bisect.bisect_left(commits, t)
             if j < len(commits) and commits[j]-t <= 500: commit.append(commits[j]-t)
@@ -99,6 +101,8 @@ def analyze(run):
         'threshold': {'rgb_sum': 60, 'candidate_changed_pixels': 5, 'editor_changed_pixels': 2},
         'keys': len(events), 'spaces': sum(e['key']==' ' for e in events), 'candidate_changes': len(cand), 'editor_changes': len(commits),
         'forward_candidate': percentiles(forward), 'attributed_candidate': percentiles(attributed), 'space_to_editor': percentiles(commit),
+        'first_candidate_before_next_key': percentiles(in_window),
+        'candidate_key_window_coverage': len(in_window)/len(events),
         'shared_next_candidate_event': len(matches)-len(set(matches)), 'unmatched_keys': len(events)-len(forward),
         'injection_schedule_lateness': percentiles(late), 'actual_key_interval': percentiles(cadence),
         'note': 'Attributed means latest-key attribution of visible changes, not isolated engine cost. Unmatched/shared events do not prove dropped input.'}

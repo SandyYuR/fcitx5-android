@@ -100,20 +100,28 @@ class ScreenFixtureTest {
 
     @Test fun replay(): Unit = runBlocking {
         val backend = args.getString("backend")!!
+        val expectedCommit = if (backend == "fcitx") "cecea494" else "cfd0ddc4"
+        check(BuildConfig.BUILD_GIT_HASH.startsWith(expectedCommit)) { "Unexpected product revision: ${BuildConfig.BUILD_GIT_HASH}" }
         val mode = args.getString("mode")!!
         val schedule = JSONObject(File(ctx.filesDir, "screen-schedule.json").readText())
-        val connection = FcitxDaemon.connect(javaClass.name)
         val profile = "screen-bench"
+        val directory = File(ctx.getExternalFilesDir(null), "data/$profile")
+        check(FcitxDaemon.getFirstConnectionOrNull() == null) { "Engine must be stopped before resetting the benchmark profile" }
+        val reset = directory.listFiles().orEmpty().filter { it.name.contains(".userdb") }
+        reset.forEach { check(it.deleteRecursively()) { "Cannot reset $it" } }
+        if (directory.isDirectory) File(ctx.filesDir, "screen-user.yaml").copyTo(File(directory, "user.yaml"), overwrite = true)
+        val connection = FcitxDaemon.connect(javaClass.name)
         try {
             val prefs = AppPrefs.getInstance()
             ins.runOnMainSync {
                 prefs.candidates.mode.setValue(FloatingCandidatesMode.Disabled)
                 prefs.keyboard.textKeyboardLayoutProfile.setValue("benchmark_builtin")
+                // Preview balloons can cover the candidate strip before Rime reacts.
+                prefs.keyboard.popupOnKeyPress.setValue(false)
                 ThemeManager.prefs.followSystemDayNightTheme.setValue(false)
                 ThemeManager.prefs.keyRippleEffect.setValue(false)
                 ThemeManager.setNormalModeTheme(ThemePreset.MaterialLight)
             }
-            val directory = File(ctx.getExternalFilesDir(null), "data/$profile")
             connection.runOnReady {
                 activate(31001, "io.github.sandyyur.inputbench")
                 if (!directory.isDirectory) {
@@ -130,19 +138,17 @@ class ScreenFixtureTest {
                 activateIme("rime"); focus(true)
             }
             withTimeout(240_000) { while (connection.runOnReady { focus(true); currentIme().subMode.icon } != "fcitx-rime:wanxiang") delay(100) }
-            connection.runOnReady {
-                // User explicitly requested context reorder ON; their YAML lacks its saved option.
-                val action = statusArea().firstOrNull { it.shortText.startsWith("上下文关") }
-                if (action != null) activateAction(action.id)
-            }
-            val labels = connection.runOnReady { statusArea().map { it.shortText } }
-            for (expected in listOf("上下文开", "简码开", "小字集"))
-                assertTrue("Missing $expected; actual=$labels", labels.any { it.startsWith(expected) })
             val component = "${ctx.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
             shell("ime enable $component"); shell("ime set $component")
             shell("am start -W -n io.github.sandyyur.inputbench/.BenchHost")
             await("Keyboard visible") { views().any { it.first.equals("n", true) } }
             delay(1500)
+            connection.runOnReady {
+                // Set after the real editor has created its input session.
+                // User requested context reorder ON; their YAML lacks its saved option.
+                val action = statusArea().firstOrNull { it.shortText.startsWith("上下文关") }
+                if (action != null) activateAction(action.id)
+            }
             // Untimed warmup populates identical paths; real Android hardware events, not API replay.
             for (c in "nihao zhongguo shurufa ") { hardware(c); delay(80) }
             delay(600)
@@ -179,12 +185,19 @@ class ScreenFixtureTest {
             }
             shell("am broadcast -n io.github.sandyyur.inputbench/.BenchControl --es command clear")
             val maps = File("/proc/self/maps").readText()
+            val labels = connection.runOnReady { statusArea().map { it.shortText } }
+            for (expected in listOf("上下文开", "简码开", "小字集"))
+                assertTrue("Missing $expected in actual editor session; actual=$labels", labels.any { it.startsWith(expected) })
             assertTrue("LTS model really mapped", maps.contains("wanxiang-lts-zh-hans.gram"))
             assertEquals("Runtime engine identity", backend == "fcitx", maps.contains("libFcitx5Core.so"))
             val result = JSONObject().put("backend", backend).put("mode", mode).put("commit", BuildConfig.BUILD_GIT_HASH)
                 .put("keys", keys).put("candidate", json(candidate)).put("switch_labels", JSONArray(labels))
                 .put("all_labels", JSONArray(all.map { JSONObject().put("label", it.first).put("rect", json(it.second)) }))
                 .put("model_mapped", true).put("fcitx_core_mapped", maps.contains("libFcitx5Core.so"))
+                .put("reset_databases", JSONArray(reset.map { it.name }))
+                .put("native_libraries_mapped", JSONArray(maps.lineSequence().map { it.substringAfterLast(' ') }
+                    .filter { it.startsWith(ctx.applicationInfo.nativeLibraryDir + "/") && it.endsWith(".so") }
+                    .map { File(it).name }.distinct().sorted().toList()))
             val compiled = File(directory, "build/wanxiang.schema.yaml").readText()
             assertTrue("User page size 6 compiled", Regex("(?m)^\\s+page_size:\\s+6\\s*$").containsMatchIn(compiled))
             assertTrue("User fallback reorder setting compiled", Regex("enable_fallback_reorder:\\s+true").containsMatchIn(compiled))

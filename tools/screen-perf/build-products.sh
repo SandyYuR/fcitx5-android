@@ -42,5 +42,6 @@ for backend in fcitx direct; do
 done
 python3 tools/verify-direct-rime-apk.py "$output_dir/direct.apk"
 sha256sum "$output_dir"/*.apk > "$output_dir/apk-sha256.txt"
+sha256sum tools/screen-perf/ScreenFixtureTest.kt | awk '{print $1}' > "$output_dir/harness-sha256.txt"
 compiler_pids=$(jps -l | awk '$2 == "org.jetbrains.kotlin.daemon.KotlinCompileDaemon" {print $1}')
 if [ -n "$compiler_pids" ]; then kill $compiler_pids; fi

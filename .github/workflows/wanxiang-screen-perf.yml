@@ -6,11 +6,16 @@ on:
         description: Short calibration run only
         type: boolean
         default: false
+      reuse_run:
+        description: Reuse identical pinned APKs from a successful calibration run (optional)
+        type: string
+        default: ''
   push:
     branches: [feat/direct-rime-prototype]
     paths: ['tools/screen-perf/**', '.github/workflows/wanxiang-screen-perf.yml']
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: wanxiang-screen-${{ github.ref }}
   cancel-in-progress: true
@@ -30,9 +35,25 @@ jobs:
         with:
           packages: platform-tools
       - uses: gradle/actions/setup-gradle@v6
-      - name: Build independently pinned products and neutral editor
+        with:
+          cache-read-only: false
+      - name: Download fixed APKs from calibration
+        if: inputs.reuse_run != '' && github.event_name == 'workflow_dispatch'
+        uses: actions/download-artifact@v5
+        with:
+          name: screen-comparison-apks
+          run-id: ${{ inputs.reuse_run }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/screen-apks
+      - name: Build independently pinned products
+        if: inputs.reuse_run == '' || github.event_name != 'workflow_dispatch'
         run: |
           bash tools/screen-perf/build-products.sh "$RUNNER_TEMP/screen-apks"
+      - name: Prepare neutral editor and exact user fixture
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
           bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/screen-host"
           python3 tools/screen-perf/prepare.py "$RUNNER_TEMP/screen-wanxiang.zip"
           mkdir -p build/screen-comparison
@@ -54,8 +75,16 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: wanxiang-touch-screen-comparison
-          path: build/screen-comparison/
+          name: wanxiang-touch-screen-results
+          path: |
+            build/screen-comparison/
+            !build/screen-comparison/**/*.mp4
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: wanxiang-touch-screen-videos
+          path: build/screen-comparison/**/*.mp4
           retention-days: 14
       - uses: actions/upload-artifact@v7
         if: always()

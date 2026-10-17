@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Run only on a disposable KVM emulator. Both product APKs remain unmodified."""
 import argparse
+import hashlib
 import json
 import os
 import re
 import subprocess as sp
 import time
+import zipfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -29,6 +31,9 @@ def main():
     p.add_argument('--pilot', action='store_true')
     args = p.parse_args()
     out = args.output.resolve(); out.mkdir(parents=True, exist_ok=True)
+    harness_hash = hashlib.sha256((HERE/'ScreenFixtureTest.kt').read_bytes()).hexdigest()
+    if (args.apks/'harness-sha256.txt').exists():
+        assert (args.apks/'harness-sha256.txt').read_text().strip() == harness_hash, 'APK instrumentation source differs from this runner'
     assert adb('get-serialno').startswith('emulator-'), 'Disposable emulator required'
     adb('shell', 'setprop', 'debug.hwui.drawing_enabled', 'true')
     for key, value in [('screen_off_timeout', '1800000'), ('accelerometer_rotation', '0'), ('user_rotation', '0'), ('show_touches', '0')]:
@@ -42,15 +47,23 @@ def main():
     sdk = Path(os.environ['ANDROID_HOME'])
     aapt = sorted(sdk.glob('build-tools/*/aapt2'))[-1]
     packages = {}
+    provenance = {'products': {}, 'harness_sha256': harness_hash}
     for backend in ('fcitx', 'direct'):
         apk = args.apks/f'{backend}.apk'
         badging = sp.check_output([str(aapt), 'dump', 'badging', str(apk)], text=True)
         packages[backend] = re.search(r"package: name='([^']+)'", badging)[1]
+        with zipfile.ZipFile(apk) as z:
+            libraries = sorted(name for name in z.namelist() if name.startswith('lib/') and name.endswith('.so'))
+        assert any('Fcitx5Core' in name for name in libraries) == (backend == 'fcitx')
+        provenance['products'][backend] = {'package':packages[backend], 'apk_sha256':hashlib.sha256(apk.read_bytes()).hexdigest(), 'native_libraries':libraries}
         adb('install', '-r', apk)
         adb('install', '-r', args.apks/f'{backend}-tests.apk')
         package = packages[backend]
         adb('shell', 'run-as', package, 'mkdir', '-p', 'files')
     assert packages['fcitx'] != packages['direct']
+    system_ime = next(line for line in adb('shell', 'ime', 'list', '-s').splitlines()
+                      if not any(line.startswith(pkg+'/') for pkg in packages.values()))
+    (out/'provenance.json').write_text(json.dumps(provenance, indent=2))
     adb('install', '-r', args.host)
     adb('push', args.fixture, '/data/local/tmp/wanxiang-perf.zip')
     for package in packages.values():
@@ -69,13 +82,12 @@ def main():
             label = f'{name}-{backend}'; run = out/label; run.mkdir()
             package = packages[backend]
             print(f'START {label}', flush=True)
+            adb('shell', 'ime', 'set', system_ime)
             for pkg in packages.values(): adb('shell', 'am', 'force-stop', pkg)
             adb('shell', 'am', 'force-stop', HOST)
             # Only the disposable benchmark profile is reset, never application/user data.
-            profile = f'/sdcard/Android/data/{package}/files/data/screen-bench'
-            adb('shell', f"if [ -d {profile} ]; then find {profile} -maxdepth 1 -name '*.userdb*' -exec rm -rf '{{}}' +; fi")
             adb('push', HERE/'config/user.yaml', '/data/local/tmp/screen-user.yaml')
-            adb('shell', f'if [ -d {profile} ]; then cp /data/local/tmp/screen-user.yaml {profile}/user.yaml; fi')
+            adb('shell', f"cat /data/local/tmp/screen-user.yaml | run-as {package} sh -c 'cat > files/screen-user.yaml'")
             adb('shell', 'run-as', package, 'rm', '-f', 'files/screen-go', 'files/screen-ready.json', 'files/screen-result.json')
             text = TEXT*repeats if not args.pilot else (' '.join(PHRASES[:8])+' ')
             t, seed, steps = 0, 20240921, []
