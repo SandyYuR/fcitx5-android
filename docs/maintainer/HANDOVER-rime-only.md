@@ -25,6 +25,7 @@
 > **2026-09-28 更新（第十二次引擎实战 + 两个用户可见功能）**：① 新增**第 8 个补丁** `librime-detect-modifications-fingerprint.patch`，修掉「每次冷启动都全量部署、部署期按键直接上屏」——详见 **0.5.16 节**；② 适配层新增两处配套改动 `583e908`（部署期按键吞掉）与 `9bf94e6`（部署提示改为键盘内显示），主仓库 gitlink 前进到 `9bf94e6`；③ 符号/表情/颜文字面板整体换成 Foxy 风格（`4f93612f`），④ 布局编辑器子模式下拉框补「默认」项（`afc57f4b`）。三者均在 `fx-rime-only` 且已推送。
 > **2026-10-05 更新（文档迁移 + 近期改动补记）**：① 全部文档自 `rime-docs` 分支迁入文档站 `docs` 分支（`docs/manual/`、`docs/maintainer/`、`docs/archive/` 三个分区），`rime-docs` 分支按用户要求删除；文档站随 push 自动构建发布到 GitHub Pages（`github-pages` 环境需允许 `docs` 分支部署）。② 补记 10-04~10-05 尚未入账的三条：候选栏高亮改三层结构（`18619aef`，见 0.6.10 节新增条目——内距默认 0→8、`ITEM_HORIZONTAL_PADDING_DP` 10→4 且语义变为「格子↔高亮」四边外间距）；工具栏 100% 高度下图标尺寸回归修复（`3664ef31`，恢复 24dp/10dp 设计值）；内置图标主题安装后刷新主题列表（`49c7c169`，修复全新安装时内置图标主题落盘晚于首次扫描、设置页列表为空，安装后触发重扫并串行化首次扫描与重扫）。用户指南 §8.1 候选栏高亮描述已同步修订。
 > **2026-10-10 更新（方向性划动标签脱离「标点位置」，`4eae6539`）**：用户报障「个别按键配了下滑操作，主题把标点位置设为上方居中后标签跑到上方、手势也变成只能上滑」。两条独立分叉一起修：① `KeyView` 的方向性标签分支不再读 `punctuationPositionForKey()`——上滑标签恒在上、下滑标签恒在下（紧凑高度退同侧角落），`shouldTriggerAltBySwipe` 只按标签方向判定；② 旧单槽 `swipe` / `swipeLabel` / `altLabel` 的方向判定统一到 `LayoutJsonUtils.legacySwipeTargetsUp`（只有「同侧且唯一」才算上滑），读/迁移/编辑三处共用，`punctuationPosition` 与 `swipeSymbolDirection` 都不再参与；**无线索的旧 `swipe` 保持旧槽位**，运行时仍按「符号划动方向（符号隐藏时）」决定。详见 **0.6.13 节**。
+> **2026-10-17 后续修订（旧单槽动作按当前设置迁移）**：布局编辑器加载迁移现在也处理只有 `swipe` 动作的旧键；新版方向槽为空时，`swipeSymbolDirection=Up/Down` 分别迁到上/下槽，`Auto/Disabled` 时按主题 `punctuationPosition` 决定（底部→下滑，顶部或隐藏→上滑）。实际 `TextKeyboard` 直接解析原始 JSON 的路径也采用同一方向解析，并在这两个设置变化时重建键盘行，避免编辑器预览与运行时分叉。旧标签与动作使用同一方向；已有新版方向配置仍优先，`SpaceKey` 仍保留专用语义。详见 **0.6.13 节**。
 > **2026-10-10 更新（10-07~10-10 一批改动补记）**：主仓库本批 15 个提交（`751480cd`..`4eae6539`）此前未入账，现补记。① 候选栏：长候选横向滚动（`751480cd`）+ 候选项序号角标开关（`635d3aa2`）→ **0.6.14**；② 键盘：同一按键分别配置上/下划动宏（`d156052b` + `4f0d6fb8`）→ **0.6.15**（**方向判定规则已在 0.6.13，本节只补字段/编辑器/迁移面**）；③ 键盘标签：双标签高度回退布局统一（`ed38a31b`）→ **0.6.16**；④ 音节选择栏：超出六项改为可滚动（`098ec596`）→ **0.6.17**（**本文多处"音节 tab 全部展示、不可滑动"随之过时，已在 0.6.17 / 第 132 行 / §0.6.10 / §7 第 6 条就地修正**）；⑤ 弹出键盘：多字符候选改走 CommitAction（`b94106da` + `598897b7`）→ **0.6.18**；⑥ PR 工作流与设备按键兼容开关（`0077c401` / `2609dc2d` / `897ece50`）→ **0.6.19**；⑦ 弹出菜单跟随主题整体背景色（`d786dd78`）→ **0.6.20**；⑧ 随机主题评分与即时应用（`43e16fb6`）→ **0.6.21**；⑨ 编码区圆角与工具栏上方圆角接续（`01d0dfee`）→ **0.6.22**。`4eae6539` 即上一段，已由 0.6.13 覆盖（SHA 已补入该段）。**除个别提交外均只做了单测与出包，真机回归未做**（逐条注明）。
 
 ---
@@ -923,8 +924,9 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 **修法**：
 
 - `KeyView` 的方向分支**彻底不读「标点位置」**：新枚举 `DirectionalUpTopCenter` / `DirectionalUpTopRight` / `DirectionalDownBottom` / `DirectionalDownBottomRight` / `DirectionalTopBottom` / `DirectionalCorners`——上滑标签恒在上（居中，键高不够时退右上角）、下滑标签恒在下（居中，键高不够时**退右下角**，不再被翻到上方），双标签在空间不足时改为**各自退到一个角**（此前只保留右上角，会把下滑标签整条吞掉）。`shouldTriggerAltBySwipe` 只按标签方向判定。`KeyView` 里的 `ImageAltTextKeyView`（图标键）同步镜像。
-- **方向判定统一到一条规则**：`LayoutJsonUtils.legacySwipeTargetsUp(hasUpMacro, hasDownMacro, hasUpLabel, hasDownLabel)` —— **只有「同侧且唯一」的槽位才算上滑**，其余（默认、两侧都有、只有下侧）都按下滑。读（`createKeyDef`）、迁移（`migrateDirectionalSwipeFields`）、编辑（`KeyEditorActivity.legacySwipeToDown`）三处共用，`punctuationPosition` 与 `swipeSymbolDirection` **都不再参与方向解析**。
-- **无方向线索的旧 `swipe` 不迁移**：既没有标签、也没有方向字段时保持旧槽位，运行时继续由「符号划动方向（符号隐藏时）」决定（默认 `Auto` = 上下都响应）。钉死到某一侧会悄悄丢掉另一个方向——这批键是「符号隐藏时划动唤出符号」的原用途。
+- **新版方向槽优先**：`LayoutJsonUtils.legacySwipeTargetsUp(hasUpMacro, hasDownMacro, hasUpLabel, hasDownLabel)` 用于已有方向配置时跟随唯一上侧；其余情况按下侧处理，避免旧标签与动作分叉。
+- **旧单槽字段按当前设置迁移**：`LayoutJsonUtils.legacySwipeTargetsUpFromSettings` 在明确选择「上划/下划」时采用该方向；「自动/禁用」时读取主题 `punctuationPosition`（底部→下滑，顶部/隐藏→上滑）。`LayoutDataManager` 加载时把旧 `swipe` 动作（即使没有标签）以及旧 `swipeLabel` / `altLabel` 一起迁到相同方向；编辑器预览使用同一解析结果。`SpaceKey` 不参与迁移。
+- **实际键盘直接读取旧 JSON 也用相同迁移方向**：`TextKeyboard` 调用 `createKeyDef` 时传入当前解析方向，旧 `swipe` 动作（有无标签都一样）与旧标签按设置落到同一方向；设置变化时清理定义缓存并重建键盘行。该运行时兼容解析不写回 JSON；布局编辑器保存后会持久化为明确的 `swipeUp` / `swipeDown` 字段，之后改主题不会翻转方向。
 - **编辑器清掉 MacroKey 的 `altLabel`**：`appendDirectionalSwipeLabels` 原先只 `remove("swipeLabel")`，MacroKey 的旧字段会与新方向标签并存于同一份 JSON。
 
 **留下的不变式**：**「标点位置」只作用于字母键的标点副标签**。凡是带方向性划动标签/动作的键型（`CapsKey` / `LayoutSwitchKey` / `SymbolKey` / `ReturnKey` / `BackspaceKey` / `MacroKey` 的带标签形态），标签位置与触发方向都只由布局配置决定。改这块前先读 `DirectionalSwipeLabelDefTest` 与 `LayoutJsonUtilsTest` 钉住的不变式：标签落槽、标签不凭空生成动作、显式上下宏走 `overrideDefaults`、旧单槽方向规则。
@@ -963,7 +965,7 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 ### 0.6.15 键盘：同一按键分别配置上/下划动宏（2026-10-07 / 10-08，`d156052b` + `4f0d6fb8`）
 
-> **本节只补「字段 / 编辑器 / 迁移」这三面缺失；方向判定规则（`legacySwipeTargetsUp`、标点位置只影响字母键、无线索旧 `swipe` 保持旧槽）已在 §0.6.13，不重复。**
+> **本节只补「字段 / 编辑器 / 迁移」这三面缺失；旧单槽动作按当前方向偏好和主题符号位置归槽的规则见 §0.6.13，不重复。**
 
 **起因**：原先一个按键只有一个划动事件，无法让 Enter 等键的上划与下划分别执行不同的快捷键宏。
 
@@ -973,7 +975,7 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 **编辑器（`KeyEditorActivity.kt`）**：把单一「划动事件」拆成 **「上划事件」/「下划事件」**（`R.string.text_keyboard_layout_macro_swipe_up_event` / `…_swipe_down_event`），可分别配置如 `Ctrl+Shift+Enter` 与 `Shift+Enter`；标签编辑器加 **「上划标签」/「下划标签」**（`…_swipe_up_label` / `…_swipe_down_label`）。非宏键（回车/退格/大小写/符号/布局切换）也接入同一套上/下划编辑器。
 
-**迁移（`migrateDirectionalSwipeFields`，`LayoutJsonUtils.kt`，在 `LayoutDataManager` 两处调用）**：旧单槽 `swipe`/`swipeLabel`/`altLabel` 按 `legacySwipeTargetsUp` 判定目标方向后迁入 `swipeUp`/`swipeDown` 与对应标签，并**移除旧字段**（`KeyEditorActivity.appendDirectionalSwipeLabels` 同时清 MacroKey 的旧 `altLabel`，避免新旧字段并存）。`4f0d6fb8` 是这条迁移与 MacroKey 上下划标签的修复：**保留已存在的 `swipeUp`/`swipeDown` 宏动作不改绑**、给 MacroKey 补独立上/下滑标签、按符号划动方向迁移旧 `altLabel` 并删旧字段、符号位置为「隐藏」时隐藏上下滑标签。
+**迁移（`migrateDirectionalSwipeFields`，`LayoutJsonUtils.kt`，在 `LayoutDataManager` 两处调用）**：旧单槽 `swipe`/`swipeLabel`/`altLabel` 按加载时的设置迁入 `swipeUp`/`swipeDown` 与对应标签，并**移除旧字段**；明确的上/下划偏好直接决定目标，`Auto/Disabled` 由主题符号位置决定。已有新版方向宏仍保留，旧标签和旧动作落在同侧。`KeyEditorActivity.appendDirectionalSwipeLabels` 同时清 MacroKey 的旧 `altLabel`，避免新旧字段并存。`4f0d6fb8` 是这条迁移与 MacroKey 上下划标签的早期修复：**保留已存在的 `swipeUp`/`swipeDown` 宏动作不改绑**、给 MacroKey 补独立上/下滑标签、按符号划动方向迁移旧 `altLabel` 并删旧字段、符号位置为「隐藏」时隐藏上下滑标签。
 
 **测试**：`LayoutJsonUtilsTest`（方向选择 / Shortcut 往返 / 旧字段迁移）、新增 `SwipeSymbolDirectionTest`；`:app:testFxDebugUnitTest` 通过、`build-debug.ps1` 完整 arm64-v8a Debug 构建通过、`git diff --check` 干净。**真机回归未做**：`d156052b` 正文明确「真机上划/下划 Enter 输入行为尚未验证」；需装机核对「同一键上划/下划分别触发不同宏、旧布局升级后方向正确」。
 
