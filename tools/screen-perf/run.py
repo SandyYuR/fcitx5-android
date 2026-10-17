@@ -9,6 +9,7 @@ import subprocess as sp
 import time
 import zipfile
 from pathlib import Path
+from runtime_config import user_seed
 
 HERE = Path(__file__).resolve().parent
 HOST = 'io.github.sandyyur.inputbench'
@@ -32,6 +33,7 @@ def main():
     p.add_argument('--pilot', action='store_true')
     args = p.parse_args()
     out = args.output.resolve(); out.mkdir(parents=True, exist_ok=True)
+    runtime_user = out/'runtime-user.yaml'; runtime_user.write_bytes(user_seed())
     harness_hash = hashlib.sha256((HERE/'ScreenFixtureTest.kt').read_bytes()).hexdigest()
     if (args.apks/'harness-sha256.txt').exists():
         assert (args.apks/'harness-sha256.txt').read_text().strip() == harness_hash, 'APK instrumentation source differs from this runner'
@@ -88,7 +90,7 @@ def main():
             for pkg in packages.values(): adb('shell', 'am', 'force-stop', pkg)
             adb('shell', 'am', 'force-stop', HOST)
             # Only the disposable benchmark profile is reset, never application/user data.
-            adb('push', HERE/'config/user.yaml', '/data/local/tmp/screen-user.yaml')
+            adb('push', runtime_user, '/data/local/tmp/screen-user.yaml')
             adb('shell', f"cat /data/local/tmp/screen-user.yaml | run-as {package} sh -c 'cat > files/screen-user.yaml'")
             adb('shell', 'run-as', package, 'rm', '-f', 'files/screen-go', 'files/screen-ready.json', 'files/screen-result.json')
             text = TEXT*repeats if not args.pilot else (' '.join(PHRASES[:8])+' ')
