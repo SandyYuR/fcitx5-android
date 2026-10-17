@@ -67,7 +67,7 @@ public final class BenchHost extends Activity {
         return new JSONArray().put(xy[0]).put(xy[1]).put(xy[0]+v.getWidth()).put(xy[1]+v.getHeight());
     }
     void control(String command) {
-        if ("clear".equals(command)) { editor.setText(""); editor.requestFocus(); }
+        if ("clear".equals(command)) { editor.getText().clear(); editor.requestFocus(); }
         if ("dump".equals(command)) {
             try {
                 JSONObject obj = new JSONObject().put("text", editor.getText().toString())
