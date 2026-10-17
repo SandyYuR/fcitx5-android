@@ -121,6 +121,7 @@ def main():
 duration_ms: 120000
 write_into_file: true
 file_write_period_ms: 1000
+flush_period_ms: 1000
 data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
   ftrace_events: "sched/sched_switch"
   ftrace_events: "sched/sched_waking"
@@ -133,10 +134,11 @@ data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ pr
         pid = adb('shell', 'perfetto', '--background-wait', '--txt', '-c', '-', '-o', remote, input=config).stdout.strip()
         assert pid.isdigit(), 'Perfetto did not report its capture PID: ' + pid
         replay('direct', 'profile')
-        # Let Perfetto finish naturally. Killing the consumer can leave an empty output;
-        # process exit and a non-empty, fully flushed trace are both required.
+        # Let Perfetto finish naturally. A signal probe (kill -0) can fail because
+        # Android denies signaling its consumer, even while it is still recording.
+        # Check the process directory instead, so we never pull a live partial file.
         for _ in range(300):
-            alive = subprocess.run(['adb', 'shell', 'kill', '-0', pid], capture_output=True).returncode == 0
+            alive = subprocess.run(['adb', 'shell', 'test', '-d', '/proc/' + pid], capture_output=True).returncode == 0
             if not alive:
                 break
             time.sleep(0.5)
