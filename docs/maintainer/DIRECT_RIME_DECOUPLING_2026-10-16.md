@@ -3,6 +3,10 @@
 分支：`feat/direct-rime-prototype`。本次工作以 `1ab4bbe` 的完整界面版为起点。
 APK 继续使用包名 `io.github.sandyyur.rime.direct`、应用名「中州鹅」，保留原键盘与设置界面。
 
+**对照范围更新：** 本页下文比较两个直连版本。原默认分支 Fcitx 与当前直连版在
+用户实际万象配置下的对照、原始数据及完整迁移审计，见
+[2026-10-17 默认分支对照与迁移完成情况](DIRECT_RIME_AUDIT_2026-10-17.md)。
+
 ## CI 修复
 
 `1ab4bbe` 的界面任务失败于 `processFxDebugAndroidTestResources`，测试 APK 中

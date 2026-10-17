@@ -1,0 +1,312 @@
+{
+  "order": [
+    "round1-fcitx",
+    "round1-direct",
+    "round2-direct",
+    "round2-fcitx",
+    "round3-fcitx",
+    "round3-direct"
+  ],
+  "identical_commits": true,
+  "identical_candidate_texts": true,
+  "harness_sha256": "6d742c616d864f23b3b745141d0fdb1923c053148a9728de992894b2433bcc16",
+  "fixture_sha256": "8c9c5bb8d42552286d8b052353aa87b14c835b7882a58f8c2a9487bcab33e293",
+  "fixture_preset": "user-full-pinyin",
+  "apk_sha256": {
+    "fcitx": "6aa507a77508599007a055812d6d5dab707ed8b02ea800badc0c3c6de024c37e",
+    "direct": "27b76aa4e1c5ac68645e0dcda53935d6caaf545d326b8d5a95ef386cfde23945"
+  },
+  "packaged_native_libraries": {
+    "fcitx": [
+      "lib/x86_64/libFcitx5Config.so",
+      "lib/x86_64/libFcitx5Core.so",
+      "lib/x86_64/libFcitx5Utils.so",
+      "lib/x86_64/libandroidfrontend.so",
+      "lib/x86_64/libandroidnotification.so",
+      "lib/x86_64/libc++_shared.so",
+      "lib/x86_64/libclipboard.so",
+      "lib/x86_64/libnative-lib.so",
+      "lib/x86_64/librime.so"
+    ],
+    "direct": [
+      "lib/x86_64/libc++_shared.so",
+      "lib/x86_64/libdirect-rime.so"
+    ]
+  },
+  "metrics": {
+    "fcitx": [
+      {
+        "round": "round1",
+        "wall_ms": 8973.219889,
+        "process_cpu_ms": 9277,
+        "memory_before": {
+          "rss_kib": 336756,
+          "pss_kib": 257252,
+          "java_used_bytes": 3976288,
+          "native_allocated_bytes": 15766400
+        },
+        "memory_after": {
+          "rss_kib": 340344,
+          "pss_kib": 253988,
+          "java_used_bytes": 5717088,
+          "native_allocated_bytes": 15904480
+        },
+        "send_key_return": {
+          "samples": 784,
+          "p50_ms": 11.470013,
+          "p95_ms": 15.859853,
+          "p99_ms": 29.671972,
+          "total_ms": 8804.249221
+        },
+        "key_to_candidates": {
+          "samples": 784,
+          "p50_ms": 11.458153,
+          "p95_ms": 15.908545,
+          "p99_ms": 29.738075,
+          "total_ms": 8786.844939
+        },
+        "space_to_commit": {
+          "samples": 100,
+          "p50_ms": 1.833416,
+          "p95_ms": 2.549189,
+          "p99_ms": 2.820528,
+          "total_ms": 190.811532
+        },
+        "word_to_result": {
+          "samples": 100,
+          "p50_ms": 90.648128,
+          "p95_ms": 141.289652,
+          "p99_ms": 142.874465,
+          "total_ms": 8946.989602
+        }
+      },
+      {
+        "round": "round2",
+        "wall_ms": 8828.18021,
+        "process_cpu_ms": 9160,
+        "memory_before": {
+          "rss_kib": 337856,
+          "pss_kib": 255478,
+          "java_used_bytes": 7235120,
+          "native_allocated_bytes": 15868208
+        },
+        "memory_after": {
+          "rss_kib": 337676,
+          "pss_kib": 255079,
+          "java_used_bytes": 4793904,
+          "native_allocated_bytes": 15887024
+        },
+        "send_key_return": {
+          "samples": 784,
+          "p50_ms": 11.378022,
+          "p95_ms": 15.984605,
+          "p99_ms": 28.950227,
+          "total_ms": 8666.869344
+        },
+        "key_to_candidates": {
+          "samples": 784,
+          "p50_ms": 11.346402,
+          "p95_ms": 16.0245,
+          "p99_ms": 28.856667,
+          "total_ms": 8658.667974
+        },
+        "space_to_commit": {
+          "samples": 100,
+          "p50_ms": 1.786556,
+          "p95_ms": 2.229274,
+          "p99_ms": 3.009411,
+          "total_ms": 186.890216
+        },
+        "word_to_result": {
+          "samples": 100,
+          "p50_ms": 86.434946,
+          "p95_ms": 137.524241,
+          "p99_ms": 145.757781,
+          "total_ms": 8802.368354
+        }
+      },
+      {
+        "round": "round3",
+        "wall_ms": 9046.831432,
+        "process_cpu_ms": 9400,
+        "memory_before": {
+          "rss_kib": 339624,
+          "pss_kib": 256514,
+          "java_used_bytes": 7058992,
+          "native_allocated_bytes": 15954480
+        },
+        "memory_after": {
+          "rss_kib": 339528,
+          "pss_kib": 256006,
+          "java_used_bytes": 4523568,
+          "native_allocated_bytes": 15968832
+        },
+        "send_key_return": {
+          "samples": 784,
+          "p50_ms": 11.481848,
+          "p95_ms": 16.663884,
+          "p99_ms": 29.578577,
+          "total_ms": 8869.867835
+        },
+        "key_to_candidates": {
+          "samples": 784,
+          "p50_ms": 11.470155,
+          "p95_ms": 16.672811,
+          "p99_ms": 29.515878,
+          "total_ms": 8860.3315
+        },
+        "space_to_commit": {
+          "samples": 100,
+          "p50_ms": 1.859123,
+          "p95_ms": 2.460003,
+          "p99_ms": 2.586332,
+          "total_ms": 193.641924
+        },
+        "word_to_result": {
+          "samples": 100,
+          "p50_ms": 89.87815,
+          "p95_ms": 143.528628,
+          "p99_ms": 146.255427,
+          "total_ms": 9021.85763
+        }
+      }
+    ],
+    "direct": [
+      {
+        "round": "round1",
+        "wall_ms": 8298.429576,
+        "process_cpu_ms": 8583,
+        "memory_before": {
+          "rss_kib": 337848,
+          "pss_kib": 251660,
+          "java_used_bytes": 8920944,
+          "native_allocated_bytes": 15611424
+        },
+        "memory_after": {
+          "rss_kib": 339192,
+          "pss_kib": 252442,
+          "java_used_bytes": 7962480,
+          "native_allocated_bytes": 15679968
+        },
+        "send_key_return": {
+          "samples": 784,
+          "p50_ms": 10.649157,
+          "p95_ms": 14.82408,
+          "p99_ms": 26.673332,
+          "total_ms": 8012.19977
+        },
+        "key_to_candidates": {
+          "samples": 784,
+          "p50_ms": 10.781377,
+          "p95_ms": 14.9415,
+          "p99_ms": 26.777685,
+          "total_ms": 8119.798926
+        },
+        "space_to_commit": {
+          "samples": 100,
+          "p50_ms": 1.761481,
+          "p95_ms": 2.187666,
+          "p99_ms": 4.294322,
+          "total_ms": 185.526074
+        },
+        "word_to_result": {
+          "samples": 100,
+          "p50_ms": 79.506185,
+          "p95_ms": 127.565962,
+          "p99_ms": 131.753636,
+          "total_ms": 8269.682668
+        }
+      },
+      {
+        "round": "round2",
+        "wall_ms": 8298.791744,
+        "process_cpu_ms": 8607,
+        "memory_before": {
+          "rss_kib": 336300,
+          "pss_kib": 252566,
+          "java_used_bytes": 9034048,
+          "native_allocated_bytes": 15583328
+        },
+        "memory_after": {
+          "rss_kib": 336776,
+          "pss_kib": 252791,
+          "java_used_bytes": 7665984,
+          "native_allocated_bytes": 15651744
+        },
+        "send_key_return": {
+          "samples": 784,
+          "p50_ms": 10.639636,
+          "p95_ms": 14.181201,
+          "p99_ms": 28.029147,
+          "total_ms": 8001.103853
+        },
+        "key_to_candidates": {
+          "samples": 784,
+          "p50_ms": 10.773933,
+          "p95_ms": 14.348611,
+          "p99_ms": 28.147894,
+          "total_ms": 8111.394614
+        },
+        "space_to_commit": {
+          "samples": 100,
+          "p50_ms": 1.81939,
+          "p95_ms": 2.269749,
+          "p99_ms": 2.74144,
+          "total_ms": 186.392574
+        },
+        "word_to_result": {
+          "samples": 100,
+          "p50_ms": 81.243353,
+          "p95_ms": 130.02497,
+          "p99_ms": 133.988969,
+          "total_ms": 8267.37995
+        }
+      },
+      {
+        "round": "round3",
+        "wall_ms": 8267.269524,
+        "process_cpu_ms": 8560,
+        "memory_before": {
+          "rss_kib": 336420,
+          "pss_kib": 253482,
+          "java_used_bytes": 9042256,
+          "native_allocated_bytes": 15599808
+        },
+        "memory_after": {
+          "rss_kib": 337192,
+          "pss_kib": 253843,
+          "java_used_bytes": 7694672,
+          "native_allocated_bytes": 15668752
+        },
+        "send_key_return": {
+          "samples": 784,
+          "p50_ms": 10.571523,
+          "p95_ms": 14.720075,
+          "p99_ms": 27.577508,
+          "total_ms": 7981.912382
+        },
+        "key_to_candidates": {
+          "samples": 784,
+          "p50_ms": 10.700096,
+          "p95_ms": 14.896402,
+          "p99_ms": 27.688685,
+          "total_ms": 8086.953512
+        },
+        "space_to_commit": {
+          "samples": 100,
+          "p50_ms": 1.794923,
+          "p95_ms": 2.119358,
+          "p99_ms": 2.50008,
+          "total_ms": 181.561633
+        },
+        "word_to_result": {
+          "samples": 100,
+          "p50_ms": 80.677085,
+          "p95_ms": 129.75426,
+          "p99_ms": 132.190249,
+          "total_ms": 8238.053579
+        }
+      }
+    ]
+  }
+}
