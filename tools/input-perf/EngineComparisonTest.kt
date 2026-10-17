@@ -28,6 +28,11 @@ class EngineComparisonTest {
     private val context = instrumentation.targetContext
     private val arguments = InstrumentationRegistry.getArguments()
 
+    private suspend fun FcitxAPI.profileState(): RawConfig {
+        val raw = getAddonSubConfig("rime", "profile-manager")
+        return raw.findByName("cfg") ?: raw
+    }
+
     private fun extract(archive: File, directory: File) {
         val root = directory.canonicalPath + File.separator
         var total = 0L
@@ -88,9 +93,9 @@ class EngineComparisonTest {
         var created = false
         try {
             connection.runOnReady {
-                previous = getAddonSubConfig("rime", "profile-manager")["Current"].value
+                previous = profileState()["Current"].value
                 setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "create"), RawConfig("Name", profile))))
-                val state = getAddonSubConfig("rime", "profile-manager")
+                val state = profileState()
                 check(state["Error"].value.isEmpty()) { state.toString() }
                 created = true
             }
@@ -100,7 +105,7 @@ class EngineComparisonTest {
             connection.runOnReady {
                 setImConfig("rime", RawConfig(arrayOf(RawConfig("PreeditMode", "No"))))
                 setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "switch"), RawConfig("Name", profile))))
-                check(getAddonSubConfig("rime", "profile-manager")["Current"].value == profile)
+                check(profileState()["Current"].value == profile)
                 activate(31001, "perf.replay")
                 setCapFlags(CapabilityFlags.DefaultFlags)
                 setCandidatePagingMode(1)
