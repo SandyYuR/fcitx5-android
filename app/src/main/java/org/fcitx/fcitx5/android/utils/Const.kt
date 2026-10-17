@@ -13,6 +13,10 @@ object Const {
     const val githubRepo = "https://github.com/SandyYuR/fcitx5-android"
     const val licenseSpdxId = "LGPL-2.1-or-later"
     const val licenseUrl = "https://www.gnu.org/licenses/old-licenses/lgpl-2.1"
-    const val privacyPolicyUrl = "https://fcitx5-android.github.io/privacy/"
-    const val faqUrl = "https://fcitx5-android.github.io/faq/"
+    const val directRimeBranch = "feat/direct-rime-prototype"
+    const val directRimeGuideUrl = "$githubRepo/blob/$directRimeBranch/docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md"
+    const val directRimeMaintainerUrl = "$githubRepo/blob/$directRimeBranch/docs/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md"
+    const val directRimeBuildsUrl = "$githubRepo/actions/workflows/direct-rime.yml?query=branch%3Afeat%2Fdirect-rime-prototype"
+    const val privacyPolicyUrl = "$directRimeGuideUrl#隐私与数据"
+    const val faqUrl = "$directRimeGuideUrl#常见问题"
 }

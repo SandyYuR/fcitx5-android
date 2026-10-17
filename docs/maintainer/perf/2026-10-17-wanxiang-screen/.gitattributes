@@ -1,0 +1,7 @@
+# Preserve original result bytes and their SHA-256 across checkout platforms.
+*.json -text -whitespace
+*.txt -text -whitespace
+*.yaml -text -whitespace
+*.gz -text
+*.png -text
+SHA256SUMS -text

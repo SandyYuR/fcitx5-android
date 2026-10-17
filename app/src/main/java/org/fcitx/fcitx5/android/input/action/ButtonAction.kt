@@ -622,7 +622,7 @@ data object BrowseUserDataDirAction : ButtonAction() {
 data object SettingsGlobalOptionsAction : ButtonAction() {
     override val id = "settings_global_options"
     override val defaultIcon = R.drawable.ic_baseline_tune_24
-    override val defaultLabelRes = R.string.global_options
+    override val defaultLabelRes = R.string.rime_settings
     override val iconSlot = "toolbar.settings_global"
 
     override fun execute(
@@ -633,14 +633,14 @@ data object SettingsGlobalOptionsAction : ButtonAction() {
         view: View?,
         onActionComplete: (() -> Unit)?
     ) {
-        AppUtil.launchMainToRoute(context, SettingsRoute.GlobalConfig)
+        AppUtil.launchMainToRoute(context, SettingsRoute.InputMethodConfig(context.getString(R.string.rime_settings), "rime"))
     }
 }
 
 data object SettingsInputMethodsAction : ButtonAction() {
     override val id = "settings_input_methods"
     override val defaultIcon = R.drawable.ic_baseline_language_24
-    override val defaultLabelRes = R.string.input_methods
+    override val defaultLabelRes = R.string.rime_settings
     override val iconSlot = "toolbar.settings_ime"
 
     override fun execute(
@@ -651,7 +651,7 @@ data object SettingsInputMethodsAction : ButtonAction() {
         view: View?,
         onActionComplete: (() -> Unit)?
     ) {
-        AppUtil.launchMainToRoute(context, SettingsRoute.InputMethodList)
+        AppUtil.launchMainToRoute(context, SettingsRoute.InputMethodConfig(context.getString(R.string.rime_settings), "rime"))
     }
 }
 

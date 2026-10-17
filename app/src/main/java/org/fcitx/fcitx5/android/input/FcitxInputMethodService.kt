@@ -144,6 +144,8 @@ private const val STANDALONE_MODIFIER_HOLD_MS = 50L
 
 class FcitxInputMethodService : LifecycleInputMethodService() {
 
+    private val inputDeliveryDiagnostics = org.fcitx.fcitx5.android.core.InputDiagnostics.Collector()
+
     internal lateinit var fcitx: FcitxConnection
 
     private var jobs = Channel<Job>(capacity = Channel.UNLIMITED)
@@ -501,6 +503,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         return job
     }
 
+    /** Capture at the time of the key, before either the service or native owner queues it. */
+    fun postFcitxKeyJob(block: suspend FcitxAPI.() -> Unit): Job {
+        val session = FcitxDaemon.captureInputSession()
+        return postFcitxJob {
+            if (session != null && FcitxDaemon.isCurrentInputSession(session)) block()
+        }
+    }
+
     private suspend fun FcitxAPI.applyCandidatePagingModeIfNeeded(mode: Int) {
         if (appliedCandidatePagingMode == mode) return
         setCandidatePagingMode(mode)
@@ -593,7 +603,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 Timber.d(e, "fcitx event flow unavailable")
                 return@launch
             }
-            events.collect { handleFcitxEvent(it) }
+            events.collect { event ->
+                if (!FcitxDaemon.isCurrentInputSession(event.inputSession)) return@collect
+                androidx.tracing.trace("rime.direct.consume") { handleFcitxEvent(event) }
+            }
         }
         pkgNameCache = PackageNameCache(this)
         recreateInputViewPrefs.forEach {
@@ -641,6 +654,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     private fun handleFcitxEvent(event: FcitxEvent<*>) {
+        inputDeliveryDiagnostics.received(event)
         when (event) {
             is FcitxEvent.ReadyEvent -> {
                 resetCandidatePagingModeCache()
@@ -648,7 +662,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
             is FcitxEvent.CommitStringEvent -> {
                 backspaceBoundaryGuard.onCommit()
-                commitText(event.data.text, event.data.cursor)
+                androidx.tracing.trace("rime.direct.commit") { commitText(event.data.text, event.data.cursor) }
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {
@@ -800,13 +814,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 }
             }
             is FcitxEvent.IMChangeEvent -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    val im = event.data.uniqueName
-                    val subtype = SubtypeManager.subtypeOf(im) ?: return
-                    skipNextSubtypeChange = im
-                    // [^1]: notify system that input method subtype has changed
-                    switchInputMethod(InputMethodUtil.componentName, subtype)
-                }
+                // Rime schema/ascii changes keep the same Android IME subtype.
                 // Update space key label in "Always" floating mode
                 inputView?.updateSpaceLabelOnFloatingMode()
                 if (inputDeviceManager.evaluateOnInputMethodActivate()) {
@@ -1369,7 +1377,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
             val adjustedSym = adjustAlphabetSymForCaps(sym, states)
             val up = forwardedEvent.action == KeyEvent.ACTION_UP
-            postFcitxJob {
+            postFcitxKeyJob {
                 sendKey(adjustedSym, states, forwardedEvent.scanCode, up, timestamp)
             }
             return true
@@ -1713,26 +1721,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
-    /**
-     * When input method changes internally (eg. via language switch key or keyboard shortcut),
-     * we want to notify system that subtype has changed (see [^1]), then ignore the incoming
-     * [onCurrentInputMethodSubtypeChanged] callback.
-     * Input method should only be changed when user changes subtype in system input method picker
-     * manually.
-     */
-    private var skipNextSubtypeChange: String? = null
-
     override fun onCurrentInputMethodSubtypeChanged(newSubtype: InputMethodSubtype) {
         super.onCurrentInputMethodSubtypeChanged(newSubtype)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             val im = SubtypeManager.inputMethodOf(newSubtype)
             Timber.d("onCurrentInputMethodSubtypeChanged: im=$im")
-            // don't change input method if this "subtype change" was our notify to system
-            // see [^1]
-            if (skipNextSubtypeChange == im) {
-                skipNextSubtypeChange = null
-                return
-            }
             postFcitxJob {
                 activateIme(im)
             }
@@ -1757,6 +1750,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         android.util.Log.i("FcitxColdStart", "service.onStartInput restarting=$restarting")
+        val engineGeneration = FcitxDaemon.invalidateInputSession()
         isInInputLifecycleCriticalPhase = true
         onBackspaceGuardSessionChanged()
         try {
@@ -1773,6 +1767,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 if (restarting) {
                     focus(false)
                 }
+                startInputSession(engineGeneration, attribute.packageName.orEmpty())
                 setCapFlags(flags)
                 if (!isNullType) {
                     focus(true)
@@ -2156,6 +2151,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onFinishInput() {
+        FcitxDaemon.invalidateInputSession()
         Timber.d("onFinishInput")
         onBackspaceGuardSessionChanged()
         MainService.stopSyncService(this)
@@ -2167,6 +2163,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onUnbindInput() {
+        FcitxDaemon.invalidateInputSession()
         cachedKeyEvents.evictAll()
         cachedKeyEventIndex = 0
         cursorUpdateIndex = 0
@@ -2182,6 +2179,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onDestroy() {
+        FcitxDaemon.invalidateInputSession()
         MainService.stopSyncService(this)
         recreateInputViewPrefs.forEach {
             it.unregisterOnChangeListener(recreateInputViewListener)

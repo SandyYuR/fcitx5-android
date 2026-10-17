@@ -70,6 +70,10 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
+            android:name=".ui.main.settings.im.RimeImportActivity"
+            android:exported="false"
+            android:label="@string/direct_rime_import" />
+        <activity
             android:name=".ui.main.LogActivity"
             android:directBootAware="true"
             android:exported="false"

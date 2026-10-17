@@ -264,7 +264,6 @@ class MacroEditorActivity : AppCompatActivity() {
             "edit_text_keyboard_layout",
             "text_keyboard_layout_file_select",
             "edit_fontset",
-            "addon_list",
             "edit_buttons",
             "split_keyboard_calibration",
             "web_editor_bridge"
@@ -1632,9 +1631,9 @@ class MacroEditorActivity : AppCompatActivity() {
                 "input_method_options" -> getString(R.string.input_method_options)
                 "undo" -> getString(R.string.undo)
                 "redo" -> getString(R.string.redo)
-                "settings_global_options" -> getString(R.string.global_options)
+                "settings_global_options" -> getString(R.string.rime_settings)
                 // no longer offered by the picker, but older macros may still carry it
-                "settings_input_methods" -> getString(R.string.input_methods)
+                "settings_input_methods" -> getString(R.string.rime_settings)
                 "settings_candidates_window" -> getString(R.string.candidates_window)
                 "settings_clipboard" -> getString(R.string.clipboard)
                 "settings_symbol" -> getString(R.string.emoji_and_symbols)
@@ -1645,7 +1644,7 @@ class MacroEditorActivity : AppCompatActivity() {
                 "edit_text_keyboard_layout" -> getString(R.string.edit_text_keyboard_layout)
                 "text_keyboard_layout_file_select" -> getString(R.string.text_keyboard_layout_file_select_title)
                 "edit_fontset" -> getString(R.string.edit_fontset)
-                "addon_list" -> getString(R.string.addons)
+                "addon_list" -> getString(R.string.rime_settings)
                 "table_input_methods" -> getString(R.string.macro_editor_table_input_methods)
                 "pinyin_custom_phrase" -> getString(R.string.macro_editor_pinyin_custom_phrase)
                 "pinyin_dict" -> getString(R.string.macro_editor_pinyin_dict)

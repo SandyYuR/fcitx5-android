@@ -1,0 +1,119 @@
+{
+  "date_utc": "2026-10-16",
+  "branch": "feat/direct-rime-prototype",
+  "source_base": "a714feff77fd79082807b9c7141e0515c8c83f73",
+  "code_commit": "826ba31e4b440c372fa5300825471f3619dc7118",
+  "application_id": "io.github.sandyyur.rime.direct",
+  "application_label": "Rime 直连",
+  "launcher": "org.fcitx.fcitx5.android.ui.main.MainActivity",
+  "build_option": "-PdirectRimeFrontend=true :app:assembleFxDebug",
+  "signer_certificate_sha256": "49554e18dbb5c87805b824e09a06db8d994f5e39c904621f17b1248517b9bcd5",
+  "same_signer_as_previous_prototype": true,
+  "apks": [
+    {
+      "file": "direct-rime-frontend-arm64-v8a-debug.apk",
+      "abi": "arm64-v8a",
+      "bytes": 25652686,
+      "sha256": "ca44f607ab86263cb8721582574504cacf66784245203665421a480f3f1491f6",
+      "packaged_native_libraries": [
+        "libFcitx5Config.so",
+        "libFcitx5Utils.so",
+        "libc++_shared.so",
+        "libdirect-rime.so"
+      ],
+      "keyboard_layout_presets": 6
+    },
+    {
+      "file": "direct-rime-frontend-x86_64-debug.apk",
+      "abi": "x86_64",
+      "bytes": 25748669,
+      "sha256": "f8358c632044543822088525fabdd0f915dee873767e2a54ad0cefe0a367af36",
+      "packaged_native_libraries": [
+        "libFcitx5Config.so",
+        "libFcitx5Utils.so",
+        "libc++_shared.so",
+        "libdirect-rime.so"
+      ],
+      "keyboard_layout_presets": 6
+    }
+  ],
+  "checks": {
+    "full_frontend_debug_builds": [
+      "arm64-v8a",
+      "x86_64"
+    ],
+    "jvm": {
+      "tests": 468,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_contract": "ASan/UBSan passed; detect_leaks=0 on this ptraced host",
+    "local_android": {
+      "api": 35,
+      "abi": "x86_64",
+      "image": "aosp_atd",
+      "virtualization": "TCG without KVM",
+      "tests": 4,
+      "failures": 0,
+      "test_code_commit": "5c0e255d8da43e1de9bb75fc4b0581259b58c694",
+      "log": "direct-frontend-android-tests.txt",
+      "coverage": [
+        "original settings, themes and layout editor",
+        "real soft key and candidate touches commit Chinese into EditText",
+        "candidate paging, global selection, schema switching and input sessions",
+        "profile ZIP import and first-prototype data migration"
+      ]
+    },
+    "ci": {
+      "code_commit": "826ba31e4b440c372fa5300825471f3619dc7118",
+      "direct_run": "https://github.com/SandyYuR/fcitx5-android/actions/runs/38905886844",
+      "original_run": "https://github.com/SandyYuR/fcitx5-android/actions/runs/38905886831",
+      "status": "success",
+      "direct_jobs": {
+        "prototype": "success",
+        "android_smoke": "success",
+        "full_frontend_arm64": "success",
+        "full_frontend_android": "success"
+      },
+      "frontend_android": {
+        "api": 35,
+        "abi": "x86_64",
+        "image": "aosp_atd",
+        "virtualization": "KVM",
+        "tests": 4,
+        "failures": 0,
+        "html_report": "connected/debug/flavors/fx/org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.html",
+        "artifact": "direct-rime-frontend-ci-validation.zip"
+      },
+      "original_jvm": "success",
+      "original_debug_build": "success"
+    },
+    "full_app_lint": {
+      "status": "failed_existing_issues",
+      "errors": 318,
+      "warnings": 615,
+      "missing_translation_errors": 286,
+      "error_source_lines_present_in_default_branch_base": 318,
+      "new_direct_frontend_errors": 0,
+      "command": ":app:assembleFxDebug :app:lintFxDebug",
+      "report": "direct-rime-frontend-lint.txt"
+    }
+  },
+  "limitations": [
+    "No performance comparison claim; same-device A/B still needed",
+    "Vendor editors, complex hardware key compositions and long sessions need physical-device regression",
+    "Single active librime session; the original Fcitx per-UID composition cache is not emulated",
+    "Full dictionaries are supplied by the user; the test dictionary is not in the full frontend APK"
+  ],
+  "screenshots": {
+    "source_commit": "826ba31e4b440c372fa5300825471f3619dc7118",
+    "source": "CI frontend-diagnostics from the successful four-test run",
+    "files": [
+      "settings.png",
+      "rime-settings.png",
+      "layout-editor.png",
+      "commit.png"
+    ]
+  }
+}
