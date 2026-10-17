@@ -6,6 +6,25 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class IniCodecTest {
+    @Test fun legacyQuotedProfileValuesRemainCompatible() {
+        // Compatibility fixtures from Fcitx 5.1.21 test/teststringutils.cpp.
+        // Exercise the codec used for real profiles rather than the retired JNI helper.
+        val values = listOf(
+            "\"" to "\"\\\"\"",
+            "\"\"\n" to "\"\\\"\\\"\\n\"",
+            "abc" to "abc",
+            "ab\"c" to "\"ab\\\"c\"",
+            "a c" to "\"a c\"",
+            "工 " to "\"工 \"",
+            "\r\u000b\u000c\n\t\\\" " to "\"\\r\\v\\f\\n\\t\\\\\\\" \""
+        )
+        values.forEach { (value, encoded) ->
+            assertEquals(value, IniCodec.decode("Value=$encoded\n")["Value"].value)
+            val config = RawConfig(arrayOf(RawConfig("Value", value)))
+            assertEquals("Value=$encoded", IniCodec.encode(config).trimEnd('\n'))
+        }
+    }
+
     @Test fun existingProfilePathsAndEscapedValuesRemainReadable() {
         val ini = IniCodec.decode("""
             # existing profile

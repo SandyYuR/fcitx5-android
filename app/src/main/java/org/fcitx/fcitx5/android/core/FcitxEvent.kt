@@ -169,12 +169,7 @@ sealed class FcitxEvent<T>(open val data: T) {
         override val eventType = EventType.PagedCandidate
 
         enum class LayoutHint {
-            NotSet, Vertical, Horizontal;
-
-            companion object {
-                private val Types = entries.toTypedArray()
-                fun of(value: Int) = Types[value]
-            }
+            NotSet, Vertical, Horizontal
         }
 
         data class Data(
@@ -228,35 +223,10 @@ sealed class FcitxEvent<T>(open val data: T) {
          * [fcitx/event.h](https://github.com/fcitx/fcitx5/blob/5.1.16/src/lib/fcitx/event.h#L41)
          */
         enum class Reason {
-            Trigger, Deactivate, AltTrigger, Activate, Enumerate, GroupChange, CapabilityChanged, Other;
-
-            companion object {
-                private val Types = entries.toTypedArray()
-                fun of(value: Int) = Types[value]
-            }
+            Trigger, Deactivate, AltTrigger, Activate, Enumerate, GroupChange, CapabilityChanged, Other
         }
 
         data class Data(val reason: Reason, val oldInputMethod: String)
-    }
-
-    data class UnknownEvent(override val data: Array<Any>) : FcitxEvent<Array<Any>>(data) {
-
-        override val eventType = EventType.Unknown
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as UnknownEvent
-
-            if (!data.contentEquals(other.data)) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return data.contentHashCode()
-        }
     }
 
     enum class EventType {
@@ -270,106 +240,6 @@ sealed class FcitxEvent<T>(open val data: T) {
         StatusArea,
         DeleteSurrounding,
         PagedCandidate,
-        SwitchInputMethod,
-        Unknown
-    }
-
-    companion object {
-
-        private val Types = EventType.entries.toTypedArray()
-
-        // Recent CandidateWords are interned so repeated keystrokes delivering the same
-        // candidates reuse identical instances; structural equality checks (snapshot
-        // compares, adapter prefix/suffix diff) then hit the identity fast path of the
-        // data-class equals instead of comparing strings every time.
-        private const val CANDIDATE_INTERN_MAX = 256
-        private val candidateInternCache =
-            LinkedHashMap<CandidateWord, CandidateWord>(128, 0.75f, true)
-
-        internal fun internCandidates(candidates: Array<CandidateWord>): Array<CandidateWord> {
-            synchronized(candidateInternCache) {
-                for (i in candidates.indices) {
-                    val word = candidates[i]
-                    val cached = candidateInternCache[word]
-                    if (cached == null) {
-                        if (candidateInternCache.size >= CANDIDATE_INTERN_MAX) {
-                            val eldest = candidateInternCache.entries.iterator()
-                            eldest.next()
-                            eldest.remove()
-                        }
-                        candidateInternCache[word] = word
-                    } else if (cached !== word) {
-                        candidates[i] = cached
-                    }
-                }
-            }
-            return candidates
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        fun create(type: Int, params: Array<Any>) =
-            when (Types[type]) {
-                EventType.Candidate -> CandidateListEvent(
-                    CandidateListEvent.Data(
-                        params[0] as Int,
-                        internCandidates(params[1] as Array<CandidateWord>)
-                    )
-                )
-                EventType.Commit -> CommitStringEvent(
-                    CommitStringEvent.Data(
-                        params[0] as String,
-                        params[1] as Int
-                    )
-                )
-                EventType.ClientPreedit -> ClientPreeditEvent(params[0] as FormattedText)
-                EventType.InputPanel -> InputPanelEvent(
-                    InputPanelEvent.Data(
-                        params[0] as FormattedText,
-                        params[1] as FormattedText,
-                        params[2] as FormattedText,
-                        params[3] as Array<CandidateAction>
-                    )
-                )
-                EventType.Ready -> ReadyEvent()
-                EventType.Key -> KeyEvent(
-                    KeyEvent.Data(
-                        KeySym(params[0] as Int),
-                        KeyStates.of(params[1] as Int),
-                        params[2] as Int,
-                        params[3] as Boolean,
-                        params[4] as Int
-                    )
-                )
-                EventType.Change -> IMChangeEvent(params[0] as InputMethodEntry)
-                EventType.StatusArea -> StatusAreaEvent(
-                    StatusAreaEvent.Data(
-                        params[0] as Array<Action>,
-                        params[1] as InputMethodEntry
-                    )
-                )
-                EventType.DeleteSurrounding -> (params[0] as IntArray).let {
-                    DeleteSurroundingEvent(DeleteSurroundingEvent.Data(it[0], it[1]))
-                }
-                EventType.PagedCandidate -> if (params.isEmpty()) {
-                    PagedCandidateEvent(PagedCandidateEvent.Data.Empty)
-                } else {
-                    PagedCandidateEvent(
-                        PagedCandidateEvent.Data(
-                            internCandidates(params[0] as Array<CandidateWord>),
-                            params[1] as Int,
-                            PagedCandidateEvent.LayoutHint.of(params[2] as Int),
-                            params[3] as Boolean,
-                            params[4] as Boolean
-                        )
-                    )
-                }
-                EventType.SwitchInputMethod -> SwitchInputMethodEvent(
-                    SwitchInputMethodEvent.Data(
-                        SwitchInputMethodEvent.Reason.of(params[0] as Int),
-                        params[1] as String
-                    )
-                )
-                else -> UnknownEvent(params)
-            }
+        SwitchInputMethod
     }
 }

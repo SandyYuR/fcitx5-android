@@ -79,10 +79,12 @@ def verify(path):
         names = {decoded_name(info) for info in apk.infolist()}
         dex_files = sorted(n for n in names if re.fullmatch(r"classes\d*\.dex", n))
         assert dex_files, "APK has no application DEX"
-        obsolete = ("Lorg/fcitx/fcitx5/android/core/Fcitx", "Lorg/fcitx/fcitx5/android/core/FcitxDispatcher")
+        obsolete = ("Lorg/fcitx/fcitx5/android/core/Fcitx",
+                    "Lorg/fcitx/fcitx5/android/core/FcitxDispatcher",
+                    "Lorg/fcitx/fcitx5/android/core/FcitxUtils")
         legacy = sorted(name for dex in dex_files for name in dex_classes(apk.read(dex))
                         if any(name == prefix + ";" or name.startswith(prefix + "$") for prefix in obsolete))
-        assert not legacy, f"Unused legacy backend classes remain: {legacy}"
+        assert not legacy, f"Retired backend or helper classes remain: {legacy}"
         libs = sorted(n for n in names if n.startswith("lib/") and n.endswith(".so"))
         assert libs, "APK has no native engine"
         alignments = {n.split('/')[1]: 16384 if n.split('/')[1] in {"arm64-v8a", "x86_64"} else 4096 for n in libs}

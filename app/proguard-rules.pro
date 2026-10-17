@@ -8,8 +8,6 @@
 # disable obfuscation
 -dontobfuscate
 
-# Keep JNI interface
--keep class org.fcitx.fcitx5.android.core.* { *; }
 # Keep dependency magic
 -keep class ** extends org.mechdancer.dependency.Component {
     int hashCode();
