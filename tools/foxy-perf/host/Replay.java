@@ -135,6 +135,8 @@ public final class Replay extends Instrumentation {
             runOnMainSync(() -> host.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS)));
             long deadline = now()+5_000_000_000L;
             while (imeHas(null) && now()<deadline) SystemClock.sleep(20);
+            if (imeHas(null)) throw new IllegalStateException("Non-editor Settings did not hide the IME");
+            phases.put(new JSONObject().put("phase", "noneditor").put("hidden_observed_ns", now()));
             SystemClock.sleep(500);
             phase("rebind", points, rounds);
             JSONObject output = new JSONObject().put("phases", phases).put("samples", samples)

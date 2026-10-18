@@ -41,6 +41,10 @@ librime 的 session 与操作由单一 owner 串行管理。输入会话变更�
 启动/绑定期间的首键可在原队列中短时等待；每次 Android 编辑器仍有独立代次。
 同应用普通文本绑定复用原生 session，跨应用与敏感输入边界重建；
 具体接收限制、状态清理和诊断标签见[响应性改进](DIRECT_RIME_RESPONSIVENESS_2026-10-18.md)。
+非输入框页面不因窗口显示/focus 创建会话；真实按键及主动模式/方案操作才请求启用。
+展开候选按最多 8 项分批进入 owner，批间允许按键排队，取消/版本失效不返回混合页面。
+原生诊断进一步分开 core、commit/context/status/tabs 读取；见
+[Foxy 审查后的修复](DIRECT_RIME_FOXY_FIXES_2026-10-18.md)。
 界面读取缓存直接在调用线程执行；native 运算仍在 owner。首次候选点选的原 Fcitx 对照、
 编辑器排版边界及 `select_queue` / `commit` 新计时见
 [首次点选报告](DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md)。
@@ -139,6 +143,13 @@ gh workflow run wanxiang-screen-perf.yml --ref feat/direct-rime-prototype -f pil
 录屏及完整结果保存 14 天，报告中的压缩差分、时间戳、原始事件及摘要随分支永久归档。
 LTS 标签可变；下载哈希不一致时应明确选择并记录新的模型版本，不能跳过检查。
 当前回放用一次性 KVM 模拟器，勿在个人日用输入法数据上运行：它会重置专用测试档案及学习库。
+
+`tools/foxy-perf/` 另提供两款未修改 ARM64 Release APK 的外部触摸驱动。
+Foxy 使用上传的原包；两边都经 API 30 Google APIs 模拟器的 ARM64 翻译桥运行。
+方法、编译/签名来源、配置核验及缓存边界见[工具说明](../../tools/foxy-perf/README.md)。
+复用 Release 必须验证产品目录与保存的源码哈希一致，不能把旧 APK 标为新提交。
+Release 保留 R8 和 ART profile 编译/打包，使用 ProfileInstaller；检查二进制 profile
+可运行 `python3 tools/foxy-perf/apk_profiles.py PATH.apk`。文本规则数量不等于实际编译收益。
 
 ## 设置中保留的兼容内容
 

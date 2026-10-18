@@ -63,8 +63,13 @@ def main():
         adb('shell', 'settings', 'put', namespace, key, value)
     # A Google system image supplies the ARM64 native bridge. Stop unrelated
     # background setup/sync work on this disposable device for both products.
-    for package in ['com.google.android.gms', 'com.google.android.setupwizard', 'com.google.android.googlequicksearchbox']:
+    background = ['com.google.android.gms', 'com.google.android.setupwizard', 'com.google.android.googlequicksearchbox',
+        'com.google.android.apps.maps', 'com.google.android.apps.messaging', 'com.google.android.calendar',
+        'com.google.android.videos', 'com.google.android.apps.photos', 'com.google.android.gm',
+        'com.google.android.ims', 'com.android.chrome', 'com.google.android.youtube']
+    for package in background:
         adb('shell', 'pm', 'disable-user', '--user', '0', package, check=False)
+    (a.output/'disabled-background-packages.json').write_text(json.dumps(background, indent=2))
     (a.output/'properties.txt').write_text(adb('shell', 'getprop'))
     assert 'arm64-v8a' in adb('shell', 'getprop', 'ro.product.cpu.abilist')
     adb('install', '-r', a.host)
@@ -87,6 +92,17 @@ def main():
             target = f'/sdcard/Android/data/{package}/files/{relative}'
             adb('shell', 'mkdir', '-p', target)
             adb('push', str(raw)+'/.', target)
+            # Root adbd writes can retain storage_file labels on Android 11.
+            # Restore normal external-media labels and app ownership before the
+            # app reads its profile. Keep SELinux enforcing for both products.
+            physical = target.replace('/sdcard/', '/data/media/0/', 1)
+            uid_text = adb('shell', 'cmd', 'package', 'list', 'packages', '-U', package)
+            uid = re.search(r'uid:(\d+)', uid_text).group(1)
+            before = adb('shell', 'ls', '-ldZ', physical, physical+'/default.yaml')
+            adb('shell', 'chown', '-R', uid+':'+uid, physical)
+            adb('shell', 'restorecon', '-RF', physical)
+            after = adb('shell', 'ls', '-ldZ', physical, physical+'/default.yaml')
+            (out/'fixture-permissions.txt').write_text('BEFORE\n'+before+'\nAFTER\n'+after+'\n'+adb('shell', 'getenforce'))
             ime = selected_ime(package)
             adb('logcat', '-c')
             adb('shell', 'am', 'start', '-W', '-n', HOST+'/.BenchHost')

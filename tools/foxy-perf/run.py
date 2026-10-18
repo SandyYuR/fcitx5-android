@@ -34,7 +34,9 @@ def analyze(directory, replay):
             continue
         editor = json.loads(path.read_text())
         samples = [s for s in replay.get('samples', []) if s['phase'] == phase and 'candidate_down_ns' in s]
-        commits = editor['commits']
+        # Some IMEs clear an old composition with an empty commit on binding.
+        # Keep all raw callbacks, but count nonempty text deliveries one-to-one.
+        commits = [c for c in editor['commits'] if c['text']]
         if len(commits) != len(samples) or editor['text'] != '你'*len(samples):
             raise ValueError(f'{phase}: unmatched commits or editor output')
         for sample, commit in zip(samples, commits):
