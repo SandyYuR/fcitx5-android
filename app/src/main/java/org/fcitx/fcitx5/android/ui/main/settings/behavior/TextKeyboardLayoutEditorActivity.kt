@@ -573,6 +573,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
      */
     private var subModeSpinnerSelectionMap: List<String?> = emptyList()
 
+    private var pendingManagerAction: String? = null
     private var lastEditingTarget: String? = null
     private var saveMenuItem: MenuItem? = null
     private val qrChunkCollector = QrChunkCollector()
@@ -620,10 +621,17 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
         // 初始化子模式管理器（必须在 loadState 之前）
         subModeManager = SubModeManager(fcitxConnection, allImesFromJson, dataManager.entries)
-        currentLayoutProfile = currentActiveProfile()
-        layoutFile = provider.textKeyboardLayoutFile()
+        currentLayoutProfile = if (intent.hasExtra(EXTRA_INITIAL_PROFILE)) {
+            savedInstanceState?.getString(STATE_LAYOUT_PROFILE)
+                ?: UserConfigFiles.normalizeTextKeyboardLayoutProfile(intent.getStringExtra(EXTRA_INITIAL_PROFILE).orEmpty())
+                ?: currentActiveProfile()
+        } else currentActiveProfile()
+        layoutFile = UserConfigFiles.textKeyboardLayoutJson(currentLayoutProfile)
         // Synchronous, because onSaveInstanceState may run before loadState() completes.
         savedInstanceState?.let(::captureDraftReference)
+
+        pendingManagerAction = savedInstanceState?.getString(EXTRA_MANAGER_ACTION)
+            ?: if (savedInstanceState == null) intent.getStringExtra(EXTRA_MANAGER_ACTION) else null
 
         // loadState() reads the layout file on IO, so the rest of setup runs after it.
         lifecycleScope.launch {
@@ -661,6 +669,20 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             // Housekeeping last, so it never delays the editor appearing: a process killed
             // outright leaves its draft snapshot behind, since onDestroy never ran.
             pruneStaleDraftSnapshots()
+            val action = pendingManagerAction
+            pendingManagerAction = null
+            intent.removeExtra(EXTRA_MANAGER_ACTION)
+            when (action) {
+                ACTION_CREATE_PROFILE -> openCreateLayoutFileDialog()
+                ACTION_RENAME_PROFILE -> openRenameLayoutFileDialog()
+                ACTION_DELETE_PROFILE -> confirmDeleteCurrentLayoutFile()
+                ACTION_SHARE_PROFILE -> exportLayoutAsQrLongImage()
+                ACTION_IMPORT_PROFILE -> AlertDialog.Builder(this@TextKeyboardLayoutEditorActivity)
+                    .setTitle(R.string.text_keyboard_layout_manage_title)
+                    .setItems(arrayOf(getString(R.string.text_keyboard_layout_qr_import_scan), getString(R.string.text_keyboard_layout_qr_import_image))) { _, which ->
+                        if (which == 0) startCameraScanImport() else pickImageLauncher.launch("image/*")
+                    }.show()
+            }
         }
     }
 
@@ -684,6 +706,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        outState.putString(EXTRA_MANAGER_ACTION, pendingManagerAction)
         outState.putString(STATE_CURRENT_LAYOUT, currentLayout)
         outState.putString(STATE_PREVIEW_SUBMODE, previewSubModeLabel)
         // previewSubModeLabel == null 是"选中了默认项"这一有效选择，与"Bundle 里没有这个键"
@@ -962,11 +985,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         // 使用 dataManager 加载数据（IO 线程）
         dataManager.loadFromFileAsync(file)
 
-        val initialLayout = intent.getStringExtra(EXTRA_INITIAL_LAYOUT)
+        val initialEntry = intent.getStringExtra(EXTRA_INITIAL_LAYOUT)
             ?.takeIf { entries.containsKey(it) }
-        if (initialLayout != null) {
-            currentLayout = initialLayout
-        }
+            ?.let(LayoutJsonUtils::parseEntryKey)
+        if (initialEntry != null) currentLayout = initialEntry.layoutName
 
         // 初始化 currentLayout 和 previewSubModeLabel（基于当前 IME 状态）
         val (currentIme, fcitxLabels) = subModeManager.fetchCurrentImeAndSubModeLabels(currentLayout.orEmpty())
@@ -1002,6 +1024,14 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             previewSubModeLabel = currentSubModeLabel
                 ?.takeIf { it in allLabels }
                 ?.takeIf { editingTargetFor(layoutNameForTarget, it) != "$layoutNameForTarget:default" }
+        }
+
+        // A manager entry targets an exact existing base/sub-layout/variant. Opening it
+        // must not select the active schema instead, or activate a different profile.
+        if (initialEntry != null) {
+            previewSubModeLabel = initialEntry.subLayout
+            editingSplit = initialEntry.isSplit
+            intent.removeExtra(EXTRA_INITIAL_LAYOUT)
         }
 
         // 初始化 lastEditingTarget
@@ -1131,7 +1161,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     private fun buildSubModeSpinner(forceResetSelection: Boolean = false) {
         val layoutName = currentLayout ?: return
-        val layoutLabels = subModeManager.extractSubModeLabelsFromLayout(layoutName)
+        // A manager can target an existing layer that is not an installed input schema.
+        // Include the explicit selection without inventing or renaming any storage keys.
+        val requestedLabel = previewSubModeLabel?.takeIf { label ->
+            entries.containsKey(LayoutJsonUtils.entryKeyOf(layoutName, label, LayoutVariant.Docked)) ||
+                entries.containsKey(LayoutJsonUtils.entryKeyOf(layoutName, label, LayoutVariant.Split))
+        }
+        val layoutLabels = (subModeManager.extractSubModeLabelsFromLayout(layoutName) + listOfNotNull(requestedLabel)).distinct()
         val isRime = subModeManager.isCurrentLayoutRime(layoutName)
         val shouldShowForLayout = layoutLabels.isNotEmpty() || isRime
         if (!shouldShowForLayout) {
@@ -1160,6 +1196,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         val subModeState = subModeManager.resolveSubModeState(layoutName, layoutLabels)
         val currentIme = subModeState.currentIme
         val labels = subModeState.labels
+        // Resolve stored schema IDs to the labels used by the selector before validating
+        // its position; otherwise opening one schema could select another schema's row.
+        if (requestedLabel != null) {
+            previewSubModeLabel = labels.firstOrNull {
+                subModeManager.resolveStorageLabel(layoutName, it) == requestedLabel
+            } ?: requestedLabel
+        }
 
         if (labels.isEmpty()) {
             hideSubModeSpinner()
@@ -1715,6 +1758,27 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     private var rowsAdapter: KeyboardLayoutAdapter? = null
+    private val editorThemeChangeListener = ThemeManager.OnThemeChangeListener {
+        refreshEditorKeyColors()
+    }
+
+    private fun refreshEditorKeyColors() {
+        rowsRecyclerView.post {
+            rowsAdapter?.let { it.notifyItemRangeChanged(0, it.itemCount) }
+            auxBarDialogKeysAdapter?.let { it.notifyItemRangeChanged(0, it.itemCount) }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        ThemeManager.addOnChangedListener(editorThemeChangeListener)
+        refreshEditorKeyColors()
+    }
+
+    override fun onStop() {
+        ThemeManager.removeOnChangedListener(editorThemeChangeListener)
+        super.onStop()
+    }
     private var rowTouchHelper: ItemTouchHelper? = null
     private var currentRowsRef: MutableList<MutableList<MutableMap<String, Any?>>> = mutableListOf()
 
@@ -1788,6 +1852,28 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
                 override fun onDeleteRowClick(rowIndex: Int) {
                     confirmDeleteRow(rowIndex)
+                }
+
+                override fun onEditRowClick(rowIndex: Int) {
+                    val row = currentRowsRef.getOrNull(rowIndex) ?: return
+                    val labels = row.mapIndexed { index, key ->
+                        "${index + 1}. ${rowsAdapter?.buildKeyLabel(key).orEmpty()}"
+                    } + getString(R.string.text_keyboard_layout_add_key)
+                    AlertDialog.Builder(this@TextKeyboardLayoutEditorActivity)
+                        .setTitle(R.string.text_keyboard_layout_edit_row)
+                        .setItems(labels.toTypedArray()) { _, which ->
+                            openKeyEditor(rowIndex, which.takeIf { it < row.size })
+                        }.show()
+                }
+
+                override fun onMoveRowUpClick(rowIndex: Int) {
+                    if (rowIndex !in 1 until currentRowsRef.size) return
+                    val row = currentRowsRef.removeAt(rowIndex)
+                    currentRowsRef.add(rowIndex - 1, row)
+                    rowsAdapter?.notifyRowMoved(rowIndex, rowIndex - 1)
+                    rowsAdapter?.notifyItemRangeChanged(rowIndex - 1, 2)
+                    currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+                    updateSaveButtonState()
                 }
 
                 override fun onAddRowClick() {
@@ -2879,12 +2965,14 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         switchToLayoutProfile(profile, showSwitchToast = true)
     }
 
-    private fun switchToLayoutProfile(profile: String, showSwitchToast: Boolean) {
+    private fun switchToLayoutProfile(profile: String, showSwitchToast: Boolean, activate: Boolean = true) {
         val normalized = UserConfigFiles.normalizeTextKeyboardLayoutProfile(profile) ?: return
-        AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.setValue(normalized)
-        ConfigProviders.provider = ConfigProviders.provider
+        if (activate) {
+            AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.setValue(normalized)
+            ConfigProviders.provider = ConfigProviders.provider
+        }
         currentLayoutProfile = normalized
-        layoutFile = provider.textKeyboardLayoutFile()
+        layoutFile = UserConfigFiles.textKeyboardLayoutJson(normalized)
         // Any pending draft belongs to the profile being left behind.
         discardPendingDraft()
         // The reload replaces every entry from IO; until it finishes the in-memory layout is not
@@ -2996,7 +3084,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     }
                     trashDir.delete()
                     val fallbackProfile = UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE
-                    switchToLayoutProfile(fallbackProfile)
+                    switchToLayoutProfile(fallbackProfile, showSwitchToast = true, activate = profile == currentActiveProfile())
                     showToast(getString(R.string.text_keyboard_layout_file_deleted, label))
                 }.onFailure {
                     showToast(getString(R.string.text_keyboard_layout_file_delete_failed))
@@ -3096,7 +3184,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                         }
                     }
                 }.onSuccess {
-                    switchToLayoutProfile(newProfile, showSwitchToast = false)
+                    switchToLayoutProfile(newProfile, showSwitchToast = false, activate = oldProfile == currentActiveProfile())
                     showToast(
                         getString(
                             R.string.text_keyboard_layout_file_renamed,
@@ -3312,7 +3400,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 }
             }
         }.onSuccess {
-            switchToLayoutProfile(newProfile, showSwitchToast = false)
+            switchToLayoutProfile(newProfile, showSwitchToast = false, activate = oldProfile == currentActiveProfile())
             showToast(
                 getString(
                     R.string.text_keyboard_layout_file_renamed,
@@ -3719,6 +3807,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val EXTRA_INITIAL_PROFILE = "text_keyboard_layout_initial_profile"
+        const val EXTRA_MANAGER_ACTION = "text_keyboard_layout_manager_action"
+        const val ACTION_CREATE_PROFILE = "create_profile"
+        const val ACTION_RENAME_PROFILE = "rename_profile"
+        const val ACTION_DELETE_PROFILE = "delete_profile"
+        const val ACTION_IMPORT_PROFILE = "import_profile"
+        const val ACTION_SHARE_PROFILE = "share_profile"
         const val EXTRA_INITIAL_LAYOUT = "text_keyboard_layout_initial_layout"
         private const val TEXT_EDITOR_LAYOUT_NAME = "text_editor"
         private const val MENU_SAVE_ID = 3001
@@ -3765,6 +3860,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     ) : RecyclerView.Adapter<AuxBarKeysAdapter.ChipViewHolder>() {
 
         private var keys = listOf<Map<String, Any?>>()
+        private val keyColors = org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.LayoutKeyColors.forContext(activity)
 
         interface Listener {
             fun onKeyClick(index: Int)
@@ -3828,20 +3924,13 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 val isMacroKey = type == "MacroKey"
                 chip.text = activity.buildKeyLabelForEditor(key)
                 chip.setTypeface(null, android.graphics.Typeface.NORMAL)
+                val theme = ThemeManager.activeTheme
                 chip.background = android.graphics.drawable.GradientDrawable().apply {
-                    if (isMacroKey) {
-                        setColor(activity.styledColor(android.R.attr.colorAccent))
-                        setStroke(activity.dp(2), activity.styledColor(android.R.attr.colorControlHighlight))
-                    } else {
-                        setColor(activity.styledColor(android.R.attr.colorButtonNormal))
-                        setStroke(activity.dp(1), activity.styledColor(android.R.attr.colorControlNormal))
-                    }
+                    setColor(keyColors.background(key, theme))
+                    setStroke(activity.dp(if (isMacroKey) 2 else 1), theme.dividerColor)
                     cornerRadius = activity.dp(4).toFloat()
                 }
-                chip.setTextColor(
-                    if (isMacroKey) activity.styledColor(android.R.attr.textColorPrimaryInverse)
-                    else activity.styledColor(android.R.attr.textColorPrimary)
-                )
+                chip.setTextColor(keyColors.foreground(key, theme))
                 chip.setOnClickListener { listener.onKeyClick(position) }
                 chip.setOnLongClickListener {
                     listener.onKeyLongClick(position)

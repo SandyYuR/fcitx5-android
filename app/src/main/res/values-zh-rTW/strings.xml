@@ -1059,4 +1059,17 @@
     <string name="user_data_export_changed">備份過程中資料檔案仍被修改。請暫停外部同步或編輯後重試。</string>
     <string name="user_data_exported">備份已儲存。</string>
     <string name="user_data_export_cleanup_failed">備份寫入失敗，無法刪除儲存位置的未完成檔案。請手動刪除該檔案後重試。</string>
+    <string name="system_bar_section">系統按鈕</string>
+    <string name="available_buttons_section">可用按鈕</string>
+    <string name="text_keyboard_layout_manage_title">鍵盤配置管理</string>
+    <string name="text_keyboard_layout_manage_active">目前啟用：%1$s</string>
+    <string name="text_keyboard_layout_manage_activate">啟用此檔案</string>
+    <string name="text_keyboard_layout_manage_edit">編輯配置</string>
+    <string name="text_keyboard_layout_manage_collapse">摺疊檔案</string>
+    <string name="text_keyboard_layout_manage_expand">展開檔案</string>
+    <string name="text_keyboard_layout_manage_read_failed">無法讀取此配置檔案，可開啟編輯器檢查。</string>
+    <string name="text_keyboard_layout_manage_builtin">內建預設配置</string>
+    <string name="text_keyboard_layout_edit_row">編輯該列按鍵</string>
+    <string name="text_keyboard_layout_move_row_up">上移該列</string>
+    <string name="text_keyboard_layout_customized_key">%1$s（已自訂屬性）</string>
 </resources>

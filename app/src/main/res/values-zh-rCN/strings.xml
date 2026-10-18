@@ -1073,4 +1073,17 @@
     <string name="user_data_export_changed">备份过程中数据文件仍被修改。请暂停外部同步或编辑后重试。</string>
     <string name="user_data_exported">备份已保存。</string>
     <string name="user_data_export_cleanup_failed">备份写入失败，未能删除保存位置的未完成文件。请手动删除该文件后重试。</string>
+    <string name="system_bar_section">系统按钮</string>
+    <string name="available_buttons_section">可用按钮</string>
+    <string name="text_keyboard_layout_manage_title">键盘布局管理</string>
+    <string name="text_keyboard_layout_manage_active">当前启用：%1$s</string>
+    <string name="text_keyboard_layout_manage_activate">启用此文件</string>
+    <string name="text_keyboard_layout_manage_edit">编辑布局</string>
+    <string name="text_keyboard_layout_manage_collapse">折叠文件</string>
+    <string name="text_keyboard_layout_manage_expand">展开文件</string>
+    <string name="text_keyboard_layout_manage_read_failed">无法读取此布局文件，可打开编辑器检查。</string>
+    <string name="text_keyboard_layout_manage_builtin">内置默认布局</string>
+    <string name="text_keyboard_layout_edit_row">编辑该行按键</string>
+    <string name="text_keyboard_layout_move_row_up">上移该行</string>
+    <string name="text_keyboard_layout_customized_key">%1$s（已定制属性）</string>
 </resources>

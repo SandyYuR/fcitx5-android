@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.DraggableFlowLayout
 import splitties.dimensions.dp
 import splitties.resources.styledColor
@@ -57,6 +58,7 @@ class KeyboardLayoutAdapter(
     private var rowsRecyclerView: RecyclerView? = null
     private var rowTouchHelper: ItemTouchHelper? = null
     private val previewState = CrossRowPreviewState()
+    private val keyColors = LayoutKeyColors.forContext(context)
 
     /**
      * Setup row drag trigger - must be called after adapter is created
@@ -77,6 +79,10 @@ class KeyboardLayoutAdapter(
         fun onDeleteRowClick(rowIndex: Int)
 
         /** Called when the add row button is clicked */
+        fun onEditRowClick(rowIndex: Int)
+
+        fun onMoveRowUpClick(rowIndex: Int)
+
         fun onAddRowClick()
 
         /** Called when a row drag position changes */
@@ -130,6 +136,7 @@ class KeyboardLayoutAdapter(
      */
     fun notifyRowInserted(position: Int) {
         notifyItemInserted(position)
+        if (position == 0 && rows.size > 1) notifyItemChanged(1)
         // Notify that the "add row" button position has changed
         notifyItemChanged(itemCount - 1)
     }
@@ -139,6 +146,7 @@ class KeyboardLayoutAdapter(
      */
     fun notifyRowRemoved(position: Int) {
         notifyItemRemoved(position)
+        if (position == 0 && rows.isNotEmpty()) notifyItemChanged(0)
         // Notify that the "add row" button position has changed
         notifyItemChanged(itemCount - 1)
     }
@@ -203,6 +211,20 @@ class KeyboardLayoutAdapter(
         keysFlowContainer.addView(keysFlow)
         rowContainer.addView(keysFlowContainer)
 
+        // Reference layout: vertical row actions. Keep these outside the key FlowLayout,
+        // whose child indices are also drag-and-drop data indices.
+        val actions = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
+        val editRowButton = TextView(context).apply {
+            text = "⚙"
+            textSize = 18f
+            gravity = Gravity.CENTER
+            setPadding(context.dp(10), context.dp(8), context.dp(10), context.dp(8))
+            minWidth = context.dp(44)
+            minHeight = context.dp(44)
+            contentDescription = context.getString(R.string.text_keyboard_layout_edit_row)
+        }
+        actions.addView(editRowButton)
+
         // Delete row button on the right
         val deleteRowButton = TextView(context).apply {
             text = "🗑"
@@ -210,14 +232,15 @@ class KeyboardLayoutAdapter(
             setPadding(context.dp(8), context.dp(8), context.dp(8), context.dp(8))
             minWidth = context.dp(36)
         }
-        rowContainer.addView(deleteRowButton, LinearLayout.LayoutParams(
+        actions.addView(deleteRowButton, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         ).apply {
             gravity = Gravity.CENTER_VERTICAL
         })
 
-        val viewHolder = RowViewHolder(rowContainer, dragHandle, keysFlow, deleteRowButton)
+        rowContainer.addView(actions)
+        val viewHolder = RowViewHolder(rowContainer, dragHandle, keysFlow, deleteRowButton, editRowButton)
         // Setup listeners for fixed parts (called only once)
         setupRowViewHolder(viewHolder)
         return viewHolder
@@ -271,6 +294,10 @@ class KeyboardLayoutAdapter(
      * Called only once during creation, uses bindingAdapterPosition to get current position dynamically.
      */
     private fun setupRowViewHolder(holder: RowViewHolder) {
+        holder.editButton.setOnClickListener {
+            holder.bindingAdapterPosition.takeIf { it in rows.indices }?.let(listener::onEditRowClick)
+        }
+        holder.deleteButton.contentDescription = context.getString(R.string.delete)
         // Delete button click listener - uses bindingAdapterPosition to get current position dynamically
         holder.deleteButton.setOnClickListener {
             val adapterPosition = holder.bindingAdapterPosition
@@ -398,9 +425,9 @@ class KeyboardLayoutAdapter(
         // Reuse the chips already in this row. bindRowKeys runs on every partial refresh —
         // roughly every 100ms while a key is being dragged — and it used to removeAllViews()
         // and allocate a TextView plus a GradientDrawable per key each time (see E7).
-        // Child layout is: [key chips..., "+" chip], so the "+" is always last.
+        // Child layout is: [key chips..., "+" chip, move-up chip]. Both actions are non-draggable.
         val flow = holder.keysFlow
-        val neededChildren = displayRow.size + 1
+        val neededChildren = displayRow.size + 2
         while (flow.childCount > neededChildren) {
             flow.removeViewAt(flow.childCount - 1)
         }
@@ -409,8 +436,6 @@ class KeyboardLayoutAdapter(
         displayRow.forEachIndexed { keyIndex, key ->
             val actualKeyIndex = resolveActualKeyIndex(position, keyIndex)
             val type = key["type"] as? String ?: ""
-            val isMacroKey = type == "MacroKey"
-            val hasComposeOverride = key["composeOverride"] is Map<*, *>
             val keyChip = flow.getChildAt(keyIndex) as? TextView ?: TextView(context).also { created ->
                 flow.addView(
                     created,
@@ -432,6 +457,9 @@ class KeyboardLayoutAdapter(
                 // 每次 bind 都强制对齐到 FlowLayout 分配的槽位。
                 translationX = 0f
                 translationY = 0f
+                // A former disabled first-row up-arrow can be reused as a key after an edit.
+                isEnabled = true
+                alpha = 1f
                 text = buildKeyLabel(key)
                 textSize = 14f
                 setTypeface(null, android.graphics.Typeface.NORMAL)
@@ -440,14 +468,15 @@ class KeyboardLayoutAdapter(
                 // Reuse this chip's own drawable and only restyle it; a reused chip may have
                 // switched between the macro and normal style, so the style is re-applied every
                 // time (see E7).
-                applyChipStyle(this, macro = isMacroKey)
-                setTextColor(
-                    when {
-                        isMacroKey -> context.styledColor(android.R.attr.textColorPrimaryInverse)
-                        hasComposeOverride -> context.styledColor(android.R.attr.colorAccent)
-                        else -> context.styledColor(android.R.attr.textColorPrimary)
-                    }
-                )
+                val customized = LayoutKeyUi.hasCustomizedProperties(key)
+                val singleCharacter = type == "AlphabetKey" && text.toString().codePointCount(0, text.length) == 1
+                val desiredWidth = if (singleCharacter) context.dp(36) else ViewGroup.LayoutParams.WRAP_CONTENT
+                if (layoutParams.width != desiredWidth) {
+                    layoutParams = layoutParams.apply { width = desiredWidth }
+                }
+                contentDescription = if (customized) context.getString(R.string.text_keyboard_layout_customized_key, text) else text
+                applyChipStyle(this, key, customized)
+                setTextColor(keyColors.foreground(key, ThemeManager.activeTheme))
                 setOnClickListener {
                     val adapterPosition = holder.bindingAdapterPosition
                     if (adapterPosition != RecyclerView.NO_POSITION && actualKeyIndex >= 0) {
@@ -457,7 +486,7 @@ class KeyboardLayoutAdapter(
             }
         }
 
-        // Add button (same style as other keys), always the last child.
+        // Add button (same style as other keys), followed by the move-up action.
         val addIndex = displayRow.size
         val addKeyChip = flow.getChildAt(addIndex) as? TextView ?: TextView(context).also { created ->
             flow.addView(
@@ -473,12 +502,18 @@ class KeyboardLayoutAdapter(
                 }
             )
         }
+        if (addKeyChip.layoutParams.width != context.dp(32)) {
+            addKeyChip.layoutParams = addKeyChip.layoutParams.apply { width = context.dp(32) }
+        }
         addKeyChip.apply {
             // Excluded from drag and drop: it has no entry in the layout data, so allowing a
             // key to be dropped past it produced an index the data layer silently rejected.
             tag = DraggableFlowLayout.TAG_NOT_DRAGGABLE
             translationX = 0f
             translationY = 0f
+            isEnabled = true
+            alpha = 1f
+            contentDescription = context.getString(R.string.text_keyboard_layout_add_key)
             text = "+"
             textSize = 14f
             setTypeface(null, android.graphics.Typeface.BOLD)
@@ -493,6 +528,36 @@ class KeyboardLayoutAdapter(
                 }
             }
         }
+        val moveUpIndex = displayRow.size + 1
+        // Both trailing actions have no data index. Reuse them just like the key chips.
+        val up = flow.getChildAt(moveUpIndex) as? TextView ?: TextView(context).also {
+            flow.addView(it, moveUpIndex, ViewGroup.MarginLayoutParams(context.dp(32), ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                rightMargin = context.dp(6)
+                topMargin = context.dp(4)
+                bottomMargin = context.dp(4)
+            })
+        }
+        up.apply {
+            tag = DraggableFlowLayout.TAG_NOT_DRAGGABLE
+            translationX = 0f
+            translationY = 0f
+            text = "↑"
+            textSize = 14f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(context.styledColor(android.R.attr.textColorPrimary))
+            gravity = Gravity.CENTER
+            setPadding(context.dp(8), context.dp(8), context.dp(8), context.dp(8))
+            if (layoutParams.width != context.dp(32)) {
+                layoutParams = layoutParams.apply { width = context.dp(32) }
+            }
+            contentDescription = context.getString(R.string.text_keyboard_layout_move_row_up)
+            isEnabled = position > 0
+            alpha = if (isEnabled) 1f else 0.38f
+            applyAddChipStyle(this)
+            setOnClickListener {
+                holder.bindingAdapterPosition.takeIf { it in 1 until rows.size }?.let(listener::onMoveRowUpClick)
+            }
+        }
     }
 
     /**
@@ -502,17 +567,13 @@ class KeyboardLayoutAdapter(
      * churn (see E7). A chip keeps its own drawable across binds; only the colours change, and
      * they must be re-applied because a reused chip may have swapped macro/normal style.
      */
-    private fun applyChipStyle(view: TextView, macro: Boolean) {
+    private fun applyChipStyle(view: TextView, key: Map<String, Any?>, customized: Boolean) {
         val drawable = view.background as? android.graphics.drawable.GradientDrawable
             ?: android.graphics.drawable.GradientDrawable().also { view.background = it }
-        if (macro) {
-            // MacroKey: 使用主题强调色区分
-            drawable.setColor(context.styledColor(android.R.attr.colorAccent))
-            drawable.setStroke(context.dp(2), context.styledColor(android.R.attr.colorControlHighlight))
-        } else {
-            drawable.setColor(context.styledColor(android.R.attr.colorButtonNormal))
-            drawable.setStroke(context.dp(1), context.styledColor(android.R.attr.colorControlNormal))
-        }
+        val theme = ThemeManager.activeTheme
+        drawable.setColor(keyColors.background(key, theme))
+        drawable.setStroke(context.dp(1), theme.dividerColor)
+        if (customized) drawable.setStroke(context.dp(2), 0xff2e7d32.toInt())
         drawable.cornerRadius = context.dp(4).toFloat()
     }
 
@@ -721,7 +782,7 @@ class KeyboardLayoutAdapter(
             targetFlow.getLocationOnScreen(flowLoc)
             val localX = rawX - flowLoc[0]
             val localY = rawY - flowLoc[1]
-            val keyChildCount = (targetFlow.childCount - 1).coerceAtLeast(0) // exclude trailing "+"
+            val keyChildCount = (targetFlow.childCount - 2).coerceAtLeast(0) // exclude "+" and move-up
             if (keyChildCount > 0) {
                 val hasPreviewPlaceholder =
                     previewState.targetRow == targetRowIndex &&
@@ -786,7 +847,7 @@ class KeyboardLayoutAdapter(
     /**
      * Build key display label
      */
-    private fun buildKeyLabel(key: Map<String, Any?>): String {
+    internal fun buildKeyLabel(key: Map<String, Any?>): String {
         val type = key["type"] as? String ?: "?"
         return when (type) {
             "AlphabetKey" -> {
@@ -859,7 +920,8 @@ class KeyboardLayoutAdapter(
         val container: LinearLayout,
         val dragHandle: TextView,
         val keysFlow: ViewGroup,
-        val deleteButton: TextView
+        val deleteButton: TextView,
+        val editButton: TextView
     ) : RecyclerView.ViewHolder(container)
 
     /**
