@@ -1,6 +1,8 @@
 # 早期直连原型的可借鉴点与冷启动审查
 
 本报告只审查代码、提出验证与改进顺序，**未修改实现，未运行新的性能 A/B，未构建 APK**。
+用户随后授权的首键接收、会话复用与验证见[响应性改进](DIRECT_RIME_RESPONSIVENESS_2026-10-18.md)；
+本页保留实施前的审查结论。
 用户提到的日志
 `D:\GitHub\fx2-rime\日志\io.github.sandyyur.rime.direct-2026-10-17T13_27_09Z.txt`
 原为 Windows 本机路径，随后已收到附件并完成[日志补充分析](DIRECT_RIME_USER_LOG_REVIEW_2026-10-18.md)。

@@ -17,6 +17,7 @@
 | 无调用方清理 | `6c470b8b` 删除 FcitxUtils 等工具及旧 JNI 转换，[清单](DIRECT_RIME_UNUSED_CODE_AUDIT_2026-10-17.md) |
 | 当前设置整理 | 模式/方案编码区提示、单一 Rime 设置入口、重写关于页、旧快捷方式兼容转向 |
 | 用户工具包实测 | 默认分支 Fcitx 与直连版，使用用户 YAML、万象 v18.1.3 base + LTS，[触摸与录屏报告](DIRECT_RIME_SCREEN_PERF_2026-10-17.md) |
+| 首键与重绑 | 启动期间按键登记、同应用普通文本 session 复用、非编辑绑定延迟创建、候选点选顺序，[响应性改进](DIRECT_RIME_RESPONSIVENESS_2026-10-18.md) |
 
 ## 已确认的运行结构
 
@@ -45,7 +46,15 @@ APK 仅打包直连桥接库和 C++ 运行库。原 Android 前端、键盘、�
   包含 471 项 JVM 单测和 7 项前端设备测试。模式提示测试先等待编辑器输入连接稳定，
   避免将前一测试留下的可见键盘误认为本轮连接已经就绪；提示断言保留。
 
-当前主应用安装包为 `zhongzhougoose-settings-arm64-v8a-debug.apk`。
+最新产品源码为 `e6d31718`，本轮 477 项 JVM、10 项完整前端设备测试与两个 CI 工作流全通过；
+用户万象 base + LTS 的立即输入/候选点击前后对照也通过。
+六轮编码观察值中位数 163.7 → 113.5ms、两键到候选 221.2 → 164.5ms，
+点选总体持平且首次仍慢；范围限于重绑场景，不是进程冷启动/真机帧呈现结论。
+[响应性报告与下载](DIRECT_RIME_RESPONSIVENESS_2026-10-18.md) ·
+[哈希及验证](direct-rime-responsiveness-validation-2026-10-18.json)。
+
+当前主应用安装包为 `zhongzhougoose-responsive-e6d31718-arm64-v8a-debug.apk`，
+先前的 `zhongzhougoose-settings-arm64-v8a-debug.apk` 是历史设置版本。
 APK 二进制保留在本会话 artifacts，仓库只保存版本来源与校验摘要。
 以后获取构建请在 Actions 选择本分支的 `direct-rime-frontend-arm64-debug`；
 其他 ABI 可使用 PR CI 产物或按维护手册编译。

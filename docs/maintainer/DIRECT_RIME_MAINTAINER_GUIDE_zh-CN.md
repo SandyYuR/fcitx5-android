@@ -110,6 +110,9 @@ Release 的 vital lint 通过不代表全量 `lintFxDebug` 没有历史问题。
 结果是模拟器中 API 到事件观察器的耗时，不包含触屏到屏幕显示完成，也不代表所有真机和长期用户库。
 
 测试工具在 `tools/input-perf/`，数据在 `docs/maintainer/perf/`。
+`rime-rebind-perf.yml` 定向比较此次修改前后的直连版本，覆盖万象模型实际映射、
+第一次显示及后续重绑的立即输入/候选点击；不是默认分支 Fcitx 对照，也不测进程冷启动。
+该流程可手动运行，工作分支只在其比较脚本/流程自身变更时自动执行。
 历史三个性能工作流保留手动触发：`wanxiang-perf.yml` 比较两个历史直连版本，
 `fcitx-direct-perf.yml` 比较历史 Fcitx 与当前直连，`fcitx-direct-profile.yml` 追踪固定 APK。
 原来四个 `perf/` 分支只是运行这些实验的临时入口，提交已进入工作分支，
