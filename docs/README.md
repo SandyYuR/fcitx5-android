@@ -25,6 +25,7 @@
 | 用户真机日志的版本、重绑时间线与卡顿定位范围 | [日志补充分析](maintainer/DIRECT_RIME_USER_LOG_REVIEW_2026-10-18.md) |
 | 首键等待、同应用会话复用与立即点选验证 | [响应性改进](maintainer/DIRECT_RIME_RESPONSIVENESS_2026-10-18.md) |
 | 原 Fcitx 也有首次点选成本；缓存修正、独立编辑器与 trace 定位 | [首次点选对照](maintainer/DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md) |
+| Foxy 上传 APK 的输入链路、候选补取、Release 与 ART 对照 | [Foxy 实现审查](maintainer/DIRECT_RIME_FOXY_REVIEW_2026-10-18.md) |
 | 删除旧原生后端、构建工程和子模块 | [后端清理](maintainer/DIRECT_RIME_CLEANUP_2026-10-17.md) |
 | 删除只被自测引用的工具和其他无调用方代码 | [无调用方审计](maintainer/DIRECT_RIME_UNUSED_CODE_AUDIT_2026-10-17.md) |
 
