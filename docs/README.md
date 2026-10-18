@@ -21,6 +21,7 @@
 | 直连版本之间的依赖与性能调整 | [解耦记录](maintainer/DIRECT_RIME_DECOUPLING_2026-10-16.md) |
 | 含 Fcitx 默认分支与直连的万象对照 | [迁移与性能审计](maintainer/DIRECT_RIME_AUDIT_2026-10-17.md) |
 | 用户工具包、万象 base + 模型的触摸与画面对照 | [触摸与录屏报告](maintainer/DIRECT_RIME_SCREEN_PERF_2026-10-17.md) |
+| 早期 Muse 使用分支的代码借鉴与冷启动风险 | [旧原型性能审查](maintainer/DIRECT_RIME_PROTO_PERFORMANCE_REVIEW_2026-10-18.md) |
 | 删除旧原生后端、构建工程和子模块 | [后端清理](maintainer/DIRECT_RIME_CLEANUP_2026-10-17.md) |
 | 删除只被自测引用的工具和其他无调用方代码 | [无调用方审计](maintainer/DIRECT_RIME_UNUSED_CODE_AUDIT_2026-10-17.md) |
 
