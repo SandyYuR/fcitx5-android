@@ -2,6 +2,8 @@
 """First candidate tap after fresh process, then five taps in the same editor."""
 import argparse
 import json
+import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -32,8 +34,18 @@ adb('shell', 'settings', 'put', 'system', 'screen_off_timeout', '1800000')
 adb('install', '-r', args.host)
 adb('push', args.fixture, '/data/local/tmp/candidate-fixture.zip')
 results = {}
-for label, package in [('fcitx', 'org.fcitx.fcitx5.android.fx.rime'), ('before', 'io.github.sandyyur.rime.direct')]:
+sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
+aapt = sorted((sdk / 'build-tools').glob('*/aapt2'), key=lambda p: [int(x) for x in re.findall(r'\d+', p.parent.name)])[-1]
+for label in ('fcitx', 'before', 'after'):
+    if not (args.apks / (label + '.apk')).is_file():
+        continue
+    package = subprocess.check_output([str(aapt), 'dump', 'packagename', str(args.apks / (label + '.apk'))], text=True).strip()
+    assert re.fullmatch(r'[a-zA-Z0-9_.]+', package), package
     revision = (args.apks / (label + '-commit.txt')).read_text().strip()
+    # Reference APKs may have a different CI debug signer. Never upgrade across
+    # signers or inherit the previous product's profile on this disposable device.
+    adb('uninstall', package + '.test', check=False)
+    adb('uninstall', package, check=False)
     adb('install', '-r', args.apks / (label + '.apk'))
     adb('install', '-r', args.apks / (label + '-tests.apk'))
     adb('shell', 'am', 'force-stop', package)
@@ -55,6 +67,8 @@ for label, package in [('fcitx', 'org.fcitx.fcitx5.android.fx.rime'), ('before',
         print(f'Testing {label} fresh process {trial + 1}', flush=True)
         adb('shell', 'am', 'force-stop', host)
         adb('shell', 'pm', 'clear', host)
+        for other in ('org.fcitx.fcitx5.android.fx.rime.debug', 'io.github.sandyyur.rime.direct'):
+            adb('shell', 'am', 'force-stop', other)
         adb('shell', 'am', 'force-stop', package)
         adb('logcat', '-c')
         run, passed = instrument(package, 'replay', revision)

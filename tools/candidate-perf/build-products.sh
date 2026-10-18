@@ -7,9 +7,23 @@ mkdir -p "$output_dir"
 sudo apt-get update -qq
 sudo apt-get install -y -qq extra-cmake-modules gettext
 git submodule update --init --depth 1 native/prebuilt native/rime-prelude
-for label in fcitx before; do
+for label in fcitx before after; do
     if [ "$label" = fcitx ]; then revision=cecea4940bb5a5db67f91d6b20e00ee5c97877ea;
-    else revision=e6d317182e25d225a6128420542ea47d161c03b9; fi
+    elif [ "$label" = before ]; then revision=e6d317182e25d225a6128420542ea47d161c03b9;
+    else revision=$(git rev-parse HEAD); fi
+    if [ "$label" != after ] && [ -f "$output_dir/$label.apk" ]; then
+        test "$(cat "$output_dir/$label-commit.txt")" = "$revision"
+        test "$(cat "$output_dir/harness-sha256.txt")" = "$(sha256sum tools/candidate-perf/CandidateTapTest.kt | awk '{print $1}')"
+        python3 - "$output_dir" "$label" <<'PY'
+import hashlib, sys
+from pathlib import Path
+root, label = Path(sys.argv[1]), sys.argv[2]
+hashes = {Path(line.split(maxsplit=1)[1]).name: line.split()[0] for line in (root / 'apk-sha256.txt').read_text().splitlines()}
+for name in (label + '.apk', label + '-tests.apk'):
+    assert hashlib.sha256((root / name).read_bytes()).hexdigest() == hashes[name]
+PY
+        continue
+    fi
     checkout_dir="$RUNNER_TEMP/candidate-$label"
     git clone --shared --no-checkout "$repo_dir" "$checkout_dir"
     git -C "$checkout_dir" checkout --detach "$revision"
@@ -44,6 +58,9 @@ for label in fcitx before; do
     echo "$revision" > "$output_dir/$label-commit.txt"
 done
 test_path=app/src/androidTest/java/org/fcitx/fcitx5/android/core/CandidateTapTest.kt
-cmp "$RUNNER_TEMP/candidate-fcitx/$test_path" "$RUNNER_TEMP/candidate-before/$test_path"
+if [ -d "$RUNNER_TEMP/candidate-fcitx" ]; then
+    cmp "$RUNNER_TEMP/candidate-fcitx/$test_path" "$RUNNER_TEMP/candidate-after/$test_path"
+    cmp "$RUNNER_TEMP/candidate-before/$test_path" "$RUNNER_TEMP/candidate-after/$test_path"
+fi
 sha256sum tools/candidate-perf/CandidateTapTest.kt | awk '{print $1}' > "$output_dir/harness-sha256.txt"
 sha256sum "$output_dir"/*.apk > "$output_dir/apk-sha256.txt"

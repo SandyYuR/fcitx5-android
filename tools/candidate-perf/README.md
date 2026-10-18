@@ -4,10 +4,12 @@
 `cecea4940bb5a5db67f91d6b20e00ee5c97877ea` 与本轮修改前直连版本
 `e6d317182e25d225a6128420542ea47d161c03b9`。只覆盖完全相同的 androidTest，
 不改变对照产品源码，不使用 PR merge 作为产品版本。依赖仍使用各版本 gitlink。
+`after` 则固定为触发工作流的当前分支提交。可复用先前构建的参考 APK，但必须通过
+源码提交、完全相同的测试源码哈希与各 APK 的 SHA-256 检查；校验不通过不会比较。
 
 使用 `tools/screen-perf/prepare.py` 的万象 v18.1.3 base、固定 LTS 和用户 YAML。
 先部署，随后停止进程；每个产品重复三次新进程测试，每次真实触摸输入 `ni`、点选“你”六轮，
-不输入预热词、不用 API 代替触摸。前三轮各自的首次点选可与同进程后五次分别比较。
+不输入预热词、不用 API 代替触摸。三次新进程各自的首次点选可与同进程后五次分别比较。
 
 IME Window.Callback 只代理并记录真实触摸派发时刻，不替换点击、长按、滑动监听。
 独立编辑器进程记录 InputConnection.commitText、TextWatcher 和 onDraw 回调时刻。

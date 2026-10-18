@@ -6,6 +6,7 @@ on:
     paths: ['tools/candidate-perf/**', '.github/workflows/rime-candidate-perf.yml']
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: rime-candidate-${{ github.ref }}
   cancel-in-progress: true
@@ -25,6 +26,14 @@ jobs:
         with:
           packages: platform-tools
       - uses: gradle/actions/setup-gradle@v6
+      - name: Reuse checksum-verified, identical reference products
+        continue-on-error: true # Expired artifacts fall back to rebuilding pinned references.
+        uses: actions/download-artifact@v6
+        with:
+          name: candidate-reference-apks
+          run-id: 39089916514
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/candidate-apks
       - name: Build untouched Fcitx default and direct reference products
         run: bash tools/candidate-perf/build-products.sh "$RUNNER_TEMP/candidate-apks"
       - uses: actions/upload-artifact@v7
