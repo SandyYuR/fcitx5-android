@@ -11,7 +11,7 @@ import android.view.MenuItem
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
@@ -27,7 +27,7 @@ import splitties.views.backgroundColor
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 
-class LayoutFileProfileInputActivity : AppCompatActivity() {
+class LayoutFileProfileInputActivity : SettingsUiActivity() {
     data class ResultPayload(
         val action: String,
         val profile: String,

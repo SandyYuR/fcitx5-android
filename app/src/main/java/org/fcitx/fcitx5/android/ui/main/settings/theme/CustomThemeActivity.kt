@@ -41,7 +41,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -101,7 +101,7 @@ import splitties.views.textAppearance
 import splitties.views.topPadding
 import java.io.File
 
-class CustomThemeActivity : AppCompatActivity() {
+class CustomThemeActivity : SettingsUiActivity() {
     sealed interface BackgroundResult : Parcelable {
         @Parcelize
         data class Updated(

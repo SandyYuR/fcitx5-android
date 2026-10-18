@@ -9,7 +9,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -25,7 +25,7 @@ import splitties.resources.styledColor
 import splitties.views.backgroundColor
 import timber.log.Timber
 
-class UpdateHostsSettingsActivity : AppCompatActivity() {
+class UpdateHostsSettingsActivity : SettingsUiActivity() {
     private lateinit var toolbar: Toolbar
     private lateinit var sourceInput: EditText
     private lateinit var enableSwitch: SwitchCompat

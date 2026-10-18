@@ -23,7 +23,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -40,7 +40,7 @@ import splitties.resources.color
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 
-class IconThemeEditorActivity : AppCompatActivity() {
+class IconThemeEditorActivity : SettingsUiActivity() {
     private companion object {
         private const val MENU_DELETE = 1
         private const val MENU_RENAME = 2

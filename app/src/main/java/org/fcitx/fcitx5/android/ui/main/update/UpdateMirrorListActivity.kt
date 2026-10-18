@@ -8,7 +8,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -21,7 +21,7 @@ import splitties.dimensions.dp
 import splitties.resources.styledColor
 import splitties.views.backgroundColor
 
-class UpdateMirrorListActivity : AppCompatActivity() {
+class UpdateMirrorListActivity : SettingsUiActivity() {
     private lateinit var toolbar: Toolbar
     private lateinit var addButton: ImageButton
     private lateinit var recycler: RecyclerView

@@ -26,7 +26,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -56,7 +56,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrScanOptions
 import splitties.dimensions.dp
 import splitties.resources.styledColor
 
-class IconThemeListActivity : AppCompatActivity() {
+class IconThemeListActivity : SettingsUiActivity() {
     private companion object {
         private const val MENU_IMPORT_JSON = 2
         private const val MENU_IMPORT_QR_IMAGE = 3

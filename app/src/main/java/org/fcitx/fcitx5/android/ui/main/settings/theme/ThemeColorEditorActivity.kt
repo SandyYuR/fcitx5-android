@@ -28,7 +28,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -41,7 +41,7 @@ import splitties.resources.styledColor
 import splitties.views.backgroundColor
 import splitties.views.setPaddingDp
 
-class ThemeColorEditorActivity : AppCompatActivity() {
+class ThemeColorEditorActivity : SettingsUiActivity() {
 
     @Parcelize
     data class EditorInput(

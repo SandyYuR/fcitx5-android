@@ -19,7 +19,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -44,7 +44,7 @@ import splitties.views.verticalPadding
  * Monet 主题编辑 Activity
  * 允许用户自定义 Monet 主题的颜色映射关系
  */
-class MonetThemeEditorActivity : AppCompatActivity() {
+class MonetThemeEditorActivity : SettingsUiActivity() {
     
     @Parcelize
     data class EditorResult(

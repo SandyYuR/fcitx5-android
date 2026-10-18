@@ -28,7 +28,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
@@ -89,7 +89,7 @@ import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 import java.io.File
 
-class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
+class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {

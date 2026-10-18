@@ -27,22 +27,25 @@ data class SettingsGroupEntry(
     @StringRes val title: Int,
     @DrawableRes val icon: Int,
     @StringRes val summary: Int? = null,
-    val action: SettingsGroupAction
+    val action: SettingsGroupAction,
+    @StringRes val sectionTitle: Int? = null
 ) {
     companion object {
         fun route(
             @StringRes title: Int,
             @DrawableRes icon: Int,
             route: SettingsRoute,
-            @StringRes summary: Int? = null
-        ) = SettingsGroupEntry(title, icon, summary, SettingsGroupAction.Route(route))
+            @StringRes summary: Int? = null,
+            @StringRes sectionTitle: Int? = null
+        ) = SettingsGroupEntry(title, icon, summary, SettingsGroupAction.Route(route), sectionTitle)
 
         fun activity(
             @StringRes title: Int,
             @DrawableRes icon: Int,
             activityClass: Class<out Activity>,
-            @StringRes summary: Int? = null
-        ) = SettingsGroupEntry(title, icon, summary, SettingsGroupAction.Launch(activityClass))
+            @StringRes summary: Int? = null,
+            @StringRes sectionTitle: Int? = null
+        ) = SettingsGroupEntry(title, icon, summary, SettingsGroupAction.Launch(activityClass), sectionTitle)
     }
 }
 
@@ -125,20 +128,30 @@ object SettingsGroupSpecs {
             entries = {
                 listOf(
                     SettingsGroupEntry.route(
+                        R.string.settings_ui_appearance,
+                        R.drawable.ic_baseline_palette_24,
+                        SettingsRoute.SettingsUiAppearance,
+                        R.string.settings_ui_appearance_summary,
+                        R.string.settings_section_settings_ui
+                    ),
+                    SettingsGroupEntry.route(
                         R.string.theme,
                         R.drawable.ic_baseline_palette_24,
-                        SettingsRoute.Theme
+                        SettingsRoute.Theme,
+                        sectionTitle = R.string.settings_section_keyboard_appearance
                     ),
                     SettingsGroupEntry.activity(
                         R.string.icon_theme,
                         R.drawable.ic_icon_theme_24,
-                        IconThemeListActivity::class.java
+                        IconThemeListActivity::class.java,
+                        sectionTitle = R.string.settings_section_keyboard_appearance
                     ),
                     // 原先藏在「增强选项」这个空容器里，现在放到外观下。
                     SettingsGroupEntry.activity(
                         R.string.edit_fontset,
                         R.drawable.ic_baseline_text_format_24,
-                        FontsetEditorActivity::class.java
+                        FontsetEditorActivity::class.java,
+                        sectionTitle = R.string.settings_section_keyboard_appearance
                     )
                     // 2026-09-29：「弹出字符设定」改挂「键盘 → 键盘布局自定义」组
                     // （`KeyboardGroupFragment.GROUP_EDITORS`）——它改的是长按按键弹出的

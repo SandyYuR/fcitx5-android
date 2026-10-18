@@ -17,7 +17,7 @@ import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -47,7 +47,7 @@ import splitties.views.backgroundColor
  * 3. Automatic recommended values
  * 4. Support for foldable devices with multiple DPI
  */
-class SplitKeyboardCalibrationActivity : AppCompatActivity() {
+class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
     private val previewIme = PreviewInputMethodEntry.create()
 
     private lateinit var toolbar: Toolbar

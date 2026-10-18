@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -26,6 +25,7 @@ import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.databinding.ActivityMainBinding
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.setup.SetupActivity
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
@@ -34,7 +34,7 @@ import org.fcitx.fcitx5.android.utils.startActivity
 import splitties.dimensions.dp
 import splitties.views.topPadding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : SettingsUiActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.toolbarTitle.observe(this) {
             supportActionBar!!.title = it
+            binding.collapsingToolbar.title = it
         }
         viewModel.toolbarShadow.observe(this) {
             binding.toolbar.elevation = dp(if (it) 4f else 0f)

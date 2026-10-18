@@ -172,16 +172,16 @@ class MainFragment : PaddingPreferenceFragment() {
                 // 键盘直接复用既有的「虚拟键盘」页——那边已是五个子分组的列表，
                 // 再套一层分组页只会多一次点击、多一个重复入口。
                 addDestinationPreference(
-                    R.string.settings_group_keyboard,
-                    R.drawable.ic_baseline_keyboard_24,
-                    SettingsRoute.VirtualKeyboard,
-                    R.string.settings_group_keyboard_summary
-                )
-                addDestinationPreference(
                     R.string.settings_group_appearance,
                     R.drawable.ic_baseline_palette_24,
                     SettingsRoute.SettingsGroup(SettingsGroupSpecs.ID_APPEARANCE),
                     R.string.settings_group_appearance_summary
+                )
+                addDestinationPreference(
+                    R.string.settings_group_keyboard,
+                    R.drawable.ic_baseline_keyboard_24,
+                    SettingsRoute.VirtualKeyboard,
+                    R.string.settings_group_keyboard_summary
                 )
                 addDestinationPreference(
                     R.string.settings_group_convenience,

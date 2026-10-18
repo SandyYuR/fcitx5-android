@@ -13,7 +13,7 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -27,7 +27,7 @@ import splitties.views.backgroundColor
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 
-class LayoutNameInputActivity : AppCompatActivity() {
+class LayoutNameInputActivity : SettingsUiActivity() {
     companion object {
         const val EXTRA_TITLE = "title"
         const val EXTRA_LABEL = "label"

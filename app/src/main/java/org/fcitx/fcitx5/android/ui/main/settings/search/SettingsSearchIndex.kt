@@ -344,6 +344,11 @@ object SettingsSearchIndex {
             route = SettingsRoute.Theme
         ),
         SettingsSearchEntry(
+            R.string.settings_ui_appearance, P_APPEARANCE,
+            listOf("settings theme", "界面主题", "设置主题", "monet", "动态色", "md3", "material 3"),
+            route = SettingsRoute.SettingsUiAppearance
+        ),
+        SettingsSearchEntry(
             R.string.icon_theme, P_ANDROID,
             listOf("icon", "tubiao", "图标", "图标包"),
             activityClass = IconThemeListActivity::class.java

@@ -23,7 +23,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -50,7 +50,7 @@ import java.io.Serializable
 import java.util.Arrays
 import java.util.LinkedHashMap
 
-class KeyEditorActivity : AppCompatActivity() {
+class KeyEditorActivity : SettingsUiActivity() {
 
     private data class ThemeColorToken(
         val token: String,

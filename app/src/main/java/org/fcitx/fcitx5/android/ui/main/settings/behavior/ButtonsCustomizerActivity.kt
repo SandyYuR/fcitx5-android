@@ -24,7 +24,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -78,7 +78,7 @@ private fun ConfigurableButton.normalizedIcon(): ConfigurableButton =
  * Unified activity for customizing buttons in both Kawaii Bar and Status Area.
  * Uses a grid layout similar to Status Area for button display.
  */
-class ButtonsCustomizerActivity : AppCompatActivity() {
+class ButtonsCustomizerActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {

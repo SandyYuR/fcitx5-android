@@ -31,7 +31,7 @@ import android.widget.Toast
 import android.provider.OpenableColumns
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -64,7 +64,7 @@ import java.security.MessageDigest
 import java.util.Locale
 import kotlin.coroutines.coroutineContext
 
-class UpdateCheckActivity : AppCompatActivity() {
+class UpdateCheckActivity : SettingsUiActivity() {
     private lateinit var toolbar: Toolbar
     private lateinit var mirrorsGroup: ChipGroup
     private lateinit var latestVersionText: TextView

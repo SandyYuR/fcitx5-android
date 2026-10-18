@@ -18,7 +18,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -45,7 +45,7 @@ import splitties.views.dsl.core.wrapContent
  * Supports editing arbitrary down/up/tap/text combinations
  * Layout is similar to TextKeyboardLayoutEditorActivity
  */
-class MacroEditorActivity : AppCompatActivity() {
+class MacroEditorActivity : SettingsUiActivity() {
 
     data class MacroStepData(
         var type: String = "tap",

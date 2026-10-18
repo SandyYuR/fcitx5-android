@@ -13,7 +13,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -38,7 +38,7 @@ import splitties.resources.styledColor
  * Browsing only reads files: no migration, preset resets, profile metadata or ordering prefs.
  * File operations delegate to the existing editor and its validation/confirmation flows.
  */
-class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
+class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
     private data class Profile(val name: String, val keys: List<String>, val failed: Boolean, val builtin: Boolean)
     private val collapsed = mutableSetOf<String>()
     private var profiles = emptyList<Profile>()
