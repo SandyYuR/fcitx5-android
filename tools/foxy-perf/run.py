@@ -96,7 +96,7 @@ def main():
                     '-e', 'sequence', sequence, '-e', 'word', word, HOST+'/.Replay']
             started = time.time()
             try:
-                response = adb('shell', shlex.join(args), timeout=240)
+                response = adb('shell', shlex.join(args), timeout=600)
             except sp.TimeoutExpired as error:
                 response = 'Host instrumentation timed out: '+str(error)
             (out/'instrumentation.txt').write_text(response)

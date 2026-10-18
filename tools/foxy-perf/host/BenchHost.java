@@ -12,7 +12,7 @@ import org.json.*;
 import java.io.*;
 
 /** Neutral editor. Timestamps are recorded in callbacks, before any host-side polling. */
-public final class BenchHost extends Activity {
+public class BenchHost extends Activity {
     static BenchHost current;
     EditText editor;
     final JSONArray connections = new JSONArray();

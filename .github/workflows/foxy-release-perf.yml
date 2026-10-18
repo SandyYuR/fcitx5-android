@@ -9,7 +9,7 @@ permissions:
   actions: read
 concurrency:
   group: foxy-release-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   compare:
     runs-on: ubuntu-22.04
@@ -25,19 +25,18 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
-      - uses: gradle/actions/setup-gradle@v6
-      - name: Build updated ARM64 Release with verified key profile entries
-        env:
-          SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
-          SIGN_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          SIGN_KEY_PWD: ${{ secrets.KEY_PASSWORD }}
-        run: |
-          git merge-base --is-ancestor 8634bbeb HEAD
-          bash tools/foxy-perf/build-release.sh "$RUNNER_TEMP/release-product"
-      - uses: actions/upload-artifact@v7
+      - name: Reuse final verified Release (no product changes in this harness run)
+        uses: actions/download-artifact@v6
         with:
           name: direct-rime-optimized-arm64-release
-          path: ${{ runner.temp }}/release-product/
+          run-id: 39134935586
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/release-product
+      - name: Verify artifact source and unchanged product
+        run: |
+          test "$(cat "$RUNNER_TEMP/release-product/source.txt")" = 12ab22cd82297638bee75ef30b31b3decb21decb
+          git diff --exit-code 12ab22cd82297638bee75ef30b31b3decb21decb HEAD -- app direct-rime build-logic native gradle patches settings.gradle.kts build.gradle.kts .gitmodules
+          echo 'fbd3aaa62b7bdfa054ddf726b35fab9b939bc1162d583644d3c5282319b564ec  '"$RUNNER_TEMP/release-product/direct.apk" | sha256sum -c -
       - name: Obtain exact user-supplied APK from disposable fixture ref
         run: |
           mkdir -p build/foxy-comparison
@@ -47,7 +46,7 @@ jobs:
       - name: Prepare neutral editor
         run: |
           sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
-          bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/foxy-host" "$GITHUB_WORKSPACE/tools/foxy-perf/host"
+          python3 tools/foxy-perf/build-send-host.py "$RUNNER_TEMP/foxy-host"
           python3 tools/screen-perf/prepare.py "$RUNNER_TEMP/foxy-fixture.zip"
       - name: Enable KVM
         run: |
@@ -63,6 +62,7 @@ jobs:
           script: |
             python3 tools/foxy-perf/pilot.py --foxy "$RUNNER_TEMP/foxy.apk" --direct "$RUNNER_TEMP/release-product/direct.apk" --host "$RUNNER_TEMP/foxy-host/host.apk" --fixture "$RUNNER_TEMP/foxy-fixture.zip" --output build/foxy-comparison/calibration
             python3 tools/foxy-perf/run.py --points tools/foxy-perf/points.json --output build/foxy-comparison/timed
+            python3 tools/foxy-perf/send_race.py --points tools/foxy-perf/points.json --output build/foxy-comparison/send-race
       - uses: actions/upload-artifact@v7
         if: always()
         with:

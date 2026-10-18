@@ -14,11 +14,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.text.Normalizer;
 
 /** Runs outside either IME; does not hook their gestures, API, threads or native engine. */
-public final class Replay extends Instrumentation {
+public class Replay extends Instrumentation {
     Bundle args;
     BenchHost host;
     String imePackage;
@@ -74,6 +76,33 @@ public final class Replay extends Instrumentation {
         runOnMainSync(() -> value[0] = host.editor.getText().toString());
         return value[0];
     }
+    String shell(String command) throws Exception {
+        try (android.os.ParcelFileDescriptor fd = getUiAutomation().executeShellCommand(command);
+             FileInputStream input = new FileInputStream(fd.getFileDescriptor());
+             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int count;
+            while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+            return output.toString("UTF-8");
+        }
+    }
+    long awaitSessionReady() throws Exception {
+        if (!imePackage.equals("com.fxliang.foxy") && !imePackage.equals("io.github.sandyyur.rime.direct"))
+            throw new IllegalArgumentException("Unexpected IME");
+        long deadline = now()+240_000_000_000L;
+        while (now()<deadline) {
+            String pid = shell("pidof "+imePackage).trim();
+            if (pid.matches("[0-9]+")) {
+                String logs = shell("logcat -d --pid="+pid+" -s foxy:I RimeLifecycle:I '*:S'");
+                boolean ready = imePackage.equals("com.fxliang.foxy") ?
+                    logs.contains("type=option value=soft_cursor") :
+                    logs.contains("RimeLifecycle") && logs.contains("ready=true");
+                if (ready && imeHas(null)) return now();
+            }
+            SystemClock.sleep(100);
+        }
+        throw new IllegalStateException("Actual Rime session not ready; keyboard visibility is insufficient");
+    }
     void screenshot(String name) throws Exception {
         Bitmap image = getUiAutomation().takeScreenshot();
         if (image == null) throw new IllegalStateException("Screenshot unavailable");
@@ -86,10 +115,13 @@ public final class Replay extends Instrumentation {
         long launch = now();
         host = (BenchHost) startActivitySync(new Intent(getTargetContext(), BenchHost.class)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
-        long deadline = now() + 120_000_000_000L;
+        long deadline = now() + 240_000_000_000L;
         while (!imeHas(null) && now() < deadline) SystemClock.sleep(20);
         if (!imeHas(null)) throw new IllegalStateException("Requested IME window did not appear");
-        phases.put(new JSONObject().put("phase", phase).put("launch_ns", launch).put("ime_observed_ns", now()));
+        long shown = now();
+        long ready = awaitSessionReady();
+        phases.put(new JSONObject().put("phase", phase).put("launch_ns", launch).put("ime_observed_ns", shown)
+            .put("session_ready_observed_ns", ready));
         String expected = "";
         String sequence = args.getString("sequence", "ni");
         String word = args.getString("word", "你");
