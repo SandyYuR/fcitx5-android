@@ -4,9 +4,6 @@
  */
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import com.android.build.gradle.internal.tasks.CompileArtProfileTask
-import com.android.build.gradle.internal.tasks.ExpandArtProfileWildcardsTask
-import com.android.build.gradle.internal.tasks.MergeArtProfileTask
 import com.android.build.gradle.tasks.PackageApplication
 import com.mikepenz.aboutlibraries.plugin.AboutLibrariesExtension
 import org.gradle.api.Project
@@ -106,11 +103,6 @@ class AndroidAppConventionPlugin : AndroidBaseConventionPlugin() {
                 }
             }
         }
-
-        // remove assets/dexopt/baseline.prof{,m} (baseline profile)
-        target.tasks.withType<MergeArtProfileTask> { enabled = false }
-        target.tasks.withType<ExpandArtProfileWildcardsTask> { enabled = false }
-        target.tasks.withType<CompileArtProfileTask> { enabled = false }
 
         target.extensions.configure<ApplicationAndroidComponentsExtension> {
             // Add dependency relationships for data descriptor task

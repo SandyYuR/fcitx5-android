@@ -15,14 +15,14 @@ Engine& instance() {
 }
 
 using namespace direct_rime::jni;
+jclass snapshotClass = nullptr;
+jmethodID snapshotConstructor = nullptr;
+constexpr auto snapshotSignature =
+    "(JJJZILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ZIZI[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;[Ljava/lang/String;)V";
 jobject snapshot(JNIEnv* env, const direct_rime::Snapshot& s) {
-    auto type = env->FindClass("org/fcitx/directrime/Snapshot");
-    auto constructor = env->GetMethodID(type, "<init>",
-        "(JJJZILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ZIZI[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;[Ljava/lang/String;)V");
-    if (!constructor) return nullptr;
     // One JNI result owns the commit and the corresponding UI state. Nothing is
     // delivered through a dropping SharedFlow or a native background callback.
-    return env->NewObject(type, constructor, static_cast<jlong>(s.generation), static_cast<jlong>(s.revision), static_cast<jlong>(s.optionsRevision),
+    return env->NewObject(snapshotClass, snapshotConstructor, static_cast<jlong>(s.generation), static_cast<jlong>(s.revision), static_cast<jlong>(s.optionsRevision),
         static_cast<jboolean>(s.handled), static_cast<jint>(s.gate), string(env, s.commit), string(env, s.preedit),
         string(env, s.schema), static_cast<jboolean>(s.ascii), static_cast<jint>(s.page),
         static_cast<jboolean>(s.lastPage), static_cast<jint>(s.cursor), strings(env, s.candidates),
@@ -32,6 +32,37 @@ jobject snapshot(JNIEnv* env, const direct_rime::Snapshot& s) {
 void error(JNIEnv* env, const std::exception& e) {
     env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), e.what());
 }
+}
+
+extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
+    JNIEnv* env = nullptr;
+    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) return JNI_ERR;
+    auto cacheClass = [env](const char* name) -> jclass {
+        auto local = env->FindClass(name);
+        if (!local) return nullptr;
+        auto global = static_cast<jclass>(env->NewGlobalRef(local));
+        env->DeleteLocalRef(local);
+        return global;
+    };
+    snapshotClass = cacheClass("org/fcitx/directrime/Snapshot");
+    if (snapshotClass) snapshotConstructor = env->GetMethodID(snapshotClass, "<init>", snapshotSignature);
+    if (snapshotConstructor) stringArrayClass = cacheClass("java/lang/String");
+    if (!snapshotConstructor || !stringArrayClass) {
+        if (snapshotClass) env->DeleteGlobalRef(snapshotClass);
+        snapshotClass = nullptr;
+        snapshotConstructor = nullptr;
+        return JNI_ERR;
+    }
+    return JNI_VERSION_1_6;
+}
+extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void*) {
+    JNIEnv* env = nullptr;
+    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) return;
+    env->DeleteGlobalRef(snapshotClass);
+    env->DeleteGlobalRef(stringArrayClass);
+    snapshotClass = nullptr;
+    stringArrayClass = nullptr;
+    snapshotConstructor = nullptr;
 }
 
 #define JNI_METHOD(name) Java_org_fcitx_directrime_Native_##name
@@ -58,6 +89,15 @@ extern "C" JNIEXPORT jlongArray JNICALL JNI_METHOD(sessionStats)(JNIEnv* env, jo
         jlong data[] = {values[0], values[1], values[2]};
         auto result = env->NewLongArray(3);
         if (result) env->SetLongArrayRegion(result, 0, 3, data);
+        return result;
+    } catch (const std::exception& e) { error(env, e); return nullptr; }
+}
+extern "C" JNIEXPORT jlongArray JNICALL JNI_METHOD(operationTiming)(JNIEnv* env, jobject) {
+    try {
+        const auto values = instance().operationTiming();
+        jlong data[] = {values[0], values[1], values[2], values[3], values[4]};
+        auto result = env->NewLongArray(5);
+        if (result) env->SetLongArrayRegion(result, 0, 5, data);
         return result;
     } catch (const std::exception& e) { error(env, e); return nullptr; }
 }

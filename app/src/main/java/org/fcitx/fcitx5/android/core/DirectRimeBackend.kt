@@ -81,6 +81,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private var optionsRevision = Long.MIN_VALUE
     private var publishedGeneration = Long.MIN_VALUE
     private var candidateEventCached: FcitxEvent<*>? = null
+    @Volatile private var candidateVersion = 0L
     private val forwardedKeys = mutableSetOf<Pair<Int, Int>>()
     private var startupError = ""
     private var statusHint = ""
@@ -156,6 +157,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
         finally { android.util.Log.i("RimeLifecycle", "startup phase=$name duration_ms=${SystemClock.elapsedRealtime() - start}") }
     }
     private suspend fun <T> onOwner(block: () -> T): T = withContext(owner) { block() }
+    private fun nativeTiming(values: LongArray = Native.operationTiming()): String =
+        "core_us=${values[0] / 1000} read_commit_us=${values[1] / 1000} read_context_us=${values[2] / 1000} read_status_us=${values[3] / 1000} input_tabs_us=${values[4] / 1000}"
     private fun refreshSchemas() {
         schemas = Native.schemaEntries().toList().chunked(2).map { it[0] to it[1] }
     }
@@ -169,7 +172,10 @@ class DirectRimeBackend(context: Context) : InputEngine {
         flags = target.flags
         val startedAt = SystemClock.elapsedRealtime()
         val before = Native.sessionStats()
+        val beginAt = SystemClock.elapsedRealtimeNanos()
         var result = Native.beginInput(generation, program, flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL)
+        val beginDone = SystemClock.elapsedRealtimeNanos()
+        val beginTiming = Native.operationTiming()
         if (result.ready) {
             appliedNoLearning = flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL
             if (preferredSchema.isNotEmpty() && result.schema != preferredSchema && schemas.any { it.first == preferredSchema })
@@ -178,12 +184,13 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 if (result.ascii != ascii) result = Native.action(generation, result.revision, 8, if (ascii) 1 else 0, "ascii_mode")
             }
         }
+        val restoreDone = SystemClock.elapsedRealtimeNanos()
         publish(result)
         bindingKeys = 0
         bindingSelections = 0
         keyGate.resolve(generation, result.ready)
         val after = Native.sessionStats()
-        android.util.Log.i("RimeLifecycle", "bind generation=$generation duration_ms=${SystemClock.elapsedRealtime() - startedAt} ready=${result.ready} created=${after[0] - before[0]} reused=${after[1] - before[1]} no_learning=${flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL}")
+        android.util.Log.i("RimeLifecycle", "bind generation=$generation duration_ms=${SystemClock.elapsedRealtime() - startedAt} ready=${result.ready} created=${after[0] - before[0]} reused=${after[1] - before[1]} no_learning=${flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL} native_begin_us=${(beginDone - beginAt) / 1000} restore_us=${(restoreDone - beginDone) / 1000} ${nativeTiming(beginTiming)}")
     }
     override suspend fun startInputSession(generation: Long, program: String) = onOwner {
         if (generation != inputSession) return@onOwner
@@ -204,6 +211,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         clientPreeditCached = FormattedText.Empty
         inputPanelCached = FcitxEvent.InputPanelEvent.Data()
         candidateEventCached = null
+        candidateVersion++
         publishedGeneration = Long.MIN_VALUE
         keyGate.resolve(generation, false)
         events.trySend(listOf(
@@ -282,7 +290,10 @@ class DirectRimeBackend(context: Context) : InputEngine {
         // An unchanged first page can hide a changed tail of a lazy translation.
         // Keep handled keys/actions and composition changes invalidating expanded pages.
         if (newSession || value.handled || optionsChanged || previous?.preedit != value.preedit ||
-            previous?.cursorBytes != value.cursorBytes || candidateEvent != candidateEventCached) batch += candidateEvent
+            previous?.cursorBytes != value.cursorBytes || candidateEvent != candidateEventCached) {
+            candidateVersion++
+            batch += candidateEvent
+        }
         candidateEventCached = candidateEvent
         if (imeChanged) batch += FcitxEvent.IMChangeEvent(ime)
         if (statusChanged) batch += FcitxEvent.StatusAreaEvent(FcitxEvent.StatusAreaEvent.Data(actions, ime))
@@ -366,7 +377,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             if (!up && result?.ready == true) {
                 bindingKeys++
                 if (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L)
-                    android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys owner_wait_us=${(ownerAt - queuedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000}")
+                    android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys owner_wait_us=${(ownerAt - queuedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
             }
             val keyId = sym to code
             val forward = if (up) forwardedKeys.remove(keyId) else
@@ -405,8 +416,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 val result = act(action, index)
                 if (action == 1 || action == 11) {
                     bindingSelections++
-                    if (bindingSelections <= 2)
-                        android.util.Log.i("RimeInputTiming", "select generation=${expected.generation} ordinal=$bindingSelections owner_wait_us=${(ownerAt - queuedAt) / 1000} native_publish_us=${(SystemClock.elapsedRealtimeNanos() - ownerAt) / 1000}")
+                    if (bindingSelections <= 2 || SystemClock.elapsedRealtimeNanos() - ownerAt >= 100_000_000L)
+                        android.util.Log.i("RimeInputTiming", "select generation=${expected.generation} ordinal=$bindingSelections owner_wait_us=${(ownerAt - queuedAt) / 1000} native_publish_us=${(SystemClock.elapsedRealtimeNanos() - ownerAt) / 1000} ${nativeTiming()}")
                 }
                 result
             }
@@ -420,10 +431,24 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val text = snapshot?.preedit ?: return@onOwner
         act(9, text.take(position.coerceIn(0, text.length)).toByteArray().size)
     } }
-    override suspend fun getCandidates(offset: Int, limit: Int): Array<CandidateWord> = onOwner {
-        if (!started || maintenance) return@onOwner emptyArray()
-        Native.candidates(inputSession, offset, limit.coerceIn(1, 256)).toList().chunked(2)
-            .map { CandidateWord("", it[0], it[1]) }.toTypedArray()
+    override suspend fun getCandidates(offset: Int, limit: Int): Array<CandidateWord> {
+        val expected = snapshot ?: return emptyArray()
+        // Snapshot revisions also advance on unhandled key-up. Only cancel a
+        // page when a candidate invalidation was actually published, otherwise
+        // Paging would lose its load without receiving a replacement refresh.
+        val expectedVersion = candidateVersion
+        val count = limit.coerceIn(1, 256)
+        if (offset < 0 || offset > Int.MAX_VALUE - count) return emptyArray()
+        return readCandidatePage(offset, count) { start, size ->
+            onOwner {
+                if (!started || maintenance || expected.generation != inputSession ||
+                    candidateVersion != expectedVersion) return@onOwner null
+                trace("rime.direct.candidate_batch") {
+                    Native.candidates(expected.generation, start, size).toList().chunked(2)
+                        .map { CandidateWord("", it[0], it[1]) }
+                }
+            }
+        }.toTypedArray()
     }
     override suspend fun getCandidateActions(idx: Int) = arrayOf(CandidateAction(0, "忘记此词", false, "", false, false))
     override suspend fun triggerCandidateAction(idx: Int, actionIdx: Int) { if (actionIdx == 0) performAction(5, idx) }
@@ -440,7 +465,11 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override suspend fun enabledIme() = availableIme()
     override suspend fun setEnabledIme(array: Array<String>) { require(array.contentEquals(arrayOf("rime"))) }
     override suspend fun currentIme() = inputMethodEntryCached
-    override suspend fun toggleIme() { onOwner { act(6) } }
+    private fun demandSessionForAction() {
+        if (binding?.generation == inputSession && binding?.needsRime == false && requireInputSession(inputSession))
+            begin(inputSession)
+    }
+    override suspend fun toggleIme() { onOwner { demandSessionForAction(); act(6) } }
     override suspend fun activateIme(ime: String) {
         // Android can bind its manifest/default subtype before syncWith replaces it.
         // This edition has one IM; a stale keyboard-us subtype must not crash the service.
@@ -459,6 +488,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
             synchronized(bindingLock) { if (binding?.generation == generation) binding = null }
             clearBinding(generation)
         } else if (snapshot?.generation != inputSession || snapshot?.ready != true) {
+            // A focus/show callback must not override an explicitly inactive
+            // binding. Actual keys and schema/mode actions promote it first.
+            if (binding?.generation == inputSession && binding?.needsRime == false) return@onOwner
             if (binding?.generation == inputSession && binding?.needsRime == true) begin(inputSession)
             else {
                 val generation = invalidateInputSession()
@@ -480,7 +512,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         when {
             id == 11 -> redeploy()
             id == 12 -> synchronize()
-            else -> onOwner { when {
+            else -> onOwner { demandSessionForAction(); when {
                 id == 10 -> act(6)
                 id in 100 until 100 + schemas.size -> act(3, value = schemas[id - 100].first)
                 id in 1000 until 1000 + optionRows.size -> {

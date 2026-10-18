@@ -282,6 +282,11 @@ end
         FcitxDaemon.prepareInputSession(generation, "frontend.null", CapabilityFlags.DefaultFlags, false)
         connection.runOnReady {
             startInputSession(generation, "frontend.null")
+            // Repeated focus/show callbacks for a known non-editor must remain
+            // inactive and must not replace its generation behind queued keys.
+            focus(true)
+            focus(true)
+            assertEquals(generation, inputSession)
             assertFalse(acceptsInput)
             assertTrue(inputPanelCached.preedit.isEmpty())
         }

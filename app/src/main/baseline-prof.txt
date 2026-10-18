@@ -1,0 +1,16 @@
+# Keep a small, explicit IME path eligible for ART compilation after profile install.
+# These source rules are not a measured performance claim. AGP resolves them against
+# the actual optimized DEX; CI verifies the resulting profile is packaged.
+HSPLorg/fcitx/fcitx5/android/FcitxApplication;->onCreate()V
+HSPLorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->onCreate()V
+HSPLorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->onStartInput(**)**
+HSPLorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->onStartInputView(**)**
+HPLorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->handleFcitxEvent(**)**
+HPLorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->commitText(**)**
+HPLorg/fcitx/fcitx5/android/core/DirectRimeBackend;->sendKey(**)**
+HPLorg/fcitx/fcitx5/android/core/DirectRimeBackend;->publish(**)**
+HPLorg/fcitx/fcitx5/android/core/DirectRimeBackend;->performAction(**)**
+HPLorg/fcitx/fcitx5/android/core/DirectRimeBackend;->getCandidates(**)**
+HPLorg/fcitx/directrime/Snapshot;->**(**)**
+HPLorg/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateViewAdapter;->updateCandidates(**)**
+HPLorg/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateViewAdapter;->onBindViewHolder(**)**

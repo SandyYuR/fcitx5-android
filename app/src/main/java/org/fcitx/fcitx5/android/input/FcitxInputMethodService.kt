@@ -509,6 +509,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     /** Capture at the time of the key, before either the service or native owner queues it. */
     fun postFcitxKeyJob(block: suspend FcitxAPI.() -> Unit): Job {
+        // Showing an inherited keyboard window on a TYPE_NULL/non-editor focus
+        // is not typing demand. Promote only a real key, before its ticket is
+        // captured, and bind ahead of it in this same ordered service queue.
+        if (FcitxDaemon.requireInputSession()) {
+            postFcitxSessionJob(inputSessionGeneration) { focus(true) }
+        }
         val ticket = FcitxDaemon.captureInputKey() ?: return Job().apply { complete() }
         return postFcitxJob {
             if (FcitxDaemon.canDeliverInputKey(ticket)) block()
@@ -1822,9 +1828,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     override fun onStartInputView(info: EditorInfo, restarting: Boolean) {
         android.util.Log.i("FcitxColdStart", "service.onStartInputView restarting=$restarting")
         isInInputLifecycleCriticalPhase = true
-        // Explicitly showing the keyboard can require Rime even for a terminal's
-        // TYPE_NULL editor. Silent non-editor focus callbacks stay cheap.
-        FcitxDaemon.requireInputSession()
+        // Android may show a retained keyboard window for a non-editor too.
+        // TYPE_NULL terminals are promoted by their first actual key/action.
         try {
             val inputSessionGeneration = this.inputSessionGeneration
             Timber.d("onStartInputView: restarting=$restarting")

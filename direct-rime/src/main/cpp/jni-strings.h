@@ -3,6 +3,8 @@
 #include <jni.h>
 #include <stdexcept>
 namespace direct_rime::jni {
+// Global reference populated once by JNI_OnLoad, before any entry point is used.
+inline jclass stringArrayClass = nullptr;
 inline std::string string(JNIEnv* env, jstring input) {
     if (!input) return {};
     // Java UTF-16 -> standard UTF-8, including supplementary-plane schema paths.
@@ -33,9 +35,8 @@ inline jstring string(JNIEnv* env, const std::string& input) {
     return env->NewString(reinterpret_cast<const jchar*>(decoded.data()), decoded.size());
 }
 inline jobjectArray strings(JNIEnv* env, const std::vector<std::string>& values) {
-    auto type = env->FindClass("java/lang/String");
-    auto result = env->NewObjectArray(values.size(), type, nullptr);
-    env->DeleteLocalRef(type);
+    auto result = env->NewObjectArray(values.size(), stringArrayClass, nullptr);
+    if (!result) return nullptr;
     for (size_t i = 0; i < values.size(); ++i) {
         auto value = string(env, values[i]);
         env->SetObjectArrayElement(result, i, value); env->DeleteLocalRef(value);

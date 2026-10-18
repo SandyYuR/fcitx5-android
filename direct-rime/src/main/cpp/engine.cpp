@@ -1,6 +1,7 @@
 #include "engine.h"
 #include <cstring>
 #include <algorithm>
+#include <chrono>
 #include <sstream>
 #include <rime_levers_api.h>
 #include <stdexcept>
@@ -22,6 +23,15 @@ struct Trace {
 #ifdef __ANDROID__
         ATrace_endSection();
 #endif
+    }
+};
+struct TimedTrace {
+    Trace trace;
+    int64_t& elapsed;
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    TimedTrace(const char* name, int64_t& elapsed) : trace(name), elapsed(elapsed) {}
+    ~TimedTrace() {
+        elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - start).count();
     }
 };
 std::string safe(const char* value) { return value ? value : ""; }
@@ -110,10 +120,12 @@ void Engine::clearSession() {
 Snapshot Engine::begin(int64_t generation, const std::string& program, bool noLearning) {
     Trace trace("rime.direct.bind");
     owner();
+    timing_.fill(0);
     if (generation <= generation_) { Snapshot s; s.generation = generation; s.gate = Stale; return s; }
     ++optionsRevision_;
     generation_ = generation; active_ = false;
-    if (started_ && !api_->is_maintenance_mode() && !deployFailed_.load()) {
+    { TimedTrace core("rime.direct.bind_core", timing_[0]);
+      if (started_ && !api_->is_maintenance_mode() && !deployFailed_.load()) {
         // Lua components can retain private context beyond clear_composition.
         // Do not carry that runtime across sensitive fields in either direction.
         const bool reuse = session_ && !noLearning && !sessionNoLearning_ &&
@@ -137,7 +149,7 @@ Snapshot Engine::begin(int64_t generation, const std::string& program, bool noLe
             api_->set_property(session_, "client_app", program.c_str());
             active_ = true;
         }
-    }
+      } }
     return snapshot(generation);
 }
 Snapshot Engine::end(int64_t generation) {
@@ -152,23 +164,27 @@ Snapshot Engine::end(int64_t generation) {
 std::vector<int64_t> Engine::sessionStats() const {
     owner(); return {sessionsCreated_, sessionsReused_, sessionsEnded_};
 }
+std::array<int64_t, 5> Engine::operationTiming() const { owner(); return timing_; }
 Snapshot Engine::key(int64_t generation, int sym, int mask, bool release) {
     owner();
+    timing_.fill(0);
     if (gate(generation) != Ready) return snapshot(generation);
     // Exactly the mask used by fcitx5-rime, including IBus's virtual Super and release.
     int states = mask & ((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6));
     if (states & (1 << 6)) states |= (1 << 26);
     if (release) states |= (1 << 30);
     bool handled;
-    { Trace trace("rime.direct.process_key"); handled = api_->process_key(session_, sym, states); }
+    { TimedTrace trace("rime.direct.process_key", timing_[0]); handled = api_->process_key(session_, sym, states); }
     return snapshot(generation, handled);
 }
 Snapshot Engine::action(int64_t generation, int64_t revision, int action, int index, const std::string& value) {
     Trace trace(action == 1 || action == 11 ? "rime.direct.select_candidate" : "rime.direct.action");
     owner();
+    timing_.fill(0);
     if (gate(generation) != Ready) return snapshot(generation);
     if (revision != revision_) { Snapshot s; s.generation = generation; s.gate = Stale; return s; }
-    switch (action) {
+    { TimedTrace core("rime.direct.action_core", timing_[0]);
+      switch (action) {
     case 0: api_->clear_composition(session_); break;
     case 1: if (index >= 0) api_->select_candidate_on_current_page(session_, index); break;
     case 2: if (RIME_API_AVAILABLE(api_, change_page)) api_->change_page(session_, index < 0); break;
@@ -189,7 +205,7 @@ Snapshot Engine::action(int64_t generation, int64_t revision, int action, int in
     case 11: if (index >= 0) api_->select_candidate(session_, index); break;
     case 12: if (index >= 0 && RIME_API_AVAILABLE(api_, delete_candidate)) api_->delete_candidate(session_, index); break;
     default: throw std::invalid_argument("unknown direct Rime action");
-    }
+      } }
     return snapshot(generation);
 }
 Snapshot Engine::snapshot(int64_t generation, bool handled) {
@@ -199,15 +215,20 @@ Snapshot Engine::snapshot(int64_t generation, bool handled) {
     s.revision = ++revision_;
     if (s.gate != Ready) return s; // Gated keys are always swallowed, including release.
     RimeCommit commit{}; RIME_STRUCT_INIT(RimeCommit, commit);
-    if (api_->get_commit(session_, &commit)) { s.commit = safe(commit.text); api_->free_commit(&commit); }
+    { TimedTrace trace("rime.direct.read_commit", timing_[1]);
+      if (api_->get_commit(session_, &commit)) { s.commit = safe(commit.text); api_->free_commit(&commit); } }
     RimeContext context{}; RIME_STRUCT_INIT(RimeContext, context);
-    if (api_->get_context(session_, &context)) {
+    { TimedTrace trace("rime.direct.read_context", timing_[2]);
+      if (api_->get_context(session_, &context)) {
         s.preedit = safe(context.composition.preedit); s.cursor = context.composition.cursor_pos;
         s.highlighted = context.menu.highlighted_candidate_index;
         s.preview = safe(context.commit_text_preview);
         s.page = context.menu.page_no; s.lastPage = context.menu.is_last_page;
+        const auto keys = safe(context.menu.select_keys);
+        s.labels.reserve(context.menu.num_candidates);
+        s.candidates.reserve(context.menu.num_candidates);
+        s.comments.reserve(context.menu.num_candidates);
         for (int i = 0; i < context.menu.num_candidates; ++i) {
-            const auto keys = safe(context.menu.select_keys);
             s.labels.push_back(RIME_STRUCT_HAS_MEMBER(context, context.select_labels) && context.select_labels
                 ? safe(context.select_labels[i]) + " "
                 : i < static_cast<int>(keys.size()) ? keys.substr(i, 1) + " " : std::to_string((i + 1) % 10) + " ");
@@ -215,12 +236,14 @@ Snapshot Engine::snapshot(int64_t generation, bool handled) {
             s.comments.push_back(safe(context.menu.candidates[i].comment));
         }
         api_->free_context(&context);
-    }
+      } }
     RimeStatus status{}; RIME_STRUCT_INIT(RimeStatus, status);
-    if (api_->get_status(session_, &status)) {
+    { TimedTrace trace("rime.direct.read_status", timing_[3]);
+      if (api_->get_status(session_, &status)) {
         s.schema = safe(status.schema_id); s.schemaName = safe(status.schema_name); s.ascii = status.is_ascii_mode; api_->free_status(&status);
-    }
+      } }
     tabs_.clear();
+    TimedTrace tabsTrace("rime.direct.read_input_tabs", timing_[4]);
     if (RIME_API_AVAILABLE(api_, get_input_tabs) && RIME_API_AVAILABLE(api_, free_input_tabs)) {
         char** labels = nullptr; size_t* spans = nullptr; int* sources = nullptr; size_t count = 0;
         if (api_->get_input_tabs(session_, 0, &labels, &spans, &sources, &count)) {
@@ -371,6 +394,7 @@ bool Engine::sync() {
 }
 
 std::vector<std::string> Engine::candidates(int64_t generation, int offset, int limit) {
+    Trace trace("rime.direct.read_candidates");
     owner();
     std::vector<std::string> result;
     if (gate(generation) != Ready || offset < 0 || limit <= 0 || limit > 256) return result;
