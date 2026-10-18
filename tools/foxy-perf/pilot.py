@@ -111,25 +111,58 @@ def main():
             selected_ime(package)
             deadline = time.monotonic() + 240
             maps = ''
+            initialized = maintenance = deployed = ready = False
             while time.monotonic() < deadline:
                 pid = adb('shell', 'pidof', package, check=False)
                 if pid:
                     maps = adb('shell', 'cat', '/proc/'+pid.split()[0]+'/maps', check=False)
                 logs = adb('logcat', '-d', '-t', '1200')
-                if 'FATAL EXCEPTION' in logs:
-                    break
-                if ((label == 'foxy' and 'Rime initialized in' in logs) or
-                    (label == 'direct' and 'ready=true' in logs and 'RimeLifecycle' in logs)):
+                if label == 'foxy':
+                    initialized |= 'Rime initialized in' in logs
+                    maintenance |= 'maintenanceStarted=true' in logs or 'type=deploy value=start' in logs
+                    deployed |= 'type=deploy value=success' in logs
+                    if 'type=deploy value=failure' in logs:
+                        raise RuntimeError('Foxy deployment failed; see last-logcat.txt')
+                    ready = initialized and (not maintenance or deployed)
+                else:
+                    ready = 'ready=true' in logs and 'RimeLifecycle' in logs
+                if ready:
                     break
                 time.sleep(1)
+            assert ready, label+': deployment/readiness timed out'
+            # Initialization completion can precede the controller recreating
+            # its editor session after maintenance. Rebind both products during
+            # setup, then require the actual grammar mapping before calibration.
+            adb('shell', 'am', 'force-stop', HOST)
+            adb('shell', 'am', 'start', '-W', '-n', HOST+'/.BenchHost')
+            deadline = time.monotonic()+30
+            while time.monotonic()<deadline:
+                pid = adb('shell', 'pidof', package, check=False)
+                if pid:
+                    maps = adb('shell', 'cat', '/proc/'+pid.split()[0]+'/maps', check=False)
+                    if '.gram' in maps:
+                        break
+                time.sleep(.5)
             capture(out, 'keyboard')
             (out/'input-method.txt').write_text(adb('shell', 'dumpsys', 'input_method'))
             (out/'package.txt').write_text(adb('shell', 'dumpsys', 'package', package))
             assert maps, label+': IME process did not start'
-            adb('shell', 'input', 'text', 'ni')
+            if label == 'foxy':
+                # Calibrated from the original 320x640 keyboard screenshot.
+                # Foxy's adb virtual-hardware path can bypass its Rime session;
+                # use its actual soft keys, as the timed driver will do.
+                assert adb('shell', 'wm', 'size').endswith('320x640')
+                adb('shell', 'input', 'tap', '224', '574')
+                time.sleep(.1)
+                adb('shell', 'input', 'tap', '240', '479')
+            else:
+                adb('shell', 'input', 'text', 'ni')
             time.sleep(2)
             capture(out, 'candidates')
-            adb('shell', 'input', 'keyevent', '62')
+            if label == 'foxy':
+                adb('shell', 'input', 'tap', '160', '617')
+            else:
+                adb('shell', 'input', 'keyevent', '62')
             time.sleep(1)
             adb('shell', 'am', 'broadcast', '-n', HOST+'/.BenchControl', '--es', 'command', 'dump')
             editor = adb('shell', 'run-as', HOST, 'cat', 'files/candidate-editor.json')
