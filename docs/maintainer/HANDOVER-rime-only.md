@@ -1125,6 +1125,36 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 ---
 
+### 0.6.24 布局与工具栏界面借鉴（2026-10-17）
+
+对应代码提交 `1713d613`（`fx-rime-only`）。参照 `boomker/fcitx5-android@1d85a0d5` 的管理页层级、编辑器行列表及工具栏分节标题；保留 LGPL-2.1-or-later 文件头。本次仅移植这三项 UI，不引入工具栏边框功能。范围与约束：
+
+- **布局管理页**：新增 `TextKeyboardLayoutProfileManagerActivity`，入口在「键盘 → 键盘布局自定义」，原编辑器和快速切换弹窗均保留；规格入口在 `SettingsGroupSpecs.keyboardLayoutManager`，搜索跳组并按 `tool_text_layout_manager` 定位。浏览在 IO 上调用 `parseJsonText(..., fallbackToDefault = false)`，不调用含迁移的加载流程、不写文件、不启动输入引擎。展开/折叠只存 Activity 状态；仅明确点击启用按钮才切换活动布局文件。新建/改名/删除/二维码操作转交原编辑器的流程，没有新增 `__profile__`、文件级高度、排序或过滤偏好。
+- **精确编辑目标**：管理页经 intent 指定已有文件、条目键；条目一律由 `LayoutJsonUtils.parseEntryKey` 解析，兼容方案 ID、层子布局和分体排列。编辑非活动文件不启用它；重命名/删除非活动文件也保留当前活动配置。草稿仍绑定对应文件，编辑器原有分体、辅助栏、Web 桥、二维码、按键编辑和保存逻辑继续保留。
+- **编辑器列表**：右侧齿轮/删除竖排，单字符字母键宽 36dp，可选定制属性用 2dp 绿框标记（`LayoutKeyUi`，显式同文 `displayText` 也算定制）。齿轮仅选择按键进入原编辑页，不引入 fork 的行样式元数据或渲染层。末尾 `+`/上移均为 32dp、标记 `TAG_NOT_DRAGGABLE`；跨行目标计算扣除两枚动作，继续复用 chip 与 Drawable、清理残留 translation。复用时必须重置 enabled/alpha，防止首行禁用的上移按钮复用成普通键后不可点。
+- **工具栏编辑页**：仅增加系统按钮/工具栏/状态区/可用按钮四个分节头，标题跨四列，标题间距为上 12dp、下 4dp；标题不拖拽、不落盘。跨区插入位置以对应标题和 `+` 为界，保留 SystemBar、宏、本地图标、草稿和原有按钮配置格式。
+
+**验证状态**：工具栏边框相关代码、开关、搜索项、字符串及测试均已撤回，主题/输入视图/预览/圆角几何文件恢复基线。最终 JVM 单测 **471 项通过**（0 失败、0 跳过），arm64-v8a Debug APK 构建成功；扫描 APK 的 DEX 与资源表，确认无边框类、偏好键及几何方法残留。`git diff --check` 通过。保留 `LayoutKeyUiTest` 与 Android chip 复用测试 `KeyboardLayoutAdapterViewTest`。**lint 未完成**：在线运行阻塞在依赖下载，离线复核明确缺少既有 lint 工具 `intellij-core:32.3.1`、`kotlin-compiler:32.3.1` 的缓存，不能记为通过；没有修改任何依赖版本。Android 测试包离线构建也因已有 runner/lifecycle-runtime-testing/storage/monitor 依赖未缓存失败。ADB 无连接设备；管理页跳转、区内/跨区拖拽和 chip 复用测试尚未真机执行。
+
+**本机环境记录**：宿主遗留 `ANDROID_SDK_HOME=C:\Android` 时，Debug 出包会因 `C:\Android\.android\debug.keystore.lock` 不可写失败。本次只在构建进程中移除旧变量，并设 `ANDROID_USER_HOME=D:\GitHub\tools\android-home`，复用已有 debug keystore；不改系统环境、不动发布签名。Kotlin daemon 向 C 盘写 alive 标记受限时，本次进程设置 `ORG_GRADLE_PROJECT_kotlin.compiler.execution.strategy=in-process` 完成验证。原生 core 子模块已有四份补丁文件的工作区修改保持不动，未运行 prepare 脚本、未更新任何 gitlink。
+
+---
+
+### 0.6.25 编辑器按键列表跟随键盘主题颜色（2026-10-18）
+
+对应代码提交同为 `1713d613`。本轮仅补齐编辑器的颜色显示，不新增整行属性编辑器，不改变布局 JSON、偏好或既有读写逻辑；工具栏边框继续保持撤回。
+
+- 新增只读解析工具 `adapter/LayoutKeyColors.kt`，主行列表与辅助栏按键列表共用。普通键使用普通键色、功能键使用功能键色、回车使用强调色；按本项目的 `AltForeground` 语义，语言键使用普通底色和功能键文字色。宏键使用现有配置或普通主题色。
+- 沿用已有字段的优先级：有效 `textColorMonet` / `backgroundColorMonet` 引用（`theme:` 或 Android 系统动态颜色）→ 已存纯色 → 当前主题默认色。无效引用回退，显式透明色不误当未配置；不修改传入按键 Map。系统颜色资源 ID 按名称缓存，主题颜色每次取当前值，避免切主题后保留旧色。
+- 主列表继续复用按键 View 和 GradientDrawable，保留定制绿框及拖拽平移修正。主题变化和回到编辑器时只刷新颜色显示；监听器随 Activity 的 `onStart` / `onStop` 注册和移除。辅助栏列表同步刷新。
+- 布局数据管理、JSON 转换、实际键盘渲染、主题偏好和内置 assets 均无修改。没有引入 `__rowMeta`、行样式、依赖升级或新的配置字段。
+
+**本轮验证**：完整 JVM 单测 **475 项通过**（0 失败、0 跳过），包括新增的 4 项颜色解析测试；覆盖亮暗主题、按键类型、主题引用/纯色优先级、系统引用回退、显式透明色以及不修改原数据。arm64-v8a Debug APK 已重新构建，包内复查工具栏边框实现仍无残留。源码及文档 `git diff --check` 通过。布局数据层、JSON 转换、实际键盘渲染、主题偏好及 assets 与任务前基线无差异；原生 core 子模块的既有修改未动。
+
+**未完成的验证**：独立 lint 仍在解析既有工具依赖时失败，缺少 `intellij-core:32.3.1` 和 `kotlin-compiler:32.3.1` 缓存，没有生成可据以评价本轮源码的 lint 结果。ADB 已启动，设备列表为空；尚未实测主题切换后的列表颜色、辅助栏列表及拖拽复用效果。依赖版本未修改。
+
+---
+
 ## 0.7 本地构建工具链与环境细节（2026-10-12 自 AGENTS.md 迁入）
 
 > 本节是 2026-10-12 `AGENTS.md` 按「agent 指南只留可执行要点」原则精简时**整体迁入**的操作细节。`AGENTS.md` 只保留每条的入口命令与禁令,完整环境变量、路径、原理与故障解法以本节为准。
