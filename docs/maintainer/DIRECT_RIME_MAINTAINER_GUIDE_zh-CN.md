@@ -41,6 +41,9 @@ librime 的 session 与操作由单一 owner 串行管理。输入会话变更�
 启动/绑定期间的首键可在原队列中短时等待；每次 Android 编辑器仍有独立代次。
 同应用普通文本绑定复用原生 session，跨应用与敏感输入边界重建；
 具体接收限制、状态清理和诊断标签见[响应性改进](DIRECT_RIME_RESPONSIVENESS_2026-10-18.md)。
+界面读取缓存直接在调用线程执行；native 运算仍在 owner。首次候选点选的原 Fcitx 对照、
+编辑器排版边界及 `select_queue` / `commit` 新计时见
+[首次点选报告](DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md)。
 模式/方案提示通过输入面板的辅助文本显示，1500 ms 后只清理提示；新输入和新会话会提前清理。
 
 ## librime 从哪里来

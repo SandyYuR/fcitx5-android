@@ -27,3 +27,9 @@ IME 为起点，排除注入前查找视图、20ms 按住、轮询等待；注�
 产物保留 APK/源码/测试文件哈希、模型清单、每轮原始纳秒、独立编辑器记录和 logcat。
 测试要求模型实际 mmap、上下文调频/简码/小字集开启、Fcitx native 身份正确、六次准确上屏且
 无重复提交。自动测试只在可丢弃的模拟器运行，不能直接用于带有个人数据的手机。
+
+默认工作流每方三次新进程测试。手动运行可开启 `profile`，每方一轮并抓 20s Perfetto；
+带 trace 的数字单独分析，不与默认三轮统计混算。命令行对应 `--trials 1 --profile`。
+`ime_dispatch_up_to_editor_input_connection` 表示进入目标编辑器的调用边界，
+`ime_dispatch_up_to_editor_change` 还包含目标应用首次文字修改/排版工作；应同时读取。
+说明与数据见 [首次点选报告](../../docs/maintainer/DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md)。

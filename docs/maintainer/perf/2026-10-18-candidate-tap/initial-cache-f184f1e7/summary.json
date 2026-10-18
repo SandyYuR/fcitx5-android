@@ -1,0 +1,212 @@
+{
+  "fcitx": {
+    "source": "cecea4940bb5a5db67f91d6b20e00ee5c97877ea",
+    "first_samples": 3,
+    "warm_samples": 15,
+    "metrics": {
+      "injection_up_to_ime_dispatch": {
+        "first": [
+          35.451025,
+          0.482869,
+          0.436012
+        ],
+        "first_median": 0.482869,
+        "warm_median": 0.542472
+      },
+      "ime_dispatch_up_to_commit_collector": {
+        "first": [
+          10.593357,
+          11.070658,
+          12.537699
+        ],
+        "first_median": 11.070658,
+        "warm_median": 4.145666
+      },
+      "ime_dispatch_up_to_editor_change": {
+        "first": [
+          33.942382,
+          26.098608,
+          67.141843
+        ],
+        "first_median": 33.942382,
+        "warm_median": 6.808617
+      },
+      "ime_dispatch_up_to_editor_draw": {
+        "first": [
+          45.674667,
+          27.921545,
+          72.677024
+        ],
+        "first_median": 45.674667,
+        "warm_median": 12.594282
+      },
+      "ime_touch_up_handler": {
+        "first": [
+          2.273902,
+          0.982379,
+          1.834268
+        ],
+        "first_median": 1.834268,
+        "warm_median": 0.889197
+      },
+      "n_dispatch_up_to_preedit_collector": {
+        "first": [
+          90.809815,
+          82.048576,
+          75.606705
+        ],
+        "first_median": 82.048576,
+        "warm_median": 15.88301
+      },
+      "ime_dispatch_up_to_editor_input_connection": {
+        "first": [
+          16.385712,
+          15.707642,
+          64.695794
+        ],
+        "first_median": 16.385712,
+        "warm_median": 5.132494
+      }
+    }
+  },
+  "before": {
+    "source": "e6d317182e25d225a6128420542ea47d161c03b9",
+    "first_samples": 3,
+    "warm_samples": 15,
+    "metrics": {
+      "injection_up_to_ime_dispatch": {
+        "first": [
+          0.448566,
+          53.828026,
+          0.633974
+        ],
+        "first_median": 0.633974,
+        "warm_median": 0.590391
+      },
+      "ime_dispatch_up_to_commit_collector": {
+        "first": [
+          15.293143,
+          16.007623,
+          10.588753
+        ],
+        "first_median": 15.293143,
+        "warm_median": 4.424459
+      },
+      "ime_dispatch_up_to_editor_change": {
+        "first": [
+          29.178762,
+          21.010016,
+          16.735201
+        ],
+        "first_median": 21.010016,
+        "warm_median": 6.226987
+      },
+      "ime_dispatch_up_to_editor_draw": {
+        "first": [
+          39.643173,
+          30.347458,
+          22.923274
+        ],
+        "first_median": 30.347458,
+        "warm_median": 12.769039
+      },
+      "ime_touch_up_handler": {
+        "first": [
+          1.12188,
+          1.420086,
+          1.017734
+        ],
+        "first_median": 1.12188,
+        "warm_median": 1.210766
+      },
+      "n_dispatch_up_to_preedit_collector": {
+        "first": [
+          68.424521,
+          72.408005,
+          29.583316
+        ],
+        "first_median": 68.424521,
+        "warm_median": 14.395867
+      },
+      "ime_dispatch_up_to_editor_input_connection": {
+        "first": [
+          17.00461,
+          17.152346,
+          13.670109
+        ],
+        "first_median": 17.00461,
+        "warm_median": 5.358558
+      }
+    }
+  },
+  "after": {
+    "source": "f184f1e76b877607c5fd72d5d0895a170a71a639",
+    "first_samples": 3,
+    "warm_samples": 15,
+    "metrics": {
+      "injection_up_to_ime_dispatch": {
+        "first": [
+          29.351381,
+          0.555387,
+          46.636956
+        ],
+        "first_median": 29.351381,
+        "warm_median": 0.612862
+      },
+      "ime_dispatch_up_to_commit_collector": {
+        "first": [
+          14.50912,
+          14.701021,
+          10.182098
+        ],
+        "first_median": 14.50912,
+        "warm_median": 4.12532
+      },
+      "ime_dispatch_up_to_editor_change": {
+        "first": [
+          46.889757,
+          34.334711,
+          14.512088
+        ],
+        "first_median": 34.334711,
+        "warm_median": 5.851425
+      },
+      "ime_dispatch_up_to_editor_draw": {
+        "first": [
+          52.946635,
+          45.515268,
+          16.355884
+        ],
+        "first_median": 45.515268,
+        "warm_median": 11.087774
+      },
+      "ime_touch_up_handler": {
+        "first": [
+          2.042257,
+          1.316834,
+          1.202632
+        ],
+        "first_median": 1.316834,
+        "warm_median": 0.993753
+      },
+      "n_dispatch_up_to_preedit_collector": {
+        "first": [
+          87.571052,
+          76.683835,
+          76.875233
+        ],
+        "first_median": 76.875233,
+        "warm_median": 13.641028
+      },
+      "ime_dispatch_up_to_editor_input_connection": {
+        "first": [
+          15.1639,
+          17.811155,
+          11.512688
+        ],
+        "first_median": 15.1639,
+        "warm_median": 4.875203
+      }
+    }
+  }
+}
