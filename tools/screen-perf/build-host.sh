@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-source_dir=$(cd "$(dirname "$0")/host" && pwd)
+source_dir=${2:-$(cd "$(dirname "$0")/host" && pwd)}
 output_dir=${1:?output directory}
 sdk_dir=${ANDROID_HOME:-${ANDROID_SDK_ROOT:?SDK required}}
 build_tools=$(find "$sdk_dir/build-tools" -name aapt2 | sort -V | tail -1 | xargs dirname)
