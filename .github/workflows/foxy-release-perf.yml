@@ -31,7 +31,9 @@ jobs:
           SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
           SIGN_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           SIGN_KEY_PWD: ${{ secrets.KEY_PASSWORD }}
-        run: bash tools/foxy-perf/build-release.sh "$RUNNER_TEMP/release-product"
+        run: |
+          git merge-base --is-ancestor 8634bbeb HEAD
+          bash tools/foxy-perf/build-release.sh "$RUNNER_TEMP/release-product"
       - uses: actions/upload-artifact@v7
         with:
           name: direct-rime-optimized-arm64-release
