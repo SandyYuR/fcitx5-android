@@ -80,6 +80,7 @@ def main():
         archive.extractall(raw)
     provenance = {'fixture_sha256': hashlib.sha256(a.fixture.read_bytes()).hexdigest(),
         'native_bridge': adb('shell', 'getprop', 'ro.dalvik.vm.native.bridge'), 'products': {}}
+    failures = []
     try:
         for label, apk, package, relative in [
             ('foxy', a.foxy, 'com.fxliang.foxy', 'foxy/rime/default'),
@@ -135,12 +136,18 @@ def main():
             # setup, then require the actual grammar mapping before calibration.
             adb('shell', 'am', 'force-stop', HOST)
             adb('shell', 'am', 'start', '-W', '-n', HOST+'/.BenchHost')
-            deadline = time.monotonic()+30
+            deadline = time.monotonic()+180
             while time.monotonic()<deadline:
                 pid = adb('shell', 'pidof', package, check=False)
                 if pid:
                     maps = adb('shell', 'cat', '/proc/'+pid.split()[0]+'/maps', check=False)
-                    if '.gram' in maps:
+                    session_logs = adb('logcat', '-d', '--pid='+pid.split()[0])
+                    # Grammar is mapped midway through component construction.
+                    # Foxy sets its session options only after create_session
+                    # returns; tips/replacer database construction can be slow.
+                    session_ready = ('type=option value=soft_cursor' in session_logs if label == 'foxy' else
+                                     re.search(r'RimeLifecycle: bind .*ready=true', session_logs) is not None)
+                    if '.gram' in maps and session_ready:
                         break
                 time.sleep(.5)
             capture(out, 'keyboard')
@@ -176,17 +183,20 @@ def main():
             (out/'effective-schema.yaml').write_text(adb('shell', 'cat', target+'/build/wanxiang.schema.yaml', check=False))
             (out/'runtime-user.yaml').write_text(adb('shell', 'cat', target+'/user.yaml'))
             (out/'mutable-db-files.txt').write_text(adb('shell', 'find', target, '-name', 'CURRENT'))
-            assert json.loads(editor)['text'] == '你', label+': Chinese commit failed'
-            assert '.gram' in maps, label+': model was not actually mapped'
-            assert 'libndk_translation.so' in maps, label+': expected ARM64 bridge missing'
+            actual = json.loads(editor)['text']
+            checks = {'chinese_commit':actual == '你', 'model_mapped':'.gram' in maps,
+                      'arm64_bridge_mapped':'libndk_translation.so' in maps}
+            if not all(checks.values()):
+                failures.append({'product':label, 'checks':checks, 'actual_text':actual})
             provenance['products'][label] = {'package':package, 'ime':ime, 'profile':target,
-                'apk_sha256':hashlib.sha256(apk.read_bytes()).hexdigest(), 'chinese_commit':'你',
-                'model_mapped':True, 'arm64_bridge_mapped':True}
-            print(label+' calibration passed', flush=True)
+                'apk_sha256':hashlib.sha256(apk.read_bytes()).hexdigest(), 'actual_text':actual, **checks}
+            print(label+' calibration '+('passed' if all(checks.values()) else 'FAILED'), flush=True)
     finally:
         shutil.rmtree(raw)
         (a.output/'provenance.json').write_text(json.dumps(provenance, ensure_ascii=False, indent=2))
         (a.output/'last-logcat.txt').write_text(adb('logcat', '-d', '-v', 'threadtime'))
+    if failures:
+        raise SystemExit(json.dumps(failures, ensure_ascii=False))
 
 
 if __name__ == '__main__':
