@@ -602,7 +602,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
         }
         val editorInfo = currentInputEditorInfo ?: return
-        val shouldFocus = !editorInfo.isTypeNull() || isInputViewShown
+        // Readiness/restart must not turn a visible TYPE_NULL window into a
+        // session. The backend retains actual key demand for this generation.
+        val shouldFocus = !editorInfo.isTypeNull()
         val flags = capabilityFlags
         val engineGeneration = FcitxDaemon.currentInputSession
         val program = editorInfo.packageName.orEmpty()

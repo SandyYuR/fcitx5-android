@@ -40,7 +40,11 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override fun prepareInputSession(generation: Long, program: String, flags: CapabilityFlags, needsRime: Boolean) {
         synchronized(bindingLock) {
             if (generation != inputSession) return
-            val next = Binding(generation, program, flags, needsRime)
+            // A ReadyEvent can re-apply TYPE_NULL metadata after the first real
+            // key promoted this binding. Demand is monotonic within an editor
+            // generation; only invalidating that generation may revoke it.
+            val requested = needsRime || binding?.let { it.generation == generation && it.needsRime } == true
+            val next = Binding(generation, program, flags, requested)
             if (next != binding) { binding = next; keyGate.prepare(generation, needsRime) }
         }
     }

@@ -293,6 +293,9 @@ end
         assertNull(FcitxDaemon.captureInputKey())
         assertTrue(FcitxDaemon.requireInputSession())
         val first = FcitxDaemon.captureInputKey()!!
+        // Engine readiness may re-apply the original TYPE_NULL descriptor after
+        // the first key was accepted. It must preserve that pending key demand.
+        FcitxDaemon.prepareInputSession(generation, "frontend.null", CapabilityFlags.DefaultFlags, false)
         connection.runOnReady {
             startInputSession(generation, "frontend.null")
             assertEquals("Promoting a non-editor must not change its generation", generation, inputSession)
