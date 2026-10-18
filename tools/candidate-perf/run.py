@@ -5,6 +5,7 @@ import json
 import os
 import re
 import subprocess
+import time
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -21,10 +22,29 @@ def adb(*parts, check=True, timeout=900):
     return subprocess.run(['adb', *map(str, parts)], text=True, capture_output=True, check=check, timeout=timeout)
 
 def instrument(package, method, revision):
-    run = adb('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
+    command = ['adb', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
               'org.fcitx.fcitx5.android.core.CandidateTapTest#' + method,
               '-e', 'expectedCommit', revision,
-              package + '.test/androidx.test.runner.AndroidJUnitRunner', check=False)
+              package + '.test/androidx.test.runner.AndroidJUnitRunner']
+    process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if method == 'replay':
+        # force-stop (including am instrument's own restart) makes Android select
+        # its fallback IME. Select our IME only AFTER the fresh test process starts.
+        deadline = time.monotonic() + 30
+        started = False
+        while process.poll() is None and time.monotonic() < deadline:
+            logs = adb('logcat', '-d', '-s', 'TestRunner:I', '*:S').stdout
+            if 'started: replay(org.fcitx.fcitx5.android.core.CandidateTapTest)' in logs:
+                started = True
+                break
+            time.sleep(0.1)
+        if started:
+            component = package + '/org.fcitx.fcitx5.android.input.FcitxInputMethodService'
+            adb('shell', 'ime', 'enable', component)
+            adb('shell', 'ime', 'set', component)
+            assert adb('shell', 'settings', 'get', 'secure', 'default_input_method').stdout.strip() == component
+    stdout, stderr = process.communicate(timeout=900)
+    run = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
     return run, run.returncode == 0 and 'OK (1 test)' in run.stdout
 
 assert adb('get-serialno').stdout.strip().startswith('emulator-'), 'Disposable emulator required'
@@ -60,8 +80,7 @@ for label in ('fcitx', 'before', 'after'):
     assert passed, label + ': fixture preparation failed'
     component = package + '/org.fcitx.fcitx5.android.input.FcitxInputMethodService'
     adb('shell', 'ime', 'enable', component)
-    # Select IME before the final force-stop, to avoid measuring an already-created process.
-    adb('shell', 'ime', 'set', component)
+    # The replay runner selects it after instrumentation's final process restart.
     trials = []
     for trial in range(args.trials):
         print(f'Testing {label} fresh process {trial + 1}', flush=True)

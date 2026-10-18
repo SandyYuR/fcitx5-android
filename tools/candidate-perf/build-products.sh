@@ -11,8 +11,15 @@ for label in fcitx before after; do
     if [ "$label" = fcitx ]; then revision=cecea4940bb5a5db67f91d6b20e00ee5c97877ea;
     elif [ "$label" = before ]; then revision=e6d317182e25d225a6128420542ea47d161c03b9;
     else revision=$(git rev-parse HEAD); fi
-    if [ "$label" != after ] && [ -f "$output_dir/$label.apk" ]; then
-        test "$(cat "$output_dir/$label-commit.txt")" = "$revision"
+    if [ "$label" = after ] && [ -f "$output_dir/after.apk" ]; then
+        cached_revision=$(cat "$output_dir/after-commit.txt")
+        # Driver/docs-only fixes do not require rebuilding a product. Keep its
+        # actual embedded source revision; never relabel an old binary as HEAD.
+        if git diff --quiet "$cached_revision" HEAD -- app direct-rime lib build-logic gradle native patches settings.gradle.kts .gitmodules; then
+            revision=$cached_revision
+        fi
+    fi
+    if [ -f "$output_dir/$label.apk" ] && [ "$(cat "$output_dir/$label-commit.txt")" = "$revision" ]; then
         test "$(cat "$output_dir/harness-sha256.txt")" = "$(sha256sum tools/candidate-perf/CandidateTapTest.kt | awk '{print $1}')"
         python3 - "$output_dir" "$label" <<'PY'
 import hashlib, sys

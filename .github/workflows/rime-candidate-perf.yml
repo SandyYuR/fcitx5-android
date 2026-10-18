@@ -31,7 +31,7 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           name: candidate-reference-apks
-          run-id: 39089916514
+          run-id: 39090546018
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/candidate-apks
       - name: Build untouched Fcitx default and direct reference products
