@@ -256,6 +256,27 @@ end
         assertEquals("好", withTimeout(10_000) { commits.receive() })
         assertNull("A UI refresh must not repeat a commit", withTimeoutOrNull(250) { commits.receive() })
     }
+    @Test fun bindingReplayPreservesForwardedHardwareKeyPairs(): Unit = runBlocking {
+        val forwarded = Channel<FcitxEvent.KeyEvent.Data>(Channel.UNLIMITED)
+        val collector = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            connection.runImmediately { eventFlow }.collect {
+                if (it is FcitxEvent.KeyEvent) forwarded.send(it.data)
+            }
+        }
+        try {
+            connection.runOnReady {
+                // F12 is unbound in the fixture, so Android receives both halves.
+                sendKey("F12", code = 88, timestamp = 1)
+                startInputSession(inputSession, "frontend.test")
+                sendKey("F12", code = 88, up = true, timestamp = 2)
+            }
+            val down = withTimeout(10_000) { forwarded.receive() }
+            val up = withTimeout(10_000) { forwarded.receive() }
+            assertFalse(down.up)
+            assertTrue(up.up)
+            assertEquals(down.sym, up.sym)
+        } finally { collector.cancelAndJoin(); forwarded.close() }
+    }
     @Test fun silentNonEditorCanBePromotedWithoutDroppingItsFirstKey(): Unit = runBlocking {
         val generation = FcitxDaemon.invalidateInputSession()
         FcitxDaemon.prepareInputSession(generation, "frontend.null", CapabilityFlags.DefaultFlags, false)

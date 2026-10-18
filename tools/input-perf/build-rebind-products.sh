@@ -42,5 +42,8 @@ PY
     )
     git -C "$checkout_dir" rev-parse HEAD > "$output_dir/$label-commit.txt"
 done
+test_path=app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt
+cmp "$RUNNER_TEMP/rebind-before/$test_path" "$RUNNER_TEMP/rebind-after/$test_path"
+sha256sum "$RUNNER_TEMP/rebind-after/$test_path" | awk '{print $1}' > "$output_dir/harness-sha256.txt"
 python3 tools/verify-direct-rime-apk.py "$output_dir/after.apk"
 sha256sum "$output_dir"/*.apk > "$output_dir/apk-sha256.txt"

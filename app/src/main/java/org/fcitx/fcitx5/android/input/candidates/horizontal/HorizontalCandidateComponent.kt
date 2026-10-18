@@ -29,7 +29,6 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlags
 import org.fcitx.fcitx5.android.core.CandidateWord
 import org.fcitx.fcitx5.android.core.FcitxEvent
-import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.core.FcitxEvent.PagedCandidateEvent
@@ -51,7 +50,7 @@ import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateM
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode.NeverFillWidth
 import org.fcitx.fcitx5.android.input.dependency.UniqueViewComponent
 import org.fcitx.fcitx5.android.input.dependency.context
-import org.fcitx.fcitx5.android.input.dependency.fcitx
+import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.inputView
 import org.fcitx.fcitx5.android.input.dependency.theme
 import org.fcitx.fcitx5.android.input.font.FontProviders
@@ -63,7 +62,7 @@ class HorizontalCandidateComponent :
     UniqueViewComponent<HorizontalCandidateComponent, RecyclerView>(), InputBroadcastReceiver {
 
     private val context by manager.context()
-    private val fcitx by manager.fcitx()
+    private val service by manager.inputMethodService()
     private val theme by manager.theme()
     private val inputView by manager.inputView()
     private val bar: KawaiiBarComponent by manager.must()
@@ -389,7 +388,8 @@ class HorizontalCandidateComponent :
                     if (idx < 0 || (total >= 0 && idx >= total)) {
                         return@setOnClickListener
                     }
-                    fcitx.launchOnReady { it.select(idx) }
+                    // Keep the tap ordered with preceding/following keyboard keys.
+                    service.postFcitxKeyJob { select(idx) }
                 }
                 holder.itemView.setOnLongClickListener {
                     val idx = holder.currentIndex(adapter.indexOffset)

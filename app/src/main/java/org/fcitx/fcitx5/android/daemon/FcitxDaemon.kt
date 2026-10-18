@@ -54,7 +54,6 @@ object FcitxDaemon {
     // don't leak fcitx instance
     private val fcitxImpl by lazy { object : FcitxAPI by engine {} }
 
-    fun captureInputSession(): Long? = engine.inputSession.takeIf { engine.acceptsInput }
     val currentInputSession get() = engine.inputSession
     fun prepareInputSession(generation: Long, program: String, flags: CapabilityFlags, needsRime: Boolean) =
         engine.prepareInputSession(generation, program, flags, needsRime)

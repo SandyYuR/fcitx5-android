@@ -268,7 +268,7 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
             if (idx < 0 || (total >= 0 && idx >= total)) {
                 return@setOnClickListener
             }
-            fcitx.launchOnReady { it.selectGlobal(idx) }
+            service.postFcitxKeyJob { selectGlobal(idx) }
         }
         holder.itemView.setOnLongClickListener {
             val idx = holder.currentIndex(adapter.offset)

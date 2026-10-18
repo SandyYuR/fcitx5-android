@@ -188,11 +188,11 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override suspend fun startInputSession(generation: Long, program: String) = onOwner {
         if (generation != inputSession) return@onOwner
         if (binding?.generation != generation) prepareInputSession(generation, program, flags, true)
-        forwardedKeys.clear()
         if (snapshot?.generation == generation && snapshot?.ready == true && binding?.needsRime == true) {
             keyGate.resolve(generation, true)
             return@onOwner
         }
+        forwardedKeys.clear()
         begin(generation)
     }
     private fun clearBinding(generation: Long) {
