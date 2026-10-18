@@ -1,0 +1,13 @@
+{
+  "run_id": 39159215618,
+  "artifact_id": 12148044644,
+  "harness_source": "6ee61142",
+  "product_source": "12ab22cd",
+  "sha256": "7bec61ec7e7f8bca03be0857a1f6aedfe9b14ec1e719b3c4e61d5041b3863c95",
+  "status": "invalid for complete A/B; inaccessible floating preedit and fuzzy display assumptions",
+  "failed_trials": 13,
+  "foxy_complete_trials": 0,
+  "direct_complete_trials": 11,
+  "screenshots_show_valid_candidates": true,
+  "note": "Do not infer key loss or Chinese input failure from these observation assertions. Send diagnostic was skipped by the action on normal-run failure; subsequent driver runs both independently."
+}

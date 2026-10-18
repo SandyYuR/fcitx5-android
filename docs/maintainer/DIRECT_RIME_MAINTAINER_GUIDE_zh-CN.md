@@ -43,7 +43,9 @@ librime 的 session 与操作由单一 owner 串行管理。输入会话变更�
 具体接收限制、状态清理和诊断标签见[响应性改进](DIRECT_RIME_RESPONSIVENESS_2026-10-18.md)。
 非输入框页面不因窗口显示/focus 创建会话；真实按键及主动模式/方案操作才请求启用。
 展开候选按最多 8 项分批进入 owner，批间允许按键排队，取消/版本失效不返回混合页面。
-原生诊断进一步分开 core、commit/context/status/tabs 读取；见
+Ready/restart 重绑也遵循编辑器需求；同代次已由真实首键提出的需求不会被 TYPE_NULL 恢复撤销。
+原生诊断进一步分开 core、commit/context/status/tabs 读取，并记录 core 线程 CPU、缺页及上下文切换增量。
+提交日志的 request_result 只表示 InputConnection 请求结果，不是接收端上屏确认；见
 [Foxy 审查后的修复](DIRECT_RIME_FOXY_FIXES_2026-10-18.md)。
 界面读取缓存直接在调用线程执行；native 运算仍在 owner。首次候选点选的原 Fcitx 对照、
 编辑器排版边界及 `select_queue` / `commit` 新计时见

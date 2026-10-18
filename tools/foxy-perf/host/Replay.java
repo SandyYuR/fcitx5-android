@@ -80,7 +80,7 @@ public class Replay extends Instrumentation {
         while (now()<deadline) {
             String pid = shell("pidof "+imePackage).trim();
             if (pid.matches("[0-9]+")) {
-                String logs = shell("logcat -d --pid="+pid+" -s foxy:I FoxyImeLifecycle:I RimeLifecycle:I '*:S'");
+                String logs = shell("logcat -d -v threadtime --pid="+pid+" -s foxy:I FoxyImeLifecycle:I RimeLifecycle:I '*:S'");
                 String marker = "";
                 if (imePackage.equals("com.fxliang.foxy")) {
                     int start = logs.lastIndexOf("FoxyImeLifecycle: onStartInput ");

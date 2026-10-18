@@ -53,16 +53,23 @@ APK 仅打包直连桥接库和 C++ 运行库。原 Android 前端、键盘、�
 [响应性报告与下载](DIRECT_RIME_RESPONSIVENESS_2026-10-18.md) ·
 [哈希及验证](direct-rime-responsiveness-validation-2026-10-18.json)。
 
-最新产品源码为 `9d5c7992`：修正主线程缓存读取等待后台调度，补齐服务队列/提交事件分段计时；
+上一轮产品源码为 `9d5c7992`：修正主线程缓存读取等待后台调度，补齐服务队列/提交事件分段计时；
 480 项 JVM、10 项完整前端设备回归、四 ABI 与三方 54 次真实候选点选均通过。
 补测确认原 Fcitx 也有首次点选成本；尚未证明首次整体上屏有稳定改善，编辑器冷排版与
 首次原生查询需要分别看。见[首次点选报告](DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md)
 及[最新验证记录](direct-rime-candidate-validation-2026-10-18.json)。
 
-当前主应用安装包为 `zhongzhougoose-candidate-9d5c7992-arm64-v8a-debug.apk`，
-`responsive-e6d31718` 与 `settings` 包均为历史版本。本轮 CI 调试签名不同，换装前按手册备份数据。
-APK 二进制保留在本会话 artifacts，仓库只保存版本来源与校验摘要。
-以后获取构建请在 Actions 选择本分支的 `direct-rime-frontend-arm64-debug`；
-其他 ABI 可使用 PR CI 产物或按维护手册编译。
+当前产品源码为 `12ab22cd`，本轮修复非编辑器会话创建、候选大批任务占用，恢复并核验
+Release profile，补齐 core CPU/缺页/调度和提交请求结果诊断。484 项 JVM、10 项完整前端
+设备测试与两个 CI 工作流通过。详见[Foxy 后续修复与验证](DIRECT_RIME_FOXY_FIXES_2026-10-18.md)。
+
+[当前 ARM64 Release 下载](https://github.com/SandyYuR/fcitx5-android/actions/runs/39134935586/artifacts/12139547499)，
+SHA256 `fbd3aaa62b7bdfa054ddf726b35fab9b939bc1162d583644d3c5282319b564ec`。
+该运行的 Release 构建成功，原启动比较未完整通过；不能将整轮标为通过。
+使用仓库 Release 签名，可能不同于之前 CI Debug；换签名前按手册导出用户数据。
+`candidate-9d5c7992`、`responsive-e6d31718` 与 `settings` 均为历史版本。
+源码/签名/profile/验证摘要见[当前验证](perf/2026-10-18-foxy-fixes/validation.json)。
+Foxy 新进程共同有效阶段 192 次选词正确；修正测试就绪判断后，返场/新进程 16 次与快速发送 8 次均通过。
+首次慢选词及快速发送丢字尚未获得真机修复验收；这些模拟器结果不能替代它。
 
 工作区文件与四个临时性能分支的整理见[整理记录](DIRECT_RIME_WORKSPACE_CLEANUP_2026-10-17.md)。

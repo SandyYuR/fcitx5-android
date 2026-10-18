@@ -1,9 +1,11 @@
 name: Direct Rime release and Foxy comparison
 on:
   workflow_dispatch:
-  push:
-    branches: ['feat/direct-rime-prototype']
-    paths: ['tools/foxy-perf/**', '.github/workflows/foxy-release-perf.yml']
+    inputs:
+      fixture_commit:
+        description: 'Full commit SHA containing authorized original foxy.apk (temporary fixture)'
+        required: true
+        type: string
 permissions:
   contents: read
   actions: read
@@ -25,24 +27,26 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
-      - name: Reuse final verified Release (no product changes in this harness run)
-        uses: actions/download-artifact@v6
-        with:
-          name: direct-rime-optimized-arm64-release
-          run-id: 39134935586
-          github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/release-product
-      - name: Verify artifact source and unchanged product
-        run: |
-          test "$(cat "$RUNNER_TEMP/release-product/source.txt")" = 12ab22cd82297638bee75ef30b31b3decb21decb
-          git diff --exit-code 12ab22cd82297638bee75ef30b31b3decb21decb HEAD -- app direct-rime build-logic native gradle patches settings.gradle.kts build.gradle.kts .gitmodules
-          echo 'fbd3aaa62b7bdfa054ddf726b35fab9b939bc1162d583644d3c5282319b564ec  '"$RUNNER_TEMP/release-product/direct.apk" | sha256sum -c -
       - name: Obtain exact user-supplied APK from disposable fixture ref
+        env:
+          FIXTURE_COMMIT: ${{ inputs.fixture_commit }}
         run: |
           mkdir -p build/foxy-comparison
-          git fetch origin 254e0117863a60da0e06c39736212fbed00f6497
-          git show 254e0117863a60da0e06c39736212fbed00f6497:foxy.apk > "$RUNNER_TEMP/foxy.apk"
+          [[ "$FIXTURE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          git fetch origin "$FIXTURE_COMMIT"
+          git show "$FIXTURE_COMMIT:foxy.apk" > "$RUNNER_TEMP/foxy.apk"
           echo 'c81783716626c76469a20f1884abfeed63f05349a55ca052ee44079a01b7b80c  '"$RUNNER_TEMP/foxy.apk" | sha256sum -c -
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build current ARM64 Release with verified key profile entries
+        env:
+          SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
+          SIGN_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGN_KEY_PWD: ${{ secrets.KEY_PASSWORD }}
+        run: bash tools/foxy-perf/build-release.sh "$RUNNER_TEMP/release-product"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: direct-rime-optimized-arm64-release
+          path: ${{ runner.temp }}/release-product/
       - name: Prepare neutral editor
         run: |
           sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
@@ -61,7 +65,7 @@ jobs:
           disable-animations: true
           script: |
             python3 tools/foxy-perf/pilot.py --foxy "$RUNNER_TEMP/foxy.apk" --direct "$RUNNER_TEMP/release-product/direct.apk" --host "$RUNNER_TEMP/foxy-host/host.apk" --fixture "$RUNNER_TEMP/foxy-fixture.zip" --output build/foxy-comparison/calibration
-            NORMAL_TRIALS=1 NORMAL_ROUNDS=2 SEND_TRIALS=1 bash tools/foxy-perf/compare.sh build/foxy-comparison
+            bash tools/foxy-perf/compare.sh build/foxy-comparison
       - uses: actions/upload-artifact@v7
         if: always()
         with:

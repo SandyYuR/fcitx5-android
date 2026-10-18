@@ -6,8 +6,8 @@
       {
         "key": "classes.dex",
         "checksum_matches": true,
-        "dex_method_count": 34904,
-        "profile_method_count": 1310,
+        "dex_method_count": 34905,
+        "profile_method_count": 1332,
         "app_methods": [
           "Lorg/fcitx/directrime/Snapshot;-><init>",
           "Lorg/fcitx/directrime/Snapshot;->getAscii",
@@ -35,10 +35,29 @@
           "Lorg/fcitx/fcitx5/android/FcitxApplication$$ExternalSyntheticLambda0;-><init>",
           "Lorg/fcitx/fcitx5/android/FcitxApplication;->onCreate",
           "Lorg/fcitx/fcitx5/android/clipboardsync/network/ClipCascadeClient$MemoryCookieJar$$ExternalSyntheticLambda1;->andThen",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$$ExternalSyntheticLambda14;-><init>",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$$ExternalSyntheticLambda14;->invoke",
           "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$$ExternalSyntheticLambda24;-><init>",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$$ExternalSyntheticLambda24;-><init>",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$getCandidates$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$getCandidates$2;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$maintain$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$reset$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$select$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$selectGlobal$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$setCandidatePagingMode$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$setImConfig$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$stop$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$toggleIme$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$triggerCandidateAction$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$triggerCandidateListTabAction$1;->invokeSuspend",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend$triggerGlobalCandidateAction$1;->invokeSuspend",
           "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend;->getCandidates",
           "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend;->performAction",
           "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend;->publish",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend;->sendKey-LfjCRN4",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend;->sendKey-lX-1kFM",
+          "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend;->sendKey-lX-1kFM",
           "Lorg/fcitx/fcitx5/android/core/KeyCodec$cache$1;->compute",
           "Lorg/fcitx/fcitx5/android/core/KeyCodec$cache$1;->computeIfAbsent",
           "Lorg/fcitx/fcitx5/android/core/KeyCodec$cache$1;->computeIfPresent",
@@ -49,7 +68,6 @@
           "Lorg/fcitx/fcitx5/android/core/KeyCodec$cache$1;->replace",
           "Lorg/fcitx/fcitx5/android/core/KeyCodec$cache$1;->replaceAll",
           "Lorg/fcitx/fcitx5/android/input/FcitxInputMethodService$$ExternalSyntheticLambda2;-><init>",
-          "Lorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->commitText",
           "Lorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->handleFcitxEvent",
           "Lorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->onCreate",
           "Lorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->onStartInput",
@@ -65,7 +83,8 @@
           "Lorg/fcitx/fcitx5/android/input/PackageNameCache;->replaceAll",
           "Lorg/fcitx/fcitx5/android/input/bar/KawaiiBarComponent$inflateInlineContentView$2$1;->andThen",
           "Lorg/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent$adapter$2$1;->updateCandidates",
-          "Lorg/fcitx/fcitx5/android/utils/DeviceType$EnumUnboxingLocalUtility;->stringValueOf$3"
+          "Lorg/fcitx/fcitx5/android/utils/DeviceType$EnumUnboxingLocalUtility;->stringValueOf",
+          "Lorg/fcitx/fcitx5/android/utils/DeviceType$EnumUnboxingLocalUtility;->stringValueOf$4"
         ]
       }
     ]

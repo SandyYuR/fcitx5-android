@@ -1,0 +1,75 @@
+{
+  "product_source": "12ab22cd82297638bee75ef30b31b3decb21decb",
+  "production_fix_commits": [
+    "8ef7c6c679c2def938523c682a92154e287cea2b",
+    "0ff6a0aa",
+    "8634bbeb"
+  ],
+  "package": "io.github.sandyyur.rime.direct",
+  "apk_sha256": "fbd3aaa62b7bdfa054ddf726b35fab9b939bc1162d583644d3c5282319b564ec",
+  "release_artifact": {
+    "run_id": 39134935586,
+    "artifact_id": 12139547499,
+    "note": "Release build succeeded; original early-input comparison was incomplete and is retained separately",
+    "expires_at": "2027-01-16T14:12:16Z",
+    "archive_contains_apk_and_metadata": true
+  },
+  "signing": "repository-configured release key",
+  "signing_certificate_sha256": "ba43006e1bfa3f60f46b2a9056f593a3a61445bd2571319fb1869e49cc36b1fe",
+  "verification": {
+    "jvm_tests": 484,
+    "full_frontend_device_tests": 10,
+    "pr_ci_run": 39134940108,
+    "direct_rime_ci_run": 39134940117,
+    "both_workflows": "success",
+    "native_sanitizers": "passed in CI",
+    "native_libraries": [
+      "libdirect-rime.so",
+      "libc++_shared.so"
+    ],
+    "elf_16k_alignment": "passed",
+    "binary_profile_methods": 1332,
+    "binary_profile_own_methods": 76,
+    "harness_head": "ed29837909a55d1254afdfbd542dba7717825085",
+    "harness_pr_ci_run": 39163215546,
+    "harness_direct_rime_ci_run": 39163215541,
+    "harness_workflows": "success"
+  },
+  "unresolved": [
+    "Phone first selection core wall time 140.019ms; exact internal bottleneck unproven",
+    "User reports candidate never arrived after immediate chat Send; IME request return is not client acknowledgment",
+    "This final candidate-settled comparison does not validate immediate typing at first keyboard display; earlier strict preedit assertions were invalid input-loss evidence"
+  ],
+  "comparison": {
+    "scope": "All fresh phases, 192 correct unique selections, zero excluded fresh phases; 6 processes per product and case",
+    "source_run": 39160792515,
+    "source_artifact": 12149202616,
+    "overall_run_conclusion": "failure due stale rebind readiness",
+    "summary": "fresh-summary.json",
+    "records": "fresh-records.json",
+    "send_audit": "send-precondition-audit.json",
+    "targeted_guard_validation": {
+      "run_id": 39163211881,
+      "artifact_id": 12149773559,
+      "harness_source": "ed29837909a55d1254afdfbd542dba7717825085",
+      "conclusion": "success",
+      "normal_trials_per_case_product": 1,
+      "rounds_per_phase": 2,
+      "normal_correct_selections": 16,
+      "send_trials_per_case_gap_product": 1,
+      "send_observations": 8,
+      "send_outcomes": {
+        "complete": 8
+      },
+      "preselection_screenshots": "all eight manually inspected; requested candidate visibly present",
+      "actual_candidate_up_to_client_send_ms": {
+        "min": 69.266151,
+        "max": 234.029096
+      },
+      "raw_zip": "current-binding-validation.zip",
+      "raw_zip_sha256": "e14a3aaea46da9698f7db92753bfeee3401bfac5153737e93eab21f1c1f2c893",
+      "note": "Current binding stable 500ms; 1000ms after typing; not pooled with six-trial fresh data; not phone-loss fix proof"
+    }
+  },
+  "final_harness_note": "Final docs/cleanup makes logcat -v threadtime explicit (API30 default), locally compiles the independent host, and changes the workflow to manual-only; product source remains 12ab22cd."
+}
