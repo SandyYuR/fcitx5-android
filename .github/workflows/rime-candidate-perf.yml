@@ -31,7 +31,7 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           name: candidate-reference-apks
-          run-id: 39090546018
+          run-id: 39102152140
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/candidate-apks
       - name: Build untouched Fcitx default and direct reference products
@@ -59,7 +59,7 @@ jobs:
           target: aosp_atd
           arch: x86_64
           disable-animations: true
-          script: python3 tools/candidate-perf/run.py --apks "$RUNNER_TEMP/candidate-apks" --fixture "$RUNNER_TEMP/candidate-fixture.zip" --host "$RUNNER_TEMP/candidate-host/host.apk" --output build/candidate-comparison
+          script: python3 tools/candidate-perf/run.py --apks "$RUNNER_TEMP/candidate-apks" --fixture "$RUNNER_TEMP/candidate-fixture.zip" --host "$RUNNER_TEMP/candidate-host/host.apk" --output build/candidate-comparison --trials 1 --profile
       - uses: actions/upload-artifact@v7
         if: always()
         with:

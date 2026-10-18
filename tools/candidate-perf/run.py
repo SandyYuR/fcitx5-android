@@ -14,12 +14,13 @@ parser.add_argument('--fixture', type=Path, required=True)
 parser.add_argument('--host', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--trials', type=int, default=3)
+parser.add_argument('--profile', action='store_true', help='Separate diagnostic run; do not compare its timings with untraced runs')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
 host = 'io.github.sandyyur.inputbench'
 
-def adb(*parts, check=True, timeout=900):
-    return subprocess.run(['adb', *map(str, parts)], text=True, capture_output=True, check=check, timeout=timeout)
+def adb(*parts, check=True, timeout=900, input=None):
+    return subprocess.run(['adb', *map(str, parts)], input=input, text=True, capture_output=True, check=check, timeout=timeout)
 
 def instrument(package, method, revision):
     command = ['adb', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
@@ -90,6 +91,27 @@ for label in ('fcitx', 'before', 'after'):
             adb('shell', 'am', 'force-stop', other)
         adb('shell', 'am', 'force-stop', package)
         adb('logcat', '-c')
+        trace_pid = None
+        if args.profile:
+            remote_trace = '/data/misc/perfetto-traces/candidate.perfetto-trace'
+            config = f'''buffers {{ size_kb: 32768 fill_policy: RING_BUFFER }}
+duration_ms: 20000
+write_into_file: true
+file_write_period_ms: 1000
+data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
+ ftrace_events: "sched/sched_switch"
+ ftrace_events: "sched/sched_waking"
+ atrace_categories: "view"
+ atrace_categories: "gfx"
+ atrace_categories: "input"
+ atrace_categories: "dalvik"
+ atrace_apps: "{package}"
+ atrace_apps: "{host}"
+}} }} }}
+data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ proc_stats_poll_ms: 1000 }} }} }}
+'''
+            trace_pid = adb('shell', 'perfetto', '--background-wait', '--txt', '-c', '-', '-o', remote_trace, input=config).stdout.strip()
+            assert trace_pid.isdigit(), trace_pid
         run, passed = instrument(package, 'replay', revision)
         prefix = args.output / f'{label}-{trial + 1}'
         prefix.with_suffix('.instrumentation.txt').write_text(run.stdout + run.stderr)
@@ -122,5 +144,11 @@ for label in ('fcitx', 'before', 'after'):
         prefix.with_suffix('.json').write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
         trials.append(data)
         print(json.dumps(data['timings_ms'], ensure_ascii=False), flush=True)
+        if trace_pid:
+            deadline = time.monotonic() + 30
+            while adb('shell', 'test', '-d', '/proc/' + trace_pid, check=False).returncode == 0:
+                assert time.monotonic() < deadline, 'Perfetto did not finish'
+                time.sleep(0.5)
+            adb('pull', remote_trace, str(prefix.with_suffix('.perfetto-trace')))
     results[label] = trials
 (args.output / 'comparison.json').write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n')
