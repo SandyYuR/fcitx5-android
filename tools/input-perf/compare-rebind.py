@@ -40,6 +40,8 @@ for label in ('before', 'after'):
     data = adb('shell', 'run-as', package, 'cat', 'files/direct-rime-rebind.json', check=False)
     if data.returncode == 0:
         result.update(json.loads(data.stdout))
+    if passed:
+        assert result.get('harness_commit') == result['commit'], 'APK must match the pinned product, not a PR merge'
     results[label] = result
     (args.output / (label + '.json')).write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
     print(json.dumps(result, ensure_ascii=False), flush=True)

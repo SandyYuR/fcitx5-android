@@ -593,7 +593,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         val startedAt = SystemClock.elapsedRealtime()
         android.util.Log.i("FcitxColdStart", "service.onCreate begin")
         fcitx = FcitxDaemon.connect(javaClass.name)
-        lifecycleScope.launch {
+        // The jobs already run off-main. Drain/join them there too, so layout or
+        // drawing cannot delay starting the next binding/key/candidate operation.
+        lifecycleScope.launch(Dispatchers.Default) {
             jobs.consumeEach { it.join() }
         }
         lifecycleScope.launch {
