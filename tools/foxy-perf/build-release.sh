@@ -17,6 +17,7 @@ fi
     -PbuildABI=arm64-v8a -PbuildCommitHash="$(git rev-parse HEAD)" \
     -Pkotlin.compiler.execution.strategy=in-process --max-workers=1 :app:assembleFxRelease
 python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/release/*.apk
+python3 tools/foxy-perf/apk_profiles.py app/build/outputs/apk/fx/release/*.apk > "$output_dir/packaged-profile-audit.json"
 cp app/build/outputs/apk/fx/release/*.apk "$output_dir/direct.apk"
 cp app/build/outputs/apk/fx/release/build-metadata.json "$output_dir/"
 cp app/build/intermediates/combined_art_profile/fxRelease/compileFxReleaseArtProfile/baseline-prof.txt "$output_dir/resolved-baseline-prof.txt"

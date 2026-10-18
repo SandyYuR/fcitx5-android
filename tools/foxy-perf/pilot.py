@@ -25,8 +25,17 @@ def adb(*args, check=True, timeout=300):
 
 
 def selected_ime(package):
-    methods = adb('shell', 'ime', 'list', '-s').splitlines()
-    ime = next(i for i in methods if i.startswith(package+'/'))
+    # Without -a Android lists only enabled IMEs, omitting a fresh installation.
+    # Package-added registration is asynchronous on some system images.
+    deadline = time.monotonic()+10
+    ime = None
+    while ime is None and time.monotonic()<deadline:
+        methods = adb('shell', 'ime', 'list', '-a', '-s').splitlines()
+        ime = next((i.strip() for i in methods if i.strip().startswith(package+'/')), None)
+        if ime is None:
+            time.sleep(.2)
+    if ime is None:
+        raise RuntimeError(f'{package}: service absent from all IMEs: {methods}')
     adb('shell', 'ime', 'enable', ime)
     response = adb('shell', 'ime', 'set', ime)
     assert adb('shell', 'settings', 'get', 'secure', 'default_input_method') == ime, response
