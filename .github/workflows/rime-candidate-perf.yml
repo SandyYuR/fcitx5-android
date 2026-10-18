@@ -1,6 +1,11 @@
 name: First candidate tap comparison
 on:
   workflow_dispatch:
+    inputs:
+      profile:
+        description: Capture a separate diagnostic trace instead of the three untraced trials
+        type: boolean
+        default: false
   push:
     branches: ['feat/direct-rime-prototype']
     paths: ['tools/candidate-perf/**', '.github/workflows/rime-candidate-perf.yml']
@@ -59,7 +64,7 @@ jobs:
           target: aosp_atd
           arch: x86_64
           disable-animations: true
-          script: python3 tools/candidate-perf/run.py --apks "$RUNNER_TEMP/candidate-apks" --fixture "$RUNNER_TEMP/candidate-fixture.zip" --host "$RUNNER_TEMP/candidate-host/host.apk" --output build/candidate-comparison --trials 1 --profile
+          script: python3 tools/candidate-perf/run.py --apks "$RUNNER_TEMP/candidate-apks" --fixture "$RUNNER_TEMP/candidate-fixture.zip" --host "$RUNNER_TEMP/candidate-host/host.apk" --output build/candidate-comparison ${{ github.event_name == 'workflow_dispatch' && inputs.profile && '--trials 1 --profile' || '--trials 3' }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:

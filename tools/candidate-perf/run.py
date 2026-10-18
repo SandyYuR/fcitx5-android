@@ -98,6 +98,7 @@ for label in ('fcitx', 'before', 'after'):
 duration_ms: 20000
 write_into_file: true
 file_write_period_ms: 1000
+flush_period_ms: 1000
 data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
  ftrace_events: "sched/sched_switch"
  ftrace_events: "sched/sched_waking"
@@ -136,6 +137,7 @@ data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ pr
                 'round': index + 1,
                 'injection_up_to_ime_dispatch': (up - selected['inject_up_ns']) / 1e6,
                 'ime_dispatch_up_to_commit_collector': (row['commit_collected_ns'] - up) / 1e6,
+                'ime_dispatch_up_to_editor_input_connection': (editor['commits'][index]['at_ns'] - up) / 1e6,
                 'ime_dispatch_up_to_editor_change': (edit - up) / 1e6,
                 'ime_dispatch_up_to_editor_draw': (draw - up) / 1e6,
                 'ime_touch_up_handler': (selected['dispatch_return_ns'] - up) / 1e6,

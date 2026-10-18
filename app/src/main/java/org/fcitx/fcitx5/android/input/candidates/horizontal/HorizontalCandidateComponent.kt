@@ -389,7 +389,7 @@ class HorizontalCandidateComponent :
                         return@setOnClickListener
                     }
                     // Keep the tap ordered with preceding/following keyboard keys.
-                    service.postFcitxKeyJob { select(idx) }
+                    service.postCandidateSelection { select(idx) }
                 }
                 holder.itemView.setOnLongClickListener {
                     val idx = holder.currentIndex(adapter.indexOffset)

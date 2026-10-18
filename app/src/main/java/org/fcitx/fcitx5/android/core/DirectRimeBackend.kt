@@ -266,7 +266,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
         inputMethodEntryCached = ime
         statusAreaActionsCached = actions
         val batch = mutableListOf<FcitxEvent<*>>()
-        if (value.commit.isNotEmpty()) batch += FcitxEvent.CommitStringEvent(FcitxEvent.CommitStringEvent.Data(value.commit, -1))
+        if (value.commit.isNotEmpty()) batch += FcitxEvent.CommitStringEvent(FcitxEvent.CommitStringEvent.Data(value.commit, -1)).apply {
+            commitProducedNanos = SystemClock.elapsedRealtimeNanos()
+        }
         if (clientChanged) batch += FcitxEvent.ClientPreeditEvent(client)
         if (panelChanged) batch += FcitxEvent.InputPanelEvent(panel)
         val candidates = value.candidates.mapIndexed { i, text ->

@@ -7,6 +7,8 @@ package org.fcitx.fcitx5.android.core
 sealed class FcitxEvent<T>(open val data: T) {
 
     internal var inputSession: Long = 0
+    // Monotonic producer time for commit delivery diagnostics; excluded from equality.
+    internal var commitProducedNanos: Long = 0
 
     // Opt-in diagnostics only. Kept outside data-class equality and never logged with text.
     internal var diagnosticSequence: Long = 0

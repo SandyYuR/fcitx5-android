@@ -145,6 +145,10 @@ private const val STANDALONE_MODIFIER_HOLD_MS = 50L
 class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private val inputDeliveryDiagnostics = org.fcitx.fcitx5.android.core.InputDiagnostics.Collector()
+    private var timedSelectionGeneration = Long.MIN_VALUE
+    private var timedSelections = 0
+    private var timedCommitGeneration = Long.MIN_VALUE
+    private var timedCommits = 0
 
     internal lateinit var fcitx: FcitxConnection
 
@@ -511,6 +515,22 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }.also { job -> job.invokeOnCompletion { FcitxDaemon.releaseInputKey(ticket) } }
     }
 
+    /** Same ordered queue as keys, with bounded timing for the first candidate taps. */
+    fun postCandidateSelection(block: suspend FcitxAPI.() -> Unit): Job {
+        val generation = FcitxDaemon.currentInputSession
+        if (timedSelectionGeneration != generation) {
+            timedSelectionGeneration = generation
+            timedSelections = 0
+        }
+        val ordinal = ++timedSelections
+        val capturedAt = if (ordinal <= 2) SystemClock.elapsedRealtimeNanos() else 0L
+        return postFcitxKeyJob {
+            if (capturedAt != 0L) android.util.Log.i("RimeInputTiming",
+                "select_queue generation=$generation ordinal=$ordinal service_wait_us=${(SystemClock.elapsedRealtimeNanos() - capturedAt) / 1000}")
+            block()
+        }
+    }
+
     private suspend fun FcitxAPI.applyCandidatePagingModeIfNeeded(mode: Int) {
         if (appliedCandidatePagingMode == mode) return
         setCandidatePagingMode(mode)
@@ -667,8 +687,16 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 rebindCurrentInputStateToFcitx()
             }
             is FcitxEvent.CommitStringEvent -> {
+                if (timedCommitGeneration != event.inputSession) {
+                    timedCommitGeneration = event.inputSession
+                    timedCommits = 0
+                }
+                val ordinal = ++timedCommits
+                val startedAt = if (ordinal <= 2) SystemClock.elapsedRealtimeNanos() else 0L
                 backspaceBoundaryGuard.onCommit()
                 androidx.tracing.trace("rime.direct.commit") { commitText(event.data.text, event.data.cursor) }
+                if (startedAt != 0L) android.util.Log.i("RimeInputTiming",
+                    "commit generation=${event.inputSession} ordinal=$ordinal event_wait_us=${if (event.commitProducedNanos > 0) (startedAt - event.commitProducedNanos) / 1000 else -1} service_commit_us=${(SystemClock.elapsedRealtimeNanos() - startedAt) / 1000}")
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {
