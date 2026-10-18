@@ -21,5 +21,9 @@ internal fun popupKeyAction(
 
 private fun isValidFcitxKey(text: String): Boolean = runCatching {
     val parsed = Key.parse(text)
-    parsed != Key.None && parsed.portableString == text
+    // Popup entries are literal characters, not necessarily portable key names. Fcitx
+    // normalizes printable punctuation such as "," and "." to "comma" and "period";
+    // requiring a string round-trip incorrectly turns those entries into direct commits,
+    // bypassing Rime's schema punctuation processing.
+    parsed != Key.None && parsed.portableString.isNotEmpty()
 }.getOrDefault(false)
