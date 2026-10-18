@@ -11,7 +11,6 @@ import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.core.InputEngine
 import org.fcitx.fcitx5.android.core.CapabilityFlags
@@ -83,7 +82,10 @@ object FcitxDaemon {
         override fun <T> runImmediately(block: suspend FcitxAPI.() -> T): T {
             return try {
                 ensureConnected {
-                    runBlocking(engine.lifeCycleScope.coroutineContext) {
+                    // runImmediately's contract is a non-blocking read on the caller.
+                    // Passing Dispatchers.Default here blocked the UI behind a worker
+                    // even for volatile caches. Native APIs still dispatch to rime-main.
+                    runImmediatelyInContext(engine.lifeCycleScope.coroutineContext) {
                         block(fcitxImpl)
                     }
                 }
