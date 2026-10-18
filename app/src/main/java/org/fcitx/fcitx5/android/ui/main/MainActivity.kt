@@ -7,16 +7,24 @@ package org.fcitx.fcitx5.android.ui.main
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.ViewGroup
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.fragment.NavHostFragment
@@ -24,15 +32,17 @@ import com.google.android.material.snackbar.Snackbar
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.databinding.ActivityMainBinding
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.setup.SetupActivity
+import org.fcitx.fcitx5.android.utils.Const
+import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
 import org.fcitx.fcitx5.android.utils.parcelable
 import org.fcitx.fcitx5.android.utils.startActivity
 import splitties.dimensions.dp
-import splitties.views.topPadding
 
 class MainActivity : SettingsUiActivity() {
 
@@ -43,7 +53,16 @@ class MainActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        val isDark = SettingsUiPreferences.isDark(this)
+        val systemBarStyle = if (isDark) {
+            SystemBarStyle.dark(Color.TRANSPARENT)
+        } else {
+            SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+        }
+        enableEdgeToEdge(
+            statusBarStyle = systemBarStyle,
+            navigationBarStyle = systemBarStyle
+        )
         val binding = ActivityMainBinding.inflate(layoutInflater)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
             val statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
@@ -52,15 +71,17 @@ class MainActivity : SettingsUiActivity() {
                 leftMargin = navBars.left
                 rightMargin = navBars.right
             }
-            binding.toolbar.topPadding = statusBars.top
+            binding.appBar.updatePadding(top = statusBars.top)
             windowInsets
         }
         setContentView(binding.root)
+        ViewCompat.requestApplyInsets(binding.root)
         setSupportActionBar(binding.toolbar)
         // always show toolbar back arrow icon
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         navController = binding.navHostFragment.getFragment<NavHostFragment>().navController
         navController.graph = SettingsRoute.createGraph(navController)
+        addMenuProvider(HomeMenuProvider(), this, Lifecycle.State.RESUMED)
         shareReceiveManager = ShareReceiveManager(this) { message, action ->
             Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).apply {
                 action?.let { callback ->
@@ -79,12 +100,12 @@ class MainActivity : SettingsUiActivity() {
         }
         viewModel.toolbarTitle.observe(this) {
             supportActionBar!!.title = it
-            binding.collapsingToolbar.title = it
         }
         viewModel.toolbarShadow.observe(this) {
             binding.toolbar.elevation = dp(if (it) 4f else 0f)
         }
         navController.addOnDestinationChangedListener { _, dest, _ ->
+            invalidateMenu()
             dest.label?.let { viewModel.setToolbarTitle(it.toString()) }
             if (dest.hasRoute<SettingsRoute.Theme>()) {
                 viewModel.disableToolbarShadow()
@@ -110,6 +131,23 @@ class MainActivity : SettingsUiActivity() {
         }
         // "minimize" the activity if we can't go back
         return navController.navigateUp() || super.onSupportNavigateUp() || moveTaskToBack(false)
+    }
+
+    private inner class HomeMenuProvider : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            if (navController.currentDestination?.hasRoute<SettingsRoute.Index>() != true) return
+            menu.item(R.string.faq) {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Const.faqUrl)))
+            }
+            menu.item(R.string.developer) {
+                navController.navigateWithAnim(SettingsRoute.Developer)
+            }
+            menu.item(R.string.about) {
+                navController.navigateWithAnim(SettingsRoute.About)
+            }
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
     }
 
     private fun processIntent(intent: Intent?, savedInstanceState: Bundle? = null) {

@@ -14,9 +14,9 @@ abstract class SettingsUiActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(SettingsUiPreferences.themeResource(this))
-        super.onCreate(savedInstanceState)
         if (SettingsUiPreferences.usesSystemDynamicColors(this)) {
             DynamicColors.applyToActivityIfAvailable(this)
         }
+        super.onCreate(savedInstanceState)
     }
 }
