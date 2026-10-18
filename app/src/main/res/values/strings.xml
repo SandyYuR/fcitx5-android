@@ -1077,4 +1077,17 @@
     <string name="user_data_export_changed">A data file was still modified during backup. Pause external synchronization or editing and try again.</string>
     <string name="user_data_exported">Backup saved.</string>
     <string name="user_data_export_cleanup_failed">Backup writing failed and the incomplete output could not be removed. Delete that file manually and try again.</string>
+    <string name="system_bar_section">System buttons</string>
+    <string name="available_buttons_section">Available buttons</string>
+    <string name="text_keyboard_layout_manage_title">Keyboard Layout Manager</string>
+    <string name="text_keyboard_layout_manage_active">Active profile: %1$s</string>
+    <string name="text_keyboard_layout_manage_activate">Use this profile</string>
+    <string name="text_keyboard_layout_manage_edit">Edit layout</string>
+    <string name="text_keyboard_layout_manage_collapse">Collapse profile</string>
+    <string name="text_keyboard_layout_manage_expand">Expand profile</string>
+    <string name="text_keyboard_layout_manage_read_failed">Unable to read this profile. Open the editor to inspect it.</string>
+    <string name="text_keyboard_layout_manage_builtin">Built-in layout</string>
+    <string name="text_keyboard_layout_edit_row">Edit row keys</string>
+    <string name="text_keyboard_layout_move_row_up">Move row up</string>
+    <string name="text_keyboard_layout_customized_key">%1$s (custom properties)</string>
 </resources>

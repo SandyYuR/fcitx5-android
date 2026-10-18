@@ -21,6 +21,8 @@ import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
+import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupAction
+import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.webeditor.ImeWebEditorBridgeServer
 import org.fcitx.fcitx5.android.utils.queryFileName
@@ -69,6 +71,11 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
 
         // Group 5 extras: keyboard definition tools
         if (group == GROUP_EDITORS) {
+            val managerEntry = SettingsGroupSpecs.keyboardLayoutManager
+            addTool(screen, "tool_text_layout_manager",
+                managerEntry.title, buildCurrentTextLayoutFileSummary()
+            ) { startActivity(Intent(requireContext(), (managerEntry.action as SettingsGroupAction.Launch).activityClass)) }
+
             addTool(screen, "tool_text_layout_editor",
                 R.string.edit_text_keyboard_layout, ""
             ) { startActivity(Intent(requireContext(), TextKeyboardLayoutEditorActivity::class.java)) }

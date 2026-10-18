@@ -710,6 +710,12 @@ object SettingsSearchIndex {
             route = keyboard(EDITORS)
         ),
         SettingsSearchEntry(
+            R.string.text_keyboard_layout_manage_title, P_KEYBOARD,
+            listOf("layout manager", "布局管理", "布局文件", "profile"),
+            route = keyboard(EDITORS),
+            preferenceKey = "tool_text_layout_manager"
+        ),
+        SettingsSearchEntry(
             R.string.text_keyboard_layout_file_select_title, P_KEYBOARD,
             listOf("layout file", "键盘定义配置", "切换配置"),
             route = keyboard(EDITORS)

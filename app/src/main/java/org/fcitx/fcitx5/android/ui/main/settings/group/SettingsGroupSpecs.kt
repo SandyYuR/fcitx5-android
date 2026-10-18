@@ -13,6 +13,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardGroupFragment
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeListActivity
 
 /** 分组内一条目的跳转目标。 */
@@ -66,6 +67,13 @@ data class SettingsGroupSpec(
 )
 
 object SettingsGroupSpecs {
+
+    /** Additional tool in the existing keyboard editors group; the quick selector stays. */
+    val keyboardLayoutManager = SettingsGroupEntry.activity(
+        R.string.text_keyboard_layout_manage_title,
+        R.drawable.ic_baseline_keyboard_24,
+        TextKeyboardLayoutProfileManagerActivity::class.java
+    )
 
     const val ID_INPUT = "input"
     const val ID_APPEARANCE = "appearance"

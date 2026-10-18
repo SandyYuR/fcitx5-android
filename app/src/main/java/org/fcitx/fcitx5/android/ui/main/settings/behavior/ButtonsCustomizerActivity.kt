@@ -105,7 +105,12 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
     private val recyclerView by lazy {
         RecyclerView(this).apply {
-            layoutManager = GridLayoutManager(this@ButtonsCustomizerActivity, 4)
+            layoutManager = GridLayoutManager(this@ButtonsCustomizerActivity, 4).apply {
+                spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                    override fun getSpanSize(position: Int): Int =
+                        if (items.getOrNull(position) is ListItem.SectionHeader) 4 else 1
+                }
+            }
             layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent)
             isNestedScrollingEnabled = false
             itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator().apply {
@@ -177,6 +182,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
     // Sealed class for list items
     sealed class ListItem {
+        data class SectionHeader(val section: Section) : ListItem()
         data class ButtonItem(val button: ConfigurableButton, val section: Section) : ListItem()
         data class AddButtonItem(val buttonDef: ButtonDefinition) : ListItem()
         data object AddButtonPlaceholder : ListItem() // "+" button for Kawaii Bar
@@ -262,7 +268,12 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
     private fun updateAddButtonsSection() {
         // Remove existing AddButtons section
-        items.removeAll { it is ListItem.AddButtonItem }
+        items.removeAll {
+            it is ListItem.AddButtonItem ||
+                (it is ListItem.SectionHeader && it.section == Section.AddButtons)
+        }
+        val insertAt = items.indexOfFirst { it is ListItem.StatusAreaAddButtonPlaceholder } + 1
+        items.add(insertAt, ListItem.SectionHeader(Section.AddButtons))
 
         // Get all current button IDs
         val currentIds = items.filterIsInstance<ListItem.ButtonItem>().map { it.button.id }
@@ -297,6 +308,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 val position = parent.getChildAdapterPosition(view)
                 if (position >= 0 && position < items.size) {
                     when (items[position]) {
+                        is ListItem.SectionHeader -> {
+                            outRect.set(0, dp(12), 0, dp(4))
+                        }
                         is ListItem.ButtonItem, is ListItem.AddButtonItem,
                         ListItem.AddButtonPlaceholder, ListItem.StatusAreaAddButtonPlaceholder -> {
                             outRect.top = dp(4)
@@ -344,6 +358,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
                 val fromItem = items[fromPosition]
                 val toItem = items[toPosition]
+                if (toItem is ListItem.SectionHeader) return false
 
                 // Only allow moving ButtonItem
                 if (fromItem !is ListItem.ButtonItem) {
@@ -394,20 +409,22 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                         val dragCenterX = getViewCenterX(viewHolder.itemView)
                         val targetCenterX = getViewCenterX(target.itemView)
                         insertPosition = determineInsertPositionOnButton(dragCenterX, targetCenterX, toPosition)
-                        targetSection = determineSectionByPosition(insertPosition)
+                        targetSection = (toItem as? ListItem.ButtonItem)?.section ?: return false
                     }
                 }
 
-                // Don't allow dropping before system buttons (first 2 positions)
-                val systemButtonsEndIndex = 1 // system buttons are at positions 0,1
-                if (insertPosition <= systemButtonsEndIndex) {
-                    return false
+                // Headers are presentation only. Keep insertion inside the destination section
+                // even when the pointer crosses the final card or a "+" placeholder.
+                val sectionStart = items.indexOfFirst {
+                    it is ListItem.SectionHeader && it.section == targetSection
+                } + 1
+                val sectionEnd = when (targetSection) {
+                    Section.KawaiiBar -> kawaiiBarEndIndex
+                    Section.StatusArea -> statusAreaEndIndex
+                    Section.AddButtons -> items.size
+                    Section.SystemBar -> return false
                 }
-
-                // Don't allow dropping after StatusArea "+" unless target is AddButtons section
-                if (targetSection != Section.AddButtons && statusAreaEndIndex >= 0 && insertPosition > statusAreaEndIndex) {
-                    insertPosition = statusAreaEndIndex
-                }
+                insertPosition = insertPosition.coerceIn(sectionStart, sectionEnd)
 
                 // Move item to new position
                 val item = items.removeAt(fromPosition)
@@ -424,6 +441,12 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
                 updateSaveButtonState()
                 return true
+            }
+
+            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+                val item = items.getOrNull(viewHolder.bindingAdapterPosition) as? ListItem.ButtonItem
+                return if (item == null || item.section == Section.SystemBar) 0
+                else super.getMovementFlags(recyclerView, viewHolder)
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
@@ -525,7 +548,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             Pair(kawaiiBarEndIndex, Section.KawaiiBar)
         } else {
             // Right of "+" -> StatusArea (insert after "+")
-            Pair(kawaiiBarEndIndex + 1, Section.StatusArea)
+            Pair(items.indexOfFirst {
+                it is ListItem.SectionHeader && it.section == Section.StatusArea
+            } + 1, Section.StatusArea)
         }
     }
 
@@ -541,7 +566,9 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         return if (dragCenterX < plusCenterX) {
             Pair(statusAreaEndIndex, Section.StatusArea)
         } else {
-            Pair((statusAreaEndIndex + 1).coerceAtMost(items.size), Section.AddButtons)
+            Pair(items.indexOfFirst {
+                it is ListItem.SectionHeader && it.section == Section.AddButtons
+            } + 1, Section.AddButtons)
         }
     }
 
@@ -988,6 +1015,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         toolbarToggleConfig = config.toolbarToggleButton.normalizedIcon()
         hideKeyboardConfig = config.hideKeyboardButton.normalizedIcon()
         items.clear()
+        items.add(ListItem.SectionHeader(Section.SystemBar))
         items.add(ListItem.ButtonItem(toolbarToggleConfig, Section.SystemBar))
         items.add(ListItem.ButtonItem(hideKeyboardConfig, Section.SystemBar))
         val kawaiiBarButtons = if (useThemeToggleMigration) {
@@ -995,8 +1023,10 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         } else {
             config.kawaiiBarButtons
         }
+        items.add(ListItem.SectionHeader(Section.KawaiiBar))
         kawaiiBarButtons.forEach { items.add(ListItem.ButtonItem(it, Section.KawaiiBar)) }
         items.add(ListItem.AddButtonPlaceholder)
+        items.add(ListItem.SectionHeader(Section.StatusArea))
         config.statusAreaButtons
             .filter { it.id != "input_method_options" }
             .forEach { items.add(ListItem.ButtonItem(it, Section.StatusArea)) }
@@ -1094,11 +1124,13 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     private val VIEW_TYPE_BUTTON_ITEM = 1
     private val VIEW_TYPE_ADD_BUTTON_ITEM = 2
     private val VIEW_TYPE_ADD_PLACEHOLDER = 3
+    private val VIEW_TYPE_SECTION_HEADER = 4
 
     private inner class CombinedAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         override fun getItemViewType(position: Int): Int {
             return when (items[position]) {
+                is ListItem.SectionHeader -> VIEW_TYPE_SECTION_HEADER
                 is ListItem.ButtonItem -> VIEW_TYPE_BUTTON_ITEM
                 is ListItem.AddButtonItem -> VIEW_TYPE_ADD_BUTTON_ITEM
                 is ListItem.AddButtonPlaceholder, is ListItem.StatusAreaAddButtonPlaceholder -> VIEW_TYPE_ADD_PLACEHOLDER
@@ -1107,6 +1139,13 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             return when (viewType) {
+                VIEW_TYPE_SECTION_HEADER -> SectionHeaderViewHolder(TextView(parent.context).apply {
+                    textSize = 16f
+                    setTypeface(null, Typeface.BOLD)
+                    setTextColor(styledColor(android.R.attr.textColorPrimary))
+                    setPadding(dp(4), dp(8), dp(4), dp(4))
+                    androidx.core.view.ViewCompat.setAccessibilityHeading(this, true)
+                })
                 VIEW_TYPE_BUTTON_ITEM -> createButtonViewHolder(parent)
                 VIEW_TYPE_ADD_BUTTON_ITEM -> createAddButtonViewHolder(parent)
                 VIEW_TYPE_ADD_PLACEHOLDER -> createAddPlaceholderViewHolder(parent)
@@ -1137,6 +1176,12 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             
             val item = items[position]
             when (holder) {
+                is SectionHeaderViewHolder -> holder.title.setText(when ((item as ListItem.SectionHeader).section) {
+                    Section.SystemBar -> R.string.system_bar_section
+                    Section.KawaiiBar -> R.string.kawaii_bar_section
+                    Section.StatusArea -> R.string.status_area_section
+                    Section.AddButtons -> R.string.available_buttons_section
+                })
                 is AddPlaceholderViewHolder -> {
                     val isKawaiiBar = item is ListItem.AddButtonPlaceholder
                     // Use empty label, "+" as circle text
@@ -1271,6 +1316,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         override fun getItemCount(): Int = items.size
     }
 
+    private class SectionHeaderViewHolder(val title: TextView) : RecyclerView.ViewHolder(title)
     private class AddPlaceholderViewHolder(val ui: ButtonEntryUi) : RecyclerView.ViewHolder(ui.root)
     private class ButtonViewHolder(val ui: ButtonEntryUi) : RecyclerView.ViewHolder(ui.root)
     private class AddButtonViewHolder(val ui: ButtonEntryUi) : RecyclerView.ViewHolder(ui.root)

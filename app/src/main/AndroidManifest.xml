@@ -170,6 +170,10 @@
             android:theme="@style/zxing_CaptureTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
+            android:name=".ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivity"
+            android:exported="false"
+            android:label="@string/text_keyboard_layout_manage_title" />
+        <activity
             android:name=".ui.main.settings.behavior.ButtonsCustomizerActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
