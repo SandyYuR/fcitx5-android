@@ -43,6 +43,7 @@ internal object Native {
     external fun begin(generation: Long, program: String): Snapshot
     external fun beginInput(generation: Long, program: String, noLearning: Boolean): Snapshot
     external fun sessionStats(): LongArray
+    // Core/read phases + core thread CPU (ns), faults and context-switch deltas.
     external fun operationTiming(): LongArray
     external fun end(generation: Long): Snapshot
     external fun key(generation: Long, sym: Int, mask: Int, release: Boolean): Snapshot

@@ -158,7 +158,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     }
     private suspend fun <T> onOwner(block: () -> T): T = withContext(owner) { block() }
     private fun nativeTiming(values: LongArray = Native.operationTiming()): String =
-        "core_us=${values[0] / 1000} read_commit_us=${values[1] / 1000} read_context_us=${values[2] / 1000} read_status_us=${values[3] / 1000} input_tabs_us=${values[4] / 1000}"
+        "core_us=${values[0] / 1000} read_commit_us=${values[1] / 1000} read_context_us=${values[2] / 1000} read_status_us=${values[3] / 1000} input_tabs_us=${values[4] / 1000} core_cpu_us=${if (values[5] < 0) -1 else values[5] / 1000} core_minflt=${values[6]} core_majflt=${values[7]} core_nvcsw=${values[8]} core_nivcsw=${values[9]}"
     private fun refreshSchemas() {
         schemas = Native.schemaEntries().toList().chunked(2).map { it[0] to it[1] }
     }

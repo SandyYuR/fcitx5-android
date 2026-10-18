@@ -7,7 +7,9 @@ HSPLorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->onStartInput(**)**
 HSPLorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->onStartInputView(**)**
 HPLorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->handleFcitxEvent(**)**
 HPLorg/fcitx/fcitx5/android/input/FcitxInputMethodService;->commitText(**)**
-HPLorg/fcitx/fcitx5/android/core/DirectRimeBackend;->sendKey(**)**
+# KeySym/KeyStates are Kotlin value classes: the actual DEX name has a suffix.
+HPLorg/fcitx/fcitx5/android/core/DirectRimeBackend;->sendKey*(**)**
+HPLorg/fcitx/fcitx5/android/core/DirectRimeBackend$**;->invokeSuspend(**)**
 HPLorg/fcitx/fcitx5/android/core/DirectRimeBackend;->publish(**)**
 HPLorg/fcitx/fcitx5/android/core/DirectRimeBackend;->performAction(**)**
 HPLorg/fcitx/fcitx5/android/core/DirectRimeBackend;->getCandidates(**)**

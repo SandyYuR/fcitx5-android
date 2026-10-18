@@ -13,7 +13,7 @@ concurrency:
 jobs:
   compare:
     runs-on: ubuntu-22.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
         with:
@@ -25,19 +25,17 @@ jobs:
       - uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
-      - name: Reuse the verified updated ARM64 Release product
-        uses: actions/download-artifact@v6
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build updated ARM64 Release with verified key profile entries
+        env:
+          SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
+          SIGN_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGN_KEY_PWD: ${{ secrets.KEY_PASSWORD }}
+        run: bash tools/foxy-perf/build-release.sh "$RUNNER_TEMP/release-product"
+      - uses: actions/upload-artifact@v7
         with:
           name: direct-rime-optimized-arm64-release
-          path: ${{ runner.temp }}/release-product
-          run-id: 39130000027
-          github-token: ${{ github.token }}
-      - name: Reject reuse if production sources changed
-        run: |
-          source_commit=$(cat "$RUNNER_TEMP/release-product/source.txt")
-          test "$source_commit" = 57e4b9cd1bb279a0ceaa2677a99bedfd1d69ac4a
-          git diff --exit-code "$source_commit" HEAD -- app direct-rime build-logic native gradle patches settings.gradle.kts build.gradle.kts .gitmodules
-          echo '1b3a5632ebca3900b7cad51166b079cc54e68b98604bab43ef7e5faae00fdcbc  '"$RUNNER_TEMP/release-product/direct.apk" | sha256sum -c -
+          path: ${{ runner.temp }}/release-product/
       - name: Obtain exact user-supplied APK from disposable fixture ref
         run: |
           mkdir -p build/foxy-comparison
@@ -60,7 +58,9 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: python3 tools/foxy-perf/pilot.py --foxy "$RUNNER_TEMP/foxy.apk" --direct "$RUNNER_TEMP/release-product/direct.apk" --host "$RUNNER_TEMP/foxy-host/host.apk" --fixture "$RUNNER_TEMP/foxy-fixture.zip" --output build/foxy-comparison
+          script: |
+            python3 tools/foxy-perf/pilot.py --foxy "$RUNNER_TEMP/foxy.apk" --direct "$RUNNER_TEMP/release-product/direct.apk" --host "$RUNNER_TEMP/foxy-host/host.apk" --fixture "$RUNNER_TEMP/foxy-fixture.zip" --output build/foxy-comparison/calibration
+            python3 tools/foxy-perf/run.py --points tools/foxy-perf/points.json --output build/foxy-comparison/timed
       - uses: actions/upload-artifact@v7
         if: always()
         with:

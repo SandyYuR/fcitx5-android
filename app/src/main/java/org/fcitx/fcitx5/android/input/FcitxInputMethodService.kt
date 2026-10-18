@@ -700,9 +700,13 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 val ordinal = ++timedCommits
                 val startedAt = if (ordinal <= 2) SystemClock.elapsedRealtimeNanos() else 0L
                 backspaceBoundaryGuard.onCommit()
-                androidx.tracing.trace("rime.direct.commit") { commitText(event.data.text, event.data.cursor) }
+                val requestResult = androidx.tracing.trace("rime.direct.commit") {
+                    dispatchCommitText(event.data.text, event.data.cursor)
+                }
+                if (requestResult == CommitRequestResult.NO_CONNECTION || requestResult == CommitRequestResult.REQUEST_REJECTED)
+                    android.util.Log.w("RimeInputQueue", "commit_request_failed generation=${event.inputSession} result=$requestResult")
                 if (startedAt != 0L) android.util.Log.i("RimeInputTiming",
-                    "commit generation=${event.inputSession} ordinal=$ordinal event_wait_us=${if (event.commitProducedNanos > 0) (startedAt - event.commitProducedNanos) / 1000 else -1} service_commit_us=${(SystemClock.elapsedRealtimeNanos() - startedAt) / 1000}")
+                    "commit generation=${event.inputSession} ordinal=$ordinal event_wait_us=${if (event.commitProducedNanos > 0) (startedAt - event.commitProducedNanos) / 1000 else -1} service_commit_us=${(SystemClock.elapsedRealtimeNanos() - startedAt) / 1000} request_result=$requestResult")
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {
@@ -1016,9 +1020,19 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     fun commitText(text: String, cursor: Int = -1) {
+        dispatchCommitText(text, cursor)
+    }
+
+    // A true InputConnection return value acknowledges the request, not that a
+    // remote editor displayed it. Never replay uncertain commits into a new
+    // connection: the old editor might already have sent the same text.
+    private enum class CommitRequestResult { SEARCH, NO_CONNECTION, REQUEST_ACCEPTED, REQUEST_REJECTED }
+
+    private fun dispatchCommitText(text: String, cursor: Int): CommitRequestResult {
         // 剪贴板历史搜索会话期间：所有提交都进入查询，不写入目标编辑器。
-        if (ClipboardSearchController.onCommitText(text)) return
-        val ic = currentInputConnection ?: return
+        if (ClipboardSearchController.onCommitText(text)) return CommitRequestResult.SEARCH
+        val ic = currentInputConnection ?: return CommitRequestResult.NO_CONNECTION
+        var accepted = false
         // when composing text equals commit content, finish composing text as-is
         if (composing.isNotEmpty() && composingText.toString() == text) {
             val c = if (cursor == -1) text.length else cursor
@@ -1029,9 +1043,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                     selection.predict(target)
                     ic.setSelection(target, target)
                 }
-                ic.finishComposingText()
+                accepted = ic.finishComposingText()
             }
-            return
+            return if (accepted) CommitRequestResult.REQUEST_ACCEPTED else CommitRequestResult.REQUEST_REJECTED
         }
         // committed text should replace composing (if any), replace selected range (if any),
         // or simply prepend before cursor
@@ -1039,15 +1053,16 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         resetComposingState()
         if (cursor == -1) {
             selection.predict(start + text.length)
-            ic.commitText(text, 1)
+            accepted = ic.commitText(text, 1)
         } else {
             val target = start + cursor
             selection.predict(target)
             ic.withBatchEdit {
-                commitText(text, 1)
+                accepted = commitText(text, 1)
                 setSelection(target, target)
             }
         }
+        return if (accepted) CommitRequestResult.REQUEST_ACCEPTED else CommitRequestResult.REQUEST_REJECTED
     }
 
     fun setVoiceComposingText(text: String) {

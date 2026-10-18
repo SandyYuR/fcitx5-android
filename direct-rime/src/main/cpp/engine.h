@@ -40,8 +40,9 @@ public:
     bool sync();
     std::vector<std::string> candidates(int64_t generation, int offset, int limit);
     std::vector<int64_t> sessionStats() const;
-    // Last operation: core/session, read_commit, read_context, read_status, input_tabs (ns).
-    std::array<int64_t, 5> operationTiming() const;
+    // ns: core/session, read_commit/context/status, input_tabs, core thread CPU.
+    // Then core deltas: minor/major faults, voluntary/involuntary context switches.
+    std::array<int64_t, 10> operationTiming() const;
 private:
     void owner() const;
     Gate gate(int64_t generation) const;
@@ -59,7 +60,7 @@ private:
     std::string sessionProgram_;
     std::string shared_, user_;
     std::vector<Tab> tabs_;
-    std::array<int64_t, 5> timing_{};
+    std::array<int64_t, 10> timing_{};
 };
 
 // Strict UTF-8 decoding for JNI strings and the patched API's occasionally invalid labels.

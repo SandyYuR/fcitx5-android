@@ -18,6 +18,13 @@ fi
     -Pkotlin.compiler.execution.strategy=in-process --max-workers=1 :app:assembleFxRelease
 python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/release/*.apk
 python3 tools/foxy-perf/apk_profiles.py app/build/outputs/apk/fx/release/*.apk > "$output_dir/packaged-profile-audit.json"
+python3 - "$output_dir/packaged-profile-audit.json" <<'PY'
+import json, sys
+profile = json.load(open(sys.argv[1]))[0]
+methods = [m for dex in profile['dex_entries'] for m in dex['app_methods']]
+assert any(m.startswith('Lorg/fcitx/fcitx5/android/core/DirectRimeBackend;->sendKey-') for m in methods), 'Mangled key entry missing from packed ART profile'
+assert any('DirectRimeBackend$' in m and m.endswith('->invokeSuspend') for m in methods), 'Backend coroutine entries missing from packed ART profile'
+PY
 cp app/build/outputs/apk/fx/release/*.apk "$output_dir/direct.apk"
 cp app/build/outputs/apk/fx/release/build-metadata.json "$output_dir/"
 cp app/build/intermediates/combined_art_profile/fxRelease/compileFxReleaseArtProfile/baseline-prof.txt "$output_dir/resolved-baseline-prof.txt"

@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
+import java.text.Normalizer;
 
 /** Runs outside either IME; does not hook their gestures, API, threads or native engine. */
 public final class Replay extends Instrumentation {
@@ -45,7 +46,8 @@ public final class Replay extends Instrumentation {
     boolean contains(AccessibilityNodeInfo node, String expected) {
         if (node == null) return false;
         CharSequence text = node.getText();
-        if (text != null && text.toString().replace(" ", "").replace("'", "").equalsIgnoreCase(expected)) return true;
+        if (text != null && Normalizer.normalize(text, Normalizer.Form.NFD).replaceAll("\\p{M}", "")
+            .replace(" ", "").replace("'", "").equalsIgnoreCase(expected)) return true;
         for (int i = 0; i < node.getChildCount(); i++) {
             AccessibilityNodeInfo child = node.getChild(i);
             try { if (contains(child, expected)) return true; }
@@ -89,25 +91,32 @@ public final class Replay extends Instrumentation {
         if (!imeHas(null)) throw new IllegalStateException("Requested IME window did not appear");
         phases.put(new JSONObject().put("phase", phase).put("launch_ns", launch).put("ime_observed_ns", now()));
         String expected = "";
+        String sequence = args.getString("sequence", "ni");
+        String word = args.getString("word", "你");
         for (int round = 0; round < rounds; round++) {
-            long[] n = tap(points.getJSONArray("n"));
-            SystemClock.sleep(100);
-            long[] i = tap(points.getJSONArray("i"));
-            JSONObject sample = new JSONObject().put("phase", phase).put("round", round)
-                .put("n_down_ns", n[0]).put("n_up_ns", n[1]).put("i_down_ns", i[0]).put("i_up_ns", i[1]);
+            JSONArray keys = new JSONArray();
+            long[] last = null;
+            for (int index = 0; index < sequence.length(); index++) {
+                if (index > 0) SystemClock.sleep(100);
+                String key = sequence.substring(index, index+1);
+                last = tap(points.getJSONArray(key));
+                keys.put(new JSONObject().put("key", key).put("down_ns", last[0]).put("up_ns", last[1]));
+            }
+            JSONObject sample = new JSONObject().put("phase", phase).put("round", round).put("keys", keys)
+                .put("last_key_down_ns", last[0]).put("last_key_up_ns", last[1]);
             samples.put(sample);
             deadline = now() + 15_000_000_000L;
             long preedit = 0;
             while (now() < deadline) {
-                if (imeHas("ni")) { preedit = now(); break; }
+                if (imeHas(sequence)) { preedit = now(); break; }
                 SystemClock.sleep(20);
             }
-            if (preedit == 0) throw new IllegalStateException("Final ni preedit not observable; refusing an unverified tap");
+            if (preedit == 0) throw new IllegalStateException("Final preedit not observable; refusing an unverified tap");
             SystemClock.sleep(32);
             if (round == 0 && Boolean.parseBoolean(args.getString("diagnostic", "false"))) screenshot(phase+"-candidates.png");
             long[] select = tap(points.getJSONArray("candidate"));
             sample.put("preedit_observed_ns", preedit).put("candidate_down_ns", select[0]).put("candidate_up_ns", select[1]);
-            expected += "你";
+            expected += word;
             deadline = now() + 15_000_000_000L;
             String actual;
             while (!(actual = editorText()).equals(expected) && now() < deadline) SystemClock.sleep(10);
@@ -140,7 +149,8 @@ public final class Replay extends Instrumentation {
             SystemClock.sleep(500);
             phase("rebind", points, rounds);
             JSONObject output = new JSONObject().put("phases", phases).put("samples", samples)
-                .put("output", editorText()).put("method", "external real touch; timestamps before injection");
+                .put("output", editorText()).put("word", args.getString("word", "你"))
+                .put("method", "external real touch; timestamps before injection");
             try (FileOutputStream out = getTargetContext().openFileOutput("replay.json", 0)) {
                 out.write(output.toString(2).getBytes("UTF-8"));
             }

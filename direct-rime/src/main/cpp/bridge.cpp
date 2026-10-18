@@ -1,6 +1,7 @@
 #include "engine.h"
 #include "jni-strings.h"
 #include <jni.h>
+#include <algorithm>
 #include <memory>
 #include <stdexcept>
 
@@ -95,9 +96,10 @@ extern "C" JNIEXPORT jlongArray JNICALL JNI_METHOD(sessionStats)(JNIEnv* env, jo
 extern "C" JNIEXPORT jlongArray JNICALL JNI_METHOD(operationTiming)(JNIEnv* env, jobject) {
     try {
         const auto values = instance().operationTiming();
-        jlong data[] = {values[0], values[1], values[2], values[3], values[4]};
-        auto result = env->NewLongArray(5);
-        if (result) env->SetLongArrayRegion(result, 0, 5, data);
+        jlong data[10];
+        std::copy(values.begin(), values.end(), data);
+        auto result = env->NewLongArray(10);
+        if (result) env->SetLongArrayRegion(result, 0, 10, data);
         return result;
     } catch (const std::exception& e) { error(env, e); return nullptr; }
 }

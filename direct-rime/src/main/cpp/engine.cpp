@@ -5,6 +5,7 @@
 #include <sstream>
 #include <rime_levers_api.h>
 #include <stdexcept>
+#include <sys/resource.h>
 #ifdef __ANDROID__
 #include <android/trace.h>
 #endif
@@ -32,6 +33,30 @@ struct TimedTrace {
     TimedTrace(const char* name, int64_t& elapsed) : trace(name), elapsed(elapsed) {}
     ~TimedTrace() {
         elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - start).count();
+    }
+};
+struct CoreTrace {
+    TimedTrace trace;
+    std::array<int64_t, 10>& timing;
+    rusage before{};
+    bool valid;
+    CoreTrace(const char* name, std::array<int64_t, 10>& values)
+        : trace(name, values[0]), timing(values), valid(getrusage(RUSAGE_THREAD, &before) == 0) {}
+    ~CoreTrace() {
+        rusage after{};
+        if (!valid || getrusage(RUSAGE_THREAD, &after) != 0) {
+            std::fill(timing.begin() + 5, timing.end(), -1);
+            return;
+        }
+        auto cpu = [](const rusage& usage) -> int64_t {
+            return (static_cast<int64_t>(usage.ru_utime.tv_sec) + usage.ru_stime.tv_sec) * 1000000000LL +
+                   (static_cast<int64_t>(usage.ru_utime.tv_usec) + usage.ru_stime.tv_usec) * 1000;
+        };
+        timing[5] = cpu(after) - cpu(before);
+        timing[6] = after.ru_minflt - before.ru_minflt;
+        timing[7] = after.ru_majflt - before.ru_majflt;
+        timing[8] = after.ru_nvcsw - before.ru_nvcsw;
+        timing[9] = after.ru_nivcsw - before.ru_nivcsw;
     }
 };
 std::string safe(const char* value) { return value ? value : ""; }
@@ -124,7 +149,7 @@ Snapshot Engine::begin(int64_t generation, const std::string& program, bool noLe
     if (generation <= generation_) { Snapshot s; s.generation = generation; s.gate = Stale; return s; }
     ++optionsRevision_;
     generation_ = generation; active_ = false;
-    { TimedTrace core("rime.direct.bind_core", timing_[0]);
+    { CoreTrace core("rime.direct.bind_core", timing_);
       if (started_ && !api_->is_maintenance_mode() && !deployFailed_.load()) {
         // Lua components can retain private context beyond clear_composition.
         // Do not carry that runtime across sensitive fields in either direction.
@@ -164,7 +189,7 @@ Snapshot Engine::end(int64_t generation) {
 std::vector<int64_t> Engine::sessionStats() const {
     owner(); return {sessionsCreated_, sessionsReused_, sessionsEnded_};
 }
-std::array<int64_t, 5> Engine::operationTiming() const { owner(); return timing_; }
+std::array<int64_t, 10> Engine::operationTiming() const { owner(); return timing_; }
 Snapshot Engine::key(int64_t generation, int sym, int mask, bool release) {
     owner();
     timing_.fill(0);
@@ -174,7 +199,7 @@ Snapshot Engine::key(int64_t generation, int sym, int mask, bool release) {
     if (states & (1 << 6)) states |= (1 << 26);
     if (release) states |= (1 << 30);
     bool handled;
-    { TimedTrace trace("rime.direct.process_key", timing_[0]); handled = api_->process_key(session_, sym, states); }
+    { CoreTrace trace("rime.direct.process_key", timing_); handled = api_->process_key(session_, sym, states); }
     return snapshot(generation, handled);
 }
 Snapshot Engine::action(int64_t generation, int64_t revision, int action, int index, const std::string& value) {
@@ -183,7 +208,7 @@ Snapshot Engine::action(int64_t generation, int64_t revision, int action, int in
     timing_.fill(0);
     if (gate(generation) != Ready) return snapshot(generation);
     if (revision != revision_) { Snapshot s; s.generation = generation; s.gate = Stale; return s; }
-    { TimedTrace core("rime.direct.action_core", timing_[0]);
+    { CoreTrace core("rime.direct.action_core", timing_);
       switch (action) {
     case 0: api_->clear_composition(session_); break;
     case 1: if (index >= 0) api_->select_candidate_on_current_page(session_, index); break;

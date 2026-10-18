@@ -59,7 +59,8 @@ def main():
     adb('root', check=False)
     adb('wait-for-device')
     for namespace, key, value in [('global', 'device_provisioned', '1'), ('secure', 'user_setup_complete', '1'),
-        ('secure', 'show_ime_with_hard_keyboard', '1'), ('system', 'screen_off_timeout', '1800000')]:
+        ('secure', 'show_ime_with_hard_keyboard', '1'), ('system', 'screen_off_timeout', '1800000'),
+        ('global', 'heads_up_notifications_enabled', '0')]:
         adb('shell', 'settings', 'put', namespace, key, value)
     # A Google system image supplies the ARM64 native bridge. Stop unrelated
     # background setup/sync work on this disposable device for both products.
@@ -154,22 +155,16 @@ def main():
             (out/'input-method.txt').write_text(adb('shell', 'dumpsys', 'input_method'))
             (out/'package.txt').write_text(adb('shell', 'dumpsys', 'package', package))
             assert maps, label+': IME process did not start'
-            if label == 'foxy':
-                # Calibrated from the original 320x640 keyboard screenshot.
-                # Foxy's adb virtual-hardware path can bypass its Rime session;
-                # use its actual soft keys, as the timed driver will do.
-                assert adb('shell', 'wm', 'size').endswith('320x640')
-                adb('shell', 'input', 'tap', '224', '574')
+            # Actual soft touches for both products. Virtual hardware input can
+            # bypass Foxy's session or change the direct product's keyboard mode.
+            assert adb('shell', 'wm', 'size').endswith('320x640')
+            points = json.loads((Path(__file__).parent/'points.json').read_text())[label]
+            for key in 'ni':
+                adb('shell', 'input', 'tap', *points[key])
                 time.sleep(.1)
-                adb('shell', 'input', 'tap', '240', '479')
-            else:
-                adb('shell', 'input', 'text', 'ni')
             time.sleep(2)
             capture(out, 'candidates')
-            if label == 'foxy':
-                adb('shell', 'input', 'tap', '160', '617')
-            else:
-                adb('shell', 'input', 'keyevent', '62')
+            adb('shell', 'input', 'tap', *points['candidate'])
             time.sleep(1)
             adb('shell', 'am', 'broadcast', '-n', HOST+'/.BenchControl', '--es', 'command', 'dump')
             editor = adb('shell', 'run-as', HOST, 'cat', 'files/candidate-editor.json')
