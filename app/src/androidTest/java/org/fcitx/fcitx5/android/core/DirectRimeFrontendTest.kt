@@ -295,7 +295,7 @@ end
         val first = FcitxDaemon.captureInputKey()!!
         // Engine readiness may re-apply the original TYPE_NULL descriptor after
         // the first key was accepted. It must preserve that pending key demand.
-        FcitxDaemon.prepareInputSession(generation, "frontend.null", CapabilityFlags.DefaultFlags, false)
+        FcitxDaemon.prepareInputSession(generation, "frontend.null.updated", CapabilityFlags.DefaultFlags, false)
         connection.runOnReady {
             startInputSession(generation, "frontend.null")
             assertEquals("Promoting a non-editor must not change its generation", generation, inputSession)
@@ -306,6 +306,38 @@ end
         }
         FcitxDaemon.releaseInputKey(first)
         assertEquals("你", withTimeout(10_000) { commits.receive() })
+    }
+    /** Only invoked by the isolated diagnostic workflow with the checksum-pinned full fixture. */
+    @Test fun diagnoseColdCandidateCore(): Unit = runBlocking {
+        org.junit.Assume.assumeTrue(fixtureArchive != null &&
+            InstrumentationRegistry.getArguments().getString("probeCold") == "true")
+        val records = org.json.JSONArray()
+        repeat(6) { round ->
+            val record = org.json.JSONObject().put("round", round)
+            connection.runOnReady {
+                val before = System.nanoTime()
+                startInputSession(invalidateInputSession(), "diagnostic.client.$round")
+                record.put("bind_ms", (System.nanoTime() - before) / 1e6)
+                for ((index, key) in "nihao".withIndex()) {
+                    val start = System.nanoTime()
+                    sendKey(key, KeyState.Virtual.state)
+                    record.put("key_${index + 1}_ms", (System.nanoTime() - start) / 1e6)
+                }
+                val start = System.nanoTime()
+                assertTrue(select(0))
+                record.put("select_ms", (System.nanoTime() - start) / 1e6)
+            }
+            val commit = withTimeout(30_000) { commits.receive() }
+            assertTrue(commit.any { it.code in 0x3400..0x9fff })
+            record.put("commit_chars", commit.length)
+            records.put(record)
+        }
+        assertNull("No duplicate commits", withTimeoutOrNull(250) { commits.receive() })
+        assertTrue("The LTS model must be mapped", File("/proc/self/maps").readText().contains("wanxiang-lts-zh-hans.gram"))
+        File(context.filesDir, "direct-rime-cold-probe.json").writeText(org.json.JSONObject()
+            .put("source", BuildConfig.BUILD_GIT_HASH).put("records", records)
+            .put("metric", "Current Debug backend operation completion; not phone/UI latency or a before/after comparison")
+            .toString(2))
     }
     @Test fun modeAndSchemaHintsExpireWithoutReplayingCommits(): Unit = runBlocking {
         connection.runOnReady {

@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicLong
 class DirectRimeBackend(context: Context) : InputEngine {
     private val context = FcitxApplication.getInstance().directBootAwareContext
     private val owner = Executors.newSingleThreadExecutor { Thread(it, "rime-main") }.asCoroutineDispatcher()
+    private val interactivePriority = InteractiveThreadPriority()
     private val engineScope = CoroutineScope(SupervisorJob() + owner)
     private val registry = FcitxLifecycleRegistry()
     override val lifecycle: FcitxLifecycle get() = registry
@@ -45,7 +46,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             // generation; only invalidating that generation may revoke it.
             val requested = needsRime || binding?.let { it.generation == generation && it.needsRime } == true
             val next = Binding(generation, program, flags, requested)
-            if (next != binding) { binding = next; keyGate.prepare(generation, needsRime) }
+            if (next != binding) { binding = next; keyGate.prepare(generation, requested) }
         }
     }
     override fun requireInputSession(generation: Long): Boolean = synchronized(bindingLock) {
@@ -162,7 +163,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     }
     private suspend fun <T> onOwner(block: () -> T): T = withContext(owner) { block() }
     private fun nativeTiming(values: LongArray = Native.operationTiming()): String =
-        "core_us=${values[0] / 1000} read_commit_us=${values[1] / 1000} read_context_us=${values[2] / 1000} read_status_us=${values[3] / 1000} input_tabs_us=${values[4] / 1000} core_cpu_us=${if (values[5] < 0) -1 else values[5] / 1000} core_minflt=${values[6]} core_majflt=${values[7]} core_nvcsw=${values[8]} core_nivcsw=${values[9]}"
+        "core_us=${values[0] / 1000} read_commit_us=${values[1] / 1000} read_context_us=${values[2] / 1000} read_status_us=${values[3] / 1000} input_tabs_us=${values[4] / 1000} core_cpu_us=${if (values[5] < 0) -1 else values[5] / 1000} core_minflt=${values[6]} core_majflt=${values[7]} core_nvcsw=${values[8]} core_nivcsw=${values[9]} io_open_us=${values[10] / 1000} io_read_us=${values[11] / 1000} io_write_us=${values[12] / 1000} io_sync_us=${values[13] / 1000} io_stat_us=${values[14] / 1000} io_calls=${values[15]} input_priority=${interactivePriority.lastPriority}"
     private fun refreshSchemas() {
         schemas = Native.schemaEntries().toList().chunked(2).map { it[0] to it[1] }
     }
@@ -177,7 +178,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val startedAt = SystemClock.elapsedRealtime()
         val before = Native.sessionStats()
         val beginAt = SystemClock.elapsedRealtimeNanos()
-        var result = Native.beginInput(generation, program, flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL)
+        var result = interactivePriority.run {
+            Native.beginInput(generation, program, flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL)
+        }
         val beginDone = SystemClock.elapsedRealtimeNanos()
         val beginTiming = Native.operationTiming()
         if (result.ready) {
@@ -228,7 +231,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private fun act(action: Int, index: Int = 0, value: String = ""): Snapshot? {
         val previous = snapshot ?: return null
         if (!started || maintenance || previous.generation != inputSession) return null
-        return Native.action(previous.generation, previous.revision, action, index, value).also(::publish)
+        return interactivePriority.run {
+            Native.action(previous.generation, previous.revision, action, index, value).also(::publish)
+        }
     }
     private fun formatted(text: String, cursor: Int = text.length, underline: Boolean = false) =
         if (text.isEmpty()) FormattedText.Empty else FormattedText(arrayOf(text),
@@ -375,7 +380,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             val ownerAt = SystemClock.elapsedRealtimeNanos()
             val bypass = flags.flags and (CapabilityFlag.Password.flag or CapabilityFlag.Disable.flag) != 0UL
             if (!up) clearStatusHint()
-            val result = if (bypass) null else Native.key(expected, sym, states.toInt(), up)
+            val result = if (bypass) null else interactivePriority.run { Native.key(expected, sym, states.toInt(), up) }
             val nativeAt = SystemClock.elapsedRealtimeNanos()
             if (result != null) publish(result)
             if (!up && result?.ready == true) {

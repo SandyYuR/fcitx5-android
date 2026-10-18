@@ -1,4 +1,5 @@
 #include "engine.h"
+#include "io-trace.h"
 #include <cstring>
 #include <algorithm>
 #include <chrono>
@@ -37,15 +38,18 @@ struct TimedTrace {
 };
 struct CoreTrace {
     TimedTrace trace;
-    std::array<int64_t, 10>& timing;
+    std::array<int64_t, 16>& timing;
+    IoScope io;
     rusage before{};
     bool valid;
-    CoreTrace(const char* name, std::array<int64_t, 10>& values)
+    CoreTrace(const char* name, std::array<int64_t, 16>& values)
         : trace(name, values[0]), timing(values), valid(getrusage(RUSAGE_THREAD, &before) == 0) {}
     ~CoreTrace() {
+        std::copy(io.values.nanos.begin(), io.values.nanos.end(), timing.begin() + 10);
+        timing[15] = io.values.calls;
         rusage after{};
         if (!valid || getrusage(RUSAGE_THREAD, &after) != 0) {
-            std::fill(timing.begin() + 5, timing.end(), -1);
+            std::fill(timing.begin() + 5, timing.begin() + 10, -1);
             return;
         }
         auto cpu = [](const rusage& usage) -> int64_t {
@@ -189,7 +193,7 @@ Snapshot Engine::end(int64_t generation) {
 std::vector<int64_t> Engine::sessionStats() const {
     owner(); return {sessionsCreated_, sessionsReused_, sessionsEnded_};
 }
-std::array<int64_t, 10> Engine::operationTiming() const { owner(); return timing_; }
+std::array<int64_t, 16> Engine::operationTiming() const { owner(); return timing_; }
 Snapshot Engine::key(int64_t generation, int sym, int mask, bool release) {
     owner();
     timing_.fill(0);

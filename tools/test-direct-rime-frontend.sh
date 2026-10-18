@@ -4,7 +4,7 @@ set -uo pipefail
 
 adb shell setprop debug.hwui.drawing_enabled true
 ./gradlew -PbuildABI=x86_64 \
-  -Pandroid.testInstrumentationRunnerArguments.class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest,org.fcitx.fcitx5.android.ui.main.log.LogExportTest \
   :app:connectedFxDebugAndroidTest
 test_result=$?
 

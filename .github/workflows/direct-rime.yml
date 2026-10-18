@@ -31,6 +31,11 @@ jobs:
             -I native/prebuilt/librime/arm64-v8a/include \
             direct-rime/src/main/cpp/engine.cpp direct-rime/src/main/cpp/engine_test.cpp -o /tmp/engine-test
           /tmp/engine-test
+          c++ -std=c++17 -Wall -Wextra -Werror -pthread -fsanitize=address,undefined -g \
+            direct-rime/src/main/cpp/io-trace.cpp direct-rime/src/main/cpp/io-trace-test.cpp \
+            -Wl,--wrap=open,--wrap=__open_2,--wrap=read,--wrap=pread,--wrap=write,--wrap=fsync,--wrap=fdatasync,--wrap=stat \
+            -o /tmp/io-trace-test
+          /tmp/io-trace-test
       - name: Build isolated APK and run JVM tests
         run: ./gradlew -PdirectRimePrototype=true -PbuildABI=arm64-v8a :direct-rime:assembleDebug :direct-rime:testDebugUnitTest :direct-rime:assembleDebugAndroidTest
       - uses: actions/upload-artifact@v7

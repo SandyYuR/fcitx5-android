@@ -1,0 +1,65 @@
+name: Direct Rime cold path diagnosis
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/direct-rime-prototype]
+    paths: ['tools/input-perf/probe-cold-io.*', '.github/workflows/direct-rime-cold-probe.yml']
+permissions:
+  contents: read
+concurrency:
+  group: direct-rime-cold-probe-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  diagnose:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Fetch pinned engine
+        run: git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Prepare user's pinned Wanxiang base and LTS model
+        run: |
+          python3 tools/screen-perf/prepare.py "$RUNNER_TEMP/cold-fixture.zip"
+          python3 - "$RUNNER_TEMP/cold-fixture.zip" <<'PY'
+          import sys, zipfile, json, hashlib
+          from pathlib import Path
+          with zipfile.ZipFile(sys.argv[1], 'a') as archive:
+              assert 'rime.lua' not in archive.namelist()
+              archive.writestr('rime.lua', Path('tools/input-perf/probe-cold-io.lua').read_bytes())
+          manifest = Path(sys.argv[1]).with_suffix('.manifest.json')
+          data = json.loads(manifest.read_text())
+          digest = hashlib.sha256()
+          with open(sys.argv[1], 'rb') as source:
+              for chunk in iter(lambda: source.read(1024 * 1024), b''):
+                  digest.update(chunk)
+          data['diagnostic_fixture_sha256'] = digest.hexdigest()
+          data['diagnostic_lua_sha256'] = hashlib.sha256(Path('tools/input-perf/probe-cold-io.lua').read_bytes()).hexdigest()
+          manifest.write_text(json.dumps(data, indent=2) + '\n')
+          PY
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: aosp_atd
+          arch: x86_64
+          disable-animations: true
+          script: bash tools/input-perf/probe-cold-io.sh
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: direct-rime-cold-probe-results
+          path: app/build/reports/androidTests/

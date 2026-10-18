@@ -96,10 +96,10 @@ extern "C" JNIEXPORT jlongArray JNICALL JNI_METHOD(sessionStats)(JNIEnv* env, jo
 extern "C" JNIEXPORT jlongArray JNICALL JNI_METHOD(operationTiming)(JNIEnv* env, jobject) {
     try {
         const auto values = instance().operationTiming();
-        jlong data[10];
+        jlong data[16];
         std::copy(values.begin(), values.end(), data);
-        auto result = env->NewLongArray(10);
-        if (result) env->SetLongArrayRegion(result, 0, 10, data);
+        auto result = env->NewLongArray(16);
+        if (result) env->SetLongArrayRegion(result, 0, 16, data);
         return result;
     } catch (const std::exception& e) { error(env, e); return nullptr; }
 }
