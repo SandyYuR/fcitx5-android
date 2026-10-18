@@ -75,14 +75,37 @@ public class Replay extends Instrumentation {
         if (!imePackage.equals("com.fxliang.foxy") && !imePackage.equals("io.github.sandyyur.rime.direct"))
             throw new IllegalArgumentException("Unexpected IME");
         long deadline = now()+240_000_000_000L;
+        String stableMarker = "";
+        long stableSince = 0;
         while (now()<deadline) {
             String pid = shell("pidof "+imePackage).trim();
             if (pid.matches("[0-9]+")) {
-                String logs = shell("logcat -d --pid="+pid+" -s foxy:I RimeLifecycle:I '*:S'");
-                boolean ready = imePackage.equals("com.fxliang.foxy") ?
-                    logs.contains("type=option value=soft_cursor") :
-                    logs.contains("RimeLifecycle") && logs.contains("ready=true");
-                if (ready && imeHas()) return now();
+                String logs = shell("logcat -d --pid="+pid+" -s foxy:I FoxyImeLifecycle:I RimeLifecycle:I '*:S'");
+                String marker = "";
+                if (imePackage.equals("com.fxliang.foxy")) {
+                    int start = logs.lastIndexOf("FoxyImeLifecycle: onStartInput ");
+                    int option = logs.lastIndexOf("type=option value=soft_cursor");
+                    if (start >= 0 && option > start) {
+                        String binding = logs.substring(start, logs.indexOf('\n', start));
+                        if (binding.contains("package=io.github.sandyyur.inputbench "))
+                            marker = binding+logs.substring(option-60, option);
+                    }
+                } else {
+                    java.util.regex.Matcher bindings = java.util.regex.Pattern.compile(
+                        "RimeLifecycle: input_binding generation=(\\d+)[^\\n]*").matcher(logs);
+                    String generation = "", binding = "";
+                    while (bindings.find()) { generation = bindings.group(1); binding = bindings.group(); }
+                    java.util.regex.Matcher ready = java.util.regex.Pattern.compile(
+                        "RimeLifecycle: bind generation=(\\d+)[^\\n]*ready=true[^\\n]*").matcher(logs);
+                    String resolved = "", resolvedLine = "";
+                    while (ready.find()) { resolved = ready.group(1); resolvedLine = ready.group(); }
+                    if (!generation.isEmpty() && generation.equals(resolved) && binding.contains("needs_rime=true"))
+                        marker = binding+resolvedLine;
+                }
+                if (!marker.isEmpty() && imeHas()) {
+                    if (!marker.equals(stableMarker)) { stableMarker = marker; stableSince = now(); }
+                    if (now()-stableSince >= 500_000_000L) return now();
+                } else { stableMarker = ""; stableSince = 0; }
             }
             SystemClock.sleep(100);
         }
@@ -126,7 +149,7 @@ public class Replay extends Instrumentation {
             // Wanxiang fuzzy spelling can also format a valid input differently.
             // Isolate selection after the same fixed settling time in both UIs;
             // validate actual editor delivery, never infer key loss from preedit.
-            SystemClock.sleep(500);
+            SystemClock.sleep(1000);
             sample.put("settle_finished_ns", now());
             if (round == 0) screenshot(phase+"-candidates.png");
             long[] select = tap(points.getJSONArray("candidate"));

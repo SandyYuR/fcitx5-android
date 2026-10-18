@@ -27,10 +27,10 @@ def describe(values):
             'p95_nearest_rank_ms': ordered[max(0, (95*len(values)+99)//100-1)]}
 
 
-def analyze(directory, replay):
+def analyze(directory, replay, phases=('fresh', 'rebind')):
     result = []
     word = replay['word']
-    for phase in ('fresh', 'rebind'):
+    for phase in phases:
         path = directory/(phase+'-editor.json')
         if not path.exists():
             continue
@@ -126,7 +126,7 @@ def main():
             (a.output/'failures.json').write_text(json.dumps(failures, indent=2))
     summary = {'method':'external touch, 24ms hold; endpoints are IC entry, TextWatcher and CPU onDraw; not screen presentation',
                'cache':'process-fresh; prepared profiles, OS caches and learned user databases retained',
-               'selection_precondition':'Actual session ready, then type and wait fixed 500ms in both products; first candidate screenshot before each phase; not a typing latency measurement',
+               'selection_precondition':'Current binding ready and stable for 500ms, then type and wait fixed 1000ms in both products; first candidate screenshot before each phase; not a typing latency measurement',
                'trials':a.trials, 'rounds_per_phase':a.rounds, 'failures':failures, 'products':{}}
     for label in PACKAGES:
         groups = summary['products'][label] = {}

@@ -31,7 +31,7 @@ public final class SendReplay extends Replay {
                 if (index>0) SystemClock.sleep(100);
                 tap(points.getJSONArray(sequence.substring(index,index+1)));
             }
-            SystemClock.sleep(500);
+            SystemClock.sleep(1000);
             data.put("settle_finished_ns",now());
             screenshot("send-candidates.png");
             long[] candidate = tap(points.getJSONArray("candidate"));

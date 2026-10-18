@@ -72,6 +72,7 @@ def main():
                     (a.output/'observations.json').write_text(json.dumps(observations,ensure_ascii=False,indent=2))
     summary = {'method':'Separate chat-client activity with existing prefix; real candidate then real Send touch; clears draft and restarts input',
                'limits':'Prepared files/caches; test client is not the user chat app. Passing does not prove the phone failure fixed.',
+               'selection_precondition':'Current binding ready and stable for 500ms; 1000ms after typing; candidate screenshot retained',
                'observations':len(observations),'harness_failures':len(failures),'groups':{}}
     for label in PACKAGES:
         for case in CASES:
