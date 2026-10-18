@@ -17,7 +17,6 @@ import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
-import java.text.Normalizer;
 
 /** Runs outside either IME; does not hook their gestures, API, threads or native engine. */
 public class Replay extends Instrumentation {
@@ -45,26 +44,12 @@ public class Replay extends Instrumentation {
         return times;
     }
 
-    boolean contains(AccessibilityNodeInfo node, String expected) {
-        if (node == null) return false;
-        CharSequence text = node.getText();
-        if (text != null && Normalizer.normalize(text, Normalizer.Form.NFD).replaceAll("\\p{M}", "")
-            .replace(" ", "").replace("'", "").equalsIgnoreCase(expected)) return true;
-        for (int i = 0; i < node.getChildCount(); i++) {
-            AccessibilityNodeInfo child = node.getChild(i);
-            try { if (contains(child, expected)) return true; }
-            finally { if (child != null) child.recycle(); }
-        }
-        return false;
-    }
-
-    boolean imeHas(String text) {
+    boolean imeHas() {
         for (AccessibilityWindowInfo window : getUiAutomation().getWindows()) {
             if (window.getType() != AccessibilityWindowInfo.TYPE_INPUT_METHOD) continue;
             AccessibilityNodeInfo node = window.getRoot();
             try {
-                if (node != null && imePackage.equals(String.valueOf(node.getPackageName())) &&
-                    (text == null || contains(node, text))) return true;
+                if (node != null && imePackage.equals(String.valueOf(node.getPackageName()))) return true;
             }
             finally { if (node != null) node.recycle(); window.recycle(); }
         }
@@ -97,7 +82,7 @@ public class Replay extends Instrumentation {
                 boolean ready = imePackage.equals("com.fxliang.foxy") ?
                     logs.contains("type=option value=soft_cursor") :
                     logs.contains("RimeLifecycle") && logs.contains("ready=true");
-                if (ready && imeHas(null)) return now();
+                if (ready && imeHas()) return now();
             }
             SystemClock.sleep(100);
         }
@@ -116,8 +101,8 @@ public class Replay extends Instrumentation {
         host = (BenchHost) startActivitySync(new Intent(getTargetContext(), BenchHost.class)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
         long deadline = now() + 240_000_000_000L;
-        while (!imeHas(null) && now() < deadline) SystemClock.sleep(20);
-        if (!imeHas(null)) throw new IllegalStateException("Requested IME window did not appear");
+        while (!imeHas() && now() < deadline) SystemClock.sleep(20);
+        if (!imeHas()) throw new IllegalStateException("Requested IME window did not appear");
         long shown = now();
         long ready = awaitSessionReady();
         phases.put(new JSONObject().put("phase", phase).put("launch_ns", launch).put("ime_observed_ns", shown)
@@ -137,17 +122,15 @@ public class Replay extends Instrumentation {
             JSONObject sample = new JSONObject().put("phase", phase).put("round", round).put("keys", keys)
                 .put("last_key_down_ns", last[0]).put("last_key_up_ns", last[1]);
             samples.put(sample);
-            deadline = now() + 15_000_000_000L;
-            long preedit = 0;
-            while (now() < deadline) {
-                if (imeHas(sequence)) { preedit = now(); break; }
-                SystemClock.sleep(20);
-            }
-            if (preedit == 0) throw new IllegalStateException("Final preedit not observable; refusing an unverified tap");
-            SystemClock.sleep(32);
-            if (round == 0 && Boolean.parseBoolean(args.getString("diagnostic", "false"))) screenshot(phase+"-candidates.png");
+            // Foxy's floating preedit is not exposed by this accessibility tree.
+            // Wanxiang fuzzy spelling can also format a valid input differently.
+            // Isolate selection after the same fixed settling time in both UIs;
+            // validate actual editor delivery, never infer key loss from preedit.
+            SystemClock.sleep(500);
+            sample.put("settle_finished_ns", now());
+            if (round == 0) screenshot(phase+"-candidates.png");
             long[] select = tap(points.getJSONArray("candidate"));
-            sample.put("preedit_observed_ns", preedit).put("candidate_down_ns", select[0]).put("candidate_up_ns", select[1]);
+            sample.put("candidate_down_ns", select[0]).put("candidate_up_ns", select[1]);
             expected += word;
             deadline = now() + 15_000_000_000L;
             String actual;
@@ -175,8 +158,8 @@ public class Replay extends Instrumentation {
             phase("fresh", points, rounds);
             runOnMainSync(() -> host.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS)));
             long deadline = now()+5_000_000_000L;
-            while (imeHas(null) && now()<deadline) SystemClock.sleep(20);
-            if (imeHas(null)) throw new IllegalStateException("Non-editor Settings did not hide the IME");
+            while (imeHas() && now()<deadline) SystemClock.sleep(20);
+            if (imeHas()) throw new IllegalStateException("Non-editor Settings did not hide the IME");
             phases.put(new JSONObject().put("phase", "noneditor").put("hidden_observed_ns", now()));
             SystemClock.sleep(500);
             phase("rebind", points, rounds);

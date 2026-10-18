@@ -52,7 +52,6 @@ def analyze(directory, replay):
                 origin = sample['candidate_'+action+'_ns']
                 for endpoint, event in [('ic', commit), ('edit', edit), ('draw', draw)]:
                     row[f'{action}_to_{endpoint}_ms'] = (event['at_ns']-origin)/1e6
-            row['last_up_to_preedit_observed_ms'] = (sample['preedit_observed_ns']-sample['last_key_up_ns'])/1e6
             result.append(row)
     return result
 
@@ -103,7 +102,7 @@ def main():
             (out/'logcat.txt').write_text(adb('logcat', '-d', '-v', 'threadtime'))
             # The neutral host is debuggable; neither IME needs run-as access.
             for name in ['replay.json', 'fresh-editor.json', 'rebind-editor.json', 'candidate-editor.json',
-                         'fresh-editor.png', 'rebind-editor.png', 'failure.png']:
+                         'fresh-editor.png', 'rebind-editor.png', 'fresh-candidates.png', 'rebind-candidates.png', 'failure.png']:
                 value = sp.run(['adb', 'exec-out', 'run-as', HOST, 'cat', 'files/'+name], capture_output=True)
                 if value.returncode == 0:
                     (out/name).write_bytes(value.stdout)
@@ -127,6 +126,7 @@ def main():
             (a.output/'failures.json').write_text(json.dumps(failures, indent=2))
     summary = {'method':'external touch, 24ms hold; endpoints are IC entry, TextWatcher and CPU onDraw; not screen presentation',
                'cache':'process-fresh; prepared profiles, OS caches and learned user databases retained',
+               'selection_precondition':'Actual session ready, then type and wait fixed 500ms in both products; first candidate screenshot before each phase; not a typing latency measurement',
                'trials':a.trials, 'rounds_per_phase':a.rounds, 'failures':failures, 'products':{}}
     for label in PACKAGES:
         groups = summary['products'][label] = {}
@@ -135,7 +135,7 @@ def main():
             for kind in ('first', 'warm'):
                 subset = [r for r in records if r['product']==label and r['case']==case and r['phase']==phase and ((r['round']==0)==(kind=='first'))]
                 groups[case+'_'+phase+'_'+kind] = {metric:describe([r[metric] for r in subset]) for metric in
-                    ['down_to_ic_ms','up_to_ic_ms','up_to_edit_ms','up_to_draw_ms','last_up_to_preedit_observed_ms']}
+                    ['down_to_ic_ms','up_to_ic_ms','up_to_edit_ms','up_to_draw_ms']}
     (a.output/'summary.json').write_text(json.dumps(summary, indent=2))
     if failures:
         raise SystemExit(f'{len(failures)} trials failed; raw evidence retained, no silent exclusions')

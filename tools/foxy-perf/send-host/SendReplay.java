@@ -24,17 +24,16 @@ public final class SendReplay extends Replay {
             host = (BenchHost) startActivitySync(new Intent(getTargetContext(), SendHost.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
             long deadline = now()+240_000_000_000L;
-            while (!imeHas(null) && now()<deadline) SystemClock.sleep(20);
-            if (!imeHas(null)) throw new IllegalStateException("IME not shown");
+            while (!imeHas() && now()<deadline) SystemClock.sleep(20);
+            if (!imeHas()) throw new IllegalStateException("IME not shown");
             data.put("session_ready_observed_ns",awaitSessionReady());
             for (int index=0; index<sequence.length(); index++) {
                 if (index>0) SystemClock.sleep(100);
                 tap(points.getJSONArray(sequence.substring(index,index+1)));
             }
-            deadline = now()+15_000_000_000L;
-            while (!imeHas(sequence) && now()<deadline) SystemClock.sleep(20);
-            if (!imeHas(sequence)) throw new IllegalStateException("Final preedit not observed");
-            SystemClock.sleep(32);
+            SystemClock.sleep(500);
+            data.put("settle_finished_ns",now());
+            screenshot("send-candidates.png");
             long[] candidate = tap(points.getJSONArray("candidate"));
             int gap = Integer.parseInt(args.getString("gap", "20"));
             SystemClock.sleep(gap);

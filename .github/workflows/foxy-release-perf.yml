@@ -61,8 +61,7 @@ jobs:
           disable-animations: true
           script: |
             python3 tools/foxy-perf/pilot.py --foxy "$RUNNER_TEMP/foxy.apk" --direct "$RUNNER_TEMP/release-product/direct.apk" --host "$RUNNER_TEMP/foxy-host/host.apk" --fixture "$RUNNER_TEMP/foxy-fixture.zip" --output build/foxy-comparison/calibration
-            python3 tools/foxy-perf/run.py --points tools/foxy-perf/points.json --output build/foxy-comparison/timed
-            python3 tools/foxy-perf/send_race.py --points tools/foxy-perf/points.json --output build/foxy-comparison/send-race
+            bash tools/foxy-perf/compare.sh build/foxy-comparison
       - uses: actions/upload-artifact@v7
         if: always()
         with:

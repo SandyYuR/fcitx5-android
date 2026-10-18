@@ -41,7 +41,7 @@ def main():
                         response = 'Instrumentation timeout: '+str(error)
                     (out/'instrumentation.txt').write_text(response)
                     (out/'logcat.txt').write_text(adb('logcat','-d','-v','threadtime'))
-                    for name in ['send-race.json','candidate-editor.json','send-race.png']:
+                    for name in ['send-race.json','candidate-editor.json','send-race.png','send-candidates.png']:
                         result = sp.run(['adb','exec-out','run-as',HOST,'cat','files/'+name],capture_output=True)
                         if result.returncode==0:
                             (out/name).write_bytes(result.stdout)
