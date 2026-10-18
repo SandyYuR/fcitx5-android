@@ -8,12 +8,12 @@ using namespace direct_rime;
 #define CHECK(condition) do { if (!(condition)) throw std::runtime_error(#condition); } while (0)
 namespace {
 struct Fake {
-    bool maintenance = false, exists = true, hasSchema = true, failDeploy = false;
+    bool maintenance = false, exists = true, hasSchema = true, failDeploy = false, noLearning = false;
     int keys = 0, mask = 0, created = 0, destroyed = 0, freedCommit = 0;
     int setups = 0, finalized = 0, selected = -1, freedTabs = 0, freedCodes = 0;
     size_t selectedSpan = 0, selectedGlobal = 999, deletedGlobal = 999, caret = 999;
-    int freedIterator = 0;
-    std::string commit, selectedLabel;
+    int freedIterator = 0, cleared = 0, clearedTabs = 0;
+    std::string commit, selectedLabel, preedit, clientApp;
     RimeNotificationHandler callback = nullptr;
     void* context = nullptr;
 } f;
@@ -29,12 +29,12 @@ RimeApi api() {
     };
     a.is_maintenance_mode = []() -> Bool { return f.maintenance; };
     a.join_maintenance_thread = [] {};
-    a.create_session = []() -> RimeSessionId { ++f.created; return 7; };
+    a.create_session = []() -> RimeSessionId { ++f.created; f.preedit.clear(); return 7; };
     a.find_session = [](RimeSessionId) -> Bool { return f.exists; };
     a.destroy_session = [](RimeSessionId) -> Bool { ++f.destroyed; return true; };
-    a.set_option = [](RimeSessionId, const char*, Bool) {};
-    a.set_property = [](RimeSessionId, const char*, const char*) {};
-    a.process_key = [](RimeSessionId, int, int mask) -> Bool { ++f.keys; f.mask = mask; return false; };
+    a.set_option = [](RimeSessionId, const char* key, Bool value) { if (!std::strcmp(key, "_no_learning")) f.noLearning = value; };
+    a.set_property = [](RimeSessionId, const char* key, const char* value) { if (!std::strcmp(key, "client_app")) f.clientApp = value; };
+    a.process_key = [](RimeSessionId, int, int mask) -> Bool { ++f.keys; f.mask = mask; f.preedit = "ni"; return false; };
     a.get_commit = [](RimeSessionId, RimeCommit* c) -> Bool {
         if (f.commit.empty()) return false;
         c->text = f.commit.data(); return true;
@@ -42,14 +42,15 @@ RimeApi api() {
     a.free_commit = [](RimeCommit*) -> Bool { ++f.freedCommit; f.commit.clear(); return true; };
     a.get_context = [](RimeSessionId, RimeContext* c) -> Bool {
         static RimeCandidate candidates[] = {{const_cast<char*>("你😀"), const_cast<char*>("注释"), nullptr}};
-        c->composition.preedit = const_cast<char*>("ni"); c->composition.cursor_pos = 2;
-        c->menu.candidates = candidates; c->menu.num_candidates = 1; c->menu.page_size = 3;
+        c->composition.preedit = f.preedit.data(); c->composition.cursor_pos = f.preedit.size();
+        c->menu.candidates = candidates; c->menu.num_candidates = f.preedit.empty() ? 0 : 1; c->menu.page_size = 3;
         c->menu.page_no = 1; c->menu.select_keys = const_cast<char*>("abc"); return true;
     };
     a.free_context = [](RimeContext*) -> Bool { return true; };
     a.get_status = [](RimeSessionId, RimeStatus* s) -> Bool { s->schema_id = const_cast<char*>("test"); return true; };
     a.free_status = [](RimeStatus*) -> Bool { return true; };
-    a.clear_composition = [](RimeSessionId) {};
+    a.clear_composition = [](RimeSessionId) { ++f.cleared; f.preedit.clear(); };
+    a.clear_tabs = [](RimeSessionId) -> Bool { ++f.clearedTabs; return true; };
     a.select_candidate_on_current_page = [](RimeSessionId, size_t i) -> Bool { f.selected = i; return true; };
     a.select_candidate = [](RimeSessionId, size_t i) -> Bool { f.selectedGlobal = i; return true; };
     a.delete_candidate = [](RimeSessionId, size_t i) -> Bool { f.deletedGlobal = i; return true; };
@@ -71,7 +72,7 @@ RimeApi api() {
     a.get_input_tabs = [](RimeSessionId, size_t, char*** labels, size_t** spans, int** sources, size_t* count) -> Bool {
         static char* l[] = {const_cast<char*>(""), const_cast<char*>("\x81"), const_cast<char*>("ni")};
         static size_t p[] = {1, 2, 3}; static int src[] = {0, 0, 1};
-        *labels = l; *spans = p; *sources = src; *count = 3; return true;
+        *labels = l; *spans = p; *sources = src; *count = f.preedit.empty() ? 0 : 3; return true;
     };
     a.free_input_tabs = [](char**, size_t*, int*, size_t) { ++f.freedTabs; };
     a.select_tab = [](RimeSessionId, size_t, const char* label, size_t span) -> Bool {
@@ -161,8 +162,48 @@ void testOptionInvalidation() {
     CHECK(engine.begin(2, "second").optionsRevision > changed.optionsRevision);
     engine.stop();
 }
+void testSessionReuseAndEditorIsolation() {
+    f = {}; auto a = api(); Engine engine(&a); engine.start("shared", "user");
+    CHECK(engine.begin(1, "editor.one").gate == Ready && !f.noLearning);
+    auto typed = engine.key(1, 'n', 0, false);
+    CHECK(!typed.preedit.empty() && !typed.tabs.empty());
+    // A new field in the same app reuses only the native session, never old input.
+    f.commit = "must not cross editors";
+    auto rebound = engine.begin(2, "editor.one");
+    CHECK(f.created == 1 && f.destroyed == 0 && !f.noLearning && f.clientApp == "editor.one");
+    CHECK(rebound.preedit.empty() && rebound.candidates.empty() && rebound.tabs.empty() && rebound.commit.empty());
+    CHECK(f.freedCommit == 1 && f.clearedTabs == 1);
+    CHECK(engine.key(1, 'i', 0, false).gate == Stale && f.keys == 1);
+    CHECK(engine.action(1, typed.revision, 1, 0, "").gate == Stale && f.selected == -1);
+    // Ending a field is idempotent and gates both key-down and key-up.
+    engine.key(2, 'n', 0, false); f.commit = "unclaimed";
+    CHECK(engine.end(2).gate == NoSession && f.noLearning && f.freedCommit == 2);
+    const int clears = f.cleared;
+    engine.end(2); CHECK(f.cleared == clears && f.destroyed == 0);
+    CHECK(engine.key(2, 'i', 0, false).gate == NoSession && f.keys == 2);
+    CHECK(engine.key(2, 'i', 0, true).gate == NoSession && f.keys == 2);
+    CHECK(engine.begin(2, "editor.one").gate == Stale);
+    // Returning from a non-editor restores the next field's learning policy.
+    CHECK(engine.begin(3, "editor.one", false).gate == Ready && !f.noLearning);
+    engine.end(2); CHECK(engine.key(3, 'n', 0, false).gate == Ready);
+    CHECK(engine.sessionStats() == std::vector<int64_t>({1, 2, 1}));
+    // Sensitive boundaries reconstruct Lua components as well as native input.
+    CHECK(engine.begin(4, "editor.one", true).gate == Ready && f.noLearning && f.created == 2);
+    CHECK(engine.begin(5, "editor.one", false).gate == Ready && !f.noLearning && f.created == 3);
+    // Cross-app and anonymous callers get a fresh native session.
+    CHECK(engine.begin(6, "editor.two").gate == Ready && f.created == 4 && f.destroyed == 3);
+    CHECK(engine.begin(7, "").gate == Ready && f.created == 5);
+    CHECK(engine.begin(8, "").gate == Ready && f.created == 6);
+    // An expired native session is recreated; deployment/stop cannot retain it.
+    f.exists = false; engine.begin(9, "editor.two"); f.exists = true;
+    CHECK(engine.begin(10, "editor.two").gate == Ready);
+    CHECK(engine.deploy()); CHECK(engine.begin(11, "editor.two").gate == Ready && f.created == 8);
+    engine.stop(); engine.start("shared", "user");
+    CHECK(engine.begin(12, "editor.two").gate == Ready && f.created == 9);
+    engine.stop();
+}
 }
 int main() {
-    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testUnicode(); testOptionInvalidation(); std::cout << "engine contract: passed\n"; }
+    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testUnicode(); testOptionInvalidation(); testSessionReuseAndEditorIsolation(); std::cout << "engine contract: passed\n"; }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

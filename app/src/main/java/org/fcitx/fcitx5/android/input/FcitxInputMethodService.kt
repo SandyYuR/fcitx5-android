@@ -505,10 +505,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     /** Capture at the time of the key, before either the service or native owner queues it. */
     fun postFcitxKeyJob(block: suspend FcitxAPI.() -> Unit): Job {
-        val session = FcitxDaemon.captureInputSession()
+        val ticket = FcitxDaemon.captureInputKey() ?: return Job().apply { complete() }
         return postFcitxJob {
-            if (session != null && FcitxDaemon.isCurrentInputSession(session)) block()
-        }
+            if (FcitxDaemon.canDeliverInputKey(ticket)) block()
+        }.also { job -> job.invokeOnCompletion { FcitxDaemon.releaseInputKey(ticket) } }
     }
 
     private suspend fun FcitxAPI.applyCandidatePagingModeIfNeeded(mode: Int) {
@@ -576,12 +576,16 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
         }
         val editorInfo = currentInputEditorInfo ?: return
-        val shouldFocus = !editorInfo.isTypeNull()
+        val shouldFocus = !editorInfo.isTypeNull() || isInputViewShown
         val flags = capabilityFlags
+        val engineGeneration = FcitxDaemon.currentInputSession
+        val program = editorInfo.packageName.orEmpty()
+        FcitxDaemon.prepareInputSession(engineGeneration, program, flags, shouldFocus)
         val inputSessionGeneration = this.inputSessionGeneration
         postFcitxSessionJob(inputSessionGeneration) {
+            startInputSession(engineGeneration, program)
             setCapFlags(flags)
-            focus(shouldFocus)
+            if (shouldFocus) focus(true)
         }
     }
 
@@ -1601,6 +1605,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             simulatedCapsLockPressed = true
             simulatedCapsLockPressedFromMacro = false
         }
+        // A real hardware character is input demand even for TYPE_NULL terminals.
+        // Promote before capturing the key, while keeping silent focus cheap.
+        if (event.unicodeChar != 0 && FcitxDaemon.requireInputSession()) {
+            postFcitxSessionJob(inputSessionGeneration) { focus(true) }
+        }
         onHardwareTypingModeEnter(event)
         // request to show floating CandidatesView when pressing physical keyboard
         if (inputDeviceManager.evaluateOnKeyDown(event)) {
@@ -1763,10 +1772,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             inputDeviceManager.notifyOnStartInput(attribute)
             Timber.d("onStartInput: initialSel=${selection.current}, restarting=$restarting")
             val isNullType = attribute.isTypeNull()
+            FcitxDaemon.prepareInputSession(engineGeneration, attribute.packageName.orEmpty(), flags, !isNullType)
+            android.util.Log.i("RimeLifecycle", "input_binding generation=$engineGeneration input_type=${attribute.inputType} ime_options=${attribute.imeOptions} needs_rime=${!isNullType} restarting=$restarting")
             postFcitxSessionJob(inputSessionGeneration) {
-                if (restarting) {
-                    focus(false)
-                }
                 startInputSession(engineGeneration, attribute.packageName.orEmpty())
                 setCapFlags(flags)
                 if (!isNullType) {
@@ -1784,6 +1792,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     override fun onStartInputView(info: EditorInfo, restarting: Boolean) {
         android.util.Log.i("FcitxColdStart", "service.onStartInputView restarting=$restarting")
         isInInputLifecycleCriticalPhase = true
+        // Explicitly showing the keyboard can require Rime even for a terminal's
+        // TYPE_NULL editor. Silent non-editor focus callbacks stay cheap.
+        FcitxDaemon.requireInputSession()
         try {
             val inputSessionGeneration = this.inputSessionGeneration
             Timber.d("onStartInputView: restarting=$restarting")

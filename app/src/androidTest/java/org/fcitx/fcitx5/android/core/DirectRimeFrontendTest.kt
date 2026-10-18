@@ -256,6 +256,28 @@ end
         assertEquals("好", withTimeout(10_000) { commits.receive() })
         assertNull("A UI refresh must not repeat a commit", withTimeoutOrNull(250) { commits.receive() })
     }
+    @Test fun silentNonEditorCanBePromotedWithoutDroppingItsFirstKey(): Unit = runBlocking {
+        val generation = FcitxDaemon.invalidateInputSession()
+        FcitxDaemon.prepareInputSession(generation, "frontend.null", CapabilityFlags.DefaultFlags, false)
+        connection.runOnReady {
+            startInputSession(generation, "frontend.null")
+            assertFalse(acceptsInput)
+            assertTrue(inputPanelCached.preedit.isEmpty())
+        }
+        assertNull(FcitxDaemon.captureInputKey())
+        assertTrue(FcitxDaemon.requireInputSession())
+        val first = FcitxDaemon.captureInputKey()!!
+        connection.runOnReady {
+            startInputSession(generation, "frontend.null")
+            assertEquals("Promoting a non-editor must not change its generation", generation, inputSession)
+            assertTrue(FcitxDaemon.canDeliverInputKey(first))
+            sendKey('n', KeyState.Virtual.state)
+            sendKey('i', KeyState.Virtual.state)
+            assertTrue(select(0))
+        }
+        FcitxDaemon.releaseInputKey(first)
+        assertEquals("你", withTimeout(10_000) { commits.receive() })
+    }
     @Test fun modeAndSchemaHintsExpireWithoutReplayingCommits(): Unit = runBlocking {
         connection.runOnReady {
             assertTrue("New sessions must not show a switch hint", inputPanelCached.auxUp.isEmpty())
@@ -288,7 +310,11 @@ end
         }
     }
 
-    @Test fun originalKeyboardCanTypeUsingTouch(): Unit = runBlocking {
+    @Test fun originalKeyboardCanTypeUsingTouch(): Unit = runBlocking { keyboardTouchScenario(false) }
+
+    @Test fun immediateTypingAndCandidateTapAfterRebind(): Unit = runBlocking { keyboardTouchScenario(true) }
+
+    private suspend fun keyboardTouchScenario(immediate: Boolean) {
         val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
         val previous = shell("settings get secure default_input_method")
         val enabled = component in shell("ime list -s")
@@ -340,7 +366,7 @@ end
                 }
                 return result
             }
-            fun tap(text: String) {
+            fun tap(text: String, settle: Boolean = true) {
                 // Showing the first preedit can resize the IME window. Wait for
                 // its actual screen position before injecting the next touch.
                 var bounds: Rect? = null
@@ -349,7 +375,7 @@ end
                     val next = key(text)
                     stable = if (next != null && next == bounds) stable + 1 else 0
                     bounds = next
-                    stable >= 5
+                    if (settle) stable >= 5 else next != null
                 }
                 val target = bounds!!
                 val down = SystemClock.uptimeMillis()
@@ -362,7 +388,7 @@ end
                     finally { event.recycle() }
                 }
                 inject(MotionEvent.ACTION_DOWN)
-                SystemClock.sleep(50)
+                SystemClock.sleep(if (settle) 50 else 20)
                 inject(MotionEvent.ACTION_UP)
                 instrumentation.waitForIdleSync()
             }
@@ -376,6 +402,57 @@ end
                 }
             }
             await("Keyboard must be visible before mode switching") { key("n") != null }
+            if (immediate) {
+                val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                await("The target editor must own the Android input connection") { imm.isActive(editor) }
+                val rounds = org.json.JSONArray()
+                repeat(6) { round ->
+                    // Wait only for Android's new binding callback, never for native
+                    // readiness or a warm-up word. The first round uses the first show.
+                    if (round > 0) {
+                        val previousGeneration = connection.runImmediately { inputSession }
+                        instrumentation.runOnMainSync { imm.restartInput(editor) }
+                        await("restartInput must establish a new logical editor") {
+                            connection.runImmediately { inputSession } > previousGeneration
+                        }
+                    }
+                    val generation = connection.runImmediately { inputSession }
+                    val firstTouch = SystemClock.elapsedRealtimeNanos()
+                    tap("n", false)
+                    await("The first key after binding must be retained") {
+                        connection.runImmediately { inputPanelCached.preedit.toString() } == "n"
+                    }
+                    val firstPreedit = SystemClock.elapsedRealtimeNanos()
+                    tap("i", false)
+                    await("The candidate view must bind immediately after typing") { key("你") != null }
+                    val candidateBound = SystemClock.elapsedRealtimeNanos()
+                    val selectTouch = SystemClock.elapsedRealtimeNanos()
+                    tap("你", false)
+                    await("The first candidate tap after binding must reach the editor exactly once") {
+                        var text = ""
+                        instrumentation.runOnMainSync { text = editor.text.toString() }
+                        text == "你".repeat(round + 1)
+                    }
+                    assertEquals("你", withTimeout(10_000) { commits.receive() })
+                    rounds.put(org.json.JSONObject().apply {
+                        put("round", round + 1); put("generation", generation)
+                        put("first_touch_to_preedit_observed_ms", (firstPreedit - firstTouch) / 1_000_000.0)
+                        put("first_touch_to_candidate_view_bound_ms", (candidateBound - firstTouch) / 1_000_000.0)
+                        put("candidate_touch_to_editor_observed_ms", (SystemClock.elapsedRealtimeNanos() - selectTouch) / 1_000_000.0)
+                    })
+                }
+                assertNull("Rebinding and candidate refresh must not duplicate commits", withTimeoutOrNull(250) { commits.receive() })
+                val modelMapped = File("/proc/self/maps").readText().contains("wanxiang-lts-zh-hans.gram")
+                if (fixtureArchive != null) assertTrue("The Wanxiang LTS model must actually be mapped", modelMapped)
+                File(context.filesDir, "direct-rime-rebind.json").writeText(org.json.JSONObject().apply {
+                    put("harness_commit", BuildConfig.BUILD_GIT_HASH)
+                    put("fixture", fixtureArchive ?: "bundled-smoke")
+                    put("model_mapped", modelMapped)
+                    put("metric", "UI-injected touch through observed backend/view/editor state; includes injection and polling; not frame presentation latency")
+                    put("rounds", rounds)
+                }.toString(2))
+                return
+            }
             // A previous test can leave its keyboard window visible while Android is
             // still binding this editor. A new input session correctly clears hints.
             var settledSession = Long.MIN_VALUE

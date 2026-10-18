@@ -64,6 +64,7 @@ void Engine::notification(void* context, RimeSessionId, const char* type, const 
         static_cast<Engine*>(context)->deployFailed_.store(std::strcmp(value, "failure") == 0);
 }
 void Engine::start(const std::string& shared, const std::string& user) {
+    Trace trace("rime.direct.initialize");
     owner();
     if (started_) throw std::logic_error("engine already started");
     shared_ = shared; user_ = user;
@@ -76,15 +77,15 @@ void Engine::start(const std::string& shared, const std::string& user) {
     api_->initialize(&traits);
     started_ = true;
     api_->set_notification_handler(notification, this);
-    api_->start_maintenance(false);
-    api_->join_maintenance_thread();
+    { Trace maintenance("rime.direct.startup_maintenance");
+      api_->start_maintenance(false); api_->join_maintenance_thread(); }
 }
 void Engine::stop() {
     owner();
     if (!started_) return;
     api_->join_maintenance_thread();
     if (session_) api_->destroy_session(session_);
-    session_ = 0; tabs_.clear();
+    session_ = 0; active_ = false; sessionProgram_.clear(); tabs_.clear();
     api_->set_notification_handler(nullptr, nullptr);
     api_->finalize(); started_ = false;
 }
@@ -93,25 +94,63 @@ Gate Engine::gate(int64_t generation) const {
     if (!started_) return NoSession;
     if (api_->is_maintenance_mode()) return Maintenance;
     if (deployFailed_.load()) return DeployFailed;
-    if (!session_ || !api_->find_session(session_)) return NoSession;
+    if (!active_ || !session_ || !api_->find_session(session_)) return NoSession;
     return Ready;
 }
-Snapshot Engine::begin(int64_t generation, const std::string& program) {
+void Engine::clearSession() {
+    if (!session_) return;
+    // Never learn or deliver unfinished input from the previous editor.
+    api_->set_option(session_, "_no_learning", true);
+    api_->clear_composition(session_);
+    if (RIME_API_AVAILABLE(api_, clear_tabs)) api_->clear_tabs(session_);
+    RimeCommit commit{}; RIME_STRUCT_INIT(RimeCommit, commit);
+    if (api_->get_commit(session_, &commit)) api_->free_commit(&commit);
+    tabs_.clear();
+}
+Snapshot Engine::begin(int64_t generation, const std::string& program, bool noLearning) {
+    Trace trace("rime.direct.bind");
     owner();
     if (generation <= generation_) { Snapshot s; s.generation = generation; s.gate = Stale; return s; }
     ++optionsRevision_;
-    if (session_) api_->destroy_session(session_);
-    session_ = 0; generation_ = generation;
-    if (started_ && !api_->is_maintenance_mode() && !deployFailed_.load() && !schemas().empty()) {
-        session_ = api_->create_session();
-        if (session_) api_->set_property(session_, "client_app", program.c_str());
+    generation_ = generation; active_ = false;
+    if (started_ && !api_->is_maintenance_mode() && !deployFailed_.load()) {
+        // Lua components can retain private context beyond clear_composition.
+        // Do not carry that runtime across sensitive fields in either direction.
+        const bool reuse = session_ && !noLearning && !sessionNoLearning_ &&
+            !program.empty() && program == sessionProgram_ && api_->find_session(session_);
+        if (reuse) {
+            Trace reuseTrace("rime.direct.reuse_session");
+            clearSession(); ++sessionsReused_;
+        } else {
+            if (session_) { clearSession(); api_->destroy_session(session_); }
+            session_ = 0;
+            if (!schemas().empty()) {
+                Trace createTrace("rime.direct.create_session");
+                session_ = api_->create_session();
+                if (session_) ++sessionsCreated_;
+            }
+        }
+        if (session_) {
+            sessionProgram_ = program;
+            sessionNoLearning_ = noLearning;
+            api_->set_option(session_, "_no_learning", noLearning);
+            api_->set_property(session_, "client_app", program.c_str());
+            active_ = true;
+        }
     }
     return snapshot(generation);
 }
 Snapshot Engine::end(int64_t generation) {
     owner();
-    if (generation == generation_ && session_) { api_->destroy_session(session_); session_ = 0; }
+    if (generation == generation_) {
+        Trace trace("rime.direct.end_binding");
+        if (active_) { clearSession(); ++sessionsEnded_; }
+        active_ = false;
+    }
     return snapshot(generation);
+}
+std::vector<int64_t> Engine::sessionStats() const {
+    owner(); return {sessionsCreated_, sessionsReused_, sessionsEnded_};
 }
 Snapshot Engine::key(int64_t generation, int sym, int mask, bool release) {
     owner();
@@ -125,6 +164,7 @@ Snapshot Engine::key(int64_t generation, int sym, int mask, bool release) {
     return snapshot(generation, handled);
 }
 Snapshot Engine::action(int64_t generation, int64_t revision, int action, int index, const std::string& value) {
+    Trace trace(action == 1 || action == 11 ? "rime.direct.select_candidate" : "rime.direct.action");
     owner();
     if (gate(generation) != Ready) return snapshot(generation);
     if (revision != revision_) { Snapshot s; s.generation = generation; s.gate = Stale; return s; }
@@ -200,7 +240,7 @@ bool Engine::deploy() {
     owner();
     if (!started_) return false;
     if (session_) api_->destroy_session(session_);
-    session_ = 0; tabs_.clear(); deployFailed_.store(false);
+    session_ = 0; active_ = false; sessionProgram_.clear(); tabs_.clear(); deployFailed_.store(false);
     api_->join_maintenance_thread();
     api_->start_maintenance(true);
     api_->join_maintenance_thread();

@@ -48,6 +48,19 @@ extern "C" JNIEXPORT jobject JNICALL JNI_METHOD(begin)(JNIEnv* env, jobject, jlo
     try { return snapshot(env, instance().begin(generation, string(env, program))); }
     catch (const std::exception& e) { error(env, e); return nullptr; }
 }
+extern "C" JNIEXPORT jobject JNICALL JNI_METHOD(beginInput)(JNIEnv* env, jobject, jlong generation, jstring program, jboolean noLearning) {
+    try { return snapshot(env, instance().begin(generation, string(env, program), noLearning)); }
+    catch (const std::exception& e) { error(env, e); return nullptr; }
+}
+extern "C" JNIEXPORT jlongArray JNICALL JNI_METHOD(sessionStats)(JNIEnv* env, jobject) {
+    try {
+        const auto values = instance().sessionStats();
+        jlong data[] = {values[0], values[1], values[2]};
+        auto result = env->NewLongArray(3);
+        if (result) env->SetLongArrayRegion(result, 0, 3, data);
+        return result;
+    } catch (const std::exception& e) { error(env, e); return nullptr; }
+}
 extern "C" JNIEXPORT jobject JNICALL JNI_METHOD(end)(JNIEnv* env, jobject, jlong generation) {
     try { return snapshot(env, instance().end(generation)); }
     catch (const std::exception& e) { error(env, e); return nullptr; }

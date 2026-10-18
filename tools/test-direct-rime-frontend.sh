@@ -18,6 +18,7 @@ report_dir=app/build/reports/androidTests/frontend-diagnostics
 mkdir -p "$report_dir"
 adb logcat -d -v threadtime > "$report_dir/logcat.txt" 2>&1
 adb shell run-as io.github.sandyyur.rime.direct cat files/direct-rime-replay.json > "$report_dir/replay.json" 2>/dev/null || true
+adb shell run-as io.github.sandyyur.rime.direct cat files/direct-rime-rebind.json > "$report_dir/rebind.json" 2>/dev/null || true
 for name in settings rime-settings themes keyboard-settings layout-editor keyboard commit failure; do
   adb pull "/data/local/tmp/direct-frontend-$name.png" "$report_dir/$name.png" 2>/dev/null || true
 done

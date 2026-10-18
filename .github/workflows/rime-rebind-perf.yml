@@ -1,0 +1,51 @@
+name: Rime immediate input and rebind comparison
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feat/direct-rime-prototype']
+    paths: ['tools/input-perf/build-rebind-products.sh', 'tools/input-perf/compare-rebind.py', '.github/workflows/rime-rebind-perf.yml']
+permissions:
+  contents: read
+concurrency:
+  group: rime-rebind-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build fixed previous and current direct products
+        run: bash tools/input-perf/build-rebind-products.sh "$RUNNER_TEMP/rebind-apks"
+      - name: Prepare the same Wanxiang base, LTS model and user YAML
+        run: |
+          python3 tools/screen-perf/prepare.py "$RUNNER_TEMP/rebind-fixture.zip"
+          mkdir -p build/rebind-comparison
+          cp "$RUNNER_TEMP/rebind-fixture.manifest.json" "$RUNNER_TEMP/rebind-apks/"*.txt build/rebind-comparison/
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: aosp_atd
+          arch: x86_64
+          disable-animations: true
+          script: python3 tools/input-perf/compare-rebind.py --apks "$RUNNER_TEMP/rebind-apks" --fixture "$RUNNER_TEMP/rebind-fixture.zip" --output build/rebind-comparison
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: wanxiang-immediate-input-rebind-results
+          path: build/rebind-comparison/

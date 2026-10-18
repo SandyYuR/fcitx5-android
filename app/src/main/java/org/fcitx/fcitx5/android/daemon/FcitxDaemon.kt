@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.core.InputEngine
+import org.fcitx.fcitx5.android.core.CapabilityFlags
+import org.fcitx.fcitx5.android.core.InputKeyGate
 import org.fcitx.fcitx5.android.core.DirectRimeBackend
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxAPI
@@ -53,6 +55,13 @@ object FcitxDaemon {
     private val fcitxImpl by lazy { object : FcitxAPI by engine {} }
 
     fun captureInputSession(): Long? = engine.inputSession.takeIf { engine.acceptsInput }
+    val currentInputSession get() = engine.inputSession
+    fun prepareInputSession(generation: Long, program: String, flags: CapabilityFlags, needsRime: Boolean) =
+        engine.prepareInputSession(generation, program, flags, needsRime)
+    fun requireInputSession(): Boolean = engine.requireInputSession(engine.inputSession)
+    fun captureInputKey() = engine.captureInputKey()
+    fun canDeliverInputKey(ticket: InputKeyGate.Ticket) = engine.canDeliverInputKey(ticket)
+    fun releaseInputKey(ticket: InputKeyGate.Ticket) = engine.releaseInputKey(ticket)
 
     fun invalidateInputSession(): Long = engine.invalidateInputSession()
 
