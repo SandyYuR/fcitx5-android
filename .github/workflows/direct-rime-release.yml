@@ -1,0 +1,37 @@
+name: Direct Rime signed release
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/direct-rime-prototype]
+    paths: ['app/**', 'direct-rime/**', 'native/**', 'build-logic/**', 'gradle/**', 'tools/foxy-perf/build-release.sh', '.github/workflows/direct-rime-release.yml']
+permissions:
+  contents: read
+concurrency:
+  group: direct-rime-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build and verify signed ARM64 Release and ART profile
+        env:
+          SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
+          SIGN_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGN_KEY_PWD: ${{ secrets.KEY_PASSWORD }}
+        run: bash tools/foxy-perf/build-release.sh "$RUNNER_TEMP/release-product"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: direct-rime-frontend-arm64-release
+          path: ${{ runner.temp }}/release-product/
