@@ -77,6 +77,7 @@ class MainActivity : SettingsUiActivity() {
         setContentView(binding.root)
         ViewCompat.requestApplyInsets(binding.root)
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         // always show toolbar back arrow icon
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         navController = binding.navHostFragment.getFragment<NavHostFragment>().navController
@@ -99,7 +100,7 @@ class MainActivity : SettingsUiActivity() {
             navController.navigateUp() || onSupportNavigateUp() || moveTaskToBack(false)
         }
         viewModel.toolbarTitle.observe(this) {
-            supportActionBar!!.title = it
+            binding.collapsingToolbar.title = it
         }
         viewModel.toolbarShadow.observe(this) {
             binding.toolbar.elevation = dp(if (it) 4f else 0f)
