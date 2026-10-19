@@ -160,13 +160,12 @@ class SettingsUiAppearanceFragment : Fragment() {
             getString(R.string.settings_ui_palette_button, familyName)
         view.findViewById<MaterialButton>(R.id.settings_ui_recipe_button).apply {
             text = getString(R.string.settings_ui_recipe_button, recipeName)
-            isEnabled = draft.palette != SettingsUiPreferences.PALETTE_SYSTEM &&
+            isVisible = draft.palette != SettingsUiPreferences.PALETTE_SYSTEM &&
                 draft.palette != SettingsUiPreferences.PALETTE_COMPAT
-            alpha = if (isEnabled) 1f else 0.55f
         }
 
         val isSystemPalette = draft.palette == SettingsUiPreferences.PALETTE_SYSTEM
-        view.findViewById<Slider>(R.id.settings_ui_contrast_slider).isEnabled = !isSystemPalette
+        view.findViewById<Slider>(R.id.settings_ui_contrast_slider).isVisible = !isSystemPalette
         view.findViewById<TextView>(R.id.settings_ui_contrast_value).apply {
             isVisible = !isSystemPalette
             text = getString(labelFor(contrastOptions, draft.contrast))
