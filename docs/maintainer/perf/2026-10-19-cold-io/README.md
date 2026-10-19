@@ -9,6 +9,7 @@
 | `validation.json` | 产品源码、最终签名包、CI 与已完成/未完成验证的索引 |
 | `checksums.sha256` | 本目录证据文件的 SHA256，不包含校验表自身 |
 | `sanitized-phone-timing.json` | 两份用户日志的脱敏计时，来自旧 `12ab22cd` 手机包，不是新包验收 |
+| `phone-9adb-0117-sanitized.json` | 后续新 `9adb6949` Release 的同机反馈：两条首次选词及对应提交/位置回报；同一已运行进程，不是两次冷启动 |
 | `cold-probe-39180494011.zip` | 最终独立万象诊断的原始 CI artifact，含测试 fixture 哈希、结果及合成输入日志 |
 | `cold-probe-39180494011-result.json` | 六次重建后的后端操作完成时间及提交长度断言 |
 | `cold-probe-39180494011-fixture.json` | 原方案、模型、两份用户 YAML 及临时 Lua 探针的哈希 |
