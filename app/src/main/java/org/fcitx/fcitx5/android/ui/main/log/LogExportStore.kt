@@ -16,7 +16,7 @@ internal class LogExportStore(cacheDir: File) {
             file.bufferedWriter(Charsets.UTF_8).use { writer ->
                 writer.write(header)
                 lines.forEachIndexed { index, line ->
-                    if (index != 0) writer.newLine()
+                    if (index != 0) writer.write("\n")
                     writer.write(line)
                 }
             }

@@ -334,10 +334,13 @@ end
         }
         assertNull("No duplicate commits", withTimeoutOrNull(250) { commits.receive() })
         assertTrue("The LTS model must be mapped", File("/proc/self/maps").readText().contains("wanxiang-lts-zh-hans.gram"))
-        File(context.filesDir, "direct-rime-cold-probe.json").writeText(org.json.JSONObject()
+        val report = org.json.JSONObject()
             .put("source", BuildConfig.BUILD_GIT_HASH).put("records", records)
             .put("metric", "Current Debug backend operation completion; not phone/UI latency or a before/after comparison")
-            .toString(2))
+        File(context.filesDir, "direct-rime-cold-probe.json").writeText(report.toString(2))
+        // AGP may uninstall the target after connected tests. Preserve the report in
+        // logcat before that teardown; do not depend on run-as after the test runner exits.
+        android.util.Log.i("DirectRimeColdProbe", report.toString())
     }
     @Test fun modeAndSchemaHintsExpireWithoutReplayingCommits(): Unit = runBlocking {
         connection.runOnReady {

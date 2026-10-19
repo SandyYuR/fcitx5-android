@@ -41,7 +41,7 @@ major fault 也不能直接等同物理磁盘读取。首键的 CPU 与缺页更
 
 新增独立工作流 `direct-rime-cold-probe.yml`：只测试本轮当前版本、用户两份 YAML 对应的
 base + 固定 LTS，不再跑旧 Fcitx、修复前版本或 Foxy。一次部署，六次真实重建会话并选词。
-只在这个一次性测试 fixture 加入 `rime.lua` 包装 UserDb 的 open/fetch/update/query，
+只在这个一次性测试 fixture 的 `lua/wanxiang/userdb.lua` 加入 open/fetch/update/query 包装，
 保留原返回值与学习行为，记录数据库类别、方法、墙钟时间，不记录数据库键、词或用户路径。
 该脚本不进产品 APK、不改用户方案；修改后的 fixture 另存哈希。
 它用于查调用路径，不能作为 ARM64 手机的性能数字或修改前后收益。
@@ -60,6 +60,9 @@ base + 固定 LTS，不再跑旧 Fcitx、修复前版本或 Foxy。一次部署�
    保存只复制这份不可变文件；写入、关闭均成功才提示完成；阻止重复触发，SavedState/ViewModel
    跨页面重建保留待保存文件。提供者返回 null/写入异常会明确报错并记录堆栈；
    对 CreateDocument 新建的失败目标尽力删除，提供者拒绝删除时不能保证其不会留下空文件。
+   同时修正 logcat 子进程在创建/退出交错时的资源清理：未完成创建也会在取消后终止；
+   旧 reader 不清理新 reader；关闭移到 IO，先终止子进程再关闭可能阻塞的读取管道。
+   这些是源码确认的风险，并非上传日志已经记录了文件句柄耗尽。
 
 2. **交互线程调度。** 绑定、按键、选词/动作的同步 owner 工作期间，将 Linux nice
    从默认 0 临时提高到 Android `THREAD_PRIORITY_DISPLAY`（-4；已有更高优先级则不降低），
@@ -72,7 +75,15 @@ base + 固定 LTS，不再跑旧 Fcitx、修复前版本或 Foxy。一次部署�
 
 ## 验证记录
 
-本地 488 项 JVM 测试通过；ARM64 Debug 主 APK、native sanitizer 契约与 IO 包装器测试通过。
+本地 491 项 JVM 测试通过；ARM64 Debug 主 APK、native sanitizer 契约与 IO 包装器测试通过。
 日志回归覆盖并发追加/清空/过滤时的快照、连续完整写入、输出失败/关闭/重试、缺失源与 null 输出、
 待选文件恢复、重复触发、真实 LogActivity/ViewModel 工厂与页面重建。
 设备回归、Release 下载和定点诊断结果完成后更新本节，未完成的检查不标通过。
+
+第一轮[定点诊断](https://github.com/SandyYuR/fcitx5-android/actions/runs/39178602959)
+六次重建并选词、唯一提交和 LTS 映射断言通过；原生计时每次均记录同步刷盘：
+core 4.060–5.601ms、其中 sync 1.845–3.057ms。首次选词确实存在同步 IO，且跨会话重复。
+这不是复现手机的 145ms，也不证明该手机的全部等待都来自刷盘。
+首轮库级 marker 采用 WARNING，被产品 min_log_level=2 抑制；JSON 又遇到 AGP 测试后卸载，
+所以首轮只采用 logcat 中六次原生记录，不使用空 JSON。后续探针直接包装测试副本模块，
+以诊断 ERROR marker 输出并校验标记存在；JSON 在卸载前写入 logcat，避免静默丢失数据。

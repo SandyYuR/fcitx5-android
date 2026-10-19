@@ -34,8 +34,20 @@ jobs:
           import sys, zipfile, json, hashlib
           from pathlib import Path
           with zipfile.ZipFile(sys.argv[1], 'a') as archive:
-              assert 'rime.lua' not in archive.namelist()
-              archive.writestr('rime.lua', Path('tools/input-perf/probe-cold-io.lua').read_bytes())
+              original = archive.read('lua/wanxiang/userdb.lua').decode('utf-8-sig')
+          before, after = original.rsplit('\nreturn userdb', 1)
+          assert not after.strip()
+          instrumented = before + '\n' + Path('tools/input-perf/probe-cold-io.lua').read_text() + '\nreturn userdb\n'
+          rebuilt = Path(sys.argv[1]).with_suffix('.instrumented.zip')
+          with zipfile.ZipFile(sys.argv[1]) as source, zipfile.ZipFile(rebuilt, 'w') as target:
+              for item in source.infolist():
+                  if item.filename == 'lua/wanxiang/userdb.lua':
+                      target.writestr(item, instrumented.encode('utf-8'))
+                  else:
+                      with source.open(item) as contents, target.open(item, 'w') as destination:
+                          import shutil
+                          shutil.copyfileobj(contents, destination, 1024 * 1024)
+          rebuilt.replace(sys.argv[1])
           manifest = Path(sys.argv[1]).with_suffix('.manifest.json')
           data = json.loads(manifest.read_text())
           digest = hashlib.sha256()

@@ -20,4 +20,17 @@ set -e
 adb logcat -d -v threadtime > "$output/logcat.txt"
 adb shell run-as io.github.sandyyur.rime.direct cat files/direct-rime-cold-probe.json > "$output/result.json" || true
 cp "$RUNNER_TEMP/cold-fixture.manifest.json" "$output/fixture.manifest.json"
+python3 - "$output" <<'PY'
+import json, re, sys
+from pathlib import Path
+output = Path(sys.argv[1])
+text = (output / 'logcat.txt').read_text()
+records = re.findall(r'DirectRimeColdProbe: (\{[^\n]+\})', text)
+assert records, 'Missing cold operation report before AGP teardown'
+report = json.loads(records[-1])
+assert len(report['records']) == 6
+(output / 'result.json').write_text(json.dumps(report, indent=2) + '\n')
+assert 'DirectRimeProbe initialized=1' in text, 'Lua DB diagnostic was not active'
+assert 'DirectRimeProbe db=context_reorder method=open' in text, 'Context DB open was not observed'
+PY
 exit "$result"
