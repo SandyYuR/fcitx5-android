@@ -22,7 +22,7 @@ import androidx.core.view.updatePadding
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
@@ -57,7 +57,7 @@ class LayoutFileProfileInputActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(android.R.attr.colorPrimary)
             elevation = dp(4f)
         }
     }
@@ -83,7 +83,7 @@ class LayoutFileProfileInputActivity : SettingsUiActivity() {
             addView(TextView(this@LayoutFileProfileInputActivity).apply {
                 text = getString(R.string.text_keyboard_layout_file_name)
                 textSize = 13f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
             })
 
             profileInput = AppCompatEditText(this@LayoutFileProfileInputActivity).apply {

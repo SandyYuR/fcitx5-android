@@ -69,7 +69,7 @@ import androidx.core.view.isVisible
 import splitties.dimensions.dp
 import splitties.resources.color
 import splitties.resources.resolveThemeAttribute
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.resources.styledDrawable
 import splitties.views.backgroundColor
 import splitties.views.bottomPadding
@@ -128,7 +128,7 @@ class CustomThemeActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         view(::Toolbar) {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(android.R.attr.colorPrimary)
             elevation = dp(4f)
         }
     }
@@ -211,7 +211,7 @@ class CustomThemeActivity : SettingsUiActivity() {
         setText(string)
         gravity = gravityVerticalCenter
         textSize = 13f
-        setTextColor(styledColor(android.R.attr.textColorSecondary))
+        setTextColor(settingsColor(android.R.attr.textColorSecondary))
         horizontalPadding = dp(16)
         topPadding = dp(12)
         background = styledDrawable(android.R.attr.selectableItemBackground)
@@ -509,7 +509,7 @@ class CustomThemeActivity : SettingsUiActivity() {
             tag = INLINE_COLOR_EDITOR_TAG
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(16), dp(16), dp(16))
-            backgroundColor = styledColor(android.R.attr.colorBackground)
+            backgroundColor = settingsColor(android.R.attr.colorBackground)
 
             // ========== 1. Saturation/Value Picker + Hue Slider ==========
             addView(LinearLayout(context).apply {
@@ -582,7 +582,7 @@ class CustomThemeActivity : SettingsUiActivity() {
                     text = "ARGB:"
                     textSize = 14f
                     layoutParams = LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-                    setTextColor(styledColor(android.R.attr.textColorPrimary))
+                    setTextColor(settingsColor(android.R.attr.textColorPrimary))
                 })
                 
                 val argbInput = EditText(context).apply {
@@ -591,9 +591,9 @@ class CustomThemeActivity : SettingsUiActivity() {
                     setText(formatArgbHex(editingColor))
                     setPadding(dp(8), dp(8), dp(8), dp(8))
                     inputType = android.text.InputType.TYPE_CLASS_TEXT
-                    setTextColor(styledColor(android.R.attr.textColorPrimary))
-                    setHintTextColor(styledColor(android.R.attr.textColorHint))
-                    backgroundTintList = ColorStateList.valueOf(styledColor(android.R.attr.colorControlActivated))
+                    setTextColor(settingsColor(android.R.attr.textColorPrimary))
+                    setHintTextColor(settingsColor(android.R.attr.textColorHint))
+                    backgroundTintList = ColorStateList.valueOf(settingsColor(android.R.attr.colorControlActivated))
                     addTextChangedListener(object : android.text.TextWatcher {
                         override fun afterTextChanged(s: android.text.Editable?) {
                             if (internalTextUpdate) return
@@ -1572,7 +1572,7 @@ class CustomThemeActivity : SettingsUiActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val iconTint = styledColor(android.R.attr.colorControlNormal)
+        val iconTint = settingsColor(android.R.attr.colorControlNormal)
         if (isRandomMode) {
             menu.item(R.string.random_theme_generate, R.drawable.ic_random_theme_24, iconTint, true) {
                 randomizeInEditor()

@@ -10,7 +10,7 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 
 /**
  * 简单的分割线装饰，无动画问题。
@@ -19,7 +19,7 @@ import splitties.resources.styledColor
 class SimpleDividerItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
     private val dividerHeight = context.dp(1)
     private val paint = android.graphics.Paint().apply {
-        color = context.styledColor(android.R.attr.colorControlNormal)
+        color = context.settingsColor(android.R.attr.colorControlNormal)
         alpha = 180 // 0.7 * 255，提高不透明度
     }
 

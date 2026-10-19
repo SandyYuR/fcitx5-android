@@ -31,7 +31,7 @@ import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 
 /**
  * Hierarchy and section styling adapted from boomker/fcitx5-android@1d85a0d5.
@@ -54,8 +54,8 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
         collapsed.addAll(savedInstanceState?.getStringArrayList("collapsed").orEmpty())
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         val toolbar = Toolbar(this).apply {
-            setBackgroundColor(styledColor(android.R.attr.colorPrimary))
-            setTitleTextColor(styledColor(android.R.attr.textColorPrimary))
+            setBackgroundColor(settingsColor(android.R.attr.colorPrimary))
+            setTitleTextColor(settingsColor(android.R.attr.textColorPrimary))
             elevation = dp(4f)
         }
         root.addView(toolbar, LinearLayout.LayoutParams(-1, -2))
@@ -88,7 +88,7 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
         }, LinearLayout.LayoutParams(-1, 0, 1f))
         val bottom = horizontal().apply {
             setPadding(dp(8), dp(8), dp(8), dp(8))
-            setBackgroundColor(styledColor(android.R.attr.colorBackgroundFloating))
+            setBackgroundColor(settingsColor(android.R.attr.colorBackgroundFloating))
         }
         listOf(
             Triple(R.drawable.ic_baseline_plus_24, R.string.text_keyboard_layout_file_create, TextKeyboardLayoutEditorActivity.ACTION_CREATE_PROFILE),
@@ -208,7 +208,7 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
     private fun label(value: String, size: Float) = TextView(this).apply {
         text = value
         textSize = size
-        setTextColor(styledColor(android.R.attr.textColorPrimary))
+        setTextColor(settingsColor(android.R.attr.textColorPrimary))
     }
 
     private fun icon(image: Int, title: Int, click: () -> Unit) = ImageButton(this).apply {
@@ -217,7 +217,7 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
         minimumWidth = dp(48)
         minimumHeight = dp(48)
         setPadding(dp(10), dp(10), dp(10), dp(10))
-        setColorFilter(styledColor(android.R.attr.textColorPrimary))
+        setColorFilter(settingsColor(android.R.attr.textColorPrimary))
         val background = android.util.TypedValue()
         theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, background, true)
         setBackgroundResource(background.resourceId)

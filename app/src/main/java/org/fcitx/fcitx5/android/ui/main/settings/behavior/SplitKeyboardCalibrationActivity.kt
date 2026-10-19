@@ -35,7 +35,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
 import org.fcitx.fcitx5.android.utils.DeviceInfoCollector
 import org.fcitx.fcitx5.android.utils.DeviceType
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 
 /**
@@ -166,11 +166,11 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
     private fun createContent(): View {
         val mainLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            backgroundColor = styledColor(android.R.attr.colorBackground)
+            backgroundColor = settingsColor(android.R.attr.colorBackground)
         }
 
         toolbar = Toolbar(this).apply {
-            setBackgroundColor(styledColor(android.R.attr.colorPrimary))
+            setBackgroundColor(settingsColor(android.R.attr.colorPrimary))
         }
         mainLayout.addView(toolbar, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -220,13 +220,13 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
     private fun deviceInfoPanel(): View {
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            backgroundColor = styledColor(android.R.attr.colorButtonNormal)
+            backgroundColor = settingsColor(android.R.attr.colorButtonNormal)
         }
 
         layout.addView(TextView(this).apply {
             text = getString(R.string.split_keyboard_device_info)
             textSize = 15f
-            setTextColor(styledColor(android.R.attr.textColorPrimary))
+            setTextColor(settingsColor(android.R.attr.textColorPrimary))
         }, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -236,7 +236,7 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
 
         deviceInfoText = TextView(this).apply {
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
         layout.addView(deviceInfoText, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -255,7 +255,7 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
         }
 
         previewKeyboardContainer = FrameLayout(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorButtonNormal)
+            backgroundColor = settingsColor(android.R.attr.colorButtonNormal)
             minimumHeight = dp(200)
         }
         layout.addView(previewKeyboardContainer, LinearLayout.LayoutParams(
@@ -371,7 +371,7 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
         headerLayout.addView(TextView(this).apply {
             text = title
             textSize = 14f
-            setTextColor(styledColor(android.R.attr.textColorPrimary))
+            setTextColor(settingsColor(android.R.attr.textColorPrimary))
         }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
             weight = 1f
         })
@@ -380,7 +380,7 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
             id = R.id.value_text
             text = valueTextProvider(initialValue)
             textSize = 14f
-            setTextColor(styledColor(android.R.attr.colorAccent))
+            setTextColor(settingsColor(android.R.attr.colorAccent))
             minWidth = dp(60)
             gravity = Gravity.END
         }

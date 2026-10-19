@@ -37,7 +37,7 @@ import kotlinx.parcelize.Parcelize
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.parcelable
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.setPaddingDp
 
@@ -97,13 +97,13 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
         if (currentInput.allowClear) {
             menu.add(Menu.NONE, MENU_CLEAR, Menu.NONE, getString(R.string.clear)).apply {
                 setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                icon?.setTint(styledColor(android.R.attr.textColorPrimary))
+                icon?.setTint(settingsColor(android.R.attr.textColorPrimary))
             }
         }
         menu.add(Menu.NONE, MENU_DONE, Menu.NONE, getString(R.string.save)).apply {
             setIcon(R.drawable.ic_baseline_check_24)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            icon?.setTint(styledColor(android.R.attr.textColorPrimary))
+            icon?.setTint(settingsColor(android.R.attr.textColorPrimary))
         }
         return true
     }
@@ -111,7 +111,7 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
     private fun initUi() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            backgroundColor = styledColor(android.R.attr.colorBackground)
+            backgroundColor = settingsColor(android.R.attr.colorBackground)
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
@@ -125,7 +125,7 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
         }
 
         toolbar = Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(android.R.attr.colorPrimary)
             elevation = dp(4f)
             title = getString(currentInput.titleRes)
         }
@@ -252,7 +252,7 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
         argbRow.addView(
             TextView(this).apply {
                 text = getString(R.string.theme_color_editor_argb_label)
-                setTextColor(styledColor(android.R.attr.textColorPrimary))
+                setTextColor(settingsColor(android.R.attr.textColorPrimary))
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             }
         )
@@ -262,9 +262,9 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
             }
             isSingleLine = true
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-            setTextColor(styledColor(android.R.attr.textColorPrimary))
-            setHintTextColor(styledColor(android.R.attr.textColorHint))
-            backgroundTintList = ColorStateList.valueOf(styledColor(android.R.attr.colorControlActivated))
+            setTextColor(settingsColor(android.R.attr.textColorPrimary))
+            setHintTextColor(settingsColor(android.R.attr.textColorHint))
+            backgroundTintList = ColorStateList.valueOf(settingsColor(android.R.attr.colorControlActivated))
             setText(formatArgbHex(currentColor))
             setSelection(text.length)
             addTextChangedListener(object : android.text.TextWatcher {

@@ -39,7 +39,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrScanOptions
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
@@ -51,7 +51,7 @@ class PopupEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(android.R.attr.colorPrimary)
             elevation = dp(4f)
         }
     }
@@ -68,9 +68,9 @@ class PopupEditorActivity : SettingsUiActivity() {
             text = getString(R.string.popup_editor_add_mapping)
             textSize = 16f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(styledColor(android.R.attr.textColorPrimary))
+            setTextColor(settingsColor(android.R.attr.textColorPrimary))
             setPadding(dp(8), dp(8), dp(8), dp(8))
-            setBackgroundColor(styledColor(android.R.attr.colorButtonNormal))
+            setBackgroundColor(settingsColor(android.R.attr.colorButtonNormal))
         }
     }
 
@@ -78,7 +78,7 @@ class PopupEditorActivity : SettingsUiActivity() {
         TextView(this).apply {
             text = getString(R.string.popup_editor_hint)
             textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(0, 0, 0, dp(12))
         }
     }
@@ -271,7 +271,7 @@ class PopupEditorActivity : SettingsUiActivity() {
         val keyLabel = TextView(this).apply {
             text = getString(R.string.popup_editor_key)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
 
         var currentKeyValue = currentKey
@@ -282,8 +282,8 @@ class PopupEditorActivity : SettingsUiActivity() {
             setPadding(dp(12), dp(8), dp(12), dp(8))
             gravity = android.view.Gravity.CENTER
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(styledColor(android.R.attr.colorPrimary))
-                setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                setColor(settingsColor(android.R.attr.colorPrimary))
+                setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                 cornerRadius = dp(4).toFloat()
             }
             setOnClickListener {
@@ -314,7 +314,7 @@ class PopupEditorActivity : SettingsUiActivity() {
             text = "${getString(R.string.popup_editor_values)} (${getString(R.string.popup_editor_hint_click_edit_long_press_delete)})"
             textSize = 13f
             setPadding(0, dp(10), 0, 0)
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
         container.addView(valueLabel)
 
@@ -336,8 +336,8 @@ class PopupEditorActivity : SettingsUiActivity() {
                     setPadding(dp(10), dp(5), dp(10), dp(5))
                     gravity = android.view.Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(styledColor(android.R.attr.colorButtonNormal))
-                        setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                        setColor(settingsColor(android.R.attr.colorButtonNormal))
+                        setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                         cornerRadius = dp(4).toFloat()
                     }
                     // 设置固定高度确保所有候选词高度一致
@@ -396,8 +396,8 @@ class PopupEditorActivity : SettingsUiActivity() {
                 setPadding(dp(10), dp(5), dp(10), dp(5))  // 与候选词相同的 padding
                 gravity = android.view.Gravity.CENTER
                 background = android.graphics.drawable.GradientDrawable().apply {
-                    setColor(styledColor(android.R.attr.colorPrimary))
-                    setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                    setColor(settingsColor(android.R.attr.colorPrimary))
+                    setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                     cornerRadius = dp(4).toFloat()
                 }
                 // 设置固定高度与候选词一致（dp(40) 能容纳特殊字符）
@@ -749,7 +749,7 @@ class PopupEditorActivity : SettingsUiActivity() {
             // 分隔线
             val divider = View(this@PopupEditorActivity).apply {
                 setBackgroundColor(
-                    runCatching { styledColor(android.R.attr.colorControlNormal) }
+                    runCatching { settingsColor(android.R.attr.colorControlNormal) }
                         .getOrDefault(0x33000000)
                 )
                 alpha = 0.35f
@@ -785,8 +785,8 @@ class PopupEditorActivity : SettingsUiActivity() {
                     setPadding(dp(10), dp(5), dp(10), dp(5))
                     gravity = android.view.Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(styledColor(android.R.attr.colorPrimary))
-                        setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                        setColor(settingsColor(android.R.attr.colorPrimary))
+                        setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                         cornerRadius = dp(4).toFloat()
                     }
                 }
@@ -833,8 +833,8 @@ class PopupEditorActivity : SettingsUiActivity() {
                         setPadding(dp(10), dp(5), dp(10), dp(5))
                         gravity = android.view.Gravity.CENTER
                         background = android.graphics.drawable.GradientDrawable().apply {
-                            setColor(styledColor(android.R.attr.colorButtonNormal))
-                            setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                            setColor(settingsColor(android.R.attr.colorButtonNormal))
+                            setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                             cornerRadius = dp(4).toFloat()
                         }
                         // 设置固定高度确保所有候选词高度一致（dp(40) 能容纳特殊字符）

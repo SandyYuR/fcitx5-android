@@ -18,7 +18,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.DraggableFlowLayout
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import kotlin.math.abs
 
@@ -186,7 +186,7 @@ class KeyboardLayoutAdapter(
             text = "☰"
             textSize = 16f
             setPadding(context.dp(8), context.dp(8), context.dp(4), context.dp(8))
-            setTextColor(context.styledColor(android.R.attr.textColorSecondary))
+            setTextColor(context.settingsColor(android.R.attr.textColorSecondary))
             alpha = 0.5f
             minWidth = context.dp(32)
         }
@@ -255,8 +255,8 @@ class KeyboardLayoutAdapter(
             minWidth = context.dp(160)
             gravity = Gravity.CENTER
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(context.styledColor(android.R.attr.colorPrimary))
-                setStroke(context.dp(1), context.styledColor(android.R.attr.colorControlNormal))
+                setColor(context.settingsColor(android.R.attr.colorPrimary))
+                setStroke(context.dp(1), context.settingsColor(android.R.attr.colorControlNormal))
                 cornerRadius = context.dp(4).toFloat()
             }
             setOnClickListener { listener.onAddRowClick() }
@@ -520,7 +520,7 @@ class KeyboardLayoutAdapter(
             setPadding(context.dp(10), context.dp(8), context.dp(10), context.dp(8))
             gravity = Gravity.CENTER
             applyAddChipStyle(this)
-            setTextColor(context.styledColor(android.R.attr.textColorPrimary))
+            setTextColor(context.settingsColor(android.R.attr.textColorPrimary))
             setOnClickListener {
                 val adapterPosition = holder.bindingAdapterPosition
                 if (adapterPosition != RecyclerView.NO_POSITION) {
@@ -544,7 +544,7 @@ class KeyboardLayoutAdapter(
             text = "↑"
             textSize = 14f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(context.styledColor(android.R.attr.textColorPrimary))
+            setTextColor(context.settingsColor(android.R.attr.textColorPrimary))
             gravity = Gravity.CENTER
             setPadding(context.dp(8), context.dp(8), context.dp(8), context.dp(8))
             if (layoutParams.width != context.dp(32)) {
@@ -581,8 +581,8 @@ class KeyboardLayoutAdapter(
     private fun applyAddChipStyle(view: TextView) {
         val drawable = view.background as? android.graphics.drawable.GradientDrawable
             ?: android.graphics.drawable.GradientDrawable().also { view.background = it }
-        drawable.setColor(context.styledColor(android.R.attr.colorPrimary))
-        drawable.setStroke(context.dp(1), context.styledColor(android.R.attr.colorControlNormal))
+        drawable.setColor(context.settingsColor(android.R.attr.colorPrimary))
+        drawable.setStroke(context.dp(1), context.settingsColor(android.R.attr.colorControlNormal))
         drawable.cornerRadius = context.dp(4).toFloat()
     }
 

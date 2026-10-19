@@ -32,7 +32,7 @@ import org.fcitx.fcitx5.android.data.theme.SystemColorResourceId
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeMonet
 import org.fcitx.fcitx5.android.utils.parcelable
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.bottomPadding
 import splitties.views.gravityCenter
@@ -179,7 +179,7 @@ class MonetThemeEditorActivity : SettingsUiActivity() {
         
         // Toolbar
         toolbar = Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(android.R.attr.colorPrimary)
             elevation = 4f // dp(4f)
         }
         root.addView(toolbar, LinearLayout.LayoutParams(
@@ -235,7 +235,7 @@ class MonetThemeEditorActivity : SettingsUiActivity() {
         TextView(this).apply {
             text = getString(R.string.monet_editor_color_mapping_title)
             textSize = 18f
-            setTextColor(styledColor(android.R.attr.textColorPrimary))
+            setTextColor(settingsColor(android.R.attr.textColorPrimary))
             topPadding = dp(16f)
             bottomPadding = dp(8f)
             horizontalPadding = dp(16f)
@@ -249,7 +249,7 @@ class MonetThemeEditorActivity : SettingsUiActivity() {
         TextView(this).apply {
             text = getString(R.string.monet_editor_description)
             textSize = 14f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             bottomPadding = dp(10f)
             horizontalPadding = dp(16f)
             contentLayout.addView(this, LinearLayout.LayoutParams(
@@ -318,13 +318,13 @@ class MonetThemeEditorActivity : SettingsUiActivity() {
                 layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                     weight = 1f
                 }
-                setTextColor(styledColor(android.R.attr.textColorPrimary))
+                setTextColor(settingsColor(android.R.attr.textColorPrimary))
             }.also { addView(it) }
 
             // 当前资源名称（截断显示）
             val resourceNameText = TextView(this@MonetThemeEditorActivity).apply {
                 text = formatResourceName(currentResource)
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 textSize = 12f
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                     marginStart = dp(8f)
@@ -362,12 +362,12 @@ class MonetThemeEditorActivity : SettingsUiActivity() {
                 layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                     weight = 1f
                 }
-                setTextColor(styledColor(android.R.attr.textColorPrimary))
+                setTextColor(settingsColor(android.R.attr.textColorPrimary))
             }.also { addView(it) }
 
             val colorText = TextView(this@MonetThemeEditorActivity).apply {
                 text = waterRippleResource?.let { formatResourceName(it) } ?: "Auto"
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 textSize = 12f
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                     marginStart = dp(8f)
@@ -528,7 +528,7 @@ class MonetThemeEditorActivity : SettingsUiActivity() {
         ).apply {
             setIcon(R.drawable.ic_baseline_settings_backup_restore_24)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            icon?.setTint(styledColor(android.R.attr.textColorPrimary))
+            icon?.setTint(settingsColor(android.R.attr.textColorPrimary))
         }
         menu.add(
             Menu.NONE,
@@ -541,7 +541,7 @@ class MonetThemeEditorActivity : SettingsUiActivity() {
 
             // Use themed text color so the icon follows other UI elements and respects theming
             icon?.let { ic ->
-                val tintColor = styledColor(android.R.attr.textColorPrimary)
+                val tintColor = settingsColor(android.R.attr.textColorPrimary)
                 ic.setTint(tintColor)
             }
         }

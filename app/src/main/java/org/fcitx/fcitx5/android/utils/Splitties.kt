@@ -8,6 +8,7 @@
 package org.fcitx.fcitx5.android.utils
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.util.TypedValue
 import android.view.View
 import androidx.annotation.AttrRes
@@ -17,6 +18,53 @@ import splitties.experimental.InternalSplittiesApi
 import splitties.resources.styledColor
 import splitties.resources.withResolvedThemeAttribute
 import splitties.views.dsl.core.Ui
+
+private fun materialColorAttribute(@AttrRes attrRes: Int): Int = when (attrRes) {
+    android.R.attr.colorPrimary,
+    android.R.attr.colorAccent,
+    android.R.attr.colorControlActivated -> androidx.appcompat.R.attr.colorPrimary
+    android.R.attr.colorBackground -> com.google.android.material.R.attr.colorSurface
+    android.R.attr.colorBackgroundFloating,
+    android.R.attr.colorButtonNormal -> com.google.android.material.R.attr.colorSurfaceContainerHigh
+    android.R.attr.colorControlHighlight -> com.google.android.material.R.attr.colorSecondaryContainer
+    android.R.attr.colorControlNormal -> com.google.android.material.R.attr.colorOnSurfaceVariant
+    android.R.attr.colorForeground,
+    android.R.attr.textColorPrimary -> com.google.android.material.R.attr.colorOnSurface
+    android.R.attr.colorForegroundInverse -> com.google.android.material.R.attr.colorSurfaceInverse
+    android.R.attr.textColorHint,
+    android.R.attr.textColorSecondary,
+    android.R.attr.textColorTertiary -> com.google.android.material.R.attr.colorOnSurfaceVariant
+    else -> attrRes
+}
+
+/**
+ * Resolves legacy color lookups through Material color roles. TypedArray handles color resources
+ * in all resource qualifiers, including dynamic system palettes that Splitties' styledColor does
+ * not recognize on some Android builds.
+ */
+fun Context.settingsColorStateList(@AttrRes attrRes: Int): ColorStateList {
+    val materialAttr = materialColorAttribute(attrRes)
+    val values = theme.obtainStyledAttributes(intArrayOf(materialAttr))
+    return try {
+        require(values.hasValue(0)) { "Color theme attribute $materialAttr is not defined" }
+        values.getColorStateList(0)
+            ?: ColorStateList.valueOf(values.getColor(0, android.graphics.Color.TRANSPARENT))
+    } finally {
+        values.recycle()
+    }
+}
+
+@ColorInt
+fun Context.settingsColor(@AttrRes attrRes: Int): Int = settingsColorStateList(attrRes).defaultColor
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.settingsColor(@AttrRes attrRes: Int) = context.settingsColor(attrRes)
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun Ui.settingsColor(@AttrRes attrRes: Int) = ctx.settingsColor(attrRes)
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun Ui.settingsColorStateList(@AttrRes attrRes: Int) = ctx.settingsColorStateList(attrRes)
 
 fun Context.styledFloat(@AttrRes attrRes: Int) = withResolvedThemeAttribute(attrRes) {
     when (type) {

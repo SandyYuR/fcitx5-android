@@ -15,7 +15,7 @@ import androidx.lifecycle.LiveData
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.MainViewModel.ButtonMode
 import org.fcitx.fcitx5.android.utils.item
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 
 class EditDeleteMenuProvider<T>(
     private val buttonMode: LiveData<ButtonMode>,
@@ -25,7 +25,7 @@ class EditDeleteMenuProvider<T>(
     lifecycleOwner: LifecycleOwner,
 ) : MenuProvider where T : MenuHost, T : Context {
 
-    private val tint = menuHost.styledColor(android.R.attr.colorControlNormal)
+    private val tint = menuHost.settingsColor(android.R.attr.colorControlNormal)
 
     init {
         buttonMode.observe(lifecycleOwner) { menuHost.invalidateMenu() }

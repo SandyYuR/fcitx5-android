@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import org.fcitx.fcitx5.android.R
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 
 class UpdateMirrorEditActivity : SettingsUiActivity() {
@@ -38,7 +38,7 @@ class UpdateMirrorEditActivity : SettingsUiActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_update_mirror_edit)
         toolbar = findViewById(R.id.toolbar)
-        toolbar.backgroundColor = styledColor(android.R.attr.colorPrimary)
+        toolbar.backgroundColor = settingsColor(android.R.attr.colorPrimary)
         toolbar.elevation = dp(4f)
         nameInput = findViewById(R.id.mirrorNameInput)
         patternInput = findViewById(R.id.mirrorPatternInput)

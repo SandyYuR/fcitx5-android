@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.formatDateTime
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import timber.log.Timber
 
@@ -37,7 +37,7 @@ class UpdateHostsSettingsActivity : SettingsUiActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_update_hosts)
         toolbar = findViewById(R.id.toolbar)
-        toolbar.backgroundColor = styledColor(android.R.attr.colorPrimary)
+        toolbar.backgroundColor = settingsColor(android.R.attr.colorPrimary)
         toolbar.elevation = dp(4f)
         sourceInput = findViewById(R.id.hostsSourceInput)
         enableSwitch = findViewById(R.id.hostsEnableSwitch)

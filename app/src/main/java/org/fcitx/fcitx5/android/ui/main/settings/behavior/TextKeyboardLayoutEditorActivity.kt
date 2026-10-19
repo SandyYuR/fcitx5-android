@@ -82,7 +82,7 @@ import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import org.fcitx.fcitx5.android.utils.DeviceUtil
 import org.fcitx.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
@@ -93,16 +93,16 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(android.R.attr.colorPrimary)
             elevation = dp(4f)
             setSubtitleTextAppearance(context, android.R.style.TextAppearance_Small)
-            setSubtitleTextColor(styledColor(android.R.attr.textColorSecondary))
+            setSubtitleTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
     }
 
     private val previewKeyboardContainer by lazy {
         FrameLayout(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorButtonNormal)
+            backgroundColor = settingsColor(android.R.attr.colorButtonNormal)
         }
     }
 
@@ -209,7 +209,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     private val splitLayoutStatusLabel by lazy {
         TextView(this).apply {
             textSize = 11f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(dp(8), 0, dp(4), 0)
         }
     }
@@ -1827,7 +1827,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             // Add divider between spinner and content
             val divider = View(this).apply {
                 setBackgroundColor(
-                    runCatching { styledColor(android.R.attr.colorControlNormal) }
+                    runCatching { settingsColor(android.R.attr.colorControlNormal) }
                         .getOrDefault(0x33000000)
                 )
                 alpha = 0.35f
@@ -1981,7 +1981,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 ) {
                     super.onSelectedChanged(viewHolder, actionState)
                     if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && viewHolder is KeyboardLayoutAdapter.RowViewHolder) {
-                        viewHolder.itemView.backgroundColor = this@TextKeyboardLayoutEditorActivity.styledColor(android.R.attr.colorControlHighlight)
+                        viewHolder.itemView.backgroundColor = this@TextKeyboardLayoutEditorActivity.settingsColor(android.R.attr.colorControlHighlight)
                     }
                 }
 
@@ -2220,7 +2220,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         val nameLabel = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_layout_name)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
 
         val nameEdit = EditText(this).apply {
@@ -2253,7 +2253,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             val imeLabel = TextView(this).apply {
                 text = getString(R.string.text_keyboard_layout_select_input_method_to_add)
                 textSize = 12f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 setPadding(0, dp(8), 0, dp(4))
             }
 
@@ -2272,7 +2272,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             val noImeHint = TextView(this).apply {
                 text = getString(R.string.text_keyboard_layout_no_additional_input_methods)
                 textSize = 12f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 setPadding(0, dp(8), 0, dp(4))
             }
             container.addView(noImeHint)
@@ -2282,7 +2282,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             text = getString(R.string.text_keyboard_layout_copy_from)
             textSize = 13f
             setPadding(0, dp(10), 0, 0)
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
 
         container.addView(copyFromLabel)
@@ -2654,7 +2654,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         val helper = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_layout_height_percent_helper)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(0, dp(10), 0, 0)
         }
         container.addView(helper)
@@ -2766,7 +2766,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         val keysEmpty = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_aux_bar_keys_empty)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
         auxBarDialogKeysRv = keysRv
         auxBarDialogKeysEmptyHint = keysEmpty
@@ -3118,7 +3118,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         val nameLabel = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_file_name)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
         val nameEdit = EditText(this).apply {
             hint = getString(R.string.text_keyboard_layout_file_name_hint)
@@ -3247,7 +3247,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         val nameLabel = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_file_name)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
         val nameEdit = EditText(this).apply {
             hint = getString(R.string.text_keyboard_layout_file_name_hint)
@@ -3911,11 +3911,11 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 chip.text = "+"
                 chip.setTypeface(null, android.graphics.Typeface.BOLD)
                 chip.background = android.graphics.drawable.GradientDrawable().apply {
-                    setColor(activity.styledColor(android.R.attr.colorPrimary))
-                    setStroke(activity.dp(1), activity.styledColor(android.R.attr.colorControlNormal))
+                    setColor(activity.settingsColor(android.R.attr.colorPrimary))
+                    setStroke(activity.dp(1), activity.settingsColor(android.R.attr.colorControlNormal))
                     cornerRadius = activity.dp(4).toFloat()
                 }
-                chip.setTextColor(activity.styledColor(android.R.attr.textColorPrimary))
+                chip.setTextColor(activity.settingsColor(android.R.attr.textColorPrimary))
                 chip.setOnClickListener { listener.onAddKeyClick() }
                 chip.setOnLongClickListener(null)
             } else {

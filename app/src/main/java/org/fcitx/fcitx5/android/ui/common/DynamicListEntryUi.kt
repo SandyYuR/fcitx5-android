@@ -12,7 +12,7 @@ import org.fcitx.fcitx5.android.R
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import splitties.resources.resolveThemeAttribute
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.resources.styledDimenPxSize
 import splitties.resources.styledDrawable
 import splitties.views.backgroundColor
@@ -44,7 +44,7 @@ class DynamicListEntryUi(override val ctx: Context) : Ui {
 
     val handleImage = imageView {
         imageDrawable = drawable(R.drawable.ic_baseline_drag_handle_24)!!.apply {
-            setTint(styledColor(android.R.attr.colorAccent))
+            setTint(settingsColor(android.R.attr.colorAccent))
         }
         setPaddingDp(3, 0, 3, 0)
     }
@@ -62,26 +62,26 @@ class DynamicListEntryUi(override val ctx: Context) : Ui {
         setPaddingDp(0, 0, 0, 12)
         visibility = View.GONE
         textAppearance = ctx.resolveThemeAttribute(android.R.attr.textAppearanceSmall)
-        setTextColor(styledColor(android.R.attr.textColorSecondary))
+        setTextColor(settingsColor(android.R.attr.textColorSecondary))
     }
 
     val editButton = imageButton {
         background = styledDrawable(android.R.attr.selectableItemBackground)
         imageDrawable = drawable(R.drawable.ic_baseline_edit_24)!!.apply {
-            setTint(styledColor(android.R.attr.colorControlNormal))
+            setTint(settingsColor(android.R.attr.colorControlNormal))
         }
     }
 
     val settingsButton = imageButton {
         background = styledDrawable(android.R.attr.selectableItemBackground)
         imageDrawable = drawable(R.drawable.ic_baseline_settings_24)!!.apply {
-            setTint(styledColor(android.R.attr.colorControlNormal))
+            setTint(settingsColor(android.R.attr.colorControlNormal))
         }
     }
 
     override val root: View = constraintLayout {
         layoutParams = ViewGroup.LayoutParams(matchParent, wrapContent)
-        backgroundColor = styledColor(android.R.attr.colorBackground)
+        backgroundColor = settingsColor(android.R.attr.colorBackground)
         minHeight = styledDimenPxSize(android.R.attr.listPreferredItemHeightSmall)
 
         val paddingStart = styledDimenPxSize(android.R.attr.listPreferredItemPaddingStart)

@@ -54,7 +54,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fcitx.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
 import splitties.resources.drawable
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.add
@@ -82,8 +82,8 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            setTitleTextColor(styledColor(android.R.attr.textColorPrimary))
+            backgroundColor = settingsColor(android.R.attr.colorPrimary)
+            setTitleTextColor(settingsColor(android.R.attr.textColorPrimary))
             elevation = dp(4f)
         }
     }
@@ -295,7 +295,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
         val usageHint = TextView(this).apply {
             text = getString(R.string.buttons_customizer_hint)
             textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(0, 0, 0, dp(8))
         }
         mainContainer.addView(usageHint)
@@ -467,7 +467,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                         .setDuration(120L)
                         .start()
                     viewHolder.itemView.setBackgroundColor(
-                        this@ButtonsCustomizerActivity.styledColor(android.R.attr.colorControlHighlight)
+                        this@ButtonsCustomizerActivity.settingsColor(android.R.attr.colorControlHighlight)
                     )
                 }
             }
@@ -885,7 +885,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
             text = if (button.icon != null && button.icon.startsWith("file:"))
                 button.icon.removePrefix("file:").takeLast(30) else getString(R.string.edit_button_no_custom_icon)
             textSize = 11f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(dp(8), dp(2), 0, 0)
         }
         dialogView.addView(iconPathText)
@@ -913,7 +913,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
             stepsSummaryText = TextView(this).apply {
                 text = stepsSummary()
                 textSize = 11f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 setPadding(dp(8), dp(4), 0, 0)
             }
             dialogView.addView(stepsSummaryText)
@@ -1142,7 +1142,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                 VIEW_TYPE_SECTION_HEADER -> SectionHeaderViewHolder(TextView(parent.context).apply {
                     textSize = 16f
                     setTypeface(null, Typeface.BOLD)
-                    setTextColor(styledColor(android.R.attr.textColorPrimary))
+                    setTextColor(settingsColor(android.R.attr.textColorPrimary))
                     setPadding(dp(4), dp(8), dp(4), dp(4))
                     androidx.core.view.ViewCompat.setAccessibilityHeading(this, true)
                 })
@@ -1359,7 +1359,7 @@ class ButtonEntryUi(
     val labelView = textView {
         textSize = 12f
         gravity = gravityCenter
-        setTextColor(ctx.styledColor(android.R.attr.textColorPrimary))
+        setTextColor(ctx.settingsColor(android.R.attr.textColorPrimary))
         text = label
         visibility = if (label.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
     }
@@ -1407,8 +1407,8 @@ class ButtonEntryUi(
 
     private fun updateColors() {
         // Use system theme colors for better visibility in light/dark mode
-        val contentColor = ctx.styledColor(android.R.attr.textColorPrimary)
-        val bgColor = ctx.styledColor(android.R.attr.colorPrimary)
+        val contentColor = ctx.settingsColor(android.R.attr.textColorPrimary)
+        val bgColor = ctx.settingsColor(android.R.attr.colorPrimary)
 
         bkgDrawable.paint.color = bgColor
         labelView.setTextColor(contentColor)
@@ -1417,7 +1417,7 @@ class ButtonEntryUi(
 
     private fun updateIcon() {
         bkg.removeAllViews()
-        val contentColor = ctx.styledColor(android.R.attr.textColorPrimary)
+        val contentColor = ctx.settingsColor(android.R.attr.textColorPrimary)
 
         if (customDrawable != null) {
             icon.visibility = android.view.View.VISIBLE

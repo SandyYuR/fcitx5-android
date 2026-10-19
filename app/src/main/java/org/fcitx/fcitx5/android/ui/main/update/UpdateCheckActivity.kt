@@ -54,7 +54,7 @@ import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.Const
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import timber.log.Timber
 import java.io.FileInputStream
@@ -139,7 +139,7 @@ class UpdateCheckActivity : SettingsUiActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_update_check)
         toolbar = findViewById(R.id.toolbar)
-        toolbar.backgroundColor = styledColor(android.R.attr.colorPrimary)
+        toolbar.backgroundColor = settingsColor(android.R.attr.colorPrimary)
         toolbar.elevation = dp(4f)
         mirrorsGroup = findViewById(R.id.mirrorChipGroup)
         latestVersionText = findViewById(R.id.latestVersionText)

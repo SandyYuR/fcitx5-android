@@ -13,7 +13,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.setPaddingDp
 import org.fcitx.fcitx5.android.R
@@ -105,7 +105,7 @@ object SystemColorResourcePickerDialog {
                     layoutParams = LinearLayout.LayoutParams(context.dp(20), context.dp(20))
                 }
                 val nameText = TextView(context).apply {
-                    setTextColor(context.styledColor(android.R.attr.textColorPrimary))
+                    setTextColor(context.settingsColor(android.R.attr.textColorPrimary))
                     textSize = 14f
                     layoutParams = LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,

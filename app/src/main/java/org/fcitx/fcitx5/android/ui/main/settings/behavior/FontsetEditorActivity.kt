@@ -31,7 +31,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.font.FontProviders
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
@@ -56,7 +56,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(android.R.attr.colorPrimary)
             elevation = dp(4f)
         }
     }
@@ -218,7 +218,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
         val hint = TextView(this).apply {
             text = getString(R.string.fontset_editor_hint)
             textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(0, 0, 0, dp(8))
         }
         listContainer.addView(hint)
@@ -236,7 +236,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
 
             val title = TextView(this).apply {
                 text = getString(entry.titleRes)
-                setTextColor(styledColor(android.R.attr.textColorPrimary))
+                setTextColor(settingsColor(android.R.attr.textColorPrimary))
                 textSize = 15f
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                     weight = 1f
@@ -246,7 +246,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
 
             val fontSizeValue = TextView(this).apply {
                 textSize = 13f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 setPadding(dp(8), 0, dp(4), 0)
                 gravity = android.view.Gravity.END
                 setOnClickListener { openFontSizeEditor(entry) }
@@ -274,7 +274,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
 
             val value = TextView(this).apply {
                 textSize = 13f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 setPadding(0, dp(4), 0, 0)
                 setOnClickListener { openPicker() }
             }
@@ -282,7 +282,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
 
             val divider = View(this).apply {
                 setBackgroundColor(
-                    runCatching { styledColor(android.R.attr.colorControlNormal) }
+                    runCatching { settingsColor(android.R.attr.colorControlNormal) }
                         .getOrDefault(0x33000000)
                 )
                 alpha = 0.35f
@@ -448,7 +448,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
                     viewHolder.itemView.translationZ = 10f
                     // 添加背景色增强反馈
                     viewHolder.itemView.setBackgroundColor(
-                        this@FontsetEditorActivity.styledColor(android.R.attr.colorControlHighlight)
+                        this@FontsetEditorActivity.settingsColor(android.R.attr.colorControlHighlight)
                     )
                 }
             }
@@ -512,7 +512,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
         val hint = TextView(this).apply {
             text = getString(R.string.font_size_editor_hint, minSize.toInt(), maxSize.toInt())
             textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             gravity = android.view.Gravity.CENTER
             setPadding(0, dp(8), 0, 0)
         }

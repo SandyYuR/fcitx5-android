@@ -22,7 +22,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import org.fcitx.fcitx5.android.R
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
@@ -44,7 +44,7 @@ class LayoutNameInputActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(android.R.attr.colorPrimary)
             elevation = dp(4f)
         }
     }
@@ -65,7 +65,7 @@ class LayoutNameInputActivity : SettingsUiActivity() {
                     getString(R.string.text_keyboard_layout_layout_name)
                 }
                 textSize = 13f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
             })
 
             input = AppCompatEditText(this@LayoutNameInputActivity).apply {
@@ -85,7 +85,7 @@ class LayoutNameInputActivity : SettingsUiActivity() {
                 addView(TextView(this@LayoutNameInputActivity).apply {
                     text = getString(R.string.text_keyboard_layout_copy_from)
                     textSize = 13f
-                    setTextColor(styledColor(android.R.attr.textColorSecondary))
+                    setTextColor(settingsColor(android.R.attr.textColorSecondary))
                     setPadding(0, dp(12), 0, 0)
                 })
                 val adapter = ArrayAdapter(
