@@ -1131,4 +1131,5 @@
     <string name="settings_ui_contrast_high">High</string>
     <string name="settings_ui_restore_default">Restore default appearance</string>
     <string name="apply">Apply</string>
+    <string name="settings_search_clear">Clear search</string>
 </resources>

@@ -15,9 +15,8 @@ import android.widget.TextView
 import android.widget.Toast
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.AppCompatEditText
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import org.fcitx.fcitx5.android.R
@@ -44,8 +43,8 @@ class LayoutNameInputActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
     }
 
@@ -115,7 +114,6 @@ class LayoutNameInputActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(root)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -123,13 +121,6 @@ class LayoutNameInputActivity : SettingsUiActivity() {
             getString(R.string.text_keyboard_layout_add_layout)
         }
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

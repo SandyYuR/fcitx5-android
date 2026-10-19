@@ -9,9 +9,8 @@ import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.result.contract.ActivityResultContracts
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,23 +33,15 @@ class UpdateMirrorListActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_update_mirror_list)
         toolbar = findViewById(R.id.toolbar)
-        toolbar.backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
-        toolbar.elevation = dp(4f)
+        toolbar.backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+        toolbar.elevation = 0f
         addButton = findViewById(R.id.addMirrorRuleButton)
         recycler = findViewById(R.id.mirrorRecycler)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.update_mirror_settings_title)
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         adapter = UpdateMirrorAdapter { mirror ->
             editorLauncher.launch(

@@ -4,10 +4,11 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
-import androidx.appcompat.app.AlertDialog
 import androidx.preference.DialogPreference
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.setOnChangeListener
@@ -122,7 +123,7 @@ class DialogSeekBarPreference @JvmOverloads constructor(
                 bottomMargin = dp(10)
             })
         }
-        AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
             .setTitle(this@DialogSeekBarPreference.dialogTitle)
             .setView(dialogContent)
             .setPositiveButton(android.R.string.ok) { _, _ ->

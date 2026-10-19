@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -22,12 +24,10 @@ import android.widget.Toast
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import kotlinx.serialization.json.JsonObject
@@ -70,8 +70,8 @@ class KeyEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
             setSubtitleTextAppearance(context, android.R.style.TextAppearance_Small)
             setSubtitleTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
@@ -298,7 +298,6 @@ class KeyEditorActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(rootView)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -310,13 +309,6 @@ class KeyEditorActivity : SettingsUiActivity() {
         // it; baselineKeySnapshot stays as the original so "has changes" is still correct.
         savedInstanceState?.let(::restoreDraftKeyData)
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         buildForm()
     }
@@ -1399,7 +1391,7 @@ class KeyEditorActivity : SettingsUiActivity() {
             options += getString(R.string.text_keyboard_layout_key_color_mode_monet_pick)
             actions += { openMonetColorPicker(field) }
         }
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(field.labelRes)
             .setItems(options.toTypedArray()) { _, which ->
                 actions.getOrNull(which)?.invoke()
@@ -1417,7 +1409,7 @@ class KeyEditorActivity : SettingsUiActivity() {
             ?.removePrefix(THEME_COLOR_REF_PREFIX)
         val checkedIndex = availableTokens.indexOfFirst { it.token == currentToken }
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_key_color_mode_theme_key_pick)
             .setSingleChoiceItems(
                 ThemeColorTokenPreviewAdapter(this, availableTokens, theme),
@@ -2052,7 +2044,7 @@ class KeyEditorActivity : SettingsUiActivity() {
     }
 
     private fun confirmDelete() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete)
             .setMessage(R.string.text_keyboard_layout_delete_key_confirm)
             .setPositiveButton(R.string.delete) { _, _ ->

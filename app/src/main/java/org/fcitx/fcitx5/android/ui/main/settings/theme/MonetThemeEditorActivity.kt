@@ -16,11 +16,10 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.StringRes
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -116,7 +115,6 @@ class MonetThemeEditorActivity : SettingsUiActivity() {
             finish()
             return
         }
-        enableEdgeToEdge()
         
         themeName = intent.getStringExtra(EXTRA_THEME_NAME) ?: "Monet"
         isDark = intent.getBooleanExtra(EXTRA_IS_DARK, false)
@@ -167,20 +165,11 @@ class MonetThemeEditorActivity : SettingsUiActivity() {
             orientation = LinearLayout.VERTICAL
         }
         
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = statusBars.top
-                bottomMargin = navigationBars.bottom
-            }
-            insets
-        }
         
         // Toolbar
         toolbar = Toolbar(this).apply {
-            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
-            elevation = 4f // dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
         root.addView(toolbar, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,

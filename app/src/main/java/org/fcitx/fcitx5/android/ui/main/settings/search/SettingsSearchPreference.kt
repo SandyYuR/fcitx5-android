@@ -11,6 +11,8 @@ import android.text.TextWatcher
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.view.View
+import androidx.core.view.isVisible
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import org.fcitx.fcitx5.android.R
@@ -52,12 +54,14 @@ class SettingsSearchPreference(context: Context) : Preference(context) {
             val value = s?.toString().orEmpty()
             if (value == query) return
             query = value
+            boundClear?.isVisible = value.isNotEmpty()
             onQueryChanged?.invoke(value)
         }
     }
 
     /** 最近一次绑定的输入框，用于点击行空白处时聚焦。 */
     private var boundInput: EditText? = null
+    private var boundClear: View? = null
 
     /**
      * 当前是否有查询串。供首页决定是否拦截返回键。
@@ -102,6 +106,10 @@ class SettingsSearchPreference(context: Context) : Preference(context) {
         super.onBindViewHolder(holder)
         val input = holder.itemView.findViewById<EditText>(R.id.settings_search_input) ?: return
         boundInput = input
+        boundClear = holder.itemView.findViewById<View>(R.id.settings_search_clear)?.apply {
+            isVisible = query.isNotEmpty()
+            setOnClickListener { input.text.clear() }
+        }
 
         // 注册监听：必须先 remove 再 add，保证恒为一个 listener（见 [textWatcher] 的说明）。
         //

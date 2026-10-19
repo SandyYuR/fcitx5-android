@@ -120,6 +120,7 @@ class MainFragment : PaddingPreferenceFragment() {
         addPreference(title, summary, icon) {
             navigateWithAnim(route)
         }
+        getPreference(preferenceCount - 1).widgetLayoutResource = R.layout.preference_settings_navigation
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

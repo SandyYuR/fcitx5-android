@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.os.Bundle
 import android.view.Gravity
 import android.view.Menu
@@ -19,9 +21,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -60,8 +61,8 @@ class MacroEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
     }
 
@@ -687,7 +688,6 @@ class MacroEditorActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         
         container.addView(toolbar)
         container.addView(stepsRecyclerView)
@@ -742,13 +742,6 @@ class MacroEditorActivity : SettingsUiActivity() {
         stepsRecyclerView.setPadding(0, 0, 0, dp(16))
         stepsRecyclerView.clipToPadding = false
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
     }
 
     /**
@@ -771,7 +764,7 @@ class MacroEditorActivity : SettingsUiActivity() {
         val scrollView = android.widget.ScrollView(this).apply {
             addView(chipsContainer)
         }
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(title)
             .setView(scrollView)
             .setNegativeButton(R.string.macro_editor_picker_cancel, null)
@@ -1276,7 +1269,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                 setPadding(dp(8), dp(8), dp(8), dp(8))
                 minWidth = dp(36)
                 setOnClickListener {
-                    AlertDialog.Builder(this@MacroEditorActivity)
+                    MaterialAlertDialogBuilder(this@MacroEditorActivity)
                         .setTitle(R.string.macro_editor_delete_step_title)
                         .setMessage(R.string.macro_editor_delete_step_message)
                         .setPositiveButton(R.string.macro_editor_delete) { _, _ ->
@@ -1325,7 +1318,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                     
                     if (willClearData) {
                         // Show confirmation dialog before clearing data
-                        AlertDialog.Builder(this@MacroEditorActivity)
+                        MaterialAlertDialogBuilder(this@MacroEditorActivity)
                             .setTitle(R.string.macro_editor_type_change_title)
                             .setMessage(R.string.macro_editor_type_change_message)
                             .setPositiveButton(R.string.macro_editor_confirm) { _, _ ->
@@ -1600,7 +1593,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                 getString(R.string.macro_editor_action_undo),
                 getString(R.string.macro_editor_action_redo)
             )
-            AlertDialog.Builder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_picker_title)
                 .setItems(actionLabels) { _, which ->
                     onSelect(actions[which])
@@ -1612,7 +1605,7 @@ class MacroEditorActivity : SettingsUiActivity() {
         private fun showAppActionPicker(onSelect: (String) -> Unit) {
             // Labels are derived from the ids, so row N always selects APP_ACTION_IDS[N].
             val actionLabels = APP_ACTION_IDS.map { getAppActionLabel(it) }.toTypedArray()
-            AlertDialog.Builder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_app_picker_title)
                 .setItems(actionLabels) { _, which ->
                     onSelect(APP_ACTION_IDS[which])
@@ -1752,7 +1745,7 @@ class MacroEditorActivity : SettingsUiActivity() {
             }
             dialogView.addView(scrollView)
 
-            val dialog = AlertDialog.Builder(this@MacroEditorActivity)
+            val dialog = MaterialAlertDialogBuilder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_edit_key_title)
                 .setView(dialogView)
                 .setPositiveButton(R.string.macro_editor_confirm) { _, _ ->
@@ -1829,7 +1822,7 @@ class MacroEditorActivity : SettingsUiActivity() {
             }
             // 列表显示可读文本，选中后回传的仍是原始目标名（存进配置的就是它）。
             val labels = targets.map { layerTargetDisplayName(it) }
-            AlertDialog.Builder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_layer_target_picker_title)
                 .setItems(labels.toTypedArray()) { _, which ->
                     onSelect(targets[which])
@@ -1898,7 +1891,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                 getString(R.string.macro_editor_step_type_osl),
                 getString(R.string.macro_editor_step_type_back)
             )
-            AlertDialog.Builder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_layer_mode_picker_title)
                 .setItems(labels) { _, which ->
                     onSelect(modes[which])

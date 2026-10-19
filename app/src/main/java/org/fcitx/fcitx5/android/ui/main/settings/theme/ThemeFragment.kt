@@ -65,7 +65,7 @@ class ThemeFragment : Fragment() {
             scaleX = 0.5f
             scaleY = 0.5f
             outlineProvider = ViewOutlineProvider.BOUNDS
-            elevation = dp(4f)
+            elevation = 0f
             tag = "theme_preview_capture"
         }
 
@@ -100,8 +100,8 @@ class ThemeFragment : Fragment() {
                 centerHorizontally()
                 bottomOfParent()
             })
-            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
 
         constraintLayout {

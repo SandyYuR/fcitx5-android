@@ -4,7 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.view.View
 import androidx.lifecycle.Lifecycle
 import org.fcitx.fcitx5.android.R
@@ -111,7 +112,7 @@ class PunctuationEditorFragment : ProgressFragment(), OnItemChangedListener<Punc
                     add(mappingLayout, lParams(matchParent))
                     add(altMappingLayout, lParams(matchParent))
                 }
-                AlertDialog.Builder(context)
+                MaterialAlertDialogBuilder(requireContext())
                     .setTitle(title)
                     .setView(layout)
                     .setPositiveButton(android.R.string.ok, null)

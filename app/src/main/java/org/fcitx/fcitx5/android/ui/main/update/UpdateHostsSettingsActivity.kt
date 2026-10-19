@@ -11,9 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
@@ -34,11 +33,10 @@ class UpdateHostsSettingsActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_update_hosts)
         toolbar = findViewById(R.id.toolbar)
-        toolbar.backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
-        toolbar.elevation = dp(4f)
+        toolbar.backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+        toolbar.elevation = 0f
         sourceInput = findViewById(R.id.hostsSourceInput)
         enableSwitch = findViewById(R.id.hostsEnableSwitch)
         updateButton = findViewById(R.id.hostsUpdateButton)
@@ -47,13 +45,6 @@ class UpdateHostsSettingsActivity : SettingsUiActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.update_hosts_settings_title)
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         val config = UpdatePrefs.loadHostsConfig(this)
         sourceInput.setText(config.sourceUrl)

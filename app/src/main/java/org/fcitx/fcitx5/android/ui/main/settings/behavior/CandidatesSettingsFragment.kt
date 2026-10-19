@@ -5,7 +5,8 @@
 
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
 import org.fcitx.fcitx5.android.R
@@ -47,7 +48,7 @@ class CandidatesSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstanc
 
     private fun showPresetDialog() {
         val labels = CandidatesPresets.all.map { getString(it.titleRes) }.toTypedArray()
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.candidates_preset_title)
             .setItems(labels) { _, which ->
                 val preset = CandidatesPresets.all.getOrNull(which) ?: return@setItems

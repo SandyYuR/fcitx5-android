@@ -25,11 +25,10 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.StringRes
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -84,7 +83,6 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         currentInput = intent.parcelable(EXTRA_INPUT) ?: run {
             finish()
             return
@@ -114,19 +112,10 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
             backgroundColor = settingsColor(android.R.attr.colorBackground)
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = statusBars.top
-                bottomMargin = navigationBars.bottom
-            }
-            insets
-        }
 
         toolbar = Toolbar(this).apply {
-            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
             title = getString(currentInput.titleRes)
         }
         root.addView(

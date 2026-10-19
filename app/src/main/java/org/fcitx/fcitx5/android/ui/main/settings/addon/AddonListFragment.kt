@@ -4,9 +4,10 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.addon
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.view.View
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.AddonInfo
 import org.fcitx.fcitx5.android.core.FcitxAPI
@@ -66,7 +67,7 @@ class AddonListFragment : ProgressFragment(), OnItemChangedListener<AddonInfo> {
                     }
                     appendLine(getString(R.string.disable_addon_warn_confirm))
                 }
-                AlertDialog.Builder(requireContext())
+                MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.disable_addon_warn_title))
                     .setIconAttribute(android.R.attr.alertDialogIcon)
                     .setMessage(msg)

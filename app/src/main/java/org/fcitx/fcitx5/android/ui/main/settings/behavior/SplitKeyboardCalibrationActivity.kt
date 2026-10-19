@@ -18,12 +18,11 @@ import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import androidx.core.view.WindowCompat
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceProvider
@@ -97,19 +96,11 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(createContent())
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle(R.string.split_keyboard_calibration_title)
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         deviceInfo = DeviceInfoCollector.collect(this)
         // Read values via SplitKeyboardStateManager (which reads from SharedPreferences directly)
@@ -170,7 +161,7 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
         }
 
         toolbar = Toolbar(this).apply {
-            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurface))
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
         }
         mainLayout.addView(toolbar, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,

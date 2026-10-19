@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.graphics.Typeface
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
@@ -23,11 +25,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
@@ -82,9 +82,9 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
             setTitleTextColor(settingsColor(android.R.attr.textColorPrimary))
-            elevation = dp(4f)
+            elevation = 0f
         }
     }
 
@@ -198,19 +198,11 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(ui)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle(R.string.edit_buttons)
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         loadState()
         // Restore the in-progress edit after a configuration change instead of silently
@@ -592,7 +584,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
     }
 
     private fun openAddButtonDialog(buttonDef: ButtonDefinition) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.add_button_to_section_title))
             .setItems(arrayOf(getString(R.string.kawaii_bar_section), getString(R.string.status_area_section))) { _, which ->
                 val newButton = ConfigurableButton(
@@ -924,13 +916,13 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
             dialogView.addView(View(this).apply { layoutParams = ViewGroup.LayoutParams(0, dp(8)) })
         }
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("${getString(R.string.edit_button_title)} ${button.id}")
             .setView(dialogView)
             .apply {
                 if (!isBuiltIn) {
                     setNeutralButton(R.string.delete) { dialog, _ ->
-                        AlertDialog.Builder(this@ButtonsCustomizerActivity)
+                        MaterialAlertDialogBuilder(this@ButtonsCustomizerActivity)
                             .setTitle(R.string.delete_button_title)
                             .setMessage(R.string.delete_button_confirm)
                             .setPositiveButton(R.string.delete) { _, _ ->
@@ -1417,7 +1409,7 @@ class ButtonEntryUi(
 
     private fun updateIcon() {
         bkg.removeAllViews()
-        val contentColor = ctx.settingsColor(android.R.attr.textColorPrimary)
+        val contentColor = ctx.settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
 
         if (customDrawable != null) {
             icon.visibility = android.view.View.VISIBLE

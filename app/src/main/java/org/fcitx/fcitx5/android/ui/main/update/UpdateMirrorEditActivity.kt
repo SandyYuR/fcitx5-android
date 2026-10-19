@@ -10,9 +10,8 @@ import android.view.MenuItem
 import android.widget.EditText
 import android.widget.Toast
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import org.fcitx.fcitx5.android.R
@@ -35,24 +34,16 @@ class UpdateMirrorEditActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_update_mirror_edit)
         toolbar = findViewById(R.id.toolbar)
-        toolbar.backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
-        toolbar.elevation = dp(4f)
+        toolbar.backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+        toolbar.elevation = 0f
         nameInput = findViewById(R.id.mirrorNameInput)
         patternInput = findViewById(R.id.mirrorPatternInput)
         replacementInput = findViewById(R.id.mirrorReplacementInput)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.update_mirror_edit_title)
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         editingId = intent.getStringExtra(EXTRA_MIRROR_ID)
         if (editingId != null) {

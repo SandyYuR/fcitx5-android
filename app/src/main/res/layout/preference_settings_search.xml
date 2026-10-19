@@ -18,26 +18,40 @@
     android:descendantFocusability="beforeDescendants"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:orientation="vertical"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:minHeight="56dp"
     android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:paddingEnd="4dp">
 
     <EditText
         android:id="@+id/settings_search_input"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:autofillHints=""
         android:background="@android:color/transparent"
         android:drawableStart="@drawable/ic_baseline_search_24"
         android:drawablePadding="8dp"
+        android:drawableTint="?attr/colorOnSurfaceVariant"
         android:hint="@string/settings_search_hint"
         android:imeOptions="actionSearch|flagNoExtractUi"
         android:importantForAutofill="no"
         android:inputType="text"
         android:maxLines="1"
-        android:minHeight="44dp"
-        android:textSize="15sp" />
+        android:minHeight="56dp"
+        android:textColor="?attr/colorOnSurface"
+        android:textColorHint="?attr/colorOnSurfaceVariant"
+        android:textSize="16sp" />
+
+    <ImageButton
+        android:id="@+id/settings_search_clear"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/settings_search_clear"
+        android:src="@drawable/ic_settings_close"
+        android:tint="?attr/colorOnSurfaceVariant"
+        android:visibility="gone" />
 
 </LinearLayout>

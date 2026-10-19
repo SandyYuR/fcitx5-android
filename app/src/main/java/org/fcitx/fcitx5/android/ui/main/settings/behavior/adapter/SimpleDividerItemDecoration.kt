@@ -19,8 +19,7 @@ import org.fcitx.fcitx5.android.utils.settingsColor
 class SimpleDividerItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
     private val dividerHeight = context.dp(1)
     private val paint = android.graphics.Paint().apply {
-        color = context.settingsColor(android.R.attr.colorControlNormal)
-        alpha = 180 // 0.7 * 255，提高不透明度
+        color = context.settingsColor(com.google.android.material.R.attr.colorOutlineVariant)
     }
 
     override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {

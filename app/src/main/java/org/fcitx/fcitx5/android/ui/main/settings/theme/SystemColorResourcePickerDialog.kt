@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.content.Context
 import android.os.Build
 import android.view.View
@@ -11,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import splitties.dimensions.dp
 import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
@@ -67,7 +68,7 @@ object SystemColorResourcePickerDialog {
         val currentIndex = colorItems.indexOfFirst { it.first == currentResource }
             .takeIf { it >= 0 } ?: 0
 
-        val builder = AlertDialog.Builder(context)
+        val builder = MaterialAlertDialogBuilder(context)
             .setTitle(R.string.monet_editor_select_color_resource)
             .setSingleChoiceItems(
                 ColorPreviewAdapter(context, colorItems.map { it.first }, colorItems.map { it.second }),

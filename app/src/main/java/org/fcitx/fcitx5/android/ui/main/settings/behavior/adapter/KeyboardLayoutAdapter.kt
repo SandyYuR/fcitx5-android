@@ -183,7 +183,7 @@ class KeyboardLayoutAdapter(
 
         // Drag handle on the left
         val dragHandle = TextView(context).apply {
-            text = "☰"
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_drag_handle_24, 0, 0, 0)
             textSize = 16f
             setPadding(context.dp(8), context.dp(8), context.dp(4), context.dp(8))
             setTextColor(context.settingsColor(android.R.attr.textColorSecondary))
@@ -215,22 +215,24 @@ class KeyboardLayoutAdapter(
         // whose child indices are also drag-and-drop data indices.
         val actions = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
         val editRowButton = TextView(context).apply {
-            text = "⚙"
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_settings_24, 0, 0, 0)
             textSize = 18f
             gravity = Gravity.CENTER
             setPadding(context.dp(10), context.dp(8), context.dp(10), context.dp(8))
-            minWidth = context.dp(44)
-            minHeight = context.dp(44)
+            minWidth = context.dp(48)
+            minHeight = context.dp(48)
             contentDescription = context.getString(R.string.text_keyboard_layout_edit_row)
         }
         actions.addView(editRowButton)
 
         // Delete row button on the right
         val deleteRowButton = TextView(context).apply {
-            text = "🗑"
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_delete_24, 0, 0, 0)
+            contentDescription = context.getString(R.string.delete)
             textSize = 14f
             setPadding(context.dp(8), context.dp(8), context.dp(8), context.dp(8))
-            minWidth = context.dp(36)
+            minWidth = context.dp(48)
+            minHeight = context.dp(48)
         }
         actions.addView(deleteRowButton, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,

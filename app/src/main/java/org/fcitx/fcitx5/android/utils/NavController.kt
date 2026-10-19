@@ -7,15 +7,15 @@ package org.fcitx.fcitx5.android.utils
 
 import androidx.navigation.NavController
 import androidx.navigation.navOptions
-import androidx.navigation.ui.R
+import org.fcitx.fcitx5.android.R
 
 fun <T : Any> NavController.navigateWithAnim(route: T) {
     navigate(route, navOptions {
         anim {
-            enter = R.animator.nav_default_enter_anim
-            exit = R.animator.nav_default_exit_anim
-            popEnter = R.animator.nav_default_pop_enter_anim
-            popExit = R.animator.nav_default_pop_exit_anim
+            enter = R.animator.settings_enter
+            exit = R.animator.settings_exit
+            popEnter = R.animator.settings_pop_enter
+            popExit = R.animator.settings_pop_exit
         }
     })
 }

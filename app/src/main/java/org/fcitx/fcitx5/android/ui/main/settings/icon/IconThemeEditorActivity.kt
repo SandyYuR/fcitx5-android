@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.icon
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.content.res.ColorStateList
@@ -24,9 +26,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -75,7 +76,6 @@ class IconThemeEditorActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
 
         val name = intent.getStringExtra("icon_theme_name")
         if (name != null && name != IconTheme.default().name) {
@@ -95,7 +95,7 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
 
         val toolbar = Toolbar(this).apply {
-            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurface))
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
         }
         root.addView(toolbar, LinearLayout.LayoutParams(matchParent, wrapContent))
         setSupportActionBar(toolbar)
@@ -111,11 +111,6 @@ class IconThemeEditorActivity : SettingsUiActivity() {
 
         setContentView(root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            toolbar.updatePadding(top = statusTop)
-            insets
-        }
         refreshSaveButtonState()
     }
 
@@ -319,7 +314,7 @@ class IconThemeEditorActivity : SettingsUiActivity() {
             setSelection(text.length)
             setSingleLine(true)
         }
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.theme_name)
             .setView(input)
             .setPositiveButton(android.R.string.ok, null)
@@ -353,7 +348,7 @@ class IconThemeEditorActivity : SettingsUiActivity() {
     private fun promptDeleteTheme() {
         val targetName = originalName.ifBlank { themeName }
         if (targetName.isBlank()) return
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.icon_theme_delete_confirm, targetName))
             .setPositiveButton(getString(R.string.delete)) { _, _ ->
                 IconThemeManager.deleteTheme(targetName)
@@ -590,7 +585,7 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         actionsRow.addView(confirmAction, LinearLayout.LayoutParams(0, wrapContent, 1f))
         dialogView.addView(actionsRow)
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(slot.replace("keys.", "Key: ").replace("toolbar.", "Toolbar: ").replace("system.", "System: "))
             .setView(dialogView)
             .create()

@@ -4,21 +4,18 @@
  */
 package org.fcitx.fcitx5.android.ui.main
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.ViewGroup
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -32,7 +29,7 @@ import com.google.android.material.snackbar.Snackbar
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
-import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
+import com.google.android.material.appbar.AppBarLayout
 import org.fcitx.fcitx5.android.databinding.ActivityMainBinding
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
@@ -52,31 +49,16 @@ class MainActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val isDark = SettingsUiPreferences.isDark(this)
-        val systemBarStyle = if (isDark) {
-            SystemBarStyle.dark(Color.TRANSPARENT)
-        } else {
-            SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
-        }
-        enableEdgeToEdge(
-            statusBarStyle = systemBarStyle,
-            navigationBarStyle = systemBarStyle
-        )
         val binding = ActivityMainBinding.inflate(layoutInflater)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
             val statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
-            val navBars = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            binding.root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = navBars.left
-                rightMargin = navBars.right
-            }
             binding.appBar.updatePadding(top = statusBars.top)
             windowInsets
         }
         setContentView(binding.root)
         ViewCompat.requestApplyInsets(binding.root)
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.setDisplayShowTitleEnabled(true)
         // always show toolbar back arrow icon
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         navController = binding.navHostFragment.getFragment<NavHostFragment>().navController
@@ -98,12 +80,29 @@ class MainActivity : SettingsUiActivity() {
             // "minimize" the activity if we can't go back
             navController.navigateUp() || onSupportNavigateUp() || moveTaskToBack(false)
         }
-        viewModel.toolbarTitle.observe(this) {
-            binding.collapsingToolbar.title = it
+        fun updateHeaderTitle(title: String) {
+            val home = navController.currentDestination?.hasRoute<SettingsRoute.Index>() == true
+            binding.collapsingToolbar.isTitleEnabled = home
+            binding.collapsingToolbar.title = if (home) title else null
+            binding.toolbar.title = if (home) null else title
         }
+        viewModel.toolbarTitle.observe(this, ::updateHeaderTitle)
         navController.addOnDestinationChangedListener { _, dest, _ ->
+            val home = dest.hasRoute<SettingsRoute.Index>()
+            binding.collapsingToolbar.updateLayoutParams<AppBarLayout.LayoutParams> {
+                val expandedHeight = 64f + 48f * resources.configuration.fontScale.coerceAtLeast(1f)
+                height = (resources.displayMetrics.density * if (home) expandedHeight else 64f).toInt()
+                scrollFlags = if (home) {
+                    AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
+                        AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+                } else 0
+            }
+            binding.appBar.setExpanded(true, false)
             invalidateMenu()
-            dest.label?.let { viewModel.setToolbarTitle(it.toString()) }
+            dest.label?.let {
+                viewModel.setToolbarTitle(it.toString())
+                updateHeaderTitle(it.toString())
+            }
         }
         processIntent(intent, savedInstanceState)
         checkNotificationPermission()
@@ -171,7 +170,7 @@ class MainActivity : SettingsUiActivity() {
             if (!needNotifications) return
             // always show a dialog to explain why we need notification permission,
             // regardless of `shouldShowRequestPermissionRationale(...)`
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(R.string.notification_permission_title)
                 .setMessage(R.string.notification_permission_message)

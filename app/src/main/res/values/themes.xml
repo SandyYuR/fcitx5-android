@@ -3,6 +3,16 @@
 
     <!-- Bridge legacy platform color lookups used by existing settings editors to Material 3 roles. -->
     <style name="Theme.FcitxSettings.Base" parent="Theme.Material3Expressive.DynamicColors.DayNight.NoActionBar">
+        <item name="preferenceTheme">@style/ThemeOverlay.FcitxSettings.Preferences</item>
+        <item name="preferenceStyle">@style/Preference.FcitxSettings</item>
+        <item name="preferenceScreenStyle">@style/Preference.FcitxSettings.Screen</item>
+        <item name="preferenceCategoryStyle">@style/Preference.FcitxSettings.Category</item>
+        <item name="dialogPreferenceStyle">@style/Preference.FcitxSettings.Dialog</item>
+        <item name="editTextPreferenceStyle">@style/Preference.FcitxSettings.EditText</item>
+        <item name="switchPreferenceCompatStyle">@style/Preference.FcitxSettings.Switch</item>
+        <item name="checkBoxPreferenceStyle">@style/Preference.FcitxSettings.CheckBox</item>
+        <item name="toolbarStyle">@style/Widget.FcitxSettings.Toolbar</item>
+        <item name="android:windowBackground">?attr/colorSurfaceContainer</item>
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -13,7 +23,7 @@
         <item name="android:colorBackgroundFloating">?attr/colorSurfaceContainerHigh</item>
         <item name="android:colorButtonNormal">?attr/colorSurfaceContainerHigh</item>
         <item name="android:colorControlActivated">?attr/colorPrimary</item>
-        <item name="android:colorControlHighlight">?attr/colorSecondaryContainer</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
         <item name="android:colorControlNormal">?attr/colorOnSurfaceVariant</item>
         <item name="android:colorForeground">?attr/colorOnSurface</item>
         <item name="android:colorForegroundInverse">?attr/colorSurfaceInverse</item>
@@ -24,6 +34,16 @@
     </style>
 
     <style name="Theme.FcitxSettings.Base.Light" parent="Theme.Material3Expressive.Light.NoActionBar">
+        <item name="preferenceTheme">@style/ThemeOverlay.FcitxSettings.Preferences</item>
+        <item name="preferenceStyle">@style/Preference.FcitxSettings</item>
+        <item name="preferenceScreenStyle">@style/Preference.FcitxSettings.Screen</item>
+        <item name="preferenceCategoryStyle">@style/Preference.FcitxSettings.Category</item>
+        <item name="dialogPreferenceStyle">@style/Preference.FcitxSettings.Dialog</item>
+        <item name="editTextPreferenceStyle">@style/Preference.FcitxSettings.EditText</item>
+        <item name="switchPreferenceCompatStyle">@style/Preference.FcitxSettings.Switch</item>
+        <item name="checkBoxPreferenceStyle">@style/Preference.FcitxSettings.CheckBox</item>
+        <item name="toolbarStyle">@style/Widget.FcitxSettings.Toolbar</item>
+        <item name="android:windowBackground">?attr/colorSurfaceContainer</item>
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -34,7 +54,7 @@
         <item name="android:colorBackgroundFloating">?attr/colorSurfaceContainerHigh</item>
         <item name="android:colorButtonNormal">?attr/colorSurfaceContainerHigh</item>
         <item name="android:colorControlActivated">?attr/colorPrimary</item>
-        <item name="android:colorControlHighlight">?attr/colorSecondaryContainer</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
         <item name="android:colorControlNormal">?attr/colorOnSurfaceVariant</item>
         <item name="android:colorForeground">?attr/colorOnSurface</item>
         <item name="android:colorForegroundInverse">?attr/colorSurfaceInverse</item>
@@ -45,6 +65,16 @@
     </style>
 
     <style name="Theme.FcitxSettings.Base.Dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+        <item name="preferenceTheme">@style/ThemeOverlay.FcitxSettings.Preferences</item>
+        <item name="preferenceStyle">@style/Preference.FcitxSettings</item>
+        <item name="preferenceScreenStyle">@style/Preference.FcitxSettings.Screen</item>
+        <item name="preferenceCategoryStyle">@style/Preference.FcitxSettings.Category</item>
+        <item name="dialogPreferenceStyle">@style/Preference.FcitxSettings.Dialog</item>
+        <item name="editTextPreferenceStyle">@style/Preference.FcitxSettings.EditText</item>
+        <item name="switchPreferenceCompatStyle">@style/Preference.FcitxSettings.Switch</item>
+        <item name="checkBoxPreferenceStyle">@style/Preference.FcitxSettings.CheckBox</item>
+        <item name="toolbarStyle">@style/Widget.FcitxSettings.Toolbar</item>
+        <item name="android:windowBackground">?attr/colorSurfaceContainer</item>
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar">false</item>
@@ -55,7 +85,7 @@
         <item name="android:colorBackgroundFloating">?attr/colorSurfaceContainerHigh</item>
         <item name="android:colorButtonNormal">?attr/colorSurfaceContainerHigh</item>
         <item name="android:colorControlActivated">?attr/colorPrimary</item>
-        <item name="android:colorControlHighlight">?attr/colorSecondaryContainer</item>
+        <item name="android:colorControlHighlight">?attr/colorControlHighlight</item>
         <item name="android:colorControlNormal">?attr/colorOnSurfaceVariant</item>
         <item name="android:colorForeground">?attr/colorOnSurface</item>
         <item name="android:colorForegroundInverse">?attr/colorSurfaceInverse</item>

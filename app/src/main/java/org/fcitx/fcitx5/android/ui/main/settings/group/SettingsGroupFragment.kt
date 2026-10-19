@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceCategory
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
@@ -46,6 +47,7 @@ class SettingsGroupFragment : PaddingPreferenceFragment() {
                 addPreference(entry.title, entry.summary, entry.icon) {
                     launch(entry.action)
                 }
+                getPreference(preferenceCount - 1).widgetLayoutResource = R.layout.preference_settings_navigation
             }
         }
     }

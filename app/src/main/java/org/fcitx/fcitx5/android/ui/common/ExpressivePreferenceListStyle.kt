@@ -6,14 +6,15 @@ package org.fcitx.fcitx5.android.ui.common
 
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.Typeface
 import android.graphics.drawable.RippleDrawable
-import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceGroupAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
+import androidx.preference.PreferenceViewHolder
+import androidx.core.graphics.ColorUtils
 import com.google.android.material.R as MaterialR
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.shape.CornerFamily
@@ -28,6 +29,13 @@ class ExpressivePreferenceListStyle(
 
     private val context = recyclerView.context
     private var observedAdapter: RecyclerView.Adapter<*>? = null
+    private var refreshScheduled = false
+    private val refreshRows = Runnable {
+        refreshScheduled = false
+        observeAdapter()
+        recyclerView.invalidateItemDecorations()
+        for (index in 0 until recyclerView.childCount) styleRow(recyclerView.getChildAt(index))
+    }
 
     private val adapterObserver = object : RecyclerView.AdapterDataObserver() {
         override fun onChanged() = refresh()
@@ -45,6 +53,7 @@ class ExpressivePreferenceListStyle(
         recyclerView.setBackgroundColor(color(MaterialR.attr.colorSurfaceContainer, Color.WHITE))
         recyclerView.addItemDecoration(this)
         recyclerView.addOnChildAttachStateChangeListener(this)
+        (recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
         observeAdapter()
         refresh()
     }
@@ -52,6 +61,8 @@ class ExpressivePreferenceListStyle(
     fun detach() {
         observedAdapter?.unregisterAdapterDataObserver(adapterObserver)
         observedAdapter = null
+        recyclerView.removeCallbacks(refreshRows)
+        refreshScheduled = false
         recyclerView.removeOnChildAttachStateChangeListener(this)
         recyclerView.removeItemDecoration(this)
     }
@@ -69,11 +80,12 @@ class ExpressivePreferenceListStyle(
         outRect.left = dp(16f)
         outRect.right = dp(16f)
         if (adapter.getItem(position) is PreferenceCategory) {
-            outRect.top = 0
-            outRect.bottom = dp(4f)
+            outRect.top = dp(if (position == 0) 8f else 20f)
+            outRect.bottom = dp(8f)
         } else {
-            outRect.top = if (position == 0) dp(8f) else dp(2f)
-            outRect.bottom = if (position == adapter.itemCount - 1) dp(12f) else dp(2f)
+            val search = adapter.getItem(position)?.key == SettingsSearchPreference.KEY
+            outRect.top = dp(if (position == 0 || search) 8f else 1f)
+            outRect.bottom = dp(if (position == adapter.itemCount - 1) 20f else if (search) 0f else 1f)
         }
     }
 
@@ -92,13 +104,9 @@ class ExpressivePreferenceListStyle(
     }
 
     private fun refresh() {
-        recyclerView.post {
-            observeAdapter()
-            recyclerView.invalidateItemDecorations()
-            for (index in 0 until recyclerView.childCount) {
-                styleRow(recyclerView.getChildAt(index))
-            }
-        }
+        if (refreshScheduled) return
+        refreshScheduled = true
+        recyclerView.post(refreshRows)
     }
 
     private fun styleRow(view: View) {
@@ -107,8 +115,13 @@ class ExpressivePreferenceListStyle(
         if (position == RecyclerView.NO_POSITION || position >= adapter.itemCount) return
 
         val preference = adapter.getItem(position) ?: return
+        (recyclerView.getChildViewHolder(view) as? PreferenceViewHolder)?.apply {
+            isDividerAllowedAbove = false
+            isDividerAllowedBelow = false
+        }
         if (preference is PreferenceCategory) {
             view.background = null
+            view.clipToOutline = false
             styleCategoryTitle(view)
             return
         }
@@ -118,27 +131,31 @@ class ExpressivePreferenceListStyle(
         val isSearch = preference.key == SettingsSearchPreference.KEY
         val shape = rowShape(
             isSearch = isSearch,
-            isFirst = position == 0 || previous is PreferenceCategory,
-            isLast = position == adapter.itemCount - 1 || next is PreferenceCategory
+            isFirst = previous == null || previous is PreferenceCategory ||
+                previous.key == SettingsSearchPreference.KEY || previous.parent !== preference.parent,
+            isLast = next == null || next is PreferenceCategory || next.parent !== preference.parent
         )
         val surface = MaterialShapeDrawable(shape).apply {
             fillColor = ColorStateList.valueOf(
-                color(MaterialR.attr.colorSurfaceBright, color(MaterialR.attr.colorSurface, Color.WHITE))
+                color(
+                    if (isSearch) MaterialR.attr.colorSurfaceContainerHigh else MaterialR.attr.colorSurfaceBright,
+                    color(MaterialR.attr.colorSurface, Color.WHITE)
+                )
             )
         }
         val mask = MaterialShapeDrawable(shape).apply {
             fillColor = ColorStateList.valueOf(Color.WHITE)
         }
-        val ripple = color(android.R.attr.colorControlHighlight, Color.TRANSPARENT)
-        view.background = RippleDrawable(ColorStateList.valueOf(ripple), surface, mask)
+        val ripple = ColorUtils.setAlphaComponent(color(MaterialR.attr.colorOnSurface, Color.BLACK), 20)
+        view.background = if (isSearch || !preference.isSelectable) surface else {
+            RippleDrawable(ColorStateList.valueOf(ripple), surface, mask)
+        }
+        view.clipToOutline = true
     }
 
     private fun styleCategoryTitle(view: View) {
         val title = view.findViewById<TextView>(android.R.id.title) ?: return
-        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-        title.typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
-        title.letterSpacing = 0.025f
-        title.setTextColor(color(MaterialR.attr.colorOnSurfaceVariant, Color.DKGRAY))
+        title.setTextColor(color(androidx.appcompat.R.attr.colorPrimary, Color.DKGRAY))
     }
 
     private fun rowShape(isSearch: Boolean, isFirst: Boolean, isLast: Boolean): ShapeAppearanceModel {

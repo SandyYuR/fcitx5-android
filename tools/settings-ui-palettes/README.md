@@ -1,7 +1,6 @@
 # Settings interface color palettes
 
-The files in `app/src/main/res/values/colors_settings_ui_palettes.xml` and
-`styles_settings_ui_palettes.xml` are generated role tables for the Material 3 Expressive
+`app/src/main/res/values/styles_settings_ui_palettes.xml` contains generated role tables for the Material 3 Expressive
 settings shell. The app does not include MCU as a runtime dependency. Android selects one
 complete light or dark theme before an app-owned settings Activity creates its views.
 Generated light and dark styles inherit `Theme.FcitxSettings.Base.Light` and
@@ -38,7 +37,12 @@ java -cp "$MCU_CLASSES" PaletteGenerator app/src/main/res/values
 ```
 
 The generated XML is committed so ordinary app builds need neither the MCU checkout nor
-the generator classes. Keep the resource shrinker rules in `app/src/main/res/raw/keep.xml`
+the generator classes. Role values are inlined into each style rather than exported as individually named colors.
+The appearance preview inflates the same complete theme as an Activity, including system
+Monet and forced light/dark mode. This avoids approximating system tone values and reduces
+the resource table while preserving all palette choices.
+
+Keep the resource shrinker rules in `app/src/main/res/raw/keep.xml`
 in sync if resource names or prefixes change.
 
 ## Reference values

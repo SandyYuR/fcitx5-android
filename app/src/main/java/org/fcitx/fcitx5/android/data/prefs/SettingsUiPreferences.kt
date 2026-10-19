@@ -7,8 +7,10 @@ package org.fcitx.fcitx5.android.data.prefs
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import com.google.android.material.color.DynamicColors
 import org.fcitx.fcitx5.android.R
 
 /** Preferences for the app's settings shell, kept independent from keyboard ThemeManager data. */
@@ -75,13 +77,28 @@ object SettingsUiPreferences {
 
     fun read(context: Context): Selection {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        return Selection(
+        return normalize(Selection(
             mode = prefs.getString(KEY_MODE, MODE_SYSTEM) ?: MODE_SYSTEM,
             palette = prefs.getString(KEY_PALETTE, PALETTE_COMPAT) ?: PALETTE_COMPAT,
             recipe = prefs.getString(KEY_RECIPE, RECIPE_CMF_2026) ?: RECIPE_CMF_2026,
             contrast = prefs.getString(KEY_CONTRAST, CONTRAST_STANDARD) ?: CONTRAST_STANDARD
-        )
+        ))
     }
+
+    private fun normalize(selection: Selection): Selection = selection.copy(
+        mode = selection.mode.takeIf { it in setOf(MODE_SYSTEM, MODE_LIGHT, MODE_DARK) } ?: MODE_SYSTEM,
+        palette = selection.palette.takeIf { it in setOf(
+            PALETTE_SYSTEM, PALETTE_COMPAT, PALETTE_SEA_SALT, PALETTE_PINE,
+            PALETTE_BERRY, PALETTE_AMBER, PALETTE_WISTERIA, PALETTE_GRAPHITE
+        ) } ?: PALETTE_COMPAT,
+        recipe = selection.recipe.takeIf { it in setOf(
+            RECIPE_CMF_2026, RECIPE_TONAL_2025, RECIPE_VIBRANT_2025,
+            RECIPE_NEUTRAL_2025, RECIPE_EXPRESSIVE_2025, RECIPE_CLASSIC_2021
+        ) } ?: RECIPE_CMF_2026,
+        contrast = selection.contrast.takeIf {
+            it in setOf(CONTRAST_STANDARD, CONTRAST_MEDIUM, CONTRAST_HIGH)
+        } ?: CONTRAST_STANDARD
+    )
 
     fun save(context: Context, selection: Selection) {
         PreferenceManager.getDefaultSharedPreferences(context).edit {
@@ -92,19 +109,19 @@ object SettingsUiPreferences {
         }
     }
 
-    fun usesSystemDynamicColors(context: Context): Boolean =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && read(context).palette == PALETTE_SYSTEM
+    fun usesSystemDynamicColors(context: Context, selection: Selection = read(context)): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && selection.palette == PALETTE_SYSTEM &&
+            DynamicColors.isDynamicColorAvailable()
 
     fun isDark(context: Context, selection: Selection = read(context)): Boolean = when (selection.mode) {
         MODE_DARK -> true
         MODE_LIGHT -> false
-        else -> context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
+        else -> context.applicationContext.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
             Configuration.UI_MODE_NIGHT_YES
     }
 
-    fun themeResource(context: Context): Int {
-        val selection = read(context)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && selection.palette == PALETTE_SYSTEM) {
+    fun themeResource(context: Context, selection: Selection = read(context)): Int {
+        if (usesSystemDynamicColors(context, selection)) {
             return when (selection.mode) {
                 MODE_LIGHT -> R.style.Theme_FcitxSettings_System_Light
                 MODE_DARK -> R.style.Theme_FcitxSettings_System_Dark
@@ -119,33 +136,18 @@ object SettingsUiPreferences {
         val mode = if (dark) "dark" else "light"
         val styleName = "Theme.FcitxSettings.$family.$recipe.${selection.contrast}.$mode"
         return context.resources.getIdentifier(styleName, "style", context.packageName)
-            .takeIf { it != 0 } ?: R.style.Theme_FcitxAppTheme
+            .takeIf { it != 0 } ?: if (dark) {
+                R.style.Theme_FcitxSettings_compat_compat_standard_dark
+            } else R.style.Theme_FcitxSettings_compat_compat_standard_light
     }
 
-    fun color(context: Context, selection: Selection, role: String): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && selection.palette == PALETTE_SYSTEM) {
-            val dark = isDark(context, selection)
-            val colorName = when (role) {
-                "primary" -> if (dark) "system_accent1_200" else "system_accent1_600"
-                "on_primary" -> if (dark) "system_accent1_800" else "system_accent1_0"
-                "primary_container" -> if (dark) "system_accent1_800" else "system_accent1_100"
-                "secondary" -> if (dark) "system_accent2_200" else "system_accent2_600"
-                "on_secondary" -> if (dark) "system_accent2_800" else "system_accent2_0"
-                "tertiary" -> if (dark) "system_accent3_200" else "system_accent3_600"
-                "on_tertiary" -> if (dark) "system_accent3_800" else "system_accent3_0"
-                "surface" -> if (dark) "system_neutral1_900" else "system_neutral1_10"
-                "on_surface" -> if (dark) "system_neutral1_100" else "system_neutral1_900"
-                else -> null
-            }
-            val id = colorName?.let { context.resources.getIdentifier(it, "color", "android") } ?: 0
-            if (id != 0) return context.getColor(id)
+    /** Inflate the preview with the exact theme used by settings activities, including OEM Monet. */
+    fun themedContext(context: Context, selection: Selection): Context {
+        val configuration = Configuration(context.resources.configuration).apply {
+            uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or
+                if (isDark(context, selection)) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
         }
-        val family = if (selection.palette == PALETTE_SYSTEM) PALETTE_COMPAT else selection.palette
-        val recipe = if (family == PALETTE_COMPAT) "compat" else selection.recipe
-        val contrast = if (family == PALETTE_COMPAT) selection.contrast else selection.contrast
-        val mode = if (isDark(context, selection)) "dark" else "light"
-        val resourceName = "settings_ui_${family}_${recipe}_${contrast}_${mode}_$role"
-        val id = context.resources.getIdentifier(resourceName, "color", context.packageName)
-        return if (id != 0) context.getColor(id) else context.getColor(android.R.color.white)
+        val themed = ContextThemeWrapper(context.createConfigurationContext(configuration), themeResource(context, selection))
+        return if (usesSystemDynamicColors(context, selection)) DynamicColors.wrapContextIfAvailable(themed) else themed
     }
 }

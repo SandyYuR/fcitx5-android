@@ -20,6 +20,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.function.Function;
 
 public final class PaletteGenerator {
@@ -105,11 +107,8 @@ public final class PaletteGenerator {
     }
     Path values = Path.of(args[0]);
     Files.createDirectories(values);
-    Path colorsPath = values.resolve("colors_settings_ui_palettes.xml");
     Path stylesPath = values.resolve("styles_settings_ui_palettes.xml");
-    try (BufferedWriter colors = Files.newBufferedWriter(colorsPath);
-         BufferedWriter styles = Files.newBufferedWriter(stylesPath)) {
-      colors.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n");
+    try (BufferedWriter styles = Files.newBufferedWriter(stylesPath)) {
       styles.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n");
       for (Palette palette : PALETTES) {
         for (Recipe recipe : RECIPES) {
@@ -117,8 +116,7 @@ public final class PaletteGenerator {
             for (boolean dark : List.of(false, true)) {
               DynamicScheme scheme = createScheme(
                   recipe, palette, dark, CONTRAST_VALUES[contrast]);
-              writeColors(colors, palette.id, recipe.id, CONTRAST_IDS.get(contrast), dark, scheme);
-              writeStyle(styles, palette.id, recipe.id, CONTRAST_IDS.get(contrast), dark);
+              writeStyle(styles, palette.id, recipe.id, CONTRAST_IDS.get(contrast), dark, scheme);
             }
           }
         }
@@ -133,14 +131,12 @@ public final class PaletteGenerator {
           DynamicScheme scheme = createScheme(
               new Recipe("compat", SpecVersion.SPEC_2021, SchemeKind.TONAL),
               compatibilitySeed, dark, CONTRAST_VALUES[contrast]);
-          writeColors(colors, "compat", "compat", CONTRAST_IDS.get(contrast), dark, scheme);
-          writeStyle(styles, "compat", "compat", CONTRAST_IDS.get(contrast), dark);
+          writeStyle(styles, "compat", "compat", CONTRAST_IDS.get(contrast), dark, scheme);
         }
       }
-      colors.write("</resources>\n");
       styles.write("</resources>\n");
     }
-    System.out.println("Generated " + colorsPath + " and " + stylesPath);
+    System.out.println("Generated " + stylesPath);
   }
 
   private static DynamicScheme createScheme(Recipe recipe, Palette palette, boolean dark, double contrast) {
@@ -160,90 +156,77 @@ public final class PaletteGenerator {
     };
   }
 
-  private static void writeColors(BufferedWriter out, String family, String recipe,
-      String contrast, boolean dark, DynamicScheme scheme) throws Exception {
-    MaterialDynamicColors roles = new MaterialDynamicColors();
-    String mode = dark ? "dark" : "light";
-    for (Role role : ROLES) {
-      String name = colorName(family, recipe, contrast, mode, role.id);
-      int argb = role.color.apply(roles).getArgb(scheme);
-      out.write("  <color name=\"" + name + "\">" +
-          String.format(Locale.ROOT, "#%08X", argb) + "</color>\n");
-    }
-  }
-
   private static void writeStyle(BufferedWriter out, String family, String recipe,
-      String contrast, boolean dark) throws Exception {
+      String contrast, boolean dark, DynamicScheme scheme) throws Exception {
+    MaterialDynamicColors colors = new MaterialDynamicColors();
+    Map<String, Integer> values = ROLES.stream().collect(
+        Collectors.toMap(Role::id, role -> role.color.apply(colors).getArgb(scheme)));
     String mode = dark ? "dark" : "light";
     String suffix = family + "." + recipe + "." + contrast + "." + mode;
     String parent = dark
         ? "Theme.FcitxSettings.Base.Dark"
         : "Theme.FcitxSettings.Base.Light";
     out.write("  <style name=\"Theme.FcitxSettings." + suffix + "\" parent=\"" + parent + "\">\n");
-    item(out, "colorPrimary", family, recipe, contrast, mode, "primary");
-    item(out, "colorOnPrimary", family, recipe, contrast, mode, "on_primary");
-    item(out, "colorPrimaryVariant", family, recipe, contrast, mode, "primary");
-    item(out, "colorPrimaryInverse", family, recipe, contrast, mode, "primary_inverse");
-    item(out, "colorPrimaryContainer", family, recipe, contrast, mode, "primary_container");
-    item(out, "colorOnPrimaryContainer", family, recipe, contrast, mode, "on_primary_container");
-    item(out, "colorPrimaryFixed", family, recipe, contrast, mode, "primary_fixed");
-    item(out, "colorPrimaryFixedDim", family, recipe, contrast, mode, "primary_fixed_dim");
-    item(out, "colorOnPrimaryFixed", family, recipe, contrast, mode, "on_primary_fixed");
-    item(out, "colorOnPrimaryFixedVariant", family, recipe, contrast, mode, "on_primary_fixed_variant");
-    item(out, "colorSecondary", family, recipe, contrast, mode, "secondary");
-    item(out, "colorSecondaryVariant", family, recipe, contrast, mode, "secondary");
-    item(out, "colorOnSecondary", family, recipe, contrast, mode, "on_secondary");
-    item(out, "colorSecondaryContainer", family, recipe, contrast, mode, "secondary_container");
-    item(out, "colorOnSecondaryContainer", family, recipe, contrast, mode, "on_secondary_container");
-    item(out, "colorSecondaryFixed", family, recipe, contrast, mode, "secondary_fixed");
-    item(out, "colorSecondaryFixedDim", family, recipe, contrast, mode, "secondary_fixed_dim");
-    item(out, "colorOnSecondaryFixed", family, recipe, contrast, mode, "on_secondary_fixed");
-    item(out, "colorOnSecondaryFixedVariant", family, recipe, contrast, mode, "on_secondary_fixed_variant");
-    item(out, "colorTertiary", family, recipe, contrast, mode, "tertiary");
-    item(out, "colorOnTertiary", family, recipe, contrast, mode, "on_tertiary");
-    item(out, "colorTertiaryContainer", family, recipe, contrast, mode, "tertiary_container");
-    item(out, "colorOnTertiaryContainer", family, recipe, contrast, mode, "on_tertiary_container");
-    item(out, "colorTertiaryFixed", family, recipe, contrast, mode, "tertiary_fixed");
-    item(out, "colorTertiaryFixedDim", family, recipe, contrast, mode, "tertiary_fixed_dim");
-    item(out, "colorOnTertiaryFixed", family, recipe, contrast, mode, "on_tertiary_fixed");
-    item(out, "colorOnTertiaryFixedVariant", family, recipe, contrast, mode, "on_tertiary_fixed_variant");
-    item(out, "colorError", family, recipe, contrast, mode, "error");
-    item(out, "colorOnError", family, recipe, contrast, mode, "on_error");
-    item(out, "colorErrorContainer", family, recipe, contrast, mode, "error_container");
-    item(out, "colorOnErrorContainer", family, recipe, contrast, mode, "on_error_container");
-    item(out, "android:colorBackground", family, recipe, contrast, mode, "background");
-    item(out, "colorOnBackground", family, recipe, contrast, mode, "on_background");
-    item(out, "colorSurface", family, recipe, contrast, mode, "surface");
-    item(out, "colorOnSurface", family, recipe, contrast, mode, "on_surface");
-    item(out, "colorSurfaceVariant", family, recipe, contrast, mode, "surface_variant");
-    item(out, "colorOnSurfaceVariant", family, recipe, contrast, mode, "on_surface_variant");
-    item(out, "colorSurfaceInverse", family, recipe, contrast, mode, "inverse_surface");
-    item(out, "colorOnSurfaceInverse", family, recipe, contrast, mode, "inverse_on_surface");
-    item(out, "colorSurfaceBright", family, recipe, contrast, mode, "surface_bright");
-    item(out, "colorSurfaceDim", family, recipe, contrast, mode, "surface_dim");
-    item(out, "colorSurfaceContainer", family, recipe, contrast, mode, "surface_container");
-    item(out, "colorSurfaceContainerLow", family, recipe, contrast, mode, "surface_container_low");
-    item(out, "colorSurfaceContainerLowest", family, recipe, contrast, mode, "surface_container_lowest");
-    item(out, "colorSurfaceContainerHigh", family, recipe, contrast, mode, "surface_container_high");
-    item(out, "colorSurfaceContainerHighest", family, recipe, contrast, mode, "surface_container_highest");
-    item(out, "colorOutline", family, recipe, contrast, mode, "outline");
-    item(out, "colorOutlineVariant", family, recipe, contrast, mode, "outline_variant");
-    item(out, "colorPrimaryDark", family, recipe, contrast, mode, "primary");
-    item(out, "colorControlActivated", family, recipe, contrast, mode, "primary");
-    item(out, "android:colorAccent", family, recipe, contrast, mode, "primary");
-    item(out, "android:statusBarColor", family, recipe, contrast, mode, "surface");
-    item(out, "android:navigationBarColor", family, recipe, contrast, mode, "surface");
+    item(out, "colorPrimary", values, "primary");
+    item(out, "colorOnPrimary", values, "on_primary");
+    item(out, "colorPrimaryVariant", values, "primary");
+    item(out, "colorPrimaryInverse", values, "primary_inverse");
+    item(out, "colorPrimaryContainer", values, "primary_container");
+    item(out, "colorOnPrimaryContainer", values, "on_primary_container");
+    item(out, "colorPrimaryFixed", values, "primary_fixed");
+    item(out, "colorPrimaryFixedDim", values, "primary_fixed_dim");
+    item(out, "colorOnPrimaryFixed", values, "on_primary_fixed");
+    item(out, "colorOnPrimaryFixedVariant", values, "on_primary_fixed_variant");
+    item(out, "colorSecondary", values, "secondary");
+    item(out, "colorSecondaryVariant", values, "secondary");
+    item(out, "colorOnSecondary", values, "on_secondary");
+    item(out, "colorSecondaryContainer", values, "secondary_container");
+    item(out, "colorOnSecondaryContainer", values, "on_secondary_container");
+    item(out, "colorSecondaryFixed", values, "secondary_fixed");
+    item(out, "colorSecondaryFixedDim", values, "secondary_fixed_dim");
+    item(out, "colorOnSecondaryFixed", values, "on_secondary_fixed");
+    item(out, "colorOnSecondaryFixedVariant", values, "on_secondary_fixed_variant");
+    item(out, "colorTertiary", values, "tertiary");
+    item(out, "colorOnTertiary", values, "on_tertiary");
+    item(out, "colorTertiaryContainer", values, "tertiary_container");
+    item(out, "colorOnTertiaryContainer", values, "on_tertiary_container");
+    item(out, "colorTertiaryFixed", values, "tertiary_fixed");
+    item(out, "colorTertiaryFixedDim", values, "tertiary_fixed_dim");
+    item(out, "colorOnTertiaryFixed", values, "on_tertiary_fixed");
+    item(out, "colorOnTertiaryFixedVariant", values, "on_tertiary_fixed_variant");
+    item(out, "colorError", values, "error");
+    item(out, "colorOnError", values, "on_error");
+    item(out, "colorErrorContainer", values, "error_container");
+    item(out, "colorOnErrorContainer", values, "on_error_container");
+    item(out, "android:colorBackground", values, "background");
+    item(out, "colorOnBackground", values, "on_background");
+    item(out, "colorSurface", values, "surface");
+    item(out, "colorOnSurface", values, "on_surface");
+    item(out, "colorSurfaceVariant", values, "surface_variant");
+    item(out, "colorOnSurfaceVariant", values, "on_surface_variant");
+    item(out, "colorSurfaceInverse", values, "inverse_surface");
+    item(out, "colorOnSurfaceInverse", values, "inverse_on_surface");
+    item(out, "colorSurfaceBright", values, "surface_bright");
+    item(out, "colorSurfaceDim", values, "surface_dim");
+    item(out, "colorSurfaceContainer", values, "surface_container");
+    item(out, "colorSurfaceContainerLow", values, "surface_container_low");
+    item(out, "colorSurfaceContainerLowest", values, "surface_container_lowest");
+    item(out, "colorSurfaceContainerHigh", values, "surface_container_high");
+    item(out, "colorSurfaceContainerHighest", values, "surface_container_highest");
+    item(out, "colorOutline", values, "outline");
+    item(out, "colorOutlineVariant", values, "outline_variant");
+    item(out, "colorPrimaryDark", values, "primary");
+    item(out, "colorControlActivated", values, "primary");
+    item(out, "android:colorAccent", values, "primary");
+    item(out, "android:statusBarColor", values, "surface");
+    item(out, "android:navigationBarColor", values, "surface");
     out.write("  </style>\n");
   }
 
-  private static void item(BufferedWriter out, String attr, String family, String recipe,
-      String contrast, String mode, String role) throws Exception {
-    out.write("    <item name=\"" + attr + "\">@color/" +
-        colorName(family, recipe, contrast, mode, role) + "</item>\n");
-  }
-
-  private static String colorName(String family, String recipe, String contrast,
-      String mode, String role) {
-    return "settings_ui_" + family + "_" + recipe + "_" + contrast + "_" + mode + "_" + role;
+  private static void item(BufferedWriter out, String attr, Map<String, Integer> values,
+      String role) throws Exception {
+    // Inline roles avoid thousands of named color resources and their resource-table strings.
+    out.write("    <item name=\"" + attr + "\">" +
+        String.format(Locale.ROOT, "#%08X", values.get(role)) + "</item>\n");
   }
 }

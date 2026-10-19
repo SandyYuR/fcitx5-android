@@ -4,10 +4,11 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
@@ -162,7 +163,7 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
         val items = listOf(getString(R.string.custom_key_sound_system_default)) + files
         val selected = AppPrefs.getInstance().keyboard.customKeySound.getValue()
         val checked = if (selected.isBlank()) 0 else (files.indexOf(selected) + 1).coerceAtLeast(0)
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.custom_key_sound)
             .setSingleChoiceItems(items.toTypedArray(), checked) { dialog, which ->
                 AppPrefs.getInstance().keyboard.customKeySound.setValue(
@@ -258,7 +259,7 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
         val items = listOf(builtin) + layers
         val current = AppPrefs.getInstance().keyboard.numericLayoutOverride.getValue().trim()
         val checked = if (current.isEmpty()) 0 else items.indexOf(current).coerceAtLeast(0)
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.numeric_layout_override_title)
             .setSingleChoiceItems(items.toTypedArray(), checked) { dialog, which ->
                 AppPrefs.getInstance().keyboard.numericLayoutOverride
@@ -281,7 +282,7 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
             ))
         val labels = sortedProfiles.map { displayProfile(it) }.toTypedArray()
         val initial = sortedProfiles.indexOf(current).coerceAtLeast(0)
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.text_keyboard_layout_file_select_title)
             .setSingleChoiceItems(labels, initial) { dialog, which ->
                 val sel = sortedProfiles.getOrNull(which) ?: return@setSingleChoiceItems
@@ -323,7 +324,7 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
     private fun showWebEditorBridgeDialog(session: ImeWebEditorBridgeServer.Session) {
         val msg = getString(
             R.string.web_editor_bridge_running_message, session.editorUrl, session.apiBaseUrl)
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.web_editor_bridge_title)
             .setMessage(msg)
             .setPositiveButton(R.string.web_editor_bridge_open) { _, _ ->

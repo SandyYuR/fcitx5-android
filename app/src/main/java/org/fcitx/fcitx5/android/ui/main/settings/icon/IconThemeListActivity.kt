@@ -4,7 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.icon
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
@@ -28,10 +29,9 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
@@ -114,7 +114,6 @@ class IconThemeListActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         IconThemeManager.addOnListChangeListener(onListChangeListener)
         IconThemeManager.addOnChangedListener(onThemeChangeListener)
         ThemeManager.addOnChangedListener(onKeyboardThemeChangeListener)
@@ -126,7 +125,7 @@ class IconThemeListActivity : SettingsUiActivity() {
 
         val toolbar = Toolbar(this).apply {
             title = getString(R.string.icon_theme)
-            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurface))
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
         }
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -140,11 +139,6 @@ class IconThemeListActivity : SettingsUiActivity() {
 
         setContentView(root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            toolbar.updatePadding(top = statusTop)
-            insets
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -377,7 +371,7 @@ class IconThemeListActivity : SettingsUiActivity() {
             getString(R.string.new_icon_theme),
             getString(R.string.icon_theme_duplicate)
         )
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.icon_theme_new))
             .setItems(actions) { _, which ->
                 when (which) {
@@ -395,7 +389,7 @@ class IconThemeListActivity : SettingsUiActivity() {
             return
         }
         val names = customThemes.map { it.name }.toTypedArray()
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.icon_theme_duplicate))
             .setItems(names) { _, which ->
                 val source = customThemes[which]
@@ -418,7 +412,7 @@ class IconThemeListActivity : SettingsUiActivity() {
             return
         }
         val names = customThemes.map { it.name }.toTypedArray()
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.icon_theme_share_title))
             .setItems(names) { _, which ->
                 val theme = customThemes[which]

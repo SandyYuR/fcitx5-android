@@ -4,7 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -253,7 +254,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             maxLines = 1
             inputType = InputType.TYPE_CLASS_TEXT
         }
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.addon_dir_profile_create)
             .setView(input)
             .setNegativeButton(android.R.string.cancel, null)
@@ -285,7 +286,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             maxLines = 1
             inputType = InputType.TYPE_CLASS_TEXT
         }
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.addon_dir_profile_rename)
             .setView(input)
             .setNegativeButton(android.R.string.cancel, null)
@@ -305,7 +306,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             requireContext().toast(R.string.addon_dir_profile_delete_last_forbidden)
             return
         }
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.delete)
             .setMessage(getString(R.string.addon_dir_profile_delete_confirm, name))
             .setNegativeButton(android.R.string.cancel, null)
@@ -323,7 +324,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             getString(R.string.addon_dir_profile_rename),
             getString(R.string.delete)
         )
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(item.name)
             .setItems(options) { _, which ->
                 when (which) {

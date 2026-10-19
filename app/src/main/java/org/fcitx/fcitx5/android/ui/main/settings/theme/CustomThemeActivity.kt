@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
@@ -37,12 +39,11 @@ import android.widget.TextView
 import android.widget.LinearLayout.LayoutParams
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.addCallback
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.StringRes
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -128,8 +129,8 @@ class CustomThemeActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         view(::Toolbar) {
-            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
     }
 
@@ -239,7 +240,7 @@ class CustomThemeActivity : SettingsUiActivity() {
             setSelection(text.length)
             setSingleLine(true)
         }
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.theme_name)
             .setView(input)
             .setPositiveButton(android.R.string.ok, null)
@@ -1198,7 +1199,7 @@ class CustomThemeActivity : SettingsUiActivity() {
                     pickNewSource = true
                 )
             } else {
-                AlertDialog.Builder(this@CustomThemeActivity)
+                MaterialAlertDialogBuilder(this@CustomThemeActivity)
                     .setTitle(R.string.change_background_image)
                     .setItems(
                         arrayOf(
@@ -1301,19 +1302,6 @@ class CustomThemeActivity : SettingsUiActivity() {
             theme = ThemePreset.TransparentDark.deriveCustomBackground(n, c.path, s.path)
         }
         previewUi = KeyboardPreviewUi(this, theme)
-        enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(ui) { _, windowInsets ->
-            val statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
-            val navBars = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            ui.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = navBars.left
-                rightMargin = navBars.right
-            }
-            toolbar.topPadding = statusBars.top
-            scrollView.bottomPadding = navBars.bottom
-            ui.post { updatePreviewScale() }
-            windowInsets
-        }
         // show Activity label on toolbar
         setSupportActionBar(toolbar)
         // show back button
@@ -1503,7 +1491,7 @@ class CustomThemeActivity : SettingsUiActivity() {
     }
 
     private fun promptDelete() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete_theme)
             .setMessage(getString(R.string.delete_theme_msg, theme.name))
             .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -1538,7 +1526,7 @@ class CustomThemeActivity : SettingsUiActivity() {
             hint = getString(R.string.theme_name)
             isSingleLine = true
         }
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.random_theme_copy)
             .setView(input)
             .setPositiveButton(android.R.string.ok, null)

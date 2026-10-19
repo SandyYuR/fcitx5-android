@@ -19,12 +19,12 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="144dp"
+            android:layout_height="112dp"
             android:background="?attr/colorSurfaceContainer"
             app:collapsedTitleTextAppearance="?attr/textAppearanceTitleLarge"
             app:contentScrim="?attr/colorSurfaceContainer"
             app:expandedTitleGravity="bottom|start"
-            app:expandedTitleMarginBottom="16dp"
+            app:expandedTitleMarginBottom="12dp"
             app:expandedTitleMarginStart="24dp"
             app:expandedTitleTextAppearance="?attr/textAppearanceHeadlineMedium"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
@@ -34,7 +34,7 @@
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="64dp"
                 android:background="?attr/colorSurfaceContainer"
                 android:elevation="0dp"
                 app:layout_collapseMode="pin" />

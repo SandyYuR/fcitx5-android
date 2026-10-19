@@ -26,7 +26,7 @@ private fun materialColorAttribute(@AttrRes attrRes: Int): Int = when (attrRes) 
     android.R.attr.colorBackground -> com.google.android.material.R.attr.colorSurface
     android.R.attr.colorBackgroundFloating,
     android.R.attr.colorButtonNormal -> com.google.android.material.R.attr.colorSurfaceContainerHigh
-    android.R.attr.colorControlHighlight -> com.google.android.material.R.attr.colorSecondaryContainer
+    android.R.attr.colorControlHighlight -> androidx.appcompat.R.attr.colorControlHighlight
     android.R.attr.colorControlNormal -> com.google.android.material.R.attr.colorOnSurfaceVariant
     android.R.attr.colorForeground,
     android.R.attr.textColorPrimary -> com.google.android.material.R.attr.colorOnSurface

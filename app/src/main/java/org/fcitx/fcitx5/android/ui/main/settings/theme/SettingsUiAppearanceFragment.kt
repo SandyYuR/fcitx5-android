@@ -4,7 +4,6 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
-import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,9 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
-import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.slider.Slider
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
@@ -70,7 +67,14 @@ class SettingsUiAppearanceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         original = SettingsUiPreferences.read(requireContext())
-        draft = original
+        draft = savedInstanceState?.let {
+            original.copy(
+                mode = it.getString("draft_mode") ?: original.mode,
+                palette = it.getString("draft_palette") ?: original.palette,
+                recipe = it.getString("draft_recipe") ?: original.recipe,
+                contrast = it.getString("draft_contrast") ?: original.contrast
+            )
+        } ?: original
         val scrollContent = view.findViewById<View>(R.id.settings_ui_scroll)
         val initialBottomPadding = scrollContent.paddingBottom
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(scrollContent) { target, insets ->
@@ -83,6 +87,14 @@ class SettingsUiAppearanceFragment : Fragment() {
         androidx.core.view.ViewCompat.requestApplyInsets(scrollContent)
 
         val modeGroup = view.findViewById<MaterialButtonToggleGroup>(R.id.settings_ui_mode_group)
+        if (resources.configuration.fontScale >= 1.3f) {
+            modeGroup.orientation = android.widget.LinearLayout.VERTICAL
+            for (index in 0 until modeGroup.childCount) {
+                modeGroup.getChildAt(index).layoutParams = android.widget.LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            }
+        }
         modeGroup.check(modeButtonId(draft.mode))
         modeGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
@@ -124,6 +136,7 @@ class SettingsUiAppearanceFragment : Fragment() {
         view.findViewById<MaterialButton>(R.id.settings_ui_restore_button).setOnClickListener {
             draft = Selection()
             modeGroup.check(modeButtonId(draft.mode))
+            view.findViewById<Slider>(R.id.settings_ui_contrast_slider).value = 0f
             render(view)
         }
         view.findViewById<MaterialButton>(R.id.settings_ui_cancel_button).setOnClickListener {
@@ -141,7 +154,6 @@ class SettingsUiAppearanceFragment : Fragment() {
     }
 
     private fun render(view: View) {
-        val context = requireContext()
         val familyName = getString(labelFor(paletteOptions, draft.palette))
         val recipeName = getString(labelFor(recipeOptions, draft.recipe))
         view.findViewById<MaterialButton>(R.id.settings_ui_palette_button).text =
@@ -161,35 +173,22 @@ class SettingsUiAppearanceFragment : Fragment() {
         }
         view.findViewById<TextView>(R.id.settings_ui_contrast_label).isVisible = !isSystemPalette
 
-        val previewCard = view.findViewById<MaterialCardView>(R.id.settings_ui_preview_card)
-        previewCard.setCardBackgroundColor(SettingsUiPreferences.color(context, draft, "surface"))
-        val rolePreviews = listOf(
-            Triple(R.id.settings_ui_preview_primary, "primary", "on_primary"),
-            Triple(R.id.settings_ui_preview_secondary, "secondary", "on_secondary"),
-            Triple(R.id.settings_ui_preview_tertiary, "tertiary", "on_tertiary")
-        )
-        rolePreviews.forEach { (id, backgroundRole, foregroundRole) ->
-            view.findViewById<TextView>(id).apply {
-                setBackgroundColor(SettingsUiPreferences.color(context, draft, backgroundRole))
-                setTextColor(SettingsUiPreferences.color(context, draft, foregroundRole))
-            }
-        }
-        view.findViewById<TextView>(R.id.settings_ui_preview_body).setTextColor(
-            SettingsUiPreferences.color(context, draft, "on_surface")
-        )
-        view.findViewById<MaterialSwitch>(R.id.settings_ui_preview_switch).apply {
-            val primary = SettingsUiPreferences.color(context, draft, "primary")
-            val primaryContainer = SettingsUiPreferences.color(context, draft, "primary_container")
-            thumbTintList = ColorStateList.valueOf(primary)
-            trackTintList = ColorStateList.valueOf(primaryContainer)
-        }
-        view.findViewById<MaterialButton>(R.id.settings_ui_preview_button).apply {
-            backgroundTintList = ColorStateList.valueOf(
-                SettingsUiPreferences.color(context, draft, "primary")
-            )
-            setTextColor(SettingsUiPreferences.color(context, draft, "on_primary"))
+        val preview = view.findViewById<ViewGroup>(R.id.settings_ui_preview_container)
+        if (preview.tag != draft) {
+            val themed = SettingsUiPreferences.themedContext(requireContext(), draft)
+            preview.removeAllViews()
+            LayoutInflater.from(themed).inflate(R.layout.settings_ui_appearance_preview, preview, true)
+            preview.tag = draft
         }
         view.findViewById<MaterialButton>(R.id.settings_ui_apply_button).isEnabled = draft != original
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("draft_mode", draft.mode)
+        outState.putString("draft_palette", draft.palette)
+        outState.putString("draft_recipe", draft.recipe)
+        outState.putString("draft_contrast", draft.contrast)
     }
 
     private fun showOptions(

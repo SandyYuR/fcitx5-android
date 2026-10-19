@@ -12,6 +12,11 @@ import androidx.preference.EditTextPreferenceDialogFragmentCompat
 import org.fcitx.fcitx5.android.R
 
 class MyEditTextPreferenceDialogFragment : EditTextPreferenceDialogFragmentCompat() {
+    override fun onCreateDialog(savedInstanceState: Bundle?) =
+        materialDialog(::onCreateDialogView, ::onBindDialogView, ::onPrepareDialogBuilder).also {
+            it.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+        }
+
     override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
         val p = preference as EditTextPreference
         builder.setNeutralButton(R.string.default_) { _, _ ->
