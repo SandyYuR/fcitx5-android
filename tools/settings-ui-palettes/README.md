@@ -4,6 +4,9 @@ The files in `app/src/main/res/values/colors_settings_ui_palettes.xml` and
 `styles_settings_ui_palettes.xml` are generated role tables for the Material 3 Expressive
 settings shell. The app does not include MCU as a runtime dependency. Android selects one
 complete light or dark theme before an app-owned settings Activity creates its views.
+Generated light and dark styles inherit `Theme.FcitxSettings.Base.Light` and
+`Theme.FcitxSettings.Base.Dark`; those base styles in `themes.xml` bridge legacy Android
+color attributes to the active Material 3 roles for existing settings editors.
 
 ## Source and parameters
 

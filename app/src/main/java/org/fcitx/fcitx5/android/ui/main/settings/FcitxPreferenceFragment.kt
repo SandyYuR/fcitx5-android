@@ -13,9 +13,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.preference.isEmpty
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.RawConfig
@@ -38,6 +40,8 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
 
     private val supervisorJob = SupervisorJob()
     private val scope = CoroutineScope(supervisorJob)
+    private var pendingSaveCount = 0
+    private var saveBackCallback: OnBackPressedCallback? = null
 
     private val viewModel: MainViewModel by activityViewModels()
 
@@ -46,29 +50,39 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
 
     private fun save() {
         if (!configLoaded) return
+        pendingSaveCount++
+        saveBackCallback?.isEnabled = true
         // launch "saveConfig" job under supervisorJob scope
         scope.launch {
-            fcitx.runOnReady {
-                saveConfig(this, raw["cfg"])
+            try {
+                fcitx.runOnReady {
+                    saveConfig(this, raw["cfg"])
+                }
+            } finally {
+                withContext(Dispatchers.Main.immediate) {
+                    pendingSaveCount = (pendingSaveCount - 1).coerceAtLeast(0)
+                    saveBackCallback?.isEnabled = pendingSaveCount > 0
+                }
             }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher
-            .addCallback(this, object : OnBackPressedCallback(true) {
-                // prevent "back" from navigating away from this Fragment when it's still saving
-                override fun handleOnBackPressed() {
-                    lifecycleScope.withLoadingDialog(requireContext(), R.string.saving) {
-                        // complete the parent job and wait all "saveConfig" jobs to finish
-                        supervisorJob.complete()
-                        supervisorJob.join()
-                        scope.cancel()
-                        findNavController().popBackStack()
-                    }
+        saveBackCallback = object : OnBackPressedCallback(false) {
+            // Intercept only while writes are active. At rest, NavController handles predictive back.
+            override fun handleOnBackPressed() {
+                lifecycleScope.withLoadingDialog(requireContext(), R.string.saving) {
+                    // complete the parent job and wait all "saveConfig" jobs to finish
+                    supervisorJob.complete()
+                    supervisorJob.join()
+                    scope.cancel()
+                    findNavController().popBackStack()
                 }
-            })
+            }
+        }.also { callback ->
+            requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+        }
     }
 
     /**

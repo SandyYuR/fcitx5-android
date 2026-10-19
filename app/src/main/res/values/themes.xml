@@ -1,9 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.FcitxSettings.System" parent="Theme.Material3Expressive.DynamicColors.DayNight.NoActionBar" />
-    <style name="Theme.FcitxSettings.System.Light" parent="Theme.Material3Expressive.DynamicColors.Light.NoActionBar" />
-    <style name="Theme.FcitxSettings.System.Dark" parent="Theme.Material3Expressive.DynamicColors.Dark.NoActionBar" />
+    <!-- Bridge legacy platform color lookups used by existing settings editors to Material 3 roles. -->
+    <style name="Theme.FcitxSettings.Base" parent="Theme.Material3Expressive.DynamicColors.DayNight.NoActionBar">
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorAccent">?attr/colorPrimary</item>
+        <item name="android:colorBackground">?attr/colorSurface</item>
+        <item name="android:colorBackgroundFloating">?attr/colorSurfaceContainerHigh</item>
+        <item name="android:colorButtonNormal">?attr/colorSurfaceContainerHigh</item>
+        <item name="android:colorControlActivated">?attr/colorPrimary</item>
+        <item name="android:colorControlHighlight">?attr/colorSecondaryContainer</item>
+        <item name="android:colorControlNormal">?attr/colorOnSurfaceVariant</item>
+        <item name="android:colorForeground">?attr/colorOnSurface</item>
+        <item name="android:colorForegroundInverse">?attr/colorSurfaceInverse</item>
+        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColorTertiary">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="Theme.FcitxSettings.Base.Light" parent="Theme.Material3Expressive.Light.NoActionBar">
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorAccent">?attr/colorPrimary</item>
+        <item name="android:colorBackground">?attr/colorSurface</item>
+        <item name="android:colorBackgroundFloating">?attr/colorSurfaceContainerHigh</item>
+        <item name="android:colorButtonNormal">?attr/colorSurfaceContainerHigh</item>
+        <item name="android:colorControlActivated">?attr/colorPrimary</item>
+        <item name="android:colorControlHighlight">?attr/colorSecondaryContainer</item>
+        <item name="android:colorControlNormal">?attr/colorOnSurfaceVariant</item>
+        <item name="android:colorForeground">?attr/colorOnSurface</item>
+        <item name="android:colorForegroundInverse">?attr/colorSurfaceInverse</item>
+        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColorTertiary">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="Theme.FcitxSettings.Base.Dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+        <item name="android:colorPrimary">?attr/colorPrimary</item>
+        <item name="android:colorAccent">?attr/colorPrimary</item>
+        <item name="android:colorBackground">?attr/colorSurface</item>
+        <item name="android:colorBackgroundFloating">?attr/colorSurfaceContainerHigh</item>
+        <item name="android:colorButtonNormal">?attr/colorSurfaceContainerHigh</item>
+        <item name="android:colorControlActivated">?attr/colorPrimary</item>
+        <item name="android:colorControlHighlight">?attr/colorSecondaryContainer</item>
+        <item name="android:colorControlNormal">?attr/colorOnSurfaceVariant</item>
+        <item name="android:colorForeground">?attr/colorOnSurface</item>
+        <item name="android:colorForegroundInverse">?attr/colorSurfaceInverse</item>
+        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColorTertiary">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="Theme.FcitxSettings.System" parent="Theme.FcitxSettings.Base" />
+    <style name="Theme.FcitxSettings.System.Light" parent="Theme.FcitxSettings.Base.Light" />
+    <style name="Theme.FcitxSettings.System.Dark" parent="Theme.FcitxSettings.Base.Dark" />
 
     <style name="Theme.FcitxAppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
         <item name="colorLogFatal">@color/red_A700</item>

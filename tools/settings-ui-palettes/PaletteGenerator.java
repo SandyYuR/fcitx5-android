@@ -177,8 +177,8 @@ public final class PaletteGenerator {
     String mode = dark ? "dark" : "light";
     String suffix = family + "." + recipe + "." + contrast + "." + mode;
     String parent = dark
-        ? "Theme.Material3Expressive.Dark.NoActionBar"
-        : "Theme.Material3Expressive.Light.NoActionBar";
+        ? "Theme.FcitxSettings.Base.Dark"
+        : "Theme.FcitxSettings.Base.Light";
     out.write("  <style name=\"Theme.FcitxSettings." + suffix + "\" parent=\"" + parent + "\">\n");
     item(out, "colorPrimary", family, recipe, contrast, mode, "primary");
     item(out, "colorOnPrimary", family, recipe, contrast, mode, "on_primary");

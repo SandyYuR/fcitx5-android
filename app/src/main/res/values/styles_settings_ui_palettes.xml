@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <style name="Theme.FcitxSettings.sea_salt.cmf2026.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.cmf2026.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_cmf2026_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_cmf2026_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_cmf2026_standard_light_primary</item>
@@ -55,7 +55,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_cmf2026_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_cmf2026_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.cmf2026.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.cmf2026.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_cmf2026_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_cmf2026_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_cmf2026_standard_dark_primary</item>
@@ -110,7 +110,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_cmf2026_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_cmf2026_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.cmf2026.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.cmf2026.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_cmf2026_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_cmf2026_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_cmf2026_medium_light_primary</item>
@@ -165,7 +165,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_cmf2026_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_cmf2026_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.cmf2026.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.cmf2026.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_cmf2026_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_cmf2026_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_cmf2026_medium_dark_primary</item>
@@ -220,7 +220,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_cmf2026_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_cmf2026_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.cmf2026.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.cmf2026.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_cmf2026_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_cmf2026_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_cmf2026_high_light_primary</item>
@@ -275,7 +275,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_cmf2026_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_cmf2026_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.cmf2026.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.cmf2026.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_cmf2026_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_cmf2026_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_cmf2026_high_dark_primary</item>
@@ -330,7 +330,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_cmf2026_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_cmf2026_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.tonal2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.tonal2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_tonal2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_tonal2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_tonal2025_standard_light_primary</item>
@@ -385,7 +385,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_tonal2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_tonal2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.tonal2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.tonal2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_tonal2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_tonal2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_tonal2025_standard_dark_primary</item>
@@ -440,7 +440,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_tonal2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_tonal2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.tonal2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.tonal2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_tonal2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_tonal2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_tonal2025_medium_light_primary</item>
@@ -495,7 +495,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_tonal2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_tonal2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.tonal2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.tonal2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_tonal2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_tonal2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_tonal2025_medium_dark_primary</item>
@@ -550,7 +550,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_tonal2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_tonal2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.tonal2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.tonal2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_tonal2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_tonal2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_tonal2025_high_light_primary</item>
@@ -605,7 +605,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_tonal2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_tonal2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.tonal2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.tonal2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_tonal2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_tonal2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_tonal2025_high_dark_primary</item>
@@ -660,7 +660,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_tonal2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_tonal2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_vibrant2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_vibrant2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_vibrant2025_standard_light_primary</item>
@@ -715,7 +715,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_vibrant2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_vibrant2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_vibrant2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_vibrant2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_vibrant2025_standard_dark_primary</item>
@@ -770,7 +770,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_vibrant2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_vibrant2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_vibrant2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_vibrant2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_vibrant2025_medium_light_primary</item>
@@ -825,7 +825,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_vibrant2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_vibrant2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_vibrant2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_vibrant2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_vibrant2025_medium_dark_primary</item>
@@ -880,7 +880,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_vibrant2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_vibrant2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_vibrant2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_vibrant2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_vibrant2025_high_light_primary</item>
@@ -935,7 +935,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_vibrant2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_vibrant2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.vibrant2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_vibrant2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_vibrant2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_vibrant2025_high_dark_primary</item>
@@ -990,7 +990,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_vibrant2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_vibrant2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.neutral2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.neutral2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_neutral2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_neutral2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_neutral2025_standard_light_primary</item>
@@ -1045,7 +1045,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_neutral2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_neutral2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.neutral2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.neutral2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_neutral2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_neutral2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_neutral2025_standard_dark_primary</item>
@@ -1100,7 +1100,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_neutral2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_neutral2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.neutral2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.neutral2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_neutral2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_neutral2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_neutral2025_medium_light_primary</item>
@@ -1155,7 +1155,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_neutral2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_neutral2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.neutral2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.neutral2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_neutral2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_neutral2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_neutral2025_medium_dark_primary</item>
@@ -1210,7 +1210,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_neutral2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_neutral2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.neutral2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.neutral2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_neutral2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_neutral2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_neutral2025_high_light_primary</item>
@@ -1265,7 +1265,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_neutral2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_neutral2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.neutral2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.neutral2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_neutral2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_neutral2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_neutral2025_high_dark_primary</item>
@@ -1320,7 +1320,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_neutral2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_neutral2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.expressive2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.expressive2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_expressive2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_expressive2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_expressive2025_standard_light_primary</item>
@@ -1375,7 +1375,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_expressive2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_expressive2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.expressive2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.expressive2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_expressive2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_expressive2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_expressive2025_standard_dark_primary</item>
@@ -1430,7 +1430,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_expressive2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_expressive2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.expressive2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.expressive2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_expressive2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_expressive2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_expressive2025_medium_light_primary</item>
@@ -1485,7 +1485,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_expressive2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_expressive2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.expressive2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.expressive2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_expressive2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_expressive2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_expressive2025_medium_dark_primary</item>
@@ -1540,7 +1540,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_expressive2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_expressive2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.expressive2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.expressive2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_expressive2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_expressive2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_expressive2025_high_light_primary</item>
@@ -1595,7 +1595,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_expressive2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_expressive2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.expressive2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.expressive2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_expressive2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_expressive2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_expressive2025_high_dark_primary</item>
@@ -1650,7 +1650,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_expressive2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_expressive2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.classic2021.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.classic2021.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_classic2021_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_classic2021_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_classic2021_standard_light_primary</item>
@@ -1705,7 +1705,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_classic2021_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_classic2021_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.classic2021.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.classic2021.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_classic2021_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_classic2021_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_classic2021_standard_dark_primary</item>
@@ -1760,7 +1760,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_classic2021_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_classic2021_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.classic2021.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.classic2021.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_classic2021_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_classic2021_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_classic2021_medium_light_primary</item>
@@ -1815,7 +1815,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_classic2021_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_classic2021_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.classic2021.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.classic2021.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_classic2021_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_classic2021_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_classic2021_medium_dark_primary</item>
@@ -1870,7 +1870,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_classic2021_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_classic2021_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.classic2021.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.classic2021.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_sea_salt_classic2021_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_classic2021_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_classic2021_high_light_primary</item>
@@ -1925,7 +1925,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_classic2021_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_classic2021_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.sea_salt.classic2021.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.sea_salt.classic2021.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_sea_salt_classic2021_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_sea_salt_classic2021_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_sea_salt_classic2021_high_dark_primary</item>
@@ -1980,7 +1980,7 @@
     <item name="android:statusBarColor">@color/settings_ui_sea_salt_classic2021_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_sea_salt_classic2021_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.cmf2026.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.cmf2026.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_cmf2026_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_cmf2026_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_cmf2026_standard_light_primary</item>
@@ -2035,7 +2035,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_cmf2026_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_cmf2026_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.cmf2026.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.cmf2026.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_cmf2026_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_cmf2026_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_cmf2026_standard_dark_primary</item>
@@ -2090,7 +2090,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_cmf2026_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_cmf2026_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.cmf2026.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.cmf2026.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_cmf2026_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_cmf2026_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_cmf2026_medium_light_primary</item>
@@ -2145,7 +2145,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_cmf2026_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_cmf2026_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.cmf2026.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.cmf2026.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_cmf2026_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_cmf2026_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_cmf2026_medium_dark_primary</item>
@@ -2200,7 +2200,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_cmf2026_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_cmf2026_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.cmf2026.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.cmf2026.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_cmf2026_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_cmf2026_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_cmf2026_high_light_primary</item>
@@ -2255,7 +2255,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_cmf2026_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_cmf2026_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.cmf2026.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.cmf2026.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_cmf2026_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_cmf2026_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_cmf2026_high_dark_primary</item>
@@ -2310,7 +2310,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_cmf2026_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_cmf2026_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.tonal2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.tonal2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_tonal2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_tonal2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_tonal2025_standard_light_primary</item>
@@ -2365,7 +2365,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_tonal2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_tonal2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.tonal2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.tonal2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_tonal2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_tonal2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_tonal2025_standard_dark_primary</item>
@@ -2420,7 +2420,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_tonal2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_tonal2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.tonal2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.tonal2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_tonal2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_tonal2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_tonal2025_medium_light_primary</item>
@@ -2475,7 +2475,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_tonal2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_tonal2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.tonal2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.tonal2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_tonal2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_tonal2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_tonal2025_medium_dark_primary</item>
@@ -2530,7 +2530,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_tonal2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_tonal2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.tonal2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.tonal2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_tonal2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_tonal2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_tonal2025_high_light_primary</item>
@@ -2585,7 +2585,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_tonal2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_tonal2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.tonal2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.tonal2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_tonal2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_tonal2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_tonal2025_high_dark_primary</item>
@@ -2640,7 +2640,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_tonal2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_tonal2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.vibrant2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.vibrant2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_vibrant2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_vibrant2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_vibrant2025_standard_light_primary</item>
@@ -2695,7 +2695,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_vibrant2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_vibrant2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.vibrant2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.vibrant2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_vibrant2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_vibrant2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_vibrant2025_standard_dark_primary</item>
@@ -2750,7 +2750,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_vibrant2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_vibrant2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.vibrant2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.vibrant2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_vibrant2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_vibrant2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_vibrant2025_medium_light_primary</item>
@@ -2805,7 +2805,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_vibrant2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_vibrant2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.vibrant2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.vibrant2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_vibrant2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_vibrant2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_vibrant2025_medium_dark_primary</item>
@@ -2860,7 +2860,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_vibrant2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_vibrant2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.vibrant2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.vibrant2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_vibrant2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_vibrant2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_vibrant2025_high_light_primary</item>
@@ -2915,7 +2915,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_vibrant2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_vibrant2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.vibrant2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.vibrant2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_vibrant2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_vibrant2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_vibrant2025_high_dark_primary</item>
@@ -2970,7 +2970,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_vibrant2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_vibrant2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.neutral2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.neutral2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_neutral2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_neutral2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_neutral2025_standard_light_primary</item>
@@ -3025,7 +3025,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_neutral2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_neutral2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.neutral2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.neutral2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_neutral2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_neutral2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_neutral2025_standard_dark_primary</item>
@@ -3080,7 +3080,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_neutral2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_neutral2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.neutral2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.neutral2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_neutral2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_neutral2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_neutral2025_medium_light_primary</item>
@@ -3135,7 +3135,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_neutral2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_neutral2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.neutral2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.neutral2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_neutral2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_neutral2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_neutral2025_medium_dark_primary</item>
@@ -3190,7 +3190,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_neutral2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_neutral2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.neutral2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.neutral2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_neutral2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_neutral2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_neutral2025_high_light_primary</item>
@@ -3245,7 +3245,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_neutral2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_neutral2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.neutral2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.neutral2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_neutral2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_neutral2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_neutral2025_high_dark_primary</item>
@@ -3300,7 +3300,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_neutral2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_neutral2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.expressive2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.expressive2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_expressive2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_expressive2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_expressive2025_standard_light_primary</item>
@@ -3355,7 +3355,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_expressive2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_expressive2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.expressive2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.expressive2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_expressive2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_expressive2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_expressive2025_standard_dark_primary</item>
@@ -3410,7 +3410,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_expressive2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_expressive2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.expressive2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.expressive2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_expressive2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_expressive2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_expressive2025_medium_light_primary</item>
@@ -3465,7 +3465,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_expressive2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_expressive2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.expressive2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.expressive2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_expressive2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_expressive2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_expressive2025_medium_dark_primary</item>
@@ -3520,7 +3520,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_expressive2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_expressive2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.expressive2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.expressive2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_expressive2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_expressive2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_expressive2025_high_light_primary</item>
@@ -3575,7 +3575,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_expressive2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_expressive2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.expressive2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.expressive2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_expressive2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_expressive2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_expressive2025_high_dark_primary</item>
@@ -3630,7 +3630,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_expressive2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_expressive2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.classic2021.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.classic2021.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_classic2021_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_classic2021_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_classic2021_standard_light_primary</item>
@@ -3685,7 +3685,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_classic2021_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_classic2021_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.classic2021.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.classic2021.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_classic2021_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_classic2021_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_classic2021_standard_dark_primary</item>
@@ -3740,7 +3740,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_classic2021_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_classic2021_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.classic2021.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.classic2021.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_classic2021_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_classic2021_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_classic2021_medium_light_primary</item>
@@ -3795,7 +3795,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_classic2021_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_classic2021_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.classic2021.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.classic2021.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_classic2021_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_classic2021_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_classic2021_medium_dark_primary</item>
@@ -3850,7 +3850,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_classic2021_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_classic2021_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.classic2021.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.classic2021.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_pine_classic2021_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_classic2021_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_classic2021_high_light_primary</item>
@@ -3905,7 +3905,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_classic2021_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_classic2021_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.pine.classic2021.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.pine.classic2021.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_pine_classic2021_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_pine_classic2021_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_pine_classic2021_high_dark_primary</item>
@@ -3960,7 +3960,7 @@
     <item name="android:statusBarColor">@color/settings_ui_pine_classic2021_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_pine_classic2021_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.cmf2026.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.cmf2026.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_cmf2026_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_cmf2026_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_cmf2026_standard_light_primary</item>
@@ -4015,7 +4015,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_cmf2026_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_cmf2026_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.cmf2026.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.cmf2026.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_cmf2026_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_cmf2026_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_cmf2026_standard_dark_primary</item>
@@ -4070,7 +4070,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_cmf2026_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_cmf2026_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.cmf2026.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.cmf2026.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_cmf2026_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_cmf2026_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_cmf2026_medium_light_primary</item>
@@ -4125,7 +4125,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_cmf2026_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_cmf2026_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.cmf2026.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.cmf2026.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_cmf2026_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_cmf2026_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_cmf2026_medium_dark_primary</item>
@@ -4180,7 +4180,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_cmf2026_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_cmf2026_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.cmf2026.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.cmf2026.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_cmf2026_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_cmf2026_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_cmf2026_high_light_primary</item>
@@ -4235,7 +4235,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_cmf2026_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_cmf2026_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.cmf2026.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.cmf2026.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_cmf2026_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_cmf2026_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_cmf2026_high_dark_primary</item>
@@ -4290,7 +4290,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_cmf2026_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_cmf2026_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.tonal2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.tonal2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_tonal2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_tonal2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_tonal2025_standard_light_primary</item>
@@ -4345,7 +4345,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_tonal2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_tonal2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.tonal2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.tonal2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_tonal2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_tonal2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_tonal2025_standard_dark_primary</item>
@@ -4400,7 +4400,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_tonal2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_tonal2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.tonal2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.tonal2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_tonal2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_tonal2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_tonal2025_medium_light_primary</item>
@@ -4455,7 +4455,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_tonal2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_tonal2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.tonal2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.tonal2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_tonal2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_tonal2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_tonal2025_medium_dark_primary</item>
@@ -4510,7 +4510,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_tonal2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_tonal2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.tonal2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.tonal2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_tonal2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_tonal2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_tonal2025_high_light_primary</item>
@@ -4565,7 +4565,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_tonal2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_tonal2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.tonal2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.tonal2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_tonal2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_tonal2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_tonal2025_high_dark_primary</item>
@@ -4620,7 +4620,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_tonal2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_tonal2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.vibrant2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.vibrant2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_vibrant2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_vibrant2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_vibrant2025_standard_light_primary</item>
@@ -4675,7 +4675,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_vibrant2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_vibrant2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.vibrant2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.vibrant2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_vibrant2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_vibrant2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_vibrant2025_standard_dark_primary</item>
@@ -4730,7 +4730,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_vibrant2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_vibrant2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.vibrant2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.vibrant2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_vibrant2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_vibrant2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_vibrant2025_medium_light_primary</item>
@@ -4785,7 +4785,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_vibrant2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_vibrant2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.vibrant2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.vibrant2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_vibrant2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_vibrant2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_vibrant2025_medium_dark_primary</item>
@@ -4840,7 +4840,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_vibrant2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_vibrant2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.vibrant2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.vibrant2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_vibrant2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_vibrant2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_vibrant2025_high_light_primary</item>
@@ -4895,7 +4895,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_vibrant2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_vibrant2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.vibrant2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.vibrant2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_vibrant2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_vibrant2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_vibrant2025_high_dark_primary</item>
@@ -4950,7 +4950,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_vibrant2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_vibrant2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.neutral2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.neutral2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_neutral2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_neutral2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_neutral2025_standard_light_primary</item>
@@ -5005,7 +5005,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_neutral2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_neutral2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.neutral2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.neutral2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_neutral2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_neutral2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_neutral2025_standard_dark_primary</item>
@@ -5060,7 +5060,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_neutral2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_neutral2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.neutral2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.neutral2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_neutral2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_neutral2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_neutral2025_medium_light_primary</item>
@@ -5115,7 +5115,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_neutral2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_neutral2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.neutral2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.neutral2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_neutral2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_neutral2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_neutral2025_medium_dark_primary</item>
@@ -5170,7 +5170,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_neutral2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_neutral2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.neutral2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.neutral2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_neutral2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_neutral2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_neutral2025_high_light_primary</item>
@@ -5225,7 +5225,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_neutral2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_neutral2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.neutral2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.neutral2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_neutral2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_neutral2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_neutral2025_high_dark_primary</item>
@@ -5280,7 +5280,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_neutral2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_neutral2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.expressive2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.expressive2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_expressive2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_expressive2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_expressive2025_standard_light_primary</item>
@@ -5335,7 +5335,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_expressive2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_expressive2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.expressive2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.expressive2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_expressive2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_expressive2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_expressive2025_standard_dark_primary</item>
@@ -5390,7 +5390,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_expressive2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_expressive2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.expressive2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.expressive2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_expressive2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_expressive2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_expressive2025_medium_light_primary</item>
@@ -5445,7 +5445,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_expressive2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_expressive2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.expressive2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.expressive2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_expressive2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_expressive2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_expressive2025_medium_dark_primary</item>
@@ -5500,7 +5500,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_expressive2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_expressive2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.expressive2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.expressive2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_expressive2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_expressive2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_expressive2025_high_light_primary</item>
@@ -5555,7 +5555,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_expressive2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_expressive2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.expressive2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.expressive2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_expressive2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_expressive2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_expressive2025_high_dark_primary</item>
@@ -5610,7 +5610,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_expressive2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_expressive2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.classic2021.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.classic2021.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_classic2021_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_classic2021_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_classic2021_standard_light_primary</item>
@@ -5665,7 +5665,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_classic2021_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_classic2021_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.classic2021.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.classic2021.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_classic2021_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_classic2021_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_classic2021_standard_dark_primary</item>
@@ -5720,7 +5720,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_classic2021_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_classic2021_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.classic2021.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.classic2021.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_classic2021_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_classic2021_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_classic2021_medium_light_primary</item>
@@ -5775,7 +5775,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_classic2021_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_classic2021_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.classic2021.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.classic2021.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_classic2021_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_classic2021_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_classic2021_medium_dark_primary</item>
@@ -5830,7 +5830,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_classic2021_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_classic2021_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.classic2021.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.classic2021.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_berry_classic2021_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_classic2021_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_classic2021_high_light_primary</item>
@@ -5885,7 +5885,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_classic2021_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_classic2021_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.berry.classic2021.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.berry.classic2021.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_berry_classic2021_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_berry_classic2021_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_berry_classic2021_high_dark_primary</item>
@@ -5940,7 +5940,7 @@
     <item name="android:statusBarColor">@color/settings_ui_berry_classic2021_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_berry_classic2021_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.cmf2026.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.cmf2026.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_cmf2026_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_cmf2026_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_cmf2026_standard_light_primary</item>
@@ -5995,7 +5995,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_cmf2026_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_cmf2026_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.cmf2026.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.cmf2026.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_cmf2026_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_cmf2026_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_cmf2026_standard_dark_primary</item>
@@ -6050,7 +6050,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_cmf2026_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_cmf2026_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.cmf2026.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.cmf2026.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_cmf2026_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_cmf2026_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_cmf2026_medium_light_primary</item>
@@ -6105,7 +6105,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_cmf2026_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_cmf2026_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.cmf2026.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.cmf2026.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_cmf2026_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_cmf2026_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_cmf2026_medium_dark_primary</item>
@@ -6160,7 +6160,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_cmf2026_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_cmf2026_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.cmf2026.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.cmf2026.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_cmf2026_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_cmf2026_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_cmf2026_high_light_primary</item>
@@ -6215,7 +6215,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_cmf2026_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_cmf2026_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.cmf2026.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.cmf2026.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_cmf2026_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_cmf2026_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_cmf2026_high_dark_primary</item>
@@ -6270,7 +6270,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_cmf2026_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_cmf2026_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.tonal2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.tonal2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_tonal2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_tonal2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_tonal2025_standard_light_primary</item>
@@ -6325,7 +6325,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_tonal2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_tonal2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.tonal2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.tonal2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_tonal2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_tonal2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_tonal2025_standard_dark_primary</item>
@@ -6380,7 +6380,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_tonal2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_tonal2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.tonal2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.tonal2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_tonal2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_tonal2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_tonal2025_medium_light_primary</item>
@@ -6435,7 +6435,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_tonal2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_tonal2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.tonal2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.tonal2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_tonal2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_tonal2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_tonal2025_medium_dark_primary</item>
@@ -6490,7 +6490,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_tonal2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_tonal2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.tonal2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.tonal2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_tonal2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_tonal2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_tonal2025_high_light_primary</item>
@@ -6545,7 +6545,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_tonal2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_tonal2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.tonal2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.tonal2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_tonal2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_tonal2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_tonal2025_high_dark_primary</item>
@@ -6600,7 +6600,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_tonal2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_tonal2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.vibrant2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.vibrant2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_vibrant2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_vibrant2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_vibrant2025_standard_light_primary</item>
@@ -6655,7 +6655,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_vibrant2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_vibrant2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.vibrant2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.vibrant2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_vibrant2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_vibrant2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_vibrant2025_standard_dark_primary</item>
@@ -6710,7 +6710,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_vibrant2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_vibrant2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.vibrant2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.vibrant2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_vibrant2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_vibrant2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_vibrant2025_medium_light_primary</item>
@@ -6765,7 +6765,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_vibrant2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_vibrant2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.vibrant2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.vibrant2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_vibrant2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_vibrant2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_vibrant2025_medium_dark_primary</item>
@@ -6820,7 +6820,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_vibrant2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_vibrant2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.vibrant2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.vibrant2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_vibrant2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_vibrant2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_vibrant2025_high_light_primary</item>
@@ -6875,7 +6875,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_vibrant2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_vibrant2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.vibrant2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.vibrant2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_vibrant2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_vibrant2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_vibrant2025_high_dark_primary</item>
@@ -6930,7 +6930,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_vibrant2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_vibrant2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.neutral2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.neutral2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_neutral2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_neutral2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_neutral2025_standard_light_primary</item>
@@ -6985,7 +6985,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_neutral2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_neutral2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.neutral2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.neutral2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_neutral2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_neutral2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_neutral2025_standard_dark_primary</item>
@@ -7040,7 +7040,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_neutral2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_neutral2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.neutral2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.neutral2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_neutral2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_neutral2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_neutral2025_medium_light_primary</item>
@@ -7095,7 +7095,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_neutral2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_neutral2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.neutral2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.neutral2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_neutral2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_neutral2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_neutral2025_medium_dark_primary</item>
@@ -7150,7 +7150,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_neutral2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_neutral2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.neutral2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.neutral2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_neutral2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_neutral2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_neutral2025_high_light_primary</item>
@@ -7205,7 +7205,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_neutral2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_neutral2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.neutral2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.neutral2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_neutral2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_neutral2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_neutral2025_high_dark_primary</item>
@@ -7260,7 +7260,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_neutral2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_neutral2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.expressive2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.expressive2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_expressive2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_expressive2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_expressive2025_standard_light_primary</item>
@@ -7315,7 +7315,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_expressive2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_expressive2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.expressive2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.expressive2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_expressive2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_expressive2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_expressive2025_standard_dark_primary</item>
@@ -7370,7 +7370,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_expressive2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_expressive2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.expressive2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.expressive2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_expressive2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_expressive2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_expressive2025_medium_light_primary</item>
@@ -7425,7 +7425,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_expressive2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_expressive2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.expressive2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.expressive2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_expressive2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_expressive2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_expressive2025_medium_dark_primary</item>
@@ -7480,7 +7480,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_expressive2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_expressive2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.expressive2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.expressive2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_expressive2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_expressive2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_expressive2025_high_light_primary</item>
@@ -7535,7 +7535,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_expressive2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_expressive2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.expressive2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.expressive2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_expressive2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_expressive2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_expressive2025_high_dark_primary</item>
@@ -7590,7 +7590,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_expressive2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_expressive2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.classic2021.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.classic2021.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_classic2021_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_classic2021_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_classic2021_standard_light_primary</item>
@@ -7645,7 +7645,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_classic2021_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_classic2021_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.classic2021.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.classic2021.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_classic2021_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_classic2021_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_classic2021_standard_dark_primary</item>
@@ -7700,7 +7700,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_classic2021_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_classic2021_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.classic2021.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.classic2021.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_classic2021_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_classic2021_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_classic2021_medium_light_primary</item>
@@ -7755,7 +7755,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_classic2021_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_classic2021_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.classic2021.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.classic2021.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_classic2021_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_classic2021_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_classic2021_medium_dark_primary</item>
@@ -7810,7 +7810,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_classic2021_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_classic2021_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.classic2021.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.classic2021.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_amber_classic2021_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_classic2021_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_classic2021_high_light_primary</item>
@@ -7865,7 +7865,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_classic2021_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_classic2021_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.amber.classic2021.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.amber.classic2021.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_amber_classic2021_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_amber_classic2021_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_amber_classic2021_high_dark_primary</item>
@@ -7920,7 +7920,7 @@
     <item name="android:statusBarColor">@color/settings_ui_amber_classic2021_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_amber_classic2021_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.cmf2026.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.cmf2026.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_cmf2026_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_cmf2026_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_cmf2026_standard_light_primary</item>
@@ -7975,7 +7975,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_cmf2026_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_cmf2026_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.cmf2026.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.cmf2026.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_cmf2026_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_cmf2026_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_cmf2026_standard_dark_primary</item>
@@ -8030,7 +8030,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_cmf2026_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_cmf2026_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.cmf2026.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.cmf2026.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_cmf2026_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_cmf2026_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_cmf2026_medium_light_primary</item>
@@ -8085,7 +8085,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_cmf2026_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_cmf2026_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.cmf2026.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.cmf2026.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_cmf2026_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_cmf2026_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_cmf2026_medium_dark_primary</item>
@@ -8140,7 +8140,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_cmf2026_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_cmf2026_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.cmf2026.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.cmf2026.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_cmf2026_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_cmf2026_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_cmf2026_high_light_primary</item>
@@ -8195,7 +8195,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_cmf2026_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_cmf2026_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.cmf2026.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.cmf2026.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_cmf2026_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_cmf2026_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_cmf2026_high_dark_primary</item>
@@ -8250,7 +8250,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_cmf2026_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_cmf2026_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.tonal2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.tonal2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_tonal2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_tonal2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_tonal2025_standard_light_primary</item>
@@ -8305,7 +8305,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_tonal2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_tonal2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.tonal2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.tonal2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_tonal2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_tonal2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_tonal2025_standard_dark_primary</item>
@@ -8360,7 +8360,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_tonal2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_tonal2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.tonal2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.tonal2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_tonal2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_tonal2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_tonal2025_medium_light_primary</item>
@@ -8415,7 +8415,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_tonal2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_tonal2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.tonal2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.tonal2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_tonal2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_tonal2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_tonal2025_medium_dark_primary</item>
@@ -8470,7 +8470,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_tonal2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_tonal2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.tonal2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.tonal2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_tonal2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_tonal2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_tonal2025_high_light_primary</item>
@@ -8525,7 +8525,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_tonal2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_tonal2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.tonal2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.tonal2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_tonal2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_tonal2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_tonal2025_high_dark_primary</item>
@@ -8580,7 +8580,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_tonal2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_tonal2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.vibrant2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.vibrant2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_vibrant2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_vibrant2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_vibrant2025_standard_light_primary</item>
@@ -8635,7 +8635,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_vibrant2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_vibrant2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.vibrant2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.vibrant2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_vibrant2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_vibrant2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_vibrant2025_standard_dark_primary</item>
@@ -8690,7 +8690,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_vibrant2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_vibrant2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.vibrant2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.vibrant2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_vibrant2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_vibrant2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_vibrant2025_medium_light_primary</item>
@@ -8745,7 +8745,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_vibrant2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_vibrant2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.vibrant2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.vibrant2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_vibrant2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_vibrant2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_vibrant2025_medium_dark_primary</item>
@@ -8800,7 +8800,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_vibrant2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_vibrant2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.vibrant2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.vibrant2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_vibrant2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_vibrant2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_vibrant2025_high_light_primary</item>
@@ -8855,7 +8855,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_vibrant2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_vibrant2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.vibrant2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.vibrant2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_vibrant2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_vibrant2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_vibrant2025_high_dark_primary</item>
@@ -8910,7 +8910,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_vibrant2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_vibrant2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.neutral2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.neutral2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_neutral2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_neutral2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_neutral2025_standard_light_primary</item>
@@ -8965,7 +8965,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_neutral2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_neutral2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.neutral2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.neutral2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_neutral2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_neutral2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_neutral2025_standard_dark_primary</item>
@@ -9020,7 +9020,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_neutral2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_neutral2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.neutral2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.neutral2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_neutral2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_neutral2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_neutral2025_medium_light_primary</item>
@@ -9075,7 +9075,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_neutral2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_neutral2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.neutral2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.neutral2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_neutral2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_neutral2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_neutral2025_medium_dark_primary</item>
@@ -9130,7 +9130,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_neutral2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_neutral2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.neutral2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.neutral2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_neutral2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_neutral2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_neutral2025_high_light_primary</item>
@@ -9185,7 +9185,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_neutral2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_neutral2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.neutral2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.neutral2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_neutral2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_neutral2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_neutral2025_high_dark_primary</item>
@@ -9240,7 +9240,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_neutral2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_neutral2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.expressive2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.expressive2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_expressive2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_expressive2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_expressive2025_standard_light_primary</item>
@@ -9295,7 +9295,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_expressive2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_expressive2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.expressive2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.expressive2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_expressive2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_expressive2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_expressive2025_standard_dark_primary</item>
@@ -9350,7 +9350,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_expressive2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_expressive2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.expressive2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.expressive2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_expressive2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_expressive2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_expressive2025_medium_light_primary</item>
@@ -9405,7 +9405,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_expressive2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_expressive2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.expressive2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.expressive2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_expressive2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_expressive2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_expressive2025_medium_dark_primary</item>
@@ -9460,7 +9460,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_expressive2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_expressive2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.expressive2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.expressive2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_expressive2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_expressive2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_expressive2025_high_light_primary</item>
@@ -9515,7 +9515,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_expressive2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_expressive2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.expressive2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.expressive2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_expressive2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_expressive2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_expressive2025_high_dark_primary</item>
@@ -9570,7 +9570,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_expressive2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_expressive2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.classic2021.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.classic2021.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_classic2021_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_classic2021_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_classic2021_standard_light_primary</item>
@@ -9625,7 +9625,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_classic2021_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_classic2021_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.classic2021.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.classic2021.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_classic2021_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_classic2021_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_classic2021_standard_dark_primary</item>
@@ -9680,7 +9680,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_classic2021_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_classic2021_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.classic2021.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.classic2021.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_classic2021_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_classic2021_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_classic2021_medium_light_primary</item>
@@ -9735,7 +9735,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_classic2021_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_classic2021_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.classic2021.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.classic2021.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_classic2021_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_classic2021_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_classic2021_medium_dark_primary</item>
@@ -9790,7 +9790,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_classic2021_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_classic2021_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.classic2021.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.classic2021.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_wisteria_classic2021_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_classic2021_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_classic2021_high_light_primary</item>
@@ -9845,7 +9845,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_classic2021_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_classic2021_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.wisteria.classic2021.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.wisteria.classic2021.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_wisteria_classic2021_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_wisteria_classic2021_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_wisteria_classic2021_high_dark_primary</item>
@@ -9900,7 +9900,7 @@
     <item name="android:statusBarColor">@color/settings_ui_wisteria_classic2021_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_wisteria_classic2021_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.cmf2026.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.cmf2026.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_cmf2026_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_cmf2026_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_cmf2026_standard_light_primary</item>
@@ -9955,7 +9955,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_cmf2026_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_cmf2026_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.cmf2026.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.cmf2026.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_cmf2026_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_cmf2026_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_cmf2026_standard_dark_primary</item>
@@ -10010,7 +10010,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_cmf2026_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_cmf2026_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.cmf2026.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.cmf2026.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_cmf2026_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_cmf2026_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_cmf2026_medium_light_primary</item>
@@ -10065,7 +10065,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_cmf2026_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_cmf2026_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.cmf2026.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.cmf2026.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_cmf2026_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_cmf2026_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_cmf2026_medium_dark_primary</item>
@@ -10120,7 +10120,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_cmf2026_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_cmf2026_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.cmf2026.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.cmf2026.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_cmf2026_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_cmf2026_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_cmf2026_high_light_primary</item>
@@ -10175,7 +10175,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_cmf2026_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_cmf2026_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.cmf2026.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.cmf2026.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_cmf2026_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_cmf2026_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_cmf2026_high_dark_primary</item>
@@ -10230,7 +10230,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_cmf2026_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_cmf2026_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.tonal2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.tonal2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_tonal2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_tonal2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_tonal2025_standard_light_primary</item>
@@ -10285,7 +10285,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_tonal2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_tonal2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.tonal2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.tonal2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_tonal2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_tonal2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_tonal2025_standard_dark_primary</item>
@@ -10340,7 +10340,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_tonal2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_tonal2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.tonal2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.tonal2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_tonal2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_tonal2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_tonal2025_medium_light_primary</item>
@@ -10395,7 +10395,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_tonal2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_tonal2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.tonal2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.tonal2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_tonal2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_tonal2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_tonal2025_medium_dark_primary</item>
@@ -10450,7 +10450,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_tonal2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_tonal2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.tonal2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.tonal2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_tonal2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_tonal2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_tonal2025_high_light_primary</item>
@@ -10505,7 +10505,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_tonal2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_tonal2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.tonal2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.tonal2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_tonal2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_tonal2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_tonal2025_high_dark_primary</item>
@@ -10560,7 +10560,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_tonal2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_tonal2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.vibrant2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.vibrant2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_vibrant2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_vibrant2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_vibrant2025_standard_light_primary</item>
@@ -10615,7 +10615,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_vibrant2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_vibrant2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.vibrant2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.vibrant2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_vibrant2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_vibrant2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_vibrant2025_standard_dark_primary</item>
@@ -10670,7 +10670,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_vibrant2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_vibrant2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.vibrant2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.vibrant2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_vibrant2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_vibrant2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_vibrant2025_medium_light_primary</item>
@@ -10725,7 +10725,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_vibrant2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_vibrant2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.vibrant2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.vibrant2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_vibrant2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_vibrant2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_vibrant2025_medium_dark_primary</item>
@@ -10780,7 +10780,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_vibrant2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_vibrant2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.vibrant2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.vibrant2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_vibrant2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_vibrant2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_vibrant2025_high_light_primary</item>
@@ -10835,7 +10835,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_vibrant2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_vibrant2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.vibrant2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.vibrant2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_vibrant2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_vibrant2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_vibrant2025_high_dark_primary</item>
@@ -10890,7 +10890,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_vibrant2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_vibrant2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.neutral2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.neutral2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_neutral2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_neutral2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_neutral2025_standard_light_primary</item>
@@ -10945,7 +10945,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_neutral2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_neutral2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.neutral2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.neutral2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_neutral2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_neutral2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_neutral2025_standard_dark_primary</item>
@@ -11000,7 +11000,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_neutral2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_neutral2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.neutral2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.neutral2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_neutral2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_neutral2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_neutral2025_medium_light_primary</item>
@@ -11055,7 +11055,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_neutral2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_neutral2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.neutral2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.neutral2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_neutral2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_neutral2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_neutral2025_medium_dark_primary</item>
@@ -11110,7 +11110,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_neutral2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_neutral2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.neutral2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.neutral2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_neutral2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_neutral2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_neutral2025_high_light_primary</item>
@@ -11165,7 +11165,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_neutral2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_neutral2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.neutral2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.neutral2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_neutral2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_neutral2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_neutral2025_high_dark_primary</item>
@@ -11220,7 +11220,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_neutral2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_neutral2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.expressive2025.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.expressive2025.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_expressive2025_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_expressive2025_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_expressive2025_standard_light_primary</item>
@@ -11275,7 +11275,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_expressive2025_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_expressive2025_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.expressive2025.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.expressive2025.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_expressive2025_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_expressive2025_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_expressive2025_standard_dark_primary</item>
@@ -11330,7 +11330,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_expressive2025_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_expressive2025_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.expressive2025.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.expressive2025.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_expressive2025_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_expressive2025_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_expressive2025_medium_light_primary</item>
@@ -11385,7 +11385,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_expressive2025_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_expressive2025_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.expressive2025.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.expressive2025.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_expressive2025_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_expressive2025_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_expressive2025_medium_dark_primary</item>
@@ -11440,7 +11440,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_expressive2025_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_expressive2025_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.expressive2025.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.expressive2025.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_expressive2025_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_expressive2025_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_expressive2025_high_light_primary</item>
@@ -11495,7 +11495,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_expressive2025_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_expressive2025_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.expressive2025.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.expressive2025.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_expressive2025_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_expressive2025_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_expressive2025_high_dark_primary</item>
@@ -11550,7 +11550,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_expressive2025_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_expressive2025_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.classic2021.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.classic2021.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_classic2021_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_classic2021_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_classic2021_standard_light_primary</item>
@@ -11605,7 +11605,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_classic2021_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_classic2021_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.classic2021.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.classic2021.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_classic2021_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_classic2021_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_classic2021_standard_dark_primary</item>
@@ -11660,7 +11660,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_classic2021_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_classic2021_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.classic2021.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.classic2021.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_classic2021_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_classic2021_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_classic2021_medium_light_primary</item>
@@ -11715,7 +11715,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_classic2021_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_classic2021_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.classic2021.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.classic2021.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_classic2021_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_classic2021_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_classic2021_medium_dark_primary</item>
@@ -11770,7 +11770,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_classic2021_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_classic2021_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.classic2021.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.classic2021.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_graphite_classic2021_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_classic2021_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_classic2021_high_light_primary</item>
@@ -11825,7 +11825,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_classic2021_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_classic2021_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.graphite.classic2021.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.graphite.classic2021.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_graphite_classic2021_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_graphite_classic2021_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_graphite_classic2021_high_dark_primary</item>
@@ -11880,7 +11880,7 @@
     <item name="android:statusBarColor">@color/settings_ui_graphite_classic2021_high_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_graphite_classic2021_high_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.compat.compat.standard.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.compat.compat.standard.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_compat_compat_standard_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_compat_compat_standard_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_compat_compat_standard_light_primary</item>
@@ -11935,7 +11935,7 @@
     <item name="android:statusBarColor">@color/settings_ui_compat_compat_standard_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_compat_compat_standard_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.compat.compat.standard.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.compat.compat.standard.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_compat_compat_standard_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_compat_compat_standard_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_compat_compat_standard_dark_primary</item>
@@ -11990,7 +11990,7 @@
     <item name="android:statusBarColor">@color/settings_ui_compat_compat_standard_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_compat_compat_standard_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.compat.compat.medium.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.compat.compat.medium.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_compat_compat_medium_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_compat_compat_medium_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_compat_compat_medium_light_primary</item>
@@ -12045,7 +12045,7 @@
     <item name="android:statusBarColor">@color/settings_ui_compat_compat_medium_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_compat_compat_medium_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.compat.compat.medium.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.compat.compat.medium.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_compat_compat_medium_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_compat_compat_medium_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_compat_compat_medium_dark_primary</item>
@@ -12100,7 +12100,7 @@
     <item name="android:statusBarColor">@color/settings_ui_compat_compat_medium_dark_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_compat_compat_medium_dark_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.compat.compat.high.light" parent="Theme.Material3Expressive.Light.NoActionBar">
+  <style name="Theme.FcitxSettings.compat.compat.high.light" parent="Theme.FcitxSettings.Base.Light">
     <item name="colorPrimary">@color/settings_ui_compat_compat_high_light_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_compat_compat_high_light_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_compat_compat_high_light_primary</item>
@@ -12155,7 +12155,7 @@
     <item name="android:statusBarColor">@color/settings_ui_compat_compat_high_light_surface</item>
     <item name="android:navigationBarColor">@color/settings_ui_compat_compat_high_light_surface</item>
   </style>
-  <style name="Theme.FcitxSettings.compat.compat.high.dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+  <style name="Theme.FcitxSettings.compat.compat.high.dark" parent="Theme.FcitxSettings.Base.Dark">
     <item name="colorPrimary">@color/settings_ui_compat_compat_high_dark_primary</item>
     <item name="colorOnPrimary">@color/settings_ui_compat_compat_high_dark_on_primary</item>
     <item name="colorPrimaryVariant">@color/settings_ui_compat_compat_high_dark_primary</item>

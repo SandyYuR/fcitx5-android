@@ -28,6 +28,11 @@ abstract class PaddingPreferenceFragment : MyPreferenceFragment() {
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        @Suppress("DEPRECATION")
+        run {
+            setDivider(null)
+            setDividerHeight(0)
+        }
         expressiveListStyle = ExpressivePreferenceListStyle(listView).also { it.attach() }
     }
 

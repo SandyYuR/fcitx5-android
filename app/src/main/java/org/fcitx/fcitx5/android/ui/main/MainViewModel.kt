@@ -19,8 +19,6 @@ class MainViewModel : ViewModel() {
 
     val toolbarTitle = MutableLiveData(appLabel)
 
-    val toolbarShadow = MutableLiveData(true)
-
     val toolbarButton = MutableLiveData(ButtonMode.NONE)
 
     val fcitx: FcitxConnection = FcitxDaemon.connect(javaClass.name)
@@ -57,14 +55,6 @@ class MainViewModel : ViewModel() {
 
     fun setToolbarTitle(title: String) {
         toolbarTitle.value = title
-    }
-
-    fun enableToolbarShadow() {
-        toolbarShadow.value = true
-    }
-
-    fun disableToolbarShadow() {
-        toolbarShadow.value = false
     }
 
     fun disableToolbarEditButton() {

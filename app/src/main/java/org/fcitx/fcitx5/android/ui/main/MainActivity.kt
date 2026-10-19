@@ -42,7 +42,6 @@ import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
 import org.fcitx.fcitx5.android.utils.parcelable
 import org.fcitx.fcitx5.android.utils.startActivity
-import splitties.dimensions.dp
 
 class MainActivity : SettingsUiActivity() {
 
@@ -102,17 +101,9 @@ class MainActivity : SettingsUiActivity() {
         viewModel.toolbarTitle.observe(this) {
             binding.collapsingToolbar.title = it
         }
-        viewModel.toolbarShadow.observe(this) {
-            binding.toolbar.elevation = dp(if (it) 4f else 0f)
-        }
         navController.addOnDestinationChangedListener { _, dest, _ ->
             invalidateMenu()
             dest.label?.let { viewModel.setToolbarTitle(it.toString()) }
-            if (dest.hasRoute<SettingsRoute.Theme>()) {
-                viewModel.disableToolbarShadow()
-            } else {
-                viewModel.enableToolbarShadow()
-            }
         }
         processIntent(intent, savedInstanceState)
         checkNotificationPermission()
