@@ -1,0 +1,32 @@
+{
+  "workflow_run_id": 39041913893,
+  "workflow_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39041913893",
+  "runner_source": "1667daab3780ed97c679a4bd81d9c31eefa8bcbe",
+  "apk_producer_run_id": 39024457209,
+  "product_commits": {
+    "fcitx": "cecea4940bb5a5db67f91d6b20e00ee5c97877ea",
+    "direct": "cfd0ddc4d92dbcfcee815089ca34b97bdfa95780"
+  },
+  "selection": "All successful full-matrix runs; calibration attempts excluded; videos/logcat remain in Actions artifacts for 14 days",
+  "compression": "gzip with mtime=0, original file bytes preserved",
+  "analysis_tools_sha256": {
+    "tools/screen-perf/.gitignore": "32dae3052f331ee34d628ef535709b301259a45df7c7522c4d35dcf49873f00b",
+    "tools/screen-perf/README.md": "abc3bffa61b7a9288cbe153d28c00816577b0fdb47ddfeadf59560f71ceaeef7",
+    "tools/screen-perf/ScreenFixtureTest.kt": "087b778d3f849f78b32e30e57eeaf9ce54814b6a40968ed2d4249b2681090197",
+    "tools/screen-perf/analyze.py": "9e891cec526b9f164034c8a4dfb8611c837e343cfec989fed89e5b6846e210a3",
+    "tools/screen-perf/build-host.sh": "3bdf658d762a385604635004edfd34661dbde806f9e07196f3c5f8ea2a99bc05",
+    "tools/screen-perf/build-products.sh": "22cae6a81c02c16d84e5ebaa998502832b4097b04795c784eaeab29a69da8162",
+    "tools/screen-perf/config/.gitattributes": "6e6f3143c97bac524aba693b10905e7fbd211c20d0bd5f904564ab1b7cc1e6a2",
+    "tools/screen-perf/config/user.yaml": "dd82ae3dc637e850446eb6e4170d916bb3d628b08d85572096c6b4c62ccb9a57",
+    "tools/screen-perf/config/wanxiang.custom.yaml": "42bf76351ceb6f2db87396ae13edf9d9914712a065a61cdf74c66c52900c1319",
+    "tools/screen-perf/host/AndroidManifest.xml": "060b560ba4bf3f7d81e6ef6374f30cac1e5c37e6f6e9f5b7d008846e0d64674a",
+    "tools/screen-perf/host/BenchControl.java": "d45f76cc78b34d16e60be6024f51a4e82488729af6ba7f32f32fcc0ef26e9ce1",
+    "tools/screen-perf/host/BenchHost.java": "657242853f858a0a45f073fff5e5be18c9aa5434dd1c43bb956f9fedfd1d69c2",
+    "tools/screen-perf/prepare.py": "0ad6d475d8cfa544d0f04671f40f90e372c273753fcb8d56bdffab42ba95fdeb",
+    "tools/screen-perf/run.py": "bd636a6eacfa1998d8c6f48c315ddb3d4913bc27e4adbf6bcecdeb8d07e19fcb",
+    "tools/screen-perf/runtime_config.py": "26ed11281fbd7ff91c9c740b7ed04e7d0fcb7538ab1a690f092f8c38849b50d8",
+    "tools/screen-perf/sensitivity.py": "a5822cfb9b1096ddfde547b177c1d7763898d4ad76d1a3bb00d498d8848ec26e",
+    "tools/screen-perf/summarize.py": "40a4020d16652d617801eb0a3391eed6acfb12a7c4fc333d9757636a01a0bc34",
+    "tools/screen-perf/upstream/BenchTrace.java": "fe4c318b71acb700b101304873dd586b91ee7673ef3d1da19c93b02a8aa38454"
+  }
+}

@@ -1,0 +1,4 @@
+eb1733dd130f0fd5a0ac138e5db6c58de05f99f3098bd7d677b6ea073b454a7c  /home/runner/work/_temp/screen-apks/direct-tests.apk
+eac08d38668424c0406cc91c1a066e92246bf078fc84530a4e470fcc24fcfe34  /home/runner/work/_temp/screen-apks/direct.apk
+9bd65fe811b659920e99674742158fc6d7b3c6aa6d48499409e282ba6cafbb47  /home/runner/work/_temp/screen-apks/fcitx-tests.apk
+2fbed7a4f438e0c3385d839d8d3135977ddeaaf1e032e6112f48209691056d6a  /home/runner/work/_temp/screen-apks/fcitx.apk

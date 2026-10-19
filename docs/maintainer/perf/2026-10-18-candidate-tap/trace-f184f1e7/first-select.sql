@@ -1,0 +1,1 @@
+SELECT s.name,ROUND((s.ts-185652444703)/1e6,3) AS offset_ms,ROUND(s.dur/1e6,3) AS ms,t.name AS thread,p.name AS process,s.depth FROM slice s JOIN thread_track tr ON s.track_id=tr.id JOIN thread t ON tr.utid=t.utid JOIN process p ON t.upid=p.upid WHERE p.pid=2903 AND s.ts BETWEEN 185642444703 AND 185712444703 AND s.dur>300000 ORDER BY s.ts;
