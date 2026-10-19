@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -14,6 +15,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.DraggableFlowLayout
@@ -184,11 +186,12 @@ class KeyboardLayoutAdapter(
         // Drag handle on the left
         val dragHandle = TextView(context).apply {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_drag_handle_24, 0, 0, 0)
+            compoundDrawableTintList = ColorStateList.valueOf(context.settingsColor(android.R.attr.textColorSecondary))
             textSize = 16f
             setPadding(context.dp(8), context.dp(8), context.dp(4), context.dp(8))
             setTextColor(context.settingsColor(android.R.attr.textColorSecondary))
-            alpha = 0.5f
-            minWidth = context.dp(32)
+            minWidth = context.dp(48)
+            minHeight = context.dp(48)
         }
         rowContainer.addView(dragHandle, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -216,6 +219,7 @@ class KeyboardLayoutAdapter(
         val actions = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
         val editRowButton = TextView(context).apply {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_settings_24, 0, 0, 0)
+            compoundDrawableTintList = ColorStateList.valueOf(context.settingsColor(android.R.attr.textColorSecondary))
             textSize = 18f
             gravity = Gravity.CENTER
             setPadding(context.dp(10), context.dp(8), context.dp(10), context.dp(8))
@@ -228,6 +232,7 @@ class KeyboardLayoutAdapter(
         // Delete row button on the right
         val deleteRowButton = TextView(context).apply {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_delete_24, 0, 0, 0)
+            compoundDrawableTintList = ColorStateList.valueOf(context.settingsColor(android.R.attr.textColorSecondary))
             contentDescription = context.getString(R.string.delete)
             textSize = 14f
             setPadding(context.dp(8), context.dp(8), context.dp(8), context.dp(8))
@@ -249,19 +254,13 @@ class KeyboardLayoutAdapter(
     }
 
     private fun createAddRowViewHolder(parent: ViewGroup): AddRowViewHolder {
-        val addRowButton = TextView(context).apply {
+        val addRowButton = MaterialButton(context).apply {
             text = context.getString(R.string.text_keyboard_layout_add_row)
             textSize = 16f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setPadding(context.dp(14), context.dp(10), context.dp(14), context.dp(10))
             minWidth = context.dp(160)
             gravity = Gravity.CENTER
-            background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(context.settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
-                setStroke(context.dp(1), context.settingsColor(android.R.attr.colorControlNormal))
-                cornerRadius = context.dp(4).toFloat()
-            }
-            setTextColor(context.settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
             setOnClickListener { listener.onAddRowClick() }
         }
         val container = LinearLayout(context).apply {

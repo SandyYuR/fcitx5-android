@@ -18,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.appbar.MaterialToolbar
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.utils.settingsColor
 
@@ -72,6 +73,9 @@ abstract class SettingsUiActivity : AppCompatActivity() {
         toolbar.setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
         toolbar.setTitleTextColor(settingsColor(com.google.android.material.R.attr.colorOnSurface))
         toolbar.setSubtitleTextColor(settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
+        (toolbar as? MaterialToolbar)?.setNavigationIconTint(
+            settingsColor(com.google.android.material.R.attr.colorOnSurface)
+        )
         if (toolbar.parent !is CollapsingToolbarLayout) {
             val top = toolbar.paddingTop
             ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->

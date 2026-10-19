@@ -304,6 +304,7 @@ class SettingsActivity : AppCompatActivity() {
         override fun onResume() {
             super.onResume()
             requireActivity().title = getString(R.string.settings_title)
+            (activity as? AppCompatActivity)?.supportActionBar?.setTitle(R.string.settings_title)
             updateSyncFilterSummary(findPreference(SyncFilterPrefs.PREF_FILTER_ENTRY))
             val prefs = preferenceManager.sharedPreferences
             syncQuickSyncSwitchState(prefs)
@@ -1052,6 +1053,7 @@ class SettingsActivity : AppCompatActivity() {
         override fun onResume() {
             super.onResume()
             requireActivity().title = getString(R.string.sync_filter_title)
+            (activity as? AppCompatActivity)?.supportActionBar?.setTitle(R.string.sync_filter_title)
             preferenceManager.sharedPreferences?.registerOnSharedPreferenceChangeListener(previewListener)
             updateFilterPreview()
         }

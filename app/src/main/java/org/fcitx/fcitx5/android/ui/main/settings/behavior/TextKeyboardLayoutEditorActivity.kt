@@ -11,6 +11,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -173,7 +174,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
      * 以为要先把下拉框切到某个选项才能改分体。
      */
     private val splitLayoutCheckBox by lazy {
-        android.widget.CheckBox(this).apply {
+        com.google.android.material.checkbox.MaterialCheckBox(this).apply {
             text = getString(R.string.text_keyboard_layout_split_layout)
             textSize = 13f
             setPadding(dp(4), dp(2), dp(4), dp(2))
@@ -234,6 +235,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     private val deleteLayoutButton by lazy {
         TextView(this).apply {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_delete_24, 0, 0, 0)
+            compoundDrawableTintList = ColorStateList.valueOf(settingsColor(android.R.attr.textColorSecondary))
             contentDescription = getString(R.string.delete)
             textSize = 14f
             setPadding(dp(12), dp(4), dp(12), dp(4))
@@ -1590,6 +1592,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     private fun createDeleteSubModeButton(): TextView {
         return TextView(this).apply {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_delete_24, 0, 0, 0)
+            compoundDrawableTintList = ColorStateList.valueOf(settingsColor(android.R.attr.textColorSecondary))
             contentDescription = getString(R.string.delete)
             textSize = 14f
             setPadding(dp(12), dp(6), dp(12), dp(6))
