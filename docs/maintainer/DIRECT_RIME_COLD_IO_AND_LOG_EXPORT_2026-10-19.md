@@ -96,10 +96,62 @@ base + 固定 LTS，不再跑旧 Fcitx、修复前版本或 Foxy。一次部署�
 
 ## 验证记录
 
-本地 491 项 JVM 测试通过；ARM64 Debug 主 APK、native sanitizer 契约与 IO 包装器测试通过。
+产品源码 `9adb694932df4340bc48d359af2c788ad6809f3e`：本地与 CI 的 491 项 JVM 测试通过；
+ARM64 Debug 主 APK、native sanitizer 契约、IO 包装器与 LevelDB 公共 API 存储回归通过。
 日志回归覆盖并发追加/清空/过滤时的快照、连续完整写入、输出失败/关闭/重试、缺失源与 null 输出、
 待选文件恢复、重复触发、真实 LogActivity/ViewModel 工厂与页面重建。
-设备回归、Release 下载和定点诊断结果完成后更新本节，未完成的检查不标通过。
+完整前端设备测试共 16 项，常规运行通过 15 项，1 项完整万象诊断按条件跳过；该项在下面的
+独立定点工作流中实际执行通过，不把两种运行混为 16 项常规测试全部执行。
+
+- [Direct Rime CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39180498509)：
+  原生契约、491 项 JVM、ARM64 APK、Android 原生 smoke 和完整前端设备测试均通过。
+- [PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39180498528)：JVM 与四 ABI Debug
+  构建通过。PR 工作流使用临时合并提交 `96e66f85`；独立 ARM64/前端/定点工作流使用上述
+  产品源码。四 ABI APK 的依赖清单检查通过；arm64-v8a / x86_64 的 ELF 对齐为 16KiB。
+- [独立万象定点诊断](https://github.com/SandyYuR/fcitx5-android/actions/runs/39180494011)：
+  六次重建会话后的首轮输入、选词及唯一提交通过，LTS 模型映射通过；用固定 Android prebuilt
+  写入 400 条各 16KiB 记录，关闭重开后逐条读取匹配。
+
+最终定点结果如下。core 是原生选词同步调用墙钟，sync 是同一线程内包装到的
+fsync/fdatasync 累计墙钟；这不是触摸到编辑器上屏时间。
+
+| 重建轮次 | 上下文库状态 | 选词 core | sync | Lua context_reorder open |
+| --- | --- | ---: | ---: | ---: |
+| 0 | 首次新建 | 4.539ms | 1.913ms | 3ms |
+| 1 | 已有库 | 1.763ms | 0 | 1ms |
+| 2 | 已有库 | 1.663ms | 0 | 0ms |
+| 3 | 已有库 | 1.983ms | 0 | 0ms |
+| 4 | 已有库 | 1.612ms | 0 | 0ms |
+| 5 | 已有库 | 1.696ms | 0 | 1ms |
+
+已有库五轮首次选词均未出现该线程的同步刷盘；初次新建数据库仍执行正常的同步创建。
+这验证了减少重开刷盘的机制，没有复现并证明消除手机的 145ms 尖峰。
+同轮 Debug 首键约 17–30ms、绑定约 97–128ms，冷路径仍有成本；设备为 CI 模拟器，
+不得把它写成手机改善幅度。探针会改变 fixture 和运行开销，也不与前两轮数字作相减比较。
+
+脱敏记录、fixture 哈希、前端设备报告、491 项 JVM 报告和主机存储机制结果见
+[本轮证据目录](perf/2026-10-19-cold-io/)。原始用户日志不在其中。
+
+## 最终签名包
+
+[下载 ARM64 Release](https://github.com/SandyYuR/fcitx5-android/actions/runs/39180493901/artifacts/12155759113)，
+解压后安装 `direct.apk`。独立签名构建工作流成功，产品源码与上述定点/前端验证一致：
+`9adb694932df4340bc48d359af2c788ad6809f3e`；后续提交只归档文档和证据。
+
+- APK SHA256：`966c17b7f8482e053f72f82802f621ee48bcb093d1189c7dd6c5b8886e4ad5ba`。
+- 使用仓库 Release 签名，证书 SHA256：
+  `ba43006e1bfa3f60f46b2a9056f593a3a61445bd2571319fb1869e49cc36b1fe`，与上一轮 `12ab22cd`
+  Release 一致。应用仍为中州鹅，包名 `io.github.sandyyur.rime.direct`。
+- 下载后重新校验了源码、APK/ZIP 哈希、签名、原生库依赖、DEX 旧后端与 16KiB 对齐。
+  包内仅 `libdirect-rime.so` 和 `libc++_shared.so`，无旧 Fcitx 原生依赖。
+- 包内 ART profile 的实际方法表命中 mangled sendKey 和后端协程入口；78 条应用方法记录
+  不等于性能收益。审计与构建元数据归档于本轮证据目录的 `release-*`。
+
+[完整验证索引](perf/2026-10-19-cold-io/validation.json)及
+[文件校验表](perf/2026-10-19-cold-io/checksums.sha256)。本版尚待用户 Android 16 真机验证：
+刚唤起立即输入、第一次候选上屏与发送，以及连续导出日志；不以 CI 组件计时替代此项验收。
+
+## 定位过程的历史证据
 
 第一轮[定点诊断](https://github.com/SandyYuR/fcitx5-android/actions/runs/39178602959)
 六次重建并选词、唯一提交和 LTS 映射断言通过；原生计时每次均记录同步刷盘：

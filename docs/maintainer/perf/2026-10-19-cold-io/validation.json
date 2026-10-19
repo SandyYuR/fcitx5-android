@@ -1,0 +1,142 @@
+{
+  "product": "中州鹅",
+  "package": "io.github.sandyyur.rime.direct",
+  "branch": "feat/direct-rime-prototype",
+  "product_source": "9adb694932df4340bc48d359af2c788ad6809f3e",
+  "date_utc": "2026-10-19",
+  "prebuilt_gitlink": "1126616c3ec569617da772e30d7a97f6b2694172",
+  "librime_upstream_commit": "ef1a16aa2c962bccf347b116443331f39d56e037",
+  "ci": [
+    {
+      "run_id": 39180498509,
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39180498509",
+      "jobs": [
+        {
+          "id": 117832020305,
+          "name": "Full frontend touch and engine tests",
+          "conclusion": "success"
+        },
+        {
+          "id": 117832020418,
+          "name": "android_smoke",
+          "conclusion": "success"
+        },
+        {
+          "id": 117832020430,
+          "name": "prototype",
+          "conclusion": "success"
+        },
+        {
+          "id": 117832020512,
+          "name": "Full frontend ARM64 APK",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 39180498528,
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39180498528",
+      "jobs": [
+        {
+          "id": 117832020055,
+          "name": "JVM unit tests",
+          "conclusion": "success"
+        },
+        {
+          "id": 117832020405,
+          "name": "Debug APK build",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 39180494011,
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39180494011",
+      "jobs": [
+        {
+          "id": 117832006362,
+          "name": "diagnose",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "pr_ci_note": "Four-ABI Debug build uses temporary PR merge 96e66f8573d2cd3d1f423cafae224cba86561e7d. Independent ARM64/frontend/cold-probe runs use product_source.",
+  "jvm": {
+    "tests": 491,
+    "failures": 0,
+    "skipped": 0,
+    "report": "unit-tests-9adb.zip"
+  },
+  "frontend_device": {
+    "tests": 16,
+    "executed_pass": 15,
+    "failures": 0,
+    "skipped_conditional": 1,
+    "report": "frontend-9adb-results.zip",
+    "conditional_test": "diagnoseColdCandidateCore executes separately in run 39180494011"
+  },
+  "wanxiang_diagnostic": {
+    "run_id": 39180494011,
+    "model_mapped": true,
+    "reconstructed_rounds": 6,
+    "unique_chinese_commits": 6,
+    "android_persistent_records_checked": 400,
+    "bytes_per_record": 16384,
+    "existing_context_database_select_core_us": [
+      1763,
+      1663,
+      1983,
+      1612,
+      1696
+    ],
+    "existing_context_database_sync_us": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "new_context_database_select_core_us": 4539,
+    "new_context_database_sync_us": 1913,
+    "metric": "Same-owner native synchronous select wall time and wrapped fsync/fdatasync call wall time. Debug CI emulator, not touch-to-editor latency; no before/after causal claim."
+  },
+  "leveldb_host_contract": {
+    "source_version": "1.23",
+    "source_archive_sha256": "9a37f8a6174f09bd622bc723b55881dc541cd50747cbd08831c2a82d620f6d76",
+    "records_checked": 400,
+    "existing_reopen_rounds": 10,
+    "default_sync_calls": 30,
+    "bridged_sync_calls": 0,
+    "wal_rollover_checked": true,
+    "append_failure_fallback_checked": true,
+    "explicit_write_sync_preserved": true,
+    "report": "leveldb-reuse-host-ci.json"
+  },
+  "release": {
+    "status": "success",
+    "run_id": 39180493901,
+    "job_id": 117832668941,
+    "artifact_id": 12155759113,
+    "download_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39180493901/artifacts/12155759113",
+    "source": "9adb694932df4340bc48d359af2c788ad6809f3e",
+    "apk_sha256": "966c17b7f8482e053f72f82802f621ee48bcb093d1189c7dd6c5b8886e4ad5ba",
+    "artifact_zip_sha256": "d7bf995fb293ae037b1092744e2f7305453bff887c9ef3af8cc1f638648829a6",
+    "certificate_sha256": "ba43006e1bfa3f60f46b2a9056f593a3a61445bd2571319fb1869e49cc36b1fe",
+    "repository_release_signing": true,
+    "same_certificate_as_previous_release": true,
+    "version_name": "nightly-0.1.3-699-ga714feff-20261013-121158-75-g9adb6949",
+    "audit_report": "release-verification.json",
+    "packaged_art_profile_audit": "release-packaged-profile-audit.json",
+    "profile_mangled_send_key_verified": true,
+    "profile_backend_coroutines_verified": true
+  },
+  "limits": [
+    "User phone 145ms select spike and earlier fast-send missing candidate have not been accepted as fixed on this product APK.",
+    "No phone touch/frame latency claim; diagnostic fixture has Lua instrumentation and extra storage checks.",
+    "No retest of old Fcitx product, previous product release, or Foxy this round; old probe runs only locate component calls.",
+    "reuse_logs is labelled EXPERIMENTAL upstream; no power-loss/full-personal-database endurance validation.",
+    "I/O wrapping excludes mmap faults, libc internal fopen and some other calls/background threads; wall time is not pure I/O wait.",
+    "No original phone logs or personal input included."
+  ]
+}

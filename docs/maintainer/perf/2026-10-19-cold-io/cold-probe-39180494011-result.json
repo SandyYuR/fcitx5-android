@@ -1,0 +1,72 @@
+{
+  "source": "9adb694932df4340bc48d359af2c788ad6809f3e",
+  "records": [
+    {
+      "round": 0,
+      "bind_ms": 103.64571,
+      "key_1_ms": 21.472758,
+      "key_2_ms": 9.765101,
+      "key_3_ms": 9.579404,
+      "key_4_ms": 17.160057,
+      "key_5_ms": 9.970654,
+      "select_ms": 5.647617,
+      "commit_chars": 2
+    },
+    {
+      "round": 1,
+      "bind_ms": 105.7453,
+      "key_1_ms": 17.568739,
+      "key_2_ms": 9.453649,
+      "key_3_ms": 9.524231,
+      "key_4_ms": 10.298758,
+      "key_5_ms": 9.588381,
+      "select_ms": 2.981486,
+      "commit_chars": 2
+    },
+    {
+      "round": 2,
+      "bind_ms": 97.184908,
+      "key_1_ms": 18.571185,
+      "key_2_ms": 10.075651,
+      "key_3_ms": 9.880106,
+      "key_4_ms": 9.600112,
+      "key_5_ms": 9.169058,
+      "select_ms": 2.235994,
+      "commit_chars": 2
+    },
+    {
+      "round": 3,
+      "bind_ms": 127.598247,
+      "key_1_ms": 30.230588,
+      "key_2_ms": 11.648387,
+      "key_3_ms": 12.491441,
+      "key_4_ms": 15.295977,
+      "key_5_ms": 18.460414,
+      "select_ms": 2.938907,
+      "commit_chars": 2
+    },
+    {
+      "round": 4,
+      "bind_ms": 102.275091,
+      "key_1_ms": 17.152713,
+      "key_2_ms": 9.01979,
+      "key_3_ms": 10.212487,
+      "key_4_ms": 10.129851,
+      "key_5_ms": 9.122552,
+      "select_ms": 2.59781,
+      "commit_chars": 2
+    },
+    {
+      "round": 5,
+      "bind_ms": 96.850083,
+      "key_1_ms": 17.358377,
+      "key_2_ms": 9.005262,
+      "key_3_ms": 9.273763,
+      "key_4_ms": 9.292298,
+      "key_5_ms": 9.069853,
+      "select_ms": 2.108246,
+      "commit_chars": 2
+    }
+  ],
+  "metric": "Current Debug backend operation completion; not phone/UI latency or a before/after comparison"
+}
