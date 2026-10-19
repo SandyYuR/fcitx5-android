@@ -14,6 +14,7 @@
 ./prepare_personal_build.sh
 ./gradlew -PbuildABI=arm64-v8a :app:assembleFxDebug :app:testFxDebugUnitTest
 python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/debug/*.apk
+python3 tools/audit-direct-rime-link.py app/build/outputs/apk/fx/debug/*.apk
 ```
 
 产物在 `app/build/outputs/apk/fx/debug/`；Release 使用 `:app:assembleFxRelease`，产物在 `fx/release/`。
@@ -115,6 +116,10 @@ CI 的 `Direct Rime CI` 工作流覆盖 native ASan/UBSan、独立引擎 smoke�
 完整前端构建以及实际触摸、模式提示、方案、设置、导入与布局编辑回归。
 ATD 镜像的触屏测试需启用绘制；[测试脚本](../../tools/test-direct-rime-frontend.sh)已处理。
 APK 检查器核对动态依赖、资源、DEX 类定义及页对齐：64 位 16 KiB，32 位 4 KiB。
+静态审计另外匹配 APK ELF build ID，并核对链接结束时记录的 map/未剥离库 SHA256，
+只允许固定七组 Rime 归档及 NDK 支持库；未知归档或 Fcitx C++ 符号直接失败。
+四 ABI PR artifact 和签名 Release 都附带 `native-link-audit.json`。
+最后一轮库/组件清理及保留依据见[最终审阅](DIRECT_RIME_FINAL_REVIEW_2026-10-19.md)。
 
 `PR CI` 构建四 ABI Debug 并运行 JVM 单测。所有 PR 设备/构建检查使用 GitHub 的临时合并提交，
 同时验证目标分支的后续修复。`Commit CI` 在默认分支及本次合并分支构建签名 ARM64 Release、

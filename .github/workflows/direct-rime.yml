@@ -2,7 +2,7 @@ name: Direct Rime CI
 on:
   workflow_dispatch:
   pull_request:
-    paths: ['app/**', 'direct-rime/**', 'patches/**', 'tools/input-perf/**', 'tools/test-direct-rime-frontend.sh', 'tools/verify-direct-rime-apk.py', '.github/workflows/direct-rime.yml', 'settings.gradle.kts', 'native/**', 'build-logic/**', '.gitmodules']
+    paths: ['app/**', 'direct-rime/**', 'patches/**', 'tools/input-perf/**', 'tools/test-direct-rime-frontend.sh', 'tools/verify-direct-rime-apk.py', 'tools/audit-direct-rime-link.py', '.github/workflows/direct-rime.yml', 'settings.gradle.kts', 'native/**', 'build-logic/**', 'gradle/**', '.gitmodules']
 permissions:
   contents: read
 concurrency:
@@ -105,13 +105,16 @@ jobs:
       - name: Build the original UI on direct librime and run JVM tests
         run: ./gradlew -PbuildABI=arm64-v8a :app:assembleFxDebug :app:testFxDebugUnitTest
       - name: Verify APK dependencies and assets
-        run: python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/debug/*.apk
+        run: |
+          python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/debug/*.apk
+          python3 tools/audit-direct-rime-link.py app/build/outputs/apk/fx/debug/*.apk > native-link-audit.json
       - uses: actions/upload-artifact@v7
         with:
           name: direct-rime-frontend-arm64-debug
           path: |
             app/build/outputs/apk/fx/debug/*.apk
             app/build/reports/tests/testFxDebugUnitTest/
+            native-link-audit.json
   frontend_android:
     name: Full frontend touch and engine tests
     runs-on: ubuntu-22.04

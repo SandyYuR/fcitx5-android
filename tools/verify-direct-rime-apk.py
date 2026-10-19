@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fail if the full direct frontend packages or links a Fcitx component."""
 import argparse
+import hashlib
 import json
 import re
 import struct
@@ -82,24 +83,34 @@ def verify(path):
         obsolete = ("Lorg/fcitx/fcitx5/android/core/Fcitx",
                     "Lorg/fcitx/fcitx5/android/core/FcitxDispatcher",
                     "Lorg/fcitx/fcitx5/android/core/FcitxUtils")
-        legacy = sorted(name for dex in dex_files for name in dex_classes(apk.read(dex))
+        classes = [name for dex in dex_files for name in dex_classes(apk.read(dex))]
+        legacy = sorted(name for name in classes
                         if any(name == prefix + ";" or name.startswith(prefix + "$") for prefix in obsolete))
         assert not legacy, f"Retired backend or helper classes remain: {legacy}"
+        unused_picker = sorted(name for name in classes if name.startswith("Lcom/luck/picture/"))
+        assert not unused_picker, f"Unused PictureSelector components remain: {unused_picker}"
         libs = sorted(n for n in names if n.startswith("lib/") and n.endswith(".so"))
         assert libs, "APK has no native engine"
+        assert not any(n.endswith(".so") and not n.startswith("lib/") for n in names), "Native libraries must not be hidden in assets"
         alignments = {n.split('/')[1]: 16384 if n.split('/')[1] in {"arm64-v8a", "x86_64"} else 4096 for n in libs}
         for abi in {n.split('/')[1] for n in libs}:
             packaged = {n.split('/')[2] for n in libs if n.split('/')[1] == abi}
             assert packaged == allowed, f"Unexpected {abi} libraries: {packaged}"
+        native_dependencies = {}
         for name in libs:
             needed = dependencies(apk.read(name))
+            native_dependencies[name] = needed
             assert set(needed) <= allowed | system, f"Unexpected dependency in {name}: {needed}"
         assert not any(n.startswith("assets/usr/share/fcitx5/") for n in names), "Fcitx assets remain"
+        assert not any(n.startswith("assets/usr/lib/fcitx5/") for n in names), "Fcitx addon assets remain"
+        assert not any(n.endswith(".a") for n in names), "Static build archives must not be packaged"
         descriptor = json.loads(apk.read("assets/descriptor.json"))
         for name, digest in descriptor["files"].items():
             if digest:
                 assert f"assets/{name}" in names, f"Descriptor refers to missing asset: {name}"
     print(json.dumps({"apk": str(path), "native_libraries": libs, "fcitx_dependencies": [],
+                      "apk_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                      "native_dependencies": native_dependencies, "obsolete_picker_classes": unused_picker,
                       "legacy_backend_classes": legacy, "dex_files_checked": len(dex_files),
                       "page_size": max(alignments.values()), "required_alignment_by_abi": alignments}))
 

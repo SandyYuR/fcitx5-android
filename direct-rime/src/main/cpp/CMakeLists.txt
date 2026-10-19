@@ -31,7 +31,19 @@ if(ANDROID)
         target_link_libraries(direct-rime PRIVATE "${PREBUILT}/${dep}/${ANDROID_ABI}/lib/lib${archive}.a")
     endforeach()
     target_link_libraries(direct-rime PRIVATE log android)
-    # Keep the experimental engine's symbols private to this DSO.
+    # Record static archive contributions as well as checking APK DT_NEEDED:
+    # a forbidden static library would otherwise be hidden inside this DSO.
+    target_link_options(direct-rime PRIVATE "-Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/direct-rime.linkmap")
+    set(link_record_script "${CMAKE_CURRENT_SOURCE_DIR}/record-link.cmake")
+    set_property(TARGET direct-rime APPEND PROPERTY LINK_DEPENDS "${link_record_script}")
+    add_custom_command(TARGET direct-rime POST_BUILD
+        COMMAND "${CMAKE_COMMAND}"
+            "-DNATIVE_LIBRARY=$<TARGET_FILE:direct-rime>"
+            "-DNATIVE_MAP=${CMAKE_CURRENT_BINARY_DIR}/direct-rime.linkmap"
+            -P "${link_record_script}"
+        BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/direct-rime.linkmap"
+            "${CMAKE_CURRENT_BINARY_DIR}/direct-rime.linkmap.binding"
+        VERBATIM)
     target_link_options(direct-rime PRIVATE "-Wl,--exclude-libs,ALL" "-Wl,-z,max-page-size=16384")
 else()
     enable_testing()

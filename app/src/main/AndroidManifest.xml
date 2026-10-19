@@ -338,6 +338,16 @@
             android:authorities="${applicationId}.cropper.fileprovider"
             tools:node="remove" />
 
+        <!-- Every scan entry uses QrScanOptions and our QrScanCaptureActivity. -->
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            tools:node="remove" />
+
+        <!-- Clipboard Room is single-process and does not enable this optional service. -->
+        <service
+            android:name="androidx.room.MultiInstanceInvalidationService"
+            tools:node="remove" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
