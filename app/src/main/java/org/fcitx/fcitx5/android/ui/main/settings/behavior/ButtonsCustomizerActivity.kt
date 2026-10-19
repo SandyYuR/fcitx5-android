@@ -82,7 +82,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = settingsColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
             setTitleTextColor(settingsColor(android.R.attr.textColorPrimary))
             elevation = dp(4f)
         }
@@ -1407,8 +1407,8 @@ class ButtonEntryUi(
 
     private fun updateColors() {
         // Use system theme colors for better visibility in light/dark mode
-        val contentColor = ctx.settingsColor(android.R.attr.textColorPrimary)
-        val bgColor = ctx.settingsColor(android.R.attr.colorPrimary)
+        val contentColor = ctx.settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
+        val bgColor = ctx.settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
 
         bkgDrawable.paint.color = bgColor
         labelView.setTextColor(contentColor)

@@ -56,7 +56,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = settingsColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
             elevation = dp(4f)
         }
     }

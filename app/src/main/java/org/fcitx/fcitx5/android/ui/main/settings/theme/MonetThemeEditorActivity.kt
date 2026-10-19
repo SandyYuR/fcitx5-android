@@ -179,7 +179,7 @@ class MonetThemeEditorActivity : SettingsUiActivity() {
         
         // Toolbar
         toolbar = Toolbar(this).apply {
-            backgroundColor = settingsColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
             elevation = 4f // dp(4f)
         }
         root.addView(toolbar, LinearLayout.LayoutParams(

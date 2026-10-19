@@ -170,7 +170,7 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
         }
 
         toolbar = Toolbar(this).apply {
-            setBackgroundColor(settingsColor(android.R.attr.colorPrimary))
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurface))
         }
         mainLayout.addView(toolbar, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,

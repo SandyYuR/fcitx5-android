@@ -126,7 +126,7 @@ class IconThemeListActivity : SettingsUiActivity() {
 
         val toolbar = Toolbar(this).apply {
             title = getString(R.string.icon_theme)
-            setBackgroundColor(settingsColor(android.R.attr.colorPrimary))
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurface))
         }
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

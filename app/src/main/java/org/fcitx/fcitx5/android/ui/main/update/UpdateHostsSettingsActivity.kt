@@ -37,7 +37,7 @@ class UpdateHostsSettingsActivity : SettingsUiActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_update_hosts)
         toolbar = findViewById(R.id.toolbar)
-        toolbar.backgroundColor = settingsColor(android.R.attr.colorPrimary)
+        toolbar.backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
         toolbar.elevation = dp(4f)
         sourceInput = findViewById(R.id.hostsSourceInput)
         enableSwitch = findViewById(R.id.hostsEnableSwitch)

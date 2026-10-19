@@ -95,7 +95,7 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
 
         val toolbar = Toolbar(this).apply {
-            setBackgroundColor(settingsColor(android.R.attr.colorPrimary))
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurface))
         }
         root.addView(toolbar, LinearLayout.LayoutParams(matchParent, wrapContent))
         setSupportActionBar(toolbar)

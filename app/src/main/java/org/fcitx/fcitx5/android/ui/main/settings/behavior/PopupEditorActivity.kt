@@ -51,7 +51,7 @@ class PopupEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = settingsColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
             elevation = dp(4f)
         }
     }
@@ -282,10 +282,11 @@ class PopupEditorActivity : SettingsUiActivity() {
             setPadding(dp(12), dp(8), dp(12), dp(8))
             gravity = android.view.Gravity.CENTER
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(settingsColor(android.R.attr.colorPrimary))
+                setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
                 setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                 cornerRadius = dp(4).toFloat()
             }
+            setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
             setOnClickListener {
                 val edit = EditText(this@PopupEditorActivity).apply {
                     setText(currentKeyValue)
@@ -396,10 +397,11 @@ class PopupEditorActivity : SettingsUiActivity() {
                 setPadding(dp(10), dp(5), dp(10), dp(5))  // 与候选词相同的 padding
                 gravity = android.view.Gravity.CENTER
                 background = android.graphics.drawable.GradientDrawable().apply {
-                    setColor(settingsColor(android.R.attr.colorPrimary))
+                    setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
                     setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                     cornerRadius = dp(4).toFloat()
                 }
+                setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                 // 设置固定高度与候选词一致（dp(40) 能容纳特殊字符）
                 layoutParams = ViewGroup.MarginLayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -785,10 +787,11 @@ class PopupEditorActivity : SettingsUiActivity() {
                     setPadding(dp(10), dp(5), dp(10), dp(5))
                     gravity = android.view.Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(settingsColor(android.R.attr.colorPrimary))
+                        setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
                         setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                         cornerRadius = dp(4).toFloat()
                     }
+                    setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                 }
 
                 candidatesFlow = FlowLayout(rowLayout.context).apply {

@@ -255,10 +255,11 @@ class KeyboardLayoutAdapter(
             minWidth = context.dp(160)
             gravity = Gravity.CENTER
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(context.settingsColor(android.R.attr.colorPrimary))
+                setColor(context.settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
                 setStroke(context.dp(1), context.settingsColor(android.R.attr.colorControlNormal))
                 cornerRadius = context.dp(4).toFloat()
             }
+            setTextColor(context.settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
             setOnClickListener { listener.onAddRowClick() }
         }
         val container = LinearLayout(context).apply {
@@ -573,7 +574,10 @@ class KeyboardLayoutAdapter(
         val theme = ThemeManager.activeTheme
         drawable.setColor(keyColors.background(key, theme))
         drawable.setStroke(context.dp(1), theme.dividerColor)
-        if (customized) drawable.setStroke(context.dp(2), 0xff2e7d32.toInt())
+        if (customized) drawable.setStroke(
+            context.dp(2),
+            context.settingsColor(com.google.android.material.R.attr.colorTertiary)
+        )
         drawable.cornerRadius = context.dp(4).toFloat()
     }
 
@@ -581,9 +585,10 @@ class KeyboardLayoutAdapter(
     private fun applyAddChipStyle(view: TextView) {
         val drawable = view.background as? android.graphics.drawable.GradientDrawable
             ?: android.graphics.drawable.GradientDrawable().also { view.background = it }
-        drawable.setColor(context.settingsColor(android.R.attr.colorPrimary))
+        drawable.setColor(context.settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
         drawable.setStroke(context.dp(1), context.settingsColor(android.R.attr.colorControlNormal))
         drawable.cornerRadius = context.dp(4).toFloat()
+        view.setTextColor(context.settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
     }
 
     private fun buildDisplayRowForPreview(

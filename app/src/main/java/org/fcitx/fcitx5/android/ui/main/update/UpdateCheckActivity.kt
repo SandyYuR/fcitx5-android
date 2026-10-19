@@ -139,7 +139,7 @@ class UpdateCheckActivity : SettingsUiActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_update_check)
         toolbar = findViewById(R.id.toolbar)
-        toolbar.backgroundColor = settingsColor(android.R.attr.colorPrimary)
+        toolbar.backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
         toolbar.elevation = dp(4f)
         mirrorsGroup = findViewById(R.id.mirrorChipGroup)
         latestVersionText = findViewById(R.id.latestVersionText)

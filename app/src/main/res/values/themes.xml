@@ -3,6 +3,10 @@
 
     <!-- Bridge legacy platform color lookups used by existing settings editors to Material 3 roles. -->
     <style name="Theme.FcitxSettings.Base" parent="Theme.Material3Expressive.DynamicColors.DayNight.NoActionBar">
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:colorPrimary">?attr/colorPrimary</item>
         <item name="android:colorAccent">?attr/colorPrimary</item>
         <item name="android:colorBackground">?attr/colorSurface</item>
@@ -20,6 +24,10 @@
     </style>
 
     <style name="Theme.FcitxSettings.Base.Light" parent="Theme.Material3Expressive.Light.NoActionBar">
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:colorPrimary">?attr/colorPrimary</item>
         <item name="android:colorAccent">?attr/colorPrimary</item>
         <item name="android:colorBackground">?attr/colorSurface</item>
@@ -37,6 +45,10 @@
     </style>
 
     <style name="Theme.FcitxSettings.Base.Dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
         <item name="android:colorPrimary">?attr/colorPrimary</item>
         <item name="android:colorAccent">?attr/colorPrimary</item>
         <item name="android:colorBackground">?attr/colorSurface</item>

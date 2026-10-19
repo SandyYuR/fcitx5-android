@@ -70,7 +70,7 @@ class KeyEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = settingsColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
             elevation = dp(4f)
             setSubtitleTextAppearance(context, android.R.style.TextAppearance_Small)
             setSubtitleTextColor(settingsColor(android.R.attr.textColorSecondary))

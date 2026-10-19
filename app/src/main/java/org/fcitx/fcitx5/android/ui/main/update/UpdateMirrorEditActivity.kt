@@ -38,7 +38,7 @@ class UpdateMirrorEditActivity : SettingsUiActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_update_mirror_edit)
         toolbar = findViewById(R.id.toolbar)
-        toolbar.backgroundColor = settingsColor(android.R.attr.colorPrimary)
+        toolbar.backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
         toolbar.elevation = dp(4f)
         nameInput = findViewById(R.id.mirrorNameInput)
         patternInput = findViewById(R.id.mirrorPatternInput)

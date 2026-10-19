@@ -128,7 +128,7 @@ class CustomThemeActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         view(::Toolbar) {
-            backgroundColor = settingsColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
             elevation = dp(4f)
         }
     }

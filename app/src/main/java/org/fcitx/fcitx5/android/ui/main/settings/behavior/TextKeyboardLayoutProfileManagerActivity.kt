@@ -54,7 +54,7 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
         collapsed.addAll(savedInstanceState?.getStringArrayList("collapsed").orEmpty())
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         val toolbar = Toolbar(this).apply {
-            setBackgroundColor(settingsColor(android.R.attr.colorPrimary))
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurface))
             setTitleTextColor(settingsColor(android.R.attr.textColorPrimary))
             elevation = dp(4f)
         }
@@ -154,7 +154,10 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
                 render()
             }.apply {
                 isEnabled = profile.name != activeProfile()
-                if (!isEnabled) { setColorFilter(0xff4caf50.toInt()); alpha = 1f }
+                if (!isEnabled) {
+                    setColorFilter(settingsColor(androidx.appcompat.R.attr.colorPrimary))
+                    alpha = 1f
+                }
             })
             row.addView(icon(R.drawable.ic_baseline_edit_24, R.string.text_keyboard_layout_manage_edit) {
                 selected = profile.name

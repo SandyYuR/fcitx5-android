@@ -93,7 +93,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = settingsColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
             elevation = dp(4f)
             setSubtitleTextAppearance(context, android.R.style.TextAppearance_Small)
             setSubtitleTextColor(settingsColor(android.R.attr.textColorSecondary))
@@ -3911,11 +3911,11 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 chip.text = "+"
                 chip.setTypeface(null, android.graphics.Typeface.BOLD)
                 chip.background = android.graphics.drawable.GradientDrawable().apply {
-                    setColor(activity.settingsColor(android.R.attr.colorPrimary))
+                    setColor(activity.settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
                     setStroke(activity.dp(1), activity.settingsColor(android.R.attr.colorControlNormal))
                     cornerRadius = activity.dp(4).toFloat()
                 }
-                chip.setTextColor(activity.settingsColor(android.R.attr.textColorPrimary))
+                chip.setTextColor(activity.settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                 chip.setOnClickListener { listener.onAddKeyClick() }
                 chip.setOnLongClickListener(null)
             } else {

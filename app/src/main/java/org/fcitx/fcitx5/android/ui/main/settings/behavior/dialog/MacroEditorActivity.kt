@@ -60,7 +60,7 @@ class MacroEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = settingsColor(android.R.attr.colorPrimary)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurface)
             elevation = dp(4f)
         }
     }
@@ -764,7 +764,8 @@ class MacroEditorActivity : SettingsUiActivity() {
         val chipsContainer = FlowLayout(this).apply {
             setPadding(dp(12), dp(8), dp(12), dp(8))
         }
-        val primaryColor = settingsColor(android.R.attr.colorPrimary)
+        val primaryColor = settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
+        val onPrimaryContainerColor = settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
         val buttonColor = settingsColor(android.R.attr.colorButtonNormal)
         val borderColor = settingsColor(android.R.attr.colorControlNormal)
         val scrollView = android.widget.ScrollView(this).apply {
@@ -787,6 +788,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                     setStroke(dp(1), borderColor)
                     cornerRadius = dp(4).toFloat()
                 }
+                setTextColor(if (isHighlighted) onPrimaryContainerColor else settingsColor(android.R.attr.textColorPrimary))
                 layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
                     rightMargin = dp(6)
                     bottomMargin = dp(6)
@@ -1428,7 +1430,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                 // Chip color: shortcut modifier keys use gray, target key uses primary; edit uses button normal
                 val chipColor = when {
                     isShortcutType && isModifier -> settingsColor(android.R.attr.colorButtonNormal)
-                    isShortcutType && !isModifier -> settingsColor(android.R.attr.colorPrimary)
+                    isShortcutType && !isModifier -> settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
                     isEditType -> settingsColor(android.R.attr.colorButtonNormal)
                     else -> settingsColor(android.R.attr.colorButtonNormal)
                 }
@@ -1447,6 +1449,9 @@ class MacroEditorActivity : SettingsUiActivity() {
                         setColor(chipColor)
                         setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                         cornerRadius = dp(4).toFloat()
+                    }
+                    if (isShortcutType && !isModifier) {
+                        setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                     }
                     layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
                         rightMargin = dp(6)
@@ -1501,10 +1506,11 @@ class MacroEditorActivity : SettingsUiActivity() {
                     setPadding(dp(10), dp(8), dp(10), dp(8))
                     gravity = Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(settingsColor(android.R.attr.colorPrimary))
+                        setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
                         setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                         cornerRadius = dp(4).toFloat()
                     }
+                    setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                     layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
                         rightMargin = dp(6)
                         bottomMargin = dp(4)
@@ -1537,10 +1543,11 @@ class MacroEditorActivity : SettingsUiActivity() {
                     setPadding(dp(10), dp(8), dp(10), dp(8))
                     gravity = Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(settingsColor(android.R.attr.colorPrimary))
+                        setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
                         setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                         cornerRadius = dp(4).toFloat()
                     }
+                    setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                     layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
                         rightMargin = dp(6)
                         bottomMargin = dp(4)
@@ -1698,7 +1705,8 @@ class MacroEditorActivity : SettingsUiActivity() {
             } else {
                 keysList.map { ANDROID_KEY_NAMES[it] ?: it }
             }
-            val primaryColor = settingsColor(android.R.attr.colorPrimary)
+            val primaryColor = settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
+            val onPrimaryContainerColor = settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
             val buttonColor = settingsColor(android.R.attr.colorButtonNormal)
             val borderColor = settingsColor(android.R.attr.colorControlNormal)
 
@@ -1723,6 +1731,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                             setStroke(dp(1), borderColor)
                             cornerRadius = dp(4).toFloat()
                         }
+                        setTextColor(if (isHighlighted) onPrimaryContainerColor else settingsColor(android.R.attr.textColorPrimary))
                         layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
                             rightMargin = dp(6)
                             bottomMargin = dp(6)
