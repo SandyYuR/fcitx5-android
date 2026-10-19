@@ -44,14 +44,20 @@ private fun materialColorAttribute(@AttrRes attrRes: Int): Int = when (attrRes) 
  */
 fun Context.settingsColorStateList(@AttrRes attrRes: Int): ColorStateList {
     val materialAttr = materialColorAttribute(attrRes)
-    val values = theme.obtainStyledAttributes(intArrayOf(materialAttr))
-    return try {
-        require(values.hasValue(0)) { "Color theme attribute $materialAttr is not defined" }
-        values.getColorStateList(0)
-            ?: ColorStateList.valueOf(values.getColor(0, android.graphics.Color.TRANSPARENT))
-    } finally {
-        values.recycle()
+    fun resolve(attribute: Int): ColorStateList? {
+        val values = theme.obtainStyledAttributes(intArrayOf(attribute))
+        return try {
+            if (!values.hasValue(0)) return null
+            values.getColorStateList(0)
+                ?: ColorStateList.valueOf(values.getColor(0, android.graphics.Color.TRANSPARENT))
+        } finally {
+            values.recycle()
+        }
     }
+
+    return resolve(materialAttr)
+        ?: resolve(attrRes)?.takeIf { materialAttr != attrRes }
+        ?: error("Color theme attribute $materialAttr is not defined")
 }
 
 @ColorInt
