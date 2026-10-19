@@ -24,6 +24,8 @@ private val mDefault by lazy {
 private fun <T : Preference> T.def() =
     mDefault.get(this)
 
+internal fun Preference.hasDefaultValue(): Boolean = def() != null
+
 fun <T : EditTextPreference> T.restore() {
     // must `callChangeListener` before `setText`
     // https://android.googlesource.com/platform/frameworks/support/+/872b66efac82f0b0a3fac4bb14a789464ab19f96/preference/preference/src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java#146
