@@ -1,0 +1,4 @@
+<input-method xmlns:android="http://schemas.android.com/apk/res/android"
+    android:settingsActivity="org.fcitx.directrime.LabActivity" android:supportsSwitchingToNextInputMethod="true">
+    <subtype android:imeSubtypeMode="keyboard" android:imeSubtypeLocale="zh_CN" />
+</input-method>

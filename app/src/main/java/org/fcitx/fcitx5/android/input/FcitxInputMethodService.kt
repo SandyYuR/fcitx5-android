@@ -144,6 +144,12 @@ private const val STANDALONE_MODIFIER_HOLD_MS = 50L
 
 class FcitxInputMethodService : LifecycleInputMethodService() {
 
+    private val inputDeliveryDiagnostics = org.fcitx.fcitx5.android.core.InputDiagnostics.Collector()
+    private var timedSelectionGeneration = Long.MIN_VALUE
+    private var timedSelections = 0
+    private var timedCommitGeneration = Long.MIN_VALUE
+    private var timedCommits = 0
+
     internal lateinit var fcitx: FcitxConnection
 
     private var jobs = Channel<Job>(capacity = Channel.UNLIMITED)
@@ -501,6 +507,36 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         return job
     }
 
+    /** Capture at the time of the key, before either the service or native owner queues it. */
+    fun postFcitxKeyJob(block: suspend FcitxAPI.() -> Unit): Job {
+        // Showing an inherited keyboard window on a TYPE_NULL/non-editor focus
+        // is not typing demand. Promote only a real key, before its ticket is
+        // captured, and bind ahead of it in this same ordered service queue.
+        if (FcitxDaemon.requireInputSession()) {
+            postFcitxSessionJob(inputSessionGeneration) { focus(true) }
+        }
+        val ticket = FcitxDaemon.captureInputKey() ?: return Job().apply { complete() }
+        return postFcitxJob {
+            if (FcitxDaemon.canDeliverInputKey(ticket)) block()
+        }.also { job -> job.invokeOnCompletion { FcitxDaemon.releaseInputKey(ticket) } }
+    }
+
+    /** Same ordered queue as keys, with bounded timing for the first candidate taps. */
+    fun postCandidateSelection(block: suspend FcitxAPI.() -> Unit): Job {
+        val generation = FcitxDaemon.currentInputSession
+        if (timedSelectionGeneration != generation) {
+            timedSelectionGeneration = generation
+            timedSelections = 0
+        }
+        val ordinal = ++timedSelections
+        val capturedAt = if (ordinal <= 2) SystemClock.elapsedRealtimeNanos() else 0L
+        return postFcitxKeyJob {
+            if (capturedAt != 0L) android.util.Log.i("RimeInputTiming",
+                "select_queue generation=$generation ordinal=$ordinal service_wait_us=${(SystemClock.elapsedRealtimeNanos() - capturedAt) / 1000}")
+            block()
+        }
+    }
+
     private suspend fun FcitxAPI.applyCandidatePagingModeIfNeeded(mode: Int) {
         if (appliedCandidatePagingMode == mode) return
         setCandidatePagingMode(mode)
@@ -566,12 +602,18 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
         }
         val editorInfo = currentInputEditorInfo ?: return
+        // Readiness/restart must not turn a visible TYPE_NULL window into a
+        // session. The backend retains actual key demand for this generation.
         val shouldFocus = !editorInfo.isTypeNull()
         val flags = capabilityFlags
+        val engineGeneration = FcitxDaemon.currentInputSession
+        val program = editorInfo.packageName.orEmpty()
+        FcitxDaemon.prepareInputSession(engineGeneration, program, flags, shouldFocus)
         val inputSessionGeneration = this.inputSessionGeneration
         postFcitxSessionJob(inputSessionGeneration) {
+            startInputSession(engineGeneration, program)
             setCapFlags(flags)
-            focus(shouldFocus)
+            if (shouldFocus) focus(true)
         }
     }
 
@@ -579,7 +621,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         val startedAt = SystemClock.elapsedRealtime()
         android.util.Log.i("FcitxColdStart", "service.onCreate begin")
         fcitx = FcitxDaemon.connect(javaClass.name)
-        lifecycleScope.launch {
+        // The jobs already run off-main. Drain/join them there too, so layout or
+        // drawing cannot delay starting the next binding/key/candidate operation.
+        lifecycleScope.launch(Dispatchers.Default) {
             jobs.consumeEach { it.join() }
         }
         lifecycleScope.launch {
@@ -593,7 +637,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 Timber.d(e, "fcitx event flow unavailable")
                 return@launch
             }
-            events.collect { handleFcitxEvent(it) }
+            events.collect { event ->
+                if (!FcitxDaemon.isCurrentInputSession(event.inputSession)) return@collect
+                androidx.tracing.trace("rime.direct.consume") { handleFcitxEvent(event) }
+            }
         }
         pkgNameCache = PackageNameCache(this)
         recreateInputViewPrefs.forEach {
@@ -641,14 +688,27 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     private fun handleFcitxEvent(event: FcitxEvent<*>) {
+        inputDeliveryDiagnostics.received(event)
         when (event) {
             is FcitxEvent.ReadyEvent -> {
                 resetCandidatePagingModeCache()
                 rebindCurrentInputStateToFcitx()
             }
             is FcitxEvent.CommitStringEvent -> {
+                if (timedCommitGeneration != event.inputSession) {
+                    timedCommitGeneration = event.inputSession
+                    timedCommits = 0
+                }
+                val ordinal = ++timedCommits
+                val startedAt = if (ordinal <= 2) SystemClock.elapsedRealtimeNanos() else 0L
                 backspaceBoundaryGuard.onCommit()
-                commitText(event.data.text, event.data.cursor)
+                val requestResult = androidx.tracing.trace("rime.direct.commit") {
+                    dispatchCommitText(event.data.text, event.data.cursor)
+                }
+                if (requestResult == CommitRequestResult.NO_CONNECTION || requestResult == CommitRequestResult.REQUEST_REJECTED)
+                    android.util.Log.w("RimeInputQueue", "commit_request_failed generation=${event.inputSession} result=$requestResult")
+                if (startedAt != 0L) android.util.Log.i("RimeInputTiming",
+                    "commit generation=${event.inputSession} ordinal=$ordinal event_wait_us=${if (event.commitProducedNanos > 0) (startedAt - event.commitProducedNanos) / 1000 else -1} service_commit_us=${(SystemClock.elapsedRealtimeNanos() - startedAt) / 1000} request_result=$requestResult")
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {
@@ -800,13 +860,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 }
             }
             is FcitxEvent.IMChangeEvent -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    val im = event.data.uniqueName
-                    val subtype = SubtypeManager.subtypeOf(im) ?: return
-                    skipNextSubtypeChange = im
-                    // [^1]: notify system that input method subtype has changed
-                    switchInputMethod(InputMethodUtil.componentName, subtype)
-                }
+                // Rime schema/ascii changes keep the same Android IME subtype.
                 // Update space key label in "Always" floating mode
                 inputView?.updateSpaceLabelOnFloatingMode()
                 if (inputDeviceManager.evaluateOnInputMethodActivate()) {
@@ -968,9 +1022,19 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     fun commitText(text: String, cursor: Int = -1) {
+        dispatchCommitText(text, cursor)
+    }
+
+    // A true InputConnection return value acknowledges the request, not that a
+    // remote editor displayed it. Never replay uncertain commits into a new
+    // connection: the old editor might already have sent the same text.
+    private enum class CommitRequestResult { SEARCH, NO_CONNECTION, REQUEST_ACCEPTED, REQUEST_REJECTED }
+
+    private fun dispatchCommitText(text: String, cursor: Int): CommitRequestResult {
         // 剪贴板历史搜索会话期间：所有提交都进入查询，不写入目标编辑器。
-        if (ClipboardSearchController.onCommitText(text)) return
-        val ic = currentInputConnection ?: return
+        if (ClipboardSearchController.onCommitText(text)) return CommitRequestResult.SEARCH
+        val ic = currentInputConnection ?: return CommitRequestResult.NO_CONNECTION
+        var accepted = false
         // when composing text equals commit content, finish composing text as-is
         if (composing.isNotEmpty() && composingText.toString() == text) {
             val c = if (cursor == -1) text.length else cursor
@@ -981,9 +1045,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                     selection.predict(target)
                     ic.setSelection(target, target)
                 }
-                ic.finishComposingText()
+                accepted = ic.finishComposingText()
             }
-            return
+            return if (accepted) CommitRequestResult.REQUEST_ACCEPTED else CommitRequestResult.REQUEST_REJECTED
         }
         // committed text should replace composing (if any), replace selected range (if any),
         // or simply prepend before cursor
@@ -991,15 +1055,16 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         resetComposingState()
         if (cursor == -1) {
             selection.predict(start + text.length)
-            ic.commitText(text, 1)
+            accepted = ic.commitText(text, 1)
         } else {
             val target = start + cursor
             selection.predict(target)
             ic.withBatchEdit {
-                commitText(text, 1)
+                accepted = commitText(text, 1)
                 setSelection(target, target)
             }
         }
+        return if (accepted) CommitRequestResult.REQUEST_ACCEPTED else CommitRequestResult.REQUEST_REJECTED
     }
 
     fun setVoiceComposingText(text: String) {
@@ -1369,7 +1434,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
             val adjustedSym = adjustAlphabetSymForCaps(sym, states)
             val up = forwardedEvent.action == KeyEvent.ACTION_UP
-            postFcitxJob {
+            postFcitxKeyJob {
                 sendKey(adjustedSym, states, forwardedEvent.scanCode, up, timestamp)
             }
             return true
@@ -1593,6 +1658,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             simulatedCapsLockPressed = true
             simulatedCapsLockPressedFromMacro = false
         }
+        // A real hardware character is input demand even for TYPE_NULL terminals.
+        // Promote before capturing the key, while keeping silent focus cheap.
+        if (event.unicodeChar != 0 && FcitxDaemon.requireInputSession()) {
+            postFcitxSessionJob(inputSessionGeneration) { focus(true) }
+        }
         onHardwareTypingModeEnter(event)
         // request to show floating CandidatesView when pressing physical keyboard
         if (inputDeviceManager.evaluateOnKeyDown(event)) {
@@ -1713,26 +1783,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
-    /**
-     * When input method changes internally (eg. via language switch key or keyboard shortcut),
-     * we want to notify system that subtype has changed (see [^1]), then ignore the incoming
-     * [onCurrentInputMethodSubtypeChanged] callback.
-     * Input method should only be changed when user changes subtype in system input method picker
-     * manually.
-     */
-    private var skipNextSubtypeChange: String? = null
-
     override fun onCurrentInputMethodSubtypeChanged(newSubtype: InputMethodSubtype) {
         super.onCurrentInputMethodSubtypeChanged(newSubtype)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             val im = SubtypeManager.inputMethodOf(newSubtype)
             Timber.d("onCurrentInputMethodSubtypeChanged: im=$im")
-            // don't change input method if this "subtype change" was our notify to system
-            // see [^1]
-            if (skipNextSubtypeChange == im) {
-                skipNextSubtypeChange = null
-                return
-            }
             postFcitxJob {
                 activateIme(im)
             }
@@ -1757,6 +1812,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         android.util.Log.i("FcitxColdStart", "service.onStartInput restarting=$restarting")
+        val engineGeneration = FcitxDaemon.invalidateInputSession()
         isInInputLifecycleCriticalPhase = true
         onBackspaceGuardSessionChanged()
         try {
@@ -1769,10 +1825,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             inputDeviceManager.notifyOnStartInput(attribute)
             Timber.d("onStartInput: initialSel=${selection.current}, restarting=$restarting")
             val isNullType = attribute.isTypeNull()
+            FcitxDaemon.prepareInputSession(engineGeneration, attribute.packageName.orEmpty(), flags, !isNullType)
+            android.util.Log.i("RimeLifecycle", "input_binding generation=$engineGeneration input_type=${attribute.inputType} ime_options=${attribute.imeOptions} needs_rime=${!isNullType} restarting=$restarting")
             postFcitxSessionJob(inputSessionGeneration) {
-                if (restarting) {
-                    focus(false)
-                }
+                startInputSession(engineGeneration, attribute.packageName.orEmpty())
                 setCapFlags(flags)
                 if (!isNullType) {
                     focus(true)
@@ -1789,6 +1845,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     override fun onStartInputView(info: EditorInfo, restarting: Boolean) {
         android.util.Log.i("FcitxColdStart", "service.onStartInputView restarting=$restarting")
         isInInputLifecycleCriticalPhase = true
+        // Android may show a retained keyboard window for a non-editor too.
+        // TYPE_NULL terminals are promoted by their first actual key/action.
         try {
             val inputSessionGeneration = this.inputSessionGeneration
             Timber.d("onStartInputView: restarting=$restarting")
@@ -2156,6 +2214,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onFinishInput() {
+        FcitxDaemon.invalidateInputSession()
         Timber.d("onFinishInput")
         onBackspaceGuardSessionChanged()
         MainService.stopSyncService(this)
@@ -2167,6 +2226,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onUnbindInput() {
+        FcitxDaemon.invalidateInputSession()
         cachedKeyEvents.evictAll()
         cachedKeyEventIndex = 0
         cursorUpdateIndex = 0
@@ -2182,6 +2242,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onDestroy() {
+        FcitxDaemon.invalidateInputSession()
         MainService.stopSyncService(this)
         recreateInputViewPrefs.forEach {
             it.unregisterOnChangeListener(recreateInputViewListener)

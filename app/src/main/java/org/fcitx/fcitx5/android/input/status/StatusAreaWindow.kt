@@ -70,13 +70,18 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     }
 
     private var currentButtonsConfig: List<ConfigurableButton> = emptyList()
+    private var currentActions = emptyArray<Action>()
+    private val buttonsChanged: ConfigChangeListener = {
+        currentButtonsConfig = loadButtonsConfig()
+        renderEntries(currentActions)
+    }
 
     private val iconThemeChangeListener = IconThemeManager.OnIconThemeChangeListener {
         renderEntries(fcitx.runImmediately { statusAreaActionsCached })
     }
 
     private fun staticEntries(): Array<StatusAreaEntry> {
-        val config = currentButtonsConfig.ifEmpty { loadButtonsConfig() }
+        val config = currentButtonsConfig
         // Filter out input_method_options as it's always added automatically at the end
         val configurableEntries = config
             .filter { it.id != "input_method_options" }
@@ -131,6 +136,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     }
 
     private fun renderEntries(actions: Array<Action>) {
+        currentActions = actions
         adapter.entries = arrayOf(
             *staticEntries(),
             *Array(actions.size) { StatusAreaEntry.fromAction(actions[it]) }
@@ -314,8 +320,6 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     }
 
     override fun onStatusAreaUpdate(actions: Array<Action>) {
-        // Reload config before rendering
-        currentButtonsConfig = loadButtonsConfig()
         renderEntries(actions)
     }
 
@@ -349,6 +353,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     override fun onAttached() {
         // Load config when attached
         currentButtonsConfig = loadButtonsConfig()
+        ConfigProviders.addButtonsLayoutListener(buttonsChanged)
         IconThemeManager.addOnChangedListener(iconThemeChangeListener)
         fcitx.launchOnReady {
             val data = it.statusArea()
@@ -359,6 +364,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     }
 
     override fun onDetached() {
+        ConfigProviders.removeButtonsLayoutListener(buttonsChanged)
         IconThemeManager.removeOnChangedListener(iconThemeChangeListener)
         popupMenu?.dismiss()
         popupMenu = null

@@ -83,7 +83,7 @@ object SettingsGroupSpecs {
         SettingsGroupSpec(
             id = ID_INPUT,
             title = R.string.settings_group_input,
-            summary = R.string.settings_group_input_summary,
+            summary = R.string.direct_rime_input_summary,
             icon = R.drawable.ic_status_rime,
             entries = { ctx ->
                 val rimeTitle = ctx.getString(R.string.rime_settings)
@@ -93,13 +93,6 @@ object SettingsGroupSpecs {
                         R.string.rime_settings,
                         R.drawable.ic_status_rime,
                         SettingsRoute.InputMethodConfig(rimeTitle, "rime")
-                    ),
-                    // 2026-09-29 由「高级 → 引擎配置」上移到本组：它调的是「怎么输入」
-                    // （触发键、共享状态等），与中州韵设置同属一类，放进「高级」纯属按实现分层。
-                    SettingsGroupEntry.route(
-                        R.string.global_options,
-                        R.drawable.ic_baseline_tune_24,
-                        SettingsRoute.GlobalConfig
                     ),
                     // 候选栏样式与候选窗口同属「候选」族，两处都留在本组；
                     // 键盘页不再重复挂这一项（同一目标两条路径会让用户怀疑哪个是真的）。

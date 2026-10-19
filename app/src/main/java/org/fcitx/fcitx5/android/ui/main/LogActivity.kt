@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.appcompat.app.AlertDialog
@@ -18,14 +19,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.BuildConfig
-import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.databinding.ActivityLogBinding
 import org.fcitx.fcitx5.android.ui.main.log.LogView
+import org.fcitx.fcitx5.android.ui.main.log.LogExportViewModel
 import org.fcitx.fcitx5.android.utils.DeviceInfo
 import org.fcitx.fcitx5.android.utils.Logcat
 import org.fcitx.fcitx5.android.utils.iso8601UTCDateTime
@@ -41,22 +43,12 @@ class LogActivity : AppCompatActivity() {
 
     private lateinit var launcher: ActivityResultLauncher<String>
     private lateinit var logView: LogView
+    private val exports by viewModels<LogExportViewModel>()
+    private var exportItem: MenuItem? = null
 
     private fun registerLauncher() {
         launcher = registerForActivityResult(CreateDocument("text/plain")) { uri ->
-            if (uri == null) return@registerForActivityResult
-            lifecycleScope.launch {
-                runCatching {
-                    withContext(Dispatchers.IO) {
-                        contentResolver.openOutputStream(uri)!!.use { stream ->
-                            stream.bufferedWriter().use { writer ->
-                                writer.write(DeviceInfo.get(this@LogActivity))
-                                writer.write(logView.currentLog)
-                            }
-                        }
-                    }
-                }.let { toast(it) }
-            }
+            exports.destination(uri)
         }
     }
 
@@ -99,6 +91,31 @@ class LogActivity : AppCompatActivity() {
             }
         }
         registerLauncher()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                exports.state.collect { state ->
+                    exportItem?.isEnabled = !state.busy
+                    when (state.phase) {
+                        LogExportViewModel.Phase.READY -> if (exports.launchPicker()) {
+                            try {
+                                launcher.launch("${BuildConfig.APPLICATION_ID}-${iso8601UTCDateTime()}.txt")
+                            } catch (e: Exception) {
+                                exports.pickerFailed(e)
+                            }
+                        }
+                        LogExportViewModel.Phase.SUCCESS -> {
+                            exports.consumeResult()
+                            toast(Result.success(Unit))
+                        }
+                        LogExportViewModel.Phase.FAILURE -> {
+                            exports.consumeResult()
+                            state.error?.let { toast(it) }
+                        }
+                        else -> Unit
+                    }
+                }
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -138,9 +155,12 @@ class LogActivity : AppCompatActivity() {
                 logView.clear()
             }
         }
-        menu.item(R.string.export, R.drawable.ic_baseline_save_24, iconTint, true) {
-            launcher.launch("${BuildConfig.APPLICATION_ID}-${iso8601UTCDateTime()}.txt")
-        }
+        exportItem = menu.item(R.string.export, R.drawable.ic_baseline_save_24, iconTint, true) {
+            if (!exports.state.value.busy) {
+                // Freeze UI-owned state BEFORE dispatching IO or opening the destination.
+                exports.prepare(DeviceInfo.get(this), logView.snapshotLines())
+            }
+        }.apply { isEnabled = !exports.state.value.busy }
         return true
     }
 

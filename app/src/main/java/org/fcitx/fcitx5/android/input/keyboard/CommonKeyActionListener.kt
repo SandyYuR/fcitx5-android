@@ -171,10 +171,10 @@ class CommonKeyActionListener :
                 service.backspaceBoundaryGuard.onUserKeyAction()
             }
             when (action) {
-                is FcitxKeyAction -> service.postFcitxJob {
+                is FcitxKeyAction -> service.postFcitxKeyJob {
                     sendKey(action.act, action.states.states, action.code, action.up)
                 }
-                is SymAction -> service.postFcitxJob {
+                is SymAction -> service.postFcitxKeyJob {
                     sendKey(action.sym, action.states)
                 }
                 is CommitAction -> service.postFcitxJob {

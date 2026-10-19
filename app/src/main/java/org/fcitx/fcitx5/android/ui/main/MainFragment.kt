@@ -167,7 +167,7 @@ class MainFragment : PaddingPreferenceFragment() {
                     R.string.settings_group_input,
                     R.drawable.ic_status_rime,
                     SettingsRoute.SettingsGroup(SettingsGroupSpecs.ID_INPUT),
-                    R.string.settings_group_input_summary
+                    R.string.direct_rime_input_summary
                 )
                 // 键盘直接复用既有的「虚拟键盘」页——那边已是五个子分组的列表，
                 // 再套一层分组页只会多一次点击、多一个重复入口。

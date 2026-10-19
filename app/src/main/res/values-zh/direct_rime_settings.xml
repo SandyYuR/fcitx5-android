@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="direct_rime_chinese_mode">中文模式</string>
+    <string name="direct_rime_config_unavailable">暂时无法读取 Rime 设置，请等待初始化完成后重试。</string>
+    <string name="direct_rime_restart_engine">重启输入引擎</string>
+    <string name="direct_rime_restart_engine_confirm">重新启动 Rime 输入引擎？重启期间暂时无法输入。</string>
+    <string name="direct_rime_engine_service">输入引擎服务</string>
+    <string name="direct_rime_engine_restarting">正在重启 Rime…</string>
+    <string name="direct_rime_about_description">直接使用中州韵 Rime 引擎的 Android 输入法，支持自定义键盘布局、主题、候选栏和剪贴板工具。</string>
+    <string name="direct_rime_about_package">应用包名</string>
+    <string name="direct_rime_about_guide">使用手册</string>
+    <string name="direct_rime_about_guide_summary">安装方案、配置万象、自定义键盘、备份与迁移</string>
+    <string name="direct_rime_about_builds">获取直连版</string>
+    <string name="direct_rime_about_builds_summary">打开当前分支的构建记录，覆盖安装需保持包名和签名一致</string>
+    <string name="direct_rime_about_engine">输入引擎</string>
+    <string name="direct_rime_about_engine_summary">中州韵 Rime / librime · 方案与用户词典在本机运行</string>
+    <string name="direct_rime_about_privacy_summary">本地输入数据、可选联网功能及备份内容说明</string>
+    <string name="direct_rime_about_credits">致谢</string>
+    <string name="direct_rime_about_credits_summary">基于 Fcitx5 for Android 与 fxliang 的 Android 前端，使用 Rime 输入引擎。感谢上游作者与社区贡献者。本项目为独立维护版本。</string>
+    <string name="direct_rime_input_summary">中州韵设置、候选栏和候选窗口</string>
+</resources>
