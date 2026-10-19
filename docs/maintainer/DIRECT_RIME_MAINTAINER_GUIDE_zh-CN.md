@@ -47,6 +47,9 @@ Ready/restart 重绑也遵循编辑器需求；同代次已由真实首键提出
 原生诊断进一步分开 core、commit/context/status/tabs 读取，并记录 core 线程 CPU、缺页及上下文切换增量。
 提交日志的 request_result 只表示 InputConnection 请求结果，不是接收端上屏确认；见
 [Foxy 审查后的修复](DIRECT_RIME_FOXY_FIXES_2026-10-18.md)。
+交互同步调用临时使用 DISPLAY 线程优先级并 finally 恢复；core 的 IO 诊断按
+open/read/write/sync/stat 分项，不能覆盖全部 mmap/后台等待。首次选词的同步刷盘实测及
+日志保存的快照/子进程生命周期修复见[冷路径与日志导出](DIRECT_RIME_COLD_IO_AND_LOG_EXPORT_2026-10-19.md)。
 界面读取缓存直接在调用线程执行；native 运算仍在 owner。首次候选点选的原 Fcitx 对照、
 编辑器排版边界及 `select_queue` / `commit` 新计时见
 [首次点选报告](DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md)。
@@ -64,6 +67,9 @@ Ready/restart 重绑也遵循编辑器需求；同代次已由真实首键提出
 `native/prebuilt/librime/<ABI>/lib/librime.a` 静态链接入 `libdirect-rime.so`。
 主应用自己的桥接位于 `direct-rime/src/main/cpp/`，前端适配位于 `DirectRimeBackend.kt`。
 APK 原生库白名单只有 `libdirect-rime.so` 与 `libc++_shared.so`。
+`leveldb-open.cpp` 在本 DSO 内通过公共 DB::Open 接口开启 reuse_logs；没有替换 librime
+或修改 prebuilt gitlink。更新 LevelDB 时应同步检查公共 Options 字段、每 ABI Open 导出和
+`tools/input-perf/test-leveldb-open.py` 的恢复/显式同步回归，随后跑 Android 存储与万象验证。
 
 共享 prebuilt 仓库也存有其他引擎的产物，主应用不链接它们。
 共享 prebuilder 的完整 `everything` 流水线仍可能编译 Fcitx 宿主工具，用于其他组件的字典构建；
@@ -152,6 +158,10 @@ Foxy 使用上传的原包；两边都经 API 30 Google APIs 模拟器的 ARM64 
 复用 Release 必须验证产品目录与保存的源码哈希一致，不能把旧 APK 标为新提交。
 Release 保留 R8 和 ART profile 编译/打包，使用 ProfileInstaller；检查二进制 profile
 可运行 `python3 tools/foxy-perf/apk_profiles.py PATH.apk`。文本规则数量不等于实际编译收益。
+`direct-rime-release.yml` 为本工作分支独立构建签名 Release，附带源码、APK 哈希、签名来源和
+二进制 profile 核验，不需要 Foxy 测试文件。`direct-rime-cold-probe.yml` 仅在其自身/探针脚本
+变化时自动做当前版本定点诊断，避免每个普通修改都下载完整模型；测试副本的 Lua marker
+使用 ERROR 级别以通过 min_log_level=2，不代表产品发生异常，不进入用户 APK。
 
 ## 设置中保留的兼容内容
 

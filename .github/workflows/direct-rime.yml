@@ -36,6 +36,8 @@ jobs:
             -Wl,--wrap=open,--wrap=__open_2,--wrap=read,--wrap=pread,--wrap=write,--wrap=fsync,--wrap=fdatasync,--wrap=stat \
             -o /tmp/io-trace-test
           /tmp/io-trace-test
+      - name: Verify LevelDB open reuse, explicit sync and recovery fallback
+        run: python3 tools/input-perf/test-leveldb-open.py "$RUNNER_TEMP/leveldb-open-contract"
       - name: Build isolated APK and run JVM tests
         run: ./gradlew -PdirectRimePrototype=true -PbuildABI=arm64-v8a :direct-rime:assembleDebug :direct-rime:testDebugUnitTest :direct-rime:assembleDebugAndroidTest
       - uses: actions/upload-artifact@v7
@@ -45,6 +47,7 @@ jobs:
             direct-rime/build/outputs/apk/debug/*.apk
             direct-rime/build/outputs/apk/androidTest/debug/*.apk
             direct-rime/build/reports/tests/testDebugUnitTest/
+            ${{ runner.temp }}/leveldb-open-contract/results.json
   android_smoke:
     runs-on: ubuntu-22.04
     steps:

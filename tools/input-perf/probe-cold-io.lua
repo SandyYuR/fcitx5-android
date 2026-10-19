@@ -5,6 +5,22 @@
 local create = userdb.UserDb
 local clock = assert(rime_api.get_time_ms, "millisecond wall clock required")
 log.error("DirectRimeProbe initialized=1")
+-- Separate disposable DB: verify values survive close/reopen and WAL rollover on
+-- the actual pinned Android library. No real dictionary or stats keys are used.
+do
+  local db = UserDb("direct_cold_io_storage_probe", "userdb")
+  assert(db:open(), "storage probe open failed")
+  for i = 1, 400 do
+    assert(db:update("probe-" .. i, string.rep(string.char(65 + i % 26), 16384)), "storage probe update failed")
+  end
+  db:close()
+  assert(db:open(), "storage probe reopen failed")
+  for i = 1, 400 do
+    assert(db:fetch("probe-" .. i) == string.rep(string.char(65 + i % 26), 16384), "storage probe record mismatch")
+  end
+  db:close()
+  log.error("DirectRimeProbe storage_records_checked=400")
+end
 userdb.UserDb = function(name, class)
   local wrapper = create(name, class)
   local category = (name == "context_reorder" or name == "stats" or name == "wanxiang") and name or "other"

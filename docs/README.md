@@ -27,6 +27,7 @@
 | 原 Fcitx 也有首次点选成本；缓存修正、独立编辑器与 trace 定位 | [首次点选对照](maintainer/DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md) |
 | Foxy 上传 APK 的输入链路、候选补取、Release 与 ART 对照 | [Foxy 实现审查](maintainer/DIRECT_RIME_FOXY_REVIEW_2026-10-18.md) |
 | Foxy 审查后的非输入框会话、候选分批、JNI 与 Release 修复 | [修复及同条件验证](maintainer/DIRECT_RIME_FOXY_FIXES_2026-10-18.md) |
+| 新日志中的 145ms 选词、同步 IO 定点诊断、连续导出空文件修复 | [冷路径与日志导出](maintainer/DIRECT_RIME_COLD_IO_AND_LOG_EXPORT_2026-10-19.md) |
 | 删除旧原生后端、构建工程和子模块 | [后端清理](maintainer/DIRECT_RIME_CLEANUP_2026-10-17.md) |
 | 删除只被自测引用的工具和其他无调用方代码 | [无调用方审计](maintainer/DIRECT_RIME_UNUSED_CODE_AUDIT_2026-10-17.md) |
 

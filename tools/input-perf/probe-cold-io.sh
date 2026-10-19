@@ -32,5 +32,6 @@ assert len(report['records']) == 6
 (output / 'result.json').write_text(json.dumps(report, indent=2) + '\n')
 assert 'DirectRimeProbe initialized=1' in text, 'Lua DB diagnostic was not active'
 assert 'DirectRimeProbe db=context_reorder method=open' in text, 'Context DB open was not observed'
+assert 'DirectRimeProbe storage_records_checked=400' in text, 'Pinned Android DB persistence probe did not pass'
 PY
 exit "$result"

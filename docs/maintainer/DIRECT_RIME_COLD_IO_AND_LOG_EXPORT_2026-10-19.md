@@ -46,6 +46,13 @@ base + 固定 LTS，不再跑旧 Fcitx、修复前版本或 Foxy。一次部署�
 该脚本不进产品 APK、不改用户方案；修改后的 fixture 另存哈希。
 它用于查调用路径，不能作为 ARM64 手机的性能数字或修改前后收益。
 
+还核对了另一条优化思路：`UserDictionaryComponent` 的 `db_pool_` 是弱引用，旧 session
+先销毁会让最后一个 DB 引用消失，下一 session 可能重新开库。直接改成“先建新 session，
+再毁旧 session”并不稳妥：旧 UserDictionary 的 pending transaction 在析构时提交，
+新字典 Load 可能先从数据库读取旧 `/tick`；当前 LevelDB Fetch 不读 WriteBatch 中未提交的数据。
+本轮没有用改变析构顺序来换速度，也没有放宽跨应用/敏感输入的 Lua 状态隔离。
+后续若确认开库是主要成本，应在引擎层设计有事务边界的资源保留，而不是暗改用户方案或关闭调频。
+
 产品桥接新增 owner 当前操作内 open/read/pread/write/fsync/fdatasync/stat 的累计时间和次数，
 也覆盖 LevelDB 的 fortified `__open_2`。不开文件探测、不记录路径、不增加日志文本内容。
 它不覆盖 mmap 缺页、libc 内部 fopen 调用、所有元数据系统调用或后台 LevelDB 线程；
@@ -73,6 +80,20 @@ base + 固定 LTS，不再跑旧 Fcitx、修复前版本或 Foxy。一次部署�
    把合并后的需求传给 key gate，避免原始 `needsRime=false` 将它降回非输入状态。
    增加改变 program metadata 的设备回归。这不是这两份日志慢选词的已证根因。
 
+4. **减少重新开库的同步刷盘。** 固定版本的 LevelDB `Options::reuse_logs` 默认关闭，
+   重开已有库会创建新的 MANIFEST/WAL，并执行同步 IO。桥接层通过 LevelDB 公共 API
+   启用 reuse_logs，复用可复用的现有清单/日志；不修改 WriteOptions::sync、词典学习、
+   事务和用户 YAML，不搬移用户数据，不提前猜测或重放候选上屏。
+   不适合复用或追加失败时，由 LevelDB 自身走正常恢复路径。
+   `leveldb-open.cpp` 使用同一固定 prebuilt 的公共头文件，CMake 从每个 ABI 的 archive
+   解析 DB::Open 导出符号，无法匹配时构建失败，不硬编码 libc++ 的符号名称。
+
+   Linux LevelDB 1.23 的机制回归：10 次已有库重开，默认 30 次 Sync；经过实际桥接后为 0。
+   400 条记录经历重开与 WAL 轮转仍逐条匹配；注入 append 失败后仍完整恢复，必要的 Sync
+   仍发生；显式 WriteOptions::sync=true 仍产生 Sync。该选项上游标注 EXPERIMENTAL，
+   这些回归不等同断电/全量用户库验证；固定 Android binary 的存储回归与首次选词 IO
+   另由一次性万象 fixture 验证。主机机制结果不能当作手机延迟降幅。
+
 ## 验证记录
 
 本地 491 项 JVM 测试通过；ARM64 Debug 主 APK、native sanitizer 契约与 IO 包装器测试通过。
@@ -87,3 +108,10 @@ core 4.060–5.601ms、其中 sync 1.845–3.057ms。首次选词确实存在同
 首轮库级 marker 采用 WARNING，被产品 min_log_level=2 抑制；JSON 又遇到 AGP 测试后卸载，
 所以首轮只采用 logcat 中六次原生记录，不使用空 JSON。后续探针直接包装测试副本模块，
 以诊断 ERROR marker 输出并校验标记存在；JSON 在卸载前写入 logcat，避免静默丢失数据。
+
+[补齐库级标记的诊断](https://github.com/SandyYuR/fcitx5-android/actions/runs/39179387776)
+已确认：六次首次选词均进入 `context_reorder` 的 `open`，分别记录 6/4/3/3/3/3ms；
+对应 core 约 5.050–7.382ms，sync 2.116–3.831ms。stats 在此前绑定中已经 open。
+这是把“可能在开库”等待缩小到具体组件的证据，不是手机 145ms 的精确分解，
+也不能把两轮不同探针/主机负载下的数字相减当作性能收益。该运行首次尝试因 GitHub 403
+拉取公开 rime-prelude 失败，仅重试该作业后通过。
