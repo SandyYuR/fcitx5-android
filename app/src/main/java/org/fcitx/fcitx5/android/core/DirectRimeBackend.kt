@@ -9,10 +9,13 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.fcitx.directrime.Native
 import org.fcitx.directrime.ProfileArchive
 import org.fcitx.directrime.Snapshot
 import org.fcitx.fcitx5.android.FcitxApplication
+import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.data.DataManager
 import timber.log.Timber
@@ -32,6 +35,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private val epoch = AtomicLong()
     private val bindingLock = Any()
     private val keyGate = InputKeyGate()
+    private val maintenanceMutex = Mutex()
     private data class Binding(val generation: Long, val program: String, val flags: CapabilityFlags, val needsRime: Boolean)
     @Volatile private var binding: Binding? = null
     override val inputSession get() = epoch.get()
@@ -122,7 +126,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             try {
                 startupStage("assets") { DataManager.sync() }
                 startupStage("config") { config.load() }
-                startupStage("native") { Native.start(shared.absolutePath, config.user.absolutePath) }
+                startupStage("native") { Native.start(shared.absolutePath, config.user.absolutePath, BuildConfig.VERSION_NAME) }
                 started = true
                 startupError = ""
                 refreshSchemas()
@@ -533,11 +537,16 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }
     }
 
-    private suspend fun maintain(operation: () -> Unit) {
+    private suspend fun maintain(operation: () -> Unit) = maintenanceMutex.withLock {
         maintenance = true
         keyGate.block()
         val token = invalidateInputSession()
         try { onOwner {
+            clearBinding(token)
+            statusAreaActionsCached = emptyArray()
+            events.trySend(listOf(FcitxEvent.StatusAreaEvent(
+                FcitxEvent.StatusAreaEvent.Data(statusAreaActionsCached, inputMethodEntryCached)
+            ).apply { inputSession = token }))
             showUnavailable("正在部署，请稍候…")
             operation()
             refreshSchemas()
@@ -550,15 +559,17 @@ class DirectRimeBackend(context: Context) : InputEngine {
             throw e
         } finally { maintenance = false; keyGate.running(started) }
     }
-    private suspend fun redeploy() = maintain { check(Native.deploy()) { "部署失败，请检查方案文件后重新部署" } }
+    private suspend fun redeploy() = maintain {
+        if (started) check(Native.deploy()) { "部署失败，请检查方案文件后重新部署" }
+        else restartNative()
+    }
     private suspend fun synchronize() = maintain { check(Native.sync()) { "用户词典同步失败" } }
     private fun restartNative() {
         if (started) Native.stop()
         started = false
-        Native.start(shared.absolutePath, config.user.absolutePath)
+        Native.start(shared.absolutePath, config.user.absolutePath, BuildConfig.VERSION_NAME, fullCheck = true)
         started = true
         preferredSchema = ""; preferredAscii = null
-        check(Native.deploy()) { "部署失败，请检查方案文件" }
     }
     override fun setLogRule(verbose: Boolean) {}
     override fun translate(str: String, domain: String) = str

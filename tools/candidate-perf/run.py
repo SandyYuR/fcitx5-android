@@ -87,7 +87,7 @@ for label in ('fcitx', 'before', 'after'):
         print(f'Testing {label} fresh process {trial + 1}', flush=True)
         adb('shell', 'am', 'force-stop', host)
         adb('shell', 'pm', 'clear', host)
-        for other in ('org.fcitx.fcitx5.android.fx.rime.debug', 'io.github.sandyyur.rime.direct'):
+        for other in ('org.fcitx.fcitx5.android.fx.rime.debug', 'io.github.sandyyur.rime.direct', 'org.fcitx.fcitx5.android.fx.rime'):
             adb('shell', 'am', 'force-stop', other)
         adb('shell', 'am', 'force-stop', package)
         adb('logcat', '-c')

@@ -38,7 +38,7 @@ class Snapshot(
 
 internal object Native {
     init { System.loadLibrary("direct-rime") }
-    external fun start(shared: String, user: String)
+    external fun start(shared: String, user: String, version: String, fullCheck: Boolean = false)
     external fun stop()
     external fun begin(generation: Long, program: String): Snapshot
     external fun beginInput(generation: Long, program: String, noLearning: Boolean): Snapshot

@@ -72,7 +72,8 @@ public class Replay extends Instrumentation {
         }
     }
     long awaitSessionReady() throws Exception {
-        if (!imePackage.equals("com.fxliang.foxy") && !imePackage.equals("io.github.sandyyur.rime.direct"))
+        if (!imePackage.equals("com.fxliang.foxy") && !imePackage.equals("io.github.sandyyur.rime.direct")
+                && !imePackage.equals("org.fcitx.fcitx5.android.fx.rime"))
             throw new IllegalArgumentException("Unexpected IME");
         long deadline = now()+240_000_000_000L;
         String stableMarker = "";

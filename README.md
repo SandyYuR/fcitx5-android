@@ -7,7 +7,7 @@
 | 项目 | 直连版 |
 | --- | --- |
 | 应用名 | 中州鹅 |
-| 包名 | `io.github.sandyyur.rime.direct` |
+| 包名 | `org.fcitx.fcitx5.android.fx.rime` |
 | 合并入口 | [PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4)，目标 `fx-rime-only` |
 | 日常安装包 | 主应用 `:app`；`Commit CI` 的 `direct-rime-frontend-arm64-release`，或合并后 Releases 中的中州鹅 Nightly |
 | 历史 Fcitx 版 | 固定归档 `v0-archive-fcitx-before-direct-20261019`；不跟随默认分支继续更新 |
@@ -19,6 +19,7 @@
 - [合并交付记录](docs/maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md)：版本来源、提交与分支归档、合并检查及已知范围。
 - [最终依赖审阅](docs/maintainer/DIRECT_RIME_FINAL_REVIEW_2026-10-19.md)：APK 原生/静态链接、保留的前端代码和无用途库清理。
 - [密码框方案菜单修复](docs/maintainer/DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md)：宏菜单的窗口焦点、键盘隐藏与回归验证。
+- [部署重载与发行标识](docs/maintainer/DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md)：Lua 更新、新包名、中文统计名称与迁移。
 - [本会话交付索引](docs/maintainer/DIRECT_RIME_SESSION_2026-10-17.md)：版本演进、安装包摘要和验证证据。
 - [完整文档目录](docs/README.md)：实施、解耦、清理和历史方案归档。
 

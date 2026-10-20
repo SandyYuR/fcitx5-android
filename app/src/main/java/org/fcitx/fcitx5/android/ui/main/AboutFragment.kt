@@ -30,7 +30,7 @@ class AboutFragment : PaddingPreferenceFragment() {
                 open(Const.directRimeGuideUrl)
             }
             addPreference(R.string.direct_rime_about_builds, R.string.direct_rime_about_builds_summary) {
-                open(Const.directRimeBuildsUrl)
+                open(Const.releasesUrl)
             }
             addCategory(R.string.version) {
                 addPreference(R.string.current_version, Const.versionName)
@@ -42,7 +42,7 @@ class AboutFragment : PaddingPreferenceFragment() {
             }
             addCategory(R.string.source_code) {
                 addPreference(R.string.source_code, R.string.github_repo) {
-                    open("${Const.githubRepo}/tree/${Const.directRimeBranch}")
+                    open(Const.sourceUrl)
                 }
                 addPreference(R.string.privacy_policy, R.string.direct_rime_about_privacy_summary) {
                     open(Const.privacyPolicyUrl)

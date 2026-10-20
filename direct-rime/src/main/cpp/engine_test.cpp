@@ -8,24 +8,27 @@ using namespace direct_rime;
 #define CHECK(condition) do { if (!(condition)) throw std::runtime_error(#condition); } while (0)
 namespace {
 struct Fake {
-    bool maintenance = false, exists = true, hasSchema = true, failDeploy = false, noLearning = false;
+    bool maintenance = false, exists = true, hasSchema = true, failDeploy = false, failLaunch = false, noLearning = false;
     int keys = 0, mask = 0, created = 0, destroyed = 0, freedCommit = 0;
-    int setups = 0, finalized = 0, selected = -1, freedTabs = 0, freedCodes = 0;
+    int setups = 0, initialized = 0, finalized = 0, selected = -1, freedTabs = 0, freedCodes = 0;
     size_t selectedSpan = 0, selectedGlobal = 999, deletedGlobal = 999, caret = 999;
     int freedIterator = 0, cleared = 0, clearedTabs = 0;
-    std::string commit, selectedLabel, preedit, clientApp;
+    std::string commit, selectedLabel, preedit, clientApp, distribution, version;
     RimeNotificationHandler callback = nullptr;
     void* context = nullptr;
 } f;
 RimeApi api() {
     RimeApi a{}; RIME_STRUCT_INIT(RimeApi, a);
     a.setup = [](RimeTraits*) { ++f.setups; };
-    a.initialize = [](RimeTraits*) {};
+    a.initialize = [](RimeTraits* traits) {
+        ++f.initialized; f.distribution = traits->distribution_code_name; f.version = traits->distribution_version;
+    };
     a.finalize = [] { ++f.finalized; };
     a.set_notification_handler = [](RimeNotificationHandler callback, void* context) { f.callback = callback; f.context = context; };
     a.start_maintenance = [](Bool full) -> Bool {
+        if (full && f.failLaunch) return false;
         if (full && f.callback) f.callback(f.context, 0, "deploy", f.failDeploy ? "failure" : "success");
-        return false;
+        return full;
     };
     a.is_maintenance_mode = []() -> Bool { return f.maintenance; };
     a.join_maintenance_thread = [] {};
@@ -118,13 +121,21 @@ void testMaintenanceAndAbi() {
     f = {}; auto a = api();
     // A shorter historical API has none of the custom ABI. Never dereference beyond it.
     a.data_size = offsetof(RimeApi, get_input_tabs) - sizeof(a.data_size);
-    Engine engine(&a); engine.start("shared", "user");
+    Engine engine(&a); engine.start("shared", "user", "1.2.3-test");
+    CHECK(f.distribution == "中州鹅" && f.version == "1.2.3-test");
     auto result = engine.begin(1, "editor"); CHECK(result.tabs.empty() && f.freedTabs == 0);
     f.failDeploy = true; CHECK(!engine.deploy());
     CHECK(engine.begin(2, "editor").gate == DeployFailed);
     CHECK(engine.key(2, 'a', 0, false).handled && f.keys == 0);
     f.failDeploy = false; CHECK(engine.deploy());
+    CHECK(f.distribution == "中州鹅" && f.version == "1.2.3-test");
     CHECK(engine.begin(3, "editor").gate == Ready);
+    CHECK(f.setups == 1 && f.initialized == 3 && f.finalized == 2);
+    f.failLaunch = true; CHECK(!engine.deploy());
+    CHECK(engine.begin(4, "editor").gate == DeployFailed);
+    f.failLaunch = false; CHECK(engine.deploy());
+    CHECK(engine.begin(5, "editor").gate == Ready);
+    CHECK(f.setups == 1 && f.initialized == 5 && f.finalized == 4);
     engine.stop();
     f = {}; f.hasSchema = false; auto b = api(); Engine empty(&b); empty.start("shared", "user");
     CHECK(empty.begin(1, "editor").gate == NoSession && f.created == 0); empty.stop();

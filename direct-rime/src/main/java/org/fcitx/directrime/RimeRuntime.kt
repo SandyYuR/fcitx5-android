@@ -39,7 +39,10 @@ internal object RimeRuntime {
         copyAssets(context, "shared", shared)
         val user = File(root, "user").apply { mkdirs() }
         Trace.beginSection("rime.direct.startup")
-        try { Native.start(shared.path, user.path); started = true }
+        try {
+            val version = context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty()
+            Native.start(shared.path, user.path, version); started = true
+        }
         finally { Trace.endSection() }
     }
     suspend fun begin(context: Context, generation: Long, program: String): Snapshot? = withContext(dispatcher) {

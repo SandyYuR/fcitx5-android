@@ -53,6 +53,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     for key in ['foxy', 'direct', 'host', 'fixture', 'output']:
         p.add_argument('--'+key, type=Path, required=True)
+    p.add_argument("--direct-package", choices=["org.fcitx.fcitx5.android.fx.rime", "io.github.sandyyur.rime.direct"], default="org.fcitx.fcitx5.android.fx.rime")
     a = p.parse_args()
     a.output.mkdir(parents=True, exist_ok=True)
     assert adb('get-serialno').startswith('emulator-'), 'Disposable emulator only'
@@ -85,10 +86,10 @@ def main():
     try:
         for label, apk, package, relative in [
             ('foxy', a.foxy, 'com.fxliang.foxy', 'foxy/rime/default'),
-            ('direct', a.direct, 'io.github.sandyyur.rime.direct', 'data/rime')]:
+            ('direct', a.direct, a.direct_package, 'data/rime')]:
             out = a.output/label
             out.mkdir(exist_ok=True)
-            for pkg in ['com.fxliang.foxy', 'io.github.sandyyur.rime.direct', HOST]:
+            for pkg in ['com.fxliang.foxy', a.direct_package, HOST]:
                 adb('shell', 'am', 'force-stop', pkg, check=False)
             adb('install', '-r', apk)
             target = f'/sdcard/Android/data/{package}/files/{relative}'

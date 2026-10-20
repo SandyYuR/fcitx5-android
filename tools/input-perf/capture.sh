@@ -20,6 +20,7 @@ data_sources {
       atrace_categories: "dalvik"
       atrace_apps: "org.fcitx.fcitx5.android.fx.rime.debug"
       atrace_apps: "io.github.sandyyur.rime.direct"
+      atrace_apps: "org.fcitx.fcitx5.android.fx.rime"
     }
   }
 }

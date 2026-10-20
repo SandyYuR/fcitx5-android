@@ -210,7 +210,7 @@ jobs:
         run: |
           last_tag="${{ steps.prev_tag.outputs.value }}"
           {
-            echo "中州鹅 · Direct Rime（io.github.sandyyur.rime.direct），完整键盘签名 Release。"
+            echo "中州鹅（org.fcitx.fcitx5.android.fx.rime），完整键盘签名 Release。"
             echo "首次使用需导入并部署 Rime 方案；各输入法请使用独立工作目录。"
             echo "[用户手册](https://github.com/${{ github.repository }}/blob/${{ github.sha }}/docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)"
             echo ""
@@ -233,7 +233,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.tag.outputs.value }}
-          name: "中州鹅 · Direct Rime ${{ steps.tag.outputs.value }}"
+          name: "中州鹅 ${{ steps.tag.outputs.value }}"
           body_path: release_notes.md
           prerelease: true
           files: final-release/*.apk

@@ -4,13 +4,14 @@
 `feat/direct-rime-prototype` → `fx-rime-only`。本次整理将 PR 准备到可合并状态，实际合并由维护者执行。
 
 最后审阅在原三个交付提交之后追加一项依赖清理与核验提交；
-10 月 20 日另加[密码框方案菜单修复](DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md)，PR 共五项提交。
+10 月 20 日另加[密码框方案菜单修复](DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md)，
+随后完成[部署重载与发行标识调整](DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md)，PR 共六项提交。
 最新打包库、无调用方依赖、组件清理及验证见[最终依赖审阅](DIRECT_RIME_FINAL_REVIEW_2026-10-19.md)；
 下面的 1c/6378/205d 来源关系保留整理时点的事实，交付选择 PR 当前提交重新产生的签名 Release。
 
 ## 交付内容与日用反馈
 
-中州鹅（`io.github.sandyyur.rime.direct`）保留完整 Android 键盘、候选、布局编辑器、主题与设置，
+中州鹅（`org.fcitx.fcitx5.android.fx.rime`）保留完整 Android 键盘、候选、布局编辑器、主题与设置，
 由单一 `rime-main` owner 经 JNI 直接调用 librime。原生 Fcitx Core、fcitx5-rime、AndroidFrontend
 及其构建工程已经删除；APK 原生库白名单为 `libdirect-rime.so` 和 `libc++_shared.so`。
 仍在使用的 Android 前端类名、配置适配、旧布局动作与许可证署名见[维护手册](DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md)。
@@ -51,7 +52,8 @@
 
 整合版包含这些后续修复，**不能把验收用 9adb APK 标作新提交构建**。
 整合版签名 Release 由当前 PR 提交的 `Commit CI` 重新产生，并附带 `source.txt`、构建元数据、APK SHA 与 profile 审计；
-具体运行和下载入口以 PR 描述的本轮验证表为准。覆盖升级继续使用相同包名及仓库 Release 证书。
+具体运行和下载入口以 PR 描述的本轮验证表为准。仓库 Release 证书保持不变；
+10 月 20 日恢复默认分支原包名，从旧直连测试包迁移需要先导出再恢复备份，不能覆盖该测试包。
 
 ## 开发分支归档
 

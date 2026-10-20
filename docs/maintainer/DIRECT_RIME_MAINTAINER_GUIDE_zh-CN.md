@@ -1,6 +1,7 @@
 # 中州鹅直连版维护手册
 
-本手册对应当前直连源码，主应用为 `:app`，包名 `io.github.sandyyur.rime.direct`。
+本手册对应当前直连源码，主应用为 `:app`，包名 `org.fcitx.fcitx5.android.fx.rime`。
+这是默认分支原包名；旧直连测试包 `io.github.sandyyur.rime.direct` 的数据须按用户手册迁移。
 合并前工作分支为 `feat/direct-rime-prototype`，PR #4 的目标为 `fx-rime-only`；合并后在新的功能分支继续开发。
 历史 Fcitx 版固定归档为 `v0-archive-fcitx-before-direct-20261019`，不再用默认分支名称指代旧引擎。
 
@@ -24,6 +25,7 @@ Release 需要自己的签名才能分发；本地校验用的 `release-unsigned
 
 普通构建已固定为直连。`-PdirectRimeFrontend=true` 仅兼容旧脚本，false 会报错。
 可选 `-PdirectRimePrototype=true :direct-rime:assembleDebug` 构建最小引擎诊断 APK，
+包名为 `org.fcitx.fcitx5.android.fx.rime.lab`，名称“中州鹅引擎诊断”，与主应用独立安装；
 它不是带完整键盘的日常产品。
 
 ## 输入事件链路

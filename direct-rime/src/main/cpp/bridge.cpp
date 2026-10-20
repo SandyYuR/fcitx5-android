@@ -67,10 +67,11 @@ extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void*) {
 }
 
 #define JNI_METHOD(name) Java_org_fcitx_directrime_Native_##name
-extern "C" JNIEXPORT void JNICALL JNI_METHOD(start)(JNIEnv* env, jobject, jstring shared, jstring user) {
+extern "C" JNIEXPORT void JNICALL JNI_METHOD(start)(JNIEnv* env, jobject, jstring shared, jstring user,
+                                                    jstring version, jboolean fullCheck) {
     try {
         if (!engine) engine = std::make_unique<Engine>(rime_get_api());
-        instance().start(string(env, shared), string(env, user));
+        instance().start(string(env, shared), string(env, user), string(env, version), fullCheck);
     } catch (const std::exception& e) { error(env, e); }
 }
 extern "C" JNIEXPORT void JNICALL JNI_METHOD(stop)(JNIEnv* env, jobject) {

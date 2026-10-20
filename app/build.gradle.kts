@@ -17,7 +17,7 @@ android {
     namespace = packageBase
 
     defaultConfig {
-        applicationId = "io.github.sandyyur.rime.direct"
+        applicationId = "org.fcitx.fcitx5.android.fx.rime"
         buildConfigField("boolean", "INPUT_DIAGNOSTICS", inputDiagnostics.toString())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["appLabel"] = "@string/direct_rime_app_name"

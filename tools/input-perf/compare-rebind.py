@@ -9,9 +9,10 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--apks', type=Path, required=True)
 parser.add_argument('--fixture', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
+parser.add_argument("--package", choices=["org.fcitx.fcitx5.android.fx.rime", "io.github.sandyyur.rime.direct"], default="org.fcitx.fcitx5.android.fx.rime", help="Use the historical application ID to replay older APKs")
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
-package = 'io.github.sandyyur.rime.direct'
+package = args.package
 
 def adb(*parts, check=True, timeout=900):
     return subprocess.run(['adb', *map(str, parts)], text=True, capture_output=True, check=check, timeout=timeout)
@@ -27,7 +28,7 @@ for label in ('before', 'after'):
     adb('shell', 'am', 'force-stop', package)
     adb('shell', 'pm', 'clear', package)
     adb('shell', 'run-as', package, 'mkdir', '-p', 'files')
-    adb('shell', "cat /data/local/tmp/rebind-fixture.zip | run-as io.github.sandyyur.rime.direct sh -c 'cat > files/rebind-fixture.zip'")
+    adb('shell', f"cat /data/local/tmp/rebind-fixture.zip | run-as {package} sh -c 'cat > files/rebind-fixture.zip'")
     adb('logcat', '-c')
     run = adb('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
               'org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#immediateTypingAndCandidateTapAfterRebind',

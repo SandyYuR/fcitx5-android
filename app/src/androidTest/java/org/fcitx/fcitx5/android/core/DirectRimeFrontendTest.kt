@@ -58,7 +58,7 @@ class DirectRimeFrontendTest {
         assertTrue(message, condition())
     }
     @Before fun prepare(): Unit = runBlocking {
-        assertEquals("io.github.sandyyur.rime.direct", context.packageName)
+        assertEquals("org.fcitx.fcitx5.android.fx.rime", context.packageName)
         connection.runOnReady {
             previousProfile = getAddonSubConfig("rime", "profile-manager")["Current"].value
             setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "create"), RawConfig("Name", profile))))
@@ -79,6 +79,7 @@ class DirectRimeFrontendTest {
             File(directory, "default.yaml").appendText("\n")
             val default = File(directory, "default.yaml")
             default.writeText(default.readText().replace("- schema: direct_smoke", "- schema: direct_smoke\n  - schema: second"))
+            if (testName.methodName == "redeployReloadsLuaAndSchema") writeReloadFixture(directory, "部署前", "before")
         }
         connection.runOnReady {
             setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "switch"), RawConfig("Name", profile))))
@@ -133,6 +134,60 @@ return function(input, env)
   end
 end
 """.trimIndent())
+    }
+    private fun writeReloadFixture(directory: File, label: String, option: String) {
+        val original = instrumentation.context.assets.open("smoke/direct_smoke.schema.yaml")
+            .bufferedReader().use { it.readText() }
+        File(directory, "direct_smoke.schema.yaml").writeText(original
+            .replace("name: 直连测试", "name: $label")
+            .replace("engine:\n", "  - name: reload_$option\n    states: [关闭, 开启]\nengine:\n")
+            .replace("  translators: [table_translator]", "  translators: [table_translator]\n  filters: [lua_filter@*redeploy_probe]"))
+        File(directory, "lua").mkdirs()
+        File(directory, "lua/redeploy_probe.lua").writeText("""
+local label = "$label"
+local software = rime_api.get_distribution_code_name() .. " " .. rime_api.get_distribution_version()
+return function(input, env)
+  for candidate in input:iter() do
+    local result = ShadowCandidate(candidate, candidate.type, candidate.text, label .. ":" .. software)
+    yield(result)
+  end
+end
+""".trimIndent())
+    }
+    @Test fun redeployReloadsLuaAndSchema(): Unit = runBlocking {
+        org.junit.Assume.assumeTrue("Uses the disposable smoke fixture", fixtureArchive == null)
+        val directory = File(context.getExternalFilesDir(null), "data/$profile")
+        suspend fun expectLoaded(label: String, option: String) {
+            connection.runOnReady {
+                assertTrue(acceptsInput)
+                assertEquals(label, currentIme().subMode.label)
+                assertEquals(listOf("reload_$option"), statusArea().filter { it.name.startsWith("reload_") }.map { it.name })
+                sendKey('n', KeyState.Virtual.state); sendKey('i', KeyState.Virtual.state)
+                val words = getCandidates(0, 10)
+                assertEquals(listOf("你", "泥", "拟", "逆"), words.map { it.text })
+                assertTrue("Lua must see the new source and the APK's Chinese distribution/version",
+                    words.all { it.comment == "$label:中州鹅 ${BuildConfig.VERSION_NAME}" })
+                assertTrue(selectGlobal(0))
+            }
+            assertEquals("你", withTimeout(10_000) { commits.receive() })
+        }
+        expectLoaded("部署前", "before") // Populate Lua require()'s module cache.
+        for ((label, option, settingsEntry) in listOf(Triple("部署后", "after", true), Triple("再次部署", "again", false))) {
+            writeReloadFixture(directory, label, option)
+            File(directory, "third.schema.yaml").writeText(File(directory, "second.schema.yaml").readText()
+                .replace("schema_id: second", "schema_id: third").replace("name: 第二方案", "name: 新增方案"))
+            val default = File(directory, "default.yaml")
+            default.writeText(default.readText().replace("- schema: second", "- schema: third"))
+            connection.runOnReady {
+                val previousGeneration = inputSession
+                if (settingsEntry) setAddonSubConfig("rime", "deploy", RawConfig())
+                else activateAction(11) // The expanded status area's deployment action.
+                assertNotEquals(previousGeneration, inputSession)
+                assertEquals(listOf(label, "新增方案"), SubModeManager.resolveSchemaMenuEntries(statusArea()).map { it.first })
+            }
+            expectLoaded(label, option)
+        }
+        assertNull("Deployment must not replay an old commit", withTimeoutOrNull(250) { commits.receive() })
     }
     /** Reproducible adapter measurements; deliberately not a UI latency benchmark. */
     @Test fun replayPerformanceWorkload(): Unit = runBlocking {

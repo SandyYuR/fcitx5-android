@@ -102,22 +102,35 @@ void Engine::notification(void* context, RimeSessionId, const char* type, const 
     if (std::strcmp(type, "deploy") == 0)
         static_cast<Engine*>(context)->deployFailed_.store(std::strcmp(value, "failure") == 0);
 }
-void Engine::start(const std::string& shared, const std::string& user) {
+void Engine::start(const std::string& shared, const std::string& user,
+                   const std::string& version, bool fullCheck) {
     Trace trace("rime.direct.initialize");
     owner();
     if (started_) throw std::logic_error("engine already started");
-    shared_ = shared; user_ = user;
+    shared_ = shared; user_ = user; version_ = version;
+    initialize(fullCheck);
+    if (fullCheck && deployFailed_.load()) {
+        stop();
+        throw std::runtime_error("部署失败，请检查方案文件后重新部署");
+    }
+}
+void Engine::initialize(bool fullCheck) {
+    deployFailed_.store(false);
     RimeTraits traits{}; RIME_STRUCT_INIT(RimeTraits, traits);
     traits.shared_data_dir = shared_.c_str(); traits.user_data_dir = user_.c_str();
-    traits.app_name = "rime.direct-android"; traits.distribution_name = "Direct Rime Experiment";
-    traits.distribution_code_name = "direct-rime"; traits.distribution_version = "0.1";
+    traits.app_name = "rime.direct-android"; traits.distribution_name = "中州鹅";
+    traits.distribution_code_name = "中州鹅"; traits.distribution_version = version_.c_str();
     traits.log_dir = ""; traits.min_log_level = 2;
     if (!setup_) { api_->setup(&traits); setup_ = true; }
     api_->initialize(&traits);
     started_ = true;
     api_->set_notification_handler(notification, this);
     { Trace maintenance("rime.direct.startup_maintenance");
-      api_->start_maintenance(false); api_->join_maintenance_thread(); }
+      const bool launched = api_->start_maintenance(fullCheck);
+      api_->join_maintenance_thread();
+      // A forced check returning false failed before the deploy thread started
+      // (e.g. installation_update), so no failure notification will arrive.
+      if (fullCheck && !launched) deployFailed_.store(true); }
 }
 void Engine::stop() {
     owner();
@@ -291,11 +304,11 @@ Snapshot Engine::snapshot(int64_t generation, bool handled) {
 bool Engine::deploy() {
     owner();
     if (!started_) return false;
-    if (session_) api_->destroy_session(session_);
-    session_ = 0; active_ = false; sessionProgram_.clear(); tabs_.clear(); deployFailed_.store(false);
-    api_->join_maintenance_thread();
-    api_->start_maintenance(true);
-    api_->join_maintenance_thread();
+    // Recreating only the session retains Lua require()'s module cache and
+    // component-held config. Finalize unloads those modules and flushes DBs;
+    // setup/glog remains process-wide and must not be run a second time.
+    stop();
+    initialize(true);
     return !deployFailed_.load();
 }
 std::vector<std::string> Engine::schemas() {

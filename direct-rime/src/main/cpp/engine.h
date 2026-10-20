@@ -23,7 +23,8 @@ struct Tab { std::string label; size_t span; };
 class Engine {
 public:
     explicit Engine(RimeApi* api);
-    void start(const std::string& shared, const std::string& user);
+    void start(const std::string& shared, const std::string& user,
+               const std::string& version = "development", bool fullCheck = false);
     void stop();
     Snapshot begin(int64_t generation, const std::string& program, bool noLearning = false);
     Snapshot end(int64_t generation);
@@ -49,6 +50,7 @@ private:
     Gate gate(int64_t generation) const;
     Snapshot snapshot(int64_t generation, bool handled = true);
     void clearSession();
+    void initialize(bool fullCheck);
     static void notification(void* context, RimeSessionId, const char* type, const char* value);
     RimeApi* api_;
     const std::thread::id owner_;
@@ -59,7 +61,7 @@ private:
     int64_t generation_ = 0, revision_ = 0;
     int64_t sessionsCreated_ = 0, sessionsReused_ = 0, sessionsEnded_ = 0;
     std::string sessionProgram_;
-    std::string shared_, user_;
+    std::string shared_, user_, version_;
     std::vector<Tab> tabs_;
     std::array<int64_t, 16> timing_{};
 };

@@ -11,6 +11,7 @@
 | 查看日用验收、合并检查、提交整理与分支归档 | [合并交付记录](maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md) |
 | 查看最后审阅、APK 实际依赖、静态链接和无调用方库清理 | [最终依赖审阅](maintainer/DIRECT_RIME_FINAL_REVIEW_2026-10-19.md) |
 | 排查密码框打开方案菜单后键盘隐藏、重新弹出 | [密码框方案菜单修复](maintainer/DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md) |
+| 部署后仍使用旧 Lua、恢复包名与中文统计名称 | [部署重载与发行标识](maintainer/DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md) |
 | 查看本会话版本、安装包、CI 与已完成/待完成事项 | [本会话交付索引](maintainer/DIRECT_RIME_SESSION_2026-10-17.md) |
 | 查看工作区、临时分支及 Actions 记录处理原则 | [工作区与分支整理](maintainer/DIRECT_RIME_WORKSPACE_CLEANUP_2026-10-17.md) |
 

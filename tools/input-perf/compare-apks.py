@@ -21,11 +21,12 @@ parser.add_argument("tests", type=Path, help="Full frontend androidTest APK")
 parser.add_argument("--wanxiang", type=Path, help="ZIP containing the scheme and its LTS model")
 parser.add_argument("--output", type=Path, default=Path("build/input-perf-comparison"))
 parser.add_argument("--adb", default="adb")
+parser.add_argument("--package", choices=["org.fcitx.fcitx5.android.fx.rime", "io.github.sandyyur.rime.direct"], default="org.fcitx.fcitx5.android.fx.rime", help="Use the historical application ID to replay older APKs")
 args = parser.parse_args()
 adb = args.adb
 artifacts = args.output
 artifacts.mkdir(parents=True, exist_ok=True)
-package = 'io.github.sandyyur.rime.direct'
+package = args.package
 baseline, optimized, test = args.before, args.after, args.tests
 for path in [baseline, optimized, test] + ([args.wanxiang] if args.wanxiang else []):
     if not path.is_file(): parser.error(str(path) + " is not a file")
@@ -53,7 +54,7 @@ if args.wanxiang:
     existing = command('shell', 'run-as', package, 'sha256sum', 'files/wanxiang-perf.zip', check=False)
     if not existing.stdout.startswith(source_hash):
         command('push', str(args.wanxiang), '/data/local/tmp/direct-wanxiang-perf.zip')
-        command('shell', "cat /data/local/tmp/direct-wanxiang-perf.zip | run-as io.github.sandyyur.rime.direct sh -c 'cat > files/wanxiang-perf.zip'")
+        command('shell', f"cat /data/local/tmp/direct-wanxiang-perf.zip | run-as {package} sh -c 'cat > files/wanxiang-perf.zip'")
         command('shell', 'rm', '/data/local/tmp/direct-wanxiang-perf.zip')
 print('Replay archives staged; profile creation stays inside the test app.', flush=True)
 
