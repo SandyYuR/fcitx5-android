@@ -1030,9 +1030,9 @@
     <string name="settings_home_category_daily">日常调整</string>
     <string name="settings_home_category_more">按需进入</string>
     <string name="settings_group_input">输入与候选</string>
-    <string name="settings_group_input_summary">中州韵设置、全局选项、候选栏和候选窗口</string>
+    <string name="settings_group_input_summary">中州韵设置、候选栏和候选窗口</string>
     <string name="settings_group_keyboard">键盘</string>
-    <string name="settings_group_keyboard_summary">键盘、按键和工具栏设置、键盘布局自定义</string>
+    <string name="settings_group_keyboard_summary">按键和工具栏设置、键盘布局自定义</string>
     <string name="settings_group_appearance">外观</string>
     <string name="settings_group_appearance_summary">主题、图标和字体</string>
     <string name="settings_group_convenience">便捷功能</string>

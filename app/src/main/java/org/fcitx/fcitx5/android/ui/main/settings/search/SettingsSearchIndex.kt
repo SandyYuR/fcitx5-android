@@ -389,27 +389,31 @@ object SettingsSearchIndex {
             route = SettingsRoute.SettingsUiAppearance
         ),
         SettingsSearchEntry(
-            R.string.settings_ui_motion_title, P_APPEARANCE,
+            R.string.settings_ui_motion_title, P_APPEARANCE + R.string.settings_ui_appearance,
             listOf("animation", "motion", "gesture", "predictive back", "动画", "手势", "预测性返回"),
             route = SettingsRoute.SettingsUiMotion
         ),
         SettingsSearchEntry(
-            R.string.settings_ui_motion_enter, P_APPEARANCE + R.string.settings_ui_motion_title,
+            R.string.settings_ui_motion_enter,
+            P_APPEARANCE + listOf(R.string.settings_ui_appearance, R.string.settings_ui_motion_title),
             listOf("enter animation", "页面切换", "滑入"),
             route = SettingsRoute.SettingsUiMotion
         ),
         SettingsSearchEntry(
-            R.string.settings_ui_motion_return, P_APPEARANCE + R.string.settings_ui_motion_title,
+            R.string.settings_ui_motion_return,
+            P_APPEARANCE + listOf(R.string.settings_ui_appearance, R.string.settings_ui_motion_title),
             listOf("return animation", "back animation", "滑出"),
             route = SettingsRoute.SettingsUiMotion
         ),
         SettingsSearchEntry(
-            R.string.settings_ui_motion_duration, P_APPEARANCE + R.string.settings_ui_motion_title,
+            R.string.settings_ui_motion_duration,
+            P_APPEARANCE + listOf(R.string.settings_ui_appearance, R.string.settings_ui_motion_title),
             listOf("animation duration", "动画时长", "快慢"),
             route = SettingsRoute.SettingsUiMotion
         ),
         SettingsSearchEntry(
-            R.string.settings_ui_motion_predictive, P_APPEARANCE + R.string.settings_ui_motion_title,
+            R.string.settings_ui_motion_predictive,
+            P_APPEARANCE + listOf(R.string.settings_ui_appearance, R.string.settings_ui_motion_title),
             listOf("predictive back", "gesture", "返回手势"),
             route = SettingsRoute.SettingsUiMotion
         ),

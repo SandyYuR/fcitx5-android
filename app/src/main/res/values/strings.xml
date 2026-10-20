@@ -1034,9 +1034,9 @@
     <string name="settings_home_category_daily">Everyday</string>
     <string name="settings_home_category_more">Occasional</string>
     <string name="settings_group_input">Input &amp; candidates</string>
-    <string name="settings_group_input_summary">Rime settings, global options, candidate bar and candidate window</string>
+    <string name="settings_group_input_summary">Rime settings, candidate bar and candidate window</string>
     <string name="settings_group_keyboard">Keyboard</string>
-    <string name="settings_group_keyboard_summary">Keyboard, key and toolbar settings, keyboard layout customization</string>
+    <string name="settings_group_keyboard_summary">Key and toolbar settings, keyboard layout customization</string>
     <string name="settings_group_appearance">Appearance</string>
     <string name="settings_group_appearance_summary">Themes, icons and fonts</string>
     <string name="settings_group_convenience">Convenience</string>

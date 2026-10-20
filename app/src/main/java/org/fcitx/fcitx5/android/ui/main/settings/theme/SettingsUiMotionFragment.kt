@@ -49,9 +49,14 @@ class SettingsUiMotionFragment : PaddingPreferenceFragment() {
         duration = ListPreference(requireContext()).apply {
             key = SettingsUiMotionPreferences.KEY_DURATION
             setTitle(R.string.settings_ui_motion_duration)
-            entries = arrayOf(getString(R.string.settings_ui_motion_fast),
-                getString(R.string.settings_ui_motion_standard), getString(R.string.settings_ui_motion_slow))
-            entryValues = arrayOf("180", "300", "450")
+            entries = arrayOf(
+                getString(R.string.settings_ui_motion_fast, SettingsUiMotionPreferences.DURATION_FAST),
+                getString(R.string.settings_ui_motion_standard, SettingsUiMotionPreferences.DURATION_STANDARD),
+                getString(R.string.settings_ui_motion_slow, SettingsUiMotionPreferences.DURATION_SLOW)
+            )
+            entryValues = arrayOf(SettingsUiMotionPreferences.DURATION_FAST.toString(),
+                SettingsUiMotionPreferences.DURATION_STANDARD.toString(),
+                SettingsUiMotionPreferences.DURATION_SLOW.toString())
             isPersistent = false
             isIconSpaceReserved = false
             summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()

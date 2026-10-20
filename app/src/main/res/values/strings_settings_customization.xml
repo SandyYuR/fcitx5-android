@@ -13,9 +13,9 @@
     <string name="settings_ui_motion_fade">Fade through</string>
     <string name="settings_ui_motion_none">No animation</string>
     <string name="settings_ui_motion_follow">Match forward animation</string>
-    <string name="settings_ui_motion_fast">Fast (180 ms)</string>
-    <string name="settings_ui_motion_standard">Standard (300 ms)</string>
-    <string name="settings_ui_motion_slow">Relaxed (450 ms)</string>
+    <string name="settings_ui_motion_fast">Fast (%1$d ms)</string>
+    <string name="settings_ui_motion_standard">Standard (%1$d ms)</string>
+    <string name="settings_ui_motion_slow">Relaxed (%1$d ms)</string>
     <string name="settings_ui_motion_gestures">Back gestures</string>
     <string name="settings_ui_motion_predictive">Predictive back preview</string>
     <string name="settings_ui_motion_predictive_summary">Preview the previous page while swiping back</string>

@@ -13,9 +13,9 @@
     <string name="settings_ui_motion_fade">淡入淡出</string>
     <string name="settings_ui_motion_none">无动画</string>
     <string name="settings_ui_motion_follow">跟随前进动画</string>
-    <string name="settings_ui_motion_fast">快速（180 ms）</string>
-    <string name="settings_ui_motion_standard">标准（300 ms）</string>
-    <string name="settings_ui_motion_slow">舒缓（450 ms）</string>
+    <string name="settings_ui_motion_fast">快速（%1$d ms）</string>
+    <string name="settings_ui_motion_standard">标准（%1$d ms）</string>
+    <string name="settings_ui_motion_slow">舒缓（%1$d ms）</string>
     <string name="settings_ui_motion_gestures">返回手势</string>
     <string name="settings_ui_motion_predictive">预测性返回预览</string>
     <string name="settings_ui_motion_predictive_summary">拖动返回手势时预览上一页</string>

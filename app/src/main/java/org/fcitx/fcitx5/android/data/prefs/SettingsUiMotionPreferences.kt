@@ -14,6 +14,9 @@ object SettingsUiMotionPreferences {
     const val KEY_RETURN = "settings_ui_motion_return"
     const val KEY_DURATION = "settings_ui_motion_duration"
     const val KEY_PREDICTIVE = "settings_ui_motion_predictive"
+    const val DURATION_FAST = 350L
+    const val DURATION_STANDARD = 500L
+    const val DURATION_SLOW = 650L
 
     enum class Style(val value: String) {
         FOLLOW("follow"), HORIZONTAL("horizontal"), VERTICAL("vertical"),
@@ -28,7 +31,7 @@ object SettingsUiMotionPreferences {
     data class Selection(
         val enter: Style = Style.HORIZONTAL,
         val returning: Style = Style.FOLLOW,
-        val durationMillis: Long = 300L,
+        val durationMillis: Long = DURATION_STANDARD,
         val predictiveBack: Boolean = true
     ) {
         val returnStyle: Style get() = if (returning == Style.FOLLOW) enter else returning
@@ -42,8 +45,12 @@ object SettingsUiMotionPreferences {
         return Selection(
             enter = enter,
             returning = Style.fromValue(prefs.getString(KEY_RETURN, null), Style.FOLLOW),
-            durationMillis = prefs.getString(KEY_DURATION, null)?.toLongOrNull()
-                ?.takeIf { it in setOf(180L, 300L, 450L) } ?: 300L,
+            // Preserve the selected speed tier from the original 180/300/450 ms settings.
+            durationMillis = when (prefs.getString(KEY_DURATION, null)?.toLongOrNull()) {
+                180L, DURATION_FAST -> DURATION_FAST
+                450L, DURATION_SLOW -> DURATION_SLOW
+                else -> DURATION_STANDARD
+            },
             predictiveBack = prefs.getBoolean(KEY_PREDICTIVE, true)
         )
     }

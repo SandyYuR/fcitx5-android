@@ -7,7 +7,9 @@ package org.fcitx.fcitx5.android.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -15,6 +17,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceGroup
+import androidx.preference.PreferenceViewHolder
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
@@ -25,6 +28,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchPreference
 import org.fcitx.fcitx5.android.utils.addCategory
 import org.fcitx.fcitx5.android.utils.addPreference
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
+import org.fcitx.fcitx5.android.utils.setup
 
 /**
  * 设置首页。
@@ -117,10 +121,20 @@ class MainFragment : PaddingPreferenceFragment() {
         route: SettingsRoute,
         @StringRes summary: Int? = null
     ) {
-        addPreference(title, summary, icon) {
-            navigateWithAnim(route)
-        }
-        getPreference(preferenceCount - 1).widgetLayoutResource = R.layout.preference_settings_navigation
+        addPreference(object : Preference(requireContext()) {
+            override fun onBindViewHolder(holder: PreferenceViewHolder) {
+                super.onBindViewHolder(holder)
+                (holder.findViewById(android.R.id.summary) as? TextView)?.apply {
+                    maxLines = 1
+                    ellipsize = TextUtils.TruncateAt.END
+                }
+            }
+        }.apply {
+            setup(getString(title), summary?.let { getString(it) }, icon) {
+                navigateWithAnim(route)
+            }
+            widgetLayoutResource = R.layout.preference_settings_navigation
+        })
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

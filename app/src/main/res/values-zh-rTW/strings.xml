@@ -1016,9 +1016,9 @@
     <string name="settings_home_category_daily">日常調整</string>
     <string name="settings_home_category_more">按需進入</string>
     <string name="settings_group_input">輸入與候選</string>
-    <string name="settings_group_input_summary">中州韻設定、全域選項、候選列和候選視窗</string>
+    <string name="settings_group_input_summary">中州韻設定、候選列和候選視窗</string>
     <string name="settings_group_keyboard">鍵盤</string>
-    <string name="settings_group_keyboard_summary">鍵盤、按鍵和工具列設定、鍵盤佈局自訂</string>
+    <string name="settings_group_keyboard_summary">按鍵和工具列設定、鍵盤佈局自訂</string>
     <string name="settings_group_appearance">外觀</string>
     <string name="settings_group_appearance_summary">主題、圖示和字型</string>
     <string name="settings_group_convenience">便捷功能</string>
