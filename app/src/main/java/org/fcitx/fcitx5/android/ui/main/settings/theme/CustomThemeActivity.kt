@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
@@ -37,12 +39,11 @@ import android.widget.TextView
 import android.widget.LinearLayout.LayoutParams
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.addCallback
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -69,7 +70,7 @@ import androidx.core.view.isVisible
 import splitties.dimensions.dp
 import splitties.resources.color
 import splitties.resources.resolveThemeAttribute
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.resources.styledDrawable
 import splitties.views.backgroundColor
 import splitties.views.bottomPadding
@@ -101,7 +102,7 @@ import splitties.views.textAppearance
 import splitties.views.topPadding
 import java.io.File
 
-class CustomThemeActivity : AppCompatActivity() {
+class CustomThemeActivity : SettingsUiActivity() {
     sealed interface BackgroundResult : Parcelable {
         @Parcelize
         data class Updated(
@@ -128,8 +129,8 @@ class CustomThemeActivity : AppCompatActivity() {
 
     private val toolbar by lazy {
         view(::Toolbar) {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
     }
 
@@ -211,7 +212,7 @@ class CustomThemeActivity : AppCompatActivity() {
         setText(string)
         gravity = gravityVerticalCenter
         textSize = 13f
-        setTextColor(styledColor(android.R.attr.textColorSecondary))
+        setTextColor(settingsColor(android.R.attr.textColorSecondary))
         horizontalPadding = dp(16)
         topPadding = dp(12)
         background = styledDrawable(android.R.attr.selectableItemBackground)
@@ -239,7 +240,7 @@ class CustomThemeActivity : AppCompatActivity() {
             setSelection(text.length)
             setSingleLine(true)
         }
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.theme_name)
             .setView(input)
             .setPositiveButton(android.R.string.ok, null)
@@ -509,7 +510,7 @@ class CustomThemeActivity : AppCompatActivity() {
             tag = INLINE_COLOR_EDITOR_TAG
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(16), dp(16), dp(16))
-            backgroundColor = styledColor(android.R.attr.colorBackground)
+            backgroundColor = settingsColor(android.R.attr.colorBackground)
 
             // ========== 1. Saturation/Value Picker + Hue Slider ==========
             addView(LinearLayout(context).apply {
@@ -582,7 +583,7 @@ class CustomThemeActivity : AppCompatActivity() {
                     text = "ARGB:"
                     textSize = 14f
                     layoutParams = LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-                    setTextColor(styledColor(android.R.attr.textColorPrimary))
+                    setTextColor(settingsColor(android.R.attr.textColorPrimary))
                 })
                 
                 val argbInput = EditText(context).apply {
@@ -591,9 +592,9 @@ class CustomThemeActivity : AppCompatActivity() {
                     setText(formatArgbHex(editingColor))
                     setPadding(dp(8), dp(8), dp(8), dp(8))
                     inputType = android.text.InputType.TYPE_CLASS_TEXT
-                    setTextColor(styledColor(android.R.attr.textColorPrimary))
-                    setHintTextColor(styledColor(android.R.attr.textColorHint))
-                    backgroundTintList = ColorStateList.valueOf(styledColor(android.R.attr.colorControlActivated))
+                    setTextColor(settingsColor(android.R.attr.textColorPrimary))
+                    setHintTextColor(settingsColor(android.R.attr.textColorHint))
+                    backgroundTintList = ColorStateList.valueOf(settingsColor(android.R.attr.colorControlActivated))
                     addTextChangedListener(object : android.text.TextWatcher {
                         override fun afterTextChanged(s: android.text.Editable?) {
                             if (internalTextUpdate) return
@@ -1198,7 +1199,7 @@ class CustomThemeActivity : AppCompatActivity() {
                     pickNewSource = true
                 )
             } else {
-                AlertDialog.Builder(this@CustomThemeActivity)
+                MaterialAlertDialogBuilder(this@CustomThemeActivity)
                     .setTitle(R.string.change_background_image)
                     .setItems(
                         arrayOf(
@@ -1301,19 +1302,6 @@ class CustomThemeActivity : AppCompatActivity() {
             theme = ThemePreset.TransparentDark.deriveCustomBackground(n, c.path, s.path)
         }
         previewUi = KeyboardPreviewUi(this, theme)
-        enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(ui) { _, windowInsets ->
-            val statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
-            val navBars = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            ui.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = navBars.left
-                rightMargin = navBars.right
-            }
-            toolbar.topPadding = statusBars.top
-            scrollView.bottomPadding = navBars.bottom
-            ui.post { updatePreviewScale() }
-            windowInsets
-        }
         // show Activity label on toolbar
         setSupportActionBar(toolbar)
         // show back button
@@ -1503,7 +1491,7 @@ class CustomThemeActivity : AppCompatActivity() {
     }
 
     private fun promptDelete() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete_theme)
             .setMessage(getString(R.string.delete_theme_msg, theme.name))
             .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -1538,7 +1526,7 @@ class CustomThemeActivity : AppCompatActivity() {
             hint = getString(R.string.theme_name)
             isSingleLine = true
         }
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.random_theme_copy)
             .setView(input)
             .setPositiveButton(android.R.string.ok, null)
@@ -1572,7 +1560,7 @@ class CustomThemeActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val iconTint = styledColor(android.R.attr.colorControlNormal)
+        val iconTint = settingsColor(android.R.attr.colorControlNormal)
         if (isRandomMode) {
             menu.item(R.string.random_theme_generate, R.drawable.ic_random_theme_24, iconTint, true) {
                 randomizeInEditor()

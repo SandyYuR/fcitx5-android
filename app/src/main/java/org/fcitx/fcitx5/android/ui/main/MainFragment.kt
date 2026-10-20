@@ -6,21 +6,18 @@ package org.fcitx.fcitx5.android.ui.main
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
+import android.text.TextUtils
 import android.view.View
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceGroup
+import androidx.preference.PreferenceViewHolder
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
@@ -28,11 +25,10 @@ import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchEntry
 import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchIndex
 import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchPreference
-import org.fcitx.fcitx5.android.utils.Const
 import org.fcitx.fcitx5.android.utils.addCategory
 import org.fcitx.fcitx5.android.utils.addPreference
-import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
+import org.fcitx.fcitx5.android.utils.setup
 
 /**
  * 设置首页。
@@ -72,11 +68,6 @@ class MainFragment : PaddingPreferenceFragment() {
         view: View, savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-        // AboutMenuProvider is tied to viewLifecycleOwner, so the about menu items
-        // are automatically shown when this Fragment is visible and removed when it's not
-        requireActivity().addMenuProvider(
-            AboutMenuProvider(), viewLifecycleOwner, Lifecycle.State.STARTED
-        )
         setupSearchBackHandling()
     }
 
@@ -124,31 +115,26 @@ class MainFragment : PaddingPreferenceFragment() {
         super.onPause()
     }
 
-    private inner class AboutMenuProvider : MenuProvider {
-        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-            menu.item(R.string.faq) {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Const.faqUrl)))
-            }
-            menu.item(R.string.developer) {
-                navigateWithAnim(SettingsRoute.Developer)
-            }
-            menu.item(R.string.about) {
-                navigateWithAnim(SettingsRoute.About)
-            }
-        }
-
-        override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
-    }
-
     private fun PreferenceCategory.addDestinationPreference(
         @StringRes title: Int,
         @DrawableRes icon: Int,
         route: SettingsRoute,
         @StringRes summary: Int? = null
     ) {
-        addPreference(title, summary, icon) {
-            navigateWithAnim(route)
-        }
+        addPreference(object : Preference(requireContext()) {
+            override fun onBindViewHolder(holder: PreferenceViewHolder) {
+                super.onBindViewHolder(holder)
+                (holder.findViewById(android.R.id.summary) as? TextView)?.apply {
+                    maxLines = 1
+                    ellipsize = TextUtils.TruncateAt.END
+                }
+            }
+        }.apply {
+            setup(getString(title), summary?.let { getString(it) }, icon) {
+                navigateWithAnim(route)
+            }
+            widgetLayoutResource = R.layout.preference_settings_navigation
+        })
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -172,16 +158,16 @@ class MainFragment : PaddingPreferenceFragment() {
                 // 键盘直接复用既有的「虚拟键盘」页——那边已是五个子分组的列表，
                 // 再套一层分组页只会多一次点击、多一个重复入口。
                 addDestinationPreference(
-                    R.string.settings_group_keyboard,
-                    R.drawable.ic_baseline_keyboard_24,
-                    SettingsRoute.VirtualKeyboard,
-                    R.string.settings_group_keyboard_summary
-                )
-                addDestinationPreference(
                     R.string.settings_group_appearance,
                     R.drawable.ic_baseline_palette_24,
                     SettingsRoute.SettingsGroup(SettingsGroupSpecs.ID_APPEARANCE),
                     R.string.settings_group_appearance_summary
+                )
+                addDestinationPreference(
+                    R.string.settings_group_keyboard,
+                    R.drawable.ic_baseline_keyboard_24,
+                    SettingsRoute.VirtualKeyboard,
+                    R.string.settings_group_keyboard_summary
                 )
                 addDestinationPreference(
                     R.string.settings_group_convenience,

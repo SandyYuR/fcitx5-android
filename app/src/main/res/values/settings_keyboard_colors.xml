@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Runtime values are loaded only into the settings/preview context. -->
+    <color name="settings_keyboard_primary_fixed">#EADDFF</color>
+    <color name="settings_keyboard_primary_fixed_dim">#D0BCFF</color>
+    <color name="settings_keyboard_on_primary_fixed">#21005D</color>
+    <color name="settings_keyboard_on_primary_fixed_variant">#4F378B</color>
+    <color name="settings_keyboard_secondary_fixed">#E8DEF8</color>
+    <color name="settings_keyboard_secondary_fixed_dim">#CCC2DC</color>
+    <color name="settings_keyboard_on_secondary_fixed">#1D192B</color>
+    <color name="settings_keyboard_on_secondary_fixed_variant">#4A4458</color>
+    <color name="settings_keyboard_tertiary_fixed">#FFD8E4</color>
+    <color name="settings_keyboard_tertiary_fixed_dim">#EFB8C8</color>
+    <color name="settings_keyboard_on_tertiary_fixed">#31111D</color>
+    <color name="settings_keyboard_on_tertiary_fixed_variant">#633B48</color>
+
+    <style name="ThemeOverlay.FcitxSettings.KeyboardColors" parent="ThemeOverlay.Material3.PersonalizedColors">
+        <item name="colorPrimaryFixed">@color/settings_keyboard_primary_fixed</item>
+        <item name="colorPrimaryFixedDim">@color/settings_keyboard_primary_fixed_dim</item>
+        <item name="colorOnPrimaryFixed">@color/settings_keyboard_on_primary_fixed</item>
+        <item name="colorOnPrimaryFixedVariant">@color/settings_keyboard_on_primary_fixed_variant</item>
+        <item name="colorSecondaryFixed">@color/settings_keyboard_secondary_fixed</item>
+        <item name="colorSecondaryFixedDim">@color/settings_keyboard_secondary_fixed_dim</item>
+        <item name="colorOnSecondaryFixed">@color/settings_keyboard_on_secondary_fixed</item>
+        <item name="colorOnSecondaryFixedVariant">@color/settings_keyboard_on_secondary_fixed_variant</item>
+        <item name="colorTertiaryFixed">@color/settings_keyboard_tertiary_fixed</item>
+        <item name="colorTertiaryFixedDim">@color/settings_keyboard_tertiary_fixed_dim</item>
+        <item name="colorOnTertiaryFixed">@color/settings_keyboard_on_tertiary_fixed</item>
+        <item name="colorOnTertiaryFixedVariant">@color/settings_keyboard_on_tertiary_fixed_variant</item>
+        <item name="colorPrimaryVariant">?attr/colorPrimary</item>
+        <item name="colorPrimaryDark">?attr/colorPrimary</item>
+        <item name="colorSecondaryVariant">?attr/colorSecondary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+    </style>
+</resources>

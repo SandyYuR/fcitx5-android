@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ThemeOverlay.FcitxSettings.Preferences" parent="PreferenceThemeOverlay.v14.Material">
+        <item name="preferenceStyle">@style/Preference.FcitxSettings</item>
+        <item name="preferenceScreenStyle">@style/Preference.FcitxSettings.Screen</item>
+        <item name="preferenceCategoryStyle">@style/Preference.FcitxSettings.Category</item>
+        <item name="dialogPreferenceStyle">@style/Preference.FcitxSettings.Dialog</item>
+        <item name="editTextPreferenceStyle">@style/Preference.FcitxSettings.EditText</item>
+        <item name="switchPreferenceCompatStyle">@style/Preference.FcitxSettings.Switch</item>
+        <item name="checkBoxPreferenceStyle">@style/Preference.FcitxSettings.CheckBox</item>
+    </style>
+    <style name="Preference.FcitxSettings" parent="Preference.Material">
+        <item name="android:layout">@layout/preference_settings_row</item>
+        <item name="allowDividerAbove">false</item>
+        <item name="allowDividerBelow">false</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+    <style name="Preference.FcitxSettings.Screen" parent="Preference.PreferenceScreen.Material">
+        <item name="android:layout">@layout/preference_settings_row</item>
+        <item name="allowDividerAbove">false</item>
+        <item name="allowDividerBelow">false</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+    <style name="Preference.FcitxSettings.Category" parent="Preference.Category.Material">
+        <item name="android:layout">@layout/preference_settings_category</item>
+        <item name="allowDividerAbove">false</item>
+        <item name="allowDividerBelow">false</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+    <style name="Preference.FcitxSettings.Dialog" parent="Preference.DialogPreference.Material">
+        <item name="android:layout">@layout/preference_settings_row</item>
+        <item name="allowDividerAbove">false</item>
+        <item name="allowDividerBelow">false</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+    <style name="Preference.FcitxSettings.EditText" parent="Preference.DialogPreference.EditTextPreference.Material">
+        <item name="android:layout">@layout/preference_settings_row</item>
+        <item name="allowDividerAbove">false</item>
+        <item name="allowDividerBelow">false</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+    <style name="Preference.FcitxSettings.Switch" parent="Preference.SwitchPreferenceCompat.Material">
+        <item name="android:layout">@layout/preference_settings_row</item>
+        <item name="android:widgetLayout">@layout/preference_settings_switch</item>
+        <item name="allowDividerAbove">false</item>
+        <item name="allowDividerBelow">false</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+    <style name="Preference.FcitxSettings.CheckBox" parent="Preference.CheckBoxPreference.Material">
+        <item name="android:layout">@layout/preference_settings_row</item>
+        <item name="android:widgetLayout">@layout/preference_settings_checkbox</item>
+        <item name="allowDividerAbove">false</item>
+        <item name="allowDividerBelow">false</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+    <style name="Widget.FcitxSettings.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:minHeight">64dp</item>
+        <item name="android:background">?attr/colorSurfaceContainer</item>
+        <item name="titleTextAppearance">?attr/textAppearanceTitleLarge</item>
+        <item name="titleTextColor">?attr/colorOnSurface</item>
+        <item name="subtitleTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="navigationIconTint">?attr/colorOnSurface</item>
+    </style>
+</resources>

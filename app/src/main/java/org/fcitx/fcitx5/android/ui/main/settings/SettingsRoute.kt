@@ -38,6 +38,8 @@ import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodConfigFragment
 import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeFragment
+import org.fcitx.fcitx5.android.ui.main.settings.theme.SettingsUiAppearanceFragment
+import org.fcitx.fcitx5.android.ui.main.settings.theme.SettingsUiMotionFragment
 import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.utils.config.ConfigDescriptor
 import org.fcitx.fcitx5.android.utils.parcelable
@@ -80,6 +82,12 @@ sealed class SettingsRoute : Parcelable {
 
     @Serializable
     data object Theme : SettingsRoute()
+
+    @Serializable
+    data object SettingsUiAppearance : SettingsRoute()
+
+    @Serializable
+    data object SettingsUiMotion : SettingsRoute()
 
     @Serializable
     data object IconTheme : SettingsRoute()
@@ -211,6 +219,12 @@ sealed class SettingsRoute : Parcelable {
             fragment<ThemeFragment, Theme> {
                 label = ctx.getString(R.string.theme)
             }
+            fragment<SettingsUiAppearanceFragment, SettingsUiAppearance> {
+                label = ctx.getString(R.string.settings_ui_appearance)
+            }
+            fragment<SettingsUiMotionFragment, SettingsUiMotion> {
+                label = ctx.getString(R.string.settings_ui_motion_title)
+            }
             fragment<KeyboardSettingsFragment, VirtualKeyboard> {
                 label = ctx.getString(R.string.virtual_keyboard)
             }
@@ -218,7 +232,7 @@ sealed class SettingsRoute : Parcelable {
             fragment<KeyboardModesFragment, KeyboardModes> {
                 label = ctx.getString(R.string.keyboard_modes_title)
             }
-            // 分组页标题由规格表给出，这里不设 label，由 Fragment 在 onResume 里设置。
+            // 分组页的标题在创建页面外壳时从规格表解析，无需等待入场动画结束。
             fragment<SettingsGroupFragment, SettingsGroup>()
             fragment<CandidatesSettingsFragment, CandidatesWindow> {
                 label = ctx.getString(R.string.candidates_window)

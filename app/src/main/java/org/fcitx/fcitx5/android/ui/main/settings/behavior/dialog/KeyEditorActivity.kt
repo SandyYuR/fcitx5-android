@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -22,12 +24,10 @@ import android.widget.Toast
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import kotlinx.serialization.json.JsonObject
@@ -42,7 +42,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeColorEditorActivity
 import org.fcitx.fcitx5.android.utils.DeviceUtil
 import org.fcitx.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
@@ -50,7 +50,7 @@ import java.io.Serializable
 import java.util.Arrays
 import java.util.LinkedHashMap
 
-class KeyEditorActivity : AppCompatActivity() {
+class KeyEditorActivity : SettingsUiActivity() {
 
     private data class ThemeColorToken(
         val token: String,
@@ -70,10 +70,10 @@ class KeyEditorActivity : AppCompatActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
             setSubtitleTextAppearance(context, android.R.style.TextAppearance_Small)
-            setSubtitleTextColor(styledColor(android.R.attr.textColorSecondary))
+            setSubtitleTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
     }
 
@@ -298,7 +298,6 @@ class KeyEditorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(rootView)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -310,13 +309,6 @@ class KeyEditorActivity : AppCompatActivity() {
         // it; baselineKeySnapshot stays as the original so "has changes" is still correct.
         savedInstanceState?.let(::restoreDraftKeyData)
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         buildForm()
     }
@@ -1026,8 +1018,8 @@ class KeyEditorActivity : AppCompatActivity() {
             gravity = Gravity.CENTER
             setPadding(dp(12), dp(8), dp(12), dp(8))
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(styledColor(android.R.attr.colorButtonNormal))
-                setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                setColor(settingsColor(android.R.attr.colorButtonNormal))
+                setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                 cornerRadius = dp(4).toFloat()
             }
             setOnClickListener { openComposeOverrideEditor() }
@@ -1044,7 +1036,7 @@ class KeyEditorActivity : AppCompatActivity() {
         val statusView = TextView(this).apply {
             text = buildComposeOverrideStatusPreview()
             textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(dp(8), dp(2), dp(8), dp(8))
         }
         fieldsContainer.addView(
@@ -1073,7 +1065,7 @@ class KeyEditorActivity : AppCompatActivity() {
         val label = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_compose_override_follow_base_key_colors)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
             }
@@ -1116,7 +1108,7 @@ class KeyEditorActivity : AppCompatActivity() {
         val label = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_placeholder_custom_color)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
             }
@@ -1321,7 +1313,7 @@ class KeyEditorActivity : AppCompatActivity() {
                     TextView(this@KeyEditorActivity).apply {
                         text = title
                         textSize = 13f
-                        setTextColor(styledColor(android.R.attr.textColorSecondary))
+                        setTextColor(settingsColor(android.R.attr.textColorSecondary))
                     },
                     LinearLayout.LayoutParams(dp(96), LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                         rightMargin = dp(8)
@@ -1337,7 +1329,7 @@ class KeyEditorActivity : AppCompatActivity() {
                             TextView(this@KeyEditorActivity).apply {
                                 text = modeText
                                 textSize = 13f
-                                setTextColor(styledColor(android.R.attr.textColorPrimary))
+                                setTextColor(settingsColor(android.R.attr.textColorPrimary))
                             },
                             LinearLayout.LayoutParams(
                                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -1399,7 +1391,7 @@ class KeyEditorActivity : AppCompatActivity() {
             options += getString(R.string.text_keyboard_layout_key_color_mode_monet_pick)
             actions += { openMonetColorPicker(field) }
         }
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(field.labelRes)
             .setItems(options.toTypedArray()) { _, which ->
                 actions.getOrNull(which)?.invoke()
@@ -1417,7 +1409,7 @@ class KeyEditorActivity : AppCompatActivity() {
             ?.removePrefix(THEME_COLOR_REF_PREFIX)
         val checkedIndex = availableTokens.indexOfFirst { it.token == currentToken }
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_key_color_mode_theme_key_pick)
             .setSingleChoiceItems(
                 ThemeColorTokenPreviewAdapter(this, availableTokens, theme),
@@ -1544,7 +1536,7 @@ class KeyEditorActivity : AppCompatActivity() {
                     layoutParams = LinearLayout.LayoutParams(context.dp(20), context.dp(20))
                 }
                 val nameText = TextView(context).apply {
-                    setTextColor(context.styledColor(android.R.attr.textColorPrimary))
+                    setTextColor(context.settingsColor(android.R.attr.textColorPrimary))
                     textSize = 14f
                     layoutParams = LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -1834,8 +1826,8 @@ class KeyEditorActivity : AppCompatActivity() {
             minWidth = dp(120)
             setPadding(dp(12), dp(8), dp(12), dp(8))
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(styledColor(android.R.attr.colorButtonNormal))
-                setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                setColor(settingsColor(android.R.attr.colorButtonNormal))
+                setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                 cornerRadius = dp(4).toFloat()
             }
             layoutParams = LinearLayout.LayoutParams(
@@ -1851,7 +1843,7 @@ class KeyEditorActivity : AppCompatActivity() {
         val preview = TextView(this).apply {
             text = previewText
             textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(dp(8), dp(8), dp(8), dp(8))
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -2052,7 +2044,7 @@ class KeyEditorActivity : AppCompatActivity() {
     }
 
     private fun confirmDelete() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete)
             .setMessage(R.string.text_keyboard_layout_delete_key_confirm)
             .setPositiveButton(R.string.delete) { _, _ ->

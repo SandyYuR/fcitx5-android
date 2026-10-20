@@ -4,7 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -34,6 +35,7 @@ import org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException
 import org.fcitx.fcitx5.android.data.RimeDataDirectoryState
 import org.fcitx.fcitx5.android.ui.common.BaseDynamicListUi
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
+import org.fcitx.fcitx5.android.ui.main.withSettingsPage
 import org.fcitx.fcitx5.android.utils.lazyRoute
 import org.fcitx.fcitx5.android.utils.ExternalRimeStorage
 import org.fcitx.fcitx5.android.utils.toast
@@ -86,12 +88,11 @@ class AddonDirProfileManagerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return FrameLayout(requireContext()).also { containerView = it }
+        return withSettingsPage(FrameLayout(requireContext()).also { containerView = it })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.setToolbarTitle(args.title)
         viewModel.disableToolbarEditButton()
         // Bind to viewLifecycleOwner instead of fragment lifecycle: `lifecycleScope` survives
         // `onDestroyView`, so a render job waiting on fcitx could resume after the view was torn
@@ -253,7 +254,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             maxLines = 1
             inputType = InputType.TYPE_CLASS_TEXT
         }
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.addon_dir_profile_create)
             .setView(input)
             .setNegativeButton(android.R.string.cancel, null)
@@ -285,7 +286,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             maxLines = 1
             inputType = InputType.TYPE_CLASS_TEXT
         }
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.addon_dir_profile_rename)
             .setView(input)
             .setNegativeButton(android.R.string.cancel, null)
@@ -305,7 +306,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             requireContext().toast(R.string.addon_dir_profile_delete_last_forbidden)
             return
         }
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.delete)
             .setMessage(getString(R.string.addon_dir_profile_delete_confirm, name))
             .setNegativeButton(android.R.string.cancel, null)
@@ -323,7 +324,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             getString(R.string.addon_dir_profile_rename),
             getString(R.string.delete)
         )
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(item.name)
             .setItems(options) { _, which ->
                 when (which) {

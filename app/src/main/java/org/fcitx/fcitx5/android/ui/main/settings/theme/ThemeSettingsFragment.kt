@@ -5,7 +5,7 @@
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
 import android.os.Bundle
-import androidx.preference.SwitchPreference
+import androidx.preference.SwitchPreferenceCompat
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
@@ -14,7 +14,7 @@ class ThemeSettingsFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
 
     private val followSystemDayNightTheme = ThemeManager.prefs.followSystemDayNightTheme
 
-    private lateinit var switchPreference: SwitchPreference
+    private lateinit var switchPreference: SwitchPreferenceCompat
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)

@@ -9,12 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.databinding.FragmentSetupBinding
 import org.fcitx.fcitx5.android.utils.serializable
 
 class SetupFragment : Fragment() {
 
-    private lateinit var binding: FragmentSetupBinding
+    private var binding: FragmentSetupBinding? = null
 
     private val page: SetupPage by lazy { requireArguments().serializable(PAGE)!! }
 
@@ -23,21 +24,38 @@ class SetupFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentSetupBinding.inflate(inflater)
+        val pageBinding = FragmentSetupBinding.inflate(inflater, container, false)
+        binding = pageBinding
+        pageBinding.pageTitle.text = page.getButtonText(requireContext())
+        pageBinding.pageIcon.setImageResource(when (page) {
+            SetupPage.Enable -> R.drawable.ic_baseline_keyboard_24
+            SetupPage.Select -> R.drawable.ic_baseline_check_circle_24
+        })
         sync()
-        return binding.root
+        return pageBinding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sync()
     }
 
     // called on window focus changed
     fun sync() {
+        val binding = binding ?: return
         val done = page.isDone()
         with(binding) {
             hintText.text = page.getHintText(requireContext())
             actionButton.visibility = if (done) View.GONE else View.VISIBLE
             actionButton.text = page.getButtonText(requireContext())
             actionButton.setOnClickListener { page.getButtonAction(requireContext()) }
-            doneText.visibility = if (done) View.VISIBLE else View.GONE
+            completionCard.visibility = if (done) View.VISIBLE else View.GONE
         }
+    }
+
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     companion object {

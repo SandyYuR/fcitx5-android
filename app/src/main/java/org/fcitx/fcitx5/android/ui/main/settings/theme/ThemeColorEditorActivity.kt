@@ -25,11 +25,10 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -37,11 +36,11 @@ import kotlinx.parcelize.Parcelize
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.parcelable
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.setPaddingDp
 
-class ThemeColorEditorActivity : AppCompatActivity() {
+class ThemeColorEditorActivity : SettingsUiActivity() {
 
     @Parcelize
     data class EditorInput(
@@ -84,7 +83,6 @@ class ThemeColorEditorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         currentInput = intent.parcelable(EXTRA_INPUT) ?: run {
             finish()
             return
@@ -97,13 +95,13 @@ class ThemeColorEditorActivity : AppCompatActivity() {
         if (currentInput.allowClear) {
             menu.add(Menu.NONE, MENU_CLEAR, Menu.NONE, getString(R.string.clear)).apply {
                 setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                icon?.setTint(styledColor(android.R.attr.textColorPrimary))
+                icon?.setTint(settingsColor(android.R.attr.textColorPrimary))
             }
         }
         menu.add(Menu.NONE, MENU_DONE, Menu.NONE, getString(R.string.save)).apply {
             setIcon(R.drawable.ic_baseline_check_24)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            icon?.setTint(styledColor(android.R.attr.textColorPrimary))
+            icon?.setTint(settingsColor(android.R.attr.textColorPrimary))
         }
         return true
     }
@@ -111,22 +109,13 @@ class ThemeColorEditorActivity : AppCompatActivity() {
     private fun initUi() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            backgroundColor = styledColor(android.R.attr.colorBackground)
+            backgroundColor = settingsColor(android.R.attr.colorBackground)
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = statusBars.top
-                bottomMargin = navigationBars.bottom
-            }
-            insets
-        }
 
         toolbar = Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
             title = getString(currentInput.titleRes)
         }
         root.addView(
@@ -252,7 +241,7 @@ class ThemeColorEditorActivity : AppCompatActivity() {
         argbRow.addView(
             TextView(this).apply {
                 text = getString(R.string.theme_color_editor_argb_label)
-                setTextColor(styledColor(android.R.attr.textColorPrimary))
+                setTextColor(settingsColor(android.R.attr.textColorPrimary))
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             }
         )
@@ -262,9 +251,9 @@ class ThemeColorEditorActivity : AppCompatActivity() {
             }
             isSingleLine = true
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-            setTextColor(styledColor(android.R.attr.textColorPrimary))
-            setHintTextColor(styledColor(android.R.attr.textColorHint))
-            backgroundTintList = ColorStateList.valueOf(styledColor(android.R.attr.colorControlActivated))
+            setTextColor(settingsColor(android.R.attr.textColorPrimary))
+            setHintTextColor(settingsColor(android.R.attr.textColorHint))
+            backgroundTintList = ColorStateList.valueOf(settingsColor(android.R.attr.colorControlActivated))
             setText(formatArgbHex(currentColor))
             setSelection(text.length)
             addTextChangedListener(object : android.text.TextWatcher {

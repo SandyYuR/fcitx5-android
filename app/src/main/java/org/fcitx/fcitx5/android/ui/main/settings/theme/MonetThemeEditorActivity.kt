@@ -16,11 +16,10 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -32,7 +31,7 @@ import org.fcitx.fcitx5.android.data.theme.SystemColorResourceId
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeMonet
 import org.fcitx.fcitx5.android.utils.parcelable
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.bottomPadding
 import splitties.views.gravityCenter
@@ -44,7 +43,7 @@ import splitties.views.verticalPadding
  * Monet 主题编辑 Activity
  * 允许用户自定义 Monet 主题的颜色映射关系
  */
-class MonetThemeEditorActivity : AppCompatActivity() {
+class MonetThemeEditorActivity : SettingsUiActivity() {
     
     @Parcelize
     data class EditorResult(
@@ -116,7 +115,6 @@ class MonetThemeEditorActivity : AppCompatActivity() {
             finish()
             return
         }
-        enableEdgeToEdge()
         
         themeName = intent.getStringExtra(EXTRA_THEME_NAME) ?: "Monet"
         isDark = intent.getBooleanExtra(EXTRA_IS_DARK, false)
@@ -167,20 +165,11 @@ class MonetThemeEditorActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
         }
         
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = statusBars.top
-                bottomMargin = navigationBars.bottom
-            }
-            insets
-        }
         
         // Toolbar
         toolbar = Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = 4f // dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
         root.addView(toolbar, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -235,7 +224,7 @@ class MonetThemeEditorActivity : AppCompatActivity() {
         TextView(this).apply {
             text = getString(R.string.monet_editor_color_mapping_title)
             textSize = 18f
-            setTextColor(styledColor(android.R.attr.textColorPrimary))
+            setTextColor(settingsColor(android.R.attr.textColorPrimary))
             topPadding = dp(16f)
             bottomPadding = dp(8f)
             horizontalPadding = dp(16f)
@@ -249,7 +238,7 @@ class MonetThemeEditorActivity : AppCompatActivity() {
         TextView(this).apply {
             text = getString(R.string.monet_editor_description)
             textSize = 14f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             bottomPadding = dp(10f)
             horizontalPadding = dp(16f)
             contentLayout.addView(this, LinearLayout.LayoutParams(
@@ -318,13 +307,13 @@ class MonetThemeEditorActivity : AppCompatActivity() {
                 layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                     weight = 1f
                 }
-                setTextColor(styledColor(android.R.attr.textColorPrimary))
+                setTextColor(settingsColor(android.R.attr.textColorPrimary))
             }.also { addView(it) }
 
             // 当前资源名称（截断显示）
             val resourceNameText = TextView(this@MonetThemeEditorActivity).apply {
                 text = formatResourceName(currentResource)
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 textSize = 12f
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                     marginStart = dp(8f)
@@ -362,12 +351,12 @@ class MonetThemeEditorActivity : AppCompatActivity() {
                 layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                     weight = 1f
                 }
-                setTextColor(styledColor(android.R.attr.textColorPrimary))
+                setTextColor(settingsColor(android.R.attr.textColorPrimary))
             }.also { addView(it) }
 
             val colorText = TextView(this@MonetThemeEditorActivity).apply {
                 text = waterRippleResource?.let { formatResourceName(it) } ?: "Auto"
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 textSize = 12f
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                     marginStart = dp(8f)
@@ -528,7 +517,7 @@ class MonetThemeEditorActivity : AppCompatActivity() {
         ).apply {
             setIcon(R.drawable.ic_baseline_settings_backup_restore_24)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            icon?.setTint(styledColor(android.R.attr.textColorPrimary))
+            icon?.setTint(settingsColor(android.R.attr.textColorPrimary))
         }
         menu.add(
             Menu.NONE,
@@ -541,7 +530,7 @@ class MonetThemeEditorActivity : AppCompatActivity() {
 
             // Use themed text color so the icon follows other UI elements and respects theming
             icon?.let { ic ->
-                val tintColor = styledColor(android.R.attr.textColorPrimary)
+                val tintColor = settingsColor(android.R.attr.textColorPrimary)
                 ic.setTint(tintColor)
             }
         }

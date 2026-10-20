@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.os.Bundle
 import android.view.Gravity
 import android.view.Menu
@@ -18,10 +20,9 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,7 +36,7 @@ import org.fcitx.fcitx5.android.utils.serializable
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FlowLayout
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.SimpleDividerItemDecoration
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
@@ -45,7 +46,7 @@ import splitties.views.dsl.core.wrapContent
  * Supports editing arbitrary down/up/tap/text combinations
  * Layout is similar to TextKeyboardLayoutEditorActivity
  */
-class MacroEditorActivity : AppCompatActivity() {
+class MacroEditorActivity : SettingsUiActivity() {
 
     data class MacroStepData(
         var type: String = "tap",
@@ -60,8 +61,8 @@ class MacroEditorActivity : AppCompatActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
     }
 
@@ -79,7 +80,7 @@ class MacroEditorActivity : AppCompatActivity() {
             textSize = 16f
             gravity = Gravity.CENTER
             setPadding(dp(16), dp(12), dp(16), dp(12))
-            backgroundColor = styledColor(android.R.attr.colorButtonNormal)
+            backgroundColor = settingsColor(android.R.attr.colorButtonNormal)
             setOnClickListener { addNewStep() }
         }
     }
@@ -687,7 +688,6 @@ class MacroEditorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         
         container.addView(toolbar)
         container.addView(stepsRecyclerView)
@@ -742,13 +742,6 @@ class MacroEditorActivity : AppCompatActivity() {
         stepsRecyclerView.setPadding(0, 0, 0, dp(16))
         stepsRecyclerView.clipToPadding = false
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
     }
 
     /**
@@ -764,13 +757,14 @@ class MacroEditorActivity : AppCompatActivity() {
         val chipsContainer = FlowLayout(this).apply {
             setPadding(dp(12), dp(8), dp(12), dp(8))
         }
-        val primaryColor = styledColor(android.R.attr.colorPrimary)
-        val buttonColor = styledColor(android.R.attr.colorButtonNormal)
-        val borderColor = styledColor(android.R.attr.colorControlNormal)
+        val primaryColor = settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
+        val onPrimaryContainerColor = settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
+        val buttonColor = settingsColor(android.R.attr.colorButtonNormal)
+        val borderColor = settingsColor(android.R.attr.colorControlNormal)
         val scrollView = android.widget.ScrollView(this).apply {
             addView(chipsContainer)
         }
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(title)
             .setView(scrollView)
             .setNegativeButton(R.string.macro_editor_picker_cancel, null)
@@ -787,6 +781,7 @@ class MacroEditorActivity : AppCompatActivity() {
                     setStroke(dp(1), borderColor)
                     cornerRadius = dp(4).toFloat()
                 }
+                setTextColor(if (isHighlighted) onPrimaryContainerColor else settingsColor(android.R.attr.textColorPrimary))
                 layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
                     rightMargin = dp(6)
                     bottomMargin = dp(6)
@@ -1274,7 +1269,7 @@ class MacroEditorActivity : AppCompatActivity() {
                 setPadding(dp(8), dp(8), dp(8), dp(8))
                 minWidth = dp(36)
                 setOnClickListener {
-                    AlertDialog.Builder(this@MacroEditorActivity)
+                    MaterialAlertDialogBuilder(this@MacroEditorActivity)
                         .setTitle(R.string.macro_editor_delete_step_title)
                         .setMessage(R.string.macro_editor_delete_step_message)
                         .setPositiveButton(R.string.macro_editor_delete) { _, _ ->
@@ -1323,7 +1318,7 @@ class MacroEditorActivity : AppCompatActivity() {
                     
                     if (willClearData) {
                         // Show confirmation dialog before clearing data
-                        AlertDialog.Builder(this@MacroEditorActivity)
+                        MaterialAlertDialogBuilder(this@MacroEditorActivity)
                             .setTitle(R.string.macro_editor_type_change_title)
                             .setMessage(R.string.macro_editor_type_change_message)
                             .setPositiveButton(R.string.macro_editor_confirm) { _, _ ->
@@ -1427,10 +1422,10 @@ class MacroEditorActivity : AppCompatActivity() {
 
                 // Chip color: shortcut modifier keys use gray, target key uses primary; edit uses button normal
                 val chipColor = when {
-                    isShortcutType && isModifier -> styledColor(android.R.attr.colorButtonNormal)
-                    isShortcutType && !isModifier -> styledColor(android.R.attr.colorPrimary)
-                    isEditType -> styledColor(android.R.attr.colorButtonNormal)
-                    else -> styledColor(android.R.attr.colorButtonNormal)
+                    isShortcutType && isModifier -> settingsColor(android.R.attr.colorButtonNormal)
+                    isShortcutType && !isModifier -> settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
+                    isEditType -> settingsColor(android.R.attr.colorButtonNormal)
+                    else -> settingsColor(android.R.attr.colorButtonNormal)
                 }
 
                 val keyChip = TextView(this@MacroEditorActivity).apply {
@@ -1445,8 +1440,11 @@ class MacroEditorActivity : AppCompatActivity() {
                     gravity = Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
                         setColor(chipColor)
-                        setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                        setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                         cornerRadius = dp(4).toFloat()
+                    }
+                    if (isShortcutType && !isModifier) {
+                        setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                     }
                     layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
                         rightMargin = dp(6)
@@ -1501,10 +1499,11 @@ class MacroEditorActivity : AppCompatActivity() {
                     setPadding(dp(10), dp(8), dp(10), dp(8))
                     gravity = Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(styledColor(android.R.attr.colorPrimary))
-                        setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                        setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
+                        setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                         cornerRadius = dp(4).toFloat()
                     }
+                    setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                     layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
                         rightMargin = dp(6)
                         bottomMargin = dp(4)
@@ -1537,10 +1536,11 @@ class MacroEditorActivity : AppCompatActivity() {
                     setPadding(dp(10), dp(8), dp(10), dp(8))
                     gravity = Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(styledColor(android.R.attr.colorPrimary))
-                        setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
+                        setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
+                        setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
                         cornerRadius = dp(4).toFloat()
                     }
+                    setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                     layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
                         rightMargin = dp(6)
                         bottomMargin = dp(4)
@@ -1593,7 +1593,7 @@ class MacroEditorActivity : AppCompatActivity() {
                 getString(R.string.macro_editor_action_undo),
                 getString(R.string.macro_editor_action_redo)
             )
-            AlertDialog.Builder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_picker_title)
                 .setItems(actionLabels) { _, which ->
                     onSelect(actions[which])
@@ -1605,7 +1605,7 @@ class MacroEditorActivity : AppCompatActivity() {
         private fun showAppActionPicker(onSelect: (String) -> Unit) {
             // Labels are derived from the ids, so row N always selects APP_ACTION_IDS[N].
             val actionLabels = APP_ACTION_IDS.map { getAppActionLabel(it) }.toTypedArray()
-            AlertDialog.Builder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_app_picker_title)
                 .setItems(actionLabels) { _, which ->
                     onSelect(APP_ACTION_IDS[which])
@@ -1698,9 +1698,10 @@ class MacroEditorActivity : AppCompatActivity() {
             } else {
                 keysList.map { ANDROID_KEY_NAMES[it] ?: it }
             }
-            val primaryColor = styledColor(android.R.attr.colorPrimary)
-            val buttonColor = styledColor(android.R.attr.colorButtonNormal)
-            val borderColor = styledColor(android.R.attr.colorControlNormal)
+            val primaryColor = settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
+            val onPrimaryContainerColor = settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
+            val buttonColor = settingsColor(android.R.attr.colorButtonNormal)
+            val borderColor = settingsColor(android.R.attr.colorControlNormal)
 
             var highlightIndex = keysList.indexOfFirst { it.equals(key.code, ignoreCase = true) }
                 .takeIf { it >= 0 } ?: -1
@@ -1723,6 +1724,7 @@ class MacroEditorActivity : AppCompatActivity() {
                             setStroke(dp(1), borderColor)
                             cornerRadius = dp(4).toFloat()
                         }
+                        setTextColor(if (isHighlighted) onPrimaryContainerColor else settingsColor(android.R.attr.textColorPrimary))
                         layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
                             rightMargin = dp(6)
                             bottomMargin = dp(6)
@@ -1743,7 +1745,7 @@ class MacroEditorActivity : AppCompatActivity() {
             }
             dialogView.addView(scrollView)
 
-            val dialog = AlertDialog.Builder(this@MacroEditorActivity)
+            val dialog = MaterialAlertDialogBuilder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_edit_key_title)
                 .setView(dialogView)
                 .setPositiveButton(R.string.macro_editor_confirm) { _, _ ->
@@ -1820,7 +1822,7 @@ class MacroEditorActivity : AppCompatActivity() {
             }
             // 列表显示可读文本，选中后回传的仍是原始目标名（存进配置的就是它）。
             val labels = targets.map { layerTargetDisplayName(it) }
-            AlertDialog.Builder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_layer_target_picker_title)
                 .setItems(labels.toTypedArray()) { _, which ->
                     onSelect(targets[which])
@@ -1889,7 +1891,7 @@ class MacroEditorActivity : AppCompatActivity() {
                 getString(R.string.macro_editor_step_type_osl),
                 getString(R.string.macro_editor_step_type_back)
             )
-            AlertDialog.Builder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(this@MacroEditorActivity)
                 .setTitle(R.string.macro_editor_layer_mode_picker_title)
                 .setItems(labels) { _, which ->
                     onSelect(modes[which])
