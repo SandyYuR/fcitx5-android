@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.update
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.app.DownloadManager
 import android.Manifest
 import android.content.ContentUris
@@ -31,10 +33,9 @@ import android.widget.Toast
 import android.provider.OpenableColumns
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
@@ -54,7 +55,7 @@ import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.Const
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import timber.log.Timber
 import java.io.FileInputStream
@@ -64,7 +65,7 @@ import java.security.MessageDigest
 import java.util.Locale
 import kotlin.coroutines.coroutineContext
 
-class UpdateCheckActivity : AppCompatActivity() {
+class UpdateCheckActivity : SettingsUiActivity() {
     private lateinit var toolbar: Toolbar
     private lateinit var mirrorsGroup: ChipGroup
     private lateinit var latestVersionText: TextView
@@ -136,11 +137,10 @@ class UpdateCheckActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_update_check)
         toolbar = findViewById(R.id.toolbar)
-        toolbar.backgroundColor = styledColor(android.R.attr.colorPrimary)
-        toolbar.elevation = dp(4f)
+        toolbar.backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+        toolbar.elevation = 0f
         mirrorsGroup = findViewById(R.id.mirrorChipGroup)
         latestVersionText = findViewById(R.id.latestVersionText)
         assetsView = findViewById(R.id.assetsRecycler)
@@ -148,13 +148,6 @@ class UpdateCheckActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.update_page_title)
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         adapter = UpdateAssetAdapter(
             onItemClick = { onAssetClicked(it) },
@@ -512,7 +505,7 @@ class UpdateCheckActivity : AppCompatActivity() {
     }
 
     private fun showUrlDialog(title: String, url: String) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(title)
             .setMessage(url)
             .setPositiveButton(android.R.string.ok, null)

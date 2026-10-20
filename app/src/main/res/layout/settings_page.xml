@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Keep the header inside its destination so it participates in page and back animations. -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings_page"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurfaceContainer"
+    android:transitionGroup="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurfaceContainer"
+        android:elevation="0dp"
+        app:liftOnScroll="false">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="?attr/colorSurfaceContainer"
+            app:collapsedTitleTextAppearance="?attr/textAppearanceTitleLarge"
+            app:contentScrim="?attr/colorSurfaceContainer"
+            app:expandedTitleGravity="bottom|start"
+            app:expandedTitleMarginBottom="12dp"
+            app:expandedTitleMarginStart="24dp"
+            app:expandedTitleTextAppearance="?attr/textAppearanceHeadlineMedium"
+            app:titleEnabled="false"
+            app:toolbarId="@id/toolbar">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:background="?attr/colorSurfaceContainer"
+                android:elevation="0dp"
+                app:layout_collapseMode="pin"
+                app:navigationContentDescription="@string/abc_action_bar_up_description"
+                app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+                app:navigationIconTint="?attr/colorOnSurface"
+                app:titleTextColor="?attr/colorOnSurface" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <FrameLayout
+        android:id="@+id/settings_page_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

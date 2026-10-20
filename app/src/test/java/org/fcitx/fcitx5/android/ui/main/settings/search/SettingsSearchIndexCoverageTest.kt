@@ -148,7 +148,7 @@ class SettingsSearchIndexCoverageTest {
     }
 
     /**
-     * `PREFERENCE_KEYS` 的**值**必须都是 `AppPrefs`/`ThemePrefs` 里真实存在的偏好键。
+     * `PREFERENCE_KEYS` 的**值**必须是偏好模型或设置页里真实存在的偏好键。
      *
      * 这是第三类静默失败：键名写错（少个字母、用了旧名、把下划线写成连字符）时，
      * `findPreference(key)` 返回 null，`PreferenceScrollHelper` 的约定是**保留待处理键**，
@@ -164,7 +164,10 @@ class SettingsSearchIndexCoverageTest {
     fun `PREFERENCE_KEYS 的值都是真实存在的偏好键`() {
         val prefSources = listOf(
             "app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt",
-            "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemePrefs.kt"
+            "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemePrefs.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/data/prefs/SettingsUiPreferences.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/data/prefs/SettingsUiMotionPreferences.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/SettingsUiAppearanceFragment.kt"
         ).mapNotNull { findSourceFile(it) }
 
         val index = findSourceFile(
@@ -196,7 +199,7 @@ class SettingsSearchIndexCoverageTest {
 
         assertTrue(
             buildString {
-                appendLine("PREFERENCE_KEYS 中以下键在 AppPrefs/ThemePrefs 里找不到对应定义：")
+                appendLine("PREFERENCE_KEYS 中以下键在偏好模型或设置页里找不到对应定义：")
                 unknown.forEach { appendLine("  - $it") }
                 appendLine()
                 appendLine("这类拼写错误会让「搜索跳转后滚动定位」静默失效——跳到页面但不滚动，且无任何日志。")

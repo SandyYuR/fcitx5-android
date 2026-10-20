@@ -13,21 +13,20 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.AppCompatEditText
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import org.fcitx.fcitx5.android.R
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 
-class LayoutNameInputActivity : AppCompatActivity() {
+class LayoutNameInputActivity : SettingsUiActivity() {
     companion object {
         const val EXTRA_TITLE = "title"
         const val EXTRA_LABEL = "label"
@@ -44,8 +43,8 @@ class LayoutNameInputActivity : AppCompatActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
     }
 
@@ -65,7 +64,7 @@ class LayoutNameInputActivity : AppCompatActivity() {
                     getString(R.string.text_keyboard_layout_layout_name)
                 }
                 textSize = 13f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
             })
 
             input = AppCompatEditText(this@LayoutNameInputActivity).apply {
@@ -85,7 +84,7 @@ class LayoutNameInputActivity : AppCompatActivity() {
                 addView(TextView(this@LayoutNameInputActivity).apply {
                     text = getString(R.string.text_keyboard_layout_copy_from)
                     textSize = 13f
-                    setTextColor(styledColor(android.R.attr.textColorSecondary))
+                    setTextColor(settingsColor(android.R.attr.textColorSecondary))
                     setPadding(0, dp(12), 0, 0)
                 })
                 val adapter = ArrayAdapter(
@@ -115,7 +114,6 @@ class LayoutNameInputActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(root)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -123,13 +121,6 @@ class LayoutNameInputActivity : AppCompatActivity() {
             getString(R.string.text_keyboard_layout_add_layout)
         }
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

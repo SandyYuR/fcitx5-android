@@ -9,6 +9,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.preference.PreferenceCategory
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
@@ -33,10 +35,19 @@ class SettingsGroupFragment : PaddingPreferenceFragment() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceScreen = preferenceManager.createPreferenceScreen(requireContext()).apply {
             val spec = this@SettingsGroupFragment.spec ?: return@apply
+            var activeSection: Int? = null
             spec.entries(requireContext()).forEach { entry ->
+                if (entry.sectionTitle != null && entry.sectionTitle != activeSection) {
+                    addPreference(PreferenceCategory(context).apply {
+                        title = getString(entry.sectionTitle)
+                        isIconSpaceReserved = false
+                    })
+                    activeSection = entry.sectionTitle
+                }
                 addPreference(entry.title, entry.summary, entry.icon) {
                     launch(entry.action)
                 }
+                getPreference(preferenceCount - 1).widgetLayoutResource = R.layout.preference_settings_navigation
             }
         }
     }
@@ -52,12 +63,6 @@ class SettingsGroupFragment : PaddingPreferenceFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         scrollToPendingPreference(viewModel)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val spec = spec ?: return
-        viewModel.setToolbarTitle(getString(spec.title))
     }
 
     private fun launch(action: SettingsGroupAction) = when (action) {

@@ -25,6 +25,7 @@ import org.fcitx.fcitx5.android.data.BundledPresets
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.AppPrefsMigration
+import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.data.prefs.SmartDefaultInitializer
 import org.fcitx.fcitx5.android.data.prefs.SplitKeyboardStateManager
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
@@ -136,8 +137,14 @@ class FcitxApplication : Application() {
         AppPrefs.init(sharedPrefs)
         AppPrefsMigration.apply(sharedPrefs)
         SplitKeyboardStateManager.init(this)
+        val appPrefs = AppPrefs.getInstance()
+        SettingsUiPreferences.initialize(
+            this,
+            hadInitializedSettings = appPrefs.internal.settingsInitialized.getValue() ||
+                !appPrefs.internal.firstRun.getValue()
+        )
         // Smart settings initialization (on first install)
-        SmartDefaultInitializer.initialize(this, AppPrefs.getInstance())
+        SmartDefaultInitializer.initialize(this, appPrefs)
         // record last pid for crash logs
         AppPrefs.getInstance().internal.pid.apply {
             val currentPid = Process.myPid()

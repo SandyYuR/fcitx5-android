@@ -13,10 +13,9 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
@@ -31,14 +30,14 @@ import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 
 /**
  * Hierarchy and section styling adapted from boomker/fcitx5-android@1d85a0d5.
  * Browsing only reads files: no migration, preset resets, profile metadata or ordering prefs.
  * File operations delegate to the existing editor and its validation/confirmation flows.
  */
-class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
+class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
     private data class Profile(val name: String, val keys: List<String>, val failed: Boolean, val builtin: Boolean)
     private val collapsed = mutableSetOf<String>()
     private var profiles = emptyList<Profile>()
@@ -49,25 +48,19 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         selected = savedInstanceState?.getString("selected") ?: activeProfile()
         collapsed.addAll(savedInstanceState?.getStringArrayList("collapsed").orEmpty())
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         val toolbar = Toolbar(this).apply {
-            setBackgroundColor(styledColor(android.R.attr.colorPrimary))
-            setTitleTextColor(styledColor(android.R.attr.textColorPrimary))
-            elevation = dp(4f)
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
+            setTitleTextColor(settingsColor(android.R.attr.textColorPrimary))
+            elevation = 0f
         }
         root.addView(toolbar, LinearLayout.LayoutParams(-1, -2))
         setContentView(root)
         setSupportActionBar(toolbar)
         supportActionBar?.setTitle(R.string.text_keyboard_layout_manage_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            view.updatePadding(top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
         val header = horizontal().apply { setPadding(dp(16), dp(8), dp(8), dp(8)) }
         summary = label("", 14f)
         header.addView(summary, LinearLayout.LayoutParams(0, -2, 1f))
@@ -80,7 +73,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         root.addView(header)
         list = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(8), 0, dp(8), dp(8))
+            setPadding(dp(16), dp(8), dp(16), dp(16))
         }
         root.addView(ScrollView(this).apply {
             isFillViewport = true
@@ -88,7 +81,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         }, LinearLayout.LayoutParams(-1, 0, 1f))
         val bottom = horizontal().apply {
             setPadding(dp(8), dp(8), dp(8), dp(8))
-            setBackgroundColor(styledColor(android.R.attr.colorBackgroundFloating))
+            setBackgroundColor(settingsColor(android.R.attr.colorBackgroundFloating))
         }
         listOf(
             Triple(R.drawable.ic_baseline_plus_24, R.string.text_keyboard_layout_file_create, TextKeyboardLayoutEditorActivity.ACTION_CREATE_PROFILE),
@@ -138,12 +131,30 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         getString(R.string.default_) else name
 
     private fun render() {
-        summary.text = getString(R.string.text_keyboard_layout_manage_active, display(activeProfile())) + "\n" + display(selected)
+        summary.text = getString(R.string.text_keyboard_layout_manage_active, display(activeProfile()))
         list.removeAllViews()
         profiles.forEach { profile ->
-            val row = horizontal().apply { setPadding(dp(8), dp(8), 0, dp(4)) }
+            val group = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(settingsColor(com.google.android.material.R.attr.colorSurfaceBright))
+                    cornerRadius = dp(20).toFloat()
+                }
+                clipToOutline = true
+                setPadding(0, 0, 0, dp(8))
+            }
+            list.addView(group, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(12) })
+            val row = horizontal().apply {
+                setPadding(dp(16), dp(4), dp(4), dp(4))
+                if (profile.name == selected) {
+                    setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSecondaryContainer))
+                }
+            }
             val name = label(display(profile.name), 16f).apply {
                 setTypeface(null, Typeface.BOLD)
+                if (profile.name == selected) {
+                    setTextColor(settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer))
+                }
                 setOnClickListener { selected = profile.name; render() }
             }
             row.addView(name, LinearLayout.LayoutParams(0, -2, 1f))
@@ -154,7 +165,10 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                 render()
             }.apply {
                 isEnabled = profile.name != activeProfile()
-                if (!isEnabled) { setColorFilter(0xff4caf50.toInt()); alpha = 1f }
+                if (!isEnabled) {
+                    setColorFilter(settingsColor(androidx.appcompat.R.attr.colorPrimary))
+                    alpha = 1f
+                }
             })
             row.addView(icon(R.drawable.ic_baseline_edit_24, R.string.text_keyboard_layout_manage_edit) {
                 selected = profile.name
@@ -166,10 +180,23 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                 if (!collapsed.add(profile.name)) collapsed.remove(profile.name)
                 render()
             }.apply { rotation = if (isCollapsed) -90f else 0f })
-            list.addView(row)
+            if (profile.name == selected) {
+                for (index in 0 until row.childCount) {
+                    (row.getChildAt(index) as? ImageButton)?.setColorFilter(
+                        settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer)
+                    )
+                }
+            }
+            group.addView(row)
             if (isCollapsed) return@forEach
-            if (profile.failed) list.addView(label(getString(R.string.text_keyboard_layout_manage_read_failed), 14f))
-            if (profile.builtin) list.addView(label(getString(R.string.text_keyboard_layout_manage_builtin), 14f))
+            if (profile.failed) group.addView(label(getString(R.string.text_keyboard_layout_manage_read_failed), 14f).apply {
+                setTextColor(settingsColor(androidx.appcompat.R.attr.colorError))
+                setPadding(dp(16), dp(12), dp(16), dp(8))
+            })
+            if (profile.builtin) group.addView(label(getString(R.string.text_keyboard_layout_manage_builtin), 14f).apply {
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
+                setPadding(dp(16), dp(12), dp(16), dp(8))
+            })
             val entries = profile.keys.mapNotNull { key -> LayoutJsonUtils.parseEntryKey(key)?.let { key to it } }
             entries.groupBy { it.second.layoutName }.forEach { (base, layouts) ->
                 layouts.sortedWith(compareBy({ it.second.subLayout != null }, { it.second.subLayout }, { it.second.isSplit }))
@@ -186,7 +213,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
                             selected = profile.name
                             openEditor(key)
                         })
-                        list.addView(entryRow)
+                        group.addView(entryRow)
                     }
             }
         }
@@ -208,7 +235,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
     private fun label(value: String, size: Float) = TextView(this).apply {
         text = value
         textSize = size
-        setTextColor(styledColor(android.R.attr.textColorPrimary))
+        setTextColor(settingsColor(android.R.attr.textColorPrimary))
     }
 
     private fun icon(image: Int, title: Int, click: () -> Unit) = ImageButton(this).apply {
@@ -217,7 +244,7 @@ class TextKeyboardLayoutProfileManagerActivity : AppCompatActivity() {
         minimumWidth = dp(48)
         minimumHeight = dp(48)
         setPadding(dp(10), dp(10), dp(10), dp(10))
-        setColorFilter(styledColor(android.R.attr.textColorPrimary))
+        setColorFilter(settingsColor(android.R.attr.textColorPrimary))
         val background = android.util.TypedValue()
         theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, background, true)
         setBackgroundResource(background.resourceId)

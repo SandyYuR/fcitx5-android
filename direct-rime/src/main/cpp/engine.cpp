@@ -3,6 +3,7 @@
 #include <cstring>
 #include <algorithm>
 #include <chrono>
+#include <filesystem>
 #include <sstream>
 #include <rime_levers_api.h>
 #include <stdexcept>
@@ -116,6 +117,20 @@ void Engine::start(const std::string& shared, const std::string& user,
 }
 void Engine::initialize(bool fullCheck) {
     deployFailed_.store(false);
+    if (fullCheck) {
+        // Rime's compiler compares source mtimes with one-second resolution.
+        // Explicit redeploy must also rebuild edits copied with unchanged times.
+        // Invalidate only generated YAML with a corresponding source; retain
+        // compiled-only schemes, dictionary/model binaries and all user DBs.
+        namespace fs = std::filesystem;
+        const auto build = fs::path(user_) / "build";
+        if (fs::is_directory(build)) for (const auto& entry : fs::directory_iterator(build)) {
+            if (entry.path().extension() != ".yaml" || !entry.is_regular_file()) continue;
+            const auto name = entry.path().filename();
+            if (fs::is_regular_file(fs::path(user_) / name) || fs::is_regular_file(fs::path(shared_) / name))
+                fs::remove(entry.path()); // Unlink a symlink, never follow it to delete its target.
+        }
+    }
     RimeTraits traits{}; RIME_STRUCT_INIT(RimeTraits, traits);
     traits.shared_data_dir = shared_.c_str(); traits.user_data_dir = user_.c_str();
     traits.app_name = "rime.direct-android"; traits.distribution_name = "中州鹅";
@@ -303,7 +318,9 @@ Snapshot Engine::snapshot(int64_t generation, bool handled) {
 }
 bool Engine::deploy() {
     owner();
-    if (!started_) return false;
+    // A failed forced initialization may already have finalized the runtime.
+    // Keep deployment retryable after the user fixes the files/permissions.
+    if (shared_.empty() || user_.empty()) return false;
     // Recreating only the session retains Lua require()'s module cache and
     // component-held config. Finalize unloads those modules and flushes DBs;
     // setup/glog remains process-wide and must not be run a second time.

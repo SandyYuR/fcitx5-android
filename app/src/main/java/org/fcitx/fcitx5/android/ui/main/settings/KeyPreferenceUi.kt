@@ -16,8 +16,8 @@ import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import splitties.dimensions.dp
 import splitties.resources.drawable
-import splitties.resources.styledColor
-import splitties.resources.styledColorSL
+import org.fcitx.fcitx5.android.utils.settingsColor
+import org.fcitx.fcitx5.android.utils.settingsColorStateList
 import splitties.resources.styledDrawable
 import splitties.views.dsl.constraintlayout.above
 import splitties.views.dsl.constraintlayout.after
@@ -68,11 +68,11 @@ class KeyPreferenceUi(override val ctx: Context) : Ui {
             }
 
         fun applyStyles() = root.apply {
-            backgroundTintList = ctx.styledColorSL(
+            backgroundTintList = ctx.settingsColorStateList(
                 if (checked) android.R.attr.colorAccent else android.R.attr.colorBackgroundFloating
             )
             setTextColor(
-                ctx.styledColor(
+                ctx.settingsColor(
                     if (checked) android.R.attr.colorForegroundInverse else android.R.attr.colorForeground
                 )
             )
@@ -112,7 +112,7 @@ class KeyPreferenceUi(override val ctx: Context) : Ui {
     private val clearButton = imageButton {
         background = styledDrawable(android.R.attr.actionBarItemBackground)
         imageDrawable = drawable(R.drawable.ic_baseline_delete_24)!!.apply {
-            setTint(styledColor(android.R.attr.colorControlNormal))
+            setTint(settingsColor(android.R.attr.colorControlNormal))
         }
         setOnClickListener {
             setKey(Key.None)

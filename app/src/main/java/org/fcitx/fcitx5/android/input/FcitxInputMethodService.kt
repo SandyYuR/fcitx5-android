@@ -2244,6 +2244,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onDestroy() {
+        showingDialog?.dismiss()
+        unregisterDialogBackHandler?.invoke()
+        unregisterDialogBackHandler = null
         FcitxDaemon.invalidateInputSession()
         MainService.stopSyncService(this)
         recreateInputViewPrefs.forEach {
@@ -2259,6 +2262,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     private var showingDialog: Dialog? = null
+    private var unregisterDialogBackHandler: (() -> Unit)? = null
 
     // Selection menus keep the editor's window focus. Deliver keys through the
     // IME so Back and keyboard navigation still belong to the open menu.
@@ -2268,6 +2272,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     fun showDialog(dialog: Dialog) {
         // Menu data is resolved asynchronously; the editor may have gone away.
         if (!decorView.isShown || !decorView.isAttachedToWindow) return
+        unregisterDialogBackHandler?.invoke()
+        unregisterDialogBackHandler = null
         showingDialog?.dismiss()
         // AlertController adds ALT_FOCUSABLE_IM while installing its content.
         // Finish that first so it cannot overwrite our final window policy.
@@ -2289,10 +2295,24 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             it.setDimAmount(styledFloat(android.R.attr.backgroundDimAmount))
         }
         dialog.setOnDismissListener {
-            if (showingDialog === dialog) showingDialog = null
+            if (showingDialog === dialog) {
+                showingDialog = null
+                unregisterDialogBackHandler?.invoke()
+                unregisterDialogBackHandler = null
+            }
         }
         dialog.show()
         showingDialog = dialog
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Predictive Back bypasses onKeyDown/onKeyUp when enabled by the
+            // settings UI. Consume it on the IME window while a menu is open.
+            val dispatcher = window.window!!.onBackInvokedDispatcher
+            val callback = android.window.OnBackInvokedCallback {
+                if (showingDialog === dialog) dialog.cancel()
+            }
+            dispatcher.registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_OVERLAY, callback)
+            unregisterDialogBackHandler = { dispatcher.unregisterOnBackInvokedCallback(callback) }
+        }
     }
 
     @Suppress("ConstPropertyName")

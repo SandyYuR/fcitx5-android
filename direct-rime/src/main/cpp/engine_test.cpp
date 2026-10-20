@@ -3,6 +3,9 @@
 #include <iostream>
 #include <stdexcept>
 #include <thread>
+#include <filesystem>
+#include <fstream>
+#include <cstdlib>
 
 using namespace direct_rime;
 #define CHECK(condition) do { if (!(condition)) throw std::runtime_error(#condition); } while (0)
@@ -213,8 +216,30 @@ void testSessionReuseAndEditorIsolation() {
     CHECK(engine.begin(12, "editor.two").gate == Ready && f.created == 9);
     engine.stop();
 }
+void testGeneratedConfigInvalidation() {
+    namespace fs = std::filesystem;
+    char pattern[] = "/tmp/direct-rime-deploy-XXXXXX";
+    const auto* created = mkdtemp(pattern); CHECK(created);
+    const fs::path root(created), user = root / "user", shared = root / "shared", build = user / "build";
+    fs::create_directories(build); fs::create_directories(shared);
+    auto write = [](const fs::path& path) { std::ofstream(path) << "keep data"; };
+    write(shared / "default.yaml"); write(build / "default.yaml");
+    write(user / "test.schema.yaml"); write(build / "test.schema.yaml");
+    write(build / "compiled-only.schema.yaml"); write(build / "test.table.bin");
+    write(user / "user.yaml"); fs::create_directory(user / "test.userdb"); write(user / "test.userdb/CURRENT");
+    write(root / "target.yaml"); write(shared / "linked.yaml");
+    fs::create_symlink(root / "target.yaml", build / "linked.yaml");
+    f = {}; auto a = api(); Engine engine(&a); engine.start(shared.string(), user.string());
+    CHECK(fs::exists(build / "default.yaml")); // Ordinary startup keeps warm caches.
+    CHECK(engine.deploy());
+    CHECK(!fs::exists(build / "default.yaml") && !fs::exists(build / "test.schema.yaml"));
+    CHECK(!fs::exists(build / "linked.yaml") && fs::exists(root / "target.yaml"));
+    CHECK(fs::exists(build / "compiled-only.schema.yaml") && fs::exists(build / "test.table.bin"));
+    CHECK(fs::exists(user / "user.yaml") && fs::exists(user / "test.userdb/CURRENT"));
+    engine.stop(); CHECK(engine.deploy()); engine.stop(); fs::remove_all(root);
+}
 }
 int main() {
-    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testUnicode(); testOptionInvalidation(); testSessionReuseAndEditorIsolation(); std::cout << "engine contract: passed\n"; }
+    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testUnicode(); testOptionInvalidation(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n"; }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

@@ -787,7 +787,7 @@ class ShareReceiveManager(
         }
         if (existing != null) {
             val overwrite = suspendCancellableCoroutine<Boolean> { cont ->
-                AlertDialog.Builder(activity)
+                MaterialAlertDialogBuilder(activity)
                     .setTitle(R.string.icon_theme_import_dialog_title)
                     .setMessage(activity.getString(R.string.icon_theme_overwrite_confirm, detection.decodedTheme.name))
                     .setPositiveButton(android.R.string.ok) { _, _ -> cont.resume(true) }
@@ -820,7 +820,7 @@ class ShareReceiveManager(
         val existing = IconThemeManager.iconThemes.find { it.name == theme.name && it.name != IconTheme.default().name }
         if (existing != null) {
             val overwrite = suspendCancellableCoroutine<Boolean> { cont ->
-                AlertDialog.Builder(activity)
+                MaterialAlertDialogBuilder(activity)
                     .setTitle(R.string.icon_theme_import_dialog_title)
                     .setMessage(activity.getString(R.string.icon_theme_overwrite_confirm, theme.name))
                     .setPositiveButton(android.R.string.ok) { _, _ -> cont.resume(true) }

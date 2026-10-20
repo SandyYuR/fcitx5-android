@@ -4,7 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.graphics.Typeface
 import android.graphics.fonts.Font
 import android.graphics.fonts.FontFamily
@@ -17,11 +18,10 @@ import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.annotation.StringRes
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -31,7 +31,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.font.FontProviders
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
@@ -40,7 +40,7 @@ import org.fcitx.fcitx5.android.utils.toast
 import java.io.File
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 
-class FontsetEditorActivity : AppCompatActivity() {
+class FontsetEditorActivity : SettingsUiActivity() {
 
     private data class FontEntry(
         val key: String,
@@ -56,8 +56,8 @@ class FontsetEditorActivity : AppCompatActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
     }
 
@@ -131,19 +131,11 @@ class FontsetEditorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(ui)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle(R.string.edit_fontset)
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         loadState()
         buildRows()
@@ -218,7 +210,7 @@ class FontsetEditorActivity : AppCompatActivity() {
         val hint = TextView(this).apply {
             text = getString(R.string.fontset_editor_hint)
             textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(0, 0, 0, dp(8))
         }
         listContainer.addView(hint)
@@ -236,7 +228,7 @@ class FontsetEditorActivity : AppCompatActivity() {
 
             val title = TextView(this).apply {
                 text = getString(entry.titleRes)
-                setTextColor(styledColor(android.R.attr.textColorPrimary))
+                setTextColor(settingsColor(android.R.attr.textColorPrimary))
                 textSize = 15f
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                     weight = 1f
@@ -246,7 +238,7 @@ class FontsetEditorActivity : AppCompatActivity() {
 
             val fontSizeValue = TextView(this).apply {
                 textSize = 13f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 setPadding(dp(8), 0, dp(4), 0)
                 gravity = android.view.Gravity.END
                 setOnClickListener { openFontSizeEditor(entry) }
@@ -274,7 +266,7 @@ class FontsetEditorActivity : AppCompatActivity() {
 
             val value = TextView(this).apply {
                 textSize = 13f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 setPadding(0, dp(4), 0, 0)
                 setOnClickListener { openPicker() }
             }
@@ -282,7 +274,7 @@ class FontsetEditorActivity : AppCompatActivity() {
 
             val divider = View(this).apply {
                 setBackgroundColor(
-                    runCatching { styledColor(android.R.attr.colorControlNormal) }
+                    runCatching { settingsColor(android.R.attr.colorControlNormal) }
                         .getOrDefault(0x33000000)
                 )
                 alpha = 0.35f
@@ -448,7 +440,7 @@ class FontsetEditorActivity : AppCompatActivity() {
                     viewHolder.itemView.translationZ = 10f
                     // 添加背景色增强反馈
                     viewHolder.itemView.setBackgroundColor(
-                        this@FontsetEditorActivity.styledColor(android.R.attr.colorControlHighlight)
+                        this@FontsetEditorActivity.settingsColor(android.R.attr.colorControlHighlight)
                     )
                 }
             }
@@ -466,7 +458,7 @@ class FontsetEditorActivity : AppCompatActivity() {
         })
         itemTouchHelper.attachToRecyclerView(recycler)
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(entry.titleRes)
             .setView(recycler)
             .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -512,7 +504,7 @@ class FontsetEditorActivity : AppCompatActivity() {
         val hint = TextView(this).apply {
             text = getString(R.string.font_size_editor_hint, minSize.toInt(), maxSize.toInt())
             textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             gravity = android.view.Gravity.CENTER
             setPadding(0, dp(8), 0, 0)
         }
@@ -533,7 +525,7 @@ class FontsetEditorActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {}
         })
         
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.font_size_editor_title, getString(entry.titleRes)))
             .setView(container)
             .setPositiveButton(android.R.string.ok) { _, _ ->

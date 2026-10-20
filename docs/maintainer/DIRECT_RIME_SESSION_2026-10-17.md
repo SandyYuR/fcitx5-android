@@ -14,7 +14,8 @@
 本 PR 先收拢为三个交付提交，并整合默认分支 `92fd34ce` 之前新增的六项前端修复；
 最后审阅追加一项依赖清理与静态链接核验，见[最终依赖审阅](DIRECT_RIME_FINAL_REVIEW_2026-10-19.md)；
 10 月 20 日再补[密码框方案菜单修复](DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md)，
-随后完成[部署重载与发行标识调整](DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md)，当前共六项提交。
+随后完成[部署重载与发行标识调整](DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md)，共六项功能交付提交；
+另同步默认分支新增的低版本主题修复与 MD3 设置，冲突在功能分支内解决。
 历史源码/实验提交由 `v0-archive-direct-rime-history-20261019` 保留；下面按时间顺序保留旧记录。
 最新源码关系、分支整理、合并门槛和已知范围见[合并交付记录](DIRECT_RIME_MERGE_READINESS_2026-10-19.md)。
 日用认可来自该用户的设备与方案，不能扩大为所有设备已无冷启动尖峰或快速发送边界问题。

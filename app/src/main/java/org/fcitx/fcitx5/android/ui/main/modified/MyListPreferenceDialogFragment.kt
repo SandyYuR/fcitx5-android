@@ -12,10 +12,15 @@ import androidx.preference.ListPreferenceDialogFragmentCompat
 import org.fcitx.fcitx5.android.R
 
 class MyListPreferenceDialogFragment : ListPreferenceDialogFragmentCompat() {
+    override fun onCreateDialog(savedInstanceState: Bundle?) =
+        materialDialog(::onCreateDialogView, ::onBindDialogView, ::onPrepareDialogBuilder)
+
     override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
         val p = preference as ListPreference
-        builder.setNeutralButton(R.string.default_) { _, _ ->
-            p.restore()
+        if (p.hasDefaultValue()) {
+            builder.setNeutralButton(R.string.default_) { _, _ ->
+                p.restore()
+            }
         }
         super.onPrepareDialogBuilder(builder)
     }

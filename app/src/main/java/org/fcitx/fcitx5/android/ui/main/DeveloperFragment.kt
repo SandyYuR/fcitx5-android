@@ -4,12 +4,13 @@
  */
 package org.fcitx.fcitx5.android.ui.main
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.os.Bundle
 import android.os.Debug
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -95,7 +96,7 @@ class DeveloperFragment : PaddingPreferenceFragment() {
                 isSingleLineTitle = false
             })
             addPreference(R.string.direct_rime_restart_engine) {
-                AlertDialog.Builder(context)
+                MaterialAlertDialogBuilder(context)
                     .setTitle(R.string.direct_rime_restart_engine)
                     .setMessage(R.string.direct_rime_restart_engine_confirm)
                     .setNegativeButton(android.R.string.cancel, null)
@@ -108,7 +109,7 @@ class DeveloperFragment : PaddingPreferenceFragment() {
                     .show()
             }
             addPreference(R.string.delete_and_sync_data) {
-                AlertDialog.Builder(context)
+                MaterialAlertDialogBuilder(context)
                     .setTitle(R.string.delete_and_sync_data)
                     .setMessage(R.string.delete_and_sync_data_message)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -123,7 +124,7 @@ class DeveloperFragment : PaddingPreferenceFragment() {
                     .show()
             }
             addPreference(R.string.clear_clb_db) {
-                AlertDialog.Builder(context)
+                MaterialAlertDialogBuilder(context)
                     .setTitle(R.string.clear_clb_db)
                     .setMessage(R.string.clear_clp_db_confirm)
                     .setPositiveButton(android.R.string.ok) { _, _ ->

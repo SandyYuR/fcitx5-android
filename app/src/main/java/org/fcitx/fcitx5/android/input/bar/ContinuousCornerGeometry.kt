@@ -15,6 +15,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.ColorInt
 import kotlin.math.min
 
@@ -29,8 +30,17 @@ import kotlin.math.min
  */
 object ContinuousCornerGeometry {
 
-    fun clampRadius(radius: Float, width: Float, height: Float): Float =
-        radius.coerceAtLeast(0f).coerceAtMost(min(width, height).coerceAtLeast(0f) * 0.5f)
+    /**
+     * 把半径夹进 `[0, min(width, height) / 2]`。
+     *
+     * 非有限值（NaN/Inf）一律当 0：`Float.coerceAtLeast` 对 NaN 的判定为 false，会原样返回
+     * NaN，而 NaN 半径喂给 [Outline.setRoundRect] 会让裁剪形状非法。半径来自用户偏好，
+     * 读到脏数据时宁可直角也不能把异常值传进系统调用。
+     */
+    fun clampRadius(radius: Float, width: Float, height: Float): Float {
+        if (!radius.isFinite()) return 0f
+        return radius.coerceAtLeast(0f).coerceAtMost(min(width, height).coerceAtLeast(0f) * 0.5f)
+    }
 
     /**
      * 编码区胶囊主体左缘相对**键盘卡片左缘**的位移。
@@ -53,7 +63,11 @@ object ContinuousCornerGeometry {
 
     /**
      * 键盘卡片：上方两角半径 [topRadius]、下方两角半径 [bottomRadius]。
-     * 该形状是凸的，可直接用于 [Outline.setConvexPath]（API < 30 的裁剪路径）。
+     *
+     * 形状在几何上是凸的，但 **不能**据此直接用 [Outline.setConvexPath]：R 之前的
+     * `Path.isConvex()` 是按坐标符号翻转次数统计的启发式，这种带圆角的高瘦矩形会被它
+     * 误判成凹的并抛 `IllegalArgumentException: path must be convex`。裁剪形状请一律走
+     * [applyCardOutline]，不要在这里或调用点自己判断 API 级别。
      */
     fun addCardPath(path: Path, bounds: RectF, topRadius: Float, bottomRadius: Float) {
         path.reset()
@@ -87,6 +101,61 @@ object ContinuousCornerGeometry {
         }
         path.close()
     }
+
+    /**
+     * API < 30（R 之前）退化后的统一圆角半径：上下半径不等时取较大者，四角同半径。
+     *
+     * 这是一次近似——旧系统只能用 [Outline.setRoundRect] 表达四角同半径的形状。
+     * 取较大者而不是较小者，是为了让「工具栏上方圆角」这类用户显式设置的角保持原样。
+     */
+    fun legacyUniformRadius(topRadius: Float, bottomRadius: Float): Float =
+        maxOf(topRadius, bottomRadius).coerceAtLeast(0f)
+
+    /**
+     * 把 [path]（[addCardPath] 的产物）作为 [outline] 的裁剪形状，兼容各 API 级别：
+     *
+     * - `Outline.setPath` 是 **API 30 (R)** 才加入的方法：守卫写成 `>= Q` 会让 Android 10
+     *   走到一个不存在的方法上，抛 `NoSuchMethodError: android.graphics.Outline.setPath`。
+     * - API 30 之前只有 [Outline.setConvexPath]，它在 R 之前会真的校验凸性，而
+     *   `Path.isConvex()` 在老 Skia 上对 [addCardPath] 生成的圆角矩形误判为凹（见 [addCardPath]），
+     *   于是抛 `IllegalArgumentException: path must be convex`。
+     *
+     * 所以 API < 30 一律退化成圆角矩形：半径相等时形状完全一致，不等时四角同半径
+     * （见 [legacyUniformRadius]）。任何一档都不会抛异常。
+     *
+     * @param width 卡片宽度（px），必须 > 0
+     * @param height 卡片高度（px），必须 > 0
+     */
+    fun applyCardOutline(
+        outline: Outline,
+        width: Int,
+        height: Int,
+        topRadius: Float,
+        bottomRadius: Float,
+        path: Path
+    ) {
+        if (usesPathOutline(Build.VERSION.SDK_INT)) {
+            outline.setPath(path)
+        } else {
+            val radius = clampRadius(
+                legacyUniformRadius(topRadius, bottomRadius), width.toFloat(), height.toFloat()
+            )
+            outline.setRoundRect(0, 0, width, height, radius)
+        }
+    }
+
+    /**
+     * 该 API 级别能否用 [Outline.setPath] 表达任意（上下不同圆角）的裁剪形状。
+     *
+     * 门槛是 **API 30 (R)**：Outline.setPath 从 R 才有，写成 `>= Q` 会让 Android 10 抛
+     * `NoSuchMethodError`。R 之前的 Outline.setConvexPath 也不能当兜底——它在 Q 之前会
+     * 校验凸性，把 [addCardPath] 生成的圆角矩形误判成凹的（见 [addCardPath] 的说明）。
+     *
+     * 抽成纯函数是为了让 ContinuousCornerGeometryTest 能在 JVM 上钉住 28/29/30 三档，
+     * `Build.VERSION.SDK_INT` 本身在单测里不可注入。
+     */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.R)
+    fun usesPathOutline(sdkInt: Int): Boolean = sdkInt >= Build.VERSION_CODES.R
 
     /**
      * 编码区胶囊：主体左缘位于 `bounds.left + bodyOffset`，右缘位于
@@ -228,17 +297,20 @@ class CardOutlineProvider(
     private val bounds = RectF()
 
     override fun getOutline(view: View, outline: Outline) {
-        if (view.width <= 0 || view.height <= 0) return
-        bounds.set(0f, 0f, view.width.toFloat(), view.height.toFloat())
-        ContinuousCornerGeometry.addCardPath(
-            path, bounds, topRadiusProvider(), bottomRadiusProvider()
-        )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            @Suppress("NewApi")
-            outline.setPath(path)
-        } else {
-            @Suppress("DEPRECATION")
-            outline.setConvexPath(path)
+        val width = view.width
+        val height = view.height
+        if (width <= 0 || height <= 0) {
+            // 尺寸归零时 Outline 必须被显式重置：getOutline 拿到的是复用的 Outline，
+            // 什么都不设会让 clipToOutline 的宿主沿用上一帧的形状。
+            outline.setEmpty()
+            return
         }
+        val topRadius = topRadiusProvider()
+        val bottomRadius = bottomRadiusProvider()
+        bounds.set(0f, 0f, width.toFloat(), height.toFloat())
+        ContinuousCornerGeometry.addCardPath(path, bounds, topRadius, bottomRadius)
+        ContinuousCornerGeometry.applyCardOutline(
+            outline, width, height, topRadius, bottomRadius, path
+        )
     }
 }

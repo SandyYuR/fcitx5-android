@@ -138,10 +138,13 @@ end
     private fun writeReloadFixture(directory: File, label: String, option: String) {
         val original = instrumentation.context.assets.open("smoke/direct_smoke.schema.yaml")
             .bufferedReader().use { it.readText() }
-        File(directory, "direct_smoke.schema.yaml").writeText(original
+        val schema = File(directory, "direct_smoke.schema.yaml")
+        val previousTime = schema.lastModified()
+        schema.writeText(original
             .replace("name: 直连测试", "name: $label")
             .replace("engine:\n", "  - name: reload_$option\n    states: [关闭, 开启]\nengine:\n")
             .replace("  translators: [table_translator]", "  translators: [table_translator]\n  filters: [lua_filter@*redeploy_probe]"))
+        if (previousTime > 0) check(schema.setLastModified(previousTime)) // Force redeploy even with preserved mtimes.
         File(directory, "lua").mkdirs()
         File(directory, "lua/redeploy_probe.lua").writeText("""
 local label = "$label"
@@ -177,7 +180,9 @@ end
             File(directory, "third.schema.yaml").writeText(File(directory, "second.schema.yaml").readText()
                 .replace("schema_id: second", "schema_id: third").replace("name: 第二方案", "name: 新增方案"))
             val default = File(directory, "default.yaml")
+            val previousTime = default.lastModified()
             default.writeText(default.readText().replace("- schema: second", "- schema: third"))
+            check(default.setLastModified(previousTime))
             connection.runOnReady {
                 val previousGeneration = inputSession
                 if (settingsEntry) setAddonSubConfig("rime", "deploy", RawConfig())
@@ -609,6 +614,10 @@ end
                         host.window.decorView.viewTreeObserver.removeOnWindowFocusChangeListener(listener)
                     }
                 }
+            }
+            shell("input keyevent KEYCODE_BACK")
+            await("Back must hide the keyboard normally when no menu is open") {
+                inputView()?.service?.isInputViewShown != true
             }
         } finally {
             activity?.let { instrumentation.runOnMainSync { it.finish() } }

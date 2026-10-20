@@ -4,7 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.icon
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
@@ -26,12 +27,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
@@ -54,9 +54,9 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
 import org.fcitx.fcitx5.android.ui.common.withProgressLoadingDialog
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrScanOptions
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 
-class IconThemeListActivity : AppCompatActivity() {
+class IconThemeListActivity : SettingsUiActivity() {
     private companion object {
         private const val MENU_IMPORT_JSON = 2
         private const val MENU_IMPORT_QR_IMAGE = 3
@@ -114,7 +114,6 @@ class IconThemeListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         IconThemeManager.addOnListChangeListener(onListChangeListener)
         IconThemeManager.addOnChangedListener(onThemeChangeListener)
         ThemeManager.addOnChangedListener(onKeyboardThemeChangeListener)
@@ -126,7 +125,7 @@ class IconThemeListActivity : AppCompatActivity() {
 
         val toolbar = Toolbar(this).apply {
             title = getString(R.string.icon_theme)
-            setBackgroundColor(styledColor(android.R.attr.colorPrimary))
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
         }
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -140,11 +139,6 @@ class IconThemeListActivity : AppCompatActivity() {
 
         setContentView(root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            toolbar.updatePadding(top = statusTop)
-            insets
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -377,7 +371,7 @@ class IconThemeListActivity : AppCompatActivity() {
             getString(R.string.new_icon_theme),
             getString(R.string.icon_theme_duplicate)
         )
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.icon_theme_new))
             .setItems(actions) { _, which ->
                 when (which) {
@@ -395,7 +389,7 @@ class IconThemeListActivity : AppCompatActivity() {
             return
         }
         val names = customThemes.map { it.name }.toTypedArray()
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.icon_theme_duplicate))
             .setItems(names) { _, which ->
                 val source = customThemes[which]
@@ -418,7 +412,7 @@ class IconThemeListActivity : AppCompatActivity() {
             return
         }
         val names = customThemes.map { it.name }.toTypedArray()
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.icon_theme_share_title))
             .setItems(names) { _, which ->
                 val theme = customThemes[which]
@@ -567,13 +561,13 @@ class ThemeThumbnailUi(private val context: android.content.Context, private val
         setTypeface(null, Typeface.BOLD)
         maxLines = 2
         setPadding(context.dp(4), context.dp(4), context.dp(4), 0)
-        setTextColor(styledColor(android.R.attr.textColorPrimary))
+        setTextColor(settingsColor(android.R.attr.textColorPrimary))
     }
 
     private val activeIndicator = TextView(context).apply {
         textSize = 10f
         gravity = Gravity.CENTER
-        setTextColor(styledColor(android.R.attr.textColorSecondary))
+        setTextColor(settingsColor(android.R.attr.textColorSecondary))
     }
 
     private val editButton = ImageView(context).apply {
@@ -581,7 +575,7 @@ class ThemeThumbnailUi(private val context: android.content.Context, private val
         setPadding(context.dp(10), context.dp(10), context.dp(6), context.dp(6))
         scaleType = ImageView.ScaleType.FIT_CENTER
         setImageResource(R.drawable.ic_baseline_edit_24)
-        imageTintList = ColorStateList.valueOf(context.styledColor(android.R.attr.textColorSecondary))
+        imageTintList = ColorStateList.valueOf(context.settingsColor(android.R.attr.textColorSecondary))
         contentDescription = activity.getString(R.string.edit_icon_theme)
     }
 
@@ -602,7 +596,7 @@ class ThemeThumbnailUi(private val context: android.content.Context, private val
     }
 
     private fun applySelectionBackground(isActive: Boolean) {
-        val accent = context.styledColor(android.R.attr.colorAccent)
+        val accent = context.settingsColor(android.R.attr.colorAccent)
         val background = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = context.dp(12f)
@@ -618,7 +612,7 @@ class ThemeThumbnailUi(private val context: android.content.Context, private val
     }
 
     fun bindNew() {
-        val accent = context.styledColor(android.R.attr.colorAccent)
+        val accent = context.settingsColor(android.R.attr.colorAccent)
         previewIcon.setImageResource(android.R.drawable.ic_input_add)
         previewIcon.imageTintList = android.content.res.ColorStateList.valueOf(accent)
         nameText.text = activity.getString(R.string.icon_theme_new)
@@ -629,8 +623,8 @@ class ThemeThumbnailUi(private val context: android.content.Context, private val
     }
 
     fun bind(theme: IconTheme, isActive: Boolean, isDefault: Boolean) {
-        val accent = context.styledColor(android.R.attr.colorAccent)
-        val primary = context.styledColor(android.R.attr.textColorPrimary)
+        val accent = context.settingsColor(android.R.attr.colorAccent)
+        val primary = context.settingsColor(android.R.attr.textColorPrimary)
         val thumbnailSvg = theme.thumbnailSvg
             ?.takeIf { it.isNotBlank() }
             ?: IconThemeManager.buildThemeThumbnailSvg(theme.icons)

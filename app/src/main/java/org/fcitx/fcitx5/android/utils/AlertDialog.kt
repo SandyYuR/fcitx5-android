@@ -22,3 +22,13 @@ fun AlertDialog.onPositiveButtonClick(l: AlertDialog.() -> Boolean?): AlertDialo
     }
     return this
 }
+
+/** Material settings dialogs keep the same validate-before-dismiss behavior. */
+fun androidx.appcompat.app.AlertDialog.onPositiveButtonClick(
+    listener: androidx.appcompat.app.AlertDialog.() -> Boolean?
+): androidx.appcompat.app.AlertDialog {
+    getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+        if (listener.invoke(this) == true) dismiss()
+    }
+    return this
+}

@@ -121,6 +121,17 @@ object SettingsSearchIndex {
      * 登记了只会让界面莫名跳动。键名必须与 `AppPrefs`/`ThemePrefs` 完全一致。
      */
     private val PREFERENCE_KEYS: Map<Int, String> = mapOf(
+        R.string.settings_ui_mode_title to "settings_ui_mode",
+        R.string.settings_ui_pure_black to "settings_ui_pure_black",
+        R.string.settings_ui_follow_keyboard to "settings_ui_follow_keyboard_theme",
+        R.string.settings_ui_dynamic_colors to "settings_ui_dynamic_colors",
+        R.string.settings_ui_palette_title to "settings_ui_palette",
+        R.string.settings_ui_recipe_title to "settings_ui_recipe",
+        R.string.settings_ui_contrast_title to "settings_ui_contrast",
+        R.string.settings_ui_motion_enter to "settings_ui_motion_enter",
+        R.string.settings_ui_motion_return to "settings_ui_motion_return",
+        R.string.settings_ui_motion_duration to "settings_ui_motion_duration",
+        R.string.settings_ui_motion_predictive to "settings_ui_motion_predictive",
         /* 键盘 · 布局与尺寸 */
         R.string.keyboard_height to "keyboard_height_percent",
         R.string.keyboard_side_padding to "keyboard_side_padding",
@@ -327,6 +338,75 @@ object SettingsSearchIndex {
             R.string.theme, P_ANDROID,
             listOf("theme", "zhuti", "配色", "夜间", "dark", "亮色", "暗色"),
             route = SettingsRoute.Theme
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_appearance, P_APPEARANCE,
+            listOf("settings theme", "界面主题", "设置主题", "monet", "动态色", "md3", "material 3"),
+            route = SettingsRoute.SettingsUiAppearance
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_mode_title, P_APPEARANCE + R.string.settings_ui_appearance,
+            listOf("dark mode", "light mode", "夜间", "深色", "浅色"),
+            route = SettingsRoute.SettingsUiAppearance
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_pure_black, P_APPEARANCE + R.string.settings_ui_appearance,
+            listOf("amoled", "oled", "black", "黑色"),
+            route = SettingsRoute.SettingsUiAppearance
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_follow_keyboard, P_APPEARANCE + R.string.settings_ui_appearance,
+            listOf("keyboard theme colors", "键盘取色", "跟随主题", "和谐配色"),
+            route = SettingsRoute.SettingsUiAppearance
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_dynamic_colors, P_APPEARANCE + R.string.settings_ui_appearance,
+            listOf("monet", "dynamic color", "壁纸配色"),
+            route = SettingsRoute.SettingsUiAppearance
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_palette_title, P_APPEARANCE + R.string.settings_ui_appearance,
+            listOf("palette", "accent", "手动配色", "色系"),
+            route = SettingsRoute.SettingsUiAppearance
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_recipe_title, P_APPEARANCE + R.string.settings_ui_appearance,
+            listOf("palette style", "cmf", "tonal", "色彩风格"),
+            route = SettingsRoute.SettingsUiAppearance
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_contrast_title, P_APPEARANCE + R.string.settings_ui_appearance,
+            listOf("contrast", "可读性"),
+            route = SettingsRoute.SettingsUiAppearance
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_motion_title, P_APPEARANCE + R.string.settings_ui_appearance,
+            listOf("animation", "motion", "gesture", "predictive back", "动画", "手势", "预测性返回"),
+            route = SettingsRoute.SettingsUiMotion
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_motion_enter,
+            P_APPEARANCE + listOf(R.string.settings_ui_appearance, R.string.settings_ui_motion_title),
+            listOf("enter animation", "页面切换", "滑入"),
+            route = SettingsRoute.SettingsUiMotion
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_motion_return,
+            P_APPEARANCE + listOf(R.string.settings_ui_appearance, R.string.settings_ui_motion_title),
+            listOf("return animation", "back animation", "滑出"),
+            route = SettingsRoute.SettingsUiMotion
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_motion_duration,
+            P_APPEARANCE + listOf(R.string.settings_ui_appearance, R.string.settings_ui_motion_title),
+            listOf("animation duration", "动画时长", "快慢"),
+            route = SettingsRoute.SettingsUiMotion
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_motion_predictive,
+            P_APPEARANCE + listOf(R.string.settings_ui_appearance, R.string.settings_ui_motion_title),
+            listOf("predictive back", "gesture", "返回手势"),
+            route = SettingsRoute.SettingsUiMotion
         ),
         SettingsSearchEntry(
             R.string.icon_theme, P_ANDROID,

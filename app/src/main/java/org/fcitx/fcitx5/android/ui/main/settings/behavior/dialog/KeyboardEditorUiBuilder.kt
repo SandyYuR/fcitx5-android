@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 
 /**
  * UI builder for keyboard editor, responsible for building UI components
@@ -142,7 +142,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         val typeLabel = TextView(activity).apply {
             text = activity.getString(R.string.text_keyboard_layout_key_type)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(activity.styledColor(android.R.attr.textColorSecondary))
+            setTextColor(activity.settingsColor(android.R.attr.textColorSecondary))
             layoutParams = LinearLayout.LayoutParams(activity.dp(96), LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 rightMargin = activity.dp(8)
             }
@@ -212,7 +212,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         val labelView = TextView(activity).apply {
             text = label
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(activity.styledColor(android.R.attr.textColorSecondary))
+            setTextColor(activity.settingsColor(android.R.attr.textColorSecondary))
             layoutParams = LinearLayout.LayoutParams(activity.dp(96), LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 rightMargin = activity.dp(8)
             }
@@ -242,7 +242,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         return TextView(activity).apply {
             this.text = text
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(activity.styledColor(android.R.attr.textColorSecondary))
+            setTextColor(activity.settingsColor(android.R.attr.textColorSecondary))
             setPadding(0, activity.dp(2), 0, activity.dp(6))
         }
     }
@@ -282,7 +282,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         val labelView = TextView(activity).apply {
             text = activity.getString(R.string.text_keyboard_layout_switch_target)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(activity.styledColor(android.R.attr.textColorSecondary))
+            setTextColor(activity.settingsColor(android.R.attr.textColorSecondary))
             layoutParams = LinearLayout.LayoutParams(activity.dp(96), LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 rightMargin = activity.dp(8)
             }
@@ -341,7 +341,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         val labelView = TextView(activity).apply {
             text = activity.getString(R.string.text_keyboard_layout_numpad_symbol)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(activity.styledColor(android.R.attr.textColorSecondary))
+            setTextColor(activity.settingsColor(android.R.attr.textColorSecondary))
             layoutParams = LinearLayout.LayoutParams(activity.dp(96), LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 rightMargin = activity.dp(8)
             }
@@ -437,8 +437,8 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
                     minWidth = activity.dp(120)
                     setPadding(activity.dp(12), activity.dp(8), activity.dp(12), activity.dp(8))
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(activity.styledColor(android.R.attr.colorButtonNormal))
-                        setStroke(activity.dp(1), activity.styledColor(android.R.attr.colorControlNormal))
+                        setColor(activity.settingsColor(android.R.attr.colorButtonNormal))
+                        setStroke(activity.dp(1), activity.settingsColor(android.R.attr.colorControlNormal))
                         cornerRadius = activity.dp(4).toFloat()
                     }
                     layoutParams = LinearLayout.LayoutParams(
@@ -475,7 +475,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         val mapLabel = TextView(activity).apply {
             text = activity.getString(R.string.text_keyboard_layout_key_display_text)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(activity.styledColor(android.R.attr.textColorSecondary))
+            setTextColor(activity.settingsColor(android.R.attr.textColorSecondary))
             setPadding(0, activity.dp(8), 0, activity.dp(8))
         }
         displayTextContainer.addView(mapLabel)
@@ -519,8 +519,8 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             minWidth = activity.dp(120)
             setPadding(activity.dp(12), activity.dp(8), activity.dp(12), activity.dp(8))
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(activity.styledColor(android.R.attr.colorButtonNormal))
-                setStroke(activity.dp(1), activity.styledColor(android.R.attr.colorControlNormal))
+                setColor(activity.settingsColor(android.R.attr.colorButtonNormal))
+                setStroke(activity.dp(1), activity.settingsColor(android.R.attr.colorControlNormal))
                 cornerRadius = activity.dp(4).toFloat()
             }
             layoutParams = LinearLayout.LayoutParams(

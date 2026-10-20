@@ -5,7 +5,8 @@
 
 最后审阅在原三个交付提交之后追加一项依赖清理与核验提交；
 10 月 20 日另加[密码框方案菜单修复](DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md)，
-随后完成[部署重载与发行标识调整](DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md)，PR 共六项提交。
+随后完成[部署重载与发行标识调整](DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md)，共六项功能交付提交；
+另在功能分支同步默认分支 `69fa5a9b`，保留其 MD3 设置与低版本主题修复并解决冲突。
 最新打包库、无调用方依赖、组件清理及验证见[最终依赖审阅](DIRECT_RIME_FINAL_REVIEW_2026-10-19.md)；
 下面的 1c/6378/205d 来源关系保留整理时点的事实，交付选择 PR 当前提交重新产生的签名 Release。
 

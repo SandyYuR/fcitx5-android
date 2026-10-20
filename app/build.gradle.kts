@@ -156,6 +156,8 @@ dependencies {
     implementation(libs.androidx.tracing.ktx)
     implementation(libs.androidx.viewpager2)
     implementation(libs.material)
+    // Fragment 1.7+ is required for seekable predictive-back fragment animators.
+    implementation(libs.androidx.fragment)
     implementation(libs.arrow.core)
     implementation(libs.arrow.functions)
     implementation(libs.imagecropper)

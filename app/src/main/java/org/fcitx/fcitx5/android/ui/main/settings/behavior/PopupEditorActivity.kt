@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
@@ -17,11 +19,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
@@ -39,7 +40,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrScanOptions
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
@@ -47,12 +48,12 @@ import splitties.views.dsl.core.wrapContent
 import kotlinx.serialization.json.*
 import java.io.File
 
-class PopupEditorActivity : AppCompatActivity() {
+class PopupEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
     }
 
@@ -64,13 +65,9 @@ class PopupEditorActivity : AppCompatActivity() {
     }
 
     private val addRowButton by lazy {
-        TextView(this).apply {
+        com.google.android.material.button.MaterialButton(this).apply {
             text = getString(R.string.popup_editor_add_mapping)
-            textSize = 16f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(styledColor(android.R.attr.textColorPrimary))
-            setPadding(dp(8), dp(8), dp(8), dp(8))
-            setBackgroundColor(styledColor(android.R.attr.colorButtonNormal))
+            setIconResource(R.drawable.ic_baseline_plus_24)
         }
     }
 
@@ -78,7 +75,7 @@ class PopupEditorActivity : AppCompatActivity() {
         TextView(this).apply {
             text = getString(R.string.popup_editor_hint)
             textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(0, 0, 0, dp(12))
         }
     }
@@ -90,7 +87,7 @@ class PopupEditorActivity : AppCompatActivity() {
             setPadding(pad, pad, pad, pad)
             addView(addRowButton)
             addView(usageHint)
-            addView(recyclerView)
+            addView(recyclerView, LinearLayout.LayoutParams(matchParent, 0, 1f))
         }
     }
 
@@ -138,19 +135,11 @@ class PopupEditorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(ui)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle(R.string.edit_popup_preset)
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         loadState()
         setupRecyclerView()
@@ -271,7 +260,7 @@ class PopupEditorActivity : AppCompatActivity() {
         val keyLabel = TextView(this).apply {
             text = getString(R.string.popup_editor_key)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
 
         var currentKeyValue = currentKey
@@ -282,17 +271,18 @@ class PopupEditorActivity : AppCompatActivity() {
             setPadding(dp(12), dp(8), dp(12), dp(8))
             gravity = android.view.Gravity.CENTER
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(styledColor(android.R.attr.colorPrimary))
-                setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
-                cornerRadius = dp(4).toFloat()
+                setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
+                setStroke(dp(1), settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
+                cornerRadius = dp(12).toFloat()
             }
+            setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
             setOnClickListener {
                 val edit = EditText(this@PopupEditorActivity).apply {
                     setText(currentKeyValue)
                     setSelection(text.length)
                     hint = getString(R.string.popup_editor_key_input_hint)
                 }
-                AlertDialog.Builder(this@PopupEditorActivity)
+                MaterialAlertDialogBuilder(this@PopupEditorActivity)
                     .setTitle(R.string.popup_editor_key)
                     .setView(edit)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -314,7 +304,7 @@ class PopupEditorActivity : AppCompatActivity() {
             text = "${getString(R.string.popup_editor_values)} (${getString(R.string.popup_editor_hint_click_edit_long_press_delete)})"
             textSize = 13f
             setPadding(0, dp(10), 0, 0)
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
         container.addView(valueLabel)
 
@@ -336,9 +326,9 @@ class PopupEditorActivity : AppCompatActivity() {
                     setPadding(dp(10), dp(5), dp(10), dp(5))
                     gravity = android.view.Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(styledColor(android.R.attr.colorButtonNormal))
-                        setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
-                        cornerRadius = dp(4).toFloat()
+                        setColor(settingsColor(android.R.attr.colorButtonNormal))
+                        setStroke(dp(1), settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
+                        cornerRadius = dp(12).toFloat()
                     }
                     // 设置固定高度确保所有候选词高度一致
                     // dp(40) 能容纳大多数特殊字符（阿拉伯文、梵文等），gravity=CENTER 确保文字垂直居中
@@ -355,7 +345,7 @@ class PopupEditorActivity : AppCompatActivity() {
                             setText(value)
                             setSelection(text.length)
                         }.let { edit ->
-                            AlertDialog.Builder(this@PopupEditorActivity)
+                            MaterialAlertDialogBuilder(this@PopupEditorActivity)
                                 .setTitle(R.string.edit)
                                 .setView(edit)
                                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -370,7 +360,7 @@ class PopupEditorActivity : AppCompatActivity() {
                         }
                     }
                     setOnLongClickListener {
-                        AlertDialog.Builder(this@PopupEditorActivity)
+                        MaterialAlertDialogBuilder(this@PopupEditorActivity)
                             .setTitle(R.string.delete)
                             .setMessage(getString(R.string.popup_editor_delete_candidate_confirm, value))
                             .setPositiveButton(R.string.delete) { _, _ ->
@@ -396,10 +386,11 @@ class PopupEditorActivity : AppCompatActivity() {
                 setPadding(dp(10), dp(5), dp(10), dp(5))  // 与候选词相同的 padding
                 gravity = android.view.Gravity.CENTER
                 background = android.graphics.drawable.GradientDrawable().apply {
-                    setColor(styledColor(android.R.attr.colorPrimary))
-                    setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
-                    cornerRadius = dp(4).toFloat()
+                    setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
+                    setStroke(dp(1), settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
+                    cornerRadius = dp(12).toFloat()
                 }
+                setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                 // 设置固定高度与候选词一致（dp(40) 能容纳特殊字符）
                 layoutParams = ViewGroup.MarginLayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -411,7 +402,7 @@ class PopupEditorActivity : AppCompatActivity() {
                     EditText(this@PopupEditorActivity).apply {
                         hint = getString(R.string.popup_editor_candidate_input_hint)
                     }.let { edit ->
-                        AlertDialog.Builder(this@PopupEditorActivity)
+                        MaterialAlertDialogBuilder(this@PopupEditorActivity)
                             .setTitle(R.string.popup_editor_add_candidate)
                             .setView(edit)
                             .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -467,7 +458,7 @@ class PopupEditorActivity : AppCompatActivity() {
             }
         }
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(if (originalKey == null) R.string.add else R.string.edit)
             .setView(container)
             .setPositiveButton(android.R.string.ok, null)
@@ -524,7 +515,7 @@ class PopupEditorActivity : AppCompatActivity() {
 
     private fun confirmDelete(key: String) {
         val position = entries.keys.indexOf(key)
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete)
             .setMessage(getString(R.string.popup_editor_delete_confirm, key))
             .setPositiveButton(R.string.delete) { _, _ ->
@@ -683,7 +674,7 @@ class PopupEditorActivity : AppCompatActivity() {
             }
             parsed
         }.onSuccess { parsed ->
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.text_keyboard_layout_qr_import_confirm_title)
                 .setMessage(getString(R.string.text_keyboard_layout_qr_import_confirm_message, parsed.size))
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -740,24 +731,20 @@ class PopupEditorActivity : AppCompatActivity() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val container = LinearLayout(this@PopupEditorActivity).apply {
                 orientation = LinearLayout.VERTICAL
+                layoutParams = RecyclerView.LayoutParams(matchParent, wrapContent).apply {
+                    bottomMargin = dp(8)
+                }
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(settingsColor(com.google.android.material.R.attr.colorSurfaceBright))
+                    cornerRadius = dp(16).toFloat()
+                }
+                clipToOutline = true
             }
             val rowLayout = LinearLayout(this@PopupEditorActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
-                setPadding(0, dp(8), 0, dp(8))
+                setPadding(dp(12), dp(8), dp(8), dp(8))
             }
             container.addView(rowLayout)
-            // 分隔线
-            val divider = View(this@PopupEditorActivity).apply {
-                setBackgroundColor(
-                    runCatching { styledColor(android.R.attr.colorControlNormal) }
-                        .getOrDefault(0x33000000)
-                )
-                alpha = 0.35f
-            }
-            container.addView(divider, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(1)
-            ))
             return ViewHolder(container, rowLayout)
         }
 
@@ -785,10 +772,11 @@ class PopupEditorActivity : AppCompatActivity() {
                     setPadding(dp(10), dp(5), dp(10), dp(5))
                     gravity = android.view.Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(styledColor(android.R.attr.colorPrimary))
-                        setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
-                        cornerRadius = dp(4).toFloat()
+                        setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
+                        setStroke(dp(1), settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
+                        cornerRadius = dp(12).toFloat()
                     }
+                    setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                 }
 
                 candidatesFlow = FlowLayout(rowLayout.context).apply {
@@ -833,9 +821,9 @@ class PopupEditorActivity : AppCompatActivity() {
                         setPadding(dp(10), dp(5), dp(10), dp(5))
                         gravity = android.view.Gravity.CENTER
                         background = android.graphics.drawable.GradientDrawable().apply {
-                            setColor(styledColor(android.R.attr.colorButtonNormal))
-                            setStroke(dp(1), styledColor(android.R.attr.colorControlNormal))
-                            cornerRadius = dp(4).toFloat()
+                            setColor(settingsColor(android.R.attr.colorButtonNormal))
+                            setStroke(dp(1), settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
+                            cornerRadius = dp(12).toFloat()
                         }
                         // 设置固定高度确保所有候选词高度一致（dp(40) 能容纳特殊字符）
                         layoutParams = ViewGroup.MarginLayoutParams(
