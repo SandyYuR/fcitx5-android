@@ -4,6 +4,8 @@
 >
 > 原始设计见[2026-10-18 规划](/maintainer/SETTINGS_MD3_PLAN_2026-10-18)；当前操作入口以[设置界面外观与动画](/features/theme/settings-appearance)和[用户指南](/manual/RIME_ONLY_USER_GUIDE_zh-CN)为准。
 
+> **代码已合并**：2026-10-20 19:45 UTC（北京时间 2026-10-21 03:45），PR #5 经 Squash 合入默认分支 `fx-rime-only`，合并提交为 `69fa5a9b8cff32c855373b1fc496a605c0ef753d`。下文保留合并准备快照；最终核对与合并结果见第 6 节。
+
 ## 1. 代码与分支
 
 | 项目 | 本次记录 |
@@ -83,7 +85,7 @@
 - 2026-10-20 用户安装后反馈「感觉可以了」，并要求整理 PR 和文档准备合并。这是本次体验反馈，不能扩展为完整设备／系统版本矩阵已通过。
 - Android 36 AOSP ATD 没有 KVM 和 SystemUI；转场只取得少量稀疏采样，不能当作连续动画、真实帧率或物理系统返回手势验收。
 - 同步默认分支后的 `c6b54aa2` 的 [PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39435500494)与[签名 Release 构建](https://github.com/SandyYuR/fcitx5-android/actions/runs/39435492158)通过，arm64 签名包为 11,825,083 字节。
-- 新增键盘取色后的 `b741ffa6` 四 ABI Debug 构建、[PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39440135516)和[签名 Release 构建](https://github.com/SandyYuR/fcitx5-android/actions/runs/39440183364)均通过，CI 包含仓库已有的单测；本轮没有另加或运行本地测试套件。
+- 新增键盘取色后的 `b741ffa6` 四 ABI Debug 构建、[PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39440135516)和[签名 Release 构建](https://github.com/SandyYuR/fcitx5-android/actions/runs/39440183364)均通过，CI 包含仓库已有的单测；该合并准备阶段未另加或运行本地测试套件。用户后续要求最终检查时的重跑结果见第 6 节。
 - 已查看键盘 MaterialLight 取色下的实际设置外观页和预览：强调色、容器色和固定角色均生效。设置 Activity 与应用上下文使用不同的 Resources，应用上下文中的对应颜色资源保持原值。
 - 已查看深色模式中 MaterialLight → DeepBlue 的切换，设置页与预览同步更新；点击关闭键盘取色并「应用」后，原手动莓果选择保留，设置页恢复对应颜色。截图工具仅位于临时目录，不加入项目或安装包。
 - 配套文档 `npm --prefix docs run build` 通过，锁定依赖文件未改变；文档 PR 为 [#6](https://github.com/SandyYuR/fcitx5-android/pull/6)，目标分支 `docs`。代码与文档均按用户此前要求保留中文草案状态。
@@ -94,3 +96,11 @@
 2. 文档 PR 的目标是 `docs`，用户指南、功能页、规划状态、交接报告与站点导航一起合并；文档构建命令为 `npm --prefix docs run build`。
 3. 原规划保留为历史设计；实际分组位置、独立动画入口、速度档位和首次引导等，以本记录及用户手册为准。
 4. 合并后按实际生成的合并 SHA / Nightly 更新发布记录；不把本分支提交或旧测试包预先称作默认分支发布版。
+
+## 6. 最终核对与代码合并
+
+- 用户要求「最后检查一遍，合并入默认分支」后，重新检查颜色资源加载顺序、主题监听与恢复、编辑器颜色查询、页面转场及首次引导，未发现阻塞合并的新问题。
+- 最终本地 `:app:testFxDebugUnitTest :app:assembleFxDebug` 通过：**479 项单测，0 失败、0 错误、0 跳过**，四 ABI Debug 构建成功。文档 `npm --prefix docs run build` 再次通过。
+- 代码 PR #5 已解除草案并采用 Squash 合并，默认分支提交为 `69fa5a9b8cff32c855373b1fc496a605c0ef753d`；其文件树与合并前核对的 `b741ffa6` 完全一致。合并前最新 PR CI 与签名 Release CI 均通过。
+- 默认分支 [Commit CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39486196495)已由合并自动触发；结果与 Nightly 产物以该次工作流为准。
+- 配套文档由 [PR #6](https://github.com/SandyYuR/fcitx5-android/pull/6)交付至 `docs` 分支，其当前合并与发布状态以 PR 和 Docs 工作流为准。此前「保留草案」描述记录的是合并准备阶段。

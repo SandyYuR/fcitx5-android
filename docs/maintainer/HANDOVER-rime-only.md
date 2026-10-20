@@ -1,6 +1,6 @@
 # 交接报告 — fx-rime-only（靓企鹅·中州韵，rime 专版）
 
-> **2026-10-20 MD3 合并准备**：设置页与首次引导已完成主线改造，用户安装后反馈可以，代码 [PR #5](https://github.com/SandyYuR/fcitx5-android/pull/5) 的合并状态以 GitHub 为准。已将默认分支 `53038c22` 的旧 Android 主题崩溃修复同步至 PR；当前交付与验证范围见[实施记录](/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20)及下文 0.6.26 节。
+> **MD3 已合入默认分支**：2026-10-20 19:45 UTC（北京时间 2026-10-21 03:45），代码 [PR #5](https://github.com/SandyYuR/fcitx5-android/pull/5) 经 Squash 合入 `fx-rime-only`，提交为 `69fa5a9b`，包含旧 Android 主题崩溃修复与设置页键盘主题取色。最终本地重跑 479 项单测、四 ABI Debug 及文档构建通过；完整记录见[实施记录第 6 节](/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20#_6-最终核对与代码合并)及下文 0.6.26 节。配套文档 [PR #6](https://github.com/SandyYuR/fcitx5-android/pull/6) 的合并与发布状态以 GitHub 为准。
 
 > **【2026-10-05 迁移注记】** 本文档已随全部维护者文档从 `rime-docs` 分支迁入文档站 **`docs` 分支**（VitePress 站点源码，本文件位于 `docs/maintainer/`）；`rime-docs` 分支已删除。本文的 runbook、机制说明与历史记录仍然有效；文中出现的 SHA、提交计数、分支/工作区快照均为写作时点事实，一律以 git 实测为准。
 
@@ -1184,6 +1184,8 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 ### 0.6.26 MD3 设置页、主题与首次引导（2026-10-20，PR #5 合并准备）
 
 MD3 体验确认版本为 `f3e4e210`，合并准备 HEAD 为 `b741ffa6`，包含默认分支 `53038c22` 的修复，以及用户后续要求的设置页键盘主题取色开关。本条记录合并准备时的快照，当前合并状态以 PR #5 为准。完整变更与证据见[实施记录](/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20)。
+
+**合并落实**：用户要求最终检查并合入后，479 项单测全部通过，四 ABI Debug 与文档构建通过；代码已 Squash 合入 `fx-rime-only`，提交 `69fa5a9b`，文件树与交付 HEAD 一致。默认分支 [CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39486196495)由合并自动触发。
 
 - 保留 View / Fragment / Preference 架构、六入口和搜索，采用 MD3 主题与分段圆角设置行。每页拥有标题、菜单和内容，整页转场；首次引导复用 `SettingsUiActivity`。
 - 「外观」底部新增设置界面外观；明暗、Monet、手动配色、纯黑与预览草稿单独保存。新增「跟随键盘主题配色」开关（默认关闭，Android 11+）：当前键盘颜色生成 MD3 角色，开启期间保留原 Monet／手动选项，关闭后恢复；对比度与纯黑仍生效。外观需「应用」，动画立即保存；两个恢复默认入口分别作用于外观和动画。
