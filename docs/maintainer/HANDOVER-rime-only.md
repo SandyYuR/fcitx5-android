@@ -1,5 +1,7 @@
 # 交接报告 — fx-rime-only（靓企鹅·中州韵，rime 专版）
 
+> **2026-10-20 MD3 合并准备**：设置页与首次引导已完成主线改造，用户安装后反馈可以，代码 [PR #5](https://github.com/SandyYuR/fcitx5-android/pull/5) 的合并状态以 GitHub 为准。已将默认分支 `53038c22` 的旧 Android 主题崩溃修复同步至 PR；当前交付与验证范围见[实施记录](/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20)及下文 0.6.26 节。
+
 > **【2026-10-05 迁移注记】** 本文档已随全部维护者文档从 `rime-docs` 分支迁入文档站 **`docs` 分支**（VitePress 站点源码，本文件位于 `docs/maintainer/`）；`rime-docs` 分支已删除。本文的 runbook、机制说明与历史记录仍然有效；文中出现的 SHA、提交计数、分支/工作区快照均为写作时点事实，一律以 git 实测为准。
 
 > 本文写给接手的下一个代理。仓库 `SandyYuR/fcitx5-android`（fcitx5-android 的 fork）。
@@ -1179,6 +1181,18 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 ---
 
+### 0.6.26 MD3 设置页、主题与首次引导（2026-10-20，PR #5 合并准备）
+
+MD3 体验确认版本为 `f3e4e210`，合并准备 HEAD 为 `b741ffa6`，包含默认分支 `53038c22` 的修复，以及用户后续要求的设置页键盘主题取色开关。本条记录合并准备时的快照，当前合并状态以 PR #5 为准。完整变更与证据见[实施记录](/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20)。
+
+- 保留 View / Fragment / Preference 架构、六入口和搜索，采用 MD3 主题与分段圆角设置行。每页拥有标题、菜单和内容，整页转场；首次引导复用 `SettingsUiActivity`。
+- 「外观」底部新增设置界面外观；明暗、Monet、手动配色、纯黑与预览草稿单独保存。新增「跟随键盘主题配色」开关（默认关闭，Android 11+）：当前键盘颜色生成 MD3 角色，开启期间保留原 Monet／手动选项，关闭后恢复；对比度与纯黑仍生效。外观需「应用」，动画立即保存；两个恢复默认入口分别作用于外观和动画。
+- 动画用 Material / AndroidX Transition，显式约束 Fragment KTX 1.8.9。没有引入 Compose / Miuix 运行库。前进旧页完整滑出，返回维持前景整页退出及底层四分之一距离视差；180 / 300 / 450 ms 旧档位按档迁移到 350 / 500 / 650 ms。
+- 编辑器的颜色角色须通过可处理资源引用和 ColorStateList 的颜色解析逻辑取得；不要直接把 TypedValue.data 当成引用颜色，也不要强行解析旧主题缺失的角色。
+- 保留 222 套主题和 11,766 个颜色角色赋值，维护 `tools/settings-ui-palettes/` 生成器、清单与生成 XML。历史签名包体积只比较同架构、同流程，不能把早期 MD3 迭代称为改造前原始 APK。
+- 代码 PR 建议 Squash 合并；先合代码并确认默认分支构建，再合面向 `docs` 的文档 PR。分支准备期间不直接发布文档站，不创建正式 Release 或语义化 tag。
+- `f3e4e210` 构建和 CI 通过，引导实际明暗画面已查看；用户反馈不等于所有 Android／设备矩阵已验收。ATD 连续动画取样不足，不能宣称测得实机帧率或物理手势表现。
+
 ## 0.7 本地构建工具链与环境细节（2026-10-12 自 AGENTS.md 迁入）
 
 > 本节是 2026-10-12 `AGENTS.md` 按「agent 指南只留可执行要点」原则精简时**整体迁入**的操作细节。`AGENTS.md` 只保留每条的入口命令与禁令,完整环境变量、路径、原理与故障解法以本节为准。
@@ -1334,7 +1348,7 @@ Git/发布纪律的权威版本是本机 `D:\GitHub\fx2-rime\AGENTS.md` 第 11 �
 
 CI 事实（2026-09-15 实测 `ci.yml`，`a2db421a` 加单测 job 后；2026-10-08 新增 `pr.yml`）：
 - **`ci.yml`**（workflow 名 `Commit CI`）三个 job：`build_commit`（`ubuntu-22.04` × `arm64-v8a`）+ `unit_test`（独立 JVM 单测 job，失败不阻塞 Nightly）+ `nightly_release`（仅 `fx-rime-only`，见上）；
-- push 触发**所有分支**（`branches: '*'`，tags 忽略语义化版本号）；
+- push 匹配不含 `/` 的一级分支（`branches: '*'`，不是 `**`；tags 忽略语义化版本号）；`codex/...` 这类分支需手动 `workflow_dispatch` 才会触发 Commit CI，面向 `fx-rime-only` 的 PR CI 仍由 PR 事件触发；
 - 构建命令 `./gradlew :app:assembleFxRelease`，约 10 分钟；
 - 产物 artifact 名 `app-ubuntu-22.04-arm64-v8a`，路径 `app/build/outputs/apk/fx/release/*.apk`；
 - 纯 Markdown / `docs/**` 提交不触发 CI。
