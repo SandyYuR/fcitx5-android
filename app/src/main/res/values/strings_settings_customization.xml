@@ -23,6 +23,7 @@
     <string name="settings_ui_motion_predictive_no_animation">Choose a return animation to enable gesture previews</string>
     <string name="settings_ui_motion_info">The back animation is used for both the back button and gesture previews. Respects the system animation scale.</string>
     <string name="settings_ui_motion_reset_category">Defaults</string>
+    <string name="settings_ui_motion_reset">Restore default animations</string>
     <string name="settings_ui_pure_black">Pure black dark background</string>
     <string name="settings_ui_pure_black_summary">Use black page backgrounds in dark mode while retaining distinct cards</string>
     <string name="settings_ui_dynamic_colors">Dynamic colors</string>

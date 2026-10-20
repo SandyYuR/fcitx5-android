@@ -82,7 +82,7 @@ class SettingsUiMotionFragment : PaddingPreferenceFragment() {
         })
         category(R.string.settings_ui_motion_reset_category)
         preferenceScreen.addPreference(Preference(requireContext()).apply {
-            setTitle(R.string.settings_ui_restore_default)
+            setTitle(R.string.settings_ui_motion_reset)
             isIconSpaceReserved = false
             setOnPreferenceClickListener {
                 val recreate = !selection.predictiveBack

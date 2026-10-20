@@ -23,6 +23,7 @@
     <string name="settings_ui_motion_predictive_no_animation">選擇返回動畫後可啟用手勢預覽</string>
     <string name="settings_ui_motion_info">返回動畫同時用於返回鍵和手勢預覽，並遵循系統動畫縮放設定。</string>
     <string name="settings_ui_motion_reset_category">預設設定</string>
+    <string name="settings_ui_motion_reset">還原預設動畫</string>
     <string name="settings_ui_pure_black">純黑深色背景</string>
     <string name="settings_ui_pure_black_summary">深色模式下使用純黑頁面背景，卡片保留層次</string>
     <string name="settings_ui_dynamic_colors">動態取色</string>
