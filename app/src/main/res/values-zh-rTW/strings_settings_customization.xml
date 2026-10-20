@@ -30,4 +30,5 @@
     <string name="settings_ui_dynamic_colors_summary">跟隨系統桌布配色，關閉後恢復上次手動配色</string>
     <string name="settings_ui_preview_notice">先查看預覽，點擊右上角「套用」儲存</string>
     <string name="settings_ui_interaction">互動</string>
+    <string name="setup_step_counter">第 %1$d 步，共 %2$d 步</string>
 </resources>

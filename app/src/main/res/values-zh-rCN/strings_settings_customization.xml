@@ -30,4 +30,5 @@
     <string name="settings_ui_dynamic_colors_summary">跟随系统壁纸配色，关闭后恢复上次手动配色</string>
     <string name="settings_ui_preview_notice">先查看预览，点击右上角“应用”保存</string>
     <string name="settings_ui_interaction">交互</string>
+    <string name="setup_step_counter">第 %1$d 步，共 %2$d 步</string>
 </resources>

@@ -36,8 +36,8 @@ internal fun Fragment.applySettingsPageMotion(
                 is SlideDistanceProvider -> {
                     val extent = if (axis == MaterialSharedAxis.X) width else height
                     provider.slideDistance = (extent * if (covered) 0.25f else 1f).roundToInt()
-                    // Keep the sliding page opaque, with the covered page moving behind it.
-                    // Fade Through otherwise removes it near the start of the eased motion.
+                    // Keep pages opaque. Fragment's disappearing page may live in an overlay,
+                    // so a forward exit must leave the viewport before that overlay is removed.
                     secondaryAnimatorProvider = null
                 }
                 is ScaleProvider -> {
@@ -67,7 +67,7 @@ internal fun Fragment.applySettingsPageMotion(
     }
 
     enterTransition = transition(selection.enter, forward = true, covered = false)
-    exitTransition = transition(selection.enter, forward = true, covered = true)
+    exitTransition = transition(selection.enter, forward = true, covered = false)
     reenterTransition = transition(selection.returnStyle, forward = false, covered = true)
     returnTransition = transition(selection.returnStyle, forward = false, covered = false)
 }
