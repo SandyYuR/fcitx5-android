@@ -69,8 +69,12 @@
 | `0458aae4` | 12,941,492 | MD3 早期迭代、颜色资源优化前；不是改造前的原始 APK |
 | `918d48b3` | 11,807,324 | 放缓动画、整理外观入口与首页摘要 |
 | `f3e4e210` | 11,825,079 | 修复前进退出距离并加入 MD3 引导；比上一轮增加 17,755 字节 |
+| `c6b54aa2` | 11,825,083 | 同步默认分支修复并整理 README，键盘取色开关加入前 |
+| `b741ffa6` | 11,861,266 | 增加当前键盘主题取色；比上一行增加 36,183 字节，约 35.3 KiB |
 
-`f3e4e210` 包版本为 `0.1.3-724-gf3e4e210`，SHA-256 为 `f2275a690e0c8313b16d35ff5c6e4c0a6a736fba18642c38dcb9fa2cafa63741`；签名证书与上一轮一致。上述数值不代表整理后 HEAD 的包体积，不能拿旧包当成新提交产物。
+`f3e4e210` 历史包版本为 `0.1.3-724-gf3e4e210`，SHA-256 为 `f2275a690e0c8313b16d35ff5c6e4c0a6a736fba18642c38dcb9fa2cafa63741`。
+
+当前 `b741ffa6` 包版本为 `0.1.3-729-gb741ffa6`，versionCode 为 112，SHA-256 为 `83f482518978ec765a51c8a604933a625d317ef46bc8eecc7edd689de6b3d2bd`；签名证书与前述版本一致。资源表为 2,080,444 字节，222 套预设与 11,766 个原有角色赋值均保留。键盘取色复用现有依赖，新增体积来自实现与运行时颜色资源等保留内容；应按同架构、同构建流程比较实际产物。
 
 ## 4. 验证记录与边界
 
@@ -79,8 +83,10 @@
 - 2026-10-20 用户安装后反馈「感觉可以了」，并要求整理 PR 和文档准备合并。这是本次体验反馈，不能扩展为完整设备／系统版本矩阵已通过。
 - Android 36 AOSP ATD 没有 KVM 和 SystemUI；转场只取得少量稀疏采样，不能当作连续动画、真实帧率或物理系统返回手势验收。
 - 同步默认分支后的 `c6b54aa2` 的 [PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39435500494)与[签名 Release 构建](https://github.com/SandyYuR/fcitx5-android/actions/runs/39435492158)通过，arm64 签名包为 11,825,083 字节。
-- 新增键盘取色后的最新检查以 `b741ffa6` 的 [PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39440135516)和[签名 Release 构建](https://github.com/SandyYuR/fcitx5-android/actions/runs/39440183364)最终结果为准；四 ABI Debug 构建已通过，本轮没有另加或运行本地测试套件。
+- 新增键盘取色后的 `b741ffa6` 四 ABI Debug 构建、[PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39440135516)和[签名 Release 构建](https://github.com/SandyYuR/fcitx5-android/actions/runs/39440183364)均通过，CI 包含仓库已有的单测；本轮没有另加或运行本地测试套件。
 - 已查看键盘 MaterialLight 取色下的实际设置外观页和预览：强调色、容器色和固定角色均生效。设置 Activity 与应用上下文使用不同的 Resources，应用上下文中的对应颜色资源保持原值。
+- 已查看深色模式中 MaterialLight → DeepBlue 的切换，设置页与预览同步更新；点击关闭键盘取色并「应用」后，原手动莓果选择保留，设置页恢复对应颜色。截图工具仅位于临时目录，不加入项目或安装包。
+- 配套文档 `npm --prefix docs run build` 通过，锁定依赖文件未改变；文档 PR 为 [#6](https://github.com/SandyYuR/fcitx5-android/pull/6)，目标分支 `docs`。代码与文档均按用户此前要求保留中文草案状态。
 
 ## 5. 合并时核对
 
