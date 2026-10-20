@@ -81,7 +81,7 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
         preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
         preview = PreviewPreference(requireContext()).also { preferenceScreen.addPreference(it) }
 
-        category(R.string.settings_ui_mode_title)
+        category(R.string.settings_ui_display)
         mode = choice("settings_ui_mode", R.string.settings_ui_mode_title, listOf(
             SettingsUiPreferences.MODE_SYSTEM to R.string.settings_ui_mode_system,
             SettingsUiPreferences.MODE_LIGHT to R.string.settings_ui_mode_light,

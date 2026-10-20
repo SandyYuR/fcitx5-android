@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="settings_ui_display">显示</string>
     <string name="settings_ui_motion_title">动画与返回手势</string>
     <string name="settings_ui_motion_summary">页面切换、返回动画和手势预览</string>
     <string name="settings_ui_motion_pages">页面切换</string>

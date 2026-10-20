@@ -46,8 +46,9 @@ abstract class SettingsUiActivity : AppCompatActivity() {
         if (SettingsUiPreferences.usesSystemDynamicColors(this)) {
             DynamicColors.applyToActivityIfAvailable(this)
         }
-        SettingsUiPreferences.applySurfaceOptions(this)
         super.onCreate(savedInstanceState)
+        // AppCompat reapplies its base theme in onCreate; surface overrides must follow it.
+        SettingsUiPreferences.applySurfaceOptions(this)
         val bars = if (SettingsUiPreferences.isDark(this)) {
             SystemBarStyle.dark(Color.TRANSPARENT)
         } else {
