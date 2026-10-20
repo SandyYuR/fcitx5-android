@@ -1729,7 +1729,12 @@ class InputView(
         override fun getOutline(view: View, outline: Outline) {
             val width = view.width
             val height = view.height
-            if (width <= 0 || height <= 0) return
+            if (width <= 0 || height <= 0) {
+                // 与 CardOutlineProvider 一致：getOutline 拿到的 Outline 是复用的，
+                // 尺寸归零时什么都不设会让 clipToOutline 的键盘沿用上一帧的形状。
+                outline.setEmpty()
+                return
+            }
             val topRadius = cardTopCornerRadiusPx
             val bottomRadius = if (isEffectiveFloating) floatingCornerRadiusPx.toFloat() else 0f
             if (topRadius <= 0f && bottomRadius <= 0f) {
@@ -1737,7 +1742,10 @@ class InputView(
             } else if (topRadius == bottomRadius) {
                 // 四角同半径是普通圆角矩形：用 setRoundRect 而不是路径，浮动键盘的
                 // 高度阴影（elevation）才不会被吃掉。
-                outline.setRoundRect(0, 0, width, height, topRadius)
+                outline.setRoundRect(
+                    0, 0, width, height,
+                    ContinuousCornerGeometry.clampRadius(topRadius, width.toFloat(), height.toFloat())
+                )
             } else {
                 // 上下圆角不同：只有路径能表达。API 分级（30+ 用 setPath、更低退化成
                 // 四角同半径的圆角矩形）统一收在 applyCardOutline 里，别在这里再判一次——

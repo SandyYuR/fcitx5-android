@@ -30,8 +30,17 @@ import kotlin.math.min
  */
 object ContinuousCornerGeometry {
 
-    fun clampRadius(radius: Float, width: Float, height: Float): Float =
-        radius.coerceAtLeast(0f).coerceAtMost(min(width, height).coerceAtLeast(0f) * 0.5f)
+    /**
+     * 把半径夹进 `[0, min(width, height) / 2]`。
+     *
+     * 非有限值（NaN/Inf）一律当 0：`Float.coerceAtLeast` 对 NaN 的判定为 false，会原样返回
+     * NaN，而 NaN 半径喂给 [Outline.setRoundRect] 会让裁剪形状非法。半径来自用户偏好，
+     * 读到脏数据时宁可直角也不能把异常值传进系统调用。
+     */
+    fun clampRadius(radius: Float, width: Float, height: Float): Float {
+        if (!radius.isFinite()) return 0f
+        return radius.coerceAtLeast(0f).coerceAtMost(min(width, height).coerceAtLeast(0f) * 0.5f)
+    }
 
     /**
      * 编码区胶囊主体左缘相对**键盘卡片左缘**的位移。
@@ -290,7 +299,12 @@ class CardOutlineProvider(
     override fun getOutline(view: View, outline: Outline) {
         val width = view.width
         val height = view.height
-        if (width <= 0 || height <= 0) return
+        if (width <= 0 || height <= 0) {
+            // 尺寸归零时 Outline 必须被显式重置：getOutline 拿到的是复用的 Outline，
+            // 什么都不设会让 clipToOutline 的宿主沿用上一帧的形状。
+            outline.setEmpty()
+            return
+        }
         val topRadius = topRadiusProvider()
         val bottomRadius = bottomRadiusProvider()
         bounds.set(0f, 0f, width.toFloat(), height.toFloat())

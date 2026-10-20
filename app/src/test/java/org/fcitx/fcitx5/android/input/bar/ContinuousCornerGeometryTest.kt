@@ -25,6 +25,15 @@ class ContinuousCornerGeometryTest {
     }
 
     @Test
+    fun `non-finite radii fall back to square corners`() {
+        // coerceAtLeast 对 NaN 判定为 false 会原样放过 NaN，而 NaN 半径会让
+        // Outline.setRoundRect 的形状非法——脏数据只能退成直角。
+        assertEquals(0f, ContinuousCornerGeometry.clampRadius(Float.NaN, 100f, 40f), 0f)
+        assertEquals(0f, ContinuousCornerGeometry.clampRadius(Float.POSITIVE_INFINITY, 0f, 40f), 0f)
+        assertEquals(0f, ContinuousCornerGeometry.clampRadius(Float.NEGATIVE_INFINITY, 100f, 40f), 0f)
+    }
+
+    @Test
     fun `body offset is the sum of both radii when the pill starts at the card edge`() {
         assertEquals(25f, ContinuousCornerGeometry.preeditBodyOffset(10f, 0f, 15f), 0f)
         assertEquals(0f, ContinuousCornerGeometry.preeditBodyOffset(0f, 0f, 0f), 0f)
