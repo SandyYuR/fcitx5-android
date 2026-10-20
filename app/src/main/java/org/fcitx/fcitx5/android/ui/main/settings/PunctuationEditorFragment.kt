@@ -4,7 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.view.View
 import androidx.lifecycle.Lifecycle
 import org.fcitx.fcitx5.android.R
@@ -16,6 +17,7 @@ import org.fcitx.fcitx5.android.data.punctuation.PunctuationMapEntry
 import org.fcitx.fcitx5.android.ui.common.BaseDynamicListUi
 import org.fcitx.fcitx5.android.ui.common.OnItemChangedListener
 import org.fcitx.fcitx5.android.ui.main.EditDeleteMenuProvider
+import org.fcitx.fcitx5.android.ui.main.settingsPageToolbar
 import org.fcitx.fcitx5.android.ui.main.MainViewModel.ButtonMode
 import org.fcitx.fcitx5.android.utils.NaiveDustman
 import org.fcitx.fcitx5.android.utils.lazyRoute
@@ -111,7 +113,7 @@ class PunctuationEditorFragment : ProgressFragment(), OnItemChangedListener<Punc
                     add(mappingLayout, lParams(matchParent))
                     add(altMappingLayout, lParams(matchParent))
                 }
-                AlertDialog.Builder(context)
+                MaterialAlertDialogBuilder(requireContext())
                     .setTitle(title)
                     .setView(layout)
                     .setPositiveButton(android.R.string.ok, null)
@@ -143,12 +145,14 @@ class PunctuationEditorFragment : ProgressFragment(), OnItemChangedListener<Punc
         resetDustman()
         viewModel.toolbarButton.value =
             if (ui.entries.isNotEmpty()) ButtonMode.EDIT else ButtonMode.NONE
-        requireActivity().addMenuProvider(
+        val menuHost = settingsPageToolbar()
+        menuHost.addMenuProvider(
             EditDeleteMenuProvider(
                 buttonMode = viewModel.toolbarButton,
                 editButtonAction = { ui.enterMultiSelect(requireActivity().onBackPressedDispatcher) },
                 deleteButtonAction = { ui.deleteSelected(); ui.exitMultiSelect() },
-                menuHost = requireActivity(),
+                menuHost = menuHost,
+                context = requireContext(),
                 lifecycleOwner = viewLifecycleOwner,
             ),
             viewLifecycleOwner,
@@ -175,11 +179,6 @@ class PunctuationEditorFragment : ProgressFragment(), OnItemChangedListener<Punc
 
     override fun onItemSwapped(fromIdx: Int, toIdx: Int, item: PunctuationMapEntry) {
         dustman.forceDirty()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.setToolbarTitle(args.title)
     }
 
     override fun onStop() {

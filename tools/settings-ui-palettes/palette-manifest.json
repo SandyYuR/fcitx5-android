@@ -1,0 +1,35 @@
+{
+  "material_color_utilities": {
+    "repository": "https://github.com/material-foundation/material-color-utilities",
+    "revision": "dd62982dfdefdfc9232ce8d76e122fb1c6d188ae",
+    "license": "Apache-2.0"
+  },
+  "platform": "PHONE",
+  "contrast_levels": {
+    "standard": 0.0,
+    "medium": 0.5,
+    "high": 1.0
+  },
+  "recipes": {
+    "cmf2026": { "variant": "CMF", "spec": "SPEC_2026", "source_colors": 2 },
+    "tonal2025": { "variant": "TONAL_SPOT", "spec": "SPEC_2025", "source_colors": 1 },
+    "vibrant2025": { "variant": "VIBRANT", "spec": "SPEC_2025", "source_colors": 1 },
+    "neutral2025": { "variant": "NEUTRAL", "spec": "SPEC_2025", "source_colors": 1 },
+    "expressive2025": { "variant": "EXPRESSIVE", "spec": "SPEC_2025", "source_colors": 1 },
+    "classic2021": { "variant": "TONAL_SPOT", "spec": "SPEC_2021", "source_colors": 1 }
+  },
+  "palettes": {
+    "sea_salt": ["#397D80", "#E8794B"],
+    "pine": ["#416B4A", "#C99843"],
+    "berry": ["#994865", "#4278A0"],
+    "amber": ["#80551F", "#6B79BD"],
+    "wisteria": ["#75639D", "#C66E89"],
+    "graphite": ["#59646B", "#92704B"]
+  },
+  "compatibility": {
+    "primary_seed": "#6200EE",
+    "secondary_seed": "#03DAC6",
+    "recipe": "TONAL_SPOT + SPEC_2021",
+    "note": "M3 role adaptation of the previous app color intent; not a claim about the prior theme algorithm."
+  }
+}

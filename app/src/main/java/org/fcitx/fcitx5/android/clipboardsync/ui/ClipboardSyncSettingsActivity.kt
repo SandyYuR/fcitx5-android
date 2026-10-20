@@ -1,11 +1,11 @@
 package org.fcitx.fcitx5.android.clipboardsync.ui
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.Toolbar
 import org.fcitx.fcitx5.android.R
 
-class ClipboardSyncSettingsActivity : AppCompatActivity() {
+class ClipboardSyncSettingsActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

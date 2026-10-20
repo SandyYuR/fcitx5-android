@@ -7,58 +7,51 @@ package org.fcitx.fcitx5.android.ui.main
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.ViewGroup
-import androidx.activity.enableEdgeToEdge
+import android.view.Menu
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
+import androidx.annotation.Keep
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.databinding.ActivityMainBinding
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.setup.SetupActivity
+import org.fcitx.fcitx5.android.utils.Const
+import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
 import org.fcitx.fcitx5.android.utils.parcelable
 import org.fcitx.fcitx5.android.utils.startActivity
-import splitties.dimensions.dp
-import splitties.views.topPadding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : SettingsUiActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
     private lateinit var navController: NavController
     private lateinit var shareReceiveManager: ShareReceiveManager
+    private val refreshKeyboardColors = Runnable {
+        if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) refreshKeyboardPalette()
+    }
+    @Keep
+    private val onKeyboardThemeChanged = ThemeManager.OnThemeChangeListener {
+        // Leave the current preference/theme click callback before restoring the activity.
+        window.decorView.removeCallbacks(refreshKeyboardColors)
+        window.decorView.post(refreshKeyboardColors)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         val binding = ActivityMainBinding.inflate(layoutInflater)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
-            val statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
-            val navBars = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            binding.root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = navBars.left
-                rightMargin = navBars.right
-            }
-            binding.toolbar.topPadding = statusBars.top
-            windowInsets
-        }
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-        // always show toolbar back arrow icon
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         navController = binding.navHostFragment.getFragment<NavHostFragment>().navController
         navController.graph = SettingsRoute.createGraph(navController)
         shareReceiveManager = ShareReceiveManager(this) { message, action ->
@@ -67,29 +60,6 @@ class MainActivity : AppCompatActivity() {
                     setAction(R.string.edit) { callback() }
                 }
             }.show()
-        }
-        binding.toolbar.setNavigationOnClickListener {
-            // prevent navigate up when child fragment has enabled `OnBackPressedCallback`
-            if (onBackPressedDispatcher.hasEnabledCallbacks()) {
-                onBackPressedDispatcher.onBackPressed()
-                return@setNavigationOnClickListener
-            }
-            // "minimize" the activity if we can't go back
-            navController.navigateUp() || onSupportNavigateUp() || moveTaskToBack(false)
-        }
-        viewModel.toolbarTitle.observe(this) {
-            supportActionBar!!.title = it
-        }
-        viewModel.toolbarShadow.observe(this) {
-            binding.toolbar.elevation = dp(if (it) 4f else 0f)
-        }
-        navController.addOnDestinationChangedListener { _, dest, _ ->
-            dest.label?.let { viewModel.setToolbarTitle(it.toString()) }
-            if (dest.hasRoute<SettingsRoute.Theme>()) {
-                viewModel.disableToolbarShadow()
-            } else {
-                viewModel.enableToolbarShadow()
-            }
         }
         processIntent(intent, savedInstanceState)
         checkNotificationPermission()
@@ -101,6 +71,18 @@ class MainActivity : AppCompatActivity() {
         processIntent(intent, null)
     }
 
+    override fun onResume() {
+        super.onResume()
+        ThemeManager.addOnChangedListener(onKeyboardThemeChanged)
+        window.decorView.post(refreshKeyboardColors)
+    }
+
+    override fun onPause() {
+        ThemeManager.removeOnChangedListener(onKeyboardThemeChanged)
+        window.decorView.removeCallbacks(refreshKeyboardColors)
+        super.onPause()
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         // prevent navigate up when child fragment has enabled `OnBackPressedCallback`
         if (onBackPressedDispatcher.hasEnabledCallbacks()) {
@@ -109,6 +91,18 @@ class MainActivity : AppCompatActivity() {
         }
         // "minimize" the activity if we can't go back
         return navController.navigateUp() || super.onSupportNavigateUp() || moveTaskToBack(false)
+    }
+
+    internal fun populateHomeMenu(menu: Menu) {
+        menu.item(R.string.faq) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Const.faqUrl)))
+        }
+        menu.item(R.string.developer) {
+            navController.navigateWithAnim(SettingsRoute.Developer)
+        }
+        menu.item(R.string.about) {
+            navController.navigateWithAnim(SettingsRoute.About)
+        }
     }
 
     private fun processIntent(intent: Intent?, savedInstanceState: Bundle? = null) {
@@ -140,7 +134,7 @@ class MainActivity : AppCompatActivity() {
             if (!needNotifications) return
             // always show a dialog to explain why we need notification permission,
             // regardless of `shouldShowRequestPermissionRationale(...)`
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(R.string.notification_permission_title)
                 .setMessage(R.string.notification_permission_message)

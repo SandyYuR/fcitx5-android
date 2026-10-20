@@ -193,7 +193,6 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.setToolbarTitle(getString(R.string.keyboard_modes_title))
         // 开关可能刚被工具栏按钮改过，每次进入按实际状态同步一次。
         syncSwitchStates()
     }

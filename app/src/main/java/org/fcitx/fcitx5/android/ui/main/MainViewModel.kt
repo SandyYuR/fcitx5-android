@@ -6,20 +6,11 @@ package org.fcitx.fcitx5.android.ui.main
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
-import org.fcitx.fcitx5.android.utils.AppUtil
-import org.fcitx.fcitx5.android.utils.appContext
 
 class MainViewModel : ViewModel() {
-    private val appLabel = AppUtil.appLabel(appContext)
-
     enum class ButtonMode { NONE, EDIT, DELETE }
-
-    val toolbarTitle = MutableLiveData(appLabel)
-
-    val toolbarShadow = MutableLiveData(true)
 
     val toolbarButton = MutableLiveData(ButtonMode.NONE)
 
@@ -53,18 +44,6 @@ class MainViewModel : ViewModel() {
      */
     fun consumePendingPreferenceScrollKey(key: String) {
         if (pendingPreferenceScrollKey == key) pendingPreferenceScrollKey = null
-    }
-
-    fun setToolbarTitle(title: String) {
-        toolbarTitle.value = title
-    }
-
-    fun enableToolbarShadow() {
-        toolbarShadow.value = true
-    }
-
-    fun disableToolbarShadow() {
-        toolbarShadow.value = false
     }
 
     fun disableToolbarEditButton() {

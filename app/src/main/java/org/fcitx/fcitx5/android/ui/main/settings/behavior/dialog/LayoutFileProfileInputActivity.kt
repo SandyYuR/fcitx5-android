@@ -11,23 +11,22 @@ import android.view.MenuItem
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.SwitchCompat
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 
-class LayoutFileProfileInputActivity : AppCompatActivity() {
+class LayoutFileProfileInputActivity : SettingsUiActivity() {
     data class ResultPayload(
         val action: String,
         val profile: String,
@@ -57,8 +56,8 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
     }
 
@@ -83,7 +82,7 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
             addView(TextView(this@LayoutFileProfileInputActivity).apply {
                 text = getString(R.string.text_keyboard_layout_file_name)
                 textSize = 13f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
             })
 
             profileInput = AppCompatEditText(this@LayoutFileProfileInputActivity).apply {
@@ -101,7 +100,6 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(root)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -113,13 +111,6 @@ class LayoutFileProfileInputActivity : AppCompatActivity() {
             getString(R.string.text_keyboard_layout_file_create)
         }
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         val initial = intent.getStringExtra(EXTRA_INITIAL_PROFILE).orEmpty()
         if (initial.isNotBlank()) {

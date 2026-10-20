@@ -4,11 +4,14 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -28,13 +31,12 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.text.HtmlCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.activity.result.contract.ActivityResultContracts
@@ -82,27 +84,27 @@ import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import org.fcitx.fcitx5.android.utils.DeviceUtil
 import org.fcitx.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 import java.io.File
 
-class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
+class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
             setSubtitleTextAppearance(context, android.R.style.TextAppearance_Small)
-            setSubtitleTextColor(styledColor(android.R.attr.textColorSecondary))
+            setSubtitleTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
     }
 
     private val previewKeyboardContainer by lazy {
         FrameLayout(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorButtonNormal)
+            backgroundColor = settingsColor(android.R.attr.colorButtonNormal)
         }
     }
 
@@ -172,7 +174,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
      * 以为要先把下拉框切到某个选项才能改分体。
      */
     private val splitLayoutCheckBox by lazy {
-        android.widget.CheckBox(this).apply {
+        com.google.android.material.checkbox.MaterialCheckBox(this).apply {
             text = getString(R.string.text_keyboard_layout_split_layout)
             textSize = 13f
             setPadding(dp(4), dp(2), dp(4), dp(2))
@@ -209,7 +211,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     private val splitLayoutStatusLabel by lazy {
         TextView(this).apply {
             textSize = 11f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(dp(8), 0, dp(4), 0)
         }
     }
@@ -232,7 +234,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     private val deleteLayoutButton by lazy {
         TextView(this).apply {
-            text = "🗑"
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_delete_24, 0, 0, 0)
+            compoundDrawableTintList = ColorStateList.valueOf(settingsColor(android.R.attr.textColorSecondary))
+            contentDescription = getString(R.string.delete)
             textSize = 14f
             setPadding(dp(12), dp(4), dp(12), dp(4))
             minWidth = dp(40)
@@ -602,7 +606,6 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(ui)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -611,13 +614,6 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         // Intercept back before any state loads, so an unsaved exit is always caught.
         registerBackCallback()
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         // 初始化子模式管理器（必须在 loadState 之前）
         subModeManager = SubModeManager(fcitxConnection, allImesFromJson, dataManager.entries)
@@ -645,6 +641,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             // atomic: either the Bundle still carries it, or memory is authoritative.
             pendingInlineDraftJson = null
             stateLoaded = true
+            updateSaveButtonState()
 
             buildSpinner()
             buildSubModeSpinner()
@@ -677,7 +674,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 ACTION_RENAME_PROFILE -> openRenameLayoutFileDialog()
                 ACTION_DELETE_PROFILE -> confirmDeleteCurrentLayoutFile()
                 ACTION_SHARE_PROFILE -> exportLayoutAsQrLongImage()
-                ACTION_IMPORT_PROFILE -> AlertDialog.Builder(this@TextKeyboardLayoutEditorActivity)
+                ACTION_IMPORT_PROFILE -> MaterialAlertDialogBuilder(this@TextKeyboardLayoutEditorActivity)
                     .setTitle(R.string.text_keyboard_layout_manage_title)
                     .setItems(arrayOf(getString(R.string.text_keyboard_layout_qr_import_scan), getString(R.string.text_keyboard_layout_qr_import_image))) { _, which ->
                         if (which == 0) startCameraScanImport() else pickImageLauncher.launch("image/*")
@@ -952,8 +949,10 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
      * therefore never ran, [attemptExit] was skipped entirely, and the editor closed without
      * ever prompting, silently dropping the user's unsaved edits.
      */
+    private var exitBackCallback: androidx.activity.OnBackPressedCallback? = null
+
     private fun registerBackCallback() {
-        onBackPressedDispatcher.addCallback(this) { attemptExit() }
+        exitBackCallback = onBackPressedDispatcher.addCallback(this) { attemptExit() }
     }
 
     private fun attemptExit() {
@@ -961,7 +960,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             finish()
             return
         }
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_discard_changes_title)
             .setMessage(R.string.text_keyboard_layout_discard_changes_message)
             .setPositiveButton(R.string.text_keyboard_layout_discard_changes_positive) { _, _ ->
@@ -1301,7 +1300,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             addLayoutButton.alpha = 0.3f
             deleteLayoutButton.setOnClickListener {
                 val target = splitLayoutTargetLabel(layoutName)
-                AlertDialog.Builder(this)
+                MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.delete)
                     .setMessage(getString(R.string.text_keyboard_layout_split_layout_delete_confirm, target))
                     .setPositiveButton(R.string.delete) { _, _ ->
@@ -1580,7 +1579,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
         
         // Submode layout doesn't exist - show confirmation dialog
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.text_keyboard_layout_add_submode))
             .setMessage(getString(R.string.text_keyboard_layout_add_submode_confirm, currentSubModeLabel))
             .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -1592,7 +1591,9 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
 
     private fun createDeleteSubModeButton(): TextView {
         return TextView(this).apply {
-            text = "🗑"
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_delete_24, 0, 0, 0)
+            compoundDrawableTintList = ColorStateList.valueOf(settingsColor(android.R.attr.textColorSecondary))
+            contentDescription = getString(R.string.delete)
             textSize = 14f
             setPadding(dp(12), dp(6), dp(12), dp(6))
             minWidth = dp(40)
@@ -1621,7 +1622,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             layoutName
         }
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete)
             .setMessage(getString(R.string.text_keyboard_layout_delete_layout_confirm, displayName))
             .setPositiveButton(R.string.delete) { _, _ ->
@@ -1714,7 +1715,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     private fun confirmDeleteSubModeLayout(layoutName: String, subModeLabel: String) {
         val actualLabel = subModeManager.resolveStorageLabel(layoutName, subModeLabel) ?: return
         val actualKey = "$layoutName:$actualLabel"
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete)
             .setMessage(getString(R.string.text_keyboard_layout_delete_submode_layout_confirm, subModeLabel))
             .setPositiveButton(R.string.delete) { _, _ ->
@@ -1827,7 +1828,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             // Add divider between spinner and content
             val divider = View(this).apply {
                 setBackgroundColor(
-                    runCatching { styledColor(android.R.attr.colorControlNormal) }
+                    runCatching { settingsColor(android.R.attr.colorControlNormal) }
                         .getOrDefault(0x33000000)
                 )
                 alpha = 0.35f
@@ -1859,7 +1860,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                     val labels = row.mapIndexed { index, key ->
                         "${index + 1}. ${rowsAdapter?.buildKeyLabel(key).orEmpty()}"
                     } + getString(R.string.text_keyboard_layout_add_key)
-                    AlertDialog.Builder(this@TextKeyboardLayoutEditorActivity)
+                    MaterialAlertDialogBuilder(this@TextKeyboardLayoutEditorActivity)
                         .setTitle(R.string.text_keyboard_layout_edit_row)
                         .setItems(labels.toTypedArray()) { _, which ->
                             openKeyEditor(rowIndex, which.takeIf { it < row.size })
@@ -1981,7 +1982,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 ) {
                     super.onSelectedChanged(viewHolder, actionState)
                     if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && viewHolder is KeyboardLayoutAdapter.RowViewHolder) {
-                        viewHolder.itemView.backgroundColor = this@TextKeyboardLayoutEditorActivity.styledColor(android.R.attr.colorControlHighlight)
+                        viewHolder.itemView.backgroundColor = this@TextKeyboardLayoutEditorActivity.settingsColor(android.R.attr.colorControlHighlight)
                     }
                 }
 
@@ -2084,7 +2085,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     private fun confirmDeleteAuxBarKey(keyIndex: Int) {
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete)
             .setMessage(R.string.text_keyboard_layout_aux_bar_keys_delete_confirm)
             .setPositiveButton(R.string.delete) { _, _ ->
@@ -2144,7 +2145,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     private fun confirmDeleteRow(rowIndex: Int) {
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete)
             .setMessage(getString(R.string.text_keyboard_layout_delete_row_confirm, rowIndex + 1))
             .setPositiveButton(R.string.delete) { _, _ ->
@@ -2220,7 +2221,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         val nameLabel = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_layout_name)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
 
         val nameEdit = EditText(this).apply {
@@ -2253,7 +2254,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             val imeLabel = TextView(this).apply {
                 text = getString(R.string.text_keyboard_layout_select_input_method_to_add)
                 textSize = 12f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 setPadding(0, dp(8), 0, dp(4))
             }
 
@@ -2272,7 +2273,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             val noImeHint = TextView(this).apply {
                 text = getString(R.string.text_keyboard_layout_no_additional_input_methods)
                 textSize = 12f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 setPadding(0, dp(8), 0, dp(4))
             }
             container.addView(noImeHint)
@@ -2282,7 +2283,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             text = getString(R.string.text_keyboard_layout_copy_from)
             textSize = 13f
             setPadding(0, dp(10), 0, 0)
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
 
         container.addView(copyFromLabel)
@@ -2337,7 +2338,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             }
         }
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(if (originalLayoutName == null) R.string.text_keyboard_layout_add_layout else R.string.edit)
             .setView(container)
             .setPositiveButton(android.R.string.ok, null)
@@ -2484,7 +2485,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         // 验证数据
         val validationErrors = dataManager.validateEntries()
         if (validationErrors.isNotEmpty()) {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.text_keyboard_layout_validation_error)
                 .setMessage(validationErrors.joinToString("\n\n"))
                 .setPositiveButton(android.R.string.ok, null)
@@ -2512,7 +2513,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             return true
         } else {
             // 显示详细错误信息
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.text_keyboard_layout_validation_error)
                 .setMessage(getString(R.string.text_keyboard_layout_save_failed))
                 .setPositiveButton(android.R.string.ok, null)
@@ -2654,12 +2655,12 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         val helper = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_layout_height_percent_helper)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(0, dp(10), 0, 0)
         }
         container.addView(helper)
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.text_keyboard_layout_layout_height_override_title, layoutName))
             .setView(container)
             .setPositiveButton(android.R.string.ok, null)
@@ -2766,7 +2767,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         val keysEmpty = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_aux_bar_keys_empty)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
         auxBarDialogKeysRv = keysRv
         auxBarDialogKeysEmptyHint = keysEmpty
@@ -2805,7 +2806,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             addView(container, ViewGroup.LayoutParams(matchParent, wrapContent))
         }
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.text_keyboard_layout_aux_bar_title, layoutName))
             .setView(scrollView)
             .setPositiveButton(android.R.string.ok, null)
@@ -2894,7 +2895,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         val target = splitLayoutTargetLabel(layoutName)
         // 拨动过了才弹框，因此失败/取消时要把勾选框拨回去——不然界面显示"已勾选"、
         // 实际编辑的却还是普通排列。
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_split_layout_create_title)
             .setMessage(getString(R.string.text_keyboard_layout_split_layout_create_message, target))
             .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -2981,6 +2982,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         lifecycleScope.launch {
             loadState()
             stateLoaded = true
+            updateSaveButtonState()
             buildSpinner()
             buildSubModeSpinner(forceResetSelection = true)
             buildRows()
@@ -3000,7 +3002,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     private fun confirmSwitchLayoutFile() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_discard_changes_title)
             .setMessage(R.string.text_keyboard_layout_switch_file_discard_message)
             .setPositiveButton(R.string.text_keyboard_layout_discard_changes_positive) { _, _ ->
@@ -3017,7 +3019,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             .sortedWith(compareBy({ it != UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE }, { it }))
         val labels = sortedProfiles.map { displayProfile(it) }.toTypedArray()
         val selected = sortedProfiles.indexOf(currentLayoutProfile).coerceAtLeast(0)
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_file_switch)
             .setSingleChoiceItems(labels, selected) { dialog, which ->
                 val target = sortedProfiles.getOrNull(which) ?: return@setSingleChoiceItems
@@ -3035,7 +3037,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         val file = layoutFile
         val label = displayProfile(profile)
         if (hasChanges()) {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.text_keyboard_layout_discard_changes_title)
                 .setMessage(R.string.text_keyboard_layout_delete_file_discard_message)
                 .setPositiveButton(R.string.text_keyboard_layout_discard_changes_positive) { _, _ ->
@@ -3054,7 +3056,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             showToast(getString(R.string.text_keyboard_layout_file_delete_failed))
             return
         }
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_file_delete)
             .setMessage(getString(R.string.text_keyboard_layout_file_delete_confirm, label))
             .setPositiveButton(R.string.ok) { _, _ ->
@@ -3118,7 +3120,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         val nameLabel = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_file_name)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
         val nameEdit = EditText(this).apply {
             hint = getString(R.string.text_keyboard_layout_file_name_hint)
@@ -3128,7 +3130,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         container.addView(nameLabel)
         container.addView(nameEdit)
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_file_rename)
             .setView(container)
             .setPositiveButton(android.R.string.ok, null)
@@ -3219,7 +3221,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     }
 
     private fun confirmCreateLayoutFile() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_discard_changes_title)
             .setMessage(R.string.text_keyboard_layout_create_file_discard_message)
             .setPositiveButton(R.string.text_keyboard_layout_discard_changes_positive) { _, _ ->
@@ -3247,7 +3249,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         val nameLabel = TextView(this).apply {
             text = getString(R.string.text_keyboard_layout_file_name)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
         val nameEdit = EditText(this).apply {
             hint = getString(R.string.text_keyboard_layout_file_name_hint)
@@ -3260,7 +3262,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         container.addView(nameEdit)
         container.addView(copySwitch)
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_file_create)
             .setView(container)
             .setPositiveButton(android.R.string.ok, null)
@@ -3434,7 +3436,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
      * to continue clears the warning so the next save goes through.
      */
     private fun confirmOverwriteCorruptLayout(warning: LayoutDataManager.LoadWarning.ParseFailed) {
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_corrupt_title)
             .setMessage(
                 getString(
@@ -3462,7 +3464,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             onReady()
             return
         }
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.text_keyboard_layout_discard_changes_title)
             .setMessage(R.string.text_keyboard_layout_import_unsaved_changes_message)
             .setPositiveButton(R.string.text_keyboard_layout_import_save_and_continue) { _, _ ->
@@ -3503,7 +3505,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
         }
         val message = HtmlCompat.fromHtml(messageRaw, HtmlCompat.FROM_HTML_MODE_LEGACY)
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(if (imeEnabled) R.string.select_ime else R.string.enable_ime)
             .setMessage(message)
             .setPositiveButton(if (imeEnabled) R.string.select_ime else R.string.enable_ime) { _, _ ->
@@ -3529,6 +3531,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
     private fun hasChanges(): Boolean = dataManager.hasChanges()
 
     private fun updateSaveButtonState() {
+        exitBackCallback?.isEnabled = !stateLoaded || hasChanges()
         saveMenuItem?.let { menuItem ->
             if (hasChanges()) {
                 menuItem.isEnabled = true
@@ -3762,7 +3765,7 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
             val existingProfiles = UserConfigFiles.listTextKeyboardLayoutProfiles().toSet()
             val willCreateProfile = importedProfile != null && importedProfile !in existingProfiles
 
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.text_keyboard_layout_qr_import_confirm_title)
                 .setMessage(
                     getString(
@@ -3911,11 +3914,11 @@ class TextKeyboardLayoutEditorActivity : AppCompatActivity() {
                 chip.text = "+"
                 chip.setTypeface(null, android.graphics.Typeface.BOLD)
                 chip.background = android.graphics.drawable.GradientDrawable().apply {
-                    setColor(activity.styledColor(android.R.attr.colorPrimary))
-                    setStroke(activity.dp(1), activity.styledColor(android.R.attr.colorControlNormal))
+                    setColor(activity.settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
+                    setStroke(activity.dp(1), activity.settingsColor(android.R.attr.colorControlNormal))
                     cornerRadius = activity.dp(4).toFloat()
                 }
-                chip.setTextColor(activity.styledColor(android.R.attr.textColorPrimary))
+                chip.setTextColor(activity.settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                 chip.setOnClickListener { listener.onAddKeyClick() }
                 chip.setOnLongClickListener(null)
             } else {

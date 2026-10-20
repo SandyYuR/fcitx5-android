@@ -22,8 +22,9 @@ import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
+import org.fcitx.fcitx5.android.ui.main.withSettingsPage
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.constraintlayout.below
 import splitties.views.dsl.constraintlayout.bottomOfParent
@@ -58,14 +59,14 @@ class ThemeFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = with(requireContext()) {
+    ): View = withSettingsPage(with(requireContext()) {
         previewUi = KeyboardPreviewUi(this, ThemeManager.activeTheme)
         ThemeManager.addOnChangedListener(onThemeChangeListener)
         val preview = previewUi.root.apply {
             scaleX = 0.5f
             scaleY = 0.5f
             outlineProvider = ViewOutlineProvider.BOUNDS
-            elevation = dp(4f)
+            elevation = 0f
             tag = "theme_preview_capture"
         }
 
@@ -100,8 +101,8 @@ class ThemeFragment : Fragment() {
                 centerHorizontally()
                 bottomOfParent()
             })
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            elevation = 0f
         }
 
         constraintLayout {
@@ -117,7 +118,7 @@ class ThemeFragment : Fragment() {
                 bottomOfParent()
             })
         }
-    }
+    })
 
     override fun onStop() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

@@ -4,7 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -122,7 +123,7 @@ object PreferenceScreenFactory {
 
         fun rimeUserDataDir(title: String): Preference = LongClickPreference(context).apply {
             setOnPreferenceClickListener {
-                AlertDialog.Builder(context)
+                MaterialAlertDialogBuilder(context)
                     .setTitle(title)
                     .setMessage(R.string.open_rime_user_data_dir)
                     .setNegativeButton(android.R.string.cancel, null)

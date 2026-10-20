@@ -55,6 +55,7 @@
         android:name=".FcitxApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/full_backup_content"
         android:icon="@mipmap/app_icon"
         android:label="${appLabel}"
@@ -68,6 +69,7 @@
         <activity
             android:name=".ui.setup.SetupActivity"
             android:exported="false"
+            android:theme="@style/Theme.FcitxSettings.System"
             android:launchMode="singleTask" />
         <activity
             android:name=".ui.main.LogActivity"

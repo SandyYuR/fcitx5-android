@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import org.fcitx.fcitx5.android.ui.common.withLoadingDialog
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
+import org.fcitx.fcitx5.android.ui.main.withSettingsPage
 import splitties.views.dsl.core.frameLayout
 
 abstract class ProgressFragment : Fragment() {
@@ -36,7 +37,7 @@ abstract class ProgressFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return requireContext().frameLayout().also { root = it }
+        return withSettingsPage(requireContext().frameLayout().also { root = it })
     }
 
     final override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

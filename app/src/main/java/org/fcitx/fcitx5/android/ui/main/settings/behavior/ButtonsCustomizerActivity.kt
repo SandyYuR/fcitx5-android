@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.graphics.Typeface
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
@@ -23,11 +25,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
@@ -54,7 +54,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fcitx.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
 import splitties.resources.drawable
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.add
@@ -78,13 +78,13 @@ private fun ConfigurableButton.normalizedIcon(): ConfigurableButton =
  * Unified activity for customizing buttons in both Kawaii Bar and Status Area.
  * Uses a grid layout similar to Status Area for button display.
  */
-class ButtonsCustomizerActivity : AppCompatActivity() {
+class ButtonsCustomizerActivity : SettingsUiActivity() {
 
     private val toolbar by lazy {
         Toolbar(this).apply {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            setTitleTextColor(styledColor(android.R.attr.textColorPrimary))
-            elevation = dp(4f)
+            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+            setTitleTextColor(settingsColor(android.R.attr.textColorPrimary))
+            elevation = 0f
         }
     }
 
@@ -198,19 +198,11 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(ui)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle(R.string.edit_buttons)
 
-        val toolbarBaseTopPadding = toolbar.paddingTop
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = toolbarBaseTopPadding + statusTop)
-            insets
-        }
-        ViewCompat.requestApplyInsets(toolbar)
 
         loadState()
         // Restore the in-progress edit after a configuration change instead of silently
@@ -295,7 +287,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
         val usageHint = TextView(this).apply {
             text = getString(R.string.buttons_customizer_hint)
             textSize = 12f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(0, 0, 0, dp(8))
         }
         mainContainer.addView(usageHint)
@@ -467,7 +459,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                         .setDuration(120L)
                         .start()
                     viewHolder.itemView.setBackgroundColor(
-                        this@ButtonsCustomizerActivity.styledColor(android.R.attr.colorControlHighlight)
+                        this@ButtonsCustomizerActivity.settingsColor(android.R.attr.colorControlHighlight)
                     )
                 }
             }
@@ -592,7 +584,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
     }
 
     private fun openAddButtonDialog(buttonDef: ButtonDefinition) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.add_button_to_section_title))
             .setItems(arrayOf(getString(R.string.kawaii_bar_section), getString(R.string.status_area_section))) { _, which ->
                 val newButton = ConfigurableButton(
@@ -885,7 +877,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             text = if (button.icon != null && button.icon.startsWith("file:"))
                 button.icon.removePrefix("file:").takeLast(30) else getString(R.string.edit_button_no_custom_icon)
             textSize = 11f
-            setTextColor(styledColor(android.R.attr.textColorSecondary))
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
             setPadding(dp(8), dp(2), 0, 0)
         }
         dialogView.addView(iconPathText)
@@ -913,7 +905,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             stepsSummaryText = TextView(this).apply {
                 text = stepsSummary()
                 textSize = 11f
-                setTextColor(styledColor(android.R.attr.textColorSecondary))
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
                 setPadding(dp(8), dp(4), 0, 0)
             }
             dialogView.addView(stepsSummaryText)
@@ -924,13 +916,13 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
             dialogView.addView(View(this).apply { layoutParams = ViewGroup.LayoutParams(0, dp(8)) })
         }
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("${getString(R.string.edit_button_title)} ${button.id}")
             .setView(dialogView)
             .apply {
                 if (!isBuiltIn) {
                     setNeutralButton(R.string.delete) { dialog, _ ->
-                        AlertDialog.Builder(this@ButtonsCustomizerActivity)
+                        MaterialAlertDialogBuilder(this@ButtonsCustomizerActivity)
                             .setTitle(R.string.delete_button_title)
                             .setMessage(R.string.delete_button_confirm)
                             .setPositiveButton(R.string.delete) { _, _ ->
@@ -1142,7 +1134,7 @@ class ButtonsCustomizerActivity : AppCompatActivity() {
                 VIEW_TYPE_SECTION_HEADER -> SectionHeaderViewHolder(TextView(parent.context).apply {
                     textSize = 16f
                     setTypeface(null, Typeface.BOLD)
-                    setTextColor(styledColor(android.R.attr.textColorPrimary))
+                    setTextColor(settingsColor(android.R.attr.textColorPrimary))
                     setPadding(dp(4), dp(8), dp(4), dp(4))
                     androidx.core.view.ViewCompat.setAccessibilityHeading(this, true)
                 })
@@ -1359,7 +1351,7 @@ class ButtonEntryUi(
     val labelView = textView {
         textSize = 12f
         gravity = gravityCenter
-        setTextColor(ctx.styledColor(android.R.attr.textColorPrimary))
+        setTextColor(ctx.settingsColor(android.R.attr.textColorPrimary))
         text = label
         visibility = if (label.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
     }
@@ -1407,8 +1399,8 @@ class ButtonEntryUi(
 
     private fun updateColors() {
         // Use system theme colors for better visibility in light/dark mode
-        val contentColor = ctx.styledColor(android.R.attr.textColorPrimary)
-        val bgColor = ctx.styledColor(android.R.attr.colorPrimary)
+        val contentColor = ctx.settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
+        val bgColor = ctx.settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
 
         bkgDrawable.paint.color = bgColor
         labelView.setTextColor(contentColor)
@@ -1417,7 +1409,7 @@ class ButtonEntryUi(
 
     private fun updateIcon() {
         bkg.removeAllViews()
-        val contentColor = ctx.styledColor(android.R.attr.textColorPrimary)
+        val contentColor = ctx.settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
 
         if (customDrawable != null) {
             icon.visibility = android.view.View.VISIBLE

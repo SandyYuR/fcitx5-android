@@ -1,7 +1,6 @@
 package org.fcitx.fcitx5.android.clipboardsync.ui
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.content.SharedPreferences
 import android.content.Intent
@@ -24,6 +23,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
@@ -31,11 +31,13 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.SwitchPreferenceCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.clipboardsync.MainService
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.clipboardsync.SyncFilterPrefs
 import org.fcitx.fcitx5.android.clipboardsync.network.SyncClient
 import org.fcitx.fcitx5.android.clipboardsync.network.SyncClient.ServerBackend
@@ -66,7 +68,7 @@ class SettingsActivity : AppCompatActivity() {
         return true
     }
 
-    class SettingsFragment : PreferenceFragmentCompat() {
+    class SettingsFragment : PaddingPreferenceFragment() {
 
         companion object {
             private const val SERVER_PROFILE_KEY = "server_profile"
@@ -302,6 +304,7 @@ class SettingsActivity : AppCompatActivity() {
         override fun onResume() {
             super.onResume()
             requireActivity().title = getString(R.string.settings_title)
+            (activity as? AppCompatActivity)?.supportActionBar?.setTitle(R.string.settings_title)
             updateSyncFilterSummary(findPreference(SyncFilterPrefs.PREF_FILTER_ENTRY))
             val prefs = preferenceManager.sharedPreferences
             syncQuickSyncSwitchState(prefs)
@@ -493,7 +496,7 @@ class SettingsActivity : AppCompatActivity() {
             })
             updateFields(keepAddress = true)
 
-            AlertDialog.Builder(context)
+            MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.server_profile_title)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -550,6 +553,13 @@ class SettingsActivity : AppCompatActivity() {
 
         private fun openPreferenceFragment(fragment: PreferenceFragmentCompat) {
             parentFragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
+                .setCustomAnimations(
+                    R.animator.settings_enter,
+                    R.animator.settings_exit,
+                    R.animator.settings_pop_enter,
+                    R.animator.settings_pop_exit
+                )
                 .replace(resolveSettingsContainerId(), fragment)
                 .addToBackStack(fragment.javaClass.name)
                 .commit()
@@ -570,7 +580,7 @@ class SettingsActivity : AppCompatActivity() {
 
             storagePathEdit.setText(prefs.getString(DOWNLOAD_PATH_KEY, ""))
 
-            val dialog = AlertDialog.Builder(context)
+            val dialog = MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.storage_location_title)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -636,7 +646,7 @@ class SettingsActivity : AppCompatActivity() {
             }
             updatePasswordVisibility()
 
-            AlertDialog.Builder(context)
+            MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.sync_account_dialog_title)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -677,7 +687,7 @@ class SettingsActivity : AppCompatActivity() {
                 updateTestPushSelectedFileSummary()
             }
 
-            val dialog = AlertDialog.Builder(context)
+            val dialog = MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.local_test_push)
                 .setView(view)
                 .setPositiveButton(R.string.local_test_push_send, null)
@@ -750,7 +760,8 @@ class SettingsActivity : AppCompatActivity() {
                 return
             }
 
-            val progressDialog = AlertDialog.Builder(context)
+            val dialogContext = context ?: return
+            val progressDialog = MaterialAlertDialogBuilder(dialogContext)
                 .setTitle(R.string.local_test_push_running)
                 .setMessage(getString(R.string.connecting_to, address))
                 .setCancelable(false)
@@ -763,7 +774,7 @@ class SettingsActivity : AppCompatActivity() {
             // once detached, Toast.makeText(null, ...) NPEs, and the dialog kept the destroyed
             // Activity alive (see A4). appContext is captured before the IO hop for the same
             // reason.
-            val appContext = requireContext().applicationContext
+            val appContext = dialogContext.applicationContext
             viewLifecycleOwner.lifecycleScope.launch {
                 val result = withContext(Dispatchers.IO) {
                     runCatching {
@@ -786,7 +797,7 @@ class SettingsActivity : AppCompatActivity() {
                     Toast.makeText(ctx, R.string.local_test_push_success, Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                 } else {
-                    AlertDialog.Builder(ctx)
+                    MaterialAlertDialogBuilder(ctx)
                         .setTitle(R.string.local_test_push_failed)
                         .setMessage(result.exceptionOrNull()?.message ?: getString(R.string.unknown_error))
                         .setPositiveButton(android.R.string.ok, null)
@@ -917,7 +928,7 @@ class SettingsActivity : AppCompatActivity() {
         private fun testConnection() {
             val prefs = preferenceManager.sharedPreferences ?: return
             if (!isQuickSyncEnabled(prefs)) {
-                AlertDialog.Builder(requireContext())
+                MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.quick_sync_required_title)
                     .setMessage(R.string.quick_sync_required_message)
                     .setPositiveButton(android.R.string.ok, null)
@@ -936,7 +947,8 @@ class SettingsActivity : AppCompatActivity() {
                 return
             }
 
-            val progressDialog = AlertDialog.Builder(context)
+            val dialogContext = context ?: return
+            val progressDialog = MaterialAlertDialogBuilder(dialogContext)
                 .setTitle(R.string.testing_connection)
                 .setMessage(getString(R.string.connecting_to, address))
                 .setCancelable(false)
@@ -957,7 +969,7 @@ class SettingsActivity : AppCompatActivity() {
                 if (result.isSuccess) {
                     Toast.makeText(ctx, R.string.connection_success, Toast.LENGTH_SHORT).show()
                 } else {
-                    AlertDialog.Builder(ctx)
+                    MaterialAlertDialogBuilder(ctx)
                         .setTitle(R.string.connection_failed)
                         .setMessage(result.exceptionOrNull()?.message ?: getString(R.string.unknown_error))
                         .setPositiveButton(android.R.string.ok, null)
@@ -968,7 +980,7 @@ class SettingsActivity : AppCompatActivity() {
 
     }
 
-    class SyncFilterSettingsFragment : PreferenceFragmentCompat() {
+    class SyncFilterSettingsFragment : PaddingPreferenceFragment() {
 
         companion object {
             private const val MAX_FILE_SIZE_ENTRY_KEY = "filter_max_file_size_entry"
@@ -1041,6 +1053,7 @@ class SettingsActivity : AppCompatActivity() {
         override fun onResume() {
             super.onResume()
             requireActivity().title = getString(R.string.sync_filter_title)
+            (activity as? AppCompatActivity)?.supportActionBar?.setTitle(R.string.sync_filter_title)
             preferenceManager.sharedPreferences?.registerOnSharedPreferenceChangeListener(previewListener)
             updateFilterPreview()
         }
@@ -1140,7 +1153,7 @@ class SettingsActivity : AppCompatActivity() {
             container.addView(valueInput)
             container.addView(unitSpinner)
 
-            AlertDialog.Builder(context)
+            MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.filter_max_file_size_title)
                 .setView(container)
                 .setNegativeButton(android.R.string.cancel, null)

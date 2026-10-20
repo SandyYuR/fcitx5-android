@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.icon
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.content.res.ColorStateList
@@ -23,10 +25,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,9 +39,9 @@ import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import splitties.resources.color
 import splitties.dimensions.dp
-import splitties.resources.styledColor
+import org.fcitx.fcitx5.android.utils.settingsColor
 
-class IconThemeEditorActivity : AppCompatActivity() {
+class IconThemeEditorActivity : SettingsUiActivity() {
     private companion object {
         private const val MENU_DELETE = 1
         private const val MENU_RENAME = 2
@@ -75,7 +76,6 @@ class IconThemeEditorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
 
         val name = intent.getStringExtra("icon_theme_name")
         if (name != null && name != IconTheme.default().name) {
@@ -95,7 +95,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
 
         val toolbar = Toolbar(this).apply {
-            setBackgroundColor(styledColor(android.R.attr.colorPrimary))
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
         }
         root.addView(toolbar, LinearLayout.LayoutParams(matchParent, wrapContent))
         setSupportActionBar(toolbar)
@@ -111,16 +111,11 @@ class IconThemeEditorActivity : AppCompatActivity() {
 
         setContentView(root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            toolbar.updatePadding(top = statusTop)
-            insets
-        }
         refreshSaveButtonState()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val normalIconTint = ColorStateList.valueOf(styledColor(android.R.attr.colorControlNormal))
+        val normalIconTint = ColorStateList.valueOf(settingsColor(android.R.attr.colorControlNormal))
         if (isEditingExisting) {
             menu.add(Menu.NONE, MENU_DELETE, Menu.NONE, getString(R.string.delete))
                 .setIcon(R.drawable.ic_baseline_delete_24)
@@ -319,7 +314,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
             setSelection(text.length)
             setSingleLine(true)
         }
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.theme_name)
             .setView(input)
             .setPositiveButton(android.R.string.ok, null)
@@ -353,7 +348,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
     private fun promptDeleteTheme() {
         val targetName = originalName.ifBlank { themeName }
         if (targetName.isBlank()) return
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.icon_theme_delete_confirm, targetName))
             .setPositiveButton(getString(R.string.delete)) { _, _ ->
                 IconThemeManager.deleteTheme(targetName)
@@ -396,7 +391,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
                         setPadding(dp(16), dp(12), dp(16), dp(4))
                         textSize = 14f
                         setTypeface(null, Typeface.BOLD)
-                        setTextColor(styledColor(android.R.attr.colorAccent))
+                        setTextColor(settingsColor(android.R.attr.colorAccent))
                         layoutParams = RecyclerView.LayoutParams(matchParent, wrapContent)
                     }
                     object : RecyclerView.ViewHolder(tv) {}
@@ -438,8 +433,8 @@ class IconThemeEditorActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(16), dp(16), dp(16))
         }
-        val secondaryTextColor = styledColor(android.R.attr.textColorSecondary)
-        val primaryTextColor = styledColor(android.R.attr.textColorPrimary)
+        val secondaryTextColor = settingsColor(android.R.attr.textColorSecondary)
+        val primaryTextColor = settingsColor(android.R.attr.textColorPrimary)
 
         val compareRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -536,7 +531,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
         val clearAction = TextView(this).apply {
             text = getString(R.string.icon_theme_clear)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.colorAccent))
+            setTextColor(settingsColor(android.R.attr.colorAccent))
             gravity = Gravity.CENTER
             setPadding(dp(12), dp(8), dp(12), dp(8))
             setOnClickListener {
@@ -550,7 +545,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
         val selectAction = TextView(this).apply {
             text = getString(R.string.icon_theme_select)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.colorAccent))
+            setTextColor(settingsColor(android.R.attr.colorAccent))
             gravity = Gravity.CENTER
             setPadding(dp(12), dp(8), dp(12), dp(8))
             setOnClickListener {
@@ -563,7 +558,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
         val cancelAction = TextView(this).apply {
             text = getString(R.string.cancel)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.colorAccent))
+            setTextColor(settingsColor(android.R.attr.colorAccent))
             gravity = Gravity.CENTER
             setPadding(dp(12), dp(8), dp(12), dp(8))
             setOnClickListener { dialogRef?.dismiss() }
@@ -573,7 +568,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
         val confirmAction = TextView(this).apply {
             text = getString(android.R.string.ok)
             textSize = 13f
-            setTextColor(styledColor(android.R.attr.colorAccent))
+            setTextColor(settingsColor(android.R.attr.colorAccent))
             gravity = Gravity.CENTER
             setPadding(dp(12), dp(8), 0, dp(8))
             setOnClickListener {
@@ -590,7 +585,7 @@ class IconThemeEditorActivity : AppCompatActivity() {
         actionsRow.addView(confirmAction, LinearLayout.LayoutParams(0, wrapContent, 1f))
         dialogView.addView(actionsRow)
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(slot.replace("keys.", "Key: ").replace("toolbar.", "Toolbar: ").replace("system.", "System: "))
             .setView(dialogView)
             .create()
@@ -676,7 +671,7 @@ class SlotRowUi(private val ctx: android.content.Context) {
     private val builtinIcon: ImageView = ImageView(ctx).apply {
         layoutParams = LinearLayout.LayoutParams(ctx.dp(28), ctx.dp(28))
         scaleType = ImageView.ScaleType.CENTER_INSIDE
-        imageTintList = android.content.res.ColorStateList.valueOf(ctx.styledColor(android.R.attr.textColorSecondary))
+        imageTintList = android.content.res.ColorStateList.valueOf(ctx.settingsColor(android.R.attr.textColorSecondary))
     }
 
     private val nameLabel: TextView = TextView(ctx).apply {
@@ -719,8 +714,8 @@ class SlotRowUi(private val ctx: android.content.Context) {
         nameLabel.text = SlotRowUi.slotToDisplayName(slot)
         val previewDrawable = SlotRowUi.renderIconPreview(ctx, currentValue, 24)
         val isText = currentValue != null && previewDrawable == null && currentValue.isNotEmpty()
-        val textColor = ctx.styledColor(android.R.attr.textColorPrimary)
-        val dimColor = ctx.styledColor(android.R.attr.textColorTertiary)
+        val textColor = ctx.settingsColor(android.R.attr.textColorPrimary)
+        val dimColor = ctx.settingsColor(android.R.attr.textColorTertiary)
         when {
             previewDrawable != null -> {
                 customIcon.visibility = View.VISIBLE
@@ -824,7 +819,7 @@ class SlotRowUi(private val ctx: android.content.Context) {
                 drawable.mutate().apply {
                     val size = ctx.dp(previewSizeDp)
                     setBounds(0, 0, size, size)
-                    setTint(ctx.styledColor(android.R.attr.textColorPrimary))
+                    setTint(ctx.settingsColor(android.R.attr.textColorPrimary))
                 }
             } catch (_: Exception) { null }
         }
@@ -836,7 +831,7 @@ class SlotRowUi(private val ctx: android.content.Context) {
                     val size = ctx.dp(previewSizeDp)
                     setBounds(0, 0, size, size)
                     if (ButtonIconFile.shouldTintIcon(value)) {
-                        setTint(ctx.styledColor(android.R.attr.textColorPrimary))
+                        setTint(ctx.settingsColor(android.R.attr.textColorPrimary))
                     } else {
                         setTintList(null)
                     }
@@ -845,7 +840,7 @@ class SlotRowUi(private val ctx: android.content.Context) {
             return when {
                 isSvgContent(value) -> renderSvgPreview(ctx, value, previewSizeDp)?.mutate()?.apply {
                     if (IconThemeManager.shouldTintInlineSvg(value)) {
-                        setTint(ctx.styledColor(android.R.attr.textColorPrimary))
+                        setTint(ctx.settingsColor(android.R.attr.textColorPrimary))
                     } else {
                         setTintList(null)
                     }

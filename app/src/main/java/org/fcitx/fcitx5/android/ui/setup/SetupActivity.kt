@@ -12,22 +12,24 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import androidx.activity.enableEdgeToEdge
 import androidx.core.app.NotificationCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.databinding.ActivitySetupBinding
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.setup.SetupPage.Companion.firstUndonePage
 import org.fcitx.fcitx5.android.ui.setup.SetupPage.Companion.isLastPage
 import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.utils.notificationManager
 
-class SetupActivity : FragmentActivity() {
+class SetupActivity : SettingsUiActivity() {
+
+    private lateinit var binding: ActivitySetupBinding
 
     private lateinit var viewPager: ViewPager2
 
@@ -37,14 +39,14 @@ class SetupActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        val binding = ActivitySetupBinding.inflate(layoutInflater)
+        binding = ActivitySetupBinding.inflate(layoutInflater)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
-            val sysBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.root.setPadding(sysBars.left, sysBars.top, sysBars.right, sysBars.bottom)
+            // SettingsUiActivity owns side/navigation/IME insets; this page owns the status bar.
+            binding.root.updatePadding(top = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars()).top)
             windowInsets
         }
         setContentView(binding.root)
+        binding.appTitle.text = AppUtil.appLabel(this)
         skipButton = binding.skipButton.apply {
             text = getString(R.string.skip)
             setOnClickListener { finish() }
@@ -67,7 +69,9 @@ class SetupActivity : FragmentActivity() {
             })
         }
         // skip to undone page
-        firstUndonePage()?.let { viewPager.currentItem = it.ordinal }
+        if (savedInstanceState == null) {
+            firstUndonePage()?.let { viewPager.setCurrentItem(it.ordinal, false) }
+        }
         updateButtons()
         shown = true
         createNotificationChannel()
@@ -82,14 +86,17 @@ class SetupActivity : FragmentActivity() {
         skipButton.visibility = if (allDone) View.GONE else View.VISIBLE
         nextButton.text = getString(if (isLastPage) R.string.done else R.string.next)
         nextButton.visibility = if (isLastPage && !allDone) View.GONE else View.VISIBLE
+        binding.stepCounter.text = getString(R.string.setup_step_counter,
+            viewPager.currentItem + 1, SetupPage.entries.size)
+        binding.stepProgress.max = SetupPage.entries.size
+        binding.stepProgress.progress = viewPager.currentItem + 1
+        binding.stepProgress.contentDescription = binding.stepCounter.text
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (!hasFocus) return
-        supportFragmentManager.fragments.forEach {
-            if (it.isVisible) (it as SetupFragment).sync()
-        }
+        supportFragmentManager.fragments.filterIsInstance<SetupFragment>().forEach { it.sync() }
         updateButtons()
     }
 
@@ -128,6 +135,8 @@ class SetupActivity : FragmentActivity() {
     override fun onResume() {
         notificationManager.cancel(NOTIFY_ID)
         super.onResume()
+        supportFragmentManager.fragments.filterIsInstance<SetupFragment>().forEach { it.sync() }
+        updateButtons()
     }
 
     private inner class Adapter : FragmentStateAdapter(this) {

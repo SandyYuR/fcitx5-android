@@ -5,9 +5,10 @@
 
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
@@ -97,7 +98,7 @@ class SymbolSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance().
             if (it == UserConfigFiles.SYMBOL_CATALOG_BUILTIN) builtin else it
         }.toTypedArray()
 
-        AlertDialog.Builder(ctx)
+        MaterialAlertDialogBuilder(ctx)
             .setTitle(catalogTitleRes(type))
             .setSingleChoiceItems(labels, options.indexOf(current).coerceAtLeast(0)) { dialog, which ->
                 val selected = options.getOrNull(which) ?: return@setSingleChoiceItems

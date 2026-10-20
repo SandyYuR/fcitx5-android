@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_ui_display">Display</string>
+    <string name="settings_ui_motion_title">Animations and back gestures</string>
+    <string name="settings_ui_motion_summary">Page transitions, back animations and gesture previews</string>
+    <string name="settings_ui_motion_pages">Page transitions</string>
+    <string name="settings_ui_motion_enter">Forward animation</string>
+    <string name="settings_ui_motion_return">Back animation</string>
+    <string name="settings_ui_motion_duration">Animation speed</string>
+    <string name="settings_ui_motion_horizontal">Horizontal shared axis</string>
+    <string name="settings_ui_motion_vertical">Vertical shared axis</string>
+    <string name="settings_ui_motion_scale">Scaling shared axis</string>
+    <string name="settings_ui_motion_fade">Fade through</string>
+    <string name="settings_ui_motion_none">No animation</string>
+    <string name="settings_ui_motion_follow">Match forward animation</string>
+    <string name="settings_ui_motion_fast">Fast (%1$d ms)</string>
+    <string name="settings_ui_motion_standard">Standard (%1$d ms)</string>
+    <string name="settings_ui_motion_slow">Relaxed (%1$d ms)</string>
+    <string name="settings_ui_motion_gestures">Back gestures</string>
+    <string name="settings_ui_motion_predictive">Predictive back preview</string>
+    <string name="settings_ui_motion_predictive_summary">Preview the previous page while swiping back</string>
+    <string name="settings_ui_motion_predictive_unavailable">Requires Android 14 or later</string>
+    <string name="settings_ui_motion_predictive_no_animation">Choose a return animation to enable gesture previews</string>
+    <string name="settings_ui_motion_info">The back animation is used for both the back button and gesture previews. Respects the system animation scale.</string>
+    <string name="settings_ui_motion_reset_category">Defaults</string>
+    <string name="settings_ui_motion_reset">Restore default animations</string>
+    <string name="settings_ui_pure_black">Pure black dark background</string>
+    <string name="settings_ui_pure_black_summary">Use black page backgrounds in dark mode while retaining distinct cards</string>
+    <string name="settings_ui_dynamic_colors">Dynamic colors</string>
+    <string name="settings_ui_dynamic_colors_summary">Use wallpaper colors; turning this off restores your last manual palette</string>
+    <string name="settings_ui_follow_keyboard">Follow keyboard theme colors</string>
+    <string name="settings_ui_follow_keyboard_summary">Use the current keyboard theme colors; turning this off restores your previous settings palette</string>
+    <string name="settings_ui_follow_keyboard_unavailable">Requires Android 11 or later</string>
+    <string name="settings_ui_preview_notice">Preview changes here, then tap Apply in the toolbar to save</string>
+    <string name="settings_ui_interaction">Interaction</string>
+    <string name="setup_step_counter">Step %1$d of %2$d</string>
+</resources>
