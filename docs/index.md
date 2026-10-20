@@ -89,6 +89,7 @@ features:
 - 想配置 Rime 方案？→ [Rime 引擎（内置）](/features/rime-enhancements)
 - 想要逐项的完整操作手册？→ [用户指南](/manual/RIME_ONLY_USER_GUIDE_zh-CN)
 - 想自定义键盘外观？→ [主题编辑器](/features/theme/theme-editor) / [布局编辑器](/features/editor/layout-editor)
+- 想调整设置页配色、动画与返回手势？→ [设置界面外观与动画](/features/theme/settings-appearance)
 - 想用浮动键盘？→ [浮动键盘](/features/keyboard/float-keyboard)
 - 从上游 / fxliang 迁移数据？→ [从上游迁移](/guide/migrate-from-upstream)
 - 遇到问题？→ [常见问题](/troubleshooting/faq)

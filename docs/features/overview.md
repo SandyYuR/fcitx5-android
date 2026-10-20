@@ -39,6 +39,14 @@
 | MacroKey 编辑器 | 宏按键可视化编辑、多种 action 类型；「显示文本」优先于标签并原样显示 | [查看](/features/editor/macrokey-editor) |
 | 字体集编辑器 | 按位置（主键、副键、候选、预编辑、Popup）独立配置字体 | [查看](/features/editor/fontset-editor) |
 
+## 设置界面
+
+| 功能 | 说明 | 链接 |
+| --- | --- | --- |
+| Material 3 设置外观 | 设置页与应用自有编辑器统一主题，支持明暗、纯黑、跟随键盘主题、Monet、手动色系与预览应用 | [查看](/features/theme/settings-appearance) |
+| 动画与返回手势 | 独立前进／返回样式、350 / 500 / 650 ms 三档速度、Android 14+ 预测性返回开关 | [查看](/features/theme/settings-appearance) |
+| 首次启动引导 | 两步启用／选择输入法，显示步骤进度与完成状态，并采用设置界面主题 | [查看](/guide/installation) |
+
 ## 主题增强
 
 | 功能 | 说明 | 链接 |
