@@ -18,6 +18,7 @@
 - [维护手册](docs/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md)：构建、librime 来源与更新、CI 和性能复现。
 - [合并交付记录](docs/maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md)：版本来源、提交与分支归档、合并检查及已知范围。
 - [最终依赖审阅](docs/maintainer/DIRECT_RIME_FINAL_REVIEW_2026-10-19.md)：APK 原生/静态链接、保留的前端代码和无用途库清理。
+- [密码框方案菜单修复](docs/maintainer/DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md)：宏菜单的窗口焦点、键盘隐藏与回归验证。
 - [本会话交付索引](docs/maintainer/DIRECT_RIME_SESSION_2026-10-17.md)：版本演进、安装包摘要和验证证据。
 - [完整文档目录](docs/README.md)：实施、解耦、清理和历史方案归档。
 

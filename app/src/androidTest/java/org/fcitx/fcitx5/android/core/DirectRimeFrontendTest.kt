@@ -4,9 +4,16 @@ package org.fcitx.fcitx5.android.core
 import android.content.Intent
 import android.graphics.Rect
 import android.os.SystemClock
+import android.text.InputType
 import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import android.view.WindowManager
+import android.view.inspector.WindowInspector
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.RadioButton
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -15,6 +22,7 @@ import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.input.InputView
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.manager.SubModeManager
 import org.fcitx.fcitx5.android.ui.main.settings.im.RimeImportActivity
@@ -75,6 +83,10 @@ class DirectRimeFrontendTest {
         connection.runOnReady {
             setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "switch"), RawConfig("Name", profile))))
             setImConfig("rime", RawConfig(arrayOf(RawConfig("PreeditMode", "No"))))
+            // API-only scenarios model a new ordinary editor. A preceding UI
+            // test can finish in a password field, whose capabilities must not
+            // leak into this new test session and bypass the replayed keys.
+            setCapFlags(CapabilityFlags.DefaultFlags)
             startInputSession(invalidateInputSession(), "frontend.test")
         }
         val flow = connection.runImmediately { eventFlow }
@@ -377,6 +389,182 @@ end
     @Test fun originalKeyboardCanTypeUsingTouch(): Unit = runBlocking { keyboardTouchScenario(false) }
 
     @Test fun immediateTypingAndCandidateTapAfterRebind(): Unit = runBlocking { keyboardTouchScenario(true) }
+
+    @Test fun schemaMenuKeepsPasswordEditorFocused(): Unit = runBlocking {
+        val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
+        val previous = shell("settings get secure default_input_method")
+        val enabled = component in shell("ime list -s")
+        val prefs = AppPrefs.getInstance()
+        val oldFloating = prefs.candidates.mode.getValue()
+        val oldLayout = prefs.keyboard.textKeyboardLayoutProfile.getValue()
+        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        var activity: RimeImportActivity? = null
+        fun descendants(view: View): Sequence<View> = sequence {
+            yield(view)
+            if (view is ViewGroup) for (i in 0 until view.childCount) yieldAll(descendants(view.getChildAt(i)))
+        }
+        fun inputView(): InputView? {
+            var result: InputView? = null
+            instrumentation.runOnMainSync {
+                result = WindowInspector.getGlobalWindowViews().asSequence()
+                    .flatMap(::descendants).filterIsInstance<InputView>().firstOrNull { it.isShown }
+            }
+            return result
+        }
+        fun menuChoice(): RadioButton? {
+            var result: RadioButton? = null
+            instrumentation.runOnMainSync {
+                result = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
+                    .filterIsInstance<RadioButton>().firstOrNull { it.isShown && it.text.toString() == "第二方案" }
+            }
+            return result
+        }
+        try {
+            shell("input keyevent KEYCODE_WAKEUP")
+            shell("settings put secure show_ime_with_hard_keyboard 1")
+            instrumentation.runOnMainSync {
+                prefs.candidates.mode.setValue(FloatingCandidatesMode.Disabled)
+                prefs.keyboard.textKeyboardLayoutProfile.setValue("default")
+            }
+            shell("ime enable $component"); shell("ime set $component")
+            activity = instrumentation.startActivitySync(Intent(context, RimeImportActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as RimeImportActivity
+            val host = requireNotNull(activity)
+            val editor = host.findViewById<EditText>(R.id.direct_rime_test_editor)
+            for (type in listOf(InputType.TYPE_CLASS_TEXT,
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD,
+                InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD)) {
+                connection.runOnReady {
+                    activateAction(SubModeManager.resolveSchemaMenuEntries(statusArea()).first().second)
+                }
+                instrumentation.runOnMainSync {
+                    editor.inputType = type
+                    editor.setText("1237") // Disposable fixture, never a user's password.
+                    editor.setSelection(editor.length())
+                    editor.requestFocus()
+                    imm.showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT)
+                }
+                var generation = Long.MIN_VALUE
+                var stableSince = SystemClock.uptimeMillis()
+                await("Password editor $type must own a settled, visible IME") {
+                    val next = connection.runImmediately { inputSession }
+                    if (next != generation) { generation = next; stableSince = SystemClock.uptimeMillis() }
+                    var ready = false
+                    instrumentation.runOnMainSync {
+                        ready = host.hasWindowFocus() && editor.hasFocus() && imm.isActive(editor)
+                    }
+                    ready && inputView()?.service?.isInputViewShown == true &&
+                        SystemClock.uptimeMillis() - stableSince >= 750
+                }
+                val service = inputView()!!.service
+                var focusLosses = 0
+                val listener = ViewTreeObserver.OnWindowFocusChangeListener { focused -> if (!focused) focusLosses++ }
+                instrumentation.runOnMainSync { host.window.decorView.viewTreeObserver.addOnWindowFocusChangeListener(listener) }
+                try {
+                    fun assertEditorHeld() {
+                        instrumentation.runOnMainSync {
+                            assertTrue("Menu must keep host window focus for inputType=$type", host.hasWindowFocus())
+                            assertEquals("Menu must not transiently steal password focus", 0, focusLosses)
+                            assertTrue(editor.hasFocus())
+                            assertEquals("The tested editor type must reach the IME", type, service.currentInputEditorInfo.inputType)
+                            assertTrue("Menu must keep the keyboard visible", service.isInputViewShown)
+                            assertEquals("Opening a menu must not change editor text", "1237", editor.text.toString())
+                        }
+                        assertEquals("Opening/closing menus must not rebind the editor", generation,
+                            connection.runImmediately { inputSession })
+                    }
+                    suspend fun openMenu() {
+                        instrumentation.runOnMainSync {
+                            // Exact application-action entry used by MacroStep.AppAction.
+                            service.inputView!!.executeButtonAction("rime_schema_menu")
+                        }
+                        await("Schema menu must stay available in password inputType=$type") { menuChoice() != null }
+                        delay(800) // The reported focus/hide cycle occurs about 350 ms after show.
+                        val choice = menuChoice()
+                        assertNotNull("Schema menu disappeared after showing", choice)
+                        instrumentation.runOnMainSync {
+                            val flags = (choice!!.rootView.layoutParams as WindowManager.LayoutParams).flags
+                            assertTrue("The shown menu must not take editor focus",
+                                flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE != 0)
+                            assertEquals("AlertDialog must not restore ALT_FOCUSABLE_IM while creating its content",
+                                0, flags and WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+                        }
+                        assertEditorHeld()
+                    }
+                    openMenu()
+                    val bounds = Rect()
+                    val choice = menuChoice()!!
+                    instrumentation.runOnMainSync {
+                        val origin = IntArray(2)
+                        choice.getLocationOnScreen(origin)
+                        bounds.set(origin[0], origin[1], origin[0] + choice.width, origin[1] + choice.height)
+                    }
+                    val down = SystemClock.uptimeMillis()
+                    for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
+                        val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action,
+                            bounds.exactCenterX(), bounds.exactCenterY(), 0)
+                        event.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
+                        try { assertTrue(instrumentation.uiAutomation.injectInputEvent(event, true)) }
+                        finally { event.recycle() }
+                    }
+                    await("Touch must activate the selected schema and dismiss its menu") {
+                        menuChoice() == null && connection.runImmediately { inputMethodEntryCached.subMode.label } == "第二方案"
+                    }
+                    delay(500)
+                    assertEditorHeld()
+                    openMenu()
+                    shell("input keyevent KEYCODE_BACK")
+                    await("Back must dismiss the menu") { menuChoice() == null }
+                    delay(500)
+                    assertEditorHeld()
+                    if (type == InputType.TYPE_CLASS_TEXT) {
+                        openMenu()
+                        val menu = menuChoice()!!
+                        var x = 0
+                        var y = 0
+                        instrumentation.runOnMainSync {
+                            // GlobalVisibleRect uses each window's own root
+                            // coordinates. Compare actual screen positions.
+                            val toolbar = descendants(host.window.decorView)
+                                .filterIsInstance<androidx.appcompat.widget.Toolbar>().first()
+                            val origin = IntArray(2)
+                            toolbar.getLocationOnScreen(origin)
+                            x = origin[0] + toolbar.width - 2
+                            y = origin[1] + toolbar.height / 2
+                            menu.rootView.getLocationOnScreen(origin)
+                            val menuBounds = Rect(origin[0], origin[1],
+                                origin[0] + menu.rootView.width, origin[1] + menu.rootView.height)
+                            assertFalse("Outside-touch fixture must be outside the menu", menuBounds.contains(x, y))
+                        }
+                        shell("input tap $x $y")
+                        await("Touching outside must dismiss the non-focusable menu") { menuChoice() == null }
+                        delay(500)
+                        assertEditorHeld()
+                    }
+                    instrumentation.runOnMainSync { editor.setSelection(editor.length()) }
+                    shell("input text 7")
+                    await("Typing must still reach the same editor after menu dismissal") {
+                        var text = ""
+                        instrumentation.runOnMainSync { text = editor.text.toString() }
+                        text == "12377"
+                    }
+                } finally {
+                    instrumentation.runOnMainSync {
+                        host.window.decorView.viewTreeObserver.removeOnWindowFocusChangeListener(listener)
+                    }
+                }
+            }
+        } finally {
+            activity?.let { instrumentation.runOnMainSync { it.finish() } }
+            instrumentation.runOnMainSync {
+                prefs.candidates.mode.setValue(oldFloating)
+                prefs.keyboard.textKeyboardLayoutProfile.setValue(oldLayout)
+            }
+            if (previous.isNotBlank() && previous != "null") shell("ime set $previous")
+            if (!enabled) shell("ime disable $component")
+        }
+    }
 
     private suspend fun keyboardTouchScenario(immediate: Boolean) {
         val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"

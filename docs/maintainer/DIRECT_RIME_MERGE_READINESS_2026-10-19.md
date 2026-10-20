@@ -3,7 +3,8 @@
 日期：2026-10-19。合并入口：[PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4)，
 `feat/direct-rime-prototype` → `fx-rime-only`。本次整理将 PR 准备到可合并状态，实际合并由维护者执行。
 
-最后审阅在原三个交付提交之后追加一项依赖清理与核验提交，PR 共四项提交。
+最后审阅在原三个交付提交之后追加一项依赖清理与核验提交；
+10 月 20 日另加[密码框方案菜单修复](DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md)，PR 共五项提交。
 最新打包库、无调用方依赖、组件清理及验证见[最终依赖审阅](DIRECT_RIME_FINAL_REVIEW_2026-10-19.md)；
 下面的 1c/6378/205d 来源关系保留整理时点的事实，交付选择 PR 当前提交重新产生的签名 Release。
 
