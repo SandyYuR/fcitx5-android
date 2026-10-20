@@ -5,10 +5,10 @@
 package org.fcitx.fcitx5.android.data.theme
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
-import android.util.TypedValue
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.core.graphics.ColorUtils
 import com.google.android.material.color.ColorResourcesOverride
@@ -66,9 +66,7 @@ object SettingsKeyboardColors {
         )
     }
 
-    /** MDC creates a configuration-scoped Resources instance, leaving the IME/app context intact. */
-    fun wrapContext(context: Context, palette: Palette): Context {
-        if (!isAvailable()) return context
+    private fun colorResources(palette: Palette): Map<Int, Int> {
         val accent = Hct.fromInt(palette.accent)
         val secondary = Hct.fromInt(palette.secondary)
         val tertiary = Hct.fromInt(palette.tertiary)
@@ -98,18 +96,26 @@ object SettingsKeyboardColors {
         colors[R.color.settings_keyboard_tertiary_fixed_dim] = roles.tertiaryFixedDim().getArgb(scheme)
         colors[R.color.settings_keyboard_on_tertiary_fixed] = roles.onTertiaryFixed().getArgb(scheme)
         colors[R.color.settings_keyboard_on_tertiary_fixed_variant] = roles.onTertiaryFixedVariant().getArgb(scheme)
-        val wrapped = ColorResourcesOverride.getInstance()?.wrapContextIfPossible(context, colors) ?: context
+        return colors
+    }
+
+    /** Apply after AppCompat has finished choosing the activity's Resources/night configuration. */
+    fun applyToActivity(activity: Activity, palette: Palette) {
+        if (!isAvailable()) return
+        if (ColorResourcesOverride.getInstance()?.applyIfPossible(activity, colorResources(palette)) == true) {
+            applyOverlay(activity)
+        }
+    }
+
+    /** MDC creates a configuration-scoped Resources instance for each preview. */
+    fun wrapContext(context: Context, palette: Palette): Context {
+        if (!isAvailable()) return context
+        val wrapped = ColorResourcesOverride.getInstance()?.wrapContextIfPossible(context, colorResources(palette)) ?: context
         if (wrapped !== context) applyOverlay(wrapped)
         return wrapped
     }
 
-    /** Reapply after AppCompat initializes its base theme; the scoped resource loader stays attached. */
-    fun applyOverlay(context: Context) {
+    private fun applyOverlay(context: Context) {
         context.theme.applyStyle(R.style.ThemeOverlay_FcitxSettings_KeyboardColors, true)
-    }
-
-    fun isApplied(context: Context): Boolean {
-        val value = TypedValue()
-        return context.theme.resolveAttribute(R.attr.settingsKeyboardColorsApplied, value, true) && value.data != 0
     }
 }

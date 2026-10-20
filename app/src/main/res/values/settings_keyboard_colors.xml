@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="settingsKeyboardColorsApplied" format="boolean" />
     <!-- Runtime values are loaded only into the settings/preview context. -->
     <color name="settings_keyboard_primary_fixed">#EADDFF</color>
     <color name="settings_keyboard_primary_fixed_dim">#D0BCFF</color>
@@ -16,7 +15,6 @@
     <color name="settings_keyboard_on_tertiary_fixed_variant">#633B48</color>
 
     <style name="ThemeOverlay.FcitxSettings.KeyboardColors" parent="ThemeOverlay.Material3.PersonalizedColors">
-        <item name="settingsKeyboardColorsApplied">true</item>
         <item name="colorPrimaryFixed">@color/settings_keyboard_primary_fixed</item>
         <item name="colorPrimaryFixedDim">@color/settings_keyboard_primary_fixed_dim</item>
         <item name="colorOnPrimaryFixed">@color/settings_keyboard_on_primary_fixed</item>

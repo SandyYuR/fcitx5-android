@@ -31,7 +31,6 @@ import org.fcitx.fcitx5.android.utils.settingsColor
 /** Base for app-owned settings shells; IME windows and transient overlay activities do not use it. */
 abstract class SettingsUiActivity : AppCompatActivity() {
     private var appliedKeyboardPalette: SettingsKeyboardColors.Palette? = null
-    private var keyboardPaletteLoaded = false
 
     override fun attachBaseContext(newBase: Context) {
         // Resolve the mode before AppCompat wraps the context. Changing it in onCreate can
@@ -42,14 +41,7 @@ abstract class SettingsUiActivity : AppCompatActivity() {
             SettingsUiPreferences.MODE_DARK -> AppCompatDelegate.MODE_NIGHT_YES
             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
-        appliedKeyboardPalette = SettingsKeyboardColors.current(newBase, selection)
-        // Install a scoped loader before AppCompat obtains Resources. It must never modify the
-        // application context: the IME and keyboard previews retain their original theme colors.
-        val themedBase = if (appliedKeyboardPalette != null) {
-            SettingsUiPreferences.themedContext(newBase, selection)
-        } else newBase
-        keyboardPaletteLoaded = appliedKeyboardPalette != null && SettingsKeyboardColors.isApplied(themedBase)
-        super.attachBaseContext(themedBase)
+        super.attachBaseContext(newBase)
     }
 
     @OptIn(PredictiveBackControl::class)
@@ -67,7 +59,10 @@ abstract class SettingsUiActivity : AppCompatActivity() {
         if (SettingsUiPreferences.usesSystemDynamicColors(this)) {
             DynamicColors.applyToActivityIfAvailable(this)
         }
-        if (keyboardPaletteLoaded) SettingsKeyboardColors.applyOverlay(this)
+        // AppCompat can replace Resources while wrapping the base context. Install the loader on
+        // the final activity Resources, just as MDC does for its content-based dynamic colors.
+        appliedKeyboardPalette = SettingsKeyboardColors.current(this, SettingsUiPreferences.read(this))
+        appliedKeyboardPalette?.let { SettingsKeyboardColors.applyToActivity(this, it) }
         SettingsUiPreferences.applySurfaceOptions(this)
         window.setBackgroundDrawable(ColorDrawable(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)))
         val bars = if (SettingsUiPreferences.isDark(this)) {
