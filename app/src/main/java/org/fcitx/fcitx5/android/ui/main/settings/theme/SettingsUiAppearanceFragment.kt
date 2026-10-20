@@ -21,6 +21,7 @@ import com.google.android.material.slider.Slider
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences.Selection
+import org.fcitx.fcitx5.android.ui.main.withSettingsPage
 
 /** Settings shell appearance controls. Draft values only become durable when Apply is pressed. */
 class SettingsUiAppearanceFragment : Fragment() {
@@ -62,7 +63,7 @@ class SettingsUiAppearanceFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_settings_ui_appearance, container, false)
+    ): View = withSettingsPage(inflater.inflate(R.layout.fragment_settings_ui_appearance, container, false))
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

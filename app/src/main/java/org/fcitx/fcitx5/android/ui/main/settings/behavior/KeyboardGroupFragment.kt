@@ -123,7 +123,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
 
     override fun onResume() {
         super.onResume()
-        viewModel.setToolbarTitle(getString(groupTitleRes(group)))
         if (group == GROUP_FEEDBACK) {
             customKeySoundPreference?.summary = buildCustomKeySoundSummary()
         }

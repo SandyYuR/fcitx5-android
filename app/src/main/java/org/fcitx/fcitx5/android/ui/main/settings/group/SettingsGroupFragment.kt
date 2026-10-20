@@ -65,12 +65,6 @@ class SettingsGroupFragment : PaddingPreferenceFragment() {
         scrollToPendingPreference(viewModel)
     }
 
-    override fun onResume() {
-        super.onResume()
-        val spec = spec ?: return
-        viewModel.setToolbarTitle(getString(spec.title))
-    }
-
     private fun launch(action: SettingsGroupAction) = when (action) {
         is SettingsGroupAction.Route -> navigateWithAnim(action.route)
         is SettingsGroupAction.Launch ->

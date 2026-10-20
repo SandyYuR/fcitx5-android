@@ -4,8 +4,6 @@
  */
 package org.fcitx.fcitx5.android.ui.main
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,23 +11,14 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.core.view.MenuProvider
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
-import com.google.android.material.appbar.AppBarLayout
 import org.fcitx.fcitx5.android.databinding.ActivityMainBinding
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
@@ -50,59 +39,15 @@ class MainActivity : SettingsUiActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
-            val statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
-            binding.appBar.updatePadding(top = statusBars.top)
-            windowInsets
-        }
         setContentView(binding.root)
-        ViewCompat.requestApplyInsets(binding.root)
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(true)
-        // always show toolbar back arrow icon
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         navController = binding.navHostFragment.getFragment<NavHostFragment>().navController
         navController.graph = SettingsRoute.createGraph(navController)
-        addMenuProvider(HomeMenuProvider(), this, Lifecycle.State.RESUMED)
         shareReceiveManager = ShareReceiveManager(this) { message, action ->
             Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).apply {
                 action?.let { callback ->
                     setAction(R.string.edit) { callback() }
                 }
             }.show()
-        }
-        binding.toolbar.setNavigationOnClickListener {
-            // prevent navigate up when child fragment has enabled `OnBackPressedCallback`
-            if (onBackPressedDispatcher.hasEnabledCallbacks()) {
-                onBackPressedDispatcher.onBackPressed()
-                return@setNavigationOnClickListener
-            }
-            // "minimize" the activity if we can't go back
-            navController.navigateUp() || onSupportNavigateUp() || moveTaskToBack(false)
-        }
-        fun updateHeaderTitle(title: String) {
-            val home = navController.currentDestination?.hasRoute<SettingsRoute.Index>() == true
-            binding.collapsingToolbar.isTitleEnabled = home
-            binding.collapsingToolbar.title = if (home) title else null
-            binding.toolbar.title = if (home) null else title
-        }
-        viewModel.toolbarTitle.observe(this, ::updateHeaderTitle)
-        navController.addOnDestinationChangedListener { _, dest, _ ->
-            val home = dest.hasRoute<SettingsRoute.Index>()
-            binding.collapsingToolbar.updateLayoutParams<AppBarLayout.LayoutParams> {
-                val expandedHeight = 64f + 48f * resources.configuration.fontScale.coerceAtLeast(1f)
-                height = (resources.displayMetrics.density * if (home) expandedHeight else 64f).toInt()
-                scrollFlags = if (home) {
-                    AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
-                        AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
-                } else 0
-            }
-            binding.appBar.setExpanded(true, false)
-            invalidateMenu()
-            dest.label?.let {
-                viewModel.setToolbarTitle(it.toString())
-                updateHeaderTitle(it.toString())
-            }
         }
         processIntent(intent, savedInstanceState)
         checkNotificationPermission()
@@ -124,21 +69,16 @@ class MainActivity : SettingsUiActivity() {
         return navController.navigateUp() || super.onSupportNavigateUp() || moveTaskToBack(false)
     }
 
-    private inner class HomeMenuProvider : MenuProvider {
-        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-            if (navController.currentDestination?.hasRoute<SettingsRoute.Index>() != true) return
-            menu.item(R.string.faq) {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Const.faqUrl)))
-            }
-            menu.item(R.string.developer) {
-                navController.navigateWithAnim(SettingsRoute.Developer)
-            }
-            menu.item(R.string.about) {
-                navController.navigateWithAnim(SettingsRoute.About)
-            }
+    internal fun populateHomeMenu(menu: Menu) {
+        menu.item(R.string.faq) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Const.faqUrl)))
         }
-
-        override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
+        menu.item(R.string.developer) {
+            navController.navigateWithAnim(SettingsRoute.Developer)
+        }
+        menu.item(R.string.about) {
+            navController.navigateWithAnim(SettingsRoute.About)
+        }
     }
 
     private fun processIntent(intent: Intent?, savedInstanceState: Bundle? = null) {

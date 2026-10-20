@@ -17,15 +17,16 @@ import org.fcitx.fcitx5.android.ui.main.MainViewModel.ButtonMode
 import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.settingsColor
 
-class EditDeleteMenuProvider<T>(
+class EditDeleteMenuProvider(
     private val buttonMode: LiveData<ButtonMode>,
     private val editButtonAction: (() -> Unit)?,
     private val deleteButtonAction: (() -> Unit)?,
-    menuHost: T,
+    menuHost: MenuHost,
+    context: Context,
     lifecycleOwner: LifecycleOwner,
-) : MenuProvider where T : MenuHost, T : Context {
+) : MenuProvider {
 
-    private val tint = menuHost.settingsColor(android.R.attr.colorControlNormal)
+    private val tint = context.settingsColor(android.R.attr.colorControlNormal)
 
     init {
         buttonMode.observe(lifecycleOwner) { menuHost.invalidateMenu() }

@@ -225,7 +225,7 @@ sealed class SettingsRoute : Parcelable {
             fragment<KeyboardModesFragment, KeyboardModes> {
                 label = ctx.getString(R.string.keyboard_modes_title)
             }
-            // 分组页标题由规格表给出，这里不设 label，由 Fragment 在 onResume 里设置。
+            // 分组页的标题在创建页面外壳时从规格表解析，无需等待入场动画结束。
             fragment<SettingsGroupFragment, SettingsGroup>()
             fragment<CandidatesSettingsFragment, CandidatesWindow> {
                 label = ctx.getString(R.string.candidates_window)

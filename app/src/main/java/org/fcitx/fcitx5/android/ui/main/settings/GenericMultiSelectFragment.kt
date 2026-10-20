@@ -20,6 +20,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.RawConfig
 import org.fcitx.fcitx5.android.ui.common.BaseDynamicListUi
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
+import org.fcitx.fcitx5.android.ui.main.withSettingsPage
 import org.fcitx.fcitx5.android.utils.lazyRoute
 import org.fcitx.fcitx5.android.utils.toast
 import timber.log.Timber
@@ -85,14 +86,13 @@ class GenericMultiSelectFragment : Fragment() {
             uiRef = listUi
             ui = listUi
             viewModel.disableToolbarEditButton()
-            viewModel.setToolbarTitle(args.title)
             withContext(Dispatchers.Main) {
                 containerView?.removeAllViews()
                 containerView?.addView(listUi.root)
             }
             isLoading = false
         }
-        return root
+        return withSettingsPage(root)
     }
 
     override fun onStop() {

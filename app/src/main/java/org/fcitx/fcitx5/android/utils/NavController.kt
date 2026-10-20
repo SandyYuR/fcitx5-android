@@ -6,16 +6,9 @@
 package org.fcitx.fcitx5.android.utils
 
 import androidx.navigation.NavController
-import androidx.navigation.navOptions
-import org.fcitx.fcitx5.android.R
 
 fun <T : Any> NavController.navigateWithAnim(route: T) {
-    navigate(route, navOptions {
-        anim {
-            enter = R.animator.settings_enter
-            exit = R.animator.settings_exit
-            popEnter = R.animator.settings_pop_enter
-            popExit = R.animator.settings_pop_exit
-        }
-    })
+    // Destinations own the motion for their entire page, including the header. Forward
+    // navigation and predictive back therefore use the same Material transition.
+    navigate(route)
 }

@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import org.fcitx.fcitx5.android.ui.main.modified.MyPreferenceFragment
+import org.fcitx.fcitx5.android.ui.main.withSettingsPage
 import org.fcitx.fcitx5.android.utils.applyNavBarInsetsBottomPadding
 
 abstract class PaddingPreferenceFragment : MyPreferenceFragment() {
@@ -21,9 +22,9 @@ abstract class PaddingPreferenceFragment : MyPreferenceFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = super.onCreateView(inflater, container, savedInstanceState).apply {
+    ) = withSettingsPage(super.onCreateView(inflater, container, savedInstanceState).apply {
         listView.applyNavBarInsetsBottomPadding()
-    }
+    })
 
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

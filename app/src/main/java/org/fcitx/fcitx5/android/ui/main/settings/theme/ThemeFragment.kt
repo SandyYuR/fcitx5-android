@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
+import org.fcitx.fcitx5.android.ui.main.withSettingsPage
 import splitties.dimensions.dp
 import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.backgroundColor
@@ -58,7 +59,7 @@ class ThemeFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = with(requireContext()) {
+    ): View = withSettingsPage(with(requireContext()) {
         previewUi = KeyboardPreviewUi(this, ThemeManager.activeTheme)
         ThemeManager.addOnChangedListener(onThemeChangeListener)
         val preview = previewUi.root.apply {
@@ -117,7 +118,7 @@ class ThemeFragment : Fragment() {
                 bottomOfParent()
             })
         }
-    }
+    })
 
     override fun onStop() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

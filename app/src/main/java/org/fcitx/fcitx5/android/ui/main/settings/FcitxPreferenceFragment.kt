@@ -180,8 +180,4 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
         return maxProtocol
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.setToolbarTitle(getPageTitle())
-    }
 }

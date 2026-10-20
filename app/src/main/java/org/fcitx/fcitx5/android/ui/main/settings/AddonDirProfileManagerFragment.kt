@@ -35,6 +35,7 @@ import org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException
 import org.fcitx.fcitx5.android.data.RimeDataDirectoryState
 import org.fcitx.fcitx5.android.ui.common.BaseDynamicListUi
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
+import org.fcitx.fcitx5.android.ui.main.withSettingsPage
 import org.fcitx.fcitx5.android.utils.lazyRoute
 import org.fcitx.fcitx5.android.utils.ExternalRimeStorage
 import org.fcitx.fcitx5.android.utils.toast
@@ -87,12 +88,11 @@ class AddonDirProfileManagerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return FrameLayout(requireContext()).also { containerView = it }
+        return withSettingsPage(FrameLayout(requireContext()).also { containerView = it })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.setToolbarTitle(args.title)
         viewModel.disableToolbarEditButton()
         // Bind to viewLifecycleOwner instead of fragment lifecycle: `lifecycleScope` survives
         // `onDestroyView`, so a render job waiting on fcitx could resume after the view was torn
