@@ -37,6 +37,7 @@ export default defineConfig({
           { text: '键盘特性', link: '/features/keyboard/float-keyboard' },
           { text: '编辑器', link: '/features/editor/layout-editor' },
           { text: '主题增强', link: '/features/theme/theme-editor' },
+          { text: '设置界面外观与动画', link: '/features/theme/settings-appearance' },
           { text: '按键类型', link: '/features/keys/overview' },
           { text: 'Kawaii Bar', link: '/features/kawaii-bar' },
           { text: '剪贴板同步', link: '/features/clipboard-sync' },
@@ -55,6 +56,7 @@ export default defineConfig({
           { text: '直连 librime 再评估（2026-10-07）', link: '/maintainer/DIRECT_RIME_REEVALUATION_2026-10-07' },
           { text: 'fx2 代码复审报告（2026-10-11）', link: '/maintainer/CODE_REVIEW_fx2_2026-10-11' },
           { text: '设置 MD3 改造规划（2026-10-18）', link: '/maintainer/SETTINGS_MD3_PLAN_2026-10-18' },
+          { text: '设置 MD3 实施与合并说明（2026-10-20）', link: '/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20' },
           { text: '交接报告', link: '/maintainer/HANDOVER-rime-only' },
           { text: '历史归档：Rime 裁剪可行性报告', link: '/maintainer/ARCHIVE_RIME_ONLY_FEASIBILITY' },
           { text: '历史归档：Rime 整合实施方案', link: '/maintainer/ARCHIVE_RIME_INTEGRATION_PLAN' },
@@ -135,6 +137,7 @@ export default defineConfig({
         {
           text: '主题',
           items: [
+            { text: '设置界面外观与动画', link: '/features/theme/settings-appearance' },
             { text: '主题编辑器', link: '/features/theme/theme-editor' },
             { text: 'Monet 编辑器', link: '/features/theme/monet' },
             { text: '磨砂按键', link: '/features/theme/frosted-blur' },
@@ -179,6 +182,7 @@ export default defineConfig({
             { text: '直连 librime 再评估（2026-10-07）', link: '/maintainer/DIRECT_RIME_REEVALUATION_2026-10-07' },
             { text: 'fx2 代码复审报告（2026-10-11）', link: '/maintainer/CODE_REVIEW_fx2_2026-10-11' },
             { text: '设置 MD3 改造规划（2026-10-18）', link: '/maintainer/SETTINGS_MD3_PLAN_2026-10-18' },
+            { text: '设置 MD3 实施与合并说明（2026-10-20）', link: '/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20' },
             { text: '交接报告', link: '/maintainer/HANDOVER-rime-only' },
           ],
         },
