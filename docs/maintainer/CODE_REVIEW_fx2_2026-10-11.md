@@ -57,7 +57,7 @@
 |---:|---|---|---|---|
 | 1 | P1 | N8 | 启动可取消、失败收敛至 STOPPED、停止等待移出 Main | STARTING 停止/启动失败重试/慢退出三个故障注入均通过 |
 | 2 | P1 | N1 | 随机主题读写改为 Direct Boot 安全路径 | 首次解锁前 IME 可启动；解锁后卡片存在且生成不换主题 |
-| 3 | P1 | N2 | 两处 Outline.setPath 的版本保护改为 API 30 | API 29 主题预览、上下不同圆角键盘无崩溃 |
+| 3 | P1 | N2 | 两处 Outline.setPath 的版本保护改为 API 30，API < 30 退化为 setRoundRect（不可用 setConvexPath） | API 29 主题预览、上下不同圆角键盘无崩溃 |
 | 4 | P1 | C21 | dataSync 超时取消任务并真正停止 Service | API 35/36 缩短配额后无 RemoteServiceException，不无条件重启 |
 | 5 | P1 | B9 | checkpoint 失败中止备份，建立一致快照，兼容旧 WAL 备份 | 活跃读写中导出/恢复条目一致，含 WAL 的旧备份不丢记录 |
 | 6 | P1 | N7 + D7 | Main 捕获唯一不可变保存快照，IO 只处理该快照 | 保存期间编辑/再保存后，磁盘、baseline、dirty 状态一致 |
@@ -189,7 +189,16 @@ randomThemePrefs 使用普通 Application appContext，randomSlot 在对象初�
 
 两处用 >=Q 保护 setPath，该方法实际从 R/API 30 提供。Android 10 主题预览的 CardOutlineProvider 进入此路径，实际键盘上下圆角不同时也会调用，抛 NoSuchMethodError。纯几何单测不会触及系统方法。
 
-建议两处都改 >=R；API 29 用 setConvexPath。Q 放宽路径凸性限制与 R 引入新方法名是两件事。[Outline 官方 API](https://developer.android.com/reference/android/graphics/Outline#setPath(android.graphics.Path))。需在 API 29 验证主题预览及不同圆角键盘，当前未执行设备复现。
+[Outline 官方 API](https://developer.android.com/reference/android/graphics/Outline#setPath(android.graphics.Path))。需在 API 29 验证主题预览及不同圆角键盘，当前未执行设备复现。
+
+**2026-10-19 修订**：原文"建议两处都改 >=R；API 29 用 setConvexPath"只覆盖了 Bug 1，且 API 29 用 setConvexPath 的建议是对的（Q 起该方法不再校验凸性，见下），但漏掉了 API 28 及更低设备的第二条崩溃路径：
+
+- AOSP android-10.0.0_r1 的 "Outline.java" 全文没有 setPath，只有 setConvexPath → API 29 走 setPath 必抛 NoSuchMethodError，Bug 1 成立。
+- AOSP android-9.0.0_r1 的 setConvexPath 方法体为"if (convexPath.isEmpty()) { setEmpty(); return; } if (!convexPath.isConvex()) { throw new IllegalArgumentException("path must be convex"); }"，即 R 之前真的校验凸性；android-10.0.0_r1 的同类方法已去掉该校验（注释"As of Q, it is no longer required to be convex"）。
+- 而老 Skia（android-9.0.0_r1 "platform_external_skia src/core/SkPath.cpp"）的 Convexicator 是按坐标符号翻转次数判凸：`int sx = sign(vec.fX); fDx += (sx != fSx); ... if (fDx > 3 || fDy > 3) fConvexity = kConcave_Convexity;`（sign 为"负数=1/非负=0"二值）。按 "ContinuousCornerGeometry.addCardPath" 的真实几何逐行模拟：纯矩形（上下半径均 0）判 convex，**只要上圆角 > 0 就全部判 concave**（矩形四边自身已累计 dx=3、dy=4，越过阈值），与弧线真凸性无关，是旧启发式的几何盲区。
+- 因此 API <= 28 的设备走 setConvexPath 会抛 IllegalArgumentException: path must be convex，且与圆角是否真凸无关。结论：两处都需要 >=R 才用 setPath，并且 **API < 30 不能退回 setConvexPath**，必须退化成 Outline.setRoundRect（旧机唯一无校验的四角同半径形状）。
+
+修复已按此实施（"ContinuousCornerGeometry.applyCardOutline" + "legacyUniformRadius"，键盘侧拆成三条独立分支），见 "ContinuousCornerGeometry.kt:111-112"（legacyUniformRadius）与 ":129-145"（applyCardOutline）、"InputView.kt:1728-1765"。
 
 ### [P2] N3：候选窗口平移后栏内序号角标没有重新绑定
 
