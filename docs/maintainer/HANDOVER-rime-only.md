@@ -1105,6 +1105,30 @@ JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal st
 
 **本次验证**：`:app:testFxDebugUnitTest` 468 例通过，arm64-v8a 的 Debug APK 与 Android 测试 APK 构建成功；PJD110 设备上上述 4 项布局测试通过。未切换正式版输入法做真实 Rime 输入回归。`:app:lintFxDebug` 独立运行仍因既有的 318 个错误失败（主要为翻译缺失和 API 兼容性）；本次修改的两个源码文件及新增测试没有 lint 报告项。lint 与打包同批调用时还会触发既有的 `generateDataDescriptor` / `generateFxDebugLintReportModel` 隐式依赖校验错误，应分开执行，不能把这一失败记为检查通过。
 
+### 0.6.22.1 Android 10 及以下「换主题崩溃」：Outline 版本门槛与旧机退化（2026-10-19）
+
+**现象**：用户反馈 nightly `nightly-0.1.3-686-g4eae6539-20261010-061224`（含 `01d0dfee`）在 Android 10 及以下设备切换主题时崩溃。
+
+**根因（两条独立路径，都在 `01d0dfee` 新引入的 Outline 用法里）**：
+
+1. **API 29 必崩**：`InputView.keyboardOutlineProvider` 与 `ContinuousCornerGeometry.CardOutlineProvider` 的守卫写成 `>= Build.VERSION_CODES.Q`（29）就调用 `Outline.setPath`，但该方法 **API 30 (R) 才加入** → Android 10 抛 `NoSuchMethodError: android.graphics.Outline.setPath`。AOSP `android-10.0.0_r1` 的 `Outline.java` 全文只有 `setConvexPath`，没有 `setPath`。
+2. **API ≤ 28 也崩**：另一半走 `Outline.setConvexPath`，该方法在 R 之前**真的校验凸性**（`android-9.0.0_r1`：`if (!convexPath.isConvex()) throw new IllegalArgumentException("path must be convex")`），而老 Skia 的 `Convexicator` 按**坐标符号翻转次数**判凸（`sign(x) = x<0`、`fDx += (sx != fSx)`、`fDx > 3 || fDy > 3` 即判凹）。逐行模拟 `addCardPath` 的真实几何：纯矩形判 convex，**只要上圆角 > 0 就全部判 concave**（矩形四条边自身已把 dx/dy 累计到 3/4，越过阈值），与弧线真凸性无关——这是旧启发式的几何盲区，不是「弧线不凸」。Q 起 `setConvexPath` 已去掉该校验（注释 `As of Q, it is no longer required to be convex`），所以 API 29 用 setConvexPath 反而安全，危险的是 ≤ 28。
+
+**触发点**：主题设置页主题预览（`KeyboardPreviewUi.applyFakeCardShape` 只传上半径、下半径默认 0，恰好是最容易被判凹的组合）以及键盘上下圆角不等时。
+
+**修复（不引入新设置、不改默认外观）**：
+- `ContinuousCornerGeometry.kt` 新增 `legacyUniformRadius(top, bottom) = maxOf(top, bottom).coerceAtLeast(0f)`（:111）与 `applyCardOutline(outline, w, h, top, bottom, path)`（:129-145）：`usesPathOutline(Build.VERSION.SDK_INT)` 为真走 `setPath`，否则 `setRoundRect(0, 0, w, h, clampRadius(legacyUniformRadius(...)))`。**API < 30 一律不用 setConvexPath**（会抛）。`addCardPath` 的 KDoc 里「该形状是凸的，可直接用于 setConvexPath」的错误说法就地改正。
+- 版本门槛抽成纯函数 `@ChecksSdkIntAtLeast(api = Build.VERSION_CODES.R) fun usesPathOutline(sdkInt: Int) = sdkInt >= Build.VERSION_CODES.R`（:157-158）。`@ChecksSdkIntAtLeast` 是让 lint 认得这个自造判据的关键——没有它，包一层 helper 反倒会让 lint 报 `setPath` NewApi（实测过），加上之后 `:app:lintFxDebug` 报告里本文件零条目。抽成纯函数同时让 JVM 单测能钉住 28/29/30 三档（`Build.VERSION.SDK_INT` 本身不可注入）。
+- `input/InputView.kt:1728-1765` 的 `keyboardOutlineProvider` 拆成三条**顺序分支**：① 上下半径都 ≤ 0 → `setRect`；② `topRadius == bottomRadius` → `setRoundRect` + `clampRadius`（保留「浮动键盘 elevation 阴影才不被吃掉」的理由）；③ 其余 → `addCardPath` + `applyCardOutline`。**API 分级只在 applyCardOutline 里判一次**，键盘侧不再自己复制一份 SDK 判断（两处重复判断容易走偏，且重复的 `@Suppress("NewApi")` 会掩盖真问题）。也不能写成复合条件 `topRadius == bottomRadius || SDK < R`：lint 的 NewApi 流分析会被绕晕（`01d0dfee` 就是这么把正确的 NewApi 报错压掉、而 CI 不跑 lint 无人拦截的）。
+- 两个 provider（`CardOutlineProvider.getOutline` :299-315 与 `InputView.keyboardOutlineProvider` :1728-1765）在宽高 ≤ 0 时都 `outline.setEmpty(); return`：`getOutline` 拿到的 Outline 是复用的，什么都不设会让 `clipToOutline` 的宿主（键盘、主题预览）沿用上一帧形状。两处必须一致，只改一处等于漏掉另一条退化路径。`clampRadius`（:40-43）先 `if (!radius.isFinite()) return 0f`——`Float.coerceAtLeast` 对 NaN 判定为 false 会原样放过 NaN，NaN 半径喂给 `setRoundRect` 形状非法。
+- 旧机外观取舍：旧系统只有 `setRoundRect`（四角同半径）与会校验凸性的 `setConvexPath`，无稳定 API 表达上下不同圆角，故退化时取 `max(top, bottom)`（「工具栏上方圆角」是用户显式设置，取 max 让它保持原样）。默认设置（两半径均 0 或相等）走分支 ①/②，外观与修复前完全一致，只有用户把上圆角设为 > 0 且浮动键盘下半径 10dp 不等时才近似。
+
+**验证**：`:app:testFxDebugUnitTest` BUILD SUCCESSFUL（`ContinuousCornerGeometryTest` 9 例，含新增 3 例：`legacyUniformRadius` 取大值不取负、退化后仍夹半高、`usesPathOutline` 在 P/Q 为 false 而 R/S 为 true 钉住 01d0dfee 的门槛）；`:app:assembleFxDebug` 与 Debug APK 构建成功；`:app:lintFxDebug` 单独运行仍因既存错误失败（首条 `BaseKeyboard.kt:1865 suppressLayout [NewApi]`，来自 `a5e9140e`，与本改动无关），报告里 `ContinuousCornerGeometry.kt` 与 `InputView.kt` 均无 NewApi 条目 → 本改动不再触发 NewApi（未加 `@ChecksSdkIntAtLeast` 时设过临时变量，lint 反而报 `ContinuousCornerGeometry.kt:137 Error: Call requires API level 30: android.graphics.Outline#setPath [NewApi]`，这是判据注解必需性的直接证据）。
+
+**未完成的验证**：本机无 API 28/29 的 `android.jar`（只有 36 与 37.1），也无模拟器/真机（`adb devices` 为空、无 AVD、无 system-images），**未能设备复现**。结论来自 AOSP `android-10.0.0_r1` / `android-9.0.0_r1` 的 `Outline.java` 与 `SkPath.cpp` 源码 + 按源码逐行复刻的凸性模拟。审阅报告 N2 的最小验收（「API 29 主题预览、上下不同圆角键盘无崩溃」）仍需真机补测。
+
+**相关**：`docs/maintainer/CODE_REVIEW_fx2_2026-10-11.md` 的 [P1] N2 已按本轮证据修订（原文「API 29 用 setConvexPath」只覆盖 Bug 1，且漏掉 API ≤ 28 的凸性校验路径）。
+
 ---
 
 ### 0.6.23 密码输入框：无活动输入法下的崩溃防护、default 布局与空格键提示（2026-10-12，`393ba91` + `0ca7903` + `70298bc`）
