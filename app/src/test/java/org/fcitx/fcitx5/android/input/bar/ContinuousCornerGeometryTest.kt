@@ -4,7 +4,10 @@
  */
 package org.fcitx.fcitx5.android.input.bar
 
+import android.os.Build
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -19,6 +22,15 @@ class ContinuousCornerGeometryTest {
         assertEquals(20f, ContinuousCornerGeometry.clampRadius(48f, 100f, 40f), 0f)
         assertEquals(0f, ContinuousCornerGeometry.clampRadius(-4f, 100f, 40f), 0f)
         assertEquals(0f, ContinuousCornerGeometry.clampRadius(10f, -1f, 40f), 0f)
+    }
+
+    @Test
+    fun `non-finite radii fall back to square corners`() {
+        // coerceAtLeast 对 NaN 判定为 false 会原样放过 NaN，而 NaN 半径会让
+        // Outline.setRoundRect 的形状非法——脏数据只能退成直角。
+        assertEquals(0f, ContinuousCornerGeometry.clampRadius(Float.NaN, 100f, 40f), 0f)
+        assertEquals(0f, ContinuousCornerGeometry.clampRadius(Float.POSITIVE_INFINITY, 0f, 40f), 0f)
+        assertEquals(0f, ContinuousCornerGeometry.clampRadius(Float.NEGATIVE_INFINITY, 100f, 40f), 0f)
     }
 
     @Test
@@ -39,6 +51,39 @@ class ContinuousCornerGeometryTest {
         // 侧边距把胶囊推到卡片圆角之外：反向弧从胶囊自身左缘起画，位移就是编码区圆角
         assertEquals(16f, ContinuousCornerGeometry.preeditBodyOffset(12f, 40f, 16f), 0f)
         assertEquals(0f, ContinuousCornerGeometry.preeditBodyOffset(0f, 24f, 0f), 0f)
+    }
+
+    @Test
+    fun `legacy uniform radius takes the larger corner and never goes negative`() {
+        // API < 30 只能用 setRoundRect（四角同半径）：上下不等时取较大者，
+        // 让用户显式设置的那一侧圆角保持原样。
+        assertEquals(36f, ContinuousCornerGeometry.legacyUniformRadius(36f, 0f), 0f)
+        assertEquals(36f, ContinuousCornerGeometry.legacyUniformRadius(0f, 36f), 0f)
+        assertEquals(48f, ContinuousCornerGeometry.legacyUniformRadius(48f, 10f), 0f)
+        assertEquals(0f, ContinuousCornerGeometry.legacyUniformRadius(-4f, -8f), 0f)
+    }
+
+    @Test
+    fun `legacy uniform radius is still clamped to half of the shortest edge`() {
+        // 退化后的半径必须再夹一次：Outfit 的 setRoundRect 不自己做钳制。
+        assertEquals(
+            12f,
+            ContinuousCornerGeometry.clampRadius(
+                ContinuousCornerGeometry.legacyUniformRadius(40f, 8f), 300f, 24f
+            ),
+            0f
+        )
+    }
+
+    @Test
+    fun `path outline is only for api 30 and above`() {
+        // 钉住 01d0dfee 的崩溃根因：Outline.setPath 是 API 30 才加入的方法。
+        // Android 9（28）与 Android 10（29）都必须走 setRoundRect 退化路径，
+        // 30 起才允许 setPath——门槛一旦被改回 Q，前两条断言先红。
+        assertFalse(ContinuousCornerGeometry.usesPathOutline(Build.VERSION_CODES.P))
+        assertFalse(ContinuousCornerGeometry.usesPathOutline(Build.VERSION_CODES.Q))
+        assertTrue(ContinuousCornerGeometry.usesPathOutline(Build.VERSION_CODES.R))
+        assertTrue(ContinuousCornerGeometry.usesPathOutline(Build.VERSION_CODES.S))
     }
 
     @Test
