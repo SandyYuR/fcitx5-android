@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.ui.common
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
 import androidx.activity.SystemBarStyle
@@ -24,20 +25,31 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiMotionPreferences
+import org.fcitx.fcitx5.android.data.theme.SettingsKeyboardColors
 import org.fcitx.fcitx5.android.utils.settingsColor
 
 /** Base for app-owned settings shells; IME windows and transient overlay activities do not use it. */
 abstract class SettingsUiActivity : AppCompatActivity() {
+    private var appliedKeyboardPalette: SettingsKeyboardColors.Palette? = null
+    private var keyboardPaletteLoaded = false
 
     override fun attachBaseContext(newBase: Context) {
         // Resolve the mode before AppCompat wraps the context. Changing it in onCreate can
         // schedule a second recreation while the requested destination is being restored.
-        delegate.localNightMode = when (SettingsUiPreferences.read(newBase).mode) {
+        val selection = SettingsUiPreferences.read(newBase)
+        delegate.localNightMode = when (selection.mode) {
             SettingsUiPreferences.MODE_LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
             SettingsUiPreferences.MODE_DARK -> AppCompatDelegate.MODE_NIGHT_YES
             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
-        super.attachBaseContext(newBase)
+        appliedKeyboardPalette = SettingsKeyboardColors.current(newBase, selection)
+        // Install a scoped loader before AppCompat obtains Resources. It must never modify the
+        // application context: the IME and keyboard previews retain their original theme colors.
+        val themedBase = if (appliedKeyboardPalette != null) {
+            SettingsUiPreferences.themedContext(newBase, selection)
+        } else newBase
+        keyboardPaletteLoaded = appliedKeyboardPalette != null && SettingsKeyboardColors.isApplied(themedBase)
+        super.attachBaseContext(themedBase)
     }
 
     @OptIn(PredictiveBackControl::class)
@@ -55,13 +67,25 @@ abstract class SettingsUiActivity : AppCompatActivity() {
         if (SettingsUiPreferences.usesSystemDynamicColors(this)) {
             DynamicColors.applyToActivityIfAvailable(this)
         }
+        if (keyboardPaletteLoaded) SettingsKeyboardColors.applyOverlay(this)
         SettingsUiPreferences.applySurfaceOptions(this)
+        window.setBackgroundDrawable(ColorDrawable(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)))
         val bars = if (SettingsUiPreferences.isDark(this)) {
             SystemBarStyle.dark(Color.TRANSPARENT)
         } else {
             SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
         }
         enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
+    }
+
+    /** Main settings can restore navigation/drafts. Standalone editors keep their unsaved work. */
+    protected fun refreshKeyboardPalette() {
+        if (isFinishing || isDestroyed) return
+        val palette = SettingsKeyboardColors.current(this, SettingsUiPreferences.read(this)) ?: return
+        if (palette != appliedKeyboardPalette) {
+            appliedKeyboardPalette = palette
+            recreate()
+        }
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {

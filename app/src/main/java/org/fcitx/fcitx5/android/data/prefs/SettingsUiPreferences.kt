@@ -12,6 +12,7 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.google.android.material.color.DynamicColors
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.theme.SettingsKeyboardColors
 
 /** Preferences for the app's settings shell, kept independent from keyboard ThemeManager data. */
 object SettingsUiPreferences {
@@ -45,6 +46,7 @@ object SettingsUiPreferences {
     private const val KEY_RECIPE = "settings_ui_recipe"
     private const val KEY_CONTRAST = "settings_ui_contrast"
     const val KEY_PURE_BLACK = "settings_ui_pure_black"
+    const val KEY_FOLLOW_KEYBOARD = "settings_ui_follow_keyboard_theme"
     private const val KEY_MANUAL_PALETTE = "settings_ui_manual_palette"
 
     private val manualPalettes = setOf(PALETTE_COMPAT, PALETTE_SEA_SALT, PALETTE_PINE,
@@ -56,7 +58,8 @@ object SettingsUiPreferences {
         val recipe: String = RECIPE_CMF_2026,
         val contrast: String = CONTRAST_STANDARD,
         val pureBlack: Boolean = false,
-        val manualPalette: String = PALETTE_COMPAT
+        val manualPalette: String = PALETTE_COMPAT,
+        val followKeyboardTheme: Boolean = false
     )
 
     /**
@@ -91,6 +94,7 @@ object SettingsUiPreferences {
             recipe = prefs.getString(KEY_RECIPE, RECIPE_CMF_2026) ?: RECIPE_CMF_2026,
             contrast = prefs.getString(KEY_CONTRAST, CONTRAST_STANDARD) ?: CONTRAST_STANDARD,
             pureBlack = prefs.getBoolean(KEY_PURE_BLACK, false),
+            followKeyboardTheme = prefs.getBoolean(KEY_FOLLOW_KEYBOARD, false),
             manualPalette = prefs.getString(KEY_MANUAL_PALETTE,
                 palette.takeIf { it in manualPalettes } ?: PALETTE_COMPAT) ?: PALETTE_COMPAT
         )).let {
@@ -123,6 +127,7 @@ object SettingsUiPreferences {
             putString(KEY_RECIPE, value.recipe)
             putString(KEY_CONTRAST, value.contrast)
             putBoolean(KEY_PURE_BLACK, value.pureBlack)
+            putBoolean(KEY_FOLLOW_KEYBOARD, value.followKeyboardTheme)
             putString(KEY_MANUAL_PALETTE, value.manualPalette)
         }
     }
@@ -135,7 +140,10 @@ object SettingsUiPreferences {
     )
 
     fun usesSystemDynamicColors(context: Context, selection: Selection = read(context)): Boolean =
-        selection.palette == PALETTE_SYSTEM && systemDynamicColorsAvailable()
+        !usesKeyboardColors(selection) && selection.palette == PALETTE_SYSTEM && systemDynamicColorsAvailable()
+
+    fun usesKeyboardColors(selection: Selection): Boolean =
+        selection.followKeyboardTheme && SettingsKeyboardColors.isAvailable()
 
     fun applySurfaceOptions(context: Context, selection: Selection = read(context)) {
         if (selection.pureBlack && isDark(context, selection)) {
@@ -151,7 +159,7 @@ object SettingsUiPreferences {
     }
 
     fun themeResource(context: Context, selection: Selection = read(context)): Int {
-        if (usesSystemDynamicColors(context, selection)) {
+        if (usesKeyboardColors(selection) || usesSystemDynamicColors(context, selection)) {
             return when (selection.mode) {
                 MODE_LIGHT -> R.style.Theme_FcitxSettings_System_Light
                 MODE_DARK -> R.style.Theme_FcitxSettings_System_Dark
@@ -178,8 +186,11 @@ object SettingsUiPreferences {
                 if (isDark(context, selection)) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
         }
         val themed = ContextThemeWrapper(context.createConfigurationContext(configuration), themeResource(context, selection))
-        return (if (usesSystemDynamicColors(context, selection)) {
-            DynamicColors.wrapContextIfAvailable(themed)
-        } else themed).also { applySurfaceOptions(it, selection) }
+        return (when {
+            usesKeyboardColors(selection) -> SettingsKeyboardColors.wrapContext(
+                themed, requireNotNull(SettingsKeyboardColors.current(context, selection)))
+            usesSystemDynamicColors(context, selection) -> DynamicColors.wrapContextIfAvailable(themed)
+            else -> themed
+        }).also { applySurfaceOptions(it, selection) }
     }
 }

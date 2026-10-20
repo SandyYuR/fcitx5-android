@@ -28,6 +28,9 @@
     <string name="settings_ui_pure_black_summary">Use black page backgrounds in dark mode while retaining distinct cards</string>
     <string name="settings_ui_dynamic_colors">Dynamic colors</string>
     <string name="settings_ui_dynamic_colors_summary">Use wallpaper colors; turning this off restores your last manual palette</string>
+    <string name="settings_ui_follow_keyboard">Follow keyboard theme colors</string>
+    <string name="settings_ui_follow_keyboard_summary">Use the current keyboard theme colors; turning this off restores your previous settings palette</string>
+    <string name="settings_ui_follow_keyboard_unavailable">Requires Android 11 or later</string>
     <string name="settings_ui_preview_notice">Preview changes here, then tap Apply in the toolbar to save</string>
     <string name="settings_ui_interaction">Interaction</string>
     <string name="setup_step_counter">Step %1$d of %2$d</string>

@@ -12,6 +12,8 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import androidx.activity.viewModels
+import androidx.annotation.Keep
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -19,6 +21,7 @@ import com.google.android.material.snackbar.Snackbar
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.databinding.ActivityMainBinding
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
@@ -35,6 +38,15 @@ class MainActivity : SettingsUiActivity() {
 
     private lateinit var navController: NavController
     private lateinit var shareReceiveManager: ShareReceiveManager
+    private val refreshKeyboardColors = Runnable {
+        if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) refreshKeyboardPalette()
+    }
+    @Keep
+    private val onKeyboardThemeChanged = ThemeManager.OnThemeChangeListener {
+        // Leave the current preference/theme click callback before restoring the activity.
+        window.decorView.removeCallbacks(refreshKeyboardColors)
+        window.decorView.post(refreshKeyboardColors)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +69,18 @@ class MainActivity : SettingsUiActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         processIntent(intent, null)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ThemeManager.addOnChangedListener(onKeyboardThemeChanged)
+        window.decorView.post(refreshKeyboardColors)
+    }
+
+    override fun onPause() {
+        ThemeManager.removeOnChangedListener(onKeyboardThemeChanged)
+        window.decorView.removeCallbacks(refreshKeyboardColors)
+        super.onPause()
     }
 
     override fun onSupportNavigateUp(): Boolean {

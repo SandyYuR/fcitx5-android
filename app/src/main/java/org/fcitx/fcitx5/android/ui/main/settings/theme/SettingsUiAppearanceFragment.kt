@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.Keep
 import androidx.fragment.app.activityViewModels
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -25,6 +26,8 @@ import com.google.android.material.shape.ShapeAppearanceModel
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences.Selection
+import org.fcitx.fcitx5.android.data.theme.SettingsKeyboardColors
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
@@ -43,10 +46,13 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
     private lateinit var preview: PreviewPreference
     private lateinit var mode: ListPreference
     private lateinit var pureBlack: SwitchPreferenceCompat
+    private lateinit var followKeyboard: SwitchPreferenceCompat
     private lateinit var dynamicColors: SwitchPreferenceCompat
     private lateinit var palettes: PalettePreference
     private lateinit var recipe: ListPreference
     private lateinit var contrast: ListPreference
+    @Keep
+    private val onKeyboardThemeChanged = ThemeManager.OnThemeChangeListener { preview.update(draft) }
 
     private val paletteOptions = listOf(
         SettingsUiPreferences.PALETTE_COMPAT to R.string.settings_ui_palette_compat,
@@ -75,6 +81,7 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
                 recipe = it.getString("draft_recipe") ?: original.recipe,
                 contrast = it.getString("draft_contrast") ?: original.contrast,
                 pureBlack = it.getBoolean("draft_pure_black", original.pureBlack),
+                followKeyboardTheme = it.getBoolean("draft_follow_keyboard", original.followKeyboardTheme),
                 manualPalette = it.getString("draft_manual_palette") ?: original.manualPalette
             )
         } ?: original
@@ -92,6 +99,13 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
         ) { draft = draft.copy(pureBlack = it) }
 
         category(R.string.settings_ui_color_title)
+        followKeyboard = toggle(SettingsUiPreferences.KEY_FOLLOW_KEYBOARD,
+            R.string.settings_ui_follow_keyboard, R.string.settings_ui_follow_keyboard_summary
+        ) { draft = draft.copy(followKeyboardTheme = it) }
+        if (!SettingsKeyboardColors.isAvailable()) {
+            followKeyboard.isEnabled = false
+            followKeyboard.setSummary(R.string.settings_ui_follow_keyboard_unavailable)
+        }
         dynamicColors = toggle("settings_ui_dynamic_colors",
             R.string.settings_ui_dynamic_colors, R.string.settings_ui_dynamic_colors_summary
         ) { enabled ->
@@ -101,7 +115,6 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
                         ?: draft.manualPalette)
             } else draft.copy(palette = draft.manualPalette)
         }
-        dynamicColors.isVisible = SettingsUiPreferences.systemDynamicColorsAvailable()
         palettes = PalettePreference(requireContext(), paletteOptions) { value ->
             draft = draft.copy(palette = value, manualPalette = value)
             render()
@@ -172,13 +185,16 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
         pureBlack.isChecked = draft.pureBlack
         pureBlack.isEnabled = draft.mode != SettingsUiPreferences.MODE_LIGHT
         val dynamic = draft.palette == SettingsUiPreferences.PALETTE_SYSTEM
+        val keyboard = SettingsUiPreferences.usesKeyboardColors(draft)
+        followKeyboard.isChecked = keyboard
         dynamicColors.isChecked = dynamic
-        palettes.isVisible = !dynamic
+        dynamicColors.isVisible = !keyboard && SettingsUiPreferences.systemDynamicColorsAvailable()
+        palettes.isVisible = !keyboard && !dynamic
         palettes.update(draft)
         recipe.value = draft.recipe
-        recipe.isVisible = !dynamic && draft.palette != SettingsUiPreferences.PALETTE_COMPAT
+        recipe.isVisible = !keyboard && !dynamic && draft.palette != SettingsUiPreferences.PALETTE_COMPAT
         contrast.value = draft.contrast
-        contrast.isVisible = !dynamic
+        contrast.isVisible = keyboard || !dynamic
         preview.update(draft)
         applyItem?.isEnabled = draft != original
     }
@@ -198,6 +214,17 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
         super.onDestroyView()
     }
 
+    override fun onStart() {
+        super.onStart()
+        ThemeManager.addOnChangedListener(onKeyboardThemeChanged)
+        preview.update(draft)
+    }
+
+    override fun onStop() {
+        ThemeManager.removeOnChangedListener(onKeyboardThemeChanged)
+        super.onStop()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("draft_mode", draft.mode)
@@ -205,23 +232,31 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
         outState.putString("draft_recipe", draft.recipe)
         outState.putString("draft_contrast", draft.contrast)
         outState.putBoolean("draft_pure_black", draft.pureBlack)
+        outState.putBoolean("draft_follow_keyboard", draft.followKeyboardTheme)
         outState.putString("draft_manual_palette", draft.manualPalette)
     }
 
     private class PreviewPreference(context: Context) : Preference(context) {
         private var selection = Selection()
+        private var keyboardPalette: SettingsKeyboardColors.Palette? = null
         init {
             key = "settings_ui_preview"
             layoutResource = R.layout.preference_settings_ui_preview
             isSelectable = false
         }
         fun update(value: Selection) {
-            if (selection != value) { selection = value; notifyChanged() }
+            val palette = SettingsKeyboardColors.current(context, value)
+            if (selection != value || keyboardPalette != palette) {
+                selection = value
+                keyboardPalette = palette
+                notifyChanged()
+            }
         }
         override fun onBindViewHolder(holder: PreferenceViewHolder) {
             super.onBindViewHolder(holder)
             val container = holder.findViewById(R.id.settings_ui_preview_container) as ViewGroup
-            if (container.tag == selection) return
+            val state = selection to keyboardPalette
+            if (container.tag == state) return
             val themed = SettingsUiPreferences.themedContext(context, selection)
             val shape = ShapeAppearanceModel.builder().setAllCornerSizes(24f * context.resources.displayMetrics.density).build()
             container.background = MaterialShapeDrawable(shape).apply {
@@ -229,7 +264,7 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
             }
             container.removeAllViews()
             LayoutInflater.from(themed).inflate(R.layout.settings_ui_appearance_preview, container, true)
-            container.tag = selection
+            container.tag = state
         }
     }
 

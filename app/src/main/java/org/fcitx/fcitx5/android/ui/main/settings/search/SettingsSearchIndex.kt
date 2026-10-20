@@ -123,6 +123,7 @@ object SettingsSearchIndex {
     private val PREFERENCE_KEYS: Map<Int, String> = mapOf(
         R.string.settings_ui_mode_title to "settings_ui_mode",
         R.string.settings_ui_pure_black to "settings_ui_pure_black",
+        R.string.settings_ui_follow_keyboard to "settings_ui_follow_keyboard_theme",
         R.string.settings_ui_dynamic_colors to "settings_ui_dynamic_colors",
         R.string.settings_ui_palette_title to "settings_ui_palette",
         R.string.settings_ui_recipe_title to "settings_ui_recipe",
@@ -366,6 +367,11 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.settings_ui_pure_black, P_APPEARANCE + R.string.settings_ui_appearance,
             listOf("amoled", "oled", "black", "黑色"),
+            route = SettingsRoute.SettingsUiAppearance
+        ),
+        SettingsSearchEntry(
+            R.string.settings_ui_follow_keyboard, P_APPEARANCE + R.string.settings_ui_appearance,
+            listOf("keyboard theme colors", "键盘取色", "跟随主题", "和谐配色"),
             route = SettingsRoute.SettingsUiAppearance
         ),
         SettingsSearchEntry(
