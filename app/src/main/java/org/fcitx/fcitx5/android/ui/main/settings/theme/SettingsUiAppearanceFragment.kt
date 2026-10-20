@@ -4,46 +4,59 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
-import android.os.Build
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.slider.Slider
+import androidx.fragment.app.activityViewModels
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceViewHolder
+import androidx.preference.SwitchPreferenceCompat
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences.Selection
-import org.fcitx.fcitx5.android.ui.main.withSettingsPage
+import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
+import org.fcitx.fcitx5.android.ui.main.MainViewModel
+import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fcitx.fcitx5.android.ui.main.settings.search.scrollToPendingPreference
+import org.fcitx.fcitx5.android.ui.main.settingsPageToolbar
+import org.fcitx.fcitx5.android.utils.item
+import org.fcitx.fcitx5.android.utils.navigateWithAnim
+import org.fcitx.fcitx5.android.utils.settingsColor
 
-/** Settings shell appearance controls. Draft values only become durable when Apply is pressed. */
-class SettingsUiAppearanceFragment : Fragment() {
-
+/** Draft controls use the same preference rows as other settings and the exact themed preview. */
+class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
+    private val viewModel: MainViewModel by activityViewModels()
     private var original = Selection()
     private var draft = Selection()
+    private var applyItem: MenuItem? = null
+    private lateinit var preview: PreviewPreference
+    private lateinit var mode: ListPreference
+    private lateinit var pureBlack: SwitchPreferenceCompat
+    private lateinit var dynamicColors: SwitchPreferenceCompat
+    private lateinit var palettes: PalettePreference
+    private lateinit var recipe: ListPreference
+    private lateinit var contrast: ListPreference
 
-    private val paletteOptions by lazy {
-        buildList {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                add(SettingsUiPreferences.PALETTE_SYSTEM to R.string.settings_ui_palette_system)
-            }
-            add(SettingsUiPreferences.PALETTE_COMPAT to R.string.settings_ui_palette_compat)
-            add(SettingsUiPreferences.PALETTE_SEA_SALT to R.string.settings_ui_palette_sea_salt)
-            add(SettingsUiPreferences.PALETTE_PINE to R.string.settings_ui_palette_pine)
-            add(SettingsUiPreferences.PALETTE_BERRY to R.string.settings_ui_palette_berry)
-            add(SettingsUiPreferences.PALETTE_AMBER to R.string.settings_ui_palette_amber)
-            add(SettingsUiPreferences.PALETTE_WISTERIA to R.string.settings_ui_palette_wisteria)
-            add(SettingsUiPreferences.PALETTE_GRAPHITE to R.string.settings_ui_palette_graphite)
-        }
-    }
-
+    private val paletteOptions = listOf(
+        SettingsUiPreferences.PALETTE_COMPAT to R.string.settings_ui_palette_compat,
+        SettingsUiPreferences.PALETTE_SEA_SALT to R.string.settings_ui_palette_sea_salt,
+        SettingsUiPreferences.PALETTE_PINE to R.string.settings_ui_palette_pine,
+        SettingsUiPreferences.PALETTE_BERRY to R.string.settings_ui_palette_berry,
+        SettingsUiPreferences.PALETTE_AMBER to R.string.settings_ui_palette_amber,
+        SettingsUiPreferences.PALETTE_WISTERIA to R.string.settings_ui_palette_wisteria,
+        SettingsUiPreferences.PALETTE_GRAPHITE to R.string.settings_ui_palette_graphite
+    )
     private val recipeOptions = listOf(
         SettingsUiPreferences.RECIPE_CMF_2026 to R.string.settings_ui_recipe_cmf2026,
         SettingsUiPreferences.RECIPE_TONAL_2025 to R.string.settings_ui_recipe_tonal2025,
@@ -53,134 +66,136 @@ class SettingsUiAppearanceFragment : Fragment() {
         SettingsUiPreferences.RECIPE_CLASSIC_2021 to R.string.settings_ui_recipe_classic2021
     )
 
-    private val contrastOptions = listOf(
-        SettingsUiPreferences.CONTRAST_STANDARD to R.string.settings_ui_contrast_standard,
-        SettingsUiPreferences.CONTRAST_MEDIUM to R.string.settings_ui_contrast_medium,
-        SettingsUiPreferences.CONTRAST_HIGH to R.string.settings_ui_contrast_high
-    )
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = withSettingsPage(inflater.inflate(R.layout.fragment_settings_ui_appearance, container, false))
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         original = SettingsUiPreferences.read(requireContext())
         draft = savedInstanceState?.let {
             original.copy(
                 mode = it.getString("draft_mode") ?: original.mode,
                 palette = it.getString("draft_palette") ?: original.palette,
                 recipe = it.getString("draft_recipe") ?: original.recipe,
-                contrast = it.getString("draft_contrast") ?: original.contrast
+                contrast = it.getString("draft_contrast") ?: original.contrast,
+                pureBlack = it.getBoolean("draft_pure_black", original.pureBlack),
+                manualPalette = it.getString("draft_manual_palette") ?: original.manualPalette
             )
         } ?: original
-        val scrollContent = view.findViewById<View>(R.id.settings_ui_scroll)
-        val initialBottomPadding = scrollContent.paddingBottom
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(scrollContent) { target, insets ->
-            val bottom = insets.getInsets(
-                androidx.core.view.WindowInsetsCompat.Type.navigationBars()
-            ).bottom
-            target.updatePadding(bottom = initialBottomPadding + bottom)
-            insets
-        }
-        androidx.core.view.ViewCompat.requestApplyInsets(scrollContent)
+        preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
+        preview = PreviewPreference(requireContext()).also { preferenceScreen.addPreference(it) }
 
-        val modeGroup = view.findViewById<MaterialButtonToggleGroup>(R.id.settings_ui_mode_group)
-        if (resources.configuration.fontScale >= 1.3f) {
-            modeGroup.orientation = android.widget.LinearLayout.VERTICAL
-            for (index in 0 until modeGroup.childCount) {
-                modeGroup.getChildAt(index).layoutParams = android.widget.LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-            }
-        }
-        modeGroup.check(modeButtonId(draft.mode))
-        modeGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
-            draft = draft.copy(mode = modeFromButtonId(checkedId))
-            render(view)
-        }
+        category(R.string.settings_ui_mode_title)
+        mode = choice("settings_ui_mode", R.string.settings_ui_mode_title, listOf(
+            SettingsUiPreferences.MODE_SYSTEM to R.string.settings_ui_mode_system,
+            SettingsUiPreferences.MODE_LIGHT to R.string.settings_ui_mode_light,
+            SettingsUiPreferences.MODE_DARK to R.string.settings_ui_mode_dark
+        )) { draft = draft.copy(mode = it) }
+        pureBlack = toggle(SettingsUiPreferences.KEY_PURE_BLACK,
+            R.string.settings_ui_pure_black, R.string.settings_ui_pure_black_summary
+        ) { draft = draft.copy(pureBlack = it) }
 
-        view.findViewById<MaterialButton>(R.id.settings_ui_palette_button).setOnClickListener {
-            showOptions(
-                title = R.string.settings_ui_palette_title,
-                options = paletteOptions,
-                selected = draft.palette
-            ) { value ->
-                draft = draft.copy(palette = value)
-                render(view)
-            }
+        category(R.string.settings_ui_color_title)
+        dynamicColors = toggle("settings_ui_dynamic_colors",
+            R.string.settings_ui_dynamic_colors, R.string.settings_ui_dynamic_colors_summary
+        ) { enabled ->
+            draft = if (enabled) {
+                draft.copy(palette = SettingsUiPreferences.PALETTE_SYSTEM,
+                    manualPalette = draft.palette.takeUnless { it == SettingsUiPreferences.PALETTE_SYSTEM }
+                        ?: draft.manualPalette)
+            } else draft.copy(palette = draft.manualPalette)
         }
-        view.findViewById<MaterialButton>(R.id.settings_ui_recipe_button).setOnClickListener {
-            showOptions(
-                title = R.string.settings_ui_recipe_title,
-                options = recipeOptions,
-                selected = draft.recipe
-            ) { value ->
-                draft = draft.copy(recipe = value)
-                render(view)
-            }
+        dynamicColors.isVisible = SettingsUiPreferences.systemDynamicColorsAvailable()
+        palettes = PalettePreference(requireContext(), paletteOptions) { value ->
+            draft = draft.copy(palette = value, manualPalette = value)
+            render()
+        }.also { preferenceScreen.addPreference(it) }
+        recipe = choice("settings_ui_recipe", R.string.settings_ui_recipe_title, recipeOptions) {
+            draft = draft.copy(recipe = it)
         }
+        contrast = choice("settings_ui_contrast", R.string.settings_ui_contrast_title, listOf(
+            SettingsUiPreferences.CONTRAST_STANDARD to R.string.settings_ui_contrast_standard,
+            SettingsUiPreferences.CONTRAST_MEDIUM to R.string.settings_ui_contrast_medium,
+            SettingsUiPreferences.CONTRAST_HIGH to R.string.settings_ui_contrast_high
+        )) { draft = draft.copy(contrast = it) }
 
-        view.findViewById<Slider>(R.id.settings_ui_contrast_slider).apply {
-            value = contrastOptions.indexOfFirst { it.first == draft.contrast }.coerceAtLeast(0).toFloat()
-            addOnChangeListener { _, value, fromUser ->
-                if (fromUser) {
-                    draft = draft.copy(contrast = contrastOptions[value.toInt()].first)
-                    render(view)
-                }
+        category(R.string.settings_ui_interaction)
+        preferenceScreen.addPreference(Preference(requireContext()).apply {
+            setTitle(R.string.settings_ui_motion_title)
+            setSummary(R.string.settings_ui_motion_summary)
+            isIconSpaceReserved = false
+            widgetLayoutResource = R.layout.preference_settings_navigation
+            setOnPreferenceClickListener { navigateWithAnim(SettingsRoute.SettingsUiMotion); true }
+        })
+        preferenceScreen.addPreference(Preference(requireContext()).apply {
+            setTitle(R.string.settings_ui_restore_default)
+            isIconSpaceReserved = false
+            setOnPreferenceClickListener {
+                draft = SettingsUiPreferences.defaultSelection()
+                render()
+                true
             }
-        }
+        })
+        preferenceScreen.addPreference(Preference(requireContext()).apply {
+            setSummary(R.string.settings_ui_intro)
+            isIconSpaceReserved = false
+            isSelectable = false
+        })
+        render()
+    }
 
-        view.findViewById<MaterialButton>(R.id.settings_ui_restore_button).setOnClickListener {
-            draft = Selection()
-            modeGroup.check(modeButtonId(draft.mode))
-            view.findViewById<Slider>(R.id.settings_ui_contrast_slider).value = 0f
-            render(view)
-        }
-        view.findViewById<MaterialButton>(R.id.settings_ui_cancel_button).setOnClickListener {
-            findNavController().navigateUp()
-        }
-        view.findViewById<MaterialButton>(R.id.settings_ui_apply_button).setOnClickListener {
-            if (draft == original) {
-                findNavController().navigateUp()
-                return@setOnClickListener
-            }
+    private fun category(title: Int) {
+        preferenceScreen.addPreference(PreferenceCategory(requireContext()).apply { setTitle(title) })
+    }
+
+    private fun choice(
+        key: String, title: Int, options: List<Pair<String, Int>>, changed: (String) -> Unit
+    ) = ListPreference(requireContext()).apply {
+        this.key = key
+        setTitle(title)
+        entries = options.map { getString(it.second) }.toTypedArray()
+        entryValues = options.map { it.first }.toTypedArray()
+        isPersistent = false
+        isIconSpaceReserved = false
+        summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
+        setOnPreferenceChangeListener { _, value -> changed(value.toString()); render(); true }
+    }.also { preferenceScreen.addPreference(it) }
+
+    private fun toggle(key: String, title: Int, summary: Int, changed: (Boolean) -> Unit) =
+        SwitchPreferenceCompat(requireContext()).apply {
+            this.key = key
+            setTitle(title)
+            setSummary(summary)
+            isPersistent = false
+            isIconSpaceReserved = false
+            setOnPreferenceChangeListener { _, value -> changed(value as Boolean); render(); true }
+        }.also { preferenceScreen.addPreference(it) }
+
+    private fun render() {
+        mode.value = draft.mode
+        pureBlack.isChecked = draft.pureBlack
+        pureBlack.isEnabled = draft.mode != SettingsUiPreferences.MODE_LIGHT
+        val dynamic = draft.palette == SettingsUiPreferences.PALETTE_SYSTEM
+        dynamicColors.isChecked = dynamic
+        palettes.isVisible = !dynamic
+        palettes.update(draft)
+        recipe.value = draft.recipe
+        recipe.isVisible = !dynamic && draft.palette != SettingsUiPreferences.PALETTE_COMPAT
+        contrast.value = draft.contrast
+        contrast.isVisible = !dynamic
+        preview.update(draft)
+        applyItem?.isEnabled = draft != original
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        applyItem = settingsPageToolbar().menu.item(R.string.apply, showAsAction = true) {
             SettingsUiPreferences.save(requireContext(), draft)
             requireActivity().recreate()
         }
-        render(view)
+        render()
+        scrollToPendingPreference(viewModel)
     }
 
-    private fun render(view: View) {
-        val familyName = getString(labelFor(paletteOptions, draft.palette))
-        val recipeName = getString(labelFor(recipeOptions, draft.recipe))
-        view.findViewById<MaterialButton>(R.id.settings_ui_palette_button).text =
-            getString(R.string.settings_ui_palette_button, familyName)
-        view.findViewById<MaterialButton>(R.id.settings_ui_recipe_button).apply {
-            text = getString(R.string.settings_ui_recipe_button, recipeName)
-            isVisible = draft.palette != SettingsUiPreferences.PALETTE_SYSTEM &&
-                draft.palette != SettingsUiPreferences.PALETTE_COMPAT
-        }
-
-        val isSystemPalette = draft.palette == SettingsUiPreferences.PALETTE_SYSTEM
-        view.findViewById<Slider>(R.id.settings_ui_contrast_slider).isVisible = !isSystemPalette
-        view.findViewById<TextView>(R.id.settings_ui_contrast_value).apply {
-            isVisible = !isSystemPalette
-            text = getString(labelFor(contrastOptions, draft.contrast))
-        }
-        view.findViewById<TextView>(R.id.settings_ui_contrast_label).isVisible = !isSystemPalette
-
-        val preview = view.findViewById<ViewGroup>(R.id.settings_ui_preview_container)
-        if (preview.tag != draft) {
-            val themed = SettingsUiPreferences.themedContext(requireContext(), draft)
-            preview.removeAllViews()
-            LayoutInflater.from(themed).inflate(R.layout.settings_ui_appearance_preview, preview, true)
-            preview.tag = draft
-        }
-        view.findViewById<MaterialButton>(R.id.settings_ui_apply_button).isEnabled = draft != original
+    override fun onDestroyView() {
+        applyItem = null
+        super.onDestroyView()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -189,38 +204,74 @@ class SettingsUiAppearanceFragment : Fragment() {
         outState.putString("draft_palette", draft.palette)
         outState.putString("draft_recipe", draft.recipe)
         outState.putString("draft_contrast", draft.contrast)
+        outState.putBoolean("draft_pure_black", draft.pureBlack)
+        outState.putString("draft_manual_palette", draft.manualPalette)
     }
 
-    private fun showOptions(
-        title: Int,
-        options: List<Pair<String, Int>>,
-        selected: String,
-        onSelected: (String) -> Unit
-    ) {
-        val labels = options.map { getString(it.second) }.toTypedArray()
-        val selectedIndex = options.indexOfFirst { it.first == selected }.coerceAtLeast(0)
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(title)
-            .setSingleChoiceItems(labels, selectedIndex) { dialog, which ->
-                onSelected(options[which].first)
-                dialog.dismiss()
+    private class PreviewPreference(context: Context) : Preference(context) {
+        private var selection = Selection()
+        init {
+            key = "settings_ui_preview"
+            layoutResource = R.layout.preference_settings_ui_preview
+            isSelectable = false
+        }
+        fun update(value: Selection) {
+            if (selection != value) { selection = value; notifyChanged() }
+        }
+        override fun onBindViewHolder(holder: PreferenceViewHolder) {
+            super.onBindViewHolder(holder)
+            val container = holder.findViewById(R.id.settings_ui_preview_container) as ViewGroup
+            if (container.tag == selection) return
+            val themed = SettingsUiPreferences.themedContext(context, selection)
+            val shape = ShapeAppearanceModel.builder().setAllCornerSizes(24f * context.resources.displayMetrics.density).build()
+            container.background = MaterialShapeDrawable(shape).apply {
+                fillColor = ColorStateList.valueOf(themed.settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
             }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+            container.removeAllViews()
+            LayoutInflater.from(themed).inflate(R.layout.settings_ui_appearance_preview, container, true)
+            container.tag = selection
+        }
     }
 
-    private fun labelFor(options: List<Pair<String, Int>>, id: String): Int =
-        options.firstOrNull { it.first == id }?.second ?: options.first().second
-
-    private fun modeButtonId(mode: String): Int = when (mode) {
-        SettingsUiPreferences.MODE_LIGHT -> R.id.settings_ui_mode_light
-        SettingsUiPreferences.MODE_DARK -> R.id.settings_ui_mode_dark
-        else -> R.id.settings_ui_mode_system
-    }
-
-    private fun modeFromButtonId(buttonId: Int): String = when (buttonId) {
-        R.id.settings_ui_mode_light -> SettingsUiPreferences.MODE_LIGHT
-        R.id.settings_ui_mode_dark -> SettingsUiPreferences.MODE_DARK
-        else -> SettingsUiPreferences.MODE_SYSTEM
+    private class PalettePreference(
+        context: Context, private val options: List<Pair<String, Int>>, private val changed: (String) -> Unit
+    ) : Preference(context) {
+        private var selection = Selection()
+        init {
+            key = "settings_ui_palette"
+            layoutResource = R.layout.preference_settings_ui_palettes
+            isSelectable = false
+        }
+        fun update(value: Selection) {
+            if (selection != value) { selection = value; notifyChanged() }
+        }
+        override fun onBindViewHolder(holder: PreferenceViewHolder) {
+            super.onBindViewHolder(holder)
+            val chips = holder.findViewById(R.id.settings_ui_palette_chips) as ChipGroup
+            chips.setOnCheckedStateChangeListener(null)
+            chips.removeAllViews()
+            for ((value, label) in options) {
+                val themed = SettingsUiPreferences.themedContext(context, selection.copy(palette = value))
+                chips.addView(Chip(context).apply {
+                    id = View.generateViewId()
+                    tag = value
+                    setText(label)
+                    isCheckable = true
+                    isChecked = value == selection.palette
+                    chipIcon = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(themed.settingsColor(androidx.appcompat.R.attr.colorPrimary))
+                        setSize(24, 24)
+                    }
+                    chipIconTint = null
+                    isChipIconVisible = true
+                    chipIconSize = 20f * resources.displayMetrics.density
+                })
+            }
+            chips.setOnCheckedStateChangeListener { group, ids ->
+                val selected = ids.firstOrNull()?.let { group.findViewById<Chip>(it).tag as String }
+                if (selected != null && selected != selection.palette) changed(selected)
+            }
+        }
     }
 }

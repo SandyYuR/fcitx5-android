@@ -119,10 +119,10 @@ class ExpressivePreferenceListStyle(
             isDividerAllowedAbove = false
             isDividerAllowedBelow = false
         }
-        if (preference is PreferenceCategory) {
+        if (preference is PreferenceCategory || preference.key == "settings_ui_preview") {
             view.background = null
             view.clipToOutline = false
-            styleCategoryTitle(view)
+            if (preference is PreferenceCategory) styleCategoryTitle(view)
             return
         }
 

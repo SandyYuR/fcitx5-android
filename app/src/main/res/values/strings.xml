@@ -1091,7 +1091,7 @@
     <string name="text_keyboard_layout_move_row_up">Move row up</string>
     <string name="text_keyboard_layout_customized_key">%1$s (custom properties)</string>
     <string name="settings_ui_appearance">Settings interface appearance</string>
-    <string name="settings_ui_appearance_summary">Theme, color family, color style and contrast</string>
+    <string name="settings_ui_appearance_summary">Light and dark modes, dynamic colors, palettes and contrast</string>
     <string name="settings_section_settings_ui">Settings interface</string>
     <string name="settings_section_keyboard_appearance">Keyboard appearance</string>
     <string name="settings_ui_intro">Changes here affect the app\'s settings pages and editors. Keyboard colors and input windows keep their own settings.</string>

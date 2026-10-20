@@ -3,7 +3,6 @@
             android:id="@+id/settings_ui_preview_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
             app:cardBackgroundColor="?attr/colorSurfaceBright"
             app:cardCornerRadius="24dp"
             app:strokeColor="?attr/colorOutlineVariant"
@@ -13,7 +12,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -27,7 +26,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     android:text="@string/settings_ui_preview_body"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant" />
@@ -43,7 +42,7 @@
                         android:background="@drawable/settings_preview_swatch"
                         android:textColor="?attr/colorOnPrimaryContainer"
                         android:layout_width="0dp"
-                        android:layout_height="48dp"
+                        android:layout_height="40dp"
                         android:layout_marginEnd="6dp"
                         android:layout_weight="1"
                         android:gravity="center"
@@ -57,7 +56,7 @@
                         android:background="@drawable/settings_preview_swatch"
                         android:textColor="?attr/colorOnSecondaryContainer"
                         android:layout_width="0dp"
-                        android:layout_height="48dp"
+                        android:layout_height="40dp"
                         android:layout_marginHorizontal="3dp"
                         android:layout_weight="1"
                         android:gravity="center"
@@ -71,7 +70,7 @@
                         android:background="@drawable/settings_preview_swatch"
                         android:textColor="?attr/colorOnTertiaryContainer"
                         android:layout_width="0dp"
-                        android:layout_height="48dp"
+                        android:layout_height="40dp"
                         android:layout_marginStart="6dp"
                         android:layout_weight="1"
                         android:gravity="center"
@@ -94,7 +93,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="0dp"
                     android:text="@string/settings_ui_preview_button" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

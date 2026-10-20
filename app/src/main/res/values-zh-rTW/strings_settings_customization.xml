@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_ui_motion_title">動畫與返回手勢</string>
+    <string name="settings_ui_motion_summary">頁面切換、返回動畫和手勢預覽</string>
+    <string name="settings_ui_motion_pages">頁面切換</string>
+    <string name="settings_ui_motion_enter">前進動畫</string>
+    <string name="settings_ui_motion_return">返回動畫</string>
+    <string name="settings_ui_motion_duration">動畫速度</string>
+    <string name="settings_ui_motion_horizontal">橫向共用軸</string>
+    <string name="settings_ui_motion_vertical">縱向共用軸</string>
+    <string name="settings_ui_motion_scale">縮放共用軸</string>
+    <string name="settings_ui_motion_fade">淡入淡出</string>
+    <string name="settings_ui_motion_none">無動畫</string>
+    <string name="settings_ui_motion_follow">跟隨前進動畫</string>
+    <string name="settings_ui_motion_fast">快速（180 ms）</string>
+    <string name="settings_ui_motion_standard">標準（300 ms）</string>
+    <string name="settings_ui_motion_slow">舒緩（450 ms）</string>
+    <string name="settings_ui_motion_gestures">返回手勢</string>
+    <string name="settings_ui_motion_predictive">預測性返回預覽</string>
+    <string name="settings_ui_motion_predictive_summary">拖動返回手勢時預覽上一頁</string>
+    <string name="settings_ui_motion_predictive_unavailable">需要 Android 14 或更新版本</string>
+    <string name="settings_ui_motion_predictive_no_animation">選擇返回動畫後可啟用手勢預覽</string>
+    <string name="settings_ui_motion_info">返回動畫同時用於返回鍵和手勢預覽，並遵循系統動畫縮放設定。</string>
+    <string name="settings_ui_motion_reset_category">預設設定</string>
+    <string name="settings_ui_pure_black">純黑深色背景</string>
+    <string name="settings_ui_pure_black_summary">深色模式下使用純黑頁面背景，卡片保留層次</string>
+    <string name="settings_ui_dynamic_colors">動態取色</string>
+    <string name="settings_ui_dynamic_colors_summary">跟隨系統桌布配色，關閉後恢復上次手動配色</string>
+    <string name="settings_ui_preview_notice">先查看預覽，點擊右上角「套用」儲存</string>
+    <string name="settings_ui_interaction">互動</string>
+</resources>

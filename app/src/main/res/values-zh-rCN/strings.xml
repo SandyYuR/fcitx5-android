@@ -1087,7 +1087,7 @@
     <string name="text_keyboard_layout_move_row_up">上移该行</string>
     <string name="text_keyboard_layout_customized_key">%1$s（已定制属性）</string>
     <string name="settings_ui_appearance">设置界面外观</string>
-    <string name="settings_ui_appearance_summary">设置界面的主题、配色和对比度</string>
+    <string name="settings_ui_appearance_summary">明暗模式、动态取色、手动配色和对比度</string>
     <string name="settings_section_settings_ui">设置界面</string>
     <string name="settings_section_keyboard_appearance">键盘外观</string>
     <string name="settings_ui_intro">此处只影响应用设置页和编辑器。键盘配色与输入窗口仍使用各自的设置。</string>

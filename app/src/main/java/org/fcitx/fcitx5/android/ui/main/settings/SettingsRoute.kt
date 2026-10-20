@@ -39,6 +39,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodConfigFragment
 import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.SettingsUiAppearanceFragment
+import org.fcitx.fcitx5.android.ui.main.settings.theme.SettingsUiMotionFragment
 import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.utils.config.ConfigDescriptor
 import org.fcitx.fcitx5.android.utils.parcelable
@@ -84,6 +85,9 @@ sealed class SettingsRoute : Parcelable {
 
     @Serializable
     data object SettingsUiAppearance : SettingsRoute()
+
+    @Serializable
+    data object SettingsUiMotion : SettingsRoute()
 
     @Serializable
     data object IconTheme : SettingsRoute()
@@ -217,6 +221,9 @@ sealed class SettingsRoute : Parcelable {
             }
             fragment<SettingsUiAppearanceFragment, SettingsUiAppearance> {
                 label = ctx.getString(R.string.settings_ui_appearance)
+            }
+            fragment<SettingsUiMotionFragment, SettingsUiMotion> {
+                label = ctx.getString(R.string.settings_ui_motion_title)
             }
             fragment<KeyboardSettingsFragment, VirtualKeyboard> {
                 label = ctx.getString(R.string.virtual_keyboard)

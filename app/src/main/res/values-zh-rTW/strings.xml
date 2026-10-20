@@ -1073,7 +1073,7 @@
     <string name="text_keyboard_layout_move_row_up">上移該列</string>
     <string name="text_keyboard_layout_customized_key">%1$s（已自訂屬性）</string>
     <string name="settings_ui_appearance">設定介面外觀</string>
-    <string name="settings_ui_appearance_summary">設定介面的主題、配色和對比度</string>
+    <string name="settings_ui_appearance_summary">明暗模式、動態取色、手動配色和對比度</string>
     <string name="settings_section_settings_ui">設定介面</string>
     <string name="settings_section_keyboard_appearance">鍵盤外觀</string>
     <string name="settings_ui_intro">此處只影響應用程式設定頁和編輯器。鍵盤配色與輸入視窗仍使用各自的設定。</string>

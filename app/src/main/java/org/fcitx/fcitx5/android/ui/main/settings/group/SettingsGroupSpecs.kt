@@ -135,6 +135,13 @@ object SettingsGroupSpecs {
                         R.string.settings_section_settings_ui
                     ),
                     SettingsGroupEntry.route(
+                        R.string.settings_ui_motion_title,
+                        R.drawable.ic_baseline_tune_24,
+                        SettingsRoute.SettingsUiMotion,
+                        R.string.settings_ui_motion_summary,
+                        R.string.settings_section_settings_ui
+                    ),
+                    SettingsGroupEntry.route(
                         R.string.theme,
                         R.drawable.ic_baseline_palette_24,
                         SettingsRoute.Theme,

@@ -16,16 +16,26 @@ import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.PredictiveBackControl
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
+import org.fcitx.fcitx5.android.data.prefs.SettingsUiMotionPreferences
 import org.fcitx.fcitx5.android.utils.settingsColor
 
 /** Base for app-owned settings shells; IME windows and transient overlay activities do not use it. */
 abstract class SettingsUiActivity : AppCompatActivity() {
 
+    @OptIn(PredictiveBackControl::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        // FragmentManager requires this switch before any transactions, including restoration.
+        // The motion settings screen recreates its activity when this preference changes.
+        FragmentManager.enablePredictiveBack(
+            android.os.Build.VERSION.SDK_INT >= 34 &&
+                SettingsUiMotionPreferences.read(this).predictiveBack
+        )
         // AppCompat's configuration must agree with the selected palette, including Monet.
         delegate.localNightMode = when (SettingsUiPreferences.read(this).mode) {
             SettingsUiPreferences.MODE_LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
@@ -36,6 +46,7 @@ abstract class SettingsUiActivity : AppCompatActivity() {
         if (SettingsUiPreferences.usesSystemDynamicColors(this)) {
             DynamicColors.applyToActivityIfAvailable(this)
         }
+        SettingsUiPreferences.applySurfaceOptions(this)
         super.onCreate(savedInstanceState)
         val bars = if (SettingsUiPreferences.isDark(this)) {
             SystemBarStyle.dark(Color.TRANSPARENT)

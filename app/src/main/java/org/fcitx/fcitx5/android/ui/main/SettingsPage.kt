@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.transition.MaterialSharedAxis
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.databinding.SettingsPageBinding
 import org.fcitx.fcitx5.android.ui.main.settings.AddonDirProfileManagerFragment
@@ -37,6 +36,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.SettingsUiAppearanceFragment
+import org.fcitx.fcitx5.android.ui.main.settings.theme.SettingsUiMotionFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeFragment
 import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.utils.lazyRoute
@@ -50,13 +50,7 @@ internal fun Fragment.withSettingsPage(content: View): View {
     if (parentFragment !is NavHostFragment) return content
 
     val page = SettingsPageBinding.inflate(layoutInflater)
-    fun sharedAxis(forward: Boolean) = MaterialSharedAxis(MaterialSharedAxis.X, forward).apply {
-        duration = 300L
-    }
-    enterTransition = sharedAxis(true)
-    exitTransition = sharedAxis(true)
-    reenterTransition = sharedAxis(false)
-    returnTransition = sharedAxis(false)
+    applySettingsPageMotion()
     val home = this is MainFragment
     val title = settingsPageTitle()
     page.collapsingToolbar.isTitleEnabled = home
@@ -124,6 +118,7 @@ private fun Fragment.settingsPageTitle(): String {
         is AddonListFragment -> R.string.addons
         is ThemeFragment -> R.string.theme
         is SettingsUiAppearanceFragment -> R.string.settings_ui_appearance
+        is SettingsUiMotionFragment -> R.string.settings_ui_motion_title
         is KeyboardSettingsFragment -> R.string.virtual_keyboard
         is CandidatesSettingsFragment -> R.string.candidates_window
         is ClipboardSettingsFragment -> R.string.clipboard
