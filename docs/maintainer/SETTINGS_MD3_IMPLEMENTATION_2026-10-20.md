@@ -73,10 +73,11 @@
 | `f3e4e210` | 11,825,079 | 修复前进退出距离并加入 MD3 引导；比上一轮增加 17,755 字节 |
 | `c6b54aa2` | 11,825,083 | 同步默认分支修复并整理 README，键盘取色开关加入前 |
 | `b741ffa6` | 11,861,266 | 增加当前键盘主题取色；比上一行增加 36,183 字节，约 35.3 KiB |
+| `69fa5a9b` | 11,861,262 | Squash 合入默认分支后的 Nightly，与合并前文件树一致 |
 
 `f3e4e210` 历史包版本为 `0.1.3-724-gf3e4e210`，SHA-256 为 `f2275a690e0c8313b16d35ff5c6e4c0a6a736fba18642c38dcb9fa2cafa63741`。
 
-当前 `b741ffa6` 包版本为 `0.1.3-729-gb741ffa6`，versionCode 为 112，SHA-256 为 `83f482518978ec765a51c8a604933a625d317ef46bc8eecc7edd689de6b3d2bd`；签名证书与前述版本一致。资源表为 2,080,444 字节，222 套预设与 11,766 个原有角色赋值均保留。键盘取色复用现有依赖，新增体积来自实现与运行时颜色资源等保留内容；应按同架构、同构建流程比较实际产物。
+合并准备阶段的 `b741ffa6` 包版本为 `0.1.3-729-gb741ffa6`，versionCode 为 112，SHA-256 为 `83f482518978ec765a51c8a604933a625d317ef46bc8eecc7edd689de6b3d2bd`；签名证书与前述版本一致。资源表为 2,080,444 字节，222 套预设与 11,766 个原有角色赋值均保留。键盘取色复用现有依赖，新增体积来自实现与运行时颜色资源等保留内容；应按同架构、同构建流程比较实际产物。
 
 ## 4. 验证记录与边界
 
@@ -102,5 +103,7 @@
 - 用户要求「最后检查一遍，合并入默认分支」后，重新检查颜色资源加载顺序、主题监听与恢复、编辑器颜色查询、页面转场及首次引导，未发现阻塞合并的新问题。
 - 最终本地 `:app:testFxDebugUnitTest :app:assembleFxDebug` 通过：**479 项单测，0 失败、0 错误、0 跳过**，四 ABI Debug 构建成功。文档 `npm --prefix docs run build` 再次通过。
 - 代码 PR #5 已解除草案并采用 Squash 合并，默认分支提交为 `69fa5a9b8cff32c855373b1fc496a605c0ef753d`；其文件树与合并前核对的 `b741ffa6` 完全一致。合并前最新 PR CI 与签名 Release CI 均通过。
-- 默认分支 [Commit CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39486196495)已由合并自动触发；结果与 Nightly 产物以该次工作流为准。
+- 默认分支 [Commit CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39486196495)的单测、签名 Release 构建与 Nightly 发布全部通过。
+- 合并后 [Nightly](https://github.com/SandyYuR/fcitx5-android/releases/tag/nightly-0.1.3-707-g69fa5a9b-20261020-195942)已自动发布，包版本为 `0.1.3-707-g69fa5a9b`，arm64 APK 为 11,861,262 字节，SHA-256 为 `1de6f839a3d097c14676e8886a47d6addbd747c2e320459bec3819b8aad8381b`。签名证书与前述交付版本一致，资源表仍为 2,080,444 字节，222 套预设和 11,766 个原有角色赋值均保留。
+- Squash 会改变 Git 提交计数，因此默认分支的 `707` 与 PR 测试包的 `729` 不宜直接比较大小；本次合并与产物对应关系以提交 SHA、发布时间及上述构建记录为准。
 - 配套文档由 [PR #6](https://github.com/SandyYuR/fcitx5-android/pull/6)交付至 `docs` 分支，其当前合并与发布状态以 PR 和 Docs 工作流为准。此前「保留草案」描述记录的是合并准备阶段。

@@ -1187,6 +1187,8 @@ MD3 体验确认版本为 `f3e4e210`，合并准备 HEAD 为 `b741ffa6`，包含
 
 **合并落实**：用户要求最终检查并合入后，479 项单测全部通过，四 ABI Debug 与文档构建通过；代码已 Squash 合入 `fx-rime-only`，提交 `69fa5a9b`，文件树与交付 HEAD 一致。默认分支 [CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/39486196495)由合并自动触发。
 
+默认分支 CI 的单测、签名 Release 与 Nightly 发布全部通过，[合并后 Nightly](https://github.com/SandyYuR/fcitx5-android/releases/tag/nightly-0.1.3-707-g69fa5a9b-20261020-195942)包版本为 `0.1.3-707-g69fa5a9b`，arm64 APK 为 11,861,262 字节；签名证书、222 套预设与 11,766 个原有颜色角色赋值已核对。Squash 后版本中的 Git 提交计数会变化，识别实际代码应结合 SHA 与发布时间。
+
 - 保留 View / Fragment / Preference 架构、六入口和搜索，采用 MD3 主题与分段圆角设置行。每页拥有标题、菜单和内容，整页转场；首次引导复用 `SettingsUiActivity`。
 - 「外观」底部新增设置界面外观；明暗、Monet、手动配色、纯黑与预览草稿单独保存。新增「跟随键盘主题配色」开关（默认关闭，Android 11+）：当前键盘颜色生成 MD3 角色，开启期间保留原 Monet／手动选项，关闭后恢复；对比度与纯黑仍生效。外观需「应用」，动画立即保存；两个恢复默认入口分别作用于外观和动画。
 - 动画用 Material / AndroidX Transition，显式约束 Fragment KTX 1.8.9。没有引入 Compose / Miuix 运行库。前进旧页完整滑出，返回维持前景整页退出及底层四分之一距离视差；180 / 300 / 450 ms 旧档位按档迁移到 350 / 500 / 650 ms。
