@@ -6,8 +6,10 @@ package org.fcitx.fcitx5.android.ui.common
 
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.RippleDrawable
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.TextView
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceGroupAdapter
@@ -21,6 +23,7 @@ import com.google.android.material.shape.CornerFamily
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
 import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchPreference
+import java.util.WeakHashMap
 
 /** Applies the tonal, segmented-list treatment used by the Material 3 settings references. */
 class ExpressivePreferenceListStyle(
@@ -29,6 +32,26 @@ class ExpressivePreferenceListStyle(
 
     private val context = recyclerView.context
     private var observedAdapter: RecyclerView.Adapter<*>? = null
+    private val rowBackgrounds = WeakHashMap<View, Drawable?>()
+    private var drawObserver: ViewTreeObserver? = null
+    private val attachment = object : View.OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(view: View) {
+            drawObserver = view.viewTreeObserver.also { it.addOnPreDrawListener(beforeDraw) }
+        }
+
+        override fun onViewDetachedFromWindow(view: View) = removeDrawListener()
+    }
+    private val beforeDraw = ViewTreeObserver.OnPreDrawListener {
+        // Preference binding can replace a row's background without detaching its holder.
+        // Restore only replaced backgrounds, so switches and custom controls keep their shape.
+        for (index in 0 until recyclerView.childCount) {
+            val row = recyclerView.getChildAt(index)
+            if (!rowBackgrounds.containsKey(row) || row.background !== rowBackgrounds[row]) {
+                styleRow(row)
+            }
+        }
+        true
+    }
     private var refreshScheduled = false
     private val refreshRows = Runnable {
         refreshScheduled = false
@@ -53,6 +76,8 @@ class ExpressivePreferenceListStyle(
         recyclerView.setBackgroundColor(color(MaterialR.attr.colorSurfaceContainer, Color.WHITE))
         recyclerView.addItemDecoration(this)
         recyclerView.addOnChildAttachStateChangeListener(this)
+        recyclerView.addOnAttachStateChangeListener(attachment)
+        if (recyclerView.isAttachedToWindow) attachment.onViewAttachedToWindow(recyclerView)
         (recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
         observeAdapter()
         refresh()
@@ -64,6 +89,9 @@ class ExpressivePreferenceListStyle(
         recyclerView.removeCallbacks(refreshRows)
         refreshScheduled = false
         recyclerView.removeOnChildAttachStateChangeListener(this)
+        recyclerView.removeOnAttachStateChangeListener(attachment)
+        removeDrawListener()
+        rowBackgrounds.clear()
         recyclerView.removeItemDecoration(this)
     }
 
@@ -93,7 +121,14 @@ class ExpressivePreferenceListStyle(
         styleRow(view)
     }
 
-    override fun onChildViewDetachedFromWindow(view: View) = Unit
+    override fun onChildViewDetachedFromWindow(view: View) {
+        rowBackgrounds.remove(view)
+    }
+
+    private fun removeDrawListener() {
+        drawObserver?.takeIf { it.isAlive }?.removeOnPreDrawListener(beforeDraw)
+        drawObserver = null
+    }
 
     private fun observeAdapter() {
         val adapter = recyclerView.adapter
@@ -121,6 +156,7 @@ class ExpressivePreferenceListStyle(
         }
         if (preference is PreferenceCategory || preference.key == "settings_ui_preview") {
             view.background = null
+            rowBackgrounds[view] = null
             view.clipToOutline = false
             if (preference is PreferenceCategory) styleCategoryTitle(view)
             return
@@ -150,6 +186,7 @@ class ExpressivePreferenceListStyle(
         view.background = if (isSearch || !preference.isSelectable) surface else {
             RippleDrawable(ColorStateList.valueOf(ripple), surface, mask)
         }
+        rowBackgrounds[view] = view.background
         view.clipToOutline = true
     }
 

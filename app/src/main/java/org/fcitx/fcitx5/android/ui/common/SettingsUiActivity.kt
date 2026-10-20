@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.common
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -28,6 +29,17 @@ import org.fcitx.fcitx5.android.utils.settingsColor
 /** Base for app-owned settings shells; IME windows and transient overlay activities do not use it. */
 abstract class SettingsUiActivity : AppCompatActivity() {
 
+    override fun attachBaseContext(newBase: Context) {
+        // Resolve the mode before AppCompat wraps the context. Changing it in onCreate can
+        // schedule a second recreation while the requested destination is being restored.
+        delegate.localNightMode = when (SettingsUiPreferences.read(newBase).mode) {
+            SettingsUiPreferences.MODE_LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+            SettingsUiPreferences.MODE_DARK -> AppCompatDelegate.MODE_NIGHT_YES
+            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+        super.attachBaseContext(newBase)
+    }
+
     @OptIn(PredictiveBackControl::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         // FragmentManager requires this switch before any transactions, including restoration.
@@ -36,18 +48,13 @@ abstract class SettingsUiActivity : AppCompatActivity() {
             android.os.Build.VERSION.SDK_INT >= 34 &&
                 SettingsUiMotionPreferences.read(this).predictiveBack
         )
-        // AppCompat's configuration must agree with the selected palette, including Monet.
-        delegate.localNightMode = when (SettingsUiPreferences.read(this).mode) {
-            SettingsUiPreferences.MODE_LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
-            SettingsUiPreferences.MODE_DARK -> AppCompatDelegate.MODE_NIGHT_YES
-            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        }
         setTheme(SettingsUiPreferences.themeResource(this))
+        super.onCreate(savedInstanceState)
+        // AppCompat reapplies its base theme in onCreate. Apply overlays afterwards, using
+        // the final night configuration, and before any settings content is inflated.
         if (SettingsUiPreferences.usesSystemDynamicColors(this)) {
             DynamicColors.applyToActivityIfAvailable(this)
         }
-        super.onCreate(savedInstanceState)
-        // AppCompat reapplies its base theme in onCreate; surface overrides must follow it.
         SettingsUiPreferences.applySurfaceOptions(this)
         val bars = if (SettingsUiPreferences.isDark(this)) {
             SystemBarStyle.dark(Color.TRANSPARENT)
