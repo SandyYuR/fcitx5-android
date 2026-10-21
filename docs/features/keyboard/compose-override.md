@@ -143,7 +143,7 @@ composing = !preeditEmpty || !candidateEmpty
 | 机制 | 何时生效 | 触发方 |
 |------|---------|--------|
 | **Compose Override** | IME 正在输入（有 preedit / 候选） | 自动，IME 状态驱动 |
-| [Layer 切换（`layer` step）](/features/keys/macro-key#8-layer-布局层切换) | 用户按下绑定该 step 的按键 | 手动 |
+| [Layer 切换（`layer` step）](/features/keys/macro-key#_8-layer-布局层切换) | 用户按下绑定该 step 的按键 | 手动 |
 | [LayoutSwitchKey](/features/keys/layout-switch-key) | 用户按下该键，切换到目标布局文件 | 手动 |
 
 ## 编辑器支持

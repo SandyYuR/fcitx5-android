@@ -36,14 +36,14 @@
 
 | `type` | 用途 | 关键字段 |
 |--------|------|---------|
-| [`tap`](#1-tap-点击键) | 按下并立即释放一个或多个键 | `keys: KeyRef[]` |
-| [`down`](#2-down-按下) | 按下键（不释放，常与 up 配对） | `keys: KeyRef[]` |
-| [`up`](#3-up-释放) | 释放之前按下的键 | `keys: KeyRef[]` |
-| [`text`](#4-text-直接提交文本) | 直接 commit 一段文本 | `text: string` |
-| [`edit`](#5-edit-编辑命令) | 复制 / 粘贴 / 全选等系统编辑命令 | `action: string` |
-| [`shortcut`](#6-shortcut-快捷键组合) | modifier + 主键的组合键 | `modifiers: KeyRef[]`, `key: KeyRef` |
-| [`app`](#7-app-应用内动作) | 触发应用内预定义动作 | `id: string` |
-| [`layer`](#8-layer-布局层切换) | 切换 / 单次切换 文本布局层 | `mode: "to"\|"osl"`, `target: string` |
+| [`tap`](#_1-tap-点击键) | 按下并立即释放一个或多个键 | `keys: KeyRef[]` |
+| [`down`](#_2-down-按下) | 按下键（不释放，常与 up 配对） | `keys: KeyRef[]` |
+| [`up`](#_3-up-释放) | 释放之前按下的键 | `keys: KeyRef[]` |
+| [`text`](#_4-text-直接提交文本) | 直接 commit 一段文本 | `text: string` |
+| [`edit`](#_5-edit-编辑命令) | 复制 / 粘贴 / 全选等系统编辑命令 | `action: string` |
+| [`shortcut`](#_6-shortcut-快捷键组合) | modifier + 主键的组合键 | `modifiers: KeyRef[]`, `key: KeyRef` |
+| [`app`](#_7-app-应用内动作) | 触发应用内预定义动作 | `id: string` |
+| [`layer`](#_8-layer-布局层切换) | 切换 / 单次切换 文本布局层 | `mode: "to"\|"osl"`, `target: string` |
 
 ### KeyRef 引用按键的两种方式
 
