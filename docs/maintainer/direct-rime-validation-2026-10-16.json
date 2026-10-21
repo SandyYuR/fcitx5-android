@@ -1,0 +1,75 @@
+{
+  "date_utc": "2026-10-16",
+  "source_base": "a714feff77fd79082807b9c7141e0515c8c83f73",
+  "branch": "feat/direct-rime-prototype",
+  "prebuilt_gitlink": "1126616c3ec569617da772e30d7a97f6b2694172",
+  "environment": {
+    "android_api": 35,
+    "abi": "x86_64",
+    "image": "aosp_atd",
+    "virtualization": "software TCG, no KVM"
+  },
+  "purpose": "functional and trace pipeline verification; no performance comparison claim",
+  "checks": {
+    "original_jvm_tests": 468,
+    "prototype_jvm_tests": 2,
+    "prototype_android_tests": 3,
+    "baseline_same_editor_test": 1,
+    "native_contract": "ASan/UBSan passed; LeakSanitizer disabled under ptrace",
+    "prototype_builds": [
+      "arm64-v8a Debug",
+      "x86_64 Debug"
+    ],
+    "original_builds": [
+      "arm64-v8a Debug with inputDiagnostics",
+      "x86_64 Debug with inputDiagnostics"
+    ],
+    "prototype_lint": "0 errors"
+  },
+  "baseline_delivery": {
+    "produced": 49,
+    "received": 49,
+    "sequence_gaps": 0,
+    "max_sequence_distance": 2,
+    "scope": "one controlled two-editor replay; not a general loss-rate conclusion"
+  },
+  "traces": {
+    "baseline": {
+      "file": "baseline-confirm.perfetto-trace",
+      "sha256": "48ff604bf2955dab8864b893eaac28571009377b3413d4c85eb905d058b2a915",
+      "slice_samples": {
+        "HandleFcitxEvent": 48,
+        "rime.fcitx.commit": 2,
+        "rime.fcitx.consume": 48,
+        "rime.fcitx.process_key": 14,
+        "rime.fcitx.route": 14,
+        "sendKey JNI": 14,
+        "updateCandidates": 2
+      }
+    },
+    "direct_runtime": {
+      "file": "direct-final.perfetto-trace",
+      "sha256": "3193386a45b6cfaff3b071d7066b530beb772208dd74368480bc8d3f598df1b7",
+      "slice_samples": {
+        "rime.direct.deploy": 2,
+        "rime.direct.process_key": 9,
+        "rime.direct.snapshot": 19,
+        "rime.direct.startup": 2
+      }
+    },
+    "direct_smoke_suite": {
+      "file": "direct-delivery.perfetto-trace",
+      "sha256": "d79088bd1127e8aa84bc68eccbba072b90557c23e074a67b8c7cbbfee7dc164e",
+      "slice_samples": {
+        "rime.direct.commit": 2,
+        "rime.direct.deploy": 3,
+        "rime.direct.editor_update": 17,
+        "rime.direct.process_key": 23,
+        "rime.direct.render": 16,
+        "rime.direct.snapshot": 41,
+        "rime.direct.startup": 3
+      }
+    }
+  },
+  "apk_sha256": "852a28aed64dbe8a1801b634ab2a97a8facd1a9cb4a94b9a8b7ae6f4aa9970a1"
+}

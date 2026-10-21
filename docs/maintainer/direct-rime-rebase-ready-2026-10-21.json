@@ -1,0 +1,130 @@
+{
+  "status": "prepared_for_rebase_and_merge_not_merged",
+  "merge_method": "rebase",
+  "application_base": "b6810693620e391fca1bfb498ae10b29efda9fc2",
+  "application_before_rewrite": "5a036470c951eaaddf2ab62599d68c5f68a4796a",
+  "documentation_before_rewrite": "74e6972badac0a62ff20096b8e00429517a80ce3",
+  "documentation_base": "edcf536f85576ce3e2b241e1eb5059534a972f51",
+  "archive_refs": [
+    {
+      "repo": "app",
+      "commit": "5a036470c951eaaddf2ab62599d68c5f68a4796a",
+      "tag": "v0-archive-direct-rime-before-rebase-20261021"
+    },
+    {
+      "repo": "docs",
+      "commit": "74e6972badac0a62ff20096b8e00429517a80ce3",
+      "tag": "v0-archive-direct-rime-docs-before-rebase-20261021"
+    },
+    {
+      "repo": "prebuilt",
+      "commit": "d297ddee183b437d0fd8c9bdf37eced6ec8d09cd",
+      "tag": "v0-archive-rime-prebuilt-before-rebase-20261021"
+    },
+    {
+      "repo": "prebuilder",
+      "commit": "574d9667c6b1c1ac197876ed93c93574cbd9b9c1",
+      "tag": "v0-archive-rime-prebuilder-before-rebase-20261021"
+    }
+  ],
+  "product_tree_equivalence": {
+    "scope": "all tracked entries except README.md and docs/**; modes, blob IDs and gitlinks included",
+    "canonical_entries_sha256": "fce8fb54243c275144dda2bd409ff9b2daa0961706d3497f99a4da8ad2c43177",
+    "algorithm": "SHA256 of compact UTF-8 JSON array [path,mode,object_id] sorted by git ls-tree -r order",
+    "runtime_changes_intended": false,
+    "inherited_default_branch_change": {
+      "commit": "b6810693620e391fca1bfb498ae10b29efda9fc2",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt",
+      "description": "Commit the latest partial when the user finishes voice recognition; inherited unchanged from the default branch."
+    },
+    "comparison_to_before_rewrite": "Identical except the listed inherited default-branch file."
+  },
+  "application_commit_categories": [
+    "直连后端、完整前端与旧依赖清理",
+    "librime 升级与独立源码来源",
+    "连续日志导出与子进程生命周期",
+    "CI、签名发布与回归工具",
+    "文档、历史证据与 rebase 交付"
+  ],
+  "documentation_commit_categories": [
+    "导航、安装迁移与功能说明",
+    "用户与维护手册",
+    "实施、性能证据与交付记录",
+    "站点 CI 与内部链接检查"
+  ],
+  "pinned_dependencies": {
+    "librime": "446f8584eb01ab8f72b3f0b970fda3919b1c1a55",
+    "librime_tag": "zhongzhou-20261021.1",
+    "prebuilt": "d297ddee183b437d0fd8c9bdf37eced6ec8d09cd",
+    "actual_archive_builder": "97f3dfb707f76e7897557579630b904dc6dbb688"
+  },
+  "previous_release": {
+    "source": "5a036470c951eaaddf2ab62599d68c5f68a4796a",
+    "apk_sha256": "3490d76f26e9e1fc8e02b1d0a19b44225960bf5504348170c046ef70caa60c05",
+    "certificate_sha256": "ba43006e1bfa3f60f46b2a9056f593a3a61445bd2571319fb1869e49cc36b1fe",
+    "same_certificate_as_accepted_9adb": true,
+    "version_name": "0.1.3-723-g5a036470",
+    "package": "org.fcitx.fcitx5.android.fx.rime",
+    "application_label": "中州鹅",
+    "version_code": 112,
+    "dex_class_definitions": 6088,
+    "pictureselector_classes": 0,
+    "removed_component_registrations": 5,
+    "own_crop_qr_and_ime_components_retained": true,
+    "native_libraries": [
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libdirect-rime.so"
+    ],
+    "native_audit_matches_packaged_elf": true,
+    "static_groups": [
+      "glog",
+      "leveldb",
+      "librime",
+      "lua",
+      "marisa",
+      "opencc",
+      "yaml-cpp"
+    ],
+    "packaged_profile_app_methods": 78,
+    "send_key_entries": 3,
+    "backend_coroutine_entries": 13,
+    "verified": true,
+    "fork_repository": "https://github.com/SandyYuR/librime",
+    "fork_commit": "446f8584eb01ab8f72b3f0b970fda3919b1c1a55",
+    "fork_source_tag": "zhongzhou-20261021.1",
+    "prebuilt_commit": "d297ddee183b437d0fd8c9bdf37eced6ec8d09cd",
+    "native_elf_identical_to_previous_release": true,
+    "packaged_custom_source_version": "1.17.0-1b3417d+zhongzhou.446f858",
+    "packaged_material_layouts_checked": 8,
+    "ci": {
+      "prebuilder_archive": 39578163543,
+      "prebuilder_final": 39579453735,
+      "pr": 39579198669,
+      "direct_rime": 39579198641,
+      "release": 39579190118,
+      "docs": 39579673448
+    },
+    "tests": {
+      "source_contract": 5,
+      "engine_native": 162,
+      "jvm": 502,
+      "frontend": {
+        "total": 24,
+        "passed": 23,
+        "skipped_without_model_fixture": 1,
+        "failures": 0
+      }
+    },
+    "release_artifact": 12335863906,
+    "release_zip_sha256": "e9a25b20a4523d4d46b7f58a81a73064644b683f601da11790e5b3e880f15e7c"
+  },
+  "new_head_validation": "See current PR checks and exact head source.txt; previous_release is not a rebuilt APK for rewritten commits.",
+  "merge_order": [
+    "SandyYuR/prebuilder#1",
+    "SandyYuR/prebuilt#1",
+    "SandyYuR/fcitx5-android#4",
+    "verify default-branch signed Nightly",
+    "SandyYuR/fcitx5-android#7"
+  ],
+  "previous_application_base": "579b1632116b7523ed969dc8b37029e9bed73bd2"
+}

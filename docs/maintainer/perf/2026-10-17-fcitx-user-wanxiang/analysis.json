@@ -1,0 +1,181 @@
+{
+  "metric": "Backend API to event collector; excludes touch and display rendering",
+  "rounds_per_backend": 3,
+  "identical_commits": true,
+  "identical_candidate_texts": true,
+  "backends": {
+    "fcitx": {
+      "send_key_return": {
+        "p50_ms": {
+          "median_ms": 11.470013,
+          "min_ms": 11.378022,
+          "max_ms": 11.481848
+        },
+        "p95_ms": {
+          "median_ms": 15.984605,
+          "min_ms": 15.859853,
+          "max_ms": 16.663884
+        },
+        "p99_ms": {
+          "median_ms": 29.578577,
+          "min_ms": 28.950227,
+          "max_ms": 29.671972
+        }
+      },
+      "key_to_candidates": {
+        "p50_ms": {
+          "median_ms": 11.458153,
+          "min_ms": 11.346402,
+          "max_ms": 11.470155
+        },
+        "p95_ms": {
+          "median_ms": 16.0245,
+          "min_ms": 15.908545,
+          "max_ms": 16.672811
+        },
+        "p99_ms": {
+          "median_ms": 29.515878,
+          "min_ms": 28.856667,
+          "max_ms": 29.738075
+        }
+      },
+      "space_to_commit": {
+        "p50_ms": {
+          "median_ms": 1.833416,
+          "min_ms": 1.786556,
+          "max_ms": 1.859123
+        },
+        "p95_ms": {
+          "median_ms": 2.460003,
+          "min_ms": 2.229274,
+          "max_ms": 2.549189
+        },
+        "p99_ms": {
+          "median_ms": 2.820528,
+          "min_ms": 2.586332,
+          "max_ms": 3.009411
+        }
+      },
+      "word_to_result": {
+        "p50_ms": {
+          "median_ms": 89.87815,
+          "min_ms": 86.434946,
+          "max_ms": 90.648128
+        },
+        "p95_ms": {
+          "median_ms": 141.289652,
+          "min_ms": 137.524241,
+          "max_ms": 143.528628
+        },
+        "p99_ms": {
+          "median_ms": 145.757781,
+          "min_ms": 142.874465,
+          "max_ms": 146.255427
+        }
+      },
+      "wall_ms": 8973.219889,
+      "process_cpu_ms": 9277,
+      "memory_after_median": {
+        "rss_kib": 339528,
+        "pss_kib": 255079,
+        "java_used_bytes": 4793904,
+        "native_allocated_bytes": 15904480
+      }
+    },
+    "direct": {
+      "send_key_return": {
+        "p50_ms": {
+          "median_ms": 10.639636,
+          "min_ms": 10.571523,
+          "max_ms": 10.649157
+        },
+        "p95_ms": {
+          "median_ms": 14.720075,
+          "min_ms": 14.181201,
+          "max_ms": 14.82408
+        },
+        "p99_ms": {
+          "median_ms": 27.577508,
+          "min_ms": 26.673332,
+          "max_ms": 28.029147
+        }
+      },
+      "key_to_candidates": {
+        "p50_ms": {
+          "median_ms": 10.773933,
+          "min_ms": 10.700096,
+          "max_ms": 10.781377
+        },
+        "p95_ms": {
+          "median_ms": 14.896402,
+          "min_ms": 14.348611,
+          "max_ms": 14.9415
+        },
+        "p99_ms": {
+          "median_ms": 27.688685,
+          "min_ms": 26.777685,
+          "max_ms": 28.147894
+        }
+      },
+      "space_to_commit": {
+        "p50_ms": {
+          "median_ms": 1.794923,
+          "min_ms": 1.761481,
+          "max_ms": 1.81939
+        },
+        "p95_ms": {
+          "median_ms": 2.187666,
+          "min_ms": 2.119358,
+          "max_ms": 2.269749
+        },
+        "p99_ms": {
+          "median_ms": 2.74144,
+          "min_ms": 2.50008,
+          "max_ms": 4.294322
+        }
+      },
+      "word_to_result": {
+        "p50_ms": {
+          "median_ms": 80.677085,
+          "min_ms": 79.506185,
+          "max_ms": 81.243353
+        },
+        "p95_ms": {
+          "median_ms": 129.75426,
+          "min_ms": 127.565962,
+          "max_ms": 130.02497
+        },
+        "p99_ms": {
+          "median_ms": 132.190249,
+          "min_ms": 131.753636,
+          "max_ms": 133.988969
+        }
+      },
+      "wall_ms": 8298.429576,
+      "process_cpu_ms": 8583,
+      "memory_after_median": {
+        "rss_kib": 337192,
+        "pss_kib": 252791,
+        "java_used_bytes": 7694672,
+        "native_allocated_bytes": 15668752
+      }
+    }
+  },
+  "profile_slices": {
+    "rime.direct.process_key": {
+      "samples": 784,
+      "total_ms": 7673.44463,
+      "p50_ms": 10.232805,
+      "p95_ms": 14.027518,
+      "p99_ms": 27.492008
+    },
+    "rime.direct.snapshot": {
+      "samples": 784,
+      "total_ms": 208.546097,
+      "p50_ms": 0.197528,
+      "p95_ms": 0.725722,
+      "p99_ms": 0.849433
+    }
+  },
+  "profile_trace_sha256": "65b4428b753a9b804efaadd32cceceee9d63303a6f43ccdfde7dcc9439120876"
+}

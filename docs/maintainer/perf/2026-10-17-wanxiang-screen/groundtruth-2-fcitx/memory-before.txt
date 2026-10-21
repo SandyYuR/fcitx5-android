@@ -1,0 +1,59 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 282633 Realtime: 282633
+
+** MEMINFO in pid 4896 [org.fcitx.fcitx5.android.fx.rime.debug] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    37820    37788        0       57    38736    66076    41342    20362
+  Dalvik Heap    15222    15120       60      135    16076    22367    11184    11183
+ Dalvik Other    11875     5508        0        4    18588                           
+        Stack     1392     1392        0        0     1400                           
+       Ashmem       14        0        0        0      568                           
+    Other dev       22        0       16        0      344                           
+     .so mmap    15348     1308    11076       16    47584                           
+    .jar mmap     3521        0      700        0    45036                           
+    .apk mmap     1537        0      460        0     3884                           
+    .ttf mmap     1803        0     1556        0     2204                           
+    .dex mmap       14        0        0        0      872                           
+    .oat mmap       33        0        0        0     1664                           
+    .art mmap     9604     8052      152      123    23780                           
+   Other mmap    25838       32    21460        0    32240                           
+      Unknown    80977    80964        4        0    81412                           
+        TOTAL   205355   150164    35484      335   314388    88443    52526    31545
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    23324                          39856
+         Native Heap:    37788                          38736
+                Code:    15232                         114112
+               Stack:     1392                           1400
+            Graphics:        0                              0
+       Private Other:   107912
+              System:    19707
+             Unknown:                                  120284
+ 
+           TOTAL PSS:   205355            TOTAL RSS:   314388       TOTAL SWAP PSS:      335
+ 
+ Objects
+               Views:      331         ViewRootImpl:        1
+         AppContexts:        6           Activities:        0
+              Assets:       22        AssetManagers:        0
+       Local Binders:       34        Proxy Binders:       51
+       Parcel memory:       10         Parcel count:       41
+    Death Recipients:        0             WebViews:        0
+ 
+ SQL
+         MEMORY_USED:      175
+  PAGECACHE_OVERFLOW:       50          MALLOC_SIZE:       46
+ 
+ DATABASES
+      pgsz     dbsz   Lookaside(b) cache hits cache misses cache size  Dbname
+PER CONNECTION STATS
+         4       24             17     0    22     1  /data/user/0/org.fcitx.fcitx5.android.fx.rime.debug/databases/clbdb
+         4        8                    0     0     0    (attached) temp
+         4       24             60     7    23     6  /data/user/0/org.fcitx.fcitx5.android.fx.rime.debug/databases/clbdb (1)
+POOL STATS
+     cache hits  cache misses    cache size  Dbname
+              7            49            56  /data/user/0/org.fcitx.fcitx5.android.fx.rime.debug/databases/clbdb

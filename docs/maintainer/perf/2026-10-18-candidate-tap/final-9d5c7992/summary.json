@@ -1,0 +1,281 @@
+{
+  "fcitx": {
+    "first_samples": 3,
+    "warm_samples": 15,
+    "metrics": {
+      "injection_up_to_ime_dispatch": {
+        "first": [
+          39.965316,
+          59.026793,
+          4.689089
+        ],
+        "first_median": 39.965316,
+        "warm_median": 0.609635,
+        "warm_min": 0.482931,
+        "warm_max": 0.827505
+      },
+      "ime_dispatch_up_to_commit_collector": {
+        "first": [
+          12.773243,
+          11.425478,
+          9.466493
+        ],
+        "first_median": 11.425478,
+        "warm_median": 4.774409,
+        "warm_min": 3.302745,
+        "warm_max": 12.53112
+      },
+      "ime_dispatch_up_to_editor_input_connection": {
+        "first": [
+          18.209242,
+          12.594771,
+          11.076658
+        ],
+        "first_median": 12.594771,
+        "warm_median": 7.626753,
+        "warm_min": 4.562256,
+        "warm_max": 14.737992
+      },
+      "ime_dispatch_up_to_editor_change": {
+        "first": [
+          35.687205,
+          16.889958,
+          19.031042
+        ],
+        "first_median": 19.031042,
+        "warm_median": 8.610411,
+        "warm_min": 5.142739,
+        "warm_max": 15.910921
+      },
+      "ime_dispatch_up_to_editor_draw": {
+        "first": [
+          42.668907,
+          33.933821,
+          37.399411
+        ],
+        "first_median": 37.399411,
+        "warm_median": 20.432017,
+        "warm_min": 6.808338,
+        "warm_max": 27.368447
+      },
+      "ime_touch_up_handler": {
+        "first": [
+          1.742643,
+          1.834754,
+          2.227127
+        ],
+        "first_median": 1.834754,
+        "warm_median": 1.233291,
+        "warm_min": 0.850417,
+        "warm_max": 2.477344
+      },
+      "n_dispatch_up_to_preedit_collector": {
+        "first": [
+          84.913797,
+          37.170339,
+          66.87394
+        ],
+        "first_median": 66.87394,
+        "warm_median": 16.682261,
+        "warm_min": 12.779633,
+        "warm_max": 21.623802
+      }
+    },
+    "first_down_to_up_ms": [
+      66.411298,
+      86.950874,
+      72.873941
+    ],
+    "warm_down_to_up_ms": {
+      "median": 22.382096,
+      "min": 21.618552,
+      "max": 27.377444
+    }
+  },
+  "before": {
+    "first_samples": 3,
+    "warm_samples": 15,
+    "metrics": {
+      "injection_up_to_ime_dispatch": {
+        "first": [
+          49.787475,
+          0.635667,
+          0.559415
+        ],
+        "first_median": 0.635667,
+        "warm_median": 0.530846,
+        "warm_min": 0.350673,
+        "warm_max": 1.040372
+      },
+      "ime_dispatch_up_to_commit_collector": {
+        "first": [
+          10.982118,
+          15.165805,
+          13.272664
+        ],
+        "first_median": 13.272664,
+        "warm_median": 4.367118,
+        "warm_min": 3.329815,
+        "warm_max": 14.197831
+      },
+      "ime_dispatch_up_to_editor_input_connection": {
+        "first": [
+          12.783381,
+          18.836457,
+          16.76753
+        ],
+        "first_median": 16.76753,
+        "warm_median": 5.192422,
+        "warm_min": 3.788465,
+        "warm_max": 15.462454
+      },
+      "ime_dispatch_up_to_editor_change": {
+        "first": [
+          33.152458,
+          41.867805,
+          37.068402
+        ],
+        "first_median": 37.068402,
+        "warm_median": 11.013039,
+        "warm_min": 4.431806,
+        "warm_max": 17.975823
+      },
+      "ime_dispatch_up_to_editor_draw": {
+        "first": [
+          47.996206,
+          48.126968,
+          41.630568
+        ],
+        "first_median": 47.996206,
+        "warm_median": 22.988268,
+        "warm_min": 6.863044,
+        "warm_max": 26.535867
+      },
+      "ime_touch_up_handler": {
+        "first": [
+          2.438269,
+          1.427154,
+          2.550891
+        ],
+        "first_median": 2.438269,
+        "warm_median": 1.165114,
+        "warm_min": 0.784294,
+        "warm_max": 4.170574
+      },
+      "n_dispatch_up_to_preedit_collector": {
+        "first": [
+          59.763793,
+          78.526762,
+          37.66333
+        ],
+        "first_median": 59.763793,
+        "warm_median": 14.350706,
+        "warm_min": 11.036054,
+        "warm_max": 18.627742
+      }
+    },
+    "first_down_to_up_ms": [
+      73.045744,
+      23.057673,
+      23.407107
+    ],
+    "warm_down_to_up_ms": {
+      "median": 21.969565,
+      "min": 21.260728,
+      "max": 23.287617
+    }
+  },
+  "after": {
+    "first_samples": 3,
+    "warm_samples": 15,
+    "metrics": {
+      "injection_up_to_ime_dispatch": {
+        "first": [
+          0.941237,
+          0.783853,
+          0.57888
+        ],
+        "first_median": 0.783853,
+        "warm_median": 0.721938,
+        "warm_min": 0.498811,
+        "warm_max": 0.858731
+      },
+      "ime_dispatch_up_to_commit_collector": {
+        "first": [
+          18.026737,
+          15.540813,
+          14.111106
+        ],
+        "first_median": 15.540813,
+        "warm_median": 4.809073,
+        "warm_min": 3.703302,
+        "warm_max": 11.264603
+      },
+      "ime_dispatch_up_to_editor_input_connection": {
+        "first": [
+          18.630744,
+          25.84908,
+          16.995139
+        ],
+        "first_median": 18.630744,
+        "warm_median": 6.545108,
+        "warm_min": 4.247077,
+        "warm_max": 14.435344
+      },
+      "ime_dispatch_up_to_editor_change": {
+        "first": [
+          40.825321,
+          31.608463,
+          26.429148
+        ],
+        "first_median": 31.608463,
+        "warm_median": 9.039272,
+        "warm_min": 5.038183,
+        "warm_max": 16.544771
+      },
+      "ime_dispatch_up_to_editor_draw": {
+        "first": [
+          55.762642,
+          40.587113,
+          41.134977
+        ],
+        "first_median": 41.134977,
+        "warm_median": 21.198679,
+        "warm_min": 6.334674,
+        "warm_max": 30.031544
+      },
+      "ime_touch_up_handler": {
+        "first": [
+          2.129144,
+          1.983854,
+          1.927007
+        ],
+        "first_median": 1.983854,
+        "warm_median": 1.411325,
+        "warm_min": 0.78742,
+        "warm_max": 3.107961
+      },
+      "n_dispatch_up_to_preedit_collector": {
+        "first": [
+          96.321217,
+          42.59296,
+          47.895456
+        ],
+        "first_median": 47.895456,
+        "warm_median": 15.50297,
+        "warm_min": 11.98106,
+        "warm_max": 20.780497
+      }
+    },
+    "first_down_to_up_ms": [
+      24.980725,
+      24.127773,
+      23.773935
+    ],
+    "warm_down_to_up_ms": {
+      "median": 22.509183,
+      "min": 21.534935,
+      "max": 24.600846
+    }
+  }
+}

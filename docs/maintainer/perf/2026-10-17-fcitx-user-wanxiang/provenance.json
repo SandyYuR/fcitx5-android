@@ -1,0 +1,37 @@
+{
+  "baseline_branch": "fx-rime-only",
+  "baseline_commit": "a714feff77fd79082807b9c7141e0515c8c83f73",
+  "direct_comparison_commit": "c5ee1c9a3d1bbc5024f7acd7326bf4ac341d05ac",
+  "comparison_run": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39002393966",
+  "comparison_artifact_id": 12090310197,
+  "comparison_artifact_zip_sha256": "88d5ad507f5902d8ed066f03d729612ff38783d3590cae0cc864f74c9a744d1c",
+  "fixture_preset": "user-full-pinyin",
+  "fixture_sha256": "8c9c5bb8d42552286d8b052353aa87b14c835b7882a58f8c2a9487bcab33e293",
+  "harness_sha256": "6d742c616d864f23b3b745141d0fdb1923c053148a9728de992894b2433bcc16",
+  "validation": {
+    "rounds": 6,
+    "words_per_round": 100,
+    "keys_per_round": 784,
+    "identical_commits": true,
+    "identical_candidate_texts": true,
+    "required_switches_active": true,
+    "lts_mapped_in_both": true,
+    "native_library_counts": {
+      "fcitx": 9,
+      "direct": 2
+    }
+  },
+  "limitations": [
+    "Android 35 x86_64 KVM emulator and Debug builds",
+    "API to event observer, excludes touch and display",
+    "Fresh profiles, no personal long-term frequency or manual sort history",
+    "Fixed eight-word replay does not cover abbreviated typing, long sentences, backspace or expanded candidates"
+  ],
+  "profile_run": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39003412245",
+  "profile_artifact_id": 12089769149,
+  "profile_commit": "00963a910a877b85e6fb089f9b21c5ec029855be",
+  "profile_trace_sha256": "65b4428b753a9b804efaadd32cceceee9d63303a6f43ccdfde7dcc9439120876",
+  "profile_phase_ms": 8742.778333,
+  "profile_native_slices_per_type": 784,
+  "profile_uses_same_direct_apk": true
+}
