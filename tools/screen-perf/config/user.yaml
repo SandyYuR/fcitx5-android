@@ -1,0 +1,17 @@
+var:
+  last_build_time: 1792222701
+  option:
+    charset_filter: true
+    chinese_english: true
+    emoji: true
+    full_pinyin: false
+    prediction: true
+    super_tips: true
+    tone_display: false
+    tone_hint: true
+  previously_selected_schema: wanxiang
+  schema_access_time:
+    wanxiang: 1788343498
+    wanxiang_english: 1788343496
+    wanxiang_reverse: 1774946353
+    wanxiang_t9: 1774539764

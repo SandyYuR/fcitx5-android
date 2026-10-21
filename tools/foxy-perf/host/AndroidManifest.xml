@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="io.github.sandyyur.inputbench">
+    <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="28" />
+    <application android:label="Candidate timing host" android:debuggable="true" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:allowBackup="false">
+        <activity android:name=".BenchHost" android:exported="true" android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
+        <receiver android:name=".BenchControl" android:exported="true" />
+    </application>
+    <instrumentation android:name=".Replay" android:targetPackage="io.github.sandyyur.inputbench" android:label="Unmodified IME touch replay" />
+</manifest>
