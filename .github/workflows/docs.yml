@@ -1,6 +1,12 @@
 name: Docs
 
 on:
+  pull_request:
+    branches:
+      - docs
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
   push:
     branches:
       - docs
@@ -11,11 +17,9 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: docs-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -40,18 +44,25 @@ jobs:
         working-directory: docs
         run: npm run build
 
-      - uses: actions/configure-pages@v5
+      - name: Check generated page routes and anchors
+        run: python3 docs/scripts/check-links.py
 
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: docs/.vitepress/dist
 
   deploy:
+    if: github.ref == 'refs/heads/docs' && github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/configure-pages@v5
       - id: deployment
         uses: actions/deploy-pages@v4
