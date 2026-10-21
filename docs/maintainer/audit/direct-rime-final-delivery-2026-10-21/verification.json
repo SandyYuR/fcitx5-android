@@ -1,0 +1,43 @@
+{
+  "source": "bb79146f61681affa72d912b9c1afc83d198943f",
+  "apk_sha256": "2f3b36e235d9db2d9a1c0c3fdcd7716739695389de18fb7d0c4b2ebf0945beb1",
+  "certificate_sha256": "ba43006e1bfa3f60f46b2a9056f593a3a61445bd2571319fb1869e49cc36b1fe",
+  "same_certificate_as_accepted_9adb": true,
+  "version_name": "0.1.3-720-gbb79146f",
+  "package": "org.fcitx.fcitx5.android.fx.rime",
+  "application_label": "中州鹅",
+  "version_code": 112,
+  "dex_class_definitions": 6085,
+  "pictureselector_classes": 0,
+  "removed_component_registrations": 5,
+  "own_crop_qr_and_ime_components_retained": true,
+  "native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libdirect-rime.so"
+  ],
+  "native_audit_matches_packaged_elf": true,
+  "static_groups": [
+    "glog",
+    "leveldb",
+    "librime",
+    "lua",
+    "marisa",
+    "opencc",
+    "yaml-cpp"
+  ],
+  "packaged_profile_app_methods": 77,
+  "send_key_entries": 3,
+  "backend_coroutine_entries": 12,
+  "verified": true,
+  "native_elf_matches_verified_engine": true,
+  "packaged_documentation_links_use_docs_branch": true,
+  "packaged_custom_source_version": "1.17.0-1b3417d+zhongzhou.446f858",
+  "material_layouts_verified": 8,
+  "engine_feature_binary_markers": [
+    "pr1232_rewriter",
+    "input_tabs_bridge",
+    "lua_translator",
+    "octagram",
+    "predictor"
+  ]
+}

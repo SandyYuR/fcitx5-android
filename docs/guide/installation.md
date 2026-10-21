@@ -3,8 +3,9 @@
 ## 下载主应用
 
 选择[交付记录](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)列出的签名主应用 APK，
-或代码合入后 [Releases](https://github.com/SandyYuR/fcitx5-android/releases) 的中州鹅 Nightly。
-合入前 Releases 中仍可能是 Fcitx 版，先核对版本来源。Actions 产物需要登录 GitHub，且有保留期限。
+或 [Releases](https://github.com/SandyYuR/fcitx5-android/releases) 的中州鹅 Nightly。
+默认分支已合入直连版，历史 Fcitx 发行包仍保留；安装时按交付记录核对版本来源。
+Actions 产物需要登录 GitHub，且有保留期限。
 
 日常使用完整 `:app` 主应用。名称为“中州鹅引擎诊断”、包名带 `.lab` 的 APK 用于引擎诊断。
 按设备 ABI 选择安装包，常见设备使用 arm64-v8a。最低 Android 6.0/API 23。

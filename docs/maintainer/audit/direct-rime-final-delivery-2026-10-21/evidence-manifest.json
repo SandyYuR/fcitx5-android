@@ -1,0 +1,90 @@
+{
+  "application_head": "bb79146f61681affa72d912b9c1afc83d198943f",
+  "files": [
+    {
+      "file": "unit-test-reports.zip",
+      "bytes": 95647,
+      "sha256": "c8fc8c0611592687e8c3e529e8ba22aae001d85b5e0512b314b5bf4a475729ed"
+    },
+    {
+      "file": "material-settings-ui-results.zip",
+      "bytes": 763415,
+      "sha256": "23453636a84215e09eb088f09f16a6427a747f80030c61916b7bc800b19b7bb0"
+    },
+    {
+      "file": "frontend-android-results.zip",
+      "bytes": 1051821,
+      "sha256": "381af3e46f1f0eee8b041afcbdf64fbbe3cdce0af275ca35c132c54f28a05ff4"
+    },
+    {
+      "file": "android-smoke-results.zip",
+      "bytes": 6105,
+      "sha256": "114b4fa85561fe2df272dff35681ed5cb53fc7860ecae26132fcd49bd3608622"
+    },
+    {
+      "file": "librime-host-test-results.zip",
+      "bytes": 5341,
+      "sha256": "a79bfb600f9eeb4969bf70e5b569d75beb2e8771b38b184f88a97a1a48bff955"
+    },
+    {
+      "file": "merged-engine-rebuild-verification.json",
+      "bytes": 805,
+      "sha256": "7c683f7f4ce0ce0a9c9cb8aee24319fc714a0bbf508df8a37b36b2a72a8df3b1"
+    },
+    {
+      "file": "verified-engine-inputs.json",
+      "bytes": 1701,
+      "sha256": "072555a1708a78aeb25c1db43ae9f9449e2fb474edb150444c02ce7b4b55517d"
+    },
+    {
+      "file": "verified-test-summary.json",
+      "bytes": 828,
+      "sha256": "ded5ed60d875a05570c96b1ab6df71f2b65fff7829cf1630e425d479beacc8ef"
+    },
+    {
+      "file": "verification.json",
+      "bytes": 1327,
+      "sha256": "bb8a7ded2f93986ccaa593a1990bcf586b917f13c154a1a6b8f67d9979971ded"
+    },
+    {
+      "file": "material-layout-verification.json",
+      "bytes": 1226,
+      "sha256": "83c8db5252a08895894362d86ec28ffdee481e4a38f6fd30afa0ee20a37e2d87"
+    },
+    {
+      "file": "build-metadata.json",
+      "bytes": 140,
+      "sha256": "eb0f121e85d86eb15e23fe107431b4d71257cf1dd486da6eb69f99601ef370ff"
+    },
+    {
+      "file": "native-link-audit.json",
+      "bytes": 1224,
+      "sha256": "8622dc8daa9a7b0f85dc9fa1e2d0cf584a809ece6ae6de293b8865e6f0a51e3e"
+    },
+    {
+      "file": "packaged-profile-audit.json",
+      "bytes": 6361,
+      "sha256": "5fd79558f4b005c65abcd3c2a504156280c68bf2389758e7c95a814f669d9369"
+    },
+    {
+      "file": "resolved-baseline-prof.txt",
+      "bytes": 155509,
+      "sha256": "2d65a8f1bc95caf3359e49b5c5a3c7b0241390b2a4cae85ef657c35530d253b0"
+    },
+    {
+      "file": "sha256.txt",
+      "bytes": 117,
+      "sha256": "c8f62995a90e9a7389b0d85fab86fd9dce625e6e6958c05d60f03a888f26b9bb"
+    },
+    {
+      "file": "signing.txt",
+      "bytes": 43,
+      "sha256": "1f384404e2d4f0d553cd6f470fe264fd619cbc35a1c6d7f7067cea4fadf0db69"
+    },
+    {
+      "file": "source.txt",
+      "bytes": 41,
+      "sha256": "8c8f769e3bbe2cb984c665edb4e4034c240302fdfaebadb0e3768935065548df"
+    }
+  ]
+}

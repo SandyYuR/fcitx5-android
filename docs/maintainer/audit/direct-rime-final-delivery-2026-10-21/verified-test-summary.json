@@ -1,0 +1,42 @@
+[
+  {
+    "artifact": 12382173641,
+    "name": "unit-test-reports",
+    "report": "index.html",
+    "counts": {
+      "tests": 502,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "artifact": 12383038424,
+    "name": "material-settings-ui-results",
+    "report": "connected/debug/flavors/fx/index.html",
+    "counts": {
+      "tests": 5,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  {
+    "artifact": 12383073292,
+    "name": "direct-rime-frontend-android-results",
+    "report": "connected/debug/flavors/fx/index.html",
+    "counts": {
+      "tests": 24,
+      "failures": 0,
+      "skipped": 1
+    }
+  },
+  {
+    "artifact": 12382018841,
+    "name": "direct-rime-android-smoke-results",
+    "report": "debug/index.html",
+    "counts": {
+      "tests": 3,
+      "failures": 0,
+      "skipped": 0
+    }
+  }
+]
