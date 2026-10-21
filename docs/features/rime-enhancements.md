@@ -22,13 +22,15 @@ APK 不预装中文方案、完整词典或万象模型，见[快速上手](/gui
 | 层次 | 来源 |
 | --- | --- |
 | 官方引擎 | [rime/librime](https://github.com/rime/librime)，固定 `1b3417d2b6a11b5e50e0e1fa9dc396056aa11dce` |
-| Android 编译和定制补丁 | [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder) |
-| 四 ABI 静态库 | [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)，gitlink `0fee61763cd40776ecaa5af3200f6b296d20262f` |
+| 中州鹅定制源码 | [SandyYuR/librime](https://github.com/SandyYuR/librime/tree/zhongzhou)，固定 `446f8584eb01ab8f72b3f0b970fda3919b1c1a55` |
+| Android 编译和插件准备 | [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder) |
+| 四 ABI 静态库 | [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)，gitlink `d297ddee183b437d0fd8c9bdf37eced6ec8d09cd` |
 | 主仓库桥接 | `direct-rime/src/main/cpp/` 和 `DirectRimeBackend.kt` |
 
 主应用只链接需要的静态输入；共享 prebuilt 中存有其他产物不等于会打包或运行它们。
-librime 升级要在 prebuilder 新分支更新固定版本、复核定制补丁、构建四 ABI，
-再更新主仓库 gitlink 并验证 API、方案、Lua、用户库和性能。
+librime 核心定制维护在自有源码仓库的 `zhongzhou` 分支；prebuilder 固定该源码提交、准备插件并构建四 ABI，
+prebuilt 保存验证后的产物，输入法再固定引用。旧 fcitx5-rime 仓库已归档。
+职责、迁入功能和操作步骤见[源码维护迁移](/maintainer/DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21)。
 本次合入 23 项上游提交，版本标记为 `1.17.0-1b3417d`；官方版本仍为 1.17.0。
 固定来源、定制适配与验证见[引擎更新记录](/maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21)。
 完整步骤见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN#更新-librime)。
