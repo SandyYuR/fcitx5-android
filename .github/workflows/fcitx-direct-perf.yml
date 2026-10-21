@@ -1,0 +1,101 @@
+name: Wanxiang Fcitx versus direct comparison
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: fcitx-direct-perf-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: Prepare the pinned dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y extra-cmake-modules gettext
+          git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build the untouched default branch with a test-only replay harness
+        run: |
+          baseline_dir="$RUNNER_TEMP/fcitx-default"
+          git clone --shared --no-checkout "$GITHUB_WORKSPACE" "$baseline_dir"
+          git -C "$baseline_dir" checkout --detach a714feff77fd79082807b9c7141e0515c8c83f73
+          git -C "$baseline_dir" submodule update --init --depth 1 lib/fcitx5/src/main/cpp/fcitx5 plugin/rime/src/main/cpp/fcitx5-rime
+          git -C "$baseline_dir" submodule init lib/fcitx5/src/main/cpp/prebuilt plugin/rime/src/main/cpp/rime-prelude
+          for item in prebuilt rime-prelude; do
+            if [ "$item" = prebuilt ]; then destination="$baseline_dir/lib/fcitx5/src/main/cpp/prebuilt"; else destination="$baseline_dir/plugin/rime/src/main/cpp/rime-prelude"; fi
+            if [ -d "$destination" ]; then rmdir "$destination"; fi
+            git clone --shared --no-checkout "$GITHUB_WORKSPACE/native/$item" "$destination"
+            git -C "$destination" checkout --detach "$(git -C "$GITHUB_WORKSPACE/native/$item" rev-parse HEAD)"
+          done
+          git -C "$baseline_dir" submodule absorbgitdirs lib/fcitx5/src/main/cpp/prebuilt plugin/rime/src/main/cpp/rime-prelude
+          target="$baseline_dir/app/src/androidTest/java/org/fcitx/fcitx5/android/core"
+          mkdir -p "$target"
+          cp tools/input-perf/EngineComparisonTest.kt "$target/"
+          cd "$baseline_dir"
+          ./prepare_personal_build.sh
+          test "$(git rev-parse HEAD:lib/fcitx5/src/main/cpp/prebuilt)" = "$(git -C "$GITHUB_WORKSPACE/native/prebuilt" rev-parse HEAD)"
+          git diff --exit-code -- app/src/main app/build.gradle.kts settings.gradle.kts build-logic
+          ./gradlew -PbuildABI=x86_64 -Pkotlin.compiler.execution.strategy=in-process --max-workers=2 :app:assembleFxDebug :app:assembleFxDebugAndroidTest
+          cp app/build/outputs/apk/fx/debug/*.apk "$RUNNER_TEMP/fcitx-default.apk"
+          cp app/build/outputs/apk/androidTest/fx/debug/*.apk "$RUNNER_TEMP/fcitx-default-tests.apk"
+      - name: Build the direct frontend with the identical test source
+        run: |
+          cp tools/input-perf/EngineComparisonTest.kt app/src/androidTest/java/org/fcitx/fcitx5/android/core/
+          ./gradlew -PbuildABI=x86_64 -Pkotlin.compiler.execution.strategy=in-process --max-workers=2 :app:assembleFxDebug :app:assembleFxDebugAndroidTest
+          cp app/build/outputs/apk/fx/debug/*.apk "$RUNNER_TEMP/direct-current.apk"
+          cp app/build/outputs/apk/androidTest/fx/debug/*.apk "$RUNNER_TEMP/direct-current-tests.apk"
+          python3 tools/verify-direct-rime-apk.py "$RUNNER_TEMP/direct-current.apk"
+          python3 tools/input-perf/prepare-wanxiang.py "$RUNNER_TEMP/wanxiang-perf.zip" --preset user-full-pinyin
+          ./gradlew --stop
+          compiler_pids=$(jps -l | awk '$2 == "org.jetbrains.kotlin.daemon.KotlinCompileDaemon" {print $1}')
+          if [ -n "$compiler_pids" ]; then kill $compiler_pids; fi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: comparison-fcitx-apk
+          path: ${{ runner.temp }}/fcitx-default.apk
+          retention-days: 3
+      - uses: actions/upload-artifact@v7
+        with:
+          name: comparison-fcitx-tests
+          path: ${{ runner.temp }}/fcitx-default-tests.apk
+          retention-days: 3
+      - uses: actions/upload-artifact@v7
+        with:
+          name: comparison-direct-apk
+          path: ${{ runner.temp }}/direct-current.apk
+          retention-days: 3
+      - uses: actions/upload-artifact@v7
+        with:
+          name: comparison-direct-tests
+          path: ${{ runner.temp }}/direct-current-tests.apk
+          retention-days: 3
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: aosp_atd
+          arch: x86_64
+          disable-animations: true
+          script: python3 tools/input-perf/compare-engines.py "$RUNNER_TEMP/fcitx-default.apk" "$RUNNER_TEMP/fcitx-default-tests.apk" "$RUNNER_TEMP/direct-current.apk" "$RUNNER_TEMP/direct-current-tests.apk" --wanxiang "$RUNNER_TEMP/wanxiang-perf.zip" --preset user-full-pinyin --output build/engine-comparison --profile
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: wanxiang-fcitx-versus-direct
+          path: build/engine-comparison/
