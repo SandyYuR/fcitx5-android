@@ -1,3 +1,5 @@
+> **历史维护记录。** 当前直连版请从[合并交付](DIRECT_RIME_RELEASE_READY_2026-10-21.md)与[维护手册](DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md)开始，本文保留原实现和验证时点。
+
 # 交接报告 — fx-rime-only（靓企鹅·中州韵，rime 专版）
 
 > **MD3 已合入默认分支**：2026-10-20 19:45 UTC（北京时间 2026-10-21 03:45），代码 [PR #5](https://github.com/SandyYuR/fcitx5-android/pull/5) 经 Squash 合入 `fx-rime-only`，提交为 `69fa5a9b`，包含旧 Android 主题崩溃修复与设置页键盘主题取色。最终本地重跑 479 项单测、四 ABI Debug 及文档构建通过；完整记录见[实施记录第 6 节](/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20#_6-最终核对与代码合并)及下文 0.6.26 节。配套文档 [PR #6](https://github.com/SandyYuR/fcitx5-android/pull/6) 的合并与发布状态以 GitHub 为准。

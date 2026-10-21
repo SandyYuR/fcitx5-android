@@ -1,0 +1,29 @@
+{
+  "fcitx": {
+    "file": "wanxiang-fcitx-reference-x86_64-debug.apk",
+    "bytes": 27543910,
+    "sha256": "6aa507a77508599007a055812d6d5dab707ed8b02ea800badc0c3c6de024c37e",
+    "native_uncompressed_bytes": 13911832,
+    "native_libraries": {
+      "lib/x86_64/libFcitx5Config.so": 526480,
+      "lib/x86_64/libFcitx5Core.so": 3102048,
+      "lib/x86_64/libFcitx5Utils.so": 1678264,
+      "lib/x86_64/libandroidfrontend.so": 372824,
+      "lib/x86_64/libandroidnotification.so": 119256,
+      "lib/x86_64/libc++_shared.so": 1229808,
+      "lib/x86_64/libclipboard.so": 233192,
+      "lib/x86_64/libnative-lib.so": 679488,
+      "lib/x86_64/librime.so": 5970472
+    }
+  },
+  "direct": {
+    "file": "wanxiang-direct-reference-x86_64-debug.apk",
+    "bytes": 23320722,
+    "sha256": "27b76aa4e1c5ac68645e0dcda53935d6caaf545d326b8d5a95ef386cfde23945",
+    "native_uncompressed_bytes": 5540632,
+    "native_libraries": {
+      "lib/x86_64/libc++_shared.so": 1229808,
+      "lib/x86_64/libdirect-rime.so": 4310824
+    }
+  }
+}

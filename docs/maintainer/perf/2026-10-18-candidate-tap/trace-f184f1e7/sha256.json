@@ -1,0 +1,19 @@
+{
+  "after-1.json": "7bb7d9de27bda7bde537e5c60fa35429e1a08905570fb02056475d4680c35702",
+  "after-1.logcat.txt.gz": "9021bf133a204d13cae4936acd835c5488e8b308462194611f7a963e39d9528a",
+  "after-slices.csv": "892d7a0fecdf8809290541780c856b235c6319219046e743ff349e5fc491ee98",
+  "analysis.json": "c7b40fdda610830c9ae7537017baaad0810d0c6c488cac3c75b6c430e9f9d602",
+  "before-1.json": "4e6119b6fc39a8c3a61c99360ab2a4a1da2b5e080d995b752490d1feece26d26",
+  "before-1.logcat.txt.gz": "237f75f434097336fff95902512c234c90c4c48b5f0fe6ee473e2d0fd36a8594",
+  "candidate-fixture.manifest.json": "c5419d506c53805689179d784b83e8d5289f55556f44c6b9461a3e05cdcb5ae6",
+  "comparison.json": "fb6be3d61714506811736b8c616a3898697ae27acf6f8dd8aee0c6dde9cc9d81",
+  "editor-first-select.csv": "a7fdbbc46e5c17a6de6edb674edf7bf9a3ef2b33b8e083d0bda9038ae32f4933",
+  "editor-first-select.sql": "6206d6451d7409551e511fa4e54d983ac40af8e151a0585d2730f944c113582c",
+  "fcitx-1.json": "593e6cf541fdceb6bce208175613db100c87671dd3b6733bec611344990c3fc6",
+  "fcitx-1.logcat.txt.gz": "2e75caa70fac6062ab5445bc6234404b61a2c1f433b0c08eec9ec06e4f544d79",
+  "first-key-thread-state.sql": "b9bac74757ca9d34654173fb362d877be76f8e9c4e06cfb256f3ba333a611cdc",
+  "first-key.csv": "724208a993b9831e00d64bb14839cab80ca704d508b1bbe135dfce8c5fa27309",
+  "first-select.csv": "111e5369fb692af3557bd6005bfee951668f8afade0f9c44ea7a08c039fc0bd5",
+  "first-select.sql": "8bc9e5126b3ee92909d7e9de25e954060f926e2e7eeb2ed853db8efe38fc83f3",
+  "trace-files.json": "e53a700a69af353ae0588a6aa2345aea72682a422e53d1d57904ead31656408d"
+}

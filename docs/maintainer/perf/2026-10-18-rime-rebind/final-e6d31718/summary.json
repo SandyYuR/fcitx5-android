@@ -1,0 +1,139 @@
+{
+  "scope": "Six immediate UI typing/selection rounds after fixture deployment. Includes injection/polling; not process-cold or frame-presentation latency. Fixed before/after order; one emulator.",
+  "products": {
+    "before": {
+      "commit": "2f6a0ea08527831d3f07df12499f5b72d5ffc0bd",
+      "metrics": {
+        "first_touch_to_preedit_observed_ms": {
+          "first_two": [
+            328.211551,
+            162.86919
+          ],
+          "remaining_four": [
+            163.070612,
+            164.252164,
+            164.574786,
+            150.570356
+          ],
+          "median_all_six": 163.661388
+        },
+        "first_touch_to_candidate_view_bound_ms": {
+          "first_two": [
+            491.869743,
+            212.627094
+          ],
+          "remaining_four": [
+            212.655845,
+            241.994109,
+            210.008601,
+            229.669319
+          ],
+          "median_all_six": 221.162582
+        },
+        "candidate_touch_to_editor_observed_ms": {
+          "first_two": [
+            153.08996,
+            69.16727
+          ],
+          "remaining_four": [
+            65.737912,
+            56.814811,
+            100.381036,
+            58.966376
+          ],
+          "median_all_six": 67.452591
+        }
+      },
+      "logcat_sha256": "d15f6810436e37ecc686d4a6b459491e44c9da2bc3277823039fbf8eab6b37c9"
+    },
+    "after": {
+      "commit": "e6d317182e25d225a6128420542ea47d161c03b9",
+      "metrics": {
+        "first_touch_to_preedit_observed_ms": {
+          "first_two": [
+            273.742118,
+            152.14612
+          ],
+          "remaining_four": [
+            106.943861,
+            113.580408,
+            113.515255,
+            112.0698
+          ],
+          "median_all_six": 113.5478315
+        },
+        "first_touch_to_candidate_view_bound_ms": {
+          "first_two": [
+            325.176329,
+            198.437593
+          ],
+          "remaining_four": [
+            162.41523,
+            163.456348,
+            165.591519,
+            158.691402
+          ],
+          "median_all_six": 164.5239335
+        },
+        "candidate_touch_to_editor_observed_ms": {
+          "first_two": [
+            139.442824,
+            73.528051
+          ],
+          "remaining_four": [
+            64.816834,
+            67.416,
+            53.264278,
+            54.621472
+          ],
+          "median_all_six": 66.116417
+        }
+      },
+      "logcat_sha256": "6050ee13f6991a0c4404c51d96e2f4bad7ce8a0ba50c9439795718a8868ee04a"
+    }
+  },
+  "after_round_binds": [
+    {
+      "generation": 7,
+      "duration_ms": 219,
+      "ready": true,
+      "created": 1,
+      "reused": 0
+    },
+    {
+      "generation": 8,
+      "duration_ms": 6,
+      "ready": true,
+      "created": 0,
+      "reused": 1
+    },
+    {
+      "generation": 9,
+      "duration_ms": 7,
+      "ready": true,
+      "created": 0,
+      "reused": 1
+    },
+    {
+      "generation": 10,
+      "duration_ms": 2,
+      "ready": true,
+      "created": 0,
+      "reused": 1
+    },
+    {
+      "generation": 11,
+      "duration_ms": 1,
+      "ready": true,
+      "created": 0,
+      "reused": 1
+    },
+    {
+      "generation": 12,
+      "duration_ms": 1,
+      "ready": true,
+      "created": 0,
+      "reused": 1
+    }
+  ]
+}
