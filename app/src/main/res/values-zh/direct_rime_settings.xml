@@ -11,7 +11,7 @@
     <string name="direct_rime_about_guide">使用手册</string>
     <string name="direct_rime_about_guide_summary">安装方案、配置万象、自定义键盘、备份与迁移</string>
     <string name="direct_rime_about_builds">版本与更新</string>
-    <string name="direct_rime_about_builds_summary">打开中州鹅发布页；覆盖安装需保持包名和签名一致</string>
+    <string name="direct_rime_about_builds_summary">检查更新并下载发布版本；覆盖安装需保持包名和签名一致</string>
     <string name="direct_rime_about_engine">输入引擎</string>
     <string name="direct_rime_about_engine_summary">中州韵 Rime / librime · 方案与用户词典在本机运行</string>
     <string name="direct_rime_about_privacy_summary">本地输入数据、可选联网功能及备份内容说明</string>

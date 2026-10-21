@@ -11,7 +11,7 @@
     <string name="direct_rime_about_guide">User guide</string>
     <string name="direct_rime_about_guide_summary">Install schemes, configure Wanxiang, customize the keyboard and back up your data</string>
     <string name="direct_rime_about_builds">Releases and updates</string>
-    <string name="direct_rime_about_builds_summary">Open Zhongzhou Goose releases; updates require the same application ID and signing certificate</string>
+    <string name="direct_rime_about_builds_summary">Check for updates and download releases; updates require the same application ID and signing certificate</string>
     <string name="direct_rime_about_engine">Input engine</string>
     <string name="direct_rime_about_engine_summary">Rime / librime · schemes and user dictionaries run locally</string>
     <string name="direct_rime_about_privacy_summary">Local input data, optional network features and backup contents</string>
