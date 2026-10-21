@@ -72,3 +72,16 @@ CI 的最终提交、结果及签名包以 PR 描述为准；不将构建通过�
 随后清理旧布局时残留的 `R.id.settings` 容器回退由干净构建
 [39528958645](https://github.com/SandyYuR/fcitx5-android/actions/runs/39528958645) 检出；已移除，
 剪贴板同步子页只使用实际宿主的 `settings_container`，并重新清理构建目录后验证。
+
+## 共享 UI 已独立提交默认分支
+
+共享 MD3 页面、对话框、控件及菜单窗口兼容处理已提取为默认分支的单一提交
+[`579b1632`](https://github.com/SandyYuR/fcitx5-android/commit/579b1632116b7523ed969dc8b37029e9bed73bd2)。
+默认分支仍使用 Fcitx 后端；该提交没有合入直连引擎、直连性能改动、包名或
+关于页面文案。提取范围见 [共享 UI 说明](MD3_UI_EXTRACTION_2026-10-21.md)。
+
+默认分支独立验证：479 项 JVM 测试通过；
+[Material settings UI #39537150152](https://github.com/SandyYuR/fcitx5-android/actions/runs/39537150152)
+的 6 项 Android 测试全部通过、无跳过，并归档 20 张浅深色截图。
+同步回直连分支时保留直连版现有的会话生命周期、日志导出修复和 Rime 导入页面测试；
+共享 UI 工作流兼容两种后端的构建准备和截图命名。
