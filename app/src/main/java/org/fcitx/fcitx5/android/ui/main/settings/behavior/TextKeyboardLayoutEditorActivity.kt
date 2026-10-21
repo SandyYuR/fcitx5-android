@@ -30,7 +30,6 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import org.fcitx.fcitx5.android.ui.common.SettingsSlider as SeekBar
-import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -142,8 +141,6 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            val pad = dp(4)
-            setPadding(0, pad, 0, pad)
         }
     }
 
@@ -153,6 +150,9 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 weight = 1f
                 setMargins(0, 0, 0, 0)
             }
+            minimumHeight = dp(40)
+            setPaddingRelative(dp(12), 0, dp(40), 0)
+            dropDownVerticalOffset = dp(4)
         }
     }
 
@@ -162,7 +162,48 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 weight = 1f
                 setMargins(0, 0, 0, 0)
             }
+            minimumHeight = dp(40)
+            setPaddingRelative(dp(12), 0, dp(40), 0)
+            dropDownVerticalOffset = dp(4)
         }
+    }
+
+    /** Compact, themed rows for the layout and submode selectors at the top of the editor. */
+    private fun compactSelectorAdapter(items: List<String>): ArrayAdapter<String> =
+        object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+                selectorTextView(getItem(position).orEmpty(), convertView, selected = true)
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View =
+                selectorTextView(getItem(position).orEmpty(), convertView, selected = false)
+        }
+
+    private fun selectorTextView(item: String, recycled: View?, selected: Boolean): TextView {
+        val textView = (recycled as? TextView) ?: TextView(this)
+        textView.apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            text = item
+            textSize = 14f
+            setTextColor(settingsColor(android.R.attr.textColorPrimary))
+            gravity = Gravity.CENTER_VERTICAL
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.END
+            includeFontPadding = false
+            minimumHeight = dp(if (selected) 32 else 40)
+            if (selected) {
+                setPadding(0, 0, 0, 0)
+                background = null
+            } else {
+                setPadding(dp(14), dp(8), dp(14), dp(8))
+                setBackgroundResource(android.R.drawable.list_selector_background)
+                setCompoundDrawablesRelative(null, null, null, null)
+                compoundDrawablePadding = 0
+            }
+        }
+        return textView
     }
 
     /**
@@ -1100,12 +1141,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             }
         }
 
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            displayItems.toTypedArray()
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter = compactSelectorAdapter(displayItems)
         layoutSpinner.adapter = adapter
         layoutSpinnerNameMap = layoutNameMap.toMap()
 
@@ -1476,12 +1512,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         val selectionMap = SubModeManager.buildSpinnerSelectionMap(labels)
         subModeSpinnerSelectionMap = selectionMap
         val displayItems = selectionMap.map { label -> label ?: getString(R.string.default_) }
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            displayItems
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter = compactSelectorAdapter(displayItems)
         subModeSpinner.adapter = adapter
 
         val selectedIndex = selectionMap.indexOf(previewSubModeLabel).takeIf { it >= 0 } ?: 0
