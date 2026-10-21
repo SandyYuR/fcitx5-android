@@ -95,6 +95,8 @@ class SymbolPanelUi(
         const val SIDEBAR_ITEM_HEIGHT_DP = 40
         const val UTILITY_ROW_HEIGHT_DP = 40
         const val GRID_ITEM_HEIGHT_DP = 40
+        /** 每个面板保留最近十行记录，颜文字面板也按单列计算。 */
+        const val RECENT_ROWS = 10
 
         /** 功能键文字大小，对齐 Foxy 的 20sp（两枚键均分 84dp，每枚 42dp）。 */
         const val UTILITY_KEY_TEXT_SIZE = 20f
@@ -113,7 +115,7 @@ class SymbolPanelUi(
      */
     private var catalog: SymbolCatalog = SymbolCatalog(emptyList(), multiLine = false)
 
-    private val recentlyUsed = RecentlyUsed(catalogType.recentKey, columns * 3)
+    private val recentlyUsed = RecentlyUsed(catalogType.recentKey, columns * RECENT_ROWS)
 
     private var groups: List<SymbolGroup> = emptyList()
     private var selectedIndex = 0
