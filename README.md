@@ -16,6 +16,7 @@
 
 - [用户手册](docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)：安装、万象、方案切换、键盘、主题、备份与排错。
 - [维护手册](docs/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md)：构建、librime 来源与更新、CI 和性能复现。
+- [Rime 引擎更新](docs/maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md)：上游版本、定制补丁及四 ABI 产物来源。
 - [当前合并交付](docs/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21.md)：当前基线、签名包、CI、文档站与合入顺序。
 - [10 月 19 日整理记录](docs/maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md)：提交来源、历史收拢与分支归档。
 - [最终依赖审阅](docs/maintainer/DIRECT_RIME_FINAL_REVIEW_2026-10-19.md)：APK 原生/静态链接、保留的前端代码和无用途库清理。

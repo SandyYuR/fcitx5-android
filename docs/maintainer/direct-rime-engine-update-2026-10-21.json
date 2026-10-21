@@ -1,0 +1,45 @@
+{
+  "upstream": "1b3417d2b6a11b5e50e0e1fa9dc396056aa11dce",
+  "previous_upstream": "ef1a16aa2c962bccf347b116443331f39d56e037",
+  "upstream_commits": 23,
+  "version": "1.17.0-1b3417d",
+  "dependency_prebuilt": "1126616c3ec569617da772e30d7a97f6b2694172",
+  "prebuilder_commit": "0af671f902680e00e4842d92ba49e373db0cf938",
+  "prebuilder_head": "bcfb896fd531caad2e95b8a580b45fb58956f171",
+  "prebuilder_source_tag": "v0-archive-librime-build-20261021",
+  "ci_run": 39568210547,
+  "host_tests": 162,
+  "abis": {
+    "armeabi-v7a": {
+      "archive_sha256": "f42152013c4bbc8f2f99417dcab368a2bc5782526a0b62ac9501d0050965a4f4",
+      "rime_api_sha256": "4e416573f8b8b1d23f2a5cab748e8ff70e114f141f608471924063e22010fa4b"
+    },
+    "arm64-v8a": {
+      "archive_sha256": "8594fc925a72609450b7cbfef3ccd9ace57081248e7a07fbd11757e232ef1cdd",
+      "rime_api_sha256": "4e416573f8b8b1d23f2a5cab748e8ff70e114f141f608471924063e22010fa4b"
+    },
+    "x86": {
+      "archive_sha256": "83896aecfdb1345ba962bc1360e17d9ce2592d2ba614f5a89d01a7bd26a1438c",
+      "rime_api_sha256": "4e416573f8b8b1d23f2a5cab748e8ff70e114f141f608471924063e22010fa4b"
+    },
+    "x86_64": {
+      "archive_sha256": "4cd02a9b3b7838b7d3f0510ac9eec562cfa25fa9af00fcf3b9ff34cbe073e6d9",
+      "rime_api_sha256": "4e416573f8b8b1d23f2a5cab748e8ff70e114f141f608471924063e22010fa4b"
+    }
+  },
+  "source_repositories": {
+    "upstream": "https://github.com/rime/librime",
+    "prebuilder_pr": "https://github.com/SandyYuR/prebuilder/pull/1",
+    "prebuilt_pr": "https://github.com/SandyYuR/prebuilt/pull/1"
+  },
+  "validation": {
+    "native_abis_passed": [
+      "armeabi-v7a",
+      "arm64-v8a",
+      "x86",
+      "x86_64"
+    ],
+    "host_tests_passed": 162,
+    "application_checks": "PR #4 records the exact application source, APK and CI runs"
+  }
+}

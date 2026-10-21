@@ -1,6 +1,11 @@
 name: Direct Rime cold path diagnosis
 on:
   workflow_dispatch:
+    inputs:
+      model_cache_commit:
+        description: Optional exact SandyYuR/prebuilt commit containing the historical public LTS model cache
+        type: string
+        required: false
 permissions:
   contents: read
 concurrency:
@@ -24,6 +29,24 @@ jobs:
         with:
           packages: platform-tools
       - uses: gradle/actions/setup-gradle@v6
+      - name: Validate optional public model cache reference
+        if: inputs.model_cache_commit != ''
+        env:
+          MODEL_CACHE_COMMIT: ${{ inputs.model_cache_commit }}
+        run: '[[ "$MODEL_CACHE_COMMIT" =~ ^[0-9a-f]{40}$ ]]'
+      - uses: actions/checkout@v7
+        if: inputs.model_cache_commit != ''
+        with:
+          repository: SandyYuR/prebuilt
+          ref: ${{ inputs.model_cache_commit }}
+          path: build/public-model-cache
+          persist-credentials: false
+      - name: Restore the checksum-pinned public model when supplied
+        if: inputs.model_cache_commit != ''
+        run: |
+          mkdir -p build/wanxiang-screen-source
+          cat build/public-model-cache/wanxiang-lts-zh-hans.gram.gz.part* | gzip -dc > build/wanxiang-screen-source/wanxiang-lts-zh-hans.gram
+          echo '1849e5e4acbdbfaf41fceeb86b739d5d0c85d574bd8a688562cba1e6beb78488  build/wanxiang-screen-source/wanxiang-lts-zh-hans.gram' | sha256sum --check
       - name: Prepare user's pinned Wanxiang base and LTS model
         run: |
           python3 tools/screen-perf/prepare.py "$RUNNER_TEMP/cold-fixture.zip"

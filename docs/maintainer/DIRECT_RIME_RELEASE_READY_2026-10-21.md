@@ -1,5 +1,7 @@
 # 中州鹅直连版：合并与文档站交付
 
+> 本页签名包与固定 CI 属于引擎升级前的 `df591f78`。本轮引擎已更新至上游 `1b3417d2`，最新来源与回归见[引擎更新记录](DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md)，安装包以 PR 当前说明为准。
+
 本页是当前合并入口；10 月 16–20 日的报告继续作为历史证据保留。
 代码 PR 为 [#4](https://github.com/SandyYuR/fcitx5-android/pull/4)，
 `feat/direct-rime-prototype` → `fx-rime-only`。文档站通过独立 PR 合入 `docs` 分支。
