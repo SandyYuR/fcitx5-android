@@ -1,0 +1,21 @@
+{
+  "apk": "zhongzhougoose-decoupled-final-arm64-v8a-debug.apk",
+  "apk_code_commit": "47155a5099ea1632d68fb0b91eecd0da2b1a0a18",
+  "native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libdirect-rime.so"
+  ],
+  "dex_class_definitions": [
+    "Lorg/fcitx/fcitx5/android/core/DirectRimeBackend;",
+    "Lorg/fcitx/fcitx5/android/core/Fcitx;",
+    "Lorg/fcitx/fcitx5/android/core/FcitxAPI;",
+    "Lorg/fcitx/fcitx5/android/core/FcitxDispatcher;",
+    "Lorg/fcitx/fcitx5/android/core/FcitxEvent;",
+    "Lorg/fcitx/fcitx5/android/core/RawConfig;",
+    "Lorg/fcitx/fcitx5/android/daemon/FcitxDaemon;",
+    "Lorg/fcitx/fcitx5/android/input/FcitxInputMethodService;"
+  ],
+  "note": "DEX presence is not evidence of execution. Direct routing uses DirectRimeBackend; unused legacy classes remain in this debug APK.",
+  "apk_sha256": "c593ac9ed5f25ce8f4f475eb42e3efac52facf525f6bf9b5131707cebeb36cbf",
+  "apk_bytes": 23219682
+}
