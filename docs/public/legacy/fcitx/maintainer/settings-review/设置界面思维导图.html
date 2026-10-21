@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>设置界面思维导图 · 中州韵 Rime-only</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --text: #1b1f24;
+    --muted: #6b7280;
+    --line: #c9ced6;
+    --line-soft: #e3e7ec;
+    --daily: #0e9f6e;
+    --rare: #7c6cf0;
+    --kid-bg: #ffffff;
+    --kid-bd: #e3e7ec;
+    --new: #d97706;
+    --accent: #0e9f6e;
+    --shadow: 0 1px 2px rgba(16,24,40,.06), 0 8px 24px rgba(16,24,40,.06);
+  }
+  html[data-theme="dark"] {
+    --bg: #0e1116;
+    --panel: #161b22;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --line: #3a4250;
+    --line-soft: #232a34;
+    --daily: #2fbf8f;
+    --rare: #a394ff;
+    --kid-bg: #1b2129;
+    --kid-bd: #2b333d;
+    --new: #f0a83c;
+    --accent: #2fbf8f;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.55 -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 26px 26px 34px; }
+
+  header { display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap; margin-bottom: 18px; }
+  h1 { font-size: 21px; margin: 0 0 4px; letter-spacing: .2px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0; }
+  .spacer { flex: 1 1 auto; }
+  .toggle {
+    display: inline-flex; background: var(--panel); border: 1px solid var(--kid-bd);
+    border-radius: 9px; padding: 3px; box-shadow: var(--shadow);
+  }
+  .toggle button {
+    border: 0; background: transparent; color: var(--muted); cursor: pointer;
+    padding: 6px 14px; border-radius: 6px; font-size: 13px; font-family: inherit;
+  }
+  .toggle button[aria-pressed="true"] { background: var(--accent); color: #fff; font-weight: 600; }
+
+  .stage {
+    background: var(--panel); border: 1px solid var(--kid-bd); border-radius: 14px;
+    padding: 22px; box-shadow: var(--shadow); overflow-x: auto;
+  }
+
+  .map { display: flex; align-items: center; gap: 16px; min-width: 1180px; }
+  .center {
+    flex: 0 0 148px; text-align: center; padding: 16px 10px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--daily), var(--rare)); color: #fff;
+    font-weight: 700; font-size: 16px; letter-spacing: .5px;
+  }
+  .center small { display: block; font-weight: 400; font-size: 11px; opacity: .85; margin-top: 3px; letter-spacing: 0; }
+
+  .branches { position: relative; padding-left: 26px; display: flex; flex-direction: column; gap: 13px; }
+  .branches::before { content: ""; position: absolute; left: 0; top: 16px; bottom: 16px; width: 2px; background: var(--line); }
+  .branches::after { content: ""; position: absolute; left: -16px; top: 50%; width: 16px; height: 2px; background: var(--line); }
+
+  .branch { position: relative; display: flex; align-items: center; gap: 14px; }
+  .branch::before { content: ""; position: absolute; left: -26px; top: 50%; width: 26px; height: 2px; background: var(--line); }
+
+  .blabel {
+    flex: 0 0 auto; padding: 7px 12px; border-radius: 8px; font-weight: 600; font-size: 13.5px;
+    border: 1px solid transparent; white-space: nowrap;
+  }
+  .b-daily .blabel { color: var(--daily); background: color-mix(in srgb, var(--daily) 12%, transparent); border-color: color-mix(in srgb, var(--daily) 30%, transparent); }
+  .b-rare  .blabel { color: var(--rare);  background: color-mix(in srgb, var(--rare) 12%, transparent);  border-color: color-mix(in srgb, var(--rare) 30%, transparent); }
+
+  .kids { display: flex; gap: 8px; align-items: stretch; }
+  .kid {
+    flex: 0 0 auto; width: 158px; background: var(--kid-bg); border: 1px solid var(--kid-bd);
+    border-radius: 9px; padding: 8px 10px; position: relative;
+  }
+  .kid::before {
+    content: ""; position: absolute; left: -9px; top: 50%; width: 8px; height: 1px; background: var(--line-soft);
+  }
+  .kid .k-name { font-weight: 600; font-size: 13px; display: block; }
+  .kid .k-src { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+  .kid.is-new { border-color: color-mix(in srgb, var(--new) 55%, transparent); background: color-mix(in srgb, var(--new) 8%, transparent); }
+  .kid.is-new .k-name::after { content: "新增"; font-size: 10px; font-weight: 700; color: var(--new); margin-left: 6px; vertical-align: 1px; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--kid-bd); border-radius: 12px;
+    padding: 14px 16px; box-shadow: var(--shadow);
+  }
+  .card h2 { font-size: 13.5px; margin: 0 0 9px; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+  .d1 { background: var(--daily); } .d2 { background: var(--rare); } .d3 { background: var(--new); }
+  .card ol { margin: 0; padding-left: 18px; }
+  .card li { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+  .card li:last-child { margin-bottom: 0; }
+  .card li b { color: var(--text); font-weight: 600; }
+  .card li code { font-size: 11.5px; background: var(--line-soft); padding: 1px 5px; border-radius: 4px; }
+
+  footer { margin-top: 16px; color: var(--muted); font-size: 12px; }
+  footer code { background: var(--line-soft); padding: 1px 5px; border-radius: 4px; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .prob { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 4px; }
+  .prob .card ol { padding-left: 18px; }
+
+  @media (max-width: 1100px) {
+    .cards, .prob { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>设置界面思维导图</h1>
+      <p class="sub">中州韵 · Rime-only &nbsp;|&nbsp; 从 10 个散落入口，收敛为 2 层 6 个入口</p>
+    </div>
+    <div class="spacer"></div>
+    <div class="toggle" role="group" aria-label="视图切换">
+      <button id="btn-plan" aria-pressed="true">重构方案</button>
+      <button id="btn-now" aria-pressed="false">现状问题</button>
+      <button id="btn-theme" title="切换主题">◐</button>
+    </div>
+  </header>
+
+  <!-- ================= 方案视图 ================= -->
+  <section class="stage view active" id="view-plan">
+    <div class="map">
+      <div class="center">设置<small>6 个入口</small></div>
+
+      <div class="branches">
+
+        <div class="branch b-daily">
+          <div class="blabel">输入与候选</div>
+          <div class="kids">
+            <div class="kid"><span class="k-name">Rime 引擎</span><span class="k-src">原「中州韵设置」</span></div>
+            <div class="kid"><span class="k-name">候选栏样式</span><span class="k-src">原「候选窗口」+ 工具栏页</span></div>
+            <div class="kid"><span class="k-name">按键行为</span><span class="k-src">原「虚拟键盘 › 按键行为」</span></div>
+            <div class="kid"><span class="k-name">方案与词库</span><span class="k-src">原「附加组件 › 方案选择」</span></div>
+          </div>
+        </div>
+
+        <div class="branch b-daily">
+          <div class="blabel">键盘</div>
+          <div class="kids">
+            <div class="kid"><span class="k-name">尺寸与边距</span><span class="k-src">原「布局与尺寸」</span></div>
+            <div class="kid"><span class="k-name">工具栏按钮</span><span class="k-src">原「编辑按钮」</span></div>
+            <div class="kid"><span class="k-name">按键反馈</span><span class="k-src">振动与音效，原样保留</span></div>
+            <div class="kid"><span class="k-name">键盘工具</span><span class="k-src">原「增强选项」改名</span></div>
+          </div>
+        </div>
+
+        <div class="branch b-daily">
+          <div class="blabel">外观</div>
+          <div class="kids">
+            <div class="kid"><span class="k-name">主题</span><span class="k-src">原「主题」两个 tab 合并</span></div>
+            <div class="kid"><span class="k-name">图标主题</span><span class="k-src">46 个图标槽位</span></div>
+            <div class="kid"><span class="k-name">字体与弹出</span><span class="k-src">原「增强选项」拆出</span></div>
+            <div class="kid"><span class="k-name">按键外观</span><span class="k-src">原「主题 › 配置」</span></div>
+            <div class="kid is-new"><span class="k-name">浮动与单手键盘</span><span class="k-src">原来没有任何入口</span></div>
+          </div>
+        </div>
+
+        <div class="branch b-daily">
+          <div class="blabel">便捷功能</div>
+          <div class="kids">
+            <div class="kid"><span class="k-name">剪贴板与同步</span><span class="k-src">原「剪贴板」+ 独立设置页</span></div>
+            <div class="kid"><span class="k-name">表情与符号</span><span class="k-src">原「表情和符号」</span></div>
+            <div class="kid"><span class="k-name">语音输入</span><span class="k-src">原混在工具栏页里</span></div>
+          </div>
+        </div>
+
+        <div class="branch b-rare">
+          <div class="blabel">数据与备份</div>
+          <div class="kids">
+            <div class="kid"><span class="k-name">导入导出</span><span class="k-src">原「高级」拆出</span></div>
+            <div class="kid"><span class="k-name">用户数据目录</span><span class="k-src">原「高级」拆出</span></div>
+          </div>
+        </div>
+
+        <div class="branch b-rare">
+          <div class="blabel">高级</div>
+          <div class="kids">
+            <div class="kid"><span class="k-name">引擎配置</span><span class="k-src">Fcitx 三页降为二级</span></div>
+            <div class="kid"><span class="k-name">兼容性开关</span><span class="k-src">按设备能力自动显示</span></div>
+            <div class="kid"><span class="k-name">开发者</span><span class="k-src">原菜单项</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 现状视图 ================= -->
+  <section class="stage view" id="view-now">
+    <div class="prob">
+      <div class="card">
+        <h2><span class="dot d1"></span>找不到在哪</h2>
+        <ol>
+          <li><b>键盘尺寸</b>在「虚拟键盘 › 布局与尺寸」，<b>按键圆角 / 边框 / 水波纹</b>却在「主题 › 配置」，同类参数被拆到两处。</li>
+          <li><b>候选栏样式</b>同时存在于「候选窗口」和「虚拟键盘 › 工具栏与候选栏」，两页各管一半。</li>
+          <li><b>浮动键盘、单手键盘</b>只能靠点击工具栏图标打开，设置里完全没有入口。</li>
+          <li><b>导出主题</b>只能长按主题卡片，界面上没有可见按钮。</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2><span class="dot d2"></span>名称太抽象</h2>
+        <ol>
+          <li>「<b>增强选项</b>」是一个空容器，里面 6 项全是编辑器入口，名字无法自解释。</li>
+          <li>「<b>全局选项</b>」「<b>中州韵设置</b>」「<b>附加组件</b>」三页由引擎配置树自动生成，直接显示内部键名（<code>HiddenNotifications</code>、<code>Profiles</code> 等）。</li>
+          <li>「附加组件 › 中州韵」与「中州韵设置」是<b>同一份配置</b>的两个入口，且没有任何说明。</li>
+          <li>图标主题的槽位弹窗直接显示 <code>Key: capslock.none</code> 这类内部键名。</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2><span class="dot d3"></span>默认与隐藏不当</h2>
+        <ol>
+          <li>「<b>跟随系统夜间模式</b>」默认开启，用户点任何主题都先被弹窗拦住；而真正承载手动选择的项<b>界面上没有入口</b>。</li>
+          <li><b>候选窗口 10 项</b>样式参数平铺，不设预设，普通用户要先懂 <code>dp</code>/<code>sp</code> 才能调。</li>
+          <li>「<b>高级</b>」把用户数据备份与系统兼容开关混在一起。</li>
+          <li>隐藏快捷键族的开关在「高级」，而它作用的「全局选项」在另一个大类，用户想不到去那里找。</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2><span class="dot d1"></span>改了看不到效果</h2>
+        <ol>
+          <li>外观页预览<b>本来就是实时的</b>（方案 §二.6 更正：改外观项会走 <code>refreshStyle()</code> 重建，原“盲调”结论是错的）。</li>
+          <li>主题页与编辑器页用了<b>两套不同的缩放实现</b>，视觉比例不一致。</li>
+          <li>Monet 颜色编辑入口在设备不支持时<b>已改为明确提示</b>（0.6.6，不再静默返回）。</li>
+          <li>网页编辑器配置键别名映射仍然有效（键名未改动，未做统一）。</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 原则卡片 ================= -->
+  <div class="cards">
+    <div class="card">
+      <h2><span class="dot d1"></span>该默认的默认</h2>
+      <ol>
+        <li>夜间模式改为<b>三态单选</b>：跟随系统 / 始终亮色 / 始终暗色，消除「点主题被弹窗拦住」的死结。</li>
+        <li>候选窗口 10 项样式收敛为<b>紧凑 / 标准 / 宽松</b>预设，细节收进「自定义」。</li>
+        <li>分体键盘已按设备类型智能给阈值，<b>保持不动</b>。</li>
+        <li>装饰性选项（水波纹、边框描边）<b>默认关闭</b>，维持现状。</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot d2"></span>该隐藏的隐藏</h2>
+      <ol>
+        <li>引擎配置中的开发者项（超时、自动保存周期、通知屏蔽）收进<b>「显示全部选项」</b>二级折叠。</li>
+        <li>系统兼容开关按<b>设备能力判断</b>决定是否出现，无关设备上完全隐藏。</li>
+        <li>标为「未实现类型」的占位行<b>不再渲染</b>。</li>
+        <li>快捷键族维持默认隐藏，但把这枚开关<b>移到它所作用的页面</b>。</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2><span class="dot d3"></span>命名要能自解释</h2>
+      <ol>
+        <li>「增强选项」拆解：<b>字体 / 弹出样式</b>归外观，<b>键盘定义 / 数字布局</b>归键盘工具。</li>
+        <li>「主题 › 配置」取消 tab，改为外观页内的<b>「按键外观」</b>分区。</li>
+        <li>22 个主题颜色项补中文名——但<b>必须先解耦显示名与存储标识</b>，否则会改坏已存主题。</li>
+        <li>图标主题槽位弹窗改显示中文名，不再暴露内部键。</li>
+      </ol>
+    </div>
+  </div>
+
+  <footer>
+    依据 <code>fx-rime-only</code> @ <code>f84084c3</code> 全量只读代码审阅 · 详细方案与文件级依据见 <code>设置重构方案.md</code>
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var plan = document.getElementById('view-plan');
+    var now  = document.getElementById('view-now');
+    var bp   = document.getElementById('btn-plan');
+    var bn   = document.getElementById('btn-now');
+    var bt   = document.getElementById('btn-theme');
+
+    function show(which) {
+      var isPlan = which === 'plan';
+      plan.classList.toggle('active', isPlan);
+      now.classList.toggle('active', !isPlan);
+      bp.setAttribute('aria-pressed', String(isPlan));
+      bn.setAttribute('aria-pressed', String(!isPlan));
+    }
+    bp.addEventListener('click', function () { show('plan'); });
+    bn.addEventListener('click', function () { show('now'); });
+
+    var root = document.documentElement;
+    var preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', preferDark ? 'dark' : 'light');
+    bt.addEventListener('click', function () {
+      root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  })();
+</script>
+</body>
+</html>

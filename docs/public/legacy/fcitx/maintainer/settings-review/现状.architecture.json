@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "设置现状：10 个一级入口，设置散落在 30 余个页面里",
+    "quality_profile": "showcase",
+    "viewBox": [1500, 620]
+  },
+  "components": [
+    { "id": "entry", "type": "frontend", "label": "设置", "sublabel": "MainFragment", "pos": [20, 250], "size": [110, 52] },
+
+    { "id": "hub_fcitx", "type": "backend", "label": "Fcitx 分类", "sublabel": "3 项", "pos": [165, 96], "size": [140, 50] },
+    { "id": "c_global", "type": "backend", "label": "全局选项", "sublabel": "引擎配置树 · 约 20 项", "pos": [380, 20], "size": [200, 58] },
+    { "id": "c_rime", "type": "backend", "label": "中州韵设置", "sublabel": "Rime 适配层配置 · 11 项", "pos": [380, 92], "size": [200, 58] },
+    { "id": "c_addon", "type": "backend", "label": "附加组件", "sublabel": "4 个 addon · 仅 2 个可配置", "pos": [380, 164], "size": [200, 58] },
+
+    { "id": "hub_android", "type": "frontend", "label": "Android 分类", "sublabel": "7 项", "pos": [165, 334], "size": [140, 50] },
+    { "id": "c_theme", "type": "frontend", "label": "主题", "sublabel": "双 tab · 按键外观 15 项", "pos": [380, 270], "size": [200, 58] },
+    { "id": "c_icon", "type": "frontend", "label": "图标主题", "sublabel": "46 个图标槽位", "pos": [620, 270], "size": [200, 58] },
+    { "id": "c_keyboard", "type": "frontend", "label": "虚拟键盘", "sublabel": "5 分组 · 26 项 + 6 入口", "pos": [860, 270], "size": [200, 58] },
+    { "id": "c_cand", "type": "frontend", "label": "候选窗口", "sublabel": "10 项样式参数", "pos": [1100, 270], "size": [200, 58] },
+    { "id": "c_clip", "type": "frontend", "label": "剪贴板", "sublabel": "8 项 + 独立同步页", "pos": [500, 400], "size": [200, 58] },
+    { "id": "c_symbol", "type": "frontend", "label": "表情和符号", "sublabel": "5 项 · 3 类数据源", "pos": [740, 400], "size": [200, 58] },
+    { "id": "c_adv", "type": "frontend", "label": "高级", "sublabel": "5 开关 + 3 数据操作", "pos": [980, 400], "size": [200, 58] }
+  ],
+  "connections": [
+    { "id": "e-fcitx", "from": "entry", "to": "hub_fcitx", "variant": "emphasis" },
+    { "id": "e-android", "from": "entry", "to": "hub_android", "variant": "emphasis" },
+    { "id": "f-global", "from": "hub_fcitx", "to": "c_global" },
+    { "id": "f-rime", "from": "hub_fcitx", "to": "c_rime" },
+    { "id": "f-addon", "from": "hub_fcitx", "to": "c_addon" },
+    { "id": "a-theme", "from": "hub_android", "to": "c_theme" },
+    { "id": "a-icon", "from": "hub_android", "to": "c_icon" },
+    { "id": "a-keyboard", "from": "hub_android", "to": "c_keyboard" },
+    { "id": "a-cand", "from": "hub_android", "to": "c_cand" },
+    { "id": "a-clip", "from": "hub_android", "to": "c_clip" },
+    { "id": "a-symbol", "from": "hub_android", "to": "c_symbol" },
+    { "id": "a-adv", "from": "hub_android", "to": "c_adv" }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "找不到在哪",
+      "items": [
+        "键盘高度与边距在「布局与尺寸」，按键圆角/边框/水波纹却在「主题 › 配置」，同类参数分居两页",
+        "候选栏样式被「候选窗口」与「虚拟键盘 › 工具栏与候选栏」各管一半",
+        "浮动键盘、单手键盘只能靠点工具栏图标打开，设置里没有入口",
+        "导出主题只能长按主题卡片，界面上没有可见按钮"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "名称太抽象",
+      "items": [
+        "「增强选项」是空容器，里面 6 项全是编辑器入口，名字无法自解释",
+        "Fcitx 三页由配置树自动生成，直接显示内部键名，如 HiddenNotifications、Profiles、Current",
+        "「附加组件 › 中州韵」与「中州韵设置」是同一份配置的两个入口，且无任何说明",
+        "图标主题槽位弹窗直接显示 Key: capslock.none 这类内部键名"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "默认与隐藏不当",
+      "items": [
+        "「跟随系统夜间模式」默认开启，点任何主题都先被弹窗拦住，而承载手动选择的项没有界面入口",
+        "候选窗口 10 项参数平铺无预设，普通用户要先懂 dp/sp 才能调",
+        "「高级」把用户数据备份与系统兼容开关混在一起",
+        "隐藏快捷键族的开关在「高级」，而它作用的「全局选项」在另一个大类"
+      ]
+    }
+  ]
+}
