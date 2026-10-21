@@ -2,16 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
+    android:background="?attr/colorSurfaceContainer"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:minHeight="?attr/actionBarSize" />
+        android:background="?attr/colorSurfaceContainer"
+        android:elevation="0dp"
+        android:minHeight="64dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,10 +23,11 @@
 
         <ImageButton
             android:id="@+id/addMirrorRuleButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/add"
+            android:tint="?attr/colorOnSurfaceVariant"
             android:src="@drawable/ic_baseline_plus_24" />
     </LinearLayout>
 

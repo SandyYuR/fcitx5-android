@@ -1,38 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
-
-    <EditText
-        android:id="@+id/username_edit"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autofillHints="username"
-        android:hint="@string/local_username"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:maxLines="1" />
-
+        android:hint="@string/local_username">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/username_edit"
+            android:autofillHints="username"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:maxLines="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp">
-
-        <EditText
-            android:id="@+id/password_edit"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints="password"
-            android:hint="@string/local_password"
-            android:imeOptions="actionDone"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            android:paddingEnd="56dp" />
-
+            android:hint="@string/local_password">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password_edit"
+                android:autofillHints="password"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:paddingEnd="56dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
         <ImageButton
             android:id="@+id/password_toggle_button"
             android:layout_width="40dp"
@@ -44,5 +51,4 @@
             android:src="@drawable/ic_visibility"
             app:tint="#FF5F6368" />
     </FrameLayout>
-
 </LinearLayout>

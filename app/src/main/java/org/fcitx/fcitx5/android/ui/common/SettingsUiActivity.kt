@@ -5,9 +5,12 @@
 package org.fcitx.fcitx5.android.ui.common
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Build
+import android.os.UserManager
 import android.view.View
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -23,25 +26,41 @@ import androidx.fragment.app.PredictiveBackControl
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiMotionPreferences
 import org.fcitx.fcitx5.android.data.theme.SettingsKeyboardColors
 import org.fcitx.fcitx5.android.utils.settingsColor
 
-/** Base for app-owned settings shells; IME windows and transient overlay activities do not use it. */
+/** Shared Material theme for app pages, floating editors and transparent selection hosts. */
 abstract class SettingsUiActivity : AppCompatActivity() {
     private var appliedKeyboardPalette: SettingsKeyboardColors.Palette? = null
+    protected open val floatingSettingsWindow: Boolean get() = false
+    protected open val transparentSettingsWindow: Boolean get() = false
+
+    private fun applyWindowTheme() {
+        when {
+            floatingSettingsWindow -> theme.applyStyle(R.style.ThemeOverlay_FcitxSettings_Floating, true)
+            transparentSettingsWindow -> theme.applyStyle(R.style.ThemeOverlay_FcitxSettings_Transparent, true)
+        }
+    }
 
     override fun attachBaseContext(newBase: Context) {
         // Resolve the mode before AppCompat wraps the context. Changing it in onCreate can
         // schedule a second recreation while the requested destination is being restored.
-        val selection = SettingsUiPreferences.read(newBase)
+        val storageContext = if (Build.VERSION.SDK_INT >= 24 &&
+            !newBase.getSystemService(UserManager::class.java).isUserUnlocked) {
+            newBase.createDeviceProtectedStorageContext()
+        } else newBase
+        val selection = SettingsUiPreferences.read(storageContext)
         delegate.localNightMode = when (selection.mode) {
             SettingsUiPreferences.MODE_LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
             SettingsUiPreferences.MODE_DARK -> AppCompatDelegate.MODE_NIGHT_YES
             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
-        super.attachBaseContext(newBase)
+        super.attachBaseContext(storageContext)
     }
 
     @OptIn(PredictiveBackControl::class)
@@ -53,6 +72,7 @@ abstract class SettingsUiActivity : AppCompatActivity() {
                 SettingsUiMotionPreferences.read(this).predictiveBack
         )
         setTheme(SettingsUiPreferences.themeResource(this))
+        applyWindowTheme()
         super.onCreate(savedInstanceState)
         // AppCompat reapplies its base theme in onCreate. Apply overlays afterwards, using
         // the final night configuration, and before any settings content is inflated.
@@ -64,6 +84,19 @@ abstract class SettingsUiActivity : AppCompatActivity() {
         appliedKeyboardPalette = SettingsKeyboardColors.current(this, SettingsUiPreferences.read(this))
         appliedKeyboardPalette?.let { SettingsKeyboardColors.applyToActivity(this, it) }
         SettingsUiPreferences.applySurfaceOptions(this)
+        applyWindowTheme()
+        if (floatingSettingsWindow) {
+            val shape = ShapeAppearanceModel.builder()
+                .setAllCornerSizes(28f * resources.displayMetrics.density).build()
+            window.setBackgroundDrawable(MaterialShapeDrawable(shape).apply {
+                fillColor = ColorStateList.valueOf(settingsColor(com.google.android.material.R.attr.colorSurfaceContainerHigh))
+            })
+            return
+        }
+        if (transparentSettingsWindow) {
+            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            return
+        }
         window.setBackgroundDrawable(ColorDrawable(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)))
         val bars = if (SettingsUiPreferences.isDark(this)) {
             SystemBarStyle.dark(Color.TRANSPARENT)
@@ -85,6 +118,7 @@ abstract class SettingsUiActivity : AppCompatActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
+        if (floatingSettingsWindow || transparentSettingsWindow) return
         // Own the bottom/side insets once. Individual toolbars own only the status-bar inset.
         // Consuming these here also keeps existing editor/list helpers from adding them twice.
         val content = findViewById<View>(android.R.id.content)

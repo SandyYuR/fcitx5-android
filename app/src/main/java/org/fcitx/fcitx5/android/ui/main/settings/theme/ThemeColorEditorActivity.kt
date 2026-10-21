@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
+import com.google.android.material.textfield.TextInputEditText
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -245,7 +246,7 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
                 layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             }
         )
-        argbField = EditText(this).apply {
+        argbField = TextInputEditText(this).apply {
             layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
                 marginStart = dp(12)
             }
@@ -255,7 +256,7 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
             setHintTextColor(settingsColor(android.R.attr.textColorHint))
             backgroundTintList = ColorStateList.valueOf(settingsColor(android.R.attr.colorControlActivated))
             setText(formatArgbHex(currentColor))
-            setSelection(text.length)
+            setSelection(text?.length ?: 0)
             addTextChangedListener(object : android.text.TextWatcher {
                 override fun afterTextChanged(s: android.text.Editable?) {
                     if (internalTextUpdate) return
@@ -305,7 +306,7 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
             if (argbField.text?.toString() != text) {
                 internalTextUpdate = true
                 argbField.setText(text)
-                argbField.setSelection(text.length)
+                argbField.setSelection(text?.length ?: 0)
                 internalTextUpdate = false
             }
         }

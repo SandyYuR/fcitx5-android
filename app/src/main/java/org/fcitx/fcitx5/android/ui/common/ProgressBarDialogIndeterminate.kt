@@ -12,49 +12,49 @@ import android.provider.Settings
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LifecycleCoroutineScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.getGlobalSettings
 import splitties.dimensions.dp
-import splitties.resources.resolveThemeAttribute
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.horizontalMargin
 import splitties.views.dsl.core.lParams
 import splitties.views.dsl.core.matchParent
-import splitties.views.dsl.core.styles.AndroidStyles
-import splitties.views.dsl.core.textView
 import splitties.views.dsl.core.verticalLayout
 import splitties.views.dsl.core.verticalMargin
-import splitties.views.textAppearance
 
 @Suppress("FunctionName")
-fun Context.ProgressBarDialogIndeterminate(@StringRes title: Int): AlertDialog.Builder {
-    val androidStyles = AndroidStyles(this)
-    return AlertDialog.Builder(this)
+fun Context.ProgressBarDialogIndeterminate(@StringRes title: Int): MaterialAlertDialogBuilder {
+    val builder = MaterialAlertDialogBuilder(this)
+    // Custom content must inherit the dialog overlay as well as the settings palette.
+    val dialogContext = builder.context
+    return builder
         .setTitle(title)
-        .setView(verticalLayout {
+        .setView(dialogContext.verticalLayout {
             val shouldAnimate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 ValueAnimator.areAnimatorsEnabled()
             } else {
                 getGlobalSettings<Float>(Settings.Global.ANIMATOR_DURATION_SCALE) > 0f
             }
             add(if (shouldAnimate) {
-                androidStyles.progressBar.horizontal {
+                LinearProgressIndicator(dialogContext).apply {
                     isIndeterminate = true
                 }
             } else {
-                textView {
+                MaterialTextView(dialogContext).apply {
                     setText(R.string.please_wait)
-                    textAppearance = resolveThemeAttribute(android.R.attr.textAppearanceListItem)
+                    setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodyMedium)
                 }
             }, lParams {
                 width = matchParent
-                verticalMargin = dp(20)
-                horizontalMargin = dp(26)
+                verticalMargin = dp(24)
+                horizontalMargin = dp(24)
             })
         })
         .setCancelable(false)

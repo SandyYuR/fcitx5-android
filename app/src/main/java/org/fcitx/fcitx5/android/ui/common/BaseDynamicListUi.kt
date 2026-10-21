@@ -5,7 +5,7 @@
 package org.fcitx.fcitx5.android.ui.common
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -43,7 +43,7 @@ import splitties.views.dsl.coordinatorlayout.coordinatorLayout
 import splitties.views.dsl.coordinatorlayout.defaultLParams
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.add
-import splitties.views.dsl.core.editText
+import com.google.android.material.textfield.TextInputEditText
 import splitties.views.dsl.core.margin
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.view
@@ -191,7 +191,7 @@ abstract class BaseDynamicListUi<T>(
                     fab.show()
                     fab.setOnClickListener {
                         val items = candidatesSource.map { showEntry(it) }.toTypedArray()
-                        AlertDialog.Builder(ctx)
+                        MaterialAlertDialogBuilder(ctx)
                             .setTitle(R.string.add)
                             .setItems(items) { _, which -> addItem(item = candidatesSource[which]) }
                             .show()
@@ -234,7 +234,8 @@ abstract class BaseDynamicListUi<T>(
         block: (T) -> Unit
     ) {
         if (mode !is Mode.FreeAdd) return
-        val editText = editText {
+        val editText = TextInputEditText(ctx).apply {
+            id = android.view.View.generateViewId()
             hint = mode.hint
             if (entry != null) {
                 setText(showEntry(entry))
@@ -251,7 +252,7 @@ abstract class BaseDynamicListUi<T>(
                 rightOfParent(dp(20))
             })
         }
-        AlertDialog.Builder(ctx)
+        MaterialAlertDialogBuilder(ctx)
             .setTitle(title)
             .setView(layout)
             .setPositiveButton(android.R.string.ok, null)

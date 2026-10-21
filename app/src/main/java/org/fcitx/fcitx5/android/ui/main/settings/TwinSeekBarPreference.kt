@@ -9,7 +9,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.widget.SeekBar
+import org.fcitx.fcitx5.android.ui.common.SettingsSlider as SeekBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.edit
@@ -28,7 +28,7 @@ import splitties.views.dsl.constraintlayout.startOfParent
 import splitties.views.dsl.constraintlayout.topOfParent
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.horizontalMargin
-import splitties.views.dsl.core.seekBar
+import org.fcitx.fcitx5.android.ui.common.settingsSlider as seekBar
 import splitties.views.dsl.core.textView
 import splitties.views.dsl.core.verticalMargin
 import splitties.views.dsl.core.wrapContent

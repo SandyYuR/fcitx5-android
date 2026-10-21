@@ -110,9 +110,11 @@
 
     <style name="Theme.InputViewTheme" parent="@android:style/Theme.DeviceDefault.Settings" />
 
-    <style name="Theme.DialogTheme" parent="@android:style/Theme.DeviceDefault.Light.Dialog" />
+    <style name="Theme.DialogTheme" parent="Theme.Material3Expressive.DayNight.Dialog">
+        <item name="android:windowNoTitle">true</item>
+    </style>
 
-    <style name="Theme.TransparentOverlayActivity" parent="Theme.FcitxAppTheme">
+    <style name="Theme.TransparentOverlayActivity" parent="Theme.FcitxSettings.System">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>

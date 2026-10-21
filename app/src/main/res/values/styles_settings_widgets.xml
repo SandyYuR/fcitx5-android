@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="ThemeOverlay.FcitxSettings.Floating" parent="">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowMinWidthMajor">65%</item>
+        <item name="android:windowMinWidthMinor">95%</item>
+    </style>
+    <style name="ThemeOverlay.FcitxSettings.Transparent" parent="">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.18</item>
+    </style>
+    <style name="ThemeOverlay.FcitxSettings.Log" parent="">
+        <item name="colorLogFatal">?attr/colorError</item>
+        <item name="colorLogError">?attr/colorError</item>
+        <item name="colorLogWarning">?attr/colorTertiary</item>
+        <item name="colorLogInfo">?attr/colorPrimary</item>
+        <item name="colorLogDebug">?attr/colorOnSurfaceVariant</item>
+        <item name="colorLogVerbose">?attr/colorOnSurfaceVariant</item>
+    </style>
     <style name="ThemeOverlay.FcitxSettings.Preferences" parent="PreferenceThemeOverlay.v14.Material">
         <item name="preferenceStyle">@style/Preference.FcitxSettings</item>
         <item name="preferenceScreenStyle">@style/Preference.FcitxSettings.Screen</item>

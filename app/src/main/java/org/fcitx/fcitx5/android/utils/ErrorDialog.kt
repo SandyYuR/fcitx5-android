@@ -7,14 +7,14 @@ package org.fcitx.fcitx5.android.utils
 
 import android.content.Context
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 
 suspend fun Context.importErrorDialog(message: String) {
     withContext(Dispatchers.Main.immediate) {
-        AlertDialog.Builder(this@importErrorDialog)
+        MaterialAlertDialogBuilder(this@importErrorDialog)
             .setTitle(R.string.import_error)
             .setMessage(message)
             .setPositiveButton(android.R.string.ok, null)

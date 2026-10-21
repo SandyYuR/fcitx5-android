@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.content.Intent
@@ -1070,7 +1071,7 @@ class KeyEditorActivity : SettingsUiActivity() {
                 weight = 1f
             }
         }
-        val switchView = SwitchCompat(this).apply {
+        val switchView = MaterialSwitch(this).apply {
             isChecked = independentColor
             setOnCheckedChangeListener { _, isChecked ->
                 persistCurrentDraft()
@@ -1113,7 +1114,7 @@ class KeyEditorActivity : SettingsUiActivity() {
                 weight = 1f
             }
         }
-        val switchView = SwitchCompat(this).apply {
+        val switchView = MaterialSwitch(this).apply {
             isChecked = placeholderCustomColor
             setOnCheckedChangeListener { _, isChecked ->
                 if (placeholderCustomColor == isChecked) return@setOnCheckedChangeListener

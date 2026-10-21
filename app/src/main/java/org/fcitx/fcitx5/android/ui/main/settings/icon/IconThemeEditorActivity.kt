@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.icon
 
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.graphics.Bitmap
@@ -309,9 +310,9 @@ class IconThemeEditorActivity : SettingsUiActivity() {
     }
 
     private fun promptRenameTheme() {
-        val input = EditText(this).apply {
+        val input = TextInputEditText(this).apply {
             setText(themeName)
-            setSelection(text.length)
+            setSelection(text?.length ?: 0)
             setSingleLine(true)
         }
         val dialog = MaterialAlertDialogBuilder(this)
@@ -512,7 +513,7 @@ class IconThemeEditorActivity : SettingsUiActivity() {
             }
             dialogView.addView(emojiLabel)
 
-            val input = EditText(this).apply {
+            val input = TextInputEditText(this).apply {
                 val isXml = SlotRowUi.isSvgContent(currentValue) || SlotRowUi.isDrawableXmlContent(currentValue)
                 setText(if (!isXml) currentValue else "")
                 hint = getString(R.string.icon_theme_emoji_hint)
