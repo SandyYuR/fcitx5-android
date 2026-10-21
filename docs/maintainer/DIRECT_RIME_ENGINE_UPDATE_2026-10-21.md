@@ -69,6 +69,25 @@ JVM、原生安全、ART profile、输入、候选、部署、日志与设置；
 该诊断验证模型实际映射、选词提交及 400 条独立数据库记录关闭/重开后的内容；
 它不替代个人长期词库或厂商输入框验收，也没有重跑旧 Fcitx/Foxy 对照。
 
+## 应用回归记录
+
+固定应用源码 `8acf23ef90312f301a714f336e8f12134231c9fe`，prebuilt `0fee6176`。
+后续纯文档提交不标作该 APK 的构建来源。
+
+| 检查 | 固定记录及结果 |
+| --- | --- |
+| 四 ABI APK / JVM / 依赖审计 | [39571175644](https://github.com/SandyYuR/fcitx5-android/actions/runs/39571175644)，通过 |
+| 原生安全 / 恢复 / 独立引擎 / 完整前端 | [39571175677](https://github.com/SandyYuR/fcitx5-android/actions/runs/39571175677)，通过；完整前端 24 项中 23 通过、1 个大模型条件跳过、0 失败 |
+| 独立万象大模型诊断 | [39571190659](https://github.com/SandyYuR/fcitx5-android/actions/runs/39571190659)，1 项通过、0 跳过；覆盖前述默认未传大模型而跳过的项目 |
+| 主应用 JVM | [39571165367](https://github.com/SandyYuR/fcitx5-android/actions/runs/39571165367)，502 项通过 |
+
+万象报告核对了模型实际映射、6 轮均有候选提交，以及 400 条独立记录关闭/重开后的内容。
+该 Debug 模拟器后端的 `select_ms` 为 2.325–6.372 ms，每轮提交 2 字符；
+这是后端操作完成时间，不能替代真机触摸/画面延迟或升级前后性能对照。
+[原始报告与夹具摘要](https://github.com/SandyYuR/fcitx5-android/actions/runs/39571190659/artifacts/12332771882)
+已下载核对 ZIP 摘要；临时公开模型缓存分支在测试后删除。
+签名 Release 同属运行 `39571165367`，最终包摘要和证书核验记录以 PR #4 为准。
+
 ## 更新、回退与数据
 
 主应用固定新 gitlink，不会追踪移动分支。今后可在 prebuilder 新分支执行

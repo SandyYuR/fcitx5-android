@@ -40,6 +40,132 @@
       "x86_64"
     ],
     "host_tests_passed": 162,
-    "application_checks": "PR #4 records the exact application source, APK and CI runs"
+    "application_checks": "PR #4 records the exact application source, APK and CI runs",
+    "application": {
+      "source": "8acf23ef90312f301a714f336e8f12134231c9fe",
+      "prebuilt": "0fee61763cd40776ecaa5af3200f6b296d20262f",
+      "ci": {
+        "pr": 39571175644,
+        "direct_rime": 39571175677,
+        "release_and_jvm": 39571165367,
+        "wanxiang_cold": 39571190659
+      },
+      "jvm": {
+        "tests": 502,
+        "failures": 0,
+        "skipped": 0
+      },
+      "frontend": {
+        "tests": 24,
+        "passed": 23,
+        "failures": 0,
+        "skipped_without_large_model_fixture": 1
+      },
+      "wanxiang": {
+        "tests": 1,
+        "passed": 1,
+        "skipped": 0,
+        "model_sha256": "1849e5e4acbdbfaf41fceeb86b739d5d0c85d574bd8a688562cba1e6beb78488",
+        "fixture": {
+          "sources": [
+            [
+              "rime-wanxiang-base.zip",
+              "https://github.com/amzxyz/rime-wanxiang/releases/download/v18.1.3/rime-wanxiang-base.zip",
+              "fc6495ba8489a898737ca29883dedaf61ff3baf593c78900dc59102c919d0e63"
+            ],
+            [
+              "wanxiang-lts-zh-hans.gram",
+              "https://github.com/amzxyz/rime-wanxiang-data/releases/download/LTS/wanxiang-lts-zh-hans.gram",
+              "1849e5e4acbdbfaf41fceeb86b739d5d0c85d574bd8a688562cba1e6beb78488"
+            ]
+          ],
+          "model_asset_id": 650124920,
+          "model_updated_at": "2026-10-17T09:59:19Z",
+          "config_sha256": {
+            "user.yaml": "dd82ae3dc637e850446eb6e4170d916bb3d628b08d85572096c6b4c62ccb9a57",
+            "wanxiang.custom.yaml": "42bf76351ceb6f2db87396ae13edf9d9914712a065a61cdf74c66c52900c1319"
+          },
+          "fixture_sha256": "1193ad6abe18732a677c45da9b7f9a075606b7b98172a48e8bfebb1b5ee9d742",
+          "runtime_user_adjustment": "Add var/option/context_reorder: true; all other uploaded YAML content preserved",
+          "diagnostic_fixture_sha256": "bc7ee123e645dee398b0defaf106ba6f889f73930a18f283cda2faa1622a0270",
+          "diagnostic_lua_sha256": "cb05905a813e38223980ed71ad653d86146221d1a8ae3596fc24a065892ba3f9"
+        },
+        "persistent_records_checked": 400,
+        "cold_report": {
+          "source": "8acf23ef90312f301a714f336e8f12134231c9fe",
+          "records": [
+            {
+              "round": 0,
+              "bind_ms": 115.457988,
+              "key_1_ms": 52.738956,
+              "key_2_ms": 10.777588,
+              "key_3_ms": 12.290441,
+              "key_4_ms": 18.368531,
+              "key_5_ms": 10.080418,
+              "select_ms": 6.372406,
+              "commit_chars": 2
+            },
+            {
+              "round": 1,
+              "bind_ms": 116.816676,
+              "key_1_ms": 18.139614,
+              "key_2_ms": 9.54381,
+              "key_3_ms": 9.139161,
+              "key_4_ms": 9.618435,
+              "key_5_ms": 9.545148,
+              "select_ms": 2.401832,
+              "commit_chars": 2
+            },
+            {
+              "round": 2,
+              "bind_ms": 115.877631,
+              "key_1_ms": 18.628044,
+              "key_2_ms": 9.864815,
+              "key_3_ms": 9.853334,
+              "key_4_ms": 9.730117,
+              "key_5_ms": 9.427258,
+              "select_ms": 2.855358,
+              "commit_chars": 2
+            },
+            {
+              "round": 3,
+              "bind_ms": 110.944688,
+              "key_1_ms": 19.263693,
+              "key_2_ms": 12.917687,
+              "key_3_ms": 13.363342,
+              "key_4_ms": 14.141344,
+              "key_5_ms": 9.438539,
+              "select_ms": 2.866919,
+              "commit_chars": 2
+            },
+            {
+              "round": 4,
+              "bind_ms": 110.199445,
+              "key_1_ms": 18.355193,
+              "key_2_ms": 8.941222,
+              "key_3_ms": 10.349169,
+              "key_4_ms": 9.786118,
+              "key_5_ms": 9.857612,
+              "select_ms": 2.415075,
+              "commit_chars": 2
+            },
+            {
+              "round": 5,
+              "bind_ms": 105.563469,
+              "key_1_ms": 18.107564,
+              "key_2_ms": 9.406791,
+              "key_3_ms": 9.705607,
+              "key_4_ms": 9.518309,
+              "key_5_ms": 9.277429,
+              "select_ms": 2.325179,
+              "commit_chars": 2
+            }
+          ],
+          "metric": "Current Debug backend operation completion; not phone/UI latency or a before/after comparison"
+        },
+        "artifact_id": 12332771882,
+        "artifact_sha256": "bd538508c8a93d5bc1cbd91b075a97aa73b60762c4518e074bb88c7a654b1f9d"
+      }
+    }
   }
 }
