@@ -37,14 +37,23 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.bar.ContinuousCornerGeometry
 import org.fcitx.fcitx5.android.input.bar.ToolbarMetrics
 import org.fcitx.fcitx5.android.input.bar.CardOutlineProvider
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemePrefs.NavbarBackground
+import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
+import org.fcitx.fcitx5.android.input.bar.ui.idle.ButtonsBarUi
+import org.fcitx.fcitx5.android.input.config.ButtonIconFile
+import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
+import org.fcitx.fcitx5.android.input.config.ConfigProviders
+import org.fcitx.fcitx5.android.input.config.ConfigurableButton
+import org.fcitx.fcitx5.android.input.config.kawaiiBarButtonsWithThemeToggle
 import org.fcitx.fcitx5.android.input.keyboard.KeyView
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
@@ -67,7 +76,6 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.horizontalMargin
 import splitties.views.dsl.core.imageView
 import splitties.views.dsl.core.lParams
-import splitties.views.dsl.core.view
 import splitties.views.imageDrawable
 
 class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
@@ -112,6 +120,23 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         recalculateSize()
     }
 
+    private val toolbarHeightChangeListener = ManagedPreference.OnChangeListener<Int> { _, _ ->
+        rebuildToolbarPreview(currentTheme ?: theme)
+        recalculateSize()
+    }
+
+    private val buttonsLayoutChangeListener: () -> Unit = {
+        rebuildToolbarPreview(currentTheme ?: theme)
+    }
+
+    private val iconChangeListener: () -> Unit = {
+        rebuildToolbarPreview(currentTheme ?: theme)
+    }
+
+    private val iconThemeChangeListener = IconThemeManager.OnIconThemeChangeListener {
+        rebuildToolbarPreview(currentTheme ?: theme)
+    }
+
     private val bkg = imageView {
         scaleType = ImageView.ScaleType.CENTER_CROP
     }
@@ -125,7 +150,9 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
      */
     private val barHeight: Int
         get() = ctx.dp(ToolbarMetrics.heightDp(toolbarHeightPercent))
-    private val fakeKawaiiBar = view(::View)
+    private val fakeKawaiiBar = constraintLayout {
+        id = View.generateViewId()
+    }
 
     private fun toolbarRadiusPx(): Float =
         ctx.dp(ThemeManager.prefs.toolbarRadius.getValue()).toFloat()
@@ -510,9 +537,14 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
 
         override fun onAttachedToWindow() {
             super.onAttachedToWindow()
+            rebuildToolbarPreview(currentTheme ?: theme)
             recalculateSize()
             onSizeMeasured?.invoke(intrinsicWidth, intrinsicHeight)
             navbarBackground.registerOnChangeListener(navbarBkgChangeListener)
+            keyboardPrefs.toolbarHeightPercent.registerOnChangeListener(toolbarHeightChangeListener)
+            ConfigProviders.addButtonsLayoutListener(buttonsLayoutChangeListener)
+            ConfigProviders.addIconChangeListener(iconChangeListener)
+            IconThemeManager.addOnChangedListener(iconThemeChangeListener)
         }
 
         override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -523,6 +555,10 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             backgroundJob?.cancel()
             backgroundGeneration++
             navbarBackground.unregisterOnChangeListener(navbarBkgChangeListener)
+            keyboardPrefs.toolbarHeightPercent.unregisterOnChangeListener(toolbarHeightChangeListener)
+            ConfigProviders.removeButtonsLayoutListener(buttonsLayoutChangeListener)
+            ConfigProviders.removeIconChangeListener(iconChangeListener)
+            IconThemeManager.removeOnChangedListener(iconThemeChangeListener)
             super.onDetachedFromWindow()
         }
     }
@@ -610,6 +646,120 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         applyBlurMaskFromBitmap(sourceBitmap, blurRadius, brightness)
     }
 
+    /** Rebuild the static toolbar strip shown above the preview keyboard. */
+    private fun rebuildToolbarPreview(theme: Theme) {
+        val config = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()?.value
+            ?: ButtonsLayoutConfig.default()
+        val menuButton = ToolButton(ctx, R.drawable.ic_baseline_more_horiz_24, theme).apply {
+            id = View.generateViewId()
+            isEnabled = false
+        }
+        val hideButton = ToolButton(ctx, R.drawable.ic_baseline_arrow_drop_down_24, theme).apply {
+            id = View.generateViewId()
+            isEnabled = false
+        }
+        applySystemButtonPreview(
+            menuButton,
+            config.toolbarToggleButton,
+            R.drawable.ic_baseline_more_horiz_24,
+            "system.toolbar_toggle"
+        )
+        applySystemButtonPreview(
+            hideButton,
+            config.hideKeyboardButton,
+            R.drawable.ic_baseline_arrow_drop_down_24,
+            "system.hide_keyboard"
+        )
+        val buttonsUi = ButtonsBarUi(ctx, theme, config.kawaiiBarButtonsWithThemeToggle())
+        for (index in 0 until buttonsUi.root.childCount) {
+            buttonsUi.root.getChildAt(index).isEnabled = false
+        }
+
+        fakeKawaiiBar.removeAllViews()
+        fakeKawaiiBar.backgroundColor = if (keyBorder) Color.TRANSPARENT else theme.barColor
+        fakeKawaiiBar.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            height = barHeight
+        }
+        val buttonSize = barHeight
+        fakeKawaiiBar.addView(
+            menuButton,
+            ConstraintLayout.LayoutParams(buttonSize, buttonSize).apply {
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            }
+        )
+        fakeKawaiiBar.addView(
+            hideButton,
+            ConstraintLayout.LayoutParams(buttonSize, buttonSize).apply {
+                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            }
+        )
+        fakeKawaiiBar.addView(
+            buttonsUi.root,
+            ConstraintLayout.LayoutParams(0, 0).apply {
+                startToEnd = menuButton.id
+                endToStart = hideButton.id
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            }
+        )
+        fakeKawaiiBar.requestLayout()
+        fakeKawaiiBar.invalidate()
+    }
+
+    private fun applySystemButtonPreview(
+        button: ToolButton,
+        config: ConfigurableButton,
+        defaultIcon: Int,
+        iconThemeSlot: String
+    ) {
+        val fromConfig = when {
+            !config.text.isNullOrEmpty() -> {
+                button.setText(config.text)
+                true
+            }
+            config.icon?.startsWith(ButtonIconFile.PREFIX) == true -> {
+                val drawable = ButtonIconFile.loadDrawable(config.icon)
+                if (drawable != null) {
+                    button.setIconFromDrawable(
+                        drawable,
+                        tintWithTheme = ButtonIconFile.shouldTintIcon(config.icon)
+                    )
+                    true
+                } else false
+            }
+            !config.icon.isNullOrEmpty() -> {
+                val iconId = ctx.resources.getIdentifier(config.icon, "drawable", ctx.packageName)
+                if (iconId != 0) {
+                    button.setIcon(iconId)
+                    true
+                } else false
+            }
+            else -> false
+        }
+        val fromIconTheme = if (fromConfig) false else {
+            val iconInfo = IconThemeManager.resolveIconDrawableInfo(iconThemeSlot)
+            if (iconInfo != null) {
+                button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
+                true
+            } else {
+                IconThemeManager.resolveIcon(iconThemeSlot)?.let {
+                    button.setText(it)
+                    true
+                } ?: false
+            }
+        }
+        if (!fromConfig && !fromIconTheme) {
+            button.setIcon(defaultIcon)
+        }
+        if (!config.label.isNullOrEmpty()) {
+            button.contentDescription = config.label
+        }
+    }
+
     fun setTheme(theme: Theme, background: Drawable? = null, forceRefresh: Boolean = false) {
         // Prevent re-entrant calls that could cause infinite loops
         if (isUpdatingTheme) return
@@ -633,9 +783,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             fakeKeyboardWindow = TextKeyboard(ctx, theme, previewIme, isPreview = true)
             currentTheme = theme
 
-            // KawaiiBar 背景色沿用既有逻辑（keyBorder 时透明、否则 barColor），
-            // 卡片圆角做在容器上，见 applyFakeCardShape。
-            fakeKawaiiBar.backgroundColor = if (keyBorder) Color.TRANSPARENT else theme.barColor
+            rebuildToolbarPreview(theme)
             applyFakeCardShape()
 
             fakeInputView.apply {
@@ -671,8 +819,8 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
                 isUpdatingTheme = false
             }
         } else {
-            // Update KawaiiBar background color and the shared card corner geometry.
-            fakeKawaiiBar.backgroundColor = if (keyBorder) Color.TRANSPARENT else theme.barColor
+            // Recreate toolbar buttons so their icons and colors follow this preview theme.
+            rebuildToolbarPreview(theme)
             applyFakeCardShape()
 
             fakeKeyboardWindow.post {
