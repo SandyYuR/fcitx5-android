@@ -64,6 +64,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val oneHandOnRightPortrait = bool("one_hand_on_right_portrait", true)
         val oneHandOnRightLandscape = bool("one_hand_on_right_landscape", true)
         val floatingModeEnabled = bool("floating_mode_enabled", false)
+        val autoHideFloatingMoveHandle = bool("auto_hide_floating_move_handle", false)
         val oneHandModeEnabled = bool("one_hand_mode_enabled", false)
 
         /**

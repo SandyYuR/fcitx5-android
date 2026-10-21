@@ -185,6 +185,7 @@ object SettingsSearchIndex {
         /* 键盘形态（原先无入口的两个功能） */
         R.string.floating_keyboard_enabled to "floating_mode_enabled",
         R.string.auto_floating_landscape to "auto_floating_landscape",
+        R.string.floating_move_handle_auto_hide to "auto_hide_floating_move_handle",
         R.string.one_hand_keyboard_enabled to "one_hand_mode_enabled",
         R.string.one_hand_keyboard_on_right to "one_hand_on_right_portrait",
 
@@ -335,6 +336,11 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.auto_floating_landscape, P_KEYBOARD,
             listOf("auto floating", "landscape floating", "横屏浮动", "横屏自动浮动", "hengping"),
+            route = SettingsRoute.KeyboardModes
+        ),
+        SettingsSearchEntry(
+            R.string.floating_move_handle_auto_hide, P_KEYBOARD,
+            listOf("auto hide move handle", "floating handle", "自动隐藏", "移动把手"),
             route = SettingsRoute.KeyboardModes
         ),
         SettingsSearchEntry(
