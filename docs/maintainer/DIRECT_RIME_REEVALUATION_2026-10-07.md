@@ -1,3 +1,5 @@
+> **历史维护记录。** 当前直连版请从[合并交付](DIRECT_RIME_RELEASE_READY_2026-10-21.md)与[维护手册](DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md)开始，本文保留原实现和验证时点。
+
 # 去 fcitx5 直连 librime：2026-10-07 再评估
 
 > **文档状态**：当前维护研究稿，2026-10-07 更新。

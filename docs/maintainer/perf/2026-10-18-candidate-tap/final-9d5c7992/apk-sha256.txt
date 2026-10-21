@@ -1,0 +1,6 @@
+648792330e156c27de93d2530bfcea1f68e096f8a8c3702e88af26a68e041ba8  /home/runner/work/_temp/candidate-apks/after-tests.apk
+55a7732ae7a6da462626c7ed58ab122284cd37ff351a15538d9830067282a88a  /home/runner/work/_temp/candidate-apks/after.apk
+37d7649e3e9865706b0efdc1f3adc8cfbecdf73e44abbc4bfabc7101a27feca0  /home/runner/work/_temp/candidate-apks/before-tests.apk
+31a0fbe331a5a372fbf78205283fc2b0c8a907da149c332d5e9d2201bf586fc9  /home/runner/work/_temp/candidate-apks/before.apk
+5e6d9350dd729e2a80bbc0260427322b1ca33d0d54930328396fa48d7f3ce4db  /home/runner/work/_temp/candidate-apks/fcitx-tests.apk
+cde8a738ec27ff42072e683c4895266dae0ca48bc16388ef46a0dc51117e4f25  /home/runner/work/_temp/candidate-apks/fcitx.apk

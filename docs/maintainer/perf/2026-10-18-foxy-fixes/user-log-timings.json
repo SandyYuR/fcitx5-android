@@ -1,0 +1,387 @@
+[
+  {
+    "file": "io.github.sandyyur.rime.direct-2026-10-18T12_31_22Z.txt",
+    "sha256": "1c61e1bca1a3ccbea43cbc0b7f8315869e1bb1ddb0629f6b81bdbc869272fdb9",
+    "product_source": "9d5c7992a772b9965f23404ca01a1a891769c3a0",
+    "same_process_pid": 9414,
+    "sanitized_timing_records": [
+      {
+        "time": "10-18 20:30:52.152",
+        "tag": "RimeInputTiming",
+        "event": "key",
+        "generation": "1576",
+        "ordinal": "1",
+        "owner_wait_us": "213",
+        "native_us": "45022",
+        "publish_us": "256"
+      },
+      {
+        "time": "10-18 20:30:52.251",
+        "tag": "RimeInputTiming",
+        "event": "key",
+        "generation": "1576",
+        "ordinal": "2",
+        "owner_wait_us": "314",
+        "native_us": "20869",
+        "publish_us": "412"
+      },
+      {
+        "time": "10-18 20:30:52.417",
+        "tag": "RimeInputTiming",
+        "event": "key",
+        "generation": "1576",
+        "ordinal": "3",
+        "owner_wait_us": "327",
+        "native_us": "19931",
+        "publish_us": "305"
+      },
+      {
+        "time": "10-18 20:30:56.162",
+        "tag": "RimeInputTiming",
+        "event": "select_queue",
+        "generation": "1576",
+        "ordinal": "1",
+        "service_wait_us": "3542"
+      },
+      {
+        "time": "10-18 20:30:56.173",
+        "tag": "RimeInputTiming",
+        "event": "select",
+        "generation": "1576",
+        "ordinal": "1",
+        "owner_wait_us": "196",
+        "native_publish_us": "10102"
+      },
+      {
+        "time": "10-18 20:30:56.697",
+        "tag": "RimeInputTiming",
+        "event": "select_queue",
+        "generation": "1576",
+        "ordinal": "2",
+        "service_wait_us": "483"
+      },
+      {
+        "time": "10-18 20:30:56.847",
+        "tag": "RimeInputTiming",
+        "event": "select",
+        "generation": "1576",
+        "ordinal": "2",
+        "owner_wait_us": "173",
+        "native_publish_us": "150415"
+      },
+      {
+        "time": "10-18 20:30:56.851",
+        "tag": "RimeInputTiming",
+        "event": "commit",
+        "generation": "1576",
+        "ordinal": "1",
+        "event_wait_us": "762",
+        "service_commit_us": "2670"
+      },
+      {
+        "time": "10-18 20:30:58.298",
+        "tag": "RimeInputTiming",
+        "event": "commit",
+        "generation": "1576",
+        "ordinal": "2",
+        "event_wait_us": "1492",
+        "service_commit_us": "791"
+      },
+      {
+        "time": "10-18 20:31:09.593",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1579",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:31:10.356",
+        "tag": "RimeLifecycle",
+        "event": "bind",
+        "generation": "1579",
+        "duration_ms": "756",
+        "ready": "true",
+        "created": "1",
+        "reused": "0",
+        "no_learning": "false"
+      },
+      {
+        "time": "10-18 20:31:10.763",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1581",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:31:11.439",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1583",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:31:15.620",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1586",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:31:18.680",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1589",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:31:20.133",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1592",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:31:20.810",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1595",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:31:20.815",
+        "tag": "RimeLifecycle",
+        "event": "bind",
+        "generation": "1595",
+        "duration_ms": "2",
+        "ready": "true",
+        "created": "0",
+        "reused": "1",
+        "no_learning": "false"
+      },
+      {
+        "time": "10-18 20:31:22.188",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1598",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      }
+    ]
+  },
+  {
+    "file": "io.github.sandyyur.rime.direct-2026-10-18T12_29_37Z.txt",
+    "sha256": "a322f0e1ea81e277e3c240364c7fa422d6d7ccf06d56d2eaafe6db70cc4c92a7",
+    "product_source": "9d5c7992a772b9965f23404ca01a1a891769c3a0",
+    "same_process_pid": 9414,
+    "sanitized_timing_records": [
+      {
+        "time": "10-18 20:29:19.696",
+        "tag": "RimeInputTiming",
+        "event": "select_queue",
+        "generation": "1515",
+        "ordinal": "1",
+        "service_wait_us": "669"
+      },
+      {
+        "time": "10-18 20:29:19.820",
+        "tag": "RimeInputTiming",
+        "event": "select",
+        "generation": "1515",
+        "ordinal": "1",
+        "owner_wait_us": "434",
+        "native_publish_us": "123519"
+      },
+      {
+        "time": "10-18 20:29:19.826",
+        "tag": "RimeInputTiming",
+        "event": "commit",
+        "generation": "1515",
+        "ordinal": "1",
+        "event_wait_us": "1881",
+        "service_commit_us": "3604"
+      },
+      {
+        "time": "10-18 20:29:22.522",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1518",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:29:23.155",
+        "tag": "RimeLifecycle",
+        "event": "bind",
+        "generation": "1518",
+        "duration_ms": "629",
+        "ready": "true",
+        "created": "1",
+        "reused": "0",
+        "no_learning": "false"
+      },
+      {
+        "time": "10-18 20:29:23.460",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1521",
+        "input_type": "655361",
+        "ime_options": "1073741830",
+        "needs_rime": "true",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:29:24.060",
+        "tag": "RimeLifecycle",
+        "event": "bind",
+        "generation": "1521",
+        "duration_ms": "575",
+        "ready": "true",
+        "created": "1",
+        "reused": "0",
+        "no_learning": "false"
+      },
+      {
+        "time": "10-18 20:29:24.340",
+        "tag": "RimeInputTiming",
+        "event": "key",
+        "generation": "1521",
+        "ordinal": "1",
+        "owner_wait_us": "248",
+        "native_us": "51695",
+        "publish_us": "397"
+      },
+      {
+        "time": "10-18 20:29:24.408",
+        "tag": "RimeInputTiming",
+        "event": "key",
+        "generation": "1521",
+        "ordinal": "2",
+        "owner_wait_us": "531",
+        "native_us": "15361",
+        "publish_us": "514"
+      },
+      {
+        "time": "10-18 20:29:24.534",
+        "tag": "RimeInputTiming",
+        "event": "key",
+        "generation": "1521",
+        "ordinal": "3",
+        "owner_wait_us": "374",
+        "native_us": "19733",
+        "publish_us": "283"
+      },
+      {
+        "time": "10-18 20:29:25.290",
+        "tag": "RimeInputTiming",
+        "event": "key",
+        "generation": "1521",
+        "ordinal": "7",
+        "owner_wait_us": "438",
+        "native_us": "109250",
+        "publish_us": "271"
+      },
+      {
+        "time": "10-18 20:29:30.231",
+        "tag": "RimeInputTiming",
+        "event": "select_queue",
+        "generation": "1521",
+        "ordinal": "1",
+        "service_wait_us": "1293"
+      },
+      {
+        "time": "10-18 20:29:30.366",
+        "tag": "RimeInputTiming",
+        "event": "select",
+        "generation": "1521",
+        "ordinal": "1",
+        "owner_wait_us": "305",
+        "native_publish_us": "135267"
+      },
+      {
+        "time": "10-18 20:29:30.369",
+        "tag": "RimeInputTiming",
+        "event": "commit",
+        "generation": "1521",
+        "ordinal": "1",
+        "event_wait_us": "1341",
+        "service_commit_us": "2223"
+      },
+      {
+        "time": "10-18 20:29:32.840",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1524",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:29:33.438",
+        "tag": "RimeLifecycle",
+        "event": "bind",
+        "generation": "1524",
+        "duration_ms": "594",
+        "ready": "true",
+        "created": "1",
+        "reused": "0",
+        "no_learning": "false"
+      },
+      {
+        "time": "10-18 20:29:34.331",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1526",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:29:35.077",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1528",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      },
+      {
+        "time": "10-18 20:29:37.654",
+        "tag": "RimeLifecycle",
+        "event": "input_binding",
+        "generation": "1531",
+        "input_type": "0",
+        "ime_options": "0",
+        "needs_rime": "false",
+        "restarting": "false"
+      }
+    ]
+  }
+]

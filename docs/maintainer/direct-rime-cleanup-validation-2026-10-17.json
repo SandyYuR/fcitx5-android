@@ -1,0 +1,45 @@
+{
+  "debug": {
+    "apk": "zhongzhougoose-cleanup-arm64-v8a-debug.apk",
+    "native_libraries": [
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libdirect-rime.so"
+    ],
+    "fcitx_dependencies": [],
+    "legacy_backend_classes": [],
+    "dex_files_checked": 22,
+    "page_size": 16384,
+    "bytes": 23182134,
+    "sha256": "184b687139fdbd8c196d1cc57cc6908679d002eff8696a2f40064d68a80a255e",
+    "signer_sha256": "49554e18dbb5c87805b824e09a06db8d994f5e39c904621f17b1248517b9bcd5",
+    "source_commit": "a49eb9b87256ae1f90b21ccbbb2637cdd8fba57a",
+    "application_id": "io.github.sandyyur.rime.direct",
+    "jvm_tests": {
+      "tests": 472,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "legacy_build_selection_rejected": true,
+    "historical_baseline_gitlinks_verified": true,
+    "negative_control_previous_apk_detected_legacy_classes": true
+  },
+  "release": {
+    "apk": "io.github.sandyyur.rime.direct-nightly-0.1.3-699-ga714feff-20261013-121158-29-ga49eb9b8-fx-arm64-v8a-release-unsigned.apk",
+    "native_libraries": [
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libdirect-rime.so"
+    ],
+    "fcitx_dependencies": [],
+    "legacy_backend_classes": [],
+    "dex_files_checked": 2,
+    "page_size": 16384,
+    "bytes": 8277608,
+    "sha256": "281db69debe095285b47d852fe4c4f241de724ab23cb2fee92bc786a612fbaa6",
+    "signed": false,
+    "application_id": "io.github.sandyyur.rime.direct"
+  },
+  "build_successful": true,
+  "default_gradle_projects_exclude_fcitx": true,
+  "scope": "Feature branch direct backend cleanup; frontend compatibility contracts retained"
+}

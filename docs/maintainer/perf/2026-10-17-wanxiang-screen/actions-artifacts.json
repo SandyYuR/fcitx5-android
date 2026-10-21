@@ -1,0 +1,61 @@
+{
+  "artifacts": [
+    {
+      "id": 12105146494,
+      "name": "screen-comparison-apks",
+      "size_in_bytes": 46969806,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/12105146494",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/12105146494/zip",
+      "expired": false,
+      "created_at": "2026-10-17T15:08:00Z",
+      "expires_at": "2026-10-20T15:07:57Z",
+      "updated_at": "2026-10-17T15:08:00Z",
+      "digest": "sha256:b4c7f5e01de3e07abf28b2e85aa330df610441c019ed2ecd3216a6d1cad823ba",
+      "workflow_run": {
+        "id": 39041913893,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "feat/direct-rime-prototype",
+        "head_sha": "1667daab3780ed97c679a4bd81d9c31eefa8bcbe"
+      }
+    },
+    {
+      "id": 12105091766,
+      "name": "wanxiang-touch-screen-videos",
+      "size_in_bytes": 55094207,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/12105091766",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/12105091766/zip",
+      "expired": false,
+      "created_at": "2026-10-17T15:07:57Z",
+      "expires_at": "2026-10-31T15:07:54Z",
+      "updated_at": "2026-10-17T15:07:57Z",
+      "digest": "sha256:80561e5b572b8b7d6309c47942f96631c5c158616a2cde6ed3fa1ae0ce1518e3",
+      "workflow_run": {
+        "id": 39041913893,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "feat/direct-rime-prototype",
+        "head_sha": "1667daab3780ed97c679a4bd81d9c31eefa8bcbe"
+      }
+    },
+    {
+      "id": 12105007581,
+      "name": "wanxiang-touch-screen-results",
+      "size_in_bytes": 4362874,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/12105007581",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/12105007581/zip",
+      "expired": false,
+      "created_at": "2026-10-17T15:07:54Z",
+      "expires_at": "2026-10-31T15:07:52Z",
+      "updated_at": "2026-10-17T15:07:54Z",
+      "digest": "sha256:6d281f6ce45b47ce3b690a347ef0c7951ef432b30c8d1c4206b669f69f1339c7",
+      "workflow_run": {
+        "id": 39041913893,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "feat/direct-rime-prototype",
+        "head_sha": "1667daab3780ed97c679a4bd81d9c31eefa8bcbe"
+      }
+    }
+  ]
+}

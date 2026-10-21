@@ -1,0 +1,34 @@
+{
+  "run_id": 39160792515,
+  "total_observations": 24,
+  "raw_summary_not_rewritten": true,
+  "foxy": {
+    "complete": 12
+  },
+  "direct": {
+    "complete_expected_text": 10,
+    "invalid_selection_precondition": 2
+  },
+  "reviewed_cases": [
+    {
+      "directory": "01-ni-100-direct",
+      "raw_outcome": "candidate_missing",
+      "assessment": "invalid precondition: screenshot shows preparing status, not a candidate; no native select trace, earlier ready generation 3 was used while generation 5 still binding",
+      "evidence": [
+        "send-candidates.png",
+        "logcat.txt",
+        "send-race.json"
+      ]
+    },
+    {
+      "directory": "00-phrase-20-direct",
+      "raw_outcome": "unexpected_text",
+      "assessment": "Invalid selection precondition: screenshot shows incomplete/in-flight composition and a different candidate; later commit was 找傻瓜好. Expected stable 早上好 was not established. Not a post-selection Send loss.",
+      "evidence": [
+        "send-candidates.png",
+        "candidate-editor.json"
+      ]
+    }
+  ],
+  "conclusion": "This run does not reproduce the phone candidate-selection loss; two direct observations lack the required selection precondition. Correct current-binding readiness before retry."
+}

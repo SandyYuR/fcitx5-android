@@ -1,0 +1,33 @@
+{
+  "method": "Separate chat-client activity with existing prefix; real candidate then real Send touch; clears draft and restarts input",
+  "limits": "Prepared files/caches; test client is not the user chat app. Passing does not prove the phone failure fixed.",
+  "selection_precondition": "Current binding ready and stable for 500ms; 1000ms after typing; candidate screenshot retained",
+  "observations": 8,
+  "harness_failures": 0,
+  "groups": {
+    "foxy-ni-20": {
+      "complete": 1
+    },
+    "foxy-ni-100": {
+      "complete": 1
+    },
+    "foxy-phrase-20": {
+      "complete": 1
+    },
+    "foxy-phrase-100": {
+      "complete": 1
+    },
+    "direct-ni-20": {
+      "complete": 1
+    },
+    "direct-ni-100": {
+      "complete": 1
+    },
+    "direct-phrase-20": {
+      "complete": 1
+    },
+    "direct-phrase-100": {
+      "complete": 1
+    }
+  }
+}

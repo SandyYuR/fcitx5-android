@@ -1,0 +1,540 @@
+{
+  "source": {
+    "filename": "io.github.sandyyur.rime.direct-2026-10-17T13_27_09Z.txt",
+    "bytes": 73183,
+    "sha256": "9c80abe7603de2f88436c494bef0a89ca1cc3e6a0e96975ed597a960043c7951",
+    "lines": 504,
+    "timestamped_rows": 483
+  },
+  "device": {
+    "manufacturer": "OnePlus",
+    "model": "PJD110",
+    "os_build": "PJD110_16.0.10.501(CN01)",
+    "api": 36,
+    "screen_px": [
+      1440,
+      3168
+    ],
+    "density": 3.5
+  },
+  "apk": {
+    "package": "io.github.sandyyur.rime.direct",
+    "build_type": "debug",
+    "build_time_utc": "2026-10-17T06:01:39Z",
+    "build_commit": "fb8357c02a699e275edc388b637af37b091f8bb9",
+    "review_commit": "e8b1282eaff480ac429d6270e27f735af198ec13",
+    "commit_type": "PR merge of 4456c110 into cecea494"
+  },
+  "window": {
+    "first": "10-17 21:26:48.941",
+    "last": "10-17 21:27:10.062",
+    "duration_ms": 21121.0,
+    "display_timezone": "UTC+08:00 inferred from filename UTC and client timezone; logcat timestamps themselves omit zone",
+    "pids": [
+      26267
+    ]
+  },
+  "counts": {
+    "levels": {
+      "W": 24,
+      "I": 79,
+      "D": 371,
+      "E": 9
+    },
+    "start_input": 11,
+    "initial_selection_minus_one": 10,
+    "start_input_view": 3,
+    "heap_not_gc_messages": 5,
+    "error_tags": {
+      "OplusPredictiveBackController": 6,
+      "OplusBracketLog": 3
+    },
+    "fatal_exception": 0,
+    "anr_markers": 0,
+    "skipped_frame_markers": 0,
+    "service_create_markers": 0,
+    "process_key_trace_markers": 0
+  },
+  "limitations": [
+    "No process/service cold-start sequence",
+    "No APK hash or actual loaded model/schema/user-directory evidence",
+    "No key-to-result correlation IDs, generation IDs or native call durations",
+    "No frame presentation times or GC pause durations",
+    "Adjacent log gaps do not establish latency or causation",
+    "No earlier absence/presence inference outside this 21-second window"
+  ],
+  "source_comparison": [
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+      "log_build_blob": "dd3e59c14c509cf2b208c96bbc3e758450bc0ad4",
+      "review_build_blob": "dd3e59c14c509cf2b208c96bbc3e758450bc0ad4",
+      "identical": true
+    },
+    {
+      "path": "direct-rime/src/main/cpp/engine.cpp",
+      "log_build_blob": "1e5be1ab20ef9b2e98af31358d8f4e771a5cda79",
+      "review_build_blob": "1e5be1ab20ef9b2e98af31358d8f4e771a5cda79",
+      "identical": true
+    }
+  ],
+  "start_input_to_next_candidate_log": [
+    {
+      "start_line": 40,
+      "start_time": "10-17 21:26:52.604",
+      "initial_selection": [
+        -1,
+        -1
+      ],
+      "candidate_line": 61,
+      "candidate_time": "10-17 21:26:53.510",
+      "adjacent_log_gap_ms": 906.0,
+      "note": "Temporal adjacency only, no key/session correlation or engine-duration inference"
+    },
+    {
+      "start_line": 67,
+      "start_time": "10-17 21:26:55.173",
+      "initial_selection": [
+        -1,
+        -1
+      ],
+      "candidate_line": null,
+      "candidate_time": null,
+      "adjacent_log_gap_ms": null,
+      "note": "No candidate-state log before next startInput; overlapping callbacks"
+    },
+    {
+      "start_line": 70,
+      "start_time": "10-17 21:26:55.236",
+      "initial_selection": [
+        0,
+        0
+      ],
+      "candidate_line": 100,
+      "candidate_time": "10-17 21:26:56.425",
+      "adjacent_log_gap_ms": 1189.0,
+      "note": "Temporal adjacency only, no key/session correlation or engine-duration inference"
+    },
+    {
+      "start_line": 187,
+      "start_time": "10-17 21:26:59.509",
+      "initial_selection": [
+        -1,
+        -1
+      ],
+      "candidate_line": 215,
+      "candidate_time": "10-17 21:27:00.191",
+      "adjacent_log_gap_ms": 682.0,
+      "note": "Temporal adjacency only, no key/session correlation or engine-duration inference"
+    },
+    {
+      "start_line": 260,
+      "start_time": "10-17 21:27:01.222",
+      "initial_selection": [
+        -1,
+        -1
+      ],
+      "candidate_line": 273,
+      "candidate_time": "10-17 21:27:01.768",
+      "adjacent_log_gap_ms": 546.0,
+      "note": "Temporal adjacency only, no key/session correlation or engine-duration inference"
+    },
+    {
+      "start_line": 319,
+      "start_time": "10-17 21:27:02.192",
+      "initial_selection": [
+        -1,
+        -1
+      ],
+      "candidate_line": 336,
+      "candidate_time": "10-17 21:27:02.785",
+      "adjacent_log_gap_ms": 593.0,
+      "note": "Temporal adjacency only, no key/session correlation or engine-duration inference"
+    },
+    {
+      "start_line": 361,
+      "start_time": "10-17 21:27:04.389",
+      "initial_selection": [
+        -1,
+        -1
+      ],
+      "candidate_line": 369,
+      "candidate_time": "10-17 21:27:04.927",
+      "adjacent_log_gap_ms": 538.0,
+      "note": "Temporal adjacency only, no key/session correlation or engine-duration inference"
+    },
+    {
+      "start_line": 398,
+      "start_time": "10-17 21:27:05.462",
+      "initial_selection": [
+        -1,
+        -1
+      ],
+      "candidate_line": 400,
+      "candidate_time": "10-17 21:27:06.156",
+      "adjacent_log_gap_ms": 694.0,
+      "note": "Temporal adjacency only, no key/session correlation or engine-duration inference"
+    },
+    {
+      "start_line": 413,
+      "start_time": "10-17 21:27:07.095",
+      "initial_selection": [
+        -1,
+        -1
+      ],
+      "candidate_line": 430,
+      "candidate_time": "10-17 21:27:07.675",
+      "adjacent_log_gap_ms": 580.0,
+      "note": "Temporal adjacency only, no key/session correlation or engine-duration inference"
+    },
+    {
+      "start_line": 459,
+      "start_time": "10-17 21:27:07.965",
+      "initial_selection": [
+        -1,
+        -1
+      ],
+      "candidate_line": 461,
+      "candidate_time": "10-17 21:27:08.620",
+      "adjacent_log_gap_ms": 655.0,
+      "note": "Temporal adjacency only, no key/session correlation or engine-duration inference"
+    },
+    {
+      "start_line": 474,
+      "start_time": "10-17 21:27:09.402",
+      "initial_selection": [
+        -1,
+        -1
+      ],
+      "candidate_line": 488,
+      "candidate_time": "10-17 21:27:09.911",
+      "adjacent_log_gap_ms": 509.0,
+      "note": "Temporal adjacency only, no key/session correlation or engine-duration inference"
+    }
+  ],
+  "excerpts": [
+    {
+      "line": 40,
+      "time": "10-17 21:26:52.604",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 61,
+      "time": "10-17 21:26:53.510",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] EventStateMachine",
+      "message": "At Idle, CandidatesUpdated didn't change the state"
+    },
+    {
+      "line": 67,
+      "time": "10-17 21:26:55.173",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 70,
+      "time": "10-17 21:26:55.236",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 100,
+      "time": "10-17 21:26:56.425",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] EventStateMachine",
+      "message": "At Idle, CandidatesUpdated didn't change the state"
+    },
+    {
+      "line": 149,
+      "time": "10-17 21:26:59.373",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "E",
+      "tag": "OplusPredictiveBackController",
+      "message": " NoSuchMethodException "
+    },
+    {
+      "line": 150,
+      "time": "10-17 21:26:59.373",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "E",
+      "tag": "OplusPredictiveBackController",
+      "message": " NoSuchMethodException "
+    },
+    {
+      "line": 151,
+      "time": "10-17 21:26:59.373",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "E",
+      "tag": "OplusPredictiveBackController",
+      "message": " NoSuchMethodException "
+    },
+    {
+      "line": 162,
+      "time": "10-17 21:26:59.427",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "E",
+      "tag": "OplusBracketLog",
+      "message": "[OplusViewMirrorManager] updateHostViewRootIfNeeded, not support android.view.ViewRootImpl@7a9ea21"
+    },
+    {
+      "line": 184,
+      "time": "10-17 21:26:59.503",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] FcitxInputMethodService",
+      "message": "onBindInput: uid=10419 pkg=io.github.sandyyur.rime.direct"
+    },
+    {
+      "line": 187,
+      "time": "10-17 21:26:59.509",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 215,
+      "time": "10-17 21:27:00.191",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] EventStateMachine",
+      "message": "At Idle, CandidatesUpdated didn't change the state"
+    },
+    {
+      "line": 228,
+      "time": "10-17 21:27:00.334",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "E",
+      "tag": "OplusBracketLog",
+      "message": "[OplusViewMirrorManager] updateHostViewRootIfNeeded, not support android.view.ViewRootImpl@1de2437"
+    },
+    {
+      "line": 260,
+      "time": "10-17 21:27:01.222",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 273,
+      "time": "10-17 21:27:01.768",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] EventStateMachine",
+      "message": "At Idle, CandidatesUpdated didn't change the state"
+    },
+    {
+      "line": 283,
+      "time": "10-17 21:27:02.101",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "E",
+      "tag": "OplusPredictiveBackController",
+      "message": " NoSuchMethodException "
+    },
+    {
+      "line": 284,
+      "time": "10-17 21:27:02.101",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "E",
+      "tag": "OplusPredictiveBackController",
+      "message": " NoSuchMethodException "
+    },
+    {
+      "line": 285,
+      "time": "10-17 21:27:02.101",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "E",
+      "tag": "OplusPredictiveBackController",
+      "message": " NoSuchMethodException "
+    },
+    {
+      "line": 297,
+      "time": "10-17 21:27:02.123",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "E",
+      "tag": "OplusBracketLog",
+      "message": "[OplusViewMirrorManager] updateHostViewRootIfNeeded, not support android.view.ViewRootImpl@ad0f334"
+    },
+    {
+      "line": 319,
+      "time": "10-17 21:27:02.192",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 336,
+      "time": "10-17 21:27:02.785",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] EventStateMachine",
+      "message": "At Idle, CandidatesUpdated didn't change the state"
+    },
+    {
+      "line": 359,
+      "time": "10-17 21:27:04.382",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] FcitxInputMethodService",
+      "message": "onBindInput: uid=10064 pkg=com.android.documentsui"
+    },
+    {
+      "line": 361,
+      "time": "10-17 21:27:04.389",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 369,
+      "time": "10-17 21:27:04.927",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] EventStateMachine",
+      "message": "At Idle, CandidatesUpdated didn't change the state"
+    },
+    {
+      "line": 396,
+      "time": "10-17 21:27:05.460",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] FcitxInputMethodService",
+      "message": "onBindInput: uid=10419 pkg=io.github.sandyyur.rime.direct"
+    },
+    {
+      "line": 398,
+      "time": "10-17 21:27:05.462",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 400,
+      "time": "10-17 21:27:06.156",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] EventStateMachine",
+      "message": "At Idle, CandidatesUpdated didn't change the state"
+    },
+    {
+      "line": 411,
+      "time": "10-17 21:27:07.092",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] FcitxInputMethodService",
+      "message": "onBindInput: uid=10064 pkg=com.android.documentsui"
+    },
+    {
+      "line": 413,
+      "time": "10-17 21:27:07.095",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 430,
+      "time": "10-17 21:27:07.675",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] EventStateMachine",
+      "message": "At Idle, CandidatesUpdated didn't change the state"
+    },
+    {
+      "line": 457,
+      "time": "10-17 21:27:07.950",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] FcitxInputMethodService",
+      "message": "onBindInput: uid=10419 pkg=io.github.sandyyur.rime.direct"
+    },
+    {
+      "line": 459,
+      "time": "10-17 21:27:07.965",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 461,
+      "time": "10-17 21:27:08.620",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] EventStateMachine",
+      "message": "At Idle, CandidatesUpdated didn't change the state"
+    },
+    {
+      "line": 472,
+      "time": "10-17 21:27:09.397",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] FcitxInputMethodService",
+      "message": "onBindInput: uid=10064 pkg=com.android.documentsui"
+    },
+    {
+      "line": 474,
+      "time": "10-17 21:27:09.402",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "I",
+      "tag": "FcitxColdStart",
+      "message": "service.onStartInput restarting=false"
+    },
+    {
+      "line": 488,
+      "time": "10-17 21:27:09.911",
+      "pid": 26267,
+      "tid": 26267,
+      "level": "D",
+      "tag": "[main] EventStateMachine",
+      "message": "At Idle, CandidatesUpdated didn't change the state"
+    }
+  ]
+}

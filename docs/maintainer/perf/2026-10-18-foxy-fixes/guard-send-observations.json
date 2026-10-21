@@ -1,0 +1,130 @@
+[
+  {
+    "trial": 0,
+    "case": "ni",
+    "scheduled_gap_ms": 20,
+    "product": "foxy",
+    "sent_text": "前文你",
+    "final_draft": "",
+    "candidate_up_to_client_send_ms": 192.586566,
+    "commit_calls": [
+      {
+        "at_ns": 624725065101,
+        "text": "你"
+      }
+    ],
+    "outcome": "complete"
+  },
+  {
+    "trial": 0,
+    "case": "ni",
+    "scheduled_gap_ms": 20,
+    "product": "direct",
+    "sent_text": "前文你",
+    "final_draft": "",
+    "candidate_up_to_client_send_ms": 69.266151,
+    "commit_calls": [
+      {
+        "at_ns": 631351641046,
+        "text": "你"
+      }
+    ],
+    "outcome": "complete"
+  },
+  {
+    "trial": 0,
+    "case": "ni",
+    "scheduled_gap_ms": 100,
+    "product": "direct",
+    "sent_text": "前文你",
+    "final_draft": "",
+    "candidate_up_to_client_send_ms": 152.854749,
+    "commit_calls": [
+      {
+        "at_ns": 638815666218,
+        "text": "你"
+      }
+    ],
+    "outcome": "complete"
+  },
+  {
+    "trial": 0,
+    "case": "ni",
+    "scheduled_gap_ms": 100,
+    "product": "foxy",
+    "sent_text": "前文你",
+    "final_draft": "",
+    "candidate_up_to_client_send_ms": 154.18629,
+    "commit_calls": [
+      {
+        "at_ns": 647066450875,
+        "text": "你"
+      }
+    ],
+    "outcome": "complete"
+  },
+  {
+    "trial": 0,
+    "case": "phrase",
+    "scheduled_gap_ms": 20,
+    "product": "direct",
+    "sent_text": "前文早上好",
+    "final_draft": "",
+    "candidate_up_to_client_send_ms": 176.757853,
+    "commit_calls": [
+      {
+        "at_ns": 655098623765,
+        "text": "早上好"
+      }
+    ],
+    "outcome": "complete"
+  },
+  {
+    "trial": 0,
+    "case": "phrase",
+    "scheduled_gap_ms": 20,
+    "product": "foxy",
+    "sent_text": "前文早上好",
+    "final_draft": "",
+    "candidate_up_to_client_send_ms": 234.029096,
+    "commit_calls": [
+      {
+        "at_ns": 664687017563,
+        "text": "早上好"
+      }
+    ],
+    "outcome": "complete"
+  },
+  {
+    "trial": 0,
+    "case": "phrase",
+    "scheduled_gap_ms": 100,
+    "product": "foxy",
+    "sent_text": "前文早上好",
+    "final_draft": "",
+    "candidate_up_to_client_send_ms": 155.774759,
+    "commit_calls": [
+      {
+        "at_ns": 674328262912,
+        "text": "早上好"
+      }
+    ],
+    "outcome": "complete"
+  },
+  {
+    "trial": 0,
+    "case": "phrase",
+    "scheduled_gap_ms": 100,
+    "product": "direct",
+    "sent_text": "前文早上好",
+    "final_draft": "",
+    "candidate_up_to_client_send_ms": 152.894495,
+    "commit_calls": [
+      {
+        "at_ns": 682513078491,
+        "text": "早上好"
+      }
+    ],
+    "outcome": "complete"
+  }
+]

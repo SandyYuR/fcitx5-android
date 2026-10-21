@@ -1,0 +1,164 @@
+{
+  "metric": "Backend API to event collector; excludes touch and display rendering",
+  "rounds_per_backend": 3,
+  "identical_commits": true,
+  "identical_candidate_texts": true,
+  "backends": {
+    "fcitx": {
+      "send_key_return": {
+        "p50_ms": {
+          "median_ms": 10.19257,
+          "min_ms": 10.076564,
+          "max_ms": 10.263969
+        },
+        "p95_ms": {
+          "median_ms": 14.551647,
+          "min_ms": 14.478469,
+          "max_ms": 14.925425
+        },
+        "p99_ms": {
+          "median_ms": 29.182661,
+          "min_ms": 27.744964,
+          "max_ms": 29.67393
+        }
+      },
+      "key_to_candidates": {
+        "p50_ms": {
+          "median_ms": 10.180888,
+          "min_ms": 10.032591,
+          "max_ms": 10.24968
+        },
+        "p95_ms": {
+          "median_ms": 14.517927,
+          "min_ms": 14.379234,
+          "max_ms": 15.036627
+        },
+        "p99_ms": {
+          "median_ms": 29.06386,
+          "min_ms": 27.53265,
+          "max_ms": 29.609539
+        }
+      },
+      "space_to_commit": {
+        "p50_ms": {
+          "median_ms": 1.720355,
+          "min_ms": 1.696731,
+          "max_ms": 1.734671
+        },
+        "p95_ms": {
+          "median_ms": 2.107532,
+          "min_ms": 2.088905,
+          "max_ms": 2.155587
+        },
+        "p99_ms": {
+          "median_ms": 2.366771,
+          "min_ms": 2.196094,
+          "max_ms": 2.491777
+        }
+      },
+      "word_to_result": {
+        "p50_ms": {
+          "median_ms": 79.403521,
+          "min_ms": 78.207378,
+          "max_ms": 82.658527
+        },
+        "p95_ms": {
+          "median_ms": 128.945377,
+          "min_ms": 127.802343,
+          "max_ms": 131.990721
+        },
+        "p99_ms": {
+          "median_ms": 135.59255,
+          "min_ms": 130.902835,
+          "max_ms": 136.226417
+        }
+      },
+      "wall_ms": 8096.678763,
+      "process_cpu_ms": 8402,
+      "memory_after_median": {
+        "rss_kib": 371680,
+        "pss_kib": 288553,
+        "java_used_bytes": 4683328,
+        "native_allocated_bytes": 15644800
+      }
+    },
+    "direct": {
+      "send_key_return": {
+        "p50_ms": {
+          "median_ms": 9.598082,
+          "min_ms": 9.544639,
+          "max_ms": 9.657572
+        },
+        "p95_ms": {
+          "median_ms": 13.53885,
+          "min_ms": 13.337199,
+          "max_ms": 13.678902
+        },
+        "p99_ms": {
+          "median_ms": 26.80057,
+          "min_ms": 26.520101,
+          "max_ms": 27.895318
+        }
+      },
+      "key_to_candidates": {
+        "p50_ms": {
+          "median_ms": 9.717953,
+          "min_ms": 9.691744,
+          "max_ms": 9.777624
+        },
+        "p95_ms": {
+          "median_ms": 13.699402,
+          "min_ms": 13.529209,
+          "max_ms": 13.79958
+        },
+        "p99_ms": {
+          "median_ms": 26.915211,
+          "min_ms": 26.748099,
+          "max_ms": 28.023755
+        }
+      },
+      "space_to_commit": {
+        "p50_ms": {
+          "median_ms": 1.650882,
+          "min_ms": 1.624155,
+          "max_ms": 1.682034
+        },
+        "p95_ms": {
+          "median_ms": 2.013293,
+          "min_ms": 1.977542,
+          "max_ms": 2.069712
+        },
+        "p99_ms": {
+          "median_ms": 2.26378,
+          "min_ms": 2.16177,
+          "max_ms": 2.445434
+        }
+      },
+      "word_to_result": {
+        "p50_ms": {
+          "median_ms": 76.434231,
+          "min_ms": 75.668777,
+          "max_ms": 78.119932
+        },
+        "p95_ms": {
+          "median_ms": 122.70232,
+          "min_ms": 121.623358,
+          "max_ms": 123.011623
+        },
+        "p99_ms": {
+          "median_ms": 127.102058,
+          "min_ms": 125.794958,
+          "max_ms": 127.786718
+        }
+      },
+      "wall_ms": 7615.462944,
+      "process_cpu_ms": 7888,
+      "memory_after_median": {
+        "rss_kib": 334892,
+        "pss_kib": 250813,
+        "java_used_bytes": 7768416,
+        "native_allocated_bytes": 15390112
+      }
+    }
+  }
+}

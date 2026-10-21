@@ -1,0 +1,84 @@
+"name","offset_ms","ms","thread","tid","depth"
+"InputConnection#commitText",10.951000,23.424000,"yyur.inputbench",2980,0
+"Generating StaticLayout For DynamicLayout",11.225000,17.965000,"yyur.inputbench",2980,1
+"Loading font /system/fonts/NotoSansCJK-Regular.ttc",11.529000,0.306000,"yyur.inputbench",2980,2
+"JIT compiling org.json.JSONObject org.json.JSONObject.put(java.lang.String, long) (kind=Baseline) from /apex/com.android.art/javalib/core-libart.jar",18.856000,2.153000,"Jit thread pool",2985,0
+"Compiling baseline",18.858000,2.150000,"Jit thread pool",2985,1
+"JIT compiling android.text.SpannableStringBuilder android.text.SpannableStringBuilder.replace(int, int, java.lang.CharSequence, int, int) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",22.292000,0.463000,"Jit thread pool",2985,0
+"Compiling baseline",22.293000,0.461000,"Jit thread pool",2985,1
+"JIT compiling android.content.UndoManager$UndoState android.content.UndoManager.getTopUndo(android.content.UndoOwner[]) (kind=Baseline) from /system/framework/framework.jar",25.244000,5.206000,"Jit thread pool",2985,0
+"Compiling baseline",25.246000,5.203000,"Jit thread pool",2985,1
+"Choreographer#scheduleVsyncLocked",29.322000,3.978000,"yyur.inputbench",2980,1
+"JIT compiling void android.content.UndoManager$UndoState.commit() (kind=Baseline) from /system/framework/framework.jar",31.501000,0.370000,"Jit thread pool",2985,0
+"Compiling baseline",31.502000,0.367000,"Jit thread pool",2985,1
+"JIT compiling void android.text.SpannableStringBuilder.change(int, int, java.lang.CharSequence, int, int) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",32.611000,1.466000,"Jit thread pool",2985,0
+"Compiling baseline",32.612000,1.463000,"Jit thread pool",2985,1
+"JIT compiling void android.text.SpannableStringBuilder.moveGapTo(int) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",34.084000,0.874000,"Jit thread pool",2985,0
+"Compiling baseline",34.085000,0.871000,"Jit thread pool",2985,1
+"JIT compiling android.text.MeasuredParagraph android.text.MeasuredParagraph.buildForStaticLayout(android.text.TextPaint, android.graphics.text.LineBreakConfig, java.lang.CharSequence, int, int, android.text.TextDirectionHeuristic, int, boolean, boolean, android.text.MeasuredParagraph, android.text.MeasuredParagraph) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",35.675000,0.442000,"Jit thread pool",2985,0
+"Compiling baseline",35.677000,0.440000,"Jit thread pool",2985,1
+"JIT compiling android.text.MeasuredParagraph android.text.MeasuredParagraph.buildForStaticLayoutInternal(android.text.TextPaint, android.graphics.text.LineBreakConfig, java.lang.CharSequence, int, int, android.text.TextDirectionHeuristic, int, boolean, boolean, android.text.MeasuredParagraph, android.text.MeasuredParagraph, android.text.MeasuredParagraph$StyleRunCallback) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",36.125000,0.335000,"Jit thread pool",2985,0
+"Compiling baseline",36.127000,0.333000,"Jit thread pool",2985,1
+"JIT compiling java.lang.Object[] android.text.TextUtils.removeEmptySpans(java.lang.Object[], android.text.Spanned, java.lang.Class) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",36.943000,0.618000,"Jit thread pool",2985,0
+"Compiling baseline",36.944000,0.615000,"Jit thread pool",2985,1
+"JIT compiling void android.text.MeasuredParagraph.applyMetricsAffectingSpan(android.text.TextPaint, android.graphics.text.LineBreakConfig, android.text.style.MetricAffectingSpan[], android.text.style.LineBreakConfigSpan[], int, int, android.graphics.text.MeasuredText$Builder, android.text.MeasuredParagraph$StyleRunCallback) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",37.570000,0.497000,"Jit thread pool",2985,0
+"Compiling baseline",37.572000,0.494000,"Jit thread pool",2985,1
+"JIT compiling void android.text.MeasuredParagraph.applyStyleRun(int, int, android.text.TextPaint, android.graphics.text.LineBreakConfig, android.graphics.text.MeasuredText$Builder, android.text.MeasuredParagraph$StyleRunCallback) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",38.198000,0.530000,"Jit thread pool",2985,0
+"Compiling baseline",38.199000,0.528000,"Jit thread pool",2985,1
+"JIT compiling boolean android.view.View.calculateIsImportantForContentCapture() (kind=Baseline) from /system/framework/framework.jar!classes4.dex",43.078000,0.354000,"Jit thread pool",2985,0
+"Compiling baseline",43.080000,0.352000,"Jit thread pool",2985,1
+"JIT compiling void android.text.SpannableStringBuilder.sendToSpanWatchers(int, int, int) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",43.933000,0.565000,"Jit thread pool",2985,0
+"Compiling baseline",43.934000,0.563000,"Jit thread pool",2985,1
+"JIT compiling int android.widget.TextView.getVerticalOffset(boolean) (kind=Baseline) from /system/framework/framework.jar!classes4.dex",45.204000,0.403000,"Jit thread pool",2985,0
+"Compiling baseline",45.205000,0.401000,"Jit thread pool",2985,1
+"JIT compiling float android.text.TextLine.handleText(android.text.TextPaint, int, int, int, int, boolean, android.graphics.Canvas, android.text.TextShaper$GlyphsConsumer, float, int, int, int, android.graphics.Paint$FontMetricsInt, android.graphics.RectF, boolean, int, java.util.ArrayList, float[], int, android.text.TextLine$LineInfo, int) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",47.100000,1.279000,"Jit thread pool",2985,0
+"Compiling baseline",47.102000,1.276000,"Jit thread pool",2985,1
+"JIT compiling float android.text.TextLine.getRunAdvance(android.text.TextPaint, int, int, int, int, boolean, int, float[], int, android.graphics.RectF, android.text.TextLine$LineInfo) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",48.388000,2.670000,"Jit thread pool",2985,0
+"Compiling baseline",48.390000,2.666000,"Jit thread pool",2985,1
+"Choreographer#doFrame 3780",50.706000,4.948000,"yyur.inputbench",2980,0
+"traversal",50.717000,4.923000,"yyur.inputbench",2980,1
+"JIT compiling float android.graphics.Paint.getRunCharacterAdvance(java.lang.CharSequence, int, int, int, int, boolean, int, float[], int, android.graphics.RectF, android.graphics.Paint$RunInfo) (kind=Baseline) from /system/framework/framework.jar",51.068000,0.539000,"Jit thread pool",2985,0
+"Compiling baseline",51.070000,0.535000,"Jit thread pool",2985,1
+"draw-VRI[BenchHost]",51.198000,4.439000,"yyur.inputbench",2980,2
+"postAndWait",51.490000,4.142000,"yyur.inputbench",2980,3
+"DrawFrames 3780",51.504000,155.528000,"RenderThread",2995,0
+"Drawing  0.00  0.00 320.00 408.00",51.606000,155.424000,"RenderThread",2995,1
+"JIT compiling float android.graphics.Paint.getRunCharacterAdvance(char[], int, int, int, int, boolean, int, float[], int, android.graphics.RectF, android.graphics.Paint$RunInfo) (kind=Baseline) from /system/framework/framework.jar",51.614000,0.607000,"Jit thread pool",2985,0
+"Compiling baseline",51.615000,0.604000,"Jit thread pool",2985,1
+"flush commands",51.684000,11.224000,"RenderThread",2995,2
+"auto skgpu::ganesh::OpsTask::onPrepare(GrOpFlushState *)::(anonymous class)::operator()() const",51.691000,0.464000,"RenderThread",2995,3
+"AtlasTextOp",51.700000,0.454000,"RenderThread",2995,4
+"Texture upload(19) 20x18",52.323000,0.643000,"RenderThread",2995,3
+"glTexSubImage2D encode",52.333000,0.630000,"RenderThread",2995,4
+"auto skgpu::ganesh::OpsTask::onExecute(GrOpFlushState *)::(anonymous class)::operator()() const",52.968000,9.043000,"RenderThread",2995,3
+"AtlasTextOp",53.013000,8.997000,"RenderThread",2995,4
+"shader_compile",53.015000,8.852000,"RenderThread",2995,5
+"glCreateProgram encode",53.045000,1.895000,"RenderThread",2995,6
+"JIT compiling void android.view.inputmethod.BaseInputConnection.sendCurrentText() (kind=Baseline) from /system/framework/framework.jar!classes4.dex",53.492000,0.373000,"Jit thread pool",2985,0
+"Compiling baseline",53.495000,0.369000,"Jit thread pool",2985,1
+"JIT compiling void android.graphics.BaseRecordingCanvas.drawTextRun(java.lang.CharSequence, int, int, int, int, float, float, boolean, android.graphics.Paint) (kind=Baseline) from /system/framework/framework.jar",54.538000,0.514000,"Jit thread pool",2985,0
+"Compiling baseline",54.541000,0.511000,"Jit thread pool",2985,1
+"cache_miss",54.962000,6.671000,"RenderThread",2995,6
+"driver_compile_shader",55.084000,2.559000,"RenderThread",2995,7
+"glGetShaderiv encode",55.238000,2.177000,"RenderThread",2995,8
+"JIT compiling void android.app.ActivityThread.handleReceiver(android.app.ActivityThread$ReceiverData) (kind=Baseline) from /system/framework/framework.jar",55.860000,0.639000,"Jit thread pool",2985,0
+"Compiling baseline",55.862000,0.636000,"Jit thread pool",2985,1
+"driver_compile_shader",57.749000,0.977000,"RenderThread",2995,7
+"glGetShaderiv encode",57.907000,0.814000,"RenderThread",2995,8
+"JIT compiling java.io.FileDescriptor libcore.io.IoBridge.open(java.lang.String, int) (kind=Baseline) from /apex/com.android.art/javalib/core-libart.jar",57.963000,0.453000,"Jit thread pool",2985,0
+"Compiling baseline",57.965000,0.449000,"Jit thread pool",2985,1
+"driver_link_program",58.751000,2.881000,"RenderThread",2995,7
+"glGetUniformLocation encode",59.405000,1.079000,"RenderThread",2995,8
+"JIT compiling void org.json.JSONObject.writeTo(org.json.JSONStringer) (kind=Baseline) from /apex/com.android.art/javalib/core-libart.jar",59.621000,0.419000,"Jit thread pool",2985,0
+"Compiling baseline",59.623000,0.416000,"Jit thread pool",2985,1
+"JIT compiling org.json.JSONStringer org.json.JSONStringer.object() (kind=Baseline) from /apex/com.android.art/javalib/core-libart.jar",60.046000,0.941000,"Jit thread pool",2985,0
+"Compiling baseline",60.047000,0.938000,"Jit thread pool",2985,1
+"glGetActiveAttrib encode",60.651000,0.395000,"RenderThread",2995,8
+"JIT compiling void java.lang.AbstractStringBuilder.inflate() (kind=Baseline) from /apex/com.android.art/javalib/core-oj.jar",62.623000,0.513000,"Jit thread pool",2985,0
+"Compiling baseline",62.624000,0.510000,"Jit thread pool",2985,1
+"eglSwapBuffersWithDamageKHR",62.933000,143.288000,"RenderThread",2995,2
+"rcCreateSyncKHR encode",62.945000,142.727000,"RenderThread",2995,3
+"JIT compiling void java.lang.StringUTF16.inflate(byte[], int, byte[], int, int) (kind=Baseline) from /apex/com.android.art/javalib/core-oj.jar",63.432000,0.449000,"Jit thread pool",2985,0
+"Compiling baseline",63.434000,0.446000,"Jit thread pool",2985,1
+"JIT compiling void libcore.io.IoTracker.trackIo(int) (kind=Baseline) from /apex/com.android.art/javalib/core-libart.jar",67.493000,0.427000,"Jit thread pool",2985,0
+"Compiling baseline",67.494000,0.423000,"Jit thread pool",2985,1

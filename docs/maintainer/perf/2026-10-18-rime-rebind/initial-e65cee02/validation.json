@@ -1,0 +1,70 @@
+{
+  "source_commit": "e65cee029e994e992d4d16c103f6ae3ff537bc7c",
+  "changes": [
+    "66fd8d9c6ffc28b4cc475629dba9f0c05dd71ec6",
+    "e65cee029e994e992d4d16c103f6ae3ff537bc7c"
+  ],
+  "branch": "feat/direct-rime-prototype",
+  "baseline": "2f6a0ea08527831d3f07df12499f5b72d5ffc0bd",
+  "local_jvm": {
+    "tests": 477,
+    "failures": 0,
+    "errors": 0
+  },
+  "local_android_test_kotlin_compile": "passed",
+  "local_native": {
+    "result": "passed",
+    "checks": "ASan/UBSan, -Wall -Wextra -Werror; 6 contract groups",
+    "leak_scan": "disabled locally because ptrace restrictions; unchanged full sanitizer command in CI"
+  },
+  "workflow_runs": {
+    "pr_ci": 39087278782,
+    "direct_rime": 39087278740,
+    "wanxiang_rebind": 39087275365
+  },
+  "limits": [
+    "No local phone/KVM",
+    "Rebind UI test prepares/deploys fixture before showing keyboard; not process-cold startup",
+    "Touch injection and polling included; not frame presentation latency"
+  ],
+  "frontend_android": {
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0,
+    "artifact_id": 12120989506
+  },
+  "pr_merge_apk": {
+    "file": "zhongzhougoose-responsive-pr-merge-71208a28-arm64-v8a-debug.apk",
+    "size_bytes": 23220188,
+    "sha256": "0baeb6c4da63d7ce72283e8cfbef98d9a2e6ab9726db89ee764b7ce01cbfecf6",
+    "signer_sha256": "c7f8327fdcae4bc115618283fda046b96b3fb9c7aa802459e0ee16246b253345",
+    "artifact_id": 12120419497,
+    "build_hashes": [
+      "71208a28173b1b01cd6891ffc0eb8d9e071da996"
+    ],
+    "native_libraries": [
+      "libdirect-rime.so",
+      "libc++_shared.so"
+    ],
+    "page_size": 16384,
+    "legacy_fcitx_dependencies": [],
+    "build_commit": "71208a28173b1b01cd6891ffc0eb8d9e071da996",
+    "source_note": "PR temporary merge includes default-branch UI changes; core/backend/service/candidate/native paths match e65cee02. Integration tests apply to this merge."
+  },
+  "branch_apk": {
+    "file": "zhongzhougoose-responsive-e65cee02-arm64-v8a-debug.apk",
+    "source_commit": "e65cee029e994e992d4d16c103f6ae3ff537bc7c",
+    "size_bytes": 23171130,
+    "sha256": "65856205ef952f05bd0e3a9dc7f802fbc7f3444975876b521cf76f603c3934f6",
+    "version_name": "nightly-0.1.3-699-ga714feff-20261013-121158-48-ge65cee02",
+    "version_code": 112,
+    "local_build": "passed",
+    "signer_sha256": "49554e18dbb5c87805b824e09a06db8d994f5e39c904621f17b1248517b9bcd5",
+    "native_libraries": [
+      "libdirect-rime.so",
+      "libc++_shared.so"
+    ],
+    "page_size": 16384,
+    "legacy_fcitx_dependencies": []
+  }
+}

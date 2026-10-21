@@ -1,0 +1,52 @@
+{
+  "passed": true,
+  "commit": "e6d317182e25d225a6128420542ea47d161c03b9",
+  "harness_commit": "e6d317182e25d225a6128420542ea47d161c03b9",
+  "fixture": "rebind-fixture.zip",
+  "model_mapped": true,
+  "metric": "UI-injected touch through observed backend/view/editor state; includes injection and polling; not frame presentation latency",
+  "rounds": [
+    {
+      "round": 1,
+      "generation": 7,
+      "first_touch_to_preedit_observed_ms": 273.742118,
+      "first_touch_to_candidate_view_bound_ms": 325.176329,
+      "candidate_touch_to_editor_observed_ms": 139.442824
+    },
+    {
+      "round": 2,
+      "generation": 8,
+      "first_touch_to_preedit_observed_ms": 152.14612,
+      "first_touch_to_candidate_view_bound_ms": 198.437593,
+      "candidate_touch_to_editor_observed_ms": 73.528051
+    },
+    {
+      "round": 3,
+      "generation": 9,
+      "first_touch_to_preedit_observed_ms": 106.943861,
+      "first_touch_to_candidate_view_bound_ms": 162.41523,
+      "candidate_touch_to_editor_observed_ms": 64.816834
+    },
+    {
+      "round": 4,
+      "generation": 10,
+      "first_touch_to_preedit_observed_ms": 113.580408,
+      "first_touch_to_candidate_view_bound_ms": 163.456348,
+      "candidate_touch_to_editor_observed_ms": 67.416
+    },
+    {
+      "round": 5,
+      "generation": 11,
+      "first_touch_to_preedit_observed_ms": 113.515255,
+      "first_touch_to_candidate_view_bound_ms": 165.591519,
+      "candidate_touch_to_editor_observed_ms": 53.264278
+    },
+    {
+      "round": 6,
+      "generation": 12,
+      "first_touch_to_preedit_observed_ms": 112.0698,
+      "first_touch_to_candidate_view_bound_ms": 158.691402,
+      "candidate_touch_to_editor_observed_ms": 54.621472
+    }
+  ]
+}

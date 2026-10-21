@@ -1,0 +1,11 @@
+{
+  "run_id": 39134935586,
+  "artifact_id": 12140426851,
+  "source": "12ab22cd82297638bee75ef30b31b3decb21decb",
+  "sha256": "20d90be5e871fb1865009bd72103fdbc60282435bbb570f656c6bb84127389c4",
+  "status": "incomplete; invalid for complete A/B latency conclusion",
+  "failed_trials": 14,
+  "foxy_complete_trials": 0,
+  "direct_complete_trials": 10,
+  "note": "Keyboard-visible only, no session-ready wait. Exact APKs reused in subsequent session-ready run. All failures retained."
+}

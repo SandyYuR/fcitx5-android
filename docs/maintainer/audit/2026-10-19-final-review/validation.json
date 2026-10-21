@@ -1,0 +1,40 @@
+{
+  "review_base": "1c6917887762bb12242566c55afec90281d7eab4",
+  "local_build_is_uncommitted_precheck": true,
+  "delivered_apk": "Use current PR-head Commit CI signed Release and source.txt; do not distribute the local unsigned precheck APK under the old base SHA.",
+  "native_prebuilt_gitlink": "1126616c3ec569617da772e30d7a97f6b2694172",
+  "input_logic_unchanged_from_base": {
+    "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt": "d8cf47ad0897acc7ed0c422aa2b427ec8c47f369916dfd60653d3c144859a5a3",
+    "app/src/main/java/org/fcitx/fcitx5/android/core/InputKeyGate.kt": "8bb3885b8b279da27db089dd87d92ed8d103d1a67a0689b6388c310a80097bf1",
+    "app/src/main/java/org/fcitx/fcitx5/android/core/CandidatePageReader.kt": "7ae82128ee1a687cf024ae9f3b71592ec43dabd2ffd486ebdfee4f8e1ea69808",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt": "099f7f24829425dade6db52550db8ad0490f49d2c3391bf62c55167a8bb1939d",
+    "direct-rime/src/main/cpp/engine.cpp": "27cecd97f62a2fa901e701dce4c4906f65c484a144f597b92676533816f7a104",
+    "direct-rime/src/main/cpp/engine.h": "e741b52404fded26baa0a5783d9177c6a0454c590db44538230be9ba106eb0c1",
+    "direct-rime/src/main/cpp/bridge.cpp": "1663ac15bd2ef7e574197a4b719bbb27d149087c9ef97fc52c5e26bc60555064",
+    "direct-rime/src/main/cpp/io-trace.cpp": "a3a7fe9a541e6de740841fe40cd292f4b00fa967ac3534a7749dc608a6278575",
+    "direct-rime/src/main/cpp/leveldb-open.cpp": "1f1f97dc77c29c4d346d5ddba3722cf112d0fe6c82799269d0321934f23e58b2"
+  },
+  "local_validation": {
+    "gradle": [
+      ":app:assembleFxRelease",
+      ":app:assembleFxDebug",
+      ":app:testFxDebugUnitTest",
+      ":app:assembleFxDebugAndroidTest"
+    ],
+    "final_build_seconds": 181,
+    "jvm_tests": 498,
+    "failures": 0,
+    "bound_native_audits": [
+      "release",
+      "debug"
+    ],
+    "actionlint_version": "1.7.12",
+    "bash_release_script": "pass"
+  },
+  "ci_required": [
+    "PR CI: all four ABI native maps and APK checks",
+    "Direct Rime CI: native safety, smoke and full frontend",
+    "Commit CI: signed Release, ART profile and static audit"
+  ],
+  "remaining_fcitx_origin": "Android frontend/API/IPC/identifiers and attribution; no native Fcitx Core, fcitx5-rime or AndroidFrontend build."
+}

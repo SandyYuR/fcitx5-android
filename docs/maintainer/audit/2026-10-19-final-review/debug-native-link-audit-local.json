@@ -1,0 +1,45 @@
+[
+  {
+    "apk": "io.github.sandyyur.rime.direct-nightly-0.1.3-705-g92fd34ce-20261018-015420-3-g1c691788-fx-arm64-v8a-debug.apk",
+    "elf_build_id": "34cdd607428a137b16bc90138cb7f798eedfa91d",
+    "apk_native_sha256": "69e020daf8ca2700b3c27794e3a23512f35e1fc33f00ab56b57c620ff536b756",
+    "unstripped_native_sha256": "9cc2380de4ce4d74e3f6c8a39e3d1ce422942f93d14c83b04c4615427bd67405",
+    "abi": "arm64-v8a",
+    "static_prebuilt_archives": {
+      "librime": {
+        "archive": "librime.a",
+        "objects": 128
+      },
+      "glog": {
+        "archive": "libglog.a",
+        "objects": 5
+      },
+      "marisa": {
+        "archive": "libmarisa.a",
+        "objects": 9
+      },
+      "opencc": {
+        "archive": "libopencc.a",
+        "objects": 13
+      },
+      "yaml-cpp": {
+        "archive": "libyaml-cpp.a",
+        "objects": 24
+      },
+      "leveldb": {
+        "archive": "libleveldb.a",
+        "objects": 34
+      },
+      "lua": {
+        "archive": "liblua_static.a",
+        "objects": 32
+      }
+    },
+    "ndk_archives": {
+      "libunwind.a": 4,
+      "libclang_rt.builtins-aarch64-android.a": 11
+    },
+    "fcitx_cpp_symbols": [],
+    "map_sha256": "c91b16975734722ac6a57c377f92b4ea79a98cc364111730e10d939555a63ad6"
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "resolved_module_count_before": 182,
+  "resolved_module_count_after": 180,
+  "removed": [
+    "androidx.lifecycle:lifecycle-common-java8",
+    "io.github.lucksiege:pictureselector"
+  ],
+  "added": [],
+  "sora_editor_was_never_resolved": true,
+  "shared_prebuilt_folders": [
+    "anthy-dict",
+    "boost",
+    "chewing-dict",
+    "chinese-addons-data",
+    "glog",
+    "leveldb",
+    "libchewing",
+    "libhangul",
+    "libiconv",
+    "libime",
+    "libime-jyutping",
+    "libintl-lite",
+    "librime",
+    "libthai",
+    "libuv",
+    "lua",
+    "marisa",
+    "opencc",
+    "spell-dict",
+    "yaml-cpp",
+    "zstd"
+  ]
+}

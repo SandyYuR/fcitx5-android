@@ -1,0 +1,20 @@
+{
+  "leveldb_source_sha256": "9a37f8a6174f09bd622bc723b55881dc541cd50747cbd08831c2a82d620f6d76",
+  "platform": "Linux host; not Android timing",
+  "upstream": [
+    "reuse_logs=0 existing_open_rounds=10 sync_calls=30",
+    "explicit_write_sync_calls=2 forced_bridge=0",
+    "reuse_logs=0 rollover_records_checked=400 append_failure_injected=0 fallback_sync_calls=6",
+    "reuse_logs=1 existing_open_rounds=10 sync_calls=0",
+    "explicit_write_sync_calls=1 forced_bridge=0",
+    "reuse_logs=1 rollover_records_checked=400 append_failure_injected=1 fallback_sync_calls=3"
+  ],
+  "bridged": [
+    "reuse_logs=0 existing_open_rounds=10 sync_calls=0",
+    "explicit_write_sync_calls=1 forced_bridge=1",
+    "reuse_logs=0 rollover_records_checked=400 append_failure_injected=0 fallback_sync_calls=2",
+    "reuse_logs=1 existing_open_rounds=10 sync_calls=0",
+    "explicit_write_sync_calls=1 forced_bridge=1",
+    "reuse_logs=1 rollover_records_checked=400 append_failure_injected=1 fallback_sync_calls=3"
+  ]
+}

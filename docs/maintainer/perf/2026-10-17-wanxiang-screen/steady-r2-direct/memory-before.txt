@@ -1,0 +1,59 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 573953 Realtime: 573953
+
+** MEMINFO in pid 8363 [io.github.sandyyur.rime.direct] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    36376    36344        0       58    37292    58136    41012    12890
+  Dalvik Heap    14530    14428       60      138    15384    22167    11084    11083
+ Dalvik Other    11804     5604        0        4    18348                           
+        Stack     1324     1324        0        0     1332                           
+       Ashmem       14        0        0        0      568                           
+    Other dev       22        0       16        0      344                           
+     .so mmap     8653     1016     4728       16    40952                           
+    .jar mmap     3555        0      816        0    45044                           
+    .apk mmap     1529        0      436        0     3884                           
+    .ttf mmap     1863        0     1616        0     2264                           
+    .dex mmap       14        0        0        0      872                           
+    .oat mmap       34        0        0        0     1648                           
+    .art mmap     9590     8048      148      125    23776                           
+   Other mmap    26814       32    22456        0    33212                           
+      Unknown    81035    81020        4        0    81472                           
+        TOTAL   197498   147816    30280      341   306392    80303    52096    23973
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    22624                          39160
+         Native Heap:    36344                          37292
+                Code:     8880                         107332
+               Stack:     1324                           1332
+            Graphics:        0                              0
+       Private Other:   108924
+              System:    19402
+             Unknown:                                  121276
+ 
+           TOTAL PSS:   197498            TOTAL RSS:   306392       TOTAL SWAP PSS:      341
+ 
+ Objects
+               Views:      331         ViewRootImpl:        1
+         AppContexts:        6           Activities:        0
+              Assets:       22        AssetManagers:        0
+       Local Binders:       32        Proxy Binders:       52
+       Parcel memory:        9         Parcel count:       37
+    Death Recipients:        0             WebViews:        0
+ 
+ SQL
+         MEMORY_USED:      175
+  PAGECACHE_OVERFLOW:       50          MALLOC_SIZE:       46
+ 
+ DATABASES
+      pgsz     dbsz   Lookaside(b) cache hits cache misses cache size  Dbname
+PER CONNECTION STATS
+         4       24             17     0    22     1  /data/user/0/io.github.sandyyur.rime.direct/databases/clbdb
+         4        8                    0     0     0    (attached) temp
+         4       24             60     7    23     6  /data/user/0/io.github.sandyyur.rime.direct/databases/clbdb (1)
+POOL STATS
+     cache hits  cache misses    cache size  Dbname
+              7            49            56  /data/user/0/io.github.sandyyur.rime.direct/databases/clbdb

@@ -1,0 +1,8 @@
+{
+  "run": 39090546018,
+  "status": "invalid measurement, harness failure",
+  "reason": "force-stop and instrumentation restart caused Android to select the system Latin IME; the test waited for the target keyboard",
+  "evidence": "logcat shows LatinIME Starting input, no target FcitxInputMethodService binding; fixture preparation had passed",
+  "fix_commit": "82b91e3a",
+  "counted_in_performance_results": false
+}

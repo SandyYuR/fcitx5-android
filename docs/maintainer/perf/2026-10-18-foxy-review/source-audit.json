@@ -1,0 +1,152 @@
+{
+  "review_type": "static_only",
+  "dynamic_foxy_benchmark_performed": false,
+  "production_source": "9d5c7992a772b9965f23404ca01a1a891769c3a0",
+  "archive_sha256": "5517e7dd96fcb2c8675368bef8e61d5defb0c0d3d409ed43065c9d97dee98072",
+  "foxy_revision": "5458f3c4657876d8ea16703c0ef1e8842f995dd1",
+  "native_version_evidence": {
+    "function": "_Z14RimeGetVersionv",
+    "address": "0x3d9150",
+    "string_virtual_address": "0x1c48ba",
+    "string_file_offset": "0x1c48ba",
+    "value": "1.17.0"
+  },
+  "files": {
+    "target.apk": {
+      "bytes": 13484981,
+      "sha256": "c81783716626c76469a20f1884abfeed63f05349a55ca052ee44079a01b7b80c"
+    },
+    "sources/resources/classes.dex": {
+      "bytes": 2405720,
+      "sha256": "862348fcaf7d15052e99dbf64756ef41df5acdab7a994d0c102dba07894bbbd1"
+    },
+    "sources/resources/lib/arm64-v8a/libfoxy.so": {
+      "bytes": 7920944,
+      "sha256": "2116c8b19789051a53d0a7f8de6d04668cd2c52327b88e11cee2d4e09e8268ea"
+    },
+    "sources/resources/AndroidManifest.xml": {
+      "bytes": 7489,
+      "sha256": "8c8f10cd63386625b27d36b122d41b47895e7d78d8d95dfed3f18cb05cd29d0e"
+    },
+    "sources/resources/META-INF/version-control-info.textproto": {
+      "bytes": 120,
+      "sha256": "d2d157cf4017c656cee79817d48604aca0a6fc37a7bbac0864d9a400bfaf03b9"
+    },
+    "sources/sources/com/fxliang/foxy/Rime.java": {
+      "bytes": 26524,
+      "sha256": "42bc15c3036832abf7d4140e09a863e308b99ca0f868d6d1cc69f687eee7988d"
+    },
+    "sources/sources/com/fxliang/foxy/input/RimeInputMethodService.java": {
+      "bytes": 30485,
+      "sha256": "de75a0b7ac7071c1e789f7e72c356b9bd519799aacedcf0e3dabacc0fe281a9e"
+    },
+    "sources/sources/defpackage/at0.java": {
+      "bytes": 101617,
+      "sha256": "d043b468688cc2fd99a721f9df5ca9942d38e1f8be7536a4a413a2178630f29c"
+    },
+    "sources/sources/defpackage/lq0.java": {
+      "bytes": 1817,
+      "sha256": "f4ecd3b209550643e8cbc8a9e043bad9a24d07667681f2d59c0eada2052f8d89"
+    },
+    "sources/sources/defpackage/mq0.java": {
+      "bytes": 1509,
+      "sha256": "d98f7bc1f2cbbdd45c92dad306e2f7db37db7a64fb6ff58b98e9c2fdf98b10a0"
+    },
+    "sources/sources/defpackage/pt0.java": {
+      "bytes": 15048,
+      "sha256": "6ed449ce0f073378d4c452996bce2fd1bcd6fed29ed60afcb3f01db0ac1df61c"
+    },
+    "sources/sources/defpackage/fq0.java": {
+      "bytes": 2631,
+      "sha256": "cad42cb10a29ce1efe2bf01c5d440940a63fe360b5df4325a4e6fcab48b1bd66"
+    },
+    "sources/sources/defpackage/bi.java": {
+      "bytes": 3031,
+      "sha256": "d9d07ce574a2e5d57911f885a7b7300b478c26d2cc8c58f96d512ba85c5006bc"
+    },
+    "sources/sources/defpackage/ab1.java": {
+      "bytes": 32339,
+      "sha256": "a41dab7cf697c3cc89d23616100ae495bdefee6a3a1b4c792e9a31c4e3a1eb3c"
+    },
+    "sources/sources/defpackage/gf.java": {
+      "bytes": 2789,
+      "sha256": "78033b02565664937498933908a06a19953d9fe2a724b6649ac12c25768ab8e4"
+    },
+    "sources/sources/defpackage/df.java": {
+      "bytes": 624,
+      "sha256": "51f495574b035f4e237c2fbe4e23cc52f74ef2b4ddafb2449dcb0a62427d0ab3"
+    },
+    "sources/sources/defpackage/ef.java": {
+      "bytes": 2690,
+      "sha256": "3d4a26b24eb7e88e4f595ab2a81d94bf4efcdd9a9127ff1d8be4767bf199ee0e"
+    },
+    "sources/sources/defpackage/jf.java": {
+      "bytes": 1022,
+      "sha256": "1a99217bb0ac74221dbde76b5d3d346892467d10ce3d7bc6725995ed48bd69d2"
+    },
+    "sources/sources/defpackage/hf.java": {
+      "bytes": 1119,
+      "sha256": "4e1cf235409ae9d27582d714d25762307739b1f1a4c4bf4a0135512caa1ae8af"
+    },
+    "sources/sources/defpackage/te.java": {
+      "bytes": 43640,
+      "sha256": "ed2e806bf2589f236ac67f9c6aa966e5e72422a6d32799c537658b76955e0c95"
+    },
+    "sources/sources/defpackage/j10.java": {
+      "bytes": 27328,
+      "sha256": "6f12d14c0e8b5cad4cfb4ee08d30364124e558c42d5f510c4c8ff2bc8ace4e7f"
+    },
+    "sources/sources/defpackage/ha.java": {
+      "bytes": 11197,
+      "sha256": "852b84d4b8c48aae4c51901f7af1a1ff706003661ba511ef6921954ecb2895fa"
+    },
+    "sources/sources/defpackage/kd0.java": {
+      "bytes": 1764,
+      "sha256": "dc4c8878eabb5a86f884c79bf2ddbf0b742041f9530fa7b87c608421071346fa"
+    },
+    "sources/sources/defpackage/b10.java": {
+      "bytes": 3337,
+      "sha256": "2eeb4d6964852f2dd18d327ea5a3a402890ffb52c28da3485821924faa8974b7"
+    },
+    "sources/sources/defpackage/gr0.java": {
+      "bytes": 38927,
+      "sha256": "591204278e2b32af9f35466b0e6d8c415e570133ba87f37678779d63e9af4138"
+    },
+    "smali/at0.smali": {
+      "bytes": 1053204,
+      "sha256": "20c3e97aee9dbfa9bc906265409ee833263f921f2a1670dee87a848941948d7b"
+    },
+    "smali/dh.smali": {
+      "bytes": 73286,
+      "sha256": "bab622815eedd0c71a83e95dfb1529221a88bf29d4f4d8b077e67b30bed07fe7"
+    },
+    "smali/pt0.smali": {
+      "bytes": 55297,
+      "sha256": "28956cf5233cc4aa07071df6ef73b1750cc365d8ab280a692e55f112ce06cc09"
+    },
+    "smali/ys0.smali": {
+      "bytes": 69580,
+      "sha256": "90828cead1e2a6534a52ba0a101c5a210b32c9e1cc294cb4f5765810eb6ca2f2"
+    },
+    "smali/bs0.smali": {
+      "bytes": 54646,
+      "sha256": "63d6dd8f6bf7e9f64a732cd5593aa6998ec604e696c834887e43cbaaad5ac5d3"
+    },
+    "smali/ef.smali": {
+      "bytes": 62241,
+      "sha256": "19b7f243673e92ee482344b0e8333c5fe0fcb02fbc0b9db70c62af94ed85aa84"
+    },
+    "smali/lq0.smali": {
+      "bytes": 32433,
+      "sha256": "2e479b3d47025d9c13cecc1853e0cd05d572071da7b9c47f255812a7380bbc3e"
+    },
+    "sources/sources/defpackage/is0.java": {
+      "bytes": 3894,
+      "sha256": "e021b61c03847d0d6b3f060679eb7bf72d2c5fd0a20b13c2a8d2c46e217046ae"
+    },
+    "sources/sources/defpackage/ks0.java": {
+      "bytes": 2458,
+      "sha256": "a26cc2fe36a72aa4720ea80d9d10d792371c1ca5bf3c59257b1c396dea321410"
+    }
+  }
+}

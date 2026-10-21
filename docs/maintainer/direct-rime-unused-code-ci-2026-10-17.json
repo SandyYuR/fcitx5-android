@@ -1,0 +1,67 @@
+{
+  "head_commit": "4456c110b60b898e08cbdee2fba3cd2f651da825",
+  "product_commit": "6c470b8b901f2109cc748447b6f69fad0be6fc9e",
+  "runs": [
+    {
+      "id": 39008285844,
+      "name": "PR CI",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39008285844"
+    },
+    {
+      "id": 39008285873,
+      "name": "Direct Rime experiment",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39008285873"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 117325155138,
+      "name": "Debug APK build",
+      "conclusion": "success"
+    },
+    {
+      "id": 117325155237,
+      "name": "JVM unit tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 117325155385,
+      "name": "Full frontend touch and engine tests",
+      "conclusion": "success"
+    },
+    {
+      "id": 117325155463,
+      "name": "prototype",
+      "conclusion": "success"
+    },
+    {
+      "id": 117325155491,
+      "name": "Full frontend ARM64 APK",
+      "conclusion": "success"
+    },
+    {
+      "id": 117325155679,
+      "name": "android_smoke",
+      "conclusion": "success"
+    }
+  ],
+  "ui_evidence": [
+    "2026-10-17T06:06:37.5821310Z Starting 6 tests on test(AVD) - 15",
+    "2026-10-17T06:06:46.2817337Z Finished 6 tests on test(AVD) - 15",
+    "2026-10-17T06:06:46.9842051Z BUILD SUCCESSFUL in 4m 49s"
+  ],
+  "apk_evidence": [
+    "2026-10-17T06:04:42.3981923Z BUILD SUCCESSFUL in 3m 42s",
+    "2026-10-17T06:04:43.7662682Z {\"apk\": \"app/build/outputs/apk/fx/debug/io.github.sandyyur.rime.direct-nightly-0.1.3-702-gcecea494-20261017-055949-34-gfb8357c0-fx-arm64-v8a-debug.apk\", \"native_libraries\": [\"lib/arm64-v8a/libc++_shared.so\", \"lib/arm64-v8a/libdirect-rime.so\"], \"fcitx_dependencies\": [], \"legacy_backend_classes\": [], \"dex_files_checked\": 22, \"page_size\": 16384, \"required_alignment_by_abi\": {\"arm64-v8a\": 16384}}",
+    "2026-10-17T06:04:43.7666983Z {\"apk\": \"app/build/outputs/apk/fx/debug/io.github.sandyyur.rime.direct-nightly-0.1.3-702-gcecea494-20261017-055949-34-gfb8357c0-fx-armeabi-v7a-debug.apk\", \"native_libraries\": [\"lib/armeabi-v7a/libc++_shared.so\", \"lib/armeabi-v7a/libdirect-rime.so\"], \"fcitx_dependencies\": [], \"legacy_backend_classes\": [], \"dex_files_checked\": 22, \"page_size\": 4096, \"required_alignment_by_abi\": {\"armeabi-v7a\": 4096}}",
+    "2026-10-17T06:04:43.7671034Z {\"apk\": \"app/build/outputs/apk/fx/debug/io.github.sandyyur.rime.direct-nightly-0.1.3-702-gcecea494-20261017-055949-34-gfb8357c0-fx-x86-debug.apk\", \"native_libraries\": [\"lib/x86/libc++_shared.so\", \"lib/x86/libdirect-rime.so\"], \"fcitx_dependencies\": [], \"legacy_backend_classes\": [], \"dex_files_checked\": 22, \"page_size\": 4096, \"required_alignment_by_abi\": {\"x86\": 4096}}",
+    "2026-10-17T06:04:43.7674952Z {\"apk\": \"app/build/outputs/apk/fx/debug/io.github.sandyyur.rime.direct-nightly-0.1.3-702-gcecea494-20261017-055949-34-gfb8357c0-fx-x86_64-debug.apk\", \"native_libraries\": [\"lib/x86_64/libc++_shared.so\", \"lib/x86_64/libdirect-rime.so\"], \"fcitx_dependencies\": [], \"legacy_backend_classes\": [], \"dex_files_checked\": 22, \"page_size\": 16384, \"required_alignment_by_abi\": {\"x86_64\": 16384}}"
+  ],
+  "native_evidence": [
+    "2026-10-17T06:00:58.5280976Z ##[group]Run c++ -std=c++17 -Wall -Wextra -Werror -pthread -fsanitize=address,undefined -g \\",
+    "2026-10-17T06:00:58.5281753Z \u001b[36;1mc++ -std=c++17 -Wall -Wextra -Werror -pthread -fsanitize=address,undefined -g \\\u001b[0m",
+    "2026-10-17T06:02:37.2864925Z BUILD SUCCESSFUL in 1m 36s"
+  ]
+}

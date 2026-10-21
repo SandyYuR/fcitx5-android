@@ -1,0 +1,22 @@
+{
+  "run": 39102646488,
+  "artifact": 12127171867,
+  "files": [
+    {
+      "file": "after-1.perfetto-trace",
+      "size": 12371697,
+      "sha256": "ef592be8f2f003a661ee117e41e188b14871fa4e81bf2a3ed21427ca835233da"
+    },
+    {
+      "file": "before-1.perfetto-trace",
+      "size": 12301468,
+      "sha256": "ce07201027a84f6893cbef92dafcf719acf50e8ed071aca4ad85c4cf757c935b"
+    },
+    {
+      "file": "fcitx-1.perfetto-trace",
+      "size": 12715151,
+      "sha256": "326f7c30b15985cffc0729801ea3f9a23229b6a642ea818ddf82c8ed040432dd"
+    }
+  ],
+  "retention": "Raw traces in Actions artifact; extracted per-event records and SQL results preserved here"
+}

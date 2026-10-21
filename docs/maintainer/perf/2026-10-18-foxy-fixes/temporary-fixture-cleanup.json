@@ -1,0 +1,12 @@
+{
+  "branch": "perf/foxy-ci-fixture-2026-10-18",
+  "fixture_commit": "254e0117863a60da0e06c39736212fbed00f6497",
+  "authorization": "User explicitly authorized temporary public upload of the exact original APK for Actions testing",
+  "remote_branch_deleted": true,
+  "remote_absence_verified_at_utc": "2026-10-18 20:41:52 UTC",
+  "delete_method": "atomic force-with-lease against the original fixture commit; no unrelated branch deleted",
+  "limits": "Remote ref deletion does not revoke copies obtained during public availability or guarantee removal of orphan Git objects",
+  "feature_tree_contains_original_foxy_apk": false,
+  "workflow": "manual-only; explicit fixture commit required; no automatic deleted-branch reference",
+  "default_branch_write_performed": false
+}

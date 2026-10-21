@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/SandyYuR/librime",
+  "maintenance_branch": "zhongzhou",
+  "upstream_repository": "https://github.com/rime/librime",
+  "upstream_commit": "1b3417d2b6a11b5e50e0e1fa9dc396056aa11dce",
+  "migration": {
+    "prebuilder_commit": "bcfb896fd531caad2e95b8a580b45fb58956f171",
+    "core_tree": "e90ec6076ac7177853dc8fac39b2a35b80590ceb",
+    "imported_patches": [
+      {
+        "name": "librime.patch",
+        "sha256": "ef2260425b9a456dbea75f103a7c6ed6e49efdcb671bb86f9c444d3099ee0af4",
+        "commit": "5d76b2cabd523e97b65f9ea5652a45d7b99a836f"
+      },
+      {
+        "name": "librime-conditional-tabs-test.patch",
+        "sha256": "e42afbcb8b2b817ff4b5e2e51fc67b4821fad8f75e1e83de3fddba1dd59a5aad",
+        "commit": "a709248562061c7a5a973a7b86b0c47495b3a04f"
+      },
+      {
+        "name": "librime-perf-syllabifier-cache-repeated-QuerySpelling-iterat.patch",
+        "sha256": "6061f33c653cd2c9fe3cb41d259168d5e65a5174bfb002f7b9e48228c5911d91",
+        "commit": "8c5951051114bf341313c2196987e622b7bdb8c2"
+      },
+      {
+        "name": "librime-perf-deploy-compile-independent-dictionaries-in-para.patch",
+        "sha256": "ff60886f88bbe1a31c77cac92b477a95a9b7b1f978c69c338d6cd9078a55bd14",
+        "commit": "5bdfe1584a760b230bffd0b5206a329e3c046df0"
+      },
+      {
+        "name": "librime-userdict-cache.patch",
+        "sha256": "09984979c03ba27ec629965d2b4fcb04729582df0f84966e138dba2206835efb",
+        "commit": "d4ae2ae1694d9026da682e84c8398b69c50afae4"
+      },
+      {
+        "name": "librime-fix-mapped-file-remap.patch",
+        "sha256": "c782ca9e96d1034487f09c902367b95cc6c2be7343e933327b0e31c306c430d2",
+        "commit": "d670754959f2e39adcc97a4c4208d139df0baec8"
+      },
+      {
+        "name": "librime-defer-composition-refresh-on-delete.patch",
+        "sha256": "7dcc7f3c0a78edf7695f551500f2ba9e76959d776140ee78b4e4ce47bb4b025a",
+        "commit": "bf1daafaec1dbb8f642d32d249d0d988dbe4f07e"
+      },
+      {
+        "name": "librime-pr1232-rewrite-filter.patch",
+        "sha256": "dc720512af1997259d91c1dfaaf6da6756ca14564bbdae2dc8f3f43ad23b1ae9",
+        "commit": "407401d24a9442a822eb2f811034ad243fb1345a"
+      },
+      {
+        "name": "librime-detect-modifications-fingerprint.patch",
+        "sha256": "1ebbcc72af6f05f8c293abf15bbd23034ce63f6d595c6f82b755e2bc4ba45f9c",
+        "commit": "02cbb3e4aab22f96fbffb91219725e49a8a990fe"
+      }
+    ],
+    "equivalence": "All tracked files match the previous ordered-patch source snapshot byte for byte.",
+    "files_compared": 382
+  },
+  "fork_commit": "446f8584eb01ab8f72b3f0b970fda3919b1c1a55",
+  "prebuilder_head": "3a69d883ba163b9768570f934c601f1aeb16e4fe",
+  "prebuilder_commit": "97f3dfb707f76e7897557579630b904dc6dbb688",
+  "prebuilder_source_tag": "v0-archive-librime-fork-build-20261021",
+  "ci_run": 39578163543,
+  "source_contract_tests": 4,
+  "host_tests": 162,
+  "previous_prebuilt": "0fee61763cd40776ecaa5af3200f6b296d20262f",
+  "abis": {
+    "arm64-v8a": {
+      "archive_sha256": "8594fc925a72609450b7cbfef3ccd9ace57081248e7a07fbd11757e232ef1cdd",
+      "rime_api_sha256": "4e416573f8b8b1d23f2a5cab748e8ff70e114f141f608471924063e22010fa4b",
+      "archive_identical_to_previous": true
+    },
+    "armeabi-v7a": {
+      "archive_sha256": "f42152013c4bbc8f2f99417dcab368a2bc5782526a0b62ac9501d0050965a4f4",
+      "rime_api_sha256": "4e416573f8b8b1d23f2a5cab748e8ff70e114f141f608471924063e22010fa4b",
+      "archive_identical_to_previous": true
+    },
+    "x86": {
+      "archive_sha256": "83896aecfdb1345ba962bc1360e17d9ce2592d2ba614f5a89d01a7bd26a1438c",
+      "rime_api_sha256": "4e416573f8b8b1d23f2a5cab748e8ff70e114f141f608471924063e22010fa4b",
+      "archive_identical_to_previous": true
+    },
+    "x86_64": {
+      "archive_sha256": "4cd02a9b3b7838b7d3f0510ac9eec562cfa25fa9af00fcf3b9ff34cbe073e6d9",
+      "rime_api_sha256": "4e416573f8b8b1d23f2a5cab748e8ff70e114f141f608471924063e22010fa4b",
+      "archive_identical_to_previous": true
+    }
+  },
+  "prebuilt_commit": "d297ddee183b437d0fd8c9bdf37eced6ec8d09cd",
+  "fcitx5_rime_archived": true,
+  "branch_refs_preserved": true,
+  "application_checks": "PR #4 records exact APK source and verification"
+}

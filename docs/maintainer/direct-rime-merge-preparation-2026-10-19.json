@@ -1,0 +1,107 @@
+{
+  "date_utc": "2026-10-19",
+  "pull_request": "https://github.com/SandyYuR/fcitx5-android/pull/4",
+  "package": "io.github.sandyyur.rime.direct",
+  "original_head": "6c26350f0961fccac99cfa322d057a61384fdd79",
+  "original_commits": 77,
+  "accepted_release_source": "9adb694932df4340bc48d359af2c788ad6809f3e",
+  "accepted_apk_sha256": "966c17b7f8482e053f72f82802f621ee48bcb093d1189c7dd6c5b8886e4ad5ba",
+  "target_base": "92fd34ce060cb4625d99066443d294c453c4c693",
+  "integrated_tree_before_cleanup": "d57a9d61df383811b1f277927266262cf8fb94fa",
+  "runtime_commit": "6378e2ca1afcb83c6fd778703157c08774a802d9",
+  "ci_tools_commit": "205d278dc91aed4a6f9feb9ff111bf255a8e965c",
+  "original_runtime_matches_accepted_source": true,
+  "runtime_difference_from_integrated_tree": [
+    "build-logic/convention/src/main/kotlin/ProjectExtensions.kt"
+  ],
+  "runtime_paths_checked": [
+    "app",
+    "direct-rime",
+    "native",
+    "lib",
+    "codegen",
+    "build-logic",
+    "gradle",
+    "settings.gradle.kts",
+    "prepare_personal_build.sh",
+    ".gitmodules"
+  ],
+  "engine_gitlink": "1126616c3ec569617da772e30d7a97f6b2694172",
+  "preserved_default_branch_commits": [
+    "b4b09b4af31ea088c621c6ab4d660941fdacdf09 修复(输入): 限制最近记录并优化光标日志",
+    "8aada6693848106bf27cfc9d2b356d5e0900d651 修复(剪贴板): 避免截图历史重复入库",
+    "cecea4940bb5a5db67f91d6b20e00ee5c97877ea 修复(键盘): 按当前设置解析旧版滑动方向",
+    "9d0110abf6e95aee133816b7dd0c6f5ce1280d3b 修复(剪贴板): 合并指向同一图片的 URI 条目",
+    "1713d613030d3d009ca227f04eb3eb6b62f29a69 改进(界面): 优化布局管理、编辑器配色与工具栏分节",
+    "92fd34ce060cb4625d99066443d294c453c4c693 修复(popup): 让弹出符号经 Rime 方案处理"
+  ],
+  "runtime_paths_changed_from_accepted": [
+    "app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapterViewTest.kt",
+    "app/src/main/AndroidManifest.xml",
+    "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ScreenshotClipboardWatcher.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/data/RecentlyUsed.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardManager.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/db/ClipboardDao.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/cursor/CursorTracker.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupKeyAction.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/KeyboardGroupFragment.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivity.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapter.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/LayoutKeyColors.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/LayoutKeyUi.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorActivity.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/group/SettingsGroupSpecs.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchIndex.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/utils/ClipboardUriStore.kt",
+    "app/src/main/res/values-zh-rCN/strings.xml",
+    "app/src/main/res/values-zh-rTW/strings.xml",
+    "app/src/main/res/values/strings.xml",
+    "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/LayoutKeyColorsTest.kt",
+    "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/LayoutKeyUiTest.kt",
+    "build-logic/convention/src/main/kotlin/ProjectExtensions.kt",
+    "lib/common/src/main/java/org/fcitx/fcitx5/android/common/ClipboardMetadata.kt"
+  ],
+  "archives": {
+    "v0-archive-direct-rime-history-20261019": "6c26350f0961fccac99cfa322d057a61384fdd79",
+    "v0-archive-direct-rime-proto-20261019": "aa9ec5edd13615b9af493add6cb3b67671cee842",
+    "v0-archive-fx2-integrated-20261019": "85e36f4b7529027046d0449e9bf4dc7b33e41f3a",
+    "v0-archive-fcitx-before-direct-20261019": "92fd34ce060cb4625d99066443d294c453c4c693"
+  },
+  "remove_remote_branches": {
+    "direct-rime-proto": "aa9ec5edd13615b9af493add6cb3b67671cee842",
+    "pr/fx2-integrated": "85e36f4b7529027046d0449e9bf4dc7b33e41f3a"
+  },
+  "keep_remote_branches": [
+    "fx-rime-only",
+    "feat/direct-rime-prototype",
+    "codex/md3-settings-rebuild",
+    "docs"
+  ],
+  "local_validation": {
+    "jvm": {
+      "tests": 498,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "android_test_apk_compiled": true,
+    "gradle_tasks": [
+      ":app:testFxDebugUnitTest",
+      ":app:assembleFxDebugAndroidTest"
+    ],
+    "actionlint": "1.7.12, all retained workflows; shellcheck and pyflakes disabled",
+    "release_script_bash_syntax": "pass"
+  },
+  "final_ci": "See current PR Checks and the final validation/download table in its description. Historical 9adb CI is not relabelled as a build of the integrated source.",
+  "user_feedback": {
+    "accepted_for_daily_use": true,
+    "shared_work_directory_user_words": "Recovered after stopping competing IMEs and restarting. User requested no product change; no database or learning-option changes made."
+  },
+  "history_policy": "Archive original source and evidence; keep failed Actions runs; do not silently update historical moving-model pins."
+}

@@ -1,0 +1,8 @@
+{
+  "run_id": 39160792515,
+  "artifact_id": 12149202616,
+  "sha256": "c4f2fb8ba601c0fb208e1c7700bae35de62c079499756b5ec0689a1bd75994da",
+  "valid_comparison_scope": "All 192 fresh-phase selections; 6 processes per product/case; no excluded fresh phases",
+  "invalid_scope": "Foxy rebind readiness used earlier session markers; send direct 1 case tapped while preparing, 1 case selected a different word; do not count as candidate-then-Send loss",
+  "original_conclusion": "failure"
+}

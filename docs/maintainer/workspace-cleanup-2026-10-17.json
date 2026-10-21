@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-17",
+  "deleted": [
+    {
+      "path": "tmp:wanxiang-user-full-pinyin.zip",
+      "logical_bytes": 469746326,
+      "reason": "Reproducible official Wanxiang performance fixture/model; source pins and results retained",
+      "sha256": "8c9c5bb8d42552286d8b052353aa87b14c835b7882a58f8c2a9487bcab33e293"
+    },
+    {
+      "path": "tmp:wanxiang-pinned-fixture.zip",
+      "logical_bytes": 469746106,
+      "reason": "Reproducible official Wanxiang performance fixture/model; source pins and results retained",
+      "sha256": "b02fc8d87352564ac25f025caeb6e4a474c37a002f1c23f02e14b837a64be34c"
+    },
+    {
+      "path": "tmp:rime-wanxiang-full-perf.zip",
+      "logical_bytes": 469746106,
+      "reason": "Reproducible official Wanxiang performance fixture/model; source pins and results retained",
+      "sha256": "eefae59dfa46a7b0b173be2abd89a2cef955d5c8f293a256ab12fd4f6ed5e709"
+    },
+    {
+      "path": "tmp:wanxiang-lts-zh-hans.gram",
+      "logical_bytes": 398391340,
+      "reason": "Reproducible official Wanxiang performance fixture/model; source pins and results retained",
+      "sha256": "20f968dfe5dc461d23c355b93aa63925d6d36a5fb8f459ccd5c4dcd1cae6e6b9"
+    },
+    {
+      "path": "workspace:avd/direct-rime-test.avd",
+      "logical_bytes": 2969012918,
+      "reason": "Disposable session test AVD; no emulator running"
+    },
+    {
+      "path": "workspace:avd/direct-rime-test.ini",
+      "logical_bytes": 82,
+      "reason": "Disposable session test AVD configuration",
+      "sha256": "3828e27f0550d3a186cc9f48157e4c61028b92a1804943ea2c015e25fa21adfb"
+    },
+    {
+      "path": "workspace:retired-fcitx-2026-10-17",
+      "logical_bytes": 561513791,
+      "reason": "Old backend working copies; tracked source retained in Git and source-only archive"
+    },
+    {
+      "path": "app/build",
+      "logical_bytes": 782350958,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "app/.cxx",
+      "logical_bytes": 113023249,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "direct-rime/build",
+      "logical_bytes": 100623188,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "direct-rime/.cxx",
+      "logical_bytes": 3792449,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "lib/common/build",
+      "logical_bytes": 4526332,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "codegen/build",
+      "logical_bytes": 662409,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "build",
+      "logical_bytes": 130447,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "build-logic/convention/build",
+      "logical_bytes": 3900129,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "build-logic/.gradle",
+      "logical_bytes": 246154,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "build-logic/.kotlin",
+      "logical_bytes": 0,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": ".gradle",
+      "logical_bytes": 30221341,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": ".kotlin",
+      "logical_bytes": 0,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "app/src/main/assets/usr",
+      "logical_bytes": 6267710,
+      "reason": "Regenerable ignored build output or generated assets"
+    },
+    {
+      "path": "app/src/main/assets/descriptor.json",
+      "logical_bytes": 18866,
+      "reason": "Regenerable ignored build output or generated assets"
+    }
+  ],
+  "preserved": [
+    "SDK/NDK/JDK",
+    "global Gradle cache",
+    "android-user/debug.keystore",
+    "user attachments",
+    "Git history"
+  ],
+  "branches": {
+    "deleted": [
+      "perf/direct-rime-wanxiang-20261016",
+      "perf/fcitx-direct-profile-20261017",
+      "perf/fcitx-vs-direct-20261017",
+      "perf/fcitx-vs-direct-user-20261017"
+    ],
+    "merged_into": "4456c110b60b898e08cbdee2fba3cd2f651da825",
+    "unique_commits_each": 0
+  },
+  "logical_bytes_removed": 6383919901,
+  "local_artifact_index": "artifacts/artifact-index-2026-10-17.json"
+}

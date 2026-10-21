@@ -1,0 +1,34 @@
+"name","offset_ms","ms","thread","process","depth"
+"dispatchInputEvent MotionEvent ACTION_UP deviceId=-1 source=0x1002 historySize=0",-0.291000,1.544000,"yur.rime.direct","io.github.sandyyur.rime.direct",0
+"deliverInputEvent src=0x1002 eventTimeNano=185651000000 id=0xfb2c0e37",-0.265000,1.517000,"yur.rime.direct","io.github.sandyyur.rime.direct",1
+"ViewPostImeInputStage id=0xfb2c0e37",-0.011000,1.224000,"yur.rime.direct","io.github.sandyyur.rime.direct",2
+"View#onTouchEvent",0.114000,1.088000,"yur.rime.direct","io.github.sandyyur.rime.direct",3
+"JIT compiling boolean android.view.View$AccessibilityDelegate.onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent) (kind=Baseline) from /system/framework/framework.jar!classes4.dex",1.572000,0.554000,"Jit thread pool","io.github.sandyyur.rime.direct",0
+"rime.direct.select_candidate",2.119000,7.092000,"rime-main","io.github.sandyyur.rime.direct",0
+"rime.direct.consume",10.254000,0.850000,"yur.rime.direct","io.github.sandyyur.rime.direct",0
+"rime.direct.commit",10.271000,0.830000,"yur.rime.direct","io.github.sandyyur.rime.direct",1
+"JIT compiling void com.android.internal.inputmethod.IRemoteInputConnection$Stub$Proxy.commitText(com.android.internal.inputmethod.InputConnectionCommandHeader, java.lang.CharSequence, int) (kind=Baseline) from /system/framework/framework.jar!classes4.dex",10.851000,9.370000,"Jit thread pool","io.github.sandyyur.rime.direct",0
+"Compiling baseline",10.853000,9.285000,"Jit thread pool","io.github.sandyyur.rime.direct",1
+"collectFcitxEvent",11.228000,0.742000,"yur.rime.direct","io.github.sandyyur.rime.direct",0
+"collectFcitxEvent",12.269000,2.077000,"yur.rime.direct","io.github.sandyyur.rime.direct",0
+"Choreographer#doFrame 3764",14.460000,11.903000,"yur.rime.direct","io.github.sandyyur.rime.direct",0
+"traversal",14.469000,11.886000,"yur.rime.direct","io.github.sandyyur.rime.direct",1
+"measure",14.485000,2.397000,"yur.rime.direct","io.github.sandyyur.rime.direct",2
+"VRI[InputMethod]-relayoutWindow#first=false/resize=false/vis=false/params=true/force=false",16.964000,2.465000,"yur.rime.direct","io.github.sandyyur.rime.direct",2
+"layout",19.435000,0.401000,"yur.rime.direct","io.github.sandyyur.rime.direct",2
+"draw-VRI[InputMethod]",24.449000,1.750000,"yur.rime.direct","io.github.sandyyur.rime.direct",2
+"postAndWait",24.715000,1.481000,"yur.rime.direct","io.github.sandyyur.rime.direct",3
+"DrawFrames 3764",25.830000,4.464000,"RenderThread","io.github.sandyyur.rime.direct",0
+"syncFrameState",25.849000,0.334000,"RenderThread","io.github.sandyyur.rime.direct",1
+"prepareTree",25.855000,0.327000,"RenderThread","io.github.sandyyur.rime.direct",2
+"Drawing  0.00  0.00 320.00 640.00",26.264000,4.028000,"RenderThread","io.github.sandyyur.rime.direct",1
+"flush commands",27.262000,1.020000,"RenderThread","io.github.sandyyur.rime.direct",2
+"eglSwapBuffersWithDamageKHR",28.297000,1.933000,"RenderThread","io.github.sandyyur.rime.direct",2
+"rcCreateSyncKHR encode",28.306000,1.647000,"RenderThread","io.github.sandyyur.rime.direct",3
+"waiting for GPU completion 11",30.315000,1.663000,"GPU completion","io.github.sandyyur.rime.direct",0
+"waitForever",30.316000,1.660000,"GPU completion","io.github.sandyyur.rime.direct",1
+"JIT compiling void android.inputmethodservice.IInputMethodSessionWrapper.updateSelection(int, int, int, int, int, int) (kind=Baseline) from /system/framework/framework.jar!classes2.dex",34.638000,0.895000,"Jit thread pool","io.github.sandyyur.rime.direct",0
+"Compiling baseline",34.641000,0.890000,"Jit thread pool","io.github.sandyyur.rime.direct",1
+"Lock contention on Jit code cache (owner tid: 2907)",34.780000,0.483000,"yur.rime.direct","io.github.sandyyur.rime.direct",0
+"JIT compiling android.os.Message com.android.internal.os.HandlerCaller.obtainMessageIIIIII(int, int, int, int, int, int, int) (kind=Baseline) from /system/framework/framework.jar!classes5.dex",35.541000,0.529000,"Jit thread pool","io.github.sandyyur.rime.direct",0
+"Compiling baseline",35.543000,0.527000,"Jit thread pool","io.github.sandyyur.rime.direct",1

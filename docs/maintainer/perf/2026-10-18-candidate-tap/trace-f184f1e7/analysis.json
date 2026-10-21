@@ -1,0 +1,17 @@
+{
+  "trace": "after-1.perfetto-trace",
+  "source": "f184f1e76b877607c5fd72d5d0895a170a71a639",
+  "ime_pid": 2903,
+  "editor_pid": 2980,
+  "editor_process_identity": "Logcat Start proc names io.github.sandyyur.inputbench; process_stats kept an early zygote64 label, so SQL uses the verified PID",
+  "first_select_dispatch_up_ns": 185652444703,
+  "editor_input_connection_ns": 185663423160,
+  "editor_text_change_ns": 185686067604,
+  "first_key_thread_state_ms": {
+    "Running": 20.011,
+    "R": 4.325,
+    "D": 42.606
+  },
+  "kernel_wait_attribution": "No blocked_function, io_wait or per-file fault attribution captured; do not assume a specific file",
+  "trace_config_warning": "config_write_into_file_no_flush; later tool adds flush_period_ms=1000"
+}

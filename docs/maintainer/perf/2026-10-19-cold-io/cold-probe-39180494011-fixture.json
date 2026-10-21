@@ -1,0 +1,24 @@
+{
+  "sources": [
+    [
+      "rime-wanxiang-base.zip",
+      "https://github.com/amzxyz/rime-wanxiang/releases/download/v18.1.3/rime-wanxiang-base.zip",
+      "fc6495ba8489a898737ca29883dedaf61ff3baf593c78900dc59102c919d0e63"
+    ],
+    [
+      "wanxiang-lts-zh-hans.gram",
+      "https://github.com/amzxyz/rime-wanxiang-data/releases/download/LTS/wanxiang-lts-zh-hans.gram",
+      "1849e5e4acbdbfaf41fceeb86b739d5d0c85d574bd8a688562cba1e6beb78488"
+    ]
+  ],
+  "model_asset_id": 650124920,
+  "model_updated_at": "2026-10-17T09:59:19Z",
+  "config_sha256": {
+    "user.yaml": "dd82ae3dc637e850446eb6e4170d916bb3d628b08d85572096c6b4c62ccb9a57",
+    "wanxiang.custom.yaml": "42bf76351ceb6f2db87396ae13edf9d9914712a065a61cdf74c66c52900c1319"
+  },
+  "fixture_sha256": "1193ad6abe18732a677c45da9b7f9a075606b7b98172a48e8bfebb1b5ee9d742",
+  "runtime_user_adjustment": "Add var/option/context_reorder: true; all other uploaded YAML content preserved",
+  "diagnostic_fixture_sha256": "bc7ee123e645dee398b0defaf106ba6f889f73930a18f283cda2faa1622a0270",
+  "diagnostic_lua_sha256": "cb05905a813e38223980ed71ad653d86146221d1a8ae3596fc24a065892ba3f9"
+}

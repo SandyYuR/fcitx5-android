@@ -1,0 +1,35 @@
+"name","offset_ms","ms","name","depth"
+"JIT compiling boolean android.view.View.performHapticFeedback(int, int) (kind=Baseline) from /system/framework/framework.jar!classes4.dex",-5.633000,7.381000,"Jit thread pool",0
+"Compiling baseline",-5.632000,7.379000,"Jit thread pool",1
+"dispatchInputEvent MotionEvent ACTION_UP deviceId=-1 source=0x1002 historySize=0",-4.680000,4.547000,"yur.rime.direct",0
+"deliverInputEvent src=0x1002 eventTimeNano=185281000000 id=0xf693f630",-4.655000,4.522000,"yur.rime.direct",1
+"ViewPostImeInputStage id=0xf693f630",-4.620000,4.075000,"yur.rime.direct",2
+"View#onTouchEvent",-4.556000,3.986000,"yur.rime.direct",3
+"KeyView ACTION_UP dispatch",-3.465000,2.565000,"yur.rime.direct",4
+"rime.direct.process_key",0.000000,66.942000,"rime-main",0
+"JIT compiling void android.media.AudioManager.playSoundEffect(int, float) (kind=Baseline) from /system/framework/framework.jar!classes2.dex",2.976000,7.624000,"Jit thread pool",0
+"Compiling baseline",2.977000,7.618000,"Jit thread pool",1
+"JIT compiling boolean android.media.AudioManager.hasCustomPolicyVirtualDeviceContext() (kind=Baseline) from /system/framework/framework.jar!classes2.dex",10.819000,0.921000,"Jit thread pool",0
+"Compiling baseline",10.820000,0.919000,"Jit thread pool",1
+"Choreographer#doFrame 3669",11.433000,42.678000,"yur.rime.direct",0
+"traversal",11.439000,42.660000,"yur.rime.direct",1
+"draw-VRI[InputMethod]",11.541000,42.554000,"yur.rime.direct",2
+"postAndWait",11.701000,42.385000,"yur.rime.direct",3
+"DrawFrames 3669",50.541000,14.980000,"RenderThread",0
+"syncFrameState",50.585000,3.225000,"RenderThread",1
+"prepareTree",50.590000,3.218000,"RenderThread",2
+"Drawing 208.00 544.00 240.00 592.00",53.826000,11.693000,"RenderThread",1
+"flush commands",53.944000,0.703000,"RenderThread",2
+"eglSwapBuffersWithDamageKHR",54.661000,10.213000,"RenderThread",2
+"dequeueBuffer - VRI[InputMethod]#0(BLAST Consumer)0",55.625000,9.201000,"RenderThread",3
+"dequeueBuffer",55.627000,9.183000,"RenderThread",4
+"waiting for HWC release 5",64.840000,0.575000,"HWC release",0
+"waitForever",64.841000,0.572000,"HWC release",1
+"reportMetricsWithPresentTime",64.880000,0.625000,"RenderThread",2
+"getFrameTimestamps",64.882000,0.531000,"RenderThread",3
+"collectFcitxEvent",69.655000,2.810000,"yur.rime.direct",0
+"JIT compiling android.text.SpannableStringBuilder android.text.SpannableStringBuilder.replace(int, int, java.lang.CharSequence, int, int) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",72.230000,0.762000,"Jit thread pool",0
+"Compiling baseline",72.231000,0.759000,"Jit thread pool",1
+"collectFcitxEvent",72.488000,0.768000,"yur.rime.direct",0
+"JIT compiling void android.text.SpannableStringBuilder.change(int, int, java.lang.CharSequence, int, int) (kind=Baseline) from /system/framework/framework.jar!classes3.dex",73.156000,1.321000,"Jit thread pool",0
+"Compiling baseline",73.157000,1.319000,"Jit thread pool",1

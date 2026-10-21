@@ -1,0 +1,3458 @@
+{
+  "code_before": "61588f8b376d25d995014be7e92d25dd1672bf8c",
+  "docs_before": "3230bd6fe993e88a1941b069ffa85d524efe3809",
+  "application_base": "c5d4f80abf10be875b59a332c2145ecbb6f3b2ac",
+  "destination_branch": "docs",
+  "application_docs_after": 0,
+  "source_documents": 492,
+  "new_files_copied": 446,
+  "non_markdown_files_verified_byte_identical": 458,
+  "records": [
+    {
+      "source": "docs/README.md",
+      "target": "docs/direct-rime.md",
+      "source_sha256": "83cc5fd7b072bd7fb648d67d4978041cdba8dd48a05c2f84cc48f3b3a2f79882",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_AUDIT_2026-10-17.md",
+      "target": "docs/maintainer/DIRECT_RIME_AUDIT_2026-10-17.md",
+      "source_sha256": "7ff31f52c8cc74fde0143b9e1eaf830abef1254b5e2a16385a7f81600efe1acb",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md",
+      "target": "docs/maintainer/DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md",
+      "source_sha256": "37d996bb364e984b77dcf106664d1ed3fd7889c7f5ba4c19d854b1366336a377",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_CLEANUP_2026-10-17.md",
+      "target": "docs/maintainer/DIRECT_RIME_CLEANUP_2026-10-17.md",
+      "source_sha256": "07962e429a87cc46290546d0f1d491b1b72ad36d54c17a7355fa188b7dd06e17",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_COLD_IO_AND_LOG_EXPORT_2026-10-19.md",
+      "target": "docs/maintainer/DIRECT_RIME_COLD_IO_AND_LOG_EXPORT_2026-10-19.md",
+      "source_sha256": "3fd5d0befa4c7bea250b539ee7dc7880fbbdcd1044e21b9126280e22bdc32599",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_DECOUPLING_2026-10-16.md",
+      "target": "docs/maintainer/DIRECT_RIME_DECOUPLING_2026-10-16.md",
+      "source_sha256": "c3c31f8d092fc7de7f8ef745a37dc490f9c7589e02017fe0eed53df564fd61f9",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md",
+      "target": "docs/maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md",
+      "source_sha256": "ae8e433008aaf82ef382287ad7bb1616be40816444a080d5c34bb4c12ba4e3a9",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_FINAL_REVIEW_2026-10-19.md",
+      "target": "docs/maintainer/DIRECT_RIME_FINAL_REVIEW_2026-10-19.md",
+      "source_sha256": "34b95818d7301769f449ba1d0807b0d7166e3e64bc2121b9486ce48eb7046d24",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_FOXY_FIXES_2026-10-18.md",
+      "target": "docs/maintainer/DIRECT_RIME_FOXY_FIXES_2026-10-18.md",
+      "source_sha256": "da1f5e73f6dfd5c1da8f622ae82f174c79478146d373a3d0b31d727b8aae79fb",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_FOXY_REVIEW_2026-10-18.md",
+      "target": "docs/maintainer/DIRECT_RIME_FOXY_REVIEW_2026-10-18.md",
+      "source_sha256": "5a676d3fcf50879209be156f75f3b9de1665fddbe5cb34810218acc7eff1e0ac",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_FRONTEND_2026-10-16.md",
+      "target": "docs/maintainer/DIRECT_RIME_FRONTEND_2026-10-16.md",
+      "source_sha256": "3738298da6b4eeed95671b1812cbda884bc8f386bdc8fa08186ac6fcb39a5f43",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_IMPLEMENTATION_2026-10-16.md",
+      "target": "docs/maintainer/DIRECT_RIME_IMPLEMENTATION_2026-10-16.md",
+      "source_sha256": "c351c0333c3b1f01af65a83eb21ee4d66f8a2e1ef87687c8c4b574aa7931c3c6",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md",
+      "target": "docs/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md",
+      "source_sha256": "dc4700e1f0a343d946c00e01fd321c7457c426fbb6cd2d8db833bc55bc0ffcc2",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_MD3_AUDIT_2026-10-21.md",
+      "target": "docs/maintainer/DIRECT_RIME_MD3_AUDIT_2026-10-21.md",
+      "source_sha256": "3edc83adb32004e75869cc70c37d6525dba87a25d3ada7bcdbc6cf6130859fc6",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md",
+      "target": "docs/maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md",
+      "source_sha256": "6c669aef1bf462beecf25b516c6da049acf38e7e448a0baf89f87407572d0989",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md",
+      "target": "docs/maintainer/DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md",
+      "source_sha256": "7f5bbfd9d5fddea935da4af76c0509324242c393bf5fb98c7d8b610d93c3f871",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_PROTO_PERFORMANCE_REVIEW_2026-10-18.md",
+      "target": "docs/maintainer/DIRECT_RIME_PROTO_PERFORMANCE_REVIEW_2026-10-18.md",
+      "source_sha256": "efbdd7cf09a670204c1bdd4c15eedc2c71d5d3bb4707979d0d204bd3d59f73bd",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md",
+      "target": "docs/maintainer/DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md",
+      "source_sha256": "a97d2f9f01cc05730e1c3b4597cd118e19b77408791d0a4782ad871bb1792079",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21.md",
+      "target": "docs/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21.md",
+      "source_sha256": "db829e336de4ee22add62a937b3b5f1f8604a043f7015b6531a672501056c5b9",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_RESPONSIVENESS_2026-10-18.md",
+      "target": "docs/maintainer/DIRECT_RIME_RESPONSIVENESS_2026-10-18.md",
+      "source_sha256": "ccc32ba0c6dfb5e3727eb0cf19d8412deb993c7de921de301a2a2875bb73aac9",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_SCREEN_PERF_2026-10-17.md",
+      "target": "docs/maintainer/DIRECT_RIME_SCREEN_PERF_2026-10-17.md",
+      "source_sha256": "a3ec99a93ed84da534bbb9cb38a3b9138cf50933b7c62e484306a625141f0d81",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_SESSION_2026-10-17.md",
+      "target": "docs/maintainer/DIRECT_RIME_SESSION_2026-10-17.md",
+      "source_sha256": "a81ad5307de7875eb6cb7551830365c03d494086a359ae11309545d96997d7ca",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21.md",
+      "target": "docs/maintainer/DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21.md",
+      "source_sha256": "e45b0f647f70a5b1f48835bf22804d671c417036a6cdedf1032474f74aeb934d",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_UNUSED_CODE_AUDIT_2026-10-17.md",
+      "target": "docs/maintainer/DIRECT_RIME_UNUSED_CODE_AUDIT_2026-10-17.md",
+      "source_sha256": "447f694f165a8fc9c7859c1ad307e3eed03e1a0438a3cb6808fc76702ecf3cc4",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_USER_LOG_REVIEW_2026-10-18.md",
+      "target": "docs/maintainer/DIRECT_RIME_USER_LOG_REVIEW_2026-10-18.md",
+      "source_sha256": "e17c7bb1a19d078f26da0f62fbc4a6e2cea488b4af7498463c8afb592bff85bc",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_WORKSPACE_CLEANUP_2026-10-17.md",
+      "target": "docs/maintainer/DIRECT_RIME_WORKSPACE_CLEANUP_2026-10-17.md",
+      "source_sha256": "13cbfb2c101365daa85d4d38656b8d02056723b6a311a529dc6192262ba9c50d",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/MD3_UI_EXTRACTION_2026-10-21.md",
+      "target": "docs/maintainer/MD3_UI_EXTRACTION_2026-10-21.md",
+      "source_sha256": "18486ccf8901c6852aa0aa69a5c7360092765780909c4663b24e870feeb63757",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/archive/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "target": "docs/maintainer/archive/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "source_sha256": "3d16cceb9fc8c3b237f2e2ed8be9e93ab4017b256130a0c14d439ec4c5e8c299",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/archive/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "target": "docs/maintainer/archive/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "source_sha256": "fc8328b487f73679c8fe45e727e91a9e79c7ad9ae7a42b6ce1e2531ee671c276",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/apk-inventory-after-local.json",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/apk-inventory-after-local.json",
+      "source_sha256": "362c6a8ccc50ff8d0527b146c5eacd605f04e995eab5e55e6bf3702feeb64457",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/apk-inventory-before.json",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/apk-inventory-before.json",
+      "source_sha256": "f11a1da019bb31755b83aa9c3206c3044f34e2119f0b143e6b408f563a513076",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/checker-tests.json",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/checker-tests.json",
+      "source_sha256": "515213dcdda32028b3724cb9e903dce4cd4228e9f3e8912ee95a4a415468f65c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/checksums.sha256",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/checksums.sha256",
+      "source_sha256": "9a090392e88dda31f6d701ff8f8366e65637b9aac44d40ebe373e853691b97cc",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/debug-apk-audit-local.jsonl",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/debug-apk-audit-local.jsonl",
+      "source_sha256": "caea951b62a4d9be0eb5785bae90dae5ed2f01521f1b1d850186ca5cc9826881",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/debug-native-link-audit-local.json",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/debug-native-link-audit-local.json",
+      "source_sha256": "6ad969b8595ce9688a99f57e953808b767aa7d368fe4c6244f6ad79593e04bf6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/dependency-summary.json",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/dependency-summary.json",
+      "source_sha256": "202410e906cc0ee89f601c1b8481ecffdb6cfc8fbbab25f78524f1bc3bedc727",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/local-test-counts.json",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/local-test-counts.json",
+      "source_sha256": "737916cfd5b2884029f8175547d06a45ed8f6372486faf55badf19efa9cd4b3c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/release-apk-audit-local.jsonl",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/release-apk-audit-local.jsonl",
+      "source_sha256": "6987d46421403929895bbc04b6fb3ef42a4c226b79313ecefeda4f035bdcad7f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/release-native-link-audit-local.json",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/release-native-link-audit-local.json",
+      "source_sha256": "9cfc2cb0e89c3c56526d9ff381d5442a3c43292b8ef066c562a0f13c4fd61043",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/runtime-dependencies-after.txt",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/runtime-dependencies-after.txt",
+      "source_sha256": "8ae0b7240ad5a72c2a93b014f8d34c0de0bda26099cd51ee80291b5a12dc8fb3",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/runtime-dependencies-before.txt",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/runtime-dependencies-before.txt",
+      "source_sha256": "ea26c51bed9104cc7d849400c65515b59cd8be5ef19d098f5b589aafe3f8389e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/audit/2026-10-19-final-review/validation.json",
+      "target": "docs/maintainer/audit/2026-10-19-final-review/validation.json",
+      "source_sha256": "57cab587219fc555e2820305b78b1ce9fd3b3b6470c814bbf138f63f49cf5c0f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-candidate-validation-2026-10-18.json",
+      "target": "docs/maintainer/direct-rime-candidate-validation-2026-10-18.json",
+      "source_sha256": "0f3758862692e3f8c4bba63e3275a64b84e729b4705fe94a656ca20f9afa24bd",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-cleanup-validation-2026-10-17.json",
+      "target": "docs/maintainer/direct-rime-cleanup-validation-2026-10-17.json",
+      "source_sha256": "2ad69e85a319f8b5ee2d3b38b4d8856a89c882b5944791584982df57e1bef256",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-engine-update-2026-10-21.json",
+      "target": "docs/maintainer/direct-rime-engine-update-2026-10-21.json",
+      "source_sha256": "e0edbba9b806a08c49863730fa47989953363429b136b59e03ffcdcb52e67104",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-frontend-validation-2026-10-16.json",
+      "target": "docs/maintainer/direct-rime-frontend-validation-2026-10-16.json",
+      "source_sha256": "00f26e9bb354b705b4737a4428dee4d5bc5a08416539e3a6cd3aa8cfb01944c4",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-frontend/commit.png",
+      "target": "docs/maintainer/direct-rime-frontend/commit.png",
+      "source_sha256": "2f757eced3e51e0aa68c1929bdb462a493ba0f5695c43ab658ff6c9b083354e1",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-frontend/layout-editor.png",
+      "target": "docs/maintainer/direct-rime-frontend/layout-editor.png",
+      "source_sha256": "0df2b2e50d0fb24c41f2bd1d39ccf76e8e805b9c60eed5691f8ed12b2d846a47",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-frontend/rime-settings.png",
+      "target": "docs/maintainer/direct-rime-frontend/rime-settings.png",
+      "source_sha256": "d25c05371a5b4cdb31d830c657eff7201a8c13d411f920931f3719111beccf55",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-frontend/settings.png",
+      "target": "docs/maintainer/direct-rime-frontend/settings.png",
+      "source_sha256": "64a69e198faf0e7b8b16c034d6a90f5142e25902346cbff9b32177f6bf3ebe17",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-merge-preparation-2026-10-19.json",
+      "target": "docs/maintainer/direct-rime-merge-preparation-2026-10-19.json",
+      "source_sha256": "49e9f14f4f37876e3560201ec921abf456479b2383cddc08c14f29af53471a73",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-rebase-ready-2026-10-21.json",
+      "target": "docs/maintainer/archive/direct-rime-rebase-ready-before-docs-split-2026-10-21.json",
+      "source_sha256": "f50e3a1502991365aabf15122098af15e4b46794e821d57f3991ffd42b60f370",
+      "copied_without_changes": false,
+      "kind": "evidence",
+      "archived_before_current_metadata_update": true
+    },
+    {
+      "source": "docs/maintainer/direct-rime-release-ready-2026-10-21.json",
+      "target": "docs/maintainer/direct-rime-release-ready-2026-10-21.json",
+      "source_sha256": "08e6f38b4b2d571d86b802a50ee712bd562304f718ccaa09c84e0e93d16e08e4",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-responsiveness-validation-2026-10-18.json",
+      "target": "docs/maintainer/direct-rime-responsiveness-validation-2026-10-18.json",
+      "source_sha256": "890506d9353cb13ee0b6690a3c10babb36e6073a6f0a5fb1435231faaf22d44b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-runtime-audit-2026-10-17.json",
+      "target": "docs/maintainer/direct-rime-runtime-audit-2026-10-17.json",
+      "source_sha256": "c0ad7a44495b0d0786d9839485b835f2ca2a5532356dcbf9f9f88d7edae9da72",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-settings-validation-2026-10-17.json",
+      "target": "docs/maintainer/direct-rime-settings-validation-2026-10-17.json",
+      "source_sha256": "f2eb169bc8bdaaa8901368cb38bdfd49e7442f973fd9189ccc36fbf1fd3d67fc",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-source-maintenance-2026-10-21.json",
+      "target": "docs/maintainer/direct-rime-source-maintenance-2026-10-21.json",
+      "source_sha256": "f2156b7da407873448460213b2e62b6d65839501af2da9ff3d3eaf4ee2faaee4",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-unused-code-ci-2026-10-17.json",
+      "target": "docs/maintainer/direct-rime-unused-code-ci-2026-10-17.json",
+      "source_sha256": "fcc2108fafac9089f0a559372c11f289ec465ca8febbf32ec08bed01a5c07288",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-unused-code-validation-2026-10-17.json",
+      "target": "docs/maintainer/direct-rime-unused-code-validation-2026-10-17.json",
+      "source_sha256": "5d41d3bafee336574ae41f637be6c45c1b00a6885d95509518e256a73ab63d3b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-user-log-analysis-2026-10-18.json",
+      "target": "docs/maintainer/direct-rime-user-log-analysis-2026-10-18.json",
+      "source_sha256": "f22ed037cbf02d2aace65070d94fc50ecc3aad3ba946b9f0f184802f275d4511",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/direct-rime-validation-2026-10-16.json",
+      "target": "docs/maintainer/direct-rime-validation-2026-10-16.json",
+      "source_sha256": "c4551701b1add6a4dd410eb62e4bdb0a4c9e6beef363917d9c368b0fe922bf17",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/analysis.json",
+      "source_sha256": "192737444c4a100260099d0a011b6dfd3b4ca601ffeb525f33f58214834f727c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/comparison.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/comparison.json",
+      "source_sha256": "113c129ce41e7feb27685c82ce3a9afdba1625754e9c06ef0fb8c5cdbca0a032",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/profile-direct-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/profile-direct-instrumentation.txt",
+      "source_sha256": "28d11780f82c6c45fb2e143bf625831999da90914ea3983ec33ad0f24078c719",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/profile-direct.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/profile-direct.json",
+      "source_sha256": "ecbdce5cd4baf992c6d356ab3df5f48c793ca3f6d58c89c18e97f5c2238cba88",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round1-direct-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round1-direct-instrumentation.txt",
+      "source_sha256": "bced1c27cfe2a94ff83f6d1a54e2c647d505a50619c4e89d0215f33e1a618cec",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round1-direct.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round1-direct.json",
+      "source_sha256": "54885b93cf875bac4eca7ab6d62e0c3dd34d20868df41ff9e4e46c1767799d76",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round1-fcitx-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round1-fcitx-instrumentation.txt",
+      "source_sha256": "ba3286da0059e3e4c18b95b295d144c94dc3fb7a8cca1e602ac00b302893c584",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round1-fcitx.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round1-fcitx.json",
+      "source_sha256": "75d4024783113987b3363b602e09d897a1d837723a5652841e5e9b753deb13cc",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round2-direct-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round2-direct-instrumentation.txt",
+      "source_sha256": "6274ff7d72f3e2916bdbfa7faa6918e0897b845e33b4aa2fa5672b17f410ad24",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round2-direct.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round2-direct.json",
+      "source_sha256": "a7ab48e9ad4aa70b1ef6451165f63216b6fbfb9b814e266430b5737e3f6a3840",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round2-fcitx-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round2-fcitx-instrumentation.txt",
+      "source_sha256": "ba2805e1e8a0c62a48611888e7c09f6d96d288bba705bd44f57ac2b5b839a4e9",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round2-fcitx.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round2-fcitx.json",
+      "source_sha256": "6dde1eee779b44308eeab6627acec62c398dfe15eccc8ba3e23245bf9964d491",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round3-direct-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round3-direct-instrumentation.txt",
+      "source_sha256": "33d4a627c5173ff7e716a226505f51870da4066556232bf1d9613b75d1e36129",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round3-direct.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round3-direct.json",
+      "source_sha256": "ffba53466d8dce58de3d89bc8365336ff4473c1736f273e14f3df607db57a3cf",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round3-fcitx-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round3-fcitx-instrumentation.txt",
+      "source_sha256": "977d77a24dda94009e95c18d87b7a9c4b40fb67945c6dab15c5915e0f55944b7",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round3-fcitx.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-default-wanxiang/round3-fcitx.json",
+      "source_sha256": "8cbe53bda6961d51e8a30182afce3af2c51c5823af946e87e44fb8e8ab0a4e7d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/analysis.json",
+      "source_sha256": "771c0d0e3e47006c401faf4ae5115a14449327ad799213ddd594f680346001d6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/apk-audit.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/apk-audit.json",
+      "source_sha256": "8af7d457c7a433a9499c10bc19bfc7162b8b27c6ad2bc3d937cb1fcccf08032c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/comparison.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/comparison.json",
+      "source_sha256": "c745ecbfaffdf52d810e19b00520381c1f5a4dbb34302641b6fadf025a0879f0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/profile-direct-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/profile-direct-instrumentation.txt",
+      "source_sha256": "ff00e8047d5607181d7e880cd156f272d0cca88d87fc0b1388e42075d56c3716",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/profile-direct.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/profile-direct.json",
+      "source_sha256": "b3db12d94bda1f944d92a1bad26e91bce2d5acf486adb7ac4519c001965c063a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/provenance.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/provenance.json",
+      "source_sha256": "c88d27e3263284f1b8389dd0619a099d1241a36b4d33eee45754382a2a0ad481",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round1-direct-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round1-direct-instrumentation.txt",
+      "source_sha256": "77dbd536cdade1c605f26f4f440052c56b047d4c0389f6ba6335395681436762",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round1-direct.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round1-direct.json",
+      "source_sha256": "835b7367d433ca65f76d19b5b11982bd490fd4606e1f2a5ef45d0e12bc3a67f7",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round1-fcitx-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round1-fcitx-instrumentation.txt",
+      "source_sha256": "21146c452da7f633fd2aa94254134fd7f57100b50554368e404390442100b8b7",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round1-fcitx.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round1-fcitx.json",
+      "source_sha256": "04a8666ec20cb56d81723bb8e47fc927b93df46c87fc28598f5bc452af5a172a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round2-direct-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round2-direct-instrumentation.txt",
+      "source_sha256": "f484a814735e833c361d4abc718b4e1930986ca1ebc8d8b4fffa8d3938d9c1a3",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round2-direct.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round2-direct.json",
+      "source_sha256": "44d019ff1cab7f12c801b1d08bee22c6d89bfb06f0738bdad6ff7d4f4565a11b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round2-fcitx-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round2-fcitx-instrumentation.txt",
+      "source_sha256": "408f85cf020ec2fb7a3af5050457ab8be3c309dbc7685e3596d00c1a6289306e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round2-fcitx.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round2-fcitx.json",
+      "source_sha256": "57cd27a356f00e196ce1bf733b3c7fb917dcfb21747d2e976b61e07fedf567d7",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round3-direct-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round3-direct-instrumentation.txt",
+      "source_sha256": "62585cced290136fd13dd4185f7992c06d9aed49f4200ffa14445a72b0e626ee",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round3-direct.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round3-direct.json",
+      "source_sha256": "3a52e47f68ea65ba4c9733fa2853f6070e01a91da1af42cf954a447a8cd85cdc",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round3-fcitx-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round3-fcitx-instrumentation.txt",
+      "source_sha256": "b446e3261f93c5ab4570a4f2a54bf912775c6b8d3c5ede816fd2aa64f4eae99f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round3-fcitx.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/round3-fcitx.json",
+      "source_sha256": "2cf0600afda24729c55828320839b2caa6377573d670c747fc0db06727e6952b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/traced-profile-direct-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/traced-profile-direct-instrumentation.txt",
+      "source_sha256": "35c2097c7d5695700f7741f9c0782c45a3895e86e07e50bdb0cbe52d47e53d0e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/traced-profile-direct.json",
+      "target": "docs/maintainer/perf/2026-10-17-fcitx-user-wanxiang/traced-profile-direct.json",
+      "source_sha256": "e8806182f4b9cbcc7f4b7f97625eeee422eefb768e32caf129eb3c040877a250",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-after-smoke-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-after-smoke-instrumentation.txt",
+      "source_sha256": "9acd3efa7d6c9684a9ef2b0b7a8a8d234f302f3deb5b2f9576c08c03d3aee18b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-after-smoke.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-after-smoke.json",
+      "source_sha256": "bbdc2377a79eb3934852ce1d341369bf28ac3b17c2d4807dda763da6af6100c0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-after-wanxiang-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-after-wanxiang-instrumentation.txt",
+      "source_sha256": "37849ebc5188ec7658c3eb2428c4eb542e7ba1b1f2b227b677cd74286941520a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-after-wanxiang.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-after-wanxiang.json",
+      "source_sha256": "71d2f878c3b81dc2ef147ada7ba397c5eb25b236affae7e99a2a2368ea0d0d7d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-before-smoke-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-before-smoke-instrumentation.txt",
+      "source_sha256": "1cc86ac4ad26aa126c42d6d22937d40c68e6499d3a2f245311a5f4e8ec3a5f67",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-before-smoke.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-before-smoke.json",
+      "source_sha256": "d313aff746b455ab4ff581c3446d3de4a0c277d25feb87b5238d74f9bcc9b23d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-before-wanxiang-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-before-wanxiang-instrumentation.txt",
+      "source_sha256": "60f79c5e44b120463c2356505cf0d68f1da99f21d40e50b2d098fc37e3220693",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-before-wanxiang.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-direct/direct-stable-before-wanxiang.json",
+      "source_sha256": "1b777867a09ff68a9fe27823a2316b6ef2092896c3c7adbdb5eb2d50d7f63881",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/.gitattributes",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/.gitattributes",
+      "source_sha256": "de512cc936ccf4d4794833be11960f1f094762fb3af68fa11eaecb1e4848ca3e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/README.md",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/README.md",
+      "source_sha256": "269cbb6de892329213457a43c14ae166967a7679933e4ff6070f6d2685a708fe",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/SHA256SUMS",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/SHA256SUMS",
+      "source_sha256": "c92f70f68f14e0f79b197120423df67a70b1edbbbd46a5e641acded31cb4229c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/actions-artifacts.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/actions-artifacts.json",
+      "source_sha256": "4e3154d0889629afd9e8adb9fd14c6c29003b75798ab863375c1655776567797",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/apk-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/apk-sha256.txt",
+      "source_sha256": "487adc3845963c6b8339f566627b76e9a5909635d6b1a2c5c7fa9d8f8b73ed21",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/archive-source.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/archive-source.json",
+      "source_sha256": "d51a396e75f5e66d4dd244c5125a8f658702c24c2daa0d77482f0a0a75ef9d96",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/comparison.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/comparison.json",
+      "source_sha256": "b70203a7f3a01521d0801ab78545fec76fcc9202e05eea25f5aba94b431800ec",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/cpu.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/cpu.txt",
+      "source_sha256": "be2c774868ab58b6380711344dc30e6fa196329d266fd2967cf463b81a623015",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/display.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/display.txt",
+      "source_sha256": "4b5eb8fb6091b72b973a9697d746b9ecbad17a9b0d1728bc9e05487d9b4e2e48",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/analysis.json",
+      "source_sha256": "2ee144420ff312cd3d936132421666b0935761600ec13eaa2b5eb4412603fdd3",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/effective-schema.yaml.gz",
+      "source_sha256": "ca47ec01e45cc69d3c085bb5d2776613b4b21f5c986ef5498e7575b2def3dc0c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/ffprobe.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/ffprobe.json.gz",
+      "source_sha256": "d42bd89e503c9d8a848cebb7dc7ba37b474b6a8d69d0c13c25f04cffe7de2f42",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/host-after.json",
+      "source_sha256": "1a48778e7c39624dfdcfa97ddfde02a98e037e598b695dda5006e0993afb3e7d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/instrumentation.txt",
+      "source_sha256": "afde69040cf10a32457d6a0cf491640ed2f87e1d771f448760fd54030fa7645d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/marker.rgb.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/marker.rgb.gz",
+      "source_sha256": "d971849012ce4182adccc7b30247131fea27c86918d95867a56c27fec703adac",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/memory-after.txt",
+      "source_sha256": "efd37fed97abb98d87129ccdc72cbc222c67ee1cad0268c50ef19032d0e77c7d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/memory-before.txt",
+      "source_sha256": "c958de72a3abffb4449a13eb38c5d06212b0effcf598c161a1b4b970d33b4091",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/pts.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/pts.txt.gz",
+      "source_sha256": "1d9fd255618c5b2be0709682b5a6282ea226041651ddde8ebcce11168397d8b9",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/ready.json.gz",
+      "source_sha256": "2ab8c6e9d68aa518d84d64ce73504376e3446b254769c288c7ed6618088739d0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/result.json.gz",
+      "source_sha256": "bc3f4f8392721de71686332394181a5948be9f7823c4f882139da5d4955cd673",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/schedule.json.gz",
+      "source_sha256": "17a1392452d9498366e18f1d2baf5f096ed00c8c492c4c73590cb3872df2bd75",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/screenrecord.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/screenrecord.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/trace.tsv.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-direct/trace.tsv.gz",
+      "source_sha256": "f423918f33120c85a267b82fea741313cce859d8c0609fc3432d0296bd9c9ec8",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/analysis.json",
+      "source_sha256": "1aa3865c6eb3b4599df090b5cbe5523efe1773402987e2cb25d106680ef0cd9b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/effective-schema.yaml.gz",
+      "source_sha256": "054578d293d4ea13ef83de5d9ff32d93b3921382582139d325647ebdfc5158a2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/ffprobe.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/ffprobe.json.gz",
+      "source_sha256": "212c2ddf36994fc6161bb9b4f4bb5b8719ede49ad0bc0bcbeeab2149acd66869",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/host-after.json",
+      "source_sha256": "eca16a38d0ab39e01b7a38bdef0ee19c7c4a26cf6ce79b311cdd639f161bc37d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/instrumentation.txt",
+      "source_sha256": "54aa6b305e4aa8630bd0af0bad02c61b18023cd3f6acad79c62023b255ff7220",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/marker.rgb.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/marker.rgb.gz",
+      "source_sha256": "dbf46785776276ca25267e09f3c478f6f3989a4619f53bc9970e3514ebbc1dd9",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/memory-after.txt",
+      "source_sha256": "5ce8ac07e384822e66acceffc6b1d55c978e9130b92b44cd7695ab54c03f715e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/memory-before.txt",
+      "source_sha256": "bb3a03cbfaa141227c588cdac189a0111d06502828c02d18cccc540e007dae74",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/pts.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/pts.txt.gz",
+      "source_sha256": "d7cf2f6c46706ed7ed8c8f5c89bd42fbf418d482f78fa6bd1c2c1370741279e0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/ready.json.gz",
+      "source_sha256": "eb05667ab12ca2c02ac0ed86dee8b44004554f3d726d7ca876f8a98545e0ae98",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/result.json.gz",
+      "source_sha256": "9a30872f96cffc6ea7acc806068d849a773819f1ae184fc2f384e75eff02b774",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/schedule.json.gz",
+      "source_sha256": "17a1392452d9498366e18f1d2baf5f096ed00c8c492c4c73590cb3872df2bd75",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/screenrecord.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/screenrecord.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/trace.tsv.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/fast-fcitx/trace.tsv.gz",
+      "source_sha256": "86069a44b1271c5f87d2d527cf229eb8f345312d8837e5b7da2830ff3913cd99",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/effective-schema.yaml.gz",
+      "source_sha256": "ca47ec01e45cc69d3c085bb5d2776613b4b21f5c986ef5498e7575b2def3dc0c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/host-after.json",
+      "source_sha256": "8b4b6615e0b9ccc8a17fb4e3dd335143db808b9b6994866b8d0deb731b7818d9",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/instrumentation.txt",
+      "source_sha256": "34190719259ca0f031333a01da45253b9ff7fc48c97a54f98dc5b2dcefd1f0dc",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/memory-after.txt",
+      "source_sha256": "efd37fed97abb98d87129ccdc72cbc222c67ee1cad0268c50ef19032d0e77c7d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/memory-before.txt",
+      "source_sha256": "a7173862ced5d13db8153c1be403244c14b5b864886f0b6bc0e117bcba0cd7fc",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/ready.json.gz",
+      "source_sha256": "86552431d212b485a75c98ee8a4b7bca532be4dcc9f2654e7015073f18cc3d19",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/result.json.gz",
+      "source_sha256": "c9ec7fac499641a87cf497e41e4a8ffbf06ac52050ee73bbd282e71e7a7868d0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-direct/schedule.json.gz",
+      "source_sha256": "5f4a91e9a05ee44d8ddb6e13e0108da671bb0919bcff6d32630402e728342c82",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/effective-schema.yaml.gz",
+      "source_sha256": "054578d293d4ea13ef83de5d9ff32d93b3921382582139d325647ebdfc5158a2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/host-after.json",
+      "source_sha256": "0f081c887c34e9f10032cdd742fdf65e0eaea675eafc5ac9c63376b6af366405",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/instrumentation.txt",
+      "source_sha256": "de1fdb63c4265ebb38fd9d9211f5f54aaa0a24725e28f58c4ca256945967eec1",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/memory-after.txt",
+      "source_sha256": "5ce8ac07e384822e66acceffc6b1d55c978e9130b92b44cd7695ab54c03f715e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/memory-before.txt",
+      "source_sha256": "be7825a591afca2bb0706f02f95214c49a0e4fb314c3bef7a2c5a8df702419a9",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/ready.json.gz",
+      "source_sha256": "db4dd4f0dbcb35d063f3ac503bb1cb582b06f1d61e48f4d2184e43b3d3a93c8d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/result.json.gz",
+      "source_sha256": "387cad3dfc46aaa6bb7cd0fac9212d2bc202387a68698799bac6f1b6f61125ee",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-1-fcitx/schedule.json.gz",
+      "source_sha256": "5f4a91e9a05ee44d8ddb6e13e0108da671bb0919bcff6d32630402e728342c82",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/effective-schema.yaml.gz",
+      "source_sha256": "ca47ec01e45cc69d3c085bb5d2776613b4b21f5c986ef5498e7575b2def3dc0c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/host-after.json",
+      "source_sha256": "2c92183419a16ae8717e6f9ded8970419ac7420e923ff1911b1def8218e398e3",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/instrumentation.txt",
+      "source_sha256": "0d8695adf4bc3ef5a35c2529576ffc705755c8852fccf57f6f850070d3824f8f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/memory-after.txt",
+      "source_sha256": "efd37fed97abb98d87129ccdc72cbc222c67ee1cad0268c50ef19032d0e77c7d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/memory-before.txt",
+      "source_sha256": "2fbbdc29d344e2f8a37021eb27a6eb7e9ddff2ba1a336c8c66dbdcad278c86cf",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/ready.json.gz",
+      "source_sha256": "7a6b652a6a6eea3797bbc7213a642099742a1b24f11eb848a28c231cfeaf849d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/result.json.gz",
+      "source_sha256": "08b4a392ebe7a39aa74933d4ffb7b92af8d42a6c338c0ba6f9427fae6b5f5838",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-direct/schedule.json.gz",
+      "source_sha256": "da408c47024ae388c4790a1e9fe5c76c75e89505afc206d1131350893f54b9f6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/effective-schema.yaml.gz",
+      "source_sha256": "054578d293d4ea13ef83de5d9ff32d93b3921382582139d325647ebdfc5158a2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/host-after.json",
+      "source_sha256": "06a3af36329d2ac5b42d0d552e6bed963e1f191674ce6da2236f0b7f393e92d2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/instrumentation.txt",
+      "source_sha256": "d9fd4f3baf9c7f8919ddb96b51911e5428f84b826943e27ab0b08493654ffe74",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/memory-after.txt",
+      "source_sha256": "5ce8ac07e384822e66acceffc6b1d55c978e9130b92b44cd7695ab54c03f715e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/memory-before.txt",
+      "source_sha256": "e6eea6f18fd98db0ab0b12d6938ee2cbfb651781b3d696a78908f88564fca310",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/ready.json.gz",
+      "source_sha256": "2e50ccc7df2f68b598b944f1a2f70ed91510ed2e8560a0f133fd15664f02ce7c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/result.json.gz",
+      "source_sha256": "ec6858a09fad481235a845d1fa32b347a5c6041c54090b2bf3b0febbdbf1881d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/groundtruth-2-fcitx/schedule.json.gz",
+      "source_sha256": "da408c47024ae388c4790a1e9fe5c76c75e89505afc206d1131350893f54b9f6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/analysis.json",
+      "source_sha256": "5630aec26a19eec02f92b1e2901b7187252145724f91d76db64bda8c7f447eb1",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/effective-schema.yaml.gz",
+      "source_sha256": "ca47ec01e45cc69d3c085bb5d2776613b4b21f5c986ef5498e7575b2def3dc0c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/ffprobe.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/ffprobe.json.gz",
+      "source_sha256": "398ac755f386cf15ce37369d21734fd78c59a235798b9fd2b33e50ddd7120d15",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/host-after.json",
+      "source_sha256": "a8a6788cc97ab6a14065751f1d92c60d389df48f904bc08bfbc614b6626a126c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/instrumentation.txt",
+      "source_sha256": "32212fb2fea1dfee43038dcb296b134005bb3ea9e54a67ed1dfa384081cb38e2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/marker.rgb.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/marker.rgb.gz",
+      "source_sha256": "45b122ed21ec9d2324d6b0d9fba787c9f58d02ec52784c382812b5ad9f94ea98",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/memory-after.txt",
+      "source_sha256": "efd37fed97abb98d87129ccdc72cbc222c67ee1cad0268c50ef19032d0e77c7d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/memory-before.txt",
+      "source_sha256": "2cbfe7d8e928b99c4d4e19893e31047a8e8992ac37f8d136196ca741cdd0d502",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/pts.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/pts.txt.gz",
+      "source_sha256": "43e02ea1e37be2559f9a2dc05bcccf422c19c7f97a3ef3d1beaa17d82dc06257",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/ready.json.gz",
+      "source_sha256": "2ab8c6e9d68aa518d84d64ce73504376e3446b254769c288c7ed6618088739d0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/result.json.gz",
+      "source_sha256": "1e882ff53a2dc6f640ec6c1b5f4209654475395253d670dfabf9bb835341d408",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/schedule.json.gz",
+      "source_sha256": "3362d0749457b539a8df0559fcf56a30dae5a651e8ebd25a29d7f795876b8fcb",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/screenrecord.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/screenrecord.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/trace.tsv.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-direct/trace.tsv.gz",
+      "source_sha256": "3b93ac518bcbf8d4b6a710cbe3d376544e0791ad73a112eb47fd7ac81245eb61",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/analysis.json",
+      "source_sha256": "f30a80cbcc696741e82d8d39c592002283405e2f70ac8cb07cf080c0b7090c82",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/effective-schema.yaml.gz",
+      "source_sha256": "054578d293d4ea13ef83de5d9ff32d93b3921382582139d325647ebdfc5158a2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/ffprobe.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/ffprobe.json.gz",
+      "source_sha256": "065d67ac19cdf8dfab59d0126fd195c943d19be2deff5a49c5d7171dd97cf019",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/host-after.json",
+      "source_sha256": "316d779dc2cbf14f7c87ff24cb0b212b8d419f1230352882aa4613432e9c020d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/instrumentation.txt",
+      "source_sha256": "8bc33cd7249a3b1009bdeb1b291a92f8f2b313c546aa98d7e8c63c1fd54c1a72",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/marker.rgb.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/marker.rgb.gz",
+      "source_sha256": "0c0f6cc82a33df95efc459e5cf6f53700ea6c358058010c225677c1b9f03f463",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/memory-after.txt",
+      "source_sha256": "5ce8ac07e384822e66acceffc6b1d55c978e9130b92b44cd7695ab54c03f715e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/memory-before.txt",
+      "source_sha256": "1abc82537ba76ce71751d0ea3c6deb2d62cab8f20ca89d7ad30b5c864832c792",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/pts.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/pts.txt.gz",
+      "source_sha256": "49a1a9a10a2bb82d144ffd8ffd75291f7a22735720cab5a6fcc099ad7ce42544",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/ready.json.gz",
+      "source_sha256": "eb05667ab12ca2c02ac0ed86dee8b44004554f3d726d7ca876f8a98545e0ae98",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/result.json.gz",
+      "source_sha256": "72a85fb76ca1536f968d57ccb4f882b23ee83dc301a416565d813767042da846",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/schedule.json.gz",
+      "source_sha256": "3362d0749457b539a8df0559fcf56a30dae5a651e8ebd25a29d7f795876b8fcb",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/screenrecord.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/screenrecord.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/trace.tsv.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/jitter-fcitx/trace.tsv.gz",
+      "source_sha256": "ac00eba8dc143f83dbe71bd4a3829367fe0caf7cdec4ee6f0631908b9bc26232",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/properties.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/properties.txt",
+      "source_sha256": "768002a5b3c69a3ec4336a6af524171b6493896ca623e47817d854cc3203276b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/provenance.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/provenance.json",
+      "source_sha256": "1be4a92d197e145fe31b0fcc685e6278048fafa0158e583e5bb4ec3d41035e80",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/runs.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/runs.json",
+      "source_sha256": "deee62bbc6e97059e10e0aa08cc48af607f9766e71b7c2dee4a9fc5bccf40dec",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/runtime-user.yaml",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/runtime-user.yaml",
+      "source_sha256": "ac3b6b2da6ebc3318a35c2c2ff2a2e903a6247fa5d05dbcabb6db9462936e74f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/screen-wanxiang.manifest.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/screen-wanxiang.manifest.json",
+      "source_sha256": "c5419d506c53805689179d784b83e8d5289f55556f44c6b9461a3e05cdcb5ae6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/sensitivity.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/sensitivity.json",
+      "source_sha256": "6e4efa5b6c87701c4025a5c9287ec0551262fce6544b9c200884117c1db5f07e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/after.png",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/after.png",
+      "source_sha256": "226bcb6759941d0d606adaea9253b6b3a0377e7fbc8c048464e0219796784580",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/analysis.json",
+      "source_sha256": "6fb00a29306175fbd955cb93cc5645a61a3b17413c2623eadecce394006e55b0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/before.png",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/before.png",
+      "source_sha256": "e0cc11c5ff7cdf0bc2bb919c345ed37a637b1085f628f1e677008471bbaea098",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/effective-schema.yaml.gz",
+      "source_sha256": "ca47ec01e45cc69d3c085bb5d2776613b4b21f5c986ef5498e7575b2def3dc0c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/ffprobe.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/ffprobe.json.gz",
+      "source_sha256": "2dbdbf72b97f92343be584617a64e278d6a719b82030c0a09608f7eca1eb854f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/host-after.json",
+      "source_sha256": "990d167b7b7adb896632d286a1aaa7d80b30638302c57e7a72ede0e0aceb1cb7",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/instrumentation.txt",
+      "source_sha256": "0e7df671fc0fd2a62827b0762b7bce1da380e3e51e2e8e60a856be4a112d6b14",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/marker.rgb.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/marker.rgb.gz",
+      "source_sha256": "753d55ccf19dfb0a7d42f9f85ab37b1d3e62de2b1cef6da2c28b8c6c7f0bae9f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/memory-after.txt",
+      "source_sha256": "efd37fed97abb98d87129ccdc72cbc222c67ee1cad0268c50ef19032d0e77c7d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/memory-before.txt",
+      "source_sha256": "6beb2d4d8d7e4ad49513c10b53875595d821d41effdbbcdee0e213545c7f571f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/pts.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/pts.txt.gz",
+      "source_sha256": "0daa3aad5b428d5d97fef51b27f7bc8daecad39dce6b2931292e5bba37c2ee70",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/ready.json.gz",
+      "source_sha256": "2ab8c6e9d68aa518d84d64ce73504376e3446b254769c288c7ed6618088739d0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/result.json.gz",
+      "source_sha256": "7bf869b8cdfbb2d4790bbcb2b9d0df320373850448e3ec7f0159ee8cb24c94ff",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/schedule.json.gz",
+      "source_sha256": "65bceda6fa17870c12fd3ebbd4f1ded2c61f4b53ad485c87466a4bfaf1532f4e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/screenrecord.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/screenrecord.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/trace.tsv.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-direct/trace.tsv.gz",
+      "source_sha256": "1ee5179b84b7aa014bf5503fe400f25f965a952826f8371e871e3583cfc18467",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/after.png",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/after.png",
+      "source_sha256": "226bcb6759941d0d606adaea9253b6b3a0377e7fbc8c048464e0219796784580",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/analysis.json",
+      "source_sha256": "7d6e481f40d22643a3119bfbc43f8b9f2990a24bce7f8183d2e09d666a932eaf",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/before.png",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/before.png",
+      "source_sha256": "e0cc11c5ff7cdf0bc2bb919c345ed37a637b1085f628f1e677008471bbaea098",
+      "copied_without_changes": false,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/effective-schema.yaml.gz",
+      "source_sha256": "054578d293d4ea13ef83de5d9ff32d93b3921382582139d325647ebdfc5158a2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/ffprobe.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/ffprobe.json.gz",
+      "source_sha256": "77890d95997adaed9613344a07580ebff8067d77bef0134bde0a67c6a97e8e20",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/host-after.json",
+      "source_sha256": "5fa2dd4011c9aa4f45d225ba4a29f277c7348036ebf097a99efe10709c537b3c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/instrumentation.txt",
+      "source_sha256": "71851c942aafef7dd65f3b91b8e969921c94bd54a9f4c0a7b3d284a81f8e8972",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/marker.rgb.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/marker.rgb.gz",
+      "source_sha256": "656d4cc0504378a425719aea3942fc4cdf43f68305089c3a5f6136b1e9062393",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/memory-after.txt",
+      "source_sha256": "5ce8ac07e384822e66acceffc6b1d55c978e9130b92b44cd7695ab54c03f715e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/memory-before.txt",
+      "source_sha256": "186af8372b1f03ad89d0735a03fc68ded1bd08dd6b2eb404fe0a58838db43484",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/pts.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/pts.txt.gz",
+      "source_sha256": "ca4fbc7bf55a7a2ebff449dcfe549fa7241ebb5538c1eb55907d5dd3fd317aea",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/ready.json.gz",
+      "source_sha256": "eb05667ab12ca2c02ac0ed86dee8b44004554f3d726d7ca876f8a98545e0ae98",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/result.json.gz",
+      "source_sha256": "28f6c7cb602b7dcd22ea7d1fd15268f295e84bc2608c8391768c5804b4ee0ec5",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/schedule.json.gz",
+      "source_sha256": "65bceda6fa17870c12fd3ebbd4f1ded2c61f4b53ad485c87466a4bfaf1532f4e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/screenrecord.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/screenrecord.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/trace.tsv.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r1-fcitx/trace.tsv.gz",
+      "source_sha256": "84a6b56db51152197e2c06807cb20cb4fb2cc8dfb4b6c3fad85028dc5131b555",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/analysis.json",
+      "source_sha256": "24dae77347261610cca6ddc3a039a1a60c4f70737bd59f8ad306c74728f1b449",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/effective-schema.yaml.gz",
+      "source_sha256": "ca47ec01e45cc69d3c085bb5d2776613b4b21f5c986ef5498e7575b2def3dc0c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/ffprobe.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/ffprobe.json.gz",
+      "source_sha256": "ae97b0d7d6372e13f5ce287b8b2c09a91bdbeecf5fbdfe1d004c82179f2d9ca5",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/host-after.json",
+      "source_sha256": "90acb16c792390da761cf5e472b80640e106aee8a2acd2b78b325e5f7aa1eff4",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/instrumentation.txt",
+      "source_sha256": "ac65bbb4c0634e9b3d5c3eb993feecb6dda599b258811a33e04bb8b297174ea1",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/marker.rgb.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/marker.rgb.gz",
+      "source_sha256": "222e5ce3a21d29b7a4065fb7ffb047b53858a8ce461cd9f3b3fdcb8ae3883f7b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/memory-after.txt",
+      "source_sha256": "efd37fed97abb98d87129ccdc72cbc222c67ee1cad0268c50ef19032d0e77c7d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/memory-before.txt",
+      "source_sha256": "7a1293081f43290437ca3803668c39aea7cb7a2fe1edf73a45f00de5e3b7c8fe",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/pts.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/pts.txt.gz",
+      "source_sha256": "bab7e5d23a7c3526ef14e647b70f378bc208fe61b96e5a263288365d7a2f5971",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/ready.json.gz",
+      "source_sha256": "2ab8c6e9d68aa518d84d64ce73504376e3446b254769c288c7ed6618088739d0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/result.json.gz",
+      "source_sha256": "94ca45bd0462b83f13b11896517565dd6df008d186c47c21fd5bdbb89453562b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/schedule.json.gz",
+      "source_sha256": "65bceda6fa17870c12fd3ebbd4f1ded2c61f4b53ad485c87466a4bfaf1532f4e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/screenrecord.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/screenrecord.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/trace.tsv.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-direct/trace.tsv.gz",
+      "source_sha256": "f396ef957ee3c6d462c8f64bbb439d19a19ee4bfae1a4a8836d16937d691f505",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/analysis.json",
+      "source_sha256": "dbe87ab599a41c639a3c8f9151134d26bbd348aa4f74fd7678c3308b394b6814",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/effective-schema.yaml.gz",
+      "source_sha256": "054578d293d4ea13ef83de5d9ff32d93b3921382582139d325647ebdfc5158a2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/ffprobe.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/ffprobe.json.gz",
+      "source_sha256": "988ca8f5bf2e1a90296b6f2c518ca970fb71037a7f4a62b5a6c469213ae97ed4",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/host-after.json",
+      "source_sha256": "f308b823ce6fe2f2922a1cd98e3c36c98a2bda138c34f4d1a4b4633291082219",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/instrumentation.txt",
+      "source_sha256": "5d27708f4e87f0c484200ebe1c564c31babba1fc1bde66fd0d105ffde41a82f3",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/marker.rgb.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/marker.rgb.gz",
+      "source_sha256": "23234924139f0d5d2fbac1a4bb42173f6f65adaa7d3409a80f7e9c70a6edca27",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/memory-after.txt",
+      "source_sha256": "5ce8ac07e384822e66acceffc6b1d55c978e9130b92b44cd7695ab54c03f715e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/memory-before.txt",
+      "source_sha256": "c58d76f5f790a8bf41b4715ddd462be5637d93e802e47dfb139ece7e19b181e1",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/pts.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/pts.txt.gz",
+      "source_sha256": "bce41e7476282d26c4a14fea281d495c99283594d6929af25ec70e0bf6d03d9e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/ready.json.gz",
+      "source_sha256": "eb05667ab12ca2c02ac0ed86dee8b44004554f3d726d7ca876f8a98545e0ae98",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/result.json.gz",
+      "source_sha256": "0d2eb3b70404f332a9cf49791fc4bfa7a1959aaf502790fc75317874e2fdd24f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/schedule.json.gz",
+      "source_sha256": "65bceda6fa17870c12fd3ebbd4f1ded2c61f4b53ad485c87466a4bfaf1532f4e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/screenrecord.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/screenrecord.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/trace.tsv.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r2-fcitx/trace.tsv.gz",
+      "source_sha256": "c0f6cdd8709bd46733b602a2ceebd44028bf579afda4bfb21a55f079df665ca9",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/analysis.json",
+      "source_sha256": "b89b5920700c7d99d9f41fb101593ecb011f8bcef3c994b7c3e65aa25ad1b95e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/effective-schema.yaml.gz",
+      "source_sha256": "ca47ec01e45cc69d3c085bb5d2776613b4b21f5c986ef5498e7575b2def3dc0c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/ffprobe.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/ffprobe.json.gz",
+      "source_sha256": "6f2ebe648e02473cd5f8a4ebe8bb96d1bd0602e884f22b4ca2abad3729684bb3",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/host-after.json",
+      "source_sha256": "2860ad6275348c20187ea1257428a40c37e9f8f77e305b39458536d3da47846f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/instrumentation.txt",
+      "source_sha256": "4a074c9ffb0be06b1c6cc46961dfe6482e48777f0cede45f65048ee4a20fbd7f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/marker.rgb.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/marker.rgb.gz",
+      "source_sha256": "da8fb65bddc0cf927a90c28d23058fc28083aee410e3ef12526e14606f19e607",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/memory-after.txt",
+      "source_sha256": "efd37fed97abb98d87129ccdc72cbc222c67ee1cad0268c50ef19032d0e77c7d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/memory-before.txt",
+      "source_sha256": "e9721760b09b7accdcdf88bf0d6002f2fd02f83d70888134283bb1ff8f60b5a7",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/pts.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/pts.txt.gz",
+      "source_sha256": "d41090b89b3cc87691ac3206b9e2a7e7fbb1e8d8c651fc8c325c9d078fc910b2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/ready.json.gz",
+      "source_sha256": "2ab8c6e9d68aa518d84d64ce73504376e3446b254769c288c7ed6618088739d0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/result.json.gz",
+      "source_sha256": "e2f430daa20c843209d994253ab51fd9bd331576cb9b358e3e51e41fda07f57a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/schedule.json.gz",
+      "source_sha256": "65bceda6fa17870c12fd3ebbd4f1ded2c61f4b53ad485c87466a4bfaf1532f4e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/screenrecord.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/screenrecord.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/trace.tsv.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-direct/trace.tsv.gz",
+      "source_sha256": "07cd7337ae0adbb08444db931de70b278866d9378d40dac01fb584162d04f31c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/analysis.json",
+      "source_sha256": "0acd86d3eedb042e2769dc97d64c5fb02d151930df4b99c9f6f565faa374e796",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/effective-schema.yaml.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/effective-schema.yaml.gz",
+      "source_sha256": "054578d293d4ea13ef83de5d9ff32d93b3921382582139d325647ebdfc5158a2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/ffprobe.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/ffprobe.json.gz",
+      "source_sha256": "26ffc7c9358a114ec317169597dd6ad7446d7296e652f3b54f84cb605ede9fa5",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/host-after.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/host-after.json",
+      "source_sha256": "4ff93df7b3ae536f4252f3852a625ea2ce48b875f5be0af0f5653cd332e9f8e6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/host-before.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/host-before.json",
+      "source_sha256": "098b35b4ba0d9ec8f23e038114df290f393b808147052be15c02779075168738",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/instrumentation.txt",
+      "source_sha256": "7812c91439b0c622fa05c84dbdc8eeeb1573a8371abff9904a735964fef21c9e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/marker.rgb.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/marker.rgb.gz",
+      "source_sha256": "f5e54f78ceaa3bd752f619c2a3389b9c654a0fe28f2d923ea6012ae76257a04a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/memory-after.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/memory-after.txt",
+      "source_sha256": "5ce8ac07e384822e66acceffc6b1d55c978e9130b92b44cd7695ab54c03f715e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/memory-before.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/memory-before.txt",
+      "source_sha256": "a593ce1c907b50116c18d6baea88e163249da7329c95039008fc5091077925f6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/pts.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/pts.txt.gz",
+      "source_sha256": "10677d3eb5ab0f8fd6725c61099da9e27e8ed19134748b45f1722230b2039d76",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/ready.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/ready.json.gz",
+      "source_sha256": "eb05667ab12ca2c02ac0ed86dee8b44004554f3d726d7ca876f8a98545e0ae98",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/result.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/result.json.gz",
+      "source_sha256": "5016f7cf864cc79b438c678f46078ccf24c59443a5c618bdb638c53be48257ba",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/schedule.json.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/schedule.json.gz",
+      "source_sha256": "65bceda6fa17870c12fd3ebbd4f1ded2c61f4b53ad485c87466a4bfaf1532f4e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/screenrecord.txt",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/screenrecord.txt",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/trace.tsv.gz",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/steady-r3-fcitx/trace.tsv.gz",
+      "source_sha256": "2a4e06c9341533c84fcbdc1e68fc5c3a62481664ba5d9ff8816b5ef6ec091473",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-17-wanxiang-screen/verification.json",
+      "target": "docs/maintainer/perf/2026-10-17-wanxiang-screen/verification.json",
+      "source_sha256": "f7cb836bea139a88fabe7e4ab6c62974a2e0b41d90eba6e535d7593edaef85e7",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/calibration/fallback-ime-timeout.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/calibration/fallback-ime-timeout.txt",
+      "source_sha256": "18d28fe60eba2e6fc0faf6ce33de3bcafe4fed6ef84bbc73216afa6bed3b488b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/calibration/notes.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/calibration/notes.json",
+      "source_sha256": "8495d0e31fe589fdaa69df46e4886cc235a85055d395975bb0480541767ac707",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-1.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-1.instrumentation.txt",
+      "source_sha256": "43836a783c8cc523b171d171909c4e5eb4e52cdb3281f16dd954d55e51a89ec3",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-1.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-1.json",
+      "source_sha256": "b47d1ab4ecc638570e500462f065168f29a5adeeb386fabdb79dca95fdcb4383",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-1.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-1.logcat.txt.gz",
+      "source_sha256": "0ee403c447cd972abde34b12c17e3c3d15cf8b115164b66e8ee6051821020a20",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-2.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-2.instrumentation.txt",
+      "source_sha256": "1b1cea818464b720f6a35a603a82e4cbdc091698cfee613a104487536c835303",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-2.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-2.json",
+      "source_sha256": "2cb87ce639b28f0b6a02d10f32b5f32b81597c67f774a61d11deb80064cc2770",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-2.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-2.logcat.txt.gz",
+      "source_sha256": "6d586378dba7bdb9143612354abd4d3fb0320323589cd5bfe23196c70fcb9b2a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-3.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-3.instrumentation.txt",
+      "source_sha256": "1150f09d8a287a9e1844d272db2a6fd98e66d07f5bee62612964a4bd088020dd",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-3.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-3.json",
+      "source_sha256": "e8c70ab4152145d57f77b535ea25f0a7c4e94c5d9a2673455a31597750a6ee2b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-3.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-3.logcat.txt.gz",
+      "source_sha256": "e2d841ebd4c015d233bac06b7476b33eb9361a15a5059b4adc2f6215ac5fb2c7",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-commit.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-commit.txt",
+      "source_sha256": "ceb5d5c1caa9b36ff671152b4d92d0f16bc6024b1b8741e88ced87ff56f31357",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-prepare.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/after-prepare.txt",
+      "source_sha256": "3715a9ae5248adc41744399ae9a3c451092e2f14d588343c83d93b1cffbccb45",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/apk-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/apk-sha256.txt",
+      "source_sha256": "4c46b4a3ab16a55be7ac9fa695d24ab10c186ca3c834073863019ca2a79fa8c4",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-1.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-1.instrumentation.txt",
+      "source_sha256": "8ec39f58a79e62b8fe0cdd7be52a598a03bb509cacc435cc295adcfbe011d72e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-1.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-1.json",
+      "source_sha256": "c00c25fd87074a1976b54533afb00b2d872e930db9739e44994a5386185d0990",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-1.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-1.logcat.txt.gz",
+      "source_sha256": "37b49943af71599862315038bb20c4527160928af7f7ae5d10a755da483fc81a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-2.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-2.instrumentation.txt",
+      "source_sha256": "ca82d00a3590e09a39a443d55b83baf4a2a2ef96242ed0a1d65506297e6d9068",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-2.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-2.json",
+      "source_sha256": "4b3ba1e446b2a9fcbb67d3761bd921c6a7b4bb7585acadfc8210d2d3e3afeeb4",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-2.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-2.logcat.txt.gz",
+      "source_sha256": "291c980d962386a7a5d4e471c6fdb907d0be76585c559f67e056cf9fbddd7e95",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-3.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-3.instrumentation.txt",
+      "source_sha256": "7d519094abb64204619e57da26e5e854842d606fd3f80efbbd9efb23c804ef9d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-3.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-3.json",
+      "source_sha256": "e93536f8c405c1e3402a71791816dda27dfde87208a9131d574783190bde1fb5",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-3.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-3.logcat.txt.gz",
+      "source_sha256": "7f408eb8d5e36626e22b69ba9e50580f927c1701af164d1af9ffde17402bb720",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-commit.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-commit.txt",
+      "source_sha256": "5b49a82d003f0c13e129f4b9019b80c6df97f0f15653068bffcf7b9f5b52bcbc",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-prepare.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/before-prepare.txt",
+      "source_sha256": "e9caf945c7fa3834d1ede8a98ee363a931d307067a0261b9d709e61294df1ac5",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/candidate-fixture.manifest.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/candidate-fixture.manifest.json",
+      "source_sha256": "c5419d506c53805689179d784b83e8d5289f55556f44c6b9461a3e05cdcb5ae6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/comparison.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/comparison.json",
+      "source_sha256": "63204d875da71d0de840eabd088d0f5d441140095a326c8abcd98599f6f8b1dd",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-1.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-1.instrumentation.txt",
+      "source_sha256": "fdd6e5f85614fc307a8b9f5e95bc40940c5db32cca7467e7d970a1ceb35db62b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-1.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-1.json",
+      "source_sha256": "98830b089bf92e7cb2a9eea23694dd886eebc740fb3f52f9c3ed9f801036633a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-1.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-1.logcat.txt.gz",
+      "source_sha256": "6d7839196829b1fb7f6838001864ba4e2742fa9c2c07c04bcca09bcdb9abf453",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-2.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-2.instrumentation.txt",
+      "source_sha256": "aa762a036ca81186b10349b266de81362ca00a59ab33911a7e9111f22941abbe",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-2.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-2.json",
+      "source_sha256": "994468b4f5e3d446d378fc7ab43348d092b9ec46c4013bd114d91137ab922c6e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-2.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-2.logcat.txt.gz",
+      "source_sha256": "7158c398700b6edbff21c93fefa588c2f9896ad60cdf39e9274f8d94d115f02f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-3.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-3.instrumentation.txt",
+      "source_sha256": "c75a32fda6d6dc5e8b51fb037035a1f370fb494bfef8c3f1bec14d4821930560",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-3.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-3.json",
+      "source_sha256": "52bfdb3af83d520d7a385d5df33d876b7f258940474163434b10bb539f73740d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-3.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-3.logcat.txt.gz",
+      "source_sha256": "58cdb991ff97f6ca8a221d9b04d0c478bad43831f410d74127ca99fb0d6fe793",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-commit.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-commit.txt",
+      "source_sha256": "13fd85164f900dc6befec5cb2e0315433d66801bd49ddefd79ce6b5d0fc62cf9",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-prepare.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/fcitx-prepare.txt",
+      "source_sha256": "90754ab95408c8716e4615e6e70d674b9879d7b710eabe4b4787bf654d7bd659",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/harness-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/harness-sha256.txt",
+      "source_sha256": "b02398b2ea001b1763a38f864afdd67fcf7287bebd5f5bd88a6ec32c5bed8238",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/sha256.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/sha256.json",
+      "source_sha256": "562b5dd866410c42e62211f5e182e895c8f722fd43560f5a9031515f59408a81",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/summary.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/final-9d5c7992/summary.json",
+      "source_sha256": "dc99c2dc600424a90b87bdcc6232dbbed48d87784e948237aba4faa20b18010c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-1.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-1.instrumentation.txt",
+      "source_sha256": "4a3e9c3f428fdccb43518cfe0f024c7e6a934b32897c11a42c8a39d19acf1f52",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-1.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-1.json",
+      "source_sha256": "34ba4e94968f94faf348669b28d4280fe302930e859761f8ccd0a0652daabf54",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-1.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-1.logcat.txt.gz",
+      "source_sha256": "6f80109857bdbb4992879af18a0aa15a6c4912e48147a98ab4f8bd6f396ed0ad",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-2.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-2.instrumentation.txt",
+      "source_sha256": "ec364af17f047d20784da0153d98b99e32fc1df0f56fa21684d50863b1c8d5ad",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-2.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-2.json",
+      "source_sha256": "a009c6bb13bcbefcd4d6a9b13f906fbf8f3220961e95cfeea466f5efdee40f26",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-2.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-2.logcat.txt.gz",
+      "source_sha256": "4e95c9fbd03545f831a54e624d8bf58a8794ff07a19b4a59fdb87e7fd0a12a25",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-3.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-3.instrumentation.txt",
+      "source_sha256": "76690d0882149944fa2cb235d539482db2e2a10fe60398e5c8d31506d16ef6b1",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-3.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-3.json",
+      "source_sha256": "2d6259a95fec37e22ea9ad97e4a49fc2bd3c379b942aa6d9ebacf2cb61de31c5",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-3.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-3.logcat.txt.gz",
+      "source_sha256": "095f9cb139f1891ba61989df90fe2c2e97a36e3e577bb189e7ce41350dfdd1db",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-commit.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-commit.txt",
+      "source_sha256": "9de4509fcfe2dab5126b421397563fcc6360c4acc8519ff2f2bb70bfd68e8470",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-prepare.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/after-prepare.txt",
+      "source_sha256": "8d213babc5be7f9c7c2f81732f7432b49674015b3ea6d34be1751f82f42ab5d8",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/apk-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/apk-sha256.txt",
+      "source_sha256": "29722af9aa5dd6b790a881c36157ea580b5734b98419a5748261a883e12eadc1",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-1.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-1.instrumentation.txt",
+      "source_sha256": "a7d2168237d3f104914bdaec467a3e031842d20f91fe236f89de17b7ed6d1f7a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-1.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-1.json",
+      "source_sha256": "8726f1f7c59a44213a7725e4f135a21a906a2f10deeae06b98a19a32f93e20cd",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-1.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-1.logcat.txt.gz",
+      "source_sha256": "f6cfe38f662d88cf60ed86904a926551aed3dd9dad3c7ca1e204aea57b3db100",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-2.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-2.instrumentation.txt",
+      "source_sha256": "45463740a0eb903b5e147ea30e81772155b3d48239f6cba836b7e297adc5edab",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-2.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-2.json",
+      "source_sha256": "ead59242f56d05fa93f5bd37784086e72f9f88336680a77220716d889407347c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-2.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-2.logcat.txt.gz",
+      "source_sha256": "f93eb0ef61e49415592956da281aec3eca93b63cee743714426e2a8747d26328",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-3.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-3.instrumentation.txt",
+      "source_sha256": "cba763f25c7d67a96a95fbb082de1d99649e51af0f7d283bcf22f59a9c9e6d30",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-3.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-3.json",
+      "source_sha256": "dd6b5368dccaaaeb0af90433e36636a775e32b283d9b6497b11fa0e79a362c11",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-3.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-3.logcat.txt.gz",
+      "source_sha256": "c16d4ce3492dffe14f498b68c7f060c6d3b05efbb3b15d0347d10b157e2b2b50",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-commit.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-commit.txt",
+      "source_sha256": "5b49a82d003f0c13e129f4b9019b80c6df97f0f15653068bffcf7b9f5b52bcbc",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-prepare.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/before-prepare.txt",
+      "source_sha256": "b1b06d9cc50e785f64a80d741444d67ccb4d6d57c9b95b192fe8525de53292b7",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/candidate-fixture.manifest.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/candidate-fixture.manifest.json",
+      "source_sha256": "c5419d506c53805689179d784b83e8d5289f55556f44c6b9461a3e05cdcb5ae6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/comparison.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/comparison.json",
+      "source_sha256": "7156221d91e268717f1f3ae7e68d1c7fdcf32a61d5792af17ab7dc7cfc11ad6c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-1.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-1.instrumentation.txt",
+      "source_sha256": "a74d5ba7ffd3437aee43d32ef6d594eccb201810febbc0a31decd534a44e183e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-1.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-1.json",
+      "source_sha256": "f923a58818fb342ff0d000701ca0f425bd631ddd4a9ef569a0841de251b7d8cd",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-1.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-1.logcat.txt.gz",
+      "source_sha256": "a1d032a5b9dc811678e9dfac21f3591a322cc61d4d215dfaa81b8984f8ad0fb1",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-2.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-2.instrumentation.txt",
+      "source_sha256": "efe94ffdc9f53c61d9e460f21c22afa367f5bafe2f58f11fded680a5eda8c70a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-2.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-2.json",
+      "source_sha256": "951d76a4148d5f1417b8117e06397ef200d6220172d47c1519671770fd60c425",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-2.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-2.logcat.txt.gz",
+      "source_sha256": "cdf2b747e4bdb39b9c704f9598746cc401b5c5215fdafedb2e0aa5013d9ba146",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-3.instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-3.instrumentation.txt",
+      "source_sha256": "3609216b4137914a5b47af3a6ed1f3333b66f50883495c0d9e0137008b166f67",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-3.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-3.json",
+      "source_sha256": "9c2e1904c9e736483ae4d4f0e040b20910f80e2071ca53a8fe2bfbe11e5927d0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-3.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-3.logcat.txt.gz",
+      "source_sha256": "085e043849b9350f3a4474b6ea905832e79cf8b59acc3bc59e79d4ddfc5412a0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-commit.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-commit.txt",
+      "source_sha256": "13fd85164f900dc6befec5cb2e0315433d66801bd49ddefd79ce6b5d0fc62cf9",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-prepare.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/fcitx-prepare.txt",
+      "source_sha256": "14c818baac77546e2200cf1da2177d2fadee8aa171d13f8b3492704ff9c972aa",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/harness-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/harness-sha256.txt",
+      "source_sha256": "b02398b2ea001b1763a38f864afdd67fcf7287bebd5f5bd88a6ec32c5bed8238",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/sha256.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/sha256.json",
+      "source_sha256": "1066d296576afafb50794fe70c08e92c00397dfa770fee47562c0da94b7f209a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/summary.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/initial-cache-f184f1e7/summary.json",
+      "source_sha256": "879ccb3293cc3af910e21e8341db7165fa52cced358f3f61d110fd7fffe558ff",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/after-1.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/after-1.json",
+      "source_sha256": "7bb7d9de27bda7bde537e5c60fa35429e1a08905570fb02056475d4680c35702",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/after-1.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/after-1.logcat.txt.gz",
+      "source_sha256": "9021bf133a204d13cae4936acd835c5488e8b308462194611f7a963e39d9528a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/after-slices.csv",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/after-slices.csv",
+      "source_sha256": "892d7a0fecdf8809290541780c856b235c6319219046e743ff349e5fc491ee98",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/analysis.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/analysis.json",
+      "source_sha256": "c7b40fdda610830c9ae7537017baaad0810d0c6c488cac3c75b6c430e9f9d602",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/before-1.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/before-1.json",
+      "source_sha256": "4e6119b6fc39a8c3a61c99360ab2a4a1da2b5e080d995b752490d1feece26d26",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/before-1.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/before-1.logcat.txt.gz",
+      "source_sha256": "237f75f434097336fff95902512c234c90c4c48b5f0fe6ee473e2d0fd36a8594",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/candidate-fixture.manifest.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/candidate-fixture.manifest.json",
+      "source_sha256": "c5419d506c53805689179d784b83e8d5289f55556f44c6b9461a3e05cdcb5ae6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/comparison.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/comparison.json",
+      "source_sha256": "fb6be3d61714506811736b8c616a3898697ae27acf6f8dd8aee0c6dde9cc9d81",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/editor-first-select.csv",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/editor-first-select.csv",
+      "source_sha256": "a7fdbbc46e5c17a6de6edb674edf7bf9a3ef2b33b8e083d0bda9038ae32f4933",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/editor-first-select.sql",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/editor-first-select.sql",
+      "source_sha256": "6206d6451d7409551e511fa4e54d983ac40af8e151a0585d2730f944c113582c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/fcitx-1.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/fcitx-1.json",
+      "source_sha256": "593e6cf541fdceb6bce208175613db100c87671dd3b6733bec611344990c3fc6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/fcitx-1.logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/fcitx-1.logcat.txt.gz",
+      "source_sha256": "2e75caa70fac6062ab5445bc6234404b61a2c1f433b0c08eec9ec06e4f544d79",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/first-key-thread-state.sql",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/first-key-thread-state.sql",
+      "source_sha256": "b9bac74757ca9d34654173fb362d877be76f8e9c4e06cfb256f3ba333a611cdc",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/first-key.csv",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/first-key.csv",
+      "source_sha256": "724208a993b9831e00d64bb14839cab80ca704d508b1bbe135dfce8c5fa27309",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/first-select.csv",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/first-select.csv",
+      "source_sha256": "111e5369fb692af3557bd6005bfee951668f8afade0f9c44ea7a08c039fc0bd5",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/first-select.sql",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/first-select.sql",
+      "source_sha256": "8bc9e5126b3ee92909d7e9de25e954060f926e2e7eeb2ed853db8efe38fc83f3",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/sha256.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/sha256.json",
+      "source_sha256": "3a85c1208dc0e5b88e919f87ab347ce40c66f52656d7e18c82ac62252cfedd4d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/trace-files.json",
+      "target": "docs/maintainer/perf/2026-10-18-candidate-tap/trace-f184f1e7/trace-files.json",
+      "source_sha256": "e53a700a69af353ae0588a6aa2345aea72682a422e53d1d57904ead31656408d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/README.md",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/README.md",
+      "source_sha256": "d53ad8fc346a9a0fcaf227f1a09db8b5b18150fdbe1ef913f9c6c5310588a592",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/apk-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/apk-sha256.txt",
+      "source_sha256": "8222abb66150eedb576a140fecd8652bc50e734e96f94d3a85533cf226a86876",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/apk-signature-verification.txt",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/apk-signature-verification.txt",
+      "source_sha256": "bc0b14657b33bf24534e63bb8ac3e46ad53ba3ce4c0058c30ad0cc232ef59f23",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/build-metadata.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/build-metadata.json",
+      "source_sha256": "02ca8dca6316d7a85e82272b0033f879e833f5f78ca30193888f38c2061431d9",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/checksums.sha256",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/checksums.sha256",
+      "source_sha256": "d2eab693e763173451890780fbaf4d1980baa2b7bb8555eeccbfd396dd08573a",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/current-binding-validation.zip",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/current-binding-validation.zip",
+      "source_sha256": "e14a3aaea46da9698f7db92753bfeee3401bfac5153737e93eab21f1c1f2c893",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/early-input-incomplete.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/early-input-incomplete.json",
+      "source_sha256": "4b3f17fba6ecba9ad773d6ed56e5bd94c695d5deec1863e893b0ac2f134c0e98",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/early-input-incomplete.zip",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/early-input-incomplete.zip",
+      "source_sha256": "20d90be5e871fb1865009bd72103fdbc60282435bbb570f656c6bb84127389c4",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/fresh-and-invalid-rebind-send.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/fresh-and-invalid-rebind-send.json",
+      "source_sha256": "4a04101ea08630bcce28cb9aa28522ffb5c88f021c6debe47d0b837951eadaa1",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/fresh-and-invalid-rebind-send.zip",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/fresh-and-invalid-rebind-send.zip",
+      "source_sha256": "c4f2fb8ba601c0fb208e1c7700bae35de62c079499756b5ec0689a1bd75994da",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/fresh-records.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/fresh-records.json",
+      "source_sha256": "d06afb35c1213309b4902113e484b383eba5762457a38c035c361f4a1d5b0e4f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/fresh-summary.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/fresh-summary.json",
+      "source_sha256": "acf13006756dac5bfc1af0ee341f355b3e6bfe65a8c536bef23b198b9eb7dd78",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/guard-send-observations.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/guard-send-observations.json",
+      "source_sha256": "aee217dd4bc8ba126f3efda938eddd1e723cb37a290428bba406e014c0eb89ee",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/guard-send-summary.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/guard-send-summary.json",
+      "source_sha256": "8f44ffd68780daa994b1726a24d37a5a0b5e54e414404e9281012f4656b4d38f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/guard-timed-records.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/guard-timed-records.json",
+      "source_sha256": "98f7e93906fcafd0ed229df5276f5339baa99b154eeaff436dcc734f8b82ae41",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/guard-timed-summary.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/guard-timed-summary.json",
+      "source_sha256": "d775491caaa87e9e8316abf80f31ce66a35815f153adf6125a03741200b0d2dd",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/late-commit-log-timings.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/late-commit-log-timings.json",
+      "source_sha256": "cc73061ee342eee4e0116626d738eb8ba626a6f618279a4e7a177c5fff139d28",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/packaged-profile-audit.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/packaged-profile-audit.json",
+      "source_sha256": "88dffd349be8741b36268ada819080c41ebce2dc1d7686c86104ae1b29085561",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/preedit-observer-invalid.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/preedit-observer-invalid.json",
+      "source_sha256": "a34ef51e5318bdecb4785779766368af45446781a0ff4eefcb08aa95f0885710",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/preedit-observer-invalid.zip",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/preedit-observer-invalid.zip",
+      "source_sha256": "7bec61ec7e7f8bca03be0857a1f6aedfe9b14ec1e719b3c4e61d5041b3863c95",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/resolved-baseline-prof.txt",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/resolved-baseline-prof.txt",
+      "source_sha256": "119b3ec66c8402daa88f5e52a6996b54f09c3c8eab0d2089b5afdd854026877b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/send-precondition-audit.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/send-precondition-audit.json",
+      "source_sha256": "6cf98a0377c2877f1872158da7c2de12f700387a395c0b0c1fe52323fa9994c7",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/signing.txt",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/signing.txt",
+      "source_sha256": "1f384404e2d4f0d553cd6f470fe264fd619cbc35a1c6d7f7067cea4fadf0db69",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/source.txt",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/source.txt",
+      "source_sha256": "80b9fdf449013b6b39c51c3302c4fe7e9dd1d2a29ae02db717c282c1fd6e30e2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/temporary-fixture-cleanup.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/temporary-fixture-cleanup.json",
+      "source_sha256": "a490a6142f71b85aa9d380450c3b56488c665fa10d40d6d0f4b4761bdf77a31e",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/user-log-timings.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/user-log-timings.json",
+      "source_sha256": "d5aba958a24c34861708b775646db652cce13e22aa31bb9465ab54fa0519d523",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-fixes/validation.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-fixes/validation.json",
+      "source_sha256": "bc608f8dac6ca7f933f98e687a892d900ef854ad19cf155a6394f28da9895e51",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-review/apk-audit.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-review/apk-audit.json",
+      "source_sha256": "1ffff9a2fa70d07e8ab9baa68599bb62e213263839d5ce9d883ef4eb67ad5ede",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-review/inspect_apk.py",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-review/inspect_apk.py",
+      "source_sha256": "5a8def073f49fe7d4094acc64eb43588f3a123f923245c6d67716a46ce40c6df",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-foxy-review/source-audit.json",
+      "target": "docs/maintainer/perf/2026-10-18-foxy-review/source-audit.json",
+      "source_sha256": "6a8ed5a884ec367d8ed1fc32d243583469f787ed495c1e2bf0cf57beeef41092",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/README.md",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/README.md",
+      "source_sha256": "bf760f40882c0a861d2f5150c09a0a3e6e65eb21ba45562fb92cc84064959116",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/after-commit.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/after-commit.txt",
+      "source_sha256": "5b49a82d003f0c13e129f4b9019b80c6df97f0f15653068bffcf7b9f5b52bcbc",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/after-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/after-instrumentation.txt",
+      "source_sha256": "5ca5ab6a37f282875578e437b01defb3fd71a6564926330782c6231cd0f15f37",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/after-logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/after-logcat.txt.gz",
+      "source_sha256": "f86e59325f3a9e6ca76ad50ea2a675e17bb1b0d410068a4739dee9179edbf2ac",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/after.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/after.json",
+      "source_sha256": "ac2c44bd02bd623132326a1020cbd41ded7858b6ea78de7e2ecec35a448c0be6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/apk-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/apk-sha256.txt",
+      "source_sha256": "d4b02154b0c75429b283b0869ca1c6551c8cbfa18e8eed2812413203c92dead0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/before-commit.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/before-commit.txt",
+      "source_sha256": "2335b27f086255815823b88198f96ca1832107d4d4a89283ddfe62cfc9c4acdf",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/before-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/before-instrumentation.txt",
+      "source_sha256": "9444783a6faba5009586614c0a76253a6756421ed48b56c899bb25566d67efda",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/before-logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/before-logcat.txt.gz",
+      "source_sha256": "7a4b68bbc99ad1aa7dda50f6bc7edcafa9eff689d18cc4cb47be7cf51cb6327d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/before.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/before.json",
+      "source_sha256": "9f5a0fe437fc35556f3023895189d674dd968f36b78ab07631889a46a0b6b59c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/comparison.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/comparison.json",
+      "source_sha256": "3844979856c2b0774e3f40ecdd4db15efac283105519143bd78a37d645f7e6cb",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/harness-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/harness-sha256.txt",
+      "source_sha256": "e30f88f934c80eae89f7589cd6e66bb339f4a45a1eccb351afde34e62404506c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/rebind-fixture.manifest.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/rebind-fixture.manifest.json",
+      "source_sha256": "c5419d506c53805689179d784b83e8d5289f55556f44c6b9461a3e05cdcb5ae6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/summary.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/summary.json",
+      "source_sha256": "f90be773f512bf0e4c09ff0edc3d8b698f739649789fb8bfc94c3f604227e4ef",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/after-commit.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/after-commit.txt",
+      "source_sha256": "9b3c86dd34cacd82cdcddad8ee09f1f0b7092e7bb964d5dc28a33d9f1c12798d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/after-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/after-instrumentation.txt",
+      "source_sha256": "8eeae8fd6ea1bbd8421161b1543b772fc5f4937139cbdc0b71b305fff0121983",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/after-logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/after-logcat.txt.gz",
+      "source_sha256": "4b6436c00822bda32e798972a77370560aae7e2244136b0774245753a1bffc07",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/after.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/after.json",
+      "source_sha256": "5bee5c46cd6a3cba5e0b9928db725f835f46e9f984986a133adc0689a83f01f1",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/apk-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/apk-sha256.txt",
+      "source_sha256": "bb8d2f3e77603043f7cf2b43222af62bce7f57f4aec5de996569b99138e87bc2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/before-commit.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/before-commit.txt",
+      "source_sha256": "2335b27f086255815823b88198f96ca1832107d4d4a89283ddfe62cfc9c4acdf",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/before-instrumentation.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/before-instrumentation.txt",
+      "source_sha256": "ff7f9303410985c04e8bdf3208dde9352ce4869db59d7d20475cb95c5dadfe2f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/before-logcat.txt.gz",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/before-logcat.txt.gz",
+      "source_sha256": "e6763a4ca461dd869fe64bde3ee4d2abb8bf6ae2ed606f423203f9e11e4fdc5f",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/before.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/before.json",
+      "source_sha256": "49e0738bb23ac74e7451630f0c861143ced2bb96bf34c3eaab212583e35a593b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/comparison.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/comparison.json",
+      "source_sha256": "fc846a6d6d342ca85d75c453a78ab67e01122cff56b10e84dad7a7a1a60d0d04",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/harness-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/harness-sha256.txt",
+      "source_sha256": "e30f88f934c80eae89f7589cd6e66bb339f4a45a1eccb351afde34e62404506c",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/rebind-fixture.manifest.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/rebind-fixture.manifest.json",
+      "source_sha256": "c5419d506c53805689179d784b83e8d5289f55556f44c6b9461a3e05cdcb5ae6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/summary.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/summary.json",
+      "source_sha256": "7a9679813b1c5a8f6ed539e1a1835661df261c2a87d704dd7d3fc427024aec41",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/validation.json",
+      "target": "docs/maintainer/perf/2026-10-18-rime-rebind/initial-e65cee02/validation.json",
+      "source_sha256": "617f85eb9c495a0ee743755dae724d51f5e61cc4f30559d84b59f19a915aa3b6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/README.md",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/README.md",
+      "source_sha256": "6688387d91e9fe4735150bf7994815a06f1d488e7c4cf6537f216ceb1b0f621b",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/checksums.sha256",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/checksums.sha256",
+      "source_sha256": "6c73008c380c4a49b41df1485eb594a86213cb4d95e145297180fe7cb9e909d9",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39178602959.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39178602959.json",
+      "source_sha256": "ee334d98e1282ff2eda153cc9098fa94e6bb9ff20be55d93129dfaa499db0d60",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39178602959.zip",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39178602959.zip",
+      "source_sha256": "ed98f09a44071ef2f202f0d45773650d56580f3ab0900f5c4cbdeea83bb7e3b5",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39179387776-result.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39179387776-result.json",
+      "source_sha256": "6aaf6854c306df2ff9f37ddc468f1ccd6597507bdc514b4f15573e937c8118d6",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39179387776.zip",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39179387776.zip",
+      "source_sha256": "e6fd9a5668bd4d57f5eedcf61fb87e1db848a0475453d8bce1233a98732ee27d",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39180494011-fixture.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39180494011-fixture.json",
+      "source_sha256": "408dda458614ab64ac7c7141f35084f5740887f14b2bc8b247e65701f36230e2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39180494011-result.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39180494011-result.json",
+      "source_sha256": "28d8b310b54ce596b55497801903a39901e9b52e75c341e4911745df58ab46df",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39180494011-timing.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39180494011-timing.json",
+      "source_sha256": "d090ceed3baf4ba459750898e720cb99c7d91fe37750b117569467ac4f75fdf0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39180494011.zip",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/cold-probe-39180494011.zip",
+      "source_sha256": "12921a84be191ea4e52f7ba51da123315aec73e027d278d6105fab013aefa441",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/frontend-9adb-results.zip",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/frontend-9adb-results.zip",
+      "source_sha256": "1f3333d337f46923c781e2bb0ca2ad5971630efcef01641a4a157aa501eccd79",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/leveldb-reuse-host-ci.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/leveldb-reuse-host-ci.json",
+      "source_sha256": "5a523d2b1a1cf4bb3426c6e021368bff870b94f6aaff62ffa1b5c90f1a364abb",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/leveldb-reuse-host-contract.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/leveldb-reuse-host-contract.json",
+      "source_sha256": "5a523d2b1a1cf4bb3426c6e021368bff870b94f6aaff62ffa1b5c90f1a364abb",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/phone-9adb-0117-sanitized.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/phone-9adb-0117-sanitized.json",
+      "source_sha256": "2b54a13b9ee6a05af0c8ccf8780fc695c36dc774516c308418bdf047eb21ae81",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/release-build-metadata.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/release-build-metadata.json",
+      "source_sha256": "138fe602ec9e111d6ef81c511b6d7da2317cad728c1fedfdf725596a347eda54",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/release-packaged-profile-audit.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/release-packaged-profile-audit.json",
+      "source_sha256": "084e546eace3538ff0942d02f1b7e73e6cb0caa3f7be88ab00e4974eabfb8ac0",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/release-sha256.txt",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/release-sha256.txt",
+      "source_sha256": "cc803319ca40e0c527bf4292cdd661270135bd61bceeb94906f2059dad54f7b1",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/release-signing.txt",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/release-signing.txt",
+      "source_sha256": "1f384404e2d4f0d553cd6f470fe264fd619cbc35a1c6d7f7067cea4fadf0db69",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/release-source.txt",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/release-source.txt",
+      "source_sha256": "9e2fb1809914b50da5958a1f2ae3a002f0d14c340ab1fdbf92fdda13c5be80a2",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/release-verification.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/release-verification.json",
+      "source_sha256": "338033967c33ba2053ea5b7700b91188ea2f5c9d156e579fe19c8ecad6838517",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/sanitized-phone-timing.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/sanitized-phone-timing.json",
+      "source_sha256": "e19629fbd41b93b8c786384b12bfaffa6ae027543faeee41fb4bb1d259f77645",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/unit-tests-9adb.zip",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/unit-tests-9adb.zip",
+      "source_sha256": "14138c7c8d707e394b5bae97d34e7e7096b136f687d1972d53f5b2d892b20c82",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/perf/2026-10-19-cold-io/validation.json",
+      "target": "docs/maintainer/perf/2026-10-19-cold-io/validation.json",
+      "source_sha256": "15b76870ef5d142899b48d37dc86aaae783757b214858f731a49aadbedd9a64b",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/maintainer/workspace-cleanup-2026-10-17.json",
+      "target": "docs/maintainer/workspace-cleanup-2026-10-17.json",
+      "source_sha256": "aa2f5c31f043032a02e0cd45a3f86a433c5ca27863e0fdbb9684398cd0b938e8",
+      "copied_without_changes": true,
+      "kind": "evidence"
+    },
+    {
+      "source": "docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
+      "target": "docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
+      "source_sha256": "0fb6e8d24404717307e6bd220974f30254cf720190b94a15184a87c822571af6",
+      "copied_without_changes": false,
+      "kind": "markdown"
+    }
+  ],
+  "application_base_before_final_rebase": "b6810693620e391fca1bfb498ae10b29efda9fc2"
+}
