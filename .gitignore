@@ -102,3 +102,6 @@ lint/tmp/
 
 ### Kotlin ###
 .kotlin/
+
+# Python audit and benchmark helpers
+__pycache__/

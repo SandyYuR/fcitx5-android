@@ -1,0 +1,73 @@
+name: Direct Rime release and Foxy comparison
+on:
+  workflow_dispatch:
+    inputs:
+      fixture_commit:
+        description: 'Full commit SHA containing authorized original foxy.apk (temporary fixture)'
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: foxy-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  compare:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: Obtain exact user-supplied APK from disposable fixture ref
+        env:
+          FIXTURE_COMMIT: ${{ inputs.fixture_commit }}
+        run: |
+          mkdir -p build/foxy-comparison
+          [[ "$FIXTURE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          git fetch origin "$FIXTURE_COMMIT"
+          git show "$FIXTURE_COMMIT:foxy.apk" > "$RUNNER_TEMP/foxy.apk"
+          echo 'c81783716626c76469a20f1884abfeed63f05349a55ca052ee44079a01b7b80c  '"$RUNNER_TEMP/foxy.apk" | sha256sum -c -
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build current ARM64 Release with verified key profile entries
+        env:
+          SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
+          SIGN_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGN_KEY_PWD: ${{ secrets.KEY_PASSWORD }}
+        run: bash tools/foxy-perf/build-release.sh "$RUNNER_TEMP/release-product"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: direct-rime-optimized-arm64-release
+          path: ${{ runner.temp }}/release-product/
+      - name: Prepare neutral editor
+        run: |
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+          python3 tools/foxy-perf/build-send-host.py "$RUNNER_TEMP/foxy-host"
+          python3 tools/screen-perf/prepare.py "$RUNNER_TEMP/foxy-fixture.zip"
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: |
+            python3 tools/foxy-perf/pilot.py --foxy "$RUNNER_TEMP/foxy.apk" --direct "$RUNNER_TEMP/release-product/direct.apk" --host "$RUNNER_TEMP/foxy-host/host.apk" --fixture "$RUNNER_TEMP/foxy-fixture.zip" --output build/foxy-comparison/calibration
+            bash tools/foxy-perf/compare.sh build/foxy-comparison
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: foxy-release-comparison-results
+          path: build/foxy-comparison/
