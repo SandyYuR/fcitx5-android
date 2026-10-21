@@ -1,0 +1,35 @@
+# 首次候选点选对照
+
+`rime-candidate-perf.yml` 独立构建含 Fcitx 的默认分支历史版本
+`cecea4940bb5a5db67f91d6b20e00ee5c97877ea` 与本轮修改前直连版本
+`e6d317182e25d225a6128420542ea47d161c03b9`。只覆盖完全相同的 androidTest，
+不改变对照产品源码，不使用 PR merge 作为产品版本。依赖仍使用各版本 gitlink。
+`after` 则固定为触发工作流的当前分支提交。可复用先前构建的参考 APK，但必须通过
+源码提交、完全相同的测试源码哈希与各 APK 的 SHA-256 检查；校验不通过不会比较。
+若当前改动只有测试驱动/文档且产品目录与参考提交完全一致，可复用优化版，仍记录其真实
+嵌入提交号，绝不改写成当前 HEAD。Android 在停止输入法进程及启动 instrumentation 时会
+回退系统输入法；驱动必须等新测试进程真正开始后再选择目标 IME，并核验系统设置。
+
+使用 `tools/screen-perf/prepare.py` 的万象 v18.1.3 base、固定 LTS 和用户 YAML。
+先部署，随后停止进程；每个产品重复三次新进程测试，每次真实触摸输入 `ni`、点选“你”六轮，
+不输入预热词、不用 API 代替触摸。三次新进程各自的首次点选可与同进程后五次分别比较。
+
+IME Window.Callback 只代理并记录真实触摸派发时刻，不替换点击、长按、滑动监听。
+独立编辑器进程记录 InputConnection.commitText、TextWatcher 和 onDraw 回调时刻。
+两进程统一用 `SystemClock.elapsedRealtimeNanos()`。记录的耗时以 ACTION_UP 已派发到
+IME 为起点，排除注入前查找视图、20ms 按住、轮询等待；注入至派发等待另列。
+
+“编辑器 onDraw”仅表示 CPU 侧绘制回调，不能声称 GPU、合成器已呈现或真机光子延迟。
+新进程测试仍使用已部署数据和系统文件页缓存，不等于重启设备后的存储冷缓存。
+首次绑定之前会准备一致的候选/键盘设置；键盘出现后设置候选分页，并纠正初始 Latin subtype
+可能覆盖的中文方案，不进行模拟学习或模型预热。源码中的启动阶段计时可用于检查准备成本。
+
+产物保留 APK/源码/测试文件哈希、模型清单、每轮原始纳秒、独立编辑器记录和 logcat。
+测试要求模型实际 mmap、上下文调频/简码/小字集开启、Fcitx native 身份正确、六次准确上屏且
+无重复提交。自动测试只在可丢弃的模拟器运行，不能直接用于带有个人数据的手机。
+
+默认工作流每方三次新进程测试。手动运行可开启 `profile`，每方一轮并抓 20s Perfetto；
+带 trace 的数字单独分析，不与默认三轮统计混算。命令行对应 `--trials 1 --profile`。
+`ime_dispatch_up_to_editor_input_connection` 表示进入目标编辑器的调用边界，
+`ime_dispatch_up_to_editor_change` 还包含目标应用首次文字修改/排版工作；应同时读取。
+说明与数据见 [首次点选报告](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md)。

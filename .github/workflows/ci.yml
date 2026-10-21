@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - '*'
+      - fx-rime-only
+      - feat/direct-rime-prototype
     tags-ignore:
       - '[0-9]*'
       - 'v[0-9]*'
@@ -15,7 +16,11 @@ on:
       - '!docs/**'
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: commit-ci-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build_commit:
@@ -64,19 +69,10 @@ jobs:
       - name: Setup Android environment
         # 2026-09-15 起 Google 不再提供 `tools` 包，setup-android 默认安装
         # `tools platform-tools` 会以 exit 1 失败（android-actions/setup-android#537）；
-        # 本仓库的 SDK 包均由 prepare_personal_build.sh / Gradle 自行安装，只装 platform-tools 即可
+        # SDK/NDK 与 CMake 由 Gradle 按固定版本安装。
         uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools'
-
-      - name: Install CMake
-        run: |
-          sdkmanager --install "cmake;3.22.1"
-
-      - name: Install system dependencies (Ubuntu)
-        run: |
-          sudo apt update
-          sudo apt install extra-cmake-modules gettext
 
       - name: Prepare personal build sources
         run: |
@@ -85,10 +81,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Build APK
+      - name: Build signed ARM64 Release and verify native dependencies and ART profile
+        env:
+          REQUIRE_RELEASE_SIGNING: 'true'
         run: |
           set -o pipefail
-          ./gradlew :app:assembleFxRelease 2>&1 | tee build-output.log
+          bash tools/foxy-perf/build-release.sh "$RUNNER_TEMP/release-product" 2>&1 | tee build-output.log
 
       - name: Emit compile errors as annotations
         if: failure()
@@ -103,14 +101,14 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
-          name: app-${{ matrix.os }}-${{ matrix.abi }}
-          path: app/build/outputs/apk/fx/release/*.apk
+          name: direct-rime-frontend-arm64-release
+          path: ${{ runner.temp }}/release-product/
 
   # JVM 单测单独成一个 job。
   # 背景：此前 CI 只构建 Release APK，从不编译 app/src/test/**，于是单测源集即使编译不过
   # 也没人知道（9be829bb 引入的 NumberRowTest 编译错误就是这样潜伏了一整天，详见
   # rime-docs 分支 docs/HANDOVER-rime-only.md 第 0 节）。
-  # 刻意不写进 nightly_release 的 needs：单测失败会在提交上显示红叉，但不阻塞 Nightly 出包。
+  # Nightly 同时等待构建和单测，避免发布已知失败的版本。
   unit_test:
     runs-on: ubuntu-22.04
     steps:
@@ -156,9 +154,11 @@ jobs:
           path: app/build/reports/tests/testFxDebugUnitTest/
 
   nightly_release:
-    needs: build_commit
+    needs: [build_commit, unit_test]
     if: github.ref == 'refs/heads/fx-rime-only'
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     steps:
       - name: Fetch source code
         uses: actions/checkout@v7
@@ -174,7 +174,7 @@ jobs:
         id: prev_tag
         shell: bash
         run: |
-          tag=$(git describe --tags --abbrev=0 2>/dev/null || echo '')
+          tag=$(git describe --tags --abbrev=0 --exclude='v0-archive-*' 2>/dev/null || echo '')
           sha=''
           if [ -n "$tag" ]; then
             sha=$(git rev-parse "${tag}^{commit}" 2>/dev/null || echo '')
@@ -210,8 +210,10 @@ jobs:
         run: |
           last_tag="${{ steps.prev_tag.outputs.value }}"
           {
-            # 正文只留构建信息与提交列表；固定的品牌标题与 Rime-only 注意事项已移除
-            # （发布标题仍由下方 release 的 name 字段提供）。
+            echo "中州鹅（org.fcitx.fcitx5.android.fx.rime），完整键盘签名 Release。"
+            echo "首次使用需导入并部署 Rime 方案；各输入法请使用独立工作目录。"
+            echo "[用户手册](https://github.com/${{ github.repository }}/blob/docs/docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)"
+            echo ""
             echo "Commit: $(git rev-parse --short HEAD)"
             echo "Built at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
             echo ""
@@ -231,7 +233,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.tag.outputs.value }}
-          name: "靓企鹅·中州韵（Rime-only） ${{ steps.tag.outputs.value }}"
+          name: "中州鹅 ${{ steps.tag.outputs.value }}"
           body_path: release_notes.md
           prerelease: true
           files: final-release/*.apk
