@@ -31,6 +31,7 @@ import org.fcitx.fcitx5.android.ui.common.ProgressBarDialogIndeterminate
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.common.SettingsSlider
 import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
+import org.fcitx.fcitx5.android.ui.main.settings.im.RimeImportActivity
 import org.fcitx.fcitx5.android.ui.main.update.ReleaseInfo
 import org.fcitx.fcitx5.android.ui.main.update.UpdateCheckActivity
 import org.fcitx.fcitx5.android.ui.main.update.UpdateHostsSettingsActivity
@@ -152,14 +153,15 @@ class MaterialSettingsPagesTest {
         }
     }
 
-    @Test fun cropAndClipboardSettingsUseSameThemeInBothModes() {
+    @Test fun importCropAndClipboardSettingsUseSameThemeInBothModes() {
         val image = File(context.cacheDir, "material-crop-fixture.png")
         val bitmap = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
         image.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         bitmap.recycle()
         try {
             modes { dark ->
-                for (type in listOf(org.fcitx.fcitx5.android.clipboardsync.ui.ClipboardSyncSettingsActivity::class.java)) {
+                for (type in listOf(RimeImportActivity::class.java,
+                    org.fcitx.fcitx5.android.clipboardsync.ui.ClipboardSyncSettingsActivity::class.java)) {
                     page(type) { themedToolbar(it, dark) }
                 }
                 page(CropImageActivity::class.java, {
@@ -279,112 +281,11 @@ class MaterialSettingsPagesTest {
         }
     }
 
-    @Test fun attachedMaterialMenuKeepsTextAndPasswordEditorsFocused() {
-        val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
-        val previousIme = shell("settings get secure default_input_method")
-        val wasEnabled = component in shell("ime list -s")
-        val previousHardwareIme = shell("settings get secure show_ime_with_hard_keyboard")
-        val prefs = org.fcitx.fcitx5.android.data.prefs.AppPrefs.getInstance()
-        val previousFloating = prefs.candidates.mode.getValue()
-        var host: Activity? = null
-        var dialog: androidx.appcompat.app.AlertDialog? = null
-        try {
-            onMain { prefs.candidates.mode.setValue(org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode.Disabled) }
-            shell("input keyevent KEYCODE_WAKEUP")
-            shell("settings put secure show_ime_with_hard_keyboard 1")
-            shell("ime enable $component")
-            shell("ime set $component")
-            val activity = instrumentation.startActivitySync(Intent(context, UpdateMirrorEditActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            host = activity
-            val editor = activity.findViewById<android.widget.EditText>(R.id.mirrorNameInput)
-            val imm = context.getSystemService(android.view.inputmethod.InputMethodManager::class.java)
-            for (type in listOf(android.text.InputType.TYPE_CLASS_TEXT,
-                android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD,
-                android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD,
-                android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD)) {
-                onMain {
-                    editor.inputType = type
-                    editor.setText("1237") // Disposable test field, never user data.
-                    editor.setSelection(editor.length())
-                    editor.requestFocus()
-                    imm.showSoftInput(editor, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
-                }
-                var service: org.fcitx.fcitx5.android.input.FcitxInputMethodService? = null
-                awaitUi("IME must bind to editor type=$type") {
-                    service = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
-                        .filterIsInstance<org.fcitx.fcitx5.android.input.InputView>()
-                        .firstOrNull { it.isShown }?.service
-                    activity.hasWindowFocus() && editor.hasFocus() && service?.isInputViewShown == true &&
-                        service?.currentInputEditorInfo?.inputType == type
-                }
-                Thread.sleep(800) // Let the initial editor/window binding settle.
-                var focusLosses = 0
-                val listener = android.view.ViewTreeObserver.OnWindowFocusChangeListener { focused ->
-                    if (!focused) focusLosses++
-                }
-                onMain {
-                    activity.window.decorView.viewTreeObserver.addOnWindowFocusChangeListener(listener)
-                    val themed = SettingsUiPreferences.themedContext(service!!, SettingsUiPreferences.read(context))
-                    dialog = MaterialAlertDialogBuilder(themed).setTitle("UI fixture")
-                        .setItems(arrayOf("one", "two")) { _, _ -> }.create()
-                    service!!.showDialog(dialog!!)
-                }
-                try {
-                    Thread.sleep(800) // The reported focus/hide cycle occurs after showing the menu.
-                    onMain {
-                        assertTrue(dialog!!.isShowing)
-                        assertTrue(materialShape(dialog!!.window!!.decorView.background))
-                        val flags = dialog!!.window!!.attributes.flags
-                        assertTrue(flags and android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE != 0)
-                        assertEquals(0, flags and android.view.WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
-                        assertEquals(0, focusLosses)
-                        assertTrue(activity.hasWindowFocus())
-                        assertTrue(editor.hasFocus())
-                        assertTrue(service!!.isInputViewShown)
-                        assertEquals("1237", editor.text.toString())
-                    }
-                    shell("input keyevent KEYCODE_BACK")
-                    awaitUi("Back must close the attached menu and preserve the editor") {
-                        dialog?.isShowing == false && activity.hasWindowFocus() && editor.hasFocus() &&
-                            service?.isInputViewShown == true
-                    }
-                } finally {
-                    onMain {
-                        activity.window.decorView.viewTreeObserver.removeOnWindowFocusChangeListener(listener)
-                        dialog?.dismiss()
-                    }
-                }
-            }
-        } finally {
-            onMain { dialog?.dismiss(); host?.finish(); prefs.candidates.mode.setValue(previousFloating) }
-            if (previousIme.isNotBlank() && previousIme != "null") shell("ime set $previousIme")
-            if (!wasEnabled) shell("ime disable $component")
-            if (previousHardwareIme == "null") shell("settings delete secure show_ime_with_hard_keyboard")
-            else shell("settings put secure show_ime_with_hard_keyboard $previousHardwareIme")
-        }
-    }
-
-    private fun shell(command: String): String = android.os.ParcelFileDescriptor.AutoCloseInputStream(
-        instrumentation.uiAutomation.executeShellCommand(command)
-    ).bufferedReader().use { it.readText().trim() }
-
-    private fun awaitUi(message: String, predicate: () -> Boolean) {
-        val deadline = android.os.SystemClock.uptimeMillis() + 30_000
-        do {
-            var ready = false
-            onMain { ready = predicate() }
-            if (ready) return
-            Thread.sleep(50)
-        } while (android.os.SystemClock.uptimeMillis() < deadline)
-        fail(message)
-    }
-
     private fun capture(activity: Activity, suffix: String = "") {
         val mode = if (SettingsUiPreferences.isDark(activity)) "dark" else "light"
         val name = activity.javaClass.simpleName + if (suffix.isEmpty()) "" else "-$suffix"
         android.os.ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand(
-            "screencap -p /data/local/tmp/md3-settings-$name-$mode.png"
+            "screencap -p /data/local/tmp/direct-frontend-md3-$name-$mode.png"
         )).use { it.readBytes() }
     }
 

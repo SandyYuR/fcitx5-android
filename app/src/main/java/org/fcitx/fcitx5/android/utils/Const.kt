@@ -13,6 +13,13 @@ object Const {
     const val githubRepo = "https://github.com/SandyYuR/fcitx5-android"
     const val licenseSpdxId = "LGPL-2.1-or-later"
     const val licenseUrl = "https://www.gnu.org/licenses/old-licenses/lgpl-2.1"
-    const val privacyPolicyUrl = "https://fcitx5-android.github.io/privacy/"
-    const val faqUrl = "https://sandyyur.github.io/fcitx5-android/"
+    // Pin documentation to the APK's source: feature branches can be deleted
+    // after merging, and the default branch's manual can describe a later build.
+    val sourceRevision = BuildConfig.BUILD_GIT_HASH.substringBefore('-')
+    val sourceUrl = "$githubRepo/tree/$sourceRevision"
+    val directRimeGuideUrl = "$githubRepo/blob/$sourceRevision/docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md"
+    val directRimeMaintainerUrl = "$githubRepo/blob/$sourceRevision/docs/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md"
+    const val releasesUrl = "$githubRepo/releases"
+    val privacyPolicyUrl = "$directRimeGuideUrl#隐私与数据"
+    val faqUrl = "$directRimeGuideUrl#常见问题"
 }
