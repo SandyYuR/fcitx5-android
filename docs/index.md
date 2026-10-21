@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: 靓企鹅·中州韵
-  text: Rime 专版 Android 输入法
-  tagline: 基于 fxliang/fcitx5-android 的 fx 分支继续开发 —— 一个 APK 内置 Fcitx5 底盘与 Rime 引擎，Rime 是唯一输入引擎；浮动键盘、可视化编辑器、主题、剪贴板同步等应用层能力全部保留
+  name: 中州鹅
+  text: 直连 librime 的 Android 输入法
+  tagline: 保留完整键盘、候选、布局编辑器、主题与剪贴板，直接调用 Rime 引擎
   image:
     src: /logo.png
-    alt: 靓企鹅·中州韵
+    alt: 中州鹅
   actions:
     - theme: brand
       text: 快速上手
@@ -25,7 +25,7 @@ hero:
 features:
   - icon: 🀄
     title: Rime 引擎内置，免插件
-    details: librime 静态链接进主 APK，方案选单、候选 tabs、部署与同步全部内建；不需要再装任何插件 APK。
+    details: librime 静态链接进主 APK，方案选单、分组开关、部署与同步全部内建；不需要再装任何插件 APK。
     link: /features/rime-enhancements
     linkText: 了解 Rime 引擎
   - icon: 🎹
@@ -67,31 +67,24 @@ features:
 
 ## 这是什么？
 
-这是 **[SandyYuR/fcitx5-android](https://github.com/SandyYuR/fcitx5-android)** 仓库 `fx-rime-only` 分支构建的应用 **靓企鹅·中州韵**（其他语言显示名 Fcitx5.fx.rime，包名 `org.fcitx.fcitx5.android.fx.rime`）的最终用户文档。
+中州鹅保留 Fcitx5 for Android 与 fxliang fx 分支的 Android 前端，直接调用 librime。
+当前手册对应[代码 PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4)的直连版，
+包名为 `org.fcitx.fcitx5.android.fx.rime`。主应用、迁移方式和已知范围见[当前状态](/guide/direct-rime-migration)。
 
-本版本以 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) 的 `fx` 分支为基线继续专用化：把「Rime 只是众多输入法之一」改成「**Rime 是唯一的输入引擎**」，fcitx5-rime 并入主 APK，删除了拼音、码表等其他输入链路与整套插件框架；同时保留了 fx 分支的键盘形态、编辑器、主题、剪贴板同步等应用层能力，并持续增加自有改进。
-
-::: warning 首次安装须知
-本版 **不预置任何输入方案，也不附带 essay.txt 预置词汇表**。装好、启用之后键盘能正常弹出，但**打不出汉字**——这是预期状态，不是故障。请按 [快速上手](/guide/quick-start) 放入你自己的方案并部署一次。
+::: info 版本与文档范围
+代码 PR 合入前默认分支仍为 Fcitx 版。先按[交付记录](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)核对 APK 来源。
+旧 Fcitx 版手册和实施方案保留在历史入口，当前操作以中州鹅手册为准。
 :::
 
-## 这份文档的定位
-
-- 覆盖 **Rime 专版行为**（方案部署、语言键、候选手势等）与**继承自 fx 分支的应用层功能**（键盘形态、编辑器、主题等）
-- Fcitx5 框架与 Rime 本身的通用用法请参考 [上游 Wiki](https://github.com/fcitx5-android/fcitx5-android/wiki) 与 [Rime 官方文档](https://github.com/rime/home/wiki)
-- 目标读者：**使用者**，不是开发者
-- 更完整的逐项操作手册见 [用户指南](/manual/RIME_ONLY_USER_GUIDE_zh-CN)
+::: warning 首次安装须知
+APK 不预装中文方案、完整词典或万象语言模型。安装并启用后，先导入完整方案并部署，见[快速上手](/guide/quick-start)。
+:::
 
 ## 快速导航
 
-- 第一次使用？→ [安装](/guide/installation) → [快速上手](/guide/quick-start)（含放入方案与部署）
-- 想知道这个版本能做什么？→ [功能总览](/features/overview)
-- 想配置 Rime 方案？→ [Rime 引擎（内置）](/features/rime-enhancements)
-- 想要逐项的完整操作手册？→ [用户指南](/manual/RIME_ONLY_USER_GUIDE_zh-CN)
-- 想自定义键盘外观？→ [主题编辑器](/features/theme/theme-editor) / [布局编辑器](/features/editor/layout-editor)
-- 想调整设置页配色、动画与返回手势？→ [设置界面外观与动画](/features/theme/settings-appearance)
-- 想用浮动键盘？→ [浮动键盘](/features/keyboard/float-keyboard)
-- 从上游 / fxliang 迁移数据？→ [从上游迁移](/guide/migrate-from-upstream)
-- 遇到问题？→ [常见问题](/troubleshooting/faq)
-- 维护者（引擎 runbook / 审阅报告）？→ [交接报告](/maintainer/HANDOVER-rime-only) / [审阅报告](/maintainer/CODE_REVIEW_REPORT_2026-09-07)
-- 想了解与 fxliang / 上游的关系与致谢？→ [关于](/about/credits)
+- [安装与升级](/guide/installation) · [快速上手](/guide/quick-start) · [数据迁移与共存](/guide/builds-and-plugins)
+- [完整用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) · [Rime 设置与引擎来源](/features/rime-enhancements)
+- [功能总览](/features/overview) · [布局编辑器](/features/editor/layout-editor) · [设置外观](/features/theme/settings-appearance)
+- [当前基线、APK、CI 和合入顺序](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)
+- [维护手册与 librime 更新](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) · [完整直连文档](/direct-rime)
+- [常见问题](/troubleshooting/faq) · [反馈问题](/troubleshooting/report-issue) · [致谢](/about/credits)

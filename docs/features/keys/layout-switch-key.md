@@ -17,7 +17,7 @@
 
 ::: tip 切换"层" vs 切换"布局文件"
 - **LayoutSwitchKey** 切换的是键盘布局目标：`subLabel` 为内置布局名、布局文件中的 layout key，或空字符串
-- 如果只是在当前输入方案布局内切换"层"，用 [MacroKey](/features/keys/macro-key#8-layer-布局层切换) 的 `layer` step
+- 如果只是在当前输入方案布局内切换"层"，用 [MacroKey](/features/keys/macro-key#_8-layer-布局层切换) 的 `layer` step
 :::
 
 ## 直达符号面板的目标（本版）
@@ -50,4 +50,4 @@
 ## 相关页面
 
 - [按键类型总览](/features/keys/overview)
-- [MacroKey - layer step](/features/keys/macro-key#8-layer-布局层切换)
+- [MacroKey - layer step](/features/keys/macro-key#_8-layer-布局层切换)
