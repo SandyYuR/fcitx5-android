@@ -6,6 +6,7 @@
 
 | 需要做什么 | 从这里开始 |
 | --- | --- |
+| 查看当前 librime 源码仓库、归档与维护流程 | [源码维护迁移](maintainer/DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21.md) |
 | 查看 librime 上游更新、定制兼容与引擎来源 | [引擎更新](maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md) |
 | 安装、导入万象、中英文切换、调整键盘、备份与排错 | [用户手册](manual/DIRECT_RIME_USER_GUIDE_zh-CN.md) |
 | 编译、更新 librime、验证、维护性能测试 | [维护手册](maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md) |

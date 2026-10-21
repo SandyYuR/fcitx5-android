@@ -64,12 +64,13 @@ open/read/write/sync/stat 分项，不能覆盖全部 mmap/后台等待。首次
 
 | 层次 | 仓库及固定版本 |
 | --- | --- |
-| 上游引擎 | [rime/librime](https://github.com/rime/librime)，`1b3417d2b6a11b5e50e0e1fa9dc396056aa11dce`，元数据 `1.17.0-1b3417d` |
-| Android 编译与定制补丁 | [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder)，本次产物记录的提交 `0af671f902680e00e4842d92ba49e373db0cf938`，由 `v0-archive-librime-build-20261021` 保留 |
-| 四 ABI 预编译产物 | [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)，主仓库 gitlink `0fee61763cd40776ecaa5af3200f6b296d20262f` |
+| 上游引擎 | [rime/librime](https://github.com/rime/librime)，官方基线 `1b3417d2b6a11b5e50e0e1fa9dc396056aa11dce` |
+| 中州鹅定制源码 | [SandyYuR/librime](https://github.com/SandyYuR/librime/tree/zhongzhou)，固定 `446f8584eb01ab8f72b3f0b970fda3919b1c1a55`，元数据 `1.17.0-1b3417d+zhongzhou.446f858` |
+| Android 编译与插件准备 | [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder)，本次 CI 提交 `97f3dfb707f76e7897557579630b904dc6dbb688`，由 `v0-archive-librime-fork-build-20261021` 保留 |
+| 四 ABI 预编译产物 | [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)，主仓库 gitlink `d297ddee183b437d0fd8c9bdf37eced6ec8d09cd` |
 | 公共预设 | [rime/rime-prelude](https://github.com/rime/rime-prelude)，`082425ea0684bca36474415d4a0e8db9b016487e` |
 
-本次上游 23 项提交、定制兼容与验证见[引擎更新记录](DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md)。
+上游升级历史见[引擎更新记录](DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md)；当前仓库职责、9 项功能导入与验证见[源码维护迁移](DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21.md)。
 
 `native/prebuilt/librime/<ABI>/lib/librime.a` 静态链接入 `libdirect-rime.so`。
 主应用自己的桥接位于 `direct-rime/src/main/cpp/`，前端适配位于 `DirectRimeBackend.kt`。
@@ -79,23 +80,17 @@ APK 原生库白名单只有 `libdirect-rime.so` 与 `libc++_shared.so`。
 `tools/input-perf/test-leveldb-open.py` 的恢复/显式同步回归，随后跑 Android 存储与万象验证。
 
 共享 prebuilt 仓库也存有其他引擎的产物，主应用不链接它们。
-共享 prebuilder 的完整 `everything` 流水线仍可能编译 Fcitx 宿主工具，用于其他组件的字典构建；
+prebuilder 的日常 CI 默认只编译 librime；手动选择历史 `everything` 流水线仍可能编译 Fcitx 宿主工具，用于其他组件的字典构建；
 这与 librime 目标本身、当前 APK 的构建依赖和运行时依赖是不同层次。
 
 ## 更新 librime
 
-1. 在 **prebuilder 仓库的新分支**中更新官方 librime 固定提交，审阅上游 ABI/API 和插件兼容变化。
-2. 检查 `src/Rules/LibRime.hs`、`patches/librime-series` 及对应补丁。当前核心补丁依次涉及基础定制、音节缓存、
-   词典并行部署、用户词典缓存、映射文件修复、连删行为修复、rewrite 滤镜和配置指纹。
-   **配置指纹补丁最后应用**；Lua、octagram 等插件也有各自补丁。
-3. 可在 prebuilder 的 CI 手动选择 `librime-only`，复用固定依赖，隔离构建源码并运行四 ABI 与主机回归。
-   构建四 ABI，验证预编译产物包含现有定制头文件与扩展字段，如 `get_input_tabs` / `free_input_tabs`。
-   不能只换一个官方二进制文件，否则可能丢失项目依赖的功能或造成 ABI 不匹配。
-4. 将验证后的产物发布到 prebuilt 新分支，核对每 ABI 的 `share/rime/source-manifest.json`、补丁及依赖/产物哈希，记录上游、prebuilder 和产物提交；
-   在本仓库把 `native/prebuilt` 切到该固定提交并提交 gitlink。
-5. 同步 `app/licenses/libraries/` 下的引擎及变动依赖版本，更新本手册的固定版本表。
-6. 跑 JVM、原生安全检查、四 ABI APK 核验与设备输入测试；用实际万象用户库验证部署、
-   上下文调频、简码、小字集、注释、分组开关、候选翻页、忘词与同步。
+1. 从 **SandyYuR/librime 的 `zhongzhou` 分支**新开功能或升级分支；核心补丁以独立源码提交维护，不再修改 prebuilder 中的旧补丁文件。
+2. 更新官方引擎时获取并合并官方固定提交，处理冲突，更新 `downstream/manifest.json` 的 `upstream_commit`；初次导入的 `migration` 保留历史。审阅 API、插件兼容性和测试，通过后合入产品分支。
+3. 在 **prebuilder 新分支**将 librime gitlink 更新到定制源码的确切提交。`scripts/verify-librime-source.py` 核验来源和接口；Lua、octagram、predict 仍按固定插件版本及插件补丁准备。
+4. 执行默认 `librime-only` CI，复用固定依赖，运行四 ABI 和主机原生回归。核心 `patches=[]`，`integrated_patches` 只记录已迁入源码的历史，不能再应用一遍。
+5. 将核验后的产物提交到 **prebuilt 新分支**，核对逐 ABI `share/rime/source-manifest.json` 中定制源码、官方基线、插件、依赖、归档和头文件摘要；在主应用更新 `native/prebuilt` 固定 gitlink。
+6. 同步许可证中的引擎版本和本手册版本表，完成 JVM、原生安全、APK 依赖和设备输入回归，审核代码与文档 PR；实际方案继续验收上下文调频、简码、小字集、注释、音节、忘词和同步。
 
 升级本应用不会自动跟踪 librime master；固定提交保证应用构建能复现。
 详细依赖和历史改动见[迁移审计](DIRECT_RIME_AUDIT_2026-10-17.md)。
