@@ -4,11 +4,13 @@ package org.fcitx.fcitx5.android.ui.common
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Path
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RippleDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.PathShape
 import android.util.AttributeSet
 import android.view.Gravity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatSpinner
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
@@ -30,9 +32,17 @@ class MaterialSpinner @JvmOverloads constructor(context: Context, attrs: Attribu
                     context.settingsColor(com.google.android.material.R.attr.colorOutline))
             )
         }
-        val arrow = requireNotNull(AppCompatResources.getDrawable(context,
-            com.google.android.material.R.drawable.mtrl_dropdown_arrow)).mutate().apply {
-            setTint(context.settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
+        // AppCompat may clear a background child's tint while updating widget state.
+        // Store the foreground in the shape's paint so the indicator keeps its contrast.
+        val arrowPath = Path().apply {
+            moveTo(7f, 10f)
+            lineTo(12f, 15f)
+            lineTo(17f, 10f)
+            close()
+        }
+        val arrow = ShapeDrawable(PathShape(arrowPath, 24f, 24f)).apply {
+            paint.color = context.settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant)
+            paint.isAntiAlias = true
         }
         val layers = LayerDrawable(arrayOf(surface, arrow)).apply {
             setLayerSize(1, dp(24), dp(24))
@@ -40,6 +50,7 @@ class MaterialSpinner @JvmOverloads constructor(context: Context, attrs: Attribu
             setLayerInsetEnd(1, dp(12))
         }
         backgroundTintList = null
+        setSupportBackgroundTintList(null)
         background = RippleDrawable(ColorStateList.valueOf(context.settingsColor(
             androidx.appcompat.R.attr.colorControlHighlight)), layers,
             MaterialShapeDrawable(shape).apply { fillColor = ColorStateList.valueOf(Color.WHITE) })

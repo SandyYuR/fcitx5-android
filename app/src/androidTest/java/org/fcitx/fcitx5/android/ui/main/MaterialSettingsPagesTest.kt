@@ -4,6 +4,7 @@ package org.fcitx.fcitx5.android.ui.main
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
 import android.net.Uri
@@ -15,6 +16,7 @@ import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.ListView
 import androidx.test.filters.SdkSuppress
+import androidx.core.graphics.ColorUtils
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
@@ -36,6 +38,7 @@ import org.fcitx.fcitx5.android.ui.main.update.UpdateHostsSettingsActivity
 import org.fcitx.fcitx5.android.ui.main.update.UpdateMirrorEditActivity
 import org.fcitx.fcitx5.android.ui.main.update.UpdateMirrorListActivity
 import org.fcitx.fcitx5.android.ui.main.update.UpdateRepository
+import org.fcitx.fcitx5.android.utils.settingsColor
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -117,6 +120,17 @@ class MaterialSettingsPagesTest {
                     }
                     is UpdateMirrorEditActivity -> assertEquals(3,
                         descendants(activity.window.decorView).count { it is TextInputLayout })
+                    is UpdateMirrorListActivity -> {
+                        val add = activity.findViewById<View>(R.id.addMirrorRuleButton)
+                        val background = activity.settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
+                        val pixels = Bitmap.createBitmap(add.width, add.height, Bitmap.Config.ARGB_8888)
+                        try {
+                            pixels.eraseColor(background)
+                            add.draw(Canvas(pixels))
+                            assertTrue("Add icon must be visible in both modes", ColorUtils.calculateContrast(
+                                pixels.getPixel(add.width / 2, add.height / 2), background) >= 3.0)
+                        } finally { pixels.recycle() }
+                    }
                     else -> Unit
                 }
             }
@@ -147,8 +161,7 @@ class MaterialSettingsPagesTest {
         try {
             modes { dark ->
                 for (type in listOf(RimeImportActivity::class.java,
-                    org.fcitx.fcitx5.android.clipboardsync.ui.ClipboardSyncSettingsActivity::class.java,
-                    org.fcitx.fcitx5.android.clipboardsync.ui.SettingsActivity::class.java)) {
+                    org.fcitx.fcitx5.android.clipboardsync.ui.ClipboardSyncSettingsActivity::class.java)) {
                     page(type) { themedToolbar(it, dark) }
                 }
                 page(CropImageActivity::class.java, {
@@ -247,7 +260,21 @@ class MaterialSettingsPagesTest {
                 popup.performItemClick(popup.getChildAt(2), 2, popup.adapter.getItemId(2))
             }
             instrumentation.waitForIdleSync()
-            onMain { assertEquals(2, spinner.selectedItemPosition) }
+            onMain {
+                assertEquals(2, spinner.selectedItemPosition)
+                // Check rendered pixels after focus/popup state changes, not only the tint API.
+                val pixels = Bitmap.createBitmap(spinner.width, spinner.height, Bitmap.Config.ARGB_8888)
+                try {
+                    pixels.eraseColor(spinner.context.settingsColor(com.google.android.material.R.attr.colorSurfaceContainerHigh))
+                    spinner.draw(Canvas(pixels))
+                    val inset = (24 * spinner.resources.displayMetrics.density).toInt()
+                    val arrowX = if (spinner.layoutDirection == View.LAYOUT_DIRECTION_RTL) inset else spinner.width - inset
+                    val foreground = pixels.getPixel(arrowX, spinner.height / 2)
+                    val background = pixels.getPixel(spinner.width / 2, spinner.height / 4)
+                    assertTrue("Dropdown indicator must contrast with the field in both modes",
+                        ColorUtils.calculateContrast(foreground, background) >= 3.0)
+                } finally { pixels.recycle() }
+            }
             capture(activity, "controls")
         } finally {
             onMain { dialog?.dismiss(); activity.finish() }

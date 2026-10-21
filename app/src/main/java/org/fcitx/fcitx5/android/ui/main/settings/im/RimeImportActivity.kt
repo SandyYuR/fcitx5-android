@@ -12,6 +12,7 @@ import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -82,11 +83,14 @@ class RimeImportActivity : SettingsUiActivity() {
         content.addView(choose)
         status = TextView(this).apply { textSize = 15f; setPadding(0, padding, 0, padding) }
         content.addView(status)
-        content.addView(TextInputEditText(this).apply {
-            id = R.id.direct_rime_test_editor
-            setHint(R.string.direct_rime_test_input)
-            minLines = 3
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+        content.addView(TextInputLayout(this).apply {
+            boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
+            hint = getString(R.string.direct_rime_test_input)
+            addView(TextInputEditText(context).apply {
+                id = R.id.direct_rime_test_editor
+                minLines = 3
+                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            }, LinearLayout.LayoutParams(-1, -2))
         })
         root.addView(ScrollView(this).apply { addView(content) })
         setContentView(root)

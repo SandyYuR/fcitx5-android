@@ -23,10 +23,11 @@
 
         <ImageButton
             android:id="@+id/addMirrorRuleButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/add"
+            android:tint="?attr/colorOnSurfaceVariant"
             android:src="@drawable/ic_baseline_plus_24" />
     </LinearLayout>
 

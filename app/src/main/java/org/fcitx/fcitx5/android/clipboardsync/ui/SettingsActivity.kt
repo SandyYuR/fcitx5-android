@@ -24,7 +24,6 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -47,32 +46,8 @@ import org.fcitx.fcitx5.android.clipboardsync.network.SyncClient.ServerBackend
 import org.fcitx.fcitx5.android.clipboardsync.service.QuickSyncTileService
 import java.util.Locale
 
-class SettingsActivity : SettingsUiActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_clipboard_sync_settings)
-        setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.setTitle(R.string.settings_title)
-
-        if (savedInstanceState == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.settings_container, SettingsFragment())
-                .commit()
-        }
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            supportFragmentManager.popBackStack()
-        } else {
-            finish()
-        }
-        return true
-    }
-
+/** Namespace kept for the persisted SettingsFragment class name; the host is ClipboardSyncSettingsActivity. */
+object SettingsActivity {
     class SettingsFragment : PaddingPreferenceFragment() {
 
         companion object {
@@ -565,16 +540,9 @@ class SettingsActivity : SettingsUiActivity() {
                     R.animator.settings_pop_enter,
                     R.animator.settings_pop_exit
                 )
-                .replace(resolveSettingsContainerId(), fragment)
+                .replace(R.id.settings_container, fragment)
                 .addToBackStack(fragment.javaClass.name)
                 .commit()
-        }
-
-        private fun resolveSettingsContainerId(): Int {
-            return when {
-                requireActivity().findViewById<View>(R.id.settings_container) != null -> R.id.settings_container
-                else -> R.id.settings
-            }
         }
 
         private fun showStorageLocationDialog() {

@@ -4,6 +4,7 @@ package org.fcitx.fcitx5.android.ui.common
 import android.content.Context
 import android.view.View
 import com.google.android.material.slider.Slider
+import com.google.android.material.slider.LabelFormatter
 import splitties.views.dsl.core.Ui
 import kotlin.math.roundToInt
 
@@ -33,6 +34,9 @@ class SettingsSlider(context: Context) : Slider(context) {
         id = View.generateViewId()
         valueTo = 100f
         stepSize = 1f
+        // Editors already display the mapped value (including offsets/units) beside the slider.
+        // A default tooltip would expose the internal progress index instead.
+        labelBehavior = LabelFormatter.LABEL_GONE
         addOnChangeListener { _, value, fromUser ->
             if (value > max) this.value = max.toFloat()
             else progressListener?.onProgressChanged(this, value.roundToInt(), fromUser)
