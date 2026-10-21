@@ -5,6 +5,11 @@
 操作入口见[用户手册](../manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)，
 开发入口见[维护手册](DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md)。
 
+## 当前交付入口
+
+最新基线、三套 CI、签名安装包、文档站和合入顺序统一见[当前合并交付](DIRECT_RIME_RELEASE_READY_2026-10-21.md)。
+下方按时间保留各阶段记录；旧产物不标作当前源码构建。
+
 ## 2026-10-19 日用反馈与合并整理
 
 用户在 `9adb6949` 签名 Release 上反馈卡顿改善，随后确认“可以日常使用”。

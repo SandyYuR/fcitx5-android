@@ -1,5 +1,7 @@
 # 中州鹅直连版合并交付记录
 
+> 本文保留 10 月 19 日的整理过程，部分发布状态已变化。当前基线、CI、签名包和文档站合入顺序见[当前合并交付](DIRECT_RIME_RELEASE_READY_2026-10-21.md)。
+
 日期：2026-10-19。合并入口：[PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4)，
 `feat/direct-rime-prototype` → `fx-rime-only`。本次整理将 PR 准备到可合并状态，实际合并由维护者执行。
 
@@ -64,9 +66,9 @@
 | `direct-rime-proto` | 早期 Muse 原型，保留源码标签后删除开发分支 | `v0-archive-direct-rime-proto-20261019` → `aa9ec5ed` |
 | `pr/fx2-integrated` | 旧整合实验，无开放 PR；独有历史保留在标签后删除开发分支 | `v0-archive-fx2-integrated-20261019` → `85e36f4b` |
 | 合并前 Fcitx 版本 | 固定完整源码，默认分支继续承接本 PR | `v0-archive-fcitx-before-direct-20261019` → `92fd34ce` |
-| `fx-rime-only` | 保留默认分支，本次不直接写入 | — |
+| `fx-rime-only` | 保留默认分支；10 月 21 日共享 MD3 已独立落入 `579b1632` | — |
 | `feat/direct-rime-prototype` | 保留至 PR 合并，作为当前交付分支 | — |
-| `codex/md3-settings-rebuild` | 保留；[PR #5](https://github.com/SandyYuR/fcitx5-android/pull/5) 的独立设置界面开发 | — |
+| `codex/md3-settings-rebuild` | [PR #5](https://github.com/SandyYuR/fcitx5-android/pull/5) 已于 10 月 20 日合并，相关成果已同步本分支 | — |
 | `docs` | 保留；文档站及后续维护规划 | — |
 
 此前四个 `perf/*`、临时 Foxy APK 分支和用户词库调查分支已经删除，不恢复这些临时入口。
@@ -84,7 +86,7 @@ git switch -c investigate/old-direct v0-archive-direct-rime-proto-20261019
 
 历史性能报告引用的旧 SHA 继续由完整历史标签保留。已有旧开发分支的本地副本应先保存未提交内容，
 再从新的远程 tip 新建工作分支，避免把 77 个旧提交重新合入交付历史。
-PR #5 后续应更新直连基线并复核设置导航、兼容入口和构建。
+PR #5 的 MD3 设置已于 10 月 20 日合并并同步；10 月 21 日又将共享 MD3 补齐提取到默认分支，详见当前交付记录。
 
 ## 合并检查与发布流程
 

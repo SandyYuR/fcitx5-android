@@ -2,13 +2,14 @@
 
 适用于本目录所在提交的中州鹅直连版，包名 `org.fcitx.fcitx5.android.fx.rime`。
 通过 [PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4) 合入 `fx-rime-only` 后，默认分支也使用本套说明。
-旧 Fcitx 版固定在 `v0-archive-fcitx-before-direct-20261019`；独立 `docs` 分支上的旧站点说明不保证适用于直连版。
+旧 Fcitx 版固定在 `v0-archive-fcitx-before-direct-20261019`；文档站正在通过独立 PR 同步当前直连说明，旧 Fcitx 手册保留为历史入口。
 
 | 需要做什么 | 从这里开始 |
 | --- | --- |
 | 安装、导入万象、中英文切换、调整键盘、备份与排错 | [用户手册](manual/DIRECT_RIME_USER_GUIDE_zh-CN.md) |
 | 编译、更新 librime、验证、维护性能测试 | [维护手册](maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md) |
-| 查看日用验收、合并检查、提交整理与分支归档 | [合并交付记录](maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md) |
+| 查看当前基线、签名 APK、CI、合并顺序与文档站交付 | [当前合并交付](maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21.md) |
+| 追溯日用验收、提交收拢与分支归档 | [10 月 19 日整理记录](maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md) |
 | 查看最后审阅、APK 实际依赖、静态链接和无调用方库清理 | [最终依赖审阅](maintainer/DIRECT_RIME_FINAL_REVIEW_2026-10-19.md) |
 | 排查密码框打开方案菜单后键盘隐藏、重新弹出 | [密码框方案菜单修复](maintainer/DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md) |
 | 部署后仍使用旧 Lua、恢复包名与中文统计名称 | [部署重载与发行标识](maintainer/DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md) |
