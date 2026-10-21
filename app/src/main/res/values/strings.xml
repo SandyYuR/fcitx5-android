@@ -375,9 +375,9 @@
     <string name="space_long_press_behavior">Space key long press behavior</string>
     <string name="space_behavior_none">None</string>
     <string name="space_behavior_repeat">Repeat space (hold to type spaces)</string>
-    <string name="space_behavior_enumerate">Enumerate input methods</string>
-    <string name="space_behavior_activate">Toggle input method activate state</string>
-    <string name="space_behavior_picker">Show input method picker dialog</string>
+    <string name="space_behavior_enumerate">Cycle through enabled Rime schemas</string>
+    <string name="space_behavior_activate">Toggle between the current and first enabled Rime schema</string>
+    <string name="space_behavior_picker">Show Rime schema menu</string>
     <string name="space_behavior_voice_input">Switch to voice input</string>
     <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="space_key_label_mode">Space key label style</string>

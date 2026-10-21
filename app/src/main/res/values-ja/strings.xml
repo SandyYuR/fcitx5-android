@@ -213,9 +213,9 @@
     <string name="toolbar_num_row_on_password">パスワード入力時に数字をツールバーに横並びで表示する</string>
     <string name="space_long_press_behavior">スペースキー長押し時の動作</string>
     <string name="space_behavior_none">なし</string>
-    <string name="space_behavior_enumerate">インプットメゾッド一覧を表示する</string>
-    <string name="space_behavior_activate">インプットメゾッドのアクティブな状態を切り替える</string>
-    <string name="space_behavior_picker">インプットメゾッド選択ダイアログを表示する</string>
+    <string name="space_behavior_enumerate">有効な Rime スキーマを順に切り替える</string>
+    <string name="space_behavior_activate">現在の Rime スキーマと最初のスキーマを切り替える</string>
+    <string name="space_behavior_picker">Rime スキーマメニューを表示</string>
     <string name="space_behavior_voice_input">音声入力に切り替える</string>
     <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="show_lang_switch_key">言語切り替えキーを表示する</string>

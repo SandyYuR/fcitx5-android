@@ -640,10 +640,10 @@
     <string name="show_lang_switch_key">언어 전환 키 표시</string>
     <string name="show_voice_input_button">음성 입력 버튼 표시</string>
     <string name="skip">건너뛰기</string>
-    <string name="space_behavior_activate">입력기 활성화 상태 전환</string>
-    <string name="space_behavior_enumerate">입력기 순환</string>
+    <string name="space_behavior_activate">현재 Rime 스키마와 첫 번째 스키마 간 전환</string>
+    <string name="space_behavior_enumerate">활성화된 Rime 스키마 순환</string>
     <string name="space_behavior_none">없음</string>
-    <string name="space_behavior_picker">입력기 선택 대화상자 표시</string>
+    <string name="space_behavior_picker">Rime 스키마 메뉴 표시</string>
     <string name="space_behavior_voice_input">음성 입력으로 전환</string>
     <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="space_long_press_behavior">스페이스 키 길게 누르기 동작</string>
