@@ -1,5 +1,7 @@
 package org.fcitx.fcitx5.android.clipboardsync.ui
 
+import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
+import com.google.android.material.textfield.TextInputEditText
 import android.Manifest
 import android.content.pm.PackageManager
 import android.content.SharedPreferences
@@ -22,6 +24,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -44,16 +47,18 @@ import org.fcitx.fcitx5.android.clipboardsync.network.SyncClient.ServerBackend
 import org.fcitx.fcitx5.android.clipboardsync.service.QuickSyncTileService
 import java.util.Locale
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        setContentView(R.layout.activity_clipboard_sync_settings)
+        setSupportActionBar(findViewById(R.id.toolbar))
+        supportActionBar?.setTitle(R.string.settings_title)
 
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.settings, SettingsFragment())
+                .replace(R.id.settings_container, SettingsFragment())
                 .commit()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -1128,7 +1133,7 @@ class SettingsActivity : AppCompatActivity() {
                 orientation = LinearLayout.HORIZONTAL
                 setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding)
             }
-            val valueInput = EditText(context).apply {
+            val valueInput = TextInputEditText(context).apply {
                 inputType = InputType.TYPE_CLASS_NUMBER
                 hint = getString(R.string.filter_max_file_size_title)
                 setText(state.maxFileSizeValue?.toString().orEmpty())
@@ -1136,7 +1141,7 @@ class SettingsActivity : AppCompatActivity() {
                     marginEnd = spacing
                 }
             }
-            val unitSpinner = Spinner(context).apply {
+            val unitSpinner = MaterialSpinner(context).apply {
                 adapter = ArrayAdapter(
                     context,
                     android.R.layout.simple_spinner_dropdown_item,

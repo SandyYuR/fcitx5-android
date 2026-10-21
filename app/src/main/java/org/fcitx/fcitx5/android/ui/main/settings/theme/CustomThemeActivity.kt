@@ -4,10 +4,12 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -34,10 +36,10 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.GridLayout
 import android.widget.LinearLayout
-import android.widget.SeekBar
+import org.fcitx.fcitx5.android.ui.common.SettingsSlider as SeekBar
 import android.widget.TextView
 import android.widget.LinearLayout.LayoutParams
-import android.widget.SeekBar.OnSeekBarChangeListener
+import org.fcitx.fcitx5.android.ui.common.SettingsSlider.OnSeekBarChangeListener
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
@@ -90,7 +92,7 @@ import splitties.views.dsl.constraintlayout.topOfParent
 import splitties.views.dsl.constraintlayout.topToTopOf
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
-import splitties.views.dsl.core.seekBar
+import org.fcitx.fcitx5.android.ui.common.settingsSlider as seekBar
 import splitties.views.dsl.core.textView
 import splitties.views.dsl.core.verticalLayout
 import splitties.views.dsl.core.view
@@ -235,9 +237,9 @@ class CustomThemeActivity : SettingsUiActivity() {
     }
 
     private fun promptRenameTheme() {
-        val input = EditText(this).apply {
+        val input = TextInputEditText(this).apply {
             setText(theme.name)
-            setSelection(text.length)
+            setSelection(text?.length ?: 0)
             setSingleLine(true)
         }
         val dialog = MaterialAlertDialogBuilder(this)
@@ -496,7 +498,7 @@ class CustomThemeActivity : SettingsUiActivity() {
                 if (argbInputRef?.text?.toString() != text) {
                     internalTextUpdate = true
                     argbInputRef?.setText(text)
-                    argbInputRef?.setSelection(text.length)
+                    argbInputRef?.setSelection(text?.length ?: 0)
                     internalTextUpdate = false
                 }
             }
@@ -586,7 +588,7 @@ class CustomThemeActivity : SettingsUiActivity() {
                     setTextColor(settingsColor(android.R.attr.textColorPrimary))
                 })
                 
-                val argbInput = EditText(context).apply {
+                val argbInput = TextInputEditText(context).apply {
                     layoutParams = LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f)
                     isSingleLine = true
                     setText(formatArgbHex(editingColor))
@@ -628,7 +630,7 @@ class CustomThemeActivity : SettingsUiActivity() {
                 setPadding(0, dp(8), 0, 0)
                 gravity = Gravity.CENTER
 
-                addView(Button(this@CustomThemeActivity).apply {
+                addView(MaterialButton(this@CustomThemeActivity).apply {
                     text = getString(R.string.custom_theme_confirm)
                     layoutParams = LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f)
                     setOnClickListener {
@@ -642,7 +644,7 @@ class CustomThemeActivity : SettingsUiActivity() {
                 })
 
                 if (allowClear) {
-                    addView(Button(this@CustomThemeActivity).apply {
+                    addView(MaterialButton(this@CustomThemeActivity).apply {
                         text = getString(R.string.clear)
                         layoutParams = LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f)
                         setOnClickListener {
@@ -656,7 +658,7 @@ class CustomThemeActivity : SettingsUiActivity() {
                     })
                 }
 
-                addView(Button(this@CustomThemeActivity).apply {
+                addView(MaterialButton(this@CustomThemeActivity).apply {
                     text = getString(R.string.custom_theme_cancel)
                     layoutParams = LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f)
                     setOnClickListener {
@@ -1521,7 +1523,7 @@ class CustomThemeActivity : SettingsUiActivity() {
     }
 
     private fun promptCopyAsCustomTheme() {
-        val input = EditText(this).apply {
+        val input = TextInputEditText(this).apply {
             setText("")
             hint = getString(R.string.theme_name)
             isSingleLine = true

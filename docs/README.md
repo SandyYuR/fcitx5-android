@@ -1,6 +1,6 @@
 # 中州鹅直连版文档
 
-适用于本目录所在提交的中州鹅直连版，包名 `io.github.sandyyur.rime.direct`。
+适用于本目录所在提交的中州鹅直连版，包名 `org.fcitx.fcitx5.android.fx.rime`。
 通过 [PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4) 合入 `fx-rime-only` 后，默认分支也使用本套说明。
 旧 Fcitx 版固定在 `v0-archive-fcitx-before-direct-20261019`；独立 `docs` 分支上的旧站点说明不保证适用于直连版。
 
@@ -12,6 +12,7 @@
 | 查看最后审阅、APK 实际依赖、静态链接和无调用方库清理 | [最终依赖审阅](maintainer/DIRECT_RIME_FINAL_REVIEW_2026-10-19.md) |
 | 排查密码框打开方案菜单后键盘隐藏、重新弹出 | [密码框方案菜单修复](maintainer/DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md) |
 | 部署后仍使用旧 Lua、恢复包名与中文统计名称 | [部署重载与发行标识](maintainer/DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md) |
+| 更新器启动崩溃、日志／崩溃页及遗留界面 MD3 迁移 | [MD3 界面检查](maintainer/DIRECT_RIME_MD3_AUDIT_2026-10-21.md) |
 | 查看本会话版本、安装包、CI 与已完成/待完成事项 | [本会话交付索引](maintainer/DIRECT_RIME_SESSION_2026-10-17.md) |
 | 查看工作区、临时分支及 Actions 记录处理原则 | [工作区与分支整理](maintainer/DIRECT_RIME_WORKSPACE_CLEANUP_2026-10-17.md) |
 

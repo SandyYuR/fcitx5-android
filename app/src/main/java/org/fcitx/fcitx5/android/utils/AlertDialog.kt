@@ -5,28 +5,16 @@
 
 package org.fcitx.fcitx5.android.utils
 
-import android.app.AlertDialog
-import android.widget.Button
-
-val AlertDialog.positiveButton: Button
-    get() = getButton(AlertDialog.BUTTON_POSITIVE)
+import androidx.appcompat.app.AlertDialog
 
 /**
  * Change positive button listener **AFTER** [AlertDialog.show] has been called.
  *
  * In the listener: `true` to dismiss the dialog; `false` to keep the dialog open.
  */
-fun AlertDialog.onPositiveButtonClick(l: AlertDialog.() -> Boolean?): AlertDialog {
-    positiveButton.setOnClickListener {
-        if (l.invoke(this) == true) dismiss()
-    }
-    return this
-}
-
-/** Material settings dialogs keep the same validate-before-dismiss behavior. */
-fun androidx.appcompat.app.AlertDialog.onPositiveButtonClick(
-    listener: androidx.appcompat.app.AlertDialog.() -> Boolean?
-): androidx.appcompat.app.AlertDialog {
+fun AlertDialog.onPositiveButtonClick(
+    listener: AlertDialog.() -> Boolean?
+): AlertDialog {
     getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener {
         if (listener.invoke(this) == true) dismiss()
     }

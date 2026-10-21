@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 
+import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -93,7 +94,7 @@ class LayoutNameInputActivity : SettingsUiActivity() {
                     copySourceLabels
                 )
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                copySourceSpinner = Spinner(this@LayoutNameInputActivity).apply {
+                copySourceSpinner = MaterialSpinner(this@LayoutNameInputActivity).apply {
                     this.adapter = adapter
                     val defaultValue = intent.getStringExtra(EXTRA_COPY_SOURCE_DEFAULT).orEmpty()
                     val defaultIndex = copySources.indexOf(defaultValue).takeIf { it >= 0 } ?: 0

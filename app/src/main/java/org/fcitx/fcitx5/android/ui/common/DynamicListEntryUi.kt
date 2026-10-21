@@ -30,7 +30,7 @@ import splitties.views.dsl.constraintlayout.startOfParent
 import splitties.views.dsl.constraintlayout.topOfParent
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.add
-import splitties.views.dsl.core.checkBox
+import com.google.android.material.checkbox.MaterialCheckBox
 import splitties.views.dsl.core.imageButton
 import splitties.views.dsl.core.imageView
 import splitties.views.dsl.core.matchParent
@@ -49,9 +49,9 @@ class DynamicListEntryUi(override val ctx: Context) : Ui {
         setPaddingDp(3, 0, 3, 0)
     }
 
-    val multiselectCheckBox = checkBox()
+    val multiselectCheckBox = MaterialCheckBox(ctx).apply { id = View.generateViewId() }
 
-    val checkBox = checkBox()
+    val checkBox = MaterialCheckBox(ctx).apply { id = View.generateViewId() }
 
     val nameText = textView {
         setPaddingDp(0, 16, 0, 16)

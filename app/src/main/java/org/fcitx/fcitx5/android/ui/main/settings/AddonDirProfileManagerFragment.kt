@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings
 
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.Manifest
@@ -244,7 +245,7 @@ class AddonDirProfileManagerFragment : Fragment() {
     }
 
     private fun showCreateDialog(externalPath: String? = null, initialName: String = "") {
-        val input = EditText(requireContext()).apply {
+        val input = TextInputEditText(requireContext()).apply {
             hint = getString(R.string.name)
             if (initialName.isNotEmpty()) {
                 setText(initialName)
@@ -278,7 +279,7 @@ class AddonDirProfileManagerFragment : Fragment() {
     }
 
     private fun showRenameDialog(oldName: String) {
-        val input = EditText(requireContext()).apply {
+        val input = TextInputEditText(requireContext()).apply {
             hint = getString(R.string.name)
             setText(oldName)
             setSelection(oldName.length)

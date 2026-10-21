@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.graphics.Typeface
@@ -340,7 +341,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
                 val orderLabel = TextView(this@FontsetEditorActivity).apply {
                     width = dp(24)
                 }
-                val checkBox = CheckBox(this@FontsetEditorActivity)
+                val checkBox = MaterialCheckBox(this@FontsetEditorActivity)
                 row.addView(orderLabel)
                 row.addView(
                     checkBox,
@@ -480,7 +481,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
             setPadding(dp(16), dp(16), dp(16), dp(8))
         }
         
-        val seekBar = android.widget.SeekBar(this).apply {
+        val seekBar = org.fcitx.fcitx5.android.ui.common.SettingsSlider(this).apply {
             max = (maxSize - minSize).toInt()
             progress = (currentSize - minSize).toInt().coerceIn(0, max)
             setPadding(0, dp(16), 0, dp(8))
@@ -514,15 +515,15 @@ class FontsetEditorActivity : SettingsUiActivity() {
         container.addView(previewText)
         container.addView(hint)
         
-        seekBar.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+        seekBar.setOnSeekBarChangeListener(object : org.fcitx.fcitx5.android.ui.common.SettingsSlider.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: org.fcitx.fcitx5.android.ui.common.SettingsSlider, progress: Int, fromUser: Boolean) {
                 if (!fromUser) return
                 val newSize = minSize + progress
                 sizeDisplay.text = getString(R.string.font_size_value, newSize.toInt())
                 previewText.textSize = newSize
             }
-            override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {}
+            override fun onStartTrackingTouch(seekBar: org.fcitx.fcitx5.android.ui.common.SettingsSlider) {}
+            override fun onStopTrackingTouch(seekBar: org.fcitx.fcitx5.android.ui.common.SettingsSlider) {}
         })
         
         MaterialAlertDialogBuilder(this)
