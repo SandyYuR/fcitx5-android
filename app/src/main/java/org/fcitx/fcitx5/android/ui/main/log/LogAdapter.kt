@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.ui.main.log
 
 import android.graphics.Typeface
 import android.os.Build
+import android.os.Looper
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.textclassifier.TextClassifier
@@ -66,7 +67,10 @@ class LogAdapter : RecyclerView.Adapter<LogAdapter.Holder>() {
 
     fun currentFilterQuery() = filterQuery
 
-    fun fullLogString() = visibleEntries.joinToString("\n") { it.raw }
+    fun snapshotLines(): List<String> {
+        check(Looper.myLooper() == Looper.getMainLooper()) { "Log snapshots must be captured on the main thread" }
+        return visibleEntries.map { it.raw }
+    }
 
     override fun getItemCount() = visibleEntries.size
 

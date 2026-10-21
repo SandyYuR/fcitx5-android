@@ -76,8 +76,7 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
         }.launchIn(findViewTreeLifecycleOwner()!!.lifecycleScope)
     }
 
-    val currentLog: String
-        get() = logAdapter.fullLogString()
+    fun snapshotLines(): List<String> = logAdapter.snapshotLines()
 
     fun clear() {
         logAdapter.clear()
