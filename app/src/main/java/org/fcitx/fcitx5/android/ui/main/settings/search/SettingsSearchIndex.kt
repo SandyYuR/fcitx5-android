@@ -221,7 +221,6 @@ object SettingsSearchIndex {
 
         /* 高级 */
         R.string.ignore_sys_cursor to "ignore_system_cursor",
-        R.string.hide_key_config to "hide_key_config",
         R.string.disable_animation to "disable_animation",
         R.string.ignore_system_window_insets to "ignore_system_window_insets",
         R.string.vivo_keypress_workaround to "vivo_keypress_workaround",
@@ -264,27 +263,13 @@ object SettingsSearchIndex {
 
     private fun buildEntries(context: Context): List<SettingsSearchEntry> = listOf(
 
-        /* ===== Fcitx：引擎侧 =====
-         *
-         * 2026-09-29 取消「引擎配置」中转分组后的归属：
-         * 中州韵设置与全局选项是「怎么输入」，挂「输入与候选」；
-         * 附加组件是引擎侧插件管理，与兼容性开关同属「平时不动」的一类，挂「高级」。
-         */
-        SettingsSearchEntry(
-            R.string.global_options, P_INPUT,
-            listOf("global", "fcitx", "quanju", "触发键", "trigger"),
-            route = SettingsRoute.GlobalConfig
-        ),
+        // The single Rime engine settings entry.
         SettingsSearchEntry(
             R.string.rime_settings, P_INPUT,
             listOf("rime", "zhongzhouyun", "中州韵", "方案", "schema", "预编辑", "preedit", "部署", "deploy"),
             route = rimeRoute(context)
         ),
-        SettingsSearchEntry(
-            R.string.addons, P_ADVANCED,
-            listOf("addon", "fujian", "插件", "组件"),
-            route = SettingsRoute.AddonList
-        ),
+
 
         /* ===== 首页一级分组本身 ===== */
         SettingsSearchEntry(
@@ -986,14 +971,6 @@ object SettingsSearchIndex {
             listOf("cursor", "系统光标", "光标位置"),
             route = SettingsRoute.Advanced
         ),
-        // 2026-09-29 归位：开关从「引擎配置」中转页移回「高级」本页
-        // （那个中转分组已取消：全局选项与中州韵设置改挂「输入与候选」，
-        // 附加组件与本开关一起回到「高级」）。
-        SettingsSearchEntry(
-            R.string.hide_key_config, P_ADVANCED,
-            listOf("key config", "快捷键", "kuaijiejian", "隐藏快捷键", "trigger keys"),
-            route = SettingsRoute.Advanced
-        ),
         SettingsSearchEntry(
             R.string.disable_animation, P_ADVANCED,
             listOf("animation", "动画", "donghua", "禁用动画"),
@@ -1035,7 +1012,7 @@ object SettingsSearchIndex {
             route = SettingsRoute.Developer
         ),
         SettingsSearchEntry(
-            R.string.restart_fcitx_instance, P_ADVANCED,
+            R.string.direct_rime_restart_engine, P_ADVANCED,
             listOf("restart", "重启", "chongqi"),
             route = SettingsRoute.Developer
         ),
