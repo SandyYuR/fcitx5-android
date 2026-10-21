@@ -519,6 +519,12 @@ object VoiceInputProviderManager {
             releaseProviderConnection(service, callStopSession = true)
         }
 
+        // Keep the latest unfinished hypothesis for the case where the user explicitly
+        // ends recognition but the provider fails to send onSegmentFinal after endStream.
+        // Access is synchronized because AIDL callbacks may arrive on Binder threads.
+        val resultLock = Any()
+        var pendingPartialResult: String? = null
+
         val callback = object : IVoiceInputCallback.Stub() {
             override fun onReady() {
                 logI("provider ready")
@@ -539,6 +545,9 @@ object VoiceInputProviderManager {
                     // 只记长度：识别文本属 AGENTS.md §8.5 禁止进入日志的输入内容
                     // （logI/tlogI 虽只在 debug 输出，但内容一旦落日志文件就留在设备上）。
                     logI("partial result len=${t.length}")
+                    synchronized(resultLock) {
+                        pendingPartialResult = t
+                    }
                     service.lifecycleScope.launch {
                         service.setVoiceComposingText(t)
                         onPartialResult(t)
@@ -548,6 +557,10 @@ object VoiceInputProviderManager {
 
             override fun onSegmentFinal(text: String?) {
                 val t = text.orEmpty()
+                // A final (including an explicit empty final) closes the current hypothesis.
+                synchronized(resultLock) {
+                    pendingPartialResult = null
+                }
                 if (t.isNotBlank()) {
                     // 同上：只记长度，不记识别文本。
                     logI("segment final len=${t.length}")
@@ -562,16 +575,26 @@ object VoiceInputProviderManager {
             override fun onSessionEnded() {
                 logI("provider session ended")
                 tlogI("Voice provider session ended")
-                // Any partial that wasn't followed by a final (e.g. provider
-                // discarded it via speaker filter / VAD silence / cancel) is
-                // now an orphan — clear it instead of leaving stale composing.
+                // endStream is the normal user-finish path (mic toggle / hold-space release).
+                // Some providers end the session without sending their final hypothesis; in
+                // that case, commit the latest partial so the text does not vanish on release.
+                // A spontaneous end/cancel still clears it, as does an explicit empty final.
+                val wasUserFinished = finishing
+                val partialToCommit = synchronized(resultLock) {
+                    pendingPartialResult.also { pendingPartialResult = null }
+                }
                 //
                 // stopSession() runs inside this block, not on the binder thread that
                 // delivered the callback: it tears down activeCapture / activeCallback /
                 // sessionActive, which the main thread also reads and writes. Racing with
                 // start() left the AudioRecord unreleased with the microphone still open.
                 service.lifecycleScope.launch {
-                    service.clearVoiceComposingText()
+                    if (wasUserFinished && !partialToCommit.isNullOrBlank()) {
+                        logI("committing last partial on user finish len=${partialToCommit.length}")
+                        service.commitText(partialToCommit)
+                    } else {
+                        service.clearVoiceComposingText()
+                    }
                     onFinished()
                     stopSession(service, keepConnectionWarm = true)
                 }
@@ -580,6 +603,9 @@ object VoiceInputProviderManager {
             override fun onError(code: Int, message: String?) {
                 logW("provider error $code: $message")
                 Timber.w("Voice provider error $code: $message")
+                synchronized(resultLock) {
+                    pendingPartialResult = null
+                }
                 // Same reason as onSessionEnded: keep the teardown on the main thread.
                 service.lifecycleScope.launch {
                     service.clearVoiceComposingText()
