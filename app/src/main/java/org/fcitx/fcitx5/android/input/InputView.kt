@@ -3900,7 +3900,14 @@ class InputView(
      * Useful after InputView recreation (e.g. theme switch) to avoid waiting for next async IM event.
      */
     internal fun syncImeFromCache() {
-        broadcaster.onImeUpdate(fcitx.runImmediately { inputMethodEntryCached })
+        val entry = try {
+            fcitx.runImmediately { inputMethodEntryCached }
+        } catch (_: org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException) {
+            // A posted first-show/theme refresh may run after the service has
+            // disconnected. Its view is obsolete; it must not crash the process.
+            return
+        }
+        broadcaster.onImeUpdate(entry)
     }
 
     internal fun onKeyboardHeightSourceChanged() {
