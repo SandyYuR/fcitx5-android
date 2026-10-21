@@ -26,7 +26,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.search.scrollToPendingPreferenc
  *   `split_keyboard_use_landscape_layout` 两个开关，加一个校准 Activity 入口）。
  *   这几项原先挂在「键盘尺寸」分组里，2026 年归并到本页——分体同样是一种整体形态，
  *   与浮动/单手同族，放在尺寸几何里并不自解释。
- * - **浮动键盘**：启用开关，外加「横屏时自动使用浮动键盘」。
+ * - **浮动键盘**：启用开关、横屏自动切换与移动把手自动隐藏。
  * - **单手键盘**：启用开关与「靠右显示」。
  *
  * 浮动/单手的状态存在 `AppPrefs.internal` 里，原本**没有任何设置入口**，只能靠工具栏/
@@ -142,10 +142,19 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
             isIconSpaceReserved = false
             isSingleLineTitle = false
         }
+        val autoHideMoveHandle = MySwitchPreference(ctx).apply {
+            key = internal.autoHideFloatingMoveHandle.key
+            setTitle(R.string.floating_move_handle_auto_hide)
+            setSummary(R.string.floating_move_handle_auto_hide_summary)
+            setDefaultValue(false)
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+        }
         floatingSwitch = floating
         autoFloatingSwitch = autoFloating
         floatingCategory.addPreference(floating)
         floatingCategory.addPreference(autoFloating)
+        floatingCategory.addPreference(autoHideMoveHandle)
 
         // ===== 单手键盘 =====
         val oneHandCategory = category(R.string.keyboard_modes_category_one_hand)

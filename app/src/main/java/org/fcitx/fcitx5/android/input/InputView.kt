@@ -6,6 +6,7 @@
 package org.fcitx.fcitx5.android.input
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -29,6 +30,7 @@ import android.graphics.Outline
 import android.graphics.Point
 import android.os.Build
 import android.os.SystemClock
+import android.view.GestureDetector
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
@@ -130,6 +132,8 @@ import splitties.views.dsl.core.view
 import splitties.views.dsl.core.wrapContent
 import splitties.views.backgroundColor
 import splitties.views.imageDrawable
+
+private const val FLOATING_MOVE_HANDLE_AUTO_HIDE_DELAY_MS = 3_000L
 
 @SuppressLint("ViewConstructor")
 class InputView(
@@ -917,6 +921,24 @@ class InputView(
         }
     }
 
+    private fun createFloatingResizeHandleGestureDetector() =
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDown(e: MotionEvent): Boolean = true
+
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                showFloatingMoveHandle()
+                return true
+            }
+        })
+
+    private val floatingRightHandleGestureDetector by lazy(LazyThreadSafetyMode.NONE) {
+        createFloatingResizeHandleGestureDetector()
+    }
+
+    private val floatingBottomHandleGestureDetector by lazy(LazyThreadSafetyMode.NONE) {
+        createFloatingResizeHandleGestureDetector()
+    }
+
     private fun clampFloatingPosition() {
         if (!isEffectiveFloating) return
         val containerWidth = if (width > 0) width else resources.displayMetrics.widthPixels
@@ -947,6 +969,7 @@ class InputView(
         visibility = GONE
         // No initial translation needed, controlled by updateHandlePosition
         setOnTouchListener { v, event ->
+            floatingRightHandleGestureDetector.onTouchEvent(event)
             if (!isFloating) return@setOnTouchListener false
             // Expand touch area check if needed, but since we're using padding,
             // the view itself is larger.
@@ -995,6 +1018,7 @@ class InputView(
         visibility = GONE
         // No initial translation needed
         setOnTouchListener { v, event ->
+            floatingBottomHandleGestureDetector.onTouchEvent(event)
             if (!isEffectiveFloating) return@setOnTouchListener false
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
@@ -1801,7 +1825,18 @@ class InputView(
     private var oneHandOnRightPortrait by internalPrefs.oneHandOnRightPortrait
     private var oneHandOnRightLandscape by internalPrefs.oneHandOnRightLandscape
     private var floatingModeEnabledPref by internalPrefs.floatingModeEnabled
+    private var autoHideFloatingMoveHandlePref by internalPrefs.autoHideFloatingMoveHandle
     private var oneHandModeEnabledPref by internalPrefs.oneHandModeEnabled
+    private var lastAutoHideFloatingMoveHandlePref = false
+    private var floatingHandlesWereEffective = false
+    private val autoHideMoveHandlePreferenceListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == internalPrefs.autoHideFloatingMoveHandle.key) {
+                post {
+                    if (isAttachedToWindow) updateFloatingHandlesVisibility()
+                }
+            }
+        }
     private val autoFloatingLandscapePref = internalPrefs.autoFloatingLandscape
     // 当前浮动是否由「横屏自动浮动」规则触发（而非用户手动）。只有自动触发的浮动才会在
     // 转回竖屏时被自动收回；用户手动开的浮动不受此规则影响。
@@ -2016,6 +2051,12 @@ class InputView(
      */
     private var floatingMoveHandleAbove: Boolean? = null
 
+    private val floatingMoveHandleAutoHideRunnable = Runnable {
+        if (autoHideFloatingMoveHandlePref && isEffectiveFloating && !isAdjustingMode) {
+            setFloatingMoveHandleVisibility(GONE)
+        }
+    }
+
     // ==== 缩放手柄 ACTION_MOVE 的按帧合并 ====
     // 触摸采样可达 60–120Hz，而一次尺寸提交要改 LayoutParams + requestLayout（键盘有几十个
     // KeyView，一次 measure/layout 很贵）；同一帧内可能来好几个 MOVE，于是同一帧被反复
@@ -2218,20 +2259,68 @@ class InputView(
     }
 
     private fun updateFloatingHandlesVisibility() {
+        val autoHideEnabled = autoHideFloatingMoveHandlePref
+        val autoHideChanged = autoHideEnabled != lastAutoHideFloatingMoveHandlePref
+        lastAutoHideFloatingMoveHandlePref = autoHideEnabled
         if (isEffectiveFloating) {
             floatingRightHandle.visibility = VISIBLE
             floatingBottomHandle.visibility = VISIBLE
-            adjustableHandle.visibility = VISIBLE
+            if (!autoHideEnabled) {
+                removeCallbacks(floatingMoveHandleAutoHideRunnable)
+                setFloatingMoveHandleVisibility(VISIBLE)
+            } else if (!floatingHandlesWereEffective || autoHideChanged) {
+                showFloatingMoveHandle()
+            }
+            floatingHandlesWereEffective = true
             return
         }
+        removeCallbacks(floatingMoveHandleAutoHideRunnable)
         floatingRightHandle.visibility = GONE
         floatingBottomHandle.visibility = GONE
         // In adjusting mode, floatingMoveHandle is used as bottom padding adjuster
-        if (isAdjustingMode) {
-            adjustableHandle.visibility = VISIBLE
-        } else {
-            adjustableHandle.visibility = GONE
+        setFloatingMoveHandleVisibility(if (isAdjustingMode) VISIBLE else GONE)
+        floatingHandlesWereEffective = false
+    }
+
+    private fun showFloatingMoveHandle() {
+        if (!autoHideFloatingMoveHandlePref || !isEffectiveFloating) return
+        setFloatingMoveHandleVisibility(VISIBLE)
+        scheduleFloatingMoveHandleAutoHide()
+    }
+
+    private fun scheduleFloatingMoveHandleAutoHide() {
+        removeCallbacks(floatingMoveHandleAutoHideRunnable)
+        if (
+            isAttachedToWindow && autoHideFloatingMoveHandlePref &&
+            isEffectiveFloating && adjustableHandle.visibility == VISIBLE
+        ) {
+            postDelayed(floatingMoveHandleAutoHideRunnable, FLOATING_MOVE_HANDLE_AUTO_HIDE_DELAY_MS)
         }
+    }
+
+    private fun setFloatingMoveHandleVisibility(visibility: Int) {
+        if (adjustableHandle.visibility == visibility) return
+        adjustableHandle.visibility = visibility
+        requestLayout()
+        if (isAttachedToWindow) {
+            service.updateFullscreenMode()
+            service.window.window?.decorView?.requestLayout()
+        }
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (autoHideFloatingMoveHandlePref != lastAutoHideFloatingMoveHandlePref) {
+            updateFloatingHandlesVisibility()
+        }
+        if (autoHideFloatingMoveHandlePref && isEffectiveFloating && adjustableHandle.visibility == VISIBLE) {
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN ->
+                    removeCallbacks(floatingMoveHandleAutoHideRunnable)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL ->
+                    scheduleFloatingMoveHandleAutoHide()
+            }
+        }
+        return super.dispatchTouchEvent(event)
     }
 
     private fun updateAdjustingHandlesVisibility() {
@@ -3849,6 +3938,10 @@ class InputView(
     }
 
     override fun onDetachedFromWindow() {
+        removeCallbacks(floatingMoveHandleAutoHideRunnable)
+        floatingHandlesWereEffective = false
+        internalPrefs.autoHideFloatingMoveHandle.sharedPreferences
+            .unregisterOnSharedPreferenceChangeListener(autoHideMoveHandlePreferenceListener)
         // 视图即将销毁：取消缩放手柄的按帧提交回调并清空挂起尺寸。
         // 这里不 flush——detach 时提交出来的几何没有任何意义（视图随即被换掉），却会在拆解
         // 过程中触碰 windowManager 并往已 detach 的 keyboardView 上 post 任务；但回调和
@@ -3876,6 +3969,17 @@ class InputView(
         // clear DynamicScope, implies that InputView should not be attached again after detached.
         scope.clear()
         super.onDetachedFromWindow()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        internalPrefs.autoHideFloatingMoveHandle.sharedPreferences
+            .registerOnSharedPreferenceChangeListener(autoHideMoveHandlePreferenceListener)
+        if (autoHideFloatingMoveHandlePref && isEffectiveFloating) {
+            showFloatingMoveHandle()
+        } else {
+            updateFloatingHandlesVisibility()
+        }
     }
 
     fun updateAuxBar(actions: List<org.fcitx.fcitx5.android.core.AuxBarAction>, listener: KeyActionListener) {
