@@ -7,6 +7,7 @@
 | 需要做什么 | 从这里开始 |
 | --- | --- |
 | 安装、导入万象、中英文切换、调整键盘、备份与排错 | [用户手册](manual/DIRECT_RIME_USER_GUIDE_zh-CN.md) |
+| 查看 10 月 21 日引擎升级、定制补丁与固定来源 | [引擎更新记录](maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md) |
 | 编译、更新 librime、验证、维护性能测试 | [维护手册](maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md) |
 | 查看当前基线、签名 APK、CI、合并顺序与文档站交付 | [当前合并交付](maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21.md) |
 | 追溯日用验收、提交收拢与分支归档 | [10 月 19 日整理记录](maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md) |

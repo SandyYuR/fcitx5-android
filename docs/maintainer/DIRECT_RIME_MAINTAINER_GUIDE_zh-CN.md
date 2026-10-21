@@ -64,16 +64,18 @@ open/read/write/sync/stat 分项，不能覆盖全部 mmap/后台等待。首次
 
 | 层次 | 仓库及固定版本 |
 | --- | --- |
-| 上游引擎 | [rime/librime](https://github.com/rime/librime)，`ef1a16aa2c962bccf347b116443331f39d56e037`，元数据 `1.17.0-ef1a16a` |
-| Android 编译与定制补丁 | [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder)，本次产物记录的提交 `4121ce63125bb73b5802199dea92dbb5101e8b36` |
-| 四 ABI 预编译产物 | [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)，主仓库 gitlink `1126616c3ec569617da772e30d7a97f6b2694172` |
+| 上游引擎 | [rime/librime](https://github.com/rime/librime)，`1b3417d2b6a11b5e50e0e1fa9dc396056aa11dce`，元数据 `1.17.0-1b3417d` |
+| Android 编译与定制补丁 | [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder)，本次产物记录的提交 `0af671f902680e00e4842d92ba49e373db0cf938`，由 `v0-archive-librime-build-20261021` 保留 |
+| 四 ABI 预编译产物 | [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)，主仓库 gitlink `0fee61763cd40776ecaa5af3200f6b296d20262f` |
 | 公共预设 | [rime/rime-prelude](https://github.com/rime/rime-prelude)，`082425ea0684bca36474415d4a0e8db9b016487e` |
+
+本次上游 23 项提交、定制兼容与验证见[引擎更新记录](DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md)。
 
 `native/prebuilt/librime/<ABI>/lib/librime.a` 静态链接入 `libdirect-rime.so`。
 主应用自己的桥接位于 `direct-rime/src/main/cpp/`，前端适配位于 `DirectRimeBackend.kt`。
 APK 原生库白名单只有 `libdirect-rime.so` 与 `libc++_shared.so`。
-`leveldb-open.cpp` 在本 DSO 内通过公共 DB::Open 接口开启 reuse_logs；没有替换 librime
-或修改 prebuilt gitlink。更新 LevelDB 时应同步检查公共 Options 字段、每 ABI Open 导出和
+`leveldb-open.cpp` 在本 DSO 内通过公共 DB::Open 接口开启 reuse_logs。
+本次只更新 librime，LevelDB 等依赖仍来自原 prebuilt 基线。更新 LevelDB 时应同步检查公共 Options 字段、每 ABI Open 导出和
 `tools/input-perf/test-leveldb-open.py` 的恢复/显式同步回归，随后跑 Android 存储与万象验证。
 
 共享 prebuilt 仓库也存有其他引擎的产物，主应用不链接它们。
@@ -83,12 +85,13 @@ APK 原生库白名单只有 `libdirect-rime.so` 与 `libc++_shared.so`。
 ## 更新 librime
 
 1. 在 **prebuilder 仓库的新分支**中更新官方 librime 固定提交，审阅上游 ABI/API 和插件兼容变化。
-2. 检查 `src/Rules/LibRime.hs` 及对应补丁。当前核心补丁依次涉及基础定制、音节缓存、
+2. 检查 `src/Rules/LibRime.hs`、`patches/librime-series` 及对应补丁。当前核心补丁依次涉及基础定制、音节缓存、
    词典并行部署、用户词典缓存、映射文件修复、连删行为修复、rewrite 滤镜和配置指纹。
    **配置指纹补丁最后应用**；Lua、octagram 等插件也有各自补丁。
-3. 构建四 ABI，验证预编译产物包含现有定制头文件与扩展字段，如 `get_input_tabs` / `free_input_tabs`。
+3. 可在 prebuilder 的 CI 手动选择 `librime-only`，复用固定依赖，隔离构建源码并运行四 ABI 与主机回归。
+   构建四 ABI，验证预编译产物包含现有定制头文件与扩展字段，如 `get_input_tabs` / `free_input_tabs`。
    不能只换一个官方二进制文件，否则可能丢失项目依赖的功能或造成 ABI 不匹配。
-4. 将验证后的产物发布到 prebuilt，记录上游、prebuilder 和产物提交；
+4. 将验证后的产物发布到 prebuilt 新分支，核对每 ABI 的 `share/rime/source-manifest.json`、补丁及依赖/产物哈希，记录上游、prebuilder 和产物提交；
    在本仓库把 `native/prebuilt` 切到该固定提交并提交 gitlink。
 5. 同步 `app/licenses/libraries/` 下的引擎及变动依赖版本，更新本手册的固定版本表。
 6. 跑 JVM、原生安全检查、四 ABI APK 核验与设备输入测试；用实际万象用户库验证部署、
@@ -117,7 +120,7 @@ python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/debug/*.apk
 
 CI 的 `Direct Rime CI` 工作流覆盖 native ASan/UBSan、独立引擎 smoke、
 完整前端构建以及实际触摸、模式提示、方案、设置、导入与布局编辑回归。
-ATD 镜像的触屏测试需启用绘制；[测试脚本](https://github.com/SandyYuR/fcitx5-android/blob/df591f782bc07248b1917fe6544a711e917ec022/tools/test-direct-rime-frontend.sh)已处理。
+ATD 镜像的触屏测试需启用绘制；[测试脚本](https://github.com/SandyYuR/fcitx5-android/blob/8acf23ef90312f301a714f336e8f12134231c9fe/tools/test-direct-rime-frontend.sh)已处理。
 APK 检查器核对动态依赖、资源、DEX 类定义及页对齐：64 位 16 KiB，32 位 4 KiB。
 静态审计另外匹配 APK ELF build ID，并核对链接结束时记录的 map/未剥离库 SHA256，
 只允许固定七组 Rime 归档及 NDK 支持库；未知归档或 Fcitx C++ 符号直接失败。
@@ -173,7 +176,7 @@ LTS 标签可变；下载哈希不一致时应明确选择并记录新的模型�
 
 `tools/foxy-perf/` 另提供两款未修改 ARM64 Release APK 的外部触摸驱动。
 Foxy 使用上传的原包；两边都经 API 30 Google APIs 模拟器的 ARM64 翻译桥运行。
-方法、编译/签名来源、配置核验及缓存边界见[工具说明](https://github.com/SandyYuR/fcitx5-android/blob/df591f782bc07248b1917fe6544a711e917ec022/tools/foxy-perf/README.md)。
+方法、编译/签名来源、配置核验及缓存边界见[工具说明](https://github.com/SandyYuR/fcitx5-android/blob/8acf23ef90312f301a714f336e8f12134231c9fe/tools/foxy-perf/README.md)。
 复用 Release 必须验证产品目录与保存的源码哈希一致，不能把旧 APK 标为新提交。
 Release 保留 R8 和 ART profile 编译/打包，使用 ProfileInstaller；检查二进制 profile
 可运行 `python3 tools/foxy-perf/apk_profiles.py PATH.apk`。文本规则数量不等于实际编译收益。

@@ -1,4 +1,5 @@
 # 中州鹅直连版：合并与文档站交付
+上游引擎已另行升级，以下签名包与 CI 属于升级前基线；最新引擎来源和验证见[引擎更新记录](DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md)及代码 PR #4。
 
 本页是当前合并入口；10 月 16–20 日的报告继续作为历史证据保留。
 代码 PR 为 [#4](https://github.com/SandyYuR/fcitx5-android/pull/4)，
