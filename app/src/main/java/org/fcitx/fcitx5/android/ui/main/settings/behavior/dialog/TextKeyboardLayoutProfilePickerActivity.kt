@@ -9,14 +9,15 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.utils.toast
 
-class TextKeyboardLayoutProfilePickerActivity : AppCompatActivity() {
+class TextKeyboardLayoutProfilePickerActivity : SettingsUiActivity() {
+    override val transparentSettingsWindow: Boolean get() = true
     private var pickerDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -4,6 +4,9 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
+import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.Manifest
@@ -26,7 +29,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.SeekBar
+import org.fcitx.fcitx5.android.ui.common.SettingsSlider as SeekBar
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -145,7 +148,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private val layoutSpinner by lazy {
-        Spinner(this).apply {
+        MaterialSpinner(this).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
                 setMargins(0, 0, 0, 0)
@@ -154,7 +157,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private val subModeSpinner by lazy {
-        Spinner(this).apply {
+        MaterialSpinner(this).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
                 setMargins(0, 0, 0, 0)
@@ -2224,7 +2227,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
 
-        val nameEdit = EditText(this).apply {
+        val nameEdit = TextInputEditText(this).apply {
             setText(currentName)
             hint = getString(R.string.text_keyboard_layout_layout_name_hint)
         }
@@ -2245,7 +2248,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         if (!globalSharedOnly && availableImeNames.isNotEmpty()) {
             val imeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, availableImeNames)
             imeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            val imeSpinner = Spinner(this).apply {
+            val imeSpinner = MaterialSpinner(this).apply {
                 adapter = imeAdapter
                 setPadding(0, dp(8), 0, 0)
             }
@@ -2321,7 +2324,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         // Show selectable names in spinner
         val copyAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, displayItems.toTypedArray())
         copyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        val copySpinner = Spinner(this)
+        val copySpinner = MaterialSpinner(this)
         copySpinner.adapter = copyAdapter
         container.addView(copySpinner)
 
@@ -2571,7 +2574,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             setTypeface(null, android.graphics.Typeface.BOLD)
             setPadding(0, dp(10), 0, dp(2))
         }
-        val useGlobalSwitch = androidx.appcompat.widget.SwitchCompat(this).apply {
+        val useGlobalSwitch = MaterialSwitch(this).apply {
             text = getString(R.string.text_keyboard_layout_use_global_height)
             isChecked = useGlobalInitially
         }
@@ -2587,15 +2590,15 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             isEnabled = !useGlobalInitially
             alpha = if (useGlobalInitially) 0.5f else 1f
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     val percent = progress + 10
                     if (!useGlobalSwitch.isChecked) {
                         customPercent = percent
                         percentValue.text = "$percent%"
                     }
                 }
-                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+                override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
+                override fun onStopTrackingTouch(seekBar: SeekBar) = Unit
             })
         }
         percentValue.alpha = if (useGlobalInitially) 0.5f else 1f
@@ -2695,7 +2698,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             setTypeface(null, android.graphics.Typeface.BOLD)
             setPadding(0, 0, 0, dp(4))
         }
-        val positionSpinner = Spinner(this)
+        val positionSpinner = MaterialSpinner(this)
         val positions = listOf(
             getString(R.string.text_keyboard_layout_aux_bar_none) to null,
             getString(R.string.text_keyboard_layout_aux_bar_left) to AuxBarPosition.Left,
@@ -2730,11 +2733,11 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         sizeValue.alpha = if (showSize) 1f else 0.5f
         sizeLabel.alpha = if (showSize) 1f else 0.5f
         sizeSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 sizeValue.text = "${progress + 5}%"
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStartTrackingTouch(seekBar: SeekBar) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar) = Unit
         })
         positionSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, pos: Int, id: Long) {
@@ -3122,7 +3125,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
             setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
-        val nameEdit = EditText(this).apply {
+        val nameEdit = TextInputEditText(this).apply {
             hint = getString(R.string.text_keyboard_layout_file_name_hint)
             setText(oldProfile)
             setSelection(text?.length ?: 0)
@@ -3251,10 +3254,10 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
             setTextColor(settingsColor(android.R.attr.textColorSecondary))
         }
-        val nameEdit = EditText(this).apply {
+        val nameEdit = TextInputEditText(this).apply {
             hint = getString(R.string.text_keyboard_layout_file_name_hint)
         }
-        val copySwitch = androidx.appcompat.widget.SwitchCompat(this).apply {
+        val copySwitch = MaterialSwitch(this).apply {
             text = getString(R.string.text_keyboard_layout_file_copy_current)
             isChecked = true
         }

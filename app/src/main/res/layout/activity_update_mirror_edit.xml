@@ -1,65 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
+    android:background="?attr/colorSurfaceContainer"
     android:orientation="vertical">
-
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:minHeight="?attr/actionBarSize" />
-
+        android:background="?attr/colorSurfaceContainer"
+        android:elevation="0dp"
+        android:minHeight="64dp" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/update_mirror_name_label"
             android:textSize="13sp" />
-
-        <EditText
-            android:id="@+id/mirrorNameInput"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/update_mirror_name_hint"
-            android:maxLines="1" />
-
+            android:hint="@string/update_mirror_name_hint">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/mirrorNameInput"
+                android:maxLines="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="@string/update_mirror_pattern_label"
             android:textSize="13sp" />
-
-        <EditText
-            android:id="@+id/mirrorPatternInput"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/update_mirror_pattern_hint"
-            android:inputType="text"
-            android:maxLines="1" />
-
+            android:hint="@string/update_mirror_pattern_hint">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/mirrorPatternInput"
+                android:inputType="text"
+                android:maxLines="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="@string/update_mirror_replace_label"
             android:textSize="13sp" />
-
-        <EditText
-            android:id="@+id/mirrorReplacementInput"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/update_mirror_replace_hint"
-            android:inputType="text"
-            android:maxLines="1" />
+            android:hint="@string/update_mirror_replace_hint">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/mirrorReplacementInput"
+                android:inputType="text"
+                android:maxLines="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 </LinearLayout>

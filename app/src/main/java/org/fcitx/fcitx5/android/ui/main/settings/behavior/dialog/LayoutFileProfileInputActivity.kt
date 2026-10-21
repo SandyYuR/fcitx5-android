@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 
+import com.google.android.material.materialswitch.MaterialSwitch
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -119,7 +120,7 @@ class LayoutFileProfileInputActivity : SettingsUiActivity() {
         }
 
         if (intent.getBooleanExtra(EXTRA_SHOW_COPY_SWITCH, false)) {
-            copySwitch = SwitchCompat(this).apply {
+            copySwitch = MaterialSwitch(this).apply {
                 text = getString(R.string.text_keyboard_layout_file_copy_current)
                 isChecked = intent.getBooleanExtra(EXTRA_COPY_CURRENT_DEFAULT, true)
             }

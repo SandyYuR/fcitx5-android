@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import com.google.android.material.button.MaterialButton
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
@@ -14,7 +15,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import android.widget.SeekBar
+import org.fcitx.fcitx5.android.ui.common.SettingsSlider as SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
@@ -315,7 +316,7 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
             gravity = Gravity.CENTER
         }
 
-        buttonLayout.addView(Button(this).apply {
+        buttonLayout.addView(MaterialButton(this).apply {
             text = getString(R.string.split_keyboard_auto_calibrate)
             isAllCaps = false
             setOnClickListener { autoCalibrate() }
@@ -324,7 +325,7 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
             setMargins(dp(16), dp(8), dp(8), dp(8))
         })
 
-        buttonLayout.addView(Button(this).apply {
+        buttonLayout.addView(MaterialButton(this).apply {
             text = getString(R.string.split_keyboard_reset)
             isAllCaps = false
             setOnClickListener { resetToDefaults() }
@@ -391,15 +392,15 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
             progress = initialValue - minValue
 
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     if (fromUser) {
                         val value = progress + minValue
                         valueTextView.text = valueTextProvider(value)
                         onValueChanged(value)
                     }
                 }
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStartTrackingTouch(seekBar: SeekBar) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar) {}
             })
         }, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,

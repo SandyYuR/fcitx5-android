@@ -9,15 +9,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.ViewGroup
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,15 +29,15 @@ import org.fcitx.fcitx5.android.utils.iso8601UTCDateTime
 import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.toast
 import splitties.resources.styledColor
-import splitties.views.topPadding
 
-class LogActivity : AppCompatActivity() {
+class LogActivity : SettingsUiActivity() {
 
     private var fromCrash = false
     private var logFilterQuery = ""
 
     private lateinit var launcher: ActivityResultLauncher<String>
     private lateinit var logView: LogView
+    private var crashDialog: AlertDialog? = null
 
     private fun registerLauncher() {
         launcher = registerForActivityResult(CreateDocument("text/plain")) { uri ->
@@ -64,19 +60,8 @@ class LogActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         logFilterQuery = savedInstanceState?.getString(STATE_LOG_FILTER_QUERY).orEmpty()
-        enableEdgeToEdge()
+        theme.applyStyle(R.style.ThemeOverlay_FcitxSettings_Log, true)
         val binding = ActivityLogBinding.inflate(layoutInflater)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
-            val statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
-            val navBars = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            binding.root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = navBars.left
-                rightMargin = navBars.right
-            }
-            binding.toolbar.topPadding = statusBars.top
-            binding.logView.setBottomPadding(navBars.bottom)
-            windowInsets
-        }
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         with(binding) {
@@ -85,11 +70,13 @@ class LogActivity : AppCompatActivity() {
             if (intent.hasExtra(FROM_CRASH)) {
                 fromCrash = true
                 supportActionBar!!.setTitle(R.string.crash_logs)
-                MaterialAlertDialogBuilder(this@LogActivity)
-                    .setTitle(R.string.app_crash)
-                    .setMessage(R.string.app_crash_message)
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show()
+                if (savedInstanceState == null) {
+                    crashDialog = MaterialAlertDialogBuilder(this@LogActivity)
+                        .setTitle(R.string.app_crash)
+                        .setMessage(R.string.app_crash_message)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                }
                 logView.append("--------- Crash stacktrace")
                 logView.append(intent.getStringExtra(CRASH_STACK_TRACE) ?: "<empty>")
                 logView.setLogcat(Logcat(FcitxApplication.getLastPid()))
@@ -105,6 +92,17 @@ class LogActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(STATE_LOG_FILTER_QUERY, logView.currentFilterQuery())
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
+
+    override fun onDestroy() {
+        crashDialog?.dismiss()
+        crashDialog = null
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

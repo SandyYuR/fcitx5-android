@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.Manifest
@@ -277,9 +278,9 @@ class PopupEditorActivity : SettingsUiActivity() {
             }
             setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
             setOnClickListener {
-                val edit = EditText(this@PopupEditorActivity).apply {
+                val edit = TextInputEditText(this@PopupEditorActivity).apply {
                     setText(currentKeyValue)
-                    setSelection(text.length)
+                    setSelection(text?.length ?: 0)
                     hint = getString(R.string.popup_editor_key_input_hint)
                 }
                 MaterialAlertDialogBuilder(this@PopupEditorActivity)
@@ -341,9 +342,9 @@ class PopupEditorActivity : SettingsUiActivity() {
                     // 使用 tag 标记原始索引，用于拖拽结束后追踪
                     tag = index
                     setOnClickListener {
-                        EditText(this@PopupEditorActivity).apply {
+                        TextInputEditText(this@PopupEditorActivity).apply {
                             setText(value)
-                            setSelection(text.length)
+                            setSelection(text?.length ?: 0)
                         }.let { edit ->
                             MaterialAlertDialogBuilder(this@PopupEditorActivity)
                                 .setTitle(R.string.edit)
@@ -399,7 +400,7 @@ class PopupEditorActivity : SettingsUiActivity() {
                     setMargins(dp(4), dp(4), dp(4), dp(4))
                 }
                 setOnClickListener {
-                    EditText(this@PopupEditorActivity).apply {
+                    TextInputEditText(this@PopupEditorActivity).apply {
                         hint = getString(R.string.popup_editor_candidate_input_hint)
                     }.let { edit ->
                         MaterialAlertDialogBuilder(this@PopupEditorActivity)

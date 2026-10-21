@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
@@ -58,11 +59,19 @@ class UpdateMirrorEditActivity : SettingsUiActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         if (editingId != null) {
-            menu.add(Menu.NONE, MENU_DELETE, Menu.NONE, "🗑")
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS or MenuItem.SHOW_AS_ACTION_WITH_TEXT)
+            menu.add(Menu.NONE, MENU_DELETE, Menu.NONE, R.string.delete).apply {
+                icon = AppCompatResources.getDrawable(this@UpdateMirrorEditActivity, R.drawable.ic_baseline_delete_24)?.mutate()?.apply {
+                    setTint(settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
+                }
+                setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            }
         }
-        menu.add(Menu.NONE, MENU_SAVE, Menu.NONE, "💾")
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS or MenuItem.SHOW_AS_ACTION_WITH_TEXT)
+        menu.add(Menu.NONE, MENU_SAVE, Menu.NONE, R.string.save).apply {
+            icon = AppCompatResources.getDrawable(this@UpdateMirrorEditActivity, R.drawable.ic_baseline_save_24)?.mutate()?.apply {
+                setTint(settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
+            }
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        }
         return true
     }
 

@@ -24,7 +24,7 @@
     android:paddingStart="16dp"
     android:paddingEnd="4dp">
 
-    <EditText
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/settings_search_input"
         android:layout_width="0dp"
         android:layout_weight="1"

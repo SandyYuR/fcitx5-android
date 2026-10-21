@@ -5,7 +5,7 @@
 
 package org.fcitx.fcitx5.android.utils
 
-import android.widget.SeekBar
+import org.fcitx.fcitx5.android.ui.common.SettingsSlider as SeekBar
 
 fun SeekBar.setOnChangeListener(listener: SeekBar.(progress: Int) -> Unit) {
     setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

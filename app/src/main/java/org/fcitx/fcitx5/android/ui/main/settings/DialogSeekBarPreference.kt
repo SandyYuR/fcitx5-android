@@ -18,7 +18,7 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.horizontalMargin
 import splitties.views.dsl.core.lParams
 import splitties.views.dsl.core.matchParent
-import splitties.views.dsl.core.seekBar
+import org.fcitx.fcitx5.android.ui.common.settingsSlider as seekBar
 import splitties.views.dsl.core.textView
 import splitties.views.dsl.core.verticalLayout
 import splitties.views.dsl.core.verticalMargin
@@ -100,7 +100,7 @@ class DialogSeekBarPreference @JvmOverloads constructor(
         }
         val seekBar = context.seekBar {
             max = progressForValue(this@DialogSeekBarPreference.max)
-            progress = progressForValue(value)
+            progress = progressForValue(this@DialogSeekBarPreference.value)
             setOnChangeListener {
                 textView.text = textForValue(valueForProgress(it))
             }

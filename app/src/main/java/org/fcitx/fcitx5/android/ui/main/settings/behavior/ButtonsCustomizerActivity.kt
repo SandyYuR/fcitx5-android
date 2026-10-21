@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.graphics.Typeface
@@ -785,7 +787,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
             setTypeface(null, Typeface.BOLD)
             layoutParams = LinearLayout.LayoutParams(wrapContent, wrapContent).apply { gravity = android.view.Gravity.CENTER_VERTICAL }
         }.also { row.addView(it) }
-        val editText = EditText(parent.context).apply {
+        val editText = TextInputEditText(parent.context).apply {
             this.hint = hint
             setText(value ?: "")
             layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply { weight = 1f; marginStart = dp(8) }
@@ -844,7 +846,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
         val iconBtnRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
         }
-        val pickIconBtn = Button(this).apply {
+        val pickIconBtn = MaterialButton(this).apply {
             text = getString(R.string.edit_button_pick_icon)
             textSize = 12f
             layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply { weight = 1f; topMargin = dp(4) }
@@ -861,7 +863,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                 iconPickerLauncher.launch(arrayOf("image/png", "image/webp", "image/svg+xml", "text/xml", "application/xml"))
             }
         }
-        val clearIconBtn = Button(this).apply {
+        val clearIconBtn = MaterialButton(this).apply {
             text = "✕"
             textSize = 12f
             layoutParams = LinearLayout.LayoutParams(wrapContent, wrapContent).apply { marginStart = dp(4); topMargin = dp(4) }
@@ -884,7 +886,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
 
         // Edit Macro Steps button
         if (!isBuiltIn) {
-            val macroBtn = Button(this).apply {
+            val macroBtn = MaterialButton(this).apply {
                 text = getString(R.string.edit_button_macro)
                 textSize = 12f
                 layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent).apply { topMargin = dp(4) }

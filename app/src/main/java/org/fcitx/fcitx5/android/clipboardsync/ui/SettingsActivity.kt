@@ -1,5 +1,7 @@
 package org.fcitx.fcitx5.android.clipboardsync.ui
 
+import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
+import com.google.android.material.textfield.TextInputEditText
 import android.Manifest
 import android.content.pm.PackageManager
 import android.content.SharedPreferences
@@ -44,30 +46,8 @@ import org.fcitx.fcitx5.android.clipboardsync.network.SyncClient.ServerBackend
 import org.fcitx.fcitx5.android.clipboardsync.service.QuickSyncTileService
 import java.util.Locale
 
-class SettingsActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
-
-        if (savedInstanceState == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.settings, SettingsFragment())
-                .commit()
-        }
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            supportFragmentManager.popBackStack()
-        } else {
-            finish()
-        }
-        return true
-    }
-
+/** Namespace kept for the persisted SettingsFragment class name; the host is ClipboardSyncSettingsActivity. */
+object SettingsActivity {
     class SettingsFragment : PaddingPreferenceFragment() {
 
         companion object {
@@ -560,16 +540,9 @@ class SettingsActivity : AppCompatActivity() {
                     R.animator.settings_pop_enter,
                     R.animator.settings_pop_exit
                 )
-                .replace(resolveSettingsContainerId(), fragment)
+                .replace(R.id.settings_container, fragment)
                 .addToBackStack(fragment.javaClass.name)
                 .commit()
-        }
-
-        private fun resolveSettingsContainerId(): Int {
-            return when {
-                requireActivity().findViewById<View>(R.id.settings_container) != null -> R.id.settings_container
-                else -> R.id.settings
-            }
         }
 
         private fun showStorageLocationDialog() {
@@ -1128,7 +1101,7 @@ class SettingsActivity : AppCompatActivity() {
                 orientation = LinearLayout.HORIZONTAL
                 setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding)
             }
-            val valueInput = EditText(context).apply {
+            val valueInput = TextInputEditText(context).apply {
                 inputType = InputType.TYPE_CLASS_NUMBER
                 hint = getString(R.string.filter_max_file_size_title)
                 setText(state.maxFileSizeValue?.toString().orEmpty())
@@ -1136,7 +1109,7 @@ class SettingsActivity : AppCompatActivity() {
                     marginEnd = spacing
                 }
             }
-            val unitSpinner = Spinner(context).apply {
+            val unitSpinner = MaterialSpinner(context).apply {
                 adapter = ArrayAdapter(
                     context,
                     android.R.layout.simple_spinner_dropdown_item,

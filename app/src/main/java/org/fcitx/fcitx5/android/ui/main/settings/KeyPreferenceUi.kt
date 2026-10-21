@@ -32,8 +32,8 @@ import splitties.views.dsl.constraintlayout.startOfParent
 import splitties.views.dsl.constraintlayout.topOfParent
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.add
-import splitties.views.dsl.core.button
-import splitties.views.dsl.core.editText
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 import splitties.views.dsl.core.imageButton
 import splitties.views.dsl.core.textView
 import splitties.views.dsl.core.wrapContent
@@ -49,7 +49,8 @@ class KeyPreferenceUi(override val ctx: Context) : Ui {
     private inner class ModifierButton(label: String, val modifier: KeyState) : Ui {
         override val ctx = this@KeyPreferenceUi.ctx
 
-        override val root = button {
+        override val root = MaterialButton(ctx).apply {
+            id = android.view.View.generateViewId()
             text = label
             isAllCaps = false
             // those 2 are both necessary, don't ask me why ´_>`
@@ -85,7 +86,8 @@ class KeyPreferenceUi(override val ctx: Context) : Ui {
         ModifierButton("Shift", KeyState.Shift)
     )
 
-    private val input = editText {
+    private val input = TextInputEditText(ctx).apply {
+        id = android.view.View.generateViewId()
         textSize = 16f // sp
         inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         imeOptions = EditorInfo.IME_FLAG_FORCE_ASCII

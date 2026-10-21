@@ -2,7 +2,7 @@ package org.fcitx.fcitx5.android.clipboardsync.ui
 
 import android.os.Bundle
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import org.fcitx.fcitx5.android.R
 
 class ClipboardSyncSettingsActivity : SettingsUiActivity() {

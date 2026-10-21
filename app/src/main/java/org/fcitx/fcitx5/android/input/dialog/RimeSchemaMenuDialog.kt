@@ -4,11 +4,14 @@
  */
 package org.fcitx.fcitx5.android.input.dialog
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.radiobutton.MaterialRadioButton
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.launchOnReady
@@ -30,7 +33,9 @@ object RimeSchemaMenuDialog {
         service: FcitxInputMethodService,
         context: Context
     ): AlertDialog {
-        val theme = org.fcitx.fcitx5.android.data.theme.ThemeManager.activeTheme
+        val themed = SettingsUiPreferences.themedContext(context, SettingsUiPreferences.read(context))
+        val builder = MaterialAlertDialogBuilder(themed)
+        val dialogContext = builder.context
         val entries: List<Pair<String, Int>> =
             runCatching { SubModeManager.resolveSchemaMenuEntries(fcitx.statusArea()) }
                 .onFailure { Timber.w(it, "Failed to resolve rime schema menu") }
@@ -44,36 +49,17 @@ object RimeSchemaMenuDialog {
         // enabledIndex 找不到时传 -1（无高亮），与 InputMethodListAdapter 约定一致。
         val enabledIndex: Int = enabledName?.let { labels.indexOf(it) } ?: -1
         lateinit var dialog: AlertDialog
-        val root = android.widget.LinearLayout(context).apply {
+        val root = android.widget.LinearLayout(dialogContext).apply {
             orientation = android.widget.LinearLayout.VERTICAL
-            minimumWidth = context.dp(280)
-            setPadding(context.dp(20), context.dp(18), context.dp(20), context.dp(12))
-            background = android.graphics.drawable.GradientDrawable().apply {
-                cornerRadius = context.dp(28f)
-                setColor(theme.backgroundColor)
-            }
+            minimumWidth = dialogContext.dp(280)
+            setPadding(dialogContext.dp(24), 0, dialogContext.dp(24), dialogContext.dp(24))
         }
-        root.addView(android.widget.TextView(context).apply {
-            text = context.getString(R.string.rime_schema_menu)
-            setTextColor(theme.keyTextColor)
-            textSize = 20f
-            setTypeface(typeface, android.graphics.Typeface.BOLD)
-            setPadding(0, 0, 0, context.dp(8))
-        }, android.widget.LinearLayout.LayoutParams(
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-        ))
-        val buttonTint = android.content.res.ColorStateList(
-            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-            intArrayOf(theme.accentKeyBackgroundColor, theme.keyTextColor)
-        )
         entries.forEachIndexed { index, (label, actionId) ->
-            root.addView(android.widget.RadioButton(context).apply {
+            root.addView(MaterialRadioButton(dialogContext).apply {
                 text = label
                 isChecked = index == enabledIndex
-                buttonTintList = buttonTint
-                setTextColor(theme.keyTextColor)
-                minHeight = context.dp(48)
+                setUseMaterialThemeColors(true)
+                minHeight = dialogContext.dp(48)
                 gravity = android.view.Gravity.CENTER_VERTICAL
                 setPadding(0, 0, 0, 0)
                 setOnClickListener {
@@ -83,16 +69,13 @@ object RimeSchemaMenuDialog {
                 }
             }, android.widget.LinearLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                context.dp(48)
+                dialogContext.dp(48)
             ))
         }
-        dialog = AlertDialog.Builder(context)
+        dialog = builder
+            .setTitle(R.string.rime_schema_menu)
             .setView(root)
             .create()
-        dialog.window?.apply {
-            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
-            decorView.setPadding(0, 0, 0, 0)
-        }
         return dialog
     }
 }

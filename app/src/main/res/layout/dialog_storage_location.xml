@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -7,12 +8,15 @@
     android:paddingTop="12dp"
     android:paddingEnd="24dp"
     android:paddingBottom="8dp">
-
-    <EditText
-        android:id="@+id/storage_path_edit"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/storage_location_hint"
-        android:inputType="textUri" />
-
+        android:hint="@string/storage_location_hint">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/storage_path_edit"
+            android:inputType="textUri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

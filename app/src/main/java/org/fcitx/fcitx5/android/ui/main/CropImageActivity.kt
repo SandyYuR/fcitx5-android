@@ -17,17 +17,13 @@ import android.provider.MediaStore
 import android.view.Menu
 import android.view.ViewGroup
 import androidx.activity.addCallback
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.appcompat.app.AppCompatActivity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
-import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import com.canhub.cropper.CropImageOptions
 import com.canhub.cropper.CropImageView
 import kotlinx.parcelize.IgnoredOnParcel
@@ -50,11 +46,10 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.view
 import splitties.views.dsl.core.wrapContent
-import splitties.views.topPadding
 import timber.log.Timber
 import java.io.File
 
-class CropImageActivity : AppCompatActivity() {
+class CropImageActivity : SettingsUiActivity() {
 
     companion object {
         const val CROP_OPTIONS = "crop_options"
@@ -141,9 +136,10 @@ class CropImageActivity : AppCompatActivity() {
                 sourceImageUri = uri
                 cropView.setImageUriAsync(uri)
             }
-        enableEdgeToEdge()
         setupRootView()
         setContentView(root)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setupCropView(cropOption)
         onBackPressedDispatcher.addCallback {
             setResult(RESULT_CANCELED)
@@ -156,10 +152,8 @@ class CropImageActivity : AppCompatActivity() {
 
     private fun setupRootView() {
         toolbar = view(::Toolbar) {
-            backgroundColor = styledColor(android.R.attr.colorPrimary)
-            elevation = dp(4f)
+            id = R.id.toolbar
             navigationIcon = DrawerArrowDrawable(context).apply { progress = 1f }
-            setupToolbarMenu(menu)
         }
         cropView = CropImageView(this)
         root = constraintLayout {
@@ -173,17 +167,11 @@ class CropImageActivity : AppCompatActivity() {
                 bottomOfParent()
             })
         }
-        ViewCompat.setOnApplyWindowInsetsListener(root) { _, windowInsets ->
-            val statusBars = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars())
-            val navBars = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = navBars.left
-                rightMargin = navBars.right
-                bottomMargin = navBars.bottom
-            }
-            toolbar.topPadding = statusBars.top
-            windowInsets
-        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        setupToolbarMenu(menu)
+        return true
     }
 
     private fun setupToolbarMenu(menu: Menu) {

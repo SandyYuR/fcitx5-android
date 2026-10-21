@@ -4,12 +4,14 @@
  */
 package org.fcitx.fcitx5.android.input.dialog
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
@@ -32,9 +34,11 @@ object InputMethodPickerDialog {
         val enabledIndex = entries.indexOfFirst { it.uniqueName == enabledIM }
         val dividerIndex = entries.indexOfFirst { it.ime }
         lateinit var dialog: AlertDialog
-        dialog = AlertDialog.Builder(context)
+        val themed = SettingsUiPreferences.themedContext(context, SettingsUiPreferences.read(context))
+        val builder = MaterialAlertDialogBuilder(themed)
+        dialog = builder
             .setTitle(R.string.choose_input_method)
-            .setView(context.recyclerView {
+            .setView(builder.context.recyclerView {
                 layoutParams = ViewGroup.LayoutParams(matchParent, wrapContent)
                 // add some padding because AlertDialog's `titleDividerNoCustom` won't show up...
                 // but why?

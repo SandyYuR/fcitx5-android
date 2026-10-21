@@ -4,6 +4,9 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 
+import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
+import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.android.material.textfield.TextInputEditText
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Gravity
@@ -148,7 +151,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             }
         }
 
-        val typeSpinner = Spinner(activity).apply {
+        val typeSpinner = MaterialSpinner(activity).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
             }
@@ -217,7 +220,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
                 rightMargin = activity.dp(8)
             }
         }
-        val editText = EditText(activity).apply {
+        val editText = TextInputEditText(activity).apply {
             setText(value)
             textSize = DIALOG_CONTENT_TEXT_SIZE_SP
             isSingleLine = true
@@ -257,7 +260,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         container: LinearLayout,
         checked: Boolean
     ): android.widget.CheckBox {
-        val checkBox = android.widget.CheckBox(activity).apply {
+        val checkBox = MaterialCheckBox(activity).apply {
             text = activity.getString(R.string.text_keyboard_layout_key_split_after)
             textSize = DIALOG_CONTENT_TEXT_SIZE_SP
             isChecked = checked
@@ -287,7 +290,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
                 rightMargin = activity.dp(8)
             }
         }
-        val spinner = Spinner(activity).apply {
+        val spinner = MaterialSpinner(activity).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
             }
@@ -346,7 +349,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
                 rightMargin = activity.dp(8)
             }
         }
-        val spinner = Spinner(activity).apply {
+        val spinner = MaterialSpinner(activity).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
             }
@@ -614,7 +617,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             setPadding(0, activity.dp(2), 0, activity.dp(2))
         }
 
-        val modeEdit = EditText(activity).apply {
+        val modeEdit = TextInputEditText(activity).apply {
             setText(item.mode)
             textSize = DIALOG_CONTENT_TEXT_SIZE_SP
             hint = activity.getString(R.string.text_keyboard_layout_mode_name_hint)
@@ -627,7 +630,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             }
         }
 
-        val valueEdit = EditText(activity).apply {
+        val valueEdit = TextInputEditText(activity).apply {
             setText(item.value)
             textSize = DIALOG_CONTENT_TEXT_SIZE_SP
             hint = activity.getString(R.string.text_keyboard_layout_display_value_hint)

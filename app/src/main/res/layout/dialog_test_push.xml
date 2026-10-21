@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -11,44 +11,43 @@
         android:paddingTop="20dp"
         android:paddingEnd="24dp"
         android:paddingBottom="8dp">
-
         <TextView
             android:id="@+id/test_push_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/local_test_push_hint" />
-
-        <EditText
-            android:id="@+id/test_push_text_edit"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:gravity="top|start"
-            android:hint="@string/local_test_push_text_hint"
-            android:inputType="textMultiLine|textCapSentences"
-            android:minLines="4" />
-
+            android:hint="@string/local_test_push_text_hint">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/test_push_text_edit"
+                android:gravity="top|start"
+                android:inputType="textMultiLine|textCapSentences"
+                android:minLines="4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
         <TextView
             android:id="@+id/test_push_selected_file"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/local_test_push_no_file" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:orientation="horizontal">
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/test_push_pick_file_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/local_test_push_pick_file" />
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/test_push_clear_file_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -7,40 +8,44 @@
     android:paddingTop="12dp"
     android:paddingEnd="24dp"
     android:paddingBottom="8dp">
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/server_alias_title"
         android:textAppearance="@android:style/TextAppearance.Material.Medium" />
-
-    <Spinner
+    <org.fcitx.fcitx5.android.ui.common.MaterialSpinner
         android:id="@+id/server_alias_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp" />
-
-    <EditText
-        android:id="@+id/custom_alias_edit"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:hint="@string/server_custom_alias_hint"
-        android:inputType="text" />
-
+        android:hint="@string/server_custom_alias_hint">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/custom_alias_edit"
+            android:inputType="text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="@string/server_address_field_title"
         android:textAppearance="@android:style/TextAppearance.Material.Medium" />
-
-    <EditText
-        android:id="@+id/server_address_edit"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="@string/server_address_field_hint"
-        android:inputType="textUri" />
-
+        android:hint="@string/server_address_field_hint">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/server_address_edit"
+            android:inputType="textUri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

@@ -4,7 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main
 
-import android.app.Activity
+import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import android.content.ClipData
 import android.content.Intent
 import android.os.Bundle
@@ -22,7 +22,8 @@ import org.fcitx.fcitx5.android.utils.clipboardManager
 import org.fcitx.fcitx5.android.utils.inputMethodManager
 import org.fcitx.fcitx5.android.utils.str
 
-class ClipboardEditActivity : Activity() {
+class ClipboardEditActivity : SettingsUiActivity() {
+    override val floatingSettingsWindow: Boolean get() = true
 
     private val scope: CoroutineScope = MainScope()
 

@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 
+import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.os.Bundle
@@ -1182,7 +1184,7 @@ class MacroEditorActivity : SettingsUiActivity() {
             }
 
             // Type selector
-            typeSpinner = Spinner(this@MacroEditorActivity).apply {
+            typeSpinner = MaterialSpinner(this@MacroEditorActivity).apply {
                 layoutParams = LinearLayout.LayoutParams(wrapContent, wrapContent)
             }
             val typeAdapter = ArrayAdapter(
@@ -1234,7 +1236,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                 )
             }
 
-            val textEdit = EditText(this@MacroEditorActivity).apply {
+            val textEdit = TextInputEditText(this@MacroEditorActivity).apply {
                 setText(step.text)
                 hint = if (step.type == "layer") {
                     getString(R.string.macro_editor_layer_target_hint)
@@ -1675,7 +1677,7 @@ class MacroEditorActivity : SettingsUiActivity() {
             }
             keyTypeRow.addView(keyTypeLabel)
 
-            val keyTypeEditSpinner = Spinner(this@MacroEditorActivity).apply {
+            val keyTypeEditSpinner = MaterialSpinner(this@MacroEditorActivity).apply {
                 layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply { weight = 1f }
             }
             val keyTypeEditAdapter = ArrayAdapter(
