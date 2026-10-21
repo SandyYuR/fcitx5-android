@@ -1,0 +1,944 @@
+{
+  "source_commit": "edcf536f85576ce3e2b241e1eb5059534a972f51",
+  "source_document_count": 64,
+  "source_file_count": 83,
+  "source_archive": "source-snapshot-edcf536f.zip",
+  "source_archive_sha256": "246193f61145ae80b1e738446c7565f9f870844bc1d41b97d7b1278ebdebdf0d",
+  "maintainer_report_count": 13,
+  "adaptations": [
+    "Internal site links are scoped to /legacy/fcitx/.",
+    "Each restored Markdown page has a legacy-version notice.",
+    "Original broken numeric heading links are adapted to VitePress anchors; paragraph text is retained."
+  ],
+  "pages": [
+    {
+      "source": "docs/README.md",
+      "destination": "docs/legacy/fcitx/README.md",
+      "route": "/legacy/fcitx/README",
+      "title": "文档协作快速开始（docs 分支）",
+      "source_sha256": "c022d186203855fdece5aa9ba471f9c6581472456ab83ee807d0b659aedd4648",
+      "published_sha256": "0bfadfe817671edac1d9ffd693b14e8a45c5a7fd954ae73185fa105ee1ca848f"
+    },
+    {
+      "source": "docs/about/contribute-docs.md",
+      "destination": "docs/legacy/fcitx/about/contribute-docs.md",
+      "route": "/legacy/fcitx/about/contribute-docs",
+      "title": "参与文档修改",
+      "source_sha256": "1173016b732b044673ff7953559219500e99341a802cec5236450c413e920611",
+      "published_sha256": "65e8a56287aef33e10bf3550551baa19f90b8b4289ea877ace0ea6ccb9aaf5f1"
+    },
+    {
+      "source": "docs/about/credits.md",
+      "destination": "docs/legacy/fcitx/about/credits.md",
+      "route": "/legacy/fcitx/about/credits",
+      "title": "致谢与差异说明",
+      "source_sha256": "3d0a3217f4eee848b6c2395470191abae690a407f3d3d35c48666133184bd8e5",
+      "published_sha256": "24564389199dea94a99c89036758395ea818b244bf294e20bb041f1e6b37adf9"
+    },
+    {
+      "source": "docs/about/donate.md",
+      "destination": "docs/legacy/fcitx/about/donate.md",
+      "route": "/legacy/fcitx/about/donate",
+      "title": "支持与捐赠",
+      "source_sha256": "6b273cdbd47d422497fde49865c4ff2870e457bea37790c99a75274185a99129",
+      "published_sha256": "2b5538d12a850310a334ca8c83bc1d254e1c19c6bcb2f241885d624a1d29a296"
+    },
+    {
+      "source": "docs/features/candidate-window.md",
+      "destination": "docs/legacy/fcitx/features/candidate-window.md",
+      "route": "/legacy/fcitx/features/candidate-window",
+      "title": "候选窗增强",
+      "source_sha256": "23c70188c5e224dc99483b5cba4fdd1593228f5dbd080e7c273055fb4df75d51",
+      "published_sha256": "74f0947c4e62955e9dad4e25b81a041f173023a29d3127c24254636ed48c324e"
+    },
+    {
+      "source": "docs/features/clipboard-sync.md",
+      "destination": "docs/legacy/fcitx/features/clipboard-sync.md",
+      "route": "/legacy/fcitx/features/clipboard-sync",
+      "title": "剪贴板同步（内置）",
+      "source_sha256": "c50a50753d8ba102f8e3c000e43e7dc753c98a98f76d56fdcad7f9a64c2f924d",
+      "published_sha256": "94df1a348c1d3a78994346c46a38e016df9dcc27426f205d0c7272444b321e63"
+    },
+    {
+      "source": "docs/features/editor/fontset-editor.md",
+      "destination": "docs/legacy/fcitx/features/editor/fontset-editor.md",
+      "route": "/legacy/fcitx/features/editor/fontset-editor",
+      "title": "字体集编辑器（字体设定）",
+      "source_sha256": "dfefa016663f3f9f6b61d2cd11285de6fd00c615a8877d2bd7b21f002c9e477e",
+      "published_sha256": "fc6df1555572f338305be692105822c313abf32bfeee5ea8379d205e2c37f322"
+    },
+    {
+      "source": "docs/features/editor/layout-editor.md",
+      "destination": "docs/legacy/fcitx/features/editor/layout-editor.md",
+      "route": "/legacy/fcitx/features/editor/layout-editor",
+      "title": "键盘布局编辑器",
+      "source_sha256": "f0ae6eff7d91ad4d2628170f1087ca4021cf0af5d3bb05165b60645650f9f9db",
+      "published_sha256": "68a5264dfab18c0d4f55d01eac5b055806625dc78d68bebcdcccd50c5bc1356f"
+    },
+    {
+      "source": "docs/features/editor/macrokey-editor.md",
+      "destination": "docs/legacy/fcitx/features/editor/macrokey-editor.md",
+      "route": "/legacy/fcitx/features/editor/macrokey-editor",
+      "title": "MacroKey 编辑器",
+      "source_sha256": "7edf2322e5b72f82aa1add2b71eee768d19ae0c3d73a94840ddbc545f92cd39f",
+      "published_sha256": "c8281e5e0042018595ab1cedc9813cc970d7a71b9eba3b4c7064458ef227bee5"
+    },
+    {
+      "source": "docs/features/editor/popup-editor.md",
+      "destination": "docs/legacy/fcitx/features/editor/popup-editor.md",
+      "route": "/legacy/fcitx/features/editor/popup-editor",
+      "title": "Popup 预设编辑器",
+      "source_sha256": "f892cbdd43f28b4fa1154d93d9d71d7ae193000c3b6edc08861c000247f3c7d1",
+      "published_sha256": "f08ee34d8866884ecf7980b79e19452431cf4cb4c37206ea7568642ea2751d09"
+    },
+    {
+      "source": "docs/features/kawaii-bar.md",
+      "destination": "docs/legacy/fcitx/features/kawaii-bar.md",
+      "route": "/legacy/fcitx/features/kawaii-bar",
+      "title": "Kawaii Bar 增强",
+      "source_sha256": "96110c4bcd1971170124e172d820c8fc53b3e67979298034fafb19c3b50e1383",
+      "published_sha256": "175bae797c5e400ccb7d0d90aac79b5ae23083b4c5fb460ddcd5cd5d46b49d97"
+    },
+    {
+      "source": "docs/features/keyboard/adjust-mode.md",
+      "destination": "docs/legacy/fcitx/features/keyboard/adjust-mode.md",
+      "route": "/legacy/fcitx/features/keyboard/adjust-mode",
+      "title": "调整模式",
+      "source_sha256": "cffe23c79b49f65522259dc3d3b78de18196cdc50853b70ce3ffef3549c1c230",
+      "published_sha256": "c70b2c0d0f8988541c4fc92148bcee49227083f15569cc7b60e13e4a9834bad7"
+    },
+    {
+      "source": "docs/features/keyboard/compose-override.md",
+      "destination": "docs/legacy/fcitx/features/keyboard/compose-override.md",
+      "route": "/legacy/fcitx/features/keyboard/compose-override",
+      "title": "Compose Override 按键",
+      "source_sha256": "8bcbf25016aed608296040be96e23be5890dfb966e27deed85b20ad132b642ac",
+      "published_sha256": "09fd5cf042c3c917c3a65f2bba047041a1e4b345ec5ae28cbd583698a339a377"
+    },
+    {
+      "source": "docs/features/keyboard/float-keyboard.md",
+      "destination": "docs/legacy/fcitx/features/keyboard/float-keyboard.md",
+      "route": "/legacy/fcitx/features/keyboard/float-keyboard",
+      "title": "浮动键盘",
+      "source_sha256": "8b2f64126797e1cf5e858914915769e441b3fe8eabda11df451ccb0b30429d65",
+      "published_sha256": "fe95fcca9d400dff2af1a896bb359b6343987f6a65ed7c007180b5b0da108158"
+    },
+    {
+      "source": "docs/features/keyboard/one-handed.md",
+      "destination": "docs/legacy/fcitx/features/keyboard/one-handed.md",
+      "route": "/legacy/fcitx/features/keyboard/one-handed",
+      "title": "单手模式",
+      "source_sha256": "4d09e3573ba0bb3cb16c1a06436897beb160cd2b70e56f8fdd74cc4b7b64231f",
+      "published_sha256": "21906663a50aa9dc1412332a4d307b499cd72ec8bfa8240e8c566967b7a345bb"
+    },
+    {
+      "source": "docs/features/keyboard/split-keyboard.md",
+      "destination": "docs/legacy/fcitx/features/keyboard/split-keyboard.md",
+      "route": "/legacy/fcitx/features/keyboard/split-keyboard",
+      "title": "分体键盘",
+      "source_sha256": "4e1e1cbed6040e69c5f07d9639fecbfbfde44e796c6c0102a0249631898b682a",
+      "published_sha256": "4315a51508b82a7bfc030d5c3e7ea26f9d615f0271ff58ab375affe84b8b249c"
+    },
+    {
+      "source": "docs/features/keyboard/swipe-actions.md",
+      "destination": "docs/legacy/fcitx/features/keyboard/swipe-actions.md",
+      "route": "/legacy/fcitx/features/keyboard/swipe-actions",
+      "title": "滑动操作",
+      "source_sha256": "55c19da0c254ac6e21deafbd72541f2f2b6fa7e28c50d61df1a32ec4a0d3ed8f",
+      "published_sha256": "18a31ae410eda583edbaab0595ca8801454368eb91a2f83f1eb03e45ba273b7e"
+    },
+    {
+      "source": "docs/features/keys/alphabet-key.md",
+      "destination": "docs/legacy/fcitx/features/keys/alphabet-key.md",
+      "route": "/legacy/fcitx/features/keys/alphabet-key",
+      "title": "AlphabetKey 字母键",
+      "source_sha256": "b6b222230cb08bdd1d64494687263cd438e499f2b54b54a04443cf72e8056505",
+      "published_sha256": "9f86d486a504b78357297117940a9c02cf020374c6b7f8b0a02c46b5b1e084a4"
+    },
+    {
+      "source": "docs/features/keys/backspace-key.md",
+      "destination": "docs/legacy/fcitx/features/keys/backspace-key.md",
+      "route": "/legacy/fcitx/features/keys/backspace-key",
+      "title": "BackspaceKey 退格键",
+      "source_sha256": "df0b8e622da952ab17b8cb4a797cb949804fc1fefa89e5c42e44217f4e695012",
+      "published_sha256": "910f4761266a40840b10a251135051aa8bf3356f1fe7ccdafb1e9e7b9f18c31d"
+    },
+    {
+      "source": "docs/features/keys/caps-key.md",
+      "destination": "docs/legacy/fcitx/features/keys/caps-key.md",
+      "route": "/legacy/fcitx/features/keys/caps-key",
+      "title": "CapsKey 大小写键",
+      "source_sha256": "05f46d9b2c2a17b4c8f8d428eddb23ae2fe7266691e9ccf038630a45049a19b4",
+      "published_sha256": "14e3c38f20a1e94ef9e0fdc4b1cfc6c2fdb050c690ffd8cb9306cb3919cbd2cb"
+    },
+    {
+      "source": "docs/features/keys/comma-key.md",
+      "destination": "docs/legacy/fcitx/features/keys/comma-key.md",
+      "route": "/legacy/fcitx/features/keys/comma-key",
+      "title": "CommaKey 逗号键",
+      "source_sha256": "d1338be119add85c753be1ec32d6915111442fb745760b5a4412b2a91250d9a7",
+      "published_sha256": "481b0e56f8e189a26e42c714032541f7962de7fbca840a42b7ce39efec7bdf95"
+    },
+    {
+      "source": "docs/features/keys/fcitx-keys.md",
+      "destination": "docs/legacy/fcitx/features/keys/fcitx-keys.md",
+      "route": "/legacy/fcitx/features/keys/fcitx-keys",
+      "title": "Fcitx 键名速查",
+      "source_sha256": "b7ca3de6ed56a5a577c46c79acda63a215b689db1ff3b8cc1429641c949223e4",
+      "published_sha256": "08698473b032786ff6ea398b59d979000c689ac0c089527c58f0f066fe70c172"
+    },
+    {
+      "source": "docs/features/keys/language-key.md",
+      "destination": "docs/legacy/fcitx/features/keys/language-key.md",
+      "route": "/legacy/fcitx/features/keys/language-key",
+      "title": "LanguageKey 语言键",
+      "source_sha256": "238d1a3bba4e9bbb520ca628be4c49563de4dce7683d530d376e0078b098c5b6",
+      "published_sha256": "ec91f66e64122a8c567c8ba4208dc309f40c6f2d868e740063b4278fa7941962"
+    },
+    {
+      "source": "docs/features/keys/layout-switch-key.md",
+      "destination": "docs/legacy/fcitx/features/keys/layout-switch-key.md",
+      "route": "/legacy/fcitx/features/keys/layout-switch-key",
+      "title": "LayoutSwitchKey 布局切换键",
+      "source_sha256": "01ab1cd688a331aabbfd20b3feb16e3cbdf1a4fd7898c63d4373167df68ca95d",
+      "published_sha256": "08df2011ef7c61b93885155109a1679673908d1f97552ca1db9d1c292ee53545"
+    },
+    {
+      "source": "docs/features/keys/macro-key.md",
+      "destination": "docs/legacy/fcitx/features/keys/macro-key.md",
+      "route": "/legacy/fcitx/features/keys/macro-key",
+      "title": "MacroKey 宏键",
+      "source_sha256": "d2a030d0fb7bedb26ccebeb95bf581181e23ab583a64eb7072498e14e38b2faf",
+      "published_sha256": "dfeb080215faaa6e7366a79f3a9c6703b1b54382a3d8c0ec16ba4e31cdf0fb0a"
+    },
+    {
+      "source": "docs/features/keys/overview.md",
+      "destination": "docs/legacy/fcitx/features/keys/overview.md",
+      "route": "/legacy/fcitx/features/keys/overview",
+      "title": "按键类型总览",
+      "source_sha256": "f92f3700f2aa5c087c5dd03e7f643e5b91fd2274b80d204b3140d1f01258d1d8",
+      "published_sha256": "b3cabb33dd2fda57ec08bcb0a1546332f649b8b62f1d79f0207d40890cb803e5"
+    },
+    {
+      "source": "docs/features/keys/return-key.md",
+      "destination": "docs/legacy/fcitx/features/keys/return-key.md",
+      "route": "/legacy/fcitx/features/keys/return-key",
+      "title": "ReturnKey 回车键",
+      "source_sha256": "cd0c3580b448ac7edea223b994984107f5a1fbc3ff378be9ff3edd43d58c1454",
+      "published_sha256": "6a5e80604fd88177b921c7750ad540f629c73c2f0a0af11d7aa97e8db1f920ad"
+    },
+    {
+      "source": "docs/features/keys/space-key.md",
+      "destination": "docs/legacy/fcitx/features/keys/space-key.md",
+      "route": "/legacy/fcitx/features/keys/space-key",
+      "title": "SpaceKey 空格键",
+      "source_sha256": "925630fc133cb3c81b048f97fb211c180eafb82f7cbdd5f9ba481466ba9221d2",
+      "published_sha256": "4419eedeae6d43ad9e48e83a2fa0f56d4f50fb563e262dbfb8c0f93d74748d91"
+    },
+    {
+      "source": "docs/features/keys/symbol-key.md",
+      "destination": "docs/legacy/fcitx/features/keys/symbol-key.md",
+      "route": "/legacy/fcitx/features/keys/symbol-key",
+      "title": "SymbolKey 符号键",
+      "source_sha256": "cacb1b3191a3e0674d3cc85fce881b6d6b27c8763fb18b7637deea9f55ebce97",
+      "published_sha256": "0a0b47fec085881d5761bff38650500a580845aeea066ee78616864f0a542462"
+    },
+    {
+      "source": "docs/features/online-editor.md",
+      "destination": "docs/legacy/fcitx/features/online-editor.md",
+      "route": "/legacy/fcitx/features/online-editor",
+      "title": "在线编辑器",
+      "source_sha256": "7eb2b45134d67d1c02aae222d0169103a6f29259693370a5c402994d632f6afe",
+      "published_sha256": "dfb2a4b720738b11dc6722fea56ebf1f6249de80865280c461feac43466b7905"
+    },
+    {
+      "source": "docs/features/overview.md",
+      "destination": "docs/legacy/fcitx/features/overview.md",
+      "route": "/legacy/fcitx/features/overview",
+      "title": "功能总览",
+      "source_sha256": "08d228a514addc5f6f5f17fb74c4037fd647517f2e7f52ec176644a54ec2e805",
+      "published_sha256": "8810c300237e61a9d4d39ba7b1ff26be5bf50a917400c22131150a0830da3cc1"
+    },
+    {
+      "source": "docs/features/rime-enhancements.md",
+      "destination": "docs/legacy/fcitx/features/rime-enhancements.md",
+      "route": "/legacy/fcitx/features/rime-enhancements",
+      "title": "Rime 引擎（内置）",
+      "source_sha256": "3281147ed32c0d7c690280f6fa7d30d6b0a311040204c1e11b236e7c7320fad8",
+      "published_sha256": "023d45735514d4277eb8b196de56a04fff6922d54217d0054ce3175bd76b2b63"
+    },
+    {
+      "source": "docs/features/shared-import.md",
+      "destination": "docs/legacy/fcitx/features/shared-import.md",
+      "route": "/legacy/fcitx/features/shared-import",
+      "title": "共享导入与解压",
+      "source_sha256": "d0a8e4d635a4ab9167f9a8ec54d6a85f88221b136a4b12b52163971a944cdaf4",
+      "published_sha256": "ab3fd9dd5be1648e0a11a40414bb234bdcd2e442d9d6de474861ec62fe5cca43"
+    },
+    {
+      "source": "docs/features/text-editor.md",
+      "destination": "docs/legacy/fcitx/features/text-editor.md",
+      "route": "/legacy/fcitx/features/text-editor",
+      "title": "文本编辑底部栏",
+      "source_sha256": "ff62c800676f8d5e856fefdf06e8b0efb3bf412fbebb660b7cf034c9e1789884",
+      "published_sha256": "79c1dc0ad1530f10bc860b30c3005ad86266ab40c70268cb8b653a7ff7fb0463"
+    },
+    {
+      "source": "docs/features/theme/frosted-blur.md",
+      "destination": "docs/legacy/fcitx/features/theme/frosted-blur.md",
+      "route": "/legacy/fcitx/features/theme/frosted-blur",
+      "title": "磨砂按键",
+      "source_sha256": "28ef5f1772f603704de102c4936d8c490a3f23929da0f533c79f06d4ada4b144",
+      "published_sha256": "494a545ca05028d863a617001320e4c237d88bac780511bb875e8593dc9484bb"
+    },
+    {
+      "source": "docs/features/theme/monet.md",
+      "destination": "docs/legacy/fcitx/features/theme/monet.md",
+      "route": "/legacy/fcitx/features/theme/monet",
+      "title": "Monet 编辑器",
+      "source_sha256": "f1b644f83da19063ea7ba3abf07e0fb74b616ba56cd9ee7ed86ad600bab8f4e8",
+      "published_sha256": "4fd512be75a175ea9ad8aa456edb07ad20462e12e0ffcb374c8d618a3a123507"
+    },
+    {
+      "source": "docs/features/theme/settings-appearance.md",
+      "destination": "docs/legacy/fcitx/features/theme/settings-appearance.md",
+      "route": "/legacy/fcitx/features/theme/settings-appearance",
+      "title": "设置界面外观与动画",
+      "source_sha256": "ab07f7b83f1c1233b1e07237fbe7c12fcae05df3a4f63eb519525fd9e0eb52a5",
+      "published_sha256": "868ca286df9cacad54fc4eba983b76b11e0a70fe4ac43ae1e0e8d29b1cdecc1a"
+    },
+    {
+      "source": "docs/features/theme/share-import.md",
+      "destination": "docs/legacy/fcitx/features/theme/share-import.md",
+      "route": "/legacy/fcitx/features/theme/share-import",
+      "title": "QR 分享与导入",
+      "source_sha256": "60fe3a40ee4c0ff2a94558131d8a26d603c96c88003b1e60e29a82641c04d2b9",
+      "published_sha256": "5643ba225d7c81b4dbd5f01200dab725d69b52b4bcf4642e0c06a67aa1e9f047"
+    },
+    {
+      "source": "docs/features/theme/theme-editor.md",
+      "destination": "docs/legacy/fcitx/features/theme/theme-editor.md",
+      "route": "/legacy/fcitx/features/theme/theme-editor",
+      "title": "主题编辑器",
+      "source_sha256": "f77ad6879bf2a9a45365aa558a5e14f6c40051526b5c1027ddfc8328fde20175",
+      "published_sha256": "68e36f96cdc086712bc3259ca1420664ae8dd70705672fb413354cce3490a735"
+    },
+    {
+      "source": "docs/features/update-checker.md",
+      "destination": "docs/legacy/fcitx/features/update-checker.md",
+      "route": "/legacy/fcitx/features/update-checker",
+      "title": "更新检查器与镜像",
+      "source_sha256": "ae7f7cf9dd5cc20e54cc2655efa14336f1127903235fc014df890b459e751569",
+      "published_sha256": "712f1f5aff6afd16424fb81f517c30f995c19eba6b2f2dd60a081cf546be0b06"
+    },
+    {
+      "source": "docs/guide/builds-and-plugins.md",
+      "destination": "docs/legacy/fcitx/guide/builds-and-plugins.md",
+      "route": "/legacy/fcitx/guide/builds-and-plugins",
+      "title": "构建版本与数据共存",
+      "source_sha256": "63245af47cf609ceb7af46cfadc695ab79226fa3ef21a05d097b15045eb08679",
+      "published_sha256": "6a1825055b5cf4c18c90da0b6538290ea6ba6c53d9c73e68c9e39301cc1c4b03"
+    },
+    {
+      "source": "docs/guide/concepts.md",
+      "destination": "docs/legacy/fcitx/guide/concepts.md",
+      "route": "/legacy/fcitx/guide/concepts",
+      "title": "核心概念",
+      "source_sha256": "c079558f12ea3d0d36d1e37d286950927cde0229a439acc485cd08db8d5673be",
+      "published_sha256": "88c4eff405843dbb6277343ad59e75effd02b3c53f009b4752840de074330b5a"
+    },
+    {
+      "source": "docs/guide/installation.md",
+      "destination": "docs/legacy/fcitx/guide/installation.md",
+      "route": "/legacy/fcitx/guide/installation",
+      "title": "安装",
+      "source_sha256": "f2abbc0c5e38e24c0b48854bb5bd9fbe7747e72af5161f10300f8eab035c8910",
+      "published_sha256": "5c2983b63988cfbecbf5efa8ac2d834653683c9d70da5df8e60b4c9643c85f09"
+    },
+    {
+      "source": "docs/guide/introduction.md",
+      "destination": "docs/legacy/fcitx/guide/introduction.md",
+      "route": "/legacy/fcitx/guide/introduction",
+      "title": "介绍",
+      "source_sha256": "754ba32be373863fc51c2539ae5b047469d26b9cdac481366b575ad9e708eacd",
+      "published_sha256": "01f49a7aa1488bde14a7f07a8da6f6fe3ca6a18c8fb48078b8a19ca8fcd3efa5"
+    },
+    {
+      "source": "docs/guide/migrate-from-upstream.md",
+      "destination": "docs/legacy/fcitx/guide/migrate-from-upstream.md",
+      "route": "/legacy/fcitx/guide/migrate-from-upstream",
+      "title": "从上游迁移到靓企鹅·中州韵",
+      "source_sha256": "fbd45569caa48a9d9a64af58d21c3556db8c9cdb9cb5d9a88a2a88626b1976ac",
+      "published_sha256": "8240f1e4f560d1c0aa677d073f87b6b02405c70b2a26a7f9fb6d40af6cc76654"
+    },
+    {
+      "source": "docs/guide/quick-start.md",
+      "destination": "docs/legacy/fcitx/guide/quick-start.md",
+      "route": "/legacy/fcitx/guide/quick-start",
+      "title": "快速上手",
+      "source_sha256": "a882b8e056ab955f5868bcdf2d81efaa7778694bce04b516ab3df37d36a7faef",
+      "published_sha256": "c5a1e274bda47e3033635f6d673ada6bc41460bab783d43c82b44ce57835783a"
+    },
+    {
+      "source": "docs/index.md",
+      "destination": "docs/legacy/fcitx/index.md",
+      "route": "/legacy/fcitx/",
+      "title": "index",
+      "source_sha256": "9fb7a8e1074adf5e68657c0ce2c62e0f8069f57ae0053113925d45c1e1f68383",
+      "published_sha256": "92c6a5345403088554bd6964c231a4262783e6d665e2232b6740ad7868ac3b0a"
+    },
+    {
+      "source": "docs/maintainer/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "destination": "docs/legacy/fcitx/maintainer/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "route": "/legacy/fcitx/maintainer/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02",
+      "title": "【历史归档】去掉 fcitx5 底层、自建 librime 直连中间层的可行性调研报告",
+      "source_sha256": "cf633a5ec698de73380f9080f914e94056e7abba88eae12d15b8a604008daef2",
+      "published_sha256": "a2df8f8dade9117024f53be5809f01c25291d43b77599d1183321f0683ebdb6e"
+    },
+    {
+      "source": "docs/maintainer/ARCHIVE_RIME_INTEGRATION_PLAN.md",
+      "destination": "docs/legacy/fcitx/maintainer/ARCHIVE_RIME_INTEGRATION_PLAN.md",
+      "route": "/legacy/fcitx/maintainer/ARCHIVE_RIME_INTEGRATION_PLAN",
+      "title": "【历史归档】f5 输入法精简与 Rime 整合实施方案",
+      "source_sha256": "7102fdf74f8b5a1b1add3841d1d7dc1d4e4e0439def3bacc0e3402d08ef8ce49",
+      "published_sha256": "1527955d83c4ac1cfed1523646bd677221356b5c92363c463cab0b2108b8e38b"
+    },
+    {
+      "source": "docs/maintainer/ARCHIVE_RIME_ONLY_FEASIBILITY.md",
+      "destination": "docs/legacy/fcitx/maintainer/ARCHIVE_RIME_ONLY_FEASIBILITY.md",
+      "route": "/legacy/fcitx/maintainer/ARCHIVE_RIME_ONLY_FEASIBILITY",
+      "title": "【历史归档】将 fx2 分支裁剪为「Rime 专用输入法」可行性报告",
+      "source_sha256": "ac0273b7d575a5e6ad4f27e93c6b83163baa0c2f6e44a9f9258d8660fe39c105",
+      "published_sha256": "118da98d2aefd925f2fe5e9f1ac17be5132bf424cfad7c6110c106179fa1c3cc"
+    },
+    {
+      "source": "docs/maintainer/CODE_REVIEW_REPORT_2026-09-07.md",
+      "destination": "docs/legacy/fcitx/maintainer/CODE_REVIEW_REPORT_2026-09-07.md",
+      "route": "/legacy/fcitx/maintainer/CODE_REVIEW_REPORT_2026-09-07",
+      "title": "fx-rime-only 系统性代码审阅报告",
+      "source_sha256": "b3e8ded0a26551b44dcc34a383791954df38d038245e8391073830b6df824403",
+      "published_sha256": "acf3eabd8b07fa56af394ea51671d5b77e38c0642d75e953372cba7e2745b030"
+    },
+    {
+      "source": "docs/maintainer/CODE_REVIEW_fx2_2026-10-11.md",
+      "destination": "docs/legacy/fcitx/maintainer/CODE_REVIEW_fx2_2026-10-11.md",
+      "route": "/legacy/fcitx/maintainer/CODE_REVIEW_fx2_2026-10-11",
+      "title": "fx2 代码复审报告 · 2026-10-11",
+      "source_sha256": "85ac6048b3f7f25e291f46b13fde692bfdfc325c2326babd7edc6fd053a32f84",
+      "published_sha256": "9ec6d5f9455ce8441ad0274aef9d228fc474e57c698128490a1f8e6e7c6d4285"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "destination": "docs/legacy/fcitx/maintainer/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "route": "/legacy/fcitx/maintainer/DIRECT_RIME_REEVALUATION_2026-10-07",
+      "title": "去 fcitx5 直连 librime：2026-10-07 再评估",
+      "source_sha256": "1fc3d36aa0a179cd418ee83e429213026ce3be4c7c4ed3f0811248e8905e5fa6",
+      "published_sha256": "264254eb70eba7bffc692daf4758f270735089687b5e76ae81471360550cca22"
+    },
+    {
+      "source": "docs/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04.md",
+      "destination": "docs/legacy/fcitx/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04.md",
+      "route": "/legacy/fcitx/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04",
+      "title": "字体刷新遗留入口评估报告：`FontProviders` 的一次性布尔标志 `needsRefresh`",
+      "source_sha256": "8ef204b2d6c82d0b8325b38337fc89b24f9530d9ae4bd624b7897f666193effd",
+      "published_sha256": "10cf4d07f7d07c7fec7539a9f3779f61380b97bd3ae6291679e30aee8bf04f66"
+    },
+    {
+      "source": "docs/maintainer/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07.md",
+      "destination": "docs/legacy/fcitx/maintainer/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07.md",
+      "route": "/legacy/fcitx/maintainer/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07",
+      "title": "Foxy 风格符号面板搬运评估（当前实现复盘）",
+      "source_sha256": "918923130120150b31dd05999867c2610daf93ff8e3ebaadf02ea8b1461ec3ee",
+      "published_sha256": "d3ce6eff0a2a06e91956802930011dd1d6fe58c3a29b81d8d143e9488a1fc43d"
+    },
+    {
+      "source": "docs/maintainer/HANDOVER-rime-only.md",
+      "destination": "docs/legacy/fcitx/maintainer/HANDOVER-rime-only.md",
+      "route": "/legacy/fcitx/maintainer/HANDOVER-rime-only",
+      "title": "交接报告 — fx-rime-only（靓企鹅·中州韵，rime 专版）",
+      "source_sha256": "dedef53e100334135e1690787a126d15d39036c03b1d0234733f09bee2dc314f",
+      "published_sha256": "cfdf9adbfda396f5eba1baed03a93564daa362d170287a83ce32ff579310f66f"
+    },
+    {
+      "source": "docs/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07.md",
+      "destination": "docs/legacy/fcitx/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07.md",
+      "route": "/legacy/fcitx/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07",
+      "title": "fx-rime-only 性能专项审阅报告",
+      "source_sha256": "4255575c088b264bbeb42560b7019412087c4d785bb998a17f7d1a5652a99000",
+      "published_sha256": "4ea27e6d2b9923baf7ea01d77e4ca4350743a2051c71fa2ff1f6086347ed6f18"
+    },
+    {
+      "source": "docs/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20.md",
+      "destination": "docs/legacy/fcitx/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20.md",
+      "route": "/legacy/fcitx/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20",
+      "title": "MD3 设置界面实施记录与合并说明",
+      "source_sha256": "871360ffd7ece7819e488e106ebd467dfe563e9ae3020a41f24eaf12b20fa73d",
+      "published_sha256": "5baf90431651f8de07223e730dca6156062bceef0da0cda586735715518f3282"
+    },
+    {
+      "source": "docs/maintainer/SETTINGS_MD3_PLAN_2026-10-18.md",
+      "destination": "docs/legacy/fcitx/maintainer/SETTINGS_MD3_PLAN_2026-10-18.md",
+      "route": "/legacy/fcitx/maintainer/SETTINGS_MD3_PLAN_2026-10-18",
+      "title": "设置界面 Material 3 / M3 Expressive 改造规划",
+      "source_sha256": "8618aff0d4dd167d6e4ffd38b4c3ce5a3b777f83b9e490b59a438d0987a9de70",
+      "published_sha256": "fb378da2515031a684b598c39fb6f3fe4bf55e7298be7417cff282d1eba382fb"
+    },
+    {
+      "source": "docs/maintainer/SETTINGS_RESTRUCTURE_PROPOSAL_2026-09-28.md",
+      "destination": "docs/legacy/fcitx/maintainer/SETTINGS_RESTRUCTURE_PROPOSAL_2026-09-28.md",
+      "route": "/legacy/fcitx/maintainer/SETTINGS_RESTRUCTURE_PROPOSAL_2026-09-28",
+      "title": "设置界面重构方案（2026-09-28 调查报告）",
+      "source_sha256": "538daf9e43420d6004ef1094e9283ba1e5700cd394c38af09e7a0b28fb5c1492",
+      "published_sha256": "ea11fa596be228f6e8e8b32aeb4c2f77225dda1532db30d0ecd75537ac805b8b"
+    },
+    {
+      "source": "docs/manual/RIME_ONLY_USER_GUIDE_zh-CN.md",
+      "destination": "docs/legacy/fcitx/manual/RIME_ONLY_USER_GUIDE_zh-CN.md",
+      "route": "/legacy/fcitx/manual/RIME_ONLY_USER_GUIDE_zh-CN",
+      "title": "靓企鹅·中州韵 用户指南（Rime-only 版）",
+      "source_sha256": "4703801e9fd1fb001f22a24bbfe8901ce38f912a741f2ffa4887446e8b2fdd0d",
+      "published_sha256": "211d8dc48d7cf1fd3ea43b6f18613193a1f4d24c531a89cc54f3d6aabc58a46e"
+    },
+    {
+      "source": "docs/troubleshooting/faq.md",
+      "destination": "docs/legacy/fcitx/troubleshooting/faq.md",
+      "route": "/legacy/fcitx/troubleshooting/faq",
+      "title": "常见问题",
+      "source_sha256": "7889d303b239e881f0bd0daab14aec16cc8f2de7b11b860eb83759715c78ae89",
+      "published_sha256": "4495ad03b7d0499ff01f8a049f9dc21b5106b939a1c3330c7d50cecc78c4a644"
+    },
+    {
+      "source": "docs/troubleshooting/oem-startup.md",
+      "destination": "docs/legacy/fcitx/troubleshooting/oem-startup.md",
+      "route": "/legacy/fcitx/troubleshooting/oem-startup",
+      "title": "OEM 自启动与后台限制",
+      "source_sha256": "cfb54dfb864d69cdb1170c404020f245f82f49d38d8cc40eb43e23bc66c91f3d",
+      "published_sha256": "839c82b2e6873b98f0edf3bdb43d6fd17a9792da55b976b1234063df6fd707c9"
+    },
+    {
+      "source": "docs/troubleshooting/report-issue.md",
+      "destination": "docs/legacy/fcitx/troubleshooting/report-issue.md",
+      "route": "/legacy/fcitx/troubleshooting/report-issue",
+      "title": "反馈问题",
+      "source_sha256": "ecc2a764bba5b7d5fec845571c8cbb1fe12b39c83dfc8df7a37b310609cf8bb2",
+      "published_sha256": "1e5499ef4b011e94526c2924b6696eab58be1e516d15885731168ad8faf82262"
+    }
+  ],
+  "source_files": [
+    {
+      "source": "docs/.gitignore",
+      "sha256": "f09cd75374eb5bc157c641a15f08fe7591304a8abf2d9a1f079fcd910d1d8b82",
+      "restored_as": "source-snapshot-edcf536f.zip only"
+    },
+    {
+      "source": "docs/.vitepress/config.ts",
+      "sha256": "90e1ac4c6ef9797a069a57df3b9995c128141d56fc439c27777bfd0745e76779",
+      "restored_as": "source-snapshot-edcf536f.zip only"
+    },
+    {
+      "source": "docs/README.md",
+      "sha256": "c022d186203855fdece5aa9ba471f9c6581472456ab83ee807d0b659aedd4648",
+      "restored_as": "docs/legacy/fcitx/README.md"
+    },
+    {
+      "source": "docs/about/contribute-docs.md",
+      "sha256": "1173016b732b044673ff7953559219500e99341a802cec5236450c413e920611",
+      "restored_as": "docs/legacy/fcitx/about/contribute-docs.md"
+    },
+    {
+      "source": "docs/about/credits.md",
+      "sha256": "3d0a3217f4eee848b6c2395470191abae690a407f3d3d35c48666133184bd8e5",
+      "restored_as": "docs/legacy/fcitx/about/credits.md"
+    },
+    {
+      "source": "docs/about/donate.md",
+      "sha256": "6b273cdbd47d422497fde49865c4ff2870e457bea37790c99a75274185a99129",
+      "restored_as": "docs/legacy/fcitx/about/donate.md"
+    },
+    {
+      "source": "docs/features/candidate-window.md",
+      "sha256": "23c70188c5e224dc99483b5cba4fdd1593228f5dbd080e7c273055fb4df75d51",
+      "restored_as": "docs/legacy/fcitx/features/candidate-window.md"
+    },
+    {
+      "source": "docs/features/clipboard-sync.md",
+      "sha256": "c50a50753d8ba102f8e3c000e43e7dc753c98a98f76d56fdcad7f9a64c2f924d",
+      "restored_as": "docs/legacy/fcitx/features/clipboard-sync.md"
+    },
+    {
+      "source": "docs/features/editor/fontset-editor.md",
+      "sha256": "dfefa016663f3f9f6b61d2cd11285de6fd00c615a8877d2bd7b21f002c9e477e",
+      "restored_as": "docs/legacy/fcitx/features/editor/fontset-editor.md"
+    },
+    {
+      "source": "docs/features/editor/layout-editor.md",
+      "sha256": "f0ae6eff7d91ad4d2628170f1087ca4021cf0af5d3bb05165b60645650f9f9db",
+      "restored_as": "docs/legacy/fcitx/features/editor/layout-editor.md"
+    },
+    {
+      "source": "docs/features/editor/macrokey-editor.md",
+      "sha256": "7edf2322e5b72f82aa1add2b71eee768d19ae0c3d73a94840ddbc545f92cd39f",
+      "restored_as": "docs/legacy/fcitx/features/editor/macrokey-editor.md"
+    },
+    {
+      "source": "docs/features/editor/popup-editor.md",
+      "sha256": "f892cbdd43f28b4fa1154d93d9d71d7ae193000c3b6edc08861c000247f3c7d1",
+      "restored_as": "docs/legacy/fcitx/features/editor/popup-editor.md"
+    },
+    {
+      "source": "docs/features/kawaii-bar.md",
+      "sha256": "96110c4bcd1971170124e172d820c8fc53b3e67979298034fafb19c3b50e1383",
+      "restored_as": "docs/legacy/fcitx/features/kawaii-bar.md"
+    },
+    {
+      "source": "docs/features/keyboard/adjust-mode.md",
+      "sha256": "cffe23c79b49f65522259dc3d3b78de18196cdc50853b70ce3ffef3549c1c230",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/adjust-mode.md"
+    },
+    {
+      "source": "docs/features/keyboard/compose-override.md",
+      "sha256": "8bcbf25016aed608296040be96e23be5890dfb966e27deed85b20ad132b642ac",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/compose-override.md"
+    },
+    {
+      "source": "docs/features/keyboard/float-keyboard.md",
+      "sha256": "8b2f64126797e1cf5e858914915769e441b3fe8eabda11df451ccb0b30429d65",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/float-keyboard.md"
+    },
+    {
+      "source": "docs/features/keyboard/images/adjust-mode.jpg",
+      "sha256": "606ec5f107ab85eb5222f9c7a940e8997768038202246f0639887e6f2c30b7a3",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/images/adjust-mode.jpg"
+    },
+    {
+      "source": "docs/features/keyboard/images/float-entry.jpg",
+      "sha256": "4b0e54d23d2497c52b4fa7c44a3b40340e03e0ba8ff02c069c7ad1e28e7e262a",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/images/float-entry.jpg"
+    },
+    {
+      "source": "docs/features/keyboard/images/float-handle.jpg",
+      "sha256": "af76359cd5305ec5cfe8bc95b0184336955191317d76e79590de8d9b34efa33e",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/images/float-handle.jpg"
+    },
+    {
+      "source": "docs/features/keyboard/images/one-hand-01.jpg",
+      "sha256": "fe7239a804376d9725868c3db9c7e609039bc9d73bb67a45b9542860f4e85f9b",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/images/one-hand-01.jpg"
+    },
+    {
+      "source": "docs/features/keyboard/images/one-hand-02.jpg",
+      "sha256": "4b2d6f68586dfed5995112190ad4565983fec5c2d48d47bf227d225f1be83d2a",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/images/one-hand-02.jpg"
+    },
+    {
+      "source": "docs/features/keyboard/images/one-hand-entry.jpg",
+      "sha256": "420db76e3207c4c6b4c51dabc579287a41894ed033dd018317fd29c2111401fd",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/images/one-hand-entry.jpg"
+    },
+    {
+      "source": "docs/features/keyboard/images/one-hand-exit.jpg",
+      "sha256": "7b82a1dd8580d90f0a9d487150692e9ae083d92e647f1d11d600435c66159bb2",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/images/one-hand-exit.jpg"
+    },
+    {
+      "source": "docs/features/keyboard/images/split-calibrate.jpg",
+      "sha256": "eec65f4de436dbe773428c330cb3cb15e56c3b8406cc58d9e4f9be865f6b0fb7",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/images/split-calibrate.jpg"
+    },
+    {
+      "source": "docs/features/keyboard/images/split-entry.jpg",
+      "sha256": "e3f9e28171446aa37877b447ade730e96e0f0e13bd0f99366cdc3b8a1fbd1a55",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/images/split-entry.jpg"
+    },
+    {
+      "source": "docs/features/keyboard/one-handed.md",
+      "sha256": "4d09e3573ba0bb3cb16c1a06436897beb160cd2b70e56f8fdd74cc4b7b64231f",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/one-handed.md"
+    },
+    {
+      "source": "docs/features/keyboard/split-keyboard.md",
+      "sha256": "4e1e1cbed6040e69c5f07d9639fecbfbfde44e796c6c0102a0249631898b682a",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/split-keyboard.md"
+    },
+    {
+      "source": "docs/features/keyboard/swipe-actions.md",
+      "sha256": "55c19da0c254ac6e21deafbd72541f2f2b6fa7e28c50d61df1a32ec4a0d3ed8f",
+      "restored_as": "docs/legacy/fcitx/features/keyboard/swipe-actions.md"
+    },
+    {
+      "source": "docs/features/keys/alphabet-key.md",
+      "sha256": "b6b222230cb08bdd1d64494687263cd438e499f2b54b54a04443cf72e8056505",
+      "restored_as": "docs/legacy/fcitx/features/keys/alphabet-key.md"
+    },
+    {
+      "source": "docs/features/keys/backspace-key.md",
+      "sha256": "df0b8e622da952ab17b8cb4a797cb949804fc1fefa89e5c42e44217f4e695012",
+      "restored_as": "docs/legacy/fcitx/features/keys/backspace-key.md"
+    },
+    {
+      "source": "docs/features/keys/caps-key.md",
+      "sha256": "05f46d9b2c2a17b4c8f8d428eddb23ae2fe7266691e9ccf038630a45049a19b4",
+      "restored_as": "docs/legacy/fcitx/features/keys/caps-key.md"
+    },
+    {
+      "source": "docs/features/keys/comma-key.md",
+      "sha256": "d1338be119add85c753be1ec32d6915111442fb745760b5a4412b2a91250d9a7",
+      "restored_as": "docs/legacy/fcitx/features/keys/comma-key.md"
+    },
+    {
+      "source": "docs/features/keys/fcitx-keys.md",
+      "sha256": "b7ca3de6ed56a5a577c46c79acda63a215b689db1ff3b8cc1429641c949223e4",
+      "restored_as": "docs/legacy/fcitx/features/keys/fcitx-keys.md"
+    },
+    {
+      "source": "docs/features/keys/language-key.md",
+      "sha256": "238d1a3bba4e9bbb520ca628be4c49563de4dce7683d530d376e0078b098c5b6",
+      "restored_as": "docs/legacy/fcitx/features/keys/language-key.md"
+    },
+    {
+      "source": "docs/features/keys/layout-switch-key.md",
+      "sha256": "01ab1cd688a331aabbfd20b3feb16e3cbdf1a4fd7898c63d4373167df68ca95d",
+      "restored_as": "docs/legacy/fcitx/features/keys/layout-switch-key.md"
+    },
+    {
+      "source": "docs/features/keys/macro-key.md",
+      "sha256": "d2a030d0fb7bedb26ccebeb95bf581181e23ab583a64eb7072498e14e38b2faf",
+      "restored_as": "docs/legacy/fcitx/features/keys/macro-key.md"
+    },
+    {
+      "source": "docs/features/keys/overview.md",
+      "sha256": "f92f3700f2aa5c087c5dd03e7f643e5b91fd2274b80d204b3140d1f01258d1d8",
+      "restored_as": "docs/legacy/fcitx/features/keys/overview.md"
+    },
+    {
+      "source": "docs/features/keys/return-key.md",
+      "sha256": "cd0c3580b448ac7edea223b994984107f5a1fbc3ff378be9ff3edd43d58c1454",
+      "restored_as": "docs/legacy/fcitx/features/keys/return-key.md"
+    },
+    {
+      "source": "docs/features/keys/space-key.md",
+      "sha256": "925630fc133cb3c81b048f97fb211c180eafb82f7cbdd5f9ba481466ba9221d2",
+      "restored_as": "docs/legacy/fcitx/features/keys/space-key.md"
+    },
+    {
+      "source": "docs/features/keys/symbol-key.md",
+      "sha256": "cacb1b3191a3e0674d3cc85fce881b6d6b27c8763fb18b7637deea9f55ebce97",
+      "restored_as": "docs/legacy/fcitx/features/keys/symbol-key.md"
+    },
+    {
+      "source": "docs/features/online-editor.md",
+      "sha256": "7eb2b45134d67d1c02aae222d0169103a6f29259693370a5c402994d632f6afe",
+      "restored_as": "docs/legacy/fcitx/features/online-editor.md"
+    },
+    {
+      "source": "docs/features/overview.md",
+      "sha256": "08d228a514addc5f6f5f17fb74c4037fd647517f2e7f52ec176644a54ec2e805",
+      "restored_as": "docs/legacy/fcitx/features/overview.md"
+    },
+    {
+      "source": "docs/features/rime-enhancements.md",
+      "sha256": "3281147ed32c0d7c690280f6fa7d30d6b0a311040204c1e11b236e7c7320fad8",
+      "restored_as": "docs/legacy/fcitx/features/rime-enhancements.md"
+    },
+    {
+      "source": "docs/features/shared-import.md",
+      "sha256": "d0a8e4d635a4ab9167f9a8ec54d6a85f88221b136a4b12b52163971a944cdaf4",
+      "restored_as": "docs/legacy/fcitx/features/shared-import.md"
+    },
+    {
+      "source": "docs/features/text-editor.md",
+      "sha256": "ff62c800676f8d5e856fefdf06e8b0efb3bf412fbebb660b7cf034c9e1789884",
+      "restored_as": "docs/legacy/fcitx/features/text-editor.md"
+    },
+    {
+      "source": "docs/features/theme/frosted-blur.md",
+      "sha256": "28ef5f1772f603704de102c4936d8c490a3f23929da0f533c79f06d4ada4b144",
+      "restored_as": "docs/legacy/fcitx/features/theme/frosted-blur.md"
+    },
+    {
+      "source": "docs/features/theme/monet.md",
+      "sha256": "f1b644f83da19063ea7ba3abf07e0fb74b616ba56cd9ee7ed86ad600bab8f4e8",
+      "restored_as": "docs/legacy/fcitx/features/theme/monet.md"
+    },
+    {
+      "source": "docs/features/theme/settings-appearance.md",
+      "sha256": "ab07f7b83f1c1233b1e07237fbe7c12fcae05df3a4f63eb519525fd9e0eb52a5",
+      "restored_as": "docs/legacy/fcitx/features/theme/settings-appearance.md"
+    },
+    {
+      "source": "docs/features/theme/share-import.md",
+      "sha256": "60fe3a40ee4c0ff2a94558131d8a26d603c96c88003b1e60e29a82641c04d2b9",
+      "restored_as": "docs/legacy/fcitx/features/theme/share-import.md"
+    },
+    {
+      "source": "docs/features/theme/theme-editor.md",
+      "sha256": "f77ad6879bf2a9a45365aa558a5e14f6c40051526b5c1027ddfc8328fde20175",
+      "restored_as": "docs/legacy/fcitx/features/theme/theme-editor.md"
+    },
+    {
+      "source": "docs/features/update-checker.md",
+      "sha256": "ae7f7cf9dd5cc20e54cc2655efa14336f1127903235fc014df890b459e751569",
+      "restored_as": "docs/legacy/fcitx/features/update-checker.md"
+    },
+    {
+      "source": "docs/guide/builds-and-plugins.md",
+      "sha256": "63245af47cf609ceb7af46cfadc695ab79226fa3ef21a05d097b15045eb08679",
+      "restored_as": "docs/legacy/fcitx/guide/builds-and-plugins.md"
+    },
+    {
+      "source": "docs/guide/concepts.md",
+      "sha256": "c079558f12ea3d0d36d1e37d286950927cde0229a439acc485cd08db8d5673be",
+      "restored_as": "docs/legacy/fcitx/guide/concepts.md"
+    },
+    {
+      "source": "docs/guide/installation.md",
+      "sha256": "f2abbc0c5e38e24c0b48854bb5bd9fbe7747e72af5161f10300f8eab035c8910",
+      "restored_as": "docs/legacy/fcitx/guide/installation.md"
+    },
+    {
+      "source": "docs/guide/introduction.md",
+      "sha256": "754ba32be373863fc51c2539ae5b047469d26b9cdac481366b575ad9e708eacd",
+      "restored_as": "docs/legacy/fcitx/guide/introduction.md"
+    },
+    {
+      "source": "docs/guide/migrate-from-upstream.md",
+      "sha256": "fbd45569caa48a9d9a64af58d21c3556db8c9cdb9cb5d9a88a2a88626b1976ac",
+      "restored_as": "docs/legacy/fcitx/guide/migrate-from-upstream.md"
+    },
+    {
+      "source": "docs/guide/quick-start.md",
+      "sha256": "a882b8e056ab955f5868bcdf2d81efaa7778694bce04b516ab3df37d36a7faef",
+      "restored_as": "docs/legacy/fcitx/guide/quick-start.md"
+    },
+    {
+      "source": "docs/index.md",
+      "sha256": "9fb7a8e1074adf5e68657c0ce2c62e0f8069f57ae0053113925d45c1e1f68383",
+      "restored_as": "docs/legacy/fcitx/index.md"
+    },
+    {
+      "source": "docs/maintainer/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "sha256": "cf633a5ec698de73380f9080f914e94056e7abba88eae12d15b8a604008daef2",
+      "restored_as": "docs/legacy/fcitx/maintainer/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md"
+    },
+    {
+      "source": "docs/maintainer/ARCHIVE_RIME_INTEGRATION_PLAN.md",
+      "sha256": "7102fdf74f8b5a1b1add3841d1d7dc1d4e4e0439def3bacc0e3402d08ef8ce49",
+      "restored_as": "docs/legacy/fcitx/maintainer/ARCHIVE_RIME_INTEGRATION_PLAN.md"
+    },
+    {
+      "source": "docs/maintainer/ARCHIVE_RIME_ONLY_FEASIBILITY.md",
+      "sha256": "ac0273b7d575a5e6ad4f27e93c6b83163baa0c2f6e44a9f9258d8660fe39c105",
+      "restored_as": "docs/legacy/fcitx/maintainer/ARCHIVE_RIME_ONLY_FEASIBILITY.md"
+    },
+    {
+      "source": "docs/maintainer/CODE_REVIEW_REPORT_2026-09-07.md",
+      "sha256": "b3e8ded0a26551b44dcc34a383791954df38d038245e8391073830b6df824403",
+      "restored_as": "docs/legacy/fcitx/maintainer/CODE_REVIEW_REPORT_2026-09-07.md"
+    },
+    {
+      "source": "docs/maintainer/CODE_REVIEW_fx2_2026-10-11.md",
+      "sha256": "85ac6048b3f7f25e291f46b13fde692bfdfc325c2326babd7edc6fd053a32f84",
+      "restored_as": "docs/legacy/fcitx/maintainer/CODE_REVIEW_fx2_2026-10-11.md"
+    },
+    {
+      "source": "docs/maintainer/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "sha256": "1fc3d36aa0a179cd418ee83e429213026ce3be4c7c4ed3f0811248e8905e5fa6",
+      "restored_as": "docs/legacy/fcitx/maintainer/DIRECT_RIME_REEVALUATION_2026-10-07.md"
+    },
+    {
+      "source": "docs/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04.md",
+      "sha256": "8ef204b2d6c82d0b8325b38337fc89b24f9530d9ae4bd624b7897f666193effd",
+      "restored_as": "docs/legacy/fcitx/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04.md"
+    },
+    {
+      "source": "docs/maintainer/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07.md",
+      "sha256": "918923130120150b31dd05999867c2610daf93ff8e3ebaadf02ea8b1461ec3ee",
+      "restored_as": "docs/legacy/fcitx/maintainer/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07.md"
+    },
+    {
+      "source": "docs/maintainer/HANDOVER-rime-only.md",
+      "sha256": "dedef53e100334135e1690787a126d15d39036c03b1d0234733f09bee2dc314f",
+      "restored_as": "docs/legacy/fcitx/maintainer/HANDOVER-rime-only.md"
+    },
+    {
+      "source": "docs/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07.md",
+      "sha256": "4255575c088b264bbeb42560b7019412087c4d785bb998a17f7d1a5652a99000",
+      "restored_as": "docs/legacy/fcitx/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07.md"
+    },
+    {
+      "source": "docs/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20.md",
+      "sha256": "871360ffd7ece7819e488e106ebd467dfe563e9ae3020a41f24eaf12b20fa73d",
+      "restored_as": "docs/legacy/fcitx/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20.md"
+    },
+    {
+      "source": "docs/maintainer/SETTINGS_MD3_PLAN_2026-10-18.md",
+      "sha256": "8618aff0d4dd167d6e4ffd38b4c3ce5a3b777f83b9e490b59a438d0987a9de70",
+      "restored_as": "docs/legacy/fcitx/maintainer/SETTINGS_MD3_PLAN_2026-10-18.md"
+    },
+    {
+      "source": "docs/maintainer/SETTINGS_RESTRUCTURE_PROPOSAL_2026-09-28.md",
+      "sha256": "538daf9e43420d6004ef1094e9283ba1e5700cd394c38af09e7a0b28fb5c1492",
+      "restored_as": "docs/legacy/fcitx/maintainer/SETTINGS_RESTRUCTURE_PROPOSAL_2026-09-28.md"
+    },
+    {
+      "source": "docs/manual/RIME_ONLY_USER_GUIDE_zh-CN.md",
+      "sha256": "4703801e9fd1fb001f22a24bbfe8901ce38f912a741f2ffa4887446e8b2fdd0d",
+      "restored_as": "docs/legacy/fcitx/manual/RIME_ONLY_USER_GUIDE_zh-CN.md"
+    },
+    {
+      "source": "docs/package-lock.json",
+      "sha256": "6c1194910a526be00fc31bac619f416c42445a6bddfa35123d79b2d4b86c5a70",
+      "restored_as": "source-snapshot-edcf536f.zip only"
+    },
+    {
+      "source": "docs/package.json",
+      "sha256": "377f5aa7e7f221aae070f5c82a964e7893008d638b16046c9a4edda9fc91f181",
+      "restored_as": "source-snapshot-edcf536f.zip only"
+    },
+    {
+      "source": "docs/public/logo.png",
+      "sha256": "c5cc6c206f6e11f6d6cb897ab781819ab402e7ef79755c2ef0d3066e4e943ce2",
+      "restored_as": "docs/public/legacy/fcitx/logo.png"
+    },
+    {
+      "source": "docs/public/maintainer/settings-review/方案.architecture.json",
+      "sha256": "a40740a328aab19152aa588ce6b8d7d954183fb61ac3d43bb7ef99fdb9f19623",
+      "restored_as": "docs/public/legacy/fcitx/maintainer/settings-review/方案.architecture.json"
+    },
+    {
+      "source": "docs/public/maintainer/settings-review/现状.architecture.json",
+      "sha256": "96d84db5da092184225be08d7cb3f44332046d2b0c17ad8aef67a28159f59ae8",
+      "restored_as": "docs/public/legacy/fcitx/maintainer/settings-review/现状.architecture.json"
+    },
+    {
+      "source": "docs/public/maintainer/settings-review/设置现状全景图.html",
+      "sha256": "747263b38f3c248215083585c58521b0f8be2662895e5876998c34717571e372",
+      "restored_as": "docs/public/legacy/fcitx/maintainer/settings-review/设置现状全景图.html"
+    },
+    {
+      "source": "docs/public/maintainer/settings-review/设置界面思维导图.html",
+      "sha256": "f41e46389f171935b466eb0ec978514a6359fe2a7f4ca3f97ab632dff19712ca",
+      "restored_as": "docs/public/legacy/fcitx/maintainer/settings-review/设置界面思维导图.html"
+    },
+    {
+      "source": "docs/public/maintainer/settings-review/设置重构方案图.html",
+      "sha256": "da15cdb24f7f7102897913c1223377455179222bea110ad1f71a6b97a340b442",
+      "restored_as": "docs/public/legacy/fcitx/maintainer/settings-review/设置重构方案图.html"
+    },
+    {
+      "source": "docs/troubleshooting/faq.md",
+      "sha256": "7889d303b239e881f0bd0daab14aec16cc8f2de7b11b860eb83759715c78ae89",
+      "restored_as": "docs/legacy/fcitx/troubleshooting/faq.md"
+    },
+    {
+      "source": "docs/troubleshooting/oem-startup.md",
+      "sha256": "cfb54dfb864d69cdb1170c404020f245f82f49d38d8cc40eb43e23bc66c91f3d",
+      "restored_as": "docs/legacy/fcitx/troubleshooting/oem-startup.md"
+    },
+    {
+      "source": "docs/troubleshooting/report-issue.md",
+      "sha256": "ecc2a764bba5b7d5fec845571c8cbb1fe12b39c83dfc8df7a37b310609cf8bb2",
+      "restored_as": "docs/legacy/fcitx/troubleshooting/report-issue.md"
+    }
+  ]
+}

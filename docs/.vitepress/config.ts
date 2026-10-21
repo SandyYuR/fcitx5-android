@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { legacyMaintainerItems, legacySidebar } from './legacy-navigation'
 
 export default defineConfig({
   title: '中州鹅',
@@ -6,6 +7,11 @@ export default defineConfig({
   lang: 'zh-CN',
   lastUpdated: true,
   cleanUrls: true,
+  transformPageData(pageData) {
+    if (pageData.relativePath.startsWith('legacy/fcitx/')) {
+      pageData.title = `旧版 Fcitx · ${pageData.title}`
+    }
+  },
 
   // 部署到 https://sandyyur.github.io/fcitx5-android/ 时使用此 base
   base: '/fcitx5-android/',
@@ -47,8 +53,18 @@ export default defineConfig({
       },
       { text: '手册', link: '/manual/DIRECT_RIME_USER_GUIDE_zh-CN' },
       {
+        text: '旧版文档',
+        items: [
+          { text: '旧版原站首页', link: '/legacy/fcitx/' },
+          { text: '全部 64 篇原站文档', link: '/legacy/fcitx/contents' },
+          { text: '原站维护报告（13 篇）', link: '/legacy/fcitx/maintainer/' },
+          { text: '旧版完整用户手册', link: '/legacy/fcitx/manual/RIME_ONLY_USER_GUIDE_zh-CN' },
+        ],
+      },
+      {
         text: '维护',
         items: [
+          { text: '旧版维护报告（13 篇）', link: '/legacy/fcitx/maintainer/' },
           { text: 'Rebase 合入、APK 与验证', link: '/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21' },
           { text: '代码与文档分支分离', link: '/maintainer/DIRECT_RIME_DOCUMENTATION_SPLIT_2026-10-21' },
           { text: '维护手册与 librime 更新', link: '/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN' },
@@ -74,6 +90,7 @@ export default defineConfig({
     ],
 
     sidebar: {
+      '/legacy/fcitx/': legacySidebar,
       '/guide/': [
         {
           text: '入门',
@@ -171,6 +188,14 @@ export default defineConfig({
         },
       ],
       '/maintainer/': [
+        {
+          text: '旧版原站维护报告（13 篇）',
+          collapsed: false,
+          items: [
+            { text: '旧版完整文档目录', link: '/legacy/fcitx/contents' },
+            ...legacyMaintainerItems,
+          ],
+        },
         {
           text: '当前直连版',
           items: [

@@ -45,7 +45,9 @@ jobs:
         run: npm run build
 
       - name: Check generated page routes and anchors
-        run: python3 docs/scripts/check-links.py
+        run: |
+          python3 docs/scripts/check-links.py
+          python3 docs/scripts/check-legacy-docs.py
 
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'

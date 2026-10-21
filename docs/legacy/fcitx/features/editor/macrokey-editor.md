@@ -1,0 +1,40 @@
+# MacroKey 编辑器
+
+::: info 旧版 Fcitx 文档
+这是直连版合入前的原站文档，固定于 `edcf536f`，仅对应当时的 Fcitx 版本。
+[旧版完整目录](/legacy/fcitx/contents) · [旧版维护报告](/legacy/fcitx/maintainer/) · [当前中州鹅手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) · [原始文档](https://github.com/SandyYuR/fcitx5-android/blob/edcf536f85576ce3e2b241e1eb5059534a972f51/docs/features/editor/macrokey-editor.md)
+:::
+
+
+应用内可视化编辑 MacroKey 的工具，避免手写 step 数组。
+
+::: tip 数据模型在哪
+本页只描述编辑器的使用入口；MacroKey 的全部字段、step 类型与 JSON 结构请见 [MacroKey 细化](/legacy/fcitx/features/keys/macro-key)。
+:::
+
+## 入口
+
+在 [键盘布局编辑器](/legacy/fcitx/features/editor/layout-editor) 中选择一个按键，将类型切换为 `MacroKey` 即可进入 MacroKey 编辑器。
+
+## 编辑器可配置项
+
+- 主标签 / 副标签 / 长按标签
+- **显示文本**：可按方案分别设置；显式填写的值**按原样显示**（优先于标签，不再被 Shift 改写成小写），留空回落到标签——预览与保存遵循同一优先级
+- 三组宏序列：`tap` / `swipe` / `longPress`（`swipe` 在支持方向标签的键型上分为**上滑 / 下滑**两栏，可分别配置动作与标签；填了标签时标签按方向画在键的上方 / 下方，方向只由字段决定，不随主题「标点位置」变化）
+- 每个 step 在面板中按顺序添加、拖拽重排、删除
+- step 类型可在下拉中选择（按键 / 文本 / 编辑命令 / 快捷键 / app action / layer 等）
+- **app action** 列表包含本版新增的「切换系统输入法」与「弹出 Rime 方案选单」
+- 每个 step 类型显示对应的字段输入（如 KeyRef 选择器、文本框）
+- KeyRef 选择器仅暴露 **Fcitx 键名** 列表（如 `Return` / `Shift_L` / 字母数字等）
+- 划动标签可在键面上预览
+
+::: warning 编辑器不支持 Android 键码
+KeyRef 的另一种形式 `{"android": <code>}` 只在手改 JSON 时可用，编辑器界面没有对应输入项。如果按键里已经存在 Android 键码引用，**不要再用编辑器二次保存** —— 编辑器可能不识别这种条目导致信息丢失。详见 [MacroKey 细化 → KeyRef](/legacy/fcitx/features/keys/macro-key#keyref-引用按键的两种方式)。
+:::
+
+## 相关页面
+
+- [MacroKey 细化（数据模型 / step 完整列表）](/legacy/fcitx/features/keys/macro-key)
+- [键盘布局编辑器](/legacy/fcitx/features/editor/layout-editor)
+- [按键类型总览](/legacy/fcitx/features/keys/overview)
+- [滑动操作](/legacy/fcitx/features/keyboard/swipe-actions)

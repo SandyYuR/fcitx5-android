@@ -1,0 +1,46 @@
+# 字体集编辑器（字体设定）
+
+::: info 旧版 Fcitx 文档
+这是直连版合入前的原站文档，固定于 `edcf536f`，仅对应当时的 Fcitx 版本。
+[旧版完整目录](/legacy/fcitx/contents) · [旧版维护报告](/legacy/fcitx/maintainer/) · [当前中州鹅手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) · [原始文档](https://github.com/SandyYuR/fcitx5-android/blob/edcf536f85576ce3e2b241e1eb5059534a972f51/docs/features/editor/fontset-editor.md)
+:::
+
+
+本版沿用 **字体集 (Fontset)** 系统——把"哪些位置用哪个字体、多大字号"配置化，存放于 `config/fontset.json`。设置入口是 **应用主页 → 外观 → 字体设定**。
+
+## 可配置位置
+
+| Key | 用途 | 默认字号 |
+|-----|------|---------|
+| `font` | 基础字体（AutoScaleTextView 通用默认） | 20 sp |
+| `key_main_font` | 按键主标签字体 | 23 sp |
+| `key_alt_font` | 按键副标签（swipe 提示）字体 | 10.67 sp |
+| `cand_font` | 候选词字体 | 20 sp |
+| 注释字体 | 候选注释 / 二级提示文字字体 | — |
+| `popup_key_font` | Popup 弹窗按键字体 | 18 sp |
+| `preedit_font` | 预编辑文本字体 | 18 sp |
+
+## 字号与字体分开调
+
+- **改字号**：点每行右侧的当前值（形如 `23 sp`）或后面的齿轮图标，打开滑杆——范围 **8–72 sp**，可一键「重置」回默认；
+- 点行标题或下面的预览行打开的是**字体选择**：可勾选多个字体，**排在前面的找不到字形时依次回退到后面的**，最后回退系统字体；拖拽可调整优先顺序；
+- 字体文件放在应用私有目录的 `fonts/` 子目录，支持 `.ttf` 与 `.otf`。
+
+## 保存后立即生效（本版）
+
+写完点右上角**保存**，**当前已打开的那套键盘会立刻换上新字号与新字体**——键帽文字、候选栏、展开的候选面板、浮动候选窗、预编辑行、弹出按键气泡都会跟着变。**不必强杀输入法重开，也不必切走再切回**（内部改用单调递增的字体数据版本号，任何一侧都能自行判断是否需要刷新）。
+
+有两处「看起来没换过来」属于**正常现象**：
+
+- **候选字被候选行高度卡住**：候选文字的高度自动缩放**只会缩小、不会放大**——想让候选字真正变大，先把[工具栏调高](/legacy/fcitx/guide/quick-start#第三步-常用设置入口)，再调候选字号；
+- **长按弹出气泡**里的字符是自适应缩放的，字号变化时气泡本身也跟着变大变小，观感变化不如候选栏明显。
+
+::: info 更新检查器 / 宏切换字体集
+仍可通过 MacroKey 的 app action（`id: "fontset"` 类动作）切换激活字体集；具体以 [MacroKey 编辑器](/legacy/fcitx/features/editor/macrokey-editor) 可选项为准。
+:::
+
+## 相关页面
+
+- [键盘布局编辑器](/legacy/fcitx/features/editor/layout-editor)
+- [MacroKey 编辑器](/legacy/fcitx/features/editor/macrokey-editor)
+- [主题编辑器](/legacy/fcitx/features/theme/theme-editor)

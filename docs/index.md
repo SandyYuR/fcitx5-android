@@ -19,6 +19,9 @@ hero:
       text: 下载安装
       link: /guide/installation
     - theme: alt
+      text: 旧版文档
+      link: /legacy/fcitx/contents
+    - theme: alt
       text: GitHub
       link: https://github.com/SandyYuR/fcitx5-android
 
@@ -73,7 +76,7 @@ features:
 
 ::: info 版本与文档范围
 默认分支 `fx-rime-only` 已切换为直连版。签名 Nightly、实际源码与补丁验证见[交付记录](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)。
-旧 Fcitx 版手册和实施方案保留在历史入口，当前操作以中州鹅手册为准。
+[旧版 Fcitx 文档专区](/legacy/fcitx/contents)完整保留原站 64 篇文档，包含[13 篇维护报告](/legacy/fcitx/maintainer/)；当前操作以中州鹅手册为准。
 :::
 
 ::: warning 首次安装须知

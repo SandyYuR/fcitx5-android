@@ -1,0 +1,79 @@
+# 安装
+
+::: info 旧版 Fcitx 文档
+这是直连版合入前的原站文档，固定于 `edcf536f`，仅对应当时的 Fcitx 版本。
+[旧版完整目录](/legacy/fcitx/contents) · [旧版维护报告](/legacy/fcitx/maintainer/) · [当前中州鹅手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) · [原始文档](https://github.com/SandyYuR/fcitx5-android/blob/edcf536f85576ce3e2b241e1eb5059534a972f51/docs/guide/installation.md)
+:::
+
+
+::: tip 只有一个构建版本
+靓企鹅·中州韵只有一个 APK：包名 `org.fcitx.fcitx5.android.fx.rime`，**Rime 引擎已内置**，不需要安装任何插件。它可以与上游 fcitx5-android、fxliang fx 构建**并存安装**（详见 [构建版本与数据共存](/legacy/fcitx/guide/builds-and-plugins)）。
+:::
+
+::: warning 装完打不出汉字是预期状态
+本版 **不预置任何输入方案**。安装、启用之后键盘能正常弹出，但需要自己放入 Rime 方案并部署一次才能输入中文——步骤见 [快速上手](/legacy/fcitx/guide/quick-start)。
+:::
+
+## 一、下载渠道
+
+### 1. SandyYuR/fcitx5-android Releases（推荐）
+
+前往 [SandyYuR/fcitx5-android Releases](https://github.com/SandyYuR/fcitx5-android/releases) 下载最新版本：
+
+- **正式意义的时间戳 Nightly 预发布**：`fx-rime-only` 分支每次构建成功都会自动创建一个带时间戳的 Nightly 预发布版并附带 APK，适合愿意尝鲜和反馈的用户；
+- Release 里的主程序 APK 文件名形如 `org.fcitx.fcitx5.android.fx.rime-<version>.apk`。
+
+::: tip 选择正确的 ABI
+CI 构建与验证的是 **`arm64-v8a`**（覆盖大多数现代设备）。其他 ABI 是否提供以具体 Release 产物为准。
+:::
+
+### 2. 应用内更新检查（已安装后）
+
+打开应用 → 右上角菜单 → **关于 → 当前版本**，可检查更新、查看发布说明并下载安装包。它拉取的是本仓库的 Release（含 Nightly 预发布），支持镜像规则与自定义 hosts 加速（详见 [更新检查器](/legacy/fcitx/features/update-checker)）。
+
+::: info 为什么没有 F-Droid
+这是个人定制分支，未上架 F-Droid。如需 F-Droid 渠道请使用上游版本。
+:::
+
+## 二、安装步骤
+
+### 1. 安装主程序 APK
+
+在文件管理器或浏览器中点击下载的 APK。首次安装可能需要授予 **允许安装未知来源应用** 权限（只应为当前使用的文件管理器或浏览器临时授权，安装后可关闭）。
+
+- 全新安装：直接装即可；
+- 覆盖升级：确认新 APK 的包名与签名与已安装版本一致（不同签名的 APK 不能直接覆盖）；
+- **不需要、也没有任何插件 APK 可装**——Rime 引擎、Rime 共享数据（`default.yaml`、`symbols.yaml` 等公共预设资源）都在主包内。
+
+### 2. 启用输入法
+
+首次打开应用会出现两步向导：
+
+1. 点 **启用输入法**，跳转到系统 **设置 → 系统 → 语言和输入法 → 屏幕键盘 / 管理键盘**（不同 ROM 命名略有差异），找到 **Fcitx5.fx.rime / 靓企鹅·中州韵** 并开启开关；
+2. 返回应用，点 **选择输入法**，将其设为当前输入法。
+
+引导页采用 Material 3 外观并显示当前步骤；每步完成后会显示完成卡片，两步都完成后点底部 **完成**。启用或选择操作打开的系统页面由 Android 和设备厂商控制外观。
+
+也可以在任意可输入文本的位置，通过键盘右下角的 **切换输入法** 按钮或系统设置完成切换。
+
+### 3. 放入 Rime 方案并部署
+
+这是与"其他发行版"最不同的一步：**首次启用后没有任何可用方案**。把方案文件放进用户数据目录、patch `schema_list`、执行部署，详见 [快速上手](/legacy/fcitx/guide/quick-start)。
+
+## 三、权限说明
+
+- **悬浮窗 / 显示在其他应用上层**：用于浮动键盘等
+- **存储**：用于读取方案文件、自定义词库、Rime 配置、导入主题/布局等
+- **通知**：用于剪贴板同步、更新检查与下载进度提示
+- **相机**：扫描二维码导入布局/主题/Popup 配置时使用（详见 [QR 分享](/legacy/fcitx/features/theme/share-import)）
+- **麦克风**：语音输入入口
+
+## 四、OEM 自启动与后台限制（建议）
+
+部分国产 ROM（小米、华为、OPPO、vivo 等）会限制输入法进程的常驻与后台活动，可能表现为键盘调起变慢、剪贴板同步不稳定。建议为本应用开启 **自启动 / 关联启动** 并放宽省电限制，详见 [OEM 自启动与后台限制](/legacy/fcitx/troubleshooting/oem-startup)。
+
+## 五、卸载
+
+- 卸载前建议先取消其默认输入法状态；
+- 自定义配置存放于应用私有目录，**卸载会一并删除**——请先用 **数据与备份 → 导出用户数据** 备份（详见 [从上游迁移](/legacy/fcitx/guide/migrate-from-upstream)）；
+- 卸载不影响同机并存的上游 / fxliang 版本，反之亦然。

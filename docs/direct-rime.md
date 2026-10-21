@@ -2,7 +2,9 @@
 
 适用于本目录所在提交的中州鹅直连版，包名 `org.fcitx.fcitx5.android.fx.rime`。
 通过 [PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4) 合入 `fx-rime-only` 后，默认分支也使用本套说明。
-旧 Fcitx 版固定在 `v0-archive-fcitx-before-direct-20261019`；文档站正在通过独立 PR 同步当前直连说明，旧 Fcitx 手册保留为历史入口。
+旧 Fcitx 版代码固定在 `v0-archive-fcitx-before-direct-20261019`。
+[旧版文档专区](legacy/fcitx/contents.md)完整恢复直连版合入前原站的 64 篇文档，
+包括[13 篇维护报告](legacy/fcitx/maintainer/index.md)、原站首页、功能说明和完整用户手册。
 
 | 需要做什么 | 从这里开始 |
 | --- | --- |

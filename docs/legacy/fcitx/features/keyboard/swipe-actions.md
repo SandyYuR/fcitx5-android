@@ -1,0 +1,66 @@
+# 滑动操作
+
+::: info 旧版 Fcitx 文档
+这是直连版合入前的原站文档，固定于 `edcf536f`，仅对应当时的 Fcitx 版本。
+[旧版完整目录](/legacy/fcitx/contents) · [旧版维护报告](/legacy/fcitx/maintainer/) · [当前中州鹅手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) · [原始文档](https://github.com/SandyYuR/fcitx5-android/blob/edcf536f85576ce3e2b241e1eb5059534a972f51/docs/features/keyboard/swipe-actions.md)
+:::
+
+
+本版把一部分按键的滑动行为开放为可配置项。滑动分为**普通滑动**（手指在键上直接滑动）与**长按后滑动**（先按满长按延迟、再滑，交给「长按+滑动」复合手势处理）两类。
+
+## 普通滑动（swipe 字段）
+
+- **滑动触发**：支持 `swipe` 字段的按键在垂直滑动后执行对应 MacroAction
+- **字母备用字符**：`AlphabetKey` 的滑动固定发送 `alt` 字符，不使用 `swipe` 宏字段
+- **符号键滑动切换中英文符号**是典型用法
+
+### 单个划动槽位：`swipe` / `swipeLabel`
+
+`swipe` 与 `swipeLabel` 是**没有物理方向**的旧式单槽配置，两条规则：
+
+- **没填标签**（只有 `swipe`）：保持通用槽位，运行时由全局设置 **虚拟键盘 → 按键行为 → 符号划动方向（符号隐藏时）** 决定触发方向（默认「自动」= 上下都能触发）；
+- **填了 `swipeLabel`**：按方向解析一次并固定——键上没有上划一侧的槽位时落到**下滑槽**（标签显示在键的下方、只响应下滑），只有能确定「同侧且唯一」是上划时才落到上滑槽。
+
+旧布局里的单槽字段会在读取、编辑或保存时自动迁移到方向字段，迁移后行为不再随全局设置变化。
+
+### 分开配置上滑与下滑：`swipeUp` / `swipeDown`
+
+回车、退格、大小写、符号、布局切换以及 MacroKey 支持**上下划分别配置**，各有动作与标签字段：
+
+| 字段 | 作用 |
+|------|------|
+| `swipeUp` / `swipeDown` | 上滑 / 下滑执行的 [MacroAction](/legacy/fcitx/features/keys/macro-key#macroaction-结构) |
+| `swipeUpLabel` / `swipeDownLabel` | 上滑 / 下滑标签（MacroKey 的旧字段叫 `altLabel`） |
+
+两条不变式：
+
+- **方向只由字段决定**：配了 `swipeUp` 就只认上滑、配了 `swipeDown` 就只认下滑，**不受「符号划动方向」影响**（这一点与单槽 `swipe` 不同），也不受主题的「标点位置」影响；
+- **标签画在对应方向**：上滑标签恒显示在键的**上方**、下滑标签恒显示在**下方**；键高不足时退到同侧角落（下滑标签退右下角），上下标签都有而空间不够时各占一个角。改主题的「标点位置」**不会**把下滑键翻成上滑——那一项只管字母键的标点副标签。
+
+MacroKey 的 `altLabel` 是旧式单槽标签字段，与 `swipeLabel` 同一套解析规则。
+
+## 空格键的滑动（本版扩充）
+
+- **左右滑动移动光标**仍是默认行为，由 **虚拟键盘 → 按键行为 → 划动空格键以移动光标** 开关控制（默认开）；上下滑动发送 Up / Down 属于 SpaceKey 内置行为；
+- **开关关闭后**，可以在布局编辑器里为空格键配置自己的划动动作（与其它可划动键一致），两者**互斥且开关优先**——开关开着时按键上配置的划动动作不生效；
+- 滑动光标到文本边界时不再把焦点逃逸出输入框；
+- 空格键还支持**长按重复输入空格**（见 [SpaceKey](/legacy/fcitx/features/keys/space-key)），与划动互不干扰。
+
+## 退格键的滑动与长按复合手势
+
+- 左右滑动用于选择 / 删除范围（内置行为）；
+- **长按进入连删后，手指不抬起继续上滑**是本版的复合手势：
+  - 合成中：一次性清空当前编码（发 `Esc`），提示条显示 `Esc`，**不动已上屏正文**；
+  - 非合成（编码区已空）：清空整个输入框（含已上屏正文）；
+- 详见 [BackspaceKey](/legacy/fcitx/features/keys/backspace-key)。
+
+## 编辑入口
+
+- **键盘布局编辑器** 中按键属性面板的「划动事件」区
+- 滑动标签字体可与主标签字体独立配置（见 [字体集编辑器](/legacy/fcitx/features/editor/fontset-editor)）
+
+## 相关页面
+
+- [键盘布局编辑器](/legacy/fcitx/features/editor/layout-editor)
+- [MacroKey 编辑器](/legacy/fcitx/features/editor/macrokey-editor)
+- [SpaceKey](/legacy/fcitx/features/keys/space-key) · [BackspaceKey](/legacy/fcitx/features/keys/backspace-key)
