@@ -19,6 +19,7 @@ enum class SpaceLongPressBehavior(override val stringRes: Int) : ManagedPreferen
      * 因此 `CommonKeyActionListener` 里对应的分支是空实现。
      */
     Repeat(R.string.space_behavior_repeat),
+    // These enum names are persisted in preferences; retain them for existing settings.
     Enumerate(R.string.space_behavior_enumerate),
     ToggleActivate(R.string.space_behavior_activate),
     ShowPicker(R.string.space_behavior_picker),

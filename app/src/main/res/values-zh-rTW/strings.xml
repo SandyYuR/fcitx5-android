@@ -318,9 +318,9 @@
     <string name="space_long_press_behavior">空格鍵長按行為</string>
     <string name="space_behavior_none">無</string>
     <string name="space_behavior_repeat">重複輸入空格（按住連續輸入）</string>
-    <string name="space_behavior_enumerate">輪換輸入法</string>
-    <string name="space_behavior_activate">在目前輸入法與第一個輸入法之間切換</string>
-    <string name="space_behavior_picker">顯示選擇輸入法對話框</string>
+    <string name="space_behavior_enumerate">輪換目前啟用的 Rime 方案</string>
+    <string name="space_behavior_activate">在目前啟用的 Rime 方案與第一個方案間切換</string>
+    <string name="space_behavior_picker">顯示 Rime 方案選單</string>
     <string name="space_behavior_voice_input">切換到語音輸入</string>
     <string name="space_behavior_voice_input_hold">按住說話</string>
     <string name="space_key_label_mode">空格鍵標籤樣式</string>

@@ -219,9 +219,9 @@
     <string name="toolbar_num_row_on_password">Показывать строку с цифрами на панели инструментов при вводе пароля</string>
     <string name="space_long_press_behavior">Поведение при длительном нажатии клавиши пробела</string>
     <string name="space_behavior_none">Нет</string>
-    <string name="space_behavior_enumerate">Перечислить методы ввода</string>
-    <string name="space_behavior_activate">Переключить состояние активации метода ввода</string>
-    <string name="space_behavior_picker">Показать диалоговое окно выбора метода ввода</string>
+    <string name="space_behavior_enumerate">Переключаться между включёнными схемами Rime</string>
+    <string name="space_behavior_activate">Переключаться между текущей и первой схемой Rime</string>
+    <string name="space_behavior_picker">Показать меню схем Rime</string>
     <string name="space_behavior_voice_input">Переключиться на голосовой ввод</string>
     <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="show_lang_switch_key">Показываать клавишу переключения языка</string>

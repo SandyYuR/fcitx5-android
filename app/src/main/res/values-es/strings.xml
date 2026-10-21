@@ -120,7 +120,7 @@
     <string name="table_file_placeholder">Seleccionar archivo...</string>
     <string name="table_dict_select_title">Diccionario de tablas (.dict o .txt)</string>
     <string name="space_behavior_none">Ninguno</string>
-    <string name="space_behavior_enumerate">Enumerar métodos de entrada</string>
+    <string name="space_behavior_enumerate">Recorrer los esquemas Rime habilitados</string>
     <string name="delete_theme">Eliminar tema</string>
     <string name="delete_theme_msg">¿Realmente quiere eliminar el tema «%1$s»?</string>
     <string name="plugins">Complementos</string>
@@ -650,8 +650,8 @@
     <string name="share">Compartir</string>
     <string name="show_candidates_window">Mostrar ventana de candidatos</string>
     <string name="show_lang_switch_key">Mostrar tecla de cambio de idioma</string>
-    <string name="space_behavior_activate">Alternar estado de activacion del metodo de entrada</string>
-    <string name="space_behavior_picker">Mostrar dialogo selector de metodo de entrada</string>
+    <string name="space_behavior_activate">Alternar entre el esquema Rime actual y el primero</string>
+    <string name="space_behavior_picker">Mostrar el menú de esquemas Rime</string>
     <string name="space_behavior_voice_input">Cambiar a entrada de voz</string>
     <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="space_long_press_behavior">Comportamiento de pulsacion larga de la barra espaciadora</string>

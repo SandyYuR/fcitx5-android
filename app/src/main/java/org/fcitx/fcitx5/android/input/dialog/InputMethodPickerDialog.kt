@@ -16,7 +16,6 @@ import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import splitties.dimensions.dp
-import splitties.resources.styledDrawable
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 import splitties.views.dsl.recyclerview.recyclerView
@@ -60,7 +59,19 @@ object InputMethodPickerDialog {
                     }
                     dialog.dismiss()
                 }
-                styledDrawable(android.R.attr.dividerHorizontal)?.let {
+                // Some OEM input method themes leave dividerHorizontal unresolved. The
+                // Splitties helper passes that zero resource ID to Context.getDrawable(),
+                // which crashes while opening this dialog. TypedArray returns null instead.
+                val divider = context.obtainStyledAttributes(
+                    intArrayOf(android.R.attr.dividerHorizontal)
+                ).let { attributes ->
+                    try {
+                        attributes.getDrawable(0)
+                    } finally {
+                        attributes.recycle()
+                    }
+                }
+                divider?.let {
                     addItemDecoration(SingleDividerDecoration(it, dividerIndex))
                 }
             })

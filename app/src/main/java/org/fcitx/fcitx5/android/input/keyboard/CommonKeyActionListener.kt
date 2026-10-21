@@ -18,7 +18,6 @@ import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateC
 import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
-import org.fcitx.fcitx5.android.input.dialog.InputMethodPickerDialog
 import org.fcitx.fcitx5.android.input.dialog.RimeSchemaMenuDialog
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Reset
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Selection
@@ -37,6 +36,7 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyAction.VoiceInputHoldEnd
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.manager.SubModeManager
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import org.mechdancer.dependency.Dependent
 import org.mechdancer.dependency.UniqueComponent
@@ -69,6 +69,9 @@ class CommonKeyActionListener :
 
     private var voiceHoldActive = false
 
+    // Store the prior non-first schema so toggling back from the first one restores it.
+    private var rimeSchemaToRestoreAfterFirst: Int? = null
+
     // there should be a new fcitx API for this
     /**
      * Commit whatever is being composed before a key that inserts its own text.
@@ -95,16 +98,8 @@ class CommonKeyActionListener :
         reset()
     }
 
-    private fun showInputMethodPicker() {
-        fcitx.launchOnReady {
-            service.lifecycleScope.launch {
-                service.showDialog(InputMethodPickerDialog.build(it, service, context))
-            }
-        }
-    }
-
     /**
-     * Rime 专版：语言键长按弹出 Rime 方案切换菜单。
+     * Rime 专版：语言键或空格键长按弹出 Rime 方案切换菜单。
      * 方案名/id 从 SubModeManager 的状态区方案菜单解析（与「不同方案不同布局」共用
      * 同一 selector 语义），点选后走 activateAction 写回引擎。
      */
@@ -114,6 +109,46 @@ class CommonKeyActionListener :
                 service.showDialog(RimeSchemaMenuDialog.build(it, service, context))
             }
         }
+    }
+
+    private suspend fun FcitxAPI.rimeSchemaEntries(): Pair<List<Pair<String, Int>>, String?> {
+        val ime = runCatching { currentIme() }.getOrNull()
+            ?: return emptyList<Pair<String, Int>>() to null
+        if (!ime.uniqueName.equals("rime", ignoreCase = true) &&
+            !ime.addon.equals("rime", ignoreCase = true)
+        ) {
+            return emptyList<Pair<String, Int>>() to null
+        }
+        val entries = runCatching {
+            SubModeManager.resolveSchemaMenuEntries(statusArea())
+        }.getOrDefault(emptyList())
+        val currentSchema = ime.subMode.label.ifEmpty { ime.subMode.name }.trim()
+        return entries to currentSchema
+    }
+
+    private suspend fun FcitxAPI.cycleRimeSchema() {
+        val (entries, currentSchema) = rimeSchemaEntries()
+        if (entries.isEmpty()) return
+        val currentIndex = entries.indexOfFirst { it.first == currentSchema }
+        val nextIndex = if (currentIndex < 0) 0 else (currentIndex + 1) % entries.size
+        if (nextIndex != currentIndex) activateAction(entries[nextIndex].second)
+    }
+
+    private suspend fun FcitxAPI.toggleRimeSchema() {
+        val (entries, currentSchema) = rimeSchemaEntries()
+        if (entries.size < 2) return
+        val currentIndex = entries.indexOfFirst { it.first == currentSchema }
+        val targetIndex = when {
+            currentIndex == 0 -> entries.indexOfFirst {
+                it.second == rimeSchemaToRestoreAfterFirst
+            }.takeIf { it > 0 } ?: 1
+            currentIndex > 0 -> {
+                rimeSchemaToRestoreAfterFirst = entries[currentIndex].second
+                0
+            }
+            else -> 0
+        }
+        if (targetIndex != currentIndex) activateAction(entries[targetIndex].second)
     }
 
     private fun switchToVoiceInput(): Boolean {
@@ -239,12 +274,12 @@ class CommonKeyActionListener :
                         // 停止都复用退格键连删那套已验证的机制。此处仅作占位，保持 when 穷尽。
                         SpaceLongPressBehavior.Repeat -> {}
                         SpaceLongPressBehavior.Enumerate -> service.postFcitxJob {
-                            enumerateIme()
+                            cycleRimeSchema()
                         }
                         SpaceLongPressBehavior.ToggleActivate -> service.postFcitxJob {
-                            toggleIme()
+                            toggleRimeSchema()
                         }
-                        SpaceLongPressBehavior.ShowPicker -> showInputMethodPicker()
+                        SpaceLongPressBehavior.ShowPicker -> showRimeSchemaMenu()
                         SpaceLongPressBehavior.VoiceInput -> { switchToVoiceInput() }
                         SpaceLongPressBehavior.VoiceInputHold -> {
                             val started = switchToVoiceInput()

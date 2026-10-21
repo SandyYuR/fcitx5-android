@@ -363,9 +363,9 @@
     <string name="space_long_press_behavior">空格键长按行为</string>
     <string name="space_behavior_none">无</string>
     <string name="space_behavior_repeat">重复输入空格（按住连续输入）</string>
-    <string name="space_behavior_enumerate">轮换输入法</string>
-    <string name="space_behavior_activate">在当前输入法和第一个输入法之间切换</string>
-    <string name="space_behavior_picker">显示输入法选择对话框</string>
+    <string name="space_behavior_enumerate">轮换当前启用的 Rime 方案</string>
+    <string name="space_behavior_activate">在当前启用的 Rime 方案与第一个方案间切换</string>
+    <string name="space_behavior_picker">显示 Rime 方案选单</string>
     <string name="space_behavior_voice_input">切换到语音输入</string>
     <string name="space_behavior_voice_input_hold">按住说话</string>
     <string name="space_key_label_mode">空格键标签样式</string>
