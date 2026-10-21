@@ -1,0 +1,236 @@
+{
+  "verified": true,
+  "application_head": "bb79146f61681affa72d912b9c1afc83d198943f",
+  "documentation_initial_merged_head": "6aeefc1be50aeda8bdb2822cd663fd0c908f813d",
+  "merge_order": [
+    {
+      "repository": "SandyYuR/prebuilder",
+      "pr": 1,
+      "target": "master",
+      "head": "574d9667c6b1c1ac197876ed93c93574cbd9b9c1",
+      "merged_head": "d701db96e102ea11da919eefaf883810b486a0b5",
+      "merged_at": "2026-10-21T21:17:43Z",
+      "method": "rebase",
+      "url": "https://github.com/SandyYuR/prebuilder/pull/1"
+    },
+    {
+      "repository": "SandyYuR/prebuilt",
+      "pr": 1,
+      "target": "master",
+      "head": "d297ddee183b437d0fd8c9bdf37eced6ec8d09cd",
+      "merged_head": "ccb637850d7f170dff7bdf509cff12a2476e74a3",
+      "merged_at": "2026-10-21T21:18:11Z",
+      "method": "rebase",
+      "url": "https://github.com/SandyYuR/prebuilt/pull/1"
+    },
+    {
+      "repository": "SandyYuR/fcitx5-android",
+      "pr": 7,
+      "target": "docs",
+      "head": "0efa86b3c93bb3d8133d4b18a9dd098fb846e2b4",
+      "merged_head": "6aeefc1be50aeda8bdb2822cd663fd0c908f813d",
+      "merged_at": "2026-10-21T21:18:39Z",
+      "method": "rebase",
+      "url": "https://github.com/SandyYuR/fcitx5-android/pull/7"
+    },
+    {
+      "repository": "SandyYuR/fcitx5-android",
+      "pr": 4,
+      "target": "fx-rime-only",
+      "head": "d6ec96cfa84cb5bfc03e3f5db2e33a745cb6c6c3",
+      "merged_head": "bb79146f61681affa72d912b9c1afc83d198943f",
+      "merged_at": "2026-10-21T21:21:35Z",
+      "method": "rebase",
+      "url": "https://github.com/SandyYuR/fcitx5-android/pull/4"
+    }
+  ],
+  "checks": {
+    "39677610849": {
+      "name": "CI",
+      "source": "d701db96e102ea11da919eefaf883810b486a0b5",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/prebuilder/actions/runs/39677610849"
+    },
+    "39678138988": {
+      "name": "Commit CI",
+      "source": "bb79146f61681affa72d912b9c1afc83d198943f",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39678138988"
+    },
+    "39678139107": {
+      "name": "Material settings UI",
+      "source": "bb79146f61681affa72d912b9c1afc83d198943f",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39678139107"
+    },
+    "39678174504": {
+      "name": "Direct Rime CI",
+      "source": "bb79146f61681affa72d912b9c1afc83d198943f",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39678174504"
+    },
+    "39677739531": {
+      "name": "Docs",
+      "source": "6aeefc1be50aeda8bdb2822cd663fd0c908f813d",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/39677739531"
+    }
+  },
+  "release_url": "https://github.com/SandyYuR/fcitx5-android/releases/tag/nightly-0.1.3-720-gbb79146f-20261021-213926",
+  "release_tag": "nightly-0.1.3-720-gbb79146f-20261021-213926",
+  "release_asset_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-720-gbb79146f-20261021-213926/direct.apk",
+  "release_asset_matches_verified_apk": true,
+  "release_zip_sha256": "12381edb96a44dfae95cd759a405dcae4c3a1fe4e5b0967284be53cfe2747aef",
+  "apk": {
+    "source": "bb79146f61681affa72d912b9c1afc83d198943f",
+    "apk_sha256": "2f3b36e235d9db2d9a1c0c3fdcd7716739695389de18fb7d0c4b2ebf0945beb1",
+    "certificate_sha256": "ba43006e1bfa3f60f46b2a9056f593a3a61445bd2571319fb1869e49cc36b1fe",
+    "same_certificate_as_accepted_9adb": true,
+    "version_name": "0.1.3-720-gbb79146f",
+    "package": "org.fcitx.fcitx5.android.fx.rime",
+    "application_label": "中州鹅",
+    "version_code": 112,
+    "dex_class_definitions": 6085,
+    "pictureselector_classes": 0,
+    "removed_component_registrations": 5,
+    "own_crop_qr_and_ime_components_retained": true,
+    "native_libraries": [
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libdirect-rime.so"
+    ],
+    "native_audit_matches_packaged_elf": true,
+    "static_groups": [
+      "glog",
+      "leveldb",
+      "librime",
+      "lua",
+      "marisa",
+      "opencc",
+      "yaml-cpp"
+    ],
+    "packaged_profile_app_methods": 77,
+    "send_key_entries": 3,
+    "backend_coroutine_entries": 12,
+    "verified": true,
+    "native_elf_matches_verified_engine": true,
+    "packaged_documentation_links_use_docs_branch": true,
+    "packaged_custom_source_version": "1.17.0-1b3417d+zhongzhou.446f858",
+    "material_layouts_verified": 8,
+    "engine_feature_binary_markers": [
+      "pr1232_rewriter",
+      "input_tabs_bridge",
+      "lua_translator",
+      "octagram",
+      "predictor"
+    ]
+  },
+  "prebuilt_pin": "d297ddee183b437d0fd8c9bdf37eced6ec8d09cd",
+  "librime_pin": "446f8584eb01ab8f72b3f0b970fda3919b1c1a55",
+  "upstream_pin": "1b3417d2b6a11b5e50e0e1fa9dc396056aa11dce",
+  "core_patch_count": 9,
+  "plugin_patch_count": 3,
+  "merged_engine_rebuild": {
+    "default_prebuilder_head": "d701db96e102ea11da919eefaf883810b486a0b5",
+    "native_tests": 162,
+    "known_disabled_native_tests": 1,
+    "artifacts_verified": true,
+    "abi_results": [
+      {
+        "abi": "armeabi-v7a",
+        "archive_and_headers_identical_to_pinned_prebuilt": true,
+        "core_patch_count": 9,
+        "plugin_count": 3
+      },
+      {
+        "abi": "arm64-v8a",
+        "archive_and_headers_identical_to_pinned_prebuilt": true,
+        "core_patch_count": 9,
+        "plugin_count": 3
+      },
+      {
+        "abi": "x86",
+        "archive_and_headers_identical_to_pinned_prebuilt": true,
+        "core_patch_count": 9,
+        "plugin_count": 3
+      },
+      {
+        "abi": "x86_64",
+        "archive_and_headers_identical_to_pinned_prebuilt": true,
+        "core_patch_count": 9,
+        "plugin_count": 3
+      }
+    ]
+  },
+  "test_reports": [
+    {
+      "artifact": 12382173641,
+      "name": "unit-test-reports",
+      "report": "index.html",
+      "counts": {
+        "tests": 502,
+        "failures": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "artifact": 12383038424,
+      "name": "material-settings-ui-results",
+      "report": "connected/debug/flavors/fx/index.html",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "artifact": 12383073292,
+      "name": "direct-rime-frontend-android-results",
+      "report": "connected/debug/flavors/fx/index.html",
+      "counts": {
+        "tests": 24,
+        "failures": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "artifact": 12382018841,
+      "name": "direct-rime-android-smoke-results",
+      "report": "debug/index.html",
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "removed_branches": [
+    {
+      "repository": "SandyYuR/prebuilder",
+      "branch": "feat/librime-upstream-20261021",
+      "removed": true,
+      "archive_tag": "v0-archive-rime-prebuilder-before-rebase-20261021",
+      "preserved_source": "574d9667c6b1c1ac197876ed93c93574cbd9b9c1"
+    },
+    {
+      "repository": "SandyYuR/prebuilt",
+      "branch": "feat/librime-upstream-20261021",
+      "removed": true,
+      "archive_tag": "v0-archive-rime-prebuilt-before-rebase-20261021",
+      "preserved_source": "d297ddee183b437d0fd8c9bdf37eced6ec8d09cd"
+    },
+    {
+      "repository": "SandyYuR/fcitx5-android",
+      "branch": "docs-direct-rime-release",
+      "removed": true,
+      "archive_tag": "v0-archive-direct-rime-docs-c5d4f80a-20261021",
+      "preserved_source": "0efa86b3c93bb3d8133d4b18a9dd098fb846e2b4"
+    },
+    {
+      "repository": "SandyYuR/fcitx5-android",
+      "branch": "feat/direct-rime-prototype",
+      "removed": true,
+      "archive_tag": "v0-archive-direct-rime-code-1c05d8bc-20261021",
+      "preserved_source": "d6ec96cfa84cb5bfc03e3f5db2e33a745cb6c6c3"
+    }
+  ]
+}

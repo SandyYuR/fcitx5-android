@@ -1,10 +1,10 @@
 # 中州鹅直连版维护手册
 
-本轮 PR 使用 **Rebase and merge**，分类提交、归档标签与依赖合入顺序见[合并交付](DIRECT_RIME_RELEASE_READY_2026-10-21.md)。固定 prebuilt gitlink 由归档标签保留，合并后无需追随 HEAD 改 pin。
+依赖、文档与代码已通过 **Rebase and merge** 合入，分类提交、归档标签与实际交付见[合并交付](DIRECT_RIME_RELEASE_READY_2026-10-21.md)。固定 prebuilt gitlink 由归档标签保留，合并后无需追随 HEAD 改 pin。
 
 本手册对应当前直连源码，主应用为 `:app`，包名 `org.fcitx.fcitx5.android.fx.rime`。
 这是默认分支原包名；旧直连测试包 `io.github.sandyyur.rime.direct` 的数据须按用户手册迁移。
-合并前工作分支为 `feat/direct-rime-prototype`，PR #4 的目标为 `fx-rime-only`；合并后在新的功能分支继续开发。
+代码默认分支为 `fx-rime-only`；从该分支创建新的功能分支继续开发。原工作分支已清理，合入前源码由交付记录中的归档标签保留。
 当前合并基线、CI 和文档站流程见[交付记录](DIRECT_RIME_RELEASE_READY_2026-10-21.md)。
 历史 Fcitx 版固定归档为 `v0-archive-fcitx-before-direct-20261019`，不再用默认分支名称指代旧引擎。
 

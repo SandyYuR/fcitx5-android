@@ -6,8 +6,8 @@
 Android 前端继承 Fcitx5 for Android 与 fxliang 的 fx 分支，当前直连版通过 JNI 直接调用 librime。
 Fcitx 原生 Core、fcitx5-rime 和 AndroidFrontend 已移除；前端历史类名与许可证署名仍保留。
 
-本文档对应 [代码 PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4) 的直连版。
-PR 合入前，默认分支仍为 Fcitx 版；安装时按[版本交付记录](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)核对源码和 APK。
+本文档对应已通过 [代码 PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4) 合入默认分支的直连版。
+默认分支为 `fx-rime-only`；安装时按[版本交付记录](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)核对源码和 APK。
 
 ## 包名与发行
 
