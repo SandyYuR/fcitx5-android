@@ -1,0 +1,32 @@
+{
+  "default_prebuilder_head": "d701db96e102ea11da919eefaf883810b486a0b5",
+  "native_tests": 162,
+  "known_disabled_native_tests": 1,
+  "artifacts_verified": true,
+  "abi_results": [
+    {
+      "abi": "armeabi-v7a",
+      "archive_and_headers_identical_to_pinned_prebuilt": true,
+      "core_patch_count": 9,
+      "plugin_count": 3
+    },
+    {
+      "abi": "arm64-v8a",
+      "archive_and_headers_identical_to_pinned_prebuilt": true,
+      "core_patch_count": 9,
+      "plugin_count": 3
+    },
+    {
+      "abi": "x86",
+      "archive_and_headers_identical_to_pinned_prebuilt": true,
+      "core_patch_count": 9,
+      "plugin_count": 3
+    },
+    {
+      "abi": "x86_64",
+      "archive_and_headers_identical_to_pinned_prebuilt": true,
+      "core_patch_count": 9,
+      "plugin_count": 3
+    }
+  ]
+}

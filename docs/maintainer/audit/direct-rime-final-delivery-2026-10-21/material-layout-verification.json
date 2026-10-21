@@ -1,0 +1,46 @@
+{
+  "activity_update_check": {
+    "res/tC.xml": [
+      "com.google.android.material.appbar.MaterialToolbar"
+    ]
+  },
+  "activity_update_hosts": {
+    "res/nO.xml": [
+      "com.google.android.material.appbar.MaterialToolbar",
+      "com.google.android.material.materialswitch.MaterialSwitch",
+      "com.google.android.material.button.MaterialButton",
+      "com.google.android.material.textfield.TextInputLayout"
+    ]
+  },
+  "activity_update_mirror_edit": {
+    "res/Yw.xml": [
+      "com.google.android.material.appbar.MaterialToolbar"
+    ]
+  },
+  "activity_update_mirror_list": {
+    "res/HN.xml": [
+      "com.google.android.material.appbar.MaterialToolbar"
+    ]
+  },
+  "activity_log": {
+    "res/T2.xml": [
+      "com.google.android.material.appbar.MaterialToolbar"
+    ]
+  },
+  "item_update_asset": {
+    "res/eB.xml": [
+      "com.google.android.material.progressindicator.LinearProgressIndicator"
+    ]
+  },
+  "activity_clipboard_edit": {
+    "res/-9.xml": [
+      "com.google.android.material.button.MaterialButton",
+      "com.google.android.material.textfield.TextInputLayout"
+    ]
+  },
+  "dialog_server_profile": {
+    "res/VV.xml": [
+      "org.fcitx.fcitx5.android.ui.common.MaterialSpinner"
+    ]
+  }
+}

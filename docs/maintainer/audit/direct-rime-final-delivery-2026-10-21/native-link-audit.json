@@ -1,0 +1,45 @@
+[
+  {
+    "apk": "org.fcitx.fcitx5.android.fx.rime-0.1.3-720-gbb79146f-fx-arm64-v8a-release.apk",
+    "elf_build_id": "bbb8e4d04cb3d130e85578f4ecd561e70842f9ff",
+    "apk_native_sha256": "6c1713ac16db4c5a43cc78ef7596271fa37909395b3eaa578f80d6366cb43f0a",
+    "unstripped_native_sha256": "600927911fb83d647607744a0be2090ced90b34377e2b53644bc6cbdca5adbab",
+    "abi": "arm64-v8a",
+    "static_prebuilt_archives": {
+      "librime": {
+        "archive": "librime.a",
+        "objects": 127
+      },
+      "glog": {
+        "archive": "libglog.a",
+        "objects": 5
+      },
+      "marisa": {
+        "archive": "libmarisa.a",
+        "objects": 9
+      },
+      "opencc": {
+        "archive": "libopencc.a",
+        "objects": 13
+      },
+      "yaml-cpp": {
+        "archive": "libyaml-cpp.a",
+        "objects": 24
+      },
+      "leveldb": {
+        "archive": "libleveldb.a",
+        "objects": 34
+      },
+      "lua": {
+        "archive": "liblua_static.a",
+        "objects": 32
+      }
+    },
+    "ndk_archives": {
+      "libunwind.a": 4,
+      "libclang_rt.builtins-aarch64-android.a": 9
+    },
+    "fcitx_cpp_symbols": [],
+    "map_sha256": "62e1013e88c2cbdfccbc9553def371e1d75a504addeb650223bf3831acb08c95"
+  }
+]

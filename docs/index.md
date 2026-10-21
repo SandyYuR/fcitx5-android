@@ -68,11 +68,11 @@ features:
 ## 这是什么？
 
 中州鹅保留 Fcitx5 for Android 与 fxliang fx 分支的 Android 前端，直接调用 librime。
-当前手册对应[代码 PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4)的直连版，
+当前手册对应已通过 [PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4) 合入默认分支的直连版，
 包名为 `org.fcitx.fcitx5.android.fx.rime`。主应用、迁移方式和已知范围见[当前状态](/guide/direct-rime-migration)。
 
 ::: info 版本与文档范围
-代码 PR 合入前默认分支仍为 Fcitx 版。先按[交付记录](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)核对 APK 来源。
+默认分支 `fx-rime-only` 已切换为直连版。签名 Nightly、实际源码与补丁验证见[交付记录](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)。
 旧 Fcitx 版手册和实施方案保留在历史入口，当前操作以中州鹅手册为准。
 :::
 

@@ -1,10 +1,81 @@
 # 中州鹅直连版：合并与文档站交付
 
+## 合入后默认分支交付
+
+2026-10-21 已按下表顺序全部使用 **Rebase and merge** 合入，保留线性分类提交。
+文档站在代码合入前完成部署，用户与维护手册均已核对可访问；后续本页补记实际交付。
+
+| 顺序 | PR | 目标分支 | 合入提交 |
+| --- | --- | --- | --- |
+| 1 | [SandyYuR/prebuilder#1](https://github.com/SandyYuR/prebuilder/pull/1) | `master` | `d701db96` |
+| 2 | [SandyYuR/prebuilt#1](https://github.com/SandyYuR/prebuilt/pull/1) | `master` | `ccb63785` |
+| 3 | [SandyYuR/fcitx5-android#7](https://github.com/SandyYuR/fcitx5-android/pull/7) | `docs` | `6aeefc1b` |
+| 4 | [SandyYuR/fcitx5-android#4](https://github.com/SandyYuR/fcitx5-android/pull/4) | `fx-rime-only` | `bb79146f` |
+
+代码合入以 `5fb6bca3` 为基线，完整保留空格长按切换方案、主题属性修复、浮动把手自动隐藏、
+主题工具栏预览、布局选择器等默认分支改动。5 个代码分类提交、4 个文档分类提交及两个依赖 PR
+的合入后树均已核对；无 merge 提交。代码分支没有 `doc/` 或 `docs/`。
+
+### 签名安装包
+
+[下载已核验的中州鹅 Nightly](https://github.com/SandyYuR/fcitx5-android/releases/tag/nightly-0.1.3-720-gbb79146f-20261021-213926)，选择 ARM64 的 `direct.apk`。
+
+- 实际源码：`bb79146f61681affa72d912b9c1afc83d198943f`。
+- 版本：`0.1.3-720-gbb79146f`，versionCode `112`。
+- 包名：`org.fcitx.fcitx5.android.fx.rime`，应用名“中州鹅”。
+- APK SHA256：`2f3b36e235d9db2d9a1c0c3fdcd7716739695389de18fb7d0c4b2ebf0945beb1`。
+- 签名证书 SHA256：`ba43006e1bfa3f60f46b2a9056f593a3a61445bd2571319fb1869e49cc36b1fe`，与已验收版本一致。
+
+已实际下载发布资产，逐字节确认与签名 CI APK 一致；发行标签指向实际构建源码。
+不要把此前特性分支的 APK 改标成这次默认分支版本。
+
+### 引擎、插件与打包依赖
+
+应用固定 `prebuilt@d297ddee183b437d0fd8c9bdf37eced6ec8d09cd`，其中引擎来自
+`SandyYuR/librime@446f8584eb01ab8f72b3f0b970fda3919b1c1a55`，官方基线
+`1b3417d2b6a11b5e50e0e1fa9dc396056aa11dce`。
+
+9 项核心补丁已作为独立源码提交集成，包括音节选择/条件组件、缓存、并行部署、用户词库、
+mmap 修复、忘词刷新保护、PR #1232 rewriter 与启动指纹；不在 prebuilder 中重复应用。
+Lua、Octagram 和预测插件各自固定版本并应用独立补丁。
+合入后的 prebuilder 再次构建四 ABI，其静态库和 API 头文件与应用固定产物逐字节一致。
+现有产物的实际构建来源仍为 `prebuilder@97f3dfb7`，不替换为后续构建脚本提交号。
+
+实际 APK 的引擎 ELF 与已核验的引擎二进制一致，来源清单、ELF/map 和静态 archive 贡献均已复核。
+原生库仅 `libdirect-rime.so` 与 `libc++_shared.so`；静态依赖为 librime、glog、LevelDB、Lua、
+Marisa、OpenCC、yaml-cpp，无 Fcitx 原生库或 PictureSelector 类。历史 Kotlin 包名和许可证署名保留。
+已核对 PR #1232、音节接口、Lua、Octagram 与预测模块的二进制标记，以及实际打包的自有引擎版本
+`1.17.0-1b3417d+zhongzhou.446f858`。
+
+### 合入后验证
+
+| 验证 | 结果与固定来源 |
+| --- | --- |
+| 四 ABI、核心原生测试及源码契约 | [prebuilder CI 39677610849](https://github.com/SandyYuR/prebuilder/actions/runs/39677610849)：162 项通过，另有 1 项既有禁用测试；5 项源码契约通过 |
+| 签名 Release、JVM、APK/链接审计、ART profile 与发布 | [Commit CI 39678138988](https://github.com/SandyYuR/fcitx5-android/actions/runs/39678138988)：成功；502 项 JVM 测试通过 |
+| 原生安全、存储恢复、基础输入与完整前端 | [Direct Rime CI 39678174504](https://github.com/SandyYuR/fcitx5-android/actions/runs/39678174504)：四项任务成功；基础输入 3 项通过，完整前端 23 通过、1 个大模型条件跳过、0 失败 |
+| MD3 设置界面 | [Material settings UI 39678139107](https://github.com/SandyYuR/fcitx5-android/actions/runs/39678139107)：5 项通过；实际 Release APK 的 8 项 Material 布局也已核对 |
+| 文档站首次部署 | [Docs CI 39677739531](https://github.com/SandyYuR/fcitx5-android/actions/runs/39677739531)：构建、链接校验及部署成功 |
+
+下载的测试报告与产物 ZIP 摘要已核对。实际 APK 保留 77 项应用 ART profile 方法，其中
+3 项按键入口、12 项后端协程；应用内手册链接指向 `docs` 分支。
+本轮没有重测万象/Foxy 性能，不把构建可复现或源码维护迁移当作提速结论。
+
+四个已合并开发分支已删除；已核对并补齐远端归档标签，固定的 prebuilt gitlink、原始源码、
+文档证据与历史 APK 来源继续可追溯。后续从各自默认分支创建新功能分支。
+完整合入顺序、测试、摘要与来源见[机器可读交付记录](direct-rime-final-merge-2026-10-21.json)。
+原始测试报告 ZIP 与 APK 打包审计保存在[证据清单](audit/direct-rime-final-delivery-2026-10-21/evidence-manifest.json)，逐文件保留 SHA256。
+可下载原始 [JVM](audit/direct-rime-final-delivery-2026-10-21/unit-test-reports.zip)、[完整前端](audit/direct-rime-final-delivery-2026-10-21/frontend-android-results.zip)、[基础输入](audit/direct-rime-final-delivery-2026-10-21/android-smoke-results.zip)、[设置界面](audit/direct-rime-final-delivery-2026-10-21/material-settings-ui-results.zip)与[引擎原生](audit/direct-rime-final-delivery-2026-10-21/librime-host-test-results.zip)报告。
+
+## 合并前准备记录（历史）
+
+以下保留当时的准备状态、提交来源及测量边界。当前安装包以本页上方的合入后交付为准。
+
 代码 [PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4) 与文档站
 [PR #7](https://github.com/SandyYuR/fcitx5-android/pull/7) 均按 **Rebase and merge** 准备。
 本页记录合并准备，不代表已经合并或部署。新检查及安装包以 PR 当前提交为准。
 
-## 分类后的提交
+### 分类后的提交
 
 代码目标分支为 `fx-rime-only`，最新基线 `c5d4f80abf10be875b59a332c2145ecbb6f3b2ac`。
 共享 MD3 页面与控件已在默认分支 `579b1632` 中；最新基线另含语音结束时提交最后一条 partial，以及符号面板最近记录扩展至十行的修复。
@@ -32,7 +103,7 @@
 文档分支统一收录手册、历史报告及完整原始证据；代码分支不再存放 `docs/`。
 迁移范围与逐文件校验见[文档分离记录](DIRECT_RIME_DOCUMENTATION_SPLIT_2026-10-21.md)。
 
-## 历史与依赖的追溯
+### 历史与依赖的追溯
 
 | 仓库与用途 | 永久保留的重组前入口 |
 | --- | --- |
@@ -48,7 +119,7 @@ Rebase and merge 会产生新的合入 SHA；归档标签保证已有 gitlink、
 独立 librime 产品分支已经按功能保留补丁提交，本轮不重写它；迁移详情见
 [源码维护说明](DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21.md)。
 
-## 重组前已验证的运行版本
+### 重组前已验证的运行版本
 
 下列固定记录均属于 `5a036470c951eaaddf2ab62599d68c5f68a4796a` 或其固定依赖，
 用于保留现有运行证据。重组后的构建结果与检查状态应在 PR 当前说明中核对，不能套用下列 APK 摘要。
@@ -80,7 +151,7 @@ Rebase and merge 会产生新的合入 SHA；归档标签保证已有 gitlink、
 ART profile 包含 78 个应用方法、3 个 sendKey 入口及 13 个后端协程入口，最终 APK 的 8 处 Material 布局已核对。
 旧 [release-ready 摘要](direct-rime-release-ready-2026-10-21.json) 属于更早的 `df591f78`，仅作历史证据。
 
-## 合入与发布顺序
+### 合入与发布顺序
 
 1. 审阅并用 **Rebase and merge** 合入 [prebuilder #1](https://github.com/SandyYuR/prebuilder/pull/1)。该 PR 已是线性源码、构建修复与来源检查提交；保留上述构建归档标签。
 2. 用 **Rebase and merge** 合入 [prebuilt #1](https://github.com/SandyYuR/prebuilt/pull/1)。两类提交分别记录引擎升级和源码来源，应用仍固定归档可达的 `d297ddee`。
@@ -91,7 +162,7 @@ ART profile 包含 78 个应用方法、3 个 sendKey 入口及 13 个后端协�
 
 本轮不执行以上合并，也不直接推送默认分支或站点发布分支。
 
-## 手册与迁移范围
+### 手册与迁移范围
 
 日常操作见[用户手册](../manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)，
 构建、引擎来源、补丁与升级见[维护手册](DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md)，
