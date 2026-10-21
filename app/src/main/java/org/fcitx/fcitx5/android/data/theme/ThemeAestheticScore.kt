@@ -58,16 +58,6 @@ object WebsiteThemeColorKeys {
     const val TOAST_TEXT = "toastText"
 }
 
-/** Metadata retained from the website's candidate object. */
-data class ThemeCandidateMetadata(
-    val scheme: String,
-    val baseHue: Double,
-    val accentHue: Double,
-    val baseSat: Double,
-    val isDark: Boolean,
-    val surfaceStyle: String
-)
-
 /**
  * A website theme candidate. [colors] deliberately remains the website's complete hex/RGB map;
  * scoring must see the same values that the website scores, before the app-specific mapping.
@@ -80,13 +70,7 @@ data class ThemeCandidate(
     val baseSat: Double = 0.0,
     val isDark: Boolean = false,
     val surfaceStyle: String = "Raised"
-) {
-    val metadata: ThemeCandidateMetadata
-        get() = ThemeCandidateMetadata(scheme, baseHue, accentHue, baseSat, isDark, surfaceStyle)
-
-    val meta: ThemeCandidateMetadata
-        get() = metadata
-}
+)
 
 /** The rounded score values returned by the website's scoreTheme function. */
 data class ThemeScore(
@@ -105,37 +89,6 @@ data class ThemeScore(
 
     val minRatioText: String
         get() = String.format(Locale.ROOT, "%.2f", minRatio)
-}
-
-/** A candidate and its score, useful when scoring outside the randomizer. */
-data class ScoredThemeCandidate(
-    val candidate: ThemeCandidate,
-    val score: ThemeScore
-) {
-    val colors: Map<String, String>
-        get() = candidate.colors
-    val scheme: String
-        get() = candidate.scheme
-    val baseHue: Double
-        get() = candidate.baseHue
-    val accentHue: Double
-        get() = candidate.accentHue
-    val baseSat: Double
-        get() = candidate.baseSat
-    val isDark: Boolean
-        get() = candidate.isDark
-    val total: Int
-        get() = score.total
-    val contrast: Int
-        get() = score.contrast
-    val hue: Int
-        get() = score.hue
-    val sat: Int
-        get() = score.sat
-    val light: Int
-        get() = score.light
-    val minRatio: Double
-        get() = score.minRatio
 }
 
 object ThemeAestheticScore {

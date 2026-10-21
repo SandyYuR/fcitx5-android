@@ -62,6 +62,7 @@ abstract class BaseInputView(
                 return@launch
             }
             events.collect {
+                if (!org.fcitx.fcitx5.android.daemon.FcitxDaemon.isCurrentInputSession(it.inputSession)) return@collect
                 // Phase 0 perf tracing: main-thread collection start/end per event.
                 trace("collectFcitxEvent") {
                     handleFcitxEvent(it)
@@ -84,8 +85,8 @@ abstract class BaseInputView(
             }
         }
 
-    private fun triggerCandidateAction(idx: Int, actionIdx: Int) {
-        fcitx.runIfReady { triggerCandidateAction(idx, actionIdx) }
+    private fun triggerCandidateAction(idx: Int, actionIdx: Int, global: Boolean) {
+        fcitx.runIfReady { if (global) triggerGlobalCandidateAction(idx, actionIdx) else triggerCandidateAction(idx, actionIdx) }
     }
 
     /**
@@ -227,7 +228,7 @@ abstract class BaseInputView(
 
     val themedContext = context.withTheme(R.style.Theme_InputViewTheme)
 
-    fun showCandidateActionMenu(idx: Int, text: String, view: View) {
+    fun showCandidateActionMenu(idx: Int, text: String, view: View, global: Boolean = false) {
         candidateActionMenu?.dismiss()
         candidateActionMenu = null
         service.lifecycleScope.launch {
@@ -252,7 +253,7 @@ abstract class BaseInputView(
                             add(
                                 ThemedPopupMenu.Item.Action(
                                     label = action.text,
-                                    onClick = { triggerCandidateAction(idx, action.id) },
+                                    onClick = { triggerCandidateAction(idx, action.id, global) },
                                 )
                             )
                         }

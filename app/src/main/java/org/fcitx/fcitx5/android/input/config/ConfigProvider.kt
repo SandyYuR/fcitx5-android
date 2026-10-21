@@ -34,26 +34,6 @@ object DefaultConfigProvider : ConfigProvider {
         UserJsonConfigStore.writeFontsetPathMap(pathMap)
 }
 
-/**
- * A [ConfigProvider] that uses in-memory JSON data instead of file-based storage.
- * This is useful for preview scenarios to avoid disk I/O.
- *
- * @param textKeyboardLayoutJson The in-memory JSON data for text keyboard layout
- * @param delegate The delegate provider for other config files
- */
-class MemoryConfigProvider(
-    private val textKeyboardLayoutJson: JsonObject,
-    private val delegate: ConfigProvider
-) : ConfigProvider {
-    override fun textKeyboardLayoutFile(): File? = null
-    override fun textKeyboardLayoutJson(): JsonObject = textKeyboardLayoutJson
-    override fun popupPresetFile(): File? = delegate.popupPresetFile()
-    override fun fontsetFile(): File? = delegate.fontsetFile()
-    override fun buttonsLayoutConfigFile(): File? = delegate.buttonsLayoutConfigFile()
-    override fun writeFontsetPathMap(pathMap: Map<String, List<String>>): Result<File> =
-        delegate.writeFontsetPathMap(pathMap)
-}
-
 object ConfigProviders {
     private val mainHandler = Handler(Looper.getMainLooper())
 

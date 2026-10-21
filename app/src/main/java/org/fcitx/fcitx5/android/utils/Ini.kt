@@ -45,10 +45,10 @@ value class Ini(val core: RawConfig) {
 
     companion object {
         @JvmStatic
-        private external fun readFromIni(src: String): RawConfig?
+        private fun readFromIni(src: String): RawConfig? = File(src).takeIf { it.isFile }?.let { IniCodec.decode(it.readText()) }
 
         @JvmStatic
-        private external fun writeAsIni(dest: String, value: RawConfig)
+        private fun writeAsIni(dest: String, value: RawConfig) = FileUtil.writeAtomically(File(dest), IniCodec.encode(value))
 
         fun parseIniFromFile(file: File) = readFromIni(file.path)?.let { Ini(it) }
 

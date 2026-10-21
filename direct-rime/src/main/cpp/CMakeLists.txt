@@ -1,0 +1,54 @@
+cmake_minimum_required(VERSION 3.24)
+project(direct_rime LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(PREBUILT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../native/prebuilt")
+
+if(ANDROID)
+    add_library(rime STATIC IMPORTED)
+    set_target_properties(rime PROPERTIES IMPORTED_LOCATION "${PREBUILT}/librime/${ANDROID_ABI}/lib/librime.a")
+    add_library(direct-rime SHARED bridge.cpp engine.cpp io-trace.cpp leveldb-open.cpp)
+    target_include_directories(direct-rime PRIVATE "${PREBUILT}/leveldb/${ANDROID_ABI}/include")
+    execute_process(COMMAND "${CMAKE_NM}" --defined-only "${PREBUILT}/leveldb/${ANDROID_ABI}/lib/libleveldb.a"
+        OUTPUT_VARIABLE leveldb_symbols RESULT_VARIABLE leveldb_nm_result)
+    string(REGEX MATCH "[ \t]T[ \t]+(_ZN7leveldb2DB4OpenE[^ \r\n]+)" leveldb_open_match "${leveldb_symbols}")
+    set(leveldb_open_symbol "${CMAKE_MATCH_1}")
+    if(NOT leveldb_nm_result EQUAL 0 OR NOT leveldb_open_symbol)
+        message(FATAL_ERROR "Cannot resolve the public DB::Open entry from the pinned LevelDB for ${ANDROID_ABI}")
+    endif()
+    target_compile_definitions(direct-rime PRIVATE "RIME_LEVELDB_OPEN_SYMBOL=\"${leveldb_open_symbol}\"")
+    target_link_options(direct-rime PRIVATE "-Wl,--wrap=${leveldb_open_symbol}")
+    foreach(call open __open_2 read pread write fsync fdatasync stat)
+        target_link_options(direct-rime PRIVATE "-Wl,--wrap=${call}")
+    endforeach()
+    target_include_directories(direct-rime PRIVATE "${PREBUILT}/librime/${ANDROID_ABI}/include")
+    target_link_libraries(direct-rime PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,rime>")
+    foreach(dep glog leveldb lua marisa opencc yaml-cpp)
+        if(dep STREQUAL "lua")
+            set(archive lua_static)
+        else()
+            set(archive ${dep})
+        endif()
+        target_link_libraries(direct-rime PRIVATE "${PREBUILT}/${dep}/${ANDROID_ABI}/lib/lib${archive}.a")
+    endforeach()
+    target_link_libraries(direct-rime PRIVATE log android)
+    # Record static archive contributions as well as checking APK DT_NEEDED:
+    # a forbidden static library would otherwise be hidden inside this DSO.
+    target_link_options(direct-rime PRIVATE "-Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/direct-rime.linkmap")
+    set(link_record_script "${CMAKE_CURRENT_SOURCE_DIR}/record-link.cmake")
+    set_property(TARGET direct-rime APPEND PROPERTY LINK_DEPENDS "${link_record_script}")
+    add_custom_command(TARGET direct-rime POST_BUILD
+        COMMAND "${CMAKE_COMMAND}"
+            "-DNATIVE_LIBRARY=$<TARGET_FILE:direct-rime>"
+            "-DNATIVE_MAP=${CMAKE_CURRENT_BINARY_DIR}/direct-rime.linkmap"
+            -P "${link_record_script}"
+        BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/direct-rime.linkmap"
+            "${CMAKE_CURRENT_BINARY_DIR}/direct-rime.linkmap.binding"
+        VERBATIM)
+    target_link_options(direct-rime PRIVATE "-Wl,--exclude-libs,ALL" "-Wl,-z,max-page-size=16384")
+else()
+    enable_testing()
+    add_executable(engine-test engine.cpp engine_test.cpp)
+    target_include_directories(engine-test PRIVATE "${PREBUILT}/librime/arm64-v8a/include")
+    target_compile_options(engine-test PRIVATE -Wall -Wextra -Werror)
+    add_test(NAME engine-contract COMMAND engine-test)
+endif()

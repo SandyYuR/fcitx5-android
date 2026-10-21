@@ -43,7 +43,8 @@ val Project.buildToolsVersion
 
 val Project.buildVersionName
     get() = ep("BUILD_VERSION_NAME", "buildVersionName") {
-        runCmd("git describe --tags --long --always", Versions.baseVersionName)
+        // Development archives preserve old evidence; they are not release versions.
+        runCmd("git describe --tags --long --always --exclude=v0-archive-*", Versions.baseVersionName)
     }
 
 val Project.buildCommitHash

@@ -183,6 +183,7 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
             MultiSelect,
             AddonDirProfileManager,
             AddonAction,
+            RimeImport,
 
         }
 
@@ -315,6 +316,7 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
                             raw.tooltip,
                             raw.findByName("External")?.value,
                             when {
+                                raw.findByName("External")?.value == "fcitx://direct-rime/import" -> ConfigExternal.ETy.RimeImport
                                 raw.findByName("External")?.value?.startsWith("fcitx://multiselect/") == true ->
                                     ConfigExternal.ETy.MultiSelect
                                 raw.findByName("External")?.value?.startsWith("fcitx://addon-dir-profile/") == true ->

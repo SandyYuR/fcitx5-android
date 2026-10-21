@@ -3,44 +3,31 @@ plugins {
     id("org.fcitx.fcitx5.android.native-app-convention")
     id("org.fcitx.fcitx5.android.build-metadata")
     id("org.fcitx.fcitx5.android.data-descriptor")
-    id("org.fcitx.fcitx5.android.fcitx-component")
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
 
 val packageBase = "org.fcitx.fcitx5.android"
-val appIdBase = packageBase
-// Distinct from fx2 / upstream fx builds (org.fcitx.fcitx5.android.fx) so both
-// can be installed side by side on the same device.
-val appIdFxSuffix = ".fx.rime"
 val flavorFx = "fx"
-val appLabelDefault = "@string/app_name"
 val imeSettingsActivity = "$packageBase.ui.main.MainActivity"
+val inputDiagnostics = providers.gradleProperty("inputDiagnostics").orNull == "true"
 
 android {
     namespace = packageBase
 
     defaultConfig {
-        applicationId = appIdBase
+        applicationId = "org.fcitx.fcitx5.android.fx.rime"
+        buildConfigField("boolean", "INPUT_DIAGNOSTICS", inputDiagnostics.toString())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["appLabel"] = appLabelDefault
+        manifestPlaceholders["appLabel"] = "@string/direct_rime_app_name"
         resValue("string", "ime_settings_activity", imeSettingsActivity)
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
             cmake {
-                targets(
-                    // jni
-                    "native-lib",
-                    // copy fcitx5 built-in addon libraries
-                    "copy-fcitx5-modules",
-                    // android specific modules
-                    "androidfrontend",
-                    "androidnotification",
-                    // fcitx5-rime addon (rime engine fused into main apk)
-                    "rime"
-                )
+                arguments("-DINPUT_DIAGNOSTICS=${if (inputDiagnostics) "ON" else "OFF"}")
+                targets("direct-rime")
             }
         }
     }
@@ -49,7 +36,6 @@ android {
     productFlavors {
         create(flavorFx) {
             dimension = "brand"
-            applicationIdSuffix = appIdFxSuffix
             buildConfigField("boolean", "IS_FX_BUILD", "true")
         }
     }
@@ -57,21 +43,28 @@ android {
     buildFeatures {
         viewBinding = true
         resValues = true
+        prefab = false
     }
+    externalNativeBuild.cmake.path = file("../direct-rime/src/main/cpp/CMakeLists.txt")
 
     buildTypes {
         release {
             resValue("mipmap", "app_icon", "@mipmap/ic_launcher")
             resValue("mipmap", "app_icon_round", "@mipmap/ic_launcher_round")
-            resValue("string", "app_name", "@string/app_name_release")
+            resValue("string", "app_name", "中州鹅")
             proguardFile("proguard-rules.pro")
         }
         debug {
+            applicationIdSuffix = ""
             resValue("mipmap", "app_icon", "@mipmap/ic_launcher_debug")
             resValue("mipmap", "app_icon_round", "@mipmap/ic_launcher_round_debug")
-            resValue("string", "app_name", "@string/app_name_debug")
+            resValue("string", "app_name", "中州鹅")
         }
     }
+
+
+    sourceSets.getByName("main").kotlin.srcDir("../direct-rime/src/engine/java")
+    sourceSets.getByName("androidTest").assets.srcDir("../direct-rime/src/main/assets")
 
     androidResources {
         @Suppress("UnstableApiUsage")
@@ -88,39 +81,23 @@ android {
     }
 }
 
-androidComponents {
-    onVariants { variant ->
-        if (variant.flavorName == flavorFx) {
-            variant.outputs.forEach { output ->
-                if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
-                    output.outputFileName.set(
-                        output.outputFileName.get()
-                            .replace("org.fcitx.fcitx5.android-", "org.fcitx.fcitx5.android.fx.rime-")
-                            .replace("-fx-", "-")
-                    )
-                }
-            }
+run {
+    val directAssets = layout.buildDirectory.dir("generated/direct-assets")
+    val prepareDirectRimeAssets = tasks.register<Sync>("prepareDirectRimeAssets") {
+        into(directAssets)
+        from("src/main/assets") { exclude("usr/**", "descriptor.json") }
+        into("usr/share/rime-data") {
+            from(rootProject.file("native/rime-data"))
+            from(rootProject.file("native/rime-prelude")) { include("key_bindings.yaml", "punctuation.yaml", "symbols.yaml") }
         }
+        into("usr/share/opencc") { from(rootProject.file("native/prebuilt/opencc/data")) }
     }
-}
-
-fcitxComponent {
-    includeLibs = listOf(
-        "fcitx5"
-    )
-    // rime 专版只保留 rime 输入法：imselector / spell / unicode / quickphrase
-    // 等 fcitx5 模块已不再打包，其 addon .conf 与 quickphrase 词典一并从
-    // assets 排除，避免出现在附加组件设置页里。
-    excludeFiles = listOf(
-        "usr/share/fcitx5/addon/imselector.conf",
-        "usr/share/fcitx5/addon/spell.conf",
-        "usr/share/fcitx5/addon/unicode.conf",
-        "usr/share/fcitx5/addon/quickphrase.conf",
-        "usr/share/fcitx5/data/quickphrase.d/emoji.mb",
-        "usr/share/fcitx5/data/quickphrase.d/emoji-eac.mb",
-        "usr/share/fcitx5/data/quickphrase.d/latex.mb"
-    )
-    installPrebuiltAssets = true
+    android.sourceSets.getByName("main").assets.setSrcDirs(listOf(directAssets))
+    tasks.named<DataDescriptorPlugin.DataDescriptorTask>("generateDataDescriptor") {
+        dependsOn(prepareDirectRimeAssets)
+        inputDir.set(directAssets)
+        outputFile.set(directAssets.map { it.file("descriptor.json") })
+    }
 }
 
 generateDataDescriptor {
@@ -150,7 +127,6 @@ ksp {
 
 dependencies {
     ksp(project(":codegen"))
-    implementation(project(":lib:fcitx5"))
     implementation(project(":lib:common"))
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kotlinx.serialization.json)
@@ -163,7 +139,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.livedata)
     implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.androidx.lifecycle.common)
     implementation(libs.androidx.lifecycle.service)
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.ui)
@@ -177,6 +152,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.startup)
+    implementation("androidx.profileinstaller:profileinstaller:1.4.1")
     implementation(libs.androidx.tracing.ktx)
     implementation(libs.androidx.viewpager2)
     implementation(libs.material)
@@ -202,7 +178,6 @@ dependencies {
     implementation(libs.zxing.embedded)
     implementation(libs.xz)
     implementation("org.apache.commons:commons-compress:1.27.1")
-    implementation(libs.pictureselector)
     implementation(libs.androidsvg)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.runner)
@@ -213,8 +188,6 @@ dependencies {
 
 configurations {
     all {
-        // remove Baseline Profile Installer or whatever it is...
-        exclude(group = "androidx.profileinstaller", module = "profileinstaller")
         // remove unwanted splitties libraries...
         exclude(group = "com.louiscad.splitties", module = "splitties-appctx")
         exclude(group = "com.louiscad.splitties", module = "splitties-systemservices")

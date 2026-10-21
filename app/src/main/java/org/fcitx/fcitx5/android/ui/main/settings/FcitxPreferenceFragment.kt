@@ -141,7 +141,7 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
                 }
             } else {
                 preferenceManager.createPreferenceScreen(context).apply {
-                    addPreference(R.string.config_addon_not_loaded)
+                    addPreference(R.string.direct_rime_config_unavailable)
                 }
             }
             // 搜索跳转的滚动定位。本页的列表是**异步**建成的（要等引擎返回 `desc` 树），

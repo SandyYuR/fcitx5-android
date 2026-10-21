@@ -12,7 +12,6 @@ arrow = "2.2.3"
 zxing = "3.5.3"
 zxingEmbedded = "4.3.0"
 xz = "1.10"
-pictureselector = "kotlin-v1.0.0-beta"
 androidsvg = "1.4"
 
 [libraries]
@@ -31,7 +30,6 @@ androidx-fragment = { module = "androidx.fragment:fragment-ktx", version = "1.8.
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-livedata = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
-androidx-lifecycle-common = { module = "androidx.lifecycle:lifecycle-common-java8", version.ref = "lifecycle" }
 androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "lifecycle" }
 androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigation" }
 androidx-navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
@@ -72,8 +70,6 @@ ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = 
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 zxing-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingEmbedded" }
 xz = { module = "org.tukaani:xz", version.ref = "xz" }
-pictureselector = { module = "io.github.lucksiege:pictureselector", version.ref = "pictureselector" }
-sora-editor = { module = "io.github.Rosemoe.sora-editor:editor", version = "0.23.4" }
 androidsvg = { module = "com.caverock:androidsvg", version.ref = "androidsvg" }
 
 [plugins]

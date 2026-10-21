@@ -5,7 +5,14 @@
 package org.fcitx.fcitx5.android.daemon
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
 import org.fcitx.fcitx5.android.core.FcitxAPI
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
+
+/** Retain lifecycle cancellation, without dispatching a cached read off the caller. */
+internal fun <T> runImmediatelyInContext(context: CoroutineContext, block: suspend () -> T): T =
+    runBlocking(context.minusKey(ContinuationInterceptor)) { block() }
 
 /**
  * Clients should use [FcitxConnection] to run fcitx operations.

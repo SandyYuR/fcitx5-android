@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.updateAndGet
-import kotlinx.coroutines.launch
 
 class FcitxLifecycleRegistry : FcitxLifecycle {
 
@@ -98,12 +97,3 @@ suspend inline fun <T> FcitxLifecycle.whenAtState(
 
 suspend inline fun <T> FcitxLifecycle.whenReady(noinline block: suspend CoroutineScope.() -> T) =
     whenAtState(FcitxLifecycle.State.READY, block)
-
-suspend inline fun <T> FcitxLifecycle.whenStopped(noinline block: suspend CoroutineScope.() -> T) =
-    whenAtState(FcitxLifecycle.State.STOPPED, block)
-
-fun <T> FcitxLifecycle.launchWhenReady(block: suspend CoroutineScope.() -> T) =
-    lifecycleScope.launch { whenReady(block) }
-
-fun <T> FcitxLifecycle.launchWhenStopped(block: suspend CoroutineScope.() -> T) =
-    lifecycleScope.launch { whenStopped(block) }

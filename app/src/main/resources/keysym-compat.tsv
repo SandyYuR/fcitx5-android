@@ -1,0 +1,2915 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# X11 keysym compatibility data, extracted from the pinned 2026-10 Fcitx key tables.
+# Copyright 1995-1997 Peter Mattis, Spencer Kimball, Josh MacDonald; 2013-2025 CSSlayer.
+# No Fcitx code or headers are used at build time or runtime.
+# name	keysym(hex)	canonical(1/0)	legacy Unicode(hex, optional)	friendly display name (optional)
+0	30	1
+1	31	1
+10ChannelsDown	100811b9	1
+10ChannelsUp	100811b8	1
+2	32	1
+3	33	1
+3270_AltCursor	fd10	1
+3270_Attn	fd0e	1
+3270_BackTab	fd05	1
+3270_ChangeScreen	fd19	1
+3270_Copy	fd15	1
+3270_CursorBlink	fd0f	1
+3270_CursorSelect	fd1c	1
+3270_DeleteWord	fd1a	1
+3270_Duplicate	fd01	1
+3270_Enter	fd1e	1
+3270_EraseEOF	fd06	1
+3270_EraseInput	fd07	1
+3270_ExSelect	fd1b	1
+3270_FieldMark	fd02	1
+3270_Ident	fd13	1
+3270_Jump	fd12	1
+3270_KeyClick	fd11	1
+3270_Left2	fd04	1
+3270_PA1	fd0a	1
+3270_PA2	fd0b	1
+3270_PA3	fd0c	1
+3270_Play	fd16	1
+3270_PrintScreen	fd1d	1
+3270_Quit	fd09	1
+3270_Record	fd18	1
+3270_Reset	fd08	1
+3270_Right2	fd03	1
+3270_Rule	fd14	1
+3270_Setup	fd17	1
+3270_Test	fd0d	1
+3DMode	1008126f	1
+4	34	1
+5	35	1
+6	36	1
+7	37	1
+8	38	1
+9	39	1
+A	41	1
+AE	c6	1
+ALSToggle	10081230	1
+Aacute	c1	1
+Abelowdot	1001ea0	1
+Abreve	1c3	1	102
+Abreveacute	1001eae	1
+Abrevebelowdot	1001eb6	1
+Abrevegrave	1001eb0	1
+Abrevehook	1001eb2	1
+Abrevetilde	1001eb4	1
+AccessX_Enable	fe70	1
+AccessX_Feedback_Enable	fe71	1
+Accessibility	1008124e	1
+Acircumflex	c2	1
+Acircumflexacute	1001ea4	1
+Acircumflexbelowdot	1001eac	1
+Acircumflexgrave	1001ea6	1
+Acircumflexhook	1001ea8	1
+Acircumflextilde	1001eaa	1
+AddFavorite	1008ff39	1		Add Favorite
+Addressbook	100811ad	1
+Adiaeresis	c4	1
+Agrave	c0	1
+Ahook	1001ea2	1
+Alt_L	ffe9	1		Left Alt
+Alt_R	ffea	1		Right Alt
+Amacron	3c0	1	100
+Aogonek	1a1	1	104
+AppSelect	10081244	1
+ApplicationLeft	1008ff50	1		Application Left
+ApplicationRight	1008ff51	1		Application Right
+Arabic_0	1000660	1
+Arabic_1	1000661	1
+Arabic_2	1000662	1
+Arabic_3	1000663	1
+Arabic_4	1000664	1
+Arabic_5	1000665	1
+Arabic_6	1000666	1
+Arabic_7	1000667	1
+Arabic_8	1000668	1
+Arabic_9	1000669	1
+Arabic_ain	5d9	1	639
+Arabic_alef	5c7	1	627
+Arabic_alefmaksura	5e9	1	649
+Arabic_beh	5c8	1	628
+Arabic_comma	5ac	1	60c
+Arabic_dad	5d6	1	636
+Arabic_dal	5cf	1	62f
+Arabic_damma	5ef	1	64f
+Arabic_dammatan	5ec	1	64c
+Arabic_ddal	1000688	1
+Arabic_farsi_yeh	10006cc	1
+Arabic_fatha	5ee	1	64e
+Arabic_fathatan	5eb	1	64b
+Arabic_feh	5e1	1	641
+Arabic_fullstop	10006d4	1
+Arabic_gaf	10006af	1
+Arabic_ghain	5da	1	63a
+Arabic_ha	5e7	1	647
+Arabic_hah	5cd	1	62d
+Arabic_hamza	5c1	1	621
+Arabic_hamza_above	1000654	1
+Arabic_hamza_below	1000655	1
+Arabic_hamzaonalef	5c3	1
+Arabic_hamzaonwaw	5c4	1
+Arabic_hamzaonyeh	5c6	1
+Arabic_hamzaunderalef	5c5	1
+Arabic_heh	5e7	0	647
+Arabic_heh_doachashmee	10006be	1
+Arabic_heh_goal	10006c1	1
+Arabic_jeem	5cc	1	62c
+Arabic_jeh	1000698	1
+Arabic_kaf	5e3	1	643
+Arabic_kasra	5f0	1	650
+Arabic_kasratan	5ed	1	64d
+Arabic_keheh	10006a9	1
+Arabic_khah	5ce	1	62e
+Arabic_lam	5e4	1	644
+Arabic_madda_above	1000653	1
+Arabic_maddaonalef	5c2	1
+Arabic_meem	5e5	1	645
+Arabic_noon	5e6	1	646
+Arabic_noon_ghunna	10006ba	1
+Arabic_peh	100067e	1
+Arabic_percent	100066a	1
+Arabic_qaf	5e2	1	642
+Arabic_question_mark	5bf	1	61f
+Arabic_ra	5d1	1	631
+Arabic_rreh	1000691	1
+Arabic_sad	5d5	1	635
+Arabic_seen	5d3	1	633
+Arabic_semicolon	5bb	1	61b
+Arabic_shadda	5f1	1	651
+Arabic_sheen	5d4	1	634
+Arabic_sukun	5f2	1	652
+Arabic_superscript_alef	1000670	1
+Arabic_switch	ff7e	1
+Arabic_tah	5d7	1	637
+Arabic_tatweel	5e0	1	640
+Arabic_tcheh	1000686	1
+Arabic_teh	5ca	1	62a
+Arabic_tehmarbuta	5c9	1	629
+Arabic_thal	5d0	1	630
+Arabic_theh	5cb	1	62b
+Arabic_tteh	1000679	1
+Arabic_veh	10006a4	1
+Arabic_waw	5e8	1	648
+Arabic_yeh	5ea	1	64a
+Arabic_yeh_baree	10006d2	1
+Arabic_zah	5d8	1	638
+Arabic_zain	5d2	1	632
+Aring	c5	1
+Armenian_AT	1000538	1
+Armenian_AYB	1000531	1
+Armenian_BEN	1000532	1
+Armenian_CHA	1000549	1
+Armenian_DA	1000534	1
+Armenian_DZA	1000541	1
+Armenian_E	1000537	1
+Armenian_FE	1000556	1
+Armenian_GHAT	1000542	1
+Armenian_GIM	1000533	1
+Armenian_HI	1000545	1
+Armenian_HO	1000540	1
+Armenian_INI	100053b	1
+Armenian_JE	100054b	1
+Armenian_KE	1000554	1
+Armenian_KEN	100053f	1
+Armenian_KHE	100053d	1
+Armenian_LYUN	100053c	1
+Armenian_MEN	1000544	1
+Armenian_NU	1000546	1
+Armenian_O	1000555	1
+Armenian_PE	100054a	1
+Armenian_PYUR	1000553	1
+Armenian_RA	100054c	1
+Armenian_RE	1000550	1
+Armenian_SE	100054d	1
+Armenian_SHA	1000547	1
+Armenian_TCHE	1000543	1
+Armenian_TO	1000539	1
+Armenian_TSA	100053e	1
+Armenian_TSO	1000551	1
+Armenian_TYUN	100054f	1
+Armenian_VEV	100054e	1
+Armenian_VO	1000548	1
+Armenian_VYUN	1000552	1
+Armenian_YECH	1000535	1
+Armenian_ZA	1000536	1
+Armenian_ZHE	100053a	1
+Armenian_accent	100055b	1
+Armenian_amanak	100055c	1
+Armenian_apostrophe	100055a	1
+Armenian_at	1000568	1
+Armenian_ayb	1000561	1
+Armenian_ben	1000562	1
+Armenian_but	100055d	1
+Armenian_cha	1000579	1
+Armenian_da	1000564	1
+Armenian_dza	1000571	1
+Armenian_e	1000567	1
+Armenian_exclam	100055c	0
+Armenian_fe	1000586	1
+Armenian_full_stop	1000589	1
+Armenian_ghat	1000572	1
+Armenian_gim	1000563	1
+Armenian_hi	1000575	1
+Armenian_ho	1000570	1
+Armenian_hyphen	100058a	1
+Armenian_ini	100056b	1
+Armenian_je	100057b	1
+Armenian_ke	1000584	1
+Armenian_ken	100056f	1
+Armenian_khe	100056d	1
+Armenian_ligature_ew	1000587	1
+Armenian_lyun	100056c	1
+Armenian_men	1000574	1
+Armenian_nu	1000576	1
+Armenian_o	1000585	1
+Armenian_paruyk	100055e	1
+Armenian_pe	100057a	1
+Armenian_pyur	1000583	1
+Armenian_question	100055e	0
+Armenian_ra	100057c	1
+Armenian_re	1000580	1
+Armenian_se	100057d	1
+Armenian_separation_mark	100055d	0
+Armenian_sha	1000577	1
+Armenian_shesht	100055b	0
+Armenian_tche	1000573	1
+Armenian_to	1000569	1
+Armenian_tsa	100056e	1
+Armenian_tso	1000581	1
+Armenian_tyun	100057f	1
+Armenian_verjaket	1000589	0
+Armenian_vev	100057e	1
+Armenian_vo	1000578	1
+Armenian_vyun	1000582	1
+Armenian_yech	1000565	1
+Armenian_yentamna	100058a	0
+Armenian_za	1000566	1
+Armenian_zhe	100056a	1
+AspectRatio	10081177	1
+Assistant	10081247	1
+Atilde	c3	1
+AttendantOff	1008121c	1
+AttendantOn	1008121b	1
+AttendantToggle	1008121d	1
+AudibleBell_Enable	fe7a	1
+Audio	10081188	1
+AudioBassBoost	100810d1	1
+AudioChannelMode	10081175	1
+AudioCycleTrack	1008ff9b	1		Audio Cycle Track
+AudioDesc	1008126e	1
+AudioForward	1008ff97	1		Media Fast Forward
+AudioLowerVolume	1008ff11	1		Volume Down
+AudioMedia	1008ff32	1
+AudioMicMute	1008ffb2	1		Microphone Mute
+AudioMute	1008ff12	1		Volume Mute
+AudioNext	1008ff17	1		Media Next
+AudioPause	1008ff31	1		Media Pause
+AudioPlay	1008ff14	1		Media Play
+AudioPreset	1008ffb6	1
+AudioPrev	1008ff16	1		Media Previous
+AudioRaiseVolume	1008ff13	1		Volume Up
+AudioRandomPlay	1008ff99	1		Audio Random Play
+AudioRecord	1008ff1c	1		Media Record
+AudioRepeat	1008ff98	1		Audio Repeat
+AudioRewind	1008ff3e	1		Media Rewind
+AudioStop	1008ff15	1		Media Stop
+AutopilotEngageToggle	1008127d	1
+Away	1008ff8d	1		Away
+B	42	1
+Babovedot	1001e02	1
+Back	1008ff26	1		Back
+BackForward	1008ff3f	1		Back Forward
+BackSpace	ff08	1		Backspace
+BackTab	1000ff74	1
+Battery	1008ff93	1		Battery
+Begin	ff58	1
+Blue	1008ffa6	1		Blue
+Bluetooth	1008ff94	1		Bluetooth
+Book	1008ff52	1		Book
+BounceKeys_Enable	fe74	1
+Break	ff6b	1
+BrightnessAdjust	1008ff3b	1		Adjust Brightness
+BrightnessAuto	100810f4	1
+BrightnessMax	10081251	1
+BrightnessMin	10081250	1
+Buttonconfig	10081240	1
+Byelorussian_SHORTU	6be	1
+Byelorussian_shortu	6ae	1	45e
+C	43	1
+CD	1008ff53	1		CD
+CH	fea2	1
+C_H	fea5	1
+C_h	fea4	1
+Cabovedot	2c5	1	10a
+Cacute	1c6	1	106
+Calculater	1008ff54	1
+Calculator	1008ff1d	1		Calculator
+Calendar	1008ff20	1
+CameraAccessDisable	1008124c	1
+CameraAccessEnable	1008124b	1
+CameraAccessToggle	1008124d	1
+CameraDown	10081218	1
+CameraFocus	10081210	1
+CameraLeft	10081219	1
+CameraRight	1008121a	1
+CameraUp	10081217	1
+CameraZoomIn	10081215	1
+CameraZoomOut	10081216	1
+Cancel	ff69	1		Cancel
+Caps_Lock	ffe5	1		CapsLock
+Ccaron	1c8	1	10c
+Ccedilla	c7	1
+Ccircumflex	2c6	1	108
+Ch	fea1	1
+ChannelDown	10081193	1
+ChannelUp	10081192	1
+Clear	ff0b	1		Clear
+ClearGrab	1008fe21	1
+ClearLine	1000ff6f	1
+ClearvuSonar	10081286	1
+Close	1008ff56	1		Close
+Codeinput	ff37	1		Code input
+ColonSign	10020a1	1
+Community	1008ff3d	1		Community
+Compaq_Q	1008ff70	1
+ContextMenu	100811b6	1
+ContrastAdjust	1008ff22	1
+ControlPanel	10081243	1
+Control_L	ffe3	1		Left Control
+Control_R	ffe4	1		Right Control
+Copy	1008ff57	1		Copy
+CruzeiroSign	10020a2	1
+Cut	1008ff58	1		Cut
+CycleAngle	1008ff9c	1
+Cyrillic_A	6e1	1	410
+Cyrillic_BE	6e2	1	411
+Cyrillic_CHE	6fe	1	427
+Cyrillic_CHE_descender	10004b6	1
+Cyrillic_CHE_vertstroke	10004b8	1
+Cyrillic_DE	6e4	1	414
+Cyrillic_DZHE	6bf	1	40f
+Cyrillic_E	6fc	1	42d
+Cyrillic_EF	6e6	1	424
+Cyrillic_EL	6ec	1	41b
+Cyrillic_EM	6ed	1	41c
+Cyrillic_EN	6ee	1	41d
+Cyrillic_EN_descender	10004a2	1
+Cyrillic_ER	6f2	1	420
+Cyrillic_ES	6f3	1	421
+Cyrillic_GHE	6e7	1	413
+Cyrillic_GHE_bar	1000492	1
+Cyrillic_HA	6e8	1	425
+Cyrillic_HARDSIGN	6ff	1
+Cyrillic_HA_descender	10004b2	1
+Cyrillic_I	6e9	1	418
+Cyrillic_IE	6e5	1	415
+Cyrillic_IO	6b3	1	401
+Cyrillic_I_macron	10004e2	1
+Cyrillic_JE	6b8	1	408
+Cyrillic_KA	6eb	1	41a
+Cyrillic_KA_descender	100049a	1
+Cyrillic_KA_vertstroke	100049c	1
+Cyrillic_LJE	6b9	1	409
+Cyrillic_NJE	6ba	1	40a
+Cyrillic_O	6ef	1	41e
+Cyrillic_O_bar	10004e8	1
+Cyrillic_PE	6f0	1	41f
+Cyrillic_SCHWA	10004d8	1
+Cyrillic_SHA	6fb	1	428
+Cyrillic_SHCHA	6fd	1	429
+Cyrillic_SHHA	10004ba	1
+Cyrillic_SHORTI	6ea	1	419
+Cyrillic_SOFTSIGN	6f8	1
+Cyrillic_TE	6f4	1	422
+Cyrillic_TSE	6e3	1	426
+Cyrillic_U	6f5	1	423
+Cyrillic_U_macron	10004ee	1
+Cyrillic_U_straight	10004ae	1
+Cyrillic_U_straight_bar	10004b0	1
+Cyrillic_VE	6f7	1	412
+Cyrillic_YA	6f1	1	42f
+Cyrillic_YERU	6f9	1	42b
+Cyrillic_YU	6e0	1	42e
+Cyrillic_ZE	6fa	1	417
+Cyrillic_ZHE	6f6	1	416
+Cyrillic_ZHE_descender	1000496	1
+Cyrillic_a	6c1	1	430
+Cyrillic_be	6c2	1	431
+Cyrillic_che	6de	1	447
+Cyrillic_che_descender	10004b7	1
+Cyrillic_che_vertstroke	10004b9	1
+Cyrillic_de	6c4	1	434
+Cyrillic_dzhe	6af	1	45f
+Cyrillic_e	6dc	1	44d
+Cyrillic_ef	6c6	1	444
+Cyrillic_el	6cc	1	43b
+Cyrillic_em	6cd	1	43c
+Cyrillic_en	6ce	1	43d
+Cyrillic_en_descender	10004a3	1
+Cyrillic_er	6d2	1	440
+Cyrillic_es	6d3	1	441
+Cyrillic_ghe	6c7	1	433
+Cyrillic_ghe_bar	1000493	1
+Cyrillic_ha	6c8	1	445
+Cyrillic_ha_descender	10004b3	1
+Cyrillic_hardsign	6df	1	44a
+Cyrillic_i	6c9	1	438
+Cyrillic_i_macron	10004e3	1
+Cyrillic_ie	6c5	1	435
+Cyrillic_io	6a3	1	451
+Cyrillic_je	6a8	1	458
+Cyrillic_ka	6cb	1	43a
+Cyrillic_ka_descender	100049b	1
+Cyrillic_ka_vertstroke	100049d	1
+Cyrillic_lje	6a9	1	459
+Cyrillic_nje	6aa	1	45a
+Cyrillic_o	6cf	1	43e
+Cyrillic_o_bar	10004e9	1
+Cyrillic_pe	6d0	1	43f
+Cyrillic_schwa	10004d9	1
+Cyrillic_sha	6db	1	448
+Cyrillic_shcha	6dd	1	449
+Cyrillic_shha	10004bb	1
+Cyrillic_shorti	6ca	1	439
+Cyrillic_softsign	6d8	1	44c
+Cyrillic_te	6d4	1	442
+Cyrillic_tse	6c3	1	446
+Cyrillic_u	6d5	1	443
+Cyrillic_u_macron	10004ef	1
+Cyrillic_u_straight	10004af	1
+Cyrillic_u_straight_bar	10004b1	1
+Cyrillic_ve	6d7	1	432
+Cyrillic_ya	6d1	1	44f
+Cyrillic_yeru	6d9	1	44b
+Cyrillic_yu	6c0	1	44e
+Cyrillic_ze	6da	1	437
+Cyrillic_zhe	6d6	1	436
+Cyrillic_zhe_descender	1000497	1
+D	44	1
+DOS	1008ff5a	1		DOS
+DRemove	1000ff00	1
+DVD	10081185	1
+Dabovedot	1001e0a	1
+Dacute_accent	1000fe27	1
+Data	10081277	1
+Database	100811aa	1
+Dcaron	1cf	1	10e
+Dcedilla_accent	1000fe2c	1
+Dcircumflex_accent	1000fe5e	1
+Ddiaeresis	1000fe22	1
+Delete	ffff	1		Delete
+DeleteChar	1000ff73	1
+DeleteLine	1000ff71	1
+Dgrave_accent	1000fe60	1
+Dictate	1008124a	1
+Display	1008ff59	1		Display
+DisplayOff	100810f5	1
+DisplayToggle	100811af	1
+DoNotDisturb	1008124f	1
+Documents	1008ff5b	1		Documents
+DongSign	10020ab	1
+Down	ff54	1		Down
+Dring_accent	1000feb0	1
+Dstroke	1d0	1	110
+Dtilde	1000fe7e	1
+DualRangeRadar	10081283	1
+E	45	1
+ENG	3bd	1	14a
+ETH	d0	1
+EZH	10001b7	1
+Eabovedot	3cc	1	116
+Eacute	c9	1
+Ebelowdot	1001eb8	1
+Ecaron	1cc	1	11a
+Ecircumflex	ca	1
+Ecircumflexacute	1001ebe	1
+Ecircumflexbelowdot	1001ec6	1
+Ecircumflexgrave	1001ec0	1
+Ecircumflexhook	1001ec2	1
+Ecircumflextilde	1001ec4	1
+EcuSign	10020a0	1
+Ediaeresis	cb	1
+Editor	100811a6	1
+Egrave	c8	1
+Ehook	1001eba	1
+Eisu_Shift	ff2f	1		Eisu Shift
+Eisu_toggle	ff30	1		Eisu toggle
+Eject	1008ff2c	1		Eject
+Emacron	3aa	1	112
+EmojiPicker	10081249	1
+End	ff57	1		End
+Eogonek	1ca	1	118
+Escape	ff1b	1		Escape
+Eth	d0	0
+Etilde	1001ebc	1
+EuroSign	20ac	1	20ac
+Excel	1008ff5c	1		Spreadsheet
+Execute	ff62	1		Execute
+Exit	100810ae	1
+Explorer	1008ff5d	1		Browser
+Ext16bit_L	1000ff76	1
+Ext16bit_R	1000ff77	1
+F	46	1
+F1	ffbe	1
+F10	ffc7	1
+F11	ffc8	1
+F12	ffc9	1
+F13	ffca	1
+F14	ffcb	1
+F15	ffcc	1
+F16	ffcd	1
+F17	ffce	1
+F18	ffcf	1
+F19	ffd0	1
+F2	ffbf	1
+F20	ffd1	1
+F21	ffd2	1
+F22	ffd3	1
+F23	ffd4	1
+F24	ffd5	1
+F25	ffd6	1
+F26	ffd7	1
+F27	ffd8	1
+F28	ffd9	1
+F29	ffda	1
+F3	ffc0	1
+F30	ffdb	1
+F31	ffdc	1
+F32	ffdd	1
+F33	ffde	1
+F34	ffdf	1
+F35	ffe0	1
+F4	ffc1	1
+F5	ffc2	1
+F6	ffc3	1
+F7	ffc4	1
+F8	ffc5	1
+F9	ffc6	1
+FFrancSign	10020a3	1
+Fabovedot	1001e1e	1
+Farsi_0	10006f0	1
+Farsi_1	10006f1	1
+Farsi_2	10006f2	1
+Farsi_3	10006f3	1
+Farsi_4	10006f4	1
+Farsi_5	10006f5	1
+Farsi_6	10006f6	1
+Farsi_7	10006f7	1
+Farsi_8	10006f8	1
+Farsi_9	10006f9	1
+Farsi_yeh	10006cc	0
+FastReverse	10081275	1
+Favorites	1008ff30	1		Favorites
+Finance	1008ff3c	1		Finance
+Find	ff68	1		Find
+First_Virtual_Screen	fed0	1
+FishingChart	10081281	1
+Fn	100811d0	1
+FnRightShift	100811e5	1
+Fn_1	100811de	1
+Fn_2	100811df	1
+Fn_B	100811e4	1
+Fn_D	100811e0	1
+Fn_E	100811e1	1
+Fn_Esc	100811d1	1
+Fn_F	100811e2	1
+Fn_F1	100811d2	1
+Fn_F10	100811db	1
+Fn_F11	100811dc	1
+Fn_F12	100811dd	1
+Fn_F2	100811d3	1
+Fn_F3	100811d4	1
+Fn_F4	100811d5	1
+Fn_F5	100811d6	1
+Fn_F6	100811d7	1
+Fn_F7	100811d8	1
+Fn_F8	100811d9	1
+Fn_F9	100811da	1
+Fn_S	100811e3	1
+Forward	1008ff27	1		Forward
+FrameBack	1008ff9d	1
+FrameForward	1008ff9e	1
+FullScreen	1008ffb8	1
+G	47	1
+Gabovedot	2d5	1	120
+Game	1008ff5e	1		Game
+Gbreve	2ab	1	11e
+Gcaron	10001e6	1
+Gcedilla	3ab	1	122
+Gcircumflex	2d8	1	11c
+Georgian_an	10010d0	1
+Georgian_ban	10010d1	1
+Georgian_can	10010ea	1
+Georgian_char	10010ed	1
+Georgian_chin	10010e9	1
+Georgian_cil	10010ec	1
+Georgian_don	10010d3	1
+Georgian_en	10010d4	1
+Georgian_fi	10010f6	1
+Georgian_gan	10010d2	1
+Georgian_ghan	10010e6	1
+Georgian_hae	10010f0	1
+Georgian_har	10010f4	1
+Georgian_he	10010f1	1
+Georgian_hie	10010f2	1
+Georgian_hoe	10010f5	1
+Georgian_in	10010d8	1
+Georgian_jhan	10010ef	1
+Georgian_jil	10010eb	1
+Georgian_kan	10010d9	1
+Georgian_khar	10010e5	1
+Georgian_las	10010da	1
+Georgian_man	10010db	1
+Georgian_nar	10010dc	1
+Georgian_on	10010dd	1
+Georgian_par	10010de	1
+Georgian_phar	10010e4	1
+Georgian_qar	10010e7	1
+Georgian_rae	10010e0	1
+Georgian_san	10010e1	1
+Georgian_shin	10010e8	1
+Georgian_tan	10010d7	1
+Georgian_tar	10010e2	1
+Georgian_un	10010e3	1
+Georgian_vin	10010d5	1
+Georgian_we	10010f3	1
+Georgian_xan	10010ee	1
+Georgian_zen	10010d6	1
+Georgian_zhar	10010df	1
+Go	1008ff5f	1		Go
+GoTo	10081162	1
+GraphicsEditor	100811a8	1
+Greek_ALPHA	7c1	1	391
+Greek_ALPHAaccent	7a1	1
+Greek_BETA	7c2	1	392
+Greek_CHI	7d7	1	3a7
+Greek_DELTA	7c4	1	394
+Greek_EPSILON	7c5	1	395
+Greek_EPSILONaccent	7a2	1	388
+Greek_ETA	7c7	1	397
+Greek_ETAaccent	7a3	1
+Greek_GAMMA	7c3	1	393
+Greek_IOTA	7c9	1	399
+Greek_IOTAaccent	7a4	1
+Greek_IOTAdiaeresis	7a5	1	3aa
+Greek_IOTAdieresis	7a5	0	3aa
+Greek_KAPPA	7ca	1	39a
+Greek_LAMBDA	7cb	1	39b
+Greek_LAMDA	7cb	0	39b
+Greek_MU	7cc	1	39c
+Greek_NU	7cd	1	39d
+Greek_OMEGA	7d9	1	3a9
+Greek_OMEGAaccent	7ab	1
+Greek_OMICRON	7cf	1	39f
+Greek_OMICRONaccent	7a7	1	38c
+Greek_PHI	7d6	1	3a6
+Greek_PI	7d0	1	3a0
+Greek_PSI	7d8	1	3a8
+Greek_RHO	7d1	1	3a1
+Greek_SIGMA	7d2	1	3a3
+Greek_TAU	7d4	1	3a4
+Greek_THETA	7c8	1	398
+Greek_UPSILON	7d5	1	3a5
+Greek_UPSILONaccent	7a8	1	38e
+Greek_UPSILONdieresis	7a9	1	3ab
+Greek_XI	7ce	1	39e
+Greek_ZETA	7c6	1	396
+Greek_accentdieresis	7ae	1	385
+Greek_alpha	7e1	1	3b1
+Greek_alphaaccent	7b1	1
+Greek_beta	7e2	1	3b2
+Greek_chi	7f7	1	3c7
+Greek_delta	7e4	1	3b4
+Greek_epsilon	7e5	1	3b5
+Greek_epsilonaccent	7b2	1
+Greek_eta	7e7	1	3b7
+Greek_etaaccent	7b3	1	3ae
+Greek_finalsmallsigma	7f3	1
+Greek_gamma	7e3	1	3b3
+Greek_horizbar	7af	1	2015
+Greek_iota	7e9	1	3b9
+Greek_iotaaccent	7b4	1
+Greek_iotaaccentdieresis	7b6	1	390
+Greek_iotadieresis	7b5	1
+Greek_kappa	7ea	1	3ba
+Greek_lambda	7eb	1	3bb
+Greek_lamda	7eb	0	3bb
+Greek_mu	7ec	1	3bc
+Greek_nu	7ed	1	3bd
+Greek_omega	7f9	1	3c9
+Greek_omegaaccent	7bb	1
+Greek_omicron	7ef	1	3bf
+Greek_omicronaccent	7b7	1
+Greek_phi	7f6	1	3c6
+Greek_pi	7f0	1	3c0
+Greek_psi	7f8	1	3c8
+Greek_rho	7f1	1	3c1
+Greek_sigma	7f2	1	3c3
+Greek_switch	ff7e	0
+Greek_tau	7f4	1	3c4
+Greek_theta	7e8	1	3b8
+Greek_upsilon	7f5	1	3c5
+Greek_upsilonaccent	7b8	1
+Greek_upsilonaccentdieresis	7ba	1	3b0
+Greek_upsilondieresis	7b9	1	3cb
+Greek_xi	7ee	1	3be
+Greek_zeta	7e6	1	3b6
+Green	1008ffa4	1		Green
+H	48	1
+Hangul	ff31	1		Hangul
+Hangul_A	ebf	1	314f
+Hangul_AE	ec0	1	3150
+Hangul_AraeA	ef6	1	318d
+Hangul_AraeAE	ef7	1	318e
+Hangul_Banja	ff39	1		Hangul Banja
+Hangul_Cieuc	eba	1	314a
+Hangul_Codeinput	ff37	0		Code input
+Hangul_Dikeud	ea7	1	3137
+Hangul_E	ec4	1	3154
+Hangul_EO	ec3	1	3153
+Hangul_EU	ed1	1	3161
+Hangul_End	ff33	1		Hangul End
+Hangul_Hanja	ff34	1		Hangul Hanja
+Hangul_Hieuh	ebe	1	314e
+Hangul_I	ed3	1	3163
+Hangul_Ieung	eb7	1	3147
+Hangul_J_Cieuc	eea	1	11be
+Hangul_J_Dikeud	eda	1	11ae
+Hangul_J_Hieuh	eee	1	11c2
+Hangul_J_Ieung	ee8	1	11bc
+Hangul_J_Jieuj	ee9	1	11bd
+Hangul_J_Khieuq	eeb	1	11bf
+Hangul_J_Kiyeog	ed4	1	11a8
+Hangul_J_KiyeogSios	ed6	1	11aa
+Hangul_J_KkogjiDalrinIeung	ef9	1
+Hangul_J_Mieum	ee3	1	11b7
+Hangul_J_Nieun	ed7	1	11ab
+Hangul_J_NieunHieuh	ed9	1	11ad
+Hangul_J_NieunJieuj	ed8	1	11ac
+Hangul_J_PanSios	ef8	1	11eb
+Hangul_J_Phieuf	eed	1	11c1
+Hangul_J_Pieub	ee4	1	11b8
+Hangul_J_PieubSios	ee5	1	11b9
+Hangul_J_Rieul	edb	1	11af
+Hangul_J_RieulHieuh	ee2	1	11b6
+Hangul_J_RieulKiyeog	edc	1	11b0
+Hangul_J_RieulMieum	edd	1	11b1
+Hangul_J_RieulPhieuf	ee1	1
+Hangul_J_RieulPieub	ede	1	11b2
+Hangul_J_RieulSios	edf	1	11b3
+Hangul_J_RieulTieut	ee0	1	11b4
+Hangul_J_Sios	ee6	1	11ba
+Hangul_J_SsangKiyeog	ed5	1	11a9
+Hangul_J_SsangSios	ee7	1	11bb
+Hangul_J_Tieut	eec	1	11c0
+Hangul_J_YeorinHieuh	efa	1	11f9
+Hangul_Jamo	ff35	1		Hangul Jamo
+Hangul_Jeonja	ff38	1		Hangul Jeonja
+Hangul_Jieuj	eb8	1	3148
+Hangul_Khieuq	ebb	1	314b
+Hangul_Kiyeog	ea1	1	3131
+Hangul_KiyeogSios	ea3	1	3133
+Hangul_KkogjiDalrinIeung	ef3	1	3181
+Hangul_Mieum	eb1	1	3141
+Hangul_MultipleCandidate	ff3d	1		Multiple Candidate
+Hangul_Nieun	ea4	1	3134
+Hangul_NieunHieuh	ea6	1	3136
+Hangul_NieunJieuj	ea5	1	3135
+Hangul_O	ec7	1	3157
+Hangul_OE	eca	1	315a
+Hangul_PanSios	ef2	1	317f
+Hangul_Phieuf	ebd	1	314d
+Hangul_Pieub	eb2	1	3142
+Hangul_PieubSios	eb4	1	3144
+Hangul_PostHanja	ff3b	1		Hangul PostHanja
+Hangul_PreHanja	ff3a	1		Hangul PreHanja
+Hangul_PreviousCandidate	ff3e	1		Previous Candidate
+Hangul_Rieul	ea9	1	3139
+Hangul_RieulHieuh	eb0	1	3140
+Hangul_RieulKiyeog	eaa	1	313a
+Hangul_RieulMieum	eab	1	313b
+Hangul_RieulPhieuf	eaf	1	313f
+Hangul_RieulPieub	eac	1	313c
+Hangul_RieulSios	ead	1	313d
+Hangul_RieulTieut	eae	1	313e
+Hangul_RieulYeorinHieuh	eef	1
+Hangul_Romaja	ff36	1		Hangul Romaja
+Hangul_SingleCandidate	ff3c	1
+Hangul_Sios	eb5	1	3145
+Hangul_Special	ff3f	1		Hangul Special
+Hangul_SsangDikeud	ea8	1	3138
+Hangul_SsangJieuj	eb9	1	3149
+Hangul_SsangKiyeog	ea2	1	3132
+Hangul_SsangPieub	eb3	1	3143
+Hangul_SsangSios	eb6	1	3146
+Hangul_Start	ff32	1		Hangul Start
+Hangul_SunkyeongeumMieum	ef0	1
+Hangul_SunkyeongeumPhieuf	ef4	1
+Hangul_SunkyeongeumPieub	ef1	1
+Hangul_Tieut	ebc	1	314c
+Hangul_U	ecc	1	315c
+Hangul_WA	ec8	1	3158
+Hangul_WAE	ec9	1	3159
+Hangul_WE	ece	1	315e
+Hangul_WEO	ecd	1	315d
+Hangul_WI	ecf	1	315f
+Hangul_YA	ec1	1	3151
+Hangul_YAE	ec2	1	3152
+Hangul_YE	ec6	1	3156
+Hangul_YEO	ec5	1	3155
+Hangul_YI	ed2	1	3162
+Hangul_YO	ecb	1	315b
+Hangul_YU	ed0	1	3160
+Hangul_YeorinHieuh	ef5	1	3186
+Hangul_switch	ff7e	0
+HangupPhone	100811be	1
+Hankaku	ff29	1		Hankaku
+Hcircumflex	2a6	1	124
+Hebrew_switch	ff7e	0
+Help	ff6a	1		Help
+Henkan	ff23	1		Henkan
+Henkan_Mode	ff23	0		Henkan
+Hibernate	1008ffa8	1		Hibernate
+Hiragana	ff25	1		Hiragana
+Hiragana_Katakana	ff27	1		Hiragana Katakana
+History	1008ff37	1		History
+Home	ff50	1		Home
+HomePage	1008ff18	1		Home Page
+HotLinks	1008ff3a	1		Hot Links
+Hstroke	2a1	1	126
+Hyper_L	ffed	1		Left Hyper
+Hyper_R	ffee	1		Right Hyper
+I	49	1
+IO	100000ee	1
+ISO_Center_Object	fe33	1
+ISO_Continuous_Underline	fe30	1
+ISO_Discontinuous_Underline	fe31	1
+ISO_Emphasize	fe32	1
+ISO_Enter	fe34	1
+ISO_Fast_Cursor_Down	fe2f	1
+ISO_Fast_Cursor_Left	fe2c	1
+ISO_Fast_Cursor_Right	fe2d	1
+ISO_Fast_Cursor_Up	fe2e	1
+ISO_First_Group	fe0c	1
+ISO_First_Group_Lock	fe0d	1
+ISO_Group_Latch	fe06	1
+ISO_Group_Lock	fe07	1
+ISO_Group_Shift	ff7e	0
+ISO_Last_Group	fe0e	1
+ISO_Last_Group_Lock	fe0f	1
+ISO_Left_Tab	fe20	1
+ISO_Level2_Latch	fe02	1
+ISO_Level3_Latch	fe04	1
+ISO_Level3_Lock	fe05	1
+ISO_Level3_Shift	fe03	1
+ISO_Level5_Latch	fe12	1
+ISO_Level5_Lock	fe13	1
+ISO_Level5_Shift	fe11	1
+ISO_Lock	fe01	1
+ISO_Move_Line_Down	fe22	1
+ISO_Move_Line_Up	fe21	1
+ISO_Next_Group	fe08	1
+ISO_Next_Group_Lock	fe09	1
+ISO_Partial_Line_Down	fe24	1
+ISO_Partial_Line_Up	fe23	1
+ISO_Partial_Space_Left	fe25	1
+ISO_Partial_Space_Right	fe26	1
+ISO_Prev_Group	fe0a	1
+ISO_Prev_Group_Lock	fe0b	1
+ISO_Release_Both_Margins	fe2b	1
+ISO_Release_Margin_Left	fe29	1
+ISO_Release_Margin_Right	fe2a	1
+ISO_Set_Margin_Left	fe27	1
+ISO_Set_Margin_Right	fe28	1
+Iabovedot	2a9	1	130
+Iacute	cd	1
+Ibelowdot	1001eca	1
+Ibreve	100012c	1
+Icircumflex	ce	1
+Idiaeresis	cf	1
+Igrave	cc	1
+Ihook	1001ec8	1
+Imacron	3cf	1	12a
+Images	100811ba	1
+Info	10081166	1
+Insert	ff63	1		Insert
+InsertChar	1000ff72	1
+InsertLine	1000ff70	1
+Iogonek	3c7	1	12e
+Itilde	3a5	1	128
+J	4a	1
+Jcircumflex	2ac	1	134
+Journal	10081242	1
+K	4b	1
+KP_0	ffb0	1		Keypad 0
+KP_1	ffb1	1		Keypad 1
+KP_2	ffb2	1		Keypad 2
+KP_3	ffb3	1		Keypad 3
+KP_4	ffb4	1		Keypad 4
+KP_5	ffb5	1		Keypad 5
+KP_6	ffb6	1		Keypad 6
+KP_7	ffb7	1		Keypad 7
+KP_8	ffb8	1		Keypad 8
+KP_9	ffb9	1		Keypad 9
+KP_Add	ffab	1		Keypad +
+KP_BackTab	1000ff75	1
+KP_Begin	ff9d	1		Keypad Begin
+KP_Decimal	ffae	1		Keypad .
+KP_Delete	ff9f	1		Keypad Delete
+KP_Divide	ffaf	1		Keypad /
+KP_Down	ff99	1		Keypad Down
+KP_End	ff9c	1		Keypad End
+KP_Enter	ff8d	1		Keypad Enter
+KP_Equal	ffbd	1		Keypad =
+KP_F1	ff91	1		Keypad F1
+KP_F2	ff92	1		Keypad F2
+KP_F3	ff93	1		Keypad F3
+KP_F4	ff94	1		Keypad F4
+KP_Home	ff95	1		Keypad Home
+KP_Insert	ff9e	1		Keypad Insert
+KP_Left	ff96	1		Keypad Left
+KP_Multiply	ffaa	1		Keypad *
+KP_Next	ff9b	1		Keypad Page Down
+KP_Page_Down	ff9b	0		Keypad Page Down
+KP_Page_Up	ff9a	1		Keypad Page Up
+KP_Prior	ff9a	0		Keypad Page Up
+KP_Right	ff98	1		Keypad Right
+KP_Separator	ffac	1		Keypad ,
+KP_Space	ff80	1		Keypad Space
+KP_Subtract	ffad	1		Keypad -
+KP_Tab	ff89	1		Keypad Tab
+KP_Up	ff97	1		Keypad Up
+Kana_Lock	ff2d	1		Kana Lock
+Kana_Shift	ff2e	1		Kana Shift
+Kanji	ff21	1		Kanji
+Kanji_Bangou	ff37	0		Code input
+Katakana	ff26	1		Katakana
+KbdBrightnessDown	1008ff06	1		Keyboard Brightness Down
+KbdBrightnessUp	1008ff05	1		Keyboard Brightness Up
+KbdInputAssistAccept	10081264	1
+KbdInputAssistCancel	10081265	1
+KbdInputAssistNext	10081261	1
+KbdInputAssistNextgroup	10081263	1
+KbdInputAssistPrev	10081260	1
+KbdInputAssistPrevgroup	10081262	1
+KbdLcdMenu1	100812b8	1
+KbdLcdMenu2	100812b9	1
+KbdLcdMenu3	100812ba	1
+KbdLcdMenu4	100812bb	1
+KbdLcdMenu5	100812bc	1
+KbdLightOnOff	1008ff04	1		Keyboard Light On/Off
+Kcedilla	3d3	1	136
+Keyboard	1008ffb3	1
+Korean_Won	eff	1	20a9
+L	4c	1
+L1	ffc8	0
+L10	ffd1	0
+L2	ffc9	0
+L3	ffca	0
+L4	ffcb	0
+L5	ffcc	0
+L6	ffcd	0
+L7	ffce	0
+L8	ffcf	0
+L9	ffd0	0
+Lacute	1c5	1	139
+Last_Virtual_Screen	fed4	1
+Launch0	1008ff40	1		Launch (0)
+Launch1	1008ff41	1		Launch (1)
+Launch2	1008ff42	1		Launch (2)
+Launch3	1008ff43	1		Launch (3)
+Launch4	1008ff44	1		Launch (4)
+Launch5	1008ff45	1		Launch (5)
+Launch6	1008ff46	1		Launch (6)
+Launch7	1008ff47	1		Launch (7)
+Launch8	1008ff48	1		Launch (8)
+Launch9	1008ff49	1		Launch (9)
+LaunchA	1008ff4a	1		Launch (A)
+LaunchB	1008ff4b	1		Launch (B)
+LaunchC	1008ff4c	1		Launch (C)
+LaunchD	1008ff4d	1		Launch (D)
+LaunchE	1008ff4e	1		Launch (E)
+LaunchF	1008ff4f	1		Launch (F)
+Lbelowdot	1001e36	1
+Lcaron	1a5	1	13d
+Lcedilla	3a6	1	13b
+Left	ff51	1		Left
+LeftDown	10081269	1
+LeftUp	10081268	1
+LightBulb	1008ff35	1		LightBulb
+LightsToggle	1008121e	1
+Linefeed	ff0a	1
+LinkPhone	100811bf	1
+LiraSign	10020a4	1
+LogGrabInfo	1008fe25	1
+LogOff	1008ff61	1		Logoff
+LogWindowTree	1008fe24	1
+Lstroke	1a3	1	141
+M	4d	1
+Mabovedot	1001e40	1
+Macedonia_DSE	6b5	1	405
+Macedonia_GJE	6b2	1	403
+Macedonia_KJE	6bc	1	40c
+Macedonia_dse	6a5	1	455
+Macedonia_gje	6a2	1	453
+Macedonia_kje	6ac	1	45c
+Macro1	10081290	1
+Macro10	10081299	1
+Macro11	1008129a	1
+Macro12	1008129b	1
+Macro13	1008129c	1
+Macro14	1008129d	1
+Macro15	1008129e	1
+Macro16	1008129f	1
+Macro17	100812a0	1
+Macro18	100812a1	1
+Macro19	100812a2	1
+Macro2	10081291	1
+Macro20	100812a3	1
+Macro21	100812a4	1
+Macro22	100812a5	1
+Macro23	100812a6	1
+Macro24	100812a7	1
+Macro25	100812a8	1
+Macro26	100812a9	1
+Macro27	100812aa	1
+Macro28	100812ab	1
+Macro29	100812ac	1
+Macro3	10081292	1
+Macro30	100812ad	1
+Macro4	10081293	1
+Macro5	10081294	1
+Macro6	10081295	1
+Macro7	10081296	1
+Macro8	10081297	1
+Macro9	10081298	1
+MacroPreset1	100812b3	1
+MacroPreset2	100812b4	1
+MacroPreset3	100812b5	1
+MacroPresetCycle	100812b2	1
+MacroRecordStart	100812b0	1
+MacroRecordStop	100812b1	1
+Mae_Koho	ff3e	0		Previous Candidate
+Mail	1008ff19	1		Launch Mail
+MailForward	1008ff90	1		Mail Forward
+MarkWaypoint	1008127e	1
+Market	1008ff62	1		Market
+Massyo	ff2c	1		Massyo
+MediaBreak	1008119b	1
+MediaLanguageMenu	10081170	1
+MediaPlayPause	100810a4	1
+MediaPlaySlow	10081199	1
+MediaPlayer	10081183	1
+MediaRepeat	100811b7	1
+MediaSelectAuxiliary	10081186	1
+MediaSelectCD	1008ff53	0		CD
+MediaSelectCable	1008117a	1
+MediaSelectDVD	10081185	0
+MediaSelectHome	1008116e	1
+MediaSelectPC	10081178	1
+MediaSelectProgramGuide	1008116a	1
+MediaSelectRadio	10081181	1
+MediaSelectSatellite	1008117d	1
+MediaSelectTV	10081179	1
+MediaSelectTape	10081180	1
+MediaSelectTeletext	10081184	1
+MediaSelectTuner	10081182	1
+MediaSelectVCR	1008117b	1
+MediaSelectVCRPlus	1008117c	1
+MediaTitleMenu	10081171	1
+MediaTopMenu	1008126b	1
+Meeting	1008ff63	1		Meeting
+Memo	1008ff1e	1
+Menu	ff67	1		Menu
+MenuKB	1008ff65	1		Keyboard Menu
+MenuPB	1008ff66	1		Menu PB
+Messenger	1008ff8e	1		Messenger
+Meta_L	ffe7	1
+Meta_R	ffe8	1
+MillSign	10020a5	1
+ModeLock	1008ff01	1
+Mode_switch	ff7e	0
+MonBrightnessAuto	100810f4	0
+MonBrightnessCycle	1008ff07	1
+MonBrightnessDown	1008ff03	1		Monitor Brightness Down
+MonBrightnessUp	1008ff02	1		Monitor Brightness Up
+MouseKeys_Accel_Enable	fe77	1
+MouseKeys_Enable	fe76	1
+Muhenkan	ff22	1		Muhenkan
+Multi_key	ff20	1
+MultipleCandidate	ff3d	0		Multiple Candidate
+Music	1008ff92	1		Music
+MyComputer	1008ff33	1
+MySites	1008ff67	1		My Sites
+N	4e	1
+Nacute	1d1	1	143
+NairaSign	10020a6	1
+NavChart	10081280	1
+NavInfo	10081288	1
+Ncaron	1d2	1	147
+Ncedilla	3d1	1	145
+New	1008ff68	1		New
+NewSheqelSign	10020aa	1
+News	1008ff69	1		News
+Next	ff56	1		Page Down
+NextElement	1008127b	1
+NextFavorite	10081270	1
+Next_VMode	1008fe22	1
+Next_Virtual_Screen	fed2	1
+None	0	1
+NotificationCenter	100811bc	1
+Ntilde	d1	1
+Num_Lock	ff7f	1		NumLock
+NumberEntryMode	1008119d	1
+Numeric0	10081200	1
+Numeric1	10081201	1
+Numeric11	1008126c	1
+Numeric12	1008126d	1
+Numeric2	10081202	1
+Numeric3	10081203	1
+Numeric4	10081204	1
+Numeric5	10081205	1
+Numeric6	10081206	1
+Numeric7	10081207	1
+Numeric8	10081208	1
+Numeric9	10081209	1
+NumericA	1008120c	1
+NumericB	1008120d	1
+NumericC	1008120e	1
+NumericD	1008120f	1
+NumericPound	1008120b	1
+NumericStar	1008120a	1
+O	4f	1
+OE	13bc	1	152
+OK	10081160	1
+Oacute	d3	1
+Obarred	100019f	1
+Obelowdot	1001ecc	1
+Ocaron	10001d1	1
+Ocircumflex	d4	1
+Ocircumflexacute	1001ed0	1
+Ocircumflexbelowdot	1001ed8	1
+Ocircumflexgrave	1001ed2	1
+Ocircumflexhook	1001ed4	1
+Ocircumflextilde	1001ed6	1
+Odiaeresis	d6	1
+Odoubleacute	1d5	1
+OfficeHome	1008ff6a	1		Home Office
+Ograve	d2	1
+Ohook	1001ece	1
+Ohorn	10001a0	1
+Ohornacute	1001eda	1
+Ohornbelowdot	1001ee2	1
+Ohorngrave	1001edc	1
+Ohornhook	1001ede	1
+Ohorntilde	1001ee0	1
+Omacron	3d2	1	14c
+OnScreenKeyboard	10081278	1
+Ooblique	d8	1
+Open	1008ff6b	1		Open
+OpenURL	1008ff38	1		Open URL
+Option	1008ff6c	1		Option
+Oslash	d8	0
+Otilde	d5	1
+Overlay1_Enable	fe78	1
+Overlay2_Enable	fe79	1
+P	50	1
+Pabovedot	1001e56	1
+Page_Down	ff56	0		Page Down
+Page_Up	ff55	1		Page Up
+Paste	1008ff6d	1		Paste
+Pause	ff13	1		Pause
+PauseRecord	10081272	1
+PerformanceMode	100812bd	1
+PesetaSign	10020a7	1
+Phone	1008ff6e	1		Phone
+PickupPhone	100811bd	1
+Pictures	1008ff91	1		Pictures
+Pointer_Accelerate	fefa	1
+Pointer_Button1	fee9	1
+Pointer_Button2	feea	1
+Pointer_Button3	feeb	1
+Pointer_Button4	feec	1
+Pointer_Button5	feed	1
+Pointer_Button_Dflt	fee8	1
+Pointer_DblClick1	feef	1
+Pointer_DblClick2	fef0	1
+Pointer_DblClick3	fef1	1
+Pointer_DblClick4	fef2	1
+Pointer_DblClick5	fef3	1
+Pointer_DblClick_Dflt	feee	1
+Pointer_DfltBtnNext	fefb	1
+Pointer_DfltBtnPrev	fefc	1
+Pointer_Down	fee3	1
+Pointer_DownLeft	fee6	1
+Pointer_DownRight	fee7	1
+Pointer_Drag1	fef5	1
+Pointer_Drag2	fef6	1
+Pointer_Drag3	fef7	1
+Pointer_Drag4	fef8	1
+Pointer_Drag5	fefd	1
+Pointer_Drag_Dflt	fef4	1
+Pointer_EnableKeys	fef9	1
+Pointer_Left	fee0	1
+Pointer_Right	fee1	1
+Pointer_Up	fee2	1
+Pointer_UpLeft	fee4	1
+Pointer_UpRight	fee5	1
+PowerDown	1008ff21	1		Power Down
+PowerOff	1008ff2a	1		Power Off
+Presentation	100811a9	1
+Prev_VMode	1008fe23	1
+Prev_Virtual_Screen	fed1	1
+PreviousCandidate	ff3e	0		Previous Candidate
+PreviousElement	1008127c	1
+Print	ff61	1		Print Screen
+Prior	ff55	0		Page Up
+PrivacyScreenToggle	10081279	1
+Q	51	1
+R	52	1
+R1	ffd2	0
+R10	ffdb	0
+R11	ffdc	0
+R12	ffdd	0
+R13	ffde	0
+R14	ffdf	0
+R15	ffe0	0
+R2	ffd3	0
+R3	ffd4	0
+R4	ffd5	0
+R5	ffd6	0
+R6	ffd7	0
+R7	ffd8	0
+R8	ffd9	0
+R9	ffda	0
+RFKill	1008ffb5	1
+Racute	1c0	1	154
+RadarOverlay	10081284	1
+Rcaron	1d8	1	158
+Rcedilla	3a3	1	156
+Red	1008ffa3	1		Red
+Redo	ff66	1		Redo
+Refresh	1008ff29	1		Refresh
+RefreshRateToggle	10081232	1
+Reload	1008ff73	1		Reload
+RepeatKeys_Enable	fe72	1
+Reply	1008ff72	1		Reply
+Reset	1000ff6c	1
+Return	ff0d	1		Return
+Right	ff53	1		Right
+RightDown	10081267	1
+RightUp	10081266	1
+RockerDown	1008ff24	1
+RockerEnter	1008ff25	1
+RockerUp	1008ff23	1
+Romaji	ff24	1		Romaji
+RootMenu	1008126a	1
+RotateWindows	1008ff74	1		Rotate Windows
+RotationKB	1008ff76	1		Rotation KB
+RotationLockToggle	1008ffb7	1
+RotationPB	1008ff75	1		Rotation PB
+RupeeSign	10020a8	1
+S	53	1
+SCHWA	100018f	1
+Sabovedot	1001e60	1
+Sacute	1a6	1	15a
+Save	1008ff77	1		Save
+Scaron	1a9	1	160
+Scedilla	1aa	1	15e
+Scircumflex	2de	1	15c
+ScreenSaver	1008ff2d	1		Screensaver
+Screensaver	10081245	1
+ScrollClick	1008ff7a	1
+ScrollDown	1008ff79	1
+ScrollUp	1008ff78	1
+Scroll_Lock	ff14	1		ScrollLock
+Search	1008ff1b	1		Search
+Select	ff60	1		Select
+SelectButton	1008ffa0	1
+SelectiveScreenshot	1008127a	1
+Send	1008ff7b	1		Send
+Serbian_DJE	6b1	1	402
+Serbian_DZE	6bf	0	40f
+Serbian_JE	6b8	0	408
+Serbian_LJE	6b9	0	409
+Serbian_NJE	6ba	0	40a
+Serbian_TSHE	6bb	1	40b
+Serbian_dje	6a1	1	452
+Serbian_dze	6af	0	45f
+Serbian_je	6a8	0	458
+Serbian_lje	6a9	0	459
+Serbian_nje	6aa	0	45a
+Serbian_tshe	6ab	1	45b
+Shift_L	ffe1	1		Left Shift
+Shift_Lock	ffe6	1
+Shift_R	ffe2	1		Right Shift
+Shop	1008ff36	1		Shop
+SidevuSonar	10081287	1
+SingleCandidate	ff3c	0
+SingleRangeRadar	10081282	1
+Sinh_a	1000d85	1
+Sinh_aa	1000d86	1
+Sinh_aa2	1000dcf	1
+Sinh_ae	1000d87	1
+Sinh_ae2	1000dd0	1
+Sinh_aee	1000d88	1
+Sinh_aee2	1000dd1	1
+Sinh_ai	1000d93	1
+Sinh_ai2	1000ddb	1
+Sinh_al	1000dca	1
+Sinh_au	1000d96	1
+Sinh_au2	1000dde	1
+Sinh_ba	1000db6	1
+Sinh_bha	1000db7	1
+Sinh_ca	1000da0	1
+Sinh_cha	1000da1	1
+Sinh_dda	1000da9	1
+Sinh_ddha	1000daa	1
+Sinh_dha	1000daf	1
+Sinh_dhha	1000db0	1
+Sinh_e	1000d91	1
+Sinh_e2	1000dd9	1
+Sinh_ee	1000d92	1
+Sinh_ee2	1000dda	1
+Sinh_fa	1000dc6	1
+Sinh_ga	1000d9c	1
+Sinh_gha	1000d9d	1
+Sinh_h2	1000d83	1
+Sinh_ha	1000dc4	1
+Sinh_i	1000d89	1
+Sinh_i2	1000dd2	1
+Sinh_ii	1000d8a	1
+Sinh_ii2	1000dd3	1
+Sinh_ja	1000da2	1
+Sinh_jha	1000da3	1
+Sinh_jnya	1000da5	1
+Sinh_ka	1000d9a	1
+Sinh_kha	1000d9b	1
+Sinh_kunddaliya	1000df4	1
+Sinh_la	1000dbd	1
+Sinh_lla	1000dc5	1
+Sinh_lu	1000d8f	1
+Sinh_lu2	1000ddf	1
+Sinh_luu	1000d90	1
+Sinh_luu2	1000df3	1
+Sinh_ma	1000db8	1
+Sinh_mba	1000db9	1
+Sinh_na	1000db1	1
+Sinh_ndda	1000dac	1
+Sinh_ndha	1000db3	1
+Sinh_ng	1000d82	1
+Sinh_ng2	1000d9e	1
+Sinh_nga	1000d9f	1
+Sinh_nja	1000da6	1
+Sinh_nna	1000dab	1
+Sinh_nya	1000da4	1
+Sinh_o	1000d94	1
+Sinh_o2	1000ddc	1
+Sinh_oo	1000d95	1
+Sinh_oo2	1000ddd	1
+Sinh_pa	1000db4	1
+Sinh_pha	1000db5	1
+Sinh_ra	1000dbb	1
+Sinh_ri	1000d8d	1
+Sinh_rii	1000d8e	1
+Sinh_ru2	1000dd8	1
+Sinh_ruu2	1000df2	1
+Sinh_sa	1000dc3	1
+Sinh_sha	1000dc1	1
+Sinh_ssha	1000dc2	1
+Sinh_tha	1000dad	1
+Sinh_thha	1000dae	1
+Sinh_tta	1000da7	1
+Sinh_ttha	1000da8	1
+Sinh_u	1000d8b	1
+Sinh_u2	1000dd4	1
+Sinh_uu	1000d8c	1
+Sinh_uu2	1000dd6	1
+Sinh_va	1000dc0	1
+Sinh_ya	1000dba	1
+Sleep	1008ff2f	1		Sleep
+SlowKeys_Enable	fe73	1
+SlowReverse	10081276	1
+Sos	1008127f	1
+Spell	1008ff7c	1		Spellchecker
+SpellCheck	100811b0	1
+SplitScreen	1008ff7d	1		Split Screen
+Sport	100810dc	1
+Standby	1008ff10	1		Standby
+Start	1008ff1a	1
+StickyKeys_Enable	fe75	1
+Stop	1008ff28	1		Stop
+StopRecord	10081271	1
+Subtitle	1008ff9a	1		Subtitle
+SunAgain	ff66	0		Redo
+SunAltGraph	ff7e	0
+SunAudioLowerVolume	1005ff77	1
+SunAudioMute	1005ff78	1
+SunAudioRaiseVolume	1005ff79	1
+SunCompose	ff20	0
+SunCopy	1005ff72	1
+SunCut	1005ff75	1
+SunF36	1005ff10	1
+SunF37	1005ff11	1
+SunFA_Acute	1005ff03	1
+SunFA_Cedilla	1005ff05	1
+SunFA_Circum	1005ff01	1
+SunFA_Diaeresis	1005ff04	1
+SunFA_Grave	1005ff00	1
+SunFA_Tilde	1005ff02	1
+SunFind	ff68	0		Find
+SunFront	1005ff71	1
+SunOpen	1005ff73	1
+SunPageDown	ff56	0		Page Down
+SunPageUp	ff55	0		Page Up
+SunPaste	1005ff74	1
+SunPowerSwitch	1005ff76	1
+SunPowerSwitchShift	1005ff7d	1
+SunPrint_Screen	ff61	0		Print Screen
+SunProps	1005ff70	1
+SunStop	ff69	0		Cancel
+SunSys_Req	1005ff60	1
+SunUndo	ff65	1		Undo
+SunVideoDegauss	1005ff7a	1
+SunVideoLowerBrightness	1005ff7b	1
+SunVideoRaiseBrightness	1005ff7c	1
+Super_L	ffeb	1		Left Super
+Super_R	ffec	1		Right Super
+Support	1008ff7e	1		Support
+Suspend	1008ffa7	1		Suspend
+Switch_VT_1	1008fe01	1
+Switch_VT_10	1008fe0a	1
+Switch_VT_11	1008fe0b	1
+Switch_VT_12	1008fe0c	1
+Switch_VT_2	1008fe02	1
+Switch_VT_3	1008fe03	1
+Switch_VT_4	1008fe04	1
+Switch_VT_5	1008fe05	1
+Switch_VT_6	1008fe06	1
+Switch_VT_7	1008fe07	1
+Switch_VT_8	1008fe08	1
+Switch_VT_9	1008fe09	1
+Sys_Req	ff15	1		System Request
+System	1000ff6d	1
+T	54	1
+THORN	de	1
+Tab	ff09	1		Tab
+Tabovedot	1001e6a	1
+TaskPane	1008ff7f	1		Task Panel
+Taskmanager	10081241	1
+Tcaron	1ab	1	164
+Tcedilla	1de	1	162
+Terminal	1008ff80	1		Terminal
+Terminate_Server	fed5	1
+Thai_baht	ddf	1	e3f
+Thai_bobaimai	dba	1	e1a
+Thai_chochan	da8	1	e08
+Thai_chochang	daa	1	e0a
+Thai_choching	da9	1	e09
+Thai_chochoe	dac	1	e0c
+Thai_dochada	dae	1	e0e
+Thai_dodek	db4	1	e14
+Thai_fofa	dbd	1	e1d
+Thai_fofan	dbf	1	e1f
+Thai_hohip	dcb	1	e2b
+Thai_honokhuk	dce	1	e2e
+Thai_khokhai	da2	1	e02
+Thai_khokhon	da5	1	e05
+Thai_khokhuat	da3	1	e03
+Thai_khokhwai	da4	1	e04
+Thai_khorakhang	da6	1	e06
+Thai_kokai	da1	1	e01
+Thai_lakkhangyao	de5	1	e45
+Thai_lekchet	df7	1	e57
+Thai_lekha	df5	1	e55
+Thai_lekhok	df6	1	e56
+Thai_lekkao	df9	1	e59
+Thai_leknung	df1	1	e51
+Thai_lekpaet	df8	1	e58
+Thai_leksam	df3	1	e53
+Thai_leksi	df4	1	e54
+Thai_leksong	df2	1	e52
+Thai_leksun	df0	1	e50
+Thai_lochula	dcc	1	e2c
+Thai_loling	dc5	1	e25
+Thai_lu	dc6	1	e26
+Thai_maichattawa	deb	1	e4b
+Thai_maiek	de8	1	e48
+Thai_maihanakat	dd1	1	e31
+Thai_maihanakat_maitho	dde	1	e3e
+Thai_maitaikhu	de7	1	e47
+Thai_maitho	de9	1	e49
+Thai_maitri	dea	1	e4a
+Thai_maiyamok	de6	1	e46
+Thai_moma	dc1	1	e21
+Thai_ngongu	da7	1	e07
+Thai_nikhahit	ded	1	e4d
+Thai_nonen	db3	1	e13
+Thai_nonu	db9	1	e19
+Thai_oang	dcd	1	e2d
+Thai_paiyannoi	dcf	1	e2f
+Thai_phinthu	dda	1	e3a
+Thai_phophan	dbe	1	e1e
+Thai_phophung	dbc	1	e1c
+Thai_phosamphao	dc0	1	e20
+Thai_popla	dbb	1	e1b
+Thai_rorua	dc3	1	e23
+Thai_ru	dc4	1	e24
+Thai_saraa	dd0	1	e30
+Thai_saraaa	dd2	1	e32
+Thai_saraae	de1	1	e41
+Thai_saraaimaimalai	de4	1
+Thai_saraaimaimuan	de3	1	e43
+Thai_saraam	dd3	1	e33
+Thai_sarae	de0	1	e40
+Thai_sarai	dd4	1	e34
+Thai_saraii	dd5	1	e35
+Thai_sarao	de2	1	e42
+Thai_sarau	dd8	1	e38
+Thai_saraue	dd6	1	e36
+Thai_sarauee	dd7	1	e37
+Thai_sarauu	dd9	1	e39
+Thai_sorusi	dc9	1	e29
+Thai_sosala	dc8	1	e28
+Thai_soso	dab	1	e0b
+Thai_sosua	dca	1	e2a
+Thai_thanthakhat	dec	1	e4c
+Thai_thonangmontho	db1	1	e11
+Thai_thophuthao	db2	1	e12
+Thai_thothahan	db7	1	e17
+Thai_thothan	db0	1	e10
+Thai_thothong	db8	1	e18
+Thai_thothung	db6	1	e16
+Thai_topatak	daf	1	e0f
+Thai_totao	db5	1	e15
+Thai_wowaen	dc7	1	e27
+Thai_yoyak	dc2	1	e22
+Thai_yoying	dad	1	e0d
+Thorn	de	0
+Time	1008ff9f	1		Time
+ToDoList	1008ff1f	1
+Tools	1008ff81	1		Tools
+TopMenu	1008ffa2	1		Top Menu
+TouchpadOff	1008ffb1	1		Touchpad Off
+TouchpadOn	1008ffb0	1		Touchpad On
+TouchpadToggle	1008ffa9	1		Touchpad Toggle
+Touroku	ff2b	1		Touroku
+TraditionalSonar	10081285	1
+Travel	1008ff82	1		Travel
+Tslash	3ac	1	166
+U	55	1
+Uacute	da	1
+Ubelowdot	1001ee4	1
+Ubreve	2dd	1	16c
+Ucircumflex	db	1
+Udiaeresis	dc	1
+Udoubleacute	1db	1
+Ugrave	d9	1
+Uhook	1001ee6	1
+Uhorn	10001af	1
+Uhornacute	1001ee8	1
+Uhornbelowdot	1001ef0	1
+Uhorngrave	1001eea	1
+Uhornhook	1001eec	1
+Uhorntilde	1001eee	1
+Ukrainian_GHE_WITH_UPTURN	6bd	1	490
+Ukrainian_I	6b6	1	406
+Ukrainian_IE	6b4	1	404
+Ukrainian_YI	6b7	1	407
+Ukrainian_ghe_with_upturn	6ad	1	491
+Ukrainian_i	6a6	1
+Ukrainian_ie	6a4	1	454
+Ukrainian_yi	6a7	1	457
+Ukranian_I	6b6	0	406
+Ukranian_JE	6b4	0	404
+Ukranian_YI	6b7	0	407
+Ukranian_i	6a6	0
+Ukranian_je	6a4	0	454
+Ukranian_yi	6a7	0	457
+Umacron	3de	1	16a
+Undo	ff65	0		Undo
+Ungrab	1008fe20	1
+Unmute	10081274	1
+Uogonek	3d9	1	172
+Up	ff52	1		Up
+Uring	1d9	1	16e
+User	1000ff6e	1
+User1KB	1008ff85	1
+User2KB	1008ff86	1
+UserPB	1008ff84	1
+Utilde	3dd	1	168
+V	56	1
+VOD	10081273	1
+VendorHome	1008ff34	1
+VendorLogo	10081168	1
+Video	1008ff87	1		Video
+VideoPhone	100811a0	1
+View	1008ffa1	1		View
+VoiceCommand	10081246	1
+Voicemail	100811ac	1
+VoidSymbol	ffffff	1		Void Symbol
+W	57	1
+WLAN	1008ff95	1		Wireless
+WPSButton	10081211	1
+WWAN	1008ffb4	1
+WWW	1008ff2e	1		WWW
+Wacute	1001e82	1
+WakeUp	1008ff2b	1		Wake Up
+Wcircumflex	1000174	1
+Wdiaeresis	1001e84	1
+WebCam	1008ff8f	1		WebCam
+Wgrave	1001e80	1
+WheelButton	1008ff88	1
+WindowClear	1008ff55	1
+WonSign	10020a9	1
+Word	1008ff89	1		Word Processor
+X	58	1
+Xabovedot	1001e8a	1
+Xfer	1008ff8a	1		XFer
+Y	59	1
+Yacute	dd	1
+Ybelowdot	1001ef4	1
+Ycircumflex	1000176	1
+Ydiaeresis	13be	1	178
+Yellow	1008ffa5	1		Yellow
+Ygrave	1001ef2	1
+Yhook	1001ef6	1
+Ytilde	1001ef8	1
+Z	5a	1
+Zabovedot	1af	1	17b
+Zacute	1ac	1	179
+Zcaron	1ae	1	17d
+Zen_Koho	ff3d	0		Multiple Candidate
+Zenkaku	ff28	1		Zenkaku
+Zenkaku_Hankaku	ff2a	1		Zenkaku Hankaku
+ZoomIn	1008ff8b	1		Zoom In
+ZoomOut	1008ff8c	1		Zoom Out
+ZoomReset	100811a4	1
+Zstroke	10001b5	1
+a	61	1
+aacute	e1	1
+abelowdot	1001ea1	1
+abovedot	1ff	1	2d9
+abreve	1e3	1	103
+abreveacute	1001eaf	1
+abrevebelowdot	1001eb7	1
+abrevegrave	1001eb1	1
+abrevehook	1001eb3	1
+abrevetilde	1001eb5	1
+acircumflex	e2	1
+acircumflexacute	1001ea5	1
+acircumflexbelowdot	1001ead	1
+acircumflexgrave	1001ea7	1
+acircumflexhook	1001ea9	1
+acircumflextilde	1001eab	1
+acute	b4	1
+adiaeresis	e4	1
+ae	e6	1
+agrave	e0	1
+ahook	1001ea3	1
+amacron	3e0	1	101
+ampersand	26	1
+aogonek	1b1	1	105
+apostrophe	27	1
+approxeq	1002248	1
+approximate	8c8	1	223c
+aring	e5	1
+asciicircum	5e	1
+asciitilde	7e	1
+asterisk	2a	1
+at	40	1
+atilde	e3	1
+b	62	1
+babovedot	1001e03	1
+backslash	5c	1
+ballotcross	af4	1	2717
+bar	7c	1
+because	1002235	1
+blank	9df	1	2422
+block	100000fc	1
+botintegral	8a5	1	2321
+botleftparens	8ac	1	239d
+botleftsqbracket	8a8	1	23a3
+botleftsummation	8b2	1
+botrightparens	8ae	1	23a0
+botrightsqbracket	8aa	1	23a6
+botrightsummation	8b6	1
+bott	9f6	1	2534
+botvertsummationconnector	8b4	1
+braceleft	7b	1
+braceright	7d	1
+bracketleft	5b	1
+bracketright	5d	1
+braille_blank	1002800	1
+braille_dot_1	fff1	1
+braille_dot_10	fffa	1
+braille_dot_2	fff2	1
+braille_dot_3	fff3	1
+braille_dot_4	fff4	1
+braille_dot_5	fff5	1
+braille_dot_6	fff6	1
+braille_dot_7	fff7	1
+braille_dot_8	fff8	1
+braille_dot_9	fff9	1
+braille_dots_1	1002801	1
+braille_dots_12	1002803	1
+braille_dots_123	1002807	1
+braille_dots_1234	100280f	1
+braille_dots_12345	100281f	1
+braille_dots_123456	100283f	1
+braille_dots_1234567	100287f	1
+braille_dots_12345678	10028ff	1
+braille_dots_1234568	10028bf	1
+braille_dots_123457	100285f	1
+braille_dots_1234578	10028df	1
+braille_dots_123458	100289f	1
+braille_dots_12346	100282f	1
+braille_dots_123467	100286f	1
+braille_dots_1234678	10028ef	1
+braille_dots_123468	10028af	1
+braille_dots_12347	100284f	1
+braille_dots_123478	10028cf	1
+braille_dots_12348	100288f	1
+braille_dots_1235	1002817	1
+braille_dots_12356	1002837	1
+braille_dots_123567	1002877	1
+braille_dots_1235678	10028f7	1
+braille_dots_123568	10028b7	1
+braille_dots_12357	1002857	1
+braille_dots_123578	10028d7	1
+braille_dots_12358	1002897	1
+braille_dots_1236	1002827	1
+braille_dots_12367	1002867	1
+braille_dots_123678	10028e7	1
+braille_dots_12368	10028a7	1
+braille_dots_1237	1002847	1
+braille_dots_12378	10028c7	1
+braille_dots_1238	1002887	1
+braille_dots_124	100280b	1
+braille_dots_1245	100281b	1
+braille_dots_12456	100283b	1
+braille_dots_124567	100287b	1
+braille_dots_1245678	10028fb	1
+braille_dots_124568	10028bb	1
+braille_dots_12457	100285b	1
+braille_dots_124578	10028db	1
+braille_dots_12458	100289b	1
+braille_dots_1246	100282b	1
+braille_dots_12467	100286b	1
+braille_dots_124678	10028eb	1
+braille_dots_12468	10028ab	1
+braille_dots_1247	100284b	1
+braille_dots_12478	10028cb	1
+braille_dots_1248	100288b	1
+braille_dots_125	1002813	1
+braille_dots_1256	1002833	1
+braille_dots_12567	1002873	1
+braille_dots_125678	10028f3	1
+braille_dots_12568	10028b3	1
+braille_dots_1257	1002853	1
+braille_dots_12578	10028d3	1
+braille_dots_1258	1002893	1
+braille_dots_126	1002823	1
+braille_dots_1267	1002863	1
+braille_dots_12678	10028e3	1
+braille_dots_1268	10028a3	1
+braille_dots_127	1002843	1
+braille_dots_1278	10028c3	1
+braille_dots_128	1002883	1
+braille_dots_13	1002805	1
+braille_dots_134	100280d	1
+braille_dots_1345	100281d	1
+braille_dots_13456	100283d	1
+braille_dots_134567	100287d	1
+braille_dots_1345678	10028fd	1
+braille_dots_134568	10028bd	1
+braille_dots_13457	100285d	1
+braille_dots_134578	10028dd	1
+braille_dots_13458	100289d	1
+braille_dots_1346	100282d	1
+braille_dots_13467	100286d	1
+braille_dots_134678	10028ed	1
+braille_dots_13468	10028ad	1
+braille_dots_1347	100284d	1
+braille_dots_13478	10028cd	1
+braille_dots_1348	100288d	1
+braille_dots_135	1002815	1
+braille_dots_1356	1002835	1
+braille_dots_13567	1002875	1
+braille_dots_135678	10028f5	1
+braille_dots_13568	10028b5	1
+braille_dots_1357	1002855	1
+braille_dots_13578	10028d5	1
+braille_dots_1358	1002895	1
+braille_dots_136	1002825	1
+braille_dots_1367	1002865	1
+braille_dots_13678	10028e5	1
+braille_dots_1368	10028a5	1
+braille_dots_137	1002845	1
+braille_dots_1378	10028c5	1
+braille_dots_138	1002885	1
+braille_dots_14	1002809	1
+braille_dots_145	1002819	1
+braille_dots_1456	1002839	1
+braille_dots_14567	1002879	1
+braille_dots_145678	10028f9	1
+braille_dots_14568	10028b9	1
+braille_dots_1457	1002859	1
+braille_dots_14578	10028d9	1
+braille_dots_1458	1002899	1
+braille_dots_146	1002829	1
+braille_dots_1467	1002869	1
+braille_dots_14678	10028e9	1
+braille_dots_1468	10028a9	1
+braille_dots_147	1002849	1
+braille_dots_1478	10028c9	1
+braille_dots_148	1002889	1
+braille_dots_15	1002811	1
+braille_dots_156	1002831	1
+braille_dots_1567	1002871	1
+braille_dots_15678	10028f1	1
+braille_dots_1568	10028b1	1
+braille_dots_157	1002851	1
+braille_dots_1578	10028d1	1
+braille_dots_158	1002891	1
+braille_dots_16	1002821	1
+braille_dots_167	1002861	1
+braille_dots_1678	10028e1	1
+braille_dots_168	10028a1	1
+braille_dots_17	1002841	1
+braille_dots_178	10028c1	1
+braille_dots_18	1002881	1
+braille_dots_2	1002802	1
+braille_dots_23	1002806	1
+braille_dots_234	100280e	1
+braille_dots_2345	100281e	1
+braille_dots_23456	100283e	1
+braille_dots_234567	100287e	1
+braille_dots_2345678	10028fe	1
+braille_dots_234568	10028be	1
+braille_dots_23457	100285e	1
+braille_dots_234578	10028de	1
+braille_dots_23458	100289e	1
+braille_dots_2346	100282e	1
+braille_dots_23467	100286e	1
+braille_dots_234678	10028ee	1
+braille_dots_23468	10028ae	1
+braille_dots_2347	100284e	1
+braille_dots_23478	10028ce	1
+braille_dots_2348	100288e	1
+braille_dots_235	1002816	1
+braille_dots_2356	1002836	1
+braille_dots_23567	1002876	1
+braille_dots_235678	10028f6	1
+braille_dots_23568	10028b6	1
+braille_dots_2357	1002856	1
+braille_dots_23578	10028d6	1
+braille_dots_2358	1002896	1
+braille_dots_236	1002826	1
+braille_dots_2367	1002866	1
+braille_dots_23678	10028e6	1
+braille_dots_2368	10028a6	1
+braille_dots_237	1002846	1
+braille_dots_2378	10028c6	1
+braille_dots_238	1002886	1
+braille_dots_24	100280a	1
+braille_dots_245	100281a	1
+braille_dots_2456	100283a	1
+braille_dots_24567	100287a	1
+braille_dots_245678	10028fa	1
+braille_dots_24568	10028ba	1
+braille_dots_2457	100285a	1
+braille_dots_24578	10028da	1
+braille_dots_2458	100289a	1
+braille_dots_246	100282a	1
+braille_dots_2467	100286a	1
+braille_dots_24678	10028ea	1
+braille_dots_2468	10028aa	1
+braille_dots_247	100284a	1
+braille_dots_2478	10028ca	1
+braille_dots_248	100288a	1
+braille_dots_25	1002812	1
+braille_dots_256	1002832	1
+braille_dots_2567	1002872	1
+braille_dots_25678	10028f2	1
+braille_dots_2568	10028b2	1
+braille_dots_257	1002852	1
+braille_dots_2578	10028d2	1
+braille_dots_258	1002892	1
+braille_dots_26	1002822	1
+braille_dots_267	1002862	1
+braille_dots_2678	10028e2	1
+braille_dots_268	10028a2	1
+braille_dots_27	1002842	1
+braille_dots_278	10028c2	1
+braille_dots_28	1002882	1
+braille_dots_3	1002804	1
+braille_dots_34	100280c	1
+braille_dots_345	100281c	1
+braille_dots_3456	100283c	1
+braille_dots_34567	100287c	1
+braille_dots_345678	10028fc	1
+braille_dots_34568	10028bc	1
+braille_dots_3457	100285c	1
+braille_dots_34578	10028dc	1
+braille_dots_3458	100289c	1
+braille_dots_346	100282c	1
+braille_dots_3467	100286c	1
+braille_dots_34678	10028ec	1
+braille_dots_3468	10028ac	1
+braille_dots_347	100284c	1
+braille_dots_3478	10028cc	1
+braille_dots_348	100288c	1
+braille_dots_35	1002814	1
+braille_dots_356	1002834	1
+braille_dots_3567	1002874	1
+braille_dots_35678	10028f4	1
+braille_dots_3568	10028b4	1
+braille_dots_357	1002854	1
+braille_dots_3578	10028d4	1
+braille_dots_358	1002894	1
+braille_dots_36	1002824	1
+braille_dots_367	1002864	1
+braille_dots_3678	10028e4	1
+braille_dots_368	10028a4	1
+braille_dots_37	1002844	1
+braille_dots_378	10028c4	1
+braille_dots_38	1002884	1
+braille_dots_4	1002808	1
+braille_dots_45	1002818	1
+braille_dots_456	1002838	1
+braille_dots_4567	1002878	1
+braille_dots_45678	10028f8	1
+braille_dots_4568	10028b8	1
+braille_dots_457	1002858	1
+braille_dots_4578	10028d8	1
+braille_dots_458	1002898	1
+braille_dots_46	1002828	1
+braille_dots_467	1002868	1
+braille_dots_4678	10028e8	1
+braille_dots_468	10028a8	1
+braille_dots_47	1002848	1
+braille_dots_478	10028c8	1
+braille_dots_48	1002888	1
+braille_dots_5	1002810	1
+braille_dots_56	1002830	1
+braille_dots_567	1002870	1
+braille_dots_5678	10028f0	1
+braille_dots_568	10028b0	1
+braille_dots_57	1002850	1
+braille_dots_578	10028d0	1
+braille_dots_58	1002890	1
+braille_dots_6	1002820	1
+braille_dots_67	1002860	1
+braille_dots_678	10028e0	1
+braille_dots_68	10028a0	1
+braille_dots_7	1002840	1
+braille_dots_78	10028c0	1
+braille_dots_8	1002880	1
+breve	1a2	1	2d8
+brokenbar	a6	1
+c	63	1
+c_h	fea3	1
+cabovedot	2e5	1	10b
+cacute	1e6	1	107
+careof	ab8	1	2105
+caret	afc	1	2038
+caron	1b7	1	2c7
+ccaron	1e8	1	10d
+ccedilla	e7	1
+ccircumflex	2e6	1	109
+cedilla	b8	1
+cent	a2	1
+ch	fea0	1
+checkerboard	9e1	1	2592
+checkmark	af3	1	2713
+circle	bcf	1	25cb
+club	aec	1	2663
+colon	3a	1
+combining_acute	1000301	1
+combining_belowdot	1000323	1
+combining_grave	1000300	1
+combining_hook	1000309	1
+combining_tilde	1000303	1
+comma	2c	1
+containsas	100220b	1
+copyright	a9	1
+cr	9e4	1	240d
+crossinglines	9ee	1
+cuberoot	100221b	1
+currency	a4	1
+cursor	aff	1
+d	64	1
+dabovedot	1001e0b	1
+dagger	af1	1	2020
+dcaron	1ef	1	10f
+dead_A	fe81	1
+dead_E	fe83	1
+dead_I	fe85	1
+dead_O	fe87	1
+dead_SCHWA	fe8b	1
+dead_U	fe89	1
+dead_a	fe80	1
+dead_abovecomma	fe64	1
+dead_abovedot	fe56	1
+dead_abovereversedcomma	fe65	1
+dead_abovering	fe58	1
+dead_aboveverticalline	fe91	1
+dead_acute	fe51	1
+dead_belowbreve	fe6b	1
+dead_belowcircumflex	fe69	1
+dead_belowcomma	fe6e	1
+dead_belowdiaeresis	fe6c	1
+dead_belowdot	fe60	1
+dead_belowmacron	fe68	1
+dead_belowring	fe67	1
+dead_belowtilde	fe6a	1
+dead_belowverticalline	fe92	1
+dead_breve	fe55	1
+dead_capital_schwa	fe8b	0
+dead_caron	fe5a	1
+dead_cedilla	fe5b	1
+dead_circumflex	fe52	1
+dead_currency	fe6f	1
+dead_dasia	fe65	0
+dead_diaeresis	fe57	1
+dead_doubleacute	fe59	1
+dead_doublegrave	fe66	1
+dead_e	fe82	1
+dead_grave	fe50	1
+dead_greek	fe8c	1
+dead_hamza	fe8d	1
+dead_hook	fe61	1
+dead_horn	fe62	1
+dead_i	fe84	1
+dead_invertedbreve	fe6d	1
+dead_iota	fe5d	1
+dead_longsolidusoverlay	fe93	1
+dead_lowline	fe90	1
+dead_macron	fe54	1
+dead_o	fe86	1
+dead_ogonek	fe5c	1
+dead_perispomeni	fe53	1
+dead_psili	fe64	0
+dead_schwa	fe8a	1
+dead_semivoiced_sound	fe5f	1
+dead_small_schwa	fe8a	0
+dead_stroke	fe63	1
+dead_tilde	fe53	0
+dead_u	fe88	1
+dead_voiced_sound	fe5e	1
+decimalpoint	abd	1	2e
+degree	b0	1
+diaeresis	a8	1
+diamond	aed	1	2666
+digitspace	aa5	1	2007
+dintegral	100222c	1
+division	f7	1
+dollar	24	1
+doubbaselinedot	aaf	1	2025
+doubleacute	1bd	1	2dd
+doubledagger	af2	1	2021
+doublelowquotemark	afe	1	201e
+downarrow	8fe	1	2193
+downcaret	ba8	1	2228
+downshoe	bd6	1	222a
+downstile	bc4	1	230a
+downtack	bc2	1	22a4
+dstroke	1f0	1	111
+e	65	1
+eabovedot	3ec	1	117
+eacute	e9	1
+ebelowdot	1001eb9	1
+ecaron	1ec	1	11b
+ecircumflex	ea	1
+ecircumflexacute	1001ebf	1
+ecircumflexbelowdot	1001ec7	1
+ecircumflexgrave	1001ec1	1
+ecircumflexhook	1001ec3	1
+ecircumflextilde	1001ec5	1
+ediaeresis	eb	1
+egrave	e8	1
+ehook	1001ebb	1
+eightsubscript	1002088	1
+eightsuperior	1002078	1
+elementof	1002208	1
+ellipsis	aae	1	2026
+em3space	aa3	1	2004
+em4space	aa4	1	2005
+emacron	3ba	1	113
+emdash	aa9	1	2014
+emfilledcircle	ade	1	25cf
+emfilledrect	adf	1	25ae
+emopencircle	ace	1	25cb
+emopenrectangle	acf	1	25af
+emptyset	1002205	1
+emspace	aa1	1	2003
+endash	aaa	1	2013
+enfilledcircbullet	ae6	1	2022
+enfilledsqbullet	ae7	1	25aa
+eng	3bf	1	14b
+enopencircbullet	ae0	1	25e6
+enopensquarebullet	ae1	1	25ab
+enspace	aa2	1	2002
+eogonek	1ea	1	119
+equal	3d	1
+eth	f0	1
+etilde	1001ebd	1
+exclam	21	1
+exclamdown	a1	1
+ezh	1000292	1
+f	66	1
+fabovedot	1001e1f	1
+femalesymbol	af8	1	2640
+ff	9e3	1	240c
+figdash	abb	1	2012
+filledlefttribullet	adc	1	25c0
+filledrectbullet	adb	1	25ac
+filledrighttribullet	add	1	25b6
+filledtribulletdown	ae9	1	25bc
+filledtribulletup	ae8	1	25b2
+fiveeighths	ac5	1	215d
+fivesixths	ab7	1	215a
+fivesubscript	1002085	1
+fivesuperior	1002075	1
+fourfifths	ab5	1	2158
+foursubscript	1002084	1
+foursuperior	1002074	1
+fourthroot	100221c	1
+function	8f6	1	192
+g	67	1
+gabovedot	2f5	1	121
+gbreve	2bb	1	11f
+gcaron	10001e7	1
+gcedilla	3bb	1	123
+gcircumflex	2f8	1	11d
+grave	60	1
+greater	3e	1
+greaterthanequal	8be	1	2265
+guilder	100000be	1
+guillemetleft	ab	1
+guillemetright	bb	1
+guillemotleft	ab	0
+guillemotright	bb	0
+h	68	1
+hairspace	aa8	1	200a
+hcircumflex	2b6	1	125
+heart	aee	1	2665
+hebrew_aleph	ce0	1	5d0
+hebrew_ayin	cf2	1	5e2
+hebrew_bet	ce1	1	5d1
+hebrew_beth	ce1	0	5d1
+hebrew_chet	ce7	1	5d7
+hebrew_dalet	ce3	1	5d3
+hebrew_daleth	ce3	0	5d3
+hebrew_doublelowline	cdf	1	2017
+hebrew_finalkaph	cea	1	5da
+hebrew_finalmem	ced	1	5dd
+hebrew_finalnun	cef	1	5df
+hebrew_finalpe	cf3	1	5e3
+hebrew_finalzade	cf5	1	5e5
+hebrew_finalzadi	cf5	0	5e5
+hebrew_gimel	ce2	1	5d2
+hebrew_gimmel	ce2	0	5d2
+hebrew_he	ce4	1	5d4
+hebrew_het	ce7	0	5d7
+hebrew_kaph	ceb	1	5db
+hebrew_kuf	cf7	1	5e7
+hebrew_lamed	cec	1	5dc
+hebrew_mem	cee	1	5de
+hebrew_nun	cf0	1	5e0
+hebrew_pe	cf4	1	5e4
+hebrew_qoph	cf7	0	5e7
+hebrew_resh	cf8	1	5e8
+hebrew_samech	cf1	1	5e1
+hebrew_samekh	cf1	0	5e1
+hebrew_shin	cf9	1	5e9
+hebrew_taf	cfa	1	5ea
+hebrew_taw	cfa	0	5ea
+hebrew_tet	ce8	1	5d8
+hebrew_teth	ce8	0	5d8
+hebrew_waw	ce5	1	5d5
+hebrew_yod	ce9	1	5d9
+hebrew_zade	cf6	1	5e6
+hebrew_zadi	cf6	0	5e6
+hebrew_zain	ce6	1	5d6
+hebrew_zayin	ce6	0	5d6
+hexagram	ada	1
+horizconnector	8a3	1	2500
+horizlinescan1	9ef	1
+horizlinescan3	9f0	1
+horizlinescan5	9f1	1	2500
+horizlinescan7	9f2	1
+horizlinescan9	9f3	1
+hpBackTab	1000ff74	0
+hpClearLine	1000ff6f	0
+hpDeleteChar	1000ff73	0
+hpDeleteLine	1000ff71	0
+hpIO	100000ee	0
+hpInsertChar	1000ff72	0
+hpInsertLine	1000ff70	0
+hpKP_BackTab	1000ff75	0
+hpModelock1	1000ff48	1
+hpModelock2	1000ff49	1
+hpReset	1000ff6c	0
+hpSystem	1000ff6d	0
+hpUser	1000ff6e	0
+hpYdiaeresis	100000ee	0
+hpblock	100000fc	0
+hpguilder	100000be	0
+hplira	100000af	1
+hplongminus	100000f6	1
+hpmute_acute	100000a8	1
+hpmute_asciicircum	100000aa	1
+hpmute_asciitilde	100000ac	1
+hpmute_diaeresis	100000ab	1
+hpmute_grave	100000a9	1
+hstroke	2b1	1	127
+ht	9e2	1	2409
+hyphen	ad	1
+i	69	1
+iTouch	1008ff60	1		iTouch
+iacute	ed	1
+ibelowdot	1001ecb	1
+ibreve	100012d	1
+icircumflex	ee	1
+identical	8cf	1	2261
+idiaeresis	ef	1
+idotless	2b9	1	131
+ifonlyif	8cd	1	21d4
+igrave	ec	1
+ihook	1001ec9	1
+imacron	3ef	1	12b
+implies	8ce	1	21d2
+includedin	8da	1	2282
+includes	8db	1	2283
+infinity	8c2	1	221e
+integral	8bf	1	222b
+intersection	8dc	1	2229
+iogonek	3e7	1	12f
+itilde	3b5	1	129
+j	6a	1
+jcircumflex	2bc	1	135
+jot	bca	1	2218
+k	6b	1
+kana_A	4b1	1	30a2
+kana_CHI	4c1	1	30c1
+kana_E	4b4	1	30a8
+kana_FU	4cc	1	30d5
+kana_HA	4ca	1	30cf
+kana_HE	4cd	1	30d8
+kana_HI	4cb	1	30d2
+kana_HO	4ce	1	30db
+kana_HU	4cc	0	30d5
+kana_I	4b2	1	30a4
+kana_KA	4b6	1	30ab
+kana_KE	4b9	1	30b1
+kana_KI	4b7	1	30ad
+kana_KO	4ba	1	30b3
+kana_KU	4b8	1	30af
+kana_MA	4cf	1	30de
+kana_ME	4d2	1	30e1
+kana_MI	4d0	1	30df
+kana_MO	4d3	1	30e2
+kana_MU	4d1	1	30e0
+kana_N	4dd	1	30f3
+kana_NA	4c5	1	30ca
+kana_NE	4c8	1	30cd
+kana_NI	4c6	1	30cb
+kana_NO	4c9	1	30ce
+kana_NU	4c7	1	30cc
+kana_O	4b5	1	30aa
+kana_RA	4d7	1	30e9
+kana_RE	4da	1	30ec
+kana_RI	4d8	1	30ea
+kana_RO	4db	1	30ed
+kana_RU	4d9	1	30eb
+kana_SA	4bb	1	30b5
+kana_SE	4be	1	30bb
+kana_SHI	4bc	1	30b7
+kana_SO	4bf	1	30bd
+kana_SU	4bd	1	30b9
+kana_TA	4c0	1	30bf
+kana_TE	4c3	1	30c6
+kana_TI	4c1	0	30c1
+kana_TO	4c4	1	30c8
+kana_TSU	4c2	1	30c4
+kana_TU	4c2	0	30c4
+kana_U	4b3	1	30a6
+kana_WA	4dc	1	30ef
+kana_WO	4a6	1	30f2
+kana_YA	4d4	1	30e4
+kana_YO	4d6	1	30e8
+kana_YU	4d5	1	30e6
+kana_a	4a7	1	30a1
+kana_closingbracket	4a3	1	300d
+kana_comma	4a4	1	3001
+kana_conjunctive	4a5	1	30fb
+kana_e	4aa	1	30a7
+kana_fullstop	4a1	1	3002
+kana_i	4a8	1	30a3
+kana_middledot	4a5	0	30fb
+kana_o	4ab	1	30a9
+kana_openingbracket	4a2	1	300c
+kana_switch	ff7e	0
+kana_tsu	4af	1	30c3
+kana_tu	4af	0	30c3
+kana_u	4a9	1	30a5
+kana_ya	4ac	1	30e3
+kana_yo	4ae	1	30e7
+kana_yu	4ad	1	30e5
+kappa	3a2	1	138
+kcedilla	3f3	1	137
+kra	3a2	0	138
+l	6c	1
+lacute	1e5	1	13a
+latincross	ad9	1	271d
+lbelowdot	1001e37	1
+lcaron	1b5	1	13e
+lcedilla	3b6	1	13c
+leftanglebracket	abc	1	27e8
+leftarrow	8fb	1	2190
+leftcaret	ba3	1	3c
+leftdoublequotemark	ad2	1	201c
+leftmiddlecurlybrace	8af	1	23a8
+leftopentriangle	acc	1	25c1
+leftpointer	aea	1	261c
+leftradical	8a1	1	23b7
+leftshoe	bda	1	2282
+leftsinglequotemark	ad0	1	2018
+leftt	9f4	1	251c
+lefttack	bdc	1	22a3
+less	3c	1
+lessthanequal	8bc	1	2264
+lf	9e5	1	240a
+lira	100000af	0
+logicaland	8de	1	2227
+logicalor	8df	1	2228
+longminus	100000f6	0
+lowleftcorner	9ed	1	2514
+lowrightcorner	9ea	1	2518
+lstroke	1b3	1	142
+m	6d	1
+mabovedot	1001e41	1
+macron	af	1
+malesymbol	af7	1	2642
+maltesecross	af0	1	2720
+marker	abf	1
+masculine	ba	1
+minus	2d	1
+minutes	ad6	1	2032
+mu	b5	1
+multiply	d7	1
+musicalflat	af6	1	266d
+musicalsharp	af5	1	266f
+mute_acute	100000a8	0
+mute_asciicircum	100000aa	0
+mute_asciitilde	100000ac	0
+mute_diaeresis	100000ab	0
+mute_grave	100000a9	0
+n	6e	1
+nabla	8c5	1	2207
+nacute	1f1	1	144
+ncaron	1f2	1	148
+ncedilla	3f1	1	146
+ninesubscript	1002089	1
+ninesuperior	1002079	1
+nl	9e8	1	2424
+nobreakspace	a0	1
+notapproxeq	1002247	1
+notelementof	1002209	1
+notequal	8bd	1	2260
+notidentical	1002262	1
+notsign	ac	1
+ntilde	f1	1
+numbersign	23	1
+numerosign	6b0	1	2116
+o	6f	1
+oacute	f3	1
+obarred	1000275	1
+obelowdot	1001ecd	1
+ocaron	10001d2	1
+ocircumflex	f4	1
+ocircumflexacute	1001ed1	1
+ocircumflexbelowdot	1001ed9	1
+ocircumflexgrave	1001ed3	1
+ocircumflexhook	1001ed5	1
+ocircumflextilde	1001ed7	1
+odiaeresis	f6	1
+odoubleacute	1f5	1
+oe	13bd	1	153
+ogonek	1b2	1	2db
+ograve	f2	1
+ohook	1001ecf	1
+ohorn	10001a1	1
+ohornacute	1001edb	1
+ohornbelowdot	1001ee3	1
+ohorngrave	1001edd	1
+ohornhook	1001edf	1
+ohorntilde	1001ee1	1
+omacron	3f2	1	14d
+oneeighth	ac3	1	215b
+onefifth	ab2	1	2155
+onehalf	bd	1
+onequarter	bc	1
+onesixth	ab6	1	2159
+onesubscript	1002081	1
+onesuperior	b9	1
+onethird	ab0	1	2153
+ooblique	f8	1
+openrectbullet	ae2	1	25ad
+openstar	ae5	1	2606
+opentribulletdown	ae4	1	25bd
+opentribulletup	ae3	1	25b3
+ordfeminine	aa	1
+ordmasculine	ba	0
+osfActivate	1004ff44	1
+osfAddMode	1004ff31	1
+osfBackSpace	1004ff08	1
+osfBackTab	1004ff07	1
+osfBeginData	1004ff5a	1
+osfBeginLine	1004ff58	1
+osfCancel	1004ff69	1
+osfClear	1004ff0b	1
+osfCopy	1004ff02	1
+osfCut	1004ff03	1
+osfDelete	1004ffff	1
+osfDeselectAll	1004ff72	1
+osfDown	1004ff54	1
+osfEndData	1004ff59	1
+osfEndLine	1004ff57	1
+osfEscape	1004ff1b	1
+osfExtend	1004ff74	1
+osfHelp	1004ff6a	1
+osfInsert	1004ff63	1
+osfLeft	1004ff51	1
+osfMenu	1004ff67	1
+osfMenuBar	1004ff45	1
+osfNextField	1004ff5e	1
+osfNextMenu	1004ff5c	1
+osfPageDown	1004ff42	1
+osfPageLeft	1004ff40	1
+osfPageRight	1004ff43	1
+osfPageUp	1004ff41	1
+osfPaste	1004ff04	1
+osfPrevField	1004ff5d	1
+osfPrevMenu	1004ff5b	1
+osfPrimaryPaste	1004ff32	1
+osfQuickPaste	1004ff33	1
+osfReselect	1004ff73	1
+osfRestore	1004ff78	1
+osfRight	1004ff53	1
+osfSelect	1004ff60	1
+osfSelectAll	1004ff71	1
+osfUndo	1004ff65	1
+osfUp	1004ff52	1
+oslash	f8	0
+otilde	f5	1
+overbar	bc0	1	af
+overline	47e	1	203e
+p	70	1
+pabovedot	1001e57	1
+paragraph	b6	1
+parenleft	28	1
+parenright	29	1
+partdifferential	1002202	1
+partialderivative	8ef	1	2202
+percent	25	1
+period	2e	1
+periodcentered	b7	1
+permille	ad5	1	2030
+phonographcopyright	afb	1	2117
+plus	2b	1
+plusminus	b1	1
+prescription	ad4	1	211e
+prolongedsound	4b0	1
+punctspace	aa6	1	2008
+q	71	1
+quad	bcc	1	2395
+question	3f	1
+questiondown	bf	1
+quotedbl	22	1
+quoteleft	60	0
+quoteright	27	0
+r	72	1
+racute	1e0	1	155
+radical	8d6	1	221a
+rcaron	1f8	1	159
+rcedilla	3b3	1	157
+registered	ae	1
+rightanglebracket	abe	1	27e9
+rightarrow	8fd	1	2192
+rightcaret	ba6	1	3e
+rightdoublequotemark	ad3	1	201d
+rightmiddlecurlybrace	8b0	1	23ac
+rightmiddlesummation	8b7	1
+rightopentriangle	acd	1	25b7
+rightpointer	aeb	1	261e
+rightshoe	bd8	1	2283
+rightsinglequotemark	ad1	1	2019
+rightt	9f5	1	2524
+righttack	bfc	1	22a2
+s	73	1
+sabovedot	1001e61	1
+sacute	1b6	1	15b
+scaron	1b9	1	161
+scedilla	1ba	1	15f
+schwa	1000259	1
+scircumflex	2fe	1	15d
+script_switch	ff7e	0
+seconds	ad7	1	2033
+section	a7	1
+semicolon	3b	1
+semivoicedsound	4df	1
+seveneighths	ac6	1	215e
+sevensubscript	1002087	1
+sevensuperior	1002077	1
+signaturemark	aca	1	2613
+signifblank	aac	1	2423
+similarequal	8c9	1	2243
+singlelowquotemark	afd	1	201a
+sixsubscript	1002086	1
+sixsuperior	1002076	1
+slash	2f	1
+soliddiamond	9e0	1	25c6
+space	20	1		Space
+squareroot	100221a	1
+ssharp	df	1
+sterling	a3	1
+stricteq	1002263	1
+t	74	1
+tabovedot	1001e6b	1
+tcaron	1bb	1	165
+tcedilla	1fe	1	163
+telephone	af9	1	260e
+telephonerecorder	afa	1	2315
+therefore	8c0	1	2234
+thinspace	aa7	1	2009
+thorn	fe	1
+threeeighths	ac4	1	215c
+threefifths	ab4	1	2157
+threequarters	be	1
+threesubscript	1002083	1
+threesuperior	b3	1
+tintegral	100222d	1
+topintegral	8a4	1	2320
+topleftparens	8ab	1	239b
+topleftradical	8a2	1	250c
+topleftsqbracket	8a7	1	23a1
+topleftsummation	8b1	1
+toprightparens	8ad	1	239e
+toprightsqbracket	8a9	1	23a4
+toprightsummation	8b5	1
+topt	9f7	1	252c
+topvertsummationconnector	8b3	1
+trademark	ac9	1	2122
+trademarkincircle	acb	1
+tslash	3bc	1	167
+twofifths	ab3	1	2156
+twosubscript	1002082	1
+twosuperior	b2	1
+twothirds	ab1	1	2154
+u	75	1
+uacute	fa	1
+ubelowdot	1001ee5	1
+ubreve	2fd	1	16d
+ucircumflex	fb	1
+udiaeresis	fc	1
+udoubleacute	1fb	1
+ugrave	f9	1
+uhook	1001ee7	1
+uhorn	10001b0	1
+uhornacute	1001ee9	1
+uhornbelowdot	1001ef1	1
+uhorngrave	1001eeb	1
+uhornhook	1001eed	1
+uhorntilde	1001eef	1
+umacron	3fe	1	16b
+underbar	bc6	1	5f
+underscore	5f	1
+union	8dd	1	222a
+uogonek	3f9	1	173
+uparrow	8fc	1	2191
+upcaret	ba9	1	2227
+upleftcorner	9ec	1	250c
+uprightcorner	9eb	1	2510
+upshoe	bc3	1	2229
+upstile	bd3	1	2308
+uptack	bce	1	22a5
+uring	1f9	1	16f
+utilde	3fd	1	169
+v	76	1
+variation	8c1	1	221d
+vertbar	9f8	1	2502
+vertconnector	8a6	1	2502
+voicedsound	4de	1	309b
+vt	9e9	1	240b
+w	77	1
+wacute	1001e83	1
+wcircumflex	1000175	1
+wdiaeresis	1001e85	1
+wgrave	1001e81	1
+x	78	1
+xabovedot	1001e8b	1
+y	79	1
+yacute	fd	1
+ybelowdot	1001ef5	1
+ycircumflex	1000177	1
+ydiaeresis	ff	1
+yen	a5	1
+ygrave	1001ef3	1
+yhook	1001ef7	1
+ytilde	1001ef9	1
+z	7a	1
+zabovedot	1bf	1	17c
+zacute	1bc	1	17a
+zcaron	1be	1	17e
+zerosubscript	1002080	1
+zerosuperior	1002070	1
+zstroke	10001b6	1
+ACCESSXENABLE	fe70	0
+ACCESSXFEEDBACKENABLE	fe71	0
+ARABICHEH	5e7	0
+ARABICSWITCH	ff7e	0
+AUDIBLEBELLENABLE	fe7a	0
+BACKSPACE	ff08	0		Backspace
+BEGIN	ff58	0
+BLANK	9df	0
+BOTLEFTSUMMATION	8b2	0
+BOTRIGHTSUMMATION	8b6	0
+BOTVERTSUMMATIONCONNECTOR	8b4	0
+BOUNCEKEYSENABLE	fe74	0
+BRAILLEDOT1	fff1	0
+BRAILLEDOT10	fffa	0
+BRAILLEDOT2	fff2	0
+BRAILLEDOT3	fff3	0
+BRAILLEDOT4	fff4	0
+BRAILLEDOT5	fff5	0
+BRAILLEDOT6	fff6	0
+BRAILLEDOT7	fff7	0
+BRAILLEDOT8	fff8	0
+BRAILLEDOT9	fff9	0
+BREAK	ff6b	0
+CANCEL	ff69	0		Cancel
+CAPSLOCK	ffe5	0		CapsLock
+CLEAR	ff0b	0		Clear
+CODEINPUT	ff37	0		Code input
+CURSOR	aff	0
+DELETE	ffff	0		Delete
+DOWN	ff54	0		Down
+EISUSHIFT	ff2f	0		Eisu Shift
+EISUTOGGLE	ff30	0		Eisu toggle
+END	ff57	0		End
+ENTER	ff0d	0		Return
+ESCAPE	ff1b	0		Escape
+EXECUTE	ff62	0		Execute
+FIND	ff68	0		Find
+FIRSTVIRTUALSCREEN	fed0	0
+GREEKIOTADIAERESIS	7a5	0
+GREEKSWITCH	ff7e	0
+HANGUL	ff31	0		Hangul
+HANGULA	ebf	0
+HANGULAE	ec0	0
+HANGULARAEA	ef6	0
+HANGULARAEAE	ef7	0
+HANGULBANJA	ff39	0		Hangul Banja
+HANGULCIEUC	eba	0
+HANGULCODEINPUT	ff37	0		Code input
+HANGULDIKEUD	ea7	0
+HANGULE	ec4	0
+HANGULEND	ff33	0		Hangul End
+HANGULEO	ec3	0
+HANGULEU	ed1	0
+HANGULHANJA	ff34	0		Hangul Hanja
+HANGULHIEUH	ebe	0
+HANGULI	ed3	0
+HANGULIEUNG	eb7	0
+HANGULJAMO	ff35	0		Hangul Jamo
+HANGULJCIEUC	eea	0
+HANGULJDIKEUD	eda	0
+HANGULJEONJA	ff38	0		Hangul Jeonja
+HANGULJHIEUH	eee	0
+HANGULJIEUJ	eb8	0
+HANGULJIEUNG	ee8	0
+HANGULJJIEUJ	ee9	0
+HANGULJKHIEUQ	eeb	0
+HANGULJKIYEOG	ed4	0
+HANGULJKIYEOGSIOS	ed6	0
+HANGULJKKOGJIDALRINIEUNG	ef9	0
+HANGULJMIEUM	ee3	0
+HANGULJNIEUN	ed7	0
+HANGULJNIEUNHIEUH	ed9	0
+HANGULJNIEUNJIEUJ	ed8	0
+HANGULJPANSIOS	ef8	0
+HANGULJPHIEUF	eed	0
+HANGULJPIEUB	ee4	0
+HANGULJPIEUBSIOS	ee5	0
+HANGULJRIEUL	edb	0
+HANGULJRIEULHIEUH	ee2	0
+HANGULJRIEULKIYEOG	edc	0
+HANGULJRIEULMIEUM	edd	0
+HANGULJRIEULPHIEUF	ee1	0
+HANGULJRIEULPIEUB	ede	0
+HANGULJRIEULSIOS	edf	0
+HANGULJRIEULTIEUT	ee0	0
+HANGULJSIOS	ee6	0
+HANGULJSSANGKIYEOG	ed5	0
+HANGULJSSANGSIOS	ee7	0
+HANGULJTIEUT	eec	0
+HANGULJYEORINHIEUH	efa	0
+HANGULKHIEUQ	ebb	0
+HANGULKIYEOG	ea1	0
+HANGULKIYEOGSIOS	ea3	0
+HANGULKKOGJIDALRINIEUNG	ef3	0
+HANGULMIEUM	eb1	0
+HANGULMULTIPLECANDIDATE	ff3d	0		Multiple Candidate
+HANGULNIEUN	ea4	0
+HANGULNIEUNHIEUH	ea6	0
+HANGULNIEUNJIEUJ	ea5	0
+HANGULO	ec7	0
+HANGULOE	eca	0
+HANGULPANSIOS	ef2	0
+HANGULPHIEUF	ebd	0
+HANGULPIEUB	eb2	0
+HANGULPIEUBSIOS	eb4	0
+HANGULPOSTHANJA	ff3b	0		Hangul PostHanja
+HANGULPREHANJA	ff3a	0		Hangul PreHanja
+HANGULPREVIOUSCANDIDATE	ff3e	0		Previous Candidate
+HANGULRIEUL	ea9	0
+HANGULRIEULHIEUH	eb0	0
+HANGULRIEULKIYEOG	eaa	0
+HANGULRIEULMIEUM	eab	0
+HANGULRIEULPHIEUF	eaf	0
+HANGULRIEULPIEUB	eac	0
+HANGULRIEULSIOS	ead	0
+HANGULRIEULTIEUT	eae	0
+HANGULRIEULYEORINHIEUH	eef	0
+HANGULROMAJA	ff36	0		Hangul Romaja
+HANGULSINGLECANDIDATE	ff3c	0
+HANGULSIOS	eb5	0
+HANGULSPECIAL	ff3f	0		Hangul Special
+HANGULSSANGDIKEUD	ea8	0
+HANGULSSANGJIEUJ	eb9	0
+HANGULSSANGKIYEOG	ea2	0
+HANGULSSANGPIEUB	eb3	0
+HANGULSSANGSIOS	eb6	0
+HANGULSTART	ff32	0		Hangul Start
+HANGULSUNKYEONGEUMMIEUM	ef0	0
+HANGULSUNKYEONGEUMPHIEUF	ef4	0
+HANGULSUNKYEONGEUMPIEUB	ef1	0
+HANGULSWITCH	ff7e	0
+HANGULTIEUT	ebc	0
+HANGULU	ecc	0
+HANGULWA	ec8	0
+HANGULWAE	ec9	0
+HANGULWE	ece	0
+HANGULWEO	ecd	0
+HANGULWI	ecf	0
+HANGULYA	ec1	0
+HANGULYAE	ec2	0
+HANGULYE	ec6	0
+HANGULYEO	ec5	0
+HANGULYEORINHIEUH	ef5	0
+HANGULYI	ed2	0
+HANGULYO	ecb	0
+HANGULYU	ed0	0
+HANKAKU	ff29	0		Hankaku
+HEBREWBETH	ce1	0
+HEBREWDALETH	ce3	0
+HEBREWFINALZADI	cf5	0
+HEBREWGIMMEL	ce2	0
+HEBREWHET	ce7	0
+HEBREWKUF	cf7	0
+HEBREWSAMEKH	cf1	0
+HEBREWSWITCH	ff7e	0
+HEBREWTAF	cfa	0
+HEBREWTETH	ce8	0
+HEBREWZADI	cf6	0
+HEBREWZAYIN	ce6	0
+HELP	ff6a	0		Help
+HENKAN	ff23	0		Henkan
+HENKANMODE	ff23	0		Henkan
+HEXAGRAM	ada	0
+HIRAGANA	ff25	0		Hiragana
+HIRAGANAKATAKANA	ff27	0		Hiragana Katakana
+HOME	ff50	0		Home
+INSERT	ff63	0		Insert
+KANAHU	4cc	0
+KANALOCK	ff2d	0		Kana Lock
+KANAMIDDLEDOT	4a5	0
+KANASHIFT	ff2e	0		Kana Shift
+KANASWITCH	ff7e	0
+KANATI	4c1	0
+KANATU	4c2	0
+KANJI	ff21	0		Kanji
+KANJIBANGOU	ff37	0		Code input
+KAPPA	3a2	0
+KATAKANA	ff26	0		Katakana
+KP0	ffb0	0		Keypad 0
+KP1	ffb1	0		Keypad 1
+KP2	ffb2	0		Keypad 2
+KP3	ffb3	0		Keypad 3
+KP4	ffb4	0		Keypad 4
+KP5	ffb5	0		Keypad 5
+KP6	ffb6	0		Keypad 6
+KP7	ffb7	0		Keypad 7
+KP8	ffb8	0		Keypad 8
+KP9	ffb9	0		Keypad 9
+KPADD	ffab	0		Keypad +
+KPBEGIN	ff9d	0		Keypad Begin
+KPDECIMAL	ffae	0		Keypad .
+KPDELETE	ff9f	0		Keypad Delete
+KPDIVIDE	ffaf	0		Keypad /
+KPDOWN	ff99	0		Keypad Down
+KPEND	ff9c	0		Keypad End
+KPENTER	ff8d	0		Keypad Enter
+KPEQUAL	ffbd	0		Keypad =
+KPF1	ff91	0		Keypad F1
+KPF2	ff92	0		Keypad F2
+KPF3	ff93	0		Keypad F3
+KPF4	ff94	0		Keypad F4
+KPHOME	ff95	0		Keypad Home
+KPINSERT	ff9e	0		Keypad Insert
+KPLEFT	ff96	0		Keypad Left
+KPMULTIPLY	ffaa	0		Keypad *
+KPPGDOWN	ff9b	0		Keypad Page Down
+KPPGUP	ff9a	0		Keypad Page Up
+KPRIGHT	ff98	0		Keypad Right
+KPSEPARATOR	ffac	0		Keypad ,
+KPSPACE	ff80	0		Keypad Space
+KPSUBTRACT	ffad	0		Keypad -
+KPTAB	ff89	0		Keypad Tab
+KPUP	ff97	0		Keypad Up
+LALT	ffe9	0		Left Alt
+LASTVIRTUALSCREEN	fed4	0
+LCTRL	ffe3	0		Left Control
+LEFT	ff51	0		Left
+LHYPER	ffed	0		Left Hyper
+LINEFEED	ff0a	0
+LMETA	ffe7	0
+LSHIFT	ffe1	0		Left Shift
+LSUPER	ffeb	0		Left Super
+MAEKOHO	ff3e	0		Previous Candidate
+MARKER	abf	0
+MASSYO	ff2c	0		Massyo
+MENU	ff67	0		Menu
+MODESWITCH	ff7e	0
+MOUSEKEYSACCELENABLE	fe77	0
+MOUSEKEYSENABLE	fe76	0
+MUHENKAN	ff22	0		Muhenkan
+MULTIKEY	ff20	0
+MULTIPLECANDIDATE	ff3d	0		Multiple Candidate
+NEXTVIRTUALSCREEN	fed2	0
+NUMLOCK	ff7f	0		NumLock
+OVERLAY1ENABLE	fe78	0
+OVERLAY2ENABLE	fe79	0
+PAUSE	ff13	0		Pause
+PGDN	ff56	0		Page Down
+PGUP	ff55	0		Page Up
+PREVIOUSCANDIDATE	ff3e	0		Previous Candidate
+PREVVIRTUALSCREEN	fed1	0
+PRINT	ff61	0		Print Screen
+RALT	ffea	0		Right Alt
+RCTRL	ffe4	0		Right Control
+REDO	ff66	0		Redo
+REPEATKEYSENABLE	fe72	0
+RHYPER	ffee	0		Right Hyper
+RIGHT	ff53	0		Right
+RIGHTMIDDLESUMMATION	8b7	0
+RMETA	ffe8	0
+ROMAJI	ff24	0		Romaji
+RSHIFT	ffe2	0		Right Shift
+RSUPER	ffec	0		Right Super
+SCRIPTSWITCH	ff7e	0
+SCROLLLOCK	ff14	0		ScrollLock
+SELECT	ff60	0		Select
+SERBIANDZE	6af	0
+SERBIANJE	6a8	0
+SERBIANLJE	6a9	0
+SERBIANNJE	6aa	0
+SHIFTLOCK	ffe6	0
+SINGLECANDIDATE	ff3c	0
+SLOWKEYSENABLE	fe73	0
+SPACE	20	0		Space
+STICKYKEYSENABLE	fe75	0
+SYSREQ	ff15	0		System Request
+TAB	ff09	0		Tab
+TERMINATESERVER	fed5	0
+THAIMAIHANAKATMAITHO	dde	0
+TOPLEFTSUMMATION	8b1	0
+TOPRIGHTSUMMATION	8b5	0
+TOPVERTSUMMATIONCONNECTOR	8b3	0
+TOUROKU	ff2b	0		Touroku
+TRADEMARKINCIRCLE	acb	0
+UKRANIANI	6a6	0
+UKRANIANJE	6a4	0
+UKRANIANYI	6a7	0
+UNDO	ff65	0		Undo
+UP	ff52	0		Up
+ZENKAKU	ff28	0		Zenkaku
+ZENKAKUHANKAKU	ff2a	0		Zenkaku Hankaku
+ZENKOHO	ff3d	0		Multiple Candidate

@@ -30,18 +30,6 @@ fun insetRadiusDrawable(
     hInset, vInset, hInset, vInset
 )
 
-fun insetOvalDrawable(
-    hInset: Int,
-    vInset: Int,
-    @ColorInt color: Int = Color.WHITE
-): Drawable = InsetDrawable(
-    GradientDrawable().apply {
-        shape = GradientDrawable.OVAL
-        setColor(color)
-    },
-    hInset, vInset, hInset, vInset
-)
-
 fun pillDrawable(
     @ColorInt color: Int = Color.WHITE
 ): Drawable = GradientDrawable().apply {

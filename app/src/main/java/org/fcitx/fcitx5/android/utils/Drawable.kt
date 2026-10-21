@@ -11,9 +11,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RippleDrawable
-import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.StateListDrawable
-import android.graphics.drawable.shapes.OvalShape
 import android.view.Gravity
 import androidx.annotation.ColorInt
 import androidx.annotation.GravityInt
@@ -34,24 +32,6 @@ fun pressHighlightDrawable(
     @ColorInt color: Int
 ): Drawable = StateListDrawable().apply {
     addState(intArrayOf(android.R.attr.state_pressed), ColorDrawable(color))
-}
-
-fun circlePressHighlightDrawable(
-    @ColorInt color: Int
-): Drawable = StateListDrawable().apply {
-    addState(
-        intArrayOf(android.R.attr.state_pressed),
-        ShapeDrawable(OvalShape()).apply { paint.color = color }
-    )
-}
-
-fun borderDrawable(
-    width: Int,
-    @ColorInt stroke: Int,
-    @ColorInt background: Int = Color.TRANSPARENT
-): Drawable = GradientDrawable().apply {
-    setStroke(width, stroke)
-    setColor(background)
 }
 
 fun singleSideBorderDrawable(

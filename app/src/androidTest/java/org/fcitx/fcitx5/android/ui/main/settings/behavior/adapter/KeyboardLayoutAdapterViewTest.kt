@@ -8,6 +8,7 @@ import android.view.ContextThemeWrapper
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.test.platform.app.InstrumentationRegistry
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.DraggableFlowLayout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -21,7 +22,7 @@ class KeyboardLayoutAdapterViewTest {
     @Test fun reusedActionChipsResetEnabledStateAndDataTags() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
-            val context = ContextThemeWrapper(instrumentation.targetContext, android.R.style.Theme_Material_Light)
+            val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_FcitxSettings_System_Light)
             val row = mutableListOf<MutableMap<String, Any?>>()
             val adapter = KeyboardLayoutAdapter(context, listOf(row), NoOpListener)
             val holder = adapter.onCreateViewHolder(FrameLayout(context), 0) as KeyboardLayoutAdapter.RowViewHolder

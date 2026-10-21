@@ -22,7 +22,6 @@ import org.fcitx.fcitx5.android.ui.main.DeveloperFragment
 import org.fcitx.fcitx5.android.ui.main.LicensesFragment
 import org.fcitx.fcitx5.android.ui.main.MainFragment
 import org.fcitx.fcitx5.android.ui.main.settings.addon.AddonConfigFragment
-import org.fcitx.fcitx5.android.ui.main.settings.addon.AddonListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.CandidatesSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.ClipboardSettingsFragment
@@ -32,11 +31,9 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardModesFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.SymbolSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextEditingSettingsFragment
-import org.fcitx.fcitx5.android.ui.main.settings.global.GlobalConfigFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodConfigFragment
-import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.SettingsUiAppearanceFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.SettingsUiMotionFragment
@@ -204,14 +201,10 @@ sealed class SettingsRoute : Parcelable {
 
             /* ========== Fcitx ========== */
 
-            fragment<GlobalConfigFragment, GlobalConfig>()
-            fragment<InputMethodListFragment, InputMethodList> {
-                label = ctx.getString(R.string.input_methods)
-            }
+            fragment<LegacyEngineSettingsFragment, GlobalConfig>()
+            fragment<LegacyEngineSettingsFragment, InputMethodList>()
             fragment<InputMethodConfigFragment, InputMethodConfig>()
-            fragment<AddonListFragment, AddonList> {
-                label = ctx.getString(R.string.addons)
-            }
+            fragment<LegacyEngineSettingsFragment, AddonList>()
             fragment<AddonConfigFragment, AddonConfig>()
 
             /* ========== Android ========== */

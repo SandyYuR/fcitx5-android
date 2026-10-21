@@ -24,6 +24,12 @@ interface FcitxAPI {
      */
     val eventFlow: SharedFlow<FcitxEvent<*>>
 
+    /** Synchronous invalidation prevents queued results reaching a different editor. */
+    fun invalidateInputSession(): Long = 0
+    val inputSession: Long get() = 0
+    val acceptsInput: Boolean get() = true
+    suspend fun startInputSession(generation: Long, program: String) {}
+
     val isReady: Boolean
 
     val inputMethodEntryCached: InputMethodEntry
@@ -62,6 +68,8 @@ interface FcitxAPI {
     suspend fun sendKey(sym: KeySym, states: KeyStates, code: Int = 0, up: Boolean = false, timestamp: Int = -1)
 
     suspend fun select(idx: Int): Boolean
+    suspend fun selectGlobal(idx: Int): Boolean = select(idx)
+    suspend fun triggerGlobalCandidateAction(idx: Int, actionIdx: Int) = triggerCandidateAction(idx, actionIdx)
     suspend fun isEmpty(): Boolean
     suspend fun reset()
     suspend fun moveCursor(position: Int)

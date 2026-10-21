@@ -44,35 +44,6 @@ data class FormattedText(
     companion object {
         @JvmStatic
         val Empty = FormattedText()
-
-        @JvmStatic
-        @Suppress("UNUSED") // called from JNI
-        fun fromByteCursor(
-            strings: Array<String>,
-            flags: IntArray,
-            byteCursor: Int
-        ): FormattedText {
-            val cursor = if (byteCursor <= 0) {
-                byteCursor
-            } else {
-                StringBuilder().apply {
-                    var byteSize = 0
-                    strings.forEach {
-                        val bytes = it.toByteArray()
-                        val total = byteSize + bytes.size
-                        if (total < byteCursor) {
-                            append(it)
-                            byteSize = total
-                        } else {
-                            if (total == byteCursor) append(it)
-                            else append(String(bytes.copyOfRange(0, byteCursor - byteSize)))
-                            return@apply
-                        }
-                    }
-                }.length
-            }
-            return FormattedText(strings, flags, cursor)
-        }
     }
 
     val length: Int
