@@ -1,13 +1,13 @@
-# fcitx5-android docs branch（靓企鹅·中州韵文档站）
+# fcitx5-android docs branch（中州鹅文档站）
 
-这是 `SandyYuR/fcitx5-android` 的文档协作分支（`docs`），用于低门槛参与文档编写。站点描述本仓库 `fx-rime-only` 分支构建的应用 **靓企鹅·中州韵**（Fcitx5.fx.rime，Rime-only）。
+这是 `SandyYuR/fcitx5-android` 的文档协作分支（`docs`），用于低门槛参与文档编写。站点整理中州鹅直连版的使用和维护文档，代码入口为 PR #4。合入前按交付记录核对 APK；旧 Fcitx 版说明保留历史入口。
 
 ## 快速开始（只拉 docs 分支最新提交）
 
 ```bash
 git clone --depth 1 --single-branch --branch docs https://github.com/SandyYuR/fcitx5-android.git
 cd fcitx5-android
-npm --prefix docs install
+npm --prefix docs ci
 npm --prefix docs run dev
 ```
 
@@ -24,8 +24,8 @@ git commit -m "docs: update documentation"
 
 ## 提交流程
 
-1. 有仓库写权限：直接推送到 `docs` 分支（GitHub Actions 的 **Docs** 工作流会自动构建并发布到 GitHub Pages）。
-2. 无写权限：推送到 fork 分支后发 Pull Request，目标分支选择 `docs`。
+1. 从 `docs` 新开文档分支，提交 Pull Request，目标选择 `docs`；PR 先完成站点构建与内部链接检查。
+2. 合并到 `docs` 后，由 **Docs** 工作流发布 GitHub Pages。代码版更新时先核对代码 PR 的合入与构建状态。
 
 ---
 

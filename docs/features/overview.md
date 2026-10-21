@@ -1,6 +1,8 @@
 # 功能总览
 
-本页一站式列出本版本的主要功能。它们分为两类：**继承自 fx 分支的应用层功能**（基线 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) `fx` 分支）与**本分支（Rime-only）的专属改动**。点击进入相应子页查看详细说明。
+当前引擎、迁移和验证来源见[直连版当前状态](/guide/direct-rime-migration)。共享 MD3 界面已独立落入默认分支。
+
+本页一站式列出本版本的主要功能。它们分为两类：**继承自 fx 分支的应用层功能**（基线 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) `fx` 分支）与**本分支（直连版）的专属改动**。点击进入相应子页查看详细说明。
 
 ::: tip
 关于本仓库与 fxliang / 上游的关系、致谢请见 [关于 → 致谢与差异说明](/about/credits)。

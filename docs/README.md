@@ -19,7 +19,7 @@ cd fcitx5-android
 ## 2. 安装文档依赖
 
 ```bash
-npm --prefix docs install
+npm --prefix docs ci
 ```
 
 ## 3. 本地预览
@@ -34,6 +34,7 @@ npm --prefix docs run dev
 
 ```bash
 npm --prefix docs run build
+python3 docs/scripts/check-links.py
 git status
 git add docs
 git commit -m "docs: update documentation"
@@ -47,3 +48,12 @@ git commit -m "docs: update documentation"
 ---
 
 详细说明见：`docs/about/contribute-docs.md`
+
+## 当前版本与手册
+
+- [直连文档目录](direct-rime.md)
+- [当前合并交付](maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21.md)
+- [中州鹅用户手册](manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)
+- [维护手册与 librime 更新](maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md)
+
+文档变更通过面向 `docs` 的 PR 构建验证，合并后才发布站点。

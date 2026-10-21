@@ -4,7 +4,7 @@
 
 请先确认反馈的是哪个发行版——它们是**不同包名的并存应用**：
 
-- **靓企鹅·中州韵（本版）**：包名 `org.fcitx.fcitx5.android.fx.rime`（中文显示名「靓企鹅·中州韵」，其他语言显示 Fcitx5.fx.rime），版本号见应用内 **关于 → 当前版本**，与 [本仓库 Release](https://github.com/SandyYuR/fcitx5-android/releases) 一致
+- **中州鹅（本版）**：包名 `org.fcitx.fcitx5.android.fx.rime`（中文显示名「中州鹅」，其他语言显示 Fcitx5.fx.rime），版本号见应用内 **关于 → 当前版本**，与 [本仓库 Release](https://github.com/SandyYuR/fcitx5-android/releases) 一致
 - **fxliang fx 构建**：包名 `org.fcitx.fcitx5.android.fx`，见 [fxliang Releases](https://github.com/fxliang/fcitx5-android/releases)
 - **上游官方**：包名 `org.fcitx.fcitx5.android`，见 [上游 Releases](https://github.com/fcitx5-android/fcitx5-android/releases)
 

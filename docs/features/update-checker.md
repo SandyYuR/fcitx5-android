@@ -1,6 +1,6 @@
 # 更新检查器与镜像
 
-靓企鹅·中州韵内置 **GitHub Release 更新检查器**，直接从本仓库 [SandyYuR/fcitx5-android Releases](https://github.com/SandyYuR/fcitx5-android/releases) 拉取最新版本并安装。
+中州鹅内置 **GitHub Release 更新检查器**，直接从本仓库 [SandyYuR/fcitx5-android Releases](https://github.com/SandyYuR/fcitx5-android/releases) 拉取最新版本并安装。
 
 ## 能力
 

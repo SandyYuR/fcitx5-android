@@ -1,3 +1,5 @@
+> 本页的 Fcitx 键名和布局字段属于保留的前端兼容格式，直连桥会将按键转换给 Rime；这不表示 APK 仍运行 Fcitx 原生引擎。完整 XKB Compose 仍在已知未完成范围内。
+
 # Fcitx 键名速查
 
 在 MacroKey 的 step 中，`{"fcitx": "<sym>"}` 形式的 KeyRef 用一个字符串引用一个具体按键。本页给出常用的 `<sym>` 列表与中文说明，并按用途分组。
@@ -42,7 +44,7 @@
 | `Caps_Lock` | 大写锁定 |
 
 ::: tip Modifier 与 shortcut step
-通常不需要手写 `down` + `up` 来按住 modifier，用 [`shortcut` step](/features/keys/macro-key#6-shortcut-快捷键组合) 一步搞定：
+通常不需要手写 `down` + `up` 来按住 modifier，用 [`shortcut` step](/features/keys/macro-key#_6-shortcut-快捷键组合) 一步搞定：
 
 ```json
 { "type": "shortcut",
@@ -61,7 +63,7 @@
 ::: tip 字母按键与大小写
 编辑器里字母键通常显示为大写，这是按键标签显示，不代表固定输出大写。`fcitx` KeyRef 引用的是按键本身；实际大小写由当前 Shift / Caps 等键盘状态决定。
 
-手写 JSON 时字母建议写小写。需要明确的大写输出时，用 [`shortcut` step](/features/keys/macro-key#6-shortcut-快捷键组合) 加 `Shift`，或用 [`text` step](/features/keys/macro-key#4-text-直接提交文本) 直接提交字面文本。
+手写 JSON 时字母建议写小写。需要明确的大写输出时，用 [`shortcut` step](/features/keys/macro-key#_6-shortcut-快捷键组合) 加 `Shift`，或用 [`text` step](/features/keys/macro-key#_4-text-直接提交文本) 直接提交字面文本。
 :::
 
 ## 常用 ASCII 符号
@@ -101,7 +103,7 @@
 | `quotedbl` | `"` | 双引号 |
 
 ::: tip 直接走 text step 更简单
-单纯想"插入一个字符串"时，用 [`text` step](/features/keys/macro-key#4-text-直接提交文本) 直接写字面字符更直观，不需要查 keysym 名：
+单纯想"插入一个字符串"时，用 [`text` step](/features/keys/macro-key#_4-text-直接提交文本) 直接写字面字符更直观，不需要查 keysym 名：
 
 ```json
 { "type": "text", "text": "@" }
