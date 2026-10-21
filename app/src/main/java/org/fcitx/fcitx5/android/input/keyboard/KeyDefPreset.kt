@@ -153,39 +153,6 @@ class AlphabetKey(
     )
 )
 
-class AlphabetDigitKey(
-    val character: String,
-    altText: String,
-    val sym: Int,
-    popup: Array<Popup>? = null
-) : KeyDef(
-    Appearance.AltText(
-        displayText = character,
-        altText = altText,
-        character = character,
-        textSize = 23f
-    ),
-    setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(character)),
-        Behavior.Swipe(KeyAction.SymAction(KeySym(sym), NumLockState))
-    ),
-    popup ?: arrayOf(
-        Popup.AltPreview(character, altText),
-        Popup.Keyboard.Preset(character)
-    )
-) {
-    constructor(
-        char: String,
-        digit: Int,
-        popup: Array<Popup>? = null
-    ) : this(
-        char,
-        digit.toString(),
-        FcitxKeyMapping.FcitxKey_KP_0 + digit,
-        popup
-    )
-}
-
 class CapsKey(
     percentWidth: Float = 0.15f,
     textColor: Int? = null,
@@ -625,47 +592,6 @@ class ImageLayoutSwitchKey(
         Behavior.Press(KeyAction.LayoutSwitchAction(to))
     ),
     iconSlot = iconSlot
-)
-
-class ImagePickerSwitchKey(
-    @DrawableRes
-    icon: Int,
-    to: PickerWindow.Key,
-    percentWidth: Float = 0.1f,
-    variant: Variant = Variant.AltForeground,
-    viewId: Int = -1,
-    iconSlot: String? = null
-) : KeyDef(
-    Appearance.Image(
-        src = icon,
-        percentWidth = percentWidth,
-        variant = variant,
-        viewId = viewId
-    ),
-    setOf(
-        Behavior.Press(KeyAction.PickerSwitchAction(to))
-    ),
-    iconSlot = iconSlot
-)
-
-class TextPickerSwitchKey(
-    text: String,
-    to: PickerWindow.Key,
-    percentWidth: Float = 0.1f,
-    variant: Variant = Variant.AltForeground,
-    viewId: Int = -1
-) : KeyDef(
-    Appearance.Text(
-        displayText = text,
-        textSize = 16f,
-        percentWidth = percentWidth,
-        variant = variant,
-        viewId = viewId,
-        textStyle = Typeface.BOLD
-    ),
-    setOf(
-        Behavior.Press(KeyAction.PickerSwitchAction(to))
-    )
 )
 
 /**

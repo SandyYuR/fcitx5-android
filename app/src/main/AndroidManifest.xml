@@ -72,6 +72,10 @@
             android:theme="@style/Theme.FcitxSettings.System"
             android:launchMode="singleTask" />
         <activity
+            android:name=".ui.main.settings.im.RimeImportActivity"
+            android:exported="false"
+            android:label="@string/direct_rime_import" />
+        <activity
             android:name=".ui.main.LogActivity"
             android:directBootAware="true"
             android:exported="false"
@@ -334,6 +338,16 @@
         <provider
             android:name="com.canhub.cropper.CropFileProvider"
             android:authorities="${applicationId}.cropper.fileprovider"
+            tools:node="remove" />
+
+        <!-- Every scan entry uses QrScanOptions and our QrScanCaptureActivity. -->
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            tools:node="remove" />
+
+        <!-- Clipboard Room is single-process and does not enable this optional service. -->
+        <service
+            android:name="androidx.room.MultiInstanceInvalidationService"
             tools:node="remove" />
 
         <provider

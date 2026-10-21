@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="direct_rime_app_name" translatable="false">中州鹅</string>
+    <string name="direct_rime_ime_name">Rime</string>
+    <string name="direct_rime_ascii_mode">Latin Mode</string>
+    <string name="direct_rime_space_label">%1$s (%2$s)</string>
+    <string name="direct_rime_import">Import Rime profile</string>
+    <string name="direct_rime_import_description">Choose a ZIP containing your Rime user files. Put default.yaml or default.custom.yaml at the root of the archive. The profile will be deployed in a new directory; your existing profiles stay available in the directory manager.</string>
+    <string name="direct_rime_choose_zip">Choose profile ZIP</string>
+    <string name="direct_rime_importing">Importing and deploying…</string>
+    <string name="direct_rime_imported">Deployment complete. You can test typing below.</string>
+    <string name="direct_rime_import_failed">Import failed: %1$s</string>
+    <string name="direct_rime_archive_too_large">The archive exceeds 512 MiB.</string>
+    <string name="direct_rime_test_input">Test typing here</string>
+    <item name="direct_rime_test_editor" type="id" />
+</resources>
