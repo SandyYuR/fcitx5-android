@@ -1,0 +1,21 @@
+{
+  "local_build_base": "1c6917887762bb12242566c55afec90281d7eab4",
+  "working_tree_uncommitted": true,
+  "not_a_distributed_apk": true,
+  "apk_sha256": "a70d599c47ddfb441b8072f368a1ac83e306b637cb93f2affa47d4ef3b7e2c67",
+  "dex_class_definitions": 5948,
+  "prefix_counts": {
+    "Lcom/luck/picture/": 0,
+    "Lcom/canhub/": 25,
+    "Lcom/google/zxing/": 112,
+    "Lcom/journeyapps/": 40,
+    "Lorg/tukaani/": 72,
+    "Lorg/apache/commons/compress/": 38,
+    "Lorg/mechdancer/": 19,
+    "Larrow/": 9,
+    "Lorg/fcitx/": 1703,
+    "Lcom/mikepenz/aboutlibraries/": 22
+  },
+  "removed_component_registrations": 5,
+  "own_crop_qr_and_ime_components_retained": true
+}

@@ -1,0 +1,141 @@
+{
+  "verified": true,
+  "runs": 14,
+  "touch_keys": 4752,
+  "hardware_keys": 1584,
+  "checks": [
+    "Pinned products",
+    "Mapped engine and model",
+    "Actual context/abbrev/charset state",
+    "Exact schedule and event sequence",
+    "Exact full committed text across all matching references",
+    "Compiled page size",
+    "Independent clock and pixel detection guards"
+  ],
+  "details": [
+    {
+      "label": "groundtruth-1-fcitx",
+      "events": 264,
+      "output_chars": 76,
+      "output_sha256": "55b43f49c89b9ff463b7724536c175986f9b9ea8ac37c8cb27ff7493dc959b58"
+    },
+    {
+      "label": "groundtruth-1-direct",
+      "events": 264,
+      "output_chars": 76,
+      "output_sha256": "55b43f49c89b9ff463b7724536c175986f9b9ea8ac37c8cb27ff7493dc959b58"
+    },
+    {
+      "label": "groundtruth-2-direct",
+      "events": 528,
+      "output_chars": 152,
+      "output_sha256": "fa5a88446c1eb65b53d3b8671ed463971a19fb831b7587dfcff3eadf57059da9"
+    },
+    {
+      "label": "groundtruth-2-fcitx",
+      "events": 528,
+      "output_chars": 152,
+      "output_sha256": "fa5a88446c1eb65b53d3b8671ed463971a19fb831b7587dfcff3eadf57059da9"
+    },
+    {
+      "label": "steady-r1-fcitx",
+      "events": 528,
+      "output_chars": 152,
+      "output_sha256": "fa5a88446c1eb65b53d3b8671ed463971a19fb831b7587dfcff3eadf57059da9",
+      "clock_drift_ms": -5.519886000023689,
+      "marker_residual_span_ms": 15.733600000035949,
+      "spaces": 64,
+      "space_detections": 64
+    },
+    {
+      "label": "steady-r1-direct",
+      "events": 528,
+      "output_chars": 152,
+      "output_sha256": "fa5a88446c1eb65b53d3b8671ed463971a19fb831b7587dfcff3eadf57059da9",
+      "clock_drift_ms": 0.6690129999769852,
+      "marker_residual_span_ms": 15.055640000093263,
+      "spaces": 64,
+      "space_detections": 64
+    },
+    {
+      "label": "steady-r2-direct",
+      "events": 528,
+      "output_chars": 152,
+      "output_sha256": "fa5a88446c1eb65b53d3b8671ed463971a19fb831b7587dfcff3eadf57059da9",
+      "clock_drift_ms": 11.607775999931619,
+      "marker_residual_span_ms": 33.530030000023544,
+      "spaces": 64,
+      "space_detections": 63
+    },
+    {
+      "label": "steady-r2-fcitx",
+      "events": 528,
+      "output_chars": 152,
+      "output_sha256": "fa5a88446c1eb65b53d3b8671ed463971a19fb831b7587dfcff3eadf57059da9",
+      "clock_drift_ms": -5.003616000059992,
+      "marker_residual_span_ms": 17.980655999970622,
+      "spaces": 64,
+      "space_detections": 64
+    },
+    {
+      "label": "steady-r3-fcitx",
+      "events": 528,
+      "output_chars": 152,
+      "output_sha256": "fa5a88446c1eb65b53d3b8671ed463971a19fb831b7587dfcff3eadf57059da9",
+      "clock_drift_ms": 3.840472999960184,
+      "marker_residual_span_ms": 14.29630599997472,
+      "spaces": 64,
+      "space_detections": 64
+    },
+    {
+      "label": "steady-r3-direct",
+      "events": 528,
+      "output_chars": 152,
+      "output_sha256": "fa5a88446c1eb65b53d3b8671ed463971a19fb831b7587dfcff3eadf57059da9",
+      "clock_drift_ms": 4.391066000098363,
+      "marker_residual_span_ms": 18.651992000057362,
+      "spaces": 64,
+      "space_detections": 64
+    },
+    {
+      "label": "fast-direct",
+      "events": 528,
+      "output_chars": 152,
+      "output_sha256": "fa5a88446c1eb65b53d3b8671ed463971a19fb831b7587dfcff3eadf57059da9",
+      "clock_drift_ms": 4.085022000013851,
+      "marker_residual_span_ms": 16.744708000100218,
+      "spaces": 64,
+      "space_detections": 64
+    },
+    {
+      "label": "fast-fcitx",
+      "events": 528,
+      "output_chars": 152,
+      "output_sha256": "fa5a88446c1eb65b53d3b8671ed463971a19fb831b7587dfcff3eadf57059da9",
+      "clock_drift_ms": 2.1128600002266467,
+      "marker_residual_span_ms": 19.44834000011906,
+      "spaces": 64,
+      "space_detections": 64
+    },
+    {
+      "label": "jitter-fcitx",
+      "events": 264,
+      "output_chars": 76,
+      "output_sha256": "55b43f49c89b9ff463b7724536c175986f9b9ea8ac37c8cb27ff7493dc959b58",
+      "clock_drift_ms": 4.181388000026345,
+      "marker_residual_span_ms": 18.39806199981831,
+      "spaces": 32,
+      "space_detections": 32
+    },
+    {
+      "label": "jitter-direct",
+      "events": 264,
+      "output_chars": 76,
+      "output_sha256": "55b43f49c89b9ff463b7724536c175986f9b9ea8ac37c8cb27ff7493dc959b58",
+      "clock_drift_ms": -1.3910850000102073,
+      "marker_residual_span_ms": 21.84463999979198,
+      "spaces": 32,
+      "space_detections": 32
+    }
+  ]
+}

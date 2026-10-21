@@ -1,0 +1,1 @@
+SELECT state,ROUND(SUM(MIN(ts+dur,185353629285)-MAX(ts,185286687285))/1e6,3) ms FROM thread_state WHERE utid=(SELECT utid FROM thread t JOIN process p USING(upid) WHERE p.pid=2903 AND t.name='rime-main' LIMIT 1) AND ts<185353629285 AND ts+dur>185286687285 GROUP BY state;

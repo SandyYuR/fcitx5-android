@@ -1,0 +1,142 @@
+[
+  {
+    "label": "groundtruth-1-fcitx",
+    "backend": "fcitx",
+    "mode": "hardware",
+    "cadence_ms": 80,
+    "keys": 264,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "groundtruth-1-direct",
+    "backend": "direct",
+    "mode": "hardware",
+    "cadence_ms": 80,
+    "keys": 264,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "groundtruth-2-direct",
+    "backend": "direct",
+    "mode": "hardware",
+    "cadence_ms": 80,
+    "keys": 528,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "groundtruth-2-fcitx",
+    "backend": "fcitx",
+    "mode": "hardware",
+    "cadence_ms": 80,
+    "keys": 528,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "steady-r1-fcitx",
+    "backend": "fcitx",
+    "mode": "touch",
+    "cadence_ms": 160,
+    "keys": 528,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "steady-r1-direct",
+    "backend": "direct",
+    "mode": "touch",
+    "cadence_ms": 160,
+    "keys": 528,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "steady-r2-direct",
+    "backend": "direct",
+    "mode": "touch",
+    "cadence_ms": 160,
+    "keys": 528,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "steady-r2-fcitx",
+    "backend": "fcitx",
+    "mode": "touch",
+    "cadence_ms": 160,
+    "keys": 528,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "steady-r3-fcitx",
+    "backend": "fcitx",
+    "mode": "touch",
+    "cadence_ms": 160,
+    "keys": 528,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "steady-r3-direct",
+    "backend": "direct",
+    "mode": "touch",
+    "cadence_ms": 160,
+    "keys": 528,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "fast-direct",
+    "backend": "direct",
+    "mode": "touch",
+    "cadence_ms": 120,
+    "keys": 528,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "fast-fcitx",
+    "backend": "fcitx",
+    "mode": "touch",
+    "cadence_ms": 120,
+    "keys": 528,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "jitter-fcitx",
+    "backend": "fcitx",
+    "mode": "touch",
+    "cadence_ms": "jitter",
+    "keys": 264,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  },
+  {
+    "label": "jitter-direct",
+    "backend": "direct",
+    "mode": "touch",
+    "cadence_ms": "jitter",
+    "keys": 264,
+    "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+    "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+    "correct": true
+  }
+]

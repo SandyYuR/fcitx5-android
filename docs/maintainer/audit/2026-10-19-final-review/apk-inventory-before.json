@@ -1,0 +1,17 @@
+{
+  "source": "1c6917887762bb12242566c55afec90281d7eab4",
+  "signed_release": true,
+  "artifact_id": 12169180303,
+  "apk_sha256": "45a9f8bef91d2881c67114943a01b1ab64eb092486e48bf3a57103eda34e2baa",
+  "dex_classes": 6029,
+  "picture_selector_classes": 84,
+  "picture_selector_manifest_components": [
+    "com.luck.picture.lib.provider.PictureFileProvider",
+    "com.luck.picture.lib.SelectorSupporterActivity",
+    "com.luck.picture.lib.SelectorTransparentActivity"
+  ],
+  "diagnostic_only_or_transitive_components_reviewed": [
+    "androidx.room.MultiInstanceInvalidationService",
+    "com.journeyapps.barcodescanner.CaptureActivity"
+  ]
+}

@@ -1,0 +1,22 @@
+Verifies
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): false
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=fcitx5-android
+Signer #1 certificate SHA-256 digest: ba43006e1bfa3f60f46b2a9056f593a3a61445bd2571319fb1869e49cc36b1fe
+Signer #1 certificate SHA-1 digest: 70ed385effa7f79d6f2292ee031113553179234a
+Signer #1 certificate MD5 digest: b71841bb9015c20a5a6c7315f1cb1f6b
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: a4a3b69ed6a6413854634ec2e7c2e27ab0aeebb826ed8f82b19399b389827887
+Signer #1 public key SHA-1 digest: a7fb8f3f255897f05db085b91b487149f8c45ffe
+Signer #1 public key MD5 digest: b9c535893db176a0e0331639b93ca2f9
+WARNING: META-INF/org/jetbrains/kotlinx/kotlinx-serialization-core-jvm/verification.properties not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
+WARNING: META-INF/services/kotlin.reflect.jvm.internal.impl.builtins.BuiltInsLoader not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
+WARNING: META-INF/services/kotlin.reflect.jvm.internal.impl.resolve.ExternalOverridabilityCondition not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
+WARNING: META-INF/services/kotlinx.coroutines.android.AndroidDispatcherFactory not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
+WARNING: META-INF/services/kotlinx.coroutines.android.AndroidExceptionPreHandler not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.

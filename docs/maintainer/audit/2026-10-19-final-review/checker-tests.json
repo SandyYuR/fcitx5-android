@@ -1,0 +1,25 @@
+{
+  "legacy_picker_apk_rejected": true,
+  "elf_build_id_matches_ndk_readelf": true,
+  "before_elf_build_id": "2cf7b2bf91c783703a12f4dac19eb6d4bb7b699e",
+  "elf32_and_elf64_ndk_crosscheck": {
+    "arm-linux-androideabi": "2af93355ecaa8c6b7be47d004e16ba9fbab13153",
+    "aarch64-linux-android": "97173db99e862f4e43debddf319d5d4a286bd38d",
+    "i686-linux-android": "f09571a5b725a475c38ecae2fe29086bad938f55",
+    "x86_64-linux-android": "5c2b3b4038f21e7e8bf08409629f8c8062bdcf7d"
+  },
+  "unexpected_archive": {
+    "rejected": true,
+    "reason": "Unexpected static archive: /workspace/fcitx5-android/native/prebuilt/leveldb/arm64-v8a/lib/libfcitx5-core.a"
+  },
+  "fcitx_cpp_namespace": {
+    "rejected": true,
+    "reason": "Fcitx C++ symbols in native map"
+  },
+  "mismatched_build_id": {
+    "rejected": true,
+    "reason": "No map matches packaged arm64-v8a ELF build ID 9a1984d04ac81e0ffb45ab1ef7f0794d67bbb46a"
+  },
+  "stale_map_binding_rejected": true,
+  "stale_library_binding_rejected_even_with_same_build_id": true
+}
