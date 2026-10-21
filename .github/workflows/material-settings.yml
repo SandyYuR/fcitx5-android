@@ -41,8 +41,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y extra-cmake-modules gettext
-      - name: Prepare pinned Fcitx sources
-        run: ./prepare_personal_build.sh
+      - name: Prepare pinned native sources
+        run: |
+          # Fcitx needs its translation patch; direct builds use native/prebuilt.
+          if [[ -f prepare_personal_build.sh ]]; then
+            ./prepare_personal_build.sh
+          fi
       - uses: gradle/actions/setup-gradle@v6
       - name: Enable KVM
         run: |

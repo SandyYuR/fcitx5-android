@@ -11,9 +11,10 @@ test_result=$?
 report_dir=app/build/reports/androidTests/material-settings-diagnostics
 mkdir -p "$report_dir"
 adb logcat -d -v threadtime > "$report_dir/logcat.txt" 2>&1
-for page in UpdateCheckActivity UpdateHostsSettingsActivity UpdateMirrorEditActivity UpdateMirrorListActivity LogActivity CropImageActivity ClipboardSyncSettingsActivity ClipboardEditActivity TextKeyboardLayoutProfilePickerActivity UpdateMirrorListActivity-controls; do
+for page in UpdateCheckActivity UpdateHostsSettingsActivity UpdateMirrorEditActivity UpdateMirrorListActivity LogActivity RimeImportActivity CropImageActivity ClipboardSyncSettingsActivity ClipboardEditActivity TextKeyboardLayoutProfilePickerActivity UpdateMirrorListActivity-controls; do
   for mode in light dark; do
-    adb pull "/data/local/tmp/md3-settings-$page-$mode.png" "$report_dir/$page-$mode.png" 2>/dev/null || true
+    adb pull "/data/local/tmp/md3-settings-$page-$mode.png" "$report_dir/$page-$mode.png" 2>/dev/null || \
+      adb pull "/data/local/tmp/direct-frontend-md3-$page-$mode.png" "$report_dir/$page-$mode.png" 2>/dev/null || true
   done
 done
 exit "$test_result"
