@@ -8,7 +8,7 @@ fcitx5-android/fcitx5-android  (上游 / upstream)
         └──fork──▶  fxliang/fcitx5-android (fx 分支)
                           │
                           └──fork──▶  SandyYuR/fcitx5-android  ◀── 本仓库
-                                        └─ fx-rime-only 分支  Rime 专版（本文档对象）
+                                        └─ fx-rime-only 分支  中州鹅直连版（本文档对象）
                                         └─ docs 分支          本文档站（指南 + 用户手册 + 维护者文档）
 ```
 
@@ -25,9 +25,9 @@ fcitx5-android/fcitx5-android  (上游 / upstream)
 
 ### Fcitx 与 Rime 生态
 
-- **[Fcitx5](https://github.com/fcitx/fcitx5)** —— 核心输入法框架
+- **[Fcitx5](https://github.com/fcitx/fcitx5)** —— 项目历史输入法框架，直连 APK 已移除其原生后端
 - **[Rime / librime](https://github.com/rime/librime)** —— 中州韵输入法引擎（本版的唯一输入引擎）
-- **[fcitx5-rime](https://github.com/fcitx5/fcitx5-rime)** —— Rime 适配层（本版使用 [SandyYuR fork](https://github.com/SandyYuR/fcitx5-rime)，含 fxliang 定制与本版修复）
+- **[fcitx5-rime](https://github.com/fcitx5/fcitx5-rime)** —— 项目历史 Rime 适配层，直连 APK 已移除；保留贡献致谢
 - **[OpenCC](https://github.com/BYVoid/OpenCC)** —— 中文转换（保留在包内）
 - **[Foxy 输入法](https://github.com/fxliang/foxy)** —— 符号 / 表情 / 颜文字面板的布局与数据格式来源
 
@@ -45,20 +45,14 @@ fcitx5-android/fcitx5-android  (上游 / upstream)
 
 > 概览；逐条明细见主仓库 `git log --oneline 3ad25fc9..HEAD`。
 
-### 裁剪为 Rime 专版
+### 直连 librime 与构建
 
-- fcitx5-rime 并入主 APK（静态链接），**删除整套插件框架**与插件 APK 分发
-- 删除拼音 / 码表 native 链路（保留 OpenCC）与相关 UI；删除 9 个其他语言/功能插件
-- 移除 `mainline` flavor；包名改为 `org.fcitx.fcitx5.android.fx.rime`（可与旧版并存，数据隔离）
-- **不预置任何输入方案**，不附带 `essay.txt`
-
-### 引擎与构建链
-
-- Rime 源码与 prebuilt 改用自有 fork（[fcitx5-rime](https://github.com/SandyYuR/fcitx5-rime) / [prebuilder](https://github.com/SandyYuR/prebuilder) / [prebuilt](https://github.com/SandyYuR/prebuilt)），构建不再依赖 fxliang 账号
-- librime 定制补丁链：音节缓存、词典并行部署、用户词典缓存、词典文件重映射修复、忘记词汇连删同音词修复、`rewrite` 滤镜、**末位的配置指纹补丁**
-- **配置指纹替代时间戳**：冷启动不再每次全量部署
-- **部署期按键不再漏给编辑器**：只丢弃并在键盘内显示「正在部署」提示
-- JNI 边界净化非法 UTF-8，避免候选标签导致进程中止
+- 保留 Android 前端，主应用通过 JNI 直接驱动 librime；删除原生 Fcitx Core、fcitx5-rime 和 AndroidFrontend。
+- 原生库仅 `libdirect-rime.so`、`libc++_shared.so`；共享 prebuilt 中的其他产物不自动打包。
+- [prebuilder](https://github.com/SandyYuR/prebuilder) 和 [prebuilt](https://github.com/SandyYuR/prebuilt) 固定版本与定制补丁，更新方法见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN)。
+- 主包名恢复为 `org.fcitx.fcitx5.android.fx.rime`，与本仓库旧 Fcitx 版同签名时覆盖升级；旧测试包需迁移。
+- 不预装中文方案、完整词典或万象模型；方案需自行导入并部署。
+- 保留上游署名、许可证和前端兼容标识；本项目独立维护。
 
 ### 输入与交互（本版新增/修改）
 
@@ -72,7 +66,7 @@ fcitx5-android/fcitx5-android  (上游 / upstream)
 
 ## 包名与下载来源
 
-- 主程序：包名 `org.fcitx.fcitx5.android.fx.rime`，debug 变体为 `...fx.rime.debug`（可与 Release 并存）
+- 主程序：包名 `org.fcitx.fcitx5.android.fx.rime`；安装与共存以实际包名和签名为准
 - **没有插件 APK、没有 mainline 构建**
 - 下载来源：[SandyYuR/fcitx5-android Releases](https://github.com/SandyYuR/fcitx5-android/releases)（含时间戳 Nightly 预发布）
 - 应用内更新检查：默认查询本仓库的 Release
