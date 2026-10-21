@@ -38,7 +38,6 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
 import org.fcitx.fcitx5.android.utils.importErrorDialog
 import org.fcitx.fcitx5.android.utils.queryFileName
 import org.fcitx.fcitx5.android.utils.toast
-import splitties.resources.styledDrawable
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.charset.Charset
@@ -117,7 +116,7 @@ class ThemeShareImportManager(
         }
         if (custom.backgroundImage != null) {
             MaterialAlertDialogBuilder(fragment.requireContext())
-                .setIcon(fragment.requireContext().styledDrawable(android.R.attr.alertDialogIcon))
+                .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(R.string.share)
                 .setMessage(R.string.theme_share_has_background_zip_tip)
                 .setPositiveButton(android.R.string.ok) { _, _ -> shareThemeAsZip(custom) }
@@ -341,7 +340,7 @@ class ThemeShareImportManager(
         val existed = ThemeManager.getTheme(theme.name) as? Theme.Custom
         if (existed != null && importedName == theme.name) {
             MaterialAlertDialogBuilder(fragment.requireContext())
-                .setIcon(fragment.requireContext().styledDrawable(android.R.attr.alertDialogIcon))
+                .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(R.string.theme_import_overwrite_title)
                 .setMessage(fragment.getString(R.string.theme_import_overwrite_message, theme.name))
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -406,7 +405,7 @@ class ThemeShareImportManager(
             }
             if (existing is Theme.Custom && importedName == decodedName) {
                 MaterialAlertDialogBuilder(ctx)
-                    .setIcon(ctx.styledDrawable(android.R.attr.alertDialogIcon))
+                    .setIconAttribute(android.R.attr.alertDialogIcon)
                     .setTitle(R.string.theme_import_overwrite_title)
                     .setMessage(ctx.getString(R.string.theme_import_overwrite_message, existing.name))
                     .setPositiveButton(android.R.string.ok) { _, _ -> doImport() }

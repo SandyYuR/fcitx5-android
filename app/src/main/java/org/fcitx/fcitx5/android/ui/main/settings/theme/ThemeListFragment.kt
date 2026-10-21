@@ -30,7 +30,6 @@ import org.fcitx.fcitx5.android.utils.importErrorDialog
 import org.fcitx.fcitx5.android.utils.parcelable
 import org.fcitx.fcitx5.android.utils.queryFileName
 import org.fcitx.fcitx5.android.utils.toast
-import splitties.resources.styledDrawable
 import java.io.ByteArrayInputStream
 import java.util.UUID
 
@@ -292,7 +291,7 @@ class ThemeListFragment : Fragment() {
         if (followSystemDayNightTheme) {
             val ctx = requireContext()
             MaterialAlertDialogBuilder(ctx)
-                .setIcon(ctx.styledDrawable(android.R.attr.alertDialogIcon))
+                .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(R.string.configure)
                 .setMessage(R.string.theme_message_follow_system_day_night_mode_enabled)
                 .setPositiveButton(android.R.string.ok, null)

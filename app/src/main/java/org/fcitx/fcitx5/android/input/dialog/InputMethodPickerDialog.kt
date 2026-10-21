@@ -59,10 +59,9 @@ object InputMethodPickerDialog {
                     }
                     dialog.dismiss()
                 }
-                // Some OEM input method themes leave dividerHorizontal unresolved. The
-                // Splitties helper passes that zero resource ID to Context.getDrawable(),
-                // which crashes while opening this dialog. TypedArray returns null instead.
-                val divider = context.obtainStyledAttributes(
+                // Some themes may leave dividerHorizontal unresolved. Resolve it from the
+                // dialog's own theme, and let TypedArray return null when no drawable is set.
+                val divider = builder.context.obtainStyledAttributes(
                     intArrayOf(android.R.attr.dividerHorizontal)
                 ).let { attributes ->
                     try {
