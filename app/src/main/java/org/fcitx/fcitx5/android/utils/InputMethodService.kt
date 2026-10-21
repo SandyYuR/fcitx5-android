@@ -21,11 +21,3 @@ fun InputMethodService.forceShowSelf() {
         )
     }
 }
-
-fun InputMethodService.switchToNextIME() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        switchToNextInputMethod(false)
-    } else {
-        inputMethodManager.switchToNextInputMethod(window.window!!.attributes.token, false)
-    }
-}

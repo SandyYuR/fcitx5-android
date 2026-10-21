@@ -22,7 +22,6 @@ import org.fcitx.fcitx5.android.ui.main.settings.GenericMultiSelectFragment
 import org.fcitx.fcitx5.android.ui.main.settings.ListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.PunctuationEditorFragment
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
-import org.fcitx.fcitx5.android.ui.main.settings.addon.AddonListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.CandidatesSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.ClipboardSettingsFragment
@@ -34,7 +33,6 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.SymbolSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextEditingSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
-import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.SettingsUiAppearanceFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.SettingsUiMotionFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeFragment
@@ -114,8 +112,6 @@ private fun Fragment.settingsPageTitle(): String {
         }
     }
     return getString(when (this) {
-        is InputMethodListFragment -> R.string.input_methods
-        is AddonListFragment -> R.string.addons
         is ThemeFragment -> R.string.theme
         is SettingsUiAppearanceFragment -> R.string.settings_ui_appearance
         is SettingsUiMotionFragment -> R.string.settings_ui_motion_title

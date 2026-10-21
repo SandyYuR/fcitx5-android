@@ -37,10 +37,6 @@ gradlePlugin {
             id = "org.fcitx.fcitx5.android.lib-convention"
             implementationClass = "AndroidLibConventionPlugin"
         }
-        register("androidPluginAppConvention") {
-            id = "org.fcitx.fcitx5.android.plugin-app-convention"
-            implementationClass = "AndroidPluginAppConventionPlugin"
-        }
         register("buildMetadata") {
             id = "org.fcitx.fcitx5.android.build-metadata"
             implementationClass = "BuildMetadataPlugin"
@@ -49,21 +45,9 @@ gradlePlugin {
             id = "org.fcitx.fcitx5.android.data-descriptor"
             implementationClass = "DataDescriptorPlugin"
         }
-        register("fcitxComponent") {
-            id = "org.fcitx.fcitx5.android.fcitx-component"
-            implementationClass = "FcitxComponentPlugin"
-        }
-        register("fcitxHeaders") {
-            id = "org.fcitx.fcitx5.android.fcitx-headers"
-            implementationClass = "FcitxHeadersPlugin"
-        }
         register("nativeAppConvention") {
             id = "org.fcitx.fcitx5.android.native-app-convention"
             implementationClass = "NativeAppConventionPlugin"
-        }
-        register("nativeLibConvention") {
-            id = "org.fcitx.fcitx5.android.native-lib-convention"
-            implementationClass = "NativeLibConventionPlugin"
         }
     }
 }

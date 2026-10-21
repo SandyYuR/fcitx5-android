@@ -1,0 +1,5 @@
+config_version: '1.0'
+schema_list:
+  - schema: direct_smoke
+menu:
+  page_size: 3

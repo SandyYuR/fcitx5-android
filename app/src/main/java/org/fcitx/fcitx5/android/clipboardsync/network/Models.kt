@@ -93,20 +93,6 @@ data class SyncClipboardHistoryCursor(
 )
 
 @Serializable
-data class OneClipHistoryResponse(
-    val items: List<OneClipHistoryItem> = emptyList()
-)
-
-@Serializable
-data class OneClipHistoryItem(
-    val id: String = "",
-    val type: String = "text",
-    val preview: String = "",
-    val hasImage: Boolean = false,
-    val timestamp: Double = 0.0
-)
-
-@Serializable
 data class OneClipUploadTextRequest(
     val text: String
 )
