@@ -1,0 +1,78 @@
+# BackspaceKey 退格键
+
+::: info 旧版 Fcitx 文档
+这是直连版合入前的原站文档，固定于 `edcf536f`，仅对应当时的 Fcitx 版本。
+[旧版完整目录](/legacy/fcitx/contents) · [旧版维护报告](/legacy/fcitx/maintainer/) · [当前中州鹅手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) · [原始文档](https://github.com/SandyYuR/fcitx5-android/blob/edcf536f85576ce3e2b241e1eb5059534a972f51/docs/features/keys/backspace-key.md)
+:::
+
+
+删除前一个字符；长按连续删除；本版为长按与上滑增加了一组**复合手势**与**正文保护**。
+
+## 字段
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|:----:|------|
+| `type` | string | ✓ | 固定为 `"BackspaceKey"` |
+| `swipe` | object |  | 上下滑动触发的 [MacroAction](/legacy/fcitx/features/keys/macro-key#macroaction-结构) |
+| `swipeLabel` | string |  | 上下滑动提示文字 |
+| `swipeUp` / `swipeDown` | object |  | 上滑 / 下滑分别触发的 MacroAction（方向只由字段决定，不受「符号划动方向」限制） |
+| `swipeUpLabel` / `swipeDownLabel` | string |  | 上滑 / 下滑标签：上滑在上、下滑在下，不受主题「标点位置」影响 |
+| `weight` / `rowHeightPercent` / 颜色字段 | — |  | 与[共通字段](/legacy/fcitx/features/keys/overview#几乎所有按键都通用的字段)相同 |
+
+## 内置行为
+
+- **点击**：删除一个字符（等价于发 `BackSpace`）
+- **长按**：连续删除（节奏与「长按延迟」设置一致）
+- **左右滑动**：先移动删除范围，松手后删除选中的范围
+- **上下滑动**：仅当配置了 `swipe` 时触发对应宏；左右滑动删除流程不会被覆盖
+
+## 长按删空编码后的正文保护（本版）
+
+长按连删把**拼音编码区**删空之后，继续按住**不会再删除已上屏的正文**，直到手指抬起——防止连删越过编码区边界误删正文（与万象拼音的桌面退格保护一致）：
+
+- 手指抬起后再按退格，恢复正常删除正文；单次退格、以及编码区本来就空时的退格，都不受影响；
+- 进入保护后被拦下的重复退格**不再产生按键反馈**（震动），作为"已经删到底"的手感提示；
+- 这是应用层的保护，不需要方案开启任何开关。
+
+## 长按连删后上滑：两段式清空（本版）
+
+长按进入连删后，退格键上方浮现提示条；手指不抬起直接**向上滑进提示条区域**：
+
+| 状态 | 提示条 | 松手效果 |
+|------|--------|----------|
+| **合成中**（正在打编码） | `Esc` | 一次性清空当前编码（发 `Esc`），**不动已上屏正文** |
+| **非合成**（编码区已空） | 上滑清空🆑 | 清空当前输入框**全部文字**（含已上屏正文，走系统 `InputConnection`，与方案无关） |
+
+- 判定按手指相对退格键的坐标计算（横向为键宽两倍、纵向为键上方一个提示条高度以内），提示条本身不接收触摸；
+- 触发清空后抬手不会补删；清空同时会复位上面的正文保护序列，清空后立刻再按退格可正常删正文；
+- 触发时有一次长按级别的振动反馈。
+
+## 示例
+
+```json
+{ "type": "BackspaceKey", "weight": 0.15 }
+```
+
+配置上滑 / 下滑为"按词删除"：
+
+```json
+{
+  "type": "BackspaceKey",
+  "weight": 0.15,
+  "swipe": {
+    "macro": [
+      { "type": "shortcut", "modifiers": [ { "fcitx": "Ctrl_L" } ], "key": { "fcitx": "BackSpace" } }
+    ]
+  },
+  "swipeLabel": "←词"
+}
+```
+
+::: tip 注意区分
+配置 `swipe` 的**普通滑动**（不必先长按）与上面的**长按连删后上滑**是两个独立机制：前者需要手指没有长按停留、直接滑动；后者必须先按满长按延迟进入连删。
+:::
+
+## 相关页面
+
+- [按键类型总览](/legacy/fcitx/features/keys/overview)
+- [滑动操作](/legacy/fcitx/features/keyboard/swipe-actions)

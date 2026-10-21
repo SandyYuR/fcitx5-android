@@ -1,0 +1,116 @@
+# 键盘布局编辑器
+
+::: info 旧版 Fcitx 文档
+这是直连版合入前的原站文档，固定于 `edcf536f`，仅对应当时的 Fcitx 版本。
+[旧版完整目录](/legacy/fcitx/contents) · [旧版维护报告](/legacy/fcitx/maintainer/) · [当前中州鹅手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) · [原始文档](https://github.com/SandyYuR/fcitx5-android/blob/edcf536f85576ce3e2b241e1eb5059534a972f51/docs/features/editor/layout-editor.md)
+:::
+
+
+本版提供完整的 **应用内键盘布局编辑器**，配合底层的 JSON 配置文件 (`config/TextKeyboardLayout.json`)，允许你：
+
+- 不写代码、所见即所得地改键盘
+- 同时拥有 JSON 可手改、可版本管理、可分享的能力
+
+::: tip 编辑器预览与真机同源
+编辑器预览与真机键盘**共用同一套按键解析与渲染逻辑**——编辑器里是什么样，真机上就是什么样。若"编辑器里对、真机不对"，优先检查是否编辑对了目标布局（看子模式下拉框与工具栏副标题）。
+:::
+
+## 核心能力
+
+| 能力 | 说明 |
+|------|------|
+| 多布局文件 | 支持多个 TextKeyboardLayout profile，方便不同场景切换 |
+| 子模式布局 (submode) | 按 Rime 方案分别定制键位布局 |
+| 子模式「默认」项 | 下拉框第一项固定是「默认」——编辑所有无专用布局方案共用的那份（本版） |
+| 分体布局按子布局配置 | 为默认布局或某个方案单独配一套分体排列（本版） |
+| 层切换 (layer) | 通过 MacroKey `to/osl` action 在布局层间跳转 |
+| 行高百分比 | 按行配置相对高度；同行取最大值，所有行再归一化 |
+| 按键宽度权重 | weight 字段：省略走类型默认，`0` 参与分配剩余宽度，正数按整行比例占宽 |
+| 空白占位键 | 不可交互的重量占位，用于调位置与分体推挤（本版） |
+| 空格键划动动作 | 为空格配置划动动作与标签（与光标移动开关互斥，本版） |
+| 主题色 token | 按键颜色可引用主题色 token，跟随主题切换 |
+| 全量校验 | 编辑过程中进行完整数据校验，避免崩溃 |
+| 退出确认 | 未保存变更时弹出确认对话框 |
+
+## 入口
+
+- **应用主页 → 键盘 → 键盘布局自定义 → 修改键盘定义**
+- 同页附近还有：**切换键盘定义配置**（在多份布局文件间切换）、新建/重命名/删除布局文件、**弹出字符设定**、数字键盘布局、在线编辑器
+- 也可以在电脑浏览器中使用 [在线编辑器](https://sandyyur.github.io/f5a-see-me/){target="_blank" rel="noopener"} 修改布局，再通过二维码导入到手机端
+
+## 布局 Profile 与切换
+
+TextKeyboard 布局支持多个 **Profile**。每个 Profile 对应一份完整的文本键盘布局 JSON 文件，适合保存不同用途的键盘配置（日常输入、单手布局、符号增强、实验布局等）。
+
+文件命名规则：
+
+| Profile | 文件 |
+|---------|------|
+| `default` | `config/TextKeyboardLayout.json` |
+| 其他名称 | `config/TextKeyboardLayout.<profile>.json` |
+
+在应用内可以：
+
+- 在键盘布局编辑器中创建、复制、重命名、删除不同 Profile
+- 在 **切换键盘定义配置** 中选择当前启用的 Profile
+- 将 **TextKeyboard 布局文件选择** 动作放到 Kawaii Bar，输入时快速切换 Profile
+
+Profile 切换的是整份布局文件；它不同于布局 JSON 内部的 `layer` 切换，也不同于 `LayoutSwitchKey` 在当前布局内跳到某个布局目标。
+
+## 子模式下拉框与「默认」项
+
+选中 `rime` 这类带方案的布局后，编辑器顶部出现**子模式下拉框**，**第一项固定是「默认」**，其后是各方案名：
+
+- **选「默认」**：编辑布局文件里 `"rime": { "default": [...] }` 那份——它同时是**所有没有专用布局的方案实际使用的布局**；
+- **选某个方案**：编辑该方案专用布局；没有专用布局时会提示"没有专用布局，其按键来自默认布局"，先用 `+` 新建；
+- 工具栏副标题始终显示当前**实际**编辑的位置（如 `布局文件:rime` 就是默认布局），不会出现"以为在改 A、其实改了 B"；
+- 打开编辑器时若当前方案没有专用布局，下拉框自动停在「默认」项。
+
+## 分体键盘布局（按子布局配置）
+
+方案下拉框**正下方**有一个 **「分体键盘布局」** 勾选框：
+
+- 勾选后进入**当前选中的那个子布局**（默认布局或某方案）的分体布局编辑；
+- 该子布局还没有分体布局时，会先询问"要从它当前的排列复制一份开始编辑吗"，**不静默新建**；
+- 勾选框右侧实时显示状态（已有独立分体布局 / 未单独设置沿用普通布局）；长按勾选框有完整说明；
+- 勾选状态下工具栏 **🗑** 删除的是这一份分体布局；**+** 置灰（分体布局要么已打开、要么由勾选框新建）；
+- 预览会**按分体渲染**你正在编辑的那份，即使预览框宽度不触发分体；
+- 磁盘上写在子布局对象内部的 `__variant__:split` 键（与 `default` 平级）——这是机器内部键名，请勿当成方案名使用。
+
+分体的断点、中缝对齐与占位键用法见 [分体键盘](/legacy/fcitx/features/keyboard/split-keyboard)。
+
+## 按键类型下拉框
+
+- 每个按键类型都带**本地化中文说明**（本版新增），选型时直接看到用途；
+- 本版新增 **空白占位键** 类型：只占位、完全不接收触摸（不震动、无高亮、不吃滚动），键列表中显示为 `·` 记号；
+- AlphabetKey / MacroKey 的**显示文本优先**规则在编辑器预览与保存中一致生效（见 [AlphabetKey](/legacy/fcitx/features/keys/alphabet-key) / [MacroKey](/legacy/fcitx/features/keys/macro-key)）。
+
+## 内置布局
+
+首次启动时应用会自动安装一批**社区贡献的布局**（大同-9+18+26keys、九键布局、行之-26键、行之-万象九键v2、QM-朝花、Sandy-数字行26+万象九键等），并把第一份设为当前布局：
+
+- 内置布局是普通文件：编辑、重命名、删除都照常工作，删除后不会被塞回来；
+- 版本更新会更新内置布局内容，但**只替换从未被用户修改过的文件**——你保存过的文件始终保留；
+- 26 键字母层宏键的冗余显示文本已清理；部分布局的 `⌨` 键长按已接 Rime 方案选单宏。
+
+## 分享与导入
+
+布局可通过二维码分享（含预览缩略图）：见 [QR 分享与导入](/legacy/fcitx/features/theme/share-import)。
+
+## 健壮性（本版持续加固）
+
+- 布局加载 / 解析 / 序列化 / 写入**全部移出主线程**，预览走独立布局通道，不再清空全局缓存；
+- 布局保存**原子化**，草稿改存私有文件（修复编辑大布局时 `TransactionTooLargeException` 崩溃），快照名经白名单与 canonical path 校验阻断路径穿越；
+- 带注释的布局 JSON 解析不再静默回退；拖拽松手归位、旋屏状态保存、拖拽排除添加键等问题已修复。
+
+## 相关页面
+
+- [按键类型总览](/legacy/fcitx/features/keys/overview) —— 所有 type 与字段（含空白占位键）
+- [MacroKey](/legacy/fcitx/features/keys/macro-key) —— step 类型与字段
+- [分体键盘](/legacy/fcitx/features/keyboard/split-keyboard) —— 分体布局与断点
+- [在线编辑器](/legacy/fcitx/features/online-editor)
+- [Popup 编辑器](/legacy/fcitx/features/editor/popup-editor)
+- [MacroKey 编辑器](/legacy/fcitx/features/editor/macrokey-editor)
+- [字体集编辑器](/legacy/fcitx/features/editor/fontset-editor)
+- [Compose Override](/legacy/fcitx/features/keyboard/compose-override)
+- [滑动操作](/legacy/fcitx/features/keyboard/swipe-actions)
