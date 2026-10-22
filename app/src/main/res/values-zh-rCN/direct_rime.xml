@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="direct_rime_import">导入 Rime 方案</string>
-    <string name="direct_rime_import_description">选择包含 Rime 用户文件的 ZIP，根目录需要包含 default.yaml 或 default.custom.yaml。方案将导入新目录并自动部署，现有方案仍可在数据目录管理中切换。</string>
+    <string name="direct_rime_import_description">选择 Rime 方案 ZIP，校验通过后再选择存放在应用目录或外部目录。应用会在所选位置新建方案目录并部署。</string>
     <string name="direct_rime_choose_zip">选择方案 ZIP</string>
+    <string name="direct_rime_choose_destination">选择方案存放位置</string>
+    <string name="direct_rime_reading_archive">正在读取方案 ZIP…</string>
+    <string name="direct_rime_validating_archive">正在校验 Rime 方案 ZIP…</string>
+    <string name="direct_rime_archive_not_profile">这不是 Rime 方案 ZIP。压缩包根目录需包含 default.yaml 或 default.custom.yaml。</string>
+    <string name="direct_rime_app_directory">应用目录</string>
+    <string name="direct_rime_external_directory">外部目录</string>
+    <string name="direct_rime_choose_app_directory">选择应用目录</string>
+    <string name="direct_rime_archive_missing">临时 ZIP 已不可用，请重新选择。</string>
     <string name="direct_rime_importing">正在导入和部署…</string>
     <string name="direct_rime_imported">部署完成，可在下方测试输入。</string>
+    <string name="direct_rime_import_cancelled">已取消导入。</string>
     <string name="direct_rime_import_failed">导入失败：%1$s</string>
     <string name="direct_rime_archive_too_large">压缩包超过 512 MiB。</string>
     <string name="direct_rime_test_input">在这里测试输入</string>

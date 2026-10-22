@@ -624,13 +624,37 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 val pathValue = config.findByName("Archive")?.value ?: error("请选择方案 ZIP")
                 val archive = File(pathValue).canonicalFile
                 require(archive.parentFile == File(context.cacheDir, "rime-import").canonicalFile) { "无效导入路径" }
-                val name = "import-${System.currentTimeMillis()}"
-                val staging = File(this.config.dataRoot, ".$name")
-                archive.inputStream().use { ProfileArchive.extract(it, staging) }
-                val target = File(this.config.dataRoot, name)
-                check(staging.renameTo(target)) { "无法安装方案文件" }
+                val destinationPath = config.findByName("Destination")?.value.orEmpty()
+                val parent = if (destinationPath.isBlank()) {
+                    this.config.dataRoot.canonicalFile
+                } else {
+                    File(destinationPath).canonicalFile
+                }
+                require(parent.isDirectory && parent.canRead() && parent.canWrite()) { "无法写入所选目录" }
+
+                val profiles = this.config.directoryState().findByName("Profiles")?.value
+                    .orEmpty().lineSequence().filter(String::isNotBlank).toSet()
+                var timestamp = System.currentTimeMillis()
+                var name = "import-$timestamp"
+                while (name in profiles || File(parent, name).exists() || File(parent, ".$name.importing").exists()) {
+                    name = "import-${++timestamp}"
+                }
+                val staging = File(parent, ".$name.importing")
+                val target = File(parent, name)
+                try {
+                    archive.inputStream().use { ProfileArchive.extract(it, staging) }
+                    check(staging.renameTo(target)) { "无法安装方案文件" }
+                } catch (e: Exception) {
+                    staging.deleteRecursively()
+                    throw e
+                }
+                try {
+                    this.config.create(name, target.absolutePath)
+                } catch (e: Exception) {
+                    target.deleteRecursively()
+                    throw e
+                }
                 val previous = this.config.current
-                this.config.create(name)
                 try { this.config.switch(name); restartNative() }
                 catch (e: Exception) {
                     this.config.switch(previous)
