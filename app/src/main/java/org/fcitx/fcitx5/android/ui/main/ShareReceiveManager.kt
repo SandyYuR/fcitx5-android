@@ -12,11 +12,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.DocumentsContract
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -66,7 +61,7 @@ class ShareReceiveManager(
     private val activity: MainActivity,
     private val showMessage: (String, (() -> Unit)?) -> Unit
 ) {
-    private val prefs by lazy { AppPrefs.getInstance() }
+    private val directoryPicker by lazy { ShareReceiveDirectoryPicker(activity) }
     private var qrProgressUpdate: ((String) -> Unit)? = null
     private val json = Json {
         ignoreUnknownKeys = true
@@ -1516,99 +1511,7 @@ class ShareReceiveManager(
         initialRelativeDir: String,
         fileName: String? = null,
         fileCount: Int? = null
-    ): String? = withContext(Dispatchers.Main) {
-        if (!canShowDialog()) return@withContext null
-        val normalized = normalizeRelativePath(initialRelativeDir)
-        val root = importRootDir()
-        val initialDirectory = runCatching { resolveImportDirectory(normalized) }.getOrElse { root }
-        suspendCancellableDialog<String?> { cont ->
-            var currentDirectory = initialDirectory
-            val density = activity.resources.displayMetrics.density
-            val horizontalPadding = (24 * density).toInt()
-            val verticalPadding = (16 * density).toInt()
-            val listHeight = (320 * density).toInt()
-            val pathView = TextView(activity).apply {
-                setPadding(0, 0, 0, (12 * density).toInt())
-            }
-            val listView = ListView(activity).apply {
-                dividerHeight = 0
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    listHeight
-                )
-            }
-            val container = LinearLayout(activity).apply {
-                orientation = LinearLayout.VERTICAL
-                setPadding(horizontalPadding, verticalPadding, horizontalPadding, 0)
-                addView(pathView)
-                addView(listView)
-            }
-            val adapter = ArrayAdapter<String>(
-                activity,
-                android.R.layout.simple_list_item_1,
-                mutableListOf()
-            )
-            listView.adapter = adapter
-            var entries: List<DirectoryPickerEntry> = emptyList()
-
-            fun updatePath() {
-                val relativeDir = runCatching { relativePathFromRoot(currentDirectory) }.getOrDefault("")
-                pathView.text = when {
-                    fileName != null -> activity.getString(
-                        R.string.share_receive_file_path_message_single,
-                        fileName,
-                        displayRelativeDirectory(relativeDir)
-                    )
-                    fileCount != null -> activity.getString(
-                        R.string.share_receive_file_path_message_multiple,
-                        fileCount,
-                        displayRelativeDirectory(relativeDir)
-                    )
-                    else -> activity.getString(
-                        R.string.share_receive_file_path_message,
-                        displayRelativeDirectory(relativeDir)
-                    )
-                }
-            }
-
-            fun updateEntries() {
-                entries = buildDirectoryEntries(root, currentDirectory)
-                adapter.clear()
-                adapter.addAll(entries.map { it.label })
-                adapter.notifyDataSetChanged()
-            }
-
-            listView.setOnItemClickListener { _, _, position, _ ->
-                val entry = entries.getOrNull(position) ?: return@setOnItemClickListener
-                currentDirectory = entry.directory
-                updatePath()
-                updateEntries()
-            }
-
-            val dialog = MaterialAlertDialogBuilder(activity)
-                .setTitle(R.string.share_receive_file_path_title)
-                .setView(container)
-                .setPositiveButton(R.string.import_, null)
-                .setNegativeButton(android.R.string.cancel) { _, _ ->
-                    if (cont.isActive) cont.resume(null)
-                }
-                .setOnCancelListener {
-                    if (cont.isActive) cont.resume(null)
-                }
-                .create()
-
-            dialog.setOnShowListener {
-                updatePath()
-                updateEntries()
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                    if (cont.isActive) cont.resume(relativePathFromRoot(currentDirectory))
-                    dialog.dismiss()
-                }
-            }
-            dialog.show()
-            dialog
-        }
-    }
+    ): String? = directoryPicker.chooseTargetDirectory(initialRelativeDir, fileName, fileCount)
 
     private fun joinRelativePath(base: String, child: String): String =
         listOf(base, child)
@@ -1798,32 +1701,6 @@ class ShareReceiveManager(
         }
     }
 
-    private data class DirectoryPickerEntry(
-        val label: String,
-        val directory: File
-    )
-
-    private fun buildDirectoryEntries(root: File, currentDirectory: File): List<DirectoryPickerEntry> {
-        val canonicalRoot = root.canonicalFile
-        val entries = mutableListOf<DirectoryPickerEntry>()
-        if (currentDirectory != root) {
-            val parent = currentDirectory.parentFile?.canonicalFile
-                ?.takeIf { isInsideRoot(canonicalRoot, it) }
-                ?: canonicalRoot
-            entries += DirectoryPickerEntry("../", parent)
-        }
-        currentDirectory.listFiles()
-            ?.filter { it.isDirectory }
-            ?.sortedBy { it.name.lowercase() }
-            ?.forEach { child ->
-                val canonicalChild = runCatching { child.canonicalFile }.getOrNull() ?: return@forEach
-                if (isInsideRoot(canonicalRoot, canonicalChild)) {
-                    entries += DirectoryPickerEntry("${child.name}/", canonicalChild)
-                }
-            }
-        return entries
-    }
-
     private fun isInsideRoot(root: File, target: File): Boolean {
         val rootPath = root.path
         val targetPath = target.path
@@ -1861,17 +1738,11 @@ class ShareReceiveManager(
     }
 
     private fun lastShareReceiveDirectoryOr(defaultValue: String): String {
-        return if (prefs.internal.lastShareReceiveDirectoryRemembered.getValue()) {
-            prefs.internal.lastShareReceiveDirectory.getValue().ifBlank { defaultValue }
-        } else {
-            defaultValue
-        }
+        return directoryPicker.lastDirectoryOr(defaultValue)
     }
 
     private fun rememberShareReceiveDirectory(relativePath: String) {
-        val normalized = normalizeRelativePath(relativePath)
-        prefs.internal.lastShareReceiveDirectory.setValue(normalized)
-        prefs.internal.lastShareReceiveDirectoryRemembered.setValue(true)
+        directoryPicker.rememberDirectory(relativePath)
     }
 
     companion object {
@@ -1884,7 +1755,7 @@ class ShareReceiveManager(
     }
 }
 
-private suspend inline fun <T> suspendCancellableDialog(
+internal suspend inline fun <T> suspendCancellableDialog(
     crossinline block: (kotlinx.coroutines.CancellableContinuation<T>) -> AlertDialog
 ): T = suspendCancellableCoroutine { cont ->
     val dialog = block(cont)
