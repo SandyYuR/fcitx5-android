@@ -23,6 +23,9 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 
 val NumLockState = KeyStates(KeyState.NumLock, KeyState.Virtual)
 
+private const val DEFAULT_COMMA_KEY = ","
+private const val DEFAULT_PERIOD_KEY = "."
+
 class SymbolKey(
     val symbol: String,
     percentWidth: Float = 0.1f,
@@ -74,7 +77,9 @@ class SymbolKey(
         }
     },
     buildSet {
-        add(Behavior.Press(KeyAction.FcitxKeyAction(symbol)))
+        // In the base SymbolKey state, `symbol` is only the keycap text. Send
+        // the standard period so input methods can apply their punctuation rules.
+        add(Behavior.Press(KeyAction.FcitxKeyAction(DEFAULT_PERIOD_KEY)))
         if (swipeUp != null || swipeDown != null) {
             add(Behavior.Swipe(
                 upMacro = swipeUp,
@@ -387,7 +392,7 @@ class CommaKey(
         shadowColorMonet = shadowColorMonet
     ),
     setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(","))
+        Behavior.Press(KeyAction.FcitxKeyAction(DEFAULT_COMMA_KEY))
     ),
     arrayOf(
         Popup.Preview(","),
