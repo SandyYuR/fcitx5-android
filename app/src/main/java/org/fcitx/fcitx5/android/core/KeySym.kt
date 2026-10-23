@@ -80,3 +80,31 @@ value class KeySym(val sym: Int) {
 
     }
 }
+
+/**
+ * The character this keysym produces when delivered to the editor.
+ *
+ * Fills [FcitxEvent.KeyEvent.Data.unicode] for keys the engine did not consume,
+ * so the frontend can commit them as text. Keypad keysyms ([FcitxKeyMapping]
+ * `FcitxKey_KP_*`) are folded to their NumLock-on meaning: this IME never
+ * toggles NumLock, and the physical-key path ([FcitxInputMethodService]'s
+ * `simulatedMetaState`) always adds `META_NUM_LOCK_ON` for numpad keycodes, so
+ * `XK_KP_1` is always the digit `1`. `XK_KP_Enter` deliberately stays 0: Enter
+ * must be delivered as a keycode event, never committed as a raw newline.
+ */
+val KeySym.editorUnicode: Int
+    get() = when {
+        sym in FcitxKeyMapping.FcitxKey_KP_0..FcitxKeyMapping.FcitxKey_KP_9 ->
+            '0'.code + (sym - FcitxKeyMapping.FcitxKey_KP_0)
+        sym == FcitxKeyMapping.FcitxKey_KP_Decimal -> '.'.code
+        sym == FcitxKeyMapping.FcitxKey_KP_Separator -> ','.code
+        sym == FcitxKeyMapping.FcitxKey_KP_Equal -> '='.code
+        sym == FcitxKeyMapping.FcitxKey_KP_Multiply -> '*'.code
+        sym == FcitxKeyMapping.FcitxKey_KP_Add -> '+'.code
+        sym == FcitxKeyMapping.FcitxKey_KP_Subtract -> '-'.code
+        sym == FcitxKeyMapping.FcitxKey_KP_Divide -> '/'.code
+        sym in 0x20..0xff -> sym
+        sym and 0xff000000.toInt() == 0x01000000 -> sym and 0x00ffffff
+        sym in 0x100..0x10ffff && sym !in 0xff00..0xffff -> sym
+        else -> 0
+    }

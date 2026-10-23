@@ -55,7 +55,6 @@ android {
             proguardFile("proguard-rules.pro")
         }
         debug {
-            applicationIdSuffix = ""
             resValue("mipmap", "app_icon", "@mipmap/ic_launcher_debug")
             resValue("mipmap", "app_icon_round", "@mipmap/ic_launcher_round_debug")
             resValue("string", "app_name", "中州鹅")
