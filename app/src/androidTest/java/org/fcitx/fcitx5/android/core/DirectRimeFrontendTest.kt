@@ -58,7 +58,7 @@ class DirectRimeFrontendTest {
         assertTrue(message, condition())
     }
     @Before fun prepare(): Unit = runBlocking {
-        assertEquals("org.fcitx.fcitx5.android.fx.rime", context.packageName)
+        assertEquals(BuildConfig.APPLICATION_ID, context.packageName)
         connection.runOnReady {
             previousProfile = getAddonSubConfig("rime", "profile-manager")["Current"].value
             setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "create"), RawConfig("Name", profile))))

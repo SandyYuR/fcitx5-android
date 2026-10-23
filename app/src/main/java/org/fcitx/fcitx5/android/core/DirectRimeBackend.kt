@@ -397,12 +397,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 (bypass || (result?.ready == true && !result.handled)).also { if (it) forwardedKeys.add(keyId) }
             if (forward) {
                 // Preserve hardware down/up pairing and the frontend's virtual key fallback.
-                val unicode = when {
-                    sym in 0x20..0xff -> sym
-                    sym and 0xff000000.toInt() == 0x01000000 -> sym and 0x00ffffff
-                    sym in 0x100..0x10ffff && sym !in 0xff00..0xffff -> sym
-                    else -> 0
-                }
+                val unicode = KeySym(sym).editorUnicode
                 val event = FcitxEvent.KeyEvent(FcitxEvent.KeyEvent.Data(KeySym(sym), KeyStates(states), unicode, up, timestamp))
                 event.inputSession = expected
                 events.trySend(listOf(event))

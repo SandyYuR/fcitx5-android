@@ -754,7 +754,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                             backspaceBoundaryGuard.onUserKeyAction()
                             handleArrowKey(KeyEvent.KEYCODE_DPAD_DOWN)
                         }
-                        else -> if (it.unicode > 0) {
+                        else -> if (it.unicode > 0 && !it.up) {
                             backspaceBoundaryGuard.onCommit()
                             commitText(Character.toString(it.unicode))
                         } else {
