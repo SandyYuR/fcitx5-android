@@ -213,6 +213,7 @@ class AddonDirProfileManagerFragment : Fragment() {
             initSettingsButton = { item ->
                 visibility = View.VISIBLE
                 setImageResource(R.drawable.ic_baseline_more_horiz_24)
+                contentDescription = getString(androidx.appcompat.R.string.abc_action_menu_overflow_description)
                 setOnClickListener {
                     showItemMenu(item)
                 }

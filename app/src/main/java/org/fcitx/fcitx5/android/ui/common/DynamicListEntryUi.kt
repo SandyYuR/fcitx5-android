@@ -12,6 +12,7 @@ import org.fcitx.fcitx5.android.R
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import splitties.resources.resolveThemeAttribute
+import org.fcitx.fcitx5.android.utils.settingsColorStateList
 import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.resources.styledDimenPxSize
 import splitties.resources.styledDrawable
@@ -43,9 +44,8 @@ import splitties.views.textAppearance
 class DynamicListEntryUi(override val ctx: Context) : Ui {
 
     val handleImage = imageView {
-        imageDrawable = drawable(R.drawable.ic_baseline_drag_handle_24)!!.apply {
-            setTint(settingsColor(android.R.attr.colorAccent))
-        }
+        imageTintList = ctx.settingsColorStateList(androidx.appcompat.R.attr.colorPrimary)
+        imageDrawable = drawable(R.drawable.ic_baseline_drag_handle_24)
         setPaddingDp(3, 0, 3, 0)
     }
 
@@ -67,21 +67,20 @@ class DynamicListEntryUi(override val ctx: Context) : Ui {
 
     val editButton = imageButton {
         background = styledDrawable(android.R.attr.selectableItemBackground)
-        imageDrawable = drawable(R.drawable.ic_baseline_edit_24)!!.apply {
-            setTint(settingsColor(android.R.attr.colorControlNormal))
-        }
+        imageTintList = ctx.settingsColorStateList(com.google.android.material.R.attr.colorOnSurfaceVariant)
+        imageDrawable = drawable(R.drawable.ic_baseline_edit_24)
     }
 
     val settingsButton = imageButton {
         background = styledDrawable(android.R.attr.selectableItemBackground)
-        imageDrawable = drawable(R.drawable.ic_baseline_settings_24)!!.apply {
-            setTint(settingsColor(android.R.attr.colorControlNormal))
-        }
+        // Keep the tint on the button: consumers may replace its icon while binding a row.
+        imageTintList = ctx.settingsColorStateList(com.google.android.material.R.attr.colorOnSurfaceVariant)
+        imageDrawable = drawable(R.drawable.ic_baseline_settings_24)
     }
 
     override val root: View = constraintLayout {
         layoutParams = ViewGroup.LayoutParams(matchParent, wrapContent)
-        backgroundColor = settingsColor(android.R.attr.colorBackground)
+        backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
         minHeight = styledDimenPxSize(android.R.attr.listPreferredItemHeightSmall)
 
         val paddingStart = styledDimenPxSize(android.R.attr.listPreferredItemPaddingStart)
