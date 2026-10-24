@@ -36,6 +36,21 @@ import androidx.appcompat.app.AlertDialog
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.activity.addCallback
+import androidx.activity.viewModels
+import androidx.appcompat.widget.PopupMenu
+import com.google.android.material.snackbar.Snackbar
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDocument
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutEditTarget
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutEditorHistoryModel
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.copyKeyData
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorUi
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorKeyPosition
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.KeyboardCanvasOverlay
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.KeyboardEditorWorkspace
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.KeyboardKeyInspector
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.LayoutKeyOperations
+import com.google.android.material.tabs.TabLayout
+import android.text.InputType
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.text.HtmlCompat
 import androidx.core.view.ViewCompat
@@ -68,9 +83,9 @@ import org.fcitx.fcitx5.android.input.keyboard.LayoutVariant
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapter
 import org.fcitx.fcitx5.android.utils.AppUtil
-import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.SimpleDividerItemDecoration
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDraftStore
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorResultHost
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.LayoutFileProfileInputActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.LayoutNameInputActivity
@@ -115,8 +130,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     private val listContainer by lazy {
         LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            val pad = dp(16)
-            setPadding(pad, pad, pad, pad)
+            setPadding(dp(16), dp(8), dp(16), dp(16))
         }
     }
 
@@ -126,10 +140,9 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                0
-            ).apply {
-                weight = 1f
-            }
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            isNestedScrollingEnabled = false
         }
     }
 
@@ -145,7 +158,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private val layoutSpinner by lazy {
-        MaterialSpinner(this).apply {
+        MaterialSpinner(this, cornerRadiusDp = 12).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
                 setMargins(0, 0, 0, 0)
@@ -157,10 +170,10 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private val subModeSpinner by lazy {
-        MaterialSpinner(this).apply {
+        MaterialSpinner(this, cornerRadiusDp = 12).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
-                setMargins(0, 0, 0, 0)
+                marginStart = dp(8)
             }
             minimumHeight = dp(40)
             setPaddingRelative(dp(12), 0, dp(40), 0)
@@ -219,7 +232,8 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
      */
     private val splitLayoutCheckBox by lazy {
         com.google.android.material.checkbox.MaterialCheckBox(this).apply {
-            text = getString(R.string.text_keyboard_layout_split_layout)
+            text = getString(R.string.layout_editor_split)
+            minHeight = dp(48)
             textSize = 13f
             setPadding(dp(4), dp(2), dp(4), dp(2))
             setOnCheckedChangeListener { _, isChecked ->
@@ -261,50 +275,262 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private val addLayoutButton by lazy {
+        EditorUi.button(this, R.string.layout_editor_add_menu) { showAddLayoutMenu() }
+    }
+
+    private val createDedicatedButton by lazy {
+        EditorUi.button(this, R.string.layout_editor_new_schema) { addSubModeForCurrentSelection() }
+    }
+
+    private val saveStatus by lazy {
         TextView(this).apply {
-            text = "+"
-            textSize = 14f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setPadding(dp(12), dp(4), dp(12), dp(4))
-            minWidth = dp(40)
-            gravity = Gravity.CENTER
-            setOnClickListener { openLayoutEditor(null) }
-            setOnLongClickListener {
-                openGlobalLayoutNameInput()
-                true
+            textSize = 12f
+            setPadding(dp(16), 0, dp(8), 0)
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
+            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+        }
+    }
+
+    private val historyModel: LayoutEditorHistoryModel by viewModels()
+    private val editHistory get() = historyModel.history
+    private var restoringHistory = false
+    private var deleteSnackbar: Snackbar? = null
+    private var inlineTransactionActive = false
+    private val undoButton by lazy {
+        EditorUi.icon(this, R.drawable.ic_baseline_undo_24, R.string.layout_editor_undo) { restoreHistory(false) }
+    }
+    private val redoButton by lazy {
+        EditorUi.icon(this, R.drawable.ic_baseline_redo_24, R.string.layout_editor_redo) { restoreHistory(true) }
+    }
+
+    private val contextContainer by lazy {
+        LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(12), dp(16), 0)
+            addView(spinnerContainer)
+            addView(subModeOptionsColumn)
+            addView(createDedicatedButton)
+        }
+    }
+
+    private val inlineKeyResults = KeyEditorResultHost(this)
+    private var selectedKey: EditorKeyPosition? = null
+    private var selectedLayoutKey: String? = null
+    private var structureVisible = false
+    private var imeVisible = false
+    private val inspector: KeyboardKeyInspector by lazy {
+        KeyboardKeyInspector(this).apply {
+            resultHost = inlineKeyResults
+            onDraft = { draft ->
+                val position = selectedKey
+                val rows = selectedLayoutKey?.let(entries::get)
+                if (position != null && rows != null && position.row in rows.indices && position.key in rows[position.row].indices) {
+                    deleteSnackbar?.dismiss()
+                    inlineTransactionActive = true
+                    rows[position.row][position.key] = draft
+                    currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+                    canvasOverlay.refresh()
+                    updateSaveButtonState()
+                }
+            }
+            onDone = { if (finishInlineEdit()) clearKeySelection() }
+            onCancel = { cancelInlineEdit() }
+            onCopy = { duplicateSelectedKey() }
+            onDelete = { deleteSelectedKey() }
+            onRowSettings = { selectedKey?.let { openRowSettings(it.row) } }
+            onStepMove = { delta ->
+                selectedKey?.let { source ->
+                    val slot = source.key + if (delta > 0) 2 else -1
+                    moveCanvasKey(source, EditorKeyPosition(source.row, slot))
+                }
             }
         }
     }
-
-    private val deleteLayoutButton by lazy {
+    private val canvasOverlay: KeyboardCanvasOverlay by lazy {
+        KeyboardCanvasOverlay(this).apply {
+            boundsProvider = { previewManager.keyBounds(currentRowsRef) }
+            onSelect = { selectKey(it, reveal = false) }
+            onShowInspector = { workspace.revealProperties(inspector) }
+            onMove = { source, target -> moveCanvasKey(source, target) }
+        }
+    }
+    private val previewFrame by lazy {
+        FrameLayout(this).apply {
+            addView(previewKeyboardContainer, FrameLayout.LayoutParams(matchParent, wrapContent))
+            addView(canvasOverlay, FrameLayout.LayoutParams(matchParent, matchParent))
+            previewKeyboardContainer.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+            previewKeyboardContainer.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                canvasOverlay.refresh()
+                post {
+                    canvasHint.setText(if (previewManager.keyBounds(currentRowsRef).isEmpty())
+                        R.string.layout_editor_canvas_unavailable else R.string.layout_editor_hint)
+                }
+            }
+        }
+    }
+    private val canvasHint by lazy {
         TextView(this).apply {
-            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_delete_24, 0, 0, 0)
-            compoundDrawableTintList = ColorStateList.valueOf(settingsColor(android.R.attr.textColorSecondary))
-            contentDescription = getString(R.string.delete)
-            textSize = 14f
-            setPadding(dp(12), dp(4), dp(12), dp(4))
-            minWidth = dp(40)
-            gravity = Gravity.CENTER
-            setOnClickListener { confirmDeleteCurrentEditingLayout() }
+            setText(R.string.layout_editor_hint)
+            textSize = 12f
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
+            setPadding(dp(8), dp(4), dp(8), dp(4))
+        }
+    }
+    private val viewTabs by lazy {
+        TabLayout(this).apply {
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
+            setTabTextColors(settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant),
+                settingsColor(androidx.appcompat.R.attr.colorPrimary))
+            layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent).apply { bottomMargin = dp(12) }
+            addTab(newTab().setText(R.string.layout_editor_canvas))
+            addTab(newTab().setText(R.string.layout_editor_structure))
+            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    if (!finishInlineEdit()) {
+                        post { getTabAt(if (structureVisible) 1 else 0)?.select() }
+                        return
+                    }
+                    structureVisible = tab.position == 1
+                    updateEditorPanel()
+                }
+                override fun onTabUnselected(tab: TabLayout.Tab) {}
+                override fun onTabReselected(tab: TabLayout.Tab) {}
+            })
+        }
+    }
+    private val actionStrip by lazy {
+        LinearLayout(this).apply {
+            setPadding(dp(8), dp(4), dp(8), dp(4))
+            gravity = Gravity.CENTER_VERTICAL
+            addView(undoButton)
+            addView(redoButton)
+            addView(saveStatus, LinearLayout.LayoutParams(0, wrapContent, 1f))
+            addView(addLayoutButton)
+        }
+    }
+    private val workspace by lazy {
+        KeyboardEditorWorkspace(this, contextContainer, actionStrip, previewFrame, listContainer)
+    }
+    private val ui by lazy {
+        LinearLayout(this).apply {
+            setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
+            orientation = LinearLayout.VERTICAL
+            addView(toolbar, LinearLayout.LayoutParams(matchParent, wrapContent))
+            addView(workspace, LinearLayout.LayoutParams(matchParent, 0, 1f))
         }
     }
 
-    private val ui by lazy {
-        LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            addView(
-                toolbar,
-                LinearLayout.LayoutParams(matchParent, wrapContent)
-            )
-            addView(
-                previewKeyboardContainer,
-                LinearLayout.LayoutParams(matchParent, wrapContent)
-            )
-            addView(
-                listContainer,
-                LinearLayout.LayoutParams(matchParent, 0).apply { weight = 1f }
-            )
+    private fun updateEditorPanel() {
+        rowsRecyclerView.visibility = if (structureVisible) View.VISIBLE else View.GONE
+        inspector.visibility = if (structureVisible) View.GONE else View.VISIBLE
+        canvasHint.visibility = if (selectedKey == null && !structureVisible) View.VISIBLE else View.GONE
+    }
+
+    private fun selectKey(position: EditorKeyPosition, reveal: Boolean = true, formState: Bundle? = null): Boolean {
+        if (selectedKey == position && selectedLayoutKey == currentEditingLayoutKey()) {
+            if (reveal) workspace.revealProperties(inspector)
+            return true
         }
+        if (!finishInlineEdit()) return false
+        val key = currentRowsRef.getOrNull(position.row)?.getOrNull(position.key) ?: return false
+        selectedKey = position
+        selectedLayoutKey = currentEditingLayoutKey()
+        val options = Intent().apply {
+            putExtra(KeyEditorActivity.EXTRA_IS_EDITING_SUBMODE_LAYOUT, selectedLayoutKey != currentLayout)
+            putExtra(KeyEditorActivity.EXTRA_CURRENT_SUBMODE_LABEL, previewSubModeLabel)
+            putExtra(KeyEditorActivity.EXTRA_HAS_MULTI_SUBMODE_SUPPORT,
+                subModeManager.isCurrentLayoutRime(currentLayout.orEmpty()) || subModeSpinnerSelectionMap.size > 2)
+            putStringArrayListExtra(KeyEditorActivity.EXTRA_AVAILABLE_LAYOUT_TARGETS, ArrayList(entries.keys.sorted()))
+        }
+        inspector.bind(position, key, options, formState)
+        canvasOverlay.selected = position
+        updateEditingChrome()
+        viewTabs.getTabAt(0)?.select()
+        if (reveal) workspace.revealProperties(inspector)
+        return true
+    }
+
+    private fun finishInlineEdit(): Boolean {
+        if (!inspector.validate()) return false
+        if (inlineTransactionActive) {
+            inlineTransactionActive = false
+            updateSaveButtonState()
+            selectedKey?.let { rowsAdapter?.notifyRowChanged(it.row) }
+        }
+        return true
+    }
+
+    private fun clearKeySelection() {
+        selectedKey = null
+        selectedLayoutKey = null
+        inspector.clear()
+        canvasOverlay.selected = null
+        (getSystemService(Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager)
+            ?.hideSoftInputFromWindow(ui.windowToken, 0)
+        updateEditingChrome()
+    }
+
+    private fun cancelInlineEdit() {
+        val position = selectedKey
+        val layout = selectedLayoutKey
+        val previous = editHistory.current?.document?.entries?.get(layout)?.getOrNull(position?.row ?: -1)
+            ?.getOrNull(position?.key ?: -1)
+        if (inlineTransactionActive && position != null && layout != null && previous != null) {
+            entries[layout]?.getOrNull(position.row)?.set(position.key, copyKeyData(previous))
+        }
+        inlineTransactionActive = false
+        clearKeySelection()
+        rowsAdapter?.updateRows(currentRowsRef)
+        currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+        updateSaveButtonState()
+    }
+
+    private fun updateEditingChrome() {
+        canvasHint.visibility = if (selectedKey == null && !structureVisible) View.VISIBLE else View.GONE
+        // Selection must never remove the controls used to switch layout/schema/variant.
+        spinnerContainer.visibility = View.VISIBLE
+        subModeOptionsColumn.visibility = View.VISIBLE
+        createDedicatedButton.visibility = if (previewSubModeLabel != null && currentLayout?.let { resolveExistingSubModeKey(it) == null } == true && !editingSplit) View.VISIBLE else View.GONE
+        actionStrip.visibility = if (imeVisible) View.GONE else View.VISIBLE
+        exitBackCallback?.isEnabled = !stateLoaded || selectedKey != null || hasChanges()
+    }
+
+    private fun moveCanvasKey(source: EditorKeyPosition, target: EditorKeyPosition) {
+        if (!finishInlineEdit()) return
+        val moved = LayoutKeyOperations.move(currentRowsRef, source, target) ?: return
+        clearKeySelection()
+        rowsAdapter?.updateRows(currentRowsRef)
+        currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+        updateSaveButtonState()
+        selectKey(moved)
+    }
+
+    private fun duplicateSelectedKey() {
+        val position = selectedKey ?: return
+        if (!finishInlineEdit()) return
+        val row = currentRowsRef.getOrNull(position.row) ?: return
+        val key = row.getOrNull(position.key) ?: return
+        val copy = copyKeyData(key).apply { remove("splitAfter") }
+        row.add(position.key + 1, copy)
+        clearKeySelection()
+        rowsAdapter?.notifyRowChanged(position.row)
+        currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+        updateSaveButtonState()
+        selectKey(EditorKeyPosition(position.row, position.key + 1))
+    }
+
+    private fun deleteSelectedKey() {
+        val position = selectedKey ?: return
+        // Deleting also intentionally discards an unfinished field on this key.
+        inlineTransactionActive = false
+        val row = currentRowsRef.getOrNull(position.row) ?: return
+        if (position.key !in row.indices) return
+        row.removeAt(position.key)
+        clearKeySelection()
+        rowsAdapter?.notifyRowChanged(position.row)
+        currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+        updateSaveButtonState()
+        showDeleteUndo()
     }
 
     private fun updateToolbarSubtitle() {
@@ -321,19 +547,12 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private fun currentEditingSubtitle(): String? {
-        val layoutName = currentLayout?.takeIf { it.isNotBlank() } ?: return null
-        val splitEntryKey = editingSplitEntryKey()
-        if (splitEntryKey != null) {
-            return "${displayProfile(currentLayoutProfile)}:${splitLayoutTargetLabel(layoutName)}"
-        }
-        val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() }
-        val hasDedicatedSubModeLayout = resolveExistingSubModeKey(layoutName) != null
-        val editing = if (hasDedicatedSubModeLayout) {
-            "$layoutName:$subModeLabel"
-        } else {
-            layoutName
-        }
-        return "${displayProfile(currentLayoutProfile)}:$editing"
+        val layout = currentLayout?.takeIf { it.isNotBlank() } ?: return null
+        return listOf(
+            displayProfile(currentLayoutProfile), layout,
+            previewSubModeLabel ?: getString(R.string.default_),
+            getString(if (editingSplit) R.string.layout_editor_split else R.string.layout_editor_normal)
+        ).joinToString(" › ")
     }
 
     /**
@@ -437,8 +656,9 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             // 预览键盘宽度永远够不到分体阈值，不强制的话，用户编辑分体布局时看到的
             // 却是普通排列的渲染——"改了没生效"的经典误判。
             forcedVariantProvider = {
-                if (editingSplit) LayoutVariant.Split else null
+                if (editingSplit) LayoutVariant.Split else LayoutVariant.Docked
             }
+
         )
     }
     
@@ -453,6 +673,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 ?.getIntExtra(KeyEditorActivity.EXTRA_KEY_INDEX, -1)
                 ?.takeIf { it >= 0 }
 
+            clearKeySelection()
             val key = currentEditingLayoutKey() ?: return@registerForActivityResult
             val rows = entries[key] ?: return@registerForActivityResult
 
@@ -488,6 +709,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                         currentLayout?.let { name ->
                             previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection)
                             updateSaveButtonState()
+                            showDeleteUndo()
                         }
                     }
                 }
@@ -651,6 +873,14 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(ui)
+        ViewCompat.setOnApplyWindowInsetsListener(ui) { _, insets ->
+            val shown = insets.isVisible(WindowInsetsCompat.Type.ime())
+            if (imeVisible != shown) {
+                imeVisible = shown
+                updateEditingChrome()
+            }
+            insets
+        }
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle(R.string.edit_text_keyboard_layout)
@@ -685,12 +915,19 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             // atomic: either the Bundle still carries it, or memory is authoritative.
             pendingInlineDraftJson = null
             stateLoaded = true
+            initializeHistory()
             updateSaveButtonState()
 
             buildSpinner()
             buildSubModeSpinner()
             normalizeEditingSplit()
             buildRows()
+            if (savedInstanceState?.getString("inline_key_layout") == currentEditingLayoutKey() &&
+                savedInstanceState?.containsKey("inline_key_row") == true) {
+                selectKey(EditorKeyPosition(savedInstanceState.getInt("inline_key_row"),
+                    savedInstanceState.getInt("inline_key_index")), reveal = false,
+                    formState = savedInstanceState.getBundle("inline_key_form"))
+            }
             run { val layoutName = currentLayout ?: return@run; previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection) }
             maybePromptSwitchToFcitxIme()
 
@@ -746,6 +983,12 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        selectedKey?.let {
+            outState.putInt("inline_key_row", it.row)
+            outState.putInt("inline_key_index", it.key)
+            outState.putString("inline_key_layout", selectedLayoutKey)
+            outState.putBundle("inline_key_form", inspector.saveState())
+        }
         super.onSaveInstanceState(outState)
         outState.putString(EXTRA_MANAGER_ACTION, pendingManagerAction)
         outState.putString(STATE_CURRENT_LAYOUT, currentLayout)
@@ -903,7 +1146,11 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        saveMenuItem = menu.add(Menu.NONE, MENU_SAVE_ID, Menu.NONE, "${getString(R.string.save)}")
+        saveMenuItem = menu.add(Menu.NONE, MENU_SAVE_ID, Menu.NONE, getString(R.string.layout_editor_save))
+        menu.add(Menu.NONE, MENU_ADD_ROW_ID, Menu.NONE, R.string.text_keyboard_layout_add_row)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(Menu.NONE, MENU_DELETE_ARRANGEMENT_ID, Menu.NONE, R.string.layout_editor_delete_layout)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         saveMenuItem?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS or MenuItem.SHOW_AS_ACTION_WITH_TEXT)
         menu.add(Menu.NONE, MENU_LAYOUT_FILE_SWITCH_ID, Menu.NONE, getString(R.string.text_keyboard_layout_file_switch))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
@@ -927,9 +1174,16 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId != android.R.id.home && !finishInlineEdit()) return true
+        return when (item.itemId) {
         android.R.id.home -> {
             attemptExit()
+            true
+        }
+        MENU_ADD_ROW_ID -> { addRow(); true }
+        MENU_DELETE_ARRANGEMENT_ID -> {
+            confirmDeleteCurrentEditingLayout()
             true
         }
         MENU_SAVE_ID -> {
@@ -981,6 +1235,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             true
         }
         else -> super.onOptionsItemSelected(item)
+        }
     }
 
     /**
@@ -1000,6 +1255,8 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private fun attemptExit() {
+        if (!finishInlineEdit()) return
+        if (selectedKey != null) { clearKeySelection(); return }
         if (!hasChanges()) {
             finish()
             return
@@ -1160,6 +1417,14 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 // Only reset if the new layout doesn't have the current submode
                 val oldSubModeLabel = previewSubModeLabel
                 val oldLayout = currentLayout
+                if (newLayout != oldLayout) {
+                    if (!finishInlineEdit()) {
+                        val previous = displayItems.indexOfFirst { layoutNameMap[it] == oldLayout }
+                        if (previous >= 0) layoutSpinner.setSelection(previous)
+                        return
+                    }
+                    clearKeySelection()
+                }
                 currentLayout = newLayout
 
                 // Build submode spinner without forcing reset
@@ -1175,6 +1440,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 buildRows()
                 run { val layoutName = currentLayout ?: return@run; previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection) }
 
+                updateSaveButtonState()
                 // Show toast when switching IME/layout - only if editing target changed
                 val layoutName = currentLayout ?: return@onItemSelected
                 val subModeLabel = previewSubModeLabel
@@ -1192,8 +1458,10 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         // Build the fixed spinner container structure
         spinnerContainer.removeAllViews()
         spinnerContainer.addView(layoutSpinner)
-        spinnerContainer.addView(addLayoutButton)
-        spinnerContainer.addView(deleteLayoutButton)
+        layoutSpinner.contentDescription = getString(R.string.layout_editor_layout_select)
+        subModeSpinner.contentDescription = getString(R.string.layout_editor_schema_select)
+        layoutSpinner.minimumHeight = dp(48)
+        subModeSpinner.minimumHeight = dp(48)
         // Don't add to listContainer here - buildRows() will do it
     }
 
@@ -1316,85 +1584,32 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         updateLayoutButtonBehavior()
     }
 
-    /**
-     * Update the behavior of add/delete layout buttons based on current submode state.
-     * - When a submode is selected and has no dedicated layout: "+" adds submode layout
-     * - When a submode is selected and has dedicated layout: "🗑" deletes submode layout
-     * - Otherwise: buttons work on base layout
-     */
     private fun updateLayoutButtonBehavior() {
-        val layoutName = currentLayout ?: return
-        val subModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() }
-        val splitKey = editingSplitEntryKey()
+        val layout = currentLayout ?: return
+        val inherited = previewSubModeLabel != null && resolveExistingSubModeKey(layout) == null && !editingSplit
+        createDedicatedButton.visibility = if (inherited) View.VISIBLE else View.GONE
+        updateToolbarSubtitle()
+    }
 
-        if (splitKey != null) {
-            // 正在编辑当前子布局的分体布局：🗑 删掉这一份分体布局，且只针对它，绝不落到
-            // 基础/方案布局上（编辑区显示的确实是分体那份行，此时删方案布局会连带删掉
-            // 用户没在看的内容）。
-            //
-            // 「+」在这个状态下没有对应动作——工具栏那两个按钮的规律是"新建/删除正在编辑
-            // 的那一层"，而分体布局要么已经被你打开（就是现在），要么由勾选框负责新建。
-            // 与其让它去干一件用户没预期的事，不如明确置灰。
-            addLayoutButton.setOnClickListener(null)
-            addLayoutButton.alpha = 0.3f
-            deleteLayoutButton.setOnClickListener {
-                val target = splitLayoutTargetLabel(layoutName)
-                MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.delete)
-                    .setMessage(getString(R.string.text_keyboard_layout_split_layout_delete_confirm, target))
-                    .setPositiveButton(R.string.delete) { _, _ ->
-                        dataManager.deleteVariantLayout(layoutName, currentSubLayoutLabel(), LayoutVariant.Split)
-                        // 删掉之后勾选框必须自己弹回来，否则编辑区会继续指向一个已经不存在的
-                        // 条目、静默回落到普通排列，用户看着却仍是"正在编辑分体布局"。
-                        editingSplit = false
-                        refreshAfterSplitChange()
-                        showToast(getString(R.string.text_keyboard_layout_split_layout_deleted, target))
-                    }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
+    private fun showAddLayoutMenu() {
+        if (!finishInlineEdit()) return
+        clearKeySelection()
+        PopupMenu(this, addLayoutButton).apply {
+            menu.add(R.string.layout_editor_new_layout).setOnMenuItemClickListener {
+                openGlobalLayoutNameInput(); true
             }
-            return
-        }
-        // 离开分体布局编辑时恢复「+」与 🗑 的正常外观（它们在上面那支里被改过）。
-        addLayoutButton.alpha = 1.0f
-
-        if (subModeLabel != null) {
-            val hasSubModeLayout = resolveExistingSubModeKey(layoutName) != null
-            
-            // Update add button: add submode layout if it doesn't exist
-            if (!hasSubModeLayout) {
-                addLayoutButton.setOnClickListener { addSubModeForCurrentSelection() }
-                addLayoutButton.alpha = 1.0f
-            } else {
-                // Submode layout exists: tap + creates global shared layout by lightweight activity.
-                addLayoutButton.setOnClickListener { openGlobalLayoutNameInput() }
-                addLayoutButton.alpha = 1.0f
+            menu.add(R.string.layout_editor_new_input_layout).setOnMenuItemClickListener {
+                openLayoutEditor(null); true
             }
-            
-            // 删除只对"真实存在的专用布局"生效。方案没有专用布局时，编辑区显示的是基础布局
-            // 回落出来的行；此时删基础布局会让用户以为删的是这个方案，改为明确提示且不做任何修改。
-            deleteLayoutButton.setOnClickListener {
-                if (hasSubModeLayout) {
-                    confirmDeleteSubModeLayout(layoutName, subModeLabel)
-                } else {
-                    showToast(
-                        getString(
-                            R.string.text_keyboard_layout_submode_has_no_dedicated_layout,
-                            subModeLabel
-                        )
-                    )
-                }
+            menu.add(R.string.layout_editor_new_schema).apply {
+                isEnabled = previewSubModeLabel != null && currentLayout?.let { resolveExistingSubModeKey(it) == null } == true
+                setOnMenuItemClickListener { addSubModeForCurrentSelection(); true }
             }
-        } else {
-            // 选中的是「默认」项：编辑基础布局本身（布局 JSON 里 "rime": { "default": [...] } 的 default）
-            addLayoutButton.setOnClickListener { openLayoutEditor(null) }
-            addLayoutButton.alpha = 1.0f
-            deleteLayoutButton.setOnClickListener { confirmDeleteCurrentEditingLayout() }
-        }
-        addLayoutButton.setOnLongClickListener {
-            openGlobalLayoutNameInput()
-            true
-        }
+            menu.add(R.string.layout_editor_split_copy).apply {
+                isEnabled = currentLayout?.let { !dataManager.hasSplitLayout(it, currentSubLayoutLabel()) } == true
+                setOnMenuItemClickListener { onSplitCheckBoxToggled(true); true }
+            }
+        }.show()
     }
 
     private fun openGlobalLayoutNameInput() {
@@ -1529,6 +1744,11 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 if (!SubModeManager.isValidSpinnerPosition(subModeSpinnerSelectionMap, position)) return
                 val selected = subModeSpinnerSelectionMap[position]
                 if (selected == previewSubModeLabel) return
+                if (!finishInlineEdit()) {
+                    subModeSpinner.setSelection(subModeSpinnerSelectionMap.indexOf(previewSubModeLabel).coerceAtLeast(0))
+                    return
+                }
+                clearKeySelection()
 
                 // Save state for potential rollback
                 val oldSubModeLabel = previewSubModeLabel
@@ -1577,24 +1797,6 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         }
     }
 
-    private fun createSubModeSpacer(): View {
-        return View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(dp(8), LinearLayout.LayoutParams.WRAP_CONTENT)
-        }
-    }
-
-    private fun createAddSubModeButton(): TextView {
-        return TextView(this).apply {
-            text = "+"
-            textSize = 14f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setPadding(dp(12), dp(6), dp(12), dp(6))
-            minWidth = dp(40)
-            gravity = Gravity.CENTER
-            setOnClickListener { addSubModeForCurrentSelection() }
-        }
-    }
-
     private fun addSubModeForCurrentSelection() {
         val layoutName = currentLayout ?: return
         val currentSubModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() }
@@ -1623,21 +1825,29 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             .show()
     }
 
-    private fun createDeleteSubModeButton(): TextView {
-        return TextView(this).apply {
-            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_delete_24, 0, 0, 0)
-            compoundDrawableTintList = ColorStateList.valueOf(settingsColor(android.R.attr.textColorSecondary))
-            contentDescription = getString(R.string.delete)
-            textSize = 14f
-            setPadding(dp(12), dp(6), dp(12), dp(6))
-            minWidth = dp(40)
-            gravity = Gravity.CENTER
-            setOnClickListener { confirmDeleteCurrentEditingLayout() }
-        }
-    }
-
     private fun confirmDeleteCurrentEditingLayout() {
+        if (!finishInlineEdit()) return
         val layoutName = currentLayout ?: return
+        if (editingSplitEntryKey() != null) {
+            val target = splitLayoutTargetLabel(layoutName)
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.layout_editor_delete_layout)
+                .setMessage(getString(R.string.text_keyboard_layout_split_layout_delete_confirm, target))
+                .setPositiveButton(R.string.delete) { _, _ ->
+                    clearKeySelection()
+                    dataManager.deleteVariantLayout(layoutName, currentSubLayoutLabel(), LayoutVariant.Split)
+                    editingSplit = false
+                    refreshAfterSplitChange()
+                    showDeleteUndo()
+                }.setNegativeButton(android.R.string.cancel, null).show()
+            return
+        }
+        if (previewSubModeLabel != null) {
+            if (resolveExistingSubModeKey(layoutName) != null) confirmDeleteSubModeLayout(layoutName, previewSubModeLabel!!)
+            else showToast(getString(R.string.text_keyboard_layout_submode_has_no_dedicated_layout, previewSubModeLabel))
+            return
+        }
+        clearKeySelection()
 
         // Determine what to delete based on current previewSubModeLabel (what user is currently editing)
         val currentSubModeLabel = previewSubModeLabel?.takeIf { it.isNotBlank() }
@@ -1753,6 +1963,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             .setTitle(R.string.delete)
             .setMessage(getString(R.string.text_keyboard_layout_delete_submode_layout_confirm, subModeLabel))
             .setPositiveButton(R.string.delete) { _, _ ->
+                clearKeySelection()
                 entries.remove(actualKey)
                 // 该方案的分体布局跟着一起删：它是这份子布局的一个属性，子布局没了它就成
                 // 了一个谁也访问不到、却还留在文件里的孤儿条目。
@@ -1768,6 +1979,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 buildRows()
                 run { val name = currentLayout ?: return@run; previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection) }
                 updateSaveButtonState()
+                showDeleteUndo()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -1854,31 +2066,16 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             // Clear and rebuild content
             listContainer.removeAllViews()
 
-            // Add spinner container to list container
-            listContainer.addView(spinnerContainer)
-            // 「分体键盘布局」勾选框紧跟在方案下拉框下面（见 subModeOptionsColumn）。
-            listContainer.addView(subModeOptionsColumn)
-
-            // Add divider between spinner and content
-            val divider = View(this).apply {
-                setBackgroundColor(
-                    runCatching { settingsColor(android.R.attr.colorControlNormal) }
-                        .getOrDefault(0x33000000)
-                )
-                alpha = 0.35f
-            }
-            listContainer.addView(
-                divider,
-                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(1))
-            )
-
-            rowsRecyclerView.addItemDecoration(SimpleDividerItemDecoration(this))
+            listContainer.addView(viewTabs)
+            listContainer.addView(canvasHint)
             listContainer.addView(rowsRecyclerView)
+            listContainer.addView(inspector, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            updateEditorPanel()
 
             // Create adapter with listener
             rowsAdapter = KeyboardLayoutAdapter(this, rows, object : KeyboardLayoutAdapter.Listener {
                 override fun onKeyClick(rowIndex: Int, keyIndex: Int) {
-                    openKeyEditor(rowIndex, keyIndex)
+                    selectKey(EditorKeyPosition(rowIndex, keyIndex))
                 }
 
                 override fun onAddKeyClick(rowIndex: Int) {
@@ -1890,18 +2087,11 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 }
 
                 override fun onEditRowClick(rowIndex: Int) {
-                    val row = currentRowsRef.getOrNull(rowIndex) ?: return
-                    val labels = row.mapIndexed { index, key ->
-                        "${index + 1}. ${rowsAdapter?.buildKeyLabel(key).orEmpty()}"
-                    } + getString(R.string.text_keyboard_layout_add_key)
-                    MaterialAlertDialogBuilder(this@TextKeyboardLayoutEditorActivity)
-                        .setTitle(R.string.text_keyboard_layout_edit_row)
-                        .setItems(labels.toTypedArray()) { _, which ->
-                            openKeyEditor(rowIndex, which.takeIf { it < row.size })
-                        }.show()
+                    openRowSettings(rowIndex)
                 }
 
                 override fun onMoveRowUpClick(rowIndex: Int) {
+                    clearKeySelection()
                     if (rowIndex !in 1 until currentRowsRef.size) return
                     val row = currentRowsRef.removeAt(rowIndex)
                     currentRowsRef.add(rowIndex - 1, row)
@@ -1920,6 +2110,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 }
 
                 override fun onRowDragEnded() {
+                    clearKeySelection()
                     rowsRecyclerView.post {
                         // Row order changed but the row count did not, so rebind the range
                         // instead of the whole table: notifyDataSetChanged() also dropped the
@@ -1947,6 +2138,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 }
 
                 override fun onKeyDragEnded(rowIndex: Int) {
+                    clearKeySelection()
                     // Refresh only the affected row after key drag ends
                     rowsRecyclerView.post {
                         if (rowIndex in currentRowsRef.indices) {
@@ -1960,7 +2152,6 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 }
 
                 override fun onKeyMovedAcrossRows(fromRow: Int, fromIndex: Int, toRow: Int, toIndex: Int) {
-                    updateSaveButtonState()
                     rowsRecyclerView.post {
                         if (fromRow in currentRowsRef.indices) rowsAdapter?.notifyRowChanged(fromRow)
                         if (toRow in currentRowsRef.indices) rowsAdapter?.notifyRowChanged(toRow)
@@ -2057,6 +2248,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         syncSplitCheckBoxState()
         // Update button behavior based on current submode state
         updateLayoutButtonBehavior()
+        canvasOverlay.refresh()
     }
 
     /**
@@ -2141,13 +2333,14 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private fun openKeyEditor(rowIndex: Int, keyIndex: Int?) {
+        if (!finishInlineEdit()) return
         val layoutName = currentLayout ?: return
 
         // Get the correct layout to edit (submode or default)
         val editingLayoutKey = currentEditingLayoutKey() ?: return
         val row = entries[editingLayoutKey] ?: return
 
-        if (rowIndex >= row.size) return
+        if (rowIndex !in row.indices || (keyIndex != null && keyIndex !in row[rowIndex].indices)) return
 
         val keyData = keyIndex?.let { row[rowIndex][keyIndex] }?.toMap() ?: mutableMapOf()
         val isEditingSubModeLayout = editingLayoutKey != layoutName
@@ -2178,7 +2371,79 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         keyEditorLauncher.launch(launchIntent)
     }
 
+    private fun openRowSettings(rowIndex: Int) {
+        if (!finishInlineEdit()) return
+        val row = currentRowsRef.getOrNull(rowIndex) ?: return
+        val form = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(8), dp(20), dp(8))
+        }
+        form.addView(TextView(this).apply { setText(R.string.text_keyboard_layout_key_row_height_percent) })
+        val height = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+            minHeight = dp(48)
+            setSingleLine()
+            hint = getString(R.string.layout_editor_split_auto)
+            val existing = row.mapNotNull { it["rowHeightPercent"]?.toString()?.toFloatOrNull() }.maxOrNull()
+            setText(existing?.toString().orEmpty())
+            isEnabled = row.isNotEmpty()
+        }
+        form.addView(height)
+        form.addView(TextView(this).apply {
+            setText(R.string.layout_editor_row_height_hint)
+            textSize = 13f
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
+        })
+        form.addView(TextView(this).apply {
+            setText(R.string.layout_editor_split_boundary)
+            setPadding(0, dp(16), 0, 0)
+        })
+        val boundaries = listOf(getString(R.string.layout_editor_split_auto)) + row.dropLast(1).mapIndexed { index, key ->
+            getString(R.string.layout_editor_split_after, index + 1, rowsAdapter?.buildKeyLabel(key).orEmpty())
+        }
+        val boundary = MaterialSpinner(this).apply {
+            minimumHeight = dp(48)
+            adapter = compactSelectorAdapter(boundaries)
+            setSelection((row.indexOfLast { it["splitAfter"] == true } + 1).coerceIn(0, boundaries.lastIndex))
+        }
+        form.addView(boundary)
+        // Row operations are explicit, separate from key properties.
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.layout_editor_row_settings) + " · " + (rowIndex + 1))
+            .setView(form)
+            .setPositiveButton(R.string.layout_editor_done, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setNeutralButton(R.string.text_keyboard_layout_add_key) { _, _ -> openKeyEditor(rowIndex, null) }
+            .create()
+        form.addView(EditorUi.button(this, R.string.layout_editor_delete_row) {
+            dialog.dismiss()
+            confirmDeleteRow(rowIndex)
+        })
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val raw = height.text.toString().trim()
+                val value = raw.toFloatOrNull()
+                if (raw.isNotEmpty() && (value == null || !value.isFinite() || value !in 1f..100f)) {
+                    height.error = getString(R.string.layout_editor_height_invalid)
+                    return@setOnClickListener
+                }
+                row.forEach { key ->
+                    key.remove("rowHeightPercent")
+                    if (value != null) key["rowHeightPercent"] = value
+                }
+                LayoutKeyOperations.setSplitBoundary(row, (boundary.selectedItemPosition - 1).takeIf { it >= 0 })
+                clearKeySelection()
+                rowsAdapter?.notifyRowChanged(rowIndex)
+                currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+                updateSaveButtonState()
+                dialog.dismiss()
+            }
+        }
+        dialog.show()
+    }
+
     private fun confirmDeleteRow(rowIndex: Int) {
+        if (!finishInlineEdit()) return
         val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete)
             .setMessage(getString(R.string.text_keyboard_layout_delete_row_confirm, rowIndex + 1))
@@ -2190,6 +2455,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 val row = entries[editingLayoutKey] ?: return@setPositiveButton
 
                 if (rowIndex < row.size) {
+                    clearKeySelection()
                     row.removeAt(rowIndex)
                     // Use partial refresh, only notify the deleted row
                     rowsAdapter?.notifyRowRemoved(rowIndex)
@@ -2197,6 +2463,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                     currentLayout?.let { name ->
                         previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection)
                         updateSaveButtonState()
+                        showDeleteUndo()
                     }
                 }
             }
@@ -2208,6 +2475,9 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
 
     private fun addRow() {
+        if (!finishInlineEdit()) return
+        clearKeySelection()
+        viewTabs.getTabAt(1)?.select()
         val layoutName = currentLayout ?: return
 
         // Get the correct layout to edit (submode or default)
@@ -2501,6 +2771,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
     /** Suspend because validation, backup, serialization and the write happen on IO (see D7). */
     private suspend fun saveLayout(): Boolean {
+        if (!finishInlineEdit()) return false
         val file = layoutFile ?: run {
             showToast(getString(R.string.cannot_resolve_text_keyboard_layout))
             return false
@@ -2911,6 +3182,8 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
      * "我到底配没配过"。
      */
     private fun onSplitCheckBoxToggled(isChecked: Boolean) {
+        if (!finishInlineEdit()) { syncSplitCheckBoxState(); return }
+        clearKeySelection()
         val layoutName = currentLayout ?: run {
             splitLayoutCheckBox.isChecked = false
             return
@@ -3001,6 +3274,8 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private fun switchToLayoutProfile(profile: String, showSwitchToast: Boolean, activate: Boolean = true) {
+        if (!finishInlineEdit()) return
+        clearKeySelection()
         val normalized = UserConfigFiles.normalizeTextKeyboardLayoutProfile(profile) ?: return
         if (activate) {
             AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.setValue(normalized)
@@ -3016,6 +3291,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         lifecycleScope.launch {
             loadState()
             stateLoaded = true
+            initializeHistory()
             updateSaveButtonState()
             buildSpinner()
             buildSubModeSpinner(forceResetSelection = true)
@@ -3564,17 +3840,73 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
     private fun hasChanges(): Boolean = dataManager.hasChanges()
 
-    private fun updateSaveButtonState() {
-        exitBackCallback?.isEnabled = !stateLoaded || hasChanges()
-        saveMenuItem?.let { menuItem ->
-            if (hasChanges()) {
-                menuItem.isEnabled = true
-                menuItem.title = getString(R.string.save)
-            } else {
-                menuItem.isEnabled = false
-                menuItem.title = getString(R.string.save)
-            }
+    private fun editTarget() = LayoutEditTarget(currentLayout, previewSubModeLabel, editingSplit)
+
+    private fun initializeHistory() {
+        val document = LayoutDocument.capture(dataManager)
+        if (historyModel.profile != currentLayoutProfile || editHistory.current == null) {
+            editHistory.reset(document, editTarget())
+        } else {
+            // A valid inline draft may have been saved before its transaction was finished.
+            // Keep earlier undo steps when restoring that draft after Activity recreation.
+            editHistory.record(document, editTarget())
         }
+        historyModel.profile = currentLayoutProfile
+    }
+
+    private fun updateSaveButtonState() {
+        exitBackCallback?.isEnabled = !stateLoaded || selectedKey != null || hasChanges()
+        if (!stateLoaded) return
+        if (!restoringHistory && !inlineTransactionActive) {
+            val document = LayoutDocument.capture(dataManager)
+            if (document != editHistory.current?.document) deleteSnackbar?.dismiss()
+            editHistory.record(document, editTarget())
+        }
+        val dirty = hasChanges()
+        saveMenuItem?.apply {
+            isEnabled = dirty
+            title = getString(R.string.layout_editor_save)
+        }
+        saveStatus.setText(if (dirty) R.string.layout_editor_dirty else R.string.layout_editor_saved)
+        undoButton.isEnabled = editHistory.canUndo || inlineTransactionActive
+        redoButton.isEnabled = editHistory.canRedo && !inlineTransactionActive
+        undoButton.alpha = if (undoButton.isEnabled) 1f else 0.35f
+        redoButton.alpha = if (redoButton.isEnabled) 1f else 0.35f
+        updateLayoutButtonBehavior()
+        canvasOverlay.refresh()
+    }
+
+    private fun restoreHistory(redo: Boolean) {
+        if (!finishInlineEdit()) return
+        clearKeySelection()
+        val entry = (if (redo) editHistory.redo() else editHistory.undo()) ?: return
+        restoringHistory = true
+        try {
+            entry.document.restore(dataManager)
+            currentLayout = entry.target.layout?.takeIf { entries.containsKey(it) }
+                ?: entries.keys.firstOrNull { !it.contains(':') }
+            previewSubModeLabel = entry.target.subMode
+            editingSplit = entry.target.split
+            buildSpinner()
+            buildSubModeSpinner()
+            normalizeEditingSplit()
+            buildRows()
+            previewManager.clear()
+            currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+            refreshAuxBarKeysInDialog()
+            updateSaveButtonState()
+        } finally {
+            restoringHistory = false
+        }
+    }
+
+    private fun showDeleteUndo() {
+        val deletedState = editHistory.current?.document
+        deleteSnackbar?.dismiss()
+        deleteSnackbar = Snackbar.make(ui, R.string.layout_editor_deleted, Snackbar.LENGTH_LONG)
+            .setAction(R.string.layout_editor_undo) {
+                if (!inlineTransactionActive && editHistory.current?.document == deletedState) restoreHistory(false)
+            }.also { it.show() }
     }
 
     private fun exportLayoutAsQrLongImage() {
@@ -3853,6 +4185,8 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         const val ACTION_SHARE_PROFILE = "share_profile"
         const val EXTRA_INITIAL_LAYOUT = "text_keyboard_layout_initial_layout"
         private const val TEXT_EDITOR_LAYOUT_NAME = "text_editor"
+        private const val MENU_ADD_ROW_ID = 3012
+        private const val MENU_DELETE_ARRANGEMENT_ID = 3011
         private const val MENU_SAVE_ID = 3001
         private const val MENU_LAYOUT_FILE_SWITCH_ID = 3002
         private const val MENU_LAYOUT_FILE_CREATE_ID = 3003

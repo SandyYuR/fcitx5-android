@@ -4,6 +4,12 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.preview
 
+import android.graphics.Rect
+import android.graphics.RectF
+import androidx.core.view.children
+import org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorKeyBounds
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorKeyPosition
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -71,6 +77,20 @@ class KeyboardPreviewManager(
 ) {
     private var previewKeyboard: TextKeyboard? = null
     private var previewTextEditingView: View? = null
+    private var textEditorKeys: List<BaseKeyboard.EditorKeyView> = emptyList()
+
+    internal fun keyBounds(rows: List<List<Map<String, Any?>>>): List<EditorKeyBounds> {
+        val keys = previewKeyboard?.keyViewsForEditor(rows.map { it.size }) ?: textEditorKeys
+        return keys.mapNotNull { key ->
+            val data = rows.getOrNull(key.row)?.getOrNull(key.key) ?: return@mapNotNull null
+            if (key.view.width <= 0 || key.view.height <= 0 || !key.view.isShown) return@mapNotNull null
+            val rect = Rect(0, 0, key.view.width, key.view.height)
+            previewContainer.offsetDescendantRectToMyCoords(key.view, rect)
+            val label = (data["displayText"] as? String) ?: (data["label"] as? String)
+                ?: (data["main"] as? String) ?: (data["type"] as? String).orEmpty()
+            EditorKeyBounds(EditorKeyPosition(key.row, key.key), RectF(rect), label, data["splitAfter"] == true)
+        }
+    }
     private val previewBlurMask by lazy { PreviewKeyBlurMaskView(context) }
 
     /**
@@ -84,7 +104,8 @@ class KeyboardPreviewManager(
         val keyBorder: Boolean,
         val layoutJson: String,
         /** 强制预览的排列形态；null 表示按键盘宽度自动判定。 */
-        val forcedVariant: String?
+        val forcedVariant: String?,
+        val dimensions: KeyboardPreviewDimensions
     )
     private var lastPreviewSignature: PreviewSignature? = null
 
@@ -116,6 +137,10 @@ class KeyboardPreviewManager(
 
         val theme = ThemeManager.activeTheme
         val keyBorder = ThemeManager.prefs.keyBorder.getValue()
+        val dimensions = KeyboardPreviewDimensions.fromSettings(
+            context, layoutHeightPercentOverrideProvider(effectiveLayoutKey),
+            computeRowHeightScale(rows), previewContainer.width
+        )
 
         // Build submode map with all available submodes for this layout
         val subModeMap = buildSubModeMap(
@@ -138,13 +163,15 @@ class KeyboardPreviewManager(
             themeName = theme.name,
             keyBorder = keyBorder,
             layoutJson = tempJson.toString(),
-            forcedVariant = forcedVariant?.name
+            forcedVariant = forcedVariant?.name,
+            dimensions = dimensions
         )
         if ((previewKeyboard != null || previewTextEditingView != null) && signature == lastPreviewSignature) return
         lastPreviewSignature = signature
 
         previewContainer.removeAllViews()
         previewContainer.background = theme.backgroundDrawable(keyBorder)
+        previewContainer.setPadding(dimensions.sidePaddingPx, 0, dimensions.sidePaddingPx, dimensions.bottomPaddingPx)
         previewBlurMask.bindKeyboard(null)
 
         // Remove old keyboard view
@@ -155,18 +182,18 @@ class KeyboardPreviewManager(
 
         previewKeyboard = null
         previewTextEditingView = null
+        textEditorKeys = emptyList()
 
         try {
             if (layoutName == TEXT_EDITOR_LAYOUT_NAME) {
-                createTextEditorPreview(rows, theme)
+                createTextEditorPreview(rows, theme, dimensions.keyboardHeightPx)
             } else {
                 TextKeyboard.withPreviewLayout(tempJson) {
                     createKeyboardPreview(
                         layoutName,
                         previewSubModeLabel,
-                        effectiveLayoutKey,
-                        fcitxConnection,
-                        forcedVariant
+                        forcedVariant,
+                        dimensions.keyboardHeightPx
                     )
                 }
             }
@@ -178,24 +205,12 @@ class KeyboardPreviewManager(
 
     private fun createTextEditorPreview(
         rows: List<List<Map<String, Any?>>>,
-        theme: org.fcitx.fcitx5.android.data.theme.Theme
+        theme: org.fcitx.fcitx5.android.data.theme.Theme,
+        keyboardHeight: Int
     ) {
         val layout = TextEditingLayoutLoader.fromRows(rows)
         val prefs = AppPrefs.getInstance()
         val textEditing = prefs.textEditing
-        val keyboard = prefs.keyboard
-        val isLandscape = context.resources.configuration.orientation ==
-            android.content.res.Configuration.ORIENTATION_LANDSCAPE
-        val globalPercent = if (isLandscape) {
-            keyboard.keyboardHeightPercentLandscape.getValue()
-        } else {
-            keyboard.keyboardHeightPercent.getValue()
-        }
-        val displayMetrics = context.resources.displayMetrics
-        val rowScale = computeRowHeightScale(rows)
-        val keyboardHeight = (
-            displayMetrics.heightPixels * globalPercent * rowScale / 100f
-        ).toInt().coerceAtLeast(context.dp(120))
         val ui = FoxyTextEditingUi(
             context,
             theme,
@@ -212,6 +227,13 @@ class KeyboardPreviewManager(
             null
         )
         previewTextEditingView = ui.root
+        val bottomBar = (ui.root as? ViewGroup)?.children?.lastOrNull() as? ViewGroup
+        val renderedRows = bottomBar?.children?.mapNotNull { it as? ViewGroup }?.toList().orEmpty()
+        textEditorKeys = if (renderedRows.map { it.childCount } == rows.map { it.size }) {
+            renderedRows.flatMapIndexed { row, view ->
+                view.children.mapIndexed { index, key -> BaseKeyboard.EditorKeyView(row, index, key) }.toList()
+            }
+        } else emptyList()
         previewContainer.addView(
             ui.root,
             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, keyboardHeight)
@@ -330,9 +352,8 @@ class KeyboardPreviewManager(
     private fun createKeyboardPreview(
         layoutName: String,
         previewSubModeLabel: String?,
-        effectiveSubModeKey: String?,
-        fcitxConnection: FcitxConnection,
-        forcedVariant: LayoutVariant?
+        forcedVariant: LayoutVariant?,
+        keyboardHeight: Int
     ) {
         val theme = ThemeManager.activeTheme
 
@@ -352,33 +373,6 @@ class KeyboardPreviewManager(
             // 分体阈值，不覆盖的话第一趟布局就会退回竖屏停靠，多一次重建不说，那一帧的
             // 按键位置也是错的。
             if (forcedVariant != null) setLayoutVariantOverride(forcedVariant)
-            val displayMetrics = context.resources.displayMetrics
-            val screenHeight = displayMetrics.heightPixels
-
-            val effectiveLayoutKey = effectiveSubModeKey ?: layoutName
-            val rows = entries[effectiveLayoutKey].orEmpty()
-
-            // Get keyboard height percentage from layout override or preferences
-            val keyboardPrefs = AppPrefs.getInstance().keyboard
-            val isLandscape = context.resources.configuration.orientation ==
-                android.content.res.Configuration.ORIENTATION_LANDSCAPE
-            val globalPercent = if (isLandscape) {
-                keyboardPrefs.keyboardHeightPercentLandscape.getValue()
-            } else {
-                keyboardPrefs.keyboardHeightPercent.getValue()
-            }
-            val basePercent = layoutHeightPercentOverrideProvider(effectiveLayoutKey)
-                ?: globalPercent
-            val rowScale = computeRowHeightScale(rows)
-            val effectivePercent = (basePercent * rowScale).coerceIn(10f, 90f)
-            val keyboardHeight = (screenHeight * effectivePercent / 100f).toInt()
-
-            // Get keyboard side and bottom padding from preferences
-            val sidePadding = keyboardPrefs.keyboardSidePadding.getValue()
-            val bottomPadding = keyboardPrefs.keyboardBottomPadding.getValue()
-            val sidePaddingPx = (sidePadding * displayMetrics.density).toInt()
-            val bottomPaddingPx = (bottomPadding * displayMetrics.density).toInt()
-
             val layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 keyboardHeight
@@ -495,6 +489,7 @@ class KeyboardPreviewManager(
     }
 
     fun clear() {
+        textEditorKeys = emptyList()
         previewBlurMask.bindKeyboard(null)
         previewKeyboard?.let {
             previewContainer.removeView(it)

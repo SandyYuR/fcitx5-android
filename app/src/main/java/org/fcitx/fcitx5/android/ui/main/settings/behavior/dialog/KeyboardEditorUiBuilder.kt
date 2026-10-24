@@ -6,6 +6,8 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 
 import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
 import com.google.android.material.checkbox.MaterialCheckBox
+import androidx.appcompat.view.ContextThemeWrapper
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textfield.TextInputEditText
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,8 +21,8 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorUi
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import splitties.dimensions.dp
 import org.fcitx.fcitx5.android.utils.settingsColor
@@ -29,7 +31,7 @@ import org.fcitx.fcitx5.android.utils.settingsColor
  * UI builder for keyboard editor, responsible for building UI components
  * for the keyboard edit dialog.
  */
-class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
+class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
 
     /**
      * A selectable switch target for [org.fcitx.fcitx5.android.input.keyboard.LayoutSwitchKey].
@@ -131,8 +133,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
     /**
      * Create type selector spinner
      *
-     * 下拉框显示「英文类型名（本地化说明）」，但选中值始终按**位置**取 [KEY_TYPES]，
-     * 所以显示文案里带中文不会影响写进布局 JSON 的值。
+     * 下拉框显示英文类型名和简洁的本地化名称；选中值按位置取 [KEY_TYPES]。
      *
      * @param container Parent container
      * @param keyData Current key data
@@ -145,31 +146,37 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         val typeLabel = TextView(activity).apply {
             text = activity.getString(R.string.text_keyboard_layout_key_type)
             textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(activity.settingsColor(android.R.attr.textColorSecondary))
-            layoutParams = LinearLayout.LayoutParams(activity.dp(96), LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                rightMargin = activity.dp(8)
-            }
+            setTextColor(activity.settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
+            setPadding(0, 0, 0, activity.dp(8))
         }
-
-        val typeSpinner = MaterialSpinner(activity).apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                weight = 1f
-            }
+        val typeSpinner = MaterialSpinner(activity, cornerRadiusDp = 12).apply {
+            layoutParams = LinearLayout.LayoutParams(-1, -2)
         }
-        // 按位置取中英对照文案，不往数据数组里塞显示文本：KEY_TYPES 是写入 JSON 的值。
-        val displayNames = Array(KEY_TYPES.size) { index ->
-            describeKeyType(index)
+        val displayNames = Array(KEY_TYPES.size) { describeKeyType(it) }
+        typeSpinner.adapter = object : ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, displayNames) {
+            private fun label(position: Int, recycled: View?, dropdown: Boolean) =
+                ((recycled as? TextView) ?: TextView(activity)).apply {
+                    text = getItem(position)
+                    textSize = DIALOG_CONTENT_TEXT_SIZE_SP
+                    setTextColor(activity.settingsColor(com.google.android.material.R.attr.colorOnSurface))
+                    gravity = Gravity.CENTER_VERTICAL
+                    maxLines = 2
+                    minHeight = activity.dp(48)
+                    val pad = if (dropdown) activity.dp(16) else 0
+                    setPadding(pad, activity.dp(8), pad, activity.dp(8))
+                }
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+                label(position, convertView, false)
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View =
+                label(position, convertView, true)
         }
-        val typeAdapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, displayNames)
-        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        typeSpinner.adapter = typeAdapter
 
         val currentType = keyData["type"] as? String ?: "AlphabetKey"
         val typePosition = KEY_TYPES.indexOf(currentType)
         if (typePosition >= 0) typeSpinner.setSelection(typePosition)
 
         val typeRow = LinearLayout(activity).apply {
-            orientation = LinearLayout.HORIZONTAL
+            orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(0, activity.dp(4), 0, activity.dp(4))
             addView(typeLabel)
@@ -180,23 +187,12 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
         return typeSpinner
     }
 
-    /**
-     * 按键类型的下拉框文案：「英文类型名 + 本地化说明」。
-     *
-     * 连接符走 [R.string.text_keyboard_layout_key_type_format] 而不是写死括号：中文用全角
-     * 、英文用半角，各语言可自行决定。越界时只回退到英文名，不抛异常——
-     * [KEY_TYPES] 与 [KEY_TYPE_LABELS] 一旦不同步，这里退化成"只有英文"，
-     * 比让编辑器崩溃或显示错位的说明更安全。
-     */
+    /** Show the original type name alongside its concise localized name. */
     fun describeKeyType(index: Int): String {
         val type = KEY_TYPES.getOrNull(index) ?: return ""
         val labelRes = KEY_TYPE_LABELS.getOrNull(index)
             ?: return type
-        return activity.getString(
-            R.string.text_keyboard_layout_key_type_format,
-            type,
-            activity.getString(labelRes)
-        )
+        return activity.getString(R.string.text_keyboard_layout_key_type_format, type, activity.getString(labelRes))
     }
 
     /**
@@ -208,29 +204,26 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
      */
     fun createEditField(label: String, value: String): Pair<LinearLayout, EditText> {
         val container = LinearLayout(activity).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(0, activity.dp(4), 0, activity.dp(4))
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, activity.dp(6), 0, activity.dp(6))
         }
-        val labelView = TextView(activity).apply {
-            text = label
-            textSize = DIALOG_LABEL_TEXT_SIZE_SP
-            setTextColor(activity.settingsColor(android.R.attr.textColorSecondary))
-            layoutParams = LinearLayout.LayoutParams(activity.dp(96), LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                rightMargin = activity.dp(8)
-            }
+        val isWidth = label == activity.getString(R.string.text_keyboard_layout_key_weight)
+        val field = TextInputLayout(ContextThemeWrapper(activity, R.style.ThemeOverlay_Fcitx_KeyboardEditor)).apply {
+            hint = if (isWidth) activity.getString(R.string.layout_editor_width) else label
+            if (isWidth) placeholderText = activity.getString(R.string.default_)
+            layoutParams = LinearLayout.LayoutParams(-1, -2)
         }
-        val editText = TextInputEditText(activity).apply {
-            setText(value)
+        val editText = TextInputEditText(field.context).apply {
+            setText(if (isWidth) value.toFloatOrNull()?.let { (it * 100f).toString() }.orEmpty() else value)
+            if (isWidth) inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+            minHeight = activity.dp(56)
             textSize = DIALOG_CONTENT_TEXT_SIZE_SP
             isSingleLine = true
             maxLines = 1
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                weight = 1f
-            }
+            layoutParams = LinearLayout.LayoutParams(-1, -2)
         }
-        container.addView(labelView)
-        container.addView(editText)
+        field.addView(editText)
+        container.addView(field)
         return container to editText
     }
 
@@ -290,7 +283,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
                 rightMargin = activity.dp(8)
             }
         }
-        val spinner = MaterialSpinner(activity).apply {
+        val spinner = MaterialSpinner(activity, cornerRadiusDp = 12).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
             }
@@ -349,7 +342,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
                 rightMargin = activity.dp(8)
             }
         }
-        val spinner = MaterialSpinner(activity).apply {
+        val spinner = MaterialSpinner(activity, cornerRadiusDp = 12).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
             }
@@ -432,18 +425,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             })
 
             if (!isEditingSubModeLayout && hasMultiSubmodeSupport) {
-                val addModeBtn = TextView(activity).apply {
-                    text = activity.getString(R.string.text_keyboard_layout_add_mode)
-                    textSize = 14f
-                    setTypeface(null, android.graphics.Typeface.BOLD)
-                    gravity = Gravity.CENTER
-                    minWidth = activity.dp(120)
-                    setPadding(activity.dp(12), activity.dp(8), activity.dp(12), activity.dp(8))
-                    background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(activity.settingsColor(android.R.attr.colorButtonNormal))
-                        setStroke(activity.dp(1), activity.settingsColor(android.R.attr.colorControlNormal))
-                        cornerRadius = activity.dp(4).toFloat()
-                    }
+                val addModeBtn = EditorUi.button(activity, R.string.text_keyboard_layout_add_mode, tonal = true) {}.apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
@@ -514,18 +496,7 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             callback(modeSpecific, simpleValue, items, bindings, null)
         }
 
-        val addModeBtn = TextView(activity).apply {
-            text = activity.getString(R.string.text_keyboard_layout_add_mode)
-            textSize = 14f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            gravity = Gravity.CENTER
-            minWidth = activity.dp(120)
-            setPadding(activity.dp(12), activity.dp(8), activity.dp(12), activity.dp(8))
-            background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(activity.settingsColor(android.R.attr.colorButtonNormal))
-                setStroke(activity.dp(1), activity.settingsColor(android.R.attr.colorControlNormal))
-                cornerRadius = activity.dp(4).toFloat()
-            }
+        val addModeBtn = EditorUi.button(activity, R.string.text_keyboard_layout_add_mode, tonal = true) {}.apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -617,36 +588,16 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             setPadding(0, activity.dp(2), 0, activity.dp(2))
         }
 
-        val modeEdit = TextInputEditText(activity).apply {
-            setText(item.mode)
-            textSize = DIALOG_CONTENT_TEXT_SIZE_SP
-            hint = activity.getString(R.string.text_keyboard_layout_mode_name_hint)
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                weight = 1f
-                rightMargin = activity.dp(4)
+        val (modeField, modeEdit) = createEditField(
+            activity.getString(R.string.text_keyboard_layout_mode_name_hint), item.mode)
+        val (valueField, valueEdit) = createEditField(
+            activity.getString(R.string.text_keyboard_layout_display_value_hint), item.value)
+        for (field in listOf(modeField, valueField)) {
+            field.layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                marginEnd = activity.dp(8)
             }
         }
-
-        val valueEdit = TextInputEditText(activity).apply {
-            setText(item.value)
-            textSize = DIALOG_CONTENT_TEXT_SIZE_SP
-            hint = activity.getString(R.string.text_keyboard_layout_display_value_hint)
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                weight = 1f
-                rightMargin = activity.dp(4)
-            }
-        }
-
-        val deleteBtn = TextView(activity).apply {
-            text = "🗑"
-            textSize = DIALOG_CONTENT_TEXT_SIZE_SP
-            setPadding(activity.dp(8), activity.dp(4), activity.dp(8), activity.dp(4))
+        val deleteBtn = EditorUi.icon(activity, R.drawable.ic_baseline_delete_24, R.string.delete) {}.apply {
             setOnClickListener {
                 // 从 bindings 中删除对应的 binding
                 val bindingToRemove = bindings.firstOrNull {
@@ -690,8 +641,8 @@ class KeyboardEditorUiBuilder(private val activity: AppCompatActivity) {
             }
         }
 
-        entryRow.addView(modeEdit)
-        entryRow.addView(valueEdit)
+        entryRow.addView(modeField)
+        entryRow.addView(valueField)
         entryRow.addView(deleteBtn)
         bindings.add(DisplayTextRowBinding(modeEdit, valueEdit))
         val rowWatcher = object : TextWatcher {
