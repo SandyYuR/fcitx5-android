@@ -141,6 +141,21 @@ abstract class BaseKeyboard(
     protected val layoutVariant: LayoutVariant
         get() = currentLayoutVariant
 
+    data class EditorKeyView(val row: Int, val key: Int, val view: View)
+    private var editorSourceRowSizes: List<Int> = emptyList()
+    private var editorDisplayIndices: List<List<Int>> = emptyList()
+
+    /** Source indices are captured during rendering, while preview JSON is still in scope. */
+    fun keyViewsForEditor(expectedRowSizes: List<Int>): List<EditorKeyView> {
+        if (!::keyRows.isInitialized || editorSourceRowSizes != expectedRowSizes) return emptyList()
+        return keyRows.flatMapIndexed { rowIndex, row ->
+            val indices = editorDisplayIndices.getOrNull(rowIndex).orEmpty()
+            row.children.filterIsInstance<KeyView>().mapIndexedNotNull { index, view ->
+                indices.getOrNull(index)?.takeIf { it >= 0 }?.let { EditorKeyView(rowIndex, it, view) }
+            }.toList()
+        }
+    }
+
     private val keyLayout: List<List<KeyDef>>
         get() = layoutProvider(currentLayoutVariant)
     private val auxBarConfig: AuxBarConfig?
@@ -592,6 +607,10 @@ abstract class BaseKeyboard(
         // 分体时对奇数字符行复制中间键，让左右两半对称可触达（见 splitRowsForLayout）。
         // 非分体用原始行；返回实例按源身份记忆，故行缓存命中率不受影响。
         val effectiveRows = if (splitLayout) splitRowsForLayout(rows) else rows
+        editorSourceRowSizes = rows.map { it.size }
+        editorDisplayIndices = effectiveRows.mapIndexed { rowIndex, row ->
+            row.map { def -> rows[rowIndex].indexOfFirst { it === def } }
+        }
         rowHeightPercents = resolveRowHeightPercents(effectiveRows)
 
         val rowsSignature = currentRowsSignature(currentLayoutVariant, splitKeyAreaScale)

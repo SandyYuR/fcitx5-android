@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ThemeOverlay.Fcitx.KeyboardEditor" parent="">
+        <item name="materialButtonStyle">@style/Widget.Fcitx.KeyboardEditor.Button</item>
+        <item name="textInputStyle">@style/Widget.Fcitx.KeyboardEditor.TextField</item>
+    </style>
+    <style name="ThemeOverlay.Fcitx.KeyboardEditor.Tonal" parent="ThemeOverlay.Fcitx.KeyboardEditor">
+        <item name="materialButtonStyle">@style/Widget.Fcitx.KeyboardEditor.Button.Tonal</item>
+    </style>
+    <style name="Widget.Fcitx.KeyboardEditor.Button" parent="Widget.Material3.Button.TextButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">24dp</item>
+    </style>
+    <style name="Widget.Fcitx.KeyboardEditor.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">24dp</item>
+    </style>
+    <style name="Widget.Fcitx.KeyboardEditor.TextField" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+    </style>
+</resources>

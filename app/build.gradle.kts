@@ -72,9 +72,10 @@ android {
 
     testOptions {
         unitTests {
+            isIncludeAndroidResources = true
             // Let JVM unit tests exercise code that logs via android.util.Log: the stubbed
-            // android.jar otherwise throws "Stub!" on every call. Tests here cover pure
-            // logic (parsers, validators, path sanitizing), not framework behavior.
+            // android.jar otherwise throws "Stub!" on every call. Framework layout
+            // regressions use Robolectric; parser and validator tests use the stubs.
             isReturnDefaultValues = true
         }
     }
@@ -179,6 +180,7 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation(libs.androidsvg)
     testImplementation(libs.junit)
+    testImplementation("org.robolectric:robolectric:4.17")
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(libs.androidx.lifecycle.testing)

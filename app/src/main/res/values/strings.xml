@@ -666,7 +666,7 @@
     <string name="text_keyboard_layout_add_key">Add Key</string>
     <string name="text_keyboard_layout_key_type">Key Type</string>
     <!-- 按键类型下拉框的说明文案，顺序必须与 KeyboardEditorUiBuilder.KEY_TYPES 一一对应 -->
-    <string name="text_keyboard_layout_key_type_format">%1$s (%2$s)</string>
+    <string name="text_keyboard_layout_key_type_format">%1$s / %2$s</string>
     <string name="text_keyboard_layout_key_type_alphabet">letter key</string>
     <string name="text_keyboard_layout_key_type_caps">case switch (Shift/Caps)</string>
     <string name="text_keyboard_layout_key_type_layout_switch">switch keyboard layout/layer</string>
