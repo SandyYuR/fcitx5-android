@@ -1087,6 +1087,7 @@
     <string name="text_keyboard_layout_manage_builtin">内置默认布局</string>
     <string name="text_keyboard_layout_edit_row">编辑该行按键</string>
     <string name="text_keyboard_layout_move_row_up">上移该行</string>
+    <string name="text_keyboard_layout_move_row_down">下移该行</string>
     <string name="text_keyboard_layout_customized_key">%1$s（已定制属性）</string>
     <string name="settings_ui_appearance">设置界面外观</string>
     <string name="settings_ui_appearance_summary">明暗模式、动态取色、手动配色和对比度</string>

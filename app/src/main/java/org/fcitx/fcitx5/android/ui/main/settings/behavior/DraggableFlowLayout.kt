@@ -13,9 +13,8 @@ import kotlin.math.sqrt
  * A FlowLayout that supports dragging child views to reorder them.
  *
  * Children tagged with [TAG_NOT_DRAGGABLE] are excluded from both dragging and drop targeting.
- * The row editor appends a trailing "+" chip that has no counterpart in the data, so treating
- * it as an ordinary child let the user drag a key past it — the views reordered but the data
- * layer rejected the out-of-range index, silently reverting on the next bind.
+ * Some layouts append a fixed trailing control with no data entry; treating it as an ordinary
+ * child would let the user drag a data item past it and produce an invalid data index.
  */
 open class DraggableFlowLayout @JvmOverloads constructor(
     context: Context,
@@ -243,8 +242,8 @@ open class DraggableFlowLayout @JvmOverloads constructor(
                     } else {
                         val boundaryPosition = when {
                             ev.rawX < containerLeft -> 0
-                            // draggableChildCount, not childCount: dropping "after everything"
-                            // must land before the trailing "+" chip, which has no data slot.
+                            // Use the number of data-backed children, excluding any trailing
+                            // fixed controls that have no corresponding data slot.
                             ev.rawX > containerRight -> draggableChildCount
                             else -> -1
                         }
@@ -349,9 +348,8 @@ open class DraggableFlowLayout @JvmOverloads constructor(
         }
 
         if (closestPosition == -1) {
-            // Bound this fallback by draggableChildCount, not childCount: the trailing "+" chip
-            // has no data slot, so an index at or past it is one swapViews() rejects — the drag
-            // then simply did nothing instead of landing at the end (see C13).
+            // Bound this fallback by data-backed children, excluding trailing fixed controls
+            // that have no data slot.
             val movableCount = draggableChildCount
             if (movableCount > 0) {
                 val firstChild = getChildAt(0)

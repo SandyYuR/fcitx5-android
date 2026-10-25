@@ -14,6 +14,7 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResult
 import androidx.core.view.descendants
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputLayout
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
@@ -149,6 +150,21 @@ class KeyEditorFormTest {
         checkCells()
     }
 
+    @Test fun rowDragHighlightRestoresItsCardSurface() = page { activity ->
+        val adapter = KeyboardLayoutAdapter(activity, listOf(mutableListOf()), NoOpListener)
+        val holder = adapter.onCreateViewHolder(android.widget.FrameLayout(activity), 0) as KeyboardLayoutAdapter.RowViewHolder
+        val card = holder.itemView as MaterialCardView
+        val originalBackground = card.cardBackgroundColor.defaultColor
+        val originalRadius = card.radius
+
+        holder.setDragging(true)
+        assertNotEquals(originalBackground, card.cardBackgroundColor.defaultColor)
+
+        holder.setDragging(false)
+        assertEquals(originalBackground, card.cardBackgroundColor.defaultColor)
+        assertEquals(originalRadius, card.radius, 0f)
+    }
+
     @Test fun aRecreatedFormAcceptsThePendingEventAndKeepsTypedContentAndColors() = page { activity ->
         val args = options(mapOf("type" to "MacroKey", "label" to "Before", "weight" to 0.2f))
         val form = KeyEditorForm(activity, args)
@@ -235,6 +251,7 @@ class KeyEditorFormTest {
         override fun onDeleteRowClick(rowIndex: Int) {}
         override fun onEditRowClick(rowIndex: Int) {}
         override fun onMoveRowUpClick(rowIndex: Int) {}
+        override fun onMoveRowDownClick(rowIndex: Int) {}
         override fun onAddRowClick() {}
         override fun onRowPositionChanged(from: Int, to: Int) {}
         override fun onRowDragEnded() {}
