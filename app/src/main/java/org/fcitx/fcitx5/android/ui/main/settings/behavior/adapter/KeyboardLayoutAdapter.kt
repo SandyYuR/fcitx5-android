@@ -11,9 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorUi
 import com.google.android.material.button.MaterialButton
 import org.fcitx.fcitx5.android.R
@@ -81,6 +81,8 @@ class KeyboardLayoutAdapter(
         fun onEditRowClick(rowIndex: Int)
 
         fun onMoveRowUpClick(rowIndex: Int)
+
+        fun onMoveRowDownClick(rowIndex: Int)
 
         fun onAddRowClick()
 
@@ -182,9 +184,15 @@ class KeyboardLayoutAdapter(
             setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_TitleSmall)
             setTextColor(context.settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
         }
+        val addKeyButton = EditorUi.icon(context, R.drawable.ic_baseline_plus_24, R.string.text_keyboard_layout_add_key) { }
+        val moveUpButton = EditorUi.icon(context, R.drawable.ic_baseline_arrow_upward_24, R.string.text_keyboard_layout_move_row_up) { }
+        val moveDownButton = EditorUi.icon(context, R.drawable.ic_baseline_arrow_downward_24, R.string.text_keyboard_layout_move_row_down) { }
         val editRowButton = EditorUi.icon(context, R.drawable.ic_baseline_more_horiz_24, R.string.layout_editor_row_settings) { }
         header.addView(dragHandle)
         header.addView(rowLabel, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        header.addView(moveUpButton)
+        header.addView(moveDownButton)
+        header.addView(addKeyButton)
         header.addView(editRowButton)
         rowContainer.addView(header)
         val keysFlow = DraggableFlowLayout(context)
@@ -192,7 +200,7 @@ class KeyboardLayoutAdapter(
         val card = EditorUi.card(context, rowContainer).apply {
             layoutParams = RecyclerView.LayoutParams(-1, -2).apply { bottomMargin = context.dp(12) }
         }
-        val viewHolder = RowViewHolder(card, dragHandle, keysFlow, editRowButton, rowLabel)
+        val viewHolder = RowViewHolder(card, dragHandle, keysFlow, addKeyButton, moveUpButton, moveDownButton, editRowButton, rowLabel)
         // Setup listeners for fixed parts (called only once)
         setupRowViewHolder(viewHolder)
         return viewHolder
@@ -225,6 +233,7 @@ class KeyboardLayoutAdapter(
             is RowViewHolder -> {
                 // Rebind keys (listeners for fixed parts like delete button are already set in createRowViewHolder)
                 holder.rowLabel.text = context.getString(R.string.layout_editor_row_title, position + 1)
+                bindRowActions(holder, position)
                 bindRowKeys(holder, position)
             }
             is AddRowViewHolder -> {
@@ -243,6 +252,15 @@ class KeyboardLayoutAdapter(
         }
         holder.dragHandle.setOnClickListener {
             holder.bindingAdapterPosition.takeIf { it in rows.indices }?.let(listener::onEditRowClick)
+        }
+        holder.addKeyButton.setOnClickListener {
+            holder.bindingAdapterPosition.takeIf { it in rows.indices }?.let(listener::onAddKeyClick)
+        }
+        holder.moveUpButton.setOnClickListener {
+            holder.bindingAdapterPosition.takeIf { it in rows.indices }?.let(listener::onMoveRowUpClick)
+        }
+        holder.moveDownButton.setOnClickListener {
+            holder.bindingAdapterPosition.takeIf { it in rows.indices }?.let(listener::onMoveRowDownClick)
         }
 
         var downOnKeyChip = false
@@ -280,6 +298,11 @@ class KeyboardLayoutAdapter(
             if (downOnKeyChip) false else startRowDragIfAllowed()
         }
 
+    }
+
+    private fun bindRowActions(holder: RowViewHolder, position: Int) {
+        holder.moveUpButton.visibility = if (position > 0) View.VISIBLE else View.GONE
+        holder.moveDownButton.visibility = if (position < rows.lastIndex) View.VISIBLE else View.GONE
     }
 
     /**
@@ -351,9 +374,8 @@ class KeyboardLayoutAdapter(
         // Reuse the chips already in this row. bindRowKeys runs on every partial refresh —
         // roughly every 100ms while a key is being dragged — and it used to removeAllViews()
         // and allocate a TextView plus a GradientDrawable per key each time (see E7).
-        // Child layout is: [key chips..., "+" chip, move-up chip]. Both actions are non-draggable.
         val flow = holder.keysFlow
-        val neededChildren = displayRow.size + 2
+        val neededChildren = displayRow.size
         while (flow.childCount > neededChildren) {
             flow.removeViewAt(flow.childCount - 1)
         }
@@ -383,7 +405,6 @@ class KeyboardLayoutAdapter(
                 // 每次 bind 都强制对齐到 FlowLayout 分配的槽位。
                 translationX = 0f
                 translationY = 0f
-                // A former disabled first-row up-arrow can be reused as a key after an edit.
                 isEnabled = true
                 alpha = 1f
                 text = buildKeyLabel(key)
@@ -414,88 +435,6 @@ class KeyboardLayoutAdapter(
             }
         }
 
-        // Add button (same style as other keys), followed by the move-up action.
-        val addIndex = displayRow.size
-        val addKeyChip = flow.getChildAt(addIndex) as? TextView ?: TextView(context).also { created ->
-            flow.addView(
-                created,
-                addIndex,
-                ViewGroup.MarginLayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    rightMargin = context.dp(6)
-                    bottomMargin = context.dp(4)
-                    topMargin = context.dp(4)
-                }
-            )
-        }
-        if (addKeyChip.layoutParams.width != context.dp(64) || addKeyChip.layoutParams.height != context.dp(56)) {
-            addKeyChip.layoutParams = addKeyChip.layoutParams.apply { width = context.dp(64); height = context.dp(56) }
-        }
-        addKeyChip.apply {
-            // Excluded from drag and drop: it has no entry in the layout data, so allowing a
-            // key to be dropped past it produced an index the data layer silently rejected.
-            tag = DraggableFlowLayout.TAG_NOT_DRAGGABLE
-            translationX = 0f
-            translationY = 0f
-            isEnabled = true
-            alpha = 1f
-            contentDescription = context.getString(R.string.text_keyboard_layout_add_key)
-            text = ""
-            minHeight = context.dp(56)
-            setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_baseline_plus_24, 0, 0, 0)
-            TextViewCompat.setCompoundDrawableTintList(this, android.content.res.ColorStateList.valueOf(context.settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer)))
-            textSize = 14f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setPadding(context.dp(20), context.dp(8), context.dp(20), context.dp(8))
-            gravity = Gravity.CENTER
-            applyAddChipStyle(this)
-            setTextColor(context.settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer))
-            setOnClickListener {
-                val adapterPosition = holder.bindingAdapterPosition
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    listener.onAddKeyClick(adapterPosition)
-                }
-            }
-        }
-        val moveUpIndex = displayRow.size + 1
-        // Both trailing actions have no data index. Reuse them just like the key chips.
-        val up = flow.getChildAt(moveUpIndex) as? TextView ?: TextView(context).also {
-            flow.addView(it, moveUpIndex, ViewGroup.MarginLayoutParams(context.dp(64), ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                rightMargin = context.dp(6)
-                topMargin = context.dp(4)
-                bottomMargin = context.dp(4)
-            })
-        }
-        up.apply {
-            tag = DraggableFlowLayout.TAG_NOT_DRAGGABLE
-            translationX = 0f
-            translationY = 0f
-            text = ""
-            minHeight = context.dp(56)
-            setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_baseline_arrow_upward_24, 0, 0, 0)
-            TextViewCompat.setCompoundDrawableTintList(this, android.content.res.ColorStateList.valueOf(context.settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer)))
-            textSize = 14f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(context.settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer))
-            gravity = Gravity.CENTER
-            setPadding(context.dp(20), context.dp(8), context.dp(20), context.dp(8))
-            if (layoutParams.width != context.dp(64) || layoutParams.height != context.dp(56)) {
-                layoutParams = layoutParams.apply { width = context.dp(64); height = context.dp(56) }
-            }
-            contentDescription = context.getString(R.string.text_keyboard_layout_move_row_up)
-            isEnabled = position > 0
-            alpha = if (isEnabled) 1f else 0.38f
-            applyAddChipStyle(this)
-            setOnClickListener {
-                holder.bindingAdapterPosition.takeIf { it in 1 until rows.size }?.let(listener::onMoveRowUpClick)
-            }
-        }
-    }
-
-    private fun applyAddChipStyle(view: TextView) {
-        EditorUi.tile(view, emphasized = true)
     }
 
     private fun buildDisplayRowForPreview(
@@ -832,9 +771,24 @@ class KeyboardLayoutAdapter(
         val container: ViewGroup,
         val dragHandle: View,
         val keysFlow: ViewGroup,
+        val addKeyButton: View,
+        val moveUpButton: View,
+        val moveDownButton: View,
         val editButton: View,
         val rowLabel: TextView
-    ) : RecyclerView.ViewHolder(container)
+    ) : RecyclerView.ViewHolder(container) {
+        private val cardBackground = (container as? MaterialCardView)?.cardBackgroundColor
+
+        /** Highlight a dragged row without replacing MaterialCardView's shaped background. */
+        fun setDragging(dragging: Boolean) {
+            val card = container as? MaterialCardView ?: return
+            if (dragging) {
+                card.setCardBackgroundColor(card.context.settingsColor(android.R.attr.colorControlHighlight))
+            } else {
+                cardBackground?.let(card::setCardBackgroundColor)
+            }
+        }
+    }
 
     /**
      * Add row ViewHolder

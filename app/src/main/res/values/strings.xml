@@ -1091,6 +1091,7 @@
     <string name="text_keyboard_layout_manage_builtin">Built-in layout</string>
     <string name="text_keyboard_layout_edit_row">Edit row keys</string>
     <string name="text_keyboard_layout_move_row_up">Move row up</string>
+    <string name="text_keyboard_layout_move_row_down">Move row down</string>
     <string name="text_keyboard_layout_customized_key">%1$s (custom properties)</string>
     <string name="settings_ui_appearance">Settings interface appearance</string>
     <string name="settings_ui_appearance_summary">Light and dark modes, dynamic colors, palettes and contrast</string>

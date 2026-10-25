@@ -1073,6 +1073,7 @@
     <string name="text_keyboard_layout_manage_builtin">內建預設配置</string>
     <string name="text_keyboard_layout_edit_row">編輯該列按鍵</string>
     <string name="text_keyboard_layout_move_row_up">上移該列</string>
+    <string name="text_keyboard_layout_move_row_down">下移該列</string>
     <string name="text_keyboard_layout_customized_key">%1$s（已自訂屬性）</string>
     <string name="settings_ui_appearance">設定介面外觀</string>
     <string name="settings_ui_appearance_summary">明暗模式、動態取色、手動配色和對比度</string>

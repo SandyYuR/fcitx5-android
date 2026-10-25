@@ -62,6 +62,7 @@ class KeyboardLayoutAdapterViewTest {
         override fun onAddRowClick() {}
         override fun onEditRowClick(rowIndex: Int) {}
         override fun onMoveRowUpClick(rowIndex: Int) {}
+        override fun onMoveRowDownClick(rowIndex: Int) {}
         override fun onRowPositionChanged(from: Int, to: Int) {}
         override fun onRowDragEnded() {}
         override fun onKeyPositionChanged(rowIndex: Int, from: Int, to: Int) {}

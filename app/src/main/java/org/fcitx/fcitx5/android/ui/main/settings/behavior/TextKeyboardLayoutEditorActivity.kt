@@ -15,7 +15,6 @@ import android.content.Intent
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -2091,14 +2090,11 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 }
 
                 override fun onMoveRowUpClick(rowIndex: Int) {
-                    clearKeySelection()
-                    if (rowIndex !in 1 until currentRowsRef.size) return
-                    val row = currentRowsRef.removeAt(rowIndex)
-                    currentRowsRef.add(rowIndex - 1, row)
-                    rowsAdapter?.notifyRowMoved(rowIndex, rowIndex - 1)
-                    rowsAdapter?.notifyItemRangeChanged(rowIndex - 1, 2)
-                    currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
-                    updateSaveButtonState()
+                    moveRowBy(rowIndex, -1)
+                }
+
+                override fun onMoveRowDownClick(rowIndex: Int) {
+                    moveRowBy(rowIndex, 1)
                 }
 
                 override fun onAddRowClick() {
@@ -2207,13 +2203,13 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 ) {
                     super.onSelectedChanged(viewHolder, actionState)
                     if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && viewHolder is KeyboardLayoutAdapter.RowViewHolder) {
-                        viewHolder.itemView.backgroundColor = this@TextKeyboardLayoutEditorActivity.settingsColor(android.R.attr.colorControlHighlight)
+                        viewHolder.setDragging(true)
                     }
                 }
 
                 override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
                     super.clearView(recyclerView, viewHolder)
-                    viewHolder.itemView.backgroundColor = Color.TRANSPARENT
+                    (viewHolder as? KeyboardLayoutAdapter.RowViewHolder)?.setDragging(false)
                     rowsAdapter?.listener?.onRowDragEnded()
                 }
 
@@ -2495,6 +2491,17 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection)
             updateSaveButtonState()
         }
+    }
+
+    private fun moveRowBy(rowIndex: Int, offset: Int) {
+        clearKeySelection()
+        val targetIndex = rowIndex + offset
+        if (rowIndex !in currentRowsRef.indices || targetIndex !in currentRowsRef.indices) return
+        val row = currentRowsRef.removeAt(rowIndex)
+        currentRowsRef.add(targetIndex, row)
+        rowsAdapter?.notifyRowMoved(rowIndex, targetIndex)
+        currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+        updateSaveButtonState()
     }
 
     private fun normalizeRowHeightPercent(row: MutableList<MutableMap<String, Any?>>) {
