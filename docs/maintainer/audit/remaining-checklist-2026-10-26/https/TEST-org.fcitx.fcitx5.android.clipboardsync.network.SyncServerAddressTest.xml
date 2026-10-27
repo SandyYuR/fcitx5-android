@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.clipboardsync.network.SyncServerAddressTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-26T07:44:29.235Z" hostname="bbf819fdcadc" time="0.49">
+  <properties/>
+  <testcase name="omittedSchemesUseHttpsForHostsPathsAndIpv6" classname="org.fcitx.fcitx5.android.clipboardsync.network.SyncServerAddressTest" time="0.001"/>
+  <testcase name="explicitHttpAndWebSocketSchemesRetainTheirChosenTransport" classname="org.fcitx.fcitx5.android.clipboardsync.network.SyncServerAddressTest" time="0.0"/>
+  <testcase name="anHttps307CannotSendLoginFormDataToAnHttpRedirect" classname="org.fcitx.fcitx5.android.clipboardsync.network.SyncServerAddressTest" time="0.45"/>
+  <testcase name="explicitlyChosenHttpCanStillUpgradeToHttps" classname="org.fcitx.fcitx5.android.clipboardsync.network.SyncServerAddressTest" time="0.035"/>
+  <testcase name="malformedOrUnsupportedAddressesFailBeforeConstructingRequests" classname="org.fcitx.fcitx5.android.clipboardsync.network.SyncServerAddressTest" time="0.001"/>
+  <testcase name="fragmentsAreNotMistakenForServerPaths" classname="org.fcitx.fcitx5.android.clipboardsync.network.SyncServerAddressTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Oct 26, 2026 7:44:29 AM okhttp3.mockwebserver.MockWebServer$SocketHandler handle
+WARNING: MockWebServer[45417] connection from /127.0.0.1 didn't make a request
+]]></system-err>
+</testsuite>

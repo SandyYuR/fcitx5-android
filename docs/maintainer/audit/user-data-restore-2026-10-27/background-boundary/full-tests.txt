@@ -1,0 +1,102 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttp.nonProxyHosts=localhost|127.0.0.1|[::1]
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:convention:compileKotlin UP-TO-DATE
+> Task :build-logic:convention:compileJava NO-SOURCE
+> Task :build-logic:convention:pluginDescriptors UP-TO-DATE
+> Task :build-logic:convention:processResources UP-TO-DATE
+> Task :build-logic:convention:classes UP-TO-DATE
+> Task :build-logic:convention:jar UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preFxDebugBuild UP-TO-DATE
+> Task :app:dataBindingMergeDependencyArtifactsFxDebug UP-TO-DATE
+> Task :app:generateFxDebugResValues UP-TO-DATE
+> Task :app:prepareLibraryDefinitionsFxDebug UP-TO-DATE
+> Task :app:extractFxDebugSupportedLocales UP-TO-DATE
+> Task :app:mapFxDebugSourceSetPaths UP-TO-DATE
+> Task :lib:common:preBuild UP-TO-DATE
+> Task :lib:common:preDebugBuild UP-TO-DATE
+> Task :lib:common:extractDebugSupportedLocales UP-TO-DATE
+> Task :app:generateFxDebugLocaleConfig UP-TO-DATE
+> Task :app:generateFxDebugResources UP-TO-DATE
+> Task :lib:common:generateDebugResources UP-TO-DATE
+> Task :lib:common:packageDebugResources UP-TO-DATE
+> Task :app:mergeFxDebugResources UP-TO-DATE
+> Task :app:packageFxDebugResources UP-TO-DATE
+> Task :lib:common:processDebugNavigationResources UP-TO-DATE
+> Task :app:processFxDebugNavigationResources UP-TO-DATE
+> Task :app:parseFxDebugLocalResources UP-TO-DATE
+> Task :lib:common:parseDebugLocalResources UP-TO-DATE
+> Task :lib:common:generateDebugRFile UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesFxDebug UP-TO-DATE
+> Task :app:generateFxDebugBuildConfig
+> Task :app:generateFxDebugRFile UP-TO-DATE
+> Task :codegen:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :codegen:compileKotlin UP-TO-DATE
+> Task :codegen:compileJava NO-SOURCE
+> Task :codegen:processResources UP-TO-DATE
+> Task :codegen:classes UP-TO-DATE
+> Task :codegen:jar UP-TO-DATE
+> Task :lib:common:compileDebugAidl UP-TO-DATE
+> Task :lib:common:compileDebugKotlin UP-TO-DATE
+> Task :lib:common:javaPreCompileDebug UP-TO-DATE
+> Task :lib:common:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib:common:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :build-logic:convention:compileTestKotlin
+> Task :build-logic:convention:compileTestJava NO-SOURCE
+> Task :build-logic:convention:pluginUnderTestMetadata UP-TO-DATE
+> Task :build-logic:convention:processTestResources NO-SOURCE
+> Task :build-logic:convention:testClasses UP-TO-DATE
+> Task :build-logic:convention:test UP-TO-DATE
+> Task :app:kspFxDebugKotlin
+> Task :app:compileFxDebugKotlin
+w: file:///workspace/fcitx5-android/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:269:47 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Snapshot'.
+w: file:///workspace/fcitx5-android/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:321:21 Unnecessary safe call on a non-null receiver of type 'Snapshot'.
+w: file:///workspace/fcitx5-android/app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt:1151:19 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+
+> Task :app:javaPreCompileFxDebug UP-TO-DATE
+> Task :app:compileFxDebugJavaWithJavac
+> Task :lib:common:writeDebugAarMetadata UP-TO-DATE
+> Task :app:checkFxDebugAarMetadata UP-TO-DATE
+> Task :app:compileFxDebugNavigationResources UP-TO-DATE
+> Task :app:createFxDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksFxDebug UP-TO-DATE
+> Task :lib:common:extractDeepLinksDebug UP-TO-DATE
+> Task :lib:common:processDebugManifest UP-TO-DATE
+> Task :app:processFxDebugMainManifest UP-TO-DATE
+> Task :app:processFxDebugManifest UP-TO-DATE
+> Task :app:processFxDebugManifestForPackage UP-TO-DATE
+> Task :lib:common:mapDebugSourceSetPaths UP-TO-DATE
+> Task :lib:common:compileDebugLibraryResources UP-TO-DATE
+> Task :app:processFxDebugResources UP-TO-DATE
+> Task :app:bundleFxDebugClassesToRuntimeJar
+> Task :app:bundleFxDebugClassesToCompileJar
+> Task :app:kspFxDebugUnitTestKotlin SKIPPED
+> Task :app:preFxDebugUnitTestBuild UP-TO-DATE
+> Task :app:compileFxDebugUnitTestKotlin
+> Task :app:javaPreCompileFxDebugUnitTest UP-TO-DATE
+> Task :app:compileFxDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:prepareDirectRimeAssets UP-TO-DATE
+> Task :app:generateDataDescriptor UP-TO-DATE
+> Task :app:generateFxDebugAssets UP-TO-DATE
+> Task :lib:common:generateDebugAssets UP-TO-DATE
+> Task :lib:common:mergeDebugAssets UP-TO-DATE
+> Task :app:mergeFxDebugAssets UP-TO-DATE
+> Task :app:packageFxDebugUnitTestForUnitTest UP-TO-DATE
+> Task :app:mergeFxDebugUnitTestManifest UP-TO-DATE
+> Task :app:processFxDebugUnitTestManifest UP-TO-DATE
+> Task :app:generateFxDebugUnitTestConfig UP-TO-DATE
+> Task :app:processFxDebugJavaRes UP-TO-DATE
+> Task :app:processFxDebugUnitTestJavaRes UP-TO-DATE
+> Task :lib:common:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib:common:processDebugJavaRes UP-TO-DATE
+
+> Task :app:testFxDebugUnitTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttp.nonProxyHosts=localhost|127.0.0.1|[::1]
+
+[Incubating] Problems report is available at: file:///workspace/fcitx5-android/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 3m 53s
+69 actionable tasks: 9 executed, 60 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.1/userguide/configuration_cache_enabling.html

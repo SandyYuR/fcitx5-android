@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.UserDataRestoreProcessTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-26T17:07:15.832Z" hostname="bbf819fdcadc" time="1.589">
+  <properties/>
+  <testcase name="killedWriterIsRecoveredFromDiskAtEveryReplacementAndCommitWindow" classname="org.fcitx.fcitx5.android.data.UserDataRestoreProcessTest" time="1.589"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

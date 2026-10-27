@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-10-26T17:07:17.424Z" hostname="bbf819fdcadc" time="0.228">
+  <properties/>
+  <testcase name="invalidRequestIsRejectedWithoutReadingAnExternalFile[23]" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.023"/>
+  <testcase name="restoreActivityIsPrivateAndRunsInAnIsolatedProcess[23]" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.011"/>
+  <testcase name="isolatedApplicationDoesNotOpenPreferencesOrTheNativeEngine[23]" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.009"/>
+  <testcase name="startupRollsBackBeforeAPreferenceFileIsOpened[23]" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.021"/>
+  <testcase name="pendingOptionalProfileAllowsSettingsButBlocksProfileOperations[23]" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.016"/>
+  <testcase name="unresolvedInternalConflictBlocksInitializationAndCanBeRetried[23]" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.013"/>
+  <testcase name="isolatedProcessConfigurationChangeDoesNotInitializeThemeState[23]" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.008"/>
+  <testcase name="invalidRequestIsRejectedWithoutReadingAnExternalFile" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.023"/>
+  <testcase name="restoreActivityIsPrivateAndRunsInAnIsolatedProcess" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.011"/>
+  <testcase name="isolatedApplicationDoesNotOpenPreferencesOrTheNativeEngine" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.028"/>
+  <testcase name="startupRollsBackBeforeAPreferenceFileIsOpened" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.02"/>
+  <testcase name="pendingOptionalProfileAllowsSettingsButBlocksProfileOperations" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.017"/>
+  <testcase name="unresolvedInternalConflictBlocksInitializationAndCanBeRetried" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.012"/>
+  <testcase name="isolatedProcessConfigurationChangeDoesNotInitializeThemeState" classname="org.fcitx.fcitx5.android.data.UserDataRestoreStartupTest" time="0.009"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

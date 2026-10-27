@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-10-26T21:57:58.119Z" hostname="bbf819fdcadc" time="0.296">
+  <properties/>
+  <testcase name="excessiveNestingIsRejectedBeforeRestore[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.022"/>
+  <testcase name="atomicBackupWithoutMainFileIsRecovered[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.049"/>
+  <testcase name="supportedValuesAreAlsoReadByActualAndroidSharedPreferences[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.017"/>
+  <testcase name="malformedInputCannotBecomeAPreparedPreference[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.009"/>
+  <testcase name="invalidBackupIsRetainedAndDoesNotOverwriteMain[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.013"/>
+  <testcase name="preferenceSizeBudgetTracksSmallHeapsAndRemainsCapped[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.006"/>
+  <testcase name="atomicBackupWinsOverAPartiallyWrittenMainFile[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.007"/>
+  <testcase name="unsupportedOrMisplacedTagsCannotSilentlyResetPreferencesAfterImport[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.009"/>
+  <testcase name="invalidPrimitiveValuesAreRejectedBeforeChangingInstalledData[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.039"/>
+  <testcase name="excessiveNestingIsRejectedBeforeRestore" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.018"/>
+  <testcase name="atomicBackupWithoutMainFileIsRecovered" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.011"/>
+  <testcase name="supportedValuesAreAlsoReadByActualAndroidSharedPreferences" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.01"/>
+  <testcase name="malformedInputCannotBecomeAPreparedPreference" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.007"/>
+  <testcase name="invalidBackupIsRetainedAndDoesNotOverwriteMain" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.008"/>
+  <testcase name="preferenceSizeBudgetTracksSmallHeapsAndRemainsCapped" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.006"/>
+  <testcase name="atomicBackupWinsOverAPartiallyWrittenMainFile" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.008"/>
+  <testcase name="unsupportedOrMisplacedTagsCannotSilentlyResetPreferencesAfterImport" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.007"/>
+  <testcase name="invalidPrimitiveValuesAreRejectedBeforeChangingInstalledData" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

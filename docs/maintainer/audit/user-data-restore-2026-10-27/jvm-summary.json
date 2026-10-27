@@ -1,0 +1,12 @@
+{
+  "app": {
+    "tests": 1197,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "build_logic_tests": 6,
+  "new_test_executions": 41,
+  "real_child_process_kill_windows": 6,
+  "code_sha": "bb9d2a78c4f588f67fa8bb33e5dab35ac3576175"
+}

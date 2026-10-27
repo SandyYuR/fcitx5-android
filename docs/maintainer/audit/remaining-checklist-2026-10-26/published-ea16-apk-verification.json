@@ -1,0 +1,36 @@
+{
+  "apk": "app/build/outputs/apk/fx/release/org.fcitx.fcitx5.android.fx.rime-0.1.3-770-gea16a375-fx-arm64-v8a-release.apk",
+  "native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libdirect-rime.so"
+  ],
+  "fcitx_dependencies": [],
+  "apk_sha256": "d5fbacbecdbc5a06a41411d555fecc0b589ea5ad6657acbe48d3a630f0fb925e",
+  "native_dependencies": {
+    "lib/arm64-v8a/libc++_shared.so": [
+      "libc.so",
+      "libm.so",
+      "libdl.so"
+    ],
+    "lib/arm64-v8a/libdirect-rime.so": [
+      "liblog.so",
+      "libandroid.so",
+      "libm.so",
+      "libc++_shared.so",
+      "libdl.so",
+      "libc.so"
+    ]
+  },
+  "obsolete_picker_classes": [],
+  "legacy_backend_classes": [],
+  "dex_files_checked": 2,
+  "clearurls": {
+    "commit": "11086f40512774dcadef54079f1ba023bfacf940",
+    "sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+    "providers": 206
+  },
+  "page_size": 16384,
+  "required_alignment_by_abi": {
+    "arm64-v8a": 16384
+  }
+}
