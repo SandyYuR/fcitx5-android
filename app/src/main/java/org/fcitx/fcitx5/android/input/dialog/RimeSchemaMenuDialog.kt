@@ -7,17 +7,13 @@ package org.fcitx.fcitx5.android.input.dialog
 import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.radiobutton.MaterialRadioButton
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.core.FcitxAPI
-import org.fcitx.fcitx5.android.daemon.FcitxConnection
-import org.fcitx.fcitx5.android.daemon.launchOnReady
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.manager.SubModeManager
-import splitties.dimensions.dp
 import timber.log.Timber
 
 /**
@@ -31,8 +27,10 @@ object RimeSchemaMenuDialog {
     suspend fun build(
         fcitx: FcitxAPI,
         service: FcitxInputMethodService,
-        context: Context
+        context: Context,
+        canSelect: () -> Boolean = { true }
     ): AlertDialog {
+        val inputSession = fcitx.inputSession
         val themed = SettingsUiPreferences.themedContext(context, SettingsUiPreferences.read(context))
         val builder = MaterialAlertDialogBuilder(themed)
         val dialogContext = builder.context
@@ -49,28 +47,13 @@ object RimeSchemaMenuDialog {
         // enabledIndex 找不到时传 -1（无高亮），与 InputMethodListAdapter 约定一致。
         val enabledIndex: Int = enabledName?.let { labels.indexOf(it) } ?: -1
         lateinit var dialog: AlertDialog
-        val root = android.widget.LinearLayout(dialogContext).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            minimumWidth = dialogContext.dp(280)
-            setPadding(dialogContext.dp(24), 0, dialogContext.dp(24), dialogContext.dp(24))
-        }
-        entries.forEachIndexed { index, (label, actionId) ->
-            root.addView(MaterialRadioButton(dialogContext).apply {
-                text = label
-                isChecked = index == enabledIndex
-                setUseMaterialThemeColors(true)
-                minHeight = dialogContext.dp(48)
-                gravity = android.view.Gravity.CENTER_VERTICAL
-                setPadding(0, 0, 0, 0)
-                setOnClickListener {
-                    val connection: FcitxConnection = service.fcitx
-                    connection.launchOnReady { api: FcitxAPI -> api.activateAction(actionId) }
-                    dialog.dismiss()
+        val root = buildSchemaMenuChoices(dialogContext, entries, enabledIndex) { actionId ->
+            if (canSelect()) service.postFcitxJob {
+                if (withContext(Dispatchers.Main.immediate) { canSelect() }) {
+                    activateSchemaActionIfCurrent(actionId, inputSession)
                 }
-            }, android.widget.LinearLayout.LayoutParams(
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                dialogContext.dp(48)
-            ))
+            }
+            dialog.dismiss()
         }
         dialog = builder
             .setTitle(R.string.rime_schema_menu)

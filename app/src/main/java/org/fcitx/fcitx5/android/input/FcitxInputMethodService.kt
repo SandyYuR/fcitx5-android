@@ -155,6 +155,15 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private var jobs = Channel<Job>(capacity = Channel.UNLIMITED)
     private var inputBindingGeneration = 0
     private var inputSessionGeneration = 0
+    internal val editorSession = EditorSessionTracker()
+    internal val macroInput = org.fcitx.fcitx5.android.input.keyboard.MacroInputController {
+        Timber.w(it, "Failed to release a macro key")
+    }
+
+    private fun endEditorWork() {
+        macroInput.cancelAll()
+        if (VoiceInputProviderManager.isActive()) VoiceInputProviderManager.stop(this)
+    }
     private var pendingCandidatePagingMode: Int? = null
     private var appliedCandidatePagingMode: Int? = null
     private var candidatePagingModeJob: Job? = null
@@ -1653,6 +1662,28 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
+    /** Send UP only within its original editor; a stale connection may have been reused. */
+    internal fun releaseMacroKey(
+        keyCode: Int,
+        scanCode: Int,
+        editor: EditorSessionTracker.Token,
+        cancelled: Boolean
+    ) {
+        val current = editor.isCurrent()
+        if (cancelled || !current) {
+            // An interrupted lock-key tap must not latch Caps/Num Lock on cleanup.
+            if (keyCode == KeyEvent.KEYCODE_CAPS_LOCK) {
+                simulatedCapsLockPressed = false
+                simulatedCapsLockPressedFromMacro = false
+            } else if (keyCode == KeyEvent.KEYCODE_NUM_LOCK) simulatedNumLockPressed = false
+        }
+        if (current) {
+            sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_UP, fromMacro = true)
+        } else {
+            updateSimulatedModifierCount(keyCode, KeyEvent.ACTION_UP)
+        }
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (dispatchDialogKeyEvent(event)) return true
         if (keyCode == KeyEvent.KEYCODE_CAPS_LOCK) {
@@ -1814,6 +1845,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         android.util.Log.i("FcitxColdStart", "service.onStartInput restarting=$restarting")
+        if (editorSession.start(EditorSessionTracker.Editor(attribute.packageName, attribute.fieldId,
+                attribute.inputType, attribute.imeOptions), restarting)) {
+            endEditorWork()
+        }
         val engineGeneration = FcitxDaemon.invalidateInputSession()
         isInInputLifecycleCriticalPhase = true
         onBackspaceGuardSessionChanged()
@@ -2195,6 +2230,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onFinishInputView(finishingInput: Boolean) {
         Timber.d("onFinishInputView: finishingInput=$finishingInput")
+        macroInput.cancelAll()
         onBackspaceGuardSessionChanged()
         MainService.stopSyncService(this)
         if (VoiceInputProviderManager.isActive()) {
@@ -2216,6 +2252,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onFinishInput() {
+        editorSession.end()
+        endEditorWork()
         FcitxDaemon.invalidateInputSession()
         Timber.d("onFinishInput")
         onBackspaceGuardSessionChanged()
@@ -2228,6 +2266,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onUnbindInput() {
+        editorSession.end()
+        endEditorWork()
         FcitxDaemon.invalidateInputSession()
         cachedKeyEvents.evictAll()
         cachedKeyEventIndex = 0
@@ -2244,6 +2284,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onDestroy() {
+        editorSession.end()
+        endEditorWork()
         showingDialog?.dismiss()
         unregisterDialogBackHandler?.invoke()
         unregisterDialogBackHandler = null

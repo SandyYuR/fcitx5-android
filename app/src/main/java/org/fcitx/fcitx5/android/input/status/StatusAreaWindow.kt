@@ -48,7 +48,7 @@ import splitties.views.dsl.recyclerview.recyclerView
 import splitties.views.recyclerview.gridLayoutManager
 import timber.log.Timber
 
-class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
+class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(StatusAreaWindow::class),
     InputBroadcastReceiver {
 
     private val service: FcitxInputMethodService by manager.inputMethodService()

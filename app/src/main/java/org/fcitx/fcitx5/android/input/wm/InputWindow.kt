@@ -51,19 +51,21 @@ sealed class InputWindow : Dependent {
 
     final override fun handle(scopeEvent: ScopeEvent) = manager.handle(scopeEvent)
 
-    abstract class SimpleInputWindow<T : SimpleInputWindow<T>> : IUniqueComponent<T>,
+    abstract class SimpleInputWindow<T : SimpleInputWindow<T>>(
+        final override val type: KClass<T>
+    ) : IUniqueComponent<T>,
         InputWindow() {
 
-        override val type: KClass<out IUniqueComponent<*>> by lazy { defaultType() }
+        override fun equals(other: Any?): Boolean = this === other || type.java.isInstance(other)
 
-        override fun equals(other: Any?): Boolean = defaultEquals(other)
-
-        override fun hashCode(): Int = defaultHashCode()
+        override fun hashCode(): Int = type.java.hashCode()
 
         override fun toString(): String = javaClass.name
     }
 
-    abstract class ExtendedInputWindow<T : ExtendedInputWindow<T>> : IUniqueComponent<T>,
+    abstract class ExtendedInputWindow<T : ExtendedInputWindow<T>>(
+        final override val type: KClass<T>
+    ) : IUniqueComponent<T>,
         InputWindow() {
 
         open val showTitle: Boolean = true
@@ -74,11 +76,9 @@ sealed class InputWindow : Dependent {
             return null
         }
 
-        override val type: KClass<out IUniqueComponent<*>> by lazy { defaultType() }
+        override fun equals(other: Any?): Boolean = this === other || type.java.isInstance(other)
 
-        override fun equals(other: Any?): Boolean = defaultEquals(other)
-
-        override fun hashCode(): Int = defaultHashCode()
+        override fun hashCode(): Int = type.java.hashCode()
 
         override fun toString(): String = javaClass.name
 

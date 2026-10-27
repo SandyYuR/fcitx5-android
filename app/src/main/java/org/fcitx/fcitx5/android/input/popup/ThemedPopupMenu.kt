@@ -25,6 +25,7 @@ import splitties.dimensions.dp
 class ThemedPopupMenu(
     private val context: Context,
     private val theme: Theme,
+    private val preserveEditorFocus: Boolean = false,
     private val onDismiss: () -> Unit = {}
 ) {
 
@@ -48,7 +49,9 @@ class ThemedPopupMenu(
         val listPopup = ListPopupWindow(context).apply {
             setAdapter(Adapter(context, theme, items))
             anchorView = anchor
-            isModal = true
+            // Candidate actions belong to the current IME editor; taking focus away can
+            // finish/rebind that editor while its asynchronous action is still pending.
+            isModal = !preserveEditorFocus
             inputMethodMode = PopupWindow.INPUT_METHOD_NOT_NEEDED
             width = context.dp(196).coerceAtMost(
                 context.resources.displayMetrics.widthPixels - context.dp(24)

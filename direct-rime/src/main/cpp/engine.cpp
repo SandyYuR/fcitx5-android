@@ -30,15 +30,20 @@ struct Trace {
 };
 struct TimedTrace {
     Trace trace;
+#if INPUT_DIAGNOSTICS
     int64_t& elapsed;
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     TimedTrace(const char* name, int64_t& elapsed) : trace(name), elapsed(elapsed) {}
     ~TimedTrace() {
         elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - start).count();
     }
+#else
+    TimedTrace(const char* name, int64_t&) : trace(name) {}
+#endif
 };
 struct CoreTrace {
     TimedTrace trace;
+#if INPUT_DIAGNOSTICS
     std::array<int64_t, 16>& timing;
     IoScope io;
     rusage before{};
@@ -63,6 +68,9 @@ struct CoreTrace {
         timing[8] = after.ru_nvcsw - before.ru_nvcsw;
         timing[9] = after.ru_nivcsw - before.ru_nivcsw;
     }
+#else
+    CoreTrace(const char* name, std::array<int64_t, 16>& values) : trace(name, values[0]) {}
+#endif
 };
 std::string safe(const char* value) { return value ? value : ""; }
 }

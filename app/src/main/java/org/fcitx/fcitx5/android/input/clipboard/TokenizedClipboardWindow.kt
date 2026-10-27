@@ -27,7 +27,7 @@ import org.mechdancer.dependency.manager.must
 
 class TokenizedClipboardWindow(
     private val sourceText: String
-) : InputWindow.SimpleInputWindow<TokenizedClipboardWindow>() {
+) : InputWindow.SimpleInputWindow<TokenizedClipboardWindow>(TokenizedClipboardWindow::class) {
 
     private val service: FcitxInputMethodService by manager.inputMethodService()
     private val theme: Theme by manager.theme()

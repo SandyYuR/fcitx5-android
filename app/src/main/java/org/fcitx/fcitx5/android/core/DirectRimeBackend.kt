@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.SystemClock
 import androidx.tracing.trace
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.sync.Mutex
@@ -70,7 +69,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         return deliver
     }
     override fun releaseInputKey(ticket: InputKeyGate.Ticket) = keyGate.release(ticket)
-    private val events = Channel<List<FcitxEvent<*>>>(Channel.UNLIMITED)
+    private val events = InputEventQueue()
     private val flow = MutableSharedFlow<FcitxEvent<*>>(extraBufferCapacity = 64)
     override val eventFlow = flow.asSharedFlow()
     private val config = DirectRimeConfig(this.context)
@@ -91,10 +90,13 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private var publishedGeneration = Long.MIN_VALUE
     private var candidateEventCached: FcitxEvent<*>? = null
     @Volatile private var candidateVersion = 0L
+    override val candidateActionContext get() = CandidateActionContext(inputSession, candidateVersion)
     private val forwardedKeys = mutableSetOf<Pair<Int, Int>>()
     private var startupError = ""
     private var statusHint = ""
     private var statusHintJob: Job? = null
+    private val statusHintLifetime = StatusHintLifetime()
+    private var statusHintGeneration = 0L
     @Volatile private var maintenance = false
     override val acceptsInput get() = keyGate.canProcess()
     @Volatile override var inputMethodEntryCached = entry(null)
@@ -110,19 +112,21 @@ class DirectRimeBackend(context: Context) : InputEngine {
         // Emission is independent of the native owner. A slow UI never drops commits
         // and cannot deadlock the owner by requesting a candidate page while collecting.
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
-            for (batch in events) for (event in batch) {
+            while (true) for (event in events.receive()) {
                 InputDiagnostics.emitting(event)
                 flow.emit(event)
             }
         }
     }
 
-    override fun start() {
-        if (registry.currentState != FcitxLifecycle.State.STOPPED) return
-        registry.postEvent(FcitxLifecycle.Event.ON_START)
-        keyGate.starting()
-        showUnavailable("正在准备中州韵…")
-        engineScope.launch {
+    private val runtime = EngineLifecycleController(
+        scope = engineScope,
+        registry = registry,
+        onStarting = {
+            keyGate.starting()
+            showUnavailable("正在准备中州韵…")
+        },
+        initialize = {
             try {
                 startupStage("assets") { DataManager.sync() }
                 startupStage("config") { config.load() }
@@ -130,34 +134,41 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 started = true
                 startupError = ""
                 refreshSchemas()
-                // The real editor owns the generation. Do not create a temporary
-                // session, or invalidate keys Android already queued during startup.
             } catch (e: Exception) {
                 startupError = e.message ?: "引擎启动失败"
                 Timber.e(e, "Direct Rime startup failed")
                 showUnavailable(startupError)
-            } finally {
-                keyGate.running(started)
-                registry.postEvent(FcitxLifecycle.Event.ON_READY)
-                events.trySend(listOf(FcitxEvent.ReadyEvent()))
             }
-            if (Build.VERSION.SDK_INT >= 34) SubtypeManager.syncWith(enabledIme())
+        },
+        onReady = {
+            keyGate.running(started)
+        },
+        afterReady = {
+            events.offer(listOf(FcitxEvent.ReadyEvent()))
+            if (Build.VERSION.SDK_INT >= 34) engineScope.launch { SubtypeManager.syncWith(enabledIme()) }
+        },
+        onStopping = {
+            invalidateInputSession()
+            keyGate.stop()
+        },
+        finalize = {
+            clearStatusHint()
+            try { if (started) Native.stop() }
+            finally { started = false; snapshot = null }
+        },
+    )
+
+    override fun start() = runtime.start()
+    override fun requestStop() {
+        val shutdown = runtime.stopAsync()
+        engineScope.launch {
+            try { shutdown.await() }
+            catch (e: Exception) { Timber.e(e, "Direct Rime shutdown failed") }
         }
     }
 
-    override fun stop() {
-        if (registry.currentState == FcitxLifecycle.State.STOPPED) return
-        invalidateInputSession()
-        keyGate.stop()
-        runBlocking(owner) {
-            registry.postEvent(FcitxLifecycle.Event.ON_STOP)
-            clearStatusHint()
-            if (started) Native.stop()
-            started = false
-            snapshot = null
-            registry.postEvent(FcitxLifecycle.Event.ON_STOPPED)
-        }
-    }
+    // Backup/restore callers need a completed close before touching Rime's files.
+    override fun stop() { runBlocking { runtime.stopAsync().await() } }
 
     private val shared get() = File(DataManager.dataDir, "usr/share/rime-data")
     private inline fun <T> startupStage(name: String, crossinline block: () -> T): T {
@@ -180,13 +191,13 @@ class DirectRimeBackend(context: Context) : InputEngine {
         program = target.program
         flags = target.flags
         val startedAt = SystemClock.elapsedRealtime()
-        val before = Native.sessionStats()
-        val beginAt = SystemClock.elapsedRealtimeNanos()
+        val before = if (BuildConfig.INPUT_DIAGNOSTICS) Native.sessionStats() else null
+        val beginAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
         var result = interactivePriority.run {
             Native.beginInput(generation, program, flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL)
         }
-        val beginDone = SystemClock.elapsedRealtimeNanos()
-        val beginTiming = Native.operationTiming()
+        val beginDone = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
+        val beginTiming = if (BuildConfig.INPUT_DIAGNOSTICS) Native.operationTiming() else null
         if (result.ready) {
             appliedNoLearning = flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL
             if (preferredSchema.isNotEmpty() && result.schema != preferredSchema && schemas.any { it.first == preferredSchema })
@@ -195,13 +206,16 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 if (result.ascii != ascii) result = Native.action(generation, result.revision, 8, if (ascii) 1 else 0, "ascii_mode")
             }
         }
-        val restoreDone = SystemClock.elapsedRealtimeNanos()
+        val restoreDone = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
         publish(result)
         bindingKeys = 0
         bindingSelections = 0
         keyGate.resolve(generation, result.ready)
-        val after = Native.sessionStats()
-        android.util.Log.i("RimeLifecycle", "bind generation=$generation duration_ms=${SystemClock.elapsedRealtime() - startedAt} ready=${result.ready} created=${after[0] - before[0]} reused=${after[1] - before[1]} no_learning=${flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL} native_begin_us=${(beginDone - beginAt) / 1000} restore_us=${(restoreDone - beginDone) / 1000} ${nativeTiming(beginTiming)}")
+        val details = if (before != null && beginTiming != null) {
+            val after = Native.sessionStats()
+            " created=${after[0] - before[0]} reused=${after[1] - before[1]} native_begin_us=${(beginDone - beginAt) / 1000} restore_us=${(restoreDone - beginDone) / 1000} ${nativeTiming(beginTiming)}"
+        } else ""
+        android.util.Log.i("RimeLifecycle", "bind generation=$generation duration_ms=${SystemClock.elapsedRealtime() - startedAt} ready=${result.ready} no_learning=${flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL}$details")
     }
     override suspend fun startInputSession(generation: Long, program: String) = onOwner {
         if (generation != inputSession) return@onOwner
@@ -225,7 +239,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         candidateVersion++
         publishedGeneration = Long.MIN_VALUE
         keyGate.resolve(generation, false)
-        events.trySend(listOf(
+        events.offer(listOf(
             FcitxEvent.ClientPreeditEvent(FormattedText.Empty),
             FcitxEvent.InputPanelEvent(inputPanelCached),
             FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data.Empty)
@@ -236,17 +250,20 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val previous = snapshot ?: return null
         if (!started || maintenance || previous.generation != inputSession) return null
         return interactivePriority.run {
-            Native.action(previous.generation, previous.revision, action, index, value).also(::publish)
+            Native.action(previous.generation, previous.revision, action, index, value).also { publish(it) }
         }
     }
     private fun formatted(text: String, cursor: Int = text.length, underline: Boolean = false) =
         if (text.isEmpty()) FormattedText.Empty else FormattedText(arrayOf(text),
             intArrayOf(if (underline) TextFormatFlag.Underline.flag else 0), cursor.coerceIn(0, text.length))
 
-    private fun publish(value: Snapshot) {
+    private fun publish(value: Snapshot, release: Boolean = false) {
         if (value.generation != inputSession || value.gate == 3) return
         val previous = snapshot
         snapshot = value
+        // Keep the new revision for subsequent selection, but avoid repacking unchanged UI arrays.
+        // A handled release can invalidate lazy candidate tails even if the visible page is equal.
+        if (release && value.isUnchangedRelease(previous)) return
         val newSession = publishedGeneration != value.generation
         val modeChanged = !newSession && previous?.ready == true && value.ready &&
             (previous.schema != value.schema || previous.ascii != value.ascii)
@@ -274,7 +291,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val panel = FcitxEvent.InputPanelEvent.Data(
             if (config.preeditMode == "No") formatted(value.preedit, value.cursorUtf16) else FormattedText.Empty,
             if (value.ready) formatted(statusHint) else formatted(startupError.ifEmpty { value.gateMessage }),
-            FormattedText.Empty, tabs
+            FormattedText.Empty, tabs, statusHintId = if (value.ready) statusHintLifetime.id else 0
         )
         val ime = entry(value)
         val imeChanged = ime != inputMethodEntryCached
@@ -305,6 +322,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         if (newSession || value.handled || optionsChanged || previous?.preedit != value.preedit ||
             previous?.cursorBytes != value.cursorBytes || candidateEvent != candidateEventCached) {
             candidateVersion++
+            candidateEvent.candidateActionContext = CandidateActionContext(value.generation, candidateVersion)
             batch += candidateEvent
         }
         candidateEventCached = candidateEvent
@@ -312,28 +330,48 @@ class DirectRimeBackend(context: Context) : InputEngine {
         if (statusChanged) batch += FcitxEvent.StatusAreaEvent(FcitxEvent.StatusAreaEvent.Data(actions, ime))
         batch.forEach { it.inputSession = value.generation }
         publishedGeneration = value.generation
-        if (batch.isNotEmpty()) events.trySend(batch)
+        if (batch.isNotEmpty()) events.offer(batch)
     }
 
     private fun clearStatusHint() {
         statusHintJob?.cancel()
         statusHintJob = null
         statusHint = ""
+        statusHintLifetime.clear()
+        statusHintGeneration = 0
     }
 
     private fun showStatusHint(value: Snapshot, text: String) {
         clearStatusHint()
         statusHint = text
+        statusHintGeneration = value.generation
+        val id = statusHintLifetime.start(SystemClock.uptimeMillis())
+        scheduleStatusHintExpiry(value.generation, id)
+    }
+
+    override suspend fun statusHintPresented(hintId: Long, frameUptimeMillis: Long) {
+        onOwner {
+            if (started && statusHintGeneration == inputSession &&
+                statusHintLifetime.presented(hintId, frameUptimeMillis.coerceAtMost(SystemClock.uptimeMillis()))) {
+                scheduleStatusHintExpiry(statusHintGeneration, hintId)
+            }
+        }
+    }
+
+    private fun scheduleStatusHintExpiry(generation: Long, hintId: Long) {
+        statusHintJob?.cancel()
         statusHintJob = engineScope.launch {
-            delay(1500)
+            delay(statusHintLifetime.remaining(SystemClock.uptimeMillis()))
+            if (statusHintLifetime.id != hintId) return@launch
             statusHintJob = null
             statusHint = ""
-            if (!started || value.generation != inputSession) return@launch
+            statusHintLifetime.clear()
+            if (!started || generation != inputSession) return@launch
             // Expire only the presentation text, without refreshing native state or replaying commits.
-            val panel = inputPanelCached.copy(auxUp = FormattedText.Empty)
+            val panel = inputPanelCached.copy(auxUp = FormattedText.Empty, statusHintId = 0)
             if (panel != inputPanelCached) {
                 inputPanelCached = panel
-                events.trySend(listOf(FcitxEvent.InputPanelEvent(panel).apply { inputSession = value.generation }))
+                events.offer(listOf(FcitxEvent.InputPanelEvent(panel).apply { inputSession = generation }))
             }
         }
     }
@@ -372,25 +410,27 @@ class DirectRimeBackend(context: Context) : InputEngine {
     }
     private fun showUnavailable(message: String) {
         inputPanelCached = FcitxEvent.InputPanelEvent.Data(FormattedText.Empty, formatted(message), FormattedText.Empty, emptyArray())
-        events.trySend(listOf(FcitxEvent.InputPanelEvent(inputPanelCached)))
+        events.offer(listOf(FcitxEvent.InputPanelEvent(inputPanelCached)))
     }
 
     override suspend fun sendKey(sym: Int, states: UInt, code: Int, up: Boolean, timestamp: Int) {
         val expected = inputSession
         if (maintenance) return
-        val queuedAt = SystemClock.elapsedRealtimeNanos()
+        val queuedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
+        events.awaitCapacity()
+        val admittedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
         onOwner {
             if (expected != inputSession || maintenance || !started) return@onOwner
-            val ownerAt = SystemClock.elapsedRealtimeNanos()
+            val ownerAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
             val bypass = flags.flags and (CapabilityFlag.Password.flag or CapabilityFlag.Disable.flag) != 0UL
             if (!up) clearStatusHint()
             val result = if (bypass) null else interactivePriority.run { Native.key(expected, sym, states.toInt(), up) }
-            val nativeAt = SystemClock.elapsedRealtimeNanos()
-            if (result != null) publish(result)
+            val nativeAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
+            if (result != null) publish(result, release = up)
             if (!up && result?.ready == true) {
                 bindingKeys++
-                if (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L)
-                    android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys owner_wait_us=${(ownerAt - queuedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
+                if (BuildConfig.INPUT_DIAGNOSTICS && (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L))
+                    android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
             }
             val keyId = sym to code
             val forward = if (up) forwardedKeys.remove(keyId) else
@@ -400,7 +440,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 val unicode = KeySym(sym).editorUnicode
                 val event = FcitxEvent.KeyEvent(FcitxEvent.KeyEvent.Data(KeySym(sym), KeyStates(states), unicode, up, timestamp))
                 event.inputSession = expected
-                events.trySend(listOf(event))
+                events.offer(listOf(event))
             }
         }
     }
@@ -410,22 +450,26 @@ class DirectRimeBackend(context: Context) : InputEngine {
         sendKey(parsed.sym, states or parsed.states.toUInt(), code, up, timestamp)
     }
     override suspend fun sendKey(sym: KeySym, states: KeyStates, code: Int, up: Boolean, timestamp: Int) = sendKey(sym.sym, states.states, code, up, timestamp)
-    private suspend fun performAction(action: Int, index: Int): Snapshot? {
+    private suspend fun performAction(action: Int, index: Int, candidateContext: CandidateActionContext? = null): Snapshot? {
         val expected = snapshot ?: return null
-        if (!acceptsInput || expected.generation != inputSession) return null
-        val queuedAt = SystemClock.elapsedRealtimeNanos()
+        if (!acceptsInput || expected.generation != inputSession ||
+            (candidateContext != null && candidateContext != candidateActionContext)) return null
+        val queuedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
+        events.awaitCapacity()
+        val admittedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
         return onOwner {
-            if (expected.generation != inputSession || snapshot?.revision != expected.revision) {
+            if (expected.generation != inputSession || snapshot?.revision != expected.revision ||
+                (candidateContext != null && candidateContext != candidateActionContext)) {
                 if (action == 1 || action == 11)
                     android.util.Log.i("RimeInputTiming", "select_rejected generation=${expected.generation} reason=stale_snapshot")
                 null
             } else {
-                val ownerAt = SystemClock.elapsedRealtimeNanos()
+                val ownerAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
                 val result = act(action, index)
                 if (action == 1 || action == 11) {
                     bindingSelections++
-                    if (bindingSelections <= 2 || SystemClock.elapsedRealtimeNanos() - ownerAt >= 100_000_000L)
-                        android.util.Log.i("RimeInputTiming", "select generation=${expected.generation} ordinal=$bindingSelections owner_wait_us=${(ownerAt - queuedAt) / 1000} native_publish_us=${(SystemClock.elapsedRealtimeNanos() - ownerAt) / 1000} ${nativeTiming()}")
+                    if (BuildConfig.INPUT_DIAGNOSTICS && (bindingSelections <= 2 || SystemClock.elapsedRealtimeNanos() - ownerAt >= 100_000_000L))
+                        android.util.Log.i("RimeInputTiming", "select generation=${expected.generation} ordinal=$bindingSelections admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_publish_us=${(SystemClock.elapsedRealtimeNanos() - ownerAt) / 1000} ${nativeTiming()}")
                 }
                 result
             }
@@ -461,6 +505,17 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override suspend fun getCandidateActions(idx: Int) = arrayOf(CandidateAction(0, "忘记此词", false, "", false, false))
     override suspend fun triggerCandidateAction(idx: Int, actionIdx: Int) { if (actionIdx == 0) performAction(5, idx) }
     override suspend fun triggerGlobalCandidateAction(idx: Int, actionIdx: Int) { if (actionIdx == 0) performAction(12, idx) }
+    override suspend fun triggerCandidateActionIfCurrent(
+        idx: Int, actionIdx: Int, global: Boolean, expected: CandidateActionContext
+    ): Boolean = idx >= 0 && actionIdx == 0 && performAction(if (global) 12 else 5, idx, expected)?.ready == true
+
+    override suspend fun activateSchemaActionIfCurrent(id: Int, expectedInputSession: Long): Boolean = onOwner {
+        if (inputSession != expectedInputSession || id !in 100 until 100 + schemas.size) false
+        else {
+            demandSessionForAction()
+            act(3, value = schemas[id - 100].first)?.ready == true
+        }
+    }
     override suspend fun setCandidatePagingMode(mode: Int) { onOwner { pagingMode = mode; snapshot?.takeIf { it.generation == inputSession }?.let { publishWithoutCommit(it) } } }
     private fun publishWithoutCommit(value: Snapshot) {
         // Native action 9 refreshes without consuming a key; never republish a commit-bearing result.
@@ -539,7 +594,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         try { onOwner {
             clearBinding(token)
             statusAreaActionsCached = emptyArray()
-            events.trySend(listOf(FcitxEvent.StatusAreaEvent(
+            events.offer(listOf(FcitxEvent.StatusAreaEvent(
                 FcitxEvent.StatusAreaEvent.Data(statusAreaActionsCached, inputMethodEntryCached)
             ).apply { inputSession = token }))
             showUnavailable("正在部署，请稍候…")

@@ -11,7 +11,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
-import androidx.core.content.ContextCompat
 import androidx.transition.Slide
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlag
@@ -31,6 +30,8 @@ import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.theme
 import org.fcitx.fcitx5.android.input.font.FontProviders
+import org.fcitx.fcitx5.android.input.InputViewTaskDispatcher
+import org.fcitx.fcitx5.android.input.dependency.inputView
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
@@ -43,7 +44,7 @@ import splitties.views.dsl.core.frameLayout
 import splitties.views.dsl.core.lParams
 import splitties.views.dsl.core.matchParent
 
-class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), EssentialWindow,
+class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWindow::class), EssentialWindow,
     InputBroadcastReceiver, NumericLayoutFallbackListener {
 
     private val service by manager.inputMethodService()
@@ -54,6 +55,11 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private val popup: PopupComponent by manager.must()
     private val bar: KawaiiBarComponent by manager.must()
     private val returnKeyDrawable: ReturnKeyDrawableComponent by manager.must()
+    private val owningInputView by manager.inputView()
+    private val viewTasks by lazy {
+        val ownerService = service
+        InputViewTaskDispatcher(ownerService, owningInputView) { ownerService.inputView }
+    }
 
     private val iconThemeListener = IconThemeManager.OnIconThemeChangeListener {
         returnKeyDrawable.onIconThemeChanged()
@@ -152,6 +158,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private var voiceLayoutSnapshot: VoiceLayoutSnapshot? = null
 
     private data class VoiceLayoutSnapshot(
+        val editor: org.fcitx.fcitx5.android.input.EditorSessionTracker.Token,
         val currentKeyboardName: String,
         val latchedLayerKey: String?,
         val oneShotLayerKey: String?,
@@ -229,8 +236,10 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     }
 
     private fun preloadFontsForKeyboard() {
+        // Resolve ownership while this window still belongs to its dependency scope.
+        val tasks = viewTasks
         FontProviders.preloadFontsAsync {
-            ContextCompat.getMainExecutor(service).execute {
+            tasks.post {
                 // The completion may also fire for reloads that produced identical font
                 // data (e.g. retry ticks while a configured font file is still missing).
                 // Gate on the served-data revision so rows are rebuilt exactly once per
@@ -238,7 +247,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                 // old token was invalidated by onStartInput running right after
                 // checkAndApplyFontRefresh, which silently killed this path).
                 val generation = FontProviders.fontGeneration
-                if (generation == lastRefreshedFontGeneration) return@execute
+                if (generation == lastRefreshedFontGeneration) return@post
                 lastRefreshedFontGeneration = generation
                 fontRefreshPending = true
                 applyPendingFontRefresh()
@@ -391,7 +400,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         // onStartInput) must NOT release the manual numeric layout here: the layer latch
         // was applied moments before via applyEffectiveTextLayer and releasing would
         // clobber it back to the session fallback.
-        ContextCompat.getMainExecutor(service).execute {
+        viewTasks.post {
             if (target == TextKeyboard.Name || target == NumberKeyboard.Name) {
                 // A same-editor restart must not touch the companion height captured when the
                 // number pad was opened; re-capturing or clearing it would resize the visible
@@ -426,7 +435,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
                     if (notifyHeightChange) {
                         service.inputView?.onKeyboardHeightSourceChanged()
                     }
-                    return@execute
+                    return@post
                 }
                 detachCurrentLayout()
                 attachLayout(target)
@@ -609,13 +618,15 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
      * No-op while a voice session is already active (e.g. provider auto-restart).
      */
     fun onVoiceInputStarted() {
-        if (voiceLayoutSnapshot != null) return
+        if (voiceLayoutSnapshot?.editor?.isCurrent() == true) return
+        val editor = service.editorSession.capture() ?: return
         android.util.Log.i(
             "FcitxVoiceKbd",
             "voice started snapshot name=$currentKeyboardName latched=$latchedLayerKey " +
                 "oneShot=$oneShotLayerKey numeric=" + TextKeyboard.snapshotNumericLayoutOverride()
         )
         voiceLayoutSnapshot = VoiceLayoutSnapshot(
+            editor = editor,
             currentKeyboardName = currentKeyboardName,
             latchedLayerKey = latchedLayerKey,
             oneShotLayerKey = oneShotLayerKey,
@@ -632,6 +643,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     fun onVoiceInputFinished() {
         val snapshot = voiceLayoutSnapshot ?: return
         voiceLayoutSnapshot = null
+        if (!snapshot.editor.isCurrent()) return
         android.util.Log.i(
             "FcitxVoiceKbd",
             "voice finished restore name=${snapshot.currentKeyboardName} " +
@@ -687,7 +699,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         // A genuinely different editor supersedes a pending voice layout restore; a same-editor
         // restart does not, because the restart may have preserved a corrupted numeric layout
         // that the voice-session end still needs to roll back.
-        if (voiceLayoutSnapshot != null && inputClassChanged) {
+        if (voiceLayoutSnapshot != null && (inputClassChanged || voiceLayoutSnapshot?.editor?.isCurrent() != true)) {
             voiceLayoutSnapshot = null
         }
         // Some editors call restartInput after every committed character (Alipay's bank-card
@@ -824,7 +836,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             it.onAttach()
         }
         applyPendingFontRefresh()
-        keyboardView.post { applyPendingFontRefresh() }
+        viewTasks.post { applyPendingFontRefresh() }
         if (ClipboardSearchController.isActive) {
             // 搜索会话中回到键盘（如从状态区返回）：恢复搜索结果而非键盘常规辅助内容。
             service.inputView?.refreshClipboardSearchUi()

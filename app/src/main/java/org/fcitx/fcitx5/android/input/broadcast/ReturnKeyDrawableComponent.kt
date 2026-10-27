@@ -10,14 +10,14 @@ import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import androidx.annotation.DrawableRes
 import org.fcitx.fcitx5.android.R
 import org.mechdancer.dependency.Dependent
-import org.mechdancer.dependency.UniqueComponent
+import org.fcitx.fcitx5.android.input.dependency.InputUniqueComponent
 import org.mechdancer.dependency.manager.ManagedHandler
 import org.mechdancer.dependency.manager.managedHandler
 import org.mechdancer.dependency.manager.must
 import splitties.bitflags.hasFlag
 
 class ReturnKeyDrawableComponent :
-    UniqueComponent<ReturnKeyDrawableComponent>(), Dependent, ManagedHandler by managedHandler() {
+    InputUniqueComponent<ReturnKeyDrawableComponent>(ReturnKeyDrawableComponent::class), Dependent, ManagedHandler by managedHandler() {
 
     companion object {
         @DrawableRes

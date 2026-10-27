@@ -59,7 +59,7 @@ import splitties.dimensions.dp
 import kotlin.math.max
 
 class HorizontalCandidateComponent :
-    UniqueViewComponent<HorizontalCandidateComponent, RecyclerView>(), InputBroadcastReceiver {
+    UniqueViewComponent<HorizontalCandidateComponent, RecyclerView>(HorizontalCandidateComponent::class), InputBroadcastReceiver {
 
     private val context by manager.context()
     private val service by manager.inputMethodService()

@@ -415,13 +415,25 @@ end
         android.util.Log.i("DirectRimeColdProbe", report.toString())
     }
     @Test fun modeAndSchemaHintsExpireWithoutReplayingCommits(): Unit = runBlocking {
+        val catalogueStarted = SystemClock.uptimeMillis()
+        val control = Key.parse("Control_L")
+        val catalogueMs = SystemClock.uptimeMillis() - catalogueStarted
         connection.runOnReady {
             assertTrue("New sessions must not show a switch hint", inputPanelCached.auxUp.isEmpty())
             toggleIme()
             assertEquals(context.getString(R.string.direct_rime_ascii_mode), inputPanelCached.auxUp.toString())
             // Releasing a key must not immediately erase a mode hint.
-            sendKey("Control_L", KeyState.Virtual.state, up = true)
-            assertTrue(inputPanelCached.auxUp.isNotEmpty())
+            val generation = inputSession
+            val releaseStarted = SystemClock.uptimeMillis()
+            sendKey(control.sym, KeyState.Virtual.state, up = true)
+            File(context.filesDir, "direct-rime-hint-release.json").writeText(org.json.JSONObject()
+                .put("runtime_version", context.packageManager.getPackageInfo(context.packageName, 0).versionName)
+                .put("catalogue_init_ms", catalogueMs).put("release_ms", SystemClock.uptimeMillis() - releaseStarted)
+                .put("generation_before", generation).put("generation_after", inputSession)
+                .put("hint_after_release", inputPanelCached.auxUp.toString()).toString(2))
+            assertEquals("The release check must stay in the same editor", generation, inputSession)
+            assertTrue("A release must not clear a hint before its deadline", inputPanelCached.auxUp.isNotEmpty())
+            statusHintPresented(inputPanelCached.statusHintId, SystemClock.uptimeMillis()) // Model the UI's first visible frame.
         }
         delay(1800)
         connection.runOnReady {
@@ -449,6 +461,114 @@ end
     @Test fun originalKeyboardCanTypeUsingTouch(): Unit = runBlocking { keyboardTouchScenario(false) }
 
     @Test fun immediateTypingAndCandidateTapAfterRebind(): Unit = runBlocking { keyboardTouchScenario(true) }
+
+    @Test fun candidateActionMenuCannotOutliveItsEditor(): Unit = runBlocking {
+        val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
+        val previous = shell("settings get secure default_input_method")
+        val prefs = AppPrefs.getInstance()
+        val oldFloating = prefs.candidates.mode.getValue()
+        val oldLayout = prefs.keyboard.textKeyboardLayoutProfile.getValue()
+        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        var activity: RimeImportActivity? = null
+        fun descendants(view: View): Sequence<View> = sequence {
+            yield(view)
+            if (view is ViewGroup) for (i in 0 until view.childCount) yieldAll(descendants(view.getChildAt(i)))
+        }
+        fun inputView(): InputView? {
+            fun find() = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
+                .filterIsInstance<InputView>().firstOrNull { it.isShown }
+            if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) return find()
+            var result: InputView? = null
+            instrumentation.runOnMainSync {
+                result = find()
+            }
+            return result
+        }
+        fun menuVisible(): Boolean {
+            var visible = false
+            instrumentation.runOnMainSync {
+                visible = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
+                    .filterIsInstance<android.widget.TextView>().any { it.isShown && it.text.toString() == "忘记此词" }
+            }
+            return visible
+        }
+        try {
+            shell("input keyevent KEYCODE_WAKEUP")
+            shell("settings put secure show_ime_with_hard_keyboard 1")
+            instrumentation.runOnMainSync {
+                prefs.candidates.mode.setValue(FloatingCandidatesMode.Disabled)
+                prefs.keyboard.textKeyboardLayoutProfile.setValue("default")
+            }
+            shell("ime enable $component"); shell("ime set $component")
+            activity = instrumentation.startActivitySync(Intent(context, RimeImportActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as RimeImportActivity
+            val editor = activity!!.findViewById<EditText>(R.id.direct_rime_test_editor)
+            instrumentation.runOnMainSync {
+                editor.inputType = InputType.TYPE_CLASS_TEXT
+                editor.setText("")
+                editor.requestFocus()
+                imm.showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT)
+            }
+            var generation = Long.MIN_VALUE
+            var stableSince = SystemClock.uptimeMillis()
+            await("The candidate menu needs a settled visible editor") {
+                val next = connection.runImmediately { inputSession }
+                if (next != generation) { generation = next; stableSince = SystemClock.uptimeMillis() }
+                inputView()?.service?.isInputViewShown == true && imm.isActive(editor) &&
+                    SystemClock.uptimeMillis() - stableSince >= 750
+            }
+            connection.runOnReady { sendKey('n'); sendKey('i') }
+            var anchor: org.fcitx.fcitx5.android.input.keyboard.CustomGestureView? = null
+            await("Candidate view must bind the Chinese fixture") {
+                instrumentation.runOnMainSync {
+                    anchor = inputView()?.let { view -> descendants(view)
+                        .filterIsInstance<org.fcitx.fcitx5.android.input.keyboard.CustomGestureView>()
+                        .firstOrNull { root -> descendants(root).filterIsInstance<android.widget.TextView>()
+                            .any { it.text.toString() == "你" } } }
+                }
+                anchor != null
+            }
+            instrumentation.runOnMainSync {
+                val view = requireNotNull(inputView())
+                val field = org.fcitx.fcitx5.android.input.BaseInputView::class.java.getDeclaredField("displayedCandidateContext")
+                    .apply { isAccessible = true }
+                assertTrue("Candidate view must handle events", view.handleEvents)
+                assertTrue("The original view must own the service", view.service.inputView === view)
+                assertNotNull("The editor session must still be active", view.service.editorSession.capture())
+                assertEquals("Displayed candidates must keep their producer context",
+                    connection.runImmediately { candidateActionContext }, field.get(view))
+                view.showCandidateActionMenu(0, "你", requireNotNull(anchor))
+            }
+            await("The current candidate action menu must be usable") { menuVisible() }
+            delay(800)
+            assertTrue("The current candidate menu must stay open", menuVisible())
+            instrumentation.runOnMainSync {
+                assertTrue("Candidate actions must keep the editor window focused", activity!!.hasWindowFocus())
+                assertTrue(editor.hasFocus())
+                val menu = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
+                    .filterIsInstance<android.widget.TextView>().first { it.isShown && it.text.toString() == "忘记此词" }
+                val flags = (menu.rootView.layoutParams as WindowManager.LayoutParams).flags
+                assertTrue(flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE != 0)
+                assertEquals(0, flags and WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+            }
+            assertEquals("Candidate actions must not rebind the editor", generation,
+                connection.runImmediately { inputSession })
+            shell("screencap -p /data/local/tmp/candidate-menu-current.png")
+            instrumentation.runOnMainSync {
+                editor.inputType = InputType.TYPE_CLASS_NUMBER
+                imm.restartInput(editor)
+            }
+            await("Changing the editor must dismiss its old candidate actions") { !menuVisible() }
+            shell("screencap -p /data/local/tmp/candidate-menu-invalidated.png")
+        } finally {
+            activity?.let { instrumentation.runOnMainSync { it.finish() } }
+            instrumentation.runOnMainSync {
+                prefs.candidates.mode.setValue(oldFloating)
+                prefs.keyboard.textKeyboardLayoutProfile.setValue(oldLayout)
+            }
+            if (previous.isNotBlank() && previous != "null") shell("ime set $previous")
+        }
+    }
 
     @Test fun schemaMenuKeepsPasswordEditorFocused(): Unit = runBlocking {
         val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
@@ -503,19 +623,54 @@ end
                     editor.setText("1237") // Disposable fixture, never a user's password.
                     editor.setSelection(editor.length())
                     editor.requestFocus()
-                    imm.showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT)
                 }
-                var generation = Long.MIN_VALUE
-                var stableSince = SystemClock.uptimeMillis()
-                await("Password editor $type must own a settled, visible IME") {
-                    val next = connection.runImmediately { inputSession }
-                    if (next != generation) { generation = next; stableSince = SystemClock.uptimeMillis() }
+                // Changing inputType restarts the input connection asynchronously. Model the
+                // user's explicit focus gesture after that change, instead of relying on a
+                // show request submitted against the previous connection.
+                val editorBounds = Rect()
+                await("The inputType=$type editor must be visible before touching it") {
                     var ready = false
                     instrumentation.runOnMainSync {
-                        ready = host.hasWindowFocus() && editor.hasFocus() && imm.isActive(editor)
+                        ready = host.hasWindowFocus() && editor.getGlobalVisibleRect(editorBounds)
+                        if (ready) {
+                            val origin = IntArray(2)
+                            editor.rootView.getLocationOnScreen(origin)
+                            editorBounds.offset(origin[0], origin[1])
+                        }
                     }
-                    ready && inputView()?.service?.isInputViewShown == true &&
-                        SystemClock.uptimeMillis() - stableSince >= 750
+                    ready
+                }
+                val touchDown = SystemClock.uptimeMillis()
+                for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
+                    val event = MotionEvent.obtain(touchDown, SystemClock.uptimeMillis(), action,
+                        editorBounds.exactCenterX(), editorBounds.exactCenterY(), 0)
+                    event.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
+                    try { assertTrue(instrumentation.uiAutomation.injectInputEvent(event, true)) }
+                    finally { event.recycle() }
+                }
+                instrumentation.runOnMainSync { imm.showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT) }
+                var generation = Long.MIN_VALUE
+                var stableSince = SystemClock.uptimeMillis()
+                var editorState = ""
+                try {
+                    await("Password editor $type must own a settled, visible IME") {
+                        val next = connection.runImmediately { inputSession }
+                        if (next != generation) { generation = next; stableSince = SystemClock.uptimeMillis() }
+                        var ready = false
+                        instrumentation.runOnMainSync {
+                            ready = host.hasWindowFocus() && editor.hasFocus() && imm.isActive(editor)
+                            val views = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
+                                .filterIsInstance<InputView>().map {
+                                    "shown=${it.isShown},imeShown=${it.service.isInputViewShown},type=${it.service.currentInputEditorInfo?.inputType}"
+                                }.toList()
+                            editorState = "window=${host.hasWindowFocus()},focus=${editor.hasFocus()},active=${imm.isActive(editor)},views=$views"
+                        }
+                        ready && inputView()?.service?.isInputViewShown == true &&
+                            SystemClock.uptimeMillis() - stableSince >= 750
+                    }
+                } catch (failure: AssertionError) {
+                    shell("screencap -p /data/local/tmp/schema-editor-$type-failure.png")
+                    throw AssertionError("${failure.message}; $editorState; ime=${shell("settings get secure default_input_method")}", failure)
                 }
                 val service = inputView()!!.service
                 var focusLosses = 0
@@ -638,6 +793,38 @@ end
         val oldFloating = prefs.candidates.mode.getValue()
         val oldLayout = prefs.keyboard.textKeyboardLayoutProfile.getValue()
         var activity: RimeImportActivity? = null
+        var hintView: InputView? = null
+        var hintListener: ViewTreeObserver.OnPreDrawListener? = null
+        val hintFrames = org.json.JSONArray()
+        val hintPresentations = org.json.JSONArray()
+        var restoreHintPresentationCallback: (() -> Unit)? = null
+        val hintPanels = java.util.concurrent.ConcurrentLinkedQueue<org.json.JSONObject>()
+        var hintEvents: Job? = null
+        data class AndroidBinding(val service: org.fcitx.fcitx5.android.input.FcitxInputMethodService, val generation: Int)
+        // isActive(editor) changes in the client before the IME receives onStartInput.
+        // Observe that actual Android callback, without waiting for native readiness.
+        val bindingCounter = org.fcitx.fcitx5.android.input.FcitxInputMethodService::class.java
+            .getDeclaredField("inputSessionGeneration").apply { isAccessible = true }
+        fun androidBinding(editor: EditText? = null): AndroidBinding? {
+            var binding: AndroidBinding? = null
+            instrumentation.runOnMainSync {
+                fun find(view: View) {
+                    if (binding != null || !view.isShown) return
+                    if (view is InputView) {
+                        val service = view.service
+                        val info = service.currentInputEditorInfo
+                        if (service.isInputViewShown && service.editorSession.capture()?.isCurrent() == true &&
+                            info != null && (editor == null ||
+                                (info.packageName == context.packageName && info.fieldId == editor.id && info.inputType == editor.inputType))) {
+                            binding = AndroidBinding(service, bindingCounter.getInt(service))
+                        }
+                    }
+                    if (view is ViewGroup) for (i in 0 until view.childCount) find(view.getChildAt(i))
+                }
+                WindowInspector.getGlobalWindowViews().forEach(::find)
+            }
+            return binding
+        }
         try {
             shell("input keyevent KEYCODE_WAKEUP")
             shell("settings put system screen_off_timeout 1800000")
@@ -647,6 +834,7 @@ end
                 prefs.keyboard.textKeyboardLayoutProfile.setValue("default")
             }
             shell("ime enable $component"); shell("ime set $component")
+            val beforeShowBinding = if (immediate) androidBinding() else null
             activity = instrumentation.startActivitySync(Intent(context, RimeImportActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as RimeImportActivity
             val editor = activity.findViewById<EditText>(R.id.direct_rime_test_editor)
@@ -682,6 +870,7 @@ end
                 }
                 return result
             }
+            val touchTrace = org.json.JSONArray()
             fun tap(text: String, settle: Boolean = true) {
                 // Showing the first preedit can resize the IME window. Wait for
                 // its actual screen position before injecting the next touch.
@@ -694,14 +883,26 @@ end
                     if (settle) stable >= 5 else next != null
                 }
                 val target = bounds!!
+                val trace = if (immediate) org.json.JSONObject().apply {
+                    put("key", text); put("bounds", target.toShortString())
+                    put("at_uptime_ms", SystemClock.uptimeMillis())
+                }.also(touchTrace::put) else null
                 val down = SystemClock.uptimeMillis()
                 fun inject(action: Int) {
-                    val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action,
+                    val eventTime = SystemClock.uptimeMillis()
+                    trace?.put(if (action == MotionEvent.ACTION_DOWN) "down_ms" else "up_ms", eventTime)
+                    trace?.put(if (action == MotionEvent.ACTION_DOWN) "generation_at_down" else "generation_at_up",
+                        FcitxDaemon.currentInputSession)
+                    val event = MotionEvent.obtain(down, eventTime, action,
                         target.exactCenterX(), target.exactCenterY(), 0)
                     event.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
                     try { assertTrue("Touch injection failed for '$text' at $target",
-                        instrumentation.uiAutomation.injectInputEvent(event, true)) }
+                        // Waiting for DOWN to finish on TCG can turn a requested 20 ms
+                        // tap into a >300 ms hold. Queue DOWN promptly; synchronize UP
+                        // to flush both events before reading native/editor state.
+                        instrumentation.uiAutomation.injectInputEvent(event, action == MotionEvent.ACTION_UP)) }
                     finally { event.recycle() }
+                    trace?.put(if (action == MotionEvent.ACTION_DOWN) "down_return_ms" else "up_return_ms", SystemClock.uptimeMillis())
                 }
                 inject(MotionEvent.ACTION_DOWN)
                 SystemClock.sleep(if (settle) 50 else 20)
@@ -720,52 +921,105 @@ end
             await("Keyboard must be visible before mode switching") { key("n") != null }
             if (immediate) {
                 val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                await("The target editor must own the Android input connection") { imm.isActive(editor) }
+                await("The IME must receive the target editor's Android binding callback") {
+                    val binding = androidBinding(editor)
+                    imm.isActive(editor) && binding != null &&
+                        (beforeShowBinding == null || binding.service !== beforeShowBinding.service ||
+                            binding.generation > beforeShowBinding.generation)
+                }
                 val rounds = org.json.JSONArray()
                 repeat(6) { round ->
                     // Wait only for Android's new binding callback, never for native
                     // readiness or a warm-up word. The first round uses the first show.
                     if (round > 0) {
                         val previousGeneration = connection.runImmediately { inputSession }
+                        val previousBinding = requireNotNull(androidBinding(editor))
                         instrumentation.runOnMainSync { imm.restartInput(editor) }
-                        await("restartInput must establish a new logical editor") {
-                            connection.runImmediately { inputSession } > previousGeneration
+                        await("restartInput must deliver a new Android binding for this editor") {
+                            val next = androidBinding(editor)
+                            next != null && (next.service !== previousBinding.service || next.generation > previousBinding.generation) &&
+                                connection.runImmediately { inputSession } > previousGeneration
                         }
                     }
+                    val bindingAtTouch = requireNotNull(androidBinding(editor))
                     val generation = connection.runImmediately { inputSession }
                     val firstTouch = SystemClock.elapsedRealtimeNanos()
-                    tap("n", false)
-                    await("The first key after binding must be retained") {
-                        connection.runImmediately { inputPanelCached.preedit.toString() } == "n"
+                    var stage = "first key"
+                    try {
+                        tap("n", false)
+                        await("The first key after binding must be retained") {
+                            connection.runImmediately { inputPanelCached.preedit.toString() } == "n"
+                        }
+                        val firstPreedit = SystemClock.elapsedRealtimeNanos()
+                        stage = "second key and candidates"
+                        tap("i", false)
+                        await("The candidate view must bind immediately after typing") { key("你") != null }
+                        val candidateBound = SystemClock.elapsedRealtimeNanos()
+                        val selectTouch = SystemClock.elapsedRealtimeNanos()
+                        stage = "candidate commit"
+                        tap("你", false)
+                        await("The first candidate tap after binding must reach the editor exactly once") {
+                            var text = ""
+                            instrumentation.runOnMainSync { text = editor.text.toString() }
+                            text == "你".repeat(round + 1)
+                        }
+                        assertEquals("你", withTimeout(10_000) { commits.receive() })
+                        rounds.put(org.json.JSONObject().apply {
+                            put("round", round + 1); put("generation", generation)
+                            put("android_binding_generation", bindingAtTouch.generation)
+                            put("first_touch_to_preedit_observed_ms", (firstPreedit - firstTouch) / 1_000_000.0)
+                            put("first_touch_to_candidate_view_bound_ms", (candidateBound - firstTouch) / 1_000_000.0)
+                            put("candidate_touch_to_editor_observed_ms", (SystemClock.elapsedRealtimeNanos() - selectTouch) / 1_000_000.0)
+                        })
+                    } catch (error: Throwable) {
+                        // Preserve the original assertion and criterion; collect state before
+                        // finally closes the editor, so a missed touch can be distinguished
+                        // from a key/session/commit defect on a slow emulator.
+                        runCatching {
+                            val diagnostic = connection.runImmediately { org.json.JSONObject().apply {
+                                put("harness_compile_sha", BuildConfig.BUILD_GIT_HASH)
+                                put("round", round + 1); put("stage", stage)
+                                put("generation_before_touch_lookup", generation); put("generation_at_failure", inputSession)
+                                put("android_binding_at_touch", bindingAtTouch.generation)
+                                put("accepts_input", acceptsInput); put("ready", isReady)
+                                put("preedit", inputPanelCached.preedit.toString())
+                                put("client_preedit", clientPreeditCached.toString())
+                                put("ime", inputMethodEntryCached.toString())
+                                put("status", statusAreaActionsCached.joinToString())
+                                put("touches", touchTrace)
+                            } }
+                            diagnostic.put("android_binding_at_failure", androidBinding(editor)?.generation)
+                            diagnostic.put("target_package_version",
+                                context.packageManager.getPackageInfo(context.packageName, 0).versionName)
+                            instrumentation.runOnMainSync {
+                                diagnostic.put("editor_text", editor.text.toString())
+                                diagnostic.put("editor_id", editor.id)
+                                diagnostic.put("editor_input_type", editor.inputType)
+                                diagnostic.put("editor_focused", editor.hasFocus())
+                                diagnostic.put("editor_window_focused", editor.hasWindowFocus())
+                                diagnostic.put("android_active", imm.isActive(editor))
+                            }
+                            diagnostic.put("n_bounds_at_failure", key("n")?.toShortString())
+                            diagnostic.put("candidate_bounds_at_failure", key("你")?.toShortString())
+                            diagnostic.put("observed_commit", commits.tryReceive().getOrNull())
+                            File(context.filesDir, "direct-rime-touch-failure.json").writeText(diagnostic.toString(2))
+                            shell("screencap -p /data/local/tmp/direct-rime-touch-failure.png")
+                        }
+                        throw error
                     }
-                    val firstPreedit = SystemClock.elapsedRealtimeNanos()
-                    tap("i", false)
-                    await("The candidate view must bind immediately after typing") { key("你") != null }
-                    val candidateBound = SystemClock.elapsedRealtimeNanos()
-                    val selectTouch = SystemClock.elapsedRealtimeNanos()
-                    tap("你", false)
-                    await("The first candidate tap after binding must reach the editor exactly once") {
-                        var text = ""
-                        instrumentation.runOnMainSync { text = editor.text.toString() }
-                        text == "你".repeat(round + 1)
-                    }
-                    assertEquals("你", withTimeout(10_000) { commits.receive() })
-                    rounds.put(org.json.JSONObject().apply {
-                        put("round", round + 1); put("generation", generation)
-                        put("first_touch_to_preedit_observed_ms", (firstPreedit - firstTouch) / 1_000_000.0)
-                        put("first_touch_to_candidate_view_bound_ms", (candidateBound - firstTouch) / 1_000_000.0)
-                        put("candidate_touch_to_editor_observed_ms", (SystemClock.elapsedRealtimeNanos() - selectTouch) / 1_000_000.0)
-                    })
+
                 }
                 assertNull("Rebinding and candidate refresh must not duplicate commits", withTimeoutOrNull(250) { commits.receive() })
                 val modelMapped = File("/proc/self/maps").readText().contains("wanxiang-lts-zh-hans.gram")
                 if (fixtureArchive != null) assertTrue("The Wanxiang LTS model must actually be mapped", modelMapped)
                 File(context.filesDir, "direct-rime-rebind.json").writeText(org.json.JSONObject().apply {
-                    put("harness_commit", BuildConfig.BUILD_GIT_HASH)
+                    put("harness_commit", InstrumentationRegistry.getArguments().getString("harnessCommit") ?: BuildConfig.BUILD_GIT_HASH)
+                    put("target_package_version", context.packageManager.getPackageInfo(context.packageName, 0).versionName)
                     put("fixture", fixtureArchive ?: "bundled-smoke")
                     put("model_mapped", modelMapped)
                     put("metric", "UI-injected touch through observed backend/view/editor state; includes injection and polling; not frame presentation latency")
                     put("rounds", rounds)
+                    put("touches", touchTrace)
                 }.toString(2))
                 return
             }
@@ -782,6 +1036,44 @@ end
                 (context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager)
                     .isActive(editor) && SystemClock.uptimeMillis() - settledSince >= 750
             }
+            val hintService = androidBinding(editor)?.service
+            instrumentation.runOnMainSync {
+                hintView = hintService?.inputView
+                val view = requireNotNull(hintView)
+                val component = InputView::class.java.getDeclaredField("preedit").apply { isAccessible = true }
+                    .get(view) as org.fcitx.fcitx5.android.input.preedit.PreeditComponent
+                val previousPresentation = component.onStatusHintPresented
+                component.onStatusHintPresented = { id, frameTime ->
+                    hintPresentations.put(org.json.JSONObject().put("id", id).put("frame_uptime_ms", frameTime))
+                    previousPresentation(id, frameTime)
+                }
+                restoreHintPresentationCallback = { component.onStatusHintPresented = previousPresentation }
+                var lastFrame = ""
+                hintListener = ViewTreeObserver.OnPreDrawListener {
+                    val root = component.ui.root
+                    fun texts(node: View): List<String> = when (node) {
+                        is android.widget.TextView -> listOf("${node.text}|shown=${node.isShown}|size=${node.width}x${node.height}")
+                        is ViewGroup -> (0 until node.childCount).flatMap { texts(node.getChildAt(it)) }
+                        else -> emptyList()
+                    }
+                    val state = "handle=${view.handleEvents},shown=${view.isShown},display=${component.shouldDisplay}," +
+                        "rootShown=${root.isShown},visibility=${root.visibility},size=${root.width}x${root.height},texts=${texts(root)}"
+                    if (state != lastFrame && hintFrames.length() < 64) {
+                        lastFrame = state
+                        hintFrames.put(org.json.JSONObject().put("uptime_ms", SystemClock.uptimeMillis()).put("state", state))
+                    }
+                    true
+                }.also { view.viewTreeObserver.addOnPreDrawListener(it) }
+            }
+            hintEvents = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                connection.runImmediately { eventFlow }.collect { event ->
+                    if (event is FcitxEvent.InputPanelEvent && hintPanels.size < 64) {
+                        hintPanels.add(org.json.JSONObject().put("uptime_ms", SystemClock.uptimeMillis())
+                            .put("session", event.inputSession).put("aux_up", event.data.auxUp.toString())
+                            .put("preedit", event.data.preedit.toString()))
+                    }
+                }
+            }
             fun hintIsVisible(text: String): Boolean {
                 var visible = false
                 instrumentation.runOnMainSync {
@@ -794,13 +1086,32 @@ end
                 }
                 return visible
             }
+            var expectedModeHintId = 0L
             connection.runOnReady {
                 toggleIme()
                 assertEquals("Mode hint must belong to the settled editor session",
                     context.getString(R.string.direct_rime_ascii_mode), inputPanelCached.auxUp.toString())
+                expectedModeHintId = inputPanelCached.statusHintId
             }
             await("English-mode hint was not displayed in the preedit area") {
                 hintIsVisible(context.getString(R.string.direct_rime_ascii_mode))
+            }
+            await("The visible English hint must acknowledge its own first frame") {
+                var acknowledged = false
+                instrumentation.runOnMainSync {
+                    acknowledged = (0 until hintPresentations.length()).any {
+                        hintPresentations.getJSONObject(it).getLong("id") == expectedModeHintId
+                    }
+                }
+                acknowledged
+            }
+            shell("screencap -p /data/local/tmp/direct-rime-english-hint.png")
+            delay(1800)
+            connection.runOnReady {
+                assertTrue("The first visible frame must arm normal hint expiry", inputPanelCached.auxUp.isEmpty())
+            }
+            await("The English hint must disappear from the actual preedit view") {
+                !hintIsVisible(context.getString(R.string.direct_rime_ascii_mode))
             }
             connection.runOnReady {
                 toggleIme()
@@ -827,6 +1138,17 @@ end
                 maps.contains("libFcitx5Utils.so") || maps.contains("libFcitx5Config.so") ||
                 maps.contains("libnative-lib.so") || maps.contains("librime.so"))
         } finally {
+            hintEvents?.cancelAndJoin()
+            instrumentation.runOnMainSync {
+                restoreHintPresentationCallback?.invoke()
+                hintListener?.let { hintView?.viewTreeObserver?.takeIf { it.isAlive }?.removeOnPreDrawListener(it) }
+            }
+            if (hintListener != null) File(context.filesDir, "direct-rime-hint-ui.json").writeText(org.json.JSONObject()
+                .put("runtime_version", context.packageManager.getPackageInfo(context.packageName, 0).versionName)
+                .put("harness_commit", InstrumentationRegistry.getArguments().getString("harnessCommit") ?: BuildConfig.BUILD_GIT_HASH)
+                .put("frames", hintFrames)
+                .put("presentations", hintPresentations)
+                .put("panels", org.json.JSONArray(hintPanels.toList())).toString(2))
             activity?.let { instrumentation.runOnMainSync { it.finish() } }
             instrumentation.runOnMainSync {
                 prefs.candidates.mode.setValue(oldFloating)

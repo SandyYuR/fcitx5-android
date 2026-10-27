@@ -27,6 +27,7 @@ interface FcitxAPI {
     /** Synchronous invalidation prevents queued results reaching a different editor. */
     fun invalidateInputSession(): Long = 0
     val inputSession: Long get() = 0
+    val candidateActionContext: CandidateActionContext get() = CandidateActionContext(inputSession, 0)
     val acceptsInput: Boolean get() = true
     suspend fun startInputSession(generation: Long, program: String) {}
 
@@ -39,6 +40,9 @@ interface FcitxAPI {
     val clientPreeditCached: FormattedText
 
     val inputPanelCached: FcitxEvent.InputPanelEvent.Data
+
+    /** A visible preedit frame has presented this transient hint; stale IDs are ignored. */
+    suspend fun statusHintPresented(hintId: Long, frameUptimeMillis: Long) {}
 
     fun setLogRule(verbose: Boolean)
 
@@ -118,6 +122,20 @@ interface FcitxAPI {
 
     suspend fun getCandidateActions(idx: Int): Array<CandidateAction>
     suspend fun triggerCandidateAction(idx: Int, actionIdx: Int)
+
+    suspend fun triggerCandidateActionIfCurrent(
+        idx: Int, actionIdx: Int, global: Boolean, expected: CandidateActionContext
+    ): Boolean {
+        if (idx < 0 || candidateActionContext != expected) return false
+        if (global) triggerGlobalCandidateAction(idx, actionIdx) else triggerCandidateAction(idx, actionIdx)
+        return true
+    }
+
+    suspend fun activateSchemaActionIfCurrent(id: Int, expectedInputSession: Long): Boolean {
+        if (inputSession != expectedInputSession) return false
+        activateAction(id)
+        return true
+    }
 
     suspend fun setCandidatePagingMode(mode: Int)
     suspend fun offsetCandidatePage(delta: Int)

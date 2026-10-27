@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.core
 sealed class FcitxEvent<T>(open val data: T) {
 
     internal var inputSession: Long = 0
+    internal var candidateActionContext: CandidateActionContext? = null
     // Monotonic producer time for commit delivery diagnostics; excluded from equality.
     internal var commitProducedNanos: Long = 0
 
@@ -71,7 +72,8 @@ sealed class FcitxEvent<T>(open val data: T) {
             val auxUp: FormattedText,
             val auxDown: FormattedText,
             val tabs: Array<CandidateAction>,
-            val auxBarActions: Array<AuxBarAction> = emptyArray()
+            val auxBarActions: Array<AuxBarAction> = emptyArray(),
+            val statusHintId: Long = 0
         ) {
             constructor() : this(
                 FormattedText.Empty,
@@ -91,6 +93,7 @@ sealed class FcitxEvent<T>(open val data: T) {
                 if (auxDown != other.auxDown) return false
                 if (!tabs.contentEquals(other.tabs)) return false
                 if (!auxBarActions.contentEquals(other.auxBarActions)) return false
+                if (statusHintId != other.statusHintId) return false
 
                 return true
             }
@@ -101,6 +104,7 @@ sealed class FcitxEvent<T>(open val data: T) {
                 result = 31 * result + auxDown.hashCode()
                 result = 31 * result + tabs.contentHashCode()
                 result = 31 * result + auxBarActions.contentHashCode()
+                result = 31 * result + statusHintId.hashCode()
                 return result
             }
         }

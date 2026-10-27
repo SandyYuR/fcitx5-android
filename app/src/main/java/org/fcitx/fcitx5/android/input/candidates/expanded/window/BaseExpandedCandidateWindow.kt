@@ -47,9 +47,10 @@ import org.mechdancer.dependency.manager.must
 import splitties.dimensions.dp
 import splitties.views.recyclerview.verticalLayoutManager
 import kotlin.math.max
+import kotlin.reflect.KClass
 
-abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
-    InputWindow.SimpleInputWindow<T>(), InputBroadcastReceiver {
+abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>>(type: KClass<T>) :
+    InputWindow.SimpleInputWindow<T>(type), InputBroadcastReceiver {
 
     protected val service by manager.inputMethodService()
     protected val theme by manager.theme()
@@ -281,7 +282,8 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>> :
         }
         inputView.bindCandidateGesture(
             holder.ui.root,
-            holder.candidate.text
+            holder.candidate.text,
+            global = true
         ) { holder.currentIndex(adapter.offset) }
     }
 
