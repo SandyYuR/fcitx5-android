@@ -1,0 +1,10 @@
+{
+  "code_sha": "d3cb87692b638a36dde048435658de1afcc8738e",
+  "app": {
+    "tests": 1156,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "build_logic_tests": 6
+}

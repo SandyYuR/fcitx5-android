@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/ClearURLs/Rules",
+  "commit": "11086f40512774dcadef54079f1ba023bfacf940",
+  "commit_date": "2026-03-25T14:06:24Z",
+  "data_file": "data.min.json",
+  "data_blob_sha": "576393847aacf9ac9e66bcbc49754a655394cf13",
+  "data_sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+  "license": "LGPL-3.0",
+  "providers": 206,
+  "modified": false
+}

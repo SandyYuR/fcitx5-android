@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-26T11:46:03.532Z" hostname="bbf819fdcadc" time="1.095">
+  <properties/>
+  <testcase name="smallAndFragmentedMessagesPassWithInterspersedControlFrames" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.002"/>
+  <testcase name="everyPossibleHeaderSplitAndSmallReadsPreserveTheSameBytes" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.006"/>
+  <testcase name="oversizedSingleFrameIsRejectedFromItsHeaderAlone" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.0"/>
+  <testcase name="skipCannotBypassFrameValidationAndReadAheadIsBounded" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.0"/>
+  <testcase name="signedAndNoncanonicalLengthsAreRejectedWithoutAllocatingPayload" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.001"/>
+  <testcase name="isolatedSmallHeapRejectsGigabyteDeclarationBeforeReadingItsPayload" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="1.075"/>
+  <testcase name="compressionMaskingUnsupportedAndInvalidControlFramesAreRejected" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.0"/>
+  <testcase name="fragmentedSizeAccumulatesAcrossPingAndPong" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.001"/>
+  <testcase name="defaultPayloadBudgetScalesWithHeapAndNeverExceedsTheProtocolCeiling" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.0"/>
+  <testcase name="finalEmptyContinuationResetsTheBudget" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.0"/>
+  <testcase name="responseHeaderBudgetExtensionsAndNonUpgradeResponsesAreRejected" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.009"/>
+  <testcase name="invalidContinuationAndOverlappingMessagesAreRejected" classname="org.fcitx.fcitx5.android.clipboardsync.network.WebSocketFrameGuardTest" time="0.0"/>
+  <system-out><![CDATA[WEBSOCKET_HEAP_PROBE Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttp.nonProxyHosts=localhost|127.0.0.1|[::1]
+{"max_heap_bytes":67108864,"peak_heap_bytes":5242880,"peak_delta_bytes":4194304,"payload_bytes_read":0,"declared_message_bytes":1073741824,"rejected":true}
+{"valid_message_bytes":4194304,"sampled_peak_heap_bytes":23891968,"max_heap_bytes":67108864,"compact_strings":false,"okhttp_callback_received":true}
+
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
