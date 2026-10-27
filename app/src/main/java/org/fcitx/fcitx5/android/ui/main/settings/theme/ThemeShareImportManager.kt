@@ -369,7 +369,7 @@ class ThemeShareImportManager(
             }
             val zipBytes = withContext(Dispatchers.IO) {
                 runCatching {
-                    cr.openInputStream(uri)?.use { it.readBytes() } ?: error("Cannot open theme zip")
+                    cr.openInputStream(uri)?.use(ThemeFilesManager::readArchive) ?: error("Cannot open theme zip")
                 }
             }.getOrElse {
                 ctx.importErrorDialog(it)
@@ -418,23 +418,7 @@ class ThemeShareImportManager(
     }
 
     private fun decodeThemeFromZipBytes(zipBytes: ByteArray): Theme.Custom {
-        val encodings = listOf("UTF-8", "GBK", "Big5")
-        encodings.forEach { encoding ->
-            runCatching {
-                ZipInputStream(ByteArrayInputStream(zipBytes), Charset.forName(encoding)).use { zip ->
-                    var entry = zip.nextEntry
-                    while (entry != null) {
-                        if (!entry.isDirectory && entry.name.endsWith(".json")) {
-                            val json = zip.readBytes().toString(Charsets.UTF_8)
-                            val (theme, _) = Json.decodeFromString(CustomThemeSerializer.WithMigrationStatus, json)
-                            return theme
-                        }
-                        entry = zip.nextEntry
-                    }
-                }
-            }
-        }
-        error("No theme json found")
+        return ThemeFilesManager.decodeTheme(ByteArrayInputStream(zipBytes)).getOrThrow()
     }
 
     companion object {

@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.icon
 
+import androidx.core.view.MenuItemCompat
+
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -120,16 +122,16 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         if (isEditingExisting) {
             menu.add(Menu.NONE, MENU_DELETE, Menu.NONE, getString(R.string.delete))
                 .setIcon(R.drawable.ic_baseline_delete_24)
-                .setIconTintList(ColorStateList.valueOf(color(R.color.red_400)))
+                .apply { MenuItemCompat.setIconTintList(this, ColorStateList.valueOf(color(R.color.red_400))) }
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
         }
         menu.add(Menu.NONE, MENU_RENAME, Menu.NONE, getString(R.string.theme_name))
             .setIcon(R.drawable.ic_baseline_edit_24)
-            .setIconTintList(normalIconTint)
+            .apply { MenuItemCompat.setIconTintList(this, normalIconTint) }
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
         saveMenuItem = menu.add(Menu.NONE, MENU_SAVE, Menu.NONE, getString(R.string.save)).apply {
             setIcon(R.drawable.ic_baseline_check_24)
-            iconTintList = normalIconTint
+            MenuItemCompat.setIconTintList(this, normalIconTint)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
         }
         refreshSaveButtonState()
