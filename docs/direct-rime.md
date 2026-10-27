@@ -8,6 +8,9 @@
 
 | 需要做什么 | 从这里开始 |
 | --- | --- |
+| 查看当前修复批次、代码与文档 PR、验证范围和合入顺序 | [2026 年 10 月合入准备](maintainer/review-2026-10.md) |
+| 分类查找当前维护说明、审阅与原始验证证据 | [维护索引](maintainer/index.md) |
+| 阅读同步限额、下载恢复、加密格式与恢复事务 | [中文实现说明](maintainer/implementation/index.md) |
 | 安装、导入万象、中英文切换、调整键盘、备份与排错 | [用户手册](manual/DIRECT_RIME_USER_GUIDE_zh-CN.md) |
 | 查看当前 librime 定制源码、旧仓库归档与维护流程 | [源码维护迁移](maintainer/DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21.md) |
 | 查看 10 月 21 日引擎升级、定制补丁与固定来源 | [引擎更新记录](maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md) |
@@ -22,6 +25,8 @@
 | 查看工作区、临时分支及 Actions 记录处理原则 | [工作区与分支整理](maintainer/DIRECT_RIME_WORKSPACE_CLEANUP_2026-10-17.md) |
 
 ## 实施与验证历史
+
+旧 Fcitx 审阅条目在当前修复分支的状态见 [2026-10-24 逐项对照表](maintainer/DIRECT_RIME_LEGACY_REVIEW_COMPARISON_2026-10-24.md)，保留已修复、按需求保留、待复现与随旧后端移除的判定及验证范围。
 
 以下文档保留对应提交时点的事实。日常操作以当前用户/维护手册为准，不能把首轮诊断 APK 的限制当成当前主应用的功能。
 原始 77 个开发提交由 `v0-archive-direct-rime-history-20261019` 保留；历史报告中的提交 SHA、实验失败与数据继续可追溯。
