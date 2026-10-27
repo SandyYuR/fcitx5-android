@@ -21,7 +21,7 @@
     <string name="server_alias_title">種類</string>
     <string name="server_custom_alias_hint">カスタム別名を入力</string>
     <string name="server_address_field_title">サーバーアドレス</string>
-    <string name="server_address_field_hint">例: http://192.168.10.45:5033</string>
+    <string name="server_address_field_hint">例: https://sync.example.com</string>
     <string name="server_profile_syncclipboard">SyncClipboard</string>
     <string name="server_profile_oneclip">OneClip</string>
     <string name="server_profile_clipcascade">ClipCascade</string>

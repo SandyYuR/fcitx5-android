@@ -108,6 +108,7 @@ generateDataDescriptor {
     // 符号 catalog 由 SymbolCatalogs 直接从 assets 读取，不落盘到 data 目录。
     excludes.addAll(
         listOf(
+            "clearurls", // Host-only catalog/licenses; read from APK, never copied to Rime data.
             "bundled",
             "bundled/keyboard_layouts",
             "bundled/keyboard_layouts/PopupPreset.json",
@@ -147,6 +148,8 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.0.1")
     implementation(libs.androidx.recyclerview)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // 2.12 requires API 24; keep this app's API 23 support.
+    implementation("androidx.work:work-runtime-ktx:2.11.2")
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
@@ -181,6 +184,9 @@ dependencies {
     implementation(libs.androidsvg)
     testImplementation(libs.junit)
     testImplementation("org.robolectric:robolectric:4.17")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("com.squareup.okhttp3:okhttp-tls:4.12.0")
+    testImplementation("androidx.work:work-testing:2.11.2")
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(libs.androidx.lifecycle.testing)
