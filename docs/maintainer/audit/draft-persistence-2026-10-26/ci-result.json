@@ -1,0 +1,76 @@
+{
+  "ci": {
+    "run_id": 40269824527,
+    "code_sha": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40269824527",
+    "unit_tests": "success",
+    "python_packaging_tests": 4,
+    "arm64_release": "success",
+    "artifact_name": "direct-rime-frontend-arm64-release",
+    "artifact_id": 12628551356,
+    "artifact_size_bytes": 7207569,
+    "artifact_digest": "sha256:0ff9ef5313083d8e3edd48045d3530f7a786c3dfed031fe36ce2b87928d4f52c",
+    "release_abis": [
+      "arm64-v8a"
+    ]
+  },
+  "jobs": [
+    {
+      "id": 121400019186,
+      "name": "build_commit (ubuntu-22.04, arm64-v8a)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121400020126,
+      "name": "unit_test",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121403015859,
+      "name": "nightly_release",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "apk_verification": {
+    "apk": "app/build/outputs/apk/fx/release/org.fcitx.fcitx5.android.fx.rime-0.1.3-766-g7ec08c8e-fx-arm64-v8a-release.apk",
+    "native_libraries": [
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libdirect-rime.so"
+    ],
+    "fcitx_dependencies": [],
+    "apk_sha256": "a4ea0da1c255db0a854f2117829344887991082736f61e728ec94ec7db4dfb9c",
+    "native_dependencies": {
+      "lib/arm64-v8a/libc++_shared.so": [
+        "libc.so",
+        "libm.so",
+        "libdl.so"
+      ],
+      "lib/arm64-v8a/libdirect-rime.so": [
+        "liblog.so",
+        "libandroid.so",
+        "libm.so",
+        "libc++_shared.so",
+        "libdl.so",
+        "libc.so"
+      ]
+    },
+    "obsolete_picker_classes": [],
+    "legacy_backend_classes": [],
+    "dex_files_checked": 2,
+    "clearurls": {
+      "commit": "11086f40512774dcadef54079f1ba023bfacf940",
+      "sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+      "providers": 206
+    },
+    "page_size": 16384,
+    "required_alignment_by_abi": {
+      "arm64-v8a": 16384
+    }
+  },
+  "artifact_source_sha": "7ec08c8e07a275cb675838c069d8ebd2efa8492c"
+}

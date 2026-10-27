@@ -1,0 +1,68 @@
+{
+  "tests": 1002,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "build_logic_tests": 6,
+  "python_packaging_tests": 4,
+  "new_test_executions": 19,
+  "source_commit": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+  "execution_note": "Final working tree content subsequently committed as 7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+  "draft_suites": [
+    {
+      "tests": 26,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "name": "org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDraftStoreTest",
+      "cases": [
+        "failedFirstPublicationHasNoReferenceAndLeavesNoTemporaryFile",
+        "adoptTakesOverAnExistingSnapshot",
+        "readOfMissingFileIsNull",
+        "repeatedWritesReuseOneFile",
+        "aReadDraftAlsoUsesContentEqualityRatherThanItsHash",
+        "pruneStaleDeletesUnreachableSnapshots",
+        "pruneStaleKeepsFreshSnapshots",
+        "anExceptionBeforePublishingKeepsTheOldSnapshot",
+        "pruneStaleLeavesForeignFilesAlone",
+        "snapshotNameValidation",
+        "inlineFallbackOnlyAcceptsSmallDrafts",
+        "hostileAdoptedNameIsRejected",
+        "writeCreatesDirectory",
+        "writeReturnsNameAndKeepsPayloadOutOfIt",
+        "writeRecreatesADeletedSnapshot",
+        "aRemovedSnapshotCannotBeUsedAsTheFailureFallback",
+        "deleteRemovesFileAndReference",
+        "unchangedWriteIsSkippedButStillReportsTheName",
+        "differentDraftsWithTheSameStringHashMustBothBeWritten",
+        "linksToForeignFilesOrOtherDraftsCannotBeReadWrittenOrDeleted",
+        "pruneStaleOnMissingDirectoryIsNoOp",
+        "readWithoutSnapshotIsNull",
+        "pruneStaleKeepsTheOwnedSnapshot",
+        "staleOwnedTemporaryFilesArePrunedWithoutTouchingOtherFiles",
+        "adoptResetsTheSkipWriteHash",
+        "replacementFailurePreservesThePreviousPayloadAndCanBeRetried"
+      ]
+    },
+    {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "name": "org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDraftJsonCacheTest",
+      "cases": [
+        "clearingTheOwnerBeforeTheWorkerStartsCancelsItsCompletionHandle",
+        "clearingTheOwnerDuringEncodingNeverPublishesItsResult",
+        "clearInvalidatesEvenAnAlreadyRunningEncoder",
+        "anIncompleteRequestReturnsNullWithoutBlockingTheCaller",
+        "liveEditsAfterCaptureCannotChangeTheBackgroundSnapshotOrServeStaleJson",
+        "aFailedPreparationCanBeRetriedAndDoesNotPublishIncompleteJson",
+        "backgroundEncodingMatchesTheExistingExporterIncludingNestedAndSplitData",
+        "readingAnUnpreparedCacheNeverStartsSerialization",
+        "rapidRequestsKeepOneEncoderAndOnlyTheNewestPendingDocument",
+        "serializationUsesTheWorkerAndIdenticalRequestsReuseTheResult",
+        "everySavedMetadataSectionIsCheckedBeforeReusingJson"
+      ]
+    }
+  ]
+}
