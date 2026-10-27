@@ -93,3 +93,23 @@
 
 这一路径是可选兼容能力，不是 AIDL 最小接入必需项。
 
+### 浮窗结果的会话归属（2026-10-26）
+
+AIDL 接口保持原样。只有实现以下协议的 `FloatingService` 才会启用可选回退：
+
+```xml
+<meta-data android:name="org.fcitx.fcitx5.android.voice.FLOATING_SESSION_TOKEN"
+    android:value="true" />
+```
+
+该 metadata 放在 `FloatingService` 的声明内。启动 Intent 带 `voiceSessionToken` 和
+`voiceHostPackage`；每个新语音请求都会生成新的随机令牌。插件在 partial/final 广播中
+原样回传 `voiceSessionToken`，并调用 `setPackage(voiceHostPackage)` 将结果仅发送给宿主。
+令牌不是用户密码，不要写入日志或向其他应用广播。
+
+宿主在主线程同步核对令牌、语音请求和输入框生命周期，停止/切换输入框会拒绝旧结果；
+同一输入框的 restartInput 保留有效会话。最终结果只接受一次。
+
+无上述声明或无令牌的旧浮窗通道不再用于直接上屏；AIDL 连接失败时报告连接失败，
+用户可以重新开启或更新语音插件。正常的 AIDL 语音插件不需要添加该 metadata。
+

@@ -131,6 +131,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
+      - name: Check bundled clipboard rules and license packaging guards
+        run: python3 -m unittest discover -s tools -p test_verify_clearurls_assets.py -v
+
       - name: Run JVM unit tests
         run: |
           set -o pipefail
