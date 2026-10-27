@@ -14,13 +14,17 @@
 
 ## 文档
 
-手册、历史报告和测试证据统一维护在 `docs` 分支与[文档站](https://sandyyur.github.io/fcitx5-android/)。
-本轮文档更新见 [PR #7](https://github.com/SandyYuR/fcitx5-android/pull/7)，代码分支仅保留 README 文档入口。
+用户手册、实现说明、历史报告和测试证据统一维护在 `docs` 分支与[文档站](https://sandyyur.github.io/fcitx5-android/)。
+代码仓库保留 README 入口和随接口同步的 [ASR 语音 AIDL 接入协议](ASR_VOICE_INPUT_AIDL_INTEGRATION.md)。
+本批中文文档与审阅记录见 [文档 PR #12](https://github.com/SandyYuR/fcitx5-android/pull/12)，合入后在文档站发布。
 
 - [用户手册](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)：安装、万象、方案切换、键盘、主题、备份与排错。
 - [维护手册](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md)：构建、librime 来源与更新、CI 和性能复现。
+- [维护文档索引](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/index.md)：当前修复批次、实现协议、验证证据与历史归档。
+- [本批修复与合入准备](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/review-2026-10.md)：分类提交、代码与文档 PR、验证范围与合入顺序。
+- [同步、下载、备份与恢复实现](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/implementation/index.md)：中文协议说明和数据处理约束。
 - [引擎源码维护](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21.md)：自有 librime 定制分支、构建与产物引用流程。
-- [Rime 引擎更新](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md)：上游版本、定制补丁及四 ABI 产物来源。
+- [Rime 引擎更新](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md)：上游版本、定制补丁及固定预构建产物来源；本应用日常发行仅 arm64-v8a。
 - [当前合并交付](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21.md)：分类提交、Rebase and merge、归档标签、CI 与文档站交付。
 - [10 月 19 日整理记录](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md)：提交来源、历史收拢与分支归档。
 - [MD3 共享界面合入记录](https://github.com/SandyYuR/fcitx5-android/blob/docs/docs/maintainer/MD3_UI_EXTRACTION_2026-10-21.md)：默认分支设置页与控件迁入记录。
@@ -50,6 +54,10 @@ Rime 方案和屏幕键盘布局分别设置，完整步骤见用户手册。
 保留默认分支的 Material 3 设置与首次引导；在外观页调整设置配色、页面动画与返回手势。
 Android 11 及以上支持设置配色跟随键盘主题，低版本保留兼容的主题处理。
 
+局域网 Web 编辑器在手机上显示地址和 6 位配对码；PC 打开地址后输入配对码，连接后浏览器自动保存本次凭据。
+停止服务后配对失效，重新启动会生成新的配对码。
+外部 IPC 客户端须与主应用使用相同签名，并声明主应用包名对应的 `.permission.IPC` 权限。
+
 ## 构建
 
 使用 Java 17、Android SDK 36、NDK `28.0.13004108`、CMake `3.31.6`：
@@ -61,6 +69,8 @@ python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/debug/*.apk
 ```
 
 普通构建即为直连版，无需传直连开关。产物在 `app/build/outputs/apk/fx/debug/`。
+需要逐键 CPU、文件 I/O 和事件交付统计时，构建时加 `-PinputDiagnostics=true`；
+普通构建保留轻量 trace 切片，关闭这些细粒度统计，避免输入热路径承担测量开销。
 Release、签名、设备测试与引擎更新见维护手册。
 
 ## 当前范围
