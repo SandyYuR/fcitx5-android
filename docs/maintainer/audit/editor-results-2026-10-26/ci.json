@@ -1,0 +1,13 @@
+{
+  "run_id": 40247691050,
+  "code_sha": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40247691050",
+  "unit_tests": "success",
+  "python_packaging_tests": 4,
+  "arm64_release": "success",
+  "artifact_name": "direct-rime-frontend-arm64-release",
+  "artifact_id": 12619626685,
+  "artifact_size_bytes": 7204202
+}

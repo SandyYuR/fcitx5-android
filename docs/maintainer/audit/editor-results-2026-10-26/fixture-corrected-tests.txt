@@ -1,0 +1,8 @@
+
+org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest:..
+
+Time: 138.662
+
+OK (2 tests)
+
+

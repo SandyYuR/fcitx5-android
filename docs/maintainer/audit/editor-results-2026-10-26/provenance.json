@@ -1,0 +1,195 @@
+{
+  "runtime_code_sha": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+  "branch_head_sha": "b193b9ff3d5c4a5acd69c10716749aa98931ae77",
+  "test_harness_sha": "b193b9ff3d5c4a5acd69c10716749aa98931ae77",
+  "application_apk": {
+    "apk": "app/build/outputs/apk/fx/debug/org.fcitx.fcitx5.android.fx.rime-6f96066b-fx-x86_64-debug.apk",
+    "native_libraries": [
+      "lib/x86_64/libc++_shared.so",
+      "lib/x86_64/libdirect-rime.so"
+    ],
+    "fcitx_dependencies": [],
+    "apk_sha256": "5c8704131a2baf2f7ee40a9024e81a3e63dc2497b6fe25d20ca7e8fd1c2d3eb0",
+    "native_dependencies": {
+      "lib/x86_64/libc++_shared.so": [
+        "libc.so",
+        "libm.so",
+        "libdl.so"
+      ],
+      "lib/x86_64/libdirect-rime.so": [
+        "liblog.so",
+        "libandroid.so",
+        "libm.so",
+        "libc++_shared.so",
+        "libdl.so",
+        "libc.so"
+      ]
+    },
+    "obsolete_picker_classes": [],
+    "legacy_backend_classes": [],
+    "dex_files_checked": 22,
+    "clearurls": {
+      "commit": "11086f40512774dcadef54079f1ba023bfacf940",
+      "sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+      "providers": 206
+    },
+    "page_size": 16384,
+    "required_alignment_by_abi": {
+      "x86_64": 16384
+    }
+  },
+  "test_apk_sha256": "e978f73f589001f7344d1edc96b25523fc5a2e81b1549447ae44bb442adfdb21",
+  "app_jvm": {
+    "tests": 983,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "build_logic_tests": 6,
+    "python_packaging_tests": 4,
+    "new_test_executions_since_e146d2cb": 30,
+    "unit_test_source_sha": "1c96acd9ae95fb90b5a67a9e687b70d8c0b35ed2"
+  },
+  "ci": {
+    "run_id": 40247691050,
+    "code_sha": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40247691050",
+    "unit_tests": "success",
+    "python_packaging_tests": 4,
+    "arm64_release": "success",
+    "artifact_name": "direct-rime-frontend-arm64-release",
+    "artifact_id": 12619626685,
+    "artifact_size_bytes": 7204202
+  },
+  "device": {
+    "api": 35,
+    "abi": "x86_64",
+    "image": "AOSP",
+    "kvm": false,
+    "graphics": "SwiftShader",
+    "passed_test_executions": 4,
+    "failed_test_executions": 0,
+    "unique_test_methods": 3,
+    "combined": {
+      "kind": "combined",
+      "passed_tests": 3,
+      "failed_tests": 0,
+      "touch_rounds": 6,
+      "candidate_hold_ms": [
+        88,
+        209
+      ],
+      "injected_generation_stable": true
+    },
+    "isolated": {
+      "kind": "isolated",
+      "passed_tests": 1,
+      "failed_tests": 0,
+      "touch_rounds": 6,
+      "candidate_hold_ms": [
+        85,
+        141
+      ],
+      "injected_generation_stable": true
+    },
+    "layout_tests_passed": 2,
+    "touch_rebind_rounds": 12,
+    "fixture": "bundled-smoke",
+    "model_mapped": false,
+    "forced_loading_window": true,
+    "actual_framework_recreation": true,
+    "actual_system_process_kill": false,
+    "second_restore_inline_color_passed": true,
+    "crash_buffer_empty": true,
+    "target_package_version": "6f96066b",
+    "test_harness_sha": "b193b9ff3d5c4a5acd69c10716749aa98931ae77"
+  },
+  "invalid_fixture_first_attempt": {
+    "failed_tests": 2,
+    "reason": "Auxiliary keys supplied without position/size config, so export omitted auxiliary metadata. Corrected by e7a696fe; two device tests then passed."
+  },
+  "original_139_remaining": {
+    "still": 4,
+    "partial": 5,
+    "verification": 3
+  },
+  "unresolved": [
+    "old English-mode hint display assertion",
+    "old programmatic password type switching without explicit touch"
+  ],
+  "touch_injection_diagnosis": {
+    "harness_commit": "1c96acd9ae95fb90b5a67a9e687b70d8c0b35ed2",
+    "recorded_holds": [
+      {
+        "key": "n",
+        "held_ms": 547
+      },
+      {
+        "key": "i",
+        "held_ms": 483
+      },
+      {
+        "key": "你",
+        "held_ms": 331
+      }
+    ],
+    "requested_sleep_ms": 20,
+    "default_hold_threshold_ms": 300,
+    "framework_executions": 2,
+    "test_apk_before_fix_sha256": "34c104c7f1acb5ab44a2f758341c6bb0c4200a4d51e75966f6a59f4623f06b0f",
+    "test_apk_after_fix_sha256": "ba7c201c7bfdc7bb52d510969318c4132b84cb32fa93c0b0c4b56f63ec1fd864",
+    "test_apk_compile_base_sha": "516252ebe8192b9b5dcee8c2c9854de95ae0fc4e",
+    "actual_target_package_version": "6f96066b",
+    "field_correction": "The raw failure target_apk_commit field was an AndroidTest-inlined BuildConfig constant; it records compile base 516252eb, not installed version. Installed target package version 6f96066b was independently queried. Corrected harness labels it harness_compile_sha and records target package version.",
+    "device_recheck": "combined 3/3 and isolated 1/1 passed; total12rounds",
+    "old_first_key_failure": "Historical generation_at_touch was sampled before view lookup. Binding log gen24 at monotonic3922.489 precedes actualDOWN3926.142, so the21to24 change does not independently prove that event was delivered to an old session. Preserved original logs; strengthened actual Android binding prerequisite and sampled native generation at DOWN/UP. Current12rounds passed.",
+    "final_test_apk_sha256": "e978f73f589001f7344d1edc96b25523fc5a2e81b1549447ae44bb442adfdb21"
+  },
+  "prior_test_apk_sha256": "7fa24df46a27ee5f3f5e4a64cad8f5c0ac12bae2fc6b1621b9056255257c469c",
+  "test_apk_compile_base_sha": "1c96acd9ae95fb90b5a67a9e687b70d8c0b35ed2",
+  "previous_device_result": {
+    "api": 35,
+    "abi": "x86_64",
+    "image": "AOSP",
+    "kvm": false,
+    "graphics": "SwiftShader",
+    "passed_tests": 2,
+    "failed_tests": 1,
+    "layout_tests_passed": 2,
+    "forced_loading_window": true,
+    "actual_framework_recreation": true,
+    "actual_system_process_kill": false,
+    "second_restore_inline_color_passed": true,
+    "crash_buffer_empty": true,
+    "input_touch_rebind": "combined run: first n preedit assertion failed; unchanged isolated run: candidate commit assertion failed; diagnosis pending",
+    "completed_rebind_rounds": null
+  },
+  "binding_test_prerequisite": {
+    "commit": "b193b9ff3d5c4a5acd69c10716749aa98931ae77",
+    "checks": [
+      "actual target package/field/inputType in the IME",
+      "active editor and input view",
+      "onStartInput counter advances for first show/restart",
+      "native generation at actual DOWN/UP"
+    ],
+    "native_ready_wait_added": false,
+    "extra_warmup_typing_added": false,
+    "assertions_relaxed": false,
+    "main_compilation_reused_for_final_test_only_build": true
+  },
+  "historical_limitations": [
+    "早期首 n 断言的单独根因仍未证明；保留原始失败，补强后的绑定与注入测试已通过。",
+    "API35 TCG 微型词典不能代表万象完整模型或 ARM64 Release 真机性能。"
+  ],
+  "docs_validation": {
+    "pages": 180,
+    "page_links": 17499,
+    "asset_links": 75,
+    "errors": 0,
+    "restored_pages": 64,
+    "maintenance_reports": 13,
+    "original_files_verified": 83,
+    "source_archive_verified": true
+  }
+}

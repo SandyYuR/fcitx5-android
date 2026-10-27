@@ -1,0 +1,84 @@
+
+org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest:
+Error in auxiliaryReturnBeforeLoadSurvivesRecreationAndEditsItsOriginalFileAndEntry(org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest):
+java.util.NoSuchElementException: Sequence contains no element matching the predicate.
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest.exercise$lambda$5(LayoutEditorResultTest.kt:167)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest$$ExternalSyntheticLambda6.invoke(D8$$SyntheticClass:0)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest.onMain$lambda$0(LayoutEditorResultTest.kt:24)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest$$ExternalSyntheticLambda12.run(D8$$SyntheticClass:0)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2612)
+	at android.os.Handler.handleCallback(Handler.java:959)
+	at android.os.Handler.dispatchMessage(Handler.java:100)
+	at android.os.Looper.loopOnce(Looper.java:232)
+	at android.os.Looper.loop(Looper.java:317)
+	at android.app.ActivityThread.main(ActivityThread.java:8705)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+
+Error in keyReturnBeforeLoadSurvivesRecreationAndEditsItsOriginalFileAndEntry(org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest):
+java.lang.IndexOutOfBoundsException: Empty list doesn't contain element at index 0.
+	at kotlin.collections.EmptyList.get(Collections.kt:37)
+	at kotlin.collections.EmptyList.get(Collections.kt:25)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest.exercise$lambda$7(LayoutEditorResultTest.kt:102)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest$$ExternalSyntheticLambda8.invoke(D8$$SyntheticClass:0)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest.onMain$lambda$0(LayoutEditorResultTest.kt:24)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest$$ExternalSyntheticLambda12.run(D8$$SyntheticClass:0)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2612)
+	at android.os.Handler.handleCallback(Handler.java:959)
+	at android.os.Handler.dispatchMessage(Handler.java:100)
+	at android.os.Looper.loopOnce(Looper.java:232)
+	at android.os.Looper.loop(Looper.java:317)
+	at android.app.ActivityThread.main(ActivityThread.java:8705)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+
+
+Time: 121.25
+There were 2 failures:
+1) auxiliaryReturnBeforeLoadSurvivesRecreationAndEditsItsOriginalFileAndEntry(org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest)
+java.util.NoSuchElementException: Sequence contains no element matching the predicate.
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest.exercise$lambda$5(LayoutEditorResultTest.kt:167)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest$$ExternalSyntheticLambda6.invoke(D8$$SyntheticClass:0)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest.onMain$lambda$0(LayoutEditorResultTest.kt:24)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest$$ExternalSyntheticLambda12.run(D8$$SyntheticClass:0)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2612)
+	at android.os.Handler.handleCallback(Handler.java:959)
+	at android.os.Handler.dispatchMessage(Handler.java:100)
+	at android.os.Looper.loopOnce(Looper.java:232)
+	at android.os.Looper.loop(Looper.java:317)
+	at android.app.ActivityThread.main(ActivityThread.java:8705)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+2) keyReturnBeforeLoadSurvivesRecreationAndEditsItsOriginalFileAndEntry(org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest)
+java.lang.IndexOutOfBoundsException: Empty list doesn't contain element at index 0.
+	at kotlin.collections.EmptyList.get(Collections.kt:37)
+	at kotlin.collections.EmptyList.get(Collections.kt:25)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest.exercise$lambda$7(LayoutEditorResultTest.kt:102)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest$$ExternalSyntheticLambda8.invoke(D8$$SyntheticClass:0)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest.onMain$lambda$0(LayoutEditorResultTest.kt:24)
+	at org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest$$ExternalSyntheticLambda12.run(D8$$SyntheticClass:0)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2612)
+	at android.os.Handler.handleCallback(Handler.java:959)
+	at android.os.Handler.dispatchMessage(Handler.java:100)
+	at android.os.Looper.loopOnce(Looper.java:232)
+	at android.os.Looper.loop(Looper.java:317)
+	at android.app.ActivityThread.main(ActivityThread.java:8705)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+
+FAILURES!!!
+Tests run: 2,  Failures: 2
+
+

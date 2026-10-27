@@ -1,0 +1,49 @@
+
+org.fcitx.fcitx5.android.core.DirectRimeFrontendTest:
+Error in immediateTypingAndCandidateTapAfterRebind(org.fcitx.fcitx5.android.core.DirectRimeFrontendTest):
+java.lang.AssertionError: The first candidate tap after binding must reach the editor exactly once
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.await(DirectRimeFrontendTest.kt:58)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.keyboardTouchScenario(DirectRimeFrontendTest.kt:890)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.access$keyboardTouchScenario(DirectRimeFrontendTest.kt:40)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$immediateTypingAndCandidateTapAfterRebind$1.invokeSuspend(DirectRimeFrontendTest.kt:451)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source:1)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.immediateTypingAndCandidateTapAfterRebind(DirectRimeFrontendTest.kt:451)
+
+
+Time: 138.177
+There was 1 failure:
+1) immediateTypingAndCandidateTapAfterRebind(org.fcitx.fcitx5.android.core.DirectRimeFrontendTest)
+java.lang.AssertionError: The first candidate tap after binding must reach the editor exactly once
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.await(DirectRimeFrontendTest.kt:58)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.keyboardTouchScenario(DirectRimeFrontendTest.kt:890)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.access$keyboardTouchScenario(DirectRimeFrontendTest.kt:40)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$immediateTypingAndCandidateTapAfterRebind$1.invokeSuspend(DirectRimeFrontendTest.kt:451)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source:1)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.immediateTypingAndCandidateTapAfterRebind(DirectRimeFrontendTest.kt:451)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+

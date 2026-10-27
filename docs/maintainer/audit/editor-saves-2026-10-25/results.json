@@ -1,0 +1,16 @@
+{
+  "code_sha": "b2c4631a652c2088dfe807bc03dc384703daaaf7",
+  "macro_cancel": {
+    "original": "A",
+    "selected_draft": "B",
+    "after_cancel": "A",
+    "json_initial_dirty": false
+  },
+  "clipboard_normal_save": {
+    "fixture_id": 1,
+    "before": "clipboard-before-fixture",
+    "draft": "clipboard-after-confirm",
+    "after": "clipboard-after-confirm",
+    "native_database": true
+  }
+}

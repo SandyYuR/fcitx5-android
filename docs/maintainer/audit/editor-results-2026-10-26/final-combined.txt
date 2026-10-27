@@ -1,0 +1,9 @@
+
+org.fcitx.fcitx5.android.ui.main.settings.behavior.LayoutEditorResultTest:..
+org.fcitx.fcitx5.android.core.DirectRimeFrontendTest:.
+
+Time: 198.064
+
+OK (3 tests)
+
+
