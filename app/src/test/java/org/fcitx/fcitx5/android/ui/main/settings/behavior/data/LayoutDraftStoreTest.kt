@@ -13,6 +13,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import java.io.IOException
+import java.nio.file.Files
 
 /**
  * The layout editor's unsaved draft used to ride inside the saved-instance Bundle, which is
@@ -26,6 +28,108 @@ class LayoutDraftStoreTest {
     val tempFolder = TemporaryFolder()
 
     private fun store(dir: File = tempFolder.root.resolve("drafts")) = LayoutDraftStore(dir)
+
+    @Test fun differentDraftsWithTheSameStringHashMustBothBeWritten() {
+        val first = """{"label":"Aa"}"""
+        val second = """{"label":"BB"}"""
+        assertEquals("fixture must actually collide", first.hashCode(), second.hashCode())
+        val store = store()
+        val name = store.write(first)
+        assertEquals(name, store.write(second))
+        assertEquals(second, store.read())
+    }
+
+    @Test fun aReadDraftAlsoUsesContentEqualityRatherThanItsHash() {
+        val first = """{"label":"Aa"}"""
+        val second = """{"label":"BB"}"""
+        val name = store().write(first)!!
+        val restored = store().apply { adopt(name) }
+        assertEquals(first, restored.read())
+        assertEquals(name, restored.write(second))
+        assertEquals(second, restored.read())
+    }
+
+    @Test fun replacementFailurePreservesThePreviousPayloadAndCanBeRetried() {
+        val dir = tempFolder.root.resolve("drafts")
+        var allow = true
+        val old = "old".repeat(LayoutDraftStore.INLINE_MAX_CHARS)
+        val latest = "new".repeat(LayoutDraftStore.INLINE_MAX_CHARS)
+        val store = LayoutDraftStore(dir) { temporary, target ->
+            if (allow) temporary.renameTo(target) else {
+                assertEquals(old, target.readText())
+                assertEquals(latest, temporary.readText())
+                assertEquals(target.parentFile, temporary.parentFile)
+                false
+            }
+        }
+        val name = store.write(old)!!
+        allow = false
+        assertNull(store.write(latest))
+        assertEquals(name, store.existingSnapshotName())
+        assertEquals(old, store.read())
+        assertEquals(listOf(name), dir.listFiles()!!.map { it.name })
+        allow = true
+        assertEquals(name, store.write(latest))
+        assertEquals(latest, store.read())
+    }
+
+    @Test fun anExceptionBeforePublishingKeepsTheOldSnapshot() {
+        val dir = tempFolder.root.resolve("drafts")
+        val name = store(dir).write("old")!!
+        val interrupted = LayoutDraftStore(dir) { _, _ -> throw IOException("injected publication failure") }
+        interrupted.adopt(name)
+        assertNull(interrupted.write("new"))
+        assertEquals("old", interrupted.read())
+        assertEquals(listOf(name), dir.listFiles()!!.map { it.name })
+    }
+
+    @Test fun failedFirstPublicationHasNoReferenceAndLeavesNoTemporaryFile() {
+        val dir = tempFolder.root.resolve("drafts")
+        val store = LayoutDraftStore(dir) { _, _ -> false }
+        assertNull(store.write("new"))
+        assertNull(store.snapshotName)
+        assertNull(store.existingSnapshotName())
+        assertTrue(dir.listFiles()!!.isEmpty())
+    }
+
+    @Test fun aRemovedSnapshotCannotBeUsedAsTheFailureFallback() {
+        val dir = tempFolder.root.resolve("drafts")
+        val store = store(dir)
+        val name = store.write("old")!!
+        assertEquals(name, store.existingSnapshotName())
+        assertTrue(File(dir, name).delete())
+        assertNull(store.existingSnapshotName())
+    }
+
+    @Test fun linksToForeignFilesOrOtherDraftsCannotBeReadWrittenOrDeleted() {
+        val dir = tempFolder.root.resolve("drafts").apply { mkdirs() }
+        val inside = File(dir, "draft-other.json").apply { writeText("other draft") }
+        val outside = tempFolder.root.resolve("outside.json").apply { writeText("outside") }
+        for ((index, target) in listOf(inside, outside).withIndex()) {
+            val name = "draft-link-$index.json"
+            Files.createSymbolicLink(File(dir, name).toPath(), target.toPath())
+            val store = store(dir).apply { adopt(name) }
+            assertNull(store.read())
+            assertNull(store.existingSnapshotName())
+            assertNull(store.write("replacement"))
+            store.delete()
+            assertEquals(if (index == 0) "other draft" else "outside", target.readText())
+        }
+    }
+
+    @Test fun staleOwnedTemporaryFilesArePrunedWithoutTouchingOtherFiles() {
+        val dir = tempFolder.root.resolve("drafts").apply { mkdirs() }
+        val now = System.currentTimeMillis()
+        val old = File(dir, "draft-write-550e8400-e29b-41d4-a716-446655440000.tmp").apply {
+            writeText("interrupted"); setLastModified(now - 2 * MAX_AGE)
+        }
+        val fresh = File(dir, "draft-write-550e8400-e29b-41d4-a716-446655440001.tmp").apply { writeText("in flight") }
+        val foreign = File(dir, "other.tmp").apply { writeText("unrelated"); setLastModified(now - 2 * MAX_AGE) }
+        assertEquals(1, store(dir).pruneStale(MAX_AGE, now))
+        assertFalse(old.exists())
+        assertTrue(fresh.isFile)
+        assertTrue(foreign.isFile)
+    }
 
     /** The Bundle only ever carries a name, never the payload. */
     @Test

@@ -51,6 +51,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.LayoutKeyOperat
 import com.google.android.material.tabs.TabLayout
 import android.text.InputType
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.ActivityResult
 import androidx.core.text.HtmlCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -84,6 +85,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayout
 import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDraftStore
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutEditorResultStore
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorResultHost
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.LayoutFileProfileInputActivity
@@ -314,6 +316,8 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
     private val inlineKeyResults = KeyEditorResultHost(this)
     private var selectedKey: EditorKeyPosition? = null
+    private var pendingInlineKeyState: Bundle? = null
+    private var pendingEditorSelection: Bundle? = null
     private var selectedLayoutKey: String? = null
     private var structureVisible = false
     private var imeVisible = false
@@ -661,146 +665,147 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         )
     }
     
+    private val pendingEditorResults = LayoutEditorResultStore()
+
     private val keyEditorLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val data = result.data ?: return@registerForActivityResult
-            if (result.resultCode != RESULT_OK) return@registerForActivityResult
-
-            val action = data.getStringExtra(KeyEditorActivity.EXTRA_RESULT_ACTION) ?: return@registerForActivityResult
-            val rowIndex = data.getIntExtra(KeyEditorActivity.EXTRA_ROW_INDEX, -1)
-            val keyIndex = data.takeIf { it.hasExtra(KeyEditorActivity.EXTRA_KEY_INDEX) }
-                ?.getIntExtra(KeyEditorActivity.EXTRA_KEY_INDEX, -1)
-                ?.takeIf { it >= 0 }
-
-            clearKeySelection()
-            val key = currentEditingLayoutKey() ?: return@registerForActivityResult
-            val rows = entries[key] ?: return@registerForActivityResult
-
-            when (action) {
-                KeyEditorActivity.RESULT_ACTION_SAVE -> {
-                    val resultKeyData = data.serializable<HashMap<String, Any?>>(KeyEditorActivity.EXTRA_RESULT_KEY_DATA)
-                        ?.toMutableMap() ?: return@registerForActivityResult
-
-                    if (rowIndex !in rows.indices) return@registerForActivityResult
-
-                    if (keyIndex != null) {
-                        if (keyIndex in rows[rowIndex].indices) {
-                            rows[rowIndex][keyIndex] = resultKeyData
-                            normalizeRowHeightPercent(rows[rowIndex])
-                            rowsAdapter?.notifyKeyChanged(rowIndex, keyIndex)
-                        }
-                    } else {
-                        rows[rowIndex].add(resultKeyData)
-                        normalizeRowHeightPercent(rows[rowIndex])
-                        rowsAdapter?.notifyRowChanged(rowIndex)
-                    }
-
-                    currentLayout?.let { name ->
-                        previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection)
-                        updateSaveButtonState()
-                    }
-                }
-
-                KeyEditorActivity.RESULT_ACTION_DELETE -> {
-                    if (keyIndex != null && rowIndex in rows.indices && keyIndex in rows[rowIndex].indices) {
-                        rows[rowIndex].removeAt(keyIndex)
-                        rowsAdapter?.notifyRowChanged(rowIndex)
-                        currentLayout?.let { name ->
-                            previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection)
-                            updateSaveButtonState()
-                            showDeleteUndo()
-                        }
-                    }
-                }
-            }
+            pendingEditorResults.receive(LayoutEditorResultStore.Channel.KEY, result)
+            applyPendingEditorResults()
         }
 
     private val auxBarKeyEditorLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val data = result.data ?: return@registerForActivityResult
-            if (result.resultCode != RESULT_OK) return@registerForActivityResult
+            pendingEditorResults.receive(LayoutEditorResultStore.Channel.AUX, result)
+            applyPendingEditorResults()
+        }
 
-            val action = data.getStringExtra(KeyEditorActivity.EXTRA_RESULT_ACTION) ?: return@registerForActivityResult
-            val keyIndex = data.takeIf { it.hasExtra(KeyEditorActivity.EXTRA_KEY_INDEX) }
-                ?.getIntExtra(KeyEditorActivity.EXTRA_KEY_INDEX, -1)
-                ?.takeIf { it >= 0 }
-
-            val layoutName = currentLayout ?: return@registerForActivityResult
-            val editingKey = currentEditingLayoutKey() ?: return@registerForActivityResult
-            val keys = dataManager.getLayoutAuxBarKeysRef(editingKey)
-
-            when (action) {
-                KeyEditorActivity.RESULT_ACTION_SAVE -> {
-                    val resultKeyData = data.serializable<HashMap<String, Any?>>(KeyEditorActivity.EXTRA_RESULT_KEY_DATA)
-                        ?.toMutableMap() ?: return@registerForActivityResult
-
-                    if (keyIndex != null && keyIndex in keys.indices) {
-                        keys[keyIndex] = resultKeyData
-                    } else {
-                        keys.add(resultKeyData)
+    private fun applyPendingEditorResults() {
+        while (stateLoaded) {
+            val result = pendingEditorResults.takeNext() ?: return
+            val target = result.target
+            if (target != null && target.profile != currentLayoutProfile) {
+                showToast(getString(R.string.text_keyboard_layout_save_failed))
+                continue
+            }
+            when (result.channel) {
+                LayoutEditorResultStore.Channel.KEY, LayoutEditorResultStore.Channel.AUX -> {
+                    val entry = target?.entry ?: currentEditingLayoutKey() ?: continue
+                    if (entry !in entries) {
+                        showToast(getString(R.string.text_keyboard_layout_save_failed))
+                        continue
                     }
-                    refreshAuxBarKeysInDialog()
-                    currentLayout?.let { name ->
-                        previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection)
-                        updateSaveButtonState()
-                    }
+                    if (result.channel == LayoutEditorResultStore.Channel.KEY) applyKeyEditorResult(result.data, entry)
+                    else applyAuxBarKeyEditorResult(result.data, entry)
                 }
-
-                KeyEditorActivity.RESULT_ACTION_DELETE -> {
-                    if (keyIndex != null && keyIndex in keys.indices) {
-                        keys.removeAt(keyIndex)
-                        refreshAuxBarKeysInDialog()
-                        currentLayout?.let { name ->
-                            previewManager.updatePreview(name, resolvePreviewLabel(), fcitxConnection)
-                            updateSaveButtonState()
-                        }
-                    }
-                }
+                LayoutEditorResultStore.Channel.PROFILE -> applyLayoutProfileResult(result.data)
+                LayoutEditorResultStore.Channel.LAYOUT -> applyLayoutNameResult(result.data)
+                LayoutEditorResultStore.Channel.IMAGE -> result.data.data?.let(::importFromQrLongImage)
+                LayoutEditorResultStore.Channel.SCAN -> result.data.getStringExtra("scan_content")?.let(::addImportedChunkFromText)
             }
         }
+    }
+
+    private fun applyKeyEditorResult(data: Intent, entry: String) {
+        val action = data.getStringExtra(KeyEditorActivity.EXTRA_RESULT_ACTION) ?: return
+        val rowIndex = data.getIntExtra(KeyEditorActivity.EXTRA_ROW_INDEX, -1)
+        val keyIndex = if (data.hasExtra(KeyEditorActivity.EXTRA_KEY_INDEX)) {
+            data.getIntExtra(KeyEditorActivity.EXTRA_KEY_INDEX, -1).takeIf { it >= 0 } ?: return
+        } else null
+        val rows = entries[entry] ?: return
+        if (rowIndex !in rows.indices || keyIndex != null && keyIndex !in rows[rowIndex].indices) return
+        val visible = entry == currentEditingLayoutKey()
+        when (action) {
+            KeyEditorActivity.RESULT_ACTION_SAVE -> {
+                val key = data.serializable<HashMap<String, Any?>>(KeyEditorActivity.EXTRA_RESULT_KEY_DATA)
+                    ?.toMutableMap() ?: return
+                if (visible) clearKeySelection()
+                if (keyIndex == null) rows[rowIndex].add(key) else rows[rowIndex][keyIndex] = key
+                normalizeRowHeightPercent(rows[rowIndex])
+            }
+            KeyEditorActivity.RESULT_ACTION_DELETE -> {
+                if (keyIndex == null) return
+                if (visible) clearKeySelection()
+                rows[rowIndex].removeAt(keyIndex)
+            }
+            else -> return
+        }
+        if (visible) {
+            rowsAdapter?.notifyRowChanged(rowIndex)
+            currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+        }
+        updateSaveButtonState()
+        if (action == KeyEditorActivity.RESULT_ACTION_DELETE) showDeleteUndo()
+    }
+
+    private fun applyAuxBarKeyEditorResult(data: Intent, entry: String) {
+        val action = data.getStringExtra(KeyEditorActivity.EXTRA_RESULT_ACTION) ?: return
+        val keyIndex = if (data.hasExtra(KeyEditorActivity.EXTRA_KEY_INDEX)) {
+            data.getIntExtra(KeyEditorActivity.EXTRA_KEY_INDEX, -1).takeIf { it >= 0 } ?: return
+        } else null
+        val keys = dataManager.getLayoutAuxBarKeysRef(entry)
+        if (keyIndex != null && keyIndex !in keys.indices) return
+        when (action) {
+            KeyEditorActivity.RESULT_ACTION_SAVE -> {
+                val key = data.serializable<HashMap<String, Any?>>(KeyEditorActivity.EXTRA_RESULT_KEY_DATA)
+                    ?.toMutableMap() ?: return
+                if (keyIndex == null) keys.add(key) else keys[keyIndex] = key
+            }
+            KeyEditorActivity.RESULT_ACTION_DELETE -> {
+                if (keyIndex == null) return
+                keys.removeAt(keyIndex)
+            }
+            else -> return
+        }
+        if (entry == currentEditingLayoutKey()) {
+            refreshAuxBarKeysInDialog()
+            currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
+        }
+        updateSaveButtonState()
+    }
 
     private val layoutFileInputLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode != RESULT_OK) return@registerForActivityResult
-            val data = result.data
             val fallback = LayoutFileProfileInputActivity.consumePendingResultPayload()
-            val action = data?.getStringExtra(LayoutFileProfileInputActivity.EXTRA_ACTION)
-                ?: fallback?.action
-            if (action.isNullOrBlank()) {
-                showToast(getString(R.string.text_keyboard_layout_save_failed))
-                return@registerForActivityResult
-            }
-            val normalized = UserConfigFiles.normalizeTextKeyboardLayoutProfile(
-                data?.getStringExtra(LayoutFileProfileInputActivity.EXTRA_RESULT_PROFILE)
-                    ?: fallback?.profile.orEmpty()
-            )
-            if (normalized.isNullOrBlank()) {
-                showToast(getString(R.string.text_keyboard_layout_file_name_invalid))
-                return@registerForActivityResult
-            }
-            when (action) {
-                LayoutFileProfileInputActivity.ACTION_CREATE -> {
-                    val copyCurrent = data?.getBooleanExtra(
-                        LayoutFileProfileInputActivity.EXTRA_RESULT_COPY_CURRENT,
-                        true
-                    ) ?: fallback?.copyCurrent ?: true
-                    createLayoutProfileFromInput(normalized, copyCurrent)
-                }
-                LayoutFileProfileInputActivity.ACTION_RENAME -> {
-                    renameLayoutProfileFromInput(normalized)
-                }
-            }
+            val data = if (result.resultCode == RESULT_OK) result.data ?: fallback?.resultIntent
+                ?: fallback?.let { Intent().apply {
+                    putExtra(LayoutFileProfileInputActivity.EXTRA_ACTION, it.action)
+                    putExtra(LayoutFileProfileInputActivity.EXTRA_RESULT_PROFILE, it.profile)
+                    putExtra(LayoutFileProfileInputActivity.EXTRA_RESULT_COPY_CURRENT, it.copyCurrent)
+                } } else result.data
+            pendingEditorResults.receive(LayoutEditorResultStore.Channel.PROFILE, ActivityResult(result.resultCode, data))
+            applyPendingEditorResults()
         }
+
+    private fun applyLayoutProfileResult(data: Intent) {
+        val action = data.getStringExtra(LayoutFileProfileInputActivity.EXTRA_ACTION)
+        if (action.isNullOrBlank()) {
+            showToast(getString(R.string.text_keyboard_layout_save_failed))
+            return
+        }
+        val normalized = UserConfigFiles.normalizeTextKeyboardLayoutProfile(
+            data.getStringExtra(LayoutFileProfileInputActivity.EXTRA_RESULT_PROFILE).orEmpty())
+        if (normalized.isNullOrBlank()) {
+            showToast(getString(R.string.text_keyboard_layout_file_name_invalid))
+            return
+        }
+        when (action) {
+            LayoutFileProfileInputActivity.ACTION_CREATE -> createLayoutProfileFromInput(normalized,
+                data.getBooleanExtra(LayoutFileProfileInputActivity.EXTRA_RESULT_COPY_CURRENT, true))
+            LayoutFileProfileInputActivity.ACTION_RENAME -> renameLayoutProfileFromInput(normalized)
+        }
+    }
 
     private val layoutNameInputLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val data = result.data ?: return@registerForActivityResult
-            if (result.resultCode != RESULT_OK) return@registerForActivityResult
-            val layoutName = data.getStringExtra(LayoutNameInputActivity.EXTRA_RESULT_LAYOUT_NAME).orEmpty()
-            val copySource = data.getStringExtra(LayoutNameInputActivity.EXTRA_RESULT_COPY_SOURCE)
-            createGlobalSharedLayout(layoutName, copySource)
+            pendingEditorResults.receive(LayoutEditorResultStore.Channel.LAYOUT, result)
+            applyPendingEditorResults()
         }
-    
+
+    private fun applyLayoutNameResult(data: Intent) {
+        createGlobalSharedLayout(data.getStringExtra(LayoutNameInputActivity.EXTRA_RESULT_LAYOUT_NAME).orEmpty(),
+            data.getStringExtra(LayoutNameInputActivity.EXTRA_RESULT_COPY_SOURCE))
+    }
+
     // 子模式管理器
     private lateinit var subModeManager: SubModeManager
 
@@ -853,7 +858,8 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri == null) return@registerForActivityResult
-        importFromQrLongImage(uri)
+        pendingEditorResults.receive(LayoutEditorResultStore.Channel.IMAGE, ActivityResult(RESULT_OK, Intent().setData(uri)))
+        applyPendingEditorResults()
     }
 
     private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -866,11 +872,29 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
     private val cameraScanLauncher = registerForActivityResult(com.journeyapps.barcodescanner.ScanContract()) { result ->
         val content = result?.contents ?: return@registerForActivityResult
-        addImportedChunkFromText(content)
+        pendingEditorResults.receive(LayoutEditorResultStore.Channel.SCAN,
+            ActivityResult(RESULT_OK, Intent().putExtra("scan_content", content)))
+        applyPendingEditorResults()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inlineKeyResults.restoreState(savedInstanceState)
+        pendingEditorSelection = savedInstanceState?.let { state -> Bundle().apply {
+            putString(STATE_CURRENT_LAYOUT, state.getString(STATE_CURRENT_LAYOUT))
+            putString(STATE_PREVIEW_SUBMODE, state.getString(STATE_PREVIEW_SUBMODE))
+            putBoolean(STATE_PREVIEW_SUBMODE_IS_DEFAULT_ITEM,
+                state.getBoolean(STATE_PREVIEW_SUBMODE_IS_DEFAULT_ITEM, false))
+            putBoolean(STATE_EDITING_SPLIT, state.getBoolean(STATE_EDITING_SPLIT, false))
+        } }
+        pendingInlineKeyState = savedInstanceState?.takeIf { it.containsKey("inline_key_row") }?.let { state ->
+            Bundle().apply {
+                putInt("inline_key_row", state.getInt("inline_key_row"))
+                putInt("inline_key_index", state.getInt("inline_key_index"))
+                putString("inline_key_layout", state.getString("inline_key_layout"))
+                putBundle("inline_key_form", state.getBundle("inline_key_form"))
+            }
+        }
         setContentView(ui)
         ViewCompat.setOnApplyWindowInsetsListener(ui) { _, insets ->
             val shown = insets.isVisible(WindowInsetsCompat.Type.ime())
@@ -890,11 +914,12 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
         // 初始化子模式管理器（必须在 loadState 之前）
         subModeManager = SubModeManager(fcitxConnection, allImesFromJson, dataManager.entries)
-        currentLayoutProfile = if (intent.hasExtra(EXTRA_INITIAL_PROFILE)) {
-            savedInstanceState?.getString(STATE_LAYOUT_PROFILE)
-                ?: UserConfigFiles.normalizeTextKeyboardLayoutProfile(intent.getStringExtra(EXTRA_INITIAL_PROFILE).orEmpty())
-                ?: currentActiveProfile()
-        } else currentActiveProfile()
+        // A resumed editor owns its original file even if the active keyboard profile changed.
+        currentLayoutProfile = savedInstanceState?.getString(STATE_LAYOUT_PROFILE)
+            ?.let(UserConfigFiles::normalizeTextKeyboardLayoutProfile)
+            ?: UserConfigFiles.normalizeTextKeyboardLayoutProfile(intent.getStringExtra(EXTRA_INITIAL_PROFILE).orEmpty())
+            ?: currentActiveProfile()
+        pendingEditorResults.restore(savedInstanceState)
         layoutFile = UserConfigFiles.textKeyboardLayoutJson(currentLayoutProfile)
         // Synchronous, because onSaveInstanceState may run before loadState() completes.
         savedInstanceState?.let(::captureDraftReference)
@@ -908,6 +933,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             // Restore an unsaved edit across a configuration change. loadState() has already
             // read the file, so the draft (if any) simply replaces the in-memory entries.
             savedInstanceState?.let { restoreDraftState(it) }
+            pendingEditorSelection = null
             // Only now do the in-memory entries represent the user's data; see
             // onSaveInstanceState, which must not snapshot over the draft before this point.
             // Clearing the inline copy in the same non-suspending stretch keeps that handover
@@ -921,12 +947,14 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             buildSubModeSpinner()
             normalizeEditingSplit()
             buildRows()
-            if (savedInstanceState?.getString("inline_key_layout") == currentEditingLayoutKey() &&
-                savedInstanceState?.containsKey("inline_key_row") == true) {
-                selectKey(EditorKeyPosition(savedInstanceState.getInt("inline_key_row"),
-                    savedInstanceState.getInt("inline_key_index")), reveal = false,
-                    formState = savedInstanceState.getBundle("inline_key_form"))
+            pendingInlineKeyState?.let { state ->
+                if (state.getString("inline_key_layout") == currentEditingLayoutKey()) {
+                    selectKey(EditorKeyPosition(state.getInt("inline_key_row"), state.getInt("inline_key_index")),
+                        reveal = false, formState = state.getBundle("inline_key_form"))
+                }
             }
+            pendingInlineKeyState = null
+            applyPendingEditorResults()
             run { val layoutName = currentLayout ?: return@run; previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection) }
             maybePromptSwitchToFcitxIme()
 
@@ -982,6 +1010,10 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        // A second recreation can happen before the first asynchronous restore finishes.
+        // Keep both the selected form and any already-delivered nested result in that window.
+        if (!stateLoaded) pendingInlineKeyState?.let(outState::putAll)
+        inlineKeyResults.saveState(outState)
         selectedKey?.let {
             outState.putInt("inline_key_row", it.row)
             outState.putInt("inline_key_index", it.key)
@@ -1000,7 +1032,9 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         // normalizeEditingSplit() 校验它是否仍然存在。
         outState.putBoolean(STATE_EDITING_SPLIT, editingSplit)
         outState.putString(STATE_LAYOUT_PROFILE, currentLayoutProfile)
+        pendingEditorResults.save(outState)
         if (!stateLoaded) {
+            pendingEditorSelection?.let(outState::putAll)
             // Stopped before loadState() finished, so the in-memory entries are not the user's
             // data yet. Pass the incoming draft reference through untouched instead of
             // overwriting it with an empty layout or deleting it.
@@ -1014,12 +1048,17 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         // appeared either. With nothing unsaved the file on disk *is* the draft, so skip the
         // snapshot entirely — that covers most stops, including every one after a save.
         if (!hasChanges()) {
+            historyModel.draftJson.clear()
             draftStore.delete()
             return
         }
-        val json = runCatching { dataManager.exportCurrentJsonCompact() }
+        val json = historyModel.draftJson.valueFor(dataManager) ?: runCatching { dataManager.exportCurrentJsonCompact() }
             .onFailure { android.util.Log.w("LayoutEditor", "Failed to save draft layout", it) }
-            .getOrNull() ?: return
+            .getOrNull()
+        if (json == null) {
+            draftStore.existingSnapshotName()?.let { outState.putString(STATE_DRAFT_SNAPSHOT, it) }
+            return
+        }
         // The draft itself must not go into the Bundle: it is parcelled to system_server on stop
         // and a large layout blows the Binder budget (see LayoutDraftStore). Opening the key
         // editor stops this Activity, so that used to crash on an ordinary key tap.
@@ -1030,6 +1069,10 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             // No snapshot file (unwritable dir, no space): a small draft still parcels safely,
             // and keeping the edit beats dropping it.
             outState.putString(STATE_DRAFT_LAYOUT_JSON, json)
+        } else {
+            // Failed atomic replacement leaves the previous complete draft intact. Keep
+            // its reference too, so a large write failure does not lose every prior edit.
+            draftStore.existingSnapshotName()?.let { outState.putString(STATE_DRAFT_SNAPSHOT, it) }
         }
     }
 
@@ -1612,6 +1655,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private fun openGlobalLayoutNameInput() {
+        if (!stateLoaded) return
         val currentEditingLayoutKey = currentEditingLayoutKey()
         val copySourceOptions = entries.keys.sorted().toMutableList()
         val copySourceLabels = copySourceOptions.map {
@@ -1633,6 +1677,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             putStringArrayListExtra(LayoutNameInputActivity.EXTRA_COPY_SOURCE_LABELS, ArrayList(copySourceLabels))
             putExtra(LayoutNameInputActivity.EXTRA_COPY_SOURCE_DEFAULT, currentEditingLayoutKey)
         }
+        pendingEditorResults.begin(LayoutEditorResultStore.Channel.LAYOUT, currentLayoutProfile, currentEditingLayoutKey.orEmpty(), intent)
         layoutNameInputLauncher.launch(intent)
     }
 
@@ -2277,6 +2322,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
      * Open the key editor for an auxiliary bar key. Pass null to add a new key.
      */
     private fun openAuxBarKeyEditor(keyIndex: Int?) {
+        if (!stateLoaded) return
         val layoutName = currentLayout ?: return
         val editingLayoutKey = currentEditingLayoutKey() ?: return
         val keys = dataManager.getLayoutAuxBarKeys(editingLayoutKey)
@@ -2303,6 +2349,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 ArrayList(entries.keys.sorted())
             )
         }
+        pendingEditorResults.begin(LayoutEditorResultStore.Channel.AUX, currentLayoutProfile, editingLayoutKey, launchIntent)
         auxBarKeyEditorLauncher.launch(launchIntent)
     }
 
@@ -2329,6 +2376,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private fun openKeyEditor(rowIndex: Int, keyIndex: Int?) {
+        if (!stateLoaded) return
         if (!finishInlineEdit()) return
         val layoutName = currentLayout ?: return
 
@@ -2364,6 +2412,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 ArrayList(entries.keys.sorted())
             )
         }
+        pendingEditorResults.begin(LayoutEditorResultStore.Channel.KEY, currentLayoutProfile, editingLayoutKey, launchIntent)
         keyEditorLauncher.launch(launchIntent)
     }
 
@@ -2808,7 +2857,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         // 使用 dataManager 保存（IO 线程）
         if (dataManager.saveToFileAsync(file)) {
             // The saved file is now the source of truth; a draft of it is dead weight.
-            discardPendingDraft()
+            if (!dataManager.hasChanges()) discardPendingDraft()
             showToast(getString(R.string.text_keyboard_layout_file_saved, file.name))
             // 通知 provider watcher 文件已更改
             ConfigProviders.ensureWatching()
@@ -3303,6 +3352,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             buildSpinner()
             buildSubModeSpinner(forceResetSelection = true)
             buildRows()
+            applyPendingEditorResults()
             currentLayout?.let { layoutName ->
                 previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection)
             }
@@ -3414,12 +3464,14 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private fun openRenameLayoutFileDialog() {
+        if (!stateLoaded) return
         if (DeviceUtil.isHMOS) {
             val intent = Intent(this, LayoutFileProfileInputActivity::class.java).apply {
                 putExtra(LayoutFileProfileInputActivity.EXTRA_ACTION, LayoutFileProfileInputActivity.ACTION_RENAME)
                 putExtra(LayoutFileProfileInputActivity.EXTRA_INITIAL_PROFILE, currentLayoutProfile)
                 putExtra(LayoutFileProfileInputActivity.EXTRA_SHOW_COPY_SWITCH, false)
             }
+            pendingEditorResults.begin(LayoutEditorResultStore.Channel.PROFILE, currentLayoutProfile, "", intent)
             layoutFileInputLauncher.launch(intent)
             return
         }
@@ -3549,12 +3601,14 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
     }
 
     private fun openCreateLayoutFileDialog() {
+        if (!stateLoaded) return
         if (DeviceUtil.isHMOS) {
             val intent = Intent(this, LayoutFileProfileInputActivity::class.java).apply {
                 putExtra(LayoutFileProfileInputActivity.EXTRA_ACTION, LayoutFileProfileInputActivity.ACTION_CREATE)
                 putExtra(LayoutFileProfileInputActivity.EXTRA_SHOW_COPY_SWITCH, true)
                 putExtra(LayoutFileProfileInputActivity.EXTRA_COPY_CURRENT_DEFAULT, true)
             }
+            pendingEditorResults.begin(LayoutEditorResultStore.Channel.PROFILE, currentLayoutProfile, "", intent)
             layoutFileInputLauncher.launch(intent)
             return
         }
@@ -3870,6 +3924,11 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             editHistory.record(document, editTarget())
         }
         val dirty = hasChanges()
+        if (dirty && !inlineTransactionActive) {
+            editHistory.current?.document?.let(historyModel.draftJson::prepare)
+        } else if (!dirty) {
+            historyModel.draftJson.clear()
+        }
         saveMenuItem?.apply {
             isEnabled = dirty
             title = getString(R.string.layout_editor_save)

@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
 import android.content.Intent
 import android.os.Bundle
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutEditorResultStore
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ArrayAdapter
@@ -142,12 +143,12 @@ class LayoutNameInputActivity : SettingsUiActivity() {
                     Toast.makeText(this, getString(R.string.text_keyboard_layout_name_empty), Toast.LENGTH_SHORT).show()
                     return true
                 }
-                setResult(RESULT_OK, Intent().apply {
+                setResult(RESULT_OK, LayoutEditorResultStore.attachRequestToken(intent, Intent().apply {
                     putExtra(EXTRA_RESULT_LAYOUT_NAME, name)
                     copySourceSpinner?.selectedItemPosition
                         ?.let { copySources.getOrNull(it) }
                         ?.let { putExtra(EXTRA_RESULT_COPY_SOURCE, it) }
-                })
+                }))
                 finish()
                 true
             }

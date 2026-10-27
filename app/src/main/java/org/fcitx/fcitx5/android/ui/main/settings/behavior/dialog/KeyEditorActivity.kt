@@ -11,6 +11,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutEditorResultStore
 import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.dimensions.dp
 
@@ -21,6 +22,7 @@ class KeyEditorActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        results.restoreState(savedInstanceState)
         form = results.createForm(this, intent, savedInstanceState)
         val toolbar = MaterialToolbar(this).apply {
             setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
@@ -62,7 +64,9 @@ class KeyEditorActivity : SettingsUiActivity() {
             MaterialAlertDialogBuilder(this).setTitle(R.string.delete)
                 .setMessage(R.string.text_keyboard_layout_delete_key_confirm)
                 .setPositiveButton(R.string.delete) { _, _ ->
-                    setResult(RESULT_OK, form.resultIntent(RESULT_ACTION_DELETE)); finish()
+                    setResult(RESULT_OK, LayoutEditorResultStore.attachRequestToken(
+                        intent, form.resultIntent(RESULT_ACTION_DELETE)))
+                    finish()
                 }.setNegativeButton(android.R.string.cancel, null).show()
             true
         }
@@ -71,7 +75,8 @@ class KeyEditorActivity : SettingsUiActivity() {
 
     private fun save() {
         val key = form.validatedDraft() ?: return
-        setResult(RESULT_OK, form.resultIntent(RESULT_ACTION_SAVE, key))
+        setResult(RESULT_OK, LayoutEditorResultStore.attachRequestToken(
+            intent, form.resultIntent(RESULT_ACTION_SAVE, key)))
         finish()
     }
 
@@ -86,6 +91,7 @@ class KeyEditorActivity : SettingsUiActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         form.saveState(outState)
+        results.saveState(outState)
         super.onSaveInstanceState(outState)
     }
 
