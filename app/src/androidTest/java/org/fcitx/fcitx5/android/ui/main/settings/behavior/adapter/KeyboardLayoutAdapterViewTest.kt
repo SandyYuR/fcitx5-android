@@ -5,11 +5,11 @@
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter
 
 import android.view.ContextThemeWrapper
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.test.platform.app.InstrumentationRegistry
 import org.fcitx.fcitx5.android.R
-import org.fcitx.fcitx5.android.ui.main.settings.behavior.DraggableFlowLayout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -17,41 +17,67 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** Guard the action-to-key reuse path: a disabled up-arrow must never disable a key. */
+/** Row actions are header views; the flow contains editable keys only. */
 class KeyboardLayoutAdapterViewTest {
-    @Test fun reusedActionChipsResetEnabledStateAndDataTags() {
+    @Test fun headerActionsStaySeparateFromReusedKeyCells() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
             val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_FcitxSettings_System_Light)
             val row = mutableListOf<MutableMap<String, Any?>>()
             val adapter = KeyboardLayoutAdapter(context, listOf(row), NoOpListener)
             val holder = adapter.onCreateViewHolder(FrameLayout(context), 0) as KeyboardLayoutAdapter.RowViewHolder
-            adapter.onBindViewHolder(holder, 0)
-            val disabledUp = holder.keysFlow.getChildAt(1)
-            assertFalse(disabledUp.isEnabled)
-
+            val add = holder.addKeyButton
+            fun bindAndCheck() {
+                adapter.onBindViewHolder(holder, 0)
+                assertEquals(row.size, holder.keysFlow.childCount)
+                assertSame(add, holder.addKeyButton)
+                assertEquals(View.VISIBLE, add.visibility)
+                assertEquals(View.GONE, holder.moveUpButton.visibility)
+                assertEquals(View.GONE, holder.moveDownButton.visibility)
+                for (i in row.indices) {
+                    val key = holder.keysFlow.getChildAt(i) as TextView
+                    assertEquals(View.VISIBLE, key.visibility)
+                    assertTrue(key.isEnabled)
+                    assertEquals(1f, key.alpha, 0f)
+                    assertNull(key.tag)
+                    assertEquals(row[i]["main"], key.text.toString())
+                    assertFalse(key === holder.addKeyButton || key === holder.moveUpButton || key === holder.moveDownButton)
+                }
+            }
+            bindAndCheck()
             row.add(mutableMapOf("type" to "AlphabetKey", "main" to "q"))
-            adapter.onBindViewHolder(holder, 0)
-            val add = holder.keysFlow.getChildAt(1)
-            assertSame(disabledUp, add)
-            assertTrue(add.isEnabled)
-            assertEquals(1f, add.alpha, 0f)
-            assertEquals(DraggableFlowLayout.TAG_NOT_DRAGGABLE, add.tag)
-
-            // The next up-arrow is reused as an ordinary key after two keys are inserted.
-            val nextUp = holder.keysFlow.getChildAt(2)
+            bindAndCheck()
+            val first = holder.keysFlow.getChildAt(0)
             row.add(mutableMapOf("type" to "AlphabetKey", "main" to "w"))
             row.add(mutableMapOf("type" to "AlphabetKey", "main" to "e"))
-            adapter.onBindViewHolder(holder, 0)
-            val key = holder.keysFlow.getChildAt(2) as TextView
-            assertSame(nextUp, key)
-            assertTrue(key.isEnabled)
-            assertEquals(1f, key.alpha, 0f)
-            assertNull(key.tag)
-            assertEquals("e", key.text.toString())
-            assertEquals(5, holder.keysFlow.childCount)
-            assertEquals(DraggableFlowLayout.TAG_NOT_DRAGGABLE, holder.keysFlow.getChildAt(3).tag)
-            assertEquals(DraggableFlowLayout.TAG_NOT_DRAGGABLE, holder.keysFlow.getChildAt(4).tag)
+            bindAndCheck()
+            assertSame(first, holder.keysFlow.getChildAt(0))
+            row.removeAt(0)
+            bindAndCheck()
+        }
+    }
+
+    @Test fun headerMoveButtonsFollowBoundariesWhenTheHolderIsRebound() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_FcitxSettings_System_Light)
+            val rows = MutableList(3) { mutableListOf(mutableMapOf<String, Any?>("type" to "AlphabetKey", "main" to "a")) }
+            val adapter = KeyboardLayoutAdapter(context, rows, NoOpListener)
+            val holder = adapter.onCreateViewHolder(FrameLayout(context), 0) as KeyboardLayoutAdapter.RowViewHolder
+            fun check(position: Int, up: Boolean, down: Boolean) {
+                adapter.onBindViewHolder(holder, position)
+                assertEquals(if (up) View.VISIBLE else View.GONE, holder.moveUpButton.visibility)
+                assertEquals(if (down) View.VISIBLE else View.GONE, holder.moveDownButton.visibility)
+                assertEquals(View.VISIBLE, holder.addKeyButton.visibility)
+                assertEquals(1, holder.keysFlow.childCount)
+            }
+            check(0, false, true)
+            check(1, true, true)
+            check(2, true, false)
+            rows.removeAt(2); rows.removeAt(1)
+            check(0, false, false)
+            rows.add(mutableListOf(mutableMapOf("type" to "AlphabetKey", "main" to "b")))
+            check(0, false, true)
         }
     }
 

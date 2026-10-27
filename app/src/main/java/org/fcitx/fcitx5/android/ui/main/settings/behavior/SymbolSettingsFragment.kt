@@ -5,6 +5,8 @@
 
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import org.fcitx.fcitx5.android.utils.readBounded
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.net.Uri
@@ -136,7 +138,7 @@ class SymbolSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance().
             val result = withContext(Dispatchers.IO) {
                 runCatching {
                     val text = resolver.openInputStream(uri)
-                        ?.use { it.readBytes().decodeToString() }
+                        ?.use { it.readBounded(4 * 1024 * 1024).decodeToString() }
                         ?: error("cannot open input stream")
                     // 与加载路径一致：先剥掉 // 行注释再校验
                     val stripped = UserJsonConfigStore.stripLineComments(text)

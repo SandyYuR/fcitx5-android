@@ -7,6 +7,9 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.data
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import org.fcitx.fcitx5.android.utils.FileUtil
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
@@ -29,6 +32,7 @@ import java.io.File
  * - 数据验证
  */
 class LayoutDataManager(private val context: Context) {
+    private val saveMutex = Mutex()
     private companion object {
         private const val LAYOUT_META_KEY = "__meta__"
         private const val LAYOUT_META_HEIGHT_PERCENT_KEY = "keyboard_height_percent"
@@ -122,9 +126,47 @@ class LayoutDataManager(private val context: Context) {
      *
      * Save does validation, a backup copy, serialization and an atomic write — all file work.
      */
-    suspend fun saveToFileAsync(file: File): Boolean = withContext(Dispatchers.IO) {
-        saveToFile(file)
+    suspend fun saveToFileAsync(file: File): Boolean = saveMutex.withLock {
+        val snapshot = withContext(Dispatchers.Main.immediate) { captureSaveSnapshot() }
+        val saved = withContext(Dispatchers.IO) { snapshot.saveToFile(file) }
+        if (saved) withContext(Dispatchers.Main.immediate) { acceptSavedSnapshot(snapshot) }
+        saved
     }
+
+    /** Capture UI-owned data once, including nested macro maps/lists. IO only sees this copy. */
+    internal fun captureSaveSnapshot(): LayoutDataManager {
+        pruneLayoutHeightOverrides()
+        normalizeAllRowsForSave()
+        entries.keys.map(LayoutJsonUtils::baseLayoutNameFromEntryKey).distinct().forEach { name ->
+            if (LayoutJsonUtils.hasSubLayouts(entries.keys, name)) migrationManager.cleanupBaseLayoutDisplayText(name)
+        }
+        return LayoutDataManager(context).also { snapshot ->
+            snapshot.entries.putAll(normalizedEntries().mapValues { (_, rows) ->
+                rows.map { row -> row.map { copyKey(it) }.toMutableList() }.toMutableList()
+            })
+            snapshot.layoutHeightPercentOverrides.putAll(layoutHeightPercentOverrides)
+            snapshot.layoutHeightPercentOverridesLandscape.putAll(layoutHeightPercentOverridesLandscape)
+            snapshot.layoutAuxBarConfigs.putAll(layoutAuxBarConfigs)
+            snapshot.layoutAuxBarKeys.putAll(layoutAuxBarKeys.mapValues { (_, keys) -> keys.map(::copyKey).toMutableList() })
+        }
+    }
+
+    internal fun acceptSavedSnapshot(snapshot: LayoutDataManager) {
+        originalEntries = snapshot.originalEntries
+        originalLayoutHeightPercentOverrides = snapshot.originalLayoutHeightPercentOverrides
+        originalLayoutHeightPercentOverridesLandscape = snapshot.originalLayoutHeightPercentOverridesLandscape
+        originalLayoutAuxBarConfigs = snapshot.originalLayoutAuxBarConfigs
+        originalLayoutAuxBarKeys = snapshot.originalLayoutAuxBarKeys
+    }
+
+    private fun copyValue(value: Any?): Any? = when (value) {
+        is Map<*, *> -> value.entries.associateTo(linkedMapOf()) { it.key to copyValue(it.value) }
+        is List<*> -> value.map(::copyValue).toMutableList()
+        else -> value
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun copyKey(key: Map<String, Any?>): MutableMap<String, Any?> = copyValue(key) as MutableMap<String, Any?>
 
     fun loadFromFile(file: File?): Boolean {
         entries.clear()
@@ -135,7 +177,7 @@ class LayoutDataManager(private val context: Context) {
         lastLoadWarning = null
         lastParseFailure = null
         
-        val fileHasContent = file?.exists() == true && file.length() > 0
+        val fileHasContent = file?.exists() == true
         val parsed = if (fileHasContent) {
             parseJsonText(file!!.readText(), file.name)
         } else {
@@ -545,22 +587,7 @@ class LayoutDataManager(private val context: Context) {
      * 再保存一次用户的自定义布局就永久丢了。
      */
     private fun writeAtomically(file: File, content: String) {
-        val parent = file.parentFile
-        parent?.mkdirs()
-        val tmp = File(parent, "${file.name}.tmp")
-        java.io.FileOutputStream(tmp).use { out ->
-            out.write(content.toByteArray())
-            out.flush()
-            // 元数据 rename 是原子的，但内容必须先落盘，否则崩溃后可能
-            // rename 出一个内容为空的文件。
-            runCatching { out.fd.sync() }
-        }
-        if (!tmp.renameTo(file)) {
-            // 跨文件系统等极端情况下 rename 可能失败，退回直接写入（仍好过丢文件）。
-            android.util.Log.w("LayoutDataManager", "Atomic rename failed, falling back to direct write")
-            file.writeText(content)
-            tmp.delete()
-        }
+        FileUtil.writeAtomically(file, content)
     }
     
     // ==================== 布局操作 ====================
@@ -1227,7 +1254,7 @@ class LayoutDataManager(private val context: Context) {
 
     private fun normalizedLayoutAuxBarKeys(): Map<String, List<Map<String, Any?>>> {
         return layoutAuxBarKeys.toSortedMap().mapValues { (_, keys) ->
-            keys.map { it.toMap() }
+            keys.map(::copyKey)
         }
     }
 
@@ -1380,7 +1407,7 @@ class LayoutDataManager(private val context: Context) {
     fun normalizedEntries(): Map<String, List<List<Map<String, Any?>>>> =
         entries.toSortedMap().mapValues { (_, rows) ->
             rows.map { row ->
-                row.map { key -> key.toMap() }
+                row.map(::copyKey)
             }
         }
 

@@ -4,6 +4,9 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
+import org.fcitx.fcitx5.android.utils.FileUtil
+import org.fcitx.fcitx5.android.utils.copyBoundedTo
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 import android.content.Intent
@@ -194,7 +197,7 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
                 runCatching {
                     target.parentFile?.mkdirs()
                     resolver.openInputStream(uri)?.use { input ->
-                        target.outputStream().use { output -> input.copyTo(output) }
+                        FileUtil.writeAtomically(target) { output -> input.copyBoundedTo(output, 16L * 1024 * 1024) }
                     } ?: error("Unable to open audio file")
                 }.isSuccess
             }
@@ -322,7 +325,8 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
 
     private fun showWebEditorBridgeDialog(session: ImeWebEditorBridgeServer.Session) {
         val msg = getString(
-            R.string.web_editor_bridge_running_message, session.editorUrl, session.apiBaseUrl)
+            R.string.web_editor_bridge_running_message, session.editorUrl, session.apiBaseUrl) +
+            "\n\n" + getString(R.string.web_editor_bridge_pairing_code, session.pairingCode)
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.web_editor_bridge_title)
             .setMessage(msg)
