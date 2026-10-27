@@ -38,10 +38,21 @@ class Base64PayloadTest {
     }
 
     @Test
-    fun paddingCostsAtMostTwoBytesOfSlack() {
-        // One byte encodes as "AA==", which still estimates as 3 — the documented worst case.
-        assertEquals(3L, Base64Payload.estimatedDecodedBytes("AA=="))
-        assertEquals(3L, Base64Payload.estimatedDecodedBytes("AAA="))
+    fun paddingIsAccountedForAtTheExactLimit() {
+        assertEquals(1L, Base64Payload.estimatedDecodedBytes("AA=="))
+        assertEquals(2L, Base64Payload.estimatedDecodedBytes("AAA="))
+    }
+
+    @Test fun omittedPaddingCannotUnderestimateSmallPayloads() {
+        assertEquals(1L, Base64Payload.estimatedDecodedBytes("AA"))
+        assertEquals(2L, Base64Payload.estimatedDecodedBytes("AAA"))
+        assertEquals(4L, Base64Payload.estimatedDecodedBytes("AAAAAA"))
+        assertEquals(5L, Base64Payload.estimatedDecodedBytes("AAAAAAA"))
+    }
+
+    @Test fun trailingWhitespaceDoesNotHidePadding() {
+        assertEquals(1L, Base64Payload.estimatedDecodedBytes(" A A =\n=\r\n"))
+        assertEquals(2L, Base64Payload.estimatedDecodedBytes(" A A A =\t"))
     }
 
     @Test
