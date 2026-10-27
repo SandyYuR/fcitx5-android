@@ -20,6 +20,26 @@ import org.junit.Test
  */
 class CandidateUpdatePlanTest {
 
+    @Test fun insertionMarksOnlyTheShiftedRetainedSuffix() {
+        val plan = compute(listOf("a", "b", "c"), listOf("a", "x", "b", "c"))
+        assertEquals(2, plan.shiftedSuffixStart)
+        assertEquals(2, plan.shiftedSuffixCount)
+    }
+
+    @Test fun removalMarksTheSuffixInItsNewCoordinates() {
+        val plan = compute(listOf("x", "a", "b"), listOf("a", "b"))
+        assertEquals(0, plan.shiftedSuffixStart)
+        assertEquals(2, plan.shiftedSuffixCount)
+    }
+
+    @Test fun countNeutralChangesAndTailInsertionsHaveNoShiftedSuffix() {
+        for (plan in listOf(compute(listOf("a", "b"), listOf("a", "c")),
+            compute(listOf("a", "b"), listOf("a", "b", "c")))) {
+            assertEquals(CandidateUpdatePlan.NONE, plan.shiftedSuffixStart)
+            assertEquals(0, plan.shiftedSuffixCount)
+        }
+    }
+
     private fun word(text: String) = CandidateWord("1 ", text, "", true)
 
     private fun compute(

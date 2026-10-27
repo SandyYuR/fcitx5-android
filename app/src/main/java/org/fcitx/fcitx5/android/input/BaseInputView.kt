@@ -11,12 +11,15 @@ import android.view.WindowInsets
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
 import androidx.tracing.trace
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.core.FcitxEvent
+import org.fcitx.fcitx5.android.core.CandidateActionContext
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException
 import org.fcitx.fcitx5.android.data.InputFeedbacks
@@ -34,6 +37,7 @@ import splitties.views.dsl.core.withTheme
 import org.fcitx.fcitx5.android.R
 import timber.log.Timber
 import kotlin.math.max
+import java.util.WeakHashMap
 
 abstract class BaseInputView(
     val service: FcitxInputMethodService,
@@ -63,6 +67,14 @@ abstract class BaseInputView(
             }
             events.collect {
                 if (!org.fcitx.fcitx5.android.daemon.FcitxDaemon.isCurrentInputSession(it.inputSession)) return@collect
+                when (it) {
+                    is FcitxEvent.CandidateListEvent, is FcitxEvent.PagedCandidateEvent -> {
+                        invalidateCandidateActionMenu()
+                        displayedCandidateContext = it.candidateActionContext
+                    }
+                    is FcitxEvent.IMChangeEvent -> invalidateCandidateActionMenu()
+                    else -> Unit
+                }
                 // Phase 0 perf tracing: main-thread collection start/end per event.
                 trace("collectFcitxEvent") {
                     handleFcitxEvent(it)
@@ -80,13 +92,19 @@ abstract class BaseInputView(
                     setupFcitxEventHandler()
                 }
             } else {
+                invalidateCandidateActionMenu()
                 eventHandlerJob?.cancel()
                 eventHandlerJob = null
             }
         }
 
-    private fun triggerCandidateAction(idx: Int, actionIdx: Int, global: Boolean) {
-        fcitx.runIfReady { if (global) triggerGlobalCandidateAction(idx, actionIdx) else triggerCandidateAction(idx, actionIdx) }
+    private fun triggerCandidateAction(idx: Int, actionIdx: Int, global: Boolean,
+        context: CandidateActionContext, request: InputMenuRequestTracker.Request) {
+        if (!request.isCurrent()) return
+        service.postFcitxJob {
+            val current = withContext(Dispatchers.Main.immediate) { request.isCurrent() }
+            if (current) triggerCandidateActionIfCurrent(idx, actionIdx, global, context)
+        }
     }
 
     /**
@@ -124,8 +142,10 @@ abstract class BaseInputView(
     fun bindCandidateGesture(
         view: CustomGestureView,
         text: String,
+        global: Boolean = false,
         resolveIndex: () -> Int
     ) {
+        candidateAnchorOwners[view] = Any()
         val characters = text.candidateCharacters()
         var gestureCancelled = false
         var popup: CandidateCharacterPopup? = null
@@ -183,7 +203,7 @@ abstract class BaseInputView(
                         // 向下滑：呼出候选操作菜单（忘记词汇等）
                         event.totalY > 0 -> {
                             directionLocked = true
-                            showCandidateActionMenu(resolveIndex(), text, view)
+                            showCandidateActionMenu(resolveIndex(), text, view, global)
                             true
                         }
 
@@ -212,6 +232,8 @@ abstract class BaseInputView(
     }
 
     fun unbindCandidateGesture(view: CustomGestureView) {
+        candidateAnchorOwners.remove(view)
+        if (candidateActionAnchor === view) invalidateCandidateActionMenu()
         dismissCandidateCharacterPopup()
         view.setOnTouchListener(null)
         view.onGestureListener = null
@@ -225,19 +247,56 @@ abstract class BaseInputView(
     }
 
     private var candidateActionMenu: ThemedPopupMenu? = null
+    private var candidateActionJob: Job? = null
+    private var candidateActionAnchor: View? = null
+    private var displayedCandidateContext: CandidateActionContext? = null
+    private val candidateMenuRequests = InputMenuRequestTracker()
+    private val candidateAnchorOwners = WeakHashMap<View, Any>()
+
+    private fun invalidateCandidateActionMenu() {
+        candidateMenuRequests.invalidate()
+        candidateActionJob?.cancel()
+        candidateActionJob = null
+        val menu = candidateActionMenu
+        candidateActionMenu = null
+        candidateActionAnchor = null
+        menu?.dismiss()
+    }
+
+    private fun candidateContextIsCurrent(expected: CandidateActionContext): Boolean = try {
+        fcitx.runImmediately { isReady && candidateActionContext == expected }
+    } catch (_: FcitxDisconnectedException) { false }
+      catch (_: CancellationException) { false }
 
     val themedContext = context.withTheme(R.style.Theme_InputViewTheme)
 
     fun showCandidateActionMenu(idx: Int, text: String, view: View, global: Boolean = false) {
-        candidateActionMenu?.dismiss()
-        candidateActionMenu = null
-        service.lifecycleScope.launch {
-            val actions = fcitx.runOnReady { getCandidateActions(idx) }
+        invalidateCandidateActionMenu()
+        if (idx < 0) return
+        val editor = service.editorSession.capture() ?: return
+        val context = displayedCandidateContext ?: return
+        val anchorOwner = candidateAnchorOwners[view] ?: return
+        val request = candidateMenuRequests.newRequest {
+            service.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                editor.isCurrent() && service.inputView === this && handleEvents &&
+                isAttachedToWindow && isShown && view.isAttachedToWindow && view.isShown &&
+                candidateAnchorOwners[view] === anchorOwner && candidateContextIsCurrent(context)
+        }
+        candidateActionAnchor = view
+        candidateActionJob = service.lifecycleScope.launch {
+            val actions = try {
+                candidateMenuRequests.loadIfCurrent(request) { fcitx.runOnReady { getCandidateActions(idx) } }
+            } catch (_: FcitxDisconnectedException) { null } ?: return@launch
             if (actions.isEmpty()) return@launch
             InputFeedbacks.hapticFeedback(view, longPress = true)
-            candidateActionMenu = ThemedPopupMenu(context, theme) {
-                candidateActionMenu = null
-            }.also { menu ->
+            lateinit var popupMenu: ThemedPopupMenu
+            popupMenu = ThemedPopupMenu(this@BaseInputView.context, theme, preserveEditorFocus = true) {
+                if (candidateActionMenu === popupMenu) {
+                    candidateActionMenu = null
+                    candidateActionAnchor = null
+                }
+            }
+            candidateActionMenu = popupMenu.also { menu ->
                 menu.show(
                     anchor = view,
                     items = buildList {
@@ -253,7 +312,7 @@ abstract class BaseInputView(
                             add(
                                 ThemedPopupMenu.Item.Action(
                                     label = action.text,
-                                    onClick = { triggerCandidateAction(idx, action.id, global) },
+                                    onClick = { triggerCandidateAction(idx, action.id, global, context, request) },
                                 )
                             )
                         }
@@ -303,6 +362,8 @@ abstract class BaseInputView(
     override fun onDetachedFromWindow() {
         dismissCandidateCharacterPopup()
         handleEvents = false
+        candidateAnchorOwners.clear()
+        displayedCandidateContext = null
         super.onDetachedFromWindow()
     }
 }

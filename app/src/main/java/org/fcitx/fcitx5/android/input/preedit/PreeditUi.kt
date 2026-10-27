@@ -6,6 +6,8 @@ package org.fcitx.fcitx5.android.input.preedit
 
 import android.content.Context
 import android.graphics.Paint
+import android.graphics.Rect
+import android.os.SystemClock
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.text.Spanned
@@ -35,7 +37,8 @@ open class PreeditUi(
     private val theme: Theme,
     private val setupTextView: (TextView.() -> Unit)? = null,
     private val cardTopRadiusProvider: () -> Float = { 0f },
-    private val preeditRadiusProvider: () -> Float = { 0f }
+    private val preeditRadiusProvider: () -> Float = { 0f },
+    private val onStatusHintPresented: (Long, Long) -> Unit = { _, _ -> }
 ) : Ui {
 
     class CursorSpan(ctx: Context, @ColorInt color: Int, metrics: Paint.FontMetricsInt) :
@@ -204,6 +207,31 @@ open class PreeditUi(
         ))
     }
 
+    private var pendingHintId = 0L
+    private var presentedHintId = 0L
+    private val visibleBounds = Rect()
+    private val hintPreDrawListener = android.view.ViewTreeObserver.OnPreDrawListener {
+        val id = pendingHintId
+        if (id != 0L && id != presentedHintId && visible && root.isShown &&
+            root.getGlobalVisibleRect(visibleBounds) && !visibleBounds.isEmpty) {
+            presentedHintId = id
+            onStatusHintPresented(id, SystemClock.uptimeMillis())
+        }
+        true
+    }
+
+    init {
+        root.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(view: View) {
+                view.viewTreeObserver.addOnPreDrawListener(hintPreDrawListener)
+            }
+            override fun onViewDetachedFromWindow(view: View) {
+                view.viewTreeObserver.takeIf { it.isAlive }?.removeOnPreDrawListener(hintPreDrawListener)
+                presentedHintId = 0
+            }
+        })
+    }
+
     var visible = false
         private set
 
@@ -227,6 +255,7 @@ open class PreeditUi(
     }
 
     fun update(inputPanel: FcitxEvent.InputPanelEvent.Data) {
+        pendingHintId = inputPanel.statusHintId.takeIf { inputPanel.auxUp.isNotEmpty() } ?: 0
         refreshConfiguredFontIfNeeded()
         val activeBkg = theme.genericActiveBackgroundColor
         val upString: SpannedString

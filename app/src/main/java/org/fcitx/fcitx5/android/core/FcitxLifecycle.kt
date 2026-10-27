@@ -39,7 +39,9 @@ class FcitxLifecycleRegistry : FcitxLifecycle {
                     FcitxLifecycle.State.READY
                 }
                 FcitxLifecycle.Event.ON_STOP -> {
-                    ensureAt(it, FcitxLifecycle.State.READY)
+                    check(it == FcitxLifecycle.State.STARTING || it == FcitxLifecycle.State.READY) {
+                        "Cannot stop engine at $it"
+                    }
                     FcitxLifecycle.State.STOPPING
                 }
                 FcitxLifecycle.Event.ON_STOPPED -> {

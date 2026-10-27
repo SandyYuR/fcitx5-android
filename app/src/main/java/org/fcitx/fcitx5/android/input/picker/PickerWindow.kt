@@ -44,7 +44,7 @@ class PickerWindow(
     private val columns: Int,
     private val textSize: Float,
     private val policy: PickerPolicy = DefaultPickerPolicy()
-) : InputWindow.SimpleInputWindow<PickerWindow>(), EssentialWindow {
+) : InputWindow.SimpleInputWindow<PickerWindow>(PickerWindow::class), EssentialWindow {
 
     enum class Key : EssentialWindow.Key {
         Symbol,

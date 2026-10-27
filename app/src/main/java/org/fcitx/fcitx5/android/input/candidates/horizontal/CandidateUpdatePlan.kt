@@ -40,6 +40,9 @@ data class CandidateUpdatePlan(
     val unhighlightPosition: Int,
     /** Post-shift position of the newly active candidate; [NONE] when none. */
     val highlightPosition: Int,
+    /** Retained suffix holders whose adapter positions changed. */
+    val shiftedSuffixStart: Int,
+    val shiftedSuffixCount: Int,
 ) {
     companion object {
         const val NONE = -1
@@ -110,6 +113,8 @@ data class CandidateUpdatePlan(
                 removeCount = removedCount.coerceAtLeast(0),
                 unhighlightPosition = unhighlight,
                 highlightPosition = highlight,
+                shiftedSuffixStart = if (insertedCount != removedCount && newEnd < new.size) newEnd else NONE,
+                shiftedSuffixCount = if (insertedCount != removedCount) new.size - newEnd else 0,
             )
         }
     }

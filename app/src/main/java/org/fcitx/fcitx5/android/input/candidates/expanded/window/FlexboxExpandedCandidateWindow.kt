@@ -21,7 +21,7 @@ import splitties.views.dsl.core.wrapContent
 import splitties.views.setPaddingDp
 
 class FlexboxExpandedCandidateWindow :
-    BaseExpandedCandidateWindow<FlexboxExpandedCandidateWindow>() {
+    BaseExpandedCandidateWindow<FlexboxExpandedCandidateWindow>(FlexboxExpandedCandidateWindow::class) {
 
     override val adapter by lazy {
         object : PagingCandidateViewAdapter(theme) {

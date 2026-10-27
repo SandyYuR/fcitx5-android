@@ -13,6 +13,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.core.InputEngine
+import org.fcitx.fcitx5.android.core.InputEngineApi
 import org.fcitx.fcitx5.android.core.CapabilityFlags
 import org.fcitx.fcitx5.android.core.InputKeyGate
 import org.fcitx.fcitx5.android.core.DirectRimeBackend
@@ -51,7 +52,7 @@ object FcitxDaemon {
     private val engine: InputEngine by lazy { DirectRimeBackend(appContext) }
 
     // don't leak fcitx instance
-    private val fcitxImpl by lazy { object : FcitxAPI by engine {} }
+    private val fcitxImpl by lazy { InputEngineApi(engine) }
 
     val currentInputSession get() = engine.inputSession
     fun prepareInputSession(generation: Long, program: String, flags: CapabilityFlags, needsRime: Boolean) =
@@ -137,7 +138,7 @@ object FcitxDaemon {
     fun connect(name: String): FcitxConnection = lock.withLock {
         if (name in clients)
             return@withLock clients.getValue(name)
-        if (!userDataIoInProgress && engine.lifecycle.currentState == FcitxLifecycle.State.STOPPED) {
+        if (!userDataIoInProgress) {
             Timber.d("FcitxDaemon start fcitx")
             engine.start()
         }
@@ -155,7 +156,7 @@ object FcitxDaemon {
         clients -= name
         if (clients.isEmpty() && !userDataIoInProgress) {
             Timber.d("FcitxDaemon stop fcitx")
-            engine.stop()
+            engine.requestStop()
         }
     }
 
@@ -176,7 +177,7 @@ object FcitxDaemon {
             .setProgress(100, 0, true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build().let { appContext.notificationManager.notify(id, it) }
-        engine.stop()
+        engine.requestStop()
         engine.start()
         FcitxApplication.getInstance().coroutineScope.launch {
             // cancel notification on ready

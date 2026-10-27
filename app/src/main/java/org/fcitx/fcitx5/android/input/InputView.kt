@@ -1618,6 +1618,7 @@ class InputView(
     private val returnKeyDrawable = ReturnKeyDrawableComponent()
     private val preeditEmptyState = PreeditEmptyStateComponent()
     private val preedit = PreeditComponent().apply {
+        onStatusHintPresented = { id, frameTime -> fcitx.launchOnReady { it.statusHintPresented(id, frameTime) } }
         // 浮动形态下卡片自带 10dp 圆角，编码区的反向弧要按两者较大值收口。
         cardTopRadiusProvider = { cardTopCornerRadiusPx }
     }
