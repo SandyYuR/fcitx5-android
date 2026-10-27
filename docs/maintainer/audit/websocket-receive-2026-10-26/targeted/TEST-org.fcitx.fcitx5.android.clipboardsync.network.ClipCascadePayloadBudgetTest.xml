@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" tests="44" skipped="0" failures="0" errors="0" timestamp="2026-10-26T11:45:56.822Z" hostname="bbf819fdcadc" time="6.672">
+  <properties/>
+  <testcase name="unpaddedBase64CannotSlipThroughASmallDecodedLimit[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="2.224"/>
+  <testcase name="commonTwelveByteGcmNoncesRemainCompatible[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.151"/>
+  <testcase name="ordinaryTextRoundTripsWithAndWithoutEncryption[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.11"/>
+  <testcase name="multibyteTextIsLimitedByUtf8BytesBeforeSerialization[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.04"/>
+  <testcase name="ciphertextIsBoundedBeforeBase64AllocationOrAuthentication[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.021"/>
+  <testcase name="receivedFramesAreBoundedBeforeSplittingOrTrimming[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.022"/>
+  <testcase name="nonceAndTagAreBoundedAndHaveValidatedDecodedLengths[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.015"/>
+  <testcase name="aBadAuthenticationTagNeverReturnsPlaintext[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.053"/>
+  <testcase name="theUriReadBudgetIncludesBothBase64Expansions[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.017"/>
+  <testcase name="wireBodyLimitWinsBeforeAttemptingToParseInvalidJson[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.014"/>
+  <testcase name="outgoingFrameIsLimitedBeforeBuildingItsString[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.019"/>
+  <testcase name="jsonEscapingIsBudgetedBeforeBuildingTheSerializedString[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.051"/>
+  <testcase name="stompAcceptsLfAndCrLfAndCountsUtf8ContentLength[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.016"/>
+  <testcase name="incomingDataIsCheckedAfterJsonDecoding[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.015"/>
+  <testcase name="stompRejectsTooManySmallHeaders[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.017"/>
+  <testcase name="oversizedMetadataIsRejected[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.05"/>
+  <testcase name="stompRejectsInvalidOrMismatchedContentLengths[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.063"/>
+  <testcase name="headerBudgetCountsMultibyteUtf8RatherThanOnlyCharacters[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.031"/>
+  <testcase name="encryptionExpansionIsCheckedAgainstTheOutgoingQueueBeforeEncoding[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.059"/>
+  <testcase name="stompRejectsOversizedOrMissingHeaders[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.014"/>
+  <testcase name="aPaddedBinaryAtTheLimitIsAccepted[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.014"/>
+  <testcase name="plainBodyHasItsOwnLowerBudget[23]" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.011"/>
+  <testcase name="unpaddedBase64CannotSlipThroughASmallDecodedLimit" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="1.39"/>
+  <testcase name="commonTwelveByteGcmNoncesRemainCompatible" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.07"/>
+  <testcase name="ordinaryTextRoundTripsWithAndWithoutEncryption" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.043"/>
+  <testcase name="multibyteTextIsLimitedByUtf8BytesBeforeSerialization" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.066"/>
+  <testcase name="ciphertextIsBoundedBeforeBase64AllocationOrAuthentication" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.033"/>
+  <testcase name="receivedFramesAreBoundedBeforeSplittingOrTrimming" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.068"/>
+  <testcase name="nonceAndTagAreBoundedAndHaveValidatedDecodedLengths" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.036"/>
+  <testcase name="aBadAuthenticationTagNeverReturnsPlaintext" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.065"/>
+  <testcase name="theUriReadBudgetIncludesBothBase64Expansions" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.03"/>
+  <testcase name="wireBodyLimitWinsBeforeAttemptingToParseInvalidJson" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.083"/>
+  <testcase name="outgoingFrameIsLimitedBeforeBuildingItsString" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.065"/>
+  <testcase name="jsonEscapingIsBudgetedBeforeBuildingTheSerializedString" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.03"/>
+  <testcase name="stompAcceptsLfAndCrLfAndCountsUtf8ContentLength" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.027"/>
+  <testcase name="incomingDataIsCheckedAfterJsonDecoding" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.025"/>
+  <testcase name="stompRejectsTooManySmallHeaders" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.024"/>
+  <testcase name="oversizedMetadataIsRejected" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.062"/>
+  <testcase name="stompRejectsInvalidOrMismatchedContentLengths" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.024"/>
+  <testcase name="headerBudgetCountsMultibyteUtf8RatherThanOnlyCharacters" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.024"/>
+  <testcase name="encryptionExpansionIsCheckedAgainstTheOutgoingQueueBeforeEncoding" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.047"/>
+  <testcase name="stompRejectsOversizedOrMissingHeaders" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.026"/>
+  <testcase name="aPaddedBinaryAtTheLimitIsAccepted" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.027"/>
+  <testcase name="plainBodyHasItsOwnLowerBudget" classname="org.fcitx.fcitx5.android.clipboardsync.network.ClipCascadePayloadBudgetTest" time="0.045"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.ui.main.update.DownloadStartupPolicyTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-26T14:11:16.123Z" hostname="bbf819fdcadc" time="3.104">
+  <properties/>
+  <testcase name="legacyPlatformsLoadTheWorkerButUseTheirExistingDownloadManagerRoute[23]" classname="org.fcitx.fcitx5.android.ui.main.update.DownloadStartupPolicyTest" time="1.343"/>
+  <testcase name="theMergedManifestDoesNotInitializeWorkManagerOnImeStartup[23]" classname="org.fcitx.fcitx5.android.ui.main.update.DownloadStartupPolicyTest" time="0.035"/>
+  <testcase name="legacyPlatformsLoadTheWorkerButUseTheirExistingDownloadManagerRoute" classname="org.fcitx.fcitx5.android.ui.main.update.DownloadStartupPolicyTest" time="1.354"/>
+  <testcase name="theMergedManifestDoesNotInitializeWorkManagerOnImeStartup" classname="org.fcitx.fcitx5.android.ui.main.update.DownloadStartupPolicyTest" time="0.034"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

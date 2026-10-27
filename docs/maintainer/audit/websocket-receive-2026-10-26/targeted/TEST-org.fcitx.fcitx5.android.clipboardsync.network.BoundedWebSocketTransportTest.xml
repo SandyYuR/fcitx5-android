@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-26T11:45:55.218Z" hostname="bbf819fdcadc" time="1.59">
+  <properties/>
+  <testcase name="normalFragmentedUtf8MessagesStillArrive" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.672"/>
+  <testcase name="realPlainSocketRejectsOversizedDeclaredMessageWithoutSendingPayload" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.061"/>
+  <testcase name="realFragmentationWithPingCannotResetTheCumulativeLimit" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.052"/>
+  <testcase name="unsolicitedCompressionResponseIsRejected" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.024"/>
+  <testcase name="tlsRetainsSniCookieJarAndDefaultHostnameVerification" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.221"/>
+  <testcase name="explicitPlainSocksFailsBeforeAnUnguardedUpgradeRequest" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.14"/>
+  <testcase name="realTlsSocketRejectsOversizedDeclaredMessageBeforeOnMessage" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.198"/>
+  <testcase name="untrustedCertificateStillFails" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.103"/>
+  <testcase name="httpProxyDoesNotBypassThePlainSocketGuard" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.014"/>
+  <testcase name="compressionOfferIsRemovedFromTheActualUpgradeRequest" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.016"/>
+  <testcase name="selectedPlainSocksFailsWithoutSilentlyFallingBackToDirect" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.013"/>
+  <testcase name="trustedCertificateForTheWrongHostnameStillFails" classname="org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransportTest" time="0.068"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

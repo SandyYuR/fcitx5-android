@@ -1,0 +1,77 @@
+{
+  "source_commit": "c72115def7c2640ebc4fd13f8578584401101614",
+  "runtime_change_commit": "c2ba6510bf82f8e5b69df82db2b3199ed340d845",
+  "ci": {
+    "run_id": 40319452811,
+    "code_sha": "c72115def7c2640ebc4fd13f8578584401101614",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40319452811",
+    "unit_tests": "success",
+    "jvm_tests": 1125,
+    "python_packaging_tests": 4,
+    "arm64_release": "success",
+    "artifact_name": "direct-rime-frontend-arm64-release",
+    "artifact_id": 12648094518,
+    "artifact_size_bytes": 7225654,
+    "artifact_digest": "sha256:d273902008c65730b582f9674e359f4e26666779f935aeddcc346819d332eb1f",
+    "unit_test_artifact_id": 12649071761,
+    "unit_test_artifact_digest": "sha256:804dab7b1f0f55a884baa31a6886f7b7ca90f2643625dfc868a86d06e6b19f86",
+    "covers_latest_code": true,
+    "release_abis": [
+      "arm64-v8a"
+    ]
+  },
+  "apk": {
+    "apk": "/workspace/c72115de-arm64-release/direct.apk",
+    "native_libraries": [
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libdirect-rime.so"
+    ],
+    "fcitx_dependencies": [],
+    "apk_sha256": "b30fd0b250af0badad9cf4373420bfb5fcd38e99a1f2355b7af350ce912430ce",
+    "native_dependencies": {
+      "lib/arm64-v8a/libc++_shared.so": [
+        "libc.so",
+        "libm.so",
+        "libdl.so"
+      ],
+      "lib/arm64-v8a/libdirect-rime.so": [
+        "liblog.so",
+        "libandroid.so",
+        "libm.so",
+        "libc++_shared.so",
+        "libdl.so",
+        "libc.so"
+      ]
+    },
+    "obsolete_picker_classes": [],
+    "legacy_backend_classes": [],
+    "dex_files_checked": 2,
+    "clearurls": {
+      "commit": "11086f40512774dcadef54079f1ba023bfacf940",
+      "sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+      "providers": 206
+    },
+    "page_size": 16384,
+    "required_alignment_by_abi": {
+      "arm64-v8a": 16384
+    },
+    "code_sha": "c72115def7c2640ebc4fd13f8578584401101614",
+    "covers_latest_code": true
+  },
+  "remaining_original_rows": [
+    "P1-8",
+    "P2-3"
+  ],
+  "remaining_verification": [
+    "P1-10"
+  ],
+  "previous_failed_ci": {
+    "id": 40318378368,
+    "sha": "c2ba6510",
+    "failed_test": "OneClipConnectionTest.reconnectsShareTransportsButKeepSeparateCookieJars",
+    "reason": "旧断言要求WebSocket共用连接池，与新增受限流隔离要求冲突；c72115de验证登录池复用、WS池隔离及共享调度器。"
+  },
+  "android_runtime_heap_verified": false
+}

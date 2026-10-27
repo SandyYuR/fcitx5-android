@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-26T14:11:23.825Z" hostname="bbf819fdcadc" time="0.978">
+  <properties/>
+  <testcase name="chunkedUnknownLengthIsBoundedAndVerifiedAtEof" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.224"/>
+  <testcase name="spaceBudgetReservesRoomForBothPublicationAndUserData" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.001"/>
+  <testcase name="cancellationClosesTheCallbackBeforeReleasingTheFileLock" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.286"/>
+  <testcase name="oversizedDeclarationsFailWithoutWritingTheBody" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.121"/>
+  <testcase name="wrongRangesAreRejectedBeforeChangingThePartial" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.059"/>
+  <testcase name="cancellationOfSilentHeadersAlsoCompletesPromptly" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.031"/>
+  <testcase name="aServerIgnoringRangeReplacesThePartialRatherThanAppending" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.055"/>
+  <testcase name="changedOrWeakenedRangeValidatorRestartsWithoutMixingVersions" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.117"/>
+  <testcase name="aFreshInstanceResumesFromAStrongValidatorAndVerifiesTheWholeFile" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.012"/>
+  <testcase name="aChecksumMismatchNeverMarksTheFileReadyForPublication" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.012"/>
+  <testcase name="aRejectedRangeDiscardsOnlyPrivatePartialAndRetriesFromZero" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.013"/>
+  <testcase name="stagingSymlinksAreRejectedWithoutChangingTheirTargets" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.004"/>
+  <testcase name="weakValidatorsNeverEnableAppending" classname="org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownloadTest" time="0.042"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Oct 26, 2026 2:11:24 PM okhttp3.mockwebserver.MockWebServer$SocketHandler handle
+WARNING: MockWebServer[47593] connection from /127.0.0.1 didn't make a request
+]]></system-err>
+</testsuite>

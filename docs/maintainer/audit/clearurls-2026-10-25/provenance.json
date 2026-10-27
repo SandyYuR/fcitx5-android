@@ -1,0 +1,83 @@
+{
+  "runtime_code_sha": "e146d2cbd5eb4841b258825be965b5b8c92d30ed",
+  "branch": "perf/direct-rime-startup-20261024",
+  "app_jvm": {
+    "tests": 953,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "build_logic_tests": 6,
+  "python_packaging_tests": 4,
+  "apk": {
+    "apk": "app/build/outputs/apk/fx/debug/org.fcitx.fcitx5.android.fx.rime-e146d2cb-fx-x86_64-debug.apk",
+    "native_libraries": [
+      "lib/x86_64/libc++_shared.so",
+      "lib/x86_64/libdirect-rime.so"
+    ],
+    "fcitx_dependencies": [],
+    "apk_sha256": "4bf3478b5d00a250fb4e2ee89e9fc47f3de79308fc9e5b6515d61dce0b9df165",
+    "native_dependencies": {
+      "lib/x86_64/libc++_shared.so": [
+        "libc.so",
+        "libm.so",
+        "libdl.so"
+      ],
+      "lib/x86_64/libdirect-rime.so": [
+        "liblog.so",
+        "libandroid.so",
+        "libm.so",
+        "libc++_shared.so",
+        "libdl.so",
+        "libc.so"
+      ]
+    },
+    "obsolete_picker_classes": [],
+    "legacy_backend_classes": [],
+    "dex_files_checked": 22,
+    "clearurls": {
+      "commit": "11086f40512774dcadef54079f1ba023bfacf940",
+      "sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+      "providers": 206
+    },
+    "page_size": 16384,
+    "required_alignment_by_abi": {
+      "x86_64": 16384
+    }
+  },
+  "rules_source": {
+    "repository": "https://github.com/ClearURLs/Rules",
+    "commit": "11086f40512774dcadef54079f1ba023bfacf940",
+    "commit_date": "2026-03-25T14:06:24Z",
+    "data_file": "data.min.json",
+    "data_blob_sha": "576393847aacf9ac9e66bcbc49754a655394cf13",
+    "data_sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+    "license": "LGPL-3.0",
+    "providers": 206,
+    "modified": false
+  },
+  "device": {
+    "api": 35,
+    "abi": "x86_64",
+    "image": "AOSP",
+    "graphics": "SwiftShader",
+    "kvm": false,
+    "tests_passed": 2,
+    "tests_failed": 0,
+    "touch_rebind_rounds": 6,
+    "fixture": "bundled-smoke",
+    "model_mapped": false,
+    "crash_buffer_empty": true
+  },
+  "ci": {
+    "run_id": 40219854407,
+    "conclusion": "success",
+    "artifact_id": 12608557908,
+    "artifact_name": "direct-rime-frontend-arm64-release",
+    "size_bytes": 7201059
+  },
+  "unresolved": [
+    "old English-mode hint display assertion",
+    "programmatic password type switching without explicit touch: old precondition failures preserved separately"
+  ]
+}

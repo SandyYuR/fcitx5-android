@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.ui.main.update.HostsDownloadWorkerTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-26T14:11:19.231Z" hostname="bbf819fdcadc" time="3.983">
+  <properties/>
+  <testcase name="restartingWorkerAfterPublicationDoesNotDownloadOrPublishTwice" classname="org.fcitx.fcitx5.android.ui.main.update.HostsDownloadWorkerTest" time="3.571"/>
+  <testcase name="actualWorkerVerifiesThenPublishesAndReturnsADurableOutputUri" classname="org.fcitx.fcitx5.android.ui.main.update.HostsDownloadWorkerTest" time="0.104"/>
+  <testcase name="explicitCancellationCleansThePartialAfterTheNetworkWriterStops" classname="org.fcitx.fcitx5.android.ui.main.update.HostsDownloadWorkerTest" time="0.229"/>
+  <testcase name="badChecksumProducesNoPublicOrPendingFile" classname="org.fcitx.fcitx5.android.ui.main.update.HostsDownloadWorkerTest" time="0.075"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
