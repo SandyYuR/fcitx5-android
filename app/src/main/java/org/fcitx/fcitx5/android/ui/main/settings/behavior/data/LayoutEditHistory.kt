@@ -2,6 +2,7 @@
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.data
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 
 /** Copies nested macros, display-text maps and compose overrides, not just the outer key. */
@@ -101,4 +102,5 @@ internal class LayoutEditHistory(
 internal class LayoutEditorHistoryModel : ViewModel() {
     var profile: String? = null
     val history = LayoutEditHistory()
+    val draftJson = LayoutDraftJsonCache(viewModelScope)
 }

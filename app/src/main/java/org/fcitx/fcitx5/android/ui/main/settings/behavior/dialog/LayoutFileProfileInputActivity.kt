@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog
 import com.google.android.material.materialswitch.MaterialSwitch
 import android.content.Intent
 import android.os.Bundle
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutEditorResultStore
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.LinearLayout
@@ -31,7 +32,8 @@ class LayoutFileProfileInputActivity : SettingsUiActivity() {
     data class ResultPayload(
         val action: String,
         val profile: String,
-        val copyCurrent: Boolean
+        val copyCurrent: Boolean,
+        val resultIntent: Intent? = null
     )
 
     companion object {
@@ -166,10 +168,12 @@ class LayoutFileProfileInputActivity : SettingsUiActivity() {
             putExtra(EXTRA_RESULT_PROFILE, normalized)
             putExtra(EXTRA_RESULT_COPY_CURRENT, copySwitch?.isChecked ?: true)
         }
+        LayoutEditorResultStore.attachRequestToken(intent, data)
         pendingResultPayload = ResultPayload(
             action = action,
             profile = normalized,
-            copyCurrent = copySwitch?.isChecked ?: true
+            copyCurrent = copySwitch?.isChecked ?: true,
+            resultIntent = data
         )
         setResult(RESULT_OK, data)
         finish()

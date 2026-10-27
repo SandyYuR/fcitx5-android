@@ -150,6 +150,30 @@ class KeyEditorFormTest {
         checkCells()
     }
 
+    @Test fun rowHeaderActionsDoNotOccupyOrHideEditableKeyCells() = page { activity ->
+        val rows = MutableList(3) { mutableListOf(mutableMapOf<String, Any?>("type" to "AlphabetKey", "main" to "a")) }
+        val adapter = KeyboardLayoutAdapter(activity, rows, NoOpListener)
+        val holder = adapter.onCreateViewHolder(android.widget.FrameLayout(activity), 0) as KeyboardLayoutAdapter.RowViewHolder
+        fun check(position: Int, up: Boolean, down: Boolean) {
+            adapter.onBindViewHolder(holder, position)
+            assertEquals(rows[position].size, holder.keysFlow.childCount)
+            assertEquals(View.VISIBLE, holder.addKeyButton.visibility)
+            assertEquals(if (up) View.VISIBLE else View.GONE, holder.moveUpButton.visibility)
+            assertEquals(if (down) View.VISIBLE else View.GONE, holder.moveDownButton.visibility)
+            for (i in rows[position].indices) assertEquals(View.VISIBLE, holder.keysFlow.getChildAt(i).visibility)
+        }
+        check(0, false, true)
+        check(1, true, true)
+        check(2, true, false)
+        rows.removeAt(2); rows.removeAt(1)
+        rows[0].clear()
+        check(0, false, false)
+        rows[0].add(mutableMapOf("type" to "AlphabetKey", "main" to "q"))
+        check(0, false, false)
+        rows.add(mutableListOf(mutableMapOf("type" to "AlphabetKey", "main" to "w")))
+        check(0, false, true)
+    }
+
     @Test fun rowDragHighlightRestoresItsCardSurface() = page { activity ->
         val adapter = KeyboardLayoutAdapter(activity, listOf(mutableListOf()), NoOpListener)
         val holder = adapter.onCreateViewHolder(android.widget.FrameLayout(activity), 0) as KeyboardLayoutAdapter.RowViewHolder

@@ -42,6 +42,10 @@ import java.io.File
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 
 class FontsetEditorActivity : SettingsUiActivity() {
+    @kotlinx.serialization.Serializable
+    private data class Draft(val file: String, val baselineFonts: Map<String, List<String>>,
+        val baselineSizes: Map<String, Float>, val fonts: Map<String, List<String>>, val sizes: Map<String, Float>)
+    private val draftState by lazy { org.fcitx.fcitx5.android.ui.main.settings.behavior.data.EditorDraftState(this, "fontset") }
 
     private data class FontEntry(
         val key: String,
@@ -139,15 +143,37 @@ class FontsetEditorActivity : SettingsUiActivity() {
 
 
         loadState()
+        draftState.read(savedInstanceState)?.let { payload ->
+            runCatching { kotlinx.serialization.json.Json.decodeFromString<Draft>(payload) }.onSuccess { draft ->
+                if (draft.file == fontsetFile.canonicalPath) {
+                    initialFonts = draft.baselineFonts; initialSizes = draft.baselineSizes
+                    selectedFonts.clear(); selectedFonts.putAll(draft.fonts.mapValues { it.value.toMutableList() })
+                    selectedFontSizes.clear(); selectedFontSizes.putAll(draft.sizes)
+                }
+            }.onFailure { android.util.Log.w("FontsetEditor", "Unable to restore editor draft") }
+        }
         buildRows()
         refreshRows()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        runCatching {
+            draftState.save(outState, kotlinx.serialization.json.Json.encodeToString(
+                Draft(fontsetFile.canonicalPath, initialFonts, initialSizes, selectedFonts, selectedFontSizes)))
+        }.onFailure { draftState.retain(outState) }
+    }
+
+    override fun onDestroy() {
+        if (isFinishing) draftState.delete()
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val item = menu.add(Menu.NONE, MENU_SAVE_ID, Menu.NONE, "${getString(R.string.save)}")
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS or MenuItem.SHOW_AS_ACTION_WITH_TEXT)
         saveMenuItem = item
-        item.isEnabled = false
+        updateSaveButtonState()
         return true
     }
 

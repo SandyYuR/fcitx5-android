@@ -112,6 +112,9 @@ class PopupEditorActivity : SettingsUiActivity() {
 
     private val entries: MutableMap<String, MutableList<String>> = linkedMapOf()
     private var originalEntries: Map<String, List<String>> = emptyMap()
+    @kotlinx.serialization.Serializable
+    private data class Draft(val file: String?, val baseline: Map<String, List<String>>, val entries: Map<String, List<String>>)
+    private val draftState by lazy { org.fcitx.fcitx5.android.ui.main.settings.behavior.data.EditorDraftState(this, "popup") }
     private var saveMenuItem: MenuItem? = null
     private var adapter: PopupAdapter? = null
     private val qrChunkCollector = QrChunkCollector()
@@ -143,7 +146,28 @@ class PopupEditorActivity : SettingsUiActivity() {
 
 
         loadState()
+        draftState.read(savedInstanceState)?.let { payload ->
+            runCatching { kotlinx.serialization.json.Json.decodeFromString<Draft>(payload) }.onSuccess { draft ->
+                if (draft.file == popupFile?.canonicalPath) {
+                    originalEntries = draft.baseline
+                    entries.clear(); entries.putAll(draft.entries.mapValues { it.value.toMutableList() })
+                }
+            }.onFailure { android.util.Log.w("PopupEditor", "Unable to restore editor draft") }
+        }
         setupRecyclerView()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        runCatching {
+            draftState.save(outState, kotlinx.serialization.json.Json.encodeToString(
+                Draft(popupFile?.canonicalPath, originalEntries, entries)))
+        }.onFailure { draftState.retain(outState) }
+    }
+
+    override fun onDestroy() {
+        if (isFinishing) draftState.delete()
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

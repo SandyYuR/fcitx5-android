@@ -50,12 +50,14 @@ import splitties.views.dsl.core.wrapContent
  */
 class MacroEditorActivity : SettingsUiActivity() {
 
+    @kotlinx.serialization.Serializable
     data class MacroStepData(
         var type: String = "tap",
         var keys: MutableList<KeyData> = mutableListOf(),
         var text: String = ""
     )
 
+    @kotlinx.serialization.Serializable
     data class KeyData(
         var keyType: String = "fcitx",
         var code: String = ""
@@ -94,6 +96,11 @@ class MacroEditorActivity : SettingsUiActivity() {
     }
 
     private val steps = mutableListOf<MacroStepData>()
+    @kotlinx.serialization.Serializable
+    private data class Draft(val baseline: List<MacroStepData>, val steps: List<MacroStepData>)
+    private val draftState by lazy {
+        org.fcitx.fcitx5.android.ui.main.settings.behavior.data.EditorDraftState(this, "macro")
+    }
     private var availableLayoutTargets: List<String> = emptyList()
     private lateinit var stepsAdapter: StepsAdapter
 
@@ -714,7 +721,6 @@ class MacroEditorActivity : SettingsUiActivity() {
         }.distinct()
         val initialSteps = intent.serializable<ArrayList<Map<*, *>>>(EXTRA_MACRO_STEPS)
         originalSteps = initialSteps
-        android.util.Log.d("MacroEditor", "Received initialSteps: $originalSteps")
         if (originalSteps != null) {
             steps.clear()
             steps.addAll(originalSteps!!.map { parseStep(it) })
@@ -734,6 +740,15 @@ class MacroEditorActivity : SettingsUiActivity() {
             }
         }
 
+        // Both Intent formats must compare against the same normalized, detached snapshot.
+        originalSteps = snapshotSteps()
+        draftState.read(savedInstanceState)?.let { payload ->
+            runCatching { macroJson.decodeFromString<Draft>(payload) }.onSuccess { draft ->
+                steps.clear(); steps.addAll(draft.baseline)
+                originalSteps = snapshotSteps()
+                steps.clear(); steps.addAll(draft.steps)
+            }.onFailure { android.util.Log.w("MacroEditor", "Unable to restore editor draft") }
+        }
         updateSaveButtonState()
         
         stepsAdapter = StepsAdapter()
@@ -798,6 +813,19 @@ class MacroEditorActivity : SettingsUiActivity() {
     }
 
     private val macroJson = kotlinx.serialization.json.Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        runCatching {
+            val baseline = originalSteps.orEmpty().map(::parseStep)
+            draftState.save(outState, macroJson.encodeToString(Draft(baseline, steps)))
+        }.onFailure { draftState.retain(outState) }
+    }
+
+    override fun onDestroy() {
+        if (isFinishing) draftState.delete()
+        super.onDestroy()
+    }
 
     private fun parseStep(stepMap: Map<*, *>): MacroStepData {
         val type = stepMap["type"] as? String ?: "tap"
@@ -1057,40 +1085,39 @@ class MacroEditorActivity : SettingsUiActivity() {
         finish()
     }
 
-    /**
-     * Compare whether current steps are the same as original steps
-     */
-    private fun isStepsChanged(): Boolean {
-        val currentSteps = steps.map { step ->
-            buildMap {
-                put("type", step.type)
-                if (step.type in listOf("tap", "down", "up", "shortcut")) {
-                    if (step.type == "shortcut") {
-                        val modifiers = step.keys.filter { isModifierKey(it.code) }
-                        val nonModifiers = step.keys.filter { !isModifierKey(it.code) }
-                        put("modifiers", modifiers.map { mapOf(it.keyType to it.code) })
-                        nonModifiers.firstOrNull()?.let { put("key", mapOf(it.keyType to it.code)) }
-                    } else {
-                        put("keys", step.keys.map { key -> mapOf(key.keyType to key.code) })
-                    }
-                }
-                if (step.type == "text") {
-                    put("text", step.text)
-                }
-                if (step.type == "layer") {
-                    put("type", "layer")
-                    put("mode", normalizeLayerMode(step.keys.firstOrNull()?.code))
-                    put("target", step.text)
-                }
-                if (step.type == "edit") {
-                    put("action", step.keys.firstOrNull()?.code ?: "copy")
-                }
-                if (step.type == "app") {
-                    put("id", step.keys.firstOrNull()?.code ?: "theme")
+    private fun snapshotSteps() = steps.map { step ->
+        buildMap {
+            put("type", step.type)
+            if (step.type in listOf("tap", "down", "up", "shortcut")) {
+                if (step.type == "shortcut") {
+                    val modifiers = step.keys.filter { isModifierKey(it.code) }
+                    val nonModifiers = step.keys.filter { !isModifierKey(it.code) }
+                    put("modifiers", modifiers.map { mapOf(it.keyType to it.code) })
+                    nonModifiers.firstOrNull()?.let { put("key", mapOf(it.keyType to it.code)) }
+                } else {
+                    put("keys", step.keys.map { key -> mapOf(key.keyType to key.code) })
                 }
             }
+            if (step.type == "text") {
+                put("text", step.text)
+            }
+            if (step.type == "layer") {
+                put("type", "layer")
+                put("mode", normalizeLayerMode(step.keys.firstOrNull()?.code))
+                put("target", step.text)
+            }
+            if (step.type == "edit") {
+                put("action", step.keys.firstOrNull()?.code ?: "copy")
+            }
+            if (step.type == "app") {
+                put("id", step.keys.firstOrNull()?.code ?: "theme")
+            }
         }
-        
+    }
+
+    /** Compare normalized values without sharing the editable keys or lists. */
+    private fun isStepsChanged(): Boolean {
+        val currentSteps = snapshotSteps()
         if (originalSteps == null) {
             // Original is empty, now has data
             return currentSteps.isNotEmpty() && !(currentSteps.size == 1 && currentSteps.first()["type"] == "tap" && (currentSteps.first()["keys"] as? List<*>)?.isEmpty() != false)
@@ -1658,6 +1685,8 @@ class MacroEditorActivity : SettingsUiActivity() {
         }
 
         private fun showEditKeyDialog(step: MacroStepData, key: KeyData, onSuccess: () -> Unit, onCancel: () -> Unit) {
+            // Chip selection is a draft until Confirm, including dismissal by Back/outside.
+            val draft = key.copy()
             val dialogView = LinearLayout(this@MacroEditorActivity).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(dp(16), dp(16), dp(16), dp(16))
@@ -1692,7 +1721,7 @@ class MacroEditorActivity : SettingsUiActivity() {
             // dialogView.addView(keyTypeRow)
 
             // Key value selector - directly embedded chips list
-            var currentKeyType = key.keyType
+            var currentKeyType = draft.keyType
             val keysList = if (currentKeyType == "fcitx") FCITX_KEYS else ANDROID_KEYS
             val displayList = if (currentKeyType == "fcitx") {
                 keysList.map { getFcitxKeyDisplayName(it) }
@@ -1704,7 +1733,7 @@ class MacroEditorActivity : SettingsUiActivity() {
             val buttonColor = settingsColor(android.R.attr.colorButtonNormal)
             val borderColor = settingsColor(android.R.attr.colorControlNormal)
 
-            var highlightIndex = keysList.indexOfFirst { it.equals(key.code, ignoreCase = true) }
+            var highlightIndex = keysList.indexOfFirst { it.equals(draft.code, ignoreCase = true) }
                 .takeIf { it >= 0 } ?: -1
 
             val chipsContainer = FlowLayout(this@MacroEditorActivity).apply {
@@ -1731,7 +1760,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                             bottomMargin = dp(6)
                         }
                         setOnClickListener {
-                            key.code = keysList[index]
+                            draft.code = keysList[index]
                             highlightIndex = index
                             renderChips()
                         }
@@ -1750,6 +1779,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                 .setTitle(R.string.macro_editor_edit_key_title)
                 .setView(dialogView)
                 .setPositiveButton(R.string.macro_editor_confirm) { _, _ ->
+                    key.code = draft.code
                     key.keyType = currentKeyType
                     onSuccess()
                 }
@@ -1760,9 +1790,14 @@ class MacroEditorActivity : SettingsUiActivity() {
                 .create()
             dialog.show()
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                step.keys.remove(key)
-                renderKeys(step)
-                updateSaveButtonState()
+                // Imported macros may contain equal keys. Remove this occurrence only;
+                // an unconfirmed new key does not belong to the step yet.
+                val index = step.keys.indexOfFirst { it === key }
+                if (index >= 0) {
+                    step.keys.removeAt(index)
+                    renderKeys(step)
+                    updateSaveButtonState()
+                }
                 dialog.dismiss()
             }
 

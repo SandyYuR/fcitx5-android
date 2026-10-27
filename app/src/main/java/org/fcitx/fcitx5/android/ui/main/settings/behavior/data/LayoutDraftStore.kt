@@ -22,14 +22,17 @@ import java.util.UUID
  * Every method swallows IO failures and reports them through the return value: losing a draft is
  * bad, but crashing while the Activity is being stopped is worse.
  */
-class LayoutDraftStore(private val dir: File) {
+class LayoutDraftStore(
+    private val dir: File,
+    private val replace: (File, File) -> Boolean = { from, to -> from.renameTo(to) }
+) {
 
     /** Name of the snapshot this instance owns, or null when it has none. */
     var snapshotName: String? = null
         private set
 
-    /** Hash of the JSON last written, so an unchanged draft is not rewritten. */
-    private var lastWrittenHash: Int? = null
+    /** Compare the content itself: different valid drafts can share String.hashCode(). */
+    private var lastWrittenJson: String? = null
 
     /**
      * Take ownership of a snapshot named in an incoming Bundle.
@@ -45,7 +48,7 @@ class LayoutDraftStore(private val dir: File) {
     fun adopt(name: String?) {
         snapshotName = name?.takeIf { isValidSnapshotName(it) }
         // The adopted file's content is unknown until it is read, so nothing may be skipped.
-        lastWrittenHash = null
+        lastWrittenJson = null
     }
 
     /**
@@ -55,15 +58,27 @@ class LayoutDraftStore(private val dir: File) {
      */
     fun write(json: String): String? {
         val existing = snapshotName?.takeIf { isValidSnapshotName(it) }
-        if (existing != null && lastWrittenHash == json.hashCode() && resolve(existing)?.isFile == true) {
+        if (existing != null && lastWrittenJson == json && resolve(existing)?.isFile == true) {
             return existing
         }
         return runCatching {
-            dir.mkdirs()
+            if (!dir.isDirectory && !dir.mkdirs() && !dir.isDirectory) error("Unable to create draft directory")
             val name = existing ?: "draft-${UUID.randomUUID()}.json"
-            resolve(name)?.writeText(json) ?: error("invalid snapshot name: $name")
+            val target = resolve(name) ?: error("Invalid draft snapshot destination")
+            val temporary = File(target.parentFile, "draft-write-${UUID.randomUUID()}.tmp")
+            // Keep the previous complete snapshot until the replacement is fully written.
+            // Both files are siblings, so Android's rename publishes the new file atomically.
+            // This protects a process interruption; it does not claim power-loss durability.
+            if (!temporary.createNewFile()) error("Unable to create temporary draft")
+            try {
+                temporary.writeText(json)
+                if (!replace(temporary, target)) error("Unable to publish draft snapshot")
+            } finally {
+                runCatching { temporary.delete() }
+                    .onFailure { android.util.Log.w(TAG, "Failed to remove temporary draft", it) }
+            }
             snapshotName = name
-            lastWrittenHash = json.hashCode()
+            lastWrittenJson = json
             name
         }.onFailure {
             android.util.Log.w(TAG, "Failed to write draft snapshot", it)
@@ -77,14 +92,19 @@ class LayoutDraftStore(private val dir: File) {
             .onFailure { android.util.Log.w(TAG, "Failed to read draft snapshot", it) }
             .getOrNull()
             // Now that the file's content is known, an identical draft needs no rewrite.
-            ?.also { lastWrittenHash = it.hashCode() }
+            ?.also { lastWrittenJson = it }
     }
+
+    /** Usable file reference for the previous draft when replacing it failed. */
+    fun existingSnapshotName(): String? = runCatching {
+        snapshotName?.takeIf { resolve(it)?.isFile == true }
+    }.getOrNull()
 
     /** Drop the owned snapshot, both the file and the reference. */
     fun delete() {
         val name = snapshotName ?: return
         snapshotName = null
-        lastWrittenHash = null
+        lastWrittenJson = null
         runCatching { resolve(name)?.delete() }
             .onFailure { android.util.Log.w(TAG, "Failed to delete draft snapshot", it) }
     }
@@ -101,8 +121,10 @@ class LayoutDraftStore(private val dir: File) {
         if (!isValidSnapshotName(name)) return null
         return runCatching {
             val base = dir.canonicalFile
-            val file = File(base, name).canonicalFile
-            if (file.parentFile?.canonicalPath == base.canonicalPath) file else null
+            val file = File(base, name)
+            // A snapshot must be a direct child, including when a link points to a
+            // different snapshot in the same directory. Never read/delete that target.
+            if (file.canonicalFile == file.absoluteFile && file.parentFile == base) file else null
         }.getOrNull()
     }
 
@@ -123,7 +145,7 @@ class LayoutDraftStore(private val dir: File) {
                 if (!file.isFile) return@forEach
                 // Only snapshots this store could have written are ever reclaimed; anything
                 // else in the directory (logs, other features' files) is left alone.
-                if (!isValidSnapshotName(file.name)) return@forEach
+                if (!isValidSnapshotName(file.name) && !TEMPORARY_NAME.matches(file.name)) return@forEach
                 if (file.name == keep) return@forEach
                 if (now - file.lastModified() > maxAgeMs && file.delete()) deleted++
             }
@@ -150,6 +172,7 @@ class LayoutDraftStore(private val dir: File) {
 
         /** Snapshot files this store writes: `draft-<uuid>.json` (see [LayoutDraftStore.write]). */
         private val SNAPSHOT_NAME = Regex("^draft-[A-Za-z0-9-]{1,64}\\.json$")
+        private val TEMPORARY_NAME = Regex("^draft-write-[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\\.tmp$")
 
         /**
          * Whether [name] is a snapshot file name this store could have written.
