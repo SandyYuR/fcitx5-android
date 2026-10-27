@@ -1,0 +1,919 @@
+{
+  "base": "6af8bc0b7ca048a304952a4cbc4525e6c9f247b1",
+  "before": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+  "rebased_reference": "c17863c29c2a3ea9c482f5a32a15f2ca11e0bbf0",
+  "reference_tree": "2c8d28fc1387c03f2b8b8b6b21f9ed341bebec2a",
+  "organized_head": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+  "organized_tree": "2c8d28fc1387c03f2b8b8b6b21f9ed341bebec2a",
+  "dropped": [
+    "98f3713c64e4c5cbdd23b6360e4686d968e49d77",
+    "d66c9e4aa3a411673a7fc557f22f3c804765f18c"
+  ],
+  "commits": [
+    {
+      "number": 1,
+      "subject": "基础(构建): 规范 ABI 与资源生成并补齐有界 I/O",
+      "sha": "d721a17137746ba50c8d7d9ffc6fdd4eba1a71ac",
+      "paths": [
+        "app/build.gradle.kts",
+        "app/src/main/java/org/fcitx/fcitx5/android/utils/BoundedStreams.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/utils/FileUtil.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/utils/ZipCompat.kt",
+        "app/src/main/res/values-de/strings_local.xml",
+        "app/src/main/res/values-es/strings_local.xml",
+        "app/src/main/res/values-ja/strings_local.xml",
+        "app/src/main/res/values-ko/strings_local.xml",
+        "app/src/main/res/values-ru/strings_local.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings_local.xml",
+        "app/src/main/res/values-zh-rTW/strings_local.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/main/res/values/strings_local.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/utils/BoundedStorageTest.kt",
+        "build-logic/convention/build.gradle.kts",
+        "build-logic/convention/src/main/kotlin/AndroidAppConventionPlugin.kt",
+        "build-logic/convention/src/main/kotlin/BuildAbiSelection.kt",
+        "build-logic/convention/src/main/kotlin/DataDescriptorPlugin.kt",
+        "build-logic/convention/src/main/kotlin/NativeBaseConventionPlugin.kt",
+        "build-logic/convention/src/test/kotlin/BuildAbiSelectionTest.kt"
+      ],
+      "intermediate_snapshots": {}
+    },
+    {
+      "number": 2,
+      "subject": "优化(输入): 合并直连生命周期、会话隔离与候选提示",
+      "sha": "b234f3e5b034611b6c286d50414980741c2ceb07",
+      "paths": [
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/core/RimeShutdownPersistenceTest.kt",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/input/dialog/SchemaMenuChoicesViewTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/CandidateActionContext.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/EngineLifecycleController.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/FcitxAPI.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/FcitxEvent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/FcitxLifecycle.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/InputEngine.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/InputEngineApi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/InputEventQueue.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/StatusHintLifetime.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/daemon/FcitxDaemon.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/CandidatesView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/EditorSessionTracker.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/InputMenuRequestTracker.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/InputViewTaskDispatcher.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/action/ButtonAction.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcaster.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/PreeditEmptyStateComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/PunctuationComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/ReturnKeyDrawableComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/expanded/window/BaseExpandedCandidateWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/expanded/window/FlexboxExpandedCandidateWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/expanded/window/GridExpandedCandidateWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/CandidateUpdatePlan.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateViewAdapter.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/TokenizedClipboardWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/dependency/InputUniqueComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/dependency/UniqueViewComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/dialog/RimeSchemaMenuDialog.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/dialog/SchemaMenuChoices.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/editing/TextEditingWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/editorinfo/EditorInfoWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/MacroInputController.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/picker/PickerWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/popup/ThemedPopupMenu.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/preedit/PreeditComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/preedit/PreeditUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/status/StatusAreaWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/wm/InputWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/wm/InputWindowManager.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/CandidateActionEventTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/CandidateActionGuardTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/EngineLifecycleControllerTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/InputEngineApiTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/InputEventQueueTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/ReleaseSnapshotTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/StatusHintLifetimeTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/EditorSessionTrackerTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/InputMenuRequestTrackerTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/InputViewTaskDispatcherTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/MacroKeyReleaseTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/NullBindingUnbindTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/CandidateUpdatePlanTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/dependency/InputComponentTypeTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/dialog/SchemaMenuChoicesTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/CustomGestureViewHoldTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/MacroInputControllerTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/popup/ThemedPopupMenuFocusTest.kt",
+        "direct-rime/src/engine/java/org/fcitx/directrime/Snapshot.kt",
+        "direct-rime/src/main/cpp/CMakeLists.txt",
+        "direct-rime/src/main/cpp/engine.cpp"
+      ],
+      "intermediate_snapshots": {
+        "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt": "10059264a72d286d6794a3fe87575c754330055e"
+      }
+    },
+    {
+      "number": 3,
+      "subject": "修复(资产): 统一安全迁移与内置预设同步",
+      "sha": "bd66ad025bae498a8a43c83def3abb928ee7d6b7",
+      "paths": [
+        "app/src/main/java/org/fcitx/fcitx5/android/core/data/AssetMigration.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/data/DataHierarchy.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/data/DataManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/data/FileAction.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/data/AssetMigrationTest.kt"
+      ],
+      "intermediate_snapshots": {}
+    },
+    {
+      "number": 4,
+      "subject": "修复(编辑器): 合并草稿、保存快照与页面返回结果",
+      "sha": "36019dc7f637e4405a515eac4fe83cc815e98f62",
+      "paths": [
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/LayoutEditorResultTest.kt",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapterViewTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/FontsetEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/KeyboardGroupFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/PopupEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/SymbolSettingsFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/EditorDraftState.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDraftJsonCache.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDraftStore.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutEditHistory.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutEditorResultStore.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorPendingResults.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorResultHost.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/LayoutFileProfileInputActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/LayoutNameInputActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorActivity.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDraftJsonCacheTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDraftStoreTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutEditorResultStoreTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutSaveSnapshotTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorFormTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorPendingResultsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/LegacySwipeEditorRoundTripTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/MacroBaselineTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/MacroKeyDialogTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/StandaloneEditorDraftTest.kt"
+      ],
+      "intermediate_snapshots": {}
+    },
+    {
+      "number": 5,
+      "subject": "修复(主题): 校验导入、兼容旧名并后台初始化",
+      "sha": "3949be8b12be74ef960233e821076860ef72a6d6",
+      "paths": [
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ManagedThemePreference.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeFilesManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeStoragePaths.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeListActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeQrImporter.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeListFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeShareImportManager.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/LegacyThemeFilenameTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/ThemeImportSafetyTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/ThemeStartupSafetyTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/ThemeStoragePathsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeQrImporterTest.kt"
+      ],
+      "intermediate_snapshots": {
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt": "bf159d4cfb00d15fe21b2c6f2ddea3ca24e58ac7"
+      }
+    },
+    {
+      "number": 6,
+      "subject": "修复(日志与弹窗): 留存崩溃栈并完成取消后的窗口清理",
+      "sha": "04b5631af86f62ed12018773cc757a50ac1ecb03",
+      "paths": [
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/common/ProgressBarDialogIndeterminate.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/LogActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/log/CrashReportStore.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/log/LogExportStore.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/log/LogExportViewModel.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/LegacyApiCompatibilityTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/common/LoadingDialogLifecycleTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/log/CrashReportStoreTest.kt"
+      ],
+      "intermediate_snapshots": {
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt": "52d1196487f2d0a46ba1d07719996e630b9b75bd"
+      }
+    },
+    {
+      "number": 7,
+      "subject": "修复(剪贴板同步): 保护保存顺序、约束载荷并后台过滤",
+      "sha": "bfa587131f4c87b9c6f845f3e995d2b95a068be9",
+      "paths": [
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/data/clipboard/ClearUrlsAndroidTest.kt",
+        "app/src/main/assets/clearurls/COPYING.GPL-3.0.txt",
+        "app/src/main/assets/clearurls/LICENSE.LGPL-3.0.txt",
+        "app/src/main/assets/clearurls/NOTICE.md",
+        "app/src/main/assets/clearurls/data.min.json",
+        "app/src/main/assets/clearurls/source.json",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/Base64Payload.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ClipboardEcho.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ClipboardTaskQueue.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/SyncServerPreferences.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/SyncStateStore.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/BoundedWebSocketTransport.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadeClient.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadePayloadBudget.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/OneClipEventClient.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/SyncClient.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/SyncServerAddress.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/WebSocketFrameGuard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ui/SettingsActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/HostClipboardFilter.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/db/ClipboardDao.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivity.kt",
+        "app/src/main/res/layout/dialog_server_profile.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/Base64PayloadTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/ClipboardEchoTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/ClipboardTaskQueueTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/MainServiceStopTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/SyncServerPreferencesTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/SyncStateMigrationSafetyTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/network/BoundedWebSocketTransportTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadePayloadBudgetTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/network/OneClipConnectionTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/network/SyncServerAddressTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/network/WebSocketFrameGuardTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClearUrlsRuleFilterTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardRemoteLifecycleTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlFilterTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlHistoryTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt",
+        "lib/common/src/main/java/org/fcitx/fcitx5/android/common/clearurls/ClearUrlsRuleFilter.kt"
+      ],
+      "intermediate_snapshots": {}
+    },
+    {
+      "number": 8,
+      "subject": "修复(语音): 按编辑器与请求会话隔离 AIDL 和浮窗回调",
+      "sha": "1288e470a8185df88b97fd95021fe87d672ecc46",
+      "paths": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/FloatingVoiceResultGate.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/SessionBoundVoiceCallback.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/SessionBoundVoiceFinish.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceProviderDeathLink.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/FloatingVoiceReceiverTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/FloatingVoiceResultGateTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/SessionBoundVoiceCallbackTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/SessionBoundVoiceFinishTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/VoiceFinishIntegrationTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/VoiceProviderDeathLinkTest.kt",
+        "lib/common/src/main/java/org/fcitx/fcitx5/android/common/ipc/VoiceInputIpc.kt"
+      ],
+      "intermediate_snapshots": {}
+    },
+    {
+      "number": 9,
+      "subject": "修复(访问): 加固局域网配对、网页保存与文件 IPC",
+      "sha": "40e017db462f87488ebe4df4577bbdb9c55e78e0",
+      "paths": [
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxRemoteService.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/provider/DocumentPathGuard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/provider/FcitxDataProvider.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/BridgeSessionAccess.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/ImeWebEditorBridgeServer.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/RemoteServicePermissionTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/provider/FcitxDataProviderSafetyTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/BridgePhoneSaveTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/BridgeSessionAccessTest.kt"
+      ],
+      "intermediate_snapshots": {}
+    },
+    {
+      "number": 10,
+      "subject": "修复(更新): 持久化断点下载并安全发布",
+      "sha": "4bbb58a8dfe8659b4b9ebc51cc97fddf97f5f082",
+      "paths": [
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/MaterialSettingsPagesTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/DownloadFiles.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/DownloadPublisher.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadUiState.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadWorker.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloads.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/ResumableAssetDownload.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateAssetAdapter.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt",
+        "app/src/main/res/menu/menu_update_check.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/DownloadPublisherTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/DownloadStartupPolicyTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadWorkerTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadsLifecycleTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/ResumableAssetDownloadTest.kt"
+      ],
+      "intermediate_snapshots": {
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt": "b80570f7595c9c5168fd65588b36b0035348e622"
+      }
+    },
+    {
+      "number": 11,
+      "subject": "修复(备份恢复): 加密备份并隔离恢复进程与目录事务",
+      "sha": "f08f204a5529c92941cf9b15c296771df7e69a77",
+      "paths": [
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/data/UserDataRestoreProcessAndroidTest.kt",
+        "app/src/main/AndroidManifest.xml",
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeConfig.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectoryMoveJournal.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/ProtectedBackup.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/SharedPreferencesRestore.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/SqliteSnapshots.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/UiSettingsBackupAgent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/UserDataManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/UserDataRestoreJournal.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/UserDataRestoreRuntime.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/UserDataRestoreTransaction.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/BackupProtectionDialog.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/DataBackupFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/UserDataRestoreActivity.kt",
+        "app/src/main/res/xml/data_extraction_rules.xml",
+        "app/src/main/res/xml/full_backup_content.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/DirectRimeConfigSafetyTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/DirectoryMoveJournalTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/ProtectedBackupTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/SharedPreferencesRestoreTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/UiSettingsBackupTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/UserDataRestoreJournalTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/UserDataRestoreProcessTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/UserDataRestoreStartupTest.kt"
+      ],
+      "intermediate_snapshots": {}
+    },
+    {
+      "number": 12,
+      "subject": "维护(文档与CI): 汇总协议、资产校验与发行范围",
+      "sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+      "paths": [
+        ".gitattributes",
+        ".github/workflows/ci.yml",
+        "ASR_VOICE_INPUT_AIDL_INTEGRATION.md",
+        "CLIPCASCADE_RECEIVE_LIMITS.md",
+        "HOSTS_DOWNLOADS.md",
+        "PROTECTED_BACKUP_FORMAT.md",
+        "README.md",
+        "USER_DATA_RESTORE.md",
+        "tools/test_verify_clearurls_assets.py",
+        "tools/verify-direct-rime-apk.py"
+      ],
+      "intermediate_snapshots": {}
+    }
+  ],
+  "old_commit_mapping": [
+    {
+      "old": "9b1926db7786ec65efb299e7ee013e02d7a30ff5",
+      "subject": "优化(性能): 缩短直连 Rime 初始化并减少输入事件开销",
+      "action": "categorized",
+      "new_groups": [
+        2,
+        12
+      ]
+    },
+    {
+      "old": "f54eb71347ad5afc30f32f616c828eb746aa57b4",
+      "subject": "修复(数据): 保护 Rime 方案目录并保留未落盘同步状态",
+      "action": "categorized",
+      "new_groups": [
+        7,
+        11
+      ]
+    },
+    {
+      "old": "032a7ca5ee953ced3186a146bebd225bfcd912dd",
+      "subject": "修复(访问): 为局域网编辑器添加六位配对并限制文件与 IPC 访问",
+      "action": "categorized",
+      "new_groups": [
+        1,
+        4,
+        9,
+        11,
+        12
+      ]
+    },
+    {
+      "old": "a38ac5105aca70a38ae9ad6f1aea7aee95a0b1ea",
+      "subject": "修复(导入): 限制主题路径与文件读取并保留替换失败时的原文件",
+      "action": "categorized",
+      "new_groups": [
+        1,
+        4,
+        5
+      ]
+    },
+    {
+      "old": "3a82e2804e9b959603830d8a3c272a1d81991a76",
+      "subject": "修复(保存): 增加目录中断恢复并使用独立布局保存快照",
+      "action": "categorized",
+      "new_groups": [
+        4,
+        9,
+        11
+      ]
+    },
+    {
+      "old": "ad56c9b7662a87f7ed26bacff3c6d393188affc4",
+      "subject": "优化(启动): 后台加载主题与随机色板并保护解锁前初始化",
+      "action": "categorized",
+      "new_groups": [
+        2,
+        5
+      ]
+    },
+    {
+      "old": "d8772107a618297af53f511d311205b5bbd9ab87",
+      "subject": "修复(同步): 限制 OneClip 建连等待并及时取消网络请求",
+      "action": "categorized",
+      "new_groups": [
+        7
+      ]
+    },
+    {
+      "old": "c81ac0864285c748fa7d0ed09b443e34e18457e1",
+      "subject": "修复(兼容): 保护 Android 6 的主题 ZIP 与菜单颜色接口",
+      "action": "categorized",
+      "new_groups": [
+        1,
+        5,
+        6
+      ]
+    },
+    {
+      "old": "d3ff4115aa42a4af522c4f3428532f1367f0c207",
+      "subject": "修复(同步): 配额超时和暂停后停止服务并阻止自动重启",
+      "action": "categorized",
+      "new_groups": [
+        7
+      ]
+    },
+    {
+      "old": "9de1e5e05cf27a0812e6f1ff5922049c4eea1af4",
+      "subject": "修复(备份): 事务生成剪贴板快照并恢复旧备份的有效 WAL",
+      "action": "categorized",
+      "new_groups": [
+        7,
+        11
+      ]
+    },
+    {
+      "old": "116ecabcf708aaf704f9ed1607a09ff658ed7fcd",
+      "subject": "修复(语音): 清理重绑死亡监听并拒绝旧连接回调",
+      "action": "categorized",
+      "new_groups": [
+        8
+      ]
+    },
+    {
+      "old": "b2e14f0de40a7a5f2e2cfac5fe5f630be81961a9",
+      "subject": "修复(语音): 按编辑器和提供方会话隔离回调与延迟收尾",
+      "action": "categorized",
+      "new_groups": [
+        2,
+        8
+      ]
+    },
+    {
+      "old": "95745ca80dc786ec1c74b20dab3c7788e44aa227",
+      "subject": "修复(宏): 绑定编辑器会话并按按键所有权清理取消事件",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "26a0c90f5833f22fb51645c6888698c894954dda",
+      "subject": "优化(语音): 合并主线程回调调度并复用会话校验",
+      "action": "categorized",
+      "new_groups": [
+        8
+      ]
+    },
+    {
+      "old": "ea6229a448ab5a8e72a0e7637bc2364e4e2c40e2",
+      "subject": "修复(资产): 安全迁移文件类型并递归排除内置预设同步",
+      "action": "categorized",
+      "new_groups": [
+        1,
+        3
+      ]
+    },
+    {
+      "old": "38815b63d7ca2c5f1119fd4f2db7ae5a3958b843",
+      "subject": "修复(宏编辑): 确认后提交按键草稿并按身份删除重复项",
+      "action": "categorized",
+      "new_groups": [
+        4
+      ]
+    },
+    {
+      "old": "7dddf7b95e27393bfc080b9ec9e5aced17f6f909",
+      "subject": "修复(剪贴板): 保存完成后关闭并隔离浮窗生命周期和迟到结果",
+      "action": "categorized",
+      "new_groups": [
+        1,
+        7
+      ]
+    },
+    {
+      "old": "b2c4631a652c2088dfe807bc03dc384703daaaf7",
+      "subject": "修复(宏编辑): 统一初始快照并停止记录完整宏内容",
+      "action": "categorized",
+      "new_groups": [
+        4
+      ]
+    },
+    {
+      "old": "1c8a7d04b9933541cb7ae6cd28ccf99f9a54ce49",
+      "subject": "修复(键盘): 取消旧服务与视图的排队布局和字体刷新",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "98f3713c64e4c5cbdd23b6360e4686d968e49d77",
+      "subject": "修复(键盘结构): 区分按键操作并支持行下移",
+      "action": "dropped",
+      "new_groups": []
+    },
+    {
+      "old": "d66c9e4aa3a411673a7fc557f22f3c804765f18c",
+      "subject": "修复(布局编辑): 复用隐藏行操作时恢复按键可见性",
+      "action": "dropped",
+      "new_groups": []
+    },
+    {
+      "old": "a536f468f06faf77fb62fa03ec5d88ed9d42626f",
+      "subject": "修复(同步): 在消息解析加密与 Base64 分配前约束预算",
+      "action": "categorized",
+      "new_groups": [
+        7
+      ]
+    },
+    {
+      "old": "53477190719cbda3c5c61be0a55fe03aff5e44ee",
+      "subject": "修复(候选): 移动保留项后局部刷新序号并补齐字体重绑",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "6c22d0cc8aabff4abbd4c7b2710052e5c8407a9b",
+      "subject": "修复(方案菜单): 支持滚动并让大字号方案名自动换行",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "c80f3ce0a5786a3d9c8cf4fbd0d44c9088135c71",
+      "subject": "修复(菜单): 校验候选版本编辑器和锚点并丢弃迟到结果",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "d06f7eab0446894e8851e3186c249f6042297cfc",
+      "subject": "修复(构建): 校验 ABI 并移除私有反射及编译产物篡改",
+      "action": "categorized",
+      "new_groups": [
+        1
+      ]
+    },
+    {
+      "old": "0177badcf05770827e2ed7130f1e3d6944167bc5",
+      "subject": "修复(图标主题): 将二维码集片解压解析与保存移出主线程",
+      "action": "categorized",
+      "new_groups": [
+        5
+      ]
+    },
+    {
+      "old": "229a344a7503c9dbfe51a3bedcff95e922ad96fa",
+      "subject": "修复(更新): 从更新页面接入镜像规则管理列表",
+      "action": "categorized",
+      "new_groups": [
+        10
+      ]
+    },
+    {
+      "old": "1db12cec70c4279cd999a42606384f3e4b0426d1",
+      "subject": "修复(加载弹窗): 生命周期取消后仍完成主线程窗口清理",
+      "action": "categorized",
+      "new_groups": [
+        6
+      ]
+    },
+    {
+      "old": "4bb3486c2797750164582221abf2bb39d106a959",
+      "subject": "修复(候选菜单): 保持编辑器焦点并增加设备会话回归",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "e3471045793787a5a4b920e782e1260fae055a72",
+      "subject": "测试(方案菜单): 类型切换后显式点按编辑框并补状态诊断",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "e146d2cbd5eb4841b258825be965b5b8c92d30ed",
+      "subject": "修复(剪贴板): 固定规则资产并将 URL 过滤与同步入队移出主线程",
+      "action": "categorized",
+      "new_groups": [
+        1,
+        7,
+        9,
+        12
+      ]
+    },
+    {
+      "old": "e2ce518ad344ed879534daa19c0e3633ad6457d3",
+      "subject": "修复(布局编辑): 缓存加载期间的返回结果并绑定原始编辑目标",
+      "action": "categorized",
+      "new_groups": [
+        4
+      ]
+    },
+    {
+      "old": "e7a696fe49417401ecf6738c07488f7fa175c4a1",
+      "subject": "测试(布局编辑): 补全辅助栏夹具并校验编辑前置条件",
+      "action": "categorized",
+      "new_groups": [
+        4
+      ]
+    },
+    {
+      "old": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+      "subject": "修复(布局编辑): 保留命名导入及内嵌编辑器在重建期间的返回结果",
+      "action": "categorized",
+      "new_groups": [
+        4
+      ]
+    },
+    {
+      "old": "516252ebe8192b9b5dcee8c2c9854de95ae0fc4e",
+      "subject": "测试(布局编辑): 验证再次重建前的表单选择和内嵌颜色结果",
+      "action": "categorized",
+      "new_groups": [
+        4
+      ]
+    },
+    {
+      "old": "1c96acd9ae95fb90b5a67a9e687b70d8c0b35ed2",
+      "subject": "测试(触屏): 防止同步注入把短按拖成长按并记录失败现场",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "b193b9ff3d5c4a5acd69c10716749aa98931ae77",
+      "subject": "测试(输入绑定): 等待目标编辑框实际回调并在注入瞬间记录代号",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "8a39f2fee34dacbc51e85f59102fd0b0528ffdf4",
+      "subject": "修复(草稿): 避免哈希碰撞漏存并原子替换保留旧快照",
+      "action": "categorized",
+      "new_groups": [
+        4
+      ]
+    },
+    {
+      "old": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+      "subject": "优化(草稿): 在后台准备已完成编辑的 JSON 并合并待处理快照",
+      "action": "categorized",
+      "new_groups": [
+        4
+      ]
+    },
+    {
+      "old": "ccfa863661ed0ccc8852486788c05527acf81040",
+      "subject": "测试(划动): 验证旧宏方向和外观在编辑及偏好切换后保持一致",
+      "action": "categorized",
+      "new_groups": [
+        4
+      ]
+    },
+    {
+      "old": "e9d5f6ee09de268cd0665344e5c815307e265be6",
+      "subject": "修复(编辑器): 跨重建恢复宏、弹出和字体草稿及原始比较基准",
+      "action": "categorized",
+      "new_groups": [
+        4
+      ]
+    },
+    {
+      "old": "2dd2d5af8953eec6ba5832b274ae756288f5d0ca",
+      "subject": "修复(主题): 迁移内置预设旧文件名并保留冲突文件",
+      "action": "categorized",
+      "new_groups": [
+        5
+      ]
+    },
+    {
+      "old": "ea16a375983986d7b654ea8c39135807ec7e4f4e",
+      "subject": "修复(日志): 私有保存最近崩溃堆栈并纳入重新打开后的导出",
+      "action": "categorized",
+      "new_groups": [
+        6
+      ]
+    },
+    {
+      "old": "c36a8a1a6cadd6219c16ab2e6063f4c153e5733e",
+      "subject": "修复(语音): 将可选浮窗结果绑定随机令牌和输入框会话",
+      "action": "categorized",
+      "new_groups": [
+        8,
+        12
+      ]
+    },
+    {
+      "old": "f37b27b6184dabc3d356e4f5419c53d62576cbc2",
+      "subject": "测试(解绑): 验证空 binding 仍清除旧输入会话和按键",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "143ccf73d836ee3e3500cab2d2925fdc95fbc5fe",
+      "subject": "修复(同步): 新地址默认 HTTPS、迁移旧配置并阻止凭据重定向到明文",
+      "action": "categorized",
+      "new_groups": [
+        1,
+        7
+      ]
+    },
+    {
+      "old": "1113725128f160bf50d37630e96248eba210f9b4",
+      "subject": "修复(备份): 默认分块认证加密并限制系统备份为外观白名单",
+      "action": "categorized",
+      "new_groups": [
+        1,
+        11,
+        12
+      ]
+    },
+    {
+      "old": "c2ba6510bf82f8e5b69df82db2b3199ed340d845",
+      "subject": "修复(同步): 在WebSocket消息组装前限制帧及分片内存分配",
+      "action": "categorized",
+      "new_groups": [
+        7,
+        12
+      ]
+    },
+    {
+      "old": "c72115def7c2640ebc4fd13f8578584401101614",
+      "subject": "测试(同步): 验证登录连接池复用与受限WebSocket连接池隔离",
+      "action": "categorized",
+      "new_groups": [
+        7
+      ]
+    },
+    {
+      "old": "d3cb87692b638a36dde048435658de1afcc8738e",
+      "subject": "修复(更新): 持久化hosts下载、验证续传与发布并隔离页面生命周期",
+      "action": "categorized",
+      "new_groups": [
+        1,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "old": "bb9d2a78c4f588f67fa8bb33e5dab35ac3576175",
+      "subject": "修复(恢复): 隔离导入进程并持久化整包替换和启动回滚",
+      "action": "categorized",
+      "new_groups": [
+        1,
+        11,
+        12
+      ]
+    },
+    {
+      "old": "544f84a852aed9f008e68acad184e71fac5447a8",
+      "subject": "优化(恢复): 后台清理中断残留并避免启动和输入等待清理锁",
+      "action": "categorized",
+      "new_groups": [
+        11,
+        12
+      ]
+    },
+    {
+      "old": "8dca031c80fdf6c82015982b54385ef8bea12d48",
+      "subject": "修复(恢复): 兼容私有缓存目录的平台别名并拒绝暂存目录重定向",
+      "action": "categorized",
+      "new_groups": [
+        11
+      ]
+    },
+    {
+      "old": "93942a2ef8bb60cbe61599a06139721ba63af468",
+      "subject": "测试(Rime): 验证实际学习、系统关机和新内核中的词典排序",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "209cca0e7c8e0954d00a6c939e07d05cba160a8f",
+      "subject": "修复(恢复): 校验偏好值类型并按堆预算限制 XML 大小",
+      "action": "categorized",
+      "new_groups": [
+        11
+      ]
+    },
+    {
+      "old": "9b1f958c604b91b2738da3d370636aadc8a34b1d",
+      "subject": "修复(恢复): 后台只清理已恢复目录并等待测试夹具清理完成",
+      "action": "categorized",
+      "new_groups": [
+        11,
+        12
+      ]
+    },
+    {
+      "old": "3e09e289cdd4f0a1d52448e519dbc3f15f7999f9",
+      "subject": "测试(恢复): 验证 Android 跨进程交接、偏好读回与未替换 WAL",
+      "action": "categorized",
+      "new_groups": [
+        11
+      ]
+    },
+    {
+      "old": "976ab05f3dd49675a6a08ba8ec09b4841ccb7aa2",
+      "subject": "修复(提示): 从首个可见绘制计时并隔离过期帧回调",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "018fcf3e47b4c736a4369830d9b7a7584c34b7dd",
+      "subject": "修复(提示): 在 Rime 专用线程接收绘制回调",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "3ca224629eb2c8124665307299a3809f19c5daeb",
+      "subject": "测试(提示): 检查可见帧确认并隔离命名键首次加载耗时",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    },
+    {
+      "old": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+      "subject": "修复(提示): 显式转发绘制确认并验证 API 包装层",
+      "action": "categorized",
+      "new_groups": [
+        2
+      ]
+    }
+  ],
+  "mapping_note": "Feature/file association; shared integration files use recorded intermediate snapshots. This is a many-to-many map."
+}

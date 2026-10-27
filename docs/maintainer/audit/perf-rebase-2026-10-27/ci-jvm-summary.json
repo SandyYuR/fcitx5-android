@@ -1,0 +1,12 @@
+{
+  "tests": 1234,
+  "failures": 0,
+  "skipped": 0,
+  "artifact_id": 12700568183,
+  "artifact_digest": "sha256:9a0ef87685bafe7e7af244905ad0930b154411284db8ec69b8047bf438d088a0",
+  "code_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+  "key_editor_cases": [
+    "rowDragHighlightRestoresItsCardSurface rowDragHighlightRestoresItsCardSurface 1 0 0 0.050s 100%",
+    "rowHeaderActionsDoNotOccupyOrHideEditableKeyCells rowHeaderActionsDoNotOccupyOrHideEditableKeyCells 1 0 0 0.101s 100%"
+  ]
+}
