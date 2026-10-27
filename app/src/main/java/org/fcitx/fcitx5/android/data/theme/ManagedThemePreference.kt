@@ -26,7 +26,8 @@ class ManagedThemePreference(
         } ?: defaultValue
 
     override fun putValueTo(editor: SharedPreferences.Editor) {
-        editor.putString(key, getValue().name)
+        // Preserve the selected name while the asynchronously loaded list is not ready yet.
+        editor.putString(key, sharedPreferences.getString(key, null) ?: defaultValue.name)
     }
 
 }

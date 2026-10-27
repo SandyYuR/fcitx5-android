@@ -4,6 +4,10 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
+import android.os.Build
+
+import kotlinx.coroutines.launch
+
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -304,7 +308,8 @@ class CustomThemeActivity : SettingsUiActivity() {
         }
     }
 
-    private fun GradientDrawable.previewColorOrNull(): Int? = color?.defaultColor
+    private fun GradientDrawable.previewColorOrNull(): Int? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) color?.defaultColor else null
 
     private fun currentBackgroundDrawable(themeForBackground: Theme.Custom): BitmapDrawable? {
         return if (themeForBackground.backgroundImage != null)
@@ -1504,22 +1509,24 @@ class CustomThemeActivity : SettingsUiActivity() {
     }
 
     private fun randomizeInEditor() {
-        val result = ThemeManager.randomizeTheme()
-        theme = result.theme
-        initialThemeSnapshot = theme
-        refreshColorPreviews()
-        applyThemePreview(theme)
-        toast(
-            getString(
-                R.string.random_theme_toast,
-                result.total,
-                result.contrast,
-                result.hue,
-                result.sat,
-                result.light
+        lifecycleScope.launch {
+            val result = ThemeManager.randomizeTheme()
+            theme = result.theme
+            initialThemeSnapshot = theme
+            refreshColorPreviews()
+            applyThemePreview(theme)
+            toast(
+                getString(
+                    R.string.random_theme_toast,
+                    result.total,
+                    result.contrast,
+                    result.hue,
+                    result.sat,
+                    result.light
+                )
             )
-        )
-        refreshSaveButtonState()
+            refreshSaveButtonState()
+        }
     }
 
     private fun promptCopyAsCustomTheme() {

@@ -146,7 +146,7 @@ class ThemeListFragment : Fragment() {
                     }
                     try {
                         val (_, _, migrated) = withContext(Dispatchers.IO) {
-                            val zipBytes = cr.openInputStream(uri)!!.use { it.readBytes() }
+                            val zipBytes = cr.openInputStream(uri)!!.use(ThemeFilesManager::readArchive)
                             val decodedName = ThemeFilesManager.decodeTheme(ByteArrayInputStream(zipBytes))
                                 .getOrNull()
                                 ?.name
@@ -198,9 +198,11 @@ class ThemeListFragment : Fragment() {
             override fun onRandomizeTheme() = randomizeTheme()
             override fun onExportTheme(theme: Theme.Custom) = exportTheme(theme)
         }
-        themeListAdapter.setThemes(ThemeManager.ensureRandomSlotSeeded().let { ThemeManager.getAllThemes() })
+        themeListAdapter.setThemes(ThemeManager.getAllThemes())
         updateSelectedThemes()
         lifecycleScope.launch {
+            ThemeManager.ensureRandomSlotSeeded()
+            themeListAdapter.setThemes(ThemeManager.getAllThemes())
             val themes = withContext(Dispatchers.IO) {
                 ThemeFilesManager.listThemes()
             }
@@ -315,18 +317,20 @@ class ThemeListFragment : Fragment() {
     }
 
     private fun randomizeTheme() {
-        val result = ThemeManager.randomizeTheme()
-        requireContext().toast(
-            getString(
-                R.string.random_theme_toast,
-                result.total,
-                result.contrast,
-                result.hue,
-                result.sat,
-                result.light
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = ThemeManager.randomizeTheme()
+            requireContext().toast(
+                getString(
+                    R.string.random_theme_toast,
+                    result.total,
+                    result.contrast,
+                    result.hue,
+                    result.sat,
+                    result.light
+                )
             )
-        )
-        updateSelectedThemes()
+            updateSelectedThemes()
+        }
     }
 
     private fun editMonetTheme(theme: Theme.Monet) {

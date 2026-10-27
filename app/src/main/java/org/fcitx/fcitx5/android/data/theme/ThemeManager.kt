@@ -14,11 +14,15 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.util.Locale
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fcitx.fcitx5.android.data.theme.ThemeManager.activeTheme
 import org.fcitx.fcitx5.android.ui.main.settings.theme.MonetThemePrefs
@@ -93,13 +97,14 @@ object ThemeManager {
     const val RANDOM_THEME_NAME = "随机主题"
 
     private val randomThemeJson = Json { ignoreUnknownKeys = true }
-    private val customThemes: MutableList<Theme.Custom> =
-        ThemeFilesManager.listThemes().filter { it.name != RANDOM_THEME_NAME }.toMutableList()
+    private val customThemes: MutableList<Theme.Custom> = mutableListOf()
+    private var themeListRevision = 0L
+    private val randomSlotMutex = Mutex()
     private const val RANDOM_THEME_PREF = "theme_random_slot"
     private val randomThemePrefs by lazy {
-        PreferenceManager.getDefaultSharedPreferences(appContext)
+        PreferenceManager.getDefaultSharedPreferences(FcitxApplication.getInstance().directBootAwareContext)
     }
-    private var randomSlot: RandomThemeSlot? = loadRandomSlot()
+    private var randomSlot: RandomThemeSlot? = null
 
     private fun randomThemeOrNull(): Theme.Custom? = randomSlot?.theme?.takeIf {
         it.name == RANDOM_THEME_NAME
@@ -124,7 +129,7 @@ object ThemeManager {
                 return RandomThemeResult(
                     theme = slot.theme,
                     candidate = candidate,
-                    score = ThemeAestheticScore.scoreTheme(candidate),
+                    score = slot.score ?: ThemeAestheticScore.scoreTheme(candidate),
                     attempts = slot.attempts
                 )
             }
@@ -132,12 +137,12 @@ object ThemeManager {
             return RandomThemeResult(slot.theme, projected, score, slot.attempts)
         }
 
-    fun randomizeTheme(): RandomThemeResult {
-        val result = ThemeRandomizer.generateBestRandomTheme(name = RANDOM_THEME_NAME)
-        randomSlot = RandomThemeSlot(result.theme, result.candidate, result.score, result.attempts)
-        persistRandomSlot(requireNotNull(randomSlot))
-        applyRandomTheme(result.theme)
-        return result
+    suspend fun randomizeTheme(): RandomThemeResult = randomSlotMutex.withLock {
+        val result = withContext(Dispatchers.Default) { ThemeRandomizer.generateBestRandomTheme(name = RANDOM_THEME_NAME) }
+        val slot = RandomThemeSlot(result.theme, result.candidate, result.score, result.attempts)
+        withContext(Dispatchers.Main.immediate) { randomSlot = slot; applyRandomTheme(result.theme) }
+        withContext(Dispatchers.IO) { persistRandomSlot(slot) }
+        result
     }
 
     fun updateRandomTheme(
@@ -172,7 +177,7 @@ object ThemeManager {
         theme: Theme.Custom,
         scheme: String = "mono"
     ): Pair<ThemeCandidate, ThemeScore> {
-        fun color(value: Int): String = String.format(Locale.ROOT, "#%06x", value and 0x00ffffff)
+        fun color(value: Int): String = "#" + (value and 0x00ffffff).toString(16).padStart(6, '0')
         val colors = linkedMapOf(
             WebsiteThemeColorKeys.KEY_BACKGROUND to color(theme.keyBackgroundColor),
             WebsiteThemeColorKeys.KEY_PRESSED to color(theme.keyPressHighlightColor),
@@ -212,6 +217,7 @@ object ThemeManager {
     }
 
     private fun loadRandomSlot(): RandomThemeSlot? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !appContext.userManager.isUserUnlocked) return null
         val raw = randomThemePrefs.getString(RANDOM_THEME_PREF, null) ?: return null
         return runCatching {
             val stored = randomThemeJson.decodeFromString<StoredRandomTheme>(raw)
@@ -231,11 +237,12 @@ object ThemeManager {
                     surfaceStyle = stored.surfaceStyle ?: "Raised"
                 )
             }
-            val (projected, projectedScore) = scoreCustomTheme(theme, candidate?.scheme ?: "mono")
+            val (projected, projectedScore) = if (candidate == null) scoreCustomTheme(theme) else
+                candidate to ThemeAestheticScore.scoreTheme(candidate)
             RandomThemeSlot(
                 theme = theme,
                 candidate = candidate ?: projected,
-                score = candidate?.let { ThemeAestheticScore.scoreTheme(it) } ?: projectedScore,
+                score = projectedScore,
                 attempts = stored.attempts.coerceAtLeast(1)
             )
         }.getOrElse {
@@ -245,6 +252,7 @@ object ThemeManager {
     }
 
     private fun persistRandomSlot(slot: RandomThemeSlot) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !appContext.userManager.isUserUnlocked) return
         val candidate = slot.candidate
         val stored = StoredRandomTheme(
             themeJson = randomThemeJson.encodeToString(CustomThemeSerializer, slot.theme),
@@ -315,6 +323,7 @@ object ThemeManager {
 
     @MainThread
     private fun applyRefreshedThemes(refreshedCustomThemes: List<Theme.Custom>) {
+        themeListRevision++
         customThemes.clear()
         customThemes.addAll(refreshedCustomThemes.filter { it.name != RANDOM_THEME_NAME })
         monetThemes = loadMonetThemes()
@@ -383,6 +392,7 @@ object ThemeManager {
     val prefs = AppPrefs.getInstance().registerProvider(::ThemePrefs)
 
     fun saveTheme(theme: Theme.Custom) {
+        themeListRevision++
         require(theme.name != RANDOM_THEME_NAME) { "The random theme must be copied before saving" }
         ThemeFilesManager.saveThemeFiles(theme)
         customThemes.indexOfFirst { it.name == theme.name }.also {
@@ -408,6 +418,7 @@ object ThemeManager {
     }
 
     fun deleteTheme(name: String) {
+        themeListRevision++
         if (name == RANDOM_THEME_NAME) return
         customThemes.find { it.name == name }?.also {
             // Pass all themes except the one being deleted, so we can clean up unused directories
@@ -466,7 +477,7 @@ object ThemeManager {
         }
     }
 
-    fun init(configuration: Configuration) {
+    fun init(configuration: Configuration): Job? {
         isDarkMode = configuration.isDarkMode()
         monetThemes = loadMonetThemes()
         // fire all `OnThemeChangedListener`s on theme preferences change
@@ -474,7 +485,13 @@ object ThemeManager {
         _activeTheme = evaluateActiveTheme()
         // 新装/升级用户从未用过随机主题时，主题列表也要直接出现随机主题卡片：
         // 这里仅生成并持久化槽位，不切换用户当前主题。
-        ensureRandomSlotSeeded()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !appContext.userManager.isUserUnlocked) return null
+        val revision = themeListRevision
+        return FcitxApplication.getInstance().coroutineScope.launch {
+            val themes = withContext(Dispatchers.IO) { ThemeFilesManager.listThemes() }
+            ensureRandomSlotSeeded()
+            if (themeListRevision == revision) applyRefreshedThemes(themes)
+        }
     }
 
     /**
@@ -483,18 +500,21 @@ object ThemeManager {
      * 仅生成并持久化，不调用 applyRandomTheme()——不能在用户只是打开主题列表时
      * 擅自切换他正在用的主题。
      */
-    fun ensureRandomSlotSeeded(): RandomThemeResult {
-        randomSlot?.let { slot ->
-            val candidate = slot.candidate
-            val score = slot.score
-                ?: candidate?.let { ThemeAestheticScore.scoreTheme(it) }
-                ?: scoreCustomTheme(slot.theme, candidate?.scheme ?: "mono").second
-            return RandomThemeResult(slot.theme, candidate ?: scoreCustomTheme(slot.theme).first, score, slot.attempts)
+    suspend fun ensureRandomSlotSeeded(): RandomThemeResult = randomSlotMutex.withLock {
+        var generated = false
+        val cached = withContext(Dispatchers.Main.immediate) { randomSlot }
+        val proposed = cached ?: withContext(Dispatchers.IO) { loadRandomSlot() }
+            ?: withContext(Dispatchers.Default) {
+                generated = true
+                val result = ThemeRandomizer.generateBestRandomTheme(name = RANDOM_THEME_NAME)
+                RandomThemeSlot(result.theme, result.candidate, result.score, result.attempts)
+            }
+        val slot = withContext(Dispatchers.Main.immediate) {
+            if (randomSlot == null) { randomSlot = proposed; fireThemeListChange() }
+            randomSlot!!
         }
-        val result = ThemeRandomizer.generateBestRandomTheme(name = RANDOM_THEME_NAME)
-        randomSlot = RandomThemeSlot(result.theme, result.candidate, result.score, result.attempts)
-        persistRandomSlot(requireNotNull(randomSlot))
-        return result
+        if (generated && slot === proposed) withContext(Dispatchers.IO) { persistRandomSlot(slot) }
+        RandomThemeResult(slot.theme, requireNotNull(slot.candidate), requireNotNull(slot.score), slot.attempts)
     }
 
     fun onSystemPlatteChange(newConfig: Configuration) {

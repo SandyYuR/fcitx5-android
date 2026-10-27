@@ -153,7 +153,7 @@ class FcitxApplication : Application() {
             setValue(currentPid)
         }
         ClipboardManager.init(ctx)
-        ThemeManager.init(resources.configuration)
+        val themeInitialization = ThemeManager.init(resources.configuration)
         // 安装内置键盘布局/主题/图标主题（幂等，后台执行，开箱即用）
         if (!isDirectBootMode) {
             BundledPresets.installAsync {
@@ -170,8 +170,13 @@ class FcitxApplication : Application() {
         Locales.onLocaleChange(resources.configuration)
         registerReceiver(shutdownReceiver, IntentFilter(Intent.ACTION_SHUTDOWN))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isDirectBootMode) {
-            AppPrefs.getInstance().syncToDeviceEncryptedStorage()
-            ThemeManager.syncToDeviceEncryptedStorage()
+            coroutineScope.launch {
+                themeInitialization?.join()
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    AppPrefs.getInstance().syncToDeviceEncryptedStorage()
+                    ThemeManager.syncToDeviceEncryptedStorage()
+                }
+            }
         }
         ContextCompat.registerReceiver(
             this,

@@ -41,6 +41,9 @@ import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import org.fcitx.fcitx5.android.utils.readBounded
+import org.fcitx.fcitx5.android.utils.FileUtil
+import org.fcitx.fcitx5.android.utils.compatibleZipInputStream
 import java.util.zip.ZipOutputStream
 import org.xmlpull.v1.XmlPullParser
 
@@ -480,10 +483,12 @@ object IconThemeManager {
         val files = dir.listFiles { f -> f.isFile && f.name.endsWith(".json") } ?: return
         val themes = files.mapNotNull { f ->
             runCatching {
-                val loaded = json.decodeFromString<IconTheme>(f.readText())
+                require(ThemeStoragePaths.within(dir, f) == ThemeStoragePaths.json(dir, f.nameWithoutExtension))
+                val loaded = json.decodeFromString<IconTheme>(f.inputStream().use { it.readBounded(MAX_IMPORT_JSON_BYTES).decodeToString() })
+                require(ThemeStoragePaths.json(dir, loaded.name) == f.canonicalFile)
                 val normalized = fillMissingThumbnail(loaded)
                 if (normalized != loaded) {
-                    runCatching { f.writeText(json.encodeToString(normalized)) }
+                    runCatching { FileUtil.writeAtomically(f, json.encodeToString(normalized)) }
                         .onFailure { Timber.w(it, "Failed to backfill thumbnail for icon theme: ${loaded.name}") }
                 }
                 normalized
@@ -504,9 +509,9 @@ object IconThemeManager {
     fun saveTheme(theme: IconTheme) {
         val normalizedTheme = fillMissingThumbnail(theme)
         val dir = themeDir ?: return
-        val file = File(dir, "${normalizedTheme.name}.json")
+        val file = ThemeStoragePaths.json(dir, normalizedTheme.name)
         runCatching {
-            file.writeText(json.encodeToString(normalizedTheme))
+            FileUtil.writeAtomically(file, json.encodeToString(normalizedTheme))
         }.onFailure {
             Timber.w(it, "Failed to save icon theme: ${normalizedTheme.name}")
             return
@@ -529,6 +534,7 @@ object IconThemeManager {
     }
 
     fun deleteTheme(name: String) {
+        ThemeStoragePaths.requireName(name)
         synchronized(themeLock) {
             val mutable = installedThemes.toMutableList()
             val idx = mutable.indexOfFirst { it.name == name }
@@ -537,7 +543,7 @@ object IconThemeManager {
             installedThemes = mutable
         }
         val dir = themeDir
-        if (dir != null) File(dir, "$name.json").delete()
+        if (dir != null) ThemeStoragePaths.json(dir, name).delete()
         if (activeTheme.name == name) {
             activeTheme = builtinDefault
         }
@@ -750,7 +756,7 @@ object IconThemeManager {
         var entryCount = 0
         var totalBytes = 0L
         try {
-            ZipInputStream(src, charset).use { zipStream ->
+            compatibleZipInputStream(src, charset).use { zipStream ->
                 var entry = zipStream.nextEntry
                 while (entry != null) {
                     if (!entry.isDirectory) {
@@ -797,6 +803,7 @@ object IconThemeManager {
 
         val theme = json.decodeFromString<IconTheme>(normalizedJson)
         val finalName = importedName ?: theme.name
+        ThemeStoragePaths.requireName(finalName)
 
         // Move the staged icons into the theme directory. They are already on disk, so this is a
         // rename (or a copy across filesystems) rather than another full-size allocation.
