@@ -25,7 +25,10 @@ internal class LogExportViewModel(application: Application, private val saved: S
         val busy get() = phase != Phase.IDLE && phase != Phase.SUCCESS && phase != Phase.FAILURE
     }
 
-    private val store = LogExportStore(application.cacheDir)
+    private val store = LogExportStore(application.cacheDir) {
+        val context = (application as? org.fcitx.fcitx5.android.FcitxApplication)?.directBootAwareContext ?: application
+        CrashReportStore(context.noBackupFilesDir).read()
+    }
     private var pending: File? = store.restore(saved[FILE])
     private val mutableState = MutableStateFlow(State(when {
         saved.get<String>(PHASE) == Phase.PICKING.name -> Phase.PICKING

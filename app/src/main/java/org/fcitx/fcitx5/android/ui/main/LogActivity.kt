@@ -152,6 +152,9 @@ class LogActivity : SettingsUiActivity() {
         if (!fromCrash) {
             menu.item(R.string.clear, R.drawable.ic_baseline_delete_24, iconTint, true) {
                 logView.clear()
+                org.fcitx.fcitx5.android.ui.main.log.CrashReportStore(
+                    FcitxApplication.getInstance().directBootAwareContext.noBackupFilesDir
+                ).delete()
             }
         }
         exportItem = menu.item(R.string.export, R.drawable.ic_baseline_save_24, iconTint, true) {

@@ -16,9 +16,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.getGlobalSettings
 import splitties.dimensions.dp
@@ -76,8 +78,11 @@ fun LifecycleCoroutineScope.withLoadingDialog(
         try {
             action()
         } finally {
-            loadingJob.cancelAndJoin()
-            loadingDialog?.dismiss()
+            // Lifecycle destruction cancels this coroutine too. join() must not skip dismissal.
+            withContext(NonCancellable + Dispatchers.Main.immediate) {
+                loadingJob.cancelAndJoin()
+                loadingDialog?.dismiss()
+            }
         }
     }
 }
@@ -106,8 +111,10 @@ fun LifecycleCoroutineScope.withProgressLoadingDialog(
         try {
             action(updateMessage)
         } finally {
-            loadingJob.cancelAndJoin()
-            loadingDialog?.dismiss()
+            withContext(NonCancellable + Dispatchers.Main.immediate) {
+                loadingJob.cancelAndJoin()
+                loadingDialog?.dismiss()
+            }
         }
     }
 }
