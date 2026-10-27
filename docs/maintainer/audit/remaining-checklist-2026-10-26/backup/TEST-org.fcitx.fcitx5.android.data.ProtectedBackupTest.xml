@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.ProtectedBackupTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-26T09:07:51.643Z" hostname="bbf819fdcadc" time="14.532">
+  <properties/>
+  <testcase name="sizeBudgetAndCancellationDeleteAllDecryptedBytes" classname="org.fcitx.fcitx5.android.data.ProtectedBackupTest" time="2.715"/>
+  <testcase name="wrongPasswordIsRejectedWithoutAnImportableTemporary" classname="org.fcitx.fcitx5.android.data.ProtectedBackupTest" time="1.263"/>
+  <testcase name="aZipLargerThanOneRecordRoundTripsWithoutPlaintextOutsidePrivateStaging" classname="org.fcitx.fcitx5.android.data.ProtectedBackupTest" time="1.247"/>
+  <testcase name="unsupportedVersionAndHostileKdfWorkFactorAreRejected" classname="org.fcitx.fcitx5.android.data.ProtectedBackupTest" time="0.606"/>
+  <testcase name="randomSaltAndNonceMakeIndependentExportsDifferent" classname="org.fcitx.fcitx5.android.data.ProtectedBackupTest" time="1.238"/>
+  <testcase name="tamperingWithCiphertextOrAuthenticatedHeaderIsRejected" classname="org.fcitx.fcitx5.android.data.ProtectedBackupTest" time="1.814"/>
+  <testcase name="truncatedMissingFinalAndAppendedDataAreRejected" classname="org.fcitx.fcitx5.android.data.ProtectedBackupTest" time="2.563"/>
+  <testcase name="reorderedRecordsAndForgedLengthsAreRejectedBeforeLargeAllocation" classname="org.fcitx.fcitx5.android.data.ProtectedBackupTest" time="1.846"/>
+  <testcase name="emptySourceAuthenticatesWithAnExplicitFinalRecord" classname="org.fcitx.fcitx5.android.data.ProtectedBackupTest" time="1.232"/>
+  <testcase name="legacyZipAndShortInputAreNotMistakenForEncryptedArchives" classname="org.fcitx.fcitx5.android.data.ProtectedBackupTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

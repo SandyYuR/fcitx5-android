@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.clipboardsync.network.OneClipConnectionTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-26T07:44:27.993Z" hostname="bbf819fdcadc" time="1.239">
+  <properties/>
+  <testcase name="aConnectedQuietSseStreamOutlivesItsHandshakeDeadline" classname="org.fcitx.fcitx5.android.clipboardsync.network.OneClipConnectionTest" time="0.628"/>
+  <testcase name="closeCancelsTheCurrentlyRunningWarmup" classname="org.fcitx.fcitx5.android.clipboardsync.network.OneClipConnectionTest" time="0.049"/>
+  <testcase name="silentWarmupHasAFiniteTimeout" classname="org.fcitx.fcitx5.android.clipboardsync.network.OneClipConnectionTest" time="0.264"/>
+  <testcase name="reconnectsShareTransportsButKeepSeparateCookieJars" classname="org.fcitx.fcitx5.android.clipboardsync.network.OneClipConnectionTest" time="0.011"/>
+  <testcase name="sseHeadersHaveAHandshakeDeadline" classname="org.fcitx.fcitx5.android.clipboardsync.network.OneClipConnectionTest" time="0.271"/>
+  <testcase name="coroutineCancellationAlsoCancelsWarmup" classname="org.fcitx.fcitx5.android.clipboardsync.network.OneClipConnectionTest" time="0.014"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,11 @@
+{
+  "app": {
+    "tests": 1204,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "build_logic_tests": 6,
+  "new_test_executions": 7,
+  "restore_related_executions": 69
+}

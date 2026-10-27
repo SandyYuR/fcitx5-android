@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-26T17:07:15.739Z" hostname="bbf819fdcadc" time="0.09">
+  <properties/>
+  <testcase name="stagingCleanupUnlinksChildSymlinkWithoutFollowingIt" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.007"/>
+  <testcase name="persistedCommitKeepsEveryImportedRootEvenBeforeClose" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.006"/>
+  <testcase name="eachRenameWindowRollsBackAllRootsAfterProcessDeath" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.043"/>
+  <testcase name="malformedJournalIsRetainedAndBlocksANewRestore" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.002"/>
+  <testcase name="killedStagingNeverChangesLiveData" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.002"/>
+  <testcase name="absentVolumeRemainsPendingWithoutRecreatingDirectories" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.003"/>
+  <testcase name="conflictRetainsBothOriginalAndForeignDataUntilItIsResolved" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.004"/>
+  <testcase name="rootThatDidNotExistIsRemovedOnRollback" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.002"/>
+  <testcase name="resolvedRollbackCanResumeCleanupAfterAnotherProcessDeath" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.003"/>
+  <testcase name="oversizedJournalIsRejectedBeforeParsing" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.003"/>
+  <testcase name="redirectedRootFailsClosedAndDoesNotTouchTheDestination" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.002"/>
+  <testcase name="overlappingRootsAndJournalRootsAreRejectedBeforeReplacement" classname="org.fcitx.fcitx5.android.data.UserDataRestoreJournalTest" time="0.012"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

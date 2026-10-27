@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.UiSettingsBackupTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-26T09:08:06.221Z" hostname="bbf819fdcadc" time="3.49">
+  <properties/>
+  <testcase name="snapshotOnlyContainsTypedBoundedAppearanceKeysAndClearsOldSecrets[23]" classname="org.fcitx.fcitx5.android.data.UiSettingsBackupTest" time="1.391"/>
+  <testcase name="restoreIgnoresInjectedSecretsAndDoesNotOverwriteExistingAccountConfiguration[23]" classname="org.fcitx.fcitx5.android.data.UiSettingsBackupTest" time="0.051"/>
+  <testcase name="bothPlatformPoliciesAllowOnlyTheDedicatedSnapshot[23]" classname="org.fcitx.fcitx5.android.data.UiSettingsBackupTest" time="0.031"/>
+  <testcase name="snapshotOnlyContainsTypedBoundedAppearanceKeysAndClearsOldSecrets" classname="org.fcitx.fcitx5.android.data.UiSettingsBackupTest" time="1.201"/>
+  <testcase name="restoreIgnoresInjectedSecretsAndDoesNotOverwriteExistingAccountConfiguration" classname="org.fcitx.fcitx5.android.data.UiSettingsBackupTest" time="0.03"/>
+  <testcase name="bothPlatformPoliciesAllowOnlyTheDedicatedSnapshot" classname="org.fcitx.fcitx5.android.data.UiSettingsBackupTest" time="0.043"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

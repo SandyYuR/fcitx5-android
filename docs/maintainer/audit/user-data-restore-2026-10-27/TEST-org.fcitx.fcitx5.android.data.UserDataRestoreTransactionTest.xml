@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.UserDataRestoreTransactionTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-26T17:07:17.658Z" hostname="bbf819fdcadc" time="0.04">
+  <properties/>
+  <testcase name="aNormalizedPathCanReplaceTheWholeDirectory" classname="org.fcitx.fcitx5.android.data.UserDataRestoreTransactionTest" time="0.001"/>
+  <testcase name="aStablePlatformAliasUsesTheResolvedDirectoryForCopyAndReplacement" classname="org.fcitx.fcitx5.android.data.UserDataRestoreTransactionTest" time="0.032"/>
+  <testcase name="installationFailureRestoresEveryPreviouslyReplacedRoot" classname="org.fcitx.fcitx5.android.data.UserDataRestoreTransactionTest" time="0.002"/>
+  <testcase name="anAliasRedirectedDuringStagingIsRejectedBeforeAnyDirectoryIsReplaced" classname="org.fcitx.fcitx5.android.data.UserDataRestoreTransactionTest" time="0.004"/>
+  <testcase name="stagingFailureDoesNotChangeLiveFiles" classname="org.fcitx.fcitx5.android.data.UserDataRestoreTransactionTest" time="0.0"/>
+  <testcase name="originalsRemainUntouchedUntilAllStagingIsComplete" classname="org.fcitx.fcitx5.android.data.UserDataRestoreTransactionTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

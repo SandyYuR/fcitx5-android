@@ -1,0 +1,10 @@
+{
+  "token": "b2fc0125-3122-4143-9ae1-b781b6265b08",
+  "pid": 2526,
+  "prefs": "restore-process-6ddf5e10-7dd6-48dc-b740-c1cdc379116e",
+  "database": "restore-process-6ddf5e10-7dd6-48dc-b740-c1cdc379116e.db",
+  "imported_database": "restore-imported-6ddf5e10-7dd6-48dc-b740-c1cdc379116e.db",
+  "wal_bytes_before": 4152,
+  "old_cached_value": "old cached value",
+  "runtime_version": "209cca0e"
+}

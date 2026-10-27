@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-26T07:44:26.514Z" hostname="bbf819fdcadc" time="1.416">
+  <properties/>
+  <testcase name="existingSecureAddressesStaySecureAndMigrationRunsOnlyOnce[23]" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.911"/>
+  <testcase name="oldSelectedImplicitDefaultsArePreservedWithoutCreatingOtherEndpoints[23]" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.058"/>
+  <testcase name="existingSchemeLessAddressesBecomeExplicitHttpWithoutChangingCredentials[23]" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.022"/>
+  <testcase name="allStoredProfileAddressesAreMigratedWithoutRewritingExplicitSchemes[23]" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.02"/>
+  <testcase name="aFreshConfigurationHasNoImplicitLanServer[23]" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.045"/>
+  <testcase name="anUnknownLegacyProfileDoesNotCreateANewImplicitEndpoint[23]" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.017"/>
+  <testcase name="existingSecureAddressesStaySecureAndMigrationRunsOnlyOnce" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.029"/>
+  <testcase name="oldSelectedImplicitDefaultsArePreservedWithoutCreatingOtherEndpoints" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.067"/>
+  <testcase name="existingSchemeLessAddressesBecomeExplicitHttpWithoutChangingCredentials" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.018"/>
+  <testcase name="allStoredProfileAddressesAreMigratedWithoutRewritingExplicitSchemes" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.055"/>
+  <testcase name="aFreshConfigurationHasNoImplicitLanServer" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.018"/>
+  <testcase name="anUnknownLegacyProfileDoesNotCreateANewImplicitEndpoint" classname="org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferencesTest" time="0.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

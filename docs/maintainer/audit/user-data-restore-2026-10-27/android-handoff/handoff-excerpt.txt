@@ -1,0 +1,7 @@
+10-26 22:13:27.447   714   796 I ActivityManager: Start proc 2606:org.fcitx.fcitx5.android.fx.rime.debug/u0a148 for service {org.fcitx.fcitx5.android.fx.rime.debug/org.fcitx.fcitx5.android.input.FcitxInputMethodService}
+10-26 22:16:26.913   714   796 I ActivityManager: Start proc 2682:org.fcitx.fcitx5.android.fx.rime.debug:restore/u0a148 for next-top-activity {org.fcitx.fcitx5.android.fx.rime.debug/org.fcitx.fcitx5.android.ui.main.settings.behavior.UserDataRestoreActivity}
+10-26 22:16:35.495  2682  2700 I Process : Sending signal. PID: 2606 SIG: 9
+10-26 22:16:36.926   714  1758 I am_proc_died: [0,2606,org.fcitx.fcitx5.android.fx.rime.debug,200,7]
+10-26 22:16:37.522   586   586 I Zygote  : Process 2606 exited due to signal 9 (Killed)
+10-26 22:16:38.252   714   796 I ActivityManager: Start proc 2709:org.fcitx.fcitx5.android.fx.rime.debug/u0a148 for service {org.fcitx.fcitx5.android.fx.rime.debug/org.fcitx.fcitx5.android.input.FcitxInputMethodService}
+10-26 22:18:04.666   714  1758 I ActivityManager: Killing 2682:org.fcitx.fcitx5.android.fx.rime.debug:restore/u0a148 (adj 0): stop org.fcitx.fcitx5.android.fx.rime.debug due to start instr

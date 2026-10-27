@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-26T17:07:13.937Z" hostname="bbf819fdcadc" time="1.799">
+  <properties/>
+  <testcase name="orphanWalCannotSilentlyReplaceClipboardHistory[23]" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.032"/>
+  <testcase name="legacyZipRetainsWalRecordsAndRemovesSidecarsBeforeRestore[23]" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.306"/>
+  <testcase name="futureVersionInWalIsRejectedBeforeChangingInstalledData[23]" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.023"/>
+  <testcase name="corruptClipboardDatabaseDoesNotProduceAPreparedImport[23]" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.018"/>
+  <testcase name="restoringAnotherDatabasePreservesWalOfAnUnreplacedDatabase[23]" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.016"/>
+  <testcase name="importedPreferencesReplaceTheOldAtomicBackupToo[23]" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.018"/>
+  <testcase name="orphanWalCannotSilentlyReplaceClipboardHistory" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.044"/>
+  <testcase name="legacyZipRetainsWalRecordsAndRemovesSidecarsBeforeRestore" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="1.2"/>
+  <testcase name="futureVersionInWalIsRejectedBeforeChangingInstalledData" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.036"/>
+  <testcase name="corruptClipboardDatabaseDoesNotProduceAPreparedImport" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.035"/>
+  <testcase name="restoringAnotherDatabasePreservesWalOfAnUnreplacedDatabase" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.026"/>
+  <testcase name="importedPreferencesReplaceTheOldAtomicBackupToo" classname="org.fcitx.fcitx5.android.data.UserDataClipboardImportTest" time="0.036"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

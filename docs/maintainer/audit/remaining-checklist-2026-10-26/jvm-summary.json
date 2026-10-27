@@ -1,0 +1,15 @@
+{
+  "code_sha": "1113725128f160bf50d37630e96248eba210f9b4",
+  "app": {
+    "tests": 1101,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "build_logic": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}
