@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest" tests="8" skipped="0" failures="2" errors="0" timestamp="2026-10-26T06:10:33.418Z" hostname="bbf819fdcadc" time="4.984">
+  <properties/>
+  <testcase name="hostileNamesDoNotEscapeTheDirectoryDuringMigration[23]" classname="org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest" time="2.001"/>
+  <testcase name="anExistingCanonicalThemeIsNotOverwrittenByAnOlderAlias[23]" classname="org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest" time="0.038"/>
+  <testcase name="migratedThemeCanBeDeletedWithoutReappearingFromItsAlias[23]" classname="org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest" time="0.049"/>
+  <testcase name="allActualBundledThemesAreLoadedAndTheirNamesBecomeCanonical[23]" classname="org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest" time="0.06">
+    <failure message="java.io.FileNotFoundException: bundled/themes/森林集·write.json" type="java.io.FileNotFoundException">java.io.FileNotFoundException: bundled/themes/森林集·write.json
+	at org.robolectric.shadows.ShadowArscAssetManager.openAsset(ShadowArscAssetManager.java:373)
+	at android.content.res.AssetManager.openAsset(AssetManager.java)
+	at android.content.res.AssetManager.open(AssetManager.java:313)
+	at android.content.res.AssetManager.open(AssetManager.java:287)
+	at org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest.allActualBundledThemesAreLoadedAndTheirNamesBecomeCanonical(LegacyThemeFilenameTest.kt:32)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.robolectric.RobolectricTestRunner$HelperTestRunner$1.evaluate(RobolectricTestRunner.java:542)
+	at org.robolectric.internal.SandboxTestRunner.lambda$executeInSandbox$4(SandboxTestRunner.java:429)
+	at org.robolectric.internal.SandboxTestRunner.runInSandbox(SandboxTestRunner.java:455)
+	at org.robolectric.internal.SandboxTestRunner.executeInSandbox(SandboxTestRunner.java:420)
+	at org.robolectric.internal.SandboxTestRunner$5.evaluate(SandboxTestRunner.java:405)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.robolectric.internal.SandboxTestRunner.access$000(SandboxTestRunner.java:64)
+	at org.robolectric.internal.SandboxTestRunner$4.evaluate(SandboxTestRunner.java:294)
+	at org.robolectric.internal.SandboxTestRunner$2.evaluate(SandboxTestRunner.java:260)
+	at org.robolectric.internal.SandboxTestRunner$3.lambda$evaluate$0(SandboxTestRunner.java:280)
+	at org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThreadWithClassLoader$1(Sandbox.java:112)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+</failure>
+  </testcase>
+  <testcase name="hostileNamesDoNotEscapeTheDirectoryDuringMigration" classname="org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest" time="1.626"/>
+  <testcase name="anExistingCanonicalThemeIsNotOverwrittenByAnOlderAlias" classname="org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest" time="0.035"/>
+  <testcase name="migratedThemeCanBeDeletedWithoutReappearingFromItsAlias" classname="org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest" time="0.063"/>
+  <testcase name="allActualBundledThemesAreLoadedAndTheirNamesBecomeCanonical" classname="org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest" time="0.077">
+    <failure message="java.io.FileNotFoundException: bundled/themes/森林集·write.json" type="java.io.FileNotFoundException">java.io.FileNotFoundException: bundled/themes/森林集·write.json
+	at org.robolectric.shadows.ShadowArscAssetManager9.nativeOpenAsset(ShadowArscAssetManager9.java:709)
+	at android.content.res.AssetManager.nativeOpenAsset(AssetManager.java)
+	at android.content.res.AssetManager.open(AssetManager.java:744)
+	at android.content.res.AssetManager.open(AssetManager.java:721)
+	at org.fcitx.fcitx5.android.data.theme.LegacyThemeFilenameTest.allActualBundledThemesAreLoadedAndTheirNamesBecomeCanonical(LegacyThemeFilenameTest.kt:32)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.robolectric.RobolectricTestRunner$HelperTestRunner$1.evaluate(RobolectricTestRunner.java:542)
+	at org.robolectric.internal.SandboxTestRunner.lambda$executeInSandbox$4(SandboxTestRunner.java:429)
+	at org.robolectric.internal.SandboxTestRunner.runInSandbox(SandboxTestRunner.java:455)
+	at org.robolectric.internal.SandboxTestRunner.executeInSandbox(SandboxTestRunner.java:420)
+	at org.robolectric.internal.SandboxTestRunner$5.evaluate(SandboxTestRunner.java:405)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.robolectric.internal.SandboxTestRunner.access$000(SandboxTestRunner.java:64)
+	at org.robolectric.internal.SandboxTestRunner$4.evaluate(SandboxTestRunner.java:294)
+	at org.robolectric.internal.SandboxTestRunner$2.evaluate(SandboxTestRunner.java:260)
+	at org.robolectric.internal.SandboxTestRunner$3.lambda$evaluate$0(SandboxTestRunner.java:280)
+	at org.robolectric.internal.bytecode.Sandbox.lambda$runOnMainThreadWithClassLoader$1(Sandbox.java:112)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+</failure>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,40 @@
+{
+  "source_commit": "bb9d2a78c4f588f67fa8bb33e5dab35ac3576175",
+  "ci": {
+    "run_id": 40366006633,
+    "code_sha": "bb9d2a78c4f588f67fa8bb33e5dab35ac3576175",
+    "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40366006633",
+    "status": "completed",
+    "conclusion": "success",
+    "unit_tests": "success",
+    "jvm_tests": 1197,
+    "arm64_release": "success",
+    "artifact_id": 12672830385,
+    "artifact_name": "direct-rime-frontend-arm64-release",
+    "artifact_size_bytes": 7331505,
+    "artifact_digest": "sha256:1073a47427c008a8ee6223935f9378b39bf6bd3b69358e9b724f29a1d73c7912",
+    "unit_report_artifact_id": 12670352625,
+    "unit_report_digest": "sha256:eb2a2c23ea9d17a5a2ffd4bcc8aae6460aedc580a9a3b5ae31b67ccf8e3ea4d1",
+    "release_abis": [
+      "arm64-v8a"
+    ],
+    "covers_latest_code": true
+  },
+  "app_jvm_tests": 1197,
+  "build_logic_tests": 6,
+  "restore_related_executions": 62,
+  "new_executions": 41,
+  "real_host_child_process_kills": 6,
+  "android_restore_handoff_verified": false,
+  "physical_power_loss_verified": false,
+  "remaining_original_rows": [],
+  "remaining_verification": [
+    "P1-10"
+  ],
+  "release_abis": [
+    "arm64-v8a"
+  ],
+  "additional_pending_findings": [
+    "恢复残留递归清理仍在启动线程，后续批次处理中"
+  ]
+}

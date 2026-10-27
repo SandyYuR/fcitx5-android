@@ -1,0 +1,103 @@
+{
+  "branch": "perf/direct-rime-startup-20261024",
+  "source_commit": "1113725128f160bf50d37630e96248eba210f9b4",
+  "runtime_change_commit": "1113725128f160bf50d37630e96248eba210f9b4",
+  "local": {
+    "code_sha": "1113725128f160bf50d37630e96248eba210f9b4",
+    "jvm_tests": 1101,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "build_logic_tests": 6,
+    "python_packaging_tests": 4,
+    "new_test_executions_since_7ec08c8e": 99,
+    "build_abi_property": "arm64-v8a",
+    "evidence": "audit/remaining-checklist-2026-10-26/index.md",
+    "device_testing": "本轮未重新安装；最近模拟器运行代码仍6f96066b。用户手机7ec08c8e日志不是本轮修复的设备验收。"
+  },
+  "published_ci": {
+    "run_id": 40297595560,
+    "code_sha": "1113725128f160bf50d37630e96248eba210f9b4",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40297595560",
+    "unit_tests": "success",
+    "jvm_tests": 1101,
+    "python_packaging_tests": 4,
+    "arm64_release": "success",
+    "artifact_name": "direct-rime-frontend-arm64-release",
+    "artifact_id": 12639522402,
+    "artifact_size_bytes": 7219377,
+    "artifact_digest": "sha256:1b892c3c4687d3da7c576519b28d54afeed15b62d6c69041b6807de1edacb88f",
+    "unit_test_artifact_id": 12638518935,
+    "unit_test_artifact_digest": "sha256:77a9639721e6da21b7f8ba81957aa621af001aab85aa359081958c0408fb792c",
+    "covers_latest_code": true,
+    "release_abis": [
+      "arm64-v8a"
+    ]
+  },
+  "published_apk": {
+    "apk": "/workspace/11137251-arm64-release/direct.apk",
+    "native_libraries": [
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libdirect-rime.so"
+    ],
+    "fcitx_dependencies": [],
+    "apk_sha256": "9764da2b7cab56c6661e3b49a3f98aecacec753fa9f012534b165f61e3e8c4ba",
+    "native_dependencies": {
+      "lib/arm64-v8a/libc++_shared.so": [
+        "libc.so",
+        "libm.so",
+        "libdl.so"
+      ],
+      "lib/arm64-v8a/libdirect-rime.so": [
+        "liblog.so",
+        "libandroid.so",
+        "libm.so",
+        "libc++_shared.so",
+        "libdl.so",
+        "libc.so"
+      ]
+    },
+    "obsolete_picker_classes": [],
+    "legacy_backend_classes": [],
+    "dex_files_checked": 2,
+    "clearurls": {
+      "commit": "11086f40512774dcadef54079f1ba023bfacf940",
+      "sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+      "providers": 206
+    },
+    "page_size": 16384,
+    "required_alignment_by_abi": {
+      "arm64-v8a": 16384
+    },
+    "code_sha": "1113725128f160bf50d37630e96248eba210f9b4",
+    "covers_latest_code": true
+  },
+  "source_has_changes_after_published_apk": true,
+  "new_app_test_executions": 99,
+  "confirmed_old_rows_fixed": [
+    "B1",
+    "P1-3",
+    "P0-10",
+    "P1-1"
+  ],
+  "old_verification_rows_closed": [
+    "N4",
+    "P2-6"
+  ],
+  "remaining_original_rows": 3,
+  "remaining_original_verification_rows": [
+    "P1-10"
+  ],
+  "user_requested_deferral": "One-off Back gesture crash after changing punctuation position; no fatal stack; no speculative fix.",
+  "emulator_latest_installed_code": "6f96066b",
+  "new_device_validation": false,
+  "release_abis": [
+    "arm64-v8a"
+  ],
+  "user_chosen_synchronous_fallback_required": true,
+  "old_row_retained_by_request": [
+    "D7"
+  ]
+}

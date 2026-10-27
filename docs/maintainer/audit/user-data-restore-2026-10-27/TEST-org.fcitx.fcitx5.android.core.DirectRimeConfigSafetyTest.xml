@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.core.DirectRimeConfigSafetyTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-26T17:06:39.701Z" hostname="bbf819fdcadc" time="0.12">
+  <properties/>
+  <testcase name="successfulDeletionNeverRemovesExternalProfileFiles" classname="org.fcitx.fcitx5.android.core.DirectRimeConfigSafetyTest" time="0.028"/>
+  <testcase name="failedSwitchRetainsThePreviousSelectionInMemoryAndOnDisk" classname="org.fcitx.fcitx5.android.core.DirectRimeConfigSafetyTest" time="0.012"/>
+  <testcase name="failedDeleteRestoresTheOriginalDirectory" classname="org.fcitx.fcitx5.android.core.DirectRimeConfigSafetyTest" time="0.013"/>
+  <testcase name="failedCreateDoesNotPublishAProfileOrLeaveAnEmptyDirectory" classname="org.fcitx.fcitx5.android.core.DirectRimeConfigSafetyTest" time="0.01"/>
+  <testcase name="legacyNestedDataCannotBeDeletedOrMovedWithItsInactiveParent" classname="org.fcitx.fcitx5.android.core.DirectRimeConfigSafetyTest" time="0.035"/>
+  <testcase name="creatingAnOverlappingProfileRejectsBothParentsAndChildren" classname="org.fcitx.fcitx5.android.core.DirectRimeConfigSafetyTest" time="0.009"/>
+  <testcase name="failedRenameRestoresFilesAndRegistration" classname="org.fcitx.fcitx5.android.core.DirectRimeConfigSafetyTest" time="0.01"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.LegacySwipeEditorRoundTripTest" tests="4" skipped="0" failures="1" errors="0" timestamp="2026-10-26T05:53:46.104Z" hostname="bbf819fdcadc" time="79.061">
+  <properties/>
+  <testcase name="twoExplicitDirectionsKeepTheirOwnActionsAndLabelsThroughAppearanceEditing[23]" classname="org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.LegacySwipeEditorRoundTripTest" time="4.006"/>
+  <testcase name="appearanceEditingPinsLegacyActionsAndLabelsToTheCurrentPhysicalDirection[23]" classname="org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.LegacySwipeEditorRoundTripTest" time="18.617"/>
+  <testcase name="twoExplicitDirectionsKeepTheirOwnActionsAndLabelsThroughAppearanceEditing" classname="org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.LegacySwipeEditorRoundTripTest" time="3.953"/>
+  <testcase name="appearanceEditingPinsLegacyActionsAndLabelsToTheCurrentPhysicalDirection" classname="org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.LegacySwipeEditorRoundTripTest" time="51.506">
+    <failure message="java.lang.OutOfMemoryError: Java heap space" type="java.lang.OutOfMemoryError">java.lang.OutOfMemoryError: Java heap space
+</failure>
+  </testcase>
+  <system-out><![CDATA[ERROR: Style contains key with bad entry: 0x0101056c
+
+ERROR: Style contains key with bad entry: 0x0101056c
+
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

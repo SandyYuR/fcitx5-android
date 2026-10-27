@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.UserDataBackupArchiveTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-26T09:08:09.714Z" hostname="bbf819fdcadc" time="0.021">
+  <properties/>
+  <testcase name="writerFailureIsPreservedWhenResumingAlsoFails" classname="org.fcitx.fcitx5.android.data.UserDataBackupArchiveTest" time="0.003"/>
+  <testcase name="aFailedBackupResumesTheEngineAndReturnsNoPartialArchive" classname="org.fcitx.fcitx5.android.data.UserDataBackupArchiveTest" time="0.0"/>
+  <testcase name="aResumeFailureAlsoRemovesTheUnpublishedArchive" classname="org.fcitx.fcitx5.android.data.UserDataBackupArchiveTest" time="0.001"/>
+  <testcase name="archiveContainsTheFinalFlushedDataBeforeTheWriterResumes" classname="org.fcitx.fcitx5.android.data.UserDataBackupArchiveTest" time="0.016"/>
+  <testcase name="restoredPickerStateCannotReadAnUnrelatedFile" classname="org.fcitx.fcitx5.android.data.UserDataBackupArchiveTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

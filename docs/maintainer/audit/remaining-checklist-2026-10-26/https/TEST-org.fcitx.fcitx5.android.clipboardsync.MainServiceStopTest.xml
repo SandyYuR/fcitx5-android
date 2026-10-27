@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.clipboardsync.MainServiceStopTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-26T07:44:22.761Z" hostname="bbf819fdcadc" time="3.746">
+  <properties/>
+  <testcase name="staleReconnectNotificationCannotUndoPause" classname="org.fcitx.fcitx5.android.clipboardsync.MainServiceStopTest" time="2.527"/>
+  <testcase name="nullRestartIntentDoesNotStartDisabledSync" classname="org.fcitx.fcitx5.android.clipboardsync.MainServiceStopTest" time="0.034"/>
+  <testcase name="anUnconfiguredServerDoesNotStartNetworkWorkOrClearTheUsersEnableChoice" classname="org.fcitx.fcitx5.android.clipboardsync.MainServiceStopTest" time="0.058"/>
+  <testcase name="quotaTimeoutStopsServiceCancelsWorkAndPersistsPause" classname="org.fcitx.fcitx5.android.clipboardsync.MainServiceStopTest" time="0.108"/>
+  <testcase name="pauseActionDoesNotFallThroughToStart" classname="org.fcitx.fcitx5.android.clipboardsync.MainServiceStopTest" time="0.027"/>
+  <testcase name="queuedFocusRefreshCannotUndoQuotaPause" classname="org.fcitx.fcitx5.android.clipboardsync.MainServiceStopTest" time="0.059"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Intent = Intent { act=android.service.quicksettings.action.REQUEST_LISTENING pkg=com.android.systemui (has extras) }; Matching wrappers: []
+Intent = Intent { act=android.service.quicksettings.action.REQUEST_LISTENING pkg=com.android.systemui (has extras) }; Matching wrappers: []
+Intent = Intent { act=android.service.quicksettings.action.REQUEST_LISTENING pkg=com.android.systemui (has extras) }; Matching wrappers: []
+]]></system-err>
+</testsuite>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-26T17:07:11.241Z" hostname="bbf819fdcadc" time="0.277">
+  <properties/>
+  <testcase name="excessiveNestingIsRejectedBeforeRestore[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.066"/>
+  <testcase name="atomicBackupWithoutMainFileIsRecovered[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.027"/>
+  <testcase name="malformedInputCannotBecomeAPreparedPreference[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.013"/>
+  <testcase name="invalidBackupIsRetainedAndDoesNotOverwriteMain[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.04"/>
+  <testcase name="atomicBackupWinsOverAPartiallyWrittenMainFile[23]" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.015"/>
+  <testcase name="excessiveNestingIsRejectedBeforeRestore" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.026"/>
+  <testcase name="atomicBackupWithoutMainFileIsRecovered" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.019"/>
+  <testcase name="malformedInputCannotBecomeAPreparedPreference" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.043"/>
+  <testcase name="invalidBackupIsRetainedAndDoesNotOverwriteMain" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.01"/>
+  <testcase name="atomicBackupWinsOverAPartiallyWrittenMainFile" classname="org.fcitx.fcitx5.android.data.SharedPreferencesRestoreTest" time="0.01"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

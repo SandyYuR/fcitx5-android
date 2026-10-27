@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "before_pid": 2526,
+  "after_pid": 2774,
+  "preferences": "imported value",
+  "old_wal_row": "committed WAL row",
+  "new_database_row": "new database",
+  "runtime_version": "209cca0e7c8e0954d00a6c939e07d05cba160a8f"
+}

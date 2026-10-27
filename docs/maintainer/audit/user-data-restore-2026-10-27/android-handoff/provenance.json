@@ -1,0 +1,35 @@
+{
+  "runtime_sha": "209cca0e7c8e0954d00a6c939e07d05cba160a8f",
+  "harness_sha": "3e09e289cdd4f0a1d52448e519dbc3f15f7999f9",
+  "harness_difference": "KDoc clarifies Android instrumentation teardown; test logic unchanged from executed version",
+  "device": {
+    "api": 35,
+    "abi": "x86_64",
+    "kvm": false,
+    "hardware_timeout_multiplier": 100
+  },
+  "release_abis": [
+    "arm64-v8a"
+  ],
+  "fixture_prepare_pid": 2526,
+  "ordinary_main_pid_before_final_handoff": 2606,
+  "restore_pid": 2682,
+  "new_main_pid_after_restore": 2709,
+  "verifier_pid": 2774,
+  "verify_junit": {
+    "tests": 1,
+    "passed": 1
+  },
+  "restore_worker_maps": {
+    "lines": 2864,
+    "sha256": "98a500f3ad135e3784841e51d975efb96da6b8b61cfa7a664ce873fa4bbb729f",
+    "direct_rime_loaded": false,
+    "fcitx_loaded": false
+  },
+  "initial_attempt": "killing instrumented main triggers Android instrumentation teardown that may stop worker; retained same request retried after instrumentation ended",
+  "final_handoff": "worker kills ordinary main before replacing directories; success dialog then separate verifier",
+  "limits": [
+    "emulator debug functional check",
+    "no real removable-volume unplug or physical power-loss proof"
+  ]
+}
