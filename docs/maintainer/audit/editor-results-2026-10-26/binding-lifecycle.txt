@@ -1,0 +1,351 @@
+--------- beginning of main
+   363.189  1185  1185 I FcitxColdStart: service.onCreate begin
+   365.990  1185  1185 I FcitxColdStart: service.onCreate duration=2801ms
+   368.671  1185  1683 I FcitxColdStart: font preload keys=0 duration=9981ms
+   369.491  1185  1185 I FcitxColdStart: service.onStartInput restarting=false
+   370.575  1185  1698 I RimeLifecycle: startup phase=assets duration_ms=5960
+   372.430  1185  1185 I RimeLifecycle: input_binding generation=1 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+   372.492  1185  1185 I FcitxColdStart: service.onCreateInputView begin
+   374.873  1185  1698 I RimeLifecycle: startup phase=config duration_ms=4298
+   380.149  1185  1698 I RimeLifecycle: startup phase=native duration_ms=5109
+   388.941  1185  1698 I RimeLifecycle: bind generation=1 duration_ms=3111 ready=true no_learning=false
+   400.385  1185  1185 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=20037ms
+   402.663  1185  1185 I FcitxColdStart: KeyboardWindow.onCreateView duration=22497ms
+   406.259  1185  1185 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=1128ms
+   416.728  1185  1185 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=8823ms
+   423.153  1185  1185 I FcitxColdStart: replaceInputView duration=50594ms
+   423.487  1185  1185 I FcitxColdStart: service.onCreateInputView duration=51022ms
+   423.489  1185  1185 I FcitxColdStart: service.onStartInputView restarting=false
+   477.485  1185  1185 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2834ms
+  1132.699  2261  2283 I FcitxColdStart: font preload keys=0 duration=1925ms
+  1150.814  2261  2299 I RimeLifecycle: startup phase=assets duration_ms=1974
+  1151.086  2261  2299 I RimeLifecycle: startup phase=config duration_ms=272
+  1152.870  2261  2299 I RimeLifecycle: startup phase=native duration_ms=1782
+  1157.559  2261  2261 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=745ms
+  1157.670  2261  2261 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=77ms
+  1157.829  2261  2261 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=53ms
+  1168.204  2261  2261 I FcitxColdStart: service.onCreate begin
+  1169.192  2261  2261 I FcitxColdStart: service.onCreate duration=987ms
+  1191.587  2261  2261 I FcitxColdStart: service.onStartInput restarting=false
+  1192.422  2261  2261 I RimeLifecycle: input_binding generation=1 input_type=0 ime_options=0 needs_rime=false restarting=false
+  1192.508  2261  2299 I RimeLifecycle: binding_inactive generation=1 native_create=false
+  1200.366  2261  2261 I FcitxColdStart: service.onStartInput restarting=false
+  1200.379  2261  2261 I RimeLifecycle: input_binding generation=3 input_type=0 ime_options=0 needs_rime=false restarting=false
+  1200.483  2261  2299 I RimeLifecycle: binding_inactive generation=3 native_create=false
+  1207.136  2261  2299 I RimeLifecycle: binding_inactive generation=4 native_create=false
+  1208.159  2261  2261 I FcitxColdStart: service.onStartInput restarting=false
+  1208.198  2261  2261 I RimeLifecycle: input_binding generation=6 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  1208.289  2261  2261 I FcitxColdStart: service.onCreateInputView begin
+  1210.121  2261  2299 I RimeLifecycle: bind generation=6 duration_ms=1743 ready=true no_learning=false
+  1212.139  2261  2261 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=512ms
+  1212.347  2261  2261 I FcitxColdStart: KeyboardWindow.onCreateView duration=748ms
+  1213.497  2261  2261 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=360ms
+  1214.886  2261  2261 I FcitxColdStart: replaceInputView duration=6587ms
+  1215.065  2261  2261 I FcitxColdStart: service.onCreateInputView duration=6775ms
+  1215.069  2261  2261 I FcitxColdStart: service.onStartInputView restarting=false
+  1221.899  2261  2261 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=185ms
+  1226.674  2261  2261 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=84ms
+  1226.698  2261  2261 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=21ms
+  1226.835  2261  2261 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=69ms
+  1230.350  2261  2261 I FcitxColdStart: service.onStartInput restarting=false
+  1230.403  2261  2261 I RimeLifecycle: input_binding generation=9 input_type=0 ime_options=0 needs_rime=false restarting=false
+  1230.816  2261  2299 I RimeLifecycle: binding_inactive generation=9 native_create=false
+  1243.562  2261  2261 I FcitxColdStart: service.onStartInput restarting=false
+  1243.618  2261  2261 I RimeLifecycle: input_binding generation=11 input_type=0 ime_options=0 needs_rime=false restarting=false
+  1243.886  2261  2299 I RimeLifecycle: binding_inactive generation=11 native_create=false
+  1252.552  2261  2261 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2314ms
+  1253.542  2261  2261 I FcitxColdStart: service.onStartInput restarting=false
+  1253.647  2261  2261 I RimeLifecycle: input_binding generation=14 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  1254.305  2261  2261 I FcitxColdStart: service.onStartInputView restarting=false
+  1566.162  2432  2456 I FcitxColdStart: font preload keys=0 duration=1005ms
+  1581.170  2432  2467 I RimeLifecycle: startup phase=assets duration_ms=2013
+  1581.473  2432  2467 I RimeLifecycle: startup phase=config duration_ms=297
+  1582.949  2432  2467 I RimeLifecycle: startup phase=native duration_ms=1474
+  1587.042  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=559ms
+  1587.161  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=108ms
+  1587.355  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=110ms
+  1594.724  2432  2432 I FcitxColdStart: service.onCreate begin
+  1595.093  2432  2432 I FcitxColdStart: service.onCreate duration=369ms
+  1596.437  2432  2432 I FcitxColdStart: service.onStartInput restarting=false
+  1597.090  2432  2432 I RimeLifecycle: input_binding generation=1 input_type=0 ime_options=0 needs_rime=false restarting=false
+  1597.138  2432  2467 I RimeLifecycle: binding_inactive generation=1 native_create=false
+  1609.953  2432  2432 I FcitxColdStart: service.onStartInput restarting=false
+  1609.970  2432  2432 I RimeLifecycle: input_binding generation=3 input_type=0 ime_options=0 needs_rime=false restarting=false
+  1610.162  2432  2467 I RimeLifecycle: binding_inactive generation=3 native_create=false
+  1616.864  2432  2432 I FcitxColdStart: service.onStartInput restarting=false
+  1616.884  2432  2432 I RimeLifecycle: input_binding generation=5 input_type=0 ime_options=0 needs_rime=false restarting=false
+  1617.098  2432  2467 I RimeLifecycle: binding_inactive generation=5 native_create=false
+  1619.027  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=89ms
+  1619.070  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=40ms
+  1619.201  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=56ms
+  1621.217  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=113ms
+  1621.254  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=31ms
+  1621.351  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=44ms
+  1629.258  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2742ms
+  1630.490  2432  2467 I RimeLifecycle: binding_inactive generation=6 native_create=false
+  1630.609  2432  2432 I FcitxColdStart: service.onStartInput restarting=false
+  1630.655  2432  2432 I RimeLifecycle: input_binding generation=8 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  1630.738  2432  2432 I FcitxColdStart: service.onCreateInputView begin
+  1633.387  2432  2467 I RimeLifecycle: bind generation=8 duration_ms=2337 ready=true no_learning=false
+  1634.671  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=489ms
+  1634.879  2432  2432 I FcitxColdStart: KeyboardWindow.onCreateView duration=749ms
+  1636.201  2432  2432 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=472ms
+  1637.797  2432  2432 I FcitxColdStart: replaceInputView duration=7031ms
+  1638.078  2432  2432 I FcitxColdStart: service.onCreateInputView duration=7339ms
+  1638.085  2432  2432 I FcitxColdStart: service.onStartInputView restarting=false
+  1649.923  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=427ms
+  1656.489  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=186ms
+  1656.571  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=76ms
+  1656.703  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=94ms
+  1660.185  2432  2432 I FcitxColdStart: service.onStartInput restarting=false
+  1660.209  2432  2432 I RimeLifecycle: input_binding generation=11 input_type=0 ime_options=0 needs_rime=false restarting=false
+  1660.666  2432  2467 I RimeLifecycle: binding_inactive generation=11 native_create=false
+  1674.284  2432  2432 I FcitxColdStart: service.onStartInput restarting=false
+  1674.317  2432  2432 I RimeLifecycle: input_binding generation=13 input_type=0 ime_options=0 needs_rime=false restarting=false
+  1674.476  2432  2467 I RimeLifecycle: binding_inactive generation=13 native_create=false
+  1679.719  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=1360ms
+  1684.772  2432  2432 I FcitxColdStart: service.onStartInput restarting=false
+  1684.785  2432  2432 I RimeLifecycle: input_binding generation=15 input_type=0 ime_options=0 needs_rime=false restarting=false
+  1684.914  2432  2467 I RimeLifecycle: binding_inactive generation=15 native_create=false
+  1686.575  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=113ms
+  1686.606  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=23ms
+  1686.716  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=43ms
+  1688.899  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=105ms
+  1688.926  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=23ms
+  1689.010  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=25ms
+  1700.817  2432  2432 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=5018ms
+  2096.950  2551  2573 I FcitxColdStart: font preload keys=0 duration=3436ms
+  2111.526  2551  2587 I RimeLifecycle: startup phase=assets duration_ms=3012
+  2112.299  2551  2587 I RimeLifecycle: startup phase=config duration_ms=770
+  2114.741  2551  2587 I RimeLifecycle: startup phase=native duration_ms=2432
+  2118.903  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=589ms
+  2119.055  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=136ms
+  2119.445  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=175ms
+  2123.203  2551  2551 I FcitxColdStart: service.onCreate begin
+  2123.816  2551  2551 I FcitxColdStart: service.onCreate duration=612ms
+  2124.538  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2125.051  2551  2551 I RimeLifecycle: input_binding generation=1 input_type=0 ime_options=0 needs_rime=false restarting=false
+  2125.124  2551  2587 I RimeLifecycle: binding_inactive generation=1 native_create=false
+  2140.125  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2140.153  2551  2551 I RimeLifecycle: input_binding generation=3 input_type=0 ime_options=0 needs_rime=false restarting=false
+  2140.187  2551  2587 I RimeLifecycle: binding_inactive generation=3 native_create=false
+  2148.233  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2148.254  2551  2551 I RimeLifecycle: input_binding generation=5 input_type=0 ime_options=0 needs_rime=false restarting=false
+  2148.409  2551  2587 I RimeLifecycle: binding_inactive generation=5 native_create=false
+  2149.422  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=79ms
+  2149.446  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=19ms
+  2149.569  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=50ms
+  2151.573  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=132ms
+  2151.615  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=40ms
+  2151.758  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=83ms
+  2159.758  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2911ms
+  2160.352  2551  2587 I RimeLifecycle: binding_inactive generation=6 native_create=false
+  2161.031  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2161.049  2551  2551 I RimeLifecycle: input_binding generation=8 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  2161.146  2551  2551 I FcitxColdStart: service.onCreateInputView begin
+  2163.391  2551  2587 I RimeLifecycle: bind generation=8 duration_ms=2086 ready=true no_learning=false
+  2165.270  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=552ms
+  2165.466  2551  2551 I FcitxColdStart: KeyboardWindow.onCreateView duration=782ms
+  2166.755  2551  2551 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=277ms
+  2168.291  2551  2551 I FcitxColdStart: replaceInputView duration=7123ms
+  2168.410  2551  2551 I FcitxColdStart: service.onCreateInputView duration=7264ms
+  2168.412  2551  2551 I FcitxColdStart: service.onStartInputView restarting=false
+  2175.884  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=255ms
+  2180.042  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=164ms
+  2180.159  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=109ms
+  2180.347  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=117ms
+  2183.855  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2183.873  2551  2551 I RimeLifecycle: input_binding generation=11 input_type=0 ime_options=0 needs_rime=false restarting=false
+  2184.097  2551  2587 I RimeLifecycle: binding_inactive generation=11 native_create=false
+  2193.361  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2193.371  2551  2551 I RimeLifecycle: input_binding generation=13 input_type=0 ime_options=0 needs_rime=false restarting=false
+  2193.515  2551  2587 I RimeLifecycle: binding_inactive generation=13 native_create=false
+  2196.954  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=863ms
+  2199.795  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2199.811  2551  2551 I RimeLifecycle: input_binding generation=15 input_type=0 ime_options=0 needs_rime=false restarting=false
+  2199.898  2551  2587 I RimeLifecycle: binding_inactive generation=15 native_create=false
+  2200.767  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=58ms
+  2200.796  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=21ms
+  2200.850  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=20ms
+  2202.061  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=58ms
+  2202.087  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=23ms
+  2202.142  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=24ms
+  2212.352  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=272ms
+  2212.475  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=120ms
+  2212.662  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=135ms
+  2219.475  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=1868ms
+  2220.549  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2220.558  2551  2551 I RimeLifecycle: input_binding generation=18 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  2220.571  2551  2551 I FcitxColdStart: service.onStartInputView restarting=false
+  2220.957  2551  2587 I RimeLifecycle: bind generation=18 duration_ms=96 ready=true no_learning=false
+  2221.133  2551  2587 I RimeLifecycle: binding_inactive generation=19 native_create=false
+  2221.483  2551  2587 I RimeLifecycle: bind generation=19 duration_ms=18 ready=true no_learning=false
+  2221.825  2551  2587 I RimeLifecycle: binding_inactive generation=20 native_create=false
+  2223.642  2551  2587 I RimeLifecycle: bind generation=20 duration_ms=153 ready=true no_learning=false
+  2224.114  2551  2587 I RimeLifecycle: bind generation=21 duration_ms=229 ready=true no_learning=false
+  2226.598  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=1843ms
+  2233.122  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2209ms
+  2244.285  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2244.307  2551  2551 I RimeLifecycle: input_binding generation=24 input_type=0 ime_options=0 needs_rime=false restarting=false
+  2245.974  2551  2587 I RimeLifecycle: binding_inactive generation=24 native_create=false
+  2245.999  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2246.021  2551  2551 I RimeLifecycle: input_binding generation=26 input_type=131073 ime_options=1073741830 needs_rime=true restarting=false
+  2246.477  2551  2551 I FcitxColdStart: service.onStartInputView restarting=false
+  2246.704  2551  2587 I RimeLifecycle: bind generation=26 duration_ms=569 ready=true no_learning=false
+  2249.706  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=1399ms
+  2286.166  2551  2551 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2556ms
+  2287.353  2551  2587 I RimeLifecycle: binding_inactive generation=27 native_create=false
+  2288.689  2551  2587 I RimeLifecycle: binding_inactive generation=28 native_create=false
+  2288.897  2551  2587 I RimeLifecycle: binding_inactive generation=29 native_create=false
+  2289.195  2551  2551 I FcitxColdStart: service.onStartInput restarting=false
+  2289.210  2551  2551 I RimeLifecycle: input_binding generation=31 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  2289.217  2551  2551 I FcitxColdStart: service.onStartInputView restarting=false
+  2290.900  2551  2587 I RimeLifecycle: bind generation=31 duration_ms=442 ready=true no_learning=false
+  2388.203  2738  2762 I FcitxColdStart: font preload keys=0 duration=1127ms
+  2391.081  2738  2766 I RimeLifecycle: startup phase=assets duration_ms=1064
+  2391.840  2738  2766 I RimeLifecycle: startup phase=config duration_ms=735
+  2392.945  2738  2766 I RimeLifecycle: startup phase=native duration_ms=1101
+  2394.043  2738  2766 I RimeLifecycle: binding_inactive generation=1 native_create=false
+  2395.029  2738  2766 I RimeLifecycle: bind generation=1 duration_ms=327 ready=true no_learning=false
+  2395.222  2738  2766 I RimeLifecycle: binding_inactive generation=2 native_create=false
+  2397.267  2738  2766 I RimeLifecycle: bind generation=2 duration_ms=285 ready=true no_learning=false
+  2397.546  2738  2766 I RimeLifecycle: bind generation=3 duration_ms=122 ready=true no_learning=false
+  2416.981  2738  2738 I FcitxColdStart: service.onCreate begin
+  2417.427  2738  2738 I FcitxColdStart: service.onCreate duration=446ms
+  2418.861  2738  2738 I FcitxColdStart: service.onStartInput restarting=false
+  2419.335  2738  2738 I RimeLifecycle: input_binding generation=4 input_type=131073 ime_options=1073741830 needs_rime=true restarting=false
+  2419.371  2738  2738 I FcitxColdStart: service.onCreateInputView begin
+  2419.814  2738  2766 I RimeLifecycle: bind generation=4 duration_ms=423 ready=true no_learning=false
+  2426.523  2738  2738 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=4671ms
+  2427.257  2738  2738 I FcitxColdStart: KeyboardWindow.onCreateView duration=5471ms
+  2428.826  2738  2738 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=391ms
+  2431.874  2738  2738 I FcitxColdStart: replaceInputView duration=12480ms
+  2432.031  2738  2738 I FcitxColdStart: service.onCreateInputView duration=12660ms
+  2432.038  2738  2738 I FcitxColdStart: service.onStartInputView restarting=false
+  2461.511  2738  2738 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2087ms
+  2479.357  2738  2738 I FcitxColdStart: service.onStartInput restarting=true
+  2479.395  2738  2738 I RimeLifecycle: input_binding generation=5 input_type=131073 ime_options=1073741830 needs_rime=true restarting=true
+  2479.422  2738  2738 I FcitxColdStart: service.onStartInputView restarting=true
+  2479.443  2738  2766 I RimeLifecycle: bind generation=5 duration_ms=8 ready=true no_learning=false
+  2520.905  2738  2738 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=1475ms
+  2522.301  2738  2766 I RimeLifecycle: binding_inactive generation=6 native_create=false
+  2524.551  2738  2738 I FcitxColdStart: service.onStartInput restarting=false
+  2524.619  2738  2738 I RimeLifecycle: input_binding generation=9 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  2524.629  2738  2738 I FcitxColdStart: service.onStartInputView restarting=false
+  2524.976  2738  2766 I RimeLifecycle: binding_inactive generation=10 native_create=false
+  2524.987  2738  2766 I RimeLifecycle: binding_inactive generation=10 native_create=false
+  2526.633  2738  2766 I RimeLifecycle: bind generation=10 duration_ms=844 ready=true no_learning=false
+  3052.955  2958  2983 I FcitxColdStart: font preload keys=0 duration=499ms
+  3057.094  2958  2987 I RimeLifecycle: startup phase=assets duration_ms=1629
+  3057.916  2958  2987 I RimeLifecycle: startup phase=config duration_ms=818
+  3059.443  2958  2987 I RimeLifecycle: startup phase=native duration_ms=1524
+  3060.718  2958  2987 I RimeLifecycle: binding_inactive generation=1 native_create=false
+  3061.666  2958  2987 I RimeLifecycle: bind generation=1 duration_ms=416 ready=true no_learning=false
+  3061.845  2958  2987 I RimeLifecycle: binding_inactive generation=2 native_create=false
+  3063.325  2958  2987 I RimeLifecycle: bind generation=2 duration_ms=107 ready=true no_learning=false
+  3063.606  2958  2987 I RimeLifecycle: bind generation=3 duration_ms=105 ready=true no_learning=false
+  3081.701  2958  2958 I FcitxColdStart: service.onCreate begin
+  3082.115  2958  2958 I FcitxColdStart: service.onCreate duration=414ms
+  3083.102  2958  2958 I FcitxColdStart: service.onStartInput restarting=false
+  3083.828  2958  2958 I RimeLifecycle: input_binding generation=4 input_type=131073 ime_options=1073741830 needs_rime=true restarting=false
+  3083.970  2958  2958 I FcitxColdStart: service.onCreateInputView begin
+  3084.171  2958  2987 I RimeLifecycle: bind generation=4 duration_ms=296 ready=true no_learning=false
+  3090.523  2958  2958 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=3733ms
+  3091.175  2958  2958 I FcitxColdStart: KeyboardWindow.onCreateView duration=4432ms
+  3092.567  2958  2958 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=435ms
+  3095.361  2958  2958 I FcitxColdStart: replaceInputView duration=11385ms
+  3095.509  2958  2958 I FcitxColdStart: service.onCreateInputView duration=11540ms
+  3095.510  2958  2958 I FcitxColdStart: service.onStartInputView restarting=false
+  3124.393  2958  2958 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2400ms
+  3185.741  2958  2958 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2799ms
+  3187.172  2958  2987 I RimeLifecycle: binding_inactive generation=5 native_create=false
+  3189.005  2958  2987 I RimeLifecycle: bind generation=5 duration_ms=335 ready=true no_learning=false
+  3189.036  2958  2987 I RimeLifecycle: binding_inactive generation=7 native_create=false
+  3190.520  2958  2987 I RimeLifecycle: bind generation=7 duration_ms=42 ready=true no_learning=false
+  3190.609  2958  2987 I RimeLifecycle: binding_inactive generation=7 native_create=false
+  3190.799  2958  2958 I FcitxColdStart: service.onStartInput restarting=false
+  3190.823  2958  2958 I RimeLifecycle: input_binding generation=9 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  3190.831  2958  2958 I FcitxColdStart: service.onStartInputView restarting=false
+  3772.547  3139  3164 I FcitxColdStart: font preload keys=0 duration=382ms
+  3789.426  3139  3175 I RimeLifecycle: startup phase=assets duration_ms=2742
+  3790.295  3139  3175 I RimeLifecycle: startup phase=config duration_ms=851
+  3792.153  3139  3175 I RimeLifecycle: startup phase=native duration_ms=1839
+  3796.379  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=683ms
+  3796.567  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=173ms
+  3796.993  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=211ms
+  3801.058  3139  3139 I FcitxColdStart: service.onCreate begin
+  3801.419  3139  3139 I FcitxColdStart: service.onCreate duration=360ms
+  3802.193  3139  3139 I FcitxColdStart: service.onStartInput restarting=false
+  3802.703  3139  3139 I RimeLifecycle: input_binding generation=1 input_type=0 ime_options=0 needs_rime=false restarting=false
+  3802.767  3139  3175 I RimeLifecycle: binding_inactive generation=1 native_create=false
+  3818.202  3139  3139 I FcitxColdStart: service.onStartInput restarting=false
+  3818.227  3139  3139 I RimeLifecycle: input_binding generation=3 input_type=0 ime_options=0 needs_rime=false restarting=false
+  3818.405  3139  3175 I RimeLifecycle: binding_inactive generation=3 native_create=false
+  3827.191  3139  3139 I FcitxColdStart: service.onStartInput restarting=false
+  3827.220  3139  3139 I RimeLifecycle: input_binding generation=5 input_type=0 ime_options=0 needs_rime=false restarting=false
+  3827.271  3139  3175 I RimeLifecycle: binding_inactive generation=5 native_create=false
+  3828.633  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=104ms
+  3828.667  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=23ms
+  3828.786  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=55ms
+  3830.715  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=102ms
+  3830.757  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=35ms
+  3830.911  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=83ms
+  3839.527  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2885ms
+  3840.108  3139  3175 I RimeLifecycle: binding_inactive generation=6 native_create=false
+  3841.358  3139  3139 I FcitxColdStart: service.onStartInput restarting=false
+  3841.377  3139  3139 I RimeLifecycle: input_binding generation=8 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  3841.425  3139  3139 I FcitxColdStart: service.onCreateInputView begin
+  3843.301  3139  3175 I RimeLifecycle: bind generation=8 duration_ms=1606 ready=true no_learning=false
+  3845.450  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=504ms
+  3845.649  3139  3139 I FcitxColdStart: KeyboardWindow.onCreateView duration=744ms
+  3846.519  3139  3139 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=290ms
+  3848.099  3139  3139 I FcitxColdStart: replaceInputView duration=6660ms
+  3848.231  3139  3139 I FcitxColdStart: service.onCreateInputView duration=6805ms
+  3848.236  3139  3139 I FcitxColdStart: service.onStartInputView restarting=false
+  3855.323  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=251ms
+  3859.682  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=155ms
+  3859.765  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=78ms
+  3859.913  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=82ms
+  3863.010  3139  3139 I FcitxColdStart: service.onStartInput restarting=false
+  3863.015  3139  3139 I RimeLifecycle: input_binding generation=11 input_type=0 ime_options=0 needs_rime=false restarting=false
+  3863.611  3139  3175 I RimeLifecycle: binding_inactive generation=11 native_create=false
+  3871.534  3139  3139 I FcitxColdStart: service.onStartInput restarting=false
+  3871.593  3139  3139 I RimeLifecycle: input_binding generation=13 input_type=0 ime_options=0 needs_rime=false restarting=false
+  3871.778  3139  3175 I RimeLifecycle: binding_inactive generation=13 native_create=false
+  3875.575  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=1073ms
+  3878.538  3139  3139 I FcitxColdStart: service.onStartInput restarting=false
+  3878.557  3139  3139 I RimeLifecycle: input_binding generation=15 input_type=0 ime_options=0 needs_rime=false restarting=false
+  3878.824  3139  3175 I RimeLifecycle: binding_inactive generation=15 native_create=false
+  3879.578  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=71ms
+  3879.610  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=28ms
+  3879.679  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=33ms
+  3880.994  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=67ms
+  3881.017  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=14ms
+  3881.050  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=12ms
+  3891.327  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=174ms
+  3891.390  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=57ms
+  3891.483  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=1 duration=56ms
+  3898.123  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2085ms
+  3899.216  3139  3139 I FcitxColdStart: service.onStartInput restarting=false
+  3899.223  3139  3139 I RimeLifecycle: input_binding generation=18 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  3899.705  3139  3175 I RimeLifecycle: bind generation=18 duration_ms=273 ready=true no_learning=false
+  3901.053  3139  3139 I FcitxColdStart: service.onStartInputView restarting=false
+  3901.113  3139  3175 I RimeLifecycle: binding_inactive generation=19 native_create=false
+  3901.798  3139  3175 I RimeLifecycle: bind generation=19 duration_ms=131 ready=true no_learning=false
+  3902.268  3139  3175 I RimeLifecycle: binding_inactive generation=20 native_create=false
+  3904.426  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=503ms
+  3905.144  3139  3175 I RimeLifecycle: bind generation=20 duration_ms=206 ready=true no_learning=false
+  3905.588  3139  3175 I RimeLifecycle: bind generation=21 duration_ms=147 ready=true no_learning=false
+  3913.159  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=1883ms
+  3922.410  3139  3139 I FcitxColdStart: service.onStartInput restarting=false
+  3922.489  3139  3139 I RimeLifecycle: input_binding generation=24 input_type=131073 ime_options=1073741830 needs_rime=true restarting=false
+  3922.499  3139  3139 I FcitxColdStart: service.onStartInputView restarting=false
+  3922.879  3139  3175 I RimeLifecycle: bind generation=24 duration_ms=151 ready=true no_learning=false
+  3924.530  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=1292ms
+  3967.082  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=2514ms
+  3968.235  3139  3175 I RimeLifecycle: binding_inactive generation=25 native_create=false
+  3970.027  3139  3175 I RimeLifecycle: binding_inactive generation=27 native_create=false
+  3970.073  3139  3139 I FcitxColdStart: service.onStartInput restarting=false
+  3970.086  3139  3139 I RimeLifecycle: input_binding generation=29 input_type=524289 ime_options=436207621 needs_rime=true restarting=false
+  3970.087  3139  3139 I FcitxColdStart: service.onStartInputView restarting=false
+  3972.138  3139  3139 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=363ms

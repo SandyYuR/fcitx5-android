@@ -1,0 +1,8 @@
+
+org.fcitx.fcitx5.android.core.DirectRimeFrontendTest:.
+
+Time: 121.466
+
+OK (1 test)
+
+

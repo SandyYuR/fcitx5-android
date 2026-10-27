@@ -1,0 +1,9 @@
+test_changed_catalog_is_rejected (test_verify_clearurls_assets.ClearUrlsApkAssetsTest.test_changed_catalog_is_rejected) ... ok
+test_exact_catalog_and_notices_pass (test_verify_clearurls_assets.ClearUrlsApkAssetsTest.test_exact_catalog_and_notices_pass) ... ok
+test_host_catalog_cannot_be_copied_to_native_data (test_verify_clearurls_assets.ClearUrlsApkAssetsTest.test_host_catalog_cannot_be_copied_to_native_data) ... ok
+test_missing_license_is_rejected (test_verify_clearurls_assets.ClearUrlsApkAssetsTest.test_missing_license_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.018s
+
+OK

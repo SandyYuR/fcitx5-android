@@ -1,0 +1,32 @@
+{
+  "harness_compile_sha": "516252ebe8192b9b5dcee8c2c9854de95ae0fc4e",
+  "round": 1,
+  "stage": "first key",
+  "generation_at_touch": 21,
+  "generation_at_failure": 24,
+  "accepts_input": true,
+  "ready": true,
+  "preedit": "",
+  "client_preedit": "",
+  "ime": "InputMethodEntry(uniqueName=rime, name=Rime, icon=fcitx-rime, nativeName=中州韵, label=㞢, languageCode=zh, addon=rime, isConfigurable=true, subMode=InputMethodSubMode(name=直连测试, label=直连测试, icon=fcitx-rime:direct_smoke))",
+  "status": "Action(id=1, isSeparator=false, isCheckable=false, isChecked=false, name=rime, icon=, shortText=直连测试, longText=直连测试, menu=[Action(id=10, isSeparator=false, isCheckable=true, isChecked=false, name=ascii_mode, icon=, shortText=西文, longText=西文, menu=null), Action(id=100, isSeparator=false, isCheckable=true, isChecked=true, name=direct_smoke, icon=, shortText=直连测试, longText=直连测试, menu=null), Action(id=101, isSeparator=false, isCheckable=true, isChecked=false, name=second, icon=, shortText=第二方案, longText=第二方案, menu=null), Action(id=9, isSeparator=true, isCheckable=false, isChecked=false, name=separator, icon=, shortText=separator, longText=separator, menu=null), Action(id=11, isSeparator=false, isCheckable=false, isChecked=false, name=deploy, icon=, shortText=重新部署, longText=重新部署, menu=null), Action(id=12, isSeparator=false, isCheckable=false, isChecked=false, name=sync, icon=, shortText=同步用户词典, longText=同步用户词典, menu=null)]), Action(id=1000, isSeparator=false, isCheckable=false, isChecked=false, name=ascii_mode, icon=, shortText=中文 → 英文, longText=中文 → 英文, menu=null)",
+  "touches": [
+    {
+      "key": "n",
+      "bounds": "[351,757][405,803]",
+      "at_uptime_ms": 3926142,
+      "down_ms": 3926142,
+      "down_return_ms": 3926325,
+      "up_ms": 3926360,
+      "up_return_ms": 3926794
+    }
+  ],
+  "target_package_version": "6f96066b",
+  "editor_text": "",
+  "editor_id": 2131296457,
+  "editor_input_type": 131073,
+  "editor_focused": true,
+  "editor_window_focused": true,
+  "android_active": true,
+  "n_bounds_at_failure": "[351,757][405,803]"
+}

@@ -1,0 +1,50 @@
+{
+  "target_apk_commit": "516252ebe8192b9b5dcee8c2c9854de95ae0fc4e",
+  "round": 1,
+  "stage": "candidate commit",
+  "generation_at_touch": 4,
+  "generation_at_failure": 4,
+  "accepts_input": true,
+  "ready": true,
+  "preedit": "ni",
+  "client_preedit": "",
+  "ime": "InputMethodEntry(uniqueName=rime, name=Rime, icon=fcitx-rime, nativeName=中州韵, label=㞢, languageCode=zh, addon=rime, isConfigurable=true, subMode=InputMethodSubMode(name=直连测试, label=直连测试, icon=fcitx-rime:direct_smoke))",
+  "status": "Action(id=1, isSeparator=false, isCheckable=false, isChecked=false, name=rime, icon=, shortText=直连测试, longText=直连测试, menu=[Action(id=10, isSeparator=false, isCheckable=true, isChecked=false, name=ascii_mode, icon=, shortText=西文, longText=西文, menu=null), Action(id=100, isSeparator=false, isCheckable=true, isChecked=true, name=direct_smoke, icon=, shortText=直连测试, longText=直连测试, menu=null), Action(id=101, isSeparator=false, isCheckable=true, isChecked=false, name=second, icon=, shortText=第二方案, longText=第二方案, menu=null), Action(id=9, isSeparator=true, isCheckable=false, isChecked=false, name=separator, icon=, shortText=separator, longText=separator, menu=null), Action(id=11, isSeparator=false, isCheckable=false, isChecked=false, name=deploy, icon=, shortText=重新部署, longText=重新部署, menu=null), Action(id=12, isSeparator=false, isCheckable=false, isChecked=false, name=sync, icon=, shortText=同步用户词典, longText=同步用户词典, menu=null)]), Action(id=1000, isSeparator=false, isCheckable=false, isChecked=false, name=ascii_mode, icon=, shortText=中文 → 英文, longText=中文 → 英文, menu=null)",
+  "touches": [
+    {
+      "key": "n",
+      "bounds": "[351,757][405,803]",
+      "at_uptime_ms": 3133297,
+      "down_ms": 3133298,
+      "down_return_ms": 3133790,
+      "up_ms": 3133845,
+      "up_return_ms": 3134437
+    },
+    {
+      "key": "i",
+      "bounds": "[378,613][432,659]",
+      "at_uptime_ms": 3135884,
+      "down_ms": 3135885,
+      "down_return_ms": 3136346,
+      "up_ms": 3136368,
+      "up_return_ms": 3136761
+    },
+    {
+      "key": "你",
+      "bounds": "[18,546][74,594]",
+      "at_uptime_ms": 3137233,
+      "down_ms": 3137233,
+      "down_return_ms": 3137508,
+      "up_ms": 3137564,
+      "up_return_ms": 3138718
+    }
+  ],
+  "editor_text": "",
+  "editor_id": 2131296457,
+  "editor_input_type": 131073,
+  "editor_focused": true,
+  "editor_window_focused": true,
+  "android_active": true,
+  "n_bounds_at_failure": "[351,757][405,803]",
+  "candidate_bounds_at_failure": "[25,546][54,594]"
+}

@@ -1,0 +1,101 @@
+{
+  "branch": "perf/direct-rime-startup-20261024",
+  "runtime_code_sha": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+  "batches": [
+    {
+      "sha": "8a39f2fee34dacbc51e85f59102fd0b0528ffdf4",
+      "description": "草稿内容一致性和原子发布",
+      "app_jvm_tests": 991,
+      "new_tests": 8,
+      "ci": {
+        "run_id": 40266534124,
+        "code_sha": "8a39f2fee34dacbc51e85f59102fd0b0528ffdf4",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40266534124",
+        "unit_tests": "success",
+        "python_packaging_tests": 4,
+        "arm64_release": "success",
+        "artifact_name": "direct-rime-frontend-arm64-release",
+        "artifact_id": 12627066153,
+        "artifact_size_bytes": 7204486
+      }
+    },
+    {
+      "sha": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+      "description": "后台准备 JSON 和有界待处理请求",
+      "app_jvm_tests": 1002,
+      "new_tests": 11,
+      "ci": {
+        "run_id": 40269824527,
+        "code_sha": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40269824527",
+        "unit_tests": "success",
+        "python_packaging_tests": 4,
+        "arm64_release": "success",
+        "artifact_name": "direct-rime-frontend-arm64-release",
+        "artifact_id": 12628551356,
+        "artifact_size_bytes": 7207569,
+        "artifact_digest": "sha256:0ff9ef5313083d8e3edd48045d3530f7a786c3dfed031fe36ce2b87928d4f52c",
+        "release_abis": [
+          "arm64-v8a"
+        ]
+      }
+    }
+  ],
+  "local_verification": {
+    "code_sha": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+    "jvm_tests": 1002,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "build_logic_tests": 6,
+    "python_packaging_tests": 4,
+    "new_test_executions_since_b193b9ff": 19,
+    "new_test_executions_since_e146d2cb": 49,
+    "build_abi_property": "arm64-v8a",
+    "evidence": "audit/draft-persistence-2026-10-26/index.md",
+    "device_testing": "本批未重新装机；最近设备验证仍对应6f96066b，不能代表本批代码。"
+  },
+  "ci": {
+    "run_id": 40269824527,
+    "code_sha": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40269824527",
+    "unit_tests": "success",
+    "python_packaging_tests": 4,
+    "arm64_release": "success",
+    "artifact_name": "direct-rime-frontend-arm64-release",
+    "artifact_id": 12628551356,
+    "artifact_size_bytes": 7207569,
+    "artifact_digest": "sha256:0ff9ef5313083d8e3edd48045d3530f7a786c3dfed031fe36ce2b87928d4f52c",
+    "release_abis": [
+      "arm64-v8a"
+    ]
+  },
+  "release_scope": {
+    "release_abis": [
+      "arm64-v8a"
+    ],
+    "confirmed_by_user": "2026-10-26",
+    "four_abi_coverage_required": false
+  },
+  "device_testing_this_batch": false,
+  "latest_device_runtime": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+  "d7_status": "部分修复",
+  "remaining_d7": [
+    "Unfinished or not-yet-prepared drafts can still serialize on Main.",
+    "Lifecycle snapshot file IO still executes on Main."
+  ],
+  "original_checklist": {
+    "total": 139,
+    "still_exists": 4,
+    "partially_fixed": 4,
+    "pending_verification": 3,
+    "four_abi_scope_closed": true
+  },
+  "apk_verification_source": "Build job stdout of verify-direct-rime-apk.py; no local installation"
+}

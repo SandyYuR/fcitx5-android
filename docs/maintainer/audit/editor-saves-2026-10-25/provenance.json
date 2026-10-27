@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-25",
+  "timezone": "Asia/Shanghai",
+  "application_code_sha": "b2c4631a652c2088dfe807bc03dc384703daaaf7",
+  "application_id": "org.fcitx.fcitx5.android.fx.rime.debug",
+  "application_version_name": "b2c4631a",
+  "application_apk_sha256": "88ce31d4ccd1ce4493b53987ebd77ccc988a48f560d49ff20679ebadd9050f3a",
+  "environment": {
+    "api": 35,
+    "android": "15",
+    "abi": "x86_64",
+    "avd": "fcitx5-api35-aosp",
+    "image": "AOSP userdebug",
+    "kvm": false,
+    "cpu": "TCG software emulation",
+    "gpu": "SwiftShader",
+    "cores": 2,
+    "hw_timeout_multiplier": 100,
+    "requested_memory_mb": 1536,
+    "memory_note": "命令请求 1536 MiB；检查所用启动日志 current-rime-emulator-recovered.log 和当前恢复日志均报告自动提升至 2560 MiB，hardware-qemu.ini 也为 2560。",
+    "effective_config_memory_mb": 2560
+  },
+  "tests": {
+    "macro_json_initial_baseline": "passed: OK disabled without edits",
+    "macro_key_cancel": "passed: A to B draft, Cancel leaves A and OK disabled",
+    "clipboard_confirm": "passed: clicked OK in actual popup; native SQLite file changed from clipboard-before-fixture to clipboard-after-confirm"
+  },
+  "input_method_for_ascii_fixture": "com.android.inputmethod.latin/.LatinIME; used only to type ASCII into clipboard editor",
+  "save_during_close_device_race": "not_completed: preparation did not reach the popup, aborted before acquiring a lock or saving; emulator process later exited",
+  "jvm_tests": 754,
+  "jvm_new_executions": 60,
+  "jvm_save_close_coverage": "real Room/Native SQLite, controlled delayed write, Activity destroyed before completion",
+  "limitations": [
+    "手动界面检查，不冒充 instrumentation 测试通过数量",
+    "无真机、ARM64 Release 或万象大词库验收",
+    "上一轮 ea6229a4 英文模式提示断言失败仍待定位",
+    "未完成本轮设备侧延迟写入期间关闭窗口的竞态复现"
+  ],
+  "screenshots": {
+    "macro-initial.png": "af505b3d6963d6c198682b1a025f46db7f551c1f3f9fa1f60ff3ecfed40799e5",
+    "macro-b-selected.png": "298d8ae47d5b799fbe1e1a0355beea7a9fc3c4e0ecdcbea02242e09cb9b8d2c0",
+    "macro-after-cancel.png": "7518face4cc16c51b84f56e8caa0cc2190d442fd5bc4627020cc4fb673598e48",
+    "clipboard-before.png": "e521e59f7afca1b65d679287efa74049b6038faaa767fc63077dbec5fddb0ce1",
+    "clipboard-draft.png": "fd1e74eac39dda08b1f351244df21d9f646616a1a0ca8300b97b90ed1b787589",
+    "clipboard-after-save.png": "35fd8eb580b6c771b2d547557ab40ae154953ba369c5b8a3b70defe6bdb86851"
+  }
+}
