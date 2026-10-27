@@ -12,7 +12,8 @@
     <string name="server_alias_title">Type</string>
     <string name="server_custom_alias_hint">Enter a custom alias</string>
     <string name="server_address_field_title">Server address</string>
-    <string name="server_address_field_hint">For example: http://192.168.10.45:5033</string>
+    <string name="server_address_field_hint">For example: https://sync.example.com</string>
+    <string name="server_transport_help">Addresses without a protocol use HTTPS. For a LAN HTTP server, enter http:// explicitly. HTTP does not encrypt login details or clipboard data.</string>
     <string name="server_profile_syncclipboard">SyncClipboard</string>
     <string name="server_profile_oneclip">OneClip</string>
     <string name="server_profile_clipcascade">ClipCascade</string>

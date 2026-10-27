@@ -8,8 +8,11 @@ import android.system.Os
 import android.system.OsConstants
 import java.io.File
 import java.io.IOException
+import java.io.OutputStream
 
 object FileUtil {
+
+    private val writeLocks = Array(32) { Any() }
 
     private fun File.isSymlink(): Boolean = OsConstants.S_ISLNK(Os.lstat(path).st_mode)
 
@@ -56,21 +59,28 @@ object FileUtil {
      * 下次读取只能解析失败并退回默认值（例如 DataManager 会退化成"全量重同步"）。
      * rename 在同一文件系统内是原子的，因此读到的要么是旧内容、要么是新内容。
      */
-    fun writeAtomically(file: File, content: String) {
+    fun writeAtomically(file: File, content: String) = writeAtomically(file) {
+        it.write(content.toByteArray(Charsets.UTF_8))
+    }
+
+    /** Serialize writers to the same path; a failed replacement must preserve the old file. */
+    fun writeAtomically(file: File, write: (OutputStream) -> Unit) =
+        synchronized(writeLocks[(file.canonicalPath.hashCode() and Int.MAX_VALUE) % writeLocks.size]) {
         val parent = file.parentFile
         parent?.mkdirs()
         val tmp = File(parent, "${file.name}.tmp")
+        require(tmp.exists() || tmp.absoluteFile.parentFile?.list()?.contains(tmp.name) != true) { "Temporary path is a dangling symbolic link" }
+        require(!tmp.exists() || tmp.isFile) { "Temporary path is not a regular file" }
+        require(tmp.canonicalFile == File(parent?.canonicalFile, tmp.name).absoluteFile) { "Temporary path is a symbolic link" }
         try {
             java.io.FileOutputStream(tmp).use { out ->
-                out.write(content.toByteArray(Charsets.UTF_8))
+                write(out)
                 out.flush()
                 // 元数据 rename 是原子的，但内容必须先落盘，否则崩溃后可能 rename 出空文件。
-                runCatching { out.fd.sync() }
+                out.fd.sync()
             }
             if (!tmp.renameTo(file)) {
-                // 跨文件系统等极端情况下 rename 可能失败，退回直接写入（仍好过丢文件）。
-                file.writeText(content)
-                tmp.delete()
+                throw IOException("Cannot replace '${file.path}'; original file preserved")
             }
         } catch (e: Throwable) {
             tmp.delete()

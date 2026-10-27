@@ -21,7 +21,7 @@
     <string name="server_alias_title">유형</string>
     <string name="server_custom_alias_hint">사용자 지정 별칭 입력</string>
     <string name="server_address_field_title">서버 주소</string>
-    <string name="server_address_field_hint">예: http://192.168.10.45:5033</string>
+    <string name="server_address_field_hint">예: https://sync.example.com</string>
     <string name="server_profile_syncclipboard">SyncClipboard</string>
     <string name="server_profile_oneclip">OneClip</string>
     <string name="server_profile_clipcascade">ClipCascade</string>
