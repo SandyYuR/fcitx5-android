@@ -1,0 +1,23 @@
+{
+  "code_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+  "runtime_code_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+  "test_harness_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+  "target_package_version": "9c9013ca",
+  "passed_test_executions": 2,
+  "failed_test_executions": 0,
+  "unique_test_methods": 2,
+  "api": 35,
+  "abi": "x86_64",
+  "image": "AOSP",
+  "kvm": false,
+  "hardware_timeout_multiplier": 100,
+  "covers_latest_code": true,
+  "scope": "native Android row header binding, empty/add/remove key cells, first/middle/last/single row and holder rebind; no fresh touch-input/shutdown/restore claim",
+  "test_methods": [
+    "headerActionsStaySeparateFromReusedKeyCells",
+    "headerMoveButtonsFollowBoundariesWhenTheHolderIsRebound"
+  ],
+  "evidence": "audit/perf-rebase-2026-10-27/index.md",
+  "app_apk_sha256": "80e9cc961d4bb31b6ef77995092e081ed4a5c1c44ba8070a1615d93eff82581e",
+  "test_apk_sha256": "0876a6880314f40a0fe6d3f49440715959faf3618d1c4833fa5feb5e88c5444c"
+}

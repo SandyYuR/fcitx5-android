@@ -1,0 +1,31 @@
+{
+  "before": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+  "after": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+  "base": "6af8bc0b7ca048a304952a4cbc4525e6c9f247b1",
+  "reference": "c17863c29c2a3ea9c482f5a32a15f2ca11e0bbf0",
+  "after_tree": "2c8d28fc1387c03f2b8b8b6b21f9ed341bebec2a",
+  "reference_tree": "2c8d28fc1387c03f2b8b8b6b21f9ed341bebec2a",
+  "default_is_ancestor": true,
+  "new_commit_count": 12,
+  "requested_commits_absent": {
+    "98f3713c64e4c5cbdd23b6360e4686d968e49d77": true,
+    "d66c9e4aa3a411673a7fc557f22f3c804765f18c": true
+  },
+  "files_changed_from_before": [
+    "app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapterViewTest.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/DraggableFlowLayout.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapter.kt",
+    "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorFormTest.kt"
+  ],
+  "default_identical_production_files": [
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapter.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/DraggableFlowLayout.kt"
+  ],
+  "remote_push": {
+    "branch": "perf/direct-rime-startup-20261024",
+    "head": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+    "force_with_lease_expected": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+    "backup_branch": "backup/perf-before-rebase-20261027"
+  }
+}

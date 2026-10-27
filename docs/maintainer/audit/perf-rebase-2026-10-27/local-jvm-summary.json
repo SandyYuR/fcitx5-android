@@ -1,0 +1,17 @@
+{
+  "app": {
+    "tests": 1234,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reports": 150
+  },
+  "build_logic": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reports": 1
+  },
+  "code_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a"
+}

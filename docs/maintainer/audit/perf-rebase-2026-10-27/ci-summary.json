@@ -1,0 +1,21 @@
+{
+  "run_id": 40428247791,
+  "code_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+  "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40428247791",
+  "status": "completed",
+  "conclusion": "success",
+  "unit_tests": "success",
+  "arm64_release": "success",
+  "jvm_tests": 1234,
+  "artifact_id": 12701436839,
+  "artifact_size_bytes": 7333334,
+  "artifact_digest": "sha256:f763da5970f4c6e3326eb8d1c96ee98f85c34bb762bf198b30863d1c578f3fc0",
+  "unit_test_artifact_id": 12700568183,
+  "unit_test_artifact_digest": "sha256:9a0ef87685bafe7e7af244905ad0930b154411284db8ec69b8047bf438d088a0",
+  "release_abis": [
+    "arm64-v8a"
+  ],
+  "validation_branch": "review/perf-cleanup-20261027",
+  "covers_latest_code": true,
+  "covers_latest_runtime_code": true
+}
