@@ -1,0 +1,7 @@
+> Task :app:compileFxDebugKotlin
+Exception in thread "Daemon client event forwarder" java.lang.OutOfMemoryError: Java heap space
+> Task :app:compileFxDebugKotlin FAILED
+e: java.lang.OutOfMemoryError: Java heap space
+java.lang.RuntimeException: java.lang.OutOfMemoryError: Java heap space
+Execution failed for task ':app:compileFxDebugKotlin' (registered by plugin 'com.android.internal.application').
+BUILD FAILED in 6m 56s

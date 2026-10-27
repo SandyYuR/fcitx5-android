@@ -1,0 +1,30 @@
+{
+  "runtime_sha": "8dca031c80fdf6c82015982b54385ef8bea12d48",
+  "harness_commit": "93942a2e",
+  "runtime_version": "8dca031c",
+  "device": {
+    "api": 35,
+    "image": "AOSP",
+    "abi": "x86_64",
+    "kvm": false,
+    "graphics": "SwiftShader",
+    "hardware_timeout_multiplier": 100
+  },
+  "release_abis": [
+    "arm64-v8a"
+  ],
+  "harness_change": "AndroidTest only; test code matches committed probe, BuildConfig contains runtime 8dca031c",
+  "normal_shutdown_command": "svc power reboot",
+  "learn_runner": "intentionally aborted by orderly system shutdown; not a completed JUnit test",
+  "verify_junit": {
+    "tests": 1,
+    "passed": 1
+  },
+  "limits": [
+    "small smoke dictionary",
+    "normal shutdown functional verification only",
+    "no ARM64 phone installation or power-loss durability claim",
+    "no device performance claim"
+  ],
+  "emulator_recovery": "After reboot set first ro.hw_timeout_multiplier assignment through adb root, restart Android framework, remount emulated;0 after FUSE disconnect. No dictionary edits."
+}

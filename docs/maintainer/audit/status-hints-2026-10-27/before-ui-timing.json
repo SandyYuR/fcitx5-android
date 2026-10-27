@@ -1,0 +1,24 @@
+{
+  "runtime_version": "9b1f958c",
+  "harness_commit": "9b1f958c604b91b2738da3d370636aadc8a34b1d",
+  "frames": [
+    {
+      "uptime_ms": 1574383,
+      "state": "handle=true,shown=true,display=true,rootShown=false,visibility=4,size=540x0,texts=[|shown=false|size=0x0, |shown=false|size=0x0]"
+    }
+  ],
+  "panels": [
+    {
+      "uptime_ms": 1571069,
+      "session": 4,
+      "aux_up": "Latin Mode",
+      "preedit": ""
+    },
+    {
+      "uptime_ms": 1572623,
+      "session": 4,
+      "aux_up": "",
+      "preedit": ""
+    }
+  ]
+}

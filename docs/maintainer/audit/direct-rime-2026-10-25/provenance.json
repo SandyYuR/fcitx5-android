@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-25",
+  "timezone": "Asia/Shanghai",
+  "application_code_sha": "ea6229a448ab5a8e72a0e7637bc2364e4e2c40e2",
+  "application_id": "org.fcitx.fcitx5.android.fx.rime.debug",
+  "application_version_name": "ea6229a4",
+  "application_apk_sha256": "f8671323c7954e46fa263f40e67f9a98d059eef0c0a80a2040d124241249db26",
+  "test_apk_build_label": "26a0c90f",
+  "test_apk_sha256": "74e531446572edbb181f4bc589b5397ca88423aff7a4a9ae47da10ca076cc81f",
+  "test_source_unchanged_between_test_build_label_and_application_commit": true,
+  "environment": {
+    "api": 35,
+    "android": "15",
+    "abi": "x86_64",
+    "image": "AOSP userdebug",
+    "kvm": false,
+    "cpu": "TCG software emulation",
+    "gpu": "SwiftShader",
+    "cores": 2,
+    "guest_memory_mb": 1536,
+    "hw_timeout_multiplier": 10
+  },
+  "fixture": "bundled-smoke; not Wanxiang",
+  "tests": [
+    {
+      "method": "candidateSchemaAndEditorContracts",
+      "result": "passed",
+      "log": "native-contracts.txt"
+    },
+    {
+      "method": "originalKeyboardCanTypeUsingTouch",
+      "result": "failed",
+      "assertion": "English-mode hint was not displayed in the preedit area",
+      "log": "mode-hint-failure.txt"
+    },
+    {
+      "method": "immediateTypingAndCandidateTapAfterRebind",
+      "result": "passed",
+      "rounds": 6,
+      "log": "touch-rebind.txt"
+    }
+  ],
+  "performance_claim": false,
+  "limitations": [
+    "不代表真机、ARM64 Release 或万象大词库验收",
+    "模式提示断言失败原因尚未确认",
+    "未验证真实语音插件回调、宏取消的设备行为或整机断电恢复"
+  ],
+  "manual_two_editors": {
+    "result": "passed",
+    "a": "你",
+    "b": "好你",
+    "commit_events": 3,
+    "restart_input_on_b": true,
+    "record": "two-editors.json"
+  },
+  "workspace_snapshot": {
+    "save_result": "OK",
+    "restore_result": "failed",
+    "emulator_error": "Length mismatch: 0x10000 in != 0x4000000; error while loading state for device ram",
+    "recovery": "冷启动；不将该快照作为可用恢复点"
+  }
+}
