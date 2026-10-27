@@ -1,0 +1,60 @@
+{
+  "source_before": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+  "source_after": "710e4ef93f20eaf1d80d93913be1edfaefdb097d",
+  "source_runtime_changed": false,
+  "source_changed_paths": [
+    ".github/workflows/pr.yml",
+    "CLIPCASCADE_RECEIVE_LIMITS.md",
+    "HOSTS_DOWNLOADS.md",
+    "PROTECTED_BACKUP_FORMAT.md",
+    "README.md",
+    "USER_DATA_RESTORE.md"
+  ],
+  "ordinary_pr_build_abi": "arm64-v8a",
+  "documentation_pr": 12,
+  "code_pr": 13,
+  "english_snapshots_preserved": [
+    {
+      "old_path": "CLIPCASCADE_RECEIVE_LIMITS.md",
+      "current_chinese_path": "docs/maintainer/implementation/clipcascade-receive-limits.md",
+      "original_snapshot_path": "docs/maintainer/audit/websocket-receive-2026-10-26/receive-limits.md",
+      "original_sha256": "7c275d544ed7a3de640e84e3089ae65f500b4e4167086901d16df648fb1cd7b5",
+      "chinese_sha256": "587bffeac4d53f5aea6857f7969d6b65b8677cae4eee61445782618f22d3bee3",
+      "original_snapshot_identical": true
+    },
+    {
+      "old_path": "HOSTS_DOWNLOADS.md",
+      "current_chinese_path": "docs/maintainer/implementation/hosts-downloads.md",
+      "original_snapshot_path": "docs/maintainer/audit/hosts-downloads-2026-10-27/download-design.md",
+      "original_sha256": "9b0fb70909d1f1586644e8cadcf4df84027efcc19a9355008847577a72b16f7a",
+      "chinese_sha256": "e91a156b10e7f928574b915add84d416d7be3edab19ade64604b23eba257c6e8",
+      "original_snapshot_identical": true
+    },
+    {
+      "old_path": "PROTECTED_BACKUP_FORMAT.md",
+      "current_chinese_path": "docs/maintainer/implementation/protected-backup-format.md",
+      "original_snapshot_path": "docs/maintainer/audit/remaining-checklist-2026-10-26/protected-backup-format.md",
+      "original_sha256": "ca4adc1e89b87ad27e46342362654f6a6dc9decc3977863d0a81c3f7eb3b184c",
+      "chinese_sha256": "24585816a32d43f53062230728fea27f9880985354615f29708478f1a2186031",
+      "original_snapshot_identical": true
+    },
+    {
+      "old_path": "USER_DATA_RESTORE.md",
+      "current_chinese_path": "docs/maintainer/implementation/user-data-restore.md",
+      "original_snapshot_path": "docs/maintainer/audit/user-data-restore-2026-10-27/background-boundary/restore-design.md",
+      "original_sha256": "490bf0fcb54ff67d4ba5d800339030f72078446627a4b59e934286714c9b0ec8",
+      "chinese_sha256": "8821f5d592276ecaa123381063008ab84b21e3729f6046e4a69582d927718f7b",
+      "original_snapshot_identical": true
+    }
+  ],
+  "source_backup": "backup/perf-before-docs-zh-20261027",
+  "documentation_backup": "backup/docs-before-merge-prep-20261027",
+  "local_documentation_verification": {
+    "pages": 208,
+    "links_checked": 21182,
+    "asset_links_checked": 169,
+    "errors": 0,
+    "original_files_verified": 83,
+    "build": "success"
+  }
+}

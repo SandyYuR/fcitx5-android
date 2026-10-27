@@ -76,6 +76,7 @@ features:
 
 ::: info 版本与文档范围
 默认分支 `fx-rime-only` 已切换为直连版。签名 Nightly、实际源码与补丁验证见[交付记录](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)。
+本批备份、恢复、下载与编辑器改进的合入状态和对应版本见[本批修复](/maintainer/review-2026-10)，历史安装包不自动包含这些改动。
 [旧版 Fcitx 文档专区](/legacy/fcitx/contents)完整保留原站 64 篇文档，包含[13 篇维护报告](/legacy/fcitx/maintainer/)；当前操作以中州鹅手册为准。
 :::
 
@@ -87,7 +88,9 @@ APK 不预装中文方案、完整词典或万象语言模型。安装并启用�
 
 - [安装与升级](/guide/installation) · [快速上手](/guide/quick-start) · [数据迁移与共存](/guide/builds-and-plugins)
 - [完整用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) · [Rime 设置与引擎来源](/features/rime-enhancements)
+- [备份与恢复](/features/backup-restore) · [外部语音输入](/features/voice-input) · [局域网在线编辑](/features/online-editor)
 - [功能总览](/features/overview) · [布局编辑器](/features/editor/layout-editor) · [设置外观](/features/theme/settings-appearance)
 - [当前基线、APK、CI 和合入顺序](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)
 - [维护手册与 librime 更新](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) · [完整直连文档](/direct-rime)
+- [维护分类索引](/maintainer/) · [本批修复与合入准备](/maintainer/review-2026-10) · [中文实现说明](/maintainer/implementation/)
 - [常见问题](/troubleshooting/faq) · [反馈问题](/troubleshooting/report-issue) · [致谢](/about/credits)

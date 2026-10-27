@@ -1,6 +1,6 @@
 # 剪贴板同步（内置）
 
-主程序**内置**剪贴板同步能力，与桌面端 / 其他设备的剪贴板互通——无需安装任何插件（Rime-only 版没有插件体系，此功能一直在主 APK 内）。
+主程序**内置**剪贴板同步能力，与桌面端及其他设备互通，使用同步功能无需另装插件。
 
 ## 兼容的同步服务
 
@@ -49,8 +49,20 @@
 - 后台被系统杀掉时同步会暂停（Android 系统行为）——国产 ROM 请为本应用开启[自启动与后台权限](/troubleshooting/oem-startup)
 - Android 10+ 限制后台读取系统剪贴板；作为默认输入法使用时捕获通常更可靠，必要时用同步通知里的「抓取并同步」做一次前台捕获
 
+## 本批同步改进
+
+- 新地址默认使用 HTTPS；已有显式 HTTP 地址保留兼容。HTTPS 重定向不能把凭据带到降级后的明文地址。
+- 主动暂停或关闭同步会真正停止服务，排队的启动或重连不会自行重新开启它。
+- 剪贴板编辑确认后先完成数据库写入，再关闭页面；保存失败可重试，已删除的条目不会被旧保存任务重新创建。
+- ClearURLs 规则随应用固定打包，过滤在后台按顺序处理；规则预算耗尽时保留原始文本。
+- ClipCascade 在接收完整消息之前检查帧和分片预算。大小限制随可用堆调整，超过预算的消息会拒绝。
+
+ClipCascade 服务端应支持未压缩消息，WebSocket 地址需直接返回 HTTP 101。
+明文 WS 经 SOCKS 代理不受支持；WSS 经 SOCKS 和明文 WS 经 HTTP 代理保留相应路径。
+完整兼容条件见[接收限额说明](../maintainer/implementation/clipcascade-receive-limits.md)。
+
 ## 相关页面
 
 - [OEM 自启动与后台限制](/troubleshooting/oem-startup)
 - [安装](/guide/installation)
-- [用户指南 §9 剪贴板与远端同步](/manual/RIME_ONLY_USER_GUIDE_zh-CN)
+- [当前用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN)
