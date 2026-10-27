@@ -54,6 +54,8 @@
     <application
         android:name=".FcitxApplication"
         android:allowBackup="true"
+        android:backupAgent=".data.UiSettingsBackupAgent"
+        android:fullBackupOnly="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/full_backup_content"
@@ -66,6 +68,11 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:supportsRtl"
         tools:targetApi="33">
+        <activity
+            android:name=".ui.main.settings.behavior.UserDataRestoreActivity"
+            android:exported="false"
+            android:process=":restore"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
         <activity
             android:name=".ui.setup.SetupActivity"
             android:exported="false"

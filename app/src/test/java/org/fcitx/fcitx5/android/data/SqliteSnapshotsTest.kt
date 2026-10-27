@@ -73,6 +73,31 @@ class SqliteSnapshotsTest {
         assertEquals(2, count(snapshot))
     }
 
+    @Test fun oldBackupRecoversItsMatchingWalInsteadOfDiscardingIt() {
+        pendingWal()
+        val staged = File(directory, "staged.db")
+        File(source.path).copyTo(staged)
+        File(source.path + "-wal").copyTo(File(staged.path + "-wal"))
+        File(staged.path + "-shm").writeText("unusable locks from another device")
+        val recovered = File(directory, "recovered.db")
+        SqliteSnapshots.recoverStaged(staged, recovered)
+        assertEquals(2, count(recovered))
+        assertEquals(2, source.query("SELECT count(*) FROM clipboard").use { it.moveToFirst(); it.getInt(0) })
+    }
+
+    @Test fun versionCommittedOnlyToWalIsPreservedForDowngradeRejection() {
+        pendingWal()
+        source.execSQL("PRAGMA user_version=8")
+        val staged = File(directory, "future.db")
+        File(source.path).copyTo(staged)
+        File(source.path + "-wal").copyTo(File(staged.path + "-wal"))
+        val recovered = File(directory, "future-snapshot.db")
+        SqliteSnapshots.recoverStaged(staged, recovered)
+        SQLiteDatabase.openDatabase(recovered.path, null, SQLiteDatabase.OPEN_READONLY).use {
+            assertEquals(8, it.version)
+        }
+    }
+
     @Test fun typedValuesAndAutoincrementSequenceSurviveSnapshot() {
         source.execSQL("CREATE TABLE backup_types (id INTEGER PRIMARY KEY AUTOINCREMENT, b BLOB, f REAL, n TEXT)")
         source.execSQL("CREATE INDEX backup_index ON backup_types(f)")
@@ -92,6 +117,13 @@ class SqliteSnapshotsTest {
             db.rawQuery("SELECT max(id) FROM backup_types", null).use { it.moveToFirst(); assertEquals(201, it.getInt(0)) }
             db.rawQuery("SELECT name FROM sqlite_master WHERE name='backup_index'", null).use { assertTrue(it.moveToFirst()) }
         }
+    }
+
+    @Test fun corruptStagedDatabaseFailsWithoutPublishingASnapshot() {
+        val staged = File(directory, "broken.db").apply { writeText("not a SQLite database") }
+        val snapshot = File(directory, "unpublished.db")
+        assertTrue(runCatching { SqliteSnapshots.recoverStaged(staged, snapshot) }.isFailure)
+        assertFalse(snapshot.exists())
     }
 
     @Test fun snapshotRefusesAnUnprotectedRead() {

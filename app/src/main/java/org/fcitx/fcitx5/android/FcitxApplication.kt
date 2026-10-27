@@ -42,6 +42,18 @@ import kotlin.system.exitProcess
 
 class FcitxApplication : Application(), androidx.work.Configuration.Provider {
 
+    private var restoreProcess = false
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        restoreProcess = org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.isRestoreProcess(base)
+        if (!restoreProcess) try {
+            org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.recoverBeforeInitialization(base)
+        } catch (e: Exception) {
+            runCatching { org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.launchRecovery(base, e) }
+            throw e
+        }
+    }
+
     override val workManagerConfiguration: androidx.work.Configuration
         get() = androidx.work.Configuration.Builder().setMinimumLoggingLevel(android.util.Log.WARN).build()
 
@@ -94,6 +106,7 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        if (restoreProcess) { instance = this; return }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !userManager.isUserUnlocked) {
             isDirectBootMode = true
             registerReceiver(unlockReceiver, IntentFilter(Intent.ACTION_USER_UNLOCKED))
@@ -194,6 +207,7 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        if (restoreProcess) return
         ThemeManager.onSystemPlatteChange(newConfig)
         Locales.onLocaleChange(newConfig)
     }

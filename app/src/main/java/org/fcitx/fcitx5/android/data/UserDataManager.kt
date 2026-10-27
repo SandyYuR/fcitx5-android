@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.data
 
 import android.os.Environment
+import android.database.sqlite.SQLiteDatabase
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -105,10 +106,10 @@ object UserDataManager {
         }
     }
 
-    private val sharedPrefsDir = File(appContext.applicationInfo.dataDir, "shared_prefs")
-    private val dataBasesDir = File(appContext.applicationInfo.dataDir, "databases")
-    private val externalDir = appContext.getExternalFilesDir(null)!!
-    private val recentlyUsedDir = appContext.filesDir.resolve(RecentlyUsed.DIR_NAME)
+    private val sharedPrefsDir get() = File(appContext.applicationInfo.dataDir, "shared_prefs")
+    private val dataBasesDir get() = File(appContext.applicationInfo.dataDir, "databases")
+    private val externalDir get() = appContext.getExternalFilesDir(null)!!
+    private val recentlyUsedDir get() = appContext.filesDir.resolve(RecentlyUsed.DIR_NAME)
 
     @OptIn(ExperimentalSerializationApi::class)
     fun export(dest: OutputStream, rimeDirectories: RimeDataDirectoryState,
@@ -116,11 +117,7 @@ object UserDataManager {
         ZipOutputStream(dest.buffered()).use { zipStream ->
             // shared_prefs (current variant's prefs XML renamed to canonical upstream name)
             writeSharedPrefsTree(sharedPrefsDir, zipStream)
-            // databases: checkpoint first so the main db file is self-consistent, then
-            // export it without the WAL/SHM side-cars (they are meaningless on another
-            // device and can contradict the db they are restored next to).
-            ClipboardManager.checkpointDatabase()
-            writeFileTree(dataBasesDir, "databases", zipStream) { isSqliteSideCar(it.name) }
+            writeDatabases(zipStream)
             // external
             RimeProfileBackup.write(externalDir, rimeDirectories, zipStream)
             // recently_used moved to SharedPreference and shoud not be exported
@@ -135,6 +132,26 @@ object UserDataManager {
             )
             json.encodeToStream(metadata, zipStream)
             zipStream.closeEntry()
+        }
+    }
+
+    private fun writeDatabases(zipStream: ZipOutputStream) {
+        val snapshot = File(appContext.cacheDir, "clipboard-snapshot-${UUID.randomUUID()}.db")
+        try {
+            val hasSnapshot = ClipboardManager.writeDatabaseSnapshot(snapshot)
+            if (!hasSnapshot && File(dataBasesDir, CLIPBOARD_DATABASE_NAME).exists()) {
+                throw IOException("Clipboard database is unavailable for a consistent backup.")
+            }
+            writeFileTree(dataBasesDir, "databases", zipStream) {
+                isSqliteSideCar(it.name) || it.name == CLIPBOARD_DATABASE_NAME
+            }
+            if (hasSnapshot) {
+                zipStream.putNextEntry(ZipEntry("databases/$CLIPBOARD_DATABASE_NAME"))
+                snapshot.inputStream().use { it.copyTo(zipStream) }
+                zipStream.closeEntry()
+            }
+        } finally {
+            SQLiteDatabase.deleteDatabase(snapshot)
         }
     }
 
@@ -212,10 +229,9 @@ object UserDataManager {
     /**
      * Copy the databases directory, skipping WAL/SHM side-cars.
      *
-     * A `-wal` from the exporting device does not match the `clbdb` we are writing here, and
-     * restoring both can leave SQLite reading a stale or mismatched log — the imported
-     * clipboard history then comes up empty or corrupt. The main database file is
-     * self-consistent because the exporter checkpoints before writing it.
+     * prepareImport has already recovered the incoming clipboard database with its own
+     * WAL/journal and replaced it with a validated standalone snapshot. Side-cars from
+     * the previous installed database must not survive the directory replacement.
      */
     private fun copyDatabases(source: File, target: File) {
         if (!source.exists() || !source.isDirectory) return
@@ -229,10 +245,10 @@ object UserDataManager {
             if (isSqliteSideCar(file.name)) return@forEach
             file.copyTo(File(target, file.name), overwrite = true)
         }
-        // Any leftover side-car from the previous database must go too: it describes a
-        // database file that no longer exists.
-        target.listFiles()?.forEach { file ->
-            if (file.isFile && isSqliteSideCar(file.name)) file.delete()
+        // Remove old sidecars only for replaced databases. Unreplaced databases may
+        // still have valid WAL entries after the old process was stopped.
+        source.listFiles()?.filter { it.isFile && !isSqliteSideCar(it.name) }?.forEach { incoming ->
+            listOf("-wal", "-shm", "-journal").forEach { suffix -> removeStaleFile(File(target, incoming.name + suffix)) }
         }
     }
 
@@ -256,16 +272,24 @@ object UserDataManager {
         source.listFiles()?.forEach { sourceFile ->
             when {
                 sourceFile == exportedPrefsFile -> {
-                    sourceFile.copyTo(File(target, "${currentPkgName}_preferences.xml"), overwrite = true)
+                    val destination = File(target, "${currentPkgName}_preferences.xml")
+                    sourceFile.copyTo(destination, overwrite = true)
+                    removeStaleFile(File(destination.path + ".bak"))
                 }
-                sourceFile.name.endsWith("_preferences.xml") -> {
+                sourceFile.name.endsWith("_preferences.xml") || sourceFile.name.endsWith(".xml.bak") -> {
                     // Skip other package-specific files to avoid conflicts
                 }
                 else -> {
-                    sourceFile.copyTo(File(target, sourceFile.name), overwrite = true)
+                    val destination = File(target, sourceFile.name)
+                    sourceFile.copyTo(destination, overwrite = true)
+                    removeStaleFile(File(destination.path + ".bak"))
                 }
             }
         }
+    }
+
+    private fun removeStaleFile(file: File) {
+        if (file.exists() && !file.delete()) throw IOException("Cannot remove stale restore file: ${file.name}")
     }
 
     class PreparedImport internal constructor(
@@ -274,6 +298,14 @@ object UserDataManager {
         val rimeProfiles: RimeProfileBackup.Manifest
     ) : AutoCloseable {
         override fun close() { directory.deleteRecursively() }
+    }
+
+    internal fun openPrepared(directory: File): PreparedImport {
+        val metadataFile = File(directory, "metadata.json")
+        require(metadataFile.isFile && metadataFile.length() <= 1024 * 1024)
+        val metadata = json.decodeFromString<Metadata>(metadataFile.readText())
+        require(isAllowedPackageName(metadata.packageName))
+        return PreparedImport(directory, metadata, RimeProfileBackup.readManifest(directory))
     }
 
     /** Extract and validate once, before asking for destinations or stopping the engine. */
@@ -293,12 +325,38 @@ object UserDataManager {
                 // Refuse a clipboard database from a newer build before touching anything:
                 // Room can only open a downgraded schema by wiping it, which used to clear
                 // pinned and favorite entries with no warning at all.
-                rejectNewerClipboardDatabase(File(tempDir, "databases"))
+                val databases = File(tempDir, "databases")
+                rejectNewerClipboardDatabase(databases)
+                normalizeImportedClipboardDatabase(databases)
+                SharedPreferencesRestore.normalize(File(tempDir, "shared_prefs"))
+                // user_version may itself have been committed only to WAL.
+                rejectNewerClipboardDatabase(databases)
                 return PreparedImport(tempDir, metadata, RimeProfileBackup.readManifest(tempDir))
             }
         } catch (e: Exception) {
             tempDir.deleteRecursively()
             throw e
+        }
+    }
+
+    private fun normalizeImportedClipboardDatabase(directory: File) {
+        val incoming = File(directory, CLIPBOARD_DATABASE_NAME)
+        if (!incoming.isFile) {
+            if (File(incoming.path + "-wal").length() > 0L) {
+                throw IOException("Clipboard backup contains WAL without its database.")
+            }
+            return
+        }
+        val snapshot = File(directory, "clipboard-recovered-${UUID.randomUUID()}.db")
+        try {
+            SqliteSnapshots.recoverStaged(incoming, snapshot)
+            if (!snapshot.renameTo(incoming)) throw IOException("Cannot publish recovered clipboard database.")
+            listOf("-wal", "-shm", "-journal").forEach { suffix ->
+                val sidecar = File(incoming.path + suffix)
+                if (sidecar.exists() && !sidecar.delete()) throw IOException("Cannot remove recovered SQLite sidecar.")
+            }
+        } finally {
+            SQLiteDatabase.deleteDatabase(snapshot)
         }
     }
 
@@ -315,12 +373,13 @@ object UserDataManager {
     }
 
     /** The caller stops Fcitx only after the user has confirmed the complete restore plan. */
-    fun restore(prepared: PreparedImport, plan: RimeProfileRestorePlan) = runCatching {
+    internal fun restore(prepared: PreparedImport, plan: RimeProfileRestorePlan,
+                         journal: UserDataRestoreJournal? = null, closeClipboard: Boolean = true) = runCatching {
         validateRestore(prepared, plan)
         val tempDir = prepared.directory
         val metadata = prepared.metadata
-        ClipboardManager.closeDatabase()
-        UserDataRestoreTransaction().use { restore ->
+        if (closeClipboard) ClipboardManager.closeDatabase()
+        UserDataRestoreTransaction(journal).use { restore ->
             restore.stage(sharedPrefsDir) { staged ->
                 copySharedPrefs(File(tempDir, "shared_prefs"), staged, metadata.packageName)
             }

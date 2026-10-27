@@ -15,7 +15,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -26,18 +25,16 @@ import org.fcitx.fcitx5.android.data.BackupFileChangedException
 import org.fcitx.fcitx5.android.data.UserDataBackupArchive
 import org.fcitx.fcitx5.android.data.UserDataBackupManager
 import org.fcitx.fcitx5.android.data.RimeProfileRestorePlan
+import org.fcitx.fcitx5.android.data.ProtectedBackup
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.common.withLoadingDialog
 import org.fcitx.fcitx5.android.ui.common.ProgressBarDialogIndeterminate
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
-import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.utils.addPreference
 import org.fcitx.fcitx5.android.utils.buildDocumentsProviderIntent
 import org.fcitx.fcitx5.android.utils.buildPrimaryStorageIntent
-import org.fcitx.fcitx5.android.utils.formatDateTime
 import org.fcitx.fcitx5.android.utils.importErrorDialog
 import org.fcitx.fcitx5.android.utils.iso8601UTCDateTime
-import org.fcitx.fcitx5.android.utils.queryFileName
 import org.fcitx.fcitx5.android.utils.toast
 import java.io.File
 import java.util.UUID
@@ -76,7 +73,7 @@ class DataBackupFragment : PaddingPreferenceFragment() {
                 beginImport(uri)
             }
         exportLauncher =
-            registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+            registerForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
                 publishExport(uri)
             }
     }
@@ -100,21 +97,40 @@ class DataBackupFragment : PaddingPreferenceFragment() {
         val ctx = requireContext()
         lifecycleScope.launch {
             var archive: File? = null
+            var password: CharArray? = null
             try {
+                val protection = ctx.chooseBackupProtection(export = true) ?: return@launch
+                password = protection.password
                 exportTimestamp = System.currentTimeMillis()
                 loading {
                     // Record ownership before cancellation can dispatch back to this fragment.
                     withContext(NonCancellable) { archive = UserDataBackupManager.prepare(exportTimestamp) }
+                    password?.let { secret ->
+                        withContext(Dispatchers.IO) {
+                            val encrypted = File.createTempFile(UserDataBackupArchive.PREFIX, ".zip", ctx.cacheDir)
+                            try {
+                                archive!!.inputStream().use { input ->
+                                    encrypted.outputStream().use { output ->
+                                        ProtectedBackup.encrypt(input, output, secret) { coroutineContext.ensureActive() }
+                                    }
+                                }
+                                archive!!.delete()
+                                archive = encrypted
+                            } catch (e: Throwable) { encrypted.delete(); throw e }
+                        }
+                    }
                 }
                 coroutineContext.ensureActive()
                 pendingExportArchive = archive
-                exportLauncher.launch("fcitx5-android_${iso8601UTCDateTime(exportTimestamp)}.zip")
+                val extension = if (password != null) "fcbak" else "zip"
+                exportLauncher.launch("fcitx5-android_${iso8601UTCDateTime(exportTimestamp)}.$extension")
                 archive = null
             } catch (e: CancellationException) { throw e }
             catch (e: Exception) {
                 pendingExportArchive = null
                 ctx.toast(if (e is BackupFileChangedException) ctx.getString(R.string.user_data_export_changed) else e.localizedMessage.orEmpty())
             } finally {
+                password?.fill('\u0000')
                 withContext(NonCancellable + Dispatchers.IO) { archive?.delete() }
                 exportInProgress = false
             }
@@ -162,16 +178,23 @@ class DataBackupFragment : PaddingPreferenceFragment() {
         val ctx = requireContext()
         lifecycleScope.launch {
             var prepared: UserDataManager.PreparedImport? = null
+            var decrypted: File? = null
+            var password: CharArray? = null
             try {
-                val name = ctx.contentResolver.queryFileName(uri) ?: return@launch
-                if (!name.endsWith(".zip", ignoreCase = true)) {
-                    ctx.importErrorDialog(R.string.exception_user_data_filename, name)
-                    return@launch
+                val protected = withContext(Dispatchers.IO) {
+                    ctx.contentResolver.openInputStream(uri)!!.use(ProtectedBackup::isProtected)
                 }
+                if (protected) password = (ctx.chooseBackupProtection(export = false) ?: return@launch).password
                 val backup = loading {
                     // Close even if cancellation arrives just as the IO result is dispatched.
                     withContext(Dispatchers.IO) {
-                        ctx.contentResolver.openInputStream(uri)!!.use {
+                        if (protected) {
+                            ctx.contentResolver.openInputStream(uri)!!.use {
+                                decrypted = ProtectedBackup.decrypt(it, ctx.cacheDir, password!!) { coroutineContext.ensureActive() }
+                            }
+                        }
+                        val source = decrypted?.inputStream() ?: ctx.contentResolver.openInputStream(uri)!!
+                        source.use {
                             UserDataManager.prepareImport(it).also { result -> prepared = result }
                         }
                     }
@@ -199,28 +222,22 @@ class DataBackupFragment : PaddingPreferenceFragment() {
                     // when the fragment is destroyed. Never leave an interrupted engine stopped.
                     withContext(NonCancellable) {
                         var stopped = false
-                        var restored = false
                         val connectionName = "UserDataRestore-${UUID.randomUUID()}"
                         val connection = FcitxDaemon.connect(connectionName)
                         try {
                             connection.runOnReady { save() }
-                            val metadata = withContext(Dispatchers.IO) {
+                            val token = withContext(Dispatchers.IO) {
                                 UserDataManager.validateRestore(backup, plan)
                                 FcitxDaemon.beginUserDataRestore()
                                 stopped = true
-                                UserDataManager.restore(backup, plan).getOrThrow().also {
-                                    restored = true
-                                    backup.close()
-                                    prepared = null
-                                }
+                                org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.prepare(ctx, backup, plan)
                             }
-                            AppUtil.showRestartNotification(ctx)
-                            ctx.toast(ctx.getString(R.string.user_data_imported, formatDateTime(metadata.exportTime)))
-                            delay(400L)
-                            AppUtil.exit()
+                            ctx.startActivity(org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.intent(ctx, token))
+                            // The isolated process now owns this quarantine and stops this process
+                            // before copying, so cached preferences/background writers cannot win.
+                            prepared = null
                         } catch (e: Exception) {
-                            if (restored) AppUtil.exit()
-                            else if (stopped) FcitxDaemon.finishFailedUserDataRestore()
+                            if (stopped) FcitxDaemon.finishFailedUserDataRestore()
                             throw e
                         } finally { FcitxDaemon.disconnect(connectionName) }
                     }
@@ -228,7 +245,8 @@ class DataBackupFragment : PaddingPreferenceFragment() {
             } catch (e: CancellationException) { throw e }
             catch (e: Exception) { ctx.importErrorDialog(e) }
             finally {
-                withContext(NonCancellable + Dispatchers.IO) { prepared?.close() }
+                password?.fill('\u0000')
+                withContext(NonCancellable + Dispatchers.IO) { prepared?.close(); decrypted?.delete() }
                 importInProgress = false
             }
         }
@@ -259,7 +277,7 @@ class DataBackupFragment : PaddingPreferenceFragment() {
                 beginExport()
             }
             addPreference(R.string.import_user_data) {
-                if (!importInProgress && !exportInProgress && pendingExportArchive == null) importLauncher.launch("application/zip")
+                if (!importInProgress && !exportInProgress && pendingExportArchive == null) importLauncher.launch("*/*")
             }
         }
     }

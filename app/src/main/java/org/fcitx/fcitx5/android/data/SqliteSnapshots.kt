@@ -15,6 +15,22 @@ internal object SqliteSnapshots {
         write(destination, source.version, source::query)
     }
 
+    /** Only use on a private extracted backup, never on the live Room database. */
+    fun recoverStaged(source: File, destination: File) {
+        // Shared-memory indexes are disposable and contain locks from the exporting device.
+        // Keep the matching WAL/journal: opening SQLite replays its committed records.
+        val shm = File(source.path + "-shm")
+        if (shm.exists() && !shm.delete()) throw IOException("Cannot remove staged SQLite shared memory")
+        SQLiteDatabase.openDatabase(source.path, null, SQLiteDatabase.OPEN_READWRITE).use { database ->
+            database.beginTransactionNonExclusive()
+            try {
+                write(destination, database.version) { database.rawQuery(it, null) }
+            } finally {
+                database.endTransaction()
+            }
+        }
+    }
+
     private data class Schema(val type: String, val name: String, val sql: String)
 
     private fun write(destination: File, version: Int, query: (String) -> Cursor) {
