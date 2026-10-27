@@ -6,7 +6,7 @@ import java.io.IOException
 import java.io.OutputStream
 
 /** Receives detached raw lines only; never reads a live adapter on a worker thread. */
-internal class LogExportStore(cacheDir: File) {
+internal class LogExportStore(cacheDir: File, private val crashReport: () -> String? = { null }) {
     private val directory = File(cacheDir, "log-exports")
 
     fun prepare(header: String, lines: List<String>): File {
@@ -15,6 +15,9 @@ internal class LogExportStore(cacheDir: File) {
         try {
             file.bufferedWriter(Charsets.UTF_8).use { writer ->
                 writer.write(header)
+                runCatching(crashReport).getOrNull()?.let {
+                    writer.write("\n"); writer.write(it); writer.write("\n")
+                }
                 lines.forEachIndexed { index, line ->
                     if (index != 0) writer.write("\n")
                     writer.write(line)

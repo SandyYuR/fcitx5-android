@@ -111,16 +111,17 @@ class FcitxApplication : Application() {
                     // continuous crashes within 10 seconds, maybe in a crash loop. just bail
                     exitProcess(10)
                 }
+                val truncated = e.stackTraceToString().let {
+                    if (it.length > MAX_STACKTRACE_SIZE) it.take(MAX_STACKTRACE_SIZE) + "<truncated>" else it
+                }
+                org.fcitx.fcitx5.android.ui.main.log.CrashReportStore(ctx.noBackupFilesDir).record(
+                    "--------- Persisted app crash\nRecorded at (Unix ms): $crashTime\n" +
+                        "Crash build: ${BuildConfig.BUILD_GIT_HASH}\nCrash process: ${Process.myPid()}\n$truncated\n"
+                )
                 startActivity<LogActivity> {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     putExtra(LogActivity.FROM_CRASH, true)
                     // avoid transaction overflow
-                    val truncated = e.stackTraceToString().let {
-                        if (it.length > MAX_STACKTRACE_SIZE)
-                            it.take(MAX_STACKTRACE_SIZE) + "<truncated>"
-                        else
-                            it
-                    }
                     putExtra(LogActivity.CRASH_STACK_TRACE, truncated)
                 }
                 exitProcess(10)
