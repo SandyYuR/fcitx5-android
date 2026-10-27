@@ -89,6 +89,7 @@ class DataHierarchy {
             val diffFiles = new.files.mapNotNull { (path, v) ->
                 val (sha256, src) = v
                 when {
+                    sha256.isBlank() -> FileAction.CreateDir(path)
                     path !in old.files && sha256.isNotBlank() ->
                         FileAction.CreateFile(path, src)
                     old.files[path] != sha256 ->
@@ -98,6 +99,12 @@ class DataHierarchy {
                     else -> null
                 }
             }.toMutableList<FileAction>().apply {
+                // A path present in both descriptors can still change its type.
+                addAll(old.files.filter { (path, digest) ->
+                    path in new.files && digest.isBlank() != new.files.getValue(path).first.isBlank()
+                }.map { (path, digest) ->
+                    if (digest.isBlank()) FileAction.DeleteDir(path) else FileAction.DeleteFile(path)
+                })
                 addAll(old.files.filterKeys { it !in new.files }
                     .map { (path, sha256) ->
                         if (sha256.isNotBlank())
@@ -118,7 +125,19 @@ class DataHierarchy {
                     FileAction.DeleteFile(target)
                 })
             }
-            return diffFiles + diffLinks
+            // Remove obsolete types before creating replacements. Delete children first;
+            // create parents before files, and install symlinks only after real paths exist.
+            return (diffFiles + diffLinks).sortedWith(compareBy<FileAction> {
+                when (it) {
+                    is FileAction.DeleteDir, is FileAction.DeleteFile -> 0
+                    is FileAction.CreateDir -> 1
+                    is FileAction.CreateFile, is FileAction.UpdateFile -> 2
+                    is FileAction.CreateSymlink -> 3
+                }
+            }.thenBy {
+                val depth = it.path.count { char -> char == '/' }
+                if (it is FileAction.DeleteDir || it is FileAction.DeleteFile) -depth else depth
+            }.thenBy { it.path })
         }
     }
 }

@@ -88,29 +88,9 @@ object DataManager {
 
         // Compute the difference of the created one and the old one
         // Run actions to migrate to the new hierarchy
-        DataHierarchy.diff(oldDescriptor, newHierarchy).sortedByDescending { it.ordinal }.forEach {
-            Timber.d("Action: $it")
-            when (it) {
-                is FileAction.CreateFile -> {
-                    val assets = appContext.assets
-                    assets.copyFile(it.path)
-                }
-                is FileAction.DeleteDir -> {
-                    removePath(it.path).getOrThrow()
-                }
-                is FileAction.DeleteFile -> {
-                    removePath(it.path).getOrThrow()
-                }
-                is FileAction.UpdateFile -> {
-                    val assets = appContext.assets
-                    assets.copyFile(it.path)
-                }
-                is FileAction.CreateSymlink -> {
-                    removePath(it.path).getOrThrow()
-                    symlink(it.src, it.path).getOrThrow()
-                }
-            }
-        }
+        val actions = DataHierarchy.diff(oldDescriptor, newHierarchy)
+        actions.forEach { Timber.d("Action: $it") }
+        AssetMigration(dataDir) { appContext.assets.open(it) }.apply(actions)
         // save the new hierarchy as the data descriptor to be used in the next run
         // 原子写：进程在写中途被杀会留下半截 JSON，下次启动解析失败会退回空 descriptor
         // 并把所有 Delete/Create 动作重排一遍（表现为启动变慢 + 全量重同步）。
@@ -132,21 +112,6 @@ object DataManager {
         }
         synced = true
         Timber.d("Synced")
-    }
-
-    private fun removePath(path: String) =
-        FileUtil.removeFile(dataDir.resolve(path))
-
-    private fun symlink(source: String, target: String) =
-        FileUtil.symlink(dataDir.resolve(source), dataDir.resolve(target))
-
-    private fun AssetManager.copyFile(filename: String) {
-        open(filename).use { i ->
-            File(dataDir, filename)
-                .also { it.parentFile?.mkdirs() }
-                .outputStream()
-                .use { o -> i.copyTo(o) }
-        }
     }
 
     fun deleteAndSync() {
