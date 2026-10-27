@@ -10,12 +10,15 @@ import java.util.UUID
 
 /** Stage each root on its own filesystem and retain originals until all replacements succeed. */
 internal class UserDataRestoreTransaction(
+    private val journal: UserDataRestoreJournal? = null,
     private val rename: (File, File) -> Boolean = { from, to -> from.renameTo(to) }
 ) : AutoCloseable {
     private data class Root(val requestedTarget: File, val target: File, val staged: File, val original: File,
-                            var originalMoved: Boolean = false, var installed: Boolean = false)
+                            var originalMoved: Boolean = false, var installed: Boolean = false, val index: Int = -1)
     private val roots = mutableListOf<Root>()
     private var committed = false
+
+    init { journal?.begin() }
 
     fun stage(target: File, copyExisting: Boolean = true, prepare: (File) -> Unit) {
         // Resolve platform aliases once, before creating siblings on the target filesystem.
@@ -25,12 +28,13 @@ internal class UserDataRestoreTransaction(
             "Restore roots must not overlap."
         }
         val parent = resolvedTarget.parentFile ?: throw IOException("Invalid restore destination.")
-        if (!parent.isDirectory && !parent.mkdirs()) throw IOException("Unable to prepare restore destination.")
         val suffix = UUID.randomUUID().toString()
         val root = Root(target, resolvedTarget, File(parent, ".${resolvedTarget.name}.import-$suffix"),
-            File(parent, ".${resolvedTarget.name}.original-$suffix"))
+            File(parent, ".${resolvedTarget.name}.original-$suffix"), index = journal?.register(resolvedTarget, suffix) ?: -1)
         roots += root
+        if (!parent.isDirectory && !parent.mkdirs()) throw IOException("Unable to prepare restore destination.")
         if (!root.staged.mkdir()) throw IOException("Unable to stage imported data.")
+        journal?.staged(root.index)
         if (copyExisting) BackupFileTree.copy(root.target, root.staged)
         prepare(root.staged)
     }
@@ -40,8 +44,10 @@ internal class UserDataRestoreTransaction(
             // Reject a changed destination before replacing any root, then recheck each
             // root immediately before its rename in case another process redirects it.
             roots.forEach { checkDestination(it) }
+            journal?.replacing()
             for (root in roots) {
                 checkDestination(root)
+                journal?.preserving(root.index)
                 if (root.target.exists()) {
                     if (!rename(root.target, root.original)) throw IOException("Unable to preserve original data.")
                     root.originalMoved = true
@@ -49,6 +55,7 @@ internal class UserDataRestoreTransaction(
                 if (!rename(root.staged, root.target)) throw IOException("Unable to install imported data.")
                 root.installed = true
             }
+            journal?.committed()
             committed = true
         } catch (e: Exception) {
             rollback()
@@ -64,6 +71,11 @@ internal class UserDataRestoreTransaction(
     }
 
     private fun rollback() {
+        if (journal != null) {
+            val result = journal.recover()
+            if (result.pending.isNotEmpty()) throw IOException("Restore recovery pending: ${result.pending}")
+            return
+        }
         var failed = false
         roots.asReversed().forEach { root ->
             if (root.installed) {
@@ -79,6 +91,11 @@ internal class UserDataRestoreTransaction(
     }
 
     override fun close() {
+        if (journal != null) {
+            val result = journal.recover()
+            if (result.pending.isNotEmpty()) throw IOException("Restore recovery pending: ${result.pending}")
+            return
+        }
         if (!committed) rollback()
         roots.forEach { root ->
             root.staged.deleteRecursively()

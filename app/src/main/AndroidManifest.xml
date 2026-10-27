@@ -54,6 +54,8 @@
     <application
         android:name=".FcitxApplication"
         android:allowBackup="true"
+        android:backupAgent=".data.UiSettingsBackupAgent"
+        android:fullBackupOnly="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/full_backup_content"
@@ -66,6 +68,11 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:supportsRtl"
         tools:targetApi="33">
+        <activity
+            android:name=".ui.main.settings.behavior.UserDataRestoreActivity"
+            android:exported="false"
+            android:process=":restore"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
         <activity
             android:name=".ui.setup.SetupActivity"
             android:exported="false"
@@ -256,6 +263,7 @@
 
         <service
             android:name=".FcitxRemoteService"
+            android:permission="${applicationId}.permission.IPC"
             android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.IPC" />
@@ -350,6 +358,11 @@
             android:name="androidx.room.MultiInstanceInvalidationService"
             tools:node="remove" />
 
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -357,6 +370,11 @@
             android:exported="false"
             tools:node="merge">
             <!-- do not inject splitties AppCompat -->
+            <!-- WorkManager starts on demand on the update page, never on IME startup. -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
             <meta-data
                 android:name="splitties.views.dsl.appcompat.experimental.AppCompatViewInstantiatorInjecter"
                 android:value="androidx.startup"
