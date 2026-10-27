@@ -1,0 +1,83 @@
+INSTRUMENTATION_STATUS: class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+org.fcitx.fcitx5.android.core.DirectRimeFrontendTest:
+INSTRUMENTATION_STATUS: test=originalKeyboardCanTypeUsingTouch
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: English-mode hint was not displayed in the preedit area
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.await(DirectRimeFrontendTest.kt:58)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.keyboardTouchScenario(DirectRimeFrontendTest.kt:1037)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.access$keyboardTouchScenario(DirectRimeFrontendTest.kt:40)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$keyboardTouchScenario$1.invokeSuspend(Unknown Source:15)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source:1)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.originalKeyboardCanTypeUsingTouch(DirectRimeFrontendTest.kt:449)
+
+INSTRUMENTATION_STATUS: stream=
+Error in originalKeyboardCanTypeUsingTouch(org.fcitx.fcitx5.android.core.DirectRimeFrontendTest):
+java.lang.AssertionError: English-mode hint was not displayed in the preedit area
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.await(DirectRimeFrontendTest.kt:58)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.keyboardTouchScenario(DirectRimeFrontendTest.kt:1037)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.access$keyboardTouchScenario(DirectRimeFrontendTest.kt:40)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$keyboardTouchScenario$1.invokeSuspend(Unknown Source:15)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source:1)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.originalKeyboardCanTypeUsingTouch(DirectRimeFrontendTest.kt:449)
+
+INSTRUMENTATION_STATUS: test=originalKeyboardCanTypeUsingTouch
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 162.81
+There was 1 failure:
+1) originalKeyboardCanTypeUsingTouch(org.fcitx.fcitx5.android.core.DirectRimeFrontendTest)
+java.lang.AssertionError: English-mode hint was not displayed in the preedit area
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.await(DirectRimeFrontendTest.kt:58)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.keyboardTouchScenario(DirectRimeFrontendTest.kt:1037)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.access$keyboardTouchScenario(DirectRimeFrontendTest.kt:40)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$keyboardTouchScenario$1.invokeSuspend(Unknown Source:15)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source:1)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.originalKeyboardCanTypeUsingTouch(DirectRimeFrontendTest.kt:449)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

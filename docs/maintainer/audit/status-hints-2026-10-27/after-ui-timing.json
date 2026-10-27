@@ -1,0 +1,98 @@
+{
+  "runtime_version": "7e5c2c1b",
+  "harness_commit": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+  "frames": [
+    {
+      "uptime_ms": 5238259,
+      "state": "handle=true,shown=true,display=true,rootShown=true,visibility=0,size=540x33,texts=[Latin Mode|shown=true|size=145x33, |shown=false|size=0x0]"
+    },
+    {
+      "uptime_ms": 5240086,
+      "state": "handle=true,shown=true,display=true,rootShown=false,visibility=4,size=540x0,texts=[|shown=false|size=145x33, |shown=false|size=0x0]"
+    },
+    {
+      "uptime_ms": 5250985,
+      "state": "handle=true,shown=true,display=true,rootShown=true,visibility=0,size=540x35,texts=[第二方案|shown=true|size=120x35, |shown=false|size=0x0]"
+    },
+    {
+      "uptime_ms": 5253602,
+      "state": "handle=true,shown=true,display=true,rootShown=true,visibility=0,size=540x35,texts=[直连测试|shown=true|size=120x35, |shown=false|size=0x0]"
+    },
+    {
+      "uptime_ms": 5255762,
+      "state": "handle=true,shown=true,display=true,rootShown=true,visibility=0,size=540x33,texts=[n|shown=true|size=37x33, |shown=false|size=0x0]"
+    },
+    {
+      "uptime_ms": 5257474,
+      "state": "handle=true,shown=true,display=true,rootShown=true,visibility=0,size=540x33,texts=[ni|shown=true|size=43x33, |shown=false|size=0x0]"
+    },
+    {
+      "uptime_ms": 5266358,
+      "state": "handle=true,shown=true,display=true,rootShown=false,visibility=4,size=540x0,texts=[|shown=false|size=43x33, |shown=false|size=0x0]"
+    }
+  ],
+  "presentations": [
+    {
+      "id": 1,
+      "frame_uptime_ms": 5238239
+    },
+    {
+      "id": 3,
+      "frame_uptime_ms": 5250974
+    },
+    {
+      "id": 4,
+      "frame_uptime_ms": 5253599
+    }
+  ],
+  "panels": [
+    {
+      "uptime_ms": 5230875,
+      "session": 4,
+      "aux_up": "Latin Mode",
+      "preedit": ""
+    },
+    {
+      "uptime_ms": 5239895,
+      "session": 4,
+      "aux_up": "",
+      "preedit": ""
+    },
+    {
+      "uptime_ms": 5248039,
+      "session": 4,
+      "aux_up": "Chinese mode",
+      "preedit": ""
+    },
+    {
+      "uptime_ms": 5248205,
+      "session": 4,
+      "aux_up": "第二方案",
+      "preedit": ""
+    },
+    {
+      "uptime_ms": 5251534,
+      "session": 4,
+      "aux_up": "直连测试",
+      "preedit": ""
+    },
+    {
+      "uptime_ms": 5255035,
+      "session": 4,
+      "aux_up": "",
+      "preedit": "n"
+    },
+    {
+      "uptime_ms": 5256919,
+      "session": 4,
+      "aux_up": "",
+      "preedit": "ni"
+    },
+    {
+      "uptime_ms": 5265685,
+      "session": 4,
+      "aux_up": "",
+      "preedit": ""
+    }
+  ]
+}

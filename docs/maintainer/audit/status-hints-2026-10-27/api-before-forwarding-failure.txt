@@ -1,0 +1,113 @@
+INSTRUMENTATION_STATUS: class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+org.fcitx.fcitx5.android.core.DirectRimeFrontendTest:
+INSTRUMENTATION_STATUS: test=modeAndSchemaHintsExpireWithoutReplayingCommits
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Mode hints should expire
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1$2.invokeSuspend(DirectRimeFrontendTest.kt:440)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1$2.invoke(Unknown Source:8)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1$2.invoke(Unknown Source:4)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1$runOnReady$2$1.invokeSuspend(FcitxDaemon.kt:101)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1$runOnReady$2$1.invoke(Unknown Source:8)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1$runOnReady$2$1.invoke(Unknown Source:4)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1.runOnReady(FcitxDaemon.kt:271)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1.invokeSuspend(DirectRimeFrontendTest.kt:439)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:233)
+	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:152)
+	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:470)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core(CancellableContinuationImpl.kt:504)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core$default(CancellableContinuationImpl.kt:493)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeUndispatched(CancellableContinuationImpl.kt:596)
+	at kotlinx.coroutines.EventLoopImplBase$DelayedResumeTask.run(EventLoop.common.kt:490)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source:1)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.modeAndSchemaHintsExpireWithoutReplayingCommits(DirectRimeFrontendTest.kt:417)
+
+INSTRUMENTATION_STATUS: stream=
+Error in modeAndSchemaHintsExpireWithoutReplayingCommits(org.fcitx.fcitx5.android.core.DirectRimeFrontendTest):
+java.lang.AssertionError: Mode hints should expire
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1$2.invokeSuspend(DirectRimeFrontendTest.kt:440)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1$2.invoke(Unknown Source:8)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1$2.invoke(Unknown Source:4)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1$runOnReady$2$1.invokeSuspend(FcitxDaemon.kt:101)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1$runOnReady$2$1.invoke(Unknown Source:8)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1$runOnReady$2$1.invoke(Unknown Source:4)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1.runOnReady(FcitxDaemon.kt:271)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1.invokeSuspend(DirectRimeFrontendTest.kt:439)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:233)
+	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:152)
+	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:470)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core(CancellableContinuationImpl.kt:504)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core$default(CancellableContinuationImpl.kt:493)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeUndispatched(CancellableContinuationImpl.kt:596)
+	at kotlinx.coroutines.EventLoopImplBase$DelayedResumeTask.run(EventLoop.common.kt:490)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source:1)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.modeAndSchemaHintsExpireWithoutReplayingCommits(DirectRimeFrontendTest.kt:417)
+
+INSTRUMENTATION_STATUS: test=modeAndSchemaHintsExpireWithoutReplayingCommits
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 22.815
+There was 1 failure:
+1) modeAndSchemaHintsExpireWithoutReplayingCommits(org.fcitx.fcitx5.android.core.DirectRimeFrontendTest)
+java.lang.AssertionError: Mode hints should expire
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1$2.invokeSuspend(DirectRimeFrontendTest.kt:440)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1$2.invoke(Unknown Source:8)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1$2.invoke(Unknown Source:4)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1$runOnReady$2$1.invokeSuspend(FcitxDaemon.kt:101)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1$runOnReady$2$1.invoke(Unknown Source:8)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1$runOnReady$2$1.invoke(Unknown Source:4)
+	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1.runOnReady(FcitxDaemon.kt:271)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$modeAndSchemaHintsExpireWithoutReplayingCommits$1.invokeSuspend(DirectRimeFrontendTest.kt:439)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:233)
+	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:152)
+	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:470)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core(CancellableContinuationImpl.kt:504)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core$default(CancellableContinuationImpl.kt:493)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeUndispatched(CancellableContinuationImpl.kt:596)
+	at kotlinx.coroutines.EventLoopImplBase$DelayedResumeTask.run(EventLoop.common.kt:490)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source:1)
+	at org.fcitx.fcitx5.android.core.DirectRimeFrontendTest.modeAndSchemaHintsExpireWithoutReplayingCommits(DirectRimeFrontendTest.kt:417)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

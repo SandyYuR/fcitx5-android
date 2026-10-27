@@ -1,0 +1,15 @@
+{
+  "runtime_sha": "018fcf3e47b4c736a4369830d9b7a7584c34b7dd",
+  "app": {
+    "tests": 1230,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "build_logic_tests": 6,
+  "local_build_abi": "x86_64",
+  "release_abis": [
+    "arm64-v8a"
+  ],
+  "new_test_executions": 10
+}

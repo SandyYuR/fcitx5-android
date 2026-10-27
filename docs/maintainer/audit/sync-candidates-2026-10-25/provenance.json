@@ -1,0 +1,144 @@
+{
+  "runtime_code_sha": "4bb3486c2797750164582221abf2bb39d106a959",
+  "branch": "perf/direct-rime-startup-20261024",
+  "branch_head_sha": "e3471045793787a5a4b920e782e1260fae055a72",
+  "test_harness_sha": "e3471045793787a5a4b920e782e1260fae055a72",
+  "main_code_changed_after_runtime_commit": false,
+  "apk": {
+    "apk": "app/build/outputs/apk/fx/debug/org.fcitx.fcitx5.android.fx.rime-4bb3486c-fx-x86_64-debug.apk",
+    "native_libraries": [
+      "lib/x86_64/libc++_shared.so",
+      "lib/x86_64/libdirect-rime.so"
+    ],
+    "fcitx_dependencies": [],
+    "apk_sha256": "0f27f116482a460488f85ddc2c325272f8d77cde775de7f2ce1fdd05ecd80778",
+    "native_dependencies": {
+      "lib/x86_64/libc++_shared.so": [
+        "libc.so",
+        "libm.so",
+        "libdl.so"
+      ],
+      "lib/x86_64/libdirect-rime.so": [
+        "liblog.so",
+        "libandroid.so",
+        "libm.so",
+        "libc++_shared.so",
+        "libdl.so",
+        "libc.so"
+      ]
+    },
+    "obsolete_picker_classes": [],
+    "legacy_backend_classes": [],
+    "dex_files_checked": 22,
+    "page_size": 16384,
+    "required_alignment_by_abi": {
+      "x86_64": 16384
+    }
+  },
+  "test_apk_sha256": "3d912f50c9972fe105f84eebec2f45f6cdfb22d169c120766769b025d798a84c",
+  "previous_test_apk_sha256": "55e98d9b1fb50994aa298fc69ebdea6d2b993fbf178af24ffabbf7374c452baa",
+  "emulator": {
+    "api": 35,
+    "image": "AOSP",
+    "abi": "x86_64",
+    "acceleration": "TCG; no KVM",
+    "graphics": "SwiftShader",
+    "screen": "540x960",
+    "watchdog_timeout_millis": 600000
+  },
+  "jvm": {
+    "application": 897,
+    "build_logic": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "device_results": {
+    "initial_suite": {
+      "tests": 5,
+      "passed": 4,
+      "failed": 1,
+      "failure": "Web password inputType=225 settled visible IME precondition failed before opening that menu",
+      "log": "final-device-first-attempt.txt"
+    },
+    "unchanged_schema_repeat": {
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "failure": "same precondition",
+      "log": "schema-no-touch-repeat.txt"
+    },
+    "schema_with_touch_harness": {
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "input_types": [
+        1,
+        129,
+        225,
+        18
+      ],
+      "checks": [
+        "menu keeps focus",
+        "schema selection by touch",
+        "Back",
+        "outside touch",
+        "continued typing"
+      ],
+      "log": "schema-touch-device.txt"
+    },
+    "candidate_focus_before": {
+      "application_sha": "229a344a7503c9dbfe51a3bedcff95e922ad96fa",
+      "tests": 1,
+      "failed": 1,
+      "log": "candidate-focus-before.txt"
+    },
+    "candidate_focus_after": {
+      "application_sha": "4bb3486c2797750164582221abf2bb39d106a959",
+      "passed": true,
+      "checks": [
+        "menu visible after 800 ms",
+        "host window focus",
+        "NOT_FOCUSABLE without ALT_FOCUSABLE_IM",
+        "no inputSession rebind",
+        "old menu dismissed when editor type changes"
+      ]
+    },
+    "crash_buffer_empty_after_completed_tests": true
+  },
+  "ci": {
+    "run_id": 40213813097,
+    "code_sha": "4bb3486c2797750164582221abf2bb39d106a959",
+    "conclusion": "success",
+    "arm64_artifact_id": 12607275703,
+    "arm64_artifact_size_bytes": 7175055
+  },
+  "known_unresolved": [
+    "legacy English-mode hint display assertion",
+    "automatic programmatic type switch without a focusing touch: original precondition failed twice; not claimed fixed by app code",
+    "whole backup process interruption journal",
+    "WebSocket allocation before OkHttp onMessage",
+    "voice broadcast protocol missing plugin session token"
+  ],
+  "manual_touch_host": {
+    "runtime_code_sha": "4bb3486c2797750164582221abf2bb39d106a959",
+    "actions": [
+      "focus A by touch",
+      "touch N",
+      "touch I",
+      "touch candidate 你"
+    ],
+    "result": {
+      "a": "你",
+      "b": "",
+      "events": [
+        {
+          "field": "A",
+          "event": "commit",
+          "value": "你"
+        }
+      ]
+    },
+    "passed": true
+  }
+}

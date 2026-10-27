@@ -1,0 +1,209 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttp.nonProxyHosts=localhost|127.0.0.1|[::1]
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:convention:compileKotlin UP-TO-DATE
+> Task :build-logic:convention:compileJava NO-SOURCE
+> Task :build-logic:convention:pluginDescriptors UP-TO-DATE
+> Task :build-logic:convention:processResources UP-TO-DATE
+> Task :build-logic:convention:classes UP-TO-DATE
+> Task :build-logic:convention:jar
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preFxDebugBuild UP-TO-DATE
+> Task :app:dataBindingMergeDependencyArtifactsFxDebug UP-TO-DATE
+> Task :app:generateFxDebugResValues UP-TO-DATE
+> Task :app:prepareLibraryDefinitionsFxDebug UP-TO-DATE
+> Task :app:extractFxDebugSupportedLocales UP-TO-DATE
+> Task :app:mapFxDebugSourceSetPaths UP-TO-DATE
+> Task :lib:common:preBuild UP-TO-DATE
+> Task :lib:common:preDebugBuild UP-TO-DATE
+> Task :lib:common:extractDebugSupportedLocales UP-TO-DATE
+> Task :app:generateFxDebugLocaleConfig UP-TO-DATE
+> Task :app:generateFxDebugResources UP-TO-DATE
+> Task :lib:common:generateDebugResources UP-TO-DATE
+> Task :lib:common:packageDebugResources UP-TO-DATE
+> Task :app:mergeFxDebugResources UP-TO-DATE
+> Task :app:packageFxDebugResources UP-TO-DATE
+> Task :lib:common:processDebugNavigationResources UP-TO-DATE
+> Task :app:processFxDebugNavigationResources UP-TO-DATE
+> Task :app:parseFxDebugLocalResources UP-TO-DATE
+> Task :lib:common:parseDebugLocalResources UP-TO-DATE
+> Task :lib:common:generateDebugRFile UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesFxDebug UP-TO-DATE
+> Task :app:generateFxDebugBuildConfig
+> Task :app:generateFxDebugRFile UP-TO-DATE
+> Task :codegen:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :codegen:compileKotlin UP-TO-DATE
+> Task :codegen:compileJava NO-SOURCE
+> Task :codegen:processResources UP-TO-DATE
+> Task :codegen:classes UP-TO-DATE
+> Task :codegen:jar UP-TO-DATE
+> Task :lib:common:compileDebugAidl UP-TO-DATE
+> Task :lib:common:compileDebugKotlin UP-TO-DATE
+> Task :lib:common:javaPreCompileDebug UP-TO-DATE
+> Task :lib:common:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib:common:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :app:kspFxDebugKotlin
+> Task :build-logic:convention:compileTestKotlin
+> Task :app:compileFxDebugKotlin
+w: file:///workspace/fcitx5-android/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:271:47 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Snapshot'.
+w: file:///workspace/fcitx5-android/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:323:21 Unnecessary safe call on a non-null receiver of type 'Snapshot'.
+w: file:///workspace/fcitx5-android/app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt:1151:19 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///workspace/fcitx5-android/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:271:47 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Snapshot'.
+w: file:///workspace/fcitx5-android/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:323:21 Unnecessary safe call on a non-null receiver of type 'Snapshot'.
+w: file:///workspace/fcitx5-android/app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt:1151:19 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+
+> Task :app:javaPreCompileFxDebug UP-TO-DATE
+> Task :app:compileFxDebugJavaWithJavac
+> Task :lib:common:writeDebugAarMetadata UP-TO-DATE
+> Task :app:checkFxDebugAarMetadata UP-TO-DATE
+> Task :app:compileFxDebugNavigationResources UP-TO-DATE
+> Task :app:createFxDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksFxDebug UP-TO-DATE
+> Task :lib:common:extractDeepLinksDebug UP-TO-DATE
+> Task :lib:common:processDebugManifest UP-TO-DATE
+
+> Task :app:processFxDebugMainManifest
+/workspace/fcitx5-android/app/src/main/AndroidManifest.xml:54:5-383:19 Warning:
+	application@android:supportsRtl was tagged at AndroidManifest.xml:54 to replace other declarations but no other declaration present
+
+> Task :app:processFxDebugManifest
+> Task :app:processFxDebugManifestForPackage
+> Task :lib:common:mapDebugSourceSetPaths UP-TO-DATE
+> Task :lib:common:compileDebugLibraryResources UP-TO-DATE
+> Task :build-logic:convention:compileTestJava NO-SOURCE
+> Task :build-logic:convention:pluginUnderTestMetadata UP-TO-DATE
+> Task :build-logic:convention:processTestResources NO-SOURCE
+> Task :build-logic:convention:testClasses UP-TO-DATE
+> Task :build-logic:convention:test UP-TO-DATE
+> Task :app:processFxDebugResources
+> Task :app:bundleFxDebugClassesToRuntimeJar
+> Task :app:bundleFxDebugClassesToCompileJar
+> Task :app:kspFxDebugUnitTestKotlin SKIPPED
+> Task :app:preFxDebugUnitTestBuild UP-TO-DATE
+> Task :app:compileFxDebugUnitTestKotlin
+> Task :app:javaPreCompileFxDebugUnitTest UP-TO-DATE
+> Task :app:compileFxDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:prepareDirectRimeAssets UP-TO-DATE
+> Task :app:generateDataDescriptor UP-TO-DATE
+> Task :app:generateFxDebugAssets UP-TO-DATE
+> Task :lib:common:generateDebugAssets UP-TO-DATE
+> Task :lib:common:mergeDebugAssets UP-TO-DATE
+> Task :app:mergeFxDebugAssets UP-TO-DATE
+> Task :app:packageFxDebugUnitTestForUnitTest
+
+> Task :app:mergeFxDebugUnitTestManifest
+/workspace/fcitx5-android/app/src/main/AndroidManifest.xml:6:5-8:31 Warning:
+	permission#org.fcitx.fcitx5.android.fx.rime.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION was tagged at AndroidManifest.xml:6 to remove other declarations but no other declaration present
+/workspace/fcitx5-android/app/src/main/AndroidManifest.xml:10:5-12:31 Warning:
+	uses-permission#org.fcitx.fcitx5.android.fx.rime.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION was tagged at AndroidManifest.xml:10 to remove other declarations but no other declaration present
+/workspace/fcitx5-android/app/src/main/AndroidManifest.xml:33:5-39 Warning:
+	queries was tagged at AndroidManifest.xml:33 to remove other declarations but no other declaration present
+/workspace/fcitx5-android/app/src/main/AndroidManifest.xml:342:9-344:35 Warning:
+	activity#com.canhub.cropper.CropImageActivity was tagged at AndroidManifest.xml:342 to remove other declarations but no other declaration present
+/workspace/fcitx5-android/app/src/main/AndroidManifest.xml:346:9-349:35 Warning:
+	provider#com.canhub.cropper.CropFileProvider was tagged at AndroidManifest.xml:346 to remove other declarations but no other declaration present
+/workspace/fcitx5-android/app/src/main/AndroidManifest.xml:352:9-354:35 Warning:
+	activity#com.journeyapps.barcodescanner.CaptureActivity was tagged at AndroidManifest.xml:352 to remove other declarations but no other declaration present
+/workspace/fcitx5-android/app/src/main/AndroidManifest.xml:357:9-359:35 Warning:
+	service#androidx.room.MultiInstanceInvalidationService was tagged at AndroidManifest.xml:357 to remove other declarations but no other declaration present
+/workspace/fcitx5-android/app/src/main/AndroidManifest.xml:374:13-377:39 Warning:
+	meta-data#androidx.work.WorkManagerInitializer was tagged at AndroidManifest.xml:374 to remove other declarations but no other declaration present
+/workspace/fcitx5-android/app/src/main/AndroidManifest.xml:378:13-381:39 Warning:
+	meta-data#splitties.views.dsl.appcompat.experimental.AppCompatViewInstantiatorInjecter was tagged at AndroidManifest.xml:378 to remove other declarations but no other declaration present
+/workspace/fcitx5-android/app/build/intermediates/tmp/manifest/test/fx/debug/tempFile2ProcessTestManifest9592367590751121525.xml:56:5-380:19 Warning:
+	application@android:supportsRtl was tagged at tempFile2ProcessTestManifest9592367590751121525.xml:56 to replace other declarations but no other declaration present
+
+> Task :app:processFxDebugUnitTestManifest UP-TO-DATE
+> Task :app:generateFxDebugUnitTestConfig
+> Task :app:processFxDebugJavaRes UP-TO-DATE
+> Task :app:processFxDebugUnitTestJavaRes UP-TO-DATE
+> Task :lib:common:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib:common:processDebugJavaRes UP-TO-DATE
+
+> Task :app:testFxDebugUnitTest
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttp.nonProxyHosts=localhost|127.0.0.1|[::1]
+
+> Task :app:compressFxDebugAssets UP-TO-DATE
+> Task :app:generateFxDebugGlobalSynthetics UP-TO-DATE
+> Task :app:l8DexDesugarLibFxDebug UP-TO-DATE
+> Task :app:checkFxDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarFxDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexFxDebug UP-TO-DATE
+> Task :app:mergeFxDebugJavaResource UP-TO-DATE
+> Task :app:mergeLibDexFxDebug UP-TO-DATE
+> Task :app:dexBuilderFxDebug
+> Task :app:mergeProjectDexFxDebug
+> Task :app:configureCMakeDebug[x86_64]
+> Task :app:buildCMakeDebug[x86_64][direct-rime]
+> Task :app:mergeFxDebugJniLibFolders UP-TO-DATE
+> Task :lib:common:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib:common:mergeDebugNativeLibs NO-SOURCE
+> Task :lib:common:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :app:mergeFxDebugNativeLibs UP-TO-DATE
+> Task :app:stripFxDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningFxDebug UP-TO-DATE
+> Task :app:writeFxDebugAppMetadata UP-TO-DATE
+> Task :app:writeFxDebugSigningConfigVersions UP-TO-DATE
+> Task :app:packageFxDebug
+> Task :app:generateBuildMetadataFxDebug
+> Task :app:mergeFxDebugNativeDebugMetadata NO-SOURCE
+> Task :app:createFxDebugApkListingFileRedirect
+> Task :app:assembleFxDebug
+> Task :app:preFxDebugAndroidTestBuild SKIPPED
+> Task :app:dataBindingMergeDependencyArtifactsFxDebugAndroidTest UP-TO-DATE
+> Task :app:generateFxDebugAndroidTestResValues UP-TO-DATE
+> Task :app:generateFxDebugAndroidTestResources UP-TO-DATE
+> Task :app:mergeFxDebugAndroidTestResources UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesFxDebugAndroidTest UP-TO-DATE
+> Task :app:mergeFxDebugAndroidTestManifest UP-TO-DATE
+> Task :app:processFxDebugAndroidTestManifest UP-TO-DATE
+> Task :app:generateFxDebugAndroidTestBuildConfig
+> Task :app:packageFxDebugAndroidTestResources UP-TO-DATE
+> Task :app:processFxDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :app:parseFxDebugAndroidTestLocalResources UP-TO-DATE
+> Task :app:generateFxDebugAndroidTestRFile UP-TO-DATE
+> Task :app:kspFxDebugAndroidTestKotlin SKIPPED
+
+> Task :app:compileFxDebugAndroidTestKotlin
+w: file:///workspace/fcitx5-android/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:494:34 Unnecessary non-null assertion (!!) on a non-null receiver of type 'RimeImportActivity'.
+w: file:///workspace/fcitx5-android/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:535:93 Unnecessary non-null assertion (!!) on a non-null receiver of type 'RimeImportActivity'.
+w: file:///workspace/fcitx5-android/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:1236:69 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextKeyboardLayoutEditorActivity'.
+
+> Task :app:javaPreCompileFxDebugAndroidTest UP-TO-DATE
+> Task :app:compileFxDebugAndroidTestJavaWithJavac
+> Task :app:generateFxDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeFxDebugAndroidTestAssets UP-TO-DATE
+> Task :app:compressFxDebugAndroidTestAssets UP-TO-DATE
+> Task :app:generateFxDebugAndroidTestGlobalSynthetics UP-TO-DATE
+> Task :app:checkFxDebugAndroidTestDuplicateClasses UP-TO-DATE
+> Task :app:desugarFxDebugAndroidTestFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexFxDebugAndroidTest UP-TO-DATE
+> Task :app:processFxDebugAndroidTestJavaRes UP-TO-DATE
+> Task :app:mergeFxDebugAndroidTestJavaResource UP-TO-DATE
+> Task :app:mergeLibDexFxDebugAndroidTest UP-TO-DATE
+> Task :app:checkFxDebugAndroidTestAarMetadata UP-TO-DATE
+> Task :app:mapFxDebugAndroidTestSourceSetPaths UP-TO-DATE
+> Task :app:compileFxDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :app:processFxDebugAndroidTestResources
+> Task :app:dexBuilderFxDebugAndroidTest
+> Task :app:mergeProjectDexFxDebugAndroidTest
+> Task :app:mergeFxDebugAndroidTestJniLibFolders UP-TO-DATE
+> Task :app:mergeFxDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripFxDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningFxDebugAndroidTest UP-TO-DATE
+> Task :app:writeFxDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :app:packageFxDebugAndroidTest
+> Task :app:createFxDebugAndroidTestApkListingFileRedirect
+> Task :app:assembleFxDebugAndroidTest
+
+[Incubating] Problems report is available at: file:///workspace/fcitx5-android/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 4m 16s
+127 actionable tasks: 33 executed, 94 up-to-date

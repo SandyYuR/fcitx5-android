@@ -1,0 +1,16 @@
+{
+  "before_boot_id": "5903d93f-0c3d-4797-a28f-4f7fad34b074",
+  "after_boot_id": "a4041a3a-b077-413b-905a-34066e3700b5",
+  "kernel_changed": true,
+  "dictionary_sync_files_before_verifier": [
+    {
+      "path": "sync/f5fc780d-f9c7-4253-bc94-a81f2291bc61/direct_smoke.userdb.txt",
+      "sha256": "b6d9e34faa5590f3618a5fc670b8dd4c9f16b7e5f46db336f277e2bc0e04fe7d",
+      "learned_entry_present": true
+    }
+  ],
+  "hardware_timeout_multiplier": 100,
+  "device_abi": "x86_64",
+  "release_abi": "arm64-v8a",
+  "raw_media_path_used_to_inspect_emulator_fuse_recovery": true
+}

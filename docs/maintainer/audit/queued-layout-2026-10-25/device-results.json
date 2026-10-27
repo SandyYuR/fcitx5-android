@@ -1,0 +1,40 @@
+{
+  "code_sha": "1c8a7d04b9933541cb7ae6cd28ccf99f9a54ce49",
+  "apk_sha256": "095e02fa8f55a4962e3123963d0fad502d18430e096a5004db97f5e1d650b9f7",
+  "rounds": [
+    {
+      "round": 1,
+      "latin_to_rime": true,
+      "host_focus_and_restart": true
+    },
+    {
+      "round": 2,
+      "latin_to_rime": true,
+      "host_focus_and_restart": true
+    },
+    {
+      "round": 3,
+      "latin_to_rime": true,
+      "host_focus_and_restart": true
+    }
+  ],
+  "version": "versionName=1c8a7d04",
+  "selected_ime": "org.fcitx.fcitx5.android.fx.rime.debug/org.fcitx.fcitx5.android.input.FcitxInputMethodService",
+  "result": "passed",
+  "crash_buffer_empty": true,
+  "pid_after": "2631",
+  "input": {
+    "method": "touch N, I, first candidate 你",
+    "state": {
+      "a": "你",
+      "b": "",
+      "events": [
+        {
+          "field": "A",
+          "event": "commit",
+          "value": "你"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "profile": "shutdown-test-a7f67365-db85-498a-845d-03a989393440",
+  "code_sha": "8dca031c80fdf6c82015982b54385ef8bea12d48",
+  "target_version": "8dca031c",
+  "pid": 2410,
+  "boot_id": "a4041a3a-b077-413b-905a-34066e3700b5",
+  "boot_count": 14,
+  "uptime_ms": 1568958,
+  "candidates": [
+    "泥",
+    "你",
+    "拟",
+    "逆"
+  ],
+  "before": {
+    "profile": "shutdown-test-a7f67365-db85-498a-845d-03a989393440",
+    "previous_profile": "smoke",
+    "code_sha": "8dca031c80fdf6c82015982b54385ef8bea12d48",
+    "pid": 4355,
+    "target_version": "8dca031c",
+    "boot_id": "5903d93f-0c3d-4797-a28f-4f7fad34b074",
+    "uptime_ms": 1232830,
+    "boot_count": 13,
+    "baseline": [
+      "你",
+      "泥",
+      "拟",
+      "逆"
+    ],
+    "learned_first": "泥",
+    "waiting_for_orderly_shutdown": true
+  },
+  "passed": true
+}

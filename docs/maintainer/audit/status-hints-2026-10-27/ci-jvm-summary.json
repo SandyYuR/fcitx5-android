@@ -1,0 +1,22 @@
+{
+  "code_sha": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+  "source": "downloaded CI HTML report, ZIP SHA-256 checked against GitHub artifact metadata",
+  "run_id": 40417349690,
+  "job_id": 121902875419,
+  "app_tests": 1233,
+  "failures": 0,
+  "skipped": 0,
+  "new_hint_tests": 13,
+  "input_engine_api_tests": 3,
+  "status_hint_lifetime_tests": 10,
+  "artifact_id": 12695514706,
+  "artifact_digest": "sha256:bb3a819aed7b1502985bdb9199ea6c377fea885a7044c4c02faeffed48c0f004",
+  "build_logic": {
+    "tests": 6,
+    "source": "previous complete local018 run; build-logic source unchanged"
+  },
+  "local_clean_compile": {
+    "heap_1024_mib": "OutOfMemoryError before tests; local full1233 not claimed",
+    "heap_2048_mib": "Debug main and AndroidTest build passed"
+  }
+}

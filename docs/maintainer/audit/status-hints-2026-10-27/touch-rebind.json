@@ -1,0 +1,257 @@
+{
+  "harness_commit": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+  "target_package_version": "7e5c2c1b",
+  "fixture": "bundled-smoke",
+  "model_mapped": false,
+  "metric": "UI-injected touch through observed backend\/view\/editor state; includes injection and polling; not frame presentation latency",
+  "rounds": [
+    {
+      "round": 1,
+      "generation": 6,
+      "android_binding_generation": 2,
+      "first_touch_to_preedit_observed_ms": 1136.649552,
+      "first_touch_to_candidate_view_bound_ms": 3540.389111,
+      "candidate_touch_to_editor_observed_ms": 2616.720001
+    },
+    {
+      "round": 2,
+      "generation": 7,
+      "android_binding_generation": 3,
+      "first_touch_to_preedit_observed_ms": 1838.207291,
+      "first_touch_to_candidate_view_bound_ms": 2311.280863,
+      "candidate_touch_to_editor_observed_ms": 1269.101709
+    },
+    {
+      "round": 3,
+      "generation": 8,
+      "android_binding_generation": 4,
+      "first_touch_to_preedit_observed_ms": 1003.00635,
+      "first_touch_to_candidate_view_bound_ms": 3014.993267,
+      "candidate_touch_to_editor_observed_ms": 1392.739646
+    },
+    {
+      "round": 4,
+      "generation": 9,
+      "android_binding_generation": 5,
+      "first_touch_to_preedit_observed_ms": 548.360418,
+      "first_touch_to_candidate_view_bound_ms": 2236.148942,
+      "candidate_touch_to_editor_observed_ms": 1056.193669
+    },
+    {
+      "round": 5,
+      "generation": 10,
+      "android_binding_generation": 6,
+      "first_touch_to_preedit_observed_ms": 599.367847,
+      "first_touch_to_candidate_view_bound_ms": 2223.865388,
+      "candidate_touch_to_editor_observed_ms": 969.832703
+    },
+    {
+      "round": 6,
+      "generation": 11,
+      "android_binding_generation": 7,
+      "first_touch_to_preedit_observed_ms": 555.429805,
+      "first_touch_to_candidate_view_bound_ms": 1418.931588,
+      "candidate_touch_to_editor_observed_ms": 1500.593237
+    }
+  ],
+  "touches": [
+    {
+      "key": "n",
+      "bounds": "[351,757][405,803]",
+      "at_uptime_ms": 5385030,
+      "down_ms": 5385030,
+      "generation_at_down": 6,
+      "down_return_ms": 5385163,
+      "up_ms": 5385184,
+      "generation_at_up": 6,
+      "up_return_ms": 5385618
+    },
+    {
+      "key": "i",
+      "bounds": "[378,613][432,659]",
+      "at_uptime_ms": 5387790,
+      "down_ms": 5387791,
+      "generation_at_down": 6,
+      "down_return_ms": 5387979,
+      "up_ms": 5388015,
+      "generation_at_up": 6,
+      "up_return_ms": 5388279
+    },
+    {
+      "key": "你",
+      "bounds": "[25,546][54,594]",
+      "at_uptime_ms": 5389355,
+      "down_ms": 5389355,
+      "generation_at_down": 6,
+      "down_return_ms": 5389460,
+      "up_ms": 5389483,
+      "generation_at_up": 6,
+      "up_return_ms": 5389753
+    },
+    {
+      "key": "n",
+      "bounds": "[351,757][405,803]",
+      "at_uptime_ms": 5394175,
+      "down_ms": 5394175,
+      "generation_at_down": 7,
+      "down_return_ms": 5394299,
+      "up_ms": 5394322,
+      "generation_at_up": 7,
+      "up_return_ms": 5394720
+    },
+    {
+      "key": "i",
+      "bounds": "[378,613][432,659]",
+      "at_uptime_ms": 5395909,
+      "down_ms": 5395909,
+      "generation_at_down": 7,
+      "down_return_ms": 5395977,
+      "up_ms": 5396000,
+      "generation_at_up": 7,
+      "up_return_ms": 5396193
+    },
+    {
+      "key": "你",
+      "bounds": "[18,546][74,594]",
+      "at_uptime_ms": 5396388,
+      "down_ms": 5396389,
+      "generation_at_down": 7,
+      "down_return_ms": 5396495,
+      "up_ms": 5396528,
+      "generation_at_up": 7,
+      "up_return_ms": 5396748
+    },
+    {
+      "key": "n",
+      "bounds": "[351,757][405,803]",
+      "at_uptime_ms": 5400574,
+      "down_ms": 5400574,
+      "generation_at_down": 8,
+      "down_return_ms": 5400669,
+      "up_ms": 5400691,
+      "generation_at_up": 8,
+      "up_return_ms": 5401076
+    },
+    {
+      "key": "i",
+      "bounds": "[378,613][432,659]",
+      "at_uptime_ms": 5401859,
+      "down_ms": 5401859,
+      "generation_at_down": 8,
+      "down_return_ms": 5402038,
+      "up_ms": 5402065,
+      "generation_at_up": 8,
+      "up_return_ms": 5402684
+    },
+    {
+      "key": "你",
+      "bounds": "[25,546][54,594]",
+      "at_uptime_ms": 5403299,
+      "down_ms": 5403300,
+      "generation_at_down": 8,
+      "down_return_ms": 5403409,
+      "up_ms": 5403434,
+      "generation_at_up": 8,
+      "up_return_ms": 5403666
+    },
+    {
+      "key": "n",
+      "bounds": "[351,757][405,803]",
+      "at_uptime_ms": 5406246,
+      "down_ms": 5406246,
+      "generation_at_down": 9,
+      "down_return_ms": 5406389,
+      "up_ms": 5406414,
+      "generation_at_up": 9,
+      "up_return_ms": 5406686
+    },
+    {
+      "key": "i",
+      "bounds": "[378,613][432,659]",
+      "at_uptime_ms": 5407357,
+      "down_ms": 5407357,
+      "generation_at_down": 9,
+      "down_return_ms": 5407457,
+      "up_ms": 5407497,
+      "generation_at_up": 9,
+      "up_return_ms": 5407876
+    },
+    {
+      "key": "你",
+      "bounds": "[25,546][54,594]",
+      "at_uptime_ms": 5408486,
+      "down_ms": 5408486,
+      "generation_at_down": 9,
+      "down_return_ms": 5408596,
+      "up_ms": 5408619,
+      "generation_at_up": 9,
+      "up_return_ms": 5408845
+    },
+    {
+      "key": "n",
+      "bounds": "[351,757][405,803]",
+      "at_uptime_ms": 5411522,
+      "down_ms": 5411522,
+      "generation_at_down": 10,
+      "down_return_ms": 5411640,
+      "up_ms": 5411666,
+      "generation_at_up": 10,
+      "up_return_ms": 5411993
+    },
+    {
+      "key": "i",
+      "bounds": "[378,613][432,659]",
+      "at_uptime_ms": 5412362,
+      "down_ms": 5412362,
+      "generation_at_down": 10,
+      "down_return_ms": 5412468,
+      "up_ms": 5412502,
+      "generation_at_up": 10,
+      "up_return_ms": 5412941
+    },
+    {
+      "key": "你",
+      "bounds": "[25,546][54,594]",
+      "at_uptime_ms": 5413690,
+      "down_ms": 5413690,
+      "generation_at_down": 10,
+      "down_return_ms": 5413789,
+      "up_ms": 5413809,
+      "generation_at_up": 10,
+      "up_return_ms": 5414039
+    },
+    {
+      "key": "n",
+      "bounds": "[351,757][405,803]",
+      "at_uptime_ms": 5416430,
+      "down_ms": 5416430,
+      "generation_at_down": 11,
+      "down_return_ms": 5416520,
+      "up_ms": 5416546,
+      "generation_at_up": 11,
+      "up_return_ms": 5416928
+    },
+    {
+      "key": "i",
+      "bounds": "[378,613][432,659]",
+      "at_uptime_ms": 5417326,
+      "down_ms": 5417326,
+      "generation_at_down": 11,
+      "down_return_ms": 5417400,
+      "up_ms": 5417423,
+      "generation_at_up": 11,
+      "up_return_ms": 5417771
+    },
+    {
+      "key": "你",
+      "bounds": "[25,546][54,594]",
+      "at_uptime_ms": 5418135,
+      "down_ms": 5418135,
+      "generation_at_down": 11,
+      "down_return_ms": 5418312,
+      "up_ms": 5418340,
+      "generation_at_up": 11,
+      "up_return_ms": 5418568
+    }
+  ]
+}

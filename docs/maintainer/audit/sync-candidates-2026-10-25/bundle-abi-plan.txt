@@ -1,0 +1,103 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttp.nonProxyHosts=localhost|127.0.0.1|[::1]
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:convention:compileKotlin UP-TO-DATE
+> Task :build-logic:convention:compileJava NO-SOURCE
+> Task :build-logic:convention:pluginDescriptors UP-TO-DATE
+> Task :build-logic:convention:processResources UP-TO-DATE
+> Task :build-logic:convention:classes UP-TO-DATE
+> Task :build-logic:convention:jar UP-TO-DATE
+:app:preBuild SKIPPED
+:app:preFxDebugBuild SKIPPED
+:app:generateFxDebugResValues SKIPPED
+:app:prepareLibraryDefinitionsFxDebug SKIPPED
+:app:mapFxDebugSourceSetPaths SKIPPED
+:lib:common:preBuild SKIPPED
+:lib:common:preDebugBuild SKIPPED
+:lib:common:processDebugNavigationResources SKIPPED
+:app:processFxDebugNavigationResources SKIPPED
+:app:compileFxDebugNavigationResources SKIPPED
+:app:extractFxDebugSupportedLocales SKIPPED
+:lib:common:extractDebugSupportedLocales SKIPPED
+:app:generateFxDebugLocaleConfig SKIPPED
+:app:generateFxDebugResources SKIPPED
+:lib:common:generateDebugResources SKIPPED
+:lib:common:packageDebugResources SKIPPED
+:app:mergeFxDebugResources SKIPPED
+:app:createFxDebugCompatibleScreenManifests SKIPPED
+:app:extractDeepLinksFxDebug SKIPPED
+:lib:common:extractDeepLinksDebug SKIPPED
+:lib:common:processDebugManifest SKIPPED
+:app:processFxDebugMainManifest SKIPPED
+:app:processFxDebugManifest SKIPPED
+:app:processApplicationManifestFxDebugForBundle SKIPPED
+:lib:common:writeDebugAarMetadata SKIPPED
+:app:checkFxDebugAarMetadata SKIPPED
+:app:packageFxDebugResources SKIPPED
+:app:parseFxDebugLocalResources SKIPPED
+:app:processFxDebugManifestForPackage SKIPPED
+:lib:common:mapDebugSourceSetPaths SKIPPED
+:lib:common:compileDebugLibraryResources SKIPPED
+:lib:common:parseDebugLocalResources SKIPPED
+:lib:common:generateDebugRFile SKIPPED
+:app:processFxDebugResources SKIPPED
+:app:bundleFxDebugResources SKIPPED
+:app:generateFxDebugGlobalSynthetics SKIPPED
+:app:l8DexDesugarLibFxDebug SKIPPED
+:app:checkFxDebugDuplicateClasses SKIPPED
+:app:desugarFxDebugFileDependencies SKIPPED
+:app:mergeExtDexFxDebug SKIPPED
+:app:prepareDirectRimeAssets SKIPPED
+:app:generateDataDescriptor SKIPPED
+:app:generateFxDebugAssets SKIPPED
+:lib:common:generateDebugAssets SKIPPED
+:lib:common:mergeDebugAssets SKIPPED
+:app:mergeFxDebugAssets SKIPPED
+:app:dataBindingMergeDependencyArtifactsFxDebug SKIPPED
+:app:dataBindingGenBaseClassesFxDebug SKIPPED
+:app:generateFxDebugBuildConfig SKIPPED
+:app:generateFxDebugRFile SKIPPED
+:codegen:checkKotlinGradlePluginConfigurationErrors SKIPPED
+:codegen:compileKotlin SKIPPED
+:codegen:compileJava SKIPPED
+:codegen:processResources SKIPPED
+:codegen:classes SKIPPED
+:codegen:jar SKIPPED
+:lib:common:compileDebugAidl SKIPPED
+:lib:common:compileDebugKotlin SKIPPED
+:lib:common:javaPreCompileDebug SKIPPED
+:lib:common:compileDebugJavaWithJavac SKIPPED
+:lib:common:bundleLibCompileToJarDebug SKIPPED
+:app:kspFxDebugKotlin SKIPPED
+:app:compileFxDebugKotlin SKIPPED
+:app:processFxDebugJavaRes SKIPPED
+:lib:common:processDebugJavaRes SKIPPED
+:app:mergeFxDebugJavaResource SKIPPED
+:lib:common:bundleLibRuntimeToJarDebug SKIPPED
+:app:mergeLibDexFxDebug SKIPPED
+:app:javaPreCompileFxDebug SKIPPED
+:app:compileFxDebugJavaWithJavac SKIPPED
+:app:dexBuilderFxDebug SKIPPED
+:app:mergeProjectDexFxDebug SKIPPED
+:app:configureCMakeDebug[x86_64] SKIPPED
+:app:buildCMakeDebug[x86_64][direct-rime] SKIPPED
+:app:mergeFxDebugJniLibFolders SKIPPED
+:lib:common:mergeDebugJniLibFolders SKIPPED
+:lib:common:mergeDebugNativeLibs SKIPPED
+:lib:common:copyDebugJniLibsProjectOnly SKIPPED
+:app:mergeFxDebugNativeLibs SKIPPED
+:app:stripFxDebugDebugSymbols SKIPPED
+:app:writeFxDebugAppMetadata SKIPPED
+:app:buildFxDebugPreBundle SKIPPED
+:app:parseFxDebugIntegrityConfig SKIPPED
+:app:packageFxDebugBundle SKIPPED
+:app:validateSigningFxDebug SKIPPED
+:app:signFxDebugBundle SKIPPED
+:app:produceFxDebugBundleIdeListingFile SKIPPED
+:app:createFxDebugBundleListingFileRedirect SKIPPED
+:app:bundleFxDebug SKIPPED
+
+BUILD SUCCESSFUL in 22s
+4 actionable tasks: 4 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.1/userguide/configuration_cache_enabling.html
