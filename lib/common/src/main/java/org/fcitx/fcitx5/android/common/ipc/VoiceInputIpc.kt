@@ -16,6 +16,10 @@ object VoiceInputIpc {
     const val START_FLOATING_ACTION_SUFFIX = ".plugin.VOICE_INPUT_FLOATING"
     const val EXTRA_COMMIT_TEXT = "commitText"
     const val EXTRA_PARTIAL_TEXT = "partialText"
+    // Optional FloatingService only; the AIDL configure/callback interfaces are unchanged.
+    const val EXTRA_FLOATING_SESSION_TOKEN = "voiceSessionToken"
+    const val EXTRA_HOST_PACKAGE = "voiceHostPackage"
+    const val META_FLOATING_SESSION_TOKEN = "org.fcitx.fcitx5.android.voice.FLOATING_SESSION_TOKEN"
 
     // Bundle keys recognized by IVoiceInputProvider.configure.
     // Providers must tolerate missing keys and use their own defaults.

@@ -28,6 +28,7 @@ import org.fcitx.fcitx5.android.common.ipc.IVoiceInputCallback
 import org.fcitx.fcitx5.android.common.ipc.IVoiceInputProvider
 import org.fcitx.fcitx5.android.common.ipc.VoiceInputIpc
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
+import org.fcitx.fcitx5.android.input.EditorSessionTracker
 import org.fcitx.fcitx5.android.utils.appContext
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
@@ -151,12 +152,19 @@ object VoiceInputProviderManager {
 
     private var activeConnection: ServiceConnection? = null
     private var activeProvider: IVoiceInputProvider? = null
-    private var activeProviderBinder: IBinder? = null
-    private var activeProviderDeathRecipient: IBinder.DeathRecipient? = null
+    private val providerDeathLink = VoiceProviderDeathLink()
     private var activeCallback: IVoiceInputCallback? = null
+    private var activeEditorSession: EditorSessionTracker.Token? = null
+    private val floatingResultGate = FloatingVoiceResultGate()
+
+    internal fun deliverFloatingResult(token: String?, final: Boolean, deliver: () -> Unit): Boolean =
+        floatingFallbackActive && floatingResultGate.deliver(token, final) {
+            if (final) stopFloatingFallback(appContext, token)
+            deliver()
+        }
     private var activeCapture: VoiceInputAudioCapture? = null
     private var activeAudioFeedJob: Job? = null
-    private var activeAudioFeedQueue: Channel<QueuedAudio>? = null
+    @Volatile private var activeAudioFeedQueue: Channel<QueuedAudio>? = null
     private var activeSessionConfig = SessionConfig()
     private var activeProviderId: String? = null
     /**
@@ -172,7 +180,7 @@ object VoiceInputProviderManager {
     private var warmConnectionReleaseGeneration = 0
     private var keepAliveConnection: ServiceConnection? = null
     private var keepAliveLastAttemptElapsed = 0L
-    private var voiceSessionTerminalized = false
+    @Volatile private var voiceSessionTerminalized = false
 
     /**
      * Monotonic id of the current session, bumped on every start.
@@ -182,6 +190,10 @@ object VoiceInputProviderManager {
      */
     @Volatile
     private var sessionGeneration = 0
+
+    private fun isCurrentVoiceSession(generation: Int, callback: IVoiceInputCallback?): Boolean =
+        generation == sessionGeneration && callback != null && activeCallback === callback &&
+            sessionActive && !voiceSessionTerminalized && activeEditorSession?.isCurrent() == true
 
     /** Watchdog for the endStream -> onSessionEnded handshake; see [FINISH_WATCHDOG_MS]. */
     private var finishWatchdogJob: Job? = null
@@ -512,116 +524,117 @@ object VoiceInputProviderManager {
             return
         }
 
+        val editor = service.editorSession.capture() ?: run {
+            onError(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_not_available))
+            return
+        }
+        if (floatingFallbackActive) stopFloatingFallback(service)
+        else if (sessionActive || activeCallback != null || activeCapture != null) {
+            stopSession(service, keepConnectionWarm = true)
+        }
         cancelWarmConnectionRelease()
         floatingFallbackActive = false
+        floatingResultGate.clear()
         floatingFallbackComponent = null
         if (activeProvider != null && activeProviderId != id) {
             releaseProviderConnection(service, callStopSession = true)
         }
 
-        // Keep the latest unfinished hypothesis for the case where the user explicitly
-        // ends recognition but the provider fails to send onSegmentFinal after endStream.
-        // Access is synchronized because AIDL callbacks may arrive on Binder threads.
-        val resultLock = Any()
+        // Callback state is owned on Main, including the final partial on user finish.
+        val generation = ++sessionGeneration
         var pendingPartialResult: String? = null
-
-        val callback = object : IVoiceInputCallback.Stub() {
-            override fun onReady() {
-                logI("provider ready")
-                sessionReady = true
-                service.lifecycleScope.launch {
-                    onProviderReady(service, onLevel, onError)
-                    onReady()
-                }
-            }
-
-            override fun onVolumeLevel(rms: Int) {
-                service.lifecycleScope.launch { onLevel(rms) }
-            }
-
-            override fun onPartialResult(text: String?) {
-                val t = text.orEmpty()
-                if (t.isNotBlank()) {
-                    // 只记长度：识别文本属 AGENTS.md §8.5 禁止进入日志的输入内容
-                    // （logI/tlogI 虽只在 debug 输出，但内容一旦落日志文件就留在设备上）。
-                    logI("partial result len=${t.length}")
-                    synchronized(resultLock) {
-                        pendingPartialResult = t
+        lateinit var callback: SessionBoundVoiceCallback
+        callback = SessionBoundVoiceCallback(
+            dispatch = { work -> service.lifecycleScope.launch { work() } },
+            isCurrent = { isCurrentVoiceSession(generation, callback) },
+            delegate = object : IVoiceInputCallback.Stub() {
+                override fun onReady() {
+                    logI("provider ready")
+                    // Releasing the microphone while a model is loading must not start
+                    // recording again when its delayed onReady finally arrives.
+                    if (finishing) {
+                        finishRequest(service, generation, callback).complete()
+                        return
                     }
-                    service.lifecycleScope.launch {
+                    sessionReady = true
+                    onProviderReady(service, { callback.onVolumeLevel(it) },
+                        { callback.onError(VoiceInputIpc.ErrorCodes.UNKNOWN, it) })
+                    if (isCurrentVoiceSession(generation, callback)) onReady()
+                }
+
+                override fun onVolumeLevel(rms: Int) {
+                    onLevel(rms)
+                }
+
+                override fun onPartialResult(text: String?) {
+                    val t = text.orEmpty()
+                    if (t.isNotBlank()) {
+                        // 只记长度：识别文本属 AGENTS.md §8.5 禁止进入日志的输入内容
+                        // （logI/tlogI 虽只在 debug 输出，但内容一旦落日志文件就留在设备上）。
+                        logI("partial result len=${t.length}")
+                        pendingPartialResult = t
                         service.setVoiceComposingText(t)
                         onPartialResult(t)
                     }
                 }
-            }
 
-            override fun onSegmentFinal(text: String?) {
-                val t = text.orEmpty()
-                // A final (including an explicit empty final) closes the current hypothesis.
-                synchronized(resultLock) {
+                override fun onSegmentFinal(text: String?) {
+                    val t = text.orEmpty()
+                    // A final (including an explicit empty final) closes the current hypothesis.
                     pendingPartialResult = null
+                    if (t.isNotBlank()) {
+                        // 同上：只记长度，不记识别文本。
+                        logI("segment final len=${t.length}")
+                        tlogI("Voice segment final len=${t.length}")
+                        service.commitText(t)
+                    } else {
+                        logI("segment final blank")
+                        service.clearVoiceComposingText()
+                    }
                 }
-                if (t.isNotBlank()) {
-                    // 同上：只记长度，不记识别文本。
-                    logI("segment final len=${t.length}")
-                    tlogI("Voice segment final len=${t.length}")
-                    service.lifecycleScope.launch { service.commitText(t) }
-                } else {
-                    logI("segment final blank")
-                    service.lifecycleScope.launch { service.clearVoiceComposingText() }
-                }
-            }
 
-            override fun onSessionEnded() {
-                logI("provider session ended")
-                tlogI("Voice provider session ended")
-                // endStream is the normal user-finish path (mic toggle / hold-space release).
-                // Some providers end the session without sending their final hypothesis; in
-                // that case, commit the latest partial so the text does not vanish on release.
-                // A spontaneous end/cancel still clears it, as does an explicit empty final.
-                val wasUserFinished = finishing
-                val partialToCommit = synchronized(resultLock) {
-                    pendingPartialResult.also { pendingPartialResult = null }
-                }
-                //
-                // stopSession() runs inside this block, not on the binder thread that
-                // delivered the callback: it tears down activeCapture / activeCallback /
-                // sessionActive, which the main thread also reads and writes. Racing with
-                // start() left the AudioRecord unreleased with the microphone still open.
-                service.lifecycleScope.launch {
+                override fun onSessionEnded() {
+                    logI("provider session ended")
+                    tlogI("Voice provider session ended")
+                    // endStream is the normal user-finish path (mic toggle / hold-space release).
+                    // Some providers end the session without sending their final hypothesis; in
+                    // that case, commit the latest partial so the text does not vanish on release.
+                    // A spontaneous end/cancel still clears it, as does an explicit empty final.
+                    val wasUserFinished = finishing
+                    val partialToCommit = pendingPartialResult.also { pendingPartialResult = null }
                     if (wasUserFinished && !partialToCommit.isNullOrBlank()) {
                         logI("committing last partial on user finish len=${partialToCommit.length}")
                         service.commitText(partialToCommit)
                     } else {
                         service.clearVoiceComposingText()
                     }
-                    onFinished()
-                    stopSession(service, keepConnectionWarm = true)
+                    if (isCurrentVoiceSession(generation, callback)) {
+                        stopSession(service, keepConnectionWarm = true)
+                        if (sessionGeneration == generation && editor.isCurrent()) onFinished()
+                    }
                 }
-            }
 
-            override fun onError(code: Int, message: String?) {
-                logW("provider error $code: $message")
-                Timber.w("Voice provider error $code: $message")
-                synchronized(resultLock) {
+                override fun onError(code: Int, message: String?) {
+                    logW("provider error $code")
+                    Timber.w("Voice provider error code=%d", code)
                     pendingPartialResult = null
-                }
-                // Same reason as onSessionEnded: keep the teardown on the main thread.
-                service.lifecycleScope.launch {
                     service.clearVoiceComposingText()
-                    onFinished()
-                    onError(message ?: appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_failed))
                     stopSession(service, keepConnectionWarm = false)
+                    if (sessionGeneration != generation || !editor.isCurrent()) return
+                    onFinished()
+                    if (sessionGeneration == generation && editor.isCurrent()) {
+                        onError(message ?: appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_failed))
+                    }
                 }
             }
-        }
+        )
 
         activeCallback = callback
+        activeEditorSession = editor
         finishing = false
         voiceSessionTerminalized = false
         sessionReady = false
         sessionActive = true
-        sessionGeneration++
         readyHandledGeneration = -1
         // 新会话：清空上一个会话的队列统计与过载中止标记。
         pcmQueueMetrics.reset()
@@ -629,20 +642,23 @@ object VoiceInputProviderManager {
         // A new session supersedes any pending finish watchdog from the previous one.
         finishWatchdogJob?.cancel()
         finishWatchdogJob = null
-        ContextCompat.getMainExecutor(appContext).execute { sessionStartedCallback?.invoke() }
+        ContextCompat.getMainExecutor(appContext).execute {
+            if (isCurrentVoiceSession(generation, callback)) sessionStartedCallback?.invoke()
+        }
 
-        startPreRollCapture(service, onLevel, onError)
+        startPreRollCapture(service, { callback.onVolumeLevel(it) },
+            { callback.onError(VoiceInputIpc.ErrorCodes.UNKNOWN, it) })
+        if (!isCurrentVoiceSession(generation, callback)) return
 
         VoiceInputProviderRegistry.get(id)?.let { entry ->
             tlogI("Starting registered voice input provider: $id")
             activeProviderId = id
             activeProvider = entry.provider
             activeSessionConfig = getPreferredSessionConfig(entry.provider)
-            if (!callProviderSafely(onError) {
+            if (!callProviderSafely({ callback.onError(VoiceInputIpc.ErrorCodes.UNKNOWN, it) }) {
                     configureProvider(entry.provider, activeSessionConfig)
                     entry.provider.startSession(callback)
                 }) {
-                stopSession(service, keepConnectionWarm = false)
                 return
             }
             return
@@ -651,11 +667,10 @@ object VoiceInputProviderManager {
         activeProvider?.let { provider ->
             logI("reusing warm provider connection id=$id")
             activeSessionConfig = getPreferredSessionConfig(provider)
-            if (!callProviderSafely(onError) {
+            if (!callProviderSafely({ callback.onError(VoiceInputIpc.ErrorCodes.UNKNOWN, it) }) {
                     configureProvider(provider, activeSessionConfig)
                     provider.startSession(callback)
                 }) {
-                stopSession(service, keepConnectionWarm = false)
                 return
             }
             // A warm connection can still stall on onReady if the provider had
@@ -664,7 +679,7 @@ object VoiceInputProviderManager {
             // the IME stuck in "connecting".
             service.lifecycleScope.launch {
                 delay(ACTIVE_READY_TIMEOUT_MS)
-                if (!voiceSessionTerminalized && activeProvider === provider && !sessionReady) {
+                if (isCurrentVoiceSession(generation, callback) && activeProvider === provider && !sessionReady) {
                     logW("warm provider ready timed out; falling back to fresh bind")
                     releaseProviderConnection(service, callStopSession = true)
                     // activeProvider is now null, so this re-entry takes the cold-bind
@@ -678,72 +693,71 @@ object VoiceInputProviderManager {
         val providerComponent = ComponentName.unflattenFromString(id.removePrefix(ID_PREFIX))
         if (providerComponent == null) {
             logW("invalid provider id=$id")
-            onError(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_invalid_provider))
-            stopSession(service, keepConnectionWarm = false)
+            callback.onError(VoiceInputIpc.ErrorCodes.NOT_AVAILABLE,
+                appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_invalid_provider))
             return
         }
         val action = listProviders(service).firstOrNull { it.id == id }?.action
         if (action == null) {
             logW("provider unavailable id=$id")
-            onError(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_not_available))
-            stopSession(service, keepConnectionWarm = false)
+            callback.onError(VoiceInputIpc.ErrorCodes.NOT_AVAILABLE,
+                appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_not_available))
             return
         }
 
-        lateinit var connectionRef: ServiceConnection
         var bindAttempt = 0
 
-        fun abortActiveVoiceSession(message: String) {
-            if (voiceSessionTerminalized || activeConnection !== connectionRef) return
-            voiceSessionTerminalized = true
-            service.lifecycleScope.launch {
-                service.clearVoiceComposingText()
-                onStatus("")
-                onFinished()
-                onError(message)
-            }
-            stopSession(service, keepConnectionWarm = false)
+        fun abortActiveVoiceSession(expectedConnection: ServiceConnection, message: String) {
+            if (voiceSessionTerminalized || activeConnection !== expectedConnection) return
+            val currentCallback = activeCallback
+            if (currentCallback != null && sessionActive) {
+                currentCallback.onError(VoiceInputIpc.ErrorCodes.NOT_AVAILABLE, message)
+            } else releaseProviderConnection(service, callStopSession = false)
         }
 
         // Rebind to the (already running) provider after a ready timeout. Keeps the
         // pre-roll capture and session state intact; only the AIDL connection is
         // recreated so the provider starts a fresh session generation.
         fun rebindForRetry(previous: ServiceConnection) {
+            providerDeathLink.clear()
             runCatching { service.unbindService(previous) }
                 .onFailure { Timber.w(it, "unbind before rebind") }
             activeConnection = null
             activeProvider = null
-            activeProviderBinder = null
-            activeProviderDeathRecipient = null
         }
 
         lateinit var attemptBind: () -> Unit
         attemptBind = fun() {
             val connection = object : ServiceConnection {
                 override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+                    // A late callback from a replaced/unbound attempt must never publish
+                    // its binder/provider over the current connection.
+                    if (activeConnection !== this) {
+                        runCatching { service.unbindService(this) }
+                        return
+                    }
                     logI("provider connected: $name")
                     tlogI("Voice input provider connected: $name")
-                    activeProviderBinder = binder
-                    val deathRecipient = IBinder.DeathRecipient {
-                        logW("provider binder died: $name")
-                        service.lifecycleScope.launch { abortActiveVoiceSession(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_disconnected)) }
-                    }
-                    activeProviderDeathRecipient = deathRecipient
+                    val expectedConnection = this
                     try {
-                        binder.linkToDeath(deathRecipient, 0)
+                        providerDeathLink.attach(
+                            binder,
+                            dispatch = { work -> service.lifecycleScope.launch { work() } },
+                            onDeath = {
+                                logW("provider binder died: $name")
+                                abortActiveVoiceSession(expectedConnection, appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_disconnected))
+                            }
+                        )
                     } catch (e: RemoteException) {
                         Timber.w(e, "provider binder already dead")
-                        abortActiveVoiceSession(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_disconnected))
+                        abortActiveVoiceSession(this, appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_disconnected))
                         return
                     }
                     val provider = IVoiceInputProvider.Stub.asInterface(binder)
                     activeProvider = provider
                     activeProviderId = id
                     activeSessionConfig = getPreferredSessionConfig(provider)
-                    val stillActiveSession = activeConnection === this &&
-                        activeCallback === callback &&
-                        sessionActive &&
-                        !voiceSessionTerminalized
+                    val stillActiveSession = activeConnection === this && isCurrentVoiceSession(generation, callback)
                     if (!stillActiveSession) {
                         logI("provider connected while no active voice session; keeping warm only")
                         return
@@ -754,30 +768,32 @@ object VoiceInputProviderManager {
                     if (!sessionReady) {
                         onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_loading))
                     }
-                    if (!callProviderSafely(onError) {
+                    val attemptCallback = callback.guardedBy {
+                        activeConnection === expectedConnection && activeProvider === provider
+                    }
+                    if (!callProviderSafely({ callback.onError(VoiceInputIpc.ErrorCodes.UNKNOWN, it) }) {
                             configureProvider(provider, activeSessionConfig)
-                            provider.startSession(callback)
+                            provider.startSession(attemptCallback)
                         }) {
-                        stopSession(service, keepConnectionWarm = false)
+                        return
                     }
                 }
 
                 override fun onServiceDisconnected(name: ComponentName) {
                     logI("provider disconnected: $name")
-                    abortActiveVoiceSession(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_disconnected))
+                    abortActiveVoiceSession(this, appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_disconnected))
                 }
 
                 override fun onBindingDied(name: ComponentName) {
                     logW("provider binding died: $name")
-                    abortActiveVoiceSession(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_disconnected))
+                    abortActiveVoiceSession(this, appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_disconnected))
                 }
 
                 override fun onNullBinding(name: ComponentName) {
                     logW("provider null binding: $name")
-                    abortActiveVoiceSession(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_null_binding))
+                    abortActiveVoiceSession(this, appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_null_binding))
                 }
             }
-            connectionRef = connection
             activeConnection = connection
             bindAttempt++
             logI("binding provider component=$providerComponent action=$action attempt=$bindAttempt")
@@ -809,8 +825,7 @@ object VoiceInputProviderManager {
                     .onFailure { Timber.w(it, "unbind after failed bind") }
                 activeConnection = null
                 activeCallback = null
-                activeProviderBinder = null
-                activeProviderDeathRecipient = null
+                providerDeathLink.clear()
                 logW("bindService returned false")
                 onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_opening))
                 // Pre-roll is no longer useful (no AIDL provider to feed); release the mic.
@@ -828,6 +843,7 @@ object VoiceInputProviderManager {
                     onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_loading))
                     service.lifecycleScope.launch {
                         delay(1200)
+                        if (sessionGeneration != generation || !editor.isCurrent() || !floatingFallbackActive) return@launch
                         onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_floating_ready))
                     }
                 } else {
@@ -838,9 +854,9 @@ object VoiceInputProviderManager {
             } else {
                 service.lifecycleScope.launch {
                     delay(ACTIVE_BIND_TIMEOUT_MS)
-                    if (!voiceSessionTerminalized && activeConnection === connection && activeProvider == null) {
+                    if (isCurrentVoiceSession(generation, callback) && activeConnection === connection && activeProvider == null) {
                         logW("provider bind timed out without onServiceConnected")
-                        abortActiveVoiceSession(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_bind_timeout))
+                        abortActiveVoiceSession(connection, appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_bind_timeout))
                     }
                 }
                 // Second guard: the provider may connect quickly but never emit onReady
@@ -848,7 +864,7 @@ object VoiceInputProviderManager {
                 // up so the IME never stays stuck in "connecting"/"loading" indefinitely.
                 service.lifecycleScope.launch {
                     delay(ACTIVE_READY_TIMEOUT_MS)
-                    if (!voiceSessionTerminalized && activeConnection === connection && !sessionReady) {
+                    if (isCurrentVoiceSession(generation, callback) && activeConnection === connection && !sessionReady) {
                         if (bindAttempt < MAX_BIND_ATTEMPTS) {
                             logW("provider ready timed out; rebinding (attempt $bindAttempt)")
                             onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_connecting))
@@ -856,7 +872,7 @@ object VoiceInputProviderManager {
                             attemptBind()
                         } else {
                             logW("provider ready timed out without onReady after retry")
-                            abortActiveVoiceSession(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_bind_timeout))
+                            abortActiveVoiceSession(connection, appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_bind_timeout))
                         }
                     }
                 }
@@ -872,8 +888,22 @@ object VoiceInputProviderManager {
         val action = BuildConfig.APPLICATION_ID + VoiceInputIpc.START_FLOATING_ACTION_SUFFIX
         val serviceClass = providerComponent.className.substringBeforeLast('.') + ".FloatingService"
         val component = ComponentName(providerComponent.packageName, serviceClass)
+        val editor = activeEditorSession?.takeIf { it.isCurrent() } ?: return null
+        // A no-token legacy broadcast cannot be attributed to a particular editor. Only
+        // use the optional fallback when the plugin explicitly advertises this protocol.
+        val supportsToken = runCatching {
+            service.packageManager.getServiceInfo(component, android.content.pm.PackageManager.GET_META_DATA)
+                .metaData?.getBoolean(VoiceInputIpc.META_FLOATING_SESSION_TOKEN, false) == true
+        }.getOrDefault(false)
+        if (!supportsToken) {
+            logW("Floating fallback requires session-token support; use the AIDL provider")
+            return null
+        }
+        val token = floatingResultGate.begin(editor)
         val intent = Intent(action).apply {
             this.component = component
+            putExtra(VoiceInputIpc.EXTRA_FLOATING_SESSION_TOKEN, token)
+            putExtra(VoiceInputIpc.EXTRA_HOST_PACKAGE, service.packageName)
             addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
         }
         return try {
@@ -881,6 +911,7 @@ object VoiceInputProviderManager {
             logI("started floating fallback component=${intent.component} action=$action")
             component
         } catch (e: Throwable) {
+            floatingResultGate.clear()
             logW("floating fallback failed", e)
             null
         }
@@ -947,6 +978,7 @@ object VoiceInputProviderManager {
         onLevel: (Int) -> Unit,
         onError: (String) -> Unit,
     ) {
+        val generation = sessionGeneration
         if (activeCapture != null) return
         synchronized(preRollLock) {
             preRollBuffer.clear()
@@ -956,9 +988,11 @@ object VoiceInputProviderManager {
         val capture = VoiceInputAudioCapture(
             context = service,
             config = preRollConfig,
-            onPcm = { buf, off, len, pts ->
+            onPcm = pcm@{ buf, off, len, pts ->
+                if (generation != sessionGeneration || voiceSessionTerminalized) return@pcm
                 val packet = QueuedAudio(buf.copyOfRange(off, off + len), pts)
                 val pushDirect = synchronized(preRollLock) {
+                    if (generation != sessionGeneration || voiceSessionTerminalized) return@pcm
                     if (preRollActive) {
                         preRollBuffer.addLast(packet)
                         // 滚动窗口：预算窗口内最多保留首尾两个端点包，超出的最旧包被淘汰
@@ -979,14 +1013,11 @@ object VoiceInputProviderManager {
                 }
                 if (pushDirect) {
                     // 生产端绝不阻塞：队列满即判过载并中止会话，不在这里丢包。
-                    offerAudioPacket(service, packet)
+                    offerAudioPacket(service, packet, generation)
                 }
             },
-            onLevel = { rms -> service.lifecycleScope.launch { onLevel(rms) } },
-            onError = { msg ->
-                service.lifecycleScope.launch { onError(msg) }
-                stop(service)
-            },
+            onLevel = onLevel,
+            onError = onError,
         )
         if (!capture.start()) {
             logW("pre-roll capture start failed; will fall back to onReady-time capture")
@@ -1053,46 +1084,49 @@ object VoiceInputProviderManager {
     private fun launchAudioFeedJob(
         service: FcitxInputMethodService,
         queue: Channel<QueuedAudio>,
-    ): Job = service.lifecycleScope.launch(Dispatchers.IO) {
-        for (packet in queue) {
-            val currentProvider = activeProvider
-            if (currentProvider == null) {
-                pcmQueueMetrics.onFedSkipped()
-                continue
-            }
-            // 单次 Binder 调用耗时（观测用）：只做一次 nanoTime 差值，不改变提交顺序与参数。
-            val startedNanos = System.nanoTime()
-            try {
-                currentProvider.feedAudio(
-                    packet.pcm, 0, packet.pcm.size, packet.ptsMs,
-                )
-            } catch (e: RemoteException) {
-                // Binder is dead — provider crashed or was killed. Don't keep
-                // looping silently; surface via the callback so the UI clears
-                // its "listening" state and stopSession unwinds.
-                Timber.w(e, "feedAudio failed — provider gone, aborting session")
-                val cb = activeCallback
-                withContext(Dispatchers.Main) {
-                    if (cb != null) {
-                        runCatching {
-                            cb.onError(
-                                VoiceInputIpc.ErrorCodes.UNKNOWN,
-                                "Provider disconnected",
-                            )
-                        }
-                    } else {
-                        stopSession(service, keepConnectionWarm = false)
-                    }
+    ): Job {
+        val provider = activeProvider
+        val generation = sessionGeneration
+        val callback = activeCallback
+        return service.lifecycleScope.launch(Dispatchers.IO) {
+            for (packet in queue) {
+                if (generation != sessionGeneration || voiceSessionTerminalized) break
+                if (provider == null) {
+                    pcmQueueMetrics.onFedSkipped()
+                    continue
                 }
-                return@launch
-            }
-            val elapsedMs = (System.nanoTime() - startedNanos) / 1_000_000L
-            pcmQueueMetrics.onFed(elapsedMs)
-            if (elapsedMs >= FEED_SLOW_WARN_MS) {
-                pcmQueueMetrics.onSlowFeed()
-                // logW 与慢调用告警一致：只记日志、不抛异常，provider 变慢时 feedAudio 仍然正常返回。
-                logW("feedAudio slow: ${elapsedMs}ms (threshold ${FEED_SLOW_WARN_MS}ms)")
-                warnSlowFeed(elapsedMs)
+                // 单次 Binder 调用耗时（观测用）：只做一次 nanoTime 差值，不改变提交顺序与参数。
+                val startedNanos = System.nanoTime()
+                try {
+                    provider.feedAudio(
+                        packet.pcm, 0, packet.pcm.size, packet.ptsMs,
+                    )
+                } catch (e: RemoteException) {
+                    // Binder is dead — provider crashed or was killed. Don't keep
+                    // looping silently; surface via the callback so the UI clears
+                    // its "listening" state and stopSession unwinds.
+                    Timber.w(e, "feedAudio failed — provider gone, aborting session")
+                    withContext(Dispatchers.Main) {
+                        if (isCurrentVoiceSession(generation, callback)) {
+                            runCatching {
+                                callback?.onError(
+                                    VoiceInputIpc.ErrorCodes.UNKNOWN,
+                                    "Provider disconnected",
+                                )
+                            }
+                        }
+                    }
+                    return@launch
+                }
+                if (generation != sessionGeneration || voiceSessionTerminalized) break
+                val elapsedMs = (System.nanoTime() - startedNanos) / 1_000_000L
+                pcmQueueMetrics.onFed(elapsedMs)
+                if (elapsedMs >= FEED_SLOW_WARN_MS) {
+                    pcmQueueMetrics.onSlowFeed()
+                    // logW 与慢调用告警一致：只记日志、不抛异常，provider 变慢时 feedAudio 仍然正常返回。
+                    logW("feedAudio slow: ${elapsedMs}ms (threshold ${FEED_SLOW_WARN_MS}ms)")
+                    warnSlowFeed(elapsedMs)
+                }
             }
         }
     }
@@ -1106,8 +1140,9 @@ object VoiceInputProviderManager {
      * 队列已关闭（会话结束 / 队列被新一轮 onReady 替换）不算过载——这时丢包是既有设计
      * （见 [startCapture] 里对读取字段而非捕获 channel 的说明），保持原行为。
      */
-    private fun offerAudioPacket(service: FcitxInputMethodService, packet: QueuedAudio) {
+    private fun offerAudioPacket(service: FcitxInputMethodService, packet: QueuedAudio, generation: Int) {
         val queue = activeAudioFeedQueue ?: return
+        if (generation != sessionGeneration || voiceSessionTerminalized) return
         val result = queue.trySend(packet)
         if (result.isSuccess) {
             pcmQueueMetrics.onEnqueued(packet.ptsMs)
@@ -1115,7 +1150,7 @@ object VoiceInputProviderManager {
         }
         if (queue.isClosedForSend) return
         // 队列满：provider 处理不过来。
-        onAudioQueueOverflow(service, packet.ptsMs)
+        onAudioQueueOverflow(service, packet.ptsMs, generation)
     }
 
     /**
@@ -1128,8 +1163,8 @@ object VoiceInputProviderManager {
      *
      * 调用点在采集线程上，所以真正的清理放到主线程协程里做：这里只记一次统计和日志。
      */
-    private fun onAudioQueueOverflow(service: FcitxInputMethodService, ptsMs: Long) {
-        val generation = sessionGeneration
+    private fun onAudioQueueOverflow(service: FcitxInputMethodService, ptsMs: Long, generation: Int) {
+        if (generation != sessionGeneration || voiceSessionTerminalized) return
         // 同一会话只中止一次：队列满之后采集线程可能还投递一两个包。
         if (overflowAbortGeneration.getAndSet(generation) == generation) return
         val overloads = pcmQueueMetrics.onOverflow()
@@ -1200,6 +1235,7 @@ object VoiceInputProviderManager {
         onLevel: (Int) -> Unit,
         onError: (String) -> Unit,
     ) {
+        val generation = sessionGeneration
         if (activeCapture != null) return
         activeProvider ?: return
         // Same reason as in onProviderReady: never overwrite a live feed without closing it.
@@ -1227,13 +1263,11 @@ object VoiceInputProviderManager {
                         pcm = buf.copyOfRange(off, off + len),
                         ptsMs = pts,
                     ),
+                    generation,
                 )
             },
-            onLevel = { rms -> service.lifecycleScope.launch { onLevel(rms) } },
-            onError = { msg ->
-                service.lifecycleScope.launch { onError(msg) }
-                stop(service)
-            },
+            onLevel = onLevel,
+            onError = onError,
         )
         activeCapture = capture
         if (!capture.start()) {
@@ -1258,6 +1292,7 @@ object VoiceInputProviderManager {
             return
         }
         finishing = true
+        val request = finishRequest(context, sessionGeneration, activeCallback)
         logI(
             "finish provider=${activeProvider != null} " +
                 "connection=${activeConnection != null} capture=${activeCapture != null}"
@@ -1280,15 +1315,13 @@ object VoiceInputProviderManager {
                 queue.close()
                 val drained = withTimeoutOrNull(FEED_DRAIN_TIMEOUT_MS) { feedJob.join() } != null
                 if (!drained) logW("feed queue drain timed out before endStream")
-                sendEndStream(context)
+                request.complete()
                 // Arm after the frame is actually out: draining may take up to
                 // FEED_DRAIN_TIMEOUT_MS, and arming beforehand spent that time out of the
                 // provider's response budget.
-                armFinishWatchdog(context)
             }
         } else {
-            sendEndStream(context)
-            armFinishWatchdog(context)
+            request.complete()
         }
     }
 
@@ -1300,7 +1333,7 @@ object VoiceInputProviderManager {
      * dead for the rest of the process. The generation check keeps a late fire from killing a
      * session the user started in the meantime.
      */
-    private fun armFinishWatchdog(context: Context) {
+    private fun armFinishWatchdog(context: Context, generation: Int, callback: IVoiceInputCallback?) {
         val service = context as? FcitxInputMethodService
         if (service == null) {
             // finish() defaults to appContext, so a caller that does not pass the IME service
@@ -1308,36 +1341,29 @@ object VoiceInputProviderManager {
             logW("no IME service context: finish watchdog not armed")
             return
         }
-        val generation = sessionGeneration
         finishWatchdogJob?.cancel()
         finishWatchdogJob = service.lifecycleScope.launch {
             delay(FINISH_WATCHDOG_MS)
             // A newer session already started, or the provider answered and cleared
             // `finishing` — either way there is nothing to force.
-            if (sessionGeneration != generation || !finishing) return@launch
+            if (!isCurrentVoiceSession(generation, callback) || !finishing) return@launch
             logW("provider did not acknowledge endStream in ${FINISH_WATCHDOG_MS}ms; forcing teardown")
             Timber.w("Voice provider did not acknowledge endStream; forcing teardown")
             runCatching { service.clearVoiceComposingText() }
-            voiceFinishedCallback?.invoke()
+            val editor = activeEditorSession
             stopSession(service, keepConnectionWarm = false)
+            if (sessionGeneration == generation && editor?.isCurrent() == true) voiceFinishedCallback?.invoke()
         }
     }
 
-    private fun sendEndStream(context: Context) {
-        try {
-            activeProvider?.endStream()
-            logI("endStream sent")
-        } catch (e: Throwable) {
-            serviceFinished(context, null)
-            Timber.w(e, "endStream")
-            stopSession(context, keepConnectionWarm = false)
-        }
-    }
-
-    private fun serviceFinished(context: Context, onFinished: (() -> Unit)?) {
-        if (context is FcitxInputMethodService && onFinished != null) {
-            context.lifecycleScope.launch { onFinished() }
-        }
+    private fun finishRequest(context: Context, generation: Int, callback: IVoiceInputCallback?): SessionBoundVoiceFinish {
+        val provider = activeProvider
+        return SessionBoundVoiceFinish(
+            isCurrent = { isCurrentVoiceSession(generation, callback) && activeProvider === provider },
+            endStream = { provider?.endStream(); logI("endStream sent") },
+            armWatchdog = { armFinishWatchdog(context, generation, callback) },
+            onFailure = { Timber.w(it, "endStream"); stopSession(context, keepConnectionWarm = false) }
+        )
     }
 
     fun stop(context: Context = appContext) {
@@ -1352,6 +1378,7 @@ object VoiceInputProviderManager {
     }
 
     private fun stopSession(context: Context = appContext, keepConnectionWarm: Boolean) {
+        val generation = sessionGeneration
         voiceSessionTerminalized = true
         // 会话收尾：把本会话的队列高水位/最旧包年龄/feedAudio 耗时/过载次数落到日志。
         logPcmQueueSummary("stopSession")
@@ -1383,9 +1410,11 @@ object VoiceInputProviderManager {
             Timber.w(e, "stopSession")
         }
         activeCallback = null
+        activeEditorSession = null
         finishing = false
         sessionActive = false
         floatingFallbackActive = false
+        floatingResultGate.clear()
         floatingFallbackComponent = null
         if (keepConnectionWarm && activeProvider != null && activeConnection != null) {
             scheduleWarmConnectionRelease(context)
@@ -1397,7 +1426,9 @@ object VoiceInputProviderManager {
                 .onFailure { Timber.w(it, "keepalive unbind on stop") }
         }
         keepAliveConnection = null
-        ContextCompat.getMainExecutor(appContext).execute { sessionEndedCallback?.invoke() }
+        ContextCompat.getMainExecutor(appContext).execute {
+            if (sessionGeneration == generation) sessionEndedCallback?.invoke()
+        }
     }
 
     private fun scheduleWarmConnectionRelease(context: Context) {
@@ -1431,14 +1462,7 @@ object VoiceInputProviderManager {
                 Timber.w(e, "stopSession")
             }
         }
-        activeProviderDeathRecipient?.let { deathRecipient ->
-            activeProviderBinder?.let { binder ->
-                runCatching { binder.unlinkToDeath(deathRecipient, 0) }
-                    .onFailure { Timber.w(it, "unlink binder death") }
-            }
-        }
-        activeProviderBinder = null
-        activeProviderDeathRecipient = null
+        providerDeathLink.clear()
         activeProvider = null
         activeProviderId = null
         activeConnection?.let {
@@ -1448,14 +1472,21 @@ object VoiceInputProviderManager {
         activeConnection = null
     }
 
-    private fun stopFloatingFallback(context: Context) {
+    private fun stopFloatingFallback(context: Context, token: String? = floatingResultGate.currentToken) {
+        val generation = sessionGeneration
+        voiceSessionTerminalized = true
+        activeEditorSession = null
         val component = floatingFallbackComponent
         floatingFallbackActive = false
+        floatingResultGate.clear()
         floatingFallbackComponent = null
         finishing = false
         sessionActive = false
         if (component != null) {
-            val intent = Intent("stop_service").apply { this.component = component }
+            val intent = Intent("stop_service").apply {
+                this.component = component
+                putExtra(VoiceInputIpc.EXTRA_FLOATING_SESSION_TOKEN, token)
+            }
             runCatching { ContextCompat.startForegroundService(context, intent) }
                 .onFailure { Timber.w(it, "stop floating fallback failed") }
         }
@@ -1463,6 +1494,7 @@ object VoiceInputProviderManager {
         // (provider death / onError). Post them together instead of invoking voiceFinished
         // inline on whatever thread we happen to be on.
         ContextCompat.getMainExecutor(appContext).execute {
+            if (sessionGeneration != generation) return@execute
             sessionEndedCallback?.invoke()
             voiceFinishedCallback?.invoke()
         }
