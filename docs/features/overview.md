@@ -86,6 +86,8 @@
 | 功能 | 说明 | 链接 |
 |------|------|------|
 | 剪贴板同步（内置） | 兼容 SyncClipboard / Oneclip / ClipCascade；历史实时搜索（打字即过滤，只查本机） | [查看](/features/clipboard-sync) |
+| 外部语音输入 | 通过 AIDL 连接识别提供方，按请求和输入框隔离回调 | [查看](/features/voice-input) |
+| 备份与恢复 | 默认加密导出、兼容 ZIP、独立进程恢复及中断处理 | [查看](/features/backup-restore) |
 | 更新检查器 | 检查本仓库 Release（含 Nightly），镜像规则 + 自定义 hosts，平滑速度显示 | [查看](/features/update-checker) |
 | 共享导入与解压 | 系统分享自动识别导入，支持 ZIP/7z 自动解压 | [查看](/features/shared-import) |
 | 在线编辑器 | 局域网 Web 编辑布局/Popup/主题（注意仅在可信网络开启） | [查看](/features/online-editor) |

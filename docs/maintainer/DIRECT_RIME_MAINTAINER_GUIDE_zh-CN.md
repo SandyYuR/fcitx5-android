@@ -1,5 +1,7 @@
 # 中州鹅直连版维护手册
 
+本批修复、中文实现说明和待合入 PR 见[维护索引](index.md)与[2026 年 10 月合入准备](review-2026-10.md)。下文 10 月 21 日的合入记录用于追溯前一批交付。
+
 依赖、文档与代码已通过 **Rebase and merge** 合入，分类提交、归档标签与实际交付见[合并交付](DIRECT_RIME_RELEASE_READY_2026-10-21.md)。固定 prebuilt gitlink 由归档标签保留，合并后无需追随 HEAD 改 pin。
 
 本手册对应当前直连源码，主应用为 `:app`，包名 `org.fcitx.fcitx5.android.fx.rime`。
@@ -124,7 +126,8 @@ APK 检查器核对动态依赖、资源、DEX 类定义及页对齐：64 位 16
 四 ABI PR artifact 和签名 Release 都附带 `native-link-audit.json`。
 最后一轮库/组件清理及保留依据见[最终审阅](DIRECT_RIME_FINAL_REVIEW_2026-10-19.md)。
 
-`PR CI` 构建四 ABI Debug 并运行 JVM 单测。所有 PR 设备/构建检查使用 GitHub 的临时合并提交，
+本批 `PR CI` 明确设置 `BUILD_ABI=arm64-v8a`，构建 ARM64 Debug 并运行 JVM 单测；普通发行也只要求 ARM64。
+设备诊断工作流可单独使用 x86_64 模拟器，这不扩大发行 ABI 范围。PR 设备/构建检查使用 GitHub 的临时合并提交，
 同时验证目标分支的后续修复。`Commit CI` 在默认分支及本次合并分支构建签名 ARM64 Release、
 检查包内 ART profile 并运行 JVM；默认分支的 Nightly 必须同时等待构建和单测成功。
 签名密钥缺失时日用发布失败，不回退到临时测试证书。签名 Release 与源码、APK SHA、profile

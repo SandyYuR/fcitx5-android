@@ -1,0 +1,41 @@
+{
+  "apk": "app/build/outputs/apk/fx/debug/org.fcitx.fcitx5.android.fx.rime-nightly-0.1.3-726-gaef0c21e-20261024-022931-14-ge22d1123-fx-arm64-v8a-debug.apk",
+  "native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libdirect-rime.so"
+  ],
+  "fcitx_dependencies": [],
+  "apk_sha256": "0608f9b54385c3f5b203160575e21224b86bbfe61a2d64a8bd14304209089dff",
+  "native_dependencies": {
+    "lib/arm64-v8a/libc++_shared.so": [
+      "libc.so",
+      "libm.so",
+      "libdl.so"
+    ],
+    "lib/arm64-v8a/libdirect-rime.so": [
+      "liblog.so",
+      "libandroid.so",
+      "libm.so",
+      "libc++_shared.so",
+      "libdl.so",
+      "libc.so"
+    ]
+  },
+  "obsolete_picker_classes": [],
+  "legacy_backend_classes": [],
+  "dex_files_checked": 22,
+  "clearurls": {
+    "commit": "11086f40512774dcadef54079f1ba023bfacf940",
+    "sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+    "providers": 206
+  },
+  "page_size": 16384,
+  "required_alignment_by_abi": {
+    "arm64-v8a": 16384
+  },
+  "source_head": "710e4ef93f20eaf1d80d93913be1edfaefdb097d",
+  "checkout_ref": "refs/pull/13/merge",
+  "merge_commit_sha": "e22d1123f3a9a07105ed72abed8e80b60300831d",
+  "run_id": 40509320725,
+  "job_id": 122206726459
+}

@@ -1,0 +1,2299 @@
+{
+  "code_branch": "perf/direct-rime-startup-20261024",
+  "code_sha": "710e4ef93f20eaf1d80d93913be1edfaefdb097d",
+  "r1": [
+    {
+      "id": "P0-1",
+      "issue": "LAN Web 编辑桥无鉴权",
+      "status": "已修复",
+      "note": "032a7ca5 增加六位配对、限速、会话 Cookie 与 Host/Origin 校验；尊重局域网 PC 编辑用途，未套用旧报告逐次设备确认的交互建议。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/ImeWebEditorBridgeServer.kt"
+    },
+    {
+      "id": "P0-2",
+      "issue": "导出 AIDL 无签名权限",
+      "status": "已修复",
+      "note": "032a7ca5 为 Service 与全部 Binder 入口增加权限检查。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/FcitxRemoteService.kt"
+    },
+    {
+      "id": "P0-3",
+      "issue": "旧输入事件写入新编辑器",
+      "status": "已修复",
+      "note": "直连事件带 inputSession；消费前核对 generation，解绑先 invalidate。语音广播仍另列 P1-3。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt"
+    },
+    {
+      "id": "P0-4",
+      "issue": "Commit/Delete/Key 可丢弃",
+      "status": "已修复",
+      "note": "直连 InputEventQueue 保序保存副作用事件；9b1926db 合并状态并增加输入背压。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/core/InputEventQueue.kt"
+    },
+    {
+      "id": "P0-5",
+      "issue": "主题 ZIP 路径穿越",
+      "status": "已修复",
+      "note": "已有 resolveEntryTarget 限制解压目标；a38ac510 补齐 JSON 主题名、背景最终写入路径与读取入口限额。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeFilesManager.kt"
+    },
+    {
+      "id": "P0-6",
+      "issue": "STARTING 阶段不可停止",
+      "status": "已修复",
+      "note": "9b1926db 使用 desiredRunning、串行启动/停止和失败收敛；普通断连异步关闭。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/core/EngineLifecycleController.kt"
+    },
+    {
+      "id": "P0-7",
+      "issue": "旧 dispatcher teardown/wake 竞态",
+      "status": "不再适用",
+      "note": "FcitxDispatcher/native dispatcher 实现已移除；直连 owner 与新生命周期另有测试。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/core/EngineLifecycleController.kt"
+    },
+    {
+      "id": "P0-8",
+      "issue": "InputContextCache 析构重入",
+      "status": "不再适用",
+      "note": "旧 Fcitx C++ cache 与 AndroidInputContext 已删除，没有这条析构调用链。",
+      "path": "app/build.gradle.kts"
+    },
+    {
+      "id": "P0-9",
+      "issue": "activeIC 为空时分页崩溃",
+      "status": "不再适用",
+      "note": "androidfrontend.cpp/activeIC_ 已移除；不把移除记作修好旧实现。",
+      "path": "app/build.gradle.kts"
+    },
+    {
+      "id": "P0-10",
+      "issue": "剪贴板同步默认明文 HTTP",
+      "status": "本次修复",
+      "note": "143ccf73 使新地址默认HTTPS，显式HTTP保留局域网兼容；一次迁移将既有隐式HTTP地址写为明确HTTP，移除新安装的硬编码局域网端点，并在网络层阻止HTTPS降级重定向发送凭据。真实TLS重定向与API23/28迁移等19项新增执行通过。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/OneClipEventClient.kt"
+    },
+    {
+      "id": "P0-11",
+      "issue": "native 来源浮动与 patch 失败忽略",
+      "status": "已修复",
+      "note": "prepare_personal_build.sh 使用 set -euo pipefail，按已提交的 native gitlink 初始化，不再 checkout 浮动 master 或忽略旧补丁失败。",
+      "path": "prepare_personal_build.sh"
+    },
+    {
+      "id": "P1-1",
+      "issue": "云备份/手动备份包含敏感数据",
+      "status": "本次修复",
+      "note": "11137251 系统云备份与设备转移仅收录独立的外观白名单快照，主偏好、凭据、剪贴板库与Rime数据不在范围内；手动默认密码认证加密，独立小块避免整包缓冲，错误密码/篡改/截断/重排/超限/取消均在接触恢复数据前失败。旧ZIP导入与明确标注的明文ZIP导出保留兼容；16项新增执行通过。",
+      "path": "app/src/main/res/xml/data_extraction_rules.xml"
+    },
+    {
+      "id": "P1-2",
+      "issue": "语音旧回调/finish 操作新会话",
+      "status": "本次修复",
+      "note": "b2e14f0d 为六类 AIDL 回调统一在 Main 执行时核对提供方/回调/编辑器会话；音频采集和旧 feed 错误按代号隔离；drain 前捕获 endStream 的提供方与会话，完成后再核对，避免关闭新识别。保留同一编辑器 restartInput，切换/结束编辑器则失效并停止采集。含真实管理器 drain 的 21 项新增回归。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt"
+    },
+    {
+      "id": "P1-3",
+      "issue": "迟到语音广播写入下一编辑器",
+      "status": "本次修复",
+      "note": "c36a8a1a 对可选浮窗回退使用随机请求令牌+原编辑器生命周期，在Main同步验证，最终结果仅一次；停止/新请求/切换编辑器失效，畸形extra拒绝。只为声明支持令牌的FloatingService启用该回退，无令牌旧广播不直接上屏；正常AIDL接口不变。8个纯逻辑+12个API23/28实际接收器/能力声明执行通过。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt"
+    },
+    {
+      "id": "P1-4",
+      "issue": "宏跨会话和取消后 modifier 未释放",
+      "status": "本次修复",
+      "note": "95745ca8 为宏绑定编辑器会话并在每步/延迟后校验，按所有者登记 DOWN 与原始释放动作；Tap/Shortcut/异常取消清理所属按键，退出/解绑/隐藏输入视图取消宏。会话失效后仅清理本地修饰键，不向旧或新 InputConnection 发 UP；原编辑器内正常补 UP。保留成功 Down-only 宏等待后续 Up 的语义。13 项回归通过。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt"
+    },
+    {
+      "id": "P1-5",
+      "issue": "异步布局保存访问 UI 活数据",
+      "status": "本次修复",
+      "note": "3a82e280 在 Main 捕获深拷贝、串行保存，IO 只处理独立副本，并发布其同一份 baseline。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt"
+    },
+    {
+      "id": "P1-6",
+      "issue": "SyncStateStore 迁移丢失窗口",
+      "status": "已修复",
+      "note": "f54eb713 写入成功后才删除旧 prefs，失败保留源与 overlay，后续写入可重试。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/SyncStateStore.kt"
+    },
+    {
+      "id": "P1-7",
+      "issue": "资产 symlink/file 类型迁移破坏",
+      "status": "本次修复",
+      "note": "ea6229a4 将资产迁移改为先删旧类型、再建目录/文件、最后建链接；补文件与目录互换、空目录和中断重试，删除不跟随链接，文件用原子替换。目录排除递归生效，内置预设留在 APK，不再重复同步到数据目录。22 项 API 23/28 真实文件/软链接及当前资产清单回归通过。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/core/data/DataManager.kt"
+    },
+    {
+      "id": "P1-8",
+      "issue": "用户数据恢复非事务/无上限",
+      "status": "本次修复",
+      "note": "bb9d2a78 接入独立恢复进程、全局恢复日志与初始化前锁，冲突/未连接卷保留，方案操作检查待恢复路径；补齐偏好.bak与未替换数据库WAL。新增41项、完整1197项应用JVM及6项构建逻辑通过，六次主机子进程强制结束后恢复通过。Android页面交接与卷拔插待补验。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/UserDataRestoreTransaction.kt"
+    },
+    {
+      "id": "P1-9",
+      "issue": "Ready 早于旧 JNI callback 安装",
+      "status": "不再适用",
+      "note": "旧 native-lib.cpp 已删除；直连生命周期先安装输入 gate 再发布 READY。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt"
+    },
+    {
+      "id": "P1-10",
+      "issue": "关机保存窗口不可靠",
+      "status": "本次模拟器验证通过",
+      "note": "真实学习后保持引擎连接，系统正常关机广播执行保存；重启确认内核/boot_count/PID变化，用户词典导出包含学习条目，新原生进程仍以泥为首选。限于小词表、软件模拟器正常关机功能，不证明真机大词典或突然断电。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt"
+    },
+    {
+      "id": "P1-11",
+      "issue": "语音重绑遗留 DeathRecipient",
+      "status": "本次修复",
+      "note": "116ecabc 统一登记/移除 DeathRecipient，重绑先 unlink；死亡通知在 Main 执行时核对独立登记身份，过期通知不影响新绑定；迟到连接先核对 activeConnection，断开/空绑定按发出回调的连接核对。7 项 Binder 生命周期用例通过。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt"
+    },
+    {
+      "id": "P2-1",
+      "issue": "剪贴板编辑 finish 抢先取消数据库更新",
+      "status": "本次修复",
+      "note": "7dddf7b9 将已确认的保存交给应用级任务，正常写入后再关闭；复制与 lastEntry 通知均在 Room 成功后执行，拒绝更新已删除记录；新 Intent 隔离迟到加载和旧保存结果。14 个真实 Activity/Room/SQLite 场景在 API 23/28 共 28 项执行通过，覆盖关闭、失败重试、重复点击和新旧条目交错。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivity.kt"
+    },
+    {
+      "id": "P2-2",
+      "issue": "布局未加载完成时丢 ActivityResult",
+      "status": "本次修复",
+      "note": "e2ce518a、6f96066b：普通/辅助按键、布局/文件命名、图片和扫码结果等待模型与草稿恢复；绑定原文件/条目/令牌；内嵌宏/颜色/组合键结果与原表单选择跨再次重建保留。新增28个API23/28框架执行；普通/辅助按键真实子页面返回、重建、一次应用和撤销已验证。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt"
+    },
+    {
+      "id": "P2-3",
+      "issue": "hosts 下载随 Activity 销毁取消",
+      "status": "本次修复",
+      "note": "d3cb8769 将 API29+ hosts 下载交给持久 WorkManager，保留页面外进度、强 ETag 断点及安全发布恢复；API23/28 保留系统下载。31项定向、完整1156项应用JVM与6项构建逻辑通过，ARM64 CI全绿。设备杀进程下载恢复尚未验证。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt"
+    },
+    {
+      "id": "P2-4",
+      "issue": "候选长按菜单异步结果过期",
+      "status": "本次修复",
+      "note": "c80f3ce0 将请求、编辑器、当前视图、候选版本与锚点绑定身份一起核对；换候选、隐藏或回收即取消菜单，点击后在 native owner 再次原子核对。23 个定向测试通过；候选及方案菜单设备回归见本轮审计。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt"
+    },
+    {
+      "id": "P2-5",
+      "issue": "语音布局快照仅按 input class 失效",
+      "status": "本次修复",
+      "note": "b2e14f0d 为语音布局快照绑定编辑器令牌；新编辑器即使 input class 相同也丢弃旧快照，只有同一编辑器的 restartInput 保留恢复资格。编辑器令牌与回调回归通过；本次未做真机语音 UI 验收。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardWindow.kt"
+    },
+    {
+      "id": "P2-6",
+      "issue": "binding 为空时跳过 deactivate",
+      "status": "本次验证通过",
+      "note": "f37b27b6 在 API23/28 实际调用 null currentInputBinding 的 onUnbindInput：编辑器令牌/引擎代号失效、旧按键缓存清空；准备下一输入框后旧key ticket仍被拒绝，共4个框架执行。直连输入gate在UID提前返回前已失效，旧Fcitx activeIC后果不再适用；不冒充OEM多屏硬件验收。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt"
+    },
+    {
+      "id": "P2-7",
+      "issue": "SetupFragment view binding 泄漏",
+      "status": "已修复",
+      "note": "当前 onDestroyView 清空 nullable binding。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/setup/SetupFragment.kt"
+    },
+    {
+      "id": "P2-8",
+      "issue": "PAUSE action 后仍无条件 start",
+      "status": "本次修复",
+      "note": "d3ff4115 对 PAUSE 先完整停止并提前返回；关闭偏好也移除服务，迟到启动/重连不能重新打开同步。已包含服务回归。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt"
+    },
+    {
+      "id": "P2-9",
+      "issue": "宏编辑取消仍保留 code 修改",
+      "status": "本次修复",
+      "note": "38815b63 对话框只编辑 KeyData 副本，确认后提交；取消/返回不改原键，删除按对象身份定位，避免误删相同的导入键或未确认的新键。8 个真实 Material 对话框场景在 API 23/28 共 16 项执行通过。宏编辑器的完整进程草稿恢复仍另列 B1。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorActivity.kt"
+    },
+    {
+      "id": "P2-10",
+      "issue": "旧 JNI jchar/UTF-8 错误转换",
+      "status": "不再适用",
+      "note": "旧 native-lib.cpp 与 Char overload 路径已删除。",
+      "path": "app/build.gradle.kts"
+    },
+    {
+      "id": "P2-11",
+      "issue": "语音日志包含完整识别文本",
+      "status": "已修复",
+      "note": "浮动广播及 provider 的 partial/final 日志已改为长度，未再沿用旧报告的全文日志断言。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt"
+    },
+    {
+      "id": "P2-12",
+      "issue": "release 不混淆",
+      "status": "保留的构建选择",
+      "note": "-dontobfuscate 仍在；属于逆向难度/调试取舍，不列成功能故障。",
+      "path": "app/proguard-rules.pro"
+    },
+    {
+      "id": "P2-13",
+      "issue": "AGP/Gradle internal API",
+      "status": "本次修复",
+      "note": "d06f7eab 移除 Gradle internal provider 反射、AGP 包任务内部输入修改及编译后删除 Kotlin metadata；使用标准打包产物。完整构建验证见本轮审计。",
+      "path": "build-logic/convention/src/main/kotlin/AndroidAppConventionPlugin.kt"
+    },
+    {
+      "id": "P2-14",
+      "issue": "CI/工程 CMake 版本冲突",
+      "status": "已修复",
+      "note": "当前 Commit CI 由固定工程版本准备 CMake，不再硬装 3.22.1。",
+      "path": ".github/workflows/ci.yml"
+    },
+    {
+      "id": "P2-15",
+      "issue": "ABI 参数与普通 CI 覆盖不足",
+      "status": "按需求关闭",
+      "note": "d06f7eab 已完成参数校验与构建 API 修复；用户于2026-10-26明确仅需arm64-v8a发布构建，四ABI覆盖不再列为待修问题，现有ARM64 CI符合范围。",
+      "path": "build-logic/convention/src/main/kotlin/NativeBaseConventionPlugin.kt"
+    },
+    {
+      "id": "P2-16",
+      "issue": "native assets 写入源码目录",
+      "status": "已修复",
+      "note": "当前 prepareDirectRimeAssets 写入 build/generated/direct-rime-assets，不再把 native 生成资源直接写进 src/main/assets。",
+      "path": "app/build.gradle.kts"
+    }
+  ],
+  "r2_old93": [
+    {
+      "id": "A1",
+      "issue": "A1（旧报告:68） 布局行内出现非对象元素 → 每次唤起键盘崩溃",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt:525\"。行内非对象元素会被跳过并记录日志，旧崩溃入口已消除；对应解析测试仍在。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+      "status": "当前未见旧触发链",
+      "note": "行内非对象元素会被跳过并记录日志，旧崩溃入口已消除；对应解析测试仍在。"
+    },
+    {
+      "id": "A2",
+      "issue": "A2（旧报告:87） 缺 `tap` 的 MacroKey：本项目自己就能写出让键盘崩溃的配置",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt:1360\"。运行时跳过缺 tap 的宏键；LayoutDataManager.validateKey 同时拒绝保存缺 tap 的 MacroKey。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+      "status": "当前未见旧触发链",
+      "note": "运行时跳过缺 tap 的宏键；LayoutDataManager.validateKey 同时拒绝保存缺 tap 的 MacroKey。"
+    },
+    {
+      "id": "A3",
+      "issue": "A3（旧报告:105） 存储路径含裸 `%` → 点确定即崩溃",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ui/StoragePathUtils.kt:26\"。非法百分号及有损 UTF-8 解码回退原字符串。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ui/StoragePathUtils.kt",
+      "status": "当前未见旧触发链",
+      "note": "非法百分号及有损 UTF-8 解码回退原字符串。"
+    },
+    {
+      "id": "A4",
+      "issue": "A4（旧报告:123） 测试连接期间旋屏/返回 → 必崩",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ui/SettingsActivity.kt:212\"。测试请求使用 viewLifecycleOwner.lifecycleScope，回主线程检查 isAdded，销毁视图时关闭进度弹窗。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ui/SettingsActivity.kt",
+      "status": "当前未见旧触发链",
+      "note": "测试请求使用 viewLifecycleOwner.lifecycleScope，回主线程检查 isAdded，销毁视图时关闭进度弹窗。"
+    },
+    {
+      "id": "A5",
+      "issue": "A5（旧报告:143） 镜像规则的 replacement 非法组引用 → 点下载即崩溃",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt:527\"。下载实际替换有完整异常处理；保存侧增加试运行校验。样例不匹配时校验可能漏掉错误，但下载会提示并中止，不再崩溃。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt",
+      "status": "当前未见旧触发链",
+      "note": "下载实际替换有完整异常处理；保存侧增加试运行校验。样例不匹配时校验可能漏掉错误，但下载会提示并中止，不再崩溃。"
+    },
+    {
+      "id": "A6",
+      "issue": "A6（旧报告:152） 图标主题 ZIP 全量入内存 → zip bomb 导致 OOM 且拦不住",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt:70\"。压缩包输入 16 MiB、JSON 1 MiB、文件项 4 MiB、文件累计预算及项数受限，解压文件直接暂存磁盘，旧无界 ByteArray 列表已移除。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "压缩包输入 16 MiB、JSON 1 MiB、文件项 4 MiB、文件累计预算及项数受限，解压文件直接暂存磁盘，旧无界 ByteArray 列表已移除。"
+    },
+    {
+      "id": "A7",
+      "issue": "A7（旧报告:170） XZ 解压未设内存上限 → 畸形二维码可触发 GB 级分配",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/share/LayoutQrTransferCodec.kt:222\"。XZ 内存预算 4 MiB，并保留 256 KiB 输出限制。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/share/LayoutQrTransferCodec.kt",
+      "status": "当前未见旧触发链",
+      "note": "XZ 内存预算 4 MiB，并保留 256 KiB 输出限制。"
+    },
+    {
+      "id": "A8",
+      "issue": "A8（旧报告:179） 内嵌 HTTP 服务按 Content-Length 直接分配 + 连接数无上限",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/ImeWebEditorBridgeServer.kt:863\"。请求体分配前检查 4 MiB 上限，超限响应 413；连接线程与队列有界。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/ImeWebEditorBridgeServer.kt",
+      "status": "当前未见旧触发链",
+      "note": "请求体分配前检查 4 MiB 上限，超限响应 413；连接线程与队列有界。"
+    },
+    {
+      "id": "A9",
+      "issue": "A9（旧报告:196） 同步收发全量入内存，尺寸过滤发生在解码之后",
+      "old_status": "部分修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadeClient.kt:461\"。HTTP、URI 读取有 32 MiB 上限，业务 Base64 解码有预检；WebSocket/STOMP/加密信封仍先完整解析和解密，传输仍有多份全量复制。见待办 A9。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadeClient.kt",
+      "status": "本次修复",
+      "note": "c2ba6510 在 Socket 解密流读取层限制单帧与累计分片，早于 OkHttp 消息组装；禁止压缩和未受限登录连接复用，按堆大小缩放预算。真实WS/WSS、证书/主机名/SNI/Cookie/代理等24项新增，完整1125项通过。64MiB独立JVM拒绝1GiB声明且正文读取0，正常4MiB消息到达真实回调，采样堆峰值23891968字节；不是Android整机堆峰值。WS端点须直接101，明文SOCKS拒绝，WSS可用。"
+    },
+    {
+      "id": "A10",
+      "issue": "A10（旧报告:213） 选取图标时直接用 provider 提供的 DISPLAY_NAME 拼路径，并有 `!!` 断言",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeEditorActivity.kt:274\"。显示名为空有回退，落盘使用净化文件名及扩展名白名单，读取为空正常报错。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeEditorActivity.kt",
+      "status": "当前未见旧触发链",
+      "note": "显示名为空有回退，落盘使用净化文件名及扩展名白名单，读取为空正常报错。"
+    },
+    {
+      "id": "A11",
+      "issue": "A11（旧报告:230） 7z 导入走 java.nio.file，而 desugar 不含 nio 且只有该分支无 SDK 守卫",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/ShareReceiveManager.kt:1765\"。7z 判定与执行均保护 API 26；旧报告的低版本运行时崩溃未经真机确认，本次确认防护代码已到位。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/ShareReceiveManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "7z 判定与执行均保护 API 26；旧报告的低版本运行时崩溃未经真机确认，本次确认防护代码已到位。"
+    },
+    {
+      "id": "B1",
+      "issue": "B1（旧报告:250） 六个编辑 Activity 漏 `configChanges`，且全模块 0 个 `onSaveInstanceState` → 旋屏丢失全部编辑",
+      "old_status": "部分修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorActivity.kt:714\"。6 个 Activity 已补 configChanges，布局、按键、按钮草稿已持久化；MacroEditor、PopupEditor、FontsetEditor 仍无自有草稿恢复。见待办 B1。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorActivity.kt",
+      "status": "本次修复",
+      "note": "e9d5f6ee 为 Macro/Popup/Fontset 编辑器保存独立文件草稿及原始比较基准，Bundle 只携带文件名，失败时仅小数据可内联；字体恢复后正确启用保存菜单。12个API23/28执行覆盖连续新Activity+Parcel、大文本Binder预算、多实例隔离、弹出数据/字体顺序字号及损坏恢复。未确认选择框重建按取消处理，已确认的主体编辑保留。"
+    },
+    {
+      "id": "B2",
+      "issue": "B2（旧报告:259） 拖拽排序后编辑/删除写到错误条目，覆盖其他按钮",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt:1253\"。拖动后点击使用当前 ViewHolder 位置及当前数据对象，避免改错/删错按钮。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt",
+      "status": "当前未见旧触发链",
+      "note": "拖动后点击使用当前 ViewHolder 位置及当前数据对象，避免改错/删错按钮。"
+    },
+    {
+      "id": "B3",
+      "issue": "B3（旧报告:290） 进\"调整按钮\"面板拖动一次，永久删除 buttons.json 里的一部分按钮",
+      "old_status": "不再适用",
+      "old_evidence": "`245e4bf1` 删除实现及入口。键盘内按钮调整面板已移除；不能据此声称旧分区保存算法已修复。设置页按钮编辑器仍保留。",
+      "path": "app/build.gradle.kts",
+      "status": "不再适用",
+      "note": "`245e4bf1` 删除实现及入口。键盘内按钮调整面板已移除；不能据此声称旧分区保存算法已修复。设置页按钮编辑器仍保留。"
+    },
+    {
+      "id": "B4",
+      "issue": "B4（旧报告:311） 拖拽结果只在 `onDetached` 保存，而销毁路径不触发它",
+      "old_status": "不再适用",
+      "old_evidence": "`245e4bf1` 删除实现及入口。原面板与 InputView 的显示/隐藏路径一并移除，原“只在 detach 保存”的触发链不再存在。",
+      "path": "app/build.gradle.kts",
+      "status": "不再适用",
+      "note": "`245e4bf1` 删除实现及入口。原面板与 InputView 的显示/隐藏路径一并移除，原“只在 detach 保存”的触发链不再存在。"
+    },
+    {
+      "id": "B5",
+      "issue": "B5（旧报告:320） 布局保存非原子 + 解析失败静默回退 → 自定义布局永久丢失",
+      "old_status": "部分修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt:130\"。正常保存有 tmp + sync + rename，非空损坏文件有覆盖确认；零字节文件遗漏损坏判定，rename 失败仍直接覆写。见待办 B5。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt",
+      "status": "本次修复",
+      "note": "现存零字节布局纳入损坏提示；写入统一走 FileUtil，替换失败保留原文件。覆盖 B5 旧触发链，草稿恢复另见 B1/D7。"
+    },
+    {
+      "id": "B6",
+      "issue": "B6（旧报告:329） 备份用秒级时间戳 + `overwrite=false`，同一秒二次保存静默失败",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/migration/DataMigrationManager.kt:67\"。碰撞时追加毫秒/递增后缀，失败记录日志，旧同秒重名已处理。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/migration/DataMigrationManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "碰撞时追加毫秒/递增后缀，失败记录日志，旧同秒重名已处理。"
+    },
+    {
+      "id": "B7",
+      "issue": "B7（旧报告:338） 每次加载都无条件跑迁移，且纯内存迁移失败却用旧备份覆盖完好的磁盘文件",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt:173\"。只在需要时迁移；内存迁移失败重读原内容并提示，不再用旧备份覆盖磁盘。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "只在需要时迁移；内存迁移失败重读原内容并提示，不再用旧备份覆盖磁盘。"
+    },
+    {
+      "id": "B8",
+      "issue": "B8（旧报告:347） 迁移逻辑静默删除子模式的 displayText",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/migration/DataMigrationManager.kt:241\"。仅清理空映射，无匹配上下文但非空的显示文本映射保留。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/migration/DataMigrationManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "仅清理空映射，无匹配上下文但非空的显示文本映射保留。"
+    },
+    {
+      "id": "B9",
+      "issue": "B9（旧报告:356） 导入备份时不关闭 Room、连 WAL 一起覆盖、降级即 dropAllTables",
+      "old_status": "部分修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardManager.kt:273\"。已关闭 Room 后导入、拒绝更高 schema、去除降级清表；导出忽略 checkpoint busy/失败并裸复制，旧备份的有效 WAL 也被直接丢弃。见待办 B9。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardManager.kt",
+      "status": "本次修复",
+      "note": "9de1e5e0 在 Room 事务内逐行生成独立 SQLite 快照，保留类型、Room 元数据和自增序列；旧 ZIP 的匹配 WAL/journal 在临时目录恢复，恢复后再查 user_version，拒绝更高版本及损坏主库/孤立 WAL。20 项 API 23/28 SQLite 与 ZIP 集成用例通过。"
+    },
+    {
+      "id": "B10",
+      "issue": "B10（旧报告:375） 历史增量下载了 N 条却只导入 1 条，游标照常推进",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt:948\"。导入全部已接受历史项；SyncClipboard 有导入失败不推进游标的判断；只用末条更新系统剪贴板。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt",
+      "status": "当前未见旧触发链",
+      "note": "导入全部已接受历史项；SyncClipboard 有导入失败不推进游标的判断；只用末条更新系统剪贴板。"
+    },
+    {
+      "id": "B11",
+      "issue": "B11（旧报告:392） 跨 Activity 结果靠实例字段闭包传递，宿主重建后静默丢弃",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt:611\"。按钮目标 ID/宏结果 token 跨重建保存；KeyEditor 也按 slot 应用结果并恢复草稿，闭包消失有回退路径。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt",
+      "status": "当前未见旧触发链",
+      "note": "按钮目标 ID/宏结果 token 跨重建保存；KeyEditor 也按 slot 应用结果并恢复草稿，闭包消失有回退路径。"
+    },
+    {
+      "id": "B12",
+      "issue": "B12（旧报告:410） 剪贴板暂存文件按源文件名命名 → 同名互相覆盖；32 文件上限与数据库不同步",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/utils/ClipboardUriStore.kt:137\"。暂存名带 nanoTime，清理成功后回调 ClipboardManager 删除对应库内引用。缓存本身仍可能被系统回收，未将其视为永久媒体存储。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/utils/ClipboardUriStore.kt",
+      "status": "当前未见旧触发链",
+      "note": "暂存名带 nanoTime，清理成功后回调 ClipboardManager 删除对应库内引用。缓存本身仍可能被系统回收，未将其视为永久媒体存储。"
+    },
+    {
+      "id": "C1",
+      "issue": "C1（旧报告:434） \"按住说话\"松手后反而新开一次录音，且无法停止",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CommonKeyActionListener.kt:258\"。完成/错误清除 hold 标记，松手只结束仍活跃的会话。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+      "status": "当前未见旧触发链",
+      "note": "完成/错误清除 hold 标记，松手只结束仍活跃的会话。"
+    },
+    {
+      "id": "C2",
+      "issue": "C2（旧报告:453） AIDL 回调在 binder 线程改状态，与主线程竞态 → AudioRecord 永不 release，麦克风常开",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt:583\"。AIDL 错误及结束回调把 teardown 放入服务 Main lifecycleScope，消除原录音启动/结束交错入口。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "AIDL 错误及结束回调把 teardown 放入服务 Main lifecycleScope，消除原录音启动/结束交错入口。"
+    },
+    {
+      "id": "C3",
+      "issue": "C3（旧报告:475） 结束路径无超时兜底 → 麦克风按钮被永久锁死",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt:80\"。结束阶段有 3 秒看门狗并检查会话代号。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "结束阶段有 3 秒看门狗并检查会话代号。"
+    },
+    {
+      "id": "C4",
+      "issue": "C4（旧报告:494） 重复 `onReady` 时旧 queue 不 close、旧 job 不 cancel → 协程与 channel 泄漏",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt:1017\"。重复 ready 会关闭旧队列、取消旧 feed，并保留已运行 capture；队列也已改成有界。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "重复 ready 会关闭旧队列、取消旧 feed，并保留已运行 capture；队列也已改成有界。"
+    },
+    {
+      "id": "C5",
+      "issue": "C5（旧报告:512） `AudioRecord` 停止路径的空 catch 与无条件丢弃 worker",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputAudioCapture.kt:147\"。停止/释放异常记日志，join 超时保留 worker 引用，read 后重新检查 running。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputAudioCapture.kt",
+      "status": "当前未见旧触发链",
+      "note": "停止/释放异常记日志，join 超时保留 worker 引用，read 后重新检查 running。"
+    },
+    {
+      "id": "C6",
+      "issue": "C6（旧报告:531） `resetState()` 的取消被运行时开关守卫 → job 空转且按键永久失效",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CustomGestureView.kt:154\"。长按与重复 job 无条件取消/清状态，不再受 Enabled 标志守卫。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CustomGestureView.kt",
+      "status": "当前未见旧触发链",
+      "note": "长按与重复 job 无条件取消/清状态，不再受 Enabled 标志守卫。"
+    },
+    {
+      "id": "C7",
+      "issue": "C7（旧报告:550） 合成态热重建在按压中途换 view 实例 → 长按连删中断",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt:1895\"。正在按压的键延后重建，UP/CANCEL 后处理待重建列表。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+      "status": "当前未见旧触发链",
+      "note": "正在按压的键延后重建，UP/CANCEL 后处理待重建列表。"
+    },
+    {
+      "id": "C8",
+      "issue": "C8（旧报告:567） `dismissAllPopups()` 不区分 viewId → 双指打字时选中字符不上屏",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupComponent.kt:351\"。关闭弹出层支持保留 viewId，BaseKeyboard 保留另一个仍按住的 popup；重设 dismiss job 前取消旧 job。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupComponent.kt",
+      "status": "当前未见旧触发链",
+      "note": "关闭弹出层支持保留 viewId，BaseKeyboard 保留另一个仍按住的 popup；重设 dismiss job 前取消旧 job。"
+    },
+    {
+      "id": "C9",
+      "issue": "C9（旧报告:587） 行缓存复用后不重放文本缩放 → 字号回弹",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt:623\"。行缓存复用结束后重放字号缩放。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+      "status": "当前未见旧触发链",
+      "note": "行缓存复用结束后重放字号缩放。"
+    },
+    {
+      "id": "C10",
+      "issue": "C10（旧报告:596） \"空格滑动移光标\"开关对缓存行永久失效",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt:193\"。缓存空格键复用时重放划动阈值与开关，偏好监听同步更新基线。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+      "status": "当前未见旧触发链",
+      "note": "缓存空格键复用时重放划动阈值与开关，偏好监听同步更新基线。"
+    },
+    {
+      "id": "C11",
+      "issue": "C11（旧报告:614） 手势 baseline 从已包装的 listener 反推 → 监听链无上界增长",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt:366\"。保留创建时原始手势基线，避免复用时反复包装已包装 listener。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+      "status": "当前未见旧触发链",
+      "note": "保留创建时原始手势基线，避免复用时反复包装已包装 listener。"
+    },
+    {
+      "id": "C12",
+      "issue": "C12（旧报告:630） 提交类按键会误提交预测候选，且跨线程读 RecyclerView 字段",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CommonKeyActionListener.kt:87\"。以合成状态判断提交，不再跨线程读 RecyclerView，也不再仅凭预测候选误选词。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+      "status": "当前未见旧触发链",
+      "note": "以合成状态判断提交，不再跨线程读 RecyclerView，也不再仅凭预测候选误选词。"
+    },
+    {
+      "id": "C13",
+      "issue": "C13（旧报告:648） \"+\" 添加键未从拖拽中排除 → View 重排而数据被静默拒绝",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/DraggableFlowLayout.kt:28\"。“+” chip 排除拖拽/落点，按实际可拖项数限制索引。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/DraggableFlowLayout.kt",
+      "status": "当前未见旧触发链",
+      "note": "“+” chip 排除拖拽/落点，按实际可拖项数限制索引。"
+    },
+    {
+      "id": "C14",
+      "issue": "C14（旧报告:666） `FlowLayout.onMeasure` 在 AT_MOST 下永不换行，且忽略 `heightMeasureSpec`",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/FlowLayout.kt:25\"。AT_MOST 按实际限制折行，测量包含 margin 并遵守高度约束。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/FlowLayout.kt",
+      "status": "当前未见旧触发链",
+      "note": "AT_MOST 按实际限制折行，测量包含 margin 并遵守高度约束。"
+    },
+    {
+      "id": "C15",
+      "issue": "C15（旧报告:684） `dragInProgress` 只写不读 → 拖拽中顶栏被整体重建，按钮视觉上消失",
+      "old_status": "不再适用",
+      "old_evidence": "`245e4bf1` 删除实现及入口。原 dragInProgress 工具栏调整路径已随面板移除；当前工具栏采用固定子 View 的 KawaiiBarRowLayout。",
+      "path": "app/build.gradle.kts",
+      "status": "不再适用",
+      "note": "`245e4bf1` 删除实现及入口。原 dragInProgress 工具栏调整路径已随面板移除；当前工具栏采用固定子 View 的 KawaiiBarRowLayout。"
+    },
+    {
+      "id": "C16",
+      "issue": "C16（旧报告:706） `runBlocking` + `readTimeout(0)` + 握手无超时 → 不可取消的永久挂死",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadeClient.kt:116\"。原 ClipCascade 分支去掉 runBlocking，STOMP 等待有 15 秒超时，普通 HTTP 有独立有限读超时。OneClip 的类似遗漏另列 N6，未算作本条已覆盖。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadeClient.kt",
+      "status": "当前未见旧触发链",
+      "note": "原 ClipCascade 分支去掉 runBlocking，STOMP 等待有 15 秒超时，普通 HTTP 有独立有限读超时。OneClip 的类似遗漏另列 N6，未算作本条已覆盖。"
+    },
+    {
+      "id": "C17",
+      "issue": "C17（旧报告:724） 键盘一收起同步就整体停摆，而通知仍显示\"正在同步\"",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt:97\"。IME 隐藏进入 idle 节奏，前台状态与截图开关解耦，通知状态随运行模式更新；屏幕熄灭暂停有明确状态。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt",
+      "status": "当前未见旧触发链",
+      "note": "IME 隐藏进入 idle 节奏，前台状态与截图开关解耦，通知状态随运行模式更新；屏幕熄灭暂停有明确状态。"
+    },
+    {
+      "id": "C18",
+      "issue": "C18（旧报告:741） 锁外序列化非线程安全集合 → ConcurrentModificationException 被吞",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt:2266\"。共享 map/list 先在锁内复制，再序列化快照。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt",
+      "status": "当前未见旧触发链",
+      "note": "共享 map/list 先在锁内复制，再序列化快照。"
+    },
+    {
+      "id": "C19",
+      "issue": "C19（旧报告:759） PBKDF2 迭代次数由服务器下发且默认值与上游不一致",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadeClient.kt:270\"。采用服务器 rounds，拒绝非正数，对过大值设预算；默认 664937，低轮数不再强行抬高导致密钥不一致。超预算宜明确拒绝而非修改，属于后续兼容改进。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadeClient.kt",
+      "status": "当前未见旧触发链",
+      "note": "采用服务器 rounds，拒绝非正数，对过大值设预算；默认 664937，低轮数不再强行抬高导致密钥不一致。超预算宜明确拒绝而非修改，属于后续兼容改进。"
+    },
+    {
+      "id": "C20",
+      "issue": "C20（旧报告:775） 快捷设置磁贴只翻 pref，不启动/停止服务",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/service/QuickSyncTileService.kt:57\"。磁贴真正调用 start/stop 服务并同步偏好。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/service/QuickSyncTileService.kt",
+      "status": "当前未见旧触发链",
+      "note": "磁贴真正调用 start/stop 服务并同步偏好。"
+    },
+    {
+      "id": "C21",
+      "issue": "C21（旧报告:784） 前台服务类型与实际用途不符",
+      "old_status": "部分修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt:1561\"。Manifest 与 startForeground 已统一 dataSync，但超时只停循环/通知，没有 stopSelf。见待办 C21。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt",
+      "status": "本次修复",
+      "note": "d3ff4115 在 onTimeout、暂停及前台启动被拒后停止任务、监听和连接，调用 stopSelf 并持久化暂停；迟到 START/RECONNECT 不能自动恢复，需显式启用。5 项服务回归通过，Android 15 系统配额倒计时仍待设备验证。"
+    },
+    {
+      "id": "C22",
+      "issue": "C22（旧报告:794） 带 `//` 注释的布局文件在真键盘上解析失败并静默退回内置布局",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/config/ConfigProvider.kt:322\"。运行时布局/弹出预设读取与编辑器一致，支持行注释。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/config/ConfigProvider.kt",
+      "status": "当前未见旧触发链",
+      "note": "运行时布局/弹出预设读取与编辑器一致，支持行注释。"
+    },
+    {
+      "id": "C23",
+      "issue": "C23（旧报告:811） `JsonNull` 被当成字符串 `\"null\"` 显示在键面上",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt:390\"。文本字段使用 contentOrNull，JsonNull 不再变成字面“null”。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+      "status": "当前未见旧触发链",
+      "note": "文本字段使用 contentOrNull，JsonNull 不再变成字面“null”。"
+    },
+    {
+      "id": "C24",
+      "issue": "C24（旧报告:820） 删掉自定义宏后按钮仍执行旧宏",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt:667\"。所有配置按钮重绑宏或默认行为，删除宏会清掉旧 listener。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+      "status": "当前未见旧触发链",
+      "note": "所有配置按钮重绑宏或默认行为，删除宏会清掉旧 listener。"
+    },
+    {
+      "id": "C25",
+      "issue": "C25（旧报告:838） 更新页轮询在 `onPause` 不停止",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt:186\"。暂停时移除 800 ms 轮询，恢复时按需重启。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt",
+      "status": "当前未见旧触发链",
+      "note": "暂停时移除 800 ms 轮询，恢复时按需重启。"
+    },
+    {
+      "id": "C26",
+      "issue": "C26（旧报告:848） hosts 设置页 `onPause` 无条件写回，并每次清空 release 缓存",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateHostsSettingsActivity.kt:113\"。提交一组 hosts 设置并校验来源；Repository 对未变化值不重复写/失效。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateHostsSettingsActivity.kt",
+      "status": "当前未见旧触发链",
+      "note": "提交一组 hosts 设置并校验来源；Repository 对未变化值不重复写/失效。"
+    },
+    {
+      "id": "C27",
+      "issue": "C27（旧报告:857） 二维码长图超过约 23 片后自己导不回来",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/share/JsonFileQrShareManager.kt:30\"。安全采样基于 QR 方块、最小尺寸改 256，支持当前 64 片上限内普通长图；未采用旧建议的分页，但原约 23 片必拒绝已消除。大图内存与识别率仍需设备验证。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/share/JsonFileQrShareManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "安全采样基于 QR 方块、最小尺寸改 256，支持当前 64 片上限内普通长图；未采用旧建议的分页，但原约 23 片必拒绝已消除。大图内存与识别率仍需设备验证。"
+    },
+    {
+      "id": "C28",
+      "issue": "C28（旧报告:866） 签名比对用 API 28 的 `signingInfo`，而 minSdk=23 → Android 6~8.1 上插件 IPC 全被拒",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/utils/PackageSignatures.kt:36\"。两个调用点使用全 API 可用的签名比较，不再依赖 API 28 signingInfo。当前内置 Rime 不依赖独立插件。",
+      "path": "settings.gradle.kts",
+      "status": "不再适用",
+      "note": "原独立引擎插件的包签名读取路径与 PackageSignatures.kt 已随插件运行时移除；不声称旧插件实现被修好。"
+    },
+    {
+      "id": "C29",
+      "issue": "C29（旧报告:882） CI 产出的插件写死上游主包名 → 装到 fx 主程序上 IPC 全断",
+      "old_status": "不再适用",
+      "old_evidence": "`settings.gradle.kts:24`。Rime 已内置，旧独立插件模块及 assembleReleasePlugins 流程移除（b1bba67b 等）；原插件产物包名问题不再适用于当前构建。",
+      "path": "app/build.gradle.kts",
+      "status": "不再适用",
+      "note": "`settings.gradle.kts:24`。Rime 已内置，旧独立插件模块及 assembleReleasePlugins 流程移除（b1bba67b 等）；原插件产物包名问题不再适用于当前构建。"
+    },
+    {
+      "id": "C30",
+      "issue": "C30（旧报告:899） `Logcat` 关闭后无法再次打开，子进程从不回收",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/utils/Logcat.kt:92\"。停止时清 process 字段、关闭读流、destroy 并取消 job；快照/清日志回收子进程。旧用户可见的同实例重启场景本就少见，未继续当 P1。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/utils/Logcat.kt",
+      "status": "当前未见旧触发链",
+      "note": "停止时清 process 字段、关闭读流、destroy 并取消 job；快照/清日志回收子进程。旧用户可见的同实例重启场景本就少见，未继续当 P1。"
+    },
+    {
+      "id": "C31",
+      "issue": "C31（旧报告:916） `FcitxDaemon` 用 `CancellationException` 表示\"连接已断开\"，调用方静默结束",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/daemon/FcitxDaemon.kt:37\"。断连错误改普通 IllegalStateException 子类，调用方可观察失败；best-effort runIfReady 单独处理。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/daemon/FcitxDaemon.kt",
+      "status": "当前未见旧触发链",
+      "note": "断连错误改普通 IllegalStateException 子类，调用方可观察失败；best-effort runIfReady 单独处理。"
+    },
+    {
+      "id": "C32",
+      "issue": "C32（旧报告:932） 死代码与未注册 Activity",
+      "old_status": "部分修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateMirrorListActivity.kt:24\"。其他列出的死字段/重复重载已清理，Activity 已注册；UpdateMirrorListActivity 仍仅定义/Manifest 引用，没有入口。见低优先级清理 C32。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateMirrorListActivity.kt",
+      "status": "本次修复",
+      "note": "229a344a 在更新页面的溢出菜单增加镜像规则管理，复用结果返回后刷新配置的 launcher；列表 Activity 已注册且现在有可达入口，设备导航回归通过。"
+    },
+    {
+      "id": "D1",
+      "issue": "D1（旧报告:948） 每次按键在主线程 `runBlocking` 等 fcitx 单线程",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardWindow.kt:798\"。候选更新热路径复用已广播 panel，不再每键 runImmediately；低频创建/attach 的同步读取仍在，未宣称全部同步调用已删。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardWindow.kt",
+      "status": "当前未见旧触发链",
+      "note": "候选更新热路径复用已广播 panel，不再每键 runImmediately；低频创建/attach 的同步读取仍在，未宣称全部同步调用已删。"
+    },
+    {
+      "id": "D2",
+      "issue": "D2（旧报告:967） 每次长按都同步读盘 + 解析整个 PopupPreset（缓存判定写在读盘之后）",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupComponent.kt:106\"。读文件前判缓存/mtime，未变化不再解析。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupComponent.kt",
+      "status": "当前未见旧触发链",
+      "note": "读文件前判缓存/mtime，未变化不再解析。"
+    },
+    {
+      "id": "D3",
+      "issue": "D3（旧报告:984） 每 800ms 在主线程对整个 APK 做 SHA-256",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt:963\"。校验移入后台并按 URI/大小/修改时间缓存，轮询不重复同步哈希。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt",
+      "status": "当前未见旧触发链",
+      "note": "校验移入后台并按 URI/大小/修改时间缓存，轮询不重复同步哈希。"
+    },
+    {
+      "id": "D4",
+      "issue": "D4（旧报告:994） 粘贴剪贴板图片在 IME 主线程做整文件复制 + 最多 480ms `Thread.sleep`",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/utils/ClipboardUriStore.kt:51\"。粘贴路径在 IO 暂存后回 Main 提交，重试用 delay；调用点已改 suspend/协程。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/utils/ClipboardUriStore.kt",
+      "status": "当前未见旧触发链",
+      "note": "粘贴路径在 IO 暂存后回 Main 提交，重试用 delay；调用点已改 suspend/协程。"
+    },
+    {
+      "id": "D5",
+      "issue": "D5（旧报告:1012） InputView 构造在主线程解码全尺寸壁纸，且同一张图解两次",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt:765\"。构造使用纯色占位，背景在后台解码，共享降采样位图缓存。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt",
+      "status": "当前未见旧触发链",
+      "note": "构造使用纯色占位，背景在后台解码，共享降采样位图缓存。"
+    },
+    {
+      "id": "D6",
+      "issue": "D6（旧报告:1033） `IconThemeManager` 的 object 初始化在主线程做磁盘 IO + SVG 解析 + 回写",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt:170\"。对象不再隐式刷新磁盘；Application 显式启动 IO 初始化，默认图标可先显示。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "对象不再隐式刷新磁盘；Application 显式启动 IO 初始化，默认图标可先显示。"
+    },
+    {
+      "id": "D7",
+      "issue": "D7（旧报告:1052） 布局的加载/解析/备份/序列化/写入全在主线程",
+      "old_status": "部分修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt:739\"。主要 load/save 已进 IO；onSaveInstanceState 仍完整序列化/写草稿，保存还在 IO 遍历/修改共享 UI 数据。见 D7 与 N7。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+      "status": "按需求保留",
+      "note": "3a82e280 已隔离常规 IO 保存；7ec08c8e 复用已有历史独立快照后台准备 JSON，仅一个编码任务并合并最新待办，逐段核对当前内容。未完成的内嵌编辑/缓存未就绪或失败仍同步导出，生命周期文件写入仍在 Main，因此保留部分修复。8a39f2fe 另补实际内容去重、原子替换与失败保留旧快照。 e9d5f6ee 的三类独立编辑器新增文件草稿仍同步生成/写入，生命周期持久化整体继续列为部分修复。 用户于2026-10-26明确选择保留同步兜底，优先保住最新编辑；因此不再作为待改掉同步保存的项目，也不计为本批代码修复。"
+    },
+    {
+      "id": "D8",
+      "issue": "D8（旧报告:1061） 分享接收的 ZIP 读取与 JSON/Base64/XZ 解析在主线程",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/ShareReceiveManager.kt:493\"。自动识别 ZIP/JSON/Base64/XZ 在 Default，读文件用 IO；Loading 生命周期跟识别阶段分离。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/ShareReceiveManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "自动识别 ZIP/JSON/Base64/XZ 在 Default，读文件用 IO；Loading 生命周期跟识别阶段分离。"
+    },
+    {
+      "id": "D9",
+      "issue": "D9（旧报告:1078） `ThemeManager.refreshThemes()` 在主线程做全量磁盘扫描并可能回写",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeManager.kt:304\"。目录扫描进 IO，列表/活动主题更新回 Main。随机主题的 Direct Boot 新问题另列 N1。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "refreshThemes 保留后台扫描；ad56c9b7 进一步移除对象初始化扫描、启动评分与首次生成的 Main 工作。"
+    },
+    {
+      "id": "D10",
+      "issue": "D10（旧报告:1092） 图标主题导入/导出：主线程无上限读取与 PNG 压缩",
+      "old_status": "部分修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeListActivity.kt:248\"。文件 JSON/ZIP 导入与 PNG 输出已后台化并限制输入；二维码识别后 XZ 解压/JSON 处理/主题写盘仍在 Main。见待办 D10。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeListActivity.kt",
+      "status": "本次修复",
+      "note": "0177badc 图片及相机集片统一进入后台串行 importer；XZ 解压、JSON 解析和保存均在 IO，保留旧格式并向上传递取消，写入失败不重试另一格式。18 个 API 23/28 框架执行通过；原有 JSON/ZIP 读取限额及后台 PNG 压缩保留。"
+    },
+    {
+      "id": "D11",
+      "issue": "D11（旧报告:1108） 复制任意 URL 会在主线程加载并编译整套 ClearURLs 规则",
+      "old_status": "部分修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/HostClipboardFilter.kt:10\"。旧插件加载路径已移除，但宿主 filter 仍同步懒加载，RemoteService.onCreate 在 Main 触发；规则资源目前也未接入构建。见待办 D11。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/HostClipboardFilter.kt",
+      "status": "本次修复",
+      "note": "e146d2cb 固定上游 11086f40 的 206 个 provider，附原始许可证与来源校验；元数据不加载规则，首次系统复制在后台先做内置过滤再进插件，同步过滤/入队串行后台化。修复编码值破坏、共享解析器并发、重定向预算及旧原始 URL 状态回流，释放空/已销毁服务回调。56 个新增 JVM 执行、4 个包校验用例及 API35 原生规则测试通过。"
+    },
+    {
+      "id": "D12",
+      "issue": "D12（旧报告:1125） 截图监听每 5 秒在主线程查 MediaStore，且作用域从不取消",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ScreenshotClipboardWatcher.kt:108\"。查询/复制用 IO，停止取消轮询及子任务，系统剪贴板更新回 Main。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ScreenshotClipboardWatcher.kt",
+      "status": "当前未见旧触发链",
+      "note": "查询/复制用 IO，停止取消轮询及子任务，系统剪贴板更新回 Main。"
+    },
+    {
+      "id": "D13",
+      "issue": "D13（旧报告:1147） 分词剪贴板对长文本无任何上限",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardTextTokenizer.kt:26\"。入口和分词预算 4000 字/1500 token，选择使用 payload 刷新。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardTextTokenizer.kt",
+      "status": "当前未见旧触发链",
+      "note": "入口和分词预算 4000 字/1500 token，选择使用 payload 刷新。"
+    },
+    {
+      "id": "D14",
+      "issue": "D14（旧报告:1164） 字体刷新标志\"只读不清\" → 每次聚焦输入框都全量重建组件树",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt:1825\"。关键输入生命周期内延后整树重建，字体/字号刷新改用 generation；交接记录虚拟键盘路径已做真机热刷新，物理键盘分支及气泡仍欠验证。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+      "status": "当前未见旧触发链",
+      "note": "关键输入生命周期内延后整树重建，字体/字号刷新改用 generation；交接记录虚拟键盘路径已做真机热刷新，物理键盘分支及气泡仍欠验证。"
+    },
+    {
+      "id": "E1",
+      "issue": "E1（旧报告:1190） 模糊遮罩每帧对每个按键做一次\"全屏位图绘制\"",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt:289\"。合并按键裁剪路径后一次绘制模糊图。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt",
+      "status": "当前未见旧触发链",
+      "note": "合并按键裁剪路径后一次绘制模糊图。"
+    },
+    {
+      "id": "E2",
+      "issue": "E2（旧报告:1212） 水波纹每帧为每个 ripple 新建 `RadialGradient`",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardWaterRippleView.kt:68\"。渐变 shader 缓存并变换位置/半径，不再每个 ripple 每帧新建。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardWaterRippleView.kt",
+      "status": "当前未见旧触发链",
+      "note": "渐变 shader 缓存并变换位置/半径，不再每个 ripple 每帧新建。"
+    },
+    {
+      "id": "E3",
+      "issue": "E3（旧报告:1228） 模糊区域重建抖动：onDraw 内自重绘 + 同帧两次全树遍历",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt:152\"。重试预算 4 次，统一请求刷新，目标视图缓存减少重复全树收集。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt",
+      "status": "当前未见旧触发链",
+      "note": "重试预算 4 次，统一请求刷新，目标视图缓存减少重复全树收集。"
+    },
+    {
+      "id": "E4",
+      "issue": "E4（旧报告:1247） 辅助栏位置/内容的无差别重建",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt:4154\"。辅助栏位置去重，内容复用子 View；CandidatesView 仅真实可见性变化回调。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt",
+      "status": "当前未见旧触发链",
+      "note": "辅助栏位置去重，内容复用子 View；CandidatesView 仅真实可见性变化回调。"
+    },
+    {
+      "id": "E5",
+      "issue": "E5（旧报告:1266） 候选栏每次按键\"全量刷新 + 递归 view.post\"",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateViewAdapter.kt:107\"。当前 prefix/suffix 计划做增量通知，active 单独刷新，布局期间更新合并；原无预算递归已替换。新角标的位置依赖遗漏另列 N3。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateViewAdapter.kt",
+      "status": "当前未见旧触发链",
+      "note": "当前 prefix/suffix 计划做增量通知，active 单独刷新，布局期间更新合并；原无预算递归已替换。新角标的位置依赖遗漏另列 N3。"
+    },
+    {
+      "id": "E6",
+      "issue": "E6（旧报告:1285） `textKeys` 每次全树递归遍历并新建 List",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt:1242\"。按样式刷新失效的惰性 TextKeyView 列表缓存。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+      "status": "当前未见旧触发链",
+      "note": "按样式刷新失效的惰性 TextKeyView 列表缓存。"
+    },
+    {
+      "id": "E7",
+      "issue": "E7（旧报告:1294） 布局编辑器每次 bind 重建整行 chip（含 GradientDrawable）",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapter.kt:414\"。chip 与背景 Drawable 复用，拖拽只刷新涉及行。全量数据/样式替换仍允许完整刷新。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapter.kt",
+      "status": "当前未见旧触发链",
+      "note": "chip 与背景 Drawable 复用，拖拽只刷新涉及行。全量数据/样式替换仍允许完整刷新。"
+    },
+    {
+      "id": "E8",
+      "issue": "E8（旧报告:1313） `ButtonsBarUi` 把 position 当 viewType，复用池永不命中 + bind 内自触发全量刷新",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/bar/ui/idle/ButtonsBarUi.kt:41\"。已换成固定子 View 行布局，旧 position=viewType 及 bind→notify 循环均不存在；交接另记录过 OnePlus 真机悬浮/单手/状态区等 8 组中央按钮行回归。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/bar/ui/idle/ButtonsBarUi.kt",
+      "status": "当前未见旧触发链",
+      "note": "已换成固定子 View 行布局，旧 position=viewType 及 bind→notify 循环均不存在；交接另记录过 OnePlus 真机悬浮/单手/状态区等 8 组中央按钮行回归。"
+    },
+    {
+      "id": "E9",
+      "issue": "E9（旧报告:1330） 预览刷新替换全局 provider 并清空静态 keydef 缓存，每次重建整棵键盘",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/preview/KeyboardPreviewManager.kt:143\"。预览通过临时覆盖与独立 cache 前缀，未替换实际 ConfigProvider；内容/环境 signature 相同短路。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/preview/KeyboardPreviewManager.kt",
+      "status": "当前未见旧触发链",
+      "note": "预览通过临时覆盖与独立 cache 前缀，未替换实际 ConfigProvider；内容/环境 signature 相同短路。"
+    },
+    {
+      "id": "E10",
+      "issue": "E10（旧报告:1350） `MotionEvent.obtain` 从不 `recycle`",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt:2715\"。分发复制 MotionEvent 后 finally 回收。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+      "status": "当前未见旧触发链",
+      "note": "分发复制 MotionEvent 后 finally 回收。"
+    },
+    {
+      "id": "E11",
+      "issue": "E11（旧报告:1359） `notifyDataSetChanged` 的广泛滥用",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateAssetAdapter.kt:71\"。旧报告指定的高频三处已增量化。低频更换整份列表/样式的 notifyDataSetChanged 仍在，不把 API 出现次数当缺陷数量。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateAssetAdapter.kt",
+      "status": "当前未见旧触发链",
+      "note": "旧报告指定的高频三处已增量化。低频更换整份列表/样式的 notifyDataSetChanged 仍在，不把 API 出现次数当缺陷数量。"
+    },
+    {
+      "id": "F1",
+      "issue": "F1（旧报告:1370） 8 个回调赋给 object 单例后永不清空 → 整棵 InputView 树泄漏，且重建后状态打到已销毁 UI",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt:852\"。按 owner 释放 8 类语音 UI 回调，反注册剪贴板/主题/偏好监听，InputView detach 调用此清理。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+      "status": "当前未见旧触发链",
+      "note": "按 owner 释放 8 类语音 UI 回调，反注册剪贴板/主题/偏好监听，InputView detach 调用此清理。"
+    },
+    {
+      "id": "F2",
+      "issue": "F2（旧报告:1395） `SplitKeyboardStateManager` 监听器只增不减，且是一套死代码",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt:429\"。无消费者的单例 listener 机制与键盘注册已删除。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+      "status": "当前未见旧触发链",
+      "note": "无消费者的单例 listener 机制与键盘注册已删除。"
+    },
+    {
+      "id": "F3",
+      "issue": "F3（旧报告:1404） `ButtonsAdjustingWindow` 是 `data object` 单例，视图树与首个 InputView 的 context 绑定并常驻",
+      "old_status": "不再适用",
+      "old_evidence": "`245e4bf1` 删除实现及入口。ButtonsAdjustingWindow 单例整体移除，原 context 常驻路径不存在。",
+      "path": "app/build.gradle.kts",
+      "status": "不再适用",
+      "note": "`245e4bf1` 删除实现及入口。ButtonsAdjustingWindow 单例整体移除，原 context 常驻路径不存在。"
+    },
+    {
+      "id": "F4",
+      "issue": "F4（旧报告:1413） 分词 job 挂在 service 作用域且从不取消",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/TokenizedClipboardWindow.kt:121\"。保存 tokenizeJob 并取消，UI 回写使用同一 job 的 withContext(Main)。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/TokenizedClipboardWindow.kt",
+      "status": "当前未见旧触发链",
+      "note": "保存 tokenizeJob 并取消，UI 回写使用同一 job 的 withContext(Main)。"
+    },
+    {
+      "id": "F5",
+      "issue": "F5（旧报告:1433） 静态 keydef 缓存无上限",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt:192\"。静态缓存使用 access-order LinkedHashMap，最多 12 项；旧死字段移除。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+      "status": "当前未见旧触发链",
+      "note": "静态缓存使用 access-order LinkedHashMap，最多 12 项；旧死字段移除。"
+    },
+    {
+      "id": "F6",
+      "issue": "F6（旧报告:1441） `Logcat` 子进程与 pipe fd 留到 GC",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/utils/Logcat.kt:46\"。快照流 use 关闭并 wait/destroy；清日志进程 wait/destroy。未做长期 fd/进程压力实测。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/utils/Logcat.kt",
+      "status": "当前未见旧触发链",
+      "note": "快照流 use 关闭并 wait/destroy；清日志进程 wait/destroy。未做长期 fd/进程压力实测。"
+    },
+    {
+      "id": "F7",
+      "issue": "F7（旧报告:1447） 内嵌 HTTP 服务线程池无界",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/ImeWebEditorBridgeServer.kt:109\"。8 个连接 worker + 1 个 accept worker，有限队列/拒绝策略，stop 关闭 executor。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/ImeWebEditorBridgeServer.kt",
+      "status": "当前未见旧触发链",
+      "note": "8 个连接 worker + 1 个 accept worker，有限队列/拒绝策略，stop 关闭 executor。"
+    },
+    {
+      "id": "F8",
+      "issue": "F8（旧报告:1453） 剪贴板同步状态无界写入默认 SharedPreferences",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/SyncStateStore.kt:224\"。同步状态迁出默认 prefs 至私有文件，单条内容 32 Ki 字符预算、条数预算；写入合并。旧报告“条数无上限”的描述不准确。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/SyncStateStore.kt",
+      "status": "当前未见旧触发链",
+      "note": "私有文件存储、内容与条目预算保留；f54eb713 进一步修复迁移确认及 pending/dirty 的并发发布。"
+    },
+    {
+      "id": "G1",
+      "issue": "G1（旧报告:1466） 每次重连都新建 `OkHttpClient`",
+      "old_status": "未修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/OneClipEventClient.kt:30\"。OneClip/ClipCascade 都仍在每次创建连接实例时 new Builder，重连循环再建实例。update 模块复用不等于这两个后端已修。见待办 G1。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/OneClipEventClient.kt",
+      "status": "本次修复",
+      "note": "d8772107 中 OneClip 复用 HTTP/SSE 客户端，ClipCascade 基于共享 transport 派生并隔离账号 Cookie。"
+    },
+    {
+      "id": "G2",
+      "issue": "G2（旧报告:1474） `MemoryCookieJar` 整体替换 host cookie → 会话丢失后进入重连循环",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadeClient.kt:571\"。按 name 合并 cookie 并移除过期项，避免一次响应覆盖会话 cookie。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/ClipCascadeClient.kt",
+      "status": "当前未见旧触发链",
+      "note": "按 name 合并 cookie 并移除过期项，避免一次响应覆盖会话 cookie。"
+    },
+    {
+      "id": "G3",
+      "issue": "G3（旧报告:1482） 接收过滤每条目重建（含正则编译）",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt:1875\"。接收 filter 缓存，相关偏好变更失效；分隔 Regex 常量复用。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt",
+      "status": "当前未见旧触发链",
+      "note": "接收 filter 缓存，相关偏好变更失效；分隔 Regex 常量复用。"
+    },
+    {
+      "id": "G4",
+      "issue": "G4（旧报告:1490） MediaStore 全表扫描",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt:447\"。MediaStore 按名称 selection + 修改时间排序，不再把全表拉到 Kotlin 过滤。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt",
+      "status": "当前未见旧触发链",
+      "note": "MediaStore 按名称 selection + 修改时间排序，不再把全表拉到 Kotlin 过滤。"
+    },
+    {
+      "id": "G5",
+      "issue": "G5（旧报告:1498） hosts 抓取用裸 `OkHttpClient()`",
+      "old_status": "已修复",
+      "old_evidence": "\"app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateRepository.kt:302\"。hosts 抓取共享 client，并强制 HTTPS 来源。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateRepository.kt",
+      "status": "当前未见旧触发链",
+      "note": "hosts 抓取共享 client，并强制 HTTPS 来源。"
+    }
+  ],
+  "r2_new8": [
+    {
+      "id": "N1",
+      "issue": "随机主题破坏 Direct Boot",
+      "status": "本次修复",
+      "note": "ad56c9b7 移除静态槽位读取，解锁前跳过凭据主题扫描/生成/写入；有锁定状态框架测试，完整开机输入仍需设备回归。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeManager.kt"
+    },
+    {
+      "id": "N2",
+      "issue": "旧版 Outline.setPath/凸性崩溃",
+      "status": "当前未见旧触发链",
+      "note": "当前两处均为 API 30 以上 setPath，低版本 setRoundRect；旧报告 10-19 修订已记录此修复。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/bar/ContinuousCornerGeometry.kt"
+    },
+    {
+      "id": "N3",
+      "issue": "候选移动后序号角标不重绑",
+      "status": "本次修复",
+      "note": "53477190 为移动后的保留后缀发送角标专用 payload，只刷新位置与 active，不重建文本；同时修正字体变化遇到候选变化时漏绑的后缀。15 个计划测试、10 个真实 RecyclerView 框架执行通过。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateViewAdapter.kt"
+    },
+    {
+      "id": "N4",
+      "issue": "旧 swipe 外观编辑改变方向",
+      "status": "本次验证通过",
+      "note": "ccfa8636 在 API23/28 的实际共享表单验证6种支持方向宏的键型、4种方向与4种符号位置，含改外观及更换偏好后再次打开；14个测试执行、每个API96个组合通过。未观察到旧固定写入下划的触发链。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorForm.kt"
+    },
+    {
+      "id": "N5",
+      "issue": "Rime 方案菜单没有滚动容器",
+      "status": "本次修复",
+      "note": "6c22d0cc 增加滚动容器，方案名换行且保留最小触控高度；10 个 API 23/28 框架执行及 API 35 原生大字号、长名称、末项选择回归通过。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/dialog/RimeSchemaMenuDialog.kt"
+    },
+    {
+      "id": "N6",
+      "issue": "OneClip 预热无限等待/不可取消",
+      "status": "本次修复",
+      "note": "d8772107 普通 HTTP 有界且可取消，SSE 建连设期限、建立后保留无限 idle；6 项真实 localhost 网络用例通过。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/OneClipEventClient.kt"
+    },
+    {
+      "id": "N7",
+      "issue": "磁盘与保存 baseline 来自两份活数据",
+      "status": "本次修复",
+      "note": "3a82e280 Main 一次捕获深拷贝，IO 与 baseline 使用同一份快照；后续编辑保留 dirty，有实际保存和嵌套宏拷贝测试。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt"
+    },
+    {
+      "id": "N8",
+      "issue": "引擎启动不能停止/失败卡状态/Main 阻塞",
+      "status": "已修复",
+      "note": "9b1926db 的直连 desiredRunning 状态机处理 STARTING 停止、失败与重启，普通停止异步等待 native owner。同步备份屏障单独保留。",
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/core/EngineLifecycleController.kt"
+    }
+  ],
+  "ci": {
+    "run_id": 40509323655,
+    "code_sha": "710e4ef93f20eaf1d80d93913be1edfaefdb097d",
+    "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40509323655",
+    "status": "completed",
+    "conclusion": "success",
+    "unit_tests": "success",
+    "arm64_release": "success",
+    "jvm_tests": 1234,
+    "artifact_id": 12736668812,
+    "artifact_size_bytes": 7333186,
+    "artifact_digest": "sha256:e3cc480e75fbc2f585d89255ee7a9b241449a6ddc62af0dd56035fc5403e6308",
+    "unit_test_artifact_id": 12737625067,
+    "unit_test_artifact_digest": "sha256:e068ec21a5c7730faa31aac9df5eefdee7dc70d0606a182185b8d2ced8136982",
+    "release_abis": [
+      "arm64-v8a"
+    ],
+    "pr_run_id": 40509320725,
+    "pr_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40509320725",
+    "pr_unit_tests": "success",
+    "pr_arm64_debug": "success",
+    "pr_checkout_ref": "refs/pull/13/merge",
+    "pr_merge_commit_sha": "e22d1123f3a9a07105ed72abed8e80b60300831d",
+    "covers_latest_code": true,
+    "covers_latest_runtime_code": true
+  },
+  "updated_at": "2026-10-27",
+  "local_verification": {
+    "code_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+    "jvm_tests": 1234,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "build_logic_tests": 6,
+    "local_debug_build": "passed; x86_64 Debug and AndroidTest; 2048MiB compiler heap",
+    "device_tests_passed": 2,
+    "device_scope": "row header and reusable key cells only; earlier input/shutdown/restore records remain historical",
+    "evidence": "audit/perf-rebase-2026-10-27/index.md",
+    "historical": true,
+    "covers_latest_code": false,
+    "runtime_sources_unchanged": true
+  },
+  "previous_ci": {
+    "run_id": 40213813097,
+    "code_sha": "4bb3486c2797750164582221abf2bb39d106a959",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40213813097",
+    "unit_tests": "success",
+    "arm64_release": "success",
+    "artifact_name": "direct-rime-frontend-arm64-release",
+    "artifact_id": 12607275703,
+    "artifact_size_bytes": 7175055
+  },
+  "emulator_verification": {
+    "passed_tests": 2,
+    "failed_tests": 1,
+    "touch_rebind_rounds": 6,
+    "application_code_sha": "ea6229a448ab5a8e72a0e7637bc2364e4e2c40e2",
+    "provenance": "audit/direct-rime-2026-10-25/provenance.json",
+    "report": "audit/direct-rime-2026-10-25/index.md",
+    "mode_hint_failure_unresolved": true,
+    "manual_two_editors": "通过：A=你，B=好你，包含同类编辑框切换及 B 的 restartInput，三次提交均对应正确编辑框",
+    "historical": true,
+    "superseded_mode_hint_evidence": "audit/status-hints-2026-10-27/index.md"
+  },
+  "ci_history": [
+    {
+      "run_id": 40297595560,
+      "code_sha": "1113725128f160bf50d37630e96248eba210f9b4",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40297595560",
+      "unit_tests": "success",
+      "jvm_tests": 1101,
+      "python_packaging_tests": 4,
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12639522402,
+      "artifact_size_bytes": 7219377,
+      "artifact_digest": "sha256:1b892c3c4687d3da7c576519b28d54afeed15b62d6c69041b6807de1edacb88f",
+      "unit_test_artifact_id": 12638518935,
+      "unit_test_artifact_digest": "sha256:77a9639721e6da21b7f8ba81957aa621af001aab85aa359081958c0408fb792c",
+      "covers_latest_code": true,
+      "release_abis": [
+        "arm64-v8a"
+      ]
+    },
+    {
+      "run_id": 40279688181,
+      "code_sha": "ea16a375983986d7b654ea8c39135807ec7e4f4e",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40279688181",
+      "unit_tests": "success",
+      "jvm_tests": 1042,
+      "python_packaging_tests": 4,
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12632018949,
+      "artifact_size_bytes": 7212240,
+      "artifact_digest": "sha256:e73ec560c76a5de27e165267002850d1a2d2956f0ac489f64013d29849014905",
+      "unit_test_artifact_id": 12631577143,
+      "unit_test_artifact_digest": "sha256:6fd129e2f1106ed71ad4b0cc4bc460e7130a233188acbc3932c7143257a9b510",
+      "covers_latest_code": false,
+      "release_abis": [
+        "arm64-v8a"
+      ]
+    },
+    {
+      "run_id": 40213813097,
+      "code_sha": "4bb3486c2797750164582221abf2bb39d106a959",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40213813097",
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12607275703,
+      "artifact_size_bytes": 7175055
+    },
+    {
+      "run_id": 40212993635,
+      "code_sha": "229a344a7503c9dbfe51a3bedcff95e922ad96fa",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40212993635",
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12607165060,
+      "artifact_size_bytes": 7174922
+    },
+    {
+      "run_id": 40198947226,
+      "code_sha": "d06f7eab0446894e8851e3186c249f6042297cfc",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40198947226",
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12601587493,
+      "artifact_size_bytes": 7173318
+    },
+    {
+      "run_id": 40195093801,
+      "code_sha": "c80f3ce0a5786a3d9c8cf4fbd0d44c9088135c71",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40195093801",
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12600415459,
+      "artifact_size_bytes": 7172840
+    },
+    {
+      "run_id": 40190089463,
+      "code_sha": "1c8a7d04b9933541cb7ae6cd28ccf99f9a54ce49",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40190089463",
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12598505126,
+      "artifact_size_bytes": 7167274
+    },
+    {
+      "run_id": 40151745403,
+      "code_sha": "ea6229a448ab5a8e72a0e7637bc2364e4e2c40e2",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40151745403",
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12582952896,
+      "artifact_size_bytes": 7164901
+    },
+    {
+      "run_id": 40145580454,
+      "code_sha": "116ecabcf708aaf704f9ed1607a09ff658ed7fcd",
+      "status": "completed",
+      "conclusion": "success",
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12580537242,
+      "artifact_size_bytes": 7158304,
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40145580454"
+    },
+    {
+      "run_id": 40219854407,
+      "code_sha": "e146d2cbd5eb4841b258825be965b5b8c92d30ed",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40219854407",
+      "unit_tests": "success",
+      "python_packaging_tests": 4,
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12608557908,
+      "artifact_size_bytes": 7201059
+    },
+    {
+      "run_id": 40247691050,
+      "code_sha": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40247691050",
+      "unit_tests": "success",
+      "python_packaging_tests": 4,
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12619626685,
+      "artifact_size_bytes": 7204202
+    },
+    {
+      "run_id": 40266534124,
+      "code_sha": "8a39f2fee34dacbc51e85f59102fd0b0528ffdf4",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40266534124",
+      "unit_tests": "success",
+      "python_packaging_tests": 4,
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12627066153,
+      "artifact_size_bytes": 7204486
+    },
+    {
+      "run_id": 40269824527,
+      "code_sha": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40269824527",
+      "unit_tests": "success",
+      "python_packaging_tests": 4,
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12628551356,
+      "artifact_size_bytes": 7207569,
+      "artifact_digest": "sha256:0ff9ef5313083d8e3edd48045d3530f7a786c3dfed031fe36ce2b87928d4f52c",
+      "release_abis": [
+        "arm64-v8a"
+      ]
+    },
+    {
+      "run_id": 40319452811,
+      "code_sha": "c72115def7c2640ebc4fd13f8578584401101614",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40319452811",
+      "unit_tests": "success",
+      "jvm_tests": 1125,
+      "python_packaging_tests": 4,
+      "arm64_release": "success",
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_id": 12648094518,
+      "artifact_size_bytes": 7225654,
+      "artifact_digest": "sha256:d273902008c65730b582f9674e359f4e26666779f935aeddcc346819d332eb1f",
+      "unit_test_artifact_id": 12649071761,
+      "unit_test_artifact_digest": "sha256:804dab7b1f0f55a884baa31a6886f7b7ca90f2643625dfc868a86d06e6b19f86",
+      "covers_latest_code": true,
+      "release_abis": [
+        "arm64-v8a"
+      ]
+    },
+    {
+      "run_id": 40337615943,
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40337615943",
+      "conclusion": "success",
+      "arm64_release": "success",
+      "unit_tests": "success",
+      "artifact_id": 12657643573,
+      "artifact_digest": "sha256:6555d6142b7ef60e9821411d806f00f64a4ad18721c833fb24cd7091a1f5e2df",
+      "unit_report_artifact_id": 12658715531,
+      "unit_report_digest": "sha256:145557ef9774179d9d6de3ffa34568d165a97305b52f72be1a32d4345c004f43",
+      "code_sha": "d3cb87692b638a36dde048435658de1afcc8738e",
+      "status": "completed",
+      "jvm_tests": 1156,
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_size_bytes": 7321922,
+      "covers_latest_code": true,
+      "release_abis": [
+        "arm64-v8a"
+      ]
+    },
+    {
+      "run_id": 40366006633,
+      "code_sha": "bb9d2a78c4f588f67fa8bb33e5dab35ac3576175",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40366006633",
+      "status": "completed",
+      "conclusion": "success",
+      "unit_tests": "success",
+      "jvm_tests": 1197,
+      "arm64_release": "success",
+      "artifact_id": 12672830385,
+      "artifact_name": "direct-rime-frontend-arm64-release",
+      "artifact_size_bytes": 7331505,
+      "artifact_digest": "sha256:1073a47427c008a8ee6223935f9378b39bf6bd3b69358e9b724f29a1d73c7912",
+      "unit_report_artifact_id": 12670352625,
+      "unit_report_digest": "sha256:eb2a2c23ea9d17a5a2ffd4bcc8aae6460aedc580a9a3b5ae31b67ccf8e3ea4d1",
+      "release_abis": [
+        "arm64-v8a"
+      ],
+      "covers_latest_code": true
+    },
+    {
+      "run_id": 40371186736,
+      "code_sha": "544f84a852aed9f008e68acad184e71fac5447a8",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40371186736",
+      "status": "completed",
+      "conclusion": "success",
+      "jvm_tests": 1204,
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "artifact_id": 12672104539,
+      "artifact_size_bytes": 7332646,
+      "artifact_digest": "sha256:fe7a6283980c277b9f76761c417d6921a3c2d65d9d0e5c21a22b8f4109fdc772",
+      "unit_test_artifact_id": 12672438763,
+      "unit_test_artifact_digest": "sha256:81b2c8b42deb8ade430f38f19f64fd1fe2b9ba15ce91729aadf48fb3b7452d40",
+      "release_abis": [
+        "arm64-v8a"
+      ],
+      "covers_latest_code": false
+    },
+    {
+      "run_id": 40377515000,
+      "code_sha": "8dca031c80fdf6c82015982b54385ef8bea12d48",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40377515000",
+      "status": "completed",
+      "conclusion": "success",
+      "jvm_tests": 1210,
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "artifact_id": 12678382320,
+      "artifact_size_bytes": 7332801,
+      "artifact_digest": "sha256:30b59f489ce5e6162831357213089c73d2a320bd74eac0aff1f4e6ab85731468",
+      "unit_test_artifact_id": 12678245048,
+      "unit_test_artifact_digest": "sha256:76471aae91dc842503593f7d58ad769b3f1ce58f2fe2edb280c4ebd069bbac1d",
+      "release_abis": [
+        "arm64-v8a"
+      ],
+      "covers_latest_code": false
+    },
+    {
+      "run_id": 40409025789,
+      "code_sha": "209cca0e7c8e0954d00a6c939e07d05cba160a8f",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40409025789",
+      "status": "completed",
+      "conclusion": "failure",
+      "covers_latest_code": false,
+      "release_abis": [
+        "arm64-v8a"
+      ],
+      "unit_tests": "failure",
+      "arm64_release": "success",
+      "jvm_tests": 1218,
+      "failed_tests": 1,
+      "failure_evidence": "audit/user-data-restore-2026-10-27/background-boundary/ci-before-failure.txt"
+    },
+    {
+      "run_id": 40411170854,
+      "code_sha": "9b1f958c604b91b2738da3d370636aadc8a34b1d",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40411170854",
+      "status": "completed",
+      "conclusion": "success",
+      "covers_latest_runtime_code": false,
+      "covers_latest_code": false,
+      "head_difference": "3e09e289 only adds AndroidTest",
+      "release_abis": [
+        "arm64-v8a"
+      ],
+      "unit_tests": "success",
+      "jvm_tests": 1220,
+      "arm64_release": "success",
+      "artifact_id": 12692104753,
+      "artifact_size_bytes": 7332708,
+      "artifact_digest": "sha256:5578c4aeefe6b999d359d71005f474e6dd2478ee7014da7d4e25a855e22f1004",
+      "unit_test_artifact_id": 12692898464,
+      "unit_test_artifact_digest": "sha256:9bc4877a080403acc1a7e37c37f54efb3851b0e53b0ea437f92b4ad07b4016bd"
+    },
+    {
+      "run_id": 40413598061,
+      "code_sha": "976ab05f3dd49675a6a08ba8ec09b4841ccb7aa2",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "reason": "superseded by018owner-thread followup, not a build failure"
+    },
+    {
+      "run_id": 40414044813,
+      "code_sha": "018fcf3e47b4c736a4369830d9b7a7584c34b7dd",
+      "status": "completed",
+      "conclusion": "success",
+      "jvm_tests": 1230,
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "covers_latest_code": false
+    },
+    {
+      "run_id": 40417349690,
+      "code_sha": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40417349690",
+      "status": "completed",
+      "conclusion": "success",
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "jvm_tests": 1233,
+      "artifact_id": 12696406274,
+      "artifact_size_bytes": 7334775,
+      "artifact_digest": "sha256:af6b244156991fe45d40bd60f6c324865d7d0d7e12076a6243ce80988c066d00",
+      "unit_test_artifact_id": 12695514706,
+      "unit_test_artifact_digest": "sha256:bb3a819aed7b1502985bdb9199ea6c377fea885a7044c4c02faeffed48c0f004",
+      "release_abis": [
+        "arm64-v8a"
+      ],
+      "covers_latest_code": false,
+      "covers_latest_runtime_code": false,
+      "historical": true
+    },
+    {
+      "run_id": 40428247791,
+      "code_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40428247791",
+      "status": "completed",
+      "conclusion": "success",
+      "unit_tests": "success",
+      "arm64_release": "success",
+      "jvm_tests": 1234,
+      "artifact_id": 12701436839,
+      "artifact_size_bytes": 7333334,
+      "artifact_digest": "sha256:f763da5970f4c6e3326eb8d1c96ee98f85c34bb762bf198b30863d1c578f3fc0",
+      "unit_test_artifact_id": 12700568183,
+      "unit_test_artifact_digest": "sha256:9a0ef87685bafe7e7af244905ad0930b154411284db8ec69b8047bf438d088a0",
+      "release_abis": [
+        "arm64-v8a"
+      ],
+      "validation_branch": "review/perf-cleanup-20261027",
+      "covers_latest_code": false,
+      "covers_latest_runtime_code": false,
+      "historical": true
+    }
+  ],
+  "previous_local_verification": {
+    "jvm_tests": 754,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "new_test_executions": 60,
+    "debug_apk": "success",
+    "android_test_apk": "success",
+    "apk_dex_files": 22,
+    "apk_alignment": 16384,
+    "device_testing": "b2c4631a：API 35 AOSP x86_64 Debug 手动界面检查通过（宏 JSON 初始基准、选 B 后取消保留 A、剪贴板保存后真实 SQLite 文件读回）；关闭期间写入由 JVM 受控延迟测试覆盖，未完成本轮设备侧竞态检查。历史 ea6229a4 的模式提示异常仍待定位。"
+  },
+  "superseded_ci": {
+    "run_id": 40167666754,
+    "code_sha": "7dddf7b95e27393bfc080b9ec9e5aced17f6f909",
+    "conclusion": "cancelled",
+    "reason": "由包含三批修复的 b2c4631a 构建替代"
+  },
+  "additional_editor_findings": [
+    {
+      "issue": "JSON 宏打开即被误判为已修改，旧格式切层模式也可能误报",
+      "status": "本次修复",
+      "commit": "b2c4631a",
+      "note": "两种入口均以解析后的独立规范化快照作为基准；16 个 API 23/28 执行验证各步骤类型、恢复原值及嵌套列表隔离。"
+    },
+    {
+      "issue": "宏编辑调试日志包含完整宏内容",
+      "status": "本次修复",
+      "commit": "b2c4631a",
+      "note": "移除全文日志，并验证含私有文本的宏不会写入 MacroEditor 日志。"
+    }
+  ],
+  "editor_device_verification": {
+    "application_code_sha": "b2c4631a652c2088dfe807bc03dc384703daaaf7",
+    "provenance": "audit/editor-saves-2026-10-25/provenance.json",
+    "report": "audit/editor-saves-2026-10-25/index.md",
+    "macro_json_initial_dirty": false,
+    "macro_cancel": "passed: original A, selected draft B, after cancel A",
+    "clipboard_normal_save": "passed: actual popup confirmation and native SQLite readback",
+    "save_during_close_device_race": "not_completed; covered by controlled JVM tests",
+    "mode_hint_failure_unresolved": true,
+    "historical": true,
+    "superseded_mode_hint_evidence": "audit/status-hints-2026-10-27/index.md"
+  },
+  "local_verification_history": [
+    {
+      "jvm_tests": 694,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "new_test_executions": 58,
+      "debug_apk": "success",
+      "android_test_apk": "success",
+      "apk_dex_files": 22,
+      "apk_alignment": 16384,
+      "device_testing": "API 35 AOSP x86_64 Debug：设备侧 2 项通过（含 6 轮触屏重绑）、1 项模式提示断言失败；无真机/ARM64 Release/FGS 配额实测"
+    },
+    {
+      "jvm_tests": 770,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "new_test_executions": 76,
+      "debug_apk": "success",
+      "android_test_apk": "success",
+      "apk_dex_files": 22,
+      "apk_alignment": 16384,
+      "device_testing": "1c8a7d04：API 35 AOSP x86_64 Debug，3 轮 AOSP→Rime 切换与宿主 restartInput 后无 crash，触屏 N/I/候选你，上屏 A=你 且仅一次 commit。b2c4631a 的宏/剪贴板界面通过单独保留。旧模式提示异常仍待定位。"
+    },
+    {
+      "code_sha": "4bb3486c2797750164582221abf2bb39d106a959",
+      "jvm_tests": 897,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "new_test_executions_since_1c8a7d04": 127,
+      "build_logic_tests": 6,
+      "debug_apk": "success",
+      "android_test_apk": "success",
+      "apk_dex_files": 22,
+      "apk_alignment": 16384,
+      "evidence": "audit/sync-candidates-2026-10-25/index.md",
+      "device_testing": "运行代码 4bb3486c：候选菜单、行按钮、长方案列表、镜像导航 4 项通过；原方案菜单两次在 Web 密码框显示前置条件失败；测试补充 e3471045 加实际点按后四种输入类型的菜单、Back、外部点按及继续输入通过。原无点按程序化切换与旧英文模式提示仍待定位。"
+    },
+    {
+      "code_sha": "e146d2cbd5eb4841b258825be965b5b8c92d30ed",
+      "jvm_tests": 953,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build_logic_tests": 6,
+      "python_packaging_tests": 4,
+      "new_test_executions_since_4bb3486c": 56,
+      "debug_apk": "success",
+      "android_test_apk": "success",
+      "apk_dex_files": 22,
+      "apk_alignment": 16384,
+      "clearurls_providers": 206,
+      "evidence": "audit/clearurls-2026-10-25/index.md",
+      "device_testing": "e146d2cb：API35原生规则库编译及编码/重定向/亚马逊功能检查通过，6轮真实触屏 ni/你 和 restartInput 重绑通过；旧英文提示、无点按程序化密码类型切换的历史异常仍待定位。"
+    },
+    {
+      "code_sha": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+      "jvm_tests": 981,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build_logic_tests": 6,
+      "python_packaging_tests": 4,
+      "new_test_executions_since_e146d2cb": 28,
+      "debug_apk": "success",
+      "android_test_apk": "success",
+      "apk_dex_files": 22,
+      "apk_alignment": 16384,
+      "evidence": "audit/editor-results-2026-10-26/index.md",
+      "device_testing": "6f96066b布局返回/再次重建2项通过，联合首键断言及独立候选提交断言失败，诊断中；不算整组通过。"
+    },
+    {
+      "code_sha": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+      "jvm_tests": 983,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build_logic_tests": 6,
+      "python_packaging_tests": 4,
+      "new_test_executions_since_e146d2cb": 30,
+      "debug_apk": "success",
+      "android_test_apk": "success",
+      "apk_dex_files": 22,
+      "apk_alignment": 16384,
+      "evidence": "audit/editor-results-2026-10-26/index.md",
+      "device_testing": "b193b9ff测试来源，运行APK6f96066b：最终组合3项、独立1项通过，共12轮触屏输入/重绑；原首n及候选断言失败、诊断与边界均保留。",
+      "unit_test_source_sha": "1c96acd9ae95fb90b5a67a9e687b70d8c0b35ed2"
+    },
+    {
+      "code_sha": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+      "jvm_tests": 1002,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build_logic_tests": 6,
+      "python_packaging_tests": 4,
+      "new_test_executions_since_b193b9ff": 19,
+      "new_test_executions_since_e146d2cb": 49,
+      "build_abi_property": "arm64-v8a",
+      "evidence": "audit/draft-persistence-2026-10-26/index.md",
+      "device_testing": "本批未重新装机；最近设备验证仍对应6f96066b，不能代表本批代码。"
+    },
+    {
+      "code_sha": "c72115def7c2640ebc4fd13f8578584401101614",
+      "jvm_tests": 1125,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build_logic_tests": 6,
+      "python_packaging_tests": 4,
+      "new_test_executions_since_7ec08c8e": 123,
+      "build_abi_property": "arm64-v8a",
+      "evidence": "audit/remaining-checklist-2026-10-26/index.md",
+      "device_testing": "本轮未重新安装；最近模拟器运行代码仍6f96066b。用户手机7ec08c8e日志不是本轮修复的设备验收。"
+    },
+    {
+      "code_sha": "d3cb87692b638a36dde048435658de1afcc8738e",
+      "jvm_tests": 1156,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build_logic_tests": 6,
+      "targeted_download_tests": 31,
+      "build_abi_property": "arm64-v8a",
+      "evidence": "audit/hosts-downloads-2026-10-27/index.md",
+      "device_testing": "本批下载路径尚未用设备杀进程验证。"
+    },
+    {
+      "code_sha": "bb9d2a78c4f588f67fa8bb33e5dab35ac3576175",
+      "jvm_tests": 1197,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "build_logic_tests": 6,
+      "new_test_executions": 41,
+      "restore_related_executions": 62,
+      "real_host_child_process_kills": 6,
+      "build_abi_property": "arm64-v8a",
+      "evidence": "audit/user-data-restore-2026-10-27/index.md",
+      "device_testing": "Android整包恢复页面交接及实际外置卷拔插尚未验证。"
+    },
+    {
+      "code_sha": "544f84a852aed9f008e68acad184e71fac5447a8",
+      "jvm_tests": 1204,
+      "build_logic_tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "new_test_executions": 7,
+      "evidence": "audit/user-data-restore-2026-10-27/startup-cleanup/index.md",
+      "device_testing": "本次清理优化尚未Android端验收。"
+    },
+    {
+      "code_sha": "209cca0e7c8e0954d00a6c939e07d05cba160a8f",
+      "jvm_tests": 1218,
+      "build_logic_tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "new_test_executions": 8,
+      "evidence": "audit/user-data-restore-2026-10-27/preferences-types/index.md",
+      "device_testing": "关机持久化已在同分支运行代码8dca031c验证；209cca0e的Android恢复交接仍在验收。"
+    },
+    {
+      "code_sha": "9b1f958c604b91b2738da3d370636aadc8a34b1d",
+      "jvm_tests": 1220,
+      "build_logic_tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "new_test_executions": 2,
+      "targeted_tests": 41,
+      "evidence": "audit/user-data-restore-2026-10-27/background-boundary/index.md",
+      "device_testing": "209cca0e关机/恢复交接范围分别见设备记录；本批后台边界依赖确定性JVM回归。"
+    },
+    {
+      "code_sha": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+      "ci_app_tests": 1233,
+      "ci_failures": 0,
+      "ci_skipped": 0,
+      "new_test_executions": 13,
+      "build_logic_tests": 6,
+      "build_logic_source": "earlier local018 run, unchanged build-logic source",
+      "local_debug_build": "clean build passed with2048MiB compiler heap;1024MiB attempt OOM before tests",
+      "device_tests_passed": 3,
+      "device_tests_failed": 0,
+      "touch_rebind_rounds": 6,
+      "evidence": "audit/status-hints-2026-10-27/index.md",
+      "historical": true,
+      "covers_latest_code": false
+    }
+  ],
+  "additional_layout_finding": {
+    "issue": "切换输入法后，旧 KeyboardWindow 排队布局回调访问断连连接导致主线程崩溃",
+    "status": "本次修复",
+    "commit": "1c8a7d04b9933541cb7ae6cd28ccf99f9a54ce49",
+    "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardWindow.kt",
+    "evidence": "audit/queued-layout-2026-10-25/index.md",
+    "jvm_new_executions": 16,
+    "device_regression": "passed: 3 IME switch/restart rounds; touch ni→你 once; empty crash buffer"
+  },
+  "default_branch_observed": {
+    "name": "fx-rime-only",
+    "sha": "6af8bc0b7ca048a304952a4cbc4525e6c9f247b1",
+    "rebased_onto": true,
+    "removed_perf_commits": [
+      "98f3713c64e4c5cbdd23b6360e4686d968e49d77",
+      "d66c9e4aa3a411673a7fc557f22f3c804765f18c"
+    ],
+    "note": "6af8bc0b 的标题栏永久视图已取代旧混合复用路径；不重加 d66 的生产可见性补丁，更新对应测试。"
+  },
+  "additional_current_findings": [
+    {
+      "issue": "行操作箭头隐藏后复用为普通键或新增键仍不可见",
+      "status": "旧触发链不再适用",
+      "removed_commit": "d66c9e4a",
+      "superseded_by_default_commit": "6af8bc0b7ca048a304952a4cbc4525e6c9f247b1",
+      "note": "行操作固定于标题栏，不再复用为普通按键。旧补丁按用户要求移除；新标题栏、空行与行边界回归通过。",
+      "evidence": "audit/perf-rebase-2026-10-27/index.md"
+    },
+    {
+      "issue": "生命周期销毁时，取消协程的 join 跳过弹窗关闭",
+      "status": "本次修复",
+      "commit": "1db12cec",
+      "framework_executions": 12
+    },
+    {
+      "issue": "候选动作菜单夺走编辑器窗口焦点",
+      "status": "本次修复",
+      "commit": "4bb3486c",
+      "before_device_result": "229a344a 实际失败：Candidate actions must keep the editor window focused",
+      "evidence": "audit/sync-candidates-2026-10-25/index.md"
+    },
+    {
+      "issue": "即刻触屏重绑回归出现首键与候选提交断言异常",
+      "status": "测试协议已补强，复验通过",
+      "runtime_code_sha": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+      "evidence": "audit/editor-results-2026-10-26/index.md",
+      "note": "同步注入实测331–547ms，候选阈值300ms；1c96acd9修正注入，b193b9ff补查目标实际绑定并在DOWN/UP采样。组合3项及独立1项通过，共12轮。旧首n代号取在触点查找前，单独根因仍未证明，保留全部原始结果。",
+      "commit": "b193b9ff3d5c4a5acd69c10716749aa98931ae77"
+    },
+    {
+      "issue": "草稿仅按字符串哈希去重会漏存，原位覆写中断或失败破坏上一份快照",
+      "status": "本次修复",
+      "commit": "8a39f2fee34dacbc51e85f59102fd0b0528ffdf4",
+      "evidence": "audit/draft-persistence-2026-10-26/index.md",
+      "note": "按实际内容去重，同目录临时写入后原子替换；拒绝软链接并清理过期自有临时文件。保存失败保留最后成功快照引用，不保证最新未保存编辑已经落盘；8项新增真实临时文件测试。"
+    },
+    {
+      "issue": "严格主题文件名校验跳过6个内置英文预设",
+      "status": "本次修复",
+      "commit": "2dd2d5af8953eec6ba5832b274ae756288f5d0ca",
+      "note": "历史slug文件名和显示名称不一致，读取时迁移到安全规范文件名；不覆盖已有同名文件。12个实际源配置与迁移/冲突/删除/越界在API23/28共8个执行通过。已捕获读取警告不能证明是用户返回闪退根因。",
+      "evidence": "audit/remaining-checklist-2026-10-26/index.md"
+    },
+    {
+      "issue": "离开崩溃日志页后重新导出可能缺原始Java崩溃堆栈",
+      "status": "本次修复",
+      "commit": "ea16a375983986d7b654ea8c39135807ec7e4f4e",
+      "note": "在私有no-backup目录原子保存最近Java未捕获异常，保留24小时；普通/筛选日志导出仍附来源提交和时间，清空日志会删除留存。6个纯JVM执行通过。不能补回此前缺失的栈，也不捕获native信号或系统杀进程。",
+      "evidence": "audit/remaining-checklist-2026-10-26/index.md"
+    },
+    {
+      "issue": "符号显示位置改变后手势返回主题页的一次闪退",
+      "status": "用户要求待复现",
+      "runtime_code_sha": "7ec08c8e07a275cb675838c069d8ebd2efa8492c",
+      "note": "用户描述切换符号显示位置后返回主题页，随后无法复现；上传导出无致命异常栈。按用户要求等待下次完整栈，未猜测修改主题页面逻辑，未将主题文件名修复当作此闪退根因修复。"
+    },
+    {
+      "issue": "恢复中断后大量残留目录的递归清理可能阻塞启动",
+      "status": "本次修复",
+      "runtime_baseline_sha": "bb9d2a78c4f588f67fa8bb33e5dab35ac3576175",
+      "evidence": "audit/user-data-restore-2026-10-27/startup-cleanup/index.md",
+      "counted_in_original_139": false,
+      "commit": "544f84a852aed9f008e68acad184e71fac5447a8",
+      "new_test_executions": 7
+    },
+    {
+      "issue": "后台清理边界及CI夹具销毁竞态",
+      "status": "本次修复",
+      "commit": "9b1f958c604b91b2738da3d370636aadc8a34b1d",
+      "note": "清理只处理resolved根；测试销毁目录前等待后台任务结束。未从夹具失败推断用户数据丢失。",
+      "evidence": "audit/user-data-restore-2026-10-27/background-boundary/index.md"
+    },
+    {
+      "issue": "英文模式提示在首次可见绘制前过期，新增确认未穿过API包装",
+      "status": "本次修复并设备回归通过",
+      "commits": [
+        "976ab05f",
+        "018fcf3e",
+        "7e5c2c1b"
+      ],
+      "test_only_commit": "3ca22462",
+      "evidence": "audit/status-hints-2026-10-27/index.md",
+      "new_unit_tests": 13,
+      "device_tests": 3,
+      "touch_rebind_rounds": 6
+    }
+  ],
+  "branch_head_sha": "710e4ef93f20eaf1d80d93913be1edfaefdb097d",
+  "test_harness_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+  "current_device_verification": {
+    "code_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+    "runtime_code_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+    "test_harness_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+    "target_package_version": "9c9013ca",
+    "passed_test_executions": 2,
+    "failed_test_executions": 0,
+    "unique_test_methods": 2,
+    "api": 35,
+    "abi": "x86_64",
+    "image": "AOSP",
+    "kvm": false,
+    "hardware_timeout_multiplier": 100,
+    "covers_latest_code": false,
+    "scope": "native Android row header binding, empty/add/remove key cells, first/middle/last/single row and holder rebind; no fresh touch-input/shutdown/restore claim",
+    "test_methods": [
+      "headerActionsStaySeparateFromReusedKeyCells",
+      "headerMoveButtonsFollowBoundariesWhenTheHolderIsRebound"
+    ],
+    "evidence": "audit/perf-rebase-2026-10-27/index.md",
+    "app_apk_sha256": "80e9cc961d4bb31b6ef77995092e081ed4a5c1c44ba8070a1615d93eff82581e",
+    "test_apk_sha256": "0876a6880314f40a0fe6d3f49440715959faf3618d1c4833fa5feb5e88c5444c",
+    "historical": true,
+    "runtime_sources_unchanged": true
+  },
+  "device_verification_history": [
+    {
+      "runtime_code_sha": "4bb3486c2797750164582221abf2bb39d106a959",
+      "results": {
+        "initial_suite": {
+          "tests": 5,
+          "passed": 4,
+          "failed": 1,
+          "failure": "Web password inputType=225 settled visible IME precondition failed before opening that menu",
+          "log": "final-device-first-attempt.txt"
+        },
+        "unchanged_schema_repeat": {
+          "tests": 1,
+          "passed": 0,
+          "failed": 1,
+          "failure": "same precondition",
+          "log": "schema-no-touch-repeat.txt"
+        },
+        "schema_with_touch_harness": {
+          "tests": 1,
+          "passed": 1,
+          "failed": 0,
+          "input_types": [
+            1,
+            129,
+            225,
+            18
+          ],
+          "checks": [
+            "menu keeps focus",
+            "schema selection by touch",
+            "Back",
+            "outside touch",
+            "continued typing"
+          ],
+          "log": "schema-touch-device.txt"
+        },
+        "candidate_focus_before": {
+          "application_sha": "229a344a7503c9dbfe51a3bedcff95e922ad96fa",
+          "tests": 1,
+          "failed": 1,
+          "log": "candidate-focus-before.txt"
+        },
+        "candidate_focus_after": {
+          "application_sha": "4bb3486c2797750164582221abf2bb39d106a959",
+          "passed": true,
+          "checks": [
+            "menu visible after 800 ms",
+            "host window focus",
+            "NOT_FOCUSABLE without ALT_FOCUSABLE_IM",
+            "no inputSession rebind",
+            "old menu dismissed when editor type changes"
+          ]
+        },
+        "crash_buffer_empty_after_completed_tests": true,
+        "manual_touch_host": {
+          "passed": true,
+          "runtime_code_sha": "4bb3486c2797750164582221abf2bb39d106a959",
+          "a": "你",
+          "b": "",
+          "commit_count": 1,
+          "evidence": "audit/sync-candidates-2026-10-25/touch-host-state.json"
+        }
+      },
+      "evidence": "audit/sync-candidates-2026-10-25/index.md"
+    },
+    {
+      "runtime_code_sha": "e146d2cbd5eb4841b258825be965b5b8c92d30ed",
+      "passed_tests": 2,
+      "failed_tests": 0,
+      "touch_rebind_rounds": 6,
+      "fixture": "bundled-smoke",
+      "model_mapped": false,
+      "evidence": "audit/clearurls-2026-10-25/index.md",
+      "previous_mode_hint_failure_unresolved": true,
+      "previous_programmatic_password_switch_precondition_unresolved": true
+    },
+    {
+      "api": 35,
+      "abi": "x86_64",
+      "image": "AOSP",
+      "kvm": false,
+      "graphics": "SwiftShader",
+      "passed_tests": 2,
+      "failed_tests": 1,
+      "layout_tests_passed": 2,
+      "forced_loading_window": true,
+      "actual_framework_recreation": true,
+      "actual_system_process_kill": false,
+      "second_restore_inline_color_passed": true,
+      "crash_buffer_empty": true,
+      "input_touch_rebind": "combined run: first n preedit assertion failed; unchanged isolated run: candidate commit assertion failed; diagnosis pending",
+      "completed_rebind_rounds": null,
+      "runtime_code_sha": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+      "test_harness_sha": "516252ebe8192b9b5dcee8c2c9854de95ae0fc4e",
+      "evidence": "audit/editor-results-2026-10-26/index.md",
+      "previous_mode_hint_failure_unresolved": true,
+      "previous_programmatic_password_switch_precondition_unresolved": true
+    },
+    {
+      "api": 35,
+      "abi": "x86_64",
+      "image": "AOSP",
+      "kvm": false,
+      "graphics": "SwiftShader",
+      "passed_test_executions": 4,
+      "failed_test_executions": 0,
+      "unique_test_methods": 3,
+      "combined": {
+        "kind": "combined",
+        "passed_tests": 3,
+        "failed_tests": 0,
+        "touch_rounds": 6,
+        "candidate_hold_ms": [
+          88,
+          209
+        ],
+        "injected_generation_stable": true
+      },
+      "isolated": {
+        "kind": "isolated",
+        "passed_tests": 1,
+        "failed_tests": 0,
+        "touch_rounds": 6,
+        "candidate_hold_ms": [
+          85,
+          141
+        ],
+        "injected_generation_stable": true
+      },
+      "layout_tests_passed": 2,
+      "touch_rebind_rounds": 12,
+      "fixture": "bundled-smoke",
+      "model_mapped": false,
+      "forced_loading_window": true,
+      "actual_framework_recreation": true,
+      "actual_system_process_kill": false,
+      "second_restore_inline_color_passed": true,
+      "crash_buffer_empty": true,
+      "target_package_version": "6f96066b",
+      "test_harness_sha": "b193b9ff3d5c4a5acd69c10716749aa98931ae77",
+      "runtime_code_sha": "6f96066b06a96a01efe1df9cc30e1c1fbb459c78",
+      "evidence": "audit/editor-results-2026-10-26/index.md",
+      "previous_mode_hint_failure_unresolved": true,
+      "previous_programmatic_password_switch_precondition_unresolved": true,
+      "covers_latest_code": false
+    },
+    {
+      "runtime_code_sha": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+      "test_harness_sha": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+      "target_package_version": "7e5c2c1b",
+      "api": 35,
+      "abi": "x86_64",
+      "image": "AOSP",
+      "kvm": false,
+      "hardware_timeout_multiplier": 100,
+      "passed_test_executions": 3,
+      "failed_test_executions": 0,
+      "unique_test_methods": 3,
+      "touch_rebind_rounds": 6,
+      "mode_hint_failure_unresolved": false,
+      "visible_frame_ack_verified": true,
+      "mode_and_schema_hints": true,
+      "hint_expiry_without_duplicate_commit": true,
+      "real_touch_candidate_commit": true,
+      "crash_buffer_empty": true,
+      "fixture": "bundled-smoke",
+      "model_mapped": false,
+      "covers_latest_code": false,
+      "evidence": "audit/status-hints-2026-10-27/index.md",
+      "previous_programmatic_password_switch_precondition_unresolved": true,
+      "historical": true
+    }
+  ],
+  "clearurls_rules": {
+    "source_commit": "11086f40512774dcadef54079f1ba023bfacf940",
+    "sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+    "providers": 206,
+    "max_url_utf16_length": 65536,
+    "max_transform_passes": 8,
+    "budget_exhaustion": "preserve original text",
+    "apk_verifier_required": true,
+    "not_copied_to_rime_data": true
+  },
+  "build_scope": {
+    "release_abis": [
+      "arm64-v8a"
+    ],
+    "confirmed_by_user": "2026-10-26",
+    "four_abi_coverage_required": false
+  },
+  "latest_apk_verification": {
+    "apk": "app/build/outputs/apk/fx/release/org.fcitx.fcitx5.android.fx.rime-0.1.3-739-g710e4ef9-fx-arm64-v8a-release.apk",
+    "native_libraries": [
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libdirect-rime.so"
+    ],
+    "fcitx_dependencies": [],
+    "apk_sha256": "5a74c326fc089d34c47ac6a95c73b7199e9fd6e1d3c5c55cbbb4fbef4562a517",
+    "native_dependencies": {
+      "lib/arm64-v8a/libc++_shared.so": [
+        "libc.so",
+        "libm.so",
+        "libdl.so"
+      ],
+      "lib/arm64-v8a/libdirect-rime.so": [
+        "liblog.so",
+        "libandroid.so",
+        "libm.so",
+        "libc++_shared.so",
+        "libdl.so",
+        "libc.so"
+      ]
+    },
+    "obsolete_picker_classes": [],
+    "legacy_backend_classes": [],
+    "dex_files_checked": 2,
+    "clearurls": {
+      "commit": "11086f40512774dcadef54079f1ba023bfacf940",
+      "sha256": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+      "providers": 206
+    },
+    "page_size": 16384,
+    "required_alignment_by_abi": {
+      "arm64-v8a": 16384
+    },
+    "code_sha": "710e4ef93f20eaf1d80d93913be1edfaefdb097d",
+    "covers_latest_code": true,
+    "verified_by": "CI job122206745593 actual verifier output"
+  },
+  "runtime_change_sha": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+  "lifecycle_draft_policy": {
+    "synchronous_fallback_required": true,
+    "confirmed_by_user": "2026-10-26",
+    "priority": "优先保住最新编辑",
+    "fully_async_checkpoint_only": false
+  },
+  "restore_device_verification": {
+    "runtime_sha": "209cca0e7c8e0954d00a6c939e07d05cba160a8f",
+    "android_handoff_verified": true,
+    "external_volume_unplug_verified": false,
+    "physical_power_loss_verified": false,
+    "api": 35,
+    "abi": "x86_64",
+    "verify_junit_tests": 1,
+    "report": "audit/user-data-restore-2026-10-27/android-handoff/index.md",
+    "normal_main_killed": 2606,
+    "restore_pid": 2682,
+    "new_main_pid": 2709,
+    "verifier_pid": 2774,
+    "cached_preferences_readback": "imported value",
+    "unreplaced_wal_readback": "committed WAL row",
+    "imported_database_readback": "new database",
+    "initial_instrumentation_teardown_required_worker_retry": true
+  },
+  "shutdown_device_verification": {
+    "status": "passed_in_emulator",
+    "runtime_sha": "8dca031c80fdf6c82015982b54385ef8bea12d48",
+    "harness_sha": "93942a2ef8bb60cbe61599a06139721ba63af468",
+    "api": 35,
+    "abi": "x86_64",
+    "normal_shutdown": true,
+    "kernel_changed": true,
+    "native_pid_changed": true,
+    "boot_count_before": 13,
+    "boot_count_after": 14,
+    "learned_first": "泥",
+    "verify_junit_tests": 1,
+    "report": "audit/native-shutdown-2026-10-27/index.md",
+    "limits": [
+      "small dictionary",
+      "software emulator with enlarged system timeout",
+      "no ARM64 phone or power-loss claim"
+    ]
+  },
+  "history_rewrite": {
+    "date": "2026-10-27",
+    "before": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+    "after": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+    "backup_branch": "backup/perf-before-rebase-20261027",
+    "before_unique_commits": 62,
+    "retained_original_commits": 60,
+    "after_unique_commits": 12,
+    "dropped": [
+      "98f3713c64e4c5cbdd23b6360e4686d968e49d77",
+      "d66c9e4aa3a411673a7fc557f22f3c804765f18c"
+    ],
+    "tree": "2c8d28fc1387c03f2b8b8b6b21f9ed341bebec2a",
+    "reference_tree": "2c8d28fc1387c03f2b8b8b6b21f9ed341bebec2a",
+    "map": "audit/perf-rebase-2026-10-27/commit-map.json",
+    "report": "audit/perf-rebase-2026-10-27/index.md",
+    "old_commit_references": "旧批次 SHA 与设备记录继续作为历史证据保留；当前分类提交见映射。"
+  },
+  "documentation_organization": {
+    "date": "2026-10-27",
+    "source_before": "9c9013ca4efa6dcd305737c0e2de3a0023785a9a",
+    "source_after": "710e4ef93f20eaf1d80d93913be1edfaefdb097d",
+    "current_implementation_language": "zh-CN",
+    "current_implementation_directory": "maintainer/implementation/",
+    "code_repository_contract": "ASR_VOICE_INPUT_AIDL_INTEGRATION.md",
+    "source_runtime_changed": false,
+    "code_pr": 13,
+    "documentation_pr": 12,
+    "ordinary_pr_build_abis": [
+      "arm64-v8a"
+    ],
+    "report": "audit/merge-prep-2026-10-27/index.md",
+    "migration": "audit/merge-prep-2026-10-27/documentation-migration.json",
+    "source_backup": "backup/perf-before-docs-zh-20261027",
+    "documentation_backup": "backup/docs-before-merge-prep-20261027",
+    "previous_device_results": "preserved at actual9c; not relabeled as710 device execution"
+  }
+}

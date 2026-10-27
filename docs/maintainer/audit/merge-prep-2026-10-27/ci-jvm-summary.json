@@ -1,0 +1,9 @@
+{
+  "tests": 1234,
+  "failures": 0,
+  "skipped": 0,
+  "code_sha": "710e4ef93f20eaf1d80d93913be1edfaefdb097d",
+  "artifact_id": 12737625067,
+  "artifact_digest": "sha256:e068ec21a5c7730faa31aac9df5eefdee7dc70d0606a182185b8d2ced8136982",
+  "source": "downloaded Gradle HTML report index"
+}
