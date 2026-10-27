@@ -9,6 +9,33 @@ import zipfile
 from pathlib import Path
 
 
+def verify_clipboard_rules(apk, descriptor):
+    """The built-in filter must ship its pinned data and notices in every variant."""
+    commit = "11086f40512774dcadef54079f1ba023bfacf940"
+    expected = {
+        "data.min.json": "b328d2a5b95b1b23bac2c91342a8deee3f9a3826a5950bf9e28e332ffd94cd2f",
+        "LICENSE.LGPL-3.0.txt": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+        "COPYING.GPL-3.0.txt": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0",
+        "NOTICE.md": None,
+        "source.json": None,
+    }
+    payloads = {}
+    for name, digest in expected.items():
+        path = f"assets/clearurls/{name}"
+        assert path in apk.namelist(), f"Missing bundled ClearURLs asset: {name}"
+        payloads[name] = apk.read(path)
+        if digest:
+            assert hashlib.sha256(payloads[name]).hexdigest() == digest, f"Unexpected ClearURLs asset bytes: {name}"
+    source = json.loads(payloads["source.json"])
+    assert source["commit"] == commit, "ClearURLs source revision does not match the pinned catalog"
+    assert source["data_sha256"] == expected["data.min.json"], "ClearURLs source checksum mismatch"
+    providers = len(json.loads(payloads["data.min.json"])["providers"])
+    assert providers == source["providers"] == 206, "ClearURLs provider count mismatch"
+    assert not any(name == "clearurls" or name.startswith("clearurls/")
+                   for name in descriptor["files"]), "Host ClearURLs assets must not be copied into Rime data"
+    return {"commit": commit, "sha256": expected["data.min.json"], "providers": providers}
+
+
 def dex_classes(data):
     """Read class definitions, rather than mistaking a string reference for a class."""
     assert data[:4] == b"dex\n", "Not a standard APK DEX file"
@@ -105,6 +132,7 @@ def verify(path):
         assert not any(n.startswith("assets/usr/lib/fcitx5/") for n in names), "Fcitx addon assets remain"
         assert not any(n.endswith(".a") for n in names), "Static build archives must not be packaged"
         descriptor = json.loads(apk.read("assets/descriptor.json"))
+        clipboard_rules = verify_clipboard_rules(apk, descriptor)
         for name, digest in descriptor["files"].items():
             if digest:
                 assert f"assets/{name}" in names, f"Descriptor refers to missing asset: {name}"
@@ -112,6 +140,7 @@ def verify(path):
                       "apk_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
                       "native_dependencies": native_dependencies, "obsolete_picker_classes": unused_picker,
                       "legacy_backend_classes": legacy, "dex_files_checked": len(dex_files),
+                      "clearurls": clipboard_rules,
                       "page_size": max(alignments.values()), "required_alignment_by_abi": alignments}))
 
 
