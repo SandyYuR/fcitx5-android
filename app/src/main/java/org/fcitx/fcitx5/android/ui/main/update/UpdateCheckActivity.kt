@@ -9,7 +9,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.app.DownloadManager
 import android.Manifest
 import android.content.ContentUris
-import android.content.ContentValues
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.database.Cursor
@@ -39,6 +38,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.work.WorkInfo
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -47,10 +49,8 @@ import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Request
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.Const
@@ -74,7 +74,8 @@ class UpdateCheckActivity : SettingsUiActivity() {
     private lateinit var downloadManager: DownloadManager
 
     private val downloadStates = linkedMapOf<String, AssetUiState>()
-    private val manualDownloadJobs = mutableMapOf<String, Job>()
+    private val downloadObservers = mutableMapOf<String, Job>()
+    private val cancellingDownloads = mutableSetOf<String>()
     private var selectedMirrorId: String? = null
     private var mirrors: List<MirrorRule> = emptyList()
 
@@ -163,6 +164,7 @@ class UpdateCheckActivity : SettingsUiActivity() {
             sharedReadPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
         reloadMirrors()
+        if (Build.VERSION.SDK_INT >= 29) HostsDownloads.prune(applicationContext)
         refreshLatestRelease()
     }
 
@@ -188,8 +190,8 @@ class UpdateCheckActivity : SettingsUiActivity() {
         stopPolling()
         validationJob?.cancel()
         validationJob = null
-        manualDownloadJobs.values.toList().forEach { it.cancel() }
-        manualDownloadJobs.clear()
+        downloadObservers.values.forEach { it.cancel() }
+        downloadObservers.clear()
         super.onDestroy()
     }
 
@@ -206,6 +208,10 @@ class UpdateCheckActivity : SettingsUiActivity() {
             }
             R.id.action_update_hosts -> {
                 startActivity(Intent(this, UpdateHostsSettingsActivity::class.java))
+                true
+            }
+            R.id.action_update_mirrors -> {
+                mirrorEditorLauncher.launch(Intent(this, UpdateMirrorListActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -245,10 +251,11 @@ class UpdateCheckActivity : SettingsUiActivity() {
                 } else {
                     renderReleaseNotes(release.releaseBody.trim())
                 }
+                val previous = downloadStates.toMap()
                 val list = withContext(Dispatchers.IO) {
                     release.assets.map { asset ->
                         detectExistingCompletedState(asset)
-                            ?: downloadStates[asset.browserDownloadUrl]
+                            ?: previous[asset.browserDownloadUrl]
                             ?: AssetUiState(asset = asset)
                     }
                 }
@@ -256,7 +263,9 @@ class UpdateCheckActivity : SettingsUiActivity() {
                 list.forEach { downloadStates[it.asset.browserDownloadUrl] = it }
                 adapter.submitList(list)
                 adapter.setReleaseNotes(notes)
-            } catch (t: Throwable) {
+                observeHostsDownloads()
+            } catch (e: CancellationException) { throw e }
+            catch (t: Throwable) {
                 Timber.w(t, "Failed to fetch release")
                 latestVersionText.text = getString(R.string.update_failed_to_fetch)
                 adapter.setReleaseNotes("")
@@ -543,6 +552,7 @@ class UpdateCheckActivity : SettingsUiActivity() {
                 downloadedBytes = 0L,
                 speedBytesPerSec = 0L,
                 downloadId = id,
+                workId = null,
                 installUri = null,
                 error = null
             )
@@ -582,127 +592,53 @@ class UpdateCheckActivity : SettingsUiActivity() {
 
     private fun startHostsMappedDirectDownload(state: AssetUiState, downloadUrl: String) {
         val key = state.asset.browserDownloadUrl
-        manualDownloadJobs[key]?.cancel()
-        downloadStates[key] = state.copy(
-            status = AssetStatus.DOWNLOADING,
-            progressPercent = 0,
-            downloadedBytes = 0L,
-            speedBytesPerSec = 0L,
-            downloadId = null,
-            installUri = null,
-            error = null
-        )
+        cancellingDownloads.remove(key)
+        downloadStates[key] = state.copy(status = AssetStatus.DOWNLOADING, progressPercent = 0,
+            downloadedBytes = 0, speedBytesPerSec = 0, downloadId = null, workId = null, installUri = null, error = null)
         adapter.submitList(downloadStates.values.toList())
-        startPolling()
-        val job = lifecycleScope.launch(Dispatchers.IO) {
-            var targetUri: Uri? = null
+        // Enqueue belongs to the application; cancelling this awaiting UI job never cancels it.
+        val pending = HostsDownloads.enqueue(applicationContext, state.asset, downloadUrl)
+        lifecycleScope.launch {
             try {
-                val outUri = createPendingDownloadUri(state.asset.name)
-                    ?: throw IllegalStateException("Failed to create download target")
-                targetUri = outUri
-                val request = Request.Builder()
-                    .url(downloadUrl)
-                    .addHeader("User-Agent", "fcitx5-android-update")
-                    .build()
-                val client = UpdateRepository.httpClientWithConfiguredHosts(this@UpdateCheckActivity)
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        throw IllegalStateException("Download request failed: ${response.code}")
-                    }
-                    val body = response.body ?: throw IllegalStateException("Download body is empty")
-                    val total = body.contentLength().takeIf { it > 0 } ?: state.asset.sizeBytes
-                    contentResolver.openOutputStream(outUri, "w")?.use { out ->
-                        body.byteStream().use { input ->
-                            val buf = ByteArray(8 * 1024)
-                            var downloaded = 0L
-                            var lastBytes = 0L
-                            var lastAt = System.currentTimeMillis()
-                            var smoothedSpeed = 0L
-                            while (true) {
-                                coroutineContext.ensureActive()
-                                val n = input.read(buf)
-                                if (n <= 0) break
-                                out.write(buf, 0, n)
-                                downloaded += n
-                                val now = System.currentTimeMillis()
-                                if (now - lastAt >= 750L) {
-                                    val dt = (now - lastAt).coerceAtLeast(1L)
-                                    val instant = ((downloaded - lastBytes).coerceAtLeast(0L) * 1000L) / dt
-                                    // EMA with alpha = 0.4; seed with the first
-                                    // instant value so the bar isn't stuck at 0.
-                                    smoothedSpeed = if (smoothedSpeed == 0L) instant
-                                        else (smoothedSpeed * 6 + instant * 4) / 10
-                                    val progress = if (total > 0L) {
-                                        ((downloaded * 100L) / total).toInt().coerceIn(0, 100)
-                                    } else 0
-                                    val displayed = smoothedSpeed
-                                    withContext(Dispatchers.Main) {
-                                        val current = downloadStates[key] ?: return@withContext
-                                        downloadStates[key] = current.copy(
-                                            status = AssetStatus.DOWNLOADING,
-                                            progressPercent = progress,
-                                            downloadedBytes = downloaded,
-                                            totalBytes = if (total > 0L) total else current.totalBytes,
-                                            speedBytesPerSec = displayed,
-                                            downloadId = null
-                                        )
-                                        adapter.submitList(downloadStates.values.toList())
-                                    }
-                                    lastAt = now
-                                    lastBytes = downloaded
-                                }
-                            }
-                        }
-                    } ?: throw IllegalStateException("Failed to open target output stream")
-                    markPendingDownloadComplete(outUri)
-                    val size = detectUriSize(outUri, total).coerceAtLeast(0L)
-                    val downloadedTotal = if (size > 0L) size else total.coerceAtLeast(0L)
-                    withContext(Dispatchers.Main) {
-                        val current = downloadStates[key] ?: return@withContext
-                        downloadStates[key] = current.copy(
-                            status = AssetStatus.FINISHED,
-                            progressPercent = 100,
-                            downloadedBytes = downloadedTotal,
-                            totalBytes = downloadedTotal,
-                            speedBytesPerSec = 0L,
-                            downloadId = null,
-                            installUri = outUri,
-                            error = null
-                        )
+                val id = pending.await()
+                val current = downloadStates[key] ?: return@launch
+                if (current.downloadId == null && current.status == AssetStatus.DOWNLOADING)
+                    downloadStates[key] = current.copy(workId = id)
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) {
+                val current = downloadStates[key] ?: return@launch
+                downloadStates[key] = current.copy(status = AssetStatus.FAILED, speedBytesPerSec = 0,
+                    error = getString(R.string.update_asset_failed))
+                adapter.submitList(downloadStates.values.toList())
+            }
+        }
+    }
+
+    private fun observeHostsDownloads() {
+        if (Build.VERSION.SDK_INT < 29) return
+        downloadObservers.values.forEach { it.cancel() }
+        downloadObservers.clear()
+        downloadStates.values.toList().forEach { initial ->
+            val asset = initial.asset
+            val key = asset.browserDownloadUrl
+            downloadObservers[key] = lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    HostsDownloads.observe(applicationContext, asset).collect { info ->
+                        if (info == null) return@collect
+                        val current = downloadStates[key] ?: return@collect
+                        if (current.asset != asset || current.downloadId != null) return@collect
+                        if (key in cancellingDownloads && !info.state.isFinished) return@collect
+                        if (info.state.isFinished) cancellingDownloads.remove(key)
+                        if (current.status == AssetStatus.FINISHED && current.installUri != null &&
+                            info.state != WorkInfo.State.SUCCEEDED) return@collect
+                        downloadStates[key] = HostsDownloadUiState.apply(current, info)
                         adapter.submitList(downloadStates.values.toList())
+                        if (info.state == WorkInfo.State.SUCCEEDED) validateFinishedDownloads()
+                        if (info.state.isFinished) withContext(Dispatchers.IO) { HostsDownloads.cleanup(applicationContext, info.id) }
                     }
-                }
-            } catch (_: CancellationException) {
-                targetUri?.let { deletePendingDownload(it) }
-                withContext(Dispatchers.Main) {
-                    val current = downloadStates[key] ?: return@withContext
-                    downloadStates[key] = current.copy(
-                        status = AssetStatus.CANCELED,
-                        speedBytesPerSec = 0L,
-                        downloadId = null
-                    )
-                    adapter.submitList(downloadStates.values.toList())
-                }
-            } catch (t: Throwable) {
-                Timber.w(t, "Hosts-mapped direct download failed")
-                targetUri?.let { deletePendingDownload(it) }
-                withContext(Dispatchers.Main) {
-                    val current = downloadStates[key] ?: return@withContext
-                    downloadStates[key] = current.copy(
-                        status = AssetStatus.FAILED,
-                        speedBytesPerSec = 0L,
-                        downloadId = null,
-                        error = getString(R.string.update_asset_failed)
-                    )
-                    adapter.submitList(downloadStates.values.toList())
-                }
-            } finally {
-                withContext(Dispatchers.Main) {
-                    manualDownloadJobs.remove(key)
                 }
             }
         }
-        manualDownloadJobs[key] = job
     }
 
     private fun cancelDownload(state: AssetUiState) {
@@ -711,7 +647,8 @@ class UpdateCheckActivity : SettingsUiActivity() {
         if (id != null) {
             downloadManager.remove(id)
         } else {
-            manualDownloadJobs.remove(key)?.cancel()
+            cancellingDownloads.add(key)
+            HostsDownloads.cancel(applicationContext, state.asset)
         }
         speedSamples.remove(key)
         downloadStates[key] = state.copy(
@@ -916,29 +853,6 @@ class UpdateCheckActivity : SettingsUiActivity() {
             }
         }
         return updates
-    }
-
-    private fun createPendingDownloadUri(displayName: String): Uri? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
-        val values = ContentValues().apply {
-            put(MediaStore.Downloads.DISPLAY_NAME, displayName)
-            put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream")
-            put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-            put(MediaStore.Downloads.IS_PENDING, 1)
-        }
-        return contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-    }
-
-    private fun markPendingDownloadComplete(uri: Uri) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
-        val values = ContentValues().apply {
-            put(MediaStore.Downloads.IS_PENDING, 0)
-        }
-        contentResolver.update(uri, values, null, null)
-    }
-
-    private fun deletePendingDownload(uri: Uri) {
-        runCatching { contentResolver.delete(uri, null, null) }
     }
 
     private fun hashMatchesAsset(downloadId: Long?, localUri: Uri, asset: ReleaseAsset): Boolean {

@@ -103,6 +103,33 @@ class MaterialSettingsPagesTest {
         assertEquals(if (dark) android.content.res.Configuration.UI_MODE_NIGHT_YES else android.content.res.Configuration.UI_MODE_NIGHT_NO, night)
     }
 
+    @Test fun updateOverflowMenuOpensMirrorManagement() {
+        val monitor = instrumentation.addMonitor(UpdateMirrorListActivity::class.java.name, null, false)
+        val parent = instrumentation.startActivitySync(Intent(context, UpdateCheckActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        var child: Activity? = null
+        try {
+            instrumentation.waitForIdleSync()
+            onMain {
+                val menu = android.widget.PopupMenu(parent, View(parent)).menu
+                parent.onCreateOptionsMenu(menu)
+                val item = menu.findItem(R.id.action_update_mirrors)
+                assertNotNull(item)
+                assertTrue(item.isVisible)
+                assertTrue(parent.onOptionsItemSelected(item))
+            }
+            child = instrumentation.waitForMonitorWithTimeout(monitor, 30_000)
+            assertTrue(child is UpdateMirrorListActivity)
+            instrumentation.waitForIdleSync()
+            onMain { assertTrue(child!!.findViewById<View>(R.id.addMirrorRuleButton).isShown) }
+            capture(child!!)
+        } finally {
+            instrumentation.removeMonitor(monitor)
+            onMain { child?.finish(); parent.finish() }
+            instrumentation.waitForIdleSync()
+        }
+    }
+
     @Test fun allUpdaterPagesLaunchWithMaterialControlsInBothModes() = modes { dark ->
         for (type in listOf(UpdateCheckActivity::class.java, UpdateHostsSettingsActivity::class.java,
             UpdateMirrorEditActivity::class.java, UpdateMirrorListActivity::class.java)) {
