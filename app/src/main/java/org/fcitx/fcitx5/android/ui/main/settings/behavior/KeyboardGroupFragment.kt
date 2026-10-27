@@ -325,7 +325,8 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
 
     private fun showWebEditorBridgeDialog(session: ImeWebEditorBridgeServer.Session) {
         val msg = getString(
-            R.string.web_editor_bridge_running_message, session.editorUrl, session.apiBaseUrl)
+            R.string.web_editor_bridge_running_message, session.editorUrl, session.apiBaseUrl) +
+            "\n\n" + getString(R.string.web_editor_bridge_pairing_code, session.pairingCode)
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.web_editor_bridge_title)
             .setMessage(msg)

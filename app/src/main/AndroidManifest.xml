@@ -256,6 +256,7 @@
 
         <service
             android:name=".FcitxRemoteService"
+            android:permission="${applicationId}.permission.IPC"
             android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.IPC" />
