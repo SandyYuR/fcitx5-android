@@ -32,6 +32,7 @@ data class AssetUiState(
     val totalBytes: Long = asset.sizeBytes,
     val speedBytesPerSec: Long = 0L,
     val downloadId: Long? = null,
+    val workId: java.util.UUID? = null,
     val installUri: android.net.Uri? = null,
     val error: String? = null
 )

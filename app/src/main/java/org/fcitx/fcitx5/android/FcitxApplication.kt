@@ -40,7 +40,10 @@ import org.fcitx.fcitx5.android.utils.userManager
 import timber.log.Timber
 import kotlin.system.exitProcess
 
-class FcitxApplication : Application() {
+class FcitxApplication : Application(), androidx.work.Configuration.Provider {
+
+    override val workManagerConfiguration: androidx.work.Configuration
+        get() = androidx.work.Configuration.Builder().setMinimumLoggingLevel(android.util.Log.WARN).build()
 
     val coroutineScope = MainScope() + CoroutineName("FcitxApplication")
 
