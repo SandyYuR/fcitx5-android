@@ -118,13 +118,16 @@ class DataDescriptorPlugin : Plugin<Project> {
 
         @TaskAction
         fun execute(inputChanges: InputChanges) {
+            val excluded = excludes.get().map { it.trimEnd('/') }.toSet()
+            fun isExcluded(path: String) = excluded.any { path == it || path.startsWith("$it/") }
             val map =
-                file.exists()
+                (inputChanges.isIncremental && file.exists())
                     .takeIf { it }
                     ?.runCatching {
                         deserialize()
                             // remove all old dirs
                             .filterValues { it.isNotBlank() }
+                            .filterKeys { !isExcluded(it) }
                             .toMutableMap()
                     }
                     ?.getOrNull()
@@ -136,12 +139,12 @@ class DataDescriptorPlugin : Plugin<Project> {
                 else
                     listOf(parentFile) + parentFile.allParents()
             inputChanges.getFileChanges(inputDir).forEach { change ->
-                if (change.file.name == file.name)
+                if (change.file.name == file.name || change.file.isDirectory)
                     return@forEach
                 logger.log(LogLevel.DEBUG, "${change.changeType}: ${change.normalizedPath}")
                 val relativeFile = change.file.relativeTo(file.parentFile)
                 val key = relativeFile.path.replace(File.separatorChar, '/')
-                if (change.changeType == ChangeType.REMOVED || key in excludes.get()) {
+                if (change.changeType == ChangeType.REMOVED || isExcluded(key)) {
                     map.remove(key)
                 } else {
                     map[key] = sha256(change.file)
@@ -149,7 +152,9 @@ class DataDescriptorPlugin : Plugin<Project> {
             }
             // calculate dirs
             inputDir.asFileTree.forEach {
-                it.relativeTo(file.parentFile).allParents().forEach { p ->
+                val relative = it.relativeTo(file.parentFile)
+                if (it.name == file.name || isExcluded(relative.invariantSeparatorsPath)) return@forEach
+                relative.allParents().forEach { p ->
                     map[p.path] = ""
                 }
             }

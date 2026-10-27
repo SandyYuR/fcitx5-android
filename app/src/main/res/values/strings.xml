@@ -281,6 +281,8 @@
     <string name="rime_schema_menu">Rime schemas</string>
     <string name="edit_clipboard">Edit clipboard</string>
     <string name="clipboard_edit_text_hint">Clipboard content</string>
+    <string name="clipboard_edit_entry_missing">This clipboard item no longer exists</string>
+    <string name="clipboard_edit_load_failed">Could not load this clipboard item</string>
     <string name="config_addon_not_loaded">No configuration options available, maybe this addon is disabled when fcitx starts?</string>
     <string name="portrait">Portrait</string>
     <string name="landscape">Landscape</string>
@@ -495,6 +497,19 @@
     <string name="disable_it">Disable it</string>
     <string name="reset_keyboard_on_focus_change">Switch back to keyboard when the focus changes</string>
     <string name="export_user_data">Export user data</string>
+    <string name="restore_data_ready">User data is ready</string>
+    <string name="restore_recovery_title">Restore needs recovery</string>
+    <string name="restore_recovery_explanation">Original directories have been retained. Do not clear app data. Reconnect unavailable storage or resolve the reported conflict, then retry. Diagnostics contain paths and errors, not backup contents.</string>
+    <string name="restore_retry">Retry recovery</string>
+    <string name="restore_save_diagnostics">Save diagnostics</string>
+    <string name="backup_protected_export">Encrypted backup</string>
+    <string name="backup_protected_import">Open encrypted backup</string>
+    <string name="backup_protection_explanation">Backups include input history, clipboard contents and account credentials. Encryption protects this file; keep the password to restore it. Plain ZIP is unencrypted and intended for compatibility. Android system backup contains only settings appearance, not this data.</string>
+    <string name="backup_password">Backup password</string>
+    <string name="backup_password_confirm">Confirm password</string>
+    <string name="backup_password_mismatch">Passwords do not match</string>
+    <string name="backup_enter_password">Enter the backup password</string>
+    <string name="backup_plaintext_zip">Plain ZIP (compatibility)</string>
     <string name="import_user_data">Import user data</string>
     <string name="exception_user_data_filename">The filename extension of %1$s does not indicate fcitx5-android user data</string>
     <string name="exception_user_data_metadata">Unable to find metadata of user data</string>
@@ -610,6 +625,7 @@
     <string name="web_editor_bridge_running_status">Running · %1$s:%2$d</string>
     <string name="web_editor_bridge_running_indicator">🟢 Online Editor running</string>
     <string name="web_editor_bridge_running_message">Server is running.\n\nEditor entry:\n%1$s\n\nAPI base:\n%2$s</string>
+    <string name="web_editor_bridge_pairing_code">Pairing code: %1$s\nOn your PC, open the editor address and enter this six-digit code.</string>
     <string name="web_editor_bridge_start_failed">Failed to start server: %1$s</string>
     <string name="web_editor_bridge_open">Open editor page</string>
     <string name="web_editor_bridge_stop">Stop server</string>

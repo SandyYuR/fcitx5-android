@@ -269,6 +269,8 @@
     <string name="rime_schema_menu">Rime 方案选单</string>
     <string name="edit_clipboard">编辑剪贴板</string>
     <string name="clipboard_edit_text_hint">剪贴板内容</string>
+    <string name="clipboard_edit_entry_missing">这条剪贴板记录已不存在</string>
+    <string name="clipboard_edit_load_failed">无法读取这条剪贴板记录</string>
     <string name="config_addon_not_loaded">无可用配置项，该附加组件可能在 Fcitx 启动时处于禁用状态。</string>
     <string name="portrait">竖屏</string>
     <string name="landscape">横屏</string>
@@ -479,6 +481,19 @@
     <string name="disable_it">禁用它</string>
     <string name="reset_keyboard_on_focus_change">焦点改变时切换回键盘</string>
     <string name="export_user_data">导出用户数据</string>
+    <string name="restore_data_ready">用户数据已就绪</string>
+    <string name="restore_recovery_title">需要恢复导入状态</string>
+    <string name="restore_recovery_explanation">原始目录已保留，请不要清除应用数据。请重新连接存储或处理提示的路径冲突，再重试恢复。诊断仅包含路径与错误，不含备份内容。</string>
+    <string name="restore_retry">重试恢复</string>
+    <string name="restore_save_diagnostics">保存诊断</string>
+    <string name="backup_protected_export">加密备份</string>
+    <string name="backup_protected_import">打开加密备份</string>
+    <string name="backup_protection_explanation">备份含输入历史、剪贴板与账号凭据。加密可保护此文件，请保管密码以便恢复。明文 ZIP 不加密，仅用于兼容其他版本。Android 系统备份仅保留设置界面外观，不包含上述数据。</string>
+    <string name="backup_password">备份密码</string>
+    <string name="backup_password_confirm">再次输入密码</string>
+    <string name="backup_password_mismatch">两次密码不一致</string>
+    <string name="backup_enter_password">请输入备份密码</string>
+    <string name="backup_plaintext_zip">明文 ZIP（兼容）</string>
     <string name="import_user_data">导入用户数据</string>
     <string name="exception_user_data_filename">文件 %1$s 的拓展名不是 fcitx5-android 用户数据</string>
     <string name="exception_user_data_metadata">找不到用户数据的元数据</string>
@@ -599,6 +614,7 @@
     <string name="web_editor_bridge_running_status">运行中 · %1$s:%2$d</string>
     <string name="web_editor_bridge_running_indicator">🟢 在线编辑器运行中</string>
     <string name="web_editor_bridge_running_message">服务已启动。\n\n编辑器入口：\n%1$s\n\nAPI 基地址：\n%2$s</string>
+    <string name="web_editor_bridge_pairing_code">配对码：%1$s\n在 PC 打开编辑器地址，输入这 6 位数字即可连接。</string>
     <string name="web_editor_bridge_start_failed">启动服务失败：%1$s</string>
     <string name="web_editor_bridge_open">打开编辑器页面</string>
     <string name="web_editor_bridge_stop">停止服务</string>

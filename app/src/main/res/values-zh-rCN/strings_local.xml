@@ -17,7 +17,8 @@
     <string name="server_alias_title">类型</string>
     <string name="server_custom_alias_hint">输入自定义别名</string>
     <string name="server_address_field_title">服务器地址</string>
-    <string name="server_address_field_hint">例如 http://192.168.10.45:5033</string>
+    <string name="server_address_field_hint">例如 https://sync.example.com</string>
+    <string name="server_transport_help">不写协议时使用 HTTPS。局域网 HTTP 服务请明确填写 http://；HTTP 不加密账号和剪贴板数据。</string>
     <string name="server_profile_syncclipboard">SyncClipboard</string>
     <string name="server_profile_oneclip">OneClip</string>
     <string name="server_profile_clipcascade">ClipCascade</string>

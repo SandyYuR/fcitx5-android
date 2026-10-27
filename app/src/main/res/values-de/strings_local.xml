@@ -21,7 +21,7 @@
     <string name="server_alias_title">Typ</string>
     <string name="server_custom_alias_hint">Benutzerdefinierten Alias eingeben</string>
     <string name="server_address_field_title">Serveradresse</string>
-    <string name="server_address_field_hint">Zum Beispiel http://192.168.10.45:5033</string>
+    <string name="server_address_field_hint">Zum Beispiel https://sync.example.com</string>
     <string name="server_profile_syncclipboard">SyncClipboard</string>
     <string name="server_profile_oneclip">OneClip</string>
     <string name="server_profile_clipcascade">ClipCascade</string>
