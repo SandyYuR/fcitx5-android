@@ -17,8 +17,8 @@ interface ClipboardDao {
     @Query("UPDATE ${ClipboardEntry.TABLE_NAME} SET pinned=:pinned WHERE id=:id")
     suspend fun updatePinStatus(id: Int, pinned: Boolean)
 
-    @Query("UPDATE ${ClipboardEntry.TABLE_NAME} SET text=:text WHERE id=:id")
-    suspend fun updateText(id: Int, text: String)
+    @Query("UPDATE ${ClipboardEntry.TABLE_NAME} SET text=:text WHERE id=:id AND deleted=0")
+    suspend fun updateText(id: Int, text: String): Int
 
     @Query("UPDATE ${ClipboardEntry.TABLE_NAME} SET timestamp=:timestamp WHERE id=:id")
     suspend fun updateTime(id: Int, timestamp: Long)

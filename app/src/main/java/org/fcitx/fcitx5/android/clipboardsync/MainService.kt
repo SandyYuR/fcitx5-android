@@ -79,9 +79,6 @@ class MainService : Service() {
         private const val PROFILE_ONE_CLIP = "oneclip"
         private const val PROFILE_CLIP_CASCADE = "clipcascade"
         private const val PROFILE_CUSTOM = "custom"
-        private const val DEFAULT_SYNC_CLIPBOARD_URL = "http://192.168.10.45:5033"
-        private const val DEFAULT_ONE_CLIP_URL = "http://192.168.10.45:8899"
-        private const val DEFAULT_CLIP_CASCADE_URL = "http://192.168.10.45:8080"
         private val CONNECTIVITY_RETRY_DELAYS_MS = longArrayOf(3_000L, 10_000L, 30_000L)
         private const val EVENT_BACKEND_HEALTH_CHECK_MS = 30_000L
         private const val EVENT_BACKEND_FALLBACK_PULL_MS = 60_000L
@@ -154,7 +151,7 @@ class MainService : Service() {
 
         private fun defaultSharedPreferencesOrNull(context: Context): SharedPreferences? {
             return try {
-                PreferenceManager.getDefaultSharedPreferences(context)
+                PreferenceManager.getDefaultSharedPreferences(context).also(SyncServerPreferences::migrate)
             } catch (e: IllegalStateException) {
                 Log.i(TAG, "Skip accessing shared preferences: ${e.message}")
                 null
@@ -164,7 +161,8 @@ class MainService : Service() {
         fun shouldAutoStart(context: Context): Boolean {
             if (!isCredentialStorageUnlocked(context)) return false
             val prefs = defaultSharedPreferencesOrNull(context) ?: return false
-            return prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)
+            return prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED) &&
+                SyncServerPreferences.hasConfiguredCurrent(prefs)
         }
 
         fun startSyncService(
@@ -179,6 +177,15 @@ class MainService : Service() {
             }
             val prefs = defaultSharedPreferencesOrNull(context) ?: return
             if (!forceEnableSync && !prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)) {
+                return
+            }
+            if (!SyncServerPreferences.hasConfiguredCurrent(prefs)) {
+                if (forceEnableSync) {
+                    androidx.core.content.ContextCompat.getMainExecutor(context.applicationContext).execute {
+                        android.widget.Toast.makeText(context.applicationContext, R.string.please_set_server_address,
+                            android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
                 return
             }
             if (imeSyncActive) {
@@ -243,9 +250,11 @@ class MainService : Service() {
     private var healthMonitorJob: Job? = null
     private var networkReconnectJob: Job? = null
     private var scope = createScope()
+    private val clipboardTasks = ClipboardTaskQueue()
     private var transformerRegistered = false
     private var serviceRunning = false
     private var selfStarted = false
+    private var stopRequested = false
     private var networkCallbackRegistered = false
     private var foregroundActive = false
     private var screenStateReceiverRegistered = false
@@ -356,10 +365,8 @@ class MainService : Service() {
                     // issues one compensating query immediately, so a screenshot taken while the
                     // screen was off is not missed until the next observer callback.
                     updateScreenshotWatcher()
-                    // Re-acquire the foreground state dropped at screen-off; this is also the
-                    // recovery point after a dataSync quota timeout, since a new 24h window may
-                    // allow it again. startForegroundCompat rebuilds the notification, so the
-                    // state line is current without a separate refresh.
+                    // Re-acquire the foreground state dropped at screen-off. Quota expiry
+                    // instead unregisters this receiver and waits for an explicit enable.
                     updateForegroundState()
                 }
                 Intent.ACTION_USER_PRESENT -> {
@@ -398,6 +405,7 @@ class MainService : Service() {
         super.onCreate()
         Log.d(TAG, "MainService onCreate")
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        SyncServerPreferences.migrate(prefs)
         // Service state moved out of the default SharedPreferences (see SyncStateStore):
         // these values embed clipboard payloads, and the default prefs file is loaded whole
         // into every process that touches PreferenceManager, the IME included.
@@ -419,18 +427,39 @@ class MainService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         ensureScope()
         selfStarted = true
+        if (intent?.action == ACTION_PAUSE_SYNC) {
+            pauseSyncAndStop()
+            return START_NOT_STICKY
+        }
+        if (!SyncServerPreferences.hasConfiguredCurrent(prefs)) {
+            stopAndRemoveSelf()
+            return START_NOT_STICKY
+        }
+        // A focus/network refresh may already be queued when the user pauses, or when
+        // Android expires the dataSync quota. Only an explicit enable may undo the pause.
+        if ((intent?.action == null || intent.action == ACTION_START_SYNC ||
+                    intent.action == ACTION_RECONNECT_SYNC) &&
+            intent?.getBooleanExtra(EXTRA_FORCE_ENABLE_SYNC, false) != true &&
+            !prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)
+        ) {
+            stopAndRemoveSelf()
+            return START_NOT_STICKY
+        }
+        stopRequested = false
         handleActionIntent(intent)
         start()
         return START_NOT_STICKY
     }
 
     fun start() {
+        if (stopRequested) return
         ensureScope()
         if (serviceRunning) {
             // This is the path an IME focus change takes (startSyncService / stopSyncService both
             // end up here), and focus is what flips active <-> idle in the notification;
             // updateForegroundState rebuilds it.
             updateForegroundState()
+            if (stopRequested) return
             // refreshSyncRuntime() used to run unconditionally here, and its startPeriodicSync()
             // starts by calling stopPeriodicSync(): the polling loop / SSE / WebSocket was torn
             // down and rebuilt — followed by an immediate pull — on every focus in and out.
@@ -450,6 +479,7 @@ class MainService : Service() {
         serviceRunning = true
         ensureSelfStarted()
         updateForegroundState()
+        if (stopRequested) return
         registerClipboardListenerIfNeeded()
         registerPrefsListenerIfNeeded()
         registerNetworkCallbackIfNeeded()
@@ -490,6 +520,31 @@ class MainService : Service() {
         scope.coroutineContext.cancelChildren()
     }
 
+    private fun stopAndRemoveSelf() {
+        stopRequested = true
+        try {
+            stop()
+            scope.coroutineContext.cancelChildren()
+            stopForegroundState()
+        } finally {
+            selfStarted = false
+            // Dropping the notification alone does not satisfy Android 15's timeout
+            // contract: the started service must actually stop within a few seconds.
+            stopSelf()
+        }
+    }
+
+    private fun pauseSyncAndStop() {
+        // Unregister the preference listener first; changing quick_sync must not
+        // re-enter the runtime while it is being torn down.
+        stopAndRemoveSelf()
+        prefs.edit()
+            .putBoolean(PREF_QUICK_SYNC, false)
+            .putBoolean(PREF_QUICK_SYNC_UNREACHABLE, false)
+            .apply()
+        QuickSyncTileService.requestTileRefresh(this)
+    }
+
     override fun onDestroy() {
         if (serviceRunning) {
             stop()
@@ -518,8 +573,14 @@ class MainService : Service() {
             Log.d(TAG, "Receive filter changed: $key")
             invalidateReceiveFilterCache()
         } else if (key == PREF_QUICK_SYNC || key == PREF_SYNC_INTERVAL || key == PREF_SCREENSHOT_SYNC) {
+            if (key == PREF_QUICK_SYNC && !prefs.getBoolean(PREF_QUICK_SYNC, DEFAULT_QUICK_SYNC_ENABLED)) {
+                stopAndRemoveSelf()
+                QuickSyncTileService.requestTileRefresh(this)
+                return@OnSharedPreferenceChangeListener
+            }
             Log.d(TAG, "Preference changed: $key, restarting sync")
             updateForegroundState()
+            if (stopRequested) return@OnSharedPreferenceChangeListener
             updateScreenshotWatcher()
             refreshSyncRuntime()
             if (key == PREF_QUICK_SYNC) {
@@ -530,24 +591,22 @@ class MainService : Service() {
 
     private fun handleLocalClipboardUpdate(content: String, origin: String) {
         if (content.isBlank()) return
-        val normalizedContent = HostClipboardFilter.transform(content)
-        if (consumeIgnoredRemoteClipboardContent(normalizedContent)) {
-            return
-        }
-        if (normalizedContent == lastRemoteContent || normalizedContent == lastUploadedContent) {
-            return
-        }
-        if (normalizedContent != lastLocalContent) {
-            lastLocalContent = normalizedContent
-        }
-        scope.launch {
-            val queued = enqueuePendingUpload(normalizedContent)
-            if (!queued) {
-                return@launch
+        clipboardTasks.submit(scope, prepare = prepare@{
+            val normalizedContent = HostClipboardFilter.transform(content)
+            currentCoroutineContext().ensureActive()
+            if (consumeIgnoredRemoteClipboardContent(content) ||
+                consumeIgnoredRemoteClipboardContent(normalizedContent) ||
+                isClipboardEcho(content, normalizedContent, lastRemoteContent, lastUploadedContent, HostClipboardFilter::transform)) {
+                return@prepare false
             }
-            Log.d(TAG, "[Push] Detected local change from $origin, queued for upload")
-            flushPendingUploads("local-change:$origin")
-        }
+            lastLocalContent = normalizedContent
+            enqueuePendingUpload(normalizedContent)
+        }, consume = { queued ->
+            if (queued) {
+                Log.d(TAG, "[Push] Detected local change from $origin, queued for upload")
+                flushPendingUploads("local-change:$origin")
+            }
+        })
     }
 
     private fun handleScreenshotClipboardUri(uri: String) {
@@ -949,15 +1008,15 @@ class MainService : Service() {
             var importedAll = true
             var latestItemAlreadyInHistory = false
             itemsToImport.forEachIndexed { index, data ->
-                val remoteText = data.text
-                Log.d(TAG, "[Pull] Processed data: type=${data.type}, text=$remoteText")
+                val remoteText = filteredRemoteText(data)
+                Log.d(TAG, "[Pull] Processed data: type=${data.type}, textLength=${remoteText.length}")
                 acknowledgePendingUploads(remoteText)
                 if (shouldSkipRemoteImportForLocalEcho(data, remoteText)) {
                     Log.d(TAG, "[Pull] Skipping echoed local clipboard item in remote history")
                     if (index == itemsToImport.lastIndex) latestItemAlreadyInHistory = true
                     return@forEachIndexed
                 }
-                val imported = importRemoteClipboardEntry(data, downloadUri)
+                val imported = importRemoteClipboardEntry(data, downloadUri, remoteText)
                 if (index == itemsToImport.lastIndex) latestItemAlreadyInHistory = imported
                 importedAll = imported && importedAll
             }
@@ -969,7 +1028,7 @@ class MainService : Service() {
             }
 
             val latestItem = itemsToImport.last()
-            val remoteText = latestItem.text
+            val remoteText = filteredRemoteText(latestItem)
             if (
                 remoteText.isNotEmpty() &&
                 remoteText != lastLocalContent &&
@@ -1003,14 +1062,21 @@ class MainService : Service() {
         }
     }
 
-    private fun importRemoteClipboardEntry(data: ClipboardData, downloadUri: Uri?): Boolean {
+    private fun filteredRemoteText(data: ClipboardData): String =
+        if (data.type.equals("Text", ignoreCase = true)) HostClipboardFilter.transform(data.text) else data.text
+
+    private fun importRemoteClipboardEntry(data: ClipboardData, downloadUri: Uri?, filteredText: String): Boolean {
         val remoteService = connection?.remoteService ?: return false
-        val remoteText = data.text.takeIf { it.isNotBlank() } ?: return false
+        val remoteText = filteredText.takeIf { it.isNotBlank() } ?: return false
         grantRemoteClipboardPermissions(remoteText, downloadUri)
         return runCatching {
             remoteService.importRemoteClipboardEntry(
                 remoteText,
-                if (remoteText.startsWith("content://") || remoteText.startsWith("file://")) remoteText else "",
+                when {
+                    remoteText.startsWith("content://") || remoteText.startsWith("file://") -> remoteText
+                    remoteText != data.text -> data.text
+                    else -> ""
+                },
                 downloadUri?.toString().orEmpty(),
                 importedClipboardMimeType(data),
                 data.remoteTimestamp.takeIf { it > 0L } ?: System.currentTimeMillis(),
@@ -1124,10 +1190,14 @@ class MainService : Service() {
                         Log.d(TAG, "[ClipCascade] Rejected text payload by receive filter")
                         return@launch
                     }
-                    acknowledgePendingUploads(data.payload)
-                    rememberAcceptedRemotePayload(payloadFingerprint)
+                    val normalized = HostClipboardFilter.transform(data.payload)
+                    if (normalized == lastLocalContent || isClipboardEcho(
+                            data.payload, normalized, lastRemoteContent, lastUploadedContent, HostClipboardFilter::transform
+                        )) return@launch
+                    acknowledgePendingUploads(normalized)
+                    rememberAcceptedRemotePayload(normalized)
                     withContext(Dispatchers.Main) {
-                        updateSystemClipboard(data.payload)
+                        updateSystemClipboard(normalized)
                     }
                 }
 
@@ -1228,9 +1298,9 @@ class MainService : Service() {
     /**
      * Decide whether a base64 ClipCascade payload is worth decoding.
      *
-     * Uses `base64Chars * 3 / 4` as the decoded-size estimate so both the receive filter and the
+     * Uses the Base64 decoded-size estimate so both the receive filter and the
      * hard cap are applied before the allocation, not after it (see A9). The estimate is an upper
-     * bound (padding makes the real size 1-2 bytes smaller), so the callers re-check the decoded
+     * bound including omitted padding, and the callers still re-check the decoded
      * length against the hard cap.
      */
     private fun acceptsClipCascadePayload(fileName: String, payload: String): Boolean {
@@ -1440,14 +1510,6 @@ class MainService : Service() {
 
     private fun handleActionIntent(intent: Intent?) {
         when (intent?.action) {
-            ACTION_PAUSE_SYNC -> {
-                prefs.edit()
-                    .putBoolean(PREF_QUICK_SYNC, false)
-                    .putBoolean(PREF_QUICK_SYNC_UNREACHABLE, false)
-                    .apply()
-                QuickSyncTileService.requestTileRefresh(this)
-            }
-
             ACTION_RECONNECT_SYNC -> {
                 scheduleReconnect("notification-reconnect", immediate = true)
             }
@@ -1559,9 +1621,10 @@ class MainService : Service() {
             ) {
                 Log.w(
                     TAG,
-                    "[Service] Foreground service start not allowed; system is likely in punishment state for dataSync. Running without foreground notification.",
+                    "[Service] Foreground service start not allowed; pausing sync until explicitly enabled.",
                     e
                 )
+                pauseSyncAndStop()
             } else {
                 throw e
             }
@@ -1572,17 +1635,13 @@ class MainService : Service() {
     /**
      * Android 15+ dataSync quota expiry (roughly 6 hours per day).
      *
-     * Without an override the system throws once the quota runs out. Degrade instead: drop the
-     * foreground state and stop the loops, keeping the process alive so the next IME activation
-     * can start a fresh foreground session (see C21).
+     * Stop the service and persist the paused state. IME focus and screen broadcasts
+     * must not immediately restart it while the quota is still exhausted.
      */
     @RequiresApi(35)
     override fun onTimeout(startId: Int, fgsType: Int) {
         Log.w(TAG, "[Service] Foreground dataSync quota expired (startId=$startId), pausing sync loops")
-        stopPeriodicSync()
-        stopHealthMonitor()
-        stopForegroundState()
-        super.onTimeout(startId, fgsType)
+        pauseSyncAndStop()
     }
 
     /**
@@ -1750,8 +1809,9 @@ class MainService : Service() {
     private fun isSuppressedRemoteClipboard(data: ClipboardData): Boolean {
         val remoteText = data.text.trim()
         if (remoteText.isEmpty()) return false
+        val normalized = filteredRemoteText(data).trim()
         synchronized(suppressedRemoteClipboardContents) {
-            return remoteText in suppressedRemoteClipboardContents
+            return remoteText in suppressedRemoteClipboardContents || normalized in suppressedRemoteClipboardContents
         }
     }
 
@@ -2141,13 +2201,7 @@ class MainService : Service() {
             else -> null
         }
         val stored = key?.let { prefs.getString(it, null) }?.trim().orEmpty()
-        if (stored.isNotEmpty()) return stored
-        return when (profileKey) {
-            PROFILE_SYNC_CLIPBOARD -> DEFAULT_SYNC_CLIPBOARD_URL
-            PROFILE_ONE_CLIP -> DEFAULT_ONE_CLIP_URL
-            PROFILE_CLIP_CASCADE -> DEFAULT_CLIP_CASCADE_URL
-            else -> ""
-        }
+        return stored
     }
 
     private fun currentUsernameForProfile(profileKey: String): String {
@@ -2521,15 +2575,16 @@ class MainService : Service() {
 
     private fun forceUploadClipboard(content: String, origin: String) {
         if (content.isBlank()) return
-        val normalizedContent = HostClipboardFilter.transform(content)
-        scope.launch {
-            val queued = enqueuePendingUpload(normalizedContent)
-            if (!queued) {
-                return@launch
+        clipboardTasks.submit(scope, prepare = {
+            val normalizedContent = HostClipboardFilter.transform(content)
+            currentCoroutineContext().ensureActive()
+            enqueuePendingUpload(normalizedContent)
+        }, consume = { queued ->
+            if (queued) {
+                Log.d(TAG, "[Push] Received explicit upload request from $origin")
+                flushPendingUploads("explicit:$origin", force = true)
             }
-            Log.d(TAG, "[Push] Received explicit upload request from $origin")
-            flushPendingUploads("explicit:$origin", force = true)
-        }
+        })
     }
 
     private enum class RuntimeMode {

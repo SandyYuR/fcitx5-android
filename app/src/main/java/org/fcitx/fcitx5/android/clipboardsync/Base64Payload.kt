@@ -22,11 +22,25 @@ object Base64Payload {
      * line breaks overestimated the decoded size by up to ~3%, which rejected payloads sitting
      * just under the user's size filter.
      *
-     * The result is an upper bound — padding makes the real size 1 or 2 bytes smaller — so a
-     * caller that must be exact still re-checks after decoding.
+     * Account for omitted padding as accepted by Android's decoder. In particular, two or
+     * three Base64 characters produce one or two bytes, rather than zero. Invalid Base64 is
+     * still rejected by the decoder; callers also re-check the actual decoded length.
      */
     fun estimatedDecodedBytes(payload: String): Long {
-        val encodedChars = payload.count { !it.isWhitespace() }.toLong()
-        return encodedChars / 4L * 3L
+        var encodedChars = 0L
+        var previous = '\u0000'
+        var last = '\u0000'
+        for (char in payload) {
+            if (char.isWhitespace()) continue
+            encodedChars++
+            previous = last
+            last = char
+        }
+        val remainder = encodedChars % 4
+        val padding = if (remainder == 0L) {
+            (if (last == '=') 1 else 0) + (if (previous == '=') 1 else 0)
+        } else 0
+        val tail = when (remainder) { 0L -> 0; 3L -> 2; else -> 1 }
+        return (encodedChars / 4L * 3L + tail - padding).coerceAtLeast(0)
     }
 }

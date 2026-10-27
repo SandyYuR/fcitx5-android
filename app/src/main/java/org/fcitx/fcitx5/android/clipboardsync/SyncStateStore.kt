@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.clipboardsync
 import android.content.Context
 import android.content.SharedPreferences
 import timber.log.Timber
+import org.fcitx.fcitx5.android.utils.FileUtil
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
@@ -39,6 +40,8 @@ class SyncStateStore(context: Context) {
      * file that the queued delete has not reached yet.
      */
     private val pending = ConcurrentHashMap<String, Any>()
+    private data class Migration(val prefs: SharedPreferences, val original: String)
+    private val migrations = ConcurrentHashMap<String, Migration>()
 
     /**
      * Keys with a write queued but not yet performed, mapped to their latest requested value.
@@ -77,11 +80,13 @@ class SyncStateStore(context: Context) {
             is String -> return overlay
             else -> Unit // 没有待落盘的写入，去读文件
         }
-        return runCatching {
-            val file = fileFor(key)
-            if (!file.isFile) null else file.readText().takeIf { it.isNotBlank() }
-        }.onFailure { Timber.w(it, "Failed to read sync state: $key") }.getOrNull()
+        return readPersisted(key)
     }
+
+    private fun readPersisted(key: String): String? = runCatching {
+        val file = fileFor(key)
+        if (!file.isFile) null else file.readText().takeIf { it.isNotBlank() }
+    }.onFailure { Timber.w(it, "Failed to read sync state: $key") }.getOrNull()
 
     /**
      * Persist [value] for [key], or delete the entry when [value] is null or blank.
@@ -97,16 +102,16 @@ class SyncStateStore(context: Context) {
      * The write itself goes to a temporary file and renames, so a process death mid-write
      * cannot leave a truncated JSON document that fails to parse on the next start.
      */
-    fun write(key: String, value: String?) {
-        // 空白值与 null 一样表示删除，与 read 的过滤规则保持一致
-        val overlay: Any = value?.takeIf { it.isNotBlank() } ?: DELETED
-        pending[key] = overlay
+    fun write(key: String, value: String?) = enqueue(key, value?.takeIf { it.isNotBlank() } ?: DELETED)
+
+    private fun enqueue(key: String, value: Any, preservePending: Boolean = false) {
         val claimed = synchronized(handoff) {
-            // latest-wins：同一 key 的多次写只在 dirty 里保留最后一个值
-            dirty[key] = overlay
+            val next = if (preservePending) pending[key] ?: value else value
+            pending[key] = next
+            // A later write also retries earlier failures, without a tight retry loop on full disks.
+            dirty.putAll(pending)
             drainScheduled.compareAndSet(false, true)
         }
-        // 提交任务放在锁外：抢到槽位就一定提交，因此在跑的 drain 只可能是本线程安排的
         if (claimed) writeExecutor.execute { drain() }
     }
 
@@ -140,56 +145,49 @@ class SyncStateStore(context: Context) {
         }
     }
 
-    /** 落盘单个 key（[DELETED] 表示删除），失败只记日志，不中断 drain。 */
+    /** Keep failed values in the overlay; only a successful disk operation acknowledges migration. */
     private fun persist(key: String, value: Any) {
-        runCatching {
+        val succeeded = runCatching {
             if (value == DELETED) {
-                fileFor(key).delete()
-                return@runCatching
+                val file = fileFor(key)
+                check(!file.exists() || file.delete()) { "Cannot delete sync state" }
+            } else {
+                dir.mkdirs()
+                FileUtil.writeAtomically(fileFor(key), value as String)
             }
-            val content = value as String
-            dir.mkdirs()
-            val target = fileFor(key)
-            val tmp = File(dir, "${target.name}.tmp")
-            tmp.writeText(content)
-            if (!tmp.renameTo(target)) {
-                target.writeText(content)
-                tmp.delete()
-            }
-        }.onFailure { Timber.w(it, "Failed to write sync state: $key") }
-        // Drop the overlay only while it still holds exactly the value just written; a newer write
-        // that replaced it in the meantime must stay visible to read.
-        pending.remove(key, value)
+        }.onFailure { Timber.w(it, "Failed to write sync state: $key") }.isSuccess
+        if (succeeded) {
+            pending.remove(key, value)
+            completeMigration(key)
+        }
     }
 
-    /**
-     * Move legacy values out of the default SharedPreferences into this store, once.
-     *
-     * A value already present here wins, so this is safe to call on every service start.
-     */
+    private fun completeMigration(key: String) {
+        val migration = migrations[key] ?: return
+        val sameSource = runCatching { migration.prefs.getString(key, null) == migration.original }.getOrDefault(false)
+        if (!sameSource || migration.prefs.edit().remove(key).commit()) {
+            migrations.remove(key, migration)
+        } else Timber.w("Cannot acknowledge sync state migration: $key")
+    }
+
+    /** Retain the legacy source until its replacement (or a newer value) is actually on disk. */
     fun migrateFromPreferences(prefs: SharedPreferences, keys: List<String>) {
-        val editor = prefs.edit()
-        var migrated = false
         keys.forEach { key ->
             val legacy = runCatching { prefs.getString(key, null) }
             if (legacy.isFailure) {
-                // A value of another type under this key (an older build wrote a different
-                // shape). It cannot be migrated, but it still has to go, or getString keeps
-                // throwing here on every start and the key never leaves the preferences file.
                 Timber.w(legacy.exceptionOrNull(), "Dropping unreadable legacy sync state: $key")
-                editor.remove(key)
-                migrated = true
+                writeExecutor.execute { prefs.edit().remove(key).commit() }
                 return@forEach
             }
-            val value = legacy.getOrNull()
-            if (value.isNullOrBlank()) return@forEach
-            if (read(key) == null) write(key, value)
-            editor.remove(key)
-            migrated = true
-        }
-        if (migrated) {
-            editor.apply()
-            Timber.i("Migrated clipboard-sync state out of default preferences")
+            val value = legacy.getOrNull()?.takeIf { it.isNotBlank() } ?: return@forEach
+            migrations[key] = Migration(prefs, value)
+            if (pending.containsKey(key) || readPersisted(key) == null) {
+                // Do not replace a newer in-memory value, including an explicitly queued deletion.
+                enqueue(key, value, preservePending = true)
+            } else {
+                // Execute after any already-running writer; an existing disk value takes precedence.
+                writeExecutor.execute { if (readPersisted(key) != null) completeMigration(key) }
+            }
         }
     }
 

@@ -2,21 +2,36 @@ package org.fcitx.fcitx5.android.clipboardsync.network
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
+import kotlin.coroutines.resumeWithException
 
-class OneClipEventClient(serverUrl: String) {
+class OneClipEventClient internal constructor(serverUrl: String,
+    private val httpClient: OkHttpClient, private val client: OkHttpClient,
+    private val handshakeTimeoutMs: Long) {
+    constructor(serverUrl: String) : this(serverUrl, sharedHttpClient, sharedSseClient, 15_000)
     companion object {
         private const val ROOT_PATH = "/"
         private const val CURRENT_PATH = "/api/current"
         private const val EVENTS_PATH = "/api/events"
+        private val sharedHttpClient = OkHttpClient.Builder()
+            .addNetworkInterceptor(SyncTransportPolicy)
+            .connectTimeout(10, TimeUnit.SECONDS).readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS).callTimeout(30, TimeUnit.SECONDS).build()
+        private val sharedSseClient = sharedHttpClient.newBuilder()
+            .readTimeout(0, TimeUnit.SECONDS).callTimeout(0, TimeUnit.SECONDS).build()
     }
 
     private val json = Json {
@@ -27,14 +42,10 @@ class OneClipEventClient(serverUrl: String) {
     }
 
     private val baseUrl = normalizeServerUrl(serverUrl)
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(0, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
-        .build()
-
     private val connected = AtomicBoolean(false)
     private val closeRequested = AtomicBoolean(false)
+    private val connectStarted = AtomicBoolean(false)
+    private val callLock = Any()
     private val connectSignal = CompletableDeferred<Unit>()
     private val closeSignal = CompletableDeferred<Throwable?>()
 
@@ -42,9 +53,16 @@ class OneClipEventClient(serverUrl: String) {
     private var activeCall: Call? = null
 
     suspend fun connect(onEvent: (OneClipEventData) -> Unit) {
-        warmupSession()
-        openEventStream(onEvent)
-        connectSignal.await()
+        check(connectStarted.compareAndSet(false, true)) { "OneClip connection already started" }
+        try {
+            warmupSession()
+            openEventStream(onEvent)
+            try { withTimeout(handshakeTimeoutMs) { connectSignal.await() } }
+            catch (e: TimeoutCancellationException) { throw IOException("OneClip SSE handshake timed out", e) }
+        } catch (e: Exception) {
+            close()
+            throw e
+        }
     }
 
     suspend fun awaitClose(): Throwable? = closeSignal.await()
@@ -52,13 +70,25 @@ class OneClipEventClient(serverUrl: String) {
     fun isConnected(): Boolean = connected.get()
 
     fun close() {
-        closeRequested.set(true)
-        connected.set(false)
-        activeCall?.cancel()
-        activeCall = null
+        val call = synchronized(callLock) {
+            closeRequested.set(true)
+            connected.set(false)
+            activeCall.also { activeCall = null }
+        }
+        call?.cancel()
+        if (!connectSignal.isCompleted) connectSignal.completeExceptionally(IOException("OneClip connection closed"))
         if (!closeSignal.isCompleted) {
             closeSignal.complete(null)
         }
+    }
+
+    private fun track(call: Call) = synchronized(callLock) {
+        if (closeRequested.get()) { call.cancel(); throw IOException("OneClip connection closed") }
+        activeCall = call
+    }
+
+    private fun release(call: Call) = synchronized(callLock) {
+        if (activeCall === call) activeCall = null
     }
 
     private suspend fun warmupSession() = withContext(Dispatchers.IO) {
@@ -72,7 +102,7 @@ class OneClipEventClient(serverUrl: String) {
             .get()
             .build()
         val call = client.newCall(request)
-        activeCall = call
+        track(call)
 
         thread(
             name = "OneClipEventStream",
@@ -83,9 +113,10 @@ class OneClipEventClient(serverUrl: String) {
                     if (!response.isSuccessful) {
                         throw IOException("OneClip SSE failed: ${response.code} ${response.message}")
                     }
-                    connected.set(true)
-                    if (!connectSignal.isCompleted) {
-                        connectSignal.complete(Unit)
+                    synchronized(callLock) {
+                        if (closeRequested.get()) throw IOException("OneClip connection closed")
+                        connected.set(true)
+                        if (!connectSignal.isCompleted) connectSignal.complete(Unit)
                     }
 
                     val source = response.body?.source()
@@ -116,6 +147,8 @@ class OneClipEventClient(serverUrl: String) {
                 } else {
                     fail(error)
                 }
+            } finally {
+                release(call)
             }
         }
     }
@@ -131,16 +164,28 @@ class OneClipEventClient(serverUrl: String) {
         onEvent(event)
     }
 
-    private fun request(path: String) {
+    private suspend fun request(path: String) {
         val request = Request.Builder()
             .url(url(path))
             .get()
             .build()
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw IOException("OneClip warmup failed for $path: ${response.code} ${response.message}")
+        val call = httpClient.newCall(request)
+        track(call)
+        try {
+            awaitResponse(call).use { response ->
+                if (!response.isSuccessful) throw IOException("OneClip warmup failed for $path: ${response.code} ${response.message}")
             }
-        }
+        } finally { release(call) }
+    }
+
+    private suspend fun awaitResponse(call: Call): Response = suspendCancellableCoroutine { continuation ->
+        continuation.invokeOnCancellation { call.cancel() }
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) { continuation.resumeWithException(e) }
+            override fun onResponse(call: Call, response: Response) {
+                continuation.resume(response) { _, value, _ -> value.close() }
+            }
+        })
     }
 
     private fun fail(error: Throwable) {
@@ -169,13 +214,7 @@ class OneClipEventClient(serverUrl: String) {
     }
 
     private fun normalizeServerUrl(url: String): String {
-        val trimmed = url.trim()
-        val withScheme = if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-            trimmed
-        } else {
-            "http://$trimmed"
-        }
-        return withScheme.trimEnd('/')
+        return SyncServerAddress.normalize(url)
     }
 
     private fun isCanceled(error: Exception): Boolean {

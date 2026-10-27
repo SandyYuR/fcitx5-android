@@ -79,9 +79,9 @@ object SettingsActivity {
             private const val PROFILE_ONE_CLIP = "oneclip"
             private const val PROFILE_CLIP_CASCADE = "clipcascade"
             private const val PROFILE_CUSTOM = "custom"
-            private const val DEFAULT_SYNC_CLIPBOARD_URL = "http://192.168.10.45:5033"
-            private const val DEFAULT_ONE_CLIP_URL = "http://192.168.10.45:8899"
-            private const val DEFAULT_CLIP_CASCADE_URL = "http://192.168.10.45:8080"
+            private const val DEFAULT_SYNC_CLIPBOARD_URL = ""
+            private const val DEFAULT_ONE_CLIP_URL = ""
+            private const val DEFAULT_CLIP_CASCADE_URL = ""
         }
 
         private data class ServerProfile(
@@ -203,6 +203,7 @@ object SettingsActivity {
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val prefs = preferenceManager.sharedPreferences ?: return
+            org.fcitx.fcitx5.android.clipboardsync.SyncServerPreferences.migrate(prefs)
             migrateSyncIntervalPreferenceType(prefs)
             setPreferencesFromResource(R.xml.preferences_local, rootKey)
             removeIconStartIndent(preferenceScreen)
@@ -316,9 +317,6 @@ object SettingsActivity {
 
             val resolvedType = when {
                 !currentType.isNullOrBlank() -> currentType
-                currentAddress == DEFAULT_SYNC_CLIPBOARD_URL -> PROFILE_SYNC_CLIPBOARD
-                currentAddress == DEFAULT_ONE_CLIP_URL -> PROFILE_ONE_CLIP
-                currentAddress == DEFAULT_CLIP_CASCADE_URL -> PROFILE_CLIP_CASCADE
                 currentAddress.isBlank() -> PROFILE_SYNC_CLIPBOARD
                 else -> PROFILE_CUSTOM
             }
