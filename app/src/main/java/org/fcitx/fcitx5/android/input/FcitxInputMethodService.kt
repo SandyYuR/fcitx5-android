@@ -389,27 +389,26 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private val voiceInputCommitReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.action) {
-                BuildConfig.APPLICATION_ID + VoiceInputIpc.PARTIAL_ACTION_SUFFIX -> {
-                    val text = intent.getStringExtra(VoiceInputIpc.EXTRA_PARTIAL_TEXT).orEmpty()
-                    // 只记长度：release 也会输出（android.util.Log 不受 timberDebugEnabled 控制），
-                    // 完整识别文本属 AGENTS.md §8.5 禁止进入日志的输入内容。
-                    android.util.Log.i("FcitxVoiceInput", "floating partial received len=${text.length}")
-                    if (text.isNotBlank()) {
-                        lifecycleScope.launch { setVoiceComposingText(text) }
-                    }
-                }
-                BuildConfig.APPLICATION_ID + VoiceInputIpc.COMMIT_ACTION_SUFFIX -> {
-                    val text = intent.getStringExtra(VoiceInputIpc.EXTRA_COMMIT_TEXT).orEmpty()
-                    android.util.Log.i("FcitxVoiceInput", "floating commit received len=${text.length}")
-                    if (text.isNotBlank()) {
-                        lifecycleScope.launch { commitVoiceText(text) }
-                        VoiceInputProviderManager.floatingCommitListener?.invoke(text)
-                        // Floating fallback commits end the session without a provider
-                        // onSessionEnded; restore the pre-voice layout here as well.
-                        inputView?.onVoiceInputFinished()
-                    }
-                }
+            val message = intent ?: return
+            val final = when (message.action) {
+                BuildConfig.APPLICATION_ID + VoiceInputIpc.PARTIAL_ACTION_SUFFIX -> false
+                BuildConfig.APPLICATION_ID + VoiceInputIpc.COMMIT_ACTION_SUFFIX -> true
+                else -> return
+            }
+            val payload = runCatching {
+                val token = message.getStringExtra(VoiceInputIpc.EXTRA_FLOATING_SESSION_TOKEN) ?: return
+                val text = message.getStringExtra(if (final) VoiceInputIpc.EXTRA_COMMIT_TEXT else VoiceInputIpc.EXTRA_PARTIAL_TEXT)
+                    ?.takeIf { it.isNotBlank() } ?: return
+                token to text
+            }.getOrNull() ?: return
+            VoiceInputProviderManager.deliverFloatingResult(payload.first, final) {
+                val text = payload.second
+                android.util.Log.i("FcitxVoiceInput", "floating result accepted final=$final len=${text.length}")
+                if (final) {
+                    commitVoiceText(text)
+                    VoiceInputProviderManager.floatingCommitListener?.invoke(text)
+                    inputView?.onVoiceInputFinished()
+                } else setVoiceComposingText(text)
             }
         }
     }
