@@ -11,18 +11,18 @@ import org.mechdancer.dependency.manager.ManagedHandler
 import org.mechdancer.dependency.manager.managedHandler
 import kotlin.reflect.KClass
 
-abstract class UniqueViewComponent<T : UniqueViewComponent<T, V>, V : View> :
+abstract class UniqueViewComponent<T : UniqueViewComponent<T, V>, V : View>(
+    final override val type: KClass<T>
+) :
     IUniqueComponent<T>,
     Dependent,
     ManagedHandler by managedHandler() {
 
     abstract val view: V
 
-    override val type: KClass<out IUniqueComponent<*>> by lazy { defaultType() }
+    override fun equals(other: Any?): Boolean = this === other || type.java.isInstance(other)
 
-    override fun equals(other: Any?): Boolean = defaultEquals(other)
-
-    override fun hashCode(): Int = defaultHashCode()
+    override fun hashCode(): Int = type.java.hashCode()
 
 }
 

@@ -109,7 +109,7 @@ import kotlin.math.min
 
 private const val VOICE_INPUT_TAG = "FcitxVoiceInput"
 
-class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(),
+class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(KawaiiBarComponent::class),
     InputBroadcastReceiver {
 
     private val context by manager.context()

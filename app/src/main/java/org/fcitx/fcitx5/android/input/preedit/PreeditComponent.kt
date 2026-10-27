@@ -13,13 +13,13 @@ import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.theme
 import org.mechdancer.dependency.Dependent
-import org.mechdancer.dependency.UniqueComponent
+import org.fcitx.fcitx5.android.input.dependency.InputUniqueComponent
 import org.mechdancer.dependency.manager.ManagedHandler
 import org.mechdancer.dependency.manager.managedHandler
 import splitties.dimensions.dp
 import splitties.views.horizontalPadding
 
-class PreeditComponent : UniqueComponent<PreeditComponent>(), Dependent, InputBroadcastReceiver,
+class PreeditComponent : InputUniqueComponent<PreeditComponent>(PreeditComponent::class), Dependent, InputBroadcastReceiver,
     ManagedHandler by managedHandler() {
 
     private val context by manager.context()
@@ -30,6 +30,7 @@ class PreeditComponent : UniqueComponent<PreeditComponent>(), Dependent, InputBr
      * Set to false when preedit is displayed elsewhere (e.g., in floating CandidatesView).
      */
     var shouldDisplay = true
+    var onStatusHintPresented: (Long, Long) -> Unit = { _, _ -> }
 
     /**
      * 键盘卡片上方圆角半径（px）的实际取值。
@@ -52,7 +53,8 @@ class PreeditComponent : UniqueComponent<PreeditComponent>(), Dependent, InputBr
             cardTopRadiusProvider = { cardTopRadiusProvider() },
             preeditRadiusProvider = {
                 context.dp(ThemeManager.prefs.preeditRadius.getValue()).toFloat()
-            }
+            },
+            onStatusHintPresented = { id, frameTime -> onStatusHintPresented(id, frameTime) }
         ).apply {
             // 编码区胶囊：底部两侧的反向圆角与键盘卡片上方圆角在卡片顶边上相切接续，
             // 见 ContinuousCornerGeometry。

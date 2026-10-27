@@ -25,7 +25,7 @@ import splitties.views.dsl.core.lParams
 import splitties.views.dsl.core.matchParent
 import timber.log.Timber
 
-class InputWindowManager : UniqueViewComponent<InputWindowManager, FrameLayout>(),
+class InputWindowManager : UniqueViewComponent<InputWindowManager, FrameLayout>(InputWindowManager::class),
     InputBroadcastReceiver {
 
     private val context by manager.context()

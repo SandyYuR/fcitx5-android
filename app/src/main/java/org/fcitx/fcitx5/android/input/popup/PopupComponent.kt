@@ -21,7 +21,7 @@ import org.fcitx.fcitx5.android.input.dependency.theme
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
 import org.mechdancer.dependency.Dependent
-import org.mechdancer.dependency.UniqueComponent
+import org.fcitx.fcitx5.android.input.dependency.InputUniqueComponent
 import org.mechdancer.dependency.manager.ManagedHandler
 import org.mechdancer.dependency.manager.managedHandler
 import org.mechdancer.dependency.manager.must
@@ -32,7 +32,7 @@ import splitties.views.dsl.core.lParams
 import java.util.LinkedList
 
 class PopupComponent :
-    UniqueComponent<PopupComponent>(), Dependent, ManagedHandler by managedHandler() {
+    InputUniqueComponent<PopupComponent>(PopupComponent::class), Dependent, ManagedHandler by managedHandler() {
 
     init {
         org.fcitx.fcitx5.android.input.config.ConfigProviders.addPopupPresetListener {

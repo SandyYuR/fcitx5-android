@@ -372,18 +372,20 @@ data object RandomThemeAction : ButtonAction() {
         view: View?,
         onActionComplete: (() -> Unit)?
     ) {
-        val result = ThemeManager.randomizeTheme()
-        context.toast(
-            context.getString(
-                R.string.random_theme_toast,
-                result.total,
-                result.contrast,
-                result.hue,
-                result.sat,
-                result.light
+        service.lifecycleScope.launch {
+            val result = ThemeManager.randomizeTheme()
+            context.toast(
+                context.getString(
+                    R.string.random_theme_toast,
+                    result.total,
+                    result.contrast,
+                    result.hue,
+                    result.sat,
+                    result.light
+                )
             )
-        )
-        onActionComplete?.invoke()
+            onActionComplete?.invoke()
+        }
     }
 }
 

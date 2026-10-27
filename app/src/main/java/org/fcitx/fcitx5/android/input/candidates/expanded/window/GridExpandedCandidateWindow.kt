@@ -18,7 +18,7 @@ import org.fcitx.fcitx5.android.input.candidates.expanded.SpanHelper
 import org.fcitx.fcitx5.android.input.candidates.expanded.decoration.GridDecoration
 
 class GridExpandedCandidateWindow :
-    BaseExpandedCandidateWindow<GridExpandedCandidateWindow>() {
+    BaseExpandedCandidateWindow<GridExpandedCandidateWindow>(GridExpandedCandidateWindow::class) {
 
     private val gridSpanCount by lazy {
         AppPrefs.getInstance().keyboard.run {

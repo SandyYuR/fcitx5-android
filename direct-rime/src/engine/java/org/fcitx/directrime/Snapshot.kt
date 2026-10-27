@@ -22,6 +22,16 @@ class Snapshot(
     val preview: String,
     val labels: Array<String>
 ) {
+    /** Rime still processes releases; only identical, unhandled presentation updates can be elided. */
+    fun isUnchangedRelease(previous: Snapshot?): Boolean = previous != null && !handled &&
+        commit.isEmpty() && generation == previous.generation && gate == previous.gate &&
+        optionsRevision == previous.optionsRevision && preedit == previous.preedit &&
+        cursorBytes == previous.cursorBytes && schema == previous.schema &&
+        schemaName == previous.schemaName && ascii == previous.ascii && page == previous.page &&
+        lastPage == previous.lastPage && highlighted == previous.highlighted && preview == previous.preview &&
+        candidates.contentEquals(previous.candidates) && comments.contentEquals(previous.comments) &&
+        labels.contentEquals(previous.labels) && tabs.contentEquals(previous.tabs)
+
     val ready get() = gate == 0
     val cursorUtf16 get() = preedit.toByteArray(Charsets.UTF_8).let {
         String(it, 0, cursorBytes.coerceIn(0, it.size), Charsets.UTF_8).length

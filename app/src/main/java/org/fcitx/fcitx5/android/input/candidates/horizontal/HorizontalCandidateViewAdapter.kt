@@ -30,6 +30,8 @@ open class HorizontalCandidateViewAdapter(
     initialCandidateIndexBadgeContent: CandidateIndexBadgeContent = CandidateIndexBadgeContent.EngineLabel,
 ) : RecyclerView.Adapter<CandidateViewHolder>() {
 
+    private object BadgePositionChanged
+
     private var horizontalOverflowEnabled = initialHorizontalOverflowEnabled
     private var candidateIndexBadgeEnabled = initialCandidateIndexBadgeEnabled
     private var candidateIndexBadgePosition = initialCandidateIndexBadgePosition
@@ -131,7 +133,7 @@ open class HorizontalCandidateViewAdapter(
         // "content is identical; only metadata (total/indexOffset/font) changed"
         // keeps its notifyDataSetChanged: a structural plan would emit no ops at
         // all, and RecyclerView would keep stale ViewHolder styling.
-        if (old.contentEquals(data)) {
+        if (fontChanged || old.contentEquals(data)) {
             trace("notifyDataSetChanged") { notifyDataSetChanged() }
             return
         }
@@ -149,6 +151,11 @@ open class HorizontalCandidateViewAdapter(
             notifyItemRangeInserted(plan.insertPosition, plan.insertCount)
         } else if (plan.removeCount > 0) {
             notifyItemRangeRemoved(plan.removePosition, plan.removeCount)
+        }
+        // RecyclerView moves retained suffix holders without rebinding them. Only
+        // the badge/index depends on their new position; keep candidate text/layout intact.
+        if (candidateIndexBadgeEnabled && plan.shiftedSuffixCount > 0) {
+            notifyItemRangeChanged(plan.shiftedSuffixStart, plan.shiftedSuffixCount, BadgePositionChanged)
         }
         // Re-bind the highlight outside the structurally changed range. Positions
         // are resolved by [CandidateUpdatePlan] AFTER the insert/remove shift; a
@@ -240,6 +247,19 @@ open class HorizontalCandidateViewAdapter(
             candidateIndexBadgePosition,
         )
         holder.update(position + indexOffset, candidate)
+    }
+
+    override fun onBindViewHolder(holder: CandidateViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && payloads.all { it === BadgePositionChanged }) {
+            holder.ui.setIndexBadge(
+                if (candidateIndexBadgeEnabled) resolveCandidateIndexBadgeText(position, candidates[position]) else null,
+                candidateIndexBadgePosition,
+            )
+            holder.updateIndex(position + indexOffset)
+            holder.ui.setActive(position == activeIndex)
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
     }
 
     @CallSuper

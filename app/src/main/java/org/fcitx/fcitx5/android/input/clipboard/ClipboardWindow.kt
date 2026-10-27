@@ -66,7 +66,7 @@ import splitties.views.dsl.core.withTheme
 
 class ClipboardWindow(
     private val initialCategory: ClipboardCategory? = null
-) : InputWindow.ExtendedInputWindow<ClipboardWindow>() {
+) : InputWindow.ExtendedInputWindow<ClipboardWindow>(ClipboardWindow::class) {
     companion object {
         private const val LAST_OPENED_CATEGORY_KEY = "clipboard_last_opened_category"
     }

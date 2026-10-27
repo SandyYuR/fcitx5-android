@@ -6,18 +6,24 @@
 package org.fcitx.fcitx5.android.input.keyboard
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.core.CapabilityFlag
 import org.fcitx.fcitx5.android.core.CapabilityFlags
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.daemon.launchOnReady
+import org.fcitx.fcitx5.android.daemon.FcitxDaemon
+import org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException
+import org.fcitx.fcitx5.android.input.InputMenuRequestTracker
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateComponent
 import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
+import org.fcitx.fcitx5.android.input.dependency.inputView
 import org.fcitx.fcitx5.android.input.dialog.RimeSchemaMenuDialog
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Reset
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Selection
@@ -39,13 +45,13 @@ import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.manager.SubModeManager
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import org.mechdancer.dependency.Dependent
-import org.mechdancer.dependency.UniqueComponent
+import org.fcitx.fcitx5.android.input.dependency.InputUniqueComponent
 import org.mechdancer.dependency.manager.ManagedHandler
 import org.mechdancer.dependency.manager.managedHandler
 import org.mechdancer.dependency.manager.must
 
 class CommonKeyActionListener :
-    UniqueComponent<CommonKeyActionListener>(), Dependent, ManagedHandler by managedHandler() {
+    InputUniqueComponent<CommonKeyActionListener>(CommonKeyActionListener::class), Dependent, ManagedHandler by managedHandler() {
 
     enum class BackspaceSwipeState {
         Stopped, Selection, Reset
@@ -57,6 +63,9 @@ class CommonKeyActionListener :
     private val preeditState: PreeditEmptyStateComponent by manager.must()
     private val horizontalCandidate: HorizontalCandidateComponent by manager.must()
     private val windowManager: InputWindowManager by manager.must()
+    private val owningInputView by manager.inputView()
+    private val schemaMenuRequests = InputMenuRequestTracker()
+    private var schemaMenuJob: Job? = null
 
     private var lastPickerType by AppPrefs.getInstance().internal.lastPickerType
 
@@ -104,10 +113,26 @@ class CommonKeyActionListener :
      * 同一 selector 语义），点选后走 activateAction 写回引擎。
      */
     private fun showRimeSchemaMenu() {
-        fcitx.launchOnReady {
-            service.lifecycleScope.launch {
-                service.showDialog(RimeSchemaMenuDialog.build(it, service, context))
-            }
+        val ownerService = service
+        val ownerView = owningInputView
+        val ownerContext = context
+        val connection = fcitx
+        val editor = ownerService.editorSession.capture() ?: return
+        val inputSession = FcitxDaemon.currentInputSession
+        schemaMenuJob?.cancel()
+        val request = schemaMenuRequests.newRequest {
+            ownerService.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                editor.isCurrent() && ownerService.inputView === ownerView &&
+                ownerView.isAttachedToWindow && ownerView.isShown &&
+                FcitxDaemon.currentInputSession == inputSession
+        }
+        schemaMenuJob = ownerService.lifecycleScope.launch {
+            val dialog = try {
+                schemaMenuRequests.loadIfCurrent(request) {
+                    connection.runOnReady { RimeSchemaMenuDialog.build(this, ownerService, ownerContext, request::isCurrent) }
+                }
+            } catch (_: FcitxDisconnectedException) { null } ?: return@launch
+            ownerService.showDialog(dialog)
         }
     }
 

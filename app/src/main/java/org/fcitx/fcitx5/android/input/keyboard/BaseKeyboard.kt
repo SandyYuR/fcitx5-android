@@ -43,6 +43,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.job
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.AuxBarAction
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
@@ -103,6 +105,18 @@ abstract class BaseKeyboard(
     private val auxBarConfigProvider: () -> AuxBarConfig? = { null },
     private val auxBarKeysProvider: () -> List<KeyDef> = { emptyList() }
 ) : ConstraintLayout(context) {
+    private val previewMacroInput = MacroInputController { Timber.w(it, "Macro key cleanup failed") }
+
+    private data class MacroContext(
+        val execution: MacroInputController.Execution,
+        val service: org.fcitx.fcitx5.android.input.FcitxInputMethodService?,
+        val editor: org.fcitx.fcitx5.android.input.EditorSessionTracker.Token?
+    )
+
+    override fun onDetachedFromWindow() {
+        previewMacroInput.cancelAll()
+        super.onDetachedFromWindow()
+    }
 
     /**
      * 当前生效的排列：普通还是分体。在每次 [reloadLayout] 开头重算，行内容与分体几何都读它，
@@ -2886,85 +2900,106 @@ abstract class BaseKeyboard(
      * @param macroAction the MacroAction to execute
      */
     private fun executeMacro(macroAction: MacroAction) {
+        val service = getService()
+        val editor = service?.editorSession?.capture()
+        if (service != null && editor == null) return
+        val listener = keyActionListener
+        val controller = service?.macroInput ?: previewMacroInput
         findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
-            Timber.v("executeMacro: steps=%d", macroAction.steps.size)
+            val execution = controller.begin(coroutineContext.job) {
+                editor?.isCurrent() ?: (isAttachedToWindow && keyActionListener === listener)
+            }
+            val macro = MacroContext(execution, service, editor)
+            var completed = false
+            try {
+                Timber.v("executeMacro: steps=%d", macroAction.steps.size)
 
-            // General macro execution
-            for ((index, step) in macroAction.steps.withIndex()) {
-                Timber.v("executeMacro: executing step %d type=%s", index, step::class.java.simpleName)
-                when (step) {
-                    is MacroStep.Down -> {
-                        step.keys.forEach { keyRef ->
-                            when (keyRef) {
-                                is KeyRef.Fcitx -> {
-                                    // Fcitx keys follow the Fcitx path:
-                                    // - Mappable keys are sent by simulating physical keyboard events
-                                    // - Unmappable keys fall back to Fcitx sendKey to avoid silent drops
-                                    Timber.v("executeMacro: Down Fcitx key=%s", keyRef.code)
-                                    sendFcitxKeyDown(keyRef.code)
+                // General macro execution
+                for ((index, step) in macroAction.steps.withIndex()) {
+                    execution.checkCurrent()
+                    Timber.v("executeMacro: executing step %d type=%s", index, step::class.java.simpleName)
+                    when (step) {
+                        is MacroStep.Down -> {
+                            step.keys.forEach { keyRef ->
+                                when (keyRef) {
+                                    is KeyRef.Fcitx -> {
+                                        // Fcitx keys follow the Fcitx path:
+                                        // - Mappable keys are sent by simulating physical keyboard events
+                                        // - Unmappable keys fall back to Fcitx sendKey to avoid silent drops
+                                        Timber.v("executeMacro: Down Fcitx key=%s", keyRef.code)
+                                        sendFcitxKeyDown(keyRef.code, macro)
+                                    }
+                                    is KeyRef.Android -> sendAndroidKeyDown(keyRef.code, macro)
                                 }
-                                is KeyRef.Android -> sendAndroidKeyDown(keyRef.code)
                             }
+                            delay(50) // key interval
                         }
-                        delay(50) // key interval
-                    }
-                    is MacroStep.Up -> {
-                        step.keys.forEach { keyRef ->
-                            when (keyRef) {
-                                is KeyRef.Fcitx -> {
-                                    Timber.v("executeMacro: Up Fcitx key=%s", keyRef.code)
-                                    sendFcitxKeyUp(keyRef.code)
+                        is MacroStep.Up -> {
+                            step.keys.forEach { keyRef ->
+                                when (keyRef) {
+                                    is KeyRef.Fcitx -> {
+                                        Timber.v("executeMacro: Up Fcitx key=%s", keyRef.code)
+                                        sendFcitxKeyUp(keyRef.code, macro)
+                                    }
+                                    is KeyRef.Android -> sendAndroidKeyUp(keyRef.code, macro)
                                 }
-                                is KeyRef.Android -> sendAndroidKeyUp(keyRef.code)
                             }
+                            delay(50) // key interval
                         }
-                        delay(50) // key interval
-                    }
-                    is MacroStep.Tap -> {
-                        step.keys.forEach { keyRef ->
-                            when (keyRef) {
-                                is KeyRef.Fcitx -> {
-                                    Timber.v("executeMacro: Tap Fcitx key=%s", keyRef.code)
-                                    sendFcitxKeyTap(keyRef.code)
+                        is MacroStep.Tap -> {
+                            step.keys.forEach { keyRef ->
+                                when (keyRef) {
+                                    is KeyRef.Fcitx -> {
+                                        Timber.v("executeMacro: Tap Fcitx key=%s", keyRef.code)
+                                        sendFcitxKeyTap(keyRef.code, macro)
+                                    }
+                                    is KeyRef.Android -> sendAndroidKeyTap(keyRef.code, macro)
                                 }
-                                is KeyRef.Android -> sendAndroidKeyTap(keyRef.code)
                             }
+                            delay(50) // key interval
                         }
-                        delay(50) // key interval
-                    }
-                    is MacroStep.Text -> {
-                        Timber.v("executeMacro: Text length=%d", step.text.length)
-                        commitText(step.text)
-                    }
-                    is MacroStep.Edit -> {
-                        Timber.v("executeMacro: Edit action=%s", step.action)
-                        executeEditAction(step.action)
-                    }
-                    is MacroStep.AppAction -> {
-                        Timber.v("executeMacro: App action id=%s", step.id)
-                        executeAppAction(step.id)
-                    }
-                    is MacroStep.Shortcut -> {
-                        Timber.v("executeMacro: Shortcut modifiers=%d key=%s", step.modifiers.size, step.key)
-                        executeShortcut(step.modifiers, step.key)
-                    }
-                    is MacroStep.LayerSwitch -> {
-                        Timber.v("executeMacro: %s target=%s", step.mode, step.target)
-                        keyActionListener?.onKeyAction(
-                            KeyAction.LayerSwitchAction(
-                                step.mode,
-                                step.target
-                            ),
-                            KeyActionListener.Source.Keyboard
-                        )
+                        is MacroStep.Text -> {
+                            Timber.v("executeMacro: Text length=%d", step.text.length)
+                            commitText(step.text)
+                        }
+                        is MacroStep.Edit -> {
+                            Timber.v("executeMacro: Edit action=%s", step.action)
+                            executeEditAction(step.action)
+                        }
+                        is MacroStep.AppAction -> {
+                            Timber.v("executeMacro: App action id=%s", step.id)
+                            executeAppAction(step.id)
+                        }
+                        is MacroStep.Shortcut -> {
+                            Timber.v("executeMacro: Shortcut modifiers=%d key=%s", step.modifiers.size, step.key)
+                            executeShortcut(step.modifiers, step.key, macro)
+                        }
+                        is MacroStep.LayerSwitch -> {
+                            Timber.v("executeMacro: %s target=%s", step.mode, step.target)
+                            keyActionListener?.onKeyAction(
+                                KeyAction.LayerSwitchAction(
+                                    step.mode,
+                                    step.target
+                                ),
+                                KeyActionListener.Source.Keyboard
+                            )
+                        }
                     }
                 }
-            }
-            if (macroAction.hasOneShotLayerConsumingStep()) {
-                keyActionListener?.onKeyAction(
-                    KeyAction.MacroConsumedAction,
-                    KeyActionListener.Source.Keyboard
-                )
+                execution.checkCurrent()
+                if (macroAction.hasOneShotLayerConsumingStep()) {
+                    keyActionListener?.onKeyAction(
+                        KeyAction.MacroConsumedAction,
+                        KeyActionListener.Source.Keyboard
+                    )
+                }
+                completed = true
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                Timber.w(failure, "Macro execution failed")
+            } finally {
+                execution.finish(completed)
             }
         }
     }
@@ -2988,9 +3023,8 @@ abstract class BaseKeyboard(
      * Execute shortcut as syntactic sugar:
      * modifiers down + key tap + modifiers up.
      */
-    private suspend fun executeShortcut(modifiers: List<KeyRef>, key: KeyRef) {
+    private suspend fun executeShortcut(modifiers: List<KeyRef>, key: KeyRef, macro: MacroContext) {
         val modifierDownSteps = mutableListOf<KeyRef>()
-        val modifierUpSteps = mutableListOf<KeyRef>()
         val normalizedKey = when (key) {
             is KeyRef.Fcitx -> {
                 if (key.code.length == 1 && key.code[0].isLetter()) {
@@ -3001,7 +3035,7 @@ abstract class BaseKeyboard(
             }
             is KeyRef.Android -> key
         }
-        
+
         for (mod in modifiers) {
             val isSupportedModifier = when ((mod as? KeyRef.Fcitx)?.code) {
                 "Ctrl_L", "Ctrl_R",
@@ -3017,34 +3051,34 @@ abstract class BaseKeyboard(
             }
             if (isSupportedModifier || mod is KeyRef.Android) {
                 modifierDownSteps.add(mod)
-                modifierUpSteps.add(mod)
             }
         }
 
-        // Generic down/tap/up flow
-        // Press all modifiers down
-        for (mod in modifierDownSteps) {
-            when (mod) {
-                is KeyRef.Fcitx -> sendFcitxKeyDown(mod.code)
-                is KeyRef.Android -> sendAndroidKeyDown(mod.code)
+        val heldModifiers = mutableListOf<MacroInputController.Press>()
+        try {
+            for (mod in modifierDownSteps) {
+                val press = when (mod) {
+                    is KeyRef.Fcitx -> sendFcitxKeyDown(mod.code, macro)
+                    is KeyRef.Android -> sendAndroidKeyDown(mod.code, macro)
+                }
+                heldModifiers.add(press)
+                delay(50)
+            }
+
+            // key tap
+            when (normalizedKey) {
+                is KeyRef.Fcitx -> sendFcitxKeyTap(normalizedKey.code, macro)
+                is KeyRef.Android -> sendAndroidKeyTap(normalizedKey.code, macro)
             }
             delay(50)
-        }
-        
-        // key tap
-        when (normalizedKey) {
-            is KeyRef.Fcitx -> sendFcitxKeyTap(normalizedKey.code)
-            is KeyRef.Android -> sendAndroidKeyTap(normalizedKey.code)
-        }
-        delay(50)
-        
-        // Release all modifiers (reverse order)
-        for (mod in modifierUpSteps.asReversed()) {
-            when (mod) {
-                is KeyRef.Fcitx -> sendFcitxKeyUp(mod.code)
-                is KeyRef.Android -> sendAndroidKeyUp(mod.code)
+
+            // Release all modifiers (reverse order)
+            for (press in heldModifiers.asReversed()) {
+                press.release()
+                delay(50)
             }
-            delay(50)
+        } finally {
+            heldModifiers.asReversed().forEach { it.release(cancelled = true) }
         }
     }
 
@@ -3385,122 +3419,69 @@ abstract class BaseKeyboard(
         } else 0
     }
 
-    /**
-     * Send Fcitx key tap event (down + up)
-     */
-    private suspend fun sendFcitxKeyTap(code: String) {
+    private data class MacroFcitxKey(
+        val keyCode: Int,
+        val scanCode: Int,
+        val shift: Boolean,
+        val action: String,
+        val states: KeyStates
+    )
+
+    private fun resolveMacroKey(code: String): MacroFcitxKey {
         val isLetter = code.length == 1 && code[0].isLetter()
-        val isUppercaseLetter = isLetter && code[0].isUpperCase()
-        val capsOn = isSimulatedCapsLockOn()
-        val shouldPressShift = if (isLetter) {
-            isUppercaseLetter.xor(capsOn)
-        } else {
-            shouldShiftSymbol(code)
-        }
-        val fallbackAct = if (isLetter) code.lowercase() else code
-        // Every key is held for the same interval, modifiers included. Modifiers used to be held
-        // longer, on the theory that Rime needs it to recognize a standalone modifier tap; it does
-        // not. librime's AsciiComposer tells a lone modifier from a "modifier + key" combo by event
-        // order, not elapsed time, and only imposes an upper bound (release within 500ms). The hold
-        // exists only so the down/up pair looks like a real keystroke to apps that receive the
-        // forwarded events. Same value as FcitxInputMethodService.STANDALONE_MODIFIER_HOLD_MS.
-        val keyHoldDelayMs = 50L
-
+        val shift = if (isLetter) code[0].isUpperCase().xor(isSimulatedCapsLockOn()) else shouldShiftSymbol(code)
         val keyCode = mapSpecialFcitxToAndroidKey(code) ?: mapFcitxToAndroidKey(code)
-        val scanCode = mapFcitxToScanCode(code, keyCode)
+        return MacroFcitxKey(keyCode, mapFcitxToScanCode(code, keyCode), shift,
+            if (isLetter) code.lowercase() else code,
+            if (shift) KeyStates(KeyState.Virtual, KeyState.Shift) else KeyStates.Empty)
+    }
 
-        // Send through the physical keyboard path so Rime can recognize correctly
-        val service = getService()
-        if (service != null && keyCode >= 0) {
-            if (shouldPressShift) {
-                service.sendSimulatedKeyEvent(shiftKeyCode, shiftScanCode, KeyEvent.ACTION_DOWN, fromMacro = true)
-            }
-            // Key down
-            service.sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_DOWN, fromMacro = true)
-            delay(keyHoldDelayMs)
-            // Key up
-            service.sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_UP, fromMacro = true)
-            if (shouldPressShift) {
-                service.sendSimulatedKeyEvent(shiftKeyCode, shiftScanCode, KeyEvent.ACTION_UP, fromMacro = true)
-            }
-        } else {
-            val states = if (shouldPressShift) KeyStates(KeyState.Virtual, KeyState.Shift) else KeyStates.Empty
-            // Fall back to original method
-            onAction(
-                KeyAction.FcitxKeyAction(act = fallbackAct, code = scanCode, states = states, up = false),
-                KeyActionListener.Source.Keyboard
-            )
-            delay(keyHoldDelayMs)
-            onAction(
-                KeyAction.FcitxKeyAction(act = fallbackAct, code = scanCode, states = states, up = true),
-                KeyActionListener.Source.Keyboard
-            )
+    private suspend fun sendFcitxKeyTap(code: String, macro: MacroContext) {
+        val press = sendFcitxKeyDown(code, macro)
+        try {
+            // Keep the existing physical down/up interval, including standalone modifiers.
+            delay(50L)
+        } finally {
+            press.release(cancelled = !macro.execution.job.isActive || !macro.execution.isCurrent)
         }
     }
 
-    /**
-     * Send Fcitx key down event
-     */
-    private fun sendFcitxKeyDown(code: String) {
-        val isLetter = code.length == 1 && code[0].isLetter()
-        val isUppercaseLetter = isLetter && code[0].isUpperCase()
-        val capsOn = isSimulatedCapsLockOn()
-        val shouldPressShift = if (isLetter) {
-            isUppercaseLetter.xor(capsOn)
-        } else {
-            shouldShiftSymbol(code)
-        }
-        val fallbackAct = if (isLetter) code.lowercase() else code
-        val keyCode = mapSpecialFcitxToAndroidKey(code) ?: mapFcitxToAndroidKey(code)
-        val scanCode = mapFcitxToScanCode(code, keyCode)
-
-        // Send through the physical keyboard path so Rime can recognize correctly
-        val service = getService()
-        if (service != null && keyCode >= 0) {
-            if (shouldPressShift) {
-                service.sendSimulatedKeyEvent(shiftKeyCode, shiftScanCode, KeyEvent.ACTION_DOWN, fromMacro = true)
+    private fun sendFcitxKeyDown(code: String, macro: MacroContext): MacroInputController.Press {
+        val press = macro.execution.press(KeyRef.Fcitx(code))
+        val key = resolveMacroKey(code)
+        val service = macro.service
+        val editor = macro.editor
+        if (service != null && editor != null && key.keyCode >= 0) {
+            fun send(keyCode: Int, scanCode: Int) {
+                press.send(
+                    down = { service.sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_DOWN, fromMacro = true) },
+                    up = { cancelled -> service.releaseMacroKey(keyCode, scanCode, editor, cancelled) }
+                )
             }
-            service.sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_DOWN, fromMacro = true)
+            if (key.shift) send(shiftKeyCode, shiftScanCode)
+            send(key.keyCode, key.scanCode)
         } else {
-            val states = if (shouldPressShift) KeyStates(KeyState.Virtual, KeyState.Shift) else KeyStates.Empty
-            // Fall back to original method
-            onAction(
-                KeyAction.FcitxKeyAction(act = fallbackAct, code = scanCode, states = states, up = false),
-                KeyActionListener.Source.Keyboard
+            press.send(
+                down = { onAction(KeyAction.FcitxKeyAction(key.action, key.scanCode, key.states, up = false)) },
+                up = {
+                    if (macro.execution.isCurrent) {
+                        onAction(KeyAction.FcitxKeyAction(key.action, key.scanCode, key.states, up = true))
+                    }
+                }
             )
         }
+        return press
     }
 
-    /**
-     * Send Fcitx key up event
-     */
-    private fun sendFcitxKeyUp(code: String) {
-        val isLetter = code.length == 1 && code[0].isLetter()
-        val isUppercaseLetter = isLetter && code[0].isUpperCase()
-        val capsOn = isSimulatedCapsLockOn()
-        val shouldPressShift = if (isLetter) {
-            isUppercaseLetter.xor(capsOn)
-        } else {
-            shouldShiftSymbol(code)
-        }
-        val fallbackAct = if (isLetter) code.lowercase() else code
-        val keyCode = mapSpecialFcitxToAndroidKey(code) ?: mapFcitxToAndroidKey(code)
-        val scanCode = mapFcitxToScanCode(code, keyCode)
-
-        // Send through the physical keyboard path so Rime can recognize correctly
-        val service = getService()
-        if (service != null && keyCode >= 0) {
-            service.sendSimulatedKeyEvent(keyCode, scanCode, KeyEvent.ACTION_UP, fromMacro = true)
-            if (shouldPressShift) {
-                service.sendSimulatedKeyEvent(shiftKeyCode, shiftScanCode, KeyEvent.ACTION_UP, fromMacro = true)
-            }
-        } else {
-            val states = if (shouldPressShift) KeyStates(KeyState.Virtual, KeyState.Shift) else KeyStates.Empty
-            // Fall back to original method
-            onAction(
-                KeyAction.FcitxKeyAction(act = fallbackAct, code = scanCode, states = states, up = true),
-                KeyActionListener.Source.Keyboard
-            )
+    private fun sendFcitxKeyUp(code: String, macro: MacroContext) {
+        macro.execution.release(KeyRef.Fcitx(code)) {
+            // Explicit Up can also release a key held by another input source.
+            val key = resolveMacroKey(code)
+            val service = macro.service
+            if (service != null && key.keyCode >= 0) {
+                service.sendSimulatedKeyEvent(key.keyCode, key.scanCode, KeyEvent.ACTION_UP, fromMacro = true)
+                if (key.shift) service.sendSimulatedKeyEvent(shiftKeyCode, shiftScanCode, KeyEvent.ACTION_UP, fromMacro = true)
+            } else onAction(KeyAction.FcitxKeyAction(key.action, key.scanCode, key.states, up = true))
         }
     }
 
@@ -3537,45 +3518,39 @@ abstract class BaseKeyboard(
     /**
      * Send Android key down event
      */
-    private fun sendAndroidKeyDown(keyCode: Int) {
-        if (keyCode < 0) return
-        val service = getService() ?: return
-        val event = android.view.KeyEvent(
-            android.view.KeyEvent.ACTION_DOWN,
-            keyCode
+    private fun sendAndroidKeyDown(keyCode: Int, macro: MacroContext): MacroInputController.Press {
+        val press = macro.execution.press(KeyRef.Android(keyCode))
+        if (keyCode < 0) return press
+        val originalConnection = macro.service?.currentInputConnection
+        press.send(
+            down = { originalConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode)) },
+            up = { cancelled ->
+                val current = macro.execution.isCurrent
+                if (current) {
+                    val now = android.os.SystemClock.uptimeMillis()
+                    macro.service?.currentInputConnection?.sendKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_UP,
+                        keyCode, 0, 0, 0, 0, if (cancelled) KeyEvent.FLAG_CANCELED else 0))
+                }
+            }
         )
-        service.currentInputConnection?.sendKeyEvent(event)
+        return press
     }
 
     /**
      * Send Android key up event
      */
-    private fun sendAndroidKeyUp(keyCode: Int) {
-        if (keyCode < 0) return
-        val service = getService() ?: return
-        val event = android.view.KeyEvent(
-            android.view.KeyEvent.ACTION_UP,
-            keyCode
-        )
-        service.currentInputConnection?.sendKeyEvent(event)
+    private fun sendAndroidKeyUp(keyCode: Int, macro: MacroContext) {
+        macro.execution.release(KeyRef.Android(keyCode)) {
+            if (keyCode >= 0) macro.service?.currentInputConnection?.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+        }
     }
 
     /**
      * Send Android key tap event (down + up)
      */
-    private fun sendAndroidKeyTap(keyCode: Int) {
-        if (keyCode < 0) return
-        val service = getService() ?: return
-        val downEvent = android.view.KeyEvent(
-            android.view.KeyEvent.ACTION_DOWN,
-            keyCode
-        )
-        val upEvent = android.view.KeyEvent(
-            android.view.KeyEvent.ACTION_UP,
-            keyCode
-        )
-        service.currentInputConnection?.sendKeyEvent(downEvent)
-        service.currentInputConnection?.sendKeyEvent(upEvent)
+    private fun sendAndroidKeyTap(keyCode: Int, macro: MacroContext) {
+        val press = sendAndroidKeyDown(keyCode, macro)
+        press.release(cancelled = !macro.execution.job.isActive || !macro.execution.isCurrent)
     }
 
     /**

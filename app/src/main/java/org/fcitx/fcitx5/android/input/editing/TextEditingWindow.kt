@@ -26,7 +26,7 @@ import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.mechdancer.dependency.manager.must
 import splitties.dimensions.dp
 
-class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(),
+class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(TextEditingWindow::class),
     InputBroadcastReceiver {
 
     private val service: FcitxInputMethodService by manager.inputMethodService()
