@@ -351,6 +351,11 @@
             android:name="androidx.room.MultiInstanceInvalidationService"
             tools:node="remove" />
 
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -358,6 +363,11 @@
             android:exported="false"
             tools:node="merge">
             <!-- do not inject splitties AppCompat -->
+            <!-- WorkManager starts on demand on the update page, never on IME startup. -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
             <meta-data
                 android:name="splitties.views.dsl.appcompat.experimental.AppCompatViewInstantiatorInjecter"
                 android:value="androidx.startup"
