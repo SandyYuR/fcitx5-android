@@ -16,6 +16,7 @@ import android.provider.DocumentsProvider
 import android.webkit.MimeTypeMap
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.AppUtil
+import org.fcitx.fcitx5.android.utils.FileUtil
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -70,17 +71,17 @@ class FcitxDataProvider : DocumentsProvider() {
     }
 
     private lateinit var baseDir: File
-    private lateinit var docIdPrefix: String
+    private lateinit var paths: DocumentPathGuard
     private lateinit var textFilePaths: Array<String>
 
     private val File.docId
-        get() = absolutePath.removePrefix(docIdPrefix)
+        get() = paths.documentId(this)
 
-    private fun fileFromDocId(docId: String) = File(docIdPrefix, docId)
+    private fun fileFromDocId(docId: String) = paths.resolve(docId)
 
     override fun onCreate(): Boolean {
-        baseDir = context!!.getExternalFilesDir(null) ?: return false
-        docIdPrefix = "${baseDir.parent}${File.separator}"
+        paths = DocumentPathGuard(context!!.getExternalFilesDir(null) ?: return false)
+        baseDir = paths.root
         textFilePaths = Array(TEXT_FILES.size) { baseDir.resolve(TEXT_FILES[it]).absolutePath }
         return true
     }
@@ -110,7 +111,7 @@ class FcitxDataProvider : DocumentsProvider() {
         projection: Array<String>?,
         sortOrder: String?
     ) = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION).apply {
-        fileFromDocId(parentDocumentId).listFiles()?.forEach {
+        fileFromDocId(parentDocumentId).listFiles()?.filter(paths::isAccessible)?.forEach {
             newRowFromFile(it)
         }
     }
@@ -162,14 +163,9 @@ class FcitxDataProvider : DocumentsProvider() {
     @Throws(FileNotFoundException::class)
     override fun deleteDocument(documentId: String) {
         fileFromDocId(documentId).apply {
-            val ok = if (isDirectory) {
-                deleteRecursively()
-            } else {
-                delete()
-            }
-            if (!ok) {
-                throw FileNotFoundException("deleteDocument id=$documentId failed")
-            }
+            paths.requireMutable(this)
+            // A directory may contain links that were never opened through the provider.
+            FileUtil.removeFile(this).getOrElse { throw FileNotFoundException("deleteDocument failed: ${it.message}") }
         }
     }
 
@@ -178,13 +174,14 @@ class FcitxDataProvider : DocumentsProvider() {
     }
 
     override fun isChildDocument(parentDocumentId: String, documentId: String): Boolean {
-        return documentId.startsWith(parentDocumentId)
+        return paths.isChild(parentDocumentId, documentId)
     }
 
     @Throws(FileNotFoundException::class)
     override fun copyDocument(sourceDocumentId: String, targetParentDocumentId: String): String {
         val oldFile = fileFromDocId(sourceDocumentId)
         val newFile = createAbstractFile(targetParentDocumentId, oldFile.name)
+        paths.validateCopy(oldFile, newFile)
         oldFile.apply {
             try {
                 val ok = if (isDirectory) {
@@ -205,11 +202,13 @@ class FcitxDataProvider : DocumentsProvider() {
     @Throws(FileNotFoundException::class)
     override fun renameDocument(documentId: String, displayName: String): String {
         val oldFile = fileFromDocId(documentId)
-        val newFile = oldFile.resolveSibling(displayName)
+        paths.requireMutable(oldFile)
+        DocumentPathGuard.requireName(displayName)
+        val newFile = paths.check(oldFile.resolveSibling(displayName))
         if (newFile.exists()) {
             throw FileNotFoundException("renameDocument id=$documentId to $displayName failed: target exists")
         }
-        oldFile.renameTo(newFile)
+        if (!oldFile.renameTo(newFile)) throw FileNotFoundException("Unable to rename document")
         return newFile.docId
     }
 
@@ -220,8 +219,11 @@ class FcitxDataProvider : DocumentsProvider() {
         targetParentDocumentId: String
     ): String {
         val oldFile = fileFromDocId(sourceDocumentId)
+        paths.requireMutable(oldFile)
+        if (oldFile.parentFile != fileFromDocId(sourceParentDocumentId)) throw FileNotFoundException("Invalid source parent")
         val newFile = createAbstractFile(targetParentDocumentId, oldFile.name)
-        oldFile.renameTo(newFile)
+        paths.validateCopy(oldFile, newFile)
+        if (!oldFile.renameTo(newFile)) throw FileNotFoundException("Unable to move document")
         return newFile.docId
     }
 
@@ -232,8 +234,8 @@ class FcitxDataProvider : DocumentsProvider() {
         projection: Array<String>?
     ) = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION).apply {
         val q = query.lowercase()
-        fileFromDocId(rootId).walk()
-            .filter { it.name.lowercase().contains(q) }
+        fileFromDocId(rootId).walkTopDown().onEnter(paths::isAccessible)
+            .filter { paths.isAccessible(it) && it.name.lowercase().contains(q) }
             .take(SEARCH_RESULTS_LIMIT)
             .forEach { newRowFromFile(it) }
     }
@@ -247,11 +249,10 @@ class FcitxDataProvider : DocumentsProvider() {
         }
 
     private fun createAbstractFile(parentDocumentId: String, displayName: String): File {
-        val parent = fileFromDocId(parentDocumentId)
-        var newFile = parent.resolve(displayName)
+        var newFile = paths.child(parentDocumentId, displayName)
         var noConflictId = 2
         while (newFile.exists()) {
-            newFile = parent.resolve("$displayName ($noConflictId)")
+            newFile = paths.child(parentDocumentId, "$displayName ($noConflictId)")
             noConflictId += 1
         }
         return newFile
@@ -265,7 +266,7 @@ class FcitxDataProvider : DocumentsProvider() {
 
         val mimeType = file.mimeType
         var flags =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) Document.FLAG_SUPPORTS_COPY else 0
+            if (file != baseDir && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) Document.FLAG_SUPPORTS_COPY else 0
         if (file.canWrite()) {
             flags = flags or if (file.isDirectory) {
                 Document.FLAG_DIR_SUPPORTS_CREATE
@@ -273,7 +274,7 @@ class FcitxDataProvider : DocumentsProvider() {
                 Document.FLAG_SUPPORTS_WRITE
             }
         }
-        if (file.parentFile?.canWrite() == true) {
+        if (file != baseDir && file.parentFile?.canWrite() == true) {
             flags = flags or
                     Document.FLAG_SUPPORTS_DELETE or
                     Document.FLAG_SUPPORTS_RENAME

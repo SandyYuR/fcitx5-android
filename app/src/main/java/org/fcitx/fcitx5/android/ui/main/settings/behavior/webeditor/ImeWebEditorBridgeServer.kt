@@ -34,6 +34,7 @@ import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
+import org.fcitx.fcitx5.android.utils.appContext
 import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -53,13 +54,16 @@ import java.util.concurrent.ThreadFactory
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import org.fcitx.fcitx5.android.utils.FileUtil
 
 object ImeWebEditorBridgeServer {
     data class Session(
         val host: String,
         val port: Int
     ) {
+        internal val access = BridgeSessionAccess(host, port)
         val editorUrl: String get() = "http://$host:$port/editor"
+        val pairingCode: String get() = access.pairingCode
         val apiBaseUrl: String get() = "http://$host:$port"
     }
 
@@ -221,6 +225,31 @@ object ImeWebEditorBridgeServer {
         val input = BufferedInputStream(socket.getInputStream())
         val output = BufferedOutputStream(socket.getOutputStream())
         val request = parseRequest(input) ?: return writeResponse(output, 400, "Bad Request", "text/plain", "bad request")
+        val active = session?.takeIf { running.get() }
+            ?: return writeResponse(output, 503, "Service Unavailable", "text/plain", "bridge stopped")
+        val path = request.path.substringBefore('?')
+        val query = parseQuery(request.path.substringAfter('?', ""))
+        if (!active.access.allowedRequest(request.headers)) {
+            return writeResponse(output, 403, "Forbidden", "text/plain", "request origin rejected", extraHeaders = securityHeaders())
+        }
+        if (request.method == "GET" && path in setOf("/", "/editor") && !active.access.authenticated(request.headers)) {
+            return writeResponse(output, 200, "OK", "text/html; charset=utf-8", pairingHtml(), extraHeaders = securityHeaders())
+        }
+        if (request.method == "POST" && path == "/pair" && !request.payloadTooLarge) {
+            val code = runCatching { parseQuery(request.body?.toString(Charsets.UTF_8).orEmpty())["code"] }.getOrNull()
+            return when (active.access.pair(code)) {
+                BridgeSessionAccess.PairingResult.Accepted -> writeResponse(output, 303, "See Other", "text/plain", "",
+                    extraHeaders = securityHeaders() + mapOf("Location" to "/editor", "Set-Cookie" to active.access.cookie))
+                BridgeSessionAccess.PairingResult.Rejected -> writeResponse(output, 401, "Unauthorized", "text/html; charset=utf-8",
+                    pairingHtml("配对码错误，请查看手机上的配对码。"), extraHeaders = securityHeaders())
+                BridgeSessionAccess.PairingResult.Limited -> writeResponse(output, 429, "Too Many Requests", "text/html; charset=utf-8",
+                    pairingHtml("尝试过多，请一分钟后重试。"), extraHeaders = securityHeaders() + ("Retry-After" to "60"))
+            }
+        }
+        if (!active.access.authenticated(request.headers)) {
+            return writeResponse(output, 401, "Unauthorized", "text/plain", "Open the editor link provided by the app",
+                extraHeaders = securityHeaders())
+        }
         if (request.payloadTooLarge) {
             return writeResponse(
                 output,
@@ -230,16 +259,14 @@ object ImeWebEditorBridgeServer {
                 "request body exceeds ${MAX_REQUEST_BODY_BYTES} bytes"
             )
         }
-        val path = request.path.substringBefore('?')
-        val query = parseQuery(request.path.substringAfter('?', ""))
         if (request.method == "OPTIONS") {
-            return writeResponse(output, 204, "No Content", "text/plain", "", extraHeaders = corsHeaders())
+            return writeResponse(output, 204, "No Content", "text/plain", "", extraHeaders = securityHeaders())
         }
         try {
             when {
                 request.method == "GET" && (path == "/" || path == "/editor") -> {
                     val html = getEditorBootstrapHtml()
-                    writeResponse(output, 200, "OK", "text/html; charset=utf-8", html, extraHeaders = corsHeaders())
+                    writeResponse(output, 200, "OK", "text/html; charset=utf-8", html, extraHeaders = securityHeaders())
                 }
                 request.method == "GET" && path == "/api/v1/meta" -> {
                     val payload = buildJsonObject {
@@ -284,7 +311,7 @@ object ImeWebEditorBridgeServer {
                     val file = UserConfigFiles.textKeyboardLayoutJson(profile)
                         ?: throw IllegalStateException("Cannot resolve layout file")
                     file.parentFile?.mkdirs()
-                    file.writeText(normalized)
+                    FileUtil.writeAtomically(file, normalized)
                     ConfigProviders.ensureWatching()
                     writeJson(output, buildJsonObject {
                         put("ok", JsonPrimitive(true))
@@ -305,7 +332,7 @@ object ImeWebEditorBridgeServer {
                     val element = json.parseToJsonElement(rawJson).jsonObject
                     val file = UserConfigFiles.popupPresetJson() ?: throw IllegalStateException("Cannot resolve popup file")
                     file.parentFile?.mkdirs()
-                    file.writeText(json.encodeToString(element) + "\n")
+                    FileUtil.writeAtomically(file, json.encodeToString(element) + "\n")
                     ConfigProviders.ensureWatching()
                     writeJson(output, buildJsonObject { put("ok", JsonPrimitive(true)) })
                 }
@@ -369,7 +396,7 @@ object ImeWebEditorBridgeServer {
                         statusText = "OK",
                         contentType = "application/zip",
                         bytes = bytes,
-                        extraHeaders = corsHeaders()
+                        extraHeaders = securityHeaders()
                     )
                 }
                 request.method == "PUT" && path == "/api/v1/theme/package" -> {
@@ -532,7 +559,10 @@ object ImeWebEditorBridgeServer {
                             ?: throw IllegalArgumentException("failed to resolve file: $value")
                         val file = java.io.File(filePath)
                         if (!file.isFile) throw IllegalArgumentException("file not found: $filePath")
-                        val bytes = file.readBytes()
+                        val root = appContext.getExternalFilesDir(null) ?: error("Icon directory unavailable")
+                        val bytes = BridgeSessionAccess.readPreview(file, listOf(
+                            java.io.File(root, ButtonIconFile.DIR), java.io.File(root, "icon_themes")
+                        ))
                         val ext = filePath.substringAfterLast('.', "").lowercase()
                         val mime = when (ext) {
                             "png" -> "image/png"
@@ -541,13 +571,13 @@ object ImeWebEditorBridgeServer {
                             "svg" -> "image/svg+xml"
                             else -> "application/octet-stream"
                         }
-                        writeBinaryResponse(output, 200, "OK", mime, bytes, extraHeaders = corsHeaders())
+                        writeBinaryResponse(output, 200, "OK", mime, bytes, extraHeaders = securityHeaders())
                     } else if (value.isNotBlank()) {
                         // SVG or XML inline value
                         val bytes = value.toByteArray(Charsets.UTF_8)
                         val mime = if (value.trimStart().startsWith("<svg", ignoreCase = true))
                             "image/svg+xml; charset=utf-8" else "text/xml; charset=utf-8"
-                        writeBinaryResponse(output, 200, "OK", mime, bytes, extraHeaders = corsHeaders())
+                        writeBinaryResponse(output, 200, "OK", mime, bytes, extraHeaders = securityHeaders())
                     } else {
                         throw IllegalArgumentException("empty icon value for slot: $slot")
                     }
@@ -617,7 +647,7 @@ object ImeWebEditorBridgeServer {
                     proxyUpstreamAsset(request.path, output)
                 }
                 else -> {
-                    writeResponse(output, 404, "Not Found", "text/plain; charset=utf-8", "not found", extraHeaders = corsHeaders())
+                    writeResponse(output, 404, "Not Found", "text/plain; charset=utf-8", "not found", extraHeaders = securityHeaders())
                 }
             }
         } catch (t: Throwable) {
@@ -627,13 +657,24 @@ object ImeWebEditorBridgeServer {
                 statusText = "Internal Server Error",
                 contentType = "application/json; charset=utf-8",
                 body = """{"ok":false,"error":"${escapeForJson(t.message ?: t.javaClass.simpleName)}"}""",
-                extraHeaders = corsHeaders()
+                extraHeaders = securityHeaders()
             )
         }
     }
 
     private fun escapeForJson(raw: String): String =
         raw.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
+
+    private fun pairingHtml(message: String = "请在手机的网页编辑器对话框中查看 6 位配对码。") = """
+        <!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1"><title>中州鹅 · 网页编辑器</title></head>
+        <body><main style="max-width:28rem;margin:4rem auto;padding:1rem;font:18px sans-serif">
+        <h1>连接手机</h1><p>$message</p>
+        <form method="post" action="/pair"><label>配对码 / Pairing code<br>
+        <input name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required autofocus
+        style="font-size:1.5rem;letter-spacing:.3rem;width:12rem;margin:1rem 0"></label><br>
+        <button type="submit" style="font-size:1rem;padding:.5rem 2rem">连接 / Connect</button></form></main></body></html>
+    """.trimIndent()
 
     /**
      * Parse a data URI (`data:<mime>;base64,<data>`) into (mime, bytes) pair.
@@ -740,7 +781,7 @@ object ImeWebEditorBridgeServer {
             statusText = "OK",
             contentType = "application/json; charset=utf-8",
             body = json.encodeToString(payload),
-            extraHeaders = corsHeaders()
+            extraHeaders = securityHeaders()
         )
     }
 
@@ -776,7 +817,7 @@ object ImeWebEditorBridgeServer {
                     statusText = resp.message.ifBlank { "Upstream Error" },
                     contentType = "text/plain; charset=utf-8",
                     body = "upstream ${resp.code}",
-                    extraHeaders = corsHeaders()
+                    extraHeaders = securityHeaders()
                 )
                 return
             }
@@ -790,7 +831,7 @@ object ImeWebEditorBridgeServer {
                 statusText = "OK",
                 contentType = contentType,
                 bytes = body,
-                extraHeaders = corsHeaders()
+                extraHeaders = securityHeaders()
             )
         }
     }
@@ -823,6 +864,7 @@ object ImeWebEditorBridgeServer {
         val method: String,
         val path: String,
         val body: ByteArray?,
+        val headers: Map<String, String>,
         /** True when the declared Content-Length exceeded [MAX_REQUEST_BODY_BYTES]. */
         val payloadTooLarge: Boolean = false
     )
@@ -862,7 +904,7 @@ object ImeWebEditorBridgeServer {
         // claimed. The payloads here are layout/theme JSON, so a few MB is generous.
         if (contentLength > MAX_REQUEST_BODY_BYTES) {
             Timber.w("Web editor bridge rejected a $contentLength byte body")
-            return HttpRequest(method = method, path = path, body = null, payloadTooLarge = true)
+            return HttpRequest(method = method, path = path, body = null, headers = headers, payloadTooLarge = true)
         }
         val body = if (contentLength > 0) {
             val bytes = ByteArray(contentLength)
@@ -874,7 +916,7 @@ object ImeWebEditorBridgeServer {
             }
             bytes.copyOf(offset)
         } else null
-        return HttpRequest(method = method, path = path, body = body)
+        return HttpRequest(method = method, path = path, body = body, headers = headers)
     }
 
     private fun writeResponse(
@@ -935,10 +977,11 @@ object ImeWebEditorBridgeServer {
         }
     }
 
-    private fun corsHeaders(): Map<String, String> = mapOf(
-        "Access-Control-Allow-Origin" to "*",
-        "Access-Control-Allow-Methods" to "GET,PUT,DELETE,OPTIONS",
-        "Access-Control-Allow-Headers" to "Content-Type,Accept"
+    private fun securityHeaders(): Map<String, String> = mapOf(
+        "Cache-Control" to "no-store",
+        "Referrer-Policy" to "no-referrer",
+        "X-Content-Type-Options" to "nosniff",
+        "X-Frame-Options" to "DENY"
     )
 
     private fun detectBestHostAddress(): String? {
