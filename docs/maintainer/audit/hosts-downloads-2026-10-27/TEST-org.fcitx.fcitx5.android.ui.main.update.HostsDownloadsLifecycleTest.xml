@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.ui.main.update.HostsDownloadsLifecycleTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-26T14:11:23.222Z" hostname="bbf819fdcadc" time="0.6">
+  <properties/>
+  <testcase name="duplicateEnqueueKeepsOneActiveWorkRecord" classname="org.fcitx.fcitx5.android.ui.main.update.HostsDownloadsLifecycleTest" time="0.127"/>
+  <testcase name="replacingTheUiObserverDoesNotCancelThePersistentWorker" classname="org.fcitx.fcitx5.android.ui.main.update.HostsDownloadsLifecycleTest" time="0.208"/>
+  <testcase name="cancelCannotOvertakeEnqueueAndANewAttemptGetsANewIdentity" classname="org.fcitx.fcitx5.android.ui.main.update.HostsDownloadsLifecycleTest" time="0.172"/>
+  <testcase name="databaseCommandsDispatchOffTheCallerAndKeepSubmissionOrder" classname="org.fcitx.fcitx5.android.ui.main.update.HostsDownloadsLifecycleTest" time="0.086"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

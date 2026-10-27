@@ -1,0 +1,27 @@
+{
+  "source_commit": "d3cb87692b638a36dde048435658de1afcc8738e",
+  "ci": {
+    "run_id": 40337615943,
+    "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/40337615943",
+    "conclusion": "success",
+    "arm64_release": "success",
+    "unit_tests": "success",
+    "artifact_id": 12657643573,
+    "artifact_digest": "sha256:6555d6142b7ef60e9821411d806f00f64a4ad18721c833fb24cd7091a1f5e2df",
+    "unit_report_artifact_id": 12658715531,
+    "unit_report_digest": "sha256:145557ef9774179d9d6de3ffa34568d165a97305b52f72be1a32d4345c004f43"
+  },
+  "targeted_tests": 31,
+  "app_jvm_tests": 1156,
+  "build_logic_tests": 6,
+  "remaining_original_rows": [
+    "P1-8"
+  ],
+  "remaining_verification": [
+    "P1-10"
+  ],
+  "release_abis": [
+    "arm64-v8a"
+  ],
+  "android_process_kill_tested": false
+}
