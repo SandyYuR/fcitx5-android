@@ -1,0 +1,14 @@
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: FATAL EXCEPTION: main
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: Process: org.fcitx.fcitx5.android.fx.rime.debug, PID: 1485
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException: org.fcitx.fcitx5.android.input.FcitxInputMethodService is disconnected
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at org.fcitx.fcitx5.android.daemon.FcitxDaemon$mkConnection$1.runImmediately(FcitxDaemon.kt:266)
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow.switchLayout$lambda$1(KeyboardWindow.kt:421)
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow$$ExternalSyntheticLambda8.run(D8$$SyntheticClass:0)
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:959)
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:100)
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:232)
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:317)
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+10-25 11:38:13.997  1485  1485 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)

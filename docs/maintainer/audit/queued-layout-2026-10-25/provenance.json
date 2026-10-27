@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-25",
+  "timezone": "Asia/Shanghai",
+  "application_code_sha": "1c8a7d04b9933541cb7ae6cd28ccf99f9a54ce49",
+  "application_version_name": "1c8a7d04",
+  "application_id": "org.fcitx.fcitx5.android.fx.rime.debug",
+  "application_apk_sha256": "095e02fa8f55a4962e3123963d0fad502d18430e096a5004db97f5e1d650b9f7",
+  "environment": {
+    "api": 35,
+    "android": "15",
+    "abi": "x86_64",
+    "image": "AOSP userdebug",
+    "kvm": false,
+    "cpu": "TCG",
+    "gpu": "SwiftShader",
+    "cores": 2,
+    "effective_config_memory_mb": 2560,
+    "hw_timeout_multiplier": 100
+  },
+  "regression": {
+    "ime_switch_rounds": 3,
+    "host_focus_and_restart_each_round": true,
+    "crash_buffer_cleared_before_sequence": true,
+    "crash_buffer_empty_after_touch_commit": true,
+    "pid_after": "2631",
+    "touch_input": "N, I, first candidate 你",
+    "host_a": "你",
+    "host_b": "",
+    "commit_count": 1
+  },
+  "baseline_crash": {
+    "application_code_sha": "b2c4631a652c2088dfe807bc03dc384703daaaf7",
+    "pid": 1485,
+    "file": "before-fix-crash.txt"
+  },
+  "jvm_tests": 770,
+  "jvm_new_executions_this_batch": 16,
+  "jvm_new_executions_all_four_batches": 76,
+  "performance_claim": false,
+  "limitations": [
+    "3 轮设备回归不是长时间压力验证",
+    "无真机、ARM64 Release 装机或万象大词库验收",
+    "上一轮 ea6229a4 英文模式提示断言失败仍待定位",
+    "剪贴板保存期间关闭窗口的本轮设备竞态检查未完成，相关延迟写入已有 JVM 测试覆盖"
+  ],
+  "screenshots": {
+    "keyboard-ready.png": "09d6fc6fa03e2455d7c2f63aeb92a40f77281938ec0dc2bcbfb31edf27b18388",
+    "touch-ni-candidate.png": "b77a9f0dd3e2b4d69d8dfa9ca55a0bab7f6e81116dd376f27b858e3e7b7d285d",
+    "touch-commit.png": "ac2fbeed22bb0b0643683f240c98e7efdbaad21aabc6c8da8a1f4e141683c9b0"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "runtime_sha": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+  "harness_sha": "7e5c2c1b0efe5493cf1cbf991ec45f28645ee0ee",
+  "runtime_version": "7e5c2c1b",
+  "device": {
+    "api": 35,
+    "image": "AOSP",
+    "abi": "x86_64",
+    "kvm": false,
+    "graphics": "SwiftShader",
+    "hardware_timeout_multiplier": 100
+  },
+  "release_abis": [
+    "arm64-v8a"
+  ],
+  "device_tests": {
+    "passed": 3,
+    "failed": 0,
+    "touch_rebind_rounds": 6,
+    "unique_test_methods": [
+      "modeAndSchemaHintsExpireWithoutReplayingCommits",
+      "originalKeyboardCanTypeUsingTouch",
+      "immediateTypingAndCandidateTapAfterRebind"
+    ]
+  },
+  "crash_buffer_empty": true,
+  "before": {
+    "runtime_9b1": "first frame after 3314ms, hint cleared after1554ms",
+    "runtime_018": "first UI pass used fallback; later API expiry test exposed missing forwarding",
+    "catalogue_first_load_ms": 11405,
+    "numeric_release_ms": 61,
+    "same_generation": true
+  },
+  "limits": [
+    "small bundled smoke dictionary",
+    "software emulator functional verification",
+    "no ARM64 phone installation or real-phone latency claim",
+    "no new physical removable-volume or power-loss proof"
+  ],
+  "environment_left_running": {
+    "avd": "fcitx5-api35-aosp",
+    "adb_serial": "emulator-5578",
+    "runtime_version": "7e5c2c1b",
+    "host": "io.github.sandyyur.inputbench/.BenchHost",
+    "ime": "org.fcitx.fcitx5.android.fx.rime.debug/org.fcitx.fcitx5.android.input.FcitxInputMethodService",
+    "backend": "direct librime; compatibility package/service names retained"
+  }
+}

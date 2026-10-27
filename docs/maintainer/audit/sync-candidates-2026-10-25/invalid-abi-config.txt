@@ -1,0 +1,29 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttp.nonProxyHosts=localhost|127.0.0.1|[::1]
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:convention:compileKotlin UP-TO-DATE
+> Task :build-logic:convention:compileJava NO-SOURCE
+> Task :build-logic:convention:pluginDescriptors UP-TO-DATE
+> Task :build-logic:convention:processResources UP-TO-DATE
+> Task :build-logic:convention:classes UP-TO-DATE
+> Task :build-logic:convention:jar UP-TO-DATE
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file '/workspace/fcitx5-android/app/build.gradle.kts' line: 1
+
+* What went wrong:
+An exception occurred applying plugin request [id: 'org.fcitx.fcitx5.android.native-app-convention']
+> Failed to apply plugin 'org.fcitx.fcitx5.android.native-app-convention'.
+   > BUILD_ABI/buildABI contains an unsupported ABI. Supported values: armeabi-v7a, arm64-v8a, x86, x86_64.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 17s
+4 actionable tasks: 4 up-to-date

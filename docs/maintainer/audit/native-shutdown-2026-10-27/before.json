@@ -1,0 +1,25 @@
+{
+  "receipt": {
+    "profile": "shutdown-test-a7f67365-db85-498a-845d-03a989393440",
+    "previous_profile": "smoke",
+    "code_sha": "8dca031c80fdf6c82015982b54385ef8bea12d48",
+    "pid": 4355,
+    "target_version": "8dca031c",
+    "boot_id": "5903d93f-0c3d-4797-a28f-4f7fad34b074",
+    "uptime_ms": 1232830,
+    "boot_count": 13,
+    "baseline": [
+      "你",
+      "泥",
+      "拟",
+      "逆"
+    ],
+    "learned_first": "泥",
+    "waiting_for_orderly_shutdown": true
+  },
+  "live_pid": [
+    "4355"
+  ],
+  "kernel_boot_id": "5903d93f-0c3d-4797-a28f-4f7fad34b074",
+  "dictionary_sync_files": []
+}

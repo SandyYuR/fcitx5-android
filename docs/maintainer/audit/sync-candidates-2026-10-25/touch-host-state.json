@@ -1,0 +1,11 @@
+{
+  "a": "你",
+  "b": "",
+  "events": [
+    {
+      "field": "A",
+      "event": "commit",
+      "value": "你"
+    }
+  ]
+}
