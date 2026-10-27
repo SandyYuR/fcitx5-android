@@ -50,7 +50,6 @@ import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrBitmapUtil
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
-import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
 import org.fcitx.fcitx5.android.ui.common.withProgressLoadingDialog
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrScanOptions
 import splitties.dimensions.dp
@@ -77,7 +76,7 @@ class IconThemeListActivity : SettingsUiActivity() {
     private val themes get() = IconThemeManager.iconThemes
     private val builtinDefault = IconTheme.default()
     private val adapter = ThemeAdapter()
-    private val qrChunkCollector = QrChunkCollector()
+    private val qrImporter = IconThemeQrImporter()
 
     private val onListChangeListener = IconThemeManager.OnIconThemeListChangeListener { refreshThemes() }
     private val onThemeChangeListener = IconThemeManager.OnIconThemeChangeListener { refreshThemes() }
@@ -222,6 +221,8 @@ class IconThemeListActivity : SettingsUiActivity() {
                         updateProgress(getString(R.string.qr_image_decode_progress, current, total))
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (_: Exception) {
                 Toast.makeText(
                     this@IconThemeListActivity,
@@ -239,32 +240,21 @@ class IconThemeListActivity : SettingsUiActivity() {
                 return@withProgressLoadingDialog
             }
             try {
-                val json = LayoutQrTransferCodec.decodeChunksToJson(chunks)
-                importThemeFromJson(json)
-            } catch (_: Throwable) {
-                // Throwable, not Exception: a forged/oversized payload can surface as
-                // OutOfMemoryError, which is an Error and would otherwise kill the process.
-                Toast.makeText(
-                    this@IconThemeListActivity,
-                    getString(R.string.icon_theme_decode_qr_failed),
-                    Toast.LENGTH_SHORT
-                ).show()
+                val theme = qrImporter.importImageChunks(chunks)
+                showImportedTheme(theme)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                Toast.makeText(this@IconThemeListActivity,
+                    getString(R.string.icon_theme_decode_qr_failed), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun importThemeFromJson(json: String) {
-        try {
-            val theme = runCatching {
-                IconThemeQrTransferCodec.decodeIconThemeFromJson(json).also { IconThemeManager.saveTheme(it) }
-            }.getOrElse {
-                IconThemeManager.importTheme(json)
-            }
-            Toast.makeText(this, getString(R.string.icon_theme_imported, theme.name), Toast.LENGTH_SHORT).show()
-            refreshThemes()
-        } catch (_: Exception) {
-            Toast.makeText(this, getString(R.string.icon_theme_decode_qr_failed), Toast.LENGTH_SHORT).show()
-        }
+    private fun showImportedTheme(theme: IconTheme) {
+        if (isFinishing || isDestroyed) return
+        Toast.makeText(this, getString(R.string.icon_theme_imported, theme.name), Toast.LENGTH_SHORT).show()
+        refreshThemes()
     }
 
     private fun startCameraScanImport() {
@@ -278,43 +268,40 @@ class IconThemeListActivity : SettingsUiActivity() {
     }
 
     private fun addImportedChunkFromText(raw: String) {
-        val headerChunk = JsonFileQrShareManager.parseQrPayload(raw)
-        val headerType = headerChunk?.let { LayoutQrTransferCodec.detectTransferType(it.transferId) }
-        if (headerType != null && headerType != LayoutQrTransferCodec.TRANSFER_TYPE_ICON_THEME) {
-            Toast.makeText(
-                this,
-                getString(
-                    R.string.text_keyboard_layout_qr_type_mismatch,
-                    getString(R.string.qr_payload_type_icon_theme),
-                    when (headerType) {
-                        LayoutQrTransferCodec.TRANSFER_TYPE_THEME -> getString(R.string.qr_payload_type_theme)
-                        LayoutQrTransferCodec.TRANSFER_TYPE_LAYOUT -> getString(R.string.qr_payload_type_layout)
-                        LayoutQrTransferCodec.TRANSFER_TYPE_POPUP -> getString(R.string.qr_payload_type_popup)
-                        else -> getString(R.string.qr_payload_type_unknown)
-                    }
-                ),
-                Toast.LENGTH_SHORT
-            ).show()
-            return
+        lifecycleScope.withProgressLoadingDialog(this) {
+            val result = try {
+                qrImporter.addScan(raw)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                Toast.makeText(this@IconThemeListActivity,
+                    getString(R.string.icon_theme_decode_qr_failed), Toast.LENGTH_SHORT).show()
+                return@withProgressLoadingDialog
+            }
+            if (isFinishing || isDestroyed) return@withProgressLoadingDialog
+            when (result) {
+                IconThemeQrImporter.ScanResult.Invalid -> Toast.makeText(this@IconThemeListActivity,
+                    getString(R.string.text_keyboard_layout_qr_invalid_payload), Toast.LENGTH_SHORT).show()
+                is IconThemeQrImporter.ScanResult.WrongType -> Toast.makeText(this@IconThemeListActivity,
+                    getString(R.string.text_keyboard_layout_qr_type_mismatch,
+                        getString(R.string.qr_payload_type_icon_theme), when (result.type) {
+                            LayoutQrTransferCodec.TRANSFER_TYPE_THEME -> getString(R.string.qr_payload_type_theme)
+                            LayoutQrTransferCodec.TRANSFER_TYPE_LAYOUT -> getString(R.string.qr_payload_type_layout)
+                            LayoutQrTransferCodec.TRANSFER_TYPE_POPUP -> getString(R.string.qr_payload_type_popup)
+                            else -> getString(R.string.qr_payload_type_unknown)
+                        }), Toast.LENGTH_SHORT).show()
+                is IconThemeQrImporter.ScanResult.Progress -> {
+                    val progress = result.progress
+                    if (progress.duplicate) Toast.makeText(this@IconThemeListActivity,
+                        getString(R.string.text_keyboard_layout_qr_duplicate_chunk), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@IconThemeListActivity,
+                        getString(R.string.text_keyboard_layout_qr_scan_progress, progress.current, progress.total),
+                        Toast.LENGTH_SHORT).show()
+                    if (result.theme != null) showImportedTheme(result.theme)
+                    else cameraScanLauncher.launch(QrScanOptions.forPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt)))
+                }
+            }
         }
-        val progress = runCatching { qrChunkCollector.addAndMaybeAssemble(raw) }.getOrNull()
-        if (progress == null) {
-            Toast.makeText(this, getString(R.string.text_keyboard_layout_qr_invalid_payload), Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (progress.duplicate) {
-            Toast.makeText(this, getString(R.string.text_keyboard_layout_qr_duplicate_chunk), Toast.LENGTH_SHORT).show()
-        }
-        Toast.makeText(
-            this,
-            getString(R.string.text_keyboard_layout_qr_scan_progress, progress.current, progress.total),
-            Toast.LENGTH_SHORT
-        ).show()
-        progress.completedJson?.let {
-            importThemeFromJson(it)
-            return
-        }
-        cameraScanLauncher.launch(QrScanOptions.forPrompt(getString(R.string.text_keyboard_layout_qr_scan_prompt)))
     }
 
     private fun refreshThemes() {
