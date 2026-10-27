@@ -79,6 +79,7 @@ object SyncClient {
     }
 
     private val client = OkHttpClient.Builder()
+        .addNetworkInterceptor(SyncTransportPolicy)
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
@@ -831,14 +832,15 @@ object SyncClient {
     ): ClipCascadeClipboardData {
         val uri = content.toClipboardUriOrNull()
         if (uri != null) {
+            val transferLimit = minOf(MAX_TRANSFER_BYTES, ClipCascadePayloadBudget.DEFAULT.maxOutgoingBinaryBytes)
             // Pre-check the declared size so a huge file is rejected before it is read (A9).
             val declaredSize = runCatching {
                 context.contentResolver.openFileDescriptor(uri, "r")?.use { it.statSize }
             }.getOrNull() ?: -1L
-            if (declaredSize > MAX_TRANSFER_BYTES) {
-                throw IOException("Clipboard file of $declaredSize bytes exceeds ${MAX_TRANSFER_BYTES / (1024 * 1024)}MB")
+            if (declaredSize > transferLimit) {
+                throw IOException("ClipCascade file of $declaredSize bytes exceeds the send budget of $transferLimit bytes")
             }
-            val bytes = context.contentResolver.openInputStream(uri)?.use { it.readAtMost(MAX_TRANSFER_BYTES) }
+            val bytes = context.contentResolver.openInputStream(uri)?.use { it.readAtMost(transferLimit) }
             if (bytes != null) {
                 val fileName = getFileName(context, uri) ?: "clipcascade-file"
                 val payloadType = if (isImageUri(context, uri)) {
@@ -1531,12 +1533,7 @@ object SyncClient {
     }
 
     private fun resolveUrl(url: String): String {
-        val trimmed = url.trim()
-        return if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-            trimmed
-        } else {
-            "http://$trimmed"
-        }
+        return SyncServerAddress.normalize(url)
     }
 
     private fun getBaseAndJsonUrl(serverUrl: String): Pair<String, String> {

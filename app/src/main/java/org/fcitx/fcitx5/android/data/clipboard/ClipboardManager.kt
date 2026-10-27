@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.data.clipboard
 
 import android.content.ClipboardManager
+import android.content.ClipData
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -14,8 +15,10 @@ import androidx.room.Room
 import androidx.room.withTransaction
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -376,15 +379,13 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
             .onFailure { Timber.w(it, "Failed to close clipboard database") }
     }
 
-    /**
-     * Flush the WAL into the main database file so an export contains a self-consistent
-     * snapshot even though only `clbdb` is copied.
-     */
-    fun checkpointDatabase() {
-        if (!::clbDb.isInitialized) return
-        runCatching {
-            clbDb.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(TRUNCATE)").use { it.moveToFirst() }
-        }.onFailure { Timber.w(it, "Failed to checkpoint clipboard database") }
+    /** Read one transactional state into a separate file; never copy the live main/WAL files. */
+    fun writeDatabaseSnapshot(destination: java.io.File): Boolean {
+        if (!::clbDb.isInitialized) return false
+        clbDb.runInTransaction {
+            org.fcitx.fcitx5.android.data.SqliteSnapshots.write(clbDb.openHelper.writableDatabase, destination)
+        }
+        return true
     }
 
     suspend fun get(id: Int) = clbDao.get(id)
@@ -452,11 +453,27 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
     }
 
     suspend fun updateText(id: Int, text: String) {
-        lastEntry?.let {
-            if (id == it.id) updateLastEntry(it.copy(text = text))
+        mutex.withLock {
+            check(clbDao.updateText(id, text) == 1) { "Clipboard entry is no longer available" }
+            // Notify only after the write succeeds, using the entry current at completion.
+            lastEntry?.takeIf { it.id == id }?.let { updateLastEntry(it.copy(text = text)) }
         }
-        clbDao.updateText(id, text)
     }
+
+    /** A confirmed edit belongs to the application, even if its floating editor closes. */
+    fun saveEditedText(id: Int, text: String, copy: Boolean): Deferred<Unit> =
+        async(Dispatchers.Main.immediate) {
+            try {
+                updateText(id, text)
+                if (copy) clipboardManager.setPrimaryClip(ClipData.newPlainText("", text))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // This task can outlive the Activity; retain a diagnostic without logging text.
+                Timber.w("Unable to save clipboard entry id=%d (%s)", id, e.javaClass.simpleName)
+                throw e
+            }
+        }
 
     suspend fun delete(id: Int) {
         val shouldClearSuggestion = lastEntry?.id == id
@@ -711,7 +728,12 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         }
         launch {
             mutex.withLock {
-                val entry = ClipboardEntry.fromClipData(clip, transformer) ?: return@withLock
+                // Built-in filtering belongs to this worker, including the very first clip
+                // before a remote/plugin service has connected. Plugin filters run afterwards.
+                val entry = ClipboardEntry.fromClipData(clip) { raw ->
+                    val filtered = HostClipboardFilter.transform(raw)
+                    transformer?.invoke(filtered) ?: filtered
+                } ?: return@withLock
                 insertOrUpdateEntry(entry, notifyListeners = true)
             }
         }

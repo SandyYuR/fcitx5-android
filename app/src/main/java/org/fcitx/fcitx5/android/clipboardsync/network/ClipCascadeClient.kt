@@ -17,6 +17,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
+import okio.utf8Size
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -32,11 +33,15 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 
-class ClipCascadeClient(
+class ClipCascadeClient internal constructor(
     serverUrl: String,
     private val username: String,
-    private val password: String
+    private val password: String,
+    private val budget: ClipCascadePayloadBudget
 ) {
+    constructor(serverUrl: String, username: String, password: String) :
+        this(serverUrl, username, password, ClipCascadePayloadBudget.DEFAULT)
+
     companion object {
         private const val TAG = "FcitxClipboardSync"
         private const val LOGIN_PATH = "/login"
@@ -78,6 +83,7 @@ class ClipCascadeClient(
          * or broken server allocate without limit inside the IME process (see A9).
          */
         private const val MAX_HTTP_BODY_BYTES = 1L * 1024 * 1024
+        private val sharedTransport = OkHttpClient()
     }
 
     private val json = Json {
@@ -90,11 +96,8 @@ class ClipCascadeClient(
     private val baseUrl = normalizeServerUrl(serverUrl)
     private val cookieJar = MemoryCookieJar()
 
-    /**
-     * Client for the websocket only: `readTimeout(0)` is required there, since a websocket may
-     * legitimately stay silent for as long as it likes.
-     */
-    private val client = OkHttpClient.Builder()
+    private val transport = sharedTransport.newBuilder()
+        .addNetworkInterceptor(SyncTransportPolicy)
         .cookieJar(cookieJar)
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.SECONDS)
@@ -102,20 +105,14 @@ class ClipCascadeClient(
         .pingInterval(30, TimeUnit.SECONDS)
         .build()
 
-    /**
-     * Client for the three plain HTTP calls of the handshake (login, validate-session, user-info).
-     *
-     * They used to share the websocket client, so they inherited `readTimeout(0)`: a server that
-     * accepted the connection and then said nothing parked `execute()` forever, and a blocking
-     * `execute()` does not observe coroutine cancellation either. The 15s handshake timeout in
-     * [connect] only covers the CONNECTED frame, i.e. everything *after* these three calls, so
-     * the hang C16 set out to remove was still reachable through them.
-     *
-     * Shares the connection pool and cookie jar with [client] — only the read timeout differs.
-     */
-    private val httpClient = client.newBuilder()
+    /** HTTP login keeps its normal pool and bounded read timeout. */
+    private val httpClient = transport.newBuilder()
         .readTimeout(HTTP_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .build()
+
+    /** Separate guarded sockets: no HTTP connection can bypass the pre-assembly limit. */
+    private val client = BoundedWebSocketTransport.client(transport,
+        secure = baseUrl.startsWith("https://"), maxMessage = budget.maxReceivedFrameBytes)
 
     private val connected = AtomicBoolean(false)
     private val closeRequested = AtomicBoolean(false)
@@ -308,10 +305,11 @@ class ClipCascadeClient(
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
-                if (text.isBlank()) return
+                if (text.length <= 2 && text.isBlank()) return
 
                 val frame = runCatching { parseStompFrame(text) }.getOrElse { error ->
-                    Log.w(TAG, "ClipCascade invalid STOMP frame", error)
+                    Log.w(TAG, "ClipCascade invalid STOMP frame (${error.javaClass.simpleName})")
+                    if (error is ClipCascadeMessageTooLargeException) fail(error)
                     return
                 }
 
@@ -340,7 +338,8 @@ class ClipCascadeClient(
                         val clipboardData = runCatching {
                             decodeIncomingBody(frame.body)
                         }.getOrElse { error ->
-                            Log.w(TAG, "ClipCascade payload decode failed", error)
+                            Log.w(TAG, "ClipCascade payload decode failed (${error.javaClass.simpleName})")
+                            if (error is ClipCascadeMessageTooLargeException) fail(error)
                             return
                         }
                         onMessage(clipboardData)
@@ -399,28 +398,35 @@ class ClipCascadeClient(
     }
 
     private fun encodeOutgoingBody(data: ClipCascadeClipboardData): String {
+        val key = encryptionKey
+        budget.checkOutgoing(data, encrypted = key != null)
         val plainBody = json.encodeToString(data)
-        val key = encryptionKey ?: return plainBody
+        budget.checkPlainBody(plainBody)
+        if (key == null) return plainBody
         val encryptedPayload = encrypt(key, plainBody.toByteArray(StandardCharsets.UTF_8))
-        return json.encodeToString(encryptedPayload)
+        return json.encodeToString(encryptedPayload).also(budget::checkOutgoingFrame)
     }
 
     private fun decodeIncomingBody(body: String): ClipCascadeClipboardData {
+        budget.checkWireBody(body)
         val encryptedPayload = runCatching {
             json.decodeFromString<ClipCascadeEncryptedPayload>(body)
         }.getOrNull()
 
-        if (encryptedPayload != null &&
+        val data: ClipCascadeClipboardData = if (encryptedPayload != null &&
             encryptedPayload.nonce.isNotBlank() &&
             encryptedPayload.ciphertext.isNotBlank() &&
             encryptedPayload.tag.isNotBlank()
         ) {
             val key = encryptionKey ?: throw IOException("ClipCascade encrypted payload received without key")
             val plaintext = decrypt(key, encryptedPayload)
-            return json.decodeFromString(String(plaintext, StandardCharsets.UTF_8))
+            json.decodeFromString(String(plaintext, StandardCharsets.UTF_8))
+        } else {
+            budget.checkPlainBody(body)
+            json.decodeFromString(body)
         }
-
-        return json.decodeFromString(body)
+        budget.checkData(data)
+        return data
     }
 
     private fun deriveKey(password: String, username: String, salt: String, rounds: Int): ByteArray {
@@ -448,27 +454,37 @@ class ClipCascadeClient(
         cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(key, "AES"), GCMParameterSpec(128, nonce))
         val sealed = cipher.doFinal(plaintext)
         val ciphertextSize = sealed.size - GCM_TAG_SIZE_BYTES
-        val ciphertext = sealed.copyOfRange(0, ciphertextSize)
-        val tag = sealed.copyOfRange(ciphertextSize, sealed.size)
 
         return ClipCascadeEncryptedPayload(
             nonce = Base64.encodeToString(nonce, Base64.NO_WRAP),
-            ciphertext = Base64.encodeToString(ciphertext, Base64.NO_WRAP),
-            tag = Base64.encodeToString(tag, Base64.NO_WRAP)
+            ciphertext = Base64.encodeToString(sealed, 0, ciphertextSize, Base64.NO_WRAP),
+            tag = Base64.encodeToString(sealed, ciphertextSize, GCM_TAG_SIZE_BYTES, Base64.NO_WRAP)
         )
     }
 
     private fun decrypt(key: ByteArray, payload: ClipCascadeEncryptedPayload): ByteArray {
+        if (payload.nonce.length > 128 || payload.tag.length > 128) {
+            throw ClipCascadeMessageTooLargeException("ClipCascade nonce or tag is too large")
+        }
+        budget.checkBase64(payload.ciphertext, budget.maxPlainBodyBytes, "ciphertext")
         val nonce = Base64.decode(payload.nonce, Base64.DEFAULT)
-        val ciphertext = Base64.decode(payload.ciphertext, Base64.DEFAULT)
         val tag = Base64.decode(payload.tag, Base64.DEFAULT)
-        val sealed = ByteArray(ciphertext.size + tag.size)
-        System.arraycopy(ciphertext, 0, sealed, 0, ciphertext.size)
-        System.arraycopy(tag, 0, sealed, ciphertext.size, tag.size)
-
+        if (nonce.size !in 12..GCM_NONCE_SIZE_BYTES || tag.size != GCM_TAG_SIZE_BYTES) {
+            throw IOException("ClipCascade invalid AES-GCM nonce or tag length")
+        }
+        val ciphertext = Base64.decode(payload.ciphertext, Base64.DEFAULT)
+        if (ciphertext.size.toLong() > budget.maxPlainBodyBytes) {
+            throw ClipCascadeMessageTooLargeException("ClipCascade ciphertext exceeds the plain body budget")
+        }
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key, "AES"), GCMParameterSpec(128, nonce))
-        return cipher.doFinal(sealed)
+        // Keep the output private until doFinal authenticates the tag; avoid a second sealed
+        // ciphertext+tag array. This also works with providers buffering all output until then.
+        val plaintext = ByteArray(ciphertext.size)
+        val written = cipher.update(ciphertext, 0, ciphertext.size, plaintext, 0)
+        val size = written + cipher.doFinal(tag, 0, tag.size, plaintext, written)
+        if (size != plaintext.size) throw IOException("ClipCascade invalid decrypted payload length")
+        return plaintext
     }
 
     private fun webSocketUrl(): String {
@@ -481,11 +497,7 @@ class ClipCascadeClient(
     }
 
     private fun normalizeServerUrl(serverUrl: String): String {
-        val trimmed = serverUrl.trim().trimEnd('/')
-        if (trimmed.isBlank()) {
-            throw IOException("ClipCascade server url is empty")
-        }
-        return trimmed
+        return SyncServerAddress.normalize(serverUrl)
     }
 
     private fun encodeStompFrame(
@@ -493,7 +505,9 @@ class ClipCascadeClient(
         headers: LinkedHashMap<String, String> = linkedMapOf(),
         body: String = ""
     ): String {
-        val builder = StringBuilder()
+        budget.checkOutgoingFrame(body)
+        val capacity = command.length + body.length + headers.entries.sumOf { it.key.length + it.value.length + 2 } + 3
+        val builder = StringBuilder(capacity)
         builder.append(command).append('\n')
         headers.forEach { (key, value) ->
             builder.append(key).append(':').append(value).append('\n')
@@ -505,27 +519,38 @@ class ClipCascadeClient(
     }
 
     private fun parseStompFrame(raw: String): StompFrame {
-        val normalized = raw.trimEnd('\u0000')
-        val parts = normalized.split("\n\n", limit = 2)
-        val headerLines = parts.firstOrNull()
-            ?.split('\n')
-            ?.filter { it.isNotBlank() }
-            .orEmpty()
-        if (headerLines.isEmpty()) {
-            throw IOException("Missing STOMP command")
+        budget.checkFrame(raw)
+        val lfEnd = raw.indexOf("\n\n")
+        val crlfEnd = raw.indexOf("\r\n\r\n")
+        val headerEnd = if (lfEnd >= 0 && (crlfEnd < 0 || lfEnd < crlfEnd)) lfEnd else crlfEnd
+        if (headerEnd < 0 || headerEnd > budget.maxHeaderBytes) {
+            throw IOException("ClipCascade missing or oversized STOMP header")
         }
-
+        val separatorSize = if (headerEnd == crlfEnd) 4 else 2
+        val header = raw.substring(0, headerEnd)
+        if (header.utf8Size() > budget.maxHeaderBytes) throw IOException("Oversized STOMP header")
+        val headerLines = header.split('\n').map { it.trimEnd('\r') }
+            .filter { it.isNotBlank() }
+        if (headerLines.isEmpty()) throw IOException("Missing STOMP command")
+        if (headerLines.size > 65) throw IOException("Too many STOMP headers")
         val headers = linkedMapOf<String, String>()
         headerLines.drop(1).forEach { line ->
             val separator = line.indexOf(':')
-            if (separator <= 0) return@forEach
-            headers[line.substring(0, separator)] = line.substring(separator + 1)
+            if (separator > 0) headers[line.substring(0, separator)] = line.substring(separator + 1)
         }
-        return StompFrame(
-            command = headerLines.first().trim(),
-            headers = headers,
-            body = parts.getOrElse(1) { "" }
-        )
+        headers["content-length"]?.let {
+            val length = it.toLongOrNull() ?: throw IOException("Invalid STOMP content-length")
+            if (length < 0 || length > budget.maxWireBodyBytes) throw IOException("Invalid STOMP content-length")
+        }
+        val bodyStart = headerEnd + separatorSize
+        var bodyEnd = raw.length
+        while (bodyEnd > bodyStart && raw[bodyEnd - 1] == '\u0000') bodyEnd--
+        val body = raw.substring(bodyStart, bodyEnd)
+        budget.checkWireBody(body)
+        headers["content-length"]?.let {
+            if (it.toLong() != body.utf8Size()) throw IOException("STOMP content-length mismatch")
+        }
+        return StompFrame(headerLines.first().trim(), headers, body)
     }
 
     private data class StompFrame(
