@@ -28,6 +28,29 @@ import org.jetbrains.kotlin.com.google.common.io.ByteSource
 import java.io.File
 import java.nio.charset.Charset
 
+/**
+ * Descriptor keys are paths relative to the asset directory, always written with
+ * forward slashes: the runtime rejects anything else (see AssetMigration.relative),
+ * and a backslash key makes the engine fail its very first data sync on the device.
+ * `File.path` yields backslashes on Windows, so never use it for a descriptor key.
+ *
+ * A [file] that is already relative (the parent chain of a [File.relativeTo] result)
+ * is its own key.
+ */
+internal fun descriptorKey(file: File, root: File): String =
+    (if (file.isAbsolute) file.relativeTo(root) else file).invariantSeparatorsPath
+
+/** Same contract as the runtime side, enforced when the descriptor is written. */
+internal fun requireDescriptorPaths(paths: Collection<String>) {
+    val invalid = paths.filterNot { path ->
+        path.isNotEmpty() && !File(path).isAbsolute && '\\' !in path &&
+            path.split('/').all { it.isNotEmpty() && it != "." && it != ".." }
+    }
+    if (invalid.isNotEmpty()) throw IllegalStateException(
+        "Data descriptor paths must be relative POSIX paths, got: ${invalid.take(5)}"
+    )
+}
+
 interface DataDescriptorPluginExtension {
     /**
      * paths relative to asset dir to be excluded
@@ -96,6 +119,7 @@ class DataDescriptorPlugin : Plugin<Project> {
         private fun serialize(files: Map<String, String>, symlinks: Map<String, String>) {
             if (symlinks.keys.intersect(files.keys).isNotEmpty())
                 throw IllegalArgumentException("Symlink target cannot be path in files")
+            requireDescriptorPaths(files.keys + symlinks.keys)
             val descriptor = DataDescriptor(
                 Hashing.sha256()
                     .hashString(
@@ -134,7 +158,7 @@ class DataDescriptorPlugin : Plugin<Project> {
                     ?: mutableMapOf()
 
             fun File.allParents(): List<File> =
-                if (parentFile == null || parentFile.path in map)
+                if (parentFile == null || descriptorKey(parentFile, file.parentFile) in map)
                     listOf()
                 else
                     listOf(parentFile) + parentFile.allParents()
@@ -142,8 +166,7 @@ class DataDescriptorPlugin : Plugin<Project> {
                 if (change.file.name == file.name || change.file.isDirectory)
                     return@forEach
                 logger.log(LogLevel.DEBUG, "${change.changeType}: ${change.normalizedPath}")
-                val relativeFile = change.file.relativeTo(file.parentFile)
-                val key = relativeFile.path.replace(File.separatorChar, '/')
+                val key = descriptorKey(change.file, file.parentFile)
                 if (change.changeType == ChangeType.REMOVED || isExcluded(key)) {
                     map.remove(key)
                 } else {
@@ -152,10 +175,9 @@ class DataDescriptorPlugin : Plugin<Project> {
             }
             // calculate dirs
             inputDir.asFileTree.forEach {
-                val relative = it.relativeTo(file.parentFile)
-                if (it.name == file.name || isExcluded(relative.invariantSeparatorsPath)) return@forEach
-                relative.allParents().forEach { p ->
-                    map[p.path] = ""
+                if (it.name == file.name || isExcluded(descriptorKey(it, file.parentFile))) return@forEach
+                it.relativeTo(file.parentFile).allParents().forEach { p ->
+                    map[descriptorKey(p, file.parentFile)] = ""
                 }
             }
             serialize(map.toSortedMap(), symlinks.get())
