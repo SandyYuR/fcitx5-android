@@ -17,7 +17,11 @@
 
 const DEFAULTS = {
   streamEndpoint: "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async",
-  flashEndpoint: "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream"
+  flashEndpoint: "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream",
+  resourceIds: {
+    apiKey: "volc.seedasr.sauc.duration",
+    legacy: "volc.bigasr.sauc.duration"
+  }
 };
 
 const STREAM_MODELS = ["bigmodel", "doubao-seed-asr-2.0"];
@@ -43,7 +47,7 @@ const STRINGS = {
     accessToken: "Access Token",
     authModeDescription: "Choose the credential type issued by the Volcengine console.",
     resourceId: "Resource ID",
-    resourceIdDescription: "Service tier bound to the key. 2.x requires Seed ASR keys.",
+    resourceIdDescription: "Changing auth mode selects 2.0 hourly for X-Api-Key or 1.0 hourly for legacy auth. You can then choose another resource granted to your key.",
     mode: "Mode",
     streaming: "Streaming (WebSocket)",
     flash: "Single-shot (nostream)",
@@ -83,7 +87,7 @@ const STRINGS = {
     accessToken: "Access Token",
     authModeDescription: "按火山引擎控制台签发的凭据类型选择。",
     resourceId: "资源 ID",
-    resourceIdDescription: "与密钥绑定的服务规格。2.x 需使用 Seed ASR 密钥。",
+    resourceIdDescription: "切换鉴权时，新版自动选用 2.0 小时版，旧版选用 1.0 小时版；之后可按密钥授权手动调整。",
     mode: "识别模式",
     streaming: "实时流式识别（WebSocket）",
     flash: "单次识别（nostream）",
@@ -123,7 +127,7 @@ const STRINGS = {
     accessToken: "Access Token",
     authModeDescription: "按火山引擎控制台簽發的憑據類型選擇。",
     resourceId: "資源 ID",
-    resourceIdDescription: "與金鑰綁定的服務規格。2.x 需使用 Seed ASR 金鑰。",
+    resourceIdDescription: "切換驗證方式時，新版自動選用 2.0 小時版，舊版選用 1.0 小時版；之後可按金鑰授權手動調整。",
     mode: "辨識模式",
     streaming: "即時串流辨識（WebSocket）",
     flash: "單次辨識（nostream）",
@@ -259,8 +263,9 @@ function buildRequestPayload(context, model) {
 }
 
 function connectVolc(endpoint, context) {
+  const defaultResource = context.authMode === "legacy" ? DEFAULTS.resourceIds.legacy : DEFAULTS.resourceIds.apiKey;
   const extras = {
-    "X-Api-Resource-Id": String(context.resourceId || "volc.bigasr.sauc.duration"),
+    "X-Api-Resource-Id": String(context.resourceId || defaultResource),
     "X-Api-Request-Id": uuid(),
     "X-Api-Connect-Id": uuid(),
     "X-Api-Sequence": "-1"
@@ -342,7 +347,7 @@ function parseVolcFrame(message) {
 foxy.plugin.register({
   id: "doubao-asr",
   name: stringsFor(foxy.locale).name,
-  version: "1.1.0",
+  version: "1.2.0",
   hosts: ["openspeech.bytedance.com"],
   features: [{ type: "voice.asr", id: "doubao-asr", label: "Doubao ASR", sampleRate: 16000 }],
   configure(ui, locale) {
@@ -364,8 +369,9 @@ foxy.plugin.register({
     });
     ui.select("resourceId", t.resourceId, Object.keys(RESOURCE_IDS).map(function (v) {
       return { label: RESOURCE_IDS[v], value: v };
-    }), "volc.bigasr.sauc.duration", {
+    }), DEFAULTS.resourceIds.apiKey, {
       allowCustom: true,
+      defaultWhen: { key: "authMode", values: DEFAULTS.resourceIds },
       description: t.resourceIdDescription
     });
     ui.select("mode", t.mode, [

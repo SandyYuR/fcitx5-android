@@ -93,7 +93,23 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
         val rendered = mutableListOf<Pair<JsVoiceField, Preference>>()
         var order = 0
         fields.forEach { field ->
-            val preference = createPreference(field, values) { refreshVisibility(rendered, values) }
+            val preference = createPreference(field, values) {
+                JsVoiceFields.defaultsAfterChange(fields, field.key, values).forEach { (key, value) ->
+                    values[key] = value
+                    JsVoiceSettingsStore.setValue(pluginId, key, value)
+                    rendered.firstOrNull { it.first.key == key }?.let { (dependent, target) ->
+                        when (target) {
+                            is EditTextPreference -> target.text = value
+                            is ListPreference -> target.value = value
+                            is SwitchPreferenceCompat -> target.isChecked = value == "true"
+                        }
+                        target.summary = if (dependent.kind == JsVoiceField.KIND_SWITCH) {
+                            dependent.description
+                        } else describe(dependent, value)
+                    }
+                }
+                refreshVisibility(rendered, values)
+            }
             preference.isIconSpaceReserved = false
             preference.isSingleLineTitle = false
             preference.order = order++

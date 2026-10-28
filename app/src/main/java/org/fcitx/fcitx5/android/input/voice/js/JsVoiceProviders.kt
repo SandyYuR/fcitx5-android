@@ -77,7 +77,7 @@ internal object JsVoiceProviders {
         Spec(
             id = DOUBAO_ASR_ID,
             label = appContext.getString(R.string.js_voice_provider_doubao_asr),
-            version = "1.1.0",
+            version = "1.2.0",
             // 火山引擎语音识别只开这两个口子：bigmodel_async（流式）与 bigmodel_nostream（单次）。
             hosts = setOf("openspeech.bytedance.com"),
             sampleRate = 16000,

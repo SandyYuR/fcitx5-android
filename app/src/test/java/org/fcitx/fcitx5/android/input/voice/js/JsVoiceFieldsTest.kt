@@ -83,4 +83,29 @@ class JsVoiceFieldsTest {
         assertEquals("flash", values["mode"])
         assertEquals("false", values["stripPunctuation"])
     }
+
+    private val dependentFields = JsVoiceFields.parse("""[
+        {"kind":"text","key":"resource","default":"seed-hours",
+         "defaultWhen":{"key":"auth","values":{"apiKey":"seed-hours","legacy":"big-hours"}}},
+        {"kind":"select","key":"auth","default":"apiKey"},
+        {"kind":"secret","key":"secret","default":"",
+         "defaultWhen":{"key":"auth","values":{"apiKey":"must-not-enter-context"}}}
+    ]""")
+
+    @Test
+    fun conditionalDefaultsFollowControlsRegardlessOfDeclarationOrder() {
+        assertEquals("seed-hours", JsVoiceFields.currentValues(dependentFields, emptyMap())["resource"])
+        assertEquals("big-hours", JsVoiceFields.currentValues(dependentFields, mapOf("auth" to "legacy"))["resource"])
+        assertFalse(JsVoiceFields.currentValues(dependentFields, emptyMap()).containsKey("secret"))
+    }
+
+    @Test
+    fun explicitValuesSurviveReloadButChangingTheControlResetsTheDependentDefault() {
+        val values = JsVoiceFields.currentValues(dependentFields, mapOf("resource" to "custom")).toMutableMap()
+        assertEquals("custom", values["resource"])
+        assertEquals(mapOf("resource" to "seed-hours"), JsVoiceFields.defaultsAfterChange(dependentFields, "auth", values))
+        assertTrue(JsVoiceFields.defaultsAfterChange(dependentFields, "resource", values).isEmpty())
+        values["auth"] = "legacy"
+        assertEquals(mapOf("resource" to "big-hours"), JsVoiceFields.defaultsAfterChange(dependentFields, "auth", values))
+    }
 }

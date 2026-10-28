@@ -86,7 +86,8 @@ function __field(kind, key, label, defaultValue, settings, options) {
     "default": __str(defaultValue),
     options: options || [],
     allowCustom: s.allowCustom === true,
-    visibleWhen: s.visibleWhen || null
+    visibleWhen: s.visibleWhen || null,
+    defaultWhen: s.defaultWhen || null
   };
 }
 function __options(list) {
