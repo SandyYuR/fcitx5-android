@@ -5,14 +5,11 @@
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
+import android.os.Handler
+import android.os.Looper
 import android.view.View
-import android.view.ViewGroup
-import androidx.annotation.Keep
 import androidx.fragment.app.activityViewModels
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -21,29 +18,39 @@ import androidx.preference.PreferenceViewHolder
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.google.android.material.shape.MaterialShapeDrawable
-import com.google.android.material.shape.ShapeAppearanceModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences.Selection
 import org.fcitx.fcitx5.android.data.theme.SettingsKeyboardColors
-import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.search.scrollToPendingPreference
-import org.fcitx.fcitx5.android.ui.main.settingsPageToolbar
-import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
 import org.fcitx.fcitx5.android.utils.settingsColor
 
-/** Draft controls use the same preference rows as other settings and the exact themed preview. */
+/**
+ * Appearance controls use the same preference rows as other settings.
+ *
+ * Each row is saved and applied on the spot: mode, theme resource, dynamic colors, the AMOLED
+ * overlay and the keyboard palette are all decided in [org.fcitx.fcitx5.android.ui.common.SettingsUiActivity.onCreate],
+ * so a change becomes visible through one rebuild of the page itself.
+ */
 class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
     private val viewModel: MainViewModel by activityViewModels()
-    private var original = Selection()
-    private var draft = Selection()
-    private var applyItem: MenuItem? = null
-    private lateinit var preview: PreviewPreference
+    private var selection = Selection()
+    private var rebuildScheduled = false
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val rebuildRunnable = Runnable {
+        rebuildScheduled = false
+        val activity = activity ?: return@Runnable
+        if (!isAdded || activity.isFinishing || activity.isDestroyed) return@Runnable
+        // A closing preference dialog removes its fragment through a queued transaction; run it
+        // first so the rebuild does not restore the dialog the user just dismissed.
+        if (!parentFragmentManager.isStateSaved) parentFragmentManager.executePendingTransactions()
+        activity.recreate()
+    }
     private lateinit var mode: ListPreference
     private lateinit var pureBlack: SwitchPreferenceCompat
     private lateinit var followKeyboard: SwitchPreferenceCompat
@@ -51,8 +58,6 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
     private lateinit var palettes: PalettePreference
     private lateinit var recipe: ListPreference
     private lateinit var contrast: ListPreference
-    @Keep
-    private val onKeyboardThemeChanged = ThemeManager.OnThemeChangeListener { preview.update(draft) }
 
     private val paletteOptions = listOf(
         SettingsUiPreferences.PALETTE_COMPAT to R.string.settings_ui_palette_compat,
@@ -73,35 +78,23 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
     )
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        original = SettingsUiPreferences.read(requireContext())
-        draft = savedInstanceState?.let {
-            original.copy(
-                mode = it.getString("draft_mode") ?: original.mode,
-                palette = it.getString("draft_palette") ?: original.palette,
-                recipe = it.getString("draft_recipe") ?: original.recipe,
-                contrast = it.getString("draft_contrast") ?: original.contrast,
-                pureBlack = it.getBoolean("draft_pure_black", original.pureBlack),
-                followKeyboardTheme = it.getBoolean("draft_follow_keyboard", original.followKeyboardTheme),
-                manualPalette = it.getString("draft_manual_palette") ?: original.manualPalette
-            )
-        } ?: original
+        selection = SettingsUiPreferences.read(requireContext())
         preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
-        preview = PreviewPreference(requireContext()).also { preferenceScreen.addPreference(it) }
 
         category(R.string.settings_ui_display)
         mode = choice("settings_ui_mode", R.string.settings_ui_mode_title, listOf(
             SettingsUiPreferences.MODE_SYSTEM to R.string.settings_ui_mode_system,
             SettingsUiPreferences.MODE_LIGHT to R.string.settings_ui_mode_light,
             SettingsUiPreferences.MODE_DARK to R.string.settings_ui_mode_dark
-        )) { draft = draft.copy(mode = it) }
+        )) { commit(selection.copy(mode = it)) }
         pureBlack = toggle(SettingsUiPreferences.KEY_PURE_BLACK,
             R.string.settings_ui_pure_black, R.string.settings_ui_pure_black_summary
-        ) { draft = draft.copy(pureBlack = it) }
+        ) { commit(selection.copy(pureBlack = it)) }
 
         category(R.string.settings_ui_color_title)
         followKeyboard = toggle(SettingsUiPreferences.KEY_FOLLOW_KEYBOARD,
             R.string.settings_ui_follow_keyboard, R.string.settings_ui_follow_keyboard_summary
-        ) { draft = draft.copy(followKeyboardTheme = it) }
+        ) { commit(selection.copy(followKeyboardTheme = it)) }
         if (!SettingsKeyboardColors.isAvailable()) {
             followKeyboard.isEnabled = false
             followKeyboard.setSummary(R.string.settings_ui_follow_keyboard_unavailable)
@@ -109,24 +102,26 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
         dynamicColors = toggle("settings_ui_dynamic_colors",
             R.string.settings_ui_dynamic_colors, R.string.settings_ui_dynamic_colors_summary
         ) { enabled ->
-            draft = if (enabled) {
-                draft.copy(palette = SettingsUiPreferences.PALETTE_SYSTEM,
-                    manualPalette = draft.palette.takeUnless { it == SettingsUiPreferences.PALETTE_SYSTEM }
-                        ?: draft.manualPalette)
-            } else draft.copy(palette = draft.manualPalette)
+            commit(
+                if (enabled) {
+                    selection.copy(palette = SettingsUiPreferences.PALETTE_SYSTEM,
+                        manualPalette = selection.palette
+                            .takeUnless { it == SettingsUiPreferences.PALETTE_SYSTEM }
+                            ?: selection.manualPalette)
+                } else selection.copy(palette = selection.manualPalette)
+            )
         }
         palettes = PalettePreference(requireContext(), paletteOptions) { value ->
-            draft = draft.copy(palette = value, manualPalette = value)
-            render()
+            commit(selection.copy(palette = value, manualPalette = value))
         }.also { preferenceScreen.addPreference(it) }
         recipe = choice("settings_ui_recipe", R.string.settings_ui_recipe_title, recipeOptions) {
-            draft = draft.copy(recipe = it)
+            commit(selection.copy(recipe = it))
         }
         contrast = choice("settings_ui_contrast", R.string.settings_ui_contrast_title, listOf(
             SettingsUiPreferences.CONTRAST_STANDARD to R.string.settings_ui_contrast_standard,
             SettingsUiPreferences.CONTRAST_MEDIUM to R.string.settings_ui_contrast_medium,
             SettingsUiPreferences.CONTRAST_HIGH to R.string.settings_ui_contrast_high
-        )) { draft = draft.copy(contrast = it) }
+        )) { commit(selection.copy(contrast = it)) }
 
         category(R.string.settings_ui_interaction)
         preferenceScreen.addPreference(Preference(requireContext()).apply {
@@ -139,9 +134,17 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
         preferenceScreen.addPreference(Preference(requireContext()).apply {
             setTitle(R.string.settings_ui_restore_default)
             isIconSpaceReserved = false
+            // Reset touches seven values at once and cannot be undone from this page, so it keeps
+            // a confirmation step that the single-value rows deliberately do not have.
             setOnPreferenceClickListener {
-                draft = SettingsUiPreferences.defaultSelection()
-                render()
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.settings_ui_restore_default)
+                    .setMessage(R.string.settings_ui_restore_default_message)
+                    .setPositiveButton(R.string.reset) { _, _ ->
+                        commit(SettingsUiPreferences.defaultSelection())
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
                 true
             }
         })
@@ -167,7 +170,7 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
         isPersistent = false
         isIconSpaceReserved = false
         summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
-        setOnPreferenceChangeListener { _, value -> changed(value.toString()); render(); true }
+        setOnPreferenceChangeListener { _, value -> changed(value.toString()); true }
     }.also { preferenceScreen.addPreference(it) }
 
     private fun toggle(key: String, title: Int, summary: Int, changed: (Boolean) -> Unit) =
@@ -177,95 +180,59 @@ class SettingsUiAppearanceFragment : PaddingPreferenceFragment() {
             setSummary(summary)
             isPersistent = false
             isIconSpaceReserved = false
-            setOnPreferenceChangeListener { _, value -> changed(value as Boolean); render(); true }
+            setOnPreferenceChangeListener { _, value -> changed(value as Boolean); true }
         }.also { preferenceScreen.addPreference(it) }
 
+    /**
+     * Persist and apply one step. Everything on this page is decided when the host activity is
+     * created ([org.fcitx.fcitx5.android.ui.common.SettingsUiActivity] resolves the night mode in
+     * `attachBaseContext`, then the theme, dynamic colors, AMOLED overlay and keyboard palette in
+     * `onCreate`), so a change can only be shown by rebuilding that activity.
+     *
+     * Rebuilds are deferred to the next message and coalesced: a closing dialog finishes first,
+     * and several taps in one burst cost one rebuild.
+     */
+    private fun commit(next: Selection) {
+        if (next == selection) {
+            render()
+            return
+        }
+        SettingsUiPreferences.save(requireContext(), next)
+        // save() normalizes; read back so the page never holds a value the engine would reject.
+        selection = SettingsUiPreferences.read(requireContext())
+        render()
+        if (rebuildScheduled) return
+        rebuildScheduled = true
+        mainHandler.post(rebuildRunnable)
+    }
+
     private fun render() {
-        mode.value = draft.mode
-        pureBlack.isChecked = draft.pureBlack
-        pureBlack.isEnabled = draft.mode != SettingsUiPreferences.MODE_LIGHT
-        val dynamic = draft.palette == SettingsUiPreferences.PALETTE_SYSTEM
-        val keyboard = SettingsUiPreferences.usesKeyboardColors(draft)
+        mode.value = selection.mode
+        pureBlack.isChecked = selection.pureBlack
+        pureBlack.isEnabled = selection.mode != SettingsUiPreferences.MODE_LIGHT
+        val dynamic = selection.palette == SettingsUiPreferences.PALETTE_SYSTEM
+        val keyboard = SettingsUiPreferences.usesKeyboardColors(selection)
         followKeyboard.isChecked = keyboard
         dynamicColors.isChecked = dynamic
         dynamicColors.isVisible = !keyboard && SettingsUiPreferences.systemDynamicColorsAvailable()
         palettes.isVisible = !keyboard && !dynamic
-        palettes.update(draft)
-        recipe.value = draft.recipe
-        recipe.isVisible = !keyboard && !dynamic && draft.palette != SettingsUiPreferences.PALETTE_COMPAT
-        contrast.value = draft.contrast
+        palettes.update(selection)
+        recipe.value = selection.recipe
+        recipe.isVisible = !keyboard && !dynamic && selection.palette != SettingsUiPreferences.PALETTE_COMPAT
+        contrast.value = selection.contrast
         contrast.isVisible = keyboard || !dynamic
-        preview.update(draft)
-        applyItem?.isEnabled = draft != original
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        applyItem = settingsPageToolbar().menu.item(R.string.apply, showAsAction = true) {
-            SettingsUiPreferences.save(requireContext(), draft)
-            requireActivity().recreate()
-        }
         render()
         scrollToPendingPreference(viewModel)
     }
 
     override fun onDestroyView() {
-        applyItem = null
+        mainHandler.removeCallbacks(rebuildRunnable)
+        rebuildScheduled = false
         super.onDestroyView()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        ThemeManager.addOnChangedListener(onKeyboardThemeChanged)
-        preview.update(draft)
-    }
-
-    override fun onStop() {
-        ThemeManager.removeOnChangedListener(onKeyboardThemeChanged)
-        super.onStop()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("draft_mode", draft.mode)
-        outState.putString("draft_palette", draft.palette)
-        outState.putString("draft_recipe", draft.recipe)
-        outState.putString("draft_contrast", draft.contrast)
-        outState.putBoolean("draft_pure_black", draft.pureBlack)
-        outState.putBoolean("draft_follow_keyboard", draft.followKeyboardTheme)
-        outState.putString("draft_manual_palette", draft.manualPalette)
-    }
-
-    private class PreviewPreference(context: Context) : Preference(context) {
-        private var selection = Selection()
-        private var keyboardPalette: SettingsKeyboardColors.Palette? = null
-        init {
-            key = "settings_ui_preview"
-            layoutResource = R.layout.preference_settings_ui_preview
-            isSelectable = false
-        }
-        fun update(value: Selection) {
-            val palette = SettingsKeyboardColors.current(context, value)
-            if (selection != value || keyboardPalette != palette) {
-                selection = value
-                keyboardPalette = palette
-                notifyChanged()
-            }
-        }
-        override fun onBindViewHolder(holder: PreferenceViewHolder) {
-            super.onBindViewHolder(holder)
-            val container = holder.findViewById(R.id.settings_ui_preview_container) as ViewGroup
-            val state = selection to keyboardPalette
-            if (container.tag == state) return
-            val themed = SettingsUiPreferences.themedContext(context, selection)
-            val shape = ShapeAppearanceModel.builder().setAllCornerSizes(24f * context.resources.displayMetrics.density).build()
-            container.background = MaterialShapeDrawable(shape).apply {
-                fillColor = ColorStateList.valueOf(themed.settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
-            }
-            container.removeAllViews()
-            LayoutInflater.from(themed).inflate(R.layout.settings_ui_appearance_preview, container, true)
-            container.tag = state
-        }
     }
 
     private class PalettePreference(

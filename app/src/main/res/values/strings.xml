@@ -1116,14 +1116,7 @@
     <string name="settings_ui_appearance_summary">Light and dark modes, dynamic colors, palettes and contrast</string>
     <string name="settings_section_settings_ui">Settings interface</string>
     <string name="settings_section_keyboard_appearance">Keyboard appearance</string>
-    <string name="settings_ui_intro">Changes here affect the app\'s settings pages and editors. Keyboard colors and input windows keep their own settings.</string>
-    <string name="settings_ui_preview_title">Preview</string>
-    <string name="settings_ui_preview_body">Readable surfaces, controls and buttons update together.</string>
-    <string name="settings_ui_preview_primary">Primary</string>
-    <string name="settings_ui_preview_secondary">Secondary</string>
-    <string name="settings_ui_preview_tertiary">Tertiary</string>
-    <string name="settings_ui_preview_switch">Example switch</string>
-    <string name="settings_ui_preview_button">Apply sample</string>
+    <string name="settings_ui_intro">Changes take effect as soon as you make them, with nothing to confirm. They affect the app\'s settings pages and editors; keyboard colors and input windows keep their own settings.</string>
     <string name="settings_ui_mode_title">Theme mode</string>
     <string name="settings_ui_mode_system">System</string>
     <string name="settings_ui_mode_light">Light</string>
@@ -1152,6 +1145,6 @@
     <string name="settings_ui_contrast_medium">Medium</string>
     <string name="settings_ui_contrast_high">High</string>
     <string name="settings_ui_restore_default">Restore default appearance</string>
-    <string name="apply">Apply</string>
+    <string name="settings_ui_restore_default_message">Reset every appearance option on this page to its default? The change takes effect immediately.</string>
     <string name="settings_search_clear">Clear search</string>
 </resources>

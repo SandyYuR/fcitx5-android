@@ -1082,14 +1082,7 @@
     <string name="settings_ui_appearance_summary">明暗模式、動態取色、手動配色和對比度</string>
     <string name="settings_section_settings_ui">設定介面</string>
     <string name="settings_section_keyboard_appearance">鍵盤外觀</string>
-    <string name="settings_ui_intro">此處只影響應用程式設定頁和編輯器。鍵盤配色與輸入視窗仍使用各自的設定。</string>
-    <string name="settings_ui_preview_title">預覽</string>
-    <string name="settings_ui_preview_body">頁面底色、控制項和按鈕會一併更新。</string>
-    <string name="settings_ui_preview_primary">主色</string>
-    <string name="settings_ui_preview_secondary">次色</string>
-    <string name="settings_ui_preview_tertiary">第三色</string>
-    <string name="settings_ui_preview_switch">開關範例</string>
-    <string name="settings_ui_preview_button">範例按鈕</string>
+    <string name="settings_ui_intro">調整後立即生效，無需確認。此處只影響應用程式設定頁和編輯器，鍵盤配色與輸入視窗仍使用各自的設定。</string>
     <string name="settings_ui_mode_title">主題模式</string>
     <string name="settings_ui_mode_system">跟隨系統</string>
     <string name="settings_ui_mode_light">淺色</string>
@@ -1118,6 +1111,6 @@
     <string name="settings_ui_contrast_medium">中</string>
     <string name="settings_ui_contrast_high">高</string>
     <string name="settings_ui_restore_default">還原預設外觀</string>
-    <string name="apply">套用</string>
+    <string name="settings_ui_restore_default_message">把本頁所有外觀選項還原為預設值？還原後立即生效。</string>
     <string name="settings_search_clear">清除搜尋</string>
 </resources>

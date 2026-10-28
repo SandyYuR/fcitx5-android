@@ -1112,14 +1112,7 @@
     <string name="settings_ui_appearance_summary">明暗模式、动态取色、手动配色和对比度</string>
     <string name="settings_section_settings_ui">设置界面</string>
     <string name="settings_section_keyboard_appearance">键盘外观</string>
-    <string name="settings_ui_intro">此处只影响应用设置页和编辑器。键盘配色与输入窗口仍使用各自的设置。</string>
-    <string name="settings_ui_preview_title">预览</string>
-    <string name="settings_ui_preview_body">页面底色、控件和按钮会一并更新。</string>
-    <string name="settings_ui_preview_primary">主色</string>
-    <string name="settings_ui_preview_secondary">次色</string>
-    <string name="settings_ui_preview_tertiary">第三色</string>
-    <string name="settings_ui_preview_switch">开关示例</string>
-    <string name="settings_ui_preview_button">示例按钮</string>
+    <string name="settings_ui_intro">调整后立即生效，无需确认。此处只影响应用设置页和编辑器，键盘配色与输入窗口仍使用各自的设置。</string>
     <string name="settings_ui_mode_title">主题模式</string>
     <string name="settings_ui_mode_system">跟随系统</string>
     <string name="settings_ui_mode_light">浅色</string>
@@ -1148,6 +1141,6 @@
     <string name="settings_ui_contrast_medium">中</string>
     <string name="settings_ui_contrast_high">高</string>
     <string name="settings_ui_restore_default">恢复默认外观</string>
-    <string name="apply">应用</string>
+    <string name="settings_ui_restore_default_message">把本页所有外观选项恢复为默认值？恢复后立即生效。</string>
     <string name="settings_search_clear">清空搜索</string>
 </resources>
