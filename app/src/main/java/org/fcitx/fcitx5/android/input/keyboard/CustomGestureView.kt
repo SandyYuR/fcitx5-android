@@ -20,6 +20,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import kotlin.math.abs
 
 open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
 
@@ -95,6 +96,16 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
     private var swipeRepeatTriggered = false
     private var swipeLastX = -1f
     private var swipeLastY = -1f
+
+    // 按下点与按下时刻：判定「这是按住还是拖动」。滑动分支拿它算离按下点的净位移，
+    // 抬手时用它决定要不要把「没凑够一格的小幅拖动」补成一格。
+    private var pressDownX = -1f
+    private var pressDownY = -1f
+    private var pressDownTime = 0L
+
+    // 本次按压是否已经因为手指离开按下点（超过触摸 slop）而取消了长按计时。
+    @Volatile
+    private var holdCancelledByMovement = false
     private var swipeXUnconsumed = 0f
     private var swipeYUnconsumed = 0f
     private var swipeTotalX = 0
@@ -170,6 +181,10 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         swipeTotalX = 0
         swipeTotalY = 0
         gestureConsumed = false
+        pressDownX = -1f
+        pressDownY = -1f
+        pressDownTime = 0L
+        holdCancelledByMovement = false
         holdSwipeArmed = false
         holdSwipeJob?.cancel()
         holdSwipeJob = null
@@ -192,6 +207,12 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
             MotionEvent.ACTION_DOWN -> {
                 if (!isEnabled) return false
                 val longPressDelayMillis = longPressDelay.toLong()
+                // 无条件记录按下点：swipeEnabled 可能在本次按压期间被设置项改掉，
+                // 到那时再补记就还原不出真实起点。
+                pressDownX = x
+                pressDownY = y
+                pressDownTime = event.eventTime
+                holdCancelledByMovement = false
                 drawableHotspotChanged(x, y)
                 isPressed = true
                 InputFeedbacks.hapticFeedback(this)
@@ -248,6 +269,11 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 // 按住后滑动模式：只在「已按住」时才配对派发 Up（未按住时本视图
                 // 从未派发过 Down）。其它模式行为不变。
                 val holdSwipeWasArmed = holdSwipeEnabled && holdSwipeArmed
+                // 抬手前把「不够一格的小幅拖动」补成一格（只对常规划动分支生效；
+                // 按住后滑动模式自己按 Y 轴计数，不走这里）。
+                if (!holdSwipeEnabled) {
+                    commitSwipeStepIfPending(event.x, event.y, event.eventTime)
+                }
                 if (!holdSwipeEnabled || holdSwipeWasArmed) {
                     dispatchGestureEvent(GestureType.Up, event.x, event.y)
                 }
@@ -324,6 +350,17 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                     }
                     return true
                 }
+                // 与框架原生长按语义对齐：手指离开按下点超过触摸 slop 就取消长按计时，
+                // 而不是等攒够一整格划动。空格键光标模式一格只有十几 dp，慢速小幅拖动
+                // 常常先攒到长按判定时间（默认 300ms）弹了长按菜单，划动永远进不来。
+                // 只取消长按、不取消重复：后者的继续/停止由 consumeSwipe 的整格判定
+                // 负责（退格键按住连删依赖它，不该被几像素抖动打断）。
+                if (!holdCancelledByMovement &&
+                    (abs(x - pressDownX) >= touchSlop || abs(y - pressDownY) >= touchSlop)
+                ) {
+                    holdCancelledByMovement = true
+                    cancelPendingLongPress()
+                }
                 val countX = consumeSwipe(x, SwipeAxis.X)
                 val countY = consumeSwipe(y, SwipeAxis.Y)
                 dispatchGestureEvent(GestureType.Move, x, y, countX, countY)
@@ -341,6 +378,36 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
             }
         }
         return true
+    }
+
+    private fun cancelPendingLongPress() {
+        if (longPressEnabled && !longPressTriggered) {
+            longPressJob?.cancel()
+            longPressJob = null
+        }
+    }
+
+    /**
+     * 抬手时把「一次划动都没凑够一格」的小幅拖动补成一格。
+     *
+     * 光标模式一格 [swipeThresholdX]（默认 10dp）比触摸 slop 大不了多少，用户想挪一两个
+     * 字却只拖了半格时，事件层拿到的是 0 格：既没有划动也没有长按，只剩一次 click
+     * （打出一个空格），手感就是「滑少了没反应、还多打一个空格」。这里按净位移补一格，
+     * 方向取净位移符号。
+     *
+     * 三条限制保证不会把普通打字吃掉：
+     * - 只在本次按压已因位移取消长按时生效（[holdCancelledByMovement]），纯点击不受影响；
+     * - 按压时长必须达到 [SlowSwipeMinMillis]：快打（60–120ms）的抖动仍算点击；
+     * - 只在横向位移明显大于纵向时补格，竖向小幅拖动保持原行为（不动光标）。
+     */
+    private fun commitSwipeStepIfPending(x: Float, y: Float, eventTime: Long) {
+        if (!swipeEnabled || !holdCancelledByMovement) return
+        if (swipeTotalX != 0 || swipeTotalY != 0) return
+        val netX = x - pressDownX
+        val netY = y - pressDownY
+        if (abs(netX) < touchSlop || abs(netX) <= abs(netY)) return
+        if (eventTime - pressDownTime < SlowSwipeMinMillis) return
+        dispatchGestureEvent(GestureType.Move, x, y, if (netX > 0f) 1 else -1, 0)
     }
 
     private fun dispatchGestureEvent(
@@ -376,10 +443,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
             if (swipeRepeatEnabled && !swipeRepeatTriggered) {
                 swipeRepeatTriggered = true
             }
-            if (longPressEnabled && !longPressTriggered) {
-                longPressJob?.cancel()
-                longPressJob = null
-            }
+            cancelPendingLongPress()
             if (repeatEnabled && !repeatStarted) {
                 repeatJob?.cancel()
                 repeatJob = null
@@ -412,5 +476,11 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
     companion object {
         val longPressDelay by AppPrefs.getInstance().keyboard.longPressDelay
         const val RepeatInterval = 50L
+
+        /**
+         * 按压时长达到这个值、且位移超过 slop 但没凑够一格时，抬手才补一格。
+         * 快打（空格键的典型按压 60–120ms）的抖动仍按点击处理，不打错字。
+         */
+        const val SlowSwipeMinMillis = 180L
     }
 }

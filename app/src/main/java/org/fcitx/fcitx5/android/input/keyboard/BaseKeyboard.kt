@@ -221,7 +221,7 @@ abstract class BaseKeyboard(
      */
     private fun applySpaceSwipeThresholds(view: KeyView) {
         if (spaceSwipeMoveCursor.getValue()) {
-            view.swipeThresholdX = selectionSwipeThreshold
+            view.swipeThresholdX = spaceCursorSwipeThreshold
             view.swipeThresholdY = selectionSwipeThreshold * 1.5f
         } else {
             view.swipeThresholdX = disabledSwipeThreshold
@@ -328,6 +328,16 @@ abstract class BaseKeyboard(
 
     private val selectionSwipeThreshold = dp(10f)
     private val inputSwipeThreshold = dp(36f)
+
+    /**
+     * 空格键光标模式每格位移。
+     *
+     * 比 [selectionSwipeThreshold]（10dp，退格键等选择类手势）大一档：10dp 一格时手指在手
+     * 机上随便一划就是 5–6 个字，用户想挪两三个字极易冲过头；放大到 16dp 后同样的手部
+     * 过冲只多出不到一个字。起步不足一格的小幅拖动由
+     * [CustomGestureView.commitSwipeStepIfPending] 在抬手时补算一格，不影响「只想挪一个字」。
+     */
+    private val spaceCursorSwipeThreshold = dp(16f)
 
     // a rather large threshold effectively disables swipe of the direction
     private val disabledSwipeThreshold = dp(800f)
