@@ -19,7 +19,7 @@ else
 fi
 ./gradlew '-Dorg.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8 -XX:+UseParallelGC' \
     -PbuildABI=arm64-v8a -PbuildCommitHash="$(git rev-parse HEAD)" \
-    -Pkotlin.compiler.execution.strategy=in-process --max-workers=1 :app:assembleFxRelease
+    :app:assembleFxRelease
 python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/release/*.apk
 python3 tools/audit-direct-rime-link.py app/build/outputs/apk/fx/release/*.apk > "$output_dir/native-link-audit.json"
 python3 tools/foxy-perf/apk_profiles.py app/build/outputs/apk/fx/release/*.apk > "$output_dir/packaged-profile-audit.json"
