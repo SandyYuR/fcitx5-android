@@ -58,6 +58,8 @@ git -C native/prebuilt checkout --detach <pin>
 
 两个脚本默认在出包后跑 CI 的两道 native 门禁（`verify-direct-rime-apk.py` 与 `audit-direct-rime-link.py`，对齐 PR CI / Direct Rime CI）。门禁失败不安装并退出非零。要跳过用 `-SkipVerify`，但跳过了就别声称包是合格的。
 
+`verify-direct-rime-apk.py` 里的 `allowed` 是**打包原生库白名单**：新增任何带 `.so` 的依赖，必须把库名登记进去，否则 Debug 出包一切正常、只有 Release 门禁（和 CI）会在 `packaged == allowed` 断言上变红。2026-10-28 接入 JS 语音插件时 `libquickjs.so` 就是这么漏掉的。
+
 验证 APK 体积必须 `:app:clean` 后再打包——增量构建的体积会虚高。
 
 ## adb
