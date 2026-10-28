@@ -87,6 +87,7 @@
 |------|------|------|
 | 剪贴板同步（内置） | 兼容 SyncClipboard / Oneclip / ClipCascade；历史实时搜索（打字即过滤，只查本机） | [查看](/features/clipboard-sync) |
 | 外部语音输入 | 通过 AIDL 连接识别提供方，按请求和输入框隔离回调 | [查看](/features/voice-input) |
+| JS 语音插件 | 导入 `.js` 即可接入云端识别，内置千问与豆包，无需额外 APK | [查看](/features/voice-input-js) |
 | 备份与恢复 | 默认加密导出、兼容 ZIP、独立进程恢复及中断处理 | [查看](/features/backup-restore) |
 | 更新检查器 | 检查本仓库 Release（含 Nightly），镜像规则 + 自定义 hosts，平滑速度显示 | [查看](/features/update-checker) |
 | 共享导入与解压 | 系统分享自动识别导入，支持 ZIP/7z 自动解压 | [查看](/features/shared-import) |
