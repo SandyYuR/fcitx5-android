@@ -203,6 +203,17 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val x = event.x
         val y = event.y
+        // 候选词尚未进入长按手势时，滑出实际触摸范围就取消本次选择。
+        // 快速划出可能没有 MOVE，UP 也要检查；滑回范围内不重新激活。
+        if (holdSwipeEnabled && !holdSwipeArmed &&
+            (event.actionMasked == MotionEvent.ACTION_MOVE || event.actionMasked == MotionEvent.ACTION_UP) &&
+            (x < 0f || y < 0f || x >= width || y >= height)
+        ) {
+            touchMovedOutside = true
+            isPressed = false
+            holdSwipeJob?.cancel()
+            holdSwipeJob = null
+        }
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 if (!isEnabled) return false
