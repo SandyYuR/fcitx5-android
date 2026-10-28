@@ -783,7 +783,8 @@ class KeyboardLayoutAdapter(
         fun setDragging(dragging: Boolean) {
             val card = container as? MaterialCardView ?: return
             if (dragging) {
-                card.setCardBackgroundColor(card.context.settingsColor(android.R.attr.colorControlHighlight))
+                // Ripple colors are translucent and expose CardView's inset background.
+                card.setCardBackgroundColor(card.context.settingsColor(com.google.android.material.R.attr.colorSurfaceContainerHighest))
             } else {
                 cardBackground?.let(card::setCardBackgroundColor)
             }

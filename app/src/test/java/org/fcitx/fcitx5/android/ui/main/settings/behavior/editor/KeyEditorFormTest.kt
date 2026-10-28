@@ -174,19 +174,28 @@ class KeyEditorFormTest {
         check(0, false, true)
     }
 
-    @Test fun rowDragHighlightRestoresItsCardSurface() = page { activity ->
-        val adapter = KeyboardLayoutAdapter(activity, listOf(mutableListOf()), NoOpListener)
-        val holder = adapter.onCreateViewHolder(android.widget.FrameLayout(activity), 0) as KeyboardLayoutAdapter.RowViewHolder
-        val card = holder.itemView as MaterialCardView
-        val originalBackground = card.cardBackgroundColor.defaultColor
-        val originalRadius = card.radius
+    @Test fun rowDragHighlightStaysOpaqueAndRestoresItsCardSurface() = page { activity ->
+        for (theme in listOf(R.style.Theme_FcitxSettings_Base_Light, R.style.Theme_FcitxSettings_Base_Dark)) {
+            val context = androidx.appcompat.view.ContextThemeWrapper(activity, theme)
+            val adapter = KeyboardLayoutAdapter(context, listOf(mutableListOf()), NoOpListener)
+            val holder = adapter.onCreateViewHolder(android.widget.FrameLayout(context), 0) as KeyboardLayoutAdapter.RowViewHolder
+            val card = holder.itemView as MaterialCardView
+            val originalBackground = card.cardBackgroundColor
+            val originalDrawable = card.background
+            val originalRadius = card.radius
 
-        holder.setDragging(true)
-        assertNotEquals(originalBackground, card.cardBackgroundColor.defaultColor)
+            holder.setDragging(true)
+            assertNotEquals(originalBackground.defaultColor, card.cardBackgroundColor.defaultColor)
+            // A translucent fill exposes the inset backing as a different-colored rectangle.
+            assertEquals(255, android.graphics.Color.alpha(card.cardBackgroundColor.defaultColor))
+            assertSame(originalDrawable, card.background)
+            assertEquals(originalRadius, card.radius, 0f)
 
-        holder.setDragging(false)
-        assertEquals(originalBackground, card.cardBackgroundColor.defaultColor)
-        assertEquals(originalRadius, card.radius, 0f)
+            holder.setDragging(false)
+            assertEquals(originalBackground, card.cardBackgroundColor)
+            assertSame(originalDrawable, card.background)
+            assertEquals(originalRadius, card.radius, 0f)
+        }
     }
 
     @Test fun aRecreatedFormAcceptsThePendingEventAndKeepsTypedContentAndColors() = page { activity ->
