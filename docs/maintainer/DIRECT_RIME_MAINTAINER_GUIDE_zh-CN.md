@@ -29,6 +29,7 @@ Release 需要自己的签名才能分发；本地校验用的 `release-unsigned
 保管签名密钥，勿提交到仓库；覆盖升级必须使用相同包名与签名。
 
 普通构建已固定为直连。`-PdirectRimeFrontend=true` 仅兼容旧脚本，false 会报错。
+Windows 本机的工具链位置、`ANDROID_SDK_HOME` 与 daemon 的坑、子模块浅克隆恢复见 [Windows 本机构建环境](LOCAL_BUILD_ENVIRONMENT_zh-CN.md)。
 可选 `-PdirectRimePrototype=true :direct-rime:assembleDebug` 构建最小引擎诊断 APK，
 包名为 `org.fcitx.fcitx5.android.fx.rime.lab`，名称“中州鹅引擎诊断”，与主应用独立安装；
 它不是带完整键盘的日常产品。

@@ -9,6 +9,7 @@
 | 两份旧 Fcitx 审阅报告在直连版的全部 139 项状态 | [逐项对照表](DIRECT_RIME_LEGACY_REVIEW_COMPARISON_2026-10-24.md) |
 | 同步、下载、加密备份与整包恢复的当前协议 | [中文实现说明](implementation/index.md) |
 | 编译、CI、librime 更新和设备诊断 | [维护手册](DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md) |
+| Windows 本机工具链、环境坑与子模块恢复 | [Windows 本机构建环境](LOCAL_BUILD_ENVIRONMENT_zh-CN.md) |
 
 用户操作请先查看[用户手册](../manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)、[备份与恢复](../features/backup-restore.md)、[外部语音输入](../features/voice-input.md)和[在线编辑器](../features/online-editor.md)。
 
