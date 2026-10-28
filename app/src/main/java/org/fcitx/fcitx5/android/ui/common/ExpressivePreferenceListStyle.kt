@@ -154,7 +154,7 @@ class ExpressivePreferenceListStyle(
             isDividerAllowedAbove = false
             isDividerAllowedBelow = false
         }
-        if (preference is PreferenceCategory || preference.key == "settings_ui_preview") {
+        if (preference is PreferenceCategory) {
             view.background = null
             rowBackgrounds[view] = null
             view.clipToOutline = false
