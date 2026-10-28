@@ -49,6 +49,7 @@ class JsVoiceBridgeContractTest {
         val posts = mutableListOf<Pair<String, String>>()
         var connectUrl = ""
         var connectSecretField = ""
+        var connectHeaders = emptyMap<String, String>()
         var closed = false
         var postResponse =
             """{"output":{"choices":[{"message":{"content":[{"text":"你好世界。"}]}}]}}"""
@@ -58,6 +59,13 @@ class JsVoiceBridgeContractTest {
             js.function("__n_wsConnect") { args ->
                 connectUrl = args.getOrNull(0)?.toString().orEmpty()
                 connectSecretField = args.getOrNull(1)?.toString().orEmpty()
+                connectHeaders = JsVoiceHeaders.build(
+                    connectSecretField,
+                    "test-secret",
+                    args.getOrNull(2)?.toString().orEmpty(),
+                    args.getOrNull(3)?.toString().orEmpty(),
+                    args.getOrNull(4)?.toString().orEmpty(),
+                )
                 "socket-1"
             }
             js.function("__n_wsWaitOpen") { null }
@@ -408,6 +416,69 @@ class JsVoiceBridgeContractTest {
         val values = JsVoiceFields.currentValues(fields, emptyMap())
         assertFalse(values.containsKey("apiKey"))
         assertFalse(values.containsKey("accessToken"))
+        val resource = fields.first { it.key == "resourceId" }
+        assertEquals("authMode", resource.defaultWhen!!.getValue("key").jsonPrimitive.content)
+        assertEquals("volc.seedasr.sauc.duration", values["resourceId"])
+        assertEquals("volc.bigasr.sauc.duration", JsVoiceFields.currentValues(fields, mapOf("authMode" to "legacy"))["resourceId"])
+    }
+
+    @Test
+    fun doubaoDefaultSettingsInjectRawApiKeyAndDefaultResource() = withPlugin(doubaoFile) { js, harness ->
+        val fields = JsVoiceFields.parse(js.evaluate<String>("__describe('zh-CN')"))
+        val context = buildJsonObject {
+            JsVoiceFields.currentValues(fields, emptyMap()).forEach { (key, value) -> put(key, value) }
+        }
+        runCallback(js, "start", context.toString())
+        assertEquals("test-secret", harness.connectHeaders["X-Api-Key"])
+        assertEquals("volc.seedasr.sauc.duration", harness.connectHeaders["X-Api-Resource-Id"])
+        assertFalse(harness.connectHeaders.containsKey("Authorization"))
+        assertFalse(harness.connectHeaders.containsKey("X-Api-Access-Key"))
+        assertFalse(harness.connectHeaders.containsKey("X-Api-App-Key"))
+    }
+
+    @Test
+    fun doubaoLegacyAuthInjectsAppIdAndRawAccessToken() = withPlugin(doubaoFile) { js, harness ->
+        runCallback(
+            js, "start",
+            """{"authMode":"legacy","appId":"12345","mode":"streaming"}""",
+        )
+        assertEquals("accessToken", harness.connectSecretField)
+        assertEquals("12345", harness.connectHeaders["X-Api-App-Key"])
+        assertEquals("test-secret", harness.connectHeaders["X-Api-Access-Key"])
+        assertEquals("volc.bigasr.sauc.duration", harness.connectHeaders["X-Api-Resource-Id"])
+        assertFalse(harness.connectHeaders.containsKey("Authorization"))
+        assertFalse(harness.connectHeaders.containsKey("X-Api-Key"))
+    }
+
+    @Test
+    fun doubaoChangingToApiKeyReplacesTheLegacyResourceInTheActualRequest() = withPlugin(doubaoFile) { js, harness ->
+        val fields = JsVoiceFields.parse(js.evaluate<String>("__describe('zh-CN')"))
+        val values = JsVoiceFields.currentValues(
+            fields, mapOf("authMode" to "legacy", "resourceId" to "volc.bigasr.sauc.duration"),
+        ).toMutableMap()
+        values["authMode"] = "apiKey"
+        values.putAll(JsVoiceFields.defaultsAfterChange(fields, "authMode", values))
+        runCallback(js, "start", buildJsonObject { values.forEach { (key, value) -> put(key, value) } }.toString())
+        assertEquals("volc.seedasr.sauc.duration", harness.connectHeaders["X-Api-Resource-Id"])
+        assertEquals("test-secret", harness.connectHeaders["X-Api-Key"])
+        assertFalse(harness.connectHeaders.containsKey("X-Api-Access-Key"))
+    }
+
+    @Test
+    fun doubaoSingleShotWithoutResourceUsesSeedHourlyByDefault() = withPlugin(doubaoFile) { js, harness ->
+        runCallback(js, "start", """{"authMode":"apiKey","mode":"flash"}""")
+        assertTrue(harness.connectUrl.endsWith("/bigmodel_nostream"))
+        assertEquals("volc.seedasr.sauc.duration", harness.connectHeaders["X-Api-Resource-Id"])
+    }
+
+    @Test
+    fun doubaoExplicitResourceStillWorksAfterSelectingApiKey() = withPlugin(doubaoFile) { js, harness ->
+        val fields = JsVoiceFields.parse(js.evaluate<String>("__describe('zh-CN')"))
+        val values = JsVoiceFields.currentValues(
+            fields, mapOf("authMode" to "apiKey", "resourceId" to "volc.seedasr.sauc.concurrent"),
+        )
+        runCallback(js, "start", buildJsonObject { values.forEach { (key, value) -> put(key, value) } }.toString())
+        assertEquals("volc.seedasr.sauc.concurrent", harness.connectHeaders["X-Api-Resource-Id"])
     }
 
     @Test
