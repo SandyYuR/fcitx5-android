@@ -6,13 +6,19 @@ package org.fcitx.fcitx5.android.input.picker
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
+import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.DrawableWrapper
+import android.graphics.drawable.StateListDrawable
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,10 +37,12 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyView
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
+import org.fcitx.fcitx5.android.input.keyboard.borderedKeyBackgroundDrawable
+import org.fcitx.fcitx5.android.input.keyboard.insetRadiusDrawable
+import org.fcitx.fcitx5.android.input.keyboard.shadowedKeyBackgroundDrawable
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
 import org.fcitx.fcitx5.android.utils.alpha
-import org.fcitx.fcitx5.android.utils.pressHighlightDrawable
 import org.fcitx.fcitx5.android.utils.rippleDrawable
 import splitties.dimensions.dp
 import splitties.views.dsl.core.Ui
@@ -222,8 +230,9 @@ class SymbolPanelUi(
                 scaleMode = AutoScaleTextView.Mode.Proportional
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, TAB_TEXT_SIZE)
                 layoutParams = if (style == SymbolPanelStyle.Sidebar) {
-                    // 纵向分组栏：整列等宽、固定行高
-                    val h = ctx.dp(4)
+                    // 纵向分组栏：整列等宽、固定行高。
+                    // 文字内边距要压过按键边距，否则文字会压在高亮边框上。
+                    val h = ctx.dp(TAB_PADDING_H_DP)
                     val v = ctx.dp(2)
                     setPadding(h, v, h, v)
                     RecyclerView.LayoutParams(
@@ -260,13 +269,7 @@ class SymbolPanelUi(
             label.setTextColor(
                 if (active) theme.accentKeyTextColor else theme.keyTextColor.alpha(0.65f)
             )
-            label.background = if (active) {
-                ColorDrawable(theme.genericActiveBackgroundColor)
-            } else if (ThemeManager.prefs.keyRippleEffect.getValue()) {
-                rippleDrawable(theme.keyPressHighlightColor)
-            } else {
-                pressHighlightDrawable(theme.keyPressHighlightColor)
-            }
+            label.background = tabFill(active)
             label.setOnClickListener { selectGroup(position) }
         }
     }
@@ -280,6 +283,81 @@ class SymbolPanelUi(
     }
 
     override val root: View get() = rootContainer
+
+    /**
+     * 分组标签高亮的圆角（px），**等同于按键圆角**（`ThemePrefs.keyRadius`）。
+     *
+     * 符号面板里 ⌨ / ⌫ 两枚功能键复用 [TextKeyView]，圆角、按键边距、边框/阴影都来自
+     * 按键体系；分组标签的选中高亮用同一套几何参数，看起来才和它们是同一种控件，
+     * 也自然继承了「不贴边」——按键块本身就从格子里缩进了按键边距。
+     */
+    internal val tabCornerRadiusPx: Float
+        get() = ctx.dp(ThemeManager.prefs.keyRadius.getValue().toFloat())
+
+    /** 和按键一样的边距（px）：横向 [KeyView] 的按键间距，纵向同理，横屏取横屏那组。 */
+    internal fun tabKeyMargins(): Pair<Int, Int> {
+        val prefs = ThemeManager.prefs
+        val landscape =
+            ctx.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val h = if (landscape) prefs.keyHorizontalMarginLandscape.getValue()
+        else prefs.keyHorizontalMargin.getValue()
+        val v = if (landscape) prefs.keyVerticalMarginLandscape.getValue()
+        else prefs.keyVerticalMargin.getValue()
+        return ctx.dp(h) to ctx.dp(v)
+    }
+
+    /**
+     * 分组标签在「按键几何」下的背景下层（选中底色或按压高亮）。
+     *
+     * 直接复用按键的 drawable 构造器，和按键 `KeyView.applyStandardBackground` 同一条路径：
+     * 按住键边框时是带描边的块，否则是带 1dp 底影的块；两种情况都从格子四边缩进按键边距，
+     * 因此高亮范围与面板里的 ⌨ / ⌫ 完全一致，不会贴着格子边缘。
+     */
+    internal fun tabKeyBackground(@ColorInt bkgColor: Int): Drawable {
+        val radius = tabCornerRadiusPx
+        val (hMargin, vMargin) = tabKeyMargins()
+        val shadowWidth = ctx.dp(1)
+        return if (ThemeManager.prefs.keyBorderStroke.getValue()) {
+            borderedKeyBackgroundDrawable(
+                bkgColor, theme.keyShadowColor, radius, shadowWidth, hMargin, vMargin
+            )
+        } else {
+            shadowedKeyBackgroundDrawable(
+                bkgColor, theme.keyShadowColor, radius, shadowWidth, hMargin, vMargin
+            )
+        }
+    }
+
+    /** 按压/涟漪的形状：与按键高亮 mask 一致（同样缩进按键边距的圆角块）。 */
+    private fun tabHighlightMask(@ColorInt color: Int): Drawable {
+        val (hMargin, vMargin) = tabKeyMargins()
+        return insetRadiusDrawable(hMargin, vMargin, tabCornerRadiusPx, color)
+    }
+
+    /**
+     * 分组标签的背景：选中态是按键样式的底色块，未选中态只保留按压 / 涟漪反馈。
+     *
+     * 两种状态都套一层 [NoBackgroundPaddingDrawable]——按键几何的底色块是从格子四边缩进的
+     * 层叠 drawable，它会把内缩量报成自己的 padding，而 `View` 会拿背景的 padding 顶掉自己
+     * 的内边距，于是标签在「选中 / 未选中」之间切换时格子宽度会变（选中后变窄、文字被挤出
+     * 高亮），包一层后格子尺寸只由 [SidebarHolder] 创建时设的内边距决定，切换状态不再抖动。
+     */
+    internal fun tabFill(active: Boolean): Drawable {
+        val fill = when {
+            active -> tabKeyBackground(theme.genericActiveBackgroundColor)
+            // 涟漪用同形状的 mask 裁切，否则按下时涟漪会溢出到按键边距以外
+            ThemeManager.prefs.keyRippleEffect.getValue() ->
+                rippleDrawable(theme.keyPressHighlightColor, tabHighlightMask(Color.WHITE))
+
+            else -> StateListDrawable().apply {
+                addState(
+                    intArrayOf(android.R.attr.state_pressed),
+                    tabHighlightMask(theme.keyPressHighlightColor)
+                )
+            }
+        }
+        return NoBackgroundPaddingDrawable(fill)
+    }
 
     init {
         applyStyle()
@@ -542,5 +620,17 @@ class SymbolPanelUi(
             if (code in DigitRange || code in FullWidthDigitRange) return
         }
         recentlyUsed.insert(text)
+    }
+
+    /**
+     * 屏蔽背景自带 padding 的包装层，见 [tabFill]。
+     *
+     * 层叠 drawable（[shadowedKeyBackgroundDrawable] / [borderedKeyBackgroundDrawable] /
+     * [RippleDrawable] / [InsetDrawable]）都会把内缩量报成 padding，`View.setBackground`
+     * 会采用它；恒返回「没有 padding」后，标签的内边距就只由代码里 `setPadding` 决定，
+     * 选中 / 未选中切换不会再改变格子宽度。
+     */
+    internal class NoBackgroundPaddingDrawable(inner: Drawable) : DrawableWrapper(inner) {
+        override fun getPadding(padding: Rect): Boolean = false
     }
 }
