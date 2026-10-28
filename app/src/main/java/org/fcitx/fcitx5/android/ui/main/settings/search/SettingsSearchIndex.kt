@@ -15,6 +15,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.PopupEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeListActivity
+import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
 
 /**
  * 一条可被搜索到的设置项。
@@ -750,6 +751,15 @@ object SettingsSearchIndex {
             R.string.preferred_voice_input, P_KEYBOARD,
             listOf("voice input", "首选语音", "语音服务"),
             route = keyboard(VOICE)
+        ),
+        SettingsSearchEntry(
+            R.string.js_voice_plugins_title, P_KEYBOARD,
+            listOf(
+                "js voice", "voice plugin", "api key", "import", "custom plugin",
+                "语音插件", "语音密钥", "导入插件", "自定义插件", "语音",
+                "yuyin chajian", "daoru chajian", "qwen", "doubao", "通义", "千问", "豆包", "asr"
+            ),
+            activityClass = JsVoicePluginsActivity::class.java
         ),
         SettingsSearchEntry(
             R.string.edit_buttons, P_KEYBOARD,

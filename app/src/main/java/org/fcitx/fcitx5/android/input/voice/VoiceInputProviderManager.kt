@@ -29,6 +29,7 @@ import org.fcitx.fcitx5.android.common.ipc.IVoiceInputProvider
 import org.fcitx.fcitx5.android.common.ipc.VoiceInputIpc
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.EditorSessionTracker
+import org.fcitx.fcitx5.android.input.voice.js.JsVoiceProviders
 import org.fcitx.fcitx5.android.utils.appContext
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
@@ -341,6 +342,7 @@ object VoiceInputProviderManager {
     }
 
     fun listProviders(context: Context = appContext): List<VoiceInputProviderInfo> {
+        JsVoiceProviders.install()
         val registered = VoiceInputProviderRegistry.all().map {
             VoiceInputProviderInfo(
                 id = it.id,
@@ -390,7 +392,19 @@ object VoiceInputProviderManager {
             }
     }
 
-    fun isProviderId(id: String) = id.startsWith(ID_PREFIX)
+    /**
+     * 进程内插件（JS 宿主）与 AIDL 插件共用同一个 id 空间：[ID_PREFIX] 前缀给外部服务，
+     * 注册表里存在的 id 给进程内 provider。两者必须都认，否则麦克风按钮会绕过插件路径。
+     */
+    fun isProviderId(id: String): Boolean {
+        if (id.startsWith(ID_PREFIX)) return true
+        if (VoiceInputProviderRegistry.get(id) != null) return true
+        // 进程内插件（JS 宿主）只有 install 之后才出现在注册表里。这里先装再认：
+        // 冷启动时语音按钮的可见性判断会先于任何 listProviders 调用执行，
+        // 少了这一步，用户选了 JS 引擎却看不到麦克风按钮。
+        JsVoiceProviders.install()
+        return VoiceInputProviderRegistry.get(id) != null
+    }
 
     fun hasProvider(id: String, context: Context = appContext): Boolean =
         listProviders(context).any { it.id == id }
@@ -403,6 +417,8 @@ object VoiceInputProviderManager {
      * model before the user taps the mic button, then unbind after a short delay.
      */
     fun ensureProviderAvailable(service: FcitxInputMethodService, id: String) {
+        // 进程内 provider 不需要 bind 预热，它的模型/脚本按需在会话里加载。
+        if (VoiceInputProviderRegistry.get(id) != null) return
         if (!isProviderId(id)) return
         if (isActive()) return
         val now = SystemClock.elapsedRealtime()
@@ -515,6 +531,7 @@ object VoiceInputProviderManager {
         onStatus: (String) -> Unit = {},
     ) {
         logI("start requested id=$id")
+        JsVoiceProviders.install()
         onStatus(appContext.getString(org.fcitx.fcitx5.android.R.string.voice_status_connecting))
         tlogI("Starting voice input provider: $id")
 
@@ -1341,13 +1358,19 @@ object VoiceInputProviderManager {
             logW("no IME service context: finish watchdog not armed")
             return
         }
+        // 进程内 JS 插件自带更长的收尾预算（flash 模式要把音频 POST 到云端）；IPC 插件仍用 3s。
+        val budget = if (activeProvider is org.fcitx.fcitx5.android.input.voice.js.JsVoiceInputProvider) {
+            org.fcitx.fcitx5.android.input.voice.js.JsVoiceInputProvider.FINISH_WATCHDOG_MS
+        } else {
+            FINISH_WATCHDOG_MS
+        }
         finishWatchdogJob?.cancel()
         finishWatchdogJob = service.lifecycleScope.launch {
-            delay(FINISH_WATCHDOG_MS)
+            delay(budget)
             // A newer session already started, or the provider answered and cleared
             // `finishing` — either way there is nothing to force.
             if (!isCurrentVoiceSession(generation, callback) || !finishing) return@launch
-            logW("provider did not acknowledge endStream in ${FINISH_WATCHDOG_MS}ms; forcing teardown")
+            logW("provider did not acknowledge endStream in ${budget}ms; forcing teardown")
             Timber.w("Voice provider did not acknowledge endStream; forcing teardown")
             runCatching { service.clearVoiceComposingText() }
             val editor = activeEditorSession

@@ -182,6 +182,7 @@ dependencies {
     implementation(libs.xz)
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation(libs.androidsvg)
+    implementation(libs.quickjs.kt)
     testImplementation(libs.junit)
     testImplementation("org.robolectric:robolectric:4.17")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
@@ -198,5 +199,17 @@ configurations {
         // remove unwanted splitties libraries...
         exclude(group = "com.louiscad.splitties", module = "splitties-appctx")
         exclude(group = "com.louiscad.splitties", module = "splitties-systemservices")
+    }
+}
+
+// Android 变体的 QuickJS 只带 .so，桌面 JVM 单测加载不了它（见 JsVoiceBridgeContractTest）。
+// 只在**单元测试**的配置上换成带桌面原生库的 jvm 变体：APK 仍然打包 android 变体，
+// 生产依赖与打出来的包都不受影响。
+configurations.matching {
+    it.name.endsWith("UnitTestRuntimeClasspath") || it.name.endsWith("UnitTestCompileClasspath")
+}.configureEach {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("io.github.dokar3:quickjs-kt"))
+            .using(module("io.github.dokar3:quickjs-kt-jvm:" + libs.versions.quickjs.kt.get()))
     }
 }

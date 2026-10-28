@@ -29,6 +29,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupAction
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.webeditor.ImeWebEditorBridgeServer
+import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
 import org.fcitx.fcitx5.android.utils.queryFileName
 import org.fcitx.fcitx5.android.utils.toast
 
@@ -121,6 +122,18 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
             addTool(screen, "tool_edit_buttons",
                 R.string.edit_buttons, R.string.edit_buttons_summary
             ) { startActivity(Intent(requireContext(), ButtonsCustomizerActivity::class.java)) }
+        }
+
+        // Group 6 extras: JS voice plugin manager.
+        // 插件数量由用户决定（可以导入任意多个），所以分组页只留一条入口，图案与排序在管理页里，
+        // 而不是像内置两家那样每条插件一行。
+        if (group == GROUP_VOICE) {
+            addTool(
+                screen,
+                "tool_js_voice_plugins",
+                R.string.js_voice_plugins_title,
+                R.string.js_voice_plugins_summary
+            ) { startActivity(JsVoicePluginsActivity.intent(requireContext())) }
         }
     }
 
