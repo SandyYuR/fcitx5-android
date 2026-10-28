@@ -27,6 +27,7 @@ import org.fcitx.fcitx5.android.input.editing.TextEditingStyle
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.picker.SymbolCatalogType
+import org.fcitx.fcitx5.android.input.picker.SymbolPanelStyle
 import org.fcitx.fcitx5.android.input.popup.EmojiModifier
 import org.fcitx.fcitx5.android.utils.DeviceUtil
 import org.fcitx.fcitx5.android.utils.appContext
@@ -667,6 +668,18 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             R.string.default_emoji_skin_tone,
             "default_emoji_skin_tone",
             EmojiModifier.SkinTone.Default,
+        )
+
+        /**
+         * 符号 / 表情 / 颜文字面板的呈现风格，见 [SymbolPanelStyle]。
+         *
+         * 默认 [SymbolPanelStyle.Sidebar]（左侧分组栏）：沿用既有外观，老用户升级后
+         * 第一眼不变；想换 Gboard 式底栏的用户自己到「便捷功能 → 表情和符号」切。
+         */
+        val symbolPanelStyle = enumList(
+            R.string.symbol_panel_style,
+            "symbol_panel_style",
+            SymbolPanelStyle.Sidebar,
         )
 
         /**

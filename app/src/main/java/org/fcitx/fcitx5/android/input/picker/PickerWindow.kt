@@ -23,8 +23,9 @@ import org.mechdancer.dependency.manager.must
 /**
  * 符号 / 表情 / 颜文字面板窗口。
  *
- * UI 按 Foxy 输入法（`com.fxliang.foxy`）的符号面板模型重建：
- * 左侧竖向分组栏 + 右侧符号网格，**面板独占整个键盘区域**。
+ * UI 沿用 Foxy 输入法（`com.fxliang.foxy`）的符号面板模型，**面板独占整个键盘区域**：
+ * 分组栏可摆在左侧（Foxy 式）或底部（Gboard 式），由 [SymbolPanelStyle] 决定，
+ * 见 `AppPrefs.symbols.symbolPanelStyle`。
  *
  * ### 为什么是 [InputWindow.SimpleInputWindow] 而不是 `ExtendedInputWindow`
  *
@@ -35,7 +36,7 @@ import org.mechdancer.dependency.manager.must
  * 因此这里用普通窗口：窗口切换时工具栏不做任何形态切换，仍显示 `IdleUi`（主键盘工具栏），
  * 再由 `KawaiiBarComponent` 通过 `IdleUi.setBackToKeyboardMode` 只替换最左图标。
  *
- * 面板自身的键盘级操作（返回键盘 / 退格）只有左栏底部两枚键，见 [SymbolPanelUi]；
+ * 面板自身的键盘级操作（返回键盘 / 退格）只有两枚键，位置随面板风格而定，见 [SymbolPanelUi]；
  * **面板之间的跳转不在这里**，由布局按键或宏配置（见 [Key.layerTargetNames]）。
  */
 class PickerWindow(

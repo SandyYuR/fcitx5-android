@@ -615,6 +615,9 @@
     <string name="emoji_skin_tone_type_5">🏾 Type-5</string>
     <string name="emoji_skin_tone_type_6">🏿 Type-6</string>
     <string name="hide_unsupported_emojis">Hide unsupported Emojis</string>
+    <string name="symbol_panel_style">Symbol panel style</string>
+    <string name="symbol_panel_style_sidebar">Sidebar groups (Foxy style)</string>
+    <string name="symbol_panel_style_bottom_bar">Bottom bar (Gboard style)</string>
     <string name="key_border_stroke">Enable stroke for key border</string>
     <string name="special_key_oval_shape">Use Gboard-style action keys</string>
     <!-- Text Keyboard Layout Editor -->

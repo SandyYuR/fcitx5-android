@@ -214,6 +214,7 @@ object SettingsSearchIndex {
         /* 表情和符号 */
         R.string.hide_unsupported_emojis to "hide_unsupported_emojis",
         R.string.default_emoji_skin_tone to "default_emoji_skin_tone",
+        R.string.symbol_panel_style to "symbol_panel_style",
 
         /* 文本编辑 */
         R.string.text_editing_style to "text_editing_style",
@@ -926,6 +927,14 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.default_emoji_skin_tone, P_ANDROID,
             listOf("skin tone", "肤色", "fuse", "表情肤色"),
+            route = SettingsRoute.Symbol
+        ),
+        SettingsSearchEntry(
+            R.string.symbol_panel_style, P_ANDROID,
+            listOf(
+                "panel style", "layout", "gboard", "foxy", "sidebar", "bottom bar",
+                "面板风格", "风格", "布局", "左侧分组栏", "底部栏", "底栏"
+            ),
             route = SettingsRoute.Symbol
         ),
         SettingsSearchEntry(

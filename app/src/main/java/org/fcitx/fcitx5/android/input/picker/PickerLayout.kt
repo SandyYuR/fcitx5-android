@@ -26,7 +26,8 @@ import splitties.views.dsl.core.add
  * `ABC , <切换> 空格 . 回车`，但符号面板的按键本身是「点一下即时上屏」，
  * 空格/回车/逗号在面板里没有意义，那行只会白白吃掉约 1/4 的键盘高度。
  *
- * 键盘级操作只有左栏底部的 ⌨ 与 ⌫ 两枚小键（见 [SymbolPanelUi]）；
+ * 键盘级操作只有 ⌨ 与 ⌫ 两枚小键，位置随面板风格而定（左侧分组栏时在左栏底部，
+ * 底部栏风格时分居底栏两端，见 [SymbolPanelUi] 与 [SymbolPanelStyle]）；
  * **面板之间的切换属于布局按键/宏的配置**，不在这里硬编码。
  */
 @SuppressLint("ViewConstructor")
