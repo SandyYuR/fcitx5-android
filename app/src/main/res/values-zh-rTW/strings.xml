@@ -525,6 +525,9 @@
     <string name="emoji_skin_tone_type_5">🏾 中等深膚色 (Type-5)</string>
     <string name="emoji_skin_tone_type_6">🏿 深膚色 (Type-6)</string>
     <string name="hide_unsupported_emojis">隱藏不支援的表情</string>
+    <string name="symbol_panel_style">符號面板風格</string>
+    <string name="symbol_panel_style_sidebar">左側分組欄（Foxy 風格）</string>
+    <string name="symbol_panel_style_bottom_bar">底部欄（Gboard 風格）</string>
     <string name="edit_text_playground">文字方塊測試區</string>
     <string name="edit_text_keyboard_layout">修改鍵盤定義</string>
     <string name="text_keyboard_layout_preview">預覽</string>
