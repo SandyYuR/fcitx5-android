@@ -99,6 +99,16 @@
             android:exported="false"
             android:label="@string/edit_color" />
         <activity
+            android:name=".ui.main.settings.voice.JsVoicePluginSettingsActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="@string/js_voice_settings_title" />
+        <activity
+            android:name=".ui.main.settings.voice.JsVoicePluginsActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="@string/js_voice_plugins_title" />
+        <activity
             android:name=".ui.main.settings.icon.IconThemeListActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"

@@ -93,7 +93,9 @@ def dependencies(data):
 
 
 def verify(path):
-    allowed = {"libdirect-rime.so", "libc++_shared.so"}
+    # libquickjs.so 是 JS 语音插件的 QuickJS 运行时，只依赖系统库
+    # （liblog/libm/libdl/libc），不含 Fcitx 组件。
+    allowed = {"libdirect-rime.so", "libc++_shared.so", "libquickjs.so"}
     system = {"libc.so", "libm.so", "libdl.so", "liblog.so", "libandroid.so"}
     with zipfile.ZipFile(path) as apk:
         # aapt2 writes UTF-8 names without consistently setting ZIP's UTF-8 flag.
