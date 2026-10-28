@@ -208,9 +208,10 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
         val showVoiceInputButton =
             switch(R.string.show_voice_input_button, "show_voice_input_button", false)
+        // 长按空格也会使用首选语音输入，不依赖工具栏按钮是否显示。
         val preferredVoiceInput = voiceInputPreference(
             R.string.preferred_voice_input, "preferred_voice_input", ""
-        ) { showVoiceInputButton.getValue() }
+        )
 
         val expandKeypressArea =
             switch(R.string.expand_keypress_area, "expand_keypress_area", false)
