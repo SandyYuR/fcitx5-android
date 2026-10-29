@@ -293,6 +293,7 @@ internal object JsVoiceStubNatives {
         js.function("__n_wsSendGzipFrame") { null }
         js.function("__n_wsClose") { null }
         js.function("__n_httpPost") { throw IllegalStateException("network is not available here") }
+        js.function("__n_hmacSha1Base64") { throw IllegalStateException("signing is not available here") }
         js.function("__n_wavBase64") { args ->
             encode(JsVoiceHelpers.wavBytes(decode(text(args, 0)), text(args, 1).toInt()))
         }
@@ -350,6 +351,9 @@ private class JsVoiceNet(
 
     fun install(js: QuickJs, locale: String) {
         js.function("__n_locale") { _ -> locale }
+        js.function("__n_hmacSha1Base64") { args ->
+            encode(JsVoiceCrypto.hmacSha1(text(args, 0), text(args, 1), secretFor))
+        }
         js.function("__n_wsConnect") { args ->
             connect(
                 url = text(args, 0),

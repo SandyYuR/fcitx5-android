@@ -7,7 +7,7 @@ import android.provider.OpenableColumns
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import kotlinx.coroutines.Dispatchers
@@ -164,7 +164,7 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
         if (result.replacesExisting) {
             lines += getString(R.string.js_voice_import_dialog_replace)
         }
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.js_voice_import_dialog_title)
             .setMessage(lines.joinToString("\n\n"))
             .setNegativeButton(android.R.string.cancel, null)

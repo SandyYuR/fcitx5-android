@@ -8,7 +8,7 @@ import org.junit.Test
 import java.io.File
 
 /**
- * 导入识别的分支覆盖：**故意写坏**的样例脚本 + 两份真实的 bundled 脚本。
+ * 导入识别的分支覆盖：**故意写坏**的样例脚本 + 真实的内置脚本。
  *
  * 用真实 QuickJS 跑而不是 mock：导入的价值就在于「脚本真的能在这个宿主里跑起来」，
  * 换成 mock 之后测的是 mock 的假设。
@@ -17,7 +17,7 @@ class JsVoiceImporterTest {
 
     private val scriptDir = File("src/main/assets/bundled/js-voice")
 
-    private fun inspect(script: String, builtInIds: Set<String> = setOf("js:qwen-asr", "js:doubao-asr"), imported: Set<String> = emptySet()) =
+    private fun inspect(script: String, builtInIds: Set<String> = setOf("js:qwen-asr", "js:doubao-asr", "js:tencent-asr"), imported: Set<String> = emptySet()) =
         runBlocking { JsVoiceImporter.inspect(script, "zh-CN", builtInIds, imported) }
 
     private val validScript = """
@@ -127,6 +127,18 @@ class JsVoiceImporterTest {
         result as JsVoiceImportResult.Success
         assertEquals("js:doubao-asr", result.meta.providerId)
         assertEquals(listOf("openspeech.bytedance.com"), result.meta.hosts)
+    }
+
+    @Test
+    fun builtInTencentScriptIsDescribedWithoutAttemptingToSignOrConnect() {
+        val script = File(scriptDir, "tencent-asr.js").readText()
+        val result = inspect(script, builtInIds = emptySet())
+        assertTrue(result is JsVoiceImportResult.Success)
+        result as JsVoiceImportResult.Success
+        assertEquals("js:tencent-asr", result.meta.providerId)
+        assertEquals(listOf("asr.cloud.tencent.com"), result.meta.hosts)
+        assertEquals(12, result.fieldCount)
+        assertEquals(JsVoiceImportResult.Failure.Reason.RESERVED_ID, failureReason(inspect(script)))
     }
 
     private fun failureReason(result: JsVoiceImportResult): JsVoiceImportResult.Failure.Reason {

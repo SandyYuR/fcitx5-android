@@ -44,7 +44,7 @@ Rime 方案和屏幕键盘布局分别设置，完整步骤见用户手册。
 Android 11 及以上支持设置配色跟随键盘主题，低版本保留兼容的主题处理。
 
 语音入口支持两条路：外部 APK 通过 AIDL 提供识别能力，或者直接导入一个 `.js` 插件。
-JS 插件跑在应用内置的 QuickJS 运行时里，内置通义千问与豆包，也可导入自定义脚本；两份入口都在
+JS 插件跑在应用内置的 QuickJS 运行时里，内置通义千问、豆包与腾讯云，也可导入自定义脚本；两份入口都在
 **设置 → 便利功能 → 语音输入**，密钥由宿主加密保存、不下发给脚本。
 接入方式见[外部语音输入](https://sandyyur.github.io/fcitx5-android/features/voice-input)与
 [JS 语音插件](https://sandyyur.github.io/fcitx5-android/features/voice-input-js)。

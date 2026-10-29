@@ -1149,6 +1149,7 @@
     <string name="settings_search_clear">Clear search</string>
     <string name="js_voice_provider_qwen_asr">Qwen ASR (JS)</string>
     <string name="js_voice_provider_doubao_asr">Doubao ASR (JS)</string>
+    <string name="js_voice_provider_tencent_asr">Tencent Cloud ASR (JS)</string>
     <string name="js_voice_settings_title">Voice plugin settings</string>
     <string name="js_voice_settings_summary">API key and recognition options for built-in JS voice plugins</string>
     <string name="js_voice_settings_loading">Reading plugin settings…</string>

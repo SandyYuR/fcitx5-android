@@ -12,7 +12,8 @@ package org.fcitx.fcitx5.android.input.voice.js
  *   settings screen and the session both read the *same* declaration instead of duplicating it.
  *
  * Secrets are never handed to the script: `connect`/`post` forward the *field name* only, and the
- * host resolves and injects the value when it opens the connection.
+ * host resolves and injects the value when it opens the connection. Crypto requests similarly
+ * name a secret field; only the resulting signature is returned to JavaScript.
  */
 internal object JsVoicePrelude {
     val SOURCE: String = """
@@ -25,7 +26,8 @@ var __native = {
   wsSendBinary: __n_wsSendBinary, wsSendGzipFrame: __n_wsSendGzipFrame, wsClose: __n_wsClose,
   httpPost: __n_httpPost, wavBase64: __n_wavBase64, utf8Base64: __n_utf8Base64,
   base64Utf8: __n_base64Utf8, byteLength: __n_byteLength, sliceBase64: __n_sliceBase64,
-  readUInt8: __n_readUInt8, readInt32BE: __n_readInt32BE, gunzipUtf8: __n_gunzipUtf8
+  readUInt8: __n_readUInt8, readInt32BE: __n_readInt32BE, gunzipUtf8: __n_gunzipUtf8,
+  hmacSha1Base64: __n_hmacSha1Base64
 };
 function __str(value) { return value === undefined || value === null ? "" : String(value); }
 var foxy = {
@@ -61,6 +63,11 @@ var foxy = {
   audio: {
     wavBase64: function (pcmBase64, sampleRate) {
       return __native.wavBase64(__str(pcmBase64), __str(sampleRate));
+    }
+  },
+  crypto: {
+    hmacSha1Base64: function (secretField, text) {
+      return __native.hmacSha1Base64(__str(secretField), __str(text));
     }
   },
   binary: {

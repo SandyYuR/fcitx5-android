@@ -39,6 +39,7 @@ class JsVoiceBridgeContractTest {
     private val scriptDir = File("src/main/assets/bundled/js-voice")
     private val scriptFile = File(scriptDir, "qwen-asr.js")
     private val doubaoFile = File(scriptDir, "doubao-asr.js")
+    private val tencentFile = File(scriptDir, "tencent-asr.js")
 
     private inner class Harness {
         val sent = mutableListOf<String>()
@@ -50,12 +51,19 @@ class JsVoiceBridgeContractTest {
         var connectUrl = ""
         var connectSecretField = ""
         var connectHeaders = emptyMap<String, String>()
+        val signatures = mutableListOf<Pair<String, String>>()
         var closed = false
         var postResponse =
             """{"output":{"choices":[{"message":{"content":[{"text":"你好世界。"}]}}]}}"""
 
         fun install(js: QuickJs, locale: String = "zh-CN") {
             js.function("__n_locale") { locale }
+            js.function("__n_hmacSha1Base64") { args ->
+                val field = args[0].toString()
+                val payload = args[1].toString()
+                signatures += field to payload
+                encode(JsVoiceCrypto.hmacSha1(field, payload) { if (it == "secretKey") "test-secret" else null })
+            }
             js.function("__n_wsConnect") { args ->
                 connectUrl = args.getOrNull(0)?.toString().orEmpty()
                 connectSecretField = args.getOrNull(1)?.toString().orEmpty()
@@ -390,6 +398,64 @@ class JsVoiceBridgeContractTest {
 
     private fun prefixBytes(frame: Pair<String, String>): List<Int> =
         decode(frame.first).map { it.toInt() and 0xff }
+
+    @Test
+    fun tencentDescribesCredentialsAndSignsTheCanonicalWebSocketUrl() = withPlugin(tencentFile) { js, harness ->
+        val fields = JsVoiceFields.parse(js.evaluate<String>("__describe('zh-CN')"))
+        assertEquals(12, fields.size)
+        assertTrue(fields.first { it.key == "secretKey" }.isSecret)
+        assertFalse(JsVoiceFields.currentValues(fields, emptyMap()).containsKey("secretKey"))
+        val start = runCallback(
+            js, "start",
+            """{"appId":"1234567890","secretId":"AKIDTEST","sampleRate":16000,"hotwordList":"腾讯云|10"}""",
+        )
+        assertEquals("socket-1", resultOf(start)?.jsonPrimitive?.contentOrNull)
+        assertFalse(actions(start).any { it["ready"]?.jsonPrimitive?.booleanOrNull == true })
+        val uri = java.net.URI(harness.connectUrl)
+        assertEquals("wss", uri.scheme)
+        assertEquals("asr.cloud.tencent.com", uri.host)
+        assertEquals("/asr/v2/1234567890", uri.path)
+        val params = uri.rawQuery.split('&').associate { part ->
+            val pieces = part.split('=', limit = 2)
+            java.net.URLDecoder.decode(pieces[0], "UTF-8") to java.net.URLDecoder.decode(pieces[1], "UTF-8")
+        }
+        val canonical = uri.host + uri.path + "?" + params.filterKeys { it != "signature" }
+            .toSortedMap().entries.joinToString("&") { (key, value) -> "$key=$value" }
+        assertEquals("secretKey" to canonical, harness.signatures.single())
+        assertEquals(3600L, params.getValue("expired").toLong() - params.getValue("timestamp").toLong())
+        assertEquals("腾讯云|10", params["hotword_list"])
+        assertEquals("16k_zh", params["engine_model_type"])
+        assertEquals("1", params["voice_format"])
+        assertEquals(
+            encode(JsVoiceCrypto.hmacSha1("secretKey", canonical) { "test-secret" }),
+            params["signature"],
+        )
+        assertEquals("", harness.connectSecretField)
+        assertTrue(harness.connectHeaders.isEmpty())
+        assertFalse(harness.connectUrl.contains("test-secret"))
+    }
+
+    @Test
+    fun tencentWaitsForServerReadinessThenStreamsAudioAndFinishes() = withPlugin(tencentFile) { js, harness ->
+        runCallback(js, "start", """{"appId":"1234567890","secretId":"AKIDTEST","sampleRate":16000}""")
+        val first = encode(ByteArray(3200) { 1 })
+        val second = encode(ByteArray(3200) { 2 })
+        runCallback(js, "audio", """{"socket":"socket-1","pcm":"$first"}""")
+        assertTrue(harness.sentBinary.isEmpty())
+        val ready = runCallback(js, "onMessage", """{"socket":"socket-1","message":"{\"code\":0}"}""")
+        assertTrue(actions(ready).any { it["ready"]?.jsonPrimitive?.booleanOrNull == true })
+        runCallback(js, "audio", """{"socket":"socket-1","pcm":"$second"}""")
+        assertEquals(listOf(first, second), harness.sentBinary)
+        runCallback(js, "stop", """{"socket":"socket-1"}""")
+        assertEquals("end", Json.parseToJsonElement(harness.sent.last()).jsonObject["type"]!!.jsonPrimitive.content)
+        val packet = """{"code":0,"final":1,"result":{"voice_text_str":"腾讯云识别成功。","slice_type":2,"index":0}}"""
+        val ended = runCallback(js, "onMessage", buildJsonObject {
+            put("socket", "socket-1")
+            put("message", packet)
+        }.toString())
+        assertEquals("腾讯云识别成功", fieldValue(ended, "final")?.contentOrNull)
+        assertEquals(true, fieldValue(ended, "ended")?.booleanOrNull)
+    }
 
     @Test
     fun doubaoPluginDescribesAuthModes() = withPlugin(doubaoFile) { js, _ ->
