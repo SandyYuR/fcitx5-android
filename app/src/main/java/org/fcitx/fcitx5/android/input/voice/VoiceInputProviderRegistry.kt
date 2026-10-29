@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.voice
 
 import org.fcitx.fcitx5.android.common.ipc.IVoiceInputProvider
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 
 // In-process registry for voice input providers that live inside the IME
 // itself (e.g. a future built-in echo / test provider). External plugin
@@ -21,11 +22,15 @@ object VoiceInputProviderRegistry {
 
     private val providers = ConcurrentHashMap<String, Entry>()
 
+    private val changes = AtomicLong()
+    internal val revision get() = changes.get()
+
     fun register(entry: Entry) {
         providers[entry.id] = entry
+        changes.incrementAndGet()
     }
 
-    fun unregister(id: String): Entry? = providers.remove(id)
+    fun unregister(id: String): Entry? = providers.remove(id).also { changes.incrementAndGet() }
 
     fun get(id: String): Entry? = providers[id]
 
@@ -33,5 +38,6 @@ object VoiceInputProviderRegistry {
 
     fun clear() {
         providers.clear()
+        changes.incrementAndGet()
     }
 }

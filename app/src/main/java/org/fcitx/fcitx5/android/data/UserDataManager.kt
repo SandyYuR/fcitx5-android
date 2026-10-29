@@ -10,6 +10,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
+import org.fcitx.fcitx5.android.input.voice.js.JsVoicePluginStore
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.clipboard.db.CLIPBOARD_DATABASE_NAME
@@ -116,7 +117,10 @@ object UserDataManager {
                timestamp: Long = System.currentTimeMillis()) = runCatching {
         ZipOutputStream(dest.buffered()).use { zipStream ->
             // shared_prefs (current variant's prefs XML renamed to canonical upstream name)
-            writeSharedPrefsTree(sharedPrefsDir, zipStream)
+            JsVoicePluginStore.withSnapshot { scripts ->
+                writeSharedPrefsTree(sharedPrefsDir, zipStream)
+                writeFileTree(scripts, "js-voice", zipStream) { !it.name.endsWith(".js") }
+            }
             writeDatabases(zipStream)
             // external
             RimeProfileBackup.write(externalDir, rimeDirectories, zipStream)
@@ -329,6 +333,7 @@ object UserDataManager {
                 rejectNewerClipboardDatabase(databases)
                 normalizeImportedClipboardDatabase(databases)
                 SharedPreferencesRestore.normalize(File(tempDir, "shared_prefs"))
+                JsVoicePluginStore.validateBackup(tempDir)
                 // user_version may itself have been committed only to WAL.
                 rejectNewerClipboardDatabase(databases)
                 return PreparedImport(tempDir, metadata, RimeProfileBackup.readManifest(tempDir))
@@ -378,10 +383,14 @@ object UserDataManager {
         validateRestore(prepared, plan)
         val tempDir = prepared.directory
         val metadata = prepared.metadata
+        JsVoicePluginStore.validateBackup(tempDir)
         if (closeClipboard) ClipboardManager.closeDatabase()
         UserDataRestoreTransaction(journal).use { restore ->
             restore.stage(sharedPrefsDir) { staged ->
                 copySharedPrefs(File(tempDir, "shared_prefs"), staged, metadata.packageName)
+            }
+            restore.stage(File(appContext.filesDir, "js-voice")) { staged ->
+                copyDir(File(tempDir, "js-voice"), staged)
             }
             restore.stage(dataBasesDir) { staged ->
                 copyDatabases(File(tempDir, "databases"), staged)

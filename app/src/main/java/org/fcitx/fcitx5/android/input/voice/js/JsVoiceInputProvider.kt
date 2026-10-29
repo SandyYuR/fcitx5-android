@@ -5,15 +5,17 @@ import android.os.Bundle
 import android.util.Base64
 import com.dokar.quickjs.QuickJs
 import com.dokar.quickjs.binding.function
+import com.dokar.quickjs.binding.asyncFunction
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -27,6 +29,8 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -35,6 +39,14 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import okio.utf8Size
+import org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransport
+import org.fcitx.fcitx5.android.utils.readBounded
+import java.io.IOException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.common.ipc.IVoiceInputCallback
 import org.fcitx.fcitx5.android.common.ipc.IVoiceInputProvider
@@ -46,7 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 /** Commands queued to the per-session worker. Shared by the provider and the JS net bridge. */
 internal sealed interface JsVoiceCommand {
-    class Audio(val base64: String) : JsVoiceCommand
+    class Audio(val pcm: ByteArray) : JsVoiceCommand
     object Stop : JsVoiceCommand
     /** 一帧服务器消息。[binaryBase64] 非空表示二进制帧（火山引擎 bigmodel 就是二进制协议）。 */
     class Message(val socket: String, val text: String, val binaryBase64: String? = null) : JsVoiceCommand
@@ -77,9 +89,45 @@ internal class JsVoiceInputProvider(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Volatile private var sampleRate = declaredSampleRate.coerceIn(8000, 48000)
-    private var worker: Job? = null
-    private var commands: Channel<JsVoiceCommand>? = null
-    private var callback: IVoiceInputCallback? = null
+    private val sessionLock = Any()
+    @Volatile private var activeSession: Session? = null
+
+    private inner class Session(val target: IVoiceInputCallback, val rate: Int) {
+        val taskId = UUID.randomUUID().toString()
+        val queue = JsVoiceCommandQueue(rate)
+        private val ended = AtomicBoolean(false)
+        var worker: Job? = null
+        val policy = JsVoiceNetworkPolicy(pluginId, declaredHosts)
+        val net = JsVoiceNet(http, policy, ::offer) { field -> JsVoiceSettingsStore.secret(pluginId, field) }
+        val current get() = !ended.get() && activeSession === this
+        val callback = object : IVoiceInputCallback.Stub() {
+            override fun onReady() { if (current) target.onReady() }
+            override fun onVolumeLevel(rms: Int) { if (current) target.onVolumeLevel(rms) }
+            override fun onPartialResult(text: String?) { if (current) target.onPartialResult(text) }
+            override fun onSegmentFinal(text: String?) { if (current) target.onSegmentFinal(text) }
+            override fun onError(code: Int, message: String?) = finish(code to message)
+            override fun onSessionEnded() = finish()
+        }
+
+        fun offer(command: JsVoiceCommand) {
+            if (current && !queue.offer(command)) {
+                finish(VoiceInputIpc.ErrorCodes.UNKNOWN to "JS voice input queue exceeded its limit")
+            }
+        }
+
+        fun finish(error: Pair<Int, String?>? = null, notify: Boolean = true) {
+            if (!ended.compareAndSet(false, true)) return
+            val owned = synchronized(sessionLock) {
+                (activeSession === this).also { if (it) activeSession = null }
+            }
+            queue.close()
+            net.closeAll()
+            worker?.cancel()
+            if (notify && owned) {
+                if (error == null) target.onSessionEnded() else target.onError(error.first, error.second)
+            }
+        }
+    }
 
     override fun isAvailable(): Boolean = true
 
@@ -96,53 +144,44 @@ internal class JsVoiceInputProvider(
 
     override fun startSession(cb: IVoiceInputCallback?) {
         val target = cb ?: return
-        stopWorker()
-        val rx = Channel<JsVoiceCommand>(Channel.UNLIMITED)
-        commands = rx
-        callback = target
-        val taskId = UUID.randomUUID().toString()
-        val rate = sampleRate
-        worker = scope.launch { runSession(target, taskId, rate, rx) }
+        val session = Session(target, sampleRate)
+        val previous = synchronized(sessionLock) {
+            activeSession.also {
+                activeSession = session
+                session.worker = scope.launch(start = CoroutineStart.LAZY) { runSession(session) }
+            }
+        }
+        previous?.finish(notify = false)
+        session.worker?.start()
     }
 
     override fun feedAudio(pcm: ByteArray?, offset: Int, len: Int, ptsMs: Long) {
+        val session = activeSession ?: return
         val data = pcm ?: return
-        if (offset < 0 || len <= 0 || offset + len > data.size) return
-        commands?.trySend(JsVoiceCommand.Audio(Base64.encodeToString(data, offset, len, Base64.NO_WRAP)))
-    }
-
-    override fun endStream() {
-        commands?.trySend(JsVoiceCommand.Stop)
-    }
-
-    override fun cancelSession() {
-        val target = callback
-        stopWorker()
-        target?.onSessionEnded()
-    }
-
-    override fun stopSession() {
-        stopWorker()
-    }
-
-    private fun stopWorker() {
-        worker?.cancel()
-        worker = null
-        commands = null
-        callback = null
-    }
-
-    private suspend fun runSession(cb: IVoiceInputCallback, taskId: String, rate: Int, rx: Channel<JsVoiceCommand>) {
-        val policy = JsVoiceNetworkPolicy(pluginId, declaredHosts)
-        val net = JsVoiceNet(http, policy, rx) { field ->
-            JsVoiceSettingsStore.secret(pluginId, field)
+        if (offset < 0 || len <= 0 || offset > data.size - len) return
+        if (len > session.rate * 2 * 3) {
+            session.finish(VoiceInputIpc.ErrorCodes.UNKNOWN to "Audio packet exceeds its limit")
+            return
         }
-        val js = QuickJs.create(Dispatchers.IO)
+        session.offer(JsVoiceCommand.Audio(data.copyOfRange(offset, offset + len)))
+    }
+
+    override fun endStream() { activeSession?.offer(JsVoiceCommand.Stop) }
+    override fun cancelSession() { activeSession?.finish() }
+    override fun stopSession() { activeSession?.finish(notify = false) }
+
+    private suspend fun runSession(session: Session) {
+        val cb = session.callback
+        val net = session.net
+        val rate = session.rate
+        val taskId = session.taskId
+        var runtime: QuickJs? = null
         try {
-            // Imported scripts can call natives at top level, before register()/start().
-            policy.requireApproval()
+            // Check before executing top-level script code, including native calls.
+            session.policy.requireApproval()
+            val js = JsVoiceRuntime.create().also { runtime = it }
             net.install(js, locale)
-            js.evaluate<Any?>(JsVoicePrelude.SOURCE + "\n" + scriptSource())
+            JsVoiceRuntime.initialize(js, JsVoicePrelude.SOURCE + "\n" + scriptSource())
             val undeclared = undeclaredHosts(js)
             if (undeclared.isNotEmpty()) {
                 // 脚本要连的域名不在清单里：连接会在 net 层被拒，不在这里说清楚就只能看到
@@ -182,11 +221,12 @@ internal class JsVoiceInputProvider(
             val started = call(js, "start", settings, START_TIMEOUT_MS)
             val socket = (started.result as? JsonPrimitive)?.contentOrNull.orEmpty()
             if (handle(cb, started.actions)) return
-            for (cmd in rx) {
+            while (session.current) {
+                val cmd = session.queue.receive()
                 val finished = when (cmd) {
                     is JsVoiceCommand.Audio -> handle(cb, call(js, "audio", buildJsonObject {
                         settings.forEach { (key, value) -> put(key, value) }
-                        put("pcm", cmd.base64)
+                        put("pcm", Base64.encodeToString(cmd.pcm, Base64.NO_WRAP))
                         put("socket", socket)
                     }, AUDIO_TIMEOUT_MS).actions)
                     JsVoiceCommand.Stop -> handle(cb, call(js, "stop", buildJsonObject {
@@ -207,13 +247,15 @@ internal class JsVoiceInputProvider(
                 }
                 if (finished) break
             }
+        } catch (e: TimeoutCancellationException) {
+            cb.onError(VoiceInputIpc.ErrorCodes.UNKNOWN, "JS voice plugin timed out")
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             cb.onError(VoiceInputIpc.ErrorCodes.UNKNOWN, e.message ?: "JS voice plugin failed")
         } finally {
-            net.closeAll()
-            js.close()
+            session.finish(notify = false)
+            runtime?.close()
         }
     }
 
@@ -226,6 +268,7 @@ internal class JsVoiceInputProvider(
      * 只求值一次会拿到 Promise 对象本身而不是它的返回值。
      */
     private suspend fun call(js: QuickJs, name: String, arg: JsonObject, timeoutMs: Long): CallResult {
+        js.evaluationTimeoutMillis = timeoutMs
         val outcome = JsVoiceInvoker.call({ code -> js.evaluate<String>(code) }, name, arg.toString(), timeoutMs)
         outcome.error?.let { error(it) }
         val actions = outcome.actions.toMutableList()
@@ -288,6 +331,8 @@ internal class JsVoiceInputProvider(
  */
 internal object JsVoiceStubNatives {
     fun install(js: QuickJs, locale: String) {
+        val binary = JsVoiceBinary()
+        fun decode(value: String) = binary.decode(value)
         js.function("__n_locale") { locale }
         js.function("__n_wsConnect") { throw IllegalStateException("network is not available here") }
         js.function("__n_wsWaitOpen") { null }
@@ -297,10 +342,11 @@ internal object JsVoiceStubNatives {
         js.function("__n_wsClose") { null }
         js.function("__n_httpPost") { throw IllegalStateException("network is not available here") }
         js.function("__n_hmacSha1Base64") { throw IllegalStateException("signing is not available here") }
+        js.function("__n_concatBase64") { args -> binary.concatenate(text(args, 0)) }
         js.function("__n_wavBase64") { args ->
             encode(JsVoiceHelpers.wavBytes(decode(text(args, 0)), text(args, 1).toInt()))
         }
-        js.function("__n_utf8Base64") { args -> encode(text(args, 0).toByteArray(Charsets.UTF_8)) }
+        js.function("__n_utf8Base64") { args -> binary.encodeUtf8(text(args, 0)) }
         js.function("__n_base64Utf8") { args -> String(decode(text(args, 0)), Charsets.UTF_8) }
         js.function("__n_byteLength") { args -> decode(text(args, 0)).size }
         js.function("__n_sliceBase64") { args ->
@@ -318,18 +364,16 @@ internal object JsVoiceStubNatives {
 
     private fun text(args: Array<Any?>, index: Int): String = args.getOrNull(index)?.toString().orEmpty()
 
-    private fun decode(text: String): ByteArray = Base64.decode(text, Base64.NO_WRAP)
-
     private fun encode(data: ByteArray): String = Base64.encodeToString(data, Base64.NO_WRAP)
 }
 
 /** Loads a plugin script in a throwaway QuickJS instance, e.g. to render its settings screen. */
 internal object JsVoiceScript {
     suspend fun describe(script: String, locale: String): List<JsVoiceField> {
-        val js = QuickJs.create(Dispatchers.IO)
+        val js = JsVoiceRuntime.create()
         return try {
             JsVoiceStubNatives.install(js, locale)
-            js.evaluate<Any?>(JsVoicePrelude.SOURCE + "\n" + script)
+            JsVoiceRuntime.initialize(js, JsVoicePrelude.SOURCE + "\n" + script)
             JsVoiceFields.parse(js.evaluate<String>("__describe(" + JsonPrimitive(locale) + ")"))
         } finally {
             runCatching { js.close() }
@@ -339,17 +383,23 @@ internal object JsVoiceScript {
 
 /**
  * Owns the QuickJS bindings for one session. Each native is a global "__n_<name>", which the
- * prelude exposes as __native.<name>. Calls are synchronous because the QuickJS evaluation already
- * runs on an IO thread.
+ * prelude exposes as __native.<name>. Network waits use cancellable Promise bindings;
+ * byte operations remain synchronous and bounded.
  */
 internal class JsVoiceNet(
     http: OkHttpClient,
     private val policy: JsVoiceNetworkPolicy,
-    private val rx: Channel<JsVoiceCommand>,
+    private val receive: (JsVoiceCommand) -> Unit,
     private val secretFor: (String) -> String?,
 ) {
-    // Redirects could otherwise forward a credential to a host the user never approved.
+    // Credentials must not follow redirects beyond the explicitly approved hosts.
     private val http = http.newBuilder().followRedirects(false).followSslRedirects(false).build()
+    private val closed = AtomicBoolean(false)
+    private val calls = ConcurrentHashMap.newKeySet<Call>()
+    private val binary = JsVoiceBinary()
+    private val socketHttp by lazy {
+        BoundedWebSocketTransport.client(http, secure = true, maxMessage = JsVoiceRuntime.WEBSOCKET_BYTES)
+    }
     private val sockets = ConcurrentHashMap<String, WebSocket>()
     private val opened = ConcurrentHashMap<String, CompletableDeferred<Unit>>()
     private val nextId = AtomicInteger(1)
@@ -369,30 +419,32 @@ internal class JsVoiceNet(
                 headersJson = text(args, 4),
             )
         }
-        js.function("__n_wsWaitOpen") { args -> awaitOpen(text(args, 0)); null }
+        js.asyncFunction("__n_wsWaitOpen") { args -> awaitOpen(text(args, 0)); null }
         js.function("__n_wsSend") { args ->
             policy.requireApproval()
             val socket = sockets[text(args, 0)] ?: error("socket closed")
-            socket.send(text(args, 1))
+            val message = text(args, 1)
+            require(message.utf8Size() <= JsVoiceRuntime.WEBSOCKET_BYTES) { "WebSocket message exceeds its limit" }
+            check(socket.send(message)) { "WebSocket send failed" }
             null
         }
         js.function("__n_wsSendBinary") { args ->
             policy.requireApproval()
             val socket = sockets[text(args, 0)] ?: error("socket closed")
-            socket.send(ByteString.of(*bytes(args, 1)))
+            check(socket.send(ByteString.of(*bytes(args, 1)))) { "WebSocket send failed" }
             null
         }
         js.function("__n_wsSendGzipFrame") { args ->
             policy.requireApproval()
             val socket = sockets[text(args, 0)] ?: error("socket closed")
-            socket.send(ByteString.of(*JsVoiceHelpers.gzipFrame(bytes(args, 1), bytes(args, 2))))
+            check(socket.send(ByteString.of(*JsVoiceHelpers.gzipFrame(bytes(args, 1), bytes(args, 2))))) { "WebSocket send failed" }
             null
         }
         js.function("__n_wsClose") { args ->
             sockets.remove(text(args, 0))?.close(1000, null)
             null
         }
-        js.function("__n_httpPost") { args ->
+        js.asyncFunction("__n_httpPost") { args ->
             post(
                 url = text(args, 0),
                 secretField = text(args, 1),
@@ -400,10 +452,11 @@ internal class JsVoiceNet(
                 headersJson = text(args, 3),
             )
         }
+        js.function("__n_concatBase64") { args -> binary.concatenate(text(args, 0)) }
         js.function("__n_wavBase64") { args ->
             encode(JsVoiceHelpers.wavBytes(bytes(args, 0), text(args, 1).toInt()))
         }
-        js.function("__n_utf8Base64") { args -> encode(text(args, 0).toByteArray(Charsets.UTF_8)) }
+        js.function("__n_utf8Base64") { args -> binary.encodeUtf8(text(args, 0)) }
         js.function("__n_base64Utf8") { args -> String(bytes(args, 0), Charsets.UTF_8) }
         js.function("__n_byteLength") { args -> bytes(args, 0).size }
         js.function("__n_sliceBase64") { args ->
@@ -434,40 +487,54 @@ internal class JsVoiceNet(
         )
         val id = nextId.getAndIncrement().toString()
         val gate = CompletableDeferred<Unit>()
-        opened[id] = gate
+        synchronized(opened) {
+            check(!closed.get()) { "Voice session closed" }
+            check(opened.size < 4) { "Too many voice WebSocket connections" }
+            opened[id] = gate
+        }
         val builder = Request.Builder().url(destination)
         headers.forEach { (name, value) -> builder.header(name, value) }
-        sockets[id] = http.newWebSocket(builder.build(), object : WebSocketListener() {
+        check(!closed.get()) { "Voice session closed" }
+        val socket = socketHttp.newWebSocket(builder.build(), object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 gate.complete(Unit)
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
-                rx.trySend(JsVoiceCommand.Message(id, text))
+                receive(JsVoiceCommand.Message(id, text))
             }
 
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-                rx.trySend(JsVoiceCommand.Message(id, "", Base64.encodeToString(bytes.toByteArray(), Base64.NO_WRAP)))
+                receive(JsVoiceCommand.Message(id, "", Base64.encodeToString(bytes.toByteArray(), Base64.NO_WRAP)))
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 gate.completeExceptionally(t)
-                rx.trySend(JsVoiceCommand.Fail("WebSocket failed: " + t.message))
+                receive(JsVoiceCommand.Fail("WebSocket failed: " + t.message))
+            }
+
+            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                webSocket.close(code, reason)
+                // Preserve final messages already queued before this close frame.
+                receive(JsVoiceCommand.Fail("WebSocket closed: $code"))
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 sockets.remove(id)
+                opened.remove(id)
             }
         })
+        sockets[id] = socket
+        if (closed.get()) { socket.cancel(); sockets.remove(id) }
         return id
     }
 
-    private fun awaitOpen(id: String) {
+    private suspend fun awaitOpen(id: String) {
         val gate = opened[id] ?: throw IllegalStateException("Unknown socket")
-        runBlocking { withTimeout(10_000L) { gate.await() } }
+        withTimeout(10_000L) { gate.await() }
     }
 
-    private fun post(url: String, secretField: String, body: String, headersJson: String): String {
+    private suspend fun post(url: String, secretField: String, body: String, headersJson: String): String {
         val destination = policy.checkUrl(url)
         val headers = JsVoiceHeaders.build(
             secretField = secretField,
@@ -476,18 +543,46 @@ internal class JsVoiceNet(
             authPrefix = "",
             headersJson = headersJson,
         )
+        require(body.utf8Size() <= JsVoiceRuntime.REQUEST_BYTES) { "HTTP request exceeds its limit" }
         val builder = Request.Builder()
             .url(destination)
             .post(body.toRequestBody("application/json".toMediaType()))
         headers.forEach { (name, value) -> builder.header(name, value) }
-        return http.newCall(builder.build()).execute().use { response ->
-            if (!response.isSuccessful) error("HTTP " + response.code)
-            response.body?.string().orEmpty()
+        val call = http.newCall(builder.build())
+        call.timeout().timeout(35, TimeUnit.SECONDS)
+        synchronized(calls) {
+            check(!closed.get()) { "Voice session closed" }
+            check(calls.size < 2) { "Too many voice HTTP requests" }
+            calls += call
         }
+        return try {
+            suspendCancellableCoroutine { continuation ->
+                continuation.invokeOnCancellation { call.cancel() }
+                if (closed.get()) call.cancel()
+                call.enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        if (continuation.isActive) continuation.resumeWithException(e)
+                    }
+                    override fun onResponse(call: Call, response: Response) {
+                        val result = runCatching {
+                            response.use {
+                                if (!it.isSuccessful) throw IOException("HTTP " + it.code)
+                                it.body?.byteStream()?.readBounded(JsVoiceRuntime.RESPONSE_BYTES)
+                                    ?.toString(Charsets.UTF_8).orEmpty()
+                            }
+                        }
+                        if (continuation.isActive) result.fold(continuation::resume, continuation::resumeWithException)
+                    }
+                })
+            }
+        } finally { calls -= call }
     }
 
     fun closeAll() {
-        sockets.values.forEach { it.close(1000, null) }
+        if (!closed.compareAndSet(false, true)) return
+        calls.forEach { it.cancel() }
+        calls.clear()
+        sockets.values.forEach { it.cancel() }
         sockets.clear()
         opened.values.forEach { it.cancel() }
         opened.clear()
@@ -495,7 +590,7 @@ internal class JsVoiceNet(
 
     private fun text(args: Array<Any?>, index: Int): String = args.getOrNull(index)?.toString().orEmpty()
 
-    private fun bytes(args: Array<Any?>, index: Int): ByteArray = Base64.decode(text(args, index), Base64.NO_WRAP)
+    private fun bytes(args: Array<Any?>, index: Int): ByteArray = binary.decode(text(args, index))
 
     private fun encode(data: ByteArray): String = Base64.encodeToString(data, Base64.NO_WRAP)
 }

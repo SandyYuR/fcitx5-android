@@ -98,6 +98,9 @@ class JsVoiceBridgeContractTest {
                 posts += args.getOrNull(0)?.toString().orEmpty() to args.getOrNull(2)?.toString().orEmpty()
                 postResponse
             }
+            js.function("__n_concatBase64") { args ->
+                encode(JsVoiceHelpers.concatenate(Json.parseToJsonElement(args[0].toString()).jsonArray.map { it.jsonPrimitive.content }, ::decode))
+            }
             js.function("__n_wavBase64") { args ->
                 encode(JsVoiceHelpers.wavBytes(decode(args[0].toString()), args[1].toString().toInt()))
             }
@@ -218,6 +221,13 @@ class JsVoiceBridgeContractTest {
         )
         assertTrue(events(audio).isEmpty())
 
+        // Capture delivers independently padded packets, including a short tail.
+        val second = encode(ByteArray(3200) { 2 })
+        val tail = encode(byteArrayOf(3, 4))
+        for (chunk in listOf(second, tail)) {
+            runCallback(js, "audio", """{"sampleRate":16000,"pcm":"$chunk","socket":"flash"}""")
+        }
+
         val stop = runCallback(
             js, "stop",
             """{"platform":"bailian","sampleRate":16000,"socket":"flash","itn":"false",""" +
@@ -231,6 +241,12 @@ class JsVoiceBridgeContractTest {
         val (url, body) = harness.posts.single()
         assertEquals("https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation", url)
         assertTrue(body.contains("data:audio/wav;base64,"))
+        val encodedWav = body.substringAfter("data:audio/wav;base64,").substringBefore('"')
+        val wav = decode(encodedWav)
+        org.junit.Assert.assertArrayEquals(
+            ByteArray(3200) { 1 } + ByteArray(3200) { 2 } + byteArrayOf(3, 4),
+            wav.copyOfRange(44, wav.size),
+        )
         assertTrue(body.contains("qwen-audio-3.0-asr-flash"))
         assertTrue(body.contains("\"format\":\"wav\""))
     }
