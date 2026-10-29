@@ -20,7 +20,7 @@
 - [维护手册](https://sandyyur.github.io/fcitx5-android/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN)：构建、librime 来源与更新、CI 和性能复现。
 - [Windows 本机构建环境](https://sandyyur.github.io/fcitx5-android/maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN)：工具链位置、环境坑与子模块恢复。
 - [外部语音输入](https://sandyyur.github.io/fcitx5-android/features/voice-input)：AIDL 提供方的接入方式。
-- [JS 语音插件](https://sandyyur.github.io/fcitx5-android/features/voice-input-js)：导入 `.js` 插件、内置千问与豆包、插件接口与限制。
+- [JS 语音插件](https://sandyyur.github.io/fcitx5-android/features/voice-input-js)：导入 `.js` 插件、内置千问、豆包、腾讯云语音及翻译、插件接口与限制。
 - [维护文档索引](https://sandyyur.github.io/fcitx5-android/maintainer/)与[完整直连历史](https://sandyyur.github.io/fcitx5-android/direct-rime)：实现演进、验证证据与归档。
 
 ## 快速上手
@@ -44,7 +44,7 @@ Rime 方案和屏幕键盘布局分别设置，完整步骤见用户手册。
 Android 11 及以上支持设置配色跟随键盘主题，低版本保留兼容的主题处理。
 
 语音入口支持两条路：外部 APK 通过 AIDL 提供识别能力，或者直接导入一个 `.js` 插件。
-JS 插件跑在应用内置的 QuickJS 运行时里，内置通义千问、豆包与腾讯云，也可导入自定义脚本；两份入口都在
+JS 插件跑在应用内置的 QuickJS 运行时里，内置通义千问、豆包、腾讯云语音识别与实时语音翻译，也可导入自定义脚本；两份入口都在
 **设置 → 便利功能 → 语音输入**，密钥由宿主加密保存、不下发给脚本。
 接入方式见[外部语音输入](https://sandyyur.github.io/fcitx5-android/features/voice-input)与
 [JS 语音插件](https://sandyyur.github.io/fcitx5-android/features/voice-input-js)。

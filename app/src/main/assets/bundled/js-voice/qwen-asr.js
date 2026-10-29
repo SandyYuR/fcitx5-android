@@ -172,9 +172,9 @@ function parseTranscript(body) {
 foxy.plugin.register({
   id: "qwen-asr",
   name: stringsFor(foxy.locale).name,
-  version: "1.6.2",
+  version: "1.6.3",
   hosts: ["dashscope.aliyuncs.com", "maas.qianwenaiapi.com", "cn-beijing.maas.qianwenaiapi.com"],
-  features: [{type: "voice.asr", id: "qwen-asr", label: "Qwen ASR", sampleRate: 16000}],
+  features: [{type: "voice.asr", id: "qwen-asr", label: stringsFor(foxy.locale).name, sampleRate: 16000}],
   configure(ui, locale) {
     const t = stringsFor(locale);
     ui.secret("apiKey", t.apiKey, {
