@@ -179,13 +179,17 @@ object SettingsUiPreferences {
             } else R.style.Theme_FcitxSettings_compat_compat_standard_light
     }
 
-    /** Inflate the preview with the exact theme used by settings activities, including OEM Monet. */
+    /** Theme previews and dialogs without losing their host's window services. */
     fun themedContext(context: Context, selection: Selection): Context {
         val configuration = Configuration(context.resources.configuration).apply {
             uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or
                 if (isDark(context, selection)) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
         }
-        val themed = ContextThemeWrapper(context.createConfigurationContext(configuration), themeResource(context, selection))
+        // createConfigurationContext() drops the Activity's WindowManager/default token.
+        // Override resources on the wrapper while retaining the original host as its base.
+        val themed = ContextThemeWrapper(context, themeResource(context, selection)).apply {
+            applyOverrideConfiguration(configuration)
+        }
         return (when {
             usesKeyboardColors(selection) -> SettingsKeyboardColors.wrapContext(
                 themed, requireNotNull(SettingsKeyboardColors.current(context, selection)))
