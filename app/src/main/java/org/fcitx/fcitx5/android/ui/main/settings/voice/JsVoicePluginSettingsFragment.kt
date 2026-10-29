@@ -4,7 +4,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.voice
 import android.os.Bundle
 import android.text.InputType
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
@@ -145,7 +145,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     }
 
     private fun confirmRemove(pluginId: String, label: String) {
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.js_voice_plugins_delete_title)
             .setMessage(getString(R.string.js_voice_plugins_delete_message, label))
             .setNegativeButton(android.R.string.cancel, null)

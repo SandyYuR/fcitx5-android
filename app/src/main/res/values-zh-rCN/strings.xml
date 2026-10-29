@@ -1145,6 +1145,7 @@
     <string name="settings_search_clear">清空搜索</string>
     <string name="js_voice_provider_qwen_asr">通义千问语音 (JS)</string>
     <string name="js_voice_provider_doubao_asr">豆包语音 (JS)</string>
+    <string name="js_voice_provider_tencent_asr">腾讯云语音 (JS)</string>
     <string name="js_voice_settings_title">语音插件设置</string>
     <string name="js_voice_settings_summary">内置 JS 语音插件的密钥与识别选项</string>
     <string name="js_voice_settings_loading">正在读取插件设置…</string>

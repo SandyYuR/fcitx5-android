@@ -1115,6 +1115,7 @@
     <string name="settings_search_clear">清除搜尋</string>
     <string name="js_voice_provider_qwen_asr">通義千問語音 (JS)</string>
     <string name="js_voice_provider_doubao_asr">豆包語音 (JS)</string>
+    <string name="js_voice_provider_tencent_asr">騰訊雲語音 (JS)</string>
     <string name="js_voice_settings_title">語音外掛設定</string>
     <string name="js_voice_settings_summary">內建 JS 語音外掛的金鑰與辨識選項</string>
     <string name="js_voice_settings_loading">正在讀取外掛設定…</string>

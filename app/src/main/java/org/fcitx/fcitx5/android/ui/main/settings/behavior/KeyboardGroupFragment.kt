@@ -16,12 +16,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
+import androidx.preference.ListPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceFragment
+import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceUi
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
@@ -139,6 +141,14 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
 
     override fun onResume() {
         super.onResume()
+        if (group == GROUP_VOICE) {
+            val preferred = AppPrefs.getInstance().keyboard.preferredVoiceInput
+            findPreference<ListPreference>(preferred.key)?.let {
+                ManagedPreferenceUi.VoiceInputList.refreshEntries(it)
+                // Removing the selected plugin can also reset this setting on the manager page.
+                it.value = preferred.getValue()
+            }
+        }
         if (group == GROUP_FEEDBACK) {
             customKeySoundPreference?.summary = buildCustomKeySoundSummary()
         }

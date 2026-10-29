@@ -105,18 +105,7 @@ abstract class ManagedPreferenceUi<T : Preference>(
             setDefaultValue(defaultValue)
             setTitle(this@VoiceInputList.title)
             setDialogTitle(this@VoiceInputList.title)
-            val voiceInputMethods = InputMethodUtil.listVoiceInputMethods()
-            val pluginProviders = VoiceInputProviderManager.listProviders(context)
-            val systemValues = voiceInputMethods.map { it.first.id }
-            val systemLabels = voiceInputMethods.map { it.first.loadLabel(context.packageManager).toString() }
-            val pluginValues = pluginProviders.map { it.id }
-            val pluginLabels = pluginProviders.map { it.label.toString() }
-            entryValues = arrayOf("", *systemValues.toTypedArray(), *pluginValues.toTypedArray())
-            entries = arrayOf(
-                context.getString(R.string.system_default),
-                *systemLabels.toTypedArray(),
-                *pluginLabels.toTypedArray(),
-            )
+            refreshEntries(this)
             // shows "(Not Available)" if selected id is not present
             summaryProvider = Preference.SummaryProvider<ListPreference> { preference ->
                 if (preference.entryValues.includes(preference.value)) {
@@ -124,6 +113,25 @@ abstract class ManagedPreferenceUi<T : Preference>(
                 } else {
                     context.getString(R.string._not_available_)
                 }
+            }
+        }
+
+        companion object {
+            /** Re-read providers after returning from plugin import/removal without recreating the page. */
+            fun refreshEntries(preference: ListPreference) {
+                val context = preference.context
+                val voiceInputMethods = InputMethodUtil.listVoiceInputMethods()
+                val pluginProviders = VoiceInputProviderManager.listProviders(context)
+                val systemValues = voiceInputMethods.map { it.first.id }
+                val systemLabels = voiceInputMethods.map { it.first.loadLabel(context.packageManager).toString() }
+                val pluginValues = pluginProviders.map { it.id }
+                val pluginLabels = pluginProviders.map { it.label.toString() }
+                preference.entryValues = arrayOf("", *systemValues.toTypedArray(), *pluginValues.toTypedArray())
+                preference.entries = arrayOf(
+                    context.getString(R.string.system_default),
+                    *systemLabels.toTypedArray(),
+                    *pluginLabels.toTypedArray(),
+                )
             }
         }
     }

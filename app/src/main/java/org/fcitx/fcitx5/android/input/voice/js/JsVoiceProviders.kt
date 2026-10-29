@@ -10,7 +10,7 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /**
- * JS 语音插件清单：内置两条 + 用户导入的若干条。
+ * JS 语音插件清单：内置插件 + 用户导入的若干条。
  *
  * 这里是「插件是什么」的唯一权威：注册到 [VoiceInputProviderRegistry] 的 provider、设置页渲染的
  * 字段、会话下发的设置、设置页列表的条目，全都从同一份 [Spec] 派生，避免各处各读一套数据。
@@ -24,6 +24,7 @@ internal object JsVoiceProviders {
 
     const val QWEN_ASR_ID = "js:qwen-asr"
     const val DOUBAO_ASR_ID = "js:doubao-asr"
+    const val TENCENT_ASR_ID = "js:tencent-asr"
 
     /** 脚本正文的来源。内置读 asset，用户导入的读私有目录文件。 */
     internal sealed interface Source {
@@ -85,6 +86,16 @@ internal object JsVoiceProviders {
             builtIn = true,
             originName = "doubao-asr.js",
         ),
+        Spec(
+            id = TENCENT_ASR_ID,
+            label = appContext.getString(R.string.js_voice_provider_tencent_asr),
+            version = "1.0.7",
+            hosts = setOf("asr.cloud.tencent.com"),
+            sampleRate = 16000,
+            source = Source.Asset("bundled/js-voice/tencent-asr.js"),
+            builtIn = true,
+            originName = "tencent-asr.js",
+        ),
     )
 
     private fun importedSpecs(): List<Spec> = JsVoicePluginStore.list().map { record ->
@@ -100,7 +111,9 @@ internal object JsVoiceProviders {
         )
     }
 
-    private fun buildSpecs(): List<Spec> = builtInSpecs() + importedSpecs()
+    // A previously imported plugin can become bundled. Prefer the bundled implementation while
+    // retaining the imported file and the settings/secrets under the same provider ID.
+    private fun buildSpecs(): List<Spec> = (builtInSpecs() + importedSpecs()).distinctBy { it.id }
 
     fun all(): List<Spec> = synchronized(lock) { cached ?: buildSpecs().also { cached = it } }
 
