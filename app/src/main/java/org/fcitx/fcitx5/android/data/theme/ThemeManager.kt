@@ -489,8 +489,9 @@ object ThemeManager {
         val revision = themeListRevision
         return FcitxApplication.getInstance().coroutineScope.launch {
             val themes = withContext(Dispatchers.IO) { ThemeFilesManager.listThemes() }
-            ensureRandomSlotSeeded()
             if (themeListRevision == revision) applyRefreshedThemes(themes)
+            // Publish the saved theme before the first random-slot generation/scoring pass.
+            ensureRandomSlotSeeded()
         }
     }
 
