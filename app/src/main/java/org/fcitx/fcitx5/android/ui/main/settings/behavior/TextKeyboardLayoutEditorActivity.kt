@@ -1357,14 +1357,13 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
         // 设置 previewSubModeLabel
         val layoutLabels = subModeManager.extractSubModeLabelsFromLayout(currentLayout.orEmpty())
-        val allLabels = (fcitxLabels + layoutLabels).distinct().filter { it.isNotBlank() }
+        val allLabels = SubModeManager.mergeSubModeLabels(fcitxLabels, layoutLabels, subModeManager.nameToIdMap)
 
         // 只选中"当前方案且确有专用布局"的那一项；否则停在「默认」项（=基础布局），
         // 这正是该方案在运行时实际使用的布局。停在方案名上却编辑基础布局会造成无声错位。
         if (allLabels.isNotEmpty()) {
             val layoutNameForTarget = currentLayout.orEmpty()
-            previewSubModeLabel = currentSubModeLabel
-                ?.takeIf { it in allLabels }
+            previewSubModeLabel = subModeManager.resolveSelectorLabel(currentSubModeLabel, allLabels)
                 ?.takeIf { editingTargetFor(layoutNameForTarget, it) != "$layoutNameForTarget:default" }
         }
 
@@ -1544,22 +1543,18 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         val subModeState = subModeManager.resolveSubModeState(layoutName, layoutLabels)
         val currentIme = subModeState.currentIme
         val labels = subModeState.labels
-        // Resolve stored schema IDs to the labels used by the selector before validating
-        // its position; otherwise opening one schema could select another schema's row.
-        if (requestedLabel != null) {
-            previewSubModeLabel = labels.firstOrNull {
-                subModeManager.resolveStorageLabel(layoutName, it) == requestedLabel
-            } ?: requestedLabel
-        }
+        // The selector uses existing storage keys, including schema IDs. Resolve an old
+        // display-name selection to that same key before validating its position.
+        previewSubModeLabel = subModeManager.resolveSelectorLabel(previewSubModeLabel, labels) ?: previewSubModeLabel
 
         if (labels.isEmpty()) {
             hideSubModeSpinner()
             return
         }
 
-        val currentLabel = currentIme?.subMode?.label
-            ?.ifEmpty { currentIme.subMode.name }
-            ?.takeIf { it.isNotBlank() }
+        val currentLabel = subModeManager.resolveSelectorLabel(
+            currentIme?.subMode?.label?.ifEmpty { currentIme.subMode.name }, labels
+        )
 
         // 只在确实需要时改动选择，避免顶掉用户的当前选择：
         // - forceResetSelection 是调用方明确要求回到当前方案；该方案没有专用布局时停到「默认」项，

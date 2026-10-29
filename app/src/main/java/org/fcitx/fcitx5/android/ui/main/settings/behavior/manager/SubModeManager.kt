@@ -36,7 +36,47 @@ class SubModeManager(
             displayLabel?.trim()?.let { nameToIdMap[it] }
         )
 
+    fun resolveSelectorLabel(label: String?, availableLabels: List<String>): String? =
+        resolveSelectorLabel(label, availableLabels, nameToIdMap)
+
     companion object {
+        /** Direct Rime 的方案 ID 在 name 中，longText 通常与显示名称相同。 */
+        internal fun resolveSchemaNameToIdMap(actions: Array<Action>, currentLabel: String): Map<String, String> {
+            val menu = SubModeMenuResolver.pickSchemeMenu(actions, currentLabel)
+                ?.let { SubModeMenuResolver.takeItemsBeforeSeparator(it) }
+                ?.drop(1)
+                ?: return emptyMap()
+            return menu.mapNotNull { item ->
+                val label = SubModeMenuResolver.toMenuLabel(item) ?: return@mapNotNull null
+                val id = item.name.trim().ifEmpty { item.longText.trim() }
+                    .takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+                label to id
+            }.toMap()
+        }
+
+        /** 已按 ID 配置的子布局只列其实际键，不能再添加一个指向同一份配置的方案名。 */
+        internal fun mergeSubModeLabels(
+            schemaLabels: List<String>,
+            layoutLabels: List<String>,
+            nameToIdMap: Map<String, String>
+        ): List<String> {
+            val storedLabels = layoutLabels.map { it.trim() }.filter { it.isNotEmpty() }
+            return (schemaLabels + storedLabels).mapNotNull { label ->
+                val normalized = label.trim().takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+                resolveSelectorLabel(normalized, storedLabels, nameToIdMap) ?: normalized
+            }.distinct()
+        }
+
+        internal fun resolveSelectorLabel(
+            label: String?,
+            availableLabels: List<String>,
+            nameToIdMap: Map<String, String>
+        ): String? {
+            val normalized = label?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+            return nameToIdMap[normalized]?.takeIf { it in availableLabels }
+                ?: normalized.takeIf { it in availableLabels }
+        }
+
         /**
          * 把 selector 语义暴露给运行时：从状态区动作解析方案菜单。
          *
@@ -114,7 +154,10 @@ class SubModeManager(
 
         // 保留标签（层子布局 __layer__: 、分体排列 __variant__:）不是输入方案，出现在方案
         // 下拉框里只会让用户困惑；见 LayoutJsonUtils.isReservedSubModeLabel。
-        LayoutJsonUtils.subLayoutLabelsOf(entries.keys, layoutName).forEach { subModeLabel ->
+        // 仅有分体排列时也保留所属方案；排列本身不会成为单独的选项。
+        entries.keys.mapNotNull { key ->
+            LayoutJsonUtils.parseEntryKey(key)?.takeIf { it.layoutName == layoutName }?.subLayout
+        }.forEach { subModeLabel ->
             if (subModeLabel.isNotEmpty() && subModeLabel != "default" &&
                 !LayoutJsonUtils.isReservedSubModeLabel(subModeLabel)
             ) {
@@ -160,12 +203,7 @@ class SubModeManager(
      */
     fun resolveSubModeState(layoutName: String, layoutLabels: List<String>): SubModeState {
         val (currentIme, fcitxLabels) = fetchCurrentImeAndSubModeLabels(layoutName)
-        val idToNameMap = nameToIdMap.entries.associate { (name, id) -> id to name }
-        val normalizedLayoutLabels = layoutLabels.map { idToNameMap[it] ?: it }
-        val labels = (fcitxLabels + normalizedLayoutLabels)
-            .map { it.trim() }
-            .distinct()
-            .filter { it.isNotBlank() }
+        val labels = mergeSubModeLabels(fcitxLabels, layoutLabels, nameToIdMap)
         return SubModeState(currentIme, labels)
     }
 
@@ -242,7 +280,7 @@ class SubModeManager(
                     fromStatusMenu = extractLabelsFromStatusArea(actions, currentLabel)
                 }
 
-                nameToIdMap = SubModeMenuResolver.buildNameToIdMap(actions, currentLabel)
+                nameToIdMap = resolveSchemaNameToIdMap(actions, currentLabel)
 
                 val baseLabels = when {
                     fromStatusMenu.isNotEmpty() -> fromStatusMenu
@@ -370,21 +408,5 @@ class SubModeManager(
         internal fun toMenuLabel(action: Action): String? =
             action.shortText.ifEmpty { action.longText }.ifEmpty { action.name }.trim().takeIf { it.isNotEmpty() }
 
-        fun buildNameToIdMap(
-            actions: Array<Action>,
-            currentLabel: String
-        ): Map<String, String> {
-            val menu = pickSchemeMenu(actions, currentLabel)
-                ?.let { takeItemsBeforeSeparator(it) }
-                ?.drop(1)
-                ?: return emptyMap()
-            val map = mutableMapOf<String, String>()
-            for (item in menu) {
-                val name = item.shortText.trim().takeIf { it.isNotEmpty() } ?: continue
-                val id = item.longText.trim().takeIf { it.isNotEmpty() } ?: continue
-                map[name] = id
-            }
-            return map
-        }
     }
 }
