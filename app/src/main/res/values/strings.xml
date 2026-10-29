@@ -1195,4 +1195,8 @@
     <string name="js_voice_plugins_delete_entry">Remove this plugin</string>
     <string name="js_voice_plugins_delete_entry_summary">From %1$s</string>
     <string name="js_voice_provider_tencent_translate">Tencent Cloud Speech Translation (JS)</string>
+    <string name="choose_voice_engine">Choose voice engine</string>
+    <string name="voice_engine_system">System voice input</string>
+    <string name="voice_engine_javascript">JavaScript plugin</string>
+    <string name="voice_engine_plugin">Voice service plugin</string>
 </resources>

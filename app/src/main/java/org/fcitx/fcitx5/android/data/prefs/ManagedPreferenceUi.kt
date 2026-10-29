@@ -10,12 +10,10 @@ import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import org.fcitx.fcitx5.android.R
-import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.ui.main.modified.MySwitchPreference
 import org.fcitx.fcitx5.android.ui.main.settings.DialogSeekBarPreference
 import org.fcitx.fcitx5.android.ui.main.settings.EditTextIntPreference
 import org.fcitx.fcitx5.android.ui.main.settings.TwinSeekBarPreference
-import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import org.fcitx.fcitx5.android.utils.includes
 
 abstract class ManagedPreferenceUi<T : Preference>(
@@ -120,18 +118,9 @@ abstract class ManagedPreferenceUi<T : Preference>(
             /** Re-read providers after returning from plugin import/removal without recreating the page. */
             fun refreshEntries(preference: ListPreference) {
                 val context = preference.context
-                val voiceInputMethods = InputMethodUtil.listVoiceInputMethods()
-                val pluginProviders = VoiceInputProviderManager.listProviders(context)
-                val systemValues = voiceInputMethods.map { it.first.id }
-                val systemLabels = voiceInputMethods.map { it.first.loadLabel(context.packageManager).toString() }
-                val pluginValues = pluginProviders.map { it.id }
-                val pluginLabels = pluginProviders.map { it.label.toString() }
-                preference.entryValues = arrayOf("", *systemValues.toTypedArray(), *pluginValues.toTypedArray())
-                preference.entries = arrayOf(
-                    context.getString(R.string.system_default),
-                    *systemLabels.toTypedArray(),
-                    *pluginLabels.toTypedArray(),
-                )
+                val entries = org.fcitx.fcitx5.android.input.voice.VoiceInputChoices.list(context)
+                preference.entryValues = entries.map { it.id }.toTypedArray()
+                preference.entries = entries.map { it.label }.toTypedArray()
             }
         }
     }

@@ -111,6 +111,7 @@ class IdleUi(
 
     val voiceInputButton = ToolButton(ctx, R.drawable.ic_baseline_keyboard_voice_24, theme).apply {
         visibility = View.GONE
+        longPressEnabled = true
         contentDescription = ctx.getString(R.string.switch_to_voice_input)
         refreshVoiceInputButtonIcon(this)
     }
