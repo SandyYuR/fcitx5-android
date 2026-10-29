@@ -273,6 +273,7 @@ class MainService : Service() {
     private var clipboardListenerRegistered = false
     private var prefsListenerRegistered = false
     private var clipCascadeClient: ClipCascadeClient? = null
+    private var remoteClipboardQueue: RemoteClipboardQueue<ClipCascadeClipboardData>? = null
     private var oneClipClient: OneClipEventClient? = null
     private var lastNetworkAvailableAt = 0L
     private var connectionSessionId = 0
@@ -824,11 +825,29 @@ class MainService : Service() {
                     password = password
                 )
                 clipCascadeClient = client
+                val receiveQueue = RemoteClipboardQueue<ClipCascadeClipboardData>(
+                    scope = this,
+                    maxBytes = (Runtime.getRuntime().maxMemory() / 8).coerceAtMost(96L * 1024 * 1024),
+                    weight = { 128L + 2L * (it.payload.length.toLong() + it.type.length + (it.filename?.length ?: 0)) },
+                ) { data ->
+                    try {
+                        handleClipCascadeMessage(data)
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (error: Exception) {
+                        Log.e(TAG, "[ClipCascade] Could not apply remote clipboard", error)
+                    }
+                }
+                remoteClipboardQueue = receiveQueue
 
                 try {
                     client.connect { data ->
                         markBackendActivity()
-                        handleClipCascadeMessage(data)
+                        if (!receiveQueue.offer(data)) {
+                            Log.w(TAG, "[ClipCascade] Remote clipboard queue exceeded its budget; reconnecting")
+                            receiveQueue.close()
+                            client.close()
+                        }
                     }
                     markBackendActivity()
                     resetFailureState()
@@ -853,6 +872,8 @@ class MainService : Service() {
                     Log.e(TAG, "[ClipCascade] Connection loop error", e)
                     delay(5000)
                 } finally {
+                    receiveQueue.close()
+                    if (remoteClipboardQueue === receiveQueue) remoteClipboardQueue = null
                     if (clipCascadeClient === client) {
                         clipCascadeClient = null
                     }
@@ -1171,7 +1192,7 @@ class MainService : Service() {
         handleLocalClipboardUpdate(content, "system-clipboard")
     }
 
-    private fun handleClipCascadeMessage(data: ClipCascadeClipboardData) {
+    private suspend fun handleClipCascadeMessage(data: ClipCascadeClipboardData) {
         val normalizedType = data.type.lowercase(Locale.ROOT)
         val payloadFingerprint = buildClipCascadePayloadFingerprint(data)
         Log.d(TAG, "[ClipCascade] Received remote payload type=$normalizedType size=${data.payload.length}")
@@ -1183,41 +1204,39 @@ class MainService : Service() {
             return
         }
 
-        scope.launch {
-            when (normalizedType) {
-                "text" -> {
-                    if (!shouldAcceptIncomingText(data.payload)) {
-                        Log.d(TAG, "[ClipCascade] Rejected text payload by receive filter")
-                        return@launch
-                    }
-                    val normalized = HostClipboardFilter.transform(data.payload)
-                    if (normalized == lastLocalContent || isClipboardEcho(
-                            data.payload, normalized, lastRemoteContent, lastUploadedContent, HostClipboardFilter::transform
-                        )) return@launch
-                    acknowledgePendingUploads(normalized)
+        when (normalizedType) {
+            "text" -> {
+                if (!shouldAcceptIncomingText(data.payload)) {
+                    Log.d(TAG, "[ClipCascade] Rejected text payload by receive filter")
+                    return
+                }
+                val normalized = HostClipboardFilter.transform(data.payload)
+                if (normalized == lastLocalContent || isClipboardEcho(
+                        data.payload, normalized, lastRemoteContent, lastUploadedContent, HostClipboardFilter::transform
+                    )) return
+                acknowledgePendingUploads(normalized)
+                withContext(Dispatchers.Main) {
                     rememberAcceptedRemotePayload(normalized)
-                    withContext(Dispatchers.Main) {
-                        updateSystemClipboard(normalized)
-                    }
+                    updateSystemClipboard(normalized)
                 }
-
-                "image" -> handleClipCascadeImage(data, payloadFingerprint)
-
-                "file_eager" -> handleClipCascadeFileEager(data, payloadFingerprint)
-
-                "file_stub" -> {
-                    if (!shouldAcceptIncomingBinary(data.filename, null)) {
-                        Log.d(TAG, "[ClipCascade] Rejected file placeholder by receive filter")
-                        return@launch
-                    }
-                    rememberAcceptedRemotePayload(payloadFingerprint)
-                    withContext(Dispatchers.Main) {
-                        updateSystemClipboard(buildClipCascadeFileStubSummary(data))
-                    }
-                }
-
-                else -> Log.w(TAG, "[ClipCascade] Ignoring unsupported payload type: ${data.type}")
             }
+
+            "image" -> handleClipCascadeImage(data, payloadFingerprint)
+
+            "file_eager" -> handleClipCascadeFileEager(data, payloadFingerprint)
+
+            "file_stub" -> {
+                if (!shouldAcceptIncomingBinary(data.filename, null)) {
+                    Log.d(TAG, "[ClipCascade] Rejected file placeholder by receive filter")
+                    return
+                }
+                withContext(Dispatchers.Main) {
+                    rememberAcceptedRemotePayload(payloadFingerprint)
+                    updateSystemClipboard(buildClipCascadeFileStubSummary(data))
+                }
+            }
+
+            else -> Log.w(TAG, "[ClipCascade] Ignoring unsupported payload type: ${data.type}")
         }
     }
 
@@ -1252,8 +1271,8 @@ class MainService : Service() {
             mimeType = mimeType
         )
         if (savedUri != null) {
-            rememberAcceptedRemotePayload(payloadFingerprint)
             withContext(Dispatchers.Main) {
+                rememberAcceptedRemotePayload(payloadFingerprint)
                 updateSystemClipboardWithUri(savedUri, downloadUri)
             }
         }
@@ -1288,8 +1307,8 @@ class MainService : Service() {
             bytes = bytes
         )
         if (savedUri != null) {
-            rememberAcceptedRemotePayload(payloadFingerprint)
             withContext(Dispatchers.Main) {
+                rememberAcceptedRemotePayload(payloadFingerprint)
                 updateSystemClipboardWithUri(savedUri, downloadUri)
             }
         }
@@ -1816,6 +1835,8 @@ class MainService : Service() {
     }
 
     private fun disconnectClipCascadeClient() {
+        remoteClipboardQueue?.close()
+        remoteClipboardQueue = null
         clipCascadeClient?.close()
         clipCascadeClient = null
     }
