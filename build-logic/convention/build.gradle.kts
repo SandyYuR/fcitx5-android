@@ -23,6 +23,7 @@ dependencies {
     compileOnly(libs.aboutlibraries.plugin)
     implementation(libs.kotlinx.serialization.json)
     testImplementation("junit:junit:4.13.2")
+    testImplementation(gradleTestKit())
     // A workaround to enable version catalog usage in the convention plugin,
     // see https://github.com/gradle/gradle/issues/15383#issuecomment-779893192
     implementation(files(LibrariesForLibs::class.java.protectionDomain.codeSource.location))
