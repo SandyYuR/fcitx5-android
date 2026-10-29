@@ -49,6 +49,8 @@ JS 插件跑在应用内置的 QuickJS 运行时里，内置通义千问、豆�
 接入方式见[外部语音输入](https://sandyyur.github.io/fcitx5-android/features/voice-input)与
 [JS 语音插件](https://sandyyur.github.io/fcitx5-android/features/voice-input-js)。
 
+语音与收起键盘按钮可同时显示。
+
 局域网 Web 编辑器在手机上显示地址和 6 位配对码；PC 打开地址后输入配对码，连接后浏览器自动保存本次凭据。
 停止服务后配对失效，重新启动会生成新的配对码。
 外部 IPC 客户端须与主应用使用相同签名，并声明主应用包名对应的 `.permission.IPC` 权限。
