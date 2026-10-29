@@ -2,6 +2,7 @@
 package org.fcitx.fcitx5.android.input.dialog
 
 import android.content.Context
+import android.content.Intent
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
@@ -18,6 +19,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.input.voice.VoiceInputChoices
+import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
 
 internal object VoiceInputPickerDialog {
     fun build(context: Context, onSelected: (String) -> Unit): AlertDialog {
@@ -52,6 +54,12 @@ internal object VoiceInputPickerDialog {
                     onSelected(id)
                 }
                 dialog.dismiss()
+            }
+            .setNeutralButton(R.string.js_voice_plugins_settings) { dialog, _ ->
+                dialog.dismiss()
+                context.startActivity(JsVoicePluginsActivity.intent(context).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
             }
             .setNegativeButton(android.R.string.cancel, null)
             .create()
