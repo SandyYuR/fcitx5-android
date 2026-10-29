@@ -26,6 +26,13 @@ class SymbolCatalogParseTest {
         }
     """.trimIndent()
 
+    @Test fun exactScriptAndRegionalLabelsWin() {
+        val names = mapOf("zh-Hant" to "繁體", "zh-Hans" to "简体", "zh-TW" to "臺灣")
+        Assert.assertEquals("简体", SymbolCatalogs.resolveName(names, "zh-Hans"))
+        Assert.assertEquals("臺灣", SymbolCatalogs.resolveName(names, "zh-TW"))
+        Assert.assertEquals("繁體", SymbolCatalogs.resolveName(names, "zh-HK"))
+    }
+
     @Test
     fun testParseGroupsAndSymbols() {
         val catalog = SymbolCatalogs.parse(sample, "zh-Hans-CN")

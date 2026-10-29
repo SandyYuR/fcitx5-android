@@ -3,6 +3,7 @@ package org.fcitx.fcitx5.android.data.theme
 
 import android.os.Looper
 import android.os.UserManager
+import kotlinx.coroutines.sync.Mutex
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.fcitx.fcitx5.android.utils.appContext
@@ -16,6 +17,24 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
 class ThemeStartupSafetyTest {
+    @Test fun savedCustomThemesArePublishedWhileRandomGenerationIsWaiting() {
+        val theme = ThemePreset.PixelLight.deriveCustomNoBackground("startup-saved")
+        ThemeFilesManager.saveThemeFiles(theme)
+        val mutex = ThemeManager.javaClass.getDeclaredField("randomSlotMutex").apply { isAccessible = true }
+            .get(ThemeManager) as Mutex
+        assertTrue(mutex.tryLock())
+        val job = ThemeManager.init(appContext.resources.configuration)!!
+        try {
+            val deadline = System.nanoTime() + 5_000_000_000L
+            while (ThemeManager.getTheme(theme.name) == null && System.nanoTime() < deadline) {
+                shadowOf(Looper.getMainLooper()).idle()
+                Thread.sleep(10)
+            }
+            assertNotNull(ThemeManager.getTheme(theme.name))
+            assertFalse("Random-slot work is still waiting", job.isCompleted)
+        } finally { job.cancel(); mutex.unlock() }
+    }
+
     @Test fun lockedStartupDoesNotLoadOrGenerateCredentialProtectedThemes() {
         val users = appContext.getSystemService(UserManager::class.java)
         shadowOf(users).setUserUnlocked(false)
