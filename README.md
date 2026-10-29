@@ -49,7 +49,7 @@ JS 插件跑在应用内置的 QuickJS 运行时里，内置通义千问、豆�
 接入方式见[外部语音输入](https://sandyyur.github.io/fcitx5-android/features/voice-input)与
 [JS 语音插件](https://sandyyur.github.io/fcitx5-android/features/voice-input-js)。
 
-语音与收起键盘按钮可同时显示。
+长按工具栏语音图标可切换首选语音引擎；语音与收起键盘按钮可同时显示。
 
 局域网 Web 编辑器在手机上显示地址和 6 位配对码；PC 打开地址后输入配对码，连接后浏览器自动保存本次凭据。
 停止服务后配对失效，重新启动会生成新的配对码。

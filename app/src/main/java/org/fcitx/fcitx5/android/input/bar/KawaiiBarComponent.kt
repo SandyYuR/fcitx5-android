@@ -56,6 +56,7 @@ import org.fcitx.fcitx5.android.input.bar.ui.CandidateUi
 import org.fcitx.fcitx5.android.input.bar.ui.IdleUi
 import org.fcitx.fcitx5.android.input.bar.ui.TitleUi
 import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
+import org.fcitx.fcitx5.android.input.dialog.VoiceInputPickerDialog
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
@@ -381,8 +382,23 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             )
             return@OnClickListener
         }
-        val (id, subtype) = voiceInputSubtype ?: return@OnClickListener
+        val (id, subtype) = voiceInputSubtype ?: run {
+            showVoiceInputPicker()
+            return@OnClickListener
+        }
         InputMethodUtil.switchInputMethod(service, id, subtype)
+    }
+
+    private fun showVoiceInputPicker() {
+        if (isPasswordField) return
+        service.showDialog(VoiceInputPickerDialog.build(context) { _ ->
+            if (VoiceInputProviderManager.isActive()) {
+                VoiceInputProviderManager.stop(service)
+                service.clearVoiceComposingText()
+                idleUi.hideVoiceStatus()
+            }
+            refreshVoiceInputButton()
+        })
     }
 
     // Load buttons config from file or use default. The Status Area is opened by IdleUi's
@@ -467,6 +483,11 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             setOnClickListener {
                 restoreVirtualKeyboardMode()
                 switchToVoiceInputCallback.onClick(it)
+            }
+            setOnLongClickListener {
+                restoreVirtualKeyboardMode()
+                showVoiceInputPicker()
+                true
             }
         }
         ui.buttonsUi.apply {
@@ -887,11 +908,8 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     private fun refreshVoiceInputButton() {
         voiceInputSubtype = InputMethodUtil.findVoiceSubtype(preferredVoiceInput)
-        val hasPluginProvider = VoiceInputProviderManager.isProviderId(preferredVoiceInput) &&
-            VoiceInputProviderManager.hasProvider(preferredVoiceInput, service)
         val shouldShowVoiceInput =
             showVoiceInputButton &&
-                (voiceInputSubtype != null || hasPluginProvider) &&
                 !isPasswordField
         idleUi.setVoiceInputVisible(shouldShowVoiceInput)
     }

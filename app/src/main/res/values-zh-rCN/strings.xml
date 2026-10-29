@@ -1191,4 +1191,8 @@
     <string name="js_voice_plugins_delete_entry">移除这个插件</string>
     <string name="js_voice_plugins_delete_entry_summary">来源 %1$s</string>
     <string name="js_voice_provider_tencent_translate">腾讯云语音翻译 (JS)</string>
+    <string name="choose_voice_engine">选择语音引擎</string>
+    <string name="voice_engine_system">系统语音输入</string>
+    <string name="voice_engine_javascript">JavaScript 插件</string>
+    <string name="voice_engine_plugin">语音服务插件</string>
 </resources>
