@@ -1162,6 +1162,7 @@
     <string name="js_voice_plugins_delete_entry_summary">來源 %1$s</string>
     <string name="js_voice_provider_tencent_translate">騰訊雲語音翻譯 (JS)</string>
     <string name="choose_voice_engine">選擇語音引擎</string>
+    <string name="js_voice_plugins_settings">JS 語音外掛設定</string>
     <string name="voice_engine_system">系統語音輸入</string>
     <string name="voice_engine_javascript">JavaScript 外掛</string>
     <string name="voice_engine_plugin">語音服務外掛</string>
