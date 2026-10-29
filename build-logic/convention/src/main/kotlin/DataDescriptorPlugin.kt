@@ -23,10 +23,9 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.work.ChangeType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
-import org.jetbrains.kotlin.com.google.common.hash.Hashing
-import org.jetbrains.kotlin.com.google.common.io.ByteSource
 import java.io.File
 import java.nio.charset.Charset
+import java.security.MessageDigest
 
 /**
  * Descriptor keys are paths relative to the asset directory, always written with
@@ -101,7 +100,7 @@ class DataDescriptorPlugin : Plugin<Project> {
         )
 
         @get:Incremental
-        @get:PathSensitive(PathSensitivity.NAME_ONLY)
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         @get:InputDirectory
         abstract val inputDir: DirectoryProperty
 
@@ -121,11 +120,10 @@ class DataDescriptorPlugin : Plugin<Project> {
                 throw IllegalArgumentException("Symlink target cannot be path in files")
             requireDescriptorPaths(files.keys + symlinks.keys)
             val descriptor = DataDescriptor(
-                Hashing.sha256()
-                    .hashString(
-                        (files + symlinks).entries.joinToString { it.key + it.value },
-                        Charset.defaultCharset()
-                    ).toString(),
+                MessageDigest.getInstance("SHA-256").digest(
+                    (files + symlinks).entries.joinToString { it.key + it.value }
+                        .toByteArray(Charset.defaultCharset())
+                ).hex(),
                 files,
                 symlinks
             )
@@ -136,8 +134,20 @@ class DataDescriptorPlugin : Plugin<Project> {
             json.decodeFromString<DataDescriptor>(file.readText()).files
 
         companion object {
-            fun sha256(file: File): String =
-                ByteSource.wrap(file.readBytes()).hash(Hashing.sha256()).toString()
+            private fun ByteArray.hex() = joinToString("") { "%02x".format(it) }
+
+            fun sha256(file: File): String {
+                val digest = MessageDigest.getInstance("SHA-256")
+                file.inputStream().use { input ->
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    while (true) {
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        digest.update(buffer, 0, count)
+                    }
+                }
+                return digest.digest().hex()
+            }
         }
 
         @TaskAction
