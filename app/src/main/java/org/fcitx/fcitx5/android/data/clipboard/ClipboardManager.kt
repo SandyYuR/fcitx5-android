@@ -382,9 +382,7 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
     /** Read one transactional state into a separate file; never copy the live main/WAL files. */
     fun writeDatabaseSnapshot(destination: java.io.File): Boolean {
         if (!::clbDb.isInitialized) return false
-        clbDb.runInTransaction {
-            org.fcitx.fcitx5.android.data.SqliteSnapshots.write(clbDb.openHelper.writableDatabase, destination)
-        }
+        org.fcitx.fcitx5.android.data.SqliteSnapshots.write(clbDb.openHelper.writableDatabase, destination)
         return true
     }
 

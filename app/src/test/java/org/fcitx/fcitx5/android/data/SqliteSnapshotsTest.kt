@@ -61,7 +61,7 @@ class SqliteSnapshotsTest {
         File(source.path).copyTo(rawCopy)
         assertEquals(1, count(rawCopy)) // Reproduce why copying the main file loses data.
         val snapshot = File(directory, "snapshot.db")
-        room.runInTransaction { SqliteSnapshots.write(source, snapshot) }
+        SqliteSnapshots.write(source, snapshot)
         assertEquals(2, count(snapshot))
         assertFalse(File(snapshot.path + "-wal").exists())
         val restored = Room.databaseBuilder(context, ClipboardDatabase::class.java, snapshot.path)
@@ -105,7 +105,7 @@ class SqliteSnapshotsTest {
         source.execSQL("INSERT INTO backup_types(id,f) VALUES(200,2.0)")
         source.execSQL("DELETE FROM backup_types WHERE id=200")
         val snapshot = File(directory, "typed.db")
-        room.runInTransaction { SqliteSnapshots.write(source, snapshot) }
+        SqliteSnapshots.write(source, snapshot)
         SQLiteDatabase.openDatabase(snapshot.path, null, SQLiteDatabase.OPEN_READWRITE).use { db ->
             db.rawQuery("SELECT b,f,n FROM backup_types WHERE id=100", null).use {
                 assertTrue(it.moveToFirst())
@@ -126,9 +126,29 @@ class SqliteSnapshotsTest {
         assertFalse(snapshot.exists())
     }
 
-    @Test fun snapshotRefusesAnUnprotectedRead() {
+    @Test fun snapshotRefusesTheCallersWriteLock() {
         val snapshot = File(directory, "unsafe.db")
-        assertTrue(runCatching { SqliteSnapshots.write(source, snapshot) }.isFailure)
+        room.runInTransaction {
+            assertTrue(runCatching { SqliteSnapshots.write(source, snapshot) }.isFailure)
+        }
         assertFalse(snapshot.exists())
+    }
+    @Test fun largeTextAndBlobSurviveWithoutFillingACursorWindow() {
+        val text = "汉🙂".repeat(1024 * 1024)
+        insert(text)
+        source.execSQL("CREATE TABLE large_blob (b BLOB)")
+        source.execSQL("INSERT INTO large_blob VALUES(zeroblob(3145728))")
+        val snapshot = File(directory, "large.db")
+        SqliteSnapshots.write(source, snapshot)
+        SQLiteDatabase.openDatabase(snapshot.path, null, SQLiteDatabase.OPEN_READONLY).use { db ->
+            db.rawQuery("SELECT length(CAST(text AS BLOB)) FROM clipboard", null).use {
+                assertTrue(it.moveToFirst()); assertEquals(text.toByteArray().size, it.getInt(0))
+            }
+            db.rawQuery("SELECT length(b), hex(substr(b,3145728,1)) FROM large_blob", null).use {
+                assertTrue(it.moveToFirst()); assertEquals(3145728, it.getInt(0)); assertEquals("00", it.getString(1))
+            }
+        }
+        source.query("PRAGMA journal_mode").use { assertTrue(it.moveToFirst()); assertEquals("wal", it.getString(0)) }
+        insert("source still writable")
     }
 }
