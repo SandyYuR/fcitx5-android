@@ -6,6 +6,8 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 /** Pure helpers for the JS voice host. Free of Android types so JVM tests can exercise them. */
 internal object JsVoiceHelpers {
@@ -36,12 +38,18 @@ internal object JsVoiceHelpers {
      * declared host cannot be spoofed with a credential prefix.
      */
     fun isAllowedUrl(url: String, declaredHosts: Collection<String>): Boolean {
+        val parsed = secureUrl(url) ?: return false
+        return declaredHosts.any { it.equals(parsed.host.trimEnd('.'), ignoreCase = true) }
+    }
+
+    /** Use OkHttp's parser for both validation and the actual request, avoiding parser mismatches. */
+    fun secureUrl(url: String): HttpUrl? {
         val scheme = url.substringBefore("://", "").lowercase()
-        if (scheme != "wss" && scheme != "https") return false
+        if (scheme != "wss" && scheme != "https") return null
         val authority = url.substringAfter("://").substringBefore('/').substringBefore('?').substringBefore('#')
-        if (authority.contains('@')) return false
-        val host = authority.substringBefore(':').lowercase()
-        return host.isNotEmpty() && declaredHosts.any { it.equals(host, ignoreCase = true) }
+        if ('@' in authority || '\\' in authority) return null
+        val parsed = ("https://" + url.substringAfter("://")).toHttpUrlOrNull() ?: return null
+        return parsed.takeIf { it.username.isEmpty() && it.password.isEmpty() }
     }
 
     fun gzip(data: ByteArray): ByteArray {

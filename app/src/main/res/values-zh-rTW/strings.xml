@@ -1165,4 +1165,14 @@
     <string name="voice_engine_system">系統語音輸入</string>
     <string name="voice_engine_javascript">JavaScript 外掛</string>
     <string name="voice_engine_plugin">語音服務外掛</string>
+    <string name="js_voice_network_title">批准外掛網路存取</string>
+    <string name="js_voice_network_message">%1$s 可以向以下主機傳送音訊和已儲存的憑證：\n\n%2$s\n\n只批准你信任的主機。</string>
+    <string name="js_voice_network_approve">批准主機</string>
+    <string name="js_voice_network_install_approve">安裝並批准主機</string>
+    <string name="js_voice_network_revoke">撤銷授權</string>
+    <string name="js_voice_network_entry">網路存取授權</string>
+    <string name="js_voice_network_granted">已批准的主機：\n%1$s\n點按可撤銷授權。</string>
+    <string name="js_voice_network_pending">待批准的主機：\n%1$s\n點按檢視並授權。</string>
+    <string name="js_voice_network_not_approved">外掛尚未獲准存取網路，請在 JS 語音外掛設定中檢視並批准主機。</string>
+    <string name="js_voice_network_approved_hint">已批准，再次點按語音按鈕即可開始。</string>
 </resources>

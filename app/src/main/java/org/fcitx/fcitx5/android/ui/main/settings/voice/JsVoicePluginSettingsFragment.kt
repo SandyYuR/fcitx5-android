@@ -18,6 +18,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceField
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceFields
+import org.fcitx.fcitx5.android.input.voice.js.JsVoiceHostPermissions
 import org.fcitx.fcitx5.android.input.voice.js.JsVoicePluginMeta
 import org.fcitx.fcitx5.android.input.voice.js.JsVoicePluginStore
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceProviders
@@ -84,6 +85,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
         screen.removeAll()
         if (fields.isEmpty()) {
             showPlaceholder(getString(R.string.js_voice_settings_empty))
+            appendHostPermissionEntry()
             appendRemoveEntry()
             return
         }
@@ -117,7 +119,34 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
             rendered += field to preference
         }
         refreshVisibility(rendered, values)
+        appendHostPermissionEntry()
         appendRemoveEntry()
+    }
+
+    private fun appendHostPermissionEntry() {
+        val spec = JsVoiceProviders.specOf(pluginId) ?: return
+        val preference = Preference(requireContext()).apply {
+            key = "js_voice_network_permission"
+            isPersistent = false
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+            order = 9_000
+            title = getString(R.string.js_voice_network_entry)
+        }
+        fun refresh() {
+            preference.summary = getString(
+                if (JsVoiceHostPermissions.isApproved(spec.id, spec.hosts)) {
+                    R.string.js_voice_network_granted
+                } else R.string.js_voice_network_pending,
+                spec.hosts.sorted().joinToString("\n"),
+            )
+        }
+        refresh()
+        preference.setOnPreferenceClickListener {
+            JsVoiceHostPermissionDialog.build(requireContext(), spec, ::refresh).show()
+            true
+        }
+        preferenceScreen.addPreference(preference)
     }
 
     /**
