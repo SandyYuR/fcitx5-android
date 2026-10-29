@@ -47,6 +47,8 @@ internal object JsVoiceProviders {
 
     private val lock = Any()
     private var cached: List<Spec>? = null
+    private var cachedById: Map<String, Spec> = emptyMap()
+    private var installedRevision = -1L
 
     /** 本对象注册进注册表的 id。删除插件时只回收自己注册的那些，不动别的进程内 provider。 */
     private val registeredIds = LinkedHashSet<String>()
@@ -127,11 +129,14 @@ internal object JsVoiceProviders {
     // retaining the imported file and the settings/secrets under the same provider ID.
     private fun buildSpecs(): List<Spec> = (builtInSpecs() + importedSpecs()).distinctBy { it.id }
 
-    fun all(): List<Spec> = synchronized(lock) { cached ?: buildSpecs().also { cached = it } }
+    fun all(): List<Spec> = synchronized(lock) { cached ?: buildSpecs().also { cached = it; cachedById = it.associateBy(Spec::id) } }
 
     fun builtInIds(): Set<String> = builtInSpecs().map { it.id }.toSet()
 
-    fun specOf(pluginId: String): Spec? = all().firstOrNull { it.id == pluginId }
+    fun specOf(pluginId: String): Spec? = synchronized(lock) {
+        all()
+        cachedById[pluginId]
+    }
 
     fun readScript(spec: Spec): String = when (val source = spec.source) {
         is Source.Asset -> appContext.assets.open(source.path).bufferedReader().use { it.readText() }
@@ -151,6 +156,7 @@ internal object JsVoiceProviders {
      */
     @Synchronized
     fun install() {
+        if (installedRevision == VoiceInputProviderRegistry.revision) return
         val specs = all()
         val ids = specs.map { it.id }.toSet()
         if (registeredIds.any { it !in ids }) {
@@ -175,6 +181,7 @@ internal object JsVoiceProviders {
             )
             registeredIds += spec.id
         }
+        installedRevision = VoiceInputProviderRegistry.revision
     }
 
     /**
@@ -187,6 +194,7 @@ internal object JsVoiceProviders {
     fun reload() {
         registeredIds.forEach { VoiceInputProviderRegistry.unregister(it) }
         registeredIds.clear()
+        installedRevision = -1L
         synchronized(lock) { cached = null }
         install()
     }

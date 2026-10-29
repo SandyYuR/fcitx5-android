@@ -50,8 +50,14 @@ internal object JsVoiceSettingsStore {
         }.apply()
     }
 
+    enum class SecretState { MISSING, READY, UNAVAILABLE }
+
+    fun secretState(pluginId: String, field: String): SecretState =
+        if (!prefs().contains(secretKey(pluginId, field))) SecretState.MISSING
+        else if (secret(pluginId, field) == null) SecretState.UNAVAILABLE else SecretState.READY
+
     fun hasSecret(pluginId: String, field: String): Boolean =
-        prefs().contains(secretKey(pluginId, field))
+        secretState(pluginId, field) == SecretState.READY
 
     /** 解密后的密钥；未设置或解密失败都返回 null。 */
     fun secret(pluginId: String, field: String): String? =

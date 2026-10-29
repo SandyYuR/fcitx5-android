@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.voice.js
 
-import com.dokar.quickjs.QuickJs
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.serialization.json.JsonPrimitive
 
 /** 一次导入识别的结果。失败原因用枚举而不是字符串，界面据此给出可翻译的说明。 */
@@ -82,11 +82,12 @@ internal object JsVoiceImporter {
                 size.toString(),
             )
         }
-        val js = QuickJs.create(Dispatchers.IO)
+        val js = JsVoiceRuntime.create()
         return try {
             JsVoiceStubNatives.install(js, locale)
-            runCatching { js.evaluate<Any?>(JsVoicePrelude.SOURCE + "\n" + script) }
+            runCatching { JsVoiceRuntime.initialize(js, JsVoicePrelude.SOURCE + "\n" + script) }
                 .getOrElse { error ->
+                    if (error is CancellationException && error !is TimeoutCancellationException) throw error
                     return JsVoiceImportResult.Failure(
                         JsVoiceImportResult.Failure.Reason.LOAD_FAILED,
                         error.message.orEmpty(),
@@ -105,7 +106,7 @@ internal object JsVoiceImporter {
             // 设置页打不开字段是插件自己的问题，不该拦住导入。
             val fieldCount = runCatching {
                 JsVoiceFields.parse(js.evaluate<String>("__describe(" + JsonPrimitive(locale) + ")")).size
-            }.getOrDefault(0)
+            }.getOrElse { if (it is CancellationException) throw it else 0 }
             JsVoiceImportResult.Success(
                 meta = meta,
                 fieldCount = fieldCount,

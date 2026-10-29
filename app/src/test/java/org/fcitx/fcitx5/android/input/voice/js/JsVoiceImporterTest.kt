@@ -37,6 +37,24 @@ class JsVoiceImporterTest {
         });
     """.trimIndent()
 
+    @Test(timeout = 10000)
+    fun anUnregisteredTopLevelPromiseDoesNotHangInspection() {
+        // quickjs-kt returns this Promise as a value; it still has no registered plugin.
+        assertEquals(JsVoiceImportResult.Failure.Reason.NO_PLUGIN,
+            failureReason(inspect("new Promise(function () {});")))
+    }
+
+    @Test(timeout = 10000)
+    fun rejectsAllocationBeyondTheEngineHeapBudget() {
+        assertEquals(JsVoiceImportResult.Failure.Reason.LOAD_FAILED,
+            failureReason(inspect("globalThis.buffer = new ArrayBuffer(64 * 1024 * 1024);")))
+    }
+
+    @Test(timeout = 10000)
+    fun rejectsAnInfiniteTopLevelLoop() {
+        assertEquals(JsVoiceImportResult.Failure.Reason.LOAD_FAILED, failureReason(inspect("while (true) {}")))
+    }
+
     @Test
     fun acceptsWellFormedPlugin() {
         val result = inspect(validScript)

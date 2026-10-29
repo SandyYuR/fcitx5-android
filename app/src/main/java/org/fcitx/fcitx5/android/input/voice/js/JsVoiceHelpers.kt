@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.voice.js
 
+import org.fcitx.fcitx5.android.utils.readBounded
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -58,7 +59,18 @@ internal object JsVoiceHelpers {
         return bytes.toByteArray()
     }
 
-    fun gunzip(data: ByteArray): ByteArray = GZIPInputStream(data.inputStream()).use { it.readBytes() }
+    fun gunzip(data: ByteArray): ByteArray = GZIPInputStream(data.inputStream()).use { it.readBounded(JsVoiceRuntime.RESPONSE_BYTES) }
+
+    /** Concatenate decoded blocks, preserving padding and arbitrary capture short reads. */
+    fun concatenate(chunks: List<String>, decode: (String) -> ByteArray): ByteArray =
+        ByteArrayOutputStream().use { output ->
+            for (chunk in chunks) {
+                val bytes = decode(chunk)
+                require(bytes.size <= JsVoiceRuntime.BINARY_BYTES - output.size()) { "Audio exceeds its limit" }
+                output.write(bytes)
+            }
+            output.toByteArray()
+        }
 
     /** prefix + 4-byte big-endian compressed length + compressed payload (foxy.websocket.sendGzipFrame). */
     fun gzipFrame(prefix: ByteArray, payload: ByteArray): ByteArray {

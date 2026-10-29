@@ -24,7 +24,7 @@ var __pending = null;
 var __native = {
   locale: __n_locale, wsConnect: __n_wsConnect, wsWaitOpen: __n_wsWaitOpen, wsSend: __n_wsSend,
   wsSendBinary: __n_wsSendBinary, wsSendGzipFrame: __n_wsSendGzipFrame, wsClose: __n_wsClose,
-  httpPost: __n_httpPost, wavBase64: __n_wavBase64, utf8Base64: __n_utf8Base64,
+  httpPost: __n_httpPost, concatBase64: __n_concatBase64, wavBase64: __n_wavBase64, utf8Base64: __n_utf8Base64,
   base64Utf8: __n_base64Utf8, byteLength: __n_byteLength, sliceBase64: __n_sliceBase64,
   readUInt8: __n_readUInt8, readInt32BE: __n_readInt32BE, gunzipUtf8: __n_gunzipUtf8,
   hmacSha1Base64: __n_hmacSha1Base64
@@ -71,6 +71,7 @@ var foxy = {
     }
   },
   binary: {
+    concatBase64: function (chunks) { return __native.concatBase64(JSON.stringify(chunks)); },
     utf8Base64: function (text) { return __native.utf8Base64(__str(text)); },
     base64Utf8: function (b64) { return __native.base64Utf8(__str(b64)); },
     byteLength: function (b64) { return __native.byteLength(__str(b64)); },

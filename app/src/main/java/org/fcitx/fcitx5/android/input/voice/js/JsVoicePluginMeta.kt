@@ -131,6 +131,8 @@ internal data class JsVoicePluginRecord(
     /** 用户选择的文件名，只用于界面展示「来源」，不参与路径计算。 */
     val sourceName: String,
     val importedAt: Long,
+    /** Content-addressed script; null keeps legacy <id>.js imports readable. */
+    val scriptDigest: String? = null,
 ) {
     fun encode(): String = buildJsonObject {
         put("id", meta.id)
@@ -138,6 +140,7 @@ internal data class JsVoicePluginRecord(
         put("version", meta.version)
         put("source", sourceName)
         put("importedAt", importedAt)
+        scriptDigest?.let { put("scriptDigest", it) }
         put(
             "hosts",
             buildJsonArray { meta.hosts.forEach { add(JsonPrimitive(it)) } }
@@ -163,7 +166,10 @@ internal data class JsVoicePluginRecord(
         fun decode(json: String): JsVoicePluginRecord? {
             val obj = runCatching { Json.parseToJsonElement(json).jsonObject }.getOrNull() ?: return null
             val meta = JsVoicePluginMeta.parse(json) ?: return null
+            val digest = obj["scriptDigest"]?.jsonPrimitive?.contentOrNull
+            if (digest != null && !digest.matches(Regex("[0-9a-f]{64}"))) return null
             return JsVoicePluginRecord(
+                scriptDigest = digest,
                 meta = meta,
                 sourceName = obj["source"]?.jsonPrimitive?.contentOrNull.orEmpty(),
                 importedAt = obj["importedAt"]?.jsonPrimitive?.contentOrNull?.toLongOrNull() ?: 0L,

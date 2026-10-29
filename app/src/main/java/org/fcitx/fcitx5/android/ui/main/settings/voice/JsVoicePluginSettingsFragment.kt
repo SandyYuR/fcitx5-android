@@ -38,6 +38,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
 
     private var pluginId: String = JsVoiceProviders.QWEN_ASR_ID
     private var loaded = false
+    private val secretStates = mutableMapOf<String, JsVoiceSettingsStore.SecretState>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,10 +61,20 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     private fun load() {
         viewLifecycleOwner.lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) {
-                runCatching { JsVoiceProviders.describe(pluginId) }
+                runCatching {
+                    val fields = JsVoiceProviders.describe(pluginId)
+                    val states = fields.filter { it.isSecret }.associate { field ->
+                        field.key to JsVoiceSettingsStore.secretState(pluginId, field.key)
+                    }
+                    fields to states
+                }
             }
             if (!isAdded) return@launch
-            result.onSuccess { render(it) }
+            result.onSuccess { (fields, states) ->
+                secretStates.clear()
+                secretStates.putAll(states)
+                render(fields)
+            }
                 .onFailure { showPlaceholder(getString(R.string.js_voice_settings_failed, it.message.orEmpty())) }
         }
     }
@@ -334,7 +345,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     }
 
     /**
-     * 密钥项：从不回填，摘要只报告「已设置 / 未设置」。
+     * 密钥项：从不回填，摘要区分可用、未设置与需要重新输入。KeyStore 操作在 IO 线程执行。
      *
      * 清空输入框即清除密钥；返回值固定 false，避免 EditTextPreference 把明文留在控件里。
      */
@@ -352,20 +363,27 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
             }
             setOnPreferenceChangeListener { preference, newValue ->
                 val value = (newValue as? String).orEmpty()
-                if (!JsVoiceSettingsStore.setSecret(pluginId, field.key, value.ifBlank { null })) {
-                    Toast.makeText(requireContext(), R.string.js_voice_secret_save_failed, Toast.LENGTH_LONG).show()
+                preference.isEnabled = false
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val (saved, state) = withContext(Dispatchers.IO) {
+                        JsVoiceSettingsStore.setSecret(pluginId, field.key, value.ifBlank { null }) to
+                            JsVoiceSettingsStore.secretState(pluginId, field.key)
+                    }
+                    secretStates[field.key] = state
+                    preference.isEnabled = true
+                    preference.summary = secretSummary(field)
+                    if (!saved) Toast.makeText(requireContext(), R.string.js_voice_secret_save_failed, Toast.LENGTH_LONG).show()
                 }
-                preference.summary = secretSummary(field)
                 false
             }
         }
 
     private fun secretSummary(field: JsVoiceField): String {
-        val state = if (JsVoiceSettingsStore.hasSecret(pluginId, field.key)) {
-            getString(R.string.js_voice_secret_set)
-        } else {
-            getString(R.string.js_voice_secret_unset)
-        }
+        val state = getString(when (secretStates[field.key] ?: JsVoiceSettingsStore.SecretState.MISSING) {
+            JsVoiceSettingsStore.SecretState.READY -> R.string.js_voice_secret_set
+            JsVoiceSettingsStore.SecretState.MISSING -> R.string.js_voice_secret_unset
+            JsVoiceSettingsStore.SecretState.UNAVAILABLE -> R.string.js_voice_secret_unavailable
+        })
         return if (field.description.isBlank()) state else field.description + " · " + state
     }
 

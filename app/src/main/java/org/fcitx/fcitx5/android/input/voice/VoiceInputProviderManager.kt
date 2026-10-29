@@ -690,6 +690,13 @@ object VoiceInputProviderManager {
                 }) {
                 return
             }
+            service.lifecycleScope.launch {
+                delay(ACTIVE_READY_TIMEOUT_MS)
+                if (isCurrentVoiceSession(generation, callback) && activeProvider === entry.provider && !sessionReady) {
+                    callback.onError(VoiceInputIpc.ErrorCodes.NOT_AVAILABLE,
+                        appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_disconnected))
+                }
+            }
             return
         }
 

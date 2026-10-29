@@ -1176,4 +1176,5 @@
     <string name="js_voice_network_pending">待批准的主機：\n%1$s\n點按檢視並授權。</string>
     <string name="js_voice_network_not_approved">外掛尚未獲准存取網路，請在 JS 語音外掛設定中檢視並批准主機。</string>
     <string name="js_voice_network_approved_hint">已批准，再次點按語音按鈕即可開始。</string>
+    <string name="js_voice_secret_unavailable">本機無法解密，請重新填寫金鑰</string>
 </resources>

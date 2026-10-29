@@ -1206,4 +1206,5 @@
     <string name="js_voice_network_pending">待批准的主机：\n%1$s\n点按查看并授权。</string>
     <string name="js_voice_network_not_approved">插件尚未获准访问网络，请在 JS 语音插件设置中查看并批准主机。</string>
     <string name="js_voice_network_approved_hint">已批准，再次点按语音按钮即可开始。</string>
+    <string name="js_voice_secret_unavailable">本机无法解密，请重新填写密钥</string>
 </resources>
