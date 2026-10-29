@@ -979,7 +979,9 @@ object ImeWebEditorBridgeServer {
 
     private fun securityHeaders(): Map<String, String> = mapOf(
         "Cache-Control" to "no-store",
-        "Referrer-Policy" to "no-referrer",
+        // no-referrer turns the pairing form's POST Origin into "null", which
+        // allowedRequest correctly rejects. Keep the origin for same-origin forms.
+        "Referrer-Policy" to "same-origin",
         "X-Content-Type-Options" to "nosniff",
         "X-Frame-Options" to "DENY"
     )
