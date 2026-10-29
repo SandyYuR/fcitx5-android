@@ -25,6 +25,7 @@ internal object JsVoiceProviders {
     const val QWEN_ASR_ID = "js:qwen-asr"
     const val DOUBAO_ASR_ID = "js:doubao-asr"
     const val TENCENT_ASR_ID = "js:tencent-asr"
+    const val TENCENT_TRANSLATE_ID = "js:tencent-translate"
 
     /** 脚本正文的来源。内置读 asset，用户导入的读私有目录文件。 */
     internal sealed interface Source {
@@ -64,7 +65,7 @@ internal object JsVoiceProviders {
         Spec(
             id = QWEN_ASR_ID,
             label = appContext.getString(R.string.js_voice_provider_qwen_asr),
-            version = "1.6.2",
+            version = "1.6.3",
             hosts = setOf(
                 "dashscope.aliyuncs.com",
                 "maas.qianwenaiapi.com",
@@ -95,6 +96,16 @@ internal object JsVoiceProviders {
             source = Source.Asset("bundled/js-voice/tencent-asr.js"),
             builtIn = true,
             originName = "tencent-asr.js",
+        ),
+        Spec(
+            id = TENCENT_TRANSLATE_ID,
+            label = appContext.getString(R.string.js_voice_provider_tencent_translate),
+            version = "1.0.0",
+            hosts = setOf("asr.cloud.tencent.com"),
+            sampleRate = 16000,
+            source = Source.Asset("bundled/js-voice/tencent-translate.js"),
+            builtIn = true,
+            originName = "tencent-translate.js",
         ),
     )
 

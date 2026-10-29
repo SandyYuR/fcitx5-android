@@ -40,6 +40,7 @@ class JsVoiceBridgeContractTest {
     private val scriptFile = File(scriptDir, "qwen-asr.js")
     private val doubaoFile = File(scriptDir, "doubao-asr.js")
     private val tencentFile = File(scriptDir, "tencent-asr.js")
+    private val translateFile = File(scriptDir, "tencent-translate.js")
 
     private inner class Harness {
         val sent = mutableListOf<String>()
@@ -175,6 +176,9 @@ class JsVoiceBridgeContractTest {
 
     @Test
     fun bundledPluginDescribesItsSettings() = withPlugin { js, _ ->
+        val meta = JsVoicePluginMeta.parse(js.evaluate<String>("__meta()"))!!
+        assertEquals("1.6.3", meta.version)
+        assertEquals("通义千问语音识别", meta.voiceAsr!!.label)
         val raw = js.evaluate<String>("__describe('zh-CN')")
         val fields = JsVoiceFields.parse(raw)
         assertEquals(
@@ -398,6 +402,80 @@ class JsVoiceBridgeContractTest {
 
     private fun prefixBytes(frame: Pair<String, String>): List<Int> =
         decode(frame.first).map { it.toInt() and 0xff }
+
+    @Test
+    fun translateSignsTheTranslationPathAndExposesItsSettings() = withPlugin(translateFile) { js, harness ->
+        val meta = JsVoicePluginMeta.parse(js.evaluate<String>("__meta()"))!!
+        assertEquals("tencent-translate", meta.id)
+        assertEquals(listOf("asr.cloud.tencent.com"), meta.hosts)
+        assertEquals("1.0.0", meta.version)
+        val fields = JsVoiceFields.parse(js.evaluate<String>("__describe('zh-CN')"))
+        assertEquals(11, fields.size)
+        assertTrue(fields.first { it.key == "secretKey" }.isSecret)
+        val values = JsVoiceFields.currentValues(fields, mapOf("appId" to "1234567890", "secretId" to "AKIDTEST"))
+        assertFalse(values.containsKey("secretKey"))
+        runCallback(js, "start", buildJsonObject { values.forEach { (key, value) -> put(key, value) } }.toString())
+        val uri = java.net.URI(harness.connectUrl)
+        assertEquals("/asr/speech_translate/1234567890", uri.path)
+        val query = uri.rawQuery.split('&').associate { part ->
+            val pair = part.split('=', limit = 2)
+            java.net.URLDecoder.decode(pair[0], "UTF-8") to java.net.URLDecoder.decode(pair[1], "UTF-8")
+        }
+        assertEquals("zh", query["source"])
+        assertEquals("en", query["target"])
+        assertEquals("hunyuan-translation-lite", query["trans_model"])
+        assertEquals("1", query["voice_format"])
+        assertEquals(3600L, query.getValue("expired").toLong() - query.getValue("timestamp").toLong())
+        val canonical = "asr.cloud.tencent.com" + uri.path + "?" + query.filterKeys { it != "signature" }
+            .toSortedMap().map { (key, value) -> "$key=$value" }.joinToString("&")
+        assertEquals("secretKey" to canonical, harness.signatures.single())
+        assertEquals(encode(JsVoiceCrypto.hmacSha1("secretKey", canonical) { "test-secret" }), query["signature"])
+        assertTrue(harness.connectHeaders.isEmpty())
+        assertFalse(harness.connectUrl.contains("test-secret"))
+    }
+
+    @Test
+    fun translateBuffersUntilReadyAndAssemblesRevisedSentencesOnce() = withPlugin(translateFile) { js, harness ->
+        runCallback(js, "start", """{"appId":"1234567890","secretId":"AKIDTEST","source":"zh","target":"en"}""")
+        runCallback(js, "audio", """{"socket":"socket-1","pcm":"AQID"}""")
+        assertTrue(harness.sentBinary.isEmpty())
+        val ready = runCallback(js, "onMessage", """{"socket":"socket-1","message":"{\"code\":0}"}""")
+        assertEquals(true, fieldValue(ready, "ready")?.booleanOrNull)
+        runCallback(js, "audio", """{"socket":"socket-1","pcm":"BAUG"}""")
+        assertEquals(listOf("AQID", "BAUG"), harness.sentBinary)
+        for (packet in listOf(
+            """{"code":0,"sentence_id":0,"result":{"source_text":"你好","target_text":"Hello"}}""",
+            """{"code":0,"sentence_id":0,"result":{"source_text":"你好，","target_text":"Hello,"}}""",
+            """{"code":0,"sentence_id":1,"result":{"source_text":"世界。","target_text":"world."}}""",
+        )) {
+            runCallback(js, "onMessage", buildJsonObject { put("socket", "socket-1"); put("message", packet) }.toString())
+        }
+        runCallback(js, "stop", """{"socket":"socket-1"}""")
+        assertEquals("""{"type":"end"}""", harness.sent.single())
+        val final = runCallback(js, "onMessage", """{"socket":"socket-1","message":"{\"code\":0,\"final\":1}"}""")
+        assertEquals("Hello, world.", fieldValue(final, "final")?.contentOrNull)
+        assertEquals(true, fieldValue(final, "ended")?.booleanOrNull)
+    }
+
+    @Test
+    fun translateCanInsertSourceAndReportsProviderErrors() = withPlugin(translateFile) { js, _ ->
+        runCallback(js, "start", """{"appId":"1234567890","secretId":"AKIDTEST","output":"source"}""")
+        val packet = """{"code":0,"sentence_id":0,"result":{"source_text":"你好。","target_text":"Hello."},"final":1}"""
+        val final = runCallback(js, "onMessage", buildJsonObject { put("message", packet) }.toString())
+        assertEquals("你好。", fieldValue(final, "final")?.contentOrNull)
+        val error = runCallback(js, "onMessage", """{"message":"{\"code\":4001,\"message\":\"quota exceeded\"}"}""")
+        assertEquals("Tencent Cloud translation 4001: quota exceeded", fieldValue(error, "error")?.contentOrNull)
+    }
+
+    @Test
+    fun translateRejectsUnsupportedLanguagePairsBeforeSigning() = withPlugin(translateFile) { js, harness ->
+        val error = runCatching {
+            runCallback(js, "start", """{"appId":"1234567890","secretId":"AKIDTEST","source":"ja","target":"ru"}""")
+        }.exceptionOrNull()
+        assertTrue(error?.message.orEmpty().contains("目标语言"))
+        assertTrue(harness.signatures.isEmpty())
+        assertEquals("", harness.connectUrl)
+    }
 
     @Test
     fun tencentDescribesCredentialsAndSignsTheCanonicalWebSocketUrl() = withPlugin(tencentFile) { js, harness ->

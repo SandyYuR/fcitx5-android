@@ -1194,4 +1194,5 @@
     <string name="js_voice_import_failed_save">Could not save the plugin: %1$s</string>
     <string name="js_voice_plugins_delete_entry">Remove this plugin</string>
     <string name="js_voice_plugins_delete_entry_summary">From %1$s</string>
+    <string name="js_voice_provider_tencent_translate">Tencent Cloud Speech Translation (JS)</string>
 </resources>

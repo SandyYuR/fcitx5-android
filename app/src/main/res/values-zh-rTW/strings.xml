@@ -1160,4 +1160,5 @@
     <string name="js_voice_import_failed_save">無法儲存外掛：%1$s</string>
     <string name="js_voice_plugins_delete_entry">移除此外掛</string>
     <string name="js_voice_plugins_delete_entry_summary">來源 %1$s</string>
+    <string name="js_voice_provider_tencent_translate">騰訊雲語音翻譯 (JS)</string>
 </resources>

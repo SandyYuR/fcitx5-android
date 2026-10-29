@@ -1190,4 +1190,5 @@
     <string name="js_voice_import_failed_save">无法保存插件：%1$s</string>
     <string name="js_voice_plugins_delete_entry">移除这个插件</string>
     <string name="js_voice_plugins_delete_entry_summary">来源 %1$s</string>
+    <string name="js_voice_provider_tencent_translate">腾讯云语音翻译 (JS)</string>
 </resources>
