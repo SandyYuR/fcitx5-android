@@ -69,6 +69,28 @@ class SymbolPanelStyleTest {
             .first { it.layoutManager is GridLayoutManager }
             .adapter!!.itemCount
 
+    @Test fun unchangedRefreshDoesNotFilterTheCatalogAgain() {
+        val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
+        var calls = 0
+        var key = 0
+        val policy = object : PickerPolicy by DefaultPickerPolicy() {
+            override fun filter(raw: String): Boolean { calls++; return true }
+            override fun invalidateKey(): Any = key
+        }
+        val panel = SymbolPanelUi(activity, ThemeManager.DefaultTheme, SymbolCatalogType.Emoji, 6, 14f,
+            policy, KeyActionListener { _, _ -> }, PopupActionListener {})
+        val first = calls
+        assertTrue(first > 1000)
+        panel.refresh()
+        assertEquals(first, calls)
+        key++
+        panel.refresh()
+        assertEquals(first * 2, calls)
+        SymbolCatalogs.invalidate()
+        panel.refresh()
+        assertEquals(first * 3, calls)
+    }
+
     @Test
     fun defaultStyleIsSidebar() {
         assertEquals(

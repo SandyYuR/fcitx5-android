@@ -11,6 +11,18 @@ class ReleaseSnapshotTest {
         Snapshot(generation, revision, optionRevision, handled, 0, commit, "ni", "test", ascii,
             0, true, 2, candidates, arrayOf(""), tabs, "测试", 0, "你", arrayOf("1"))
 
+    @Test fun cursorConversionMatchesUtf8DecodingIncludingTruncatedCodePoints() {
+        for (text in listOf("", "abc", "汉é🙂𐀀x", "a\uD800b\uDC00c")) {
+            val bytes = text.toByteArray(Charsets.UTF_8)
+            for (offset in -1..bytes.size + 2) {
+                val snapshot = Snapshot(1, 1, 1, false, 0, "", text, "", false, 0, true,
+                    offset, emptyArray(), emptyArray(), emptyArray(), "", 0, "", emptyArray())
+                assertEquals("$text at $offset", String(bytes, 0, offset.coerceIn(0, bytes.size), Charsets.UTF_8).length,
+                    snapshot.cursorUtf16)
+            }
+        }
+    }
+
     @Test fun unchangedReleaseMayAdvanceRevisionWithoutRepackingPresentation() {
         assertTrue(snapshot(revision = 2).isUnchangedRelease(snapshot(commit = "previous commit")))
     }

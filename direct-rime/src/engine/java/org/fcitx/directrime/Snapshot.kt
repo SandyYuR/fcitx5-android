@@ -33,8 +33,25 @@ class Snapshot(
         labels.contentEquals(previous.labels) && tabs.contentEquals(previous.tabs)
 
     val ready get() = gate == 0
-    val cursorUtf16 get() = preedit.toByteArray(Charsets.UTF_8).let {
-        String(it, 0, cursorBytes.coerceIn(0, it.size), Charsets.UTF_8).length
+    val cursorUtf16: Int get() {
+        var index = 0
+        var bytes = 0
+        while (index < preedit.length && bytes < cursorBytes) {
+            val c = preedit[index]
+            val pair = c.isHighSurrogate() && index + 1 < preedit.length && preedit[index + 1].isLowSurrogate()
+            val width = when {
+                c.code < 0x80 -> 1
+                c.code < 0x800 -> 2
+                pair -> 4
+                c.isSurrogate() -> 1 // Java UTF-8 encodes an unpaired surrogate as '?'.
+                else -> 3
+            }
+            // Match UTF-8 decoding's replacement character for a truncated final code point.
+            if (cursorBytes - bytes < width) return index + 1
+            bytes += width
+            index += if (pair) 2 else 1
+        }
+        return index
     }
     val gateMessage get() = when (gate) {
         0 -> if (ascii) "英文" else schema

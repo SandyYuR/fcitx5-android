@@ -154,6 +154,11 @@ class SymbolPanelUi(
 
     private var groups: List<SymbolGroup> = emptyList()
     private var selectedIndex = 0
+    private var filteredGroups: List<SymbolGroup> = emptyList()
+    private var filterKey: Any? = null
+    private var fontGeneration = -1L
+    private var appearanceConfiguration: Configuration? = null
+    private var hasRecent = false
 
     private val gridItemHeight = ctx.dp(GRID_ITEM_HEIGHT_DP)
 
@@ -168,6 +173,7 @@ class SymbolPanelUi(
 
         var items: List<String> = emptyList()
             set(value) {
+                if (field == value) return
                 field = value
                 @Suppress("NotifyDataSetChanged")
                 notifyDataSetChanged()
@@ -544,41 +550,47 @@ class SymbolPanelUi(
      * 重新构建分组列表（语言、过滤偏好、所选 catalog 或最近使用变化后调用）。
      */
     fun rebuild() {
-        // 每次都重新取：用户可能刚在设置里换了自备 catalog
-        catalog = SymbolCatalogs.get(catalogType)
-        val list = ArrayList<SymbolGroup>(catalog.groups.size + 1)
-        val recent = recentlyUsed.items.filter(policy::filter)
-        if (recent.isNotEmpty()) {
-            list.add(SymbolGroup(ctx.getString(R.string.symbol_panel_recent), recent))
-        }
-        catalog.groups.forEach { group ->
-            val filtered = group.symbols.filter(policy::filter)
-            if (filtered.isNotEmpty()) {
-                list.add(SymbolGroup(group.name, filtered))
+        val nextCatalog = SymbolCatalogs.get(catalogType)
+        val nextKey = policy.invalidateKey()
+        val nextFont = FontProviders.fontGeneration
+        val configuration = ctx.resources.configuration
+        val appearanceChanged = nextFont != fontGeneration || appearanceConfiguration != configuration
+        val filterChanged = catalog !== nextCatalog || filterKey != nextKey || appearanceChanged
+        val oldCatalogIndex = selectedIndex - if (hasRecent) 1 else 0
+        if (filterChanged) {
+            catalog = nextCatalog
+            filterKey = nextKey
+            filteredGroups = catalog.groups.mapNotNull { group ->
+                val filtered = group.symbols.filter(policy::filter)
+                if (filtered.isEmpty()) null else SymbolGroup(group.name, filtered)
             }
         }
-        groups = list
-        if (selectedIndex >= groups.size) selectedIndex = 0
-        @Suppress("NotifyDataSetChanged")
-        sidebarAdapter.notifyDataSetChanged()
-        applySelectedGroup()
+        val recent = recentlyUsed.items.filter(policy::filter)
+        val nextGroups = if (recent.isEmpty()) filteredGroups else
+            listOf(SymbolGroup(ctx.getString(R.string.symbol_panel_recent), recent)) + filteredGroups
+        val nextHasRecent = recent.isNotEmpty()
+        if (groups != nextGroups) {
+            val wasEmpty = groups.isEmpty()
+            groups = nextGroups
+            // Adding/removing the recent tab must not select a different catalog group.
+            selectedIndex = (if (wasEmpty) 0 else oldCatalogIndex + if (nextHasRecent) 1 else 0)
+                .coerceIn(0, (groups.size - 1).coerceAtLeast(0))
+            hasRecent = nextHasRecent
+            @Suppress("NotifyDataSetChanged")
+            sidebarAdapter.notifyDataSetChanged()
+            applySelectedGroup()
+        }
+        if (filterChanged) {
+            @Suppress("NotifyDataSetChanged")
+            gridAdapter.notifyDataSetChanged() // also applies skin-tone and font-only changes
+        }
+        fontGeneration = nextFont
+        appearanceConfiguration = Configuration(configuration)
     }
 
-    /**
-     * 面板将要显示时调用：必要时换风格，并重建分组、刷新网格。
-     *
-     * 以下五件事只能在这里对齐，故每次都重建（而不是"无变化就跳过"）：
-     * - **面板风格可能已在设置里改过**——窗口视图被复用，不重建结构就看不到效果；
-     * - 「最近使用」可能在面板未显示时被写入；
-     * - 过滤偏好（如「隐藏不支持的 emoji」）可能已改变；
-     * - **所选的自备 catalog 可能已在设置里切换**；
-     * - 字体配置可能已改变——[GridHolder.bind] 会按当前配置重设字号，
-     *   而 `notifyDataSetChanged` 会让所有可见项重新绑定。
-     */
+    /** Refresh recents each time; filter the catalog only when its inputs change. */
     fun refresh() {
-        if (style != stylePref.getValue()) {
-            applyStyle()
-        }
+        if (style != stylePref.getValue()) applyStyle()
         rebuild()
     }
 

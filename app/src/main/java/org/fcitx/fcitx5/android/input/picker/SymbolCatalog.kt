@@ -107,11 +107,12 @@ object SymbolCatalogs {
      */
     fun get(type: SymbolCatalogType): SymbolCatalog {
         val selection = selectedName(type)
-        val cacheKey = "${type.name}|$selection"
+        val languageTag = currentLanguageTag()
+        val cacheKey = "${type.name}|$selection|$languageTag"
         synchronized(this) {
             cache[cacheKey]?.let { return it }
         }
-        val catalog = load(type, selection)
+        val catalog = load(type, selection, languageTag)
         synchronized(this) {
             cache[cacheKey] = catalog
         }
@@ -133,8 +134,7 @@ object SymbolCatalogs {
         }
     }
 
-    private fun load(type: SymbolCatalogType, selection: String): SymbolCatalog {
-        val languageTag = currentLanguageTag()
+    private fun load(type: SymbolCatalogType, selection: String, languageTag: String): SymbolCatalog {
         if (selection != UserConfigFiles.SYMBOL_CATALOG_BUILTIN) {
             val catalog = loadUserCatalog(type, selection, languageTag)
             if (catalog != null) return catalog
@@ -212,8 +212,8 @@ object SymbolCatalogs {
     internal fun resolveName(names: Map<String, String>, languageTag: String): String? {
         if (names.isEmpty()) return null
         val language = languageTag.substringBefore('-')
-        var name: String? = null
-        if (language == "zh" && languageTag in zhHantTags) {
+        var name: String? = names[languageTag]
+        if (name == null && language == "zh" && languageTag in zhHantTags) {
             name = names["zh-Hant"]
         }
         if (name == null) {
