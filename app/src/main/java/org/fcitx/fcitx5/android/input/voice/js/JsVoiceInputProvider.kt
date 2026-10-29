@@ -133,11 +133,14 @@ internal class JsVoiceInputProvider(
     }
 
     private suspend fun runSession(cb: IVoiceInputCallback, taskId: String, rate: Int, rx: Channel<JsVoiceCommand>) {
-        val net = JsVoiceNet(http, declaredHosts, rx) { field ->
+        val policy = JsVoiceNetworkPolicy(pluginId, declaredHosts)
+        val net = JsVoiceNet(http, policy, rx) { field ->
             JsVoiceSettingsStore.secret(pluginId, field)
         }
         val js = QuickJs.create(Dispatchers.IO)
         try {
+            // Imported scripts can call natives at top level, before register()/start().
+            policy.requireApproval()
             net.install(js, locale)
             js.evaluate<Any?>(JsVoicePrelude.SOURCE + "\n" + scriptSource())
             val undeclared = undeclaredHosts(js)
@@ -339,12 +342,14 @@ internal object JsVoiceScript {
  * prelude exposes as __native.<name>. Calls are synchronous because the QuickJS evaluation already
  * runs on an IO thread.
  */
-private class JsVoiceNet(
-    private val http: OkHttpClient,
-    private val declaredHosts: Set<String>,
+internal class JsVoiceNet(
+    http: OkHttpClient,
+    private val policy: JsVoiceNetworkPolicy,
     private val rx: Channel<JsVoiceCommand>,
     private val secretFor: (String) -> String?,
 ) {
+    // Redirects could otherwise forward a credential to a host the user never approved.
+    private val http = http.newBuilder().followRedirects(false).followSslRedirects(false).build()
     private val sockets = ConcurrentHashMap<String, WebSocket>()
     private val opened = ConcurrentHashMap<String, CompletableDeferred<Unit>>()
     private val nextId = AtomicInteger(1)
@@ -352,6 +357,7 @@ private class JsVoiceNet(
     fun install(js: QuickJs, locale: String) {
         js.function("__n_locale") { _ -> locale }
         js.function("__n_hmacSha1Base64") { args ->
+            policy.requireApproval()
             encode(JsVoiceCrypto.hmacSha1(text(args, 0), text(args, 1), secretFor))
         }
         js.function("__n_wsConnect") { args ->
@@ -365,16 +371,19 @@ private class JsVoiceNet(
         }
         js.function("__n_wsWaitOpen") { args -> awaitOpen(text(args, 0)); null }
         js.function("__n_wsSend") { args ->
+            policy.requireApproval()
             val socket = sockets[text(args, 0)] ?: error("socket closed")
             socket.send(text(args, 1))
             null
         }
         js.function("__n_wsSendBinary") { args ->
+            policy.requireApproval()
             val socket = sockets[text(args, 0)] ?: error("socket closed")
             socket.send(ByteString.of(*bytes(args, 1)))
             null
         }
         js.function("__n_wsSendGzipFrame") { args ->
+            policy.requireApproval()
             val socket = sockets[text(args, 0)] ?: error("socket closed")
             socket.send(ByteString.of(*JsVoiceHelpers.gzipFrame(bytes(args, 1), bytes(args, 2))))
             null
@@ -415,9 +424,7 @@ private class JsVoiceNet(
         authPrefix: String,
         headersJson: String,
     ): String {
-        if (!JsVoiceHelpers.isAllowedUrl(url, declaredHosts)) {
-            throw IllegalArgumentException("Host is not declared by the plugin")
-        }
+        val destination = policy.checkUrl(url)
         val headers = JsVoiceHeaders.build(
             secretField = secretField,
             secret = secretField.takeIf { it.isNotBlank() }?.let(secretFor),
@@ -428,7 +435,7 @@ private class JsVoiceNet(
         val id = nextId.getAndIncrement().toString()
         val gate = CompletableDeferred<Unit>()
         opened[id] = gate
-        val builder = Request.Builder().url(url.replaceFirst("wss://", "https://"))
+        val builder = Request.Builder().url(destination)
         headers.forEach { (name, value) -> builder.header(name, value) }
         sockets[id] = http.newWebSocket(builder.build(), object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -461,9 +468,7 @@ private class JsVoiceNet(
     }
 
     private fun post(url: String, secretField: String, body: String, headersJson: String): String {
-        if (!JsVoiceHelpers.isAllowedUrl(url, declaredHosts)) {
-            throw IllegalArgumentException("Host is not declared by the plugin")
-        }
+        val destination = policy.checkUrl(url)
         val headers = JsVoiceHeaders.build(
             secretField = secretField,
             secret = secretField.takeIf { it.isNotBlank() }?.let(secretFor),
@@ -472,7 +477,7 @@ private class JsVoiceNet(
             headersJson = headersJson,
         )
         val builder = Request.Builder()
-            .url(url)
+            .url(destination)
             .post(body.toRequestBody("application/json".toMediaType()))
         headers.forEach { (name, value) -> builder.header(name, value) }
         return http.newCall(builder.build()).execute().use { response ->

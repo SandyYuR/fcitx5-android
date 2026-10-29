@@ -30,6 +30,8 @@ import org.fcitx.fcitx5.android.common.ipc.VoiceInputIpc
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.EditorSessionTracker
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceProviders
+import org.fcitx.fcitx5.android.input.voice.js.JsVoiceHostPermissions
+import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoiceHostPermissionDialog
 import org.fcitx.fcitx5.android.utils.appContext
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
@@ -335,6 +337,16 @@ object VoiceInputProviderManager {
                 return false
             }
             finish(service)
+            return false
+        }
+        val spec = JsVoiceProviders.specOf(id)
+        if (spec != null && !JsVoiceHostPermissions.isApproved(id, spec.hosts)) {
+            // Consent never starts recording. A hold key may already have been released
+            // while the dialog was open; the next explicit press starts the session.
+            service.showDialog(JsVoiceHostPermissionDialog.build(service, spec) {
+                android.widget.Toast.makeText(service, org.fcitx.fcitx5.android.R.string.js_voice_network_approved_hint,
+                    android.widget.Toast.LENGTH_SHORT).show()
+            })
             return false
         }
         start(service, id, onReady, onPartialResult, onError, onLevel, onFinished, onStatus)

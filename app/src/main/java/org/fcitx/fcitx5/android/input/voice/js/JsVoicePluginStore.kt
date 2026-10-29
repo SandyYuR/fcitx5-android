@@ -80,6 +80,7 @@ internal object JsVoicePluginStore {
 
     /** 删除插件记录与脚本文件。已填设置与密钥保留在 [JsVoiceSettingsStore] 里，重装同名插件可继续用。 */
     fun delete(id: String) {
+        JsVoiceHostPermissions.revoke(JsVoicePluginMeta.PROVIDER_ID_PREFIX + id)
         prefs().edit().remove(KEY_PREFIX + id).apply()
         runCatching { scriptFile(id).delete() }
     }

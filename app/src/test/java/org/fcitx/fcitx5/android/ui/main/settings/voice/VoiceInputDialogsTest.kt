@@ -12,6 +12,7 @@ import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import com.google.android.material.color.MaterialColors
 import org.fcitx.fcitx5.android.input.dialog.VoiceInputPickerDialog
 import org.fcitx.fcitx5.android.input.voice.VoiceInputChoices
+import org.fcitx.fcitx5.android.input.voice.js.JsVoiceHostPermissions
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceProviders
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
@@ -34,10 +35,36 @@ class VoiceInputDialogsTest {
 
     @Before fun setUp() {
         controller = Robolectric.buildActivity(HostActivity::class.java).setup()
+        JsVoiceHostPermissions.revoke(JsVoiceProviders.QWEN_ASR_ID)
         AppPrefs.getInstance().keyboard.preferredVoiceInput.setValue(JsVoiceProviders.QWEN_ASR_ID)
     }
     @After fun tearDown() {
+        JsVoiceHostPermissions.revoke(JsVoiceProviders.QWEN_ASR_ID)
         controller.pause().stop().destroy()
+    }
+
+    @Test fun permissionDialogShowsEveryHostAndCancelApproveRevokeHaveDistinctEffects() {
+        val spec = JsVoiceProviders.specOf(JsVoiceProviders.QWEN_ASR_ID)!!
+        var changes = 0
+        fun build() = JsVoiceHostPermissionDialog.build(controller.get(), spec) { changes++ }.apply { show() }
+        val cancelled = build()
+        val text = cancelled.findViewById<TextView>(android.R.id.message)!!.text.toString()
+        spec.hosts.forEach { assertTrue(text, text.contains(it)) }
+        cancelled.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertFalse(JsVoiceHostPermissions.isApproved(spec.id, spec.hosts))
+        assertEquals(0, changes)
+
+        val approved = build()
+        approved.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(JsVoiceHostPermissions.isApproved(spec.id, spec.hosts))
+        assertEquals(1, changes)
+        val revoke = build()
+        revoke.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertFalse(JsVoiceHostPermissions.isApproved(spec.id, spec.hosts))
+        assertEquals(2, changes)
     }
 
     @Test fun pickerChecksCurrentEnginePersistsSelectionAndCancelKeepsIt() {

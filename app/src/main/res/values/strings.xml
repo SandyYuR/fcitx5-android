@@ -1199,4 +1199,14 @@
     <string name="voice_engine_system">System voice input</string>
     <string name="voice_engine_javascript">JavaScript plugin</string>
     <string name="voice_engine_plugin">Voice service plugin</string>
+    <string name="js_voice_network_title">Approve plugin network access</string>
+    <string name="js_voice_network_message">%1$s can send audio and saved credentials to these hosts:\n\n%2$s\n\nOnly approve hosts you trust.</string>
+    <string name="js_voice_network_approve">Approve hosts</string>
+    <string name="js_voice_network_install_approve">Install and approve hosts</string>
+    <string name="js_voice_network_revoke">Revoke approval</string>
+    <string name="js_voice_network_entry">Network access</string>
+    <string name="js_voice_network_granted">Approved hosts:\n%1$s\nTap to revoke approval.</string>
+    <string name="js_voice_network_pending">Approval required:\n%1$s\nTap to review and approve.</string>
+    <string name="js_voice_network_not_approved">Plugin network access is not approved. Review the hosts in JS voice plugin settings.</string>
+    <string name="js_voice_network_approved_hint">Approved. Press the voice button again to start.</string>
 </resources>

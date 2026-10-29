@@ -17,6 +17,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceImportResult
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceImporter
+import org.fcitx.fcitx5.android.input.voice.js.JsVoiceHostPermissions
 import org.fcitx.fcitx5.android.input.voice.js.JsVoicePluginMeta
 import org.fcitx.fcitx5.android.input.voice.js.JsVoicePluginRecord
 import org.fcitx.fcitx5.android.input.voice.js.JsVoicePluginStore
@@ -153,7 +154,7 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
         if (meta.version.isNotBlank()) {
             lines += getString(R.string.js_voice_import_dialog_version, meta.version)
         }
-        lines += getString(R.string.js_voice_import_dialog_hosts, meta.hosts.joinToString(", "))
+        lines += getString(R.string.js_voice_network_message, meta.displayName, meta.hosts.joinToString("\n"))
         lines += getString(R.string.js_voice_import_dialog_fields, result.fieldCount)
         if (meta.rejectedHosts.isNotEmpty()) {
             lines += getString(
@@ -165,10 +166,10 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
             lines += getString(R.string.js_voice_import_dialog_replace)
         }
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.js_voice_import_dialog_title)
+            .setTitle(R.string.js_voice_network_title)
             .setMessage(lines.joinToString("\n\n"))
             .setNegativeButton(android.R.string.cancel, null)
-            .setPositiveButton(R.string.js_voice_import_dialog_confirm) { _, _ ->
+            .setPositiveButton(R.string.js_voice_network_install_approve) { _, _ ->
                 saveImport(meta, sourceName, script)
             }
             .show()
@@ -183,7 +184,8 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
             )
             val saved = withContext(Dispatchers.IO) {
                 runCatching {
-                    JsVoicePluginStore.save(record, script)
+                    check(JsVoicePluginStore.save(record, script)) { "Cannot save plugin" }
+                    JsVoiceHostPermissions.approve(meta.providerId, meta.hosts.toSet())
                     JsVoiceProviders.reload()
                 }
             }

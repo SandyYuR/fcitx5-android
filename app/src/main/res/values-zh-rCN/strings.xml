@@ -1195,4 +1195,14 @@
     <string name="voice_engine_system">系统语音输入</string>
     <string name="voice_engine_javascript">JavaScript 插件</string>
     <string name="voice_engine_plugin">语音服务插件</string>
+    <string name="js_voice_network_title">批准插件网络访问</string>
+    <string name="js_voice_network_message">%1$s 可以向以下主机发送音频和已保存的凭据：\n\n%2$s\n\n只批准你信任的主机。</string>
+    <string name="js_voice_network_approve">批准主机</string>
+    <string name="js_voice_network_install_approve">安装并批准主机</string>
+    <string name="js_voice_network_revoke">撤销授权</string>
+    <string name="js_voice_network_entry">网络访问授权</string>
+    <string name="js_voice_network_granted">已批准的主机：\n%1$s\n点按可撤销授权。</string>
+    <string name="js_voice_network_pending">待批准的主机：\n%1$s\n点按查看并授权。</string>
+    <string name="js_voice_network_not_approved">插件尚未获准访问网络，请在 JS 语音插件设置中查看并批准主机。</string>
+    <string name="js_voice_network_approved_hint">已批准，再次点按语音按钮即可开始。</string>
 </resources>
