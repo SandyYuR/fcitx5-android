@@ -463,6 +463,12 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             swipeThresholdY = dp(resolveHeightDp().toFloat())
             onGestureListener = swipeHideKeyboardCallback
         }
+        ui.voiceInputButton.apply {
+            setOnClickListener {
+                restoreVirtualKeyboardMode()
+                switchToVoiceInputCallback.onClick(it)
+            }
+        }
         ui.buttonsUi.apply {
             // Setup click listeners using ButtonAction
             ButtonAction.allConfigurableActions.forEach { action ->
@@ -871,19 +877,15 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             idleUi.inlineSuggestionsBar.clear()
         }
-        refreshHideKeyboardVoiceButton()
-        /*
-                "password=${capFlags.has(CapabilityFlag.Password)} shouldShow=$shouldShowVoiceInput"
-        )
-        */
+        refreshVoiceInputButton()
         evalIdleUiState()
     }
 
     override fun onImeUpdate(ime: InputMethodEntry) {
-        refreshHideKeyboardVoiceButton()
+        refreshVoiceInputButton()
     }
 
-    private fun refreshHideKeyboardVoiceButton() {
+    private fun refreshVoiceInputButton() {
         voiceInputSubtype = InputMethodUtil.findVoiceSubtype(preferredVoiceInput)
         val hasPluginProvider = VoiceInputProviderManager.isProviderId(preferredVoiceInput) &&
             VoiceInputProviderManager.hasProvider(preferredVoiceInput, service)
@@ -891,24 +893,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             showVoiceInputButton &&
                 (voiceInputSubtype != null || hasPluginProvider) &&
                 !isPasswordField
-        Log.i(
-            VOICE_INPUT_TAG,
-            "refreshVoiceButton showVoice=$showVoiceInputButton preferred=$preferredVoiceInput " +
-                "subtype=${voiceInputSubtype != null} plugin=$hasPluginProvider " +
-                ""
-        )
-        val hideKeyboardOrVoiceCallback = if (shouldShowVoiceInput) {
-            switchToVoiceInputCallback
-        } else {
-            hideKeyboardCallback
-        }
-        idleUi.setHideKeyboardIsVoiceInput(
-            shouldShowVoiceInput,
-            View.OnClickListener { view ->
-                service.restoreVirtualKeyboardForKawaiiBarAction()
-                hideKeyboardOrVoiceCallback.onClick(view)
-            }
-        )
+        idleUi.setVoiceInputVisible(shouldShowVoiceInput)
     }
 
     override fun onPreeditEmptyStateUpdate(empty: Boolean) {
