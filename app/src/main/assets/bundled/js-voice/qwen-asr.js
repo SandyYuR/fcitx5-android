@@ -265,7 +265,7 @@ foxy.plugin.register({
   },
   async audio(context) {
     if (state.mode === "flash") {
-      const chunkBytes = Math.floor(context.pcm.length * 3 / 4);
+      const chunkBytes = foxy.binary.byteLength(context.pcm);
       const limit = Math.max(1, Number(context.sampleRate) || 16000) * 2 * MAX_FLASH_AUDIO_SECONDS;
       if (state.bytes + chunkBytes > limit) throw new Error("Flash recognition is limited to 30 seconds of audio");
       state.bytes += chunkBytes;
@@ -276,7 +276,7 @@ foxy.plugin.register({
   },
   async stop(context) {
     if (state.mode === "flash") {
-      const pcm = state.chunks.join("");
+      const pcm = foxy.binary.concatBase64(state.chunks);
       const stripPunctuation = state.stripPunctuation;
       const stripChars = state.stripChars;
       state = {mode: "streaming", chunks: [], bytes: 0, stripPunctuation: false, stripChars: ""};

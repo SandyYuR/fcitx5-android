@@ -1210,4 +1210,5 @@
     <string name="js_voice_network_pending">Approval required:\n%1$s\nTap to review and approve.</string>
     <string name="js_voice_network_not_approved">Plugin network access is not approved. Review the hosts in JS voice plugin settings.</string>
     <string name="js_voice_network_approved_hint">Approved. Press the voice button again to start.</string>
+    <string name="js_voice_secret_unavailable">Cannot decrypt on this device; enter the key again</string>
 </resources>

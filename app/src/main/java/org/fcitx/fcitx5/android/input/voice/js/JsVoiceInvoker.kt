@@ -31,7 +31,7 @@ internal object JsVoiceInvoker {
     /** 一次回调的结果：回调返回值、期间发出的动作（ready/partial/final/error/ended）、以及抛出的错误。 */
     class Outcome(val result: JsonElement?, val actions: List<JsonObject>, val error: String?)
 
-    /** 两拍之间的间隔。宿主 native 都是同步实现，通常一拍就落地，所以固定小间隔即可。 */
+    /** 两拍之间的间隔。字节操作同步完成；网络通过可取消的异步绑定等待。 */
     const val POLL_DELAY_MS = 4L
 
     suspend fun call(
