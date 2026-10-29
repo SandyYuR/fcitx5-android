@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.ui.main.settings.voice
 
+import android.content.Context
+import android.content.res.Configuration
 import android.widget.TextView
 import android.widget.CheckedTextView
 import android.graphics.Color
@@ -65,6 +67,31 @@ class VoiceInputDialogsTest {
         shadowOf(Looper.getMainLooper()).idle()
         assertFalse(JsVoiceHostPermissions.isApproved(spec.id, spec.hosts))
         assertEquals(2, changes)
+    }
+
+    @Test fun permissionDialogRetainsTheHostWindowWhenOverridingItsTheme() {
+        val original = SettingsUiPreferences.read(controller.get())
+        val spec = JsVoiceProviders.specOf(JsVoiceProviders.QWEN_ASR_ID)!!
+        try {
+            for (mode in listOf(SettingsUiPreferences.MODE_LIGHT, SettingsUiPreferences.MODE_DARK)) {
+                SettingsUiPreferences.save(controller.get(), original.copy(mode = mode,
+                    palette = SettingsUiPreferences.PALETTE_BERRY, followKeyboardTheme = false))
+                // Settings mode changes recreate the Activity so AppCompat applies that mode too.
+                controller.recreate()
+                val activity = controller.get()
+                val host = androidx.appcompat.view.ContextThemeWrapper(activity, 0)
+                val dialog = JsVoiceHostPermissionDialog.build(host, spec) {}
+                // Robolectric's show() does not reject missing Activity tokens as a device does.
+                // Losing the host's WindowManager here causes BadTokenException on real devices.
+                assertSame(activity.getSystemService(Context.WINDOW_SERVICE),
+                    dialog.context.getSystemService(Context.WINDOW_SERVICE))
+                assertEquals(if (mode == SettingsUiPreferences.MODE_DARK) Configuration.UI_MODE_NIGHT_YES
+                    else Configuration.UI_MODE_NIGHT_NO,
+                    dialog.context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
+                dialog.show()
+                dialog.dismiss()
+            }
+        } finally { SettingsUiPreferences.save(controller.get(), original) }
     }
 
     @Test fun pickerChecksCurrentEnginePersistsSelectionAndCancelKeepsIt() {
