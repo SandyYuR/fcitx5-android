@@ -109,13 +109,6 @@ class IdleUi(
         contentDescription = hideKeyboardConfig.label ?: ctx.getString(R.string.hide_keyboard)
     }
 
-    val voiceInputButton = ToolButton(ctx, R.drawable.ic_baseline_keyboard_voice_24, theme).apply {
-        visibility = View.GONE
-        longPressEnabled = true
-        contentDescription = ctx.getString(R.string.switch_to_voice_input)
-        refreshVoiceInputButtonIcon(this)
-    }
-
     val buttonsUi = ButtonsBarUi(ctx, theme, buttonsConfig)
 
     val clipboardUi = ClipboardSuggestionUi(ctx, theme)
@@ -207,18 +200,14 @@ class IdleUi(
             endOfParent()
             centerVertically()
         })
-        add(voiceInputButton, lParams(size, size) {
-            before(hideKeyboardButton)
-            centerVertically()
-        })
         add(animator, lParams(matchConstraints, matchParent) {
             after(menuButton)
-            before(voiceInputButton)
+            before(hideKeyboardButton)
             centerVertically()
         })
         add(voiceStatusBar, lParams(matchConstraints, matchParent) {
             after(menuButton)
-            before(voiceInputButton)
+            before(hideKeyboardButton)
             centerVertically()
         })
     }
@@ -231,7 +220,7 @@ class IdleUi(
     /**
      * 应用「工具栏大小」缩放。
      *
-     * 固定按钮（状态区、语音、隐藏键盘）的边长在这里显式更新：它们在 [idleBody] 里是按
+     * 固定按钮（状态区、隐藏键盘）的边长在这里显式更新：它们在 [idleBody] 里是按
      * 构造时的 40dp 写进 ConstraintLayout.LayoutParams 的，工具栏变高后若不动，
      * 点击热区会小于视觉上的栏高。图标缩放由 [ToolButton.applyToolbarScale] 负责。
      *
@@ -244,7 +233,7 @@ class IdleUi(
         // 固定按钮是正方形（边长 = 栏高），所以图标上限跟着栏高走：
         // 栏调高它们才有空间长大，栏压矮时又被自动收住。
         val slotDp = KawaiiBarComponent.resolveHeightDp()
-        listOf(menuButton, voiceInputButton, hideKeyboardButton).forEach { button ->
+        listOf(menuButton, hideKeyboardButton).forEach { button ->
             button.updateLayoutParams<androidx.constraintlayout.widget.ConstraintLayout.LayoutParams> {
                 width = size
                 height = size
@@ -268,7 +257,6 @@ class IdleUi(
     fun clearTransientPressState() {
         menuButton.clearTransientPressState()
         hideKeyboardButton.clearTransientPressState()
-        voiceInputButton.clearTransientPressState()
         buttonsUi.clearTransientPressState()
     }
 
@@ -283,7 +271,6 @@ class IdleUi(
     private fun systemSlotFromButtonId(buttonId: String): String? = when (buttonId) {
         "toolbar_toggle" -> "system.toolbar_toggle"
         "hide_keyboard" -> "system.hide_keyboard"
-        "voice_input" -> "system.voice_input"
         else -> buttonId.takeIf { it.startsWith("system.") }
     }
 
@@ -353,7 +340,6 @@ class IdleUi(
         // Re-apply icon theme to system buttons
         updateMenuButtonIcon()
         refreshHideKeyboardButtonIcon()
-        refreshVoiceInputButtonIcon(voiceInputButton)
         // Re-resolve every center button's icon from the current icon theme
         buttonsUi.reloadIcons()
     }
@@ -426,16 +412,6 @@ class IdleUi(
 
     private fun refreshHideKeyboardButtonIcon() {
         applySystemButtonConfig(hideKeyboardButton, hideKeyboardConfig, defaultHideKeyboardIcon)
-    }
-
-    private fun refreshVoiceInputButtonIcon(button: ToolButton) {
-        if (!applyIconThemeToSystemButton(button, "system.voice_input")) {
-            button.setIcon(R.drawable.ic_baseline_keyboard_voice_24)
-        }
-    }
-
-    fun setVoiceInputVisible(visible: Boolean) {
-        voiceInputButton.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     fun showVoiceStatus(label: String = "Recording") {

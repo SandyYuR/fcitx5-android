@@ -15,7 +15,7 @@ import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 data class ConfigurableButton(
     /**
      * Unique identifier for the button action.
-     * Examples: "undo", "redo", "cursor_move", "floating_toggle", "clipboard", "theme_toggle",
+     * Examples: "undo", "redo", "cursor_move", "floating_toggle", "clipboard", "voice_input", "theme_toggle",
      *           "language_switch", "theme", "input_method_options", "reload_config", "virtual_keyboard", "one_handed_keyboard"
      */
     @SerialName("id")
@@ -94,7 +94,6 @@ data class ButtonsLayoutConfig(
     /**
      * Configuration for the hide keyboard button.
      * Always present on the right side of the idle bar.
-     * Can also act as a voice input button when voice input is available.
      * Supports custom icon, text, and label.
      */
     @SerialName("hideKeyboardButton")
