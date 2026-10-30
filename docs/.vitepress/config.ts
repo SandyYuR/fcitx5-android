@@ -3,7 +3,7 @@ import { legacyMaintainerItems, legacySidebar } from './legacy-navigation'
 
 export default defineConfig({
   title: '中州鹅',
-  description: '中州鹅直连 librime 输入法：安装迁移、万象方案、键盘与主题、维护和验证文档',
+  description: '中州鹅：Android 中文输入法，直连 librime，提供 Rime 方案、键盘定制、语音插件、剪贴板同步与维护文档',
   lang: 'zh-CN',
   lastUpdated: true,
   cleanUrls: true,
@@ -68,6 +68,7 @@ export default defineConfig({
         text: '维护',
         items: [
           { text: '维护分类索引', link: '/maintainer/' },
+          { text: '2026-10-30 审阅与合入记录', link: '/maintainer/review-2026-10-30' },
           { text: '本批修复与合入准备', link: '/maintainer/review-2026-10' },
           { text: '中文实现协议', link: '/maintainer/implementation/' },
           { text: '139 项旧审阅对照', link: '/maintainer/DIRECT_RIME_LEGACY_REVIEW_COMPARISON_2026-10-24' },
@@ -195,6 +196,7 @@ export default defineConfig({
           text: '当前批次与审阅',
           items: [
             { text: '维护分类索引', link: '/maintainer/' },
+            { text: '2026-10-30 审阅与合入记录', link: '/maintainer/review-2026-10-30' },
             { text: '本批修复与合入准备', link: '/maintainer/review-2026-10' },
             { text: '当前 CI 与文档迁移验收', link: '/maintainer/audit/merge-prep-2026-10-27/' },
             { text: '139 项旧审阅对照', link: '/maintainer/DIRECT_RIME_LEGACY_REVIEW_COMPARISON_2026-10-24' },
