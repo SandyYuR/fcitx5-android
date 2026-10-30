@@ -3896,6 +3896,14 @@ class InputView(
         keyboardWindow.onVoiceInputFinished()
     }
 
+    internal fun onVoiceInputButtonAction() {
+        kawaiiBar.onVoiceInputButtonAction()
+    }
+
+    internal fun onVoiceInputButtonLongPress() {
+        kawaiiBar.onVoiceInputButtonLongPress()
+    }
+
     /**
      * Re-broadcast current IME state from fcitx cache.
      * Useful after InputView recreation (e.g. theme switch) to avoid waiting for next async IM event.

@@ -11,6 +11,7 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.SplitKeyboardStateManager
 import org.fcitx.fcitx5.android.data.theme.ThemePreset
 import org.fcitx.fcitx5.android.input.bar.ui.IdleUi
+import org.fcitx.fcitx5.android.input.config.ConfigurableButton
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
@@ -29,33 +30,37 @@ import java.time.Duration
 class VoiceToolbarButtonsTest {
     private class HostActivity : SettingsUiActivity()
 
-    @Test fun voiceAndHideRemainSeparateAndLongHoldDoesNotStartRecording() {
+    @Test fun voiceUsesConfigurableToolbarButtonAndHideRemainsFixed() {
         val controller = Robolectric.buildActivity(HostActivity::class.java).setup()
         try {
             val activity = controller.get()
             SplitKeyboardStateManager.init(activity)
-            val ui = IdleUi(activity, ThemePreset.PixelLight, PopupComponent(), CommonKeyActionListener())
+            val ui = IdleUi(
+                activity,
+                ThemePreset.PixelLight,
+                PopupComponent(),
+                CommonKeyActionListener(),
+                buttonsConfig = listOf(ConfigurableButton("voice_input"))
+            )
             activity.setContentView(ui.root)
             ui.root.setViewTreeLifecycleOwner(activity)
+            val voiceButton = requireNotNull(ui.buttonsUi.getButton("voice_input"))
             var hidden = 0
             var started = 0
             var menus = 0
             ui.hideKeyboardButton.setOnClickListener { hidden++ }
-            ui.voiceInputButton.setOnClickListener { started++ }
-            ui.voiceInputButton.setOnLongClickListener { menus++; true }
-            ui.voiceInputButton.longPressFeedbackEnabled = false
+            voiceButton.setOnClickListener { started++ }
+            voiceButton.setOnLongClickListener { menus++; true }
+            voiceButton.longPressFeedbackEnabled = false
             fun layout() {
                 ui.root.measure(View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(120, View.MeasureSpec.EXACTLY))
                 ui.root.layout(0, 0, 1080, 120)
             }
-            ui.setVoiceInputVisible(true)
             ui.applyToolbarScale()
             layout()
             assertEquals(View.VISIBLE, ui.hideKeyboardButton.visibility)
-            assertEquals(View.VISIBLE, ui.voiceInputButton.visibility)
-            assertTrue(ui.voiceInputButton.width > 0)
-            assertTrue(ui.voiceInputButton.right <= ui.hideKeyboardButton.left)
+            assertTrue(voiceButton.width > 0)
             ui.hideKeyboardButton.performClick()
             assertEquals(1, hidden)
             assertEquals(0, started)
@@ -63,7 +68,7 @@ class VoiceToolbarButtonsTest {
             val down = SystemClock.uptimeMillis()
             fun touch(action: Int) {
                 val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, 10f, 10f, 0)
-                try { ui.voiceInputButton.onTouchEvent(event) } finally { event.recycle() }
+                try { voiceButton.onTouchEvent(event) } finally { event.recycle() }
             }
             touch(MotionEvent.ACTION_DOWN)
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(
@@ -71,10 +76,10 @@ class VoiceToolbarButtonsTest {
             touch(MotionEvent.ACTION_UP)
             assertEquals(1, menus)
             assertEquals(0, started)
-            ui.setVoiceInputVisible(false)
+            ui.buttonsUi.updateConfig(emptyList())
             layout()
             assertEquals(View.VISIBLE, ui.hideKeyboardButton.visibility)
-            assertEquals(View.GONE, ui.voiceInputButton.visibility)
+            assertNull(ui.buttonsUi.getButton("voice_input"))
         } finally { controller.pause().stop().destroy() }
     }
 }

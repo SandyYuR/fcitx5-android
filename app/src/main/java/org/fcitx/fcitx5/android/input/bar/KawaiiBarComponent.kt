@@ -401,12 +401,33 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         })
     }
 
+    internal fun onVoiceInputButtonAction() {
+        switchToVoiceInputCallback.onClick(idleUi.buttonsUi.getButton("voice_input"))
+    }
+
+    internal fun onVoiceInputButtonLongPress() {
+        showVoiceInputPicker()
+    }
+
     // Load buttons config from file or use default. The Status Area is opened by IdleUi's
     // fixed left-side control, so legacy "more" entries are excluded from the button row.
     private fun loadButtonsConfig(): Triple<List<ConfigurableButton>, ConfigurableButton, ConfigurableButton> {
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         val config = snapshot?.value ?: ButtonsLayoutConfig.default()
-        val buttons = config.kawaiiBarButtonsWithThemeToggle()
+        val configuredButtons = config.kawaiiBarButtonsWithThemeToggle()
+        val buttonsWithoutPasswordVoice = if (isPasswordField) {
+            configuredButtons.filterNot { it.id == "voice_input" }
+        } else {
+            configuredButtons
+        }
+        val buttons = if (
+            showVoiceInputButton && !isPasswordField &&
+            buttonsWithoutPasswordVoice.none { it.id == "voice_input" }
+        ) {
+            buttonsWithoutPasswordVoice + ConfigurableButton("voice_input")
+        } else {
+            buttonsWithoutPasswordVoice
+        }
 
         // Update watched icon filenames for hot-reload
         val allButtons = buttons + listOf(config.toolbarToggleButton, config.hideKeyboardButton)
@@ -479,21 +500,22 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             swipeThresholdY = dp(resolveHeightDp().toFloat())
             onGestureListener = swipeHideKeyboardCallback
         }
-        ui.voiceInputButton.apply {
-            setOnClickListener {
-                restoreVirtualKeyboardMode()
-                switchToVoiceInputCallback.onClick(it)
-            }
-            setOnLongClickListener {
-                restoreVirtualKeyboardMode()
-                showVoiceInputPicker()
-                true
-            }
-        }
         ui.buttonsUi.apply {
             // Setup click listeners using ButtonAction
             ButtonAction.allConfigurableActions.forEach { action ->
                 setOnClickListener(action.id, defaultActionClickListener(action))
+            }
+
+            setOnLongClickListener("voice_input") {
+                restoreVirtualKeyboardMode()
+                ButtonAction.fromId("voice_input")?.onLongPress(
+                    context = context,
+                    service = service,
+                    fcitx = fcitx,
+                    windowManager = windowManager,
+                    view = it
+                )
+                true
             }
             
             setOnLongClickListener("theme_toggle") {
@@ -908,10 +930,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     private fun refreshVoiceInputButton() {
         voiceInputSubtype = InputMethodUtil.findVoiceSubtype(preferredVoiceInput)
-        val shouldShowVoiceInput =
-            showVoiceInputButton &&
-                !isPasswordField
-        idleUi.setVoiceInputVisible(shouldShowVoiceInput)
+        reloadButtonsConfig()
     }
 
     override fun onPreeditEmptyStateUpdate(empty: Boolean) {

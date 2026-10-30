@@ -125,6 +125,7 @@ sealed class ButtonAction {
                 CursorMoveAction,
                 FloatingToggleAction,
                 ClipboardAction,
+                VoiceInputAction,
                 ThemeToggleAction,
                 RandomThemeAction,
                 LanguageSwitchAction,
@@ -163,6 +164,7 @@ sealed class ButtonAction {
                 CursorMoveAction,
                 FloatingToggleAction,
                 ClipboardAction,
+                VoiceInputAction,
                 ThemeToggleAction,
                 RandomThemeAction
             )
@@ -303,6 +305,35 @@ data object ClipboardAction : ButtonAction() {
         onActionComplete: (() -> Unit)?
     ) {
         windowManager.attachWindow(ClipboardWindow())
+    }
+}
+
+data object VoiceInputAction : ButtonAction() {
+    override val id = "voice_input"
+    override val defaultIcon = R.drawable.ic_baseline_keyboard_voice_24
+    override val defaultLabelRes = R.string.switch_to_voice_input
+    override val iconSlot = "system.voice_input"
+    override val hasLongPress = true
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        service.inputView?.onVoiceInputButtonAction()
+    }
+
+    override fun onLongPress(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View
+    ) {
+        service.inputView?.onVoiceInputButtonLongPress()
     }
 }
 
