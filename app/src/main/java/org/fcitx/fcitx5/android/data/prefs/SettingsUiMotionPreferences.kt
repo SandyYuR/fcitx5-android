@@ -32,7 +32,7 @@ object SettingsUiMotionPreferences {
         val enter: Style = Style.HORIZONTAL,
         val returning: Style = Style.FOLLOW,
         val durationMillis: Long = DURATION_STANDARD,
-        val predictiveBack: Boolean = true
+        val predictiveBack: Boolean = false
     ) {
         val returnStyle: Style get() = if (returning == Style.FOLLOW) enter else returning
         val hasAnimation: Boolean get() = enter != Style.NONE || returnStyle != Style.NONE
@@ -51,7 +51,7 @@ object SettingsUiMotionPreferences {
                 450L, DURATION_SLOW -> DURATION_SLOW
                 else -> DURATION_STANDARD
             },
-            predictiveBack = prefs.getBoolean(KEY_PREDICTIVE, true)
+            predictiveBack = prefs.getBoolean(KEY_PREDICTIVE, false)
         )
     }
 
