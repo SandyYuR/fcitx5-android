@@ -1,59 +1,18 @@
-# 文档协作快速开始（docs 分支）
+# 文档工作区
 
-本文面向只参与文档编写的贡献者，推荐只克隆 `docs` 分支最新提交，减少下载量与环境准备复杂度。
+本站源码在 `docs` 分支；默认代码分支 `fx-rime-only` 不包含 `docs/`。站点默认介绍中州鹅 Rime 直连版。
 
-## 1. 克隆 docs 分支最新提交
+- [快速参与](/about/contribute-docs)
+- [分类、旧链接与检查约定](/maintainer/documentation)
+- [全部文档](/contents)
+- [维护资料](/maintainer/catalog)
+- [靓企鹅中州韵历史档案](/legacy/)
 
-```bash
-git clone --depth 1 --single-branch --branch docs https://github.com/SandyYuR/fcitx5-android.git
-cd fcitx5-android
-```
-
-如果使用自己的 fork：
-
-```bash
-git clone --depth 1 --single-branch --branch docs https://github.com/<your-name>/fcitx5-android.git
-cd fcitx5-android
-```
-
-## 2. 安装文档依赖
-
-```bash
+```sh
 npm --prefix docs ci
-```
-
-## 3. 本地预览
-
-```bash
 npm --prefix docs run dev
-```
-
-默认访问地址通常是：`http://localhost:5173/fcitx5-android/`
-
-## 4. 提交前检查
-
-```bash
 npm --prefix docs run build
-python3 docs/scripts/check-links.py
-git status
-git add docs
-git commit -m "docs: update documentation"
+python docs/scripts/check-links.py
+python docs/scripts/check-legacy-docs.py
+node docs/scripts/check-doc-catalog.mjs
 ```
-
-## 5. 提交修改
-
-1. 有仓库写权限：直接推送到 `docs` 分支（GitHub Actions 的 **Docs** 工作流会自动构建并发布到 GitHub Pages）。
-2. 无写权限：推送到 fork 分支后发 Pull Request，目标分支选择 `docs`。
-
----
-
-详细说明见：`docs/about/contribute-docs.md`
-
-## 当前版本与手册
-
-- [直连文档目录](direct-rime.md)
-- [当前合并交付](maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21.md)
-- [中州鹅用户手册](manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)
-- [维护手册与 librime 更新](maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md)
-
-文档变更通过面向 `docs` 的 PR 构建验证，合并后才发布站点。

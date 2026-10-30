@@ -1,6 +1,6 @@
 # Foxy 后续修复验证数据（2026-10-18）
 
-[主报告](../../DIRECT_RIME_FOXY_FIXES_2026-10-18.md)。
+[主报告](/maintainer/history/DIRECT_RIME_FOXY_FIXES_2026-10-18)。
 产品源码固定为 `12ab22cd82297638bee75ef30b31b3decb21decb`。
 
 - `validation.json`：源码、APK 哈希/签名与通过的构建/回归证据。

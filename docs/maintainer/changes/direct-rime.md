@@ -1,0 +1,64 @@
+# 直连版逐提交文档对照
+
+核对 `1fbbf1ab0`（完整主应用改为直连）到 `81ce93574`，共 **55 个提交**。日期按 Asia/Shanghai 显示。
+每条记录保留代码提交链接、当前说明入口和文档处理结果；这些条目说明本次文档核对，不等同于重新执行其 Android 或云端服务测试。
+
+| 提交 / 日期 | 代码改动 | 文档对照与处理 |
+| --- | --- | --- |
+| [1fbbf1ab0](https://github.com/SandyYuR/fcitx5-android/commit/1fbbf1ab01aef2cac82a7fcd054b06627e1857b4)<br>2026-10-22 | feat(ime): 用直连 librime 接入完整键盘并移除 Fcitx 原生后端 | 直连引擎、owner 线程与旧后端移除；以当前架构手册说明，原接入报告归档。 [阅读文档](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
+| [20b287a74](https://github.com/SandyYuR/fcitx5-android/commit/20b287a747c457fc69960763e47c2690e2c99534)<br>2026-10-22 | build(rime): 更新引擎并固定独立定制源码来源 | 定制 librime 来源与六步更新；pin 以 gitlink 查询，不复制历史版本作当前事实。 [阅读文档](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
+| [685e38955](https://github.com/SandyYuR/fcitx5-android/commit/685e3895552f662d3749589aebb019113adbdda6)<br>2026-10-22 | fix(logging): 修复连续日志导出与子进程生命周期 | 连续日志导出与子进程生命周期；反馈入口与原始日志证据保留。 [阅读文档](/troubleshooting/report-issue) |
+| [fb9283069](https://github.com/SandyYuR/fcitx5-android/commit/fb928306952a12efc34250bf1f29f1782adcc815)<br>2026-10-22 | build(ci): 整理签名发布、APK 审计与输入回归工具 | 签名发布、APK 与 ART 审计；分开描述构建通过与功能验收。 [阅读文档](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
+| [bb79146f6](https://github.com/SandyYuR/fcitx5-android/commit/bb79146f61681affa72d912b9c1afc83d198943f)<br>2026-10-22 | docs(readme): 更新文档入口并移除代码分支 docs 目录 | 代码与 docs 分支分离；更新文档存放、导航与检查约定。 [阅读文档](/maintainer/documentation) |
+| [44f900841](https://github.com/SandyYuR/fcitx5-android/commit/44f9008417779d1ff84621e42a4e04c3f0976d4f)<br>2026-10-22 | 修复(键盘): 标点键按默认键值发送 | SymbolKey 默认发句号、CommaKey 发逗号交给方案；修正 label 不等于上屏文本、逗号菜单和类型总览的旧说明。 [阅读文档](/features/keys/symbol-key) |
+| [af00ffcf8](https://github.com/SandyYuR/fcitx5-android/commit/af00ffcf80e0514f9bb254f51905f6bfc32f41fa)<br>2026-10-22 | 改进 Rime 方案 ZIP 导入流程 | ZIP 根目录、512 MiB、应用/外部目录选择与权限回退；补齐用户导入流程。 [阅读文档](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) |
+| [4e5e11df2](https://github.com/SandyYuR/fcitx5-android/commit/4e5e11df2d5018ab417cf7eca46c940a7fbb8203)<br>2026-10-23 | 修复(键盘): 数字键盘按键被虚拟键转发整类丢弃 | 数字键盘输入修复；归入键盘行为与布局文档，不宣称增加新键类型。 [阅读文档](/features/editor/layout-editor) |
+| [8b0833870](https://github.com/SandyYuR/fcitx5-android/commit/8b08338703984f036becb3a5d7215e6bf0918814)<br>2026-10-24 | 改进(布局编辑器): 整合按键编辑、结构管理与 MD3 界面 | 布局、结构与按键编辑整合，补页面保存和当前编辑位置说明。 [阅读文档](/features/editor/layout-editor) |
+| [62970dd6f](https://github.com/SandyYuR/fcitx5-android/commit/62970dd6fe87865fcabf8556fa7476c24986fe02)<br>2026-10-24 | 修复(设置界面): 统一标题栏按钮与标题的垂直对齐 | 设置标题栏对齐，归入现行 MD3 外观；不重用历史界面截图证明当前布局。 [阅读文档](/features/theme/settings-appearance) |
+| [aef0c21e6](https://github.com/SandyYuR/fcitx5-android/commit/aef0c21e6f7fdb0bff0132d1399f14ca220fc8e1)<br>2026-10-24 | 修复(数据目录): 统一列表底色并保持更多按钮清晰可见 | 数据目录列表底色和更多按钮；目录操作入口保持一致。 [阅读文档](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) |
+| [6af8bc0b7](https://github.com/SandyYuR/fcitx5-android/commit/6af8bc0b7ca048a304952a4cbc4525e6c9f247b1)<br>2026-10-26 | 修复(键盘结构): 调整行操作并修复拖动卡片底色 | 行标题栏方向和拖动底色；补结构管理说明。 [阅读文档](/features/editor/layout-editor) |
+| [b211519ec](https://github.com/SandyYuR/fcitx5-android/commit/b211519ec35fbfc0bcb230bf03adffa04690dfff)<br>2026-10-28 | 基础(构建): 规范 ABI 与资源生成并补齐有界 I/O | ABI、资源描述与有界 I/O；说明环境变量和属性、当前 ARM64 CI。 [阅读文档](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
+| [44339d26f](https://github.com/SandyYuR/fcitx5-android/commit/44339d26f66006ebff9425d0b19a3e7819be1564)<br>2026-10-28 | 优化(输入): 合并直连生命周期、会话隔离与候选提示 | 会话隔离、生命周期和候选提示；核对 InputEventQueue 的副作用保序、展示合并与 owner 外背压，修正旧 Channel 描述。 [阅读文档](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
+| [0deb440c3](https://github.com/SandyYuR/fcitx5-android/commit/0deb440c325f693c217557e7a126643bd43b5860)<br>2026-10-28 | 修复(资产): 统一安全迁移与内置预设同步 | 资产安全迁移和内置预设更新；保留用户修改，维护页说明登记旧字节数。 [阅读文档](/features/editor/layout-editor) |
+| [fe0bcb76c](https://github.com/SandyYuR/fcitx5-android/commit/fe0bcb76cf514424ae2e632972720b42264f1cd8)<br>2026-10-28 | 修复(编辑器): 合并草稿、保存快照与页面返回结果 | 草稿、快照、页面结果合并；补未确认弹窗与强杀边界。 [阅读文档](/features/editor/layout-editor) |
+| [5d9927758](https://github.com/SandyYuR/fcitx5-android/commit/5d9927758448c7e160d35d7c6804bea3190d1974)<br>2026-10-28 | 修复(主题): 校验导入、兼容旧名并后台初始化 | 主题导入校验、旧名与后台初始化；功能说明和原始验证分别存放。 [阅读文档](/features/theme/theme-editor) |
+| [1d173f08a](https://github.com/SandyYuR/fcitx5-android/commit/1d173f08af092d78d6702a52b7c8648a8296ee6a)<br>2026-10-28 | 修复(日志与弹窗): 留存崩溃栈并完成取消后的窗口清理 | 崩溃栈留存与取消后窗口清理；反馈文档保留日志收集入口。 [阅读文档](/troubleshooting/report-issue) |
+| [a34c93595](https://github.com/SandyYuR/fcitx5-android/commit/a34c935953b8789976aee74054f0cd684c31b220)<br>2026-10-28 | 修复(剪贴板同步): 保护保存顺序、约束载荷并后台过滤 | 保存顺序、载荷约束和后台过滤；说明退出、暂停和服务生命周期。 [阅读文档](/features/clipboard-sync) |
+| [017c862e7](https://github.com/SandyYuR/fcitx5-android/commit/017c862e71359e2ee759b32542774c5d0c4040a1)<br>2026-10-28 | 修复(语音): 按编辑器与请求会话隔离 AIDL 和浮窗回调 | AIDL/浮窗按编辑器与请求隔离；保留令牌回填条件。 [阅读文档](/features/voice-input) |
+| [4c3257a98](https://github.com/SandyYuR/fcitx5-android/commit/4c3257a9854918ac3399332db71dc0b9117040a0)<br>2026-10-28 | 修复(访问): 加固局域网配对、网页保存与文件 IPC | 局域网配对、网页保存与 IPC；核对六位码和同签名边界。 [阅读文档](/features/online-editor) |
+| [698ba5795](https://github.com/SandyYuR/fcitx5-android/commit/698ba579529c9c98bb3896fdbdcd341983a2349c)<br>2026-10-28 | 修复(更新): 持久化断点下载并安全发布 | 持久断点下载与安全发布；保留强 ETag、取消和回退条件。 [阅读文档](/features/update-checker) |
+| [e698ecead](https://github.com/SandyYuR/fcitx5-android/commit/e698ecead9ea853ae655990f84380836b818a783)<br>2026-10-28 | 修复(备份恢复): 加密备份并隔离恢复进程与目录事务 | 加密备份、跨进程恢复、目录事务；区分 Rime 同步与完整备份。 [阅读文档](/features/backup-restore) |
+| [7396760cf](https://github.com/SandyYuR/fcitx5-android/commit/7396760cf345d8945f627978009981e0bb62302d)<br>2026-10-28 | 维护(文档与CI): 归并中文文档入口、资产校验与 ARM64 构建 | 中文说明归并和 ARM64 构建；修正当前手册中的四 ABI PR 旧叙述。 [阅读文档](/maintainer/documentation) |
+| [e2b032ade](https://github.com/SandyYuR/fcitx5-android/commit/e2b032ade23e9cf9b9018e4630b40bdbe9b8613c)<br>2026-10-28 | 改进(CI): 启用 Gradle 并行与构建缓存，去掉 Release 出包的单线程限制 | Gradle 并行与缓存；不照搬历史单线程构建参数。 [阅读文档](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
+| [d8136afac](https://github.com/SandyYuR/fcitx5-android/commit/d8136afac80f439a5ce5bba16d31162feba77bff)<br>2026-10-28 | 修复(空格划动): 拖动即取消长按、慢速小滑补一格、光标步长放宽到 16dp | 拖动取消长按、小滑补一格和 16 dp 步长；补空格键与用户手册。 [阅读文档](/features/keyboard/swipe-actions) |
+| [5500fac56](https://github.com/SandyYuR/fcitx5-android/commit/5500fac5675bd6ec3ad929a3bd1e8f09e78fe14b)<br>2026-10-28 | 改进(符号面板): 新增面板风格设置，可选 Gboard 式底栏 | 新增 Gboard 式底栏；新建独立符号页，注明默认仍为左侧栏。 [阅读文档](/features/symbol-panel) |
+| [bd9370aa0](https://github.com/SandyYuR/fcitx5-android/commit/bd9370aa073a6fff5190afb832a73b3e7f3e3aff)<br>2026-10-28 | 修复(构建): descriptor 目录键改用 POSIX 分隔符，避免 Windows 出包后启动失败 | 资产描述路径采用 POSIX 分隔符，避免 Windows 生成物启动异常。 [阅读文档](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
+| [699a2422b](https://github.com/SandyYuR/fcitx5-android/commit/699a2422b7db50a94caaab0855b4a8ee041e78a7)<br>2026-10-28 | 修复(符号面板): 分组标签选中高亮改用按键几何，不再贴边与缩水 | 分组高亮使用按键几何；和风格选择一起说明，不写成另一套词条。 [阅读文档](/features/symbol-panel) |
+| [e4e9b0791](https://github.com/SandyYuR/fcitx5-android/commit/e4e9b0791db9be0c6b92bfe6f404774aa8d2ad2a)<br>2026-10-28 | 改进(设置): 界面外观改为即时生效，去掉「应用」与预览卡片 | 删除预览/应用流程的旧说明，改为外观即时保存与生效。 [阅读文档](/features/theme/settings-appearance) |
+| [cad226c41](https://github.com/SandyYuR/fcitx5-android/commit/cad226c414fcf552986cfea69e70199ad594bdbe)<br>2026-10-28 | 功能(语音): 接入 JS 语音识别插件（QuickJS 宿主，内置 qwen-asr、豆包，支持导入自定义插件） | JS 宿主、导入与初始插件；拆分用户操作和完整开发协议。 [阅读文档](/features/voice-input-js) |
+| [08733e7ca](https://github.com/SandyYuR/fcitx5-android/commit/08733e7ca71e78e57755b799848a41e78a05eddb)<br>2026-10-28 | 文档(README): 更新功能概览与文档入口，补 JS 语音插件与本机构建环境链接 | README 功能入口与本站总览对齐；总览改按实际使用任务分组。 [阅读文档](/features/overview) |
+| [239cacc0a](https://github.com/SandyYuR/fcitx5-android/commit/239cacc0a97a158b7c5641d8148e14ebfba320ac)<br>2026-10-28 | 修复(构建): APK 校验允许 QuickJS 运行时 libquickjs.so | 原生库白名单补上 libquickjs.so；说明新增库须通过同一门禁。 [阅读文档](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
+| [43ec87918](https://github.com/SandyYuR/fcitx5-android/commit/43ec879182b1c9867b7a393dd19a3fca892764dc)<br>2026-10-29 | 修复(语音): 隐藏语音按钮时仍可设置首选输入 | 隐藏工具栏语音按钮后仍可选择首选引擎；补设置入口。 [阅读文档](/features/voice-input) |
+| [0636ba6f8](https://github.com/SandyYuR/fcitx5-android/commit/0636ba6f82d61cf8b734e583117b1a3b57009f48)<br>2026-10-29 | 修复(布局编辑器): 使用不透明的行拖动底色 | 结构编辑拖动卡片不透明，补入行编辑说明。 [阅读文档](/features/editor/layout-editor) |
+| [fd9fb116b](https://github.com/SandyYuR/fcitx5-android/commit/fd9fb116b92119870a4fb08da8740be848124e34)<br>2026-10-29 | 修复(候选): 快速滑出候选范围时取消选择 | 快速滑出候选范围时取消本次选择，补用户手势说明。 [阅读文档](/features/candidate-window) |
+| [0e12f9ea0](https://github.com/SandyYuR/fcitx5-android/commit/0e12f9ea0780a6c3d23df16041e32d96dee29c01)<br>2026-10-29 | 修复(豆包): 新版 API Key 自动切换 2.0 小时版资源 | 豆包鉴权与资源 ID 联动，新 API key 默认 2.0 小时版。 [阅读文档](/features/voice-input-js) |
+| [6bc86da72](https://github.com/SandyYuR/fcitx5-android/commit/6bc86da723b84d00e8851b2c44e19d6bf749b5a9)<br>2026-10-29 | 功能(语音): 内置腾讯云 ASR 并补齐 HMAC 签名接口 | 腾讯云识别、HMAC-SHA1 签名及 stub/prelude 契约，补遗漏 API。 [阅读文档](/maintainer/implementation/js-voice-plugins) |
+| [15a28d38c](https://github.com/SandyYuR/fcitx5-android/commit/15a28d38c3b6607e82a190d003dea9c16a0c63c4)<br>2026-10-29 | 功能(语音插件): 更新千问并内置腾讯云实时翻译 | 千问更新和腾讯云实时翻译；四插件清单与 AppID/UIN 区分。 [阅读文档](/features/voice-input-js) |
+| [5b876da83](https://github.com/SandyYuR/fcitx5-android/commit/5b876da8345c18a0abaeb442ef191ff95fa98740)<br>2026-10-29 | 修复(工具栏): 显示语音按钮时保留收起键盘按钮 | 语音与收起键盘按钮共存，补独立控制说明。 [阅读文档](/features/kawaii-bar) |
+| [ffd4196ff](https://github.com/SandyYuR/fcitx5-android/commit/ffd4196ffea69754a3ec4663b3b31d42a537a8b5)<br>2026-10-29 | 功能(语音): 长按工具栏快捷切换首选引擎 | 语音按钮长按切换首选引擎，补快捷操作。 [阅读文档](/features/voice-input) |
+| [130bfe6b8](https://github.com/SandyYuR/fcitx5-android/commit/130bfe6b89008cb22c37da203d29b8a23bba8342)<br>2026-10-29 | 功能(语音插件): 增加逐插件的网络主机授权 | 逐插件主机授权、升级新增主机与撤销；不得与声明白名单混同。 [阅读文档](/features/voice-input-js) |
+| [e6b2da46e](https://github.com/SandyYuR/fcitx5-android/commit/e6b2da46ebc08df2f7ed86c7fb74dad6489e5368)<br>2026-10-29 | 修复(网页编辑器): 避免配对表单来源被拒绝 | 配对页面同源表单可提交；保留配对流程和服务重启失效条件。 [阅读文档](/features/online-editor) |
+| [3a59624f9](https://github.com/SandyYuR/fcitx5-android/commit/3a59624f974261c704d9c8f3d31943002c91626f)<br>2026-10-29 | 功能(语音): 引擎选择弹窗增加插件设置入口 | 引擎选择器提供 JS 插件设置入口，补用户手册。 [阅读文档](/features/voice-input) |
+| [c23999bf3](https://github.com/SandyYuR/fcitx5-android/commit/c23999bf3894bde49f5708898f6ec0ac031ba6f6)<br>2026-10-29 | 修复(布局编辑器): 去除方案 ID 子布局的重复名称选项 | 方案 ID 子布局去重，保留默认映射与显示名称说明。 [阅读文档](/features/editor/layout-editor) |
+| [595be9732](https://github.com/SandyYuR/fcitx5-android/commit/595be9732d110ee3bce8f07b83b351abb18e8225)<br>2026-10-30 | 修复(语音): 限制 JS 会话资源并完善取消与插件备份 | JS 内存/传输/回调预算、取消、Base64 拼接与插件备份；补预算表与密钥迁移边界。 [阅读文档](/maintainer/implementation/js-voice-plugins) |
+| [5b78c6ace](https://github.com/SandyYuR/fcitx5-android/commit/5b78c6ace39eefbabd049de0b5095e3da544fb02)<br>2026-10-30 | 修复(备份): 在 SQLite 内复制大条目并保留 WAL 状态 | SQLite 内部复制大条目与 WAL 状态，说明一致性而非宣称零风险。 [阅读文档](/features/backup-restore) |
+| [b4e9946c1](https://github.com/SandyYuR/fcitx5-android/commit/b4e9946c11d11bea8b70d6a93351c3a8852c135b)<br>2026-10-30 | 修复(剪贴板): 按顺序处理远端消息并限制队列容量 | 远端消息按顺序处理并限制排队字节，与输入提交通道区分。 [阅读文档](/features/clipboard-sync) |
+| [3f6d20bf2](https://github.com/SandyYuR/fcitx5-android/commit/3f6d20bf2a4944568b9750ef82a224b007a91fd4)<br>2026-10-30 | 优化(输入): 缓存符号过滤并减少主题启动与光标转换开销 | 符号过滤缓存、主题启动及 UTF-16 转换；保留分类审阅，不虚构提速数字。 [阅读文档](/maintainer/history/review-2026-10-30) |
+| [0f23ce587](https://github.com/SandyYuR/fcitx5-android/commit/0f23ce5872c05b1fb0d3fe80701a2717db8b8430)<br>2026-10-30 | 修复(构建): 跟踪资产相对路径并流式计算描述哈希 | 按相对路径追踪资产，流式计算摘要，补增量构建维护事项。 [阅读文档](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
+| [1800cdf79](https://github.com/SandyYuR/fcitx5-android/commit/1800cdf79c05259b9399c351e19534d508a94874)<br>2026-10-30 | 修复(语音设置): 保留授权弹窗的宿主窗口关联 | 网络授权弹窗保留宿主窗口关联；归入该次修复记录。 [阅读文档](/maintainer/history/review-2026-10-30) |
+| [a26d74836](https://github.com/SandyYuR/fcitx5-android/commit/a26d74836969159fdfd641842595a1158fd9cb21)<br>2026-10-30 | 修复(工具栏): 将语音键纳入可配置按钮栏 | 语音键纳入可配置按钮；精确说明开关只补入、已配项不自动删除和密码框过滤。 [阅读文档](/features/kawaii-bar) |
+| [f6c870fba](https://github.com/SandyYuR/fcitx5-android/commit/f6c870fba962855874cbf3d3fac30ba4038f2042)<br>2026-10-30 | 修复(主题): 尊重水波纹颜色透明度 | 水波纹尊重颜色 alpha，补半透明与全透明行为。 [阅读文档](/features/theme/theme-editor) |
+| [b4bb8debe](https://github.com/SandyYuR/fcitx5-android/commit/b4bb8debebde6a95552fc5f9f9401788027f9396)<br>2026-10-30 | 修复(设置): 升级转场库避免返回崩溃 | 转场库修复返回崩溃，文档保留适用系统和动画选项边界。 [阅读文档](/features/theme/settings-appearance) |
+| [81ce93574](https://github.com/SandyYuR/fcitx5-android/commit/81ce935746eb4e17911bd503ddb2012fdb6b8435)<br>2026-10-30 | 调整(设置): 默认关闭预测性返回 | 预测性返回默认关闭，明确保留用户已有选择，删除默认开启的旧文案。 [阅读文档](/features/theme/settings-appearance) |
+
+完整路径清单与方法说明见[机器可读提交映射](./commit-map-2026-10-30.json)，继承阶段另见[旧提交索引](./inherited)。

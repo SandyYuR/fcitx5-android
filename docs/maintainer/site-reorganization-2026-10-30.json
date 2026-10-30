@@ -1,0 +1,1077 @@
+{
+  "source_commit": "703cd9e28",
+  "relocated_pages": 45,
+  "original_pages": 205,
+  "pages": [
+    {
+      "source": "README.md",
+      "destination": "README.md",
+      "sha256_source_git": "3463171be56af385e9529c1a0f05c75dd29d761f9406abee7630ecd9f53009a2"
+    },
+    {
+      "source": "about/contribute-docs.md",
+      "destination": "about/contribute-docs.md",
+      "sha256_source_git": "8328befb27ccab41e8435e48720c680848dfcb458dd1d11b9f15b3bd89c25f9a"
+    },
+    {
+      "source": "about/credits.md",
+      "destination": "about/credits.md",
+      "sha256_source_git": "9d6d6dac3a19870c773173ea9ed05d31e2cfb923af1db79d9d39630d74d63f17"
+    },
+    {
+      "source": "about/donate.md",
+      "destination": "about/donate.md",
+      "sha256_source_git": "5a9e56bc51dbbd7ad04ff7598f5f2c8e2ae64d806de4fe41c96737e8781cd075"
+    },
+    {
+      "source": "direct-rime.md",
+      "destination": "direct-rime.md",
+      "sha256_source_git": "5d9c99ce87db34c65f0c8c06b738cd5b99528b46c0be925c10c4dda90e0004b0"
+    },
+    {
+      "source": "features/backup-restore.md",
+      "destination": "features/backup-restore.md",
+      "sha256_source_git": "324321120ebe729a9b8417af6bbd121a36e25f6509dad73be2d471029393b14b"
+    },
+    {
+      "source": "features/candidate-window.md",
+      "destination": "features/candidate-window.md",
+      "sha256_source_git": "23c70188c5e224dc99483b5cba4fdd1593228f5dbd080e7c273055fb4df75d51"
+    },
+    {
+      "source": "features/clipboard-sync.md",
+      "destination": "features/clipboard-sync.md",
+      "sha256_source_git": "a16d47f1a1b32bd179535de5455ba80cdc360c33cf2b7f1901dc36a35a55ef33"
+    },
+    {
+      "source": "features/editor/fontset-editor.md",
+      "destination": "features/editor/fontset-editor.md",
+      "sha256_source_git": "f10db41eb929da318d2d0825327ce2e559fd36cfe87ce06fd4f8281e9a4420fc"
+    },
+    {
+      "source": "features/editor/layout-editor.md",
+      "destination": "features/editor/layout-editor.md",
+      "sha256_source_git": "f0ae6eff7d91ad4d2628170f1087ca4021cf0af5d3bb05165b60645650f9f9db"
+    },
+    {
+      "source": "features/editor/macrokey-editor.md",
+      "destination": "features/editor/macrokey-editor.md",
+      "sha256_source_git": "7edf2322e5b72f82aa1add2b71eee768d19ae0c3d73a94840ddbc545f92cd39f"
+    },
+    {
+      "source": "features/editor/popup-editor.md",
+      "destination": "features/editor/popup-editor.md",
+      "sha256_source_git": "f892cbdd43f28b4fa1154d93d9d71d7ae193000c3b6edc08861c000247f3c7d1"
+    },
+    {
+      "source": "features/kawaii-bar.md",
+      "destination": "features/kawaii-bar.md",
+      "sha256_source_git": "96110c4bcd1971170124e172d820c8fc53b3e67979298034fafb19c3b50e1383"
+    },
+    {
+      "source": "features/keyboard/adjust-mode.md",
+      "destination": "features/keyboard/adjust-mode.md",
+      "sha256_source_git": "cffe23c79b49f65522259dc3d3b78de18196cdc50853b70ce3ffef3549c1c230"
+    },
+    {
+      "source": "features/keyboard/compose-override.md",
+      "destination": "features/keyboard/compose-override.md",
+      "sha256_source_git": "78d59ab29cea6f037bbcd9a1ff618581c69bfac856f5ccebe3820690cb322c96"
+    },
+    {
+      "source": "features/keyboard/float-keyboard.md",
+      "destination": "features/keyboard/float-keyboard.md",
+      "sha256_source_git": "8b2f64126797e1cf5e858914915769e441b3fe8eabda11df451ccb0b30429d65"
+    },
+    {
+      "source": "features/keyboard/one-handed.md",
+      "destination": "features/keyboard/one-handed.md",
+      "sha256_source_git": "4d09e3573ba0bb3cb16c1a06436897beb160cd2b70e56f8fdd74cc4b7b64231f"
+    },
+    {
+      "source": "features/keyboard/split-keyboard.md",
+      "destination": "features/keyboard/split-keyboard.md",
+      "sha256_source_git": "4e1e1cbed6040e69c5f07d9639fecbfbfde44e796c6c0102a0249631898b682a"
+    },
+    {
+      "source": "features/keyboard/swipe-actions.md",
+      "destination": "features/keyboard/swipe-actions.md",
+      "sha256_source_git": "55c19da0c254ac6e21deafbd72541f2f2b6fa7e28c50d61df1a32ec4a0d3ed8f"
+    },
+    {
+      "source": "features/keys/alphabet-key.md",
+      "destination": "features/keys/alphabet-key.md",
+      "sha256_source_git": "b6b222230cb08bdd1d64494687263cd438e499f2b54b54a04443cf72e8056505"
+    },
+    {
+      "source": "features/keys/backspace-key.md",
+      "destination": "features/keys/backspace-key.md",
+      "sha256_source_git": "df0b8e622da952ab17b8cb4a797cb949804fc1fefa89e5c42e44217f4e695012"
+    },
+    {
+      "source": "features/keys/caps-key.md",
+      "destination": "features/keys/caps-key.md",
+      "sha256_source_git": "05f46d9b2c2a17b4c8f8d428eddb23ae2fe7266691e9ccf038630a45049a19b4"
+    },
+    {
+      "source": "features/keys/comma-key.md",
+      "destination": "features/keys/comma-key.md",
+      "sha256_source_git": "d1338be119add85c753be1ec32d6915111442fb745760b5a4412b2a91250d9a7"
+    },
+    {
+      "source": "features/keys/fcitx-keys.md",
+      "destination": "features/keys/fcitx-keys.md",
+      "sha256_source_git": "db67be7b6c3cf7041f555060f0f69425cfab89e4c8f30e2c3f904093c1f943a5"
+    },
+    {
+      "source": "features/keys/language-key.md",
+      "destination": "features/keys/language-key.md",
+      "sha256_source_git": "4084b3bd7d0393e89b8eba7589d48092439e68f2d8c2e0ad987bf9b48831cd57"
+    },
+    {
+      "source": "features/keys/layout-switch-key.md",
+      "destination": "features/keys/layout-switch-key.md",
+      "sha256_source_git": "2b336e40a6be15f9232ee3997af51f4def1f0e505b137845da6e58d71db6ae52"
+    },
+    {
+      "source": "features/keys/macro-key.md",
+      "destination": "features/keys/macro-key.md",
+      "sha256_source_git": "24a23df2864f93c5302f2544886adf06020a41c35f5c3651f00d6df838efee60"
+    },
+    {
+      "source": "features/keys/overview.md",
+      "destination": "features/keys/overview.md",
+      "sha256_source_git": "f92f3700f2aa5c087c5dd03e7f643e5b91fd2274b80d204b3140d1f01258d1d8"
+    },
+    {
+      "source": "features/keys/return-key.md",
+      "destination": "features/keys/return-key.md",
+      "sha256_source_git": "cd0c3580b448ac7edea223b994984107f5a1fbc3ff378be9ff3edd43d58c1454"
+    },
+    {
+      "source": "features/keys/space-key.md",
+      "destination": "features/keys/space-key.md",
+      "sha256_source_git": "a729623a08dfbbd0b8f65644963d3d48960b448a5efaa3b13534b2aebe4843f3"
+    },
+    {
+      "source": "features/keys/symbol-key.md",
+      "destination": "features/keys/symbol-key.md",
+      "sha256_source_git": "cacb1b3191a3e0674d3cc85fce881b6d6b27c8763fb18b7637deea9f55ebce97"
+    },
+    {
+      "source": "features/online-editor.md",
+      "destination": "features/online-editor.md",
+      "sha256_source_git": "332a6c5b65b21dd57d8b6212713657ec4fbc0f0c4495294fb84b55cae4e65ce2"
+    },
+    {
+      "source": "features/overview.md",
+      "destination": "features/overview.md",
+      "sha256_source_git": "90eb1ccf3248bcc668611807d4bc10b34cdde4348ba9489948160baef3d86d40"
+    },
+    {
+      "source": "features/rime-enhancements.md",
+      "destination": "features/rime-enhancements.md",
+      "sha256_source_git": "9eb41a62bab75f3c2e9debf283ef62cc09a71bf0af7590834964bf3228a1e375"
+    },
+    {
+      "source": "features/shared-import.md",
+      "destination": "features/shared-import.md",
+      "sha256_source_git": "3d4b627162030bd4fd70c5601f3cc46e8172a11cf61af68d5451de7e32ef7560"
+    },
+    {
+      "source": "features/text-editor.md",
+      "destination": "features/text-editor.md",
+      "sha256_source_git": "ff62c800676f8d5e856fefdf06e8b0efb3bf412fbebb660b7cf034c9e1789884"
+    },
+    {
+      "source": "features/theme/frosted-blur.md",
+      "destination": "features/theme/frosted-blur.md",
+      "sha256_source_git": "28ef5f1772f603704de102c4936d8c490a3f23929da0f533c79f06d4ada4b144"
+    },
+    {
+      "source": "features/theme/monet.md",
+      "destination": "features/theme/monet.md",
+      "sha256_source_git": "f1b644f83da19063ea7ba3abf07e0fb74b616ba56cd9ee7ed86ad600bab8f4e8"
+    },
+    {
+      "source": "features/theme/settings-appearance.md",
+      "destination": "features/theme/settings-appearance.md",
+      "sha256_source_git": "ab07f7b83f1c1233b1e07237fbe7c12fcae05df3a4f63eb519525fd9e0eb52a5"
+    },
+    {
+      "source": "features/theme/share-import.md",
+      "destination": "features/theme/share-import.md",
+      "sha256_source_git": "60fe3a40ee4c0ff2a94558131d8a26d603c96c88003b1e60e29a82641c04d2b9"
+    },
+    {
+      "source": "features/theme/theme-editor.md",
+      "destination": "features/theme/theme-editor.md",
+      "sha256_source_git": "f77ad6879bf2a9a45365aa558a5e14f6c40051526b5c1027ddfc8328fde20175"
+    },
+    {
+      "source": "features/update-checker.md",
+      "destination": "features/update-checker.md",
+      "sha256_source_git": "3b96ee065fe6d5433e32e947c40400b921912bba12d4f3566e0959f50acbea0c"
+    },
+    {
+      "source": "features/voice-input-js-en.md",
+      "destination": "features/voice-input-js-en.md",
+      "sha256_source_git": "4ffd2a16382d11d77a9739fd2d6fa5b9d07cc302356e19d56be9ddb3bd195e43"
+    },
+    {
+      "source": "features/voice-input-js.md",
+      "destination": "features/voice-input-js.md",
+      "sha256_source_git": "284971a66028de818d979b8f1b851ae3669e236d2214bdf011ac16440e4a5a5e"
+    },
+    {
+      "source": "features/voice-input.md",
+      "destination": "features/voice-input.md",
+      "sha256_source_git": "0afceafccb2980b947c69ecf0b6422609bd20eff6f065b91d0521f0068ebfb42"
+    },
+    {
+      "source": "guide/builds-and-plugins.md",
+      "destination": "guide/builds-and-plugins.md",
+      "sha256_source_git": "9239cbacb9dd0bfb951ecfabce301b5e5b6c5f784a968c8cab2a7d51a34d00c2"
+    },
+    {
+      "source": "guide/concepts.md",
+      "destination": "guide/concepts.md",
+      "sha256_source_git": "253773d507600dd539bcab83d2173de42021f1ee5663327bcfef9c8060c044f5"
+    },
+    {
+      "source": "guide/direct-rime-migration.md",
+      "destination": "guide/direct-rime-migration.md",
+      "sha256_source_git": "fab5580391d592be8c06697cae14241949d748e39c71cad2bb0f6a813d18644f"
+    },
+    {
+      "source": "guide/installation.md",
+      "destination": "guide/installation.md",
+      "sha256_source_git": "625dced72d66ed64e76682e63c5cb2c3c858bc785f13ab0fc6e5af58b131a6b3"
+    },
+    {
+      "source": "guide/introduction.md",
+      "destination": "guide/introduction.md",
+      "sha256_source_git": "e75440a59b4643db605b2114afcd5cd196ab91b7c7bf4f3d13050fa2444453da"
+    },
+    {
+      "source": "guide/migrate-from-upstream.md",
+      "destination": "guide/migrate-from-upstream.md",
+      "sha256_source_git": "46b414fbefb34889b3035617461379951e0fc5458a5ccc0efc61d67891a5fb5b"
+    },
+    {
+      "source": "guide/quick-start.md",
+      "destination": "guide/quick-start.md",
+      "sha256_source_git": "d9d7bed4dc5cfe57424e16aa9f3acc00e4dbfb92d92208ea9658c67660321d35"
+    },
+    {
+      "source": "index.md",
+      "destination": "index.md",
+      "sha256_source_git": "ef86516a9fc1c634278d5ee49bcaf93a09a07234eae8b34bd32e374882881a27"
+    },
+    {
+      "source": "legacy/fcitx/README.md",
+      "destination": "legacy/fcitx/README.md",
+      "sha256_source_git": "0bfadfe817671edac1d9ffd693b14e8a45c5a7fd954ae73185fa105ee1ca848f"
+    },
+    {
+      "source": "legacy/fcitx/about/contribute-docs.md",
+      "destination": "legacy/fcitx/about/contribute-docs.md",
+      "sha256_source_git": "65e8a56287aef33e10bf3550551baa19f90b8b4289ea877ace0ea6ccb9aaf5f1"
+    },
+    {
+      "source": "legacy/fcitx/about/credits.md",
+      "destination": "legacy/fcitx/about/credits.md",
+      "sha256_source_git": "24564389199dea94a99c89036758395ea818b244bf294e20bb041f1e6b37adf9"
+    },
+    {
+      "source": "legacy/fcitx/about/donate.md",
+      "destination": "legacy/fcitx/about/donate.md",
+      "sha256_source_git": "2b5538d12a850310a334ca8c83bc1d254e1c19c6bcb2f241885d624a1d29a296"
+    },
+    {
+      "source": "legacy/fcitx/contents.md",
+      "destination": "legacy/fcitx/contents.md",
+      "sha256_source_git": "6802ec8fa3352371ed32923a1187b4dd2adae95cd246342d3d07940cd7c659d6"
+    },
+    {
+      "source": "legacy/fcitx/features/candidate-window.md",
+      "destination": "legacy/fcitx/features/candidate-window.md",
+      "sha256_source_git": "74f0947c4e62955e9dad4e25b81a041f173023a29d3127c24254636ed48c324e"
+    },
+    {
+      "source": "legacy/fcitx/features/clipboard-sync.md",
+      "destination": "legacy/fcitx/features/clipboard-sync.md",
+      "sha256_source_git": "94df1a348c1d3a78994346c46a38e016df9dcc27426f205d0c7272444b321e63"
+    },
+    {
+      "source": "legacy/fcitx/features/editor/fontset-editor.md",
+      "destination": "legacy/fcitx/features/editor/fontset-editor.md",
+      "sha256_source_git": "fc6df1555572f338305be692105822c313abf32bfeee5ea8379d205e2c37f322"
+    },
+    {
+      "source": "legacy/fcitx/features/editor/layout-editor.md",
+      "destination": "legacy/fcitx/features/editor/layout-editor.md",
+      "sha256_source_git": "68a5264dfab18c0d4f55d01eac5b055806625dc78d68bebcdcccd50c5bc1356f"
+    },
+    {
+      "source": "legacy/fcitx/features/editor/macrokey-editor.md",
+      "destination": "legacy/fcitx/features/editor/macrokey-editor.md",
+      "sha256_source_git": "c8281e5e0042018595ab1cedc9813cc970d7a71b9eba3b4c7064458ef227bee5"
+    },
+    {
+      "source": "legacy/fcitx/features/editor/popup-editor.md",
+      "destination": "legacy/fcitx/features/editor/popup-editor.md",
+      "sha256_source_git": "f08ee34d8866884ecf7980b79e19452431cf4cb4c37206ea7568642ea2751d09"
+    },
+    {
+      "source": "legacy/fcitx/features/kawaii-bar.md",
+      "destination": "legacy/fcitx/features/kawaii-bar.md",
+      "sha256_source_git": "175bae797c5e400ccb7d0d90aac79b5ae23083b4c5fb460ddcd5cd5d46b49d97"
+    },
+    {
+      "source": "legacy/fcitx/features/keyboard/adjust-mode.md",
+      "destination": "legacy/fcitx/features/keyboard/adjust-mode.md",
+      "sha256_source_git": "c70b2c0d0f8988541c4fc92148bcee49227083f15569cc7b60e13e4a9834bad7"
+    },
+    {
+      "source": "legacy/fcitx/features/keyboard/compose-override.md",
+      "destination": "legacy/fcitx/features/keyboard/compose-override.md",
+      "sha256_source_git": "09fd5cf042c3c917c3a65f2bba047041a1e4b345ec5ae28cbd583698a339a377"
+    },
+    {
+      "source": "legacy/fcitx/features/keyboard/float-keyboard.md",
+      "destination": "legacy/fcitx/features/keyboard/float-keyboard.md",
+      "sha256_source_git": "fe95fcca9d400dff2af1a896bb359b6343987f6a65ed7c007180b5b0da108158"
+    },
+    {
+      "source": "legacy/fcitx/features/keyboard/one-handed.md",
+      "destination": "legacy/fcitx/features/keyboard/one-handed.md",
+      "sha256_source_git": "21906663a50aa9dc1412332a4d307b499cd72ec8bfa8240e8c566967b7a345bb"
+    },
+    {
+      "source": "legacy/fcitx/features/keyboard/split-keyboard.md",
+      "destination": "legacy/fcitx/features/keyboard/split-keyboard.md",
+      "sha256_source_git": "4315a51508b82a7bfc030d5c3e7ea26f9d615f0271ff58ab375affe84b8b249c"
+    },
+    {
+      "source": "legacy/fcitx/features/keyboard/swipe-actions.md",
+      "destination": "legacy/fcitx/features/keyboard/swipe-actions.md",
+      "sha256_source_git": "18a31ae410eda583edbaab0595ca8801454368eb91a2f83f1eb03e45ba273b7e"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/alphabet-key.md",
+      "destination": "legacy/fcitx/features/keys/alphabet-key.md",
+      "sha256_source_git": "9f86d486a504b78357297117940a9c02cf020374c6b7f8b0a02c46b5b1e084a4"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/backspace-key.md",
+      "destination": "legacy/fcitx/features/keys/backspace-key.md",
+      "sha256_source_git": "910f4761266a40840b10a251135051aa8bf3356f1fe7ccdafb1e9e7b9f18c31d"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/caps-key.md",
+      "destination": "legacy/fcitx/features/keys/caps-key.md",
+      "sha256_source_git": "14e3c38f20a1e94ef9e0fdc4b1cfc6c2fdb050c690ffd8cb9306cb3919cbd2cb"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/comma-key.md",
+      "destination": "legacy/fcitx/features/keys/comma-key.md",
+      "sha256_source_git": "481b0e56f8e189a26e42c714032541f7962de7fbca840a42b7ce39efec7bdf95"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/fcitx-keys.md",
+      "destination": "legacy/fcitx/features/keys/fcitx-keys.md",
+      "sha256_source_git": "08698473b032786ff6ea398b59d979000c689ac0c089527c58f0f066fe70c172"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/language-key.md",
+      "destination": "legacy/fcitx/features/keys/language-key.md",
+      "sha256_source_git": "ec91f66e64122a8c567c8ba4208dc309f40c6f2d868e740063b4278fa7941962"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/layout-switch-key.md",
+      "destination": "legacy/fcitx/features/keys/layout-switch-key.md",
+      "sha256_source_git": "08df2011ef7c61b93885155109a1679673908d1f97552ca1db9d1c292ee53545"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/macro-key.md",
+      "destination": "legacy/fcitx/features/keys/macro-key.md",
+      "sha256_source_git": "dfeb080215faaa6e7366a79f3a9c6703b1b54382a3d8c0ec16ba4e31cdf0fb0a"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/overview.md",
+      "destination": "legacy/fcitx/features/keys/overview.md",
+      "sha256_source_git": "b3cabb33dd2fda57ec08bcb0a1546332f649b8b62f1d79f0207d40890cb803e5"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/return-key.md",
+      "destination": "legacy/fcitx/features/keys/return-key.md",
+      "sha256_source_git": "6a5e80604fd88177b921c7750ad540f629c73c2f0a0af11d7aa97e8db1f920ad"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/space-key.md",
+      "destination": "legacy/fcitx/features/keys/space-key.md",
+      "sha256_source_git": "4419eedeae6d43ad9e48e83a2fa0f56d4f50fb563e262dbfb8c0f93d74748d91"
+    },
+    {
+      "source": "legacy/fcitx/features/keys/symbol-key.md",
+      "destination": "legacy/fcitx/features/keys/symbol-key.md",
+      "sha256_source_git": "0a0b47fec085881d5761bff38650500a580845aeea066ee78616864f0a542462"
+    },
+    {
+      "source": "legacy/fcitx/features/online-editor.md",
+      "destination": "legacy/fcitx/features/online-editor.md",
+      "sha256_source_git": "dfb2a4b720738b11dc6722fea56ebf1f6249de80865280c461feac43466b7905"
+    },
+    {
+      "source": "legacy/fcitx/features/overview.md",
+      "destination": "legacy/fcitx/features/overview.md",
+      "sha256_source_git": "8810c300237e61a9d4d39ba7b1ff26be5bf50a917400c22131150a0830da3cc1"
+    },
+    {
+      "source": "legacy/fcitx/features/rime-enhancements.md",
+      "destination": "legacy/fcitx/features/rime-enhancements.md",
+      "sha256_source_git": "023d45735514d4277eb8b196de56a04fff6922d54217d0054ce3175bd76b2b63"
+    },
+    {
+      "source": "legacy/fcitx/features/shared-import.md",
+      "destination": "legacy/fcitx/features/shared-import.md",
+      "sha256_source_git": "ab3fd9dd5be1648e0a11a40414bb234bdcd2e442d9d6de474861ec62fe5cca43"
+    },
+    {
+      "source": "legacy/fcitx/features/text-editor.md",
+      "destination": "legacy/fcitx/features/text-editor.md",
+      "sha256_source_git": "79c1dc0ad1530f10bc860b30c3005ad86266ab40c70268cb8b653a7ff7fb0463"
+    },
+    {
+      "source": "legacy/fcitx/features/theme/frosted-blur.md",
+      "destination": "legacy/fcitx/features/theme/frosted-blur.md",
+      "sha256_source_git": "494a545ca05028d863a617001320e4c237d88bac780511bb875e8593dc9484bb"
+    },
+    {
+      "source": "legacy/fcitx/features/theme/monet.md",
+      "destination": "legacy/fcitx/features/theme/monet.md",
+      "sha256_source_git": "4fd512be75a175ea9ad8aa456edb07ad20462e12e0ffcb374c8d618a3a123507"
+    },
+    {
+      "source": "legacy/fcitx/features/theme/settings-appearance.md",
+      "destination": "legacy/fcitx/features/theme/settings-appearance.md",
+      "sha256_source_git": "868ca286df9cacad54fc4eba983b76b11e0a70fe4ac43ae1e0e8d29b1cdecc1a"
+    },
+    {
+      "source": "legacy/fcitx/features/theme/share-import.md",
+      "destination": "legacy/fcitx/features/theme/share-import.md",
+      "sha256_source_git": "5643ba225d7c81b4dbd5f01200dab725d69b52b4bcf4642e0c06a67aa1e9f047"
+    },
+    {
+      "source": "legacy/fcitx/features/theme/theme-editor.md",
+      "destination": "legacy/fcitx/features/theme/theme-editor.md",
+      "sha256_source_git": "68e36f96cdc086712bc3259ca1420664ae8dd70705672fb413354cce3490a735"
+    },
+    {
+      "source": "legacy/fcitx/features/update-checker.md",
+      "destination": "legacy/fcitx/features/update-checker.md",
+      "sha256_source_git": "712f1f5aff6afd16424fb81f517c30f995c19eba6b2f2dd60a081cf546be0b06"
+    },
+    {
+      "source": "legacy/fcitx/guide/builds-and-plugins.md",
+      "destination": "legacy/fcitx/guide/builds-and-plugins.md",
+      "sha256_source_git": "6a1825055b5cf4c18c90da0b6538290ea6ba6c53d9c73e68c9e39301cc1c4b03"
+    },
+    {
+      "source": "legacy/fcitx/guide/concepts.md",
+      "destination": "legacy/fcitx/guide/concepts.md",
+      "sha256_source_git": "88c4eff405843dbb6277343ad59e75effd02b3c53f009b4752840de074330b5a"
+    },
+    {
+      "source": "legacy/fcitx/guide/installation.md",
+      "destination": "legacy/fcitx/guide/installation.md",
+      "sha256_source_git": "5c2983b63988cfbecbf5efa8ac2d834653683c9d70da5df8e60b4c9643c85f09"
+    },
+    {
+      "source": "legacy/fcitx/guide/introduction.md",
+      "destination": "legacy/fcitx/guide/introduction.md",
+      "sha256_source_git": "01f49a7aa1488bde14a7f07a8da6f6fe3ca6a18c8fb48078b8a19ca8fcd3efa5"
+    },
+    {
+      "source": "legacy/fcitx/guide/migrate-from-upstream.md",
+      "destination": "legacy/fcitx/guide/migrate-from-upstream.md",
+      "sha256_source_git": "8240f1e4f560d1c0aa677d073f87b6b02405c70b2a26a7f9fb6d40af6cc76654"
+    },
+    {
+      "source": "legacy/fcitx/guide/quick-start.md",
+      "destination": "legacy/fcitx/guide/quick-start.md",
+      "sha256_source_git": "c5a1e274bda47e3033635f6d673ada6bc41460bab783d43c82b44ce57835783a"
+    },
+    {
+      "source": "legacy/fcitx/index.md",
+      "destination": "legacy/fcitx/index.md",
+      "sha256_source_git": "92c6a5345403088554bd6964c231a4262783e6d665e2232b6740ad7868ac3b0a"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "destination": "legacy/fcitx/maintainer/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "sha256_source_git": "a2df8f8dade9117024f53be5809f01c25291d43b77599d1183321f0683ebdb6e"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/ARCHIVE_RIME_INTEGRATION_PLAN.md",
+      "destination": "legacy/fcitx/maintainer/ARCHIVE_RIME_INTEGRATION_PLAN.md",
+      "sha256_source_git": "1527955d83c4ac1cfed1523646bd677221356b5c92363c463cab0b2108b8e38b"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/ARCHIVE_RIME_ONLY_FEASIBILITY.md",
+      "destination": "legacy/fcitx/maintainer/ARCHIVE_RIME_ONLY_FEASIBILITY.md",
+      "sha256_source_git": "118da98d2aefd925f2fe5e9f1ac17be5132bf424cfad7c6110c106179fa1c3cc"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/CODE_REVIEW_REPORT_2026-09-07.md",
+      "destination": "legacy/fcitx/maintainer/CODE_REVIEW_REPORT_2026-09-07.md",
+      "sha256_source_git": "acf3eabd8b07fa56af394ea51671d5b77e38c0642d75e953372cba7e2745b030"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/CODE_REVIEW_fx2_2026-10-11.md",
+      "destination": "legacy/fcitx/maintainer/CODE_REVIEW_fx2_2026-10-11.md",
+      "sha256_source_git": "9ec6d5f9455ce8441ad0274aef9d228fc474e57c698128490a1f8e6e7c6d4285"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "destination": "legacy/fcitx/maintainer/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "sha256_source_git": "264254eb70eba7bffc692daf4758f270735089687b5e76ae81471360550cca22"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04.md",
+      "destination": "legacy/fcitx/maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04.md",
+      "sha256_source_git": "10cf4d07f7d07c7fec7539a9f3779f61380b97bd3ae6291679e30aee8bf04f66"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07.md",
+      "destination": "legacy/fcitx/maintainer/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07.md",
+      "sha256_source_git": "d3ce6eff0a2a06e91956802930011dd1d6fe58c3a29b81d8d143e9488a1fc43d"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/HANDOVER-rime-only.md",
+      "destination": "legacy/fcitx/maintainer/HANDOVER-rime-only.md",
+      "sha256_source_git": "cfdf9adbfda396f5eba1baed03a93564daa362d170287a83ce32ff579310f66f"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07.md",
+      "destination": "legacy/fcitx/maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07.md",
+      "sha256_source_git": "4ea27e6d2b9923baf7ea01d77e4ca4350743a2051c71fa2ff1f6086347ed6f18"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20.md",
+      "destination": "legacy/fcitx/maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20.md",
+      "sha256_source_git": "5baf90431651f8de07223e730dca6156062bceef0da0cda586735715518f3282"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/SETTINGS_MD3_PLAN_2026-10-18.md",
+      "destination": "legacy/fcitx/maintainer/SETTINGS_MD3_PLAN_2026-10-18.md",
+      "sha256_source_git": "fb378da2515031a684b598c39fb6f3fe4bf55e7298be7417cff282d1eba382fb"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/SETTINGS_RESTRUCTURE_PROPOSAL_2026-09-28.md",
+      "destination": "legacy/fcitx/maintainer/SETTINGS_RESTRUCTURE_PROPOSAL_2026-09-28.md",
+      "sha256_source_git": "ea11fa596be228f6e8e8b32aeb4c2f77225dda1532db30d0ecd75537ac805b8b"
+    },
+    {
+      "source": "legacy/fcitx/maintainer/index.md",
+      "destination": "legacy/fcitx/maintainer/index.md",
+      "sha256_source_git": "2a2cc937a9587010d2b495f5fb4efbd8426db021acf0fe1023e7d2ada87aee1e"
+    },
+    {
+      "source": "legacy/fcitx/manual/RIME_ONLY_USER_GUIDE_zh-CN.md",
+      "destination": "legacy/fcitx/manual/RIME_ONLY_USER_GUIDE_zh-CN.md",
+      "sha256_source_git": "211d8dc48d7cf1fd3ea43b6f18613193a1f4d24c531a89cc54f3d6aabc58a46e"
+    },
+    {
+      "source": "legacy/fcitx/troubleshooting/faq.md",
+      "destination": "legacy/fcitx/troubleshooting/faq.md",
+      "sha256_source_git": "4495ad03b7d0499ff01f8a049f9dc21b5106b939a1c3330c7d50cecc78c4a644"
+    },
+    {
+      "source": "legacy/fcitx/troubleshooting/oem-startup.md",
+      "destination": "legacy/fcitx/troubleshooting/oem-startup.md",
+      "sha256_source_git": "839c82b2e6873b98f0edf3bdb43d6fd17a9792da55b976b1234063df6fd707c9"
+    },
+    {
+      "source": "legacy/fcitx/troubleshooting/report-issue.md",
+      "destination": "legacy/fcitx/troubleshooting/report-issue.md",
+      "sha256_source_git": "1e5499ef4b011e94526c2924b6696eab58be1e516d15885731168ad8faf82262"
+    },
+    {
+      "source": "maintainer/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "destination": "legacy/fcitx/notes/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "sha256_source_git": "cf633a5ec698de73380f9080f914e94056e7abba88eae12d15b8a604008daef2",
+      "sha256_archived_text": "fad846f5556914fe0d036d31d5629f01e3bb3f305a3a62ebef4aa7ffb1b08838"
+    },
+    {
+      "source": "maintainer/ARCHIVE_RIME_INTEGRATION_PLAN.md",
+      "destination": "legacy/fcitx/notes/ARCHIVE_RIME_INTEGRATION_PLAN.md",
+      "sha256_source_git": "7102fdf74f8b5a1b1add3841d1d7dc1d4e4e0439def3bacc0e3402d08ef8ce49",
+      "sha256_archived_text": "7102fdf74f8b5a1b1add3841d1d7dc1d4e4e0439def3bacc0e3402d08ef8ce49"
+    },
+    {
+      "source": "maintainer/ARCHIVE_RIME_ONLY_FEASIBILITY.md",
+      "destination": "legacy/fcitx/notes/ARCHIVE_RIME_ONLY_FEASIBILITY.md",
+      "sha256_source_git": "ac0273b7d575a5e6ad4f27e93c6b83163baa0c2f6e44a9f9258d8660fe39c105",
+      "sha256_archived_text": "ac0273b7d575a5e6ad4f27e93c6b83163baa0c2f6e44a9f9258d8660fe39c105"
+    },
+    {
+      "source": "maintainer/CODE_REVIEW_REPORT_2026-09-07.md",
+      "destination": "legacy/fcitx/notes/CODE_REVIEW_REPORT_2026-09-07.md",
+      "sha256_source_git": "b3e8ded0a26551b44dcc34a383791954df38d038245e8391073830b6df824403",
+      "sha256_archived_text": "b3e8ded0a26551b44dcc34a383791954df38d038245e8391073830b6df824403"
+    },
+    {
+      "source": "maintainer/CODE_REVIEW_fx2_2026-10-11.md",
+      "destination": "legacy/fcitx/notes/CODE_REVIEW_fx2_2026-10-11.md",
+      "sha256_source_git": "85ac6048b3f7f25e291f46b13fde692bfdfc325c2326babd7edc6fd053a32f84",
+      "sha256_archived_text": "ab7d919cabff48c38ef0399a56a6819f925e95782d0c104bd4d3528d979c5cf8"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_AUDIT_2026-10-17.md",
+      "destination": "maintainer/history/DIRECT_RIME_AUDIT_2026-10-17.md",
+      "sha256_source_git": "58b3adf9d9ad5de95e0166eb7b8dced1cd53226ec1dfed49e08618b2d2e0691e",
+      "sha256_archived_text": "7adac8db878811d06e486ca030490fdcc023c52c7eb6361764aa6c7b828efe36"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md",
+      "destination": "maintainer/history/DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md",
+      "sha256_source_git": "3637ff8f17f8cbee700d0a766435e7ac3018b35bc782ac896e423cfec61c5a39",
+      "sha256_archived_text": "badafe3524d1b10f9b8147d8cfc4b645d58a7e14f59376242e7ea1aaf8e9beed"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_CLEANUP_2026-10-17.md",
+      "destination": "maintainer/history/DIRECT_RIME_CLEANUP_2026-10-17.md",
+      "sha256_source_git": "fe924f38b60fe9c07165e0362819653b590e1b656b2d2ee140a1d3f8706d8a6e",
+      "sha256_archived_text": "3adb3da69785b37d75c174dd5dc71eb9bbf61c4a06b755e8fd77f6fa76056e9f"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_COLD_IO_AND_LOG_EXPORT_2026-10-19.md",
+      "destination": "maintainer/history/DIRECT_RIME_COLD_IO_AND_LOG_EXPORT_2026-10-19.md",
+      "sha256_source_git": "900025958511ac4eedb774a918297ec1ae927b260be0df75b2aba05b3dcfb393",
+      "sha256_archived_text": "900025958511ac4eedb774a918297ec1ae927b260be0df75b2aba05b3dcfb393"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_DECOUPLING_2026-10-16.md",
+      "destination": "maintainer/history/DIRECT_RIME_DECOUPLING_2026-10-16.md",
+      "sha256_source_git": "b74c2e1dfcd8f6d58ca1e86c32f6f827a58fde6abf7d109fefa8fea3cb0bb44b",
+      "sha256_archived_text": "ae84df4345857ef86163837b28dfd01566af3398b5d9424efa4adfba2afbafb7"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_DOCUMENTATION_SPLIT_2026-10-21.md",
+      "destination": "maintainer/history/DIRECT_RIME_DOCUMENTATION_SPLIT_2026-10-21.md",
+      "sha256_source_git": "601491d1587e7c308bc5ddac900ff88a75731533138a3fe2362e7af183d9e5d8",
+      "sha256_archived_text": "351ae793f69660fe7c74ccbf357e65fc2c36f611955acbc509f6b50524b17dfe"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md",
+      "destination": "maintainer/history/DIRECT_RIME_ENGINE_UPDATE_2026-10-21.md",
+      "sha256_source_git": "ae8e433008aaf82ef382287ad7bb1616be40816444a080d5c34bb4c12ba4e3a9",
+      "sha256_archived_text": "432ed55b1e891fd4af0ab06d46f1fc3c928dc9da926692956c8e35153feab7a8"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_FINAL_REVIEW_2026-10-19.md",
+      "destination": "maintainer/history/DIRECT_RIME_FINAL_REVIEW_2026-10-19.md",
+      "sha256_source_git": "9dae47d2c66c0f72925d5c4fd44961481f00329f48aa9bac00d3e769a74a87a4",
+      "sha256_archived_text": "3f55708313fc9776df2130b9cb25fd5ad6bfb020be76c2077f1d2bc8f63d90be"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_FOXY_FIXES_2026-10-18.md",
+      "destination": "maintainer/history/DIRECT_RIME_FOXY_FIXES_2026-10-18.md",
+      "sha256_source_git": "da1f5e73f6dfd5c1da8f622ae82f174c79478146d373a3d0b31d727b8aae79fb",
+      "sha256_archived_text": "da1f5e73f6dfd5c1da8f622ae82f174c79478146d373a3d0b31d727b8aae79fb"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_FOXY_REVIEW_2026-10-18.md",
+      "destination": "maintainer/history/DIRECT_RIME_FOXY_REVIEW_2026-10-18.md",
+      "sha256_source_git": "ed9f754a61377e0f02853ae5ef0b6e6ca970733bb53fa9430a20af468628bb2f",
+      "sha256_archived_text": "763fbbe50569020dfac29e8433e6b30c3e4fe1cb2cd2d5dad11c551668c25ea5"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_FRONTEND_2026-10-16.md",
+      "destination": "maintainer/history/DIRECT_RIME_FRONTEND_2026-10-16.md",
+      "sha256_source_git": "5d3a2cbc3c5f83fa2233daa25e34493ddd134beedf5d32d1ff17c21f194f3b39",
+      "sha256_archived_text": "02adfbee2f2ec4bfe9723a0f9d261f891e9ffeafdb69cbc0e129ea1abce2f9f2"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_IMPLEMENTATION_2026-10-16.md",
+      "destination": "maintainer/history/DIRECT_RIME_IMPLEMENTATION_2026-10-16.md",
+      "sha256_source_git": "76750aa9077917d6aafc6712658dd6bc854125cd171373956160873aba0c5b21",
+      "sha256_archived_text": "868626f2e5a017c152e633f1a471fb928e3658ebdf8a9669e73052d327a40b1d"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_LEGACY_REVIEW_COMPARISON_2026-10-24.md",
+      "destination": "maintainer/history/DIRECT_RIME_LEGACY_REVIEW_COMPARISON_2026-10-24.md",
+      "sha256_source_git": "b8e1df30c618cd7d5c6974aec89091b574f9dd78d6ceab8cf79eda13b44a59ae",
+      "sha256_archived_text": "28c063f5ad38af972a0d44b0674f8f3cab0e7a2556c8a4be639e5b154c5ff92b"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md",
+      "destination": "maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md",
+      "sha256_source_git": "2e609b2d58328885d3edf745c9a8d646a373c5f31c7fe246c3740e69e2115e28"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_MD3_AUDIT_2026-10-21.md",
+      "destination": "maintainer/history/DIRECT_RIME_MD3_AUDIT_2026-10-21.md",
+      "sha256_source_git": "3edc83adb32004e75869cc70c37d6525dba87a25d3ada7bcdbc6cf6130859fc6",
+      "sha256_archived_text": "725bdf400cd7060d62388bf1ff127db152388ece812db5a30d58c17144e5c41a"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_MERGE_READINESS_2026-10-19.md",
+      "destination": "maintainer/history/DIRECT_RIME_MERGE_READINESS_2026-10-19.md",
+      "sha256_source_git": "634894a94479e1877da71a21f3ba121daaee96a10234ea3e3556c7dc9a88c2b1",
+      "sha256_archived_text": "3e24e4c8ec213663a750f3ebb66b4e1f535d9f37ffed2e3d999b628ac1ba544c"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md",
+      "destination": "maintainer/history/DIRECT_RIME_PASSWORD_SCHEMA_MENU_2026-10-20.md",
+      "sha256_source_git": "7f5bbfd9d5fddea935da4af76c0509324242c393bf5fb98c7d8b610d93c3f871",
+      "sha256_archived_text": "7f5bbfd9d5fddea935da4af76c0509324242c393bf5fb98c7d8b610d93c3f871"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_PROTO_PERFORMANCE_REVIEW_2026-10-18.md",
+      "destination": "maintainer/history/DIRECT_RIME_PROTO_PERFORMANCE_REVIEW_2026-10-18.md",
+      "sha256_source_git": "e5eda04e86c20cdb461b9242ffd22c5cbe1dbf52fdf25c22a4a9c30c352cb2fd",
+      "sha256_archived_text": "eb39c58b19de73aca527e524adfa18029d6aea651e41eda68efba9ad2bc9fab5"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md",
+      "destination": "maintainer/history/DIRECT_RIME_REDEPLOY_AND_IDENTITY_2026-10-20.md",
+      "sha256_source_git": "d299035d39b5ca3b303a0d4177111953f203a169617bcc58bf610ab999f708e7",
+      "sha256_archived_text": "1c31cecbfa640a478ab77a135cceb2890408d80b7841b38868343d48fa60a798"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "destination": "legacy/fcitx/notes/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "sha256_source_git": "efdd9bc6feb886224029d33c9b9533bd7851b707c14fe602935d4290d3018afc",
+      "sha256_archived_text": "b0b55447c3d5ee4fa7161a658e4f900b3b8ca5b64a27d28ae0669fe4f0bf023e"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21.md",
+      "destination": "maintainer/history/DIRECT_RIME_RELEASE_READY_2026-10-21.md",
+      "sha256_source_git": "f217c3f9959eb7336bfe1d0d72a696797e216d76692bf85b30f30c04f92b616a",
+      "sha256_archived_text": "340886cbe40bc81cee236842cbe66c0066b9e80d4d789d2fee76ef6ccd57759c"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_RESPONSIVENESS_2026-10-18.md",
+      "destination": "maintainer/history/DIRECT_RIME_RESPONSIVENESS_2026-10-18.md",
+      "sha256_source_git": "b41eb737610db3a2b3a0722634bb8628efb65a70b6f57de7540ffa146789a2e5",
+      "sha256_archived_text": "1c267940860fea78f2522fef47ddb065455da7414e7c00484b144683eb80f9a2"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_SCREEN_PERF_2026-10-17.md",
+      "destination": "maintainer/history/DIRECT_RIME_SCREEN_PERF_2026-10-17.md",
+      "sha256_source_git": "afe6f5679ba94812b7bc5b7ca5a0f4236d16d3455b5cc1e9faa569333d342e9c",
+      "sha256_archived_text": "ad9cca92933e548ebc1984e5756c7617293841953da0eb694c7bf28e1b84171e"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_SESSION_2026-10-17.md",
+      "destination": "maintainer/history/DIRECT_RIME_SESSION_2026-10-17.md",
+      "sha256_source_git": "c567192028047700c81baa2e841cda3b0d49786b5141f7784d2368dfdd3008b6",
+      "sha256_archived_text": "5f3160bdbb61a39d8cd0f57f1a7c392f36c3cbd7ae845d433ca7a9bd60c93693"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21.md",
+      "destination": "maintainer/history/DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21.md",
+      "sha256_source_git": "e45b0f647f70a5b1f48835bf22804d671c417036a6cdedf1032474f74aeb934d",
+      "sha256_archived_text": "23348d6cee62899eb08cea64807bafebdbb7abd5959390d6682bf5bb98587873"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_UNUSED_CODE_AUDIT_2026-10-17.md",
+      "destination": "maintainer/history/DIRECT_RIME_UNUSED_CODE_AUDIT_2026-10-17.md",
+      "sha256_source_git": "b8e35f0d022b2c343c073e1d2c74525a9a0c8353db06cf512b0289c13a4af23d",
+      "sha256_archived_text": "89af527564d2eda4a315433b76d4c923d891ffd7307878d7c137c40b6147b06b"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_USER_LOG_REVIEW_2026-10-18.md",
+      "destination": "maintainer/history/DIRECT_RIME_USER_LOG_REVIEW_2026-10-18.md",
+      "sha256_source_git": "603da9285ab4aaa80f816811c0beb92ed3379ed29c945f004dd637de7eb5df94",
+      "sha256_archived_text": "90a07217afa5a2b1df4fd3252aaa60b62a0d990350b4c4e2038e2f8f7e5aa370"
+    },
+    {
+      "source": "maintainer/DIRECT_RIME_WORKSPACE_CLEANUP_2026-10-17.md",
+      "destination": "maintainer/history/DIRECT_RIME_WORKSPACE_CLEANUP_2026-10-17.md",
+      "sha256_source_git": "0989cc0d38c3314dfd537037c5a7c695d178775af93d1ff5c1f6e3f0eab5fedd",
+      "sha256_archived_text": "7b711f12b83931a2c78733806e891e70584475d04f73396d1febe3b21504a17b"
+    },
+    {
+      "source": "maintainer/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04.md",
+      "destination": "legacy/fcitx/notes/FONT_REFRESH_LEGACY_FLAG_REPORT_2026-10-04.md",
+      "sha256_source_git": "8ef204b2d6c82d0b8325b38337fc89b24f9530d9ae4bd624b7897f666193effd",
+      "sha256_archived_text": "8ef204b2d6c82d0b8325b38337fc89b24f9530d9ae4bd624b7897f666193effd"
+    },
+    {
+      "source": "maintainer/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07.md",
+      "destination": "legacy/fcitx/notes/FOXY_SYMBOL_CATALOG_REVIEW_2026-10-07.md",
+      "sha256_source_git": "918923130120150b31dd05999867c2610daf93ff8e3ebaadf02ea8b1461ec3ee",
+      "sha256_archived_text": "918923130120150b31dd05999867c2610daf93ff8e3ebaadf02ea8b1461ec3ee"
+    },
+    {
+      "source": "maintainer/HANDOVER-rime-only.md",
+      "destination": "legacy/fcitx/notes/HANDOVER-rime-only.md",
+      "sha256_source_git": "a33eda4560e2092a5385e1e7052f1a7a623ff48d6df3db65a206f057d4ca694e",
+      "sha256_archived_text": "39ba912c4edd039f31f1a59af4372782eb19cf416934d7b8bb8e6012d17f8556"
+    },
+    {
+      "source": "maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN.md",
+      "destination": "maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN.md",
+      "sha256_source_git": "992ff2d96e8aab9e38a4eef30f46935bf36fe806869c5590541da53eebd94a75"
+    },
+    {
+      "source": "maintainer/MD3_UI_EXTRACTION_2026-10-21.md",
+      "destination": "maintainer/history/MD3_UI_EXTRACTION_2026-10-21.md",
+      "sha256_source_git": "18486ccf8901c6852aa0aa69a5c7360092765780909c4663b24e870feeb63757",
+      "sha256_archived_text": "18486ccf8901c6852aa0aa69a5c7360092765780909c4663b24e870feeb63757"
+    },
+    {
+      "source": "maintainer/PERFORMANCE_REVIEW_REPORT_2026-09-07.md",
+      "destination": "legacy/fcitx/notes/PERFORMANCE_REVIEW_REPORT_2026-09-07.md",
+      "sha256_source_git": "4255575c088b264bbeb42560b7019412087c4d785bb998a17f7d1a5652a99000",
+      "sha256_archived_text": "4255575c088b264bbeb42560b7019412087c4d785bb998a17f7d1a5652a99000"
+    },
+    {
+      "source": "maintainer/SETTINGS_MD3_IMPLEMENTATION_2026-10-20.md",
+      "destination": "legacy/fcitx/notes/SETTINGS_MD3_IMPLEMENTATION_2026-10-20.md",
+      "sha256_source_git": "871360ffd7ece7819e488e106ebd467dfe563e9ae3020a41f24eaf12b20fa73d",
+      "sha256_archived_text": "d47decbc377a39637e28ed4e680764996bd1222717f8cd5c5805f61416a672b9"
+    },
+    {
+      "source": "maintainer/SETTINGS_MD3_PLAN_2026-10-18.md",
+      "destination": "legacy/fcitx/notes/SETTINGS_MD3_PLAN_2026-10-18.md",
+      "sha256_source_git": "8618aff0d4dd167d6e4ffd38b4c3ce5a3b777f83b9e490b59a438d0987a9de70",
+      "sha256_archived_text": "f448a93051f1bf77f2286df5a858f13d714cc8fe2e944df93cfcef906a769fa1"
+    },
+    {
+      "source": "maintainer/SETTINGS_RESTRUCTURE_PROPOSAL_2026-09-28.md",
+      "destination": "legacy/fcitx/notes/SETTINGS_RESTRUCTURE_PROPOSAL_2026-09-28.md",
+      "sha256_source_git": "538daf9e43420d6004ef1094e9283ba1e5700cd394c38af09e7a0b28fb5c1492",
+      "sha256_archived_text": "538daf9e43420d6004ef1094e9283ba1e5700cd394c38af09e7a0b28fb5c1492"
+    },
+    {
+      "source": "maintainer/archive/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "destination": "legacy/fcitx/planning/ARCHIVE_DIRECT_RIME_FEASIBILITY_ORIGINAL_2026-10-02.md",
+      "sha256_source_git": "3d16cceb9fc8c3b237f2e2ed8be9e93ab4017b256130a0c14d439ec4c5e8c299",
+      "sha256_archived_text": "fc89797e77391cbd71f8ac12d8ffa3f00ac4fbaa8ba3572ec2af41321a6c6a81"
+    },
+    {
+      "source": "maintainer/archive/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "destination": "legacy/fcitx/planning/DIRECT_RIME_REEVALUATION_2026-10-07.md",
+      "sha256_source_git": "fc8328b487f73679c8fe45e727e91a9e79c7ad9ae7a42b6ce1e2531ee671c276",
+      "sha256_archived_text": "adbdca3096b2d974260e93d177a6bba29a28ac5f1a3b60a2f03720d2408b3ea8"
+    },
+    {
+      "source": "maintainer/audit/clearurls-2026-10-25/index.md",
+      "destination": "maintainer/audit/clearurls-2026-10-25/index.md",
+      "sha256_source_git": "a4d7d2bae614e956c8b7b64d84553429e1fa121de0ff48c63adb84fe8346ef6b"
+    },
+    {
+      "source": "maintainer/audit/direct-rime-2026-10-25/index.md",
+      "destination": "maintainer/audit/direct-rime-2026-10-25/index.md",
+      "sha256_source_git": "1d3517d7c10703f02b2724617d824fda2bb4f4139e0518321a0dec295cd162a9"
+    },
+    {
+      "source": "maintainer/audit/draft-persistence-2026-10-26/index.md",
+      "destination": "maintainer/audit/draft-persistence-2026-10-26/index.md",
+      "sha256_source_git": "444bc4d3bd497b84c5a3228e5b0e45f343190d1c1e7cab5769a57d5783a6c6d9"
+    },
+    {
+      "source": "maintainer/audit/editor-results-2026-10-26/index.md",
+      "destination": "maintainer/audit/editor-results-2026-10-26/index.md",
+      "sha256_source_git": "dd3dbec242f340fba996f152f4ded3310dee6190d3f11c248fd1fabf7d4161c6"
+    },
+    {
+      "source": "maintainer/audit/editor-saves-2026-10-25/index.md",
+      "destination": "maintainer/audit/editor-saves-2026-10-25/index.md",
+      "sha256_source_git": "4b97145c1fe957cb087cc65677b180b8734376b3f197a388f3644cec43541173"
+    },
+    {
+      "source": "maintainer/audit/hosts-downloads-2026-10-27/download-design.md",
+      "destination": "maintainer/audit/hosts-downloads-2026-10-27/download-design.md",
+      "sha256_source_git": "9b0fb70909d1f1586644e8cadcf4df84027efcc19a9355008847577a72b16f7a"
+    },
+    {
+      "source": "maintainer/audit/hosts-downloads-2026-10-27/index.md",
+      "destination": "maintainer/audit/hosts-downloads-2026-10-27/index.md",
+      "sha256_source_git": "f67accec0803b8ca6bb53ad598106cf79dd659d2e0d513d49e790a0637c831bd"
+    },
+    {
+      "source": "maintainer/audit/merge-prep-2026-10-27/index.md",
+      "destination": "maintainer/audit/merge-prep-2026-10-27/index.md",
+      "sha256_source_git": "04c965dec6dcc432c2c4ea5db2f0efa2658ebb7dc34c0627a1fd4732eea434da"
+    },
+    {
+      "source": "maintainer/audit/native-shutdown-2026-10-27/index.md",
+      "destination": "maintainer/audit/native-shutdown-2026-10-27/index.md",
+      "sha256_source_git": "d75a21be93a29b199977456051244284b97f571c9d075a37ec4094636fb7ad1b"
+    },
+    {
+      "source": "maintainer/audit/perf-rebase-2026-10-27/index.md",
+      "destination": "maintainer/audit/perf-rebase-2026-10-27/index.md",
+      "sha256_source_git": "c3af756532baff1758859b649d9a4925f6b4e07609234e4383142b8fc0844393"
+    },
+    {
+      "source": "maintainer/audit/queued-layout-2026-10-25/index.md",
+      "destination": "maintainer/audit/queued-layout-2026-10-25/index.md",
+      "sha256_source_git": "be8e33ef3817d9ac9f7b6a0072ed1fbe7bbbc62e11869da0fdf6b88422e462ad"
+    },
+    {
+      "source": "maintainer/audit/remaining-checklist-2026-10-26/index.md",
+      "destination": "maintainer/audit/remaining-checklist-2026-10-26/index.md",
+      "sha256_source_git": "a8d7e3cdb3897d2772770afd0e8326de75100ce03793c7681808c2e05db6772b"
+    },
+    {
+      "source": "maintainer/audit/remaining-checklist-2026-10-26/protected-backup-format.md",
+      "destination": "maintainer/audit/remaining-checklist-2026-10-26/protected-backup-format.md",
+      "sha256_source_git": "ca4adc1e89b87ad27e46342362654f6a6dc9decc3977863d0a81c3f7eb3b184c"
+    },
+    {
+      "source": "maintainer/audit/status-hints-2026-10-27/index.md",
+      "destination": "maintainer/audit/status-hints-2026-10-27/index.md",
+      "sha256_source_git": "4115b3df147fbe0ac4de3ddfbd9a7a6cdb01af1c8c1eac0c8950c11f0f3f8e2a"
+    },
+    {
+      "source": "maintainer/audit/sync-candidates-2026-10-25/index.md",
+      "destination": "maintainer/audit/sync-candidates-2026-10-25/index.md",
+      "sha256_source_git": "2a11e4c05c0e13b8b3ab92c666a13e7720cea850bde77aec0623ec63e1ac1d6e"
+    },
+    {
+      "source": "maintainer/audit/user-data-restore-2026-10-27/android-handoff/index.md",
+      "destination": "maintainer/audit/user-data-restore-2026-10-27/android-handoff/index.md",
+      "sha256_source_git": "e2c610ffa9270a5475eceb51c9d3ed4f240d6325c003a9431496931b1b4a423b"
+    },
+    {
+      "source": "maintainer/audit/user-data-restore-2026-10-27/background-boundary/index.md",
+      "destination": "maintainer/audit/user-data-restore-2026-10-27/background-boundary/index.md",
+      "sha256_source_git": "cfdf588c6e02250cddd0f5d83948db441404bc32ebed940a6a1d84bb81105dbf"
+    },
+    {
+      "source": "maintainer/audit/user-data-restore-2026-10-27/background-boundary/restore-design.md",
+      "destination": "maintainer/audit/user-data-restore-2026-10-27/background-boundary/restore-design.md",
+      "sha256_source_git": "490bf0fcb54ff67d4ba5d800339030f72078446627a4b59e934286714c9b0ec8"
+    },
+    {
+      "source": "maintainer/audit/user-data-restore-2026-10-27/index.md",
+      "destination": "maintainer/audit/user-data-restore-2026-10-27/index.md",
+      "sha256_source_git": "3674ed6788b50fe843d10bdc2662485a1799a1b67ca2c389d72c105bddcc0e00"
+    },
+    {
+      "source": "maintainer/audit/user-data-restore-2026-10-27/preferences-types/index.md",
+      "destination": "maintainer/audit/user-data-restore-2026-10-27/preferences-types/index.md",
+      "sha256_source_git": "c4fd54ab26b9254fa4aaf1e63266689e1af3402c747952eba745a60d813d9182"
+    },
+    {
+      "source": "maintainer/audit/user-data-restore-2026-10-27/restore-design.md",
+      "destination": "maintainer/audit/user-data-restore-2026-10-27/restore-design.md",
+      "sha256_source_git": "8fd2de9c84e6fc5c3736f323af2269a09a11bb3185369a72d77309753d07b2f7"
+    },
+    {
+      "source": "maintainer/audit/user-data-restore-2026-10-27/startup-cleanup/index.md",
+      "destination": "maintainer/audit/user-data-restore-2026-10-27/startup-cleanup/index.md",
+      "sha256_source_git": "2081db29556c3cdf42b47f3d967fddf328024f26cdc7717242aa2ad3e3fe9ec2"
+    },
+    {
+      "source": "maintainer/audit/user-data-restore-2026-10-27/startup-cleanup/restore-design.md",
+      "destination": "maintainer/audit/user-data-restore-2026-10-27/startup-cleanup/restore-design.md",
+      "sha256_source_git": "ce803aa3997e28c8a016d43251aaf2c907329b58a38815bf6c9cf0451f07c7d4"
+    },
+    {
+      "source": "maintainer/audit/websocket-receive-2026-10-26/index.md",
+      "destination": "maintainer/audit/websocket-receive-2026-10-26/index.md",
+      "sha256_source_git": "f623a014cc4903762e10eb025fa104c0290bc5caceed87aaa5907fe807b3711f"
+    },
+    {
+      "source": "maintainer/audit/websocket-receive-2026-10-26/receive-limits.md",
+      "destination": "maintainer/audit/websocket-receive-2026-10-26/receive-limits.md",
+      "sha256_source_git": "7c275d544ed7a3de640e84e3089ae65f500b4e4167086901d16df648fb1cd7b5"
+    },
+    {
+      "source": "maintainer/implementation/clipcascade-receive-limits.md",
+      "destination": "maintainer/implementation/clipcascade-receive-limits.md",
+      "sha256_source_git": "587bffeac4d53f5aea6857f7969d6b65b8677cae4eee61445782618f22d3bee3"
+    },
+    {
+      "source": "maintainer/implementation/hosts-downloads.md",
+      "destination": "maintainer/implementation/hosts-downloads.md",
+      "sha256_source_git": "e91a156b10e7f928574b915add84d416d7be3edab19ade64604b23eba257c6e8"
+    },
+    {
+      "source": "maintainer/implementation/index.md",
+      "destination": "maintainer/implementation/index.md",
+      "sha256_source_git": "5c627f46594e66df5de8a4a9b15c75d04f531826aa4927401cf0b482a31bdf05"
+    },
+    {
+      "source": "maintainer/implementation/protected-backup-format.md",
+      "destination": "maintainer/implementation/protected-backup-format.md",
+      "sha256_source_git": "24585816a32d43f53062230728fea27f9880985354615f29708478f1a2186031"
+    },
+    {
+      "source": "maintainer/implementation/user-data-restore.md",
+      "destination": "maintainer/implementation/user-data-restore.md",
+      "sha256_source_git": "8821f5d592276ecaa123381063008ab84b21e3729f6046e4a69582d927718f7b"
+    },
+    {
+      "source": "maintainer/index.md",
+      "destination": "maintainer/index.md",
+      "sha256_source_git": "5502dc29ea6d1a85799e516853ac069be196d5d26ecac426dd68b1e12d7e1792"
+    },
+    {
+      "source": "maintainer/perf/2026-10-17-wanxiang-screen/README.md",
+      "destination": "maintainer/perf/2026-10-17-wanxiang-screen/README.md",
+      "sha256_source_git": "269cbb6de892329213457a43c14ae166967a7679933e4ff6070f6d2685a708fe"
+    },
+    {
+      "source": "maintainer/perf/2026-10-18-foxy-fixes/README.md",
+      "destination": "maintainer/perf/2026-10-18-foxy-fixes/README.md",
+      "sha256_source_git": "d53ad8fc346a9a0fcaf227f1a09db8b5b18150fdbe1ef913f9c6c5310588a592"
+    },
+    {
+      "source": "maintainer/perf/2026-10-18-rime-rebind/README.md",
+      "destination": "maintainer/perf/2026-10-18-rime-rebind/README.md",
+      "sha256_source_git": "bf760f40882c0a861d2f5150c09a0a3e6e65eb21ba45562fb92cc84064959116"
+    },
+    {
+      "source": "maintainer/perf/2026-10-19-cold-io/README.md",
+      "destination": "maintainer/perf/2026-10-19-cold-io/README.md",
+      "sha256_source_git": "6688387d91e9fe4735150bf7994815a06f1d488e7c4cf6537f216ceb1b0f621b"
+    },
+    {
+      "source": "maintainer/review-2026-10-30.md",
+      "destination": "maintainer/history/review-2026-10-30.md",
+      "sha256_source_git": "f528a1ce5ecb5623628cb027d30c4815a51c21ab721da120b72527774a34ea8b",
+      "sha256_archived_text": "86e3fcff6367e7686e16df75eb41afd6474722902e29f221a0703c9439a68faa"
+    },
+    {
+      "source": "maintainer/review-2026-10.md",
+      "destination": "maintainer/history/review-2026-10.md",
+      "sha256_source_git": "466e5b15687e9493d2d328ec35f385c1ad4546f5e07d529895cc526e3f1aac55",
+      "sha256_archived_text": "037c0217d07594c1a74b8eaa48d223d5facff2d3baf45651bd13387e9ab2a2bf"
+    },
+    {
+      "source": "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
+      "destination": "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
+      "sha256_source_git": "59894b748789395214b5f12695499c43e7bf7fe9f85d501cbec965e151e0f704"
+    },
+    {
+      "source": "manual/RIME_ONLY_USER_GUIDE_zh-CN.md",
+      "destination": "legacy/fcitx/notes/RIME_ONLY_USER_GUIDE_zh-CN.md",
+      "sha256_source_git": "d548937c112c0f80f77c5ebd799e6d0abce8b1c25cabfd53cc4b0fe88c938ce7",
+      "sha256_archived_text": "31a1c7e3041f1c5df5ea76c1c3e8d37688ef874ff86301de19f6bf2cf5b4933f"
+    },
+    {
+      "source": "troubleshooting/faq.md",
+      "destination": "troubleshooting/faq.md",
+      "sha256_source_git": "6b554c8c8ca9dcfde4332a3ad0a9863ecf0eca7db85bb5cf1fe28192a3a4128d"
+    },
+    {
+      "source": "troubleshooting/oem-startup.md",
+      "destination": "troubleshooting/oem-startup.md",
+      "sha256_source_git": "fa521e535de5854e4e08a351ed46249fdb41f0dc810906fc742261de8d639709"
+    },
+    {
+      "source": "troubleshooting/report-issue.md",
+      "destination": "troubleshooting/report-issue.md",
+      "sha256_source_git": "c40826cabd37b6e98dd21b84440d034a31c9ebccc6a4457b0402a63b4bb7ee7e"
+    }
+  ]
+}

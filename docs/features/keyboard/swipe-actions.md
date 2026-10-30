@@ -58,3 +58,9 @@ MacroKey 的 `altLabel` 是旧式单槽标签字段，与 `swipeLabel` 同一套
 - [键盘布局编辑器](/features/editor/layout-editor)
 - [MacroKey 编辑器](/features/editor/macrokey-editor)
 - [SpaceKey](/features/keys/space-key) · [BackspaceKey](/features/keys/backspace-key)
+
+## 空格光标拖动的操作细节
+
+开启划动空格移光标后，开始拖动会取消尚未触发的长按，避免拖动时意外进入语音或方案菜单；慢速、小幅但已达到手势判定的拖动也会补一次光标移动。
+光标移动步长可调至 16 dp，数值越大，需要更长的拖动距离才移动一格。
+这些行为属于光标模式，不改变“关闭光标模式后才使用自定义空格划动动作”的优先级。

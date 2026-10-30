@@ -1,6 +1,6 @@
 # 2026-10-19 首次选词 I/O 与日志导出证据
 
-结论、口径和限制见[主报告](../../DIRECT_RIME_COLD_IO_AND_LOG_EXPORT_2026-10-19.md)。
+结论、口径和限制见[主报告](/maintainer/history/DIRECT_RIME_COLD_IO_AND_LOG_EXPORT_2026-10-19)。
 产品源码为 `9adb694932df4340bc48d359af2c788ad6809f3e`；文档归档提交不改变产品代码。
 原始手机日志和其中的个人输入不入库。CI 数据只来自固定测试语料。
 

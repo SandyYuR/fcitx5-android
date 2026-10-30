@@ -2,7 +2,7 @@
 
 测试是同一天两轮开发验证，固定修改前直连产品 `2f6a0ea0`，
 不替代[此前含 Fcitx 默认分支的画面对照](../2026-10-17-wanxiang-screen/README.md)。
-实现、结果解读与限制见[响应性报告](../../DIRECT_RIME_RESPONSIVENESS_2026-10-18.md)。
+实现、结果解读与限制见[响应性报告](/maintainer/history/DIRECT_RIME_RESPONSIVENESS_2026-10-18)。
 
 `initial-e65cee02/` 是第一轮：会话复用、首键接收及候选队列顺序，
 运行 [39087275365](https://github.com/SandyYuR/fcitx5-android/actions/runs/39087275365)。

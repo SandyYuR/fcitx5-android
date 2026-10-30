@@ -1,6 +1,6 @@
 # 按键类型总览
 
-键盘布局通过 `TextKeyboardLayout.json` 的 JSON 数据结构定义 —— 顶层是一个二维数组：外层数组的每个元素代表一行，每行又是按顺序排列的按键对象数组。文件里的换行只是排版便利，**真正划分行的是数组嵌套结构而不是文本换行**。每个按键都有一个 `type` 字段决定其行为类型，再配合该类型支持的具体字段。
+键盘布局通过 `TextKeyboardLayout.json` 的 JSON 数据结构定义 —— 某个布局或方案子布局的键盘排列是二维数组：外层数组的每个元素代表一行，每行又是按顺序排列的按键对象数组。完整文件还包含布局名称、方案子布局等结构，不能把一组键盘行直接当成完整配置文件。文件里的换行只是排版便利，**真正划分行的是数组嵌套结构而不是文本换行**。每个按键都有一个 `type` 字段决定其行为类型，再配合该类型支持的具体字段。
 
 ::: tip 编辑入口
 所有按键的字段都可以在 [键盘布局编辑器](/features/editor/layout-editor) 中可视化修改，也可以直接手改 JSON。
@@ -13,7 +13,7 @@
 | `AlphabetKey` | 字母 / 字符键，支持 swipe 替代字符 | `main`, `alt` | [详情](/features/keys/alphabet-key) |
 | `MacroKey` | **宏键** —— 单键执行多步动作 | `label`, `tap.macro` | [详情](/features/keys/macro-key) |
 | `LayoutSwitchKey` | 切换到指定文本布局 | `label` | [详情](/features/keys/layout-switch-key) |
-| `SymbolKey` | 符号键（直接提交符号） | `label` | [详情](/features/keys/symbol-key) |
+| `SymbolKey` | 标点键（默认发 `.`，由方案处理） | `label` | [详情](/features/keys/symbol-key) |
 | `CapsKey` | 大小写切换键 | — | [详情](/features/keys/caps-key) |
 | `BackspaceKey` | 退格键，支持左右滑动选择删除范围 | — | [详情](/features/keys/backspace-key) |
 | `ReturnKey` | 回车键 | — | [详情](/features/keys/return-key) |

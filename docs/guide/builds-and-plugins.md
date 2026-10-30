@@ -4,7 +4,8 @@
 
 | 项目 | 包名 / 用途 |
 | --- | --- |
-| 中州鹅主应用 | `org.fcitx.fcitx5.android.fx.rime`，完整键盘和设置，日常使用 |
+| 中州鹅 Release 主应用 | `org.fcitx.fcitx5.android.fx.rime`，完整键盘和设置，日常使用 |
+| 中州鹅 Debug 主应用 | `org.fcitx.fcitx5.android.fx.rime.debug`，可与 Release 共存，数据独立 |
 | 旧 Fcitx 版 | 与主应用同包名，同签名时覆盖升级，不能同时安装 |
 | 旧直连测试包 | `io.github.sandyyur.rime.direct`，与当前主包数据隔离，需迁移 |
 | 引擎诊断工具 | `org.fcitx.fcitx5.android.fx.rime.lab`，仅用于验证引擎 |

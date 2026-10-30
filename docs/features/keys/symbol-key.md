@@ -1,13 +1,13 @@
 # SymbolKey 符号键
 
-直接提交一个符号，通常适合标点或单字符符号。
+这是沿用历史类型名的标点键。当前默认点击发送标准句号 `.` 作为按键事件，交给 Rime 方案决定最终标点；`label` 只控制键面显示，不直接决定上屏文字。
 
 ## 字段
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|:----:|------|
 | `type` | string | ✓ | 固定为 `"SymbolKey"` |
-| `label` | string | ✓ | 键面显示的符号文本，也是实际提交的文本；建议使用单个字符 |
+| `label` | string | ✓ | 键面显示文本；默认点击仍发送标准句号 `.` |
 | `swipe` | object |  | 滑动时执行的 [MacroAction](/features/keys/macro-key#macroaction-结构) |
 | `swipeLabel` | string |  | 滑动提示文字 |
 | `swipeUp` / `swipeDown` | object |  | 上滑 / 下滑分别执行的 MacroAction（方向只由字段决定） |
@@ -17,18 +17,21 @@
 ## 与 AlphabetKey 的区别
 
 - `AlphabetKey` 的字符会被输入法处理（拼音方案下会进入候选）
-- `SymbolKey` 直接提交字符到输入框，不触发候选
+- `SymbolKey` 默认发送 `.`，参与方案的标点处理；键面写 `@` 并不表示会输入 `@`
 
-适合放标点、符号等不希望被输入法"吃掉"的字符。如果要提交一段固定文本，用 [MacroKey](/features/keys/macro-key) 的 `text` step 更明确。
+需要原样输入 `@` 或一段固定文字时，使用 [MacroKey](/features/keys/macro-key) 的 `text` step。需要输入其他字符并交给 Rime 处理时，使用 AlphabetKey 或相应按键宏。
 
 ## 符号 / 表情 / 颜文字面板（本版）
 
-键盘上的 `!?#`、`:-)`、`^_^` 等按键打开的是**符号面板**（以及表情、颜文字面板）。本版将其整体换成 Foxy 输入法风格：左侧分组栏 + 右侧符号网格、面板独占键盘区域、约 6900 条内置条目，三类数据都可换成自定义 JSON。这与 SymbolKey 是两回事——面板是独立的全键盘界面，选中即上屏、不经过 Rime 编码。详见[核心概念 → 符号面板](/guide/concepts)与[用户指南 §5.8](/manual/RIME_ONLY_USER_GUIDE_zh-CN)。
+键盘上的 `!?#`、`:-)`、`^_^` 等入口打开独立的符号、表情和颜文字面板，区别于单个 SymbolKey。面板提供左侧分组或底部栏两种风格，支持自定义 JSON 数据；选中条目直接上屏。
+详见[符号面板](/features/symbol-panel)，不用从旧用户手册的章节号查找当前设置。
 
 ## 示例
 
+下例键面显示句号，实际发送 `.`，由当前方案选择半角或全角等标点。
+
 ```json
-{ "type": "SymbolKey", "label": "@" }
+{ "type": "SymbolKey", "label": "。" }
 ```
 
 ```json

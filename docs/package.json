@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vitepress dev",
-    "build": "vitepress build && node scripts/copy-downloads.mjs",
+    "dev": "node scripts/build-catalog.mjs && vitepress dev",
+    "build": "node scripts/build-catalog.mjs && vitepress build && node scripts/copy-downloads.mjs",
     "preview": "vitepress preview"
   },
   "devDependencies": {
