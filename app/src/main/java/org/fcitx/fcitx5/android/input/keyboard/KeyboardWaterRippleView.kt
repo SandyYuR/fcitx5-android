@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.keyboard
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.RadialGradient
 import android.graphics.Paint
 import android.graphics.PorterDuff
@@ -97,7 +98,11 @@ class KeyboardWaterRippleView @JvmOverloads constructor(
         durationMs: Long = 520L
     ) {
         val targetRadius = max(maxRadius, max(width, height) * 0.22f)
-        val baseAlpha = alpha.coerceIn(0, 255)
+        // Keep the configured ARGB alpha. The intensity argument controls the animation's
+        // maximum strength, while a transparent theme color must remain transparent.
+        val baseAlpha = (Color.alpha(color) * alpha.coerceIn(0, 255) / 255f)
+            .toInt()
+            .coerceIn(0, 255)
         val speedPxPerMs = 0.44f
         val adaptiveDuration = (targetRadius / speedPxPerMs).toLong().coerceIn(480L, 820L)
         val finalDuration = max(durationMs, adaptiveDuration)

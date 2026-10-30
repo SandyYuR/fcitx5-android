@@ -1537,8 +1537,11 @@ abstract class BaseKeyboard(
         } else {
             ColorUtils.blendARGB(shadow, theme.accentKeyBackgroundColor, 0.28f)
         }
-        cachedWaterRippleColor = computed
-        return computed
+        // This is an automatic fallback rather than a user-selected ARGB color. Keep the
+        // historical ripple strength; explicit theme colors retain and apply their alpha.
+        val opaqueComputed = ColorUtils.setAlphaComponent(computed, 255)
+        cachedWaterRippleColor = opaqueComputed
+        return opaqueComputed
     }
 
     private var currentTextScale = 1.0f
