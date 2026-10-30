@@ -31,7 +31,8 @@ Windows 的 `python3` 会落到 WindowsApps 的占位程序：`python3 --version
 - Debug 出包停在 `:app:validateSigningFxDebug`，报 `java.nio.file.AccessDeniedException: C:\Android\.android\debug.keystore.lock`（AGP 把 keystore home 指了过去）。
 - 已启动的 Gradle daemon 会把这个变量带进 AGP，`AndroidLocationsBuildService` 去写 `C:\Android\analytics.settings` 失败。
 
-**Gradle daemon 不按环境变量匹配复用**，所以客户端进程内清掉变量救不回旧 daemon。处理办法是进脚本时先检测该变量，非空就 `gradlew --stop` 丢弃被污染的 daemon 再重建；`-NoDaemonReset` 可跳过，代价是每次启动都重启 daemon。脚本同时设 `ANDROID_USER_HOME` 指向工具链内的 `android-home`，复用一个既有 debug keystore，不改系统环境、也不改签名身份。
+**Gradle daemon 不按环境变量匹配复用**，客户端清除环境变量不会更新已启动的 daemon。脚本只在检测到遗留 `ANDROID_SDK_HOME` 且未传 `-NoDaemonReset` 时执行 `gradlew --stop`；该开关会跳过清理，可能继续复用被污染的 daemon。
+脚本将 `ANDROID_USER_HOME` 指向工具链内的 `android-home`，复用既有 debug keystore，不改系统环境或签名身份。
 
 ### Kotlin daemon 与 in-process 编译
 
@@ -41,7 +42,7 @@ Windows 的 `python3` 会落到 WindowsApps 的占位程序：`python3 --version
 cmd.exe /c "gradlew.bat -Pkotlin.compiler.execution.strategy=in-process -PbuildABI=arm64-v8a --console=plain :app:assembleFxDebug"
 ```
 
-在 PowerShell 里必须套一层 `cmd.exe /c`，否则 `-P` 参数会被 PowerShell 拆坏。
+上例是可选写法，不要求所有命令都经过 `cmd.exe /c`。在已配置环境的 PowerShell 中，也可用 `& .\gradlew.bat` 并把每个 `-P...` 参数单独引用；避免将多个参数合成一个字符串。
 
 ## 子模块：浅克隆与取不到 pin
 
@@ -52,11 +53,26 @@ git -C native/prebuilt fetch --depth 1 origin <pin>
 git -C native/prebuilt checkout --detach <pin>
 ```
 
-被中断的克隆会留下 `native/prebuilt/.git` 与 `.git/modules/native/prebuilt`（含 `shallow.lock`），**两处都要先删掉再重试**。直连 GitHub 不稳时换镜像 `https://github.boki.moe/github.com/<owner>/<repo>.git`，注意 `insteadOf` 不作用于子模块克隆，要对 `submodule.<name>.url` 单独设置。
+遇到 `.git` 指向失效或锁文件残留时，先检查工作树、gitdir、正在运行的 Git 进程和未提交修改。**不要无条件删除子模块 `.git` 或 `.git/modules/...`**；优先定位已验证 pin 并恢复现有 checkout，确需重建时先保存本地内容并核对要处理的路径。
+镜像只在明确采用可信来源时配置，不把网络问题当作更换源码或 pin 的理由。Git 的 URL 改写是否生效取决于实际 URL 与生效配置；不能笼统断言 `insteadOf` 对子模块无效。
+
+### Git/MSYS 权限错误
+
+`git submodule status` 若在 `sh.exe` 报 `couldn't create signal pipe` / Win32 error 5，说明 shell 启动受限，不证明子模块 pin 损坏。可以先用原生 Git 子命令分别检查：
+
+```powershell
+git ls-tree HEAD native/prebuilt native/rime-prelude
+git -C native/prebuilt rev-parse HEAD
+git -C native/prebuilt status --short
+git -C native/rime-prelude rev-parse HEAD
+git -C native/rime-prelude status --short
+```
+
+修复真实写入或工具执行权限问题时使用宿主提供的审批机制，不修改安全设置或换通道绕过拒绝。
 
 ## 出包之后
 
-两个脚本默认在出包后跑 CI 的两道 native 门禁（`verify-direct-rime-apk.py` 与 `audit-direct-rime-link.py`，对齐 PR CI / Direct Rime CI）。门禁失败不安装并退出非零。要跳过用 `-SkipVerify`，但跳过了就别声称包是合格的。
+两个脚本默认在出包后跑 CI 的两道 native 门禁（`verify-direct-rime-apk.py` 与 `audit-direct-rime-link.py`，对齐 PR CI / Direct Rime CI）。实际门禁执行失败时不安装并退出非零。当前脚本在缺少可用 Python 或没有找到 APK 等路径上可能跳过门禁，因此必须核对日志确实执行了两项检查；不能仅凭脚本退出 0 判断通过。`-SkipVerify` 只用于明确跳过验证的诊断场景，不能把跳过的产物标成已验收。
 
 `verify-direct-rime-apk.py` 里的 `allowed` 是**打包原生库白名单**：新增任何带 `.so` 的依赖，必须把库名登记进去，否则 Debug 出包一切正常、只有 Release 门禁（和 CI）会在 `packaged == allowed` 断言上变红。2026-10-28 接入 JS 语音插件时 `libquickjs.so` 就是这么漏掉的。
 
@@ -75,10 +91,13 @@ Debug 与 Release 包名不同（debug 带 `.debug` 后缀），可以共存；d
 
 ## 现取而不是照抄
 
-工具链版本、ABI、构建开关的权威在 `build-logic/convention/src/main/kotlin/Versions.kt`；当前分支、HEAD、worktree 与子模块状态用 git 现取：
+工具链默认值与支持的 ABI 在 `build-logic/convention/src/main/kotlin/Versions.kt`；覆盖项、`BUILD_ABI` 优先级与列表解析分别查 `ProjectExtensions.kt`、`Utils.kt` 和 `BuildAbiSelection.kt`；当前分支、HEAD、worktree 与子模块状态用 git 现取：
 
 ```sh
 git -C fx-rime-only status --short --branch
 git -C fx-rime-only worktree list
 git -C fx-rime-only submodule status
 ```
+
+
+`build-debug.ps1 -Task` 接收单个 Gradle 任务，`-Test` 会覆盖为 JVM 单测任务；不能把任务与 `--tests` 等参数整段塞入 `-Task`。需要筛选测试时，在已配置环境的 shell 中向 Gradle 分别传递任务和参数。

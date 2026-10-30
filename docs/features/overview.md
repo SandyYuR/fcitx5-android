@@ -1,104 +1,63 @@
-# 功能总览
+# 中州鹅功能总览
 
-当前引擎、迁移和验证来源见[直连版当前状态](/guide/direct-rime-migration)。共享 MD3 界面已独立落入默认分支。
+本页介绍当前 **Rime 直连版**。Rime 方案决定输入规则和词典，屏幕键盘布局决定按键与手势；导入一种不会自动得到另一种。
+首次使用从[安装](/guide/installation)和[快速上手](/guide/quick-start)开始，完整操作见[用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN)。
 
-本页一站式列出本版本的主要功能。它们分为两类：**继承自 fx 分支的应用层功能**（基线 [fxliang/fcitx5-android](https://github.com/fxliang/fcitx5-android) `fx` 分支）与**本分支（直连版）的专属改动**。点击进入相应子页查看详细说明。
+## 输入方案与候选
 
-::: tip
-关于本仓库与 fxliang / 上游的关系、致谢请见 [关于 → 致谢与差异说明](/about/credits)。
-:::
-
-## Rime 专版
-
-| 功能 | 说明 | 链接 |
-|------|------|------|
-| Rime 引擎内置 | librime 静态链接进主 APK，免插件，方案选单 / tabs / 部署全内建 | [查看](/features/rime-enhancements) |
-| 自备方案 | 不预置方案与 essay.txt；放入用户数据目录 + patch `schema_list` + 部署 | [查看](/guide/quick-start) |
-| 配置指纹部署 | 只有配置真的变了才重新部署；部署期间按键只丢弃不上屏，键盘内显示「正在部署」 | [查看](/features/rime-enhancements) |
-| 语言键行为 | 短按发 Shift 切中英文，长按弹出 Rime 方案选单 | [查看](/features/rime-enhancements) |
-| 候选词手势 | 按住上滑选字（按字拆分提交）、按住下滑呼出菜单（忘记词汇连删同音词） | [查看](/features/rime-enhancements) |
-| 退格增强 | 长按删空编码后保护正文；连删后上滑一次性清空输入框 | [查看](/features/rime-enhancements) |
-| Foxy 风格符号面板 | 符号 / 表情 / 颜文字三面板约 6900 条，颜文字单列，支持自定义 JSON 数据 | [查看](/guide/concepts) |
-
-## 键盘形态
-
-| 功能 | 说明 | 链接 |
-|------|------|------|
-| 浮动键盘 | 可任意拖动、调整尺寸、移动手柄；横屏可自动浮动（不覆盖手动形态） | [查看](/features/keyboard/float-keyboard) |
-| 分体键盘 | 横屏自动分屏，含校准 UI；可按子布局单独配分体布局、指定断点、空白占位键推挤 | [查看](/features/keyboard/split-keyboard) |
-| 单手模式 | 左/右手切换，适配大屏 | [查看](/features/keyboard/one-handed) |
-| 调整模式 | 可视化调整键盘大小、位置 | [查看](/features/keyboard/adjust-mode) |
-| Compose Override 键 | 运行时切换的复合键 + 编辑器支持 | [查看](/features/keyboard/compose-override) |
-| 可配置滑动操作 | 支持滑动标签；空格键划动动作与光标移动开关互斥（开关优先） | [查看](/features/keyboard/swipe-actions) |
-
-## 可视化编辑器套件
-
-| 功能 | 说明 | 链接 |
-|------|------|------|
-| TextKeyboard 布局 Profile | 多套完整布局文件，设置页或按钮动作中切换 | [查看](/features/editor/layout-editor) |
-| 键盘布局编辑器 | JSON + 可视化双轨编辑；子模式下拉框带「默认」项与中文说明 | [查看](/features/editor/layout-editor) |
-| Popup 预设编辑器 | 应用内编辑 Popup 预设 JSON | [查看](/features/editor/popup-editor) |
-| MacroKey 编辑器 | 宏按键可视化编辑、多种 action 类型；「显示文本」优先于标签并原样显示 | [查看](/features/editor/macrokey-editor) |
-| 字体集编辑器 | 按位置（主键、副键、候选、预编辑、Popup）独立配置字体 | [查看](/features/editor/fontset-editor) |
-
-## 设置界面
-
-| 功能 | 说明 | 链接 |
+| 功能 | 能做什么 | 详细说明 |
 | --- | --- | --- |
-| Material 3 设置外观 | 设置页与应用自有编辑器统一主题，支持明暗、纯黑、跟随键盘主题、Monet、手动色系与预览应用 | [查看](/features/theme/settings-appearance) |
-| 动画与返回手势 | 独立前进／返回样式、350 / 500 / 650 ms 三档速度、Android 14+ 预测性返回开关 | [查看](/features/theme/settings-appearance) |
-| 首次启动引导 | 两步启用／选择输入法，显示步骤进度与完成状态，并采用设置界面主题 | [查看](/guide/installation) |
+| 内置 Rime 引擎 | 直接调用 librime，无需安装 Rime 引擎插件 APK；中文方案、完整词典与模型需自行导入 | [方案与部署](/features/rime-enhancements) |
+| 方案 ZIP 与数据目录 | 将完整方案导入应用目录或可访问的外部目录，管理多个独立工作目录 | [用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN#导入方案与万象) |
+| 语言、方案与开关 | 语言键短按交给方案切换中英文，长按打开方案菜单；状态区管理分组开关 | [语言键](/features/keys/language-key) |
+| 候选栏与窗口 | 调整字体、注释、序号、间距和圆角；长候选可横向浏览，展开候选与浮动窗口分别配置 | [候选指南](/features/candidate-window) |
+| 选词与退格手势 | 按住候选后滑动选字或打开菜单；合成中长按退格上滑只清编码，正文单独处理 | [Rime 功能](/features/rime-enhancements) · [退格键](/features/keys/backspace-key) |
 
-## 主题增强
+部署、同步或配置重载期间，等待引擎恢复后再输入；这些维护阶段不处理按键。初始化等待与正常输入的事件顺序是另一回事，不能把“部署时继续输入”当作支持的操作。
 
-| 功能 | 说明 | 链接 |
-|------|------|------|
-| 主题编辑器 | HSV 色板、颜色项语义分组折叠、子目录主题、多编码 ZIP 导入 | [查看](/features/theme/theme-editor) |
-| 随机主题 | 生成随机配色并按对比度/色相/饱和度/明度给 0–100 美学评分；可一键应用、重新随机、复制为自定义主题 | [查看](/features/theme/theme-editor) |
-| 编码区 / 工具栏圆角 | 编码区圆角半径与工具栏上方圆角半径（0–48dp）接续成一条连续弧线 | [查看](/features/theme/theme-editor) |
-| Monet 编辑器 | 基于系统 Monet 动态取色生成主题；不支持时明确提示 | [查看](/features/theme/monet) |
-| 磨砂按键 | Frosted blur 效果，含预览同步 | [查看](/features/theme/frosted-blur) |
-| QR 分享与导入 | 通过二维码分享布局/Popup/主题，扫码/扫文件导入 | [查看](/features/theme/share-import) |
+## 键盘形态、布局与宏
 
-## 候选窗与状态栏
+| 功能 | 能做什么 | 详细说明 |
+| --- | --- | --- |
+| 浮动、分体、单手 | 调整大小和位置；横屏可自动切换形态，浮动移动手柄可自动隐藏 | [浮动](/features/keyboard/float-keyboard) · [分体](/features/keyboard/split-keyboard) · [单手](/features/keyboard/one-handed) |
+| 布局文件与方案子布局 | 保存多份完整布局，为不同 Rime 方案设置专用排列和独立分体布局 | [布局编辑器](/features/editor/layout-editor) |
+| 可视化编辑 | 编辑行结构、键位、弹出字符、宏和字体集，支持草稿、保存确认与 JSON | [Popup](/features/editor/popup-editor) · [宏编辑器](/features/editor/macrokey-editor) · [字体](/features/editor/fontset-editor) |
+| 按键类型与字段 | 字母、宏、切层、空格、退格等按键；空白占位键用于排版，显式显示文本保留原样 | [按键参考](/features/keys/overview) |
+| 长按、上下滑动 | 分别配置动作；空格光标移动与自定义划动动作互斥 | [手势](/features/keyboard/swipe-actions) · [空格键](/features/keys/space-key) |
+| 输入时覆盖按键 | 组合状态下临时替换键面和动作；这是布局 Compose Override，不是完整 XKB Compose | [Compose Override](/features/keyboard/compose-override) |
+| 电脑编辑与分享 | 局域网配对编辑，或离线网页编辑后二维码导入；分享单份配置 | [在线编辑](/features/online-editor) · [二维码](/features/theme/share-import) |
 
-| 功能 | 说明 | 链接 |
-|------|------|------|
-| 候选窗增强 | 浮动候选窗"始终显示"、定位修复、滚动候选、高亮圆角 | [查看](/features/candidate-window) |
-| 候选项序号角标 | 工具栏候选栏候选项显示序号；位置可选左上 / 右上 / 右下 / 左下 | [查看](/features/candidate-window) |
-| 长候选横向滚动 | 超长候选保留完整宽度，横向拖拽查看被挡住的文字，不再截断 | [查看](/features/candidate-window) |
-| Kawaii Bar 增强 | 横向滚动、按钮均布、工具栏大小（80%–200%，横向足迹恒定）、亮暗主题一键切换、拖拽自定义 | [查看](/features/kawaii-bar) |
-| 候选栏预设 | 紧凑 / 标准 / 宽松三组预设；候选正文与注释字体字号分别配置 | [查看](/features/candidate-window) |
+## 主题、工具栏与符号
 
-## 按键类型
+| 功能 | 能做什么 | 详细说明 |
+| --- | --- | --- |
+| 键盘主题 | 自定义颜色、图片、圆角、图标、磨砂与字体；随机主题可复制为自定义主题 | [主题编辑器](/features/theme/theme-editor) · [Monet](/features/theme/monet) |
+| 设置界面外观 | 明暗、纯黑、Monet、手动配色，Android 11+ 可跟随键盘取色；修改即时生效 | [设置外观](/features/theme/settings-appearance) |
+| 页面动画与返回 | 独立前进/返回样式、350/500/650 ms；Android 14+ 提供预测性返回，默认关闭，保留已有选择 | [动画设置](/features/theme/settings-appearance#动画与返回手势) |
+| Kawaii Bar | 自定义按钮、宏与图标，调整工具栏大小；语音按钮参与排列，收起键盘按钮独立保留 | [工具栏](/features/kawaii-bar) |
+| 符号、表情、颜文字 | 左侧分组栏或 Gboard 式底部栏，最近使用记录，三类数据支持自定义 JSON | [符号面板](/features/symbol-panel) |
 
-| 类型 | 说明 | 链接 |
-|------|------|------|
-| 按键类型总览 | 全部按键类型一览表（含空白占位键） | [查看](/features/keys/overview) |
-| **MacroKey**（重点） | 可绑定点击/滑动/长按三组宏序列 | [查看](/features/keys/macro-key) |
-| AlphabetKey | 字母键（含 swipe 替代字符、宽度权重） | [查看](/features/keys/alphabet-key) |
-| LayoutSwitchKey | 布局切换键（含符号/表情/颜文字面板跳转目标） | [查看](/features/keys/layout-switch-key) |
-| 空白占位键 | 只占位、完全不接收触摸；用于分体推挤与调位置 | [查看](/features/keys/overview) |
-| 其他单功能键 | Symbol / Caps / Backspace / Return / Space / Comma / Language | 见[总览](/features/keys/overview) |
+## 语音输入
 
-## 其他功能
+| 方式 | 能做什么 | 详细说明 |
+| --- | --- | --- |
+| 内置 JS 插件 | 通义千问、豆包、腾讯云语音识别和实时语音翻译；在应用内填参数与密钥 | [JS 语音](/features/voice-input-js) |
+| 导入自定义 JS | 导入自包含脚本，逐插件批准网络主机；密钥由宿主保存，不交给脚本 | [导入与授权](/features/voice-input-js#导入、覆盖与移除) |
+| AIDL 外部提供方 | 接入实现协议的独立 Android 应用，适合本地模型或厂商 SDK | [外部提供方](/features/voice-input) |
+| 快速切换 | 工具栏语音键短按识别、长按选择首选引擎；JS 引擎可直接进入插件设置 | [语音入口](/features/voice-input) |
 
-| 功能 | 说明 | 链接 |
-|------|------|------|
-| 剪贴板同步（内置） | 兼容 SyncClipboard / Oneclip / ClipCascade；历史实时搜索（打字即过滤，只查本机） | [查看](/features/clipboard-sync) |
-| 外部语音输入 | 通过 AIDL 连接识别提供方，按请求和输入框隔离回调 | [查看](/features/voice-input) |
-| JS 语音插件 | 导入 `.js` 即可接入云端识别，内置千问与豆包，无需额外 APK | [查看](/features/voice-input-js) |
-| 备份与恢复 | 默认加密导出、兼容 ZIP、独立进程恢复及中断处理 | [查看](/features/backup-restore) |
-| 更新检查器 | 检查本仓库 Release（含 Nightly），镜像规则 + 自定义 hosts，平滑速度显示 | [查看](/features/update-checker) |
-| 共享导入与解压 | 系统分享自动识别导入，支持 ZIP/7z 自动解压 | [查看](/features/shared-import) |
-| 在线编辑器 | 局域网 Web 编辑布局/Popup/主题（注意仅在可信网络开启） | [查看](/features/online-editor) |
-| 设置搜索 | 首页搜索框支持中文名/英文别名/拼音，多词都要命中，点结果直达并滚动定位 | [查看](/manual/RIME_ONLY_USER_GUIDE_zh-CN) |
-| 自定义按键音 | 导入 WAV/MP3/OGG/M4A/FLAC，不可用时回退系统音效 | [查看](/manual/RIME_ONLY_USER_GUIDE_zh-CN) |
+## 数据与常用工具
 
-## 数据来源
+| 功能 | 能做什么 | 详细说明 |
+| --- | --- | --- |
+| 剪贴板历史与搜索 | 保存、固定、分词选择与本机搜索；可连接 SyncClipboard、Oneclip、ClipCascade | [剪贴板](/features/clipboard-sync) |
+| 完整备份与恢复 | 默认密码加密 `.fcbak`，可选兼容 ZIP；备份布局、偏好、Rime 数据与导入插件 | [备份](/features/backup-restore) |
+| 更新与下载 | 本仓库 Release/Nightly、镜像与 hosts，受支持路径可后台下载和断点恢复 | [更新](/features/update-checker) |
+| 分享导入 | 从系统分享识别支持的布局、主题等文件，处理压缩包 | [共享导入](/features/shared-import) |
+| 文本编辑 | 光标、选择、复制粘贴和可配置文本编辑栏 | [文本编辑](/features/text-editor) |
+| 设置搜索与按键反馈 | 中文名、别名和拼音查找设置；自定义音效、振动与反馈 | [用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN#设置搜索与按键反馈) |
 
-本总览基于 `fx-rime-only` 分支相对基线 `3ad25fc9`（fxliang `fx` 分支）的提交历史整理，如需逐条明细可在主仓库执行：
+## 文档与版本对应
 
-```bash
-git log --oneline 3ad25fc9..HEAD
-```
+当前功能由默认分支源码核对，逐提交记录见[代码与文档对照](/maintainer/changes/)。继承的前端功能继续由当前功能页说明；旧 Fcitx 引擎实现只在[历史档案](/legacy/)中保留。
+云端语音识别效果、设备后台策略以及不同编辑器的输入行为仍受服务和设备环境影响。

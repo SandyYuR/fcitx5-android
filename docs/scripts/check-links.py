@@ -11,9 +11,10 @@ class Page(HTMLParser):
   if 'id' in a:self.ids.add(a['id'])
   if tag=='meta' and a.get('name')=='generator' and a.get('content','').startswith('VitePress'):self.generated=True
   if tag=='a' and 'href' in a:self.links.append(a['href'])
+  if tag=='img' and 'src' in a:self.links.append(a['src'])
 pages={}
 for p in root.rglob('*.html'):
- doc=Page();doc.feed(p.read_text());pages[p.resolve()]=doc
+ doc=Page();doc.feed(p.read_text(encoding='utf-8'));pages[p.resolve()]=doc
 if not any(p.generated for p in pages.values()):raise SystemExit('No generated VitePress pages found; build the site first.')
 errors=[];checked=0;assets=0
 for p,doc in pages.items():
@@ -23,10 +24,12 @@ for p,doc in pages.items():
   path=unquote(url.path)
   if not path:target=p
   elif path.startswith('/fcitx5-android/'):target=root/path[len('/fcitx5-android/'):]
-  elif path.startswith('/'):continue
+  elif path.startswith('/'):
+   if doc.generated:errors.append({'page':str(p.relative_to(root)),'href':href,'reason':'link escapes configured site base'})
+   continue
   else:target=p.parent/path
   if target.is_dir():target=target/'index.html'
-  elif not target.suffix:target=target.with_suffix('.html')
+  elif not target.is_file() and not target.suffix:target=target.with_suffix('.html')
   if target.suffix!='.html':
    assets+=1
    if not target.is_file():errors.append({'page':str(p.relative_to(root)),'href':href,'reason':'missing download or asset'})

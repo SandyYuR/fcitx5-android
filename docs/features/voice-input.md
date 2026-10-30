@@ -15,7 +15,7 @@ Rime 输入引擎已经内置。外部语音识别提供方使用 Android 接口
 
 ## 不装 APK 的方式
 
-内置与可导入的 JS 插件（千问、豆包等）走同一套会话与结果回填，入口在**设置 → 便利功能 → 语音输入 → 语音插件设置**。导入、覆盖升级、移除与插件接口的完整说明见 [JS 语音插件](./voice-input-js.md)。
+内置与可导入的 JS 插件（千问、豆包等）走同一套会话与结果回填，入口在**设置 → 便捷功能 → 语音输入 → 语音插件设置**。导入、覆盖升级、移除与插件接口的完整说明见 [JS 语音插件](./voice-input-js.md)。
 
 键盘工具栏的语音图标短按开始识别，长按可以快速切换首选引擎。显示语音按钮时，收起键盘按钮仍可独立保留。
 
@@ -34,4 +34,9 @@ Rime 输入引擎已经内置。外部语音识别提供方使用 Android 接口
 
 纯云端协议、想快速换服务商时，用 [JS 语音插件](./voice-input-js.md) 通常比做一个 AIDL APK 更省事；需要本地模型或厂商 SDK 时仍应走 AIDL。
 
-第三方实现方式见代码仓库的[中文 AIDL 接入协议](https://github.com/SandyYuR/fcitx5-android/blob/fx-rime-only/ASR_VOICE_INPUT_AIDL_INTEGRATION.md)。本批协议补充在[代码 PR #13](https://github.com/SandyYuR/fcitx5-android/pull/13)中交付。
+第三方实现方式见代码仓库的[中文 AIDL 接入协议](https://github.com/SandyYuR/fcitx5-android/blob/fx-rime-only/ASR_VOICE_INPUT_AIDL_INTEGRATION.md)。协议修订与当前版本的对应关系见[提交对照](/maintainer/changes/)。
+
+
+## 工具栏和设置入口
+
+隐藏语音按钮后仍可在“便捷功能 → 语音输入”选择首选引擎。长按工具栏语音键时，JS 插件项提供直接打开其设置的入口；密码框不显示语音按钮。工具栏配置规则见[Kawaii Bar](/features/kawaii-bar#语音按钮与首选引擎)。

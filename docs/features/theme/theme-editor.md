@@ -51,3 +51,7 @@
 - [Monet 编辑器](/features/theme/monet)
 - [磨砂按键](/features/theme/frosted-blur)
 - [QR 分享与导入](/features/theme/share-import)
+
+## 按键水波纹透明度
+
+按键水波纹遵循主题颜色自身的 alpha 透明度，半透明颜色不会被强制画成不透明；完全透明时不显示水波纹。修改颜色后可在普通输入框按键观察效果。

@@ -15,9 +15,9 @@
 
 ## 字符与按键事件
 
-- `main` 一般是一个字符；输入法（Fcitx）会将其作为按键事件处理（拼音方案下会进入候选流程）
+- `main` 一般是一个字符；当前 Rime 输入引擎会将其作为按键事件处理（拼音方案下会进入候选流程）
 - `alt` 在用户滑动该键时发送
-- 编辑器会要求 `main` / `alt` 都是单个字符；如果不需要滑动备用行为，使用 [SymbolKey](/features/keys/symbol-key) 或 [MacroKey](/features/keys/macro-key) 更合适
+- 编辑器会要求 `main` / `alt` 都是单个字符；如果不需要滑动备用行为，可以使用 [MacroKey](/features/keys/macro-key) 明确配置文本或按键动作；SymbolKey 默认发送句号，不适合代替任意字符键
 - 如果需要发送一段字符串、或更复杂行为，使用 [MacroKey](/features/keys/macro-key)
 
 ## 显示文本优先（本版）

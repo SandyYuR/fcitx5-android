@@ -1,6 +1,6 @@
 # CommaKey 逗号键
 
-逗号键，长按可调出表情、快捷短语与 Unicode 输入等菜单。
+逗号键，默认点击发送 `,` 交给方案处理，长按菜单提供表情入口。
 
 ## 字段
 
@@ -12,7 +12,7 @@
 ## 内置行为
 
 - **点击**：发送 `,`，是否转换为中文标点由当前输入方案处理
-- **长按**：弹出 Emoji / QuickPhrase / Unicode 菜单
+- **长按**：弹出 Emoji 表情入口；当前默认菜单不包含旧版 QuickPhrase 或 Unicode 项
 
 ## 示例
 
@@ -23,4 +23,4 @@
 ## 相关页面
 
 - [按键类型总览](/features/keys/overview)
-- [SymbolKey](/features/keys/symbol-key) —— 仅做单字符输入的简单符号键
+- [SymbolKey](/features/keys/symbol-key) —— 默认发送标准句号、由方案处理的标点键

@@ -44,3 +44,8 @@
 - [按键类型总览](/features/keys/overview)
 - [滑动操作](/features/keyboard/swipe-actions)
 - [LanguageKey](/features/keys/language-key) —— 长按行为是 Rime 方案选单而非全局选项
+
+## 方案切换与拖动细节
+
+当前 Rime 直连版的长按选项中，“轮换输入法”和“上一个输入法”用于切换 Rime 方案，选择器项打开 Rime 方案菜单；按住说话与重复空格仍按各自选项执行。
+光标拖动一旦开始，会取消待触发长按；慢速小幅拖动可补一格，光标步长上限为 16 dp。未启用光标移动且没有自定义划动动作时，保持长按行为，不额外注册划动手势。

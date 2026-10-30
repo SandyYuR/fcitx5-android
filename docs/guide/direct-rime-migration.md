@@ -1,18 +1,28 @@
-# 直连版迁移与当前状态
+# 直连版现状与迁移
 
-本站当前手册对应已通过 [PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4) 合入默认分支的“中州鹅”直连 librime 版本。
-默认分支 `fx-rime-only` 已使用直连后端；历史 Fcitx 版本由归档标签保留。文档站在独立的 `docs` 分支维护。
+中州鹅的默认分支 `fx-rime-only` 直接使用 librime，保留 Android 键盘、候选、主题、布局编辑器和常用工具。旧 Fcitx 原生后端已经移除，文档站独立维护在 `docs` 分支。
 
-| 需要核对 | 入口 |
+## 应该阅读哪套文档
+
+| 目的 | 入口 |
 | --- | --- |
-| 当前基线、签名包、CI 与合入顺序 | [合并交付](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21) |
-| 安装、导入万象、迁移与用户词库 | [用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) |
-| librime 更新、构建、依赖与性能复现 | [维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
-| 历史性能与源码证据 | [直连文档索引](/direct-rime) |
-| 旧 Fcitx 版操作记录 | [历史用户手册](/manual/RIME_ONLY_USER_GUIDE_zh-CN) |
+| 现在能做什么 | [功能总览](/features/overview) |
+| 安装、方案、布局和数据 | [当前用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) |
+| 当前构建、CI、依赖来源 | [维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
+| 本次核对的默认分支提交 | [代码与文档对照](/maintainer/changes/) |
+| 当年怎样完成直连迁移 | [中州鹅历史](/maintainer/history/) |
+| 旧版靓企鹅中州韵的操作 | [含 Fcitx 的历史用户手册](/legacy/fcitx/manual/RIME_ONLY_USER_GUIDE_zh-CN) |
 
-共享 MD3 界面已独立合入默认分支 `579b1632`，不属于直连引擎独有功能。
-中州鹅继续保留原 Android 键盘、编辑器、主题和剪贴板功能，删除原生 Fcitx 后端。
+历史交付页说明当时的包和验证，不代表正在发布的最新 APK。安装时核对 Release 或成功 CI 的源码提交、包名及签名，参见[安装与升级](/guide/installation)。
 
-依赖、文档与代码已按交付记录依次合入；默认分支 Nightly 的实际源码、签名和补丁来源见该记录。
-旧报告保留时间、源码和模型边界，不能把不同轮次的数据当作本轮提速结论。
+## 迁移与数据
+
+Release 使用 `org.fcitx.fcitx5.android.fx.rime`，同包名同签名且版本允许时可以覆盖旧 Fcitx 版。先在旧版备份，升级后核对方案、用户词库、布局和主题。
+Debug 使用 `.debug` 后缀，与 Release 数据独立；旧 `io.github.sandyyur.rime.direct` 测试包也需要手动迁移。
+完整步骤见[迁移说明](/guide/migrate-from-upstream)，多个输入法分别使用独立 Rime 工作目录。
+
+## 已知范围
+
+布局 Compose Override 是已经提供的前端功能；完整 XKB Compose 和按应用 `app_options` 等价仍有维护边界。
+Material 3 设置、布局、主题等前端功能既有继承，也有持续改进，不能把它们全部归因于更换引擎。
+性能比较与设备验证都有特定条件，请连同[原始记录](/maintainer/evidence)阅读。

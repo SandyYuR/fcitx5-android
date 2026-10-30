@@ -17,26 +17,19 @@ APK 不预装中文方案、完整词典或万象模型，见[快速上手](/gui
 候选注释遵循方案配置；切换语言、方案会短暂显示提示。
 中文空格标签为“中州韵（方案名）”，紧凑为“㞢”，ASCII 状态在中文界面显示“英文模式”。
 
+## 候选手势与编码保护
+
+按住候选后上滑可打开选字操作，下滑打开候选菜单。忘记词汇、注释和词频行为取决于方案与引擎支持。快速滑出候选范围会取消本次选择，见[候选指南](/features/candidate-window)。
+长按退格删空编码后会保护正文，抬手后再按可继续删正文；长按连删后上滑，在合成中只清编码，非合成时才清空输入框，见[退格键](/features/keys/backspace-key)。
+
 ## 引擎来源与更新
 
-| 层次 | 来源 |
-| --- | --- |
-| 官方引擎 | [rime/librime](https://github.com/rime/librime)，固定 `1b3417d2b6a11b5e50e0e1fa9dc396056aa11dce` |
-| 中州鹅定制源码 | [SandyYuR/librime](https://github.com/SandyYuR/librime/tree/zhongzhou)，固定 `446f8584eb01ab8f72b3f0b970fda3919b1c1a55` |
-| Android 编译和插件准备 | [SandyYuR/prebuilder](https://github.com/SandyYuR/prebuilder) |
-| 四 ABI 静态库 | [SandyYuR/prebuilt](https://github.com/SandyYuR/prebuilt)，gitlink `d297ddee183b437d0fd8c9bdf37eced6ec8d09cd` |
-| 主仓库桥接 | `direct-rime/src/main/cpp/` 和 `DirectRimeBackend.kt` |
-
-主应用只链接需要的静态输入；共享 prebuilt 中存有其他产物不等于会打包或运行它们。
-librime 核心定制维护在自有源码仓库的 `zhongzhou` 分支；prebuilder 固定该源码提交、准备插件并构建四 ABI，
-prebuilt 保存验证后的产物，输入法再固定引用。旧 fcitx5-rime 仓库已归档。
-职责、迁入功能和操作步骤见[源码维护迁移](/maintainer/DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21)。
-本次合入 23 项上游提交，版本标记为 `1.17.0-1b3417d`；官方版本仍为 1.17.0。
-固定来源、定制适配与验证见[引擎更新记录](/maintainer/DIRECT_RIME_ENGINE_UPDATE_2026-10-21)。
-完整步骤见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN#更新-librime)。
+引擎使用 `SandyYuR/librime` 的 `zhongzhou` 定制源码，经 prebuilder 构建，由主仓库固定 `SandyYuR/prebuilt` 的 gitlink。不要以共享产物仓库中存在其他引擎文件判断它们被当前 APK 使用。
+版本和定制来源以当前源码与元数据为准，查询及六步更新见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN#librime-从哪里来)。
+此前更新的固定提交、数量与验证保留在[2026-10-21 引擎记录](/maintainer/history/DIRECT_RIME_ENGINE_UPDATE_2026-10-21)。
 
 ## 输入与学习
 
 按键、候选操作和会话管理由单一 owner 串行处理；同应用普通编辑器可复用会话，跨应用与敏感输入隔离。
 用户词库通过 Rime 学习和同步。多个输入法不要同时打开同一个外部工作库。
-实测数据与边界见[当前交付](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)。
+实测数据与边界见[历史交付记录](/maintainer/history/DIRECT_RIME_RELEASE_READY_2026-10-21)。

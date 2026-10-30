@@ -1,121 +1,48 @@
 # 参与文档修改
 
-本文档放在仓库的 `docs` 分支的 `docs/` 目录中，使用 VitePress 构建。只修改文档时通常不需要准备 Android 构建环境，只需要 Git、Node.js 和 npm。
+本站使用 VitePress，源码位于 `docs` 分支的 `docs/`。只修改文档不需要 Android 构建环境；准备 Git、Node.js 20 或更高版本、npm 和 Python 即可。
 
-## 拉取仓库（只拉 docs 分支最新提交）
+## 准备工作区
 
-```bash
+```sh
 git clone --depth 1 --single-branch --branch docs https://github.com/SandyYuR/fcitx5-android.git
 cd fcitx5-android
-```
-
-如果你从自己的 fork 修改，可以把地址换成你的 fork。
-
-上面的命令只会拉取 `docs` 分支的一层历史（最新提交），下载量更小，适合只参与文档编写。
-
-## 准备文档环境
-
-首次进入仓库后安装 docs 依赖：
-
-```bash
-npm --prefix docs install
-```
-
-依赖只安装在 `docs/` 下，不会影响 Android 工程的 Gradle 依赖。
-
-## 本地预览
-
-启动 VitePress 开发服务器：
-
-```bash
+npm --prefix docs ci
 npm --prefix docs run dev
 ```
 
-命令输出中会显示本地访问地址，通常是 `http://localhost:5173/fcitx5-android/`。修改 Markdown 后页面会自动刷新。
+跟随命令输出打开本地地址；站点路径带 `/fcitx5-android/`。已有完整工作区时使用独立的 `docs` worktree，不在代码分支新建 `docs/`。
 
-## 修改页面
+## 先选择资料类型
 
-- 首页：`docs/index.md`
-- 导航和侧栏：`docs/.vitepress/config.ts`
-- 指南：`docs/guide/`
-- 功能说明：`docs/features/`
-- 用户手册：`docs/manual/`（自 `rime-docs` 分支迁入）
-- 维护者文档：`docs/maintainer/`（交接报告、审阅报告与历史归档，`ARCHIVE_` 前缀为只读历史）
-- 疑难解答：`docs/troubleshooting/`
-- 关于页面：`docs/about/`
-- 静态图片：`docs/public/`
+- 用户现在要怎么做：`guide/`、`features/` 和当前用户手册。
+- 开发者现在怎么维护：维护手册、环境说明和 `maintainer/implementation/`。
+- 记录某次试验或合入：`maintainer/history/`，注明日期、提交、条件及未验证范围。
+- 含 Fcitx 的旧版：`legacy/fcitx/`；冻结原站不改写，后续批注独立保存。
 
-新增页面后，如果希望它出现在导航或侧栏中，需要同时修改 `docs/.vitepress/config.ts`。
+详细存放规则、旧链接处理和历史保护见[文档维护约定](/maintainer/documentation)。
 
-## 构建测试
+## 编辑与预览
 
-提交前至少运行一次构建：
+主要导航在 `docs/.vitepress/navigation.ts`，配置由 `config.ts` 加载；页面样式和目录组件在 `docs/.vitepress/theme/`。
+新增正文会在重新构建或重启 dev 后进入[全站目录](/contents)。请同时增加合适的侧栏或相关页面入口，不让新文档只能靠搜索找到。
 
-```bash
+写当前功能前核对默认分支代码、实际资源文案与相关测试。别把旧 Fcitx 的操作、历史 PR 状态或临时实验结论当成当前行为。
+示例保持可复制；已有锚点尽量保留，改路径时加跳转页。
+
+## 检查后提交
+
+```sh
 npm --prefix docs run build
+python docs/scripts/check-links.py
+python docs/scripts/check-legacy-docs.py
+node docs/scripts/check-doc-catalog.mjs
+git diff --check
+git status --short
 ```
 
-如果想查看构建后的静态页面：
+另检查桌面和手机宽度下的导航、目录筛选、长表格、代码块与图片，确认原始 ZIP/JSON 可下载。
+按明确文件路径暂存改动，提交标题使用 `文档(模块): 具体修改内容`，不要批量暂存无关文件。
 
-```bash
-npm --prefix docs run preview
-```
-
-## 提交修改
-
-查看修改：
-
-```bash
-git status
-git diff
-```
-
-暂存文档修改并提交：
-
-```bash
-git add docs
-git commit -m "docs: update documentation"
-```
-
-推送后（GitHub Actions 中的 **Docs** 工作流会自动构建并发布到 GitHub Pages）：
-
-```bash
-git push origin docs
-```
-
-## 提交 Pull Request
-
-如果你没有本仓库的直接写入权限，推荐从自己的 fork 发 Pull Request：
-
-```bash
-git checkout -b docs/update-something
-git add docs
-git commit -m "docs: update documentation"
-git push origin docs/update-something
-```
-
-然后在 GitHub 上打开你的 fork，创建 Pull Request。目标仓库选择 `SandyYuR/fcitx5-android`，**目标分支选择 `docs`**。
-
-PR 描述里建议写清楚：
-
-- 修改了哪些页面
-- 修正了什么错误或补充了什么内容
-- 是否已运行 `npm --prefix docs run build`
-
-## 修改建议
-
-- 优先按代码实现描述功能，不确定时请标注“以当前版本为准”或先查对应源码。
-- 描述**本分支行为**时注意区分：Rime 专版差异（无插件、不预置方案、语言键行为等）与继承自 fx 分支的功能；不要照搬 fxliang 或上游的文档。
-- 示例 JSON、命令和路径尽量可直接复制运行。
-- 新增功能页时同步检查导航、侧栏、相关页面链接。
-- 避免把未验证的计划功能写成已经实现的功能。
-
-## 中州鹅直连版文档同步
-
-应用仓库的 `docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md`、维护手册和交付记录是版本文档来源。
-本站在 `docs` 分支中维护手册、报告、指南、导航和历史入口；原始数据通过固定源码链接追溯。
-源码和原始数据目录链接需要改成带固定源码的 GitHub 链接；不要关闭 VitePress 内部链接检查。
-
-从 `docs` 新开文档分支并提交面向 `docs` 的 PR。PR 的 Docs 工作流只构建，合并到 `docs` 后才部署。
-这个分支没有 Android 应用工程，仅保留 Docs 工作流；APK 构建和性能测试在代码分支执行。
-版本迁移先核对代码 PR 与新 Nightly，再发布站点。
+有授权时提交面向 **`docs` 分支**的 PR；说明修正了什么、核对的代码提交和实际运行的检查。PR 的 Docs 工作流只验证，合入 `docs` 后部署到 Pages。
+源码和文档分开维护，主代码分支只保留 README 入口及随接口同步的 AIDL 协议。

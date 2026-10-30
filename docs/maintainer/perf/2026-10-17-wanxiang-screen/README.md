@@ -1,6 +1,6 @@
 # 万象触摸与录屏对照原始数据
 
-方法与结论见[报告](../../DIRECT_RIME_SCREEN_PERF_2026-10-17.md)。正式运行
+方法与结论见[报告](/maintainer/history/DIRECT_RIME_SCREEN_PERF_2026-10-17)。正式运行
 [39041913893](https://github.com/SandyYuR/fcitx5-android/actions/runs/39041913893)
 在同一个 Android 35 x86_64 KVM 模拟器完成 14 轮、4,752 次触摸及 1,584 次硬件参考按键。
 两版匹配相同输入长度的完整提交文本；这不是人工标注的汉字识别准确率。

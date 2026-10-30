@@ -1,96 +1,63 @@
 ---
 layout: home
-
 hero:
   name: 中州鹅
-  text: 直连 librime 的 Android 输入法
-  tagline: 保留完整键盘、候选、布局编辑器、主题与剪贴板，直接调用 Rime 引擎
+  text: 让 Rime 成为你的手机键盘
+  tagline: 直连 Rime 引擎，自由定制键盘、候选与主题，连接语音输入和日常工具。
   image:
     src: /logo.png
     alt: 中州鹅
   actions:
     - theme: brand
-      text: 快速上手
+      text: 安装与第一次输入
       link: /guide/quick-start
     - theme: alt
-      text: 功能总览
+      text: 查看全部功能
       link: /features/overview
-    - theme: alt
-      text: 下载安装
-      link: /guide/installation
-    - theme: alt
-      text: 旧版文档
-      link: /legacy/fcitx/contents
-    - theme: alt
-      text: GitHub
-      link: https://github.com/SandyYuR/fcitx5-android
-
 features:
-  - icon: 🀄
-    title: Rime 引擎内置，免插件
-    details: librime 静态链接进主 APK，方案选单、分组开关、部署与同步全部内建；不需要再装任何插件 APK。
+  - title: 你的方案，你的词库
+    details: 直接使用 librime。导入自己熟悉的 Rime 方案，管理词典、开关、部署与同步。
     link: /features/rime-enhancements
-    linkText: 了解 Rime 引擎
-  - icon: 🎹
-    title: 浮动 / 分体 / 单手键盘
-    details: 浮动键盘可拖拽、调整尺寸；分体键盘支持按方案单独配布局与断点；左右手单手模式适配大屏。
-    link: /features/keyboard/float-keyboard
-    linkText: 查看键盘特性
-  - icon: 🛠️
-    title: 可视化编辑器套件
-    details: 应用内编辑键盘布局、Popup 预设、主题、MacroKey、字体集，所见即所得；JSON 配置可手改可分享。
+    linkText: 了解方案与部署
+  - title: 按习惯定制键盘
+    details: 浮动、分体与单手模式；编辑键位、长按、滑动和宏，也能在电脑浏览器中编辑。
     link: /features/editor/layout-editor
-    linkText: 查看编辑器
-  - icon: 📷
-    title: 二维码分享与扫码导入
-    details: 布局、Popup、主题等配置可生成二维码分享；扫码或扫文件即可导入他人配置。
-    link: /features/theme/share-import
-    linkText: 了解 QR 分享
-  - icon: 🎨
-    title: 主题增强
-    details: 简易主题编辑器、Monet 动态取色、磨砂按键、HSV 颜色选择器、子目录主题与多编码 ZIP 导入。
-    link: /features/theme/theme-editor
-    linkText: 查看主题增强
-  - icon: 📋
-    title: 剪贴板同步与历史搜索
-    details: 兼容 SyncClipboard / Oneclip / ClipCascade；剪贴板窗口支持打字即搜的实时过滤，只查本机、不外发数据。
-    link: /features/clipboard-sync
-    linkText: 了解剪贴板同步
-  - icon: ⌨️
-    title: Foxy 风格符号面板
-    details: 符号 / 表情 / 颜文字三面板约 6900 条内置条目，左侧分组栏 + 右侧网格；三类数据均可替换为自定义 JSON。
-    link: /guide/concepts
-    linkText: 了解符号面板
-  - icon: 🔄
-    title: 自带更新检查器
-    details: 直接拉取本仓库 SandyYuR/fcitx5-android 的 GitHub Release（含 Nightly 预发布），支持镜像规则与自定义 hosts。
-    link: /features/update-checker
-    linkText: 了解更新检查
+    linkText: 打开布局指南
+  - title: 候选与符号顺手可用
+    details: 配置候选字号、注释与序号，浏览长候选；符号面板可选左侧分组或底部栏。
+    link: /features/symbol-panel
+    linkText: 查看符号与候选
+  - title: 键盘与设置各有风格
+    details: 自定义主题、字体、图标与 Monet 取色；设置页配色即时生效，动画单独调整。
+    link: /features/theme/settings-appearance
+    linkText: 调整界面外观
+  - title: 多种语音输入方式
+    details: 内置千问、豆包、腾讯云识别与翻译 JS 插件，也支持导入脚本或接入 AIDL 应用。
+    link: /features/voice-input-js
+    linkText: 开始语音输入
+  - title: 数据有备份，工具能互通
+    details: 剪贴板历史与远端同步、加密完整备份、局域网编辑和支持断点恢复的更新下载。
+    link: /features/backup-restore
+    linkText: 管理数据与备份
 ---
 
-## 这是什么？
-
-中州鹅保留 Fcitx5 for Android 与 fxliang fx 分支的 Android 前端，直接调用 librime。
-当前手册对应已通过 [PR #4](https://github.com/SandyYuR/fcitx5-android/pull/4) 合入默认分支的直连版，
-包名为 `org.fcitx.fcitx5.android.fx.rime`。主应用、迁移方式和已知范围见[当前状态](/guide/direct-rime-migration)。
-
-::: info 版本与文档范围
-默认分支 `fx-rime-only` 已切换为直连版。签名 Nightly、实际源码与补丁验证见[交付记录](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)。
-本批备份、恢复、下载与编辑器改进的合入状态和对应版本见[本批修复](/maintainer/review-2026-10)，历史安装包不自动包含这些改动。
-[旧版 Fcitx 文档专区](/legacy/fcitx/contents)完整保留原站 64 篇文档，包含[13 篇维护报告](/legacy/fcitx/maintainer/)；当前操作以中州鹅手册为准。
+::: tip 第一次安装
+APK **不预装中文输入方案、完整词典或语言模型**。启用键盘后，还需要导入方案并部署。
+从[快速上手](/guide/quick-start)开始；如果已经安装过，先看[升级与备份](/guide/installation)。
 :::
 
-::: warning 首次安装须知
-APK 不预装中文方案、完整词典或万象语言模型。安装并启用后，先导入完整方案并部署，见[快速上手](/guide/quick-start)。
-:::
+## 按你的需要开始
 
-## 快速导航
+<div class="entry-grid">
+  <a class="entry-card" href="./manual/DIRECT_RIME_USER_GUIDE_zh-CN"><span class="eyebrow">日常使用</span><strong>从第一次输入到个性化键盘</strong><p>安装、方案、布局、主题、语音和数据管理，一份手册串起主要操作。</p><span class="entry-link">阅读完整用户手册 →</span></a>
+  <a class="entry-card" href="./maintainer/"><span class="eyebrow">开发维护</span><strong>找到实现、验证与演进记录</strong><p>现行构建手册、接口协议、逐提交文档对照和原始验证附件分区收录。</p><span class="entry-link">进入维护文档 →</span></a>
+</div>
 
-- [安装与升级](/guide/installation) · [快速上手](/guide/quick-start) · [数据迁移与共存](/guide/builds-and-plugins)
-- [完整用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN) · [Rime 设置与引擎来源](/features/rime-enhancements)
-- [备份与恢复](/features/backup-restore) · [外部语音输入](/features/voice-input) · [局域网在线编辑](/features/online-editor)
-- [功能总览](/features/overview) · [布局编辑器](/features/editor/layout-editor) · [设置外观](/features/theme/settings-appearance)
-- [当前基线、APK、CI 和合入顺序](/maintainer/DIRECT_RIME_RELEASE_READY_2026-10-21)
-- [维护手册与 librime 更新](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) · [完整直连文档](/direct-rime)
-- [维护分类索引](/maintainer/) · [本批修复与合入准备](/maintainer/review-2026-10) · [中文实现说明](/maintainer/implementation/)
-- [常见问题](/troubleshooting/faq) · [反馈问题](/troubleshooting/report-issue) · [致谢](/about/credits)
+## 先分清版本，再查找资料
+
+本站默认介绍 **中州鹅：Rime 直连版**。早期 **靓企鹅中州韵** 保留了 Fcitx 中间层，其原站文档、维护报告和后续批注独立归档。
+同一个 `fx-rime-only` 分支名曾用于两种架构，不能仅凭旧文章中的分支名判断适用版本。
+
+[版本区别与历史档案](/legacy/) · [全部文档目录](/contents) · [常见问题](/troubleshooting/faq) · [提交与文档核对记录](/maintainer/changes/)
+
+项目继承 Fcitx5 for Android 与 fxliang fx 分支的 Android 前端成果，直接调用 librime，独立维护。来源与许可证见[致谢](/about/credits)。
