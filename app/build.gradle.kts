@@ -157,6 +157,8 @@ dependencies {
     implementation(libs.androidx.startup)
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")
     implementation(libs.androidx.tracing.ktx)
+    // 1.6.0+ snapshots child transitions before resuming them, avoiding mutation crashes.
+    implementation(libs.androidx.transition)
     implementation(libs.androidx.viewpager2)
     implementation(libs.material)
     // Fragment 1.7+ is required for seekable predictive-back fragment animators.
