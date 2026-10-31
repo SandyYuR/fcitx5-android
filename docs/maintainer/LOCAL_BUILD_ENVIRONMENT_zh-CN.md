@@ -91,6 +91,14 @@ Debug 与 Release 包名不同（debug 带 `.debug` 后缀），可以共存；d
 
 ## 现取而不是照抄
 
+Windows JVM 验证使用真正的原子文件替换；不要为了让测试变绿而先删除目标文件。数据库测试仍打开真实 SQLite 文件，只对宿主不支持的路径格式及过长的测试缓存路径使用测试上下文适配。
+
+符号链接测试会先实际尝试创建链接。仅 Windows 明确返回缺少符号链接权限时，该用例被标记为宿主不可执行；这不是功能验收通过。Linux JVM 与设备 CI 的 `tools/check-junit-results.py` 要求用例实际执行且失败、错误、跳过均为零。手势验收使用 `tools/test-settings-navigation.sh`，保持系统动画开启，并分别检查完成返回、取消返回、连续返回、搜索态、未保存主题和主题页横滑。
+
+系统边缘返回需要带 SystemUI 的完整系统镜像；当前 API 34/35/36 矩阵使用 `google_apis`，普通 Material 页面检查仍可使用 ATD。脚本先确认设备在线、SystemUI 存在并运行、手势导航模式已生效，再执行测试。XML、系统日志和实际屏幕截图随 CI 产物保存，不能用无 SystemUI 的 ATD 截图代替系统手势验收。
+
+CI 先完成 APK 编译、停止构建守护进程，再启动完整镜像，避免首次开机与编译争用资源。测试前还须确认桌面已取得焦点；若首次启动未就绪，脚本保留截图、仅重启已解析的系统桌面一次，再次检查。测试开始后的应用无响应和手势失败仍直接判为失败。
+
 工具链默认值与支持的 ABI 在 `build-logic/convention/src/main/kotlin/Versions.kt`；覆盖项、`BUILD_ABI` 优先级与列表解析分别查 `ProjectExtensions.kt`、`Utils.kt` 和 `BuildAbiSelection.kt`；当前分支、HEAD、worktree 与子模块状态用 git 现取：
 
 ```sh

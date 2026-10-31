@@ -2,7 +2,7 @@
 layout: home
 hero:
   name: 中州鹅
-  text: 让 Rime 成为你的手机键盘
+  text: 你的 Rime 手机键盘
   tagline: 直连 Rime 引擎，自由定制键盘、候选与主题，连接语音输入和日常工具。
   image:
     src: /logo.png
@@ -40,11 +40,6 @@ features:
     link: /features/backup-restore
     linkText: 管理数据与备份
 ---
-
-::: tip 第一次安装
-APK **不预装中文输入方案、完整词典或语言模型**。启用键盘后，还需要导入方案并部署。
-从[快速上手](/guide/quick-start)开始；如果已经安装过，先看[升级与备份](/guide/installation)。
-:::
 
 ## 按你的需要开始
 

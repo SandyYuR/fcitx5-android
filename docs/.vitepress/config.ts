@@ -1,7 +1,13 @@
 import { defineConfig } from 'vitepress'
 import { nav, sidebar } from './navigation'
+import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
+  vite: {
+    resolve: {
+      alias: [{ find: /^(?:.*\/)?VPNavBarSearch\.vue$/, replacement: fileURLToPath(new URL('./theme/components/ScopedDocSearch.vue', import.meta.url)).replaceAll('\\', '/') }]
+    }
+  },
   title: '中州鹅',
   description: '中州鹅：Android 中文输入法，直连 librime，提供 Rime 方案、键盘定制、语音插件、剪贴板同步与维护文档',
   lang: 'zh-CN',
@@ -26,6 +32,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
+    logo: '/logo.png',
     nav,
     sidebar,
 
@@ -53,7 +60,7 @@ export default defineConfig({
           const html = md.render(src, env)
           if (env.frontmatter?.search === false || env.frontmatter?.redirect) return ''
           const path = env.relativePath || ''
-          const label = /^legacy\/fcitx\/(notes|planning)\//.test(path) ? '【靓企鹅中州韵·批注与方案】' : path.startsWith('legacy/fcitx/') ? '【靓企鹅中州韵·原站】' : /^maintainer\/(history|audit|perf)\//.test(path) ? '【中州鹅·历史记录】' : ''
+          const label = env.frontmatter?.docKind === 'reference' ? '【上游参考】' : /^legacy\/fcitx\/(notes|planning)\//.test(path) ? '【靓企鹅中州韵·批注与方案】' : path.startsWith('legacy/fcitx/') ? '【靓企鹅中州韵·原站】' : /^maintainer\/(history|audit|perf)\//.test(path) ? '【中州鹅·历史记录】' : ''
           return label ? html.replace(/(<h1[^>]*>)/, `$1${label}`) : html
         },
         locales: {
