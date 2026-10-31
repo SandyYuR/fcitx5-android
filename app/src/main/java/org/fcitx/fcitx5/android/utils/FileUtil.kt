@@ -79,12 +79,15 @@ object FileUtil {
                 // 元数据 rename 是原子的，但内容必须先落盘，否则崩溃后可能 rename 出空文件。
                 out.fd.sync()
             }
-            if (!tmp.renameTo(file)) {
-                throw IOException("Cannot replace '${file.path}'; original file preserved")
-            }
+            replaceAtomically(tmp, file)
         } catch (e: Throwable) {
             tmp.delete()
             throw e
         }
+    }
+
+    /** API 23–25 use Android's atomic rename; newer Android and host JVMs can also replace files. */
+    fun replaceAtomically(source: File, destination: File) {
+        AtomicFileMove.replace(source, destination)
     }
 }

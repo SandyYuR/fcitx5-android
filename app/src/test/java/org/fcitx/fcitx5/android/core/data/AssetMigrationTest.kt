@@ -40,7 +40,7 @@ class AssetMigrationTest {
         val root = temp.newFolder("root")
         val victim = temp.newFile("outside").apply { writeText("keep me") }
         File(root, "usr").mkdir()
-        Files.createSymbolicLink(File(root, "usr/item").toPath(), victim.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(root, "usr/item").toPath(), victim.toPath())
         val old = DataDescriptor("old", mapOf("usr" to ""), mapOf("usr/item" to victim.path))
         val actions = plan(old, mapOf("usr" to "", "usr/item" to "hash"))
         migration(root).apply(actions)
@@ -64,8 +64,8 @@ class AssetMigrationTest {
         val outside = temp.newFolder("outside")
         write(outside, "kept", "untouched")
         write(root, "usr/item/child", "old")
-        Files.createSymbolicLink(File(root, "usr/item/link").toPath(), outside.toPath())
-        Files.createSymbolicLink(File(root, "usr/item/dangling").toPath(), File(outside, "missing").toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(root, "usr/item/link").toPath(), outside.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(root, "usr/item/dangling").toPath(), File(outside, "missing").toPath())
         val actions = plan(DataDescriptor("old", mapOf("usr" to "", "usr/item" to "", "usr/item/child" to "old")),
             mapOf("usr" to "", "usr/item" to "hash"))
         migration(root).apply(actions)
@@ -97,7 +97,7 @@ class AssetMigrationTest {
         val outside = temp.newFolder("outside")
         write(outside, "child", "keep")
         File(root, "usr").mkdir()
-        Files.createSymbolicLink(File(root, "usr/item").toPath(), outside.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(root, "usr/item").toPath(), outside.toPath())
         migration(root).apply(plan(DataDescriptor("old", emptyMap()),
             mapOf("usr" to "", "usr/item" to "", "usr/item/child" to "hash")))
         assertEquals("keep", File(outside, "child").readText())
@@ -121,7 +121,7 @@ class AssetMigrationTest {
     @Test fun interruptedDirectoryReplacementCanReplayWithoutDeletingThroughTheNewLink() {
         val root = temp.newFolder("root")
         write(root, "usr/source/child", "new retained source")
-        Files.createSymbolicLink(File(root, "usr/item").toPath(), File(root, "usr/source").toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(root, "usr/item").toPath(), File(root, "usr/source").toPath())
         val old = DataDescriptor("old", mapOf("usr" to "", "usr/item" to "", "usr/item/child" to "old"))
         val actions = plan(old, mapOf("usr" to "", "usr/source" to "", "usr/source/child" to "hash"),
             mapOf("usr/item" to "usr/source"))
@@ -165,7 +165,7 @@ class AssetMigrationTest {
         val root = temp.newFolder("root")
         val outside = temp.newFolder("outside")
         val victim = write(outside, "child", "keep")
-        Files.createSymbolicLink(File(root, "link").toPath(), outside.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(root, "link").toPath(), outside.toPath())
         assertTrue(runCatching {
             migration(root).apply(listOf(FileAction.CreateFile("link/child", FileSource.Main)))
         }.isFailure)
@@ -188,7 +188,7 @@ class AssetFileOs {
             return StructStat(0, 0, mode, 1, 0, 0, 0, file.length(), 0, 0, 0, 0, 0)
         }
         @JvmStatic @Implementation fun symlink(oldPath: String, newPath: String) {
-            Files.createSymbolicLink(File(newPath).toPath(), File(oldPath).toPath())
+            org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(newPath).toPath(), File(oldPath).toPath())
         }
     }
 }

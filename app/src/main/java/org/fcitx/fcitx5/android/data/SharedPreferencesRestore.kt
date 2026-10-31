@@ -17,7 +17,7 @@ internal object SharedPreferencesRestore {
         for (backup in files.filter { it.name.endsWith(".xml.bak") }) {
             validate(backup)
             val target = File(directory, backup.name.removeSuffix(".bak"))
-            if (!backup.renameTo(target)) throw IOException("Cannot recover preference backup")
+            org.fcitx.fcitx5.android.utils.FileUtil.replaceAtomically(backup, target)
         }
         directory.listFiles()?.filter { it.name.endsWith(".xml") }?.forEach(::validate)
     }

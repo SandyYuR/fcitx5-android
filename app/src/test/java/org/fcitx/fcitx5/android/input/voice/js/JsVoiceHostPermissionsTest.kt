@@ -117,7 +117,7 @@ class JsVoiceHostPermissionsTest {
                 .setHeader("Location", "https://127.0.0.1:${server.port}/stolen"))
             net.install(js, "en")
             js.evaluate<Any?>(JsVoicePrelude.SOURCE)
-            val url = JsonPrimitive(server.url("/voice").toString())
+            val url = JsonPrimitive(server.url("/voice").newBuilder().host("localhost").build().toString())
             val error = runCatching { invokeNative(js, "__n_httpPost($url, 'apiKey', '{}', '{}')") }.exceptionOrNull()
             assertTrue(error?.message.orEmpty().contains("HTTP 307"))
             assertEquals(1, server.requestCount)
