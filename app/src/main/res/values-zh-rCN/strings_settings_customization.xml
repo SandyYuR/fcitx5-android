@@ -7,9 +7,9 @@
     <string name="settings_ui_motion_enter">前进动画</string>
     <string name="settings_ui_motion_return">返回动画</string>
     <string name="settings_ui_motion_duration">动画速度</string>
-    <string name="settings_ui_motion_horizontal">横向共享轴</string>
-    <string name="settings_ui_motion_vertical">纵向共享轴</string>
-    <string name="settings_ui_motion_scale">缩放共享轴</string>
+    <string name="settings_ui_motion_horizontal">横向页面滑动</string>
+    <string name="settings_ui_motion_vertical">纵向页面滑动</string>
+    <string name="settings_ui_motion_scale">缩放过渡</string>
     <string name="settings_ui_motion_fade">淡入淡出</string>
     <string name="settings_ui_motion_none">无动画</string>
     <string name="settings_ui_motion_follow">跟随前进动画</string>

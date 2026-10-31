@@ -108,6 +108,11 @@ object SettingsGroupSpecs {
                         R.string.candidates_window,
                         R.drawable.ic_baseline_tune_24,
                         SettingsRoute.CandidatesWindow
+                    ),
+                    SettingsGroupEntry.route(
+                        R.string.keyboard_category_voice,
+                        R.drawable.ic_baseline_keyboard_voice_24,
+                        SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_VOICE)
                     )
                 )
             }
@@ -175,12 +180,6 @@ object SettingsGroupSpecs {
                         R.string.emoji_and_symbols,
                         R.drawable.ic_baseline_emoji_symbols_24,
                         SettingsRoute.Symbol
-                    ),
-                    // 语音是一种输入方式，混在「工具栏与候选栏」里语义不对。
-                    SettingsGroupEntry.route(
-                        R.string.keyboard_category_voice,
-                        R.drawable.ic_baseline_keyboard_voice_24,
-                        SettingsRoute.KeyboardGroup(KeyboardGroupFragment.GROUP_VOICE)
                     )
                 )
             }

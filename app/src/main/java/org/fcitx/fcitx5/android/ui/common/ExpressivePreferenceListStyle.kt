@@ -12,7 +12,8 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.TextView
 import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceGroupAdapter
+import androidx.preference.Preference
+import androidx.preference.PreferenceGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.preference.PreferenceViewHolder
@@ -27,11 +28,34 @@ import java.util.WeakHashMap
 
 /** Applies the tonal, segmented-list treatment used by the Material 3 settings references. */
 class ExpressivePreferenceListStyle(
-    private val recyclerView: RecyclerView
+    private val recyclerView: RecyclerView,
+    private val screen: () -> PreferenceGroup
 ) : RecyclerView.ItemDecoration(), RecyclerView.OnChildAttachStateChangeListener {
 
     private val context = recyclerView.context
     private var observedAdapter: RecyclerView.Adapter<*>? = null
+    private var positionsDirty = true
+    private val preferencesByPosition = mutableMapOf<Int, Preference>()
+
+    private fun preferenceAt(position: Int): Preference? {
+        if (positionsDirty) {
+            preferencesByPosition.clear()
+            val positions = recyclerView.adapter as? PreferenceGroup.PreferencePositionCallback
+            if (positions != null) {
+                fun visit(group: PreferenceGroup) {
+                    for (index in 0 until group.preferenceCount) {
+                        val preference = group.getPreference(index)
+                        val adapterPosition = positions.getPreferenceAdapterPosition(preference)
+                        if (adapterPosition >= 0) preferencesByPosition[adapterPosition] = preference
+                        if (preference is PreferenceGroup) visit(preference)
+                    }
+                }
+                visit(screen())
+            }
+            positionsDirty = false
+        }
+        return preferencesByPosition[position]
+    }
     private val rowBackgrounds = WeakHashMap<View, Drawable?>()
     private var drawObserver: ViewTreeObserver? = null
     private val attachment = object : View.OnAttachStateChangeListener {
@@ -101,17 +125,17 @@ class ExpressivePreferenceListStyle(
         parent: RecyclerView,
         state: RecyclerView.State
     ) {
-        val adapter = parent.adapter as? PreferenceGroupAdapter ?: return
+        val adapter = parent.adapter ?: return
         val position = parent.getChildAdapterPosition(view)
         if (position == RecyclerView.NO_POSITION || position >= adapter.itemCount) return
 
         outRect.left = dp(16f)
         outRect.right = dp(16f)
-        if (adapter.getItem(position) is PreferenceCategory) {
+        if (preferenceAt(position) is PreferenceCategory) {
             outRect.top = dp(if (position == 0) 8f else 20f)
             outRect.bottom = dp(8f)
         } else {
-            val search = adapter.getItem(position)?.key == SettingsSearchPreference.KEY
+            val search = preferenceAt(position)?.key == SettingsSearchPreference.KEY
             outRect.top = dp(if (position == 0 || search) 8f else 1f)
             outRect.bottom = dp(if (position == adapter.itemCount - 1) 20f else if (search) 0f else 1f)
         }
@@ -135,21 +159,23 @@ class ExpressivePreferenceListStyle(
         if (adapter === observedAdapter) return
         observedAdapter?.unregisterAdapterDataObserver(adapterObserver)
         observedAdapter = adapter
+        positionsDirty = true
         adapter?.registerAdapterDataObserver(adapterObserver)
     }
 
     private fun refresh() {
+        positionsDirty = true
         if (refreshScheduled) return
         refreshScheduled = true
         recyclerView.post(refreshRows)
     }
 
     private fun styleRow(view: View) {
-        val adapter = recyclerView.adapter as? PreferenceGroupAdapter ?: return
+        val adapter = recyclerView.adapter ?: return
         val position = recyclerView.getChildAdapterPosition(view)
         if (position == RecyclerView.NO_POSITION || position >= adapter.itemCount) return
 
-        val preference = adapter.getItem(position) ?: return
+        val preference = preferenceAt(position) ?: return
         (recyclerView.getChildViewHolder(view) as? PreferenceViewHolder)?.apply {
             isDividerAllowedAbove = false
             isDividerAllowedBelow = false
@@ -162,8 +188,8 @@ class ExpressivePreferenceListStyle(
             return
         }
 
-        val previous = if (position > 0) adapter.getItem(position - 1) else null
-        val next = if (position + 1 < adapter.itemCount) adapter.getItem(position + 1) else null
+        val previous = if (position > 0) preferenceAt(position - 1) else null
+        val next = if (position + 1 < adapter.itemCount) preferenceAt(position + 1) else null
         val isSearch = preference.key == SettingsSearchPreference.KEY
         val shape = rowShape(
             isSearch = isSearch,

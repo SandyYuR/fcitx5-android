@@ -395,7 +395,7 @@ internal class JsVoiceNet(
     // Credentials must not follow redirects beyond the explicitly approved hosts.
     private val http = http.newBuilder().followRedirects(false).followSslRedirects(false).build()
     private val closed = AtomicBoolean(false)
-    private val calls = ConcurrentHashMap.newKeySet<Call>()
+    private val calls: MutableSet<Call> = ConcurrentHashMap.newKeySet()
     private val binary = JsVoiceBinary()
     private val socketHttp by lazy {
         BoundedWebSocketTransport.client(http, secure = true, maxMessage = JsVoiceRuntime.WEBSOCKET_BYTES)
