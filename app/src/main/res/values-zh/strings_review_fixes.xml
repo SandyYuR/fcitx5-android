@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="reset_theme_colors">重置主题颜色</string>
+    <string name="icon_theme_no_custom_theme">没有可用的自定义图标主题</string>
+</resources>
