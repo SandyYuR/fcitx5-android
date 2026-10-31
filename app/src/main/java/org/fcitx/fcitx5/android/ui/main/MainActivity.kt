@@ -112,6 +112,9 @@ class MainActivity : SettingsUiActivity() {
                 startActivity<SetupActivity>()
             }
             Intent.ACTION_RUN -> {
+                // Restored navigation owns its destination. Only a fresh launch or a new
+                // Intent should replay the shortcut that originally opened this activity.
+                if (savedInstanceState != null) return
                 val route = intent.parcelable<SettingsRoute>(EXTRA_SETTINGS_ROUTE) ?: return
                 navController.popBackStack(SettingsRoute.Index, false)
                 navController.navigateWithAnim(route)

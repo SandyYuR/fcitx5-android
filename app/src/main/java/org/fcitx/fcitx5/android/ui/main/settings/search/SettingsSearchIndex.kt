@@ -8,6 +8,8 @@ package org.fcitx.fcitx5.android.ui.main.settings.search
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.StringRes
+import androidx.core.os.ConfigurationCompat
+import java.util.Locale
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
@@ -49,6 +51,16 @@ data class SettingsSearchEntry(
      */
     val preferenceKey: String? = null
 ) {
+    private var cachedLocale: String? = null
+    private var cachedSearchText = ""
+
+    internal fun searchText(context: Context, locale: String): String {
+        if (cachedLocale != locale) {
+            cachedSearchText = "${title(context)} ${path(context)} ${keywords.joinToString(" ")}".lowercase(Locale.ROOT)
+            cachedLocale = locale
+        }
+        return cachedSearchText
+    }
 
     /** 面包屑文本，如「Android · 虚拟键盘」。 */
     fun path(context: Context): String =
@@ -259,7 +271,11 @@ object SettingsSearchIndex {
      * 没有声明的按标题查表。这样新增条目时不必记得手工传 `preferenceKey`。
      */
     fun entries(context: Context): List<SettingsSearchEntry> =
-        buildEntries(context).map { entry ->
+        buildEntries(context).map { original ->
+            val entry = if (original.route == keyboard(VOICE) || original.activityClass == JsVoicePluginsActivity::class.java) {
+                original.copy(pathRes = if (original.titleRes == R.string.keyboard_category_voice) P_INPUT
+                    else P_INPUT + R.string.keyboard_category_voice)
+            } else original
             entry.preferenceKey?.let { entry }
                 ?: entry.copy(preferenceKey = PREFERENCE_KEYS[entry.titleRes])
         }
@@ -1064,7 +1080,9 @@ object SettingsSearchIndex {
         entries: List<SettingsSearchEntry>,
         query: String
     ): List<SettingsSearchEntry> {
-        if (query.isBlank()) return emptyList()
-        return entries.filter { it.matches(context, query) }
+        val terms = SettingsSearchQuery.terms(query)
+        if (terms.isEmpty()) return emptyList()
+        val locale = ConfigurationCompat.getLocales(context.resources.configuration).toLanguageTags()
+        return entries.filter { SettingsSearchQuery.matchesNormalized(it.searchText(context, locale), terms) }
     }
 }

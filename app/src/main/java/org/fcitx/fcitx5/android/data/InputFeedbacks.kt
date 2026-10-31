@@ -12,6 +12,7 @@ import android.os.VibrationEffect
 import android.provider.Settings
 import android.view.HapticFeedbackConstants
 import android.view.View
+import androidx.annotation.RequiresApi
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceEnum
@@ -62,6 +63,7 @@ object InputFeedbacks {
     private val hasAmplitudeControl =
         (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) && vibrator.hasAmplitudeControl()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun vibrationEffect(duration: Long, amplitude: Int, longPress: Boolean): VibrationEffect {
         if (longPress) {
             if (
@@ -117,7 +119,7 @@ object InputFeedbacks {
         if (duration != 0L) {
             // on Android 13, if system haptic feedback was disabled, `vibrator.vibrate()` won't work
             // but `view.performHapticFeedback()` with `FLAG_IGNORE_GLOBAL_SETTING` still works
-            if (hasAmplitudeControl && amplitude != 0) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && hasAmplitudeControl && amplitude != 0) {
                 vibrator.vibrate(vibrationEffect(duration, amplitude, longPress))
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val ve = vibrationEffect(duration, VibrationEffect.DEFAULT_AMPLITUDE, longPress)

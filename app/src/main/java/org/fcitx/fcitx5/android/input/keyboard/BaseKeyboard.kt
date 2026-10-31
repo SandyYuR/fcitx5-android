@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.input.keyboard
 
+import android.os.Build
+
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Rect
@@ -1908,13 +1910,13 @@ abstract class BaseKeyboard(
             val parents = recreateList
                 .mapNotNull { it.item.keyView.parent as? ViewGroup }
                 .distinct()
-            parents.forEach { it.suppressLayout(true) }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) parents.forEach { it.suppressLayout(true) }
             try {
                 recreateList.forEach { u ->
                     recreateComposeAwareKeyView(u.item, u.activeDef, u.activeAppearance)
                 }
             } finally {
-                parents.forEach { it.suppressLayout(false) }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) parents.forEach { it.suppressLayout(false) }
             }
             // Update occluders so water ripple masking uses the recreated views
             keyboardWaterRippleView?.setOccluders(
@@ -1956,7 +1958,7 @@ abstract class BaseKeyboard(
         pendingComposeRecreations = stillHeld.takeIf { it.isNotEmpty() }
         if (ready.isEmpty()) return
         val parents = ready.mapNotNull { it.keyView.parent as? ViewGroup }.distinct()
-        parents.forEach { it.suppressLayout(true) }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) parents.forEach { it.suppressLayout(true) }
         try {
             ready.forEach { item ->
                 val (activeDef, activeAppearance) = resolveComposeActiveDef(item.baseDef)
@@ -1965,7 +1967,7 @@ abstract class BaseKeyboard(
                 }
             }
         } finally {
-            parents.forEach { it.suppressLayout(false) }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) parents.forEach { it.suppressLayout(false) }
         }
         if (::keyRows.isInitialized) {
             keyboardWaterRippleView?.setOccluders(

@@ -985,15 +985,9 @@ class ShareReceiveManager(
             // detectArchiveType never returns SEVEN_Z below API 26; the check is here so the
             // API level is provable at the call site (see A11).
             ArchiveType.SEVEN_Z -> {
-                requireSevenZSupport()
-                listSevenZEntries(archiveFile)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) listSevenZEntries(archiveFile)
+                else error("7z archives require Android 8.0 or newer")
             }
-        }
-    }
-
-    private fun requireSevenZSupport() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            throw IllegalStateException("7z archives require Android 8.0 or newer")
         }
     }
 
@@ -1074,8 +1068,8 @@ class ShareReceiveManager(
         return when (archiveType) {
             ArchiveType.ZIP -> extractZipArchive(archiveFile, canonicalTargetDirectory)
             ArchiveType.SEVEN_Z -> {
-                requireSevenZSupport()
-                extractSevenZArchive(archiveFile, canonicalTargetDirectory)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) extractSevenZArchive(archiveFile, canonicalTargetDirectory)
+                else error("7z archives require Android 8.0 or newer")
             }
         }
     }

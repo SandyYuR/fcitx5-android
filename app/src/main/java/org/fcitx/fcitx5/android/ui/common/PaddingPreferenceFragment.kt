@@ -34,7 +34,7 @@ abstract class PaddingPreferenceFragment : MyPreferenceFragment() {
             setDivider(null)
             setDividerHeight(0)
         }
-        expressiveListStyle = ExpressivePreferenceListStyle(listView).also { it.attach() }
+        expressiveListStyle = ExpressivePreferenceListStyle(listView) { preferenceScreen }.also { it.attach() }
     }
 
     override fun onDestroyView() {

@@ -50,7 +50,7 @@ class MaterialSpinner @JvmOverloads constructor(context: Context, attrs: Attribu
             setLayerInsetEnd(1, dp(12))
         }
         backgroundTintList = null
-        setSupportBackgroundTintList(null)
+        androidx.core.view.ViewCompat.setBackgroundTintList(this, null)
         background = RippleDrawable(ColorStateList.valueOf(context.settingsColor(
             androidx.appcompat.R.attr.colorControlHighlight)), layers,
             MaterialShapeDrawable(shape).apply { fillColor = ColorStateList.valueOf(Color.WHITE) })

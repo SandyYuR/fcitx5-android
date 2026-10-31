@@ -5,6 +5,8 @@
 package org.fcitx.fcitx5.android.input.clipboard
 
 import android.icu.text.BreakIterator
+import android.os.Build
+import androidx.annotation.RequiresApi
 import java.util.Locale
 
 data class ClipboardToken(
@@ -28,8 +30,6 @@ object ClipboardTextTokenizer {
     /** Upper bound on the number of tokens produced, whatever the input. */
     const val MAX_TOKENS = 1_500
 
-    private fun createWordBreaker() =
-        BreakIterator.getWordInstance(Locale.CHINESE)
     private val coarseTokenPattern = Regex(
         """\p{IsHan}+|[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*|[~\\/]+|[^\s]"""
     )
@@ -76,13 +76,9 @@ object ClipboardTextTokenizer {
         return builder.toString()
     }
 
-    private fun appendHanTokens(
-        output: MutableList<ClipboardToken>,
-        chunk: String,
-        baseStart: Int
-    ) {
-        val words = runCatching {
-            val breaker = createWordBreaker()
+    @RequiresApi(24)
+    private fun splitHanWords(chunk: String): List<String> = runCatching {
+            val breaker = BreakIterator.getWordInstance(Locale.CHINESE)
             val words = mutableListOf<String>()
             breaker.setText(chunk)
             var start = breaker.first()
@@ -97,6 +93,13 @@ object ClipboardTextTokenizer {
             }
             words
         }.getOrElse { listOf(chunk) }
+
+    private fun appendHanTokens(
+        output: MutableList<ClipboardToken>,
+        chunk: String,
+        baseStart: Int
+    ) {
+        val words = if (Build.VERSION.SDK_INT >= 24) splitHanWords(chunk) else listOf(chunk)
         if (words.isEmpty()) {
             output += ClipboardToken(chunk, baseStart, baseStart + chunk.length)
             return
