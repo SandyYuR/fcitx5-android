@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_unsaved_title">保存主题修改？</string>
+    <string name="theme_unsaved_message">离开编辑器前保存修改，或放弃本次编辑。</string>
+    <string name="theme_discard">放弃修改</string>
+    <string name="theme_library">主题库</string>
+    <string name="keyboard_style">键盘样式</string>
+    <string name="theme_global_settings_summary">这些设置对所有键盘主题生效，包括候选高亮、文本编辑和剪贴板卡片。</string>
+</resources>

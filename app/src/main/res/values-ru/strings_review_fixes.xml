@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_unsaved_title">Сохранить изменения темы?</string>
+    <string name="theme_unsaved_message">Сохраните изменения перед выходом из редактора или отмените их.</string>
+    <string name="theme_discard">Отменить изменения</string>
+    <string name="theme_library">Библиотека тем</string>
+    <string name="keyboard_style">Стиль клавиатуры</string>
+    <string name="theme_global_settings_summary">Эти настройки применяются ко всем темам клавиатуры, включая выделение кандидатов, редактирование текста и карточки буфера обмена.</string>
+</resources>

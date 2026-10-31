@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_unsaved_title">¿Guardar los cambios del tema?</string>
+    <string name="theme_unsaved_message">Guarda los cambios antes de salir del editor o descártalos.</string>
+    <string name="theme_discard">Descartar</string>
+    <string name="theme_library">Biblioteca de temas</string>
+    <string name="keyboard_style">Estilo del teclado</string>
+    <string name="theme_global_settings_summary">Estos ajustes se aplican a todos los temas del teclado, incluidos los candidatos resaltados, la edición de texto y las tarjetas del portapapeles.</string>
+</resources>

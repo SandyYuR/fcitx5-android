@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.theme
 
 import android.os.Bundle
 import androidx.preference.SwitchPreferenceCompat
+import androidx.preference.Preference
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
@@ -18,6 +19,13 @@ class ThemeSettingsFragment : ManagedPreferenceFragment(ThemeManager.prefs) {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
+        preferenceScreen.addPreference(Preference(requireContext()).apply {
+            key = "theme_global_settings_scope"
+            order = Int.MIN_VALUE
+            isSelectable = false
+            isIconSpaceReserved = false
+            setSummary(R.string.theme_global_settings_summary)
+        })
         switchPreference = findPreference(followSystemDayNightTheme.key)!!
     }
 
