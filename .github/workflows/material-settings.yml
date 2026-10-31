@@ -3,7 +3,7 @@ name: Material settings UI
 on:
   workflow_dispatch:
   push:
-    branches: [fx-rime-only, 'ui/**']
+    branches: [fx-rime-only, 'ui/**', 'fix/**']
     paths:
       - 'app/src/main/java/**/ui/**'
       - 'app/src/main/java/**/input/dialog/**'
@@ -13,6 +13,8 @@ on:
       - 'app/src/main/res/**'
       - 'app/src/androidTest/**'
       - 'tools/test-material-settings.sh'
+      - 'tools/test-settings-navigation.sh'
+      - 'tools/check-junit-results.py'
       - '.github/workflows/material-settings.yml'
 
 permissions:
@@ -23,6 +25,53 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  navigation:
+    name: Animated navigation (API ${{ matrix.api }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [34, 35, 36]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Prepare native build
+        id: prepare
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y extra-cmake-modules gettext
+          ./prepare_personal_build.sh
+          sudo chmod 666 /dev/kvm
+          echo "emulator-cores=$(nproc)" >> "$GITHUB_OUTPUT"
+      - name: Build navigation APKs before booting the emulator
+        run: |
+          ./gradlew -PbuildABI=x86_64 :app:assembleFxDebug :app:assembleFxDebugAndroidTest
+          ./gradlew --stop
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          cores: ${{ steps.prepare.outputs.emulator-cores }}
+          ram-size: 3072M
+          disable-animations: false
+          script: bash tools/test-settings-navigation.sh
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: settings-navigation-api-${{ matrix.api }}
+          path: |
+            app/build/reports/androidTests/
+            app/build/outputs/androidTest-results/connected/
   android:
     runs-on: ubuntu-22.04
     steps:
@@ -64,4 +113,6 @@ jobs:
         if: always()
         with:
           name: material-settings-ui-results
-          path: app/build/reports/androidTests/
+          path: |
+            app/build/reports/androidTests/
+            app/build/outputs/androidTest-results/connected/

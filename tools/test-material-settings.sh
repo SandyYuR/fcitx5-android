@@ -7,6 +7,10 @@ adb shell setprop debug.hwui.drawing_enabled true
   -Pandroid.testInstrumentationRunnerArguments.class=org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest \
   :app:connectedFxDebugAndroidTest
 test_result=$?
+if [[ "$test_result" -eq 0 ]]; then
+  python3 tools/check-junit-results.py app/build/outputs/androidTest-results/connected
+  test_result=$?
+fi
 
 report_dir=app/build/reports/androidTests/material-settings-diagnostics
 mkdir -p "$report_dir"
