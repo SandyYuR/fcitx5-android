@@ -6,4 +6,6 @@
     <string name="theme_library">主题库</string>
     <string name="keyboard_style">键盘样式</string>
     <string name="theme_global_settings_summary">这些设置对所有键盘主题生效，包括候选高亮、文本编辑和剪贴板卡片。</string>
+    <string name="reset_theme_colors">重置主题颜色</string>
+    <string name="icon_theme_no_custom_theme">没有可用的自定义图标主题</string>
 </resources>
