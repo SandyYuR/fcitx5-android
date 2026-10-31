@@ -42,16 +42,13 @@ class ThemeFragment : Fragment() {
 
     private val viewModel: MainViewModel by activityViewModels()
 
-    private lateinit var previewUi: KeyboardPreviewUi
-
-    private lateinit var tabLayout: TabLayout
-
-    private lateinit var viewPager: ViewPager2
+    private var previewUi: KeyboardPreviewUi? = null
+    private var viewPager: ViewPager2? = null
 
     @Keep
     private val onThemeChangeListener = ThemeManager.OnThemeChangeListener {
-        lifecycleScope.launch {
-            previewUi.setTheme(it)
+        viewLifecycleOwner.lifecycleScope.launch {
+            previewUi?.setTheme(it)
         }
     }
 
@@ -60,8 +57,9 @@ class ThemeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View = withSettingsPage(with(requireContext()) {
-        previewUi = KeyboardPreviewUi(this, ThemeManager.activeTheme)
-        ThemeManager.addOnChangedListener(onThemeChangeListener)
+        val previewUi = KeyboardPreviewUi(this, ThemeManager.activeTheme).also {
+            this@ThemeFragment.previewUi = it
+        }
         val preview = previewUi.root.apply {
             scaleX = 0.5f
             scaleY = 0.5f
@@ -70,9 +68,9 @@ class ThemeFragment : Fragment() {
             tag = "theme_preview_capture"
         }
 
-        tabLayout = TabLayout(this)
+        val tabLayout = TabLayout(this)
 
-        viewPager = ViewPager2(this).apply {
+        val viewPager = ViewPager2(this).apply {
             adapter = object : FragmentStateAdapter(this@ThemeFragment) {
                 override fun getItemCount() = 2
                 override fun createFragment(position: Int): Fragment = when (position) {
@@ -80,13 +78,13 @@ class ThemeFragment : Fragment() {
                     else -> ThemeSettingsFragment()
                 }
             }
-        }
+        }.also { this@ThemeFragment.viewPager = it }
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = getString(
                 when (position) {
-                    0 -> R.string.theme
-                    else -> R.string.configure
+                    0 -> R.string.theme_library
+                    else -> R.string.keyboard_style
                 }
             )
         }.attach()
@@ -120,6 +118,11 @@ class ThemeFragment : Fragment() {
         }
     })
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        ThemeManager.addOnChangedListener(onThemeChangeListener)
+    }
+
     override fun onStop() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             ThemeManager.syncToDeviceEncryptedStorage()
@@ -129,7 +132,7 @@ class ThemeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        previewUi.setTheme(ThemeManager.activeTheme)
+        previewUi?.setTheme(ThemeManager.activeTheme)
         maybeOpenConfigTab()
     }
 
@@ -146,13 +149,17 @@ class ThemeFragment : Fragment() {
     private fun maybeOpenConfigTab() {
         val key = viewModel.peekPendingPreferenceScrollKey() ?: return
         if (ThemeManager.prefs.managedPreferences.containsKey(key)) {
-            viewPager.setCurrentItem(CONFIG_TAB_INDEX, false)
+            viewPager?.setCurrentItem(CONFIG_TAB_INDEX, false)
         }
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
         ThemeManager.removeOnChangedListener(onThemeChangeListener)
-        super.onDestroy()
+        previewUi?.dispose()
+        previewUi = null
+        viewPager?.adapter = null
+        viewPager = null
+        super.onDestroyView()
     }
 
     private companion object {

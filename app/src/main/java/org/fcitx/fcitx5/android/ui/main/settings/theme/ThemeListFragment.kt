@@ -83,46 +83,9 @@ class ThemeListFragment : Fragment() {
 
         imageLauncher = registerForActivityResult(CustomThemeActivity.Contract()) { result ->
             if (result == null) return@registerForActivityResult
-            when (result) {
-                is CustomThemeActivity.BackgroundResult.Created -> {
-                    val theme = result.theme
-                    ThemeManager.saveTheme(theme)
-                    if (!followSystemDayNightTheme) {
-                        ThemeManager.setNormalModeTheme(theme)
-                    }
-                }
-                is CustomThemeActivity.BackgroundResult.Deleted -> {
-                    val name = result.name
-                    ThemeManager.deleteTheme(name)
-                }
-                is CustomThemeActivity.BackgroundResult.Updated -> {
-                    val oldName = result.oldName
-                    val theme = result.theme
-                    val followSystem = ThemeManager.prefs.followSystemDayNightTheme.getValue()
-                    val wasNormalTheme = ThemeManager.prefs.normalModeTheme.getValue().name == oldName
-                    val wasLightTheme = ThemeManager.prefs.lightModeTheme.getValue().name == oldName
-                    val wasDarkTheme = ThemeManager.prefs.darkModeTheme.getValue().name == oldName
-                    ThemeManager.saveTheme(theme)
-                    if (oldName != theme.name) {
-                        if (wasLightTheme) {
-                            ThemeManager.prefs.lightModeTheme.setValue(theme)
-                        }
-                        if (wasDarkTheme) {
-                            ThemeManager.prefs.darkModeTheme.setValue(theme)
-                        }
-                        if (wasNormalTheme) {
-                            if (followSystem) {
-                                ThemeManager.prefs.normalModeTheme.setValue(theme)
-                            } else {
-                                ThemeManager.setNormalModeTheme(theme)
-                            }
-                        }
-                        // Save new theme first so old-theme cleanup can see shared background files
-                        // and avoid deleting images still referenced by the renamed theme.
-                        ThemeManager.deleteTheme(oldName)
-                    }
-                }
-            }
+            // The editor has already persisted and published its transaction.
+            themeListAdapter.setThemes(ThemeManager.getAllThemes())
+            updateSelectedThemes()
         }
         monetEditorLauncher = registerForActivityResult(MonetThemeEditorActivity.Contract()) { result ->
             if (result == null) return@registerForActivityResult

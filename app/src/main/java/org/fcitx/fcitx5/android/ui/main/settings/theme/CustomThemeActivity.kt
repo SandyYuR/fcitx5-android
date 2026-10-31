@@ -5,6 +5,9 @@
 package org.fcitx.fcitx5.android.ui.main.settings.theme
 
 import android.os.Build
+import androidx.core.os.BundleCompat
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 
 import kotlinx.coroutines.launch
 
@@ -407,32 +410,32 @@ class CustomThemeActivity : SettingsUiActivity() {
         previewUi.setSizeScale(previewScale)
     }
 
-    private var layoutChangeJob: android.view.Choreographer.FrameCallback? = null
+    private var layoutChangeObserver: View.OnLayoutChangeListener? = null
+    private val resizePreview = Runnable {
+        if (!isFinishing && !isDestroyed) updatePreviewScale()
+    }
+
     private fun registerLayoutChangeObserver() {
-        val observer = object : android.view.Choreographer.FrameCallback {
-            private var lastWidth = 0
-            private var lastHeight = 0
-            
-            override fun doFrame(frameTimeNanos: Long) {
-                val w = ui.width
-                val h = ui.height
-                if (w != lastWidth || h != lastHeight) {
-                    lastWidth = w
-                    lastHeight = h
-                    updatePreviewScale()
-                }
-                android.view.Choreographer.getInstance().postFrameCallback(this)
+        val observer = View.OnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
+                ui.removeCallbacks(resizePreview)
+                // setSizeScale can rebuild keys: leave the layout callback before updating.
+                ui.post(resizePreview)
             }
         }
-        layoutChangeJob = observer
-        android.view.Choreographer.getInstance().postFrameCallback(observer)
+        layoutChangeObserver = observer
+        ui.addOnLayoutChangeListener(observer)
+        toolbar.addOnLayoutChangeListener(observer)
+        ui.post(resizePreview)
     }
-    
+
     private fun unregisterLayoutChangeObserver() {
-        layoutChangeJob?.let {
-            android.view.Choreographer.getInstance().removeFrameCallback(it)
+        layoutChangeObserver?.let {
+            ui.removeOnLayoutChangeListener(it)
+            toolbar.removeOnLayoutChangeListener(it)
         }
-        layoutChangeJob = null
+        layoutChangeObserver = null
+        ui.removeCallbacks(resizePreview)
     }
 
     private fun findInlineEditorIndex(parent: ViewGroup): Int {
@@ -1030,6 +1033,12 @@ class CustomThemeActivity : SettingsUiActivity() {
     private var backgroundControlsBound = false
     private var suppressVariantSwitchCallback = false
     private var saveMenuItem: MenuItem? = null
+    private var saving = false
+    private var backgroundLoading = false
+    private var backgroundReady = false
+    private var backgroundLoadGeneration = 0L
+    private var backgroundLoadJob: Job? = null
+    private var waitingForCrop = false
 
     private val isRandomMode: Boolean
         get() = ThemeManager.isRandomTheme(theme)
@@ -1054,7 +1063,8 @@ class CustomThemeActivity : SettingsUiActivity() {
     }
 
     private fun refreshSaveButtonState() {
-        val enabled = hasUnsavedChanges()
+        val enabled = !saving && !backgroundLoading &&
+            (theme.backgroundImage == null || backgroundReady) && hasUnsavedChanges()
         saveMenuItem?.isEnabled = enabled
         saveMenuItem?.icon?.alpha = if (enabled) 255 else 90
     }
@@ -1065,6 +1075,7 @@ class CustomThemeActivity : SettingsUiActivity() {
         var srcImageDirty: Boolean = false
         var pendingSrcUri: Uri? = null
         var pendingSrcFile: File? = null
+        var pendingCropFile: File? = null
         var cropRect: Rect? = null
         var cropRotation: Int = 0
         lateinit var croppedBitmap: Bitmap
@@ -1153,6 +1164,7 @@ class CustomThemeActivity : SettingsUiActivity() {
         if (backgroundControlsBound) return
         backgroundControlsBound = true
         backgroundStates.launcher = registerForActivityResult(CropContract()) { result ->
+            waitingForCrop = false
             when (result) {
                 CropResult.Fail -> {
                     if (newCreated) cancel()
@@ -1171,8 +1183,8 @@ class CustomThemeActivity : SettingsUiActivity() {
                     backgroundStates.pendingSrcFile = result.srcFile
                     backgroundStates.cropRect = result.rect
                     backgroundStates.cropRotation = result.rotation
-                    backgroundStates.croppedBitmap = result.bitmap
-                    backgroundStates.filteredDrawable = BitmapDrawable(resources, backgroundStates.croppedBitmap)
+                    backgroundStates.pendingCropFile?.takeIf { it != result.file }?.delete()
+                    backgroundStates.pendingCropFile = result.file
 
                     if (theme.backgroundImage == null) {
                         theme = theme.copy(
@@ -1193,7 +1205,7 @@ class CustomThemeActivity : SettingsUiActivity() {
                     }
                     updateBackgroundEditorVisibility()
                     updateBlurRadiusLabel(blurRadiusSeekBar.progress)
-                    backgroundStates.updateState()
+                    loadEditorBackground()
                     refreshSaveButtonState()
                 }
             }
@@ -1270,6 +1282,12 @@ class CustomThemeActivity : SettingsUiActivity() {
     private fun clearBackgroundImage() {
         if (theme.backgroundImage == null) return
         theme = theme.copy(backgroundImage = null)
+        backgroundLoadGeneration++
+        backgroundLoadJob?.cancel()
+        backgroundLoading = false
+        backgroundReady = false
+        backgroundStates.pendingCropFile?.delete()
+        backgroundStates.pendingCropFile = null
         backgroundStates.srcImageExtension = null
         backgroundStates.srcImageDirty = false
         backgroundStates.pendingSrcUri = null
@@ -1282,36 +1300,28 @@ class CustomThemeActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // recover from bundle
-        val originTheme = intent?.parcelable<Theme.Custom>(ORIGIN_THEME)?.also { t ->
-            theme = t
-            originalThemeName = t.name
-            whenHasBackground {
-                // Resolve relative path to absolute path
-                val croppedFile = resolveBackgroundFile(it.croppedFilePath)
-                croppedImageFile = croppedFile
-                srcImageFile = resolveBackgroundFile(it.srcFilePath)
-                cropRect = it.cropRect
-                cropRotation = it.cropRotation
-                croppedBitmap = BitmapFactory.decodeFile(croppedFile.absolutePath)
-                filteredDrawable = BitmapDrawable(resources, croppedBitmap)
-            }
-            newCreated = false
+        val origin = intent?.parcelable<Theme.Custom>(ORIGIN_THEME)
+        val restored = savedInstanceState?.let { BundleCompat.getParcelable(it, STATE_THEME, Theme.Custom::class.java) }
+        theme = restored ?: origin ?: run {
+            val (name, cropped, source) = ThemeFilesManager.newCustomBackgroundImages()
+            ThemePreset.TransparentDark.deriveCustomBackground(name, cropped.path, source.path)
         }
-        // create new
-        if (originTheme == null) {
-            val (n, c, s) = ThemeFilesManager.newCustomBackgroundImages()
-            backgroundStates.apply {
-                croppedImageFile = c
-                srcImageFile = s
-            }
-            // Use dark keys by default
-            theme = ThemePreset.TransparentDark.deriveCustomBackground(n, c.path, s.path)
+        newCreated = savedInstanceState?.getBoolean(STATE_NEW, origin == null) ?: (origin == null)
+        originalThemeName = if (savedInstanceState?.containsKey(STATE_ORIGINAL_NAME) == true)
+            savedInstanceState.getString(STATE_ORIGINAL_NAME) else origin?.name
+        waitingForCrop = savedInstanceState?.getBoolean(STATE_WAITING_CROP) ?: false
+        theme.backgroundImage?.let { background ->
+            backgroundStates.croppedImageFile = resolveBackgroundFile(background.croppedFilePath)
+            backgroundStates.srcImageFile = resolveBackgroundFile(background.srcFilePath)
+            backgroundStates.cropRect = background.cropRect
+            backgroundStates.cropRotation = background.cropRotation
         }
+        backgroundStates.pendingCropFile = pendingCacheFile(savedInstanceState?.getString(STATE_CROP), "cropped")
+        backgroundStates.pendingSrcFile = pendingCacheFile(savedInstanceState?.getString(STATE_SOURCE), "source")
+        backgroundStates.pendingSrcUri = savedInstanceState?.getString(STATE_URI)?.let(Uri::parse)
+        backgroundStates.srcImageDirty = savedInstanceState?.getBoolean(STATE_IMAGE_DIRTY) ?: false
         previewUi = KeyboardPreviewUi(this, theme)
-        // show Activity label on toolbar
         setSupportActionBar(toolbar)
-        // show back button
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = toThemeLabel(theme.name)
         setContentView(ui)
@@ -1327,27 +1337,82 @@ class CustomThemeActivity : SettingsUiActivity() {
             updateBlurRadiusLabel(blurRadiusSeekBar.progress)
         }
         updateBackgroundEditorVisibility()
-
-        if (newCreated) {
+        initialThemeSnapshot = savedInstanceState?.let {
+            BundleCompat.getParcelable(it, STATE_INITIAL, Theme.Custom::class.java)
+        } ?: effectiveThemeForDirtyCheck()
+        if (newCreated && savedInstanceState == null) {
             cropLabel.visibility = View.GONE
             previewUi.onSizeMeasured = { w, h ->
+                previewUi.onSizeMeasured = null
                 backgroundStates.launchCrop(w, h, pickNewSource = true)
             }
-        } else {
-            whenHasBackground {
-                updateState()
-            }
-        }
-
-        onBackPressedDispatcher.addCallback {
-            cancel()
-        }
-
-        initialThemeSnapshot = effectiveThemeForDirtyCheck()
+        } else if (!waitingForCrop) loadEditorBackground()
+        onBackPressedDispatcher.addCallback { attemptExit() }
         refreshSaveButtonState()
     }
 
+    private fun pendingCacheFile(name: String?, prefix: String): File? {
+        if (name == null || !name.startsWith(prefix) || !name.matches(Regex("[A-Za-z0-9._-]{1,160}"))) return null
+        val file = File(cacheDir.canonicalFile, name)
+        return file.takeIf { it.canonicalFile == it.absoluteFile }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable(STATE_THEME, effectiveThemeForDirtyCheck())
+        outState.putParcelable(STATE_INITIAL, initialThemeSnapshot)
+        outState.putBoolean(STATE_NEW, newCreated)
+        outState.putString(STATE_ORIGINAL_NAME, originalThemeName)
+        outState.putBoolean(STATE_WAITING_CROP, waitingForCrop)
+        outState.putString(STATE_CROP, backgroundStates.pendingCropFile?.name)
+        outState.putString(STATE_SOURCE, backgroundStates.pendingSrcFile?.name)
+        outState.putString(STATE_URI, backgroundStates.pendingSrcUri?.toString())
+        outState.putBoolean(STATE_IMAGE_DIRTY, backgroundStates.srcImageDirty)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun loadEditorBackground() {
+        backgroundLoadJob?.cancel()
+        val generation = ++backgroundLoadGeneration
+        backgroundReady = false
+        val background = theme.backgroundImage ?: return
+        val staged = backgroundStates.pendingCropFile
+        val source = if (staged == null) background else background.copy(croppedFilePath = staged.path)
+        backgroundLoading = true
+        refreshSaveButtonState()
+        backgroundLoadJob = lifecycleScope.launch {
+            try {
+                val bitmap = withContext(Dispatchers.IO) { source.loadBitmapForRendering() }
+                if (generation != backgroundLoadGeneration) return@launch
+                if (bitmap == null) toast(R.string.exception_theme_src_image)
+                else {
+                    backgroundStates.croppedBitmap = bitmap
+                    backgroundStates.filteredDrawable = BitmapDrawable(resources, bitmap)
+                    backgroundReady = true
+                    backgroundStates.updateState()
+                }
+            } finally {
+                if (generation == backgroundLoadGeneration) {
+                    backgroundLoading = false
+                    refreshSaveButtonState()
+                }
+            }
+        }
+    }
+
+    private fun attemptExit() {
+        if (saving) return
+        if (!hasUnsavedChanges() || isRandomMode) { cancel(); return }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.theme_unsaved_title)
+            .setMessage(R.string.theme_unsaved_message)
+            .setPositiveButton(R.string.save) { _, _ -> done() }
+            .setNeutralButton(R.string.theme_discard) { _, _ -> cancel() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
     private fun BackgroundStates.launchCrop(w: Int, h: Int, pickNewSource: Boolean) {
+        waitingForCrop = true
         val editSourceUri = pendingSrcUri
             ?: if (hasStorageFiles() && srcImageFile.exists()) Uri.fromFile(srcImageFile) else null
         if (pickNewSource || editSourceUri == null) {
@@ -1367,6 +1432,7 @@ class CustomThemeActivity : SettingsUiActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun BackgroundStates.updateState() {
+        if (!backgroundReady) return
         val progress = brightnessSeekBar.progress
         brightnessValue.text = "$progress%"
         filteredDrawable.colorFilter = DarkenColorFilter(100 - progress)
@@ -1383,118 +1449,41 @@ class CustomThemeActivity : SettingsUiActivity() {
     }
 
     private fun done() {
-        if (!hasUnsavedChanges()) {
-            cancel()
-            return
-        }
+        if (saving || backgroundLoading || (theme.backgroundImage != null && !backgroundReady)) return
+        if (!hasUnsavedChanges()) { cancel(); return }
+        val draft = effectiveThemeForDirtyCheck()
+        val oldName = originalThemeName
+        val cropped = backgroundStates.pendingCropFile
+        val source = backgroundStates.pendingSrcFile?.takeIf { it.isFile }
+        saving = true
+        refreshSaveButtonState()
         lifecycleScope.withLoadingDialog(this) {
             try {
-                var outputTheme = theme
-                whenHasBackground {
-                    withContext(Dispatchers.IO) {
-                        if (srcImageDirty && pendingSrcUri != null) {
-                            srcImageExtension?.takeIf { ext -> ext.isNotBlank() }?.let { ext ->
-                                val parent = srcImageFile.parentFile
-                                val stem = srcImageFile.name.substringBeforeLast('.', srcImageFile.name)
-                                srcImageFile = File(parent, "$stem.$ext")
-                            }
-                            theme = theme.copy(
-                                backgroundImage = it.copy(
-                                    srcFilePath = srcImageFile.absolutePath
-                                )
-                            )
-                            srcImageFile.parentFile?.mkdirs()
-                            srcImageFile.delete()
-                            var copied = false
-                            runCatching {
-                                val input = pendingSrcFile?.takeIf { it.exists() && it.length() > 0L }?.inputStream()
-                                    ?: run {
-                                        val srcUri = pendingSrcUri!!
-                                        contentResolver.openInputStream(srcUri)
-                                            ?: if (srcUri.scheme == "file") {
-                                                val srcPath = srcUri.path
-                                                    ?: throw IllegalStateException(getString(R.string.exception_theme_src_image))
-                                                File(srcPath).inputStream()
-                                            } else {
-                                                throw IllegalStateException(getString(R.string.exception_theme_src_image))
-                                            }
-                                    }
-                                input.use { stream ->
-                                    srcImageFile.outputStream().use { output -> stream.copyTo(output) }
-                                }
-                                copied = true
-                            }.getOrNull()
-
-                            if (!copied) {
-                                srcImageFile.outputStream().use {
-                                    croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
-                                }
-                            }
-                            if (!srcImageFile.exists() || srcImageFile.length() == 0L) {
-                                srcImageFile = croppedImageFile
-                                theme = theme.copy(
-                                    backgroundImage = it.copy(
-                                        srcFilePath = croppedImageFile.absolutePath
-                                    )
-                                )
-                            }
-                            srcImageDirty = false
-                            pendingSrcUri = null
-                            pendingSrcFile?.delete()
-                            pendingSrcFile = null
-                        }
-
-                        croppedImageFile.delete()
-                        croppedImageFile.outputStream().use {
-                            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
-                        }
-                    }
-                }
-                outputTheme = theme
-                whenHasBackground {
-                    outputTheme = outputTheme.copy(
-                        backgroundImage = it.copy(
-                            brightness = brightnessSeekBar.progress,
-                            blurRadius = blurRadiusSeekBar.progress.toFloat(),
-                            cropRect = cropRect,
-                            cropRotation = cropRotation
-                        )
-                    )
-                }
-                outputTheme = withContext(Dispatchers.IO) {
-                    ThemeFilesManager.alignBackgroundAssetsWithThemeName(outputTheme)
-                }
-                setResult(
-                    RESULT_OK,
-                    Intent().apply {
-                        putExtra(
-                            RESULT,
-                            if (newCreated)
-                                BackgroundResult.Created(outputTheme)
-                            else
-                                BackgroundResult.Updated(
-                                    oldName = originalThemeName ?: outputTheme.name,
-                                    theme = outputTheme
-                                )
-                        )
-                    })
+                val saved = ThemeManager.saveEditedTheme(draft, oldName, cropped, source)
+                setResult(RESULT_OK, Intent().putExtra(RESULT,
+                    if (newCreated) BackgroundResult.Created(saved)
+                    else BackgroundResult.Updated(oldName ?: saved.name, saved)))
                 finish()
-            } catch (e: Exception) {
-                timber.log.Timber.e("Exception when saving custom theme: ${e.stackTraceToString()}")
-                toast(e)
-                return@withLoadingDialog
-            }
+            } catch (cancel: CancellationException) { throw cancel }
+            catch (error: Exception) { toast(error) }
+            finally { saving = false; refreshSaveButtonState() }
         }
     }
 
     private fun delete() {
-        setResult(
-            RESULT_OK,
-            Intent().apply {
-                putExtra(RESULT, BackgroundResult.Deleted(theme.name))
-            }
-        )
-        finish()
+        if (saving) return
+        val name = originalThemeName ?: theme.name
+        saving = true
+        refreshSaveButtonState()
+        lifecycleScope.withLoadingDialog(this) {
+            try {
+                ThemeManager.deleteThemeFromEditor(name)
+                setResult(RESULT_OK, Intent().putExtra(RESULT, BackgroundResult.Deleted(name)))
+                finish()
+            } catch (cancel: CancellationException) { throw cancel }
+            catch (error: Exception) { toast(error) }
+            finally { saving = false; refreshSaveButtonState() }
+        }
     }
 
     private fun promptDelete() {
@@ -1556,13 +1545,11 @@ class CustomThemeActivity : SettingsUiActivity() {
                     toast(R.string.exception_theme_name_clash)
                     return@setOnClickListener
                 }
-                setResult(
-                    RESULT_OK,
-                    Intent().apply {
-                        putExtra(RESULT, BackgroundResult.Created(theme.copy(name = name)))
-                    }
-                )
-                finish()
+                theme = theme.copy(name = name)
+                newCreated = true
+                originalThemeName = null
+                dialog.dismiss()
+                done()
             }
         }
         dialog.show()
@@ -1580,7 +1567,7 @@ class CustomThemeActivity : SettingsUiActivity() {
         } else {
             if (!newCreated) {
                 val deleteTint = color(R.color.red_400)
-                menu.item(R.string.save, R.drawable.ic_baseline_delete_24, deleteTint, true) {
+                menu.item(R.string.delete, R.drawable.ic_baseline_delete_24, deleteTint, true) {
                     promptDelete()
                 }
             }
@@ -1598,7 +1585,7 @@ class CustomThemeActivity : SettingsUiActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         android.R.id.home -> {
-            cancel()
+            attemptExit()
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -1606,10 +1593,26 @@ class CustomThemeActivity : SettingsUiActivity() {
 
     override fun onDestroy() {
         unregisterLayoutChangeObserver()
+        backgroundLoadGeneration++
+        backgroundLoadJob?.cancel()
+        previewUi.dispose()
+        if (isFinishing && !saving) {
+            backgroundStates.pendingCropFile?.delete()
+            backgroundStates.pendingSrcFile?.delete()
+        }
         super.onDestroy()
     }
 
     companion object {
+        private const val STATE_THEME = "theme_editor_draft"
+        private const val STATE_INITIAL = "theme_editor_initial"
+        private const val STATE_NEW = "theme_editor_new"
+        private const val STATE_ORIGINAL_NAME = "theme_editor_original_name"
+        private const val STATE_CROP = "theme_editor_crop_file"
+        private const val STATE_SOURCE = "theme_editor_source_file"
+        private const val STATE_URI = "theme_editor_source_uri"
+        private const val STATE_IMAGE_DIRTY = "theme_editor_image_dirty"
+        private const val STATE_WAITING_CROP = "theme_editor_waiting_crop"
         private const val INLINE_COLOR_EDITOR_TAG = "inline_color_editor"
         const val RESULT = "result"
         const val ORIGIN_THEME = "origin_theme"
