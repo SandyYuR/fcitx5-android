@@ -76,7 +76,7 @@ class ClipboardEditActivityTest {
     @Before fun setUp() {
         databaseFile = File(appContext.cacheDir, "clipboard-edit-${UUID.randomUUID()}.db")
         val direct = Executor { it.run() }
-        database = Room.databaseBuilder(appContext, ClipboardDatabase::class.java, databaseFile.path)
+        database = Room.databaseBuilder(org.fcitx.fcitx5.android.testing.hostDatabaseContext(appContext), ClipboardDatabase::class.java, databaseFile.path)
             .setQueryExecutor(direct).setTransactionExecutor(direct)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE).allowMainThreadQueries().build()
         runBlocking { database.clipboardDao().insert(first); database.clipboardDao().insert(second) }

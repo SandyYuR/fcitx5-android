@@ -38,7 +38,7 @@ class CrashReportStoreTest {
         assertFalse(CrashReportStore(obstacle).record("test"))
         val outside = temp.newFolder("outside")
         val base = temp.newFolder("base")
-        Files.createSymbolicLink(File(base, "crash-reports").toPath(), outside.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(base, "crash-reports").toPath(), outside.toPath())
         assertFalse(CrashReportStore(base).record("private trace"))
         assertTrue(outside.listFiles()!!.isEmpty())
     }

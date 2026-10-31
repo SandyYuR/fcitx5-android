@@ -146,7 +146,7 @@ class UserDataRestoreStartupTest {
 
     @Test fun aStablePlatformCacheAliasProducesACanonicalPrivateRequest() {
         val alias = File(context.cacheDir.parentFile, "cache-alias-${UUID.randomUUID()}")
-        java.nio.file.Files.createSymbolicLink(alias.toPath(), context.cacheDir.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(alias.toPath(), context.cacheDir.toPath())
         val owned = File(alias, "user-data-import-${UUID.randomUUID()}").apply { check(mkdir()) }
         val wrapped = object : android.content.ContextWrapper(context) { override fun getCacheDir() = alias }
         try {
@@ -160,7 +160,7 @@ class UserDataRestoreStartupTest {
     @Test fun aQuarantineLeafCannotRedirectToAnotherOwnedQuarantine() {
         val target = File(context.cacheDir, "user-data-import-${UUID.randomUUID()}").apply { check(mkdir()) }
         val link = File(context.cacheDir, "user-data-import-${UUID.randomUUID()}")
-        java.nio.file.Files.createSymbolicLink(link.toPath(), target.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(link.toPath(), target.toPath())
         try {
             assertTrue(runCatching { UserDataRestoreRuntime.prepare(context, prepared(link), RimeProfileRestorePlan(emptyMap())) }.isFailure)
             assertTrue(target.isDirectory)
@@ -171,7 +171,7 @@ class UserDataRestoreStartupTest {
         val name = "user-data-import-${UUID.randomUUID()}"
         val target = File(context.filesDir, name).apply { check(mkdir()) }
         val link = File(context.cacheDir, name)
-        java.nio.file.Files.createSymbolicLink(link.toPath(), target.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(link.toPath(), target.toPath())
         try {
             assertTrue(runCatching { UserDataRestoreRuntime.prepare(context, prepared(link), RimeProfileRestorePlan(emptyMap())) }.isFailure)
             assertTrue(target.isDirectory)

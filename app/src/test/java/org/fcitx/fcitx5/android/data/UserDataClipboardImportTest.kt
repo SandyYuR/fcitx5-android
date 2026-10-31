@@ -17,7 +17,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23, 28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
+@Config(sdk = [23, 28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class, org.fcitx.fcitx5.android.testing.ShortCacheContextShadow::class])
 @SQLiteMode(SQLiteMode.Mode.NATIVE)
 class UserDataClipboardImportTest {
     private fun archive(entries: Map<String, ByteArray>): ByteArray {

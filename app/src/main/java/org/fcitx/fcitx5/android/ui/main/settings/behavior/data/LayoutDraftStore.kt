@@ -24,7 +24,10 @@ import java.util.UUID
  */
 class LayoutDraftStore(
     private val dir: File,
-    private val replace: (File, File) -> Boolean = { from, to -> from.renameTo(to) }
+    private val replace: (File, File) -> Boolean = { from, to ->
+        org.fcitx.fcitx5.android.utils.FileUtil.replaceAtomically(from, to)
+        true
+    }
 ) {
 
     /** Name of the snapshot this instance owns, or null when it has none. */

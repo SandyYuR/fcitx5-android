@@ -157,7 +157,7 @@ class ResumableAssetDownloadTest {
     }
     @Test fun stagingSymlinksAreRejectedWithoutChangingTheirTargets() {
         val foreign = temp.newFile().apply { writeText("foreign") }
-        val files = files(); Files.createSymbolicLink(files.part.toPath(), foreign.toPath())
+        val files = files(); org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(files.part.toPath(), foreign.toPath())
         try { files.removePrivateContent(); fail("Must reject redirected part") } catch (_: IOException) { }
         assertEquals("foreign", foreign.readText())
     }

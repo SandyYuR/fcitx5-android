@@ -35,7 +35,7 @@ class BoundedStorageTest {
     @Test fun temporaryLinksCannotOverwriteAnotherFile() {
         val file = File(temp.root, "new")
         val secret = temp.newFile("secret").apply { writeText("original") }
-        Files.createSymbolicLink(File(temp.root, "new.tmp").toPath(), secret.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(temp.root, "new.tmp").toPath(), secret.toPath())
         assertTrue(runCatching { FileUtil.writeAtomically(file, "new") }.isFailure)
         assertEquals("original", secret.readText())
     }
