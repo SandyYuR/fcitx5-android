@@ -13,6 +13,7 @@
      回写文本**，否则用户每打一个字都会被重置（只在文本与当前查询串不一致时才补写）。
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:descendantFocusability="beforeDescendants"
@@ -51,7 +52,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/settings_search_clear"
         android:src="@drawable/ic_settings_close"
-        android:tint="?attr/colorOnSurfaceVariant"
+        app:tint="?attr/colorOnSurfaceVariant"
         android:visibility="gone" />
 
 </LinearLayout>

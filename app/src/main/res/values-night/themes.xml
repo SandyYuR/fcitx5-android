@@ -3,7 +3,6 @@
 
     <style name="Theme.FcitxSettings.System" parent="Theme.FcitxSettings.Base">
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
     </style>
 
     <style name="Theme.FcitxAppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">

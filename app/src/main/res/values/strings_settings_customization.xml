@@ -7,10 +7,10 @@
     <string name="settings_ui_motion_enter">Forward animation</string>
     <string name="settings_ui_motion_return">Back animation</string>
     <string name="settings_ui_motion_duration">Animation speed</string>
-    <string name="settings_ui_motion_horizontal">Horizontal shared axis</string>
-    <string name="settings_ui_motion_vertical">Vertical shared axis</string>
-    <string name="settings_ui_motion_scale">Scaling shared axis</string>
-    <string name="settings_ui_motion_fade">Fade through</string>
+    <string name="settings_ui_motion_horizontal">Horizontal page slide</string>
+    <string name="settings_ui_motion_vertical">Vertical page slide</string>
+    <string name="settings_ui_motion_scale">Scale transition</string>
+    <string name="settings_ui_motion_fade">Fade</string>
     <string name="settings_ui_motion_none">No animation</string>
     <string name="settings_ui_motion_follow">Match forward animation</string>
     <string name="settings_ui_motion_fast">Fast (%1$d ms)</string>

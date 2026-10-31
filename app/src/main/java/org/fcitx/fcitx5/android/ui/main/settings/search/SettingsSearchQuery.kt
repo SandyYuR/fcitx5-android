@@ -22,6 +22,7 @@ import java.util.Locale
  * - 不做模糊匹配、不做拼音切分——中文同义词靠 [SettingsSearchEntry.keywords] 补齐。
  */
 object SettingsSearchQuery {
+    private val whitespace = Regex("\\s+")
 
     /**
      * 切词。[query] 为空白时返回空列表，由调用方决定「空查询」怎么处理
@@ -29,7 +30,7 @@ object SettingsSearchQuery {
      */
     fun terms(query: String): List<String> =
         query.trim().lowercase(Locale.ROOT)
-            .split(Regex("\\s+"))
+            .split(whitespace)
             .filter { it.isNotEmpty() }
 
     /**
@@ -40,8 +41,9 @@ object SettingsSearchQuery {
      */
     fun matches(haystack: String, query: String): Boolean {
         val terms = terms(query)
-        if (terms.isEmpty()) return false
-        val hay = haystack.lowercase(Locale.ROOT)
-        return terms.all { hay.contains(it) }
+        return matchesNormalized(haystack.lowercase(Locale.ROOT), terms)
     }
+
+    internal fun matchesNormalized(haystack: String, terms: List<String>): Boolean =
+        terms.isNotEmpty() && terms.all(haystack::contains)
 }

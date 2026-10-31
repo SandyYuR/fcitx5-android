@@ -225,8 +225,8 @@ class CropImageActivity : SettingsUiActivity() {
     }
 
     private fun launchSystemImagePicker() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
-            type = "image/*"
+        val intent = Intent(Intent.ACTION_PICK).apply {
+            setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
         }
         imagePickerLauncher.launch(intent)
     }
