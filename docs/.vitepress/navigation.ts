@@ -106,6 +106,7 @@ const maintenance = [
   { text: '中州鹅 · 历史与证据', collapsed: true, items: [
     { text: '直连版历史阅读路线', link: '/maintainer/history/' },
     { text: '全部验证与性能记录', link: '/maintainer/evidence' },
+    { text: '2026-10-31 审阅修复', link: '/maintainer/history/review-fixes-2026-10-31' },
     { text: '2026-10-30 审阅记录', link: '/maintainer/history/review-2026-10-30' },
     { text: '2026-10-27 修复与合入', link: '/maintainer/history/review-2026-10' },
     { text: '旧审阅的 139 项对照', link: '/maintainer/history/DIRECT_RIME_LEGACY_REVIEW_COMPARISON_2026-10-24' },

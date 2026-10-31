@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { withBase } from 'vitepress'
 import catalog from '../../generated/catalog.json'
 
@@ -8,6 +8,48 @@ const query = ref('')
 const version = ref('all')
 const kind = ref('all')
 const topic = ref('all')
+let restoring = false
+let scrollY = 0
+let storageKey = ''
+let catalogSearch = ''
+function restoreFilters() {
+  restoring = true
+  catalogSearch = window.location.search
+  const params = new URLSearchParams(catalogSearch)
+  query.value = params.get('q') || ''
+  version.value = ['current', 'legacy'].includes(params.get('version') || '') ? params.get('version')! : 'all'
+  kind.value = kinds.value.includes(params.get('kind') || '') ? params.get('kind')! : 'all'
+  topic.value = topics.value.includes(params.get('topic') || '') ? params.get('topic')! : 'all'
+  nextTick(() => { restoring = false })
+}
+function rememberScroll() { scrollY = window.scrollY }
+watch([query, version, kind, topic], () => {
+  if (restoring || typeof window === 'undefined') return
+  const url = new URL(window.location.href)
+  for (const [key, value] of [['q', query.value], ['version', version.value], ['kind', kind.value], ['topic', topic.value]]) {
+    if (value && value !== 'all') url.searchParams.set(key, value)
+    else url.searchParams.delete(key)
+  }
+  catalogSearch = url.search
+  window.history.replaceState(window.history.state, '', url)
+})
+onMounted(() => {
+  storageKey = `docs-catalog:${window.location.pathname}:${props.scope}`
+  restoreFilters()
+  window.addEventListener('popstate', restoreFilters)
+  window.addEventListener('scroll', rememberScroll, { passive: true })
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(storageKey) || 'null')
+    if (saved?.search === catalogSearch && Number.isFinite(saved.scroll)) nextTick(() => window.scrollTo(0, saved.scroll))
+  } catch {}
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('popstate', restoreFilters)
+  window.removeEventListener('scroll', rememberScroll)
+  try { sessionStorage.setItem(storageKey, JSON.stringify({ search: catalogSearch, scroll: scrollY })) } catch {}
+})
+const firstPages = ['/guide/quick-start', '/guide/installation', '/manual/DIRECT_RIME_USER_GUIDE_zh-CN', '/features/overview']
+const priority = (url: string) => { const index = firstPages.indexOf(url); return index < 0 ? firstPages.length : index }
 const scoped = computed(() => catalog.entries.filter(entry => {
   if (props.scope === 'maintenance') return entry.maintenance
   if (props.scope === 'history') return entry.kind === '直连版历史' && !entry.source.endsWith('/index.md')
@@ -23,6 +65,7 @@ const results = computed(() => {
     && (kind.value === 'all' || entry.kind === kind.value)
     && (topic.value === 'all' || entry.topic === topic.value)
     && terms.every(term => `${entry.title} ${entry.description} ${entry.source} ${entry.topic}`.toLocaleLowerCase().includes(term)))
+    .sort((a, b) => priority(a.url) - priority(b.url))
 })
 const groups = computed(() => [
   { name: '中州鹅 · 现行指南与维护', entries: results.value.filter(e => e.version === 'current' && !['直连版历史', '验证证据'].includes(e.kind)) },

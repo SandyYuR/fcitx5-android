@@ -1,10 +1,14 @@
+---
+docKind: reference
+---
+
 ::: info 接口来源参考
 本文为 Foxy 英文参考资料。中州鹅已扩展二进制帧、HMAC 签名与网络授权；请以[当前宿主接口](/maintainer/implementation/js-voice-plugins)为准。
 :::
 
 > 本页为上游 [Foxy](https://github.com/fxliang/foxy) 项目的 *Foxy JavaScript Plugin Guide* 原文，用于对照插件接口的完整语义。
 > 中文导读与中州鹅的实现差异见 [JS 语音插件（中文）](./voice-input-js.md)。
-> 本应用中「设置 > JavaScript plugins」对应**设置 → 便捷功能 → 语音输入 → 语音插件设置**；示例插件文件随 APK 内置，不需要单独下载。
+> 本应用中「设置 > JavaScript plugins」对应**设置 → 输入与候选 → 语音输入 → 语音插件设置**；示例插件文件随 APK 内置，不需要单独下载。
 
 # Foxy JavaScript Plugin Guide
 
