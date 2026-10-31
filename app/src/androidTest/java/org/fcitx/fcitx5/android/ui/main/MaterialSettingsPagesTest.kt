@@ -15,6 +15,7 @@ import android.view.inspector.WindowInspector
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.TextView
 import androidx.test.filters.SdkSuppress
 import androidx.core.graphics.ColorUtils
 import androidx.test.platform.app.InstrumentationRegistry
@@ -25,7 +26,9 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.runBlocking
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.ui.common.ProgressBarDialogIndeterminate
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
@@ -83,12 +86,23 @@ class MaterialSettingsPagesTest {
         }
     }
 
-    private fun page(type: Class<out Activity>, extras: Intent.() -> Unit = {}, check: (Activity) -> Unit) {
+    private fun page(type: Class<out Activity>, extras: Intent.() -> Unit = {},
+                     ready: (Activity) -> Boolean = { true }, check: (Activity) -> Unit) {
         val intent = Intent(context, type).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).apply(extras)
         val activity = instrumentation.startActivitySync(intent)
         try {
             instrumentation.waitForIdleSync()
-            onMain { assertFalse(activity.isFinishing); check(activity) }
+            val deadline = android.os.SystemClock.uptimeMillis() + 8000
+            var pageReady = false
+            while (!pageReady && android.os.SystemClock.uptimeMillis() < deadline) {
+                onMain { pageReady = ready(activity) }
+                if (!pageReady) android.os.SystemClock.sleep(30)
+            }
+            onMain {
+                assertFalse("${type.simpleName} unexpectedly closed", activity.isFinishing)
+                assertTrue("${type.simpleName} did not finish loading its fixture", pageReady)
+                check(activity)
+            }
             capture(activity)
         } finally {
             onMain { activity.finish() }
@@ -203,8 +217,15 @@ class MaterialSettingsPagesTest {
     }
 
     @Test fun clipboardEditorAndSharedDialogsUseMaterialComponents() {
+        val fixture = runBlocking {
+            checkNotNull(ClipboardManager.importLocalEntry("Material UI clipboard fixture", notifyListeners = false))
+        }
+        try {
         modes { dark ->
-            page(ClipboardEditActivity::class.java) { activity ->
+            page(ClipboardEditActivity::class.java,
+                extras = { putExtra(ClipboardEditActivity.ENTRY_ID, fixture.id) },
+                ready = { it.findViewById<TextView>(R.id.clipboard_edit_text)?.text?.toString() == fixture.text }
+            ) { activity ->
                 assertTrue(activity is SettingsUiActivity)
                 assertEquals(dark, SettingsUiPreferences.isDark(activity))
                 for (id in listOf(R.id.clipboard_edit_copy, R.id.clipboard_edit_cancel, R.id.clipboard_edit_ok)) {
@@ -234,6 +255,7 @@ class MaterialSettingsPagesTest {
                 }
             }
         }
+        } finally { runBlocking { ClipboardManager.delete(fixture.id) } }
     }
 
     @Test fun materialSlidersAndStyledSpinnerKeepEditorSelectionAndProgressCallbacks() = modes { _ ->
