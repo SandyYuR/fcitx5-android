@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_unsaved_title">Save theme changes?</string>
+    <string name="theme_unsaved_message">Save your changes before leaving the editor, or discard them.</string>
+    <string name="theme_discard">Discard</string>
+    <string name="theme_library">Theme library</string>
+    <string name="keyboard_style">Keyboard style</string>
+    <string name="theme_global_settings_summary">These settings apply to all keyboard themes, including candidate highlights, text editing and clipboard cards.</string>
+</resources>

@@ -60,6 +60,7 @@ class MainFragment : PaddingPreferenceFragment() {
 
     /** 静态目录缓存，避免每敲一个字重建约 90 条 data class。 */
     private var searchEntries: List<SettingsSearchEntry> = emptyList()
+    private val resultPreferences = mutableMapOf<SettingsSearchEntry, Preference>()
 
     /** 搜索状态下的返回键拦截，见 [setupSearchBackHandling]。 */
     private var searchBackCallback: OnBackPressedCallback? = null
@@ -228,18 +229,24 @@ class MainFragment : PaddingPreferenceFragment() {
 
         normalPreferences.forEach { it.isVisible = !searching }
         resultCategory.isVisible = searching
-        resultCategory.removeAll()
-
         if (!searching) return
 
         val results = SettingsSearchIndex.filter(ctx, searchEntries, query)
+        val wanted = results.toSet()
+        resultPreferences.forEach { (entry, preference) ->
+            if (entry !in wanted) resultCategory.removePreference(preference)
+        }
         resultCategory.title = if (results.isEmpty()) {
             ctx.getString(R.string.settings_search_no_result)
         } else {
             ctx.getString(R.string.settings_search_result_count, results.size)
         }
         results.forEachIndexed { index, entry ->
-            resultCategory.addPreference(buildResultPreference(ctx, index, entry))
+            val preference = resultPreferences.getOrPut(entry) {
+                buildResultPreference(ctx, searchEntries.indexOf(entry), entry)
+            }
+            preference.order = index
+            if (preference.parent !== resultCategory) resultCategory.addPreference(preference)
         }
     }
 

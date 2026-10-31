@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -9,18 +8,24 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import kotlinx.coroutines.*
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.UserDataRestoreRuntime
 import org.fcitx.fcitx5.android.ui.main.MainActivity
 
 /** Minimal isolated process: no preferences, clipboard database or native engine is initialized. */
-class UserDataRestoreActivity : Activity() {
+class UserDataRestoreActivity : ComponentActivity() {
     private val ui = MainScope()
     private var report = ""
     private var working = true
+    private val restoreBackCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() = Unit
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this, restoreBackCallback)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         setContentView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -50,6 +55,7 @@ class UserDataRestoreActivity : Activity() {
             catch (e: CancellationException) { throw e }
             catch (e: Exception) { UserDataRestoreRuntime.Outcome(false, e.toString()) }
             working = false
+            restoreBackCallback.isEnabled = false
             report = listOfNotNull(intent.getStringExtra("restore_error"), result.message).joinToString("\n\n").take(64000)
             if (result.success) {
                 AlertDialog.Builder(this@UserDataRestoreActivity).setTitle(R.string.restore_data_ready)
@@ -89,8 +95,6 @@ class UserDataRestoreActivity : Activity() {
         startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
         finish()
     }
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() { if (!working) super.onBackPressed() }
     override fun onDestroy() { ui.cancel(); super.onDestroy() }
     companion object {
         private val companionLock = Any()

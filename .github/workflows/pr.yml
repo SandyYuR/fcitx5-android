@@ -1,6 +1,14 @@
 name: PR CI
 
 on:
+  push:
+    branches: ['fix/**']
+    paths:
+      - 'app/**'
+      - 'direct-rime/**'
+      - 'lib/common/**'
+      - 'build-logic/**'
+      - '.github/workflows/pr.yml'
   pull_request:
     branches:
       - fx-rime-only
@@ -42,7 +50,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Run JVM unit tests
-        run: ./gradlew :app:testFxDebugUnitTest
+        run: |
+          ./gradlew :app:testFxDebugUnitTest
+          python3 tools/check-junit-results.py
 
   debug_build:
     name: Debug APK build
@@ -73,6 +83,9 @@ jobs:
 
       - name: Build Debug APK
         run: ./gradlew :app:assembleFxDebug
+
+      - name: Android lint
+        run: ./gradlew :app:lintFxDebug
 
       - name: Reject legacy native dependencies and backend classes
         run: |

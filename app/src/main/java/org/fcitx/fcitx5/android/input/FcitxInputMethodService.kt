@@ -662,23 +662,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             addAction(BuildConfig.APPLICATION_ID + VoiceInputIpc.COMMIT_ACTION_SUFFIX)
             addAction(BuildConfig.APPLICATION_ID + VoiceInputIpc.PARTIAL_ACTION_SUFFIX)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(
-                voiceInputCommitReceiver,
-                voiceIntentFilter,
-                BuildConfig.APPLICATION_ID + ".permission.PLUGIN",
-                null,
-                Context.RECEIVER_EXPORTED,
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            registerReceiver(
-                voiceInputCommitReceiver,
-                voiceIntentFilter,
-                BuildConfig.APPLICATION_ID + ".permission.PLUGIN",
-                null,
-            )
-        }
+        androidx.core.content.ContextCompat.registerReceiver(
+            this, voiceInputCommitReceiver, voiceIntentFilter,
+            BuildConfig.APPLICATION_ID + ".permission.PLUGIN", null,
+            androidx.core.content.ContextCompat.RECEIVER_EXPORTED
+        )
         android.util.Log.i("FcitxVoiceInput", "registered floating voice receiver actions=$voiceIntentFilter")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             postFcitxJob {
@@ -1368,7 +1356,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             // In fixed mode, use TOUCHABLE_INSETS_REGION to explicitly define touchable area
             // to avoid any ambiguity about full screen blocking.
             outInsets.touchableInsets = Insets.TOUCHABLE_INSETS_REGION
-              inputView?.getDockedKeyboardRegion(outInsets.touchableRegion)
+            inputView?.getDockedKeyboardRegion(outInsets.touchableRegion)
             
             // Also set contentTopInsets to where the keyboard starts
             if (top > 0) {

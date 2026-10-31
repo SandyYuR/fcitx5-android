@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_unsaved_title">儲存主題修改？</string>
+    <string name="theme_unsaved_message">離開編輯器前儲存修改，或捨棄本次編輯。</string>
+    <string name="theme_discard">捨棄修改</string>
+    <string name="theme_library">主題庫</string>
+    <string name="keyboard_style">鍵盤樣式</string>
+    <string name="theme_global_settings_summary">這些設定對所有鍵盤主題生效，包括候選醒目提示、文字編輯和剪貼簿卡片。</string>
+    <string name="reset_theme_colors">重設主題色彩</string>
+    <string name="icon_theme_no_custom_theme">沒有可用的自訂圖示主題</string>
+</resources>

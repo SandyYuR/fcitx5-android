@@ -4,6 +4,8 @@
  */
 package org.fcitx.fcitx5.android.data.theme
 
+import java.io.File
+
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Handler
@@ -15,6 +17,7 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -392,9 +395,13 @@ object ThemeManager {
     val prefs = AppPrefs.getInstance().registerProvider(::ThemePrefs)
 
     fun saveTheme(theme: Theme.Custom) {
-        themeListRevision++
         require(theme.name != RANDOM_THEME_NAME) { "The random theme must be copied before saving" }
         ThemeFilesManager.saveThemeFiles(theme)
+        publishSavedTheme(theme)
+    }
+
+    private fun publishSavedTheme(theme: Theme.Custom) {
+        themeListRevision++
         customThemes.indexOfFirst { it.name == theme.name }.also {
             if (it >= 0) customThemes[it] = theme else customThemes.add(0, theme)
         }
@@ -402,6 +409,61 @@ object ThemeManager {
             activeTheme = theme
         }
         fireThemeListChange()
+    }
+
+    private val editorSaveMutex = Mutex()
+
+    /** Finish persistence before the editor returns a result. Cancellation cannot split publication. */
+    suspend fun saveEditedTheme(theme: Theme.Custom, oldName: String?, cropped: File?, source: File?): Theme.Custom =
+        editorSaveMutex.withLock {
+            require(theme.name != RANDOM_THEME_NAME) { "The random theme must be copied before saving" }
+            withContext(NonCancellable) {
+                val previous = withContext(Dispatchers.Main.immediate) {
+                    customThemes.firstOrNull { it.name == (oldName ?: theme.name) }
+                }
+                val saved = withContext(Dispatchers.IO) {
+                    ThemeFilesManager.saveEditedTheme(theme, cropped, source)
+                }
+                val retained = withContext(Dispatchers.Main.immediate) {
+                    publishSavedTheme(saved)
+                    if (oldName != null && oldName != saved.name) {
+                        if (prefs.lightModeTheme.getValue().name == oldName) prefs.lightModeTheme.setValue(saved)
+                        if (prefs.darkModeTheme.getValue().name == oldName) prefs.darkModeTheme.setValue(saved)
+                        if (prefs.normalModeTheme.getValue().name == oldName) {
+                            if (prefs.followSystemDayNightTheme.getValue()) prefs.normalModeTheme.setValue(saved)
+                            else setNormalModeTheme(saved)
+                        }
+                        customThemes.removeAll { it.name == oldName }
+                        fireThemeListChange()
+                    } else if (oldName == null && !prefs.followSystemDayNightTheme.getValue()) {
+                        setNormalModeTheme(saved)
+                    }
+                    customThemes.toList()
+                }
+                if (previous != null) withContext(Dispatchers.IO) {
+                    // Once published, a cleanup failure must not turn a successful save into a
+                    // retry that could overwrite newer work. Remaining files are harmless.
+                    runCatching { ThemeFilesManager.deleteThemeFiles(previous, retained,
+                        deleteDefinition = previous.name != saved.name) }
+                        .onFailure { android.util.Log.w("ThemeManager", "Theme cleanup failed", it) }
+                }
+                saved
+            }
+        }
+
+    suspend fun deleteThemeFromEditor(name: String) = editorSaveMutex.withLock {
+        withContext(NonCancellable) {
+            val theme = withContext(Dispatchers.Main.immediate) { customThemes.firstOrNull { it.name == name } }
+                ?: return@withContext
+            val retained = withContext(Dispatchers.Main.immediate) { customThemes.filter { it.name != name } }
+            withContext(Dispatchers.IO) { ThemeFilesManager.deleteThemeFiles(theme, retained) }
+            withContext(Dispatchers.Main.immediate) {
+                themeListRevision++
+                customThemes.removeAll { it.name == name }
+                if (activeTheme.name == name) activeTheme = evaluateActiveTheme()
+                fireThemeListChange()
+            }
+        }
     }
 
     fun nonActiveImportName(name: String): String {

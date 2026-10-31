@@ -17,5 +17,5 @@
     <string name="direct_rime_about_privacy_summary">Local input data, optional network features and backup contents</string>
     <string name="direct_rime_about_credits">Acknowledgements</string>
     <string name="direct_rime_about_credits_summary">Based on the Android frontend by Fcitx5 for Android and fxliang, with the Rime engine. Thanks to the upstream authors and community contributors. This is an independent project.</string>
-    <string name="direct_rime_input_summary">Rime settings, candidate bar and candidate window</string>
+    <string name="direct_rime_input_summary">Rime schemas, candidates and voice input</string>
 </resources>

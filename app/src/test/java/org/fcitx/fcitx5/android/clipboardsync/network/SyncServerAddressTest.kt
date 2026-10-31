@@ -35,7 +35,9 @@ class SyncServerAddressTest {
     }
 
     private fun certificates(): Pair<HandshakeCertificates, HandshakeCertificates> {
-        val certificate = HeldCertificate.Builder().commonName("localhost").addSubjectAlternativeName("localhost").build()
+        val certificate = HeldCertificate.Builder().commonName("localhost")
+            .addSubjectAlternativeName("localhost").addSubjectAlternativeName("127.0.0.1")
+            .addSubjectAlternativeName("::1").build()
         return HandshakeCertificates.Builder().heldCertificate(certificate).build() to
             HandshakeCertificates.Builder().addTrustedCertificate(certificate.certificate).build()
     }

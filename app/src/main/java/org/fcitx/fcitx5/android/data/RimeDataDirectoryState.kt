@@ -68,7 +68,7 @@ data class RimeDataDirectoryState(
                         ?: throw IllegalArgumentException("Unknown Rime directory profile.")
                     name to line.substring(name.length + 1)
                 }
-                require(pair.first in profiles && pair.second.startsWith('/') && '\u0000' !in pair.second) {
+                require(pair.first in profiles && (pair.second.startsWith('/') || java.io.File(pair.second).isAbsolute) && '\u0000' !in pair.second) {
                     "Invalid Rime directory paths."
                 }
                 pair

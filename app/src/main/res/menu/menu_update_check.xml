@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_update_mirrors"
         android:title="@string/update_mirror_settings_title"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_update_hosts"
         android:title="@string/update_hosts_settings_title"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 </menu>

@@ -1025,7 +1025,7 @@
     <string name="settings_group_appearance">外觀</string>
     <string name="settings_group_appearance_summary">主題、圖示和字型</string>
     <string name="settings_group_convenience">便捷功能</string>
-    <string name="settings_group_convenience_summary">剪貼簿、文字編輯、表情符號與語音輸入</string>
+    <string name="settings_group_convenience_summary">剪貼簿、文字編輯與表情符號</string>
     <string name="settings_group_data">資料與備份</string>
     <string name="settings_group_data_summary">匯入匯出使用者資料、使用者資料目錄</string>
     <string name="settings_group_advanced">進階</string>

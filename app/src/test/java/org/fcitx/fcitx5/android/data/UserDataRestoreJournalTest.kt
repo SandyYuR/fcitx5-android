@@ -173,7 +173,7 @@ class UserDataRestoreJournalTest {
         val outside = temp.newFolder("outside"); File(outside, "keep").writeText("keep")
         val target = root(parent, "one")
         val transaction = UserDataRestoreTransaction(journal(state))
-        transaction.stage(target) { Files.createSymbolicLink(File(it, "link").toPath(), outside.toPath()) }
+        transaction.stage(target) { org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(it, "link").toPath(), outside.toPath()) }
         assertTrue(journal(state).recover().warnings.isEmpty())
         assertEquals("keep", File(outside, "keep").readText()); assertClean(parent)
     }
@@ -183,7 +183,7 @@ class UserDataRestoreJournalTest {
         val outside = temp.newFolder("outside"); File(outside, "keep").writeText("keep")
         val target = root(parent, "one")
         val transaction = UserDataRestoreTransaction(journal(state)); staged(transaction, target)
-        target.deleteRecursively(); Files.createSymbolicLink(target.toPath(), outside.toPath())
+        target.deleteRecursively(); org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(target.toPath(), outside.toPath())
         assertTrue(runCatching { journal(state).recover() }.exceptionOrNull() is IOException)
         assertEquals("keep", File(outside, "keep").readText())
         assertTrue(File(state, "user-data-restore.json").exists())

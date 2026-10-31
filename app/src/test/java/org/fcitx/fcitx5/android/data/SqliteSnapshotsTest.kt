@@ -32,7 +32,7 @@ class SqliteSnapshotsTest {
     @Before fun setUp() {
         context = RuntimeEnvironment.getApplication()
         directory = File(context.cacheDir, UUID.randomUUID().toString()).apply { mkdirs() }
-        room = Room.databaseBuilder(context, ClipboardDatabase::class.java, File(directory, "live.db").path)
+        room = Room.databaseBuilder(org.fcitx.fcitx5.android.testing.hostDatabaseContext(context), ClipboardDatabase::class.java, File(directory, "live.db").path)
             .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
             .allowMainThreadQueries().build()
     }
@@ -64,7 +64,7 @@ class SqliteSnapshotsTest {
         SqliteSnapshots.write(source, snapshot)
         assertEquals(2, count(snapshot))
         assertFalse(File(snapshot.path + "-wal").exists())
-        val restored = Room.databaseBuilder(context, ClipboardDatabase::class.java, snapshot.path)
+        val restored = Room.databaseBuilder(org.fcitx.fcitx5.android.testing.hostDatabaseContext(context), ClipboardDatabase::class.java, snapshot.path)
             .allowMainThreadQueries().build()
         try {
                 assertEquals("committed only in WAL", runBlocking { restored.clipboardDao().get(2) }!!.text)

@@ -158,7 +158,22 @@ object ThemeFilesManager {
     }
 
     @Synchronized
-    fun deleteThemeFiles(theme: Theme.Custom, allThemes: List<Theme.Custom> = emptyList()) {
+    internal fun saveEditedTheme(theme: Theme.Custom, cropped: File?, source: File?): Theme.Custom {
+        ThemeStoragePaths.requireName(theme.name)
+        if (cropped == null || theme.backgroundImage == null) {
+            saveThemeFiles(theme)
+            return theme
+        }
+        return ThemeAssetTransaction.publish(themeDir(), cropped, source) { assets ->
+            val saved = theme.copy(backgroundImage = theme.backgroundImage.copy(
+                croppedFilePath = assets.cropped.path, srcFilePath = assets.source.path))
+            saveThemeFiles(saved)
+            saved
+        }
+    }
+
+    @Synchronized
+    fun deleteThemeFiles(theme: Theme.Custom, allThemes: List<Theme.Custom> = emptyList(), deleteDefinition: Boolean = true) {
         val baseDir = themeDir()
         
         // Collect directories and files to process
@@ -182,7 +197,10 @@ object ThemeFilesManager {
         }
 
         // Delete theme JSON file
-        themeFile(theme).delete()
+        if (deleteDefinition) {
+            val definition = themeFile(theme)
+            check(!definition.exists() || definition.delete()) { "Cannot delete theme: ${theme.name}" }
+        }
         
         // Delete image files not in use by other themes
         filesToDelete.forEach { it.delete() }

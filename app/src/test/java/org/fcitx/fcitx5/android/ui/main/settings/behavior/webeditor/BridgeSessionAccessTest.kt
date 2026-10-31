@@ -33,7 +33,7 @@ class BridgeSessionAccessTest {
         val secret = File(private, "secret.png").apply { writeText("private") }
         assertTrue(runCatching { BridgeSessionAccess.readPreview(secret, listOf(icons)) }.isFailure)
         val link = File(icons, "link.png")
-        Files.createSymbolicLink(link.toPath(), secret.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(link.toPath(), secret.toPath())
         assertTrue(runCatching { BridgeSessionAccess.readPreview(link, listOf(icons)) }.isFailure)
         val large = File(icons, "large.png").apply { writeBytes(ByteArray(4 * 1024 * 1024 + 1)) }
         assertTrue(runCatching { BridgeSessionAccess.readPreview(large, listOf(icons)) }.isFailure)

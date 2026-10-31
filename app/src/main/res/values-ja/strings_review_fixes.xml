@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_unsaved_title">テーマの変更を保存しますか？</string>
+    <string name="theme_unsaved_message">エディターを閉じる前に変更を保存するか、変更を破棄してください。</string>
+    <string name="theme_discard">変更を破棄</string>
+    <string name="theme_library">テーマ一覧</string>
+    <string name="keyboard_style">キーボードのスタイル</string>
+    <string name="theme_global_settings_summary">候補の強調表示、テキスト編集、クリップボードのカードを含む、すべてのキーボードテーマに適用されます。</string>
+</resources>

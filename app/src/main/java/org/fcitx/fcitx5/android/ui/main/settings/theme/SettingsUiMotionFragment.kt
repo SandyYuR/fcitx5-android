@@ -90,8 +90,8 @@ class SettingsUiMotionFragment : PaddingPreferenceFragment() {
             setTitle(R.string.settings_ui_motion_reset)
             isIconSpaceReserved = false
             setOnPreferenceClickListener {
-                val recreate = !selection.predictiveBack
-                update(Selection(), recreate)
+                val defaults = Selection()
+                update(defaults, recreate = selection.predictiveBack != defaults.predictiveBack)
                 true
             }
         })

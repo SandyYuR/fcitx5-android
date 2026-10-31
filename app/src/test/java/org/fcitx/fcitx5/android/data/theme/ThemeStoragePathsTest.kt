@@ -17,7 +17,7 @@ class ThemeStoragePathsTest {
         }
         assertEquals(File(root, "我的主题 (2).json"), ThemeStoragePaths.json(root, "我的主题 (2)"))
         val outside = temp.newFolder("outside")
-        Files.createSymbolicLink(File(root, "link.json").toPath(), File(outside, "secret").toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(root, "link.json").toPath(), File(outside, "secret").toPath())
         assertTrue(runCatching { ThemeStoragePaths.json(root, "link") }.isFailure)
     }
     @Test fun containmentUsesACompletePathComponent() {
