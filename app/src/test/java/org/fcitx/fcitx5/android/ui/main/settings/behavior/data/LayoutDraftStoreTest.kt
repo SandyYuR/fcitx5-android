@@ -55,7 +55,10 @@ class LayoutDraftStoreTest {
         val old = "old".repeat(LayoutDraftStore.INLINE_MAX_CHARS)
         val latest = "new".repeat(LayoutDraftStore.INLINE_MAX_CHARS)
         val store = LayoutDraftStore(dir) { temporary, target ->
-            if (allow) temporary.renameTo(target) else {
+            if (allow) {
+                org.fcitx.fcitx5.android.utils.FileUtil.replaceAtomically(temporary, target)
+                true
+            } else {
                 assertEquals(old, target.readText())
                 assertEquals(latest, temporary.readText())
                 assertEquals(target.parentFile, temporary.parentFile)
@@ -107,7 +110,7 @@ class LayoutDraftStoreTest {
         val outside = tempFolder.root.resolve("outside.json").apply { writeText("outside") }
         for ((index, target) in listOf(inside, outside).withIndex()) {
             val name = "draft-link-$index.json"
-            Files.createSymbolicLink(File(dir, name).toPath(), target.toPath())
+            org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(dir, name).toPath(), target.toPath())
             val store = store(dir).apply { adopt(name) }
             assertNull(store.read())
             assertNull(store.existingSnapshotName())

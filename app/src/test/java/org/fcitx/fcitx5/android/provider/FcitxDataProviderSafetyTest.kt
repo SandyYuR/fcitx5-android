@@ -68,7 +68,7 @@ class FcitxDataProviderSafetyTest {
         val outside = temporary.newFolder("private")
         val secret = File(outside, "secret.txt").apply { writeText("private data") }
         val folder = File(root, "folder").apply { mkdir() }
-        Files.createSymbolicLink(File(folder, "link").toPath(), outside.toPath())
+        org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(File(folder, "link").toPath(), outside.toPath())
         val provider = provider(root)
         rejected { provider.openDocument("files/folder/link/secret.txt", "r", null) }
         rejected { provider.copyDocument("files/folder", "files") }

@@ -355,7 +355,7 @@ object UserDataManager {
         val snapshot = File(directory, "clipboard-recovered-${UUID.randomUUID()}.db")
         try {
             SqliteSnapshots.recoverStaged(incoming, snapshot)
-            if (!snapshot.renameTo(incoming)) throw IOException("Cannot publish recovered clipboard database.")
+            org.fcitx.fcitx5.android.utils.FileUtil.replaceAtomically(snapshot, incoming)
             listOf("-wal", "-shm", "-journal").forEach { suffix ->
                 val sidecar = File(incoming.path + suffix)
                 if (sidecar.exists() && !sidecar.delete()) throw IOException("Cannot remove recovered SQLite sidecar.")

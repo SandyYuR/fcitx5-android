@@ -20,8 +20,13 @@ class UserDataRestoreProcessTest {
         for (window in listOf("staging", "1", "2", "3", "4", "committed")) {
             val home = temp.newFolder("window-$window")
             val log = File(home, "child.log")
+            val arguments = File(home, "java.args").apply {
+                writeText(listOf("-Xmx64m", "-cp", classpath,
+                    UserDataRestoreProcessFixture::class.java.name, home.path, window)
+                    .joinToString("\n") { "\"" + it.replace("\\", "\\\\").replace("\"", "\\\"") + "\"" })
+            }
             val child = ProcessBuilder(File(System.getProperty("java.home"), "bin/java").path,
-                "-Xmx64m", "-cp", classpath, UserDataRestoreProcessFixture::class.java.name, home.path, window)
+                "@${arguments.path}")
                 .redirectErrorStream(true).redirectOutput(log).start()
             try {
                 val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30)

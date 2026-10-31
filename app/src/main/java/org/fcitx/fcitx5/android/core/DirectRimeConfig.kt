@@ -113,7 +113,7 @@ internal class DirectRimeConfig(private val context: Context) {
     fun create(name: String, path: String = "") {
         require(RimeDataDirectoryState.isValidName(name) && name !in profiles) { "目录名称无效或已存在" }
         val file = if (path.isEmpty()) File(dataRoot, name) else {
-            require(path.startsWith('/') && '\u0000' !in path) { "无效的外部目录" }
+            require((path.startsWith('/') || File(path).isAbsolute) && '\u0000' !in path) { "无效的外部目录" }
             File(path)
         }
         requireSeparatePath(file)
