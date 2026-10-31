@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_unsaved_title">테마 변경 사항을 저장할까요?</string>
+    <string name="theme_unsaved_message">편집기를 나가기 전에 변경 사항을 저장하거나 버리세요.</string>
+    <string name="theme_discard">변경 사항 버리기</string>
+    <string name="theme_library">테마 목록</string>
+    <string name="keyboard_style">키보드 스타일</string>
+    <string name="theme_global_settings_summary">후보 강조, 텍스트 편집 및 클립보드 카드를 포함한 모든 키보드 테마에 적용됩니다.</string>
+</resources>

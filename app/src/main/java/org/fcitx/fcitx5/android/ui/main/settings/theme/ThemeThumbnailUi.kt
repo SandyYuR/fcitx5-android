@@ -84,10 +84,10 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
     }
 
     val editButton = imageView {
-        setPaddingDp(16, 4, 4, 16)
+        setPaddingDp(20, 4, 4, 20)
         scaleType = ImageView.ScaleType.FIT_CENTER
         imageResource = R.drawable.ic_baseline_edit_24
-        contentDescription = "Edit theme"
+        contentDescription = ctx.getString(R.string.edit_theme)
     }
 
     /**
@@ -98,14 +98,14 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
      * （右下有 returnKey 与 spaceBar）。
      */
     val exportButton = imageView {
-        setPaddingDp(4, 16, 16, 4)
+        setPaddingDp(4, 20, 20, 4)
         scaleType = ImageView.ScaleType.FIT_CENTER
         imageResource = R.drawable.ic_baseline_share_24
-        contentDescription = "Export theme"
+        contentDescription = ctx.getString(R.string.theme_export_this)
     }
 
     val dynamicIcon = imageView {
-        setPaddingDp(5, 5, 5, 5)
+        setPaddingDp(13, 13, 13, 13)
         scaleType = ImageView.ScaleType.FIT_CENTER
         imageResource = R.drawable.ic_baseline_auto_awesome_24
     }
@@ -135,7 +135,7 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             rightOfParent(dp(4))
             bottomOfParent(dp(4))
         })
-        add(dynamicIcon, lParams(dp(32), dp(32)) {
+        add(dynamicIcon, lParams(dp(48), dp(48)) {
             topOfParent(dp(2))
             startOfParent(dp(2))
         })
@@ -146,11 +146,11 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         add(checkMark, lParams(dp(60), dp(60)) {
             centerInParent()
         })
-        add(editButton, lParams(dp(44), dp(44)) {
+        add(editButton, lParams(dp(48), dp(48)) {
             topOfParent()
             endOfParent()
         })
-        add(exportButton, lParams(dp(44), dp(44)) {
+        add(exportButton, lParams(dp(48), dp(48)) {
             bottomOfParent()
             startOfParent()
         })

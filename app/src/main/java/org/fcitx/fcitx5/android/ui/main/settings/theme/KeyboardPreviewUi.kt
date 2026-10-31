@@ -175,6 +175,12 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
     private var currentTheme: Theme? = null
     private var isUpdatingTheme = false
     private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    fun dispose() {
+        backgroundGeneration++
+        backgroundScope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
+        onSizeMeasured = null
+    }
     private var backgroundJob: Job? = null
     private var backgroundGeneration = 0L
 

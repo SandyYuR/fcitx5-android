@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.theme
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.GridLayoutManager
 import kotlin.math.ceil
 
 class ThemeListItemDecoration(val itemWidth: Int, val spanCount: Int) :
@@ -17,10 +18,13 @@ class ThemeListItemDecoration(val itemWidth: Int, val spanCount: Int) :
         parent: RecyclerView,
         state: RecyclerView.State
     ) {
+        val spanCount = (parent.layoutManager as? GridLayoutManager)?.spanCount
+            ?.coerceAtLeast(1) ?: spanCount.coerceAtLeast(1)
         val columnWidth = parent.width / spanCount
         val offset = (parent.width - itemWidth * spanCount) / (spanCount + 1)
         val halfOffset = offset / 2
         val position = parent.getChildAdapterPosition(view)
+        if (position == RecyclerView.NO_POSITION) { outRect.setEmpty(); return }
         val rowCount = parent.adapter?.run { ceil(itemCount / spanCount.toFloat()).toInt() } ?: -1
         val n = position % spanCount
 

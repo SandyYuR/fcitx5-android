@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_unsaved_title">Designänderungen speichern?</string>
+    <string name="theme_unsaved_message">Speichern Sie Ihre Änderungen vor dem Verlassen des Editors oder verwerfen Sie sie.</string>
+    <string name="theme_discard">Verwerfen</string>
+    <string name="theme_library">Designsammlung</string>
+    <string name="keyboard_style">Tastaturstil</string>
+    <string name="theme_global_settings_summary">Diese Einstellungen gelten für alle Tastaturdesigns, einschließlich Kandidatenmarkierung, Textbearbeitung und Zwischenablagekarten.</string>
+</resources>
