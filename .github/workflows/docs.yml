@@ -10,6 +10,7 @@ on:
   push:
     branches:
       - docs
+      - 'fix/docs-*'
     paths:
       - 'docs/**'
       - '.github/workflows/docs.yml'

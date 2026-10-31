@@ -55,7 +55,9 @@ export function collectCatalog() {
       const description = (first ?? '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
         .replace(/[`*_]/g, '').replace(/\s+/g, ' ').trim().slice(0, 120)
       const date = source.match(/20\d\d-\d\d-\d\d/)?.[0] ?? ''
-      entries.push({ source, url, title, description, date, ...classify(source) })
+      const classification = classify(source)
+      if (/^docKind:\s*reference\s*$/m.test(frontmatter)) classification.kind = '上游参考'
+      entries.push({ source, url, title, description, date, ...classification })
     }
   }
   walk(docsRoot)

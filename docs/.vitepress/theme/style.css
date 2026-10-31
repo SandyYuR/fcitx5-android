@@ -28,6 +28,11 @@
 .VPSidebarItem .text { line-height: 1.6; }
 .VPHero .name, .VPHero .text { letter-spacing: -.035em; }
 .VPHero .tagline { max-width: 680px; line-height: 1.8; }
+.VPHero .image-container { transform: none; }
+@media (max-width: 959px) {
+  .VPHero .image { margin: 0 0 32px; }
+  .VPHero .image-container { width: min(100%, 460px); height: auto; }
+}
 .VPHome .vp-doc { max-width: 1120px; margin: 0 auto; }
 .VPFeature { border-radius: 16px !important; }
 .VPFeature .details { line-height: 1.8 !important; }
