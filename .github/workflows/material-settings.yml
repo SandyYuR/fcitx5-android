@@ -11,6 +11,7 @@ on:
       - 'app/src/main/java/**/utils/**'
       - 'app/src/main/java/**/input/FcitxInputMethodService.kt'
       - 'app/src/main/res/**'
+      - 'app/src/fx/res/**'
       - 'app/src/androidTest/**'
       - 'tools/test-material-settings.sh'
       - 'tools/test-settings-navigation.sh'

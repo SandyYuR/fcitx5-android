@@ -5,15 +5,20 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.AdaptiveIconDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
 import android.net.Uri
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.MotionEvent
 import android.view.inspector.WindowInspector
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.test.filters.SdkSuppress
@@ -29,12 +34,15 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.runBlocking
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.ui.common.ProgressBarDialogIndeterminate
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.common.SettingsSlider
 import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
 import org.fcitx.fcitx5.android.ui.main.settings.im.RimeImportActivity
+import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fcitx.fcitx5.android.ui.setup.SetupActivity
 import org.fcitx.fcitx5.android.ui.main.update.ReleaseInfo
 import org.fcitx.fcitx5.android.ui.main.update.UpdateCheckActivity
 import org.fcitx.fcitx5.android.ui.main.update.UpdateHostsSettingsActivity
@@ -115,6 +123,132 @@ class MaterialSettingsPagesTest {
         assertTrue(activity.findViewById<View>(R.id.toolbar) is MaterialToolbar)
         val night = activity.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
         assertEquals(if (dark) android.content.res.Configuration.UI_MODE_NIGHT_YES else android.content.res.Configuration.UI_MODE_NIGHT_NO, night)
+    }
+
+    @Test fun brandIconsKeepTransparentMarginsAndRenderInBothModes() = modes { dark ->
+        val activity = instrumentation.startActivitySync(Intent(context, UpdateMirrorListActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        var dialog: androidx.appcompat.app.AlertDialog? = null
+        try {
+            onMain {
+                // Rasterize the packaged foregrounds. A white source-image corner or an
+                // opaque monochrome tile would violate the adaptive icon's safe circle.
+                for (id in listOf(R.drawable.ic_launcher_foreground,
+                    R.drawable.ic_launcher_foreground_debug,
+                    R.drawable.ic_launcher_foreground_monochrome,
+                    R.drawable.ic_launcher_foreground_monochrome_debug)) {
+                    val pixels = Bitmap.createBitmap(432, 432, Bitmap.Config.ARGB_8888)
+                    try {
+                        activity.getDrawable(id)!!.apply {
+                            setBounds(0, 0, pixels.width, pixels.height)
+                            draw(Canvas(pixels))
+                        }
+                        var ink = 0
+                        for (y in 0 until pixels.height) for (x in 0 until pixels.width) {
+                            if (Color.alpha(pixels.getPixel(x, y)) == 0) continue
+                            ink++
+                            val dx = x + 0.5 - 216
+                            val dy = y + 0.5 - 216
+                            assertTrue("Foreground escaped the 66dp safe circle: ${resourcesName(id)}",
+                                dx * dx + dy * dy <= 132 * 132)
+                        }
+                        assertTrue("Missing or opaque icon: ${resourcesName(id)}", ink in 9000..52000)
+                        if (id == R.drawable.ic_launcher_foreground_monochrome ||
+                            id == R.drawable.ic_launcher_foreground_monochrome_debug) {
+                            // Day and night intentionally have different opacity roles. Check
+                            // interior pixels so the light body cannot leak into night resources.
+                            val body = Color.alpha(pixels.getPixel(190, 248))
+                            val foot = Color.alpha(pixels.getPixel(131, 292))
+                            assertTrue("Wrong body opacity in ${if (dark) "dark" else "light"} mode",
+                                body in if (dark) 254..255 else 24..27)
+                            assertTrue("Wrong foot opacity in ${if (dark) "dark" else "light"} mode",
+                                foot in if (dark) 164..167 else 151..155)
+                        }
+                    } finally { pixels.recycle() }
+                }
+
+                val release = activity.getDrawable(R.mipmap.ic_launcher) as AdaptiveIconDrawable
+                val debug = activity.getDrawable(R.mipmap.ic_launcher_debug) as AdaptiveIconDrawable
+                val mono = if (Build.VERSION.SDK_INT >= 33) checkNotNull(release.monochrome)
+                    else checkNotNull(activity.getDrawable(R.drawable.ic_launcher_foreground_monochrome))
+                val debugMono = if (Build.VERSION.SDK_INT >= 33) checkNotNull(debug.monochrome)
+                    else checkNotNull(activity.getDrawable(R.drawable.ic_launcher_foreground_monochrome_debug))
+                val onContainer = activity.settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer)
+                val container = activity.settingsColor(com.google.android.material.R.attr.colorSecondaryContainer)
+                assertTrue(ColorUtils.calculateContrast(onContainer, container) >= 3.0)
+                fun dp(value: Int) = (value * activity.resources.displayMetrics.density).toInt()
+                val sheet = LinearLayout(activity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(24), dp(8), dp(24), dp(24))
+                }
+                fun row(label: String, icons: List<Drawable>, size: Int = 64) {
+                    sheet.addView(TextView(activity).apply {
+                        text = label
+                        setPadding(0, dp(16), 0, dp(8))
+                        setTextColor(activity.settingsColor(com.google.android.material.R.attr.colorOnSurface))
+                    })
+                    sheet.addView(LinearLayout(activity).apply {
+                        for (icon in icons) addView(ImageView(activity).apply {
+                            setImageDrawable(icon)
+                        }, LinearLayout.LayoutParams(dp(size), dp(size)).apply { marginEnd = dp(16) })
+                    })
+                }
+                row("Launcher · Release / Debug / installed", listOf(release, debug,
+                    activity.packageManager.getApplicationIcon(activity.packageName)))
+                // Android 12+ system palette roles, as used by themed launchers.
+                val systemBackground = if (Build.VERSION.SDK_INT >= 31) activity.getColor(
+                    if (dark) android.R.color.system_accent1_800 else android.R.color.system_accent1_100
+                ) else container
+                val systemForeground = if (Build.VERSION.SDK_INT >= 31) activity.getColor(
+                    if (dark) android.R.color.system_accent1_100 else android.R.color.system_accent1_800
+                ) else onContainer
+                row("Monet · Release / Debug", listOf(mono, debugMono).map {
+                    AdaptiveIconDrawable(ColorDrawable(systemBackground), it.mutate().apply { setTint(systemForeground) })
+                })
+                row("In-app · 24dp", listOf(activity.getDrawable(R.drawable.ic_brand_goose)!!.mutate().apply {
+                    setTint(activity.settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
+                }), 24)
+                dialog = MaterialAlertDialogBuilder(activity).setTitle("中州鹅 · 图标")
+                    .setView(sheet).show()
+            }
+            instrumentation.waitForIdleSync()
+            capture(activity, "brand-icons")
+        } finally {
+            onMain { dialog?.dismiss(); activity.finish() }
+            instrumentation.waitForIdleSync()
+        }
+    }
+
+    private fun resourcesName(id: Int) = context.resources.getResourceEntryName(id)
+
+    @Test fun setupAndAboutShowTheBrandIconInBothModes() {
+        var needNotifications by AppPrefs.getInstance().internal.needNotifications
+        val originalNeedNotifications = needNotifications
+        try {
+            // Keep the notification explanation from obscuring this disposable UI fixture.
+            needNotifications = false
+            modes { dark ->
+                page(SetupActivity::class.java, ready = {
+                    it.findViewById<ImageView>(R.id.page_icon)?.isShown == true
+                }) { activity ->
+                    assertEquals(dark, SettingsUiPreferences.isDark(activity))
+                    assertNotNull(activity.findViewById<ImageView>(R.id.page_icon).drawable)
+                }
+                page(MainActivity::class.java, extras = {
+                    action = Intent.ACTION_RUN
+                    putExtra(MainActivity.EXTRA_SETTINGS_ROUTE, SettingsRoute.About)
+                }, ready = { activity ->
+                    descendants(activity.window.decorView).filterIsInstance<TextView>().any {
+                        it.text.toString() == activity.getString(R.string.direct_rime_about_description)
+                    }
+                }) { activity ->
+                    assertEquals(dark, SettingsUiPreferences.isDark(activity))
+                    assertTrue(descendants(activity.window.decorView).filterIsInstance<ImageView>().any {
+                        it.id == android.R.id.icon && it.isShown && it.drawable != null
+                    })
+                }
+            }
+        } finally { needNotifications = originalNeedNotifications }
     }
 
     @Test fun updateOverflowMenuOpensMirrorManagement() {

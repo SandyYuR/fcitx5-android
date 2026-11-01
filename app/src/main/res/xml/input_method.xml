@@ -8,7 +8,7 @@
     android:supportsSwitchingToNextInputMethod="true"
     tools:targetApi="30">
     <subtype
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/app_icon"
         android:imeSubtypeMode="keyboard"
         android:isAsciiCapable="true"
         android:label="@string/app_name"

@@ -114,7 +114,7 @@ class SetupActivity : SettingsUiActivity() {
     override fun onPause() {
         if (SetupPage.hasUndonePage())
             NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_baseline_keyboard_24)
+                .setSmallIcon(R.drawable.ic_brand_goose)
                 .setContentTitle(AppUtil.appLabel(this))
                 .setContentText(getText(R.string.setup_keyboard))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
