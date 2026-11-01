@@ -2,6 +2,7 @@
 package org.fcitx.fcitx5.android.core
 
 import android.content.Context
+import android.os.Build
 import org.fcitx.fcitx5.android.data.RimeDataDirectoryState
 import org.fcitx.fcitx5.android.data.RimeProfileRestorePlan
 import org.fcitx.fcitx5.android.utils.FileUtil
@@ -12,7 +13,11 @@ import java.util.UUID
 
 /** Uses the existing backup/provider paths, including external directory registrations. */
 internal class DirectRimeConfig(private val context: Context) {
-    val root: File = context.getExternalFilesDir(null) ?: context.filesDir
+    val root: File = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && context.isDeviceProtectedStorage) {
+        // External app storage remains credential-protected even when obtained from a DE
+        // Context. Before first unlock use a separate, empty profile beside the DE prefs.
+        context.filesDir
+    } else context.getExternalFilesDir(null) ?: context.filesDir
     val dataRoot = File(root, "data")
     private val directoryFile = File(root, "config/conf/rime-data-dir.conf")
     private val optionsFile = File(root, "config/conf/rime.conf")

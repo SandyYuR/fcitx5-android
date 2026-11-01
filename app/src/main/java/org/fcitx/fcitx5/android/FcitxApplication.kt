@@ -110,6 +110,12 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !userManager.isUserUnlocked) {
             isDirectBootMode = true
             registerReceiver(unlockReceiver, IntentFilter(Intent.ACTION_USER_UNLOCKED))
+            // Unlock can finish between the first check and receiver registration.
+            // Choose normal storage now if its broadcast has already been missed.
+            if (userManager.isUserUnlocked) {
+                isDirectBootMode = false
+                unregisterReceiver(unlockReceiver)
+            }
         }
         val ctx = directBootAwareContext
 
@@ -156,7 +162,7 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
         SplitKeyboardStateManager.init(this)
         val appPrefs = AppPrefs.getInstance()
         SettingsUiPreferences.initialize(
-            this,
+            ctx,
             hadInitializedSettings = appPrefs.internal.settingsInitialized.getValue() ||
                 !appPrefs.internal.firstRun.getValue()
         )
@@ -176,14 +182,12 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
             BundledPresets.installAsync {
                 IconThemeManager.refreshAsync()
             }
+            // Custom resources live in credential-protected external storage. The unlock
+            // receiver restarts this process before loading them with normal preferences.
+            // Preload off-main so the first keyboard can reuse the cached fonts and icons.
+            FontProviders.preloadFontsAsync()
+            IconThemeManager.initAsync()
         }
-        // Start custom font I/O while the IME daemon is initializing so first view creation can
-        // reuse the cached typefaces instead of doing all file work on the main thread.
-        FontProviders.preloadFontsAsync()
-        // Same reasoning for icon themes: scanning them used to happen inside the object
-        // initializer, i.e. on whichever thread first touched it — in practice the main thread
-        // during the first keyboard show (see D6).
-        IconThemeManager.initAsync()
         Locales.onLocaleChange(resources.configuration)
         registerReceiver(shutdownReceiver, IntentFilter(Intent.ACTION_SHUTDOWN))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isDirectBootMode) {

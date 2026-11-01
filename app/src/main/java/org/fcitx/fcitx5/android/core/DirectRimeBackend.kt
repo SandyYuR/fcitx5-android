@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicLong
 /** Original frontend contract implemented directly on librime's single owner thread. */
 class DirectRimeBackend(context: Context) : InputEngine {
     private val context = FcitxApplication.getInstance().directBootAwareContext
+    private val directBootMode = FcitxApplication.getInstance().isDirectBootMode
     private val owner = Executors.newSingleThreadExecutor { Thread(it, "rime-main") }.asCoroutineDispatcher()
     private val interactivePriority = InteractiveThreadPriority()
     private val engineScope = CoroutineScope(SupervisorJob() + owner)
@@ -182,6 +183,17 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private fun refreshSchemas() {
         schemas = Native.schemaEntries().toList().chunked(2).map { it[0] to it[1] }
     }
+    private fun forwardsKeysDirectly(): Boolean = directBootMode ||
+        flags.flags and (CapabilityFlag.Password.flag or CapabilityFlag.Disable.flag) != 0UL
+
+    private fun bindingUsable(value: Snapshot): Boolean = value.ready ||
+        // No Chinese schema is expected before first unlock. Direct input still needs the
+        // same generation/ticket/maintenance fences, but does not need a native session.
+        (value.gate == 2 && forwardsKeysDirectly())
+
+    private fun hasUsableBinding(generation: Long): Boolean =
+        snapshot?.let { it.generation == generation && bindingUsable(it) } == true
+
     private fun begin(generation: Long) {
         if (!started || generation != inputSession) return
         val request = binding?.takeIf { it.generation == generation }
@@ -191,36 +203,45 @@ class DirectRimeBackend(context: Context) : InputEngine {
         program = target.program
         flags = target.flags
         val startedAt = SystemClock.elapsedRealtime()
-        val before = if (BuildConfig.INPUT_DIAGNOSTICS) Native.sessionStats() else null
-        val beginAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
-        var result = interactivePriority.run {
-            Native.beginInput(generation, program, flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL)
-        }
-        val beginDone = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
-        val beginTiming = if (BuildConfig.INPUT_DIAGNOSTICS) Native.operationTiming() else null
-        if (result.ready) {
-            appliedNoLearning = flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL
-            if (preferredSchema.isNotEmpty() && result.schema != preferredSchema && schemas.any { it.first == preferredSchema })
-                result = Native.action(generation, result.revision, 3, 0, preferredSchema)
-            preferredAscii?.let { ascii ->
-                if (result.ascii != ascii) result = Native.action(generation, result.revision, 8, if (ascii) 1 else 0, "ascii_mode")
+        val noLearning = directBootMode || flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL
+        // Schema/option restoration and the first status read can also do synchronous I/O.
+        // Keep the whole binding at interactive priority; the guard restores it on failure too.
+        val details = interactivePriority.run {
+            val before = Native.sessionStats()
+            val beginAt = SystemClock.elapsedRealtimeNanos()
+            var result = Native.beginInput(generation, program, noLearning)
+            val beginDone = SystemClock.elapsedRealtimeNanos()
+            val beginTiming = if (BuildConfig.INPUT_DIAGNOSTICS) Native.operationTiming() else null
+            if (result.ready) {
+                appliedNoLearning = noLearning
+                if (preferredSchema.isNotEmpty() && result.schema != preferredSchema && schemas.any { it.first == preferredSchema })
+                    result = Native.action(generation, result.revision, 3, 0, preferredSchema)
+                preferredAscii?.let { ascii ->
+                    if (result.ascii != ascii) result = Native.action(generation, result.revision, 8, if (ascii) 1 else 0, "ascii_mode")
+                }
             }
-        }
-        val restoreDone = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
-        publish(result)
-        bindingKeys = 0
-        bindingSelections = 0
-        keyGate.resolve(generation, result.ready)
-        val details = if (before != null && beginTiming != null) {
+            val restoreDone = SystemClock.elapsedRealtimeNanos()
+            publish(result)
+            bindingKeys = 0
+            bindingSelections = 0
+            val usable = bindingUsable(result)
+            keyGate.resolve(generation, usable)
+            val publishDone = SystemClock.elapsedRealtimeNanos()
             val after = Native.sessionStats()
-            " created=${after[0] - before[0]} reused=${after[1] - before[1]} native_begin_us=${(beginDone - beginAt) / 1000} restore_us=${(restoreDone - beginDone) / 1000} ${nativeTiming(beginTiming)}"
-        } else ""
-        android.util.Log.i("RimeLifecycle", "bind generation=$generation duration_ms=${SystemClock.elapsedRealtime() - startedAt} ready=${result.ready} no_learning=${flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL}$details")
+            // A few clocks/counters per binding remain enabled in ordinary builds. Per-key
+            // CPU/fault/I/O instrumentation is still restricted to INPUT_DIAGNOSTICS builds.
+            "ready=${result.ready} usable=$usable direct=${forwardsKeysDirectly()} no_learning=$noLearning" +
+                " created=${after[0] - before[0]} reused=${after[1] - before[1]}" +
+                " native_begin_us=${(beginDone - beginAt) / 1000} restore_us=${(restoreDone - beginDone) / 1000}" +
+                " publish_us=${(publishDone - restoreDone) / 1000}" +
+                if (beginTiming != null) " ${nativeTiming(beginTiming)}" else ""
+        }
+        android.util.Log.i("RimeLifecycle", "bind generation=$generation duration_ms=${SystemClock.elapsedRealtime() - startedAt} $details")
     }
     override suspend fun startInputSession(generation: Long, program: String) = onOwner {
         if (generation != inputSession) return@onOwner
         if (binding?.generation != generation) prepareInputSession(generation, program, flags, true)
-        if (snapshot?.generation == generation && snapshot?.ready == true && binding?.needsRime == true) {
+        if (hasUsableBinding(generation) && binding?.needsRime == true) {
             keyGate.resolve(generation, true)
             return@onOwner
         }
@@ -261,13 +282,14 @@ class DirectRimeBackend(context: Context) : InputEngine {
         if (value.generation != inputSession || value.gate == 3) return
         val previous = snapshot
         snapshot = value
+        val directInput = forwardsKeysDirectly()
         // Keep the new revision for subsequent selection, but avoid repacking unchanged UI arrays.
         // A handled release can invalidate lazy candidate tails even if the visible page is equal.
         if (release && value.isUnchangedRelease(previous)) return
         val newSession = publishedGeneration != value.generation
         val modeChanged = !newSession && previous?.ready == true && value.ready &&
             (previous.schema != value.schema || previous.ascii != value.ascii)
-        if (modeChanged) {
+        if (modeChanged && !directInput) {
             showStatusHint(value, if (previous!!.schema != value.schema) value.schemaName.ifEmpty { value.schema } else
                 context.getString(if (value.ascii) R.string.direct_rime_ascii_mode else R.string.direct_rime_chinese_mode))
         } else if (newSession || !value.ready || value.preedit.isNotEmpty() || value.commit.isNotEmpty()) {
@@ -290,7 +312,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val tabs = value.tabs.mapIndexed { i, text -> CandidateAction(i, text, false, "", false, false) }.toTypedArray()
         val panel = FcitxEvent.InputPanelEvent.Data(
             if (config.preeditMode == "No") formatted(value.preedit, value.cursorUtf16) else FormattedText.Empty,
-            if (value.ready) formatted(statusHint) else formatted(startupError.ifEmpty { value.gateMessage }),
+            if (directInput && bindingUsable(value)) FormattedText.Empty
+            else if (value.ready) formatted(statusHint) else formatted(startupError.ifEmpty { value.gateMessage }),
             FormattedText.Empty, tabs, statusHintId = if (value.ready) statusHintLifetime.id else 0
         )
         val ime = entry(value)
@@ -375,10 +398,13 @@ class DirectRimeBackend(context: Context) : InputEngine {
             }
         }
     }
-    private fun entry(value: Snapshot?) = InputMethodEntry("rime", context.getString(R.string.direct_rime_ime_name), "fcitx-rime", "中州韵", "㞢", "zh", "rime", true,
-        InputMethodSubMode(if (value?.ascii == true) "Latin Mode" else value?.schemaName.orEmpty(),
-            if (value?.ascii == true) "abc" else value?.schemaName.orEmpty(),
-            if (value?.ascii == true) "fcitx_rime_latin" else "fcitx-rime:${value?.schema.orEmpty()}"))
+    private fun entry(value: Snapshot?): InputMethodEntry {
+        val ascii = value?.ascii == true || forwardsKeysDirectly()
+        return InputMethodEntry("rime", context.getString(R.string.direct_rime_ime_name), "fcitx-rime", "中州韵", "㞢", "zh", "rime", true,
+            InputMethodSubMode(if (ascii) "Latin Mode" else value?.schemaName.orEmpty(),
+                if (ascii) "abc" else value?.schemaName.orEmpty(),
+                if (ascii) "fcitx_rime_latin" else "fcitx-rime:${value?.schema.orEmpty()}"))
+    }
     private fun action(id: Int, name: String, text: String = name, checked: Boolean? = null,
                        menu: Array<Action>? = null, separator: Boolean = false) =
         Action(id, separator, checked != null, checked == true, name, "", text, text, menu)
@@ -422,7 +448,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         onOwner {
             if (expected != inputSession || maintenance || !started) return@onOwner
             val ownerAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
-            val bypass = flags.flags and (CapabilityFlag.Password.flag or CapabilityFlag.Disable.flag) != 0UL
+            val bypass = forwardsKeysDirectly()
             if (!up) clearStatusHint()
             val result = if (bypass) null else interactivePriority.run { Native.key(expected, sym, states.toInt(), up) }
             val nativeAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
@@ -550,7 +576,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             val generation = inputSession
             synchronized(bindingLock) { if (binding?.generation == generation) binding = null }
             clearBinding(generation)
-        } else if (snapshot?.generation != inputSession || snapshot?.ready != true) {
+        } else if (!hasUsableBinding(inputSession)) {
             // A focus/show callback must not override an explicitly inactive
             // binding. Actual keys and schema/mode actions promote it first.
             if (binding?.generation == inputSession && binding?.needsRime == false) return@onOwner
@@ -565,7 +591,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override suspend fun focusOutIn() = reset()
     override suspend fun setCapFlags(flags: CapabilityFlags) { onOwner {
         this.flags = flags
-        val noLearning = flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL
+        val noLearning = directBootMode || flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL
         if (snapshot?.ready == true && appliedNoLearning != noLearning) {
             if (act(8, if (noLearning) 1 else 0, "_no_learning")?.ready == true) appliedNoLearning = noLearning
         }

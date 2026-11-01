@@ -33,6 +33,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.snackbar.SnackbarContentLayout
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.clipboardsync.MainService
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardCategory
@@ -91,7 +92,7 @@ class ClipboardWindow(
 
     private val prefs = AppPrefs.getInstance().clipboard
     private val sharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(context)
+        PreferenceManager.getDefaultSharedPreferences(FcitxApplication.getInstance().directBootAwareContext)
     }
 
     private val clipboardEnabledPref = prefs.clipboardListening
