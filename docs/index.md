@@ -5,7 +5,7 @@ hero:
   text: 你的 Rime 手机键盘
   tagline: 直连 Rime 引擎，自由定制键盘、候选与主题，连接语音输入和日常工具。
   image:
-    src: /logo.png
+    src: /logo.svg
     alt: 中州鹅
   actions:
     - theme: brand

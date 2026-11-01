@@ -26,13 +26,15 @@ export default defineConfig({
   base: '/fcitx5-android/',
 
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/fcitx5-android/logo.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/fcitx5-android/favicon-32.png' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/fcitx5-android/logo.svg' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/fcitx5-android/apple-touch-icon.png' }],
     ['meta', { name: 'theme-color', content: '#176b68' }],
     ['script', { defer: '', src: 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js' }],
   ],
 
   themeConfig: {
-    logo: '/logo.png',
+    logo: '/logo.svg',
     nav,
     sidebar,
 
