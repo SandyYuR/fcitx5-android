@@ -21,4 +21,18 @@ for page in UpdateCheckActivity UpdateHostsSettingsActivity UpdateMirrorEditActi
       adb pull "/data/local/tmp/direct-frontend-md3-$page-$mode.png" "$report_dir/$page-$mode.png" 2>/dev/null || true
   done
 done
+for mode in light dark; do
+  if ! adb pull "/data/local/tmp/direct-frontend-md3-UpdateMirrorListActivity-brand-icons-$mode.png" \
+      "$report_dir/brand-icons-$mode.png"; then
+    echo "Missing required brand icon rendering evidence ($mode)" >&2
+    test_result=1
+  fi
+  for page in SetupActivity MainActivity; do
+    if ! adb pull "/data/local/tmp/direct-frontend-md3-$page-$mode.png" \
+        "$report_dir/$page-$mode.png"; then
+      echo "Missing required $page brand icon evidence ($mode)" >&2
+      test_result=1
+    fi
+  done
+done
 exit "$test_result"

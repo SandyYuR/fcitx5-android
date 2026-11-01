@@ -1,5 +1,7 @@
 # 中州鹅（Direct Rime）
 
+<img src="artwork/zhongzhou-goose.svg" alt="中州鹅：展翅伸颈、咬住㞢的白鹅" width="96" height="96">
+
 保留 Android 键盘、候选、布局编辑器、主题与设置界面，直接调用 [Rime 中州韵](https://github.com/rime)。
 本分支已移除 Fcitx 原生后端。项目继承 [Fcitx5 for Android](https://github.com/fcitx5-android/fcitx5-android)
 与 [fxliang 的 fx 分支](https://github.com/fxliang/fcitx5-android) 的前端成果，保留上游署名和许可证；本项目独立维护。

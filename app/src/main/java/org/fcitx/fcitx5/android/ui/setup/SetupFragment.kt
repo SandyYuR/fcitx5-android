@@ -28,7 +28,7 @@ class SetupFragment : Fragment() {
         binding = pageBinding
         pageBinding.pageTitle.text = page.getButtonText(requireContext())
         pageBinding.pageIcon.setImageResource(when (page) {
-            SetupPage.Enable -> R.drawable.ic_baseline_keyboard_24
+            SetupPage.Enable -> R.drawable.ic_brand_goose
             SetupPage.Select -> R.drawable.ic_baseline_check_circle_24
         })
         sync()
