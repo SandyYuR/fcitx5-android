@@ -31,7 +31,7 @@
                 android:layout_height="40dp"
                 android:layout_gravity="center"
                 android:importantForAccessibility="no"
-                android:src="@drawable/ic_baseline_keyboard_24"
+                android:src="@drawable/ic_brand_goose"
                 app:tint="?attr/colorOnSecondaryContainer" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -55,7 +55,7 @@
             android:lineSpacingExtra="4dp"
             android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textColor="?attr/colorOnSurfaceVariant"
-            tools:text="在系统设置中启用靓企鹅·中州韵" />
+            tools:text="在系统设置中启用中州鹅" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/action_button"
