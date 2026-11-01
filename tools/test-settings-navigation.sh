@@ -41,10 +41,19 @@ fi
 adb shell input keyevent KEYCODE_HOME
 launcher_focus=''
 launcher_ready() {
-  for attempt in {1..80}; do
+  local deadline=$((SECONDS + 45))
+  local stable_since=-1
+  # A first-boot launcher can briefly gain focus after an input timeout while
+  # its ANR dialog is still being prepared. Require a quiet interval before
+  # instrumentation, otherwise that delayed system dialog obscures every test.
+  while (( SECONDS < deadline )); do
     launcher_focus=$(adb shell dumpsys window | tr -d '\r' | grep 'mCurrentFocus=' || true)
-    if [[ "$launcher_focus" == *nexuslauncher/* || "$launcher_focus" == *launcher3/* ]]; then
-      return 0
+    if [[ ( "$launcher_focus" == *nexuslauncher/* || "$launcher_focus" == *launcher3/* ) &&
+          "$launcher_focus" != *'Application Not Responding'* ]]; then
+      if (( stable_since < 0 )); then stable_since=$SECONDS; fi
+      if (( SECONDS - stable_since >= 10 )); then return 0; fi
+    else
+      stable_since=-1
     fi
     sleep 0.25
   done
