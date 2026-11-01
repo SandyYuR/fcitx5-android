@@ -12,6 +12,12 @@
 
 ## 解决方法
 
+### 重启后首次解锁前无法输入
+
+这一阶段 Android 尚未开放用户的凭据加密存储。中州鹅使用内置键盘直接输入；文字密码使用默认 26 键，数字密码使用数字盘。自定义布局、字体、图标和日常中文方案在首次解锁后恢复，用户词库不会为锁屏输入搬到可提前读取的目录。
+
+如果日志出现 `SharedPreferences in credential encrypted storage are not available until after user is unlocked`，这是应用启动时读取了尚未解锁的设置，需要应用修复。反馈时请注明是否为重启后的首次解锁，并按[反馈问题](/troubleshooting/report-issue)提供版本与日志。
+
 ### 小米 (MIUI / HyperOS)
 
 1. **设置 → 应用设置 → 应用管理 → 中州鹅（Fcitx5.fx.rime）**

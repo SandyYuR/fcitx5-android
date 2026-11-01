@@ -28,6 +28,14 @@
 | DOWN 必须有兜底 UP；focus 不覆盖显式 inactive binding | `focus` / `deactivate`、`KeyboardInputLifecycleTrackerTest` |
 | 临时线程优先级必须恢复；提升失败不拒键 | `core/InteractiveThreadPriority.kt` |
 
+无方案时，密码/直接输入绑定仍允许通过同一按键门控转发 DOWN/UP；普通 Rime 编辑器不能因此获得“可用”状态。维护、过期和部署失败状态继续拒绝输入。会话创建、方案/中英文恢复与首次状态发布都属于同步绑定阶段，不能在恢复方案前提前降回普通线程优先级。回归入口是 `InputBindingStartupTest`。
+
+## 首次解锁前启动
+
+`FcitxApplication.onCreate` 的所有设置初始化使用已选择的 `directBootAwareContext`。DE Context 的外部文件目录仍可能受凭据保护，`DirectRimeConfig` 在此模式只使用 DE 内部文件目录中的独立空 profile。自定义布局/字体/图标资源和旧 CE 资产清理等待解锁；不把用户方案、词库、剪贴板历史或密钥搬到 DE。
+
+锁定状态检查与解锁接收器注册之间需要复查解锁状态，避免错过广播后一直停留在 DE 模式。已经进入 DE 模式的进程收到解锁广播时仍退出，由正常 CE 初始化恢复用户设置；同步只保持原有 CE → DE 偏好白名单，不反向覆盖。`DirectBootStartupTest` 对普通 Context 的锁定存储访问抛异常，调用真实 Application 初始化，并检查正常解锁启动和注册竞态；不能用替换整个 `onCreate` 的 shadow 代替此回归。
+
 ## 备份与内置资产
 
 - 完整备份先通过 `FcitxDaemon.beginUserDataBackup` 暂停原生写入，再生成缓存归档；`save()` 不能证明 Rime/LevelDB 已停止写入。恢复同样使用已有停机与事务入口。
