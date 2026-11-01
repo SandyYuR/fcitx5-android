@@ -83,6 +83,10 @@ pwsh -File D:\GitHub\fx2-rime\build-release.ps1
 
 当前事件载体是 `InputEventQueue` 的批次队列；其 `Channel.CONFLATED` 仅发出唤醒信号，不承载输入正文。容量等待发生在进入 owner 前，独立消费者仍可请求候选。早期 `Channel(UNLIMITED)` 的描述属于历史实现，不应据此恢复旧结构。
 
+密码、显式禁用组词的输入框，以及首次解锁前的输入，直接转发按键。它们在 native 返回“无方案”时仍可完成绑定；普通中文输入框仍需要可用方案。直接输入继续经过相同的 ticket、代次和有序事件队列，不能绕过部署/同步门控或交付过期按键。`InputBindingStartupTest` 覆盖无方案密码输入、DOWN/UP 顺序、重复 focus 与过期会话拒绝。
+
+Direct Boot 启动时，应用设置使用 `directBootAwareContext`，引擎只在 DE 内部文件目录建立独立空 profile，不访问受凭据保护的外部方案目录。自定义布局、字体和图标扫描等待解锁后的进程重启；旧 CE 资产清理也只在解锁后执行。解锁接收器仍通过退出进程切回正常 CE 初始化，不把 DE 默认设置反写到 CE。`DirectBootStartupTest` 执行真实 Application 初始化，并模拟 CE 访问被拒绝及解锁发生在接收器注册期间的情况。
+
 历史问题与修正过程见[响应性记录](/maintainer/history/DIRECT_RIME_RESPONSIVENESS_2026-10-18)、[候选点选](/maintainer/history/DIRECT_RIME_CANDIDATE_TAP_2026-10-18)和[后续输入回归](/maintainer/audit/direct-rime-2026-10-25/)。
 
 ## librime 从哪里来
@@ -158,6 +162,10 @@ tools/test-material-settings.sh
 性能工具分别位于 `tools/input-perf/`、`tools/candidate-perf/` 和 `tools/screen-perf/`。复现前核对比较版本、方案、模型、ABI、构建类型、设备、输入速度和计时区间。
 相同文件名的远端模型也可能换过内容，应按原报告哈希找匹配夹具，不能跳过检查。
 手动触发性能 workflow、上传日志或设备数据前取得明确授权。
+
+日常构建的 `RimeLifecycle bind` 记录每次绑定的总耗时，以及 `native_begin_us`、`restore_us`、`publish_us` 和会话 `created`/`reused` 计数。三段分别对应 native 绑定、恢复方案/中英文状态、读取和发布前端状态；单位为微秒，总计 `duration_ms` 为毫秒，不包括进入 owner 前的排队。`ready` 表示 native 方案可用，`usable` 表示此编辑器可以收键，`direct` 标识直接输入。`binding_key wait_ms` 是按键在绑定期间的等待时间，`delivered=true` 表示延后交付，不能据此归为丢键。
+
+绑定的三段同步工作均在 `InteractiveThreadPriority` 作用域内，退出或异常时恢复原优先级。日常日志只增加每次绑定的少量计时与计数；逐键 CPU、缺页和文件 I/O 统计仍须 `-PinputDiagnostics=true`。没有分段记录的旧日志只能定位到整次绑定，不能直接断言耗时来自词库重开、Lua 或界面绘制；优化后的真机延迟须在相同方案和设备上复测。
 
 所有原始报告及 ZIP/JSON/截图见[验证证据目录](/maintainer/evidence)。历史 Actions artifact 有保留期限，不能当成永久下载或当前版本证明。
 完整 XKB Compose、按应用行为等价和广泛真机回归仍有边界，不因旧后端被移除而自动视为完成。
