@@ -12,6 +12,7 @@ import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.core.data.DataManager.dataDir
 import org.fcitx.fcitx5.android.utils.FileUtil
 import org.fcitx.fcitx5.android.utils.appContext
+import org.fcitx.fcitx5.android.utils.userManager
 import timber.log.Timber
 import java.io.File
 import java.util.concurrent.locks.ReentrantLock
@@ -100,7 +101,7 @@ object DataManager {
         )
         callbacks.forEach { it() }
         callbacks.clear()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && appContext.userManager.isUserUnlocked) {
             // remove old assets from credential encrypted storage
             val oldDataDir = appContext.dataDir
             val oldDataDescriptor = oldDataDir.resolve(BuildConfig.DATA_DESCRIPTOR_NAME)

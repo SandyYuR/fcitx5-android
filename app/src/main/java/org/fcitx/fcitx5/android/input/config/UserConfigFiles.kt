@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.input.config
 
+import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.utils.appContext
 import java.io.File
 
@@ -43,7 +44,8 @@ object UserConfigFiles {
         "^TextKeyboardLayout(?:\\..+)?_backup_\\d{8}_\\d{6}(?:_.*)?\\.json$"
     )
 
-    private fun externalFilesRoot(): File? = appContext.getExternalFilesDir(null)
+    private fun externalFilesRoot(): File? =
+        if (FcitxApplication.getInstance().isDirectBootMode) null else appContext.getExternalFilesDir(null)
 
     fun configDir(): File? = externalFilesRoot()?.let { File(it, "config") }
 
