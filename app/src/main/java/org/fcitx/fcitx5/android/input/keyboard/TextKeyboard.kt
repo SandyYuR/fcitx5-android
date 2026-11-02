@@ -1070,22 +1070,29 @@ class TextKeyboard private constructor(
                     for (key in candidateKeys) {
                         val element = json[key] ?: continue
                         // 取该布局的 default 变体（忽略方案子模式），与 ascii 模式一致。
-                        val rows = findLayoutElementByKey(json, key) ?: continue
-                        resolvedLayoutHeightPercentOverride =
-                            parseLayoutHeightPercentOverride(element)
-                        state.auxBarConfig = parseAuxBarConfig(element)
-                        state.auxBarKeys = parseAuxBarKeys(element)
-                        val cacheKey = "${cacheKeyPrefix()}pwd:$key:${variant.name}:$showLangSwitch:$lastRawModified:legacyUp=$legacyTargetIsUp"
-                        return cachedKeyDefLayouts.getOrPut(cacheKey) {
-                            rows.map { rowElement ->
-                                LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
-                                    .mapNotNull {
-                                        LayoutJsonUtils.createKeyDef(
-                                            it,
-                                            legacyTargetIsUp = legacyTargetIsUp
-                                        )
-                                    }
+                        try {
+                            val rows = findLayoutElementByKey(json, key) ?: continue
+                            resolvedLayoutHeightPercentOverride =
+                                parseLayoutHeightPercentOverride(element)
+                            state.auxBarConfig = parseAuxBarConfig(element)
+                            state.auxBarKeys = parseAuxBarKeys(element)
+                            val cacheKey = "${cacheKeyPrefix()}pwd:$key:${variant.name}:$showLangSwitch:$lastRawModified:legacyUp=$legacyTargetIsUp"
+                            val keys = cachedKeyDefLayouts.getOrPut(cacheKey) {
+                                rows.map { rowElement ->
+                                    LayoutJsonUtils.parseKeyJsonArray(rowElement.jsonArray, showLangSwitch)
+                                        .mapNotNull {
+                                            LayoutJsonUtils.createKeyDef(
+                                                it,
+                                                legacyTargetIsUp = legacyTargetIsUp
+                                            )
+                                        }
+                                }
                             }
+                            if (keys.any { it.isNotEmpty() }) return keys
+                        } catch (e: Exception) {
+                            // A valid JSON object can still contain malformed key definitions.
+                            // Keep the password keyboard usable, including before first unlock.
+                            timber.log.Timber.w(e, "Invalid password keyboard layout: %s", key)
                         }
                     }
                 }
