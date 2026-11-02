@@ -108,6 +108,22 @@ object UserConfigFiles {
         return normalFile
     }
     
+    fun normalizeTextKeyboardLayoutProfile(raw: String): String? {
+        val trimmed = raw.trim()
+        if (trimmed.isEmpty()) return null
+        val sanitized = trimmed
+            .replace(Regex("\\s+"), " ")
+            .replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]"), "")
+            .trim()
+            .trim('.')
+        if (sanitized.isEmpty()) return null
+        return if (sanitized.equals(DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE, ignoreCase = true)) {
+            DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE
+        } else {
+            sanitized
+        }
+    }
+    
     fun listTextKeyboardLayoutProfiles(): List<String> {
         val dir = configDir() ?: return listOf(DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE)
         val fileNames = dir.listFiles()
