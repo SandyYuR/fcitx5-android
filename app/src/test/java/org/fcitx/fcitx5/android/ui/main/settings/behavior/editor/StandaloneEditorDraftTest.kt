@@ -10,7 +10,7 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.PopupEditorActivity
-import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorDialogFragment
 import kotlinx.serialization.json.Json
 import org.junit.Assert.*
 import org.junit.Test
@@ -37,12 +37,12 @@ class StandaloneEditorDraftTest {
     private fun <T : Activity> finish(controller: ActivityController<T>) {
         controller.get().finish(); controller.pause().stop().destroy()
     }
-    private fun macroIntent() = Intent().putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS_JSON,
+    private fun macroIntent() = Intent().putExtra(MacroEditorDialogFragment.EXTRA_MACRO_STEPS_JSON,
         Json.encodeToString<List<MacroStep>>(listOf(MacroStep.Text("original"))))
-        .putExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN, "original-slot")
-    private fun steps(a: MacroEditorActivity): MutableList<MacroEditorActivity.MacroStepData> =
+        .putExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN, "original-slot")
+    private fun steps(a: MacroEditorDialogFragment): MutableList<MacroEditorDialogFragment.MacroStepData> =
         ReflectionHelpers.getField(a, "steps")
-    private fun macroDirty(a: MacroEditorActivity): Boolean {
+    private fun macroDirty(a: MacroEditorDialogFragment): Boolean {
         ReflectionHelpers.callInstanceMethod<Void>(a, "updateSaveButtonState")
         return ReflectionHelpers.getField(a, "hasChanges")
     }
@@ -50,43 +50,51 @@ class StandaloneEditorDraftTest {
         ReflectionHelpers.getField(a, "entries")
 
     @Test fun macroRestoresItsDraftAndOriginalBaselineAcrossTwoFreshActivities() {
-        val first = Robolectric.buildActivity(MacroEditorActivity::class.java, macroIntent()).setup()
-        steps(first.get()).single().text = "edited"
-        val second = Robolectric.buildActivity(MacroEditorActivity::class.java, macroIntent()).setup(state(first))
-        assertEquals("edited", steps(second.get()).single().text)
-        assertTrue(macroDirty(second.get()))
-        val third = Robolectric.buildActivity(MacroEditorActivity::class.java, macroIntent()).setup(state(second))
+        val first = launchMacroEditorTestHost(macroIntent())
+        steps(first.get().macroEditorFragment()).single().text = "edited"
+        val second = launchMacroEditorTestHost(macroIntent(), state(first))
+        assertEquals("edited", steps(second.get().macroEditorFragment()).single().text)
+        assertTrue(macroDirty(second.get().macroEditorFragment()))
+        val third = launchMacroEditorTestHost(macroIntent(), state(second))
         try {
-            assertEquals("edited", steps(third.get()).single().text)
-            assertTrue(macroDirty(third.get()))
-            steps(third.get()).single().text = "original"
-            assertFalse(macroDirty(third.get()))
-            assertEquals("original-slot", third.get().intent.getStringExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN))
+            assertEquals("edited", steps(third.get().macroEditorFragment()).single().text)
+            assertTrue(macroDirty(third.get().macroEditorFragment()))
+            steps(third.get().macroEditorFragment()).single().text = "original"
+            assertFalse(macroDirty(third.get().macroEditorFragment()))
+            assertEquals("original-slot", third.get().intent.getStringExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN))
         } finally { finish(third) }
     }
 
     @Test fun aLargeMacroDraftOnlyParcelsItsFileName() {
-        val first = Robolectric.buildActivity(MacroEditorActivity::class.java, macroIntent()).setup()
+        val first = launchMacroEditorTestHost(macroIntent())
         val text = "私有草稿".repeat(70_000)
-        steps(first.get()).single().text = text
+        steps(first.get().macroEditorFragment()).single().text = text
         val saved = state(first)
         val p = Parcel.obtain()
         try { p.writeBundle(saved); assertTrue("The draft must not enter the Binder payload", p.dataSize() < 64 * 1024) }
         finally { p.recycle() }
-        val second = Robolectric.buildActivity(MacroEditorActivity::class.java, macroIntent()).setup(saved)
-        try { assertEquals(text, steps(second.get()).single().text); assertTrue(macroDirty(second.get())) }
+        val second = launchMacroEditorTestHost(macroIntent(), saved)
+        try { assertEquals(text, steps(second.get().macroEditorFragment()).single().text); assertTrue(macroDirty(second.get().macroEditorFragment())) }
         finally { finish(second) }
     }
 
     @Test fun independentMacroEditorsDoNotOverwriteEachOthersDrafts() {
-        val a = Robolectric.buildActivity(MacroEditorActivity::class.java, macroIntent()).setup()
-        val b = Robolectric.buildActivity(MacroEditorActivity::class.java, macroIntent()).setup()
-        steps(a.get()).single().text = "a"; steps(b.get()).single().text = "b"
-        val stateA = state(a); val stateB = state(b)
-        assertNotEquals(stateA.getString("editor_draft_file"), stateB.getString("editor_draft_file"))
-        val restoredA = Robolectric.buildActivity(MacroEditorActivity::class.java, macroIntent()).setup(stateA)
-        val restoredB = Robolectric.buildActivity(MacroEditorActivity::class.java, macroIntent()).setup(stateB)
-        try { assertEquals("a", steps(restoredA.get()).single().text); assertEquals("b", steps(restoredB.get()).single().text) }
+        val a = launchMacroEditorTestHost(macroIntent())
+        val textA = "a".repeat(70_000)
+        val textB = "b".repeat(70_000)
+        steps(a.get().macroEditorFragment()).single().text = textA
+        val stateA = state(a)
+
+        val b = launchMacroEditorTestHost(macroIntent())
+        steps(b.get().macroEditorFragment()).single().text = textB
+        val stateB = state(b)
+        // The file reference is nested in the DialogFragment state, not at the Activity root.
+        val restoredA = launchMacroEditorTestHost(macroIntent(), stateA)
+        val restoredB = launchMacroEditorTestHost(macroIntent(), stateB)
+        try {
+            assertEquals(textA, steps(restoredA.get().macroEditorFragment()).single().text)
+            assertEquals(textB, steps(restoredB.get().macroEditorFragment()).single().text)
+        }
         finally { finish(restoredA); finish(restoredB) }
     }
 
@@ -121,8 +129,8 @@ class StandaloneEditorDraftTest {
 
     @Test fun malformedDraftsFallBackToOriginalDataWithoutBecomingDirty() {
         val saved = Bundle().apply { putString("editor_draft_inline", "{broken") }
-        val macro = Robolectric.buildActivity(MacroEditorActivity::class.java, macroIntent()).setup(parcel(saved))
-        try { assertEquals("original", steps(macro.get()).single().text); assertFalse(macroDirty(macro.get())) }
+        val macro = launchMacroEditorTestHost(macroIntent(), parcel(saved))
+        try { assertEquals("original", steps(macro.get().macroEditorFragment()).single().text); assertFalse(macroDirty(macro.get().macroEditorFragment())) }
         finally { finish(macro) }
     }
 }

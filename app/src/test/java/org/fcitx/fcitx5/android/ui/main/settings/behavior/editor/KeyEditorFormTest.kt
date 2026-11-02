@@ -20,7 +20,7 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorForm
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyboardEditorUiBuilder
-import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorDialogFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeColorEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapter
 import org.junit.Assert.*
@@ -69,7 +69,7 @@ class KeyEditorFormTest {
             assertEquals(LinearLayout.HORIZONTAL, row.orientation)
             assertEquals(activity.getString(R.string.edit), (row.getChildAt(2) as TextView).text)
             row.getChildAt(2).performClick()
-            assertEquals(slot, launched?.getStringExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN))
+            assertEquals(slot, launched?.getStringExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN))
         }
     }
 
@@ -206,8 +206,8 @@ class KeyEditorFormTest {
         val recreated = KeyEditorForm(activity, args, state)
         val steps = arrayListOf<Map<*, *>>(mapOf("type" to "text", "text" to "hello"))
         recreated.acceptMacroResult(ActivityResult(Activity.RESULT_OK, Intent()
-            .putExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN, "swipeDown")
-            .putExtra(MacroEditorActivity.EXTRA_MACRO_RESULT, steps)))
+            .putExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN, "swipeDown")
+            .putExtra(MacroEditorDialogFragment.EXTRA_MACRO_RESULT, steps)))
         recreated.acceptColorResult(ThemeColorEditorActivity.EditorResult("textColor", -16711936))
         val saved = recreated.validatedDraft(false)!!
         assertEquals("After", saved["label"])

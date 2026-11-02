@@ -35,8 +35,8 @@ class KeyEditorPendingResultsTest {
         val pending = KeyEditorPendingResults()
         val steps = arrayListOf<Map<*, *>>(hashMapOf("type" to "text", "text" to "hello"))
         pending.offer(KeyEditorPendingResults.Kind.MACRO, ActivityResult(Activity.RESULT_OK, Intent()
-            .putExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN, "swipeDown")
-            .putExtra(MacroEditorActivity.EXTRA_MACRO_RESULT, steps)))
+            .putExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN, "swipeDown")
+            .putExtra(MacroEditorDialogFragment.EXTRA_MACRO_RESULT, steps)))
         pending.offer(KeyEditorPendingResults.Kind.COLOR, ThemeColorEditorActivity.EditorResult("textColor", -16711936))
         pending.offer(KeyEditorPendingResults.Kind.COMPOSE, ActivityResult(Activity.RESULT_OK,
             Intent().putExtra(KeyEditorForm.EXTRA_RESULT_ACTION, KeyEditorForm.RESULT_ACTION_SAVE)

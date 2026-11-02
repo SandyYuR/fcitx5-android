@@ -5,13 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import org.fcitx.fcitx5.android.utils.parcelable
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeColorEditorActivity
 
 /** Register before STARTED; buffer results while the layout file is restored asynchronously. */
-class KeyEditorResultHost(activity: ComponentActivity) {
+class KeyEditorResultHost(private val activity: FragmentActivity) {
     private var form: KeyEditorForm? = null
     private val pending = KeyEditorPendingResults()
     private fun deliver(kind: KeyEditorPendingResults.Kind, result: Parcelable) {
@@ -25,8 +26,18 @@ class KeyEditorResultHost(activity: ComponentActivity) {
             KeyEditorPendingResults.Kind.COMPOSE -> form.acceptComposeResult(result as ActivityResult)
         }
     }
-    private val macro = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        deliver(KeyEditorPendingResults.Kind.MACRO, it)
+    init {
+        activity.supportFragmentManager.setFragmentResultListener(
+            MacroEditorDialogFragment.RESULT_REQUEST_KEY, activity
+        ) { _, result ->
+            deliver(
+                KeyEditorPendingResults.Kind.MACRO,
+                ActivityResult(
+                    result.getInt(MacroEditorDialogFragment.RESULT_CODE),
+                    result.parcelable<Intent>(MacroEditorDialogFragment.RESULT_DATA)
+                )
+            )
+        }
     }
     private val color = activity.registerForActivityResult(ThemeColorEditorActivity.Contract()) {
         if (it != null) deliver(KeyEditorPendingResults.Kind.COLOR, it)
@@ -36,7 +47,10 @@ class KeyEditorResultHost(activity: ComponentActivity) {
     }
 
     fun createForm(context: Context, options: Intent, state: Bundle? = null) = KeyEditorForm(
-        context, options, state, { macro.launch(it) }, { color.launch(it) }, { compose.launch(it) }
+        context, options, state,
+        { MacroEditorDialogFragment.newInstance(it).show(activity.supportFragmentManager, MacroEditorDialogFragment.TAG) },
+        { color.launch(it) },
+        { compose.launch(it) }
     )
 
     fun bind(value: KeyEditorForm?) {

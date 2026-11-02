@@ -8,12 +8,18 @@ import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
+import android.content.res.ColorStateList
+import android.content.res.Configuration
+import android.content.Intent
+import android.content.DialogInterface
+import android.app.Dialog
 import android.os.Bundle
+import android.view.WindowManager
 import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -22,13 +28,12 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
-import com.google.android.material.appbar.MaterialToolbar as Toolbar
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
+import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorUi
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
@@ -36,19 +41,13 @@ import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.utils.serializable
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FlowLayout
-import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.SimpleDividerItemDecoration
 import splitties.dimensions.dp
 import org.fcitx.fcitx5.android.utils.settingsColor
-import splitties.views.backgroundColor
-import splitties.views.dsl.core.matchParent
-import splitties.views.dsl.core.wrapContent
 
 /**
- * Macro step editor activity
- * Supports editing arbitrary down/up/tap/text combinations
- * Layout is similar to TextKeyboardLayoutEditorActivity
+ * Macro editor shown as a Material dialog over the current editor page.
  */
-class MacroEditorActivity : SettingsUiActivity() {
+class MacroEditorDialogFragment : DialogFragment() {
 
     @kotlinx.serialization.Serializable
     data class MacroStepData(
@@ -63,34 +62,45 @@ class MacroEditorActivity : SettingsUiActivity() {
         var code: String = ""
     )
 
-    private val toolbar by lazy {
-        Toolbar(this).apply {
-            backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
-            elevation = 0f
+    private val titleView by lazy {
+        TextView(requireContext()).apply {
+            setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_TitleLarge)
+            setTextColor(requireContext().settingsColor(com.google.android.material.R.attr.colorOnSurface))
+            setPadding(requireContext().dp(24), requireContext().dp(20), requireContext().dp(24), requireContext().dp(12))
         }
     }
 
     private val stepsRecyclerView by lazy {
-        RecyclerView(this).apply {
-            layoutManager = LinearLayoutManager(this@MacroEditorActivity)
-            addItemDecoration(SimpleDividerItemDecoration(this@MacroEditorActivity))
-            layoutParams = LinearLayout.LayoutParams(matchParent, 0).apply { weight = 1f }
+        RecyclerView(requireContext()).apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f)
+            setPadding(0, requireContext().dp(4), 0, requireContext().dp(4))
+            clipToPadding = false
         }
     }
 
     private val addStepButton by lazy {
-        TextView(this).apply {
-            text = getString(R.string.macro_editor_add_step)
-            textSize = 16f
-            gravity = Gravity.CENTER
-            setPadding(dp(16), dp(12), dp(16), dp(12))
-            backgroundColor = settingsColor(android.R.attr.colorButtonNormal)
-            setOnClickListener { addNewStep() }
+        EditorUi.button(requireContext(), R.string.macro_editor_add_step, tonal = true) { addNewStep() }
+    }
+
+    private val confirmButton by lazy {
+        EditorUi.button(requireContext(), R.string.macro_editor_confirm, tonal = true) { saveAndFinish() }
+    }
+
+    private val footer by lazy {
+        LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            setPadding(requireContext().dp(16), requireContext().dp(4), requireContext().dp(16), requireContext().dp(12))
+            addView(EditorUi.button(requireContext(), R.string.macro_editor_cancel) { cancelEditor() })
+            addView(confirmButton, LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                marginStart = requireContext().dp(8)
+            })
         }
     }
 
     private val container by lazy {
-        LinearLayout(this).apply {
+        LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
         }
     }
@@ -99,7 +109,7 @@ class MacroEditorActivity : SettingsUiActivity() {
     @kotlinx.serialization.Serializable
     private data class Draft(val baseline: List<MacroStepData>, val steps: List<MacroStepData>)
     private val draftState by lazy {
-        org.fcitx.fcitx5.android.ui.main.settings.behavior.data.EditorDraftState(this, "macro")
+        org.fcitx.fcitx5.android.ui.main.settings.behavior.data.EditorDraftState(requireContext(), "macro")
     }
     private var availableLayoutTargets: List<String> = emptyList()
     private lateinit var stepsAdapter: StepsAdapter
@@ -107,7 +117,7 @@ class MacroEditorActivity : SettingsUiActivity() {
     // Save original data for comparison
     private var originalSteps: List<Map<*, *>>? = null
     private var hasChanges = false
-    private var saveMenuItem: MenuItem? = null
+    private var resultSent = false
 
     private fun normalizeLayerMode(raw: String?): String {
         return when (raw?.lowercase()) {
@@ -143,6 +153,11 @@ class MacroEditorActivity : SettingsUiActivity() {
     }
 
     companion object {
+        const val TAG = "macro_editor"
+        const val RESULT_REQUEST_KEY = "macro_editor_result"
+        const val RESULT_DATA = "result_data"
+        const val RESULT_CODE = "result_code"
+
         const val EXTRA_MACRO_STEPS = "macro_steps"
         const val EXTRA_EVENT_TYPE = "event_type"
         const val EXTRA_MACRO_RESULT = "macro_result"
@@ -158,6 +173,10 @@ class MacroEditorActivity : SettingsUiActivity() {
          * callback field that dies with the old instance.
          */
         const val EXTRA_TARGET_TOKEN = "target_token"
+
+        fun newInstance(intent: Intent) = MacroEditorDialogFragment().apply {
+            arguments = Bundle().apply { intent.extras?.let { putAll(it) } }
+        }
 
         /**
          * Convert [MacroStep] list to [ArrayList] of [Map] for use as Intent extra.
@@ -694,39 +713,38 @@ class MacroEditorActivity : SettingsUiActivity() {
         )
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        container.addView(toolbar)
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        container.addView(titleView, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
         container.addView(stepsRecyclerView)
-        container.addView(addStepButton)
-        
-        setContentView(container)
-        
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        // Set title based on event type
-        val eventType = intent.getStringExtra(EXTRA_EVENT_TYPE) ?: "Tap Event"
-        supportActionBar?.title = getString(R.string.macro_editor_title, eventType)
+        container.addView(addStepButton, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+            setMargins(requireContext().dp(16), requireContext().dp(8), requireContext().dp(16), requireContext().dp(4))
+        })
+        container.addView(footer, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+        val editorDialog = MaterialAlertDialogBuilder(requireContext()).setView(container).create()
+        editorDialog.setCanceledOnTouchOutside(false)
+        editorDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        val eventType = requireArguments().getString(EXTRA_EVENT_TYPE)
+            ?: getString(R.string.text_keyboard_layout_macro_tap_event)
+        titleView.text = getString(R.string.macro_editor_title, eventType)
 
         // Receive macro data
         // 三个符号面板（Symbol / Emoji / Kaomoji）也是合法的切层目标：运行时由
         // KeyboardWindow.handleLayerSwitchAction 路由到对应窗口。它们不是布局里的层，
         // 不会出现在 EXTRA_LAYOUT_TARGETS 里，因此显式并入候选。
         // 放在这里（而不是各个调用方）是因为两个宏编辑入口
-        // （ButtonsCustomizerActivity 与 KeyEditorActivity）都最终汇聚到本 Activity。
+        // （ButtonsCustomizerActivity 与 KeyEditorActivity）都最终汇聚到本编辑弹框。
         availableLayoutTargets = buildList {
-            addAll(intent.getStringArrayListExtra(EXTRA_LAYOUT_TARGETS)?.toList() ?: emptyList())
+            addAll(requireArguments().getStringArrayList(EXTRA_LAYOUT_TARGETS)?.toList() ?: emptyList())
             addAll(PickerWindow.Key.layerTargetNames)
         }.distinct()
-        val initialSteps = intent.serializable<ArrayList<Map<*, *>>>(EXTRA_MACRO_STEPS)
+        val initialSteps = requireArguments().serializable<ArrayList<Map<*, *>>>(EXTRA_MACRO_STEPS)
         originalSteps = initialSteps
         if (originalSteps != null) {
             steps.clear()
             steps.addAll(originalSteps!!.map { parseStep(it) })
         } else {
             // Try JSON format if Map format is null (e.g. from new ButtonsCustomizerActivity)
-            val json = intent.getStringExtra(EXTRA_MACRO_STEPS_JSON)
+            val json = requireArguments().getString(EXTRA_MACRO_STEPS_JSON)
             if (json != null) {
                 try {
                     val macroList = macroJson.decodeFromString<List<MacroStep>>(json)
@@ -750,14 +768,48 @@ class MacroEditorActivity : SettingsUiActivity() {
             }.onFailure { android.util.Log.w("MacroEditor", "Unable to restore editor draft") }
         }
         updateSaveButtonState()
-        
+
         stepsAdapter = StepsAdapter()
         stepsRecyclerView.adapter = stepsAdapter
-        
-        // RecyclerView bottom padding should be large enough to keep the last item divider visible
-        stepsRecyclerView.setPadding(0, 0, 0, dp(16))
-        stepsRecyclerView.clipToPadding = false
 
+        return editorDialog
+    }
+
+    override fun onStart() {
+        super.onStart()
+        resizeDialog()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        resizeDialog()
+    }
+
+    override fun onCancel(dialog: DialogInterface) {
+        sendResult(android.app.Activity.RESULT_CANCELED, null)
+        super.onCancel(dialog)
+    }
+
+    private fun cancelEditor() {
+        sendResult(android.app.Activity.RESULT_CANCELED, null)
+        dismiss()
+    }
+
+    private fun sendResult(resultCode: Int, data: Intent?) {
+        if (resultSent) return
+        resultSent = true
+        parentFragmentManager.setFragmentResult(RESULT_REQUEST_KEY, Bundle().apply {
+            putInt(RESULT_CODE, resultCode)
+            putParcelable(RESULT_DATA, data)
+        })
+    }
+
+    private fun resizeDialog() {
+        val configuration = requireContext().resources.configuration
+        val width = (requireContext().dp(configuration.screenWidthDp) - requireContext().dp(32)).coerceAtMost(requireContext().dp(640))
+        val height = (requireContext().dp(configuration.screenHeightDp) * 0.85f).toInt().coerceAtMost(requireContext().dp(720))
+        dialog?.window?.setLayout(width, height)
+        dialog?.window?.setGravity(Gravity.CENTER)
     }
 
     /**
@@ -770,37 +822,37 @@ class MacroEditorActivity : SettingsUiActivity() {
         highlightIndex: Int = -1,
         onSelect: (Int) -> Unit
     ) {
-        val chipsContainer = FlowLayout(this).apply {
-            setPadding(dp(12), dp(8), dp(12), dp(8))
+        val chipsContainer = FlowLayout(requireContext()).apply {
+            setPadding(requireContext().dp(12), requireContext().dp(8), requireContext().dp(12), requireContext().dp(8))
         }
-        val primaryColor = settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
-        val onPrimaryContainerColor = settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
-        val buttonColor = settingsColor(android.R.attr.colorButtonNormal)
-        val borderColor = settingsColor(android.R.attr.colorControlNormal)
-        val scrollView = android.widget.ScrollView(this).apply {
+        val primaryColor = requireContext().settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
+        val onPrimaryContainerColor = requireContext().settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
+        val buttonColor = requireContext().settingsColor(android.R.attr.colorButtonNormal)
+        val borderColor = requireContext().settingsColor(android.R.attr.colorControlNormal)
+        val scrollView = android.widget.ScrollView(requireContext()).apply {
             addView(chipsContainer)
         }
-        val dialog = MaterialAlertDialogBuilder(this)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle(title)
             .setView(scrollView)
             .setNegativeButton(R.string.macro_editor_picker_cancel, null)
             .create()
         items.forEachIndexed { index, label ->
             val isHighlighted = index == highlightIndex
-            val chip = TextView(this).apply {
+            val chip = TextView(requireContext()).apply {
                 text = label
                 textSize = 14f
-                setPadding(dp(12), dp(8), dp(12), dp(8))
+                setPadding(requireContext().dp(12), requireContext().dp(8), requireContext().dp(12), requireContext().dp(8))
                 gravity = Gravity.CENTER
                 background = android.graphics.drawable.GradientDrawable().apply {
                     setColor(if (isHighlighted) primaryColor else buttonColor)
-                    setStroke(dp(1), borderColor)
-                    cornerRadius = dp(4).toFloat()
+                    setStroke(requireContext().dp(1), borderColor)
+                    cornerRadius = requireContext().dp(4).toFloat()
                 }
-                setTextColor(if (isHighlighted) onPrimaryContainerColor else settingsColor(android.R.attr.textColorPrimary))
-                layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
-                    rightMargin = dp(6)
-                    bottomMargin = dp(6)
+                setTextColor(if (isHighlighted) onPrimaryContainerColor else requireContext().settingsColor(android.R.attr.textColorPrimary))
+                layoutParams = ViewGroup.MarginLayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                    rightMargin = requireContext().dp(6)
+                    bottomMargin = requireContext().dp(6)
                 }
                 setOnClickListener {
                     onSelect(index)
@@ -823,7 +875,7 @@ class MacroEditorActivity : SettingsUiActivity() {
     }
 
     override fun onDestroy() {
-        if (isFinishing) draftState.delete()
+        if (resultSent || activity?.isFinishing == true) draftState.delete()
         super.onDestroy()
     }
 
@@ -902,13 +954,13 @@ class MacroEditorActivity : SettingsUiActivity() {
             when (step.type) {
                 "text" -> {
                     if (step.text.isBlank()) {
-                        Toast.makeText(this, getString(R.string.macro_editor_step_text_empty), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.macro_editor_step_text_empty), Toast.LENGTH_SHORT).show()
                         return
                     }
                 }
                 "tap", "down", "up" -> {
                     if (step.keys.isEmpty()) {
-                        Toast.makeText(this, getString(R.string.macro_editor_step_keys_empty, index + 1), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.macro_editor_step_keys_empty, index + 1), Toast.LENGTH_SHORT).show()
                         return
                     }
                 }
@@ -916,29 +968,29 @@ class MacroEditorActivity : SettingsUiActivity() {
                     val modifiers = step.keys.filter { isModifierKey(it.code) }
                     val nonModifiers = step.keys.filter { !isModifierKey(it.code) }
                     if (modifiers.isEmpty()) {
-                        Toast.makeText(this, getString(R.string.macro_editor_step_shortcut_modifiers_empty, index + 1), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.macro_editor_step_shortcut_modifiers_empty, index + 1), Toast.LENGTH_SHORT).show()
                         return
                     }
                     if (nonModifiers.size != 1) {
-                        Toast.makeText(this, getString(R.string.macro_editor_step_shortcut_multiple_keys, index + 1), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.macro_editor_step_shortcut_multiple_keys, index + 1), Toast.LENGTH_SHORT).show()
                         return
                     }
                 }
                 "edit" -> {
                     if (step.keys.isEmpty()) {
-                        Toast.makeText(this, getString(R.string.macro_editor_step_edit_action_required, index + 1), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.macro_editor_step_edit_action_required, index + 1), Toast.LENGTH_SHORT).show()
                         return
                     }
                 }
                 "app" -> {
                     if (step.keys.isEmpty()) {
-                        Toast.makeText(this, getString(R.string.macro_editor_step_app_action_required, index + 1), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.macro_editor_step_app_action_required, index + 1), Toast.LENGTH_SHORT).show()
                         return
                     }
                 }
                 "layer" -> {
                     if (normalizeLayerMode(step.keys.firstOrNull()?.code) != "back" && step.text.isBlank()) {
-                        Toast.makeText(this, getString(R.string.macro_editor_step_layer_target_required, index + 1), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.macro_editor_step_layer_target_required, index + 1), Toast.LENGTH_SHORT).show()
                         return
                     }
                     // availableLayoutTargets is only a picker suggestion set, not a hard
@@ -960,31 +1012,31 @@ class MacroEditorActivity : SettingsUiActivity() {
         // Validate data
         steps.forEachIndexed { index, step ->
             if (step.type == "text" && step.text.isBlank()) {
-                Toast.makeText(this, getString(R.string.macro_editor_step_text_empty), Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.macro_editor_step_text_empty), Toast.LENGTH_SHORT).show()
                 return
             }
             if (step.type in listOf("tap", "down", "up") && step.keys.isEmpty()) {
-                Toast.makeText(this, getString(R.string.macro_editor_step_keys_empty, index + 1), Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.macro_editor_step_keys_empty, index + 1), Toast.LENGTH_SHORT).show()
                 return
             }
             if (step.type == "shortcut") {
                 val modifiers = step.keys.filter { isModifierKey(it.code) }
                 val nonModifiers = step.keys.filter { !isModifierKey(it.code) }
                 if (modifiers.isEmpty()) {
-                    Toast.makeText(this, getString(R.string.macro_editor_step_shortcut_modifiers_empty, index + 1), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.macro_editor_step_shortcut_modifiers_empty, index + 1), Toast.LENGTH_SHORT).show()
                     return
                 }
                 if (nonModifiers.size != 1) {
-                    Toast.makeText(this, getString(R.string.macro_editor_step_shortcut_multiple_keys, index + 1), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.macro_editor_step_shortcut_multiple_keys, index + 1), Toast.LENGTH_SHORT).show()
                     return
                 }
             }
             if (step.type == "app" && step.keys.isEmpty()) {
-                Toast.makeText(this, getString(R.string.macro_editor_step_app_action_required, index + 1), Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.macro_editor_step_app_action_required, index + 1), Toast.LENGTH_SHORT).show()
                 return
             }
             if (step.type == "layer" && normalizeLayerMode(step.keys.firstOrNull()?.code) != "back" && step.text.isBlank()) {
-                Toast.makeText(this, getString(R.string.macro_editor_step_layer_target_required, index + 1), Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.macro_editor_step_layer_target_required, index + 1), Toast.LENGTH_SHORT).show()
                 return
             }
         }
@@ -1037,7 +1089,7 @@ class MacroEditorActivity : SettingsUiActivity() {
         val unmatchedKeys = keyEventCounts.filter { (_, counts) -> counts.first != counts.second }
         if (unmatchedKeys.isNotEmpty()) {
             val keyNames = unmatchedKeys.keys.joinToString(", ") { (type, code) -> "$type:$code" }
-            Toast.makeText(this, getString(R.string.macro_editor_key_event_unmatched, keyNames), Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.macro_editor_key_event_unmatched, keyNames), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -1080,9 +1132,9 @@ class MacroEditorActivity : SettingsUiActivity() {
         val macroSteps = fromStepsExtra(ArrayList(result))
         data.putExtra(EXTRA_MACRO_RESULT_JSON, macroJson.encodeToString(macroSteps))
         // Echo the caller's token so it can locate the edit target even if it was recreated.
-        intent.getStringExtra(EXTRA_TARGET_TOKEN)?.let { data.putExtra(EXTRA_TARGET_TOKEN, it) }
-        setResult(RESULT_OK, data)
-        finish()
+        requireArguments().getString(EXTRA_TARGET_TOKEN)?.let { data.putExtra(EXTRA_TARGET_TOKEN, it) }
+        sendResult(android.app.Activity.RESULT_OK, data)
+        dismiss()
     }
 
     private fun snapshotSteps() = steps.map { step ->
@@ -1141,43 +1193,22 @@ class MacroEditorActivity : SettingsUiActivity() {
      */
     private fun updateSaveButtonState() {
         hasChanges = isStepsChanged()
-        // Update menu button enabled state
-        saveMenuItem?.isEnabled = hasChanges
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(Menu.NONE, 1, Menu.NONE, R.string.macro_editor_confirm)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        // Save menu item reference
-        saveMenuItem = menu.findItem(1)
-        // Initialize button state
-        updateSaveButtonState()
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
-            1 -> {
-                saveAndFinish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+        confirmButton.isEnabled = hasChanges
     }
 
     inner class StepsAdapter : RecyclerView.Adapter<StepViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StepViewHolder {
-            return StepViewHolder(LinearLayout(this@MacroEditorActivity).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setPadding(dp(8), dp(8), dp(8), 0)  // Bottom padding is 0
-                layoutParams = RecyclerView.LayoutParams(
-                    RecyclerView.LayoutParams.MATCH_PARENT,
-                    RecyclerView.LayoutParams.WRAP_CONTENT
-                )
+            return StepViewHolder(LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(requireContext().dp(12), requireContext().dp(12), requireContext().dp(12), requireContext().dp(12))
+                background = MaterialShapeDrawable(ShapeAppearanceModel.builder()
+                    .setAllCornerSizes(requireContext().dp(16).toFloat()).build()).apply {
+                    fillColor = ColorStateList.valueOf(requireContext().settingsColor(com.google.android.material.R.attr.colorSurfaceBright))
+                    setStroke(requireContext().dp(1).toFloat(), requireContext().settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
+                }
+                layoutParams = RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    setMargins(requireContext().dp(16), requireContext().dp(4), requireContext().dp(16), requireContext().dp(4))
+                }
             })
         }
 
@@ -1200,21 +1231,19 @@ class MacroEditorActivity : SettingsUiActivity() {
                 ensureLayerMode(step)
             }
 
-            // Content row: [type spinner] [key FlowLayout container (weight=1f)] [text input for text type]
-            val contentRow = LinearLayout(this@MacroEditorActivity).apply {
+            val contentRow = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+            }
+            val typeRow = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply {
-                    weight = 1f  // contentRow takes remaining space and pushes deleteBtn to the far right
-                }
             }
-
-            // Type selector
-            typeSpinner = MaterialSpinner(this@MacroEditorActivity).apply {
-                layoutParams = LinearLayout.LayoutParams(wrapContent, wrapContent)
+            typeSpinner = MaterialSpinner(requireContext(), cornerRadiusDp = 12).apply {
+                layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
             }
             val typeAdapter = ArrayAdapter(
-                this@MacroEditorActivity,
+                requireContext(),
                 android.R.layout.simple_spinner_item,
                 arrayOf(
                     getString(R.string.macro_editor_step_type_tap),
@@ -1230,18 +1259,19 @@ class MacroEditorActivity : SettingsUiActivity() {
             typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             typeSpinner.adapter = typeAdapter
             typeSpinner.setSelection(STEP_TYPES.indexOf(step.type))
-            contentRow.addView(typeSpinner)
+            typeRow.addView(typeSpinner)
+            contentRow.addView(typeRow, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
 
-            // Key FlowLayout container - use weight=1f to take remaining space
-            val keysFlowContainer = LinearLayout(this@MacroEditorActivity).apply {
+            // Keep action values below the selector so long labels and key chips can wrap.
+            val keysFlowContainer = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.VERTICAL
-                layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply {
-                    weight = 1f
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    topMargin = requireContext().dp(8)
                 }
             }
 
-            keysFlow = FlowLayout(this@MacroEditorActivity).apply {
-                setPadding(0, dp(4), 0, dp(4))
+            keysFlow = FlowLayout(requireContext()).apply {
+                setPadding(0, requireContext().dp(4), 0, requireContext().dp(4))
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -1251,18 +1281,18 @@ class MacroEditorActivity : SettingsUiActivity() {
             contentRow.addView(keysFlowContainer)
 
             // Text input (text type) - placed inside keysFlowContainer
-            textEditContainer = LinearLayout(this@MacroEditorActivity).apply {
+            textEditContainer = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 visibility = View.GONE  // hidden initially, controlled by updateVisibility
-                setPadding(0, dp(4), 0, dp(4))
+                setPadding(0, requireContext().dp(4), 0, requireContext().dp(4))
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
             }
 
-            val textEdit = TextInputEditText(this@MacroEditorActivity).apply {
+            val textEdit = TextInputEditText(requireContext()).apply {
                 setText(step.text)
                 hint = if (step.type == "layer") {
                     getString(R.string.macro_editor_layer_target_hint)
@@ -1273,7 +1303,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
-                setPadding(dp(8), dp(8), dp(8), dp(8))
+                setPadding(requireContext().dp(8), requireContext().dp(8), requireContext().dp(8), requireContext().dp(8))
                 // Observe text changes and sync to step
                 addTextChangedListener(object : android.text.TextWatcher {
                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -1290,33 +1320,25 @@ class MacroEditorActivity : SettingsUiActivity() {
             // Add contentRow to container (outermost layer)
             container.addView(contentRow)
 
-            // Delete-step button - on the far right of container (pushed by contentRow weight=1f)
-            deleteBtn = TextView(this@MacroEditorActivity).apply {
-                text = "🗑"
-                textSize = 14f
-                setPadding(dp(8), dp(8), dp(8), dp(8))
-                minWidth = dp(36)
-                setOnClickListener {
-                    MaterialAlertDialogBuilder(this@MacroEditorActivity)
-                        .setTitle(R.string.macro_editor_delete_step_title)
-                        .setMessage(R.string.macro_editor_delete_step_message)
-                        .setPositiveButton(R.string.macro_editor_delete) { _, _ ->
-                            val removeIndex = steps.indexOfFirst { it === step }
-                                .takeIf { it >= 0 }
-                                ?: bindingAdapterPosition.takeIf { it != RecyclerView.NO_POSITION && it in steps.indices }
-                                ?: return@setPositiveButton
-                            steps.removeAt(removeIndex)
-                            stepsAdapter.notifyItemRemoved(removeIndex)
-                            updateSaveButtonState()
-                        }
-                        .setNegativeButton(R.string.macro_editor_cancel, null)
-                        .show()
-                }
+            deleteBtn = EditorUi.icon(requireContext(),
+                R.drawable.ic_baseline_delete_24, R.string.macro_editor_delete) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.macro_editor_delete_step_title)
+                    .setMessage(R.string.macro_editor_delete_step_message)
+                    .setPositiveButton(R.string.macro_editor_delete) { _, _ ->
+                        val removeIndex = steps.indexOfFirst { it === step }
+                            .takeIf { it >= 0 }
+                            ?: bindingAdapterPosition.takeIf { it != RecyclerView.NO_POSITION && it in steps.indices }
+                            ?: return@setPositiveButton
+                        steps.removeAt(removeIndex)
+                        stepsAdapter.notifyItemRemoved(removeIndex)
+                        updateSaveButtonState()
+                    }
+                    .setNegativeButton(R.string.macro_editor_cancel, null)
+                    .show()
             }
-            container.addView(deleteBtn, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
+            typeRow.addView(deleteBtn, LinearLayout.LayoutParams(requireContext().dp(48), requireContext().dp(48)).apply {
+                marginStart = requireContext().dp(8)
                 gravity = Gravity.CENTER_VERTICAL
             })
 
@@ -1335,7 +1357,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                     val newType = STEP_TYPES[pos]
                     val oldUsesText = oldType in listOf("text", "layer")
                     val newUsesText = newType in listOf("text", "layer")
-                    
+
                     // Check if type change would clear data
                     val willClearData = ((oldType == "edit" || oldType == "app") &&
                         newType != oldType && step.keys.isNotEmpty()) ||
@@ -1343,10 +1365,10 @@ class MacroEditorActivity : SettingsUiActivity() {
                                             oldType != newType && step.keys.isNotEmpty()) ||
                                         (oldUsesText && !newUsesText && step.text.isNotEmpty()) ||
                                         (!oldUsesText && newUsesText && step.text.isNotEmpty())
-                    
+
                     if (willClearData) {
                         // Show confirmation dialog before clearing data
-                        MaterialAlertDialogBuilder(this@MacroEditorActivity)
+                        MaterialAlertDialogBuilder(requireContext())
                             .setTitle(R.string.macro_editor_type_change_title)
                             .setMessage(R.string.macro_editor_type_change_message)
                             .setPositiveButton(R.string.macro_editor_confirm) { _, _ ->
@@ -1409,7 +1431,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
         }
-        
+
         private fun updateVisibility(step: MacroStepData) {
             // Only text type uses inline EditText. Layer uses compact chip + pickers.
             keysFlow.visibility = if (step.type == "text") View.GONE else View.VISIBLE
@@ -1438,7 +1460,7 @@ class MacroEditorActivity : SettingsUiActivity() {
             }
         }
 
-        
+
         private fun renderKeys(step: MacroStepData) {
             keysFlow.removeAllViews()
             step.keys.forEachIndexed { index, key ->
@@ -1450,13 +1472,13 @@ class MacroEditorActivity : SettingsUiActivity() {
 
                 // Chip color: shortcut modifier keys use gray, target key uses primary; edit uses button normal
                 val chipColor = when {
-                    isShortcutType && isModifier -> settingsColor(android.R.attr.colorButtonNormal)
-                    isShortcutType && !isModifier -> settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
-                    isEditType -> settingsColor(android.R.attr.colorButtonNormal)
-                    else -> settingsColor(android.R.attr.colorButtonNormal)
+                    isShortcutType && isModifier -> requireContext().settingsColor(android.R.attr.colorButtonNormal)
+                    isShortcutType && !isModifier -> requireContext().settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
+                    isEditType -> requireContext().settingsColor(android.R.attr.colorButtonNormal)
+                    else -> requireContext().settingsColor(android.R.attr.colorButtonNormal)
                 }
 
-                val keyChip = TextView(this@MacroEditorActivity).apply {
+                val keyChip = TextView(requireContext()).apply {
                     text = when {
                         isAppType -> getAppActionLabel(key.code)
                         isLayerType -> getLayerActionLabel(normalizeLayerMode(key.code), step.text)
@@ -1464,20 +1486,20 @@ class MacroEditorActivity : SettingsUiActivity() {
                         else -> key.code
                     }
                     textSize = 14f
-                    setPadding(dp(10), dp(8), dp(10), dp(8))
+                    setPadding(requireContext().dp(10), requireContext().dp(8), requireContext().dp(10), requireContext().dp(8))
                     gravity = Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
                         setColor(chipColor)
-                        setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
-                        cornerRadius = dp(4).toFloat()
+                        setStroke(requireContext().dp(1), requireContext().settingsColor(android.R.attr.colorControlNormal))
+                        cornerRadius = requireContext().dp(4).toFloat()
                     }
                     if (isShortcutType && !isModifier) {
-                        setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
+                        setTextColor(requireContext().settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
                     }
-                    layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
-                        rightMargin = dp(6)
-                        bottomMargin = dp(4)
-                        topMargin = dp(4)
+                    layoutParams = ViewGroup.MarginLayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                        rightMargin = requireContext().dp(6)
+                        bottomMargin = requireContext().dp(4)
+                        topMargin = requireContext().dp(4)
                     }
                     setOnClickListener {
                         if (isEditType) {
@@ -1520,22 +1542,22 @@ class MacroEditorActivity : SettingsUiActivity() {
 
             // Add-key button - show add key for tap/shortcut/down/up; for edit show only [+]
             if (step.type in listOf("tap", "shortcut", "down", "up")) {
-                val addKeyChip = TextView(this@MacroEditorActivity).apply {
+                val addKeyChip = TextView(requireContext()).apply {
                     text = "+"
                     textSize = 14f
                     setTypeface(null, android.graphics.Typeface.BOLD)
-                    setPadding(dp(10), dp(8), dp(10), dp(8))
+                    setPadding(requireContext().dp(10), requireContext().dp(8), requireContext().dp(10), requireContext().dp(8))
                     gravity = Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
-                        setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
-                        cornerRadius = dp(4).toFloat()
+                        setColor(requireContext().settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
+                        setStroke(requireContext().dp(1), requireContext().settingsColor(android.R.attr.colorControlNormal))
+                        cornerRadius = requireContext().dp(4).toFloat()
                     }
-                    setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
-                    layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
-                        rightMargin = dp(6)
-                        bottomMargin = dp(4)
-                        topMargin = dp(4)
+                    setTextColor(requireContext().settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
+                    layoutParams = ViewGroup.MarginLayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                        rightMargin = requireContext().dp(6)
+                        bottomMargin = requireContext().dp(4)
+                        topMargin = requireContext().dp(4)
                     }
                     setOnClickListener {
                         val newKey = KeyData()
@@ -1545,7 +1567,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                                 it.keyType == newKey.keyType && it.code == newKey.code
                             }
                             if (isDuplicate) {
-                                Toast.makeText(this@MacroEditorActivity, getString(R.string.macro_editor_key_duplicate, newKey.code), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), getString(R.string.macro_editor_key_duplicate, newKey.code), Toast.LENGTH_SHORT).show()
                             } else {
                                 step.keys.add(newKey)
                                 renderKeys(step)
@@ -1557,22 +1579,22 @@ class MacroEditorActivity : SettingsUiActivity() {
                 keysFlow.addView(addKeyChip)
             } else if ((step.type == "edit" || step.type == "app" || step.type == "layer") && step.keys.isEmpty()) {
                 // Edit/App/Layer type: show [+] button when empty
-                val addClipboardChip = TextView(this@MacroEditorActivity).apply {
+                val addClipboardChip = TextView(requireContext()).apply {
                     text = "+"
                     textSize = 14f
                     setTypeface(null, android.graphics.Typeface.BOLD)
-                    setPadding(dp(10), dp(8), dp(10), dp(8))
+                    setPadding(requireContext().dp(10), requireContext().dp(8), requireContext().dp(10), requireContext().dp(8))
                     gravity = Gravity.CENTER
                     background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
-                        setStroke(dp(1), settingsColor(android.R.attr.colorControlNormal))
-                        cornerRadius = dp(4).toFloat()
+                        setColor(requireContext().settingsColor(com.google.android.material.R.attr.colorPrimaryContainer))
+                        setStroke(requireContext().dp(1), requireContext().settingsColor(android.R.attr.colorControlNormal))
+                        cornerRadius = requireContext().dp(4).toFloat()
                     }
-                    setTextColor(settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
-                    layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
-                        rightMargin = dp(6)
-                        bottomMargin = dp(4)
-                        topMargin = dp(4)
+                    setTextColor(requireContext().settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer))
+                    layoutParams = ViewGroup.MarginLayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                        rightMargin = requireContext().dp(6)
+                        bottomMargin = requireContext().dp(4)
+                        topMargin = requireContext().dp(4)
                     }
                     setOnClickListener {
                         if (step.type == "edit") {
@@ -1621,7 +1643,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                 getString(R.string.macro_editor_action_undo),
                 getString(R.string.macro_editor_action_redo)
             )
-            MaterialAlertDialogBuilder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.macro_editor_picker_title)
                 .setItems(actionLabels) { _, which ->
                     onSelect(actions[which])
@@ -1633,7 +1655,7 @@ class MacroEditorActivity : SettingsUiActivity() {
         private fun showAppActionPicker(onSelect: (String) -> Unit) {
             // Labels are derived from the ids, so row N always selects APP_ACTION_IDS[N].
             val actionLabels = APP_ACTION_IDS.map { getAppActionLabel(it) }.toTypedArray()
-            MaterialAlertDialogBuilder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.macro_editor_app_picker_title)
                 .setItems(actionLabels) { _, which ->
                     onSelect(APP_ACTION_IDS[which])
@@ -1687,29 +1709,29 @@ class MacroEditorActivity : SettingsUiActivity() {
         private fun showEditKeyDialog(step: MacroStepData, key: KeyData, onSuccess: () -> Unit, onCancel: () -> Unit) {
             // Chip selection is a draft until Confirm, including dismissal by Back/outside.
             val draft = key.copy()
-            val dialogView = LinearLayout(this@MacroEditorActivity).apply {
+            val dialogView = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.VERTICAL
-                setPadding(dp(16), dp(16), dp(16), dp(16))
+                setPadding(requireContext().dp(16), requireContext().dp(16), requireContext().dp(16), requireContext().dp(16))
             }
 
             // Key type selector - hidden from UI (fcitx only for public release)
-            val keyTypeRow = LinearLayout(this@MacroEditorActivity).apply {
+            val keyTypeRow = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 visibility = View.GONE  // Hidden from UI
             }
-            val keyTypeLabel = TextView(this@MacroEditorActivity).apply {
+            val keyTypeLabel = TextView(requireContext()).apply {
                 text = getString(R.string.macro_editor_key_type_label)
                 textSize = 14f
-                layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply { weight = 1f }
+                layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT).apply { weight = 1f }
             }
             keyTypeRow.addView(keyTypeLabel)
 
-            val keyTypeEditSpinner = MaterialSpinner(this@MacroEditorActivity).apply {
-                layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply { weight = 1f }
+            val keyTypeEditSpinner = MaterialSpinner(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT).apply { weight = 1f }
             }
             val keyTypeEditAdapter = ArrayAdapter(
-                this@MacroEditorActivity,
+                requireContext(),
                 android.R.layout.simple_spinner_item,
                 KEY_TYPES
             )
@@ -1728,36 +1750,36 @@ class MacroEditorActivity : SettingsUiActivity() {
             } else {
                 keysList.map { ANDROID_KEY_NAMES[it] ?: it }
             }
-            val primaryColor = settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
-            val onPrimaryContainerColor = settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
-            val buttonColor = settingsColor(android.R.attr.colorButtonNormal)
-            val borderColor = settingsColor(android.R.attr.colorControlNormal)
+            val primaryColor = requireContext().settingsColor(com.google.android.material.R.attr.colorPrimaryContainer)
+            val onPrimaryContainerColor = requireContext().settingsColor(com.google.android.material.R.attr.colorOnPrimaryContainer)
+            val buttonColor = requireContext().settingsColor(android.R.attr.colorButtonNormal)
+            val borderColor = requireContext().settingsColor(android.R.attr.colorControlNormal)
 
             var highlightIndex = keysList.indexOfFirst { it.equals(draft.code, ignoreCase = true) }
                 .takeIf { it >= 0 } ?: -1
 
-            val chipsContainer = FlowLayout(this@MacroEditorActivity).apply {
-                setPadding(dp(12), dp(8), dp(12), dp(8))
+            val chipsContainer = FlowLayout(requireContext()).apply {
+                setPadding(requireContext().dp(12), requireContext().dp(8), requireContext().dp(12), requireContext().dp(8))
             }
 
             fun renderChips() {
                 chipsContainer.removeAllViews()
                 keysList.forEachIndexed { index, _ ->
                     val isHighlighted = index == highlightIndex
-                    val chip = TextView(this@MacroEditorActivity).apply {
+                    val chip = TextView(requireContext()).apply {
                         text = displayList[index]
                         textSize = 14f
-                        setPadding(dp(12), dp(8), dp(12), dp(8))
+                        setPadding(requireContext().dp(12), requireContext().dp(8), requireContext().dp(12), requireContext().dp(8))
                         gravity = Gravity.CENTER
                         background = android.graphics.drawable.GradientDrawable().apply {
                             setColor(if (isHighlighted) primaryColor else buttonColor)
-                            setStroke(dp(1), borderColor)
-                            cornerRadius = dp(4).toFloat()
+                            setStroke(requireContext().dp(1), borderColor)
+                            cornerRadius = requireContext().dp(4).toFloat()
                         }
-                        setTextColor(if (isHighlighted) onPrimaryContainerColor else settingsColor(android.R.attr.textColorPrimary))
-                        layoutParams = ViewGroup.MarginLayoutParams(wrapContent, wrapContent).apply {
-                            rightMargin = dp(6)
-                            bottomMargin = dp(6)
+                        setTextColor(if (isHighlighted) onPrimaryContainerColor else requireContext().settingsColor(android.R.attr.textColorPrimary))
+                        layoutParams = ViewGroup.MarginLayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                            rightMargin = requireContext().dp(6)
+                            bottomMargin = requireContext().dp(6)
                         }
                         setOnClickListener {
                             draft.code = keysList[index]
@@ -1770,12 +1792,12 @@ class MacroEditorActivity : SettingsUiActivity() {
             }
             renderChips()
 
-            val scrollView = android.widget.ScrollView(this@MacroEditorActivity).apply {
+            val scrollView = android.widget.ScrollView(requireContext()).apply {
                 addView(chipsContainer)
             }
             dialogView.addView(scrollView)
 
-            val dialog = MaterialAlertDialogBuilder(this@MacroEditorActivity)
+            val dialog = MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.macro_editor_edit_key_title)
                 .setView(dialogView)
                 .setPositiveButton(R.string.macro_editor_confirm) { _, _ ->
@@ -1834,7 +1856,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                 .filter { it !in currentModifiers.map { m -> m.code } }
 
             if (availableModifiers.isEmpty()) {
-                Toast.makeText(this@MacroEditorActivity, R.string.macro_editor_all_modifiers_added, Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), R.string.macro_editor_all_modifiers_added, Toast.LENGTH_SHORT).show()
                 return
             }
 
@@ -1853,12 +1875,12 @@ class MacroEditorActivity : SettingsUiActivity() {
                 baseTargets.forEach { if (it != currentTarget) add(it) }
             }.distinct()
             if (targets.isEmpty()) {
-                Toast.makeText(this@MacroEditorActivity, R.string.macro_editor_layer_target_empty, Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), R.string.macro_editor_layer_target_empty, Toast.LENGTH_SHORT).show()
                 return
             }
             // 列表显示可读文本，选中后回传的仍是原始目标名（存进配置的就是它）。
             val labels = targets.map { layerTargetDisplayName(it) }
-            MaterialAlertDialogBuilder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.macro_editor_layer_target_picker_title)
                 .setItems(labels.toTypedArray()) { _, which ->
                     onSelect(targets[which])
@@ -1927,7 +1949,7 @@ class MacroEditorActivity : SettingsUiActivity() {
                 getString(R.string.macro_editor_step_type_osl),
                 getString(R.string.macro_editor_step_type_back)
             )
-            MaterialAlertDialogBuilder(this@MacroEditorActivity)
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.macro_editor_layer_mode_picker_title)
                 .setItems(labels) { _, which ->
                     onSelect(modes[which])

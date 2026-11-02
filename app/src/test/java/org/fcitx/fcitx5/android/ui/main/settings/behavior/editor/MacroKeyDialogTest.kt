@@ -12,11 +12,10 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FlowLayout
-import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorDialogFragment
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -26,10 +25,10 @@ import org.robolectric.util.ReflectionHelpers
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [23, 28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
 class MacroKeyDialogTest {
-    private class Page(val activity: MacroEditorActivity) {
-        val step: MacroEditorActivity.MacroStepData =
-            ReflectionHelpers.getField<MutableList<MacroEditorActivity.MacroStepData>>(activity, "steps").single()
-        private val adapter = ReflectionHelpers.getField<MacroEditorActivity.StepsAdapter>(activity, "stepsAdapter")
+    private class Page(val activity: MacroEditorTestActivity, val editor: MacroEditorDialogFragment) {
+        val step: MacroEditorDialogFragment.MacroStepData =
+            ReflectionHelpers.getField<MutableList<MacroEditorDialogFragment.MacroStepData>>(editor, "steps").single()
+        private val adapter = ReflectionHelpers.getField<MacroEditorDialogFragment.StepsAdapter>(editor, "stepsAdapter")
         private val parent = FrameLayout(activity)
         private val holder = adapter.onCreateViewHolder(parent, 0).also {
             parent.addView(it.itemView)
@@ -41,8 +40,8 @@ class MacroKeyDialogTest {
             return ShadowDialog.getLatestDialog() as AlertDialog
         }
         fun select(dialog: AlertDialog, code: String, asAndroid: Boolean = false) {
-            val label = if (asAndroid) MacroEditorActivity.ANDROID_KEY_NAMES.getValue(code)
-                else MacroEditorActivity.getFcitxKeyDisplayName(code)
+            val label = if (asAndroid) MacroEditorDialogFragment.ANDROID_KEY_NAMES.getValue(code)
+                else MacroEditorDialogFragment.getFcitxKeyDisplayName(code)
             dialog.findViewById<ViewGroup>(android.R.id.content)!!.descendants.filterIsInstance<TextView>()
                 .single { it.text.toString() == label }.performClick()
         }
@@ -54,10 +53,10 @@ class MacroKeyDialogTest {
     }
 
     private fun page(keys: List<KeyRef> = listOf(KeyRef.Fcitx("A")), block: (Page) -> Unit) {
-        val intent = Intent().putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS,
-            MacroEditorActivity.toStepsExtra(listOf(MacroStep.Tap(keys))))
-        val controller = Robolectric.buildActivity(MacroEditorActivity::class.java, intent).setup()
-        try { block(Page(controller.get())) }
+        val intent = Intent().putExtra(MacroEditorDialogFragment.EXTRA_MACRO_STEPS,
+            MacroEditorDialogFragment.toStepsExtra(listOf(MacroStep.Tap(keys))))
+        val controller = launchMacroEditorTestHost(intent)
+        try { block(Page(controller.get(), controller.get().macroEditorFragment())) }
         finally {
             ShadowDialog.getLatestDialog()?.dismiss()
             controller.pause().stop().destroy()
@@ -72,7 +71,7 @@ class MacroKeyDialogTest {
         page.click(dialog, AlertDialog.BUTTON_NEGATIVE)
         assertSame(original, page.step.keys.single())
         assertEquals("A", original.code)
-        assertFalse(ReflectionHelpers.getField<Boolean>(page.activity, "hasChanges"))
+        assertFalse(ReflectionHelpers.getField<Boolean>(page.editor, "hasChanges"))
     }
 
     @Test fun backOrOutsideCancellationDiscardsSelection() = page { page ->
@@ -80,7 +79,7 @@ class MacroKeyDialogTest {
         page.select(dialog, "B")
         dialog.cancel()
         assertEquals("A", page.step.keys.single().code)
-        assertFalse(ReflectionHelpers.getField<Boolean>(page.activity, "hasChanges"))
+        assertFalse(ReflectionHelpers.getField<Boolean>(page.editor, "hasChanges"))
     }
 
     @Test fun confirmWritesOnlyTheFinalSelectionAndMarksTheMacroDirty() = page { page ->
@@ -93,7 +92,7 @@ class MacroKeyDialogTest {
         assertSame(original, page.step.keys.single())
         assertEquals("C", original.code)
         assertEquals("fcitx", original.keyType)
-        assertTrue(ReflectionHelpers.getField<Boolean>(page.activity, "hasChanges"))
+        assertTrue(ReflectionHelpers.getField<Boolean>(page.editor, "hasChanges"))
     }
 
     @Test fun legacyAndroidKeysKeepTheirTypeWhenConfirmed() = page(listOf(KeyRef.Android(66))) { page ->
@@ -121,7 +120,7 @@ class MacroKeyDialogTest {
         page.select(dialog, "A")
         page.click(dialog, AlertDialog.BUTTON_NEUTRAL)
         assertSame(original, page.step.keys.single())
-        assertFalse(ReflectionHelpers.getField<Boolean>(page.activity, "hasChanges"))
+        assertFalse(ReflectionHelpers.getField<Boolean>(page.editor, "hasChanges"))
     }
 
     @Test fun cancellingANewKeyDoesNotAppendIt() = page { page ->
