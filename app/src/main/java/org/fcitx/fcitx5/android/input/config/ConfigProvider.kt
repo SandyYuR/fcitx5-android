@@ -24,7 +24,9 @@ interface ConfigProvider {
 
 object DefaultConfigProvider : ConfigProvider {
     override fun textKeyboardLayoutFile(): File? {
-        val profile = AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.getValue()
+        val profile = runCatching {
+            AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.getValue()
+        }.getOrNull() ?: UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE
         return UserConfigFiles.textKeyboardLayoutJson(profile)
     }
     override fun popupPresetFile(): File? = UserConfigFiles.popupPresetJson()
