@@ -744,6 +744,7 @@
     <string name="voice_status_opening">Запуск…</string>
     <string name="voice_status_loading">Загрузка…</string>
     <string name="voice_status_floating_ready">Готово</string>
+    <string name="voice_input_finish">Завершить запись</string>
     <string name="voice_status_recognizing">Распознавание</string>
     <string name="voice_status_listening">Прослушивание</string>
     <string name="voice_status_committed">Готово</string>

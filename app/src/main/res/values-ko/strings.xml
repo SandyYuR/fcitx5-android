@@ -746,6 +746,7 @@
     <string name="voice_status_opening">시작 중…</string>
     <string name="voice_status_loading">로드 중…</string>
     <string name="voice_status_floating_ready">준비됨</string>
+    <string name="voice_input_finish">녹음 종료</string>
     <string name="voice_status_recognizing">인식 중</string>
     <string name="voice_status_listening">듣는 중</string>
     <string name="voice_status_committed">완료</string>

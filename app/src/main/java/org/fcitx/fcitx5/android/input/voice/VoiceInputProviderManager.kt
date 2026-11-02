@@ -1318,7 +1318,9 @@ object VoiceInputProviderManager {
         }
     }
 
-    private fun finish(context: Context = appContext) {
+    /** Finish the active recording and wait for its final result; never starts a new session. */
+    fun finish(context: Context = appContext) {
+        if (!isActive()) return
         if (floatingFallbackActive) {
             stopFloatingFallback(context)
             return
@@ -1413,7 +1415,7 @@ object VoiceInputProviderManager {
             stopFloatingFallback(context)
             return
         }
-        // 语音状态栏里选"停止"不经过 finish()，但既然不再采集，就把队列统计收尾一次。
+        // 取消会话不经过 finish()，但既然不再采集，就把队列统计收尾一次。
         // 统计字段本身不会被清零（reset 只在新会话开始时做），重复记录不会丢信息。
         logPcmQueueSummary("stop")
         stopSession(context, keepConnectionWarm = false)

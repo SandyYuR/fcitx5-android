@@ -500,6 +500,14 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             swipeThresholdY = dp(resolveHeightDp().toFloat())
             onGestureListener = swipeHideKeyboardCallback
         }
+        ui.voiceInputFinishButton.setOnClickListener {
+            if (VoiceInputProviderManager.isActive()) {
+                ui.showVoiceStatus(service.getString(R.string.voice_status_recognizing))
+                VoiceInputProviderManager.finish(service)
+            } else {
+                ui.hideVoiceStatus()
+            }
+        }
         ui.buttonsUi.apply {
             // Setup click listeners using ButtonAction
             ButtonAction.allConfigurableActions.forEach { action ->

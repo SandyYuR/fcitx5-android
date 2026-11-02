@@ -742,6 +742,7 @@
     <string name="voice_status_opening">Öffne…</string>
     <string name="voice_status_loading">Lade…</string>
     <string name="voice_status_floating_ready">Bereit</string>
+    <string name="voice_input_finish">Aufnahme beenden</string>
     <string name="voice_status_recognizing">Erkenne</string>
     <string name="voice_status_listening">Höre zu</string>
     <string name="voice_status_committed">Fertig</string>

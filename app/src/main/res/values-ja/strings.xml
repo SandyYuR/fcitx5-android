@@ -744,6 +744,7 @@
     <string name="voice_status_opening">起動中…</string>
     <string name="voice_status_loading">読込中…</string>
     <string name="voice_status_floating_ready">準備完了</string>
+    <string name="voice_input_finish">録音を終了</string>
     <string name="voice_status_recognizing">認識中</string>
     <string name="voice_status_listening">聞取中</string>
     <string name="voice_status_committed">完了</string>

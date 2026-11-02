@@ -927,6 +927,7 @@
     <string name="voice_status_opening">啟動中…</string>
     <string name="voice_status_loading">載入中…</string>
     <string name="voice_status_floating_ready">就緒</string>
+    <string name="voice_input_finish">結束錄音</string>
     <string name="voice_status_recognizing">識別中</string>
     <string name="voice_status_listening">聆聽中</string>
     <string name="voice_status_committed">完成</string>
