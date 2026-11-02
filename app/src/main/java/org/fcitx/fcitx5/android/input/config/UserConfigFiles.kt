@@ -67,6 +67,12 @@ object UserConfigFiles {
         ?.toList()
         .orEmpty()
 
+    // 设备保护存储目录（冷启动未解锁时由硬件解密，可安全读取）
+    private fun deConfigDir(): File {
+        val deContext = appContext.createDeviceProtectedStorageContext()
+        return File(deContext.filesDir, "config").apply { mkdirs() }
+    }
+
     fun textKeyboardLayoutJson(): File? = textKeyboardLayoutJson(DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE)
 
     fun textKeyboardLayoutJson(profile: String): File? {
@@ -76,25 +82,32 @@ object UserConfigFiles {
         } else {
             "$TEXT_KEYBOARD_LAYOUT_PREFIX$normalized$JSON_SUFFIX"
         }
-        return configDir()?.let { File(it, fileName) }
-    }
 
-    fun normalizeTextKeyboardLayoutProfile(raw: String): String? {
-        val trimmed = raw.trim()
-        if (trimmed.isEmpty()) return null
-        val sanitized = trimmed
-            .replace(Regex("\\s+"), " ")
-            .replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]"), "")
-            .trim()
-            .trim('.')
-        if (sanitized.isEmpty()) return null
-        return if (sanitized.equals(DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE, ignoreCase = true)) {
-            DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE
-        } else {
-            sanitized
+        // 冷重启未解锁状态（Direct Boot）：从不受限的 DE 存储中读取备份
+        if (FcitxApplication.getInstance().isDirectBootMode) {
+            val deFile = File(deConfigDir(), fileName)
+            if (deFile.exists()) return deFile
+            val deDefault = File(deConfigDir(), TEXT_KEYBOARD_LAYOUT_DEFAULT_FILE_NAME)
+            if (deDefault.exists()) return deDefault
+            return null
         }
-    }
 
+        // 正常解锁状态：读取常规文件
+        val normalFile = configDir()?.let { File(it, fileName) }
+
+        // 正常状态下自动把文件同步一份到 DE 存储，为下次冷重启做准备
+        if (normalFile != null && normalFile.exists()) {
+            runCatching {
+                val deFile = File(deConfigDir(), fileName)
+                if (!deFile.exists() || deFile.lastModified() < normalFile.lastModified()) {
+                    normalFile.copyTo(deFile, overwrite = true)
+                }
+            }
+        }
+
+        return normalFile
+    }
+    
     fun listTextKeyboardLayoutProfiles(): List<String> {
         val dir = configDir() ?: return listOf(DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE)
         val fileNames = dir.listFiles()
