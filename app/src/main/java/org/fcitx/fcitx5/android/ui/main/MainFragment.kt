@@ -33,7 +33,7 @@ import org.fcitx.fcitx5.android.utils.setup
 /**
  * 设置首页。
  *
- * 结构：顶部常驻搜索框 + 两个分类（日常调整 / 按需进入），共 6 个入口。
+ * 结构：顶部常驻搜索框与日常调整、按需进入两个分类。
  * 分组理由见 [SettingsGroupSpecs]。
  */
 class MainFragment : PaddingPreferenceFragment() {
@@ -192,6 +192,11 @@ class MainFragment : PaddingPreferenceFragment() {
                     R.drawable.ic_baseline_more_horiz_24,
                     SettingsRoute.Advanced,
                     R.string.settings_group_advanced_summary
+                )
+                addDestinationPreference(
+                    R.string.about,
+                    R.drawable.ic_baseline_info_24,
+                    SettingsRoute.About
                 )
             }
 

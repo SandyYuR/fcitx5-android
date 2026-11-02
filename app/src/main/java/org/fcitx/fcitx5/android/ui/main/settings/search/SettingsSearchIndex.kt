@@ -1063,7 +1063,12 @@ object SettingsSearchIndex {
             route = SettingsRoute.About
         ),
         SettingsSearchEntry(
-            R.string.license, P_ANDROID,
+            R.string.faq, listOf(R.string.about),
+            listOf("faq", "常见问题", "帮助", "疑问"),
+            route = SettingsRoute.About
+        ),
+        SettingsSearchEntry(
+            R.string.license, listOf(R.string.about),
             listOf("license", "许可", "xuke", "开源协议"),
             route = SettingsRoute.License
         )

@@ -7,10 +7,8 @@ package org.fcitx.fcitx5.android.ui.main
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
 import androidx.activity.viewModels
 import androidx.annotation.Keep
 import androidx.lifecycle.Lifecycle
@@ -26,8 +24,6 @@ import org.fcitx.fcitx5.android.databinding.ActivityMainBinding
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.setup.SetupActivity
-import org.fcitx.fcitx5.android.utils.Const
-import org.fcitx.fcitx5.android.utils.item
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
 import org.fcitx.fcitx5.android.utils.parcelable
 import org.fcitx.fcitx5.android.utils.startActivity
@@ -91,18 +87,6 @@ class MainActivity : SettingsUiActivity() {
         }
         // "minimize" the activity if we can't go back
         return navController.navigateUp() || super.onSupportNavigateUp() || moveTaskToBack(false)
-    }
-
-    internal fun populateHomeMenu(menu: Menu) {
-        menu.item(R.string.faq) {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Const.faqUrl)))
-        }
-        menu.item(R.string.developer) {
-            navController.navigateWithAnim(SettingsRoute.Developer)
-        }
-        menu.item(R.string.about) {
-            navController.navigateWithAnim(SettingsRoute.About)
-        }
     }
 
     private fun processIntent(intent: Intent?, savedInstanceState: Bundle? = null) {
