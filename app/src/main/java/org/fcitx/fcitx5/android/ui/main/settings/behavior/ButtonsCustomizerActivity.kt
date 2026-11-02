@@ -47,7 +47,7 @@ import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
-import org.fcitx.fcitx5.android.input.config.kawaiiBarButtonsWithThemeToggle
+import org.fcitx.fcitx5.android.input.config.displayedKawaiiBarButtons
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
@@ -229,7 +229,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
         val draft = runCatching { configJson.decodeFromString<ButtonsLayoutConfig>(json) }
             .onFailure { android.util.Log.w(TAG, "Failed to restore draft buttons config", it) }
             .getOrNull() ?: return
-        applyConfigToItems(draft, useThemeToggleMigration = false)
+        applyConfigToItems(draft)
         // originalItems stays as loaded from disk, so "has unsaved changes" remains correct.
     }
 
@@ -995,28 +995,15 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
         )
     }
 
-    /**
-     * Rebuild [items] from [config]; shared by initial load and draft restore.
-     *
-     * [useThemeToggleMigration] applies the legacy default back-fill; it is wanted when
-     * loading from disk but not when restoring an in-progress edit, which is already the
-     * effective list.
-     */
-    private fun applyConfigToItems(
-        config: ButtonsLayoutConfig,
-        useThemeToggleMigration: Boolean = true
-    ) {
+    /** Rebuild [items] from the saved config or the in-progress draft without adding buttons. */
+    private fun applyConfigToItems(config: ButtonsLayoutConfig) {
         toolbarToggleConfig = config.toolbarToggleButton.normalizedIcon()
         hideKeyboardConfig = config.hideKeyboardButton.normalizedIcon()
         items.clear()
         items.add(ListItem.SectionHeader(Section.SystemBar))
         items.add(ListItem.ButtonItem(toolbarToggleConfig, Section.SystemBar))
         items.add(ListItem.ButtonItem(hideKeyboardConfig, Section.SystemBar))
-        val kawaiiBarButtons = if (useThemeToggleMigration) {
-            config.kawaiiBarButtonsWithThemeToggle()
-        } else {
-            config.kawaiiBarButtons
-        }
+        val kawaiiBarButtons = config.displayedKawaiiBarButtons()
         items.add(ListItem.SectionHeader(Section.KawaiiBar))
         kawaiiBarButtons.forEach { items.add(ListItem.ButtonItem(it, Section.KawaiiBar)) }
         items.add(ListItem.AddButtonPlaceholder)
