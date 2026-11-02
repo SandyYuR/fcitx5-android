@@ -9,6 +9,8 @@ import java.io.IOException
 
 /** Only the selected layout is mirrored. All calls run on the sync worker, never in a getter. */
 internal class DirectBootLayoutStore(private val destination: File) {
+    private var validatedContent: String? = null
+
     fun syncFrom(source: File?) {
         // An unavailable external volume is different from an explicitly deleted layout.
         if (source == null) return
@@ -17,16 +19,19 @@ internal class DirectBootLayoutStore(private val destination: File) {
             return
         }
         val content = source.readText()
-        val valid = try {
-            UserJsonConfigStore.parser.parseToJsonElement(
-                UserJsonConfigStore.stripLineComments(content)
-            ) is JsonObject
-        } catch (_: SerializationException) {
-            false
-        }
-        if (!valid) {
-            clear()
-            return
+        if (content != validatedContent) {
+            val valid = try {
+                UserJsonConfigStore.parser.parseToJsonElement(
+                    UserJsonConfigStore.stripLineComments(content)
+                ) is JsonObject
+            } catch (_: SerializationException) {
+                false
+            }
+            if (!valid) {
+                clear()
+                return
+            }
+            validatedContent = content
         }
         // Imports/restores can retain an older (or identical) timestamp. Compare contents,
         // and publish with the same fsync + atomic replacement used by the layout editor.
@@ -35,6 +40,7 @@ internal class DirectBootLayoutStore(private val destination: File) {
     }
 
     fun clear() {
+        validatedContent = null
         if (destination.exists() && !destination.delete()) {
             throw IOException("Cannot remove Direct Boot keyboard layout")
         }
