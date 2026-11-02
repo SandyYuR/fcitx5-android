@@ -64,7 +64,6 @@ internal fun Fragment.withSettingsPage(content: View): View {
         page.toolbar.title = title
     }
     page.toolbar.setNavigationOnClickListener { host.onSupportNavigateUp() }
-    if (home) host.populateHomeMenu(page.toolbar.menu)
     page.settingsPageContent.addView(content, ViewGroup.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
     ))

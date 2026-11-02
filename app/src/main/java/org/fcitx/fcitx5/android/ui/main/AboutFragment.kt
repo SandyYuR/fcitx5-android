@@ -40,6 +40,9 @@ class AboutFragment : PaddingPreferenceFragment() {
             addPreference(R.string.direct_rime_about_guide, R.string.direct_rime_about_guide_summary) {
                 open(Const.directRimeGuideUrl)
             }
+            addPreference(R.string.faq) {
+                open(Const.faqUrl)
+            }
             addPreference(R.string.direct_rime_about_builds, R.string.direct_rime_about_builds_summary) {
                 openUpdater()
             }
