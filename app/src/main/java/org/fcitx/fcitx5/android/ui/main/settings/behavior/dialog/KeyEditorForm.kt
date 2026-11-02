@@ -266,15 +266,16 @@ class KeyEditorForm(
     )
 
     fun acceptMacroResult(result: androidx.activity.result.ActivityResult) {
-        val data = result.data ?: return
-        if (result.resultCode != android.app.Activity.RESULT_OK) return
-        val steps = data.serializable<ArrayList<Map<*, *>>>(MacroEditorActivity.EXTRA_MACRO_RESULT) ?: return
-        val resolved = steps.map { it as Any }
-        val slot = data.getStringExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN) ?: pendingMacroEventType
         val callback = macroEditCallback
-        if (callback != null) callback(resolved) else if (slot != null) applyMacroStepsToSlot(slot, resolved)
+        val data = result.data
+        val slot = data?.getStringExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN) ?: pendingMacroEventType
         macroEditCallback = null
         pendingMacroEventType = null
+        if (result.resultCode != android.app.Activity.RESULT_OK) return
+        data ?: return
+        val steps = data.serializable<ArrayList<Map<*, *>>>(MacroEditorDialogFragment.EXTRA_MACRO_RESULT) ?: return
+        val resolved = steps.map { it as Any }
+        if (callback != null) callback(resolved) else if (slot != null) applyMacroStepsToSlot(slot, resolved)
     }
 
     fun acceptColorResult(result: ThemeColorEditorActivity.EditorResult?) {
@@ -1827,21 +1828,21 @@ class KeyEditorForm(
     ) {
         persistCurrentDraft()
         pendingMacroEventType = slot
-        val intent = Intent(this, MacroEditorActivity::class.java)
+        val intent = Intent()
         // Echoed back in the result so a recreated host can still apply the edit.
-        intent.putExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN, slot)
+        intent.putExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN, slot)
         if (initialSteps.isNotEmpty()) {
             val serializableSteps = ArrayList<Map<*, *>>()
             initialSteps.forEach { step ->
                 (step as? Map<*, *>)?.let { serializableSteps.add(it) }
             }
             if (serializableSteps.isNotEmpty()) {
-                intent.putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, serializableSteps)
+                intent.putExtra(MacroEditorDialogFragment.EXTRA_MACRO_STEPS, serializableSteps)
             }
         }
-        intent.putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, eventType)
+        intent.putExtra(MacroEditorDialogFragment.EXTRA_EVENT_TYPE, eventType)
         intent.putStringArrayListExtra(
-            MacroEditorActivity.EXTRA_LAYOUT_TARGETS,
+            MacroEditorDialogFragment.EXTRA_LAYOUT_TARGETS,
             ArrayList(availableLayoutTargets)
         )
         macroEditCallback = callback
@@ -2361,7 +2362,7 @@ class KeyEditorForm(
         private const val STATE_DRAFT_KEY_DATA = "draft_key_data"
         private const val STATE_PENDING_MACRO_EVENT = "pending_macro_event"
 
-        /** Macro slots, used as the target token passed to (and echoed by) MacroEditorActivity. */
+        /** Macro slots, used as the target token passed to (and echoed by) MacroEditorDialogFragment. */
         private const val SLOT_TAP = "tap"
         private const val SLOT_SWIPE_UP = "swipeUp"
         private const val SLOT_SWIPE_DOWN = "swipeDown"

@@ -8,11 +8,10 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
-import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorDialogFragment
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
@@ -21,20 +20,20 @@ import org.robolectric.util.ReflectionHelpers
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [23, 28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
 class MacroBaselineTest {
-    private fun page(intent: Intent, block: (MacroEditorActivity) -> Unit) {
-        val controller = Robolectric.buildActivity(MacroEditorActivity::class.java, intent).setup()
-        try { block(controller.get()) }
+    private fun page(intent: Intent, block: (MacroEditorDialogFragment) -> Unit) {
+        val controller = launchMacroEditorTestHost(intent)
+        try { block(controller.get().macroEditorFragment()) }
         finally { controller.pause().stop().destroy() }
     }
     private fun json(steps: List<MacroStep>) = Intent().putExtra(
-        MacroEditorActivity.EXTRA_MACRO_STEPS_JSON, Json.encodeToString(steps))
+        MacroEditorDialogFragment.EXTRA_MACRO_STEPS_JSON, Json.encodeToString(steps))
     private fun maps(steps: List<MacroStep>) = Intent().putExtra(
-        MacroEditorActivity.EXTRA_MACRO_STEPS, MacroEditorActivity.toStepsExtra(steps))
-    private fun dirty(activity: MacroEditorActivity): Boolean {
+        MacroEditorDialogFragment.EXTRA_MACRO_STEPS, MacroEditorDialogFragment.toStepsExtra(steps))
+    private fun dirty(activity: MacroEditorDialogFragment): Boolean {
         ReflectionHelpers.callInstanceMethod<Void>(activity, "updateSaveButtonState")
         return ReflectionHelpers.getField(activity, "hasChanges")
     }
-    private fun steps(activity: MacroEditorActivity): MutableList<MacroEditorActivity.MacroStepData> =
+    private fun steps(activity: MacroEditorDialogFragment): MutableList<MacroEditorDialogFragment.MacroStepData> =
         ReflectionHelpers.getField(activity, "steps")
     private fun mixed() = listOf(
         MacroStep.Down(listOf(KeyRef.Fcitx("Ctrl_L"))),
@@ -71,14 +70,14 @@ class MacroBaselineTest {
         }
     @Test fun theBaselineDoesNotShareTheMutableKeyList() =
         page(json(listOf(MacroStep.Tap(listOf(KeyRef.Fcitx("A")))))) {
-            steps(it).single().keys += MacroEditorActivity.KeyData("fcitx", "B")
+            steps(it).single().keys += MacroEditorDialogFragment.KeyData("fcitx", "B")
             assertTrue(dirty(it))
             steps(it).single().keys.removeAt(1)
             assertFalse(dirty(it))
         }
     @Test fun aNewEmptyMacroStillStartsClean() = page(Intent()) {
         assertFalse(dirty(it))
-        steps(it).single().keys += MacroEditorActivity.KeyData("fcitx", "A")
+        steps(it).single().keys += MacroEditorDialogFragment.KeyData("fcitx", "A")
         assertTrue(dirty(it))
     }
     @Test fun openingAMacroDoesNotLogItsContents() {

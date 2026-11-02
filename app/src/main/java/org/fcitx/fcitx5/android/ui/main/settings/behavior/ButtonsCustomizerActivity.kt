@@ -11,6 +11,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.graphics.Typeface
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -33,6 +34,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
+import androidx.activity.result.ActivityResult
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -51,9 +53,10 @@ import org.fcitx.fcitx5.android.input.config.displayedKawaiiBarButtons
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
-import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorDialogFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fcitx.fcitx5.android.utils.serializable
+import org.fcitx.fcitx5.android.utils.parcelable
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import org.fcitx.fcitx5.android.utils.settingsColor
@@ -200,6 +203,14 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportFragmentManager.setFragmentResultListener(
+            MacroEditorDialogFragment.RESULT_REQUEST_KEY, this
+        ) { _, result ->
+            handleMacroEditorResult(ActivityResult(
+                result.getInt(MacroEditorDialogFragment.RESULT_CODE),
+                result.parcelable<Intent>(MacroEditorDialogFragment.RESULT_DATA)
+            ))
+        }
         setContentView(ui)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -634,31 +645,6 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
     /** Button id whose icon is being picked; survives recreation via onSaveInstanceState. */
     private var pendingIconButtonId: String? = null
 
-    private val macroEditorLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val json = result.data?.getStringExtra(MacroEditorActivity.EXTRA_MACRO_RESULT_JSON)
-            val steps = if (json != null) {
-                try { macroJson.decodeFromString<List<MacroStep>>(json) } catch (_: Exception) { null }
-            } else null
-            val resolvedSteps = steps ?: MacroEditorActivity.fromStepsExtra(
-                result.data?.serializable<ArrayList<Map<*, *>>>(MacroEditorActivity.EXTRA_MACRO_RESULT)
-            )
-            val targetId = result.data?.getStringExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN)
-                ?: pendingMacroButtonId
-            val callback = pendingMacroCallback
-            if (callback != null) {
-                // Dialog is still up: let it update its own draft state.
-                callback.invoke(resolvedSteps)
-            } else if (targetId != null) {
-                // Host was recreated while the editor was open; apply directly.
-                applyMacroResultToButton(targetId, resolvedSteps)
-            }
-            pendingMacroButtonId = null
-        }
-    }
-
     // File picker for custom icon
     private var pendingIconCallback: ((String?) -> Unit)? = null
     private val iconPickerLauncher = registerForActivityResult(
@@ -731,19 +717,39 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
         // (see D7) and the editor is launched once the list is ready.
         lifecycleScope.launch {
             val layoutTargets = availableLayoutTargets()
-            val intent = android.content.Intent(this@ButtonsCustomizerActivity, MacroEditorActivity::class.java).apply {
+            val intent = Intent().apply {
                 val stepsList = steps ?: emptyList()
-                putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS_JSON, macroJson.encodeToString(stepsList))
+                putExtra(MacroEditorDialogFragment.EXTRA_MACRO_STEPS_JSON, macroJson.encodeToString(stepsList))
                 // Also include Map format for backward compatibility
-                putExtra(MacroEditorActivity.EXTRA_MACRO_STEPS, MacroEditorActivity.toStepsExtra(stepsList))
-                putExtra(MacroEditorActivity.EXTRA_EVENT_TYPE, getString(R.string.edit_button_macro_event_type))
-                putStringArrayListExtra(MacroEditorActivity.EXTRA_LAYOUT_TARGETS, ArrayList(layoutTargets))
+                putExtra(MacroEditorDialogFragment.EXTRA_MACRO_STEPS, MacroEditorDialogFragment.toStepsExtra(stepsList))
+                putExtra(MacroEditorDialogFragment.EXTRA_EVENT_TYPE, getString(R.string.edit_button_macro_event_type))
+                putStringArrayListExtra(MacroEditorDialogFragment.EXTRA_LAYOUT_TARGETS, ArrayList(layoutTargets))
                 // Carried through the result so the edit can be applied even if this Activity is
-                // recreated while the editor is in front (see macroEditorLauncher).
-                targetButtonId?.let { putExtra(MacroEditorActivity.EXTRA_TARGET_TOKEN, it) }
+                // recreated while the editor is open.
+                targetButtonId?.let { putExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN, it) }
             }
-            macroEditorLauncher.launch(intent)
+            MacroEditorDialogFragment.newInstance(intent)
+                .show(supportFragmentManager, MacroEditorDialogFragment.TAG)
         }
+    }
+
+    private fun handleMacroEditorResult(result: ActivityResult) {
+        val targetId = result.data?.getStringExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN)
+            ?: pendingMacroButtonId
+        if (result.resultCode == RESULT_OK) {
+            val json = result.data?.getStringExtra(MacroEditorDialogFragment.EXTRA_MACRO_RESULT_JSON)
+            val steps = if (json != null) {
+                try { macroJson.decodeFromString<List<MacroStep>>(json) } catch (_: Exception) { null }
+            } else null
+            val resolvedSteps = steps ?: MacroEditorDialogFragment.fromStepsExtra(
+                result.data?.serializable<ArrayList<Map<*, *>>>(MacroEditorDialogFragment.EXTRA_MACRO_RESULT)
+            )
+            val callback = pendingMacroCallback
+            if (callback != null) callback.invoke(resolvedSteps)
+            else if (targetId != null) applyMacroResultToButton(targetId, resolvedSteps)
+        }
+        pendingMacroCallback = null
+        pendingMacroButtonId = null
     }
 
     /**
