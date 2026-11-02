@@ -8,6 +8,7 @@ import android.os.FileObserver
 import android.os.Handler
 import android.os.Looper
 import kotlinx.serialization.json.JsonObject
+import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import java.io.File
 
@@ -24,9 +25,10 @@ interface ConfigProvider {
 
 object DefaultConfigProvider : ConfigProvider {
     override fun textKeyboardLayoutFile(): File? {
-        val profile = runCatching {
-            AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.getValue()
-        }.getOrNull() ?: UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE
+        if (FcitxApplication.getInstance().isDirectBootMode) {
+            return UserConfigFiles.directBootTextKeyboardLayoutJson()?.takeIf { it.isFile }
+        }
+        val profile = AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.getValue()
         return UserConfigFiles.textKeyboardLayoutJson(profile)
     }
     override fun popupPresetFile(): File? = UserConfigFiles.popupPresetJson()
