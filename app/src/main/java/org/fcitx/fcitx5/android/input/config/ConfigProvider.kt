@@ -8,6 +8,7 @@ import android.os.FileObserver
 import android.os.Handler
 import android.os.Looper
 import kotlinx.serialization.json.JsonObject
+import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import java.io.File
 
@@ -24,6 +25,9 @@ interface ConfigProvider {
 
 object DefaultConfigProvider : ConfigProvider {
     override fun textKeyboardLayoutFile(): File? {
+        if (FcitxApplication.getInstance().isDirectBootMode) {
+            return UserConfigFiles.directBootTextKeyboardLayoutJson()?.takeIf { it.isFile }
+        }
         val profile = AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.getValue()
         return UserConfigFiles.textKeyboardLayoutJson(profile)
     }
@@ -36,6 +40,9 @@ object DefaultConfigProvider : ConfigProvider {
 
 object ConfigProviders {
     private val mainHandler = Handler(Looper.getMainLooper())
+    private const val FILE_EVENTS = FileObserver.CLOSE_WRITE or FileObserver.MODIFY or
+        FileObserver.MOVED_TO or FileObserver.MOVED_FROM or FileObserver.CREATE or
+        FileObserver.DELETE or FileObserver.DELETE_SELF or FileObserver.MOVE_SELF
 
     @Volatile
     var provider: ConfigProvider = DefaultConfigProvider
@@ -45,13 +52,13 @@ object ConfigProviders {
         }
 
     @Volatile
-    private var configWatcher: FileObserver? = null
+    private var configWatcher: DirectoryObserverRegistry.Subscription? = null
 
     @Volatile
-    private var fontWatcher: FileObserver? = null
+    private var fontWatcher: DirectoryObserverRegistry.Subscription? = null
     
     @Volatile
-    private var iconWatcher: FileObserver? = null
+    private var iconWatcher: DirectoryObserverRegistry.Subscription? = null
 
     @Volatile
     private var watchedConfigDir: String? = null
@@ -140,9 +147,9 @@ object ConfigProviders {
 
     @Synchronized
     private fun restartWatching() {
-        configWatcher?.stopWatching()
-        fontWatcher?.stopWatching()
-        iconWatcher?.stopWatching()
+        configWatcher?.close()
+        fontWatcher?.close()
+        iconWatcher?.close()
         configWatcher = null
         fontWatcher = null
         iconWatcher = null
@@ -182,44 +189,31 @@ object ConfigProviders {
             val popupFileName = popupFile?.name
             val buttonsLayoutFileName = buttonsLayoutFile?.name
 
-            if (!(configWatcher != null &&
+            if (!(configWatcher?.isWatching == true &&
                         watchedConfigDir == dirPath &&
                         watchedTextLayoutFileName == textFileName &&
                         watchedPopupPresetFileName == popupFileName &&
                         watchedButtonsLayoutFileName == buttonsLayoutFileName)
             ) {
-                configWatcher?.stopWatching()
-                // Use String path for API 28 compatibility (HarmonyOS 9.1.0)
-                // Suppress deprecation warning: deprecated constants are still supported on all API levels
-                @Suppress("DEPRECATION")
-                configWatcher = object : FileObserver(
-                    dirPath,
-                    CLOSE_WRITE or MODIFY or MOVED_TO or CREATE or DELETE or DELETE_SELF or MOVE_SELF
-                ) {
-                    override fun onEvent(event: Int, path: String?) {
-                        if (path == null) return
-                        val textName = watchedTextLayoutFileName
-                        val popupName = watchedPopupPresetFileName
-                        val buttonsLayoutName = watchedButtonsLayoutFileName
-                        if (textName != null && path == textName) {
-                            notifyListeners(textLayoutListeners)
-                        }
-                        if (popupName != null && path == popupName) {
-                            notifyListeners(popupPresetListeners)
-                        }
-                        if (buttonsLayoutName != null && path == buttonsLayoutName) {
-                            notifyListeners(buttonsLayoutListeners)
-                        }
-                    }
-                }.also { it.startWatching() }
-
+                configWatcher?.close()
                 watchedConfigDir = dirPath
                 watchedTextLayoutFileName = textFileName
                 watchedPopupPresetFileName = popupFileName
                 watchedButtonsLayoutFileName = buttonsLayoutFileName
+                configWatcher = DirectoryObservers.shared.subscribe(configDir, FILE_EVENTS) { _, path ->
+                    if (path == null || path == watchedTextLayoutFileName) {
+                        notifyListeners(textLayoutListeners)
+                    }
+                    if (path == null || path == watchedPopupPresetFileName) {
+                        notifyListeners(popupPresetListeners)
+                    }
+                    if (path == null || path == watchedButtonsLayoutFileName) {
+                        notifyListeners(buttonsLayoutListeners)
+                    }
+                }
             }
         } else if (!hasConfigListeners) {
-            configWatcher?.stopWatching()
+            configWatcher?.close()
             configWatcher = null
             watchedConfigDir = null
             watchedTextLayoutFileName = null
@@ -231,25 +225,18 @@ object ConfigProviders {
         val iconBaseDir = buttonsLayoutFile?.parentFile?.parentFile?.let { File(it, ButtonIconFile.DIR) }
         if (hasIconWatcherListeners && iconBaseDir != null) {
             val dirPath = iconBaseDir.absolutePath
-            if (!(iconWatcher != null && watchedIconBaseDir == dirPath)) {
-                iconWatcher?.stopWatching()
-                @Suppress("DEPRECATION")
-                iconWatcher = object : FileObserver(
-                    dirPath,
-                    CLOSE_WRITE or MODIFY or MOVED_TO or CREATE or DELETE or DELETE_SELF or MOVE_SELF
-                ) {
-                    override fun onEvent(event: Int, path: String?) {
-                        if (path.isNullOrEmpty()) return
-                        val watched = watchedIconFileNames
-                        if (watched.isEmpty() || path in watched) {
-                            notifyListeners(iconChangeListeners)
-                        }
+            if (!(iconWatcher?.isWatching == true && watchedIconBaseDir == dirPath)) {
+                iconWatcher?.close()
+                iconWatcher = DirectoryObservers.shared.subscribe(iconBaseDir, FILE_EVENTS) { _, path ->
+                    val watched = watchedIconFileNames
+                    if (path == null || watched.isEmpty() || path in watched) {
+                        notifyListeners(iconChangeListeners)
                     }
-                }.also { it.startWatching() }
+                }
                 watchedIconBaseDir = dirPath
             }
         } else if (!hasIconWatcherListeners) {
-            iconWatcher?.stopWatching()
+            iconWatcher?.close()
             iconWatcher = null
             watchedIconBaseDir = null
         }
@@ -259,28 +246,18 @@ object ConfigProviders {
         if (hasFontsetListeners && fontDir != null) {
             val dirPath = fontDir.absolutePath
             val fileName = fontsetFile.name
-            if (!(fontWatcher != null && watchedFontDir == dirPath && watchedFontsetFileName == fileName)) {
-                fontWatcher?.stopWatching()
-                // Use String path for API 28 compatibility (HarmonyOS 9.1.0)
-                // Suppress deprecation warning: deprecated constants are still supported on all API levels
-                @Suppress("DEPRECATION")
-                fontWatcher = object : FileObserver(
-                    dirPath,
-                    CLOSE_WRITE or MODIFY or MOVED_TO or CREATE or DELETE or DELETE_SELF or MOVE_SELF
-                ) {
-                    override fun onEvent(event: Int, path: String?) {
-                        val target = watchedFontsetFileName
-                        if (target == null) return
-                        if (path != null && path != target) return
-                        notifyListeners(fontsetListeners)
-                    }
-                }.also { it.startWatching() }
-
+            if (!(fontWatcher?.isWatching == true && watchedFontDir == dirPath && watchedFontsetFileName == fileName)) {
+                fontWatcher?.close()
                 watchedFontDir = dirPath
                 watchedFontsetFileName = fileName
+                fontWatcher = DirectoryObservers.shared.subscribe(fontDir, FILE_EVENTS) { _, path ->
+                    if (path == null || path == watchedFontsetFileName) {
+                        notifyListeners(fontsetListeners)
+                    }
+                }
             }
         } else if (!hasFontsetListeners) {
-            fontWatcher?.stopWatching()
+            fontWatcher?.close()
             fontWatcher = null
             watchedFontDir = null
             watchedFontsetFileName = null

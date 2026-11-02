@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.input.config
 
+import android.os.Build
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.utils.appContext
 import java.io.File
@@ -66,6 +67,13 @@ object UserConfigFiles {
         ?.sortedWith(String.CASE_INSENSITIVE_ORDER)
         ?.toList()
         .orEmpty()
+
+    /** One snapshot of the active layout; its selection does not depend on stale DE preferences. */
+    fun directBootTextKeyboardLayoutJson(): File? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return null
+        return File(appContext.createDeviceProtectedStorageContext().filesDir,
+            "direct_boot_keyboard/TextKeyboardLayout.json")
+    }
 
     fun textKeyboardLayoutJson(): File? = textKeyboardLayoutJson(DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE)
 

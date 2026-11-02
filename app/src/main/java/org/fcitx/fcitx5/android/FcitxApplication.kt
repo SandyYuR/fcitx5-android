@@ -30,6 +30,8 @@ import org.fcitx.fcitx5.android.data.prefs.SmartDefaultInitializer
 import org.fcitx.fcitx5.android.data.prefs.SplitKeyboardStateManager
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.input.config.DirectBootLayoutSync
+import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.ui.main.LogActivity
 import org.fcitx.fcitx5.android.utils.AppUtil
@@ -95,6 +97,9 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
     }
 
     var isDirectBootMode = false
+        private set
+
+    internal var directBootLayoutSync: DirectBootLayoutSync? = null
         private set
 
     val directBootAwareContext: Context
@@ -179,6 +184,9 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
         val themeInitialization = ThemeManager.init(resources.configuration)
         // 安装内置键盘布局/主题/图标主题（幂等，后台执行，开箱即用）
         if (!isDirectBootMode) {
+            UserConfigFiles.directBootTextKeyboardLayoutJson()?.let { destination ->
+                directBootLayoutSync = DirectBootLayoutSync(this, appPrefs.keyboard.textKeyboardLayoutProfile, destination)
+            }
             BundledPresets.installAsync {
                 IconThemeManager.refreshAsync()
             }
@@ -207,6 +215,11 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
             null,
             ContextCompat.RECEIVER_EXPORTED
         )
+    }
+
+    override fun onTerminate() {
+        directBootLayoutSync?.close()
+        super.onTerminate()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

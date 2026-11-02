@@ -8,6 +8,7 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Looper
 import android.os.UserManager
 import androidx.core.content.ContextCompat
@@ -15,6 +16,7 @@ import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.core.DirectRimeConfig
@@ -28,6 +30,7 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
+import org.fcitx.fcitx5.android.input.config.DefaultConfigProvider
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
 import org.fcitx.fcitx5.android.input.font.DefaultFontProvider
 import org.fcitx.fcitx5.android.input.keyboard.AlphabetKey
@@ -68,10 +71,11 @@ class DirectBootStartupTest {
     /** Robolectric does not enforce Android's CE lock, so enforce it at the Context boundary. */
     private class StorageContext(base: Context, val access: StorageAccess) :
         ContextWrapper(hostDatabaseContext(base)) {
-        private val unlocked get() = getSystemService(UserManager::class.java).isUserUnlocked
+        private val unlocked get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.N ||
+            getSystemService(UserManager::class.java).isUserUnlocked
 
         private fun checkCredentialStorage(operation: String) {
-            if (!isDeviceProtectedStorage && !unlocked) {
+            if (!unlocked && !isDeviceProtectedStorage) {
                 access.credentialReads += operation
                 throw IllegalStateException("Credential encrypted storage is unavailable before user unlock: $operation")
             }
@@ -143,6 +147,10 @@ class DirectBootStartupTest {
     }
 
     @After fun closeApplication() {
+        application?.directBootLayoutSync?.let { sync ->
+            sync.close()
+            runBlocking { sync.join() }
+        }
         if (!startupComplete) {
             application?.coroutineScope?.cancel()
             return
@@ -227,6 +235,60 @@ class DirectBootStartupTest {
         assertSame(credentials, ReflectionHelpers.callInstanceMethod<SharedPreferences>(ClipboardWindow(), "getSharedPreferences"))
         assertEquals("light", device.getString("settings_ui_mode", null))
         assertFalse(device.contains("private_test_value"))
+    }
+
+    @Test fun lockedStartupReadsTheActiveSnapshotWithoutCredentialStorageOrProfilePreferences() {
+        val base = RuntimeEnvironment.getApplication()
+        val deviceContext = base.createDeviceProtectedStorageContext()
+        PreferenceManager.getDefaultSharedPreferences(deviceContext).edit()
+            .putString("text_keyboard_layout_profile", "stale-profile").commit()
+        val letters = "abcdefghijklmnopqrstuvwxyz"
+        val keys = letters.map { """{"type":"AlphabetKey","main":"$it","alt":"1"}""" }.joinToString(",")
+        val snapshot = File(deviceContext.filesDir, "direct_boot_keyboard/TextKeyboardLayout.json").apply {
+            parentFile!!.mkdirs()
+            // The custom default differs from built-in QWERTY; a schema layout must not win.
+            writeText("""{"rime":{"default":[[$keys]],"九键":[[{"type":"AlphabetKey","main":"x"}]]}}""")
+        }
+        shadowOf(base.getSystemService(UserManager::class.java)).setUserUnlocked(false)
+        val access = StorageAccess()
+        val app = startApplication(StorageContext(base, access))
+        assertNull(app.directBootLayoutSync)
+        assertEquals(snapshot, DefaultConfigProvider.textKeyboardLayoutFile())
+        TextKeyboard.setPasswordDefaultLayout(true)
+        try {
+            val actual = TextKeyboard.getLayout(TextKeyboardLayoutState()).flatten()
+                .filterIsInstance<AlphabetKey>().joinToString("") { it.character.lowercase() }
+            assertEquals(letters, actual)
+        } finally { TextKeyboard.setPasswordDefaultLayout(false) }
+        assertTrue("CE reads: ${access.credentialReads}", access.credentialReads.isEmpty())
+        assertEquals(0, access.externalReads)
+    }
+
+    @Test @Config(sdk = [23]) fun androidMarshmallowDoesNotUseDeviceProtectedStorage() {
+        val app = startApplication(StorageContext(RuntimeEnvironment.getApplication(), StorageAccess()))
+        assertFalse(app.isDirectBootMode)
+        assertNull(app.directBootLayoutSync)
+        assertNull(UserConfigFiles.directBootTextKeyboardLayoutJson())
+    }
+
+    @Test fun malformedSnapshotKeysFallBackToBuiltinPasswordKeyboard() {
+        val base = RuntimeEnvironment.getApplication()
+        File(base.createDeviceProtectedStorageContext().filesDir,
+            "direct_boot_keyboard/TextKeyboardLayout.json").apply {
+            parentFile!!.mkdirs()
+            writeText("""{"rime":{"default":[[{"type":"AlphabetKey","main":"a","alt":""}]]}}""")
+        }
+        shadowOf(base.getSystemService(UserManager::class.java)).setUserUnlocked(false)
+        val access = StorageAccess()
+        startApplication(StorageContext(base, access))
+        TextKeyboard.setPasswordDefaultLayout(true)
+        try {
+            val actual = TextKeyboard.getLayout(TextKeyboardLayoutState()).flatten()
+                .filterIsInstance<AlphabetKey>().joinToString("") { it.character.lowercase() }
+            assertEquals("qwertyuiopasdfghjklzxcvbnm", actual)
+        } finally { TextKeyboard.setPasswordDefaultLayout(false) }
+        assertTrue(access.credentialReads.isEmpty())
+        assertEquals(0, access.externalReads)
     }
 
     @Test fun unlockingDuringReceiverRegistrationSelectsCredentialStorageImmediately() {
