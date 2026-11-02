@@ -1024,6 +1024,7 @@
     <string name="voice_status_opening">Opening…</string>
     <string name="voice_status_loading">Loading…</string>
     <string name="voice_status_floating_ready">Ready</string>
+    <string name="voice_input_finish">Finish recording</string>
     <string name="voice_status_recognizing">Recognizing</string>
     <string name="voice_status_listening">Listening</string>
     <string name="voice_status_committed">Done</string>

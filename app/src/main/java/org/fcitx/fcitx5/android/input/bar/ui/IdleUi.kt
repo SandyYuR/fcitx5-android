@@ -138,6 +138,10 @@ class IdleUi(
     private var voiceWavePhase = 0
     private var lastVoiceLevelAt = 0L
 
+    val voiceInputFinishButton = ToolButton(ctx, R.drawable.ic_baseline_stop_24, theme).apply {
+        contentDescription = ctx.getString(R.string.voice_input_finish)
+    }
+
     private val voiceStatusBar = horizontalLayout {
         gravity = Gravity.CENTER_VERTICAL
         visibility = View.GONE
@@ -148,6 +152,9 @@ class IdleUi(
                 marginStart = dp(3)
             })
         }
+        // The configurable microphone lives in animator, which is hidden while recording.
+        // Keep the session's finish control inside the visible voice status strip instead.
+        add(voiceInputFinishButton, lParams(KawaiiBarComponent.resolveHeightPx(ctx), matchParent))
     }
 
     private val voiceWaveTicker = object : Runnable {
@@ -240,6 +247,8 @@ class IdleUi(
             }
             button.applyToolbarScale(scale, slotDp)
         }
+        voiceInputFinishButton.updateLayoutParams<LinearLayout.LayoutParams> { width = size }
+        voiceInputFinishButton.applyToolbarScale(scale, slotDp)
         // 下滑隐藏键盘的手势阈值按栏高算；改了栏高却不改阈值，用户会滑不动（或一碰就触发）。
         hideKeyboardButton.swipeThresholdY = size.toFloat()
         buttonsUi.refreshLayout()
@@ -257,6 +266,7 @@ class IdleUi(
     fun clearTransientPressState() {
         menuButton.clearTransientPressState()
         hideKeyboardButton.clearTransientPressState()
+        voiceInputFinishButton.clearTransientPressState()
         buttonsUi.clearTransientPressState()
     }
 

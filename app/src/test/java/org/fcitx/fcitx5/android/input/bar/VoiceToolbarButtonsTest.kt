@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.bar
 
+import android.graphics.Rect
 import android.os.Looper
 import android.os.SystemClock
 import android.view.MotionEvent
@@ -29,6 +30,60 @@ import java.time.Duration
 @Config(sdk = [23, 28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
 class VoiceToolbarButtonsTest {
     private class HostActivity : SettingsUiActivity()
+
+    @Test fun finishRecordingRemainsReachableWhileTheToolbarIsHidden() {
+        val controller = Robolectric.buildActivity(HostActivity::class.java).setup()
+        try {
+            val activity = controller.get()
+            SplitKeyboardStateManager.init(activity)
+            // Space-hold recording also needs a finish control when no microphone is configured.
+            for (buttons in listOf(listOf(ConfigurableButton("voice_input")), emptyList())) {
+                val ui = IdleUi(activity, ThemePreset.PixelLight, PopupComponent(),
+                    CommonKeyActionListener(), buttonsConfig = buttons)
+                activity.setContentView(ui.root)
+                ui.root.setViewTreeLifecycleOwner(activity)
+                ui.applyToolbarScale()
+                var finished = 0
+                var hidden = 0
+                ui.voiceInputFinishButton.setOnClickListener { finished++ }
+                ui.hideKeyboardButton.setOnClickListener { hidden++ }
+                for (state in IdleUi.State.entries) {
+                    ui.updateState(state)
+                    assertFalse(ui.voiceInputFinishButton.isShown)
+                    ui.showVoiceStatus("Listening")
+                    ui.root.measure(View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(120, View.MeasureSpec.EXACTLY))
+                    ui.root.layout(0, 0, 1080, 120)
+                    assertTrue(ui.voiceInputFinishButton.isShown)
+                    assertTrue(ui.hideKeyboardButton.isShown)
+                    assertFalse(ui.buttonsUi.root.isShown)
+                    val finishBounds = Rect()
+                    ui.voiceInputFinishButton.getDrawingRect(finishBounds)
+                    ui.root.offsetDescendantRectToMyCoords(ui.voiceInputFinishButton, finishBounds)
+                    val hideBounds = Rect()
+                    ui.hideKeyboardButton.getDrawingRect(hideBounds)
+                    ui.root.offsetDescendantRectToMyCoords(ui.hideKeyboardButton, hideBounds)
+                    assertTrue(finishBounds.width() > 0 && finishBounds.height() > 0)
+                    assertFalse(Rect.intersects(finishBounds, hideBounds))
+                    val before = finished
+                    val now = SystemClock.uptimeMillis()
+                    for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
+                        val event = MotionEvent.obtain(now, now, action,
+                            finishBounds.exactCenterX(), finishBounds.exactCenterY(), 0)
+                        try { ui.root.dispatchTouchEvent(event) } finally { event.recycle() }
+                    }
+                    assertEquals(before + 1, finished)
+                    assertEquals(0, hidden)
+                    ui.showVoiceStatus("Recognizing")
+                    assertTrue(ui.voiceInputFinishButton.isShown)
+                    ui.hideVoiceStatus()
+                    assertFalse(ui.voiceInputFinishButton.isShown)
+                    assertEquals(state == IdleUi.State.Toolbar, ui.buttonsUi.root.isShown)
+                    assertEquals(state == IdleUi.State.NumberRow, ui.numberRow.isShown)
+                }
+            }
+        } finally { controller.pause().stop().destroy() }
+    }
 
     @Test fun voiceUsesConfigurableToolbarButtonAndHideRemainsFixed() {
         val controller = Robolectric.buildActivity(HostActivity::class.java).setup()

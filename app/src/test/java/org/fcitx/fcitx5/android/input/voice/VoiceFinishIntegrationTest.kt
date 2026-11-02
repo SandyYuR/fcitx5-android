@@ -49,7 +49,7 @@ class VoiceFinishIntegrationTest {
     private val manager = VoiceInputProviderManager
     private val fields = listOf("activeProvider", "activeCallback", "activeEditorSession", "sessionGeneration",
         "sessionActive", "voiceSessionTerminalized", "finishing", "floatingFallbackActive",
-        "activeAudioFeedQueue", "activeAudioFeedJob", "finishWatchdogJob")
+        "activeAudioFeedQueue", "activeAudioFeedJob", "activeCapture", "finishWatchdogJob")
     private lateinit var saved: Map<String, Any?>
     private val feed = Job()
     private val queue = Channel<Any>(2)
@@ -63,7 +63,7 @@ class VoiceFinishIntegrationTest {
             "activeEditorSession" to service.editorSession.capture(), "sessionGeneration" to 10,
             "sessionActive" to true, "voiceSessionTerminalized" to false, "finishing" to false,
             "floatingFallbackActive" to false, "activeAudioFeedQueue" to queue,
-            "activeAudioFeedJob" to feed, "finishWatchdogJob" to null)
+            "activeAudioFeedJob" to feed, "activeCapture" to null, "finishWatchdogJob" to null)
         state.forEach { (name, value) -> ReflectionHelpers.setField(manager, name, value) }
     }
 
@@ -75,9 +75,7 @@ class VoiceFinishIntegrationTest {
     }
 
     private fun beginFinish() {
-        manager.javaClass.getDeclaredMethod("finish", android.content.Context::class.java).apply {
-            isAccessible = true
-        }.invoke(manager, service)
+        manager.finish(service)
         shadowOf(Looper.getMainLooper()).idle()
         assertTrue(queue.isClosedForSend)
         assertEquals(0, original.ends)
@@ -110,5 +108,24 @@ class VoiceFinishIntegrationTest {
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(1, original.ends)
         assertNotNull(ReflectionHelpers.getField<Job?>(manager, "finishWatchdogJob"))
+    }
+
+    @Test fun repeatedFinishOnlyEndsTheStreamOnce() {
+        beginFinish()
+        manager.finish(service)
+        feed.complete()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(1, original.ends)
+    }
+
+    @Test fun staleFinishAfterTheSessionEndsDoesNotStartFinishingAgain() {
+        ReflectionHelpers.setField(manager, "activeCallback", null)
+        ReflectionHelpers.setField(manager, "sessionActive", false)
+        assertFalse(manager.isActive())
+        manager.finish(service)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertFalse(ReflectionHelpers.getField<Boolean>(manager, "finishing"))
+        assertEquals(0, original.ends)
+        assertNull(ReflectionHelpers.getField<Job?>(manager, "finishWatchdogJob"))
     }
 }
