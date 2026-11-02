@@ -61,7 +61,7 @@ import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
-import org.fcitx.fcitx5.android.input.config.kawaiiBarButtonsWithThemeToggle
+import org.fcitx.fcitx5.android.input.config.displayedKawaiiBarButtons
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
@@ -414,7 +414,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private fun loadButtonsConfig(): Triple<List<ConfigurableButton>, ConfigurableButton, ConfigurableButton> {
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         val config = snapshot?.value ?: ButtonsLayoutConfig.default()
-        val configuredButtons = config.kawaiiBarButtonsWithThemeToggle()
+        val configuredButtons = config.displayedKawaiiBarButtons()
         val buttonsWithoutPasswordVoice = if (isPasswordField) {
             configuredButtons.filterNot { it.id == "voice_input" }
         } else {
@@ -655,7 +655,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         val snapshot = ConfigProviders.readButtonsLayoutConfig<ButtonsLayoutConfig>()
         if (snapshot == null) return emptySet()
         val config = snapshot.value
-        val allButtons = config.kawaiiBarButtonsWithThemeToggle() + config.statusAreaButtons +
+        val allButtons = config.displayedKawaiiBarButtons() + config.statusAreaButtons +
             listOf(config.toolbarToggleButton, config.hideKeyboardButton)
         return extractIconFileNames(allButtons)
     }

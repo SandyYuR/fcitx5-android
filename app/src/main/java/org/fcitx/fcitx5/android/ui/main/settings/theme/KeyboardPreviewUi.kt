@@ -53,7 +53,7 @@ import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
-import org.fcitx.fcitx5.android.input.config.kawaiiBarButtonsWithThemeToggle
+import org.fcitx.fcitx5.android.input.config.displayedKawaiiBarButtons
 import org.fcitx.fcitx5.android.input.keyboard.KeyView
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
@@ -676,7 +676,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             R.drawable.ic_baseline_arrow_drop_down_24,
             "system.hide_keyboard"
         )
-        val buttonsUi = ButtonsBarUi(ctx, theme, config.kawaiiBarButtonsWithThemeToggle())
+        val buttonsUi = ButtonsBarUi(ctx, theme, config.displayedKawaiiBarButtons())
         for (index in 0 until buttonsUi.root.childCount) {
             buttonsUi.root.getChildAt(index).isEnabled = false
         }

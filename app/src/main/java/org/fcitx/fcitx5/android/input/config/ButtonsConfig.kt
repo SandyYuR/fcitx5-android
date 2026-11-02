@@ -124,26 +124,12 @@ data class ButtonsLayoutConfig(
     }
 }
 
-private val legacyDefaultKawaiiBarButtonIds = listOf(
-    "undo",
-    "redo",
-    "cursor_move",
-    "floating_toggle",
-    "clipboard"
-)
-
 /**
- * Adds the theme control to layouts saved before it became part of the default toolbar.
- * Only the exact legacy default is migrated; all manually arranged layouts remain unchanged.
+ * The status area has a fixed opener, so obsolete "more" buttons are not displayed.
+ * Respect the saved list: removing a default button must not add it back on the next load.
  */
-fun ButtonsLayoutConfig.kawaiiBarButtonsWithThemeToggle(): List<ConfigurableButton> {
-    val buttons = kawaiiBarButtons.filter { it.id != "more" }
-    return if (buttons.map { it.id } == legacyDefaultKawaiiBarButtonIds) {
-        buttons + ConfigurableButton("theme_toggle")
-    } else {
-        buttons
-    }
-}
+fun ButtonsLayoutConfig.displayedKawaiiBarButtons(): List<ConfigurableButton> =
+    kawaiiBarButtons.filter { it.id != "more" }
 
 /**
  * Configuration for Kawaii Bar buttons layout.
