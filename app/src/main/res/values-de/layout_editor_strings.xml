@@ -29,6 +29,8 @@
     <string name="layout_editor_row_settings">Zeileneinstellungen</string>
     <string name="layout_editor_row_height_hint">Gilt für alle Tasten dieser Zeile. Leer lassen, um die verbleibende Höhe automatisch zu verteilen.</string>
     <string name="layout_editor_split_boundary">Teilungspunkt</string>
+    <string name="layout_editor_split_row_keep_together">Diese Zeile zusammenhalten</string>
+    <string name="layout_editor_split_row_keep_together_hint">In einer geteilten Anordnung wird diese Zeile über die gesamte Tastaturbreite ohne Mittelspalt angezeigt.</string>
     <string name="layout_editor_split_auto">Automatisch</string>
     <string name="layout_editor_split_after">Nach Taste %1$d: %2$s</string>
     <string name="layout_editor_deleted">Gelöscht</string>

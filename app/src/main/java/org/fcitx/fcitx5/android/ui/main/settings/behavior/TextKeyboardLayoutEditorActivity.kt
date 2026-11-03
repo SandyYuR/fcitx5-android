@@ -354,7 +354,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 if (position != null && rows != null && position.row in rows.indices && position.key in rows[position.row].indices) {
                     deleteSnackbar?.dismiss()
                     inlineTransactionActive = true
-                    rows[position.row][position.key] = draft
+                    LayoutKeyOperations.replaceKey(rows[position.row], position.key, draft)
                     currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
                     canvasOverlay.refresh()
                     updateSaveButtonState()
@@ -554,7 +554,10 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         if (!finishInlineEdit()) return
         val row = currentRowsRef.getOrNull(position.row) ?: return
         val key = row.getOrNull(position.key) ?: return
-        val copy = copyKeyData(key).apply { remove("splitAfter") }
+        val copy = copyKeyData(key).apply {
+            remove("splitAfter")
+            remove("splitRowDisabled")
+        }
         row.add(position.key + 1, copy)
         clearKeySelection()
         rowsAdapter?.notifyRowChanged(position.row)
@@ -569,7 +572,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         inlineTransactionActive = false
         val row = currentRowsRef.getOrNull(position.row) ?: return
         if (position.key !in row.indices) return
-        row.removeAt(position.key)
+        LayoutKeyOperations.removeKey(row, position.key)
         clearKeySelection()
         rowsAdapter?.notifyRowChanged(position.row)
         currentLayout?.let { previewManager.updatePreview(it, resolvePreviewLabel(), fcitxConnection) }
@@ -761,13 +764,14 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 val key = data.serializable<HashMap<String, Any?>>(KeyEditorActivity.EXTRA_RESULT_KEY_DATA)
                     ?.toMutableMap() ?: return
                 if (visible) clearKeySelection()
-                if (keyIndex == null) rows[rowIndex].add(key) else rows[rowIndex][keyIndex] = key
+                if (keyIndex == null) rows[rowIndex].add(key)
+                else LayoutKeyOperations.replaceKey(rows[rowIndex], keyIndex, key)
                 normalizeRowHeightPercent(rows[rowIndex])
             }
             KeyEditorActivity.RESULT_ACTION_DELETE -> {
                 if (keyIndex == null) return
                 if (visible) clearKeySelection()
-                rows[rowIndex].removeAt(keyIndex)
+                LayoutKeyOperations.removeKey(rows[rowIndex], keyIndex)
             }
             else -> return
         }
@@ -2217,8 +2221,14 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                     // so rejecting it here left views and data disagreeing until the next bind
                     // silently reverted the drag. `to == size` is legitimate — it means "move to
                     // the end" — and only becomes valid after the element is removed.
-                    val item = currentRow.removeAt(from)
-                    currentRow.add(to.coerceIn(0, currentRow.size), item)
+                    LayoutKeyOperations.move(
+                        currentRowsRef,
+                        EditorKeyPosition(rowIndex, from),
+                        EditorKeyPosition(
+                            rowIndex,
+                            (to + (if (from < to) 1 else 0)).coerceIn(0, currentRow.size)
+                        )
+                    )
                 }
 
                 override fun onKeyDragEnded(rowIndex: Int) {
@@ -2482,10 +2492,26 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             textSize = 13f
             setTextColor(settingsColor(android.R.attr.textColorSecondary))
         })
-        form.addView(TextView(this).apply {
+        val keepSplitRowTogether = com.google.android.material.checkbox.MaterialCheckBox(this).apply {
+            text = getString(R.string.layout_editor_split_row_keep_together)
+            isChecked = LayoutKeyOperations.isSplitRowDisabled(row)
+            isEnabled = row.isNotEmpty()
+            visibility = if (editingSplit) View.VISIBLE else View.GONE
+            setPadding(0, dp(8), 0, 0)
+        }
+        form.addView(keepSplitRowTogether)
+        val splitRowHint = TextView(this).apply {
+            setText(R.string.layout_editor_split_row_keep_together_hint)
+            textSize = 13f
+            setTextColor(settingsColor(android.R.attr.textColorSecondary))
+            visibility = if (editingSplit) View.VISIBLE else View.GONE
+        }
+        form.addView(splitRowHint)
+        val splitBoundaryTitle = TextView(this).apply {
             setText(R.string.layout_editor_split_boundary)
             setPadding(0, dp(16), 0, 0)
-        })
+        }
+        form.addView(splitBoundaryTitle)
         val boundaries = listOf(getString(R.string.layout_editor_split_auto)) + row.dropLast(1).mapIndexed { index, key ->
             getString(R.string.layout_editor_split_after, index + 1, rowsAdapter?.buildKeyLabel(key).orEmpty())
         }
@@ -2495,6 +2521,15 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             setSelection((row.indexOfLast { it["splitAfter"] == true } + 1).coerceIn(0, boundaries.lastIndex))
         }
         form.addView(boundary)
+        if (editingSplit) {
+            fun syncBoundaryEnabled() {
+                val enabled = !keepSplitRowTogether.isChecked
+                splitBoundaryTitle.isEnabled = enabled
+                boundary.isEnabled = enabled
+            }
+            keepSplitRowTogether.setOnCheckedChangeListener { _, _ -> syncBoundaryEnabled() }
+            syncBoundaryEnabled()
+        }
         // Row operations are explicit, separate from key properties.
         val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.layout_editor_row_settings) + " · " + (rowIndex + 1))
@@ -2518,6 +2553,9 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 row.forEach { key ->
                     key.remove("rowHeightPercent")
                     if (value != null) key["rowHeightPercent"] = value
+                }
+                if (editingSplit) {
+                    LayoutKeyOperations.setSplitRowDisabled(row, keepSplitRowTogether.isChecked)
                 }
                 LayoutKeyOperations.setSplitBoundary(row, (boundary.selectedItemPosition - 1).takeIf { it >= 0 })
                 clearKeySelection()

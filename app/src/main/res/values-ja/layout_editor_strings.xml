@@ -29,6 +29,8 @@
     <string name="layout_editor_row_settings">行の設定</string>
     <string name="layout_editor_row_height_hint">この行のすべてのキーに適用されます。空欄にすると、残りの高さが自動で割り当てられます。</string>
     <string name="layout_editor_split_boundary">分割位置</string>
+    <string name="layout_editor_split_row_keep_together">この行を分割しない</string>
+    <string name="layout_editor_split_row_keep_together_hint">分割レイアウトでも、この行は中央の隙間を作らずキーボード全体に表示します。</string>
     <string name="layout_editor_split_auto">自動</string>
     <string name="layout_editor_split_after">%1$d 番目のキー「%2$s」の後</string>
     <string name="layout_editor_deleted">削除しました</string>

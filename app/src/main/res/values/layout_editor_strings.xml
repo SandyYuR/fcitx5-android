@@ -31,6 +31,8 @@
     <string name="layout_editor_row_settings">Row settings</string>
     <string name="layout_editor_row_height_hint">Applies to every key in this row. Leave blank to distribute remaining height automatically.</string>
     <string name="layout_editor_split_boundary">Split boundary</string>
+    <string name="layout_editor_split_row_keep_together">Keep this row connected</string>
+    <string name="layout_editor_split_row_keep_together_hint">In a split arrangement, this row spans the keyboard without a center gap.</string>
     <string name="layout_editor_split_auto">Automatic</string>
     <string name="layout_editor_split_after">After key %1$d: %2$s</string>
     <string name="layout_editor_deleted">Deleted</string>

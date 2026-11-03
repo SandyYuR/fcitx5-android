@@ -29,6 +29,8 @@
     <string name="layout_editor_row_settings">Настройки ряда</string>
     <string name="layout_editor_row_height_hint">Применяется ко всем клавишам ряда. Оставьте поле пустым для автоматического распределения оставшейся высоты.</string>
     <string name="layout_editor_split_boundary">Точка разделения</string>
+    <string name="layout_editor_split_row_keep_together">Оставить этот ряд цельным</string>
+    <string name="layout_editor_split_row_keep_together_hint">В раздельной раскладке этот ряд занимает всю ширину клавиатуры без центрального промежутка.</string>
     <string name="layout_editor_split_auto">Автоматически</string>
     <string name="layout_editor_split_after">После клавиши %1$d: %2$s</string>
     <string name="layout_editor_deleted">Удалено</string>

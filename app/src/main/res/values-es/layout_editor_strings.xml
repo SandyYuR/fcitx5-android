@@ -29,6 +29,8 @@
     <string name="layout_editor_row_settings">Ajustes de fila</string>
     <string name="layout_editor_row_height_hint">Se aplica a todas las teclas de esta fila. Déjalo vacío para distribuir automáticamente la altura restante.</string>
     <string name="layout_editor_split_boundary">Punto de división</string>
+    <string name="layout_editor_split_row_keep_together">Mantener esta fila unida</string>
+    <string name="layout_editor_split_row_keep_together_hint">En una distribución dividida, esta fila ocupa todo el ancho sin un espacio central.</string>
     <string name="layout_editor_split_auto">Automático</string>
     <string name="layout_editor_split_after">Después de la tecla %1$d: %2$s</string>
     <string name="layout_editor_deleted">Eliminado</string>
