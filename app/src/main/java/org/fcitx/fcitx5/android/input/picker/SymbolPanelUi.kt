@@ -19,6 +19,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,14 +29,18 @@ import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.data.RecentlyUsed
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
+import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.SymAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
+import org.fcitx.fcitx5.android.input.keyboard.ImageKeyView
+import org.fcitx.fcitx5.android.input.keyboard.KeyView
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyView
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.input.keyboard.borderedKeyBackgroundDrawable
@@ -128,18 +134,19 @@ class SymbolPanelUi(
         /** 分组标签文字大小。 */
         const val TAB_TEXT_SIZE = 13f
 
-        /** 功能键文字大小，对齐 Foxy 的 20sp（左栏两枚键均分 84dp，每枚 42dp）。 */
+        /** 图标主题使用文字 / emoji 时的功能键字号。 */
         const val UTILITY_KEY_TEXT_SIZE = 20f
-
-        /** 与 Foxy 的 `ly.j` / `ly.k` 相同的字形。 */
-        const val LABEL_BACK_TO_KEYBOARD = "⌨"
-        const val LABEL_BACKSPACE = "⌫"
 
         val DigitRange = '0'.code..'9'.code
         val FullWidthDigitRange = '０'.code..'９'.code
     }
 
     private val stylePref = AppPrefs.getInstance().symbols.symbolPanelStyle
+    private val utilityKeyUpdates = mutableListOf<() -> Unit>()
+    private val iconThemeChangeListener = IconThemeManager.OnIconThemeChangeListener {
+        refreshThemedIcons()
+    }
+    private var listeningForIconTheme = false
 
     /** 当前已生效的风格；[applyStyle] 里从偏好重读。 */
     private var style: SymbolPanelStyle = stylePref.getValue()
@@ -293,7 +300,7 @@ class SymbolPanelUi(
     /**
      * 分组标签高亮的圆角（px），**等同于按键圆角**（`ThemePrefs.keyRadius`）。
      *
-     * 符号面板里 ⌨ / ⌫ 两枚功能键复用 [TextKeyView]，圆角、按键边距、边框/阴影都来自
+     * 符号面板里 ⌨ / ⌫ 两枚功能键复用 [KeyView]，圆角、按键边距、边框/阴影都来自
      * 按键体系；分组标签的选中高亮用同一套几何参数，看起来才和它们是同一种控件，
      * 也自然继承了「不贴边」——按键块本身就从格子里缩进了按键边距。
      */
@@ -370,6 +377,25 @@ class SymbolPanelUi(
         rebuild()
     }
 
+    fun attach() {
+        if (!listeningForIconTheme) {
+            IconThemeManager.addOnChangedListener(iconThemeChangeListener)
+            listeningForIconTheme = true
+        }
+        // Cached panels may have missed a theme change while detached.
+        refreshThemedIcons()
+    }
+
+    fun detach() {
+        if (!listeningForIconTheme) return
+        IconThemeManager.removeOnChangedListener(iconThemeChangeListener)
+        listeningForIconTheme = false
+    }
+
+    private fun refreshThemedIcons() {
+        utilityKeyUpdates.forEach { it() }
+    }
+
     // ---- 视图结构（按风格） ----
 
     private fun buildSidebarRecycler() = RecyclerView(ctx).apply {
@@ -396,52 +422,77 @@ class SymbolPanelUi(
     /**
      * 构造分组栏底部（或底栏两端）的一个小功能键。
      *
-     * 复用 [TextKeyView]，因此自动继承主题的按键背景、圆角、边框、按压高亮与字体设置。
+     * 两个功能键共享图标主题的现有槽位，保留按键背景、圆角、边框与按压反馈。
+     * 图标变化时只更新功能键，保留分组和网格的滚动位置。
      */
     private fun createUtilityKey(
-        label: String,
-        descriptionRes: Int,
+        iconSlot: String,
+        @DrawableRes fallbackIcon: Int,
+        @StringRes descriptionRes: Int,
         action: KeyAction,
         repeat: Boolean = false
-    ): TextKeyView {
-        val appearance = KeyDef.Appearance.Text(
-            displayText = label,
-            textSize = UTILITY_KEY_TEXT_SIZE,
-            variant = KeyDef.Appearance.Variant.Alternative,
-            border = KeyDef.Appearance.Border.Default
-        )
-        return TextKeyView(ctx, theme, appearance).apply {
-            id = View.generateViewId()
-            mainText.text = label
-            mainText.setTextSize(
-                TypedValue.COMPLEX_UNIT_SP,
-                FontProviders.getFontSize("key_main_font", UTILITY_KEY_TEXT_SIZE)
-            )
-            mainText.setFontTypeFace("key_main_font")
-            contentDescription = ctx.getString(descriptionRes)
-            // 功能键不参与滑动切页/长按弹窗等键盘手势
-            swipeEnabled = false
-            onGestureListener = null
-            val fire = { keyActionListener.onKeyAction(action, KeyActionListener.Source.Keyboard) }
-            setOnClickListener { fire() }
-            if (repeat) {
-                // 退格长按连续删除，与键盘上的退格键一致
-                repeatEnabled = true
-                onRepeatListener = { fire() }
+    ): FrameLayout {
+        val container = FrameLayout(ctx)
+        val update: () -> Unit = {
+            val text = IconThemeManager.resolveIcon(iconSlot)?.takeUnless {
+                ButtonIconFile.isFileIcon(it) || it.removePrefix("\uFEFF").trimStart().startsWith("<")
             }
+            val key: KeyView = if (!text.isNullOrEmpty()) {
+                TextKeyView(ctx, theme, KeyDef.Appearance.Text(
+                    displayText = text,
+                    textSize = UTILITY_KEY_TEXT_SIZE,
+                    variant = KeyDef.Appearance.Variant.Alternative,
+                    border = KeyDef.Appearance.Border.Default
+                )).apply {
+                    mainText.text = text
+                    mainText.setTextSize(
+                        TypedValue.COMPLEX_UNIT_SP,
+                        FontProviders.getFontSize("key_main_font", UTILITY_KEY_TEXT_SIZE)
+                    )
+                    mainText.setFontTypeFace("key_main_font")
+                }
+            } else {
+                ImageKeyView(ctx, theme, KeyDef.Appearance.Image(
+                    src = fallbackIcon,
+                    variant = KeyDef.Appearance.Variant.Alternative,
+                    border = KeyDef.Appearance.Border.Default
+                ), iconSlot = iconSlot)
+            }
+            key.apply {
+                id = View.generateViewId()
+                contentDescription = ctx.getString(descriptionRes)
+                // 功能键不参与滑动切页/长按弹窗等键盘手势
+                swipeEnabled = false
+                onGestureListener = null
+                val fire = { keyActionListener.onKeyAction(action, KeyActionListener.Source.Keyboard) }
+                setOnClickListener { fire() }
+                if (repeat) {
+                    repeatEnabled = true
+                    onRepeatListener = { fire() }
+                }
+            }
+            container.removeAllViews()
+            container.addView(key, FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
+            ))
         }
+        utilityKeyUpdates.add(update)
+        update()
+        return container
     }
 
     // ⌨ 返回键盘 —— 与 Foxy 的 ly.j 对应
     private fun backToKeyboardKey() = createUtilityKey(
-        label = LABEL_BACK_TO_KEYBOARD,
+        iconSlot = "toolbar.virtual_keyboard",
+        fallbackIcon = R.drawable.ic_baseline_keyboard_24,
         descriptionRes = R.string.back_to_keyboard,
         action = KeyAction.LayoutSwitchAction(TextKeyboard.Name)
     )
 
     // ⌫ 删除，长按连续删除 —— 与 Foxy 的 ly.k 对应
     private fun backspaceKey() = createUtilityKey(
-        label = LABEL_BACKSPACE,
+        iconSlot = "keys.backspace",
+        fallbackIcon = R.drawable.ic_baseline_backspace_24,
         descriptionRes = R.string.backspace,
         action = SymAction(KeySym(FcitxKeyMapping.FcitxKey_BackSpace)),
         repeat = true
@@ -529,6 +580,7 @@ class SymbolPanelUi(
      */
     private fun applyStyle() {
         style = stylePref.getValue()
+        utilityKeyUpdates.clear()
         rootContainer.removeAllViews()
         sidebarRecycler = buildSidebarRecycler()
         gridRecycler = buildGridRecycler()
