@@ -8,6 +8,8 @@
     <string name="layout_editor_delete_layout">Delete current arrangement…</string>
     <string name="layout_editor_normal">Regular</string>
     <string name="layout_editor_split">Split arrangement</string>
+    <string name="text_keyboard_layout_composing_preview">Composing</string>
+    <string name="text_keyboard_layout_composing_preview_helper">Preview compose-aware key definitions as active. This only changes the preview, not the layout or live keyboard state.</string>
     <string name="layout_editor_inherited">Using the default layout; edits also affect schemas that inherit it.</string>
     <string name="layout_editor_own">Editing this schema’s dedicated layout</string>
     <string name="layout_editor_base">Editing the default layout</string>
