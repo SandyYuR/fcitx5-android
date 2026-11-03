@@ -105,7 +105,7 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
     }
 
     val dynamicIcon = imageView {
-        setPaddingDp(13, 13, 13, 13)
+        setPaddingDp(4, 4, 20, 20)
         scaleType = ImageView.ScaleType.FIT_CENTER
         imageResource = R.drawable.ic_baseline_auto_awesome_24
     }
@@ -136,8 +136,8 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             bottomOfParent(dp(4))
         })
         add(dynamicIcon, lParams(dp(48), dp(48)) {
-            topOfParent(dp(2))
-            startOfParent(dp(2))
+            topOfParent()
+            startOfParent()
         })
         add(scoreText, lParams(matchParent, wrapContent) {
             bottomOfParent(dp(18))
