@@ -74,8 +74,9 @@ object BundledPresets {
      * 资源则只在目标文件不存在时才写出。
      */
     private val assetSizes = mapOf(
-        "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 14611,
-        "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to 36265
+        "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 13777,
+        "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to 36265,
+        "bundled/icon_themes/谷歌.json" to 56425
     )
 
     private val themeAssets = listOf(
@@ -153,8 +154,8 @@ object BundledPresets {
     /**
      * 安装单个 asset。返回 1 表示本次实际写出了文件，0 表示跳过（已处理/已存在/读取失败）。
      */
-    private fun installAsset(assetPath: String, dest: File): Int {
-        val bytes = readAsset(assetPath) ?: return 0
+    private fun installAsset(assetPath: String, dest: File, assetBytes: ByteArray? = readAsset(assetPath)): Int {
+        val bytes = assetBytes ?: return 0
         val tag = "$assetPath#${bytes.size}"
         if (tag in handled) return 0
         // 内容有更新的内置资源（assetSizes 中登记了上一版字节数）：只有用户从未改过
