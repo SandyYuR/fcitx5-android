@@ -73,7 +73,9 @@ class KeyboardPreviewManager(
      * 编辑分体布局时预览却按普通排列渲染——"改了没生效"的既视感。这里把排列强制过去，
      * 预览就渲染用户正在编辑的那份行集合。
      */
-    private val forcedVariantProvider: () -> LayoutVariant? = { null }
+    private val forcedVariantProvider: () -> LayoutVariant? = { null },
+    /** Whether the layout preview should render compose-aware keys in their active state. */
+    private val composingPreviewProvider: () -> Boolean = { false }
 ) {
     private var previewKeyboard: TextKeyboard? = null
     private var previewTextEditingView: View? = null
@@ -105,6 +107,7 @@ class KeyboardPreviewManager(
         val layoutJson: String,
         /** 强制预览的排列形态；null 表示按键盘宽度自动判定。 */
         val forcedVariant: String?,
+        val composingPreview: Boolean,
         val dimensions: KeyboardPreviewDimensions
     )
     private var lastPreviewSignature: PreviewSignature? = null
@@ -124,6 +127,7 @@ class KeyboardPreviewManager(
         // Try to load submode-specific layout first
         val effectiveSubModeKey = resolveEffectiveSubModeKey(layoutName, previewSubModeLabel)
         val forcedVariant = forcedVariantProvider()
+        val composingPreview = composingPreviewProvider() && layoutName != TEXT_EDITOR_LAYOUT_NAME
         // 正在编辑分体布局时，预览的就是那一份。它挂在**当前子布局**下面
         // （`rime:倉頡五代:__variant__:split`），与方案专用布局是并列的两条分支，必须单独解析。
         val variantEntryKey = splitEntryKey(
@@ -164,6 +168,7 @@ class KeyboardPreviewManager(
             keyBorder = keyBorder,
             layoutJson = tempJson.toString(),
             forcedVariant = forcedVariant?.name,
+            composingPreview = composingPreview,
             dimensions = dimensions
         )
         if ((previewKeyboard != null || previewTextEditingView != null) && signature == lastPreviewSignature) return
@@ -197,6 +202,7 @@ class KeyboardPreviewManager(
                     )
                 }
             }
+            if (composingPreview) previewKeyboard?.onCompositionStateChanged(true)
         } catch (e: Exception) {
             android.util.Log.e("KeyboardPreview", "Failed to create keyboard preview for layout: $layoutName, submode: $previewSubModeLabel", e)
             showError(e.message ?: "Unknown error")

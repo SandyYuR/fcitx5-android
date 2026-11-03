@@ -8,6 +8,8 @@
     <string name="layout_editor_delete_layout">刪除目前排列…</string>
     <string name="layout_editor_normal">一般排列</string>
     <string name="layout_editor_split">分離式排列</string>
+    <string name="text_keyboard_layout_composing_preview">合成中</string>
+    <string name="text_keyboard_layout_composing_preview_helper">勾選後在預覽中顯示合成中按鍵定義的效果，不會修改佈局或目前輸入狀態。</string>
     <string name="layout_editor_inherited">目前使用預設配置；修改也會影響其他繼承此配置的方案。</string>
     <string name="layout_editor_own">正在編輯目前方案的專用配置</string>
     <string name="layout_editor_base">正在編輯預設配置</string>
