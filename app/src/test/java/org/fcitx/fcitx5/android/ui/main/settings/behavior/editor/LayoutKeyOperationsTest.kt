@@ -52,4 +52,34 @@ class LayoutKeyOperationsTest {
         LayoutKeyOperations.setSplitBoundary(row, 2)
         assertTrue(row.none { it.containsKey("splitAfter") })
     }
+
+    @Test fun splitRowSettingMovesWithTheRowAndSurvivesFirstKeyEdits() {
+        val rows = mutableListOf(row("a", "b", "c"), row("x", "y"))
+        LayoutKeyOperations.setSplitRowDisabled(rows[0], true)
+        LayoutKeyOperations.setSplitRowDisabled(rows[1], false)
+
+        LayoutKeyOperations.move(rows, EditorKeyPosition(0, 0), EditorKeyPosition(1, 0))
+        assertTrue(LayoutKeyOperations.isSplitRowDisabled(rows[0]))
+        assertFalse(LayoutKeyOperations.isSplitRowDisabled(rows[1]))
+        assertEquals(listOf(true, null), rows[0].map { it["splitRowDisabled"] })
+        assertTrue(rows[1].all { !it.containsKey("splitRowDisabled") })
+
+        LayoutKeyOperations.replaceKey(rows[0], 0, row("replacement").single())
+        assertTrue(LayoutKeyOperations.isSplitRowDisabled(rows[0]))
+        assertEquals(listOf(true, null), rows[0].map { it["splitRowDisabled"] })
+        LayoutKeyOperations.removeKey(rows[0], 0)
+        assertTrue(LayoutKeyOperations.isSplitRowDisabled(rows[0]))
+        assertEquals(true, rows[0].single()["splitRowDisabled"])
+    }
+
+    @Test fun reorderingTheFirstKeyKeepsTheSettingOnTheRow() {
+        val rows = mutableListOf(row("a", "b", "c"))
+        LayoutKeyOperations.setSplitRowDisabled(rows.single(), true)
+
+        LayoutKeyOperations.move(rows, EditorKeyPosition(0, 0), EditorKeyPosition(0, 3))
+
+        assertEquals(listOf("b", "c", "a"), rows.single().map { it["label"] })
+        assertEquals(true, rows.single().first()["splitRowDisabled"])
+        assertTrue(rows.single().drop(1).all { !it.containsKey("splitRowDisabled") })
+    }
 }

@@ -23,6 +23,7 @@ internal object LayoutKeyUi {
         return key.any { (name, value) ->
             when {
                 name in required || value == null -> false
+                name == "splitRowDisabled" -> false // Row metadata, not a key customization.
                 name == "weight" || name == "percentWidth" -> {
                     val weight = (value as? Number)?.toFloat() ?: value.toString().toFloatOrNull()
                     weight != null && kotlin.math.abs(weight - defaultWeight) > 0.00001f

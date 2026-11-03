@@ -160,6 +160,7 @@ object LayoutJsonUtils {
         "weight",
         "rowHeightPercent",
         "splitAfter",
+        "splitRowDisabled",
         // 空白占位键是否完全不画键底。放在颜色字段之前，读起来是一句"这个键透明吗，
         // 不透明的话是什么颜色"。
         "transparent",
@@ -426,6 +427,7 @@ object LayoutJsonUtils {
             weight = parseOptionalFloat(obj["weight"]),
             rowHeightPercent = parseOptionalFloat(obj["rowHeightPercent"]),
             splitAfter = obj["splitAfter"]?.jsonPrimitive?.booleanOrNull,
+            splitRowDisabled = obj["splitRowDisabled"]?.jsonPrimitive?.booleanOrNull,
             transparent = obj["transparent"]?.jsonPrimitive?.booleanOrNull,
             textColor = parseOptionalInt(obj["textColor"]),
             textColorMonet = obj["textColorMonet"]?.jsonPrimitive?.contentOrNull,
@@ -543,7 +545,9 @@ object LayoutJsonUtils {
      * @return 解析后的 KeyJson 列表
      */
     fun parseKeyJsonArray(rowArray: JsonArray, showLangSwitch: Boolean = true): List<KeyJson> {
-        return rowArray.mapNotNull { element ->
+        val splitRowDisabled = (rowArray.firstOrNull() as? JsonObject)
+            ?.get("splitRowDisabled")?.jsonPrimitive?.booleanOrNull == true
+        val keys = rowArray.mapNotNull { element ->
             // A malformed layout row may contain non-object elements (hand-edited or
             // imported files). Skip them instead of throwing, otherwise every attempt to
             // show the keyboard crashes. Mirrors parseLayoutRows' editor-side behavior.
@@ -557,6 +561,13 @@ object LayoutJsonUtils {
                 return@mapNotNull null
             }
             parseKeyJson(obj)
+        }
+        // A hidden LanguageKey can be the first serialized key. Promote its row marker to the
+        // first visible key so filtering the key does not re-enable splitting for the row.
+        return if (splitRowDisabled && keys.isNotEmpty()) {
+            keys.toMutableList().apply { this[0] = this[0].copy(splitRowDisabled = true) }
+        } else {
+            keys
         }
     }
 
@@ -919,6 +930,8 @@ object LayoutJsonUtils {
         val rowHeightPercent: Float? = null,
         /** 分体键盘的手动分界：本键之后把这一行断开（见 `KeyDef.splitAfter`）。 */
         val splitAfter: Boolean? = null,
+        /** 行首按键为 true 时，分体排列中整行保持连在一起。 */
+        val splitRowDisabled: Boolean? = null,
         /**
          * 空白占位键是否完全不绘制键底（见 `KeyDef.Appearance.transparentBackground`）。
          *
@@ -1112,6 +1125,9 @@ object LayoutJsonUtils {
         // 只有置位的键才写出该字段；见 createKeyDef 的说明。
         if (keyDef.splitAfter) {
             json["splitAfter"] = true
+        }
+        if (keyDef.splitRowDisabled) {
+            json["splitRowDisabled"] = true
         }
 
         return json
@@ -1447,6 +1463,7 @@ object LayoutJsonUtils {
         // 分界标记只在显式设置时写入：绝大多数键没有它，把 false 也写出去会让每个
         // 布局文件平白多出一整片 `"splitAfter": false`，QR 分享的载荷也跟着膨胀。
         if (key.splitAfter == true) keyDef.splitAfter = true
+        if (key.splitRowDisabled == true) keyDef.splitRowDisabled = true
         key.composeOverride?.let { override ->
             val overrideDef = createKeyDef(
                 override.copy(composeOverride = null, weight = null, rowHeightPercent = null),

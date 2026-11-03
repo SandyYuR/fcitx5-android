@@ -29,6 +29,8 @@
     <string name="layout_editor_row_settings">행 설정</string>
     <string name="layout_editor_row_height_hint">이 행의 모든 키에 적용됩니다. 비워 두면 남은 높이를 자동으로 배분합니다.</string>
     <string name="layout_editor_split_boundary">분할 위치</string>
+    <string name="layout_editor_split_row_keep_together">이 행을 연결해서 표시</string>
+    <string name="layout_editor_split_row_keep_together_hint">분할 배열에서도 이 행은 가운데 간격 없이 키보드 전체 너비로 표시됩니다.</string>
     <string name="layout_editor_split_auto">자동</string>
     <string name="layout_editor_split_after">%1$d번째 키 「%2$s」 뒤</string>
     <string name="layout_editor_deleted">삭제됨</string>

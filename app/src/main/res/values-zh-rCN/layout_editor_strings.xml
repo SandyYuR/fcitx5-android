@@ -31,6 +31,8 @@
     <string name="layout_editor_row_settings">行设置</string>
     <string name="layout_editor_row_height_hint">作用于整行按键；留空时自动分配剩余高度。</string>
     <string name="layout_editor_split_boundary">分体断点</string>
+    <string name="layout_editor_split_row_keep_together">本行保持连在一起</string>
+    <string name="layout_editor_split_row_keep_together_hint">在分体排列中，本行仍按整行显示，不会拆成左右两侧。</string>
     <string name="layout_editor_split_auto">自动</string>
     <string name="layout_editor_split_after">在第 %1$d 键「%2$s」之后</string>
     <string name="layout_editor_deleted">已删除</string>

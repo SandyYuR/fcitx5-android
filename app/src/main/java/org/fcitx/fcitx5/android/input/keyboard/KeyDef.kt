@@ -38,6 +38,12 @@ open class KeyDef(
     var splitAfter: Boolean = false
 
     /**
+     * When true on the first key of a row, that row stays connected in a split arrangement.
+     * This is row metadata stored on the row's first key so it moves with the row in JSON.
+     */
+    var splitRowDisabled: Boolean = false
+
+    /**
      * Optional key definition that is used while IME is in composing state.
      * This must keep the same key type/size semantics as the base key.
      */

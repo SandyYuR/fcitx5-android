@@ -24,6 +24,12 @@ class LayoutKeyUiTest {
         org.junit.Assert.assertEquals(snapshot, key)
     }
 
+    @Test fun `split row metadata does not mark the row first key as customized`() {
+        assertFalse(LayoutKeyUi.hasCustomizedProperties(mapOf(
+            "type" to "AlphabetKey", "main" to "a", "splitRowDisabled" to true
+        )))
+    }
+
     @Test fun `nondefault widths macros and presentation flags remain visible`() {
         assertTrue(LayoutKeyUi.hasCustomizedProperties(mapOf("type" to "AlphabetKey", "weight" to 0.2f)))
         assertTrue(LayoutKeyUi.hasCustomizedProperties(mapOf("type" to "PlaceholderKey", "transparent" to true)))

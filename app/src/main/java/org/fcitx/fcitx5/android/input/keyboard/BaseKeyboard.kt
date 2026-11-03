@@ -654,7 +654,7 @@ abstract class BaseKeyboard(
                     // Batch apply fontset mappings for all key labels.
                     forEach(::applyConfiguredFonts)
                 }
-                if (splitLayout) {
+                if (splitLayout && SplitRowLayoutPolicy.shouldSplit(row)) {
                     buildSplitRow(row, keyViews, splitKeyAreaScale)
                 } else {
                     buildRegularRow(row, keyViews)
@@ -1213,6 +1213,7 @@ abstract class BaseKeyboard(
 
     /** 奇数字符行：在几何中间键之后再插入它自身一份，使左右两半对称。否则原样返回。 */
     private fun duplicateMiddleKeyForSplit(row: List<KeyDef>): List<KeyDef> {
+        if (!SplitRowLayoutPolicy.shouldSplit(row)) return row
         if (row.size < 3 || row.size % 2 == 0) return row
         if (row.any { it is SpaceKey || it is MiniSpaceKey }) return row
         // 手动分界是用户对这个行的明确布置（常见于"中间键只留一侧"），复制中间键会

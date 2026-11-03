@@ -9,6 +9,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import org.fcitx.fcitx5.android.input.keyboard.AlphabetKey
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
@@ -540,6 +541,51 @@ class LayoutJsonUtilsTest {
         // 再解析一次（模拟用户保存后重新打开编辑器）
         val reparsed = LayoutJsonUtils.parseKeyJsonArray(JsonArray(listOf(written)))
         assertEquals(true, LayoutJsonUtils.createKeyDef(reparsed[0])?.splitAfter)
+    }
+
+    @Test
+    fun splitRowDisabledIsParsedAndWrittenOnTheRowFirstKey() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row("""[{"type":"AlphabetKey","main":"a","alt":"1","splitRowDisabled":true}]""")
+        )
+        val def = LayoutJsonUtils.createKeyDef(parsed.single())!!
+        assertTrue(def.splitRowDisabled)
+        assertEquals(true, LayoutJsonUtils.keyDefToJson(def)["splitRowDisabled"])
+        assertFalse(org.fcitx.fcitx5.android.input.keyboard.SplitRowLayoutPolicy.shouldSplit(listOf(def)))
+    }
+
+    @Test
+    fun hiddenLanguageKeyDoesNotLoseTheSplitRowSetting() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """[{"type":"LanguageKey","splitRowDisabled":true},{"type":"AlphabetKey","main":"a","alt":"1"}]"""),
+            showLangSwitch = false
+        )
+        assertEquals(1, parsed.size)
+        assertTrue(parsed.single().splitRowDisabled == true)
+        assertFalse(
+            org.fcitx.fcitx5.android.input.keyboard.SplitRowLayoutPolicy.shouldSplit(
+                listOf(LayoutJsonUtils.createKeyDef(parsed.single())!!)
+            )
+        )
+    }
+
+    @Test
+    fun splitRowSettingSurvivesLayoutFileSerialization() {
+        val saved = LayoutJsonUtils.convertToSaveJson(
+            mapOf(
+                "rime:__variant__:split" to listOf(
+                    listOf(
+                        mapOf("type" to "AlphabetKey", "main" to "a", "splitRowDisabled" to true),
+                        mapOf("type" to "AlphabetKey", "main" to "b")
+                    )
+                )
+            )
+        )
+        val row = ((saved["rime"] as JsonObject)["__variant__:split"] as JsonArray)[0] as JsonArray
+        val rowHead = row[0] as JsonObject
+        assertEquals(true, rowHead["splitRowDisabled"]?.jsonPrimitive?.booleanOrNull)
+        assertNull((row[1] as JsonObject)["splitRowDisabled"])
     }
 
     // ==================== 空白占位键 PlaceholderKey ====================

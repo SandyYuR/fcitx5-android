@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorUi
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorKeyPosition
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.LayoutKeyOperations
 import com.google.android.material.button.MaterialButton
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.DraggableFlowLayout
@@ -488,7 +490,6 @@ class KeyboardLayoutAdapter(
 
         val sourceRow = rows[currentRowIndex]
         if (currentIndex !in sourceRow.indices) return
-        val moving = sourceRow.removeAt(currentIndex)
         val targetRow = rows[targetRowIndex]
         val rawX = touchRawX ?: run {
             val dragLoc = IntArray(2)
@@ -501,7 +502,11 @@ class KeyboardLayoutAdapter(
             dragLoc[1] + dragView.height / 2f
         }
         val safeInsertIndex = computeInsertIndexForRow(targetRowIndex, rawX, rawY, holder.keysFlow.width)
-        targetRow.add(safeInsertIndex, moving)
+        val moved = LayoutKeyOperations.move(
+            rows,
+            EditorKeyPosition(currentRowIndex, currentIndex),
+            EditorKeyPosition(targetRowIndex, safeInsertIndex)
+        ) ?: return
 
         notifyItemChanged(currentRowIndex)
         notifyItemChanged(targetRowIndex)
@@ -509,7 +514,7 @@ class KeyboardLayoutAdapter(
             currentRowIndex,
             currentIndex,
             targetRowIndex,
-            safeInsertIndex
+            moved.key
         )
     }
 
@@ -563,12 +568,15 @@ class KeyboardLayoutAdapter(
         if (targetRowIndex !in rows.indices || targetIndex < 0) return false
         if (sourceRowIndex == targetRowIndex) return false
 
-        val moving = rows[sourceRowIndex].removeAt(sourceIndex)
         val safeTargetIndex = targetIndex.coerceIn(0, rows[targetRowIndex].size)
-        rows[targetRowIndex].add(safeTargetIndex, moving)
+        val moved = LayoutKeyOperations.move(
+            rows,
+            EditorKeyPosition(sourceRowIndex, sourceIndex),
+            EditorKeyPosition(targetRowIndex, safeTargetIndex)
+        ) ?: return false
         notifyItemChanged(sourceRowIndex)
         notifyItemChanged(targetRowIndex)
-        listener.onKeyMovedAcrossRows(sourceRowIndex, sourceIndex, targetRowIndex, safeTargetIndex)
+        listener.onKeyMovedAcrossRows(sourceRowIndex, sourceIndex, targetRowIndex, moved.key)
         return true
     }
 
