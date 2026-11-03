@@ -74,8 +74,9 @@ object BundledPresets {
      * 资源则只在目标文件不存在时才写出。
      */
     private val assetSizes = mapOf(
-        "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 14611,
-        "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to 36265
+        "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 13777,
+        "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to 36265,
+        "bundled/icon_themes/谷歌.json" to 61157
     )
 
     private val themeAssets = listOf(
