@@ -8,6 +8,8 @@
     <string name="layout_editor_delete_layout">현재 배열 삭제…</string>
     <string name="layout_editor_normal">일반 배열</string>
     <string name="layout_editor_split">분할 배열</string>
+    <string name="text_keyboard_layout_composing_preview">조합 중</string>
+    <string name="text_keyboard_layout_composing_preview_helper">미리보기에서 조합 중에 적용되는 키 구성을 표시합니다. 미리보기만 바뀌며 레이아웃이나 실제 입력 상태는 변경되지 않습니다.</string>
     <string name="layout_editor_inherited">기본 레이아웃을 사용 중입니다. 변경하면 이 레이아웃을 상속하는 다른 입력 스키마에도 적용됩니다.</string>
     <string name="layout_editor_own">현재 입력 스키마의 전용 레이아웃 편집 중</string>
     <string name="layout_editor_base">기본 레이아웃 편집 중</string>

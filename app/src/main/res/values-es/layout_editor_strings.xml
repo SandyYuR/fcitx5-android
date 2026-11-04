@@ -8,6 +8,8 @@
     <string name="layout_editor_delete_layout">Eliminar disposición actual…</string>
     <string name="layout_editor_normal">Disposición normal</string>
     <string name="layout_editor_split">Disposición dividida</string>
+    <string name="text_keyboard_layout_composing_preview">Composición</string>
+    <string name="text_keyboard_layout_composing_preview_helper">Muestra en la vista previa las teclas usadas durante la composición. Solo cambia la vista previa; no modifica la distribución ni el estado de entrada actual.</string>
     <string name="layout_editor_inherited">Se usa la distribución predeterminada. Los cambios también afectan a los esquemas que la heredan.</string>
     <string name="layout_editor_own">Editando la distribución propia de este esquema</string>
     <string name="layout_editor_base">Editando la distribución predeterminada</string>

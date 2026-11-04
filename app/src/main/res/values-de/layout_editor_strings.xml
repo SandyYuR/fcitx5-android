@@ -8,6 +8,8 @@
     <string name="layout_editor_delete_layout">Aktuelle Anordnung löschen…</string>
     <string name="layout_editor_normal">Normale Anordnung</string>
     <string name="layout_editor_split">Geteilte Anordnung</string>
+    <string name="text_keyboard_layout_composing_preview">Komposition</string>
+    <string name="text_keyboard_layout_composing_preview_helper">Zeigt in der Vorschau die Tasten für die laufende Texteingabe. Ändert nur die Vorschau, nicht das Layout oder den aktuellen Eingabestatus.</string>
     <string name="layout_editor_inherited">Das Standardlayout wird verwendet. Änderungen betreffen auch andere Schemas, die es übernehmen.</string>
     <string name="layout_editor_own">Eigenes Layout dieses Schemas wird bearbeitet</string>
     <string name="layout_editor_base">Standardlayout wird bearbeitet</string>
