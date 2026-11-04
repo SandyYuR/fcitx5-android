@@ -49,6 +49,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
+      - name: Test SDK integrity and offline recovery
+        run: >-
+          ./gradlew --no-daemon -p build-logic
+          '-Dorg.gradle.jvmargs=-Xmx1536m -Dfile.encoding=UTF-8'
+          -Pkotlin.compiler.execution.strategy=in-process --max-workers=2
+          :convention:test --tests RimeSdkArchiveTest
+
       - name: Run JVM unit tests
         run: |
           ./gradlew :app:testFxDebugUnitTest

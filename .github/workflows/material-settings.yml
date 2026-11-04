@@ -93,7 +93,7 @@ jobs:
           sudo apt-get install -y extra-cmake-modules gettext
       - name: Prepare pinned native sources
         run: |
-          # Fcitx needs its translation patch; direct builds use native/prebuilt.
+          # Historical Fcitx checkouts need their translation patch; current builds use the versioned SDK.
           if [[ -f prepare_personal_build.sh ]]; then
             ./prepare_personal_build.sh
           fi

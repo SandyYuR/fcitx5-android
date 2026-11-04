@@ -105,3 +105,7 @@ lint/tmp/
 
 # Python audit and benchmark helpers
 __pycache__/
+
+# Downloaded and verified versioned Android Rime SDK
+/native/rime-sdk/
+/native/.rime-sdk*

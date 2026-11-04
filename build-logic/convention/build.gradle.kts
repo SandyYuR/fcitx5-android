@@ -31,6 +31,10 @@ dependencies {
 
 gradlePlugin {
     plugins {
+        register("rimeSdk") {
+            id = "org.fcitx.fcitx5.android.rime-sdk"
+            implementationClass = "RimeSdkPlugin"
+        }
         register("androidAppConvention") {
             id = "org.fcitx.fcitx5.android.app-convention"
             implementationClass = "AndroidAppConventionPlugin"

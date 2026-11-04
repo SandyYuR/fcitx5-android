@@ -75,6 +75,8 @@ python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/debug/*.apk
 普通构建保留轻量 trace 切片，关闭这些细粒度统计，避免输入热路径承担测量开销。
 Release、签名、设备测试、Windows 本机环境与引擎更新见维护手册。
 
+引擎由 [SandyYuR/librime](https://github.com/SandyYuR/librime/tree/zhongzhou) 自行构建并发布 Android SDK；输入法通过 `native/rime-sdk.lock.json` 固定版本与摘要，Gradle 自动下载和校验。当前构建无需 prebuilder/prebuilt 仓库，详情见 [原生依赖说明](native/README.md)。
+
 ## 当前范围
 
 主应用通过单一 owner 线程和独立 JNI 驱动 librime；原生库仅包含 `libdirect-rime.so` 与 C++ 运行库，

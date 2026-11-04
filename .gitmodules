@@ -1,7 +1,3 @@
-[submodule "native/prebuilt"]
-	path = native/prebuilt
-	url = https://github.com/SandyYuR/prebuilt.git
-	shallow = true
 [submodule "native/rime-prelude"]
 	path = native/rime-prelude
 	url = https://github.com/rime/rime-prelude.git

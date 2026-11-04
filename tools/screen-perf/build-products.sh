@@ -5,7 +5,7 @@ output_dir=${1:?output directory}
 mkdir -p "$output_dir"
 sudo apt-get update -qq
 sudo apt-get install -y -qq extra-cmake-modules gettext ffmpeg
-git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+git submodule update --init --depth 1 native/rime-prelude
 for backend in fcitx direct; do
     checkout_dir="$RUNNER_TEMP/screen-$backend"
     if [ "$backend" = fcitx ]; then revision=cecea4940bb5a5db67f91d6b20e00ee5c97877ea; else revision=cfd0ddc4d92dbcfcee815089ca34b97bdfa95780; fi
@@ -14,19 +14,7 @@ for backend in fcitx direct; do
     if [ "$backend" = fcitx ]; then
         git -C "$checkout_dir" submodule update --init --depth 1 lib/fcitx5/src/main/cpp/fcitx5 plugin/rime/src/main/cpp/fcitx5-rime
     fi
-    for item in prebuilt rime-prelude; do
-        if [ "$backend" = direct ]; then destination="$checkout_dir/native/$item";
-        elif [ "$item" = prebuilt ]; then destination="$checkout_dir/lib/fcitx5/src/main/cpp/prebuilt";
-        else destination="$checkout_dir/plugin/rime/src/main/cpp/rime-prelude"; fi
-        path=${destination#"$checkout_dir/"}
-        git -C "$checkout_dir" submodule init "$path"
-        if [ -d "$destination" ]; then rmdir "$destination"; fi
-        git clone --shared --no-checkout "$repo_dir/native/$item" "$destination"
-        expected=$(git -C "$checkout_dir" rev-parse "HEAD:$path")
-        git -C "$destination" checkout --detach "$expected"
-        test "$expected" = "$(git -C "$repo_dir/native/$item" rev-parse HEAD)"
-        git -C "$checkout_dir" submodule absorbgitdirs "$path"
-    done
+    bash "$repo_dir/tools/prepare-native-inputs.sh" "$checkout_dir"
     target="$checkout_dir/app/src/androidTest/java/org/fcitx/fcitx5/android/core"
     mkdir -p "$target"
     cp "$repo_dir/tools/screen-perf/ScreenFixtureTest.kt" "$target/"
