@@ -39,7 +39,7 @@ fcitx5-android/fcitx5-android  (上游 / upstream)
 ### 协议
 
 - 主仓库沿用上游的 **LGPL-2.1+** 许可
-- 涉及的二进制依赖（fcitx5、librime 等）以各自原始许可分发
+- 涉及的二进制依赖（librime、OpenCC、Lua、QuickJS 等）以各自原始许可分发
 
 ## 相对 fxliang fx 分支的主要差异
 
@@ -48,8 +48,8 @@ fcitx5-android/fcitx5-android  (上游 / upstream)
 ### 直连 librime 与构建
 
 - 保留 Android 前端，主应用通过 JNI 直接驱动 librime；删除原生 Fcitx Core、fcitx5-rime 和 AndroidFrontend。
-- 原生库仅 `libdirect-rime.so`、`libc++_shared.so`；共享 prebuilt 中的其他产物不自动打包。
-- [prebuilder](https://github.com/SandyYuR/prebuilder) 和 [prebuilt](https://github.com/SandyYuR/prebuilt) 固定版本与定制补丁，更新方法见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN)。
+- 引擎库为 `libdirect-rime.so`，与 `libc++_shared.so` 一起打包；JS 语音另使用 `libquickjs.so`。librime、引擎插件及其依赖静态链接进引擎库。
+- 历史构建基础来自 [prebuilder](https://github.com/SandyYuR/prebuilder) 和 [prebuilt](https://github.com/SandyYuR/prebuilt)，相关补丁保留原作者署名。当前引擎源码、依赖构建和 Android SDK 发布集中在 [SandyYuR/librime](https://github.com/SandyYuR/librime/tree/zhongzhou)，更新方法见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN)。
 - 主包名恢复为 `org.fcitx.fcitx5.android.fx.rime`，与本仓库旧 Fcitx 版同签名时覆盖升级；旧测试包需迁移。
 - 不预装中文方案、完整词典或万象模型；方案需自行导入并部署。
 - 保留上游署名、许可证和前端兼容标识；本项目独立维护。

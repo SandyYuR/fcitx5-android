@@ -11,12 +11,12 @@
 | `direct-rime/src/main/cpp/` | 主应用使用的 JNI 桥与 `libdirect-rime.so` |
 | `direct-rime/src/engine/` | 引擎封装、owner 线程与快照；独立诊断模块复用 |
 | `lib/common/` | IPC、剪贴板及语音 AIDL 公共接口 |
-| `native/prebuilt` | SandyYuR 定制静态库，版本由主仓库 gitlink 固定 |
+| `native/rime-sdk.lock.json`、`native/rime-sdk/` | 固定的 librime SDK 版本、摘要与自动下载的静态库/头文件/数据 |
 | `native/rime-prelude` | Rime 共享预设子模块 |
 | `native/rime-data/default.yaml` | 空方案列表的共享默认配置，不删除 `schema_list: []` |
 | `build-logic/`、`tools/`、`.github/workflows/` | 构建版本权威、验证脚本与 CI |
 
-当前只有 `native/prebuilt` 和 `native/rime-prelude` 两个子模块。旧 `lib/fcitx5`、`plugin/rime`、`app/src/main/cpp` 已移除；本地遗留的未跟踪目录不属于构建输入。
+当前只有 `native/rime-prelude` 一个子模块；引擎改为下载固定版本的 SDK。旧 `lib/fcitx5`、`plugin/rime`、`app/src/main/cpp` 已移除；本地遗留的未跟踪目录不属于构建输入。
 代码分支不放 `docs/`；站点、协议和报告统一在 `docs` 分支。
 
 ## 构建与安装
@@ -43,6 +43,8 @@ python3 tools/audit-direct-rime-link.py app/build/outputs/apk/fx/debug/*.apk
 
 普通构建固定为直连，不需要选择后端。旧参数 `-PdirectRimeFrontend=true` 只作兼容，显式 `false` 会报错；`-PdirectRimePrototype=true` 才额外包含诊断模块。
 `-PinputDiagnostics=true` 开启细粒度输入统计，日常构建避免承担这些统计开销。
+
+版本号使用本仓库的历史基准标签 `0.1.3` 及提交距离；原始带注释标签已原样保留到本仓库。日常 CI 不再拉取 Fcitx 上游标签，后续基准版本由本项目自行维护。更新引擎 SDK 不会改变版本号生成规则。
 
 Debug 产物在 `app/build/outputs/apk/fx/debug/`，Release 在 `fx/release/`。核对 `output-metadata.json`、文件时间及来源提交，不要从目录中随意挑旧 APK。
 安装 Debug 后也需要自行导入方案并部署。签名或包名变化前先备份；同包名同签名才可能覆盖升级。
@@ -91,27 +93,33 @@ Direct Boot 启动时，应用设置使用 `directBootAwareContext`，引擎只�
 
 ## librime 从哪里来
 
-来源链为 **官方 rime/librime → SandyYuR/librime 的 zhongzhou 定制源码 → SandyYuR/prebuilder → SandyYuR/prebuilt → 主仓库 gitlink**。
-定制源码包含 tabs、音节和用户词典缓存等功能，不能用官方 prebuilt 直接覆盖。
+来源链为 **官方 rime/librime → SandyYuR/librime 的 zhongzhou 定制源码与 Android SDK Release → 输入法版本锁**。
+定制源码包含音节接口、rewriter 和学习事务等功能，不能用未经验证的官方预编译库直接覆盖。
+
+`native/rime-sdk.lock.json` 固定仓库、发布标签、源码提交、官方基线、四 ABI 和 SDK 包 SHA-256。根 Gradle 任务 `prepareRimeSdk` 自动下载到 `native/rime-sdk/`；原生配置和 OpenCC 资产任务都显式依赖它。Windows 下载也使用 Java，不新增 Python 要求。SDK 只含实际需要的七个静态库、头文件、OpenCC 数据、许可证及来源清单。
 
 ```sh
-git ls-tree HEAD native/prebuilt native/rime-prelude
-git -C native/prebuilt rev-parse HEAD
+cat native/rime-sdk.lock.json
+./gradlew prepareRimeSdk
+cat native/rime-sdk/sdk-manifest.json
 ```
 
-以当前 gitlink 和预编译元数据为准，不照抄历史报告的 SHA。定制源码的固定来源、迁移与当时的验证记录见[源码维护迁移](/maintainer/history/DIRECT_RIME_SOURCE_MAINTENANCE_2026-10-21)和[引擎更新记录](/maintainer/history/DIRECT_RIME_ENGINE_UPDATE_2026-10-21)。
+SDK 缓存在 `GRADLE_USER_HOME/caches/rime-sdk/<sha256>.zip`。首次在线准备后可以 `--offline` 构建；没有缓存时明确失败，不回退到其他版本。下载包、文件清单、逐文件摘要、源码版本及 ABI 完整性均会校验。Gradle 检测提取目录的内容变化后会从已验证缓存恢复。
 
-`librime.a` 静态链接进 `libdirect-rime.so`。共享 prebuilt 中其他引擎的文件不意味着主 APK 链接了它们。
-LevelDB 的 `reuse_logs` 与恢复验证由 `tools/input-perf/test-leveldb-open.py` 等工具守护；调整依赖时同步核对实际导出和存储行为。
+Android SDK CI 位于 librime 仓库：从固定来源编译 Boost 头文件、六个原生依赖、三个插件与引擎，并在主机生成 OpenCC 数据。它不读取旧 prebuilt，四 ABI 均执行最终链接验证，打包前核验全部归档对象的 ELF 架构、API 和来源。prebuilder/prebuilt 保留历史重建用途，不再参与当前更新。
+
+`librime.a` 静态链接进 `libdirect-rime.so`。LevelDB 的 `reuse_logs` 与恢复验证仍由 `tools/input-perf/test-leveldb-open.py` 等工具守护；调整依赖时同步核对实际导出和存储行为。
 
 ### 更新 librime
 
-1. 从 `SandyYuR/librime` 的 `zhongzhou` 新开升级分支；核心补丁维护在源码提交中，不回到 prebuilder 重复打补丁。
-2. 在明确的官方提交上更新，处理冲突、插件兼容性与测试，更新 `downstream/manifest.json` 的来源记录。
-3. 在 prebuilder 中固定定制源码提交，运行来源检查；Lua、octagram、predict 等按固定版本准备。
-4. 获得授权后运行构建与验证，产出各 ABI 静态库并核对源码元数据、接口和符号。
-5. 在 prebuilt 仓库保存并验证产物；外部仓库 push 与 CI 调度须有明确授权。
-6. 主应用更新到经过验证的 gitlink，出包并运行 APK、链接和设备门禁，同步文档。不能自行猜测或只按“最新”前移 pin。
+1. 在 `SandyYuR/librime` 的 `zhongzhou` 更新固定官方基线，依次重放独有补丁，更新 `downstream/manifest.json`；核心补丁只维护在源码提交中。
+2. 需要升级依赖/插件时修改 `downstream/android/sources.lock.json` 和固定补丁，保持来源、摘要、工具链明确。
+3. 源码 CI 与 Android SDK CI 通过后，核对原生回归、四 ABI 编译/最终链接、SDK 文件清单和来源。
+4. 在已验证提交上创建新的 `android-sdk-*` 标签，由 CI 发布版本化 SDK；已发布标签和包不覆盖。
+5. 输入法更新 `native/rime-sdk.lock.json`，运行下载校验、APK 原生白名单/链接审计与必要的设备回归。只需维护 librime 和输入法两个代码仓库。
+6. 回退时恢复上一版锁文件，不改用户词库。不能追踪移动分支或只按“最新”前移版本。
+
+完整构建、依赖锁和发布说明见 [librime Android SDK 维护文档](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/README.zh-CN.md)。10 月的四仓库迁移报告属于历史记录，保留当时的 SHA、测试与流程，不能作为当前升级步骤。
 
 ## 语音宿主与原生打包
 
@@ -143,6 +151,8 @@ tools/test-material-settings.sh
 
 默认分支当前的 PR CI 运行 ARM64 Debug 与 JVM，Commit CI 运行签名 ARM64 Release、ART profile 审计与 JVM；Direct Rime CI 覆盖原生诊断与完整前端回归，Material settings UI 覆盖 MD3 页面。
 实际执行项以 workflow 内容为准；CI 不跑全量 lint。测试类“仍在仓库里”不等于仍被 CI 执行。
+
+全量 Robolectric 测试使用单个并行 worker 和 1536 MiB 堆，为各 Android SDK 沙箱资源表预留空间。该配置不减少测试；SDK 下载器的 Gradle 测试单独执行并在完成后结束外层构建进程。
 
 本机已知 Windows 失败涉及文件覆盖式 `renameTo` 与符号链接权限；只有再次核对原因一致，才能标成已有环境失败。
 没有跑的检查明确写“未运行”。Gradle 构建成功只证明能出包，不证明功能已经验收。
