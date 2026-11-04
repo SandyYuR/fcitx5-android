@@ -5,7 +5,7 @@ CI 用的是 GitHub 托管的 Ubuntu，与这里无关；下面的路径是作�
 
 ## 工具链与一键脚本
 
-工具链集中在一个目录（作者机器上是 `D:\GitHub\tools`）：JDK 17、Android SDK 36、NDK `28.0.13004108`、CMake `3.31.6`、build-tools `36.1.0`，以及 BuildConfig 用的 ECM/gettext 和独立的 `gradle-home`、`tmp`。
+工具链集中在一个目录（作者机器上是 `D:\GitHub\tools`）：JDK 17、Android SDK 36、NDK `28.0.13004108`、CMake `3.31.6`、build-tools `36.1.0`，以及独立的 `gradle-home`、`tmp`。当前直连构建无需 ECM/gettext；历史环境脚本保留的相关变量不参与 Rime SDK 构建。
 
 工作区根（不在任何 git 仓库内）的一键脚本会把 `JAVA_HOME`/`ANDROID_HOME`/`GRADLE_USER_HOME`/`TMP`/`ECM_DIR`/`GETTEXTDATADIR` 都设进进程，**不要另设系统级环境**：
 
@@ -14,7 +14,7 @@ pwsh -File build-debug.ps1              # debug APK(默认 arm64-v8a) + 出包�
 pwsh -File build-debug.ps1 -Test        # 只跑 JVM 单测
 pwsh -File build-debug.ps1 -Install     # 构建后 adb install -r
 pwsh -File build-debug.ps1 -SkipVerify  # 跳过 verify/audit 门禁
-pwsh -File build-debug.ps1 -Abi x86_64  # 其它 ABI(需先放开 prebuilt 稀疏检出)
+pwsh -File build-debug.ps1 -Abi x86_64  # 其它 ABI（SDK 已包含四 ABI）
 pwsh -File build-release.ps1 [-Install] [-VerifyOnly]   # 本地签名 Release
 ```
 
@@ -44,31 +44,19 @@ cmd.exe /c "gradlew.bat -Pkotlin.compiler.execution.strategy=in-process -PbuildA
 
 上例是可选写法，不要求所有命令都经过 `cmd.exe /c`。在已配置环境的 PowerShell 中，也可用 `& .\gradlew.bat` 并把每个 `-P...` 参数单独引用；避免将多个参数合成一个字符串。
 
-## 子模块：浅克隆与取不到 pin
+## 引擎 SDK 与共享预设
 
-`native/prebuilt` 是浅克隆，`git submodule update --init` 常报 `Unable to find current revision in submodule path` 或留下空工作树。补救是按 SHA 单独取：
-
-```sh
-git -C native/prebuilt fetch --depth 1 origin <pin>
-git -C native/prebuilt checkout --detach <pin>
-```
-
-遇到 `.git` 指向失效或锁文件残留时，先检查工作树、gitdir、正在运行的 Git 进程和未提交修改。**不要无条件删除子模块 `.git` 或 `.git/modules/...`**；优先定位已验证 pin 并恢复现有 checkout，确需重建时先保存本地内容并核对要处理的路径。
-镜像只在明确采用可信来源时配置，不把网络问题当作更换源码或 pin 的理由。Git 的 URL 改写是否生效取决于实际 URL 与生效配置；不能笼统断言 `insteadOf` 对子模块无效。
-
-### Git/MSYS 权限错误
-
-`git submodule status` 若在 `sh.exe` 报 `couldn't create signal pipe` / Win32 error 5，说明 shell 启动受限，不证明子模块 pin 损坏。可以先用原生 Git 子命令分别检查：
+当前只有 `native/rime-prelude` 一个数据子模块；`native/prebuilt` 已移除。引擎由 `native/rime-sdk.lock.json` 固定，Gradle 的 `prepareRimeSdk` 自动下载、校验并提取到 `native/rime-sdk/`，无需为引擎处理浅克隆或稀疏检出。
 
 ```powershell
-git ls-tree HEAD native/prebuilt native/rime-prelude
-git -C native/prebuilt rev-parse HEAD
-git -C native/prebuilt status --short
-git -C native/rime-prelude rev-parse HEAD
-git -C native/rime-prelude status --short
+git submodule update --init --depth 1 native/rime-prelude
+& .\gradlew.bat prepareRimeSdk
+Get-Content native/rime-sdk.lock.json
 ```
 
-修复真实写入或工具执行权限问题时使用宿主提供的审批机制，不修改安全设置或换通道绕过拒绝。
+下载器使用 Java，不受 WindowsApps 的 Python 占位程序影响。缓存位于 `GRADLE_USER_HOME/caches/rime-sdk/`；先在线准备成功，再使用 `--offline`。下载失败时排查 GitHub Release 访问和 Java 的代理/证书，不修改固定摘要或换成其他引擎版本。提取文件损坏时重新运行 Gradle 会校验并从缓存恢复。
+
+从旧版本切换前，先保存旧 prebuilt 子模块内的本地修改；历史提交仍可从归档仓库检出重建。不要删除 `.git/modules/...`，其中可能仍有历史 worktree。若共享预设取不到 pin，先检查真实 SHA 与网络，再按固定 SHA 恢复该子模块。
 
 ## 出包之后
 
