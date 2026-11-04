@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.Test
+
 plugins {
     id("org.fcitx.fcitx5.android.app-convention")
     id("org.fcitx.fcitx5.android.native-app-convention")
@@ -81,16 +83,25 @@ android {
     }
 }
 
+tasks.withType<Test>().configureEach {
+    // Robolectric retains framework resource tables for each SDK sandbox.
+    // Give the serial worker enough heap to load another Android resource
+    // archive near the end of the full suite.
+    maxHeapSize = "1536m"
+    maxParallelForks = 1
+}
+
 run {
     val directAssets = layout.buildDirectory.dir("generated/direct-assets")
     val prepareDirectRimeAssets = tasks.register<Sync>("prepareDirectRimeAssets") {
+        dependsOn(rootProject.tasks.named("prepareRimeSdk"))
         into(directAssets)
         from("src/main/assets") { exclude("usr/**", "descriptor.json") }
         into("usr/share/rime-data") {
             from(rootProject.file("native/rime-data"))
             from(rootProject.file("native/rime-prelude")) { include("key_bindings.yaml", "punctuation.yaml", "symbols.yaml") }
         }
-        into("usr/share/opencc") { from(rootProject.file("native/prebuilt/opencc/data")) }
+        into("usr/share/opencc") { from(rootProject.file("native/rime-sdk/opencc/data")) }
     }
     android.sourceSets.getByName("main").assets.setSrcDirs(listOf(directAssets))
     tasks.named<DataDescriptorPlugin.DataDescriptorTask>("generateDataDescriptor") {

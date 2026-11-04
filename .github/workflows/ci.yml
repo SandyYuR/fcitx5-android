@@ -43,11 +43,6 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Fetch upstream tags
-        run: |
-          git remote add upstream https://github.com/fcitx5-android/fcitx5-android.git || true
-          git fetch upstream --tags
-
       - name: Remove non-semver local tags to avoid confusion
         shell: bash
         run: |
@@ -134,6 +129,13 @@ jobs:
       - name: Check bundled clipboard rules and license packaging guards
         run: python3 -m unittest discover -s tools -p test_verify_clearurls_assets.py -v
 
+      - name: Test SDK integrity, offline cache and incremental recovery
+        run: >-
+          ./gradlew --no-daemon -p build-logic
+          '-Dorg.gradle.jvmargs=-Xmx1536m -Dfile.encoding=UTF-8'
+          -Pkotlin.compiler.execution.strategy=in-process --max-workers=2
+          :convention:test --tests RimeSdkArchiveTest
+
       - name: Run JVM unit tests
         run: |
           set -o pipefail
@@ -154,7 +156,10 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: unit-test-reports
-          path: app/build/reports/tests/testFxDebugUnitTest/
+          path: |
+            app/build/reports/tests/testFxDebugUnitTest/
+            app/build/test-results/testFxDebugUnitTest/
+            build-logic/convention/build/test-results/test/
 
   nightly_release:
     needs: [build_commit, unit_test]
@@ -167,11 +172,6 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-
-      - name: Fetch upstream tags
-        run: |
-          git remote add upstream https://github.com/fcitx5-android/fcitx5-android.git || true
-          git fetch upstream --tags
 
       - name: Save previous release tag
         id: prev_tag

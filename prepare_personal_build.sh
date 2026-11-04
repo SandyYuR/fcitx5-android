@@ -3,6 +3,7 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-# Use the checked-in Rime gitlinks. Never fetch a moving branch or overwrite
-# local changes with --force; the old Fcitx Core/addon patches are no longer used.
-git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+# The only remaining submodule supplies Rime presets. Engine artifacts are
+# downloaded from the pinned librime SDK release with checksum verification.
+git submodule update --init --depth 1 native/rime-prelude
+./gradlew prepareRimeSdk

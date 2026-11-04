@@ -2,7 +2,7 @@
 set -euo pipefail
 output_dir=${1:?output directory}
 mkdir -p "$output_dir"
-git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+git submodule update --init --depth 1 native/rime-prelude
 if [ -z "${SIGN_KEY_BASE64:-}" ] && [ -z "${SIGN_KEY_FILE:-}" ]; then
     if [ "${REQUIRE_RELEASE_SIGNING:-false}" = true ]; then
         printf '%s\n' 'Release signing is required; configure the repository signing key.' >&2
@@ -32,6 +32,8 @@ assert any('DirectRimeBackend$' in m and m.endswith('->invokeSuspend') for m in 
 PY
 cp app/build/outputs/apk/fx/release/*.apk "$output_dir/direct.apk"
 cp app/build/outputs/apk/fx/release/build-metadata.json "$output_dir/"
+cp native/rime-sdk.lock.json "$output_dir/"
+cp native/rime-sdk/sdk-manifest.json "$output_dir/rime-sdk-manifest.json"
 cp app/build/intermediates/combined_art_profile/fxRelease/compileFxReleaseArtProfile/baseline-prof.txt "$output_dir/resolved-baseline-prof.txt"
 git rev-parse HEAD > "$output_dir/source.txt"
 sha256sum "$output_dir/direct.apk" > "$output_dir/sha256.txt"

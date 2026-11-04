@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Fetch pinned engine
-        run: git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+        run: git submodule update --init --depth 1 native/rime-prelude
       - uses: actions/setup-java@v5
         with:
           distribution: temurin

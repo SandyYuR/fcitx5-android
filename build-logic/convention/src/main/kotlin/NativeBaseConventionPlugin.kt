@@ -13,7 +13,12 @@ import org.gradle.kotlin.dsl.register
 open class NativeBaseConventionPlugin : Plugin<Project> {
 
     override fun apply(target: Project) {
-        val prebuiltDir = target.rootProject.projectDir.resolve("native/prebuilt")
+        val prebuiltDir = target.rootProject.projectDir.resolve("native/rime-sdk")
+        target.tasks.configureEach {
+            if (name.startsWith("configureCMake") || name.startsWith("buildCMake") || name == "preBuild") {
+                dependsOn(target.rootProject.tasks.named("prepareRimeSdk"))
+            }
+        }
         val abiOverride = target.buildAbiOverride
         val selectedAbis = selectBuildAbis(abiOverride, Versions.supportedABIs)
         val isBuildingBundle = requestsBundle(target.rootProject.gradle.startParameter.taskNames, target.path)

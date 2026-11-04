@@ -25,7 +25,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y extra-cmake-modules gettext
-          git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+          git submodule update --init --depth 1 native/rime-prelude
       - uses: gradle/actions/setup-gradle@v6
       - name: Build the untouched default branch with a test-only replay harness
         run: |
@@ -34,19 +34,12 @@ jobs:
           git -C "$baseline_dir" checkout --detach a714feff77fd79082807b9c7141e0515c8c83f73
           git -C "$baseline_dir" submodule update --init --depth 1 lib/fcitx5/src/main/cpp/fcitx5 plugin/rime/src/main/cpp/fcitx5-rime
           git -C "$baseline_dir" submodule init lib/fcitx5/src/main/cpp/prebuilt plugin/rime/src/main/cpp/rime-prelude
-          for item in prebuilt rime-prelude; do
-            if [ "$item" = prebuilt ]; then destination="$baseline_dir/lib/fcitx5/src/main/cpp/prebuilt"; else destination="$baseline_dir/plugin/rime/src/main/cpp/rime-prelude"; fi
-            if [ -d "$destination" ]; then rmdir "$destination"; fi
-            git clone --shared --no-checkout "$GITHUB_WORKSPACE/native/$item" "$destination"
-            git -C "$destination" checkout --detach "$(git -C "$GITHUB_WORKSPACE/native/$item" rev-parse HEAD)"
-          done
-          git -C "$baseline_dir" submodule absorbgitdirs lib/fcitx5/src/main/cpp/prebuilt plugin/rime/src/main/cpp/rime-prelude
+          bash tools/prepare-native-inputs.sh "$baseline_dir"
           target="$baseline_dir/app/src/androidTest/java/org/fcitx/fcitx5/android/core"
           mkdir -p "$target"
           cp tools/input-perf/EngineComparisonTest.kt "$target/"
           cd "$baseline_dir"
           ./prepare_personal_build.sh
-          test "$(git rev-parse HEAD:lib/fcitx5/src/main/cpp/prebuilt)" = "$(git -C "$GITHUB_WORKSPACE/native/prebuilt" rev-parse HEAD)"
           git diff --exit-code -- app/src/main app/build.gradle.kts settings.gradle.kts build-logic
           ./gradlew -PbuildABI=x86_64 -Pkotlin.compiler.execution.strategy=in-process --max-workers=2 :app:assembleFxDebug :app:assembleFxDebugAndroidTest
           cp app/build/outputs/apk/fx/debug/*.apk "$RUNNER_TEMP/fcitx-default.apk"

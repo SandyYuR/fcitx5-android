@@ -1,6 +1,12 @@
 name: Direct Rime CI
 on:
   workflow_dispatch:
+    inputs:
+      scope:
+        description: Select the complete diagnostic suite or only the engine device smoke test
+        type: choice
+        options: [all, engine-smoke]
+        default: all
   pull_request:
     paths: ['app/**', 'direct-rime/**', 'patches/**', 'tools/input-perf/**', 'tools/test-direct-rime-frontend.sh', 'tools/verify-direct-rime-apk.py', 'tools/audit-direct-rime-link.py', '.github/workflows/direct-rime.yml', 'settings.gradle.kts', 'native/**', 'build-logic/**', 'gradle/**', '.gitmodules']
 permissions:
@@ -10,13 +16,14 @@ concurrency:
   cancel-in-progress: true
 jobs:
   prototype:
+    if: inputs.scope != 'engine-smoke'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v7
       - name: Fetch pinned submodules from the configured engine fork
         run: |
           git submodule init
-          git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+          git submodule update --init --depth 1 native/rime-prelude
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -27,8 +34,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
       - name: Test native engine safety contract
         run: |
+          ./gradlew prepareRimeSdk
           c++ -std=c++17 -Wall -Wextra -Werror -pthread -fsanitize=address,undefined -g \
-            -I native/prebuilt/librime/arm64-v8a/include \
+            -I native/rime-sdk/librime/arm64-v8a/include \
             direct-rime/src/main/cpp/engine.cpp direct-rime/src/main/cpp/engine_test.cpp -o /tmp/engine-test
           /tmp/engine-test
           c++ -std=c++17 -Wall -Wextra -Werror -pthread -fsanitize=address,undefined -g \
@@ -55,7 +63,7 @@ jobs:
       - name: Fetch pinned submodules
         run: |
           git submodule init
-          git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+          git submodule update --init --depth 1 native/rime-prelude
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -82,6 +90,7 @@ jobs:
           name: direct-rime-android-smoke-results
           path: direct-rime/build/reports/androidTests/connected/
   frontend:
+    if: inputs.scope != 'engine-smoke'
     name: Full frontend ARM64 APK
     runs-on: ubuntu-22.04
     steps:
@@ -96,7 +105,7 @@ jobs:
         with:
           packages: platform-tools
       - name: Fetch only the pinned Rime dependencies
-        run: git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+        run: git submodule update --init --depth 1 native/rime-prelude
       - name: Verify Fcitx sources are absent
         run: |
           test ! -f lib/fcitx5/src/main/cpp/fcitx5/CMakeLists.txt
@@ -116,6 +125,7 @@ jobs:
             app/build/reports/tests/testFxDebugUnitTest/
             native-link-audit.json
   frontend_android:
+    if: inputs.scope != 'engine-smoke'
     name: Full frontend touch and engine tests
     runs-on: ubuntu-22.04
     steps:
@@ -128,7 +138,7 @@ jobs:
         with:
           packages: platform-tools
       - name: Fetch only the pinned Rime dependencies
-        run: git submodule update --init --depth 1 native/prebuilt native/rime-prelude
+        run: git submodule update --init --depth 1 native/rime-prelude
       - uses: gradle/actions/setup-gradle@v6
       - name: Enable KVM
         run: |

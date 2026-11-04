@@ -1,4 +1,5 @@
 plugins {
+    id("org.fcitx.fcitx5.android.rime-sdk")
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.aboutlibraries) apply false

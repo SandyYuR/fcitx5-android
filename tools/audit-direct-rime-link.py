@@ -120,6 +120,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("apk", type=Path, nargs="+")
     parser.add_argument("--build-root", type=Path, default=Path("app/.cxx"))
-    parser.add_argument("--prebuilt", type=Path, default=Path("native/prebuilt"))
+    parser.add_argument("--prebuilt", type=Path, default=Path("native/rime-sdk"))
     args = parser.parse_args()
     print(json.dumps(audit(args.apk, args.build_root, args.prebuilt), indent=2))
