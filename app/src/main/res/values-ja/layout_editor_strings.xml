@@ -8,6 +8,8 @@
     <string name="layout_editor_delete_layout">現在の配置を削除…</string>
     <string name="layout_editor_normal">通常配置</string>
     <string name="layout_editor_split">分割配置</string>
+    <string name="text_keyboard_layout_composing_preview">入力中</string>
+    <string name="text_keyboard_layout_composing_preview_helper">入力中に適用されるキー設定をプレビューに表示します。プレビューのみが変わり、レイアウトや実際の入力状態は変更されません。</string>
     <string name="layout_editor_inherited">既定のレイアウトを使用しています。変更は、このレイアウトを継承する他の入力スキーマにも適用されます。</string>
     <string name="layout_editor_own">この入力スキーマ専用のレイアウトを編集中</string>
     <string name="layout_editor_base">既定のレイアウトを編集中</string>

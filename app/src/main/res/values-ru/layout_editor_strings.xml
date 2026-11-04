@@ -8,6 +8,8 @@
     <string name="layout_editor_delete_layout">Удалить текущее расположение…</string>
     <string name="layout_editor_normal">Обычное расположение</string>
     <string name="layout_editor_split">Разделённое расположение</string>
+    <string name="text_keyboard_layout_composing_preview">Набор текста</string>
+    <string name="text_keyboard_layout_composing_preview_helper">Показывать в предпросмотре клавиши для режима набора текста. Меняется только предпросмотр, а не раскладка или текущее состояние ввода.</string>
     <string name="layout_editor_inherited">Используется раскладка по умолчанию. Изменения затронут и другие схемы, которые её наследуют.</string>
     <string name="layout_editor_own">Редактируется отдельная раскладка этой схемы</string>
     <string name="layout_editor_base">Редактируется раскладка по умолчанию</string>
