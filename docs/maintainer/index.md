@@ -12,8 +12,8 @@
 | 任务 | 阅读入口 |
 | --- | --- |
 | 在 Windows 构建和排查环境 | [本机环境](/maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN) → [维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
-| 更新 librime 与 Android SDK | [引擎来源与更新步骤](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN#librime-从哪里来) → [SDK 构建与发布](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/README.zh-CN.md) |
-| 核对默认分支功能与文档 | [核对结论](/maintainer/changes/) → [直连版逐提交对照](/maintainer/changes/direct-rime) |
+| 更新 librime、插件、依赖与 Android SDK | [完整更新与回退流程](/maintainer/engine-update) → [SDK 配方说明](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/README.zh-CN.md) |
+| 核对默认分支功能与文档 | [2026-11-05 核对](/maintainer/changes/2026-11-05) → [现行功能源码表](/maintainer/changes/feature-coverage) → [2026-10-30 基线](/maintainer/changes/) |
 | 开发语音插件或外部提供方 | [JS 宿主协议](/maintainer/implementation/js-voice-plugins) · [AIDL 接入入口](/features/voice-input) |
 | 维护同步、下载、备份与恢复 | [现行实现协议](/maintainer/implementation/) |
 | 查输入链路、候选和性能的由来 | [直连版历史阅读路线](/maintainer/history/) |

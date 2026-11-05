@@ -1,7 +1,7 @@
 # 中州鹅直连版维护手册
 
-本页描述默认分支 `fx-rime-only` 的现行维护方式；2026 年 10 月 30 日的源码核对范围与固定提交见[代码与文档对照](/maintainer/changes/)。功能操作见[用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN)。
-历史实验、阶段结论和当时的测试数量在[直连版历史](/maintainer/history/)中保留，含 Fcitx 层的旧版资料在[靓企鹅中州韵档案](/legacy/)中保留。
+本页描述默认分支 `fx-rime-only` 的现行维护方式；本轮范围与固定提交见[2026-11-05 代码与文档核对](changes/2026-11-05.md)，此前的完整基线见[2026-10-30 对照](changes/index.md)。功能操作见[用户手册](../manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)。
+历史实验、阶段结论和当时的测试数量在[直连版历史](history/index.md)中保留，含 Fcitx 层的旧版资料在[靓企鹅中州韵档案](../legacy/index.md)中保留。
 
 ## 仓库与模块
 
@@ -9,7 +9,9 @@
 | --- | --- |
 | `app/` | 完整主应用、输入法前端、设置、布局、主题、语音与数据功能 |
 | `direct-rime/src/main/cpp/` | 主应用使用的 JNI 桥与 `libdirect-rime.so` |
-| `direct-rime/src/engine/` | 引擎封装、owner 线程与快照；独立诊断模块复用 |
+| `app/src/main/java/org/fcitx/fcitx5/android/core/` | 主应用的 DirectRimeBackend、owner 线程、生命周期和事件队列 |
+| `direct-rime/src/engine/java/` | 主应用和诊断模块共用的 Native 接口、Snapshot 与方案 ZIP 工具 |
+| `direct-rime/src/main/java/` | 独立诊断应用的 RimeRuntime、服务与实验页面 |
 | `lib/common/` | IPC、剪贴板及语音 AIDL 公共接口 |
 | `native/rime-sdk.lock.json`、`native/rime-sdk/` | 固定的 librime SDK 版本、摘要与自动下载的静态库/头文件/数据 |
 | `native/rime-prelude` | Rime 共享预设子模块 |
@@ -58,7 +60,7 @@ pwsh -File D:\GitHub\fx2-rime\build-debug.ps1 -Install
 pwsh -File D:\GitHub\fx2-rime\build-release.ps1
 ```
 
-环境异常先看[Windows 本机构建](/maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN)。Release 签名、安装到用户设备与对外发布各有独立授权和验证要求。
+环境异常先看[Windows 本机构建](LOCAL_BUILD_ENVIRONMENT_zh-CN.md)。Release 签名、安装到用户设备与对外发布各有独立授权和验证要求。
 
 ## 输入事件链路
 
@@ -87,9 +89,11 @@ pwsh -File D:\GitHub\fx2-rime\build-release.ps1
 
 密码、显式禁用组词的输入框，以及首次解锁前的输入，直接转发按键。它们在 native 返回“无方案”时仍可完成绑定；普通中文输入框仍需要可用方案。直接输入继续经过相同的 ticket、代次和有序事件队列，不能绕过部署/同步门控或交付过期按键。`InputBindingStartupTest` 覆盖无方案密码输入、DOWN/UP 顺序、重复 focus 与过期会话拒绝。
 
-Direct Boot 启动时，应用设置使用 `directBootAwareContext`，引擎只在 DE 内部文件目录建立独立空 profile，不访问受凭据保护的外部方案目录。自定义布局、字体和图标扫描等待解锁后的进程重启；旧 CE 资产清理也只在解锁后执行。解锁接收器仍通过退出进程切回正常 CE 初始化，不把 DE 默认设置反写到 CE。`DirectBootStartupTest` 执行真实 Application 初始化，并模拟 CE 访问被拒绝及解锁发生在接收器注册期间的情况。
+Direct Boot 启动时，应用设置使用 `directBootAwareContext`，引擎只在 DE 内部文件目录建立独立空 profile，不访问受凭据保护的外部方案目录。已解锁进程通过 `DirectBootLayoutSync` 将当前选中布局同步为固定的 DE 快照，首次解锁前由 `ConfigProvider` 读取；不在锁屏阶段扫描外部布局目录。缺失、解析失败或没有可用按键时，密码布局沿回退链继续选择，最终使用内置 QWERTY。字体、图标及日常中文方案仍待解锁后的进程重启恢复；旧 CE 资产清理也只在解锁后执行。
 
-历史问题与修正过程见[响应性记录](/maintainer/history/DIRECT_RIME_RESPONSIVENESS_2026-10-18)、[候选点选](/maintainer/history/DIRECT_RIME_CANDIDATE_TAP_2026-10-18)和[后续输入回归](/maintainer/audit/direct-rime-2026-10-25/)。
+同步监听所选 Profile 和目录事件，目录暂不可用时保留完整快照并退避重试，删除或无效 JSON 则清理快照；写入使用内容比较和原子替换。解锁接收器通过退出进程切回正常 CE 初始化，不把 DE 默认设置反写到 CE。`DirectBootStartupTest`、`DirectBootLayoutStoreTest`、`DirectBootLayoutSyncTest` 覆盖初始化、存储与同步；这些测试不能写成真机冷重启已验收。
+
+历史问题与修正过程见[响应性记录](history/DIRECT_RIME_RESPONSIVENESS_2026-10-18.md)、[候选点选](history/DIRECT_RIME_CANDIDATE_TAP_2026-10-18.md)和[后续输入回归](audit/direct-rime-2026-10-25/index.md)。
 
 ## librime 从哪里来
 
@@ -112,6 +116,8 @@ Android SDK CI 位于 librime 仓库：从固定来源编译 Boost 头文件、�
 
 ### 更新 librime
 
+完整步骤、组件来源、摘要计算、变基与补丁重放、SDK 发布、输入法更新和回退见[引擎、插件与依赖更新](engine-update.md)。
+
 1. 在 `SandyYuR/librime` 的 `zhongzhou` 更新固定官方基线，依次重放独有补丁，更新 `downstream/manifest.json`；核心补丁只维护在源码提交中。
 2. 需要升级依赖/插件时修改 `downstream/android/sources.lock.json` 和固定补丁，保持来源、摘要、工具链明确。
 3. 源码 CI 与 Android SDK CI 通过后，核对原生回归、四 ABI 编译/最终链接、SDK 文件清单和来源。
@@ -121,6 +127,29 @@ Android SDK CI 位于 librime 仓库：从固定来源编译 Boost 头文件、�
 
 完整构建、依赖锁和发布说明见 [librime Android SDK 维护文档](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/README.zh-CN.md)。10 月的四仓库迁移报告属于历史记录，保留当时的 SHA、测试与流程，不能作为当前升级步骤。
 
+### 依赖与插件版本
+
+`downstream/android/sources.lock.json` 固定每个组件的源码 URL、版本或提交、源码包 SHA-256 和本地补丁摘要。重新运行 CI 或同步 librime 上游都不会自动更新这些组件。升级时同时修改来源、版本、下载 URL 和摘要，重放兼容补丁，必要时更新构建配方；发布新 SDK 后再更新输入法版本锁。
+
+2026-11-05 这一轮更新涉及以下组件，具体提交以源码仓库的依赖锁为准：
+
+| 组件 | 更新目标 |
+| --- | --- |
+| Lua 运行时 | 官方 5.4.9 源码包，保持 Lua 5.4 系列 |
+| librime-lua | `6da5d6ce`，包含关闭 Lua VM 时的 GC 修正 |
+| octagram | `57d18b9f` |
+| LevelDB | `bb74ef73` |
+| OpenCC | 正式版 1.4.2，Android 库与主机生成工具同源 |
+| Boost | 正式版 1.92.0 |
+
+predict 的固定提交仍是其仓库最新提交；glog 0.7.1、yaml-cpp 0.9.0、Marisa 0.3.1 保持各自最新正式版。万象方案自己的 `.lua` 脚本随方案管理，不会随 Lua 运行时或 librime-lua 升级而自动改变。
+
+Lua 官方源码包的最小 CMake 配方与 Android API 23 的文件定位兼容修正保存在 `lua.patch`。Boost 头文件缓存按源码包摘要刷新，复用构建目录也不会沿用旧版本。`tools/input-perf/test-leveldb-open.py` 从已准备 SDK 的来源清单读取实际 LevelDB 版本，检查持久化、日志复用、显式同步与恢复；不再固定测试另一个旧版 LevelDB。
+
+依赖的配置、编译和安装都限制 Git 向父目录查找，避免 OpenCC 在嵌套构建目录中误用 librime 的标签或提交号作为自身版本。Android 库与主机生成工具都要求 OpenCC 版本与依赖锁完全一致。
+
+Android 的 `PluginSdkSmokeTest` 联合检查 Lua 翻译器、Memory 用户词库接口、OpenCC 转换，并在仍有 Lua 翻译迭代器时关闭引擎、重启后读取持久化词条。SDK CI 的主机原生回归仍使用 Ubuntu 系统依赖；四 ABI 编译通过与 Android 运行验证需要分别核对。
+
 ## 语音宿主与原生打包
 
 AIDL 外部提供方与 JS 插件共用会话、录音、静音判定和回填。JS 提供方使用 `js:` ID 前缀，QuickJS 依赖由版本目录固定。
@@ -128,7 +157,7 @@ AIDL 外部提供方与 JS 插件共用会话、录音、静音判定和回填�
 当前 APK 原生白名单是 **`libdirect-rime.so`、`libc++_shared.so`、`libquickjs.so`**，权威为 `tools/verify-direct-rime-apk.py` 的 `allowed`。
 任何新增 `.so` 都必须同时更新并审阅白名单，不能因为 Debug 能构建就认为发布门禁会通过。
 
-语音宿主的密钥、逐插件主机授权、prelude/stub 双侧接口和收尾预算见[JS 宿主协议](/maintainer/implementation/js-voice-plugins)。
+语音宿主的密钥、逐插件主机授权、prelude/stub 双侧接口和收尾预算见[JS 宿主协议](implementation/js-voice-plugins.md)。
 目标测试加载真实 bundled 脚本；JVM 使用 `quickjs-kt-jvm` 替换 Android native 依赖。
 
 ## 按改动选择验证门禁
@@ -165,7 +194,7 @@ tools/test-material-settings.sh
 - 密钥在备份中保持密文，Android Keystore 密钥不导出；跨设备后需重填语音密钥。
 - 设置入口变化同步分组、承载页、搜索索引与现有语言资源，避免出现入口能点但搜不到的情况。
 
-协议详见[同步接收](/maintainer/implementation/clipcascade-receive-limits)、[加密备份](/maintainer/implementation/protected-backup-format)、[整包恢复](/maintainer/implementation/user-data-restore)。
+协议详见[同步接收](implementation/clipcascade-receive-limits.md)、[加密备份](implementation/protected-backup-format.md)、[整包恢复](implementation/user-data-restore.md)。
 
 ## 性能与历史证据
 
@@ -177,7 +206,7 @@ tools/test-material-settings.sh
 
 绑定的三段同步工作均在 `InteractiveThreadPriority` 作用域内，退出或异常时恢复原优先级。日常日志只增加每次绑定的少量计时与计数；逐键 CPU、缺页和文件 I/O 统计仍须 `-PinputDiagnostics=true`。没有分段记录的旧日志只能定位到整次绑定，不能直接断言耗时来自词库重开、Lua 或界面绘制；优化后的真机延迟须在相同方案和设备上复测。
 
-所有原始报告及 ZIP/JSON/截图见[验证证据目录](/maintainer/evidence)。历史 Actions artifact 有保留期限，不能当成永久下载或当前版本证明。
+所有原始报告及 ZIP/JSON/截图见[验证证据目录](evidence.md)。历史 Actions artifact 有保留期限，不能当成永久下载或当前版本证明。
 完整 XKB Compose、按应用行为等价和广泛真机回归仍有边界，不因旧后端被移除而自动视为完成。
 
 
