@@ -55,9 +55,12 @@ const features = [
     { text: '设置界面与返回动画', link: '/features/theme/settings-appearance' },
     { text: '二维码分享与导入', link: '/features/theme/share-import' },
   ] },
-  { text: '语音输入', collapsed: false, items: [
+  { text: '语音与 JS 插件', collapsed: false, items: [
     { text: '选择引擎与 AIDL 提供方', link: '/features/voice-input' },
     { text: 'JS 插件安装与使用', link: '/features/voice-input-js' },
+    { text: 'AI 文本助手（测试版）', link: '/features/ai-assistant' },
+    { text: 'Foxy 插件参考（中文）', link: '/features/voice-input-js-reference-zh-CN' },
+    { text: 'Foxy plugin reference (English)', link: '/features/voice-input-js-en' },
     { text: 'JS 插件开发接口', link: '/maintainer/implementation/js-voice-plugins' },
   ] },
   { text: '数据与常用工具', collapsed: true, items: [
