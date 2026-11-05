@@ -20,7 +20,7 @@
 | 功能 | 能做什么 | 详细说明 |
 | --- | --- | --- |
 | 浮动、分体、单手 | 调整大小和位置；横屏可自动切换形态，浮动移动手柄可自动隐藏 | [浮动](/features/keyboard/float-keyboard) · [分体](/features/keyboard/split-keyboard) · [单手](/features/keyboard/one-handed) |
-| 布局文件与方案子布局 | 保存多份完整布局，为不同 Rime 方案设置专用排列和独立分体布局 | [布局编辑器](/features/editor/layout-editor) |
+| 布局文件与方案子布局 | 保存多份布局，按方案配置；支持合成态预览、独立分体排列及指定行保持连贯 | [布局编辑器](/features/editor/layout-editor) |
 | 可视化编辑 | 编辑行结构、键位、弹出字符、宏和字体集，支持草稿、保存确认与 JSON | [Popup](/features/editor/popup-editor) · [宏编辑器](/features/editor/macrokey-editor) · [字体](/features/editor/fontset-editor) |
 | 按键类型与字段 | 字母、宏、切层、空格、退格等按键；空白占位键用于排版，显式显示文本保留原样 | [按键参考](/features/keys/overview) |
 | 长按、上下滑动 | 分别配置动作；空格光标移动与自定义划动动作互斥 | [手势](/features/keyboard/swipe-actions) · [空格键](/features/keys/space-key) |
@@ -59,5 +59,7 @@
 
 ## 文档与版本对应
 
-当前功能由默认分支源码核对，逐提交记录见[代码与文档对照](/maintainer/changes/)。继承的前端功能继续由当前功能页说明；旧 Fcitx 引擎实现只在[历史档案](/legacy/)中保留。
+内置引擎及其依赖随 APK 更新；方案文件单独部署。维护者操作见[引擎与依赖更新](/maintainer/engine-update)，图标槽位见[图标主题](/features/theme/icon-themes)。
+
+当前功能由默认分支源码核对，最新结果见[2026-11-05 对照](/maintainer/changes/2026-11-05)，此前的完整基线见[2026-10-30 对照](/maintainer/changes/)。继承的前端功能继续由当前功能页说明；旧 Fcitx 引擎实现只在[历史档案](/legacy/)中保留。
 云端语音识别效果、设备后台策略以及不同编辑器的输入行为仍受服务和设备环境影响。

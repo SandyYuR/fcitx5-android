@@ -49,6 +49,7 @@ const features = [
   ] },
   { text: '主题与设置外观', collapsed: true, items: [
     { text: '主题编辑与随机主题', link: '/features/theme/theme-editor' },
+    { text: '图标主题与面板图标', link: '/features/theme/icon-themes' },
     { text: 'Monet 动态取色', link: '/features/theme/monet' },
     { text: '磨砂按键', link: '/features/theme/frosted-blur' },
     { text: '设置界面与返回动画', link: '/features/theme/settings-appearance' },
@@ -86,11 +87,14 @@ const maintenance = [
     { text: '维护文档首页', link: '/maintainer/' },
     { text: '维护资料完整目录', link: '/maintainer/catalog' },
     { text: '构建、引擎与验证手册', link: '/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN' },
+    { text: '引擎、插件与依赖更新', link: '/maintainer/engine-update' },
     { text: 'Windows 本机构建', link: '/maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN' },
     { text: '文档维护与分类约定', link: '/maintainer/documentation' },
   ] },
   { text: '代码与文档对照', collapsed: false, items: [
-    { text: '核对范围与修订结论', link: '/maintainer/changes/' },
+    { text: '最新核对 · 2026-11-05', link: '/maintainer/changes/2026-11-05' },
+    { text: '现行功能与源码入口', link: '/maintainer/changes/feature-coverage' },
+    { text: '2026-10-30 核对基线', link: '/maintainer/changes/' },
     { text: '直连版逐提交对照', link: '/maintainer/changes/direct-rime' },
     { text: '继承功能与旧提交索引', link: '/maintainer/changes/inherited' },
   ] },

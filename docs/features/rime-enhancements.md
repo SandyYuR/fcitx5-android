@@ -25,7 +25,7 @@ APK 不预装中文方案、完整词典或万象模型，见[快速上手](/gui
 ## 引擎来源与更新
 
 引擎使用 `SandyYuR/librime` 的 `zhongzhou` 定制源码，由该仓库独立构建并发布 Android SDK。输入法固定引用经过验证的 SDK 版本及摘要；当前构建不再使用 prebuilder/prebuilt。
-版本和定制来源以当前源码与元数据为准，查询及六步更新见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN#librime-从哪里来)。
+版本和定制来源以对应 APK 的源码与元数据为准。插件和依赖固定到明确版本，不随上游自动更新；升级步骤、组件来源和回退见[引擎、插件与依赖更新](/maintainer/engine-update)。方案文件仍按方案自己的说明更新并部署。
 此前更新的固定提交、数量与验证保留在[2026-10-21 引擎记录](/maintainer/history/DIRECT_RIME_ENGINE_UPDATE_2026-10-21)。
 
 ## 输入与学习

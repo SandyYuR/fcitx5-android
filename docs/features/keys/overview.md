@@ -30,6 +30,8 @@
 |------|------|-------------|
 | `weight` | float | `0.0–1.0`。正数表示按键宽度占整行的比例。**省略字段（或 `null`）走该按键类型的默认值**（见下方[宽度规则](#宽度-weight-规则)）；显式写 `0` 表示参与分配行内剩余空间 |
 | `rowHeightPercent` | float | `1–100`。该键 **声明**的相对行高；同行先取所有按键中此值的**最大值**，所有行再归一化。详见下方[行高规则](#行高-rowheightpercent-规则) |
+| `splitAfter` | boolean | 在本键之后设置该行的分体断点；见[分体键盘](/features/keyboard/split-keyboard) |
+| `splitRowDisabled` | boolean | 行首按键上的行设置；`true` 使分体排列的这一行保持连贯，同时关闭该行中间键复制；其他位置不作为行设置读取 |
 | `textColor` | int / hex | `0xAARRGGBB` 形式或十进制；按键主标签颜色 |
 | `textColorMonet` | string | Material You 色 token 名（Android 12+），可替代 `textColor` |
 | `altTextColor` | int / hex | swipe 出现的副标签颜色 |

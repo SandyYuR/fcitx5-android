@@ -1,0 +1,538 @@
+{
+  "base": "81ce935746eb4e17911bd503ddb2012fdb6b8435",
+  "head": "7cb141aa1e9ebf110e6a8a7e4059fb2095209989",
+  "commits": [
+    {
+      "sha": "e12e4b5207c49576c68c6bab02404cdb9439d7da",
+      "subject": "修复(存储): 保留原子替换并补齐跨平台回归",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeConfig.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/RimeDataDirectoryState.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/SharedPreferencesRestore.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/UserDataManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDraftStore.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/utils/AtomicFileMove.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/utils/FileUtil.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/network/SyncServerAddressTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/data/AssetMigrationTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/UserDataRestoreJournalTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/UserDataRestoreProcessTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/UserDataRestoreStartupTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/ThemeStoragePathsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceHostPermissionsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/provider/FcitxDataProviderSafetyTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/testing/FilesystemFixtures.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/testing/HostDatabaseContext.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/testing/ShortCacheContextShadow.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/log/CrashReportStoreTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDraftStoreTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/BridgeSessionAccessTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/ResumableAssetDownloadTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/utils/BoundedStorageTest.kt"
+      ],
+      "documentation": [
+        "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "c89dfc7d54c98e2bfee8d93cd47e0139479b5b04",
+      "subject": "修复(主题): 事务保存图片并完善草稿与预览状态",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeAssetTransaction.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeFilesManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/KeyboardPreviewUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/SettingsUiMotionFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeListFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeListItemDecoration.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeSettingsFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeThumbnailUi.kt",
+        "app/src/main/res/values-de/strings_review_fixes.xml",
+        "app/src/main/res/values-es/strings_review_fixes.xml",
+        "app/src/main/res/values-ja/strings_review_fixes.xml",
+        "app/src/main/res/values-ko/strings_review_fixes.xml",
+        "app/src/main/res/values-ru/strings_review_fixes.xml",
+        "app/src/main/res/values-zh-rCN/strings_review_fixes.xml",
+        "app/src/main/res/values-zh-rTW/strings_review_fixes.xml",
+        "app/src/main/res/values/strings_review_fixes.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/ThemeAssetTransactionTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/theme/SettingsUiMotionResetTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeEditorStateTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeGridResizeTest.kt"
+      ],
+      "documentation": [
+        "features/theme/theme-editor.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "fee5199cd9dc3ca497c0d5ea6af8c6656de9860b",
+      "subject": "修复(界面): 完善导航状态与兼容并统一设置分类",
+      "files": [
+        "app/src/main/AndroidManifest.xml",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/InputFeedbacks.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardTextTokenizer.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceInputProvider.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/common/ExpressivePreferenceListStyle.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/common/MaterialSpinner.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/common/PaddingPreferenceFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/CropImageActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/MainActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/MainFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/ShareReceiveManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/UserDataRestoreActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/group/SettingsGroupSpecs.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchIndex.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchQuery.kt",
+        "app/src/main/res/layout/activity_update_mirror_list.xml",
+        "app/src/main/res/layout/preference_settings_navigation.xml",
+        "app/src/main/res/layout/preference_settings_row.xml",
+        "app/src/main/res/layout/preference_settings_search.xml",
+        "app/src/main/res/menu/menu_update_check.xml",
+        "app/src/main/res/menu/menu_update_mirror_edit.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-night/themes.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings_settings_customization.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings_settings_customization.xml",
+        "app/src/main/res/values/direct_rime_settings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/main/res/values/strings_settings_customization.xml",
+        "app/src/main/res/values/themes.xml"
+      ],
+      "documentation": [
+        "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
+        "features/theme/settings-appearance.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "a7ff88bb5aedda34e7057e7833cc4c4a4fc83af0",
+      "subject": "修复(本地化): 补齐功能译文并接入完整 Lint 门禁",
+      "files": [
+        ".github/workflows/pr.yml",
+        "README.md",
+        "app/src/main/res/values-de/strings_feature_coverage.xml",
+        "app/src/main/res/values-es/strings_feature_coverage.xml",
+        "app/src/main/res/values-ja/strings_feature_coverage.xml",
+        "app/src/main/res/values-ko/strings_feature_coverage.xml",
+        "app/src/main/res/values-ru/strings_feature_coverage.xml",
+        "app/src/main/res/values-zh-rCN/strings_review_fixes.xml",
+        "app/src/main/res/values-zh-rTW/strings_review_fixes.xml",
+        "app/src/main/res/values-zh/strings_review_fixes.xml"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-05.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "43cf2e5e6d15cb1587bf3fe6d7a0fcb7cc77e0b5",
+      "subject": "测试(界面): 覆盖真实返回手势并完善设备验收门禁",
+      "files": [
+        ".github/workflows/material-settings.yml",
+        ".github/workflows/pr.yml",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/MaterialSettingsPagesTest.kt",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/SettingsNavigationGesturesTest.kt",
+        "tools/check-junit-results.py",
+        "tools/test-material-settings.sh",
+        "tools/test-settings-navigation.sh"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-05.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "d18d698bd45b655914bfb09c843347abd8bb6a71",
+      "subject": "更新(品牌): 统一白鹅图标并适配 Monet 与 Debug 标识",
+      "files": [
+        ".github/workflows/material-settings.yml",
+        "README.md",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/MaterialSettingsPagesTest.kt",
+        "app/src/fx/res/drawable-hdpi/ic_launcher_foreground.png",
+        "app/src/fx/res/drawable-hdpi/ic_launcher_foreground_debug.png",
+        "app/src/fx/res/drawable-mdpi/ic_launcher_foreground.png",
+        "app/src/fx/res/drawable-mdpi/ic_launcher_foreground_debug.png",
+        "app/src/fx/res/drawable-xhdpi/ic_launcher_foreground.png",
+        "app/src/fx/res/drawable-xhdpi/ic_launcher_foreground_debug.png",
+        "app/src/fx/res/drawable-xxhdpi/ic_launcher_foreground.png",
+        "app/src/fx/res/drawable-xxhdpi/ic_launcher_foreground_debug.png",
+        "app/src/fx/res/drawable-xxxhdpi/ic_launcher_foreground.png",
+        "app/src/fx/res/drawable-xxxhdpi/ic_launcher_foreground_debug.png",
+        "app/src/fx/res/mipmap-hdpi/ic_launcher.png",
+        "app/src/fx/res/mipmap-hdpi/ic_launcher_debug.png",
+        "app/src/fx/res/mipmap-hdpi/ic_launcher_round.png",
+        "app/src/fx/res/mipmap-hdpi/ic_launcher_round_debug.png",
+        "app/src/fx/res/mipmap-mdpi/ic_launcher.png",
+        "app/src/fx/res/mipmap-mdpi/ic_launcher_debug.png",
+        "app/src/fx/res/mipmap-mdpi/ic_launcher_round.png",
+        "app/src/fx/res/mipmap-mdpi/ic_launcher_round_debug.png",
+        "app/src/fx/res/mipmap-xhdpi/ic_launcher.png",
+        "app/src/fx/res/mipmap-xhdpi/ic_launcher_debug.png",
+        "app/src/fx/res/mipmap-xhdpi/ic_launcher_round.png",
+        "app/src/fx/res/mipmap-xhdpi/ic_launcher_round_debug.png",
+        "app/src/fx/res/mipmap-xxhdpi/ic_launcher.png",
+        "app/src/fx/res/mipmap-xxhdpi/ic_launcher_debug.png",
+        "app/src/fx/res/mipmap-xxhdpi/ic_launcher_round.png",
+        "app/src/fx/res/mipmap-xxhdpi/ic_launcher_round_debug.png",
+        "app/src/fx/res/mipmap-xxxhdpi/ic_launcher.png",
+        "app/src/fx/res/mipmap-xxxhdpi/ic_launcher_debug.png",
+        "app/src/fx/res/mipmap-xxxhdpi/ic_launcher_round.png",
+        "app/src/fx/res/mipmap-xxxhdpi/ic_launcher_round_debug.png",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/AboutFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/setup/SetupActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/setup/SetupFragment.kt",
+        "app/src/main/res/drawable-hdpi/ic_launcher_foreground_debug.png",
+        "app/src/main/res/drawable-mdpi/ic_launcher_foreground_debug.png",
+        "app/src/main/res/drawable-night/ic_launcher_foreground_monochrome.xml",
+        "app/src/main/res/drawable-night/ic_launcher_foreground_monochrome_debug.xml",
+        "app/src/main/res/drawable-xhdpi/ic_launcher_foreground_debug.png",
+        "app/src/main/res/drawable-xxhdpi/ic_launcher_foreground_debug.png",
+        "app/src/main/res/drawable-xxxhdpi/ic_launcher_foreground_debug.png",
+        "app/src/main/res/drawable/ic_brand_goose.xml",
+        "app/src/main/res/drawable/ic_launcher_background.xml",
+        "app/src/main/res/drawable/ic_launcher_foreground.xml",
+        "app/src/main/res/drawable/ic_launcher_foreground_debug.xml",
+        "app/src/main/res/drawable/ic_launcher_foreground_monochrome.xml",
+        "app/src/main/res/drawable/ic_launcher_foreground_monochrome_debug.xml",
+        "app/src/main/res/layout/fragment_setup.xml",
+        "app/src/main/res/mipmap-hdpi/ic_launcher_debug.png",
+        "app/src/main/res/mipmap-hdpi/ic_launcher_round_debug.png",
+        "app/src/main/res/mipmap-mdpi/ic_launcher_debug.png",
+        "app/src/main/res/mipmap-mdpi/ic_launcher_round_debug.png",
+        "app/src/main/res/mipmap-xhdpi/ic_launcher_debug.png",
+        "app/src/main/res/mipmap-xhdpi/ic_launcher_round_debug.png",
+        "app/src/main/res/mipmap-xxhdpi/ic_launcher_debug.png",
+        "app/src/main/res/mipmap-xxhdpi/ic_launcher_round_debug.png",
+        "app/src/main/res/mipmap-xxxhdpi/ic_launcher_debug.png",
+        "app/src/main/res/mipmap-xxxhdpi/ic_launcher_round_debug.png",
+        "app/src/main/res/xml/input_method.xml",
+        "app/src/mainline/res/drawable-hdpi/ic_launcher_foreground.png",
+        "app/src/mainline/res/drawable-mdpi/ic_launcher_foreground.png",
+        "app/src/mainline/res/drawable-xhdpi/ic_launcher_foreground.png",
+        "app/src/mainline/res/drawable-xxhdpi/ic_launcher_foreground.png",
+        "app/src/mainline/res/drawable-xxxhdpi/ic_launcher_foreground.png",
+        "app/src/mainline/res/mipmap-hdpi/ic_launcher.png",
+        "app/src/mainline/res/mipmap-hdpi/ic_launcher_round.png",
+        "app/src/mainline/res/mipmap-mdpi/ic_launcher.png",
+        "app/src/mainline/res/mipmap-mdpi/ic_launcher_round.png",
+        "app/src/mainline/res/mipmap-xhdpi/ic_launcher.png",
+        "app/src/mainline/res/mipmap-xhdpi/ic_launcher_round.png",
+        "app/src/mainline/res/mipmap-xxhdpi/ic_launcher.png",
+        "app/src/mainline/res/mipmap-xxhdpi/ic_launcher_round.png",
+        "app/src/mainline/res/mipmap-xxxhdpi/ic_launcher.png",
+        "app/src/mainline/res/mipmap-xxxhdpi/ic_launcher_round.png",
+        "artwork/zhongzhou-goose-monochrome-dark.svg",
+        "artwork/zhongzhou-goose-monochrome.svg",
+        "artwork/zhongzhou-goose.svg",
+        "tools/test-material-settings.sh"
+      ],
+      "documentation": [
+        "features/theme/settings-appearance.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "482c1be22c9079a4e9b88c87efbaa1195b7ad777",
+      "subject": "测试(手势): 等待系统桌面持续稳定后开始回归",
+      "files": [
+        "tools/test-settings-navigation.sh"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-05.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "ff135605c8e3c38ad2ece54ab409eae82d4045d8",
+      "subject": "修复(输入): 保障首次解锁前输入并完善绑定诊断",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeConfig.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/data/DataManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/config/UserConfigFiles.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/DirectBootStartupTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt"
+      ],
+      "documentation": [
+        "troubleshooting/oem-startup.md",
+        "maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "7cd10070d0821a25ce9696f5288521b74a553cd7",
+      "subject": "修复(语音): 保留录音状态栏的结束入口",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/ui/IdleUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt",
+        "app/src/main/res/drawable/ic_baseline_stop_24.xml",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/bar/VoiceToolbarButtonsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/VoiceFinishIntegrationTest.kt"
+      ],
+      "documentation": [
+        "features/voice-input.md",
+        "features/kawaii-bar.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "74adebb69e106f72a1fcf36d6ca8233058371595",
+      "subject": "修复(键盘): 支持首次解锁前的自定义布局并完善密码键盘回退",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/config/ConfigProvider.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/config/DirectBootLayoutStore.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/config/DirectBootLayoutSync.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/config/DirectoryObservers.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/config/UserConfigFiles.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/DirectBootStartupTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/config/DirectBootLayoutStoreTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/config/DirectBootLayoutSyncTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/config/DirectoryFileObserverShadow.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/config/DirectoryObserverRegistryTest.kt"
+      ],
+      "documentation": [
+        "troubleshooting/oem-startup.md",
+        "features/editor/layout-editor.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "970ece8171634e3edd282ed4c22aa9e0a36bb8f7",
+      "subject": "修复(工具栏): 尊重日夜切换按钮的移除与移动",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/config/ButtonsConfig.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/KeyboardPreviewUi.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/config/ButtonsLayoutConfigTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/ButtonsCustomizerPersistenceTest.kt"
+      ],
+      "documentation": [
+        "features/kawaii-bar.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "8b4f5da2af5dc6884c33a08e866c5cc7680d4531",
+      "subject": "优化(布局编辑器): 在原页面内弹出宏编辑器",
+      "files": [
+        "app/src/main/AndroidManifest.xml",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorForm.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorResultHost.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorDialogFragment.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorFormTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorPendingResultsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/MacroBaselineTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/MacroEditorDialogLayoutTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/MacroEditorTestActivity.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/MacroKeyDialogTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/StandaloneEditorDraftTest.kt"
+      ],
+      "documentation": [
+        "features/editor/macrokey-editor.md",
+        "maintainer/changes/feature-coverage.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "d670d5cce3f23995f97db8e219b976ccbf5e4e6f",
+      "subject": "调整(设置): 迁移首页菜单入口并移除三点菜单",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/AboutFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/MainActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/MainFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/SettingsPage.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/AdvancedSettingsFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchIndex.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/SettingsEntryNavigationTest.kt"
+      ],
+      "documentation": [
+        "features/update-checker.md",
+        "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "f4905738a84ccb0d47a15f0ee7808e7ec7560208",
+      "subject": "功能(布局编辑器): 预览合成中按键状态",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/preview/KeyboardPreviewManager.kt",
+        "app/src/main/res/values-zh-rCN/layout_editor_strings.xml",
+        "app/src/main/res/values-zh-rTW/layout_editor_strings.xml",
+        "app/src/main/res/values/layout_editor_strings.xml"
+      ],
+      "documentation": [
+        "features/keyboard/compose-override.md",
+        "features/editor/layout-editor.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "967f9b1533ca470fe20a3f766f53b96a5932f633",
+      "subject": "更新(资源): 补全谷歌图标并更新大同布局",
+      "files": [
+        "\"app/src/main/assets/bundled/icon_themes/\\350\\260\\267\\346\\255\\214.json\"",
+        "\"app/src/main/assets/bundled/keyboard_layouts/TextKeyboardLayout.\\345\\244\\247\\345\\220\\214-9+18+26keys.json\"",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/BundledPresets.kt"
+      ],
+      "documentation": [
+        "features/theme/icon-themes.md",
+        "features/editor/layout-editor.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "6c1659882aa84cf31d5e6ddfeaea1c3d1ff5315b",
+      "subject": "功能(布局编辑器): 支持分体键盘单行保持连贯",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDef.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/SplitRowLayoutPolicy.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapter.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/LayoutKeyUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/LayoutKeyOperations.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+        "app/src/main/res/values-de/layout_editor_strings.xml",
+        "app/src/main/res/values-es/layout_editor_strings.xml",
+        "app/src/main/res/values-ja/layout_editor_strings.xml",
+        "app/src/main/res/values-ko/layout_editor_strings.xml",
+        "app/src/main/res/values-ru/layout_editor_strings.xml",
+        "app/src/main/res/values-zh-rCN/layout_editor_strings.xml",
+        "app/src/main/res/values-zh-rTW/layout_editor_strings.xml",
+        "app/src/main/res/values/layout_editor_strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/LayoutKeyUiTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/LayoutKeyOperationsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtilsTest.kt"
+      ],
+      "documentation": [
+        "features/keyboard/split-keyboard.md",
+        "features/keys/overview.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "d94191dd67738c3c369a98ac737e921ac657a36a",
+      "subject": "功能(符号面板): 接入键盘与退格图标主题",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/picker/PickerWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/picker/SymbolPanelUi.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/picker/SymbolPanelIconThemeTest.kt"
+      ],
+      "documentation": [
+        "features/symbol-panel.md",
+        "features/theme/icon-themes.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "58057c24de56a06d5e1301d90c48825118f714a9",
+      "subject": "修复(主题): 对齐随机主题按钮并统一骰子图标",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeThumbnailUi.kt",
+        "app/src/main/res/drawable/ic_random_theme_24.xml"
+      ],
+      "documentation": [
+        "features/theme/theme-editor.md",
+        "features/theme/icon-themes.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "59d487144145a2dbfed9a7687d0e09e3d688a267",
+      "subject": "修复(布局编辑器): 补齐合成预览的多语言文案",
+      "files": [
+        "app/src/main/res/values-de/layout_editor_strings.xml",
+        "app/src/main/res/values-es/layout_editor_strings.xml",
+        "app/src/main/res/values-ja/layout_editor_strings.xml",
+        "app/src/main/res/values-ko/layout_editor_strings.xml",
+        "app/src/main/res/values-ru/layout_editor_strings.xml"
+      ],
+      "documentation": [
+        "features/editor/layout-editor.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "fe56ee829d4e471c19eada31dc6759e61749d426",
+      "subject": "更新(引擎): 同步上游并改用独立 Android SDK",
+      "files": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/direct-rime-cold-probe.yml",
+        ".github/workflows/direct-rime.yml",
+        ".github/workflows/fcitx-direct-perf.yml",
+        ".github/workflows/material-settings.yml",
+        ".github/workflows/pr.yml",
+        ".github/workflows/wanxiang-perf.yml",
+        ".gitignore",
+        ".gitmodules",
+        "README.md",
+        "app/build.gradle.kts",
+        "app/org.fcitx.fcitx5.android.yml",
+        "build-logic/convention/build.gradle.kts",
+        "build-logic/convention/src/main/kotlin/NativeBaseConventionPlugin.kt",
+        "build-logic/convention/src/main/kotlin/RimeSdkPlugin.kt",
+        "build-logic/convention/src/test/kotlin/RimeSdkArchiveTest.kt",
+        "build.gradle.kts",
+        "direct-rime/build.gradle.kts",
+        "direct-rime/src/main/cpp/CMakeLists.txt",
+        "native/README.md",
+        "native/prebuilt",
+        "native/rime-sdk.lock.json",
+        "prepare_personal_build.sh",
+        "tools/audit-direct-rime-link.py",
+        "tools/candidate-perf/build-products.sh",
+        "tools/foxy-perf/build-release.sh",
+        "tools/input-perf/build-rebind-products.sh",
+        "tools/prepare-native-inputs.sh",
+        "tools/screen-perf/build-products.sh"
+      ],
+      "documentation": [
+        "maintainer/engine-update.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    },
+    {
+      "sha": "7cb141aa1e9ebf110e6a8a7e4059fb2095209989",
+      "subject": "更新(依赖): 升级 Rime 插件与 Android 原生组件",
+      "files": [
+        "direct-rime/src/androidTest/java/org/fcitx/directrime/PluginSdkSmokeTest.kt",
+        "native/rime-sdk.lock.json",
+        "tools/input-perf/test-leveldb-open.py"
+      ],
+      "documentation": [
+        "maintainer/engine-update.md",
+        "maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md"
+      ],
+      "review": "checked against current implementation and existing feature documentation"
+    }
+  ]
+}

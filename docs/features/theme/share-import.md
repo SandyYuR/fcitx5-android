@@ -48,6 +48,7 @@ fx 引入了 **二维码 (QR Code) 分享机制**，让用户可在不依赖云�
 
 ## 相关页面
 
+- [图标主题](/features/theme/icon-themes)
 - [键盘布局编辑器](/features/editor/layout-editor)
 - [Popup 编辑器](/features/editor/popup-editor)
 - [主题编辑器](/features/theme/theme-editor)
