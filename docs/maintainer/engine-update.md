@@ -145,6 +145,8 @@ python3 downstream/android/build.py --abi arm64-v8a --work build/android
 
 主机回归不能替代新版 Android 组件的运行验证。Lua 应检查方案脚本、回调与关闭重启；octagram 应检查模型加载和整句候选；predict 应检查接口、配置及学习数据；LevelDB 应检查已有词库、学习撤销、持久化、同步与恢复；OpenCC 应检查数据生成与实际转换。
 
+通用 Commit CI 的 macOS、Windows 任务沿用各平台的插件安装脚本，未按 Android 的 `sources.lock.json` 固定插件提交；它们还使用 `rime/librime-predict`，与 Android 产品锁定的 `fxliang/librime-predict-leveldb` 不同。这些任务通过说明相应平台的源码兼容性，不能据此认定 Android 插件已升级；Android 产物仍只采用锁内的版本。
+
 源码 Commit CI 与 Android SDK CI 是独立工作流。SDK 的发布任务只等待本流水线的构建、主机回归与打包，不会自动等待另一个源码工作流；跨仓库更新、设备任务及最终推进由维护者核对和安排。
 
 确认相关检查通过后，将源码提交更新到 `zhongzhou`。变基改写了已推送历史时先核对远端旧 SHA，并使用精确的 `--force-with-lease`；普通新增提交正常快进推送。已验证的核心输入完全相同而只改构建配方时，记录输入等效证据，继续运行受影响的构建与运行检查。
