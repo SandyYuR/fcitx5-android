@@ -1,6 +1,27 @@
-# JS 语音插件宿主与开发接口
+# JS 插件宿主与开发接口
 
 本页描述中州鹅当前宿主。安装与账号配置请先看[JS 插件使用指南](/features/voice-input-js)；Foxy 英文原文只作接口来源参考，差异以本页及源码为准。
+
+<span id="js-app-test-branch"></span>
+
+## JS App 与 AI 助手（测试分支）
+
+本节对应 `test/ai-native-protocols`，不把尚未进入默认分支的功能列为所有已发布 APK 都支持。其余语音接口仍按下文使用。
+
+- `foxy.app.register` 注册 App；`features` 可以为空，App 不会加入语音服务列表。App 能力与网络主机分别授权，可在插件设置撤销。
+- App 回调收到 `event`、`values`、`appId`、`command`、`settings`、普通设置顶层别名及已配置的密钥字段 ID。按钮和下拉选择使用控件 ID 作为事件名，主流程按次序执行。
+- 支持 `column`、`row`、`text`、`input`、`select`、`button`、`spacer`。标签默认在左侧，`labelPlacement: "top"` 放上方；字段的 `height` 只计控件，不计标签。`input.readOnly: true` 允许选择、复制和滚动，但不接收键盘输入。
+- 支持 `foxy.ui.dialog.show/update/setValue/setEnabled/setLoading/setError/close`。面板不抢原应用焦点、无背景遮罩，可拖动，键盘通过本地输入连接编辑助手文本框；`foxy.editor.*` 始终操作打开助手前捕获的应用编辑框。输入会话失效时拒绝后续写入并取消运行。
+- `foxy.editor.getSelection/getText/setComposition/clearComposition/commit` 分别核对相应能力。预览取消时恢复原选中文本；只有 `commit` 正式上屏。`credentials.list` 和 `context.configuredSecrets` 仅提供已配置的字段 ID，不提供密钥。
+- `foxy.http.request` 支持 GET、POST、PUT、PATCH、DELETE，返回 JSON 字符串形式的状态、头和正文。`credential`、`authHeader`、`authPrefix` 让宿主注入密钥，JS 不持有明文。请求体限制 1 MiB、响应限制 2 MiB，禁止自动重定向和覆盖传输头。
+- App HTTP 的主机须为静态声明项或当前普通设置中有效 HTTPS 地址的精确主机；读取密钥与发送请求前还需该插件对该主机的用户批准。旧批准本身不能使已从配置删除的非声明主机继续可访问。内置助手使用空 `hosts` 与空默认地址。
+- 授权按插件及主机名记录；首次请求新主机再询问。URL 路径、端口、模型变化不另作域名授权，Host 和 HTTP/2 `:authority` 由 OkHttp 生成。App 回调等待上限 180 秒。
+- 内置 `llm-assistant` 由 APK 版本更新，优先于历史同 ID 导入记录；设置和密钥的字段 ID 不变。其保留 ID 不能再被外部文件覆盖。
+
+内置助手以 **发送 AI → 显示 AI 回复 → 确认上屏** 为主流程。无有效回复的旧 `confirm` 事件按生成处理；输入、用途、服务或配置变化使旧回复失效，不能提交旧结果。失败保持窗口与输入。按钮标签没有宿主内建语义，其他插件应自行实现完整状态处理。
+
+当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的非流式文本请求；App SSE/WebSocket、`foxy.websocket.authorize`、旧式平铺 `fields/buttons`、任意 `js.*` 布局命令和通用 App 选择器未实现。
+新版 [Foxy 英文接口参考](/features/voice-input-js-en)和[中文译文](/features/voice-input-js-reference-zh-CN)包含上游完整 API，不能将其中的流式示例直接视为本宿主已支持。
 
 ## 插件定义
 
@@ -27,8 +48,8 @@ foxy.plugin.register({
 ```
 
 - `id` 是稳定标识，须匹配 `[A-Za-z0-9][A-Za-z0-9._-]{0,63}`。改 ID 等于换插件，已存设置不再对应。
-- `hosts` 是精确域名清单，不带协议、路径、端口或通配符。至少要有一个合法域名，运行期只允许连接这里列出且已经获得该插件用户授权的域名。
-- `features` 里要有一个 `type: "voice.asr"` 的条目。它的 `sampleRate` 决定宿主录音的采样率，会被夹到 8000–48000 Hz；不写按 16000 处理。宿主给的是单声道、16 位小端 PCM。
+- `hosts` 是精确域名清单，不带协议、路径、端口或通配符。语音插件至少有一个合法域名，语音传输只允许连接清单中已批准的主机；测试版 App HTTP 另有上述动态配置地址规则。
+- 语音插件的 `features` 里要有一个 `type: "voice.asr"` 的条目。它的 `sampleRate` 决定宿主录音的采样率，会被夹到 8000–48000 Hz；不写按 16000 处理。宿主给的是单声道、16 位小端 PCM。
 - 脚本要自包含：没有 `import`、`require`、浏览器 API，也没有任意网络访问，只能调用下面列出的宿主接口。
 
 ## 设置界面

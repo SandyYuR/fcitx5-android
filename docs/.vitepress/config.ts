@@ -3,6 +3,8 @@ import { nav, sidebar } from './navigation'
 import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
+  // Public Markdown files are downloads, not additional documentation routes.
+  srcExclude: ['public/**'],
   vite: {
     resolve: {
       alias: [{ find: /^(?:.*\/)?VPNavBarSearch\.vue$/, replacement: fileURLToPath(new URL('./theme/components/ScopedDocSearch.vue', import.meta.url)).replaceAll('\\', '/') }]
