@@ -96,6 +96,7 @@ const maintenance = [
     { text: '文档维护与分类约定', link: '/maintainer/documentation' },
   ] },
   { text: '代码与文档对照', collapsed: false, items: [
+    { text: '引擎同步与输入修复 · 2026-11-06', link: '/maintainer/changes/2026-11-06-engine-input-fixes' },
     { text: '远端重放与功能复核 · 2026-11-06', link: '/maintainer/changes/2026-11-06-remote-review' },
     { text: '界面一致性复核 · 2026-11-06', link: '/maintainer/changes/2026-11-06-ui-consistency' },
     { text: '本地复核与构建 · 2026-11-05', link: '/maintainer/changes/2026-11-05-local-review' },
@@ -118,6 +119,7 @@ const maintenance = [
   { text: '中州鹅 · 历史与证据', collapsed: true, items: [
     { text: '直连版历史阅读路线', link: '/maintainer/history/' },
     { text: '全部验证与性能记录', link: '/maintainer/evidence' },
+    { text: '2026-11-06 直连层与同类项目审阅', link: '/maintainer/history/direct-rime-review-2026-11-06' },
     { text: '2026-10-31 审阅修复', link: '/maintainer/history/review-fixes-2026-10-31' },
     { text: '2026-10-30 审阅记录', link: '/maintainer/history/review-2026-10-30' },
     { text: '2026-10-27 修复与合入', link: '/maintainer/history/review-2026-10' },

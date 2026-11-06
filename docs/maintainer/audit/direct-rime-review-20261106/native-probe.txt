@@ -1,0 +1,4 @@
+six existing portable native contract functions: passed
+snapshot probe: 1000 down/up pairs, 1000 unchanged unhandled releases; get_commit=2000 get_context=2000 get_status=2000 get_input_tabs=2000
+REVIEW REPRODUCED: sync worker reports failure, Engine::sync() returns true, next binding gate=DeployFailed
+generated-config symlink test: NOT RUN on this Windows host

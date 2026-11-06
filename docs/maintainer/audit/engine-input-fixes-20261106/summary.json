@@ -1,0 +1,319 @@
+{
+  "date": "2026-11-06",
+  "app_base": "f45ce56c963d4d4fd1cb0d76887ce84db77fcdaa",
+  "app_sdk_commit": "45ef3353dcc2ab5f5bc768196642d68f1f275f15",
+  "app_fixes_commit": "3b341c09bc5cc21c4ada49f2966a7254ef5b1abc",
+  "engine_source": "78d009bab9eb7867dc4e5337c8569d13948ca1eb",
+  "upstream": "2bae6b59b5ebbf2a8af7ffae5b22fbf090f91841",
+  "downstream_groups": [
+    {
+      "scope": "disambiguation",
+      "original_commits": [
+        "b88cb57f47a71cd003d1f8a2e7aebbea6ca37d36",
+        "d331814c532b092380e0edca0b1f8c092bf34f3a"
+      ],
+      "decision": "保留消歧扩展，并将条件门控回归并入功能提交；上游条件组件未提供这些扩展 API。"
+    },
+    {
+      "scope": "syllabifier-cache",
+      "original_commits": [
+        "2aafeae1560e1e7cb30cbdb8146ce6f13bd0074c"
+      ],
+      "decision": "保留重复 QuerySpelling 缓存；上游新改动降低编译内存，未替代运行时查询缓存。"
+    },
+    {
+      "scope": "mapped-file-remap",
+      "original_commits": [
+        "64d671875f4dd9c2588e39be471e517648958080"
+      ],
+      "decision": "保留重映射后的指针和元数据恢复；同时保留上游 string_table_builder 释放。"
+    },
+    {
+      "scope": "candidate-delete-refresh",
+      "original_commits": [
+        "bd94b83fb35e11d8265e1bcbc2e61a5e4d0aca3e"
+      ],
+      "decision": "保留多监听器完成后统一刷新组合，避免忘词回调改写后续监听器的目标。"
+    },
+    {
+      "scope": "rewriter-pr1232",
+      "original_commits": [
+        "c5da50de45312f3e53b89f1aa44f241fb854b957"
+      ],
+      "decision": "PR #1232 仍未合入且 head 未变；12 个独立源文件与固定 PR 逐字节一致，保留本地部署钩子。"
+    },
+    {
+      "scope": "deployment-fingerprint",
+      "original_commits": [
+        "6f32853ac35c4a6c864b1f214594ecd3824d398e"
+      ],
+      "decision": "配置指纹与 #1264 的 installation 根节点修复属于不同职责，两者同时保留。"
+    },
+    {
+      "scope": "provenance",
+      "original_commits": [
+        "175aa184c32f496194f9ea1d8e0e8b84d88c02e0"
+      ],
+      "decision": "保留初始迁移证据和固定来源，不把历史映射改成当前 SHA。"
+    },
+    {
+      "scope": "user-dictionary-benchmark",
+      "original_commits": [
+        "535251f6ac382a239aebc9ad07710348306a8432"
+      ],
+      "decision": "上游已提供 #1196 缓存实现，只保留独有的可选基准工具。"
+    },
+    {
+      "scope": "commit-learning-transaction",
+      "original_commits": [
+        "69a934ac84902ce0bce911e3419a9113e9906b2d"
+      ],
+      "decision": "保留同次上屏的跨 Memory 事务与跨上下文隔离；未发现上游等价替代。"
+    },
+    {
+      "scope": "android-sdk",
+      "original_commits": [
+        "31794bfdc5555ac70a4aeb46e6684a760a188cf7",
+        "456fc2f3f69137d9246512b8c07245734526ba24",
+        "30511eed172a8a8ee08b8532fe097febcd75e514"
+      ],
+      "decision": "合并固定四 ABI SDK、既有依赖升级与 Windows 开发入口；本轮不再前移插件或依赖版本。"
+    }
+  ],
+  "upstream_content_delta_preserved": true,
+  "sdk": {
+    "tag": "android-sdk-20261106-1",
+    "sha256": "4f21a79b9c26d04ca77750742fa32557ed00562f46cc232a944d2fbea9f4c893",
+    "verified_files": 497,
+    "abis": [
+      "armeabi-v7a",
+      "arm64-v8a",
+      "x86",
+      "x86_64"
+    ]
+  },
+  "engine_host_tests": {
+    "tests": 206,
+    "executed": 205,
+    "failures": 0,
+    "errors": 0,
+    "disabled": [
+      "RimeCorrectorSearchTest.DISABLED_CaseTranspose"
+    ]
+  },
+  "local_jvm": {
+    "candidate": {
+      "report_files": 10,
+      "tests": 84,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "executed_passes": 84
+    },
+    "presentation": {
+      "report_files": 5,
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "executed_passes": 20
+    },
+    "maintenance": {
+      "report_files": 4,
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "executed_passes": 13
+    },
+    "expanded_targets": {
+      "report_files": 25,
+      "tests": 177,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 14,
+      "executed_passes": 163
+    },
+    "schema_menu": {
+      "report_files": 4,
+      "tests": 40,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "executed_passes": 40
+    },
+    "ui_compatibility": {
+      "report_files": 3,
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "executed_passes": 27
+    }
+  },
+  "local_native_contract_functions": 9,
+  "local_posix_filesystem_contract_run": false,
+  "validation_runs": [
+    {
+      "id": 42224964889,
+      "name": "Direct Rime CI",
+      "head_sha": "3b341c09bc5cc21c4ada49f2966a7254ef5b1abc",
+      "head_branch": "fix/direct-rime-20261106",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42224964889",
+      "created_at": "2026-11-06T13:22:24Z",
+      "updated_at": "2026-11-06T13:30:44Z",
+      "jobs": [
+        {
+          "id": 127916329981,
+          "name": "prototype",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 127916330256,
+          "name": "Full frontend touch and engine tests",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 127916330423,
+          "name": "Full frontend ARM64 APK",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 127916330520,
+          "name": "android_smoke",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 42224907778,
+      "name": "PR CI",
+      "head_sha": "3b341c09bc5cc21c4ada49f2966a7254ef5b1abc",
+      "head_branch": "fix/direct-rime-20261106",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42224907778",
+      "created_at": "2026-11-06T13:21:58Z",
+      "updated_at": "2026-11-06T13:34:54Z",
+      "jobs": [
+        {
+          "id": 127915830683,
+          "name": "Debug APK build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 127915831384,
+          "name": "JVM unit tests",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "ci_jvm": {
+    "report_files": 207,
+    "tests": 1625,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "initial_validation": {
+    "id": 42206160112,
+    "sha": "ed158ba5db48e545021e3928ac0e238ada1a33b6",
+    "result": "frontend device failure; password mode label and actual schema selection were conflated; fixed and revalidated"
+  },
+  "workflow_state_restoration": {
+    "ref": "fix/direct-rime-20261106",
+    "sha": "3b341c09bc5cc21c4ada49f2966a7254ef5b1abc",
+    "workflow_state_before": "disabled_manually",
+    "id": 42224964889,
+    "head_sha": "3b341c09bc5cc21c4ada49f2966a7254ef5b1abc",
+    "head_branch": "fix/direct-rime-20261106",
+    "status": "pending",
+    "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42224964889",
+    "workflow_state_after": "disabled_manually"
+  },
+  "android_device_reports": {
+    "run_id": 42224964889,
+    "commit": "3b341c09bc5cc21c4ada49f2966a7254ef5b1abc",
+    "reports": {
+      "direct-rime-android-smoke-results": {
+        "artifact_id": 13505087838,
+        "sha256": "2dccdc41d8d57ccf8cb40c397f86f386d23d775424bb9e68df7a2d6656c96b8e",
+        "tests": 6,
+        "failures": 0,
+        "skipped": 0,
+        "executed_passes": 6
+      },
+      "direct-rime-frontend-android-results": {
+        "artifact_id": 13506425350,
+        "sha256": "e2886c2fd5542af311c9cad9ae7387b8337c55889f1aa2e208f6bb4134cde2da",
+        "tests": 30,
+        "failures": 0,
+        "skipped": 1,
+        "executed_passes": 29,
+        "unrun_diagnostic": "diagnoseColdCandidateCore (requires external full-model fixture)"
+      }
+    }
+  },
+  "physical_phone_benchmark_run": false,
+  "default_branch_ci": [
+    {
+      "id": 42227060155,
+      "name": "Commit CI",
+      "head_sha": "3b341c09bc5cc21c4ada49f2966a7254ef5b1abc",
+      "head_branch": "fx-rime-only",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42227060155",
+      "created_at": "2026-11-06T13:37:57Z",
+      "updated_at": "2026-11-06T13:48:34Z",
+      "jobs": [
+        {
+          "id": 127923103497,
+          "name": "build_commit (ubuntu-22.04, arm64-v8a)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 127923103896,
+          "name": "unit_test",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 127927807265,
+          "name": "nightly_release",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "default_release": {
+    "run_id": 42227060155,
+    "source_commit": "3b341c09bc5cc21c4ada49f2966a7254ef5b1abc",
+    "release_id": 436556179,
+    "tag": "nightly-0.1.3-808-g3b341c09-20261106-134823",
+    "url": "https://github.com/SandyYuR/fcitx5-android/releases/tag/nightly-0.1.3-808-g3b341c09-20261106-134823",
+    "published_at": "2026-11-06T13:48:28Z",
+    "prerelease": true,
+    "apk_assets": [
+      {
+        "id": 717323051,
+        "name": "direct.apk",
+        "size": 9854132,
+        "digest": "sha256:5b38def1fcce20a3a038e168b98bb82e91cf3ed826e3d17c687ff630b4bbc044",
+        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-808-g3b341c09-20261106-134823/direct.apk"
+      }
+    ],
+    "signing": "Repository-configured signing required by the successful Commit CI workflow"
+  }
+}

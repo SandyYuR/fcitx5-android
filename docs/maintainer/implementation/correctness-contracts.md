@@ -24,11 +24,28 @@
 | 异步交付前验证 session/generation；同代次 `needsRime` 只提升 | `DirectRimeBackend.prepareInputSession` / `requireInputSession` |
 | 分页遇组合变化必须取消，批间让出执行机会 | `core/CandidatePageReader.kt` 中的顶层函数 `readCandidatePage` |
 | 部署、同步与重载期间关闭按键处理，finally 恢复 | `DirectRimeBackend.maintain` 与 `keyGate` |
-| commit 只消费一次，刷新/状态提示不得重发 | `publishWithoutCommit` 与 native action 9 |
+| commit 只消费一次，展示刷新不得移动光标或重放旧提交 | `refreshPresentation` 与 native action 13；action 9 仅用于真实原始编码光标移动 |
+| 候选点选绑定实际显示的数据版本与原始序号 | `CandidateSelectionTarget`、`selectCandidateIfCurrent`；横向、展开和浮动入口共用服务串行队列 |
 | DOWN 必须有兜底 UP；focus 不覆盖显式 inactive binding | `focus` / `deactivate`、`KeyboardInputLifecycleTrackerTest` |
 | 临时线程优先级必须恢复；提升失败不拒键 | `core/InteractiveThreadPriority.kt` |
 
 无方案时，密码/直接输入绑定仍允许通过同一按键门控转发 DOWN/UP；普通 Rime 编辑器不能因此获得“可用”状态。维护、过期和部署失败状态继续拒绝输入。会话创建、方案/中英文恢复与首次状态发布都属于同步绑定阶段，不能在恢复方案前提前降回普通线程优先级。回归入口是 `InputBindingStartupTest`。
+
+### 候选目标、坐标与展示快照
+
+`CandidateWord.selectionTarget` 由生产者在发布前登记，包含编辑器/候选版本、原始序号及其局部页/全局含义。它不参与文字显示相等性。界面可以在不重绑相同文字的情况下更新目标，但不能用 backend 的最新版本给仍未加载完成的旧分页数据重新贴标签；点击时还需确认 adapter 项与 holder 实际显示的文字相符。`CandidateGenerationTracker` 同时观察引擎版本，避免第一屏相同就漏刷懒候选尾部。
+
+方案菜单的当前项由 `SubModeManager.resolveSelectedSchemaAction` 从同一份动作列表的勾选状态解析，不能用 `currentIme().subMode` 的西文/密码直接输入标记推断方案。方案切换后，密码字段仍应保持直接输入和原编辑器焦点。
+
+Android 光标位置以 UTF-16 计，服务交给引擎 API 的位置以显示文本 Unicode 码点计，Rime setter 使用原始编码 UTF-8 字节位置。`moveCursorIfCurrent` 校验排队时的编辑器及预编辑文本，再按需调用 `Native.rawInput(generation, revision)`。原始读取不消费 commit、不推进 revision，也不加入每键快照；`preeditCursorToRawBytes` 只接受可确定的文字、分隔符和边界映射，无法确定时重新发送当前 client preedit 恢复光标。“候选预览”不按预测词位置改写原始编码。
+
+`refreshPresentation` 使用 native action 13 读取新结果，仍只消费一次待提交文字，但不调用 `set_caret_pos` 或重新 Compose。同模式重新呈现可以发送候选而不增加 `candidateVersion`；native `revision` 仍然前进。不能重新发送带旧 commit 的缓存快照，也不能把显示偏移传给原始光标 setter。
+
+JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果复用字符串和数组。`Snapshot.reusePresentation` 必须创建新的不可变快照、使用新 revision 并清空旧 commit；接收方不得修改共享数组。缓存至多一份，文本预算为 64 KiB、数组字符串合计至多 1024 个；大结果走完整打包。停止、部署及同步返回时清理缓存。这是缓存预算，不是进程内存或延迟测量值。
+
+### 同步完成与备份门控
+
+`RimeSyncUserData` 的返回值表示是否启动维护线程。`Engine::sync` 等待线程后，还必须确认本次请求收到成功完成通知；失败在同次维护中保持有效，后续成功通知不能覆盖它，下一次请求则重新计数。原生同步会清理 session，不能继续复用旧句柄。运行时 `save()` 走相同维护门控；引擎未启动时跳过 native 同步，使已有用户文件仍可导出。真正复制备份时仍须通过下方停写入口，不能把同步成功当作停写完成。
 
 ## 首次解锁前启动
 
@@ -111,7 +128,7 @@ AIDL 与 JS 复用会话和录音链路，密钥、主机授权、回调预算�
 | 首键丢字、启动中按键无反应、切应用后首键无效 | `core/InputKeyGate.kt`(门控与 Ticket)、`input/FcitxInputMethodService.kt` 的 `postFcitxKeyJob` / `postFcitxJob` 串行队列 |
 | 翻页卡住、候选串页、长候选只加载一半 | 顶层函数 `readCandidatePage` 在 `core/CandidatePageReader.kt`、`DirectRimeBackend.getCandidates`、`input/candidates/expanded/ExpandedCandidateRefreshTest.kt` |
 | 部署/同步/导入方案时乱码或吞键 | `DirectRimeBackend` 的 `maintain{}` 与 `redeploy`/`synchronize`/`reloadConfig`/`import-profile` |
-| 同一段文字上屏两次 | `publishWithoutCommit`、native action 9、快照 `candidateVersion` 与 commit 守卫。✗ 把带 commit 的快照重发一遍当「刷新」 |
+| 同一段文字上屏两次 | `refreshPresentation`、native action 13、`Snapshot.reusePresentation` 与 commit 守卫。✗ 把带 commit 的快照重发一遍当「刷新」 |
 | 候选序号角标、长候选滚动 | `input/candidates/CandidateIndexResolver`、`input/candidates/expanded/`;`CandidateIndexBadgeTest`/`CandidateOverflowTest`(androidTest) |
 | 工具栏 / Kawaii Bar 尺寸、图标与按钮间距 | `input/bar/ToolbarMetrics.kt`、`input/bar/ui/idle/`;`ToolbarMetricsTest`/`KawaiiBarRowMetricsTest`。✗ 让 `BUTTON_FOOTPRINT_DP` 跟着百分比缩放 |
 | 卡片圆角在 Android 10 崩溃(`path must be convex`) | `input/bar/ContinuousCornerGeometry.applyCardOutline`;真机墨迹测量见 `docs/maintainer/history/DIRECT_RIME_SCREEN_PERF_2026-10-17.md` |

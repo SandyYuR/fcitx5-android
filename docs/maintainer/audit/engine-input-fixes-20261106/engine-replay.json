@@ -1,0 +1,109 @@
+{
+  "previous": "30511eed172a8a8ee08b8532fe097febcd75e514",
+  "upstream": "2bae6b59b5ebbf2a8af7ffae5b22fbf090f91841",
+  "rebased_before_metadata": "4a9bc18a54b9fd2b9b04072618c36507848174e5",
+  "changed_paths": [
+    "src/rime/config/config_component.h",
+    "src/rime/deployer.h",
+    "src/rime/dict/entry_collector.cc",
+    "src/rime/dict/entry_collector.h",
+    "src/rime/dict/reverse_lookup_dictionary.cc",
+    "src/rime/dict/table.cc",
+    "src/rime/lever/deployment_tasks.cc",
+    "test/CMakeLists.txt",
+    "test/deployment_tasks_test.cc",
+    "test/entry_collector_test.cc",
+    "test/reverse_lookup_delimiter_test.cc",
+    "test/table_test.cc"
+  ],
+  "content_delta_equal": true,
+  "rewriter_identical_files": [
+    "src/rime/dict/rewrite_internal.h",
+    "src/rime/dict/rewrite_pack.cc",
+    "src/rime/dict/rewrite_pack.h",
+    "src/rime/dict/rewrite_store.cc",
+    "src/rime/dict/rewrite_store.h",
+    "src/rime/gear/gears_module.cc",
+    "src/rime/gear/rewriter.cc",
+    "src/rime/gear/rewriter.h",
+    "src/rime/lever/rewrite_compiler.cc",
+    "src/rime/lever/rewrite_compiler.h",
+    "src/rime/lever/rewrite_preset.cc",
+    "src/rime/lever/rewrite_preset.h"
+  ],
+  "groups": [
+    {
+      "scope": "disambiguation",
+      "original_commits": [
+        "b88cb57f47a71cd003d1f8a2e7aebbea6ca37d36",
+        "d331814c532b092380e0edca0b1f8c092bf34f3a"
+      ],
+      "decision": "保留消歧扩展，并将条件门控回归并入功能提交；上游条件组件未提供这些扩展 API。"
+    },
+    {
+      "scope": "syllabifier-cache",
+      "original_commits": [
+        "2aafeae1560e1e7cb30cbdb8146ce6f13bd0074c"
+      ],
+      "decision": "保留重复 QuerySpelling 缓存；上游新改动降低编译内存，未替代运行时查询缓存。"
+    },
+    {
+      "scope": "mapped-file-remap",
+      "original_commits": [
+        "64d671875f4dd9c2588e39be471e517648958080"
+      ],
+      "decision": "保留重映射后的指针和元数据恢复；同时保留上游 string_table_builder 释放。"
+    },
+    {
+      "scope": "candidate-delete-refresh",
+      "original_commits": [
+        "bd94b83fb35e11d8265e1bcbc2e61a5e4d0aca3e"
+      ],
+      "decision": "保留多监听器完成后统一刷新组合，避免忘词回调改写后续监听器的目标。"
+    },
+    {
+      "scope": "rewriter-pr1232",
+      "original_commits": [
+        "c5da50de45312f3e53b89f1aa44f241fb854b957"
+      ],
+      "decision": "PR #1232 仍未合入且 head 未变；12 个独立源文件与固定 PR 逐字节一致，保留本地部署钩子。"
+    },
+    {
+      "scope": "deployment-fingerprint",
+      "original_commits": [
+        "6f32853ac35c4a6c864b1f214594ecd3824d398e"
+      ],
+      "decision": "配置指纹与 #1264 的 installation 根节点修复属于不同职责，两者同时保留。"
+    },
+    {
+      "scope": "provenance",
+      "original_commits": [
+        "175aa184c32f496194f9ea1d8e0e8b84d88c02e0"
+      ],
+      "decision": "保留初始迁移证据和固定来源，不把历史映射改成当前 SHA。"
+    },
+    {
+      "scope": "user-dictionary-benchmark",
+      "original_commits": [
+        "535251f6ac382a239aebc9ad07710348306a8432"
+      ],
+      "decision": "上游已提供 #1196 缓存实现，只保留独有的可选基准工具。"
+    },
+    {
+      "scope": "commit-learning-transaction",
+      "original_commits": [
+        "69a934ac84902ce0bce911e3419a9113e9906b2d"
+      ],
+      "decision": "保留同次上屏的跨 Memory 事务与跨上下文隔离；未发现上游等价替代。"
+    },
+    {
+      "scope": "android-sdk",
+      "original_commits": [
+        "31794bfdc5555ac70a4aeb46e6684a760a188cf7",
+        "456fc2f3f69137d9246512b8c07245734526ba24",
+        "30511eed172a8a8ee08b8532fe097febcd75e514"
+      ],
+      "decision": "合并固定四 ABI SDK、既有依赖升级与 Windows 开发入口；本轮不再前移插件或依赖版本。"
+    }
+  ]
+}
