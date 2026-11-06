@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="update_download_checking">다운로드한 패키지 확인 중…</string>
+</resources>

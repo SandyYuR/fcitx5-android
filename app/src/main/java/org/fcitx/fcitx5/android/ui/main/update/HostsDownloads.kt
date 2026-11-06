@@ -39,7 +39,8 @@ internal object HostsDownloads {
                     manager.getWorkInfosForUniqueWork(key).get().firstOrNull { !it.state.isFinished }?.let { return@withContext it.id }
                     val request = OneTimeWorkRequestBuilder<HostsDownloadWorker>()
                         .setInputData(workDataOf(HostsDownloadWorker.ASSET to Json.encodeToString(asset),
-                            HostsDownloadWorker.URL to url, HostsDownloadWorker.NAME to asset.name))
+                            HostsDownloadWorker.URL to url, HostsDownloadWorker.NAME to asset.name,
+                            HostsDownloadWorker.RELEASE to UpdateDownloadStore.releaseIdentity(application, asset)))
                         .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                         .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                         .addTag("hosts-update-download").build()

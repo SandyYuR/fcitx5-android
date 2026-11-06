@@ -56,6 +56,10 @@ class HostsDownloadWorker internal constructor(context: Context, parameters: Wor
                         ensureActive()
                         if (files.cancelled) throw CancellationException("Download cancelled")
                     }
+                    runCatching { UpdateDownloadStore.rememberCompleted(applicationContext, UpdateDownloadStore.Record(asset,
+                        uri = uri.toString(), sha256 = files.read().actualSha256,
+                        release = inputData.getString(RELEASE))) }
+                        .onFailure { timber.log.Timber.w(it, "Could not record completed update") }
                     ensureActive()
                     runCatching {
                         manager.notify(notificationId xor 0x10000000,
@@ -111,6 +115,7 @@ class HostsDownloadWorker internal constructor(context: Context, parameters: Wor
         const val ASSET = "asset"
         const val URL = "url"
         const val NAME = "name"
+        const val RELEASE = "release"
         const val URI = "uri"
         const val BYTES = "bytes"
         const val TOTAL = "total"
