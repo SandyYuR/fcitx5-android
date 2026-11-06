@@ -10,7 +10,6 @@
   "new_commits": 7,
   "identical_final_tree": true,
   "real_index_unchanged": true,
-  "tags_unchanged": true,
   "candidate_ref": "refs/heads/review/history-squash-20261107",
   "backup_ref": "refs/heads/backup/history-squash-20261107-f4d23687",
   "force_lease": "refs/heads/fx-rime-only:f4d23687cf759b371b455b02d3958df72427d6dc",
@@ -580,5 +579,49 @@
         }
       ]
     }
-  ]
+  ],
+  "original_local_tags_unchanged": true,
+  "remote_tag_inspection": {
+    "main": "646b450a9788109ef50a65214b10611a87316cd0",
+    "docs": "694461be351e89788c2c9f7653df020fc79c5d77",
+    "missing_local_refs_on_remote": [
+      "refs/tags/archive/pre-doc-split",
+      "refs/tags/backup-pre-squash",
+      "refs/tags/backup/pre-date-fix",
+      "refs/tags/backup/pre-squash-alphabet",
+      "refs/tags/nightly-0.1.3-449-g114c48fc-20260901-093525",
+      "refs/tags/nightly-0.1.3-453-gc24fce8a-20260901-084037",
+      "refs/tags/nightly-0.1.3-454-g3ad25fc9-20260902-023624",
+      "refs/tags/nightly-0.1.3-624-gd5e4d379-20260907-142724",
+      "refs/tags/nightly-0.1.3-624-ge51afd88-20260907-150002",
+      "refs/tags/nightly-0.1.3-626-g329d1132-20260908-031336",
+      "refs/tags/nightly-0.1.3-627-gf892aa4f-20260908-035752",
+      "refs/tags/nightly-0.1.3-628-g4c51ca13-20260908-074346",
+      "refs/tags/nightly-0.1.3-629-ge0816fa0-20260909-022659",
+      "refs/tags/nightly-0.1.3-630-ga560aabe-20260924-032210",
+      "refs/tags/nightly-0.1.3-631-ga8c28d5a-20260909-055706",
+      "refs/tags/nightly-0.1.3-633-g887b0a6f-20260909-104246",
+      "refs/tags/nightly-0.1.3-638-gb3da998e-20260910-123424",
+      "refs/tags/nightly-0.1.3-793-g297184cf-20261105-171230",
+      "refs/tags/nightly-0.1.3-798-gae4a1343-20261106-010649",
+      "refs/tags/nightly-0.1.3-801-gf45ce56c-20261106-062147",
+      "refs/tags/nightly-0.1.3-808-g3b341c09-20261106-134823",
+      "refs/tags/nightly-0.1.3-819-gf4d23687-20261106-174448"
+    ],
+    "changed": {},
+    "matched": 57
+  },
+  "commit_ci": {
+    "id": 42276971282,
+    "head_sha": "646b450a9788109ef50a65214b10611a87316cd0",
+    "conclusion": "success",
+    "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42276971282"
+  },
+  "application_jvm": {
+    "report_files": 210,
+    "tests": 1643,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
 }
