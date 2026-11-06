@@ -140,6 +140,7 @@ jobs:
         run: |
           set -o pipefail
           ./gradlew :app:testFxDebugUnitTest 2>&1 | tee unit-test-output.log
+          python3 tools/check-junit-results.py
 
       - name: Emit test failures as annotations
         if: failure()
