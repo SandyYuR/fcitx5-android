@@ -79,6 +79,7 @@ class UpdateCheckActivity : SettingsUiActivity() {
     private lateinit var downloadManager: DownloadManager
 
     private val downloadStates = linkedMapOf<String, AssetUiState>()
+    private val checkingDownloads = mutableSetOf<String>()
     private val downloadObservers = mutableMapOf<String, Job>()
     private val cancellingDownloads = mutableSetOf<String>()
     private var selectedMirrorId: String? = null
@@ -268,7 +269,7 @@ class UpdateCheckActivity : SettingsUiActivity() {
                 val list = withContext(Dispatchers.IO) {
                     release.assets.map { asset ->
                         detectExistingCompletedState(asset)
-                            ?: previous[asset.browserDownloadUrl]
+                            ?: previous[asset.browserDownloadUrl]?.takeIf { it.asset == asset }
                             ?: AssetUiState(asset = asset)
                     }
                 }
@@ -354,9 +355,16 @@ class UpdateCheckActivity : SettingsUiActivity() {
     }
 
     private fun detectExistingCompletedState(asset: ReleaseAsset): AssetUiState? {
-        val hit = findLatestSuccessfulDownload(asset)
-            ?: findLatestMediaStoreDownload(asset)
-            ?: findLatestLegacyDownloadFile(asset)
+        UpdateDownloadStore.find(applicationContext, asset)?.let { hit ->
+            return AssetUiState(asset, status = AssetStatus.FINISHED, progressPercent = 100,
+                downloadedBytes = hit.size, totalBytes = hit.size, downloadId = hit.downloadId, installUri = hit.uri)
+        }
+        // A reused release filename and byte count are not a content identity.
+        // Without a server digest, only a recorded download from this release can be reused.
+        if (asset.sha256.isNullOrBlank()) return null
+        val hit = runCatching { findLatestSuccessfulDownload(asset) }.getOrNull()
+            ?: runCatching { findLatestMediaStoreDownload(asset) }.getOrNull()
+            ?: runCatching { findLatestLegacyDownloadFile(asset) }.getOrNull()
             ?: return null
         return AssetUiState(
             asset = asset,
@@ -378,8 +386,10 @@ class UpdateCheckActivity : SettingsUiActivity() {
         val lastModified: Long
     )
 
-    private fun findLatestSuccessfulDownload(asset: ReleaseAsset): DownloadHit? {
-        val query = DownloadManager.Query().setFilterByStatus(DownloadManager.STATUS_SUCCESSFUL)
+    private fun findLatestSuccessfulDownload(asset: ReleaseAsset, expectedId: Long? = null): DownloadHit? {
+        val query = DownloadManager.Query().setFilterByStatus(DownloadManager.STATUS_SUCCESSFUL).apply {
+            expectedId?.let { setFilterById(it) }
+        }
         val cursor = downloadManager.query(query)
         cursor.use { c ->
             val idIdx = c.getColumnIndex(DownloadManager.COLUMN_ID)
@@ -398,7 +408,7 @@ class UpdateCheckActivity : SettingsUiActivity() {
                 val installUri = downloadManager.getUriForDownloadedFile(id) ?: continue
                 val localUri = runCatching { Uri.parse(localUriRaw) }.getOrNull() ?: continue
                 val displayName = extractDisplayName(localUri, title)
-                if (!nameMatchesAsset(displayName, asset.name)) continue
+                if (!nameMatchesAsset(displayName, asset.name) && title != asset.name) continue
                 val size = detectUriSize(installUri, sizeIdx.takeIf { it >= 0 }?.let { c.getLong(it) } ?: 0L)
                 if (asset.sizeBytes > 0 && size != asset.sizeBytes) continue
                 if (!hashMatchesAsset(id, installUri, asset)) continue
@@ -465,7 +475,7 @@ class UpdateCheckActivity : SettingsUiActivity() {
         val selection = "${MediaStore.Downloads.DISPLAY_NAME} = ? OR " +
             "${MediaStore.Downloads.DISPLAY_NAME} LIKE ? ESCAPE '\\'"
         val likePattern = if (dot > 0) {
-            "${escapeLikeLiteral(asset.name.substring(0, dot))}(%)${escapeLikeLiteral(asset.name.substring(dot))}"
+            "${escapeLikeLiteral(asset.name.substring(0, dot))}%(%)${escapeLikeLiteral(asset.name.substring(dot))}"
         } else {
             escapeLikeLiteral(asset.name)
         }
@@ -538,6 +548,31 @@ class UpdateCheckActivity : SettingsUiActivity() {
     }
 
     private fun beginDownload(state: AssetUiState) {
+        val key = state.asset.browserDownloadUrl
+        if (!checkingDownloads.add(key)) return
+        Toast.makeText(this, R.string.update_download_checking, Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            try {
+                val existing = withContext(Dispatchers.IO) {
+                    UpdateDownloadStore.beforeDownload(applicationContext, state.asset)?.let { hit ->
+                        AssetUiState(state.asset, status = AssetStatus.FINISHED, progressPercent = 100,
+                            downloadedBytes = hit.size, totalBytes = hit.size, downloadId = hit.downloadId, installUri = hit.uri)
+                    } ?: detectExistingCompletedState(state.asset)
+                }
+                if (downloadStates[key]?.asset != state.asset) return@launch
+                if (existing != null) {
+                    downloadStates[key] = existing
+                    adapter.submitList(downloadStates.values.toList())
+                } else enqueueDownload(state)
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (failure: Exception) {
+                Timber.w(failure, "Update download check failed")
+                Toast.makeText(this@UpdateCheckActivity, R.string.update_asset_failed, Toast.LENGTH_SHORT).show()
+            } finally { checkingDownloads.remove(key) }
+        }
+    }
+
+    private suspend fun enqueueDownload(state: AssetUiState) {
         val mirror = selectedMirror()
         val downloadUrl = try {
             UpdateRepository.applyMirror(state.asset.browserDownloadUrl, mirror)
@@ -559,8 +594,14 @@ class UpdateCheckActivity : SettingsUiActivity() {
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setAllowedOverMetered(true)
                 .setAllowedOverRoaming(true)
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, state.asset.name)
-            val id = downloadManager.enqueue(request)
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, UpdateDownloadStore.destinationName(state.asset.name))
+            val id = withContext(Dispatchers.IO + kotlinx.coroutines.NonCancellable) {
+                val id = downloadManager.enqueue(request)
+                runCatching { UpdateDownloadStore.remember(applicationContext,
+                    UpdateDownloadStore.Record(state.asset, downloadId = id, release = UpdateDownloadStore.releaseIdentity(applicationContext, state.asset))) }
+                    .onFailure { Timber.w(it, "Could not persist update download identity") }
+                id
+            }
             speedSamples.remove(state.asset.browserDownloadUrl)
             val updated = state.copy(
                 status = AssetStatus.DOWNLOADING,
@@ -742,6 +783,12 @@ class UpdateCheckActivity : SettingsUiActivity() {
                             speedBytesPerSec = 0L,
                             installUri = installUri
                         )
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            runCatching { UpdateDownloadStore.rememberCompleted(applicationContext,
+                                UpdateDownloadStore.Record(state.asset, downloadId = id,
+                                    release = UpdateDownloadStore.releaseIdentity(applicationContext, state.asset))) }
+                                .onFailure { Timber.w(it, "Could not record completed update") }
+                        }
                     }
                     DownloadManager.STATUS_FAILED -> {
                         speedSamples.remove(url)
@@ -808,7 +855,7 @@ class UpdateCheckActivity : SettingsUiActivity() {
             updates.forEach { (url, updated) ->
                 val current = downloadStates[url] ?: return@forEach
                 // The state may have moved on while we were off the main thread.
-                if (current.status != AssetStatus.FINISHED) return@forEach
+                if (current.status != AssetStatus.FINISHED || current.asset != updated.asset) return@forEach
                 if (current != updated) {
                     downloadStates[url] = updated
                     changed = true
@@ -847,7 +894,7 @@ class UpdateCheckActivity : SettingsUiActivity() {
                 }
                 return@forEach
             }
-            val hit = findLatestSuccessfulDownload(state.asset)
+            val hit = findLatestSuccessfulDownload(state.asset, state.downloadId)
             if (hit == null) {
                 updates[url] = state.reset()
                 return@forEach
@@ -1013,16 +1060,8 @@ class UpdateCheckActivity : SettingsUiActivity() {
     private fun escapeLikeLiteral(value: String): String =
         value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
-    private fun nameMatchesAsset(displayName: String, assetName: String): Boolean {
-        if (displayName == assetName) return true
-        val dot = assetName.lastIndexOf('.')
-        if (dot <= 0) return false
-        val base = assetName.substring(0, dot)
-        val ext = assetName.substring(dot)
-        // Android download manager may auto-rename duplicates to "name(1).ext"
-        val duplicatePattern = Regex("""^${Regex.escape(base)}\(\d+\)${Regex.escape(ext)}$""")
-        return duplicatePattern.matches(displayName)
-    }
+    private fun nameMatchesAsset(displayName: String, assetName: String): Boolean =
+        downloadNameMatchesAsset(displayName, assetName)
 
     private fun extractDisplayName(localUri: Uri, title: String): String {
         if (localUri.scheme == "file") {
