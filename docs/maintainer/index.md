@@ -14,6 +14,7 @@
 | 在 Windows 构建和排查环境 | [本机环境](/maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN) → [维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN) |
 | 在 Windows 修改引擎并生成本地 Debug | [源码 → 开发 SDK → APK](/maintainer/local-engine-development) |
 | 更新 librime、插件、依赖与 Android SDK | [完整更新与回退流程](/maintainer/engine-update) → [SDK 配方说明](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/README.zh-CN.md) |
+| 核对本轮引擎变基与输入修复 | [2026-11-06 引擎同步与输入修复](/maintainer/changes/2026-11-06-engine-input-fixes) |
 | 核对默认分支功能与文档 | [远端重放与功能复核](/maintainer/changes/2026-11-06-remote-review) → [前轮本地复核](/maintainer/changes/2026-11-05-local-review) → [现行功能源码表](/maintainer/changes/feature-coverage) |
 | 开发语音插件或外部提供方 | [JS 宿主协议](/maintainer/implementation/js-voice-plugins) · [AIDL 接入入口](/features/voice-input) |
 | 统一页面、编辑器与辅助面板外观 | [界面设计与共用组件](/maintainer/implementation/design-system) |

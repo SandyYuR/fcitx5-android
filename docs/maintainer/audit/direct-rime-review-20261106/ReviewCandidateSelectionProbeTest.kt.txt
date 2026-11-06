@@ -1,0 +1,131 @@
+package org.fcitx.fcitx5.android.core
+
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import org.fcitx.directrime.Native
+import org.fcitx.directrime.Snapshot
+import org.fcitx.fcitx5.android.FcitxApplication
+import org.fcitx.fcitx5.android.daemon.FcitxConnection
+import org.fcitx.fcitx5.android.daemon.FcitxDaemon
+import org.fcitx.fcitx5.android.input.FcitxInputMethodService
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
+import org.junit.Assert.*
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.Implementation
+import org.robolectric.annotation.Implements
+import org.robolectric.util.ReflectionHelpers
+
+/** Review-only probe: assert the observed bug, without changing production or repository tests. */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [28], application = FcitxApplication::class,
+    shadows = [EditorApplicationShadow::class, ReviewSelectionNativeShadow::class])
+class ReviewCandidateSelectionProbeTest {
+    @Test fun aTapQueuedBehindAKeySelectsTheNewCandidateAtTheOldIndex() = runBlocking {
+        val backend: DirectRimeBackend = ReflectionHelpers.callInstanceMethod(FcitxDaemon, "getEngine")
+        val owner: ExecutorCoroutineDispatcher = ReflectionHelpers.getField(backend, "owner")
+        val registry: FcitxLifecycleRegistry = ReflectionHelpers.getField(backend, "registry")
+        val service = Robolectric.buildService(FcitxInputMethodService::class.java).get()
+        val jobs: Channel<Job> = ReflectionHelpers.getField(service, "jobs")
+        try {
+            ReflectionHelpers.setField(backend, "started", true)
+            ReflectionHelpers.setField(backend, "schemas", listOf("fixture" to "Fixture"))
+            registry.postEvent(FcitxLifecycle.Event.ON_START)
+            registry.postEvent(FcitxLifecycle.Event.ON_READY)
+            val generation = backend.invalidateInputSession()
+            backend.prepareInputSession(generation, "editor", CapabilityFlags.DefaultFlags, true)
+            ReflectionHelpers.getField<InputKeyGate>(backend, "keyGate").apply {
+                running(); resolve(generation, true)
+            }
+            ReviewSelectionNativeShadow.generation = generation
+            ReviewSelectionNativeShadow.revision = 10
+            ReviewSelectionNativeShadow.word = "旧候选"
+            ReviewSelectionNativeShadow.selected = ""
+            ReviewSelectionNativeShadow.preeditText = "ni"
+            ReviewSelectionNativeShadow.cursorBytes = 2
+            ReviewSelectionNativeShadow.rawCaret = 2
+            ReviewSelectionNativeShadow.refreshCalls = 0
+            ReflectionHelpers.setField(backend, "snapshot", ReviewSelectionNativeShadow.snapshot())
+            ReflectionHelpers.setField(backend, "candidateVersion", 20L)
+            val displayed = backend.candidateActionContext
+            val connection = object : FcitxConnection {
+                override fun <T> runImmediately(block: suspend FcitxAPI.() -> T): T = runBlocking { block(backend) }
+                override suspend fun <T> runOnReady(block: suspend FcitxAPI.() -> T): T = block(backend)
+                override fun runIfReady(block: suspend FcitxAPI.() -> Unit) { backend.lifeCycleScope.launch { block(backend) } }
+                override val lifecycleScope get() = backend.lifeCycleScope
+            }
+            ReflectionHelpers.setField(service, "fcitx", connection)
+
+            // The service queue has not started either job. UI is still displaying 旧候选.
+            service.postFcitxKeyJob { sendKey('x', 0u, 0, false, 0) }
+            service.postCandidateSelection { select(0) }
+            withTimeout(5_000) {
+                jobs.receive().join()
+                jobs.receive().join()
+            }
+            assertNotEquals(displayed, backend.candidateActionContext)
+            assertEquals("This documents the defect, rather than a successful safety check", "新候选", ReviewSelectionNativeShadow.selected)
+            assertFalse("Existing context guard rejects the same old candidate version",
+                backend.triggerCandidateActionIfCurrent(0, 0, false, displayed))
+            println("REVIEW REPRODUCED: displayed=旧候选, queued key -> 新候选, ordinary tap index=0 selected=新候选; old-version guarded action rejected")
+
+            // Valid distinct coordinates for raw "nihao" at 3 and displayed "ni hao" at 4.
+            ReviewSelectionNativeShadow.preeditText = "ni hao"
+            ReviewSelectionNativeShadow.cursorBytes = 4
+            ReviewSelectionNativeShadow.rawCaret = 3
+            withContext(owner) {
+                ReflectionHelpers.setField(backend, "snapshot", ReviewSelectionNativeShadow.snapshot())
+            }
+            backend.setCandidatePagingMode(0)
+            assertEquals(1, ReviewSelectionNativeShadow.refreshCalls)
+            assertEquals("Presentation refresh forwards display offset as a raw-input offset", 4,
+                ReviewSelectionNativeShadow.rawCaret)
+            println("REVIEW REPRODUCED: paging-mode refresh invoked caret setter once; rawCaret=3 -> 4 because display cursorBytes=4")
+        } finally {
+            jobs.cancel()
+            ReflectionHelpers.setField(backend, "started", false)
+            backend.lifeCycleScope.cancel()
+            ReflectionHelpers.getField<CoroutineScope>(backend, "engineScope").cancel()
+            val events = ReflectionHelpers.getField<InputEventQueue>(backend, "events")
+            ReflectionHelpers.getField<Channel<Unit>>(events, "available").cancel()
+            owner.close()
+        }
+    }
+}
+
+@Implements(Native::class)
+class ReviewSelectionNativeShadow {
+    companion object {
+        var generation = 0L
+        var revision = 10L
+        var word = "旧候选"
+        var selected = ""
+        var preeditText = "ni"
+        var cursorBytes = 2
+        var rawCaret = 2
+        var refreshCalls = 0
+        @JvmStatic @Implementation fun __staticInitializer__() {
+            ReflectionHelpers.setStaticField(Native::class.java, "INSTANCE", ReflectionHelpers.callConstructor(Native::class.java))
+        }
+        fun snapshot(commit: String = "") = Snapshot(generation, revision, 0, true, 0, commit, preeditText, "fixture", false,
+            0, true, cursorBytes, arrayOf(word), emptyArray(), emptyArray(), "Fixture", 0, word, arrayOf("1"))
+    }
+    @Implementation fun options(): Array<String> = emptyArray()
+    @Implementation fun key(value: Long, sym: Int, mask: Int, release: Boolean): Snapshot {
+        check(value == generation)
+        word = "新候选"; revision++
+        return snapshot()
+    }
+    @Implementation fun action(value: Long, previous: Long, action: Int, index: Int, name: String): Snapshot {
+        check(value == generation && previous == revision)
+        revision++
+        return when (action) {
+            1 -> { check(index == 0); selected = word; snapshot(selected) }
+            9 -> { rawCaret = index; refreshCalls++; snapshot() }
+            else -> error("Unexpected review action $action")
+        }
+    }
+}

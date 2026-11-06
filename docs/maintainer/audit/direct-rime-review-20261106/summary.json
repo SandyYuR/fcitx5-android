@@ -1,0 +1,209 @@
+{
+  "date": "2026-11-06",
+  "timezone": "Asia/Shanghai",
+  "app_commit": "ae4a13438be015c7546fce0060c96c140e3c4ab6",
+  "sdk_lock": {
+    "schema_version": 1,
+    "repository": "SandyYuR/librime",
+    "tag": "android-sdk-20261105-2",
+    "asset": "rime-android-sdk.zip",
+    "sha256": "e3b27bfae6e7f0673862f7134eba1f39b3a99ab29af5d25ecc385f9f04ace0ff",
+    "librime_commit": "456fc2f3f69137d9246512b8c07245734526ba24",
+    "upstream_commit": "9777cb2f25ff15116d6720141e7f0e539ac68063",
+    "abis": [
+      "armeabi-v7a",
+      "arm64-v8a",
+      "x86",
+      "x86_64"
+    ]
+  },
+  "core_jvm": {
+    "report_files": 15,
+    "tests": 98,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 14,
+    "executed_passes": 84
+  },
+  "core_jvm_strict_acceptance": false,
+  "skip_reason": "All 14 skipped cases actually failed to create a Windows symbolic link (missing privilege).",
+  "review_jvm": {
+    "report_files": 1,
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "executed_passes": 1
+  },
+  "review_jvm_observations": [
+    "REVIEW REPRODUCED: displayed=旧候选, queued key -> 新候选, ordinary tap index=0 selected=新候选; old-version guarded action rejected",
+    "REVIEW REPRODUCED: paging-mode refresh invoked caret setter once; rawCaret=3 -> 4 because display cursorBytes=4"
+  ],
+  "review_jvm_scope": "Real service enqueue methods and DirectRimeBackend; manually drained service queue, simulated JNI. Passing probe assertions document defects, not corrected behavior.",
+  "native": {
+    "unchanged_portable_contract_functions_passed": 6,
+    "generated_config_symlink_contract_run": false,
+    "compiler": "MSVC 14.51, C++17, INPUT_DIAGNOSTICS=0; empty sys/resource.h compatibility include",
+    "actual_production_engine_cpp": true,
+    "call_count_probe": {
+      "down_up_pairs": 1000,
+      "unchanged_unhandled_releases": 1000,
+      "get_commit": 2000,
+      "get_context": 2000,
+      "get_status": 2000,
+      "get_input_tabs": 2000
+    },
+    "sync_failure_probe": "Launch succeeds; deploy=failure; Engine::sync returns true; following binding has DeployFailed.",
+    "full_linux_sanitizer_io_gate_run": false
+  },
+  "android_device_test_run": false,
+  "android_latency_memory_energy_benchmark_run": false,
+  "new_debug_or_release_apk_built": false,
+  "yuanshu_code_payload_comparison": {
+    "common": 7,
+    "same_common": true,
+    "only_apks": [],
+    "only_apk": []
+  },
+  "packages": {
+    "yuanshu-apks": {
+      "size": 71699806,
+      "sha256": "a998bbd45a87f96514f23e0acb279792f508b675bc43bd983c21a92980eb59cc",
+      "payloads": {
+        "classes.dex": {
+          "path": "classes.dex",
+          "size": 6391512,
+          "sha256": "a3378cdf7a44e6f4302e32adbd3ade7286eb35cf28f1de751e6848fe95755027"
+        },
+        "lib/arm64-v8a/libandroidx.graphics.path.so": {
+          "path": "lib/arm64-v8a/libandroidx.graphics.path.so",
+          "size": 10096,
+          "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6"
+        },
+        "lib/arm64-v8a/libc++_shared.so": {
+          "path": "lib/arm64-v8a/libc++_shared.so",
+          "size": 1423696,
+          "sha256": "b5d97c38a728afe28d341cda3369f512d35eaf9c680c1b0563cd6a63e395230f"
+        },
+        "lib/arm64-v8a/libhamster_core_native.so": {
+          "path": "lib/arm64-v8a/libhamster_core_native.so",
+          "size": 32336,
+          "sha256": "241adfc058a969f50ad3ab35eb8d5afc41c1220a1f456cb628a6470cf83f8b70"
+        },
+        "lib/arm64-v8a/libhamster_quickjs.so": {
+          "path": "lib/arm64-v8a/libhamster_quickjs.so",
+          "size": 954856,
+          "sha256": "dd1eec545ac71dd078e3dae87bd838cba9d351ae2b78303fdcdadbad2a860436"
+        },
+        "lib/arm64-v8a/libjsonnet_jni.so": {
+          "path": "lib/arm64-v8a/libjsonnet_jni.so",
+          "size": 996648,
+          "sha256": "86289bb7f2d3b1ba90bb1313f8d1f26d703bcdceedc6f2da0fde44a822f21ce8"
+        },
+        "lib/arm64-v8a/librime_jni.so": {
+          "path": "lib/arm64-v8a/librime_jni.so",
+          "size": 3384472,
+          "sha256": "5cf873f27da064a8f45a3cbb84d80f4602d7d1c5c10bed290cc2146f3c3378bd"
+        }
+      }
+    },
+    "yuanshu-apk": {
+      "size": 87168705,
+      "sha256": "6a9ac66df8a49cf6589995e0fd5bb7acc549b05a24f8bc128a5713d56c486335",
+      "payloads": {
+        "classes.dex": {
+          "path": "classes.dex",
+          "size": 6391512,
+          "sha256": "a3378cdf7a44e6f4302e32adbd3ade7286eb35cf28f1de751e6848fe95755027"
+        },
+        "lib/arm64-v8a/libandroidx.graphics.path.so": {
+          "path": "lib/arm64-v8a/libandroidx.graphics.path.so",
+          "size": 10096,
+          "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6"
+        },
+        "lib/arm64-v8a/libc++_shared.so": {
+          "path": "lib/arm64-v8a/libc++_shared.so",
+          "size": 1423696,
+          "sha256": "b5d97c38a728afe28d341cda3369f512d35eaf9c680c1b0563cd6a63e395230f"
+        },
+        "lib/arm64-v8a/libhamster_core_native.so": {
+          "path": "lib/arm64-v8a/libhamster_core_native.so",
+          "size": 32336,
+          "sha256": "241adfc058a969f50ad3ab35eb8d5afc41c1220a1f456cb628a6470cf83f8b70"
+        },
+        "lib/arm64-v8a/libhamster_quickjs.so": {
+          "path": "lib/arm64-v8a/libhamster_quickjs.so",
+          "size": 954856,
+          "sha256": "dd1eec545ac71dd078e3dae87bd838cba9d351ae2b78303fdcdadbad2a860436"
+        },
+        "lib/arm64-v8a/libjsonnet_jni.so": {
+          "path": "lib/arm64-v8a/libjsonnet_jni.so",
+          "size": 996648,
+          "sha256": "86289bb7f2d3b1ba90bb1313f8d1f26d703bcdceedc6f2da0fde44a822f21ce8"
+        },
+        "lib/arm64-v8a/librime_jni.so": {
+          "path": "lib/arm64-v8a/librime_jni.so",
+          "size": 3384472,
+          "sha256": "5cf873f27da064a8f45a3cbb84d80f4602d7d1c5c10bed290cc2146f3c3378bd"
+        }
+      }
+    },
+    "foxy": {
+      "size": 13213922,
+      "sha256": "b0f80fefe1abdd604ce273d98b1fa4b81df44f22ac83e76027556130b5ac3e37",
+      "payloads": {
+        "classes.dex": {
+          "path": "classes.dex",
+          "size": 3635048,
+          "sha256": "1c4e9590000da93695f0355da89a4cb3adb58acca1b08f68c5064495489900e1"
+        },
+        "lib/arm64-v8a/libfoxy.so": {
+          "path": "lib/arm64-v8a/libfoxy.so",
+          "size": 6507832,
+          "sha256": "47e7e36dcdf4c3e8c1b9c0b401db6a8c4d1526c1b6e5d53f071b9ddfabea7fa2"
+        },
+        "lib/arm64-v8a/libquickjs.so": {
+          "path": "lib/arm64-v8a/libquickjs.so",
+          "size": 790688,
+          "sha256": "53c9987c219fa171415445d3f9b927a88c8c12646789a701351afd749c1c1da9"
+        }
+      }
+    }
+  },
+  "public_references": [
+    {
+      "repo": "imfuxiao/Hamster",
+      "sha": "65693706d01fc6c19ed6071968e542b0a2ef3f36",
+      "date": "2025-05-13T08:04:52Z",
+      "url": "https://github.com/imfuxiao/Hamster/commit/65693706d01fc6c19ed6071968e542b0a2ef3f36",
+      "tree_truncated": false
+    },
+    {
+      "repo": "osfans/trime",
+      "sha": "0f7bc782c235602f2952ef166ba9167a6d9fee15",
+      "date": "2026-11-01T10:41:34Z",
+      "url": "https://github.com/osfans/trime/commit/0f7bc782c235602f2952ef166ba9167a6d9fee15",
+      "tree_truncated": false
+    },
+    {
+      "repo": "rime/squirrel",
+      "sha": "b7970a93b05ae1ca1bcd97888fd6aa3cd0458d3e",
+      "date": "2026-11-05T15:57:57Z",
+      "url": "https://github.com/rime/squirrel/commit/b7970a93b05ae1ca1bcd97888fd6aa3cd0458d3e",
+      "tree_truncated": false
+    },
+    {
+      "repo": "rime/weasel",
+      "sha": "f96ed24a8a535961b6ffc7160d98851a69cee4f8",
+      "date": "2026-10-31T15:01:10Z",
+      "url": "https://github.com/rime/weasel/commit/f96ed24a8a535961b6ffc7160d98851a69cee4f8",
+      "tree_truncated": false
+    }
+  ],
+  "public_source_files_downloaded": 20,
+  "artifact_sha256": {
+    "native-probe.cpp.txt": "dd1223c727c9fbc8b0e8665464b6c9323009d87fb53928d7355c7f962acc8e43",
+    "native-probe.txt": "0780d41696df7599635ffb4806d157ece9f713443d8334bd4e9807603fd6b136",
+    "ReviewCandidateSelectionProbeTest.kt.txt": "263a80cd05a8f4103a6b223d98447b9b01ed1c0b36e1d1073f56976951b9d2a1"
+  }
+}
