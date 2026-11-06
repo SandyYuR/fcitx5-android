@@ -8,15 +8,15 @@ docKind: reference
 This is the updated **Foxy JavaScript Plugin Reference** supplied as `js-plugin-README.md`, replacing the older voice-only guide.
 It describes Foxy's API, rather than a promise that every API is implemented in 中州鹅.
 
-The AI assistant and JS App support described below for 中州鹅 currently belong to the `test/ai-native-protocols` test branch.
-Use its APK when testing these features. See the [current host implementation](/maintainer/implementation/js-voice-plugins#js-app-test-branch) and [installation and AI workflow](/features/voice-input-js#ai-assistant).
+The AI assistant and JS App support were merged into 中州鹅's default `fx-rime-only` branch on November 5, 2026.
+Older APKs need an update. See the [current host implementation](/maintainer/implementation/js-voice-plugins#js-app-test-branch) and [installation and AI workflow](/features/voice-input-js#ai-assistant).
 
-| Area | 中州鹅 test branch |
+| Area | Current 中州鹅 host |
 | --- | --- |
 | JS Apps | App registration, permissions, structured native layouts, editor APIs, credentials and non-streaming HTTP are supported. The toolbar provides an AI assistant entry. |
 | Network authorization | App HTTP accepts declared hosts or hosts derived from configured HTTPS addresses, with separate approval before sending text or credentials. The built-in assistant has no default API addresses or static hosts. Voice transports still require declared hosts. |
 | Streaming and commands | App SSE/WebSocket, legacy flat layouts, generic `js.*` layout commands, arbitrary App selection and `foxy.websocket.authorize()` are not implemented. The voice WebSocket transport is supported. |
-| Controls | Floating panels keep keyboard input available. The test branch additionally supports `input.readOnly` for a selectable AI reply. |
+| Controls | Floating panels keep keyboard input available. The host additionally supports `input.readOnly` for a selectable AI reply. |
 
 Button IDs and selector IDs are delivered to the plugin as events: a label such as “Confirm” has no built-in generate/insert behavior. Handle selector events explicitly to keep the panel open.
 The maintained assistant shows **Send to AI** before generation and **Insert** after a reply is ready.
@@ -372,7 +372,7 @@ These namespaces are provided to plugin runtimes that need them:
 
 ## Example Plugins
 
-- [LLM Assistant](https://github.com/SandyYuR/fcitx5-android/blob/test/ai-native-protocols/app/src/main/assets/bundled/js-apps/llm-assistant.js): plugin-owned declarative UI, multiple provider settings, API credentials, editor composition, confirm, and clear.
+- [LLM Assistant](https://github.com/SandyYuR/fcitx5-android/blob/fx-rime-only/app/src/main/assets/bundled/js-apps/llm-assistant.js): plugin-owned declarative UI, multiple provider settings, API credentials, editor composition, confirm, and clear.
 - [Qwen ASR](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/qwen-asr.js): WebSocket recognition, bounded single-request mode, provider response parsing, localized settings.
 - [Doubao ASR](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/doubao-asr.js): V3 secret-backed handshake and gzip binary frames. Legacy V2 credentials in request bodies are intentionally unsupported.
 - [Tencent ASR](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/tencent-asr.js): URL signing via `foxy.crypto`, bounded audio backlog, server-side punctuation filtering.

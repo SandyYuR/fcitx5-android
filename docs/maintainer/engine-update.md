@@ -42,6 +42,8 @@ Android 构建的依赖版本以 `sources.lock.json` 为准，不能只改 libri
 
 旧 `prebuilder`、`prebuilt`、`fcitx5-rime` 仓库已归档，当前构建不再读取它们。历史提交仍可能需要旧链路重建，因此归档内容与历史标签保留。
 
+本地可走[纯 Windows 源码开发链路](local-engine-development.md)：用临时索引快照构建当前修改，生成带来源和摘要的开发 SDK，再显式接入 Debug。该入口不修改正式版本锁，也不能用于 Release；工具统一从 D 盘读取。
+
 ## 哪些更新互相独立
 
 | 要更新的内容 | 需要操作 |
@@ -123,7 +125,7 @@ python3 -m unittest discover -s downstream/android -p 'test_*.py' -v
 git push -u origin "$rime_update_branch"
 ```
 
-本地执行配方需要 Linux、Python 3.12、Git、Ninja、C++ 编译器及锁定工具链：
+以下为 Linux 命令（SDK CI 使用 Python 3.12）。[Windows 本地开发](local-engine-development.md)提供 MSVC 宿主工具、NDK 交叉编译和工作树快照入口。配方需要 Python 3.12 或以上、Git、Ninja、C++ 编译器及锁定工具链：
 
 ```sh
 export ANDROID_NDK_ROOT=/path/to/android-sdk/ndk/28.0.13004108

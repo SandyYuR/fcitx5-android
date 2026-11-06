@@ -8,10 +8,10 @@ docKind: reference
 本文对应用户提供的新版 `js-plugin-README.md`，与[英文参考](./voice-input-js-en)同步，替换旧版仅介绍 `voice.asr` 的说明。
 以下正文描述 **Foxy** 的接口。中州鹅的实际支持范围见[宿主实现](/maintainer/implementation/js-voice-plugins#js-app-test-branch)。
 
-中州鹅的 AI 助手与 JS App 功能目前属于 `test/ai-native-protocols` 测试分支，需要安装对应 APK。
+中州鹅的 AI 助手与 JS App 功能已于 2026-11-05 合入默认分支 `fx-rime-only`；较早的 APK 需更新后使用。
 已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名和非流式 HTTP；App 的 SSE/WebSocket、旧式平铺布局、任意 `js.*` 布局命令、通用 App 选择器和 `foxy.websocket.authorize()` 尚未实现。语音 WebSocket 仍可使用。
 
-Foxy 要求请求主机在静态 `hosts` 中声明。中州鹅测试版的 **App HTTP** 还允许从用户配置的 HTTPS 地址提取主机，并在首次请求时逐域名授权；内置助手的 `hosts` 为空。这个扩展不等于给原版 Foxy 放开任意域名，语音接口仍按静态清单授权。
+Foxy 要求请求主机在静态 `hosts` 中声明。中州鹅的 **App HTTP** 还允许从用户配置的 HTTPS 地址提取主机，并在首次请求时逐域名授权；内置助手的 `hosts` 为空。这个扩展不等于给原版 Foxy 放开任意域名，语音接口仍按静态清单授权。
 
 “确认”“发送”等标签的含义由插件的按钮事件处理决定，宿主不会自动把它们解释成 AI 请求或上屏操作。
 :::
@@ -153,7 +153,7 @@ foxy.app.register({
 
 下拉选项可以是字符串或 `{label, value}`。标签默认在控件左侧；`labelPlacement: "top"` 将标签放在上方。没有 `weight` 时，子项不会拉伸。界面的 `maxWidth`、`maxHeight` 是以 dp 为单位的边界。Foxy 保留旧版平铺 `fields` / `buttons` 格式以便兼容。
 
-中州鹅测试版还支持 `input.readOnly: true`，用于允许选择和复制、但不接收键盘输入的结果框。旧式平铺格式不在当前适配范围内。
+中州鹅还支持 `input.readOnly: true`，用于允许选择和复制、但不接收键盘输入的结果框。旧式平铺格式不在当前适配范围内。
 
 ### 增量更新界面
 
@@ -385,7 +385,7 @@ Foxy 回调的等待上限分别是：`start` 10 秒、`audio` 3 秒、`onMessag
 
 以下链接指向本仓库的维护版本：
 
-- [LLM 助手](https://github.com/SandyYuR/fcitx5-android/blob/test/ai-native-protocols/app/src/main/assets/bundled/js-apps/llm-assistant.js)：声明式界面、多服务配置、密钥别名、编辑器预览与确认上屏。
+- [LLM 助手](https://github.com/SandyYuR/fcitx5-android/blob/fx-rime-only/app/src/main/assets/bundled/js-apps/llm-assistant.js)：声明式界面、多服务配置、密钥别名、编辑器预览与确认上屏。
 - [通义千问识别](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/qwen-asr.js)：WebSocket 识别、有界单次请求、本地化设置。
 - [豆包识别](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/doubao-asr.js)：V3 密钥握手、gzip 二进制帧；不支持将 V2 凭据写入请求体。
 - [腾讯云识别](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/tencent-asr.js)：HMAC URL 签名、有界音频队列、服务端标点处理。

@@ -32,7 +32,11 @@
 
 ## 首次解锁前启动
 
-`FcitxApplication.onCreate` 的所有设置初始化使用已选择的 `directBootAwareContext`。DE Context 的外部文件目录仍可能受凭据保护，`DirectRimeConfig` 在此模式只使用 DE 内部文件目录中的独立空 profile。自定义布局/字体/图标资源和旧 CE 资产清理等待解锁；不把用户方案、词库、剪贴板历史或密钥搬到 DE。
+`FcitxApplication.onCreate` 的所有设置初始化使用已选择的 `directBootAwareContext`。DE Context 的外部文件目录仍可能受凭据保护，`DirectRimeConfig` 在此模式只使用 DE 内部文件目录中的独立空 profile。解锁后的 `DirectBootLayoutSync` 在 IO worker 中把当前布局同步为固定的 DE 快照，锁屏时由 `DefaultConfigProvider` 读取，不扫描 CE 或外部目录。字体、图标资源和旧 CE 资产清理等待解锁；不把用户方案、词库、剪贴板历史或密钥搬到 DE。
+
+布局快照按内容比较并原子替换；外部卷暂不可用时保留最后完整快照并退避重试，明确删除或无效 JSON 则清理快照。密码布局解析失败、为空或只有不可交互的占位键时，继续选择回退链中的下一项，最后回到内置 QWERTY。`DirectBootLayoutStoreTest`、`DirectBootLayoutSyncTest` 与 `DirectBootStartupTest` 分别覆盖存储、监听同步和真实初始化边界，不能代替真机冷重启验证。
+
+`DirectoryObservers` 按规范路径共享唯一 `FileObserver`，布局快照与键盘热重载通过独立订阅使用它；最后一个订阅退出才停止监听。目录替换后重新挂载并拒绝旧代次事件，`DirectoryObserverRegistryTest` 守护这个约束。
 
 锁定状态检查与解锁接收器注册之间需要复查解锁状态，避免错过广播后一直停留在 DE 模式。已经进入 DE 模式的进程收到解锁广播时仍退出，由正常 CE 初始化恢复用户设置；同步只保持原有 CE → DE 偏好白名单，不反向覆盖。`DirectBootStartupTest` 对普通 Context 的锁定存储访问抛异常，调用真实 Application 初始化，并检查正常解锁启动和注册竞态；不能用替换整个 `onCreate` 的 shadow 代替此回归。
 
@@ -41,6 +45,7 @@
 - 完整备份先通过 `FcitxDaemon.beginUserDataBackup` 暂停原生写入，再生成缓存归档；`save()` 不能证明 Rime/LevelDB 已停止写入。恢复同样使用已有停机与事务入口。
 - 共享目录在归档期间被其他写入者修改时须报错。多个输入法各用独立工作库，不删数据库或 `LOCK` 绕过占用。
 - 更新 `app/src/main/assets/bundled/` 内布局或主题时，在 `data/BundledPresets.kt` 的 `assetSizes` 登记上一版字节数；登记新字节数会破坏用户改动保护。
+- 用实际旧 Git 对象或发布资产核对尺寸。纠正登记时，安装器还记录本次更新所匹配的旧尺寸，只重试仍存在的未改原版；旧处理记录不能导致用户删除的主题重新出现。`BundledPresetsUpgradeTest` 使用真实旧谷歌图标 JSON 检查升级、错误旧标记、用户修改和删除。
 - Debug 与 Release 的包名隔离属于迁移约定。文件图标的真实位置是 `input/config/ButtonIconFile.kt`，主题文件管理在 `data/theme/ThemeFilesManager.kt`。
 
 完整事务见[整包恢复](./user-data-restore)与[加密备份](./protected-backup-format)。
@@ -67,6 +72,8 @@
 | override 链末尾继承 `transparentBackground` / `staticDisplay` 等显示标志 | `KeyDef.Appearance`、`inheritPresentationFlagsFrom` |
 | `AlphabetKey.displayText` 是否显式设置按 JSON 字段存在性判断，不用值是否等于字符判断 | 显式文本不作 Shift/Caps 改写 |
 | 默认子模式可合法映射 null，不以 null 判越界 | `SubModeManager.isValidSpinnerPosition`、`SubModeSpinnerSelectionTest` |
+| 分体行标记只位于行首，首键隐藏或被移动/删除/替换时仍保留；复制单键不复制整行设置 | `SplitRowLayoutPolicy`、`LayoutKeyOperations`、`LayoutJsonUtils.parseKeyJsonArray` |
+| “合成中”只改变布局预览，不修改保存内容或实际输入状态；文本编辑面板不提供该开关 | `KeyboardPreviewManager`、`TextKeyboardLayoutEditorActivity` |
 | 候选预设是写值动作，不切换模式，数值保持偏好允许范围 | `AppPrefs.Candidates`、`CandidatesPresetsTest` |
 | 符号、表情、颜文字使用 catalog 与 locale 回退，面板独占键盘区 | 不改 `recentKey` / `Emoticon`；中文术语用“自定义/自訂” |
 | 文本编辑底栏只从 `text_editor` 布局读取，不硬编码另一排按钮 | 新动作必须进入 `TextEditingWindow.executeTextEditingAction` 白名单 |
