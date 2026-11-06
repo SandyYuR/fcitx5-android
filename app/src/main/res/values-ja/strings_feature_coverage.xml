@@ -367,7 +367,7 @@
     <string name="js_voice_secret_save_failed">この端末で API キーを暗号化できませんでした。以前の値は保持されています。</string>
     <string name="js_voice_undeclared_host">許可されていないホストに接続するプラグインです: %1$s</string>
     <string name="js_voice_plugins_current">%1$s · 使用中</string>
-    <string name="js_voice_plugins_title">JS 音声プラグイン</string>
+    <string name="js_voice_plugins_title">JS プラグイン設定</string>
     <string name="js_voice_plugins_summary">内蔵およびインポートした音声認識プラグインを管理</string>
     <string name="js_voice_plugins_entry_summary">v%1$s · %2$s</string>
     <string name="js_voice_plugins_delete_title">プラグインを削除しますか？</string>

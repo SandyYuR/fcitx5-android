@@ -1056,7 +1056,7 @@
     <string name="settings_group_appearance">外观</string>
     <string name="settings_group_appearance_summary">主题、图标和字体</string>
     <string name="settings_group_convenience">便捷功能</string>
-    <string name="settings_group_convenience_summary">剪贴板、文本编辑与表情符号</string>
+    <string name="settings_group_convenience_summary">剪贴板、文本编辑、表情符号与插件设置</string>
     <string name="settings_group_data">数据与备份</string>
     <string name="settings_group_data_summary">导入导出用户数据、用户数据目录</string>
     <string name="settings_group_advanced">高级</string>
@@ -1159,8 +1159,8 @@
     <string name="js_voice_undeclared_host">插件要连接的域名未获授权：%1$s</string>
 
     <string name="js_voice_plugins_current">%1$s · 当前使用</string>
-    <string name="js_voice_plugins_title">JS 语音插件</string>
-    <string name="js_voice_plugins_summary">管理内置与导入的语音识别插件</string>
+    <string name="js_voice_plugins_title">JS 插件设置</string>
+    <string name="js_voice_plugins_summary">管理内置与导入的语音、文本助手插件</string>
     <string name="js_voice_plugins_entry_summary">v%1$s · %2$s</string>
     <string name="js_voice_plugins_delete_title">移除插件？</string>
     <string name="js_voice_plugins_delete_message">将移除 %1$s。已保存的设置与密钥会保留。</string>
@@ -1168,7 +1168,7 @@
     <string name="js_voice_plugins_deleted">已移除 %1$s</string>
     <string name="js_voice_plugins_preferred_reset">它原是首选语音输入，该选项已被清空</string>
     <string name="js_voice_import">导入插件…</string>
-    <string name="js_voice_import_summary">选择一个注册了语音插件的 .js 文件</string>
+    <string name="js_voice_import_summary">选择语音或应用插件的 .js 文件</string>
     <string name="js_voice_import_loading">正在识别插件…</string>
     <string name="js_voice_import_dialog_title">导入插件</string>
     <string name="js_voice_import_dialog_confirm">导入</string>
@@ -1183,7 +1183,7 @@
     <string name="js_voice_import_failed_too_large">脚本过大（上限 256 KiB）</string>
     <string name="js_voice_import_failed_load">脚本无法运行：%1$s</string>
     <string name="js_voice_import_failed_no_plugin">没有找到 foxy.plugin.register() 调用</string>
-    <string name="js_voice_import_failed_no_asr">脚本没有声明 voice.asr 能力</string>
+    <string name="js_voice_import_failed_no_asr">脚本没有声明支持的 voice.asr 或应用能力</string>
     <string name="js_voice_import_failed_invalid_id">插件 ID %1$s 不是合法 ID</string>
     <string name="js_voice_import_failed_reserved_id">插件 ID %1$s 已被内置插件占用</string>
     <string name="js_voice_import_failed_no_hosts">脚本没有声明任何合法域名</string>

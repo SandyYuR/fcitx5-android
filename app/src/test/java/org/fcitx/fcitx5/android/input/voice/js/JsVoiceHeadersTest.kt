@@ -48,6 +48,14 @@ class JsVoiceHeadersTest {
     }
 
     @Test
+    fun credentialHeaderCannotOverrideTransportHeaders() {
+        for (name in listOf("Host", "host", "Content-Length", "Connection", "Content-Type", "Proxy-Authorization")) {
+            assertTrue(name, runCatching { JsVoiceHeaders.build("apiKey", "test-key", name, "", "") }.isFailure)
+        }
+        assertEquals("Bearer test-key", JsVoiceHeaders.build("apiKey", "test-key", "Authorization", "Bearer ", "")["Authorization"])
+    }
+
+    @Test
     fun missingSecretIsReportedWithFieldName() {
         try {
             JsVoiceHeaders.build("apiKey", null, "", "", "")

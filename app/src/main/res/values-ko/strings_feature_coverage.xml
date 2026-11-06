@@ -367,7 +367,7 @@
     <string name="js_voice_secret_save_failed">이 기기에서 API 키를 암호화할 수 없습니다. 이전 값은 유지되었습니다.</string>
     <string name="js_voice_undeclared_host">플러그인이 허용되지 않은 호스트에 연결합니다: %1$s</string>
     <string name="js_voice_plugins_current">%1$s · 사용 중</string>
-    <string name="js_voice_plugins_title">JS 음성 플러그인</string>
+    <string name="js_voice_plugins_title">JS 플러그인 설정</string>
     <string name="js_voice_plugins_summary">내장 및 가져온 음성 인식 플러그인 관리</string>
     <string name="js_voice_plugins_entry_summary">v%1$s · %2$s</string>
     <string name="js_voice_plugins_delete_title">플러그인을 제거할까요?</string>

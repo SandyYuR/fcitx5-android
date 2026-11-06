@@ -272,7 +272,7 @@ object SettingsSearchIndex {
      */
     fun entries(context: Context): List<SettingsSearchEntry> =
         buildEntries(context).map { original ->
-            val entry = if (original.route == keyboard(VOICE) || original.activityClass == JsVoicePluginsActivity::class.java) {
+            val entry = if (original.route == keyboard(VOICE)) {
                 original.copy(pathRes = if (original.titleRes == R.string.keyboard_category_voice) P_INPUT
                     else P_INPUT + R.string.keyboard_category_voice)
             } else original
@@ -769,9 +769,10 @@ object SettingsSearchIndex {
             route = keyboard(VOICE)
         ),
         SettingsSearchEntry(
-            R.string.js_voice_plugins_title, P_KEYBOARD,
+            R.string.js_voice_plugins_title, P_CONVENIENCE,
             listOf(
                 "js voice", "voice plugin", "api key", "import", "custom plugin",
+                "JS 插件设置", "AI 助手", "LLM", "大模型", "端点", "润色", "翻译",
                 "语音插件", "语音密钥", "导入插件", "自定义插件", "语音",
                 "yuyin chajian", "daoru chajian", "qwen", "doubao", "通义", "千问", "豆包", "asr"
             ),

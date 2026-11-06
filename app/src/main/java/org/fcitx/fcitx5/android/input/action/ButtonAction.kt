@@ -126,6 +126,7 @@ sealed class ButtonAction {
                 FloatingToggleAction,
                 ClipboardAction,
                 VoiceInputAction,
+                AiAssistantAction,
                 ThemeToggleAction,
                 RandomThemeAction,
                 LanguageSwitchAction,
@@ -165,6 +166,7 @@ sealed class ButtonAction {
                 FloatingToggleAction,
                 ClipboardAction,
                 VoiceInputAction,
+                AiAssistantAction,
                 ThemeToggleAction,
                 RandomThemeAction
             )
@@ -863,5 +865,24 @@ data object EditFontsetAction : ButtonAction() {
         context.startActivity(Intent(context, FontsetEditorActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         })
+    }
+}
+
+/** The same action is offered in both toolbar and status area configuration. */
+data object AiAssistantAction : ButtonAction() {
+    override val id = "ai_assistant"
+    override val defaultIcon = R.drawable.ic_auto_awesome_24
+    override val defaultLabelRes = R.string.ai_assistant
+    override val iconSlot = "toolbar.ai_assistant"
+    override val hasLongPress = true
+
+    override fun execute(context: Context, service: FcitxInputMethodService, fcitx: FcitxConnection,
+        windowManager: InputWindowManager, view: View?, onActionComplete: (() -> Unit)?) {
+        org.fcitx.fcitx5.android.input.voice.js.JsApps.open(service)
+    }
+
+    override fun onLongPress(context: Context, service: FcitxInputMethodService, fcitx: FcitxConnection,
+        windowManager: InputWindowManager, view: View) {
+        org.fcitx.fcitx5.android.input.voice.js.JsApps.configure(context)
     }
 }

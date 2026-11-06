@@ -3,6 +3,7 @@ package org.fcitx.fcitx5.android.ui.main
 
 import android.content.Intent
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
@@ -16,6 +17,8 @@ import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
+import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
+import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchIndex
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
@@ -77,6 +80,23 @@ class SettingsEntryNavigationTest {
         val indexed = SettingsSearchIndex.entries(activity).single { it.titleRes == R.string.faq }
         assertEquals(SettingsRoute.About, indexed.route)
         assertEquals(listOf(R.string.about), indexed.pathRes)
+    }
+
+    @Test fun jsPluginSettingsOpensTheSameManagerFromConvenienceAndVoice() = page { activity, current ->
+        current().preferenceScreen.find(activity.getString(R.string.settings_group_convenience)).performClick()
+        val convenience = current() as SettingsGroupFragment
+        convenience.preferenceScreen.find(activity.getString(R.string.js_voice_plugins_title)).performClick()
+        val shortcut = shadowOf(activity).nextStartedActivity
+        assertEquals(JsVoicePluginsActivity::class.java.name, shortcut.component?.className)
+        assertTrue(convenience.findNavController().popBackStack())
+        current().preferenceScreen.find(activity.getString(R.string.settings_group_input)).performClick()
+        current().preferenceScreen.find(activity.getString(R.string.keyboard_category_voice)).performClick()
+        current().preferenceScreen.find(activity.getString(R.string.js_voice_plugins_title)).performClick()
+        val original = shadowOf(activity).nextStartedActivity
+        assertEquals(shortcut.component, original.component)
+        val indexed = SettingsSearchIndex.entries(activity).single { it.titleRes == R.string.js_voice_plugins_title }
+        assertEquals(JsVoicePluginsActivity::class.java, indexed.activityClass)
+        assertEquals(listOf(R.string.settings_search_group_android, R.string.settings_group_convenience), indexed.pathRes)
     }
 
     @Test fun developerOpensFromAdvanced() = page { activity, current ->

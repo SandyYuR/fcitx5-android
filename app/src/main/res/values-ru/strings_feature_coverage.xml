@@ -366,7 +366,7 @@
     <string name="js_voice_secret_save_failed">Не удалось зашифровать ключ API на этом устройстве. Предыдущее значение сохранено.</string>
     <string name="js_voice_undeclared_host">Плагин подключается к неразрешённым узлам: %1$s</string>
     <string name="js_voice_plugins_current">%1$s · Используется</string>
-    <string name="js_voice_plugins_title">Голосовые JS-плагины</string>
+    <string name="js_voice_plugins_title">Настройки JS-плагинов</string>
     <string name="js_voice_plugins_summary">Управление встроенными и импортированными плагинами распознавания речи</string>
     <string name="js_voice_plugins_entry_summary">v%1$s · %2$s</string>
     <string name="js_voice_plugins_delete_title">Удалить плагин?</string>

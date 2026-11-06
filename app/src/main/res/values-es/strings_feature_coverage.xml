@@ -367,7 +367,7 @@
     <string name="js_voice_secret_save_failed">No se pudo cifrar la clave API en este dispositivo. Se ha conservado el valor anterior.</string>
     <string name="js_voice_undeclared_host">El complemento se conecta a servidores no autorizados: %1$s</string>
     <string name="js_voice_plugins_current">%1$s · En uso</string>
-    <string name="js_voice_plugins_title">Complementos de voz JS</string>
+    <string name="js_voice_plugins_title">Configuración de complementos JavaScript</string>
     <string name="js_voice_plugins_summary">Administrar complementos de reconocimiento integrados e importados</string>
     <string name="js_voice_plugins_entry_summary">v%1$s · %2$s</string>
     <string name="js_voice_plugins_delete_title">¿Eliminar el complemento?</string>

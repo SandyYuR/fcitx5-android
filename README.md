@@ -23,6 +23,7 @@
 - [Windows 本机构建环境](https://sandyyur.github.io/fcitx5-android/maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN)：工具链位置、环境坑与子模块恢复。
 - [外部语音输入](https://sandyyur.github.io/fcitx5-android/features/voice-input)：AIDL 提供方的接入方式。
 - [JS 语音插件](https://sandyyur.github.io/fcitx5-android/features/voice-input-js)：导入 `.js` 插件、内置千问、豆包、腾讯云语音及翻译、插件接口与限制。
+- [AI 文本助手（测试版）](https://sandyyur.github.io/fcitx5-android/features/ai-assistant)：浮动面板输入、发送 AI、阅读回复与确认上屏；三种协议、自定义端点和域名授权。
 - [维护文档索引](https://sandyyur.github.io/fcitx5-android/maintainer/)与[完整直连历史](https://sandyyur.github.io/fcitx5-android/direct-rime)：实现演进、验证证据与归档。
 
 ## 快速上手
@@ -46,14 +47,14 @@ Rime 方案和屏幕键盘布局分别设置，完整步骤见用户手册。
 Android 11 及以上支持设置配色跟随键盘主题，低版本保留兼容的主题处理。
 
 语音入口支持两条路：外部 APK 通过 AIDL 提供识别能力，或者直接导入一个 `.js` 插件。
-JS 插件跑在应用内置的 QuickJS 运行时里，内置通义千问、豆包、腾讯云语音识别与实时语音翻译，也可导入自定义脚本；两份入口都在
-**设置 → 便利功能 → 语音输入**，密钥由宿主加密保存、不下发给脚本。
+JS 插件跑在应用内置的 QuickJS 运行时里，内置通义千问、豆包、腾讯云语音识别与实时语音翻译，也可导入自定义脚本。
+语音服务入口位于 **设置 → 输入与候选 → 语音输入**；JS 插件可从该页的“JS 插件设置”或 **设置 → 便捷功能 → JS 插件设置** 管理，密钥由宿主加密保存、不下发给脚本。
 接入方式见[外部语音输入](https://sandyyur.github.io/fcitx5-android/features/voice-input)与
 [JS 语音插件](https://sandyyur.github.io/fcitx5-android/features/voice-input-js)。
 
 长按工具栏语音图标可切换首选语音引擎；语音与收起键盘按钮可同时显示。
-JS 插件首次使用前须批准其网络主机，导入时会显示完整地址；可在插件设置里撤销授权。
-升级插件新增主机后需要重新批准，未声明或未获批准的主机无法连接。
+语音插件的网络主机须先声明并获批准，可在插件设置里撤销。AI 文本助手还允许从已配置的 HTTPS 地址提取主机，首次访问新域名时逐一询问授权，批准后才发送文本与密钥。
+助手输入后点击“发送 AI”，在面板内阅读回复，再“确认上屏”；未生成结果时不会因旧的“确认”事件直接关闭。
 
 局域网 Web 编辑器在手机上显示地址和 6 位配对码；PC 打开地址后输入配对码，连接后浏览器自动保存本次凭据。
 停止服务后配对失效，重新启动会生成新的配对码。

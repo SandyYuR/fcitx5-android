@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ai_assistant">AI 助手</string>
+    <string name="js_app_none">请先导入 JS 应用插件。</string>
+    <string name="js_app_password">密码输入框中不可使用 AI 助手。</string>
+    <string name="js_app_permission_message">是否允许此插件使用以下能力？\n\n%1$s\n\n可在插件设置中撤销授权。</string>
+    <string name="js_app_allow">允许</string>
+    <string name="js_app_read_selection">读取选中文本</string>
+    <string name="js_app_read_text">读取编辑器文本</string>
+    <string name="js_app_composition">在编辑器中预览临时文本</string>
+    <string name="js_app_commit">插入确认的文本</string>
+    <string name="js_app_network">向已授权域名发送请求</string>
+    <string name="js_app_credentials">查看已配置密钥的名称（不读取密钥内容）</string>
+    <string name="js_app_endpoint_message">是否允许此插件连接 %1$s？\n\n文本和配置的 API 密钥将发送到此域名，不会跟随重定向。</string>
+    <string name="js_app_revoke">撤销应用能力授权</string>
+    <string name="js_app_revoke_summary">下次使用前重新询问编辑器访问和网络请求权限。</string>
+</resources>

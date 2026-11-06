@@ -43,6 +43,8 @@ internal object JsVoiceProviders {
         val builtIn: Boolean,
         /** 界面展示的来源：内置是 asset 名，导入是用户选中的文件名。 */
         val originName: String,
+        val hasVoice: Boolean = true,
+        val apps: List<JsPluginApp> = emptyList(),
     )
 
     private val lock = Any()
@@ -122,16 +124,27 @@ internal object JsVoiceProviders {
             source = Source.Imported(JsVoicePluginStore.scriptFile(record.meta.id)),
             builtIn = false,
             originName = record.sourceName,
+            hasVoice = record.meta.voiceAsr != null,
+            apps = record.meta.apps,
         )
     }
 
     // A previously imported plugin can become bundled. Prefer the bundled implementation while
     // retaining the imported file and the settings/secrets under the same provider ID.
-    private fun buildSpecs(): List<Spec> = (builtInSpecs() + importedSpecs()).distinctBy { it.id }
+    private fun builtInAppSpecs(): List<Spec> {
+        val meta = appContext.assets.open("bundled/js-apps/llm-assistant.json").bufferedReader().use {
+            requireNotNull(JsVoicePluginMeta.parse(it.readText()))
+        }
+        return listOf(Spec(meta.providerId, appContext.getString(R.string.ai_assistant), meta.version,
+            meta.hosts.toSet(), meta.sampleRate, Source.Asset("bundled/js-apps/llm-assistant.js"),
+            true, "llm-assistant.js", false, meta.apps))
+    }
+
+    private fun buildSpecs(): List<Spec> = (builtInSpecs() + builtInAppSpecs() + importedSpecs()).distinctBy { it.id }
 
     fun all(): List<Spec> = synchronized(lock) { cached ?: buildSpecs().also { cached = it; cachedById = it.associateBy(Spec::id) } }
 
-    fun builtInIds(): Set<String> = builtInSpecs().map { it.id }.toSet()
+    fun builtInIds(): Set<String> = (builtInSpecs() + builtInAppSpecs()).map { it.id }.toSet()
 
     fun specOf(pluginId: String): Spec? = synchronized(lock) {
         all()
@@ -158,12 +171,12 @@ internal object JsVoiceProviders {
     fun install() {
         if (installedRevision == VoiceInputProviderRegistry.revision) return
         val specs = all()
-        val ids = specs.map { it.id }.toSet()
+        val ids = specs.filter { it.hasVoice }.map { it.id }.toSet()
         if (registeredIds.any { it !in ids }) {
             (registeredIds - ids).forEach { VoiceInputProviderRegistry.unregister(it) }
             registeredIds.retainAll(ids)
         }
-        specs.forEach { spec ->
+        specs.filter { it.hasVoice }.forEach { spec ->
             if (VoiceInputProviderRegistry.get(spec.id) != null) {
                 registeredIds += spec.id
                 return@forEach

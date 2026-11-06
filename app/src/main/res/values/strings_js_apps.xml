@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ai_assistant">AI assistant</string>
+    <string name="js_app_none">Import a JavaScript app plugin first.</string>
+    <string name="js_app_password">AI assistant is unavailable in password fields.</string>
+    <string name="js_app_permission_message">Allow this plugin to use the following capabilities?\n\n%1$s\n\nYou can revoke access in its settings.</string>
+    <string name="js_app_allow">Allow</string>
+    <string name="js_app_read_selection">Read selected text</string>
+    <string name="js_app_read_text">Read editor text</string>
+    <string name="js_app_composition">Preview temporary text in the editor</string>
+    <string name="js_app_commit">Insert confirmed text</string>
+    <string name="js_app_network">Send requests to approved hosts</string>
+    <string name="js_app_credentials">Check which API keys are configured (without reading keys)</string>
+    <string name="js_app_endpoint_message">Allow this plugin to connect to %1$s?\n\nText and the configured API key will be sent to this host. Redirects are disabled.</string>
+    <string name="js_app_revoke">Revoke app permissions</string>
+    <string name="js_app_revoke_summary">Ask again before allowing editor access or network requests.</string>
+</resources>

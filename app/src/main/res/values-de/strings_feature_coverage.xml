@@ -367,7 +367,7 @@
     <string name="js_voice_secret_save_failed">Der API-Schlüssel konnte auf diesem Gerät nicht verschlüsselt werden. Der vorherige Wert wurde beibehalten.</string>
     <string name="js_voice_undeclared_host">Das Plugin verbindet sich mit nicht erlaubten Hosts: %1$s</string>
     <string name="js_voice_plugins_current">%1$s · In Verwendung</string>
-    <string name="js_voice_plugins_title">JS-Sprachplugins</string>
+    <string name="js_voice_plugins_title">JavaScript-Plugin-Einstellungen</string>
     <string name="js_voice_plugins_summary">Integrierte und importierte Spracherkennungsplugins verwalten</string>
     <string name="js_voice_plugins_entry_summary">v%1$s · %2$s</string>
     <string name="js_voice_plugins_delete_title">Plugin entfernen?</string>
