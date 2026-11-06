@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
+import { isHistoricalSource } from '../../search-shared.mjs'
 const { page, frontmatter } = useData()
 const path = computed(() => page.value.relativePath)
 const legacy = computed(() => path.value.startsWith('legacy/fcitx/'))
 const legacyNotes = computed(() => /^legacy\/fcitx\/(notes|planning)\//.test(path.value))
-const historical = computed(() => /^maintainer\/(history|audit|perf)\//.test(path.value))
+const historical = computed(() => !legacy.value && isHistoricalSource(path.value))
 const label = computed(() => frontmatter.value.docKind === 'reference' ? '上游接口参考 · 以当前宿主协议为准' : legacyNotes.value ? '靓企鹅中州韵 · 后续批注与早期方案' : legacy.value ? '靓企鹅中州韵 · 原站历史文档' : historical.value ? '中州鹅 · 历史记录与验证证据' : path.value.startsWith('legacy/') ? '项目版本与历史档案' : path.value.startsWith('maintainer/') ? '中州鹅 · 维护文档' : '中州鹅 · 使用指南')
 </script>
 

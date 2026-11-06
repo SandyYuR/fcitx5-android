@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { nav, sidebar } from './navigation'
 import { fileURLToPath } from 'node:url'
+import { tokenizeSearch } from './search-shared.mjs'
 
 export default defineConfig({
   // Public Markdown files are downloads, not additional documentation routes.
@@ -59,6 +60,7 @@ export default defineConfig({
     search: {
       provider: 'local',
       options: {
+        miniSearch: { options: { tokenize: tokenizeSearch } },
         // Search keeps history accessible while distinguishing it from current instructions.
         _render(src, env, md) {
           const html = md.render(src, env)

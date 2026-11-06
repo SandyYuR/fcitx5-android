@@ -2,6 +2,7 @@
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isHistoricalSource } from '../.vitepress/search-shared.mjs'
 
 export const docsRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -29,7 +30,7 @@ function classify(path) {
   else if (path.startsWith('maintainer/')) kind = '现行维护'
   else if (version === 'legacy') kind = /\/notes\/|\/planning\//.test(path) ? '旧版批注与方案' : '旧版原站'
   const maintenance = path.startsWith('maintainer/') || /^legacy\/fcitx\/(maintainer|notes|planning)\//.test(path)
-  return { version, kind, maintenance, topic: topicFor(path) }
+  return { version, kind, maintenance, archived: isHistoricalSource(path), topic: topicFor(path) }
 }
 
 export function collectCatalog() {
@@ -56,7 +57,10 @@ export function collectCatalog() {
         .replace(/[`*_]/g, '').replace(/\s+/g, ' ').trim().slice(0, 120)
       const date = source.match(/20\d\d-\d\d-\d\d/)?.[0] ?? ''
       const classification = classify(source)
-      if (/^docKind:\s*reference\s*$/m.test(frontmatter)) classification.kind = '上游参考'
+      if (/^docKind:\s*reference\s*$/m.test(frontmatter)) {
+        classification.kind = '上游参考'
+        classification.archived = true
+      }
       entries.push({ source, url, title, description, date, ...classification })
     }
   }

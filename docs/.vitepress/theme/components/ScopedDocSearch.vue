@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useData, useRouter } from 'vitepress'
+import { isHistoricalSource, searchIndexOptions, searchOptions } from '../../search-shared.mjs'
 
 const { site, localeIndex } = useData()
 const router = useRouter()
@@ -12,7 +13,9 @@ const includeHistory = ref(false)
 const selected = ref(0)
 const loading = ref(false)
 const error = ref(false)
+const isOpen = ref(false)
 const index = shallowRef<any>()
+const fullIndex = shallowRef<any>()
 const metadata = shallowRef(new Map<string, any>())
 let indexLocale = ''
 
@@ -22,14 +25,14 @@ function pagePath(id: string) {
 }
 function archived(id: string) {
   const path = pagePath(id)
-  return /^\/(legacy\/|maintainer\/(history|audit|perf)\/)/.test(path)
-    || metadata.value.get(path)?.kind === '上游参考'
+  return metadata.value.get(path)?.archived
+    ?? isHistoricalSource(path.endsWith('/') ? `${path}index.md` : `${path}.md`)
 }
 const matches = computed(() => {
-  if (!index.value || !query.value.trim()) return []
-  return index.value.search(query.value.trim(), {
-    fuzzy: 0.2, prefix: true, boost: { title: 4, text: 2, titles: 1 }
-  }).filter((hit: any) => includeHistory.value || !archived(hit.id))
+  const active = includeHistory.value && fullIndex.value ? fullIndex.value : index.value
+  if (!active || !query.value.trim()) return []
+  return active.search(query.value.trim(), searchOptions)
+    .filter((hit: any) => includeHistory.value || !archived(hit.id))
     .sort((a: any, b: any) => Number(archived(a.id)) - Number(archived(b.id)) || b.score - a.score)
 })
 const results = computed(() => matches.value.slice(0, 50))
@@ -37,35 +40,59 @@ watch([query, includeHistory], () => {
   selected.value = 0
   try { sessionStorage.setItem('docs-search-query', query.value) } catch {}
 })
+watch(includeHistory, () => { if (isOpen.value) void loadIndex() })
 
 async function loadIndex() {
-  if (loading.value || (index.value && indexLocale === localeIndex.value)) return
+  if (loading.value || (index.value && indexLocale === localeIndex.value && (!includeHistory.value || fullIndex.value))) return
   loading.value = true
   error.value = false
+  const locale = localeIndex.value
   try {
-    const [{ default: MiniSearch }, { default: indexes }, { default: catalog }] = await Promise.all([
-      import('minisearch'), import('@localSearchIndex'), import('../../generated/catalog.json')
+    const [{ default: MiniSearch }, { default: catalog }] = await Promise.all([
+      import('minisearch'), import('../../generated/catalog.json')
     ])
-    const data = await indexes[localeIndex.value]()
+    if (indexLocale !== locale) { index.value = undefined; fullIndex.value = undefined }
     metadata.value = new Map(catalog.entries.map(entry => [entry.url, entry]))
-    index.value = MiniSearch.loadJSON(data.default, { fields: ['title', 'titles', 'text'], storeFields: ['title', 'titles'] })
-    indexLocale = localeIndex.value
+    const loadFull = async () => {
+      const { default: indexes } = await import('@localSearchIndex')
+      return MiniSearch.loadJSONAsync((await indexes[locale]()).default, searchIndexOptions)
+    }
+    if (!index.value) {
+      if (import.meta.env.DEV) {
+        // The live VitePress index also reflects edits made after starting the dev server.
+        fullIndex.value = await loadFull()
+        index.value = fullIndex.value
+      } else {
+        const response = await fetch(`${site.value.base}search/current-${encodeURIComponent(locale)}.json`, { cache: 'no-cache' })
+        if (!response.ok) throw new Error('Current documentation search index is unavailable')
+        index.value = await MiniSearch.loadJSONAsync(await response.text(), searchIndexOptions)
+      }
+    }
+    indexLocale = locale
+    // History is large and is loaded only after the reader explicitly includes it.
+    if (includeHistory.value && !fullIndex.value) fullIndex.value = await loadFull()
   } catch { error.value = true }
   finally { loading.value = false }
 }
 function open() {
   if (dialog.value?.open) return
   dialog.value?.showModal()
+  isOpen.value = true
   nextTick(() => input.value?.focus())
   void loadIndex()
 }
 function close() {
   dialog.value?.close()
+  isOpen.value = false
   trigger.value?.focus({ preventScroll: true })
 }
 function keyboard(event: KeyboardEvent) {
   if (event.isComposing) return
-  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+  if (event.key === 'Escape') {
+    // Search inputs otherwise consume the first Escape to clear their text.
+    event.preventDefault()
+    close()
+  } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     event.preventDefault()
     selected.value = Math.max(0, Math.min(results.value.length - 1, selected.value + (event.key === 'ArrowDown' ? 1 : -1)))
     nextTick(() => document.getElementById(`doc-search-result-${selected.value}`)?.scrollIntoView({ block: 'nearest' }))
@@ -91,15 +118,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', shortcut))
 
 <template>
   <div class="VPNavBarSearch">
-    <button ref="trigger" class="doc-search-trigger" type="button" aria-label="搜索文档" @click="open">
+    <button ref="trigger" class="doc-search-trigger" type="button" aria-label="搜索文档" aria-haspopup="dialog" aria-controls="doc-search-dialog" :aria-expanded="isOpen" @click="open">
       <span aria-hidden="true">⌕</span><span class="doc-search-label">搜索文档</span><kbd>Ctrl K</kbd>
     </button>
     <Teleport to="body">
-      <dialog ref="dialog" class="doc-search-dialog" aria-labelledby="doc-search-title" @cancel.prevent="close" @click="event => { if (event.target === dialog) close() }">
+      <dialog id="doc-search-dialog" ref="dialog" class="doc-search-dialog" aria-labelledby="doc-search-title" @cancel.prevent="close" @click="event => { if (event.target === dialog) close() }">
         <form method="dialog" @submit.prevent>
           <div class="doc-search-heading"><h2 id="doc-search-title">搜索文档</h2><button type="button" aria-label="关闭搜索" @click="close">关闭</button></div>
           <input ref="input" v-model="query" type="search" aria-label="搜索文档" placeholder="功能、设置项或关键词" autocomplete="off" aria-controls="doc-search-results" :aria-activedescendant="results.length ? `doc-search-result-${selected}` : undefined" @keydown="keyboard" />
-          <label class="doc-search-scope"><input v-model="includeHistory" type="checkbox" />包含历史文档与上游参考</label>
+          <label class="doc-search-scope"><input v-model="includeHistory" type="checkbox" />包含历史记录、提交索引与上游参考</label>
         </form>
         <p v-if="loading" role="status">正在加载搜索…</p>
         <p v-else-if="error" role="alert">搜索加载失败。<button type="button" @click="loadIndex">重试</button></p>

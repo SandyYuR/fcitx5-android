@@ -1,11 +1,16 @@
 // Guard discoverability and archival preservation, not just successful Markdown compilation.
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 import assert from 'node:assert/strict'
 import { collectCatalog, docsRoot } from './build-catalog.mjs'
 
 const actual = collectCatalog()
+const currentFeatures = actual.entries.filter(entry => entry.source.startsWith('features/') && !entry.archived)
+const coverage = readFileSync(join(docsRoot, 'maintainer/changes/feature-coverage.md'), 'utf8')
+for (const entry of currentFeatures) {
+  assert(coverage.includes(`](${entry.url})`), `Current feature is missing from the source map: ${entry.source}`)
+}
 const generated = JSON.parse(readFileSync(join(docsRoot, '.vitepress/generated/catalog.json'), 'utf8'))
 assert.deepEqual(generated, actual, 'Catalog is stale; rebuild after adding or changing a document.')
 const page = readFileSync(join(docsRoot, '.vitepress/dist/contents.html'), 'utf8')
@@ -45,6 +50,22 @@ for (const feature of review.feature_coverage) {
   assert(existsSync(join(docsRoot, feature.document)), `Feature page missing: ${feature.document}`)
   assert(feature.source_files.length, `No source entry for ${feature.document}`)
 }
+let additionalCommits = 0
+for (const name of readdirSync(join(docsRoot, 'maintainer/changes'))) {
+  if (!/^commit-map-\d{4}-\d{2}-\d{2}\.json$/.test(name) || name === 'commit-map-2026-10-30.json') continue
+  const mapping = JSON.parse(readFileSync(join(docsRoot, 'maintainer/changes', name), 'utf8'))
+  assert(/^[a-f0-9]{40}$/.test(mapping.base) && /^[a-f0-9]{40}$/.test(mapping.head), `Invalid baseline in ${name}`)
+  assert.equal(new Set(mapping.commits.map(row => row.sha)).size, mapping.commits.length, `Duplicate commits in ${name}`)
+  assert.equal(mapping.commits.at(-1)?.sha, mapping.head, `Commit map does not reach its recorded head: ${name}`)
+  for (const row of mapping.commits) {
+    assert(/^[a-f0-9]{40}$/.test(row.sha) && row.files.length && row.documentation.length, `Incomplete row in ${name}`)
+    for (const document of row.documentation) {
+      assert(actual.entries.some(entry => entry.source === document), `Missing current document in ${name}: ${document}`)
+    }
+  }
+  additionalCommits += mapping.commits.length
+}
 console.log(JSON.stringify({ documents: actual.entries.length, maintenance_documents: actual.entries.filter(e => e.maintenance).length,
   preserved_routes: actual.redirects.length, original_pages_accounted_for: migration.pages.length,
-  commits_mapped: review.commits.length, current_feature_pages: review.feature_coverage.length, errors: 0 }))
+  commits_mapped: review.commits.length, subsequent_commits_mapped: additionalCommits,
+  baseline_feature_mappings: review.feature_coverage.length, current_feature_pages: currentFeatures.length, errors: 0 }))

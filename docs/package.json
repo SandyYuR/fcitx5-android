@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/build-catalog.mjs && vitepress dev",
-    "build": "node scripts/build-catalog.mjs && vitepress build && node scripts/copy-downloads.mjs",
+    "build": "node scripts/build-catalog.mjs && vitepress build && node scripts/build-current-search.mjs && node scripts/copy-downloads.mjs",
     "preview": "vitepress preview"
   },
   "devDependencies": {

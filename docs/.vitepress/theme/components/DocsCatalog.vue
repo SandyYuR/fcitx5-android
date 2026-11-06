@@ -68,8 +68,8 @@ const results = computed(() => {
     .sort((a, b) => priority(a.url) - priority(b.url))
 })
 const groups = computed(() => [
-  { name: '中州鹅 · 现行指南与维护', entries: results.value.filter(e => e.version === 'current' && !['直连版历史', '验证证据'].includes(e.kind)) },
-  { name: '中州鹅 · 直连版历史与证据', entries: results.value.filter(e => e.version === 'current' && ['直连版历史', '验证证据'].includes(e.kind)) },
+  { name: '中州鹅 · 现行指南与维护', entries: results.value.filter(e => e.version === 'current' && !e.archived) },
+  { name: '中州鹅 · 历史、证据与参考', entries: results.value.filter(e => e.version === 'current' && e.archived) },
   { name: '靓企鹅中州韵 · 含 Fcitx 的历史版本', entries: results.value.filter(e => e.version === 'legacy') }
 ].filter(group => group.entries.length))
 function reset() { query.value = ''; version.value = kind.value = topic.value = 'all' }
