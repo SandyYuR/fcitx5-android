@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
-import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.utils.settingsColor
 import org.robolectric.shadows.ShadowListPopupWindow
 import kotlinx.serialization.json.*
 import kotlinx.coroutines.*
@@ -75,7 +75,7 @@ class JsAppDialogTest {
             assertEquals("translate", dialog.values().text("purpose"))
             val send = views.filterIsInstance<MaterialButton>().single { it.text == "发送" }
             val close = views.filterIsInstance<MaterialButton>().single { it.text == "关闭" }
-            assertEquals(ThemeManager.activeTheme.accentKeyBackgroundColor, send.backgroundTintList!!.defaultColor)
+            assertEquals(send.context.settingsColor(androidx.appcompat.R.attr.colorPrimary), send.backgroundTintList!!.defaultColor)
             assertEquals(0, send.strokeWidth)
             assertTrue(close.strokeWidth > 0)
         } finally { dialog.dismiss() }
@@ -133,6 +133,31 @@ class JsAppDialogTest {
             dialog.setEnabled("input", true)
             service.commitText("恢复")
             assertEquals("原文追加恢复", dialog.values().text("input"))
+        } finally { dialog.dismiss() }
+    }
+
+    @Test fun permissionPromptHidesFixedControlsAndRestoresTheDraft() = runBlocking {
+        val service = Robolectric.buildService(FcitxInputMethodService::class.java).get()
+        val dialog = JsAppDialog(service, { _, _ -> }, { service.jsAppInputConnection = null })
+        try {
+            dialog.render(Json.parseToJsonElement("""{"layout":{"type":"column","children":[
+                {"type":"header","children":[{"type":"text","text":"Assistant"},
+                    {"type":"button","id":"close","label":"Close"}]},
+                {"type":"input","id":"input","value":"draft"},
+                {"type":"actions","children":[{"type":"button","id":"send","label":"Send"}]}]}}""").jsonObject)
+            dialog.show()
+            dialog.setBusy(true)
+            val controls = descendants(dialog.findViewById(android.R.id.content)).filterIsInstance<MaterialButton>()
+            val response = async(start = CoroutineStart.UNDISPATCHED) { dialog.confirm("Permission", "Connect?", "Allow", "Deny") }
+            assertTrue(controls.all { !it.isShown })
+            descendants(dialog.findViewById(android.R.id.content)).filterIsInstance<MaterialButton>()
+                .single { it.text == "Deny" }.performClick()
+            assertFalse(response.await())
+            dialog.setBusy(false)
+            assertTrue(controls.all { it.isShown })
+            assertEquals("draft", dialog.values().text("input"))
+            service.commitText(" preserved")
+            assertEquals("draft preserved", dialog.values().text("input"))
         } finally { dialog.dismiss() }
     }
 

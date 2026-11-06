@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_theme_selected">Используется</string>
+    <string name="ui_theme_day">День</string>
+    <string name="ui_theme_night">Ночь</string>
+    <string name="ui_plugin_voice">Голос</string>
+    <string name="ui_plugin_tools">Инструменты</string>
+    <string name="ui_plugin_settings">Настройки сервиса</string>
+    <string name="ui_plugin_credentials">Учётные данные</string>
+    <string name="ui_plugin_permissions">Разрешения</string>
+    <string name="ui_plugin_manage">Управление плагином</string>
+    <string name="ui_plugin_secret_summary">Сохранено %1$d из %2$d отображаемых учётных данных</string>
+    <string name="ui_plugin_revoked">Разрешения сброшены. При следующем использовании будет запрошено подтверждение.</string>
+    <string name="ui_operation_status">Состояние операции</string>
+    <string name="ui_operation_details">Подробности</string>
+    <string name="ui_operation_failed">Ошибка операции</string>
+    <string name="ui_operation_cancelled">Отменено</string>
+    <string name="ui_backup_ready">Экспорт создаёт резервную копию, импорт восстанавливает данные.</string>
+    <string name="ui_backup_preparing">Подготовка резервной копии</string>
+    <string name="ui_backup_checking">Проверка резервной копии</string>
+    <string name="ui_backup_destination">Выберите место для резервной копии</string>
+    <string name="ui_backup_saving">Сохранение резервной копии</string>
+    <string name="ui_retry">Повторить</string>
+    <string name="ui_import_destination">Каталог: %1$s</string>
+    <string name="ui_clipboard_pinned">Закреплено</string>
+    <string name="ui_download">Скачать</string>
+</resources>

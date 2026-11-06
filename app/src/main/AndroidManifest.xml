@@ -73,7 +73,7 @@
             android:name=".ui.main.settings.behavior.UserDataRestoreActivity"
             android:exported="false"
             android:process=":restore"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+            android:theme="@style/Theme.FcitxSettings.System" />
         <activity
             android:name=".ui.setup.SetupActivity"
             android:exported="false"

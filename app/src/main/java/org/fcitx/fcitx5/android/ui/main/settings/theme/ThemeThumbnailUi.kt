@@ -16,7 +16,11 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.LinearLayout
+import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
+import com.google.android.material.card.MaterialCardView
+import androidx.appcompat.widget.TooltipCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,6 +32,7 @@ import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeMonet
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.utils.rippleDrawable
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.dimensions.dp
 import splitties.views.backgroundColor
 import splitties.views.dsl.constraintlayout.bottomOfParent
@@ -67,51 +72,81 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
 
     val themeNameText = textView {
         textSize = 14f
+        minLines = 1
         maxLines = 1
         ellipsize = android.text.TextUtils.TruncateAt.END
-        gravity = Gravity.CENTER
+        gravity = Gravity.START or Gravity.CENTER_VERTICAL
+        includeFontPadding = false
         isClickable = false
         isFocusable = false
-        setPaddingDp(8, 4, 8, 4)
+        setPaddingDp(12, 0, 12, 0)
     }
 
     val spaceBar = view(::View)
 
     val returnKey = view(::View)
+    private var swatchTheme: Theme? = null
+    private val swatches = object : View(ctx) {
+        private val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+        override fun onDraw(canvas: android.graphics.Canvas) {
+            val theme = swatchTheme ?: return
+            val gap = dp(3).toFloat()
+            val cellWidth = (width - gap * 7) / 6f
+            val cellHeight = (height - gap * 3) / 2f
+            paint.color = theme.keyBackgroundColor
+            for (row in 0..1) for (column in 0..5) {
+                val x = gap + column * (cellWidth + gap)
+                val y = gap + row * (cellHeight + gap)
+                canvas.drawRoundRect(x, y, x + cellWidth, y + cellHeight, gap, gap, paint)
+            }
+        }
+    }
 
     val checkMark = imageView {
         scaleType = ImageView.ScaleType.FIT_CENTER
     }
 
+    val stateLabel = textView {
+        textSize = 11f
+        maxLines = 1
+        ellipsize = android.text.TextUtils.TruncateAt.END
+        setTextColor(ctx.settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer))
+    }
+    private val badge = LinearLayout(ctx).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        setPaddingDp(6, 4, 6, 4)
+        background = GradientDrawable().apply {
+            cornerRadius = dp(12).toFloat()
+            setColor(ctx.settingsColor(com.google.android.material.R.attr.colorSecondaryContainer))
+        }
+        addView(checkMark, LinearLayout.LayoutParams(dp(14), dp(14)))
+        addView(stateLabel, LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(4) })
+        visibility = View.GONE
+    }
+
     val editButton = imageView {
-        setPaddingDp(20, 4, 4, 20)
+        setPaddingDp(14, 6, 14, 6)
         scaleType = ImageView.ScaleType.FIT_CENTER
         imageResource = R.drawable.ic_baseline_edit_24
         contentDescription = ctx.getString(R.string.edit_theme)
     }
 
-    /**
-     * 导出按钮。
-     *
-     * 导出原先只能长按卡片触发，界面上没有任何可见线索。放在**左下角**：
-     * 右上已被编辑按钮占用、左上被动态图标占用，左下是这张卡片仅剩的空白角
-     * （右下有 returnKey 与 spaceBar）。
-     */
     val exportButton = imageView {
-        setPaddingDp(4, 20, 20, 4)
+        setPaddingDp(14, 6, 14, 6)
         scaleType = ImageView.ScaleType.FIT_CENTER
         imageResource = R.drawable.ic_baseline_share_24
         contentDescription = ctx.getString(R.string.theme_export_this)
     }
 
     val dynamicIcon = imageView {
-        setPaddingDp(4, 4, 20, 20)
+        setPaddingDp(14, 6, 14, 6)
         scaleType = ImageView.ScaleType.FIT_CENTER
         imageResource = R.drawable.ic_baseline_auto_awesome_24
     }
 
     val scoreText = textView {
-        textSize = 10f
+        textSize = 11f
         maxLines = 1
         gravity = Gravity.CENTER
         isClickable = false
@@ -119,12 +154,10 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
     }
 
     val thumbnailView = constraintLayout {
-        outlineProvider = ViewOutlineProvider.BOUNDS
-        elevation = dp(2f)
         add(bkg, lParams(matchParent, matchParent))
         add(bar, lParams(matchParent, dp(14)))
-        add(themeNameText, lParams(matchParent, wrapContent) {
-            centerInParent()
+        add(swatches, lParams(matchParent, dp(36)) {
+            topOfParent(dp(29))
         })
         add(spaceBar, lParams(height = dp(10)) {
             centerHorizontally()
@@ -135,45 +168,78 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             rightOfParent(dp(4))
             bottomOfParent(dp(4))
         })
-        add(dynamicIcon, lParams(dp(48), dp(48)) {
-            topOfParent()
-            startOfParent()
+        add(badge, lParams(wrapContent, wrapContent) {
+            topOfParent(dp(6))
+            endOfParent(dp(6))
+            constrainedWidth = true
+            startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+            marginStart = dp(6)
+            horizontalBias = 1f
         })
         add(scoreText, lParams(matchParent, wrapContent) {
-            bottomOfParent(dp(18))
             centerHorizontally()
-        })
-        add(checkMark, lParams(dp(60), dp(60)) {
-            centerInParent()
-        })
-        add(editButton, lParams(dp(48), dp(48)) {
-            topOfParent()
-            endOfParent()
-        })
-        add(exportButton, lParams(dp(48), dp(48)) {
-            bottomOfParent()
-            startOfParent()
+            bottomOfParent(dp(22))
         })
     }
 
-    override val root = thumbnailView
+    override val root = object : MaterialCardView(ctx) {
+        private val contentClip = android.graphics.Path()
+        override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+            super.onSizeChanged(w, h, oldw, oldh)
+            contentClip.reset()
+            contentClip.addRoundRect(0f, 0f, w.toFloat(), h.toFloat(), radius, radius, android.graphics.Path.Direction.CW)
+        }
+        override fun dispatchDraw(canvas: android.graphics.Canvas) {
+            // Also clip software draws and cached previews, where clipToOutline is not applied.
+            val save = canvas.save()
+            canvas.clipPath(contentClip)
+            super.dispatchDraw(canvas)
+            canvas.restoreToCount(save)
+        }
+    }.apply {
+        clipToOutline = true
+        radius = dp(20).toFloat()
+        cardElevation = 0f
+        strokeWidth = dp(1)
+        strokeColor = ctx.settingsColor(com.google.android.material.R.attr.colorOutlineVariant)
+        setCardBackgroundColor(ctx.settingsColor(com.google.android.material.R.attr.colorSurfaceBright))
+        addView(LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(thumbnailView, LinearLayout.LayoutParams(-1, dp(88)))
+            addView(ThemeCardDetails(ctx, listOf(dynamicIcon, exportButton, editButton)).apply {
+                addView(themeNameText, LinearLayout.LayoutParams(-1, themeCardNameHeight(ctx)))
+                addView(LinearLayout(ctx).apply {
+                    gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                    setPaddingDp(4, 0, 4, 0)
+                    addView(dynamicIcon, LinearLayout.LayoutParams(dp(48), dp(32)))
+                    addView(exportButton, LinearLayout.LayoutParams(dp(48), dp(32)))
+                    addView(editButton, LinearLayout.LayoutParams(dp(48), dp(32)))
+                }, LinearLayout.LayoutParams(-1, dp(32)))
+            }, LinearLayout.LayoutParams(-1, -2))
+        }, android.widget.FrameLayout.LayoutParams(-1, -2))
+    }
 
     fun setTheme(theme: Theme) {
+        swatchTheme = theme
+        swatches.invalidate()
+        bkg.setBackgroundColor(theme.backgroundColor)
         root.apply {
-            foreground = rippleDrawable(theme.keyPressHighlightColor)
+            foreground = rippleDrawable(ctx.settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
         }
         
         // Set other non-time-consuming UI elements
         bar.backgroundColor = theme.barColor
         themeNameText.apply {
             text = formatThemeName(theme.name)
-            setTextColor(theme.keyTextColor)
+            setTextColor(ctx.settingsColor(com.google.android.material.R.attr.colorOnSurface))
+            TooltipCompat.setTooltipText(this, theme.name)
         }
         scoreText.apply {
             val score = if (ThemeManager.isRandomTheme(theme)) ThemeManager.randomThemeScore else null
             text = score?.let { ctx.getString(R.string.random_theme_score_short, it.total) } ?: ""
             setTextColor(theme.altKeyTextColor)
             visibility = if (score == null) View.GONE else View.VISIBLE
+            swatches.isVisible = score == null
         }
         spaceBar.background = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
@@ -183,28 +249,20 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         returnKey.background = ShapeDrawable(OvalShape()).apply {
             paint.color = theme.accentKeyBackgroundColor
         }
-        val foregroundTint = ColorStateList.valueOf(theme.altKeyTextColor)
+        val foregroundTint = ColorStateList.valueOf(ctx.settingsColor(androidx.appcompat.R.attr.colorPrimary))
         editButton.apply {
-            visibility =
-                if (ThemeManager.isRandomTheme(theme) || theme is Theme.Custom ||
-                    (theme is Theme.Monet && ThemeMonet.supportsCustomMappingEditor(ctx))) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
-            background = rippleDrawable(theme.keyPressHighlightColor)
+            visibility = if (ThemeManager.isRandomTheme(theme) || theme is Theme.Custom ||
+                (theme is Theme.Monet && ThemeMonet.supportsCustomMappingEditor(ctx))) View.VISIBLE else View.GONE
+            background = rippleDrawable(ctx.settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
             imageTintList = foregroundTint
+            TooltipCompat.setTooltipText(this, contentDescription)
         }
         exportButton.apply {
-            // 只有可导出的主题才显示：内置主题没有对应的可导出文件，
-            // 显示一个点了没反应的按钮比不显示更糟。
-            visibility =
-                if ((theme is Theme.Custom && !ThemeManager.isRandomTheme(theme)) || theme is Theme.Monet) {
-                    View.VISIBLE
-                } else View.GONE
-            background = rippleDrawable(theme.keyPressHighlightColor)
+            visibility = if ((theme is Theme.Custom && !ThemeManager.isRandomTheme(theme)) || theme is Theme.Monet)
+                View.VISIBLE else View.GONE
+            background = rippleDrawable(ctx.settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
             imageTintList = foregroundTint
-            contentDescription = ctx.getString(R.string.theme_export_this)
+            TooltipCompat.setTooltipText(this, contentDescription)
         }
         dynamicIcon.apply {
             imageResource = if (ThemeManager.isRandomTheme(theme)) {
@@ -212,13 +270,13 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             } else {
                 R.drawable.ic_baseline_auto_awesome_24
             }
-            visibility = if (ThemeManager.isRandomTheme(theme) ||
-                (theme is Theme.Monet && ThemeMonet.supportsCustomMappingEditor(ctx))) {
+            visibility = if (ThemeManager.isRandomTheme(theme)) {
                 View.VISIBLE
             } else View.GONE
             imageTintList = foregroundTint
+            background = rippleDrawable(ctx.settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
         }
-        checkMark.imageTintList = foregroundTint
+        checkMark.imageTintList = ColorStateList.valueOf(ctx.settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer))
 
         loadBackgroundAsync(theme, ++loadGeneration)
     }
@@ -266,12 +324,22 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
     }
 
     fun setChecked(checked: Boolean) {
-        checkMark.isVisible = checked
-        checkMark.imageResource = R.drawable.ic_baseline_check_24
+        setChecked(if (checked) State.Selected else State.Normal)
     }
 
     fun setChecked(state: State) {
-        checkMark.isVisible = state != State.Normal
+        badge.isVisible = state != State.Normal
+        root.isSelected = state != State.Normal
+        root.strokeWidth = ctx.dp(if (state == State.Normal) 1 else 2)
+        root.strokeColor = ctx.settingsColor(if (state == State.Normal)
+            com.google.android.material.R.attr.colorOutlineVariant else androidx.appcompat.R.attr.colorPrimary)
+        stateLabel.text = when (state) {
+            State.Normal -> ""
+            State.Selected -> ctx.getString(R.string.ui_theme_selected)
+            State.LightMode -> ctx.getString(R.string.ui_theme_day)
+            State.DarkMode -> ctx.getString(R.string.ui_theme_night)
+        }
+        ViewCompat.setStateDescription(root, stateLabel.text.takeIf { it.isNotEmpty() })
         checkMark.imageResource = when (state) {
             State.Normal -> 0
             State.Selected -> R.drawable.ic_baseline_check_24
@@ -290,4 +358,5 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         dynamicIcon.setOnClickListener(onClick?.let { listener -> View.OnClickListener { listener() } })
         dynamicIcon.contentDescription = if (onClick == null) null else ctx.getString(R.string.random_theme)
     }
+
 }

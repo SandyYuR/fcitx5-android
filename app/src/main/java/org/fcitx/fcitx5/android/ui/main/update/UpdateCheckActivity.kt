@@ -27,6 +27,7 @@ import android.text.style.StyleSpan
 import android.text.style.URLSpan
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import android.provider.OpenableColumns
@@ -69,6 +70,10 @@ class UpdateCheckActivity : SettingsUiActivity() {
     private lateinit var toolbar: Toolbar
     private lateinit var mirrorsGroup: ChipGroup
     private lateinit var latestVersionText: TextView
+    private lateinit var retryButton: View
+    private lateinit var checkProgress: View
+    private var releaseRefreshJob: Job? = null
+    private var releaseRefreshGeneration = 0
     private lateinit var assetsView: RecyclerView
     private lateinit var adapter: UpdateAssetAdapter
     private lateinit var downloadManager: DownloadManager
@@ -144,6 +149,10 @@ class UpdateCheckActivity : SettingsUiActivity() {
         toolbar.elevation = 0f
         mirrorsGroup = findViewById(R.id.mirrorChipGroup)
         latestVersionText = findViewById(R.id.latestVersionText)
+        retryButton = findViewById<View>(R.id.updateRetry).apply {
+            setOnClickListener { refreshLatestRelease() }
+        }
+        checkProgress = findViewById(R.id.updateCheckProgress)
         assetsView = findViewById(R.id.assetsRecycler)
         downloadManager = getSystemService(DownloadManager::class.java)
         setSupportActionBar(toolbar)
@@ -219,8 +228,12 @@ class UpdateCheckActivity : SettingsUiActivity() {
     }
 
     private fun refreshLatestRelease() {
+        val generation = ++releaseRefreshGeneration
+        releaseRefreshJob?.cancel()
+        retryButton.visibility = View.GONE
+        checkProgress.visibility = View.VISIBLE
         latestVersionText.text = getString(R.string.update_checking)
-        lifecycleScope.launch {
+        releaseRefreshJob = lifecycleScope.launch {
             try {
                 val release = UpdateRepository.fetchLatestRelease(this@UpdateCheckActivity)
                 val versionFallback = release.assets.firstOrNull()?.name ?: release.releaseName
@@ -268,12 +281,15 @@ class UpdateCheckActivity : SettingsUiActivity() {
             catch (t: Throwable) {
                 Timber.w(t, "Failed to fetch release")
                 latestVersionText.text = getString(R.string.update_failed_to_fetch)
+                retryButton.visibility = View.VISIBLE
                 adapter.setReleaseNotes("")
                 Toast.makeText(
                     this@UpdateCheckActivity,
                     getString(R.string.update_failed_to_fetch),
                     Toast.LENGTH_SHORT
                 ).show()
+            } finally {
+                if (generation == releaseRefreshGeneration) checkProgress.visibility = View.GONE
             }
         }
     }

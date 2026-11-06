@@ -23,7 +23,7 @@
             android:text="@string/update_mirror_name_label"
             android:textSize="13sp" />
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.FcitxSettings.TextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/update_mirror_name_hint">
@@ -40,7 +40,7 @@
             android:text="@string/update_mirror_pattern_label"
             android:textSize="13sp" />
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.FcitxSettings.TextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/update_mirror_pattern_hint">
@@ -58,7 +58,7 @@
             android:text="@string/update_mirror_replace_label"
             android:textSize="13sp" />
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.FcitxSettings.TextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/update_mirror_replace_hint">

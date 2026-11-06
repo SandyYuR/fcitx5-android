@@ -111,7 +111,14 @@ object SettingsKeyboardColors {
     fun wrapContext(context: Context, palette: Palette): Context {
         if (!isAvailable()) return context
         val wrapped = ColorResourcesOverride.getInstance()?.wrapContextIfPossible(context, colorResources(palette)) ?: context
-        if (wrapped !== context) applyOverlay(wrapped)
+        if (wrapped !== context) {
+            // A configuration-scoped platform wrapper can rebuild only its color
+            // overlay and lose the AppCompat host's widget/text styles. Keep the
+            // full settings theme in the new Resources before applying its colors.
+            wrapped.theme.applyStyle(if (palette.dark) R.style.Theme_FcitxSettings_System_Dark
+                else R.style.Theme_FcitxSettings_System_Light, true)
+            applyOverlay(wrapped)
+        }
         return wrapped
     }
 

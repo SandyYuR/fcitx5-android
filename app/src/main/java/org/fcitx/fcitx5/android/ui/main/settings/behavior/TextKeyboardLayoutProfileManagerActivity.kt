@@ -39,7 +39,7 @@ import org.fcitx.fcitx5.android.utils.settingsColor
  */
 class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
     private data class Profile(val name: String, val keys: List<String>, val failed: Boolean, val builtin: Boolean)
-    private val collapsed = mutableSetOf<String>()
+    private val expanded = mutableSetOf<String>()
     private var profiles = emptyList<Profile>()
     private var selected = UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE
     private var reloadJob: Job? = null
@@ -49,7 +49,7 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         selected = savedInstanceState?.getString("selected") ?: activeProfile()
-        collapsed.addAll(savedInstanceState?.getStringArrayList("collapsed").orEmpty())
+        expanded.addAll(savedInstanceState?.getStringArrayList("expanded") ?: listOf(activeProfile()))
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         val toolbar = Toolbar(this).apply {
             setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
@@ -98,7 +98,7 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("selected", selected)
-        outState.putStringArrayList("collapsed", ArrayList(collapsed))
+        outState.putStringArrayList("expanded", ArrayList(expanded))
     }
 
     override fun onResume() {
@@ -134,19 +134,22 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
         summary.text = getString(R.string.text_keyboard_layout_manage_active, display(activeProfile()))
         list.removeAllViews()
         profiles.forEach { profile ->
+            val isCollapsed = profile.name !in expanded
             val group = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 background = android.graphics.drawable.GradientDrawable().apply {
-                    setColor(settingsColor(com.google.android.material.R.attr.colorSurfaceBright))
+                    setColor(settingsColor(if (isCollapsed && profile.name == selected)
+                        com.google.android.material.R.attr.colorSecondaryContainer else
+                        com.google.android.material.R.attr.colorSurfaceBright))
                     cornerRadius = dp(20).toFloat()
                 }
                 clipToOutline = true
-                setPadding(0, 0, 0, dp(8))
+                setPadding(0, 0, 0, if (isCollapsed) 0 else dp(8))
             }
             list.addView(group, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(12) })
             val row = horizontal().apply {
                 setPadding(dp(16), dp(4), dp(4), dp(4))
-                if (profile.name == selected) {
+                if (profile.name == selected && !isCollapsed) {
                     setBackgroundColor(settingsColor(com.google.android.material.R.attr.colorSecondaryContainer))
                 }
             }
@@ -162,6 +165,7 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
                 AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.setValue(profile.name)
                 ConfigProviders.provider = ConfigProviders.provider
                 selected = profile.name
+                expanded.add(profile.name)
                 render()
             }.apply {
                 isEnabled = profile.name != activeProfile()
@@ -174,10 +178,9 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
                 selected = profile.name
                 openEditor()
             })
-            val isCollapsed = profile.name in collapsed
             row.addView(icon(R.drawable.ic_baseline_arrow_drop_down_24,
                 if (isCollapsed) R.string.text_keyboard_layout_manage_expand else R.string.text_keyboard_layout_manage_collapse) {
-                if (!collapsed.add(profile.name)) collapsed.remove(profile.name)
+                if (!expanded.add(profile.name)) expanded.remove(profile.name)
                 render()
             }.apply { rotation = if (isCollapsed) -90f else 0f })
             if (profile.name == selected) {

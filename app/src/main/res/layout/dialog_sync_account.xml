@@ -8,7 +8,7 @@
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.FcitxSettings.TextField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/local_username">
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp">
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.FcitxSettings.TextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/local_password">

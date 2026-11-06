@@ -10,6 +10,7 @@ import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
+import androidx.preference.PreferenceCategory
 import androidx.preference.SwitchPreferenceCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,6 +40,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     private var pluginId: String = JsVoiceProviders.QWEN_ASR_ID
     private var loaded = false
     private val secretStates = mutableMapOf<String, JsVoiceSettingsStore.SecretState>()
+    private var refreshOverview: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +94,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     }
 
     private fun render(fields: List<JsVoiceField>) {
+        refreshOverview = null
         val screen = preferenceScreen ?: return
         screen.removeAll()
         if (fields.isEmpty()) {
@@ -103,6 +106,25 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
         val values = LinkedHashMap(
             JsVoiceFields.currentValues(fields, JsVoiceSettingsStore.values(pluginId))
         )
+        val overview = Preference(requireContext()).apply {
+            isPersistent = false
+            isSelectable = false
+            isIconSpaceReserved = false
+            title = JsVoiceProviders.specOf(pluginId)?.label
+        }.also(screen::addPreference)
+        fun section(titleId: Int) = PreferenceCategory(requireContext()).apply {
+            setTitle(titleId)
+            isIconSpaceReserved = false
+        }.also(screen::addPreference)
+        val parameters = section(R.string.ui_plugin_settings)
+        val credentials = section(R.string.ui_plugin_credentials)
+        refreshOverview = {
+            val visibleSecrets = fields.filter { it.isSecret && JsVoiceFields.isVisible(it, values) }
+            overview.summary = if (visibleSecrets.isEmpty()) null else getString(R.string.ui_plugin_secret_summary,
+                visibleSecrets.count { secretStates[it.key] == JsVoiceSettingsStore.SecretState.READY }, visibleSecrets.size)
+            parameters.isVisible = (0 until parameters.preferenceCount).any { parameters.getPreference(it).isVisible }
+            credentials.isVisible = (0 until credentials.preferenceCount).any { credentials.getPreference(it).isVisible }
+        }
         val rendered = mutableListOf<Pair<JsVoiceField, Preference>>()
         var order = 0
         fields.forEach { field ->
@@ -126,7 +148,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
             preference.isIconSpaceReserved = false
             preference.isSingleLineTitle = false
             preference.order = order++
-            screen.addPreference(preference)
+            (if (field.isSecret) credentials else parameters).addPreference(preference)
             rendered += field to preference
         }
         refreshVisibility(rendered, values)
@@ -134,10 +156,19 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
         appendRemoveEntry()
     }
 
+    private fun managementSection(key: String, title: Int, order: Int): PreferenceCategory {
+        return preferenceScreen.findPreference<PreferenceCategory>(key) ?: PreferenceCategory(requireContext()).apply {
+            this.key = key
+            setTitle(title)
+            this.order = order
+            isIconSpaceReserved = false
+        }.also(preferenceScreen::addPreference)
+    }
+
     private fun appendHostPermissionEntry() {
         val appSpec = JsVoiceProviders.specOf(pluginId)
         if (appSpec?.apps?.isNotEmpty() == true) {
-            preferenceScreen.addPreference(Preference(requireContext()).apply {
+            managementSection("ui_permissions", R.string.ui_plugin_permissions, 9_000).addPreference(Preference(requireContext()).apply {
                 key = "js_app_revoke"
                 isPersistent = false
                 isIconSpaceReserved = false
@@ -147,6 +178,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
                 setOnPreferenceClickListener {
                     org.fcitx.fcitx5.android.input.voice.js.JsAppPermissions.revoke(pluginId)
                     JsVoiceHostPermissions.revoke(pluginId)
+                    Toast.makeText(requireContext(), R.string.ui_plugin_revoked, Toast.LENGTH_SHORT).show()
                     true
                 }
             })
@@ -175,7 +207,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
             JsVoiceHostPermissionDialog.build(requireContext(), spec, ::refresh).show()
             true
         }
-        preferenceScreen.addPreference(preference)
+        managementSection("ui_permissions", R.string.ui_plugin_permissions, 9_000).addPreference(preference)
     }
 
     /**
@@ -187,7 +219,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
         val spec = JsVoiceProviders.specOf(pluginId) ?: return
         if (spec.builtIn) return
         if (screen.findPreference<Preference>(KEY_REMOVE) != null) return
-        screen.addPreference(Preference(requireContext()).apply {
+        managementSection("ui_management", R.string.ui_plugin_manage, 10_000).addPreference(Preference(requireContext()).apply {
             key = KEY_REMOVE
             isPersistent = false
             isIconSpaceReserved = false
@@ -243,6 +275,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
         rendered.forEach { (field, preference) ->
             preference.isVisible = JsVoiceFields.isVisible(field, values)
         }
+        refreshOverview?.invoke()
     }
 
     private fun createPreference(
@@ -390,6 +423,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
                     secretStates[field.key] = state
                     preference.isEnabled = true
                     preference.summary = secretSummary(field)
+                    refreshOverview?.invoke()
                     if (!saved) Toast.makeText(requireContext(), R.string.js_voice_secret_save_failed, Toast.LENGTH_LONG).show()
                 }
                 false
@@ -406,7 +440,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     }
 
     private fun describe(field: JsVoiceField, value: String?): String {
-        val shown = value.orEmpty()
+        val shown = field.options.firstOrNull { it.value == value }?.label ?: value.orEmpty()
         return if (field.description.isBlank()) shown else field.description + " · " + shown
     }
 

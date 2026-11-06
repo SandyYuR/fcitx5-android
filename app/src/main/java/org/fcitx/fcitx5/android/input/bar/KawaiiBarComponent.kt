@@ -608,7 +608,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             }
             setOnLongClickListener {
                 ClipboardManager.lastEntry?.let {
-                    AppUtil.launchClipboardEdit(context, it.id, true)
+                    org.fcitx.fcitx5.android.input.clipboard.ClipboardEditor.open(service, it.id)
                 }
                 true
             }

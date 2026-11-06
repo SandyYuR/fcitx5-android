@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ai_assistant">AI アシスタント</string>
+    <string name="js_app_none">先に JavaScript アプリプラグインをインポートしてください。</string>
+    <string name="js_app_password">パスワード欄では AI アシスタントを利用できません。</string>
+    <string name="js_app_permission_message">このプラグインに次の機能を許可しますか？\n\n%1$s\n\nプラグインの設定からアクセス権を取り消せます。</string>
+    <string name="js_app_allow">許可</string>
+    <string name="js_app_read_selection">選択したテキストの読み取り</string>
+    <string name="js_app_read_text">入力欄のテキストの読み取り</string>
+    <string name="js_app_composition">入力欄で一時的なテキストをプレビュー</string>
+    <string name="js_app_commit">確定したテキストの入力</string>
+    <string name="js_app_network">許可されたホストへのリクエスト送信</string>
+    <string name="js_app_credentials">どの API キーが設定されているかを確認（キー自体は読み取りません）</string>
+    <string name="js_app_endpoint_message">このプラグインが %1$s に接続することを許可しますか？\n\nテキストと設定済みの API キーがこのホストに送信されます。リダイレクトは無効です。</string>
+    <string name="js_app_revoke">アプリの権限を取り消す</string>
+    <string name="js_app_revoke_summary">入力欄へのアクセスやネットワークリクエストを許可する前に、再度確認します。</string>
+</resources>

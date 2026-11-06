@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ai_assistant">Asistente de IA</string>
+    <string name="js_app_none">Primero importa un complemento de aplicación JavaScript.</string>
+    <string name="js_app_password">El asistente de IA no está disponible en campos de contraseña.</string>
+    <string name="js_app_permission_message">¿Permitir que este complemento use las siguientes funciones?\n\n%1$s\n\nPuedes revocar el acceso en los ajustes del complemento.</string>
+    <string name="js_app_allow">Permitir</string>
+    <string name="js_app_read_selection">Leer el texto seleccionado</string>
+    <string name="js_app_read_text">Leer el texto del campo de edición</string>
+    <string name="js_app_composition">Mostrar una vista previa de texto temporal en el campo de edición</string>
+    <string name="js_app_commit">Insertar texto confirmado</string>
+    <string name="js_app_network">Enviar solicitudes a hosts autorizados</string>
+    <string name="js_app_credentials">Comprobar qué claves de API están configuradas (sin leer las claves)</string>
+    <string name="js_app_endpoint_message">¿Permitir que este complemento se conecte a %1$s?\n\nEl texto y la clave de API configurada se enviarán a este host. Las redirecciones están desactivadas.</string>
+    <string name="js_app_revoke">Revocar permisos de la aplicación</string>
+    <string name="js_app_revoke_summary">Volver a preguntar antes de permitir el acceso al campo de edición o las solicitudes de red.</string>
+</resources>

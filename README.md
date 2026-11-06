@@ -16,7 +16,7 @@
 ## 文档
 
 用户手册、功能说明、实现协议与历史报告统一维护在 `docs` 分支与[文档站](https://sandyyur.github.io/fcitx5-android/)。
-代码仓库只保留 README 入口与随接口同步的 [ASR 语音 AIDL 接入协议](ASR_VOICE_INPUT_AIDL_INTEGRATION.md)，其余内容以文档站为准。
+代码仓库保留 README 入口、与组件同步的 [界面设计约定](DESIGN.md) 和随接口同步的 [ASR 语音 AIDL 接入协议](ASR_VOICE_INPUT_AIDL_INTEGRATION.md)，完整手册以文档站为准。
 
 - [用户手册](https://sandyyur.github.io/fcitx5-android/manual/DIRECT_RIME_USER_GUIDE_zh-CN)：安装、方案切换、键盘、主题、语音、备份与排错。
 - [维护手册](https://sandyyur.github.io/fcitx5-android/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN)：构建、librime 来源与更新、CI 和性能复现。
@@ -45,6 +45,9 @@ Rime 方案和屏幕键盘布局分别设置，完整步骤见用户手册。
 
 保留默认分支的 Material 3 设置与首次引导；在外观页调整设置配色、页面动画与返回手势。
 Android 11 及以上支持设置配色跟随键盘主题，低版本保留兼容的主题处理。
+AI 助手面板共用设置界面的配色，编辑器与表单统一输入框、下拉框和操作按钮样式。
+主题库分开展示预览、名称与操作；插件设置按参数、密钥和权限分组，导入、备份及更新页提供持续可见的阶段和结果提示。
+剪贴板条目可在键盘上方直接编辑，保留原应用的输入连接；布局管理默认只展开当前启用项。更新器在下载前校验已有包、复用匹配文件，并清理可确认已安装的自有旧下载。
 
 语音入口支持两条路：外部 APK 通过 AIDL 提供识别能力，或者直接导入一个 `.js` 插件。
 JS 插件跑在应用内置的 QuickJS 运行时里，内置通义千问、豆包、腾讯云语音识别与实时语音翻译，也可导入自定义脚本。

@@ -8,9 +8,10 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.text.InputFilter
 import android.text.InputType
-import android.view.ContextThemeWrapper
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -20,14 +21,20 @@ import android.view.ViewTreeObserver
 import android.widget.*
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsCompat
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.TooltipCompat
 import kotlin.math.roundToInt
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.google.android.material.textview.MaterialTextView
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.serialization.json.*
-import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
+import org.fcitx.fcitx5.android.utils.settingsColor
 
 /** Attached window; typing stays in the local editor while host APIs retain the app connection. */
 internal class JsAppDialog(
@@ -35,22 +42,28 @@ internal class JsAppDialog(
     private val event: (String, JsonObject) -> Unit,
     private val closed: () -> Unit,
     private val keyboardView: () -> View? = { service.inputView?.keyboardView },
+    private val inputLimit: Int = 65536,
 ) : Dialog(service) {
-    private val theme = ThemeManager.activeTheme
-    // Widget geometry follows Foxy's Material form; all colors come from the keyboard theme.
-    private val uiContext = ContextThemeWrapper(service, if (theme.isDark)
-        com.google.android.material.R.style.Theme_Material3_Dark_NoActionBar
-        else com.google.android.material.R.style.Theme_Material3_Light_NoActionBar)
-    private val surfaceColor = theme.popupBackgroundColor or Color.BLACK
-    private val textColor = theme.popupTextColor
-    private val mutedColor = ColorUtils.setAlphaComponent(textColor, (Color.alpha(textColor) * 0.68f).toInt())
-    private val outlineColor = ColorUtils.setAlphaComponent(textColor, (Color.alpha(textColor) * 0.24f).toInt())
-    private val accentColor = theme.accentKeyBackgroundColor
+    private val uiContext = SettingsUiPreferences.themedContext(service, SettingsUiPreferences.read(service))
+    private val surfaceColor = uiContext.settingsColor(com.google.android.material.R.attr.colorSurfaceContainerHigh)
+    private val textColor = uiContext.settingsColor(com.google.android.material.R.attr.colorOnSurface)
+    private val mutedColor = uiContext.settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant)
+    private val outlineColor = uiContext.settingsColor(com.google.android.material.R.attr.colorOutlineVariant)
+    private val accentColor = uiContext.settingsColor(androidx.appcompat.R.attr.colorPrimary)
+    private val onAccentColor = uiContext.settingsColor(com.google.android.material.R.attr.colorOnPrimary)
+    private val tonalColor = uiContext.settingsColor(com.google.android.material.R.attr.colorSecondaryContainer)
+    private val onTonalColor = uiContext.settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer)
     private val controls = linkedMapOf<String, View>()
     private val editors = linkedMapOf<String, EditText>()
     private val selections = linkedMapOf<String, String>()
     private val selectors = linkedMapOf<String, Pair<MaterialAutoCompleteTextView, List<Pair<String, String>>>>()
     private val enabled = mutableMapOf<String, Boolean>()
+    private val header = FrameLayout(uiContext)
+    private val footer = FrameLayout(uiContext)
+    private var layoutColumn: LinearLayout? = null
+    private var headerView: View? = null
+    private var actionsView: View? = null
+    private var allScrollable = false
     private val content = LinearLayout(uiContext).apply { orientation = LinearLayout.VERTICAL }
     private val body = LinearLayout(uiContext).apply { orientation = LinearLayout.VERTICAL; addView(content) }
     private val scroll = BoundedScrollView(uiContext).apply {
@@ -58,32 +71,43 @@ internal class JsAppDialog(
         isVerticalScrollBarEnabled = false
         addView(body, ViewGroup.LayoutParams(-1, -2))
     }
-    private val status = label("", size = 11f).apply {
-        setTextColor(if (theme.isDark) 0xffffb4ab.toInt() else 0xffb3261e.toInt())
-        maxLines = 2
+    private val status = label("", size = 12f).apply {
+        setTextColor(uiContext.settingsColor(com.google.android.material.R.attr.colorOnErrorContainer))
+        background = GradientDrawable().apply {
+            cornerRadius = dp(12).toFloat()
+            setColor(uiContext.settingsColor(com.google.android.material.R.attr.colorErrorContainer))
+        }
+        maxLines = 3
+        ellipsize = TextUtils.TruncateAt.END
         visibility = View.GONE
-        setPadding(dp(2), dp(4), dp(2), 0)
+        setPadding(dp(12), dp(8), dp(12), dp(8))
         accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
     }
-    private val progress = ProgressBar(uiContext).apply {
+    private val progress = LinearProgressIndicator(uiContext).apply {
         visibility = View.GONE
-        indeterminateTintList = ColorStateList.valueOf(accentColor)
-        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        isIndeterminate = true
+        setIndicatorColor(accentColor)
+        trackColor = outlineColor
+        trackThickness = dp(3)
+        trackCornerRadius = dp(2)
+        contentDescription = service.getString(R.string.loading)
     }
     private val root = JsAppPanelLayout(uiContext, ::movePanel).apply {
         background = GradientDrawable().apply {
             setColor(surfaceColor)
-            cornerRadius = dp(12).toFloat()
+            cornerRadius = dp(28).toFloat()
             setStroke(dp(1), outlineColor)
         }
         addView(LinearLayout(uiContext).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(10), dp(8), dp(10), dp(8))
+            setPadding(dp(16), dp(16), dp(16), dp(16))
+            addView(header, LinearLayout.LayoutParams(-1, -2))
             addView(scroll, LinearLayout.LayoutParams(-1, -2))
             addView(status, LinearLayout.LayoutParams(-1, -2))
+            addView(footer, LinearLayout.LayoutParams(-1, -2))
         }, FrameLayout.LayoutParams(-1, -2))
-        addView(progress, FrameLayout.LayoutParams(dp(20), dp(20), Gravity.TOP or Gravity.END).apply {
-            topMargin = dp(8); marginEnd = dp(10)
+        addView(progress, FrameLayout.LayoutParams(-1, dp(3), Gravity.BOTTOM).apply {
+            bottomMargin = dp(8); marginStart = dp(24); marginEnd = dp(24)
         })
     }
     private var prompt: CompletableDeferred<Boolean>? = null
@@ -172,7 +196,7 @@ internal class JsAppDialog(
     }
 
     fun setValue(id: String, value: String) {
-        editors[id]?.let { it.setText(value.take(65536)); it.setSelection(it.text.length) }
+        editors[id]?.let { it.setText(value.take(inputLimit)); it.setSelection(it.text.length) }
         selectors[id]?.let { (view, options) ->
             options.firstOrNull { it.second == value }?.let { (label, selected) ->
                 selections[id] = selected
@@ -190,6 +214,8 @@ internal class JsAppDialog(
         val reply = CompletableDeferred<Boolean>()
         prompt = reply
         content.visibility = View.GONE
+        header.visibility = View.GONE
+        footer.visibility = View.GONE
         progress.visibility = View.GONE
         blockTyping()
         val panel = LinearLayout(uiContext).apply {
@@ -199,7 +225,7 @@ internal class JsAppDialog(
             addView(LinearLayout(uiContext).apply {
                 gravity = Gravity.END or Gravity.CENTER_VERTICAL
                 addView(button(deny) { reply.complete(false) })
-                addView(button(allow, filled = true) { reply.complete(true) },
+                addView(button(allow, style = "filled") { reply.complete(true) },
                     LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(6) })
             }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         }
@@ -216,6 +242,8 @@ internal class JsAppDialog(
     fun render(spec: JsonObject) {
         selectors.values.forEach { it.first.dismissDropDown() }
         controls.clear(); editors.clear(); selections.clear(); selectors.clear(); enabled.clear()
+        header.removeAllViews(); footer.removeAllViews()
+        layoutColumn = null; headerView = null; actionsView = null; allScrollable = false
         blockTyping()
         content.removeAllViews()
         status.text = ""
@@ -226,8 +254,15 @@ internal class JsAppDialog(
             require(depth <= 12 && ++nodes <= 128) { "Dialog layout is too large" }
             val id = obj.text("id")
             val view: View = when (obj.text("type")) {
-                "column", "row" -> LinearLayout(uiContext).apply {
-                    orientation = if (obj.text("type") == "row") LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+                "actions" -> JsAppActionRow(uiContext).apply {
+                    (obj["children"] as? JsonArray).orEmpty().forEach { child ->
+                        require(child.jsonObject.text("type") == "button") { "Actions must contain buttons" }
+                        addView(node(child.jsonObject, depth + 1))
+                    }
+                }
+                "column", "row", "header" -> (if (obj.text("type") == "header") JsAppHeaderRow(uiContext)
+                    else LinearLayout(uiContext)).apply {
+                    orientation = if (obj.text("type") == "column") LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
                     gravity = Gravity.CENTER_VERTICAL or when (obj.text("align")) {
                         "end" -> Gravity.END; "center" -> Gravity.CENTER_HORIZONTAL; else -> Gravity.START
                     }
@@ -248,12 +283,35 @@ internal class JsAppDialog(
                 "text" -> label(obj.text("text").take(400),
                     (obj["bold"] as? JsonPrimitive)?.booleanOrNull == true,
                     (obj["size"] as? JsonPrimitive)?.floatOrNull?.coerceIn(10f, 24f) ?: 14f,
-                    (obj["muted"] as? JsonPrimitive)?.booleanOrNull == true, draggable = !hasTitle).also { hasTitle = true }
+                    (obj["muted"] as? JsonPrimitive)?.booleanOrNull == true, draggable = !hasTitle).also { text ->
+                    hasTitle = true
+                    icon(obj.text("icon"))?.let { drawable ->
+                        drawable.setTint(accentColor)
+                        drawable.setBounds(0, 0, dp(24), dp(24))
+                        text.setCompoundDrawablesRelative(drawable, null, null, null)
+                        text.compoundDrawablePadding = dp(10)
+                    }
+                    if (obj.text("tone") == "error") {
+                        text.setTextColor(uiContext.settingsColor(com.google.android.material.R.attr.colorOnErrorContainer))
+                        text.background = GradientDrawable().apply {
+                            cornerRadius = dp(12).toFloat()
+                            setColor(uiContext.settingsColor(com.google.android.material.R.attr.colorErrorContainer))
+                        }
+                        text.setPadding(dp(12), dp(8), dp(12), dp(8))
+                        text.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+                    }
+                    (obj["maxLines"] as? JsonPrimitive)?.intOrNull?.let { text.maxLines = it.coerceIn(1, 8) }
+                    text.ellipsize = TextUtils.TruncateAt.END
+                    obj.text("description").takeIf { it.isNotBlank() }?.let {
+                        TooltipCompat.setTooltipText(text, it.take(600))
+                    }
+                }
                 "input" -> {
+                    val readOnly = (obj["readOnly"] as? JsonPrimitive)?.booleanOrNull == true
                     val edit = EditText(uiContext).apply {
-                        setTextColor(textColor); setHintTextColor(mutedColor)
-                        textSize = 14f
-                        setPadding(dp(10), dp(4), dp(10), dp(4))
+                        setTextColor(if (readOnly) onTonalColor else textColor); setHintTextColor(mutedColor)
+                        textSize = 16f
+                        setPadding(dp(12), dp(8), dp(12), dp(8))
                         background = null
                         minHeight = 0; minimumHeight = 0
                         val multiline = (obj["multiline"] as? JsonPrimitive)?.booleanOrNull == true
@@ -262,10 +320,9 @@ internal class JsAppDialog(
                         setSingleLine(!multiline)
                         gravity = if (multiline) Gravity.TOP or Gravity.START else Gravity.CENTER_VERTICAL
                         showSoftInputOnFocus = false
-                        filters = arrayOf(InputFilter.LengthFilter(65536))
-                        setText(obj.text("value").take(65536)); hint = obj.text("placeholder")
-                        setSelection(text.length)
-                        val readOnly = (obj["readOnly"] as? JsonPrimitive)?.booleanOrNull == true
+                        filters = arrayOf(InputFilter.LengthFilter(inputLimit))
+                        setText(obj.text("value").take(inputLimit)); hint = obj.text("placeholder")
+                        setSelection(if (readOnly) 0 else text.length)
                         if (readOnly) {
                             keyListener = null
                             setTextIsSelectable(true)
@@ -283,7 +340,7 @@ internal class JsAppDialog(
                         }
                     }
                     editors[id] = edit
-                    field(obj, fieldBox(edit), defaultHeight = if ((obj["multiline"] as? JsonPrimitive)?.booleanOrNull == true) 64 else 40)
+                    field(obj, fieldBox(edit, readOnly), defaultHeight = if ((obj["multiline"] as? JsonPrimitive)?.booleanOrNull == true) 88 else 48)
                 }
                 "select" -> {
                     val options = (obj["options"] as? JsonArray).orEmpty().take(128).map { option ->
@@ -299,6 +356,9 @@ internal class JsAppDialog(
                         minHeight = 0; minimumHeight = 0
                         threshold = 0
                         inputType = InputType.TYPE_NULL
+                        background = null
+                        setSingleLine(true)
+                        ellipsize = TextUtils.TruncateAt.END
                         isCursorVisible = false
                         showSoftInputOnFocus = false
                         setAdapter(object : ArrayAdapter<String>(uiContext, android.R.layout.simple_dropdown_item_1line,
@@ -306,7 +366,7 @@ internal class JsAppDialog(
                             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
                                 (super.getView(position, convertView, parent) as TextView).apply {
                                     setTextColor(textColor); textSize = 14f
-                                    minHeight = dp(40); setPadding(dp(12), dp(8), dp(12), dp(8))
+                                    minHeight = dp(48); setPadding(dp(12), dp(10), dp(12), dp(10))
                                 }
                         })
                         setText(selected?.first.orEmpty(), false)
@@ -320,7 +380,7 @@ internal class JsAppDialog(
                             }
                         }
                         setDropDownBackgroundDrawable(GradientDrawable().apply {
-                            setColor(surfaceColor); cornerRadius = dp(8).toFloat(); setStroke(dp(1), outlineColor)
+                            setColor(surfaceColor); cornerRadius = dp(12).toFloat(); setStroke(dp(1), outlineColor)
                         })
                     }
                     selectors[id] = input to options
@@ -329,9 +389,10 @@ internal class JsAppDialog(
                         setEndIconTintList(ColorStateList.valueOf(mutedColor))
                         endIconMinSize = dp(32)
                     }
-                    field(obj, box, defaultHeight = 40)
+                    field(obj, box, defaultHeight = 48)
                 }
-                "button" -> button(obj.text("label").take(80), filled = obj.text("style") == "filled") {
+                "button" -> button(obj.text("label").take(80), style = obj.text("style"),
+                    iconName = obj.text("icon"), iconOnly = (obj["iconOnly"] as? JsonPrimitive)?.booleanOrNull == true) {
                     if (!busy || id in setOf("close", "cancel")) {
                         service.jsAppInputConnection?.finishComposingText()
                         event(id, values())
@@ -344,6 +405,7 @@ internal class JsAppDialog(
             }
             if (id.isNotBlank()) {
                 require(id !in controls) { "Duplicate control ID" }
+                view.tag = id
                 controls[id] = if (id in editors || id in selectors) {
                     // Enable/disable the whole Material box, including its dropdown icon.
                     (view as ViewGroup).getChildAt(view.childCount - 1)
@@ -352,20 +414,31 @@ internal class JsAppDialog(
             return view
         }
         val layout = spec["layout"] as? JsonObject ?: error("Dialog must declare a layout")
-        content.addView(node(layout, 0), LinearLayout.LayoutParams(-1, -2))
+        val rendered = node(layout, 0)
+        layoutColumn = (rendered as? LinearLayout)?.takeIf { it.orientation == LinearLayout.VERTICAL }
+        layoutColumn?.let { column ->
+            headerView = column.getChildAt(0) as? JsAppHeaderRow
+            actionsView = column.getChildAt(column.childCount - 1) as? JsAppActionRow
+            headerView?.let { column.removeView(it); header.addView(it, FrameLayout.LayoutParams(-1, -2)) }
+            actionsView?.let { column.removeView(it); footer.addView(it, FrameLayout.LayoutParams(-1, -2)) }
+        }
+        footer.setPadding(0, if (actionsView == null) 0 else dp(8), 0, 0)
+        content.addView(rendered, LinearLayout.LayoutParams(-1, -2))
         maxWidthDp = (spec["maxWidth"] as? JsonPrimitive)?.intOrNull?.coerceIn(200, 600) ?: 340
         maxHeightDp = (spec["maxHeight"] as? JsonPrimitive)?.intOrNull?.coerceIn(96, 600) ?: 360
         applyBounds()
         setBusy(busy)
     }
 
-    private fun fieldBox(input: EditText) = TextInputLayout(uiContext).apply {
+    private fun fieldBox(input: EditText, readOnly: Boolean = false) = TextInputLayout(uiContext).apply {
         boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
-        boxBackgroundColor = surfaceColor
-        cursorColor = ColorStateList.valueOf(accentColor)
+        boxBackgroundColor = if (readOnly) tonalColor else uiContext.settingsColor(com.google.android.material.R.attr.colorSurfaceContainerLowest)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            cursorColor = ColorStateList.valueOf(accentColor)
+        }
         isHintEnabled = false
-        setBoxCornerRadii(dp(4).toFloat(), dp(4).toFloat(), dp(4).toFloat(), dp(4).toFloat())
-        boxStrokeWidth = dp(1); boxStrokeWidthFocused = dp(1)
+        setBoxCornerRadii(dp(12).toFloat(), dp(12).toFloat(), dp(12).toFloat(), dp(12).toFloat())
+        boxStrokeWidth = if (readOnly) 0 else dp(1); boxStrokeWidthFocused = if (readOnly) 0 else dp(2)
         setBoxStrokeColorStateList(ColorStateList(arrayOf(
             intArrayOf(-android.R.attr.state_enabled), intArrayOf(android.R.attr.state_focused),
             intArrayOf(android.R.attr.state_hovered), intArrayOf()),
@@ -379,8 +452,8 @@ internal class JsAppDialog(
         return LinearLayout(uiContext).apply {
             orientation = if (top) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            if (spec.text("label").isNotBlank()) addView(label(spec.text("label"), size = 11f, muted = true).apply {
-                setPadding(dp(2), 0, dp(4), 0)
+            if (spec.text("label").isNotBlank()) addView(label(spec.text("label"), size = 12f, muted = true).apply {
+                setPadding(dp(2), 0, dp(8), if (top) dp(6) else 0)
                 gravity = if (top) Gravity.START else Gravity.CENTER_VERTICAL
             }, LinearLayout.LayoutParams(if (top) -1 else -2, if (top) -2 else height))
             addView(box, if (top || spec.text("label").isBlank()) LinearLayout.LayoutParams(-1, height)
@@ -416,8 +489,24 @@ internal class JsAppDialog(
         val width = minOf(dp(maxWidthDp), area.width())
         val maximum = minOf(dp(maxHeightDp), area.height())
         root.maximumHeight = maximum
-        val errorHeight = if (status.visibility == View.GONE) 0 else status.lineHeight * 2 + dp(4)
-        scroll.maximumHeight = (maximum - dp(16) - errorHeight).coerceAtLeast(1)
+        val contentWidth = (width - dp(32)).coerceAtLeast(1)
+        fun chromeHeight(view: View?): Int {
+            view ?: return 0
+            view.measure(View.MeasureSpec.makeMeasureSpec(contentWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+            return view.measuredHeight
+        }
+        val headerHeight = chromeHeight(headerView)
+        val footerHeight = chromeHeight(actionsView) + if (actionsView == null) 0 else dp(8)
+        // Extremely short windows scroll as a whole; ordinary windows keep controls reachable.
+        // Move existing views only when the mode changes, preserving editor/permission state.
+        val scrollEverything = maximum < headerHeight + footerHeight + dp(112)
+        updateSectionPlacement(scrollEverything)
+        header.visibility = if (prompt == null && !allScrollable && headerView != null) View.VISIBLE else View.GONE
+        footer.visibility = if (prompt == null && !allScrollable && actionsView != null) View.VISIBLE else View.GONE
+        val errorHeight = if (status.visibility == View.GONE) 0 else status.lineHeight * 3 + dp(16)
+        val fixedHeight = if (prompt == null && !allScrollable) headerHeight + footerHeight else 0
+        scroll.maximumHeight = (maximum - dp(32) - errorHeight - fixedHeight).coerceAtLeast(1)
         root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(maximum, View.MeasureSpec.AT_MOST))
         val height = root.measuredHeight.coerceAtLeast(1)
@@ -438,6 +527,22 @@ internal class JsAppDialog(
             }
         }
         return false
+    }
+
+    private fun updateSectionPlacement(scrollEverything: Boolean) {
+        val column = layoutColumn ?: return
+        if (allScrollable == scrollEverything) return
+        allScrollable = scrollEverything
+        headerView?.let { view ->
+            (view.parent as? ViewGroup)?.removeView(view)
+            if (scrollEverything) column.addView(view, 0, LinearLayout.LayoutParams(-1, -2))
+            else header.addView(view, FrameLayout.LayoutParams(-1, -2))
+        }
+        actionsView?.let { view ->
+            (view.parent as? ViewGroup)?.removeView(view)
+            if (scrollEverything) column.addView(view, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) })
+            else footer.addView(view, FrameLayout.LayoutParams(-1, -2))
+        }
     }
 
     private fun prepareDraw(): Boolean {
@@ -495,24 +600,43 @@ internal class JsAppDialog(
             service.jsAppInputConnection = JsAppInputConnection(editor)
     }
     private fun label(value: String, bold: Boolean = false, size: Float = 14f, muted: Boolean = false,
-        draggable: Boolean = false) = (if (draggable) JsAppPanelTitle(uiContext) else TextView(uiContext)).apply {
+        draggable: Boolean = false) = (if (draggable) JsAppPanelTitle(uiContext) else MaterialTextView(uiContext)).apply {
         text = value; textSize = size; setTextColor(if (muted) mutedColor else textColor)
         setPadding(dp(2), 0, dp(2), 0)
         if (bold) setTypeface(null, Typeface.BOLD)
     }
-    private fun button(value: String, filled: Boolean = false, action: () -> Unit) = MaterialButton(uiContext, null,
-        if (filled) com.google.android.material.R.attr.materialButtonStyle else com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
-        text = value; textSize = 13f; isAllCaps = false
-        minWidth = 0; minimumWidth = 0; minHeight = dp(36); minimumHeight = dp(36)
-        insetTop = 0; insetBottom = 0; cornerRadius = dp(18)
-        setPadding(dp(12), 0, dp(12), 0)
-        setTextColor(if (filled) theme.accentKeyTextColor else textColor)
-        strokeWidth = if (filled) 0 else dp(1)
+    private fun button(value: String, style: String = "outlined", iconName: String = "", iconOnly: Boolean = false,
+        action: () -> Unit) = MaterialButton(uiContext).apply {
+        val foreground = when (style) { "filled" -> onAccentColor; "tonal" -> onTonalColor; else -> accentColor }
+        val drawable = icon(iconName)
+        val onlyIcon = iconOnly && drawable != null
+        text = if (onlyIcon) "" else value; contentDescription = value; textSize = 14f; isAllCaps = false
+        minWidth = dp(48); minimumWidth = dp(48); minHeight = dp(48); minimumHeight = dp(48)
+        insetTop = 0; insetBottom = 0; cornerRadius = dp(24)
+        maxLines = 2; ellipsize = TextUtils.TruncateAt.END
+        setPadding(dp(if (onlyIcon) 12 else 16), 0, dp(if (onlyIcon) 12 else 16), 0)
+        setTextColor(foreground)
+        drawable?.let {
+            icon = it; iconSize = dp(20); iconPadding = if (onlyIcon) 0 else dp(8)
+            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+            iconTint = ColorStateList.valueOf(foreground)
+            if (onlyIcon) TooltipCompat.setTooltipText(this, value)
+        }
+        strokeWidth = if (style in setOf("filled", "tonal", "text")) 0 else dp(1)
         strokeColor = ColorStateList.valueOf(outlineColor)
-        backgroundTintList = ColorStateList.valueOf(if (filled) accentColor else surfaceColor)
+        backgroundTintList = ColorStateList.valueOf(when (style) {
+            "filled" -> accentColor; "tonal" -> tonalColor; "text" -> Color.TRANSPARENT; else -> surfaceColor
+        })
         rippleColor = ColorStateList.valueOf(ColorUtils.setAlphaComponent(accentColor, 0x30))
         setOnClickListener { action() }
     }
+    private fun icon(name: String) = when (name) {
+        "assistant" -> R.drawable.ic_auto_awesome_24
+        "close" -> R.drawable.ic_settings_close
+        "send" -> R.drawable.ic_baseline_send_24
+        "check" -> R.drawable.ic_baseline_check_24
+        else -> null
+    }?.let { AppCompatResources.getDrawable(uiContext, it)?.mutate() }
     private fun dp(value: Int) = (value * service.resources.displayMetrics.density).toInt()
 }
 
@@ -539,7 +663,7 @@ private class EditorPreservingSelect(context: Context, private val availableArea
         val location = IntArray(2).also(::getLocationOnScreen)
         val below = (area.bottom - location[1] - height).coerceAtLeast(0)
         val above = (location[1] - area.top).coerceAtLeast(0)
-        val rowHeight = (40 * resources.displayMetrics.density).roundToInt()
+        val rowHeight = (48 * resources.displayMetrics.density).roundToInt()
         val desiredHeight = minOf(rowHeight * adapter.count, (256 * resources.displayMetrics.density).roundToInt())
         val showAbove = below < desiredHeight && above > below
         val popupHeight = minOf(desiredHeight, if (showAbove) above else below).coerceAtLeast(1)

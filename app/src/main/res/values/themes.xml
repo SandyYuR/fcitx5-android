@@ -3,6 +3,7 @@
 
     <!-- Bridge legacy platform color lookups used by existing settings editors to Material 3 roles. -->
     <style name="Theme.FcitxSettings.Base" parent="Theme.Material3Expressive.DynamicColors.DayNight.NoActionBar">
+        <item name="textInputStyle">@style/Widget.FcitxSettings.TextField</item>
         <item name="preferenceTheme">@style/ThemeOverlay.FcitxSettings.Preferences</item>
         <item name="preferenceStyle">@style/Preference.FcitxSettings</item>
         <item name="preferenceScreenStyle">@style/Preference.FcitxSettings.Screen</item>
@@ -33,6 +34,7 @@
     </style>
 
     <style name="Theme.FcitxSettings.Base.Light" parent="Theme.Material3Expressive.Light.NoActionBar">
+        <item name="textInputStyle">@style/Widget.FcitxSettings.TextField</item>
         <item name="preferenceTheme">@style/ThemeOverlay.FcitxSettings.Preferences</item>
         <item name="preferenceStyle">@style/Preference.FcitxSettings</item>
         <item name="preferenceScreenStyle">@style/Preference.FcitxSettings.Screen</item>
@@ -63,6 +65,7 @@
     </style>
 
     <style name="Theme.FcitxSettings.Base.Dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
+        <item name="textInputStyle">@style/Widget.FcitxSettings.TextField</item>
         <item name="preferenceTheme">@style/ThemeOverlay.FcitxSettings.Preferences</item>
         <item name="preferenceStyle">@style/Preference.FcitxSettings</item>
         <item name="preferenceScreenStyle">@style/Preference.FcitxSettings.Screen</item>

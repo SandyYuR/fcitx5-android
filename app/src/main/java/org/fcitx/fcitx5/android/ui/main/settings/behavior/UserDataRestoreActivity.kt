@@ -1,22 +1,34 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior
 
-import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
+import android.view.Gravity
+import android.view.ContextThemeWrapper
 import android.view.WindowManager
+import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.textview.MaterialTextView
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.WindowInsetsControllerCompat
 import kotlinx.coroutines.*
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.UserDataRestoreRuntime
 import org.fcitx.fcitx5.android.ui.main.MainActivity
+import org.fcitx.fcitx5.android.utils.settingsColor
+
+/** Recovery can style resources, but must never read preferences being replaced by the transaction. */
+internal fun restoreUiContext(context: Context): Context = ContextThemeWrapper(context, R.style.Theme_FcitxSettings_System)
 
 /** Minimal isolated process: no preferences, clipboard database or native engine is initialized. */
 class UserDataRestoreActivity : ComponentActivity() {
+    private val materialContext by lazy { restoreUiContext(this) }
     private val ui = MainScope()
     private var report = ""
     private var working = true
@@ -27,11 +39,32 @@ class UserDataRestoreActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         onBackPressedDispatcher.addCallback(this, restoreBackCallback)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-        setContentView(LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(32, 64, 32, 32)
-            addView(ProgressBar(context))
-            addView(TextView(context).apply { setText(R.string.loading) })
+        val themed = materialContext
+        val dark = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = !dark
+            isAppearanceLightNavigationBars = !dark
+        }
+        fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
+        setContentView(FrameLayout(themed).apply {
+            setBackgroundColor(themed.settingsColor(com.google.android.material.R.attr.colorSurfaceContainer))
+            addView(MaterialCardView(themed).apply {
+                radius = dp(20).toFloat(); cardElevation = 0f; strokeWidth = 0
+                setCardBackgroundColor(themed.settingsColor(com.google.android.material.R.attr.colorSurfaceContainerHigh))
+                addView(LinearLayout(themed).apply {
+                    orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER
+                    setPadding(dp(24), dp(32), dp(24), dp(32))
+                    addView(CircularProgressIndicator(themed).apply { isIndeterminate = true },
+                        LinearLayout.LayoutParams(dp(48), dp(48)))
+                    addView(MaterialTextView(themed).apply {
+                        setText(R.string.loading)
+                        setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_TitleMedium)
+                        setTextColor(themed.settingsColor(com.google.android.material.R.attr.colorOnSurface))
+                        gravity = Gravity.CENTER
+                    }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(20) })
+                })
+            }, FrameLayout.LayoutParams(minOf(resources.displayMetrics.widthPixels - dp(48), dp(420)),
+                -2, Gravity.CENTER))
         })
         val token = intent.getStringExtra("restore_token")
         val pid = intent.getIntExtra("restore_main_pid", -1)
@@ -58,13 +91,13 @@ class UserDataRestoreActivity : ComponentActivity() {
             restoreBackCallback.isEnabled = false
             report = listOfNotNull(intent.getStringExtra("restore_error"), result.message).joinToString("\n\n").take(64000)
             if (result.success) {
-                AlertDialog.Builder(this@UserDataRestoreActivity).setTitle(R.string.restore_data_ready)
+                MaterialAlertDialogBuilder(materialContext).setTitle(R.string.restore_data_ready)
                     .setMessage(report).setCancelable(false).setPositiveButton(android.R.string.ok) { _, _ -> restart() }.show()
             } else showRecoveryError()
         }
     }
     private fun showRecoveryError() {
-        AlertDialog.Builder(this).setTitle(R.string.restore_recovery_title)
+        MaterialAlertDialogBuilder(materialContext).setTitle(R.string.restore_recovery_title)
             .setMessage(getString(R.string.restore_recovery_explanation) + "\n\n" + report)
             .setPositiveButton(R.string.restore_retry) { _, _ ->
                 startActivity(Intent(this, UserDataRestoreActivity::class.java).putExtra("restore_error", report)); finish()

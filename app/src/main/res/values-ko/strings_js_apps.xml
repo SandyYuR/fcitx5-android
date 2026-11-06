@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ai_assistant">AI 도우미</string>
+    <string name="js_app_none">먼저 JavaScript 앱 플러그인을 가져오세요.</string>
+    <string name="js_app_password">비밀번호 입력란에서는 AI 도우미를 사용할 수 없습니다.</string>
+    <string name="js_app_permission_message">이 플러그인에 다음 기능을 허용하시겠습니까?\n\n%1$s\n\n플러그인 설정에서 접근 권한을 취소할 수 있습니다.</string>
+    <string name="js_app_allow">허용</string>
+    <string name="js_app_read_selection">선택한 텍스트 읽기</string>
+    <string name="js_app_read_text">입력란의 텍스트 읽기</string>
+    <string name="js_app_composition">입력란에 임시 텍스트 미리 보기</string>
+    <string name="js_app_commit">확인된 텍스트 입력</string>
+    <string name="js_app_network">허용된 호스트에 요청 보내기</string>
+    <string name="js_app_credentials">어떤 API 키가 설정되어 있는지 확인 (키 내용은 읽지 않음)</string>
+    <string name="js_app_endpoint_message">이 플러그인이 %1$s에 연결하도록 허용하시겠습니까?\n\n텍스트와 설정된 API 키가 이 호스트로 전송됩니다. 리디렉션은 허용되지 않습니다.</string>
+    <string name="js_app_revoke">앱 권한 취소</string>
+    <string name="js_app_revoke_summary">입력란 접근이나 네트워크 요청을 허용하기 전에 다시 묻습니다.</string>
+</resources>

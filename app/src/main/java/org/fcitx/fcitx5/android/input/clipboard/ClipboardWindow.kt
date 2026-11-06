@@ -125,7 +125,8 @@ class ClipboardWindow(
             }
 
             override fun onEdit(id: Int) {
-                AppUtil.launchClipboardEdit(context, id)
+                windowManager.attachWindow(KeyboardWindow)
+                ClipboardEditor.open(service, id)
             }
 
             override fun onOpenFile(entry: ClipboardEntry) {

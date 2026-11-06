@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
 import kotlin.math.hypot
 
 /** Drag the title/empty space, while edits, selection menus and buttons keep their gestures. */
@@ -89,4 +90,4 @@ internal class JsAppPanelLayout(context: Context, private val moveBy: (Float, Fl
 }
 
 /** Only the heading starts a drag; body text must allow the scroll view to handle swipes. */
-internal class JsAppPanelTitle(context: Context) : TextView(context)
+internal class JsAppPanelTitle(context: Context) : AppCompatTextView(context)

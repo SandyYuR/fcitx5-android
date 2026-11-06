@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ai_assistant">KI-Assistent</string>
+    <string name="js_app_none">Importieren Sie zuerst ein JavaScript-App-Plugin.</string>
+    <string name="js_app_password">Der KI-Assistent ist in Passwortfeldern nicht verfügbar.</string>
+    <string name="js_app_permission_message">Diesem Plugin die folgenden Funktionen erlauben?\n\n%1$s\n\nSie können den Zugriff in den Einstellungen des Plugins widerrufen.</string>
+    <string name="js_app_allow">Erlauben</string>
+    <string name="js_app_read_selection">Ausgewählten Text lesen</string>
+    <string name="js_app_read_text">Text im Eingabefeld lesen</string>
+    <string name="js_app_composition">Temporären Text im Eingabefeld als Vorschau anzeigen</string>
+    <string name="js_app_commit">Bestätigten Text einfügen</string>
+    <string name="js_app_network">Anfragen an freigegebene Hosts senden</string>
+    <string name="js_app_credentials">Prüfen, welche API-Schlüssel eingerichtet sind (ohne die Schlüssel zu lesen)</string>
+    <string name="js_app_endpoint_message">Diesem Plugin die Verbindung zu %1$s erlauben?\n\nDer Text und der eingerichtete API-Schlüssel werden an diesen Host gesendet. Weiterleitungen sind deaktiviert.</string>
+    <string name="js_app_revoke">App-Berechtigungen widerrufen</string>
+    <string name="js_app_revoke_summary">Vor dem Zugriff auf Textfelder oder Netzwerkanfragen erneut fragen.</string>
+</resources>

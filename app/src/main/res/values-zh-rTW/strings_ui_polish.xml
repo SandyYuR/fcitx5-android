@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_theme_selected">使用中</string>
+    <string name="ui_theme_day">日間</string>
+    <string name="ui_theme_night">夜間</string>
+    <string name="ui_plugin_voice">語音</string>
+    <string name="ui_plugin_tools">工具</string>
+    <string name="ui_plugin_settings">服務參數</string>
+    <string name="ui_plugin_credentials">金鑰</string>
+    <string name="ui_plugin_permissions">授權管理</string>
+    <string name="ui_plugin_manage">外掛管理</string>
+    <string name="ui_plugin_secret_summary">目前顯示的金鑰已儲存 %1$d / %2$d 項</string>
+    <string name="ui_plugin_revoked">已重設授權，下次使用時會重新詢問。</string>
+    <string name="ui_operation_status">操作狀態</string>
+    <string name="ui_operation_details">查看詳情</string>
+    <string name="ui_operation_failed">操作失敗</string>
+    <string name="ui_operation_cancelled">已取消</string>
+    <string name="ui_backup_ready">匯出可建立備份，匯入可從備份還原資料。</string>
+    <string name="ui_backup_preparing">正在準備備份</string>
+    <string name="ui_backup_checking">正在檢查備份</string>
+    <string name="ui_backup_destination">請選擇備份儲存位置</string>
+    <string name="ui_backup_saving">正在儲存備份</string>
+    <string name="ui_retry">重試</string>
+    <string name="ui_import_destination">目標目錄：%1$s</string>
+    <string name="ui_clipboard_pinned">已釘選</string>
+    <string name="ui_download">下載</string>
+</resources>

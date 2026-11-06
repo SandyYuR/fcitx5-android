@@ -34,6 +34,24 @@
             android:layout_marginTop="8dp"
             app:singleSelection="false"
             app:singleLine="false" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/updateCheckProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/updateRetry"
+            style="@style/Widget.FcitxSettings.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/ui_retry"
+            android:visibility="gone"
+            app:icon="@drawable/ic_settings_retry" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

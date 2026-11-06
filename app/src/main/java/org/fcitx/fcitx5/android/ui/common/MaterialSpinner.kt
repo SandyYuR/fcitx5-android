@@ -17,7 +17,7 @@ import com.google.android.material.shape.ShapeAppearanceModel
 import org.fcitx.fcitx5.android.utils.settingsColor
 
 /** Outlined Material menu styling while retaining Spinner's adapters and selection callbacks. */
-class MaterialSpinner @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, cornerRadiusDp: Int = 4) :
+class MaterialSpinner @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, cornerRadiusDp: Int = 12) :
     AppCompatSpinner(context, attrs) {
     init {
         val density = resources.displayMetrics.density
