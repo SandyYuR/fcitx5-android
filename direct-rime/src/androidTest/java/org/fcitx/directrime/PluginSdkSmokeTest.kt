@@ -3,6 +3,7 @@ package org.fcitx.directrime
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlinx.coroutines.runBlocking
@@ -75,6 +76,19 @@ class PluginSdkSmokeTest {
             assertEquals("漢語", state.candidates.firstOrNull())
             assertEquals("Lua 5.4", state.comments.firstOrNull())
             assertEquals("漢語", RimeRuntime.action(state, 1, 0)!!.commit)
+            // An interrupted snapshot restore must not become a user dictionary
+            // on the next sync. Use this APK's sandbox and the real packaged SDK.
+            val residue = File(context.filesDir, "rime/user/.temp.userdb")
+            assertTrue(residue.isDirectory || residue.mkdirs())
+            val marker = File(residue, "keep-for-test").apply { writeText("scratch residue") }
+            assertTrue("A real learned dictionary must sync with .temp.userdb present", RimeRuntime.synchronize(context))
+            assertTrue("Enumeration must not delete leftover scratch content", marker.isFile)
+            val snapshots = File(context.filesDir, "rime/user/sync").walkTopDown().filter { it.isFile }.toList()
+            assertTrue("The real user dictionary must be backed up", snapshots.any { it.name == "sdk_smoke.userdb.txt" })
+            assertFalse(snapshots.any { it.name == ".temp.userdb.txt" })
+            generation = RimeRuntime.newGeneration()
+            state = RimeRuntime.begin(context, generation, "sdk.smoke")!!
+            assertTrue(state.gateMessage, state.ready)
             "read".forEach { state = RimeRuntime.key(generation, it.code)!! }
             assertEquals("漢語", state.candidates.firstOrNull())
             // Close the VM with a live Lua translation, then reopen the same user database.

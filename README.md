@@ -20,7 +20,8 @@
 
 - [用户手册](https://sandyyur.github.io/fcitx5-android/manual/DIRECT_RIME_USER_GUIDE_zh-CN)：安装、方案切换、键盘、主题、语音、备份与排错。
 - [维护手册](https://sandyyur.github.io/fcitx5-android/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN)：构建、librime 来源与更新、CI 和性能复现。
-- [Windows 本机构建环境](https://sandyyur.github.io/fcitx5-android/maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN)：工具链位置、环境坑与子模块恢复。
+- [Windows 本机构建环境](https://sandyyur.github.io/fcitx5-android/maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN)：工具链位置、SDK 缓存与环境排查。
+- [Windows 本地引擎开发](https://sandyyur.github.io/fcitx5-android/maintainer/local-engine-development)：从本地源码生成开发 SDK 和独立 Debug APK。
 - [外部语音输入](https://sandyyur.github.io/fcitx5-android/features/voice-input)：AIDL 提供方的接入方式。
 - [JS 语音插件](https://sandyyur.github.io/fcitx5-android/features/voice-input-js)：导入 `.js` 插件、内置千问、豆包、腾讯云语音及翻译、插件接口与限制。
 - [AI 文本助手（测试版）](https://sandyyur.github.io/fcitx5-android/features/ai-assistant)：浮动面板输入、发送 AI、阅读回复与确认上屏；三种协议、自定义端点和域名授权。

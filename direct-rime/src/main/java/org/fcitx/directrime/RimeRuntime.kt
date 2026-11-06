@@ -87,6 +87,16 @@ internal object RimeRuntime {
     }
     suspend fun schemas(context: Context) = withContext(dispatcher) { start(context); Native.schemas() }
 
+    /** Diagnostic synchronization uses the same owner and invalidates sessions destroyed by Rime. */
+    suspend fun synchronize(context: Context): Boolean {
+        blocked = true
+        newGeneration()
+        return withContext(dispatcher) {
+            start(context)
+            Native.sync()
+        }
+    }
+
     suspend fun deploy(context: Context, profile: (() -> InputStream)? = null, smoke: Boolean = false,
                        restorePrevious: Boolean = false): Boolean {
         blocked = true

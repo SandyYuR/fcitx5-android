@@ -18,6 +18,16 @@ class RimeSdkArchiveTest {
     private val commit = "1".repeat(40)
     private val upstream = "2".repeat(40)
 
+    private fun developmentFixture(): File {
+        val (archive, lock) = fixture()
+        val directory = temporary.newFolder()
+        RimeSdkArchive.extract(archive, directory, lock)
+        val file = File(directory, "sdk-manifest.json")
+        val manifest = Json.decodeFromString<RimeSdkManifest>(file.readText())
+        file.writeText(Json.encodeToString(manifest.copy(development = true, source_tree = "4".repeat(40))))
+        return directory
+    }
+
     private fun digest(bytes: ByteArray) = MessageDigest.getInstance("SHA-256")
         .digest(bytes).joinToString("") { "%02x".format(it) }
 
@@ -127,8 +137,66 @@ class RimeSdkArchiveTest {
         output.writeText("damaged")
         assertEquals(TaskOutcome.SUCCESS, runner().build().task(":prepareRimeSdk")!!.outcome)
         assertEquals(original, output.readText())
+        val local = developmentFixture()
+        val localArchive = File(local, "librime/x86/lib/librime.a")
+        localArchive.writeText("development library")
+        val localManifestFile = File(local, "sdk-manifest.json")
+        val localManifest = Json.decodeFromString<RimeSdkManifest>(localManifestFile.readText())
+        localManifestFile.writeText(Json.encodeToString(localManifest.copy(files = localManifest.files +
+            ("librime/x86/lib/librime.a" to RimeSdkArchive.sha256(localArchive)))))
+        val localRun = GradleRunner.create().withProjectDir(project).withPluginClasspath()
+            .withArguments("prepareRimeSdk", "--offline", "--max-workers=1", "-PlocalRimeSdkDir=${local.absolutePath}")
+        assertEquals(TaskOutcome.SUCCESS, localRun.build().task(":prepareRimeSdk")!!.outcome)
+        assertEquals("development library", output.readText())
+        assertEquals(TaskOutcome.SUCCESS, runner().build().task(":prepareRimeSdk")!!.outcome)
+        assertEquals(original, output.readText())
         cached.delete()
         output.writeText("changed again")
         assertTrue(runner().buildAndFail().output.contains("is not cached"))
+    }
+
+    @Test fun developmentSdkRequiresAnExplicitMarkerAndChecksItsFiles() {
+        val (archive, lock) = fixture()
+        val source = temporary.newFolder()
+        RimeSdkArchive.extract(archive, source, lock)
+        assertThrows(IllegalArgumentException::class.java) {
+            RimeSdkArchive.copyDevelopment(source, temporary.newFolder(), listOf("arm64-v8a"))
+        }
+        val development = developmentFixture()
+        File(development, "lua/arm64-v8a/lib/liblua_static.a").writeText("corrupted")
+        assertThrows(IllegalArgumentException::class.java) {
+            RimeSdkArchive.copyDevelopment(development, temporary.newFolder(), listOf("arm64-v8a"))
+        }
+    }
+
+    @Test fun aSingleAbiDevelopmentSdkDoesNotPretendToContainOtherAbis() {
+        val source = developmentFixture()
+        val file = File(source, "sdk-manifest.json")
+        val manifest = Json.decodeFromString<RimeSdkManifest>(file.readText())
+        val files = manifest.files.filterKeys { it.contains("/arm64-v8a/") || it.startsWith("opencc/data/") || it.startsWith("licenses/") }
+        file.writeText(Json.encodeToString(manifest.copy(abis = listOf("arm64-v8a"), files = files)))
+        val output = temporary.newFolder()
+        RimeSdkArchive.copyDevelopment(source, output, listOf("arm64-v8a"))
+        assertTrue(File(output, "librime/arm64-v8a/lib/librime.a").isFile)
+        assertFalse(File(output, "librime/x86/lib/librime.a").exists())
+        assertThrows(IllegalArgumentException::class.java) {
+            RimeSdkArchive.copyDevelopment(source, temporary.newFolder(), listOf("x86_64"))
+        }
+    }
+
+    @Test fun aLocalSdkCannotRunAReleaseTask() {
+        val (_, lock) = fixture()
+        val project = temporary.newFolder()
+        File(project, "settings.gradle").writeText("rootProject.name = 'local-sdk-release-guard'")
+        File(project, "build.gradle").writeText("""
+            plugins { id 'org.fcitx.fcitx5.android.rime-sdk' }
+            tasks.register('assembleRelease') { dependsOn 'prepareRimeSdk' }
+        """.trimIndent())
+        File(project, "native/rime-sdk.lock.json").apply { parentFile.mkdirs(); writeText(Json.encodeToString(lock)) }
+        val result = GradleRunner.create().withProjectDir(project).withPluginClasspath()
+            .withArguments("assembleRelease", "--offline", "--max-workers=1", "-PlocalRimeSdkDir=${developmentFixture().absolutePath}")
+            .buildAndFail()
+        assertTrue(result.output.contains("restricted to Debug"))
+        assertFalse(File(project, "native/rime-sdk").exists())
     }
 }

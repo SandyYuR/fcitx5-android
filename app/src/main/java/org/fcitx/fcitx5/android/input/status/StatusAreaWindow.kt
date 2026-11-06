@@ -159,8 +159,14 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(Statu
             return
         }
         
-        fcitx.launchOnReady {
-            it.activateAction(action.id)
+        service.postFcitxJob {
+            activateStatusAreaAction(action.id) { failure ->
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    android.widget.Toast.makeText(context,
+                        failure.message ?: context.getString(org.fcitx.fcitx5.android.R.string.unknown_error),
+                        android.widget.Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 

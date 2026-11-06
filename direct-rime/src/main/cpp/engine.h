@@ -60,6 +60,8 @@ private:
     RimeApi* api_;
     const std::thread::id owner_;
     bool started_ = false, setup_ = false, active_ = false, sessionNoLearning_ = false;
+    enum class SyncResult { Idle, Waiting, Succeeded, Failed };
+    std::atomic<SyncResult> syncResult_{SyncResult::Idle};
     std::atomic<bool> deployFailed_{false};
     std::atomic<int64_t> optionsRevision_{0};
     RimeSessionId session_ = 0;

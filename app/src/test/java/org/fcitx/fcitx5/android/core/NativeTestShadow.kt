@@ -18,6 +18,8 @@ internal interface NativeTestDelegate {
     fun options(): Array<String> = error("Unexpected native options")
     fun candidates(value: Long, offset: Int, limit: Int): Array<String> = error("Unexpected native candidates")
     fun rawInput(value: Long, previous: Long): RawInputState? = error("Unexpected native rawInput")
+    fun end(value: Long): Snapshot = error("Unexpected native end")
+    fun sync(): Boolean = error("Unexpected native sync")
 }
 
 @Implements(Native::class, isInAndroidSdk = false)
@@ -37,4 +39,6 @@ internal class NativeTestShadow {
     @Implementation fun options() = delegate.options()
     @Implementation fun candidates(value: Long, offset: Int, limit: Int) = delegate.candidates(value, offset, limit)
     @Implementation fun rawInput(value: Long, previous: Long) = delegate.rawInput(value, previous)
+    @Implementation fun end(value: Long) = delegate.end(value)
+    @Implementation fun sync() = delegate.sync()
 }
