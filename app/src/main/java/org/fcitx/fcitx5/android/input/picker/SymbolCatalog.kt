@@ -30,8 +30,8 @@ import timber.log.Timber
  *
  * 两个要点：
  * - `names` 是**多语言字典**而非单个字符串，需要按当前 locale 走回退链（见 [SymbolCatalogs.resolveName]）。
- * - `multiLine` 表示该 catalog 的条目允许换行/长文本（颜文字为 `true`），
- *   用于决定面板用单列还是多列网格渲染。
+ * - `multiLine` 保留 Foxy 的旧版兼容标记；当前列数由 [kaomojiPicker] 等组装点决定。
+ *   条目通过 AutoScaleTextView 单行等比缩小，不会因该标记自动换行。
  */
 
 /** catalog 原始文件结构（与 Foxy 的 `CatalogFile` 对应）。 */

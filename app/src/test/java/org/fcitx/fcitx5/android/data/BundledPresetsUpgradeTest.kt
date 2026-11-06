@@ -41,9 +41,20 @@ class BundledPresetsUpgradeTest {
         assertArrayEquals(current, destination.readBytes())
     }
 
+    @Test fun anOldSkipMarkerDoesNotPreventTheCorrectedUpgrade() {
+        val destination = temp.newFile().apply { writeBytes(previous()) }
+        handled.add("$asset#${current.size}")
+        install(destination)
+        assertArrayEquals(current, destination.readBytes())
+        assertTrue(destination.setLastModified(1000))
+        assertEquals(0, install(destination))
+        assertEquals(1000L, destination.lastModified())
+    }
+
     @Test fun aUserEditedThemeSurvivesTheCorrectedRegistration() {
         val edited = previous() + "\n ".toByteArray()
         val destination = temp.newFile().apply { writeBytes(edited) }
+        handled.add("$asset#${current.size}")
         install(destination)
         assertArrayEquals(edited, destination.readBytes())
     }

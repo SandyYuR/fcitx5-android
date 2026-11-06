@@ -1088,7 +1088,8 @@ class TextKeyboard private constructor(
                                         }
                                 }
                             }
-                            if (keys.any { it.isNotEmpty() }) return keys
+                            // A row made only of spacers cannot enter a password.
+                            if (keys.any { row -> row.any { it !is PlaceholderKey } }) return keys
                         } catch (e: Exception) {
                             // A valid JSON object can still contain malformed key definitions.
                             // Keep the password keyboard usable, including before first unlock.

@@ -359,8 +359,16 @@ abstract class KeyView(
         // default implementation does nothing
     }
 
-    protected open fun onAppearanceLayoutChanged(width: Int, height: Int) {
-        // default implementation does nothing
+    /** Return true when the measured key size changes its child constraints. */
+    protected open fun onAppearanceMeasured(width: Int, height: Int): Boolean = false
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        if (onAppearanceMeasured(appearanceView.measuredWidth, appearanceView.measuredHeight)) {
+            // Solve the new label constraints before laying out children. Updating them after
+            // super.onLayout can leave old bounds on screen until an unrelated layer switch.
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -381,7 +389,6 @@ abstract class KeyView(
             )
         }
         super.onLayout(changed, left, top, right, bottom)
-        onAppearanceLayoutChanged(appearanceView.width, appearanceView.height)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -1080,9 +1087,9 @@ class AltTextKeyView(
         }
     }
 
-    private fun applyLayout(keyHeight: Int = appearanceView.height) {
+    private fun applyLayout(keyHeight: Int = appearanceView.height): Boolean {
         val mode = resolveLayoutMode(keyHeight)
-        if (mode == lastLayoutMode) return
+        if (mode == lastLayoutMode) return false
         lastLayoutMode = mode
         val keepDirectionalLabel = when (mode) {
             AltTextLayoutMode.DirectionalUpTopRight,
@@ -1106,6 +1113,7 @@ class AltTextKeyView(
             AltTextLayoutMode.DirectionalCorners -> applyDirectionalCornersAltTextPosition()
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
+        return true
     }
 
     fun refreshAltTextLayout() {
@@ -1138,9 +1146,7 @@ class AltTextKeyView(
         applyLayout()
     }
 
-    override fun onAppearanceLayoutChanged(width: Int, height: Int) {
-        applyLayout(height)
-    }
+    override fun onAppearanceMeasured(width: Int, height: Int): Boolean = applyLayout(height)
 
     override fun updateTheme(newTheme: Theme) {
         super.updateTheme(newTheme)
@@ -1716,9 +1722,9 @@ class ImageAltTextKeyView(
         }
     }
 
-    private fun applyLayout(keyHeight: Int = appearanceView.height) {
+    private fun applyLayout(keyHeight: Int = appearanceView.height): Boolean {
         val mode = resolveLayoutMode(keyHeight)
-        if (mode == lastLayoutMode) return
+        if (mode == lastLayoutMode) return false
         lastLayoutMode = mode
         val keepDirectionalLabel = when (mode) {
             AltTextLayoutMode.DirectionalUpTopRight,
@@ -1742,6 +1748,7 @@ class ImageAltTextKeyView(
             AltTextLayoutMode.DirectionalCorners -> applyDirectionalCornersAltTextPosition()
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
+        return true
     }
 
     fun refreshAltTextLayout() {
@@ -1775,9 +1782,7 @@ class ImageAltTextKeyView(
         applyLayout()
     }
 
-    override fun onAppearanceLayoutChanged(width: Int, height: Int) {
-        applyLayout(height)
-    }
+    override fun onAppearanceMeasured(width: Int, height: Int): Boolean = applyLayout(height)
 
     override fun updateTheme(newTheme: Theme) {
         super.updateTheme(newTheme)
