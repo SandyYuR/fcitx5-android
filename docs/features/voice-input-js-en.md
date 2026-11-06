@@ -4,6 +4,8 @@ docKind: reference
 
 # Foxy JavaScript Plugin Reference
 
+In the current 中州鹅 settings UI, ordinary service fields, credentials, and permissions appear in separate groups. Conditional visibility and dependent defaults still follow the plugin declaration. The credential count reports saved state for visible fields; it does not verify a remote service or expose credential values.
+
 ::: info Source and compatibility
 This is the updated **Foxy JavaScript Plugin Reference** supplied as `js-plugin-README.md`, replacing the older voice-only guide.
 It describes Foxy's API, rather than a promise that every API is implemented in 中州鹅.

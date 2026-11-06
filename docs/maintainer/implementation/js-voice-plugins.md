@@ -11,6 +11,9 @@
 - `foxy.app.register` 注册 App；`features` 可以为空，App 不会加入语音服务列表。App 能力与网络主机分别授权，可在插件设置撤销。
 - App 回调收到 `event`、`values`、`appId`、`command`、`settings`、普通设置顶层别名及已配置的密钥字段 ID。按钮和下拉选择使用控件 ID 作为事件名，主流程按次序执行。
 - 支持 `column`、`row`、`text`、`input`、`select`、`button`、`spacer`。标签默认在左侧，`labelPlacement: "top"` 放上方；字段的 `height` 只计控件，不计标签。`input.readOnly: true` 允许选择、复制和滚动，但不接收键盘输入。
+- 本地界面扩展 `header` 与 `actions`：根 `column` 首部的 `header` 和末尾的 `actions` 固定在滚动正文两侧；空间过矮时整块滚动，切换只移动现有视图。`actions` 只接收按钮，并按完整按钮换行；旧 `row` 表单仍按原结构显示。
+- 按钮 `style` 可为 `filled`、`tonal`、`text` 或默认描边。`icon` 仅接受内置 `assistant`、`close`、`send`、`check`；`iconOnly` 保留文字作为无障碍说明，未知图标回退文字。文本可用 `tone: "error"`、`maxLines`（1–8）与 `description`（长按说明，最多 600 字符）。这些是中州鹅的界面扩展，不表示原版 Foxy 提供相同字段。
+- 原生界面通过 `SettingsUiPreferences.themedContext` 复用主界面颜色角色，包含深浅色、Monet、手动色板和纯黑。图标来自受限应用资源，不接受脚本提供的外部图片路径；界面样式不改变原有事件 ID、能力权限或输入连接归属。
 - 支持 `foxy.ui.dialog.show/update/setValue/setEnabled/setLoading/setError/close`。面板不抢原应用焦点、无背景遮罩，可拖动，键盘通过本地输入连接编辑助手文本框；`foxy.editor.*` 始终操作打开助手前捕获的应用编辑框。输入会话失效时拒绝后续写入并取消运行。
 - `foxy.editor.getSelection/getText/setComposition/clearComposition/commit` 分别核对相应能力。预览取消时恢复原选中文本；只有 `commit` 正式上屏。`credentials.list` 和 `context.configuredSecrets` 仅提供已配置的字段 ID，不提供密钥。
 - `foxy.http.request` 支持 GET、POST、PUT、PATCH、DELETE，返回 JSON 字符串形式的状态、头和正文。`credential`、`authHeader`、`authPrefix` 让宿主注入密钥，JS 不持有明文。请求体限制 1 MiB、响应限制 2 MiB，禁止自动重定向和覆盖传输头。
