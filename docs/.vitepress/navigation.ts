@@ -97,6 +97,7 @@ const maintenance = [
   ] },
   { text: '代码与文档对照', collapsed: false, items: [
     { text: '远端重放与功能复核 · 2026-11-06', link: '/maintainer/changes/2026-11-06-remote-review' },
+    { text: '界面一致性复核 · 2026-11-06', link: '/maintainer/changes/2026-11-06-ui-consistency' },
     { text: '本地复核与构建 · 2026-11-05', link: '/maintainer/changes/2026-11-05-local-review' },
     { text: '远端核对 · 2026-11-05', link: '/maintainer/changes/2026-11-05' },
     { text: '现行功能与源码入口', link: '/maintainer/changes/feature-coverage' },
@@ -107,6 +108,7 @@ const maintenance = [
   { text: '现行实现协议', collapsed: false, items: [
     { text: '协议索引', link: '/maintainer/implementation/' },
     { text: '正确性约束与代码定位', link: '/maintainer/implementation/correctness-contracts' },
+    { text: '界面设计与共用组件', link: '/maintainer/implementation/design-system' },
     { text: 'JS 语音宿主与插件 API', link: '/maintainer/implementation/js-voice-plugins' },
     { text: 'ClipCascade 接收限额', link: '/maintainer/implementation/clipcascade-receive-limits' },
     { text: '自定义 hosts 下载', link: '/maintainer/implementation/hosts-downloads' },

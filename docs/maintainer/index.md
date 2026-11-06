@@ -16,6 +16,7 @@
 | 更新 librime、插件、依赖与 Android SDK | [完整更新与回退流程](/maintainer/engine-update) → [SDK 配方说明](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/README.zh-CN.md) |
 | 核对默认分支功能与文档 | [远端重放与功能复核](/maintainer/changes/2026-11-06-remote-review) → [前轮本地复核](/maintainer/changes/2026-11-05-local-review) → [现行功能源码表](/maintainer/changes/feature-coverage) |
 | 开发语音插件或外部提供方 | [JS 宿主协议](/maintainer/implementation/js-voice-plugins) · [AIDL 接入入口](/features/voice-input) |
+| 统一页面、编辑器与辅助面板外观 | [界面设计与共用组件](/maintainer/implementation/design-system) |
 | 维护同步、下载、备份与恢复 | [现行实现协议](/maintainer/implementation/) |
 | 查输入链路、候选和性能的由来 | [直连版历史阅读路线](/maintainer/history/) |
 | 找截图、日志、JSON、测试结果和 ZIP | [验证证据目录](/maintainer/evidence)；附件保留在对应报告目录 |

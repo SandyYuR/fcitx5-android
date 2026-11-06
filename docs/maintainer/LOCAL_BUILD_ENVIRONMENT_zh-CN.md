@@ -9,6 +9,8 @@ CI 用的是 GitHub 托管的 Ubuntu，与这里无关；下面的路径是作�
 
 工作区根的 `tools-env.ps1` 统一设置当前进程的工具 PATH、Java、Android、NDK、宿主编译器和缓存目录。构建脚本会自动加载；手动调用前先 `. .\tools-env.ps1`。**不要另改系统级环境**：
 
+模拟器还读取 `ANDROID_EMULATOR_HOME`，不能只设置 `ANDROID_USER_HOME`；脚本把两者指向 `D:/GitHub/tools/android-home`，AVD 指向 `D:/GitHub/tools/android-avd`。否则新模拟器仍可能向 C 盘的 `.android` 写缓存和锁。SDK 安装完成不代表虚拟设备可用，实际 UI 验证还要检查设备上线与截图，不能用组件渲染图代替。
+
 Kotlin 编译服务的运行标记也在 `D:/GitHub/tools/kotlin-daemon`。环境脚本通过进程级 `GRADLE_OPTS` 设置 `kotlin.daemon.options=runFilesPath=...`，避免仍向旧 C 盘 `AppData/Local/kotlin/daemon` 写入并反复回退编译。不要把这种环境失败当作业务测试结论。
 
 ```powershell

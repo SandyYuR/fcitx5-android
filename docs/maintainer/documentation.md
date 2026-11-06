@@ -36,6 +36,8 @@
 
 新增现行功能页时同步 `maintainer/changes/feature-coverage.md` 的源码入口；目录检查会逐页验证映射。门禁分别报告固定基线的映射数量与当前功能页数量，不把旧报告中的计数当作现状。
 
+视觉规范的简明入口为代码分支根 `DESIGN.md`，详细组件说明放在[界面设计与共用组件](/maintainer/implementation/design-system)。截图区分组件渲染、模拟器与真机；色板示例不代表每位用户的实际外观设置。
+
 ```sh
 npm --prefix docs ci
 npm --prefix docs run build
