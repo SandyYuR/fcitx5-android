@@ -50,6 +50,7 @@ jobs:
           python3 docs/scripts/check-links.py
           python3 docs/scripts/check-legacy-docs.py
           node docs/scripts/check-doc-catalog.mjs
+          node docs/scripts/check-doc-search.mjs
 
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'

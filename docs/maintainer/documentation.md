@@ -34,17 +34,24 @@
 4. 页面改名时保留旧地址跳转，更新站内链接；原始日志、ZIP 与 JSON 不因整理目录丢弃。
 5. 运行下面的门禁并检查真实页面。
 
+新增现行功能页时同步 `maintainer/changes/feature-coverage.md` 的源码入口；目录检查会逐页验证映射。门禁分别报告固定基线的映射数量与当前功能页数量，不把旧报告中的计数当作现状。
+
 ```sh
 npm --prefix docs ci
 npm --prefix docs run build
 python docs/scripts/check-links.py
 python docs/scripts/check-legacy-docs.py
 node docs/scripts/check-doc-catalog.mjs
+node docs/scripts/check-doc-search.mjs
 git diff --check
 ```
 
 目录由构建自动生成；`docs/.vitepress/generated/` 不提交。新增文件后重新运行构建或重启 dev，使目录重新收录。
 `copy-downloads.mjs` 负责把 Markdown 引用的非页面附件按原相对地址发布，不能仅以 VitePress 编译成功判断附件存在。
+
+搜索的索引构建与浏览器查询共用 `.vitepress/search-shared.mjs` 的切词规则，支持中文词组出现在句子中间以及“宏”等单字查询。构建后从 VitePress 的真实索引派生现行索引，默认仅下载该小索引；勾选历史时才加载全集。索引分批恢复，保持加载期间的操作响应。现行功能覆盖表继续参与默认检索；固定日期的核对报告、提交索引、历史证据与上游参考需勾选后查看。目录分组和页面上下文也使用相同的历史分类，不改历史原文。
+
+修改搜索后运行 `check-doc-search.mjs`：它读取实际发布索引，检查中文功能词、英文 SDK 查询、现行覆盖表和历史范围；还需检查桌面/手机上的检索、方向键、Enter、Esc 与焦点恢复。
 
 ## Windows 预览
 
