@@ -47,6 +47,8 @@ JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果
 
 `RimeSyncUserData` 的返回值表示是否启动维护线程。`Engine::sync` 等待线程后，还必须确认本次请求收到成功完成通知；失败在同次维护中保持有效，后续成功通知不能覆盖它，下一次请求则重新计数。原生同步会清理 session，不能继续复用旧句柄。运行时 `save()` 走相同维护门控；引擎未启动时跳过 native 同步，使已有用户文件仍可导出。真正复制备份时仍须通过下方停写入口，不能把同步成功当作停写完成。
 
+会话销毁后，Lua 的 `Memory` 对象可能尚未回收，仍占用 LevelDB。同步维护先通过 `stop` / `initialize(false)` 释放模块与词库资源，再发起同步；不重跑进程级 `setup`，也不强制重编方案。初始化失败时不能继续同步并覆盖错误；`PluginSdkSmokeTest` 实际覆盖 Lua 已学习词条的同步与重启读取。
+
 ## 首次解锁前启动
 
 `FcitxApplication.onCreate` 的所有设置初始化使用已选择的 `directBootAwareContext`。DE Context 的外部文件目录仍可能受凭据保护，`DirectRimeConfig` 在此模式只使用 DE 内部文件目录中的独立空 profile。解锁后的 `DirectBootLayoutSync` 在 IO worker 中把当前布局同步为固定的 DE 快照，锁屏时由 `DefaultConfigProvider` 读取，不扫描 CE 或外部目录。字体、图标资源和旧 CE 资产清理等待解锁；不把用户方案、词库、剪贴板历史或密钥搬到 DE。
@@ -66,6 +68,8 @@ JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果
 - Debug 与 Release 的包名隔离属于迁移约定。文件图标的真实位置是 `input/config/ButtonIconFile.kt`，主题文件管理在 `data/theme/ThemeFilesManager.kt`。
 
 完整事务见[整包恢复](./user-data-restore)与[加密备份](./protected-backup-format)。
+
+用户词典枚举通过 `ListUserDictNames` 跳过恢复流程保留的 `.temp` 名称；不删除目录、不扩大到全部隐藏词典。状态栏入口用 `activateStatusAreaAction` 接住同步／部署异常并显示提示；底层 `save()` 仍传播失败，不能让备份把失败当成功。
 
 ## 键盘形态与渲染
 
@@ -109,12 +113,16 @@ JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果
 
 主题预览监听与后台图片任务绑定视图生命周期；网格间距读取当前列数。预测性返回开关恢复默认时，以旧值和目标值是否不同决定是否重建宿主，不能假定默认值永远为 true。
 
+主题网格的上下边距与行间距独立固定为 16 dp，不沿用按列宽算出的左右留白；单列和旋转都由 `ThemeGridResizeTest` 检查，仍须核对设备画面。
+
 设置项搬家时同批修改 `SettingsGroupSpecs.kt`、承载页与 `SettingsSearchIndex.kt` 的 route/面包屑；新增项同步当前已有语言资源。`SettingsSearchIndexCoverageTest` 用于检查搜索覆盖。大资源文件用精确补丁插入/修改，不整文件读写重建。
 
 主题“外观模式”的历史回退决定仍生效；只有用户明确要求重做，才重新评估数据迁移与主题切换耦合。
 `normal_mode_theme` 不能加入 `ThemePrefs.dayNightModePrefNames`；未确认不把已存的 `follow_system_dark_mode` 布尔值改成三态。
 
 ## 语音与网络
+
+更新器下载前通过 `UpdateDownloadStore` 核对明确的下载 ID／URI；只有文件内容与当前已安装 base APK 的 SHA-256 相同才可清理对应自有下载。安装回调不是成功依据，未知归属、内容变化、未安装或无摘要且发行身份不符的包不能删除或误复用。核对和摘要计算在 IO 线程，不能进入输入热路径。
 
 AIDL 与 JS 复用会话和录音链路，密钥、主机授权、回调预算、stub/prelude 一致性都保持[JS 宿主协议](./js-voice-plugins)的约束。
 远端剪贴板和语音缓冲可以有独立资源预算，但不能把它们的过载策略照搬到按键/提交事件上。

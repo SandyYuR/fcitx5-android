@@ -4,7 +4,7 @@
 
 ## 两条链路
 
-2026-11-06 的固定版本为 `android-sdk-20261106-1`：官方基线 `2bae6b59b5ebbf2a8af7ffae5b22fbf090f91841`，定制源码 `78d009bab9eb7867dc4e5337c8569d13948ca1eb`，SDK SHA-256 `4f21a79b9c26d04ca77750742fa32557ed00562f46cc232a944d2fbea9f4c893`。本轮合入编译内存和安装节点恢复两项上游改动，将 13 条下游提交按职责整理为 10 条；依赖锁未再次前移。逐项核对与应用修复见[本轮记录](changes/2026-11-06-engine-input-fixes.md)。实际消费版本仍以应用锁文件为准。
+2026-11-07 的固定版本为 `android-sdk-20261107-1`：官方基线 `2bae6b59b5ebbf2a8af7ffae5b22fbf090f91841`，定制源码 `483ffbca5fdfa8a13698d28085e3154d48e435b3`，SDK SHA-256 `27667a75515809199ee681321c54cb90b04afe29faa97bec116b5aad22e04459`。本次修复恢复临时库被误当作普通词典参与同步的问题，插件、依赖锁和构建配方保持上一 SDK 的版本。交付与回归见[设备反馈修复](changes/2026-11-06-device-fixes.md)；上一轮官方源码同步见[2026-11-06 引擎记录](changes/2026-11-06-engine-input-fixes.md)。实际消费版本仍以应用锁文件为准。
 
 构建与发布：
 
@@ -182,9 +182,9 @@ git push origin refs/tags/android-sdk-20261105-2
 ./gradlew --no-daemon -p build-logic :convention:test --tests RimeSdkArchiveTest
 ```
 
-3. 检查 APK 原生白名单、链接贡献和所用 SDK 来源；按变更运行设备回归。`PluginSdkSmokeTest` 联合检查 Lua 翻译器、Memory 用户词库、OpenCC 和关闭重启后的持久化。
+3. 检查 APK 原生白名单、链接贡献和所用 SDK 来源；按变更运行设备回归。`PluginSdkSmokeTest` 联合检查 Lua 翻译器、Memory 用户词库、OpenCC、残留 `.temp.userdb` 下的真实同步及关闭重启后的持久化。`Direct Rime CI` 对 JVM 和设备报告运行 `tools/check-junit-results.py`，要求实际执行且失败、错误、跳过均为零，并上传 XML 供核对；编译成功不能替代这些运行结果。
 4. Linux 上可运行 `python3 tools/input-perf/test-leveldb-open.py build/leveldb-check`，它读取已准备 SDK 的来源清单，测试同版本 LevelDB 的日志复用、持久化、显式同步和恢复。若以后新增 LevelDB 补丁，需同步让探针应用并验证补丁。
-5. 输入法的依赖升级单独提交，正常推送默认分支 `fx-rime-only`。默认 Commit CI 构建签名 ARM64 Release、运行单元测试和 SDK 下载器测试；Nightly 等待构建与测试成功后发布。
+5. 输入法的依赖升级单独提交，正常推送默认分支 `fx-rime-only`。默认 Commit CI 构建签名 ARM64 Release、运行单元测试和 SDK 下载器测试；单元报告必须实际执行且无失败、错误、跳过，Nightly 等待构建与测试门禁成功后发布。
 
 引擎 SDK 支持四 ABI，不等于主应用默认 CI 打包四 ABI。`Direct Rime CI` 的 `engine-smoke` 只运行引擎设备检查，其余三个诊断任务会跳过；全量前端触摸、真机锁屏、语音服务等需要分别选择相应验证。
 
