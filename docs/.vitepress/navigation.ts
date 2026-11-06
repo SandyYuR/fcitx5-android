@@ -96,6 +96,7 @@ const maintenance = [
     { text: '文档维护与分类约定', link: '/maintainer/documentation' },
   ] },
   { text: '代码与文档对照', collapsed: false, items: [
+    { text: '提交分类整理 · 2026-11-07', link: '/maintainer/changes/2026-11-07-history-squash' },
     { text: '引擎同步与输入修复 · 2026-11-06', link: '/maintainer/changes/2026-11-06-engine-input-fixes' },
     { text: '远端重放与功能复核 · 2026-11-06', link: '/maintainer/changes/2026-11-06-remote-review' },
     { text: '界面一致性复核 · 2026-11-06', link: '/maintainer/changes/2026-11-06-ui-consistency' },

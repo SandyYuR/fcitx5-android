@@ -1,0 +1,584 @@
+{
+  "date": "2026-11-07",
+  "branch": "fx-rime-only",
+  "start_inclusive": "8fffbcb639a491afc964fd9ed22d722d58faf51b",
+  "unchanged_parent": "7cb141aa1e9ebf110e6a8a7e4059fb2095209989",
+  "old_tip": "f4d23687cf759b371b455b02d3958df72427d6dc",
+  "new_tip": "646b450a9788109ef50a65214b10611a87316cd0",
+  "tree": "44ff9a39ba54e84d4e46ef62be789da345c14977",
+  "old_commits": 28,
+  "new_commits": 7,
+  "identical_final_tree": true,
+  "real_index_unchanged": true,
+  "tags_unchanged": true,
+  "candidate_ref": "refs/heads/review/history-squash-20261107",
+  "backup_ref": "refs/heads/backup/history-squash-20261107-f4d23687",
+  "force_lease": "refs/heads/fx-rime-only:f4d23687cf759b371b455b02d3958df72427d6dc",
+  "groups": [
+    {
+      "sha": "a01412df0a3675ccf7c2561bbf9bb402625ed8ff",
+      "tree": "ce848dfbfb7e490d83af1d296cae1c1de11e81f2",
+      "key": "ai-assistant",
+      "title": "新增(AI助手): 接入三种文本协议与安全浮动编辑",
+      "body": [
+        "增加可配置到工具栏和状态区的 AI 助手入口，复用 JS 插件设置、导入、密钥存储与图标主题。内置文本助手支持简答、润色、纠错、语气调整和翻译等用途，接入 Chat Completions、Anthropic Messages 与 OpenAI Responses 三种非流式文本协议。",
+        "API 地址默认留空；宿主从用户配置的 HTTPS 端点提取主机，单独取得插件授权后才注入加密保存的密钥。禁止覆盖传输主机头和自动跟随重定向，撤销授权或移除端点后不能沿用旧许可。",
+        "浮动面板支持拖动、键盘避让、下拉和滚动，本地输入连接与原应用连接分开。回复先预览再确认上屏；输入或配置变化使旧回复失效，取消恢复选中文本，过期编辑器拒绝写入。完善退格、Unicode 删除、光标移动、预编辑和忙碌状态的输入隔离。",
+        "检查截断、拒绝、未完成与工具调用等结束状态；网络重试使用可取消休眠，并遵守每组生成 60 秒、回调总计 180 秒的预算。升级内置脚本时保留设置和密钥，整理 Material Symbols 图标许可。",
+        "保留三协议、动态端点、真实 QuickJS 回调、模拟 HTTP、输入连接、浮动面板与编辑器会话保护等回归。"
+      ],
+      "original_commits": [
+        {
+          "sha": "8fffbcb639a491afc964fd9ed22d722d58faf51b",
+          "subject": "新增(输入法): 接入可移动 AI 助手与三种文本接口协议",
+          "author": "润泽 余 <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-05T11:03:38Z",
+          "files": [
+            "README.md",
+            "app/src/main/assets/bundled/js-apps/llm-assistant.js",
+            "app/src/main/assets/bundled/js-apps/llm-assistant.json",
+            "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconTheme.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/action/ButtonAction.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDialog.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppEditor.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppEndpointPolicy.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppHttp.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppInputConnection.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppPanelLayout.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsApps.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceHeaders.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceImporter.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoicePluginMeta.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoicePrelude.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceProviders.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/group/SettingsGroupSpecs.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchIndex.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/voice/JsVoicePluginSettingsFragment.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/voice/JsVoicePluginsFragment.kt",
+            "app/src/main/res/drawable/ic_auto_awesome_24.xml",
+            "app/src/main/res/values-de/strings_feature_coverage.xml",
+            "app/src/main/res/values-es/strings_feature_coverage.xml",
+            "app/src/main/res/values-ja/strings_feature_coverage.xml",
+            "app/src/main/res/values-ko/strings_feature_coverage.xml",
+            "app/src/main/res/values-ru/strings_feature_coverage.xml",
+            "app/src/main/res/values-zh-rCN/strings.xml",
+            "app/src/main/res/values-zh-rCN/strings_js_apps.xml",
+            "app/src/main/res/values-zh-rTW/strings.xml",
+            "app/src/main/res/values-zh-rTW/strings_js_apps.xml",
+            "app/src/main/res/values/strings.xml",
+            "app/src/main/res/values/strings_js_apps.xml",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppBundledProviderTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppContractTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDialogAppearanceTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDialogTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppEditorTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppEndpointPolicyTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppFloatingPanelTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppHttpTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppKeyboardEditingTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppProtocolsTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppWorkflowTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceHeadersTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/ui/main/SettingsEntryNavigationTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/ButtonsCustomizerAiButtonTest.kt",
+            "docs/material-symbols-LICENSE.txt"
+          ]
+        },
+        {
+          "sha": "575bbdd264bb884556909db1f82b744f4d938c3f",
+          "subject": "修复(AI助手): 检查回复完整性并限制网络重试",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T08:49:53+08:00",
+          "files": [
+            "app/src/main/assets/bundled/js-apps/llm-assistant.js",
+            "app/src/main/assets/bundled/js-apps/llm-assistant.json",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDelay.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppHttp.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsApps.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceInputProvider.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoicePrelude.kt",
+            "app/src/main/res/drawable/ic_auto_awesome_24.xml",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppBundledProviderTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppContractTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppHttpTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppProtocolsTest.kt",
+            "artwork/material-symbols-LICENSE.txt",
+            "docs/material-symbols-LICENSE.txt"
+          ]
+        }
+      ]
+    },
+    {
+      "sha": "7a5291ee053729b167ab9823b5dcb43d3acea163",
+      "tree": "9ca84c36062448adbe170ce99688ed02c4fdd7c6",
+      "key": "keyboard-compatibility",
+      "title": "修复(兼容): 完善键盘标签、锁屏回退与图标升级",
+      "body": [
+        "在测量阶段根据可用键高选择副标签位置，模式变化时补测一次，使短数字键、图标键和复用键的首次布局立即使用正确约束；稳定模式不增加测量轮次。",
+        "锁屏密码布局仅含占位键时继续尝试下一候选或内置 QWERTY，避免选中没有交互按键的布局。",
+        "按上一版真实文件字节数恢复内置谷歌图标主题的存量升级；只重试仍存在且未改动的旧原版，继续保护用户修改和主动删除。使用真实旧图标 JSON 固定回归输入。",
+        "明确符号目录 multiLine 是兼容字段，当前显示契约仍为单行等比缩放。保留 Android 9/15 标签排版、首次解锁前启动及预设迁移回归。"
+      ],
+      "original_commits": [
+        {
+          "sha": "297184cfee1a234baa2bf8060f0878ed864ca572",
+          "subject": "修复(键盘): 在测量阶段完成短按键副标签回退",
+          "author": "润泽 余 <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-05T17:01:52Z",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/AltLabelLayoutTimingTest.kt"
+          ]
+        },
+        {
+          "sha": "862571a4f2089ede77e985b5e5f0880656ce9bb2",
+          "subject": "修复(锁屏): 跳过仅含占位键的密码布局",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T08:49:51+08:00",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/DirectBootStartupTest.kt"
+          ]
+        },
+        {
+          "sha": "14875a1fc3c4581a8e1b3077de067f1e3d2f1ff7",
+          "subject": "修复(图标): 恢复内置谷歌主题的存量升级",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T08:49:52+08:00",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/data/BundledPresets.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/data/BundledPresetsUpgradeTest.kt",
+            "app/src/test/resources/bundled/.gitattributes",
+            "app/src/test/resources/bundled/README.md",
+            "app/src/test/resources/bundled/google-icon-theme-before-20261103.json"
+          ]
+        },
+        {
+          "sha": "ae4a13438be015c7546fce0060c96c140e3c4ab6",
+          "subject": "文档(符号): 明确目录兼容字段与单行渲染约定",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T08:49:53+08:00",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/input/picker/SymbolCatalog.kt"
+          ]
+        }
+      ]
+    },
+    {
+      "sha": "4f96342ba2dd4c390e0c354864a43fc506d6e9e8",
+      "tree": "15ef79855825c59ef5a68e12f939b288c84c55dd",
+      "key": "material-ui",
+      "title": "优化(界面): 统一设置与浮动面板并精简主题布局",
+      "body": [
+        "设置、编辑器和辅助面板共用 Material 控件、颜色角色与 WrappingActionRow。键盘取色的独立 Context 先应用完整 Settings 基础主题，再覆盖颜色，修复 AI 输入框创建失败；旧 Android 光标配色使用版本保护，并补齐现有语言资源。",
+        "AI 面板在常规空间固定标题和操作区，正文滚动；极短窗口整体滚动，切换布局保留草稿和输入连接。剪贴板条目及工具栏长按编辑复用 IME 浮动面板，减少 Activity 切换；确认写入由应用持有，复制等待保存成功，失败保留草稿，取消不保存。",
+        "主题卡片使用单行名称和紧接的一行操作，图标视觉高度 32 dp、触摸范围 48 dp；随机与编辑按钮共用底栏。按名称保持当前及日夜选择，裁剪预览内容；纵向边距与行距独立固定为 16 dp，避免窄屏单列出现大块空白。",
+        "布局管理首次仅展开启用项，保留页面内的手动展开状态，收起后由整张标题卡片绘制高亮。插件设置按普通参数、密钥和授权分组，保留依赖与可见条件；备份、导入、恢复和下载只展示真实任务阶段，恢复进程只读取资源主题。",
+        "同步 DESIGN.md，保留浅深色、字号缩放、RTL、实际触摸、主题列表旋转、剪贴板输入与保存事务等回归。"
+      ],
+      "original_commits": [
+        {
+          "sha": "cbc537b7e05032dc5f7c9d36bb84845ab8d2b4b8",
+          "subject": "优化(界面): 统一控件样式与剪贴板布局",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T14:05:14+08:00",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEntryUi.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/common/MaterialSpinner.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/common/OperationStatusView.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/common/WrappingActionRow.kt",
+            "app/src/main/res/layout/activity_clipboard_edit.xml",
+            "app/src/main/res/layout/activity_update_hosts.xml",
+            "app/src/main/res/layout/activity_update_mirror_edit.xml",
+            "app/src/main/res/layout/dialog_server_profile.xml",
+            "app/src/main/res/layout/dialog_storage_location.xml",
+            "app/src/main/res/layout/dialog_sync_account.xml",
+            "app/src/main/res/layout/dialog_test_push.xml",
+            "app/src/main/res/values-de/strings_ui_polish.xml",
+            "app/src/main/res/values-es/strings_ui_polish.xml",
+            "app/src/main/res/values-ja/strings_ui_polish.xml",
+            "app/src/main/res/values-ko/strings_ui_polish.xml",
+            "app/src/main/res/values-ru/strings_ui_polish.xml",
+            "app/src/main/res/values-zh-rCN/strings_ui_polish.xml",
+            "app/src/main/res/values-zh-rTW/strings_ui_polish.xml",
+            "app/src/main/res/values/strings_ui_polish.xml",
+            "app/src/main/res/values/styles_keyboard_editor.xml",
+            "app/src/main/res/values/styles_settings_controls.xml",
+            "app/src/main/res/values/themes.xml"
+          ]
+        },
+        {
+          "sha": "6eed4842aec58b01f387ceee81351b616661b3e5",
+          "subject": "优化(AI助手): 统一配色并固定面板操作区",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T14:05:17+08:00",
+          "files": [
+            "app/src/main/assets/bundled/js-apps/llm-assistant.js",
+            "app/src/main/assets/bundled/js-apps/llm-assistant.json",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppActionRow.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDialog.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppBundledProviderTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppContractTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDialogAppearanceTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDialogTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppFloatingPanelTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppWorkflowTest.kt"
+          ]
+        },
+        {
+          "sha": "f45ce56c963d4d4fd1cb0d76887ce84db77fcdaa",
+          "subject": "优化(设置): 收紧主题卡片并完善插件及任务反馈",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T14:05:18+08:00",
+          "files": [
+            "DESIGN.md",
+            "README.md",
+            "app/src/main/AndroidManifest.xml",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/DataBackupFragment.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/UserDataRestoreActivity.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/im/RimeImportActivity.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/NewThemeEntryUi.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ResponsiveThemeListView.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/SimpleThemeListAdapter.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeListAdapter.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeThumbnailUi.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/voice/JsVoicePluginSettingsFragment.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/voice/JsVoicePluginsFragment.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateAssetAdapter.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt",
+            "app/src/main/res/drawable/ic_settings_download.xml",
+            "app/src/main/res/drawable/ic_settings_retry.xml",
+            "app/src/main/res/layout/activity_update_check.xml",
+            "app/src/main/res/layout/item_update_asset.xml",
+            "app/src/test/java/org/fcitx/fcitx5/android/ui/main/PluginSettingsUiTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/ui/main/SettingsUiPolishTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/RestoreUiThemeTest.kt"
+          ]
+        },
+        {
+          "sha": "3b341c09bc5cc21c4ada49f2966a7254ef5b1abc",
+          "subject": "修复(兼容): 保护旧版光标配色并补齐AI助手翻译",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T21:14:35+08:00",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDialog.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppPanelLayout.kt",
+            "app/src/main/res/values-de/strings_js_apps.xml",
+            "app/src/main/res/values-es/strings_js_apps.xml",
+            "app/src/main/res/values-ja/strings_js_apps.xml",
+            "app/src/main/res/values-ko/strings_js_apps.xml",
+            "app/src/main/res/values-ru/strings_js_apps.xml"
+          ]
+        },
+        {
+          "sha": "576c1be9a9d31ebcf8f3c6af06b6f53bd402f31d",
+          "subject": "修复(浮动编辑): 保留取色主题并在键盘内编辑剪贴板",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T00:30:28+08:00",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/data/theme/SettingsKeyboardColors.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditor.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardWindow.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDialog.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditorPanelTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDialogAppearanceTest.kt"
+          ]
+        },
+        {
+          "sha": "8eeda69f562af16a53c5f964e9120dd946ff1521",
+          "subject": "修复(布局主题): 修正折叠高亮并收紧随机主题操作区",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T00:30:32+08:00",
+          "files": [
+            "DESIGN.md",
+            "README.md",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutProfileManagerActivity.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ResponsiveThemeListView.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/SimpleThemeListAdapter.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeCardDetails.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeThumbnailUi.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/ui/main/SettingsUiPolishTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/LayoutProfilePresentationTest.kt"
+          ]
+        },
+        {
+          "sha": "850154085a5b45c039bdfc1870019e3b9e016130",
+          "subject": "修复(主题): 保持窄屏和旋转后的网格纵向间距",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T01:24:12+08:00",
+          "files": [
+            "DESIGN.md",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ResponsiveThemeListView.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeListItemDecoration.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeGridResizeTest.kt"
+          ]
+        }
+      ]
+    },
+    {
+      "sha": "5b48a5685aaf0a479ecbd1b30d72f768281ef0db",
+      "tree": "9e57d8c776354515cf7512d4ef5c75e1d61574ea",
+      "key": "input-correctness",
+      "title": "修复(输入): 绑定候选快照并校正预编辑与方案状态",
+      "body": [
+        "候选记录生成时的原始序号和版本，横向、展开和浮动点选统一进入既有串行队列，在 native owner 上复查。相同文字刷新目标信息，组合变化时重载展开列表，避免点击旧候选或混用两次组合。",
+        "将只读展示刷新与原始编码光标移动分开。真实光标交互才读取 raw input，并校验编辑器代次和预编辑文本；明确 UTF-16、Unicode 码点及 UTF-8 坐标，无法唯一映射时恢复引擎位置，刷新不重放提交。",
+        "对同代次、未处理且展示无变化的结果有界复用 JNI 字符串和数组，继续创建新快照并清空 commit；缓存限制为一份、64 KiB 文本和 1024 个数组字符串，维护及停止时清理，不改输入副作用事件的顺序。",
+        "方案菜单按引擎动作的勾选状态确定当前方案，避免把西文或密码直接输入标记误判为方案。保留候选队列、光标映射、展示复用及 Android 输入回归。"
+      ],
+      "original_commits": [
+        {
+          "sha": "9938df80465269eab07a2fbc7ef534952f23c80e",
+          "subject": "修复(候选): 绑定显示版本并统一候选点选队列",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T16:39:03+08:00",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/core/CandidateActionContext.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/core/CandidateWord.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/core/FcitxAPI.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/CandidatesView.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateViewHolder.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/expanded/ExpandedCandidateRefresh.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/expanded/window/BaseExpandedCandidateWindow.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/floating/PagedCandidatesUi.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateViewAdapter.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/core/CandidateSelectionQueueTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/expanded/ExpandedCandidateRefreshTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt"
+          ]
+        },
+        {
+          "sha": "d07b3c6bc7376929dd72c81fd5841caa8818c407",
+          "subject": "修复(预编辑): 分离展示刷新与原始光标移动",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T18:09:53+08:00",
+          "files": [
+            "app/proguard-rules.pro",
+            "app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/core/FcitxAPI.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/core/PreeditCursorMapping.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/core/CandidateSelectionQueueTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/core/NativeTestShadow.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/core/PreeditCursorMappingTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/core/ReadOnlyPresentationTest.kt",
+            "direct-rime/src/androidTest/java/org/fcitx/directrime/DirectRimeSmokeTest.kt",
+            "direct-rime/src/engine/java/org/fcitx/directrime/Snapshot.kt",
+            "direct-rime/src/main/cpp/bridge.cpp",
+            "direct-rime/src/main/cpp/engine.cpp",
+            "direct-rime/src/main/cpp/engine.h",
+            "direct-rime/src/main/cpp/engine_test.cpp",
+            "direct-rime/src/main/java/org/fcitx/directrime/RimeRuntime.kt"
+          ]
+        },
+        {
+          "sha": "ed158ba5db48e545021e3928ac0e238ada1a33b6",
+          "subject": "优化(输入): 有界复用无变化的JNI展示数据",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T18:50:19+08:00",
+          "files": [
+            "app/src/test/java/org/fcitx/fcitx5/android/core/ReleaseSnapshotTest.kt",
+            "direct-rime/src/androidTest/java/org/fcitx/directrime/DirectRimeSmokeTest.kt",
+            "direct-rime/src/engine/java/org/fcitx/directrime/Snapshot.kt",
+            "direct-rime/src/main/cpp/bridge.cpp",
+            "direct-rime/src/main/cpp/engine.cpp",
+            "direct-rime/src/main/cpp/engine.h",
+            "direct-rime/src/main/cpp/engine_test.cpp"
+          ]
+        },
+        {
+          "sha": "62d2c554f8cd239f004c25fe57ebebc1dc0ef60b",
+          "subject": "修复(方案菜单): 按引擎勾选状态显示当前方案",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T19:40:57+08:00",
+          "files": [
+            "app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/dialog/RimeSchemaMenuDialog.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/manager/SubModeManager.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/manager/SubModeSchemaLabelsTest.kt"
+          ]
+        }
+      ]
+    },
+    {
+      "sha": "397d9d3b8f67ac27e4583a2f16708b9828028189",
+      "tree": "047faf9d3b5ee9bae0c44a6e1fc3c7efd79aed8f",
+      "key": "engine-sdk-sync",
+      "title": "更新(引擎): 固定四ABI SDK并完善本地开发与词典同步",
+      "body": [
+        "消费端锁定 android-sdk-20261107-1，源码 483ffbca、官方基线 2bae6b59，保留四 ABI 与最终 Release 包摘要。该 SDK 精确排除恢复流程保留的 .temp 临时库，不扩大到其他隐藏词典，不在枚举时删除用户文件。",
+        "允许通过显式 localRimeSdkDir 接入带 development 标记、源树、ABI 和逐文件摘要的本地开发 SDK；仅 Debug 可使用，Release 拒绝开发输入，正式锁和发行缓存保持独立。同步构建入口说明与 SDK 校验回归。",
+        "同步必须等待本次维护完成并收到成功通知，同次任一失败不能被后续成功覆盖。维护前释放 Lua 等模块持有的词库，再非强制初始化，复用进程级 setup，避免词库仍被占用，也不为同步强制重编方案。",
+        "运行中的备份保存走维护门控，失败继续向调用方传播；引擎未启动时允许导出现有文件。状态菜单在既有串行队列中处理动作，将失败显示给用户，同时保留协程取消语义，避免未捕获异常终止输入法。",
+        "保留 SDK 下载与开发产物校验、维护门禁和 native 完成通知回归；PluginSdkSmokeTest 实际检查 Lua 学习、残留临时库下的同步、快照生成及重启读回。"
+      ],
+      "original_commits": [
+        {
+          "sha": "28fdc6a9ede75c3ac4a1f4f7f546f186750f0ebc",
+          "subject": "构建(SDK): 支持校验并使用本地引擎开发产物",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T08:49:52+08:00",
+          "files": [
+            "README.md",
+            "build-logic/convention/src/main/kotlin/RimeSdkPlugin.kt",
+            "build-logic/convention/src/test/kotlin/RimeSdkArchiveTest.kt",
+            "native/README.md"
+          ]
+        },
+        {
+          "sha": "45ef3353dcc2ab5f5bc768196642d68f1f275f15",
+          "subject": "更新(引擎): 同步上游并采用整理后的四ABI SDK",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T15:39:02+08:00",
+          "files": [
+            "native/rime-sdk.lock.json"
+          ]
+        },
+        {
+          "sha": "ffd9fc090aeee4ce5af6e977fc5e4eeb7d923273",
+          "subject": "修复(同步): 检查维护完成结果并保护备份输入窗口",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-06T18:27:27+08:00",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/core/MaintenanceSaveTest.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/core/NativeTestShadow.kt",
+            "direct-rime/src/main/cpp/engine.cpp",
+            "direct-rime/src/main/cpp/engine.h",
+            "direct-rime/src/main/cpp/engine_test.cpp"
+          ]
+        },
+        {
+          "sha": "aa7cfb26042378b31318550517d66bf2c4066814",
+          "subject": "修复(同步): 报告状态菜单维护失败并保留取消语义",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T00:38:31+08:00",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/input/status/StatusAreaActions.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/input/status/StatusAreaWindow.kt",
+            "app/src/test/java/org/fcitx/fcitx5/android/core/MaintenanceSaveTest.kt"
+          ]
+        },
+        {
+          "sha": "029c76d7b7b34bf14a2514d6153766436ac4ca30",
+          "subject": "更新(引擎): 使用临时库同步修复SDK并验证设备学习数据",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T01:04:00+08:00",
+          "files": [
+            "direct-rime/src/androidTest/java/org/fcitx/directrime/PluginSdkSmokeTest.kt",
+            "direct-rime/src/main/java/org/fcitx/directrime/RimeRuntime.kt",
+            "native/rime-sdk.lock.json"
+          ]
+        },
+        {
+          "sha": "92a2dd078b83fd2fc692d70953ca1b14310034d3",
+          "subject": "修复(同步): 释放Lua持有的词库后再进行同步维护",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T01:24:13+08:00",
+          "files": [
+            "direct-rime/src/main/cpp/engine.cpp",
+            "direct-rime/src/main/cpp/engine_test.cpp"
+          ]
+        }
+      ]
+    },
+    {
+      "sha": "5124e76e9db5ac4f4e95cdb37fb5cd1167eab7b0",
+      "tree": "7b625f952e1ae35104e4ee55fed4b19b81a59aff",
+      "key": "update-downloads",
+      "title": "修复(更新): 下载前校验安装包并按实际文件恢复状态",
+      "body": [
+        "在用户点击下载时校验已有安装包，复用与当前发行匹配的完整文件。仅清理可证明由本应用下载、且内容摘要与当前已安装 base APK 一致的旧包，不依赖更新本体后可能丢失的安装回调。",
+        "记录实际 URI、DownloadManager ID、内容摘要与发行身份，恢复和安装按这些记录定位文件。新下载使用不冲突的目标名，兼容 direct(1).apk 与 direct (1).apk；同一 Nightly URL 的新资产不继承旧发行状态。",
+        "缺少服务端摘要时必须核对已记录的发行身份，不能仅凭同名同大小复用。保留未安装、内容变化、归属不明或无法访问的文件，耗时校验在 IO 线程执行，并沿用 WorkManager 的后台下载生命周期。",
+        "保留下载重名、旧记录迁移、跨发行复用、实际 ID 查询和外来文件保护回归。"
+      ],
+      "original_commits": [
+        {
+          "sha": "763a4897656d87059d8d18aa65710095f749d3c7",
+          "subject": "修复(更新): 下载前核对安装包并按实际文件恢复状态",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T00:30:35+08:00",
+          "files": [
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadWorker.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloads.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateCheckActivity.kt",
+            "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateDownloadStore.kt",
+            "app/src/main/res/values-de/strings_device_fixes.xml",
+            "app/src/main/res/values-es/strings_device_fixes.xml",
+            "app/src/main/res/values-ja/strings_device_fixes.xml",
+            "app/src/main/res/values-ko/strings_device_fixes.xml",
+            "app/src/main/res/values-ru/strings_device_fixes.xml",
+            "app/src/main/res/values-zh-rCN/strings_device_fixes.xml",
+            "app/src/main/res/values-zh-rTW/strings_device_fixes.xml",
+            "app/src/main/res/values/strings_device_fixes.xml",
+            "app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/UpdateDownloadStoreTest.kt"
+          ]
+        }
+      ]
+    },
+    {
+      "sha": "646b450a9788109ef50a65214b10611a87316cd0",
+      "tree": "44ff9a39ba54e84d4e46ef62be789da345c14977",
+      "key": "ci-regression",
+      "title": "测试(CI): 严格执行回归门禁并保留设备诊断",
+      "body": [
+        "Direct Rime 的 JVM 与 Android 设备任务统一检查 JUnit 报告，要求实际执行且失败、错误、跳过均为零，并上传原始 XML。Nightly 采用相同的单元门禁，继续等待构建和测试完成后发布。",
+        "独立 SDK smoke 脚本在测试失败时仍保留原生日志；前端任务继续采集截图和日志，诊断包名使用独立 Debug 包。将新增脚本和报告检查器接入工作流路径过滤。",
+        "普通设备回归明确排除必须另行提供固定完整方案的冷启动性能探针；该探针继续由专用脚本调用，不把条件跳过计作普通回归通过。"
+      ],
+      "original_commits": [
+        {
+          "sha": "d73e853e9de01e8b63f7a16f4deb03ad305d7869",
+          "subject": "测试(引擎): 严格核对设备回归并导出独立调试包诊断",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T01:13:37+08:00",
+          "files": [
+            ".github/workflows/direct-rime.yml",
+            "tools/test-direct-rime-frontend.sh"
+          ]
+        },
+        {
+          "sha": "d37a636d765f6cd30e3c45b2182314b59939f72c",
+          "subject": "测试(同步): 保留设备失败时的原生诊断日志",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T01:16:04+08:00",
+          "files": [
+            ".github/workflows/direct-rime.yml",
+            "tools/test-rime-sdk-smoke.sh"
+          ]
+        },
+        {
+          "sha": "694720f4b7ec0acc1f04bea3feb812f79eddf177",
+          "subject": "测试(回归): 分离专用性能探针并接入脚本变更检查",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T01:24:13+08:00",
+          "files": [
+            ".github/workflows/direct-rime.yml",
+            "tools/test-direct-rime-frontend.sh"
+          ]
+        },
+        {
+          "sha": "f4d23687cf759b371b455b02d3958df72427d6dc",
+          "subject": "测试(发布): 要求Nightly单元回归零失败与跳过",
+          "author": "Sandy yu <159096699+SandyYuR@users.noreply.github.com>",
+          "author_date": "2026-11-07T01:31:06+08:00",
+          "files": [
+            ".github/workflows/ci.yml"
+          ]
+        }
+      ]
+    }
+  ]
+}
