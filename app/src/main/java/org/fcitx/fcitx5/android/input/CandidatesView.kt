@@ -141,8 +141,12 @@ class CandidatesView(
 
     private val candidatesUi = PagedCandidatesUi(
         ctx, theme, setupTextView,
-        onCandidateClick = { index -> fcitx.launchOnReady { it.select(index) } },
-        onCandidateAction = { index, text, view -> showCandidateActionMenu(index, text, view) },
+        onCandidateClick = { index -> paged.candidates.getOrNull(index)?.selectionTarget?.let(service::postCandidateSelection) },
+        onCandidateAction = { index, text, view ->
+            paged.candidates.getOrNull(index)?.selectionTarget?.let { target ->
+                showCandidateActionMenu(target.index, text, view, global = target.global, expectedContext = target.context)
+            }
+        },
         onPrevPage = { fcitx.launchOnReady { it.offsetCandidatePage(-1) } },
         onNextPage = { fcitx.launchOnReady { it.offsetCandidatePage(1) } },
         highlightRadius = dp(highlightRadius).toFloat()

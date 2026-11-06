@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.input.candidates
 
 import androidx.recyclerview.widget.RecyclerView
 import org.fcitx.fcitx5.android.core.CandidateWord
+import org.fcitx.fcitx5.android.core.CandidateSelectionTarget
 
 class CandidateViewHolder(val ui: CandidateItemUi) : RecyclerView.ViewHolder(ui.root) {
     var idx = -1
@@ -22,10 +23,14 @@ class CandidateViewHolder(val ui: CandidateItemUi) : RecyclerView.ViewHolder(ui.
     fun update(newIndex: Int, newCandidate: CandidateWord) {
         idx = newIndex
         if (candidate != newCandidate) {
-            candidate = newCandidate
             ui.updateCandidate(newCandidate)
         }
+        candidate = newCandidate
     }
+
+    /** The adapter may have pending binds; never select text this holder has not displayed. */
+    fun selectionFor(current: CandidateWord?): CandidateSelectionTarget? =
+        current?.takeIf { it == candidate }?.selectionTarget
 
     /**
      * 只刷新全局下标，不动候选内容。

@@ -7,7 +7,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
-import org.fcitx.directrime.Native
 import org.fcitx.directrime.Snapshot
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
@@ -19,19 +18,17 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.Implementation
-import org.robolectric.annotation.Implements
 import org.robolectric.util.ReflectionHelpers
 
 /** Real owner queue, binding, ticket and delivery code; only the JNI boundary is simulated. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], application = FcitxApplication::class,
-    shadows = [EditorApplicationShadow::class, BindingNativeShadow::class])
+    shadows = [EditorApplicationShadow::class, NativeTestShadow::class])
 class InputBindingStartupTest {
     private lateinit var backend: DirectRimeBackend
     private lateinit var owner: ExecutorCoroutineDispatcher
 
-    @Before fun resetNative() { BindingNativeShadow.reset() }
+    @Before fun resetNative() { BindingNativeShadow.reset(); NativeTestShadow.delegate = BindingNativeShadow() }
 
     private fun createBackend(directBoot: Boolean = false) {
         ReflectionHelpers.setField(FcitxApplication.getInstance(), "isDirectBootMode", directBoot)
@@ -151,8 +148,7 @@ class InputBindingStartupTest {
     }
 }
 
-@Implements(Native::class, isInAndroidSdk = false)
-class BindingNativeShadow {
+internal class BindingNativeShadow : NativeTestDelegate {
     companion object {
         data class Call(val phase: String, val priority: Int, val thread: Long)
         val calls = mutableListOf<Call>()
@@ -170,12 +166,6 @@ class BindingNativeShadow {
             created = 0; generation = 0; revision = 0; schema = "initial"; ascii = false
         }
 
-        @JvmStatic @Implementation fun __staticInitializer__() {
-            // Retain the Kotlin singleton while excluding System.loadLibrary from this JVM test.
-            ReflectionHelpers.setStaticField(Native::class.java, "INSTANCE",
-                ReflectionHelpers.callConstructor(Native::class.java))
-        }
-
         private fun record(phase: String) {
             calls += Call(phase, Process.getThreadPriority(Process.myTid()), Process.myTid().toLong())
         }
@@ -185,14 +175,14 @@ class BindingNativeShadow {
             emptyArray(), emptyArray(), emptyArray(), schema, -1, "", emptyArray())
     }
 
-    @Implementation fun sessionStats() = longArrayOf(created, 0, 0)
-    @Implementation fun operationTiming() = LongArray(16)
-    @Implementation fun beginInput(value: Long, program: String, sensitive: Boolean): Snapshot {
+    override fun sessionStats() = longArrayOf(created, 0, 0)
+    override fun operationTiming() = LongArray(16)
+    override fun beginInput(value: Long, program: String, sensitive: Boolean): Snapshot {
         record("begin"); generation = value; noLearning = sensitive
         if (gate == 0) created++
         return snapshot()
     }
-    @Implementation fun action(value: Long, previous: Long, action: Int, index: Int, name: String): Snapshot {
+    override fun action(value: Long, previous: Long, action: Int, index: Int, name: String): Snapshot {
         check(value == generation && previous == revision)
         check(!failAction) { "Injected restore failure" }
         when (action) {
@@ -202,7 +192,7 @@ class BindingNativeShadow {
         }
         return snapshot()
     }
-    @Implementation fun options(): Array<String> { record("options"); return emptyArray() }
-    @Implementation fun key(value: Long, sym: Int, mask: Int, release: Boolean): Snapshot =
+    override fun options(): Array<String> { record("options"); return emptyArray() }
+    override fun key(value: Long, sym: Int, mask: Int, release: Boolean): Snapshot =
         error("Direct input must not send keys to librime")
 }

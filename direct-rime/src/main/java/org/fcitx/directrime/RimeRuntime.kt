@@ -78,6 +78,13 @@ internal object RimeRuntime {
             else Native.action(snapshot.generation, snapshot.revision, action, index, value)
         }
     }
+    suspend fun rawInput(snapshot: Snapshot): RawInputState? {
+        if (blocked || !current(snapshot.generation)) return null
+        return withContext(dispatcher) {
+            if (blocked || !current(snapshot.generation)) null
+            else Native.rawInput(snapshot.generation, snapshot.revision)
+        }
+    }
     suspend fun schemas(context: Context) = withContext(dispatcher) { start(context); Native.schemas() }
 
     suspend fun deploy(context: Context, profile: (() -> InputStream)? = null, smoke: Boolean = false,

@@ -3,6 +3,7 @@
 #include <atomic>
 #include <array>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <thread>
 #include <vector>
@@ -17,8 +18,11 @@ struct Snapshot {
     int cursor = 0, page = 0, highlighted = -1;
     std::string commit, preedit, schema, schemaName, preview;
     std::vector<std::string> candidates, comments, tabs, labels;
+    bool canReusePresentation(const Snapshot& previous) const;
+    bool canCachePresentation() const;
 };
 struct Tab { std::string label; size_t span; };
+struct RawInput { std::string text; int caret; };
 
 class Engine {
 public:
@@ -32,6 +36,7 @@ public:
     // Candidate/tab indices belong to a particular snapshot, never a later composition.
     Snapshot action(int64_t generation, int64_t revision, int action, int index,
                     const std::string& value);
+    std::optional<RawInput> rawInput(int64_t generation, int64_t revision);
     bool deploy();
     std::vector<std::string> schemas();
     std::vector<std::string> schemaEntries();

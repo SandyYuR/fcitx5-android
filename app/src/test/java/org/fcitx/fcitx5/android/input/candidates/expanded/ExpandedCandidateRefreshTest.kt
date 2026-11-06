@@ -5,6 +5,8 @@
 package org.fcitx.fcitx5.android.input.candidates.expanded
 
 import org.fcitx.fcitx5.android.core.CandidateWord
+import org.fcitx.fcitx5.android.core.CandidateActionContext
+import org.fcitx.fcitx5.android.core.CandidateSelectionTarget
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -20,6 +22,21 @@ import org.junit.Test
  * 修复后：(offset, generation) 不变就完全不刷新；offset 不变但候选内容变了仍要刷新。
  */
 class ExpandedCandidateRefreshTest {
+
+    @Test fun identicalFirstPageStillRefreshesWhenTheEngineInvalidatesItsLazyTail() {
+        fun page(version: Long) = arrayOf(CandidateWord("1", "同一个词", "").apply {
+            selectionTarget = CandidateSelectionTarget(CandidateActionContext(7, version), 0, false)
+        })
+        val old = page(1)
+        val next = page(2)
+        assertTrue(old.contentEquals(next))
+        val tracker = CandidateGenerationTracker()
+        assertTrue(tracker.onCandidates(old, -1))
+        val before = tracker.value
+        assertTrue(tracker.onCandidates(next, -1))
+        assertEquals(before + 1, tracker.value)
+        assertFalse(tracker.onCandidates(page(2), -1))
+    }
 
     private fun word(text: String, label: String = "1 ") = CandidateWord(label, text, "", true)
 

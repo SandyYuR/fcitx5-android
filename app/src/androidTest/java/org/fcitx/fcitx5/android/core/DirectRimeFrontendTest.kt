@@ -74,6 +74,7 @@ class DirectRimeFrontendTest {
                 instrumentation.context.assets.open("smoke/$name").use { input -> File(directory, name).outputStream().use { input.copyTo(it) } }
             }
             if (testName.methodName == "schemaCommentsAndSwitchGroupsMatchRime") writeCommentFixture(directory)
+            if (testName.methodName == "preeditCursorUsesRawCoordinates") writeCursorFixture(directory)
             File(directory, "second.schema.yaml").writeText(File(directory, "direct_smoke.schema.yaml").readText()
                 .replace("schema_id: direct_smoke", "schema_id: second").replace("name: 直连测试", "name: 第二方案"))
             File(directory, "default.yaml").appendText("\n")
@@ -104,6 +105,32 @@ class DirectRimeFrontendTest {
         }
         FcitxDaemon.disconnect(javaClass.name)
     }
+    private fun writeCursorFixture(directory: File) {
+        val schema = File(directory, "direct_smoke.schema.yaml")
+        val text = schema.readText().replace("\r\n", "\n")
+        check(text.contains("translator:\n"))
+        schema.writeText(text.replace("translator:\n", "translator:\n  preedit_format:\n    - 'xform/^(.)(.*)$/${'$'}1 ${'$'}2/'\n"))
+        File(directory, "direct_smoke.dict.yaml").appendText("\n奶\tnai\t200\n")
+    }
+
+    @Test fun preeditCursorUsesRawCoordinates(): Unit = runBlocking {
+        connection.runOnReady {
+            setImConfig("rime", RawConfig(arrayOf(RawConfig("PreeditMode", "ComposingText"))))
+            setCandidatePagingMode(1)
+            sendKey('n'); sendKey('i')
+            assertEquals("n i", clientPreeditCached.toString())
+            val candidatesBeforeRefresh = candidateActionContext
+            setCandidatePagingMode(1)
+            assertEquals(candidatesBeforeRefresh, candidateActionContext)
+            assertTrue(moveCursorIfCurrent(2, inputSession, "n i"))
+            sendKey('a')
+            sendKey(0xff57) // End: include the original suffix when confirming the edited code.
+            assertEquals("奶", getCandidates(0, 1).single().text)
+            assertTrue(selectGlobal(0))
+        }
+        assertEquals("奶", withTimeout(5_000) { commits.receive() })
+    }
+
     private fun writeCommentFixture(directory: File) {
         // Wanxiang uses a three-way comment group and Lua to rewrite/clear comments.
         // Reproduce that contract with a tiny dictionary, without bundling its data.
@@ -673,6 +700,9 @@ end
                     throw AssertionError("${failure.message}; $editorState; ime=${shell("settings get secure default_input_method")}", failure)
                 }
                 val service = inputView()!!.service
+                val secondSchemaAction = connection.runImmediately {
+                    SubModeManager.resolveSchemaMenuEntries(statusArea()).first { it.first == "第二方案" }.second
+                }
                 var focusLosses = 0
                 val listener = ViewTreeObserver.OnWindowFocusChangeListener { focused -> if (!focused) focusLosses++ }
                 instrumentation.runOnMainSync { host.window.decorView.viewTreeObserver.addOnWindowFocusChangeListener(listener) }
@@ -698,7 +728,12 @@ end
                         delay(800) // The reported focus/hide cycle occurs about 350 ms after show.
                         val choice = menuChoice()
                         assertNotNull("Schema menu disappeared after showing", choice)
+                        val secondSelected = connection.runImmediately {
+                            SubModeManager.resolveSelectedSchemaAction(statusArea()) == secondSchemaAction
+                        }
                         instrumentation.runOnMainSync {
+                            assertEquals("Menu selection must use the engine schema, including password mode",
+                                secondSelected, choice!!.isChecked)
                             val flags = (choice!!.rootView.layoutParams as WindowManager.LayoutParams).flags
                             assertTrue("The shown menu must not take editor focus",
                                 flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE != 0)
@@ -724,8 +759,13 @@ end
                         finally { event.recycle() }
                     }
                     await("Touch must activate the selected schema and dismiss its menu") {
-                        menuChoice() == null && connection.runImmediately { inputMethodEntryCached.subMode.label } == "第二方案"
+                        menuChoice() == null && connection.runImmediately {
+                            SubModeManager.resolveSelectedSchemaAction(statusArea()) == secondSchemaAction
+                        }
                     }
+                    assertEquals("Password editors must retain direct-input presentation",
+                        if (type == InputType.TYPE_CLASS_TEXT) "第二方案" else "abc",
+                        connection.runImmediately { inputMethodEntryCached.subMode.label })
                     delay(500)
                     assertEditorHeld()
                     openMenu()

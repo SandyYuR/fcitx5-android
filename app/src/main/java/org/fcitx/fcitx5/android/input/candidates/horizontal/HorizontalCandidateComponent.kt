@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlags
 import org.fcitx.fcitx5.android.core.CandidateWord
+import org.fcitx.fcitx5.android.core.sameSelectionTargets
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
@@ -383,17 +384,15 @@ class HorizontalCandidateComponent :
                     flexGrow = layoutFlexGrow
                 }
                 holder.itemView.setOnClickListener {
-                    val idx = holder.currentIndex(adapter.indexOffset)
-                    val total = adapter.total
-                    if (idx < 0 || (total >= 0 && idx >= total)) {
-                        return@setOnClickListener
-                    }
-                    // Keep the tap ordered with preceding/following keyboard keys.
-                    service.postCandidateSelection { select(idx) }
+                    val target = holder.selectionFor(adapter.candidates.getOrNull(holder.bindingAdapterPosition))
+                        ?: return@setOnClickListener
+                    service.postCandidateSelection(target)
                 }
                 holder.itemView.setOnLongClickListener {
-                    val idx = holder.currentIndex(adapter.indexOffset)
-                    inputView.showCandidateActionMenu(idx, holder.candidate.text, holder.ui.root)
+                    val target = holder.selectionFor(adapter.candidates.getOrNull(holder.bindingAdapterPosition))
+                        ?: return@setOnLongClickListener true
+                    inputView.showCandidateActionMenu(target.index, holder.candidate.text, holder.ui.root,
+                        global = target.global, expectedContext = target.context)
                     true
                 }
                 inputView.bindCandidateGesture(
@@ -629,11 +628,11 @@ class HorizontalCandidateComponent :
         lastPagedEventUptimeMs = SystemClock.uptimeMillis()
         pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
         pendingLegacyCandidateUpdate = null
-        if (data == lastPagedData) {
+        val candidates = data.candidates
+        if (data == lastPagedData && candidates.sameSelectionTargets(lastPagedData?.candidates.orEmpty())) {
             return
         }
         lastPagedData = data
-        val candidates = data.candidates
         val cursorIndex = data.cursorIndex
         val normalizedCursor = when {
             cursorIndex in candidates.indices -> cursorIndex
@@ -671,13 +670,10 @@ class HorizontalCandidateComponent :
             normalizedCursor
         }
 
-        if (
+        val samePresentation =
             candidates.contentEquals(lastRenderedCandidatesSnapshot) &&
             effectiveActiveIndex == lastRenderedActiveIndex &&
             !fontDataChanged()
-        ) {
-            return
-        }
 
         // Keep direct array references as snapshots; contentEquals avoids the
         // per-keystroke asList() wrapper allocations.
@@ -687,6 +683,13 @@ class HorizontalCandidateComponent :
         lastRenderedCandidatesSnapshot = candidates
         lastRenderedActiveIndex = effectiveActiveIndex
 
+        if (samePresentation && adapter.updateSelectionTargets(candidates)) {
+            // A lazy tail may change while this visible page stays identical.
+            // Advance its load version and click targets without re-binding text.
+            if (candidateGeneration.onCandidates(candidates, -1)) refreshExpanded(view.childCount)
+            if (pendingEnsureVisible != null) pendingEnsureVisible = Triple(candidates, -1, effectiveActiveIndex)
+            return
+        }
         updateCandidates(candidates, -1, effectiveActiveIndex)
     }
 
@@ -695,11 +698,13 @@ class HorizontalCandidateComponent :
         total: Int,
         activeIndex: Int,
     ) {
+        val sameWindow = adapter.indexOffset == 0 && adapter.total == total &&
+            adapter.activeIndex == activeIndex && adapter.candidates.contentEquals(candidates) && !fontDataChanged()
         lastRenderedFontGeneration = FontProviders.fontGeneration
         // 先推进 generation 再更新 adapter：adapter 的 notify 会触发一次布局，
         // 那次布局的 onLayoutCompleted 正是读取 generation 的地方。
         // 候选内容没变（例如只移动了高亮）时 generation 不动，展开面板就不会重新分页。
-        candidateGeneration.onCandidates(candidates, total)
+        val generationChanged = candidateGeneration.onCandidates(candidates, total)
         val maxSpanCount = maxSpanCount()
         when (fillStyle) {
             NeverFillWidth -> {
@@ -730,6 +735,7 @@ class HorizontalCandidateComponent :
             adapter.updateCandidates(candidates, total, activeIndex, 0)
         }
         pendingEnsureVisible = Triple(candidates, total, activeIndex)
+        if (generationChanged && sameWindow) refreshExpanded(view.childCount)
         // not sure why empty candidates won't trigger `FlexboxLayoutManager#onLayoutCompleted()`
         if (candidates.isEmpty()) {
             refreshExpanded(0)

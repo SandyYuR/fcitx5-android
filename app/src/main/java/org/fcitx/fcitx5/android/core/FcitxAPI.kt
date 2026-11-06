@@ -73,10 +73,20 @@ interface FcitxAPI {
 
     suspend fun select(idx: Int): Boolean
     suspend fun selectGlobal(idx: Int): Boolean = select(idx)
+    suspend fun selectCandidateIfCurrent(idx: Int, global: Boolean, expected: CandidateActionContext): Boolean {
+        if (idx < 0 || candidateActionContext != expected) return false
+        return if (global) selectGlobal(idx) else select(idx)
+    }
     suspend fun triggerGlobalCandidateAction(idx: Int, actionIdx: Int) = triggerCandidateAction(idx, actionIdx)
     suspend fun isEmpty(): Boolean
     suspend fun reset()
+    /** [position] counts Unicode code points in the displayed client preedit. */
     suspend fun moveCursor(position: Int)
+    suspend fun moveCursorIfCurrent(position: Int, expectedSession: Long, expectedPreedit: String): Boolean {
+        if (inputSession != expectedSession || clientPreeditCached.toString() != expectedPreedit) return false
+        moveCursor(position)
+        return true
+    }
 
     suspend fun availableIme(): Array<InputMethodEntry>
     suspend fun enabledIme(): Array<InputMethodEntry>

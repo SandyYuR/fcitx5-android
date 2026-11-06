@@ -549,6 +549,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
+    fun postCandidateSelection(target: org.fcitx.fcitx5.android.core.CandidateSelectionTarget): Job =
+        postCandidateSelection { selectCandidateIfCurrent(target.index, target.global, target.context) }
+
     private suspend fun FcitxAPI.applyCandidatePagingModeIfNeeded(mode: Int) {
         if (appliedCandidatePagingMode == mode) return
         setCandidatePagingMode(mode)
@@ -2081,16 +2084,18 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         // check if cursor inside composing text
         if (composing.contains(newSelStart)) {
             if (ignoreSystemCursor) return
-            // fcitx cursor position is relative to client preedit (composing text)
+            // Android reports UTF-16 positions relative to the client preedit.
             val position = newSelStart - composing.start
             // move fcitx cursor when cursor position changed
             if (position != composingText.cursor) {
-                // cursor in InvokeActionEvent counts by "UTF-8 characters"
+                // The backend maps displayed code points to raw Rime input bytes.
                 val codePointPosition = composingText.codePointCountUntil(position)
+                val expectedPreedit = composingText.toString()
+                val expectedSession = FcitxDaemon.currentInputSession
                 postFcitxJob {
                     if (updateIndex != cursorUpdateIndex) return@postFcitxJob
                     Timber.d("handleCursorUpdate: move fcitx cursor to $codePointPosition")
-                    moveCursor(codePointPosition)
+                    moveCursorIfCurrent(codePointPosition, expectedSession, expectedPreedit)
                 }
             }
         } else {

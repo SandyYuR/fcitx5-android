@@ -270,11 +270,12 @@ abstract class BaseInputView(
 
     val themedContext = context.withTheme(R.style.Theme_InputViewTheme)
 
-    fun showCandidateActionMenu(idx: Int, text: String, view: View, global: Boolean = false) {
+    fun showCandidateActionMenu(idx: Int, text: String, view: View, global: Boolean = false,
+                               expectedContext: CandidateActionContext? = null) {
         invalidateCandidateActionMenu()
         if (idx < 0) return
         val editor = service.editorSession.capture() ?: return
-        val context = displayedCandidateContext ?: return
+        val context = expectedContext ?: displayedCandidateContext ?: return
         val anchorOwner = candidateAnchorOwners[view] ?: return
         val request = candidateMenuRequests.newRequest {
             service.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&

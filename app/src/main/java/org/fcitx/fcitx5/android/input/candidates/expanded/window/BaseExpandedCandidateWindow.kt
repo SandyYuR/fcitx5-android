@@ -262,22 +262,17 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>>(t
 
     fun bindCandidateUiViewHolder(holder: CandidateViewHolder) {
         holder.itemView.setOnClickListener {
-            // 取用时刻用 RecyclerView 的位置重新算全局下标：只在绑定时缓存
-            // holder.idx 的话，DiffUtil 认为“内容没变”而不 rebind 时会停在旧起点上。
-            val idx = holder.currentIndex(adapter.offset)
-            val total = horizontalCandidate.adapter.total
-            if (idx < 0 || (total >= 0 && idx >= total)) {
-                return@setOnClickListener
-            }
-            service.postCandidateSelection { selectGlobal(idx) }
+            val position = holder.bindingAdapterPosition
+            val candidate = if (position in 0 until adapter.itemCount) adapter.peek(position) else null
+            val target = holder.selectionFor(candidate) ?: return@setOnClickListener
+            service.postCandidateSelection(target)
         }
         holder.itemView.setOnLongClickListener {
-            val idx = holder.currentIndex(adapter.offset)
-            val total = horizontalCandidate.adapter.total
-            if (idx < 0 || (total >= 0 && idx >= total)) {
-                return@setOnLongClickListener true
-            }
-            inputView.showCandidateActionMenu(idx, holder.candidate.text, holder.ui.root, global = true)
+            val position = holder.bindingAdapterPosition
+            val candidate = if (position in 0 until adapter.itemCount) adapter.peek(position) else null
+            val target = holder.selectionFor(candidate) ?: return@setOnLongClickListener true
+            inputView.showCandidateActionMenu(target.index, holder.candidate.text, holder.ui.root,
+                global = target.global, expectedContext = target.context)
             true
         }
         inputView.bindCandidateGesture(

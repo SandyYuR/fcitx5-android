@@ -114,6 +114,8 @@ open class HorizontalCandidateViewAdapter(
     ) {
         val fontChanged = refreshCandidateFontIfNeeded()
         val old = candidates
+        // Keep fresh selection metadata even when all visible text is unchanged.
+        this.candidates = data
         if (
             !fontChanged &&
             this.total == total &&
@@ -126,7 +128,6 @@ open class HorizontalCandidateViewAdapter(
             return
         }
         val oldActive = this.activeIndex
-        this.candidates = data
         this.total = total
         this.activeIndex = activeIndex
         this.indexOffset = indexOffset
@@ -185,6 +186,16 @@ open class HorizontalCandidateViewAdapter(
     override fun getItemCount() = candidates.size
 
     override fun getItemId(position: Int) = candidates.getOrNull(position).hashCode().toLong()
+
+    /** Refresh the existing window's targets without notifying or re-laying out its text. */
+    internal fun updateSelectionTargets(fullCandidates: Array<CandidateWord>): Boolean {
+        if (indexOffset < 0 || indexOffset > fullCandidates.size - candidates.size) return false
+        val currentWindow = if (indexOffset == 0 && candidates.size == fullCandidates.size) fullCandidates
+            else fullCandidates.copyOfRange(indexOffset, indexOffset + candidates.size)
+        if (!candidates.contentEquals(currentWindow)) return false
+        candidates = currentWindow
+        return true
+    }
 
     /**
      * 按当前的 [candidateIndexBadgeContent] 算出该位置候选的角标文本（引擎标签为空时

@@ -1,6 +1,9 @@
 package org.fcitx.directrime
 
-/** Constructor is the batched JNI boundary; cursor is a UTF-8 byte offset from librime. */
+/**
+ * Constructor is the batched JNI boundary; cursor is a UTF-8 byte offset from librime.
+ * Display arrays are producer-owned, read-only values and may be shared across snapshots.
+ */
 class Snapshot(
     val generation: Long,
     val revision: Long,
@@ -22,6 +25,16 @@ class Snapshot(
     val preview: String,
     val labels: Array<String>
 ) {
+    companion object {
+        /** JNI has compared all display fields. Keep prior snapshots immutable and never replay their commit. */
+        @JvmStatic fun reusePresentation(previous: Snapshot, revision: Long) = Snapshot(
+            previous.generation, revision, previous.optionsRevision, false, previous.gate, "",
+            previous.preedit, previous.schema, previous.ascii, previous.page, previous.lastPage,
+            previous.cursorBytes, previous.candidates, previous.comments, previous.tabs,
+            previous.schemaName, previous.highlighted, previous.preview, previous.labels
+        )
+    }
+
     /** Rime still processes releases; only identical, unhandled presentation updates can be elided. */
     fun isUnchangedRelease(previous: Snapshot?): Boolean = previous != null && !handled &&
         commit.isEmpty() && generation == previous.generation && gate == previous.gate &&
@@ -63,6 +76,9 @@ class Snapshot(
     }
 }
 
+/** Read only on explicit caret interaction; ordinary key snapshots do not copy raw input. */
+internal class RawInputState(val text: String, val caretBytes: Int)
+
 internal object Native {
     init { System.loadLibrary("direct-rime") }
     external fun start(shared: String, user: String, version: String, fullCheck: Boolean = false)
@@ -75,6 +91,7 @@ internal object Native {
     external fun end(generation: Long): Snapshot
     external fun key(generation: Long, sym: Int, mask: Int, release: Boolean): Snapshot
     external fun action(generation: Long, revision: Long, action: Int, index: Int, value: String): Snapshot
+    external fun rawInput(generation: Long, revision: Long): RawInputState?
     external fun deploy(): Boolean
     external fun schemas(): Array<String>
     external fun schemaEntries(): Array<String>

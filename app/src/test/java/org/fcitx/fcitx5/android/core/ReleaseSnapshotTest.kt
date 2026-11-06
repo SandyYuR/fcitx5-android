@@ -5,6 +5,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ReleaseSnapshotTest {
+    @Test fun presentationReuseKeepsOldRevisionAndSharesOnlyDisplayValues() {
+        val before = snapshot(handled = true, revision = 40, commit = "already committed")
+        val after = Snapshot.reusePresentation(before, 41)
+        assertNotSame(before, after)
+        assertEquals(40L, before.revision)
+        assertEquals("already committed", before.commit)
+        assertEquals(41L, after.revision)
+        assertTrue(after.commit.isEmpty())
+        assertFalse(after.handled)
+        assertSame(before.candidates, after.candidates)
+        assertSame(before.comments, after.comments)
+        assertSame(before.tabs, after.tabs)
+        assertSame(before.labels, after.labels)
+        assertTrue(after.isUnchangedRelease(before))
+    }
+
     private fun snapshot(handled: Boolean = false, generation: Long = 1, revision: Long = 1,
                          optionRevision: Long = 1, commit: String = "", ascii: Boolean = false,
                          candidates: Array<String> = arrayOf("你"), tabs: Array<String> = emptyArray()) =

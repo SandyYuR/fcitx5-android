@@ -6,6 +6,7 @@
 package org.fcitx.fcitx5.android.input.candidates.expanded
 
 import org.fcitx.fcitx5.android.core.CandidateWord
+import org.fcitx.fcitx5.android.core.sameSelectionTargets
 
 /**
  * 展开候选面板的一次取数请求：从 [offset] 开始分页。
@@ -42,7 +43,7 @@ data class ExpandedCandidateRefreshRequest(
 /**
  * 候选数据的 generation（版本号）。
  *
- * 只在真正的候选内容变化以及新输入会话时前进，供 [ExpandedCandidateRefreshRequest] 使用：
+ * 候选内容、引擎候选版本或输入会话变化时前进，供 [ExpandedCandidateRefreshRequest] 使用：
  * 相同 offset 且 generation 相同 → 完全跳过；generation 变了 → 即使 offset 不变也要刷新。
  *
  * 比较基线是**完整候选列表 + total**。跟随窗口滑动的 `ensureActiveCandidateVisible`
@@ -60,12 +61,13 @@ class CandidateGenerationTracker {
 
     /**
      * 记录一次候选更新。
-     * @return 内容（或总数）真的变了、generation 已前进时为 true。
+     * @return 内容、总数或引擎版本变化、generation 已前进时为 true。
      */
     fun onCandidates(candidates: Array<CandidateWord>, total: Int): Boolean {
         val changed = !snapshotValid ||
             this.total != total ||
-            !candidateSnapshot.contentEquals(candidates)
+            !candidateSnapshot.contentEquals(candidates) ||
+            !candidateSnapshot.sameSelectionTargets(candidates)
         if (!changed) return false
         candidateSnapshot = candidates
         this.total = total
