@@ -689,7 +689,11 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override fun setLogRule(verbose: Boolean) {}
     override fun translate(str: String, domain: String) = str
     override fun getAddonReverseDependencies(addon: String) = emptyList<Pair<String, FcitxAPI.AddonDep>>()
-    override suspend fun save() { onOwner { if (started) Native.sync() } }
+    override suspend fun save() {
+        // An unavailable engine must not prevent exporting existing user files.
+        // When running, sync destroys native sessions and needs the maintenance gate.
+        if (onOwner { started }) synchronize()
+    }
     override suspend fun saveNonRimeState() {}
     override suspend fun reloadConfig() = maintain { config.load(); restartNative() }
     override suspend fun getGlobalConfig() = getImConfig("rime")

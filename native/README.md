@@ -17,4 +17,8 @@ The SDK contains four ABIs of librime with Lua, octagram and predict, its six ru
 
 To upgrade, first publish and verify a new immutable `android-sdk-*` release in librime, then change this project's lock. Never replace a published archive or follow a moving branch. To roll back, restore the prior lock; user data is unaffected.
 
+For local engine development, librime's `downstream/android/build.py --development` snapshots local edits without changing the real Git index or HEAD. Its packaging tool exports a development directory with an explicit marker, source tree, ABIs and file hashes. Windows can build it using the pinned NDK and MSVC host tools; the workspace `build-engine-local.ps1 -BuildApp` runs the complete SDK-to-Debug flow.
+
+Pass `-PlocalRimeSdkDir=/absolute/path/to/development-sdk` with the requested `-PbuildABI` to use that verified SDK in Debug. Missing ABIs, invalid provenance and changed files fail validation. Release tasks reject this option. Omitting it restores the SDK selected by `rime-sdk.lock.json`; the release lock and verified download cache remain separate from local builds.
+
 `librime.a` is linked directly into `libdirect-rime.so`. The linker writes `direct-rime.linkmap`; the audit checks the actual packaged ELF build ID, map/library hashes and static inputs: librime, glog, LevelDB, Lua, Marisa, OpenCC and yaml-cpp plus NDK runtime archives. Unexpected archives or Fcitx C++ symbols fail the check. Direct Rime is the only backend; Fcitx comparisons use separate historical checkouts.

@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
@@ -7,10 +8,13 @@ import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -54,7 +58,9 @@ internal data class RimeSdkManifest(
     val upstream_commit: String,
     val abis: List<String>,
     val sources_lock_sha256: String,
-    val files: Map<String, String>
+    val files: Map<String, String>,
+    val development: Boolean = false,
+    val source_tree: String? = null
 )
 
 internal object RimeSdkArchive {
@@ -91,6 +97,7 @@ internal object RimeSdkArchive {
             val manifest = zip.getInputStream(manifestEntry).use {
                 Json.decodeFromString<RimeSdkManifest>(it.reader().readText())
             }
+            require(!manifest.development) { "A development SDK cannot replace a pinned release" }
             require(manifest.schema_version == 1 && manifest.librime_commit == lock.librime_commit &&
                 manifest.upstream_commit == lock.upstream_commit && manifest.abis == lock.abis) {
                 "Rime SDK source/version does not match the lock"
@@ -119,6 +126,42 @@ internal object RimeSdkArchive {
             }
         }
     }
+
+    fun copyDevelopment(source: File, destination: File, requiredAbis: List<String>) {
+        val root = source.toPath().toRealPath()
+        val manifestFile = File(source, "sdk-manifest.json")
+        val manifest = Json.decodeFromString<RimeSdkManifest>(manifestFile.readText())
+        require(manifest.schema_version == 1 && manifest.development &&
+            manifest.source_tree?.matches(Regex("[0-9a-f]{40}")) == true &&
+            listOf(manifest.librime_commit, manifest.upstream_commit).all { it.matches(Regex("[0-9a-f]{40}")) } &&
+            manifest.sources_lock_sha256.matches(Regex("[0-9a-f]{64}"))) { "Invalid development SDK provenance" }
+        require(manifest.abis.isNotEmpty() && manifest.abis.distinct() == manifest.abis &&
+            manifest.abis.all { it in Versions.supportedABIs } && manifest.abis.containsAll(requiredAbis)) {
+            "Development SDK does not contain the requested ABIs: $requiredAbis"
+        }
+        for (name in manifest.files.keys) {
+            require('\\' !in name && ':' !in name && name.split('/').all { it.isNotEmpty() && it != "." && it != ".." }) {
+                "Invalid development SDK path"
+            }
+            require(name.substringBefore('/') in libraries.keys + "licenses") { "Unexpected development SDK component" }
+        }
+        for (abi in manifest.abis) {
+            for ((library, filename) in libraries) require("$library/$abi/lib/$filename" in manifest.files)
+            require("librime/$abi/include/rime_api.h" in manifest.files)
+            require("librime/$abi/share/rime/source-manifest.json" in manifest.files)
+        }
+        require("opencc/data/s2t.json" in manifest.files && "licenses/librime-LICENSE" in manifest.files)
+        for ((name, digest) in manifest.files) {
+            val input = File(source, name)
+            require(input.toPath().toRealPath().startsWith(root)) { "Development SDK link escapes its directory" }
+            val output = File(destination, name)
+            output.parentFile.mkdirs()
+            input.inputStream().use { stream -> output.outputStream().use { stream.copyTo(it) } }
+            require(sha256(output) == digest) { "Development SDK checksum mismatch: $name" }
+        }
+        // Serialize the manifest that was validated, even if the producer updates its directory.
+        File(destination, "sdk-manifest.json").writeText(Json.encodeToString(manifest))
+    }
 }
 
 abstract class PrepareRimeSdkTask : DefaultTask() {
@@ -135,6 +178,14 @@ abstract class PrepareRimeSdkTask : DefaultTask() {
     @get:Input
     abstract val offline: Property<Boolean>
 
+    @get:InputDirectory
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val localSdkDirectory: DirectoryProperty
+
+    @get:Input
+    abstract val requiredAbis: ListProperty<String>
+
     @TaskAction
     fun prepare() {
         val lock = Json.decodeFromString<RimeSdkLock>(lockFile.get().asFile.readText())
@@ -145,6 +196,20 @@ abstract class PrepareRimeSdkTask : DefaultTask() {
         FileChannel.open(File(destination.parentFile, ".rime-sdk.lock").toPath(),
             StandardOpenOption.CREATE, StandardOpenOption.WRITE).use { channel ->
             channel.lock().use {
+                if (localSdkDirectory.isPresent) {
+                    val source = localSdkDirectory.get().asFile
+                    require(source.canonicalFile != destination.canonicalFile) { "Local SDK must be separate from generated native/rime-sdk" }
+                    val staging = Files.createTempDirectory(destination.parentFile.toPath(), ".rime-sdk-").toFile()
+                    try {
+                        RimeSdkArchive.copyDevelopment(source, staging, requiredAbis.get())
+                        destination.deleteRecursively()
+                        Files.move(staging.toPath(), destination.toPath())
+                        logger.lifecycle("Prepared local development Rime SDK from $source")
+                    } finally {
+                        staging.deleteRecursively()
+                    }
+                    return
+                }
                 val cache = cacheDirectory.get().asFile.apply { mkdirs() }
                 val archive = File(cache, "${lock.sha256}.zip")
                 if (!archive.isFile || RimeSdkArchive.sha256(archive) != lock.sha256) {
@@ -179,6 +244,12 @@ abstract class PrepareRimeSdkTask : DefaultTask() {
 class RimeSdkPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         require(target == target.rootProject) { "Apply rime-sdk only to the root project" }
+        val localSdk = target.providers.gradleProperty("localRimeSdkDir")
+        target.gradle.taskGraph.whenReady {
+            check(!localSdk.isPresent || allTasks.none { it.name.contains("Release", ignoreCase = true) }) {
+                "localRimeSdkDir is restricted to Debug builds; release builds must use the pinned SDK"
+            }
+        }
         target.tasks.register<PrepareRimeSdkTask>("prepareRimeSdk") {
             group = "build setup"
             description = "Download and verify the pinned Android Rime SDK"
@@ -186,6 +257,8 @@ class RimeSdkPlugin : Plugin<Project> {
             sdkDirectory.set(target.layout.projectDirectory.dir("native/rime-sdk"))
             cacheDirectory.set(File(target.gradle.gradleUserHomeDir, "caches/rime-sdk"))
             offline.set(target.gradle.startParameter.isOffline)
+            requiredAbis.set(selectBuildAbis(target.buildAbiOverride, Versions.supportedABIs).toList())
+            if (localSdk.isPresent) localSdkDirectory.set(target.file(localSdk.get()))
         }
     }
 }

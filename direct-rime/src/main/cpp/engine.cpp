@@ -137,8 +137,26 @@ void Engine::notification(void* context, RimeSessionId, const char* type, const 
     // librime can call this from its maintenance thread. Do not touch JNI/session state.
     if (std::strcmp(type, "schema") == 0 || std::strcmp(type, "option") == 0)
         ++static_cast<Engine*>(context)->optionsRevision_;
-    if (std::strcmp(type, "deploy") == 0)
-        static_cast<Engine*>(context)->deployFailed_.store(std::strcmp(value, "failure") == 0);
+    if (std::strcmp(type, "deploy") == 0) {
+        auto* engine = static_cast<Engine*>(context);
+        const bool failure = std::strcmp(value, "failure") == 0;
+        const bool success = std::strcmp(value, "success") == 0;
+        const bool start = std::strcmp(value, "start") == 0;
+        if (failure || success || start) engine->deployFailed_.store(failure);
+        if (engine->syncResult_.load() != SyncResult::Idle) {
+            if (failure) {
+                engine->syncResult_.store(SyncResult::Failed);
+            } else if (success) {
+                auto expected = SyncResult::Waiting;
+                engine->syncResult_.compare_exchange_strong(expected, SyncResult::Succeeded);
+            } else if (start) {
+                // A subsequent batch needs its own terminal notification, but
+                // an earlier failure remains sticky for this whole operation.
+                auto expected = SyncResult::Succeeded;
+                engine->syncResult_.compare_exchange_strong(expected, SyncResult::Waiting);
+            }
+        }
+    }
 }
 void Engine::start(const std::string& shared, const std::string& user,
                    const std::string& version, bool fullCheck) {
@@ -493,10 +511,31 @@ bool Engine::selectSchemas(const std::vector<std::string>& ids) {
 }
 bool Engine::sync() {
     owner();
-    if (!started_) return false;
-    const bool ok = api_->sync_user_data();
-    api_->join_maintenance_thread();
-    return ok;
+    if (!started_ || api_->is_maintenance_mode()) return false;
+    Trace trace("rime.direct.sync");
+    try {
+        // Session cleanup alone leaves Lua-owned Memory/LevelDB objects alive
+        // until GC. Finalize releases plugin resources and flushes databases
+        // before the maintenance worker opens them for backup/merge. Reuse the
+        // process-wide setup and avoid a forced schema rebuild on every sync.
+        stop();
+        initialize(false);
+        if (deployFailed_.load()) return false;
+        syncResult_.store(SyncResult::Waiting);
+        const bool launched = api_->sync_user_data();
+        // RimeSyncUserData cleans up every native session before launching work.
+        session_ = 0; active_ = false; sessionProgram_.clear(); tabs_.clear();
+        api_->join_maintenance_thread();
+        const bool succeeded = launched && syncResult_.load() == SyncResult::Succeeded;
+        syncResult_.store(SyncResult::Idle);
+        deployFailed_.store(!succeeded);
+        return succeeded;
+    } catch (...) {
+        syncResult_.store(SyncResult::Idle);
+        deployFailed_.store(true);
+        active_ = false;
+        throw;
+    }
 }
 
 std::vector<std::string> Engine::candidates(int64_t generation, int offset, int limit) {

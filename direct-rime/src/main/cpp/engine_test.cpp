@@ -19,6 +19,9 @@ struct Fake {
     std::string commit, selectedLabel, preedit, clientApp, distribution, version;
     std::string rawInput;
     size_t rawCaret = 0;
+    bool syncLaunch = true, syncPending = false, syncThrows = false, userDbHeld = false, failStartup = false;
+    int syncCalls = 0;
+    std::vector<std::string> syncMessages = {"start", "success"};
     RimeNotificationHandler callback = nullptr;
     void* context = nullptr;
 } f;
@@ -28,9 +31,13 @@ RimeApi api() {
     a.initialize = [](RimeTraits* traits) {
         ++f.initialized; f.distribution = traits->distribution_code_name; f.version = traits->distribution_version;
     };
-    a.finalize = [] { ++f.finalized; };
+    a.finalize = [] { ++f.finalized; f.userDbHeld = false; };
     a.set_notification_handler = [](RimeNotificationHandler callback, void* context) { f.callback = callback; f.context = context; };
     a.start_maintenance = [](Bool full) -> Bool {
+        if (!full && f.failStartup) {
+            if (f.callback) f.callback(f.context, 0, "deploy", "failure");
+            return true;
+        }
         if (full && f.failLaunch) return false;
         if (full && f.callback) f.callback(f.context, 0, "deploy", f.failDeploy ? "failure" : "success");
         return full;
@@ -180,6 +187,57 @@ void testReadOnlyRefresh() {
     a.get_input = nullptr; CHECK(!engine.rawInput(1, next.revision));
     engine.stop();
 }
+void testSyncCompletion() {
+    f = {}; auto a = api();
+    a.sync_user_data = []() -> Bool {
+        ++f.syncCalls;
+        if (f.userDbHeld) return false; // Destroying a session does not run Lua GC.
+        if (f.syncThrows) throw std::runtime_error("injected sync failure");
+        f.syncPending = f.syncLaunch;
+        return f.syncLaunch;
+    };
+    a.join_maintenance_thread = [] {
+        if (!f.syncPending) return;
+        std::thread worker([] {
+            for (const auto& message : f.syncMessages)
+                f.callback(f.context, 0, "deploy", message.c_str());
+        });
+        worker.join();
+        f.syncPending = false;
+    };
+    Engine engine(&a); engine.start("shared", "user"); engine.begin(1, "editor");
+    f.userDbHeld = true;
+    CHECK(engine.sync());
+    CHECK(f.setups == 1 && f.initialized == 2 && f.finalized == 1);
+    CHECK(engine.key(1, 'n', 0, false).gate == NoSession && f.keys == 0);
+    CHECK(engine.begin(2, "editor").gate == Ready && f.created == 2);
+    f.syncMessages = {"start", "failure"};
+    CHECK(!engine.sync()); CHECK(engine.begin(3, "editor").gate == DeployFailed);
+    f.syncMessages = {"start", "success"};
+    CHECK(engine.sync()); CHECK(engine.begin(4, "editor").gate == Ready);
+    f.syncMessages = {"start", "failure", "success"};
+    CHECK(!engine.sync()); CHECK(engine.begin(5, "editor").gate == DeployFailed);
+    f.syncMessages = {"start"}; CHECK(!engine.sync());
+    f.syncMessages = {"start", "success", "start"}; CHECK(!engine.sync());
+    f.syncLaunch = false;
+    f.callback(f.context, 0, "deploy", "success"); // An old completion is not this attempt's result.
+    CHECK(!engine.sync());
+    f.syncLaunch = true; f.syncThrows = true;
+    bool threw = false;
+    try { engine.sync(); } catch (const std::runtime_error&) { threw = true; }
+    CHECK(threw);
+    f.syncThrows = false; f.syncMessages = {"start", "success"};
+    CHECK(engine.sync()); CHECK(engine.begin(6, "editor").gate == Ready);
+    f.failStartup = true;
+    const int callsBeforeFailedStartup = f.syncCalls;
+    CHECK(!engine.sync() && f.syncCalls == callsBeforeFailedStartup);
+    CHECK(engine.begin(7, "editor").gate == DeployFailed);
+    f.failStartup = false;
+    CHECK(engine.sync()); CHECK(engine.begin(8, "editor").gate == Ready);
+    const int calls = f.syncCalls;
+    f.maintenance = true; CHECK(!engine.sync() && f.syncCalls == calls); f.maintenance = false;
+    engine.stop(); CHECK(!engine.sync() && f.syncCalls == calls);
+}
 void testPresentationReuse() {
     Snapshot old;
     old.generation = 7; old.revision = 9; old.optionsRevision = 2; old.gate = Ready;
@@ -295,6 +353,6 @@ void testGeneratedConfigInvalidation() {
 }
 }
 int main() {
-    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n"; }
+    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n"; }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
