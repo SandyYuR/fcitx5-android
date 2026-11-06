@@ -5,9 +5,11 @@ CI 用的是 GitHub 托管的 Ubuntu，与这里无关；下面的路径是作�
 
 ## 工具链与一键脚本
 
-工具链集中在一个目录（作者机器上是 `D:\GitHub\tools`）：JDK 17、Android SDK 36、NDK `28.0.13004108`、CMake `3.31.6`、build-tools `36.1.0`，以及独立的 `gradle-home`、`tmp`。当前直连构建无需 ECM/gettext；历史环境脚本保留的相关变量不参与 Rime SDK 构建。
+工具链统一在 `D:\GitHub\tools`：JDK 17、Android SDK、NDK `28.0.13004108`、CMake `3.31.6`、build-tools `36.1.0`、Python、Node、Git，以及独立的 `gradle-home`、`robolectric-home`、`tmp`。当前构建无需 ECM/gettext。引擎源码的 MSVC/Windows SDK 工具与使用方法见[Windows 本地引擎开发](local-engine-development.md)。
 
-工作区根（不在任何 git 仓库内）的一键脚本会把 `JAVA_HOME`/`ANDROID_HOME`/`GRADLE_USER_HOME`/`TMP`/`ECM_DIR`/`GETTEXTDATADIR` 都设进进程，**不要另设系统级环境**：
+工作区根的 `tools-env.ps1` 统一设置当前进程的工具 PATH、Java、Android、NDK、宿主编译器和缓存目录。构建脚本会自动加载；手动调用前先 `. .\tools-env.ps1`。**不要另改系统级环境**：
+
+Kotlin 编译服务的运行标记也在 `D:/GitHub/tools/kotlin-daemon`。环境脚本通过进程级 `GRADLE_OPTS` 设置 `kotlin.daemon.options=runFilesPath=...`，避免仍向旧 C 盘 `AppData/Local/kotlin/daemon` 写入并反复回退编译。不要把这种环境失败当作业务测试结论。
 
 ```powershell
 pwsh -File build-debug.ps1              # debug APK(默认 arm64-v8a) + 出包后门禁
@@ -15,24 +17,28 @@ pwsh -File build-debug.ps1 -Test        # 只跑 JVM 单测
 pwsh -File build-debug.ps1 -Install     # 构建后 adb install -r
 pwsh -File build-debug.ps1 -SkipVerify  # 跳过 verify/audit 门禁
 pwsh -File build-debug.ps1 -Abi x86_64  # 其它 ABI（SDK 已包含四 ABI）
+& .\build-debug.ps1 -Test -GradleArgs @('--tests', 'org.fcitx.fcitx5.android.DirectBootStartupTest')
 pwsh -File build-release.ps1 [-Install] [-VerifyOnly]   # 本地签名 Release
+pwsh -File build-engine-local.ps1 -BuildApp           # 本地引擎源码与 Debug APK
 ```
 
-## 三个本机坑
+## 本机环境与历史问题
 
 ### `python3` 是占位 stub
 
-Windows 的 `python3` 会落到 WindowsApps 的占位程序：`python3 --version` 静默退出、无输出（exit 49）。所以 `tools/*.py` 那几道 CI 门禁在本机必须用真实解释器跑，脚本里的 `Resolve-RealPython` 会排除 `*\WindowsApps\*` 后自选，找不到就告警并跳过门禁。手动跑门禁时请显式写解释器路径。
+旧环境的 `python3` 曾落到 WindowsApps 占位程序：静默退出、无输出（exit 49）。现在 `tools-env.ps1` 将 D 盘同版本的 `python.exe` / `python3.exe` 放在 PATH 前部；门禁仍由 `Resolve-RealPython` 排除占位程序并检查解释器是否可用。缺少真实解释器时按失败退出。未加载工作区环境的旧终端仍需先核对实际路径。
 
 ### `ANDROID_SDK_HOME` 与 Gradle daemon
 
-宿主环境里遗留的 `ANDROID_SDK_HOME=C:\Android` 不可写，会同时打坏两处：
+历史上宿主遗留的 `ANDROID_SDK_HOME=C:\Android` 曾造成两类错误：
 
 - Debug 出包停在 `:app:validateSigningFxDebug`，报 `java.nio.file.AccessDeniedException: C:\Android\.android\debug.keystore.lock`（AGP 把 keystore home 指了过去）。
 - 已启动的 Gradle daemon 会把这个变量带进 AGP，`AndroidLocationsBuildService` 去写 `C:\Android\analytics.settings` 失败。
 
 **Gradle daemon 不按环境变量匹配复用**，客户端清除环境变量不会更新已启动的 daemon。脚本只在检测到遗留 `ANDROID_SDK_HOME` 且未传 `-NoDaemonReset` 时执行 `gradlew --stop`；该开关会跳过清理，可能继续复用被污染的 daemon。
 脚本将 `ANDROID_USER_HOME` 指向工具链内的 `android-home`，复用既有 debug keystore，不改系统环境或签名身份。
+
+2026-11-05 已按用户要求迁移并删除 `C:\Android`。重复的 ADB/fastboot 使用 D 盘副本；不同的 DLL、调试密钥和设置先保留并逐文件核对。用户级 Android 变量已指向 D 盘，旧桌面进程仍可能继承旧环境，重新打开终端或应用后再核对 `Get-Command adb`。构建脚本每次显式载入 D 盘环境。
 
 ### Kotlin daemon 与 in-process 编译
 
@@ -43,6 +49,10 @@ cmd.exe /c "gradlew.bat -Pkotlin.compiler.execution.strategy=in-process -PbuildA
 ```
 
 上例是可选写法，不要求所有命令都经过 `cmd.exe /c`。在已配置环境的 PowerShell 中，也可用 `& .\gradlew.bat` 并把每个 `-P...` 参数单独引用；避免将多个参数合成一个字符串。
+
+### Robolectric 下载锁与缓存
+
+测试 JVM 若无法在用户主目录创建 `.robolectric-download-lock`，不能当作业务用例失败或通过。工作区的 `local-tests.init.gradle.kts` 仅为测试进程指定 `D:\GitHub\tools\robolectric-home` 和可写临时目录，并使用 Maven Central 官方的 `repo.maven.apache.org` 端点；Debug 脚本自动载入该文件。已下载的测试框架缓存也在 D 盘，不改生产代码或测试断言。
 
 ## 引擎 SDK 与共享预设
 
@@ -56,11 +66,13 @@ Get-Content native/rime-sdk.lock.json
 
 下载器使用 Java，不受 WindowsApps 的 Python 占位程序影响。缓存位于 `GRADLE_USER_HOME/caches/rime-sdk/`；先在线准备成功，再使用 `--offline`。下载失败时排查 GitHub Release 访问和 Java 的代理/证书，不修改固定摘要或换成其他引擎版本。提取文件损坏时重新运行 Gradle 会校验并从缓存恢复。
 
-从旧版本切换前，先保存旧 prebuilt 子模块内的本地修改；历史提交仍可从归档仓库检出重建。不要删除 `.git/modules/...`，其中可能仍有历史 worktree。若共享预设取不到 pin，先检查真实 SHA 与网络，再按固定 SHA 恢复该子模块。
+从旧版本切换前，先保存旧 prebuilt 子模块内的本地修改；历史提交仍可从归档仓库检出重建。不要无条件删除 `.git/modules/...`，其中可能仍有历史 worktree。只有在已授权清理、检查修改和所有 worktree，并确认具体目标及内部链接后，才按工具权限处理对应的废弃目录，不能清空整个 `.git/modules`。若共享预设取不到 pin，先检查真实 SHA 与网络，再按固定 SHA 恢复该子模块。
+
+获取当前远端优先使用 `git fetch --no-recurse-submodules origin`，再单独初始化共享预设，避免新增历史标签触发已经退出当前构建的旧子模块下载。
 
 ## 出包之后
 
-两个脚本默认在出包后跑 CI 的两道 native 门禁（`verify-direct-rime-apk.py` 与 `audit-direct-rime-link.py`，对齐 PR CI / Direct Rime CI）。实际门禁执行失败时不安装并退出非零。当前脚本在缺少可用 Python 或没有找到 APK 等路径上可能跳过门禁，因此必须核对日志确实执行了两项检查；不能仅凭脚本退出 0 判断通过。`-SkipVerify` 只用于明确跳过验证的诊断场景，不能把跳过的产物标成已验收。
+两个脚本默认在出包后跑 CI 的两道 native 门禁（`verify-direct-rime-apk.py` 与 `audit-direct-rime-link.py`，对齐 PR CI / Direct Rime CI）。门禁失败、缺少可用 Python 或未找到 APK 时不安装并退出非零。PowerShell 的门禁函数必须只返回一个布尔值，工具输出通过 `Out-Host` 展示；否则“输出文本 + false”会成为非空数组，被条件判断误当成成功。仍需核对本次产物与两项检查的日志。`-SkipVerify` 只用于明确跳过验证的诊断场景，不能把跳过的产物标成已验收。
 
 `verify-direct-rime-apk.py` 里的 `allowed` 是**打包原生库白名单**：新增任何带 `.so` 的依赖，必须把库名登记进去，否则 Debug 出包一切正常、只有 Release 门禁（和 CI）会在 `packaged == allowed` 断言上变红。2026-10-28 接入 JS 语音插件时 `libquickjs.so` 就是这么漏掉的。
 
@@ -96,4 +108,4 @@ git -C fx-rime-only submodule status
 ```
 
 
-`build-debug.ps1 -Task` 接收单个 Gradle 任务，`-Test` 会覆盖为 JVM 单测任务；不能把任务与 `--tests` 等参数整段塞入 `-Task`。需要筛选测试时，在已配置环境的 shell 中向 Gradle 分别传递任务和参数。
+`build-debug.ps1 -Task` 接收单个 Gradle 任务，`-Test` 会覆盖为 JVM 单测任务；不能把任务与 `--tests` 等参数整段塞入 `-Task`。在 PowerShell 中通过 `& .\build-debug.ps1 -Test -GradleArgs @('--tests', '完整测试类名', '-Pkotlin.compiler.execution.strategy=in-process')` 分别传入参数；`--offline`、`--no-daemon` 等同样可放入该数组，也可在已配置环境中直接调用 Gradle。

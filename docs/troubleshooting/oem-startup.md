@@ -18,6 +18,8 @@
 
 只同步当前布局，不会把 Rime 用户词库和日常方案搬到可提前读取的目录。字体、图标和正常方案在首次解锁后的进程重启中恢复。若锁屏显示旧布局，先在已解锁状态打开应用并检查当前布局是否可正常加载；源文件被删除或无效时会清除快照。相关实现有框架回归，真机冷重启体验仍需按具体设备验证。
 
+只有空白占位键的密码布局同样视为不可输入，会继续回退；布局含有正常按键时仍保留其占位与排版。
+
 如果日志出现 `SharedPreferences in credential encrypted storage are not available until after user is unlocked`，这是应用启动时读取了尚未解锁的设置，需要应用修复。反馈时请注明是否为重启后的首次解锁，并按[反馈问题](/troubleshooting/report-issue)提供版本与日志。
 
 ### 小米 (MIUI / HyperOS)

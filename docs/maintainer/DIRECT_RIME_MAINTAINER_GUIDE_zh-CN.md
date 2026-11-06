@@ -118,6 +118,8 @@ Android SDK CI 位于 librime 仓库：从固定来源编译 Boost 头文件、�
 
 完整步骤、组件来源、摘要计算、变基与补丁重放、SDK 发布、输入法更新和回退见[引擎、插件与依赖更新](engine-update.md)。
 
+本地修改引擎后可走[Windows 本地开发](local-engine-development.md)：工作树快照、单 ABI 构建、SDK 校验和 Debug 接入各有明确入口。开发输入带标记；正式 SDK 与 Release 继续使用已提交源码及固定版本锁。
+
 1. 在 `SandyYuR/librime` 的 `zhongzhou` 更新固定官方基线，依次重放独有补丁，更新 `downstream/manifest.json`；核心补丁只维护在源码提交中。
 2. 需要升级依赖/插件时修改 `downstream/android/sources.lock.json` 和固定补丁，保持来源、摘要、工具链明确。
 3. 源码 CI 与 Android SDK CI 通过后，核对原生回归、四 ABI 编译/最终链接、SDK 文件清单和来源。
