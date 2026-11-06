@@ -85,16 +85,20 @@ class SubModeManager(
          *
          * @see RimeSchemaMenuDialog
          */
-        fun resolveSchemaMenuEntries(actions: Array<Action>): List<Pair<String, Int>> {
+        fun resolveSchemaMenuEntries(actions: Array<Action>): List<Pair<String, Int>> =
+            resolveSchemaMenuActions(actions).map { it.shortText.trim() to it.id }
+
+        /** Schema selection remains meaningful when the frontend displays Latin/password mode. */
+        fun resolveSelectedSchemaAction(actions: Array<Action>): Int? =
+            resolveSchemaMenuActions(actions).firstOrNull { it.isChecked }?.id
+
+        private fun resolveSchemaMenuActions(actions: Array<Action>): List<Action> {
             val currentLabels = actions.mapNotNull { SubModeMenuResolver.toMenuLabel(it) }
             for (currentLabel in currentLabels) {
                 val picked = SubModeMenuResolver.pickSchemeMenu(actions, currentLabel) ?: continue
                 val result = SubModeMenuResolver.takeItemsBeforeSeparator(picked)
                     .drop(1)
-                    .mapNotNull { item ->
-                        val name = item.shortText.trim().takeIf { it.isNotEmpty() } ?: return@mapNotNull null
-                        name to item.id
-                    }
+                    .filter { it.shortText.isNotBlank() }
                 if (result.isNotEmpty()) return result
             }
             return emptyList()

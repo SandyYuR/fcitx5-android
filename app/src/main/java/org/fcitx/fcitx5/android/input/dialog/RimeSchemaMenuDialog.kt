@@ -34,18 +34,14 @@ object RimeSchemaMenuDialog {
         val themed = SettingsUiPreferences.themedContext(context, SettingsUiPreferences.read(context))
         val builder = MaterialAlertDialogBuilder(themed)
         val dialogContext = builder.context
-        val entries: List<Pair<String, Int>> =
-            runCatching { SubModeManager.resolveSchemaMenuEntries(fcitx.statusArea()) }
+        val actions =
+            runCatching { fcitx.statusArea() }
                 .onFailure { Timber.w(it, "Failed to resolve rime schema menu") }
-                .getOrElse { emptyList() }
-        val enabledName: String? = runCatching { fcitx.currentIme() }
-            .getOrNull()
-            ?.subMode
-            ?.let { it.label.ifEmpty { it.name } }
-            ?.trim()
-        val labels: List<String> = entries.map { it.first }
-        // enabledIndex 找不到时传 -1（无高亮），与 InputMethodListAdapter 约定一致。
-        val enabledIndex: Int = enabledName?.let { labels.indexOf(it) } ?: -1
+                .getOrElse { emptyArray() }
+        val entries = SubModeManager.resolveSchemaMenuEntries(actions)
+        val selected = SubModeManager.resolveSelectedSchemaAction(actions)
+        // The frontend's "abc" label is an input mode, not the selected Rime schema.
+        val enabledIndex = entries.indexOfFirst { it.second == selected }
         lateinit var dialog: AlertDialog
         val root = buildSchemaMenuChoices(dialogContext, entries, enabledIndex) { actionId ->
             if (canSelect()) service.postFcitxJob {

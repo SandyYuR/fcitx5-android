@@ -17,6 +17,8 @@ struct Fake {
     size_t selectedSpan = 0, selectedGlobal = 999, deletedGlobal = 999, caret = 999;
     int freedIterator = 0, cleared = 0, clearedTabs = 0;
     std::string commit, selectedLabel, preedit, clientApp, distribution, version;
+    std::string rawInput;
+    size_t rawCaret = 0;
     RimeNotificationHandler callback = nullptr;
     void* context = nullptr;
 } f;
@@ -158,6 +160,59 @@ void testFrontendExtensions() {
     CHECK(engine.candidates(1, 0, 10).empty() && f.freedIterator == 1);
     engine.stop();
 }
+void testReadOnlyRefresh() {
+    f = {}; auto a = api();
+    a.get_input = [](RimeSessionId) -> const char* { return f.rawInput.c_str(); };
+    a.get_caret_pos = [](RimeSessionId) -> size_t { return f.rawCaret; };
+    Engine engine(&a); engine.start("shared", "user");
+    auto initial = engine.begin(1, "editor");
+    f.preedit = "ni hao"; f.rawInput = "nihao"; f.rawCaret = 3; f.commit = "once";
+    auto value = engine.action(1, initial.revision, 13, 6, "");
+    CHECK(!value.handled && value.commit == "once" && f.freedCommit == 1);
+    CHECK(f.caret == 999 && f.keys == 0 && f.rawCaret == 3);
+    auto raw = engine.rawInput(1, value.revision);
+    CHECK(raw && raw->text == "nihao" && raw->caret == 3);
+    CHECK(!engine.rawInput(2, value.revision) && !engine.rawInput(1, value.revision - 1));
+    f.rawCaret = 999; CHECK(!engine.rawInput(1, value.revision)); f.rawCaret = 3;
+    // Reading raw coordinates neither consumes commits nor advances the snapshot revision.
+    auto next = engine.action(1, value.revision, 13, 0, "");
+    CHECK(next.gate == Ready && next.commit.empty() && f.freedCommit == 1 && f.caret == 999);
+    a.get_input = nullptr; CHECK(!engine.rawInput(1, next.revision));
+    engine.stop();
+}
+void testPresentationReuse() {
+    Snapshot old;
+    old.generation = 7; old.revision = 9; old.optionsRevision = 2; old.gate = Ready;
+    old.commit = "previous commit"; old.preedit = "ni"; old.schema = "test"; old.schemaName = "Test";
+    old.preview = "你"; old.candidates = {"你"}; old.comments = {""}; old.labels = {"1 "}; old.tabs = {"ni"};
+    Snapshot current = old; current.commit.clear(); current.handled = false; ++current.revision;
+    CHECK(current.canReusePresentation(old) && current.canCachePresentation());
+    auto reject = [&](Snapshot changed) { CHECK(!changed.canReusePresentation(old)); };
+    auto changed = current; changed.handled = true; reject(changed);
+    changed = current; changed.commit = "new commit"; reject(changed);
+    changed = current; ++changed.generation; reject(changed);
+    changed = current; ++changed.optionsRevision; reject(changed);
+    changed = current; changed.gate = Stale; reject(changed);
+    changed = current; changed.ascii = true; reject(changed);
+    changed = current; ++changed.page; reject(changed);
+    changed = current; changed.lastPage = !changed.lastPage; reject(changed);
+    changed = current; ++changed.cursor; reject(changed);
+    changed = current; ++changed.highlighted; reject(changed);
+    changed = current; changed.preedit += "x"; reject(changed);
+    changed = current; changed.schema += "x"; reject(changed);
+    changed = current; changed.schemaName += "x"; reject(changed);
+    changed = current; changed.preview += "x"; reject(changed);
+    changed = current; changed.candidates[0] += "x"; reject(changed);
+    changed = current; changed.comments[0] += "x"; reject(changed);
+    changed = current; changed.labels[0] += "x"; reject(changed);
+    changed = current; changed.tabs[0] += "x"; reject(changed);
+    Snapshot large; large.gate = Ready; large.preedit.assign(64 * 1024, 'x');
+    CHECK(large.canCachePresentation());
+    large.preedit.push_back('x'); CHECK(!large.canCachePresentation());
+    large.preedit.clear(); large.commit.assign(64 * 1024 + 1, 'x'); CHECK(!large.canCachePresentation());
+    large.commit.clear(); large.candidates.resize(1025); CHECK(!large.canCachePresentation());
+    current.gate = NoSession; CHECK(!current.canCachePresentation());
+}
 void testUnicode() {
     std::u16string decoded;
     CHECK(utf16("你😀", decoded) && decoded.size() == 3);
@@ -240,6 +295,6 @@ void testGeneratedConfigInvalidation() {
 }
 }
 int main() {
-    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testUnicode(); testOptionInvalidation(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n"; }
+    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n"; }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

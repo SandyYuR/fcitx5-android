@@ -267,18 +267,20 @@ class DirectRimeBackend(context: Context) : InputEngine {
         ).onEach { it.inputSession = generation })
         android.util.Log.i("RimeLifecycle", "binding_inactive generation=$generation native_create=false")
     }
-    private fun act(action: Int, index: Int = 0, value: String = ""): Snapshot? {
+    private fun act(action: Int, index: Int = 0, value: String = "", forceCandidates: Boolean = false): Snapshot? {
         val previous = snapshot ?: return null
         if (!started || maintenance || previous.generation != inputSession) return null
         return interactivePriority.run {
-            Native.action(previous.generation, previous.revision, action, index, value).also { publish(it) }
+            Native.action(previous.generation, previous.revision, action, index, value).also {
+                publish(it, forceCandidates = forceCandidates)
+            }
         }
     }
     private fun formatted(text: String, cursor: Int = text.length, underline: Boolean = false) =
         if (text.isEmpty()) FormattedText.Empty else FormattedText(arrayOf(text),
             intArrayOf(if (underline) TextFormatFlag.Underline.flag else 0), cursor.coerceIn(0, text.length))
 
-    private fun publish(value: Snapshot, release: Boolean = false) {
+    private fun publish(value: Snapshot, release: Boolean = false, forceCandidates: Boolean = false) {
         if (value.generation != inputSession || value.gate == 3) return
         val previous = snapshot
         snapshot = value
@@ -342,12 +344,17 @@ class DirectRimeBackend(context: Context) : InputEngine {
         else FcitxEvent.CandidateListEvent(FcitxEvent.CandidateListEvent.Data(-1, candidates))
         // An unchanged first page can hide a changed tail of a lazy translation.
         // Keep handled keys/actions and composition changes invalidating expanded pages.
-        if (newSession || value.handled || optionsChanged || previous?.preedit != value.preedit ||
-            previous?.cursorBytes != value.cursorBytes || candidateEvent != candidateEventCached) {
-            candidateVersion++
-            candidateEvent.candidateActionContext = CandidateActionContext(value.generation, candidateVersion)
-            batch += candidateEvent
+        val invalidateCandidates = newSession || value.handled || optionsChanged || previous?.preedit != value.preedit ||
+            previous?.cursorBytes != value.cursorBytes || candidateEvent != candidateEventCached
+        if (invalidateCandidates) candidateVersion++
+        val candidateContext = CandidateActionContext(value.generation, candidateVersion)
+        candidates.forEachIndexed { index, candidate ->
+            // The native snapshot contains the current Rime page, even when a UI
+            // chooses a different presentation mode. Keep that source identity.
+            candidate.selectionTarget = CandidateSelectionTarget(candidateContext, index, global = false)
         }
+        candidateEvent.candidateActionContext = candidateContext
+        if (invalidateCandidates || forceCandidates) batch += candidateEvent
         candidateEventCached = candidateEvent
         if (imeChanged) batch += FcitxEvent.IMChangeEvent(ime)
         if (statusChanged) batch += FcitxEvent.StatusAreaEvent(FcitxEvent.StatusAreaEvent.Data(actions, ime))
@@ -503,18 +510,46 @@ class DirectRimeBackend(context: Context) : InputEngine {
     }
     override suspend fun select(idx: Int) = idx >= 0 && performAction(if (pagingMode == 0) 11 else 1, idx)?.ready == true
     override suspend fun selectGlobal(idx: Int) = idx >= 0 && performAction(11, idx)?.ready == true
+    override suspend fun selectCandidateIfCurrent(idx: Int, global: Boolean, expected: CandidateActionContext) =
+        idx >= 0 && performAction(if (global) 11 else 1, idx, expected)?.ready == true
     override suspend fun isEmpty() = onOwner { snapshot?.preedit.isNullOrEmpty() }
     override suspend fun reset() { onOwner { act(0) } }
-    override suspend fun moveCursor(position: Int) { onOwner {
-        val text = snapshot?.preedit ?: return@onOwner
-        act(9, text.take(position.coerceIn(0, text.length)).toByteArray().size)
-    } }
+    override suspend fun moveCursor(position: Int) { onOwner { moveCursorOnOwner(position, inputSession, null) } }
+    override suspend fun moveCursorIfCurrent(position: Int, expectedSession: Long, expectedPreedit: String) =
+        onOwner { moveCursorOnOwner(position, expectedSession, expectedPreedit) }
+
+    private fun moveCursorOnOwner(position: Int, expectedSession: Long, expectedPreedit: String?): Boolean {
+        val value = snapshot ?: return false
+        if (!started || maintenance || !value.ready || value.generation != inputSession || expectedSession != inputSession)
+            return false
+        fun restoreClientCursor() {
+            events.offer(listOf(FcitxEvent.ClientPreeditEvent(clientPreeditCached).apply { inputSession = value.generation }))
+        }
+        // CommitPreview is a prediction, not an editable representation of raw input.
+        if (config.preeditMode != "ComposingText" ||
+            (expectedPreedit != null && expectedPreedit != clientPreeditCached.toString())) {
+            restoreClientCursor()
+            return false
+        }
+        val raw = Native.rawInput(value.generation, value.revision)
+        val target = raw?.let { preeditCursorToRawBytes(value.preedit, value.cursorUtf16, it.text, it.caretBytes, position) }
+        if (raw == null || target == null) {
+            restoreClientCursor()
+            return false
+        }
+        if (target == raw.caretBytes) {
+            restoreClientCursor()
+            return true
+        }
+        return act(9, target)?.ready == true
+    }
     override suspend fun getCandidates(offset: Int, limit: Int): Array<CandidateWord> {
         val expected = snapshot ?: return emptyArray()
         // Snapshot revisions also advance on unhandled key-up. Only cancel a
         // page when a candidate invalidation was actually published, otherwise
         // Paging would lose its load without receiving a replacement refresh.
         val expectedVersion = candidateVersion
+        val selectionContext = CandidateActionContext(expected.generation, expectedVersion)
         val count = limit.coerceIn(1, 256)
         if (offset < 0 || offset > Int.MAX_VALUE - count) return emptyArray()
         return readCandidatePage(offset, count) { start, size ->
@@ -523,7 +558,11 @@ class DirectRimeBackend(context: Context) : InputEngine {
                     candidateVersion != expectedVersion) return@onOwner null
                 trace("rime.direct.candidate_batch") {
                     Native.candidates(expected.generation, start, size).toList().chunked(2)
-                        .map { CandidateWord("", it[0], it[1]) }
+                        .mapIndexed { index, word ->
+                            CandidateWord("", word[0], word[1]).apply {
+                                selectionTarget = CandidateSelectionTarget(selectionContext, start + index, global = true)
+                            }
+                        }
                 }
             }
         }.toTypedArray()
@@ -542,10 +581,10 @@ class DirectRimeBackend(context: Context) : InputEngine {
             act(3, value = schemas[id - 100].first)?.ready == true
         }
     }
-    override suspend fun setCandidatePagingMode(mode: Int) { onOwner { pagingMode = mode; snapshot?.takeIf { it.generation == inputSession }?.let { publishWithoutCommit(it) } } }
-    private fun publishWithoutCommit(value: Snapshot) {
-        // Native action 9 refreshes without consuming a key; never republish a commit-bearing result.
-        act(9, value.cursorBytes)
+    override suspend fun setCandidatePagingMode(mode: Int) { onOwner { pagingMode = mode; refreshPresentation(forceCandidates = true) } }
+    private fun refreshPresentation(forceCandidates: Boolean = false) {
+        // Read fresh output; never move raw input or replay a commit-bearing cached snapshot.
+        act(13, forceCandidates = forceCandidates)
     }
     override suspend fun offsetCandidatePage(delta: Int) { onOwner { repeat(kotlin.math.abs(delta).coerceAtMost(100)) { act(2, delta) } } }
     override suspend fun triggerCandidateListTabAction(id: Int) { performAction(if (id == -1) 7 else 4, id) }
@@ -658,7 +697,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override suspend fun getAddonConfig(addon: String) = getImConfig(addon)
     override suspend fun setAddonConfig(addon: String, config: RawConfig) = setImConfig(addon, config)
     override suspend fun getImConfig(key: String) = onOwner { config.describe() }
-    override suspend fun setImConfig(key: String, config: RawConfig) { onOwner { this.config.setOptions(config); act(9, snapshot?.cursorBytes ?: 0) } }
+    override suspend fun setImConfig(key: String, config: RawConfig) { onOwner { this.config.setOptions(config); refreshPresentation() } }
     override suspend fun addons() = arrayOf(AddonInfo("rime", "Rime", "librime 直连引擎", AddonCategory.InputMethod, true, true, true, false))
     override suspend fun setAddonState(name: Array<String>, state: BooleanArray) { require(state.all { it }) { "Rime 引擎不可关闭" } }
     override suspend fun getAddonSubConfig(addon: String, path: String) = onOwner { when(path) {

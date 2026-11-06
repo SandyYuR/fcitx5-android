@@ -91,10 +91,14 @@ class PagedCandidatesUi(
                     val candidate = data.candidates[position]
                     holder.ui.update(candidate, active = position == data.cursorIndex)
                     holder.ui.root.setOnClickListener {
-                        onCandidateClick.invoke(position)
+                        val index = holder.bindingAdapterPosition
+                        if (data.candidates.getOrNull(index) != candidate) return@setOnClickListener
+                        onCandidateClick.invoke(index)
                     }
                     holder.ui.root.setOnLongClickListener { v ->
-                        onCandidateAction.invoke(position, candidate.text, v)
+                        val index = holder.bindingAdapterPosition
+                        if (data.candidates.getOrNull(index) != candidate) return@setOnLongClickListener true
+                        onCandidateAction.invoke(index, candidate.text, v)
                         true
                     }
                     holder.ui.root.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
@@ -147,12 +151,13 @@ class PagedCandidatesUi(
         // 字体数据版本号变化时必须放行，否则改完「字体设定」后浮动候选窗
         // 会停在旧字体上，直到候选内容本身变化才肯重绑。
         val fontGeneration = FontProviders.fontGeneration
-        if (this.data == data && this.isVertical == newIsVertical &&
+        val previous = this.data
+        this.data = data
+        if (previous == data && this.isVertical == newIsVertical &&
             this.isReversed == newIsReversed && fontGeneration == appliedFontGeneration
         ) return
 
         appliedFontGeneration = fontGeneration
-        this.data = data
         this.isVertical = newIsVertical
         this.isReversed = newIsReversed
         candidatesLayoutManager.apply {

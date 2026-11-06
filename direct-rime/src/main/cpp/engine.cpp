@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
+#include <limits>
 #include <sstream>
 #include <rime_levers_api.h>
 #include <stdexcept>
@@ -96,6 +97,34 @@ bool utf16(const std::string& input, std::u16string& output) {
             return false;
         if (cp <= 0xffff) output.push_back(static_cast<char16_t>(cp));
         else { cp -= 0x10000; output.push_back(0xd800 + (cp >> 10)); output.push_back(0xdc00 + (cp & 1023)); }
+    }
+    return true;
+}
+
+bool Snapshot::canReusePresentation(const Snapshot& previous) const {
+    return !handled && commit.empty() && gate == Ready && previous.gate == Ready &&
+        generation == previous.generation && optionsRevision == previous.optionsRevision &&
+        ascii == previous.ascii && page == previous.page && lastPage == previous.lastPage &&
+        cursor == previous.cursor && highlighted == previous.highlighted &&
+        preedit == previous.preedit && schema == previous.schema && schemaName == previous.schemaName &&
+        preview == previous.preview && candidates == previous.candidates && comments == previous.comments &&
+        tabs == previous.tabs && labels == previous.labels;
+}
+bool Snapshot::canCachePresentation() const {
+    if (gate != Ready) return false;
+    constexpr size_t maxBytes = 64 * 1024, maxStrings = 1024;
+    size_t bytes = 0, strings = 0;
+    auto fits = [&](const std::string& text) {
+        if (text.size() > maxBytes - bytes) return false;
+        bytes += text.size();
+        return true;
+    };
+    for (const auto* text : {&commit, &preedit, &schema, &schemaName, &preview})
+        if (!fits(*text)) return false;
+    for (const auto* values : {&candidates, &comments, &tabs, &labels}) {
+        if (values->size() > maxStrings - strings) return false;
+        strings += values->size();
+        for (const auto& text : *values) if (!fits(text)) return false;
     }
     return true;
 }
@@ -269,9 +298,19 @@ Snapshot Engine::action(int64_t generation, int64_t revision, int action, int in
     case 10: api_->commit_composition(session_); break;
     case 11: if (index >= 0) api_->select_candidate(session_, index); break;
     case 12: if (index >= 0 && RIME_API_AVAILABLE(api_, delete_candidate)) api_->delete_candidate(session_, index); break;
+    case 13: break; // Read current output without moving the caret or recomposing.
     default: throw std::invalid_argument("unknown direct Rime action");
       } }
-    return snapshot(generation);
+    return snapshot(generation, action != 13);
+}
+std::optional<RawInput> Engine::rawInput(int64_t generation, int64_t revision) {
+    owner();
+    if (gate(generation) != Ready || revision != revision_ ||
+        !RIME_API_AVAILABLE(api_, get_input) || !RIME_API_AVAILABLE(api_, get_caret_pos)) return std::nullopt;
+    auto text = safe(api_->get_input(session_));
+    const auto caret = api_->get_caret_pos(session_);
+    if (caret > text.size() || text.size() > static_cast<size_t>(std::numeric_limits<int>::max())) return std::nullopt;
+    return RawInput{std::move(text), static_cast<int>(caret)};
 }
 Snapshot Engine::snapshot(int64_t generation, bool handled) {
     Trace trace("rime.direct.snapshot");

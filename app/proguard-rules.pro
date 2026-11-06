@@ -27,4 +27,5 @@
 
 # Batched direct librime JNI result and entry points.
 -keep class org.fcitx.directrime.Snapshot { *; }
+-keep class org.fcitx.directrime.RawInputState { *; }
 -keep class org.fcitx.directrime.Native { *; }

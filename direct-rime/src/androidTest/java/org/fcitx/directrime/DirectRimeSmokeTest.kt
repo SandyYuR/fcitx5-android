@@ -7,6 +7,49 @@ import org.junit.Test
 
 /** Uses only this APK's sandbox and bundled deterministic schema. */
 class DirectRimeSmokeTest {
+    @Test fun unchangedReleaseSharesArraysWithoutMutatingEarlierSnapshot(): Unit = runBlocking {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        assertTrue(RimeRuntime.deploy(context, smoke = true))
+        val generation = RimeRuntime.newGeneration()
+        RimeRuntime.begin(context, generation, "smoke.reuse")
+        RimeRuntime.key(generation, 'n'.code)
+        val down = RimeRuntime.key(generation, 'i'.code)!!
+        val oldRevision = down.revision
+        val up = RimeRuntime.key(generation, 'i'.code, release = true)!!
+        assertFalse(up.handled)
+        assertNotSame(down, up)
+        assertEquals(oldRevision, down.revision)
+        assertTrue(up.revision > oldRevision)
+        assertTrue(up.commit.isEmpty())
+        assertSame(down.candidates, up.candidates)
+        assertSame(down.comments, up.comments)
+        assertSame(down.labels, up.labels)
+        assertSame(down.tabs, up.tabs)
+        RimeRuntime.end(generation)
+    }
+
+    @Test fun rawCoordinatesAndReadOnlyRefreshKeepInputAndConsumeCommitOnce(): Unit = runBlocking {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        assertTrue(RimeRuntime.deploy(context, smoke = true))
+        val generation = RimeRuntime.newGeneration()
+        RimeRuntime.begin(context, generation, "smoke.cursor")
+        RimeRuntime.key(generation, 'n'.code)
+        val typed = RimeRuntime.key(generation, 'i'.code)!!
+        val before = RimeRuntime.rawInput(typed)!!
+        assertEquals("ni", before.text)
+        assertEquals(2, before.caretBytes)
+        val refreshed = RimeRuntime.action(typed, 13)!!
+        assertFalse(refreshed.handled)
+        val after = RimeRuntime.rawInput(refreshed)!!
+        assertEquals(before.text, after.text)
+        assertEquals(before.caretBytes, after.caretBytes)
+        assertNull(RimeRuntime.rawInput(typed))
+        val committed = RimeRuntime.action(refreshed, 1, 0)!!
+        assertEquals("你", committed.commit)
+        assertTrue(RimeRuntime.action(committed, 13)!!.commit.isEmpty())
+        RimeRuntime.end(generation)
+    }
+
     @Test fun deployTypeSelectCommitOnceAndRejectStaleEditor(): Unit = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         assertTrue(RimeRuntime.deploy(context, smoke = true))

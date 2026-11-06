@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.core.CandidateWord
+import org.fcitx.fcitx5.android.core.CandidateActionContext
+import org.fcitx.fcitx5.android.core.CandidateSelectionTarget
 import org.fcitx.fcitx5.android.data.theme.ThemePreset
 import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeContent
 import org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder
@@ -27,6 +29,38 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [23, 28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
 class MovingCandidateBadgeTest {
+    private fun selectable(text: String, version: Long, index: Int = 0) = word(text).apply {
+        selectionTarget = CandidateSelectionTarget(CandidateActionContext(9, version), index, false)
+    }
+
+    @Test fun identicalTextUpdatesItsClickTargetWithoutRebindingTheHolder() = fixture { view, adapter ->
+        adapter.updateCandidates(arrayOf(selectable("a", 1)), -1)
+        layout(view)
+        val holder = view.findViewHolderForAdapterPosition(0) as CandidateViewHolder
+        adapter.fullBinds = 0
+        val next = selectable("a", 2)
+        adapter.updateCandidates(arrayOf(next), -1)
+        layout(view)
+        assertEquals(0, adapter.fullBinds)
+        assertSame(holder, view.findViewHolderForAdapterPosition(0))
+        assertEquals(next.selectionTarget, holder.selectionFor(adapter.candidates[0]))
+        assertNull(holder.selectionFor(selectable("not-yet-displayed", 2)))
+    }
+
+    @Test fun targetRefreshPreservesTheCurrentWindowAndOriginalCandidateIndex() = fixture { view, adapter ->
+        val old = arrayOf(selectable("a", 1, 0), selectable("b", 1, 1))
+        adapter.updateCandidates(old.copyOfRange(1, 2), -1, indexOffset = 1)
+        layout(view)
+        val holder = view.findViewHolderForAdapterPosition(0) as CandidateViewHolder
+        adapter.fullBinds = 0
+        val next = arrayOf(selectable("a", 2, 0), selectable("b", 2, 1))
+        assertTrue(adapter.updateSelectionTargets(next))
+        layout(view)
+        assertEquals(1, adapter.indexOffset)
+        assertEquals(0, adapter.fullBinds)
+        assertEquals(next[1].selectionTarget, holder.selectionFor(adapter.candidates[0]))
+    }
+
     private class Adapter(content: CandidateIndexBadgeContent, enabled: Boolean) : HorizontalCandidateViewAdapter(
         ThemePreset.MaterialLight, initialCandidateIndexBadgeEnabled = enabled,
         initialCandidateIndexBadgeContent = content
