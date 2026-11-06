@@ -1,7 +1,7 @@
 {
   "id": "llm-assistant",
   "name": "LLM 助手",
-  "version": "1.23.2-fx",
+  "version": "1.23.3-fx",
   "hosts": [],
   "features": [],
   "apps": [

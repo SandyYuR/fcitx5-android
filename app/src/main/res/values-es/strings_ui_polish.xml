@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_theme_selected">En uso</string>
+    <string name="ui_theme_day">Día</string>
+    <string name="ui_theme_night">Noche</string>
+    <string name="ui_plugin_voice">Voz</string>
+    <string name="ui_plugin_tools">Herramientas</string>
+    <string name="ui_plugin_settings">Ajustes del servicio</string>
+    <string name="ui_plugin_credentials">Credenciales</string>
+    <string name="ui_plugin_permissions">Permisos</string>
+    <string name="ui_plugin_manage">Gestión de complementos</string>
+    <string name="ui_plugin_secret_summary">%1$d de %2$d credenciales visibles guardadas</string>
+    <string name="ui_plugin_revoked">Permisos restablecidos. Se solicitará autorización en el próximo uso.</string>
+    <string name="ui_operation_status">Estado de la operación</string>
+    <string name="ui_operation_details">Detalles</string>
+    <string name="ui_operation_failed">Error en la operación</string>
+    <string name="ui_operation_cancelled">Cancelado</string>
+    <string name="ui_backup_ready">Exporta para crear una copia o importa para restaurarla.</string>
+    <string name="ui_backup_preparing">Preparando la copia</string>
+    <string name="ui_backup_checking">Comprobando la copia</string>
+    <string name="ui_backup_destination">Elige dónde guardar la copia</string>
+    <string name="ui_backup_saving">Guardando la copia</string>
+    <string name="ui_retry">Reintentar</string>
+    <string name="ui_import_destination">Destino: %1$s</string>
+    <string name="ui_clipboard_pinned">Fijado</string>
+    <string name="ui_download">Descargar</string>
+</resources>

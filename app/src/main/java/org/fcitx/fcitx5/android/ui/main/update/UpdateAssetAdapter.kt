@@ -12,6 +12,10 @@ import android.text.method.LinkMovementMethod
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.appcompat.widget.TooltipCompat
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
+import org.fcitx.fcitx5.android.utils.settingsColor
 import androidx.recyclerview.widget.RecyclerView
 import org.fcitx.fcitx5.android.R
 import java.util.Locale
@@ -117,7 +121,8 @@ class UpdateAssetAdapter(
         private val title: TextView? = view.findViewById(R.id.assetTitle)
         private val subtitle: TextView? = view.findViewById(R.id.assetSubtitle)
         private val progress: ProgressBar? = view.findViewById(R.id.assetProgress)
-        private val action: TextView? = view.findViewById(R.id.assetAction)
+        private val action: MaterialButton? = view.findViewById(R.id.assetAction)
+        private var presentedStatus: AssetStatus? = null
         private val releaseNotesText: TextView? = view.findViewById(R.id.releaseNotesText)
 
         fun bindAsset(item: AssetUiState) {
@@ -143,32 +148,44 @@ class UpdateAssetAdapter(
             progress.progress = item.progressPercent
             progress.visibility = if (item.status == AssetStatus.DOWNLOADING) View.VISIBLE else View.GONE
 
-            val bgColor = when (item.status) {
-                AssetStatus.IDLE -> android.R.color.transparent
-                AssetStatus.DOWNLOADING -> R.color.update_asset_downloading_bg
-                AssetStatus.FINISHED -> R.color.update_asset_finished_bg
-                AssetStatus.FAILED, AssetStatus.CANCELED -> R.color.update_asset_failed_bg
-            }
-            itemView.setBackgroundColor(ContextCompat.getColor(itemView.context, bgColor))
-
-            when (item.status) {
-                AssetStatus.DOWNLOADING -> {
-                    action.visibility = View.VISIBLE
-                    action.text = "🗑"
-                    action.contentDescription = itemView.context.getString(R.string.cancel)
+            if (presentedStatus != item.status) {
+                presentedStatus = item.status
+                val surface = when (item.status) {
+                    AssetStatus.DOWNLOADING, AssetStatus.FINISHED -> com.google.android.material.R.attr.colorSecondaryContainer
+                    AssetStatus.FAILED -> com.google.android.material.R.attr.colorErrorContainer
+                    else -> com.google.android.material.R.attr.colorSurfaceBright
                 }
-                AssetStatus.FINISHED -> {
-                    action.visibility = View.VISIBLE
-                    action.text = "✅"
-                    action.contentDescription = itemView.context.getString(R.string.update_install_action)
+                val foreground = when (item.status) {
+                    AssetStatus.DOWNLOADING, AssetStatus.FINISHED -> com.google.android.material.R.attr.colorOnSecondaryContainer
+                    AssetStatus.FAILED -> com.google.android.material.R.attr.colorOnErrorContainer
+                    else -> com.google.android.material.R.attr.colorOnSurface
                 }
-                else -> {
-                    action.visibility = View.GONE
-                }
+                (itemView as MaterialCardView).setCardBackgroundColor(itemView.context.settingsColor(surface))
+                val color = itemView.context.settingsColor(foreground)
+                title.setTextColor(color)
+                subtitle.setTextColor(color)
+                action.iconTint = android.content.res.ColorStateList.valueOf(color)
+                action.visibility = View.VISIBLE
+                action.setIconResource(when (item.status) {
+                    AssetStatus.DOWNLOADING -> R.drawable.ic_settings_close
+                    AssetStatus.FINISHED -> R.drawable.ic_baseline_check_circle_24
+                    AssetStatus.FAILED, AssetStatus.CANCELED -> R.drawable.ic_settings_retry
+                    AssetStatus.IDLE -> R.drawable.ic_settings_download
+                })
+                action.contentDescription = itemView.context.getString(when (item.status) {
+                    AssetStatus.DOWNLOADING -> R.string.cancel
+                    AssetStatus.FINISHED -> R.string.update_install_action
+                    AssetStatus.IDLE -> R.string.ui_download
+                    else -> R.string.ui_retry
+                })
+                TooltipCompat.setTooltipText(action, action.contentDescription)
             }
 
             itemView.setOnClickListener { onItemClick(item) }
-            action.setOnClickListener { onActionClick(item) }
+            action.setOnClickListener {
+                if (item.status == AssetStatus.DOWNLOADING || item.status == AssetStatus.FINISHED) onActionClick(item)
+                else onItemClick(item)
+            }
         }
 
         fun bindReleaseNotes(notes: CharSequence) {

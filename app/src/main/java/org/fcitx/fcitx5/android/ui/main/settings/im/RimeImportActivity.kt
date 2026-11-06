@@ -29,6 +29,8 @@ import org.fcitx.fcitx5.android.core.RawConfig
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.ui.main.ShareReceiveDirectoryPicker
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
+import org.fcitx.fcitx5.android.ui.common.OperationStatusView
+import org.fcitx.fcitx5.android.ui.common.OperationStatusView.State
 import org.fcitx.fcitx5.android.utils.ExternalRimeStorage
 import java.io.File
 import java.util.zip.ZipFile
@@ -36,7 +38,10 @@ import java.util.zip.ZipFile
 /** Imports a profile ZIP into a new profile directory chosen by the user. */
 class RimeImportActivity : SettingsUiActivity() {
     private val connection by lazy { FcitxDaemon.connect(javaClass.name) }
-    private lateinit var status: TextView
+    private lateinit var status: OperationStatusView
+    private var statusTitle = ""
+    private var statusDetails = ""
+    private var statusState = State.IDLE
     private lateinit var choose: MaterialButton
     private var pendingArchivePath: String? = null
     private var pendingDestinationPath: String? = null
@@ -55,7 +60,7 @@ class RimeImportActivity : SettingsUiActivity() {
             pendingDestinationPath = null
             pendingSelectionStep = null
             choose.isEnabled = true
-            status.setText(R.string.direct_rime_archive_missing)
+            showStatus(R.string.direct_rime_archive_missing, State.ERROR)
             return@registerForActivityResult
         }
         if (uri == null) {
@@ -132,11 +137,19 @@ class RimeImportActivity : SettingsUiActivity() {
             }
         }
         content.addView(choose)
-        status = TextView(this).apply {
-            textSize = 15f
-            setPadding(0, padding, 0, padding)
+        status = OperationStatusView(this).apply {
+            show(getString(R.string.direct_rime_choose_zip))
         }
-        content.addView(status)
+        content.addView(status, LinearLayout.LayoutParams(-1, -2).apply {
+            topMargin = padding / 2
+            bottomMargin = padding
+        })
+        savedInstanceState?.getString("ui_status_title")?.let { title ->
+            statusTitle = title
+            statusDetails = savedInstanceState.getString("ui_status_details").orEmpty()
+            statusState = if (savedInstanceState.getBoolean("ui_status_error")) State.ERROR else State.IDLE
+            status.show(statusTitle, statusDetails, statusState)
+        }
         content.addView(TextInputLayout(this).apply {
             boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
             hint = getString(R.string.direct_rime_test_input)
@@ -158,7 +171,7 @@ class RimeImportActivity : SettingsUiActivity() {
 
     private fun copyArchiveAndChooseDestination(uri: Uri) {
         choose.isEnabled = false
-        status.setText(R.string.direct_rime_reading_archive)
+        showStatus(R.string.direct_rime_reading_archive, State.WORKING)
         lifecycleScope.launch {
             var archive: File? = null
             try {
@@ -184,7 +197,7 @@ class RimeImportActivity : SettingsUiActivity() {
                         }
                     } ?: error("无法读取所选 ZIP")
                 }
-                status.setText(R.string.direct_rime_validating_archive)
+                showStatus(R.string.direct_rime_validating_archive, State.WORKING)
                 withContext(Dispatchers.IO) { validateRimeArchive(copiedArchive) }
                 pendingArchivePath = copiedArchive.absolutePath
                 showDestinationChoice()
@@ -198,7 +211,8 @@ class RimeImportActivity : SettingsUiActivity() {
                 pendingSelectionStep = null
                 pendingFallbackMessage = null
                 choose.isEnabled = true
-                status.text = getString(R.string.direct_rime_import_failed, e.message.orEmpty())
+                showStatus(R.string.ui_operation_failed, State.ERROR,
+                    getString(R.string.direct_rime_import_failed, e.message.orEmpty()))
             }
         }
     }
@@ -227,6 +241,7 @@ class RimeImportActivity : SettingsUiActivity() {
 
     private fun showDestinationChoice() {
         pendingSelectionStep = STEP_DESTINATION_CHOICE
+        showStatus(R.string.direct_rime_choose_destination)
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.direct_rime_choose_destination)
             .setItems(arrayOf(
@@ -362,7 +377,7 @@ class RimeImportActivity : SettingsUiActivity() {
             pendingDestinationPath = null
             pendingSelectionStep = null
             choose.isEnabled = true
-            status.setText(R.string.direct_rime_archive_missing)
+            showStatus(R.string.direct_rime_archive_missing, State.ERROR)
             return
         }
         importArchive(archive, destination.orEmpty(), appRelativePath)
@@ -373,7 +388,9 @@ class RimeImportActivity : SettingsUiActivity() {
         pendingDestinationPath = null
         pendingFallbackMessage = null
         pendingSelectionStep = null
-        status.setText(R.string.direct_rime_importing)
+        val target = getString(R.string.ui_import_destination,
+            destination.ifBlank { appRelativePath ?: getString(R.string.direct_rime_app_directory) })
+        showStatus(R.string.direct_rime_importing, State.WORKING, target)
         lifecycleScope.launch {
             try {
                 connection.runOnReady {
@@ -387,11 +404,12 @@ class RimeImportActivity : SettingsUiActivity() {
                     )
                 }
                 appRelativePath?.let(appDirectoryPicker::rememberDirectory)
-                status.setText(R.string.direct_rime_imported)
+                showStatus(R.string.direct_rime_imported, State.SUCCESS, target)
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {
-                status.text = getString(R.string.direct_rime_import_failed, e.message.orEmpty())
+                showStatus(R.string.ui_operation_failed, State.ERROR,
+                    getString(R.string.direct_rime_import_failed, e.message.orEmpty()) + "\n" + target)
             } finally {
                 archive.delete()
                 choose.isEnabled = true
@@ -406,15 +424,28 @@ class RimeImportActivity : SettingsUiActivity() {
         pendingFallbackMessage = null
         pendingSelectionStep = null
         choose.isEnabled = true
-        status.setText(R.string.direct_rime_import_cancelled)
+        showStatus(R.string.direct_rime_import_cancelled)
     }
 
     private fun failPendingImport(message: String) {
         cancelPendingImport()
-        status.text = message
+        showStatus(R.string.ui_operation_failed, State.ERROR, message)
+    }
+
+    private fun showStatus(title: Int, state: State = State.IDLE, details: String = "") {
+        statusTitle = getString(title)
+        statusDetails = details
+        statusState = state
+        status.show(statusTitle, statusDetails, state)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        // An interrupted operation must not be restored as a permanently spinning UI.
+        if (statusState != State.WORKING && statusTitle.isNotEmpty()) {
+            outState.putString("ui_status_title", statusTitle)
+            outState.putString("ui_status_details", statusDetails)
+            outState.putBoolean("ui_status_error", statusState == State.ERROR)
+        }
         outState.putString(STATE_PENDING_ARCHIVE, pendingArchivePath)
         outState.putString(STATE_PENDING_DESTINATION, pendingDestinationPath)
         outState.putString(STATE_PENDING_FALLBACK, pendingFallbackMessage)

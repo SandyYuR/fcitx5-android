@@ -64,6 +64,8 @@ open class SimpleThemeListAdapter<T : Theme>(themes: List<T>) :
             val theme = entries[position]
             setTheme(theme)
             editButton.visibility = View.GONE
+            exportButton.visibility = View.GONE
+            dynamicIcon.visibility = View.GONE
             setChecked(position == selectedIndex)
             root.setOnClickListener {
                 val currentPosition = holder.absoluteAdapterPosition

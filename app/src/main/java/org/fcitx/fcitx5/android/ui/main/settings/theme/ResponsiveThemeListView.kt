@@ -9,11 +9,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import splitties.dimensions.dp
 import kotlin.math.max
+import kotlin.math.roundToInt
+
+internal fun themeCardNameHeight(context: Context): Int =
+    (20 * context.resources.displayMetrics.density * context.resources.configuration.fontScale.coerceAtLeast(1f)).roundToInt()
 
 class ResponsiveThemeListView(context: Context) : RecyclerView(context) {
 
-    var itemWidth = dp(128)
-    var itemHeight = dp(110)  // Increased from 92 to 110 to fit edit button
+    var itemWidth = dp(152)
+    var itemHeight = dp(88 + 32) + themeCardNameHeight(context)
     var minMargin = dp(16)
 
     private lateinit var grid: GridLayoutManager
@@ -27,7 +31,7 @@ class ResponsiveThemeListView(context: Context) : RecyclerView(context) {
                 override fun generateDefaultLayoutParams() = LayoutParams(itemWidth, itemHeight)
             }
             layoutManager = grid
-            addItemDecoration(ThemeListItemDecoration(itemWidth, spanCount))
+            addItemDecoration(ThemeListItemDecoration(itemWidth, spanCount, minMargin))
         } else {
             grid.spanCount = spanCount
             invalidateItemDecorations()

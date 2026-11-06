@@ -25,7 +25,7 @@ class JsAppBundledProviderTest {
             JsVoiceProviders.reload()
             val spec = JsVoiceProviders.specOf("js:llm-assistant")!!
             assertTrue(spec.builtIn)
-            assertEquals("1.23.2-fx", spec.version)
+            assertEquals("1.23.3-fx", spec.version)
             assertTrue(JsVoiceProviders.readScript(spec).contains("lastResultRequest"))
             assertEquals("https://saved.example/v1", JsVoiceSettingsStore.value(spec.id, "customUrl"))
             assertEquals(script, JsVoicePluginStore.readScript("llm-assistant"))

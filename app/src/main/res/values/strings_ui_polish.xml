@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_theme_selected">In use</string>
+    <string name="ui_theme_day">Day</string>
+    <string name="ui_theme_night">Night</string>
+    <string name="ui_plugin_voice">Voice</string>
+    <string name="ui_plugin_tools">Tools</string>
+    <string name="ui_plugin_settings">Service settings</string>
+    <string name="ui_plugin_credentials">Credentials</string>
+    <string name="ui_plugin_permissions">Permissions</string>
+    <string name="ui_plugin_manage">Plugin management</string>
+    <string name="ui_plugin_secret_summary">%1$d of %2$d visible credentials saved</string>
+    <string name="ui_plugin_revoked">Permissions reset. Approval will be requested on next use.</string>
+    <string name="ui_operation_status">Task status</string>
+    <string name="ui_operation_details">Details</string>
+    <string name="ui_operation_failed">Operation failed</string>
+    <string name="ui_operation_cancelled">Cancelled</string>
+    <string name="ui_backup_ready">Export to create a backup, or import to restore one.</string>
+    <string name="ui_backup_preparing">Preparing backup</string>
+    <string name="ui_backup_checking">Checking backup</string>
+    <string name="ui_backup_destination">Choose where to save the backup</string>
+    <string name="ui_backup_saving">Saving backup</string>
+    <string name="ui_retry">Retry</string>
+    <string name="ui_import_destination">Destination: %1$s</string>
+    <string name="ui_clipboard_pinned">Pinned</string>
+    <string name="ui_download">Download</string>
+</resources>

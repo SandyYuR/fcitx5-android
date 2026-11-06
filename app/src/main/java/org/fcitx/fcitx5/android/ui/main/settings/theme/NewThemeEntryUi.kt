@@ -6,9 +6,11 @@ package org.fcitx.fcitx5.android.ui.main.settings.theme
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.ViewOutlineProvider
 import androidx.constraintlayout.widget.ConstraintLayout
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.dimensions.dp
 import splitties.resources.drawable
 import splitties.resources.styledDrawable
@@ -29,20 +31,26 @@ import splitties.views.imageDrawable
 class NewThemeEntryUi(override val ctx: Context) : Ui {
     val text = textView {
         setText(R.string.new_theme)
-        setTextColor(Color.WHITE)
+        setTextColor(ctx.settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer))
+        gravity = android.view.Gravity.CENTER
+        maxLines = 2
     }
 
     val icon = imageView {
         imageDrawable = ctx.drawable(R.drawable.ic_baseline_plus_24)!!.apply {
-            setTint(Color.WHITE)
+            setTint(ctx.settingsColor(com.google.android.material.R.attr.colorOnSecondaryContainer))
         }
     }
 
     override val root = constraintLayout {
         foreground = styledDrawable(android.R.attr.selectableItemBackground)
-        background = ctx.drawable(R.drawable.bkg_theme_choose_image)
-        outlineProvider = ViewOutlineProvider.BOUNDS
-        elevation = dp(2f)
+        background = GradientDrawable().apply {
+            cornerRadius = dp(20).toFloat()
+            setColor(ctx.settingsColor(com.google.android.material.R.attr.colorSecondaryContainer))
+        }
+        outlineProvider = ViewOutlineProvider.BACKGROUND
+        clipToOutline = true
+        elevation = 0f
         add(icon, lParams(dp(24), dp(24)) {
             topOfParent()
             centerHorizontally()
@@ -52,6 +60,9 @@ class NewThemeEntryUi(override val ctx: Context) : Ui {
         add(text, lParams(wrapContent, wrapContent) {
             below(icon)
             centerHorizontally()
+            constrainedWidth = true
+            marginStart = dp(12)
+            marginEnd = dp(12)
             bottomOfParent()
         })
     }

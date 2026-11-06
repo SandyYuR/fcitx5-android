@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.theme
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.DiffUtil
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import splitties.views.dsl.core.Ui
@@ -24,7 +25,7 @@ abstract class ThemeListAdapter : RecyclerView.Adapter<ThemeListAdapter.ViewHold
 
     private fun positionOf(theme: Theme? = null): Int {
         if (theme == null) return -1
-        return entries.indexOfFirst { it.name == theme.name } + OFFSET
+        return positionOf(theme.name)
     }
 
     override fun onViewRecycled(holder: ViewHolder) {
@@ -35,15 +36,30 @@ abstract class ThemeListAdapter : RecyclerView.Adapter<ThemeListAdapter.ViewHold
     }
 
     fun setThemes(themes: List<Theme>) {
-        val activeName = entryAt(activeIndex)?.name
-        val lightName = entryAt(lightIndex)?.name
-        val darkName = entryAt(darkIndex)?.name
+        updateThemes(themes)
+    }
+
+    private fun updateThemes(themes: List<Theme>, renamedFrom: String? = null, renamedTo: String? = null) {
+        fun selectedName(index: Int) = entryAt(index)?.name?.let { if (it == renamedFrom) renamedTo else it }
+        val activeName = selectedName(activeIndex)
+        val lightName = selectedName(lightIndex)
+        val darkName = selectedName(darkIndex)
+        val previous = entries.toList()
+        val updated = themes.toList()
+        val difference = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = previous.size + OFFSET
+            override fun getNewListSize() = updated.size + OFFSET
+            override fun areItemsTheSame(old: Int, new: Int): Boolean =
+                if (old == 0 || new == 0) old == new else previous[old - OFFSET].name == updated[new - OFFSET].name
+            override fun areContentsTheSame(old: Int, new: Int): Boolean =
+                if (old == 0 || new == 0) old == new else previous[old - OFFSET] == updated[new - OFFSET]
+        })
         entries.clear()
-        entries.addAll(themes)
+        entries.addAll(updated)
         activeIndex = positionOf(activeName)
         lightIndex = positionOf(lightName)
         darkIndex = positionOf(darkName)
-        notifyDataSetChanged()
+        difference.dispatchUpdatesTo(this)
     }
 
     private fun positionOf(themeName: String?): Int {
@@ -77,64 +93,20 @@ abstract class ThemeListAdapter : RecyclerView.Adapter<ThemeListAdapter.ViewHold
         }
     }
 
-    private fun prependOffset(index: Int): Int {
-        return if (index == -1) 0 else 1
-    }
-
     fun prependTheme(it: Theme) {
-        entries.add(0, it)
-        activeIndex += prependOffset(activeIndex)
-        lightIndex += prependOffset(lightIndex)
-        darkIndex += prependOffset(darkIndex)
-        notifyItemInserted(OFFSET)
-    }
-
-    private fun removedOffset(removedIndex: Int, index: Int): Int {
-        return if (index == -1) 0 else (removedIndex - OFFSET - index).sign
+        updateThemes(listOf(it) + entries)
     }
 
     fun removeTheme(name: String) {
-        val index = entries.indexOfFirst { it.name == name }
-        if (index < 0) return
-        entries.removeAt(index)
-        notifyItemRemoved(index + OFFSET)
-        activeIndex += removedOffset(index, activeIndex)
-        lightIndex += removedOffset(index, lightIndex)
-        darkIndex += removedOffset(index, darkIndex)
-    }
-
-    private fun replaceIndex(replacedIndex: Int, index: Int): Int {
-        return if (replacedIndex + OFFSET == index) OFFSET else index
+        updateThemes(entries.filterNot { it.name == name })
     }
 
     fun replaceTheme(theme: Theme) {
-        val index = entries.indexOfFirst { it.name == theme.name }
-        if (index < 0) {
-            prependTheme(theme)
-            return
-        }
-        entries.removeAt(index)
-        entries.add(0, theme)
-        activeIndex = replaceIndex(index, activeIndex)
-        lightIndex = replaceIndex(index, lightIndex)
-        darkIndex = replaceIndex(index, darkIndex)
-        notifyItemMoved(index + OFFSET, OFFSET)
-        notifyItemChanged(OFFSET)
+        replaceTheme(theme.name, theme)
     }
 
     fun replaceTheme(oldName: String, theme: Theme) {
-        val index = entries.indexOfFirst { it.name == oldName }
-        if (index < 0) {
-            replaceTheme(theme)
-            return
-        }
-        entries.removeAt(index)
-        entries.add(0, theme)
-        activeIndex = replaceIndex(index, activeIndex)
-        lightIndex = replaceIndex(index, lightIndex)
-        darkIndex = replaceIndex(index, darkIndex)
-        notifyItemMoved(index + OFFSET, OFFSET)
-        notifyItemChanged(OFFSET)
+        updateThemes(listOf(theme) + entries.filterNot { it.name == oldName || it.name == theme.name }, oldName, theme.name)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -178,20 +150,15 @@ abstract class ThemeListAdapter : RecyclerView.Adapter<ThemeListAdapter.ViewHold
                         isRandom -> onEditRandomTheme(theme as Theme.Custom)
                         theme is Theme.Custom -> onEditTheme(theme)
                         theme is Theme.Monet -> onEditMonetTheme(theme)
-                        else -> Unit
+                    }
+                }
+                exportButton.setOnClickListener {
+                    when {
+                        theme is Theme.Custom && !isRandom -> onExportTheme(theme)
+                        theme is Theme.Monet -> onExportTheme(theme.toCustom())
                     }
                 }
                 setRandomAction(if (isRandom) ({ onRandomizeTheme() }) else null)
-                // 可见的导出入口。长按仍然可用（保留给习惯长按的用户），
-                // 但不再需要用户去猜。
-                exportButton.setOnClickListener {
-                    when {
-                        isRandom -> onRandomizeTheme()
-                        theme is Theme.Custom -> onExportTheme(theme)
-                        theme is Theme.Monet -> onExportTheme(theme.toCustom())
-                        else -> Unit
-                    }
-                }
             }
             else -> throw IllegalArgumentException(INVALID_TYPE + it)
         }

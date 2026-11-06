@@ -89,7 +89,7 @@ const STRINGS = {
     regenerate: "Retry",
     outputLabel: "AI reply",
     emptyInput: "Enter the text to send to AI first",
-    assistantTitle: "LLM Assistant",
+    assistantTitle: "AI assistant",
     resultTitle: "Result · %1 · confirm to insert or clear",
     purposeShort: "Answer",
     purposePolish: "Polish",
@@ -156,7 +156,7 @@ const STRINGS = {
     regenerate: "重新生成",
     outputLabel: "AI 回复",
     emptyInput: "请先输入需要交给 AI 处理的文本",
-    assistantTitle: "LLM 助手",
+    assistantTitle: "AI 助手",
     resultTitle: "结果 · %1 · 确认上屏或清空",
     purposeShort: "简答",
     purposePolish: "润色",
@@ -223,7 +223,7 @@ const STRINGS = {
     regenerate: "重新產生",
     outputLabel: "AI 回覆",
     emptyInput: "請先輸入需要交給 AI 處理的文字",
-    assistantTitle: "LLM 助手",
+    assistantTitle: "AI 助手",
     resultTitle: "結果 · %1 · 確認送出或清除",
     purposeShort: "簡答",
     purposePolish: "潤色",
@@ -682,44 +682,56 @@ function endpointSummary(provider, settings, secrets) {
   return parts.join(" · ");
 }
 
-function dialogSpec(t, title, purposeId, input) {
+function dialogSpec(t, title, purposeId, input, messageTone = "") {
+  const endpoint = providerEndpoint(findProvider(currentProvider), activeSettings);
+  const compactEndpoint = endpoint.url ? [hostOf(endpoint.url), endpoint.model].filter(Boolean).join(" · ") : t.notSet;
   return {
-    maxWidth: 340,
-    maxHeight: 360,
+    maxWidth: 360,
+    maxHeight: 460,
     layout: {
       type: "column",
-      gap: 6,
+      gap: 8,
       children: [
-        {type: "text", text: title, size: 13, bold: true},
+        {type: "header", gap: 8, children: [
+          {type: "text", text: t.assistantTitle, size: 20, bold: true, icon: "assistant", weight: 1},
+          {type: "button", id: "close", label: t.close, style: "text", icon: "close", iconOnly: true}
+        ]},
+        ...(title !== t.assistantTitle ? [{
+          type: "text", text: title, size: 12, muted: true, tone: messageTone, maxLines: 3
+        }] : []),
         {
           type: "row",
-          gap: 6,
+          gap: 12,
           children: [
             {
               type: "select",
               id: "purpose",
               label: t.purpose,
+              labelPlacement: "top",
               options: purposeOptions(t),
               value: purposeId,
               weight: 1,
-              height: 36
+              height: 48
             },
             {
               type: "select",
               id: "provider",
               label: t.provider,
+              labelPlacement: "top",
               options: dialogProviderOptions(),
               value: currentProvider,
               weight: 1,
-              height: 36
+              height: 48
             }
           ]
         },
         {
           type: "text",
-          text: endpointSummary(findProvider(currentProvider), activeSettings, activeSecrets),
-          size: 10,
-          muted: true
+          text: compactEndpoint,
+          description: endpointSummary(findProvider(currentProvider), activeSettings, activeSecrets),
+          size: 12,
+          muted: true,
+          maxLines: 1
         },
         {
           type: "input",
@@ -729,23 +741,20 @@ function dialogSpec(t, title, purposeId, input) {
           multiline: true,
           value: input,
           placeholder: t.inputPlaceholder,
-          height: lastResult ? 36 : 68
+          height: lastResult ? 56 : 88
         },
         ...(lastResult ? [{
           type: "input", id: "result", label: t.outputLabel, labelPlacement: "top",
           multiline: true, readOnly: true, value: lastResult, height: 96
         }] : []),
         {
-          type: "row",
-          gap: 6,
-          align: "end",
+          type: "actions",
           children: [
-            {type: "button", id: "clear", label: t.clear},
-            {type: "button", id: "close", label: t.close},
+            {type: "button", id: "clear", label: t.clear, style: "text"},
             ...(lastResult ? [
-              {type: "button", id: "send", label: t.regenerate},
-              {type: "button", id: "confirm", label: t.confirm, style: "filled"}
-            ] : [{type: "button", id: "send", label: t.send, style: "filled"}])
+              {type: "button", id: "send", label: t.regenerate, style: "tonal"},
+              {type: "button", id: "confirm", label: t.confirm, style: "filled", icon: "check"}
+            ] : [{type: "button", id: "send", label: t.send, style: "filled", icon: "send"}])
           ]
         }
       ]
@@ -756,7 +765,7 @@ function dialogSpec(t, title, purposeId, input) {
 foxy.plugin.register({
   id: "llm-assistant",
   name: stringsFor(foxy.locale).name,
-  version: "1.23.2-fx",
+  version: "1.23.3-fx",
   hosts: [],
   features: [],
   configure(ui, locale) {
@@ -897,14 +906,14 @@ async function handleOpen(context) {
     // Invalidate earlier previews before every generation, including validation failures.
     await clearResult();
     if (!input.trim()) {
-      return foxy.ui.dialog.show(dialogSpec(t, t.emptyInput, purpose.id, input));
+      return foxy.ui.dialog.show(dialogSpec(t, t.emptyInput, purpose.id, input, "error"));
     }
     if (configuredSecrets.indexOf(provider.credential) === -1) {
       return foxy.ui.dialog.show(dialogSpec(
         t,
         format(t.missingKey, providerName, provider.credential),
         purpose.id,
-        values.input || ""
+        values.input || "", "error"
       ));
     }
     const {url, model, protocol} = providerEndpoint(provider, settings);
@@ -913,7 +922,7 @@ async function handleOpen(context) {
         t,
         format(t.missingConfig, providerName),
         purpose.id,
-        values.input || ""
+        values.input || "", "error"
       ));
     }
     const host = hostOf(url);
@@ -922,7 +931,7 @@ async function handleOpen(context) {
         t,
         t.invalidEndpoint,
         purpose.id,
-        values.input || ""
+        values.input || "", "error"
       ));
     }
 
@@ -971,7 +980,7 @@ async function handleOpen(context) {
         t,
         format(t.requestFailed, String(error.message || error)) + note + trace,
         purpose.id,
-        values.input || ""
+        values.input || "", "error"
       ));
     }
 }

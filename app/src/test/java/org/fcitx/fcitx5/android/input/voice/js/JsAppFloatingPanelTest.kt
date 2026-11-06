@@ -35,9 +35,10 @@ import java.util.concurrent.TimeUnit
     shadows = [EditorApplicationShadow::class])
 class JsAppFloatingPanelTest {
     private val form = Json.parseToJsonElement("""{"maxWidth":340,"maxHeight":360,"layout":{"type":"column","children":[
-        {"type":"text","text":"AI 助手","bold":true},
+        {"type":"header","children":[{"type":"text","text":"AI 助手","bold":true},
+            {"type":"button","id":"close","label":"关闭","style":"text","icon":"close","iconOnly":true}]},
         {"type":"input","id":"input","label":"文本","labelPlacement":"top","multiline":true,"height":68,"value":"原文"},
-        {"type":"button","id":"send","label":"发送","style":"filled"}]}}""").jsonObject
+        {"type":"actions","children":[{"type":"button","id":"send","label":"发送","style":"filled"}]}]}}""").jsonObject
 
     private fun withPanel(keyboardHeightDp: Int = 300, renderBeforeShow: Boolean = true,
         beforeShow: (JsAppDialog) -> Unit = {}, check: (JsAppDialog, FcitxInputMethodService, View) -> Unit) {

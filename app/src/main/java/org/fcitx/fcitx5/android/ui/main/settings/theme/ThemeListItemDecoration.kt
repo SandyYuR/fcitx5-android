@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlin.math.ceil
 
-class ThemeListItemDecoration(val itemWidth: Int, val spanCount: Int) :
+class ThemeListItemDecoration(val itemWidth: Int, val spanCount: Int, val verticalSpacing: Int) :
     RecyclerView.ItemDecoration() {
     override fun getItemOffsets(
         outRect: Rect,
@@ -22,7 +22,8 @@ class ThemeListItemDecoration(val itemWidth: Int, val spanCount: Int) :
             ?.coerceAtLeast(1) ?: spanCount.coerceAtLeast(1)
         val columnWidth = parent.width / spanCount
         val offset = (parent.width - itemWidth * spanCount) / (spanCount + 1)
-        val halfOffset = offset / 2
+        // A single column may have wide side margins; they are not row spacing.
+        val halfSpacing = verticalSpacing / 2
         val position = parent.getChildAdapterPosition(view)
         if (position == RecyclerView.NO_POSITION) { outRect.setEmpty(); return }
         val rowCount = parent.adapter?.run { ceil(itemCount / spanCount.toFloat()).toInt() } ?: -1
@@ -32,17 +33,17 @@ class ThemeListItemDecoration(val itemWidth: Int, val spanCount: Int) :
             View.LAYOUT_DIRECTION_LTR -> {
                 outRect.set(
                     (n + 1) * offset + n * (itemWidth - columnWidth),
-                    if (position < spanCount) offset else halfOffset,
+                    if (position < spanCount) verticalSpacing else halfSpacing,
                     0, // (n + 1) * (columnWidth - itemWidth - offset)
-                    if (position / spanCount == rowCount - 1) offset else halfOffset
+                    if (position / spanCount == rowCount - 1) verticalSpacing else verticalSpacing - halfSpacing
                 )
             }
             View.LAYOUT_DIRECTION_RTL -> {
                 outRect.set(
                     0,
-                    if (position < spanCount) offset else halfOffset,
+                    if (position < spanCount) verticalSpacing else halfSpacing,
                     (n + 1) * offset + n * (itemWidth - columnWidth),
-                    if (position / spanCount == rowCount - 1) offset else halfOffset
+                    if (position / spanCount == rowCount - 1) verticalSpacing else verticalSpacing - halfSpacing
                 )
             }
         }

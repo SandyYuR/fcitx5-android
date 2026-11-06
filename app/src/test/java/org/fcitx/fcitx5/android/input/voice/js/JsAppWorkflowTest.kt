@@ -85,7 +85,9 @@ class JsAppWorkflowTest {
             val (event, values) = events.removeFirst()
             invoke(event, values)
         }
-        fun button(label: String) = views().filterIsInstance<MaterialButton>().single { it.text.toString() == label }
+        fun button(label: String) = views().filterIsInstance<MaterialButton>().single {
+            it.text.toString() == label || it.contentDescription?.toString() == label
+        }
         fun input() = views().filterIsInstance<EditText>().single { it.hint?.toString() == "输入要处理的内容" }
         fun reply() = views().filterIsInstance<EditText>().single { it.keyListener == null }
         fun views() = descendants(dialog.findViewById(android.R.id.content))

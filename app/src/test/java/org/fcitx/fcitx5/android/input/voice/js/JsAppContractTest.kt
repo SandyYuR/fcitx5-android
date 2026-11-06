@@ -27,7 +27,7 @@ class JsAppContractTest {
 
     @Test fun version123HasNoBundledHostsOrEndpointAddressesAndRetainsSavedSettings() = runBlocking {
         val result = JsVoiceImporter.inspect(script, "zh-CN", emptySet()) as JsVoiceImportResult.Success
-        assertEquals("1.23.2-fx", result.meta.version)
+        assertEquals("1.23.3-fx", result.meta.version)
         assertTrue(result.meta.hosts.isEmpty())
         val fields = JsVoiceScript.describe(script, "zh-CN")
         val endpoints = fields.filter { it.key.endsWith("Url") }

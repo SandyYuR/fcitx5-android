@@ -13,6 +13,7 @@ import android.graphics.drawable.RippleDrawable
 import android.text.TextUtils
 import android.view.View
 import android.widget.ImageView
+import androidx.core.view.ViewCompat
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
@@ -65,7 +66,7 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
         maxLines = 4
         textSize = 14f
         includeFontPadding = false
-        setPaddingDp(8, 4, 8, 4)
+        setPaddingDp(12, 8, 12, 8)
         ellipsize = TextUtils.TruncateAt.END
         setTextColor(theme.keyTextColor)
     }
@@ -73,7 +74,7 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
     val pin = imageView {
         imageDrawable = drawable(R.drawable.ic_baseline_push_pin_24)!!.apply {
             setTint(theme.altKeyTextColor)
-            setAlpha(0.3f)
+            alpha = 230
         }
     }
 
@@ -87,15 +88,15 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
         add(textView, lParams(matchParent, wrapContent) {
             centerVertically()
         })
-        add(pin, lParams(dp(12), dp(12)) {
-            bottomOfParent(dp(2))
-            endOfParent(dp(2))
+        add(pin, lParams(dp(18), dp(18)) {
+            bottomOfParent(dp(8))
+            endOfParent(dp(8))
         })
     }
 
     override val root = CustomGestureView(ctx).apply {
         isClickable = true
-        minimumHeight = dp(30)
+        minimumHeight = dp(48)
         foreground = RippleDrawable(
             ColorStateList.valueOf(theme.keyPressHighlightColor), null,
             GradientDrawable().apply {
@@ -113,6 +114,7 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
     fun setEntry(text: String, pinned: Boolean, previewBitmap: Bitmap? = null) {
         textView.text = text
         pin.visibility = if (pinned) View.VISIBLE else View.GONE
+        ViewCompat.setStateDescription(root, if (pinned) ctx.getString(R.string.ui_clipboard_pinned) else null)
         if (previewBitmap != null) {
             preview.setImageBitmap(previewBitmap)
             preview.visibility = View.VISIBLE
@@ -125,7 +127,7 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
                 // Image with text
                 textView.visibility = View.VISIBLE
                 textView.maxLines = 2
-                textView.setPaddingDp(8, 82, 8, 6)
+                textView.setPaddingRelative(ctx.dp(12), ctx.dp(82), ctx.dp(if (pinned) 34 else 12), ctx.dp(8))
                 root.minimumHeight = ctx.dp(122)
             }
         } else {
@@ -139,8 +141,8 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
                 imagePlaceholder.visibility = View.GONE
                 textView.visibility = View.VISIBLE
                 textView.maxLines = 4
-                textView.setPaddingDp(8, 4, 8, 4)
-                root.minimumHeight = ctx.dp(30)
+                textView.setPaddingRelative(ctx.dp(12), ctx.dp(8), ctx.dp(if (pinned) 34 else 12), ctx.dp(8))
+                root.minimumHeight = ctx.dp(48)
             }
         }
     }

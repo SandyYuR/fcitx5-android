@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_theme_selected">使用中</string>
+    <string name="ui_theme_day">昼間</string>
+    <string name="ui_theme_night">夜間</string>
+    <string name="ui_plugin_voice">音声</string>
+    <string name="ui_plugin_tools">ツール</string>
+    <string name="ui_plugin_settings">サービス設定</string>
+    <string name="ui_plugin_credentials">認証情報</string>
+    <string name="ui_plugin_permissions">権限</string>
+    <string name="ui_plugin_manage">プラグイン管理</string>
+    <string name="ui_plugin_secret_summary">表示中の認証情報：%1$d / %2$d 件を保存済み</string>
+    <string name="ui_plugin_revoked">権限をリセットしました。次回の使用時に再確認します。</string>
+    <string name="ui_operation_status">処理状況</string>
+    <string name="ui_operation_details">詳細</string>
+    <string name="ui_operation_failed">処理に失敗しました</string>
+    <string name="ui_operation_cancelled">キャンセル済み</string>
+    <string name="ui_backup_ready">エクスポートでバックアップを作成し、インポートで復元できます。</string>
+    <string name="ui_backup_preparing">バックアップを準備中</string>
+    <string name="ui_backup_checking">バックアップを確認中</string>
+    <string name="ui_backup_destination">バックアップの保存先を選択</string>
+    <string name="ui_backup_saving">バックアップを保存中</string>
+    <string name="ui_retry">再試行</string>
+    <string name="ui_import_destination">保存先：%1$s</string>
+    <string name="ui_clipboard_pinned">固定済み</string>
+    <string name="ui_download">ダウンロード</string>
+</resources>

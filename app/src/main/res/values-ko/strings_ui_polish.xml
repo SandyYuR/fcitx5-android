@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_theme_selected">사용 중</string>
+    <string name="ui_theme_day">주간</string>
+    <string name="ui_theme_night">야간</string>
+    <string name="ui_plugin_voice">음성</string>
+    <string name="ui_plugin_tools">도구</string>
+    <string name="ui_plugin_settings">서비스 설정</string>
+    <string name="ui_plugin_credentials">인증 정보</string>
+    <string name="ui_plugin_permissions">권한</string>
+    <string name="ui_plugin_manage">플러그인 관리</string>
+    <string name="ui_plugin_secret_summary">표시된 인증 정보 %2$d개 중 %1$d개 저장됨</string>
+    <string name="ui_plugin_revoked">권한이 초기화되었습니다. 다음 사용 시 다시 확인합니다.</string>
+    <string name="ui_operation_status">작업 상태</string>
+    <string name="ui_operation_details">세부 정보</string>
+    <string name="ui_operation_failed">작업 실패</string>
+    <string name="ui_operation_cancelled">취소됨</string>
+    <string name="ui_backup_ready">내보내기로 백업을 만들거나 가져오기로 복원합니다.</string>
+    <string name="ui_backup_preparing">백업 준비 중</string>
+    <string name="ui_backup_checking">백업 확인 중</string>
+    <string name="ui_backup_destination">백업 저장 위치 선택</string>
+    <string name="ui_backup_saving">백업 저장 중</string>
+    <string name="ui_retry">다시 시도</string>
+    <string name="ui_import_destination">대상: %1$s</string>
+    <string name="ui_clipboard_pinned">고정됨</string>
+    <string name="ui_download">다운로드</string>
+</resources>

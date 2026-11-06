@@ -57,15 +57,15 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
 
     private fun rebuild() {
         val screen = preferenceScreen ?: return
-        screen.removeAll()
-
-        screen.addPreference(actionPreference(
+        if (screen.findPreference<Preference>(KEY_IMPORT) == null) screen.addPreference(actionPreference(
             key = KEY_IMPORT,
             title = getString(R.string.js_voice_import),
             summary = getString(R.string.js_voice_import_summary),
         ) { importLauncher.launch(arrayOf("*/*")) })
 
         val current = AppPrefs.getInstance().keyboard.preferredVoiceInput.getValue()
+        val visibleKeys = mutableSetOf(KEY_IMPORT)
+        var order = 1
         // 内置与导入平级：对宿主而言它们走同一份契约（同一份 Spec、同一条注册路径），
         // 唯一的差别是「能不能移除」，而那件事在插件自己的设置页里表达，不在这里分栏。
         // 顺序按显示名排：导入、覆盖升级、移除之后条目的位置可预期，也不会因为「新来的
@@ -73,21 +73,31 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
         JsVoiceProviders.all()
             .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.label })
             .forEach { spec ->
-                val detail = getString(
+                val capabilities = buildList {
+                    if (spec.hasVoice) add(getString(R.string.ui_plugin_voice))
+                    if (spec.apps.isNotEmpty()) add(getString(R.string.ui_plugin_tools))
+                }.joinToString(" · ")
+                val detail = listOf(capabilities, getString(
                     R.string.js_voice_plugins_entry_summary, spec.version, spec.originName
-                )
+                )).filter { it.isNotBlank() }.joinToString(" · ")
                 // 移除入口放在插件自己的设置页底部：那里才有「这个插件是谁」的上下文，
                 // 也不需要在列表里为每一行再挤一个删除按钮。
-                screen.addPreference(actionPreference(
-                    key = KEY_ENTRY + spec.id,
+                val key = KEY_ENTRY + spec.id
+                visibleKeys += key
+                val summary = if (spec.id == current) getString(R.string.js_voice_plugins_current, detail) else detail
+                val entry = screen.findPreference<Preference>(key) ?: actionPreference(
+                    key = key,
                     title = spec.label,
-                    summary = if (spec.id == current) {
-                        getString(R.string.js_voice_plugins_current, detail)
-                    } else {
-                        detail
-                    },
-                ) { openSettings(spec.id) })
+                    summary = summary,
+                ) { openSettings(spec.id) }.also(screen::addPreference)
+                entry.title = spec.label
+                entry.summary = summary
+                entry.order = order++
             }
+        for (index in screen.preferenceCount - 1 downTo 0) {
+            val preference = screen.getPreference(index)
+            if (preference.key !in visibleKeys) screen.removePreference(preference)
+        }
     }
 
     private fun actionPreference(

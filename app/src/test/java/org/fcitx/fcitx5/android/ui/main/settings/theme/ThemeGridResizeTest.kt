@@ -5,6 +5,7 @@ import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.GridLayoutManager
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +45,20 @@ class ThemeGridResizeTest {
             val fresh = grid().also { layout(it, width) }
             assertTrue(fresh.childCount > 0)
             assertEquals(offsets(fresh), offsets(resized))
+        }
+    }
+
+    @Test fun sideMarginsDoNotBecomeLargeBlankRowsOnNarrowScreens() {
+        for (direction in listOf(View.LAYOUT_DIRECTION_LTR, View.LAYOUT_DIRECTION_RTL)) {
+            val grid = grid().apply { layoutDirection = direction }
+            for (width in listOf(320, 600, 800, 320)) {
+                layout(grid, width)
+                val span = (grid.layoutManager as GridLayoutManager).spanCount
+                val first = checkNotNull(grid.findViewHolderForAdapterPosition(0)).itemView
+                val nextRow = checkNotNull(grid.findViewHolderForAdapterPosition(span)).itemView
+                assertEquals("The first row has the standard page margin at width $width", 16, first.top)
+                assertEquals("Rows keep a compact gap regardless of side margins", 16, nextRow.top - first.bottom)
+            }
         }
     }
 }
