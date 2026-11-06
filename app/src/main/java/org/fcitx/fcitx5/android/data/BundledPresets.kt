@@ -31,6 +31,7 @@ import java.io.File
  * 安装幂等且不覆盖：每个资源以"asset 路径 + 字节数"为版本标记记录在
  * SharedPreferences 中；默认不覆盖已存在的文件，显式登记更新的资源只在
  * 文件大小仍等于上一版内置内容时替换，保留用户自行修改的版本。
+ * 登记更新还记录旧字节数，允许修正旧登记后重试仍存在的原版文件。
  * 用户删除已处理版本的文件后不会被再次塞回；更新资源须同步登记旧字节数。
  */
 object BundledPresets {
@@ -44,13 +45,13 @@ object BundledPresets {
         appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     }
 
-    /** 已处理资源标记集合（"asset路径#字节数"）。 */
+    /** 已处理版本及更新来源标记；旧版本标记继续保护已删除的文件。 */
     private val handled: MutableSet<String> by lazy {
         prefs.getStringSet(KEY_INSTALLED, emptySet())?.toMutableSet() ?: mutableSetOf()
     }
 
-    private fun mark(tag: String) {
-        handled.add(tag)
+    private fun mark(vararg tags: String) {
+        handled.addAll(tags)
         prefs.edit { putStringSet(KEY_INSTALLED, handled) }
     }
 
@@ -76,7 +77,7 @@ object BundledPresets {
     private val assetSizes = mapOf(
         "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 13777,
         "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to 36265,
-        "bundled/icon_themes/谷歌.json" to 61157
+        "bundled/icon_themes/谷歌.json" to 56425
     )
 
     private val themeAssets = listOf(
@@ -154,15 +155,19 @@ object BundledPresets {
     /**
      * 安装单个 asset。返回 1 表示本次实际写出了文件，0 表示跳过（已处理/已存在/读取失败）。
      */
-    private fun installAsset(assetPath: String, dest: File): Int {
-        val bytes = readAsset(assetPath) ?: return 0
+    private fun installAsset(assetPath: String, dest: File, assetBytes: ByteArray? = readAsset(assetPath)): Int {
+        val bytes = assetBytes ?: return 0
         val tag = "$assetPath#${bytes.size}"
-        if (tag in handled) return 0
+        val previousSize = assetSizes[assetPath]
+        val updateTag = previousSize?.let { "$tag#from=$it" } ?: tag
+        // A corrected previous-size registration must retry a previously skipped old file.
+        // Existing legacy tags still protect files the user has deleted or edited.
+        if (tag in handled && (updateTag in handled || previousSize == null ||
+                    !dest.isFile || dest.length() != previousSize.toLong())) return 0
         // 内容有更新的内置资源（assetSizes 中登记了上一版字节数）：只有用户从未改过
         // 本地文件（大小仍等于上一版内置内容）时才原位替换；否则保留用户版本。
-        val previousSize = assetSizes[assetPath]
         if (previousSize != null && dest.exists() && dest.length() != previousSize.toLong()) {
-            mark(tag)
+            mark(tag, updateTag)
             return 1
         }
         if (!dest.exists() || previousSize != null) {
@@ -180,7 +185,7 @@ object BundledPresets {
             }
             Timber.d("Installed bundled asset %s", assetPath)
         }
-        mark(tag)
+        mark(tag, updateTag)
         return 1
     }
 

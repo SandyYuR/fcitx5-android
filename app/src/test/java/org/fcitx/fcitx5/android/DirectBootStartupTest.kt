@@ -302,6 +302,41 @@ class DirectBootStartupTest {
         assertFalse(app.directBootAwareContext.isDeviceProtectedStorage)
         assertTrue(access.credentialReads.isEmpty())
     }
+
+    @Test fun placeholderOnlySnapshotFallsBackToBuiltinPasswordKeyboard() {
+        assertLockedPasswordLayout(
+            """{"rime":{"default":[[{"type":"PlaceholderKey"}]]}}""",
+            "qwertyuiopasdfghjklzxcvbnm"
+        )
+    }
+
+    @Test fun placeholderOnlyCandidateFallsThroughToAnInteractiveCustomLayout() {
+        assertLockedPasswordLayout(
+            """{"rime":{"default":[[{"type":"PlaceholderKey"}]]},
+                "default":[[{"type":"PlaceholderKey"},{"type":"AlphabetKey","main":"z","alt":"1"}]]}""",
+            "z"
+        )
+    }
+
+    private fun assertLockedPasswordLayout(snapshot: String, expectedLetters: String) {
+        val base = RuntimeEnvironment.getApplication()
+        File(base.createDeviceProtectedStorageContext().filesDir,
+            "direct_boot_keyboard/TextKeyboardLayout.json").apply {
+            parentFile!!.mkdirs()
+            writeText(snapshot)
+        }
+        shadowOf(base.getSystemService(UserManager::class.java)).setUserUnlocked(false)
+        val access = StorageAccess()
+        startApplication(StorageContext(base, access))
+        TextKeyboard.setPasswordDefaultLayout(true)
+        try {
+            val letters = TextKeyboard.getLayout(TextKeyboardLayoutState()).flatten()
+                .filterIsInstance<AlphabetKey>().joinToString("") { it.character.lowercase() }
+            assertEquals(expectedLetters, letters)
+        } finally { TextKeyboard.setPasswordDefaultLayout(false) }
+        assertTrue(access.credentialReads.isEmpty())
+        assertEquals(0, access.externalReads)
+    }
 }
 
 /** Only process exit is intercepted; startup and the unlock receiver are production code. */
