@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-07",
+  "application_commit": "f4d23687cf759b371b455b02d3958df72427d6dc",
+  "runtime_validation_commit": "694720f4b7ec0acc1f04bea3feb812f79eddf177",
+  "post_validation_change": "Only .github/workflows/ci.yml adds the already-passing strict JVM report gate; product, native and test sources are unchanged.",
+  "sdk": {
+    "tag": "android-sdk-20261107-1",
+    "librime_commit": "483ffbca5fdfa8a13698d28085e3154d48e435b3",
+    "upstream_commit": "2bae6b59b5ebbf2a8af7ffae5b22fbf090f91841",
+    "sha256": "27667a75515809199ee681321c54cb90b04afe29faa97bec116b5aad22e04459",
+    "abis": [
+      "armeabi-v7a",
+      "arm64-v8a",
+      "x86",
+      "x86_64"
+    ],
+    "verified_files": 497,
+    "release_id": 436762882,
+    "release_url": "https://github.com/SandyYuR/librime/releases/tag/android-sdk-20261107-1"
+  },
+  "source_ci": {
+    "id": 42256000130,
+    "head_sha": "483ffbca5fdfa8a13698d28085e3154d48e435b3",
+    "head_branch": "zhongzhou",
+    "conclusion": "success",
+    "html_url": "https://github.com/SandyYuR/librime/actions/runs/42256000130"
+  },
+  "sdk_tag_ci": {
+    "id": 42256013788,
+    "head_sha": "483ffbca5fdfa8a13698d28085e3154d48e435b3",
+    "head_branch": "android-sdk-20261107-1",
+    "conclusion": "success",
+    "html_url": "https://github.com/SandyYuR/librime/actions/runs/42256013788"
+  },
+  "application_pr_ci": {
+    "id": 42261329895,
+    "head_sha": "694720f4b7ec0acc1f04bea3feb812f79eddf177",
+    "head_branch": "fix/device-fixes-20261107",
+    "conclusion": "success",
+    "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42261329895"
+  },
+  "application_direct_ci": {
+    "id": 42261398659,
+    "head_sha": "694720f4b7ec0acc1f04bea3feb812f79eddf177",
+    "head_branch": "fix/device-fixes-20261107",
+    "conclusion": "success",
+    "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42261398659"
+  },
+  "application_jvm": {
+    "report_files": 210,
+    "tests": 1643,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sdk_android": {
+    "report_files": 1,
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "frontend_android": {
+    "report_files": 1,
+    "tests": 29,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "host_sync_regressions": {
+    "run": 42249931055,
+    "sha": "483ffbca5fdfa8a13698d28085e3154d48e435b3",
+    "tests": [
+      {
+        "name": "ScratchDatabaseIsNotListedAsAUserDictionary",
+        "class": "RimeUserDictManagerTest",
+        "status": "run",
+        "result": "completed",
+        "errors": []
+      },
+      {
+        "name": "RealUserDictionarySyncsAndMergesWithScratchResidue",
+        "class": "UserDictSyncTest",
+        "status": "run",
+        "result": "completed",
+        "errors": []
+      },
+      {
+        "name": "CorruptUserDictionaryStillFailsAndOthersAreBackedUp",
+        "class": "UserDictSyncTest",
+        "status": "run",
+        "result": "completed",
+        "errors": []
+      }
+    ],
+    "scope": "Actual host engine runtime using LevelDB; .temp enumeration, normal dictionary backup/merge, corrupt dictionary error propagation.",
+    "host_cases_run": 208,
+    "host_cases_disabled": [
+      "RimeCorrectorSearchTest.DISABLED_CaseTranspose (pre-existing)"
+    ]
+  },
+  "artifacts": [
+    {
+      "id": 13525107620,
+      "name": "direct-rime-android-smoke-results",
+      "sha256": "eae443110af993b060c0e819f63b2e0384b6d5e7504f7616b1de2369589abd63"
+    },
+    {
+      "id": 13524923305,
+      "name": "direct-rime-frontend-android-results",
+      "sha256": "c4861529a439132805305c517b69e12bd3735f36c6c268eee53f0c38f1d4f4f3"
+    }
+  ],
+  "initial_failures": {
+    "runs": [
+      42258895942,
+      42260254454
+    ],
+    "cause": "Lua-owned Memory remained alive after session cleanup, keeping the real user dictionary open during synchronization.",
+    "fix": "Finalize plugin resources and initialize without forcing schema compilation before running sync. The original Lua persistence test now passes unchanged."
+  },
+  "macos_arm_release_exception": {
+    "date": "2026-11-07",
+    "source_commit": "483ffbca5fdfa8a13698d28085e3154d48e435b3",
+    "workflow_run": 42249931107,
+    "unverified_job": "macos / build (macos-26)",
+    "reason": "GitHub hosted macOS arm64 capacity: no runner acquired after multiple attempts; no code steps executed.",
+    "user_authorization": "记录 macOS ARM 未验证，继续发布",
+    "other_source_jobs_passed": 13,
+    "sdk_workflow_run": 42249931055,
+    "sdk_workflow_result": "success",
+    "third_attempt_pending": false,
+    "third_attempt_result": "cancelled",
+    "follow_up": {
+      "workflow_run": 42256000130,
+      "head_branch": "zhongzhou",
+      "same_source_commit": true,
+      "result": "success",
+      "source_jobs_passed": 14,
+      "macos_arm_job": 128023540081,
+      "macos_arm_result": "success",
+      "note": "Preserves the approved release-time exception; later validation completes the same source on macOS ARM."
+    }
+  },
+  "workflow_state_restored": {
+    "id": 386451381,
+    "state": "disabled_manually"
+  },
+  "limits": [
+    "Android execution uses an API 35 x86_64 ATD emulator; not an OEM phone or system gesture acceptance.",
+    "AI and clipboard overlays on the user's phone and the system installer need manual device regression.",
+    "The optional full-fixture cold performance probe was not run; emulator timings do not measure phone input latency.",
+    "Earlier Windows JVM run: 1642 cases, 1613 passed and 29 skipped after actual symlink privilege errors; skips are not passes."
+  ]
+}

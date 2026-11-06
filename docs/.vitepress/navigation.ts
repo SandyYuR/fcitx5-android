@@ -99,6 +99,7 @@ const maintenance = [
     { text: '引擎同步与输入修复 · 2026-11-06', link: '/maintainer/changes/2026-11-06-engine-input-fixes' },
     { text: '远端重放与功能复核 · 2026-11-06', link: '/maintainer/changes/2026-11-06-remote-review' },
     { text: '界面一致性复核 · 2026-11-06', link: '/maintainer/changes/2026-11-06-ui-consistency' },
+    { text: '设备反馈修复 · 2026-11-06', link: '/maintainer/changes/2026-11-06-device-fixes' },
     { text: '本地复核与构建 · 2026-11-05', link: '/maintainer/changes/2026-11-05-local-review' },
     { text: '远端核对 · 2026-11-05', link: '/maintainer/changes/2026-11-05' },
     { text: '现行功能与源码入口', link: '/maintainer/changes/feature-coverage' },

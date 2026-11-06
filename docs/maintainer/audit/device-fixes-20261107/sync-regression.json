@@ -1,0 +1,25 @@
+{
+  "source_commit": "483ffbca5fdfa8a13698d28085e3154d48e435b3",
+  "workflow_run": 42249931055,
+  "workflow": "SandyYuR/librime Android SDK",
+  "scope": "Real host librime/LevelDB execution; Android device validation is recorded separately.",
+  "host_tests_executed": 208,
+  "pre_existing_disabled_tests": ["RimeCorrectorSearchTest.DISABLED_CaseTranspose"],
+  "reviewed_regressions": [
+    {
+      "name": "RimeUserDictManagerTest.ScratchDatabaseIsNotListedAsAUserDictionary",
+      "result": "passed",
+      "checks": ["Only exact .temp name is skipped", "Other hidden and Unicode names remain listed", "Enumeration preserves leftover content"]
+    },
+    {
+      "name": "UserDictSyncTest.RealUserDictionarySyncsAndMergesWithScratchResidue",
+      "result": "passed",
+      "checks": ["Real user dictionary snapshot is written", "Local and remote entries remain readable after merge", "No .temp snapshot is exported"]
+    },
+    {
+      "name": "UserDictSyncTest.CorruptUserDictionaryStillFailsAndOthersAreBackedUp",
+      "result": "passed",
+      "checks": ["Corrupt real dictionary still reports failure", "Normal dictionary is backed up", "Normal dictionary entries survive"]
+    }
+  ]
+}
