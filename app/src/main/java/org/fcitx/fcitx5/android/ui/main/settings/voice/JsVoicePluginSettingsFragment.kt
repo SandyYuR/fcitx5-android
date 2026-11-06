@@ -135,6 +135,24 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     }
 
     private fun appendHostPermissionEntry() {
+        val appSpec = JsVoiceProviders.specOf(pluginId)
+        if (appSpec?.apps?.isNotEmpty() == true) {
+            preferenceScreen.addPreference(Preference(requireContext()).apply {
+                key = "js_app_revoke"
+                isPersistent = false
+                isIconSpaceReserved = false
+                order = 8_999
+                setTitle(R.string.js_app_revoke)
+                setSummary(R.string.js_app_revoke_summary)
+                setOnPreferenceClickListener {
+                    org.fcitx.fcitx5.android.input.voice.js.JsAppPermissions.revoke(pluginId)
+                    JsVoiceHostPermissions.revoke(pluginId)
+                    true
+                }
+            })
+            // Apps authorize each actual endpoint when it is first used.
+            if (!appSpec.hasVoice) return
+        }
         val spec = JsVoiceProviders.specOf(pluginId) ?: return
         val preference = Preference(requireContext()).apply {
             key = "js_voice_network_permission"

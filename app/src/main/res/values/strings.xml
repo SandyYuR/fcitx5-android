@@ -1060,7 +1060,7 @@
     <string name="settings_group_appearance">Appearance</string>
     <string name="settings_group_appearance_summary">Themes, icons and fonts</string>
     <string name="settings_group_convenience">Convenience</string>
-    <string name="settings_group_convenience_summary">Clipboard, text editing, emoji and symbols</string>
+    <string name="settings_group_convenience_summary">Clipboard, text editing, symbols and plugin settings</string>
     <string name="settings_group_data">Data &amp; backup</string>
     <string name="settings_group_data_summary">Import, export and user data directory</string>
     <string name="settings_group_advanced">Advanced</string>
@@ -1163,8 +1163,8 @@
     <string name="js_voice_undeclared_host">The plugin connects to hosts that are not allowed: %1$s</string>
 
     <string name="js_voice_plugins_current">%1$s · In use</string>
-    <string name="js_voice_plugins_title">JS voice plugins</string>
-    <string name="js_voice_plugins_summary">Manage built-in and imported voice recognition plugins</string>
+    <string name="js_voice_plugins_title">JavaScript plugin settings</string>
+    <string name="js_voice_plugins_summary">Manage built-in and imported voice and text assistant plugins</string>
     <string name="js_voice_plugins_entry_summary">v%1$s · %2$s</string>
     <string name="js_voice_plugins_delete_title">Remove plugin?</string>
     <string name="js_voice_plugins_delete_message">%1$s will be removed. Saved settings and keys are kept.</string>
@@ -1172,7 +1172,7 @@
     <string name="js_voice_plugins_deleted">Removed %1$s</string>
     <string name="js_voice_plugins_preferred_reset">It was your preferred voice input; that selection was cleared</string>
     <string name="js_voice_import">Import plugin…</string>
-    <string name="js_voice_import_summary">Pick a .js file that registers a voice plugin</string>
+    <string name="js_voice_import_summary">Pick a .js voice or app plugin</string>
     <string name="js_voice_import_loading">Checking plugin…</string>
     <string name="js_voice_import_dialog_title">Import plugin</string>
     <string name="js_voice_import_dialog_confirm">Import</string>
@@ -1187,7 +1187,7 @@
     <string name="js_voice_import_failed_too_large">Script is too large (limit 256 KiB)</string>
     <string name="js_voice_import_failed_load">Could not run the script: %1$s</string>
     <string name="js_voice_import_failed_no_plugin">No foxy.plugin.register() call found</string>
-    <string name="js_voice_import_failed_no_asr">Script does not declare a voice.asr feature</string>
+    <string name="js_voice_import_failed_no_asr">Script does not declare a supported voice.asr feature or app</string>
     <string name="js_voice_import_failed_invalid_id">Plugin ID %1$s is not a valid ID</string>
     <string name="js_voice_import_failed_reserved_id">Plugin ID %1$s is reserved by a built-in plugin</string>
     <string name="js_voice_import_failed_no_hosts">Script declares no valid host</string>

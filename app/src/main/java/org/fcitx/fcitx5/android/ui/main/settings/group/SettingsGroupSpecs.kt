@@ -15,6 +15,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeListActivity
+import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
 
 /** 分组内一条目的跳转目标。 */
 sealed interface SettingsGroupAction {
@@ -180,6 +181,12 @@ object SettingsGroupSpecs {
                         R.string.emoji_and_symbols,
                         R.drawable.ic_baseline_emoji_symbols_24,
                         SettingsRoute.Symbol
+                    ),
+                    SettingsGroupEntry.activity(
+                        R.string.js_voice_plugins_title,
+                        R.drawable.ic_baseline_extension_24,
+                        JsVoicePluginsActivity::class.java,
+                        R.string.js_voice_plugins_summary
                     )
                 )
             }

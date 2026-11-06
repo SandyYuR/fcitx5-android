@@ -514,6 +514,10 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 setOnClickListener(action.id, defaultActionClickListener(action))
             }
 
+            setOnLongClickListener("ai_assistant") {
+                org.fcitx.fcitx5.android.input.voice.js.JsApps.configure(service)
+                true
+            }
             setOnLongClickListener("voice_input") {
                 restoreVirtualKeyboardMode()
                 ButtonAction.fromId("voice_input")?.onLongPress(

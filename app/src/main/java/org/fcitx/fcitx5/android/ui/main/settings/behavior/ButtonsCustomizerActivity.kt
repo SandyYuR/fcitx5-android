@@ -44,6 +44,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
+import org.fcitx.fcitx5.android.input.action.ButtonAction
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
@@ -155,23 +156,11 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
     private var adapter: CombinedAdapter? = null
     private var touchHelper: ItemTouchHelper? = null
 
-    // Available button definitions (all buttons can be used in either section)
-    // Note: input_method_options is fixed at the end of Status Area and not configurable
-    private val availableButtons = listOf(
-        ButtonDefinition("undo", R.drawable.ic_baseline_undo_24, R.string.undo),
-        ButtonDefinition("redo", R.drawable.ic_baseline_redo_24, R.string.redo),
-        ButtonDefinition("cursor_move", R.drawable.ic_cursor_move, R.string.text_editing),
-        ButtonDefinition("floating_toggle", R.drawable.ic_floating_toggle_24, R.string.floating_keyboard),
-        ButtonDefinition("clipboard", R.drawable.ic_clipboard, R.string.clipboard),
-        ButtonDefinition("theme_toggle", R.drawable.ic_theme_light_dark_24, R.string.toggle_day_night_theme),
-        ButtonDefinition("random_theme", R.drawable.ic_random_theme_24, R.string.random_theme),
-        ButtonDefinition("language_switch", R.drawable.ic_baseline_language_24, R.string.language_switch),
-        ButtonDefinition("theme", R.drawable.ic_baseline_palette_24, R.string.theme),
-        ButtonDefinition("icon_theme", R.drawable.ic_icon_theme_24, R.string.icon_theme),
-        ButtonDefinition("reload_config", R.drawable.ic_baseline_sync_24, R.string.reload_config),
-        ButtonDefinition("virtual_keyboard", R.drawable.ic_baseline_keyboard_24, R.string.virtual_keyboard),
-        ButtonDefinition("one_handed_keyboard", R.drawable.ic_baseline_keyboard_tab_24, R.string.one_handed_keyboard)
-    )
+    // Share the runtime catalog so new actions appear in both settings add controls.
+    // input_method_options remains fixed at the end of Status Area.
+    private val availableButtons = ButtonAction.allConfigurableActions
+        .filterNot { it.id == "input_method_options" }
+        .map { ButtonDefinition(it.id, it.defaultIcon, it.defaultLabelRes) }
 
     /**
      * Set of built-in button IDs that cannot be deleted or have custom labels.

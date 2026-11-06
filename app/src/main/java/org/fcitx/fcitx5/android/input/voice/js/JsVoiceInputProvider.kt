@@ -341,6 +341,7 @@ internal object JsVoiceStubNatives {
         js.function("__n_wsSendGzipFrame") { null }
         js.function("__n_wsClose") { null }
         js.function("__n_httpPost") { throw IllegalStateException("network is not available here") }
+        js.function("__n_appSleep") { throw IllegalStateException("App delay is not available here") }
         js.function("__n_hmacSha1Base64") { throw IllegalStateException("signing is not available here") }
         js.function("__n_concatBase64") { args -> binary.concatenate(text(args, 0)) }
         js.function("__n_wavBase64") { args ->

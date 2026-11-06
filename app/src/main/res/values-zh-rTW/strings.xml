@@ -1026,7 +1026,7 @@
     <string name="settings_group_appearance">外觀</string>
     <string name="settings_group_appearance_summary">主題、圖示和字型</string>
     <string name="settings_group_convenience">便捷功能</string>
-    <string name="settings_group_convenience_summary">剪貼簿、文字編輯與表情符號</string>
+    <string name="settings_group_convenience_summary">剪貼簿、文字編輯、表情符號與外掛設定</string>
     <string name="settings_group_data">資料與備份</string>
     <string name="settings_group_data_summary">匯入匯出使用者資料、使用者資料目錄</string>
     <string name="settings_group_advanced">進階</string>
@@ -1129,8 +1129,8 @@
     <string name="js_voice_undeclared_host">外掛要連線的網域未獲授權：%1$s</string>
 
     <string name="js_voice_plugins_current">%1$s · 目前使用</string>
-    <string name="js_voice_plugins_title">JS 語音外掛</string>
-    <string name="js_voice_plugins_summary">管理內建與匯入的語音辨識外掛</string>
+    <string name="js_voice_plugins_title">JS 外掛設定</string>
+    <string name="js_voice_plugins_summary">管理內建與匯入的語音、文字助手外掛</string>
     <string name="js_voice_plugins_entry_summary">v%1$s · %2$s</string>
     <string name="js_voice_plugins_delete_title">移除外掛？</string>
     <string name="js_voice_plugins_delete_message">將移除 %1$s。已儲存的設定與金鑰會保留。</string>
@@ -1138,7 +1138,7 @@
     <string name="js_voice_plugins_deleted">已移除 %1$s</string>
     <string name="js_voice_plugins_preferred_reset">它原是首選語音輸入，該選項已被清空</string>
     <string name="js_voice_import">匯入外掛…</string>
-    <string name="js_voice_import_summary">選擇一個註冊了語音外掛的 .js 檔案</string>
+    <string name="js_voice_import_summary">選擇語音或應用外掛的 .js 檔案</string>
     <string name="js_voice_import_loading">正在辨識外掛…</string>
     <string name="js_voice_import_dialog_title">匯入外掛</string>
     <string name="js_voice_import_dialog_confirm">匯入</string>
@@ -1153,7 +1153,7 @@
     <string name="js_voice_import_failed_too_large">腳本過大（上限 256 KiB）</string>
     <string name="js_voice_import_failed_load">腳本無法執行：%1$s</string>
     <string name="js_voice_import_failed_no_plugin">沒有找到 foxy.plugin.register() 呼叫</string>
-    <string name="js_voice_import_failed_no_asr">腳本沒有宣告 voice.asr 能力</string>
+    <string name="js_voice_import_failed_no_asr">腳本沒有宣告支援的 voice.asr 或應用能力</string>
     <string name="js_voice_import_failed_invalid_id">外掛 ID %1$s 不是合法 ID</string>
     <string name="js_voice_import_failed_reserved_id">外掛 ID %1$s 已被內建外掛占用</string>
     <string name="js_voice_import_failed_no_hosts">腳本沒有宣告任何合法網域</string>

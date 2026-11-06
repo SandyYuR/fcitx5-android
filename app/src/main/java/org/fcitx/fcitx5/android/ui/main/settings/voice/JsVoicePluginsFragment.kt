@@ -154,8 +154,9 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
         if (meta.version.isNotBlank()) {
             lines += getString(R.string.js_voice_import_dialog_version, meta.version)
         }
-        lines += getString(R.string.js_voice_network_message, meta.displayName, meta.hosts.joinToString("\n"))
+        if (meta.hosts.isNotEmpty()) lines += getString(R.string.js_voice_network_message, meta.displayName, meta.hosts.joinToString("\n"))
         lines += getString(R.string.js_voice_import_dialog_fields, result.fieldCount)
+        meta.apps.forEach { app -> lines += app.label + " (" + app.command + ")\n" + app.permissions.sorted().joinToString("\n") }
         if (meta.rejectedHosts.isNotEmpty()) {
             lines += getString(
                 R.string.js_voice_import_dialog_rejected_hosts,
@@ -185,7 +186,7 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
             val saved = withContext(Dispatchers.IO) {
                 runCatching {
                     check(JsVoicePluginStore.save(record, script)) { "Cannot save plugin" }
-                    JsVoiceHostPermissions.approve(meta.providerId, meta.hosts.toSet())
+                    if (meta.hosts.isNotEmpty()) JsVoiceHostPermissions.approve(meta.providerId, meta.hosts.toSet())
                     JsVoiceProviders.reload()
                 }
             }

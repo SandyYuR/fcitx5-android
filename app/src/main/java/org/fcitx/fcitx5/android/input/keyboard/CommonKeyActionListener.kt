@@ -254,7 +254,9 @@ class CommonKeyActionListener :
                         Stopped -> {
                             backspaceSwipeState = if (
                                 preeditState.isEmpty &&
-                                horizontalCandidate.adapter.total <= 0 // total is -1 on initialization
+                                // Predictions can remain after a panel edit was committed. They
+                                // must not prevent selecting/deleting the local editor's text.
+                                (service.jsAppInputConnection != null || horizontalCandidate.adapter.total <= 0)
                             ) {
                                 service.applySelectionOffset(action.start, action.end)
                                 Selection

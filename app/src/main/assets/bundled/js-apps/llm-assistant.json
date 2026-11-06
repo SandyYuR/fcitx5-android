@@ -1,0 +1,20 @@
+{
+  "id": "llm-assistant",
+  "name": "LLM 助手",
+  "version": "1.23.2-fx",
+  "hosts": [],
+  "features": [],
+  "apps": [
+    {
+      "id": "llm_assistant",
+      "label": "LLM 助手",
+      "permissions": [
+        "editor.read_selection",
+        "editor.composition",
+        "editor.commit",
+        "network.request",
+        "credentials.list"
+      ]
+    }
+  ]
+}

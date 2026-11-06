@@ -51,10 +51,10 @@ internal object JsVoiceImportPolicy {
         if (meta.providerId in builtInIds) {
             return JsVoiceImportResult.Failure.Reason.RESERVED_ID
         }
-        if (meta.voiceAsr == null) {
+        if (meta.voiceAsr == null && meta.apps.isEmpty()) {
             return JsVoiceImportResult.Failure.Reason.NO_VOICE_FEATURE
         }
-        if (meta.hosts.isEmpty()) {
+        if (meta.hosts.isEmpty() && meta.apps.isEmpty()) {
             return JsVoiceImportResult.Failure.Reason.NO_HOSTS
         }
         return null
@@ -112,6 +112,9 @@ internal object JsVoiceImporter {
                 fieldCount = fieldCount,
                 replacesExisting = meta.id in importedIds,
             )
+        } catch (error: Exception) {
+            if (error is CancellationException && error !is TimeoutCancellationException) throw error
+            JsVoiceImportResult.Failure(JsVoiceImportResult.Failure.Reason.LOAD_FAILED, error.message.orEmpty())
         } finally {
             runCatching { js.close() }
         }

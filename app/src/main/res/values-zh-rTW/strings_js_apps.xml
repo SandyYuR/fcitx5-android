@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ai_assistant">AI 助手</string>
+    <string name="js_app_none">請先匯入 JS 應用外掛。</string>
+    <string name="js_app_password">密碼輸入框中不可使用 AI 助手。</string>
+    <string name="js_app_permission_message">是否允許此外掛使用以下能力？\n\n%1$s\n\n可在外掛設定中撤銷授權。</string>
+    <string name="js_app_allow">允許</string>
+    <string name="js_app_read_selection">讀取選取文字</string>
+    <string name="js_app_read_text">讀取編輯器文字</string>
+    <string name="js_app_composition">在編輯器中預覽暫存文字</string>
+    <string name="js_app_commit">插入確認的文字</string>
+    <string name="js_app_network">向已授權網域傳送請求</string>
+    <string name="js_app_credentials">檢視已設定金鑰的名稱（不讀取金鑰內容）</string>
+    <string name="js_app_endpoint_message">是否允許此外掛連線 %1$s？\n\n文字和設定的 API 金鑰將傳送到此網域，不會跟随重定向。</string>
+    <string name="js_app_revoke">撤銷應用能力授權</string>
+    <string name="js_app_revoke_summary">下次使用前重新詢問編輯器存取和網路請求權限。</string>
+</resources>

@@ -57,6 +57,9 @@ internal object JsVoiceHeaders {
             val value = secret?.takeIf { it.isNotBlank() }
                 ?: throw JsVoiceSecretMissingException(secretField)
             val name = headerName(authHeader.ifBlank { DEFAULT_AUTH_HEADER })
+            require(name.lowercase() !in RESERVED || name.equals(DEFAULT_AUTH_HEADER, ignoreCase = true)) {
+                "Header '$name' is managed by the host"
+            }
             // 前缀的默认值只在「调用方没指定头名」时补：DashScope 走默认 Authorization: Bearer，
             // 而火山引擎要求 X-Api-Key 的**值就是原始 key**，此时空前缀是明确意图，不能补成 Bearer。
             val prefix = if (authHeader.isBlank()) authPrefix.ifBlank { DEFAULT_AUTH_PREFIX } else authPrefix
