@@ -18,6 +18,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.util.ReflectionHelpers
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], application = FcitxApplication::class,
@@ -78,6 +79,24 @@ class MaintenanceSaveTest {
     @Test fun unavailableEngineDoesNotBlockExportingExistingFiles() = runBlocking {
         ReflectionHelpers.setField(backend, "started", false)
         backend.save() // The default delegate throws if any native API is reached.
+    }
+
+    @Test fun advancedSettingsReadNeverEntersMaintenanceOrInvalidatesPendingInput() = runBlocking {
+        val config = ReflectionHelpers.getField<DirectRimeConfig>(backend, "config")
+        config.load()
+        File(config.user, "default.yaml").writeText("schema_list: [{schema: wanxiang}]\nmenu: {page_size: 6}\n")
+        File(config.user, "build").mkdirs()
+        File(config.user, "default.yaml").copyTo(File(config.user, "build/default.yaml"))
+        val original = File(config.user, "build/default.yaml").readBytes()
+        val modified = File(config.user, "build/default.yaml").lastModified()
+        val ticket = requireNotNull(backend.captureInputKey())
+        // The default delegate throws on every native call, including ending/recreating a session.
+        repeat(3) { assertNotNull(backend.getAddonSubConfig("rime", "wanxiang-settings/default.yaml")["Snapshot"].value) }
+        assertArrayEquals(original, File(config.user, "build/default.yaml").readBytes())
+        assertEquals(modified, File(config.user, "build/default.yaml").lastModified())
+        assertFalse(ReflectionHelpers.getField<Boolean>(backend, "maintenance"))
+        assertTrue(backend.canDeliverInputKey(ticket))
+        backend.releaseInputKey(ticket)
     }
 
     @Test fun failedSyncFromTheStatusMenuReportsTheErrorWithoutEscapingItsCoroutine() = runBlocking {

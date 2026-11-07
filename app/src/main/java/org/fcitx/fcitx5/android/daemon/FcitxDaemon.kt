@@ -132,6 +132,11 @@ object FcitxDaemon {
     private val clients = mutableMapOf<String, FcitxConnection>()
     private var userDataIoInProgress = false
 
+    /** Check on the engine owner before updating resources; backup waits for that owner to stop. */
+    internal fun requireUserDataAvailable() = lock.withLock {
+        check(!userDataIoInProgress) { "用户数据正在备份或恢复，请完成后重试万象更新" }
+    }
+
     /**
      * Create a connection
      */

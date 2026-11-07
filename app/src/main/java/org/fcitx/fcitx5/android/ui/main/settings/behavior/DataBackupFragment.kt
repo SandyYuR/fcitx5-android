@@ -333,6 +333,19 @@ class DataBackupFragment : PaddingPreferenceFragment() {
             addPreference(R.string.import_user_data) {
                 if (!importInProgress && !exportInProgress && pendingExportArchive == null) importLauncher.launch("*/*")
             }
+            val wanxiangGroup = PreferenceCategory(ctx).apply {
+                setTitle(R.string.wanxiang_group)
+                isIconSpaceReserved = false
+            }
+            addPreference(wanxiangGroup)
+            wanxiangGroup.addPreference(R.string.wanxiang_update, R.string.wanxiang_update_summary) {
+                ctx.startActivity(android.content.Intent(ctx,
+                    org.fcitx.fcitx5.android.ui.main.wanxiang.WanxiangUpdateActivity::class.java))
+            }
+            wanxiangGroup.addPreference(R.string.scheme_update_title, R.string.scheme_update_summary) {
+                ctx.startActivity(android.content.Intent(ctx,
+                    org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdateActivity::class.java))
+            }
         }
         renderOperation()
     }

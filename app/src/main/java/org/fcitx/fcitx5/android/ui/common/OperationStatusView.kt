@@ -55,7 +55,8 @@ class OperationStatusView @JvmOverloads constructor(context: Context, attrs: Att
         show("", "")
     }
 
-    fun show(title: CharSequence, message: CharSequence = "", state: State = State.IDLE) {
+    fun show(title: CharSequence, message: CharSequence = "", state: State = State.IDLE,
+             progressPercent: Int? = null) {
         heading.text = title
         detail.text = message
         val error = state == State.ERROR
@@ -69,6 +70,17 @@ class OperationStatusView @JvmOverloads constructor(context: Context, attrs: Att
         detailsButton.setTextColor(context.settingsColor(foreground))
         detail.visibility = if (message.isNotEmpty() && !error) View.VISIBLE else View.GONE
         detailsButton.visibility = if (message.isNotEmpty() && error) View.VISIBLE else View.GONE
+        val percent = progressPercent?.takeIf { state == State.WORKING && it in 0..100 }
+        val indeterminate = percent == null
+        if (progress.isIndeterminate != indeterminate) {
+            // Material indicators cannot enter indeterminate mode while visible.
+            progress.visibility = View.INVISIBLE
+            progress.isIndeterminate = indeterminate
+        }
+        if (percent != null) {
+            progress.max = 100
+            progress.setProgressCompat(percent, false)
+        }
         progress.visibility = if (state == State.WORKING) View.VISIBLE else View.GONE
     }
 

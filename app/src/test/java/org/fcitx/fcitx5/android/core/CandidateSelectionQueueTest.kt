@@ -6,7 +6,8 @@ import kotlinx.coroutines.channels.Channel
 import org.fcitx.directrime.Snapshot
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
-import org.fcitx.fcitx5.android.daemon.FcitxDaemon
+import org.fcitx.fcitx5.android.testing.FcitxDaemonTestDelegate
+import org.fcitx.fcitx5.android.testing.FcitxDaemonTestShadow
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.junit.Assert.*
@@ -16,17 +17,15 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.Implementation
-import org.robolectric.annotation.Implements
 import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], application = FcitxApplication::class,
-    shadows = [EditorApplicationShadow::class, NativeTestShadow::class, CandidateQueueDaemonShadow::class])
+    shadows = [EditorApplicationShadow::class, NativeTestShadow::class, FcitxDaemonTestShadow::class])
 class CandidateSelectionQueueTest {
     @Test fun queuedTapKeepsItsDisplayedVersionAndItsNativeIndexOrigin() = runBlocking {
         val backend = DirectRimeBackend(RuntimeEnvironment.getApplication())
-        CandidateQueueDaemonShadow.backend = backend
+        FcitxDaemonTestShadow.install(CandidateQueueDaemonDelegate(backend))
         val owner: ExecutorCoroutineDispatcher = ReflectionHelpers.getField(backend, "owner")
         val service = Robolectric.buildService(FcitxInputMethodService::class.java).get()
         val jobs: Channel<Job> = ReflectionHelpers.getField(service, "jobs")
@@ -84,7 +83,7 @@ class CandidateSelectionQueueTest {
             val events = ReflectionHelpers.getField<InputEventQueue>(backend, "events")
             ReflectionHelpers.getField<Channel<Unit>>(events, "available").cancel()
             owner.close()
-            CandidateQueueDaemonShadow.backend = null
+            FcitxDaemonTestShadow.reset()
         }
     }
 }
@@ -121,13 +120,10 @@ internal class CandidateSelectionNativeShadow : NativeTestDelegate {
 }
 
 /** Supply a scoped engine while retaining the actual service queue and InputKeyGate. */
-@Implements(FcitxDaemon::class, isInAndroidSdk = false)
-internal class CandidateQueueDaemonShadow {
-    companion object { var backend: DirectRimeBackend? = null }
-    private fun engine() = requireNotNull(backend)
-    @Implementation fun getCurrentInputSession() = engine().inputSession
-    @Implementation fun requireInputSession() = engine().requireInputSession(engine().inputSession)
-    @Implementation fun captureInputKey() = engine().captureInputKey()
-    @Implementation fun canDeliverInputKey(ticket: InputKeyGate.Ticket) = engine().canDeliverInputKey(ticket)
-    @Implementation fun releaseInputKey(ticket: InputKeyGate.Ticket) = engine().releaseInputKey(ticket)
+private class CandidateQueueDaemonDelegate(private val backend: DirectRimeBackend) : FcitxDaemonTestDelegate {
+    override fun getCurrentInputSession() = backend.inputSession
+    override fun requireInputSession() = backend.requireInputSession(backend.inputSession)
+    override fun captureInputKey() = backend.captureInputKey()
+    override fun canDeliverInputKey(ticket: InputKeyGate.Ticket) = backend.canDeliverInputKey(ticket)
+    override fun releaseInputKey(ticket: InputKeyGate.Ticket) = backend.releaseInputKey(ticket)
 }

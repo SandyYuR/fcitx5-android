@@ -1002,6 +1002,22 @@ object SettingsSearchIndex {
             route = SettingsRoute.DataBackup
         ),
 
+        SettingsSearchEntry(
+            R.string.scheme_update_title, P_DATA,
+            listOf("rime", "Rime方案更新", "自定义更新", "本地方案", "批量更新", "zip", "custom update"),
+            activityClass = org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdateActivity::class.java
+        ),
+        SettingsSearchEntry(
+            R.string.wanxiang_update, P_DATA,
+            listOf("wanxiang", "万象", "Rime方案更新", "方案更新", "词库更新", "模型下载"),
+            route = SettingsRoute.DataBackup
+        ),
+        SettingsSearchEntry(
+            R.string.wanxiang_advanced, P_DATA,
+            listOf("wanxiang settings", "万象高级设置", "拼写方案", "辅助码", "模糊音", "万象补丁"),
+            route = SettingsRoute.DataBackup
+        ),
+
         /* ===== Android：高级 ===== */
         SettingsSearchEntry(
             R.string.advanced, P_ANDROID,

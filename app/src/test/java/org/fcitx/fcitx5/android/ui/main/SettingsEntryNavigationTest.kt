@@ -15,7 +15,8 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
-import org.fcitx.fcitx5.android.daemon.FcitxDaemon
+import org.fcitx.fcitx5.android.testing.FcitxDaemonTestDelegate
+import org.fcitx.fcitx5.android.testing.FcitxDaemonTestShadow
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
@@ -24,19 +25,22 @@ import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchIndex
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.utils.Const
 import org.junit.Assert.*
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.Implementation
-import org.robolectric.annotation.Implements
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [23, 35], application = FcitxApplication::class,
-    shadows = [EditorApplicationShadow::class, SettingsNavigationDaemonShadow::class])
+    shadows = [EditorApplicationShadow::class, FcitxDaemonTestShadow::class])
 class SettingsEntryNavigationTest {
+    @Before fun prepareDaemon() { FcitxDaemonTestShadow.install(SettingsNavigationDaemonDelegate()) }
+    @After fun resetDaemon() { FcitxDaemonTestShadow.reset() }
+
     private fun page(block: (MainActivity, () -> PreferenceFragmentCompat) -> Unit) {
         // STARTED is enough to navigate; About's foreground release check is outside this test.
         val controller = Robolectric.buildActivity(MainActivity::class.java, Intent()).create().start().visible()
@@ -105,16 +109,26 @@ class SettingsEntryNavigationTest {
         advanced.preferenceScreen.find(activity.getString(R.string.developer)).performClick()
         assertTrue(current() is DeveloperFragment)
     }
+
+    @Test fun customSchemeUpdateImmediatelyFollowsWanxiangInTheSameGroup() = page { activity, current ->
+        current().preferenceScreen.find(activity.getString(R.string.settings_group_data)).performClick()
+        val group = current().preferenceScreen.find(activity.getString(R.string.wanxiang_group)) as PreferenceGroup
+        assertEquals(listOf(activity.getString(R.string.wanxiang_update), activity.getString(R.string.scheme_update_title)), group.entries().map { it.title })
+        group.entries()[1].performClick()
+        assertEquals(org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdateActivity::class.java.name,
+            shadowOf(activity).nextStartedActivity.component?.className)
+        val indexed = SettingsSearchIndex.entries(activity).single { it.titleRes == R.string.scheme_update_title }
+        assertEquals(org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdateActivity::class.java, indexed.activityClass)
+    }
 }
 
 /** Navigation and entry placement do not require starting a native input engine. */
-@Implements(FcitxDaemon::class, isInAndroidSdk = false)
-class SettingsNavigationDaemonShadow {
-    @Implementation fun connect(name: String): FcitxConnection = object : FcitxConnection {
+private class SettingsNavigationDaemonDelegate : FcitxDaemonTestDelegate {
+    override fun connect(name: String): FcitxConnection = object : FcitxConnection {
         override fun <T> runImmediately(block: suspend FcitxAPI.() -> T): T = error("Unexpected engine read")
         override suspend fun <T> runOnReady(block: suspend FcitxAPI.() -> T): T = awaitCancellation()
         override fun runIfReady(block: suspend FcitxAPI.() -> Unit) {}
         override val lifecycleScope = CoroutineScope(Dispatchers.Unconfined)
     }
-    @Implementation fun disconnect(name: String) {}
+    override fun disconnect(name: String) {}
 }

@@ -19,6 +19,53 @@ class ResumableAssetDownloadTest {
     @get:Rule val temp = TemporaryFolder()
     private fun files() = DownloadFiles(temp.root, UUID.randomUUID()).apply { prepare() }
 
+    @Test fun aKnownLengthDownloadReportsZeroThenTheVerifiedTotal() = runBlocking {
+        MockWebServer().use { server ->
+            val files = files()
+            server.enqueue(MockResponse().setBody("content"))
+            val progress = mutableListOf<AssetDownloadProgress>()
+            ResumableAssetDownload.run(OkHttpClient(), server.url("/f").toString(),
+                ReleaseAsset("f.bin", "", 7, null), files) { progress += it }
+            assertEquals(AssetDownloadProgress(0, 7, 0), progress.first())
+            assertEquals(AssetDownloadProgress(7, 7, 0), progress.last())
+            assertTrue(files.read().verified)
+        }
+    }
+
+    @Test fun verifiedAndChecksumCachesReportCompletionWithoutANetworkRequest() = runBlocking {
+        for (verified in listOf(true, false)) MockWebServer().use { server ->
+            val files = files()
+            files.part.writeText("cached")
+            val hash = DownloadFiles.digest(files.part)
+            if (verified) files.write(DownloadCheckpoint(total = 6, verified = true, actualSha256 = hash))
+            server.enqueue(MockResponse().setBody("unused"))
+            val progress = mutableListOf<AssetDownloadProgress>()
+            ResumableAssetDownload.run(OkHttpClient(), server.url("/f").toString(),
+                ReleaseAsset("f.bin", "", if (verified) 0 else 6, if (verified) null else hash), files) {
+                assertTrue(files.read().verified)
+                progress += it
+            }
+            assertEquals(listOf(AssetDownloadProgress(6, 6, 0)), progress)
+            assertEquals(0, server.requestCount)
+            assertEquals("cached", files.part.readText())
+        }
+    }
+
+    @Test fun anEmptyVerifiedCheckpointCannotReportACachedCompletion() = runBlocking {
+        MockWebServer().use { server ->
+            val files = files()
+            files.part.writeText("")
+            files.write(DownloadCheckpoint(total = 0, verified = true, actualSha256 = DownloadFiles.digest(files.part)))
+            server.enqueue(MockResponse().setBody("content"))
+            val progress = mutableListOf<AssetDownloadProgress>()
+            ResumableAssetDownload.run(OkHttpClient(), server.url("/f").toString(),
+                ReleaseAsset("f.bin", "", 0, null), files) { progress += it }
+            assertEquals(1, server.requestCount)
+            assertEquals(AssetDownloadProgress(0, 7, 0), progress.first())
+            assertEquals(AssetDownloadProgress(7, 7, 0), progress.last())
+        }
+    }
+
     @Test fun aFreshInstanceResumesFromAStrongValidatorAndVerifiesTheWholeFile() = runBlocking {
         MockWebServer().use { server ->
             val files = files()
@@ -28,10 +75,13 @@ class ResumableAssetDownloadTest {
                 .setHeader("ETag", "\"v1\"").setBody("second"))
             val asset = ReleaseAsset("fixture.bin", server.url("/asset").toString(), 11, null)
             val reopened = DownloadFiles(temp.root, UUID.fromString(files.directory.name))
-            ResumableAssetDownload.run(OkHttpClient(), asset.browserDownloadUrl, asset, reopened) { }
+            val progress = mutableListOf<AssetDownloadProgress>()
+            ResumableAssetDownload.run(OkHttpClient(), asset.browserDownloadUrl, asset, reopened) { progress += it }
             assertEquals("firstsecond", reopened.part.readText())
             assertTrue(reopened.read().verified)
             assertEquals("bytes=5-", server.takeRequest().getHeader("Range"))
+            assertEquals(AssetDownloadProgress(5, 11, 0), progress.first())
+            assertEquals(AssetDownloadProgress(11, 11, 0), progress.last())
         }
     }
 
@@ -111,9 +161,13 @@ class ResumableAssetDownloadTest {
     @Test fun chunkedUnknownLengthIsBoundedAndVerifiedAtEof() = runBlocking {
         MockWebServer().use { server ->
             val files = files(); server.enqueue(MockResponse().setChunkedBody("unknown-size", 2))
+            val progress = mutableListOf<AssetDownloadProgress>()
             ResumableAssetDownload.run(OkHttpClient(), server.url("/f").toString(),
-                ReleaseAsset("f.bin", "", 0, null), files) { }
+                ReleaseAsset("f.bin", "", 0, null), files) { progress += it }
             assertEquals(12L, files.read().total); assertTrue(files.read().verified)
+            assertEquals(AssetDownloadProgress(0, 0, 0), progress.first())
+            assertTrue(progress.dropLast(1).all { it.total == 0L })
+            assertEquals(AssetDownloadProgress(12, 12, 0), progress.last())
         }
     }
     @Test fun oversizedDeclarationsFailWithoutWritingTheBody() = runBlocking {
