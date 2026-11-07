@@ -36,6 +36,7 @@ const features = [
     { text: '大小与位置调整', link: '/features/keyboard/adjust-mode' },
     { text: '滑动与长按', link: '/features/keyboard/swipe-actions' },
     { text: '候选栏与候选窗口', link: '/features/candidate-window' },
+    { text: '键盘测试面板', link: '/features/input-statistics#键盘测试' },
     { text: '工具栏（Kawaii Bar）', link: '/features/kawaii-bar' },
   ] },
   { text: '布局与编辑器', collapsed: true, items: [
@@ -64,6 +65,7 @@ const features = [
     { text: 'JS 插件开发接口', link: '/maintainer/implementation/js-voice-plugins' },
   ] },
   { text: '数据与常用工具', collapsed: true, items: [
+    { text: '输入统计、词云与热力', link: '/features/input-statistics' },
     { text: '剪贴板与远端同步', link: '/features/clipboard-sync' },
     { text: '备份、恢复与密钥迁移', link: '/features/backup-restore' },
     { text: '更新检查与断点下载', link: '/features/update-checker' },

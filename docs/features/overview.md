@@ -9,6 +9,8 @@
 | --- | --- | --- |
 | 内置 Rime 引擎 | 直接调用 librime，无需安装 Rime 引擎插件 APK；中文方案、完整词典与模型需自行导入 | [方案与部署](/features/rime-enhancements) |
 | 方案 ZIP 与数据目录 | 将完整方案导入应用目录或可访问的外部目录，管理多个独立工作目录 | [用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN#导入方案与万象) |
+| 万象更新与高级设置 | 仅万象用户：更新当前目录的方案、词库与模型，以补丁或直写模式编辑配置草稿 | [万象更新](/features/rime-enhancements#万象方案更新与高级设置) |
+| Rime 自定义更新 | 在“Rime方案更新”分组配置网络或本地资源任务，按子目录、排除规则单项或批量更新 | [自定义方案更新](/features/rime-enhancements#自定义方案更新) |
 | 语言、方案与开关 | 语言键短按交给方案切换中英文，长按打开方案菜单；状态区管理分组开关 | [语言键](/features/keys/language-key) |
 | 候选栏与窗口 | 调整字体、注释、序号、间距和圆角；长候选可横向浏览，展开候选与浮动窗口分别配置 | [候选指南](/features/candidate-window) |
 | 选词与退格手势 | 按住候选后滑动选字或打开菜单；合成中长按退格上滑只清编码，正文单独处理 | [Rime 功能](/features/rime-enhancements) · [退格键](/features/keys/backspace-key) |
@@ -54,6 +56,7 @@
 | 功能 | 能做什么 | 详细说明 |
 | --- | --- | --- |
 | 剪贴板历史与搜索 | 保存、固定、分词选择与本机搜索；可连接 SyncClipboard、Oneclip、ClipCascade | [剪贴板](/features/clipboard-sync) |
+| 输入统计与键盘测试 | 从“设置 → 便捷功能”列表最下方进入统计，按方案和日期查看字数、速度、按频次区分字号与颜色的词云及按键热力；默认关闭，设置页工具栏另提供四种临时测试输入框 | [输入统计](/features/input-statistics) |
 | 完整备份与恢复 | 默认密码加密 `.fcbak`，可选兼容 ZIP；备份布局、偏好、Rime 数据与导入插件 | [备份](/features/backup-restore) |
 | 更新与下载 | 本仓库 Release/Nightly、镜像与 hosts，受支持路径可后台下载和断点恢复 | [更新](/features/update-checker) |
 | 分享导入 | 从系统分享识别支持的布局、主题等文件，处理压缩包 | [共享导入](/features/shared-import) |
@@ -64,5 +67,5 @@
 
 内置引擎及其依赖随 APK 更新；方案文件单独部署。维护者操作见[引擎与依赖更新](/maintainer/engine-update)，图标槽位见[图标主题](/features/theme/icon-themes)。
 
-当前功能由默认分支源码核对，最新结果见[2026-11-05 对照](/maintainer/changes/2026-11-05)，此前的完整基线见[2026-10-30 对照](/maintainer/changes/)。继承的前端功能继续由当前功能页说明；旧 Fcitx 引擎实现只在[历史档案](/legacy/)中保留。
+当前功能由默认分支源码核对，新增功能及固定源码入口见[现行功能对照](/maintainer/changes/feature-coverage)，此前的核对记录见[2026-11-05 对照](/maintainer/changes/2026-11-05)和[2026-10-30 对照](/maintainer/changes/)。继承的前端功能继续由当前功能页说明；旧 Fcitx 引擎实现只在[历史档案](/legacy/)中保留。
 云端语音识别效果、设备后台策略以及不同编辑器的输入行为仍受服务和设备环境影响。
