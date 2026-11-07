@@ -80,6 +80,11 @@ class DirectRimeFrontendTest {
             File(directory, "default.yaml").appendText("\n")
             val default = File(directory, "default.yaml")
             default.writeText(default.readText().replace("- schema: direct_smoke", "- schema: direct_smoke\n  - schema: second"))
+            if (testName.methodName == "wanxiangAdvancedReadsPreserveDeployedFilesAndChineseInput") {
+                File(directory, "wanxiang.schema.yaml").writeText(File(directory, "direct_smoke.schema.yaml").readText()
+                    .replace("schema_id: direct_smoke", "schema_id: wanxiang"))
+                default.writeText(default.readText().replace("schema: direct_smoke", "schema: wanxiang"))
+            }
             if (testName.methodName == "redeployReloadsLuaAndSchema") writeReloadFixture(directory, "部署前", "before")
         }
         connection.runOnReady {
@@ -315,6 +320,31 @@ end
             }
         } finally { collector.cancelAndJoin(); candidates.close() }
     }
+    @Test fun wanxiangAdvancedReadsPreserveDeployedFilesAndChineseInput(): Unit = runBlocking {
+        val directory = File(context.getExternalFilesDir(null), "data/$profile")
+        val paths = listOf("default.yaml", "wanxiang.schema.yaml", "build/default.yaml", "build/wanxiang.schema.yaml")
+        val original = paths.associateWith { path -> File(directory, path).let { it.readText() to it.lastModified() } }
+        connection.runOnReady {
+            val generation = inputSession
+            repeat(3) {
+                assertNotNull(getAddonSubConfig("rime", "wanxiang-settings/default.yaml")["Snapshot"])
+                assertNotNull(getAddonSubConfig("rime", "wanxiang-settings/wanxiang.schema.yaml")["Snapshot"])
+            }
+            assertEquals(generation, inputSession)
+            assertEquals(original, paths.associateWith { path -> File(directory, path).let { it.readText() to it.lastModified() } })
+            // Reproduce the previous reader's damage, then exercise the real repair path.
+            assertTrue(File(directory, "build/default.yaml").delete())
+            setAddonSubConfig("rime", "wanxiang-settings-repair", RawConfig(arrayOf(
+                RawConfig("Profile", profile), RawConfig("Path", directory.canonicalPath))))
+            assertTrue(File(directory, "build/default.yaml").isFile)
+            sendKey('n', KeyState.Virtual.state); sendKey('i', KeyState.Virtual.state)
+            assertEquals("ni", inputPanelCached.preedit.toString())
+            assertEquals("你", getCandidates(0, 1).single().text)
+            assertTrue(select(0))
+        }
+        assertEquals("你", withTimeout(10_000) { commits.receive() })
+    }
+
     @Test fun candidateSchemaAndEditorContracts(): Unit = runBlocking {
         connection.runOnReady {
             assertTrue(ConfigDescriptor.parseTopLevel(getImConfig("rime")["desc"]).isRight())

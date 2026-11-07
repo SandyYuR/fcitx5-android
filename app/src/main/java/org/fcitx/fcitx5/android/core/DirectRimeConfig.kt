@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import org.fcitx.fcitx5.android.data.RimeDataDirectoryState
 import org.fcitx.fcitx5.android.data.RimeProfileRestorePlan
+import org.fcitx.fcitx5.android.data.WanxiangUpdateTransaction
 import org.fcitx.fcitx5.android.utils.FileUtil
 import org.fcitx.fcitx5.android.utils.Ini
 import java.io.File
@@ -51,6 +52,8 @@ internal class DirectRimeConfig(private val context: Context) {
         } }) "方案目录存在包含关系，请改用互不重叠的目录" else ""
         org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.requirePathReady(context, user)
         user.mkdirs()
+        // Finish an interrupted resource update before librime can open the profile.
+        WanxiangUpdateTransaction.recover(user)
         preeditMode = Ini.parseIniFromFile(optionsFile)?.get("PreeditMode")?.value
             ?.takeIf { it in listOf("No", "ComposingText", "CommitPreview") } ?: "No"
         migratePrototype()
@@ -77,6 +80,15 @@ internal class DirectRimeConfig(private val context: Context) {
         RawConfig("PathsV2", profiles.entries.joinToString("\n") { "${hex(it.key)}|${hex(it.value.absolutePath)}" }),
         RawConfig("Error", error)
     ))
+
+    fun requireUpdateTarget(name: String, path: String) {
+        require(error.isBlank()) { error }
+        require(current == name && user.canonicalPath == path) {
+            "当前 Rime 工作目录已改变，请返回万象更新页面重新开始"
+        }
+        org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.requirePathReady(context, user)
+        require(user.isDirectory && user.canRead() && user.canWrite()) { "无法读写当前 Rime 工作目录" }
+    }
 
     fun saveDirectories() = persistDirectories(profiles, current)
 
@@ -138,6 +150,7 @@ internal class DirectRimeConfig(private val context: Context) {
         org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.requirePathReady(context, target)
         check(target.isDirectory || target.mkdirs()) { "无法打开目录" }
         check(target.canRead() && target.canWrite()) { "无法访问目录，请检查存储权限" }
+        WanxiangUpdateTransaction.recover(target)
         persistDirectories(profiles, name)
         current = name
     }

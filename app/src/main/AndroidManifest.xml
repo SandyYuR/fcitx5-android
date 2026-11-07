@@ -84,6 +84,18 @@
             android:exported="false"
             android:label="@string/direct_rime_import" />
         <activity
+            android:name=".ui.main.wanxiang.WanxiangUpdateActivity"
+            android:exported="false"
+            android:label="@string/wanxiang_update" />
+        <activity
+            android:name=".ui.main.rimeupdate.RimeSchemeUpdateActivity"
+            android:exported="false"
+            android:label="@string/scheme_update_title" />
+        <activity
+            android:name=".ui.main.wanxiang.WanxiangAdvancedActivity"
+            android:exported="false"
+            android:label="@string/wanxiang_advanced" />
+        <activity
             android:name=".ui.main.LogActivity"
             android:directBootAware="true"
             android:exported="false"

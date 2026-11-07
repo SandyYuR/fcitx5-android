@@ -108,4 +108,15 @@ class DirectRimeConfigSafetyTest {
         config.delete("external")
         assertEquals("keep", File(outside, "personal.dict.yaml").readText())
     }
+
+    @Test fun updatingACapturedDirectoryIsRejectedAfterSwitchingProfiles() {
+        val config = DirectRimeConfig(context()).apply { load() }
+        val captured = config.user.canonicalPath
+        config.requireUpdateTarget("rime", captured)
+        config.create("other")
+        config.switch("other")
+        assertTrue(runCatching { config.requireUpdateTarget("rime", captured) }.isFailure)
+        assertTrue(runCatching { config.requireUpdateTarget("other", captured) }.isFailure)
+        config.requireUpdateTarget("other", config.user.canonicalPath)
+    }
 }

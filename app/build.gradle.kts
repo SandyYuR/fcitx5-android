@@ -194,6 +194,7 @@ dependencies {
     implementation(libs.zxing.embedded)
     implementation(libs.xz)
     implementation("org.apache.commons:commons-compress:1.27.1")
+    implementation("org.yaml:snakeyaml:2.7")
     implementation(libs.androidsvg)
     implementation(libs.quickjs.kt)
     testImplementation(libs.junit)

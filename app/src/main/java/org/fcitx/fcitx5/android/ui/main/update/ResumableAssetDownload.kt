@@ -27,13 +27,19 @@ internal object ResumableAssetDownload {
             require(it.matches(Regex("[0-9a-f]{64}"))) { "Invalid asset checksum" }
         }
         var state = files.read()
-        if (state.verified && files.part.isFile && files.part.length() == state.total &&
-            (asset.sizeBytes == 0L || files.part.length() == asset.sizeBytes) &&
+        val savedBytes = files.part.takeIf { it.isFile }?.length() ?: 0L
+        if (state.verified && savedBytes > 0 && savedBytes == state.total &&
+            (asset.sizeBytes == 0L || savedBytes == asset.sizeBytes) &&
             DownloadFiles.digest(files.part) == state.actualSha256 &&
-            (expectedHash == null || state.actualSha256 == expectedHash)) return
-        if (files.part.isFile && expectedHash != null && files.part.length() == asset.sizeBytes &&
+            (expectedHash == null || state.actualSha256 == expectedHash)) {
+            progress(AssetDownloadProgress(savedBytes, savedBytes, 0))
+            return
+        }
+        if (savedBytes > 0 && expectedHash != null && savedBytes == asset.sizeBytes &&
             DownloadFiles.digest(files.part) == expectedHash) {
-            files.write(state.copy(verified = true, total = files.part.length(), actualSha256 = expectedHash)); return
+            files.write(state.copy(verified = true, total = savedBytes, actualSha256 = expectedHash))
+            progress(AssetDownloadProgress(savedBytes, savedBytes, 0))
+            return
         }
         val validator = strongEtag(state.etag)
         val offset = if (validator != null && files.part.isFile && files.part.length() <= DownloadFiles.MAX_BYTES)

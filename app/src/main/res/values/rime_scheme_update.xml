@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English defaults and Chinese translations; other locales fall back to English. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="scheme_update_title">Custom update</string>
+    <string name="scheme_update_summary">Saved tasks to update the current Rime directory from remote or local resources</string>
+    <string name="scheme_update_current">Current Rime directory</string>
+    <string name="scheme_update_show_path">Show full path</string>
+    <string name="scheme_update_hide_path">Hide full path</string>
+    <string name="scheme_update_hint">All tasks update this directory. Relative subdirectories are supported. Deployment starts after the entire batch is ready.</string>
+    <string name="scheme_update_empty">No tasks yet. Add a source to get started.</string>
+    <string name="scheme_update_add">Add task</string>
+    <string name="scheme_update_edit">Edit update task</string>
+    <string name="scheme_update_save">Save</string>
+    <string name="scheme_update_saved">Task list saved</string>
+    <string name="scheme_update_run_one">Execute</string>
+    <string name="scheme_update_run_selected">Execute selected</string>
+    <string name="scheme_update_run_count">Execute selected (%1$d)</string>
+    <string name="scheme_update_delete_selected">Delete selected</string>
+    <string name="scheme_update_delete_confirm">Delete %1$d selected task(s)? Installed resources will remain.</string>
+    <string name="scheme_update_name">Task name</string>
+    <string name="scheme_update_source">HTTP(S) URL or local file</string>
+    <string name="scheme_update_browse">Choose local file</string>
+    <string name="scheme_update_filename">File name (used when copying without extraction)</string>
+    <string name="scheme_update_unpack">Extract archive</string>
+    <string name="scheme_update_raw">Copy file</string>
+    <string name="scheme_update_strip">Remove a single enclosing archive directory</string>
+    <string name="scheme_update_formats">ZIP, TAR, TAR.GZ, TAR.BZ2 and TAR.XZ are supported. Each source is limited to 512 MiB. Turn off extraction to copy the file directly.</string>
+    <string name="scheme_update_root">Current directory</string>
+    <string name="scheme_update_destinations">Relative directories, one per line (. = current directory)</string>
+    <string name="scheme_update_excludes">Exclusion rules, one regular expression per line</string>
+    <string name="scheme_update_exclude_hint">Custom patches, phrases and frequency files are excluded by default. User dictionaries, synchronization data and runtime state are always preserved.</string>
+    <string name="scheme_update_confirm">Execute %1$d task(s) and update this Rime directory?\n\n%2$s\n%3$s\n\nOther scheme resources may be replaced. Deployment failure restores the original files.</string>
+    <string name="scheme_update_reset">Reset task list</string>
+    <string name="scheme_update_reset_hint">Reset saved tasks without removing installed resources. A private recovery copy of the task configuration will be kept.</string>
+    <string name="scheme_update_ready">Ready</string>
+    <string name="scheme_update_scope">Select tasks to execute, or run an individual task.</string>
+    <string name="scheme_update_preparing">Preparing update</string>
+    <string name="scheme_update_waiting">Queued or waiting to retry</string>
+    <string name="scheme_update_downloading">Downloading resource</string>
+    <string name="scheme_update_local">Reading local file</string>
+    <string name="scheme_update_extracting">Extracting resource</string>
+    <string name="scheme_update_copying">Preparing file</string>
+    <string name="scheme_update_installing">Installing and deploying</string>
+    <string name="scheme_update_failed">Update failed</string>
+    <string name="scheme_update_done">Update complete</string>
+    <string name="scheme_update_cancelled">Update cancelled</string>
+    <string name="scheme_update_job_target">Task target: %1$s\n%2$s</string>
+    <string name="scheme_update_result">Updated %1$d resource file(s). Zero means all resources were excluded. Newly installed schemes can be selected in Rime settings.</string>
+</resources>

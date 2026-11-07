@@ -17,6 +17,9 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.data.DataManager
+import org.fcitx.fcitx5.android.data.WanxiangPayload
+import org.fcitx.fcitx5.android.data.WanxiangUpdateTransaction
+import org.fcitx.fcitx5.android.data.WanxiangAdvancedFiles
 import timber.log.Timber
 import java.io.File
 import java.util.concurrent.Executors
@@ -131,7 +134,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
             try {
                 startupStage("assets") { DataManager.sync() }
                 startupStage("config") { config.load() }
-                startupStage("native") { Native.start(shared.absolutePath, config.user.absolutePath, BuildConfig.VERSION_NAME) }
+                startupStage("native") { Native.start(shared.absolutePath, config.user.absolutePath, BuildConfig.VERSION_NAME,
+                    fullCheck = WanxiangAdvancedFiles.needsDeploymentRepair(config.user)) }
                 started = true
                 startupError = ""
                 refreshSchemas()
@@ -704,13 +708,100 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override suspend fun setImConfig(key: String, config: RawConfig) { onOwner { this.config.setOptions(config); refreshPresentation() } }
     override suspend fun addons() = arrayOf(AddonInfo("rime", "Rime", "librime 直连引擎", AddonCategory.InputMethod, true, true, true, false))
     override suspend fun setAddonState(name: Array<String>, state: BooleanArray) { require(state.all { it }) { "Rime 引擎不可关闭" } }
-    override suspend fun getAddonSubConfig(addon: String, path: String) = onOwner { when(path) {
-        "profile-manager" -> config.directoryState()
-        "schema-selector" -> RawConfig(arrayOf(RawConfig("Items", if (started) Native.schemaSelection() else "")))
-        else -> RawConfig()
-    } }
+    override suspend fun getAddonSubConfig(addon: String, path: String): RawConfig {
+        if (path.startsWith("wanxiang-settings/")) {
+            val file = path.removePrefix("wanxiang-settings/")
+            return onOwner {
+                org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
+                require(WanxiangAdvancedFiles.source(file))
+                config.requireUpdateTarget(config.current, config.user.canonicalPath)
+                val snapshot = kotlinx.serialization.json.Json.encodeToString(WanxiangAdvancedFiles.snapshot(config.user, file, shared))
+                RawConfig(arrayOf(RawConfig("Snapshot", snapshot)))
+            }
+        }
+        return onOwner { when(path) {
+            "profile-manager" -> config.directoryState()
+            "schema-selector" -> RawConfig(arrayOf(RawConfig("Items", if (started) Native.schemaSelection() else "")))
+            else -> RawConfig()
+        } }
+    }
     override suspend fun setAddonSubConfig(addon: String, path: String, config: RawConfig) {
         when(path) {
+            "wanxiang-settings-repair" -> withContext(NonCancellable) { maintain {
+                org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
+                this@DirectRimeBackend.config.requireUpdateTarget(config.findByName("Profile")!!.value, config.findByName("Path")!!.value)
+                restartNative()
+            } }
+            "wanxiang-settings-save" -> withContext(NonCancellable) { maintain {
+                org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
+                val id = java.util.UUID.fromString(config.findByName("RequestId")!!.value)
+                val job = WanxiangPayload.child(context.noBackupFilesDir.canonicalFile, "wanxiang-settings/$id")
+                val planFile = WanxiangPayload.child(job, "plan.json")
+                require(planFile.isFile && planFile.length() <= 256 * 1024)
+                val plan = kotlinx.serialization.json.Json.decodeFromString<WanxiangAdvancedFiles.Plan>(planFile.readText())
+                this@DirectRimeBackend.config.requireUpdateTarget(plan.profile, plan.path)
+                WanxiangAdvancedFiles.verify(this@DirectRimeBackend.config.user, plan.expected)
+                val payload = WanxiangPayload.child(job, "payload")
+                payload.listFiles().orEmpty().forEach { file ->
+                    require(WanxiangAdvancedFiles.writable(file.name) && plan.expected.containsKey(file.name))
+                    require(WanxiangPayload.child(payload.canonicalFile, file.name) == file.absoluteFile && file.isFile && file.length() <= org.fcitx.fcitx5.android.data.WanxiangYaml.MAX_TEXT)
+                    if (!file.name.endsWith(".dict.yaml")) org.fcitx.fcitx5.android.data.WanxiangYaml().document(file.readText())
+                }
+                if (started) Native.stop()
+                started = false
+                try {
+                    WanxiangUpdateTransaction.install(this@DirectRimeBackend.config.user, payload,
+                        activate = { restartNative() }, deactivate = { if (started) Native.stop(); started = false }, settings = true)
+                } catch (error: Throwable) {
+                    try { WanxiangUpdateTransaction.recover(this@DirectRimeBackend.config.user); restartNative() }
+                    catch (recovery: Throwable) { error.addSuppressed(recovery) }
+                    throw error
+                }
+            } }
+            "rime-custom-update" -> withContext(NonCancellable) { maintain {
+                org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
+                val id = java.util.UUID.fromString(config.findByName("RequestId")!!.value)
+                val request = org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdates.request(context, id)
+                this@DirectRimeBackend.config.requireUpdateTarget(request.target.profile, request.target.path)
+                val job = org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdates.directory(context, id)
+                require(WanxiangPayload.child(job, "prepared").isFile) { "更新资源尚未准备完成" }
+                val staging = WanxiangPayload.child(job, "payload")
+                if (staging.walkTopDown().none { it.isFile }) return@maintain
+                if (started) Native.stop()
+                started = false
+                try {
+                    WanxiangUpdateTransaction.install(this@DirectRimeBackend.config.user, staging,
+                        activate = { restartNative() }, deactivate = { if (started) Native.stop(); started = false }, generic = true)
+                } catch (error: Throwable) {
+                    try { WanxiangUpdateTransaction.recover(this@DirectRimeBackend.config.user); restartNative() }
+                    catch (recovery: Throwable) { error.addSuppressed(recovery) }
+                    throw error
+                }
+            } }
+            "wanxiang-update" -> withContext(NonCancellable) { maintain {
+                org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
+                this@DirectRimeBackend.config.requireUpdateTarget(config.findByName("Profile")!!.value, config.findByName("Path")!!.value)
+                val id = java.util.UUID.fromString(config.findByName("RequestId")!!.value)
+                val staging = WanxiangPayload.child(context.noBackupFilesDir.canonicalFile, "wanxiang-updates/$id/payload")
+                val selection = org.fcitx.fcitx5.android.ui.main.wanxiang.WanxiangUpdates.jobSelection(context, id)
+                org.fcitx.fcitx5.android.data.WanxiangProtection(selection.protection).filter(staging, this@DirectRimeBackend.config.user)
+                org.fcitx.fcitx5.android.ui.main.wanxiang.WanxiangExtraDictionaries.verifyAuxiliary(staging.parentFile!!, staging, this@DirectRimeBackend.config.user)
+                if (staging.walkTopDown().none { it.isFile }) return@maintain
+                if (started) Native.stop()
+                started = false
+                try {
+                    WanxiangUpdateTransaction.install(this@DirectRimeBackend.config.user, staging,
+                        activate = { restartNative() },
+                        deactivate = { if (started) Native.stop(); started = false }, overrides = true)
+                } catch (error: Throwable) {
+                    try {
+                        // Recovery must succeed before opening any database or model again.
+                        WanxiangUpdateTransaction.recover(this@DirectRimeBackend.config.user)
+                        restartNative()
+                    } catch (recovery: Throwable) { error.addSuppressed(recovery) }
+                    throw error
+                }
+            } }
             "deploy" -> redeploy()
             "sync" -> synchronize()
             "schema-selector" -> maintain {

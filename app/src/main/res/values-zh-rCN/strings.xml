@@ -1058,7 +1058,7 @@
     <string name="settings_group_convenience">便捷功能</string>
     <string name="settings_group_convenience_summary">剪贴板、文本编辑、表情符号与插件设置</string>
     <string name="settings_group_data">数据与备份</string>
-    <string name="settings_group_data_summary">导入导出用户数据、用户数据目录</string>
+    <string name="settings_group_data_summary">用户数据管理、万象方案更新</string>
     <string name="settings_group_advanced">高级</string>
     <string name="settings_group_advanced_summary">附加组件、兼容性开关与开发者选项</string>
 
