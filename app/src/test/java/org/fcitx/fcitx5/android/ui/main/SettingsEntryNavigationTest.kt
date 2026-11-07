@@ -2,6 +2,7 @@
 package org.fcitx.fcitx5.android.ui.main
 
 import android.content.Intent
+import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
@@ -61,9 +62,14 @@ class SettingsEntryNavigationTest {
             runCatching { group.find(title) }.getOrNull()
         } ?: error("Missing preference: $title")
 
-    @Test fun homeHasNoOverflowAndAboutIsTheLastMoreEntry() = page { activity, current ->
+    @Test fun homeHasOnlyTheKeyboardTestActionAndAboutIsTheLastMoreEntry() = page { activity, current ->
         val home = current() as MainFragment
-        assertEquals(0, home.requireView().findViewById<MaterialToolbar>(R.id.toolbar).menu.size())
+        val menu = home.requireView().findViewById<MaterialToolbar>(R.id.toolbar).menu
+        assertEquals(1, menu.size())
+        val testInput = menu.getItem(0)
+        assertEquals(R.id.keyboard_test_entry, testInput.itemId)
+        assertTrue(testInput.isVisible && testInput.isEnabled)
+        assertTrue((testInput as MenuItemImpl).requiresActionButton())
         val more = home.preferenceScreen.find(activity.getString(R.string.settings_home_category_more)) as PreferenceGroup
         assertEquals(activity.getString(R.string.about), more.entries().last().title)
         assertFalse(more.entries().any { it.title == activity.getString(R.string.faq) || it.title == activity.getString(R.string.developer) })

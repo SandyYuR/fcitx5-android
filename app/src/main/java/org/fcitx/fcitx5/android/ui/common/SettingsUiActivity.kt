@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.os.Build
 import android.os.UserManager
 import android.view.View
+import android.view.Menu
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -32,13 +33,35 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiMotionPreferences
 import org.fcitx.fcitx5.android.data.theme.SettingsKeyboardColors
+import org.fcitx.fcitx5.android.ui.main.keyboardtest.KeyboardTestDialog
+import org.fcitx.fcitx5.android.ui.main.keyboardtest.KeyboardTestMenu
 import org.fcitx.fcitx5.android.utils.settingsColor
 
 /** Shared Material theme for app pages, floating editors and transparent selection hosts. */
 abstract class SettingsUiActivity : AppCompatActivity() {
     private var appliedKeyboardPalette: SettingsKeyboardColors.Palette? = null
+    private var keyboardTest: KeyboardTestDialog? = null
     protected open val floatingSettingsWindow: Boolean get() = false
     protected open val transparentSettingsWindow: Boolean get() = false
+
+    internal fun showKeyboardTest() {
+        if (isFinishing || isDestroyed || keyboardTest?.isShowing == true) return
+        keyboardTest = KeyboardTestDialog(this).also { dialog ->
+            dialog.setOnDismissListener { if (keyboardTest === dialog) keyboardTest = null }
+            dialog.show()
+        }
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val prepared = super.onPrepareOptionsMenu(menu)
+        if (supportActionBar != null && !floatingSettingsWindow && !transparentSettingsWindow) KeyboardTestMenu.add(menu, this)
+        return prepared
+    }
+
+    override fun onStop() {
+        keyboardTest?.dismiss()
+        super.onStop()
+    }
 
     private fun applyWindowTheme() {
         when {
