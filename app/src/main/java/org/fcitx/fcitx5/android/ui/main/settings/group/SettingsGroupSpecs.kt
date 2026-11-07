@@ -187,6 +187,12 @@ object SettingsGroupSpecs {
                         R.drawable.ic_baseline_extension_24,
                         JsVoicePluginsActivity::class.java,
                         R.string.js_voice_plugins_summary
+                    ),
+                    SettingsGroupEntry.activity(
+                        R.string.stats_title,
+                        R.drawable.ic_baseline_list_alt_24,
+                        org.fcitx.fcitx5.android.ui.main.stats.InputStatsActivity::class.java,
+                        R.string.stats_summary
                     )
                 )
             }

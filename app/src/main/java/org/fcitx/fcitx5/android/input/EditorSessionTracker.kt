@@ -11,6 +11,7 @@ internal class EditorSessionTracker {
     private var generation = 0L
     private var active = false
     private var editor: Editor? = null
+    val isActive: Boolean get() = active
 
     /** Returns true when an existing editor's work must be cancelled. */
     fun start(editor: Editor, restarting: Boolean): Boolean {

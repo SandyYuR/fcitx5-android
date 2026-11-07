@@ -281,6 +281,11 @@ object SettingsSearchIndex {
         }
 
     private fun buildEntries(context: Context): List<SettingsSearchEntry> = listOf(
+        SettingsSearchEntry(
+            R.string.stats_title, P_CONVENIENCE,
+            listOf("统计", "字词云", "词云", "字云", "热力", "速度", "statistics", "word cloud"),
+            activityClass = org.fcitx.fcitx5.android.ui.main.stats.InputStatsActivity::class.java
+        ),
 
         // The single Rime engine settings entry.
         SettingsSearchEntry(

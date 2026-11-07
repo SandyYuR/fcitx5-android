@@ -84,6 +84,10 @@
             android:exported="false"
             android:label="@string/direct_rime_import" />
         <activity
+            android:name=".ui.main.stats.InputStatsActivity"
+            android:exported="false"
+            android:label="@string/stats_title" />
+        <activity
             android:name=".ui.main.wanxiang.WanxiangUpdateActivity"
             android:exported="false"
             android:label="@string/wanxiang_update" />
