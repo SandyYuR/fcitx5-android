@@ -16,6 +16,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.databinding.SettingsPageBinding
+import org.fcitx.fcitx5.android.ui.main.keyboardtest.KeyboardTestMenu
 import org.fcitx.fcitx5.android.ui.main.settings.AddonDirProfileManagerFragment
 import org.fcitx.fcitx5.android.ui.main.settings.FcitxPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.settings.GenericMultiSelectFragment
@@ -64,6 +65,7 @@ internal fun Fragment.withSettingsPage(content: View): View {
         page.toolbar.title = title
     }
     page.toolbar.setNavigationOnClickListener { host.onSupportNavigateUp() }
+    KeyboardTestMenu.attach(page.toolbar, host)
     page.settingsPageContent.addView(content, ViewGroup.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
     ))
