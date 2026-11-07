@@ -14,7 +14,9 @@ internal interface NativeTestDelegate {
     fun operationTiming(): LongArray = error("Unexpected native operationTiming")
     fun beginInput(value: Long, program: String, sensitive: Boolean): Snapshot = error("Unexpected native beginInput")
     fun key(value: Long, sym: Int, mask: Int, release: Boolean): Snapshot = error("Unexpected native key")
+    fun key(value: Long, sym: Int, mask: Int, release: Boolean, statistics: Boolean): Snapshot = key(value, sym, mask, release)
     fun action(value: Long, previous: Long, action: Int, index: Int, name: String): Snapshot = error("Unexpected native action")
+    fun action(value: Long, previous: Long, action: Int, index: Int, name: String, statistics: Boolean): Snapshot = action(value, previous, action, index, name)
     fun options(): Array<String> = error("Unexpected native options")
     fun candidates(value: Long, offset: Int, limit: Int): Array<String> = error("Unexpected native candidates")
     fun rawInput(value: Long, previous: Long): RawInputState? = error("Unexpected native rawInput")
@@ -33,9 +35,9 @@ internal class NativeTestShadow {
     @Implementation fun sessionStats() = delegate.sessionStats()
     @Implementation fun operationTiming() = delegate.operationTiming()
     @Implementation fun beginInput(value: Long, program: String, sensitive: Boolean) = delegate.beginInput(value, program, sensitive)
-    @Implementation fun key(value: Long, sym: Int, mask: Int, release: Boolean) = delegate.key(value, sym, mask, release)
-    @Implementation fun action(value: Long, previous: Long, action: Int, index: Int, name: String) =
-        delegate.action(value, previous, action, index, name)
+    @Implementation fun key(value: Long, sym: Int, mask: Int, release: Boolean, statistics: Boolean) = delegate.key(value, sym, mask, release, statistics)
+    @Implementation fun action(value: Long, previous: Long, action: Int, index: Int, name: String, statistics: Boolean) =
+        delegate.action(value, previous, action, index, name, statistics)
     @Implementation fun options() = delegate.options()
     @Implementation fun candidates(value: Long, offset: Int, limit: Int) = delegate.candidates(value, offset, limit)
     @Implementation fun rawInput(value: Long, previous: Long) = delegate.rawInput(value, previous)

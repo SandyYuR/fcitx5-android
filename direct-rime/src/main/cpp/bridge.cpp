@@ -24,7 +24,7 @@ std::optional<direct_rime::Snapshot> previousPresentation;
 jclass rawInputClass = nullptr;
 jmethodID rawInputConstructor = nullptr;
 constexpr auto snapshotSignature =
-    "(JJJZILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ZIZI[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;[Ljava/lang/String;)V";
+    "(JJJZILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ZIZI[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;[Ljava/lang/String;J)V";
 jobject newSnapshot(JNIEnv* env, const direct_rime::Snapshot& s) {
     // One JNI result owns the commit and the corresponding UI state. Nothing is
     // delivered through a dropping SharedFlow or a native background callback.
@@ -33,7 +33,7 @@ jobject newSnapshot(JNIEnv* env, const direct_rime::Snapshot& s) {
         string(env, s.schema), static_cast<jboolean>(s.ascii), static_cast<jint>(s.page),
         static_cast<jboolean>(s.lastPage), static_cast<jint>(s.cursor), strings(env, s.candidates),
         strings(env, s.comments), strings(env, s.tabs),
-        string(env, s.schemaName), static_cast<jint>(s.highlighted), string(env, s.preview), strings(env, s.labels));
+        string(env, s.schemaName), static_cast<jint>(s.highlighted), string(env, s.preview), strings(env, s.labels), static_cast<jlong>(s.inputStatistics));
 }
 void clearSnapshotCache(JNIEnv* env) {
     if (previousSnapshot) env->DeleteGlobalRef(previousSnapshot);
@@ -44,7 +44,7 @@ jobject snapshot(JNIEnv* env, direct_rime::Snapshot s) {
     // Always return a new revision-bearing Snapshot. Reuse only immutable display
     // values; commits and handled actions must still take their normal path.
     auto result = previousSnapshot && previousPresentation && s.canReusePresentation(*previousPresentation)
-        ? env->CallStaticObjectMethod(snapshotClass, snapshotReuse, previousSnapshot, static_cast<jlong>(s.revision))
+        ? env->CallStaticObjectMethod(snapshotClass, snapshotReuse, previousSnapshot, static_cast<jlong>(s.revision), static_cast<jlong>(s.inputStatistics))
         : newSnapshot(env, s);
     if (!result || env->ExceptionCheck()) return result;
     const bool cacheable = s.canCachePresentation();
@@ -76,7 +76,7 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     snapshotClass = cacheClass("org/fcitx/directrime/Snapshot");
     if (snapshotClass) snapshotConstructor = env->GetMethodID(snapshotClass, "<init>", snapshotSignature);
     if (snapshotConstructor) snapshotReuse = env->GetStaticMethodID(snapshotClass, "reusePresentation",
-        "(Lorg/fcitx/directrime/Snapshot;J)Lorg/fcitx/directrime/Snapshot;");
+        "(Lorg/fcitx/directrime/Snapshot;JJ)Lorg/fcitx/directrime/Snapshot;");
     if (snapshotReuse) stringArrayClass = cacheClass("java/lang/String");
     if (stringArrayClass) rawInputClass = cacheClass("org/fcitx/directrime/RawInputState");
     if (rawInputClass) rawInputConstructor = env->GetMethodID(rawInputClass, "<init>", "(Ljava/lang/String;I)V");
@@ -152,12 +152,12 @@ extern "C" JNIEXPORT jobject JNICALL JNI_METHOD(end)(JNIEnv* env, jobject, jlong
     try { return snapshot(env, instance().end(generation)); }
     catch (const std::exception& e) { error(env, e); return nullptr; }
 }
-extern "C" JNIEXPORT jobject JNICALL JNI_METHOD(key)(JNIEnv* env, jobject, jlong generation, jint sym, jint mask, jboolean release) {
-    try { return snapshot(env, instance().key(generation, sym, mask, release)); }
+extern "C" JNIEXPORT jobject JNICALL JNI_METHOD(key)(JNIEnv* env, jobject, jlong generation, jint sym, jint mask, jboolean release, jboolean statistics) {
+    try { return snapshot(env, instance().key(generation, sym, mask, release, statistics)); }
     catch (const std::exception& e) { error(env, e); return nullptr; }
 }
-extern "C" JNIEXPORT jobject JNICALL JNI_METHOD(action)(JNIEnv* env, jobject, jlong generation, jlong revision, jint action, jint index, jstring value) {
-    try { return snapshot(env, instance().action(generation, revision, action, index, string(env, value))); }
+extern "C" JNIEXPORT jobject JNICALL JNI_METHOD(action)(JNIEnv* env, jobject, jlong generation, jlong revision, jint action, jint index, jstring value, jboolean statistics) {
+    try { return snapshot(env, instance().action(generation, revision, action, index, string(env, value), statistics)); }
     catch (const std::exception& e) { error(env, e); return nullptr; }
 }
 extern "C" JNIEXPORT jboolean JNICALL JNI_METHOD(deploy)(JNIEnv* env, jobject) {
