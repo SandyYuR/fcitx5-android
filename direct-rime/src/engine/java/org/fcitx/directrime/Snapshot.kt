@@ -23,17 +23,26 @@ class Snapshot(
     val schemaName: String,
     val highlighted: Int,
     val preview: String,
-    val labels: Array<String>
+    val labels: Array<String>,
+    /** -1 when not collected; otherwise pre-operation UTF-16 length << 1 plus the command bit. */
+    val inputStatistics: Long = -1L
 ) {
     companion object {
         /** JNI has compared all display fields. Keep prior snapshots immutable and never replay their commit. */
-        @JvmStatic fun reusePresentation(previous: Snapshot, revision: Long) = Snapshot(
+        @JvmStatic fun reusePresentation(previous: Snapshot, revision: Long, inputStatistics: Long = -1L) = Snapshot(
             previous.generation, revision, previous.optionsRevision, false, previous.gate, "",
             previous.preedit, previous.schema, previous.ascii, previous.page, previous.lastPage,
             previous.cursorBytes, previous.candidates, previous.comments, previous.tabs,
-            previous.schemaName, previous.highlighted, previous.preview, previous.labels
+            previous.schemaName, previous.highlighted, previous.preview, previous.labels, inputStatistics
         )
     }
+
+    val rawInputLength: Int get() {
+        val length = inputStatistics ushr 1
+        return if (inputStatistics >= 0 && length < Int.MAX_VALUE) length.toInt() else -1
+    }
+    val inputWasCommand: Boolean get() = rawInputLength >= 0 && (inputStatistics and 1L) != 0L
+    val inputWasComposing: Boolean get() = rawInputLength > 0
 
     /** Rime still processes releases; only identical, unhandled presentation updates can be elided. */
     fun isUnchangedRelease(previous: Snapshot?): Boolean = previous != null && !handled &&
@@ -89,8 +98,8 @@ internal object Native {
     // Core/read phases + core thread CPU (ns), faults and context-switch deltas.
     external fun operationTiming(): LongArray
     external fun end(generation: Long): Snapshot
-    external fun key(generation: Long, sym: Int, mask: Int, release: Boolean): Snapshot
-    external fun action(generation: Long, revision: Long, action: Int, index: Int, value: String): Snapshot
+    external fun key(generation: Long, sym: Int, mask: Int, release: Boolean, statistics: Boolean = false): Snapshot
+    external fun action(generation: Long, revision: Long, action: Int, index: Int, value: String, statistics: Boolean = false): Snapshot
     external fun rawInput(generation: Long, revision: Long): RawInputState?
     external fun deploy(): Boolean
     external fun schemas(): Array<String>

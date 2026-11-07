@@ -8,7 +8,9 @@
 #include <sstream>
 #include <rime_levers_api.h>
 #include <stdexcept>
+#if INPUT_DIAGNOSTICS
 #include <sys/resource.h>
+#endif
 #ifdef __ANDROID__
 #include <android/trace.h>
 #endif
@@ -277,24 +279,26 @@ std::vector<int64_t> Engine::sessionStats() const {
     owner(); return {sessionsCreated_, sessionsReused_, sessionsEnded_};
 }
 std::array<int64_t, 16> Engine::operationTiming() const { owner(); return timing_; }
-Snapshot Engine::key(int64_t generation, int sym, int mask, bool release) {
+Snapshot Engine::key(int64_t generation, int sym, int mask, bool release, bool statistics) {
     owner();
     timing_.fill(0);
     if (gate(generation) != Ready) return snapshot(generation);
+    const auto inputStatistics = captureInputStatistics(statistics);
     // Exactly the mask used by fcitx5-rime, including IBus's virtual Super and release.
     int states = mask & ((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6));
     if (states & (1 << 6)) states |= (1 << 26);
     if (release) states |= (1 << 30);
     bool handled;
     { CoreTrace trace("rime.direct.process_key", timing_); handled = api_->process_key(session_, sym, states); }
-    return snapshot(generation, handled);
+    return snapshot(generation, handled, inputStatistics);
 }
-Snapshot Engine::action(int64_t generation, int64_t revision, int action, int index, const std::string& value) {
+Snapshot Engine::action(int64_t generation, int64_t revision, int action, int index, const std::string& value, bool statistics) {
     Trace trace(action == 1 || action == 11 ? "rime.direct.select_candidate" : "rime.direct.action");
     owner();
     timing_.fill(0);
     if (gate(generation) != Ready) return snapshot(generation);
     if (revision != revision_) { Snapshot s; s.generation = generation; s.gate = Stale; return s; }
+    const auto inputStatistics = captureInputStatistics(statistics);
     { CoreTrace core("rime.direct.action_core", timing_);
       switch (action) {
     case 0: api_->clear_composition(session_); break;
@@ -319,7 +323,41 @@ Snapshot Engine::action(int64_t generation, int64_t revision, int action, int in
     case 13: break; // Read current output without moving the caret or recomposing.
     default: throw std::invalid_argument("unknown direct Rime action");
       } }
-    return snapshot(generation, action != 13);
+    return snapshot(generation, action != 13, inputStatistics);
+}
+int64_t Engine::captureInputStatistics(bool requested) const {
+    if (!requested || sessionNoLearning_ || !RIME_API_AVAILABLE(api_, get_input)) return -1;
+    const char* text;
+    try { text = api_->get_input(session_); }
+    catch (const std::exception&) { return -1; } // Optional observation must not reject the real operation.
+    if (!text) return 0;
+    const bool command = *text == '/';
+    const auto* cursor = reinterpret_cast<const unsigned char*>(text);
+    int64_t units = 0;
+    // Count standard UTF-8 directly, without copying a string or allocating UTF-16.
+    // Like jni::string, a malformed sequence represents one replacement character.
+    constexpr int64_t replacement = 1LL << 1;
+    while (*cursor) {
+        const auto lead = *cursor++;
+        uint32_t cp = lead;
+        int continuation = 0;
+        if (lead >= 0xc2 && lead <= 0xdf) { cp = lead & 31; continuation = 1; }
+        else if (lead >= 0xe0 && lead <= 0xef) { cp = lead & 15; continuation = 2; }
+        else if (lead >= 0xf0 && lead <= 0xf4) { cp = lead & 7; continuation = 3; }
+        else if (lead >= 0x80) return replacement;
+        for (int i = 0; i < continuation; ++i) {
+            const auto next = *cursor++;
+            if ((next & 0xc0) != 0x80) return replacement;
+            cp = (cp << 6) | (next & 63);
+        }
+        if ((continuation == 1 && cp < 0x80) || (continuation == 2 && cp < 0x800) ||
+            (continuation == 3 && cp < 0x10000) || (cp >= 0xd800 && cp <= 0xdfff) || cp > 0x10ffff)
+            return replacement;
+        units += cp > 0xffff ? 2 : 1;
+        // Consumers add the commit-trigger key to this length using an Int.
+        if (units >= std::numeric_limits<int>::max()) return -1;
+    }
+    return (units << 1) | (command ? 1 : 0);
 }
 std::optional<RawInput> Engine::rawInput(int64_t generation, int64_t revision) {
     owner();
@@ -330,12 +368,13 @@ std::optional<RawInput> Engine::rawInput(int64_t generation, int64_t revision) {
     if (caret > text.size() || text.size() > static_cast<size_t>(std::numeric_limits<int>::max())) return std::nullopt;
     return RawInput{std::move(text), static_cast<int>(caret)};
 }
-Snapshot Engine::snapshot(int64_t generation, bool handled) {
+Snapshot Engine::snapshot(int64_t generation, bool handled, int64_t inputStatistics) {
     Trace trace("rime.direct.snapshot");
     Snapshot s; s.generation = generation; s.revision = revision_; s.handled = handled; s.gate = gate(generation);
     if (s.gate == Stale) return s;
     s.revision = ++revision_;
     if (s.gate != Ready) return s; // Gated keys are always swallowed, including release.
+    s.inputStatistics = inputStatistics;
     RimeCommit commit{}; RIME_STRUCT_INIT(RimeCommit, commit);
     { TimedTrace trace("rime.direct.read_commit", timing_[1]);
       if (api_->get_commit(session_, &commit)) { s.commit = safe(commit.text); api_->free_commit(&commit); } }

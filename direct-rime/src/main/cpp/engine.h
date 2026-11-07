@@ -13,6 +13,8 @@ namespace direct_rime {
 enum Gate { Ready = 0, Maintenance = 1, NoSession = 2, Stale = 3, DeployFailed = 4 };
 struct Snapshot {
     int64_t generation = 0, revision = 0, optionsRevision = 0;
+    // -1: absent; otherwise (pre-operation UTF-16 code units << 1) | starts-with-slash.
+    int64_t inputStatistics = -1;
     bool handled = true, ascii = false, lastPage = true;
     Gate gate = NoSession;
     int cursor = 0, page = 0, highlighted = -1;
@@ -32,10 +34,10 @@ public:
     void stop();
     Snapshot begin(int64_t generation, const std::string& program, bool noLearning = false);
     Snapshot end(int64_t generation);
-    Snapshot key(int64_t generation, int sym, int mask, bool release);
+    Snapshot key(int64_t generation, int sym, int mask, bool release, bool statistics = false);
     // Candidate/tab indices belong to a particular snapshot, never a later composition.
     Snapshot action(int64_t generation, int64_t revision, int action, int index,
-                    const std::string& value);
+                    const std::string& value, bool statistics = false);
     std::optional<RawInput> rawInput(int64_t generation, int64_t revision);
     bool deploy();
     std::vector<std::string> schemas();
@@ -53,7 +55,8 @@ public:
 private:
     void owner() const;
     Gate gate(int64_t generation) const;
-    Snapshot snapshot(int64_t generation, bool handled = true);
+    Snapshot snapshot(int64_t generation, bool handled = true, int64_t inputStatistics = -1);
+    int64_t captureInputStatistics(bool requested) const;
     void clearSession();
     void initialize(bool fullCheck);
     static void notification(void* context, RimeSessionId, const char* type, const char* value);

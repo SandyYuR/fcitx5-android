@@ -6,10 +6,38 @@
 #include <filesystem>
 #include <fstream>
 #include <cstdlib>
+#include <random>
 
 using namespace direct_rime;
 #define CHECK(condition) do { if (!(condition)) throw std::runtime_error(#condition); } while (0)
 namespace {
+class TemporaryDirectory {
+public:
+    TemporaryDirectory() {
+        const auto parent = std::filesystem::canonical(std::filesystem::temp_directory_path());
+        std::random_device random;
+        for (int attempt = 0; attempt < 32; ++attempt) {
+            const auto candidate = parent / ("direct-rime-deploy-" + std::to_string(random()) + "-" + std::to_string(random()));
+            std::error_code error;
+            // An existing file, directory or link is never reused or removed.
+            if (std::filesystem::create_directory(candidate, error)) { path_ = candidate; return; }
+            if (error && error != std::errc::file_exists)
+                throw std::filesystem::filesystem_error("create private test directory", candidate, error);
+        }
+        throw std::runtime_error("cannot allocate a private test directory");
+    }
+    TemporaryDirectory(const TemporaryDirectory&) = delete;
+    TemporaryDirectory& operator=(const TemporaryDirectory&) = delete;
+    ~TemporaryDirectory() {
+        std::error_code error;
+        // path_ was assigned only after this scope atomically created the directory.
+        if (!path_.empty()) std::filesystem::remove_all(path_, error);
+    }
+    const std::filesystem::path& path() const { return path_; }
+private:
+    std::filesystem::path path_;
+};
+
 struct Fake {
     bool maintenance = false, exists = true, hasSchema = true, failDeploy = false, failLaunch = false, noLearning = false;
     int keys = 0, mask = 0, created = 0, destroyed = 0, freedCommit = 0;
@@ -20,7 +48,7 @@ struct Fake {
     std::string rawInput;
     size_t rawCaret = 0;
     bool syncLaunch = true, syncPending = false, syncThrows = false, userDbHeld = false, failStartup = false;
-    int syncCalls = 0;
+    int syncCalls = 0, rawReads = 0;
     std::vector<std::string> syncMessages = {"start", "success"};
     RimeNotificationHandler callback = nullptr;
     void* context = nullptr;
@@ -50,6 +78,7 @@ RimeApi api() {
     a.set_option = [](RimeSessionId, const char* key, Bool value) { if (!std::strcmp(key, "_no_learning")) f.noLearning = value; };
     a.set_property = [](RimeSessionId, const char* key, const char* value) { if (!std::strcmp(key, "client_app")) f.clientApp = value; };
     a.process_key = [](RimeSessionId, int, int mask) -> Bool { ++f.keys; f.mask = mask; f.preedit = "ni"; return false; };
+    a.get_input = [](RimeSessionId) -> const char* { ++f.rawReads; return f.rawInput.c_str(); };
     a.get_commit = [](RimeSessionId, RimeCommit* c) -> Bool {
         if (f.commit.empty()) return false;
         c->text = f.commit.data(); return true;
@@ -57,7 +86,7 @@ RimeApi api() {
     a.free_commit = [](RimeCommit*) -> Bool { ++f.freedCommit; f.commit.clear(); return true; };
     a.get_context = [](RimeSessionId, RimeContext* c) -> Bool {
         static RimeCandidate candidates[] = {{const_cast<char*>("你😀"), const_cast<char*>("注释"), nullptr}};
-        c->composition.preedit = f.preedit.data(); c->composition.cursor_pos = f.preedit.size();
+        c->composition.preedit = f.preedit.data(); c->composition.cursor_pos = static_cast<int>(f.preedit.size());
         c->menu.candidates = candidates; c->menu.num_candidates = f.preedit.empty() ? 0 : 1; c->menu.page_size = 3;
         c->menu.page_no = 1; c->menu.select_keys = const_cast<char*>("abc"); return true;
     };
@@ -66,7 +95,7 @@ RimeApi api() {
     a.free_status = [](RimeStatus*) -> Bool { return true; };
     a.clear_composition = [](RimeSessionId) { ++f.cleared; f.preedit.clear(); };
     a.clear_tabs = [](RimeSessionId) -> Bool { ++f.clearedTabs; return true; };
-    a.select_candidate_on_current_page = [](RimeSessionId, size_t i) -> Bool { f.selected = i; return true; };
+    a.select_candidate_on_current_page = [](RimeSessionId, size_t i) -> Bool { f.selected = static_cast<int>(i); return true; };
     a.select_candidate = [](RimeSessionId, size_t i) -> Bool { f.selectedGlobal = i; return true; };
     a.delete_candidate = [](RimeSessionId, size_t i) -> Bool { f.deletedGlobal = i; return true; };
     a.set_caret_pos = [](RimeSessionId, size_t i) { f.caret = i; };
@@ -187,6 +216,84 @@ void testReadOnlyRefresh() {
     a.get_input = nullptr; CHECK(!engine.rawInput(1, next.revision));
     engine.stop();
 }
+void testOptionalInputStatistics() {
+    f = {}; auto a = api();
+    // The operation consumes its input. Statistics must describe the state BEFORE it.
+    a.process_key = [](RimeSessionId, int, int mask) -> Bool {
+        ++f.keys; f.mask = mask; f.rawInput.clear(); return false;
+    };
+    a.select_candidate_on_current_page = [](RimeSessionId, size_t index) -> Bool {
+        f.selected = static_cast<int>(index); f.rawInput.clear(); f.commit = "你"; return true;
+    };
+    a.select_candidate = [](RimeSessionId, size_t index) -> Bool {
+        f.selectedGlobal = index; f.rawInput.clear(); f.commit = "好"; return true;
+    };
+    a.get_caret_pos = [](RimeSessionId) -> size_t { throw std::runtime_error("statistics must not read the caret"); };
+    Engine engine(&a); engine.start("shared", "user");
+    auto value = engine.begin(1, "editor");
+    f.rawInput = "ni";
+    value = engine.key(1, 'n', 0, false);
+    CHECK(value.inputStatistics == -1 && f.rawReads == 0);
+    value = engine.action(1, value.revision, 13, 0, "");
+    CHECK(value.inputStatistics == -1 && f.rawReads == 0);
+
+    f.rawInput = "汉é🙂"; // 4 UTF-16 code units, not 3 code points or 9 UTF-8 bytes.
+    value = engine.key(1, 'x', 0, false, true);
+    CHECK(value.inputStatistics == 8 && value.commit.empty() && f.rawReads == 1 && f.rawInput.empty());
+    f.rawInput = "/abc"; f.commit = "命令结果";
+    value = engine.key(1, 'x', 0, true, true);
+    CHECK(value.inputStatistics == 9 && value.commit == "命令结果" && f.rawReads == 2);
+    CHECK((f.mask & (1 << 30)) != 0 && f.freedCommit == 1);
+    value = engine.key(1, 'x', 0, true);
+    CHECK(value.inputStatistics == -1 && value.commit.empty() && f.rawReads == 2 && f.freedCommit == 1);
+
+    f.rawInput = "pin";
+    value = engine.action(1, value.revision, 1, 0, "", true);
+    CHECK(value.inputStatistics == 6 && value.commit == "你" && f.selected == 0 && f.rawReads == 3);
+    f.rawInput = "hao";
+    value = engine.action(1, value.revision, 11, 2, "", true);
+    CHECK(value.inputStatistics == 6 && value.commit == "好" && f.selectedGlobal == 2 && f.rawReads == 4);
+    const auto reads = f.rawReads;
+    CHECK(engine.action(1, value.revision - 1, 1, 0, "", true).inputStatistics == -1);
+    CHECK(engine.key(0, 'x', 0, false, true).inputStatistics == -1);
+    f.maintenance = true; CHECK(engine.key(1, 'x', 0, false, true).inputStatistics == -1); f.maintenance = false;
+    CHECK(f.rawReads == reads);
+    a.get_input = nullptr;
+    CHECK(engine.key(1, 'x', 0, false, true).inputStatistics == -1 && f.rawReads == reads);
+    a.get_input = [](RimeSessionId) -> const char* { throw std::runtime_error("optional observation failed"); };
+    const auto keys = f.keys;
+    CHECK(engine.key(1, 'x', 0, false, true).inputStatistics == -1 && f.keys == keys + 1);
+    a.get_input = [](RimeSessionId) -> const char* { ++f.rawReads; return nullptr; };
+    CHECK(engine.key(1, 'x', 0, false, true).inputStatistics == 0 && f.rawReads == reads + 1);
+    engine.begin(2, "private-editor", true);
+    CHECK(engine.key(2, 'x', 0, false, true).inputStatistics == -1 && f.rawReads == reads + 1);
+    engine.stop();
+}
+
+void testInputStatisticsUnicodeAndPresentationReuse() {
+    f = {}; auto a = api();
+    a.process_key = [](RimeSessionId, int, int) -> Bool { ++f.keys; return false; };
+    Engine engine(&a); engine.start("shared", "user");
+    auto previous = engine.begin(1, "editor");
+    const std::vector<std::pair<std::string, int64_t>> cases = {
+        {"", 0}, {"n", 2}, {"/你好", 7}, {"汉é🙂", 8},
+        {"\x80", 2}, {"/\xf0\x9f", 2}, {"\xc0\xaf", 2}, {"\xed\xa0\x80", 2}, {"\xf4\x8f\xbf\xbf", 4}
+    };
+    for (const auto& [text, expected] : cases) {
+        f.rawInput = text;
+        const auto current = engine.key(1, 'x', 0, true, true);
+        CHECK(current.inputStatistics == expected && current.commit.empty());
+        CHECK(current.canReusePresentation(previous));
+        CHECK(current.revision > previous.revision);
+        previous = current;
+    }
+    CHECK(f.rawReads == static_cast<int>(cases.size()));
+    const auto disabled = engine.key(1, 'x', 0, true);
+    CHECK(disabled.inputStatistics == -1 && disabled.canReusePresentation(previous));
+    CHECK(f.rawReads == static_cast<int>(cases.size()));
+    engine.stop();
+}
+
 void testSyncCompletion() {
     f = {}; auto a = api();
     a.sync_user_data = []() -> Bool {
@@ -331,9 +438,9 @@ void testSessionReuseAndEditorIsolation() {
 }
 void testGeneratedConfigInvalidation() {
     namespace fs = std::filesystem;
-    char pattern[] = "/tmp/direct-rime-deploy-XXXXXX";
-    const auto* created = mkdtemp(pattern); CHECK(created);
-    const fs::path root(created), user = root / "user", shared = root / "shared", build = user / "build";
+    const TemporaryDirectory temporary;
+    const auto root = temporary.path();
+    const fs::path user = root / "user", shared = root / "shared", build = user / "build";
     fs::create_directories(build); fs::create_directories(shared);
     auto write = [](const fs::path& path) { std::ofstream(path) << "keep data"; };
     write(shared / "default.yaml"); write(build / "default.yaml");
@@ -349,10 +456,19 @@ void testGeneratedConfigInvalidation() {
     CHECK(!fs::exists(build / "linked.yaml") && fs::exists(root / "target.yaml"));
     CHECK(fs::exists(build / "compiled-only.schema.yaml") && fs::exists(build / "test.table.bin"));
     CHECK(fs::exists(user / "user.yaml") && fs::exists(user / "test.userdb/CURRENT"));
-    engine.stop(); CHECK(engine.deploy()); engine.stop(); fs::remove_all(root);
+    engine.stop(); CHECK(engine.deploy()); engine.stop();
 }
 }
-int main() {
-    try { testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n"; }
+int main(int argc, char** argv) {
+    try {
+        if (argc == 2 && std::strcmp(argv[1], "--statistics") == 0) {
+            testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse();
+            testReadOnlyRefresh(); testPresentationReuse(); testUnicode();
+            std::cout << "input statistics contract: passed (5 groups)\n";
+            return 0;
+        }
+        if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
+        testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
+    }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
