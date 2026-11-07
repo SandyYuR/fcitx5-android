@@ -127,6 +127,9 @@ abstract class KeyView(
     var layoutMarginRight = 0f
 
     var onWaterRippleRequest: ((keyView: KeyView, localX: Float, localY: Float) -> Unit)? = null
+    internal var statisticsKeyLabel: String? = null
+    internal var onStatisticsPress: ((KeyView) -> Unit)? = null
+    private var statisticsTouchActive = false
 
     /**
      * [KeyView] contains 2 parts: `TouchEventView` and `AppearanceView`.
@@ -392,10 +395,22 @@ abstract class KeyView(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> if (isEnabled && !statisticsTouchActive) {
+                statisticsTouchActive = true
+                onStatisticsPress?.invoke(this)
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> statisticsTouchActive = false
+        }
         if (event.actionMasked == MotionEvent.ACTION_DOWN && rippled) {
             onWaterRippleRequest?.invoke(this, event.x, event.y)
         }
         return super.onTouchEvent(event)
+    }
+
+    override fun onDetachedFromWindow() {
+        statisticsTouchActive = false
+        super.onDetachedFromWindow()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

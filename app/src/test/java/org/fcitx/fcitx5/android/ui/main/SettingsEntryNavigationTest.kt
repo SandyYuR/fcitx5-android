@@ -126,6 +126,21 @@ class SettingsEntryNavigationTest {
         val indexed = SettingsSearchIndex.entries(activity).single { it.titleRes == R.string.scheme_update_title }
         assertEquals(org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdateActivity::class.java, indexed.activityClass)
     }
+
+    @Test fun inputStatisticsIsLastInConvenienceAndSearchUsesThatBreadcrumb() = page { activity, current ->
+        current().preferenceScreen.find(activity.getString(R.string.settings_group_convenience)).performClick()
+        val convenience = current()
+        assertEquals(activity.getString(R.string.stats_title), convenience.preferenceScreen.entries().last().title)
+        convenience.preferenceScreen.find(activity.getString(R.string.stats_title)).performClick()
+        assertEquals(org.fcitx.fcitx5.android.ui.main.stats.InputStatsActivity::class.java.name,
+            shadowOf(activity).nextStartedActivity.component?.className)
+        assertTrue(convenience.findNavController().popBackStack())
+        current().preferenceScreen.find(activity.getString(R.string.settings_group_input)).performClick()
+        assertTrue(runCatching { current().preferenceScreen.find(activity.getString(R.string.stats_title)) }.isFailure)
+        val indexed = SettingsSearchIndex.entries(activity).single { it.titleRes == R.string.stats_title }
+        assertEquals(listOf(R.string.settings_search_group_android, R.string.settings_group_convenience), indexed.pathRes)
+        assertEquals(org.fcitx.fcitx5.android.ui.main.stats.InputStatsActivity::class.java, indexed.activityClass)
+    }
 }
 
 /** Navigation and entry placement do not require starting a native input engine. */

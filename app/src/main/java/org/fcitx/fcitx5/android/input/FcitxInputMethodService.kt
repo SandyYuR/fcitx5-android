@@ -63,11 +63,13 @@ import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.core.CapabilityFlags
+import org.fcitx.fcitx5.android.core.CapabilityFlag
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.core.FormattedText
 import org.fcitx.fcitx5.android.core.InputMethodEntry
+import org.fcitx.fcitx5.android.core.InputStatisticsSource
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.core.KeySym
@@ -80,6 +82,8 @@ import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.daemon.FcitxDisconnectedException
 import org.fcitx.fcitx5.android.data.InputFeedbacks
+import org.fcitx.fcitx5.android.data.stats.InputStats
+import org.fcitx.fcitx5.android.data.stats.StatsLayout
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
@@ -157,11 +161,19 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private var inputBindingGeneration = 0
     private var inputSessionGeneration = 0
     internal val editorSession = EditorSessionTracker()
+    private var statisticsStore: InputStats? = null
+    private var statisticsSourceStore: InputStats? = null
+    private var statisticsSourceCache: InputStatisticsSource? = null
+    private var lastStatisticsLayout: Pair<String, StatsLayout>? = null
+    private var lastStatisticsLayoutEpoch = -1L
+    private var statisticsSchemaActions: Array<org.fcitx.fcitx5.android.core.Action>? = null
+    private var statisticsSchema: Pair<String, String>? = null
     internal val macroInput = org.fcitx.fcitx5.android.input.keyboard.MacroInputController {
         Timber.w(it, "Failed to release a macro key")
     }
 
     private fun endEditorWork() {
+        statisticsStore?.endSession()
         jsAppDismiss?.invoke()
         macroInput.cancelAll()
         if (VoiceInputProviderManager.isActive()) VoiceInputProviderManager.stop(this)
@@ -528,9 +540,114 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             postFcitxSessionJob(inputSessionGeneration) { focus(true) }
         }
         val ticket = FcitxDaemon.captureInputKey() ?: return Job().apply { complete() }
+        val statisticsSource = captureStatisticsSource(ticket.generation)
         return postFcitxJob {
-            if (FcitxDaemon.canDeliverInputKey(ticket)) block()
+            if (FcitxDaemon.canDeliverInputKey(ticket)) {
+                if (statisticsSource == null) block()
+                else {
+                    val api = this
+                    withContext(statisticsSource) { block(api) }
+                }
+            }
         }.also { job -> job.invokeOnCompletion { FcitxDaemon.releaseInputKey(ticket) } }
+    }
+
+    /** All privacy checks are repeated at delivery, before statistics receives any text. */
+    private fun activeStatistics(): InputStats? {
+        if (statisticsStore?.isEnabled == false) return null
+        return try {
+            val editor = currentInputEditorInfo
+            if (editor == null || editor.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL ||
+                org.fcitx.fcitx5.android.FcitxApplication.getInstance().isDirectBootMode ||
+                capabilityFlags.flags and (CapabilityFlag.PasswordOrSensitive.flag or CapabilityFlag.Disable.flag) != 0UL ||
+                jsAppInputConnection != null || ClipboardSearchController.isActive) null
+            else {
+                val store = statisticsStore ?: InputStats.get(this).also { statisticsStore = it }
+                store.takeIf { it.isEnabled && editorSession.isActive && applicationInputConnection != null }
+            }
+        } catch (_: Exception) { null }
+    }
+
+    private fun captureStatisticsSource(generation: Long): InputStatisticsSource? {
+        val store = activeStatistics() ?: return null
+        val epoch = store.recordingEpoch
+        val cached = statisticsSourceCache
+        if (statisticsSourceStore === store && cached?.generation == generation && cached.epoch == epoch) return cached
+        return InputStatisticsSource(generation, epoch) { store.isEnabled && store.recordingEpoch == epoch }.also {
+            statisticsSourceStore = store
+            statisticsSourceCache = it
+        }
+    }
+
+    internal fun isStatisticsRecordingEnabled(): Boolean = activeStatistics() != null
+
+    internal fun recordStatisticsHeat(label: String, layout: StatsLayout) {
+        val store = activeStatistics() ?: return
+        if (!::fcitx.isInitialized) return
+        val epoch = store.recordingEpoch
+        try {
+            val schema = fcitx.runImmediately {
+                if (!acceptsInput) return@runImmediately null
+                val actions = statusAreaActionsCached
+                if (actions === statisticsSchemaActions) return@runImmediately statisticsSchema
+                statisticsSchemaActions = actions
+                statisticsSchema = null
+                val selected = org.fcitx.fcitx5.android.ui.main.settings.behavior.manager.SubModeManager.resolveSelectedSchemaAction(actions)
+                    ?: return@runImmediately null
+                fun find(items: Array<org.fcitx.fcitx5.android.core.Action>): org.fcitx.fcitx5.android.core.Action? =
+                    items.firstNotNullOfOrNull { item -> if (item.id == selected) item else item.menu?.let(::find) }
+                find(actions)?.let { it.name to it.shortText }.also { statisticsSchema = it }
+            } ?: return
+            store.recordHeat(schema.first, schema.second, label, expectedEpoch = epoch)
+            val current = schema.first to layout
+            if (layout.geometry.isNotEmpty() && (current != lastStatisticsLayout || epoch != lastStatisticsLayoutEpoch)) {
+                lastStatisticsLayout = current
+                lastStatisticsLayoutEpoch = epoch
+                lifecycleScope.launch {
+                    try { store.setLayout(schema.first, layout, expectedEpoch = epoch) }
+                    catch (_: Exception) { /* Statistics never interrupts the keyboard. */ }
+                }
+            }
+        } catch (_: Exception) { /* A statistics failure must not reject a press. */ }
+    }
+
+    private fun recordStatisticsKey(event: FcitxEvent.StatisticsKeyEvent) {
+        if (event.inputSession == 0L || !FcitxDaemon.isCurrentInputSession(event.inputSession)) return
+        val store = activeStatistics() ?: return
+        val data = event.statistics
+        try {
+            store.recordKey(data.schemaId, data.schemaName, KeySym(event.sym).toString(),
+                isDeletion = event.sym == FcitxKeyMapping.FcitxKey_BackSpace || event.sym == FcitxKeyMapping.FcitxKey_Delete,
+                composing = data.composing, wallTimeMs = data.wallTimeMs, monotonicTimeMs = data.monotonicTimeMs,
+                expectedEpoch = data.epoch)
+        } catch (_: Exception) { /* Statistics is optional; editor events still continue. */ }
+    }
+
+    private fun recordStatisticsKeys(event: FcitxEvent.StatisticsKeysEvent) {
+        if (event.inputSession == 0L || !FcitxDaemon.isCurrentInputSession(event.inputSession)) return
+        val store = activeStatistics() ?: return
+        if (store.recordingEpoch != event.epoch) return
+        try {
+            val samples = event.keys.map { key ->
+                val data = key.statistics
+                org.fcitx.fcitx5.android.data.stats.StatsKeySample(data.schemaId, data.schemaName, "rime",
+                    key.sym == FcitxKeyMapping.FcitxKey_BackSpace || key.sym == FcitxKeyMapping.FcitxKey_Delete,
+                    data.composing, data.wallTimeMs, data.monotonicTimeMs)
+            }
+            store.recordKeys(samples, expectedEpoch = event.epoch)
+            if (event.dropped > 0) store.recordDropped(event.dropped, expectedEpoch = event.epoch)
+        } catch (_: Exception) { /* Optional metrics cannot delay or replay editor operations. */ }
+    }
+
+    private fun recordStatisticsCommit(event: FcitxEvent.CommitStringEvent, accepted: Boolean) {
+        if (!accepted || event.inputSession == 0L || !FcitxDaemon.isCurrentInputSession(event.inputSession)) return
+        val data = event.statistics?.takeUnless { it.command } ?: return
+        val store = activeStatistics() ?: return
+        try {
+            store.recordCommit(data.schemaId, data.schemaName, event.data.text, data.codeLength,
+                wallTimeMs = data.wallTimeMs, monotonicTimeMs = data.monotonicTimeMs, expectedEpoch = data.epoch,
+                composing = data.composing)
+        } catch (_: Exception) { /* Never retry or alter an already delivered commit. */ }
     }
 
     /** Same ordered queue as keys, with bounded timing for the first candidate taps. */
@@ -705,14 +822,18 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 val ordinal = ++timedCommits
                 val startedAt = if (ordinal <= 2) SystemClock.elapsedRealtimeNanos() else 0L
                 backspaceBoundaryGuard.onCommit()
+                val mainEditor = jsAppInputConnection == null && !ClipboardSearchController.isActive
                 val requestResult = androidx.tracing.trace("rime.direct.commit") {
                     dispatchCommitText(event.data.text, event.data.cursor)
                 }
+                recordStatisticsCommit(event, mainEditor && requestResult == CommitRequestResult.REQUEST_ACCEPTED)
                 if (requestResult == CommitRequestResult.NO_CONNECTION || requestResult == CommitRequestResult.REQUEST_REJECTED)
                     android.util.Log.w("RimeInputQueue", "commit_request_failed generation=${event.inputSession} result=$requestResult")
                 if (startedAt != 0L) android.util.Log.i("RimeInputTiming",
                     "commit generation=${event.inputSession} ordinal=$ordinal event_wait_us=${if (event.commitProducedNanos > 0) (startedAt - event.commitProducedNanos) / 1000 else -1} service_commit_us=${(SystemClock.elapsedRealtimeNanos() - startedAt) / 1000} request_result=$requestResult")
             }
+            is FcitxEvent.StatisticsKeyEvent -> recordStatisticsKey(event)
+            is FcitxEvent.StatisticsKeysEvent -> recordStatisticsKeys(event)
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {
                     // 剪贴板历史搜索会话期间：退格修改查询、回车与方向键直接吞掉，
@@ -1844,18 +1965,21 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
      * 状态残留到目标编辑器。
      */
     fun startClipboardSearch() {
+        statisticsStore?.endSession()
         ClipboardSearchController.start()
         onBackspaceGuardSessionChanged()
         postFcitxJob { reset() }
     }
 
     fun stopClipboardSearch() {
+        statisticsStore?.endSession()
         ClipboardSearchController.stop()
         onBackspaceGuardSessionChanged()
         postFcitxJob { reset() }
     }
 
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
+        statisticsStore?.endSession()
         jsAppDismiss?.invoke()
         android.util.Log.i("FcitxColdStart", "service.onStartInput restarting=$restarting")
         if (editorSession.start(EditorSessionTracker.Editor(attribute.packageName, attribute.fieldId,
@@ -2251,6 +2375,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {
+        statisticsStore?.endSession()
         Timber.d("onFinishInputView: finishingInput=$finishingInput")
         macroInput.cancelAll()
         onBackspaceGuardSessionChanged()
@@ -2329,6 +2454,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     internal var jsAppInputConnection: android.view.inputmethod.InputConnection? = null
+        set(value) {
+            if (field !== value) statisticsStore?.endSession()
+            field = value
+        }
     internal var jsAppDismiss: (() -> Unit)? = null
     internal val applicationInputConnection get() = super.getCurrentInputConnection()
     override fun getCurrentInputConnection(): android.view.inputmethod.InputConnection? =

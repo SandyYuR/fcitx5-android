@@ -271,20 +271,40 @@ class DirectRimeBackend(context: Context) : InputEngine {
         ).onEach { it.inputSession = generation })
         android.util.Log.i("RimeLifecycle", "binding_inactive generation=$generation native_create=false")
     }
-    private fun act(action: Int, index: Int = 0, value: String = "", forceCandidates: Boolean = false): Snapshot? {
+    private fun act(action: Int, index: Int = 0, value: String = "", forceCandidates: Boolean = false,
+                    statisticsSource: InputStatisticsSource? = null): Snapshot? {
         val previous = snapshot ?: return null
         if (!started || maintenance || previous.generation != inputSession) return null
+        val collectStatistics = shouldCollectStatistics(statisticsSource, previous)
+        val wallTime = if (collectStatistics) System.currentTimeMillis() else 0L
+        val monotonicTime = if (collectStatistics) SystemClock.elapsedRealtime() else 0L
         return interactivePriority.run {
-            Native.action(previous.generation, previous.revision, action, index, value).also {
-                publish(it, forceCandidates = forceCandidates)
+            Native.action(previous.generation, previous.revision, action, index, value, collectStatistics).also {
+                val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous, it, wallTime, monotonicTime) else null
+                publish(it, forceCandidates = forceCandidates, statistics = statistics)
             }
         }
+    }
+
+    private fun shouldCollectStatistics(source: InputStatisticsSource?, previous: Snapshot?): Boolean {
+        if (source == null || previous == null || !previous.ready || directBootMode || forwardsKeysDirectly() ||
+            source.generation != inputSession || previous.generation != inputSession ||
+            flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL) return false
+        return try { source.stillEnabled() } catch (_: Exception) { false }
+    }
+
+    private fun statisticsFromResult(source: InputStatisticsSource, previous: Snapshot, result: Snapshot,
+                                     wallTime: Long, monotonicTime: Long): InputOperationStatistics? {
+        if (result.rawInputLength < 0) return null
+        return InputOperationStatistics(source.epoch, previous.schema, previous.schemaName,
+            result.rawInputLength + 1, result.inputWasCommand, result.preedit.isNotEmpty(), wallTime, monotonicTime)
     }
     private fun formatted(text: String, cursor: Int = text.length, underline: Boolean = false) =
         if (text.isEmpty()) FormattedText.Empty else FormattedText(arrayOf(text),
             intArrayOf(if (underline) TextFormatFlag.Underline.flag else 0), cursor.coerceIn(0, text.length))
 
-    private fun publish(value: Snapshot, release: Boolean = false, forceCandidates: Boolean = false) {
+    private fun publish(value: Snapshot, release: Boolean = false, forceCandidates: Boolean = false,
+                        statistics: InputOperationStatistics? = null, statisticsKey: Int? = null) {
         if (value.generation != inputSession || value.gate == 3) return
         val previous = snapshot
         snapshot = value
@@ -333,8 +353,11 @@ class DirectRimeBackend(context: Context) : InputEngine {
         inputMethodEntryCached = ime
         statusAreaActionsCached = actions
         val batch = mutableListOf<FcitxEvent<*>>()
+        if (statistics != null && statisticsKey != null && value.ready)
+            batch += FcitxEvent.StatisticsKeyEvent(statistics, statisticsKey)
         if (value.commit.isNotEmpty()) batch += FcitxEvent.CommitStringEvent(FcitxEvent.CommitStringEvent.Data(value.commit, -1)).apply {
             commitProducedNanos = SystemClock.elapsedRealtimeNanos()
+            this.statistics = statistics
         }
         if (clientChanged) batch += FcitxEvent.ClientPreeditEvent(client)
         if (panelChanged) batch += FcitxEvent.InputPanelEvent(panel)
@@ -452,6 +475,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
 
     override suspend fun sendKey(sym: Int, states: UInt, code: Int, up: Boolean, timestamp: Int) {
         val expected = inputSession
+        // Rime can commit on a release too (for example a schema's release binding).
+        // Only DOWN produces a key counter, but either half may carry commit metadata.
+        val statisticsSource = currentCoroutineContext()[InputStatisticsSource]
         if (maintenance) return
         val queuedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
         events.awaitCapacity()
@@ -461,9 +487,16 @@ class DirectRimeBackend(context: Context) : InputEngine {
             val ownerAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
             val bypass = forwardsKeysDirectly()
             if (!up) clearStatusHint()
-            val result = if (bypass) null else interactivePriority.run { Native.key(expected, sym, states.toInt(), up) }
+            val previous = snapshot
+            val collectStatistics = !bypass && shouldCollectStatistics(statisticsSource, previous)
+            val wallTime = if (collectStatistics) System.currentTimeMillis() else 0L
+            val monotonicTime = if (collectStatistics) SystemClock.elapsedRealtime() else 0L
+            val result = if (bypass) null else interactivePriority.run { Native.key(expected, sym, states.toInt(), up, collectStatistics) }
             val nativeAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
-            if (result != null) publish(result, release = up)
+            if (result != null) {
+                val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous!!, result, wallTime, monotonicTime) else null
+                publish(result, release = up, statistics = statistics, statisticsKey = if (up) null else sym)
+            }
             if (!up && result?.ready == true) {
                 bindingKeys++
                 if (BuildConfig.INPUT_DIAGNOSTICS && (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L))
@@ -489,6 +522,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override suspend fun sendKey(sym: KeySym, states: KeyStates, code: Int, up: Boolean, timestamp: Int) = sendKey(sym.sym, states.states, code, up, timestamp)
     private suspend fun performAction(action: Int, index: Int, candidateContext: CandidateActionContext? = null): Snapshot? {
         val expected = snapshot ?: return null
+        val statisticsSource = if (action == 1 || action == 11) currentCoroutineContext()[InputStatisticsSource] else null
         if (!acceptsInput || expected.generation != inputSession ||
             (candidateContext != null && candidateContext != candidateActionContext)) return null
         val queuedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
@@ -502,7 +536,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 null
             } else {
                 val ownerAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
-                val result = act(action, index)
+                val result = act(action, index, statisticsSource = statisticsSource)
                 if (action == 1 || action == 11) {
                     bindingSelections++
                     if (BuildConfig.INPUT_DIAGNOSTICS && (bindingSelections <= 2 || SystemClock.elapsedRealtimeNanos() - ownerAt >= 100_000_000L))

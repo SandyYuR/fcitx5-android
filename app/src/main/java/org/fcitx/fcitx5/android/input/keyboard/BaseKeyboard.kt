@@ -108,6 +108,9 @@ abstract class BaseKeyboard(
     private val auxBarKeysProvider: () -> List<KeyDef> = { emptyList() }
 ) : ConstraintLayout(context) {
     private val previewMacroInput = MacroInputController { Timber.w(it, "Macro key cleanup failed") }
+    private val statisticsKeys = WeakHashMap<KeyView, Unit>()
+    private var statisticsLayout: org.fcitx.fcitx5.android.data.stats.StatsLayout? = null
+    private var statisticsCapturePosted = false
 
     private data class MacroContext(
         val execution: MacroInputController.Execution,
@@ -117,7 +120,39 @@ abstract class BaseKeyboard(
 
     override fun onDetachedFromWindow() {
         previewMacroInput.cancelAll()
+        statisticsLayout = null
         super.onDetachedFromWindow()
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        captureStatisticsLayout()
+    }
+
+    private fun captureStatisticsLayout() {
+        val service = getService()
+        if (!isAttachedToWindow || service?.isStatisticsRecordingEnabled() != true) {
+            statisticsLayout = null
+            return
+        }
+        runCatching { KeyboardStatisticsLayout.capture(this, statisticsKeys.keys) }
+            .onSuccess { if (it != statisticsLayout) statisticsLayout = it }
+            .onFailure { Timber.w(it, "Unable to capture statistics keyboard geometry") }
+    }
+
+    private fun recordStatisticsPress(key: KeyView) {
+        val label = key.statisticsKeyLabel ?: return
+        val service = getService() ?: return
+        if (!service.isStatisticsRecordingEnabled()) return
+        // Recording may have been enabled since the last layout. Capture after this event;
+        // the first press still contributes a count without walking the view hierarchy.
+        if (statisticsLayout == null && !statisticsCapturePosted) {
+            statisticsCapturePosted = true
+            post { statisticsCapturePosted = false; captureStatisticsLayout() }
+        }
+        runCatching {
+            service.recordStatisticsHeat(label, statisticsLayout ?: org.fcitx.fcitx5.android.data.stats.StatsLayout())
+        }.onFailure { Timber.w(it, "Unable to record statistics key press") }
     }
 
     /**
@@ -1664,6 +1699,11 @@ abstract class BaseKeyboard(
             is KeyDef.Appearance.Text -> TextKeyView(context, theme, activeAppearance, horizontalGapScale)
             is KeyDef.Appearance.Image -> ImageKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
         }.apply {
+            statisticsKeyLabel = KeyboardStatisticsLayout.label(def)
+            if (statisticsKeyLabel != null) {
+                statisticsKeys[this] = Unit
+                onStatisticsPress = ::recordStatisticsPress
+            }
             setTextScale(currentTextScale)
             soundEffect = when (def) {
                 is SpaceKey -> InputFeedbacks.SoundEffect.SpaceBar
