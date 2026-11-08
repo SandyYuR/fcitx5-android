@@ -82,11 +82,11 @@ jobs:
         with:
           packages: platform-tools
 
-      - name: Prepare personal build sources
-        run: ./prepare_personal_build.sh
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
+
+      - name: Prepare personal build sources
+        run: ./prepare_personal_build.sh
 
       - name: Build Debug APK
         run: ./gradlew :app:assembleFxDebug

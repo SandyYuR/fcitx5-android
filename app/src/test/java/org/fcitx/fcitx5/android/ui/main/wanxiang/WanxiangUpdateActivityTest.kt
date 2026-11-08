@@ -15,6 +15,7 @@ import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
 import androidx.work.workDataOf
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
@@ -197,6 +198,61 @@ class WanxiangUpdateActivityTest {
             assertEquals(phaseTitle, form.status.heading.text.toString())
             assertFalse(form.status.detail.text.contains("25%"))
             assertEquals(phase != "install", form.cancel.isEnabled)
+        }
+    }
+
+    @Test fun finishedWorkLoadsTheCompleteSkippedListAndClearsItForTheNextJob() = withReadyActivity { activity, form ->
+        val skipped = (0 until 200).map { WanxiangSkippedAsset(WanxiangPackage.Kind.EXTRA, "missing-$it.dict.yaml",
+            WanxiangSelection.Source.GITHUB, "HTTP 404 at https://example.org/resources/missing-$it.dict.yaml") }
+        for (state in listOf(WorkInfo.State.SUCCEEDED, WorkInfo.State.FAILED)) {
+            val result = WanxiangUpdateResult(
+                target = Json.encodeToString(WanxiangTarget("rime", WanxiangSettingsFixture.root.canonicalPath)),
+                skipped = skipped, error = if (state == WorkInfo.State.FAILED) "deployment failed" else null)
+            val id = UUID.randomUUID()
+            result.save(WanxiangUpdates.directory(activity, id).apply { mkdirs() }, completed = state == WorkInfo.State.SUCCEEDED)
+            val output = result.outputData(activity)
+            assertFalse(output.getString(WanxiangUpdateWorker.SKIPPED)!!.contains(skipped.last().name))
+            runBlocking { activity.showWork(WorkInfo(id, state, emptySet(), output)) }
+            assertEquals(activity.getString(if (state == WorkInfo.State.SUCCEEDED) R.string.wanxiang_finished else R.string.wanxiang_failed),
+                form.status.heading.text.toString())
+            assertTrue(form.status.detail.text.contains(skipped.last().name))
+            assertTrue(form.status.detail.text.contains("GitHub"))
+            assertFalse(form.status.detail.text.contains("HTTP"))
+            assertFalse(form.status.detail.text.contains("https://"))
+            if (state == WorkInfo.State.FAILED) assertTrue(form.status.detail.text.contains("deployment failed"))
+
+            runBlocking { activity.showWork(WorkInfo(UUID.randomUUID(), WorkInfo.State.SUCCEEDED, emptySet(), Data.EMPTY)) }
+            assertFalse(form.status.detail.text.contains("missing-"))
+        }
+    }
+
+    @Test fun noChangesStillShowsSkippedResourcesAndMissingReportsUseThePreview() = withReadyActivity { activity, form ->
+        val result = WanxiangUpdateResult(noChanges = true,
+            skipped = listOf(WanxiangSkippedAsset(WanxiangPackage.Kind.DICTIONARY, "base-dicts.zip",
+                WanxiangSelection.Source.CNB, "HTTP 404 at https://example.org/base-dicts.zip")))
+        // There is no result file: existing WorkManager output is still a usable fallback.
+        runBlocking { activity.showWork(WorkInfo(UUID.randomUUID(), WorkInfo.State.SUCCEEDED, emptySet(), result.outputData(activity))) }
+        assertEquals(activity.getString(R.string.wanxiang_nothing_changed), form.status.heading.text.toString())
+        assertTrue(form.status.detail.text.contains(activity.getString(R.string.wanxiang_nothing_changed_hint)))
+        assertTrue(form.status.detail.text.contains("base-dicts.zip"))
+        assertTrue(form.status.detail.text.contains("CNB"))
+        assertFalse(form.status.detail.text.contains("https://"))
+        assertFalse(form.status.detail.text.contains(activity.getString(R.string.wanxiang_partial_deployed)))
+    }
+
+    @Test fun cnbMissingResourcesShowBriefMessagesAndOnlyReportActualDeployment() = withReadyActivity { activity, form ->
+        for (deployed in listOf(true, false)) {
+            val state = if (deployed) WorkInfo.State.SUCCEEDED else WorkInfo.State.FAILED
+            val result = WanxiangUpdateResult(noAvailableAssets = !deployed,
+                skipped = listOf(WanxiangSkippedAsset(WanxiangPackage.Kind.DICTIONARY, "base-dicts.zip",
+                    WanxiangSelection.Source.CNB, "HTTP 404 at https://asset.cnb.cool/long-asset-address")))
+            runBlocking { activity.showWork(WorkInfo(UUID.randomUUID(), state, emptySet(), result.outputData(activity))) }
+            assertEquals(activity.getString(if (deployed) R.string.wanxiang_finished else R.string.wanxiang_not_deployed),
+                form.status.heading.text.toString())
+            assertEquals(View.VISIBLE, form.status.detail.visibility)
+            val expected = "因 CNB 仓库资源暂不可用，已跳过：词库 (base-dicts.zip)" +
+                if (deployed) "\n\n其余可用内容已部署。" else ""
+            assertEquals(expected, form.status.detail.text.toString())
         }
     }
 

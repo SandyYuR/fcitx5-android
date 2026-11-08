@@ -47,7 +47,8 @@ internal object WanxiangUpdates {
             old.forEach { info -> runCatching {
                 val files = DownloadFiles(root(context), info.id)
                 if (files.tryLocked {
-                    listOf("payload", "downloads", "completed", "completed.tmp", "selection.json", "selection.json.tmp", "auxiliary.json", "auxiliary.json.tmp").forEach {
+                    listOf("payload", "downloads", "completed", "completed.tmp", "failure.json", "failure.json.tmp",
+                        "selection.json", "selection.json.tmp", "auxiliary.json", "auxiliary.json.tmp").forEach {
                         FileUtil.removeFile(WanxiangPayload.child(files.directory, it)).getOrThrow()
                     }
                 }) files.removeEmptyDirectory()

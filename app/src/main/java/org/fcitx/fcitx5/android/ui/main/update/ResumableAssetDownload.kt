@@ -11,7 +11,9 @@ import java.io.RandomAccessFile
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-internal class InvalidAssetDownload(message: String) : IOException(message)
+internal open class InvalidAssetDownload(message: String) : IOException(message)
+/** Once the local 404 retry budget is exhausted, callers must not retry the whole worker. */
+internal class MissingAssetDownload(message: String) : InvalidAssetDownload(message)
 internal data class AssetDownloadProgress(val bytes: Long, val total: Long, val speed: Long)
 
 /** Stream to private disk; only strong validators permit appending after interruption. */
@@ -20,8 +22,29 @@ internal object ResumableAssetDownload {
         it.length in 2..1024 && it.first() == '"' && it.last() == '"' &&
             it.substring(1, it.lastIndex).all { c -> c.code in 0x21..0x7e && c != '"' }
     }
+    /** A missing asset is retried a few times: a stale mirror can recover, a deleted one cannot. */
+    const val MISSING_RETRIES = 3
     suspend fun run(client: OkHttpClient, url: String, asset: ReleaseAsset, files: DownloadFiles,
                     progress: (AssetDownloadProgress) -> Unit) {
+        var failures = 0
+        while (true) {
+            try {
+                attempt(client, url, asset, files, progress)
+                return
+            } catch (missing: MissingAssetDownload) {
+                if (++failures > MISSING_RETRIES) throw missing
+                // Bytes from the rejected response are not a prefix of a later one.
+                files.part.delete()
+                // Keep publication identities: recovery may need to reuse an already
+                // exposed MediaStore row even when the private copy was damaged.
+                files.write(files.read().copy(etag = null, total = null, verified = false, actualSha256 = null))
+                progress(AssetDownloadProgress(0, 0, 0))
+            }
+        }
+    }
+
+    private suspend fun attempt(client: OkHttpClient, url: String, asset: ReleaseAsset, files: DownloadFiles,
+                                progress: (AssetDownloadProgress) -> Unit) {
         require(asset.sizeBytes in 0..DownloadFiles.MAX_BYTES) { "Asset exceeds download limit" }
         val expectedHash = asset.sha256?.lowercase()?.also {
             require(it.matches(Regex("[0-9a-f]{64}"))) { "Invalid asset checksum" }
@@ -71,6 +94,7 @@ internal object ResumableAssetDownload {
                                 }
                                 if (!reply.isSuccessful) {
                                     if (reply.code in listOf(408, 429) || reply.code >= 500) throw IOException("Download HTTP ${reply.code}")
+                                    if (reply.code == 404) throw MissingAssetDownload("HTTP 404: ${asset.name} is not published at $url")
                                     throw InvalidAssetDownload("Download HTTP ${reply.code}")
                                 }
                                 if (reply.header("Content-Encoding")?.let { !it.equals("identity", true) } == true)
