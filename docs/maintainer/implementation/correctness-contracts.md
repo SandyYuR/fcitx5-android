@@ -31,6 +31,8 @@
 
 无方案时，密码/直接输入绑定仍允许通过同一按键门控转发 DOWN/UP；普通 Rime 编辑器不能因此获得“可用”状态。维护、过期和部署失败状态继续拒绝输入。会话创建、方案/中英文恢复与首次状态发布都属于同步绑定阶段，不能在恢复方案前提前降回普通线程优先级。回归入口是 `InputBindingStartupTest`。
 
+状态区方案开关的 native action 8 仅将已部署 `default.yaml` 的 `switcher/save_options` 成员写入 `user.yaml` 的 `var/option/<name>`；内部下划线选项不保存。librime Switcher 使用 `.default`，不能合并当前输入方案下的同名列表。重部署、同步或重启后清除白名单缓存；互斥组的关闭值与开启值都保存。会话恢复仍由 librime 执行，方案 `reset` 保持优先。`engine_test.cpp` 检查写入范围，`DirectRimeFrontendTest.schemaSwitchPreferencesSurviveNewSessionsAndRestart` 使用真实 librime 检查跨会话、重启、互斥组、reset 和白名单更新；仅运行 fake API 测试不能证明真实恢复行为。
+
 ### 候选目标、坐标与展示快照
 
 `CandidateWord.selectionTarget` 由生产者在发布前登记，包含编辑器/候选版本、原始序号及其局部页/全局含义。它不参与文字显示相等性。界面可以在不重绑相同文字的情况下更新目标，但不能用 backend 的最新版本给仍未加载完成的旧分页数据重新贴标签；点击时还需确认 adapter 项与 holder 实际显示的文字相符。`CandidateGenerationTracker` 同时观察引擎版本，避免第一屏相同就漏刷懒候选尾部。
@@ -154,6 +156,8 @@ JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果
 - `WanxiangUpdateWorker` 先准备暂存资源，`DirectRimeBackend` 在维护入口核对 profile 与规范路径后应用；不能把独立更新器的文件复制当作本项目部署完成。`WanxiangProtection` 在暂存及安装前检查保护规则；Pro 附加词库的辅助码字表在加工和安装时复核，不能混用中途变化的字表。
 - `WanxiangDownloadProgress` 只计算有可靠总量的当前文件百分比，不能用资源项数估算字节进度。`OperationStatusView` 的百分比参数只在工作态生效，旧调用仍使用不定进度；下一文件、等待重试、解压和安装阶段清除上次的百分比。Worker 在元数据及响应头等待前发布当前资源名，进入后续阶段前等待最后一次异步进度写入完成，通知与页面使用相同阶段。
 - 下载缓存命中也要发布已验证完成的字节进度。系统因网络约束停止任务时保留分片和已验证资源；仅明确 `CANCELLED` 或不可重试失败清理下载缓存。暂存解压目录始终清理，恢复任务重新准备文件，再交给原事务安装。
+- `ResumableAssetDownload` 对 HTTP 404 在首次请求后最多重试三次，耗尽后抛出不可重试的 `MissingAssetDownload`。重试只清理分片及网络校验状态，保留 MediaStore 发布 URI，避免私有副本损坏后恢复时重复发布。万象跳过缺失资源并记录名称与地址；共用下载器的 APK／自定义更新 Worker 则终止任务，不能再触发整项 Worker 重试。其他错误不能作为缺失资源吞掉；跳过后准备阶段没有可安装文件时返回失败。
+- `WanxiangUpdateResult` 将完整结果原子写入私有任务目录：`completed` 保存成功／无变更结果及跳过清单，`failure.json` 保存终止失败的原因及此前跳过的资源。WorkManager Data 仅放有界摘要，200 个合法附加词库同时缺失也不能因 10 KiB 上限把已安装更新变成失败。`WanxiangSkippedAsset` 保留组件、文件名、真实仓库来源和内部下载诊断；页面只显示仓库资源不可用及跳过的组件，不把 404 堆栈、长链接或更换下载源要求展示给用户。附加词库始终归属 GitHub，不能因主下载源选择 CNB 而误归因。页面在 IO 线程加载结果并拒绝旧任务的迟到结果；`NO_CHANGES` 和失败态同样保留简短清单，无可部署资源的失败态显示“本次未部署”，只有实际部署成功才提示其余内容已部署。兼容旧 `1`／`no-changes` 完成标记，损坏标记不能导致再次安装。对应 Worker、Activity、Result 测试守护这些行为。
 - 两次保护过滤均可能清空暂存文件。`NO_CHANGES` 结果与完成标记保留此区别，页面显示未写入／未部署，进程恢复不能把它改成部署成功。`WanxiangDictionaryConverter.lite` 使用上游固定声调字符映射，保留 `ê` 等无关字符；不能用 NFD 归一化后一律删除组合标记替代该映射。
 - `WanxiangUpdateActivity` 重新读取目录时清除过期目标，读取失败提供页面内重试，恢复成功清除对应加载错误。任务排队且尚无目标进度时显示等待说明，不能拿当前新目录代替已锁定的任务目录；写入前的目标校验继续保留。
 - `WanxiangGithub` 使用现有设备密钥加密 Token，只向受支持的 `amzxyz` GitHub 仓库 API 附带授权头；普通下载和重定向目的地不获得 Token。目录、保护规则与网络配置可收起，适用范围提示和当前主要操作保持明确，不能以“已保存密钥”代替联网成功。
