@@ -19,6 +19,7 @@ import okio.Buffer
 import org.fcitx.fcitx5.android.data.WanxiangProtection
 import org.fcitx.fcitx5.android.data.WanxiangUpdateTransaction
 import org.fcitx.fcitx5.android.ui.main.update.DownloadFiles
+import org.fcitx.fcitx5.android.ui.main.update.MissingAssetDownload
 import org.junit.*
 import org.junit.Assert.*
 import org.junit.runner.RunWith
@@ -44,6 +45,7 @@ class WanxiangUpdateWorkerTest {
     private var closes = 0
     private var changedDirectory = false
     private var protectAtInstall = false
+    private var failDeploy = false
     private val progress = ConcurrentLinkedQueue<Data>()
     private val foregrounds = ConcurrentLinkedQueue<ForegroundInfo>()
     private var progressGate: ((Data) -> ListenableFuture<Void>)? = null
@@ -75,17 +77,19 @@ class WanxiangUpdateWorkerTest {
                 WanxiangProtection(".*").filter(payload, user)
                 if (payload.walkTopDown().none { it.isFile }) return
             }
-            WanxiangUpdateTransaction.install(user, payload, {}, {})
+            WanxiangUpdateTransaction.install(user, payload, { check(!failDeploy) { "deployment failed" } }, {})
         }
         override fun close() { closes++ }
     }
 
     private fun immediate() = SettableFuture.create<Void>().apply { set(null) }
 
-    private fun worker(selection: WanxiangSelection, id: UUID = UUID.randomUUID()): WanxiangUpdateWorker =
-        TestListenableWorkerBuilder.from(context, WanxiangUpdateWorker::class.java).setId(id)
-            .setInputData(workDataOf(WanxiangUpdateWorker.SELECTION to Json.encodeToString(selection),
-                WanxiangUpdateWorker.TARGET to Json.encodeToString(WanxiangTarget("rime", user.canonicalPath))))
+    private fun worker(selection: WanxiangSelection, id: UUID = UUID.randomUUID(), attempt: Int = 0): WanxiangUpdateWorker {
+        // Match enqueue: a large selection lives in the private job, outside WorkManager Data.
+        val directory = WanxiangUpdates.directory(context, id).apply { mkdirs() }
+        File(directory, "selection.json").writeText(Json.encodeToString(selection))
+        return TestListenableWorkerBuilder.from(context, WanxiangUpdateWorker::class.java).setId(id).setRunAttemptCount(attempt)
+            .setInputData(workDataOf(WanxiangUpdateWorker.TARGET to Json.encodeToString(WanxiangTarget("rime", user.canonicalPath))))
             .setWorkerFactory(object : WorkerFactory() {
                 override fun createWorker(appContext: Context, workerClassName: String, parameters: WorkerParameters) =
                     WanxiangUpdateWorker(appContext, parameters, host)
@@ -93,6 +97,7 @@ class WanxiangUpdateWorkerTest {
             .setProgressUpdater { _, _, data -> progress += data; progressGate?.invoke(data) ?: immediate() }
             .setForegroundUpdater { _, _, info -> foregrounds += info; immediate() }
             .build()
+    }
 
     private fun enqueuedId(): UUID {
         val request = OneTimeWorkRequestBuilder<WanxiangUpdateWorker>().setInitialDelay(1, TimeUnit.DAYS).build()
@@ -233,6 +238,140 @@ class WanxiangUpdateWorkerTest {
         assertEquals("new dictionary", File(user, "dicts/zi.dict.yaml").readText())
         assertEquals("personal", File(user, "wanxiang.custom.yaml").readText())
         assertFalse((result as ListenableWorker.Result.Success).outputData.getBoolean(WanxiangUpdateWorker.NO_CHANGES, true))
+    }
+
+    @Test fun anUnpublishedAssetIsSkippedAndTheRestStillInstalls() = runBlocking {
+        // The scheme is gone from the source; the dictionaries and model still apply.
+        repeat(4) { server.enqueue(MockResponse().setResponseCode(404)) }
+        server.enqueue(MockResponse().setBody(zip("zi.dict.yaml" to "new dictionary")))
+        server.enqueue(MockResponse().setBody(Buffer().write(modelBytes())))
+        val id = UUID.randomUUID()
+        val result = worker(WanxiangSelection(), id).doWork()
+        assertTrue(result.toString(), result is ListenableWorker.Result.Success)
+        assertEquals(1, installs)
+        val skipped = (result as ListenableWorker.Result.Success).outputData.getString(WanxiangUpdateWorker.SKIPPED).orEmpty()
+        assertTrue(skipped, skipped.contains("rime-wanxiang-base.zip"))
+        assertTrue(skipped, skipped.contains("CNB"))
+        assertFalse(skipped, skipped.contains("HTTP"))
+        assertFalse(skipped, skipped.contains("http://"))
+        assertEquals("old", File(user, "wanxiang.schema.yaml").readText())
+        assertEquals("new dictionary", File(user, "dicts/zi.dict.yaml").readText())
+        val restored = worker(WanxiangSelection(), id).doWork() as ListenableWorker.Result.Success
+        assertEquals(skipped, restored.outputData.getString(WanxiangUpdateWorker.SKIPPED))
+        val saved = WanxiangUpdateResult.read(WanxiangUpdates.directory(context, id), completed = true)!!
+        assertEquals(skipped, saved.skippedSummary(context))
+        assertTrue(saved.skipped.single().details.contains(server.url("/rime-wanxiang-base.zip").toString()))
+        assertEquals(1, installs)
+        assertEquals(6, server.requestCount)
+    }
+
+    @Test fun anUpdateWhoseOnlyAssetIsUnpublishedReportsTheRepositoryAndDoesNotDeploy() = runBlocking {
+        repeat(4) { server.enqueue(MockResponse().setResponseCode(404)) }
+        val result = worker(WanxiangSelection(scope = WanxiangSelection.Scope.SCHEME)).doWork()
+        assertTrue(result.toString(), result is ListenableWorker.Result.Failure)
+        assertEquals(0, installs)
+        val output = (result as ListenableWorker.Result.Failure).outputData
+        assertEquals(context.getString(org.fcitx.fcitx5.android.R.string.wanxiang_no_available_assets),
+            output.getString(WanxiangUpdateWorker.ERROR))
+        val skipped = output.getString(WanxiangUpdateWorker.SKIPPED).orEmpty()
+        assertTrue(skipped, skipped.contains("rime-wanxiang-base.zip"))
+        assertTrue(skipped, skipped.contains("CNB"))
+        assertFalse(skipped, skipped.contains("HTTP"))
+        assertTrue(output.getBoolean(WanxiangUpdateWorker.NO_AVAILABLE_ASSETS, false))
+        assertEquals(4, server.requestCount)
+        assertEquals("old", File(user, "wanxiang.schema.yaml").readText())
+    }
+
+    @Test fun missingDictionaryDetailsSurviveALaterDownloadOrDeploymentFailure() = runBlocking {
+        for (deploymentFailure in listOf(false, true)) {
+            failDeploy = deploymentFailure
+            server.enqueue(MockResponse().setBody(zip("wanxiang.schema.yaml" to "new")))
+            repeat(4) { server.enqueue(MockResponse().setResponseCode(404)) }
+            server.enqueue(MockResponse().setBody(if (deploymentFailure) Buffer().write(modelBytes()) else Buffer().writeUtf8("invalid model")))
+            val id = UUID.randomUUID()
+            val result = worker(WanxiangSelection(), id, attempt = 2).doWork() as ListenableWorker.Result.Failure
+            val skipped = result.outputData.getString(WanxiangUpdateWorker.SKIPPED).orEmpty()
+            assertTrue(skipped, skipped.contains("base-dicts.zip"))
+            assertTrue(skipped, skipped.contains("CNB"))
+            val directory = WanxiangUpdates.directory(context, id)
+            val saved = WanxiangUpdateResult.read(directory, completed = false)!!
+            assertEquals(skipped, saved.skippedSummary(context))
+            assertTrue(saved.skipped.single().details.contains(server.url("/base-dicts.zip").toString()))
+            assertFalse(saved.error.isNullOrEmpty())
+            assertFalse(File(directory, "completed").exists())
+            assertFalse(File(directory, "downloads").exists())
+            assertEquals("old", File(user, "wanxiang.schema.yaml").readText())
+        }
+        assertEquals(1, installs)
+    }
+
+    @Test fun twoHundredMissingExtrasKeepFullDetailsWithoutOverflowingWorkManagerData() = runBlocking {
+        beforeResolve = { asset ->
+            if (asset.kind == WanxiangPackage.Kind.EXTRA)
+                throw MissingAssetDownload("HTTP 404: ${asset.name} is not published at ${asset.url}")
+        }
+        val extras = (0 until 200).map { "missing-${it.toString().padStart(3, '0')}-" + "x".repeat(45) }
+        // Exercise both partial installation and the case where nothing is available.
+        for (scope in listOf(WanxiangSelection.Scope.ALL, WanxiangSelection.Scope.EXTRA)) {
+            if (scope == WanxiangSelection.Scope.ALL) {
+                server.enqueue(MockResponse().setBody(zip("wanxiang.schema.yaml" to "new")))
+                server.enqueue(MockResponse().setBody(zip("zi.dict.yaml" to "dictionary")))
+                server.enqueue(MockResponse().setBody(Buffer().write(modelBytes())))
+            }
+            val selection = WanxiangSelection(scope = scope, extraDictionaries = extras)
+            val id = UUID.randomUUID()
+            val result = worker(selection, id).doWork()
+            val completed = scope == WanxiangSelection.Scope.ALL
+            val output = if (completed) (result as ListenableWorker.Result.Success).outputData
+                else (result as ListenableWorker.Result.Failure).outputData
+            assertTrue(output.toByteArray().size <= Data.MAX_DATA_BYTES)
+            val saved = WanxiangUpdateResult.read(WanxiangUpdates.directory(context, id), completed)!!
+            assertEquals(200, saved.skipped.size)
+            assertEquals("${extras.last()}.dict.yaml", saved.skipped.last().name)
+            assertTrue(saved.skipped.all { it.source == WanxiangSelection.Source.GITHUB })
+            assertFalse(output.getString(WanxiangUpdateWorker.SKIPPED)!!.contains(extras.last()))
+            assertTrue(output.getString(WanxiangUpdateWorker.SKIPPED)!!.contains("GitHub"))
+            assertFalse(output.getString(WanxiangUpdateWorker.SKIPPED)!!.contains("CNB"))
+            if (completed) {
+                val recovered = worker(selection, id).doWork() as ListenableWorker.Result.Success
+                assertEquals(output, recovered.outputData)
+            }
+        }
+        assertEquals(1, installs)
+        assertEquals(3, server.requestCount)
+        assertEquals("new", File(user, "wanxiang.schema.yaml").readText())
+    }
+
+    @Test fun ownerProtectionPreservesSkippedDetailsWhenThereAreNoChanges() = runBlocking {
+        protectAtInstall = true
+        File(user, WanxiangSelection.MODEL_NAME).writeText("old model")
+        server.enqueue(MockResponse().setBody(zip("wanxiang.schema.yaml" to "replace")))
+        repeat(4) { server.enqueue(MockResponse().setResponseCode(404)) }
+        server.enqueue(MockResponse().setBody(Buffer().write(modelBytes())))
+        val id = UUID.randomUUID()
+        repeat(2) {
+            val result = worker(WanxiangSelection(), id).doWork() as ListenableWorker.Result.Success
+            assertTrue(result.outputData.getBoolean(WanxiangUpdateWorker.NO_CHANGES, false))
+            assertTrue(result.outputData.getString(WanxiangUpdateWorker.SKIPPED)!!.contains("base-dicts.zip"))
+        }
+        assertEquals(1, installs)
+        assertEquals(6, server.requestCount)
+        assertEquals("old", File(user, "wanxiang.schema.yaml").readText())
+        assertEquals("old model", File(user, WanxiangSelection.MODEL_NAME).readText())
+    }
+
+    @Test fun legacyCompletionMarkersPreventReinstallationAndCorruptCompletionFailsClosed() = runBlocking {
+        for (marker in listOf("1", "no-changes", "{broken")) {
+            val id = UUID.randomUUID()
+            val task = worker(WanxiangSelection(), id)
+            File(WanxiangUpdates.directory(context, id), "completed").writeText(marker)
+            val result = task.doWork()
+            if (marker == "{broken") assertTrue(result is ListenableWorker.Result.Failure)
+            else assertEquals(marker == "no-changes",
+                (result as ListenableWorker.Result.Success).outputData.getBoolean(WanxiangUpdateWorker.NO_CHANGES, false))
+        }
+        assertEquals(0, installs)
+        assertEquals(0, server.requestCount)
     }
 
     @Test fun aBadDictionaryPreventsAnAlreadyDownloadedSchemeFromBeingInstalled() = runBlocking {

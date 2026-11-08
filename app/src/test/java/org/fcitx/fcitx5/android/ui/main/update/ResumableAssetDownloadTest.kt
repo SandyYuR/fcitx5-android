@@ -209,6 +209,37 @@ class ResumableAssetDownloadTest {
             assertTrue(files.tryLocked { })
         }
     }
+    @Test fun aMissingAssetIsRetriedThreeTimesThenSucceeds() = runBlocking {
+        MockWebServer().use { server ->
+            val files = files()
+            repeat(ResumableAssetDownload.MISSING_RETRIES) { server.enqueue(MockResponse().setResponseCode(404)) }
+            server.enqueue(MockResponse().setBody("content"))
+            val progress = mutableListOf<AssetDownloadProgress>()
+            ResumableAssetDownload.run(OkHttpClient(), server.url("/f").toString(),
+                ReleaseAsset("f.bin", "", 7, null), files) { progress += it }
+            assertEquals(ResumableAssetDownload.MISSING_RETRIES + 1, server.requestCount)
+            assertTrue(files.read().verified)
+            assertEquals("content", files.part.readText())
+        }
+    }
+
+    @Test fun aMissingAssetFailsWithItsUrlAfterTheRetryBudget() = runBlocking {
+        MockWebServer().use { server ->
+            val files = files()
+            repeat(ResumableAssetDownload.MISSING_RETRIES + 1) { server.enqueue(MockResponse().setResponseCode(404)) }
+            var missing: MissingAssetDownload? = null
+            try {
+                ResumableAssetDownload.run(OkHttpClient(), server.url("/f").toString(),
+                    ReleaseAsset("f.bin", "", 7, null), files) { }
+            } catch (e: MissingAssetDownload) { missing = e }
+            assertNotNull(missing)
+            assertTrue(missing!!.message.orEmpty().contains("f.bin"))
+            assertTrue(missing.message.orEmpty().contains(server.url("/f").toString()))
+            assertEquals(ResumableAssetDownload.MISSING_RETRIES + 1, server.requestCount)
+            assertFalse(files.read().verified)
+        }
+    }
+
     @Test fun stagingSymlinksAreRejectedWithoutChangingTheirTargets() {
         val foreign = temp.newFile().apply { writeText("foreign") }
         val files = files(); org.fcitx.fcitx5.android.testing.FilesystemFixtures.symbolicLink(files.part.toPath(), foreign.toPath())

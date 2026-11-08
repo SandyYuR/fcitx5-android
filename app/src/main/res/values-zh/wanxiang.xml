@@ -60,6 +60,10 @@
     <string name="wanxiang_extra_loading">正在加载附加词库目录…</string>
     <string name="wanxiang_extra_selected">已选择 %1$d 个词库</string>
     <string name="wanxiang_failed">万象更新失败</string>
+    <string name="wanxiang_skipped_hint">因 %1$s 仓库资源暂不可用，已跳过：%2$s</string>
+    <string name="wanxiang_partial_deployed">其余可用内容已部署。</string>
+    <string name="wanxiang_not_deployed">本次未部署</string>
+    <string name="wanxiang_no_available_assets">没有可部署的资源，本次未部署。</string>
     <string name="wanxiang_target_changed">当前 Rime 工作目录已改变，请为当前目录重新开始更新。</string>
     <string name="wanxiang_speed">%1$s/秒</string>
     <string name="wanxiang_scope_scheme">方案</string>

@@ -132,6 +132,19 @@ class RimeSchemeUpdateWorkerTest {
         }
     }
 
+    @Test fun aMissingTaskExhaustsIts404BudgetWithoutInstallingOrRetryingTheBatch() = runBlocking {
+        server.enqueue(MockResponse().setBody(Buffer().write(zip("repo/ice.schema.yaml", "new"))))
+        repeat(4) { server.enqueue(MockResponse().setResponseCode(404)) }
+        val id = UUID.randomUUID()
+        val result = worker(listOf(recipe(), recipe("/missing")), id).doWork()
+        assertTrue(result.toString(), result is ListenableWorker.Result.Failure)
+        assertEquals(5, server.requestCount)
+        assertEquals(0, installs)
+        assertEquals("old", File(user, "ice.schema.yaml").readText())
+        assertFalse(File(RimeSchemeUpdates.directory(context, id), "downloads").exists())
+        assertFalse(File(RimeSchemeUpdates.directory(context, id), "payload").exists())
+    }
+
     @Test fun localFileCopyDoesNotRequireNetworkAndHonorsExclusions() = runBlocking {
         val local = File(context.cacheDir, "module.lua").apply { writeText("local") }
         val task = recipe().copy(source = local.toURI().toString(), unpack = false, fileName = "module.lua", destinations = listOf("lua"))

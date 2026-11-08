@@ -65,6 +65,24 @@ class HostsDownloadWorkerTest {
             assertEquals(1, server.requestCount); assertEquals(1, media.insertions)
         }
     }
+    @Test fun a404RetryKeepsThePublishedUriWhenThePrivateCopyNeedsDownloadingAgain() = runBlocking {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setBody("payload"))
+            val asset = ReleaseAsset("fixture.bin", server.url("/f").toString(), 7, null)
+            val id = UUID.randomUUID()
+            media.crashAfterPublish = true
+            assertEquals(ListenableWorker.Result.retry(), worker(asset, id).doWork())
+            // Reproduce an interrupted publication followed by a damaged private copy.
+            HostsDownloadWorker.files(context, id).part.writeText("bad")
+            server.enqueue(MockResponse().setResponseCode(404))
+            server.enqueue(MockResponse().setBody("payload"))
+            val result = worker(asset, id, attempt = 1).doWork()
+            assertTrue(result.toString(), result is ListenableWorker.Result.Success)
+            assertEquals(3, server.requestCount)
+            assertEquals(1, media.insertions)
+            assertEquals("payload", media.rows.values.single().file.readText())
+        }
+    }
     @Test fun badChecksumProducesNoPublicOrPendingFile() = runBlocking {
         MockWebServer().use { server ->
             server.enqueue(MockResponse().setBody("payload"))
@@ -72,6 +90,17 @@ class HostsDownloadWorkerTest {
             val result = worker(ReleaseAsset("fixture.bin", server.url("/f").toString(), 7, "0".repeat(64)), id).doWork()
             assertTrue(result.toString(), result is ListenableWorker.Result.Failure)
             assertTrue(media.rows.isEmpty()); assertFalse(HostsDownloadWorker.files(context, id).part.exists())
+        }
+    }
+    @Test fun anExhausted404BudgetFailsWithoutSchedulingAnotherWorkerAttempt() = runBlocking {
+        MockWebServer().use { server ->
+            repeat(4) { server.enqueue(MockResponse().setResponseCode(404)) }
+            val id = UUID.randomUUID()
+            val result = worker(ReleaseAsset("fixture.bin", server.url("/missing").toString(), 7, null), id).doWork()
+            assertTrue(result.toString(), result is ListenableWorker.Result.Failure)
+            assertEquals(4, server.requestCount)
+            assertTrue(media.rows.isEmpty())
+            assertFalse(HostsDownloadWorker.files(context, id).part.exists())
         }
     }
     @Test fun explicitCancellationCleansThePartialAfterTheNetworkWriterStops() = runBlocking {

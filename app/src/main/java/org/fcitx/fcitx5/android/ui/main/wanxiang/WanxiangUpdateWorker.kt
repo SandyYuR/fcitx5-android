@@ -22,6 +22,7 @@ import org.fcitx.fcitx5.android.data.WanxiangPayload
 import org.fcitx.fcitx5.android.data.WanxiangProtection
 import org.fcitx.fcitx5.android.ui.main.update.DownloadFiles
 import org.fcitx.fcitx5.android.ui.main.update.InvalidAssetDownload
+import org.fcitx.fcitx5.android.ui.main.update.MissingAssetDownload
 import org.fcitx.fcitx5.android.ui.main.update.ReleaseAsset
 import org.fcitx.fcitx5.android.ui.main.update.ResumableAssetDownload
 import org.fcitx.fcitx5.android.utils.FileUtil
@@ -74,20 +75,31 @@ class WanxiangUpdateWorker internal constructor(context: Context, parameters: Wo
     private suspend fun execute(): Result = withContext(Dispatchers.IO) {
         val directory = WanxiangUpdates.directory(applicationContext, id)
         val payload = WanxiangPayload.child(directory, "payload")
-        val completed = WanxiangPayload.child(directory, "completed")
         var host: WanxiangUpdateHost? = null
         var keepDownloads = false
         var installing = false
+        val skipped = mutableListOf<WanxiangSkippedAsset>()
+        fun outcome(noChanges: Boolean = false, error: String? = null, noAvailableAssets: Boolean = false) = WanxiangUpdateResult(
+            target = inputData.getString(TARGET), noChanges = noChanges, skipped = skipped.toList(),
+            error = error, noAvailableAssets = noAvailableAssets)
+        fun complete(noChanges: Boolean): Result {
+            val result = outcome(noChanges)
+            val data = result.outputData(applicationContext)
+            // The completion marker contains the entire result, including skipped assets.
+            result.save(directory, completed = true)
+            return Result.success(data)
+        }
+        fun failure(error: String, noAvailableAssets: Boolean = false): Result {
+            val result = outcome(error = error, noAvailableAssets = noAvailableAssets)
+            // A storage error must not replace the original failure or its bounded preview.
+            runCatching { result.save(directory, completed = false) }
+            return Result.failure(result.outputData(applicationContext))
+        }
         try {
             require(directory.isDirectory || directory.mkdirs())
-            fun success(noChanges: Boolean) = Result.success(workDataOf(
-                TARGET to inputData.getString(TARGET), NO_CHANGES to noChanges))
-            fun complete(noChanges: Boolean): Result {
-                FileUtil.writeAtomically(completed, if (noChanges) COMPLETED_NO_CHANGES else "1")
-                return success(noChanges)
+            WanxiangUpdateResult.read(directory, completed = true, legacyTarget = inputData.getString(TARGET))?.let {
+                return@withContext Result.success(it.outputData(applicationContext))
             }
-            if (completed.isFile) return@withContext success(
-                completed.length() == COMPLETED_NO_CHANGES.length.toLong() && completed.readText() == COMPLETED_NO_CHANGES)
             val target = Json.decodeFromString<WanxiangTarget>(inputData.getString(TARGET) ?: error("Missing Rime target"))
             val selection = WanxiangUpdates.jobSelection(applicationContext, id, inputData.getString(SELECTION))
             FileUtil.writeAtomically(WanxiangPayload.child(directory, "selection.json"), Json.encodeToString(selection))
@@ -107,42 +119,54 @@ class WanxiangUpdateWorker internal constructor(context: Context, parameters: Wo
                 val downloadKey = if (asset.kind == WanxiangPackage.Kind.EXTRA) "${asset.kind}:${asset.name}" else asset.kind.name
                 val downloadId = UUID.nameUUIDFromBytes(downloadKey.toByteArray(Charsets.UTF_8))
                 val files = DownloadFiles(File(directory, "downloads"), downloadId)
-                files.locked {
-                    val title = applicationContext.getString(R.string.wanxiang_downloading,
-                        applicationContext.getString(kindLabel(asset.kind)), index + 1, packages.size)
-                    // Publish the new file before resolving metadata or waiting for HTTP headers.
-                    phase("download", title, asset.name)
-                    var pendingProgress: ListenableFuture<Void>? = null
-                    try {
-                        ResumableAssetDownload.run(client, runtime.resolvedUrl(client, asset), ReleaseAsset(asset.name, asset.url, 0, null), files) { progress ->
-                            pendingProgress = setProgressAsync(workDataOf(PHASE to "download", TITLE to title, NAME to asset.name,
-                                BYTES to progress.bytes, TOTAL to progress.total, SPEED to progress.speed, TARGET to inputData.getString(TARGET)))
-                            runCatching { manager.notify(notificationId, notification(title, progress.bytes, progress.total, false, asset.name)) }
-                        }
-                    } finally {
-                        // The HTTP callback has finished; wait on IO for its last queued DB update
-                        // before a following phase can replace the download progress.
-                        withContext(NonCancellable) { pendingProgress?.get() }
-                    }
-                    phase("extract", applicationContext.getString(R.string.wanxiang_extracting), asset.name)
-                    when (asset.kind) {
-                        WanxiangPackage.Kind.MODEL -> WanxiangPayload.model(files.part, payload)
-                        WanxiangPackage.Kind.EXTRA -> {
-                            if (!preparedExtras) {
-                                protection.filter(payload, File(target.path))
-                                if (selection.scheme == WanxiangSelection.Scheme.PRO) auxiliary = WanxiangExtraDictionaries.prepareAuxiliary(directory, payload, File(target.path)) { ensureActive() }
-                                preparedExtras = true
+                try {
+                    files.locked {
+                        val title = applicationContext.getString(R.string.wanxiang_downloading,
+                            applicationContext.getString(kindLabel(asset.kind)), index + 1, packages.size)
+                        // Publish the new file before resolving metadata or waiting for HTTP headers.
+                        phase("download", title, asset.name)
+                        var pendingProgress: ListenableFuture<Void>? = null
+                        try {
+                            ResumableAssetDownload.run(client, runtime.resolvedUrl(client, asset), ReleaseAsset(asset.name, asset.url, 0, null), files) { progress ->
+                                pendingProgress = setProgressAsync(workDataOf(PHASE to "download", TITLE to title, NAME to asset.name,
+                                    BYTES to progress.bytes, TOTAL to progress.total, SPEED to progress.speed, TARGET to inputData.getString(TARGET)))
+                                runCatching { manager.notify(notificationId, notification(title, progress.bytes, progress.total, false, asset.name)) }
                             }
-                            WanxiangExtraDictionaries.stage(files.part, payload, asset, selection.scheme, auxiliary) { ensureActive() }
+                        } finally {
+                            // The HTTP callback has finished; wait on IO for its last queued DB update
+                            // before a following phase can replace the download progress.
+                            withContext(NonCancellable) { pendingProgress?.get() }
                         }
-                        else -> WanxiangPayload.extract(files.part, payload, asset.kind == WanxiangPackage.Kind.DICTIONARY, allowOverrides = true) { ensureActive() }
+                        phase("extract", applicationContext.getString(R.string.wanxiang_extracting), asset.name)
+                        when (asset.kind) {
+                            WanxiangPackage.Kind.MODEL -> WanxiangPayload.model(files.part, payload)
+                            WanxiangPackage.Kind.EXTRA -> {
+                                if (!preparedExtras) {
+                                    protection.filter(payload, File(target.path))
+                                    if (selection.scheme == WanxiangSelection.Scheme.PRO) auxiliary = WanxiangExtraDictionaries.prepareAuxiliary(directory, payload, File(target.path)) { ensureActive() }
+                                    preparedExtras = true
+                                }
+                                WanxiangExtraDictionaries.stage(files.part, payload, asset, selection.scheme, auxiliary) { ensureActive() }
+                            }
+                            else -> WanxiangPayload.extract(files.part, payload, asset.kind == WanxiangPackage.Kind.DICTIONARY, allowOverrides = true) { ensureActive() }
+                        }
                     }
+                } catch (missing: MissingAssetDownload) {
+                    skipped += WanxiangSkippedAsset(asset.kind, asset.name,
+                        if (asset.kind == WanxiangPackage.Kind.EXTRA) WanxiangSelection.Source.GITHUB else selection.source,
+                        missing.message.orEmpty())
+                    runCatching { files.locked { files.removePrivateContent() } }
                 }
             }
             ensureActive()
             runtime.verify(target)
             protection.filter(payload, File(target.path))
             WanxiangExtraDictionaries.verifyAuxiliary(directory, payload, File(target.path)) { ensureActive() }
+            if (skipped.isNotEmpty() && payload.walkTopDown().none { it.isFile }) {
+                // Nothing installable is left; this is a failure with a readable reason,
+                // never "no files needed updating".
+                return@withContext failure(applicationContext.getString(R.string.wanxiang_no_available_assets), noAvailableAssets = true)
+            }
             if (payload.walkTopDown().none { it.isFile }) {
                 return@withContext complete(noChanges = true)
             }
@@ -168,7 +192,7 @@ class WanxiangUpdateWorker internal constructor(context: Context, parameters: Wo
                 keepDownloads = true
                 phase("waiting", applicationContext.getString(R.string.wanxiang_waiting))
                 Result.retry()
-            } else Result.failure(workDataOf(ERROR to error.stackTraceToString().take(2000), TARGET to inputData.getString(TARGET)))
+            } else failure(error.stackTraceToString().take(8000))
         } finally {
             host?.close()
             withContext(NonCancellable + Dispatchers.IO) {
@@ -223,7 +247,8 @@ class WanxiangUpdateWorker internal constructor(context: Context, parameters: Wo
         const val SPEED = "speed"
         const val ERROR = "error"
         const val NO_CHANGES = "no_changes"
-        private const val COMPLETED_NO_CHANGES = "no-changes"
+        const val NO_AVAILABLE_ASSETS = "no_available_assets"
+        const val SKIPPED = "skipped"
         private const val CHANNEL = "wanxiang-updates"
         fun kindLabel(kind: WanxiangPackage.Kind) = when (kind) {
             WanxiangPackage.Kind.SCHEME -> R.string.wanxiang_scope_scheme

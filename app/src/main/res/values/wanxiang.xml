@@ -60,6 +60,10 @@
     <string name="wanxiang_extra_loading">Loading dictionary catalog…</string>
     <string name="wanxiang_extra_selected">%1$d dictionaries selected</string>
     <string name="wanxiang_failed">Wanxiang update failed</string>
+    <string name="wanxiang_skipped_hint">Resources temporarily unavailable from the %1$s repository were skipped: %2$s</string>
+    <string name="wanxiang_partial_deployed">The remaining available resources were deployed.</string>
+    <string name="wanxiang_not_deployed">No deployment performed</string>
+    <string name="wanxiang_no_available_assets">No resources are available to deploy. No deployment was performed.</string>
     <string name="wanxiang_target_changed">The active Rime directory changed. Start a new update for the current directory.</string>
     <string name="wanxiang_speed">%1$s/s</string>
     <string name="wanxiang_scope_scheme">scheme</string>

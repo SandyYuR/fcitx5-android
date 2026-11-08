@@ -19,6 +19,7 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -33,6 +34,7 @@ class WanxiangUpdateActivity : SettingsUiActivity() {
     private lateinit var form: WanxiangUpdateForm
     private var target: WanxiangTarget? = null
     private var work: WorkInfo? = null
+    private var fullResult: WanxiangUpdateResult? = null
     private var submitting = false
     private var localError: String? = null
     private var localMessage: String? = null
@@ -88,9 +90,8 @@ class WanxiangUpdateActivity : SettingsUiActivity() {
         toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                WanxiangUpdates.observe(applicationContext).collect { list ->
-                    work = list.firstOrNull { !it.state.isFinished } ?: list.lastOrNull()
-                    render()
+                WanxiangUpdates.observe(applicationContext).collectLatest { list ->
+                    showWork(list.firstOrNull { !it.state.isFinished } ?: list.lastOrNull())
                 }
             }
         }
@@ -100,6 +101,22 @@ class WanxiangUpdateActivity : SettingsUiActivity() {
         super.onStart()
         form.setTokenConfigured(WanxiangGithub.configured(this))
         refreshTarget()
+    }
+
+    internal suspend fun showWork(info: WorkInfo?) {
+        work = info
+        fullResult = null
+        render()
+        val finished = info?.takeIf { it.state == WorkInfo.State.SUCCEEDED || it.state == WorkInfo.State.FAILED } ?: return
+        val result = withContext(Dispatchers.IO) {
+            runCatching { WanxiangUpdateResult.read(WanxiangUpdates.directory(applicationContext, finished.id),
+                completed = finished.state == WorkInfo.State.SUCCEEDED,
+                legacyTarget = finished.outputData.getString(WanxiangUpdateWorker.TARGET)) }.getOrNull()
+        }
+        if (work == info) {
+            fullResult = result
+            render()
+        }
     }
 
     private fun refreshTarget() {
@@ -265,6 +282,9 @@ class WanxiangUpdateActivity : SettingsUiActivity() {
             ?: getString(if (active != null) R.string.wanxiang_waiting_directory else R.string.wanxiang_loading_directory)
         form.setBusy(submitting || readingTarget || active != null, target != null,
             canCancel = active != null && !submitting && !installing)
+        val skipped = fullResult?.skippedSummary(this)
+            ?: work?.outputData?.getString(WanxiangUpdateWorker.SKIPPED).orEmpty()
+        fun withSkipped(message: String) = listOf(skipped, message).filter { it.isNotEmpty() }.joinToString("\n\n")
         when {
             localError != null -> form.status.show(getString(R.string.wanxiang_failed), localError!!, State.ERROR)
             submitting -> form.status.show(getString(configurationTitle ?: R.string.wanxiang_preparing), state = State.WORKING)
@@ -292,13 +312,16 @@ class WanxiangUpdateActivity : SettingsUiActivity() {
             localMessage != null -> form.status.show(localMessage!!, state = State.SUCCESS)
             readingTarget -> form.status.show(getString(R.string.wanxiang_loading_directory), state = State.WORKING)
             work?.state == WorkInfo.State.SUCCEEDED && work?.outputData?.getBoolean(WanxiangUpdateWorker.NO_CHANGES, false) == true ->
-                form.status.show(getString(R.string.wanxiang_nothing_changed), getString(R.string.wanxiang_nothing_changed_hint))
+                form.status.show(getString(R.string.wanxiang_nothing_changed), withSkipped(getString(R.string.wanxiang_nothing_changed_hint)))
             work?.state == WorkInfo.State.SUCCEEDED -> form.status.show(getString(R.string.wanxiang_finished),
-                work?.outputData?.getString(WanxiangUpdateWorker.TARGET)?.let {
-                    runCatching { Json.decodeFromString<WanxiangTarget>(it).path }.getOrNull()
-                }.orEmpty(), State.SUCCESS)
+                withSkipped(if (skipped.isNotEmpty()) getString(R.string.wanxiang_partial_deployed)
+                    else (fullResult?.target ?: work?.outputData?.getString(WanxiangUpdateWorker.TARGET))?.let {
+                        runCatching { Json.decodeFromString<WanxiangTarget>(it).path }.getOrNull()
+                    }.orEmpty()), State.SUCCESS)
+            work?.state == WorkInfo.State.FAILED && work?.outputData?.getBoolean(WanxiangUpdateWorker.NO_AVAILABLE_ASSETS, false) == true ->
+                form.status.show(getString(R.string.wanxiang_not_deployed), withSkipped(""))
             work?.state == WorkInfo.State.FAILED -> form.status.show(getString(R.string.wanxiang_failed),
-                work?.outputData?.getString(WanxiangUpdateWorker.ERROR).orEmpty(), State.ERROR)
+                withSkipped(fullResult?.error ?: work?.outputData?.getString(WanxiangUpdateWorker.ERROR).orEmpty()), State.ERROR)
             work?.state == WorkInfo.State.CANCELLED -> form.status.show(getString(R.string.ui_operation_cancelled))
             else -> form.status.show(getString(R.string.wanxiang_ready), target?.let {
                 getString(R.string.wanxiang_current_target, it.profile)

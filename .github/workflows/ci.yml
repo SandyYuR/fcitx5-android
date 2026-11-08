@@ -69,12 +69,12 @@ jobs:
         with:
           packages: 'platform-tools'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
       - name: Prepare personal build sources
         run: |
           ./prepare_personal_build.sh
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
 
       - name: Build signed ARM64 Release and verify native dependencies and ART profile
         env:
