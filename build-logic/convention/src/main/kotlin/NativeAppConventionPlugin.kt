@@ -19,6 +19,8 @@ class NativeAppConventionPlugin : NativeBaseConventionPlugin() {
         target.extensions.configure<ApplicationExtension> {
             packaging {
                 jniLibs {
+                    // Compress .so files in the APK; Android extracts them at installation.
+                    // ELF load alignment is still checked by verify-direct-rime-apk.py.
                     useLegacyPackaging = true
                 }
             }

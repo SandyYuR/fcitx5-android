@@ -784,10 +784,6 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWin
         }
     }
 
-    override fun onPunctuationUpdate(mapping: Map<String, String>) {
-        currentKeyboard?.onPunctuationUpdate(mapping)
-    }
-
     override fun onReturnKeyDrawableUpdate(resourceId: Int) {
         currentKeyboard?.onReturnDrawableUpdate(resourceId)
         currentKeyboard?.onReturnDrawableOverride(returnKeyDrawable.iconThemeDrawable)

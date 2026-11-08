@@ -107,12 +107,6 @@ object PreferenceScreenFactory {
             }
         }
 
-        fun punctuationEditor(title: String, lang: String?) = Preference(context).apply {
-            setOnPreferenceClickListener {
-                navigate(SettingsRoute.Punctuation(title, lang))
-            }
-        }
-
         fun rimeUserDataDir(title: String): Preference = LongClickPreference(context).apply {
             setOnPreferenceClickListener {
                 MaterialAlertDialogBuilder(context)
@@ -162,14 +156,6 @@ object PreferenceScreenFactory {
             }
         }
 
-        fun addonConfigPreference(addon: String) = Preference(context).apply {
-            setOnPreferenceClickListener {
-                navigate(
-                    SettingsRoute.AddonConfig(descriptor.description ?: descriptor.name, addon)
-                )
-            }
-        }
-
         // 用可空局部变量承接：未实现的类型返回 null，此时整项都不加入页面。
         val built: Preference? = when (descriptor) {
             is ConfigBool -> MySwitchPreference(context).apply {
@@ -184,12 +170,6 @@ object PreferenceScreenFactory {
             }
             is ConfigEnumList -> listPreference(ConfigType.TyEnum)
             is ConfigExternal -> when (descriptor.knownType) {
-                ConfigExternal.ETy.Punctuation -> punctuationEditor(
-                    descriptor.description ?: descriptor.name,
-                    // fcitx://config/addon/punctuation/punctuationmap/zh_CN
-                    descriptor.uri?.substringAfterLast('/')
-                )
-                ConfigExternal.ETy.Chttrans -> addonConfigPreference("chttrans")
                 ConfigExternal.ETy.MultiSelect -> Preference(context).apply {
                     setOnPreferenceClickListener {
                         val uri = descriptor.uri ?: return@setOnPreferenceClickListener false

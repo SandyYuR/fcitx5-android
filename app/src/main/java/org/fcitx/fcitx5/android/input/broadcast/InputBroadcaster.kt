@@ -83,10 +83,6 @@ class InputBroadcaster : InputUniqueComponent<InputBroadcaster>(InputBroadcaster
         receivers.forEach { it.onScopeSetupFinished(scope) }
     }
 
-    override fun onPunctuationUpdate(mapping: Map<String, String>) {
-        receivers.forEach { it.onPunctuationUpdate(mapping) }
-    }
-
     override fun onPreeditEmptyStateUpdate(empty: Boolean) {
         receivers.forEach { it.onPreeditEmptyStateUpdate(empty) }
     }

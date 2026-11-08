@@ -588,7 +588,6 @@
     <string name="landscape">가로</string>
     <string name="light_mode_theme">라이트 모드 테마</string>
     <string name="main_program">메인 프로그램</string>
-    <string name="manage_table_im">테이블 입력기 관리</string>
     <string name="missing_data_descriptor">데이터 설명자 누락</string>
     <string name="missing_plugin_descriptor">플러그인 설명자 누락</string>
     <string name="move_cursor_down">커서를 아래로 이동</string>
@@ -660,12 +659,9 @@
     <string name="switch_to_voice_input">음성 입력으로 전환</string>
     <string name="system_default">시스템 기본값</string>
     <string name="table_already_exists">테이블 입력기 설정 파일 "%1$s"가 이미 존재합니다</string>
-    <string name="table_conf_select_title">입력기 설정 파일 (.conf 또는 .conf.in)</string>
     <string name="table_dict_replace_message">테이블 입력기 사전 "%1$s"가 이미 존재합니다. 새 사전을 가져와 교체할 수 있습니다.</string>
-    <string name="table_dict_select_title">사전 파일 (.dict 또는 .txt)</string>
     <string name="table_file_does_not_exist_message">테이블 입력기 사전 "%1$s"가 존재하지 않습니다. 사전 파일을 확인하거나 다시 가져오세요.</string>
     <string name="table_file_does_not_exist_title">테이블 사용 불가</string>
-    <string name="table_file_placeholder">파일 선택…</string>
     <string name="table_from_zip">zip에서…</string>
     <string name="table_im">테이블 입력기</string>
     <string name="table_select_files">개별 파일에서…</string>

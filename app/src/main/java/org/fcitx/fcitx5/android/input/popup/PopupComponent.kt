@@ -14,7 +14,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.data.BundledPresets
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
-import org.fcitx.fcitx5.android.input.broadcast.PunctuationComponent
 import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.theme
@@ -24,7 +23,6 @@ import org.mechdancer.dependency.Dependent
 import org.fcitx.fcitx5.android.input.dependency.InputUniqueComponent
 import org.mechdancer.dependency.manager.ManagedHandler
 import org.mechdancer.dependency.manager.managedHandler
-import org.mechdancer.dependency.manager.must
 import splitties.dimensions.dp
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.frameLayout
@@ -43,7 +41,6 @@ class PopupComponent :
     private val service by manager.inputMethodService()
     private val context by manager.context()
     private val theme by manager.theme()
-    private val punctuation: PunctuationComponent by manager.must()
 
     private val showingEntryUi = HashMap<Int, PopupEntryUi>()
     private val dismissJobs = HashMap<Int, Job>()
@@ -182,9 +179,7 @@ class PopupComponent :
                     ?: EmojiModifier.produceSkinTones(keyboard.label, EmojiModifier.SkinTone.Default)
                     ?: return
                 keys = preset
-                labels = if (keyboard.transformPunctuation && punctuation.enabled) {
-                    Array(keys.size) { punctuation.transform(keys[it]) }
-                } else keys
+                labels = keys
             }
             is KeyDef.Popup.Keyboard.Explicit -> {
                 keys = keyboard.items
@@ -235,23 +230,6 @@ class PopupComponent :
     }
 
     private fun reallyShowLongPressKeyboard(viewId: Int, keyboard: KeyDef.Popup.LongPressKeyboard, keys: Array<String>, bounds: Rect) {
-        val labels = if (punctuation.enabled) {
-            Array(keys.size) { idx ->
-                val source = keys[idx]
-                if (idx == 0) {
-                    // Keep text labels unchanged, but normalize symbolic labels (e.g. '!')
-                    // so they remain visible with punctuation-aware fonts.
-                    if (source.length == 1 && !source[0].isLetterOrDigit()) {
-                        punctuation.transform(source)
-                    } else {
-                        source
-                    }
-                } else {
-                    punctuation.transform(source)
-                }
-            }
-        } else keys
-        
         // Create a special keyboard UI that can execute the longPress macro when first item is selected
         val keyboardUi = LongPressPopupKeyboardUi(
             context,
@@ -265,7 +243,7 @@ class PopupComponent :
             // position popup keyboard higher, because of [^1]
             popupHeight + keyBottomMargin,
             keys,
-            labels,
+            keys,
             keyboard.action
         )
         showPopupContainer(viewId, keyboardUi)

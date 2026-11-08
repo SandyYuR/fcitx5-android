@@ -65,7 +65,6 @@ import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcaster
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
-import org.fcitx.fcitx5.android.input.broadcast.PunctuationComponent
 import org.fcitx.fcitx5.android.input.broadcast.ReturnKeyDrawableComponent
 import org.fcitx.fcitx5.android.input.action.ButtonAction
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
@@ -1614,7 +1613,6 @@ class InputView(
     private val scope = DynamicScope()
     private val broadcaster = InputBroadcaster()
     private val popup = PopupComponent()
-    private val punctuation = PunctuationComponent()
     private val returnKeyDrawable = ReturnKeyDrawableComponent()
     private val preeditEmptyState = PreeditEmptyStateComponent()
     private val preedit = PreeditComponent().apply {
@@ -1651,7 +1649,6 @@ class InputView(
         scope += themedContext.wrapToUniqueComponent()
         scope += broadcaster
         scope += popup
-        scope += punctuation
         scope += returnKeyDrawable
         scope += preeditEmptyState
         scope += preedit
@@ -3266,11 +3263,6 @@ class InputView(
         // MUST call before any operation
         setupScope()
 
-        // restore punctuation mapping in case of InputView recreation
-        fcitx.launchOnReady {
-            punctuation.updatePunctuationMapping(it.statusAreaActionsCached)
-        }
-
         // make sure KeyboardWindow's view has been created before it receives any broadcast
         windowManager.addEssentialWindow(keyboardWindow, createView = true)
         windowManager.addEssentialWindow(symbolPicker)
@@ -3774,7 +3766,6 @@ class InputView(
                 broadcaster.onImeUpdate(it.data)
             }
             is FcitxEvent.StatusAreaEvent -> {
-                punctuation.updatePunctuationMapping(it.data.actions)
                 broadcaster.onStatusAreaUpdate(it.data.actions)
             }
             else -> {}

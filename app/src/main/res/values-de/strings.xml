@@ -158,16 +158,12 @@
     <string name="exception_table_im">Konfigurationsdatei der Tabelleneingabemethode (.conf or .conf.in) nicht gefunden</string>
     <string name="exception_table">Wörterbuch (.dict or .txt) nicht gefunden</string>
     <string name="table_im">Tabelleneingabemethode</string>
-    <string name="manage_table_im">Tabelleneingabemethoden verwalten</string>
     <string name="exception_table_im_filename">Die Erweiterung von \"%1$s\" ist keine Tabelleneingabemethode (.zip)</string>
     <string name="table_already_exists">Konfigurationsdatei der Tabelleneingabemethode \"%1$s\" existiert schon</string>
     <string name="table_file_does_not_exist_title">Tabelle nicht auffindbar</string>
     <string name="import_table">Tabelle importieren</string>
     <string name="table_from_zip">Aus ZIP-Datei...</string>
     <string name="table_select_files">Aus getrennten Dateien ...</string>
-    <string name="table_file_placeholder">Datei auswählen ...</string>
-    <string name="table_conf_select_title">Konfigurationsdatei (.conf oder .conf.in) der Eingabemethode</string>
-    <string name="table_dict_select_title">Wörterbuch Tabelle (.dict oder .txt)</string>
     <string name="exception_table_dict_filename">Die Erweiterung von \"%1$s\" weist nicht auf ein Wörterbuch hin (.dict oder .txt)</string>
     <string name="exception_table_import_both_files">Bitte beide Dateien oben vorm Importieren auswählen</string>
     <string name="notification_permission_title">Keine Erlaubnis für Benachrichtigungen</string>

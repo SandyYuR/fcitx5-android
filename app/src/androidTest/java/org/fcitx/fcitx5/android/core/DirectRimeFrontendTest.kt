@@ -76,6 +76,7 @@ class DirectRimeFrontendTest {
             if (testName.methodName == "schemaCommentsAndSwitchGroupsMatchRime") writeCommentFixture(directory)
             if (testName.methodName == "schemaSwitchPreferencesSurviveNewSessionsAndRestart") writeSavedOptionsFixture(directory)
             if (testName.methodName == "preeditCursorUsesRawCoordinates") writeCursorFixture(directory)
+            if (testName.methodName == "symbolKeysAndPopupsUseRimePunctuation") writePunctuationFixture(directory)
             if (testName.methodName in setOf("newSessionsKeepRimeSavedAscii", "modeMenuRemembersBothDirections",
                     "modeMenuWithoutSaveOptionsStaysSessionLocal")) {
                 val schema = File(directory, "direct_smoke.schema.yaml")
@@ -157,7 +158,9 @@ class DirectRimeFrontendTest {
         // Wanxiang uses a three-way comment group and Lua to rewrite/clear comments.
         // Reproduce that contract with a tiny dictionary, without bundling its data.
         val schema = File(directory, "direct_smoke.schema.yaml")
-        schema.writeText(schema.readText().replace("engine:\n", """
+        val text = schema.readText().replace("\r\n", "\n")
+        check(text.contains("engine:\n"))
+        schema.writeText(text.replace("engine:\n", """
   - name: emoji
     reset: 0
     states: [表情关, 表情开]
@@ -745,6 +748,28 @@ end
         }
     }
 
+    private fun writePunctuationFixture(directory: File) {
+        val schema = File(directory, "direct_smoke.schema.yaml")
+        val text = schema.readText().replace("\r\n", "\n")
+        check(text.contains("[ascii_composer, speller,"))
+        check(text.contains("[ascii_segmentor, abc_segmentor,"))
+        check(text.contains("[table_translator]"))
+        schema.writeText(text
+            .replace("[ascii_composer, speller,", "[ascii_composer, punctuator, speller,")
+            .replace("[ascii_segmentor, abc_segmentor,", "[ascii_segmentor, punct_segmentor, abc_segmentor,")
+            .replace("[table_translator]", "[punct_translator, table_translator]") + """
+
+            punctuator:
+              half_shape:
+                ".": { commit: "。" }
+                ",": { commit: "，" }
+            """.trimIndent() + "\n")
+    }
+
+    @Test fun symbolKeysAndPopupsUseRimePunctuation(): Unit = runBlocking {
+        keyboardTouchScenario(false, punctuation = true)
+    }
+
     @Test fun originalKeyboardCanTypeUsingTouch(): Unit = runBlocking { keyboardTouchScenario(false) }
 
     @Test fun immediateTypingAndCandidateTapAfterRebind(): Unit = runBlocking { keyboardTouchScenario(true) }
@@ -1208,7 +1233,7 @@ end
         }
     }
 
-    private suspend fun keyboardTouchScenario(immediate: Boolean) {
+    private suspend fun keyboardTouchScenario(immediate: Boolean, punctuation: Boolean = false) {
         val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
         val previous = shell("settings get secure default_input_method")
         val enabled = component in shell("ime list -s")
@@ -1269,7 +1294,7 @@ end
             // Use the public window inspector to find the actual custom TextView.
             // AutoScaleTextView draws its own text instead of updating TextView.mText,
             // so AccessibilityNodeInfo.text is empty for these existing keyboard cells.
-            fun key(text: String): Rect? {
+            fun key(text: String, root: View? = null): Rect? {
                 var result: Rect? = null
                 instrumentation.runOnMainSync {
                     fun find(view: android.view.View): Rect? {
@@ -1289,7 +1314,8 @@ end
                             find(view.getChildAt(i))?.let { return it }
                         return null
                     }
-                    result = android.view.inspector.WindowInspector.getGlobalWindowViews().firstNotNullOfOrNull { find(it) }
+                    result = if (root != null) find(root) else
+                        android.view.inspector.WindowInspector.getGlobalWindowViews().firstNotNullOfOrNull { find(it) }
                 }
                 return result
             }
@@ -1342,6 +1368,64 @@ end
                 }
             }
             await("Keyboard must be visible before mode switching") { key("n") != null }
+            if (punctuation) {
+                await("Punctuation test must bind its actual editor") { androidBinding(editor) != null }
+                val symbolLabel = if (key(".") != null) "." else "。"
+                tap(symbolLabel)
+                await("The SymbolKey must let Rime convert period to Chinese punctuation") {
+                    var text = ""
+                    instrumentation.runOnMainSync { text = editor.text.toString() }
+                    text == "。"
+                }
+                assertEquals("。", withTimeout(10_000) { commits.receive() })
+                val inputView = requireNotNull(androidBinding(editor)?.service?.inputView)
+                val popup = InputView::class.java.getDeclaredField("popup").apply { isAccessible = true }
+                    .get(inputView) as org.fcitx.fcitx5.android.input.popup.PopupComponent
+                val bounds = requireNotNull(key(symbolLabel))
+                val downTime = SystemClock.uptimeMillis()
+                fun inject(action: Int, x: Float, y: Float) {
+                    val event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), action, x, y, 0)
+                    event.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
+                    try {
+                        val accepted = instrumentation.uiAutomation.injectInputEvent(event, true)
+                        // Cancellation only releases an unfinished gesture during failure cleanup.
+                        if (action != MotionEvent.ACTION_CANCEL) assertTrue("Touch action $action must be accepted", accepted)
+                    }
+                    finally { event.recycle() }
+                }
+                inject(MotionEvent.ACTION_DOWN, bounds.exactCenterX(), bounds.exactCenterY())
+                var released = false
+                try {
+                    await("Long-press must show the literal comma popup candidate") {
+                        key(",", popup.root) != null
+                    }
+                    shell("screencap -p /data/local/tmp/direct-frontend-punctuation-popup.png")
+                    val comma = requireNotNull(key(",", popup.root))
+                    // Popup rows switch focus above the lower 30% of a cell.
+                    val commaY = comma.bottom - 1f
+                    inject(MotionEvent.ACTION_MOVE, comma.exactCenterX(), commaY)
+                    inject(MotionEvent.ACTION_UP, comma.exactCenterX(), commaY)
+                    released = true
+                } finally {
+                    if (!released) inject(MotionEvent.ACTION_CANCEL, bounds.exactCenterX(), bounds.exactCenterY())
+                }
+                try {
+                    await("Selecting the popup comma must pass through Rime instead of directly committing ASCII") {
+                        var text = ""
+                        instrumentation.runOnMainSync { text = editor.text.toString() }
+                        text == "。，"
+                    }
+                } catch (error: AssertionError) {
+                    var text = ""
+                    instrumentation.runOnMainSync { text = editor.text.toString() }
+                    shell("screencap -p /data/local/tmp/direct-frontend-punctuation-failure.png")
+                    throw AssertionError("${error.message}; editor='$text'", error)
+                }
+                assertEquals("，", withTimeout(10_000) { commits.receive() })
+                assertNull("Popup punctuation must commit exactly once", withTimeoutOrNull(250) { commits.receive() })
+                shell("screencap -p /data/local/tmp/direct-frontend-punctuation.png")
+                return
+            }
             if (immediate) {
                 val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 await("The IME must receive the target editor's Android binding callback") {

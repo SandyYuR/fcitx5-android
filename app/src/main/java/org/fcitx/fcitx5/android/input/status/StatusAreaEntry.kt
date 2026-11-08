@@ -59,10 +59,6 @@ sealed class StatusAreaEntry(
             // androidkeyboard
             "tools-check-spelling" -> R.drawable.ic_baseline_spellcheck_24
             // fcitx5-chinese-addons
-            "fcitx-chttrans-active" -> R.drawable.ic_fcitx_status_chttrans_trad
-            "fcitx-chttrans-inactive" -> R.drawable.ic_fcitx_status_chttrans_simp
-            "fcitx-punc-active" -> R.drawable.ic_fcitx_status_punc_active
-            "fcitx-punc-inactive" -> R.drawable.ic_fcitx_status_punc_inactive
             "fcitx-fullwidth-active" -> R.drawable.ic_fcitx_status_fullwidth_active
             "fcitx-fullwidth-inactive" -> R.drawable.ic_fcitx_status_fullwidth_inactive
             "fcitx-remind-active" -> R.drawable.ic_fcitx_status_prediction_active

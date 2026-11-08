@@ -63,7 +63,11 @@ class AndroidAppConventionPlugin : AndroidBaseConventionPlugin() {
                         "/META-INF/*.kotlin_module",  // cannot be excluded actually
                         "/META-INF/androidx/**",
                         "/DebugProbesKt.bin",
-                        "/kotlin-tooling-metadata.json"
+                        "/kotlin-tooling-metadata.json",
+                        // Commons Compress brings these name-matching rules transitively;
+                        // the app does not use the corresponding Commons Codec algorithms.
+                        "/org/apache/commons/codec/language/bm/**",
+                        "/org/apache/commons/codec/language/dmrules.txt"
                     )
                 }
             }

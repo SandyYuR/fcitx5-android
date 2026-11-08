@@ -194,7 +194,6 @@
     <string name="exception_table_im">Tableインプットメソッドの設定ファイル（.confもしくは.conf.in）が見つかりません</string>
     <string name="exception_table">Tableの辞書（.dictもしくは.txt）が見つかりません</string>
     <string name="table_im">Tableインプットメソッド</string>
-    <string name="manage_table_im">Tableインプットメソッドの管理</string>
     <string name="exception_table_im_filename">\"%1$s\"の拡張子はTableインプットメソッドパッケージのもの（.zip）ではありません</string>
     <string name="table_already_exists">Tableインプットメソッドの設定ファイル\"%1$s\"は既に存在します</string>
     <string name="table_file_does_not_exist_title">Tableは利用できません</string>
@@ -202,9 +201,6 @@
     <string name="import_table">Tableにインポート</string>
     <string name="table_from_zip">Zipファイルから…</string>
     <string name="table_select_files">分割されたファイルから…</string>
-    <string name="table_file_placeholder">ファイルを選択…</string>
-    <string name="table_conf_select_title">インプットメソッドの設定ファイル（.confもしくは.conf.in）</string>
-    <string name="table_dict_select_title">Tableの辞書（.dictもしくは.txt）</string>
     <string name="exception_table_conf_filename">\"%1$s\"の拡張子はTableインプットメソッドの設定ファイルのもの（.confもしくは.conf.in）ではありません</string>
     <string name="exception_table_dict_filename">\"%1$s\"の拡張子はTableインプットメソッドの辞書のもの（.dictもしくは.txt）ではありません</string>
     <string name="exception_table_import_both_files">インポートする前に上記の両方のファイルを選択してください</string>
