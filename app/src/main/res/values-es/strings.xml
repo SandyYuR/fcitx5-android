@@ -117,8 +117,6 @@
     <string name="import_table">Importar tabla</string>
     <string name="table_from_zip">Desde ZIP...</string>
     <string name="table_select_files">Desde archivos separados...</string>
-    <string name="table_file_placeholder">Seleccionar archivo...</string>
-    <string name="table_dict_select_title">Diccionario de tablas (.dict o .txt)</string>
     <string name="space_behavior_none">Ninguno</string>
     <string name="space_behavior_enumerate">Recorrer los esquemas Rime habilitados</string>
     <string name="delete_theme">Eliminar tema</string>
@@ -603,7 +601,6 @@
     <string name="keyboard_side_padding">Relleno lateral del teclado</string>
     <string name="physical_keyboard_horizontal_candidate_bar">Usar barra horizontal con teclado fisico</string>
     <string name="physical_keyboard_horizontal_candidate_bar_summary">Mostrar la barra Kawaii y los candidatos horizontales abajo al escribir con un teclado fisico</string>
-    <string name="manage_table_im">Administrar metodos de entrada de tabla</string>
     <string name="missing_data_descriptor">Falta descriptor de datos</string>
     <string name="missing_plugin_descriptor">Falta descriptor de complemento</string>
     <string name="move_cursor_down">Mover cursor hacia abajo</string>
@@ -668,7 +665,6 @@
     <string name="switch_to_voice_input">Cambiar a entrada de voz</string>
     <string name="synced">¡Sincronizado!</string>
     <string name="table_already_exists">El archivo de configuracion del metodo de entrada de tabla "%1$s" ya existe</string>
-    <string name="table_conf_select_title">Archivo de configuracion del metodo de entrada (.conf o .conf.in)</string>
     <string name="table_dict_replace_message">Ya existe el diccionario del metodo de entrada de tabla "%1$s". Puede importar uno nuevo y reemplazarlo.</string>
     <string name="table_file_does_not_exist_message">El diccionario del metodo de entrada de tabla "%1$s" no existe. Revise el archivo o importelo de nuevo.</string>
     <string name="table_im">Metodos de entrada de tabla</string>

@@ -116,6 +116,24 @@ def verify(path):
         legacy = sorted(name for name in classes
                         if any(name == prefix + ";" or name.startswith(prefix + "$") for prefix in obsolete))
         assert not legacy, f"Retired backend or helper classes remain: {legacy}"
+        retired_frontend = (
+            "Lorg/fcitx/fcitx5/android/core/AddonSubconfigKt",
+            "Lorg/fcitx/fcitx5/android/input/dialog/InputMethodPickerDialog",
+            "Lorg/fcitx/fcitx5/android/input/dialog/InputMethodData",
+            "Lorg/fcitx/fcitx5/android/input/dialog/InputMethodListAdapter",
+            "Lorg/fcitx/fcitx5/android/input/dialog/InputMethodEntryUi",
+            "Lorg/fcitx/fcitx5/android/input/dialog/SingleDividerDecoration",
+            "Lorg/fcitx/fcitx5/android/input/broadcast/PunctuationComponent",
+            "Lorg/fcitx/fcitx5/android/data/punctuation/PunctuationManager",
+            "Lorg/fcitx/fcitx5/android/data/punctuation/PunctuationMapEntry",
+            "Lorg/fcitx/fcitx5/android/ui/main/settings/PunctuationEditorFragment",
+            "Lorg/fcitx/fcitx5/android/ui/main/settings/addon/AddonConfigFragment",
+            "Lorg/fcitx/fcitx5/android/ui/main/settings/TableFilesSelectionUi",
+            "Lorg/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/SimpleDividerItemDecoration",
+        )
+        unused_frontend = sorted(name for name in classes if any(
+            name == prefix + ";" or name.startswith(prefix + "$") for prefix in retired_frontend))
+        assert not unused_frontend, f"Retired frontend classes remain: {unused_frontend}"
         unused_picker = sorted(name for name in classes if name.startswith("Lcom/luck/picture/"))
         assert not unused_picker, f"Unused PictureSelector components remain: {unused_picker}"
         libs = sorted(n for n in names if n.startswith("lib/") and n.endswith(".so"))
@@ -126,14 +144,23 @@ def verify(path):
             packaged = {n.split('/')[2] for n in libs if n.split('/')[1] == abi}
             assert packaged == allowed, f"Unexpected {abi} libraries: {packaged}"
         native_dependencies = {}
+        native_compression = {}
         for name in libs:
+            info = apk.getinfo(name)
+            assert info.compress_type == zipfile.ZIP_DEFLATED, f"Native library must be compressed in APK: {name}"
+            native_compression[name] = {"bytes": info.file_size, "compressed_bytes": info.compress_size}
             needed = dependencies(apk.read(name))
             native_dependencies[name] = needed
             assert set(needed) <= allowed | system, f"Unexpected dependency in {name}: {needed}"
         assert not any(n.startswith("assets/usr/share/fcitx5/") for n in names), "Fcitx assets remain"
         assert not any(n.startswith("assets/usr/lib/fcitx5/") for n in names), "Fcitx addon assets remain"
         assert not any(n.endswith(".a") for n in names), "Static build archives must not be packaged"
+        assert "assets/README.md" not in names, "Obsolete assets README must not be packaged"
+        codec_rules = sorted(n for n in names if n.startswith("org/apache/commons/codec/language/bm/")
+                             or n == "org/apache/commons/codec/language/dmrules.txt")
+        assert not codec_rules, f"Unused Commons Codec phonetic rules remain: {codec_rules}"
         descriptor = json.loads(apk.read("assets/descriptor.json"))
+        assert "README.md" not in descriptor["files"], "Descriptor must not synchronize the obsolete README"
         clipboard_rules = verify_clipboard_rules(apk, descriptor)
         for name, digest in descriptor["files"].items():
             if digest:
@@ -141,6 +168,7 @@ def verify(path):
     print(json.dumps({"apk": str(path), "native_libraries": libs, "fcitx_dependencies": [],
                       "apk_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
                       "native_dependencies": native_dependencies, "obsolete_picker_classes": unused_picker,
+                      "native_compression": native_compression, "retired_frontend_classes": unused_frontend,
                       "legacy_backend_classes": legacy, "dex_files_checked": len(dex_files),
                       "clearurls": clipboard_rules,
                       "page_size": max(alignments.values()), "required_alignment_by_abi": alignments}))

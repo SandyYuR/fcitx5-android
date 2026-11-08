@@ -21,7 +21,6 @@ import org.fcitx.fcitx5.android.ui.main.settings.AddonDirProfileManagerFragment
 import org.fcitx.fcitx5.android.ui.main.settings.FcitxPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.settings.GenericMultiSelectFragment
 import org.fcitx.fcitx5.android.ui.main.settings.ListFragment
-import org.fcitx.fcitx5.android.ui.main.settings.PunctuationEditorFragment
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.CandidatesSettingsFragment
@@ -98,10 +97,6 @@ private fun Fragment.settingsPageTitle(): String {
         is ListFragment -> {
             val args by lazyRoute<SettingsRoute.ListConfig>(SettingsRoute.ListConfig.Params.TypeMap)
             return args.desc.description ?: args.desc.name
-        }
-        is PunctuationEditorFragment -> {
-            val args by lazyRoute<SettingsRoute.Punctuation>()
-            return args.title
         }
         is GenericMultiSelectFragment -> {
             val args by lazyRoute<SettingsRoute.MultiSelect>()

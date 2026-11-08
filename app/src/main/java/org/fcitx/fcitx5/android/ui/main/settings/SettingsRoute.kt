@@ -21,7 +21,6 @@ import org.fcitx.fcitx5.android.ui.main.AboutFragment
 import org.fcitx.fcitx5.android.ui.main.DeveloperFragment
 import org.fcitx.fcitx5.android.ui.main.LicensesFragment
 import org.fcitx.fcitx5.android.ui.main.MainFragment
-import org.fcitx.fcitx5.android.ui.main.settings.addon.AddonConfigFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.CandidatesSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.ClipboardSettingsFragment
@@ -64,9 +63,6 @@ sealed class SettingsRoute : Parcelable {
 
     @Serializable
     data object AddonList : SettingsRoute()
-
-    @Serializable
-    data class AddonConfig(val name: String, val uniqueName: String) : SettingsRoute()
 
     /* ========== Android ========== */
 
@@ -170,9 +166,6 @@ sealed class SettingsRoute : Parcelable {
     }
 
     @Serializable
-    data class Punctuation(val title: String, val lang: String? = null) : SettingsRoute()
-
-    @Serializable
     data class MultiSelect(
         val title: String,
         val addon: String,
@@ -205,7 +198,6 @@ sealed class SettingsRoute : Parcelable {
             fragment<LegacyEngineSettingsFragment, InputMethodList>()
             fragment<InputMethodConfigFragment, InputMethodConfig>()
             fragment<LegacyEngineSettingsFragment, AddonList>()
-            fragment<AddonConfigFragment, AddonConfig>()
 
             /* ========== Android ========== */
 
@@ -261,7 +253,6 @@ sealed class SettingsRoute : Parcelable {
             fragment<ListFragment, ListConfig>(
                 typeMap = ListConfig.Params.TypeMap
             )
-            fragment<PunctuationEditorFragment, Punctuation>()
             fragment<GenericMultiSelectFragment, MultiSelect>()
             fragment<AddonDirProfileManagerFragment, AddonDirProfileManager>()
         }

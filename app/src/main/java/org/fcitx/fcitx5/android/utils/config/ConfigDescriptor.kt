@@ -177,8 +177,6 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
         val knownType: ETy? = null
     ) : ConfigDescriptor<ConfigType.TyExternal, Nothing>() {
         enum class ETy {
-            Punctuation,
-            Chttrans,
             RimeUserDataDir,
             MultiSelect,
             AddonDirProfileManager,
@@ -324,8 +322,6 @@ sealed class ConfigDescriptor<T, U> : Parcelable {
                                 raw.findByName("External")?.value?.startsWith("fcitx://addon-action/") == true ->
                                     ConfigExternal.ETy.AddonAction
                                 else -> when (raw.name) {
-                                "Punctuation" -> ConfigExternal.ETy.Punctuation
-                                "Chttrans" -> ConfigExternal.ETy.Chttrans
                                 "UserDataDir" -> ConfigExternal.ETy.RimeUserDataDir
                                 "MultiSelect" -> ConfigExternal.ETy.MultiSelect
                                 else -> null

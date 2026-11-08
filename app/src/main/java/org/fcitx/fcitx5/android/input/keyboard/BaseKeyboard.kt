@@ -3680,10 +3680,6 @@ abstract class BaseKeyboard(
         // do nothing by default - override in subclasses that render return key icons
     }
 
-    open fun onPunctuationUpdate(mapping: Map<String, String>) {
-        // do nothing by default
-    }
-
     open fun onInputMethodUpdate(ime: InputMethodEntry) {
         // do nothing by default
     }
