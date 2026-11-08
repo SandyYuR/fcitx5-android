@@ -72,6 +72,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
+      - name: Prepare pinned NDK before configuring the app
+        run: python3 tools/prepare-ci-ndk.py
+
       - name: Prepare personal build sources
         run: |
           ./prepare_personal_build.sh
@@ -135,6 +138,11 @@ jobs:
           '-Dorg.gradle.jvmargs=-Xmx1536m -Dfile.encoding=UTF-8'
           -Pkotlin.compiler.execution.strategy=in-process --max-workers=2
           :convention:test --tests RimeSdkArchiveTest
+
+      - name: Prepare pinned NDK before configuring the app
+        run: |
+          python3 -m unittest discover -s tools -p test_prepare_ci_ndk.py -v
+          python3 tools/prepare-ci-ndk.py
 
       - name: Run JVM unit tests
         run: |
