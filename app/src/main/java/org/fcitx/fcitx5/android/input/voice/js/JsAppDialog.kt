@@ -432,7 +432,7 @@ internal class JsAppDialog(
 
     private fun fieldBox(input: EditText, readOnly: Boolean = false) = TextInputLayout(uiContext).apply {
         boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
-        boxBackgroundColor = if (readOnly) tonalColor else uiContext.settingsColor(com.google.android.material.R.attr.colorSurfaceContainerLowest)
+        boxBackgroundColor = if (readOnly) tonalColor else surfaceColor
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             cursorColor = ColorStateList.valueOf(accentColor)
         }

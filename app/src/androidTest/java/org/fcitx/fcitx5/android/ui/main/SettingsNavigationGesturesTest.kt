@@ -14,6 +14,7 @@ import android.view.WindowInsets
 import android.view.inspector.WindowInspector
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import androidx.navigation.fragment.NavHostFragment
 import androidx.preference.PreferenceManager
 import androidx.test.filters.SdkSuppress
@@ -213,6 +214,64 @@ class SettingsNavigationGesturesTest {
         it !== activity.window.decorView && it.findViewById<View>(android.R.id.button1)?.isShown == true
     }
 
+    private fun tapMenuAction(activity: Activity, title: String) {
+        awaitCondition("Menu action must be ready: $title") {
+            descendants(activity.window.decorView).filterIsInstance<Toolbar>().any { toolbar ->
+                (0 until toolbar.menu.size()).any { index ->
+                    val item = toolbar.menu.getItem(index)
+                    item.isVisible && item.isEnabled && item.title.toString() == title
+                }
+            }
+        }
+        fun action() = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants).firstOrNull {
+            it.isShown && it.isEnabled && (it.contentDescription?.toString() == title ||
+                it is TextView && it.text.toString() == title)
+        }
+        var target: View? = null
+        onMain {
+            target = action()
+            if (target == null) activity.openOptionsMenu()
+        }
+        if (target == null) awaitCondition("Menu action must be visible: $title") {
+            target = action()
+            target != null
+        }
+        val bounds = Rect()
+        var stableSince = 0L
+        // Popup children can be isShown before their first layout on API 36.
+        // Wait for the focused window and stable screen coordinates before injecting a tap.
+        awaitCondition("Menu action must finish layout and gain focus: $title") {
+            val view = action()
+            val visible = Rect()
+            if (view == null || !view.isAttachedToWindow || !view.hasWindowFocus() ||
+                view.width <= 0 || view.height <= 0 || !view.getGlobalVisibleRect(visible) ||
+                visible.width() < view.width || visible.height() < view.height) {
+                stableSince = 0L
+                false
+            } else {
+                val location = IntArray(2)
+                view.getLocationOnScreen(location)
+                val next = Rect(location[0], location[1], location[0] + view.width, location[1] + view.height)
+                if (view !== target || next != bounds || stableSince == 0L) {
+                    target = view
+                    bounds.set(next)
+                    stableSince = SystemClock.uptimeMillis()
+                }
+                SystemClock.uptimeMillis() - stableSince >= 200
+            }
+        }
+        val down = SystemClock.uptimeMillis()
+        var released = false
+        try {
+            injectPointer(down, MotionEvent.ACTION_DOWN, bounds.exactCenterX(), bounds.exactCenterY())
+            SystemClock.sleep(60)
+            injectPointer(down, MotionEvent.ACTION_UP, bounds.exactCenterX(), bounds.exactCenterY())
+            released = true
+        } finally {
+            if (!released) injectPointer(down, MotionEvent.ACTION_CANCEL, bounds.exactCenterX(), bounds.exactCenterY())
+        }
+    }
+
     @Test fun unsavedThemeRequiresAnExplicitDiscardAfterCompletedBack() = gestures {
         val original = ThemePreset.PixelLight.deriveCustomNoBackground("Gesture original")
         val draftName = "Gesture draft ${SystemClock.uptimeMillis()}"
@@ -221,12 +280,7 @@ class SettingsNavigationGesturesTest {
             .putExtra(CustomThemeActivity.ORIGIN_THEME, original)) as CustomThemeActivity
         try {
             awaitWindow(activity)
-            onMain {
-                val rename = descendants(activity.window.decorView).first {
-                    it.isShown && it.contentDescription?.toString() == activity.getString(R.string.theme_name)
-                }
-                assertTrue(rename.performClick())
-            }
+            tapMenuAction(activity, activity.getString(R.string.theme_name))
             awaitCondition("Theme rename dialog must open") { dialog(activity) != null }
             onMain {
                 val root = checkNotNull(dialog(activity))

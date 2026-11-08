@@ -11,13 +11,15 @@
 | 页面背景 | `colorSurfaceContainer` |
 | 分组卡片 | `colorSurfaceBright` |
 | 浮动面板 | `colorSurfaceContainerHigh` |
-| 可编辑输入框 | `colorSurfaceContainerLowest` |
+| 可编辑输入框与下拉选择框 | 沿用所在页面、卡片或浮动面板的底色 |
 | AI 回复、次操作 | `colorSecondaryContainer` / `colorOnSecondaryContainer` |
 | 主要操作 | `colorPrimary` / `colorOnPrimary` |
 | 正文、辅助文字、细边框 | `colorOnSurface` / `colorOnSurfaceVariant` / `colorOutlineVariant` |
 | 错误提示 | `colorErrorContainer` / `colorOnErrorContainer` |
 
 成对使用表面色和前景色。用层次和主操作建立重点，避免到处加彩色描边、渐变、阴影。键盘画布属于用户自定义主题，其尺寸、按键配色与触摸规则继续遵循输入模块契约。
+
+描边输入框的共用样式使用透明填充；AI 与剪贴板浮动面板的可编辑输入框和选择框使用面板表面色。通过描边、标签和聚焦状态区分可编辑区域，不额外铺白色背景。AI 只读回复仍使用次级容器色。
 
 恢复数据的独立进程使用 `restoreUiContext` 的资源主题，跟随系统深浅；不能为了配色读取正在替换的偏好、数据库或启动原生引擎。
 
@@ -48,6 +50,6 @@
 
 视觉改动检查浅色、深色、窄屏、大字号、加载、错误与回复状态。Android 图形单测用于快速比较，真机或模拟器用于验证实际窗口、键盘与触摸行为；两类结果分别记录。
 
-键盘取色的独立 Context 必须先保留完整 Settings 基础主题，再应用颜色覆盖，不能只带一层配色 overlay。剪贴板编辑复用 IME 附着面板与本地输入连接，不切换 Activity；浅色输入框使用 `colorSurfaceContainerLowest`，接近白色属于表面层次设计。
+键盘取色的独立 Context 必须先保留完整 Settings 基础主题，再应用颜色覆盖，不能只带一层配色 overlay。剪贴板编辑复用 IME 附着面板与本地输入连接，不切换 Activity；输入区域与面板使用同一表面色。
 
 本约定参考 [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) 将颜色角色、间距、排版和组件规则写成可维护文本的方法，并结合 Linear、Raycast、Claude 的分析材料。参考版本为 `fcc70284932276d085f01ef9f83edde90b1258cb`；本项目使用自己的原生组件、颜色角色和交互契约。
