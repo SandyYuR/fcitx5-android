@@ -76,13 +76,15 @@ class DirectRimeFrontendTest {
             if (testName.methodName == "schemaCommentsAndSwitchGroupsMatchRime") writeCommentFixture(directory)
             if (testName.methodName == "schemaSwitchPreferencesSurviveNewSessionsAndRestart") writeSavedOptionsFixture(directory)
             if (testName.methodName == "preeditCursorUsesRawCoordinates") writeCursorFixture(directory)
-            if (testName.methodName == "newSessionsKeepRimeSavedAscii") {
+            if (testName.methodName in setOf("newSessionsKeepRimeSavedAscii", "modeMenuRemembersBothDirections",
+                    "modeMenuWithoutSaveOptionsStaysSessionLocal")) {
                 val schema = File(directory, "direct_smoke.schema.yaml")
                 val text = schema.readText().replace("\r\n", "\n")
                 val reset = "  - name: ascii_mode\n    reset: 0\n"
                 check(text.contains(reset))
                 schema.writeText(text.replace(reset, "  - name: ascii_mode\n"))
-                File(directory, "default.yaml").appendText("\nswitcher:\n  save_options: [ascii_mode]\n")
+                val options = if (testName.methodName == "modeMenuWithoutSaveOptionsStaysSessionLocal") "[]" else "[ascii_mode]"
+                File(directory, "default.yaml").appendText("\nswitcher:\n  save_options: $options\n")
             }
             if (testName.methodName == "newApplicationDoesNotInheritInlineAscii") {
                 File(directory, "direct_smoke.schema.yaml").appendText("\nascii_composer:\n  inline_uppercase: true\n")
@@ -301,6 +303,50 @@ engine:
             expectRimeState("direct_smoke", ascii = true)
             startInputSession(invalidateInputSession(), "frontend.saved-ascii.restarted")
             expectRimeState("direct_smoke", ascii = true)
+        }
+    }
+
+    @Test fun modeMenuRemembersBothDirections(): Unit = runBlocking {
+        connection.runOnReady {
+            suspend fun mode() = statusArea().first { it.name == "rime" }.menu!!.first { it.name == "ascii_mode" }
+            val english = context.getString(R.string.direct_rime_ascii_mode)
+            val chinese = context.getString(R.string.direct_rime_chinese_mode)
+            expectRimeState("direct_smoke", false)
+            assertEquals(english, mode().shortText)
+            activateAction(mode().id)
+            expectRimeState("direct_smoke", true)
+            assertEquals(english, inputPanelCached.auxUp.toString())
+            assertEquals(chinese, mode().shortText)
+            assertEquals(english, statusArea().first { it.name == "rime" }.shortText)
+
+            startInputSession(invalidateInputSession(), "frontend.mode-menu.english")
+            expectRimeState("direct_smoke", true)
+            assertEquals(chinese, mode().shortText)
+            activateAction(mode().id)
+            expectRimeState("direct_smoke", false)
+            assertEquals(chinese, inputPanelCached.auxUp.toString())
+            assertEquals(english, mode().shortText)
+
+            startInputSession(invalidateInputSession(), "frontend.mode-menu.chinese")
+            expectRimeState("direct_smoke", false)
+            val config = File(context.getExternalFilesDir(null), "data/$profile/user.yaml").readText()
+            assertTrue("Menu must persist the disabled value", Regex("(?m)^\\s+ascii_mode: false\\s*$").containsMatchIn(config))
+            activateAction(11) // Rebuild the engine and restore the saved disabled value.
+            expectRimeState("direct_smoke", false)
+            assertEquals(english, mode().shortText)
+        }
+    }
+
+    @Test fun modeMenuWithoutSaveOptionsStaysSessionLocal(): Unit = runBlocking {
+        connection.runOnReady {
+            val mode = statusArea().first { it.name == "rime" }.menu!!.first { it.name == "ascii_mode" }
+            activateAction(mode.id)
+            expectRimeState("direct_smoke", true)
+            startInputSession(invalidateInputSession(), "frontend.mode-menu.local")
+            expectRimeState("direct_smoke", false)
+            val file = File(context.getExternalFilesDir(null), "data/$profile/user.yaml")
+            val config = if (file.exists()) file.readText() else ""
+            assertFalse("An unlisted option must not be saved", Regex("(?m)^\\s+ascii_mode:").containsMatchIn(config))
         }
     }
 
@@ -702,6 +748,129 @@ end
     @Test fun originalKeyboardCanTypeUsingTouch(): Unit = runBlocking { keyboardTouchScenario(false) }
 
     @Test fun immediateTypingAndCandidateTapAfterRebind(): Unit = runBlocking { keyboardTouchScenario(true) }
+
+    @Test fun statusAreaModeMenuFollowsTouchSwitches(): Unit = runBlocking {
+        val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
+        val previous = shell("settings get secure default_input_method")
+        val enabled = component in shell("ime list -s")
+        var activity: RimeImportActivity? = null
+        fun descendants(view: View): Sequence<View> = sequence {
+            yield(view)
+            if (view is ViewGroup) for (i in 0 until view.childCount) yieldAll(descendants(view.getChildAt(i)))
+        }
+        fun inputView(): InputView? {
+            var result: InputView? = null
+            instrumentation.runOnMainSync {
+                result = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
+                    .filterIsInstance<InputView>().firstOrNull { it.isShown && it.service.isInputViewShown }
+            }
+            return result
+        }
+        fun visibleText(text: String): android.widget.TextView? {
+            var result: android.widget.TextView? = null
+            instrumentation.runOnMainSync {
+                result = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
+                    .filterIsInstance<android.widget.TextView>().firstOrNull {
+                        it.isShown && it.text.toString() == text && it.getGlobalVisibleRect(Rect())
+                    }
+            }
+            return result
+        }
+        fun tap(view: View) {
+            var bounds: Rect? = null
+            var stable = 0
+            await("The visible touch target must settle") {
+                var next: Rect? = null
+                instrumentation.runOnMainSync {
+                    val visible = Rect()
+                    if (view.isShown && view.getLocalVisibleRect(visible) && !visible.isEmpty) {
+                        val origin = IntArray(2)
+                        view.getLocationOnScreen(origin)
+                        next = Rect(visible).apply { offset(origin[0], origin[1]) }
+                    }
+                }
+                stable = if (next != null && next == bounds) stable + 1 else 0
+                bounds = next
+                stable >= 5
+            }
+            val target = bounds!!
+            val down = SystemClock.uptimeMillis()
+            for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
+                val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action,
+                    target.exactCenterX(), target.exactCenterY(), 0)
+                event.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
+                try { assertTrue(instrumentation.uiAutomation.injectInputEvent(event, true)) }
+                finally { event.recycle() }
+            }
+        }
+        try {
+            shell("input keyevent KEYCODE_WAKEUP")
+            shell("settings put secure show_ime_with_hard_keyboard 1")
+            shell("ime enable $component"); shell("ime set $component")
+            activity = instrumentation.startActivitySync(Intent(context, RimeImportActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as RimeImportActivity
+            val editor = activity.findViewById<EditText>(R.id.direct_rime_test_editor)
+            instrumentation.runOnMainSync {
+                editor.requestFocus()
+                (context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT)
+            }
+            await("The actual editor and keyboard must be attached") {
+                val service = inputView()?.service
+                var attached = false
+                instrumentation.runOnMainSync {
+                    attached = service?.currentInputEditorInfo?.fieldId == editor.id &&
+                        service?.editorSession?.capture()?.isCurrent() == true
+                }
+                attached
+            }
+            for (ascii in listOf(false, true)) {
+                connection.runOnReady { expectRimeState("direct_smoke", ascii) }
+                val input = inputView()!!
+                instrumentation.runOnMainSync { input.executeButtonAction("more") }
+                val rootLabel = connection.runImmediately { statusAreaActionsCached.first { it.name == "rime" }.shortText }
+                lateinit var grid: androidx.recyclerview.widget.RecyclerView
+                var position = -1
+                instrumentation.runOnMainSync {
+                    grid = descendants(input).filterIsInstance<androidx.recyclerview.widget.RecyclerView>()
+                        .first { it.adapter is org.fcitx.fcitx5.android.input.status.StatusAreaAdapter }
+                    val adapter = grid.adapter as org.fcitx.fcitx5.android.input.status.StatusAreaAdapter
+                    position = adapter.entries.indexOfFirst {
+                        (it as? org.fcitx.fcitx5.android.input.status.StatusAreaEntry.Fcitx)?.action?.name == "rime"
+                    }
+                    assertTrue("Status area must contain the Rime menu entry", position >= 0)
+                    grid.scrollToPosition(position)
+                }
+                var rootButton: View? = null
+                await("The current Rime menu entry must be visible") {
+                    instrumentation.runOnMainSync {
+                        val holder = grid.findViewHolderForAdapterPosition(position) as?
+                            org.fcitx.fcitx5.android.input.status.StatusAreaAdapter.Holder
+                        rootButton = holder?.itemView?.takeIf {
+                            holder.ui.label.text.toString() == rootLabel && it.isShown && it.getLocalVisibleRect(Rect())
+                        }
+                    }
+                    rootButton != null
+                }
+                // The encoding hint can have the same text as this status-area button.
+                tap(rootButton!!)
+                val target = context.getString(if (ascii) R.string.direct_rime_chinese_mode else R.string.direct_rime_ascii_mode)
+                await("The actual popup must display the target mode") { visibleText(target) != null }
+                shell("screencap -p /data/local/tmp/direct-rime-mode-menu-from-${if (ascii) "english" else "chinese"}.png")
+                tap(visibleText(target)!!)
+                await("Touching the popup must switch the actual Rime option") {
+                    connection.runImmediately {
+                        statusAreaActionsCached.first { it.name == "rime" }.menu!!.first { it.name == "ascii_mode" }.isChecked == !ascii
+                    }
+                }
+                connection.runOnReady { assertEquals(target, inputPanelCached.auxUp.toString()) }
+            }
+        } finally {
+            activity?.let { instrumentation.runOnMainSync { it.finish() } }
+            if (previous.isNotBlank() && previous != "null") shell("ime set $previous")
+            if (!enabled) shell("ime disable $component")
+        }
+    }
 
     @Test fun candidateActionMenuCannotOutliveItsEditor(): Unit = runBlocking {
         val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
