@@ -74,6 +74,7 @@ class DirectRimeFrontendTest {
                 instrumentation.context.assets.open("smoke/$name").use { input -> File(directory, name).outputStream().use { input.copyTo(it) } }
             }
             if (testName.methodName == "schemaCommentsAndSwitchGroupsMatchRime") writeCommentFixture(directory)
+            if (testName.methodName == "schemaSwitchPreferencesSurviveNewSessionsAndRestart") writeSavedOptionsFixture(directory)
             if (testName.methodName == "preeditCursorUsesRawCoordinates") writeCursorFixture(directory)
             File(directory, "second.schema.yaml").writeText(File(directory, "direct_smoke.schema.yaml").readText()
                 .replace("schema_id: direct_smoke", "schema_id: second").replace("name: 直连测试", "name: 第二方案"))
@@ -167,6 +168,69 @@ return function(input, env)
 end
 """.trimIndent())
     }
+    private fun writeSavedOptionsFixture(directory: File) {
+        File(directory, "default.yaml").appendText("\nswitcher:\n  save_options: [remembered, radio_a, radio_b, reset_preference]\n")
+        val schema = File(directory, "direct_smoke.schema.yaml")
+        schema.writeText(schema.readText().replace("\r\n", "\n").replace("engine:\n", """
+  - name: remembered
+    states: [关闭, 开启]
+  - options: [radio_a, radio_b]
+    states: [甲, 乙]
+  - name: reset_preference
+    reset: 1
+    states: [关闭, 开启]
+  - name: local_only
+    states: [关闭, 开启]
+engine:
+""".trimStart('\n')))
+    }
+
+    @Test fun schemaSwitchPreferencesSurviveNewSessionsAndRestart(): Unit = runBlocking {
+        org.junit.Assume.assumeTrue("Uses the disposable smoke fixture", fixtureArchive == null)
+        suspend fun toggle(name: String) = connection.runOnReady {
+            activateAction(statusArea().first { it.name == name }.id)
+        }
+        suspend fun selectRadio(name: String) = connection.runOnReady {
+            activateAction(statusArea().first { it.name == "select-radio_a" }.menu!!.first { it.name == name }.id)
+        }
+        suspend fun expect(remembered: Boolean, radio: String, reset: Boolean = true, local: Boolean = false) = connection.runOnReady {
+            val actions = statusArea()
+            for ((name, enabled) in listOf("remembered" to remembered, "reset_preference" to reset, "local_only" to local)) {
+                assertEquals(name, if (enabled) "开启 → 关闭" else "关闭 → 开启", actions.first { it.name == name }.shortText)
+            }
+            assertEquals(listOf(radio), actions.first { it.name == "select-radio_a" }.menu!!.filter { it.isChecked }.map { it.name })
+        }
+        suspend fun newSession(program: String) = connection.runOnReady {
+            startInputSession(invalidateInputSession(), program)
+        }
+
+        toggle("remembered")
+        selectRadio("radio_b")
+        toggle("reset_preference")
+        toggle("local_only")
+        expect(remembered = true, radio = "radio_b", reset = false, local = true)
+        // A different client forces a real librime session, not the ordinary same-app reuse path.
+        newSession("frontend.options.second")
+        expect(remembered = true, radio = "radio_b")
+        // Deployment finalizes and initializes librime, exercising persistence beyond its config cache.
+        connection.runOnReady { activateAction(11) }
+        newSession("frontend.options.restarted")
+        expect(remembered = true, radio = "radio_b")
+
+        toggle("remembered")
+        selectRadio("radio_a")
+        newSession("frontend.options.disabled")
+        expect(remembered = false, radio = "radio_a")
+
+        val default = File(context.getExternalFilesDir(null), "data/$profile/default.yaml")
+        default.writeText(default.readText().replace("[remembered, radio_a", "[local_only, radio_a"))
+        connection.runOnReady { activateAction(11) }
+        toggle("local_only")
+        toggle("remembered")
+        newSession("frontend.options.new-whitelist")
+        expect(remembered = false, radio = "radio_a", local = true)
+    }
+
     private fun writeReloadFixture(directory: File, label: String, option: String) {
         val original = instrumentation.context.assets.open("smoke/direct_smoke.schema.yaml")
             .bufferedReader().use { it.readText() }
