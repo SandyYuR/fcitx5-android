@@ -86,8 +86,6 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private var bindingKeys = 0
     private var bindingSelections = 0
     private var pagingMode = 1
-    private var preferredSchema = ""
-    private var preferredAscii: Boolean? = null
     private var schemas = emptyList<Pair<String, String>>()
     private var optionRows = emptyList<List<String>>()
     private var optionsRevision = Long.MIN_VALUE
@@ -208,23 +206,18 @@ class DirectRimeBackend(context: Context) : InputEngine {
         flags = target.flags
         val startedAt = SystemClock.elapsedRealtime()
         val noLearning = directBootMode || flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL
-        // Schema/option restoration and the first status read can also do synchronous I/O.
-        // Keep the whole binding at interactive priority; the guard restores it on failure too.
+        // Native binding restores Rime's schema/options and can do synchronous I/O.
+        // Keep it and the first status read at interactive priority, including failure paths.
         val details = interactivePriority.run {
             val before = Native.sessionStats()
             val beginAt = SystemClock.elapsedRealtimeNanos()
-            var result = Native.beginInput(generation, program, noLearning)
+            val result = Native.beginInput(generation, program, noLearning)
             val beginDone = SystemClock.elapsedRealtimeNanos()
             val beginTiming = if (BuildConfig.INPUT_DIAGNOSTICS) Native.operationTiming() else null
-            if (result.ready) {
-                appliedNoLearning = noLearning
-                if (preferredSchema.isNotEmpty() && result.schema != preferredSchema && schemas.any { it.first == preferredSchema })
-                    result = Native.action(generation, result.revision, 3, 0, preferredSchema)
-                preferredAscii?.let { ascii ->
-                    if (result.ascii != ascii) result = Native.action(generation, result.revision, 8, if (ascii) 1 else 0, "ascii_mode")
-                }
-            }
-            val restoreDone = SystemClock.elapsedRealtimeNanos()
+            // Rime already applies saved options, schema resets and its schema-selection
+            // policy. Replaying an earlier editor's snapshot would override that result.
+            if (result.ready) appliedNoLearning = noLearning
+            val publishAt = SystemClock.elapsedRealtimeNanos()
             publish(result)
             bindingKeys = 0
             bindingSelections = 0
@@ -236,8 +229,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
             // CPU/fault/I/O instrumentation is still restricted to INPUT_DIAGNOSTICS builds.
             "ready=${result.ready} usable=$usable direct=${forwardsKeysDirectly()} no_learning=$noLearning" +
                 " created=${after[0] - before[0]} reused=${after[1] - before[1]}" +
-                " native_begin_us=${(beginDone - beginAt) / 1000} restore_us=${(restoreDone - beginDone) / 1000}" +
-                " publish_us=${(publishDone - restoreDone) / 1000}" +
+                " native_begin_us=${(beginDone - beginAt) / 1000}" +
+                " publish_us=${(publishDone - publishAt) / 1000}" +
                 if (beginTiming != null) " ${nativeTiming(beginTiming)}" else ""
         }
         android.util.Log.i("RimeLifecycle", "bind generation=$generation duration_ms=${SystemClock.elapsedRealtime() - startedAt} $details")
@@ -323,8 +316,6 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }
         val optionsChanged = value.ready && value.optionsRevision != optionsRevision
         if (value.ready) {
-            preferredSchema = value.schema
-            preferredAscii = value.ascii
             if (optionsChanged) {
                 optionRows = Native.options().toList().chunked(4)
                 optionsRevision = value.optionsRevision
@@ -722,7 +713,6 @@ class DirectRimeBackend(context: Context) : InputEngine {
         started = false
         Native.start(shared.absolutePath, config.user.absolutePath, BuildConfig.VERSION_NAME, fullCheck = true)
         started = true
-        preferredSchema = ""; preferredAscii = null
     }
     override fun setLogRule(verbose: Boolean) {}
     override fun translate(str: String, domain: String) = str

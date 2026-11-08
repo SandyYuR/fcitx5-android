@@ -76,11 +76,25 @@ class DirectRimeFrontendTest {
             if (testName.methodName == "schemaCommentsAndSwitchGroupsMatchRime") writeCommentFixture(directory)
             if (testName.methodName == "schemaSwitchPreferencesSurviveNewSessionsAndRestart") writeSavedOptionsFixture(directory)
             if (testName.methodName == "preeditCursorUsesRawCoordinates") writeCursorFixture(directory)
+            if (testName.methodName == "newSessionsKeepRimeSavedAscii") {
+                val schema = File(directory, "direct_smoke.schema.yaml")
+                val text = schema.readText().replace("\r\n", "\n")
+                val reset = "  - name: ascii_mode\n    reset: 0\n"
+                check(text.contains(reset))
+                schema.writeText(text.replace(reset, "  - name: ascii_mode\n"))
+                File(directory, "default.yaml").appendText("\nswitcher:\n  save_options: [ascii_mode]\n")
+            }
+            if (testName.methodName == "newApplicationDoesNotInheritInlineAscii") {
+                File(directory, "direct_smoke.schema.yaml").appendText("\nascii_composer:\n  inline_uppercase: true\n")
+            }
             File(directory, "second.schema.yaml").writeText(File(directory, "direct_smoke.schema.yaml").readText()
                 .replace("schema_id: direct_smoke", "schema_id: second").replace("name: 直连测试", "name: 第二方案"))
             File(directory, "default.yaml").appendText("\n")
             val default = File(directory, "default.yaml")
             default.writeText(default.readText().replace("- schema: direct_smoke", "- schema: direct_smoke\n  - schema: second"))
+            if (testName.methodName == "newSessionsRespectRimeSchemaOrder") {
+                default.appendText("\nswitcher:\n  fix_schema_list_order: true\n")
+            }
             if (testName.methodName == "wanxiangAdvancedReadsPreserveDeployedFilesAndChineseInput") {
                 File(directory, "wanxiang.schema.yaml").writeText(File(directory, "direct_smoke.schema.yaml").readText()
                     .replace("schema_id: direct_smoke", "schema_id: wanxiang"))
@@ -229,6 +243,112 @@ engine:
         toggle("remembered")
         newSession("frontend.options.new-whitelist")
         expect(remembered = false, radio = "radio_a", local = true)
+    }
+
+    private suspend fun FcitxAPI.expectRimeState(schema: String, ascii: Boolean) {
+        val actions = statusArea()
+        val menu = actions.first { it.name == "rime" }.menu!!
+        val selected = SubModeManager.resolveSelectedSchemaAction(actions)
+        assertEquals("Actual Rime schema", schema, menu.first { it.id == selected }.name)
+        assertEquals("Actual Rime ASCII option", ascii, menu.first { it.name == "ascii_mode" }.isChecked)
+    }
+
+    private suspend fun FcitxAPI.selectTestSchema(schema: String) {
+        val selected = statusArea().first { it.name == "rime" }.menu!!.first { it.name == schema }
+        assertTrue(activateSchemaActionIfCurrent(selected.id, inputSession))
+    }
+
+    @Test fun newSessionsRespectRimeAsciiReset(): Unit = runBlocking {
+        org.junit.Assume.assumeTrue("Uses the disposable smoke fixture", fixtureArchive == null)
+        connection.runOnReady {
+            startInputSession(invalidateInputSession(), "frontend.state.same")
+            expectRimeState("direct_smoke", ascii = false)
+            toggleIme()
+            expectRimeState("direct_smoke", ascii = true)
+
+            // Ordinary editors in the same app reuse the native session and its mode.
+            startInputSession(invalidateInputSession(), "frontend.state.same")
+            expectRimeState("direct_smoke", ascii = true)
+            // Another app creates a session, so the schema's reset: 0 applies again.
+            startInputSession(invalidateInputSession(), "frontend.state.other")
+            expectRimeState("direct_smoke", ascii = false)
+
+            toggleIme()
+            setCapFlags(CapabilityFlags(CapabilityFlag.Sensitive))
+            startInputSession(invalidateInputSession(), "frontend.state.other")
+            expectRimeState("direct_smoke", ascii = false)
+            setCapFlags(CapabilityFlags.DefaultFlags)
+
+            toggleIme()
+            activateAction(11)
+            expectRimeState("direct_smoke", ascii = false)
+            toggleIme()
+            activateAction(12)
+            expectRimeState("direct_smoke", ascii = false)
+        }
+    }
+
+    @Test fun newSessionsKeepRimeSavedAscii(): Unit = runBlocking {
+        org.junit.Assume.assumeTrue("Uses the disposable smoke fixture", fixtureArchive == null)
+        connection.runOnReady {
+            expectRimeState("direct_smoke", ascii = false)
+            // This fixture declares save_options without an ascii_mode reset.
+            activateAction(statusArea().first { it.name == "ascii_mode" }.id)
+            expectRimeState("direct_smoke", ascii = true)
+            startInputSession(invalidateInputSession(), "frontend.saved-ascii.other")
+            expectRimeState("direct_smoke", ascii = true)
+            activateAction(11)
+            expectRimeState("direct_smoke", ascii = true)
+            startInputSession(invalidateInputSession(), "frontend.saved-ascii.restarted")
+            expectRimeState("direct_smoke", ascii = true)
+        }
+    }
+
+    @Test fun newSessionsRespectRimeSchemaOrder(): Unit = runBlocking {
+        org.junit.Assume.assumeTrue("Uses the disposable smoke fixture", fixtureArchive == null)
+        connection.runOnReady {
+            selectTestSchema("second")
+            expectRimeState("second", ascii = false)
+            startInputSession(invalidateInputSession(), "frontend.test")
+            expectRimeState("second", ascii = false)
+
+            // fix_schema_list_order chooses the first schema for a fresh native session.
+            startInputSession(invalidateInputSession(), "frontend.schema.other")
+            expectRimeState("direct_smoke", ascii = false)
+            selectTestSchema("second")
+            activateAction(11)
+            expectRimeState("direct_smoke", ascii = false)
+            selectTestSchema("second")
+            activateAction(12)
+            expectRimeState("direct_smoke", ascii = false)
+        }
+    }
+
+    @Test fun newSessionsKeepRimeRecentSchema(): Unit = runBlocking {
+        org.junit.Assume.assumeTrue("Uses the disposable smoke fixture", fixtureArchive == null)
+        connection.runOnReady {
+            selectTestSchema("second")
+            expectRimeState("second", ascii = false)
+            // Without fixed ordering, librime restores the recently selected schema itself.
+            startInputSession(invalidateInputSession(), "frontend.recent-schema.other")
+            expectRimeState("second", ascii = false)
+            activateAction(11)
+            expectRimeState("second", ascii = false)
+            startInputSession(invalidateInputSession(), "frontend.recent-schema.restarted")
+            expectRimeState("second", ascii = false)
+        }
+    }
+
+    @Test fun newApplicationDoesNotInheritInlineAscii(): Unit = runBlocking {
+        org.junit.Assume.assumeTrue("Uses the disposable smoke fixture", fixtureArchive == null)
+        connection.runOnReady {
+            sendKey('N')
+            expectRimeState("direct_smoke", ascii = true)
+            assertEquals("N", inputPanelCached.preedit.toString())
+            startInputSession(invalidateInputSession(), "frontend.inline-ascii.other")
+            expectRimeState("direct_smoke", ascii = false)
+            assertTrue(inputPanelCached.preedit.isEmpty())
+        }
     }
 
     private fun writeReloadFixture(directory: File, label: String, option: String) {
