@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import org.fcitx.directrime.Snapshot
 import org.fcitx.fcitx5.android.FcitxApplication
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.junit.After
 import org.junit.Assert.*
@@ -150,6 +151,35 @@ class InputBindingStartupTest {
         assertTrue(currentSnapshot().ascii)
         assertEquals(1L, BindingNativeShadow.created)
         assertEquals(1L, BindingNativeShadow.reused)
+    }
+
+    @Test @Config(qualifiers = "zh") fun modeMenuNamesMatchTheResultingHints() = runBlocking {
+        createBackend()
+        bind("editor.one")
+        val context = RuntimeEnvironment.getApplication()
+        val english = context.getString(R.string.direct_rime_ascii_mode)
+        val chinese = context.getString(R.string.direct_rime_chinese_mode)
+        assertEquals("英文模式", english)
+        assertEquals("中文模式", chinese)
+        fun root() = backend.statusAreaActionsCached.first { it.name == "rime" }
+        fun mode() = root().menu!!.first { it.name == "ascii_mode" }
+
+        assertFalse(mode().isChecked)
+        assertEquals(english, mode().shortText)
+        backend.activateAction(mode().id)
+        assertTrue(currentSnapshot().ascii)
+        assertTrue(mode().isChecked)
+        assertEquals(chinese, mode().shortText)
+        assertEquals(english, root().shortText)
+        assertEquals(english, backend.inputPanelCached.auxUp.toString())
+
+        backend.activateAction(mode().id)
+        assertFalse(currentSnapshot().ascii)
+        assertEquals(english, mode().shortText)
+        assertEquals(currentSnapshot().schemaName, root().shortText)
+        assertEquals(chinese, backend.inputPanelCached.auxUp.toString())
+        assertEquals(listOf("ascii-toggle", "ascii-toggle"),
+            BindingNativeShadow.calls.filter { it.phase == "ascii-toggle" }.map { it.phase })
     }
 
     @Test fun sensitiveBoundaryUsesNewRimeState() = runBlocking {

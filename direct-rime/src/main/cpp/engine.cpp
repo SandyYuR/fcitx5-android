@@ -314,12 +314,9 @@ Snapshot Engine::action(int64_t generation, int64_t revision, int action, int in
         if (index >= 0 && RIME_API_AVAILABLE(api_, delete_candidate_on_current_page))
             api_->delete_candidate_on_current_page(session_, index);
         break;
-    case 6: api_->set_option(session_, "ascii_mode", !api_->get_option(session_, "ascii_mode")); break;
+    case 6: setOption("ascii_mode", !api_->get_option(session_, "ascii_mode")); break;
     case 7: if (RIME_API_AVAILABLE(api_, clear_tabs)) api_->clear_tabs(session_); break;
-    case 8:
-        api_->set_option(session_, value.c_str(), index != 0);
-        if (saveableOption(value)) rememberOption(value, index != 0);
-        break;
+    case 8: setOption(value, index != 0); break;
     case 9: if (index >= 0 && RIME_API_AVAILABLE(api_, set_caret_pos)) api_->set_caret_pos(session_, index); break;
     case 10: api_->commit_composition(session_); break;
     case 11: if (index >= 0) api_->select_candidate(session_, index); break;
@@ -498,6 +495,10 @@ std::vector<std::string> Engine::options() {
     }
     api_->config_close(&config);
     return result;
+}
+void Engine::setOption(const std::string& option, bool value) {
+    api_->set_option(session_, option.c_str(), value);
+    if (saveableOption(option)) rememberOption(option, value);
 }
 bool Engine::saveableOption(const std::string& option) {
     // Only the options librime's own switcher persists are remembered; an option a

@@ -64,6 +64,7 @@ private:
     // an option listed in switcher/save_options. This frontend sets options
     // directly, so mirror that rule; otherwise every new native session (another
     // app's editor) reverts the user's switch to the schema default.
+    void setOption(const std::string& option, bool value);
     bool saveableOption(const std::string& option);
     void rememberOption(const std::string& option, bool value);
     static void notification(void* context, RimeSessionId, const char* type, const char* value);

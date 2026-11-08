@@ -434,7 +434,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
                        menu: Array<Action>? = null, separator: Boolean = false) =
         Action(id, separator, checked != null, checked == true, name, "", text, text, menu)
     private fun buildActions(value: Snapshot): Array<Action> {
-        val menu = mutableListOf(action(10, "ascii_mode", "西文", value.ascii))
+        // The label describes the next mode; checked still reports Rime's current ASCII state.
+        val targetMode = context.getString(if (value.ascii) R.string.direct_rime_chinese_mode else R.string.direct_rime_ascii_mode)
+        val menu = mutableListOf(action(10, "ascii_mode", targetMode, value.ascii))
         schemas.forEachIndexed { i, (id, name) -> menu += action(100 + i, id, name, id == value.schema) }
         menu += action(9, "separator", separator = true)
         val options = buildList {
@@ -456,7 +458,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }
         menu += action(11, "deploy", "重新部署")
         menu += action(12, "sync", "同步用户词典")
-        val label = if (value.ascii) "西文" else value.schemaName.ifEmpty { "Rime" }
+        val label = if (value.ascii) context.getString(R.string.direct_rime_ascii_mode) else value.schemaName.ifEmpty { "Rime" }
         return arrayOf(action(1, "rime", label, menu = menu.toTypedArray()), *options.toTypedArray())
     }
     private fun showUnavailable(message: String) {

@@ -41,6 +41,7 @@ private:
 
 struct Fake {
     bool maintenance = false, exists = true, hasSchema = true, failDeploy = false, failLaunch = false, noLearning = false;
+    bool ascii = false;
     // Mirrors default.yaml's switcher/save_options and the user config it writes.
     std::vector<std::string> saveOptions{"ascii_punct", "s2t"};
     std::map<std::string, bool> savedOptions;
@@ -80,7 +81,14 @@ RimeApi api() {
     a.create_session = []() -> RimeSessionId { ++f.created; f.preedit.clear(); return 7; };
     a.find_session = [](RimeSessionId) -> Bool { return f.exists; };
     a.destroy_session = [](RimeSessionId) -> Bool { ++f.destroyed; return true; };
-    a.set_option = [](RimeSessionId, const char* key, Bool value) { if (!std::strcmp(key, "_no_learning")) f.noLearning = value; };
+    a.set_option = [](RimeSessionId, const char* key, Bool value) {
+        if (!std::strcmp(key, "_no_learning")) f.noLearning = value;
+        else if (!std::strcmp(key, "ascii_mode")) f.ascii = value;
+    };
+    a.get_option = [](RimeSessionId, const char* key) -> Bool {
+        if (!std::strcmp(key, "_no_learning")) return f.noLearning;
+        return !std::strcmp(key, "ascii_mode") && f.ascii;
+    };
     a.set_property = [](RimeSessionId, const char* key, const char* value) { if (!std::strcmp(key, "client_app")) f.clientApp = value; };
     a.process_key = [](RimeSessionId, int, int mask) -> Bool { ++f.keys; f.mask = mask; f.preedit = "ni"; return false; };
     a.get_input = [](RimeSessionId) -> const char* { ++f.rawReads; return f.rawInput.c_str(); };
@@ -96,7 +104,9 @@ RimeApi api() {
         c->menu.page_no = 1; c->menu.select_keys = const_cast<char*>("abc"); return true;
     };
     a.free_context = [](RimeContext*) -> Bool { return true; };
-    a.get_status = [](RimeSessionId, RimeStatus* s) -> Bool { s->schema_id = const_cast<char*>("test"); return true; };
+    a.get_status = [](RimeSessionId, RimeStatus* s) -> Bool {
+        s->schema_id = const_cast<char*>("test"); s->is_ascii_mode = f.ascii; return true;
+    };
     a.free_status = [](RimeStatus*) -> Bool { return true; };
     a.clear_composition = [](RimeSessionId) { ++f.cleared; f.preedit.clear(); };
     a.clear_tabs = [](RimeSessionId) -> Bool { ++f.clearedTabs; return true; };
@@ -444,6 +454,29 @@ void testFrontendWritesOnlySaveableOptions() {
     CHECK(!f.savedOptions["var/option/s2t"] && f.userConfigOpens == 3);
     engine.stop();
 }
+void testAsciiToggleSharesSavedOptionRule() {
+    f = {}; f.saveOptions = {"ascii_mode"};
+    auto a = api(); Engine engine(&a); engine.start("shared", "user");
+    auto value = engine.begin(1, "editor.one");
+    value = engine.action(1, value.revision, 6, 0, "");
+    CHECK(value.ascii && f.savedOptions.size() == 1);
+    CHECK(f.savedOptions["var/option/ascii_mode"] && f.userConfigOpens == 1);
+    // A stale menu request must neither toggle the current session nor save a preference.
+    CHECK(engine.action(1, value.revision - 1, 6, 0, "").gate == Stale);
+    CHECK(f.ascii && f.userConfigOpens == 1);
+    value = engine.action(1, value.revision, 6, 0, "");
+    CHECK(!value.ascii && !f.savedOptions["var/option/ascii_mode"] && f.userConfigOpens == 2);
+    // Both frontend entry points write the same preference, in both directions.
+    value = engine.action(1, value.revision, 8, 1, "ascii_mode");
+    CHECK(value.ascii && f.savedOptions["var/option/ascii_mode"] && f.userConfigOpens == 3);
+    value = engine.action(1, value.revision, 6, 0, "");
+    CHECK(!value.ascii && !f.savedOptions["var/option/ascii_mode"] && f.userConfigOpens == 4);
+    // Removing the option from the deployed list makes future toggles session-local.
+    f.saveOptions.clear(); engine.deploy(); value = engine.begin(2, "editor.two");
+    value = engine.action(2, value.revision, 6, 0, "");
+    CHECK(value.ascii && !f.savedOptions["var/option/ascii_mode"] && f.userConfigOpens == 4);
+    engine.stop();
+}
 void testSessionReuseAndEditorIsolation() {
     f = {}; auto a = api(); Engine engine(&a); engine.start("shared", "user");
     CHECK(engine.begin(1, "editor.one").gate == Ready && !f.noLearning);
@@ -516,7 +549,7 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
-        testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testFrontendWritesOnlySaveableOptions(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
+        testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
