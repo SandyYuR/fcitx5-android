@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <optional>
+#include <set>
 #include <string>
 #include <thread>
 #include <vector>
@@ -59,6 +60,12 @@ private:
     int64_t captureInputStatistics(bool requested) const;
     void clearSession();
     void initialize(bool fullCheck);
+    // librime writes var/option/<name> only when its own switcher menu toggles
+    // an option listed in switcher/save_options. This frontend sets options
+    // directly, so mirror that rule; otherwise every new native session (another
+    // app's editor) reverts the user's switch to the schema default.
+    bool saveableOption(const std::string& option);
+    void rememberOption(const std::string& option, bool value);
     static void notification(void* context, RimeSessionId, const char* type, const char* value);
     RimeApi* api_;
     const std::thread::id owner_;
@@ -73,6 +80,8 @@ private:
     std::string sessionProgram_;
     std::string shared_, user_, version_;
     std::vector<Tab> tabs_;
+    bool saveOptionsLoaded_ = false;
+    std::set<std::string> saveOptions_;
     std::array<int64_t, 16> timing_{};
 };
 

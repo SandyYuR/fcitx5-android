@@ -196,6 +196,7 @@ void Engine::initialize(bool fullCheck) {
     if (!setup_) { api_->setup(&traits); setup_ = true; }
     api_->initialize(&traits);
     started_ = true;
+    saveOptionsLoaded_ = false; // a deployment can change switcher/save_options
     api_->set_notification_handler(notification, this);
     { Trace maintenance("rime.direct.startup_maintenance");
       const bool launched = api_->start_maintenance(fullCheck);
@@ -315,7 +316,10 @@ Snapshot Engine::action(int64_t generation, int64_t revision, int action, int in
         break;
     case 6: api_->set_option(session_, "ascii_mode", !api_->get_option(session_, "ascii_mode")); break;
     case 7: if (RIME_API_AVAILABLE(api_, clear_tabs)) api_->clear_tabs(session_); break;
-    case 8: api_->set_option(session_, value.c_str(), index != 0); break;
+    case 8:
+        api_->set_option(session_, value.c_str(), index != 0);
+        if (saveableOption(value)) rememberOption(value, index != 0);
+        break;
     case 9: if (index >= 0 && RIME_API_AVAILABLE(api_, set_caret_pos)) api_->set_caret_pos(session_, index); break;
     case 10: api_->commit_composition(session_); break;
     case 11: if (index >= 0) api_->select_candidate(session_, index); break;
@@ -494,6 +498,39 @@ std::vector<std::string> Engine::options() {
     }
     api_->config_close(&config);
     return result;
+}
+bool Engine::saveableOption(const std::string& option) {
+    // Only the options librime's own switcher persists are remembered; an option a
+    // schema pins with `reset` keeps its declared default, exactly as upstream.
+    if (option.empty() || option[0] == '_') return false;
+    if (!started_ || !session_) return false;
+    if (!RIME_API_AVAILABLE(api_, config_open) || !RIME_API_AVAILABLE(api_, config_list_size) ||
+        !RIME_API_AVAILABLE(api_, config_get_cstring) || !RIME_API_AVAILABLE(api_, config_close)) return false;
+    if (!saveOptionsLoaded_) {
+        // Switcher owns the .default schema, not the active input schema. Its
+        // restore whitelist therefore comes only from the deployed default config.
+        RimeConfig config{};
+        if (!api_->config_open("default", &config)) return false;
+        saveOptions_.clear();
+        const auto count = api_->config_list_size(&config, "switcher/save_options");
+        for (size_t i = 0; i < count; ++i) {
+            auto name = safe(api_->config_get_cstring(&config, ("switcher/save_options/@" + std::to_string(i)).c_str()));
+            if (!name.empty()) saveOptions_.insert(name);
+        }
+        api_->config_close(&config);
+        saveOptionsLoaded_ = true;
+    }
+    return saveOptions_.count(option) != 0;
+}
+void Engine::rememberOption(const std::string& option, bool value) {
+    // librime restores config var/option/<name> when a session starts; without this
+    // write the frontend's own toggle lives only in the session that set it.
+    if (!RIME_API_AVAILABLE(api_, user_config_open) || !RIME_API_AVAILABLE(api_, config_set_bool) ||
+        !RIME_API_AVAILABLE(api_, config_close)) return;
+    RimeConfig config{};
+    if (!api_->user_config_open("user", &config)) return;
+    api_->config_set_bool(&config, ("var/option/" + option).c_str(), value);
+    api_->config_close(&config);
 }
 namespace {
 RimeLeversApi* levers(RimeApi* api) {

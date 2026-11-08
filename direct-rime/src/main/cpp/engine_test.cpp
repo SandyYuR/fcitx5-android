@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <cstdlib>
+#include <map>
 #include <random>
 
 using namespace direct_rime;
@@ -40,6 +41,10 @@ private:
 
 struct Fake {
     bool maintenance = false, exists = true, hasSchema = true, failDeploy = false, failLaunch = false, noLearning = false;
+    // Mirrors default.yaml's switcher/save_options and the user config it writes.
+    std::vector<std::string> saveOptions{"ascii_punct", "s2t"};
+    std::map<std::string, bool> savedOptions;
+    int userConfigOpens = 0;
     int keys = 0, mask = 0, created = 0, destroyed = 0, freedCommit = 0;
     int setups = 0, initialized = 0, finalized = 0, selected = -1, freedTabs = 0, freedCodes = 0;
     size_t selectedSpan = 0, selectedGlobal = 999, deletedGlobal = 999, caret = 999;
@@ -108,6 +113,28 @@ RimeApi api() {
     };
     a.candidate_list_end = [](RimeCandidateListIterator*) { ++f.freedIterator; };
     a.select_schema = [](RimeSessionId, const char*) -> Bool { return true; };
+    a.config_open = [](const char* config_id, RimeConfig* config) -> Bool {
+        if (std::strcmp(config_id, "default")) return false;
+        config->ptr = &f; return true;
+    };
+    a.user_config_open = [](const char* config_id, RimeConfig* config) -> Bool {
+        if (std::strcmp(config_id, "user")) return false;
+        ++f.userConfigOpens; config->ptr = &f; return true;
+    };
+    a.config_close = [](RimeConfig*) -> Bool { return true; };
+    a.config_list_size = [](RimeConfig*, const char* key) -> size_t {
+        return std::strcmp(key, "switcher/save_options") ? 0 : f.saveOptions.size();
+    };
+    a.config_get_cstring = [](RimeConfig*, const char* key) -> const char* {
+        const std::string prefix = "switcher/save_options/@";
+        const std::string name(key);
+        if (name.compare(0, prefix.size(), prefix)) return nullptr;
+        const auto index = std::strtoul(name.c_str() + prefix.size(), nullptr, 10);
+        return index < f.saveOptions.size() ? f.saveOptions[index].c_str() : nullptr;
+    };
+    a.config_set_bool = [](RimeConfig*, const char* key, Bool value) -> Bool {
+        f.savedOptions[key] = value; return true;
+    };
     a.get_schema_list = [](RimeSchemaList* list) -> Bool {
         static RimeSchemaListItem items[] = {{const_cast<char*>("test"), const_cast<char*>("Test"), nullptr}};
         list->list = items; list->size = f.hasSchema ? 1 : 0; return true;
@@ -396,6 +423,27 @@ void testOptionInvalidation() {
     CHECK(engine.begin(2, "second").optionsRevision > changed.optionsRevision);
     engine.stop();
 }
+void testFrontendWritesOnlySaveableOptions() {
+    f = {}; auto a = api(); Engine engine(&a); engine.start("shared", "user");
+    auto value = engine.begin(1, "editor.one");
+    // A switch listed in switcher/save_options is written where librime restores it.
+    value = engine.action(1, value.revision, 8, 1, "s2t");
+    CHECK(f.savedOptions.size() == 1 && f.savedOptions["var/option/s2t"] && f.userConfigOpens == 1);
+    value = engine.action(1, value.revision, 8, 0, "s2t");
+    CHECK(f.savedOptions.size() == 1 && !f.savedOptions["var/option/s2t"] && f.userConfigOpens == 2);
+    // Everything else stays a session-local option.
+    value = engine.action(1, value.revision, 8, 1, "tone_hint");
+    CHECK(f.savedOptions.size() == 1 && f.userConfigOpens == 2);
+    value = engine.action(1, value.revision, 8, 1, "_no_learning");
+    CHECK(f.savedOptions.size() == 1 && f.userConfigOpens == 2);
+    // A deployment can change the list; the next toggle reads it again.
+    f.saveOptions = {"tone_hint"}; engine.deploy(); value = engine.begin(2, "editor.two");
+    value = engine.action(2, value.revision, 8, 1, "tone_hint");
+    CHECK(f.savedOptions.size() == 2 && f.savedOptions["var/option/tone_hint"]);
+    value = engine.action(2, value.revision, 8, 1, "s2t");
+    CHECK(!f.savedOptions["var/option/s2t"] && f.userConfigOpens == 3);
+    engine.stop();
+}
 void testSessionReuseAndEditorIsolation() {
     f = {}; auto a = api(); Engine engine(&a); engine.start("shared", "user");
     CHECK(engine.begin(1, "editor.one").gate == Ready && !f.noLearning);
@@ -468,7 +516,7 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
-        testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
+        testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testFrontendWritesOnlySaveableOptions(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
