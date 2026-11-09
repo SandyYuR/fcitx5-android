@@ -82,12 +82,14 @@ pwsh -File D:\GitHub\fx2-rime\build-release.ps1
 | 结果消费前校验 session/generation | `prepareInputSession`、`requireInputSession` 与 binding |
 | 组合改变时取消候选分页，批间允许其他工作运行 | 顶层函数 `readCandidatePage`、`CandidatePageReaderTest` |
 | 部署、同步和重载期间不处理按键，结束后恢复 | `maintain`、`maintenanceMutex`、`keyGate` |
-| 刷新和状态提示不能重放 commit | `publishWithoutCommit`、native action 9 |
+| 刷新和状态提示不能重放 commit 或移动编码光标 | `refreshPresentation` 使用 native action 13；action 9 只用于真实原始编码光标移动 |
 | DOWN 有兜底 UP，线程优先级在 finally 恢复 | 键盘生命周期、`InteractiveThreadPriority` |
 
 当前事件载体是 `InputEventQueue` 的批次队列；其 `Channel.CONFLATED` 仅发出唤醒信号，不承载输入正文。容量等待发生在进入 owner 前，独立消费者仍可请求候选。早期 `Channel(UNLIMITED)` 的描述属于历史实现，不应据此恢复旧结构。
 
 密码、显式禁用组词的输入框，以及首次解锁前的输入，直接转发按键。它们在 native 返回“无方案”时仍可完成绑定；普通中文输入框仍需要可用方案。直接输入继续经过相同的 ticket、代次和有序事件队列，不能绕过部署/同步门控或交付过期按键。`InputBindingStartupTest` 覆盖无方案密码输入、DOWN/UP 顺序、重复 focus 与过期会话拒绝。
+
+绑定时直接使用 `Native.beginInput` 返回的 Rime 初始快照，不再把上一编辑器的方案和 ASCII 状态回放给引擎。`reset`、已保存开关及 `fix_schema_list_order` 的选择结果由 librime 决定。同应用只有前后都非敏感且原 session 有效时才复用；进入密码、PIN 或禁止个性化学习的输入框后，回到文本框也会创建新会话，避免带回 Lua 内部状态。状态菜单的 action 6/8 共用按 `switcher/save_options` 保存的入口；独立 Shift 由 Rime `ascii_composer` 处理，不能把按键中的临时西文强制记为长期偏好。
 
 Direct Boot 启动时，应用设置使用 `directBootAwareContext`，引擎只在 DE 内部文件目录建立独立空 profile，不访问受凭据保护的外部方案目录。已解锁进程通过 `DirectBootLayoutSync` 将当前选中布局同步为固定的 DE 快照，首次解锁前由 `ConfigProvider` 读取；不在锁屏阶段扫描外部布局目录。缺失、解析失败或没有可用按键时，密码布局沿回退链继续选择，最终使用内置 QWERTY。字体、图标及日常中文方案仍待解锁后的进程重启恢复；旧 CE 资产清理也只在解锁后执行。
 
@@ -159,6 +161,12 @@ AIDL 外部提供方与 JS 插件共用会话、录音、静音判定和回填�
 当前 APK 原生白名单是 **`libdirect-rime.so`、`libc++_shared.so`、`libquickjs.so`**，权威为 `tools/verify-direct-rime-apk.py` 的 `allowed`。
 任何新增 `.so` 都必须同时更新并审阅白名单，不能因为 Debug 能构建就认为发布门禁会通过。
 
+`jniLibs.useLegacyPackaging = true` 是已有的打包策略：三类 `.so` 在 APK 中以 ZIP_DEFLATED 压缩，Android 安装时解压后加载。它减少下载包大小，安装目录仍有解压出的库，加载内存不会按 ZIP 压缩比例减少。APK 门禁同时检查压缩格式、ELF 加载段对齐和依赖白名单；压缩不能代替 16 KiB 对齐验证。比较包体需先 clean、使用相同 ABI、固定 SDK 和 Release 裁剪配置，不把已有压缩收益当作本次清理收益。
+
+APK 已精确排除 Commons Codec 的 `org/apache/commons/codec/language/bm/**` 和 `dmrules.txt` 姓名匹配规则，压缩依赖及实际解包能力仍保留。过时 `assets/README.md` 不再进入 APK 和 `descriptor.json`。旧输入法选择弹窗、Table 文件选择页、弃用分隔线及 Fcitx `punctuation`/`chttrans` UI 和回调已移除；`tools/verify-direct-rime-apk.py` 检查退休前端类及闲置资源不能回到产物中，静态链接审计仍由 `tools/audit-direct-rime-link.py` 检查实际库和 linkmap。
+
+以下 Fcitx 名称仍有生产用途，不能据名字继续删除：`FcitxInputMethodService`、`FcitxAPI`、`FcitxEvent` 和队列/连接接口承载直连前端；包名、AIDL、IPC 权限、备份格式与 `fcitx://` 路由用于已有客户端兼容。`direct-rime/src/engine/java` 的 `Native`/`Snapshot` 及 `direct-rime/src/main/cpp` 同时供主应用使用，独立 `.lab` 诊断入口也保留。Rime 通用预设、OpenCC、内置布局/主题/符号及语音/AI 脚本均继续由生产入口加载。
+
 语音宿主的密钥、逐插件主机授权、prelude/stub 双侧接口和收尾预算见[JS 宿主协议](implementation/js-voice-plugins.md)。
 目标测试加载真实 bundled 脚本；JVM 使用 `quickjs-kt-jvm` 替换 Android native 依赖。
 
@@ -180,8 +188,8 @@ tools/test-direct-rime-frontend.sh
 tools/test-material-settings.sh
 ```
 
-默认分支当前的 PR CI 运行 ARM64 Debug 与 JVM，Commit CI 运行签名 ARM64 Release、ART profile 审计与 JVM；Direct Rime CI 覆盖原生诊断与完整前端回归，Material settings UI 覆盖 MD3 页面。
-实际执行项以 workflow 内容为准；CI 不跑全量 lint。测试类“仍在仓库里”不等于仍被 CI 执行。
+默认分支当前的 PR CI 运行 ARM64 Debug、全量 JVM、`lintFxDebug` 及 APK/链接门禁；Commit CI 运行签名 ARM64 Release、ART profile 审计与 JVM；Direct Rime CI 覆盖原生诊断与完整前端回归，Material settings UI 覆盖 MD3 页面。
+实际执行项以 workflow 内容为准；`lintFxDebug` 通过不等于所有构建变体的 lint 均已执行。测试类“仍在仓库里”不等于仍被 CI 执行。
 
 Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/actions/setup-gradle`，使脚本里的首次 Gradle 调用能够使用恢复的缓存。缓存未命中时，Wrapper 按 `gradle/wrapper/gradle-wrapper.properties` 中固定的官方地址下载 Gradle，网络超时为 60 秒。若日志停在 `Downloading ...gradle-...zip` 并报网络超时，失败发生在 Gradle 启动前；应检查分发包下载与缓存恢复步骤，不能当作编译或业务测试失败。
 
@@ -206,9 +214,9 @@ Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/a
 相同文件名的远端模型也可能换过内容，应按原报告哈希找匹配夹具，不能跳过检查。
 手动触发性能 workflow、上传日志或设备数据前取得明确授权。
 
-日常构建的 `RimeLifecycle bind` 记录每次绑定的总耗时，以及 `native_begin_us`、`restore_us`、`publish_us` 和会话 `created`/`reused` 计数。三段分别对应 native 绑定、恢复方案/中英文状态、读取和发布前端状态；单位为微秒，总计 `duration_ms` 为毫秒，不包括进入 owner 前的排队。`ready` 表示 native 方案可用，`usable` 表示此编辑器可以收键，`direct` 标识直接输入。`binding_key wait_ms` 是按键在绑定期间的等待时间，`delivered=true` 表示延后交付，不能据此归为丢键。
+日常构建的 `RimeLifecycle bind` 记录每次绑定的总耗时，以及 `native_begin_us`、`publish_us` 和会话 `created`/`reused` 计数。前者包含 native 创建或复用会话、由 Rime 恢复方案/开关和读取初始快照，后者记录前端发布与绑定门控处理；前端快照回放已移除，不再输出单独的 `restore_us`。单位为微秒，总计 `duration_ms` 为毫秒，不包括进入 owner 前的排队。`ready` 表示 native 方案可用，`usable` 表示此编辑器可以收键，`direct` 标识直接输入。`binding_key wait_ms` 是按键在绑定期间的等待时间，`delivered=true` 表示延后交付，不能据此归为丢键。
 
-绑定的三段同步工作均在 `InteractiveThreadPriority` 作用域内，退出或异常时恢复原优先级。日常日志只增加每次绑定的少量计时与计数；逐键 CPU、缺页和文件 I/O 统计仍须 `-PinputDiagnostics=true`。没有分段记录的旧日志只能定位到整次绑定，不能直接断言耗时来自词库重开、Lua 或界面绘制；优化后的真机延迟须在相同方案和设备上复测。
+绑定及首次快照发布的同步工作均在 `InteractiveThreadPriority` 作用域内，退出或异常时恢复原优先级。日常日志只增加每次绑定的少量计时与计数；逐键 CPU、缺页和文件 I/O 统计仍须 `-PinputDiagnostics=true`。没有分段记录的旧日志只能定位到整次绑定，不能直接断言耗时来自词库重开、Lua 或界面绘制；优化后的真机延迟须在相同方案和设备上复测。
 
 所有原始报告及 ZIP/JSON/截图见[验证证据目录](evidence.md)。历史 Actions artifact 有保留期限，不能当成永久下载或当前版本证明。
 完整 XKB Compose、按应用行为等价和广泛真机回归仍有边界，不因旧后端被移除而自动视为完成。

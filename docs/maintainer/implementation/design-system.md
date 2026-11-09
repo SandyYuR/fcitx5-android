@@ -18,11 +18,13 @@
 颜色从 `SettingsUiPreferences` 的选择和 Material 颜色角色读取。Monet、手动色板、对比度、纯黑及跟随键盘取色共用现有设置，不另增一套自动主题状态。
 
 - 页面背景：`colorSurfaceContainer`；浮动面板：`colorSurfaceContainerHigh`。
-- 输入：`colorSurfaceContainerLowest`；回复与次操作：`colorSecondaryContainer` / `colorOnSecondaryContainer`。
+- 描边输入框与下拉选择框：沿用所在页面、卡片或面板的底色；回复与次操作：`colorSecondaryContainer` / `colorOnSecondaryContainer`。
 - 主操作：`colorPrimary` / `colorOnPrimary`；错误：`colorErrorContainer` / `colorOnErrorContainer`。
 - 正文、辅助信息、边框：`colorOnSurface`、`colorOnSurfaceVariant`、`colorOutlineVariant`。
 
 使用成对的背景与前景角色。主题颜色不直接从键盘的 `popupTextColor`、`accentKeyBackgroundColor` 等独立字段拼出第二套面板色板。
+
+`Widget.FcitxSettings.TextField` 使用透明填充，使自定义更新任务等对话框中的输入区域与容器底色一致。AI 与剪贴板的 `JsAppDialog` 输入和选择框使用浮动面板的 `colorSurfaceContainerHigh`，保留描边与聚焦提示；AI 只读回复继续使用次级容器色。此规则同样适用于深色、Monet 和跟随键盘取色。
 
 `SettingsKeyboardColors.wrapContext` 在资源加载器建立独立 Context 后，先显式应用完整的 Settings 浅／深基础主题，再应用键盘颜色 overlay。只复制配色层会丢失 `editTextBackground`、按钮样式或 TextAppearance；回归必须开启键盘取色并实际构造输入框和按钮。
 
@@ -38,11 +40,19 @@
 
 授权提示显示期间隐藏原表单的固定标题与操作，避免背后按钮造成误导；结束后恢复原草稿。加载条不遮挡关闭入口，错误留在当前面板内。回复区可选择复制，仍不能接收键盘编辑。具体字段见 [JS 宿主协议](./js-voice-plugins)。
 
+AI、剪贴板搜索和剪贴板编辑的共用 `JsAppDialog` 使用 IME 的 `TYPE_APPLICATION_MEDIA` 子窗口，位于父输入法窗口下方。真实编码区、辅助区和浮动候选继续由原视图更新并叠在面板上方，不按编码文本的宽高变化调整面板位置。下拉菜单使用两者之间的子窗口层级；用途和服务列表按紧凑要求采用 36 dp 普通行、上下各 4 dp 留白，整行可点，按实际文字测量弹出高度。大字号和长标签可增高。
+
+菜单行使用容器承载 Material 文字，避免系统 `DropDownListView` 对作为根节点的 `TextView` 强制开启横向滚动，覆盖多行设置。普通行保持紧凑，长名称最多两行；真实下拉窗口验证换行和放大字号后的行高。
+
+`JsAppEditText` 复用 Material `TextInputEditText`，仅向当前本地编辑器转交用于原生光标闪烁的焦点状态，真实窗口焦点及系统 IME 目标仍属于原应用。切换输入框、忙碌、授权提示、只读回复和关闭时释放旧编辑光标，恢复本地输入时重启闪烁；窗口隐藏和屏幕关闭时停止更新。光标和窗口层级修正不重新创建原应用输入会话，也不改变草稿及异步请求代次。
+
 ## 列表与任务状态
 
 - 主题名称行按字号计算，图标视觉行收至 32 dp；`ThemeCardDetails` 向名称区扩展图标点击范围至 48 dp。随机按钮移到底部，与编辑按钮同排。需要验证真实触摸事件，不能只检查图标非空。
 - 主题网格的纵向边距与行间距固定为 16 dp，独立于横向列宽；窄屏单列不会把较大的左右留白重复用作上下间距。
 - 剪贴板 `ClipboardEditor` 复用 `JsAppDialog` 作为原生面板，不创建 JS 运行时、Activity 或新的系统 IME 目标。原应用连接与面板连接分离；会话过期拒绝新写入，已确认的 `ClipboardManager.saveEditedText` 仍由应用持有，写入成功后才复制。
+- 剪贴板搜索的 `ClipboardSearchController` 同样复用 `JsAppDialog` 和本地输入连接。`ClipboardContent` 与普通剪贴板页共用卡片、分页、长按操作及撤销；空查询浏览当前分组全部历史，非空查询在 SQL 中筛选该分组，取消旧查询的收集任务。面板使用 8 dp 内边距，上方分页列表单独占据视口，下方固定搜索框、关闭按钮和分组；分组和关闭按钮保持 48 dp 触摸高度，极短窗口只滚动底部控件。列表不嵌入外层 `ScrollView`，工具栏与辅助栏继续承载键盘内容。`JsAppDialog` 为子视图设置自身的 `ViewTreeLifecycleOwner`，关闭时销毁生命周期，取消尚未触发的长按和连按任务。粘贴前恢复原应用连接，文件暂存后再次核对会话与连接。
+- 搜索面板由 `ClipboardColors.panel` 读取已完成设置取色的 Context，共用组件只复用卡片与交互，颜色使用 Material 角色。卡片使用 `colorSurfaceBright` / `colorOnSurface`，媒体预览留白和占位符使用相同卡片底色与辅助图标色，避免内层色块和外层卡片形成色带。选中分组使用 `colorPrimary` / `colorOnPrimary`；撤销提示使用逆色表面、正文与主操作角色，不能套用固定浅色 Snackbar 主题。服务窗口为撤销按钮覆盖兼容的 Material 3 按钮样式，避免原生 Button 无法应用 Expressive 几何 overlay。长按菜单显式使用 Material 3 菜单样式，从同一 Context 读取菜单表面、文字与图标角色。普通键盘剪贴板仍由 `ClipboardColors.keyboard` 保留自定义主题及原有 30 dp 分组高度。搜索分组使用多行 `ChipGroup`，完整按钮换行并为面板圆角内缩；窄屏、字号放大与 RTL 均验证完整边界。
 - 布局管理首次仅展开当前启用的 profile，`expanded` 集合只维护本页与旋转状态；折叠标题的高亮由整个卡片绘制，移除正文底部留白。
 - 主题卡片将色彩预览和名称／操作区分离；预览子视图必须按卡片轮廓裁剪，选中标记独立于名称。主题列表使用名称身份保持当前、日间和夜间选择，增删、移动与重命名不能用过期位置推断状态。
 - 插件页从原始字段的 `isSecret` 分组，沿用 `visibleWhen` 与依赖默认值；隐藏整个空分组时仍要更新其子项状态。密钥概况复用 IO 线程取得的 `SecretState`，列表不额外解密或探测网络，不能把“已保存”写成“服务可用”。
@@ -57,7 +67,8 @@
 先检查生产调用链，再运行相关 JVM 测试和 Debug 构建；窗口、键盘及触摸行为补实际设备或模拟器验证。
 
 - `JsAppDialogAppearanceTest`：浅色、深色、窄窗口、大字号、按钮可见范围与图标。
-- `JsAppFloatingPanelTest`：首次显示、键盘边界、移动、焦点和菜单。
+- `JsAppFloatingPanelTest`：首次显示、键盘边界、移动、焦点、原生光标暂停/恢复和菜单行高。
+- `ClipboardSearchDeviceTest`：真实软键输入三类弹框、编码区在重叠区域的实际合成像素、弹框位置稳定、无窗口焦点的光标闪烁及普通/大字号下拉行。
 - `JsAppWorkflowTest`、`JsAppDialogTest`：真实脚本与原生按钮、输入分流、授权提示恢复和确认上屏。
 - `RestoreUiThemeTest`、`UserDataRestoreStartupTest`：恢复 UI 不打开偏好，独立进程约束继续成立。
 - `MaterialSettingsPagesTest`：在可丢弃设备上检查共用控件与实际页面。
