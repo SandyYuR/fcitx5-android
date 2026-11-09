@@ -64,10 +64,12 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
     private val shutdownReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action != Intent.ACTION_SHUTDOWN) return
-            Timber.d("Device shutting down, trying to save fcitx state...")
-            val fcitx = FcitxDaemon.getFirstConnectionOrNull()
-                ?: return Timber.d("No active fcitx connection, skipping")
-            fcitx.runImmediately { save() }
+            Timber.d("Device shutting down, closing the input engine...")
+            try {
+                FcitxDaemon.shutdownFcitx()
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to close the input engine during device shutdown")
+            }
         }
     }
 

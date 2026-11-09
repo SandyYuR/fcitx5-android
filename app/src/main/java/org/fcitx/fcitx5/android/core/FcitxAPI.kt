@@ -56,8 +56,8 @@ interface FcitxAPI {
      * Save the input method profile and non-Rime addon state.
      *
      * Settings activity uses this so leaving settings does not trigger Rime's
-     * user-data synchronization. Full [save] remains available for shutdown
-     * and export paths that explicitly need to persist every addon.
+     * user-data synchronization. Full [save] remains available for backup and
+     * export paths that explicitly request Rime user-data synchronization.
      */
     suspend fun saveNonRimeState()
 
