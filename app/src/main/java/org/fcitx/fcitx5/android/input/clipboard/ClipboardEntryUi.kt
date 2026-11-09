@@ -35,7 +35,8 @@ import splitties.views.dsl.core.wrapContent
 import splitties.views.imageDrawable
 import splitties.views.setPaddingDp
 
-class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radius: Float) : Ui {
+class ClipboardEntryUi(override val ctx: Context, theme: Theme, radius: Float,
+                       private val palette: ClipboardColors = ClipboardColors.keyboard(theme)) : Ui {
 
     val preview = imageView {
         visibility = View.GONE
@@ -43,7 +44,7 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
         minimumHeight = dp(72)
         background = GradientDrawable().apply {
             cornerRadius = radius
-            setColor(theme.keyBackgroundColor)
+            setColor(palette.preview)
         }
     }
 
@@ -54,11 +55,10 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
         setPaddingDp(16, 8, 16, 8)
         background = GradientDrawable().apply {
             cornerRadius = radius
-            setColor(theme.keyBackgroundColor)
+            setColor(palette.preview)
         }
-        imageDrawable = drawable(R.drawable.ic_baseline_image_24)?.apply {
-            setTint(theme.altKeyTextColor)
-        }
+        imageDrawable = drawable(R.drawable.ic_baseline_image_24)
+        imageTintList = ColorStateList.valueOf(palette.muted)
     }
 
     val textView = textView {
@@ -68,14 +68,14 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
         includeFontPadding = false
         setPaddingDp(12, 8, 12, 8)
         ellipsize = TextUtils.TruncateAt.END
-        setTextColor(theme.keyTextColor)
+        setTextColor(palette.text)
     }
 
     val pin = imageView {
         imageDrawable = drawable(R.drawable.ic_baseline_push_pin_24)!!.apply {
-            setTint(theme.altKeyTextColor)
             alpha = 230
         }
+        imageTintList = ColorStateList.valueOf(palette.muted)
     }
 
     val layout = constraintLayout {
@@ -98,7 +98,7 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
         isClickable = true
         minimumHeight = dp(48)
         foreground = RippleDrawable(
-            ColorStateList.valueOf(theme.keyPressHighlightColor), null,
+            ColorStateList.valueOf(palette.ripple), null,
             GradientDrawable().apply {
                 cornerRadius = radius
                 setColor(Color.WHITE)
@@ -106,7 +106,7 @@ class ClipboardEntryUi(override val ctx: Context, private val theme: Theme, radi
         )
         background = GradientDrawable().apply {
             cornerRadius = radius
-            setColor(theme.clipboardEntryColor)
+            setColor(palette.card)
         }
         add(layout, lParams(matchParent, matchParent))
     }

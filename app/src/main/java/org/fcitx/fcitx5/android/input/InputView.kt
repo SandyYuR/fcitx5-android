@@ -67,10 +67,9 @@ import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
 import org.fcitx.fcitx5.android.input.broadcast.ReturnKeyDrawableComponent
 import org.fcitx.fcitx5.android.input.action.ButtonAction
-import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
-import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateComponent
-import org.fcitx.fcitx5.android.input.clipboard.ClipboardAdapter
+import org.fcitx.fcitx5.android.data.clipboard.ClipboardCategory
+import org.fcitx.fcitx5.android.input.clipboard.TokenizedClipboardWindow
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardSearchController
 import org.fcitx.fcitx5.android.input.keyboard.KeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
@@ -3927,21 +3926,11 @@ class InputView(
         kawaiiBar.reloadButtonIcons()
     }
 
-    /**
-     * 剪贴板搜索的状态回调。必须作为属性持有同一个实例：注册在构造时、注销在
-     * onDetachedFromWindow，[ClipboardSearchController] 是进程级单例而本视图会被
-     * 主题/偏好变更整体替换（replaceInputView），按实例注销才能保证旧视图销毁时
-     * 不会清掉新视图的注册（否则搜索框文本与结果栏再也无法刷新）。
-     */
-    private val clipboardSearchStateListener: () -> Unit = { refreshClipboardSearchUi() }
-
     init {
         // Register listener for buttons layout config changes
         ConfigProviders.addButtonsLayoutListener(onButtonsLayoutChangeListener)
         // Register listener for button icon file changes (hot-reload)
         ConfigProviders.addIconChangeListener(onIconChangeListener)
-        // 剪贴板搜索：状态变化时同步工具栏搜索框与辅助栏结果。
-        ClipboardSearchController.addOnStateChangedListener(clipboardSearchStateListener)
     }
 
     override fun onDetachedFromWindow() {
@@ -3954,9 +3943,6 @@ class InputView(
         // 过程中触碰 windowManager 并往已 detach 的 keyboardView 上 post 任务；但回调和
         // 挂起标志必须清掉，否则残留的待提交值会被下一次手势的 flush 提交出去。
         cancelPendingSizeCommit()
-        // 视图销毁时先注销自己的回调（避免回调触碰已分离的视图），再结束搜索会话。
-        // 注销只影响本实例：若本视图已被新实例替换，会话结束的状态刷新会落到新视图上。
-        ClipboardSearchController.removeOnStateChangedListener(clipboardSearchStateListener)
         if (ClipboardSearchController.isActive) {
             service.stopClipboardSearch()
         }
@@ -3992,8 +3978,6 @@ class InputView(
     fun updateAuxBar(actions: List<org.fcitx.fcitx5.android.core.AuxBarAction>, listener: KeyActionListener) {
         // When floating keyboard or candidate window is active, disable external aux bar.
         // Tabs are only displayed inside the keyboard when left/right/top/bottom position is configured.
-        // 剪贴板搜索会话期间辅助栏归搜索结果所有，键盘常规内容一律跳过。
-        if (ClipboardSearchController.isActive) return
         if (isFloating || service.candidatesView?.visibility == View.VISIBLE) {
             auxBarContainer.removeAllViews()
             auxBarScrollView.visibility = View.GONE
@@ -4075,136 +4059,17 @@ class InputView(
         updateAuxBarPosition()
     }
 
+    internal fun startClipboardSearch(category: ClipboardCategory?) {
+        windowManager.attachWindow(KeyboardWindow)
+        ClipboardSearchController.open(service, category,
+            returnToKeyboard = { windowManager.attachWindow(KeyboardWindow) },
+            splitText = { windowManager.attachWindow(TokenizedClipboardWindow(it)) })
+    }
+
     fun clearAuxBar() {
         auxBarContainer.removeAllViews()
         auxBarScrollView.visibility = View.GONE
         lastAuxBarPositionInputs = null
-    }
-
-    // ---- 剪贴板历史搜索：结果复用辅助选择栏展示 ----
-
-    private var lastRenderedSearchResults: List<ClipboardEntry>? = null
-
-    /**
-     * 搜索会话的状态/查询/结果变化入口，负责三件事：
-     * 1. 同步工具栏搜索框文本（含下划线 preedit）；
-     * 2. 按“单条最多 3 行文字”构建结果卡片并渲染到辅助栏；
-     * 3. 会话结束时清理辅助栏并让键盘恢复常规辅助内容。
-     *
-     * 由 ClipboardSearchController 的状态监听驱动，同样可被键盘窗口
-     * 重新附着等场景显式调用以重建结果视图。
-     */
-    fun refreshClipboardSearchUi() {
-        kawaiiBar.onClipboardSearchChanged()
-        if (!ClipboardSearchController.isActive) {
-            lastRenderedSearchResults = null
-            auxBarContainer.removeAllViews()
-            auxBarScrollView.visibility = View.GONE
-            lastAuxBarPositionInputs = null
-            keyboardWindow.refreshAuxBar()
-            return
-        }
-        renderClipboardSearchResults()
-    }
-
-    private fun renderClipboardSearchResults() {
-        if (isFloating || service.candidatesView?.visibility == View.VISIBLE) {
-            auxBarContainer.removeAllViews()
-            auxBarScrollView.visibility = View.GONE
-            lastAuxBarPositionInputs = null
-            lastRenderedSearchResults = null
-            return
-        }
-        val query = ClipboardSearchController.queryText
-        if (query.isEmpty()) {
-            if (lastRenderedSearchResults != null || auxBarScrollView.visibility == View.VISIBLE) {
-                auxBarContainer.removeAllViews()
-                auxBarScrollView.visibility = View.GONE
-                lastAuxBarPositionInputs = null
-                lastRenderedSearchResults = null
-            }
-            return
-        }
-        val results = ClipboardSearchController.results
-        if (results === lastRenderedSearchResults && auxBarContainer.childCount > 0) return
-        lastRenderedSearchResults = results
-        auxBarContainer.removeAllViews()
-        if (results.isEmpty()) {
-            auxBarContainer.addView(searchEmptyChip())
-        } else {
-            val cardWidth = resolveSearchCardWidth()
-            // 结果按时间倒序存放；自下往上展示时最下为最新，因此逆序添加，
-            // 让最新的条目落在底部第一行，旧条目向上堆叠、向上滚动查看。
-            results.asReversed().forEach { entry ->
-                auxBarContainer.addView(searchResultCard(entry, cardWidth))
-            }
-        }
-        auxBarScrollView.visibility = View.VISIBLE
-        lastAuxBarPositionInputs = null
-        updateAuxBarPosition()
-    }
-
-    /** 每行固定 2 张卡片：宽度取容器一半（扣除间距），配合 WRAP 换行。 */
-    private fun resolveSearchCardWidth(): Int {
-        // 辅助栏宽度取约束布局里已定位的宽度：滚动视图宽度优先，其次是 InputView 自身。
-        val hostWidth = auxBarScrollView.width.takeIf { it > 0 }
-            ?: (layoutParams?.width?.takeIf { it > 0 })
-            ?: width
-        return ((hostWidth - dp(14)) / 2).coerceAtLeast(dp(80))
-    }
-
-    /** 单条结果卡片：最多 3 行文字，超出省略。 */
-    private fun searchResultCard(entry: ClipboardEntry, cardWidth: Int): TextView {
-        val theme = ThemeManager.activeTheme
-        val mask = AppPrefs.getInstance().clipboard.clipboardMaskSensitive.getValue()
-        val margin = dp(3)
-        return TextView(context).apply {
-            text = ClipboardAdapter.excerptText(
-                entry.text,
-                entry.sensitive && mask,
-                lines = 3,
-                chars = 48
-            )
-            textSize = 13f
-            setTextColor(theme.keyTextColor)
-            maxLines = 3
-            ellipsize = TextUtils.TruncateAt.END
-            setPadding(dp(8), dp(6), dp(8), dp(6))
-            background = GradientDrawable().apply {
-                cornerRadius = dp(8).toFloat()
-                setColor(theme.clipboardEntryColor)
-            }
-            layoutParams = FlexboxLayout.LayoutParams(
-                cardWidth,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(margin, margin, margin, margin) }
-            setOnClickListener {
-                service.stopClipboardSearch()
-                service.lifecycleScope.launch {
-                    service.commitClipboardEntry(entry.text)
-                    ClipboardManager.markUsed(entry.id)
-                }
-            }
-        }
-    }
-
-    private fun searchEmptyChip(): TextView {
-        val theme = ThemeManager.activeTheme
-        val margin = dp(3)
-        return TextView(context).apply {
-            text = context.getString(R.string.clipboard_search_no_results)
-            textSize = 13f
-            setTextColor(theme.altKeyTextColor)
-            setPadding(dp(12), dp(6), dp(12), dp(6))
-            background = GradientDrawable().apply {
-                cornerRadius = dp(8).toFloat()
-                setColor(theme.keyBackgroundColor)
-            }
-            layoutParams = FlexboxLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(margin, margin, margin, margin) }
-        }
     }
 
     /**

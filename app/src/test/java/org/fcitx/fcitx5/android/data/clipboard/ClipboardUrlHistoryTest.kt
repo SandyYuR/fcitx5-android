@@ -3,10 +3,12 @@ package org.fcitx.fcitx5.android.data.clipboard
 
 import android.content.ClipData
 import android.os.Looper
+import androidx.paging.PagingSource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.fcitx.fcitx5.android.FcitxApplication
+import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.fcitx.fcitx5.android.utils.appContext
 import org.fcitx.fcitx5.android.utils.clipboardManager
@@ -26,6 +28,10 @@ import java.util.concurrent.atomic.AtomicReference
 @Config(sdk = [23, 28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
 @SQLiteMode(SQLiteMode.Mode.NATIVE)
 class ClipboardUrlHistoryTest {
+    private suspend fun search(query: String): List<ClipboardEntry> =
+        (ClipboardManager.entries(ClipboardCategory.All, query).load(PagingSource.LoadParams.Refresh(null, 16, false))
+            as PagingSource.LoadResult.Page<Int, ClipboardEntry>).data
+
     @Test fun firstSystemCopyIsFilteredWithoutPluginsAndPluginsSeeTheFilteredUrl() = runBlocking {
         ClipboardManager.init(appContext)
         val oldTransformer = ClipboardManager.transformer
@@ -42,7 +48,7 @@ class ClipboardUrlHistoryTest {
             appContext.clipboardManager.setPrimaryClip(ClipData.newPlainText("fixture", "$plain&utm_source=pc"))
             ClipboardManager.onPrimaryClipChanged()
             finishWork()
-            assertEquals(plain, ClipboardManager.searchEntries(marker).single().text)
+            assertEquals(plain, search(marker).single().text)
 
             val observed = AtomicReference<String>()
             ClipboardManager.transformer = { text ->
@@ -58,7 +64,7 @@ class ClipboardUrlHistoryTest {
             ClipboardManager.onPrimaryClipChanged()
             finishWork()
             assertEquals(second, observed.get())
-            assertEquals("$second&plugin=1", ClipboardManager.searchEntries("$marker-second").single().text)
+            assertEquals("$second&plugin=1", search("$marker-second").single().text)
         } finally {
             ClipboardManager.transformer = oldTransformer
             finishWork()

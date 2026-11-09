@@ -21,6 +21,10 @@ import android.view.ViewTreeObserver
 import android.widget.*
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.TooltipCompat
 import kotlin.math.roundToInt
@@ -43,7 +47,9 @@ internal class JsAppDialog(
     private val closed: () -> Unit,
     private val keyboardView: () -> View? = { service.inputView?.keyboardView },
     private val inputLimit: Int = 65536,
-) : Dialog(service) {
+) : Dialog(service), LifecycleOwner {
+    private val panelLifecycle = LifecycleRegistry(this)
+    override val lifecycle: Lifecycle get() = panelLifecycle
     private val uiContext = SettingsUiPreferences.themedContext(service, SettingsUiPreferences.read(service))
     private val surfaceColor = uiContext.settingsColor(com.google.android.material.R.attr.colorSurfaceContainerHigh)
     private val textColor = uiContext.settingsColor(com.google.android.material.R.attr.colorOnSurface)
@@ -60,6 +66,9 @@ internal class JsAppDialog(
     private val enabled = mutableMapOf<String, Boolean>()
     private val header = FrameLayout(uiContext)
     private val footer = FrameLayout(uiContext)
+    private var nativeContent: View? = null
+    private var nativeFooterScroll: BoundedScrollView? = null
+    private var panelPaddingDp = 16
     private var layoutColumn: LinearLayout? = null
     private var headerView: View? = null
     private var actionsView: View? = null
@@ -92,20 +101,21 @@ internal class JsAppDialog(
         trackCornerRadius = dp(2)
         contentDescription = service.getString(R.string.loading)
     }
+    private val sections = LinearLayout(uiContext).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(16), dp(16), dp(16), dp(16))
+        addView(header, LinearLayout.LayoutParams(-1, -2))
+        addView(scroll, LinearLayout.LayoutParams(-1, -2))
+        addView(status, LinearLayout.LayoutParams(-1, -2))
+        addView(footer, LinearLayout.LayoutParams(-1, -2))
+    }
     private val root = JsAppPanelLayout(uiContext, ::movePanel).apply {
         background = GradientDrawable().apply {
             setColor(surfaceColor)
             cornerRadius = dp(28).toFloat()
             setStroke(dp(1), outlineColor)
         }
-        addView(LinearLayout(uiContext).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(16), dp(16), dp(16))
-            addView(header, LinearLayout.LayoutParams(-1, -2))
-            addView(scroll, LinearLayout.LayoutParams(-1, -2))
-            addView(status, LinearLayout.LayoutParams(-1, -2))
-            addView(footer, LinearLayout.LayoutParams(-1, -2))
-        }, FrameLayout.LayoutParams(-1, -2))
+        addView(sections, FrameLayout.LayoutParams(-1, -2))
         addView(progress, FrameLayout.LayoutParams(-1, dp(3), Gravity.BOTTOM).apply {
             bottomMargin = dp(8); marginStart = dp(24); marginEnd = dp(24)
         })
@@ -127,6 +137,8 @@ internal class JsAppDialog(
     private val firstDrawListener = ViewTreeObserver.OnPreDrawListener { prepareDraw() }
 
     init {
+        root.setViewTreeLifecycleOwner(this)
+        panelLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setCanceledOnTouchOutside(false)
         setContentView(root)
@@ -141,6 +153,7 @@ internal class JsAppDialog(
     }
 
     override fun show() {
+        if (dismissed) return
         // The shared IME dialog host adds dimming; this panel must leave the app and keyboard usable.
         window?.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND or
@@ -155,11 +168,14 @@ internal class JsAppDialog(
         // Attach with measured bounds, rather than correcting an already visible window.
         applyBounds()
         super.show()
+        panelLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
     override fun dismiss() {
         if (!dismissed) {
             dismissed = true
+            // Card long-press/repeat jobs belong to this window, including a close during DOWN.
+            panelLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             observedKeyboard?.viewTreeObserver?.takeIf { it.isAlive }?.removeOnGlobalLayoutListener(keyboardLayoutListener)
             observedKeyboard = null
             root.viewTreeObserver.takeIf { it.isAlive }?.removeOnPreDrawListener(firstDrawListener)
@@ -173,6 +189,37 @@ internal class JsAppDialog(
     fun values() = buildJsonObject {
         editors.forEach { (id, view) -> put(id, view.text.toString()) }
         selections.forEach { (id, value) -> put(id, value) }
+    }
+
+    val panelContext: Context get() = uiContext
+
+    fun nativeInputBox(editor: EditText): TextInputLayout = fieldBox(editor)
+
+    /** Native paged lists get their own viewport, never nested inside the script ScrollView. */
+    fun setNativeContent(bodyView: View, footerView: View, editor: EditText, heading: View? = null) {
+        check(nativeContent == null && content.childCount == 0)
+        nativeContent = bodyView
+        root.clipToOutline = true
+        panelPaddingDp = 8
+        sections.setPadding(dp(8), dp(8), dp(8), dp(8))
+        sections.removeView(scroll)
+        sections.addView(bodyView, 1, LinearLayout.LayoutParams(-1, 0))
+        headerView = heading
+        heading?.let { header.addView(it, FrameLayout.LayoutParams(-1, -2)) }
+        actionsView = footerView
+        nativeFooterScroll = BoundedScrollView(uiContext).apply {
+            isVerticalScrollBarEnabled = false
+            addView(footerView, ViewGroup.LayoutParams(-1, -2))
+            footer.addView(this, FrameLayout.LayoutParams(-1, -2))
+        }
+        maxWidthDp = 600
+        maxHeightDp = 440
+        editors["query"] = editor
+        editor.showSoftInputOnFocus = false
+        editor.setOnFocusChangeListener { _, focused -> if (focused) bindEditor(editor) }
+        editor.setOnTouchListener { _, _ -> bindEditor(editor); false }
+        applyBounds()
+        setBusy(busy)
     }
 
     fun setBusy(value: Boolean) {
@@ -489,7 +536,7 @@ internal class JsAppDialog(
         val width = minOf(dp(maxWidthDp), area.width())
         val maximum = minOf(dp(maxHeightDp), area.height())
         root.maximumHeight = maximum
-        val contentWidth = (width - dp(32)).coerceAtLeast(1)
+        val contentWidth = (width - dp(panelPaddingDp * 2)).coerceAtLeast(1)
         fun chromeHeight(view: View?): Int {
             view ?: return 0
             view.measure(View.MeasureSpec.makeMeasureSpec(contentWidth, View.MeasureSpec.EXACTLY),
@@ -497,19 +544,40 @@ internal class JsAppDialog(
             return view.measuredHeight
         }
         val headerHeight = chromeHeight(headerView)
-        val footerHeight = chromeHeight(actionsView) + if (actionsView == null) 0 else dp(8)
-        // Extremely short windows scroll as a whole; ordinary windows keep controls reachable.
-        // Move existing views only when the mode changes, preserving editor/permission state.
-        val scrollEverything = maximum < headerHeight + footerHeight + dp(112)
-        updateSectionPlacement(scrollEverything)
-        header.visibility = if (prompt == null && !allScrollable && headerView != null) View.VISIBLE else View.GONE
-        footer.visibility = if (prompt == null && !allScrollable && actionsView != null) View.VISIBLE else View.GONE
+        val footerHeight = chromeHeight(actionsView) + footer.paddingTop
         val errorHeight = if (status.visibility == View.GONE) 0 else status.lineHeight * 3 + dp(16)
-        val fixedHeight = if (prompt == null && !allScrollable) headerHeight + footerHeight else 0
-        scroll.maximumHeight = (maximum - dp(32) - errorHeight - fixedHeight).coerceAtLeast(1)
-        root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(maximum, View.MeasureSpec.AT_MOST))
-        val height = root.measuredHeight.coerceAtLeast(1)
+        val native = nativeContent
+        if (native != null) {
+            // Keep the result viewport independent of the fixed search/group controls. If even
+            // the controls exceed a short window, they remain reachable by scrolling the footer.
+            val available = (maximum - dp(panelPaddingDp * 2) - errorHeight).coerceAtLeast(1)
+            header.visibility = if (available >= headerHeight + footerHeight + dp(48)) View.VISIBLE else View.GONE
+            val headingHeight = if (header.visibility == View.VISIBLE) headerHeight else 0
+            val chrome = minOf(footerHeight, (available - headingHeight - 1).coerceAtLeast(1))
+            nativeFooterScroll?.maximumHeight = chrome
+            footer.visibility = View.VISIBLE
+            val bodyHeight = (available - headingHeight - chrome).coerceAtLeast(1)
+            val params = native.layoutParams
+            if (params.height != bodyHeight) { params.height = bodyHeight; native.layoutParams = params }
+        } else {
+            // Extremely short windows scroll as a whole; ordinary windows keep controls reachable.
+            // Move existing views only when the mode changes, preserving editor/permission state.
+            val scrollEverything = maximum < headerHeight + footerHeight + dp(112)
+            updateSectionPlacement(scrollEverything)
+            header.visibility = if (prompt == null && !allScrollable && headerView != null) View.VISIBLE else View.GONE
+            footer.visibility = if (prompt == null && !allScrollable && actionsView != null) View.VISIBLE else View.GONE
+            val fixedHeight = if (prompt == null && !allScrollable) headerHeight + footerHeight else 0
+            scroll.maximumHeight = (maximum - dp(32) - errorHeight - fixedHeight).coerceAtLeast(1)
+        }
+        val height = if (native != null) {
+            // A paged browser fills its bounded viewport. Measuring RecyclerView manually in
+            // every pre-draw can keep requesting another traversal as its pages arrive.
+            maximum
+        } else {
+            root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(maximum, View.MeasureSpec.AT_MOST))
+            root.measuredHeight.coerceAtLeast(1)
+        }
         if (!moved) { panelX = area.centerX() - width / 2; panelY = area.bottom - height }
         // Keep the requested position through temporary sizes while a new form is measured.
         val x = panelX.coerceIn(area.left, maxOf(area.left, area.right - width))
@@ -550,7 +618,7 @@ internal class JsAppDialog(
         val keyboard = keyboardView()
         val keyboardReady = keyboard == null || (keyboard.isShown && keyboard.isAttachedToWindow &&
             keyboard.isLaidOut && !keyboard.isLayoutRequested && keyboard.width > 0 && keyboard.height > 0)
-        val hasContent = prompt != null || content.childCount > 0 || status.visibility == View.VISIBLE
+        val hasContent = nativeContent != null || prompt != null || content.childCount > 0 || status.visibility == View.VISIBLE
         if (!hasContent || !keyboardReady) {
             setPanelVisible(false)
             return true

@@ -52,4 +52,6 @@
 
 键盘取色的独立 Context 必须先保留完整 Settings 基础主题，再应用颜色覆盖，不能只带一层配色 overlay。剪贴板编辑复用 IME 附着面板与本地输入连接，不切换 Activity；输入区域与面板使用同一表面色。
 
+剪贴板搜索也复用 IME 附着面板和本地输入连接；上方复用普通剪贴板的双列分页卡片，底部固定搜索框、关闭按钮与现有分组。空查询显示所选分组的全部历史，输入时只筛选该分组。搜索面板内边距为 8 dp，分组和关闭按钮保留 48 dp 触摸高度；分组使用 `ChipGroup` 按完整按钮换行，并留出圆角边缘的内缩，极短窗口允许底部控件滚动，不把分页列表放入外层 ScrollView。搜索面板的卡片、预览占位、文字、图标、选中分组与波纹统一从面板 Context 的 Material 角色取色；媒体预览留白和占位符使用整张卡片的 `colorSurfaceBright`，不另铺不同底色。选中分组使用 `colorPrimary` / `colorOnPrimary`，撤销提示使用 `colorSurfaceInverse` / `colorOnSurfaceInverse` 与 `colorPrimaryInverse`，长按菜单显式采用同一色板的 Material 菜单样式。普通键盘剪贴板继续使用自定义键盘主题，分组保持原有 30 dp 高度。附着面板为子视图提供自身的生命周期，关闭时取消未触发的长按、连按任务。查询不占用工具栏或辅助栏，窗口边界继续避开键盘。
+
 本约定参考 [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) 将颜色角色、间距、排版和组件规则写成可维护文本的方法，并结合 Linear、Raycast、Claude 的分析材料。参考版本为 `fcc70284932276d085f01ef9f83edde90b1258cb`；本项目使用自己的原生组件、颜色角色和交互契约。

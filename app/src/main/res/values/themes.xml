@@ -123,4 +123,14 @@
     </style>
 
     <style name="InputViewSnackbarTheme" parent="Theme.MaterialComponents.Light.NoActionBar" />
+
+    <!-- IME service inflaters create a platform Button, which cannot apply the Expressive
+         button's MaterialThemeOverlay dimension attributes. Preserve the panel's colors. -->
+    <style name="ThemeOverlay.FcitxSettings.Snackbar" parent="">
+        <item name="snackbarButtonStyle">@style/Widget.Material3.Button.TextButton.Snackbar</item>
+    </style>
+
+    <style name="ThemeOverlay.FcitxSettings.ClipboardMenu" parent="">
+        <item name="android:popupMenuStyle">@style/Widget.Material3.PopupMenu</item>
+    </style>
 </resources>

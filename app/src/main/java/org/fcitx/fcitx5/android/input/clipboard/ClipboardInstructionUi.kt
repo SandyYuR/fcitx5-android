@@ -24,21 +24,21 @@ import splitties.views.dsl.core.wrapContent
 import splitties.views.imageDrawable
 import splitties.views.setPaddingDp
 
-sealed class ClipboardInstructionUi(override val ctx: Context, protected val theme: Theme) : Ui {
+sealed class ClipboardInstructionUi(override val ctx: Context, protected val colors: ClipboardColors) : Ui {
 
-    class Enable(ctx: Context, theme: Theme) : ClipboardInstructionUi(ctx, theme) {
+    class Enable(ctx: Context, theme: Theme, colors: ClipboardColors = ClipboardColors.keyboard(theme)) : ClipboardInstructionUi(ctx, colors) {
 
         private val androidStyles = AndroidStyles(ctx)
 
         private val instructionText = textView {
             setText(R.string.instruction_enable_clipboard_listening)
             setPaddingDp(12, 8, 12, 8)
-            setTextColor(theme.keyTextColor)
+            setTextColor(colors.text)
         }
 
         val enableButton = androidStyles.button.borderless {
             setText(R.string.clipboard_enable)
-            setTextColor(theme.accentKeyBackgroundColor)
+            setTextColor(colors.primary)
         }
 
         override val root = constraintLayout {
@@ -54,17 +54,17 @@ sealed class ClipboardInstructionUi(override val ctx: Context, protected val the
         }
     }
 
-    class Empty(ctx: Context, theme: Theme) : ClipboardInstructionUi(ctx, theme) {
+    class Empty(ctx: Context, theme: Theme, colors: ClipboardColors = ClipboardColors.keyboard(theme)) : ClipboardInstructionUi(ctx, colors) {
 
         private val icon = imageView {
             imageDrawable = drawable(R.drawable.ic_baseline_content_paste_24)!!.apply {
-                setTint(theme.altKeyTextColor)
+                setTint(colors.muted)
             }
         }
 
         private val instructionText = textView {
             setText(R.string.instruction_copy)
-            setTextColor(theme.keyTextColor)
+            setTextColor(colors.text)
         }
 
         override val root = constraintLayout {

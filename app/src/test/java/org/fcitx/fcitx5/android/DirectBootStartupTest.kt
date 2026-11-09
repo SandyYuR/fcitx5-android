@@ -31,7 +31,7 @@ import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.input.config.DefaultConfigProvider
-import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
+import org.fcitx.fcitx5.android.input.clipboard.ClipboardContent
 import org.fcitx.fcitx5.android.input.font.DefaultFontProvider
 import org.fcitx.fcitx5.android.input.keyboard.AlphabetKey
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
@@ -201,7 +201,7 @@ class DirectBootStartupTest {
                 .filterIsInstance<AlphabetKey>().joinToString("") { it.character.lowercase() }
             assertEquals("qwertyuiopasdfghjklzxcvbnm", letters)
         } finally { TextKeyboard.setPasswordDefaultLayout(false) }
-        val clipboardPrefs = ReflectionHelpers.callInstanceMethod<SharedPreferences>(ClipboardWindow(), "getSharedPreferences")
+        val clipboardPrefs = ClipboardContent.categoryPreferences()
         assertSame(PreferenceManager.getDefaultSharedPreferences(app.directBootAwareContext), clipboardPrefs)
         val fontLoad = CountDownLatch(1)
         DefaultFontProvider().preloadFontsAsync { fontLoad.countDown() }
@@ -232,7 +232,7 @@ class DirectBootStartupTest {
         assertFalse(app.directBootAwareContext.isDeviceProtectedStorage)
         assertEquals("dark", PreferenceManager.getDefaultSharedPreferences(app.directBootAwareContext)
             .getString("settings_ui_mode", null))
-        assertSame(credentials, ReflectionHelpers.callInstanceMethod<SharedPreferences>(ClipboardWindow(), "getSharedPreferences"))
+        assertSame(credentials, ClipboardContent.categoryPreferences())
         assertEquals("light", device.getString("settings_ui_mode", null))
         assertFalse(device.contains("private_test_value"))
     }

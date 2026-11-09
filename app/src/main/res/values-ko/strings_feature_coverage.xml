@@ -46,6 +46,7 @@
     <string name="clipboard_entry_file_named">파일 · %1$s</string>
     <string name="copy">복사</string>
     <string name="clipboard_search_no_results">결과 없음</string>
+    <string name="clipboard_search_hint">클립보드 검색</string>
     <string name="addon_dir_profile_delete_last_forbidden">데이터 디렉터리를 하나 이상 남겨야 합니다</string>
     <string name="random_theme">무작위 테마</string>
     <string name="random_theme_score">배색 점수: %1$d/100 (대비 %2$d, 색조 %3$d, 채도 %4$d, 명도 %5$d)</string>
