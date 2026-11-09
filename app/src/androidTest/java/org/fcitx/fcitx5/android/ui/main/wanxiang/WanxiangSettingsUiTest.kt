@@ -9,10 +9,12 @@ import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inspector.WindowInspector
 import android.widget.ImageButton
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.EditText
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -26,6 +28,9 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.RawConfig
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.data.WanxiangAdvancedFiles
+import org.fcitx.fcitx5.android.data.WanxiangYaml
+import org.fcitx.fcitx5.android.input.InputView
+import org.fcitx.fcitx5.android.input.keyboard.KeyView
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
 import org.junit.After
@@ -168,6 +173,81 @@ class WanxiangSettingsUiTest {
         }
     }
 
+    @Test fun rawTextCreatedAfterBooleanOrListCanUseTheActualIme() = withProfile(fixture = true) { directory ->
+        setFontScale(1f)
+        theme(false)
+        val before = configurationSnapshot(directory)
+        val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
+        val previousIme = shell("settings get secure default_input_method")
+        val previouslyEnabled = component in shell("ime list -s").lineSequence().toList()
+        val previousHardwareIme = shell("settings get secure show_ime_with_hard_keyboard")
+        shell("settings put secure show_ime_with_hard_keyboard 1")
+        shell("ime enable $component"); shell("ime set $component")
+        try {
+            page(WanxiangAdvancedActivity::class.java, "advanced-dynamic-raw", ready = { !model(it).state.value.busy }) { activity ->
+                for ((type, value) in listOf(WanxiangYaml.Type.BOOLEAN to "false\n", WanxiangYaml.Type.YAML to "['old']\n")) {
+                    onMain {
+                        val vm = model(activity)
+                        vm.pending = WanxiangAdvancedViewModel.Pending(vm.state.value.file, "fixture/value", type.name, value)
+                        activity.javaClass.getDeclaredMethod("showPending").apply { isAccessible = true }.invoke(activity)
+                    }
+                    var dialog: androidx.appcompat.app.AlertDialog? = null
+                    await("The value editor must open with its initial non-text view") {
+                        dialog = activity.javaClass.getDeclaredField("editorDialog").apply { isAccessible = true }
+                            .get(activity) as? androidx.appcompat.app.AlertDialog
+                        dialog?.let { it.isShowing && it.window!!.decorView.isLaidOut &&
+                            !it.window!!.decorView.isLayoutRequested } == true
+                    }
+                    val host = checkNotNull(dialog)
+                    var raw: MaterialButton? = null
+                    onMain {
+                        assertEquals(0, host.window!!.attributes.flags and WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+                        raw = descendants(host.window!!.decorView).filterIsInstance<MaterialButton>().single {
+                            it.text == activity.getString(R.string.wanxiang_advanced_raw)
+                        }
+                    }
+                    instrumentation.waitForIdleSync()
+                    SystemClock.sleep(150)
+                    tap(checkNotNull(raw))
+                    var input: EditText? = null
+                    await("Raw mode must create and lay out its text field") {
+                        input = descendants(host.window!!.decorView).filterIsInstance<EditText>().singleOrNull {
+                            it.isShown && it.isLaidOut && it.width > 0 && it.height > 0
+                        }
+                        input != null
+                    }
+                    val editor = checkNotNull(input)
+                    tap(editor)
+                    await("The dynamic YAML input must be a normal system IME target") {
+                        editor.isFocused && editor.hasWindowFocus() &&
+                            WindowInspector.getGlobalWindowViews().flatMap(::descendants).filterIsInstance<InputView>()
+                                .any { it.isShown && it.service.isInputViewShown }
+                    }
+                    onMain { editor.selectAll() }
+                    for (label in listOf("n", "i", "Space")) {
+                        var key: KeyView? = null
+                        await("Missing actual key $label") {
+                            key = WindowInspector.getGlobalWindowViews().flatMap(::descendants).filterIsInstance<KeyView>()
+                                .firstOrNull { it.isShown && it.statisticsKeyLabel.equals(label, ignoreCase = true) }
+                            key != null
+                        }
+                        tap(checkNotNull(key))
+                    }
+                    await("Chinese composition must reach the newly created raw field") { editor.text.toString() == "你" }
+                    capture("advanced-raw-ime-${type.name.lowercase()}")
+                    onMain { host.getButton(android.content.DialogInterface.BUTTON_NEGATIVE).performClick() }
+                    await("Cancel must release the value draft") { model(activity).pending == null }
+                }
+            }
+            assertEquals(before, configurationSnapshot(directory))
+        } finally {
+            if (previousIme.contains('/')) shell("ime set $previousIme")
+            if (!previouslyEnabled) shell("ime disable $component")
+            if (previousHardwareIme.toIntOrNull() != null) shell("settings put secure show_ime_with_hard_keyboard $previousHardwareIme")
+            else shell("settings delete secure show_ime_with_hard_keyboard")
+        }
+    }
+
     private fun withProfile(fixture: Boolean, body: (File) -> Unit) {
         val name = "wanxiang-ui-${UUID.randomUUID()}"
         var previous: String? = null
@@ -250,7 +330,11 @@ class WanxiangSettingsUiTest {
 
     private fun tap(view: View) {
         val bounds = Rect()
-        onMain { assertTrue("The setting must be visible before tapping", view.getGlobalVisibleRect(bounds)) }
+        onMain {
+            assertTrue("The setting must be visible before tapping", view.getLocalVisibleRect(bounds))
+            val location = IntArray(2).also(view::getLocationOnScreen)
+            bounds.offset(location[0], location[1])
+        }
         val now = SystemClock.uptimeMillis()
         listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP).forEachIndexed { index, action ->
             val event = MotionEvent.obtain(now, now + index * 30L, action, bounds.exactCenterX(), bounds.exactCenterY(), 0)

@@ -5,8 +5,11 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.core.view.descendants
 import androidx.recyclerview.widget.RecyclerView
@@ -15,6 +18,7 @@ import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
+import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorDialogFragment
 import org.fcitx.fcitx5.android.utils.parcelable
 import org.junit.Assert.*
@@ -22,14 +26,16 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [23, 35], qualifiers = "w360dp-h640dp-mdpi", application = FcitxApplication::class,
     shadows = [EditorApplicationShadow::class])
 class MacroEditorDialogLayoutTest {
-    private fun page(manySteps: Boolean = false, block: (MacroEditorDialogFragment, ViewGroup, () -> Bundle?) -> Unit) {
-        val steps = List(if (manySteps) 16 else 1) { MacroStep.Text("original $it") }
+    private fun page(manySteps: Boolean = false, initialSteps: List<MacroStep>? = null,
+        block: (MacroEditorDialogFragment, ViewGroup, () -> Bundle?) -> Unit) {
+        val steps = initialSteps ?: List(if (manySteps) 16 else 1) { MacroStep.Text("original $it") }
         val intent = Intent().putExtra(MacroEditorDialogFragment.EXTRA_MACRO_STEPS_JSON, Json.encodeToString<List<MacroStep>>(steps))
             .putExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN, "longPress")
         val controller = launchMacroEditorTestHost(intent)
@@ -103,6 +109,32 @@ class MacroEditorDialogLayoutTest {
         val steps = Json.decodeFromString<List<MacroStep>>(resultIntent.getStringExtra(MacroEditorDialogFragment.EXTRA_MACRO_RESULT_JSON)!!)
         assertEquals(listOf(MacroStep.Text("edited")), steps)
     }
+
+    @Test fun lazilyBoundTextStepCanAcceptInputFromTheSystemIme() = page { fragment, root, _ ->
+        assertEquals("AlertController must not exclude editors created by RecyclerView from the IME",
+            0, fragment.dialog!!.window!!.attributes.flags and WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+        val editor = root.descendants.filterIsInstance<EditText>().first()
+        assertTrue(editor.requestFocus())
+        assertTrue(editor.showSoftInputOnFocus)
+        editor.selectAll()
+        val connection = requireNotNull(editor.onCreateInputConnection(EditorInfo()))
+        assertTrue(connection.commitText("中文😀", 1))
+        assertEquals("中文😀", editor.text.toString())
+        assertTrue(button(root, R.string.macro_editor_confirm).isEnabled)
+    }
+
+    @Test fun changingAnInitiallyNonEditableStepToTextKeepsTheImeAvailable() =
+        page(initialSteps = listOf(MacroStep.Tap(listOf(KeyRef.Fcitx("Return"))))) { fragment, root, _ ->
+            val selector = root.descendants.filterIsInstance<org.fcitx.fcitx5.android.ui.common.MaterialSpinner>().single()
+            selector.setSelection(7)
+            shadowOf(Looper.getMainLooper()).idle()
+            val editor = root.descendants.filterIsInstance<EditText>().single()
+            assertTrue(editor.isShown)
+            assertTrue(editor.requestFocus())
+            assertEquals(0, fragment.dialog!!.window!!.attributes.flags and WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+            assertTrue(requireNotNull(editor.onCreateInputConnection(EditorInfo())).commitText("新增文本", 1))
+            assertEquals("新增文本", editor.text.toString())
+        }
 
     @Test fun cancelDoesNotReturnAnEditedMacro() = page { fragment, root, result ->
         root.descendants.filterIsInstance<EditText>().first().setText("discarded")

@@ -45,6 +45,7 @@ import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardDatabase
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
+import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
@@ -61,6 +62,8 @@ import org.fcitx.fcitx5.android.input.voice.js.JsAppPermissions
 import org.fcitx.fcitx5.android.input.voice.js.JsApps
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceProviders
 import org.fcitx.fcitx5.android.ui.main.settings.im.RimeImportActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorDialogFragment
 import org.fcitx.fcitx5.android.utils.settingsColor
 import org.junit.Assert.*
 import org.junit.Test
@@ -318,6 +321,7 @@ class ClipboardSearchDeviceTest {
                 }
                 onMain { activity.finish() }; instrumentation.waitForIdleSync(); activities.remove(activity)
             }
+            exerciseNativeActionDialog()
         } finally {
             onMain {
                 ClipboardSearchController.stop()
@@ -609,6 +613,58 @@ class ClipboardSearchDeviceTest {
                 if (previousPermissions == null) remove(permissionKey) else putStringSet(permissionKey, previousPermissions)
             }.commit()
         }
+    }
+
+    private fun exerciseNativeActionDialog() {
+        val original = "original action"
+        val initial = listOf<MacroStep>(MacroStep.Text(original))
+        val data = mapOf<String, Any?>("type" to "MacroKey", "displayText" to "测试动作",
+            "swipeDown" to mapOf("macro" to MacroEditorDialogFragment.toStepsExtra(initial)))
+        val intent = Intent(context, KeyEditorActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .putExtra(KeyEditorActivity.EXTRA_KEY_DATA, KeyEditorActivity.toSerializableMap(data))
+        val activity = instrumentation.startActivitySync(intent) as KeyEditorActivity
+        activities += activity
+        val action = onMainValue { descendants(activity.window.decorView).filterIsInstance<MaterialButton>().single {
+            it.contentDescription == context.getString(R.string.text_keyboard_layout_macro_swipe_down_event) +
+                " · " + context.getString(R.string.edit)
+        } }
+        tap(action)
+        var fragment: MacroEditorDialogFragment? = null
+        await("The layout action editor must open in its parent page") {
+            fragment = activity.supportFragmentManager.findFragmentByTag(MacroEditorDialogFragment.TAG) as? MacroEditorDialogFragment
+            fragment?.dialog?.isShowing == true
+        }
+        val dialog = checkNotNull(fragment?.dialog)
+        val text = onMainValue { descendants(dialog.window!!.decorView).filterIsInstance<EditText>().single { it.isShown } }
+        onMain {
+            assertEquals(0, dialog.window!!.attributes.flags and WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+        }
+        tap(text)
+        var ime: FcitxInputMethodService? = null
+        await("Tapping the action text must invoke the real keyboard") {
+            ime = windows().filterIsInstance<InputView>().firstOrNull { it.isShown }?.service
+            ime?.isInputViewShown == true && text.isFocused && text.hasWindowFocus()
+        }
+        onMain { text.setSelection(text.length()) }
+        tapKey("n"); tapKey("i"); tapKey("Space")
+        await("Real Rime composition must append Chinese to the action text") { text.text.toString() == original + "你" }
+        tapKey("Backspace")
+        await("Backspace must edit the same action field") { text.text.toString() == original }
+        tapKey("n"); tapKey("i"); tapKey("Space")
+        await("The text field must remain editable") { text.text.toString() == original + "你" }
+        capture("layout-action-text-keyboard")
+        tap(onMainValue { descendants(dialog.window!!.decorView).filterIsInstance<MaterialButton>().single {
+            it.text == context.getString(R.string.macro_editor_confirm)
+        } })
+        await("Confirm must return the macro draft to the original key form") { fragment?.dialog?.isShowing != true }
+        onMain {
+            val form = KeyEditorActivity::class.java.getDeclaredField("form").apply { isAccessible = true }.get(activity)
+            val draft = form.javaClass.getDeclaredField("keyData").apply { isAccessible = true }.get(form) as Map<*, *>
+            val steps = (draft["swipeDown"] as Map<*, *>)["macro"] as List<*>
+            assertEquals(original + "你", (steps.single() as Map<*, *>)["text"])
+            activity.finish()
+        }
+        activities.remove(activity)
     }
 
     private fun assertPanel(service: FcitxInputMethodService, query: EditText, results: View) = onMain {

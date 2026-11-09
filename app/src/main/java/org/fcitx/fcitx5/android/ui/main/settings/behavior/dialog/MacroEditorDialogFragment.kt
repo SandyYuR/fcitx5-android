@@ -43,6 +43,7 @@ import org.fcitx.fcitx5.android.utils.serializable
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FlowLayout
 import splitties.dimensions.dp
 import org.fcitx.fcitx5.android.utils.settingsColor
+import org.fcitx.fcitx5.android.utils.allowImeInput
 
 /**
  * Macro editor shown as a Material dialog over the current editor page.
@@ -777,6 +778,10 @@ class MacroEditorDialogFragment : DialogFragment() {
 
     override fun onStart() {
         super.onStart()
+        // AlertController scans before RecyclerView binds its editable rows, so it treats
+        // this form as a picker and adds ALT_FOCUSABLE_IM. Clear it after installation;
+        // text steps added or selected later must still be normal system IME targets.
+        dialog?.allowImeInput()
         resizeDialog()
     }
 

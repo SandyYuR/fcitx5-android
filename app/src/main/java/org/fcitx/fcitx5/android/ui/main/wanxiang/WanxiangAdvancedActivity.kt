@@ -24,6 +24,7 @@ import org.fcitx.fcitx5.android.ui.common.*
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.EditorDraftState
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorUi
 import org.fcitx.fcitx5.android.utils.settingsColor
+import org.fcitx.fcitx5.android.utils.allowImeInput
 import org.yaml.snakeyaml.nodes.*
 
 class WanxiangAdvancedActivity : SettingsUiActivity() {
@@ -359,6 +360,8 @@ class WanxiangAdvancedActivity : SettingsUiActivity() {
         val dialog = builder.create()
         track(dialog)
         dialog.setOnShowListener {
+            // Boolean/list views can create a text editor on navigation or in raw YAML mode.
+            dialog.allowImeInput()
             dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener {
                 runCatching { model.editPending(yaml.dump(valueEditor.result())) }.onSuccess { dialog.dismiss() }.onFailure { error ->
                     MaterialAlertDialogBuilder(this).setTitle(R.string.ui_operation_failed).setMessage(error.message).setPositiveButton(android.R.string.ok, null).show()
