@@ -49,7 +49,8 @@ class FcitxDisconnectedException(connectionName: String) :
  */
 object FcitxDaemon {
 
-    private val engine: InputEngine by lazy { DirectRimeBackend(appContext) }
+    private val engineDelegate = lazy<InputEngine> { DirectRimeBackend(appContext) }
+    private val engine: InputEngine by engineDelegate
 
     // don't leak fcitx instance
     private val fcitxImpl by lazy { InputEngineApi(engine) }
@@ -131,6 +132,10 @@ object FcitxDaemon {
 
     private val clients = mutableMapOf<String, FcitxConnection>()
     private var userDataIoInProgress = false
+    private var shutdownRequested = false
+
+    /** Call only while holding [lock]. */
+    private fun engineMayRun() = !userDataIoInProgress && !shutdownRequested
 
     /** Check on the engine owner before updating resources; backup waits for that owner to stop. */
     internal fun requireUserDataAvailable() = lock.withLock {
@@ -143,7 +148,7 @@ object FcitxDaemon {
     fun connect(name: String): FcitxConnection = lock.withLock {
         if (name in clients)
             return@withLock clients.getValue(name)
-        if (!userDataIoInProgress) {
+        if (engineMayRun()) {
             Timber.d("FcitxDaemon start fcitx")
             engine.start()
         }
@@ -159,7 +164,7 @@ object FcitxDaemon {
         if (name !in clients)
             return
         clients -= name
-        if (clients.isEmpty() && !userDataIoInProgress) {
+        if (clients.isEmpty() && engineMayRun()) {
             Timber.d("FcitxDaemon stop fcitx")
             engine.requestStop()
         }
@@ -169,8 +174,8 @@ object FcitxDaemon {
      * Restart fcitx instance while keep the clients connected
      */
     fun restartFcitx() = lock.withLock {
-        if (userDataIoInProgress) {
-            Timber.d("Skip restarting fcitx during user data backup or restore")
+        if (!engineMayRun()) {
+            Timber.d("Skip restarting fcitx while user data is unavailable or the process is shutting down")
             return@withLock
         }
         val id = RESTART_ID++
@@ -204,11 +209,30 @@ object FcitxDaemon {
     }
 
     /**
+     * Permanently stop the engine before this process is terminated.
+     *
+     * Unlike [FcitxAPI.save], this only finalizes the live engine and does not
+     * start Rime's user-data synchronization or create a restore scratch DB.
+     * Once requested, late clients and restore callbacks cannot restart it.
+     *
+     * Wait for an initialized engine's pending asynchronous stop: the final
+     * client may have disconnected just before the shutdown broadcast without
+     * native cleanup having completed yet. Do not initialize an unused engine.
+     */
+    fun shutdownFcitx() {
+        val initializedEngine = lock.withLock {
+            shutdownRequested = true
+            if (engineDelegate.isInitialized()) engineDelegate.value else null
+        }
+        initializedEngine?.stop()
+    }
+
+    /**
      * Start fcitx instance.
      * Should only be used when it has been stopped **AND** user data importing failed.
      */
     fun startFcitx() {
-        lock.withLock { if (!userDataIoInProgress) engine.start() }
+        lock.withLock { if (engineMayRun()) engine.start() }
     }
 
     /** Caller holds a ready connection. Keep new clients from starting during replacement. */
@@ -219,6 +243,7 @@ object FcitxDaemon {
     private fun beginUserDataIo() {
         lock.withLock {
             check(!userDataIoInProgress) { "A user data backup or restore is already in progress." }
+            check(!shutdownRequested) { "The input engine is shutting down." }
             userDataIoInProgress = true
         }
         try {
@@ -235,7 +260,10 @@ object FcitxDaemon {
     /** On success the process exits with the guard held; on failure resume connected clients. */
     fun finishFailedUserDataRestore() = lock.withLock {
         userDataIoInProgress = false
-        if (clients.isNotEmpty() && engine.lifecycle.currentState == FcitxLifecycle.State.STOPPED) engine.start()
+        if (clients.isNotEmpty() && engineMayRun() &&
+            engine.lifecycle.currentState == FcitxLifecycle.State.STOPPED) {
+            engine.start()
+        }
     }
 
     /** Backup resumes the engine on both success and failure, before opening the save picker. */

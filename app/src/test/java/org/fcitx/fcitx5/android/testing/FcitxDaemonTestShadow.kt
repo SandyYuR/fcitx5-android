@@ -11,6 +11,7 @@ import org.robolectric.annotation.Resetter
 internal interface FcitxDaemonTestDelegate {
     fun connect(name: String): FcitxConnection = error("Unexpected daemon connect: $name")
     fun disconnect(name: String): Unit = error("Unexpected daemon disconnect: $name")
+    fun shutdownFcitx(): Unit = error("Unexpected daemon shutdown")
     fun getCurrentInputSession(): Long = error("Unexpected daemon currentInputSession")
     fun isCurrentInputSession(generation: Long): Boolean = generation == 0L || generation == getCurrentInputSession()
     fun requireInputSession(): Boolean = error("Unexpected daemon requireInputSession")
@@ -34,6 +35,7 @@ internal class FcitxDaemonTestShadow {
 
     @Implementation fun connect(name: String) = current().connect(name)
     @Implementation fun disconnect(name: String) = current().disconnect(name)
+    @Implementation fun shutdownFcitx() = current().shutdownFcitx()
     @Implementation fun getCurrentInputSession() = current().getCurrentInputSession()
     @Implementation fun isCurrentInputSession(generation: Long) = current().isCurrentInputSession(generation)
     @Implementation fun requireInputSession() = current().requireInputSession()
