@@ -29,9 +29,13 @@
 | DOWN 必须有兜底 UP；focus 不覆盖显式 inactive binding | `focus` / `deactivate`、`KeyboardInputLifecycleTrackerTest` |
 | 临时线程优先级必须恢复；提升失败不拒键 | `core/InteractiveThreadPriority.kt` |
 
-无方案时，密码/直接输入绑定仍允许通过同一按键门控转发 DOWN/UP；普通 Rime 编辑器不能因此获得“可用”状态。维护、过期和部署失败状态继续拒绝输入。会话创建、方案/中英文恢复与首次状态发布都属于同步绑定阶段，不能在恢复方案前提前降回普通线程优先级。回归入口是 `InputBindingStartupTest`。
+无方案时，密码/直接输入绑定仍允许通过同一按键门控转发 DOWN/UP；普通 Rime 编辑器不能因此获得“可用”状态。维护、过期和部署失败状态继续拒绝输入。`Native.beginInput` 内的会话创建、方案/开关恢复与首次状态发布都属于同步绑定阶段，保持交互线程优先级，失败时也必须恢复原优先级。回归入口是 `InputBindingStartupTest`。
 
-状态区方案开关的 native action 8 仅将已部署 `default.yaml` 的 `switcher/save_options` 成员写入 `user.yaml` 的 `var/option/<name>`；内部下划线选项不保存。librime Switcher 使用 `.default`，不能合并当前输入方案下的同名列表。重部署、同步或重启后清除白名单缓存；互斥组的关闭值与开启值都保存。会话恢复仍由 librime 执行，方案 `reset` 保持优先。`engine_test.cpp` 检查写入范围，`DirectRimeFrontendTest.schemaSwitchPreferencesSurviveNewSessionsAndRestart` 使用真实 librime 检查跨会话、重启、互斥组、reset 和白名单更新；仅运行 fake API 测试不能证明真实恢复行为。
+新会话的方案与 `ascii_mode` 直接采用 `Native.beginInput` 返回的快照，不能用上一编辑器发布的状态再次调用 `select_schema` 或 `set_option`。方案的 `reset`、已保存的开关值和 `switcher/fix_schema_list_order` 均由 librime 决定；临时西文状态不能由前端回放到下一应用。同应用普通编辑器的 native 会话复用仍保留其实际状态，跨应用与敏感边界创建新会话。真实引擎回归入口是 `DirectRimeFrontendTest.newSessionsRespectRimeAsciiReset`、`newSessionsRespectRimeSchemaOrder`、`newSessionsKeepRimeSavedAscii`、`newSessionsKeepRimeRecentSchema` 与 `newApplicationDoesNotInheritInlineAscii`。
+
+复用要求前后两个输入框的 native `noLearning` 都为 false、应用名非空且相同、原 session 仍有效。密码、PIN、禁止个性化学习和 Direct Boot 均隔离会话，回到普通输入框时也不能复用先前的敏感 session；仅清空 composition 不足以清除 Lua 等组件的内部状态。经过密码框后恢复 `ascii_mode` 的方案 reset 值符合这一契约，不能为保留 Shift 临时模式而重放前端快照。
+
+状态区方案开关的 native action 8 和菜单中英文切换的 action 6 共用 `Engine::setOption`，仅将已部署 `default.yaml` 的 `switcher/save_options` 成员写入 `user.yaml` 的 `var/option/<name>`；内部下划线选项不保存。librime Switcher 使用 `.default`，不能合并当前输入方案下的同名列表。重部署、同步或重启后清除白名单缓存；互斥组和 `ascii_mode` 的关闭值与开启值都按列表保存，按键产生的临时西文变化不经过这一前端保存入口。会话恢复仍由 librime 执行，方案 `reset` 保持优先。菜单切换项用编码区相同的资源文案显示目标模式，英文状态的菜单入口也复用英文模式文案；内部 action ID、`ascii_mode` 名称与子模式身份不随显示名称更改。`engine_test.cpp` 检查写入范围，`DirectRimeFrontendTest.schemaSwitchPreferencesSurviveNewSessionsAndRestart` 使用真实 librime 检查跨会话、重启、互斥组、reset 和白名单更新；`modeMenuRemembersBothDirections` 与 `modeMenuWithoutSaveOptionsStaysSessionLocal` 检查菜单切换的保存与不保存边界。仅运行 fake API 测试不能证明真实恢复行为。
 
 ### 候选目标、坐标与展示快照
 
@@ -103,9 +107,13 @@ JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果
 
 字段的用户说明见[按键参考](/features/keys/overview)和[布局编辑器](/features/editor/layout-editor)。特别注意：当前 SymbolKey 默认发送标准句号供方案处理，键面标签不等于上屏字符。
 
+标点键面与弹出项按布局和预设原文展示，`TextKeyboard.refreshSymbolKeyLabels` 保留样式刷新、辅助标签、字母大小写和显式显示文本的边界，`PopupComponent` 不再通过 Fcitx 标点映射替换标签。旧 `transformPunctuation` 字段继续兼容读取，但不能重接 `PunctuationComponent`、`PunctuationManager`、`chttrans` 页面或旧回调。Rime 的 `punctuator`、通用 YAML 预设和 OpenCC 数据继续保留；`TextKeyboardLabelsTest` 与真实 `DirectRimeFrontendTest.symbolKeysAndPopupsUseRimePunctuation` 分别验证键面和引擎上屏。
+
 ## 设置与主题
 
 界面规范与共用组件见[界面设计](./design-system)。AI 面板与设置页通过同一主题入口取色；窗口重新分配标题、正文和操作区时不能重建输入连接或丢掉草稿。授权提示期间隐藏原操作区，关闭后不得重新绑定已失效的编辑器。
+
+AI、剪贴板搜索和剪贴板编辑共用的 `JsAppDialog` 位于父 IME 窗口下方，原编码区和浮动候选在面板上层实时更新；编码宽高变化不驱动面板避让或复制到另一视图。`JsAppEditText` 只为当前本地编辑器维持原生光标闪烁，不能改变真实窗口焦点和原应用输入会话。忙碌、授权提示、只读、隐藏和关闭期间停止编辑光标，恢复输入时重新闪烁。AI 下拉选择项采用紧凑的 36 dp 普通行、上下各 4 dp 留白，整行可点，按实际文字测高并受键盘边界约束。`JsAppFloatingPanelTest` 检查暂停/恢复和选项高度，`ClipboardSearchDeviceTest` 用真实软键、重叠区域截图像素及无窗口焦点的光标帧验证三种生产入口。
 
 恢复进程的 UI 只读取主题资源，不可为统一外观引入偏好读取、主题管理器初始化或原生引擎。`restoreUiContext` 与主进程的 `SettingsUiPreferences.themedContext` 用途不同。
 

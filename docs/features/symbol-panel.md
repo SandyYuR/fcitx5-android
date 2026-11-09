@@ -44,4 +44,6 @@
 
 输入某个符号时是否上屏、是否经过 Rime 标点转换，还与使用的按键动作和方案有关。屏幕面板风格不改变 Rime 方案。
 
+键盘标点键和长按弹出标签保留布局或预设中的文字；单字符按键由 Rime `punctuator` 决定上屏。旧 Fcitx 标点映射和 `chttrans` 配置入口已经移除，Rime 的标点预设和 OpenCC 转换继续保留；调整方式见[标点与简繁转换](/features/rime-enhancements#标点与简繁转换)。
+
 相关说明：[布局切换键](/features/keys/layout-switch-key) · [工具栏](/features/kawaii-bar) · [主题编辑](/features/theme/theme-editor)。
