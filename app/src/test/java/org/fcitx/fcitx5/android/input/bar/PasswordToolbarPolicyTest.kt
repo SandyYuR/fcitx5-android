@@ -12,19 +12,8 @@ class PasswordToolbarPolicyTest {
     @Test
     fun higherPriorityContentPrecedesForcedAndAutomaticPasswordNumberRow() {
         assertEquals(
-            IdleToolbarContent.Search,
-            resolveIdleToolbarContent(
-                searchActive = true,
-                clipboardFresh = true,
-                inlineSuggestionPresent = true,
-                forceNumberRow = true,
-                passwordMode = PasswordToolbarMode.NumberRow
-            )
-        )
-        assertEquals(
             IdleToolbarContent.Clipboard,
             resolveIdleToolbarContent(
-                searchActive = false,
                 clipboardFresh = true,
                 inlineSuggestionPresent = true,
                 forceNumberRow = true,
@@ -34,7 +23,6 @@ class PasswordToolbarPolicyTest {
         assertEquals(
             IdleToolbarContent.InlineSuggestion,
             resolveIdleToolbarContent(
-                searchActive = false,
                 clipboardFresh = false,
                 inlineSuggestionPresent = true,
                 forceNumberRow = true,
@@ -48,7 +36,6 @@ class PasswordToolbarPolicyTest {
         assertEquals(
             IdleToolbarContent.NumberRow,
             resolveIdleToolbarContent(
-                searchActive = false,
                 clipboardFresh = false,
                 inlineSuggestionPresent = false,
                 forceNumberRow = false,
@@ -58,7 +45,6 @@ class PasswordToolbarPolicyTest {
         assertEquals(
             IdleToolbarContent.Toolbar,
             resolveIdleToolbarContent(
-                searchActive = false,
                 clipboardFresh = false,
                 inlineSuggestionPresent = false,
                 forceNumberRow = false,

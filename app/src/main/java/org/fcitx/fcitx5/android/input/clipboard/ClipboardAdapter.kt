@@ -35,7 +35,8 @@ import kotlin.math.min
 abstract class ClipboardAdapter(
     private val theme: Theme,
     private val entryRadius: Float,
-    private val maskSensitive: Boolean
+    private val maskSensitive: Boolean,
+    private val colors: ClipboardColors = ClipboardColors.keyboard(theme),
 ) : PagingDataAdapter<ClipboardEntry, ClipboardAdapter.ViewHolder>(diffCallback) {
 
     companion object {
@@ -108,7 +109,7 @@ abstract class ClipboardAdapter(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder(ClipboardEntryUi(parent.context, theme, entryRadius))
+        ViewHolder(ClipboardEntryUi(parent.context, theme, entryRadius, colors))
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val entry = getItem(position) ?: return

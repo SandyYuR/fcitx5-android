@@ -34,12 +34,20 @@ internal object JsAppPermissions {
 
 /** App capabilities share plugin source/settings, but never enter the voice provider registry. */
 internal object JsApps {
+    private var activeSession: Session? = null
     private fun apps() = JsVoiceProviders.all().flatMap { spec -> spec.apps.map { spec to it } }
     private fun preferred() = apps().firstOrNull { it.second.id == "llm_assistant" } ?: apps().firstOrNull()
 
     fun configure(context: Context) {
         val spec = preferred()?.first ?: return
         context.startActivity(JsVoicePluginSettingsActivity.intent(context, spec.id).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) })
+    }
+
+    fun toggle(service: FcitxInputMethodService) {
+        val current = activeSession
+        if (current != null && current.service === service && !current.closed && current.dialog.isShowing) {
+            current.dialog.dismiss()
+        } else open(service)
     }
 
     fun open(service: FcitxInputMethodService) {
@@ -81,6 +89,7 @@ internal object JsApps {
 
         fun start() {
             if (connection == null || token?.isCurrent() != true) return
+            activeSession = this
             service.finishComposing()
             service.resetJsAppEditorState()
             service.jsAppInputConnection = JsAppInputConnection.blocked(service)
@@ -209,6 +218,7 @@ internal object JsApps {
             if (closed) return
             editor?.clearPreview()
             closed = true
+            if (activeSession === this) activeSession = null
             service.jsAppInputConnection = null
             service.jsAppDismiss = null
             scope.cancel()

@@ -9,6 +9,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.ScrollView
+import android.widget.HorizontalScrollView
+import androidx.recyclerview.widget.RecyclerView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import kotlin.math.hypot
@@ -75,7 +78,8 @@ internal class JsAppPanelLayout(context: Context, private val moveBy: (Float, Fl
     override fun performClick(): Boolean { super.performClick(); return true }
 
     private fun interactiveAt(view: View, x: Float, y: Float): Boolean {
-        if (view !== this && (view is EditText || view is Button || view.isClickable ||
+        if (view !== this && (view is EditText || view is Button || view is RecyclerView ||
+                view is ScrollView || view is HorizontalScrollView || view.isClickable ||
                 (view is TextView && view !is JsAppPanelTitle))) return true
         if (view is ViewGroup) for (index in view.childCount - 1 downTo 0) {
             val child = view.getChildAt(index)

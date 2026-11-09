@@ -10,7 +10,6 @@ internal enum class PasswordToolbarMode {
 }
 
 internal enum class IdleToolbarContent {
-    Search,
     Clipboard,
     InlineSuggestion,
     NumberRow,
@@ -34,13 +33,11 @@ internal fun resolvePasswordToolbarMode(
 }
 
 internal fun resolveIdleToolbarContent(
-    searchActive: Boolean,
     clipboardFresh: Boolean,
     inlineSuggestionPresent: Boolean,
     forceNumberRow: Boolean,
     passwordMode: PasswordToolbarMode
 ): IdleToolbarContent = when {
-    searchActive -> IdleToolbarContent.Search
     clipboardFresh -> IdleToolbarContent.Clipboard
     inlineSuggestionPresent -> IdleToolbarContent.InlineSuggestion
     forceNumberRow || passwordMode == PasswordToolbarMode.NumberRow -> IdleToolbarContent.NumberRow

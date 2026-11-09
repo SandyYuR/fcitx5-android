@@ -16,7 +16,7 @@ import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.InputOperationStatistics
 import org.fcitx.fcitx5.android.core.InputStatisticsSource
 import org.fcitx.fcitx5.android.data.stats.InputStats
-import org.fcitx.fcitx5.android.input.clipboard.ClipboardSearchController
+import org.fcitx.fcitx5.android.input.voice.js.JsAppInputConnection
 import org.fcitx.fcitx5.android.input.cursor.CursorTracker
 import org.fcitx.fcitx5.android.testing.FcitxDaemonTestDelegate
 import org.fcitx.fcitx5.android.testing.FcitxDaemonTestShadow
@@ -67,7 +67,6 @@ class InputStatisticsDeliveryTest {
             StatisticsInputConnectionShadow.editorInfo = EditorInfo().apply { inputType = InputType.TYPE_CLASS_TEXT }
             block(service, stats, connection)
         } finally {
-            ClipboardSearchController.stop()
             service.jsAppInputConnection = null
             service.editorSession.end()
             StatisticsInputConnectionShadow.connection = null
@@ -145,11 +144,10 @@ class InputStatisticsDeliveryTest {
             service.jsAppInputConnection = local
             assertNull(source(service))
             commit(service, info(stats))
-            service.jsAppInputConnection = null
-            ClipboardSearchController.start()
+            service.jsAppInputConnection = JsAppInputConnection.blocked(service)
             assertNull(source(service))
             commit(service, info(stats))
-            ClipboardSearchController.stop()
+            service.jsAppInputConnection = null
             assertEquals(listOf("中文"), local.requests)
             assertTrue(original.requests.isEmpty())
             assertEquals(0L, stats.snapshot().totals.characters)

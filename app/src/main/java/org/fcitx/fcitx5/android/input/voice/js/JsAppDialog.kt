@@ -21,6 +21,10 @@ import android.view.ViewTreeObserver
 import android.widget.*
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.TooltipCompat
 import kotlin.math.roundToInt
@@ -36,6 +40,10 @@ import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.utils.settingsColor
 
+// Android's TYPE_APPLICATION_MEDIA_OVERLAY (1004) sits between TYPE_APPLICATION_MEDIA
+// and its parent window. The platform accepts this type, but omits its name from the SDK.
+private const val IME_PANEL_DROPDOWN_WINDOW_TYPE = 1004
+
 /** Attached window; typing stays in the local editor while host APIs retain the app connection. */
 internal class JsAppDialog(
     private val service: FcitxInputMethodService,
@@ -43,7 +51,9 @@ internal class JsAppDialog(
     private val closed: () -> Unit,
     private val keyboardView: () -> View? = { service.inputView?.keyboardView },
     private val inputLimit: Int = 65536,
-) : Dialog(service) {
+) : Dialog(service), LifecycleOwner {
+    private val panelLifecycle = LifecycleRegistry(this)
+    override val lifecycle: Lifecycle get() = panelLifecycle
     private val uiContext = SettingsUiPreferences.themedContext(service, SettingsUiPreferences.read(service))
     private val surfaceColor = uiContext.settingsColor(com.google.android.material.R.attr.colorSurfaceContainerHigh)
     private val textColor = uiContext.settingsColor(com.google.android.material.R.attr.colorOnSurface)
@@ -60,6 +70,9 @@ internal class JsAppDialog(
     private val enabled = mutableMapOf<String, Boolean>()
     private val header = FrameLayout(uiContext)
     private val footer = FrameLayout(uiContext)
+    private var nativeContent: View? = null
+    private var nativeFooterScroll: BoundedScrollView? = null
+    private var panelPaddingDp = 16
     private var layoutColumn: LinearLayout? = null
     private var headerView: View? = null
     private var actionsView: View? = null
@@ -92,20 +105,21 @@ internal class JsAppDialog(
         trackCornerRadius = dp(2)
         contentDescription = service.getString(R.string.loading)
     }
+    private val sections = LinearLayout(uiContext).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(16), dp(16), dp(16), dp(16))
+        addView(header, LinearLayout.LayoutParams(-1, -2))
+        addView(scroll, LinearLayout.LayoutParams(-1, -2))
+        addView(status, LinearLayout.LayoutParams(-1, -2))
+        addView(footer, LinearLayout.LayoutParams(-1, -2))
+    }
     private val root = JsAppPanelLayout(uiContext, ::movePanel).apply {
         background = GradientDrawable().apply {
             setColor(surfaceColor)
             cornerRadius = dp(28).toFloat()
             setStroke(dp(1), outlineColor)
         }
-        addView(LinearLayout(uiContext).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(16), dp(16), dp(16))
-            addView(header, LinearLayout.LayoutParams(-1, -2))
-            addView(scroll, LinearLayout.LayoutParams(-1, -2))
-            addView(status, LinearLayout.LayoutParams(-1, -2))
-            addView(footer, LinearLayout.LayoutParams(-1, -2))
-        }, FrameLayout.LayoutParams(-1, -2))
+        addView(sections, FrameLayout.LayoutParams(-1, -2))
         addView(progress, FrameLayout.LayoutParams(-1, dp(3), Gravity.BOTTOM).apply {
             bottomMargin = dp(8); marginStart = dp(24); marginEnd = dp(24)
         })
@@ -113,6 +127,7 @@ internal class JsAppDialog(
     private var prompt: CompletableDeferred<Boolean>? = null
     private var busy = false
     private var dismissed = false
+    private var hasPresented = false
     private var maxWidthDp = 340
     private var maxHeightDp = 360
     private var moved = false
@@ -127,6 +142,8 @@ internal class JsAppDialog(
     private val firstDrawListener = ViewTreeObserver.OnPreDrawListener { prepareDraw() }
 
     init {
+        root.setViewTreeLifecycleOwner(this)
+        panelLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setCanceledOnTouchOutside(false)
         setContentView(root)
@@ -141,8 +158,13 @@ internal class JsAppDialog(
     }
 
     override fun show() {
+        if (dismissed) return
         // The shared IME dialog host adds dimming; this panel must leave the app and keyboard usable.
         window?.apply {
+            // Keep the attached panel below its parent IME window. The real preedit, including
+            // changing text/height and floating candidates, can then draw above it without
+            // moving the panel or copying the encoding into a second view.
+            attributes = attributes.apply { type = WindowManager.LayoutParams.TYPE_APPLICATION_MEDIA }
             clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND or
                 WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH)
             addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
@@ -155,14 +177,18 @@ internal class JsAppDialog(
         // Attach with measured bounds, rather than correcting an already visible window.
         applyBounds()
         super.show()
+        panelLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
     override fun dismiss() {
         if (!dismissed) {
             dismissed = true
+            // Card long-press/repeat jobs belong to this window, including a close during DOWN.
+            panelLifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             observedKeyboard?.viewTreeObserver?.takeIf { it.isAlive }?.removeOnGlobalLayoutListener(keyboardLayoutListener)
             observedKeyboard = null
             root.viewTreeObserver.takeIf { it.isAlive }?.removeOnPreDrawListener(firstDrawListener)
+            editors.values.filterIsInstance<JsAppEditText>().forEach { it.ownsLocalInput = false }
             selectors.values.forEach { it.first.dismissDropDown() }
             prompt?.complete(false)
             closed()
@@ -173,6 +199,37 @@ internal class JsAppDialog(
     fun values() = buildJsonObject {
         editors.forEach { (id, view) -> put(id, view.text.toString()) }
         selections.forEach { (id, value) -> put(id, value) }
+    }
+
+    val panelContext: Context get() = uiContext
+
+    fun nativeInputBox(editor: EditText): TextInputLayout = fieldBox(editor)
+
+    /** Native paged lists get their own viewport, never nested inside the script ScrollView. */
+    fun setNativeContent(bodyView: View, footerView: View, editor: EditText, heading: View? = null) {
+        check(nativeContent == null && content.childCount == 0)
+        nativeContent = bodyView
+        root.clipToOutline = true
+        panelPaddingDp = 8
+        sections.setPadding(dp(8), dp(8), dp(8), dp(8))
+        sections.removeView(scroll)
+        sections.addView(bodyView, 1, LinearLayout.LayoutParams(-1, 0))
+        headerView = heading
+        heading?.let { header.addView(it, FrameLayout.LayoutParams(-1, -2)) }
+        actionsView = footerView
+        nativeFooterScroll = BoundedScrollView(uiContext).apply {
+            isVerticalScrollBarEnabled = false
+            addView(footerView, ViewGroup.LayoutParams(-1, -2))
+            footer.addView(this, FrameLayout.LayoutParams(-1, -2))
+        }
+        maxWidthDp = 600
+        maxHeightDp = 440
+        editors["query"] = editor
+        editor.showSoftInputOnFocus = false
+        editor.setOnFocusChangeListener { _, focused -> if (focused) bindEditor(editor) }
+        editor.setOnTouchListener { _, _ -> bindEditor(editor); false }
+        applyBounds()
+        setBusy(busy)
     }
 
     fun setBusy(value: Boolean) {
@@ -241,10 +298,10 @@ internal class JsAppDialog(
 
     fun render(spec: JsonObject) {
         selectors.values.forEach { it.first.dismissDropDown() }
+        blockTyping()
         controls.clear(); editors.clear(); selections.clear(); selectors.clear(); enabled.clear()
         header.removeAllViews(); footer.removeAllViews()
         layoutColumn = null; headerView = null; actionsView = null; allScrollable = false
-        blockTyping()
         content.removeAllViews()
         status.text = ""
         status.visibility = View.GONE
@@ -308,7 +365,7 @@ internal class JsAppDialog(
                 }
                 "input" -> {
                     val readOnly = (obj["readOnly"] as? JsonPrimitive)?.booleanOrNull == true
-                    val edit = EditText(uiContext).apply {
+                    val edit = JsAppEditText(uiContext).apply {
                         setTextColor(if (readOnly) onTonalColor else textColor); setHintTextColor(mutedColor)
                         textSize = 16f
                         setPadding(dp(12), dp(8), dp(12), dp(8))
@@ -322,9 +379,10 @@ internal class JsAppDialog(
                         showSoftInputOnFocus = false
                         filters = arrayOf(InputFilter.LengthFilter(inputLimit))
                         setText(obj.text("value").take(inputLimit)); hint = obj.text("placeholder")
-                        setSelection(if (readOnly) 0 else text.length)
+                        setSelection(if (readOnly) 0 else text?.length ?: 0)
                         if (readOnly) {
                             keyListener = null
+                            isCursorVisible = false
                             setTextIsSelectable(true)
                         }
                         setOnFocusChangeListener { _, focused ->
@@ -361,12 +419,11 @@ internal class JsAppDialog(
                         ellipsize = TextUtils.TruncateAt.END
                         isCursorVisible = false
                         showSoftInputOnFocus = false
-                        setAdapter(object : ArrayAdapter<String>(uiContext, android.R.layout.simple_dropdown_item_1line,
+                        setAdapter(object : ArrayAdapter<String>(uiContext, R.layout.js_app_dropdown_item, android.R.id.text1,
                             options.map { it.first }) {
                             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
-                                (super.getView(position, convertView, parent) as TextView).apply {
-                                    setTextColor(textColor); textSize = 14f
-                                    minHeight = dp(48); setPadding(dp(12), dp(10), dp(12), dp(10))
+                                super.getView(position, convertView, parent).apply {
+                                    findViewById<TextView>(android.R.id.text1).setTextColor(textColor)
                                 }
                         })
                         setText(selected?.first.orEmpty(), false)
@@ -489,7 +546,7 @@ internal class JsAppDialog(
         val width = minOf(dp(maxWidthDp), area.width())
         val maximum = minOf(dp(maxHeightDp), area.height())
         root.maximumHeight = maximum
-        val contentWidth = (width - dp(32)).coerceAtLeast(1)
+        val contentWidth = (width - dp(panelPaddingDp * 2)).coerceAtLeast(1)
         fun chromeHeight(view: View?): Int {
             view ?: return 0
             view.measure(View.MeasureSpec.makeMeasureSpec(contentWidth, View.MeasureSpec.EXACTLY),
@@ -497,19 +554,40 @@ internal class JsAppDialog(
             return view.measuredHeight
         }
         val headerHeight = chromeHeight(headerView)
-        val footerHeight = chromeHeight(actionsView) + if (actionsView == null) 0 else dp(8)
-        // Extremely short windows scroll as a whole; ordinary windows keep controls reachable.
-        // Move existing views only when the mode changes, preserving editor/permission state.
-        val scrollEverything = maximum < headerHeight + footerHeight + dp(112)
-        updateSectionPlacement(scrollEverything)
-        header.visibility = if (prompt == null && !allScrollable && headerView != null) View.VISIBLE else View.GONE
-        footer.visibility = if (prompt == null && !allScrollable && actionsView != null) View.VISIBLE else View.GONE
+        val footerHeight = chromeHeight(actionsView) + footer.paddingTop
         val errorHeight = if (status.visibility == View.GONE) 0 else status.lineHeight * 3 + dp(16)
-        val fixedHeight = if (prompt == null && !allScrollable) headerHeight + footerHeight else 0
-        scroll.maximumHeight = (maximum - dp(32) - errorHeight - fixedHeight).coerceAtLeast(1)
-        root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(maximum, View.MeasureSpec.AT_MOST))
-        val height = root.measuredHeight.coerceAtLeast(1)
+        val native = nativeContent
+        if (native != null) {
+            // Keep the result viewport independent of the fixed search/group controls. If even
+            // the controls exceed a short window, they remain reachable by scrolling the footer.
+            val available = (maximum - dp(panelPaddingDp * 2) - errorHeight).coerceAtLeast(1)
+            header.visibility = if (available >= headerHeight + footerHeight + dp(48)) View.VISIBLE else View.GONE
+            val headingHeight = if (header.visibility == View.VISIBLE) headerHeight else 0
+            val chrome = minOf(footerHeight, (available - headingHeight - 1).coerceAtLeast(1))
+            nativeFooterScroll?.maximumHeight = chrome
+            footer.visibility = View.VISIBLE
+            val bodyHeight = (available - headingHeight - chrome).coerceAtLeast(1)
+            val params = native.layoutParams
+            if (params.height != bodyHeight) { params.height = bodyHeight; native.layoutParams = params }
+        } else {
+            // Extremely short windows scroll as a whole; ordinary windows keep controls reachable.
+            // Move existing views only when the mode changes, preserving editor/permission state.
+            val scrollEverything = maximum < headerHeight + footerHeight + dp(112)
+            updateSectionPlacement(scrollEverything)
+            header.visibility = if (prompt == null && !allScrollable && headerView != null) View.VISIBLE else View.GONE
+            footer.visibility = if (prompt == null && !allScrollable && actionsView != null) View.VISIBLE else View.GONE
+            val fixedHeight = if (prompt == null && !allScrollable) headerHeight + footerHeight else 0
+            scroll.maximumHeight = (maximum - dp(32) - errorHeight - fixedHeight).coerceAtLeast(1)
+        }
+        val height = if (native != null) {
+            // A paged browser fills its bounded viewport. Measuring RecyclerView manually in
+            // every pre-draw can keep requesting another traversal as its pages arrive.
+            maximum
+        } else {
+            root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(maximum, View.MeasureSpec.AT_MOST))
+            root.measuredHeight.coerceAtLeast(1)
+        }
         if (!moved) { panelX = area.centerX() - width / 2; panelY = area.bottom - height }
         // Keep the requested position through temporary sizes while a new form is measured.
         val x = panelX.coerceIn(area.left, maxOf(area.left, area.right - width))
@@ -548,13 +626,18 @@ internal class JsAppDialog(
     private fun prepareDraw(): Boolean {
         if (dismissed) return true
         val keyboard = keyboardView()
-        val keyboardReady = keyboard == null || (keyboard.isShown && keyboard.isAttachedToWindow &&
-            keyboard.isLaidOut && !keyboard.isLayoutRequested && keyboard.width > 0 && keyboard.height > 0)
-        val hasContent = prompt != null || content.childCount > 0 || status.visibility == View.VISIBLE
-        if (!hasContent || !keyboardReady) {
+        val keyboardVisible = keyboard == null || (keyboard.isShown && keyboard.isAttachedToWindow &&
+            keyboard.width > 0 && keyboard.height > 0)
+        val keyboardReady = keyboardVisible && (keyboard == null ||
+            (keyboard.isLaidOut && !keyboard.isLayoutRequested))
+        val hasContent = nativeContent != null || prompt != null || content.childCount > 0 || status.visibility == View.VISIBLE
+        if (!hasContent || !keyboardVisible || (!keyboardReady && !hasPresented)) {
             setPanelVisible(false)
             return true
         }
+        // The first frame waits for the keyboard. Once visible, keep the existing surface
+        // through transient layout requests from clipboard/picker page switches.
+        if (!keyboardReady) return true
         // Attribute changes in this traversal take effect at the next WindowManager layout.
         // Keep the first frame transparent until that final size/position has been laid out.
         if (applyBounds() || root.width != root.measuredWidth || root.height != root.measuredHeight) {
@@ -562,6 +645,7 @@ internal class JsAppDialog(
             return false
         }
         setPanelVisible(true)
+        hasPresented = true
         return true
     }
 
@@ -586,6 +670,7 @@ internal class JsAppDialog(
     }
 
     private fun blockTyping() {
+        editors.values.filterIsInstance<JsAppEditText>().forEach { it.ownsLocalInput = false }
         service.jsAppInputConnection = JsAppInputConnection.blocked(service)
     }
     private fun focusEditor() {
@@ -596,8 +681,10 @@ internal class JsAppDialog(
         }
     }
     private fun bindEditor(editor: EditText) {
-        if (!dismissed && !busy && prompt == null && editor.isEnabled && editor.keyListener != null)
+        if (!dismissed && !busy && prompt == null && editor.isEnabled && editor.keyListener != null) {
+            editors.values.filterIsInstance<JsAppEditText>().forEach { it.ownsLocalInput = it === editor }
             service.jsAppInputConnection = JsAppInputConnection(editor)
+        }
     }
     private fun label(value: String, bold: Boolean = false, size: Float = 14f, muted: Boolean = false,
         draggable: Boolean = false) = (if (draggable) JsAppPanelTitle(uiContext) else MaterialTextView(uiContext)).apply {
@@ -663,14 +750,29 @@ private class EditorPreservingSelect(context: Context, private val availableArea
         val location = IntArray(2).also(::getLocationOnScreen)
         val below = (area.bottom - location[1] - height).coerceAtLeast(0)
         val above = (location[1] - area.top).coerceAtLeast(0)
-        val rowHeight = (48 * resources.displayMetrics.density).roundToInt()
-        val desiredHeight = minOf(rowHeight * adapter.count, (256 * resources.displayMetrics.density).roundToInt())
+        val maxHeight = (256 * resources.displayMetrics.density).roundToInt()
+        val padding = Rect().also { dropDownBackground?.getPadding(it) }
+        val rowParent = FrameLayout(context)
+        val rowWidth = (width - padding.left - padding.right).coerceAtLeast(1)
+        var desiredHeight = padding.top + padding.bottom
+        var row: View? = null
+        // Compact rows normally take 36 dp; font scaling and wrapped labels can make them taller.
+        // Size the popup from those measured rows, not the system dropdown's fixed row height.
+        for (position in 0 until adapter.count) {
+            row = adapter.getView(position, row, rowParent)
+            row.measure(View.MeasureSpec.makeMeasureSpec(rowWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+            desiredHeight = minOf(maxHeight, desiredHeight + row.measuredHeight)
+            if (desiredHeight == maxHeight) break
+        }
         val showAbove = below < desiredHeight && above > below
         val popupHeight = minOf(desiredHeight, if (showAbove) above else below).coerceAtLeast(1)
         popup = ListPopupWindow(context).apply {
             anchorView = this@EditorPreservingSelect
             isModal = false
             inputMethodMode = PopupWindow.INPUT_METHOD_NOT_NEEDED
+            // Above the panel's media sublayer, below the parent IME's live encoding area.
+            setWindowLayoutType(IME_PANEL_DROPDOWN_WINDOW_TYPE)
             width = this@EditorPreservingSelect.width
             height = popupHeight
             if (showAbove) verticalOffset = -this@EditorPreservingSelect.height - popupHeight

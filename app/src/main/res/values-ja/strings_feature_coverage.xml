@@ -46,6 +46,7 @@
     <string name="clipboard_entry_file_named">ファイル · %1$s</string>
     <string name="copy">コピー</string>
     <string name="clipboard_search_no_results">結果がありません</string>
+    <string name="clipboard_search_hint">クリップボードを検索</string>
     <string name="addon_dir_profile_delete_last_forbidden">データディレクトリを少なくとも 1 つ残してください</string>
     <string name="random_theme">ランダムテーマ</string>
     <string name="random_theme_score">配色評価: %1$d/100（コントラスト %2$d、色相 %3$d、彩度 %4$d、明度 %5$d）</string>

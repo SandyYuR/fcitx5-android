@@ -46,6 +46,7 @@
     <string name="clipboard_entry_file_named">Datei · %1$s</string>
     <string name="copy">Kopieren</string>
     <string name="clipboard_search_no_results">Keine Ergebnisse</string>
+    <string name="clipboard_search_hint">Zwischenablage durchsuchen</string>
     <string name="addon_dir_profile_delete_last_forbidden">Mindestens ein Datenverzeichnis muss erhalten bleiben</string>
     <string name="random_theme">Zufälliges Design</string>
     <string name="random_theme_score">Ästhetik: %1$d/100 (Kontrast %2$d, Farbton %3$d, Sättigung %4$d, Helligkeit %5$d)</string>

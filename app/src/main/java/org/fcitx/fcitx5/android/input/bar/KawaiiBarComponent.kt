@@ -70,7 +70,6 @@ import org.fcitx.fcitx5.android.input.candidates.expanded.window.FlexboxExpanded
 import org.fcitx.fcitx5.android.input.candidates.expanded.window.GridExpandedCandidateWindow
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateComponent
-import org.fcitx.fcitx5.android.input.clipboard.ClipboardSearchController
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
 import org.fcitx.fcitx5.android.input.dependency.UniqueViewComponent
 import org.fcitx.fcitx5.android.input.dependency.context
@@ -261,7 +260,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             numberRowDismissed = numberRowState == NumberRowState.ForceHide
         )
         val content = resolveIdleToolbarContent(
-            searchActive = ClipboardSearchController.isActive,
             clipboardFresh = isClipboardFresh,
             inlineSuggestionPresent = isInlineSuggestionPresent,
             forceNumberRow = numberRowState == NumberRowState.ForceShow &&
@@ -269,7 +267,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             passwordMode = passwordMode
         )
         val newState = when (content) {
-            IdleToolbarContent.Search -> IdleUi.State.Search
             IdleToolbarContent.Clipboard -> IdleUi.State.Clipboard
             IdleToolbarContent.InlineSuggestion -> IdleUi.State.InlineSuggestion
             IdleToolbarContent.NumberRow -> IdleUi.State.NumberRow
@@ -277,15 +274,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         }
         if (newState == idleUi.currentState) return
         idleUi.updateState(newState, fromUser)
-    }
-
-    /** 剪贴板搜索状态变化时调用：刷新工具栏状态并同步搜索框文本。 */
-    fun onClipboardSearchChanged() {
-        evalIdleUiState()
-        idleUi.updateSearchQuery(
-            ClipboardSearchController.committedText,
-            ClipboardSearchController.preeditText
-        )
     }
 
     private fun hideKeyboardAndExitAdjustingMode() {
@@ -470,14 +458,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             // 符号面板显示时，最左侧按钮已换成返回箭头，点击即回到文字键盘。
             if (windowManager.currentWindowOrNull() is PickerWindow) {
                 windowManager.attachWindow(KeyboardWindow)
-                return@setOnClickListener
-            }
-            // 剪贴板历史搜索期间，最左侧返回箭头即搜索关闭按钮。
-            if (idleUi.currentState == IdleUi.State.Search) {
-                service.stopClipboardSearch()
-                // 会话可能已经结束（如输入目标切换触发的自动结束）而没有刷新到工具栏，
-                // 这里按当前会话状态兜底重算一次，保证返回箭头一定退出搜索页。
-                evalIdleUiState()
                 return@setOnClickListener
             }
             // When the clipboard hint is showing, the leftmost button dismisses it
@@ -919,10 +899,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
-        // 输入目标变化同时意味着搜索上下文丢失：非重启时结束搜索，避免按键继续被搜索吞掉。
-        if (!restarting && ClipboardSearchController.isActive) {
-            service.stopClipboardSearch()
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             idleUi.privateMode(info.imeOptions.hasFlag(EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING))
         }

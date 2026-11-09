@@ -91,6 +91,7 @@ import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardSearchController
+import org.fcitx.fcitx5.android.data.clipboard.ClipboardCategory
 import org.fcitx.fcitx5.android.input.cursor.CursorRange
 import org.fcitx.fcitx5.android.input.voice.js.JsAppInputConnection
 import org.fcitx.fcitx5.android.input.cursor.CursorTracker
@@ -560,7 +561,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             if (editor == null || editor.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL ||
                 org.fcitx.fcitx5.android.FcitxApplication.getInstance().isDirectBootMode ||
                 capabilityFlags.flags and (CapabilityFlag.PasswordOrSensitive.flag or CapabilityFlag.Disable.flag) != 0UL ||
-                jsAppInputConnection != null || ClipboardSearchController.isActive) null
+                jsAppInputConnection != null) null
             else {
                 val store = statisticsStore ?: InputStats.get(this).also { statisticsStore = it }
                 store.takeIf { it.isEnabled && editorSession.isActive && applicationInputConnection != null }
@@ -822,7 +823,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 val ordinal = ++timedCommits
                 val startedAt = if (ordinal <= 2) SystemClock.elapsedRealtimeNanos() else 0L
                 backspaceBoundaryGuard.onCommit()
-                val mainEditor = jsAppInputConnection == null && !ClipboardSearchController.isActive
+                val mainEditor = jsAppInputConnection == null
                 val requestResult = androidx.tracing.trace("rime.direct.commit") {
                     dispatchCommitText(event.data.text, event.data.cursor)
                 }
@@ -836,21 +837,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             is FcitxEvent.StatisticsKeysEvent -> recordStatisticsKeys(event)
             is FcitxEvent.KeyEvent -> event.data.let event@{
                 if (it.states.virtual) {
-                    // 剪贴板历史搜索会话期间：退格修改查询、回车与方向键直接吞掉，
-                    // 其余字符仍走正常提交流程并在 commitText 中被搜索拦截。
-                    if (ClipboardSearchController.isActive) {
-                        when (it.sym.sym) {
-                            FcitxKeyMapping.FcitxKey_BackSpace -> {
-                                ClipboardSearchController.onBackspace()
-                                return@event
-                            }
-                            FcitxKeyMapping.FcitxKey_Return,
-                            FcitxKeyMapping.FcitxKey_Left,
-                            FcitxKeyMapping.FcitxKey_Right,
-                            FcitxKeyMapping.FcitxKey_Up,
-                            FcitxKeyMapping.FcitxKey_Down -> return@event
-                        }
-                    }
                     // KeyEvent from virtual keyboard
                     //
                     // 退格保护：这里只处理"退格到达"和"其它按键结束退格按住序列"。
@@ -889,27 +875,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                     // KeyEvent from physical keyboard (or input method engine forwardKey)
                     // use cached event if available
                     cachedKeyEvents.remove(it.timestamp)?.let { keyEvent ->
-                        // 剪贴板历史搜索会话期间：物理直达按键不得透传给目标编辑器。
-                        // 可打印字符进入查询（ACTION_DOWN 一次），退格修改查询，
-                        // 回车/方向键吞掉；抬起事件与修饰键状态同步可安全丢弃。
-                        if (ClipboardSearchController.isActive) {
-                            if (keyEvent.action == KeyEvent.ACTION_DOWN) {
-                                when (keyEvent.keyCode) {
-                                    KeyEvent.KEYCODE_DEL, KeyEvent.KEYCODE_FORWARD_DEL ->
-                                        ClipboardSearchController.onPhysicalBackspace()
-                                    KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER,
-                                    KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT,
-                                    KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> Unit
-                                    else -> {
-                                        val unicode = keyEvent.unicodeChar
-                                        if (unicode > 0) {
-                                            ClipboardSearchController.onPhysicalChar(unicode.toChar())
-                                        }
-                                    }
-                                }
-                            }
-                            return@event
-                        }
                         /**
                          * intercept the KeyEvent which would cause the default [android.text.method.QwertyKeyListener]
                          * to show a Gingerbread-style CharacterPickerDialog
@@ -968,20 +933,15 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 // 误判成"删空"。
                 backspaceGuardClientPreeditNotEmpty = event.data.isNotEmpty()
                 feedBackspaceGuardComposingState()
-                if (!ClipboardSearchController.onPreeditChanged(event.data.toString())) {
-                    updateComposingText(event.data)
-                }
+                updateComposingText(event.data)
             }
             is FcitxEvent.InputPanelEvent -> {
                 backspaceGuardPanelPreeditNotEmpty = event.data.preedit.isNotEmpty()
                 feedBackspaceGuardComposingState()
             }
             is FcitxEvent.DeleteSurroundingEvent -> {
-                // 搜索会话期间绝不触碰目标编辑器的文本。
-                if (!ClipboardSearchController.isActive) {
-                    val (before, after) = event.data
-                    handleDeleteSurrounding(before, after)
-                }
+                val (before, after) = event.data
+                handleDeleteSurrounding(before, after)
             }
             is FcitxEvent.IMChangeEvent -> {
                 // Rime schema/ascii changes keep the same Android IME subtype.
@@ -1155,14 +1115,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     // A true InputConnection return value acknowledges the request, not that a
     // remote editor displayed it. Never replay uncertain commits into a new
     // connection: the old editor might already have sent the same text.
-    private enum class CommitRequestResult { SEARCH, NO_CONNECTION, REQUEST_ACCEPTED, REQUEST_REJECTED }
+    private enum class CommitRequestResult { NO_CONNECTION, REQUEST_ACCEPTED, REQUEST_REJECTED }
 
     private fun dispatchCommitText(text: String, cursor: Int): CommitRequestResult {
         jsAppInputConnection?.let {
             return if (it.commitText(text, 1)) CommitRequestResult.REQUEST_ACCEPTED else CommitRequestResult.REQUEST_REJECTED
         }
-        // 剪贴板历史搜索会话期间：所有提交都进入查询，不写入目标编辑器。
-        if (ClipboardSearchController.onCommitText(text)) return CommitRequestResult.SEARCH
         val ic = currentInputConnection ?: return CommitRequestResult.NO_CONNECTION
         var accepted = false
         // when composing text equals commit content, finish composing text as-is
@@ -1249,14 +1207,16 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
      * manager froze the keyboard for the duration of the copy.
      */
     suspend fun commitClipboardEntry(text: String): Boolean {
+        val connection = currentInputConnection ?: return false
+        val token = editorSession.capture() ?: return false
         val staged = withContext(Dispatchers.IO) {
             ClipboardUriStore.stageForCommit(this@FcitxInputMethodService, text)
         }
+        if (!token.isCurrent() || currentInputConnection !== connection) return false
         return if (staged != null && commitStagedUriContent(staged)) {
             true
         } else {
-            commitText(text)
-            false
+            dispatchCommitText(text, -1) == CommitRequestResult.REQUEST_ACCEPTED
         }
     }
 
@@ -1960,23 +1920,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
-    /**
-     * 开关剪贴板历史搜索会话。关闭时重置引擎，避免搜索期间的 composing
-     * 状态残留到目标编辑器。
-     */
-    fun startClipboardSearch() {
-        statisticsStore?.endSession()
-        ClipboardSearchController.start()
-        onBackspaceGuardSessionChanged()
-        postFcitxJob { reset() }
+    fun startClipboardSearch(category: ClipboardCategory? = null) {
+        inputView?.startClipboardSearch(category)
     }
 
-    fun stopClipboardSearch() {
-        statisticsStore?.endSession()
-        ClipboardSearchController.stop()
-        onBackspaceGuardSessionChanged()
-        postFcitxJob { reset() }
-    }
+    fun stopClipboardSearch() { ClipboardSearchController.stop() }
 
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         statisticsStore?.endSession()

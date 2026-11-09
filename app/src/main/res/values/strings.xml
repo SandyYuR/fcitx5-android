@@ -134,6 +134,7 @@
     <string name="copy">Copy</string>
     <string name="search">Search</string>
     <string name="clipboard_search_no_results">No results</string>
+    <string name="clipboard_search_hint">Search clipboard</string>
     <string name="export">Export</string>
     <string name="app_crash">Application crashed</string>
     <string name="app_crash_message">Sorry, but we bring you some logs to investigate.</string>

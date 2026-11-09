@@ -46,6 +46,7 @@
     <string name="clipboard_entry_file_named">Archivo · %1$s</string>
     <string name="copy">Copiar</string>
     <string name="clipboard_search_no_results">Sin resultados</string>
+    <string name="clipboard_search_hint">Buscar en el portapapeles</string>
     <string name="addon_dir_profile_delete_last_forbidden">Debe quedar al menos un directorio de datos</string>
     <string name="random_theme">Tema aleatorio</string>
     <string name="random_theme_score">Puntuación estética: %1$d/100 (contraste %2$d, tono %3$d, saturación %4$d, luminosidad %5$d)</string>

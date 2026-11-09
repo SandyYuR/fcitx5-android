@@ -46,6 +46,7 @@
     <string name="clipboard_entry_file_named">Файл · %1$s</string>
     <string name="copy">Копировать</string>
     <string name="clipboard_search_no_results">Нет результатов</string>
+    <string name="clipboard_search_hint">Поиск в буфере обмена</string>
     <string name="addon_dir_profile_delete_last_forbidden">Должен остаться хотя бы один каталог данных</string>
     <string name="random_theme">Случайная тема</string>
     <string name="random_theme_score">Оценка оформления: %1$d/100 (контраст %2$d, тон %3$d, насыщенность %4$d, светлота %5$d)</string>

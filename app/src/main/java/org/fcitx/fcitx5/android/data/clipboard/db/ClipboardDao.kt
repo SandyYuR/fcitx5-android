@@ -38,31 +38,19 @@ interface ClipboardDao {
     @Query("SELECT * FROM ${ClipboardEntry.TABLE_NAME} WHERE deleted=0 ORDER BY pinned DESC, timestamp DESC")
     fun allEntries(): PagingSource<Int, ClipboardEntry>
 
-    @Query("SELECT * FROM ${ClipboardEntry.TABLE_NAME} WHERE deleted=0 ORDER BY pinned DESC, timestamp DESC")
-    suspend fun allEntriesForSearch(): List<ClipboardEntry>
-
-    /**
-     * Search history entries whose text or original text contains [query], newest first.
-     *
-     * Replaces the previous "read the whole table into memory, then filter in Kotlin" approach
-     * (see `ClipboardManager.searchEntries`): that materialized every entry on every keystroke,
-     * so the cost grew with the history size. This keeps the filtering in SQLite and only pulls
-     * [limit] rows across the cursor.
-     *
-     * [query] must already be escaped for LIKE wildcards by the caller — `%` and `_` are pattern
-     * syntax, not literal characters, so searching for "50%" would otherwise match everything.
-     *
-     * Case folding caveat: SQLite's LIKE only folds ASCII case, while Kotlin's
-     * `contains(ignoreCase = true)` folds a wider Unicode set. Both are equivalent for the
-     * Latin/CJK text this history holds in practice, and the tradeoff buys not loading the table.
-     */
+    /** Same category boundaries as the keyboard page, with literal substring filtering. */
     @Query(
-        "SELECT * FROM ${ClipboardEntry.TABLE_NAME} " +
-            "WHERE deleted=0 AND (text LIKE '%' || :query || '%' ESCAPE '\\' " +
+        "SELECT * FROM ${ClipboardEntry.TABLE_NAME} WHERE deleted=0 " +
+            "AND (:category='All' OR (:category='Favorites' AND pinned=1) " +
+            "OR (:category='Local' AND source='${ClipboardEntry.SOURCE_LOCAL}' AND pinned=0 " +
+            "AND text NOT LIKE 'content://%' AND text NOT LIKE 'file://%') " +
+            "OR (:category='Media' AND (text LIKE 'content://%' OR text LIKE 'file://%')) " +
+            "OR (:category='Remote' AND source='${ClipboardEntry.SOURCE_REMOTE}')) " +
+            "AND (text LIKE '%' || :query || '%' ESCAPE '\\' " +
             "OR originalText LIKE '%' || :query || '%' ESCAPE '\\') " +
-            "ORDER BY pinned DESC, timestamp DESC LIMIT :limit"
+            "ORDER BY pinned DESC, timestamp DESC"
     )
-    suspend fun searchEntries(query: String, limit: Int): List<ClipboardEntry>
+    fun searchEntriesPaged(query: String, category: String): PagingSource<Int, ClipboardEntry>
 
     @Query("SELECT * FROM ${ClipboardEntry.TABLE_NAME} WHERE pinned=1 AND deleted=0 ORDER BY timestamp DESC")
     fun favoriteEntries(): PagingSource<Int, ClipboardEntry>

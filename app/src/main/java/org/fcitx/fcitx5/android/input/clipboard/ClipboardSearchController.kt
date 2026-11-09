@@ -1,188 +1,194 @@
-/*
- * SPDX-License-Identifier: LGPL-2.1-or-later
- * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
- */
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.clipboard
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
+import android.content.res.ColorStateList
+import android.graphics.drawable.GradientDrawable
+import android.text.InputFilter
+import android.text.InputType
+import android.view.Gravity
+import android.view.View
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import androidx.core.widget.doOnTextChanged
+import androidx.core.graphics.ColorUtils
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.clipboard.ClipboardCategory
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
-import java.util.concurrent.CopyOnWriteArrayList
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.input.FcitxInputMethodService
+import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
+import org.fcitx.fcitx5.android.input.voice.js.JsAppDialog
+import org.fcitx.fcitx5.android.input.voice.js.JsAppEditText
+import org.fcitx.fcitx5.android.input.voice.js.JsAppInputConnection
+import org.fcitx.fcitx5.android.utils.settingsColor
+import splitties.views.dsl.core.withTheme
+import org.fcitx.fcitx5.android.utils.toast
+import splitties.dimensions.dp
 
-/**
- * 剪贴板历史搜索的会话状态。
- *
- * 参考 SyncClipboard 历史搜索的匹配语义：实时输入、大小写不敏感的子串匹配。
- * 搜索会话激活期间，键盘输入被拦截为查询文本（见 FcitxInputMethodService），
- * 不再写入目标编辑器；匹配结果复用预编辑上方的辅助选择栏展示。
- *
- * 注意本对象是进程级单例，而渲染搜索界面的 InputView 会被整体替换：
- * 状态回调必须按实例注册/注销（见下方 stateChangedListeners），不能是单槽回调。
- */
-object ClipboardSearchController {
+/** Native clipboard browser above the keyboard, with the AI panel's local input connection. */
+internal object ClipboardSearchController {
+    private var session: Session? = null
+    val isActive: Boolean get() = session != null
 
-    /**
-     * 辅助选择栏最多展示的条目数。辅助栏不是虚拟化列表，截断可避免一次性
-     * 构建过多卡片；结果本身已按时间倒序排列，截断只丢弃最旧的条目。
-     */
-    private const val MAX_RESULTS = 50
-
-    /**
-     * How long typing must pause before a query actually hits the database.
-     *
-     * Every query change re-runs a LIKE search over the history; without a debounce, typing a
-     * five-character query issued five searches, cancelling the previous one midway each time.
-     * 120 ms is below the ~150–200 ms a fast typist leaves between keystrokes, so it collapses a
-     * burst without being felt as lag — the results panel updates after a short pause in typing.
-     *
-     * Cancellation is safe: the coroutine that sleeps is the only writer of [results], and a
-     * superseded delay throws CancellationException before it queries anything, so the last
-     * keystroke's search always runs and always wins.
-     */
-    private const val SEARCH_DEBOUNCE_MS = 120L
-
-    var isActive = false
-        private set
-
-    var results: List<ClipboardEntry> = emptyList()
-        private set
-
-    val committedText: String get() = committedQuery
-    val preeditText: String get() = preedit
-    val queryText: String get() = committedQuery + preedit
-
-    private var committedQuery = ""
-    private var preedit = ""
-    private var searchJob: Job? = null
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-
-    /**
-     * 状态/查询/结果变化时的监听器集合，由 InputView 在构造时注册、在
-     * onDetachedFromWindow 时用同一个实例注销，负责刷新工具栏搜索框与辅助栏。
-     *
-     * 这里刻意不用单槽回调：InputView 会因主题/偏好变更被整体替换
-     * （FcitxInputMethodService.replaceInputView），新实例先构造（注册）、旧实例随后
-     * 才 detach（注销），单槽回调会被旧实例清空，此后搜索框文本与结果栏再也不会刷新
-     * （2026-09-13 反馈的“打字进不了搜索框、返回退不出搜索”）。按实例注销只影响
-     * 自己的注册，不会波及新实例。
-     *
-     * 仅保存已注册视图的引用，视图销毁时必须注销，避免常驻引用。
-     */
-    private val stateChangedListeners = CopyOnWriteArrayList<() -> Unit>()
-
-    fun addOnStateChangedListener(listener: () -> Unit) {
-        if (!stateChangedListeners.contains(listener)) stateChangedListeners.add(listener)
-    }
-
-    fun removeOnStateChangedListener(listener: () -> Unit) {
-        stateChangedListeners.remove(listener)
-    }
-
-    fun start() {
-        if (isActive) return
-        isActive = true
-        committedQuery = ""
-        preedit = ""
-        searchJob?.cancel()
-        searchJob = null
-        results = emptyList()
-        notifyChanged()
-    }
-
-    fun stop() {
-        if (!isActive) return
-        isActive = false
-        committedQuery = ""
-        preedit = ""
-        searchJob?.cancel()
-        searchJob = null
-        results = emptyList()
-        notifyChanged()
-    }
-
-    /** 由 FcitxInputMethodService.commitText 调用；返回 true 表示已被搜索消费。 */
-    fun onCommitText(text: String): Boolean {
-        if (!isActive || text.isEmpty()) return false
-        committedQuery += text
-        // 提交后引擎随后会下发空 preedit 事件补齐，这里先清零，避免中间态把
-        // 旧 preedit 与新提交拼成错误的查询。
-        preedit = ""
-        runSearch()
-        return true
-    }
-
-    /** 虚拟退格键；会话激活期间一律由查询消费，绝不触碰目标编辑器。 */
-    fun onBackspace(): Boolean {
-        if (!isActive) return false
-        // preedit 非空时引擎内部已消费了这次退格，直接吞掉即可。
-        if (committedQuery.isNotEmpty() && preedit.isEmpty()) {
-            committedQuery = committedQuery.dropLast(1)
-            runSearch()
+    fun open(service: FcitxInputMethodService, category: ClipboardCategory?,
+             returnToKeyboard: () -> Unit, splitText: (String) -> Unit) {
+        if (service.editorSession.capture()?.isCurrent() != true || service.applicationInputConnection == null) return
+        if (VoiceInputProviderManager.isActive()) VoiceInputProviderManager.stop(service)
+        service.jsAppDismiss?.invoke()
+        var created: Session? = null
+        try {
+            created = Session(service, category, returnToKeyboard, splitText,
+                onClosed = { if (session === it) session = null })
+            session = created
+            created.start()
+        } catch (failure: Exception) {
+            created?.dialog?.dismiss()
+            service.toast(failure.message ?: service.getString(R.string.unknown_error))
         }
-        return true
     }
 
-    /**
-     * 来自模拟物理键盘路径的字符（数字键等走 sendSimulatedKeyEvent，经
-     * forwardKeyEvent 直达引擎，unicode 字符由 App 端 Qwerty 翻译）。
-     *
-     * 返回 true 表示调用方不应再把该事件透传给目标编辑器。
-     */
-    fun onPhysicalChar(char: Char): Boolean {
-        if (!isActive) return false
-        if (char == '\u0000') return true
-        committedQuery += char
-        // 直达字符不经过 composing，直接追加到已提交查询即可。
-        runSearch()
-        return true
-    }
+    fun stop() { session?.dialog?.dismiss() }
 
-    /** 来自模拟物理键盘路径的退格；行为与虚拟退格一致。 */
-    fun onPhysicalBackspace(): Boolean {
-        if (!isActive) return false
-        onBackspace()
-        return true
-    }
+    internal class Session(
+        private val service: FcitxInputMethodService,
+        category: ClipboardCategory? = null,
+        private val returnToKeyboard: () -> Unit = {},
+        private val splitText: (String) -> Unit = {},
+        keyboardView: () -> View? = { service.inputView?.keyboardView },
+        private val present: (JsAppDialog) -> Unit = { service.showDialog(it) },
+        private val onClosed: (Session) -> Unit = {},
+    ) {
+        private val token = service.editorSession.capture()
+        private val connection = service.applicationInputConnection
+        private var closed = false
+        private var contentStarted = false
+        internal val dialog = JsAppDialog(service, { _, _ -> }, ::close, keyboardView)
+        private val dismissPanel: () -> Unit = { dialog.dismiss() }
+        private val context = dialog.panelContext.withTheme(R.style.ThemeOverlay_FcitxSettings_ClipboardMenu)
+        private val textColor = context.settingsColor(com.google.android.material.R.attr.colorOnSurface)
+        private val mutedColor = context.settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant)
+        private val colors = ClipboardColors.panel(context)
 
-    /** ClientPreeditEvent；消费后编辑器不会收到 composing，返回是否消费。 */
-    fun onPreeditChanged(text: String): Boolean {
-        if (!isActive) return false
-        if (preedit == text) return true
-        preedit = text
-        runSearch()
-        return true
-    }
-
-    private fun runSearch() {
-        notifyChanged()
-        val query = committedQuery + preedit
-        searchJob?.cancel()
-        if (query.isEmpty()) {
-            results = emptyList()
-            notifyChanged()
-            return
+        internal val query: EditText = JsAppEditText(context).apply {
+            tag = "clipboard_query"
+            textSize = 16f
+            setTextColor(textColor); setHintTextColor(mutedColor)
+            highlightColor = ColorUtils.setAlphaComponent(colors.primary, 0x40)
+            hint = context.getString(R.string.clipboard_search_hint)
+            background = null
+            minHeight = 0; minimumHeight = 0
+            includeFontPadding = false
+            setPadding(context.dp(12), context.dp(8), context.dp(12), context.dp(8))
+            inputType = InputType.TYPE_CLASS_TEXT
+            setSingleLine(true)
+            showSoftInputOnFocus = false
+            filters = arrayOf(InputFilter.LengthFilter(65536))
         }
-        searchJob = scope.launch {
-            // 防抖：连续打字时只有停顿后的那一次查询真正执行，避免每个键都打一次数据库。
-            // 被取代的协程在 delay 处收到 CancellationException，不会写入任何结果，
-            // 所以「最后一次输入的结果一定会到达」。
-            delay(SEARCH_DEBOUNCE_MS)
-            val found = withContext(Dispatchers.Default) {
-                runCatching { ClipboardManager.searchEntries(query) }.getOrDefault(emptyList())
+
+        internal val content by lazy {
+            ClipboardContent(context, ThemeManager.activeTheme, service,
+                returnToKeyboard = { dialog.dismiss(); returnToKeyboard() },
+                splitText = { dialog.dismiss(); splitText(it) },
+                initialCategory = category, searchMode = true, pasteEntry = ::paste,
+                onLoadError = { failure ->
+                    if (isCurrent()) dialog.showError(if (failure == null) "" else service.getString(R.string.unknown_error))
+                })
+        }
+
+        private fun isCurrent() = !closed && token?.isCurrent() == true &&
+            service.applicationInputConnection === connection
+
+        fun start() {
+            if (!isCurrent() || connection == null) { dialog.dismiss(); return }
+            service.finishComposing()
+            service.resetJsAppEditorState()
+            service.jsAppInputConnection = JsAppInputConnection.blocked(service)
+            service.jsAppDismiss = dismissPanel
+            val inputBox = dialog.nativeInputBox(query).apply {
+                endIconMode = TextInputLayout.END_ICON_CLEAR_TEXT
+                setEndIconTintList(ColorStateList.valueOf(mutedColor))
+                endIconMinSize = context.dp(48)
+                setEndIconOnClickListener {
+                    service.resetJsAppEditorState()
+                    query.setText("")
+                    query.requestFocus()
+                }
             }
-            if (!isActive) return@launch
-            results = found.take(MAX_RESULTS)
-            notifyChanged()
+            val closeButton = MaterialButton(context).apply {
+                tag = "clipboard_search_close"
+                text = ""
+                contentDescription = context.getString(android.R.string.cancel)
+                setIconResource(R.drawable.ic_settings_close)
+                iconTint = ColorStateList.valueOf(mutedColor)
+                iconSize = context.dp(20); iconPadding = 0
+                iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+                minWidth = context.dp(48); minimumWidth = context.dp(48)
+                minHeight = context.dp(48); minimumHeight = context.dp(48)
+                setPadding(context.dp(12), 0, context.dp(12), 0)
+                insetTop = 0; insetBottom = 0; cornerRadius = context.dp(24)
+                strokeWidth = 0
+                backgroundTintList = ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
+                rippleColor = ColorStateList.valueOf(colors.ripple)
+                setOnClickListener { dialog.dismiss() }
+            }
+            val footer = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(LinearLayout(context).apply {
+                    gravity = Gravity.CENTER_VERTICAL
+                    val inputHeight = maxOf(context.dp(48), query.lineHeight + query.paddingTop + query.paddingBottom + context.dp(8))
+                    addView(inputBox, LinearLayout.LayoutParams(0, inputHeight, 1f))
+                    addView(closeButton, LinearLayout.LayoutParams(context.dp(48), context.dp(48)).apply {
+                        marginStart = context.dp(4)
+                    })
+                }, LinearLayout.LayoutParams(-1, -2))
+                addView(content.ui.categoryBar, LinearLayout.LayoutParams(-1, -2))
+            }
+            val handle = FrameLayout(context).apply {
+                minimumHeight = context.dp(12)
+                addView(View(context).apply {
+                    background = GradientDrawable().apply {
+                        setColor(mutedColor); cornerRadius = context.dp(2).toFloat()
+                    }
+                }, FrameLayout.LayoutParams(context.dp(28), context.dp(4), Gravity.CENTER))
+            }
+            query.doOnTextChanged { text, _, _, _ ->
+                if (isCurrent()) content.setQuery(text?.toString().orEmpty()) else dialog.dismiss()
+            }
+            content.ui.recyclerView.tag = "clipboard_search_results"
+            dialog.setNativeContent(content.ui.root, footer, query, handle)
+            contentStarted = true
+            content.onAttached()
+            present(dialog)
+            if (!dialog.isShowing) dialog.dismiss()
         }
-    }
 
-    private fun notifyChanged() {
-        stateChangedListeners.forEach { it() }
+        private fun paste(entry: ClipboardEntry) {
+            if (!isCurrent()) { dialog.dismiss(); return }
+            dialog.dismiss()
+            service.lifecycleScope.launch {
+                // A file can suspend while staging. The service rechecks this connection after IO.
+                if (token?.isCurrent() != true || service.applicationInputConnection !== connection ||
+                    service.jsAppInputConnection != null) return@launch
+                if (service.commitClipboardEntry(entry.text)) ClipboardManager.markUsed(entry.id)
+            }
+        }
+
+        private fun close() {
+            if (closed) return
+            closed = true
+            if (contentStarted) content.onDetached()
+            if (service.jsAppDismiss === dismissPanel) {
+                service.jsAppInputConnection = null
+                service.jsAppDismiss = null
+                service.resetJsAppEditorState()
+            }
+            onClosed(this)
+        }
     }
 }
