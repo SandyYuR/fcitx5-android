@@ -4,7 +4,7 @@
 
 ## 两条链路
 
-2026-11-07 的固定版本为 `android-sdk-20261107-1`：官方基线 `2bae6b59b5ebbf2a8af7ffae5b22fbf090f91841`，定制源码 `483ffbca5fdfa8a13698d28085e3154d48e435b3`，SDK SHA-256 `27667a75515809199ee681321c54cb90b04afe29faa97bec116b5aad22e04459`。本次修复恢复临时库被误当作普通词典参与同步的问题，插件、依赖锁和构建配方保持上一 SDK 的版本。交付与回归见[设备反馈修复](changes/2026-11-06-device-fixes.md)；上一轮官方源码同步见[2026-11-06 引擎记录](changes/2026-11-06-engine-input-fixes.md)。实际消费版本仍以应用锁文件为准。
+2026-11-10 的固定版本为 [`android-sdk-20261110-1`](https://github.com/SandyYuR/librime/releases/tag/android-sdk-20261110-1)：官方基线 `a104ec6cafdb61a19f0e79707741733a0963c431`，定制源码 `b5561910d9eba97a273e09e7996535679b730032`，SDK SHA-256 `d22bf604adc844ac568c375b57b2ff575f3fa9c05e46f33ead394bd31bf815e9`。本轮同步官方词典迭代优化，保留下游独有改动；恢复临时库在整批同步前主动回收，打开前安装清理守卫并传播占用、打开及最终清理失败，同时协调同次上屏的用户词学习事务。插件、依赖版本和构建配方保持上一 SDK 的固定输入；四 ABI、宿主回归、打包与 Release 流水线均已通过。上一版 `.temp` 枚举修复的交付证据见[设备反馈修复](changes/2026-11-06-device-fixes.md)，更早的官方源码同步见[2026-11-06 引擎记录](changes/2026-11-06-engine-input-fixes.md)。实际消费版本仍以应用锁文件为准。
 
 构建与发布：
 
