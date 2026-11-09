@@ -17,20 +17,24 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.Window
 import android.view.inspector.WindowInspector
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.ImageView
+import android.widget.ListView
 import androidx.room.Room
 import androidx.core.graphics.ColorUtils
 import androidx.preference.PreferenceManager
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.chip.Chip
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.RawConfig
@@ -41,13 +45,21 @@ import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardDatabase
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
+import org.fcitx.fcitx5.android.input.config.ConfigProviders
+import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
+import org.fcitx.fcitx5.android.input.config.ConfigurableButton
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.InputView
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.input.keyboard.KeyView
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
+import org.fcitx.fcitx5.android.input.preedit.PreeditComponent
 import org.fcitx.fcitx5.android.input.voice.js.JsAppDialog
+import org.fcitx.fcitx5.android.input.voice.js.JsAppEditText
+import org.fcitx.fcitx5.android.input.voice.js.JsAppPermissions
+import org.fcitx.fcitx5.android.input.voice.js.JsApps
+import org.fcitx.fcitx5.android.input.voice.js.JsVoiceProviders
 import org.fcitx.fcitx5.android.ui.main.settings.im.RimeImportActivity
 import org.fcitx.fcitx5.android.utils.settingsColor
 import org.junit.Assert.*
@@ -80,6 +92,8 @@ class ClipboardSearchDeviceTest {
         val previousLayout = prefs.keyboard.textKeyboardLayoutProfile.getValue()
         val previousNotifications = prefs.internal.needNotifications.getValue()
         val previousListening = prefs.clipboard.clipboardListening.getValue()
+        val toolbarFile = checkNotNull(ConfigProviders.provider.buttonsLayoutConfigFile())
+        val previousToolbar = toolbarFile.takeIf { it.isFile }?.readBytes()
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val previousCategory = preferences.getString("clipboard_last_opened_category", null)
         val databaseName = "$name.db"
@@ -90,6 +104,10 @@ class ClipboardSearchDeviceTest {
         var previousProfile: String? = null
         var createdProfile = false
         try {
+            toolbarFile.parentFile!!.mkdirs()
+            toolbarFile.writeText(Json.encodeToString(ButtonsLayoutConfig.default().copy(
+                kawaiiBarButtons = listOf(ConfigurableButton("undo"), ConfigurableButton("redo"),
+                    ConfigurableButton("clipboard"), ConfigurableButton("ai_assistant")))))
             // Search exercises a private fixture database, leaving application history intact.
             daoField.set(null, database.clipboardDao())
             val dao = database.clipboardDao()
@@ -214,6 +232,7 @@ class ClipboardSearchDeviceTest {
                 capture("clipboard-search-$suffix")
                 assertPanel(ime, query, results)
                 assertColors(query, results)
+                assertCursorBlinks(query, "clipboard-search-$suffix")
                 assertEquals("原应用", onMainValue { editor.text.toString() })
                 tap(category(query, ClipboardCategory.Media))
                 await("Media group must display loaded previews and a missing-image placeholder") {
@@ -228,7 +247,8 @@ class ClipboardSearchDeviceTest {
                 tap(category(query, ClipboardCategory.All))
                 await("Leaving the media group must restore the full history") { adapter.itemCount >= 48 }
                 if (suffix == "light") {
-                    tapKey("n"); tapKey("i"); tapKey("Space")
+                    assertClipboardToolbarSwitchKeepsPanelVisible(ime, query, "clipboard-search")
+                    exerciseEncodingAndCursor(ime, query, editor, "clipboard-search")
                     await("Rime's Chinese commit must enter only the local search field") { query.text.toString() == "你" }
                     await("Chinese query must filter the actual visible clipboard cards") {
                         adapter.snapshot().items.map { it.id } == listOf(1) && results.childCount == 1 &&
@@ -257,6 +277,7 @@ class ClipboardSearchDeviceTest {
                     await("After closing the panel, real soft keys must resume typing into the app") {
                         editor.text.toString() == "原应用Alpha 置顶记录你"
                     }
+                    exerciseOtherEditors(ime, editor, suffix)
                 } else {
                     if (suffix == "dark") {
                         onMain { ime.commitText("Alpha") }
@@ -293,6 +314,7 @@ class ClipboardSearchDeviceTest {
                     tap(windows().first { it.tag == "clipboard_search_close" && it.isShown })
                     await("Close must release the local input connection") { ime.jsAppInputConnection == null }
                     assertEquals("原应用", onMainValue { editor.text.toString() })
+                    if (suffix == "large") exerciseOtherEditors(ime, editor, suffix)
                 }
                 onMain { activity.finish() }; instrumentation.waitForIdleSync(); activities.remove(activity)
             }
@@ -310,6 +332,7 @@ class ClipboardSearchDeviceTest {
                 else putString("clipboard_last_opened_category", previousCategory)
             }.commit()
             SettingsUiPreferences.save(context, previousUi)
+            if (previousToolbar == null) toolbarFile.delete() else toolbarFile.writeBytes(previousToolbar)
             restoreSetting("secure", "show_ime_with_hard_keyboard", previousHardwareIme)
             restoreSetting("system", "font_scale", previousFontScale)
             if (previousIme.contains('/')) shell("ime set $previousIme")
@@ -345,10 +368,254 @@ class ClipboardSearchDeviceTest {
     }
     private fun inputWindows(view: InputView) = InputView::class.java.getDeclaredField("windowManager")
         .apply { isAccessible = true }.get(view) as InputWindowManager
+
+    private fun activeDialog(service: FcitxInputMethodService): JsAppDialog? =
+        FcitxInputMethodService::class.java.getDeclaredField("showingDialog").apply { isAccessible = true }
+            .get(service) as? JsAppDialog
+
+    private fun panelEditor(service: FcitxInputMethodService): JsAppEditText {
+        var editor: JsAppEditText? = null
+        await("The floating editor must become ready with its own local input") {
+            editor = activeDialog(service)?.let { dialog ->
+                descendants(dialog.findViewById(android.R.id.content)).filterIsInstance<JsAppEditText>()
+                    .firstOrNull { it.isShown && it.isEnabled && it.ownsLocalInput && it.keyListener != null }
+            }
+            editor != null && activeDialog(service)?.window?.attributes?.alpha == 1f
+        }
+        return checkNotNull(editor)
+    }
+
+    private fun encoding(service: FcitxInputMethodService) = InputView::class.java.getDeclaredField("preedit")
+        .apply { isAccessible = true }.get(service.inputView) as PreeditComponent
+
+    private fun screenBounds(view: View) = Rect().also {
+        assertTrue(view.getLocalVisibleRect(it))
+        val location = IntArray(2).also(view::getLocationOnScreen)
+        it.offset(location[0], location[1])
+    }
+
+    private fun exerciseEncodingAndCursor(service: FcitxInputMethodService, local: EditText, application: EditText, suffix: String) {
+        val initialPanelBounds = onMainValue { screenBounds(local.rootView) }
+        val initialAppText = onMainValue { application.text.toString() }
+        val initialLocalText = onMainValue { local.text.toString() }
+        val baseline = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
+        try {
+            tapKey("n")
+            await("Uncommitted encoding n must appear in the real IME preedit") {
+                val ui = encoding(service).ui
+                ui.root.isShown && descendants(ui.root).filterIsInstance<TextView>().any { it.text.toString().contains("n") }
+            }
+            assertEquals("Composition must not move the floating panel", initialPanelBounds, onMainValue { screenBounds(local.rootView) })
+            assertEncodingDrawnAbovePanel(service, local, baseline)
+            capture("$suffix-preedit-n")
+            tapKey("i")
+            await("The changing encoding must show ni") {
+                descendants(encoding(service).ui.root).filterIsInstance<TextView>().any { it.text.toString().contains("ni") }
+            }
+            assertEquals(initialPanelBounds, onMainValue { screenBounds(local.rootView) })
+            capture("$suffix-preedit-ni")
+            tapKey("Backspace")
+            await("Backspace must shorten the live encoding") {
+                val text = descendants(encoding(service).ui.root).filterIsInstance<TextView>().joinToString { it.text.toString() }
+                text.contains("n") && !text.contains("ni")
+            }
+            assertEquals(initialPanelBounds, onMainValue { screenBounds(local.rootView) })
+            tapKey("i"); tapKey("Space")
+            await("Chinese composition must commit only to the local floating editor") { local.text.toString() == initialLocalText + "你" }
+            await("The completed composition must release the encoding area") { !encoding(service).ui.root.isShown }
+            assertEquals("Completing composition must keep the panel in place", initialPanelBounds, onMainValue { screenBounds(local.rootView) })
+            assertEquals(initialAppText, onMainValue { application.text.toString() })
+            assertTrue("The original application must retain actual window focus", onMainValue { application.hasWindowFocus() })
+            assertFalse("The floating editor must not become the system focus target", onMainValue { local.hasWindowFocus() })
+            assertCursorBlinks(local, suffix)
+        } finally { baseline.recycle() }
+    }
+
+    private fun assertEncodingDrawnAbovePanel(service: FcitxInputMethodService, local: EditText, baseline: Bitmap) {
+        val overlap = onMainValue {
+            val ui = encoding(service).ui
+            val area = screenBounds(ui.root).apply { right = left + ui.actualContentWidth }
+            assertTrue("The live encoding must overlap the panel for this regression check", area.intersect(screenBounds(local.rootView)))
+            assertEquals(WindowManager.LayoutParams.TYPE_APPLICATION_MEDIA, activeDialog(service)!!.window!!.attributes.type)
+            area
+        }
+        instrumentation.waitForIdleSync(); SystemClock.sleep(150)
+        val current = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
+        try {
+            var changed = 0
+            for (y in overlap.top until overlap.bottom) for (x in overlap.left until overlap.right) {
+                if (baseline.getPixel(x, y) != current.getPixel(x, y)) changed++
+            }
+            assertTrue("Encoding pixels must be composited above the unchanged panel, changed=$changed overlap=$overlap", changed > 12)
+        } finally { current.recycle() }
+    }
+
+    private fun assertCursorBlinks(editor: EditText, suffix: String) {
+        val region = onMainValue {
+            val visible = screenBounds(editor)
+            val position = IntArray(2).also(editor::getLocationOnScreen)
+            val layout = checkNotNull(editor.layout)
+            val cursorX = position[0] + editor.totalPaddingLeft - editor.scrollX +
+                layout.getPrimaryHorizontal(editor.selectionStart).toInt()
+            // Only inspect the caret column. Sampling the entire field can include a few
+            // primary-colored pixels from its rounded focus outline while the cursor is off.
+            Rect(cursorX - context.dp(2), visible.top + context.dp(8),
+                cursorX + context.dp(4), visible.bottom - context.dp(8)).apply {
+                assertTrue(intersect(visible))
+            }
+        }
+        val cursorColor = editor.context.settingsColor(androidx.appcompat.R.attr.colorPrimary)
+        val samples = mutableListOf<Int>()
+        repeat(7) {
+            instrumentation.waitForIdleSync()
+            val bitmap = checkNotNull(instrumentation.uiAutomation.takeScreenshot())
+            try {
+                var count = 0
+                for (y in region.top until region.bottom) for (x in region.left until region.right) {
+                    if (bitmap.getPixel(x, y) == cursorColor) count++
+                }
+                samples += count
+            } finally { bitmap.recycle() }
+            SystemClock.sleep(180)
+        }
+        assertTrue("The actual caret must show and hide in the unfocused $suffix editor: $samples region=$region color=${Integer.toHexString(cursorColor)}",
+            samples.any { it > 0 } && samples.any { it == 0 })
+    }
+
+    private fun assertClipboardToolbarSwitchKeepsPanelVisible(service: FcitxInputMethodService, local: EditText, suffix: String) {
+        val dialog = onMainValue { checkNotNull(activeDialog(service)) }
+        val localInput = service.jsAppInputConnection
+        val application = service.applicationInputConnection
+        val originalText = onMainValue { local.text.toString() }
+        val alphaChanges = mutableListOf<Float>()
+        val originalCallback = dialog.window!!.callback
+        onMain {
+            dialog.window!!.callback = object : Window.Callback by originalCallback {
+                override fun onWindowAttributesChanged(attrs: WindowManager.LayoutParams) {
+                    alphaChanges += attrs.alpha
+                    originalCallback.onWindowAttributesChanged(attrs)
+                }
+            }
+        }
+        try {
+            val button = onMainValue {
+                descendants(service.inputView!!).first { it.isShown &&
+                    it.contentDescription == context.getString(R.string.clipboard) }
+            }
+            tap(button)
+            await("The toolbar must open the ordinary clipboard beneath $suffix") {
+                inputWindows(service.inputView!!).currentWindowOrNull() is ClipboardWindow
+            }
+            instrumentation.waitForIdleSync(); SystemClock.sleep(300)
+            onMain {
+                assertSame(dialog, activeDialog(service))
+                assertEquals("A visible $suffix must not become transparent on a clipboard page switch: $alphaChanges",
+                    1f, dialog.window!!.attributes.alpha, 0f)
+                assertTrue("No intermediate window update may hide the panel: $alphaChanges", alphaChanges.all { it == 1f })
+                assertSame(localInput, service.jsAppInputConnection)
+                assertSame(application, service.applicationInputConnection)
+                assertEquals(originalText, local.text.toString())
+            }
+            capture("$suffix-clipboard-switch")
+            val back = onMainValue {
+                descendants(service.inputView!!).first { it.isShown &&
+                    it.contentDescription == context.getString(R.string.back_to_keyboard) }
+            }
+            tap(back)
+            await("The clipboard back button must return to keys without closing $suffix") {
+                inputWindows(service.inputView!!).currentWindowOrNull() is KeyboardWindow
+            }
+            onMain {
+                assertSame(dialog, activeDialog(service))
+                assertTrue(alphaChanges.all { it == 1f })
+            }
+            assertCursorBlinks(local, "$suffix-after-clipboard-switch")
+        } finally { onMain { dialog.window!!.callback = originalCallback } }
+    }
+
+    private fun exerciseOtherEditors(service: FcitxInputMethodService, application: EditText, suffix: String) {
+        val assistant = onMainValue { JsVoiceProviders.all().first { spec -> spec.apps.any { it.id == "llm_assistant" } } }
+        val permissionPreferences = context.getSharedPreferences("js_app_permissions", Context.MODE_PRIVATE)
+        val permissionKey = "${assistant.id}/llm_assistant"
+        val previousPermissions = permissionPreferences.getStringSet(permissionKey, null)?.toSet()
+        try {
+            onMain { ClipboardEditor.open(service, 2) }
+            val clipboard = panelEditor(service)
+            exerciseEncodingAndCursor(service, clipboard, application, "clipboard-editor-$suffix")
+            capture("clipboard-editor-$suffix-cursor")
+            tap(windows().first { it.isShown && it.tag == "cancel" })
+            await("Cancelling clipboard editing must release the local editor") { service.jsAppInputConnection == null }
+            onMain {
+                JsAppPermissions.grant(assistant.id, "llm_assistant", assistant.apps.single { it.id == "llm_assistant" }.permissions)
+                JsApps.open(service)
+            }
+            val assistantEditor = panelEditor(service)
+            if (suffix == "light") assertClipboardToolbarSwitchKeepsPanelVisible(service, assistantEditor, "ai-assistant")
+            exerciseEncodingAndCursor(service, assistantEditor, application, "ai-assistant-$suffix")
+            val purpose = onMainValue {
+                descendants(assistantEditor.rootView).filterIsInstance<MaterialAutoCompleteTextView>().single { view ->
+                    generateSequence(view.parent) { it.parent }.filterIsInstance<View>().any { it.tag == "purpose" }
+                }
+            }
+            tap(purpose)
+            var list: ListView? = null
+            await("The real assistant dropdown must be visible above the panel") {
+                list = WindowInspector.getGlobalWindowViews().firstOrNull {
+                    (it.layoutParams as? WindowManager.LayoutParams)?.type == 1004 && it.isShown
+                }?.let { descendants(it).filterIsInstance<ListView>().firstOrNull() }
+                list?.childCount?.let { it > 1 } == true
+            }
+            capture("ai-assistant-$suffix-dropdown-compact")
+            onMain {
+                val actual = checkNotNull(list)
+                val minimum = context.dp(36)
+                for (index in 0 until actual.childCount) {
+                    val row = actual.getChildAt(index).findViewById<TextView>(android.R.id.text1)
+                    assertTrue(row.height >= minimum)
+                    if (suffix == "light") assertEquals("Normal dropdown rows must be compact", minimum, row.height)
+                    assertEquals(context.dp(4), row.paddingTop)
+                    assertEquals(context.dp(4), row.paddingBottom)
+                }
+                if (suffix == "large") assertTrue("Long dropdown labels must wrap at enlarged font size: " +
+                    (0 until actual.childCount).joinToString { index ->
+                        val row = actual.getChildAt(index).findViewById<TextView>(android.R.id.text1)
+                        "${row.text}: lines=${row.lineCount}, maxLines=${row.maxLines}, width=${row.width}, height=${row.height}, " +
+                            "layoutWidth=${row.layout.width}, ellipsizedWidth=${row.layout.ellipsizedWidth}, " +
+                            "textSize=${row.textSize}, hscroll=${row.isHorizontallyScrollable}, paramsHeight=${row.layoutParams.height}"
+                    },
+                    (0 until actual.childCount).any { actual.getChildAt(it).findViewById<TextView>(android.R.id.text1).lineCount > 1 })
+            }
+            tap(onMainValue { checkNotNull(list).getChildAt(1) })
+            val refreshed = panelEditor(service)
+            assertCursorBlinks(refreshed, "ai-assistant-$suffix-after-selection")
+            if (suffix == "light") {
+                val assistantButton = onMainValue { descendants(service.inputView!!).first {
+                    it.isShown && it.contentDescription == context.getString(R.string.ai_assistant)
+                } }
+                tap(assistantButton)
+                await("Tapping the AI toolbar button again must close the existing session") {
+                    service.jsAppInputConnection == null && activeDialog(service) == null
+                }
+                tap(assistantButton)
+                val reopened = panelEditor(service)
+                assertNotSame(refreshed, reopened)
+                assertCursorBlinks(reopened, "ai-assistant-toolbar-reopened")
+                tap(assistantButton)
+            } else tap(windows().first { it.isShown && it.tag == "close" })
+            await("Closing the assistant must release its local editor") { service.jsAppInputConnection == null }
+        } finally {
+            onMain { service.jsAppDismiss?.invoke() }
+            permissionPreferences.edit().apply {
+                if (previousPermissions == null) remove(permissionKey) else putStringSet(permissionKey, previousPermissions)
+            }.commit()
+        }
+    }
+
     private fun assertPanel(service: FcitxInputMethodService, query: EditText, results: View) = onMain {
         val field = FcitxInputMethodService::class.java.getDeclaredField("showingDialog").apply { isAccessible = true }
         val dialog = field.get(service) as JsAppDialog
         val attrs = dialog.window!!.attributes
+        assertEquals(WindowManager.LayoutParams.TYPE_APPLICATION_MEDIA, attrs.type)
         val keyboard = service.inputView!!.keyboardView
         val location = IntArray(2).also(keyboard::getLocationOnScreen)
         assertTrue("Panel must remain above the keyboard", attrs.y + attrs.height <= location[1])

@@ -878,7 +878,7 @@ data object AiAssistantAction : ButtonAction() {
 
     override fun execute(context: Context, service: FcitxInputMethodService, fcitx: FcitxConnection,
         windowManager: InputWindowManager, view: View?, onActionComplete: (() -> Unit)?) {
-        org.fcitx.fcitx5.android.input.voice.js.JsApps.open(service)
+        org.fcitx.fcitx5.android.input.voice.js.JsApps.toggle(service)
     }
 
     override fun onLongPress(context: Context, service: FcitxInputMethodService, fcitx: FcitxConnection,

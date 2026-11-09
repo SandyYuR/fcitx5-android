@@ -40,6 +40,10 @@ import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.utils.settingsColor
 
+// Android's TYPE_APPLICATION_MEDIA_OVERLAY (1004) sits between TYPE_APPLICATION_MEDIA
+// and its parent window. The platform accepts this type, but omits its name from the SDK.
+private const val IME_PANEL_DROPDOWN_WINDOW_TYPE = 1004
+
 /** Attached window; typing stays in the local editor while host APIs retain the app connection. */
 internal class JsAppDialog(
     private val service: FcitxInputMethodService,
@@ -123,6 +127,7 @@ internal class JsAppDialog(
     private var prompt: CompletableDeferred<Boolean>? = null
     private var busy = false
     private var dismissed = false
+    private var hasPresented = false
     private var maxWidthDp = 340
     private var maxHeightDp = 360
     private var moved = false
@@ -156,6 +161,10 @@ internal class JsAppDialog(
         if (dismissed) return
         // The shared IME dialog host adds dimming; this panel must leave the app and keyboard usable.
         window?.apply {
+            // Keep the attached panel below its parent IME window. The real preedit, including
+            // changing text/height and floating candidates, can then draw above it without
+            // moving the panel or copying the encoding into a second view.
+            attributes = attributes.apply { type = WindowManager.LayoutParams.TYPE_APPLICATION_MEDIA }
             clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND or
                 WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH)
             addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
@@ -179,6 +188,7 @@ internal class JsAppDialog(
             observedKeyboard?.viewTreeObserver?.takeIf { it.isAlive }?.removeOnGlobalLayoutListener(keyboardLayoutListener)
             observedKeyboard = null
             root.viewTreeObserver.takeIf { it.isAlive }?.removeOnPreDrawListener(firstDrawListener)
+            editors.values.filterIsInstance<JsAppEditText>().forEach { it.ownsLocalInput = false }
             selectors.values.forEach { it.first.dismissDropDown() }
             prompt?.complete(false)
             closed()
@@ -288,10 +298,10 @@ internal class JsAppDialog(
 
     fun render(spec: JsonObject) {
         selectors.values.forEach { it.first.dismissDropDown() }
+        blockTyping()
         controls.clear(); editors.clear(); selections.clear(); selectors.clear(); enabled.clear()
         header.removeAllViews(); footer.removeAllViews()
         layoutColumn = null; headerView = null; actionsView = null; allScrollable = false
-        blockTyping()
         content.removeAllViews()
         status.text = ""
         status.visibility = View.GONE
@@ -355,7 +365,7 @@ internal class JsAppDialog(
                 }
                 "input" -> {
                     val readOnly = (obj["readOnly"] as? JsonPrimitive)?.booleanOrNull == true
-                    val edit = EditText(uiContext).apply {
+                    val edit = JsAppEditText(uiContext).apply {
                         setTextColor(if (readOnly) onTonalColor else textColor); setHintTextColor(mutedColor)
                         textSize = 16f
                         setPadding(dp(12), dp(8), dp(12), dp(8))
@@ -369,9 +379,10 @@ internal class JsAppDialog(
                         showSoftInputOnFocus = false
                         filters = arrayOf(InputFilter.LengthFilter(inputLimit))
                         setText(obj.text("value").take(inputLimit)); hint = obj.text("placeholder")
-                        setSelection(if (readOnly) 0 else text.length)
+                        setSelection(if (readOnly) 0 else text?.length ?: 0)
                         if (readOnly) {
                             keyListener = null
+                            isCursorVisible = false
                             setTextIsSelectable(true)
                         }
                         setOnFocusChangeListener { _, focused ->
@@ -408,12 +419,11 @@ internal class JsAppDialog(
                         ellipsize = TextUtils.TruncateAt.END
                         isCursorVisible = false
                         showSoftInputOnFocus = false
-                        setAdapter(object : ArrayAdapter<String>(uiContext, android.R.layout.simple_dropdown_item_1line,
+                        setAdapter(object : ArrayAdapter<String>(uiContext, R.layout.js_app_dropdown_item, android.R.id.text1,
                             options.map { it.first }) {
                             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
-                                (super.getView(position, convertView, parent) as TextView).apply {
-                                    setTextColor(textColor); textSize = 14f
-                                    minHeight = dp(48); setPadding(dp(12), dp(10), dp(12), dp(10))
+                                super.getView(position, convertView, parent).apply {
+                                    findViewById<TextView>(android.R.id.text1).setTextColor(textColor)
                                 }
                         })
                         setText(selected?.first.orEmpty(), false)
@@ -616,13 +626,18 @@ internal class JsAppDialog(
     private fun prepareDraw(): Boolean {
         if (dismissed) return true
         val keyboard = keyboardView()
-        val keyboardReady = keyboard == null || (keyboard.isShown && keyboard.isAttachedToWindow &&
-            keyboard.isLaidOut && !keyboard.isLayoutRequested && keyboard.width > 0 && keyboard.height > 0)
+        val keyboardVisible = keyboard == null || (keyboard.isShown && keyboard.isAttachedToWindow &&
+            keyboard.width > 0 && keyboard.height > 0)
+        val keyboardReady = keyboardVisible && (keyboard == null ||
+            (keyboard.isLaidOut && !keyboard.isLayoutRequested))
         val hasContent = nativeContent != null || prompt != null || content.childCount > 0 || status.visibility == View.VISIBLE
-        if (!hasContent || !keyboardReady) {
+        if (!hasContent || !keyboardVisible || (!keyboardReady && !hasPresented)) {
             setPanelVisible(false)
             return true
         }
+        // The first frame waits for the keyboard. Once visible, keep the existing surface
+        // through transient layout requests from clipboard/picker page switches.
+        if (!keyboardReady) return true
         // Attribute changes in this traversal take effect at the next WindowManager layout.
         // Keep the first frame transparent until that final size/position has been laid out.
         if (applyBounds() || root.width != root.measuredWidth || root.height != root.measuredHeight) {
@@ -630,6 +645,7 @@ internal class JsAppDialog(
             return false
         }
         setPanelVisible(true)
+        hasPresented = true
         return true
     }
 
@@ -654,6 +670,7 @@ internal class JsAppDialog(
     }
 
     private fun blockTyping() {
+        editors.values.filterIsInstance<JsAppEditText>().forEach { it.ownsLocalInput = false }
         service.jsAppInputConnection = JsAppInputConnection.blocked(service)
     }
     private fun focusEditor() {
@@ -664,8 +681,10 @@ internal class JsAppDialog(
         }
     }
     private fun bindEditor(editor: EditText) {
-        if (!dismissed && !busy && prompt == null && editor.isEnabled && editor.keyListener != null)
+        if (!dismissed && !busy && prompt == null && editor.isEnabled && editor.keyListener != null) {
+            editors.values.filterIsInstance<JsAppEditText>().forEach { it.ownsLocalInput = it === editor }
             service.jsAppInputConnection = JsAppInputConnection(editor)
+        }
     }
     private fun label(value: String, bold: Boolean = false, size: Float = 14f, muted: Boolean = false,
         draggable: Boolean = false) = (if (draggable) JsAppPanelTitle(uiContext) else MaterialTextView(uiContext)).apply {
@@ -731,14 +750,29 @@ private class EditorPreservingSelect(context: Context, private val availableArea
         val location = IntArray(2).also(::getLocationOnScreen)
         val below = (area.bottom - location[1] - height).coerceAtLeast(0)
         val above = (location[1] - area.top).coerceAtLeast(0)
-        val rowHeight = (48 * resources.displayMetrics.density).roundToInt()
-        val desiredHeight = minOf(rowHeight * adapter.count, (256 * resources.displayMetrics.density).roundToInt())
+        val maxHeight = (256 * resources.displayMetrics.density).roundToInt()
+        val padding = Rect().also { dropDownBackground?.getPadding(it) }
+        val rowParent = FrameLayout(context)
+        val rowWidth = (width - padding.left - padding.right).coerceAtLeast(1)
+        var desiredHeight = padding.top + padding.bottom
+        var row: View? = null
+        // Compact rows normally take 36 dp; font scaling and wrapped labels can make them taller.
+        // Size the popup from those measured rows, not the system dropdown's fixed row height.
+        for (position in 0 until adapter.count) {
+            row = adapter.getView(position, row, rowParent)
+            row.measure(View.MeasureSpec.makeMeasureSpec(rowWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+            desiredHeight = minOf(maxHeight, desiredHeight + row.measuredHeight)
+            if (desiredHeight == maxHeight) break
+        }
         val showAbove = below < desiredHeight && above > below
         val popupHeight = minOf(desiredHeight, if (showAbove) above else below).coerceAtLeast(1)
         popup = ListPopupWindow(context).apply {
             anchorView = this@EditorPreservingSelect
             isModal = false
             inputMethodMode = PopupWindow.INPUT_METHOD_NOT_NEEDED
+            // Above the panel's media sublayer, below the parent IME's live encoding area.
+            setWindowLayoutType(IME_PANEL_DROPDOWN_WINDOW_TYPE)
             width = this@EditorPreservingSelect.width
             height = popupHeight
             if (showAbove) verticalOffset = -this@EditorPreservingSelect.height - popupHeight

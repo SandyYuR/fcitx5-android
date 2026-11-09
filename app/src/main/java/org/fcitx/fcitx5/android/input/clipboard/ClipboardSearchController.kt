@@ -24,6 +24,7 @@ import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.input.voice.js.JsAppDialog
+import org.fcitx.fcitx5.android.input.voice.js.JsAppEditText
 import org.fcitx.fcitx5.android.input.voice.js.JsAppInputConnection
 import org.fcitx.fcitx5.android.utils.settingsColor
 import splitties.views.dsl.core.withTheme
@@ -74,7 +75,7 @@ internal object ClipboardSearchController {
         private val mutedColor = context.settingsColor(com.google.android.material.R.attr.colorOnSurfaceVariant)
         private val colors = ClipboardColors.panel(context)
 
-        internal val query = EditText(context).apply {
+        internal val query: EditText = JsAppEditText(context).apply {
             tag = "clipboard_query"
             textSize = 16f
             setTextColor(textColor); setHintTextColor(mutedColor)
