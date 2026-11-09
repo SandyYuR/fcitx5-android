@@ -9,6 +9,9 @@ import android.os.Bundle
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.ImageButton
 import android.widget.TextView
@@ -41,6 +44,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.util.ReflectionHelpers
 import java.io.File
 import java.lang.reflect.Proxy
 
@@ -330,6 +334,38 @@ class WanxiangAdvancedActivityTest {
             assertEquals(WanxiangCommonSettings.Key.PAGE_SIZE.name, vm.pending!!.common)
             assertEquals(0, vm.state.value.dirty)
             assertEquals(before, WanxiangSettingsFixture.root.walkTopDown().filter { it.isFile }.associate { it.path to it.readText() })
+        } finally { controller.get().finish(); controller.pause().stop().destroy() }
+    }
+
+    @Test fun booleanAndListDialogsCanSwitchToTextWithoutBlockingTheIme() {
+        val controller = Robolectric.buildActivity(WanxiangAdvancedActivity::class.java).setup()
+        try {
+            val activity = controller.get()
+            val vm = model(activity); await { !vm.state.value.busy }
+            val before = WanxiangSettingsFixture.root.walkTopDown().filter { it.isFile }.associate { it.path to it.readText() }
+            for ((type, value) in listOf(WanxiangYaml.Type.BOOLEAN to "false\n", WanxiangYaml.Type.YAML to "['old']\n")) {
+                vm.pending = WanxiangAdvancedViewModel.Pending(vm.state.value.file, "test/value", type.name, value)
+                ReflectionHelpers.callInstanceMethod<Unit>(activity, "showPending")
+                shadowOf(Looper.getMainLooper()).idle()
+                val dialog = ReflectionHelpers.getField<androidx.appcompat.app.AlertDialog>(activity, "editorDialog")
+                assertEquals("An editor that starts with a toggle or list must still allow the system IME",
+                    0, dialog.window!!.attributes.flags and WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+                val root = dialog.findViewById<ViewGroup>(android.R.id.content)!!
+                assertTrue(descendants(root).filterIsInstance<EditText>().isEmpty())
+                descendants(root).filterIsInstance<MaterialButton>().single {
+                    it.text == activity.getString(R.string.wanxiang_advanced_raw)
+                }.performClick()
+                shadowOf(Looper.getMainLooper()).idle()
+                val editor = descendants(root).filterIsInstance<EditText>().single()
+                assertTrue(editor.requestFocus())
+                editor.selectAll()
+                assertTrue(requireNotNull(editor.onCreateInputConnection(EditorInfo())).commitText("'中文'", 1))
+                assertEquals("'中文'", editor.text.toString())
+                dialog.dismiss()
+                shadowOf(Looper.getMainLooper()).idle()
+            }
+            assertEquals("Opening and typing in value drafts must not write configuration files", before,
+                WanxiangSettingsFixture.root.walkTopDown().filter { it.isFile }.associate { it.path to it.readText() })
         } finally { controller.get().finish(); controller.pause().stop().destroy() }
     }
 

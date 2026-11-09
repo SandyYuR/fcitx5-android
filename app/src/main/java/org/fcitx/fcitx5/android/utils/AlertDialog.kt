@@ -5,7 +5,17 @@
 
 package org.fcitx.fcitx5.android.utils
 
+import android.app.Dialog
+import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
+
+/** Call after content installation for forms that can create text fields dynamically. */
+internal fun Dialog.allowImeInput() {
+    window?.apply {
+        clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+        setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+    }
+}
 
 /**
  * Change positive button listener **AFTER** [AlertDialog.show] has been called.
