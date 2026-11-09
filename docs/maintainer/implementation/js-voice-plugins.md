@@ -15,6 +15,7 @@
 - 按钮 `style` 可为 `filled`、`tonal`、`text` 或默认描边。`icon` 仅接受内置 `assistant`、`close`、`send`、`check`；`iconOnly` 保留文字作为无障碍说明，未知图标回退文字。文本可用 `tone: "error"`、`maxLines`（1–8）与 `description`（长按说明，最多 600 字符）。这些是中州鹅的界面扩展，不表示原版 Foxy 提供相同字段。
 - 原生界面通过 `SettingsUiPreferences.themedContext` 复用主界面颜色角色，包含深浅色、Monet、手动色板和纯黑。图标来自受限应用资源，不接受脚本提供的外部图片路径；界面样式不改变原有事件 ID、能力权限或输入连接归属。
 - 支持 `foxy.ui.dialog.show/update/setValue/setEnabled/setLoading/setError/close`。面板不抢原应用焦点、无背景遮罩，可拖动，键盘通过本地输入连接编辑助手文本框；`foxy.editor.*` 始终操作打开助手前捕获的应用编辑框。输入会话失效时拒绝后续写入并取消运行。
+- 同一输入法服务中的 AI 动作再次点击会关闭当前 App 面板，取消未完成请求并恢复临时预览；重新点击才创建新会话。键盘内剪贴板等页面切换保留现有面板和本地输入，不改变原应用连接。
 - `foxy.editor.getSelection/getText/setComposition/clearComposition/commit` 分别核对相应能力。预览取消时恢复原选中文本；只有 `commit` 正式上屏。`credentials.list` 和 `context.configuredSecrets` 仅提供已配置的字段 ID，不提供密钥。
 - `foxy.http.request` 支持 GET、POST、PUT、PATCH、DELETE，返回 JSON 字符串形式的状态、头和正文。`credential`、`authHeader`、`authPrefix` 让宿主注入密钥，JS 不持有明文。请求体限制 1 MiB、响应限制 2 MiB，禁止自动重定向和覆盖传输头。
 - App HTTP 的主机须为静态声明项或当前普通设置中有效 HTTPS 地址的精确主机；读取密钥与发送请求前还需该插件对该主机的用户批准。旧批准本身不能使已从配置删除的非声明主机继续可访问。内置助手使用空 `hosts` 与空默认地址。

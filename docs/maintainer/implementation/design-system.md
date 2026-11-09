@@ -44,7 +44,11 @@ AI、剪贴板搜索和剪贴板编辑的共用 `JsAppDialog` 使用 IME 的 `TY
 
 菜单行使用容器承载 Material 文字，避免系统 `DropDownListView` 对作为根节点的 `TextView` 强制开启横向滚动，覆盖多行设置。普通行保持紧凑，长名称最多两行；真实下拉窗口验证换行和放大字号后的行高。
 
-`JsAppEditText` 复用 Material `TextInputEditText`，仅向当前本地编辑器转交用于原生光标闪烁的焦点状态，真实窗口焦点及系统 IME 目标仍属于原应用。切换输入框、忙碌、授权提示、只读回复和关闭时释放旧编辑光标，恢复本地输入时重启闪烁；窗口隐藏和屏幕关闭时停止更新。光标和窗口层级修正不重新创建原应用输入会话，也不改变草稿及异步请求代次。
+`JsAppEditText` 复用 Material `TextInputEditText` 的编辑、选区与输入连接，当前本地编辑器按实际 `Layout` 位置单独绘制光标，以 500 ms 周期闪烁。API 29 及以上使用主题光标 drawable，旧版本使用同一主色；空文本、换行、RTL 和滚动均按实际选区定位，不依赖平台私有的 `Editor.Blink`，也不伪造窗口焦点。切换输入框、忙碌、授权提示、选区、只读回复和关闭时释放旧编辑光标，恢复本地输入时立即显示；窗口隐藏、分离和屏幕关闭时取消闪烁任务。真实窗口焦点、系统 IME 目标、原应用会话及异步请求代次保持原归属。
+
+`JsAppDialog` 仅在首次显示时等待键盘完成布局；已显示的面板在剪贴板／符号页面的短暂布局请求期间保留表面、触摸和本地输入连接，真实键盘隐藏时仍隐藏面板。`AiAssistantAction` 的点击通过 `JsApps.toggle` 关闭同一服务中的当前助手，授权或忙碌期间也走正常取消与预览恢复，不重开新会话。
+
+宏步骤和万象值编辑器会在列表绑定、动作切换或结构化导航后创建文本框。它们在对话框内容安装后调用 `allowImeInput`，清除 `AlertController` 因初始视图无文本框而添加的 `FLAG_ALT_FOCUSABLE_IM`，同时使用 `SOFT_INPUT_ADJUST_RESIZE`。此规则用于 Activity 原生表单；输入法附着面板及选择菜单继续维持各自不抢焦点的策略。
 
 ## 列表与任务状态
 
@@ -67,7 +71,8 @@ AI、剪贴板搜索和剪贴板编辑的共用 `JsAppDialog` 使用 IME 的 `TY
 先检查生产调用链，再运行相关 JVM 测试和 Debug 构建；窗口、键盘及触摸行为补实际设备或模拟器验证。
 
 - `JsAppDialogAppearanceTest`：浅色、深色、窄窗口、大字号、按钮可见范围与图标。
-- `JsAppFloatingPanelTest`：首次显示、键盘边界、移动、焦点、原生光标暂停/恢复和菜单行高。
+- `JsAppFloatingPanelTest`：首次显示、键盘边界、移动、真实光标亮暗像素、暂停/恢复和菜单行高。
+- `MacroEditorDialogLayoutTest`、`WanxiangAdvancedActivityTest`：动态表单的输入法窗口策略、动作切换及原始 YAML 输入与草稿边界。
 - `ClipboardSearchDeviceTest`：真实软键输入三类弹框、编码区在重叠区域的实际合成像素、弹框位置稳定、无窗口焦点的光标闪烁及普通/大字号下拉行。
 - `JsAppWorkflowTest`、`JsAppDialogTest`：真实脚本与原生按钮、输入分流、授权提示恢复和确认上屏。
 - `RestoreUiThemeTest`、`UserDataRestoreStartupTest`：恢复 UI 不打开偏好，独立进程约束继续成立。

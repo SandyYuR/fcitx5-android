@@ -113,7 +113,9 @@ JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果
 
 界面规范与共用组件见[界面设计](./design-system)。AI 面板与设置页通过同一主题入口取色；窗口重新分配标题、正文和操作区时不能重建输入连接或丢掉草稿。授权提示期间隐藏原操作区，关闭后不得重新绑定已失效的编辑器。
 
-AI、剪贴板搜索和剪贴板编辑共用的 `JsAppDialog` 位于父 IME 窗口下方，原编码区和浮动候选在面板上层实时更新；编码宽高变化不驱动面板避让或复制到另一视图。`JsAppEditText` 只为当前本地编辑器维持原生光标闪烁，不能改变真实窗口焦点和原应用输入会话。忙碌、授权提示、只读、隐藏和关闭期间停止编辑光标，恢复输入时重新闪烁。AI 下拉选择项采用紧凑的 36 dp 普通行、上下各 4 dp 留白，整行可点，按实际文字测高并受键盘边界约束。`JsAppFloatingPanelTest` 检查暂停/恢复和选项高度，`ClipboardSearchDeviceTest` 用真实软键、重叠区域截图像素及无窗口焦点的光标帧验证三种生产入口。
+AI、剪贴板搜索和剪贴板编辑共用的 `JsAppDialog` 位于父 IME 窗口下方，原编码区和浮动候选在面板上层实时更新；编码宽高变化不驱动面板避让或复制到另一视图。`JsAppEditText` 只为当前本地编辑器按实际文字布局绘制并定时闪烁光标，不能伪造真实窗口焦点或改变原应用输入会话。忙碌、授权提示、选区、只读、隐藏、分离和关闭期间取消光标任务，恢复输入时立即显示。已有面板在键盘页面切换的布局请求期间不重新变透明；AI 按钮再次点击走当前会话的取消和预览恢复。AI 下拉选择项采用紧凑的 36 dp 普通行、上下各 4 dp 留白，整行可点，按实际文字测高并受键盘边界约束。`JsAppFloatingPanelTest` 检查实际光标像素、暂停/恢复和选项高度，`ClipboardSearchDeviceTest` 用真实软键、重叠区域截图像素及无窗口焦点的光标帧验证三种生产入口。
+
+原生宏动作与万象值编辑表单在内容安装后清除 `FLAG_ALT_FOCUSABLE_IM`：初始没有文本框不能使动态新增、动作切换或原始 YAML 编辑失去系统输入法。`allowImeInput` 不用于需要保留原应用连接的 IME 附着面板。回归包括 `MacroEditorDialogLayoutTest` 的新旧动作输入、`WanxiangAdvancedActivityTest.booleanAndListDialogsCanSwitchToTextWithoutBlockingTheIme` 及设备上的动作确认回填；测试输入不提前写入布局或配置文件。
 
 恢复进程的 UI 只读取主题资源，不可为统一外观引入偏好读取、主题管理器初始化或原生引擎。`restoreUiContext` 与主进程的 `SettingsUiPreferences.themedContext` 用途不同。
 
