@@ -140,9 +140,19 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
     }
 
     val dynamicIcon = imageView {
-        setPaddingDp(14, 6, 14, 6)
+        setPaddingDp(4)
         scaleType = ImageView.ScaleType.FIT_CENTER
         imageResource = R.drawable.ic_baseline_auto_awesome_24
+        contentDescription = ctx.getString(R.string.text_keyboard_layout_key_color_mode_monet_pick)
+        isClickable = false
+        isFocusable = false
+        visibility = View.GONE
+    }
+
+    val randomButton = imageView {
+        setPaddingDp(14, 6, 14, 6)
+        scaleType = ImageView.ScaleType.FIT_CENTER
+        imageResource = R.drawable.ic_random_theme_24
     }
 
     val scoreText = textView {
@@ -168,12 +178,17 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             rightOfParent(dp(4))
             bottomOfParent(dp(4))
         })
+        add(dynamicIcon, lParams(dp(28), dp(28)) {
+            topOfParent(dp(6))
+            startOfParent(dp(6))
+        })
         add(badge, lParams(wrapContent, wrapContent) {
             topOfParent(dp(6))
             endOfParent(dp(6))
             constrainedWidth = true
-            startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-            marginStart = dp(6)
+            startToEnd = dynamicIcon.id
+            marginStart = dp(4)
+            goneStartMargin = dp(6)
             horizontalBias = 1f
         })
         add(scoreText, lParams(matchParent, wrapContent) {
@@ -206,12 +221,12 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
         addView(LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
             addView(thumbnailView, LinearLayout.LayoutParams(-1, dp(88)))
-            addView(ThemeCardDetails(ctx, listOf(dynamicIcon, exportButton, editButton)).apply {
+            addView(ThemeCardDetails(ctx, listOf(randomButton, exportButton, editButton)).apply {
                 addView(themeNameText, LinearLayout.LayoutParams(-1, themeCardNameHeight(ctx)))
                 addView(LinearLayout(ctx).apply {
                     gravity = Gravity.END or Gravity.CENTER_VERTICAL
                     setPaddingDp(4, 0, 4, 0)
-                    addView(dynamicIcon, LinearLayout.LayoutParams(dp(48), dp(32)))
+                    addView(randomButton, LinearLayout.LayoutParams(dp(48), dp(32)))
                     addView(exportButton, LinearLayout.LayoutParams(dp(48), dp(32)))
                     addView(editButton, LinearLayout.LayoutParams(dp(48), dp(32)))
                 }, LinearLayout.LayoutParams(-1, dp(32)))
@@ -250,9 +265,10 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             paint.color = theme.accentKeyBackgroundColor
         }
         val foregroundTint = ColorStateList.valueOf(ctx.settingsColor(androidx.appcompat.R.attr.colorPrimary))
+        val supportsMonetMapping = theme is Theme.Monet && ThemeMonet.supportsCustomMappingEditor(ctx)
         editButton.apply {
-            visibility = if (ThemeManager.isRandomTheme(theme) || theme is Theme.Custom ||
-                (theme is Theme.Monet && ThemeMonet.supportsCustomMappingEditor(ctx))) View.VISIBLE else View.GONE
+            visibility = if (ThemeManager.isRandomTheme(theme) || theme is Theme.Custom || supportsMonetMapping)
+                View.VISIBLE else View.GONE
             background = rippleDrawable(ctx.settingsColor(com.google.android.material.R.attr.colorOutlineVariant))
             imageTintList = foregroundTint
             TooltipCompat.setTooltipText(this, contentDescription)
@@ -265,11 +281,10 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             TooltipCompat.setTooltipText(this, contentDescription)
         }
         dynamicIcon.apply {
-            imageResource = if (ThemeManager.isRandomTheme(theme)) {
-                R.drawable.ic_random_theme_24
-            } else {
-                R.drawable.ic_baseline_auto_awesome_24
-            }
+            isVisible = supportsMonetMapping
+            imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
+        }
+        randomButton.apply {
             visibility = if (ThemeManager.isRandomTheme(theme)) {
                 View.VISIBLE
             } else View.GONE
@@ -355,8 +370,8 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
     }
 
     fun setRandomAction(onClick: (() -> Unit)?) {
-        dynamicIcon.setOnClickListener(onClick?.let { listener -> View.OnClickListener { listener() } })
-        dynamicIcon.contentDescription = if (onClick == null) null else ctx.getString(R.string.random_theme)
+        randomButton.setOnClickListener(onClick?.let { listener -> View.OnClickListener { listener() } })
+        randomButton.contentDescription = if (onClick == null) null else ctx.getString(R.string.random_theme)
     }
 
 }
