@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.input.keyboard
 import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.core.ScancodeMapping
+import org.fcitx.fcitx5.android.core.CandidateTabActionTarget
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
@@ -107,5 +108,5 @@ sealed class KeyAction {
      */
     data object MacroConsumedAction : KeyAction()
 
-    data class AuxBarTrigger(val edgeId: Int) : KeyAction()
+    data class AuxBarTrigger(val target: CandidateTabActionTarget?) : KeyAction()
 }

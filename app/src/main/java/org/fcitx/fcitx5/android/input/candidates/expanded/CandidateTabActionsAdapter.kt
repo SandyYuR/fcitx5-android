@@ -18,6 +18,7 @@ import android.view.Gravity
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.fcitx.fcitx5.android.core.CandidateAction
+import org.fcitx.fcitx5.android.core.CandidateTabActionTarget
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
@@ -41,7 +42,7 @@ abstract class CandidateTabActionsAdapter(val theme: Theme, val indicatorStyle: 
         notifyDataSetChanged()
     }
 
-    abstract fun onTriggerTabAction(id: Int)
+    abstract fun onTriggerTabAction(target: CandidateTabActionTarget)
 
     override fun getItemCount() = tabs.size
 
@@ -70,7 +71,7 @@ abstract class CandidateTabActionsAdapter(val theme: Theme, val indicatorStyle: 
             tabAction = tab
             ui.update(tab)
             ui.root.setOnClickListener {
-                onTriggerTabAction(tab.id)
+                tab.tabTarget?.let(::onTriggerTabAction)
             }
         }
 

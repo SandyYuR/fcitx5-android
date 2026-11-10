@@ -13,7 +13,7 @@ namespace direct_rime {
 // No Android/Fcitx dependencies: exercise the safety contract against a fake RimeApi.
 enum Gate { Ready = 0, Maintenance = 1, NoSession = 2, Stale = 3, DeployFailed = 4 };
 struct Snapshot {
-    int64_t generation = 0, revision = 0, optionsRevision = 0;
+    int64_t generation = 0, revision = 0, optionsRevision = 0, tabsRevision = 0;
     // -1: absent; otherwise (pre-operation UTF-16 code units << 1) | starts-with-slash.
     int64_t inputStatistics = -1;
     bool handled = true, ascii = false, lastPage = true;
@@ -24,7 +24,11 @@ struct Snapshot {
     bool canReusePresentation(const Snapshot& previous) const;
     bool canCachePresentation() const;
 };
-struct Tab { std::string label; size_t span; };
+struct Tab {
+    std::string label;
+    size_t span;
+    bool operator==(const Tab& other) const { return label == other.label && span == other.span; }
+};
 struct RawInput { std::string text; int caret; };
 
 class Engine {
@@ -76,7 +80,7 @@ private:
     std::atomic<bool> deployFailed_{false};
     std::atomic<int64_t> optionsRevision_{0};
     RimeSessionId session_ = 0;
-    int64_t generation_ = 0, revision_ = 0;
+    int64_t generation_ = 0, revision_ = 0, tabsRevision_ = 0;
     int64_t sessionsCreated_ = 0, sessionsReused_ = 0, sessionsEnded_ = 0;
     std::string sessionProgram_;
     std::string shared_, user_, version_;
