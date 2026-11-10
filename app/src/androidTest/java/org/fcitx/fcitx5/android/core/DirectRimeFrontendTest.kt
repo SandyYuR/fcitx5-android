@@ -1100,7 +1100,10 @@ end
                                 }.toList()
                             editorState = "window=${host.hasWindowFocus()},focus=${editor.hasFocus()},active=${imm.isActive(editor)},views=$views"
                         }
-                        ready && inputView()?.service?.isInputViewShown == true &&
+                        val visible = inputView()?.service?.isInputViewShown == true
+                        if (ready && !visible)
+                            instrumentation.runOnMainSync { imm.showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT) }
+                        ready && visible &&
                             SystemClock.uptimeMillis() - stableSince >= 750
                     }
                 } catch (failure: AssertionError) {
@@ -1187,17 +1190,26 @@ end
                         var x = 0
                         var y = 0
                         instrumentation.runOnMainSync {
-                            // GlobalVisibleRect uses each window's own root
-                            // coordinates. Compare actual screen positions.
-                            val toolbar = descendants(host.window.decorView)
-                                .filterIsInstance<androidx.appcompat.widget.Toolbar>().first()
                             val origin = IntArray(2)
-                            toolbar.getLocationOnScreen(origin)
-                            x = origin[0] + toolbar.width - 2
-                            y = origin[1] + toolbar.height / 2
                             menu.rootView.getLocationOnScreen(origin)
                             val menuBounds = Rect(origin[0], origin[1],
                                 origin[0] + menu.rootView.width, origin[1] + menu.rootView.height)
+                            host.window.decorView.getLocationOnScreen(origin)
+                            val hostBounds = Rect(origin[0], origin[1],
+                                origin[0] + host.window.decorView.width, origin[1] + host.window.decorView.height)
+                            editor.getLocationOnScreen(origin)
+                            val targets = listOf(
+                                (origin[0] + editor.width / 2) to (origin[1] + editor.height / 2),
+                                (menuBounds.left - 2) to menuBounds.centerY(),
+                                (menuBounds.right + 2) to menuBounds.centerY(),
+                                menuBounds.centerX() to (menuBounds.top - 2),
+                                menuBounds.centerX() to (menuBounds.bottom + 2)
+                            )
+                            val target = targets.firstOrNull { hostBounds.contains(it.first, it.second) &&
+                                !menuBounds.contains(it.first, it.second) }
+                            assertNotNull("Host window must expose a safe point outside the menu", target)
+                            x = target!!.first
+                            y = target.second
                             assertFalse("Outside-touch fixture must be outside the menu", menuBounds.contains(x, y))
                         }
                         shell("input tap $x $y")

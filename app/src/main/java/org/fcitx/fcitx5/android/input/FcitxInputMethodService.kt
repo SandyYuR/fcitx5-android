@@ -2409,8 +2409,6 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         editorSession.end()
         endEditorWork()
         showingDialog?.dismiss()
-        unregisterDialogBackHandler?.invoke()
-        unregisterDialogBackHandler = null
         FcitxDaemon.invalidateInputSession()
         MainService.stopSyncService(this)
         recreateInputViewPrefs.forEach {
@@ -2447,18 +2445,26 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     private var showingDialog: Dialog? = null
-    private var unregisterDialogBackHandler: (() -> Unit)? = null
 
     // Selection menus keep the editor's window focus. Deliver keys through the
-    // IME so Back and keyboard navigation still belong to the open menu.
-    private fun dispatchDialogKeyEvent(event: KeyEvent): Boolean =
-        showingDialog?.takeIf { it.isShowing }?.dispatchKeyEvent(event) == true
+    // IME so Back and keyboard navigation still belong to the open menu. On
+    // predictive-Back devices InputMethodService's own compatibility callback
+    // converts the gesture to these same onKeyDown/onKeyUp calls.
+    private fun dispatchDialogKeyEvent(event: KeyEvent): Boolean {
+        val dialog = showingDialog?.takeIf { it.isShowing } ?: return false
+        if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+            // A non-focusable Dialog does not consume Back DOWN itself. Returning
+            // false would let InputMethodService hide the keyboard before UP can
+            // close the menu, and the same action may then reach the editor app.
+            if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) dialog.cancel()
+            return true
+        }
+        return dialog.dispatchKeyEvent(event)
+    }
 
     fun showDialog(dialog: Dialog) {
         // Menu data is resolved asynchronously; the editor may have gone away.
         if (!decorView.isShown || !decorView.isAttachedToWindow) return
-        unregisterDialogBackHandler?.invoke()
-        unregisterDialogBackHandler = null
         showingDialog?.dismiss()
         // AlertController adds ALT_FOCUSABLE_IM while installing its content.
         // Finish that first so it cannot overwrite our final window policy.
@@ -2482,22 +2488,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         dialog.setOnDismissListener {
             if (showingDialog === dialog) {
                 showingDialog = null
-                unregisterDialogBackHandler?.invoke()
-                unregisterDialogBackHandler = null
             }
         }
         dialog.show()
         showingDialog = dialog
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Predictive Back bypasses onKeyDown/onKeyUp when enabled by the
-            // settings UI. Consume it on the IME window while a menu is open.
-            val dispatcher = window.window!!.onBackInvokedDispatcher
-            val callback = android.window.OnBackInvokedCallback {
-                if (showingDialog === dialog) dialog.cancel()
-            }
-            dispatcher.registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_OVERLAY, callback)
-            unregisterDialogBackHandler = { dispatcher.unregisterOnBackInvokedCallback(callback) }
-        }
     }
 
     @Suppress("ConstPropertyName")
