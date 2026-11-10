@@ -11,6 +11,15 @@ class InputEventQueueTest {
             FormattedText.Empty, FormattedText.Empty, emptyArray()))
     private fun commit(text: String) = FcitxEvent.CommitStringEvent(FcitxEvent.CommitStringEvent.Data(text, -1))
 
+    private class RecordingDiagnostics : InputEventQueue.Diagnostics {
+        val produced = mutableListOf<List<FcitxEvent<*>>>()
+        val states = mutableListOf<Pair<Int, Long>>()
+        override fun produced(batch: List<FcitxEvent<*>>) { produced += batch }
+        override fun state(pendingBatches: Int, presentationReplaced: Long) {
+            states += pendingBatches to presentationReplaced
+        }
+    }
+
     @Test fun withoutStatisticsOrBacklogTheOriginalListIsDeliveredDirectly() = runBlocking {
         val queue = InputEventQueue()
         val display = listOf(panel("n"))
@@ -28,6 +37,25 @@ class InputEventQueueTest {
         val paged = FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data.Empty)
         queue.offer(listOf(paged))
         assertEquals(listOf(panel("9999"), paged), queue.receive())
+    }
+
+    @Test fun diagnosticsReportActualBatchesAndPresentationReplacementWithoutChangingDelivery() = runBlocking {
+        val diagnostics = RecordingDiagnostics()
+        val queue = InputEventQueue(diagnostics = diagnostics)
+        val first = listOf(panel("n"))
+        val second = listOf(panel("ni"))
+        val boundary = listOf(commit("你"))
+
+        queue.offer(first)
+        queue.offer(second)
+        queue.offer(boundary)
+
+        assertEquals(listOf(first, second, boundary), diagnostics.produced)
+        assertEquals(2 to 1L, diagnostics.states.last())
+        assertEquals(second, queue.receive())
+        assertEquals(1 to 1L, diagnostics.states.last())
+        assertEquals(boundary, queue.receive())
+        assertEquals(0 to 1L, diagnostics.states.last())
     }
 
     @Test fun commitsAndReadyEventsKeepTheirOrderAndTheirAssociatedState() = runBlocking {
