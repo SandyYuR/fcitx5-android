@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.keyboard
 
+import android.graphics.Rect
 import android.view.Gravity
 import android.view.View
 import android.widget.TextView
@@ -35,6 +36,7 @@ class AltLabelLayoutTimingTest {
 
     @Before fun useBottomLabels() {
         ThemeManager.prefs.punctuationPosition.setValue(PunctuationPosition.Bottom)
+        ThemeManager.prefs.moveMainTextForAltLabel.setValue(true)
     }
 
     private fun layout(key: KeyView, heightDp: Int) {
@@ -128,5 +130,91 @@ class AltLabelLayoutTimingTest {
         assertEquals(Gravity.CENTER, key.altText.gravity)
         val params = key.altText.layoutParams as ConstraintLayout.LayoutParams
         assertEquals((key.altText.parent as View).height - params.bottomMargin, key.altText.bottom)
+    }
+
+    @Test fun dualLabelsStayInsideKeysWithAndWithoutMovingMainContent() {
+        for (moveMain in listOf(false, true)) {
+            ThemeManager.prefs.moveMainTextForAltLabel.setValue(moveMain)
+            val text = AltTextKeyView(context, ThemePreset.PixelLight,
+                KeyDef.Appearance.AltText("Q", "1", "Q", 23f, altText1 = "~").apply {
+                    directionalSwipeLabels = true
+                })
+            val image = ImageAltTextKeyView(context, ThemePreset.PixelLight,
+                KeyDef.Appearance.ImageAltText(R.drawable.ic_baseline_backspace_24, "清空", altText1 = "删除").apply {
+                    directionalSwipeLabels = true
+                })
+            for (scale in listOf(1f, 1.3f, 1f)) {
+                for (key in listOf(text, image)) key.setTextScale(scale)
+                for (height in (48..88) + 52) {
+                    for ((key, labels) in listOf(text to listOf(text.altText, text.altText1),
+                        image to listOf(image.altText, image.altText1))) {
+                        layout(key, height)
+                        for (label in labels) {
+                            val parent = label.parent as View
+                            val description = "${key.javaClass.simpleName}, move=$moveMain, scale=$scale, height=$height, label=${label.text}"
+                            assertEquals(description, View.VISIBLE, label.visibility)
+                            assertTrue("Top must stay inside the key: $description (${label.top})",
+                                label.top >= key.vMargin)
+                            assertTrue("Bottom must stay inside the key: $description (${label.bottom}/${parent.height})",
+                                label.bottom <= parent.height - key.vMargin)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test fun dualLabelsKeepIdenticalCenteredBoundsWhenMovementIsToggled() {
+        val text = AltTextKeyView(context, ThemePreset.PixelLight,
+            KeyDef.Appearance.AltText("Q", "1", "Q", 23f, altText1 = "~").apply {
+                directionalSwipeLabels = true
+            })
+        val image = ImageAltTextKeyView(context, ThemePreset.PixelLight,
+            KeyDef.Appearance.ImageAltText(R.drawable.ic_baseline_backspace_24, "清空", altText1 = "删除").apply {
+                directionalSwipeLabels = true
+            })
+        val parts = listOf(text to listOf(text.mainText, text.altText, text.altText1),
+            image to listOf(image.img, image.altText, image.altText1))
+        for (height in listOf(52, 88, 40, 52)) {
+            ThemeManager.prefs.moveMainTextForAltLabel.setValue(false)
+            text.refreshAltTextLayout()
+            image.refreshAltTextLayout()
+            val previous = parts.map { (key, views) ->
+                layout(key, height)
+                views.map { Rect(it.left, it.top, it.right, it.bottom) }
+            }
+            ThemeManager.prefs.moveMainTextForAltLabel.setValue(true)
+            text.refreshAltTextLayout()
+            image.refreshAltTextLayout()
+            parts.forEachIndexed { index, (key, views) ->
+                layout(key, height)
+                assertEquals("${key.javaClass.simpleName} at ${height}dp", previous[index],
+                    views.map { Rect(it.left, it.top, it.right, it.bottom) })
+                if (height >= 52) {
+                    val parent = views.first().parent as View
+                    assertEquals(parent.height / 2f, (views.first().top + views.first().bottom) / 2f, 1f)
+                    views.drop(1).forEach { label ->
+                        assertEquals(Gravity.CENTER, (label as TextView).gravity)
+                        assertEquals(parent.width / 2f, (label.left + label.right) / 2f, 1f)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test fun singleBottomLabelStillMovesTheMainContentWhenEnabled() {
+        val key = AltTextKeyView(context, ThemePreset.PixelLight,
+            KeyDef.Appearance.AltText("Q", "~", "Q", 23f))
+        ThemeManager.prefs.moveMainTextForAltLabel.setValue(false)
+        key.refreshAltTextLayout()
+        layout(key, 64)
+        val parent = key.mainText.parent as View
+        assertEquals(parent.height / 2f, (key.mainText.top + key.mainText.bottom) / 2f, 1f)
+        val centeredTop = key.mainText.top
+        ThemeManager.prefs.moveMainTextForAltLabel.setValue(true)
+        key.refreshAltTextLayout()
+        layout(key, 64)
+        assertTrue(key.mainText.top < centeredTop)
+        assertEquals(View.GONE, key.altText1.visibility)
     }
 }
