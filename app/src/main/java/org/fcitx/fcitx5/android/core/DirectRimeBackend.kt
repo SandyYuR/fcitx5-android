@@ -479,6 +479,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
         // Rime can commit on a release too (for example a schema's release binding).
         // Only DOWN produces a key counter, but either half may carry commit metadata.
         val statisticsSource = currentCoroutineContext()[InputStatisticsSource]
+        val diagnosticTask = if (BuildConfig.INPUT_DIAGNOSTICS)
+            currentCoroutineContext()[InputDiagnostics.ServiceTask] else null
         if (maintenance) return
         val queuedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
         events.awaitCapacity()
@@ -501,7 +503,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             if (!up && result?.ready == true) {
                 bindingKeys++
                 if (BuildConfig.INPUT_DIAGNOSTICS && (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L))
-                    android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
+                    android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys service_task=${diagnosticTask?.id ?: 0} service_category=${diagnosticTask?.category ?: "none"} admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
             }
             val keyId = sym to code
             val forward = if (up) forwardedKeys.remove(keyId) else
@@ -530,6 +532,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
     ): Snapshot? {
         val expected = snapshot ?: return null
         val statisticsSource = if (action == 1 || action == 11) currentCoroutineContext()[InputStatisticsSource] else null
+        val diagnosticTask = if (BuildConfig.INPUT_DIAGNOSTICS)
+            currentCoroutineContext()[InputDiagnostics.ServiceTask] else null
         if (!acceptsInput || expected.generation != inputSession ||
             (candidateContext != null && candidateContext != candidateActionContext) ||
             (tabContext != null && tabContext != candidateTabActionContext)) return null
@@ -541,7 +545,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 (candidateContext != null && candidateContext != candidateActionContext) ||
                 (tabContext != null && tabContext != candidateTabActionContext)) {
                 if (action == 1 || action == 11)
-                    android.util.Log.i("RimeInputTiming", "select_rejected generation=${expected.generation} reason=stale_snapshot")
+                    android.util.Log.i("RimeInputTiming", "select_rejected generation=${expected.generation} service_task=${diagnosticTask?.id ?: 0} reason=stale_snapshot")
                 null
             } else {
                 val ownerAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
@@ -549,7 +553,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 if (action == 1 || action == 11) {
                     bindingSelections++
                     if (BuildConfig.INPUT_DIAGNOSTICS && (bindingSelections <= 2 || SystemClock.elapsedRealtimeNanos() - ownerAt >= 100_000_000L))
-                        android.util.Log.i("RimeInputTiming", "select generation=${expected.generation} ordinal=$bindingSelections admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_publish_us=${(SystemClock.elapsedRealtimeNanos() - ownerAt) / 1000} ${nativeTiming()}")
+                        android.util.Log.i("RimeInputTiming", "select generation=${expected.generation} ordinal=$bindingSelections service_task=${diagnosticTask?.id ?: 0} service_category=${diagnosticTask?.category ?: "none"} admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_publish_us=${(SystemClock.elapsedRealtimeNanos() - ownerAt) / 1000} ${nativeTiming()}")
                 }
                 result
             }
