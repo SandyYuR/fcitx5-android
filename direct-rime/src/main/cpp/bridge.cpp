@@ -24,7 +24,7 @@ std::optional<direct_rime::Snapshot> previousPresentation;
 jclass rawInputClass = nullptr;
 jmethodID rawInputConstructor = nullptr;
 constexpr auto snapshotSignature =
-    "(JJJZILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ZIZI[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;[Ljava/lang/String;J)V";
+    "(JJJZILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ZIZI[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;[Ljava/lang/String;JJ)V";
 jobject newSnapshot(JNIEnv* env, const direct_rime::Snapshot& s) {
     // One JNI result owns the commit and the corresponding UI state. Nothing is
     // delivered through a dropping SharedFlow or a native background callback.
@@ -33,7 +33,8 @@ jobject newSnapshot(JNIEnv* env, const direct_rime::Snapshot& s) {
         string(env, s.schema), static_cast<jboolean>(s.ascii), static_cast<jint>(s.page),
         static_cast<jboolean>(s.lastPage), static_cast<jint>(s.cursor), strings(env, s.candidates),
         strings(env, s.comments), strings(env, s.tabs),
-        string(env, s.schemaName), static_cast<jint>(s.highlighted), string(env, s.preview), strings(env, s.labels), static_cast<jlong>(s.inputStatistics));
+        string(env, s.schemaName), static_cast<jint>(s.highlighted), string(env, s.preview), strings(env, s.labels),
+        static_cast<jlong>(s.inputStatistics), static_cast<jlong>(s.tabsRevision));
 }
 void clearSnapshotCache(JNIEnv* env) {
     if (previousSnapshot) env->DeleteGlobalRef(previousSnapshot);

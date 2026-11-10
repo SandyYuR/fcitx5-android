@@ -106,6 +106,7 @@ bool utf16(const std::string& input, std::u16string& output) {
 bool Snapshot::canReusePresentation(const Snapshot& previous) const {
     return !handled && commit.empty() && gate == Ready && previous.gate == Ready &&
         generation == previous.generation && optionsRevision == previous.optionsRevision &&
+        tabsRevision == previous.tabsRevision &&
         ascii == previous.ascii && page == previous.page && lastPage == previous.lastPage &&
         cursor == previous.cursor && highlighted == previous.highlighted &&
         preedit == previous.preedit && schema == previous.schema && schemaName == previous.schemaName &&
@@ -404,7 +405,7 @@ Snapshot Engine::snapshot(int64_t generation, bool handled, int64_t inputStatist
       if (api_->get_status(session_, &status)) {
         s.schema = safe(status.schema_id); s.schemaName = safe(status.schema_name); s.ascii = status.is_ascii_mode; api_->free_status(&status);
       } }
-    tabs_.clear();
+    std::vector<Tab> nextTabs;
     TimedTrace tabsTrace("rime.direct.read_input_tabs", timing_[4]);
     if (RIME_API_AVAILABLE(api_, get_input_tabs) && RIME_API_AVAILABLE(api_, free_input_tabs)) {
         char** labels = nullptr; size_t* spans = nullptr; int* sources = nullptr; size_t count = 0;
@@ -413,11 +414,16 @@ Snapshot Engine::snapshot(int64_t generation, bool handled, int64_t inputStatist
             for (size_t i = 0; i < count; ++i) {
                 auto label = safe(labels[i]);
                 if (label.empty() || !utf16(label, decoded)) continue;
-                tabs_.push_back({label, spans[i]}); s.tabs.push_back(label);
+                nextTabs.push_back({label, spans[i]}); s.tabs.push_back(label);
             }
             api_->free_input_tabs(labels, spans, sources, count);
         }
     }
+    if (nextTabs != tabs_) {
+        tabs_ = std::move(nextTabs);
+        ++tabsRevision_;
+    }
+    s.tabsRevision = tabsRevision_;
     s.optionsRevision = optionsRevision_.load();
     return s;
 }

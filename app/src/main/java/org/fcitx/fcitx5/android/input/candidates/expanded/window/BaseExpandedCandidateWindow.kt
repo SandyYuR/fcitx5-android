@@ -16,8 +16,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.core.CandidateAction
+import org.fcitx.fcitx5.android.core.CandidateTabActionTarget
 import org.fcitx.fcitx5.android.core.FcitxEvent
-import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.BooleanKey.ExpandedCandidatesEmpty
@@ -112,16 +112,16 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>>(t
 
     val tabsAdapter by lazy {
         object : CandidateTabActionsAdapter(theme, false) {
-            override fun onTriggerTabAction(id: Int) {
-                fcitx.launchOnReady { it.triggerCandidateListTabAction(id) }
+            override fun onTriggerTabAction(target: CandidateTabActionTarget) {
+                service.postCandidateTabAction(target)
             }
         }
     }
 
     val pinnedTabsAdapter by lazy {
         object : CandidateTabActionsAdapter(theme, true) {
-            override fun onTriggerTabAction(id: Int) {
-                fcitx.launchOnReady { it.triggerCandidateListTabAction(id) }
+            override fun onTriggerTabAction(target: CandidateTabActionTarget) {
+                service.postCandidateTabAction(target)
             }
         }
     }

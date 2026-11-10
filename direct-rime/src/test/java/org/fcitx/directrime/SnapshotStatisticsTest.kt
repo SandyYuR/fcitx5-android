@@ -4,9 +4,9 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SnapshotStatisticsTest {
-    private fun snapshot(packed: Long = -1L, commit: String = "") = Snapshot(
+    private fun snapshot(packed: Long = -1L, commit: String = "", tabsRevision: Long = 0L) = Snapshot(
         1, 10, 0, false, 0, commit, "ni", "test", false, 0, true, 2,
-        arrayOf("你"), arrayOf(""), emptyArray(), "Test", 0, "你", arrayOf("1"), packed
+        arrayOf("你"), arrayOf(""), emptyArray(), "Test", 0, "你", arrayOf("1"), packed, tabsRevision
     )
 
     @Test fun packedStatisticsDecodeWithoutKeepingTheRawText() {
@@ -26,7 +26,7 @@ class SnapshotStatisticsTest {
     }
 
     @Test fun reusedPresentationAlwaysGetsThisOperationsStatisticsAndNoOldCommit() {
-        val previous = snapshot(9, "already consumed")
+        val previous = snapshot(9, "already consumed", tabsRevision = 7)
         val current = Snapshot.reusePresentation(previous, 11, 4)
         assertEquals(9L, previous.inputStatistics)
         assertEquals("already consumed", previous.commit)
@@ -35,7 +35,9 @@ class SnapshotStatisticsTest {
         assertFalse(current.inputWasCommand)
         assertTrue(current.commit.isEmpty())
         assertSame(previous.candidates, current.candidates)
+        assertEquals(7L, current.tabsRevision)
         assertTrue(current.isUnchangedRelease(previous))
+        assertFalse(snapshot(tabsRevision = 8).isUnchangedRelease(previous))
         val disabled = Snapshot.reusePresentation(current, 12)
         assertEquals(-1L, disabled.inputStatistics)
         assertSame(current.candidates, disabled.candidates)

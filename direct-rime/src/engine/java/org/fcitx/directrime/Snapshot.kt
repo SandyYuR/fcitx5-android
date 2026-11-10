@@ -25,7 +25,9 @@ class Snapshot(
     val preview: String,
     val labels: Array<String>,
     /** -1 when not collected; otherwise pre-operation UTF-16 length << 1 plus the command bit. */
-    val inputStatistics: Long = -1L
+    val inputStatistics: Long = -1L,
+    /** Changes only when the selectable tab labels or spans change. */
+    val tabsRevision: Long = 0L
 ) {
     companion object {
         /** JNI has compared all display fields. Keep prior snapshots immutable and never replay their commit. */
@@ -33,7 +35,8 @@ class Snapshot(
             previous.generation, revision, previous.optionsRevision, false, previous.gate, "",
             previous.preedit, previous.schema, previous.ascii, previous.page, previous.lastPage,
             previous.cursorBytes, previous.candidates, previous.comments, previous.tabs,
-            previous.schemaName, previous.highlighted, previous.preview, previous.labels, inputStatistics
+            previous.schemaName, previous.highlighted, previous.preview, previous.labels,
+            inputStatistics, previous.tabsRevision
         )
     }
 
@@ -47,7 +50,8 @@ class Snapshot(
     /** Rime still processes releases; only identical, unhandled presentation updates can be elided. */
     fun isUnchangedRelease(previous: Snapshot?): Boolean = previous != null && !handled &&
         commit.isEmpty() && generation == previous.generation && gate == previous.gate &&
-        optionsRevision == previous.optionsRevision && preedit == previous.preedit &&
+        optionsRevision == previous.optionsRevision && tabsRevision == previous.tabsRevision &&
+        preedit == previous.preedit &&
         cursorBytes == previous.cursorBytes && schema == previous.schema &&
         schemaName == previous.schemaName && ascii == previous.ascii && page == previous.page &&
         lastPage == previous.lastPage && highlighted == previous.highlighted && preview == previous.preview &&

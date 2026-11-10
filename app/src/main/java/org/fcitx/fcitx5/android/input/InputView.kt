@@ -4046,7 +4046,7 @@ class InputView(
                 }
                 setOnClickListener {
                     listener.onKeyAction(
-                        KeyAction.AuxBarTrigger(action.id),
+                        KeyAction.AuxBarTrigger(action.tabTarget),
                         KeyActionListener.Source.Keyboard
                     )
                 }

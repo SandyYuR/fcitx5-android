@@ -66,14 +66,20 @@ class MovingCandidateBadgeTest {
         initialCandidateIndexBadgeContent = content
     ) {
         var fullBinds = 0
+        var payloadBinds = 0
         override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
             fullBinds++
             super.onBindViewHolder(holder, position)
+        }
+        override fun onBindViewHolder(holder: CandidateViewHolder, position: Int, payloads: MutableList<Any>) {
+            if (payloads.isNotEmpty()) payloadBinds++
+            super.onBindViewHolder(holder, position, payloads)
         }
     }
 
     private fun word(text: String, label: String = "") = CandidateWord(label, text, "", false)
     private fun badge(holder: CandidateViewHolder) = holder.ui.root.getChildAt(1) as TextView
+    private fun highlight(holder: CandidateViewHolder) = (holder.ui.root.getChildAt(0) as View).background
     private fun layout(view: RecyclerView) {
         shadowOf(Looper.getMainLooper()).idle()
         view.measure(View.MeasureSpec.makeMeasureSpec(1400, View.MeasureSpec.EXACTLY),
@@ -147,6 +153,55 @@ class MovingCandidateBadgeTest {
         layout(view)
         assertEquals(0, changes)
         assertEquals(View.GONE, badge(view.findViewHolderForAdapterPosition(2) as CandidateViewHolder).visibility)
+    }
+
+    @Test fun movingOnlyTheHighlightUsesPayloadsWithoutRebindingCandidateContent() = fixture { view, adapter ->
+        adapter.updateCandidates(arrayOf(word("a"), word("b"), word("c")), 3, activeIndex = 0)
+        layout(view)
+        val first = view.findViewHolderForAdapterPosition(0) as CandidateViewHolder
+        val second = view.findViewHolderForAdapterPosition(1) as CandidateViewHolder
+        assertNotNull(highlight(first))
+        assertNull(highlight(second))
+        adapter.fullBinds = 0
+        adapter.payloadBinds = 0
+
+        adapter.updateActiveIndex(1)
+        layout(view)
+
+        assertEquals(0, adapter.fullBinds)
+        assertTrue(adapter.payloadBinds >= 2)
+        assertSame(first, view.findViewHolderForAdapterPosition(0))
+        assertSame(second, view.findViewHolderForAdapterPosition(1))
+        assertNull(highlight(first))
+        assertNotNull(highlight(second))
+        assertEquals("a", first.candidate.text)
+        assertEquals("b", second.candidate.text)
+    }
+
+    @Test fun shiftedBadgeAndHighlightPayloadsAreAppliedTogetherAtNewPositions() = fixture { view, adapter ->
+        adapter.updateCandidates(arrayOf(word("b"), word("c"), word("d"), word("e")), 5, activeIndex = 2)
+        layout(view)
+        val oldD = view.findViewHolderForAdapterPosition(2) as CandidateViewHolder
+        val oldE = view.findViewHolderForAdapterPosition(3) as CandidateViewHolder
+        assertNotNull(highlight(oldD))
+        assertNull(highlight(oldE))
+        adapter.fullBinds = 0
+        adapter.payloadBinds = 0
+
+        adapter.updateCandidates(arrayOf(word("a"), word("b"), word("c"), word("d"), word("e")), 5,
+            activeIndex = 4)
+        layout(view)
+
+        val movedD = view.findViewHolderForAdapterPosition(3) as CandidateViewHolder
+        val movedE = view.findViewHolderForAdapterPosition(4) as CandidateViewHolder
+        assertSame(oldD, movedD)
+        assertSame(oldE, movedE)
+        assertEquals(1, adapter.fullBinds)
+        assertTrue(adapter.payloadBinds >= 4)
+        assertNull(highlight(movedD))
+        assertNotNull(highlight(movedE))
+        assertEquals("4", badge(movedD).text.toString())
+        assertEquals("5", badge(movedE).text.toString())
     }
 
     @Test fun changingFontAndCandidateContentTogetherRefreshesTheRetainedSuffix() {

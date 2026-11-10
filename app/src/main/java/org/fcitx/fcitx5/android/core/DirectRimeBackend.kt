@@ -25,6 +25,8 @@ import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
 
+private val EMPTY_CANDIDATE_ACTIONS = emptyArray<CandidateAction>()
+
 /** Original frontend contract implemented directly on librime's single owner thread. */
 class DirectRimeBackend(context: Context) : InputEngine {
     private val context = FcitxApplication.getInstance().directBootAwareContext
@@ -93,6 +95,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private var candidateEventCached: FcitxEvent<*>? = null
     @Volatile private var candidateVersion = 0L
     override val candidateActionContext get() = CandidateActionContext(inputSession, candidateVersion)
+    override val candidateTabActionContext get() = snapshot?.let {
+        CandidateTabActionContext(it.generation, it.tabsRevision)
+    } ?: CandidateTabActionContext(inputSession, 0)
     private val forwardedKeys = mutableSetOf<Pair<Int, Int>>()
     private var startupError = ""
     private var statusHint = ""
@@ -326,7 +331,10 @@ class DirectRimeBackend(context: Context) : InputEngine {
             "CommitPreview" -> formatted(value.preview, underline = true)
             else -> FormattedText.Empty
         }
-        val tabs = value.tabs.mapIndexed { i, text -> CandidateAction(i, text, false, "", false, false) }.toTypedArray()
+        val tabContext = CandidateTabActionContext(value.generation, value.tabsRevision)
+        val tabs = if (value.tabs.isEmpty()) EMPTY_CANDIDATE_ACTIONS else Array(value.tabs.size) { i ->
+            CandidateAction(i, value.tabs[i], false, "", false, false, CandidateTabActionTarget(tabContext, i))
+        }
         val panel = FcitxEvent.InputPanelEvent.Data(
             if (config.preeditMode == "No") formatted(value.preedit, value.cursorUtf16) else FormattedText.Empty,
             if (directInput && bindingUsable(value)) FormattedText.Empty
@@ -352,11 +360,12 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }
         if (clientChanged) batch += FcitxEvent.ClientPreeditEvent(client)
         if (panelChanged) batch += FcitxEvent.InputPanelEvent(panel)
-        val candidates = value.candidates.mapIndexed { i, text ->
+        val candidates = Array(value.candidates.size) { i ->
             // Candidate codes are separate metadata, not a schema's visible comment.
             // Appending them would bypass Lua filters such as Wanxiang's comment switch.
-            CandidateWord(value.labels.getOrElse(i) { "${(i + 1) % 10} " }, text, value.comments.getOrElse(i) { "" })
-        }.toTypedArray()
+            CandidateWord(value.labels.getOrElse(i) { "${(i + 1) % 10} " }, value.candidates[i],
+                value.comments.getOrElse(i) { "" })
+        }
         val candidateEvent = if (pagingMode != 0) FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data(
             candidates, value.highlighted, FcitxEvent.PagedCandidateEvent.LayoutHint.NotSet, value.page > 0, !value.lastPage))
         else FcitxEvent.CandidateListEvent(FcitxEvent.CandidateListEvent.Data(-1, candidates))
@@ -514,17 +523,24 @@ class DirectRimeBackend(context: Context) : InputEngine {
         sendKey(parsed.sym, states or parsed.states.toUInt(), code, up, timestamp)
     }
     override suspend fun sendKey(sym: KeySym, states: KeyStates, code: Int, up: Boolean, timestamp: Int) = sendKey(sym.sym, states.states, code, up, timestamp)
-    private suspend fun performAction(action: Int, index: Int, candidateContext: CandidateActionContext? = null): Snapshot? {
+    private suspend fun performAction(
+        action: Int,
+        index: Int,
+        candidateContext: CandidateActionContext? = null,
+        tabContext: CandidateTabActionContext? = null
+    ): Snapshot? {
         val expected = snapshot ?: return null
         val statisticsSource = if (action == 1 || action == 11) currentCoroutineContext()[InputStatisticsSource] else null
         if (!acceptsInput || expected.generation != inputSession ||
-            (candidateContext != null && candidateContext != candidateActionContext)) return null
+            (candidateContext != null && candidateContext != candidateActionContext) ||
+            (tabContext != null && tabContext != candidateTabActionContext)) return null
         val queuedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
         events.awaitCapacity()
         val admittedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
         return onOwner {
             if (expected.generation != inputSession || snapshot?.revision != expected.revision ||
-                (candidateContext != null && candidateContext != candidateActionContext)) {
+                (candidateContext != null && candidateContext != candidateActionContext) ||
+                (tabContext != null && tabContext != candidateTabActionContext)) {
                 if (action == 1 || action == 11)
                     android.util.Log.i("RimeInputTiming", "select_rejected generation=${expected.generation} reason=stale_snapshot")
                 null
@@ -620,6 +636,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
     }
     override suspend fun offsetCandidatePage(delta: Int) { onOwner { repeat(kotlin.math.abs(delta).coerceAtMost(100)) { act(2, delta) } } }
     override suspend fun triggerCandidateListTabAction(id: Int) { performAction(if (id == -1) 7 else 4, id) }
+    override suspend fun triggerCandidateListTabActionIfCurrent(target: CandidateTabActionTarget): Boolean =
+        target.id >= -1 &&
+            performAction(if (target.id == -1) 7 else 4, target.id, tabContext = target.context)?.ready == true
 
     override suspend fun availableIme() = arrayOf(inputMethodEntryCached)
     override suspend fun enabledIme() = availableIme()

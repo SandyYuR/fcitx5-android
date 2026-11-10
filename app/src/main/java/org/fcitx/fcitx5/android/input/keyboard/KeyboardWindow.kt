@@ -16,10 +16,8 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlag
 import org.fcitx.fcitx5.android.core.CapabilityFlags
 import org.fcitx.fcitx5.android.core.AuxBarAction
-import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.InputMethodEntry
-import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
@@ -265,8 +263,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWin
             is KeyAction.LayoutSwitchAction -> switchLayout(it.act, fromUserKey = true)
             is KeyAction.LayerSwitchAction -> handleLayerSwitchAction(it)
             is KeyAction.AuxBarTrigger -> {
-                val actionId = it.edgeId
-                fcitx.launchOnReady { fcitxApi: FcitxAPI -> fcitxApi.triggerCandidateListTabAction(actionId) }
+                it.target?.let(service::postCandidateTabAction)
             }
             KeyAction.MacroConsumedAction -> consumeOneShotLayerIfNeeded(it)
             else -> {
@@ -479,7 +476,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWin
         return if (panel.auxBarActions.isNotEmpty()) {
             panel.auxBarActions.toList()
         } else {
-            panel.tabs.map { AuxBarAction(it.id, it.text, it.isSeparator) }
+            panel.tabs.map { AuxBarAction(it.id, it.text, it.isSeparator, it.tabTarget) }
         }
     }
 

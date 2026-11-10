@@ -56,15 +56,30 @@ class CandidateSelectionQueueTest {
             }
             backend.sendKey('n', 0u, 0, false, 0)
             val old = displayedTarget()
+            val oldTab = requireNotNull(backend.inputPanelCached.tabs.single().tabTarget)
             service.postFcitxKeyJob { sendKey('x', 0u, 0, false, 0) }
             service.postCandidateSelection(old)
-            withTimeout(5_000) { jobs.receive().join(); jobs.receive().join() }
+            service.postCandidateTabAction(oldTab)
+            withTimeout(5_000) { jobs.receive().join(); jobs.receive().join(); jobs.receive().join() }
             assertTrue("The old tap must not reach native selection", CandidateSelectionNativeShadow.selections.isEmpty())
+            assertTrue("The old tab must not be rebound to the new same-label target", CandidateSelectionNativeShadow.tabSelections.isEmpty())
 
             service.postCandidateSelection(displayedTarget())
             withTimeout(5_000) { jobs.receive().join() }
             assertEquals(listOf(1 to 0), CandidateSelectionNativeShadow.selections)
             assertEquals("新候选", CandidateSelectionNativeShadow.committed)
+
+            val currentTab = requireNotNull(backend.inputPanelCached.tabs.single().tabTarget)
+            assertEquals(oldTab.id, currentTab.id)
+            assertEquals("同标签", backend.inputPanelCached.tabs.single().text)
+            assertTrue(currentTab.context.version > oldTab.context.version)
+            service.postCandidateTabAction(currentTab)
+            withTimeout(5_000) { jobs.receive().join() }
+            assertEquals(listOf(0), CandidateSelectionNativeShadow.tabSelections)
+
+            service.postCandidateTabAction(currentTab.copy(id = -1))
+            withTimeout(5_000) { jobs.receive().join() }
+            assertEquals(1, CandidateSelectionNativeShadow.clearedTabs)
 
             // Expanded data retain their global index even while the compact UI is paged.
             val expanded = backend.getCandidates(16, 2)
@@ -94,24 +109,37 @@ internal class CandidateSelectionNativeShadow : NativeTestDelegate {
         var revision = 0L
         var word = ""
         var committed = ""
+        var tabVersion = 0L
+        var clearedTabs = 0
         val selections = mutableListOf<Pair<Int, Int>>()
-        fun reset(value: Long) { generation = value; revision = 0; word = ""; committed = ""; selections.clear() }
+        val tabSelections = mutableListOf<Int>()
+        fun reset(value: Long) {
+            generation = value; revision = 0; word = ""; committed = ""; tabVersion = 0; clearedTabs = 0
+            selections.clear(); tabSelections.clear()
+        }
         private fun snapshot(commit: String = "") = Snapshot(generation, ++revision, 0, true, 0,
-            commit, "ni", "fixture", false, 0, true, 2, arrayOf(word), emptyArray(), emptyArray(),
-            "Fixture", 0, word, arrayOf("1"))
+            commit, "ni", "fixture", false, 0, true, 2, arrayOf(word), emptyArray(), arrayOf("同标签"),
+            "Fixture", 0, word, arrayOf("1"), tabsRevision = tabVersion)
     }
     override fun options(): Array<String> = emptyArray()
     override fun key(value: Long, sym: Int, mask: Int, release: Boolean): Snapshot {
         check(value == generation)
         word = if (sym == 'n'.code) "旧候选" else "新候选"
+        if (!release) tabVersion++
         return snapshot()
     }
     override fun action(value: Long, previous: Long, action: Int, index: Int, name: String): Snapshot {
         check(value == generation && previous == revision)
-        check(action == 1 || action == 11)
-        selections += action to index
-        committed = if (action == 1) word else "扩展$index"
-        return snapshot(committed)
+        when (action) {
+            1, 11 -> {
+                selections += action to index
+                committed = if (action == 1) word else "扩展$index"
+            }
+            4 -> tabSelections += index
+            7 -> clearedTabs++
+            else -> error("Unexpected action $action")
+        }
+        return snapshot(if (action == 1 || action == 11) committed else "")
     }
     override fun candidates(value: Long, offset: Int, limit: Int): Array<String> {
         check(value == generation)

@@ -741,8 +741,8 @@ abstract class BaseKeyboard(
                 .eachCount()
                 .maxByOrNull { it.value }
                 ?.key ?: 16f
-            val scrollableAdapter = AuxBarAdapter(theme, vMargin, hMargin, auxBarConfig.position, keyTextSize) { id ->
-                keyActionListener?.onKeyAction(KeyAction.AuxBarTrigger(id), KeyActionListener.Source.Keyboard)
+            val scrollableAdapter = AuxBarAdapter(theme, vMargin, hMargin, auxBarConfig.position, keyTextSize) { action ->
+                keyActionListener?.onKeyAction(KeyAction.AuxBarTrigger(action.tabTarget), KeyActionListener.Source.Keyboard)
             }
             scrollableRv.adapter = scrollableAdapter
             val keyAdapter = AuxBarKeyAdapter(
@@ -760,8 +760,8 @@ abstract class BaseKeyboard(
                 isVerticalScrollBarEnabled = false
                 isHorizontalScrollBarEnabled = false
             }
-            val pinnedAdapter = AuxBarAdapter(theme, vMargin, hMargin, auxBarConfig.position, keyTextSize) { id ->
-                keyActionListener?.onKeyAction(KeyAction.AuxBarTrigger(id), KeyActionListener.Source.Keyboard)
+            val pinnedAdapter = AuxBarAdapter(theme, vMargin, hMargin, auxBarConfig.position, keyTextSize) { action ->
+                keyActionListener?.onKeyAction(KeyAction.AuxBarTrigger(action.tabTarget), KeyActionListener.Source.Keyboard)
             }
             pinnedRv.adapter = pinnedAdapter
 
@@ -3699,7 +3699,7 @@ class AuxBarAdapter(
     private val hMargin: Int,
     private val position: AuxBarPosition,
     private val keyTextSize: Float,
-    private val onTrigger: (Int) -> Unit
+    private val onTrigger: (AuxBarAction) -> Unit
 ) : RecyclerView.Adapter<AuxBarAdapter.ViewHolder>() {
 
     private var actions = listOf<AuxBarAction>()
@@ -3805,7 +3805,7 @@ class AuxBarAdapter(
         val label = item.tag as? AutoScaleTextView ?: return
         label.text = action.text
         label.setFontTypeFace("key_main_font")
-        item.setOnClickListener { onTrigger(action.id) }
+        item.setOnClickListener { onTrigger(action) }
     }
 
     private fun applyThemeStyling(view: CustomGestureView) {
@@ -3869,10 +3869,10 @@ class AuxBarAdapter(
     class ViewHolder(val view: CustomGestureView) : RecyclerView.ViewHolder(view) {
         internal val label: AutoScaleTextView get() = view.tag as AutoScaleTextView
 
-        fun bind(action: AuxBarAction, onTrigger: (Int) -> Unit) {
+        fun bind(action: AuxBarAction, onTrigger: (AuxBarAction) -> Unit) {
             label.text = action.text
             label.setFontTypeFace("key_main_font")
-            view.setOnClickListener { onTrigger(action.id) }
+            view.setOnClickListener { onTrigger(action) }
         }
     }
 }

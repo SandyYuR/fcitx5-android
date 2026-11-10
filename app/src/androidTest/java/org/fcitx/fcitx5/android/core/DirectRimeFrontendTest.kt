@@ -1319,6 +1319,21 @@ end
                 }
                 return result
             }
+            fun horizontalCandidates(): org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateViewAdapter? {
+                var result: org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateViewAdapter? = null
+                instrumentation.runOnMainSync {
+                    fun find(view: View) {
+                        if (result != null || !view.isShown) return
+                        if (view is androidx.recyclerview.widget.RecyclerView) {
+                            result = view.adapter as?
+                                org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateViewAdapter
+                        }
+                        if (result == null && view is ViewGroup) for (i in 0 until view.childCount) find(view.getChildAt(i))
+                    }
+                    WindowInspector.getGlobalWindowViews().forEach(::find)
+                }
+                return result
+            }
             val touchTrace = org.json.JSONArray()
             fun tap(text: String, settle: Boolean = true) {
                 // Showing the first preedit can resize the IME window. Wait for
@@ -1633,10 +1648,23 @@ end
             shell("screencap -p /data/local/tmp/direct-frontend-keyboard.png")
             // Candidate taps exercise the original candidate adapter, not a hardware-space shortcut.
             await("Original candidate bar did not show Chinese") { key("你") != null }
-            tap("你")
-            await("Candidate tap did not commit Chinese into Android editor") {
-                var text = ""; instrumentation.runOnMainSync { text = editor.text.toString() }; text == "你"
+            val initialHighlight = requireNotNull(horizontalCandidates()).activeIndex
+            connection.runOnReady { sendKey("Down"); sendKey("Down", up = true) }
+            var highlightedCandidate = ""
+            await("Candidate navigation did not move the visible highlight") {
+                horizontalCandidates()?.let { adapter ->
+                    adapter.activeIndex.takeIf { it >= 0 && it != initialHighlight }
+                        ?.let { adapter.candidates.getOrNull(it) }?.text?.takeIf { key(it) != null }
+                        ?.also { highlightedCandidate = it } != null
+                } == true
             }
+            shell("screencap -p /data/local/tmp/direct-frontend-candidate-highlight.png")
+            tap(highlightedCandidate)
+            await("Candidate tap did not commit Chinese into Android editor") {
+                var text = ""; instrumentation.runOnMainSync { text = editor.text.toString() }; text == highlightedCandidate
+            }
+            assertEquals(highlightedCandidate, withTimeout(10_000) { commits.receive() })
+            assertNull("Navigated candidate tap must commit exactly once", withTimeoutOrNull(250) { commits.receive() })
             shell("screencap -p /data/local/tmp/direct-frontend-commit.png")
             assertTrue("The original app must install its layout presets", File(context.getExternalFilesDir(null), "config")
                 .listFiles().orEmpty().any { it.name.startsWith("TextKeyboardLayout.") })

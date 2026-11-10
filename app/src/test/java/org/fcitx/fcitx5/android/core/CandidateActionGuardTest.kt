@@ -26,6 +26,11 @@ class CandidateActionGuardTest {
     private lateinit var backend: DirectRimeBackend
     private lateinit var owner: ExecutorCoroutineDispatcher
     private val expected = CandidateActionContext(7, 20)
+    private val expectedTab = CandidateTabActionContext(7, 30)
+
+    private fun snapshot(tabsRevision: Long = expectedTab.version) = Snapshot(7, 11, 0, false, 0, "", "ni", "fixture", false,
+        0, true, 2, arrayOf("你"), emptyArray(), arrayOf("同标签"), "Fixture", 0, "你", arrayOf("1"),
+        tabsRevision = tabsRevision)
 
     @Before fun setUp() {
         backend = DirectRimeBackend(RuntimeEnvironment.getApplication())
@@ -34,8 +39,7 @@ class CandidateActionGuardTest {
         ReflectionHelpers.setField(backend, "candidateVersion", 20L)
         ReflectionHelpers.setField(backend, "started", true)
         ReflectionHelpers.setField(backend, "schemas", listOf("fixture" to "Fixture"))
-        ReflectionHelpers.setField(backend, "snapshot", Snapshot(7, 11, 0, false, 0, "", "ni", "fixture", false,
-            0, true, 2, arrayOf("你"), emptyArray(), emptyArray(), "Fixture", 0, "你", arrayOf("1")))
+        ReflectionHelpers.setField(backend, "snapshot", snapshot())
         ReflectionHelpers.getField<InputKeyGate>(backend, "keyGate").apply {
             running(); invalidate(7); prepare(7, true); resolve(7, true)
         }
@@ -53,12 +57,24 @@ class CandidateActionGuardTest {
         assertEquals(expected, backend.candidateActionContext)
     }
 
+    @Test fun tabContextIncludesBothEditorAndNativeTargetVersion() {
+        assertEquals(expectedTab, backend.candidateTabActionContext)
+    }
+
     @Test fun staleCandidatesAndEditorsAreRejectedBeforeNativeWork() = runBlocking {
         for (context in listOf(expected.copy(inputSession = 6), expected.copy(version = 19))) {
             assertFalse(backend.triggerCandidateActionIfCurrent(0, 0, false, context))
             assertFalse(backend.triggerCandidateActionIfCurrent(0, 0, true, context))
         }
         assertFalse(backend.triggerCandidateActionIfCurrent(-1, 0, false, expected))
+    }
+
+    @Test fun staleTabsAndEditorsAreRejectedBeforeNativeWork() = runBlocking {
+        for (context in listOf(expectedTab.copy(inputSession = 6), expectedTab.copy(version = 29))) {
+            assertFalse(backend.triggerCandidateListTabActionIfCurrent(CandidateTabActionTarget(context, 0)))
+            assertFalse(backend.triggerCandidateListTabActionIfCurrent(CandidateTabActionTarget(context, -1)))
+        }
+        assertFalse(backend.triggerCandidateListTabActionIfCurrent(CandidateTabActionTarget(expectedTab, -2)))
     }
 
     private fun queuedChange(change: () -> Unit, action: suspend () -> Boolean) = runBlocking {
@@ -84,6 +100,11 @@ class CandidateActionGuardTest {
     @Test fun aNewEditorCannotReceiveAnAlreadyQueuedGlobalCandidateAction() = queuedChange(
         { backend.invalidateInputSession() },
         { backend.triggerCandidateActionIfCurrent(0, 0, true, expected) }
+    )
+
+    @Test fun tabVersionIsRecheckedOnTheActualNativeOwner() = queuedChange(
+        { ReflectionHelpers.setField(backend, "snapshot", snapshot(tabsRevision = 31)) },
+        { backend.triggerCandidateListTabActionIfCurrent(CandidateTabActionTarget(expectedTab, 0)) }
     )
 
     @Test fun aQueuedSchemaSelectionIsRejectedAfterAnEditorChange() = queuedChange(

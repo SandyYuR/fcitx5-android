@@ -684,6 +684,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     fun postCandidateSelection(target: org.fcitx.fcitx5.android.core.CandidateSelectionTarget): Job =
         postCandidateSelection { selectCandidateIfCurrent(target.index, target.global, target.context) }
 
+    /** Same editor-gated service queue as keys and candidates, retaining the displayed tab target. */
+    fun postCandidateTabAction(target: org.fcitx.fcitx5.android.core.CandidateTabActionTarget): Job =
+        postFcitxKeyJob { triggerCandidateListTabActionIfCurrent(target) }
+
     private suspend fun FcitxAPI.applyCandidatePagingModeIfNeeded(mode: Int) {
         if (appliedCandidatePagingMode == mode) return
         setCandidatePagingMode(mode)
