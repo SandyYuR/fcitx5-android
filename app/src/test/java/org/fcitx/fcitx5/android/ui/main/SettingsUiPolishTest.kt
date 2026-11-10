@@ -18,11 +18,13 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.data.theme.ThemeMonet
 import org.fcitx.fcitx5.android.data.theme.ThemePreset
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardEntryUi
 import org.fcitx.fcitx5.android.ui.common.OperationStatusView
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ResponsiveThemeListView
+import org.fcitx.fcitx5.android.ui.main.settings.theme.SimpleThemeListAdapter
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeListAdapter
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeThumbnailUi
 import org.fcitx.fcitx5.android.ui.main.update.AssetStatus
@@ -121,7 +123,7 @@ class SettingsUiPolishTest {
                 assertEquals("The preview must not paint outside the rounded card", background, clipped.getPixel(1, 1))
                 clipped.recycle()
                 assertEquals(1, ui.themeNameText.maxLines)
-                for (button in listOf(ui.dynamicIcon, ui.editButton, ui.exportButton).filter { it.visibility == View.VISIBLE }) {
+                for (button in listOf(ui.randomButton, ui.editButton, ui.exportButton).filter { it.visibility == View.VISIBLE }) {
                     val action = Rect(0, 0, button.width, button.height)
                     ui.root.offsetDescendantRectToMyCoords(button, action)
                     assertTrue(action.top >= name.bottom)
@@ -170,12 +172,122 @@ class SettingsUiPolishTest {
         adapter.onBindViewHolder(holder, 1)
         val ui = holder.ui as ThemeThumbnailUi
         capture(activity, ui.root, "theme-random", width = 152, height = 140)
-        assertSame(ui.editButton.parent, ui.dynamicIcon.parent)
-        assertEquals(ui.editButton.top, ui.dynamicIcon.top)
+        assertSame(ui.editButton.parent, ui.randomButton.parent)
+        assertEquals(ui.editButton.top, ui.randomButton.top)
         assertEquals(View.GONE, ui.exportButton.visibility)
-        ui.dynamicIcon.performClick()
+        ui.randomButton.performClick()
         assertEquals(listOf("random"), adapter.events)
         ui.cleanup()
+    }
+
+    @Test fun monetMarkersRemainVisibleInThePreviewBesideSelectionBadges() {
+        for (dark in listOf(false, true)) {
+            for (rtl in listOf(false, true)) {
+                RuntimeEnvironment.setFontScale(if (rtl) 1.5f else 1f)
+                val (activity, context) = host(dark)
+                val lightTheme = ThemeMonet.getLight()
+                val darkTheme = ThemeMonet.getDark()
+                val adapter = Themes().apply {
+                    setThemes(listOf(lightTheme, darkTheme))
+                    setSelectedThemes(lightTheme, lightTheme, darkTheme)
+                }
+                for (position in 1..2) {
+                    val holder = adapter.onCreateViewHolder(FrameLayout(context), adapter.getItemViewType(position))
+                    adapter.onBindViewHolder(holder, position)
+                    val ui = holder.ui as ThemeThumbnailUi
+                    try {
+                        ui.root.layoutDirection = if (rtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
+                        capture(activity, ui.root, "monet-$position-dark-$dark-rtl-$rtl", width = 152)
+                        assertEquals("Both Monet themes must retain the dynamic-color marker", View.VISIBLE, ui.dynamicIcon.visibility)
+                        assertSame("The marker belongs in the preview, outside the action row", ui.thumbnailView, ui.dynamicIcon.parent)
+                        assertFalse("The marker must not trigger a random theme", ui.dynamicIcon.isClickable)
+                        val marker = Rect(0, 0, ui.dynamicIcon.width, ui.dynamicIcon.height)
+                        ui.thumbnailView.offsetDescendantRectToMyCoords(ui.dynamicIcon, marker)
+                        val selection = ui.checkMark.parent as View
+                        val selected = Rect(0, 0, selection.width, selection.height)
+                        ui.thumbnailView.offsetDescendantRectToMyCoords(selection, selected)
+                        assertTrue(marker.left >= 0 && marker.top >= 0 && marker.right <= ui.thumbnailView.width && marker.bottom <= ui.thumbnailView.height)
+                        assertFalse("Dynamic-color and day/night markers must not overlap", Rect.intersects(marker, selected))
+                        val bitmap = Bitmap.createBitmap(ui.root.width, ui.root.height, Bitmap.Config.ARGB_8888)
+                        try {
+                            ui.root.draw(Canvas(bitmap))
+                            val ink = checkNotNull(ui.dynamicIcon.imageTintList).defaultColor
+                            var inkPixels = 0
+                            ui.root.offsetDescendantRectToMyCoords(ui.thumbnailView, marker)
+                            for (y in marker.top until marker.bottom) for (x in marker.left until marker.right) {
+                                if (bitmap.getPixel(x, y) == ink) inkPixels++
+                            }
+                            assertTrue("The star must actually reach the rendered card", inkPixels > 10)
+                        } finally { bitmap.recycle() }
+                    } finally { ui.cleanup() }
+                }
+            }
+        }
+    }
+
+    @Test fun recyclingMonetCardsClearsTheMarkerForStaticAndRandomThemes() {
+        val (activity, context) = host()
+        val random = ThemePreset.MaterialDark.deriveCustomNoBackground(org.fcitx.fcitx5.android.data.theme.ThemeManager.RANDOM_THEME_NAME)
+        val adapter = Themes().apply {
+            setThemes(listOf(ThemeMonet.getLight(), ThemePreset.PixelLight.deriveCustomNoBackground("静态主题"),
+                ThemeMonet.getDark(), random, ThemePreset.MaterialDark))
+        }
+        val holder = adapter.onCreateViewHolder(FrameLayout(context), adapter.getItemViewType(1))
+        val ui = holder.ui as ThemeThumbnailUi
+        try {
+            for (position in listOf(1, 2, 3, 4, 5, 1)) {
+                adapter.onBindViewHolder(holder, position)
+                capture(activity, ui.root, "monet-recycled-$position", width = 152)
+                assertEquals("A recycled card must show only its own theme marker",
+                    if (position == 1 || position == 3) View.VISIBLE else View.GONE, ui.dynamicIcon.visibility)
+            }
+        } finally { ui.cleanup() }
+    }
+
+    @Test fun themeSelectionDialogsHideActionsWhileKeepingThemeSelection() {
+        val (activity, context) = host()
+        val themes = listOf(ThemeMonet.getLight(), ThemeMonet.getDark(),
+            ThemePreset.MaterialDark.deriveCustomNoBackground(org.fcitx.fcitx5.android.data.theme.ThemeManager.RANDOM_THEME_NAME),
+            ThemePreset.PixelLight.deriveCustomNoBackground("静态主题"), ThemePreset.MaterialDark)
+        val selected = mutableListOf<Theme>()
+        val adapter = object : SimpleThemeListAdapter<Theme>(themes) {
+            override fun onClick(theme: Theme) { selected += theme }
+        }
+        val grid = ResponsiveThemeListView(context).apply { this.adapter = adapter }
+        try {
+            capture(activity, grid, "theme-selection-dialog", height = 560)
+            for ((position, theme) in themes.withIndex()) {
+                val holder = checkNotNull(grid.findViewHolderForAdapterPosition(position)) as SimpleThemeListAdapter.ViewHolder
+                val ui = holder.ui as ThemeThumbnailUi
+                for (action in listOf(ui.randomButton, ui.editButton, ui.exportButton)) {
+                    assertEquals("Selection dialogs must not expose theme-management actions", View.GONE, action.visibility)
+                }
+                ui.root.performClick()
+                assertEquals(theme, adapter.selectedTheme)
+                assertEquals(theme, selected.last())
+            }
+            assertEquals(themes, selected)
+        } finally {
+            for (index in 0 until grid.childCount) {
+                val holder = grid.getChildViewHolder(grid.getChildAt(index)) as SimpleThemeListAdapter.ViewHolder
+                (holder.ui as ThemeThumbnailUi).cleanup()
+            }
+        }
+    }
+
+    @Test
+    @Config(sdk = [28])
+    fun staticMonetFallbackDoesNotAdvertiseDynamicColorMapping() {
+        val (_, context) = host()
+        val ui = ThemeThumbnailUi(context)
+        try {
+            for (theme in listOf(ThemeMonet.getLight(), ThemeMonet.getDark())) {
+                ui.setTheme(theme)
+                assertEquals(View.GONE, ui.dynamicIcon.visibility)
+                assertEquals(View.GONE, ui.editButton.visibility)
+                assertEquals(View.VISIBLE, ui.exportButton.visibility)
+            }
+        } finally { ui.cleanup() }
     }
 
     @Test fun movingRenamingAndRemovingThemesKeepsSelectionOnItsIdentity() {
