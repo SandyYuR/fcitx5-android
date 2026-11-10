@@ -17,6 +17,12 @@
 
 `InputEventQueueTest` 检查慢 UI 状态合并、提交/Ready 顺序和背压时 owner 仍可读取；`InputKeyGateTest` 检查按键接收门控。检查工作流是否仍执行这些测试，并核对测试行为，而不是只看名称。
 
+服务队列中的工作是挂在共享引擎作用域下的惰性 `Job`，但由当前输入法服务负责启动。服务退出会先关闭自己的队列：尚未被消费者取走、或向已关闭队列发送失败的工作必须取消并结算 ticket／完成回调；已经取走并开始运行的工作不能随缓冲区一起中断。候选分页模式请求在未交付工作取消后不得向同一条关闭队列递归重排。`FcitxServiceJobQueueTest` 覆盖缓冲、拒收、运行中工作和另一个客户端仍持有共享引擎的情况。
+
+细粒度输入诊断只在 `inputDiagnostics` 构建中启用；关闭时不创建 `ServiceTask`，也不为诊断登记逐任务完成回调。`rime.service.waiting/running` 描述已接收工作的生命周期，`rime.service.wait_ns` 从服务入队算到工作开始；`rime.events.pending_batches` 是 `InputEventQueue` 的真实批次数，`rime.events.presentation_replaced` 只计算相邻展示替换；`rime.events.result_wait_ns` 从事件批次产生算到服务开始处理，另以 `rime.events.flow_wait_ns` 区分 Flow 交付。它们不是丢键计数，也不能将不同阶段的分位数相加成端到端分位数。
+
+`DirectRimeBackend.maintain` 保存维护前的绑定，但只有维护代次仍为当前代次、引擎仍在运行且尚无可用绑定时才恢复。期间收到的当前绑定元数据优先，显式 `needsRime = false` 不提升为输入需求。等待 owner 或操作完成后的取消均经过 `NonCancellable` 恢复段，随后继续传播取消，不显示普通失败提示；恢复失败作为原异常的 suppressed exception 保留。`MaintenanceSaveTest` 覆盖 owner 前取消、操作后取消、失败反馈和维护中切换编辑器。
+
 其他输入约束：
 
 | 约束 | 当前入口 |
@@ -37,9 +43,17 @@
 
 状态区方案开关的 native action 8 和菜单中英文切换的 action 6 共用 `Engine::setOption`，仅将已部署 `default.yaml` 的 `switcher/save_options` 成员写入 `user.yaml` 的 `var/option/<name>`；内部下划线选项不保存。librime Switcher 使用 `.default`，不能合并当前输入方案下的同名列表。重部署、同步或重启后清除白名单缓存；互斥组和 `ascii_mode` 的关闭值与开启值都按列表保存，按键产生的临时西文变化不经过这一前端保存入口。会话恢复仍由 librime 执行，方案 `reset` 保持优先。菜单切换项用编码区相同的资源文案显示目标模式，英文状态的菜单入口也复用英文模式文案；内部 action ID、`ascii_mode` 名称与子模式身份不随显示名称更改。`engine_test.cpp` 检查写入范围，`DirectRimeFrontendTest.schemaSwitchPreferencesSurviveNewSessionsAndRestart` 使用真实 librime 检查跨会话、重启、互斥组、reset 和白名单更新；`modeMenuRemembersBothDirections` 与 `modeMenuWithoutSaveOptionsStaysSessionLocal` 检查菜单切换的保存与不保存边界。仅运行 fake API 测试不能证明真实恢复行为。
 
+Native owner 只缓存 `schema_id`、`schema_name` 与 `ascii_mode` 三个稳定 status 字段，键为 generation、native session 与 `optionsRevision`。本次 context 和 tabs 动态读取完成后才能判断命中；命中和新读都要复查原子版本。读取期间版本变化最多复读一次，持续变化、API 失败或两段文本合计超过 64 KiB 时返回本次完整读取结果但不建立缓存。新 generation、end、stop、维护、部署、同步和重新初始化都失效；过期 generation 请求不得清掉当前编辑器的有效缓存。缓存不保存 `RimeStatus` 指针、不缓存 composing 字段，也不能用来恢复上一编辑器的方案或中英文状态。`read_status` 仍表示整个处理阶段，真实 API 调用另有 `rime.direct.get_status` trace。
+
+Kotlin 的 `DirectRimeInputMethodEntryCache` 只保留最后一个不可变展示对象。中英文模式、中文态的方案 ID／名称或资源显示名变化时重建；西文态忽略没有显示的后台方案字段，回到中文态按当前方案重新比较。该缓存不保存输入绑定，也不改变方案恢复行为。
+
 ### 候选目标、坐标与展示快照
 
 `CandidateWord.selectionTarget` 由生产者在发布前登记，包含编辑器/候选版本、原始序号及其局部页/全局含义。它不参与文字显示相等性。界面可以在不重绑相同文字的情况下更新目标，但不能用 backend 的最新版本给仍未加载完成的旧分页数据重新贴标签；点击时还需确认 adapter 项与 holder 实际显示的文字相符。`CandidateGenerationTracker` 同时观察引擎版本，避免第一屏相同就漏刷懒候选尾部。
+
+音节标签另用 `CandidateTabActionTarget` 保存 generation、`tabsRevision` 与发布列表中的索引。native 比较整组有效 label／span，任一变化都会推进 `tabsRevision`，因此文字相同但跨度变化也必须刷新点击目标。`CandidateAction`、`AuxBarAction`、键盘辅助条、回退辅助条与展开／固定 tabs 都保留该目标，经 `postCandidateTabAction` 进入原有服务队列，并在进入 owner 前后复查；不从最新快照给旧标签重新生成目标。JNI 展示复用与 `Snapshot.isUnchangedRelease` 同样核对 `tabsRevision`。
+
+横向候选高亮变化只通过专用 RecyclerView payload 调用 `setActive`；结构变化后的高亮位置必须采用 `CandidateUpdatePlan` 已换算的新坐标。高亮与角标位移 payload 可以合并处理，角标仍同时更新全局下标；候选内容、主题、字体或字号变化继续完整绑定。局部 payload 不取消 `setActive` 内对正文／注释前景色和高亮背景的更新，也不改变 holder 的候选目标。
 
 方案菜单的当前项由 `SubModeManager.resolveSelectedSchemaAction` 从同一份动作列表的勾选状态解析，不能用 `currentIme().subMode` 的西文/密码直接输入标记推断方案。方案切换后，密码字段仍应保持直接输入和原编辑器焦点。
 
@@ -47,7 +61,9 @@ Android 光标位置以 UTF-16 计，服务交给引擎 API 的位置以显示�
 
 `refreshPresentation` 使用 native action 13 读取新结果，仍只消费一次待提交文字，但不调用 `set_caret_pos` 或重新 Compose。同模式重新呈现可以发送候选而不增加 `candidateVersion`；native `revision` 仍然前进。不能重新发送带旧 commit 的缓存快照，也不能把显示偏移传给原始光标 setter。
 
-JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果复用字符串和数组。`Snapshot.reusePresentation` 必须创建新的不可变快照、使用新 revision 并清空旧 commit；接收方不得修改共享数组。缓存至多一份，文本预算为 64 KiB、数组字符串合计至多 1024 个；大结果走完整打包。停止、部署及同步返回时清理缓存。这是缓存预算，不是进程内存或延迟测量值。
+JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果复用字符串和数组。`Snapshot.reusePresentation` 必须创建新的不可变快照、使用新 revision 并清空旧 commit；接收方不得修改共享数组。缓存至多一份，文本预算为 64 KiB、数组字符串合计至多 1024 个；大结果走完整打包。完整打包可在一次 `newSnapshot` 内复用 grow-only UTF-16 转换缓冲，因为每次 `NewString` 返回前已经复制输入；缓冲不能跨 snapshot 保存或替代 Java 字符串所有权。停止、部署及同步返回时清理展示缓存。这是缓存预算，不是进程内存或延迟测量值。
+
+JNI 分配失败后停止后续构造，只做允许的引用释放，已有 Java 异常优先于新包装的 native 异常。成功取得的 Rime 结果与 JNI 字符引用由作用域清理保护，包装层后续复制失败仍恰好释放一次。候选迭代需区分两种失败：`candidate_list_next` 正常返回后，包装复制失败可以调用 `candidate_list_end`；锁定 SDK 的 `candidate_list_next` 内部会先释放旧文本，若它自身抛出异常，指针可能部分失效，此时禁止再次调用 `end`。这避免包装层二次释放，不表示已修复 SDK 内部所有部分分配的回收。`engine_test.cpp` 的 `testCandidateIteratorFailureDoesNotReclosePartialApiState` 固定该边界。
 
 ### 同步完成与备份门控
 
