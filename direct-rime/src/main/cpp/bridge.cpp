@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <memory>
 #include <stdexcept>
+#if INPUT_DIAGNOSTICS
+#include <android/trace.h>
+#endif
 
 using direct_rime::Engine;
 namespace {
@@ -23,18 +26,56 @@ jobject previousSnapshot = nullptr;
 std::optional<direct_rime::Snapshot> previousPresentation;
 jclass rawInputClass = nullptr;
 jmethodID rawInputConstructor = nullptr;
+jclass errorClass = nullptr;
+jmethodID errorConstructor = nullptr;
 constexpr auto snapshotSignature =
     "(JJJZILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ZIZI[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;[Ljava/lang/String;JJ)V";
 jobject newSnapshot(JNIEnv* env, const direct_rime::Snapshot& s) {
+    // NewString copies its UTF-16 input before returning, so all presentation
+    // fields can share one grow-only conversion buffer within this snapshot.
+    std::u16string decoded;
+#if INPUT_DIAGNOSTICS
+    class SnapshotTrace {
+    public:
+        SnapshotTrace() { ATrace_beginSection("rime.direct.jni_snapshot"); }
+        ~SnapshotTrace() { finish(); }
+        void finish() { if (active_) { ATrace_endSection(); active_ = false; } }
+    private:
+        bool active_ = true;
+    } trace;
+#endif
     // One JNI result owns the commit and the corresponding UI state. Nothing is
     // delivered through a dropping SharedFlow or a native background callback.
-    return env->NewObject(snapshotClass, snapshotConstructor, static_cast<jlong>(s.generation), static_cast<jlong>(s.revision), static_cast<jlong>(s.optionsRevision),
-        static_cast<jboolean>(s.handled), static_cast<jint>(s.gate), string(env, s.commit), string(env, s.preedit),
-        string(env, s.schema), static_cast<jboolean>(s.ascii), static_cast<jint>(s.page),
-        static_cast<jboolean>(s.lastPage), static_cast<jint>(s.cursor), strings(env, s.candidates),
-        strings(env, s.comments), strings(env, s.tabs),
-        string(env, s.schemaName), static_cast<jint>(s.highlighted), string(env, s.preview), strings(env, s.labels),
+    LocalRef<jstring> commit(env, string(env, s.commit, decoded));
+    if (!commit) return nullptr;
+    LocalRef<jstring> preedit(env, string(env, s.preedit, decoded));
+    if (!preedit) return nullptr;
+    // Candidate payloads can dwarf schema/status strings. Convert them first so
+    // a long value establishes the shared buffer's capacity in one growth.
+    LocalRef<jobjectArray> candidates(env, strings(env, s.candidates, decoded));
+    if (!candidates) return nullptr;
+    LocalRef<jobjectArray> comments(env, strings(env, s.comments, decoded));
+    if (!comments) return nullptr;
+    LocalRef<jobjectArray> tabs(env, strings(env, s.tabs, decoded));
+    if (!tabs) return nullptr;
+    LocalRef<jstring> schema(env, string(env, s.schema, decoded));
+    if (!schema) return nullptr;
+    LocalRef<jstring> schemaName(env, string(env, s.schemaName, decoded));
+    if (!schemaName) return nullptr;
+    LocalRef<jstring> preview(env, string(env, s.preview, decoded));
+    if (!preview) return nullptr;
+    LocalRef<jobjectArray> labels(env, strings(env, s.labels, decoded));
+    if (!labels) return nullptr;
+    auto result = env->NewObject(snapshotClass, snapshotConstructor, static_cast<jlong>(s.generation), static_cast<jlong>(s.revision), static_cast<jlong>(s.optionsRevision),
+        static_cast<jboolean>(s.handled), static_cast<jint>(s.gate), commit.get(), preedit.get(),
+        schema.get(), static_cast<jboolean>(s.ascii), static_cast<jint>(s.page),
+        static_cast<jboolean>(s.lastPage), static_cast<jint>(s.cursor), candidates.get(),
+        comments.get(), tabs.get(), schemaName.get(), static_cast<jint>(s.highlighted), preview.get(), labels.get(),
         static_cast<jlong>(s.inputStatistics), static_cast<jlong>(s.tabsRevision));
+#if INPUT_DIAGNOSTICS
+    trace.finish();
+#endif
+    return result;
 }
 void clearSnapshotCache(JNIEnv* env) {
     if (previousSnapshot) env->DeleteGlobalRef(previousSnapshot);
@@ -59,8 +100,20 @@ jobject snapshot(JNIEnv* env, direct_rime::Snapshot s) {
     }
     return result;
 }
-void error(JNIEnv* env, const std::exception& e) {
-    env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), e.what());
+void error(JNIEnv* env, const std::exception& e) noexcept {
+    // Allocation/access failures already leave the authoritative Java exception pending.
+    if (env->ExceptionCheck() || !errorClass || !errorConstructor) return;
+    try {
+        LocalRef<jstring> message(env, string(env, std::string(e.what())));
+        if (!message) return;
+        LocalRef<jthrowable> exception(env, reinterpret_cast<jthrowable>(
+            env->NewObject(errorClass, errorConstructor, message.get())));
+        if (!exception || env->ExceptionCheck()) return;
+        env->Throw(exception.get());
+    } catch (...) {
+        // Keep the error bridge noexcept. This ASCII fallback is valid Modified UTF-8.
+        if (!env->ExceptionCheck()) env->ThrowNew(errorClass, "native error");
+    }
 }
 }
 
@@ -81,16 +134,21 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     if (snapshotReuse) stringArrayClass = cacheClass("java/lang/String");
     if (stringArrayClass) rawInputClass = cacheClass("org/fcitx/directrime/RawInputState");
     if (rawInputClass) rawInputConstructor = env->GetMethodID(rawInputClass, "<init>", "(Ljava/lang/String;I)V");
-    if (!snapshotConstructor || !snapshotReuse || !stringArrayClass || !rawInputConstructor) {
+    if (rawInputConstructor) errorClass = cacheClass("java/lang/IllegalStateException");
+    if (errorClass) errorConstructor = env->GetMethodID(errorClass, "<init>", "(Ljava/lang/String;)V");
+    if (!snapshotConstructor || !snapshotReuse || !stringArrayClass || !rawInputConstructor || !errorConstructor) {
         if (snapshotClass) env->DeleteGlobalRef(snapshotClass);
         if (stringArrayClass) env->DeleteGlobalRef(stringArrayClass);
         if (rawInputClass) env->DeleteGlobalRef(rawInputClass);
+        if (errorClass) env->DeleteGlobalRef(errorClass);
         snapshotClass = nullptr;
         stringArrayClass = nullptr;
         rawInputClass = nullptr;
+        errorClass = nullptr;
         snapshotConstructor = nullptr;
         snapshotReuse = nullptr;
         rawInputConstructor = nullptr;
+        errorConstructor = nullptr;
         return JNI_ERR;
     }
     return JNI_VERSION_1_6;
@@ -102,12 +160,15 @@ extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void*) {
     env->DeleteGlobalRef(snapshotClass);
     env->DeleteGlobalRef(stringArrayClass);
     env->DeleteGlobalRef(rawInputClass);
+    env->DeleteGlobalRef(errorClass);
     snapshotClass = nullptr;
     stringArrayClass = nullptr;
     snapshotConstructor = nullptr;
     snapshotReuse = nullptr;
     rawInputClass = nullptr;
     rawInputConstructor = nullptr;
+    errorClass = nullptr;
+    errorConstructor = nullptr;
 }
 
 #define JNI_METHOD(name) Java_org_fcitx_directrime_Native_##name
@@ -169,11 +230,9 @@ extern "C" JNIEXPORT jobject JNICALL JNI_METHOD(rawInput)(JNIEnv* env, jobject, 
     try {
         auto value = instance().rawInput(generation, revision);
         if (!value) return nullptr;
-        auto text = string(env, value->text);
+        LocalRef<jstring> text(env, string(env, value->text));
         if (!text) return nullptr;
-        auto result = env->NewObject(rawInputClass, rawInputConstructor, text, static_cast<jint>(value->caret));
-        env->DeleteLocalRef(text);
-        return result;
+        return env->NewObject(rawInputClass, rawInputConstructor, text.get(), static_cast<jint>(value->caret));
     } catch (const std::exception& e) { error(env, e); return nullptr; }
 }
 extern "C" JNIEXPORT jobjectArray JNICALL JNI_METHOD(schemas)(JNIEnv* env, jobject) {
@@ -192,9 +251,15 @@ extern "C" JNIEXPORT jstring JNICALL JNI_METHOD(schemaSelection)(JNIEnv* env, jo
 extern "C" JNIEXPORT jboolean JNICALL JNI_METHOD(selectSchemas)(JNIEnv* env, jobject, jobjectArray ids) {
     try {
         std::vector<std::string> values;
-        for (jsize i = 0; i < env->GetArrayLength(ids); ++i) {
-            auto id = static_cast<jstring>(env->GetObjectArrayElement(ids, i));
-            values.push_back(string(env, id)); env->DeleteLocalRef(id);
+        const auto count = env->GetArrayLength(ids);
+        if (env->ExceptionCheck()) return false;
+        for (jsize i = 0; i < count; ++i) {
+            LocalRef<jstring> id(env, static_cast<jstring>(env->GetObjectArrayElement(ids, i)));
+            if (!id) {
+                if (env->ExceptionCheck()) return false;
+                throw std::invalid_argument("schema ID must not be null");
+            }
+            values.push_back(string(env, id.get()));
         }
         return instance().selectSchemas(values);
     } catch (const std::exception& e) { error(env, e); return false; }

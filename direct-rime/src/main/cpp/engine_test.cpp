@@ -1,6 +1,7 @@
 #include "engine.h"
 #include <cstring>
 #include <iostream>
+#include <new>
 #include <stdexcept>
 #include <thread>
 #include <filesystem>
@@ -48,9 +49,12 @@ struct Fake {
     int userConfigOpens = 0;
     int keys = 0, mask = 0, created = 0, destroyed = 0, freedCommit = 0;
     int setups = 0, initialized = 0, finalized = 0, selected = -1, freedTabs = 0, freedCodes = 0;
+    int statusReads = 0, freedStatus = 0, statusFailures = 0;
+    int contextNotifications = 0, tabsNotifications = 0, statusNotifications = 0;
     size_t selectedSpan = 0, selectedGlobal = 999, deletedGlobal = 999, caret = 999, tabSpan = 3;
     int freedIterator = 0, cleared = 0, clearedTabs = 0;
     std::string commit, selectedLabel, preedit, clientApp, distribution, version, tabLabel = "ni";
+    std::string schema = "test", schemaName = "Test";
     std::string rawInput;
     size_t rawCaret = 0;
     bool syncLaunch = true, syncPending = false, syncThrows = false, userDbHeld = false, failStartup = false;
@@ -59,6 +63,11 @@ struct Fake {
     RimeNotificationHandler callback = nullptr;
     void* context = nullptr;
 } f;
+void notifyOptionIfRequested(int& count) {
+    if (count <= 0) return;
+    --count;
+    if (f.callback) f.callback(f.context, 7, "option", "test");
+}
 RimeApi api() {
     RimeApi a{}; RIME_STRUCT_INIT(RimeApi, a);
     a.setup = [](RimeTraits*) { ++f.setups; };
@@ -83,7 +92,10 @@ RimeApi api() {
     a.destroy_session = [](RimeSessionId) -> Bool { ++f.destroyed; return true; };
     a.set_option = [](RimeSessionId, const char* key, Bool value) {
         if (!std::strcmp(key, "_no_learning")) f.noLearning = value;
-        else if (!std::strcmp(key, "ascii_mode")) f.ascii = value;
+        else {
+            if (!std::strcmp(key, "ascii_mode")) f.ascii = value;
+            if (f.callback) f.callback(f.context, 7, "option", key);
+        }
     };
     a.get_option = [](RimeSessionId, const char* key) -> Bool {
         if (!std::strcmp(key, "_no_learning")) return f.noLearning;
@@ -98,6 +110,7 @@ RimeApi api() {
     };
     a.free_commit = [](RimeCommit*) -> Bool { ++f.freedCommit; f.commit.clear(); return true; };
     a.get_context = [](RimeSessionId, RimeContext* c) -> Bool {
+        notifyOptionIfRequested(f.contextNotifications);
         static RimeCandidate candidates[] = {{const_cast<char*>("你😀"), const_cast<char*>("注释"), nullptr}};
         c->composition.preedit = f.preedit.data(); c->composition.cursor_pos = static_cast<int>(f.preedit.size());
         c->menu.candidates = candidates; c->menu.num_candidates = f.preedit.empty() ? 0 : 1; c->menu.page_size = 3;
@@ -105,9 +118,12 @@ RimeApi api() {
     };
     a.free_context = [](RimeContext*) -> Bool { return true; };
     a.get_status = [](RimeSessionId, RimeStatus* s) -> Bool {
-        s->schema_id = const_cast<char*>("test"); s->is_ascii_mode = f.ascii; return true;
+        ++f.statusReads;
+        notifyOptionIfRequested(f.statusNotifications);
+        if (f.statusFailures > 0) { --f.statusFailures; return false; }
+        s->schema_id = f.schema.data(); s->schema_name = f.schemaName.data(); s->is_ascii_mode = f.ascii; return true;
     };
-    a.free_status = [](RimeStatus*) -> Bool { return true; };
+    a.free_status = [](RimeStatus*) -> Bool { ++f.freedStatus; return true; };
     a.clear_composition = [](RimeSessionId) { ++f.cleared; f.preedit.clear(); };
     a.clear_tabs = [](RimeSessionId) -> Bool { ++f.clearedTabs; return true; };
     a.select_candidate_on_current_page = [](RimeSessionId, size_t i) -> Bool { f.selected = static_cast<int>(i); return true; };
@@ -122,7 +138,11 @@ RimeApi api() {
         iter->candidate.text = const_cast<char*>("词😀"); iter->candidate.comment = const_cast<char*>("注释"); return true;
     };
     a.candidate_list_end = [](RimeCandidateListIterator*) { ++f.freedIterator; };
-    a.select_schema = [](RimeSessionId, const char*) -> Bool { return true; };
+    a.select_schema = [](RimeSessionId, const char* schema) -> Bool {
+        f.schema = schema;
+        if (f.callback) f.callback(f.context, 7, "schema", schema);
+        return true;
+    };
     a.config_open = [](const char* config_id, RimeConfig* config) -> Bool {
         if (std::strcmp(config_id, "default")) return false;
         config->ptr = &f; return true;
@@ -151,6 +171,7 @@ RimeApi api() {
     };
     a.free_schema_list = [](RimeSchemaList*) {};
     a.get_input_tabs = [](RimeSessionId, size_t, char*** labels, size_t** spans, int** sources, size_t* count) -> Bool {
+        notifyOptionIfRequested(f.tabsNotifications);
         static char* l[3]; static size_t p[3]; static int src[] = {0, 0, 1};
         l[0] = const_cast<char*>(""); l[1] = const_cast<char*>("\x81"); l[2] = f.tabLabel.data();
         p[0] = 1; p[1] = 2; p[2] = f.tabSpan;
@@ -441,6 +462,101 @@ void testOptionInvalidation() {
     CHECK(engine.begin(2, "second").optionsRevision > changed.optionsRevision);
     engine.stop();
 }
+void testStatusCache() {
+    {
+        f = {}; auto a = api(); Engine engine(&a); engine.start("shared", "user");
+        auto initial = engine.begin(1, "editor");
+        CHECK(initial.schema == "test" && initial.schemaName == "Test" && !initial.ascii);
+        CHECK(f.statusReads == 1 && f.freedStatus == 1);
+        f.tabSpan = 4;
+        auto dynamic = engine.key(1, 'n', 0, false);
+        CHECK(dynamic.revision > initial.revision && dynamic.preedit == "ni" && dynamic.tabs[0] == "ni");
+        CHECK(f.statusReads == 1); // Dynamic context/tabs never come from the status cache.
+
+        f.schema = "second"; f.schemaName = "Second"; f.ascii = true;
+        f.callback(f.context, 7, "schema", "second");
+        auto changed = engine.key(1, 'i', 0, false);
+        CHECK(changed.schema == "second" && changed.schemaName == "Second" && changed.ascii);
+        CHECK(f.statusReads == 2);
+
+        f.contextNotifications = 1;
+        engine.key(1, 'x', 0, false); CHECK(f.statusReads == 3);
+        f.tabsNotifications = 1;
+        engine.key(1, 'x', 0, false); CHECK(f.statusReads == 4);
+
+        f.callback(f.context, 7, "option", "late_once");
+        f.statusNotifications = 1;
+        f.commit = "once";
+        auto retried = engine.key(1, 'x', 0, false);
+        CHECK(f.statusReads == 6 && retried.commit == "once" && f.freedCommit == 1);
+        engine.key(1, 'x', 0, false); CHECK(f.statusReads == 6); // Stable reread was cached.
+
+        f.callback(f.context, 7, "option", "continuous");
+        f.statusNotifications = 2;
+        engine.key(1, 'x', 0, false); CHECK(f.statusReads == 8); // At most one reread.
+        engine.key(1, 'x', 0, false); CHECK(f.statusReads == 9); // Unstable result was not cached.
+
+        f.callback(f.context, 7, "option", "failure");
+        f.statusFailures = 1;
+        auto failed = engine.key(1, 'x', 0, false);
+        CHECK(f.statusReads == 10 && failed.schema.empty() && failed.schemaName.empty() && !failed.ascii);
+        auto recovered = engine.key(1, 'x', 0, false);
+        CHECK(f.statusReads == 11 && recovered.schema == "second" && recovered.schemaName == "Second" && recovered.ascii);
+        CHECK(f.freedStatus == f.statusReads - 1);
+        engine.stop();
+    }
+    {
+        f = {}; auto a = api(); Engine engine(&a); engine.start("shared", "user");
+        engine.begin(1, "editor"); CHECK(f.statusReads == 1 && f.created == 1);
+        engine.key(0, 'x', 0, false); // A stale request cannot evict the current editor's status.
+        engine.key(1, 'x', 0, false); CHECK(f.statusReads == 1);
+        f.maintenance = true;
+        CHECK(engine.key(1, 'x', 0, false).gate == Maintenance);
+        f.maintenance = false;
+        engine.key(1, 'x', 0, false); CHECK(f.statusReads == 2);
+        engine.begin(2, "editor"); CHECK(f.statusReads == 3 && f.created == 1); // Same native session, new generation.
+        engine.end(2);
+        engine.begin(3, "editor"); CHECK(f.statusReads == 4);
+        CHECK(engine.deploy());
+        engine.begin(4, "editor"); CHECK(f.statusReads == 5);
+        engine.stop(); engine.stop();
+        engine.start("shared", "user");
+        engine.begin(5, "editor"); CHECK(f.statusReads == 6);
+        engine.stop();
+    }
+    {
+        f = {}; f.schema.assign(32 * 1024, 's'); f.schemaName.assign(32 * 1024, 'n');
+        auto a = api(); Engine engine(&a); engine.start("shared", "user");
+        auto exact = engine.begin(1, "editor");
+        CHECK(exact.schema.size() == 32 * 1024 && exact.schemaName.size() == 32 * 1024);
+        engine.key(1, 'x', 0, false); CHECK(f.statusReads == 1); // Exact budget is cacheable.
+        f.schemaName.push_back('x'); f.callback(f.context, 7, "option", "oversize");
+        auto large = engine.key(1, 'x', 0, false);
+        CHECK(large.schemaName.size() == 32 * 1024 + 1 && f.statusReads == 2);
+        engine.key(1, 'x', 0, false); CHECK(f.statusReads == 3); // Full fields returned, never cached.
+        engine.stop();
+    }
+}
+void testCandidateIteratorFailureDoesNotReclosePartialApiState() {
+    // The pinned API frees the previous text/comment before copying the next
+    // candidate. An exception from next() does not guarantee end() is safe.
+    for (const int offset : {0, 1}) {
+        f = {}; auto a = api(); Engine engine(&a); engine.start("shared", "user");
+        engine.begin(1, "editor");
+        a.candidate_list_next = [](RimeCandidateListIterator* iter) -> Bool {
+            if (++iter->index > 0) throw std::bad_alloc();
+            iter->candidate.text = const_cast<char*>("first");
+            iter->candidate.comment = const_cast<char*>("");
+            return true;
+        };
+        bool failed = false;
+        try { engine.candidates(1, offset, 2); }
+        catch (const std::bad_alloc&) { failed = true; }
+        CHECK(failed);
+        CHECK(f.freedIterator == 0);
+        engine.stop();
+    }
+}
 void testFrontendWritesOnlySaveableOptions() {
     f = {}; auto a = api(); Engine engine(&a); engine.start("shared", "user");
     auto value = engine.begin(1, "editor.one");
@@ -557,7 +673,7 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
-        testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
+        testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
