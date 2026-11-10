@@ -58,10 +58,18 @@ internal object KeyCodec {
         return create(sym, states)
     }
 
-    private fun fromUnicode(cp: Int): Int = when {
+    fun fromUnicode(cp: Int): Int = when {
         cp in 0x20..0x7e || cp in 0xa0..0xff -> cp
         cp <= 0 || cp > 0x10ffff || cp in 0xd800..0xdfff -> 0
         else -> names.byUnicode[cp] ?: (0x01000000 or cp)
+    }
+
+    /** Resolve an X11 keysym back to the Unicode code point it represents. */
+    fun toUnicode(sym: Int): Int = when {
+        sym in 0x20..0xff -> sym
+        sym and 0xff000000.toInt() == 0x01000000 ->
+            (sym and 0x00ffffff).takeIf { it in 1..0x10ffff && it !in 0xd800..0xdfff } ?: 0
+        else -> names.unicodeBySym[sym] ?: 0
     }
 
     fun create(sym: Int, states: Int): Key {

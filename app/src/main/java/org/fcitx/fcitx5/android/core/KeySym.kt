@@ -53,7 +53,10 @@ value class KeySym(val sym: Int) {
                 charCode != KeyCharacterMap.HEX_INPUT.code &&
                 charCode != KeyCharacterMap.PICKER_DIALOG_INPUT.code
             ) {
-                return KeySym(charCode)
+                // Android exposes a Unicode code point, while librime expects an X11
+                // keysym. Values above Latin-1 are not interchangeable: for example,
+                // U+03C0 is Greek pi, but the numeric X11 keysym 0x03C0 is Amacron.
+                KeyCodec.fromUnicode(charCode).takeIf { it != 0 }?.let { return KeySym(it) }
             }
             // Special handling for function keys (F1-F12) to ensure correct mapping
             // On some devices, KeyCharacterMap may not map function keys correctly
@@ -103,8 +106,5 @@ val KeySym.editorUnicode: Int
         sym == FcitxKeyMapping.FcitxKey_KP_Add -> '+'.code
         sym == FcitxKeyMapping.FcitxKey_KP_Subtract -> '-'.code
         sym == FcitxKeyMapping.FcitxKey_KP_Divide -> '/'.code
-        sym in 0x20..0xff -> sym
-        sym and 0xff000000.toInt() == 0x01000000 -> sym and 0x00ffffff
-        sym in 0x100..0x10ffff && sym !in 0xff00..0xffff -> sym
-        else -> 0
+        else -> KeyCodec.toUnicode(sym)
     }

@@ -43,11 +43,19 @@ class KeySymEditorUnicodeTest {
         assertEquals(0xff, KeySym(0xff).editorUnicode)
     }
 
-    @Test fun latinOneSupplementRangeIsPreserved() {
-        // 0x100..0x178: Latin-1 supplement and Latin Extended-A, not in 0xff00..0xffff
+    @Test fun latinOneSupplementIsPreserved() {
         assertEquals(0xe9, KeySym(0xe9).editorUnicode) // é, direct range segment
-        assertEquals(0x100, KeySym(0x100).editorUnicode) // Ā
-        assertEquals(0x178, KeySym(0x178).editorUnicode) // Ÿ
+    }
+
+    @Test fun legacyX11KeysymsMapBackToTheirUnicodeCharacters() {
+        for (text in listOf("ń", "ē", "ě", "ę", "ə", "ұ", "ү", "ӯ", "ў", "ć", "č", "ž", "ź", "ż")) {
+            val key = Key.parse(text)
+            assertEquals(
+                "$text must survive an unhandled Rime key",
+                text.codePointAt(0),
+                key.keySym.editorUnicode
+            )
+        }
     }
 
     @Test fun privateUseAliasUnpacksToUnicode() {
@@ -56,9 +64,11 @@ class KeySymEditorUnicodeTest {
         assertEquals(0x1f600, KeySym(0x0101f600).editorUnicode) // 😀
     }
 
-    @Test fun unicodeRangeAboveLatinOneIsPreserved() {
-        assertEquals(0x4e2d, KeySym(0x4e2d).editorUnicode)
-        assertEquals(0x10ffff, KeySym(0x10ffff).editorUnicode)
+    @Test fun rawUnicodeNumbersAreNotMistakenForX11Keysyms() {
+        // Non-Latin-1 Unicode must use the X11 0x01xxxxxx encoding. Treating a raw
+        // code point as a keysym is ambiguous with hundreds of legacy X11 values.
+        assertEquals(0, KeySym(0x4e2d).editorUnicode)
+        assertEquals(0, KeySym(0x10ffff).editorUnicode)
     }
 
     @Test fun otherFunctionKeysymsStayZero() {
