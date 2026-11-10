@@ -10,11 +10,21 @@ import kotlinx.coroutines.flow.first
  * forwarded key or lifecycle event. Capacity waits happen before entering the native owner so
  * a collector can still request candidate data while draining the queue.
  */
-internal class InputEventQueue(private val highWatermark: Int = 64, private val statisticsLimit: Int = 1024) {
+internal class InputEventQueue(
+    private val highWatermark: Int = 64,
+    private val statisticsLimit: Int = 1024,
+    private val diagnostics: Diagnostics = InputDiagnostics.eventQueueDiagnostics
+) {
+    internal interface Diagnostics {
+        fun produced(batch: List<FcitxEvent<*>>) {}
+        fun state(pendingBatches: Int, presentationReplaced: Long) {}
+    }
+
     private val lock = Any()
     private val batches = ArrayDeque<PendingBatch>()
     private val available = Channel<Unit>(Channel.CONFLATED)
     private val size = MutableStateFlow(0)
+    private var presentationReplaced = 0L
 
     init { require(highWatermark > 0 && statisticsLimit > 0) }
 
@@ -55,7 +65,9 @@ internal class InputEventQueue(private val highWatermark: Int = 64, private val 
                     else if (dropped < Long.MAX_VALUE) dropped++
                 } else {
                     val key = checkNotNull(stateKey(event))
-                    presentation!!.remove(key)
+                    if (presentation!!.remove(key) != null && presentationReplaced < Long.MAX_VALUE) {
+                        presentationReplaced++
+                    }
                     presentation!![key] = event
                 }
             }
@@ -81,6 +93,7 @@ internal class InputEventQueue(private val highWatermark: Int = 64, private val 
 
     fun offer(batch: List<FcitxEvent<*>>) {
         if (batch.isEmpty()) return
+        diagnostics.produced(batch)
         synchronized(lock) {
             val previous = batches.lastOrNull()
             val coalescible = batch.all { it is FcitxEvent.StatisticsKeyEvent || stateKey(it) != null }
@@ -90,18 +103,24 @@ internal class InputEventQueue(private val highWatermark: Int = 64, private val 
                 batches.addLast(PendingBatch(batch, coalescible))
             }
             size.value = batches.size
+            diagnostics.state(batches.size, presentationReplaced)
         }
         available.trySend(Unit)
     }
 
     suspend fun receive(): List<FcitxEvent<*>> {
         while (true) {
+            var result: List<FcitxEvent<*>>? = null
             synchronized(lock) {
                 if (batches.isNotEmpty()) {
                     val batch = batches.removeFirst()
                     size.value = batches.size
-                    return batch.take()
+                    result = batch.take()
+                    diagnostics.state(batches.size, presentationReplaced)
                 }
+            }
+            if (result != null) {
+                return result
             }
             available.receive()
         }

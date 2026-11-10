@@ -47,6 +47,8 @@ class DirectRimeFrontendTest {
     private var previousProfile = "rime"
     private val createdImports = mutableListOf<String>()
     private val fixtureArchive = InstrumentationRegistry.getArguments().getString("fixtureArchive")
+    private val longStringFixture = InstrumentationRegistry.getArguments().getString("longStringFixture") == "true"
+    private val heavyAlgebraFixture = InstrumentationRegistry.getArguments().getString("heavyAlgebraFixture") == "true"
     private val profile = "frontend-test-${System.currentTimeMillis()}"
     private fun shell(command: String) = instrumentation.uiAutomation.executeShellCommand(command).use {
         FileInputStream(it.fileDescriptor).bufferedReader().use { it.readText().trim() }
@@ -74,6 +76,8 @@ class DirectRimeFrontendTest {
                 instrumentation.context.assets.open("smoke/$name").use { input -> File(directory, name).outputStream().use { input.copyTo(it) } }
             }
             if (testName.methodName == "schemaCommentsAndSwitchGroupsMatchRime") writeCommentFixture(directory)
+            if (testName.methodName == "replayPerformanceWorkload" && longStringFixture) writeLongStringFixture(directory)
+            if (testName.methodName == "replayPerformanceWorkload" && heavyAlgebraFixture) writeHeavyAlgebraFixture(directory)
             if (testName.methodName == "schemaSwitchPreferencesSurviveNewSessionsAndRestart") writeSavedOptionsFixture(directory)
             if (testName.methodName == "preeditCursorUsesRawCoordinates") writeCursorFixture(directory)
             if (testName.methodName == "symbolKeysAndPopupsUseRimePunctuation") writePunctuationFixture(directory)
@@ -186,6 +190,36 @@ return function(input, env)
   end
 end
 """.trimIndent())
+    }
+    private fun writeLongStringFixture(directory: File) {
+        val schema = File(directory, "direct_smoke.schema.yaml")
+        val text = schema.readText().replace("\r\n", "\n")
+        check(text.contains("  translators: [table_translator]"))
+        schema.writeText(text.replace("  translators: [table_translator]",
+            "  translators: [table_translator]\n  filters: [lua_filter@*frontend_long_string_test]"))
+        File(directory, "lua").mkdirs()
+        File(directory, "lua/frontend_long_string_test.lua").writeText("""
+return function(input, env)
+  local comment = string.rep("候选注释", 1024)
+  for candidate in input:iter() do
+    yield(ShadowCandidate(candidate, candidate.type, candidate.text, comment))
+  end
+end
+""".trimIndent())
+    }
+    private fun writeHeavyAlgebraFixture(directory: File) {
+        val schema = File(directory, "direct_smoke.schema.yaml")
+        val text = schema.readText().replace("\r\n", "\n")
+        val speller = "speller:\n  alphabet: abcdefghijklmnopqrstuvwxyz\n"
+        check(text.contains(speller))
+        val rules = buildString {
+            append("speller:\n  alphabet: abcdefghijklmnopqrstuvwxyz\n  algebra:\n")
+            // Identity xlit exercises reverse-map construction without changing the
+            // smoke dictionary's accepted input or committed words.
+            append("    - xlit/abcdefghijklmnopqrstuvwxyz/abcdefghijklmnopqrstuvwxyz/\n")
+            repeat(128) { index -> append("    - xform/^fixture${index}$/fixture${index}/\n") }
+        }
+        schema.writeText(text.replace(speller, rules))
     }
     private fun writeSavedOptionsFixture(directory: File) {
         File(directory, "default.yaml").appendText("\nswitcher:\n  save_options: [remembered, radio_a, radio_b, reset_preference]\n")
@@ -469,11 +503,18 @@ end
         }
         val durations = mutableListOf<Long>()
         val delivered = mutableListOf<String>()
+        var previousEntry = connection.runImmediately { inputMethodEntryCached }
+        var entryIdentityChanges = 0
         val inputs = if (fixtureArchive == null) listOf("ni") else listOf("nihao", "zhongguo", "shurufa", "wode", "xingneng", "zhongzhou", "fangan", "zhongwen")
         suspend fun word(input: String, measure: Boolean) {
             for (key in input.map { it.toString() } + "space") {
                 val start = System.nanoTime()
-                connection.runOnReady { sendKey(key, KeyState.Virtual.state) }
+                val nextEntry = connection.runOnReady {
+                    sendKey(key, KeyState.Virtual.state)
+                    inputMethodEntryCached
+                }
+                if (measure && nextEntry !== previousEntry) entryIdentityChanges++
+                previousEntry = nextEntry
                 if (measure) durations += System.nanoTime() - start
             }
             val text = withTimeout(30_000) { commits.receive() }
@@ -485,9 +526,16 @@ end
             repeat(20) { word(inputs[it % inputs.size], false) }
             val modelMapped = fixtureArchive != null && File("/proc/self/maps").readText().contains("wanxiang-lts-zh-hans.gram")
             delay(150)
+            Runtime.getRuntime().gc()
+            delay(100)
+            fun runtimeStat(name: String) = android.os.Debug.getRuntimeStat(name)?.toLongOrNull()
+            val objectsBefore = runtimeStat("art.gc.objects-allocated")
+            val bytesBefore = runtimeStat("art.gc.bytes-allocated")
             eventCounts.clear()
             repeat(100) { word(inputs[it % inputs.size], true) }
             delay(150)
+            val objectsAfter = runtimeStat("art.gc.objects-allocated")
+            val bytesAfter = runtimeStat("art.gc.bytes-allocated")
             assertNull("No duplicate commits after replay", withTimeoutOrNull(250) { commits.receive() })
             val sorted = durations.sorted()
             fun percentile(p: Int) = sorted[((sorted.size * p + 99) / 100 - 1).coerceAtLeast(0)] / 1_000_000.0
@@ -495,17 +543,182 @@ end
                 put("metric", "sendKey completion including adapter and native owner; not input-to-display latency")
                 put("harness_commit", BuildConfig.BUILD_GIT_HASH)
                 put("fixture", fixtureArchive ?: "bundled-smoke")
+                put("long_string_fixture", longStringFixture)
+                put("heavy_algebra_fixture", heavyAlgebraFixture)
                 put("model_mapped", modelMapped)
                 put("commits", org.json.JSONArray(delivered))
                 put("words", 100)
                 put("keys", sorted.size)
                 put("p50_ms", percentile(50)); put("p95_ms", percentile(95)); put("p99_ms", percentile(99))
+                put("entry_identity_changes", entryIdentityChanges)
+                put("art_objects_allocated", if (objectsBefore != null && objectsAfter != null) objectsAfter - objectsBefore else org.json.JSONObject.NULL)
+                put("art_bytes_allocated", if (bytesBefore != null && bytesAfter != null) bytesAfter - bytesBefore else org.json.JSONObject.NULL)
                 put("events", org.json.JSONObject(eventCounts.mapValues { it.value.get() }))
             }
             File(context.filesDir, "direct-rime-replay.json").writeText(result.toString(2))
             android.util.Log.i("DirectRimeReplay", result.toString())
         } finally { collector.cancelAndJoin() }
     }
+
+    /** Exercises the same ordered service queue used by soft-key actions. */
+    @Test fun serviceQueuePerformanceWorkload(): Unit = runBlocking {
+        val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
+        val previous = shell("settings get secure default_input_method")
+        val previousShowImeWithHardKeyboard = shell("settings get secure show_ime_with_hard_keyboard")
+        check(previousShowImeWithHardKeyboard == "null" || previousShowImeWithHardKeyboard.toIntOrNull() != null)
+        val enabled = component in shell("ime list -s")
+        val prefs = AppPrefs.getInstance()
+        val oldFloating = prefs.candidates.mode.getValue()
+        val oldLayout = prefs.keyboard.textKeyboardLayoutProfile.getValue()
+        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        var activity: RimeImportActivity? = null
+        val forwardedBackspaces = java.util.concurrent.atomic.AtomicInteger()
+        val eventFlow = connection.runImmediately { eventFlow }
+        val eventCollector = launch(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) {
+            eventFlow.collect { event ->
+                if (event is FcitxEvent.KeyEvent && event.data.sym.sym == FcitxKeyMapping.FcitxKey_BackSpace)
+                    forwardedBackspaces.incrementAndGet()
+            }
+        }
+        fun descendants(view: View): Sequence<View> = sequence {
+            yield(view)
+            if (view is ViewGroup) for (i in 0 until view.childCount) yieldAll(descendants(view.getChildAt(i)))
+        }
+        fun inputView(): InputView? {
+            var result: InputView? = null
+            instrumentation.runOnMainSync {
+                result = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
+                    .filterIsInstance<InputView>().firstOrNull { it.isShown && it.service.isInputViewShown }
+            }
+            return result
+        }
+        fun editorLength(editor: EditText): Int {
+            var length = -1
+            instrumentation.runOnMainSync { length = editor.length() }
+            return length
+        }
+        suspend fun deleteWorkload(
+            service: org.fcitx.fcitx5.android.input.FcitxInputMethodService,
+            count: Int,
+            intervalMs: Long,
+            initialDelayMs: Long,
+            traceName: String
+        ): Long {
+            val jobs = ArrayList<Job>(count)
+            val started = SystemClock.elapsedRealtimeNanos()
+            android.os.Trace.beginSection(traceName)
+            try {
+                if (initialDelayMs > 0) {
+                    jobs += service.postFcitxKeyJob { sendKey("BackSpace", KeyState.Virtual.state) }
+                    delay(initialDelayMs)
+                }
+                repeat(count - jobs.size) {
+                    jobs += service.postFcitxKeyJob { sendKey("BackSpace", KeyState.Virtual.state) }
+                    if (intervalMs > 0) delay(intervalMs)
+                }
+                jobs.joinAll()
+            } finally {
+                android.os.Trace.endSection()
+            }
+            return SystemClock.elapsedRealtimeNanos() - started
+        }
+        try {
+            shell("input keyevent KEYCODE_WAKEUP")
+            shell("settings put secure show_ime_with_hard_keyboard 1")
+            instrumentation.runOnMainSync {
+                prefs.candidates.mode.setValue(FloatingCandidatesMode.Disabled)
+                prefs.keyboard.textKeyboardLayoutProfile.setValue("default")
+            }
+            shell("ime enable $component"); shell("ime set $component")
+            activity = instrumentation.startActivitySync(Intent(context, RimeImportActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as RimeImportActivity
+            val host = requireNotNull(activity)
+            val editor = host.findViewById<EditText>(R.id.direct_rime_test_editor)
+            val sourceLength = 600
+            instrumentation.runOnMainSync {
+                editor.setText("x".repeat(sourceLength))
+                editor.setSelection(editor.length())
+                editor.requestFocus()
+                imm.showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT)
+            }
+            await("Service queue workload needs a settled editor and IME") {
+                var focused = false
+                instrumentation.runOnMainSync {
+                    focused = host.hasWindowFocus() && editor.hasFocus() && imm.isActive(editor)
+                }
+                val visible = inputView() != null
+                if (focused && !visible)
+                    instrumentation.runOnMainSync { imm.showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT) }
+                focused && visible
+            }
+            val service = requireNotNull(inputView()).service
+            connection.runOnReady { reset() }
+            val repeatDeletes = 41
+            val repeatNanos = deleteWorkload(
+                service, repeatDeletes,
+                org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.RepeatInterval,
+                org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.longPressDelay.toLong(),
+                "rime.service.workload.user_repeat"
+            )
+            await("User-rate workload must forward every BackSpace") {
+                forwardedBackspaces.get() >= repeatDeletes
+            }
+            val repeatForwarded = forwardedBackspaces.get()
+            assertEquals("User-rate service tasks must not be lost or merged", repeatDeletes, repeatForwarded)
+            await("Every forwarded user-rate BackSpace must delete exactly once") {
+                editorLength(editor) == sourceLength - repeatForwarded
+            }
+            val lengthAtRelease = editorLength(editor)
+            delay(300)
+            assertEquals("No deletion may continue after release", lengthAtRelease, editorLength(editor))
+
+            val burstDeletes = 200
+            val burstSourceLength = lengthAtRelease
+            val forwardedBeforeBurst = forwardedBackspaces.get()
+            val burstNanos = deleteWorkload(
+                service, burstDeletes, 0, 0, "rime.service.workload.burst"
+            )
+            await("Burst workload must forward every BackSpace") {
+                forwardedBackspaces.get() - forwardedBeforeBurst >= burstDeletes
+            }
+            val burstForwarded = forwardedBackspaces.get() - forwardedBeforeBurst
+            assertEquals("Burst service tasks must not be lost or merged", burstDeletes, burstForwarded)
+            await("Every forwarded burst BackSpace must drain without merging or loss") {
+                editorLength(editor) == burstSourceLength - burstForwarded
+            }
+            val lengthAfterBurst = editorLength(editor)
+            delay(300)
+            assertEquals("A drained burst must stay drained", lengthAfterBurst, editorLength(editor))
+
+            File(context.filesDir, "direct-rime-service-queue.json").writeText(org.json.JSONObject().apply {
+                put("harness_commit", BuildConfig.BUILD_GIT_HASH)
+                put("user_repeat_enqueued", repeatDeletes)
+                put("user_repeat_forwarded", repeatForwarded)
+                put("user_repeat_deleted", sourceLength - lengthAtRelease)
+                put("user_repeat_interval_ms", org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.RepeatInterval)
+                put("user_repeat_initial_delay_ms", org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.longPressDelay)
+                put("user_repeat_elapsed_ms", repeatNanos / 1_000_000.0)
+                put("burst_enqueued", burstDeletes)
+                put("burst_forwarded", burstForwarded)
+                put("burst_deleted", burstSourceLength - lengthAfterBurst)
+                put("burst_elapsed_ms", burstNanos / 1_000_000.0)
+                put("post_release_length", lengthAtRelease)
+                put("post_burst_length", lengthAfterBurst)
+            }.toString(2))
+        } finally {
+            eventCollector.cancelAndJoin()
+            activity?.let { instrumentation.runOnMainSync { it.finish() } }
+            instrumentation.runOnMainSync {
+                prefs.candidates.mode.setValue(oldFloating)
+                prefs.keyboard.textKeyboardLayoutProfile.setValue(oldLayout)
+            }
+            if (previousShowImeWithHardKeyboard == "null") shell("settings delete secure show_ime_with_hard_keyboard")
+            else shell("settings put secure show_ime_with_hard_keyboard $previousShowImeWithHardKeyboard")
+            if (previous.isNotBlank() && previous != "null") shell("ime set $previous")
+            if (!enabled) shell("ime disable $component")
+        }
+    }
+
     @Test fun schemaCommentsAndSwitchGroupsMatchRime(): Unit = runBlocking {
         val candidates = Channel<Array<CandidateWord>>(Channel.UNLIMITED)
         val flow = connection.runImmediately { eventFlow }

@@ -122,6 +122,7 @@ internal class CandidateSelectionNativeShadow : NativeTestDelegate {
             "Fixture", 0, word, arrayOf("1"), tabsRevision = tabVersion)
     }
     override fun options(): Array<String> = emptyArray()
+    override fun operationTiming() = LongArray(16)
     override fun key(value: Long, sym: Int, mask: Int, release: Boolean): Snapshot {
         check(value == generation)
         word = if (sym == 'n'.code) "旧候选" else "新候选"

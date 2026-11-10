@@ -60,6 +60,7 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.EmptyCoroutineContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.core.CapabilityFlags
@@ -527,8 +528,13 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
      * subsequent operations can start if the prior operation is not finished (suspended),
      * [postFcitxJob] ensures that operations are executed sequentially.
      */
-    fun postFcitxJob(block: suspend FcitxAPI.() -> Unit): Job {
-        val job = fcitx.lifecycleScope.launch(start = CoroutineStart.LAZY) {
+    private fun postFcitxJob(category: String, block: suspend FcitxAPI.() -> Unit): Job {
+        val diagnostic = org.fcitx.fcitx5.android.core.InputDiagnostics.serviceTask(category)
+        val job = fcitx.lifecycleScope.launch(
+            context = diagnostic ?: EmptyCoroutineContext,
+            start = CoroutineStart.LAZY
+        ) {
+            diagnostic?.started()
             try {
                 fcitx.runOnReady(block)
             } catch (e: FcitxDisconnectedException) {
@@ -540,14 +546,20 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 Timber.d(e, "Dropping queued fcitx job: connection is gone")
             }
         }
+        if (diagnostic != null) job.invokeOnCompletion { diagnostic.completed(it) }
         // Channel.trySend does not invoke onUndeliveredElement when the channel is already
         // closed. Complete the lazy job here so ticket and caller completion handlers settle.
-        if (jobs.trySend(job).isFailure) cancelUndeliveredFcitxJob(job)
+        if (jobs.trySend(job).isFailure) {
+            diagnostic?.rejected()
+            cancelUndeliveredFcitxJob(job)
+        }
         return job
     }
 
+    fun postFcitxJob(block: suspend FcitxAPI.() -> Unit): Job = postFcitxJob("operation", block)
+
     /** Capture at the time of the key, before either the service or native owner queues it. */
-    fun postFcitxKeyJob(block: suspend FcitxAPI.() -> Unit): Job {
+    private fun postFcitxKeyJob(category: String, block: suspend FcitxAPI.() -> Unit): Job {
         // Showing an inherited keyboard window on a TYPE_NULL/non-editor focus
         // is not typing demand. Promote only a real key, before its ticket is
         // captured, and bind ahead of it in this same ordered service queue.
@@ -556,7 +568,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         val ticket = FcitxDaemon.captureInputKey() ?: return Job().apply { complete() }
         val statisticsSource = captureStatisticsSource(ticket.generation)
-        return postFcitxJob {
+        return postFcitxJob(category) {
             if (FcitxDaemon.canDeliverInputKey(ticket)) {
                 if (statisticsSource == null) block()
                 else {
@@ -566,6 +578,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
         }.also { job -> job.invokeOnCompletion { FcitxDaemon.releaseInputKey(ticket) } }
     }
+
+    fun postFcitxKeyJob(block: suspend FcitxAPI.() -> Unit): Job = postFcitxKeyJob("key", block)
 
     /** All privacy checks are repeated at delivery, before statistics receives any text. */
     private fun activeStatistics(): InputStats? {
@@ -674,7 +688,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         val ordinal = ++timedSelections
         val capturedAt = if (ordinal <= 2) SystemClock.elapsedRealtimeNanos() else 0L
-        return postFcitxKeyJob {
+        return postFcitxKeyJob("candidate") {
             if (capturedAt != 0L) android.util.Log.i("RimeInputTiming",
                 "select_queue generation=$generation ordinal=$ordinal service_wait_us=${(SystemClock.elapsedRealtimeNanos() - capturedAt) / 1000}")
             block()
@@ -686,7 +700,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     /** Same editor-gated service queue as keys and candidates, retaining the displayed tab target. */
     fun postCandidateTabAction(target: org.fcitx.fcitx5.android.core.CandidateTabActionTarget): Job =
-        postFcitxKeyJob { triggerCandidateListTabActionIfCurrent(target) }
+        postFcitxKeyJob("tab") { triggerCandidateListTabActionIfCurrent(target) }
 
     private suspend fun FcitxAPI.applyCandidatePagingModeIfNeeded(mode: Int) {
         if (appliedCandidatePagingMode == mode) return

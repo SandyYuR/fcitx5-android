@@ -13,6 +13,7 @@ sealed class FcitxEvent<T>(open val data: T) {
 
     // Opt-in diagnostics only. Kept outside data-class equality and never logged with text.
     internal var diagnosticSequence: Long = 0
+    internal var diagnosticProducedNanos: Long = 0
     internal var diagnosticEmittedNanos: Long = 0
 
     abstract val eventType: EventType
