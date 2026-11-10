@@ -1,0 +1,331 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-10",
+  "scope": "Final review fixes followed by categorized history organization; no merge or release",
+  "application": {
+    "branch": "refs/heads/fix/input-rime-reliability-20261110",
+    "base": "24c4ee07942a67adb48751ff9ae1a24b7fe52ef7",
+    "old_remote_head": "c5501024410b6b3dc4a36832bc4d7de88c9880be",
+    "reviewed_head": "6db6615751b86adeeb10a7dcf3ef6f900a709f72",
+    "reviewed_tree": "5d2335e38a683a587747fbdfbfff97161b9b0332",
+    "new_head": "ced42aeac3c12e7b5582bda4960c56894f01cbc0",
+    "new_tree": "5d2335e38a683a587747fbdfbfff97161b9b0332",
+    "tree_equal": true,
+    "old_commit_count": 18,
+    "new_commit_count": 6,
+    "groups": [
+      {
+        "title": "修复(输入): 完善服务任务清理与维护绑定恢复",
+        "original_commits": [
+          "7813646cdcd64103f424073c79e98be757255ad3",
+          "e39811d2a7efc4e5a4b6091b5f1b43bb86817ab7"
+        ],
+        "new_commit": "f1e79265f04a1c2820c1378a9a7b44ed1cfd41c9",
+        "tree": "5fce84c69198d48f94bc4c8a38cd1190c6ed4722",
+        "parent": "24c4ee07942a67adb48751ff9ae1a24b7fe52ef7"
+      },
+      {
+        "title": "优化(候选): 绑定音节目标并精简列表刷新",
+        "original_commits": [
+          "519f5da55f723e72456ee7a5a99cf362df9a43f3",
+          "1b70bd4686af4238273dc30d9330a1f54a1659ef",
+          "bc29c18a60a561f98f48ba02c10d5b0d0e7970c5"
+        ],
+        "new_commit": "748eeec67770e10df7bd8ad18b5448d670972382",
+        "tree": "8c6fa1f6fb385dd81e23f78baa4cd066608b98d3",
+        "parent": "f1e79265f04a1c2820c1378a9a7b44ed1cfd41c9"
+      },
+      {
+        "title": "优化(原生): 加固资源边界并复用状态与转码缓冲",
+        "original_commits": [
+          "9eb203baef4a1bc0944520cbf448cede72720d53",
+          "182d4df2d01e2c85f2ee2c359d134a0def45c3cc",
+          "43a4749fd98d5300bf00fbb8f1fdc31bca63cf76",
+          "add047c54a36212fb1404e9834325da912254714"
+        ],
+        "new_commit": "bdd989df00124df22984bf64e5014b08ec5400a7",
+        "tree": "3b07f8088aa21cace558242b151dc15ea7a9b83e",
+        "parent": "748eeec67770e10df7bd8ad18b5448d670972382"
+      },
+      {
+        "title": "修复(菜单): 返回关闭方案菜单并保留编辑器焦点",
+        "original_commits": [
+          "cf3de61ece6298b35a37fc9a483d1791b575db78",
+          "c5501024410b6b3dc4a36832bc4d7de88c9880be"
+        ],
+        "new_commit": "68d58f9831adb0bf4e64f33b81f590ccc7000930",
+        "tree": "717b445c9710a042c82caffa9dfe9fffbbcc8e94",
+        "parent": "bdd989df00124df22984bf64e5014b08ec5400a7"
+      },
+      {
+        "title": "优化(输入): 复用稳定输入法展示对象",
+        "original_commits": [
+          "b924d6e7078ab3c0ca8eaea2658438d7cc7fd210"
+        ],
+        "new_commit": "e703e01106d2798c108c05ca3781501cf2b5b9d6",
+        "tree": "987cca622f1837dcf498e55896696fcb0e969a14",
+        "parent": "68d58f9831adb0bf4e64f33b81f590ccc7000930"
+      },
+      {
+        "title": "优化(诊断): 完善输入指标与可恢复的压力回归",
+        "original_commits": [
+          "534b9db0210d1e7f98ae58da0517231c8fed8281",
+          "5861a1f6c38a59eb94330ea9cf030c13073865bf",
+          "f2b1bbf5af1066caaa11ba2c133b406ebf5d9401",
+          "510208b95b42b6cedbd9bf877c93cc4450f55b53",
+          "3697eae31569dff93ce05319531c9dd3d21197a6",
+          "6db6615751b86adeeb10a7dcf3ef6f900a709f72"
+        ],
+        "new_commit": "ced42aeac3c12e7b5582bda4960c56894f01cbc0",
+        "tree": "5d2335e38a683a587747fbdfbfff97161b9b0332",
+        "parent": "e703e01106d2798c108c05ca3781501cf2b5b9d6"
+      }
+    ],
+    "recovery_bundle": "before-history-rewrite.bundle",
+    "branch_moved": true
+  },
+  "documentation_reorganization": {
+    "branch": "refs/heads/fix/docs-input-rime-reliability-20261110",
+    "base": "b61af0025df5abd6f92b5d59025176579b9d131a",
+    "old_remote_head": "efc190eebb0bf9bf541bc47065a5380158ebc858",
+    "reviewed_head": "68c72c4e9497927da03fcf998a7dd4aaf4b93241",
+    "reviewed_tree": "03949eddb8dc6251cdb78d725462816b4421064f",
+    "new_head": "e9551f7e76d5eff721002af81d8aa3873ddb6e10",
+    "new_tree": "03949eddb8dc6251cdb78d725462816b4421064f",
+    "tree_equal": true,
+    "old_commit_count": 4,
+    "new_commit_count": 2,
+    "mapping_note": "Original commits touching both contracts and evidence map to both new commits; paths form an exact partition.",
+    "groups": [
+      {
+        "title": "文档(输入): 同步输入链路可靠性与缓存契约",
+        "new_commit": "b6798ebe71a00a79919238ab527e09e1192cd682",
+        "parent": "b61af0025df5abd6f92b5d59025176579b9d131a",
+        "tree": "20cc8691e3a5655eae7b9d6d7ab403188be8282e",
+        "paths": [
+          "docs/maintainer/implementation/correctness-contracts.md"
+        ],
+        "original_commits": [
+          "badeecc41c638c4bae9c462d58a1c9b470c78905",
+          "27c8f117203ebdb533faee1c02cb60e8dea20bb0",
+          "68c72c4e9497927da03fcf998a7dd4aaf4b93241"
+        ]
+      },
+      {
+        "title": "文档(验证): 汇总输入优化实测与历史证据",
+        "new_commit": "e9551f7e76d5eff721002af81d8aa3873ddb6e10",
+        "parent": "b6798ebe71a00a79919238ab527e09e1192cd682",
+        "tree": "03949eddb8dc6251cdb78d725462816b4421064f",
+        "paths": [
+          "docs/.vitepress/navigation.ts",
+          "docs/maintainer/audit/input-reliability-20261110/candidate-commit.png",
+          "docs/maintainer/audit/input-reliability-20261110/candidate-highlight.png",
+          "docs/maintainer/audit/input-reliability-20261110/summary.json",
+          "docs/maintainer/evidence.md",
+          "docs/maintainer/history/index.md",
+          "docs/maintainer/history/input-reliability-2026-11-10.md"
+        ],
+        "original_commits": [
+          "badeecc41c638c4bae9c462d58a1c9b470c78905",
+          "27c8f117203ebdb533faee1c02cb60e8dea20bb0",
+          "efc190eebb0bf9bf541bc47065a5380158ebc858"
+        ]
+      }
+    ],
+    "recovery_bundle": "docs-before-history-rewrite.bundle",
+    "branch_moved": true
+  },
+  "documentation_audit_commit": "A separate final audit commit follows the two categorized documentation commits; it adds this record rather than changing the reorganization tree check.",
+  "review_fixes": [
+    {
+      "source_commit": "add047c54a36212fb1404e9834325da912254714",
+      "category_commit": "bdd989df00124df22984bf64e5014b08ec5400a7",
+      "finding": "candidate_list_next may leave partially invalid pointers when it throws; unconditional end could release them again",
+      "fix": "Only call end after a normal API return; retain cleanup for wrapper-copy failures",
+      "regression": "The new first/second-next failure cases failed before the fix and passed afterward; wrapper allocation failure still ends exactly once",
+      "limit": "This wrapper guard does not reclaim every partial allocation inside the pinned SDK API."
+    },
+    {
+      "source_commit": "3697eae31569dff93ce05319531c9dd3d21197a6",
+      "category_commit": "ced42aeac3c12e7b5582bda4960c56894f01cbc0",
+      "finding": "Disabled diagnostics still registered a no-op completion handler for every service job",
+      "fix": "Register the diagnostic completion handler only when a ServiceTask exists"
+    },
+    {
+      "source_commit": "6db6615751b86adeeb10a7dcf3ef6f900a709f72",
+      "category_commit": "ced42aeac3c12e7b5582bda4960c56894f01cbc0",
+      "finding": "The service queue fixture changed show_ime_with_hard_keyboard without restoring it",
+      "fix": "Preserve the previous integer or absent setting and restore it in finally",
+      "device_validation": "Run with an initial value of 0, verify restoration to 0, then restore the user value of 1"
+    }
+  ],
+  "validation": {
+    "targeted_jvm": {
+      "report_files": 8,
+      "tests": 61,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "source_tree": "5d2335e38a683a587747fbdfbfff97161b9b0332",
+      "executed_before_history_organization": true
+    },
+    "native_exception_probes": {
+      "result": "passed",
+      "unsafe_iterator_end_on_api_failure": 0,
+      "iterator_end_on_wrapper_copy_failure": 1,
+      "jni_pending_exception_and_unicode": "passed"
+    },
+    "host_input_statistics_contract": "passed",
+    "full_windows_host_contract": {
+      "result": "not_completed",
+      "exit_code": 1,
+      "reason": "Actual create_symlink privilege failure in testGeneratedConfigInvalidation; not counted as a pass"
+    },
+    "trace_summary_tests": "passed",
+    "x86_64_debug": {
+      "commit": "ced42aeac3c12e7b5582bda4960c56894f01cbc0",
+      "tree": "5d2335e38a683a587747fbdfbfff97161b9b0332",
+      "apk_sha256": "73e8e2ff3cb6b83b25b38ba2eae37869fdfb338d3b2671aa23d97eb4f84fe404",
+      "version_name": "nightly-0.1.3-814-g24c4ee07-20261110-022638-6-gced42aeac",
+      "version_code": 114,
+      "apk_audit": "passed",
+      "native_link_audit": "passed",
+      "same_signing_certificate": true
+    },
+    "device": {
+      "candidate_contract_passed": true,
+      "service_queue_passed": true,
+      "fixture_restored_hardware_keyboard_setting_to_zero": true,
+      "user_hardware_keyboard_setting": "1",
+      "default_ime": "org.fcitx.fcitx5.android.fx.rime.debug/org.fcitx.fcitx5.android.input.FcitxInputMethodService",
+      "avd": "rime",
+      "serial": "emulator-5574",
+      "api": 35,
+      "tests": 2,
+      "failures": 0,
+      "skipped": 0,
+      "repeat_enqueued_forwarded_deleted": 41,
+      "burst_enqueued_forwarded_deleted": 200,
+      "configuration_bytes_restored": true,
+      "changed_preference_keys": [
+        "pid"
+      ],
+      "statistics_and_word_recording_enabled": false,
+      "cleared_data": false,
+      "uninstalled_packages": false
+    },
+    "linux_native_safety_contract": {
+      "run_id": 42803182615,
+      "job": "prototype",
+      "step": "Test native engine safety contract",
+      "result": "success"
+    }
+  },
+  "application_ci": [
+    {
+      "id": 42802957691,
+      "name": "PR CI",
+      "head": "ced42aeac3c12e7b5582bda4960c56894f01cbc0",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42802957691",
+      "jobs": [
+        {
+          "name": "JVM unit tests",
+          "status": "completed",
+          "conclusion": "success",
+          "active_step": "",
+          "native_contract": "",
+          "failed_steps": null
+        },
+        {
+          "name": "Debug APK build",
+          "status": "completed",
+          "conclusion": "success",
+          "active_step": "",
+          "native_contract": "",
+          "failed_steps": null
+        }
+      ]
+    },
+    {
+      "id": 42803182615,
+      "name": "Direct Rime CI",
+      "head": "ced42aeac3c12e7b5582bda4960c56894f01cbc0",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42803182615",
+      "jobs": [
+        {
+          "name": "Full frontend touch and engine tests",
+          "status": "completed",
+          "conclusion": "success",
+          "active_step": "",
+          "native_contract": "",
+          "failed_steps": null
+        },
+        {
+          "name": "Full frontend ARM64 APK",
+          "status": "completed",
+          "conclusion": "success",
+          "active_step": "",
+          "native_contract": "",
+          "failed_steps": null
+        },
+        {
+          "name": "prototype",
+          "status": "completed",
+          "conclusion": "success",
+          "active_step": "",
+          "native_contract": "success",
+          "failed_steps": null
+        },
+        {
+          "name": "android_smoke",
+          "status": "completed",
+          "conclusion": "success",
+          "active_step": "",
+          "native_contract": "",
+          "failed_steps": null
+        }
+      ]
+    }
+  ],
+  "version_comparison": {
+    "remote_original": "nightly-0.1.3-814-g24c4ee07-20261110-022638-15-gc55010244",
+    "before_organization": "nightly-0.1.3-814-g24c4ee07-20261110-022638-18-g6db661575",
+    "after_organization": "nightly-0.1.3-814-g24c4ee07-20261110-022638-6-gced42aeac",
+    "original_updater_parts": [
+      0,
+      1,
+      3,
+      814,
+      24,
+      4,
+      7
+    ],
+    "after_updater_parts": [
+      0,
+      1,
+      3,
+      814,
+      24,
+      4,
+      7
+    ],
+    "base_version_code": 11,
+    "arm64_version_code": 112,
+    "x86_64_version_code": 114,
+    "release_tags_changed": false
+  },
+  "recovery": {
+    "tag_records": 72,
+    "tag_names": 65,
+    "remote_tags_unchanged": true,
+    "app_recovery_sha256": "3d1e64443509db3793e5baae62eb36be7e76d6071f41a000f86759a54458b795",
+    "docs_recovery_sha256": "3a5a1175754cc388d69fb717b8d12e0213deb09b7783af051278448cb40f28c5",
+    "local_directory": ".verify/2026-11-10-input-final-review",
+    "remote_refs_before_sha256": "5c297e6c5e290846f6cd4deb54f378a42bc7a82fc921c8e5f38c5fc30319f0db",
+    "bundles_verified": true
+  }
+}
