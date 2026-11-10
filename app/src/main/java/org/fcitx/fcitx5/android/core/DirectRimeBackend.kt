@@ -684,10 +684,26 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }
     }
 
+    private fun restoreMaintenanceBinding(token: Long, previous: Binding?) {
+        if (!started || token != inputSession || hasUsableBinding(token)) return
+        val current = synchronized(bindingLock) { binding?.takeIf { it.generation == token } }
+        if (current == null && previous != null) {
+            prepareInputSession(token, previous.program, previous.flags, previous.needsRime)
+        }
+        if (synchronized(bindingLock) { binding?.generation == token }) begin(token)
+        else clearBinding(token)
+    }
+
     private suspend fun maintain(operation: () -> Unit) = maintenanceMutex.withLock {
         maintenance = true
         keyGate.block()
-        val token = invalidateInputSession()
+        val (token, previousBinding) = synchronized(bindingLock) {
+            val previous = binding
+            val next = epoch.incrementAndGet()
+            binding = null
+            keyGate.invalidate(next)
+            next to previous
+        }
         try { onOwner {
             clearBinding(token)
             statusAreaActionsCached = emptyArray()
@@ -697,11 +713,24 @@ class DirectRimeBackend(context: Context) : InputEngine {
             showUnavailable("正在部署，请稍候…")
             operation()
             refreshSchemas()
-            if (token == inputSession) begin(token)
+            restoreMaintenanceBinding(token, previousBinding)
         } } catch (e: Exception) {
-            onOwner {
-                if (started && token == inputSession) begin(token)
-                showUnavailable(e.message ?: "操作失败，请检查方案文件")
+            try {
+                withContext(NonCancellable) {
+                    onOwner {
+                        if (token == inputSession) {
+                            try {
+                                restoreMaintenanceBinding(token, previousBinding)
+                            } finally {
+                                if (e !is CancellationException) {
+                                    showUnavailable(e.message ?: "操作失败，请检查方案文件")
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (recovery: Exception) {
+                if (recovery !== e) e.addSuppressed(recovery)
             }
             throw e
         } finally { maintenance = false; keyGate.running(started) }
