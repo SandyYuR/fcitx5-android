@@ -280,7 +280,7 @@ class SymbolPanelUi(
             val active = position == selectedIndex
             label.text = groups[position].name
             label.setTextColor(
-                if (active) theme.accentKeyTextColor else theme.keyTextColor.alpha(0.65f)
+                if (active) theme.genericActiveForegroundColor else theme.keyTextColor.alpha(0.65f)
             )
             label.background = tabFill(active)
             label.setOnClickListener { selectGroup(position) }
