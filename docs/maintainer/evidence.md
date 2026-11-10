@@ -181,6 +181,18 @@
 
 :::
 
+### audit/input-reliability-20261110
+
+说明：[2026-11-10 输入链路可靠性与局部优化](/maintainer/history/input-reliability-2026-11-10)
+
+::: details 原始文件（3 个）
+
+- <a href="/fcitx5-android/maintainer/audit/input-reliability-20261110/candidate-commit.png" download>candidate-commit.png</a>
+- <a href="/fcitx5-android/maintainer/audit/input-reliability-20261110/candidate-highlight.png" download>candidate-highlight.png</a>
+- <a href="/fcitx5-android/maintainer/audit/input-reliability-20261110/summary.json" download>summary.json</a>
+
+:::
+
 ### audit/merge-prep-2026-10-27
 
 说明：[index](/maintainer/audit/merge-prep-2026-10-27/)
