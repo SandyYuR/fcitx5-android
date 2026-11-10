@@ -241,11 +241,13 @@ data class CandidateAction(
     val isSeparator: Boolean,
     val icon: String,
     val isCheckable: Boolean,
-    val isChecked: Boolean
+    val isChecked: Boolean,
+    val tabTarget: CandidateTabActionTarget? = null
 )
 
 data class AuxBarAction(
     val id: Int,
     val text: String,
-    val isSeparator: Boolean = false
+    val isSeparator: Boolean = false,
+    val tabTarget: CandidateTabActionTarget? = null
 )

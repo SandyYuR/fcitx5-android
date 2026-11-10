@@ -28,6 +28,7 @@ interface FcitxAPI {
     fun invalidateInputSession(): Long = 0
     val inputSession: Long get() = 0
     val candidateActionContext: CandidateActionContext get() = CandidateActionContext(inputSession, 0)
+    val candidateTabActionContext: CandidateTabActionContext get() = CandidateTabActionContext(inputSession, 0)
     val acceptsInput: Boolean get() = true
     suspend fun startInputSession(generation: Long, program: String) {}
 
@@ -151,5 +152,11 @@ interface FcitxAPI {
     suspend fun offsetCandidatePage(delta: Int)
 
     suspend fun triggerCandidateListTabAction(id: Int)
+
+    suspend fun triggerCandidateListTabActionIfCurrent(target: CandidateTabActionTarget): Boolean {
+        if (candidateTabActionContext != target.context) return false
+        triggerCandidateListTabAction(target.id)
+        return true
+    }
 
 }

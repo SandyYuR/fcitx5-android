@@ -31,6 +31,7 @@ open class HorizontalCandidateViewAdapter(
 ) : RecyclerView.Adapter<CandidateViewHolder>() {
 
     private object BadgePositionChanged
+    private object HighlightChanged
 
     private var horizontalOverflowEnabled = initialHorizontalOverflowEnabled
     private var candidateIndexBadgeEnabled = initialCandidateIndexBadgeEnabled
@@ -163,10 +164,10 @@ open class HorizontalCandidateViewAdapter(
         // naive notifyItemChanged(oldActive) targets the wrong item once items
         // before it were inserted/removed (double-highlight repro, 2026-09-14).
         if (plan.unhighlightPosition != CandidateUpdatePlan.NONE) {
-            notifyItemChanged(plan.unhighlightPosition)
+            notifyItemChanged(plan.unhighlightPosition, HighlightChanged)
         }
         if (plan.highlightPosition != CandidateUpdatePlan.NONE) {
-            notifyItemChanged(plan.highlightPosition)
+            notifyItemChanged(plan.highlightPosition, HighlightChanged)
         }
     }
 
@@ -176,10 +177,10 @@ open class HorizontalCandidateViewAdapter(
         val previous = activeIndex
         activeIndex = index
         if (previous in candidates.indices) {
-            notifyItemChanged(previous)
+            notifyItemChanged(previous, HighlightChanged)
         }
         if (activeIndex in candidates.indices) {
-            notifyItemChanged(activeIndex)
+            notifyItemChanged(activeIndex, HighlightChanged)
         }
     }
 
@@ -261,12 +262,14 @@ open class HorizontalCandidateViewAdapter(
     }
 
     override fun onBindViewHolder(holder: CandidateViewHolder, position: Int, payloads: MutableList<Any>) {
-        if (payloads.isNotEmpty() && payloads.all { it === BadgePositionChanged }) {
-            holder.ui.setIndexBadge(
-                if (candidateIndexBadgeEnabled) resolveCandidateIndexBadgeText(position, candidates[position]) else null,
-                candidateIndexBadgePosition,
-            )
-            holder.updateIndex(position + indexOffset)
+        if (payloads.isNotEmpty() && payloads.all { it === BadgePositionChanged || it === HighlightChanged }) {
+            if (payloads.any { it === BadgePositionChanged }) {
+                holder.ui.setIndexBadge(
+                    if (candidateIndexBadgeEnabled) resolveCandidateIndexBadgeText(position, candidates[position]) else null,
+                    candidateIndexBadgePosition,
+                )
+                holder.updateIndex(position + indexOffset)
+            }
             holder.ui.setActive(position == activeIndex)
         } else {
             super.onBindViewHolder(holder, position, payloads)
