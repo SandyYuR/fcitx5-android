@@ -8,6 +8,7 @@
 #include <sstream>
 #include <rime_levers_api.h>
 #include <stdexcept>
+#include <utility>
 #if INPUT_DIAGNOSTICS
 #include <sys/resource.h>
 #endif
@@ -17,6 +18,18 @@
 
 namespace direct_rime {
 namespace {
+template <typename Cleanup>
+class ScopeExit {
+public:
+    explicit ScopeExit(Cleanup cleanup) : cleanup_(std::move(cleanup)) {}
+    ScopeExit(const ScopeExit&) = delete;
+    ScopeExit& operator=(const ScopeExit&) = delete;
+    ~ScopeExit() { cleanup_(); }
+private:
+    Cleanup cleanup_;
+};
+template <typename Cleanup> ScopeExit(Cleanup) -> ScopeExit<Cleanup>;
+
 struct Trace {
     explicit Trace(const char* name) {
 #ifdef __ANDROID__
@@ -174,6 +187,7 @@ void Engine::start(const std::string& shared, const std::string& user,
     }
 }
 void Engine::initialize(bool fullCheck) {
+    invalidateStatusCache();
     deployFailed_.store(false);
     if (fullCheck) {
         // Rime's compiler compares source mtimes with one-second resolution.
@@ -208,6 +222,7 @@ void Engine::initialize(bool fullCheck) {
 }
 void Engine::stop() {
     owner();
+    invalidateStatusCache();
     if (!started_) return;
     api_->join_maintenance_thread();
     if (session_) api_->destroy_session(session_);
@@ -224,13 +239,16 @@ Gate Engine::gate(int64_t generation) const {
     return Ready;
 }
 void Engine::clearSession() {
+    invalidateStatusCache();
     if (!session_) return;
     // Never learn or deliver unfinished input from the previous editor.
     api_->set_option(session_, "_no_learning", true);
     api_->clear_composition(session_);
     if (RIME_API_AVAILABLE(api_, clear_tabs)) api_->clear_tabs(session_);
     RimeCommit commit{}; RIME_STRUCT_INIT(RimeCommit, commit);
-    if (api_->get_commit(session_, &commit)) api_->free_commit(&commit);
+    if (api_->get_commit(session_, &commit)) {
+        ScopeExit cleanup([&] { api_->free_commit(&commit); });
+    }
     tabs_.clear();
 }
 Snapshot Engine::begin(int64_t generation, const std::string& program, bool noLearning) {
@@ -238,6 +256,7 @@ Snapshot Engine::begin(int64_t generation, const std::string& program, bool noLe
     owner();
     timing_.fill(0);
     if (generation <= generation_) { Snapshot s; s.generation = generation; s.gate = Stale; return s; }
+    invalidateStatusCache();
     ++optionsRevision_;
     generation_ = generation; active_ = false;
     { CoreTrace core("rime.direct.bind_core", timing_);
@@ -271,6 +290,7 @@ Snapshot Engine::begin(int64_t generation, const std::string& program, bool noLe
 Snapshot Engine::end(int64_t generation) {
     owner();
     if (generation == generation_) {
+        invalidateStatusCache();
         Trace trace("rime.direct.end_binding");
         if (active_) { clearSession(); ++sessionsEnded_; }
         active_ = false;
@@ -370,19 +390,81 @@ std::optional<RawInput> Engine::rawInput(int64_t generation, int64_t revision) {
     if (caret > text.size() || text.size() > static_cast<size_t>(std::numeric_limits<int>::max())) return std::nullopt;
     return RawInput{std::move(text), static_cast<int>(caret)};
 }
+void Engine::invalidateStatusCache() { statusCache_.reset(); }
+void Engine::readStatus(Snapshot& result) {
+    struct StatusFields { std::string schema, schemaName; bool ascii = false; };
+    auto apply = [&](const auto& value) {
+        result.schema = value.schema;
+        result.schemaName = value.schemaName;
+        result.ascii = value.ascii;
+    };
+    auto clearResult = [&] {
+        result.schema.clear();
+        result.schemaName.clear();
+        result.ascii = false;
+    };
+
+    const auto observed = optionsRevision_.load();
+    if (statusCache_ && statusCache_->generation == result.generation &&
+        statusCache_->session == session_ && statusCache_->optionsRevision == observed) {
+        apply(*statusCache_);
+        if (optionsRevision_.load() == observed) return;
+    }
+
+    // Never let a failed or unstable refresh fall back to fields from an older
+    // editor or option revision. A later snapshot will retry the native API.
+    invalidateStatusCache();
+    clearResult();
+    for (int attempt = 0; attempt < 2; ++attempt) {
+        const auto before = optionsRevision_.load();
+        RimeStatus status{}; RIME_STRUCT_INIT(RimeStatus, status);
+        bool read;
+        { Trace trace("rime.direct.get_status"); read = api_->get_status(session_, &status); }
+        if (!read) return;
+        StatusFields fresh;
+        {
+            ScopeExit cleanup([&] { api_->free_status(&status); });
+            fresh.schema = safe(status.schema_id);
+            fresh.schemaName = safe(status.schema_name);
+            fresh.ascii = status.is_ascii_mode;
+        }
+        const auto after = optionsRevision_.load();
+        if (before == after) {
+            apply(fresh);
+            constexpr size_t maxBytes = 64 * 1024;
+            if (fresh.schema.size() <= maxBytes && fresh.schemaName.size() <= maxBytes - fresh.schema.size()) {
+                statusCache_ = StatusCache{result.generation, session_, after,
+                    std::move(fresh.schema), std::move(fresh.schemaName), fresh.ascii};
+            }
+            return;
+        }
+        if (attempt == 1) {
+            // Continuous notifications cannot be made atomic here. Return the
+            // last fresh fields, but deliberately leave the cache invalid.
+            apply(fresh);
+        }
+    }
+}
 Snapshot Engine::snapshot(int64_t generation, bool handled, int64_t inputStatistics) {
     Trace trace("rime.direct.snapshot");
     Snapshot s; s.generation = generation; s.revision = revision_; s.handled = handled; s.gate = gate(generation);
     if (s.gate == Stale) return s;
     s.revision = ++revision_;
-    if (s.gate != Ready) return s; // Gated keys are always swallowed, including release.
+    if (s.gate != Ready) {
+        invalidateStatusCache();
+        return s; // Gated keys are always swallowed, including release.
+    }
     s.inputStatistics = inputStatistics;
     RimeCommit commit{}; RIME_STRUCT_INIT(RimeCommit, commit);
     { TimedTrace trace("rime.direct.read_commit", timing_[1]);
-      if (api_->get_commit(session_, &commit)) { s.commit = safe(commit.text); api_->free_commit(&commit); } }
+      if (api_->get_commit(session_, &commit)) {
+        ScopeExit cleanup([&] { api_->free_commit(&commit); });
+        s.commit = safe(commit.text);
+      } }
     RimeContext context{}; RIME_STRUCT_INIT(RimeContext, context);
     { TimedTrace trace("rime.direct.read_context", timing_[2]);
       if (api_->get_context(session_, &context)) {
+        ScopeExit cleanup([&] { api_->free_context(&context); });
         s.preedit = safe(context.composition.preedit); s.cursor = context.composition.cursor_pos;
         s.highlighted = context.menu.highlighted_candidate_index;
         s.preview = safe(context.commit_text_preview);
@@ -398,32 +480,27 @@ Snapshot Engine::snapshot(int64_t generation, bool handled, int64_t inputStatist
             s.candidates.push_back(safe(context.menu.candidates[i].text));
             s.comments.push_back(safe(context.menu.candidates[i].comment));
         }
-        api_->free_context(&context);
-      } }
-    RimeStatus status{}; RIME_STRUCT_INIT(RimeStatus, status);
-    { TimedTrace trace("rime.direct.read_status", timing_[3]);
-      if (api_->get_status(session_, &status)) {
-        s.schema = safe(status.schema_id); s.schemaName = safe(status.schema_name); s.ascii = status.is_ascii_mode; api_->free_status(&status);
       } }
     std::vector<Tab> nextTabs;
-    TimedTrace tabsTrace("rime.direct.read_input_tabs", timing_[4]);
-    if (RIME_API_AVAILABLE(api_, get_input_tabs) && RIME_API_AVAILABLE(api_, free_input_tabs)) {
-        char** labels = nullptr; size_t* spans = nullptr; int* sources = nullptr; size_t count = 0;
-        if (api_->get_input_tabs(session_, 0, &labels, &spans, &sources, &count)) {
-            std::u16string decoded;
-            for (size_t i = 0; i < count; ++i) {
-                auto label = safe(labels[i]);
-                if (label.empty() || !utf16(label, decoded)) continue;
-                nextTabs.push_back({label, spans[i]}); s.tabs.push_back(label);
+    { TimedTrace tabsTrace("rime.direct.read_input_tabs", timing_[4]);
+      if (RIME_API_AVAILABLE(api_, get_input_tabs) && RIME_API_AVAILABLE(api_, free_input_tabs)) {
+          char** labels = nullptr; size_t* spans = nullptr; int* sources = nullptr; size_t count = 0;
+          if (api_->get_input_tabs(session_, 0, &labels, &spans, &sources, &count)) {
+              ScopeExit cleanup([&] { api_->free_input_tabs(labels, spans, sources, count); });
+              std::u16string decoded;
+              for (size_t i = 0; i < count; ++i) {
+                  auto label = safe(labels[i]);
+                  if (label.empty() || !utf16(label, decoded)) continue;
+                  nextTabs.push_back({label, spans[i]}); s.tabs.push_back(label);
+              }
             }
-            api_->free_input_tabs(labels, spans, sources, count);
-        }
-    }
+      } }
     if (nextTabs != tabs_) {
         tabs_ = std::move(nextTabs);
         ++tabsRevision_;
     }
     s.tabsRevision = tabsRevision_;
+    { TimedTrace statusTrace("rime.direct.read_status", timing_[3]); readStatus(s); }
     s.optionsRevision = optionsRevision_.load();
     return s;
 }
@@ -445,8 +522,8 @@ std::vector<std::string> Engine::schemas() {
     if (!started_ || api_->is_maintenance_mode()) return result;
     RimeSchemaList list{};
     if (api_->get_schema_list(&list)) {
+        ScopeExit cleanup([&] { api_->free_schema_list(&list); });
         for (size_t i = 0; i < list.size; ++i) result.push_back(safe(list.list[i].schema_id));
-        api_->free_schema_list(&list);
     }
     return result;
 }
@@ -457,11 +534,11 @@ std::vector<std::string> Engine::schemaEntries() {
     if (!started_ || api_->is_maintenance_mode()) return result;
     RimeSchemaList list{};
     if (api_->get_schema_list(&list)) {
+        ScopeExit cleanup([&] { api_->free_schema_list(&list); });
         for (size_t i = 0; i < list.size; ++i) {
             result.push_back(safe(list.list[i].schema_id));
             result.push_back(safe(list.list[i].name));
         }
-        api_->free_schema_list(&list);
     }
     return result;
 }
@@ -473,6 +550,7 @@ std::vector<std::string> Engine::options() {
     if (!api_->get_current_schema(session_, schema, sizeof(schema))) return result;
     RimeConfig config{};
     if (!api_->schema_open(schema, &config)) return result;
+    ScopeExit cleanup([&] { api_->config_close(&config); });
     auto get = [&](const std::string& key) { return safe(api_->config_get_cstring(&config, key.c_str())); };
     for (size_t i = 0; i < api_->config_list_size(&config, "switches"); ++i) {
         auto prefix = "switches/@" + std::to_string(i);
@@ -499,7 +577,6 @@ std::vector<std::string> Engine::options() {
             }
         }
     }
-    api_->config_close(&config);
     return result;
 }
 void Engine::setOption(const std::string& option, bool value) {
@@ -518,13 +595,13 @@ bool Engine::saveableOption(const std::string& option) {
         // restore whitelist therefore comes only from the deployed default config.
         RimeConfig config{};
         if (!api_->config_open("default", &config)) return false;
+        ScopeExit cleanup([&] { api_->config_close(&config); });
         saveOptions_.clear();
         const auto count = api_->config_list_size(&config, "switcher/save_options");
         for (size_t i = 0; i < count; ++i) {
             auto name = safe(api_->config_get_cstring(&config, ("switcher/save_options/@" + std::to_string(i)).c_str()));
             if (!name.empty()) saveOptions_.insert(name);
         }
-        api_->config_close(&config);
         saveOptionsLoaded_ = true;
     }
     return saveOptions_.count(option) != 0;
@@ -536,8 +613,8 @@ void Engine::rememberOption(const std::string& option, bool value) {
         !RIME_API_AVAILABLE(api_, config_close)) return;
     RimeConfig config{};
     if (!api_->user_config_open("user", &config)) return;
+    ScopeExit cleanup([&] { api_->config_close(&config); });
     api_->config_set_bool(&config, ("var/option/" + option).c_str(), value);
-    api_->config_close(&config);
 }
 namespace {
 RimeLeversApi* levers(RimeApi* api) {
@@ -558,24 +635,24 @@ std::string Engine::schemaSelection() {
     auto* settings = api->switcher_settings_init();
     if (!settings) return {};
     auto* custom = reinterpret_cast<RimeCustomSettings*>(settings);
+    ScopeExit settingsCleanup([&] { api->custom_settings_destroy(custom); });
     api->load_settings(custom);
     RimeSchemaList available{}, selected{};
     std::vector<std::string> selectedIds;
     if (api->get_selected_schema_list(settings, &selected)) {
+        ScopeExit selectedCleanup([&] { api->schema_list_destroy(&selected); });
         for (size_t i = 0; i < selected.size; ++i) selectedIds.push_back(safe(selected.list[i].schema_id));
-        api->schema_list_destroy(&selected);
     }
     std::ostringstream result;
     if (api->get_available_schema_list(settings, &available)) {
+        ScopeExit availableCleanup([&] { api->schema_list_destroy(&available); });
         for (size_t i = 0; i < available.size; ++i) {
             auto id = safe(available.list[i].schema_id);
             auto enabled = std::find(selectedIds.begin(), selectedIds.end(), id) != selectedIds.end();
             if (i) result << '\n';
             result << (enabled ? '1' : '0') << '\t' << id << '\t' << safe(available.list[i].name);
         }
-        api->schema_list_destroy(&available);
     }
-    api->custom_settings_destroy(custom);
     return result.str();
 }
 bool Engine::selectSchemas(const std::vector<std::string>& ids) {
@@ -585,11 +662,11 @@ bool Engine::selectSchemas(const std::vector<std::string>& ids) {
     auto* settings = api->switcher_settings_init();
     if (!settings) return false;
     auto* custom = reinterpret_cast<RimeCustomSettings*>(settings);
+    ScopeExit cleanup([&] { api->custom_settings_destroy(custom); });
     api->load_settings(custom);
     std::vector<const char*> values;
     for (const auto& id : ids) values.push_back(id.c_str());
     const bool ok = api->select_schemas(settings, values.data(), values.size()) && api->save_settings(custom);
-    api->custom_settings_destroy(custom);
     return ok;
 }
 bool Engine::sync() {
@@ -628,10 +705,18 @@ std::vector<std::string> Engine::candidates(int64_t generation, int offset, int 
     if (gate(generation) != Ready || offset < 0 || limit <= 0 || limit > 256) return result;
     RimeCandidateListIterator iter{};
     if (!api_->candidate_list_from_index(session_, &iter, offset)) return result;
-    for (int i = 0; i < limit && api_->candidate_list_next(&iter); ++i) {
+    bool canEnd = true;
+    ScopeExit cleanup([&] { if (canEnd) api_->candidate_list_end(&iter); });
+    for (int i = 0; i < limit; ++i) {
+        // The pinned API deletes the previous text/comment before allocating
+        // their replacements. If next() throws, its partially updated pointers
+        // are not safe to close. Wrapper copies after a normal return are safe.
+        canEnd = false;
+        const bool hasCandidate = api_->candidate_list_next(&iter);
+        canEnd = true;
+        if (!hasCandidate) break;
         result.push_back(safe(iter.candidate.text)); result.push_back(safe(iter.candidate.comment));
     }
-    api_->candidate_list_end(&iter);
     return result;
 }
 }

@@ -58,9 +58,18 @@ public:
     // Additional owner-thread IO ns: open/read/write/sync/stat, then call count.
     std::array<int64_t, 16> operationTiming() const;
 private:
+    struct StatusCache {
+        int64_t generation;
+        RimeSessionId session;
+        int64_t optionsRevision;
+        std::string schema, schemaName;
+        bool ascii;
+    };
     void owner() const;
     Gate gate(int64_t generation) const;
     Snapshot snapshot(int64_t generation, bool handled = true, int64_t inputStatistics = -1);
+    void invalidateStatusCache();
+    void readStatus(Snapshot& snapshot);
     int64_t captureInputStatistics(bool requested) const;
     void clearSession();
     void initialize(bool fullCheck);
@@ -85,6 +94,7 @@ private:
     std::string sessionProgram_;
     std::string shared_, user_, version_;
     std::vector<Tab> tabs_;
+    std::optional<StatusCache> statusCache_;
     bool saveOptionsLoaded_ = false;
     std::set<std::string> saveOptions_;
     std::array<int64_t, 16> timing_{};
