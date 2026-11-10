@@ -148,6 +148,15 @@ private val NUMPAD_KEYCODE_RANGE = KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_N
  */
 private const val STANDALONE_MODIFIER_HOLD_MS = 50L
 
+/**
+ * A service queue owns the start of every lazy job it still contains. If the queue can no
+ * longer deliver one, cancel only a job that has not been started elsewhere. A job already
+ * received by the consumer is no longer subject to the channel's undelivered callback.
+ */
+private fun cancelUndeliveredFcitxJob(job: Job) {
+    if (!job.isActive) job.cancel()
+}
+
 class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private val inputDeliveryDiagnostics = org.fcitx.fcitx5.android.core.InputDiagnostics.Collector()
@@ -158,7 +167,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     internal lateinit var fcitx: FcitxConnection
 
-    private var jobs = Channel<Job>(capacity = Channel.UNLIMITED)
+    private var jobs = Channel<Job>(
+        capacity = Channel.UNLIMITED,
+        onUndeliveredElement = ::cancelUndeliveredFcitxJob
+    )
     private var inputBindingGeneration = 0
     private var inputSessionGeneration = 0
     internal val editorSession = EditorSessionTracker()
@@ -528,7 +540,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 Timber.d(e, "Dropping queued fcitx job: connection is gone")
             }
         }
-        jobs.trySend(job)
+        // Channel.trySend does not invoke onUndeliveredElement when the channel is already
+        // closed. Complete the lazy job here so ticket and caller completion handlers settle.
+        if (jobs.trySend(job).isFailure) cancelUndeliveredFcitxJob(job)
         return job
     }
 
@@ -692,12 +706,18 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }
         }
         candidatePagingModeJob = job
-        job.invokeOnCompletion {
+        job.invokeOnCompletion { cause ->
             if (candidatePagingModeJob === job) {
                 candidatePagingModeJob = null
             }
-            pendingCandidatePagingMode?.let {
-                requestCandidatePagingMode(it)
+            if (cause == null) {
+                pendingCandidatePagingMode?.let {
+                    requestCandidatePagingMode(it)
+                }
+            } else {
+                // A rejected or undelivered queue job must not recursively enqueue into the
+                // same closed service queue from its synchronous completion callback.
+                pendingCandidatePagingMode = null
             }
         }
     }
@@ -2397,6 +2417,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         ThemeManager.removeOnChangedListener(onThemeChangeListener)
         runCatching { unregisterReceiver(voiceInputCommitReceiver) }
         super.onDestroy()
+        // Lifecycle cancellation stops the consumer; explicitly close its queue as well so
+        // buffered lazy jobs are reported as undelivered before the shared engine disconnects.
+        jobs.cancel()
         // Fcitx might be used in super.onDestroy()
         FcitxDaemon.disconnect(javaClass.name)
     }
