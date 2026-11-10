@@ -1,0 +1,248 @@
+{
+  "date": "2026-11-10",
+  "application": {
+    "base": "24c4ee07942a67adb48751ff9ae1a24b7fe52ef7",
+    "branch": "fix/input-rime-reliability-20261110",
+    "head": "c5501024410b6b3dc4a36832bc4d7de88c9880be",
+    "merged": false,
+    "released": false
+  },
+  "commits": [
+    "7813646cdcd64103f424073c79e98be757255ad3",
+    "519f5da55f723e72456ee7a5a99cf362df9a43f3",
+    "e39811d2a7efc4e5a4b6091b5f1b43bb86817ab7",
+    "9eb203baef4a1bc0944520cbf448cede72720d53",
+    "534b9db0210d1e7f98ae58da0517231c8fed8281",
+    "1b70bd4686af4238273dc30d9330a1f54a1659ef",
+    "182d4df2d01e2c85f2ee2c359d134a0def45c3cc",
+    "bc29c18a60a561f98f48ba02c10d5b0d0e7970c5",
+    "cf3de61ece6298b35a37fc9a483d1791b575db78",
+    "5861a1f6c38a59eb94330ea9cf030c13073865bf",
+    "b924d6e7078ab3c0ca8eaea2658438d7cc7fd210",
+    "43a4749fd98d5300bf00fbb8f1fdc31bca63cf76",
+    "f2b1bbf5af1066caaa11ba2c133b406ebf5d9401",
+    "510208b95b42b6cedbd9bf877c93cc4450f55b53",
+    "c5501024410b6b3dc4a36832bc4d7de88c9880be"
+  ],
+  "local_verification": {
+    "jvm": {
+      "report_files": 12,
+      "tests": 126,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "host_input_statistics_groups": 5,
+    "host_engine_contract": "status and other assertions completed before the existing Windows symbolic-link privilege failure in testGeneratedConfigInvalidation",
+    "arm64_debug_apk_sha256": "14537fd73e83e318f449ba3f63b3ff2bfdd5dd2261bedb8629190a94a0e612d8",
+    "apk_audit": "passed",
+    "native_link_audit": "passed",
+    "supplemental_jvm": {
+      "report_files": 6,
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "x86_64_normal_debug_apk_sha256": "5346a5d246a0f47b67370a70d021b4a32631d0e97fb5d2ff8af640d7b2dc2058",
+    "x86_64_apk_audit": "passed",
+    "x86_64_native_link_audit": "passed"
+  },
+  "device": {
+    "serial": "emulator-5574",
+    "avd": "rime",
+    "api": 35,
+    "lab_smoke_tests": 6,
+    "candidate_device_tests": 4,
+    "supplemental_device_tests": 4,
+    "data_cleared": false,
+    "packages_uninstalled": false
+  },
+  "status_trace": {
+    "application_commit": "182d4df2d01e2c85f2ee2c359d134a0def45c3cc",
+    "snapshot_sections": 74,
+    "read_status_sections": 63,
+    "get_status_sections": 12,
+    "raw_trace_bytes": 2495809,
+    "raw_trace_sha256": "5bb81a2ccfc46cc9477f69a8e3f1536c291b8dc8c23c3fb1fbc4c6d0bee0a987",
+    "raw_trace_in_repository": false
+  },
+  "conditional_measurements": {
+    "input_method_entry": {
+      "workload_words": 100,
+      "workload_keys": 300,
+      "baseline_identity_changes": [300, 300, 300],
+      "optimized_identity_changes": [0, 0, 0],
+      "baseline_art_objects": [17754, 17744, 17652],
+      "optimized_art_objects": [16401, 16360, 16418],
+      "baseline_art_bytes": [1015808, 1015808, 1015808],
+      "optimized_art_bytes": [950272, 983040, 950272]
+    },
+    "algebra": {
+      "librime_commit": "b5561910d9eba97a273e09e7996535679b730032",
+      "development_source_tree": "9aa3037ca0fcee8b1cc860fbdbd1ff06ea5ea117",
+      "samples": 120,
+      "normal_p50_us": 1.322,
+      "normal_p95_us": 1.893,
+      "heavy_rules": 129,
+      "heavy_p50_us": 18.873,
+      "heavy_p95_us": 41.859,
+      "heavy_p99_us": 107.67,
+      "real_schemas": {
+        "profile": "rime-wanxiang",
+        "input": "ADB-injected Android touch events through visible soft keys; every composition erased before commit",
+        "sample_unit": "translator invocation, not key count",
+        "percentile_method": "nearest-rank",
+        "measurement_apk_sha256": "8749732af32b06808aa1f9e310f7ef95c7e740c9a38cbbdbd382bd7894159ac8",
+        "limits": [
+          "already-started sessions, no cold-start comparison",
+          "no raw input longer than 9 bytes",
+          "no additional CPU or memory pressure",
+          "no cache implementation or cache A/B"
+        ],
+        "wanxiang": {
+          "script_samples": 234,
+          "script_input_bytes_range": [1, 9],
+          "script_p50_us": 22.573,
+          "script_p95_us": 49.182,
+          "script_p99_us": 119.405,
+          "table_samples": 28,
+          "table_input_bytes_range": [3, 8],
+          "table_p50_us": 14.208,
+          "table_p95_us": 25.321,
+          "table_p99_us": 25.898,
+          "raw_log_bytes": 41620,
+          "raw_log_sha256": "f3c729a64db40743c39d7ecbfc4104552eab3891779563a3c3c0e439cf387df1"
+        },
+        "wanxiang_t9": {
+          "script_samples": 234,
+          "script_input_bytes_range": [1, 9],
+          "script_p50_us": 12.811,
+          "script_p95_us": 26.965,
+          "script_p99_us": 66.83,
+          "raw_log_bytes": 37281,
+          "raw_log_sha256": "92ed8201385ea00041366fa74e502a81a347b67de2e6302ca647403aae9f38eb"
+        }
+      },
+      "implemented_cache": false
+    },
+    "jni_utf16": {
+      "snapshots": 365,
+      "normal_buffer_growths_before": 361,
+      "normal_buffer_growths_after": 361,
+      "long_comment_max_utf8_bytes": 12288,
+      "long_buffer_growths_before": 1081,
+      "long_buffer_growths_after": 361
+    },
+    "service_queue": {
+      "trace_bytes": 11860600,
+      "trace_sha256": "ffb261e3c6af16beba7436d0febded7752190b796e6de246026b157f95a0ea33",
+      "user_repeat": {
+        "enqueued": 41,
+        "native": 41,
+        "forwarded": 41,
+        "deleted": 41,
+        "max_waiting": 1,
+        "service_wait_p50_ms": 0.408,
+        "service_wait_p95_ms": 0.86,
+        "result_wait_p50_ms": 0.666,
+        "result_wait_p95_ms": 55.779,
+        "max_pending_batches": 1
+      },
+      "burst": {
+        "enqueued": 200,
+        "native": 200,
+        "forwarded": 200,
+        "deleted": 200,
+        "max_waiting": 193,
+        "service_wait_p50_ms": 113.863,
+        "service_wait_p95_ms": 218.45,
+        "result_wait_p50_ms": 25.032,
+        "result_wait_p95_ms": 68.161,
+        "max_pending_batches": 19,
+        "pending_zero_after_ms": 10.091
+      },
+      "real_soft_touch": {
+        "schema": "wanxiang_t9",
+        "gesture": "ADB-injected 8-second touch hold on the visible Backspace key",
+        "input_state": "no composition; deleting existing Latin x text",
+        "model_mapped": true,
+        "model_bytes": 418080812,
+        "additional_cpu_or_memory_pressure": false,
+        "replications": 1,
+        "long_press_ms": 8000,
+        "editor_length_before": 600,
+        "editor_length_after_first_snapshot": 449,
+        "editor_length_after_second_snapshot": 449,
+        "snapshot_timing": "First dump requested 300 ms after touch command returned; second requested 1200 ms after first dump completed. Dump overhead prevents exact 300/1500 ms sampling claims.",
+        "service_tasks": 151,
+        "native_process_keys": 151,
+        "input_connection_key_events": 302,
+        "deleted": 151,
+        "sequence_gaps": 0,
+        "max_waiting": 1,
+        "max_running": 1,
+        "max_pending_batches": 1,
+        "last_recorded_waiting": 1,
+        "last_recorded_running": 0,
+        "last_recorded_pending_batches": 0,
+        "observed_after_touch_up_ms": 5966.768,
+        "native_process_keys_after_touch_up": 0,
+        "input_connection_key_events_after_touch_up": 0,
+        "service_wait_p50_ms": 0.217,
+        "service_wait_p95_ms": 0.888,
+        "service_wait_p99_ms": 1.064,
+        "service_wait_max_ms": 1.711,
+        "process_key_p50_ms": 0.072,
+        "process_key_p95_ms": 0.229,
+        "process_key_p99_ms": 0.652,
+        "process_key_max_ms": 0.728,
+        "result_wait_p50_ms": 0.487,
+        "result_wait_p95_ms": 1.821,
+        "result_wait_p99_ms": 3.407,
+        "result_wait_max_ms": 122.045,
+        "timing_anomalies": {
+          "paired_tasks": 151,
+          "starts_timestamped_before_enqueue": 48,
+          "min_start_minus_enqueue_ms": -0.205592,
+          "service_wait_zero_samples": 46,
+          "cause": "not established",
+          "interpretation": "Do not infer a settled waiting counter or microsecond scheduling gains from this cross-thread timeline. Use completed task/native/editor counts and post-touch-up delivery checks."
+        },
+        "trace_import_errors": 0,
+        "trace_bytes": 5276647,
+        "trace_sha256": "95e865454921d186f9e1f614ba6b965314ef2c31f657ec9bd2e9756fff7e5c27"
+      }
+    }
+  },
+  "screenshots": {
+    "candidate-highlight.png": "bdeb95fccb7b6f7f75c58c152e374db4c471f8c7ce8eadda40ccd0a6c760fc41",
+    "candidate-commit.png": "865349aaa666a7a6052e0c84e175d488c8e52c0ce47b357520b6922c362d6c9e"
+  },
+  "github_actions": {
+    "workflow": "PR CI",
+    "successful_runs": [
+      42747600169,
+      42750191473,
+      42751417997,
+      42753434299,
+      42755586201,
+      42756763154,
+      42758751825,
+      42762060204,
+      42782814172
+    ],
+    "direct_rime_ci": {
+      "state": "active",
+      "initial_failed_run": 42766009498,
+      "failed_compact_fixture_run": 42780791796,
+      "final_run": 42782853446,
+      "final_conclusion": "success",
+      "final_device_tests": 41
+    }
+  },
+  "conditional_work_not_implemented": [
+    "algebra reverse-mapping cache",
+    "input queue capacity or repeated-key coalescing"
+  ]
+}
