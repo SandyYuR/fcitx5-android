@@ -185,10 +185,11 @@
 
 说明：[2026-11-10 输入链路可靠性与局部优化](/maintainer/history/input-reliability-2026-11-10)
 
-::: details 原始文件（3 个）
+::: details 原始文件（4 个）
 
 - <a href="/fcitx5-android/maintainer/audit/input-reliability-20261110/candidate-commit.png" download>candidate-commit.png</a>
 - <a href="/fcitx5-android/maintainer/audit/input-reliability-20261110/candidate-highlight.png" download>candidate-highlight.png</a>
+- <a href="/fcitx5-android/maintainer/audit/input-reliability-20261110/history-rewrite.json" download>history-rewrite.json</a>
 - <a href="/fcitx5-android/maintainer/audit/input-reliability-20261110/summary.json" download>summary.json</a>
 
 :::
