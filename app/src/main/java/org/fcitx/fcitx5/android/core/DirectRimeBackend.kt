@@ -507,7 +507,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
             }
         }
     }
-    override suspend fun sendKey(c: Char, states: UInt, code: Int, up: Boolean, timestamp: Int) = sendKey(c.code, states, code, up, timestamp)
+    override suspend fun sendKey(c: Char, states: UInt, code: Int, up: Boolean, timestamp: Int) =
+        sendKey(KeyCodec.fromUnicode(c.code), states, code, up, timestamp)
     override suspend fun sendKey(key: String, states: UInt, code: Int, up: Boolean, timestamp: Int) {
         val parsed = Key.parse(key)
         sendKey(parsed.sym, states or parsed.states.toUInt(), code, up, timestamp)

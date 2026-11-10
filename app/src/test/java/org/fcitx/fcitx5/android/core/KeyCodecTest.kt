@@ -34,4 +34,34 @@ class KeyCodecTest {
         assertEquals("Control+Space", KeyCodec.parse("Control+space").localizedString)
         assertEquals("Page Up", KeyCodec.parse("Page_Up").localizedString)
     }
+
+    @Test fun everyCataloguedLegacyKeysymRoundTripsThroughUnicode() {
+        val rows = checkNotNull(javaClass.getResourceAsStream("/keysym-compat.tsv"))
+            .bufferedReader()
+            .useLines { lines ->
+                lines.filter { it.isNotEmpty() && !it.startsWith('#') }
+                    .map { it.split('\t') }
+                    .filter { it.getOrNull(3).orEmpty().isNotEmpty() }
+                    .map { it[0] to (it[1].toInt(16) to it[3].toInt(16)) }
+                    .toList()
+            }
+        assertTrue(rows.isNotEmpty())
+        for ((name, pair) in rows) {
+            val (sym, codePoint) = pair
+            assertEquals("$name keysym must decode to its Unicode character", codePoint, KeyCodec.toUnicode(sym))
+            assertEquals(
+                "U+${codePoint.toString(16)} must survive Unicode-to-keysym-to-Unicode",
+                codePoint,
+                KeyCodec.toUnicode(KeyCodec.fromUnicode(codePoint))
+            )
+        }
+    }
+
+    @Test fun unicodeEncodingAvoidsLegacyKeysymNumberCollisions() {
+        // A raw Unicode U+03C0 is π, while X11 keysym 0x03C0 represents Ā.
+        assertEquals(0x07f0, KeyCodec.fromUnicode(0x03c0))
+        assertEquals(0x03c0, KeyCodec.toUnicode(0x07f0))
+        assertEquals(0x010001f1, KeyCodec.fromUnicode(0x01f1))
+        assertEquals(0x01f1, KeyCodec.toUnicode(0x010001f1))
+    }
 }
