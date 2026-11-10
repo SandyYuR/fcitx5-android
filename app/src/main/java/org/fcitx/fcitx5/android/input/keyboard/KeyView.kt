@@ -924,7 +924,8 @@ class AltTextKeyView(
     private fun applyDirectionalTopBottomAltTextPosition() {
         val hasUpLabel = !altText.text.isNullOrBlank()
         val hasDownLabel = !altText1.text.isNullOrBlank()
-        val moveMainText = ThemeManager.prefs.moveMainTextForAltLabel.getValue()
+        // Two directional labels keep the main content centered regardless of the movement
+        // preference. Anchoring each label to its own edge avoids an overflowing three-row chain.
         altText.visibility = if (hasUpLabel) View.VISIBLE else View.GONE
         altText1.visibility = if (hasDownLabel) View.VISIBLE else View.GONE
         altText.gravity = Gravity.CENTER
@@ -935,40 +936,37 @@ class AltTextKeyView(
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
             topToTop = parentId
-            bottomToTop = if (moveMainText && hasUpLabel) mainText.existingOrNewId else unset
-            bottomToBottom = if (moveMainText && !hasUpLabel) parentId else unset
+            topToBottom = unset
+            bottomToTop = unset
+            bottomToBottom = unset
             leftToLeft = parentId
             rightToRight = parentId
+            leftMargin = 0
+            rightMargin = 0
             topMargin = vMargin
             bottomMargin = 0
         }
         altText1.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
-            topToTop = if (moveMainText && !hasDownLabel) parentId else unset
-            topToBottom = if (moveMainText && hasDownLabel) mainText.existingOrNewId else unset
+            topToTop = unset
+            topToBottom = unset
+            bottomToTop = unset
             bottomToBottom = parentId
             leftToLeft = parentId
             rightToRight = parentId
+            leftMargin = 0
+            rightMargin = 0
             topMargin = 0
             bottomMargin = vMargin + dp(2)
         }
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            if (moveMainText) {
-                topToTop = if (hasUpLabel) unset else parentId
-                topToBottom = if (hasUpLabel) altText.existingOrNewId else unset
-                bottomToBottom = if (hasDownLabel) unset else parentId
-                bottomToTop = if (hasDownLabel) altText1.existingOrNewId else unset
-                topMargin = 0
-                bottomMargin = 0
-            } else {
-                centerInParent()
-                topToTop = parentId
-                topToBottom = unset
-                bottomToBottom = parentId
-                bottomToTop = unset
-                topMargin = 0
-                bottomMargin = 0
-            }
+            centerInParent()
+            topToTop = parentId
+            topToBottom = unset
+            bottomToBottom = parentId
+            bottomToTop = unset
+            topMargin = 0
+            bottomMargin = 0
         }
     }
 
@@ -1039,10 +1037,7 @@ class AltTextKeyView(
             val cornerMinHeight = max(mainHeight, labelHeight + cornerLabelTopSafeInset)
 
             if (hasUpLabel && hasDownLabel) {
-                // Use the legacy single-label capacity as the fallback boundary. A normal
-                // row can keep both labels unless it cannot even fit the main content plus
-                // one label; only then collapse them into the two corners (which keeps
-                // both directions visible, unlike the old upper-right-only fallback).
+                // Both labels are anchored independently; movement never changes their layout.
                 val stackedMinHeight = mainHeight + labelHeight + dp(1)
                 return when {
                     contentHeight >= stackedMinHeight -> AltTextLayoutMode.DirectionalTopBottom
@@ -1516,7 +1511,7 @@ class ImageAltTextKeyView(
     private fun applyDirectionalTopBottomAltTextPosition() {
         val hasUpLabel = !altText.text.isNullOrBlank()
         val hasDownLabel = !altText1.text.isNullOrBlank()
-        val moveMainText = ThemeManager.prefs.moveMainTextForAltLabel.getValue()
+        // Keep the same centered two-label layout as text keys, with either movement setting.
         altText.visibility = if (hasUpLabel) View.VISIBLE else View.GONE
         altText1.visibility = if (hasDownLabel) View.VISIBLE else View.GONE
         altText.gravity = Gravity.CENTER
@@ -1527,40 +1522,37 @@ class ImageAltTextKeyView(
         altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
             topToTop = parentId
-            bottomToTop = if (moveMainText && hasUpLabel) img.existingOrNewId else unset
-            bottomToBottom = if (moveMainText && !hasUpLabel) parentId else unset
+            topToBottom = unset
+            bottomToTop = unset
+            bottomToBottom = unset
             leftToLeft = parentId
             rightToRight = parentId
+            leftMargin = 0
+            rightMargin = 0
             topMargin = vMargin
             bottomMargin = 0
         }
         altText1.updateLayoutParams<ConstraintLayout.LayoutParams> {
             width = 0
-            topToTop = if (moveMainText && !hasDownLabel) parentId else unset
-            topToBottom = if (moveMainText && hasDownLabel) img.existingOrNewId else unset
+            topToTop = unset
+            topToBottom = unset
+            bottomToTop = unset
             bottomToBottom = parentId
             leftToLeft = parentId
             rightToRight = parentId
+            leftMargin = 0
+            rightMargin = 0
             topMargin = 0
             bottomMargin = vMargin + dp(2)
         }
         img.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            if (moveMainText) {
-                topToTop = if (hasUpLabel) unset else parentId
-                topToBottom = if (hasUpLabel) altText.existingOrNewId else unset
-                bottomToBottom = if (hasDownLabel) unset else parentId
-                bottomToTop = if (hasDownLabel) altText1.existingOrNewId else unset
-                topMargin = 0
-                bottomMargin = 0
-            } else {
-                centerInParent()
-                topToTop = parentId
-                topToBottom = unset
-                bottomToBottom = parentId
-                bottomToTop = unset
-                topMargin = 0
-                bottomMargin = 0
-            }
+            centerInParent()
+            topToTop = parentId
+            topToBottom = unset
+            bottomToBottom = parentId
+            bottomToTop = unset
+            topMargin = 0
+            bottomMargin = 0
         }
     }
 
@@ -1652,10 +1644,7 @@ class ImageAltTextKeyView(
             val cornerMinHeight = max(mainHeight, labelHeight + cornerLabelTopSafeInset)
 
             if (hasUpLabel && hasDownLabel) {
-                // Use the legacy single-label capacity as the fallback boundary. A normal
-                // row can keep both labels unless it cannot even fit the main content plus
-                // one label; only then collapse them into the two corners (which keeps
-                // both directions visible, unlike the old upper-right-only fallback).
+                // Both labels are anchored independently; movement never changes their layout.
                 val stackedMinHeight = mainHeight + labelHeight + dp(1)
                 return when {
                     contentHeight >= stackedMinHeight -> AltTextLayoutMode.DirectionalTopBottom
