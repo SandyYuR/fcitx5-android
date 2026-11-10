@@ -104,6 +104,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private var statusHintJob: Job? = null
     private val statusHintLifetime = StatusHintLifetime()
     private var statusHintGeneration = 0L
+    private val inputMethodEntryCache = DirectRimeInputMethodEntryCache()
     @Volatile private var maintenance = false
     override val acceptsInput get() = keyGate.canProcess()
     @Volatile override var inputMethodEntryCached = entry(null)
@@ -434,10 +435,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
     }
     private fun entry(value: Snapshot?): InputMethodEntry {
         val ascii = value?.ascii == true || forwardsKeysDirectly()
-        return InputMethodEntry("rime", context.getString(R.string.direct_rime_ime_name), "fcitx-rime", "中州韵", "㞢", "zh", "rime", true,
-            InputMethodSubMode(if (ascii) "Latin Mode" else value?.schemaName.orEmpty(),
-                if (ascii) "abc" else value?.schemaName.orEmpty(),
-                if (ascii) "fcitx_rime_latin" else "fcitx-rime:${value?.schema.orEmpty()}"))
+        return inputMethodEntryCache.get(ascii, value?.schema.orEmpty(), value?.schemaName.orEmpty(),
+            context.getString(R.string.direct_rime_ime_name))
     }
     private fun action(id: Int, name: String, text: String = name, checked: Boolean? = null,
                        menu: Array<Action>? = null, separator: Boolean = false) =
