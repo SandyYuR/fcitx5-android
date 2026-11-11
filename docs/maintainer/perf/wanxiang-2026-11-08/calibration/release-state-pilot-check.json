@@ -1,0 +1,12 @@
+{
+  "run": 42489374984,
+  "source": "55ded484e337fb3b814c1839aceb155df76d9081",
+  "artifact": 13621406195,
+  "artifact_sha256": "7dfd88f10672a97a15cfaf9fc6d1aaaaa7469b0dcd9104f4a3e76da3e930d2df",
+  "correct_selections": 16,
+  "failures": 0,
+  "both_products_both_words_both_phases": true,
+  "runtime_model_core_bridge_verified": true,
+  "exact_file_time_restore_verified": true,
+  "admitted_as_formal_statistics": false
+}

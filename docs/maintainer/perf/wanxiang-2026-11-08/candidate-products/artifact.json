@@ -1,0 +1,15 @@
+{
+  "id": 13611399920,
+  "name": "wanxiang-debug-products-20261108",
+  "size_in_bytes": 49333427,
+  "digest": "sha256:1c932632bc96a5e1d0d810042e090b5939a89da6120fdcfe393bd84ef59aadab",
+  "created_at": "2026-11-08T09:15:09Z",
+  "expires_at": "2026-11-22T09:15:06Z",
+  "workflow_run": {
+    "id": 42465512924,
+    "repository_id": 1303455007,
+    "head_repository_id": 1303455007,
+    "head_branch": "perf/wanxiang-latest-20261108",
+    "head_sha": "534c5a565da18a4850338322931f1cce606e76b2"
+  }
+}

@@ -1,0 +1,3 @@
+Broadcasting: Intent { act=androidx.profileinstaller.action.INSTALL_PROFILE flg=0x400000 cmp=org.fcitx.fcitx5.android.fx.rime/androidx.profileinstaller.ProfileInstallReceiver }
+Broadcast completed: result=0
+Success

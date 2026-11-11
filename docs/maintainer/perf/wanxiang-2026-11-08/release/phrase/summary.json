@@ -1,0 +1,365 @@
+{
+  "trials": 6,
+  "rounds": 8,
+  "case": "phrase",
+  "products": {
+    "fcitx": {
+      "ni_fresh_first": {
+        "down_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_edit_ms": {
+          "n": 0
+        },
+        "up_to_draw_ms": {
+          "n": 0
+        }
+      },
+      "ni_fresh_warm": {
+        "down_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_edit_ms": {
+          "n": 0
+        },
+        "up_to_draw_ms": {
+          "n": 0
+        }
+      },
+      "ni_rebind_first": {
+        "down_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_edit_ms": {
+          "n": 0
+        },
+        "up_to_draw_ms": {
+          "n": 0
+        }
+      },
+      "ni_rebind_warm": {
+        "down_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_edit_ms": {
+          "n": 0
+        },
+        "up_to_draw_ms": {
+          "n": 0
+        }
+      },
+      "phrase_fresh_first": {
+        "down_to_ic_ms": {
+          "n": 6,
+          "median_ms": 71.69672800000001,
+          "min_ms": 66.052214,
+          "max_ms": 75.699814,
+          "p95_nearest_rank_ms": 75.699814
+        },
+        "up_to_ic_ms": {
+          "n": 6,
+          "median_ms": 31.229045,
+          "min_ms": 29.806633,
+          "max_ms": 32.965846,
+          "p95_nearest_rank_ms": 32.965846
+        },
+        "up_to_edit_ms": {
+          "n": 6,
+          "median_ms": 33.3453835,
+          "min_ms": 31.946415,
+          "max_ms": 35.019538,
+          "p95_nearest_rank_ms": 35.019538
+        },
+        "up_to_draw_ms": {
+          "n": 6,
+          "median_ms": 39.050591999999995,
+          "min_ms": 38.368134,
+          "max_ms": 43.073822,
+          "p95_nearest_rank_ms": 43.073822
+        }
+      },
+      "phrase_fresh_warm": {
+        "down_to_ic_ms": {
+          "n": 42,
+          "median_ms": 54.2469155,
+          "min_ms": 47.576156,
+          "max_ms": 61.499238,
+          "p95_nearest_rank_ms": 58.9571
+        },
+        "up_to_ic_ms": {
+          "n": 42,
+          "median_ms": 14.9765415,
+          "min_ms": 12.317742,
+          "max_ms": 17.416934,
+          "p95_nearest_rank_ms": 17.12893
+        },
+        "up_to_edit_ms": {
+          "n": 42,
+          "median_ms": 15.759453,
+          "min_ms": 12.99761,
+          "max_ms": 18.163927,
+          "p95_nearest_rank_ms": 18.039499
+        },
+        "up_to_draw_ms": {
+          "n": 42,
+          "median_ms": 22.936293,
+          "min_ms": 20.915515,
+          "max_ms": 37.620757,
+          "p95_nearest_rank_ms": 27.228553
+        }
+      },
+      "phrase_rebind_first": {
+        "down_to_ic_ms": {
+          "n": 6,
+          "median_ms": 54.535168,
+          "min_ms": 48.389392,
+          "max_ms": 57.261462,
+          "p95_nearest_rank_ms": 57.261462
+        },
+        "up_to_ic_ms": {
+          "n": 6,
+          "median_ms": 15.864374,
+          "min_ms": 12.721514,
+          "max_ms": 17.742976,
+          "p95_nearest_rank_ms": 17.742976
+        },
+        "up_to_edit_ms": {
+          "n": 6,
+          "median_ms": 17.0165425,
+          "min_ms": 13.498955,
+          "max_ms": 18.419798,
+          "p95_nearest_rank_ms": 18.419798
+        },
+        "up_to_draw_ms": {
+          "n": 6,
+          "median_ms": 22.445801,
+          "min_ms": 21.32577,
+          "max_ms": 27.004309,
+          "p95_nearest_rank_ms": 27.004309
+        }
+      },
+      "phrase_rebind_warm": {
+        "down_to_ic_ms": {
+          "n": 42,
+          "median_ms": 54.8272975,
+          "min_ms": 42.80917,
+          "max_ms": 61.444404,
+          "p95_nearest_rank_ms": 59.511311
+        },
+        "up_to_ic_ms": {
+          "n": 42,
+          "median_ms": 14.537794,
+          "min_ms": 12.202189,
+          "max_ms": 17.008375,
+          "p95_nearest_rank_ms": 16.559846
+        },
+        "up_to_edit_ms": {
+          "n": 42,
+          "median_ms": 15.359637500000002,
+          "min_ms": 12.982565,
+          "max_ms": 17.855045,
+          "p95_nearest_rank_ms": 17.379035
+        },
+        "up_to_draw_ms": {
+          "n": 42,
+          "median_ms": 22.924165000000002,
+          "min_ms": 20.095704,
+          "max_ms": 27.873786,
+          "p95_nearest_rank_ms": 26.873632
+        }
+      }
+    },
+    "direct": {
+      "ni_fresh_first": {
+        "down_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_edit_ms": {
+          "n": 0
+        },
+        "up_to_draw_ms": {
+          "n": 0
+        }
+      },
+      "ni_fresh_warm": {
+        "down_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_edit_ms": {
+          "n": 0
+        },
+        "up_to_draw_ms": {
+          "n": 0
+        }
+      },
+      "ni_rebind_first": {
+        "down_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_edit_ms": {
+          "n": 0
+        },
+        "up_to_draw_ms": {
+          "n": 0
+        }
+      },
+      "ni_rebind_warm": {
+        "down_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_ic_ms": {
+          "n": 0
+        },
+        "up_to_edit_ms": {
+          "n": 0
+        },
+        "up_to_draw_ms": {
+          "n": 0
+        }
+      },
+      "phrase_fresh_first": {
+        "down_to_ic_ms": {
+          "n": 6,
+          "median_ms": 56.593016500000004,
+          "min_ms": 50.076587,
+          "max_ms": 74.455402,
+          "p95_nearest_rank_ms": 74.455402
+        },
+        "up_to_ic_ms": {
+          "n": 6,
+          "median_ms": 18.4377985,
+          "min_ms": 16.025813,
+          "max_ms": 33.595299,
+          "p95_nearest_rank_ms": 33.595299
+        },
+        "up_to_edit_ms": {
+          "n": 6,
+          "median_ms": 24.226463000000003,
+          "min_ms": 17.990279,
+          "max_ms": 35.732627,
+          "p95_nearest_rank_ms": 35.732627
+        },
+        "up_to_draw_ms": {
+          "n": 6,
+          "median_ms": 38.776371999999995,
+          "min_ms": 24.215143,
+          "max_ms": 39.306986,
+          "p95_nearest_rank_ms": 39.306986
+        }
+      },
+      "phrase_fresh_warm": {
+        "down_to_ic_ms": {
+          "n": 42,
+          "median_ms": 46.9912315,
+          "min_ms": 39.231625,
+          "max_ms": 56.663919,
+          "p95_nearest_rank_ms": 53.534001
+        },
+        "up_to_ic_ms": {
+          "n": 42,
+          "median_ms": 8.4450295,
+          "min_ms": 3.813114,
+          "max_ms": 14.279183,
+          "p95_nearest_rank_ms": 12.538494
+        },
+        "up_to_edit_ms": {
+          "n": 42,
+          "median_ms": 9.3295225,
+          "min_ms": 4.569165,
+          "max_ms": 14.96323,
+          "p95_nearest_rank_ms": 13.27617
+        },
+        "up_to_draw_ms": {
+          "n": 42,
+          "median_ms": 23.261826499999998,
+          "min_ms": 12.02765,
+          "max_ms": 27.21326,
+          "p95_nearest_rank_ms": 26.06012
+        }
+      },
+      "phrase_rebind_first": {
+        "down_to_ic_ms": {
+          "n": 6,
+          "median_ms": 43.345021,
+          "min_ms": 39.652456,
+          "max_ms": 52.823695,
+          "p95_nearest_rank_ms": 52.823695
+        },
+        "up_to_ic_ms": {
+          "n": 6,
+          "median_ms": 4.245647,
+          "min_ms": 3.647647,
+          "max_ms": 10.859874,
+          "p95_nearest_rank_ms": 10.859874
+        },
+        "up_to_edit_ms": {
+          "n": 6,
+          "median_ms": 7.182943,
+          "min_ms": 4.306576,
+          "max_ms": 11.615574,
+          "p95_nearest_rank_ms": 11.615574
+        },
+        "up_to_draw_ms": {
+          "n": 6,
+          "median_ms": 24.0566935,
+          "min_ms": 21.96032,
+          "max_ms": 25.365053,
+          "p95_nearest_rank_ms": 25.365053
+        }
+      },
+      "phrase_rebind_warm": {
+        "down_to_ic_ms": {
+          "n": 42,
+          "median_ms": 46.3553575,
+          "min_ms": 38.388502,
+          "max_ms": 72.082194,
+          "p95_nearest_rank_ms": 52.620457
+        },
+        "up_to_ic_ms": {
+          "n": 42,
+          "median_ms": 6.341956,
+          "min_ms": 3.524424,
+          "max_ms": 29.562825,
+          "p95_nearest_rank_ms": 11.307147
+        },
+        "up_to_edit_ms": {
+          "n": 42,
+          "median_ms": 8.463551500000001,
+          "min_ms": 4.136517,
+          "max_ms": 30.465209,
+          "p95_nearest_rank_ms": 12.233435
+        },
+        "up_to_draw_ms": {
+          "n": 42,
+          "median_ms": 23.496686500000003,
+          "min_ms": 6.404748,
+          "max_ms": 39.34297,
+          "p95_nearest_rank_ms": 26.281586
+        }
+      }
+    }
+  },
+  "failures": [],
+  "method": "Actual published ARM64 APKs via API30 native bridge; external UP to independent editor; common stable-window guard and 1000ms post-key settle; prepared profile and OS caches, not storage-cold or phone timings."
+}

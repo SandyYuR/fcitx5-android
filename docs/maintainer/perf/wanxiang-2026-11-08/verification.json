@@ -1,0 +1,11 @@
+{
+  "original_yaml_bytes": true,
+  "candidate_36_real_commits_and_source_identity": true,
+  "screen_14_attempts_4752_touch_keys_inputs_and_identity": true,
+  "screen_outputs_all_match": true,
+  "screen_visual_analysis_valid_rounds": 6,
+  "release_records": 384,
+  "release_failures": [],
+  "release_exact_callbacks_and_recomputed_ic_timing": true,
+  "release_complete_384_no_failures": true
+}
