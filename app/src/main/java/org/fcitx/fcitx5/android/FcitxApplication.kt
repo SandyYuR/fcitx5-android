@@ -20,6 +20,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import org.fcitx.fcitx5.android.core.data.DataManager
+import org.fcitx.fcitx5.android.core.engine.RimeEngineProbeService
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.data.BundledPresets
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
@@ -45,8 +46,14 @@ import kotlin.system.exitProcess
 class FcitxApplication : Application(), androidx.work.Configuration.Provider {
 
     private var restoreProcess = false
+    private var engineProbeProcess = false
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
+        // The imported-engine probe is a disposable process. It only loads the packaged JNI
+        // bridge and the explicitly passed read-only file descriptor; normal preferences,
+        // recovery and data initialization must not run there.
+        engineProbeProcess = RimeEngineProbeService.isProbeProcess(base)
+        if (engineProbeProcess) return
         restoreProcess = org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.isRestoreProcess(base)
         if (!restoreProcess) try {
             org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.recoverBeforeInitialization(base)
@@ -113,6 +120,7 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        if (engineProbeProcess) return
         if (restoreProcess) { instance = this; return }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !userManager.isUserUnlocked) {
             isDirectBootMode = true
@@ -226,7 +234,7 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        if (restoreProcess) return
+        if (restoreProcess || engineProbeProcess) return
         ThemeManager.onSystemPlatteChange(newConfig)
         Locales.onLocaleChange(newConfig)
     }

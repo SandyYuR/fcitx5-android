@@ -3,6 +3,7 @@ package org.fcitx.fcitx5.android.core
 
 import android.content.Context
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import androidx.tracing.trace
 import kotlinx.coroutines.*
@@ -17,6 +18,11 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.data.DataManager
+import org.fcitx.fcitx5.android.core.engine.ResolvedRimeEngine
+import org.fcitx.fcitx5.android.core.engine.RimeEngineKind
+import org.fcitx.fcitx5.android.core.engine.RimeEnginePlugins
+import org.fcitx.fcitx5.android.core.engine.RimeEngineSelection
+import org.fcitx.fcitx5.android.core.engine.RimeEngineStore
 import org.fcitx.fcitx5.android.data.WanxiangPayload
 import org.fcitx.fcitx5.android.data.WanxiangUpdateTransaction
 import org.fcitx.fcitx5.android.data.WanxiangAdvancedFiles
@@ -79,6 +85,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private val flow = MutableSharedFlow<FcitxEvent<*>>(extraBufferCapacity = 64)
     override val eventFlow = flow.asSharedFlow()
     private val config = DirectRimeConfig(this.context)
+    private val engineRepository by lazy { RimeEngineStore.repository(this.context) }
+    private var activeEngineSelection = RimeEngineSelection.Builtin
+    private var newEngineActivation = false
     @Volatile private var started = false
     @Volatile private var snapshot: Snapshot? = null
     private var program = ""
@@ -138,12 +147,25 @@ class DirectRimeBackend(context: Context) : InputEngine {
             try {
                 startupStage("assets") { DataManager.sync() }
                 startupStage("config") { config.load() }
+                newEngineActivation = startupStage("engine-selection") { configureSelectedEngine() }
                 startupStage("native") { Native.start(shared.absolutePath, config.user.absolutePath, BuildConfig.VERSION_NAME,
-                    fullCheck = WanxiangAdvancedFiles.needsDeploymentRepair(config.user)) }
+                    fullCheck = newEngineActivation || WanxiangAdvancedFiles.needsDeploymentRepair(config.user)) }
                 started = true
                 startupError = ""
                 refreshSchemas()
+                if (!directBootMode) engineRepository.activationSucceeded(activeEngineSelection)
             } catch (e: Exception) {
+                val failedSelection = activeEngineSelection
+                if (!directBootMode && failedSelection.kind != RimeEngineKind.BUILTIN) {
+                    engineRepository.activationFailed(failedSelection,
+                        "外部引擎启动失败：${e.message ?: e.javaClass.simpleName}")
+                    // The next process starts from the persisted fallback. Do not attempt to
+                    // initialize another librime in a process where external constructors or
+                    // setup may already have run, including an ordinary restart of a stable DSO.
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        android.os.Process.killProcess(android.os.Process.myPid())
+                    }, 500)
+                }
                 startupError = e.message ?: "引擎启动失败"
                 Timber.e(e, "Direct Rime startup failed")
                 showUnavailable(startupError)
@@ -180,6 +202,46 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override fun stop() { runBlocking { runtime.stopAsync().await() } }
 
     private val shared get() = File(DataManager.dataDir, "usr/share/rime-data")
+    private fun configureSelectedEngine(): Boolean {
+        if (directBootMode) {
+            activeEngineSelection = RimeEngineSelection.Builtin
+            return false
+        }
+        val (state, pendingActivation) = engineRepository.beginActivation()
+        newEngineActivation = pendingActivation
+        val plugins = if (state.active.kind == RimeEngineKind.PLUGIN) {
+            RimeEnginePlugins.discover(context)
+        } else emptyList()
+        var resolved = engineRepository.resolveActive(plugins)
+        var fellBackDuringResolution = false
+        if (resolved.selection != state.active) {
+            fellBackDuringResolution = true
+            engineRepository.activationFailed(state.active,
+                "已选择的外部引擎文件、签名或安装状态发生变化，已回退到内置引擎")
+            resolved = ResolvedRimeEngine.Builtin
+        }
+        // Record the selected external engine before validating its profile so a removed or
+        // renamed directory follows the same persisted fallback path as native load failures.
+        activeEngineSelection = resolved.selection
+        val profiles = config.directoryState().findByName("Profiles")?.value.orEmpty()
+            .lineSequence().filter(String::isNotBlank).toSet()
+        val targetProfile = when (resolved) {
+            ResolvedRimeEngine.Builtin -> state.builtinProfile
+                ?.takeIf { (pendingActivation || state.restoreBuiltinProfile || fellBackDuringResolution) && it in profiles }
+            is ResolvedRimeEngine.External -> resolved.profile.also {
+                require(it in profiles) { "引擎绑定的方案工作目录不存在：$it" }
+            }
+        }
+        if (targetProfile != null && targetProfile != config.current) config.switch(targetProfile)
+        if (resolved is ResolvedRimeEngine.External) {
+            val file = File(resolved.filePath)
+            require(file.isFile) { "外部引擎文件不存在" }
+            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
+                Native.configureExternal(descriptor.fd, resolved.entrySymbol, resolved.payloadSha256)
+            }
+        }
+        return pendingActivation && resolved.selection == state.active
+    }
     private inline fun <T> startupStage(name: String, crossinline block: () -> T): T {
         val start = SystemClock.elapsedRealtime()
         return try { trace("rime.direct.startup.$name") { block() } }

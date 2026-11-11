@@ -1,4 +1,5 @@
 #include "engine.h"
+#include "engine-library.h"
 #include "jni-strings.h"
 #include <jni.h>
 #include <algorithm>
@@ -175,10 +176,60 @@ extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void*) {
 extern "C" JNIEXPORT void JNICALL JNI_METHOD(start)(JNIEnv* env, jobject, jstring shared, jstring user,
                                                     jstring version, jboolean fullCheck) {
     try {
-        if (!engine) engine = std::make_unique<Engine>(rime_get_api());
+        if (!engine) engine = std::make_unique<Engine>(direct_rime::selectedRimeApi());
         instance().start(string(env, shared), string(env, user), string(env, version), fullCheck);
         clearSnapshotCache(env);
     } catch (const std::exception& e) { error(env, e); }
+}
+extern "C" JNIEXPORT jobjectArray JNICALL
+Java_org_fcitx_directrime_Native_configureExternal(JNIEnv* env, jobject, jint fd,
+                                                    jstring entry, jstring identity) {
+    try {
+        const auto identityValue = string(env, identity);
+        // Engine survives an ordinary stop/start in the same process. Reusing the same
+        // already-loaded DSO is valid; changing from the built-in engine or another DSO
+        // still requires the process restart performed by the settings UI.
+        if (engine && !direct_rime::externalEngineConfiguredFor(identityValue))
+            throw std::logic_error("本进程已经使用另一套引擎，请重启后切换");
+        const auto info = direct_rime::configureExternalEngine(fd, string(env, entry), identityValue);
+        auto array = env->NewObjectArray(3, stringArrayClass, nullptr);
+        if (!array) return nullptr;
+        LocalRef<jstring> version(env, string(env, info.version));
+        LocalRef<jstring> size(env, string(env, std::to_string(info.apiDataSize)));
+        std::string capabilities;
+        for (size_t i = 0; i < info.capabilities.size(); ++i) {
+            if (i) capabilities += ',';
+            capabilities += info.capabilities[i];
+        }
+        LocalRef<jstring> capabilityText(env, string(env, capabilities));
+        if (!version || !size || !capabilityText) return nullptr;
+        env->SetObjectArrayElement(array, 0, version.get());
+        env->SetObjectArrayElement(array, 1, size.get());
+        env->SetObjectArrayElement(array, 2, capabilityText.get());
+        return env->ExceptionCheck() ? nullptr : array;
+    } catch (const std::exception& e) { error(env, e); return nullptr; }
+}
+extern "C" JNIEXPORT jobjectArray JNICALL
+Java_org_fcitx_fcitx5_android_core_engine_RimeEngineProbeNative_probe(
+    JNIEnv* env, jobject, jint fd, jstring entry, jstring identity) {
+    try {
+        const auto info = direct_rime::probeExternalEngine(fd, string(env, entry), string(env, identity));
+        auto array = env->NewObjectArray(3, stringArrayClass, nullptr);
+        if (!array) return nullptr;
+        LocalRef<jstring> version(env, string(env, info.version));
+        LocalRef<jstring> size(env, string(env, std::to_string(info.apiDataSize)));
+        std::string capabilities;
+        for (size_t i = 0; i < info.capabilities.size(); ++i) {
+            if (i) capabilities += ',';
+            capabilities += info.capabilities[i];
+        }
+        LocalRef<jstring> capabilityText(env, string(env, capabilities));
+        if (!version || !size || !capabilityText) return nullptr;
+        env->SetObjectArrayElement(array, 0, version.get());
+        env->SetObjectArrayElement(array, 1, size.get());
+        env->SetObjectArrayElement(array, 2, capabilityText.get());
+        return env->ExceptionCheck() ? nullptr : array;
+    } catch (const std::exception& e) { error(env, e); return nullptr; }
 }
 extern "C" JNIEXPORT void JNICALL JNI_METHOD(stop)(JNIEnv* env, jobject) {
     try { if (engine) instance().stop(); clearSnapshotCache(env); } catch (const std::exception& e) { error(env, e); }

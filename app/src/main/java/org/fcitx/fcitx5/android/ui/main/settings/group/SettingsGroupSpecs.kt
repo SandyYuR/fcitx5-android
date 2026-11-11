@@ -15,6 +15,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeListActivity
+import org.fcitx.fcitx5.android.ui.main.settings.im.RimeEngineManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
 
 /** 分组内一条目的跳转目标。 */
@@ -97,6 +98,12 @@ object SettingsGroupSpecs {
                         R.string.rime_settings,
                         R.drawable.ic_status_rime,
                         SettingsRoute.InputMethodConfig(rimeTitle, "rime")
+                    ),
+                    SettingsGroupEntry.activity(
+                        R.string.rime_engine_variants_title,
+                        R.drawable.ic_baseline_extension_24,
+                        RimeEngineManagerActivity::class.java,
+                        R.string.rime_engine_variants_summary
                     ),
                     // 候选栏样式与候选窗口同属「候选」族，两处都留在本组；
                     // 键盘页不再重复挂这一项（同一目标两条路径会让用户怀疑哪个是真的）。
