@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "task_started_date": "2026-11-11",
+  "recorded_utc": "2026-11-11T21:49:20.057581+00:00",
+  "reader_timezone": "Asia/Shanghai",
+  "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "signed_release_source": "090a43e1485b9a6d76a28a31a6503c41e3e3db29",
+  "frozen_inputs": "../inputs.json",
+  "original_debug_products": "../products/debug-products.json",
+  "fixture_manifest": "../input-metadata/fixture.manifest.json",
+  "production_code_sdk_apks_changed": false,
+  "trace_result_not_admitted_to_untraced_tables": true,
+  "tools": {
+    "repository": "SandyYuR/fcitx5-android",
+    "branch": "perf/investigate-input-latency-20261111",
+    "analysis_head": "c780cf55ea2b23770bc2bbe8d063082d780fa7b2",
+    "path": "tools/latency-investigation-20261111",
+    "candidate_driver": "8f25c2e2818f6b58b649baa3a3d6ea9d72afa71f",
+    "debug_repeat_driver": "fd24e1b408cd1fe58c5e0d61c0406b0aa1700207",
+    "release_driver": "0c8ebf1829acfb860264b60cfe0093793149aecb",
+    "trace_processor_version": "v59.1-1e9c61e9844affd7dccd3d42d9ea9f3a3d10cf6d",
+    "trace_processor_sha256": "2434129a3af4dc9e2034a476f7b76447b490975213e301769310d3bd0d5d6458",
+    "note": "Analysis source is pinned separately from actual measurement drivers; final helper additionally retains help stderr. Native traces already existed in unchanged APKs."
+  },
+  "validation": {
+    "correct_selections": 114,
+    "candidate_selections": 18,
+    "debug_repeat_selections": 64,
+    "release_control_selections": 32,
+    "trace_anchors": 132,
+    "valid_traces": 6,
+    "missing_native_anchors": 0,
+    "trace_loss_error_stats": [],
+    "old_797_hashes_unchanged": true,
+    "prior_supplement_1063_hashes_unchanged": true
+  },
+  "runs": [
+    {
+      "id": 43035871103,
+      "name": "Input latency investigation 2026-11-11",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43035871103",
+      "head_branch": "perf/investigate-input-latency-20261111",
+      "head_sha": "8f25c2e2818f6b58b649baa3a3d6ea9d72afa71f",
+      "created_at": "2026-11-11T14:10:09Z",
+      "run_started_at": "2026-11-11T14:10:09Z",
+      "updated_at": "2026-11-11T14:14:34Z",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 43037095724,
+      "name": "Input latency investigation 2026-11-11",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43037095724",
+      "head_branch": "perf/investigate-input-latency-20261111",
+      "head_sha": "a18a3ef4852813c936362581903263104f99c854",
+      "created_at": "2026-11-11T14:17:46Z",
+      "run_started_at": "2026-11-11T14:17:46Z",
+      "updated_at": "2026-11-11T14:25:07Z",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 43100344896,
+      "name": "Input latency investigation 2026-11-11",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43100344896",
+      "head_branch": "perf/investigate-input-latency-20261111",
+      "head_sha": "28dfe7233cb61fc012e9ae3576da852b8287b9e5",
+      "created_at": "2026-11-11T21:07:22Z",
+      "run_started_at": "2026-11-11T21:07:22Z",
+      "updated_at": "2026-11-11T21:11:54Z",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 43101253611,
+      "name": "Input latency investigation 2026-11-11",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43101253611",
+      "head_branch": "perf/investigate-input-latency-20261111",
+      "head_sha": "fd24e1b408cd1fe58c5e0d61c0406b0aa1700207",
+      "created_at": "2026-11-11T21:13:50Z",
+      "run_started_at": "2026-11-11T21:13:50Z",
+      "updated_at": "2026-11-11T21:19:16Z",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 43103250948,
+      "name": "Input latency investigation 2026-11-11",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43103250948",
+      "head_branch": "perf/investigate-input-latency-20261111",
+      "head_sha": "7f6e06d7ed7a03c9a10cc4ee814bfe4ce79335b7",
+      "created_at": "2026-11-11T21:27:46Z",
+      "run_started_at": "2026-11-11T21:27:46Z",
+      "updated_at": "2026-11-11T21:33:17Z",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 43104334216,
+      "name": "Input latency investigation 2026-11-11",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43104334216",
+      "head_branch": "perf/investigate-input-latency-20261111",
+      "head_sha": "91d6bfb39c564b6fa40bc9faf8fa4b844d9854d0",
+      "created_at": "2026-11-11T21:35:05Z",
+      "run_started_at": "2026-11-11T21:35:05Z",
+      "updated_at": "2026-11-11T21:40:17Z",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 43105223152,
+      "name": "Input latency investigation 2026-11-11",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43105223152",
+      "head_branch": "perf/investigate-input-latency-20261111",
+      "head_sha": "0c8ebf1829acfb860264b60cfe0093793149aecb",
+      "created_at": "2026-11-11T21:41:12Z",
+      "run_started_at": "2026-11-11T21:41:12Z",
+      "updated_at": "2026-11-11T21:45:52Z",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "candidate-trace.zip",
+      "run_id": 43035871103,
+      "id": 13864225004,
+      "name": "latency-investigation-candidate-20261111",
+      "size_in_bytes": 7476719,
+      "digest": "sha256:fec2653d5b279b727c854c3d1b4c18ba4344f6bc0ecc4fea85292e84b4700cb6",
+      "created_at": "2026-11-11T14:14:32Z",
+      "expires_at": "2026-12-11T14:10:10Z"
+    },
+    {
+      "file": "repeat-initial-failure.zip",
+      "run_id": 43035871103,
+      "id": 13861994823,
+      "name": "latency-investigation-repeat-20261111",
+      "size_in_bytes": 38008,
+      "digest": "sha256:d3c5cdcb0c2e4700459f341df0417ce0040e96ad0d872b2bf44818d1ae1d0ece",
+      "created_at": "2026-11-11T14:13:00Z",
+      "expires_at": "2026-12-11T14:10:10Z"
+    },
+    {
+      "file": "repeat-root-failure.zip",
+      "run_id": 43037095724,
+      "id": 13863762002,
+      "name": "latency-investigation-repeat-20261111",
+      "size_in_bytes": 45974,
+      "digest": "sha256:cc3259a96a7307a847bc096d9df07b0f46f65f0915ac5cf1eaf68ba971a8b392",
+      "created_at": "2026-11-11T14:25:04Z",
+      "expires_at": "2026-12-11T14:17:47Z"
+    },
+    {
+      "file": "repeat-bind-failure.zip",
+      "run_id": 43100344896,
+      "id": 13891466974,
+      "name": "latency-investigation-repeat-20261111",
+      "size_in_bytes": 58488,
+      "digest": "sha256:04512055044dcc55fc1d871ec61734e1914d8fba6ef226595ff98dc7c810eb8a",
+      "created_at": "2026-11-11T21:11:51Z",
+      "expires_at": "2026-12-11T21:07:24Z"
+    },
+    {
+      "file": "repeat-trace.zip",
+      "run_id": 43101253611,
+      "id": 13891512793,
+      "name": "latency-investigation-repeat-20261111",
+      "size_in_bytes": 14554905,
+      "digest": "sha256:67b6a45d81b05046c884b70068281ff8be46f23960a5a5197118eebf822aa7e8",
+      "created_at": "2026-11-11T21:19:12Z",
+      "expires_at": "2026-12-11T21:13:51Z"
+    },
+    {
+      "file": "release-trace-start-failure.zip",
+      "run_id": 43103250948,
+      "id": 13893466176,
+      "name": "latency-investigation-release-20261111",
+      "size_in_bytes": 328838,
+      "digest": "sha256:ca89c1ad6e58c506067a85702b18c497ddfdfd3c50a209a9fd6176afc76db08f",
+      "created_at": "2026-11-11T21:33:12Z",
+      "expires_at": "2026-12-11T21:27:47Z"
+    },
+    {
+      "file": "release-api30-start-failure.zip",
+      "run_id": 43104334216,
+      "id": 13894025607,
+      "name": "latency-investigation-release-20261111",
+      "size_in_bytes": 326096,
+      "digest": "sha256:f96d475f58173a03812432b9f053759502e0e1c1ca11afc63a6c23dc0eccb761",
+      "created_at": "2026-11-11T21:40:13Z",
+      "expires_at": "2026-12-11T21:35:06Z"
+    },
+    {
+      "file": "release-control-trace.zip",
+      "run_id": 43105223152,
+      "id": 13895005001,
+      "name": "latency-investigation-release-20261111",
+      "size_in_bytes": 5466942,
+      "digest": "sha256:ee93617916173255960375f9b2df2dd3ed9c54ccd9bda77762b97fdc6973b45d",
+      "created_at": "2026-11-11T21:45:49Z",
+      "expires_at": "2026-12-11T21:41:15Z"
+    }
+  ],
+  "workflow": {
+    "id": 387536957,
+    "original_state": "disabled_manually",
+    "restored_state": "disabled_manually",
+    "verified_after_last_run": true
+  },
+  "limits": [
+    "Different VM runs; diagnostic trace overhead; do not claim a speedup from unchanged APKs.",
+    "Debug x86/API35 and Release ARM64 native bridge/API30 are separate environments.",
+    "Only 3 fresh candidate processes and one process per repeated case, not tail distributions.",
+    "Original 56.75ms dispatch wait and original Release eighth peak lack attribution trace.",
+    "No native per-key fault/io counters, method CPU profile, storage-cold launch, real phone trace or large personal user dictionary."
+  ]
+}

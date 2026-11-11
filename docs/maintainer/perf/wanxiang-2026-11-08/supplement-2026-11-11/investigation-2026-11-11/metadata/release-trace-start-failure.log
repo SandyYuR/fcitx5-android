@@ -1,0 +1,241 @@
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	﻿2026-11-11T21:28:39.6655240Z ##[group]Run reactivecircus/android-emulator-runner@v2
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6655606Z with:
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6655793Z   api-level: 30
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6656047Z   target: google_apis
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6656261Z   arch: x86_64
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6656469Z   disable-animations: true
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6658924Z   script: adb root
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	adb wait-for-device
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	if [ 'release' = candidate ]; then python3 tools/latency-investigation-20261111/candidate-trace.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-candidate --profile --trials 3; elif [ 'release' = repeat ]; then python3 tools/latency-investigation-20261111/repeat-trace.py --products "$RUNNER_TEMP/products" --inputs "$RUNNER_TEMP/inputs" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-repeat; else python3 tools/latency-investigation-20261111/release-control.py --inputs "$RUNNER_TEMP/inputs" --output build/latency-release --case ni --trials 1 --rounds 16; fi
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6661731Z   cores: 2
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6661925Z   avd-name: test
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6662131Z   force-avd-creation: true
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6662376Z   emulator-boot-timeout: 600
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6662618Z   emulator-port: 5554
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6663037Z   emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6663503Z   disable-spellchecker: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6663753Z   disable-linux-hw-accel: auto
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6663992Z   enable-hw-keyboard: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6664213Z   channel: stable
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6664404Z env:
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6664693Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6665171Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6665551Z   MAVEN_ARGS: -ntp
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6665773Z   ANDROID_HOME: /usr/local/lib/android/sdk
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6666067Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.6666349Z ##[endgroup]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7265583Z ##[group]Configure emulator
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7268301Z API level: 30
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7269088Z System image API level: 30
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7269923Z target: google_apis
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7270606Z CPU architecture: x86_64
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7271263Z Hardware profile: 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7271788Z Cores: 2
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7272270Z RAM size: 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7272745Z Heap size: 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7273346Z SD card path or size: 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7273823Z Disk size: 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7274445Z AVD name: test
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7275311Z force avd creation: true
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7276029Z Emulator boot timeout: 600
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7276705Z emulator port: 5554
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7277817Z emulator options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7278917Z disable animations: true
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7279879Z disable spellchecker: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7280621Z disable Linux hardware acceleration: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7281397Z enable hardware keyboard: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7282553Z Channel: 0 (stable)
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7283120Z Script:
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7283573Z adb root
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7284065Z adb wait-for-device
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7289888Z if [ 'release' = candidate ]; then python3 tools/latency-investigation-20261111/candidate-trace.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-candidate --profile --trials 3; elif [ 'release' = repeat ]; then python3 tools/latency-investigation-20261111/repeat-trace.py --products "$RUNNER_TEMP/products" --inputs "$RUNNER_TEMP/inputs" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-repeat; else python3 tools/latency-investigation-20261111/release-control.py --inputs "$RUNNER_TEMP/inputs" --output build/latency-release --case ni --trials 1 --rounds 16; fi
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7294457Z Pre emulator launch script:
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7295759Z ##[endgroup]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7296615Z ##[group]Install Android SDK
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:39.7338173Z [command]/usr/bin/sh -c \yes | sdkmanager --licenses > /dev/null
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:46.8734836Z Installing latest build tools, platform tools, and platform.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:46.8753957Z [command]/usr/bin/sh -c \sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-30'> /dev/null
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:53.1769714Z Installing latest emulator.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:28:53.1787900Z [command]/usr/bin/sh -c \sdkmanager --install emulator --channel=0 > /dev/null
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:02.4603627Z Installing system images.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:02.4622001Z [command]/usr/bin/sh -c \sdkmanager --install 'system-images;android-30;google_apis;x86_64' --channel=0 > /dev/null
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:30.5908855Z ##[endgroup]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:30.5910765Z ##[group]Create AVD
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:30.5911400Z Creating AVD.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:30.5939034Z [command]/usr/bin/sh -c \echo no | avdmanager create avd --force -n test --package 'system-images;android-30;google_apis;x86_64'
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.4402621Z Loading local repository...                                                     
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.4406798Z [=========                              ] 25% Loading local repository...       
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.4407618Z [=========                              ] 25% Fetch remote repository...        
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.4408096Z [=======================================] 100% Fetch remote repository...       
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.7398237Z Auto-selecting single ABI x86_64
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.8385019Z Do you wish to create a custom hardware profile? [no] [command]/usr/bin/sh -c \printf 'hw.cpu.ncore=2\n' >> /home/runner/.android/avd/test.avd/config.ini
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.8410116Z ##[endgroup]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.8413137Z ##[group]Launch Emulator
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.8413751Z Starting emulator.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.8430997Z [command]/usr/bin/sh -c \/usr/local/lib/android/sdk/emulator/emulator -port 5554 -avd test -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim &
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.8575741Z INFO         | Android emulator version 37.2.13.0 (build_id 16740729) (CL:N/A)
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.8576396Z INFO         | Graphics backend: gfxstream
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.8577048Z INFO         | Found systemPath /usr/local/lib/android/sdk/system-images/android-30/google_apis/x86_64/
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9109404Z INFO         | Saving last run QEMU version for the AVD to 2
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9110883Z WARNING      | Please update the emulator to one that supports the feature(s): Vulkan
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9112071Z INFO         | Increasing RAM size to 2048MB
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9112908Z ##############################################################################
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9113467Z ##                        WARNING - ACTION REQUIRED                         ##
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9114009Z ##  Consider using the '-metrics-collection' flag to help improve the       ##
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9114581Z ##  emulator by sending anonymized usage data. Or use the '-no-metrics'     ##
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9115170Z ##  flag to bypass this warning and turn off the metrics collection.        ##
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9116039Z ##  In a future release this warning will turn into a one-time blocking     ##
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9116592Z ##  prompt to ask for explicit user input regarding metrics collection.     ##
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9117080Z ##                                                                          ##
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9117571Z ##  Please see '-help-metrics-collection' for more details. You can use     ##
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9118136Z ##  '-metrics-to-file' or '-metrics-to-console' flags to see what type of   ##
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9118702Z ##  data is being collected by emulator as part of usage statistics.        ##
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9119621Z ##############################################################################
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9120072Z INFO         | Guest GLES Driver: Auto (ext controls)
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9120885Z INFO         | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:swiftshader
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9121423Z INFO         | Checking system compatibility:
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9121804Z INFO         |   Checking: hasSufficientDiskSpace
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9122461Z INFO         |      Ok: Disk space requirements to run avd: `test` are met
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9123046Z INFO         |   Checking: hasSufficientHwGpu
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9123483Z INFO         |      Ok: Hardware GPU compatibility checks are not required
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9123897Z INFO         |   Checking: hasSufficientSystem
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9124325Z INFO         |      Ok: System requirements to run avd: `test` are met
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:31.9125315Z WARNING      | Feature QuickbootFileBacked is disabled due to stability issues, if you really want that, the environment variable ANDROID_EMU_FORCE_QUICKBOOT_FILE_BACKED need to set to 1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:32.1772497Z WARNING      | FeatureControl is requesting a non existing feature.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0497149Z ERROR        | Unable to connect to adb daemon on port: 5037
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0499603Z INFO         | Storing crashdata in: /tmp/android-runner/emu-crash-37.2.13.db, detection is enabled for process: 2780
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0516517Z INFO         | Initializing gfxstream backend
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0517675Z INFO         | startOpenglesRendererImpl: gpu info
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0518489Z INFO         | 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0520808Z INFO         | initIcdPaths: ICD set to 'swiftshader', using Swiftshader ICD
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0522151Z INFO         | Setting ICD filenames for the loader = /usr/local/lib/android/sdk/emulator/lib64/vulkan/vk_swiftshader_icd.json
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0523302Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/lib64/vulkan/libvulkan.so]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0524369Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/lib64/vulkan/libvulkan.so.1]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0525348Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/lib64/vulkan/libvulkan.so]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0526248Z INFO         | Added library: /usr/local/lib/android/sdk/emulator/lib64/vulkan/libvulkan.so
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0585646Z INFO         | Selecting Vulkan device: SwiftShader Device (Subzero), Version: 1.3.0
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.0586805Z INFO         | Using Vulkan externalMemoryMode: OpaqueFd for VkEmulation
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1111291Z INFO         | Format VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16 does not support YCbCr sampler conversion
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1142819Z INFO         | SharedLibrary::open for [libX11]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1143711Z INFO         | SharedLibrary::open for [libX11-xcb]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1144935Z WARNING      | Could not open libX11-xcb.so, try libX11-xcb.so.1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1145551Z INFO         | SharedLibrary::open for [libX11-xcb.so.1]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1258448Z INFO         | Initializing VkEmulation features:
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1259626Z INFO         |     glInteropSupported: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1260297Z INFO         |     useDeferredCommands: true
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1261500Z INFO         |     createResourceWithRequirements: true
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1262206Z INFO         |     useVulkanComposition: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1262871Z INFO         |     useVulkanNativeSwapchain: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1263532Z INFO         |     enable guestRenderDoc: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1264174Z INFO         |     ASTC LDR emulation mode: Gpu
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1264811Z INFO         |     enable ETC2 emulation: true
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1265446Z INFO         |     enable Ycbcr emulation: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1266054Z INFO         |     guestVulkanOnly: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1266688Z INFO         |     useDedicatedAllocations: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1267373Z INFO         |     guestVulkanMaxApiVersion: 1.3.0
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1268115Z INFO         |     enableProtectedMemoryEmulation: false
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1274330Z INFO         | Graphics Adapter Vendor Google (Google Inc.)
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1275388Z INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (Google SwiftShader)
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1276545Z INFO         | Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1280559Z INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_standard_derivatives GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1282727Z INFO         | Graphics Device Extensions N/A
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1283138Z INFO         | Disabling sparse binding feature support
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1380367Z INFO         | Userspace boot properties:
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1381334Z INFO         |   android.bootanim=0
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1382114Z INFO         |   android.qemud=1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1383170Z INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1384466Z INFO         |   androidboot.hardware=ranchu
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1385215Z INFO         |   androidboot.hardware.vulkan=ranchu
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1385939Z INFO         |   androidboot.serialno=EMULATOR37X2X13X0
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1387089Z INFO         |   androidboot.vbmeta.digest=fe75c2a5d8acc56679b9ff248d9bbb4830bcd72c5bca68461d9e9de20914a4e1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1388127Z INFO         |   androidboot.vbmeta.hash_alg=sha256
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1388782Z INFO         |   androidboot.vbmeta.size=6144
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1389599Z INFO         |   qemu=1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1390075Z INFO         |   qemu.avd_name=test
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1390695Z INFO         |   qemu.camera_hq_edge_processing=0
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1391330Z INFO         |   qemu.camera_protocol_ver=1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1392013Z INFO         |   qemu.dalvik.vm.heapsize=512m
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1392590Z INFO         |   qemu.encrypt=1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1393106Z INFO         |   qemu.gles=1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1393615Z INFO         |   qemu.gltransport=pipe
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1394272Z INFO         |   qemu.gltransport.drawFlushInterval=800
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1394894Z INFO         |   qemu.hwcodec.avcdec=2
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1395451Z INFO         |   qemu.hwcodec.hevcdec=2
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1396018Z INFO         |   qemu.hwcodec.vpxdec=2
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1396610Z INFO         |   qemu.opengles.version=196608
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1397351Z INFO         |   qemu.settings.system.screen_off_timeout=2147483647
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1398035Z INFO         |   qemu.skin=320x640
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1398565Z INFO         |   qemu.uirenderer=skiagl
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1399357Z INFO         |   qemu.virtiowifi=1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1399883Z INFO         |   qemu.vsync=60
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1625864Z WARNING: cannnot unmap ptr 0x7f72c7601000 as it is in the protected range from 0x7f7247600000 to 0x7f72c7800000
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:33.1869575Z INFO         | Monitoring duration of emulator setup.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:34.2890023Z INFO         | Successfully initialized netsim WiFi
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:34.2934086Z INFO         | Setting display: 0 configuration to: 320x640, dpi: 160x160 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:34.2934720Z INFO         | setDisplayActiveConfig: id:0, 320x640
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:34.2935511Z INFO         | emulatorSetupEnvironment: Environment scene is not required
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:34.3015349Z USER_INFO    | Emulator is performing a full startup. This may take upto two minutes, or more.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:34.3018426Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:34.5496070Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:41.8493202Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:41.8526617Z * daemon not running; starting now at tcp:5037
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:42.2735607Z * daemon started successfully
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:42.2737151Z adb: device offline
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:42.2745106Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:44.2791274Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:44.2833834Z adb: device offline
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:44.2841339Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:46.2901544Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:46.2991407Z adb: device offline
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:46.2997758Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:48.3041532Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:48.3100329Z adb: device offline
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:48.3108547Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:50.3150500Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:50.3315185Z 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:52.3372866Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:52.3593715Z 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:54.3642309Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:54.3793417Z 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:56.3851136Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:56.4062882Z 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:58.4144123Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:29:58.5234667Z 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:00.5333365Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:00.6716950Z 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:02.6789947Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:02.8053186Z 1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:02.8080511Z Emulator booted.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:02.8129526Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell input keyevent 82
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:05.6423744Z INFO         | Boot completed in 33751 ms
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:05.6425054Z INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:05.9651433Z Disabling animations.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:05.9671125Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global window_animation_scale 0.0
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:06.3706378Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global transition_animation_scale 0.0
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:06.7223314Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global animator_duration_scale 0.0
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:07.1250446Z ##[endgroup]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:07.1306103Z [command]/usr/bin/sh -c adb root
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:07.1485336Z restarting adbd as root
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:07.5560348Z [command]/usr/bin/sh -c adb wait-for-device
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:30:07.5658647Z [command]/usr/bin/sh -c if [ 'release' = candidate ]; then python3 tools/latency-investigation-20261111/candidate-trace.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-candidate --profile --trials 3; elif [ 'release' = repeat ]; then python3 tools/latency-investigation-20261111/repeat-trace.py --products "$RUNNER_TEMP/products" --inputs "$RUNNER_TEMP/inputs" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-repeat; else python3 tools/latency-investigation-20261111/release-control.py --inputs "$RUNNER_TEMP/inputs" --output build/latency-release --case ni --trials 1 --rounds 16; fi
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8270326Z Traceback (most recent call last):
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8271250Z   File "/home/runner/work/fcitx5-android/fcitx5-android/tools/latency-investigation-20261111/release-control.py", line 267, in <module>
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8271968Z     if __name__=='__main__':main()
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8272709Z   File "/home/runner/work/fcitx5-android/fcitx5-android/tools/latency-investigation-20261111/release-control.py", line 230, in main
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8273638Z     trace_pid=adb('shell','perfetto','--background-wait','--txt','-c','-','-o',remote,input=trace_config)
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8274254Z TypeError: adb() got an unexpected keyword argument 'input'
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8453811Z ##[error]The process '/usr/bin/sh' failed with exit code 1
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8467160Z ##[group]Terminate Emulator
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8468603Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 emu kill
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8515155Z OK: killing emulator, bye bye
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8539909Z OK
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8541258Z ##[endgroup]
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8543674Z INFO         | Wait for emulator (pid 2780) 20 seconds to shutdown gracefully before kill;you can set environment variable ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL(in seconds) to change the default value (20 seconds)
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8545272Z 
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8672632Z USER_INFO    | Snapshots have been disabled by the user, save request is ignored.
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:09.8680214Z INFO         | Saving snapshot 'default_boot' took 1 ms
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:10.2160141Z ERROR        | stop: Not implemented
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:10.2161381Z WARNING      | Emulator client has not yet been configured.. Call configure me first!
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:10.2285177Z INFO         | removeAll
+investigate (release)	Run reactivecircus/android-emulator-runner@v2	2026-11-11T21:33:10.2552436Z WARNING      | Netsim Wifi dns:///localhost:45927 is gone due to Stream removed (CANCELLED)
