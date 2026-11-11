@@ -1,0 +1,7 @@
+Source job: 130504394638
+Selected original job log lines; this is an excerpt, not the full log.
+2026-11-11T11:50:41.3208537Z Traceback (most recent call last):
+2026-11-11T11:50:41.3209646Z   File "/home/runner/work/fcitx5-android/fcitx5-android/tools/wanxiang-20261111/prepare.py", line 106, in <module>
+2026-11-11T11:50:41.3210782Z   File "/home/runner/work/fcitx5-android/fcitx5-android/tools/wanxiang-20261111/prepare.py", line 82, in main
+2026-11-11T11:50:41.3212002Z   File "/home/runner/work/fcitx5-android/fcitx5-android/tools/wanxiang-20261111/prepare.py", line 53, in asset_download
+2026-11-11T11:50:41.3280273Z urllib.error.HTTPError: HTTP Error 404: Not Found

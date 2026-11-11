@@ -1,0 +1,39 @@
+{
+  "products": {
+    "fcitx": {
+      "package": "org.fcitx.fcitx5.android.fx.rime.debug",
+      "apk_sha256": "b081173a1c5a6d13566577c84fbdfa0f1ed745fb38e1fc91efdb92acfd642a94",
+      "native_libraries": [
+        "lib/x86_64/libFcitx5Config.so",
+        "lib/x86_64/libFcitx5Core.so",
+        "lib/x86_64/libFcitx5Utils.so",
+        "lib/x86_64/libandroidfrontend.so",
+        "lib/x86_64/libandroidnotification.so",
+        "lib/x86_64/libc++_shared.so",
+        "lib/x86_64/libclipboard.so",
+        "lib/x86_64/libnative-lib.so",
+        "lib/x86_64/librime.so"
+      ]
+    },
+    "direct": {
+      "package": "org.fcitx.fcitx5.android.fx.rime.debug",
+      "apk_sha256": "51976516f93afccc4529536f09b50ba9628ddf701321f63a8fc5260ab956c4b1",
+      "native_libraries": [
+        "lib/x86_64/libc++_shared.so",
+        "lib/x86_64/libdirect-rime.so",
+        "lib/x86_64/libquickjs.so"
+      ]
+    },
+    "current": {
+      "package": "org.fcitx.fcitx5.android.fx.rime.debug",
+      "apk_sha256": "ac2362b4d12f952187cab7d81a6a54476f0d7061d58867053030952ee39e7f37",
+      "native_libraries": [
+        "lib/x86_64/libc++_shared.so",
+        "lib/x86_64/libdirect-rime.so",
+        "lib/x86_64/libquickjs.so"
+      ]
+    }
+  },
+  "harness_sha256": "e27658a94d476ca14d607c12a165134d405b7493388aa4ef9a2099825cbd8ffa",
+  "host_apk_sha256": "dda8d3ee1122cfc8b2ea7f56da21dc802677698f5bbf6a4512a3828136b9b7e4"
+}

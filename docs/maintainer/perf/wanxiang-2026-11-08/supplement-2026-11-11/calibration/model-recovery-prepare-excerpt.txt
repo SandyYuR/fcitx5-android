@@ -1,0 +1,11 @@
+Source: https://github.com/SandyYuR/fcitx5-android/actions/runs/43016199455/job/130507782412
+Selected original log lines; this is an excerpt, not the complete job log.
+2026-11-11T11:58:10.5330524Z SHA256 digest of downloaded artifact is 20a3c9a841fd0fae1817a4720cc1bb4a0f7c92e9b5398a9d2e430385b0c5f8be
+2026-11-11T11:58:13.8315335Z verified base 25394477 ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999
+2026-11-11T11:58:15.1482636Z verified original model recovered from preserved fixture 769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a
+2026-11-11T11:58:15.7397840Z verified model 418080812 769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a
+2026-11-11T11:58:15.7573551Z verified original production APK recovered from preserved inputs fcitx f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922
+2026-11-11T11:58:15.7742590Z verified fcitx 11906742 f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922
+2026-11-11T11:58:15.7896480Z verified original production APK recovered from preserved inputs direct b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878
+2026-11-11T11:58:15.8042652Z verified direct 10238250 b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878
+2026-11-11T11:58:18.8606328Z verified current 10120461 0a96e27c8ee355e862bcf391804b55d22546062ebc9625ec91a397c8c22dca67

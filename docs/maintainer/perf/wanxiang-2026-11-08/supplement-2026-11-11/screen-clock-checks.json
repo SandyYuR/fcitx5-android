@@ -1,0 +1,186 @@
+{
+  "criteria": {
+    "markers": 12,
+    "max_span_ms": 50,
+    "max_abs_drift_ms": 34
+  },
+  "runs": [
+    {
+      "label": "steady-r1-fcitx",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": false,
+      "analysis_accepted": false,
+      "offset_ms": 810110.1954979999,
+      "residual_span_ms": 179.9049599999562,
+      "start_end_drift_ms": -25.082695999997668,
+      "clock_accepted": false
+    },
+    {
+      "label": "steady-r1-direct",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": false,
+      "analysis_generated": true,
+      "analysis_accepted": false,
+      "offset_ms": 992280.327317,
+      "residual_span_ms": 34.33917599997949,
+      "start_end_drift_ms": 14.511494999867864,
+      "clock_accepted": true
+    },
+    {
+      "label": "steady-r1-current",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 1210273.0434710002,
+      "residual_span_ms": 16.45565399993211,
+      "start_end_drift_ms": 6.200793999945745,
+      "clock_accepted": true
+    },
+    {
+      "label": "steady-r2-direct",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 1391026.061166,
+      "residual_span_ms": 28.29510399978608,
+      "start_end_drift_ms": 2.3942569999489933,
+      "clock_accepted": true
+    },
+    {
+      "label": "steady-r2-current",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 1573999.292968,
+      "residual_span_ms": 27.277680000057444,
+      "start_end_drift_ms": 0.6561960000544786,
+      "clock_accepted": true
+    },
+    {
+      "label": "steady-r2-fcitx",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 1765779.912883,
+      "residual_span_ms": 22.86667999997735,
+      "start_end_drift_ms": -8.093752999790013,
+      "clock_accepted": true
+    },
+    {
+      "label": "steady-r3-current",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 1944128.977652,
+      "residual_span_ms": 18.384085999801755,
+      "start_end_drift_ms": -7.39344900008291,
+      "clock_accepted": true
+    },
+    {
+      "label": "steady-r3-fcitx",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 2135215.070325,
+      "residual_span_ms": 16.433360000140965,
+      "start_end_drift_ms": -1.8431800003163517,
+      "clock_accepted": true
+    },
+    {
+      "label": "steady-r3-direct",
+      "visible_edges": 0,
+      "host_marker_frames": 0,
+      "output_correct": false,
+      "analysis_generated": false,
+      "analysis_accepted": false,
+      "clock_accepted": false
+    },
+    {
+      "label": "fast-direct",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 2527267.454702,
+      "residual_span_ms": 22.300359999295324,
+      "start_end_drift_ms": 2.7843059999868274,
+      "clock_accepted": true
+    },
+    {
+      "label": "fast-fcitx",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": false,
+      "analysis_accepted": false,
+      "offset_ms": 2718434.4304919997,
+      "residual_span_ms": 185.72673200024292,
+      "start_end_drift_ms": -45.09385200031102,
+      "clock_accepted": false
+    },
+    {
+      "label": "fast-current",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 2895711.895436,
+      "residual_span_ms": 20.428387999534607,
+      "start_end_drift_ms": 7.073029000777751,
+      "clock_accepted": true
+    },
+    {
+      "label": "jitter-fcitx",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 3089441.144107,
+      "residual_span_ms": 43.5140199996531,
+      "start_end_drift_ms": -28.74091999977827,
+      "clock_accepted": true
+    },
+    {
+      "label": "jitter-direct",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 3210132.285495,
+      "residual_span_ms": 26.421943999826908,
+      "start_end_drift_ms": 0.21391199994832277,
+      "clock_accepted": true
+    },
+    {
+      "label": "jitter-current",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_generated": true,
+      "analysis_accepted": true,
+      "offset_ms": 3332391.145805,
+      "residual_span_ms": 26.719761999789625,
+      "start_end_drift_ms": 7.431075000204146,
+      "clock_accepted": true
+    }
+  ]
+}
