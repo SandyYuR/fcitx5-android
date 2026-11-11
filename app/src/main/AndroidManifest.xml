@@ -89,7 +89,6 @@
             android:label="@string/direct_rime_import" />
         <activity
             android:name=".ui.main.settings.im.RimeEngineManagerActivity"
-            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="false"
             android:label="@string/rime_engine_variants_title" />
         <activity
@@ -295,6 +294,7 @@
         <service
             android:name=".core.engine.RimeEngineProbeService"
             android:exported="false"
+            android:isolatedProcess="true"
             android:process=":rime_engine_probe"
             android:stopWithTask="true" />
 

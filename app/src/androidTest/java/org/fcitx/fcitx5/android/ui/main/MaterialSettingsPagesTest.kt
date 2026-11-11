@@ -41,6 +41,7 @@ import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.common.SettingsSlider
 import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
 import org.fcitx.fcitx5.android.ui.main.settings.im.RimeImportActivity
+import org.fcitx.fcitx5.android.ui.main.settings.im.RimeEngineManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.setup.SetupActivity
 import org.fcitx.fcitx5.android.ui.main.update.ReleaseInfo
@@ -339,6 +340,20 @@ class MaterialSettingsPagesTest {
                     org.fcitx.fcitx5.android.clipboardsync.ui.ClipboardSyncSettingsActivity::class.java)) {
                     page(type) { themedToolbar(it, dark) }
                 }
+                page(RimeEngineManagerActivity::class.java, ready = { activity ->
+                    descendants(activity.window.decorView).filterIsInstance<MaterialButton>().any {
+                        it.text == activity.getString(R.string.rime_engine_import_so) &&
+                            it.height >= (48 * activity.resources.displayMetrics.density).toInt()
+                    }
+                }) { activity ->
+                    themedToolbar(activity, dark)
+                    val import = descendants(activity.window.decorView).filterIsInstance<MaterialButton>()
+                        .first { it.text == activity.getString(R.string.rime_engine_import_so) }
+                    assertTrue(import.height >= (48 * activity.resources.displayMetrics.density).toInt())
+                    assertTrue(descendants(activity.window.decorView).filterIsInstance<TextView>().any {
+                        it.text == activity.getString(R.string.rime_engine_variants_description)
+                    })
+                }
                 page(CropImageActivity::class.java, {
                     putExtra(CropImageActivity.CROP_OPTIONS,
                         CropImageActivity.CropOption.Edit(64, 64, Uri.fromFile(image)))
@@ -348,6 +363,38 @@ class MaterialSettingsPagesTest {
                 }
             }
         } finally { image.delete() }
+    }
+
+    @Test fun engineManagerDestroyRemovesOnlyItsStagingDirectory() {
+        lateinit var manager: Activity
+        lateinit var ownedStagingFile: File
+        page(RimeEngineManagerActivity::class.java, ready = { activity ->
+            descendants(activity.window.decorView).filterIsInstance<MaterialButton>().any {
+                it.text == activity.getString(R.string.rime_engine_import_so)
+            }
+        }) { activity ->
+            manager = activity
+            val tokenField = RimeEngineManagerActivity::class.java
+                .getDeclaredField("stagingToken").apply { isAccessible = true }
+            val token = tokenField.get(activity) as String
+            ownedStagingFile = File(activity.codeCacheDir,
+                "rime-engine-import/$token/pending.so")
+            assertTrue(ownedStagingFile.parentFile!!.mkdirs())
+            ownedStagingFile.writeBytes(byteArrayOf(0x7f, 'E'.code.toByte(), 'L'.code.toByte(), 'F'.code.toByte()))
+            RimeEngineManagerActivity::class.java.getDeclaredField("pendingImport").apply {
+                isAccessible = true
+                set(activity, ownedStagingFile)
+            }
+            assertTrue(ownedStagingFile.isFile)
+        }
+        val deadline = android.os.SystemClock.uptimeMillis() + 5000
+        while (ownedStagingFile.exists() && android.os.SystemClock.uptimeMillis() < deadline) {
+            instrumentation.waitForIdleSync()
+            android.os.SystemClock.sleep(30)
+        }
+        assertTrue("Engine manager did not reach onDestroy", manager.isDestroyed)
+        assertFalse("Destroyed engine manager left its staged payload", ownedStagingFile.exists())
+        assertFalse("Destroyed engine manager left its token directory", ownedStagingFile.parentFile!!.exists())
     }
 
     @Test fun clipboardEditorAndSharedDialogsUseMaterialComponents() {

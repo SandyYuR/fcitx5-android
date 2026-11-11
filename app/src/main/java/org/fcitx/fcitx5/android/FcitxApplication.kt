@@ -49,9 +49,9 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
     private var engineProbeProcess = false
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
-        // The imported-engine probe is a disposable process. It only loads the packaged JNI
-        // bridge and the explicitly passed read-only file descriptor; normal preferences,
-        // recovery and data initialization must not run there.
+        // The imported-engine probe is a disposable isolated-UID process. It only loads the
+        // packaged JNI bridge and copies the explicitly passed read-only descriptor into its own
+        // sealed memfd; normal preferences, recovery and data initialization must not run there.
         engineProbeProcess = RimeEngineProbeService.isProbeProcess(base)
         if (engineProbeProcess) return
         restoreProcess = org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.isRestoreProcess(base)

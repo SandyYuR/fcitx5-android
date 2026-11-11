@@ -59,7 +59,7 @@ python3 tools/audit-direct-rime-link.py app/build/outputs/apk/fx/debug/*.apk
 
 Windows 使用 `gradlew.bat` 和可用的 Python；没有 Bash 时，执行 `git submodule update --init --depth 1 native/rime-prelude`，再执行 `./gradlew.bat prepareRimeSdk`。Python 门禁传入本次 APK 的实际路径。维护文档中的本机 PowerShell 脚本不随仓库分发，无需复制作者的盘符和目录结构。
 
-引擎来自 [SandyYuR/librime 的 zhongzhou](https://github.com/SandyYuR/librime/tree/zhongzhou)，由 [native/rime-sdk.lock.json](native/rime-sdk.lock.json) 固定 SDK 版本与摘要，Gradle 下载并校验。共享预设 `native/rime-prelude` 是唯一子模块；当前构建不使用旧 prebuilder/prebuilt。开发 SDK 仅显式接入 Debug，详见[原生依赖说明](native/README.md)和[引擎更新流程](https://sandyyur.github.io/fcitx5-android/maintainer/engine-update)。
+内置引擎来自 [SandyYuR/librime 的 zhongzhou](https://github.com/SandyYuR/librime/tree/zhongzhou)，由 [native/rime-sdk.lock.json](native/rime-sdk.lock.json) 固定 SDK 版本与摘要，Gradle 下载并校验。用户另行授权的 `.so` 或引擎提供 APK 属于运行时变体，不改写该锁。共享预设 `native/rime-prelude` 是唯一子模块；当前构建不使用旧 prebuilder/prebuilt。开发 SDK 仅显式接入 Debug，详见[原生依赖说明](native/README.md)和[引擎更新流程](https://sandyyur.github.io/fcitx5-android/maintainer/engine-update)。
 
 `-PinputDiagnostics=true` 用于逐键性能诊断，与用户开启的统计、词云功能独立。`-PdirectRimePrototype=true` 额外包含 `.lab` 诊断模块；日常构建无需选择后端。
 

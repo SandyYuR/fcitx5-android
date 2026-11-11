@@ -50,8 +50,7 @@ internal object RimeEngineElf {
         val dynstr = sections.getOrNull(dynsym.link)
             ?.takeIf { it.type == SHT_STRTAB }
             ?: throw IllegalArgumentException("ELF 动态字符串表无效")
-        val symbols = elf.dynamicSymbols(dynsym, dynstr)
-        val entry = ENTRY_SYMBOLS.firstOrNull { it in symbols }
+        val entry = elf.rimeEntrySymbol(dynsym, dynstr)
             ?: throw IllegalArgumentException("不是可用的 Rime 引擎：缺少 rime_get_api 导出")
 
         val dynamic = sections.firstOrNull { it.type == SHT_DYNAMIC }
@@ -64,7 +63,8 @@ internal object RimeEngineElf {
         val dynamicStrings = sections.getOrNull(dynamic.link)
             ?.takeIf { it.type == SHT_STRTAB }
             ?: throw IllegalArgumentException("ELF 动态字符串表无效")
-        val metadata = elf.dynamicMetadata(dynamic, dynamicStrings, loads)
+        val stringBudget = StringBudget()
+        val metadata = elf.dynamicMetadata(dynamic, dynamicStrings, loads, stringBudget)
         require(!metadata.textRelocations) { "ELF 含有文本重定位" }
         require(metadata.rpath.isNullOrBlank() && metadata.runpath.isNullOrBlank()) { "ELF 不得声明 RPATH/RUNPATH" }
         val unexpected = metadata.needed.filterNot { it in allowedNeeded }
@@ -78,7 +78,7 @@ internal object RimeEngineElf {
             abi = abi,
             bits = elf.bits,
             soname = metadata.soname,
-            buildId = elf.buildId(sections),
+            buildId = elf.buildId(sections, stringBudget),
             entrySymbol = entry,
             neededLibraries = metadata.needed.distinct().sorted(),
             loadAlignment = loadAlignment,
@@ -87,6 +87,9 @@ internal object RimeEngineElf {
     }
 
     fun sha256(file: File): String {
+        require(file.isFile && file.length() in 1..MAX_ENGINE_BYTES) {
+            "引擎文件大小必须在 1–96 MiB 之间"
+        }
         val digest = MessageDigest.getInstance("SHA-256")
         FileInputStream(file).use { input ->
             val buffer = ByteArray(64 * 1024)
@@ -140,6 +143,16 @@ internal object RimeEngineElf {
         val runpath: String?,
         val textRelocations: Boolean
     )
+
+    /** Caps total attacker-controlled text materialized while inspecting one ELF. */
+    private class StringBudget {
+        private var remaining = MAX_DECODED_STRING_BYTES.toLong()
+
+        fun consume(bytes: Long) {
+            require(bytes in 0..remaining) { "ELF 字符串解码总量过大" }
+            remaining -= bytes
+        }
+    }
 
     private class Elf(private val bytes: ByteBuffer) {
         val bits: Int
@@ -217,28 +230,42 @@ internal object RimeEngineElf {
             section
         }
 
-        fun dynamicSymbols(section: Section, strings: Section): Set<String> {
+        fun rimeEntrySymbol(section: Section, strings: Section): String? {
             val expected = if (bits == 64) 24L else 16L
             val entrySize = section.entrySize.takeIf { it >= expected } ?: expected
-            require(section.size % entrySize == 0L && section.size / entrySize <= 1_000_000) { "动态符号表无效" }
-            return buildSet {
-                repeat((section.size / entrySize).toInt()) { index ->
-                    val base = section.offset + index * entrySize
-                    val nameOffset = u32(base)
-                    val info = u8(base + if (bits == 64) 4 else 12)
-                    val sectionIndex = u16(base + if (bits == 64) 6 else 14)
-                    val binding = info ushr 4
-                    if (nameOffset != 0L && sectionIndex != 0 && binding in setOf(STB_GLOBAL, STB_WEAK)) {
-                        add(string(strings, nameOffset))
+            require(section.size % entrySize == 0L) { "动态符号表无效" }
+            val count = section.size / entrySize
+            require(count <= MAX_DYNAMIC_SYMBOLS) { "动态符号表条目过多" }
+            var compatibleEntry: String? = null
+            repeat(count.toInt()) { index ->
+                val base = section.offset + index * entrySize
+                val nameOffset = u32(base)
+                val info = u8(base + if (bits == 64) 4 else 12)
+                val sectionIndex = u16(base + if (bits == 64) 6 else 14)
+                val binding = info ushr 4
+                if (nameOffset != 0L && sectionIndex != 0 && binding in setOf(STB_GLOBAL, STB_WEAK)) {
+                    // Do not decode or retain arbitrary C++ symbol names. Compare only the two
+                    // short ASCII entry points, preferring the canonical lowercase spelling.
+                    if (matchesAscii(strings, nameOffset, ENTRY_SYMBOLS[0])) return ENTRY_SYMBOLS[0]
+                    if (compatibleEntry == null && matchesAscii(strings, nameOffset, ENTRY_SYMBOLS[1])) {
+                        compatibleEntry = ENTRY_SYMBOLS[1]
                     }
                 }
             }
+            return compatibleEntry
         }
 
-        fun dynamicMetadata(section: Section, strings: Section, loads: List<ProgramHeader>): DynamicMetadata {
+        fun dynamicMetadata(
+            section: Section,
+            strings: Section,
+            loads: List<ProgramHeader>,
+            stringBudget: StringBudget
+        ): DynamicMetadata {
             val expected = if (bits == 64) 16L else 8L
             val entrySize = section.entrySize.takeIf { it >= expected } ?: expected
-            require(section.size % entrySize == 0L && section.size / entrySize <= 65536) { "动态链接表无效" }
+            require(section.size % entrySize == 0L) { "动态链接表无效" }
+            val count = section.size / entrySize
+            require(count <= MAX_DYNAMIC_ENTRIES) { "动态链接表条目过多" }
             val neededOffsets = mutableListOf<Long>()
             var sonameOffset: Long? = null
             var rpathOffset: Long? = null
@@ -246,12 +273,16 @@ internal object RimeEngineElf {
             var stringTableAddress: Long? = null
             var stringTableSize: Long? = null
             var textRelocations = false
-            repeat((section.size / entrySize).toInt()) { index ->
+            for (index in 0 until count.toInt()) {
                 val base = section.offset + index * entrySize
                 val tag = if (bits == 64) u64(base) else u32(base)
                 val value = if (bits == 64) u64(base + 8) else u32(base + 4)
                 when (tag) {
-                    DT_NEEDED -> neededOffsets += value
+                    DT_NULL -> break
+                    DT_NEEDED -> {
+                        require(neededOffsets.size < MAX_NEEDED_LIBRARIES) { "ELF 动态依赖条目过多" }
+                        neededOffsets += value
+                    }
                     DT_STRTAB -> stringTableAddress = value
                     DT_STRSZ -> stringTableSize = value
                     DT_SONAME -> sonameOffset = value
@@ -273,19 +304,22 @@ internal object RimeEngineElf {
             require(mappedOffset == strings.offset) { "ELF DT_STRTAB 与动态字符串节不一致" }
             fun text(offset: Long?): String? = offset?.let {
                 require(it in 0 until size) { "ELF 动态字符串偏移越界" }
-                string(strings, it)
+                string(strings, it, stringBudget)
             }
             return DynamicMetadata(
-                neededOffsets.map { require(it in 0 until size); string(strings, it) },
+                neededOffsets.map { require(it in 0 until size); string(strings, it, stringBudget) },
                 text(sonameOffset), text(rpathOffset), text(runpathOffset), textRelocations
             )
         }
 
-        fun buildId(sections: List<Section>): String? {
+        fun buildId(sections: List<Section>, stringBudget: StringBudget): String? {
+            var noteEntries = 0
             sections.filter { it.type == SHT_NOTE }.forEach { section ->
                 var offset = section.offset
                 val end = section.offset + section.size
                 while (offset + 12 <= end) {
+                    noteEntries++
+                    require(noteEntries <= MAX_NOTE_ENTRIES) { "ELF note 条目过多" }
                     val nameSize = u32(offset).toInt()
                     val descriptionSize = u32(offset + 4).toInt()
                     val noteType = u32(offset + 8)
@@ -294,11 +328,14 @@ internal object RimeEngineElf {
                     val next = align4(descriptionOffset + descriptionSize)
                     if (nameSize < 0 || descriptionSize < 0 || next > end || !range(nameOffset, nameSize.toLong()) ||
                         !range(descriptionOffset, descriptionSize.toLong())) break
-                    val name = ByteArray(nameSize) { bytes.get((nameOffset + it).toInt()) }
-                        .toString(Charsets.US_ASCII).trimEnd('\u0000')
-                    if (name == "GNU" && noteType == NT_GNU_BUILD_ID && descriptionSize in 1..128) {
-                        return ByteArray(descriptionSize) { bytes.get((descriptionOffset + it).toInt()) }
-                            .joinToString("") { "%02x".format(it) }
+                    if (nameSize in 1..MAX_NOTE_NAME_BYTES) {
+                        stringBudget.consume(nameSize.toLong())
+                        val name = ByteArray(nameSize) { bytes.get((nameOffset + it).toInt()) }
+                            .toString(Charsets.US_ASCII).trimEnd('\u0000')
+                        if (name == "GNU" && noteType == NT_GNU_BUILD_ID && descriptionSize in 1..128) {
+                            return ByteArray(descriptionSize) { bytes.get((descriptionOffset + it).toInt()) }
+                                .joinToString("") { "%02x".format(it) }
+                        }
                     }
                     offset = next
                 }
@@ -306,13 +343,25 @@ internal object RimeEngineElf {
             return null
         }
 
-        private fun string(section: Section, relativeOffset: Long): String {
+        private fun matchesAscii(section: Section, relativeOffset: Long, expected: String): Boolean {
+            require(relativeOffset in 0 until section.size) { "ELF 字符串偏移越界" }
+            val start = section.offset + relativeOffset
+            val required = expected.length.toLong() + 1
+            if (required > section.size - relativeOffset) return false
+            for (index in expected.indices) {
+                if (bytes.get((start + index).toInt()) != expected[index].code.toByte()) return false
+            }
+            return bytes.get((start + expected.length).toInt()) == 0.toByte()
+        }
+
+        private fun string(section: Section, relativeOffset: Long, stringBudget: StringBudget): String {
             require(relativeOffset in 0 until section.size) { "ELF 字符串偏移越界" }
             val start = section.offset + relativeOffset
             val end = section.offset + section.size
             var cursor = start
             while (cursor < end && bytes.get(cursor.toInt()) != 0.toByte()) cursor++
-            require(cursor < end && cursor - start <= 4096) { "ELF 字符串无效" }
+            require(cursor < end && cursor - start <= MAX_STRING_BYTES) { "ELF 字符串无效" }
+            stringBudget.consume(cursor - start)
             return ByteArray((cursor - start).toInt()) { bytes.get((start + it).toInt()) }
                 .toString(Charsets.UTF_8)
         }
@@ -354,6 +403,7 @@ internal object RimeEngineElf {
     private const val SHT_DYNSYM = 11L
     private const val STB_GLOBAL = 1
     private const val STB_WEAK = 2
+    private const val DT_NULL = 0L
     private const val DT_NEEDED = 1L
     private const val DT_STRTAB = 5L
     private const val DT_STRSZ = 10L
@@ -364,5 +414,12 @@ internal object RimeEngineElf {
     private const val DT_RUNPATH = 29L
     private const val DF_TEXTREL = 4L
     private const val NT_GNU_BUILD_ID = 3L
+    private const val MAX_DYNAMIC_SYMBOLS = 65_536L
+    private const val MAX_DYNAMIC_ENTRIES = 4_096L
+    private const val MAX_NEEDED_LIBRARIES = 64
+    private const val MAX_STRING_BYTES = 4_096L
+    private const val MAX_DECODED_STRING_BYTES = 8 * 1_024
+    private const val MAX_NOTE_NAME_BYTES = 64
+    private const val MAX_NOTE_ENTRIES = 4_096
     private val ENTRY_SYMBOLS = listOf("rime_get_api", "RimeGetApi")
 }

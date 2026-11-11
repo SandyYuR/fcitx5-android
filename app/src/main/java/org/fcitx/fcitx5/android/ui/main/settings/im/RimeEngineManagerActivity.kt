@@ -18,7 +18,9 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
@@ -29,10 +31,13 @@ import org.fcitx.fcitx5.android.ui.common.OperationStatusView
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.common.WrappingActionRow
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorUi
+import org.fcitx.fcitx5.android.utils.FileUtil
 import org.fcitx.fcitx5.android.utils.settingsColor
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Locale
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /** Manages the built-in engine, imported single-file engines and installed provider APKs. */
 class RimeEngineManagerActivity : SettingsUiActivity() {
@@ -43,6 +48,13 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
     private var screen: Screen? = null
     private var refreshing = false
     private var pendingImport: File? = null
+    private val stagingToken = UUID.randomUUID().toString()
+    private val importStagingDirectory by lazy {
+        File(codeCacheDir, "rime-engine-import/$stagingToken")
+    }
+    private val probeStagingDirectory by lazy {
+        File(codeCacheDir, "rime-engine-probe/$stagingToken")
+    }
 
     private data class Screen(
         val state: RimeEngineState,
@@ -56,6 +68,10 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Import consent dialogs are intentionally not restored across Activity recreation.
+        // Reclaim any staged file whose owning dialog/coroutine no longer exists.
+        activeStagingTokens += stagingToken
+        lifecycleScope.launch(Dispatchers.IO) { cleanupOrphanedImports() }
         val padding = dp(20)
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         val toolbar = MaterialToolbar(this).apply {
@@ -213,7 +229,7 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
         lifecycleScope.launch {
             var staged: File? = null
             try {
-                val directory = File(codeCacheDir, "rime-engine-import").apply {
+                val directory = importStagingDirectory.apply {
                     check(isDirectory || mkdirs()) { "无法创建导入暂存目录" }
                 }
                 val target = File.createTempFile("engine-", ".so", directory)
@@ -225,6 +241,7 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
                             val buffer = ByteArray(64 * 1024)
                             var total = 0L
                             while (true) {
+                                currentCoroutineContext().ensureActive()
                                 val count = input.read(buffer)
                                 if (count < 0) break
                                 total += count
@@ -246,6 +263,13 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
             } catch (error: Exception) {
                 staged?.delete()
                 status.show(getString(R.string.rime_engine_rejected), error.message.orEmpty(), OperationStatusView.State.ERROR)
+            } finally {
+                // A blocking provider read can observe cancellation only after it returns. If
+                // onDestroy already removed the token path, reclaim a directory recreated by
+                // that final slice of IO as well.
+                if (lifecycle.currentState == androidx.lifecycle.Lifecycle.State.DESTROYED) {
+                    FileUtil.removeFile(importStagingDirectory)
+                }
             }
         }
     }
@@ -274,8 +298,19 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
     private fun probe(file: File, info: RimeEngineStaticInfo, plugin: RimePluginEngineCandidate?) {
         status.show(getString(R.string.rime_engine_probing), state = OperationStatusView.State.WORKING)
         lifecycleScope.launch {
+            var probeSnapshot: File? = null
             try {
-                val runtime = RimeEngineProbeService.probe(this@RimeEngineManagerActivity, file, info)
+                val executable = withContext(Dispatchers.IO) {
+                    if (plugin == null) {
+                        require(RimeEngineElf.inspect(file, info.sourceName).sha256 == info.sha256) {
+                            "引擎文件在探测前发生变化"
+                        }
+                        file
+                    } else {
+                        createProbeSnapshot(file, info).also { probeSnapshot = it }
+                    }
+                }
+                val runtime = RimeEngineProbeService.probe(this@RimeEngineManagerActivity, executable, info)
                 chooseProfile(
                     selected = screen?.directories?.current,
                     onCancel = { if (plugin == null) clearPendingImport() }
@@ -283,11 +318,49 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
                     else confirmPlugin(plugin, runtime, profile) }
                 status.show(getString(R.string.rime_engine_probe_succeeded), runtimeDetails(runtime))
             } catch (error: CancellationException) {
+                if (plugin == null) clearPendingImport()
                 throw error
             } catch (error: Exception) {
                 if (plugin == null) clearPendingImport()
                 status.show(getString(R.string.rime_engine_probe_failed), error.message.orEmpty(), OperationStatusView.State.ERROR)
+            } finally {
+                probeSnapshot?.delete()
+                if (lifecycle.currentState == androidx.lifecycle.Lifecycle.State.DESTROYED) {
+                    FileUtil.removeFile(probeStagingDirectory)
+                }
             }
+        }
+    }
+
+    private suspend fun createProbeSnapshot(source: File, expected: RimeEngineStaticInfo): File {
+        val directory = probeStagingDirectory.apply {
+            check(isDirectory || mkdirs()) { "无法创建引擎探测暂存目录" }
+        }
+        val target = File.createTempFile("probe-", ".so", directory)
+        try {
+            source.inputStream().use { input ->
+                FileOutputStream(target).use { output ->
+                    val buffer = ByteArray(64 * 1024)
+                    var total = 0L
+                    while (true) {
+                        currentCoroutineContext().ensureActive()
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        total += count
+                        require(total <= RimeEngineElf.MAX_ENGINE_BYTES) { "引擎文件超过 96 MiB" }
+                        output.write(buffer, 0, count)
+                    }
+                    output.fd.sync()
+                }
+            }
+            require(RimeEngineElf.inspect(target, expected.sourceName).sha256 == expected.sha256) {
+                "插件引擎在探测前发生变化"
+            }
+            check(target.setReadOnly()) { "无法保护引擎探测副本" }
+            return target
+        } catch (error: Throwable) {
+            target.delete()
+            throw error
         }
     }
 
@@ -380,17 +453,16 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
                 lifecycleScope.launch {
                     try {
                         withContext(Dispatchers.IO) {
-                            val verified = RimeEngineElf.inspect(File(candidate.libraryPath),
-                                candidate.staticInfo.sourceName)
-                            require(verified.sha256 == candidate.staticInfo.sha256) { "插件引擎在确认后发生变化" }
+                            val verified = RimeEnginePlugins.requireCurrent(
+                                this@RimeEngineManagerActivity, candidate)
                             repository.authorizePlugin(PluginRimeEngineAuthorization(
-                                packageName = candidate.packageName,
-                                displayName = candidate.displayName,
-                                providerId = candidate.providerId,
-                                certificateSha256 = candidate.certificateSha256,
-                                payloadSha256 = candidate.staticInfo.sha256,
-                                soname = candidate.soname,
-                                staticInfo = candidate.staticInfo,
+                                packageName = verified.packageName,
+                                displayName = verified.displayName,
+                                providerId = verified.providerId,
+                                certificateSha256 = verified.certificateSha256,
+                                payloadSha256 = verified.staticInfo.sha256,
+                                soname = verified.soname,
+                                staticInfo = verified.staticInfo,
                                 runtimeInfo = runtime,
                                 profile = profile,
                                 authorizedAt = System.currentTimeMillis()
@@ -413,37 +485,23 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
             .setMessage(R.string.rime_engine_switch_message)
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(R.string.rime_engine_switch) { _, _ ->
-                repository.select(selection, screen?.directories?.current)
-                stopAndRestartProcess()
+                val currentProfile = screen?.directories?.current
+                runRepositoryMutation {
+                    repository.select(selection, currentProfile)
+                    true
+                }
             }
             .show()
     }
 
-    private fun stopAndRestartProcess() {
-        status.show(getString(R.string.rime_engine_restarting), state = OperationStatusView.State.WORKING)
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) { FcitxDaemon.stopFcitx() }
-            delay(150)
-            Process.killProcess(Process.myPid())
-        }
-    }
-
     private fun updateImportedProfile(record: ImportedRimeEngine, profile: String) {
-        repository.updateImportedProfile(record.id, profile)
         val selection = RimeEngineSelection(RimeEngineKind.IMPORTED, record.id)
-        if (screen?.state?.active == selection) {
-            repository.reconfigureActive(selection)
-            stopAndRestartProcess()
-        } else refresh()
+        runRepositoryMutation { repository.updateProfile(selection, profile) }
     }
 
     private fun updatePluginProfile(record: PluginRimeEngineAuthorization, profile: String) {
-        repository.updatePluginProfile(record.packageName, profile)
         val selection = RimeEngineSelection(RimeEngineKind.PLUGIN, record.packageName)
-        if (screen?.state?.active == selection) {
-            repository.reconfigureActive(selection)
-            stopAndRestartProcess()
-        } else refresh()
+        runRepositoryMutation { repository.updateProfile(selection, profile) }
     }
 
     private fun confirmDeleteImported(record: ImportedRimeEngine) {
@@ -452,8 +510,7 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
             .setMessage(getString(R.string.rime_engine_delete_message, record.displayName, record.profile))
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(R.string.delete) { _, _ ->
-                repository.deleteImported(record.id)
-                refresh()
+                runRepositoryMutation { repository.deleteImported(record.id); false }
             }.show()
     }
 
@@ -463,9 +520,39 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
             .setMessage(getString(R.string.rime_engine_revoke_message, record.displayName))
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(R.string.rime_engine_revoke) { _, _ ->
-                repository.revokePlugin(record.packageName)
-                refresh()
+                runRepositoryMutation { repository.revokePlugin(record.packageName); false }
             }.show()
+    }
+
+    private fun runRepositoryMutation(block: () -> Boolean) {
+        status.show(getString(R.string.rime_engine_loading), state = OperationStatusView.State.WORKING)
+        lifecycleScope.launch {
+            try {
+                val restart = withContext(NonCancellable + Dispatchers.IO) {
+                    val shouldRestart = block()
+                    if (shouldRestart) {
+                        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                        val kill = Runnable { Process.killProcess(Process.myPid()) }
+                        // Persisted state already points at the next process. A hostile or broken
+                        // DSO must not keep the old process alive forever by hanging finalize.
+                        handler.postDelayed(kill, 5_000)
+                        try {
+                            FcitxDaemon.stopFcitx()
+                        } finally {
+                            handler.removeCallbacks(kill)
+                            handler.postDelayed(kill, 150)
+                        }
+                    }
+                    shouldRestart
+                }
+                if (!restart) refresh()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                status.show(getString(R.string.ui_operation_failed), error.message.orEmpty(),
+                    OperationStatusView.State.ERROR)
+            }
+        }
     }
 
     private fun chooseProfile(
@@ -475,7 +562,12 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
     ) {
         val directories = screen?.directories ?: return
         val entries = directories.profiles.toTypedArray()
-        if (entries.isEmpty()) return
+        if (entries.isEmpty()) {
+            onCancel()
+            status.show(getString(R.string.ui_operation_failed),
+                getString(R.string.rime_engine_no_profiles), OperationStatusView.State.ERROR)
+            return
+        }
         var choice = entries.indexOf(selected).takeIf { it >= 0 } ?: entries.indexOf(directories.current).coerceAtLeast(0)
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.rime_engine_choose_profile)
@@ -565,9 +657,27 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
         pendingImport = null
     }
 
+    private fun cleanupOrphanedImports() {
+        listOf(File(codeCacheDir, "rime-engine-import"), File(codeCacheDir, "rime-engine-probe"))
+            .forEach { root ->
+                root.listFiles().orEmpty().forEach { entry ->
+                    if (entry.name !in activeStagingTokens) {
+                        FileUtil.removeFile(entry).onFailure {
+                            timber.log.Timber.w(it, "Unable to remove orphaned engine staging path")
+                        }
+                    }
+                }
+            }
+    }
+
     override fun onDestroy() {
-        if (isFinishing) clearPendingImport()
+        // ComponentActivity dispatches ON_DESTROY from super, cancelling lifecycleScope before
+        // token paths are unlinked. Open files remain safe to unlink and cannot be recreated.
         super.onDestroy()
+        clearPendingImport()
+        FileUtil.removeFile(importStagingDirectory)
+        FileUtil.removeFile(probeStagingDirectory)
+        activeStagingTokens -= stagingToken
         FcitxDaemon.disconnect(javaClass.name)
     }
 
@@ -577,4 +687,8 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
     }
 
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
+
+    private companion object {
+        val activeStagingTokens: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    }
 }

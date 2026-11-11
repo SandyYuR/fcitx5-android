@@ -20,9 +20,11 @@ internal object RimeEnginePlugins {
     private const val CHANNEL = "org.rime.plugin.CHANNEL"
     private val libraryName = Regex("[A-Za-z0-9._+-]{1,128}\\.so")
 
-    fun discover(context: Context): List<RimePluginEngineCandidate> {
+    fun discover(context: Context, packageName: String? = null): List<RimePluginEngineCandidate> {
         val manager = context.packageManager
-        val intent = Intent(DISCOVERY_ACTION).addCategory(Intent.CATEGORY_DEFAULT)
+        val intent = Intent(DISCOVERY_ACTION).addCategory(Intent.CATEGORY_DEFAULT).apply {
+            packageName?.let(::setPackage)
+        }
         val resolved = if (Build.VERSION.SDK_INT >= 33) {
             manager.queryIntentActivities(intent,
                 PackageManager.ResolveInfoFlags.of(PackageManager.GET_META_DATA.toLong()))
@@ -64,6 +66,23 @@ internal object RimeEnginePlugins {
                 Timber.w(it, "Ignoring incompatible Rime engine plugin ${info.activityInfo?.packageName}")
             }.getOrNull()
         }.distinctBy(RimePluginEngineCandidate::packageName).sortedBy { it.displayName.lowercase() }
+    }
+
+    /** Re-query package state and require every security-relevant discovery field to be unchanged. */
+    fun requireCurrent(context: Context, expected: RimePluginEngineCandidate): RimePluginEngineCandidate {
+        val current = discover(context, expected.packageName).singleOrNull()
+            ?: throw IllegalArgumentException("引擎提供 APK 已卸载或不再兼容")
+        require(current.packageName == expected.packageName &&
+            current.providerId == expected.providerId &&
+            current.apiVersion == expected.apiVersion &&
+            current.rimeApiAbi == expected.rimeApiAbi &&
+            current.soname == expected.soname &&
+            current.certificateSha256 == expected.certificateSha256 &&
+            current.staticInfo.sha256 == expected.staticInfo.sha256 &&
+            current.staticInfo.entrySymbol == expected.staticInfo.entrySymbol) {
+            "引擎提供 APK 的证书、协议元数据或载荷在确认期间发生变化"
+        }
+        return current
     }
 
     private fun certificateDigest(manager: PackageManager, packageName: String): String {

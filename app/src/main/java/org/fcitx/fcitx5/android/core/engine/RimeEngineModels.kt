@@ -74,13 +74,19 @@ data class PluginRimeEngineAuthorization(
 data class RimeEngineActivation(
     val selected: RimeEngineSelection,
     val previous: RimeEngineSelection,
-    val attempted: Boolean = false
+    val attempted: Boolean = false,
+    /** Explicit switches/profile changes require a full deployment; ordinary startup guards do not. */
+    val forceFullCheck: Boolean = true,
+    /** Explicit user choices clear an old fallback notice; automatic recovery must preserve it. */
+    val clearFallbackReason: Boolean = true
 )
 
 @Serializable
 data class RimeEngineState(
     val schemaVersion: Int = 1,
     val active: RimeEngineSelection = RimeEngineSelection.Builtin,
+    /** Last known-good engine to restore if [active] cannot complete a later startup. */
+    val fallback: RimeEngineSelection = RimeEngineSelection.Builtin,
     val builtinProfile: String? = null,
     val imported: List<ImportedRimeEngine> = emptyList(),
     val plugins: List<PluginRimeEngineAuthorization> = emptyList(),

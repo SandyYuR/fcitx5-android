@@ -1211,7 +1211,7 @@
     <string name="js_voice_secret_unavailable">Cannot decrypt on this device; enter the key again</string>
     <string name="rime_engine_variants_title">Rime engine variants</string>
     <string name="rime_engine_variants_summary">Built-in, imported .so, and installed provider engines</string>
-    <string name="rime_engine_variants_description">Keep the built-in engine as a safe fallback, import compatible single-file engines, or authorize installed Rime engine provider apps. Every external engine is bound to a Rime working directory.</string>
+    <string name="rime_engine_variants_description">Keep the built-in engine as a safe fallback, import compatible single-file engines, or authorize installed Rime engine provider apps. Every external engine is bound to a Rime working directory. External variants are unavailable when an older device kernel or its security policy cannot provide a sealed executable memory file for isolated probing.</string>
     <string name="rime_engine_loading">Reading engines and working directories…</string>
     <string name="rime_engine_ready">Engine list is ready</string>
     <string name="rime_engine_fallback_title">Engine fallback</string>
@@ -1226,6 +1226,7 @@
     <string name="rime_engine_switch">Switch</string>
     <string name="rime_engine_choose_profile">Choose working directory</string>
     <string name="rime_engine_profile_value">Working directory: %1$s</string>
+    <string name="rime_engine_no_profiles">No usable Rime working directory is registered.</string>
     <string name="rime_engine_payload_missing">The managed engine file is missing</string>
     <string name="rime_engine_plugin_authorized">Authorized · Working directory: %1$s</string>
     <string name="rime_engine_plugin_needs_authorization">Authorization required, or the certificate/payload changed</string>
@@ -1235,9 +1236,9 @@
     <string name="rime_engine_reading">Copying and checking the selected file…</string>
     <string name="rime_engine_static_valid">Static ELF checks passed</string>
     <string name="rime_engine_rejected">Engine file rejected</string>
-    <string name="rime_engine_probe_warning">The file has not executed yet. Continue only if you trust its source. It will first run in a disposable probe process to verify the Rime API; a crash cannot take down the input method, but the probe shares this app’s UID. It will not be imported by this step.</string>
-    <string name="rime_engine_probe_action">Run separate-process probe</string>
-    <string name="rime_engine_probing">Checking the Rime API in a separate process…</string>
+    <string name="rime_engine_probe_warning">The file has not executed yet. Continue only if you trust its source. It will first run under a disposable Android isolated UID to verify only the Rime API; it cannot use this app’s data or permissions, and a crash cannot take down the input method. This step does not prove that a scheme can deploy and does not import the file.</string>
+    <string name="rime_engine_probe_action">Run isolated API probe</string>
+    <string name="rime_engine_probing">Checking the Rime API under an isolated UID…</string>
     <string name="rime_engine_probe_succeeded">Runtime Rime API checks passed</string>
     <string name="rime_engine_probe_failed">Runtime Rime API checks failed</string>
     <string name="rime_engine_display_name">Engine name</string>

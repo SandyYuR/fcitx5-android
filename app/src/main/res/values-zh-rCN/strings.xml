@@ -1207,7 +1207,7 @@
     <string name="js_voice_secret_unavailable">本机无法解密，请重新填写密钥</string>
     <string name="rime_engine_variants_title">Rime引擎变体</string>
     <string name="rime_engine_variants_summary">管理内置、导入的 .so 与已安装的提供者引擎</string>
-    <string name="rime_engine_variants_description">内置引擎始终作为安全回退；也可以导入兼容的单文件引擎，或授权已安装的 Rime 引擎提供 APK。每个外部引擎分别绑定一个 Rime 工作目录。</string>
+    <string name="rime_engine_variants_description">内置引擎始终作为安全回退；也可以导入兼容的单文件引擎，或授权已安装的 Rime 引擎提供 APK。每个外部引擎分别绑定一个 Rime 工作目录。旧设备内核或系统安全策略若无法为隔离探测提供可封印的可执行内存文件，外部变体不可用。</string>
     <string name="rime_engine_loading">正在读取引擎和工作目录…</string>
     <string name="rime_engine_ready">引擎列表已就绪</string>
     <string name="rime_engine_fallback_title">引擎已回退</string>
@@ -1222,6 +1222,7 @@
     <string name="rime_engine_switch">切换</string>
     <string name="rime_engine_choose_profile">选择工作目录</string>
     <string name="rime_engine_profile_value">工作目录：%1$s</string>
+    <string name="rime_engine_no_profiles">没有已登记且可用的 Rime 工作目录。</string>
     <string name="rime_engine_payload_missing">受管引擎文件已经丢失</string>
     <string name="rime_engine_plugin_authorized">已授权 · 工作目录：%1$s</string>
     <string name="rime_engine_plugin_needs_authorization">需要授权，或签名／引擎载荷已经变化</string>
@@ -1231,9 +1232,9 @@
     <string name="rime_engine_reading">正在复制并检查所选文件…</string>
     <string name="rime_engine_static_valid">ELF 静态检查通过</string>
     <string name="rime_engine_rejected">引擎文件被拒绝</string>
-    <string name="rime_engine_probe_warning">此文件尚未执行。请只继续检查你信任来源的文件。下一步只会在一次性独立探测进程中运行它，以验证 Rime API；崩溃不会带倒输入法，但探测进程仍与本应用共用 UID。此步骤不会正式导入。</string>
-    <string name="rime_engine_probe_action">运行独立进程探测</string>
-    <string name="rime_engine_probing">正在独立进程中检查 Rime API…</string>
+    <string name="rime_engine_probe_warning">此文件尚未执行。请只继续检查你信任来源的文件。下一步只会在 Android 隔离 UID 的一次性进程中运行它，仅验证 Rime API；该进程不能使用本应用的数据或权限，崩溃也不会带倒输入法。此步骤不能证明方案可部署，也不会正式导入。</string>
+    <string name="rime_engine_probe_action">运行隔离 API 探测</string>
+    <string name="rime_engine_probing">正在隔离 UID 中检查 Rime API…</string>
     <string name="rime_engine_probe_succeeded">运行时 Rime API 检查通过</string>
     <string name="rime_engine_probe_failed">运行时 Rime API 检查失败</string>
     <string name="rime_engine_display_name">引擎名称</string>

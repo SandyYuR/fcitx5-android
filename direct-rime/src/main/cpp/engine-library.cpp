@@ -3,10 +3,18 @@
 
 #include <android/dlext.h>
 #include <dlfcn.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <linux/memfd.h>
+#include <sys/stat.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 #include <algorithm>
 #include <cctype>
+#include <cstring>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 namespace direct_rime {
 namespace {
@@ -18,6 +26,93 @@ std::string selectedIdentity;
 struct HandleCloser {
     void operator()(void* handle) const noexcept { if (handle) dlclose(handle); }
 };
+
+struct FdCloser {
+    void operator()(int* fd) const noexcept { if (fd && *fd >= 0) close(*fd); }
+};
+using OwnedFd = std::unique_ptr<int, FdCloser>;
+
+constexpr off_t maxEngineBytes = 96LL * 1024 * 1024;
+
+#ifndef MFD_EXEC
+#define MFD_EXEC 0x0010U
+#endif
+
+std::runtime_error systemError(const char* prefix, int error) {
+    return std::runtime_error(std::string(prefix) + std::strerror(error));
+}
+
+int executableMemfd(const std::string& identity) {
+    const std::string name = "rime-probe-" + identity.substr(0, 32);
+    unsigned int flags = MFD_CLOEXEC | MFD_ALLOW_SEALING | MFD_EXEC;
+    int fd = static_cast<int>(syscall(__NR_memfd_create, name.c_str(), flags));
+    if (fd < 0 && errno == EINVAL) {
+        // Kernels predating MFD_EXEC create executable memfds by default.
+        flags &= ~MFD_EXEC;
+        fd = static_cast<int>(syscall(__NR_memfd_create, name.c_str(), flags));
+    }
+    if (fd < 0 && errno == ENOSYS)
+        throw std::runtime_error("设备内核不支持安全的 sealed memfd 引擎探测");
+    if (fd < 0) {
+        const int error = errno;
+        throw systemError("无法创建隔离探测内存文件：", error);
+    }
+    return fd;
+}
+
+OwnedFd memfdSnapshot(int source, const std::string& identity, off_t size) {
+    OwnedFd destination(new int(executableMemfd(identity)));
+    if (ftruncate(*destination, size) != 0) {
+        const int error = errno;
+        throw systemError("无法设置隔离探测内存文件大小：", error);
+    }
+    std::vector<char> buffer(64 * 1024);
+    off_t offset = 0;
+    while (offset < size) {
+        const size_t request = std::min<off_t>(buffer.size(), size - offset);
+        ssize_t count;
+        do { count = pread(source, buffer.data(), request, offset); }
+        while (count < 0 && errno == EINTR);
+        if (count < 0) {
+            const int error = errno;
+            throw systemError("无法复制引擎到隔离探测内存：", error);
+        }
+        if (count == 0) throw std::runtime_error("复制引擎到隔离探测内存时提前结束");
+        ssize_t written = 0;
+        while (written < count) {
+            ssize_t result;
+            do { result = pwrite(*destination, buffer.data() + written,
+                                 static_cast<size_t>(count - written), offset + written); }
+            while (result < 0 && errno == EINTR);
+            if (result < 0) {
+                const int error = errno;
+                throw systemError("无法写入隔离探测内存：", error);
+            }
+            if (result == 0)
+                throw std::runtime_error("写入隔离探测内存时没有进展");
+            written += result;
+        }
+        offset += count;
+    }
+    const int seals = F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE;
+    if (fcntl(*destination, F_ADD_SEALS, seals) != 0) {
+        const int error = errno;
+        throw systemError("无法封印隔离探测内存：", error);
+    }
+    return destination;
+}
+
+OwnedFd snapshotForProbe(int source, const std::string& identity) {
+    if (source < 0) throw std::invalid_argument("引擎文件描述符无效");
+    struct stat status{};
+    if (fstat(source, &status) != 0) {
+        const int error = errno;
+        throw systemError("无法读取引擎文件信息：", error);
+    }
+    if (!S_ISREG(status.st_mode) || status.st_size <= 0 || status.st_size > maxEngineBytes)
+        throw std::invalid_argument("引擎文件大小无效");
+    return memfdSnapshot(source, identity, status.st_size);
+}
 
 std::runtime_error loadError(const char* prefix) {
     const char* detail = dlerror();
@@ -161,9 +256,15 @@ EngineLibraryInfo configureExternalEngine(int fd, const std::string& entry,
 
 EngineLibraryInfo probeExternalEngine(int fd, const std::string& entry,
                                       const std::string& identity) {
-    auto [handle, api] = load(fd, entry, identity);
+    // isolatedProcess cannot mmap(PROT_EXEC) an inode owned by the main app even when the
+    // already-open descriptor is passed over Binder. Copy the statically verified bytes into a
+    // sealed memfd owned by the isolated UID, then load exactly that immutable snapshot.
+    auto snapshot = snapshotForProbe(fd, identity);
+    auto [handle, api] = load(*snapshot, entry, identity);
     std::unique_ptr<void, HandleCloser> owned(handle);
-    return validate(api);
+    auto result = validate(api);
+    result.capabilities.emplace_back("sealed-memfd");
+    return result;
 }
 
 bool externalEngineConfiguredFor(const std::string& identity) {

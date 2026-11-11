@@ -20,6 +20,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.core.engine.RimeEngineSelection
+import org.fcitx.fcitx5.android.core.engine.RimeEngineStore
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.InputView
@@ -46,6 +48,9 @@ class DirectRimeFrontendTest {
     private val commits = Channel<String>(Channel.UNLIMITED)
     private var previousProfile = "rime"
     private val createdImports = mutableListOf<String>()
+    private var daemonConnected = false
+    private var profileCreated = false
+    private var profileSelected = false
     private val fixtureArchive = InstrumentationRegistry.getArguments().getString("fixtureArchive")
     private val longStringFixture = InstrumentationRegistry.getArguments().getString("longStringFixture") == "true"
     private val heavyAlgebraFixture = InstrumentationRegistry.getArguments().getString("heavyAlgebraFixture") == "true"
@@ -61,9 +66,18 @@ class DirectRimeFrontendTest {
     }
     @Before fun prepare(): Unit = runBlocking {
         assertEquals(BuildConfig.APPLICATION_ID, context.packageName)
+        // This suite installs and switches disposable profiles through the legacy global
+        // profile manager. External engines have per-engine bindings and are covered by
+        // RimeEngineVariantDeviceTest in separate instrumentation processes.
+        require(RimeEngineStore.repository(context).state().active == RimeEngineSelection.Builtin) {
+            "DirectRimeFrontendTest requires the stable built-in engine"
+        }
+        connection
+        daemonConnected = true
         connection.runOnReady {
             previousProfile = getAddonSubConfig("rime", "profile-manager")["Current"].value
             setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "create"), RawConfig("Name", profile))))
+            profileCreated = true
         }
         val directory = File(context.getExternalFilesDir(null), "data/$profile")
         if (fixtureArchive != null) {
@@ -111,6 +125,7 @@ class DirectRimeFrontendTest {
         }
         connection.runOnReady {
             setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "switch"), RawConfig("Name", profile))))
+            profileSelected = true
             setImConfig("rime", RawConfig(arrayOf(RawConfig("PreeditMode", "No"))))
             // API-only scenarios model a new ordinary editor. A preceding UI
             // test can finish in a password field, whose capabilities must not
@@ -125,12 +140,33 @@ class DirectRimeFrontendTest {
     }
     @After fun cleanup(): Unit = runBlocking {
         scope.cancel()
-        connection.runOnReady {
-            setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "switch"), RawConfig("Name", previousProfile))))
-            setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "delete"), RawConfig("Name", profile))))
-            createdImports.forEach { setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "delete"), RawConfig("Name", it)))) }
+        if (!daemonConnected) return@runBlocking
+        try {
+            connection.runOnReady {
+                var failure: Throwable? = null
+                if (profileSelected) runCatching {
+                    setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(
+                        RawConfig("Action", "switch"), RawConfig("Name", previousProfile))))
+                }.onFailure { failure = it }
+                val profiles = buildList {
+                    if (profileCreated) add(profile)
+                    addAll(createdImports)
+                }
+                profiles.forEach { name ->
+                    runCatching {
+                        setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(
+                            RawConfig("Action", "delete"), RawConfig("Name", name))))
+                    }.onFailure { error ->
+                        val previous = failure
+                        if (previous == null) failure = error else previous.addSuppressed(error)
+                    }
+                }
+                failure?.let { throw it }
+            }
+        } finally {
+            FcitxDaemon.disconnect(javaClass.name)
+            daemonConnected = false
         }
-        FcitxDaemon.disconnect(javaClass.name)
     }
     private fun writeCursorFixture(directory: File) {
         val schema = File(directory, "direct_smoke.schema.yaml")
