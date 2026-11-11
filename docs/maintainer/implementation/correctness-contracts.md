@@ -71,6 +71,22 @@ JNI 分配失败后停止后续构造，只做允许的引用释放，已有 Jav
 
 会话销毁后，Lua 的 `Memory` 对象可能尚未回收，仍占用 LevelDB。同步维护先通过 `stop` / `initialize(false)` 释放模块与词库资源，再发起同步；不重跑进程级 `setup`，也不强制重编方案。初始化失败时不能继续同步并覆盖错误；`PluginSdkSmokeTest` 实际覆盖 Lua 已学习词条的同步与重启读取。
 
+## 运行时引擎变体
+
+内置引擎始终存在，Direct Boot 固定使用内置引擎。外部引擎只在凭据解锁后的普通进程选择，并绑定已经登记、互不重叠且可读写的 Rime profile；切换时保存内置 profile，停止当前引擎、重启进程并执行完整部署。外部引擎活动时，旧 `profile-manager` 的直接切换和 `import-profile` 的导入切换必须拒绝，绑定变更只能由引擎变体事务同时写 profile 与启动守卫。任何导入记录、provider 授权或内置回退状态仍引用的 profile 都不能重命名或删除。删除导入记录只删除受管 DSO 和代码缓存执行副本，不递归删除 profile、词典或用户数据。
+
+文件导入在任何执行前完成有界复制、SHA-256 与 ELF 静态校验。校验范围至少包含 ABI、共享库类型、16 KiB LOAD 对齐、W^X、不可执行栈、TEXTREL、RPATH/RUNPATH、动态依赖与 Rime API 导出；动态节、PT_DYNAMIC、DT_STRTAB 和字符串表须指向同一加载映像，不能只信任可伪造的节表。静态通过不等于授权执行。
+
+首次确认后，探测服务在 Android `isolatedProcess` 的独立一次性进程中加载文件，核对 `RimeApi.data_size`、主链路必需函数和版本。它使用 isolated UID，不继承应用已授予权限，只接收调用方传入的只读文件描述符，也不执行应用的常规偏好、恢复和数据初始化。isolated UID 不能直接执行主应用 `code_cache` 的 inode；探测 native 层必须把同一 FD 的有界字节复制到隔离进程自己创建、封印且不可再写的可执行 memfd，再从该 memfd 加载，不能退回共用 UID、可写 ashmem 或另开未校验路径。旧内核没有 `memfd_create`、系统策略拒绝 memfd 或无法加完整 seal 时明确拒绝探测，本功能在该设备不可用，不降低隔离边界。调用方在进程内串行化探测；取消可能发生在 Binder 连接之前，清理以绑定租约为准，调用方在主线程解除唯一绑定，服务销毁时由隔离进程自行退出。该探测不初始化目标 profile、不部署方案，只证明 C API 入口满足当前桥接要求；不能把通过写成方案、词典、Lua 或模型已可用。最终 DSO 仍在输入法主进程运行，因此第二次授权必须说明完整信任边界，不能把探测隔离等同于正式运行隔离。
+
+导入文件在第二次授权前再次静态检查摘要，持久副本发布为只读；Android 执行副本按摘要放入 `codeCacheDir`。提供 APK 的授权固定包名、签名证书、SONAME 和载荷摘要，并记录 provider ID；每次发现仍要求受支持的协议/API 版本。真正加载前先取得当前候选，把 provider 载荷复制、重新静态检查并原子发布为应用管理、按授权摘要命名的只读执行快照，然后再次查询安装包，确认 provider ID、协议/API 版本、证书、SONAME、载荷摘要和入口在复制期间没有变化。任一安全相关值与授权不符或在复制前后变化均拒绝加载，不直接执行 provider 路径，也不沿用旧探测结果。
+
+每次进程准备启动外部引擎时都在发布或加载外部代码前原子写入启用守卫，不只守护首次切换。显式切换和活动 profile 变更设置完整部署标志；稳定外部引擎的普通进程启动仍有守卫，但不因此无条件完整部署。只有 native 初始化、所需部署和方案刷新完成后才清除；若守卫已标为尝试，下次进程恢复先前仍存在的引擎，否则回到内置引擎。外部引擎、授权或绑定目录在稳定运行后失效，也要写入回退原因并按保存的回退链重启。普通 daemon stop/start 可以复用同一已加载 DSO；同一进程不能切换到另一 DSO 或从内置改成外部，必须重启。
+
+导入暂存只属于当前 Activity 和当前两次确认流程，不跨配置重建恢复。每个 Activity 使用独立 token 子目录；创建时只回收当前进程没有登记为活动的旧 token，销毁时无条件删除自己的暂存。主题、语言、旋转或系统配置导致重建时，旧确认流程取消，用户必须重新选择文件。不能让一个页面实例删除另一个仍在确认的文件，也不能为恢复对话框而让尚未完成第二次授权的代码文件跨 Activity 生命周期存活。
+
+相关回归包括 `RimeEngineElfTest`、`RimeEngineStoreTest`、`RimeEngineProbeServiceTest`、设置搜索覆盖，以及 `RimeEngineVariantDeviceTest` 的真实 DSO/provider 探测、部署、候选上屏和进程内停止重启。方案测试必须区分 API 探测通过、引擎加载失败、方案编译错误与缺失模型；修补过的测试夹具不能表述成原上游方案已经无错误。
+
 ## 首次解锁前启动
 
 `FcitxApplication.onCreate` 的所有设置初始化使用已选择的 `directBootAwareContext`。DE Context 的外部文件目录仍可能受凭据保护，`DirectRimeConfig` 在此模式只使用 DE 内部文件目录中的独立空 profile。解锁后的 `DirectBootLayoutSync` 在 IO worker 中把当前布局同步为固定的 DE 快照，锁屏时由 `DefaultConfigProvider` 读取，不扫描 CE 或外部目录。字体、图标资源和旧 CE 资产清理等待解锁；不把用户方案、词库、剪贴板历史或密钥搬到 DE。
