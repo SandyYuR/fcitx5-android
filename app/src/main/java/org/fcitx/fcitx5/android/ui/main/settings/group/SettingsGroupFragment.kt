@@ -5,19 +5,24 @@
 
 package org.fcitx.fcitx5.android.ui.main.settings.group
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
+import android.widget.TextView
 import androidx.fragment.app.activityViewModels
+import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceViewHolder
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.search.scrollToPendingPreference
-import org.fcitx.fcitx5.android.utils.addPreference
 import org.fcitx.fcitx5.android.utils.lazyRoute
 import org.fcitx.fcitx5.android.utils.navigateWithAnim
+import org.fcitx.fcitx5.android.utils.setup
 
 /**
  * 通用分组页：按 [SettingsGroupSpec] 渲染一组带图标的跳转入口。
@@ -26,6 +31,20 @@ import org.fcitx.fcitx5.android.utils.navigateWithAnim
  * 设置页因为一个过期路由而闪退的代价远大于空白页。
  */
 class SettingsGroupFragment : PaddingPreferenceFragment() {
+
+    private class EntryPreference(
+        context: Context,
+        private val singleLineSummary: Boolean
+    ) : Preference(context) {
+        override fun onBindViewHolder(holder: PreferenceViewHolder) {
+            super.onBindViewHolder(holder)
+            if (!singleLineSummary) return
+            (holder.findViewById(android.R.id.summary) as? TextView)?.apply {
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+            }
+        }
+    }
 
     private val args by lazyRoute<SettingsRoute.SettingsGroup>()
     private val viewModel: MainViewModel by activityViewModels()
@@ -44,10 +63,12 @@ class SettingsGroupFragment : PaddingPreferenceFragment() {
                     })
                     activeSection = entry.sectionTitle
                 }
-                addPreference(entry.title, entry.summary, entry.icon) {
-                    launch(entry.action)
-                }
-                getPreference(preferenceCount - 1).widgetLayoutResource = R.layout.preference_settings_navigation
+                addPreference(EntryPreference(context, entry.singleLineSummary).apply {
+                    setup(getString(entry.title), entry.summary?.let(::getString), entry.icon) {
+                        launch(entry.action)
+                    }
+                    widgetLayoutResource = R.layout.preference_settings_navigation
+                })
             }
         }
     }

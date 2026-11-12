@@ -293,6 +293,11 @@ object SettingsSearchIndex {
             listOf("rime", "zhongzhouyun", "中州韵", "方案", "schema", "预编辑", "preedit", "部署", "deploy"),
             route = rimeRoute(context)
         ),
+        SettingsSearchEntry(
+            R.string.rime_engine_variants_title, P_INPUT,
+            listOf("rime engine", "引擎变体", "引擎切换", "librime", "so", "插件引擎"),
+            activityClass = org.fcitx.fcitx5.android.ui.main.settings.im.RimeEngineManagerActivity::class.java
+        ),
 
 
         /* ===== 首页一级分组本身 ===== */

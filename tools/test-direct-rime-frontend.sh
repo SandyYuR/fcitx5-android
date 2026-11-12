@@ -29,7 +29,7 @@ adb shell run-as org.fcitx.fcitx5.android.fx.rime.debug cat files/direct-rime-re
 for name in settings rime-settings themes keyboard-settings layout-editor keyboard commit failure; do
   adb pull "/data/local/tmp/direct-frontend-$name.png" "$report_dir/$name.png" 2>/dev/null || true
 done
-for page in UpdateCheckActivity UpdateHostsSettingsActivity UpdateMirrorEditActivity UpdateMirrorListActivity LogActivity RimeImportActivity CropImageActivity ClipboardSyncSettingsActivity ClipboardEditActivity TextKeyboardLayoutProfilePickerActivity UpdateMirrorListActivity-controls; do
+for page in UpdateCheckActivity UpdateHostsSettingsActivity UpdateMirrorEditActivity UpdateMirrorListActivity LogActivity RimeImportActivity RimeEngineManagerActivity CropImageActivity ClipboardSyncSettingsActivity ClipboardEditActivity TextKeyboardLayoutProfilePickerActivity UpdateMirrorListActivity-controls; do
   for mode in light dark; do
     adb pull "/data/local/tmp/direct-frontend-md3-$page-$mode.png" "$report_dir/md3-$page-$mode.png" 2>/dev/null || true
   done

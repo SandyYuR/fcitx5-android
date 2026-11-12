@@ -3,6 +3,7 @@ package org.fcitx.fcitx5.android.core
 
 import android.content.Context
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import androidx.tracing.trace
 import kotlinx.coroutines.*
@@ -17,6 +18,11 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.data.DataManager
+import org.fcitx.fcitx5.android.core.engine.ResolvedRimeEngine
+import org.fcitx.fcitx5.android.core.engine.RimeEngineKind
+import org.fcitx.fcitx5.android.core.engine.RimeEnginePlugins
+import org.fcitx.fcitx5.android.core.engine.RimeEngineSelection
+import org.fcitx.fcitx5.android.core.engine.RimeEngineStore
 import org.fcitx.fcitx5.android.data.WanxiangPayload
 import org.fcitx.fcitx5.android.data.WanxiangUpdateTransaction
 import org.fcitx.fcitx5.android.data.WanxiangAdvancedFiles
@@ -26,6 +32,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
 
 private val EMPTY_CANDIDATE_ACTIONS = emptyArray<CandidateAction>()
+private const val EXTERNAL_STOP_TIMEOUT_MS = 10_000L
+private const val EXTERNAL_START_TIMEOUT_MS = 180_000L
 
 /** Original frontend contract implemented directly on librime's single owner thread. */
 class DirectRimeBackend(context: Context) : InputEngine {
@@ -79,6 +87,15 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private val flow = MutableSharedFlow<FcitxEvent<*>>(extraBufferCapacity = 64)
     override val eventFlow = flow.asSharedFlow()
     private val config = DirectRimeConfig(this.context)
+    private val engineRepository by lazy { RimeEngineStore.repository(this.context) }
+    private var activeEngineSelection = RimeEngineSelection.Builtin
+    private var newEngineActivation = false
+    private var maintenanceActivationSelection: RimeEngineSelection? = null
+    /** The requested engine failed, but the persisted fallback is already running again. */
+    private class EngineSwitchRecoveredException(message: String, cause: Exception) :
+        IllegalStateException(message, cause)
+    private val processHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var externalOperationWatchdog: Runnable? = null
     @Volatile private var started = false
     @Volatile private var snapshot: Snapshot? = null
     private var program = ""
@@ -135,15 +152,36 @@ class DirectRimeBackend(context: Context) : InputEngine {
             showUnavailable("正在准备中州韵…")
         },
         initialize = {
+            // EngineLifecycleController may start this Backend more than once. Never attribute an
+            // assets/config failure in this run to the prior run's external selection or guard.
+            newEngineActivation = false
+            activeEngineSelection = RimeEngineSelection.Builtin
             try {
                 startupStage("assets") { DataManager.sync() }
                 startupStage("config") { config.load() }
+                newEngineActivation = startupStage("engine-selection") { configureSelectedEngine() }
                 startupStage("native") { Native.start(shared.absolutePath, config.user.absolutePath, BuildConfig.VERSION_NAME,
-                    fullCheck = WanxiangAdvancedFiles.needsDeploymentRepair(config.user)) }
+                    fullCheck = newEngineActivation || WanxiangAdvancedFiles.needsDeploymentRepair(config.user)) }
                 started = true
                 startupError = ""
                 refreshSchemas()
+                if (!directBootMode) engineRepository.activationSucceeded(activeEngineSelection)
+                cancelExternalOperationWatchdog()
             } catch (e: Exception) {
+                val failedSelection = activeEngineSelection
+                cancelExternalOperationWatchdog()
+                // A normal stable builtin failure stays visible for diagnosis. An explicit
+                // external -> builtin transition is different: it has a persisted previous
+                // engine and must automatically start that fallback in a fresh process.
+                if (!directBootMode &&
+                    (failedSelection.kind != RimeEngineKind.BUILTIN || newEngineActivation)) {
+                    engineRepository.activationFailed(failedSelection,
+                        "${if (failedSelection.kind == RimeEngineKind.BUILTIN) "内置" else "外部"}引擎启动失败：${e.message ?: e.javaClass.simpleName}")
+                    // The next process starts from the persisted fallback. Do not attempt to
+                    // initialize another librime in a process where external constructors or
+                    // setup may already have run, including an ordinary restart of a stable DSO.
+                    scheduleProcessRestart()
+                }
                 startupError = e.message ?: "引擎启动失败"
                 Timber.e(e, "Direct Rime startup failed")
                 showUnavailable(startupError)
@@ -180,6 +218,55 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override fun stop() { runBlocking { runtime.stopAsync().await() } }
 
     private val shared get() = File(DataManager.dataDir, "usr/share/rime-data")
+    private fun configureSelectedEngine(): Boolean {
+        if (directBootMode) {
+            activeEngineSelection = RimeEngineSelection.Builtin
+            return false
+        }
+        val (state, forceFullCheck) = engineRepository.beginActivation()
+        newEngineActivation = forceFullCheck
+        // Set this before payload publication, provider revalidation or profile checks. Any of
+        // those can fail and must roll back the persisted external selection, not blame builtin.
+        activeEngineSelection = state.active
+        if (state.active.kind != RimeEngineKind.BUILTIN) {
+            armExternalOperationWatchdog(EXTERNAL_START_TIMEOUT_MS)
+        }
+        val plugins = if (state.active.kind == RimeEngineKind.PLUGIN) {
+            RimeEnginePlugins.discover(context, state.active.id)
+        } else emptyList()
+        val resolved = engineRepository.resolveActive(plugins)
+        require(resolved.selection == state.active) {
+            "已选择的外部引擎文件、签名或安装状态发生变化"
+        }
+        // resolveActive snapshots a provider payload by authorized hash. Re-query package
+        // certificate and metadata after that copy so an update race cannot inherit consent.
+        if (state.active.kind == RimeEngineKind.PLUGIN) {
+            RimeEnginePlugins.requireCurrent(context,
+                plugins.singleOrNull() ?: error("引擎提供 APK 不可用"))
+        }
+        val profiles = config.directoryState().findByName("Profiles")?.value.orEmpty()
+            .lineSequence().filter(String::isNotBlank).toSet()
+        val targetProfile = when (resolved) {
+            ResolvedRimeEngine.Builtin -> state.builtinProfile
+                ?.takeIf { (forceFullCheck || state.restoreBuiltinProfile) && it in profiles }
+            is ResolvedRimeEngine.External -> resolved.profile.also {
+                require(it in profiles) { "引擎绑定的方案工作目录不存在：$it" }
+                config.requireExternalEngineProfile(it)
+            }
+        }
+        if (targetProfile != null && targetProfile != config.current) config.switch(targetProfile)
+        when (resolved) {
+            ResolvedRimeEngine.Builtin -> Native.selectBuiltin()
+            is ResolvedRimeEngine.External -> {
+                val file = File(resolved.filePath)
+                require(file.isFile) { "外部引擎文件不存在" }
+                ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
+                    Native.configureExternal(descriptor.fd, resolved.entrySymbol, resolved.payloadSha256)
+                }
+            }
+        }
+        return forceFullCheck
+    }
     private inline fun <T> startupStage(name: String, crossinline block: () -> T): T {
         val start = SystemClock.elapsedRealtime()
         return try { trace("rime.direct.startup.$name") { block() } }
@@ -716,7 +803,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         else clearBinding(token)
     }
 
-    private suspend fun maintain(operation: () -> Unit) = maintenanceMutex.withLock {
+    private suspend fun maintain(refreshAfterOperation: Boolean = true, operation: () -> Unit) = maintenanceMutex.withLock {
         maintenance = true
         keyGate.block()
         val (token, previousBinding) = synchronized(bindingLock) {
@@ -734,19 +821,34 @@ class DirectRimeBackend(context: Context) : InputEngine {
             ).apply { inputSession = token }))
             showUnavailable("正在部署，请稍候…")
             operation()
-            refreshSchemas()
+            if (refreshAfterOperation) refreshSchemas()
+            maintenanceActivationSelection?.let { selection ->
+                engineRepository.activationSucceeded(selection)
+                maintenanceActivationSelection = null
+                cancelExternalOperationWatchdog()
+            }
             restoreMaintenanceBinding(token, previousBinding)
         } } catch (e: Exception) {
             try {
                 withContext(NonCancellable) {
                     onOwner {
+                        val failedExternal = maintenanceActivationSelection
+                        if (failedExternal != null) {
+                            maintenanceActivationSelection = null
+                            engineRepository.activationFailed(failedExternal,
+                                "外部引擎重新启动失败：${e.message ?: e.javaClass.simpleName}")
+                            // Native setup may have partially run. Do not invoke that DSO
+                            // again in this process; the persisted fallback starts next.
+                            started = false
+                            cancelExternalOperationWatchdog()
+                            scheduleProcessRestart()
+                        }
                         if (token == inputSession) {
-                            try {
+                            if (failedExternal == null) {
                                 restoreMaintenanceBinding(token, previousBinding)
-                            } finally {
-                                if (e !is CancellationException) {
-                                    showUnavailable(e.message ?: "操作失败，请检查方案文件")
-                                }
+                            }
+                            if (e !is CancellationException && e !is EngineSwitchRecoveredException) {
+                                showUnavailable(e.message ?: "操作失败，请检查方案文件")
                             }
                         }
                     }
@@ -762,11 +864,176 @@ class DirectRimeBackend(context: Context) : InputEngine {
         else restartNative()
     }
     private suspend fun synchronize() = maintain { check(Native.sync()) { "用户词典同步失败" } }
-    private fun restartNative() {
-        if (started) Native.stop()
+
+    /**
+     * Apply the selection already committed by [RimeEngineRepository] without restarting Android.
+     *
+     * Native owns one stopped/started slot per engine identity. Keeping the previous slot stopped
+     * until the target has completed its full deployment makes a recoverable load failure an
+     * ordinary in-process rollback; the persisted activation guard still handles a native crash or
+     * watchdog timeout on the next process start.
+     */
+    private suspend fun switchEngineVariant() = withContext(NonCancellable) {
+        maintain(refreshAfterOperation = false, operation = ::switchEngineVariantOnOwner)
+    }
+
+    private fun switchEngineVariantOnOwner() {
+        require(!directBootMode) { "首次解锁前不能切换 Rime 引擎" }
+        val requested = engineRepository.state()
+        if (requested.active == activeEngineSelection && requested.activation == null) return
+        val requestedSelection = requested.active
+
+        // Keep this outside the recoverable target-load block. If the current engine cannot
+        // finalize cleanly, starting any other slot in the contaminated process is unsafe; an
+        // armed external watchdog remains responsible for the process-level fallback.
+        stopNativeForEngineSwitch()
+        try {
+            val fullCheck = configureSelectedEngine()
+            require(activeEngineSelection == requestedSelection) { "待切换引擎状态已变化" }
+            startConfiguredEngine(fullCheck)
+            refreshSchemas()
+            resetEngineSlotPresentationCaches()
+            engineRepository.activationSucceeded(activeEngineSelection)
+            cancelExternalOperationWatchdog()
+            startupError = ""
+        } catch (targetError: Exception) {
+            cancelExternalOperationWatchdog()
+            // start() can fail after selecting the target slot. stop() is idempotent and clears
+            // any session/notification handler that was installed before the failure surfaced.
+            started = false
+            armExternalOperationWatchdog(EXTERNAL_STOP_TIMEOUT_MS)
+            try {
+                Native.stop()
+                cancelExternalOperationWatchdog()
+            } catch (stopError: Exception) {
+                targetError.addSuppressed(stopError)
+                // The target slot could still own sessions, callbacks or partly initialized
+                // module state. Never load the fallback into this contaminated process.
+                scheduleProcessRestart()
+                throw targetError
+            }
+
+            try {
+                engineRepository.activationFailed(requestedSelection,
+                    "引擎切换失败，已恢复先前引擎：${targetError.message ?: targetError.javaClass.simpleName}")
+                val fallbackFullCheck = configureSelectedEngine()
+                check(activeEngineSelection != requestedSelection) { "没有可用的回退引擎" }
+                startConfiguredEngine(fallbackFullCheck)
+                refreshSchemas()
+                resetEngineSlotPresentationCaches()
+                engineRepository.activationSucceeded(activeEngineSelection)
+                cancelExternalOperationWatchdog()
+                startupError = ""
+            } catch (recoveryError: Exception) {
+                if (recoveryError !== targetError) targetError.addSuppressed(recoveryError)
+                started = false
+                cancelExternalOperationWatchdog()
+                // The activation record is deliberately left attempted. A fresh process will
+                // reject the incomplete fallback and continue to the built-in safety net.
+                scheduleProcessRestart()
+                throw targetError
+            }
+            throw EngineSwitchRecoveredException(
+                "目标引擎加载失败，已恢复先前引擎：${targetError.message ?: targetError.javaClass.simpleName}",
+                targetError)
+        }
+    }
+
+    /** Stop only the current native slot; unlike [stopNativeForRestart], selection may differ. */
+    private fun stopNativeForEngineSwitch() {
+        if (!started) return
+        // Even the trusted built-in slot must not leave the visible switch UI waiting forever.
+        // The watchdog is a last-resort crash-consistent fallback, never the normal switch path.
+        armExternalOperationWatchdog(EXTERNAL_STOP_TIMEOUT_MS)
+        // A throwing finalize leaves this slot unusable. Keep the watchdog armed and prevent the
+        // maintenance recovery path from re-opening input before the guarded process exits.
         started = false
+        snapshot = null
+        Native.stop()
+        cancelExternalOperationWatchdog()
+    }
+
+    private fun startConfiguredEngine(fullCheck: Boolean) {
+        armExternalOperationWatchdog(EXTERNAL_START_TIMEOUT_MS)
+        Native.start(shared.absolutePath, config.user.absolutePath, BuildConfig.VERSION_NAME,
+            fullCheck = fullCheck)
+        started = true
+    }
+
+    /** Native option revisions are local to an Engine slot and can collide across identities. */
+    private fun resetEngineSlotPresentationCaches() {
+        optionRows = emptyList()
+        optionsRevision = Long.MIN_VALUE
+        inputMethodEntryCache.clear()
+        statusAreaActionsCached = emptyArray()
+    }
+    private fun prepareMaintenanceRestart() {
+        if (!directBootMode) {
+            val persisted = engineRepository.state()
+            if (persisted.active != activeEngineSelection ||
+                (activeEngineSelection.kind == RimeEngineKind.BUILTIN && persisted.activation != null)) {
+                scheduleProcessRestart()
+                error("引擎选择已改变，正在用新进程应用设置")
+            }
+        }
+        if (!directBootMode && activeEngineSelection.kind != RimeEngineKind.BUILTIN &&
+            maintenanceActivationSelection == null) {
+            val (guarded, _) = engineRepository.beginActivation()
+            if (guarded.active != activeEngineSelection) {
+                // A previous restart never completed. beginActivation already persisted the
+                // fallback; this process still owns the old DSO and must not initialize it again.
+                scheduleProcessRestart()
+                error("外部引擎上次重新启动未完成，正在恢复回退引擎")
+            }
+            maintenanceActivationSelection = activeEngineSelection
+            val boundProfile = engineRepository.activeExternalProfile()
+                ?: error("活动外部引擎没有绑定工作目录")
+            config.requireExternalEngineProfile(boundProfile)
+            if (config.current != boundProfile) config.switch(boundProfile)
+        }
+    }
+
+    private fun stopNativeForRestart() {
+        prepareMaintenanceRestart()
+        if (!started) return
+        if (activeEngineSelection.kind != RimeEngineKind.BUILTIN) {
+            armExternalOperationWatchdog(EXTERNAL_STOP_TIMEOUT_MS)
+        }
+        Native.stop()
+        started = false
+        cancelExternalOperationWatchdog()
+    }
+
+    private fun restartNative() {
+        prepareMaintenanceRestart()
+        if (started) stopNativeForRestart()
+        if (activeEngineSelection.kind != RimeEngineKind.BUILTIN) {
+            armExternalOperationWatchdog(EXTERNAL_START_TIMEOUT_MS)
+        }
         Native.start(shared.absolutePath, config.user.absolutePath, BuildConfig.VERSION_NAME, fullCheck = true)
         started = true
+    }
+
+    private fun scheduleProcessRestart() {
+        cancelExternalOperationWatchdog()
+        processHandler.postDelayed({
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }, 500)
+    }
+
+    private fun armExternalOperationWatchdog(delayMillis: Long) {
+        cancelExternalOperationWatchdog()
+        val watchdog = Runnable {
+            android.util.Log.e("RimeLifecycle", "engine operation timed out; killing guarded process")
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }
+        externalOperationWatchdog = watchdog
+        processHandler.postDelayed(watchdog, delayMillis)
+    }
+
+    private fun cancelExternalOperationWatchdog() {
+        externalOperationWatchdog?.let(processHandler::removeCallbacks)
+        externalOperationWatchdog = null
     }
     override fun setLogRule(verbose: Boolean) {}
     override fun translate(str: String, domain: String) = str
@@ -777,7 +1044,16 @@ class DirectRimeBackend(context: Context) : InputEngine {
         if (onOwner { started }) synchronize()
     }
     override suspend fun saveNonRimeState() {}
-    override suspend fun reloadConfig() = maintain { config.load(); restartNative() }
+    override suspend fun reloadConfig() = maintain {
+        config.load()
+        if (!directBootMode) {
+            engineRepository.activeExternalProfile()?.let { bound ->
+                config.requireExternalEngineProfile(bound)
+                if (config.current != bound) config.switch(bound)
+            }
+        }
+        restartNative()
+    }
     override suspend fun getGlobalConfig() = getImConfig("rime")
     override suspend fun setGlobalConfig(config: RawConfig) = setImConfig("rime", config)
     override suspend fun getAddonConfig(addon: String) = getImConfig(addon)
@@ -805,6 +1081,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     }
     override suspend fun setAddonSubConfig(addon: String, path: String, config: RawConfig) {
         when(path) {
+            "engine-variant-switch" -> switchEngineVariant()
             "wanxiang-settings-repair" -> withContext(NonCancellable) { maintain {
                 org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
                 this@DirectRimeBackend.config.requireUpdateTarget(config.findByName("Profile")!!.value, config.findByName("Path")!!.value)
@@ -825,11 +1102,10 @@ class DirectRimeBackend(context: Context) : InputEngine {
                     require(WanxiangPayload.child(payload.canonicalFile, file.name) == file.absoluteFile && file.isFile && file.length() <= org.fcitx.fcitx5.android.data.WanxiangYaml.MAX_TEXT)
                     if (!file.name.endsWith(".dict.yaml")) org.fcitx.fcitx5.android.data.WanxiangYaml().document(file.readText())
                 }
-                if (started) Native.stop()
-                started = false
+                stopNativeForRestart()
                 try {
                     WanxiangUpdateTransaction.install(this@DirectRimeBackend.config.user, payload,
-                        activate = { restartNative() }, deactivate = { if (started) Native.stop(); started = false }, settings = true)
+                        activate = { restartNative() }, deactivate = { stopNativeForRestart() }, settings = true)
                 } catch (error: Throwable) {
                     try { WanxiangUpdateTransaction.recover(this@DirectRimeBackend.config.user); restartNative() }
                     catch (recovery: Throwable) { error.addSuppressed(recovery) }
@@ -845,11 +1121,10 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 require(WanxiangPayload.child(job, "prepared").isFile) { "更新资源尚未准备完成" }
                 val staging = WanxiangPayload.child(job, "payload")
                 if (staging.walkTopDown().none { it.isFile }) return@maintain
-                if (started) Native.stop()
-                started = false
+                stopNativeForRestart()
                 try {
                     WanxiangUpdateTransaction.install(this@DirectRimeBackend.config.user, staging,
-                        activate = { restartNative() }, deactivate = { if (started) Native.stop(); started = false }, generic = true)
+                        activate = { restartNative() }, deactivate = { stopNativeForRestart() }, generic = true)
                 } catch (error: Throwable) {
                     try { WanxiangUpdateTransaction.recover(this@DirectRimeBackend.config.user); restartNative() }
                     catch (recovery: Throwable) { error.addSuppressed(recovery) }
@@ -865,12 +1140,11 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 org.fcitx.fcitx5.android.data.WanxiangProtection(selection.protection).filter(staging, this@DirectRimeBackend.config.user)
                 org.fcitx.fcitx5.android.ui.main.wanxiang.WanxiangExtraDictionaries.verifyAuxiliary(staging.parentFile!!, staging, this@DirectRimeBackend.config.user)
                 if (staging.walkTopDown().none { it.isFile }) return@maintain
-                if (started) Native.stop()
-                started = false
+                stopNativeForRestart()
                 try {
                     WanxiangUpdateTransaction.install(this@DirectRimeBackend.config.user, staging,
                         activate = { restartNative() },
-                        deactivate = { if (started) Native.stop(); started = false }, overrides = true)
+                        deactivate = { stopNativeForRestart() }, overrides = true)
                 } catch (error: Throwable) {
                     try {
                         // Recovery must succeed before opening any database or model again.
@@ -890,25 +1164,39 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 check(Native.deploy()) { "部署失败，请检查方案文件" }
             }
             "profile-manager" -> maintain {
+                require(!directBootMode) { "首次解锁前不能管理 Rime 工作目录" }
                 val name = config.findByName("Name")?.value.orEmpty()
                 val operation = config.findByName("Action")?.value.orEmpty()
                 try {
-                    when (operation) {
-                        "create" -> this.config.create(name, config.findByName("ExternalPath")?.value.orEmpty())
-                        "switch" -> { this.config.switch(name); restartNative() }
-                        "rename" -> {
-                            val active = name == this.config.current
-                            if (active && started) { Native.stop(); started = false }
-                            try { this.config.rename(name, config.findByName("NewName")?.value.orEmpty()) }
-                            finally { if (active) restartNative() }
+                    engineRepository.profileMutationLease().use {
+                        when (operation) {
+                            "create" -> this.config.create(name, config.findByName("ExternalPath")?.value.orEmpty())
+                            "switch" -> {
+                                engineRepository.requireBuiltinForProfileSwitch()
+                                this.config.switch(name)
+                                restartNative()
+                            }
+                            "rename" -> {
+                                engineRepository.requireProfileUnreferenced(name)
+                                val active = name == this.config.current
+                                if (active) stopNativeForRestart()
+                                try { this.config.rename(name, config.findByName("NewName")?.value.orEmpty()) }
+                                finally { if (active) restartNative() }
+                            }
+                            "delete" -> {
+                                engineRepository.requireProfileUnreferenced(name)
+                                this.config.delete(name)
+                            }
+                            else -> error("无效目录操作")
                         }
-                        "delete" -> this.config.delete(name)
-                        else -> error("无效目录操作")
                     }
                     this.config.error = ""
                 } catch (e: Exception) { this.config.error = e.message.orEmpty(); throw e }
             }
             "import-profile" -> maintain {
+                require(!directBootMode) { "首次解锁前不能导入 Rime 工作目录" }
+                engineRepository.requireProfileMutationIdle()
+                engineRepository.requireBuiltinForProfileSwitch()
                 val pathValue = config.findByName("Archive")?.value ?: error("请选择方案 ZIP")
                 val archive = File(pathValue).canonicalFile
                 require(archive.parentFile == File(context.cacheDir, "rime-import").canonicalFile) { "无效导入路径" }
@@ -936,17 +1224,22 @@ class DirectRimeBackend(context: Context) : InputEngine {
                     staging.deleteRecursively()
                     throw e
                 }
+                var registered = false
                 try {
-                    this.config.create(name, target.absolutePath)
+                    engineRepository.profileMutationLease().use {
+                        engineRepository.requireBuiltinForProfileSwitch()
+                        this.config.create(name, target.absolutePath)
+                        registered = true
+                        val previous = this.config.current
+                        try { this.config.switch(name); restartNative() }
+                        catch (e: Exception) {
+                            this.config.switch(previous)
+                            restartNative()
+                            throw e
+                        }
+                    }
                 } catch (e: Exception) {
-                    target.deleteRecursively()
-                    throw e
-                }
-                val previous = this.config.current
-                try { this.config.switch(name); restartNative() }
-                catch (e: Exception) {
-                    this.config.switch(previous)
-                    restartNative()
+                    if (!registered) target.deleteRecursively()
                     throw e
                 }
             }
