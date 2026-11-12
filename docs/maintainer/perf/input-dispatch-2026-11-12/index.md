@@ -120,4 +120,4 @@ AOSP Android 15 的参考实现还显示：`UiAutomation.injectInputEvent(event,
 
 完整源码 ZIP 只含当时受跟踪文件；gitlink 按各源码锁文件准备，不递归打包子模块。试验驱动的工作树不等于其另行检出的被测 App，复现时按 `sources.json` / `cadence-sources.json` 和产物清单定位。mbox 可在默认冻结基线 `0380d70f` 上审阅/重放，重放后的 Git 哈希及 APK 字节可能变化。当前永久探针和运行器的用法见代码 README 与 `tools/input-perf/run-cadence.py --help`。
 
-APK、模型、签名和视频不提交 Git。Actions 元数据包含产物 ID、摘要及有效期；数据和源码快照在本页长期保留。临时试验分支在归档推送后清理，[清理回执](./cleanup-receipt.json)记录实际结果；临时启用的性能工作流恢复禁用。
+APK、模型、签名和视频不提交 Git。Actions 元数据包含产物 ID、摘要及有效期；数据和源码快照在本页长期保留。临时试验分支已在归档推送后清理，[清理回执](./cleanup-receipt.json)记录实际结果；临时启用的性能工作流恢复禁用。

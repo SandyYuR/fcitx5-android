@@ -1,10 +1,32 @@
 {
-  "state": "archive-prepared-before-deletion",
+  "state": "completed",
+  "completed_at": "2026-11-12T13:07:34.115632+08:00",
   "branch": "test/i-dispatch-ablation-20261112",
-  "expected_tip": "4777f651ed0f422101ba219b2e4acf9b8b895821",
-  "remote_branch_deleted": false,
-  "local_branch_deleted": false,
-  "archive_push_required_before_deletion": true,
+  "deleted_tip": "4777f651ed0f422101ba219b2e4acf9b8b895821",
+  "archive_pushed_before_deletion": "ffc4945e7c25262a5d0691a1a81e32d505510be6",
+  "remote_branch_deleted": true,
+  "local_branch_deleted": true,
+  "temporary_worktree_removed": true,
+  "retained_worktrees": [
+    "worktree /workspace/fcitx5-android",
+    "HEAD 10cc633175ce3cb832e2ab098497c34915e291e7",
+    "branch refs/heads/fix/first-candidate-latency-20261112",
+    "",
+    "worktree /workspace/fcitx5-android-report",
+    "HEAD ffc4945e7c25262a5d0691a1a81e32d505510be6",
+    "branch refs/heads/report/wanxiang-retest-20261108"
+  ],
+  "remaining_remote_branches": {
+    "doc-rime-engine-variants": "ab1cc7596f2b46ddfb74b4bae33fe3addc9d0d26",
+    "docs": "9d663ea74177f96e7624b9b133278912a52113db",
+    "feat/rime-engine-variants": "68bfd17bfe857149b5c2fe3c2e8c371bb3fac1c5",
+    "fix/first-candidate-latency-20261112": "10cc633175ce3cb832e2ab098497c34915e291e7",
+    "fx-rime-only": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+    "report/wanxiang-retest-20261108": "ffc4945e7c25262a5d0691a1a81e32d505510be6"
+  },
   "default_branch_unchanged": true,
-  "historical_ci_deleted": false
+  "user_engine_variant_branches_unchanged": true,
+  "workflow_388119728": "disabled_manually",
+  "historical_ci_deleted": false,
+  "push_result": "To https://github.com/SandyYuR/fcitx5-android.git\n - [deleted]           test/i-dispatch-ablation-20261112\n"
 }

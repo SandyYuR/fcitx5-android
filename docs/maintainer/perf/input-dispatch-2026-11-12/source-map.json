@@ -47,7 +47,7 @@
       ]
     }
   ],
-  "cleanup_state": "archive-prepared-before-deletion",
+  "cleanup_state": "completed",
   "code_commits": [
     "af5939f0",
     "10cc6331"
@@ -57,5 +57,8 @@
     "4d77cd79",
     "b03e9b46"
   ],
-  "current_code_correctness_only": true
+  "current_code_correctness_only": true,
+  "cleanup_receipt": "cleanup-receipt.json",
+  "code_ci": "code-ci.json",
+  "font_device_validation": "font-device-validation.json"
 }
