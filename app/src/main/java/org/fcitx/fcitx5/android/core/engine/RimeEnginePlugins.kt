@@ -87,8 +87,13 @@ internal object RimeEnginePlugins {
 
     private fun certificateDigest(manager: PackageManager, packageName: String): String {
         val signatures = if (Build.VERSION.SDK_INT >= 28) {
-            val info = manager.getPackageInfo(packageName,
-                PackageManager.PackageInfoFlags.of(PackageManager.GET_SIGNING_CERTIFICATES.toLong()))
+            val info = if (Build.VERSION.SDK_INT >= 33) {
+                manager.getPackageInfo(packageName,
+                    PackageManager.PackageInfoFlags.of(PackageManager.GET_SIGNING_CERTIFICATES.toLong()))
+            } else {
+                @Suppress("DEPRECATION")
+                manager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+            }
             info.signingInfo?.apkContentsSigners.orEmpty()
         } else {
             @Suppress("DEPRECATION")
