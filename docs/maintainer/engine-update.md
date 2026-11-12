@@ -76,9 +76,11 @@ Android 构建的依赖版本以 `sources.lock.json` 为准，不能只改 libri
 
 这是中州鹅兼容的社区协议，不是 Rime 上游标准。主应用把授权绑定到包名、签名证书 SHA-256、DSO SHA-256 和 SONAME；更新或换签后要求重新授权。实际启动不直接 `dlopen` 提供 APK 的 `nativeLibraryDir` 路径：先把载荷复制、重新静态检查并原子发布为应用管理的只读 `plugin-<SHA-256>.so` 执行快照，再重新查询包证书、provider ID、协议/API 版本、SONAME、载荷摘要和入口。复制期间发生安装更新或元数据变化时本次启动失败并走回退，不把旧授权套到新包。提供 APK 应设置 `extractNativeLibs=true`，确保宿主能从 `nativeLibraryDir` 取得可供复制的真实文件。稳定分发必须复用同一签名；临时 CI 签名只用于测试。
 
+提供 APK 的证书读取遵循系统版本：API 33 及以上使用 `PackageInfoFlags` 重载，API 28–32 使用整数 flags 的 `GET_SIGNING_CERTIFICATES`，两者都取 `SigningInfo.apkContentsSigners` 当前证书；API 27 及以下使用 `GET_SIGNATURES`。不能把历史签名证书误当作当前授权身份，也不能在 API 28–32 调用 API 33 的新重载。`RimeEnginePluginsTest` 在 API 27、28、32、33 的 Robolectric 运行时中调用真实发现、ELF 校验和再次身份核对，设备加载能力仍由单独回归确认。
+
 每次进程准备使用外部引擎，而不只是首次切换，都会在载荷发布和加载前原子写入启动守卫。显式切换或修改活动引擎绑定时还设置完整部署标志；普通稳定启动不因此无条件重编方案。只有 native 初始化、所需部署和方案刷新成功才清除守卫，未完成的下一次启动按保存的前一引擎回退。外部引擎活动期间，兼容保留的 `profile-manager` 不允许直接切换目录，`import-profile` 也不允许导入并切换；应在引擎变体页修改绑定。任何导入引擎、已授权 provider 或内置回退状态仍引用的 profile 均不得重命名或删除。
 
-`SandyYuR/librime-evo` 的 `.github/workflows/android-engine.yml` 是完整示例：从固定源码和依赖构建 ARM64 自包含 DSO，检查 ELF、导出和摘要，再把同一字节载荷封装为提供 APK。工作流分别上传 `.so` 与 APK artifact；配置四个 `ANDROID_ENGINE_*` Secrets 时使用稳定发行签名，否则生成本次运行专用的测试签名。方案兼容仍需单独设备验证，构建成功不代表任意 YAML、词典或模型完整。
+`SandyYuR/librime-evo` 的 `.github/workflows/android-engine.yml` 是完整示例：从固定源码和依赖构建 ARM64 自包含 DSO，检查 ELF、导出和摘要，再把同一字节载荷封装为提供 APK。工作流分别上传 `.so` 与 APK artifact；只有 `main` 分支的非 PR 构建且四个 `ANDROID_ENGINE_*` Secrets 齐备时使用稳定发行签名。未配置 keystore，或属于非 `main`／PR 构建时，生成本次运行专用的测试签名；已进入发行签名分支但其余凭据不完整时，构建会终止。方案兼容仍需单独设备验证，构建成功不代表任意 YAML、词典或模型完整。
 
 设备门禁的两个 `RimeEngineVariantDeviceTest` 方法必须用两次独立 instrumentation 启动；同一 runner 进程不会卸载第一个 DSO，连续执行会污染第二项。2026-11-12 本机固定的 x86_64 夹具为：内置 SDK 最终链接 DSO SHA-256 `401da5c080b00876e173c9b351c881888f6c0eedc278728aba88ca15df7fabaf`，`librime-evo@8727992e` provider APK SHA-256 `75638150c5d273dc9a497d7b1a91ba51316e1129474cca114e9d7ad59a041f36`，可运行万象 profile ZIP SHA-256 `1bfe7d8652a71977b3cb67aaaefdcd0efc7c71f874c90eb1a615bea968a70788`（方案基线 `45eeda12`）。运行前逐项复核摘要、安装 provider，并把 DSO/ZIP 放到下列固定设备路径；不能用同名未核验文件替代。
 
@@ -100,6 +102,14 @@ adb shell am instrument -w -r \
 ```
 
 两次输出须各自为 `OK (1 test)`。导入项检查 isolated UID 与不可写探测快照、受管载荷、损坏执行缓存重发布及真实 bridge 启动；provider 项强制要求 `profilePath`，检查包身份重核、按摘要执行快照、完整部署、候选上屏以及同一 DSO 的 stop/start。当前通用 workflow 不携带这些外部固定夹具，故不会自动执行本项；必须把本机结果与常规 CI 分开记录。
+
+### 外部引擎的方案部署排查
+
+固定引擎载荷摘要、方案压缩包摘要及实际绑定目录，分别记录 API 探测、方案部署、候选与上屏结果。配置语法、Lua 接口、词典名称和模型格式都须符合该 fork；引擎 ARM64 CI 成功不能替代配套方案在设备上的验证。
+
+从本次部署日志中定位首个 `error applying patch`、`unresolved dependency`、`error building config`，并核对其指向的 `__patch`／`__include` 路径；词典、模型缺失则按明确文件名核对来源和目录。旧编译文件与可枚举的方案名称不能证明本次编译成功。验证错误通知时使用新解压的独立目录，避免旧缓存遮蔽失败，同时检查 `deploy/failure` 与 `deploy/success`，最终仍须输入中文编码并实际选字上屏。
+
+2026-11-12 已在 `librime-evo@06947eedd6236318cbf9a2745e2d0cfc65011af7` 复现：配置 Link 失败、目标编译文件缺失，但维护流程仍发出 `deploy/success`。修复在保留部分解析数据的前提下，将编译结果传给 `ConfigFileUpdate`，并让 `WorkspaceUpdate` 传播默认配置失败；独立设备进程已验证错误通知及自然码诊断包上屏。修复已随 `05037824` 推送至该仓库的开发分支，CI 已生成引擎与提供 APK 产物，但未自动更新设备上的引擎，完整范围见[日期记录](changes/2026-11-12-evo-profile-diagnosis)。上面的 `runnable-v2` 是裁剪过的测试夹具，不代表原始万象 EVO 方案通过。
 
 ## 组件源码在哪里
 
