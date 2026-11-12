@@ -54,11 +54,18 @@ Ready 快照仍读取动态 context 和音节信息。不能仅凭 preedit 文�
 
 性能分开观察事件注入、IME 分发、owner 排队、Rime 调用、快照、IC 和界面绘制。CPU 与 wall time 分开记录；有 trace 的归因样本不并入无 trace 对照表。近期例子见[首键与点选调查](../perf/wanxiang-2026-11-08/supplement-2026-11-11/investigation-2026-11-11/index.md)。
 
+`tools/input-perf/associate-events.py` 对逐事件时间范围、唯一进程实例及线程状态覆盖作校验。没有完整采样时 CPU 为 `null` 且分析失败；只有被完整观察的空闲区间才能报告零 CPU。原始查询、JSON 和 `validation_errors` 在失败时保留，不能将缺失数据解释成引擎或主线程没有运行。
+
+固定节拍 v2 探针提前缓存目标 View 与坐标，避免在被测 DOWN 回调内搜索整个视图树；它仍记录计划时间、实际注入时间和窗口接收时间，调度迟到不能省略。运行器须显式指定 `--serial`、`--expected-avd-name`、`--allow-destructive-reset`，仅用于已经获准清空的测试 AVD；原清空式夹具协议不适合长期保存用户数据的模拟手机。工具测试、协议版本及候选调整见[PR #32 审阅修复记录](../changes/2026-11-12-pr32-review-repair.md)。
+
+无注释候选直接保存普通字符串，高亮变化仅更新颜色和背景，保留文字测量缓存；带注释候选继续使用原字体、字号和颜色 span。正文字体变化仍必须失效测量缓存，注释出现或字体变化仍须重建对应富文本。该优化减少冗余工作，不能直接换算为输入延迟改善。
+
 ## 修改与验证入口
 
 - 按键、会话、候选与分页：`InputKeyGateTest`、`InputEventQueueTest`、`CandidateSelectionQueueTest`、候选目标与分页测试；行为变化补真实 librime / Android 前端回归。
 - native 门控、revision 与资源安全：`engine_test.cpp`、ASan/UBSan 主机回归、SDK/原生链接与 APK 门禁。
 - JNI 仍需设备侧验证；`engine.cpp` 的 sanitizer 通过不能直接代表 `bridge.cpp` 或真实 JVM 的 JNI 路径已被完整覆盖。
 - 界面性能修改同时检查注释、字体、字号、候选角标、长文本溢出、触摸取消及选择目标；构建成功不能代替这些行为验收。
+- `CandidateRenderingStateTest` 检查高亮与字体刷新时的文字缓存边界，`CandidateRenderingTest` 将候选与旧全文颜色 span 的同形组件作设备像素对照；这些组件结果不替代端到端性能测量。
 
 结构整理的建议和顺序见[2026-11-12 后端审查核对](../history/direct-rime-backend-review-2026-11-12.md)。后续提取组件应减少耦合，并保持以上线程与事务边界；文件变短本身不是性能结果。

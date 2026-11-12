@@ -1,0 +1,30 @@
+[
+  {
+    "batch": "final-cadence-forward",
+    "product": "before",
+    "valid": true,
+    "waits": 18,
+    "validation_errors": []
+  },
+  {
+    "batch": "final-cadence-forward",
+    "product": "ui",
+    "valid": true,
+    "waits": 18,
+    "validation_errors": []
+  },
+  {
+    "batch": "final-cadence-reverse",
+    "product": "before",
+    "valid": true,
+    "waits": 18,
+    "validation_errors": []
+  },
+  {
+    "batch": "final-cadence-reverse",
+    "product": "ui",
+    "valid": true,
+    "waits": 18,
+    "validation_errors": []
+  }
+]
