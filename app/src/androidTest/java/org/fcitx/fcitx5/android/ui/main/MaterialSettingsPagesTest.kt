@@ -6,17 +6,20 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
 import android.net.Uri
 import android.os.Build
+import android.os.SystemClock
 import android.view.View
 import android.view.ViewGroup
 import android.view.MotionEvent
 import android.view.inspector.WindowInspector
 import android.widget.ArrayAdapter
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ImageView
 import android.widget.ListView
@@ -33,15 +36,23 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.runBlocking
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.core.engine.PluginRimeEngineAuthorization
+import org.fcitx.fcitx5.android.core.engine.RimeEngineRuntimeInfo
+import org.fcitx.fcitx5.android.core.engine.RimeEngineState
+import org.fcitx.fcitx5.android.core.engine.RimeEngineStaticInfo
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
+import org.fcitx.fcitx5.android.data.RimeDataDirectoryState
 import org.fcitx.fcitx5.android.ui.common.ProgressBarDialogIndeterminate
+import org.fcitx.fcitx5.android.ui.common.OperationStatusView
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.common.SettingsSlider
 import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
 import org.fcitx.fcitx5.android.ui.main.settings.im.RimeImportActivity
+import org.fcitx.fcitx5.android.ui.main.settings.im.RimeEngineManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.setup.SetupActivity
 import org.fcitx.fcitx5.android.ui.main.update.ReleaseInfo
 import org.fcitx.fcitx5.android.ui.main.update.UpdateCheckActivity
@@ -339,6 +350,20 @@ class MaterialSettingsPagesTest {
                     org.fcitx.fcitx5.android.clipboardsync.ui.ClipboardSyncSettingsActivity::class.java)) {
                     page(type) { themedToolbar(it, dark) }
                 }
+                page(RimeEngineManagerActivity::class.java, ready = { activity ->
+                    descendants(activity.window.decorView).filterIsInstance<MaterialButton>().any {
+                        it.text == activity.getString(R.string.rime_engine_import_so) &&
+                            it.height >= (48 * activity.resources.displayMetrics.density).toInt()
+                    }
+                }) { activity ->
+                    themedToolbar(activity, dark)
+                    val import = descendants(activity.window.decorView).filterIsInstance<MaterialButton>()
+                        .first { it.text == activity.getString(R.string.rime_engine_import_so) }
+                    assertTrue(import.height >= (48 * activity.resources.displayMetrics.density).toInt())
+                    assertTrue(descendants(activity.window.decorView).filterIsInstance<TextView>().any {
+                        it.text == activity.getString(R.string.rime_engine_variants_description)
+                    })
+                }
                 page(CropImageActivity::class.java, {
                     putExtra(CropImageActivity.CROP_OPTIONS,
                         CropImageActivity.CropOption.Edit(64, 64, Uri.fromFile(image)))
@@ -348,6 +373,187 @@ class MaterialSettingsPagesTest {
                 }
             }
         } finally { image.delete() }
+    }
+
+    @Test fun engineManagerToolbarBackClosesPage() {
+        val activity = instrumentation.startActivitySync(Intent(context, RimeEngineManagerActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        try {
+            lateinit var back: ImageButton
+            val readyDeadline = SystemClock.uptimeMillis() + 8000
+            var ready = false
+            while (!ready && SystemClock.uptimeMillis() < readyDeadline) {
+                instrumentation.waitForIdleSync()
+                onMain {
+                    val toolbar = activity.findViewById<MaterialToolbar>(R.id.toolbar)
+                    val candidate = (0 until toolbar.childCount).map(toolbar::getChildAt)
+                        .filterIsInstance<ImageButton>().firstOrNull()
+                    if (candidate != null && candidate.isShown && candidate.width > 0) {
+                        back = candidate
+                        ready = true
+                    }
+                }
+                if (!ready) SystemClock.sleep(30)
+            }
+            assertTrue("Engine manager navigation button did not become tappable", ready)
+            tap(back)
+            val finishDeadline = SystemClock.uptimeMillis() + 5000
+            while (!activity.isFinishing && !activity.isDestroyed &&
+                SystemClock.uptimeMillis() < finishDeadline) {
+                instrumentation.waitForIdleSync()
+                SystemClock.sleep(30)
+            }
+            assertTrue("Toolbar back did not close the engine manager",
+                activity.isFinishing || activity.isDestroyed)
+        } finally {
+            onMain { if (!activity.isFinishing && !activity.isDestroyed) activity.finish() }
+            instrumentation.waitForIdleSync()
+        }
+    }
+
+    @Test fun engineSwitchShowsProgressAndDisablesOnlyEngineActions() {
+        page(RimeEngineManagerActivity::class.java, ready = { activity ->
+            descendants(activity.window.decorView).filterIsInstance<MaterialButton>().any {
+                it.text == activity.getString(R.string.rime_engine_import_so)
+            }
+        }) { activity ->
+            val busy = RimeEngineManagerActivity::class.java.getDeclaredMethod(
+                "setOperationRunning", Boolean::class.javaPrimitiveType!!, String::class.java
+            ).apply { isAccessible = true }
+            val body = RimeEngineManagerActivity::class.java.getDeclaredField("body").apply {
+                isAccessible = true
+            }.get(activity) as View
+            val target = "测试引擎"
+            busy.invoke(activity, true, target)
+            try {
+                val status = descendants(activity.window.decorView)
+                    .filterIsInstance<OperationStatusView>().single()
+                val progress = descendants(status).filterIsInstance<LinearProgressIndicator>().single()
+                assertEquals(activity.getString(R.string.rime_engine_switching), status.heading.text.toString())
+                assertEquals(activity.getString(R.string.rime_engine_switch_target, target),
+                    status.detail.text.toString())
+                assertEquals(View.VISIBLE, progress.visibility)
+                assertTrue(progress.isIndeterminate)
+                val actions = descendants(body).filterIsInstance<MaterialButton>().toList()
+                assertTrue(actions.isNotEmpty())
+                assertTrue("Engine actions stayed enabled during deployment", actions.all { !it.isEnabled })
+
+                val toolbar = activity.findViewById<MaterialToolbar>(R.id.toolbar)
+                val navigation = (0 until toolbar.childCount).map(toolbar::getChildAt)
+                    .filterIsInstance<ImageButton>().first()
+                assertTrue("Back must remain available while the engine switches", navigation.isEnabled)
+            } finally {
+                busy.invoke(activity, false, null)
+            }
+            assertTrue(descendants(body).filterIsInstance<MaterialButton>().all { it.isEnabled })
+        }
+    }
+
+    @Test fun engineProviderApksAreListedBeforeImportedSharedLibraries() {
+        page(RimeEngineManagerActivity::class.java, ready = { activity ->
+            descendants(activity.window.decorView).filterIsInstance<TextView>().any {
+                it.text == activity.getString(R.string.rime_engine_imported_section)
+            }
+        }) { activity ->
+            val body = RimeEngineManagerActivity::class.java.getDeclaredField("body").apply {
+                isAccessible = true
+            }.get(activity) as View
+            val labels = descendants(body).filterIsInstance<TextView>().map { it.text.toString() }.toList()
+            val providers = labels.indexOf(activity.getString(R.string.rime_engine_plugin_section))
+            val imported = labels.indexOf(activity.getString(R.string.rime_engine_imported_section))
+            assertTrue("Provider APK section is missing", providers >= 0)
+            assertTrue("Imported .so section is missing", imported >= 0)
+            assertTrue("Provider APKs must be listed above imported .so engines", providers < imported)
+
+            val digest = "11".repeat(32)
+            val missingName = "Missing provider fixture"
+            val authorization = PluginRimeEngineAuthorization(
+                packageName = "org.example.missing.engine",
+                displayName = missingName,
+                providerId = "missing-fixture",
+                certificateSha256 = "22".repeat(32),
+                payloadSha256 = digest,
+                soname = "librime-missing.so",
+                staticInfo = RimeEngineStaticInfo(
+                    sha256 = digest, size = 1, abi = "x86_64", bits = 64,
+                    soname = "librime-missing.so", entrySymbol = "rime_get_api",
+                    neededLibraries = listOf("libc.so"), loadAlignment = 16384,
+                    sourceName = "librime-missing.so"
+                ),
+                runtimeInfo = RimeEngineRuntimeInfo("1.0", 1, emptyList()),
+                profile = "rime",
+                authorizedAt = 1
+            )
+            val screenClass = Class.forName("${RimeEngineManagerActivity::class.java.name}\$Screen")
+            val screen = screenClass.declaredConstructors.single().apply { isAccessible = true }.newInstance(
+                RimeEngineState(plugins = listOf(authorization)),
+                RimeDataDirectoryState("rime", listOf("rime"), mapOf("rime" to activity.filesDir.path)),
+                emptyList<Any>()
+            )
+            RimeEngineManagerActivity::class.java.getDeclaredMethod("render", screenClass).apply {
+                isAccessible = true
+            }.invoke(activity, screen)
+            val missingLabels = descendants(body).filterIsInstance<TextView>().map { it.text.toString() }.toList()
+            val missingProvider = missingLabels.indexOf(missingName)
+            val missingImported = missingLabels.indexOf(activity.getString(R.string.rime_engine_imported_section))
+            assertTrue("Saved but unavailable provider must stay inside the APK section: " +
+                "providerSection=${missingLabels.indexOf(activity.getString(R.string.rime_engine_plugin_section))}, " +
+                "missing=$missingProvider, imported=$missingImported, labels=$missingLabels",
+                missingProvider > missingLabels.indexOf(activity.getString(R.string.rime_engine_plugin_section)) &&
+                    missingProvider < missingImported)
+        }
+    }
+
+    @Test fun rimeEngineEntrySummaryStaysOnOneLine() {
+        page(MainActivity::class.java, extras = {
+            action = Intent.ACTION_RUN
+            putExtra(MainActivity.EXTRA_SETTINGS_ROUTE,
+                SettingsRoute.SettingsGroup(SettingsGroupSpecs.ID_INPUT))
+        }, ready = { activity ->
+            descendants(activity.window.decorView).filterIsInstance<TextView>().any {
+                it.isShown && it.height > 0 &&
+                    it.text == activity.getString(R.string.rime_engine_variants_summary)
+            }
+        }) { activity ->
+            val summary = descendants(activity.window.decorView).filterIsInstance<TextView>().single {
+                it.isShown && it.text == activity.getString(R.string.rime_engine_variants_summary)
+            }
+            assertEquals(1, summary.maxLines)
+            assertEquals(android.text.TextUtils.TruncateAt.END, summary.ellipsize)
+            assertEquals(1, summary.lineCount)
+        }
+    }
+
+    @Test fun engineManagerDestroyRemovesOnlyItsStagingDirectory() {
+        lateinit var manager: Activity
+        lateinit var ownedStagingFile: File
+        page(RimeEngineManagerActivity::class.java, ready = { activity ->
+            descendants(activity.window.decorView).filterIsInstance<MaterialButton>().any {
+                it.text == activity.getString(R.string.rime_engine_import_so)
+            }
+        }) { activity ->
+            manager = activity
+            val tokenField = RimeEngineManagerActivity::class.java
+                .getDeclaredField("stagingToken").apply { isAccessible = true }
+            val token = tokenField.get(activity) as String
+            ownedStagingFile = File(activity.codeCacheDir,
+                "rime-engine-import/$token/pending.so")
+            assertTrue(ownedStagingFile.parentFile!!.mkdirs())
+            ownedStagingFile.writeBytes(byteArrayOf(0x7f, 'E'.code.toByte(), 'L'.code.toByte(), 'F'.code.toByte()))
+            RimeEngineManagerActivity::class.java.getDeclaredField("pendingImport").apply {
+                isAccessible = true
+                set(activity, ownedStagingFile)
+            }
+            assertTrue(ownedStagingFile.isFile)
+        }
+        val deadline = android.os.SystemClock.uptimeMillis() + 5000
+        while (ownedStagingFile.exists() && android.os.SystemClock.uptimeMillis() < deadline) {
+            instrumentation.waitForIdleSync()
+            android.os.SystemClock.sleep(30)
+        }
+        assertTrue("Engine manager did not reach onDestroy", manager.isDestroyed)
+        assertFalse("Destroyed engine manager left its staged payload", ownedStagingFile.exists())
+        assertFalse("Destroyed engine manager left its token directory", ownedStagingFile.parentFile!!.exists())
     }
 
     @Test fun clipboardEditorAndSharedDialogsUseMaterialComponents() {
@@ -470,6 +676,22 @@ class MaterialSettingsPagesTest {
         android.os.ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand(
             "screencap -p /data/local/tmp/direct-frontend-md3-$name-$mode.png"
         )).use { it.readBytes() }
+    }
+
+    private fun tap(view: View) {
+        val bounds = Rect()
+        onMain {
+            assertTrue("The control must be visible before tapping", view.getLocalVisibleRect(bounds))
+            val location = IntArray(2).also(view::getLocationOnScreen)
+            bounds.offset(location[0], location[1])
+        }
+        val now = SystemClock.uptimeMillis()
+        listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP).forEachIndexed { index, action ->
+            val event = MotionEvent.obtain(now, now + index * 30L, action,
+                bounds.exactCenterX(), bounds.exactCenterY(), 0)
+            try { instrumentation.sendPointerSync(event) } finally { event.recycle() }
+        }
+        instrumentation.waitForIdleSync()
     }
 
     private fun descendants(view: View): Sequence<View> = sequence {

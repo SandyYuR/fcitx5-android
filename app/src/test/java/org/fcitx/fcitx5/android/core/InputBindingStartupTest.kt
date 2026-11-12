@@ -77,6 +77,19 @@ class InputBindingStartupTest {
         assertTrue(result.ascii)
     }
 
+    @Test fun switchingEngineSlotsInvalidatesNativeRevisionScopedOptions() {
+        createBackend()
+        ReflectionHelpers.setField(backend, "optionRows",
+            listOf(listOf("old-option", "Old option", "1", "")))
+        ReflectionHelpers.setField(backend, "optionsRevision", 0L)
+
+        ReflectionHelpers.callInstanceMethod<Unit>(backend, "resetEngineSlotPresentationCaches")
+
+        assertTrue(ReflectionHelpers.getField<List<List<String>>>(backend, "optionRows").isEmpty())
+        assertEquals(Long.MIN_VALUE, ReflectionHelpers.getField<Long>(backend, "optionsRevision"))
+        assertTrue(backend.statusAreaActionsCached.isEmpty())
+    }
+
     @Test fun statusReadFailureStillRestoresTheOwnerThreadPriority() = runBlocking {
         createBackend()
         BindingNativeShadow.failOptions = true

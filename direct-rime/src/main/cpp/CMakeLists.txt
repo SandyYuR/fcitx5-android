@@ -10,7 +10,7 @@ endif()
 if(ANDROID)
     add_library(rime STATIC IMPORTED)
     set_target_properties(rime PROPERTIES IMPORTED_LOCATION "${PREBUILT}/librime/${ANDROID_ABI}/lib/librime.a")
-    add_library(direct-rime SHARED bridge.cpp engine.cpp leveldb-open.cpp)
+    add_library(direct-rime SHARED bridge.cpp engine.cpp engine-library.cpp leveldb-open.cpp)
     target_compile_definitions(direct-rime PRIVATE INPUT_DIAGNOSTICS=$<BOOL:${INPUT_DIAGNOSTICS}>)
     target_include_directories(direct-rime PRIVATE "${PREBUILT}/leveldb/${ANDROID_ABI}/include")
     execute_process(COMMAND "${CMAKE_NM}" --defined-only "${PREBUILT}/leveldb/${ANDROID_ABI}/lib/libleveldb.a"
@@ -38,7 +38,7 @@ if(ANDROID)
         endif()
         target_link_libraries(direct-rime PRIVATE "${PREBUILT}/${dep}/${ANDROID_ABI}/lib/lib${archive}.a")
     endforeach()
-    target_link_libraries(direct-rime PRIVATE log android)
+    target_link_libraries(direct-rime PRIVATE log android dl)
     # Record static archive contributions as well as checking APK DT_NEEDED:
     # a forbidden static library would otherwise be hidden inside this DSO.
     target_link_options(direct-rime PRIVATE "-Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/direct-rime.linkmap")

@@ -90,6 +90,17 @@ internal class DirectRimeConfig(private val context: Context) {
         require(user.isDirectory && user.canRead() && user.canWrite()) { "无法读写当前 Rime 工作目录" }
     }
 
+    /** External native code may only start against an existing, non-overlapping writable profile. */
+    fun requireExternalEngineProfile(name: String) {
+        require(error.isBlank()) { error }
+        val target = profiles[name] ?: throw IllegalArgumentException("引擎绑定的方案工作目录不存在：$name")
+        org.fcitx.fcitx5.android.data.UserDataRestoreRuntime.requirePathReady(context, target)
+        require(target.isDirectory && target.canRead() && target.canWrite()) {
+            "无法读写引擎绑定的方案工作目录：$name"
+        }
+        WanxiangUpdateTransaction.recover(target)
+    }
+
     fun saveDirectories() = persistDirectories(profiles, current)
 
     private fun persistDirectories(next: Map<String, File>, selected: String) {

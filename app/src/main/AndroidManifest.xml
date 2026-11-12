@@ -40,6 +40,10 @@
         <intent>
             <action android:name="android.view.InputMethod" />
         </intent>
+        <intent>
+            <action android:name="org.rime.plugin.MANIFEST" />
+            <category android:name="android.intent.category.DEFAULT" />
+        </intent>
     </queries>
 
     <permission
@@ -83,6 +87,10 @@
             android:name=".ui.main.settings.im.RimeImportActivity"
             android:exported="false"
             android:label="@string/direct_rime_import" />
+        <activity
+            android:name=".ui.main.settings.im.RimeEngineManagerActivity"
+            android:exported="false"
+            android:label="@string/rime_engine_variants_title" />
         <activity
             android:name=".ui.main.stats.InputStatsActivity"
             android:exported="false"
@@ -282,6 +290,13 @@
                 android:name="android.view.im"
                 android:resource="@xml/input_method" />
         </service>
+
+        <service
+            android:name=".core.engine.RimeEngineProbeService"
+            android:exported="false"
+            android:isolatedProcess="true"
+            android:process=":rime_engine_probe"
+            android:stopWithTask="true" />
 
         <service
             android:name=".FcitxRemoteService"

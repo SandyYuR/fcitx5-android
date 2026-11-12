@@ -9,6 +9,14 @@ internal class DirectRimeInputMethodEntryCache {
     private var schemaName = ""
     private var displayName = ""
 
+    fun clear() {
+        entry = null
+        ascii = null
+        schema = ""
+        schemaName = ""
+        displayName = ""
+    }
+
     fun get(ascii: Boolean, schema: String, schemaName: String, displayName: String): InputMethodEntry {
         val cached = entry
         if (cached != null && this.ascii == ascii && this.displayName == displayName &&

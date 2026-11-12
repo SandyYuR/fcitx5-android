@@ -42,4 +42,15 @@ class DirectRimeInputMethodEntryCacheTest {
         assertEquals("abc", localized.subMode.label)
         assertEquals("方案二", chinese.subMode.label)
     }
+
+    @Test fun changingEngineSlotsInvalidatesAnOtherwiseIdenticalEntry() {
+        val cache = DirectRimeInputMethodEntryCache()
+        val firstSlot = cache.get(false, "wanxiang", "万象", "中州鹅")
+
+        cache.clear()
+        val secondSlot = cache.get(false, "wanxiang", "万象", "中州鹅")
+
+        assertNotSame(firstSlot, secondSlot)
+        assertEquals(firstSlot, secondSlot)
+    }
 }
