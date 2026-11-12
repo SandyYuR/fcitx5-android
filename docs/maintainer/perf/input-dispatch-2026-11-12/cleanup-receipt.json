@@ -1,0 +1,10 @@
+{
+  "state": "archive-prepared-before-deletion",
+  "branch": "test/i-dispatch-ablation-20261112",
+  "expected_tip": "4777f651ed0f422101ba219b2e4acf9b8b895821",
+  "remote_branch_deleted": false,
+  "local_branch_deleted": false,
+  "archive_push_required_before_deletion": true,
+  "default_branch_unchanged": true,
+  "historical_ci_deleted": false
+}

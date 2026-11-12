@@ -1,0 +1,61 @@
+{
+  "default": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "old_combined_measured": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+  "old_ui_measured": "0d9417b2b7fbd2c614191d5ac4151943d72831a1",
+  "default-style_candidate_trial_measured": "b03e9b46d0cc615039ace6749b29d8ab47739c37",
+  "candidate_performance_changes_withdrawn": true,
+  "current_code": "10cc633175ce3cb832e2ab098497c34915e291e7",
+  "current_code_performance_claim": false,
+  "current_code_runtime_delta": "Only actual typeface changes invalidate the custom measured-bounds/transform cache; input backend, native engine, candidate construction, spans and layout behavior otherwise match the default.",
+  "current_code_performance_not_retimed": true,
+  "test_driver": "4777f651ed0f422101ba219b2e4acf9b8b895821",
+  "archives": [
+    {
+      "label": "test-driver",
+      "sha": "4777f651ed0f422101ba219b2e4acf9b8b895821",
+      "source_zip": "test-driver-source.zip",
+      "sha256": "8d3ccfe4a9719259b54c201c392314103bef4bef624c6c41ec9a080e1f118484",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    },
+    {
+      "label": "ui-ablation-0d9417b2",
+      "sha": "0d9417b2b7fbd2c614191d5ac4151943d72831a1",
+      "source_zip": "ui-ablation-0d9417b2-source.zip",
+      "sha256": "040d92da90c7b162a2e8e5bc1db9611e0f28785319eca16f9150cde3fad9e1a5",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    },
+    {
+      "label": "priority-ablation-bc787391",
+      "sha": "bc78739123fc5ee8fc0927804723f19f8b274963",
+      "source_zip": "priority-ablation-bc787391-source.zip",
+      "sha256": "76708f99170e06db09c7fc29acfd1f8c3a62937d00d2e47a2f001a2a83a08657",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    },
+    {
+      "label": "final-font-fix",
+      "sha": "10cc633175ce3cb832e2ab098497c34915e291e7",
+      "source_zip": "final-font-fix-source.zip",
+      "sha256": "3b56b7f4eea722da14600211d70aa30a2bee88dc4ebd4320662cc05bb0556297",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    }
+  ],
+  "cleanup_state": "archive-prepared-before-deletion",
+  "code_commits": [
+    "af5939f0",
+    "10cc6331"
+  ],
+  "candidate_runtime_trials_withdrawn": [
+    "0d9417b2",
+    "4d77cd79",
+    "b03e9b46"
+  ],
+  "current_code_correctness_only": true
+}

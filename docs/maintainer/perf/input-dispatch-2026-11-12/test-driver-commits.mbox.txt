@@ -1,0 +1,2258 @@
+From bc78739123fc5ee8fc0927804723f19f8b274963 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 02:12:57 +0000
+Subject: [PATCH 1/7] =?UTF-8?q?=E4=BC=98=E5=8C=96(=E8=BE=93=E5=85=A5):=20?=
+ =?UTF-8?q?=E5=B0=86=E6=8C=89=E9=94=AE=E7=BB=93=E6=9E=9C=E5=8F=91=E5=B8=83?=
+ =?UTF-8?q?=E7=BA=B3=E5=85=A5=E4=BA=A4=E4=BA=92=E4=BC=98=E5=85=88=E7=BA=A7?=
+ =?UTF-8?q?=E4=BD=9C=E7=94=A8=E5=9F=9F?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../fcitx5/android/core/DirectRimeBackend.kt  | 58 ++++++++++---------
+ 1 file changed, 31 insertions(+), 27 deletions(-)
+
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt b/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
+index e84a8490..a4d7aad3 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
+@@ -280,7 +280,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
+         return interactivePriority.run {
+             Native.action(previous.generation, previous.revision, action, index, value, collectStatistics).also {
+                 val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous, it, wallTime, monotonicTime) else null
+-                publish(it, forceCandidates = forceCandidates, statistics = statistics)
++                trace("rime.direct.action_publish") { publish(it, forceCandidates = forceCandidates, statistics = statistics) }
+             }
+         }
+     }
+@@ -488,32 +488,36 @@ class DirectRimeBackend(context: Context) : InputEngine {
+         onOwner {
+             if (expected != inputSession || maintenance || !started) return@onOwner
+             val ownerAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
+-            val bypass = forwardsKeysDirectly()
+-            if (!up) clearStatusHint()
+-            val previous = snapshot
+-            val collectStatistics = !bypass && shouldCollectStatistics(statisticsSource, previous)
+-            val wallTime = if (collectStatistics) System.currentTimeMillis() else 0L
+-            val monotonicTime = if (collectStatistics) SystemClock.elapsedRealtime() else 0L
+-            val result = if (bypass) null else interactivePriority.run { Native.key(expected, sym, states.toInt(), up, collectStatistics) }
+-            val nativeAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
+-            if (result != null) {
+-                val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous!!, result, wallTime, monotonicTime) else null
+-                publish(result, release = up, statistics = statistics, statisticsKey = if (up) null else sym)
+-            }
+-            if (!up && result?.ready == true) {
+-                bindingKeys++
+-                if (BuildConfig.INPUT_DIAGNOSTICS && (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L))
+-                    android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys service_task=${diagnosticTask?.id ?: 0} service_category=${diagnosticTask?.category ?: "none"} admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
+-            }
+-            val keyId = sym to code
+-            val forward = if (up) forwardedKeys.remove(keyId) else
+-                (bypass || (result?.ready == true && !result.handled)).also { if (it) forwardedKeys.add(keyId) }
+-            if (forward) {
+-                // Preserve hardware down/up pairing and the frontend's virtual key fallback.
+-                val unicode = KeySym(sym).editorUnicode
+-                val event = FcitxEvent.KeyEvent(FcitxEvent.KeyEvent.Data(KeySym(sym), KeyStates(states), unicode, up, timestamp))
+-                event.inputSession = expected
+-                events.offer(listOf(event))
++            // Keep the short result publication at the same priority as Native.key, like act().
++            // Restore only after its accepted commit/presentation/forwarded key has been queued.
++            interactivePriority.run {
++                val bypass = forwardsKeysDirectly()
++                if (!up) clearStatusHint()
++                val previous = snapshot
++                val collectStatistics = !bypass && shouldCollectStatistics(statisticsSource, previous)
++                val wallTime = if (collectStatistics) System.currentTimeMillis() else 0L
++                val monotonicTime = if (collectStatistics) SystemClock.elapsedRealtime() else 0L
++                val result = if (bypass) null else Native.key(expected, sym, states.toInt(), up, collectStatistics)
++                val nativeAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
++                if (result != null) {
++                    val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous!!, result, wallTime, monotonicTime) else null
++                    trace("rime.direct.key_publish") { publish(result, release = up, statistics = statistics, statisticsKey = if (up) null else sym) }
++                }
++                if (!up && result?.ready == true) {
++                    bindingKeys++
++                    if (BuildConfig.INPUT_DIAGNOSTICS && (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L))
++                        android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys service_task=${diagnosticTask?.id ?: 0} service_category=${diagnosticTask?.category ?: "none"} admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
++                }
++                val keyId = sym to code
++                val forward = if (up) forwardedKeys.remove(keyId) else
++                    (bypass || (result?.ready == true && !result.handled)).also { if (it) forwardedKeys.add(keyId) }
++                if (forward) {
++                    // Preserve hardware down/up pairing and the frontend's virtual key fallback.
++                    val unicode = KeySym(sym).editorUnicode
++                    val event = FcitxEvent.KeyEvent(FcitxEvent.KeyEvent.Data(KeySym(sym), KeyStates(states), unicode, up, timestamp))
++                    event.inputSession = expected
++                    events.offer(listOf(event))
++                }
+             }
+         }
+     }
+-- 
+2.52.0
+
+
+From dcd06c566a433d4036a2b52e51ca211141037e3a Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 03:24:12 +0000
+Subject: [PATCH 2/7] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E8=BE=93=E5=85=A5):=20?=
+ =?UTF-8?q?=E5=AF=B9=E5=80=99=E9=80=89=E4=B8=8E=E5=8F=91=E5=B8=83=E4=BC=98?=
+ =?UTF-8?q?=E5=85=88=E7=BA=A7=E8=BF=9B=E8=A1=8C=E5=9B=9B=E7=89=88=E6=9C=AC?=
+ =?UTF-8?q?=E7=8B=AC=E7=AB=8B=E5=AF=B9=E7=85=A7?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/workflows/rime-candidate-perf.yml     | 105 +++++---
+ .../androidTest/CandidateTapTest.kt           | 205 ++++++++++++++
+ .../androidTest/ScreenFixtureTest.kt          | 253 ++++++++++++++++++
+ tools/dispatch-ablation/build.sh              |  61 +++++
+ tools/dispatch-ablation/candidate.py          | 161 +++++++++++
+ tools/dispatch-ablation/frozen-inputs.json    |  87 ++++++
+ tools/dispatch-ablation/normalize-products.py |  13 +
+ tools/dispatch-ablation/pins.json             |   9 +
+ tools/dispatch-ablation/sources.json          |   8 +
+ tools/dispatch-ablation/verify.py             |  15 ++
+ 10 files changed, 882 insertions(+), 35 deletions(-)
+ create mode 100644 tools/dispatch-ablation/androidTest/CandidateTapTest.kt
+ create mode 100644 tools/dispatch-ablation/androidTest/ScreenFixtureTest.kt
+ create mode 100644 tools/dispatch-ablation/build.sh
+ create mode 100644 tools/dispatch-ablation/candidate.py
+ create mode 100644 tools/dispatch-ablation/frozen-inputs.json
+ create mode 100644 tools/dispatch-ablation/normalize-products.py
+ create mode 100644 tools/dispatch-ablation/pins.json
+ create mode 100644 tools/dispatch-ablation/sources.json
+ create mode 100644 tools/dispatch-ablation/verify.py
+
+diff --git a/.github/workflows/rime-candidate-perf.yml b/.github/workflows/rime-candidate-perf.yml
+index a9625fcc..3b39e7b1 100644
+--- a/.github/workflows/rime-candidate-perf.yml
++++ b/.github/workflows/rime-candidate-perf.yml
+@@ -1,55 +1,84 @@
+-name: First candidate tap comparison
++name: Candidate dispatch ablation
+ on:
+   workflow_dispatch:
+     inputs:
+-      profile:
+-        description: Capture a separate diagnostic trace instead of the three untraced trials
+-        type: boolean
+-        default: false
++      scope:
++        type: choice
++        options: [all, build, measure]
++        default: all
++      products_run:
++        type: string
++        default: ''
++        description: Reuse successful ablation products run for measurement
+ permissions:
+   contents: read
+   actions: read
+ concurrency:
+-  group: rime-candidate-${{ github.ref }}
+-  cancel-in-progress: true
++  group: dispatch-ablation-${{ github.ref }}-${{ inputs.scope }}
++  cancel-in-progress: false
+ jobs:
+-  compare:
++  build:
++    if: inputs.scope != 'measure'
+     runs-on: ubuntu-22.04
+-    timeout-minutes: 60
++    timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v7
+-        with:
+-          fetch-depth: 0
++        with: {fetch-depth: 0}
+       - uses: actions/setup-java@v5
+-        with:
+-          distribution: temurin
+-          java-version: '17'
++        with: {distribution: temurin, java-version: '17'}
+       - uses: android-actions/setup-android@v4
+-        with:
+-          packages: platform-tools
++        with: {packages: 'platform-tools'}
+       - uses: gradle/actions/setup-gradle@v6
+-      - name: Reuse checksum-verified, identical reference products
+-        continue-on-error: true # Expired artifacts fall back to rebuilding pinned references.
+-        uses: actions/download-artifact@v6
++      - uses: actions/download-artifact@v7
+         with:
+-          name: candidate-reference-apks
+-          run-id: 39102152140
++          name: candidate-fix-products
++          run-id: 43132299216
+           github-token: ${{ github.token }}
+-          path: ${{ runner.temp }}/candidate-apks
+-      - name: Build untouched Fcitx default and direct reference products
+-        run: bash tools/candidate-perf/build-products.sh "$RUNNER_TEMP/candidate-apks"
++          path: ${{ runner.temp }}/references
++      - name: Build isolated UI-only and priority-only variants
++        run: bash tools/dispatch-ablation/build.sh "$RUNNER_TEMP/references" "$RUNNER_TEMP/products"
+       - uses: actions/upload-artifact@v7
++        if: always()
+         with:
+-          name: candidate-reference-apks
+-          path: ${{ runner.temp }}/candidate-apks/
+-          retention-days: 7
+-      - name: Prepare neutral editor and exact user fixture
++          name: dispatch-ablation-products
++          path: ${{ runner.temp }}/products/
++          retention-days: 30
++  compare:
++    needs: build
++    if: always() && (inputs.scope == 'measure' || (inputs.scope == 'all' && needs.build.result == 'success'))
++    strategy:
++      fail-fast: false
++      matrix:
++        order: ['before,ui,priority,after', 'after,priority,ui,before']
++    runs-on: ubuntu-22.04
++    timeout-minutes: 40
++    env:
++      PRODUCT_ORDER: ${{ matrix.order }}
++    steps:
++      - uses: actions/checkout@v7
++      - uses: actions/setup-java@v5
++        with: {distribution: temurin, java-version: '17'}
++      - uses: android-actions/setup-android@v4
++        with: {packages: 'platform-tools'}
++      - uses: actions/download-artifact@v7
++        with:
++          name: dispatch-ablation-products
++          run-id: ${{ inputs.products_run || github.run_id }}
++          github-token: ${{ github.token }}
++          path: ${{ runner.temp }}/products
++      - uses: actions/download-artifact@v7
++        with:
++          name: wanxiang-inputs-20261111
++          run-id: 43018095886
++          github-token: ${{ github.token }}
++          path: ${{ runner.temp }}/inputs
++      - name: Verify fixed sources and fixture, build neutral editor
+         run: |
++          python3 tools/dispatch-ablation/verify.py "$RUNNER_TEMP/products" "$RUNNER_TEMP/inputs"
+           sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+-          bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/candidate-host" "$GITHUB_WORKSPACE/tools/candidate-perf/host"
+-          python3 tools/screen-perf/prepare.py "$RUNNER_TEMP/candidate-fixture.zip"
+-          mkdir -p build/candidate-comparison
+-          cp "$RUNNER_TEMP/candidate-fixture.manifest.json" "$RUNNER_TEMP/candidate-apks/"*.txt build/candidate-comparison/
++          bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/host" "$GITHUB_WORKSPACE/tools/candidate-perf/host"
++          mkdir -p build/dispatch-ablation
++          cp "$RUNNER_TEMP/products/products.json" "$RUNNER_TEMP/inputs/fixture.manifest.json" build/dispatch-ablation/
+       - name: Enable KVM
+         run: |
+           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+@@ -61,9 +90,15 @@ jobs:
+           target: aosp_atd
+           arch: x86_64
+           disable-animations: true
+-          script: python3 tools/candidate-perf/run.py --apks "$RUNNER_TEMP/candidate-apks" --fixture "$RUNNER_TEMP/candidate-fixture.zip" --host "$RUNNER_TEMP/candidate-host/host.apk" --output build/candidate-comparison ${{ github.event_name == 'workflow_dispatch' && inputs.profile && '--trials 1 --profile' || '--trials 3' }}
++          script: |
++            adb root
++            adb wait-for-device
++            adb shell getprop > build/dispatch-ablation/device-properties.txt
++            python3 tools/dispatch-ablation/candidate.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/untraced --trials 6
++            python3 tools/dispatch-ablation/candidate.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/traced --trials 1 --profile
+       - uses: actions/upload-artifact@v7
+         if: always()
+         with:
+-          name: first-candidate-tap-results
+-          path: build/candidate-comparison/
++          name: dispatch-ablation-${{ matrix.order }}
++          path: build/dispatch-ablation/
++          retention-days: 30
+diff --git a/tools/dispatch-ablation/androidTest/CandidateTapTest.kt b/tools/dispatch-ablation/androidTest/CandidateTapTest.kt
+new file mode 100644
+index 00000000..1da9a6d1
+--- /dev/null
++++ b/tools/dispatch-ablation/androidTest/CandidateTapTest.kt
+@@ -0,0 +1,205 @@
++/* SPDX-License-Identifier: LGPL-2.1-or-later */
++package org.fcitx.fcitx5.android.core
++
++import android.content.Context
++import android.graphics.Rect
++import android.os.SystemClock
++import android.view.*
++import android.view.inspector.WindowInspector
++import androidx.test.platform.app.InstrumentationRegistry
++import kotlinx.coroutines.*
++import kotlinx.coroutines.channels.Channel
++import org.fcitx.fcitx5.android.BuildConfig
++import org.fcitx.fcitx5.android.daemon.FcitxDaemon
++import org.fcitx.fcitx5.android.data.prefs.AppPrefs
++import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
++import org.fcitx.fcitx5.android.input.AutoScaleTextView
++import org.fcitx.fcitx5.android.input.BaseInputView
++import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
++import org.json.JSONArray
++import org.json.JSONObject
++import org.junit.Assert.*
++import org.junit.Test
++import java.io.File
++import java.util.zip.ZipInputStream
++
++/** The identical, instrumentation-only harness is built against both original products. */
++class CandidateTapTest {
++    private val ins = InstrumentationRegistry.getInstrumentation()
++    private val ctx = ins.targetContext
++    private val args = InstrumentationRegistry.getArguments()
++    private fun now() = SystemClock.elapsedRealtimeNanos()
++    private fun shell(command: String) = ins.uiAutomation.executeShellCommand(command).use {
++        java.io.FileInputStream(it.fileDescriptor).bufferedReader().readText().trim()
++    }
++    private suspend fun FcitxAPI.profiles(): RawConfig = getAddonSubConfig("rime", "profile-manager").let { it.findByName("cfg") ?: it }
++    private suspend fun await(message: String, condition: () -> Boolean) {
++        withTimeout(60_000) { while (!condition()) delay(10) }
++        check(condition()) { message }
++    }
++    private fun extract(archive: File, target: File) {
++        val root = target.canonicalPath + File.separator
++        var size = 0L
++        ZipInputStream(archive.inputStream().buffered()).use { zip ->
++            while (true) {
++                val entry = zip.nextEntry ?: break
++                val out = File(target, entry.name).canonicalFile
++                require(out.path.startsWith(root))
++                if (entry.isDirectory) out.mkdirs() else {
++                    out.parentFile!!.mkdirs()
++                    out.outputStream().buffered().use { dest ->
++                        val buffer = ByteArray(65536)
++                        while (true) {
++                            val n = zip.read(buffer); if (n < 0) break
++                            size += n; require(size <= 1024L * 1024 * 1024)
++                            dest.write(buffer, 0, n)
++                        }
++                    }
++                }
++                zip.closeEntry()
++            }
++        }
++    }
++
++    @Test fun prepare(): Unit = runBlocking {
++        val connection = FcitxDaemon.connect(javaClass.name)
++        try {
++            connection.runOnReady {
++                setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "create"), RawConfig("Name", "candidate-bench"))))
++                check(profiles()["Error"].value.isEmpty())
++            }
++            val directory = File(ctx.getExternalFilesDir(null), "data/candidate-bench")
++            extract(File(ctx.filesDir, "candidate-fixture.zip"), directory)
++            connection.runOnReady {
++                setImConfig("rime", RawConfig(arrayOf(RawConfig("PreeditMode", "No"))))
++                setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "switch"), RawConfig("Name", "candidate-bench"))))
++                check(profiles()["Current"].value == "candidate-bench")
++                setCapFlags(CapabilityFlags.DefaultFlags); setCandidatePagingMode(1)
++                activate(31001, "io.github.sandyyur.inputbench"); activateIme("rime"); focus(true)
++            }
++            withTimeout(240_000) {
++                while (connection.runOnReady { focus(true); currentIme().subMode.icon } != "fcitx-rime:wanxiang") delay(100)
++            }
++            assertTrue(File("/proc/self/maps").readText().contains("wanxiang-lts-zh-hans.gram"))
++        } finally { FcitxDaemon.disconnect(javaClass.name) }
++    }
++
++    private fun find(text: String): View? {
++        fun walk(view: View): View? {
++            if (!view.isShown) return null
++            if (view is AutoScaleTextView && (view.text.toString().trim().equals(text, true) ||
++                    (text == "你" && view.text.toString().trim().startsWith(text)))) {
++                var parent: View? = view
++                while (parent != null && parent !is CustomGestureView) parent = parent.parent as? View
++                return parent ?: view
++            }
++            if (view is ViewGroup) for (i in 0 until view.childCount) walk(view.getChildAt(i))?.let { return it }
++            return null
++        }
++        return WindowInspector.getGlobalWindowViews().firstNotNullOfOrNull(::walk)
++    }
++
++    @Test fun replay(): Unit = runBlocking {
++        check(BuildConfig.BUILD_GIT_HASH == args.getString("expectedCommit")) { "Wrong product: ${BuildConfig.BUILD_GIT_HASH}" }
++        ins.runOnMainSync {
++            val prefs = AppPrefs.getInstance()
++            prefs.candidates.mode.setValue(FloatingCandidatesMode.Disabled)
++            prefs.keyboard.textKeyboardLayoutProfile.setValue("default")
++            prefs.keyboard.popupOnKeyPress.setValue(false)
++        }
++        val connection = FcitxDaemon.connect(javaClass.name)
++        val commits = Channel<Pair<String, Long>>(Channel.UNLIMITED)
++        val preedits = Channel<Pair<String, Long>>(Channel.UNLIMITED)
++        val collector = launch(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) {
++            connection.runImmediately { eventFlow }.collect {
++                when (it) {
++                    is FcitxEvent.CommitStringEvent -> commits.send(it.data.text to now())
++                    is FcitxEvent.InputPanelEvent -> preedits.send(it.data.preedit.toString() to now())
++                    else -> {}
++                }
++            }
++        }
++        var wrappedWindow: Window? = null
++        var oldCallback: Window.Callback? = null
++        try {
++            // No input API warm-up, fake keys, or wait for native readiness in this fresh process.
++            shell("am start -W -n io.github.sandyyur.inputbench/.BenchHost")
++            await("Keyboard visible") { var shown = false; ins.runOnMainSync { shown = find("n") != null }; shown }
++            // The initial Latin Android subtype may override the saved Chinese mode.
++            // Select the real schema, without typing a warm-up word.
++            connection.runOnReady {
++                if (currentIme().subMode.icon != "fcitx-rime:wanxiang") activateIme("rime")
++                setCandidatePagingMode(1)
++            }
++            var dispatchDown = 0L
++            var dispatchUp = 0L
++            var dispatchReturned = 0L
++            ins.runOnMainSync {
++                var view: View? = find("n")
++                while (view != null && view !is BaseInputView) view = view.parent as? View
++                val window = (view as BaseInputView).service.window.window!!
++                val previous = window.callback
++                wrappedWindow = window; oldCallback = previous
++                window.callback = object : Window.Callback by previous {
++                    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
++                        if (event.actionMasked == MotionEvent.ACTION_DOWN) dispatchDown = now()
++                        if (event.actionMasked == MotionEvent.ACTION_UP) dispatchUp = now()
++                        return previous.dispatchTouchEvent(event).also {
++                            if (event.actionMasked == MotionEvent.ACTION_UP) dispatchReturned = now()
++                        }
++                    }
++                }
++            }
++            fun tap(text: String): JSONObject {
++                var bounds: Rect? = null
++                ins.runOnMainSync {
++                    val view = requireNotNull(find(text)) { "Missing $text" }
++                    val xy = IntArray(2); view.getLocationOnScreen(xy)
++                    bounds = Rect(xy[0], xy[1], xy[0] + view.width, xy[1] + view.height)
++                    dispatchDown = 0; dispatchUp = 0; dispatchReturned = 0
++                }
++                val target = bounds!!
++                val down = SystemClock.uptimeMillis()
++                var injectUp = 0L
++                for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
++                    val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, target.exactCenterX(), target.exactCenterY(), 0)
++                    event.source = InputDevice.SOURCE_TOUCHSCREEN
++                    if (action == MotionEvent.ACTION_UP) injectUp = now()
++                    try { check(ins.uiAutomation.injectInputEvent(event, true)) } finally { event.recycle() }
++                    if (action == MotionEvent.ACTION_DOWN) SystemClock.sleep(20)
++                }
++                check(dispatchUp > 0 && dispatchReturned >= dispatchUp) { "Touch did not reach IME window" }
++                return JSONObject().put("key", text).put("inject_up_ns", injectUp)
++                    .put("dispatch_down_ns", dispatchDown).put("dispatch_up_ns", dispatchUp).put("dispatch_return_ns", dispatchReturned)
++            }
++            val rounds = JSONArray()
++            repeat(6) { round ->
++                // Six taps in one editor distinguish first-use cost from repeated binding cost.
++                val n = tap("n")
++                val preedit = withTimeout(60_000) { var p: Pair<String, Long>; do { p = preedits.receive() } while (p.first != "n"); p.second }
++                val i = tap("i")
++                await("Candidate bound") { var found = false; ins.runOnMainSync { found = find("你") != null }; found }
++                val select = tap("你")
++                val commit = withTimeout(60_000) { commits.receive() }
++                assertEquals("你", commit.first)
++                // Dumping happens AFTER the commit; polling never determines the recorded latency.
++                shell("am broadcast -n io.github.sandyyur.inputbench/.BenchControl --es command dump")
++                rounds.put(JSONObject().put("round", round + 1).put("n", n).put("i", i).put("select", select)
++                    .put("preedit_collected_ns", preedit).put("commit_collected_ns", commit.second))
++            }
++            assertNull(withTimeoutOrNull(250) { commits.receive() })
++            val maps = File("/proc/self/maps").readText()
++            val labels = connection.runOnReady { statusArea().map { it.shortText } }
++            for (expected in listOf("上下文开", "简码开", "小字集")) assertTrue("Missing $expected: $labels", labels.any { it.startsWith(expected) })
++            assertTrue(maps.contains("wanxiang-lts-zh-hans.gram"))
++            File(ctx.filesDir, "candidate-taps.json").writeText(JSONObject().put("commit", BuildConfig.BUILD_GIT_HASH)
++                .put("clock", "SystemClock.elapsedRealtimeNanos, across both Android processes")
++                .put("model_mapped", true).put("fcitx_core_mapped", maps.contains("libFcitx5Core.so"))
++                .put("switch_labels", JSONArray(labels)).put("rounds", rounds).toString(2))
++        } finally {
++            ins.runOnMainSync { wrappedWindow?.callback = oldCallback }
++            collector.cancelAndJoin()
++            FcitxDaemon.disconnect(javaClass.name)
++        }
++    }
++}
+diff --git a/tools/dispatch-ablation/androidTest/ScreenFixtureTest.kt b/tools/dispatch-ablation/androidTest/ScreenFixtureTest.kt
+new file mode 100644
+index 00000000..0e968346
+--- /dev/null
++++ b/tools/dispatch-ablation/androidTest/ScreenFixtureTest.kt
+@@ -0,0 +1,253 @@
++/* SPDX-License-Identifier: LGPL-2.1-or-later */
++package org.fcitx.fcitx5.android.core
++
++import android.content.Intent
++import android.graphics.Rect
++import android.os.SystemClock
++import android.os.Debug
++import android.os.Process
++import android.view.*
++import android.view.inspector.WindowInspector
++import androidx.test.platform.app.InstrumentationRegistry
++import kotlinx.coroutines.*
++import org.fcitx.fcitx5.android.BuildConfig
++import org.fcitx.fcitx5.android.daemon.FcitxDaemon
++import org.fcitx.fcitx5.android.data.prefs.AppPrefs
++import org.fcitx.fcitx5.android.data.theme.ThemeManager
++import org.fcitx.fcitx5.android.data.theme.ThemePreset
++import org.fcitx.fcitx5.android.input.AutoScaleTextView
++import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
++import org.fcitx.fcitx5.android.input.keyboard.KeyView
++import org.json.*
++import org.junit.Assert.*
++import org.junit.Test
++import java.io.File
++import java.util.zip.ZipInputStream
++
++/** Identical instrumentation-only fixture in two independently pinned product checkouts. */
++class ScreenFixtureTest {
++    private val ins = InstrumentationRegistry.getInstrumentation()
++    private val ctx = ins.targetContext
++    private val args = InstrumentationRegistry.getArguments()
++    private fun shell(command: String): String = ins.uiAutomation.executeShellCommand(command).use { fd ->
++        java.io.FileInputStream(fd.fileDescriptor).bufferedReader().readText().trim()
++    }
++    private suspend fun FcitxAPI.profiles(): RawConfig = getAddonSubConfig("rime", "profile-manager").let { it.findByName("cfg") ?: it }
++    private fun rect(view: View): Rect {
++        val xy = IntArray(2); view.getLocationOnScreen(xy)
++        return Rect(xy[0], xy[1], xy[0]+view.width, xy[1]+view.height)
++    }
++    private fun json(r: Rect) = JSONArray(listOf(r.left, r.top, r.right, r.bottom))
++    private fun extract(archive: File, target: File) {
++        val root = target.canonicalPath + File.separator
++        var size = 0L
++        ZipInputStream(archive.inputStream().buffered()).use { zip ->
++            while (true) {
++                val entry = zip.nextEntry ?: break
++                val out = File(target, entry.name).canonicalFile
++                require(out.path.startsWith(root))
++                if (entry.isDirectory) out.mkdirs() else {
++                    out.parentFile!!.mkdirs()
++                    out.outputStream().buffered().use { dest ->
++                        val buffer = ByteArray(65536)
++                        while (true) {
++                            val n = zip.read(buffer); if (n < 0) break
++                            size += n; require(size <= 1024L*1024*1024)
++                            dest.write(buffer, 0, n)
++                        }
++                    }
++                }
++                zip.closeEntry()
++            }
++        }
++    }
++    private suspend fun await(message: String, timeout: Long = 30_000, condition: () -> Boolean) {
++        withTimeout(timeout) { while (!condition()) delay(100) }
++        assertTrue(message, condition())
++    }
++    private fun views(): List<Pair<String, Rect>> {
++        val out = mutableListOf<Pair<String, Rect>>()
++        ins.runOnMainSync {
++            fun walk(v: View) {
++                if (!v.isShown) return
++                if (v is AutoScaleTextView) {
++                    var parent: View? = v
++                    while (parent != null && parent !is KeyView) parent = parent.parent as? View
++                    out += v.text.toString().trim() to rect(parent ?: v)
++                }
++                if (v is ViewGroup) for (i in 0 until v.childCount) walk(v.getChildAt(i))
++            }
++            WindowInspector.getGlobalWindowViews().forEach(::walk)
++        }
++        return out
++    }
++    private fun touch(r: Rect, hold: Long = 32): Long {
++        val down = SystemClock.uptimeMillis()
++        for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
++            val e = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, r.exactCenterX(), r.exactCenterY(), 0)
++            e.source = InputDevice.SOURCE_TOUCHSCREEN
++            try { check(ins.uiAutomation.injectInputEvent(e, true)) } finally { e.recycle() }
++            if (action == MotionEvent.ACTION_DOWN) SystemClock.sleep(hold)
++        }
++        return down
++    }
++    private fun hardware(c: Char) {
++        val code = if (c == ' ') KeyEvent.KEYCODE_SPACE else KeyEvent.KEYCODE_A + (c - 'a')
++        val now = SystemClock.uptimeMillis()
++        check(ins.uiAutomation.injectInputEvent(KeyEvent(now, now, KeyEvent.ACTION_DOWN, code, 0), true))
++        check(ins.uiAutomation.injectInputEvent(KeyEvent(now, SystemClock.uptimeMillis(), KeyEvent.ACTION_UP, code, 0), true))
++    }
++
++    @Test fun replay(): Unit = runBlocking {
++        val backend = args.getString("backend")!!
++        val expectedCommit = args.getString("expectedCommit")!!
++        check(BuildConfig.BUILD_GIT_HASH == expectedCommit) { "Unexpected product revision: ${BuildConfig.BUILD_GIT_HASH}" }
++        val mode = args.getString("mode")!!
++        val schedule = JSONObject(File(ctx.filesDir, "screen-schedule.json").readText())
++        val profile = "screen-bench"
++        val directory = File(ctx.getExternalFilesDir(null), "data/$profile")
++        check(FcitxDaemon.getFirstConnectionOrNull() == null) { "Engine must be stopped before resetting the benchmark profile" }
++        val reset = directory.listFiles().orEmpty().filter { it.name.contains(".userdb") }
++        reset.forEach { check(it.deleteRecursively()) { "Cannot reset $it" } }
++        if (directory.isDirectory) File(ctx.filesDir, "screen-user.yaml").copyTo(File(directory, "user.yaml"), overwrite = true)
++        val connection = FcitxDaemon.connect(javaClass.name)
++        try {
++            val prefs = AppPrefs.getInstance()
++            ins.runOnMainSync {
++                prefs.candidates.mode.setValue(FloatingCandidatesMode.Disabled)
++                prefs.keyboard.textKeyboardLayoutProfile.setValue("benchmark_builtin")
++                // Preview balloons can cover the candidate strip before Rime reacts.
++                prefs.keyboard.popupOnKeyPress.setValue(false)
++                ThemeManager.prefs.followSystemDayNightTheme.setValue(false)
++                ThemeManager.prefs.keyRippleEffect.setValue(false)
++                ThemeManager.setNormalModeTheme(ThemePreset.MaterialLight)
++            }
++            connection.runOnReady {
++                activate(31001, "io.github.sandyyur.inputbench")
++                if (!directory.isDirectory) {
++                    setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "create"), RawConfig("Name", profile))))
++                    check(profiles()["Error"].value.isEmpty())
++                }
++            }
++            if (!File(directory, "wanxiang.schema.yaml").isFile) extract(File(ctx.filesDir, "wanxiang-perf.zip"), directory)
++            connection.runOnReady {
++                setImConfig("rime", RawConfig(arrayOf(RawConfig("PreeditMode", "No"))))
++                setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "switch"), RawConfig("Name", profile))))
++                check(profiles()["Current"].value == profile)
++                setCapFlags(CapabilityFlags.DefaultFlags); setCandidatePagingMode(1)
++                activateIme("rime"); focus(true)
++            }
++            withTimeout(240_000) { while (connection.runOnReady { focus(true); currentIme().subMode.icon } != "fcitx-rime:wanxiang") delay(100) }
++            val component = "${ctx.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
++            shell("ime enable $component"); shell("ime set $component")
++            shell("am start -W -n io.github.sandyyur.inputbench/.BenchHost")
++            await("Keyboard visible") { views().any { it.first.equals("n", true) } }
++            delay(1500)
++            connection.runOnReady {
++                // Set after the real editor has created its input session.
++                // Android 34+ first binding can select the manifest's Latin subtype.
++                activateIme("rime"); focus(true)
++            }
++            withTimeout(30_000) { while (connection.runOnReady { currentIme().subMode.icon } != "fcitx-rime:wanxiang") delay(100) }
++            connection.runOnReady {
++                // User requested context reorder ON; their YAML lacks its saved option.
++                val action = statusArea().firstOrNull { it.shortText.startsWith("上下文关") }
++                if (action != null) activateAction(action.id)
++            }
++            // Untimed warmup populates identical paths; real Android hardware events, not API replay.
++            for (c in "nihao zhongguo shurufa ") { hardware(c); delay(80) }
++            delay(600)
++            shell("am broadcast -n io.github.sandyyur.inputbench/.BenchControl --es command clear")
++            // A non-empty candidate bar is required to locate its text region.
++            for (c in "nihao") { hardware(c); delay(100) }
++            delay(500)
++            val all = views()
++            val keys = JSONObject()
++            for (c in 'a'..'z') {
++                val r = all.filter { it.first.equals(c.toString(), true) }.maxByOrNull { it.second.width()*it.second.height() }?.second
++                requireNotNull(r) { "No key $c; $all" }; keys.put(c.toString(), json(r))
++            }
++            val n = keys.getJSONArray("n")
++            val space = all.filter { (it.first.contains("Rime", true) || it.first.contains("中州")) && it.second.top > n.getInt(1) }
++                .maxByOrNull { it.second.width() }?.second
++            requireNotNull(space) { "No space key; $all" }; keys.put(" ", json(space))
++            val topKeys = ('a'..'z').minOf { keys.getJSONArray(it.toString()).getInt(1) }
++            val candidate = all.filter { it.first.any { c -> c.code in 0x3400..0x9fff } && it.second.bottom <= topKeys }
++                .maxByOrNull { it.second.width() }?.second
++            requireNotNull(candidate) { "No candidate region; $all" }
++            hardwareEscape()
++            delay(400)
++            // The first composition may resize the IME. A fixed coordinate must land
++            // inside the same key in both states, rather than silently hitting a neighbour.
++            val idle = views()
++            for (c in ('a'..'z').map { it.toString() } + " ") {
++                val a = keys.getJSONArray(c)
++                val active = Rect(a.getInt(0), a.getInt(1), a.getInt(2), a.getInt(3))
++                val other = idle.filter { if (c == " ") it.first.contains("Rime", true) || it.first.contains("中州") else it.first.equals(c, true) }
++                    .maxByOrNull { it.second.width()*it.second.height() }?.second
++                requireNotNull(other)
++                check(other.contains(active.centerX(), active.centerY())) { "Keyboard geometry moves: $c $active -> $other" }
++            }
++            shell("am broadcast -n io.github.sandyyur.inputbench/.BenchControl --es command clear")
++            val maps = File("/proc/self/maps").readText()
++            val labels = connection.runOnReady { statusArea().map { it.shortText } }
++            for (expected in listOf("上下文开", "简码开", "小字集"))
++                assertTrue("Missing $expected in actual editor session; actual=$labels", labels.any { it.startsWith(expected) })
++            assertTrue("LTS model really mapped", maps.contains("wanxiang-lts-zh-hans.gram"))
++            assertEquals("Runtime engine identity", backend == "fcitx", maps.contains("libFcitx5Core.so"))
++            val result = JSONObject().put("backend", backend).put("mode", mode).put("commit", BuildConfig.BUILD_GIT_HASH)
++                .put("keys", keys).put("candidate", json(candidate)).put("switch_labels", JSONArray(labels))
++                .put("all_labels", JSONArray(all.map { JSONObject().put("label", it.first).put("rect", json(it.second)) }))
++                .put("model_mapped", true).put("fcitx_core_mapped", maps.contains("libFcitx5Core.so"))
++                .put("reset_databases", JSONArray(reset.map { it.name }))
++                .put("native_libraries_mapped", JSONArray(maps.lineSequence().map { it.substringAfterLast(' ') }
++                    .filter { it.startsWith(ctx.applicationInfo.nativeLibraryDir + "/") && it.endsWith(".so") }
++                    .map { File(it).name }.distinct().sorted().toList()))
++            val compiled = File(directory, "build/wanxiang.schema.yaml").readText()
++            assertTrue("User page size 6 compiled", Regex("(?m)^\\s+page_size:\\s+6\\s*$").containsMatchIn(compiled))
++            assertTrue("User fallback reorder setting compiled", Regex("enable_fallback_reorder:\\s+true").containsMatchIn(compiled))
++            File(ctx.filesDir, "screen-effective-schema.yaml").writeText(compiled)
++            File(ctx.filesDir, "screen-ready.json").writeText(result.toString(2))
++            val go = File(ctx.filesDir, "screen-go")
++            await("Host recording started", 120_000) { go.isFile }
++            val events = JSONArray()
++            val marker = Rect(10, 10, 70, 50)
++            fun mark() { val t = touch(marker); events.put(JSONObject().put("kind", "marker").put("down_ms", t)); SystemClock.sleep(250) }
++            repeat(6) { mark() }
++            delay(600)
++            val start = SystemClock.uptimeMillis()
++            val cpuStart = Process.getElapsedCpuTime()
++            val steps = schedule.getJSONArray("steps")
++            for (i in 0 until steps.length()) {
++                val step = steps.getJSONObject(i)
++                val due = start + step.getLong("at_ms")
++                SystemClock.sleep((due - SystemClock.uptimeMillis()).coerceAtLeast(0))
++                val c = step.getString("key")[0]
++                val before = SystemClock.uptimeMillis()
++                if (mode == "hardware") hardware(c) else {
++                    val a = keys.getJSONArray(c.toString()); touch(Rect(a.getInt(0), a.getInt(1), a.getInt(2), a.getInt(3)))
++                }
++                events.put(JSONObject().put("kind", "key").put("key", c.toString()).put("down_ms", before)
++                    .put("return_ms", SystemClock.uptimeMillis()).put("due_ms", due))
++            }
++            val typingCpu = Process.getElapsedCpuTime() - cpuStart
++            val typingWall = SystemClock.uptimeMillis() - start
++            val memory = Debug.MemoryInfo().also { Debug.getMemoryInfo(it) }
++            delay(1200)
++            repeat(6) { mark() }
++            result.put("events", events).put("wall_ms", SystemClock.uptimeMillis()-start)
++                .put("typing_cpu_ms", typingCpu).put("typing_wall_ms", typingWall).put("typing_end_pss_kib", memory.totalPss)
++            File(ctx.filesDir, "screen-result.json").writeText(result.toString(2))
++            // Finishing instrumentation kills the target IME. Let the external
++            // observer capture/drain editor delivery before Android stops it.
++            await("External observer captured editor", 60_000) {
++                File(ctx.filesDir, "screen-observed").isFile
++            }
++        } finally { FcitxDaemon.disconnect(javaClass.name) }
++    }
++    private fun hardwareEscape() {
++        val now = SystemClock.uptimeMillis()
++        for (action in listOf(KeyEvent.ACTION_DOWN, KeyEvent.ACTION_UP))
++            check(ins.uiAutomation.injectInputEvent(KeyEvent(now, SystemClock.uptimeMillis(), action, KeyEvent.KEYCODE_ESCAPE, 0), true))
++    }
++}
+diff --git a/tools/dispatch-ablation/build.sh b/tools/dispatch-ablation/build.sh
+new file mode 100644
+index 00000000..028cfae5
+--- /dev/null
++++ b/tools/dispatch-ablation/build.sh
+@@ -0,0 +1,61 @@
++#!/usr/bin/env bash
++set -euo pipefail
++root=$(pwd)
++references=${1:?verified previous products}
++output=${2:?output directory}
++mkdir -p "$output"
++python3 tools/dispatch-ablation/normalize-products.py "$references"
++python3 - "$references" "$output" <<'PY'
++from pathlib import Path
++import hashlib,json,shutil,sys
++src,out=map(Path,sys.argv[1:]);tool=Path('tools/dispatch-ablation')
++expected=json.loads((tool/'sources.json').read_text());original=json.loads((src/'products.json').read_text())
++for label in ['before','after']:
++ assert original['pins'][label]==expected[label]
++ assert (src/(label+'-commit.txt')).read_text().strip()==expected[label]
++ for suffix in ['.apk','-tests.apk']:
++  p=src/(label+suffix);assert hashlib.sha256(p.read_bytes()).hexdigest()==original['apks'][p.name]
++  shutil.copyfile(p,out/p.name)
++ shutil.copyfile(src/(label+'-commit.txt'),out/(label+'-commit.txt'))
++for name,sha in original['harness'].items():
++ assert hashlib.sha256((tool/'androidTest'/name).read_bytes()).hexdigest()==sha
++shutil.copyfile(src/'products.json',out/'reused-products.json')
++PY
++for label in ui priority; do
++  revision=$(python3 -c 'import json,sys;print(json.load(open("tools/dispatch-ablation/sources.json"))[sys.argv[1]])' "$label")
++  checkout="$RUNNER_TEMP/dispatch-product-$label"
++  git clone --shared --no-checkout "$root" "$checkout"
++  git -C "$checkout" checkout --detach "$revision"
++  (
++    cd "$checkout"
++    ./prepare_personal_build.sh
++    cp "$root"/tools/dispatch-ablation/androidTest/*.kt app/src/androidTest/java/org/fcitx/fcitx5/android/core/
++    git diff --exit-code -- app/src/main direct-rime native build-logic app/build.gradle.kts
++    ./gradlew -PbuildABI=x86_64 -Pkotlin.compiler.execution.strategy=in-process --max-workers=2 \
++      :app:assembleFxDebug :app:assembleFxDebugAndroidTest :app:testFxDebugUnitTest \
++      --tests 'org.fcitx.fcitx5.android.input.candidates.*' \
++      --tests 'org.fcitx.fcitx5.android.core.Candidate*' \
++      --tests 'org.fcitx.fcitx5.android.core.InputEventQueueTest' \
++      --tests 'org.fcitx.fcitx5.android.core.InputKeyGateTest' \
++      --tests 'org.fcitx.fcitx5.android.core.InputBindingStartupTest' \
++      --tests 'org.fcitx.fcitx5.android.core.InputStatisticsBackendTest'
++    python3 tools/check-junit-results.py app/build/test-results/testFxDebugUnitTest
++    cp app/build/outputs/apk/fx/debug/*.apk "$output/$label.apk"
++    cp app/build/outputs/apk/androidTest/fx/debug/*.apk "$output/$label-tests.apk"
++    cp -r app/build/test-results/testFxDebugUnitTest "$output/$label-unit-results"
++    git rev-parse HEAD > "$output/$label-commit.txt"
++    python3 tools/verify-direct-rime-apk.py "$output/$label.apk" > "$output/$label-apk-audit.json"
++    ./gradlew --stop
++  )
++done
++python3 - "$output" <<'PY'
++from pathlib import Path
++import hashlib,json,sys,subprocess
++out=Path(sys.argv[1]);tool=Path('tools/dispatch-ablation');sources=json.loads((tool/'sources.json').read_text())
++labels=['before','ui','priority','after']
++locks={label:hashlib.sha256(subprocess.check_output(['git','show',sources[label]+':native/rime-sdk.lock.json'])).hexdigest() for label in labels}
++assert len(set(locks.values()))==1
++(out/'products.json').write_text(json.dumps({'sources':sources,'sdk_lock_sha256':locks,
++ 'apks':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.glob('*.apk'))},
++ 'harness':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((tool/'androidTest').glob('*.kt'))}},indent=2)+'\n')
++PY
+diff --git a/tools/dispatch-ablation/candidate.py b/tools/dispatch-ablation/candidate.py
+new file mode 100644
+index 00000000..d0510d72
+--- /dev/null
++++ b/tools/dispatch-ablation/candidate.py
+@@ -0,0 +1,161 @@
++#!/usr/bin/env python3
++"""First candidate tap after fresh process, then five taps in the same editor."""
++import argparse
++import json
++import os
++import re
++import subprocess
++import time
++from pathlib import Path
++PRODUCTS = tuple(os.environ.get("PRODUCT_ORDER", "before,ui,priority,after").split(","))
++assert PRODUCTS and set(PRODUCTS) <= {"before", "ui", "priority", "after"} and len(PRODUCTS) == len(set(PRODUCTS)), PRODUCTS
++
++parser = argparse.ArgumentParser(description=__doc__)
++parser.add_argument('--apks', type=Path, required=True)
++parser.add_argument('--fixture', type=Path, required=True)
++parser.add_argument('--host', type=Path, required=True)
++parser.add_argument('--output', type=Path, required=True)
++parser.add_argument('--trials', type=int, default=3)
++parser.add_argument('--pilot', action='store_true', help='One process per product; calibration only')
++parser.add_argument('--profile', action='store_true', help='Separate diagnostic run; do not compare its timings with untraced runs')
++args = parser.parse_args()
++if args.pilot:
++    args.trials = 1
++args.output.mkdir(parents=True, exist_ok=True)
++host = 'io.github.sandyyur.inputbench'
++
++def adb(*parts, check=True, timeout=900, input=None):
++    return subprocess.run(['adb', *map(str, parts)], input=input, text=True, capture_output=True, check=check, timeout=timeout)
++
++def instrument(package, method, revision):
++    command = ['adb', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
++              'org.fcitx.fcitx5.android.core.CandidateTapTest#' + method,
++              '-e', 'expectedCommit', revision,
++              package + '.test/androidx.test.runner.AndroidJUnitRunner']
++    process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++    if method == 'replay':
++        # force-stop (including am instrument's own restart) makes Android select
++        # its fallback IME. Select our IME only AFTER the fresh test process starts.
++        deadline = time.monotonic() + 30
++        started = False
++        while process.poll() is None and time.monotonic() < deadline:
++            logs = adb('logcat', '-d', '-s', 'TestRunner:I', '*:S').stdout
++            if 'started: replay(org.fcitx.fcitx5.android.core.CandidateTapTest)' in logs:
++                started = True
++                break
++            time.sleep(0.1)
++        if started:
++            component = package + '/org.fcitx.fcitx5.android.input.FcitxInputMethodService'
++            adb('shell', 'ime', 'enable', component)
++            adb('shell', 'ime', 'set', component)
++            assert adb('shell', 'settings', 'get', 'secure', 'default_input_method').stdout.strip() == component
++    stdout, stderr = process.communicate(timeout=900)
++    run = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
++    return run, run.returncode == 0 and 'OK (1 test)' in run.stdout
++
++assert adb('get-serialno').stdout.strip().startswith('emulator-'), 'Disposable emulator required'
++adb('shell', 'setprop', 'debug.hwui.drawing_enabled', 'true')
++adb('shell', 'settings', 'put', 'secure', 'show_ime_with_hard_keyboard', '1')
++adb('shell', 'settings', 'put', 'system', 'screen_off_timeout', '1800000')
++adb('install', '-r', args.host)
++adb('push', args.fixture, '/data/local/tmp/candidate-fixture.zip')
++results = {}
++sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
++aapt = sorted((sdk / 'build-tools').glob('*/aapt2'), key=lambda p: [int(x) for x in re.findall(r'\d+', p.parent.name)])[-1]
++for label in PRODUCTS:
++    assert (args.apks / (label + '.apk')).is_file(), label
++    package = subprocess.check_output([str(aapt), 'dump', 'packagename', str(args.apks / (label + '.apk'))], text=True).strip()
++    assert re.fullmatch(r'[a-zA-Z0-9_.]+', package), package
++    revision = (args.apks / (label + '-commit.txt')).read_text().strip()
++    # Reference APKs may have a different CI debug signer. Never upgrade across
++    # signers or inherit the previous product's profile on this disposable device.
++    adb('uninstall', package + '.test', check=False)
++    adb('uninstall', package, check=False)
++    adb('install', '-r', args.apks / (label + '.apk'))
++    adb('install', '-r', args.apks / (label + '-tests.apk'))
++    adb('shell', 'am', 'force-stop', package)
++    adb('shell', 'pm', 'clear', package)
++    adb('shell', 'run-as', package, 'mkdir', '-p', 'files')
++    adb('shell', f"cat /data/local/tmp/candidate-fixture.zip | run-as {package} sh -c 'cat > files/candidate-fixture.zip'")
++    adb('logcat', '-c')
++    prepare, passed = instrument(package, 'prepare', revision)
++    (args.output / (label + '-prepare.txt')).write_text(prepare.stdout + prepare.stderr)
++    if not passed:
++        (args.output / (label + '-prepare-logcat.txt')).write_text(adb('logcat', '-d', '-v', 'threadtime').stdout)
++    assert passed, label + ': fixture preparation failed'
++    component = package + '/org.fcitx.fcitx5.android.input.FcitxInputMethodService'
++    adb('shell', 'ime', 'enable', component)
++    # The replay runner selects it after instrumentation's final process restart.
++    trials = []
++    for trial in range(args.trials):
++        print(f'Testing {label} fresh process {trial + 1}', flush=True)
++        adb('shell', 'am', 'force-stop', host)
++        adb('shell', 'pm', 'clear', host)
++        for other in ('org.fcitx.fcitx5.android.fx.rime.debug', 'io.github.sandyyur.rime.direct', 'org.fcitx.fcitx5.android.fx.rime'):
++            adb('shell', 'am', 'force-stop', other)
++        adb('shell', 'am', 'force-stop', package)
++        adb('logcat', '-c')
++        trace_pid = None
++        if args.profile:
++            remote_trace = '/data/misc/perfetto-traces/candidate.perfetto-trace'
++            config = f'''buffers {{ size_kb: 32768 fill_policy: RING_BUFFER }}
++duration_ms: 20000
++write_into_file: true
++file_write_period_ms: 1000
++flush_period_ms: 1000
++data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
++ ftrace_events: "sched/sched_switch"
++ ftrace_events: "sched/sched_waking"
++ atrace_categories: "view"
++ atrace_categories: "gfx"
++ atrace_categories: "input"
++ atrace_categories: "dalvik"
++ atrace_apps: "{package}"
++ atrace_apps: "{host}"
++}} }} }}
++data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ proc_stats_poll_ms: 1000 }} }} }}
++'''
++            trace_pid = adb('shell', 'perfetto', '--background-wait', '--txt', '-c', '-', '-o', remote_trace, input=config).stdout.strip()
++            assert trace_pid.isdigit(), trace_pid
++            (args.output / (label + "-" + str(trial + 1) + ".trace-config.txt")).write_text(config)
++        run, passed = instrument(package, 'replay', revision)
++        prefix = args.output / f'{label}-{trial + 1}'
++        prefix.with_suffix('.instrumentation.txt').write_text(run.stdout + run.stderr)
++        prefix.with_suffix('.logcat.txt').write_text(adb('logcat', '-d', '-v', 'threadtime').stdout)
++        assert passed, f'{label} trial {trial + 1} failed'
++        ime = json.loads(adb('shell', 'run-as', package, 'cat', 'files/candidate-taps.json').stdout)
++        # Flush the editor dump AFTER timing; its own callbacks contain the timestamps.
++        adb('shell', 'am', 'broadcast', '-n', host + '/.BenchControl', '--es', 'command', 'dump')
++        editor = json.loads(adb('shell', 'run-as', host, 'cat', 'files/candidate-editor.json').stdout)
++        assert editor['text'] == '你' * 6, editor
++        assert ime['commit'] == revision and ime['model_mapped']
++        assert ime['fcitx_core_mapped'] == (label == 'fcitx')
++        data = {'ime': ime, 'editor': editor}
++        data['timings_ms'] = []
++        for index, row in enumerate(ime['rounds']):
++            selected = row['select']
++            up = selected['dispatch_up_ns']
++            expected = '你' * (index + 1)
++            edit = next(e['at_ns'] for e in editor['edits'] if e['text'] == expected)
++            draw = next(e['at_ns'] for e in editor['draws'] if e['text'] == expected)
++            data['timings_ms'].append({
++                'round': index + 1,
++                'injection_up_to_ime_dispatch': (up - selected['inject_up_ns']) / 1e6,
++                'ime_dispatch_up_to_commit_collector': (row['commit_collected_ns'] - up) / 1e6,
++                'ime_dispatch_up_to_editor_input_connection': (editor['commits'][index]['at_ns'] - up) / 1e6,
++                'ime_dispatch_up_to_editor_change': (edit - up) / 1e6,
++                'ime_dispatch_up_to_editor_draw': (draw - up) / 1e6,
++                'ime_touch_up_handler': (selected['dispatch_return_ns'] - up) / 1e6,
++                'n_dispatch_up_to_preedit_collector': (row['preedit_collected_ns'] - row['n']['dispatch_up_ns']) / 1e6,
++            })
++        prefix.with_suffix('.json').write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
++        trials.append(data)
++        print(json.dumps(data['timings_ms'], ensure_ascii=False), flush=True)
++        if trace_pid:
++            deadline = time.monotonic() + 30
++            while adb('shell', 'test', '-d', '/proc/' + trace_pid, check=False).returncode == 0:
++                assert time.monotonic() < deadline, 'Perfetto did not finish'
++                time.sleep(0.5)
++            adb('pull', remote_trace, str(prefix.with_suffix('.perfetto-trace')))
++    results[label] = trials
++(args.output / 'comparison.json').write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n')
+diff --git a/tools/dispatch-ablation/frozen-inputs.json b/tools/dispatch-ablation/frozen-inputs.json
+new file mode 100644
+index 00000000..3519755f
+--- /dev/null
++++ b/tools/dispatch-ablation/frozen-inputs.json
+@@ -0,0 +1,87 @@
++{
++  "schema_version": 1,
++  "recorded_utc": "2026-11-11",
++  "wanxiang_tag": "v18.1.10",
++  "base": {
++    "id": 720692646,
++    "name": "rime-wanxiang-base.zip",
++    "size": 25394477,
++    "digest": "sha256:ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999",
++    "browser_download_url": "https://github.com/amzxyz/rime-wanxiang/releases/download/v18.1.10/rime-wanxiang-base.zip",
++    "updated_at": "2026-11-07T12:47:31Z"
++  },
++  "model": {
++    "id": 719554076,
++    "name": "wanxiang-lts-zh-hans.gram",
++    "size": 418080812,
++    "digest": "sha256:769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a",
++    "browser_download_url": "https://github.com/amzxyz/rime-wanxiang-data/releases/download/LTS/wanxiang-lts-zh-hans.gram",
++    "updated_at": "2026-11-07T04:08:51Z"
++  },
++  "products": {
++    "fcitx": {
++      "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
++      "release": "nightly-0.1.3-715-g5fb6bca3-20261021-205826",
++      "asset": {
++        "id": 663773371,
++        "name": "org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
++        "size": 11906742,
++        "digest": "sha256:f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
++        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-715-g5fb6bca3-20261021-205826/org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
++        "updated_at": "2026-10-21T20:58:32Z"
++      }
++    },
++    "direct": {
++      "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
++      "release": "nightly-0.1.3-802-g2e48466e-20261107-112347",
++      "asset": {
++        "id": 720494660,
++        "name": "direct.apk",
++        "size": 10238250,
++        "digest": "sha256:b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
++        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-802-g2e48466e-20261107-112347/direct.apk",
++        "updated_at": "2026-11-07T11:23:53Z"
++      }
++    },
++    "current": {
++      "commit": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
++      "release_commit": "090a43e1485b9a6d76a28a31a6503c41e3e3db29",
++      "release": "nightly-0.1.3-823-g090a43e1-20261110-142502",
++      "asset": {
++        "id": 731714993,
++        "name": "direct.apk",
++        "size": 10120461,
++        "digest": "sha256:0a96e27c8ee355e862bcf391804b55d22546062ebc9625ec91a397c8c22dca67",
++        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-823-g090a43e1-20261110-142502/direct.apk",
++        "updated_at": "2026-11-10T14:25:09Z"
++      },
++      "runtime_equivalence": {
++        "changed_paths": [
++          "AGENTS.md",
++          "DESIGN.md",
++          "README.md"
++        ],
++        "verified_identical_paths": [
++          "app",
++          "direct-rime",
++          "native",
++          "build-logic",
++          "gradle",
++          "settings.gradle.kts",
++          "build.gradle.kts",
++          "gradle.properties"
++        ],
++        "note": "Default HEAD differs from the signed official APK only by documentation; do not relabel the APK commit."
++      }
++    }
++  },
++  "original_config_sha256": {
++    "wanxiang.custom.yaml": "42bf76351ceb6f2db87396ae13edf9d9914712a065a61cdf74c66c52900c1319",
++    "user.yaml": "dd82ae3dc637e850446eb6e4170d916bb3d628b08d85572096c6b4c62ccb9a57"
++  },
++  "comparison_order": [
++    "fcitx",
++    "direct",
++    "current"
++  ]
++}
+diff --git a/tools/dispatch-ablation/normalize-products.py b/tools/dispatch-ablation/normalize-products.py
+new file mode 100644
+index 00000000..7a034654
+--- /dev/null
++++ b/tools/dispatch-ablation/normalize-products.py
+@@ -0,0 +1,13 @@
++"""Accept the archived multi-path upload layout without rebuilding identical APKs."""
++from pathlib import Path
++import sys
++
++root=Path(sys.argv[1])
++nested=root/'products'
++if (nested/'products.json').is_file():
++    for item in nested.iterdir():
++        destination=root/item.name
++        assert not destination.exists(),destination
++        item.rename(destination)
++    nested.rmdir()
++assert (root/'products.json').is_file(),'Missing validated build metadata'
+diff --git a/tools/dispatch-ablation/pins.json b/tools/dispatch-ablation/pins.json
+new file mode 100644
+index 00000000..84e8a1af
+--- /dev/null
++++ b/tools/dispatch-ablation/pins.json
+@@ -0,0 +1,9 @@
++{
++  "before": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
++  "after": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
++  "before_apk_sha256": "ac2362b4d12f952187cab7d81a6a54476f0d7061d58867053030952ee39e7f37",
++  "before_artifact_id": 13851569511,
++  "before_run_id": 43015193478,
++  "fixture_run_id": 43018095886,
++  "fixture_artifact_id": 13853652309
++}
+diff --git a/tools/dispatch-ablation/sources.json b/tools/dispatch-ablation/sources.json
+new file mode 100644
+index 00000000..1203c3d2
+--- /dev/null
++++ b/tools/dispatch-ablation/sources.json
+@@ -0,0 +1,8 @@
++{
++  "before": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
++  "ui": "0d9417b2b7fbd2c614191d5ac4151943d72831a1",
++  "priority": "bc78739123fc5ee8fc0927804723f19f8b274963",
++  "after": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
++  "products_run": 43132299216,
++  "fixture_run": 43018095886
++}
+diff --git a/tools/dispatch-ablation/verify.py b/tools/dispatch-ablation/verify.py
+new file mode 100644
+index 00000000..d3b97482
+--- /dev/null
++++ b/tools/dispatch-ablation/verify.py
+@@ -0,0 +1,15 @@
++import hashlib,json,sys
++from pathlib import Path
++products,inputs=map(Path,sys.argv[1:]);here=Path(__file__).resolve().parent
++record=json.loads((products/'products.json').read_text());expected=json.loads((here/'sources.json').read_text())
++assert record['sources']==expected
++for name,sha in record['apks'].items():
++ assert hashlib.sha256((products/name).read_bytes()).hexdigest()==sha,name
++for name,sha in record['harness'].items():
++ assert hashlib.sha256((here/'androidTest'/name).read_bytes()).hexdigest()==sha,name
++fixture=json.loads((inputs/'fixture.manifest.json').read_text());frozen=json.loads((here/'frozen-inputs.json').read_text())
++assert all(fixture[k]==v for k,v in frozen.items())
++assert hashlib.sha256((inputs/'fixture.zip').read_bytes()).hexdigest()==fixture['fixture_sha256']
++for label in ['before','ui','priority','after']:
++ assert (products/(label+'-commit.txt')).read_text().strip()==expected[label]
++print('Four exact source/APK identities, identical original probes, shared SDK and frozen user configuration verified')
+-- 
+2.52.0
+
+
+From 2fec03d08aeb0c57fb93c81029c2c14e822a779a Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 03:36:34 +0000
+Subject: [PATCH 3/7] =?UTF-8?q?=E4=BF=AE=E5=A4=8D(=E6=B5=8B=E8=AF=95):=20?=
+ =?UTF-8?q?=E6=98=BE=E5=BC=8F=E8=8E=B7=E5=8F=96=E5=AE=9E=E6=B5=8B=E6=97=A7?=
+ =?UTF-8?q?=E6=8F=90=E4=BA=A4=E5=B9=B6=E5=A4=8D=E7=94=A8=E5=B7=B2=E9=80=9A?=
+ =?UTF-8?q?=E8=BF=87=E9=AA=8C=E8=AF=81=E7=9A=84=E6=9E=84=E5=BB=BA=E4=BA=A7?=
+ =?UTF-8?q?=E7=89=A9?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/workflows/rime-candidate-perf.yml  | 32 ++++++++++++++++++----
+ tools/dispatch-ablation/build.sh           | 12 +-------
+ tools/dispatch-ablation/finish-products.py | 29 ++++++++++++++++++++
+ 3 files changed, 57 insertions(+), 16 deletions(-)
+ create mode 100644 tools/dispatch-ablation/finish-products.py
+
+diff --git a/.github/workflows/rime-candidate-perf.yml b/.github/workflows/rime-candidate-perf.yml
+index 3b39e7b1..26439c14 100644
+--- a/.github/workflows/rime-candidate-perf.yml
++++ b/.github/workflows/rime-candidate-perf.yml
+@@ -4,7 +4,7 @@ on:
+     inputs:
+       scope:
+         type: choice
+-        options: [all, build, measure]
++        options: [all, build, recover, measure]
+         default: all
+       products_run:
+         type: string
+@@ -18,7 +18,7 @@ concurrency:
+   cancel-in-progress: false
+ jobs:
+   build:
+-    if: inputs.scope != 'measure'
++    if: inputs.scope == 'all' || inputs.scope == 'build'
+     runs-on: ubuntu-22.04
+     timeout-minutes: 45
+     steps:
+@@ -43,9 +43,31 @@ jobs:
+           name: dispatch-ablation-products
+           path: ${{ runner.temp }}/products/
+           retention-days: 30
++  recover:
++    if: inputs.scope == 'recover'
++    runs-on: ubuntu-22.04
++    timeout-minutes: 10
++    steps:
++      - uses: actions/checkout@v7
++        with: {fetch-depth: 0}
++      - uses: actions/download-artifact@v7
++        with:
++          name: dispatch-ablation-products
++          run-id: ${{ inputs.products_run }}
++          github-token: ${{ github.token }}
++          path: ${{ runner.temp }}/products
++      - name: Finalize metadata after successful builds without rebuilding APKs
++        env:
++          RECOVERED_BUILD_RUN: ${{ inputs.products_run }}
++        run: python3 tools/dispatch-ablation/finish-products.py "$RUNNER_TEMP/products"
++      - uses: actions/upload-artifact@v7
++        with:
++          name: dispatch-ablation-products
++          path: ${{ runner.temp }}/products/
++          retention-days: 30
+   compare:
+-    needs: build
+-    if: always() && (inputs.scope == 'measure' || (inputs.scope == 'all' && needs.build.result == 'success'))
++    needs: [build, recover]
++    if: always() && (inputs.scope == 'measure' || (inputs.scope == 'all' && needs.build.result == 'success') || (inputs.scope == 'recover' && needs.recover.result == 'success'))
+     strategy:
+       fail-fast: false
+       matrix:
+@@ -63,7 +85,7 @@ jobs:
+       - uses: actions/download-artifact@v7
+         with:
+           name: dispatch-ablation-products
+-          run-id: ${{ inputs.products_run || github.run_id }}
++          run-id: ${{ inputs.scope == 'measure' && inputs.products_run || github.run_id }}
+           github-token: ${{ github.token }}
+           path: ${{ runner.temp }}/products
+       - uses: actions/download-artifact@v7
+diff --git a/tools/dispatch-ablation/build.sh b/tools/dispatch-ablation/build.sh
+index 028cfae5..c41e7fc3 100644
+--- a/tools/dispatch-ablation/build.sh
++++ b/tools/dispatch-ablation/build.sh
+@@ -48,14 +48,4 @@ for label in ui priority; do
+     ./gradlew --stop
+   )
+ done
+-python3 - "$output" <<'PY'
+-from pathlib import Path
+-import hashlib,json,sys,subprocess
+-out=Path(sys.argv[1]);tool=Path('tools/dispatch-ablation');sources=json.loads((tool/'sources.json').read_text())
+-labels=['before','ui','priority','after']
+-locks={label:hashlib.sha256(subprocess.check_output(['git','show',sources[label]+':native/rime-sdk.lock.json'])).hexdigest() for label in labels}
+-assert len(set(locks.values()))==1
+-(out/'products.json').write_text(json.dumps({'sources':sources,'sdk_lock_sha256':locks,
+- 'apks':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.glob('*.apk'))},
+- 'harness':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((tool/'androidTest').glob('*.kt'))}},indent=2)+'\n')
+-PY
++python3 tools/dispatch-ablation/finish-products.py "$output"
+diff --git a/tools/dispatch-ablation/finish-products.py b/tools/dispatch-ablation/finish-products.py
+new file mode 100644
+index 00000000..34797421
+--- /dev/null
++++ b/tools/dispatch-ablation/finish-products.py
+@@ -0,0 +1,29 @@
++from pathlib import Path
++import hashlib,json,sys,subprocess,os,xml.etree.ElementTree as ET
++out=Path(sys.argv[1]);tool=Path('tools/dispatch-ablation');sources=json.loads((tool/'sources.json').read_text());labels=['before','ui','priority','after']
++# The measured after commit predates history cleanup, so fetch it explicitly.
++# A full advertised-ref checkout does not fetch former branch tips.
++subprocess.run(['git','fetch','--no-recurse-submodules','--no-tags','origin',sources['after']],check=True)
++locks={label:hashlib.sha256(subprocess.check_output(['git','show',sources[label]+':native/rime-sdk.lock.json'])).hexdigest() for label in labels}
++assert len(set(locks.values()))==1
++original=json.loads((out/'reused-products.json').read_text())
++for label in ['before','after']:
++ for suffix in ['.apk','-tests.apk']:
++  name=label+suffix
++  assert hashlib.sha256((out/name).read_bytes()).hexdigest()==original['apks'][name],name
++for label in labels:
++ assert (out/(label+'-commit.txt')).read_text().strip()==sources[label]
++ for suffix in ['.apk','-tests.apk']: assert (out/(label+suffix)).stat().st_size>100000
++results={}
++for label in ['ui','priority']:
++ suites=[ET.parse(p).getroot() for p in (out/(label+'-unit-results')).glob('TEST-*.xml')]
++ total={k:sum(int(s.get(k,0)) for s in suites) for k in ['tests','failures','errors','skipped']}
++ assert total['tests']==131 and all(total[k]==0 for k in ['failures','errors','skipped']),total
++ results[label]=total
++record={'sources':sources,'sdk_lock_sha256':locks,
++ 'apks':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.glob('*.apk'))},
++ 'harness':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((tool/'androidTest').glob('*.kt'))},
++ 'unit_results':results,'recovered_build_run':os.environ.get('RECOVERED_BUILD_RUN')}
++assert record['harness']==original['harness']
++(out/'products.json').write_text(json.dumps(record,indent=2)+'\n')
++print(json.dumps({'sources':sources,'unit_results':results,'recovered_build_run':record['recovered_build_run']}))
+-- 
+2.52.0
+
+
+From a2c7c5d9b43e79e143f39aa867f02fe3fdbbcff9 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 03:47:25 +0000
+Subject: [PATCH 4/7] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E8=BE=93=E5=85=A5):=20?=
+ =?UTF-8?q?=E5=A4=8D=E7=94=A8=E5=9B=BA=E5=AE=9A=E4=BA=A7=E7=89=A9=E8=BF=9B?=
+ =?UTF-8?q?=E8=A1=8C=E4=B8=A4=E7=89=88=E6=9C=AC=E7=8B=AC=E7=AB=8B=E7=A1=AE?=
+ =?UTF-8?q?=E8=AE=A4?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/workflows/rime-candidate-perf.yml | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/.github/workflows/rime-candidate-perf.yml b/.github/workflows/rime-candidate-perf.yml
+index 26439c14..bc840846 100644
+--- a/.github/workflows/rime-candidate-perf.yml
++++ b/.github/workflows/rime-candidate-perf.yml
+@@ -6,6 +6,11 @@ on:
+         type: choice
+         options: [all, build, recover, measure]
+         default: all
++      pair:
++        type: choice
++        options: [four, candidate_only, publish_only]
++        default: four
++        description: Four-way ablation or a separate two-product confirmation
+       products_run:
+         type: string
+         default: ''
+@@ -71,7 +76,7 @@ jobs:
+     strategy:
+       fail-fast: false
+       matrix:
+-        order: ['before,ui,priority,after', 'after,priority,ui,before']
++        order: ${{ fromJSON(inputs.pair == 'candidate_only' && '["before,ui","ui,before"]' || inputs.pair == 'publish_only' && '["before,priority","priority,before"]' || '["before,ui,priority,after","after,priority,ui,before"]') }}
+     runs-on: ubuntu-22.04
+     timeout-minutes: 40
+     env:
+-- 
+2.52.0
+
+
+From 9e6b7b3669a3912eee42cce38d914a9ae8056554 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 03:50:38 +0000
+Subject: [PATCH 5/7] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=9B=BE=E5=BD=A2):=20?=
+ =?UTF-8?q?=E5=9C=A8=E5=90=8C=E4=B8=80=E5=AE=BF=E4=B8=BB=E6=9C=BA=E8=BD=AE?=
+ =?UTF-8?q?=E6=8D=A2=E4=B8=A4=E7=A7=8D=E8=BD=AF=E4=BB=B6=E5=9B=BE=E5=BD=A2?=
+ =?UTF-8?q?=E5=90=8E=E7=AB=AF=E5=A4=8D=E6=A0=B8=E5=88=86=E5=8F=91=E9=98=BB?=
+ =?UTF-8?q?=E5=A1=9E?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/workflows/rime-candidate-perf.yml | 84 ++++++++++++++++++++++-
+ 1 file changed, 83 insertions(+), 1 deletion(-)
+
+diff --git a/.github/workflows/rime-candidate-perf.yml b/.github/workflows/rime-candidate-perf.yml
+index bc840846..8c6f9705 100644
+--- a/.github/workflows/rime-candidate-perf.yml
++++ b/.github/workflows/rime-candidate-perf.yml
+@@ -4,7 +4,7 @@ on:
+     inputs:
+       scope:
+         type: choice
+-        options: [all, build, recover, measure]
++        options: [all, build, recover, measure, graphics]
+         default: all
+       pair:
+         type: choice
+@@ -129,3 +129,85 @@ jobs:
+           name: dispatch-ablation-${{ matrix.order }}
+           path: build/dispatch-ablation/
+           retention-days: 30
++  graphics:
++    if: inputs.scope == 'graphics'
++    strategy:
++      fail-fast: false
++      matrix:
++        first: [legacy, direct]
++    runs-on: ubuntu-22.04
++    timeout-minutes: 35
++    env:
++      PRODUCT_ORDER: ${{ matrix.first == 'legacy' && 'before,ui' || 'ui,before' }}
++    steps:
++      - uses: actions/checkout@v7
++      - uses: actions/setup-java@v5
++        with: {distribution: temurin, java-version: '17'}
++      - uses: android-actions/setup-android@v4
++        with: {packages: 'platform-tools'}
++      - uses: actions/download-artifact@v7
++        with:
++          name: dispatch-ablation-products
++          run-id: ${{ inputs.products_run }}
++          github-token: ${{ github.token }}
++          path: ${{ runner.temp }}/products
++      - uses: actions/download-artifact@v7
++        with:
++          name: wanxiang-inputs-20261111
++          run-id: 43018095886
++          github-token: ${{ github.token }}
++          path: ${{ runner.temp }}/inputs
++      - name: Verify fixed sources and fixture, build neutral editor
++        run: |
++          python3 tools/dispatch-ablation/verify.py "$RUNNER_TEMP/products" "$RUNNER_TEMP/inputs"
++          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
++          bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/host" "$GITHUB_WORKSPACE/tools/candidate-perf/host"
++          mkdir -p build/dispatch-ablation
++          cp "$RUNNER_TEMP/products/products.json" "$RUNNER_TEMP/inputs/fixture.manifest.json" build/dispatch-ablation/
++      - name: Enable KVM
++        run: |
++          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
++          sudo udevadm control --reload-rules
++          sudo udevadm trigger --name-match=kvm
++      - name: Record installed emulator GPU modes
++        run: emulator -gpu list > build/dispatch-ablation/gpu-modes.txt 2>&1 || true
++      - name: Graphics control phase 1
++        uses: reactivecircus/android-emulator-runner@v2
++        with:
++          api-level: 35
++          target: aosp_atd
++          arch: x86_64
++          force-avd-creation: true
++          avd-name: dispatch-1
++          emulator-options: -no-window -gpu ${{ matrix.first == 'legacy' && 'swiftshader_indirect' || 'swiftshader' }} -no-snapshot -noaudio -no-boot-anim -camera-back none
++          disable-animations: true
++          script: |
++            adb root
++            adb wait-for-device
++            mkdir -p build/dispatch-ablation/${{ matrix.first }}
++            adb shell getprop > build/dispatch-ablation/${{ matrix.first }}/device-properties.txt
++            python3 tools/dispatch-ablation/candidate.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/${{ matrix.first }}/untraced --trials 3
++            python3 tools/dispatch-ablation/candidate.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/${{ matrix.first }}/traced --trials 1 --profile
++      - name: Graphics control phase 2
++        uses: reactivecircus/android-emulator-runner@v2
++        with:
++          api-level: 35
++          target: aosp_atd
++          arch: x86_64
++          force-avd-creation: true
++          avd-name: dispatch-2
++          emulator-options: -no-window -gpu ${{ matrix.first == 'legacy' && 'swiftshader' || 'swiftshader_indirect' }} -no-snapshot -noaudio -no-boot-anim -camera-back none
++          disable-animations: true
++          script: |
++            adb root
++            adb wait-for-device
++            mkdir -p build/dispatch-ablation/${{ matrix.first == 'legacy' && 'direct' || 'legacy' }}
++            adb shell getprop > build/dispatch-ablation/${{ matrix.first == 'legacy' && 'direct' || 'legacy' }}/device-properties.txt
++            python3 tools/dispatch-ablation/candidate.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/${{ matrix.first == 'legacy' && 'direct' || 'legacy' }}/untraced --trials 3
++            python3 tools/dispatch-ablation/candidate.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/${{ matrix.first == 'legacy' && 'direct' || 'legacy' }}/traced --trials 1 --profile
++      - uses: actions/upload-artifact@v7
++        if: always()
++        with:
++          name: dispatch-graphics-${{ matrix.first }}-first
++          path: build/dispatch-ablation/
++          retention-days: 30
+-- 
+2.52.0
+
+
+From b0b2a100640d5d1b9c78f3a60fb198da8cca0e2b Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 04:01:48 +0000
+Subject: [PATCH 6/7] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E8=BE=93=E5=85=A5):=20?=
+ =?UTF-8?q?=E7=94=A8=E5=9B=BA=E5=AE=9A=E8=8A=82=E6=8B=8D=E5=BC=82=E6=AD=A5?=
+ =?UTF-8?q?=E6=B3=A8=E5=85=A5=E6=B6=88=E9=99=A4=E4=B8=BB=E7=BA=BF=E7=A8=8B?=
+ =?UTF-8?q?=E6=9F=A5=E9=94=AE=E4=B8=8E=E7=AA=97=E5=8F=A3=E5=90=8C=E6=AD=A5?=
+ =?UTF-8?q?=E5=B9=B2=E6=89=B0?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/workflows/rime-candidate-perf.yml     |  80 ++++-
+ tools/dispatch-ablation/build-cadence.sh      |  33 +++
+ .../cadenceTest/CandidateTapTest.kt           | 275 ++++++++++++++++++
+ tools/dispatch-ablation/candidate-cadence.py  | 167 +++++++++++
+ tools/dispatch-ablation/verify-cadence.py     |  10 +
+ 5 files changed, 564 insertions(+), 1 deletion(-)
+ create mode 100644 tools/dispatch-ablation/build-cadence.sh
+ create mode 100644 tools/dispatch-ablation/cadenceTest/CandidateTapTest.kt
+ create mode 100644 tools/dispatch-ablation/candidate-cadence.py
+ create mode 100644 tools/dispatch-ablation/verify-cadence.py
+
+diff --git a/.github/workflows/rime-candidate-perf.yml b/.github/workflows/rime-candidate-perf.yml
+index 8c6f9705..1f771bb9 100644
+--- a/.github/workflows/rime-candidate-perf.yml
++++ b/.github/workflows/rime-candidate-perf.yml
+@@ -4,7 +4,7 @@ on:
+     inputs:
+       scope:
+         type: choice
+-        options: [all, build, recover, measure, graphics]
++        options: [all, build, recover, measure, graphics, cadence]
+         default: all
+       pair:
+         type: choice
+@@ -211,3 +211,81 @@ jobs:
+           name: dispatch-graphics-${{ matrix.first }}-first
+           path: build/dispatch-ablation/
+           retention-days: 30
++  cadence_build:
++    if: inputs.scope == 'cadence'
++    runs-on: ubuntu-22.04
++    timeout-minutes: 35
++    steps:
++      - uses: actions/checkout@v7
++        with: {fetch-depth: 0}
++      - uses: actions/setup-java@v5
++        with: {distribution: temurin, java-version: '17'}
++      - uses: android-actions/setup-android@v4
++        with: {packages: 'platform-tools'}
++      - uses: gradle/actions/setup-gradle@v6
++      - run: bash tools/dispatch-ablation/build-cadence.sh "$RUNNER_TEMP/products"
++      - uses: actions/upload-artifact@v7
++        if: always()
++        with:
++          name: cadence-products
++          path: ${{ runner.temp }}/products/
++          retention-days: 30
++  cadence_compare:
++    needs: cadence_build
++    if: inputs.scope == 'cadence' && needs.cadence_build.result == 'success'
++    strategy:
++      fail-fast: false
++      matrix:
++        order: ['before,ui','ui,before']
++    runs-on: ubuntu-22.04
++    timeout-minutes: 40
++    env:
++      PRODUCT_ORDER: ${{ matrix.order }}
++    steps:
++      - uses: actions/checkout@v7
++      - uses: actions/setup-java@v5
++        with: {distribution: temurin, java-version: '17'}
++      - uses: android-actions/setup-android@v4
++        with: {packages: 'platform-tools'}
++      - uses: actions/download-artifact@v7
++        with:
++          name: cadence-products
++          run-id: ${{ github.run_id }}
++          github-token: ${{ github.token }}
++          path: ${{ runner.temp }}/products
++      - uses: actions/download-artifact@v7
++        with:
++          name: wanxiang-inputs-20261111
++          run-id: 43018095886
++          github-token: ${{ github.token }}
++          path: ${{ runner.temp }}/inputs
++      - name: Verify fixed sources and fixture, build neutral editor
++        run: |
++          python3 tools/dispatch-ablation/verify-cadence.py "$RUNNER_TEMP/products" "$RUNNER_TEMP/inputs"
++          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
++          bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/host" "$GITHUB_WORKSPACE/tools/candidate-perf/host"
++          mkdir -p build/dispatch-ablation
++          cp "$RUNNER_TEMP/products/products.json" "$RUNNER_TEMP/inputs/fixture.manifest.json" build/dispatch-ablation/
++      - name: Enable KVM
++        run: |
++          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
++          sudo udevadm control --reload-rules
++          sudo udevadm trigger --name-match=kvm
++      - uses: reactivecircus/android-emulator-runner@v2
++        with:
++          api-level: 35
++          target: aosp_atd
++          arch: x86_64
++          disable-animations: true
++          script: |
++            adb root
++            adb wait-for-device
++            adb shell getprop > build/dispatch-ablation/device-properties.txt
++            python3 tools/dispatch-ablation/candidate-cadence.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/untraced --trials 6
++            python3 tools/dispatch-ablation/candidate-cadence.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/traced --trials 1 --profile
++      - uses: actions/upload-artifact@v7
++        if: always()
++        with:
++          name: cadence-${{ matrix.order }}
++          path: build/dispatch-ablation/
++          retention-days: 30
+diff --git a/tools/dispatch-ablation/build-cadence.sh b/tools/dispatch-ablation/build-cadence.sh
+new file mode 100644
+index 00000000..265c9c31
+--- /dev/null
++++ b/tools/dispatch-ablation/build-cadence.sh
+@@ -0,0 +1,33 @@
++#!/usr/bin/env bash
++set -euo pipefail
++root=$(pwd)
++output=${1:?output directory}
++mkdir -p "$output"
++for label in before ui; do
++  revision=$(python3 -c 'import json,sys;print(json.load(open("tools/dispatch-ablation/sources.json"))[sys.argv[1]])' "$label")
++  checkout="$RUNNER_TEMP/cadence-product-$label"
++  git clone --shared --no-checkout "$root" "$checkout"
++  git -C "$checkout" checkout --detach "$revision"
++  (
++    cd "$checkout"
++    ./prepare_personal_build.sh
++    cp "$root/tools/dispatch-ablation/cadenceTest/CandidateTapTest.kt" app/src/androidTest/java/org/fcitx/fcitx5/android/core/
++    git diff --exit-code -- app/src/main direct-rime native build-logic app/build.gradle.kts
++    ./gradlew -PbuildABI=x86_64 -Pkotlin.compiler.execution.strategy=in-process --max-workers=2 :app:assembleFxDebug :app:assembleFxDebugAndroidTest
++    cp app/build/outputs/apk/fx/debug/*.apk "$output/$label.apk"
++    cp app/build/outputs/apk/androidTest/fx/debug/*.apk "$output/$label-tests.apk"
++    git rev-parse HEAD > "$output/$label-commit.txt"
++    python3 tools/verify-direct-rime-apk.py "$output/$label.apk" > "$output/$label-apk-audit.json"
++    ./gradlew --stop
++  )
++done
++python3 - "$output" <<'PY'
++from pathlib import Path
++import hashlib,json,sys,subprocess
++out=Path(sys.argv[1]);tool=Path('tools/dispatch-ablation');sources=json.loads((tool/'sources.json').read_text());sources={k:sources[k] for k in ['before','ui']}
++locks={label:hashlib.sha256(subprocess.check_output(['git','show',sha+':native/rime-sdk.lock.json'])).hexdigest() for label,sha in sources.items()};assert len(set(locks.values()))==1
++(out/'products.json').write_text(json.dumps({'sources':sources,'sdk_lock_sha256':locks,
++ 'protocol':'fixed_cadence_100ms_input_manager_async_cached_letters',
++ 'apks':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.glob('*.apk'))},
++ 'harness_sha256':hashlib.sha256((tool/'cadenceTest/CandidateTapTest.kt').read_bytes()).hexdigest()},indent=2)+'\n')
++PY
+diff --git a/tools/dispatch-ablation/cadenceTest/CandidateTapTest.kt b/tools/dispatch-ablation/cadenceTest/CandidateTapTest.kt
+new file mode 100644
+index 00000000..3beb566c
+--- /dev/null
++++ b/tools/dispatch-ablation/cadenceTest/CandidateTapTest.kt
+@@ -0,0 +1,275 @@
++/* SPDX-License-Identifier: LGPL-2.1-or-later */
++package org.fcitx.fcitx5.android.core
++
++import android.content.Context
++import android.graphics.Rect
++import android.os.SystemClock
++import android.view.*
++import android.view.inspector.WindowInspector
++import androidx.test.platform.app.InstrumentationRegistry
++import kotlinx.coroutines.*
++import kotlinx.coroutines.channels.Channel
++import org.fcitx.fcitx5.android.BuildConfig
++import org.fcitx.fcitx5.android.daemon.FcitxDaemon
++import org.fcitx.fcitx5.android.data.prefs.AppPrefs
++import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
++import org.fcitx.fcitx5.android.input.AutoScaleTextView
++import org.fcitx.fcitx5.android.input.BaseInputView
++import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
++import org.json.JSONArray
++import org.json.JSONObject
++import org.junit.Assert.*
++import org.junit.Test
++import java.io.File
++import java.util.zip.ZipInputStream
++import java.util.concurrent.ConcurrentHashMap
++import java.util.concurrent.CountDownLatch
++import java.util.concurrent.TimeUnit
++
++/** The identical, instrumentation-only harness is built against both original products. */
++class CandidateTapTest {
++    private val ins = InstrumentationRegistry.getInstrumentation()
++    private val ctx = ins.targetContext
++    private val args = InstrumentationRegistry.getArguments()
++    private fun now() = SystemClock.elapsedRealtimeNanos()
++    private fun shell(command: String) = ins.uiAutomation.executeShellCommand(command).use {
++        java.io.FileInputStream(it.fileDescriptor).bufferedReader().readText().trim()
++    }
++    private suspend fun FcitxAPI.profiles(): RawConfig = getAddonSubConfig("rime", "profile-manager").let { it.findByName("cfg") ?: it }
++    private suspend fun await(message: String, condition: () -> Boolean) {
++        withTimeout(60_000) { while (!condition()) delay(10) }
++        check(condition()) { message }
++    }
++    private fun extract(archive: File, target: File) {
++        val root = target.canonicalPath + File.separator
++        var size = 0L
++        ZipInputStream(archive.inputStream().buffered()).use { zip ->
++            while (true) {
++                val entry = zip.nextEntry ?: break
++                val out = File(target, entry.name).canonicalFile
++                require(out.path.startsWith(root))
++                if (entry.isDirectory) out.mkdirs() else {
++                    out.parentFile!!.mkdirs()
++                    out.outputStream().buffered().use { dest ->
++                        val buffer = ByteArray(65536)
++                        while (true) {
++                            val n = zip.read(buffer); if (n < 0) break
++                            size += n; require(size <= 1024L * 1024 * 1024)
++                            dest.write(buffer, 0, n)
++                        }
++                    }
++                }
++                zip.closeEntry()
++            }
++        }
++    }
++
++    @Test fun prepare(): Unit = runBlocking {
++        val connection = FcitxDaemon.connect(javaClass.name)
++        try {
++            connection.runOnReady {
++                setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "create"), RawConfig("Name", "candidate-bench"))))
++                check(profiles()["Error"].value.isEmpty())
++            }
++            val directory = File(ctx.getExternalFilesDir(null), "data/candidate-bench")
++            extract(File(ctx.filesDir, "candidate-fixture.zip"), directory)
++            connection.runOnReady {
++                setImConfig("rime", RawConfig(arrayOf(RawConfig("PreeditMode", "No"))))
++                setAddonSubConfig("rime", "profile-manager", RawConfig(arrayOf(RawConfig("Action", "switch"), RawConfig("Name", "candidate-bench"))))
++                check(profiles()["Current"].value == "candidate-bench")
++                setCapFlags(CapabilityFlags.DefaultFlags); setCandidatePagingMode(1)
++                activate(31001, "io.github.sandyyur.inputbench"); activateIme("rime"); focus(true)
++            }
++            withTimeout(240_000) {
++                while (connection.runOnReady { focus(true); currentIme().subMode.icon } != "fcitx-rime:wanxiang") delay(100)
++            }
++            assertTrue(File("/proc/self/maps").readText().contains("wanxiang-lts-zh-hans.gram"))
++        } finally { FcitxDaemon.disconnect(javaClass.name) }
++    }
++
++    private class Touch(val key: String, val plannedDown: Long, val plannedUp: Long) {
++        @Volatile var injectDown = 0L
++        @Volatile var injectUp = 0L
++        @Volatile var downReturned = 0L
++        @Volatile var upReturned = 0L
++        @Volatile var dispatchDown = 0L
++        @Volatile var dispatchUp = 0L
++        @Volatile var dispatchReturned = 0L
++        @Volatile var geometryValid = false
++        val completed = CountDownLatch(1)
++        fun result() = JSONObject().put("key", key)
++            .put("planned_down_ns", plannedDown).put("planned_up_ns", plannedUp)
++            .put("inject_down_ns", injectDown).put("inject_up_ns", injectUp)
++            .put("inject_down_return_ns", downReturned).put("inject_up_return_ns", upReturned)
++            .put("dispatch_down_ns", dispatchDown).put("dispatch_up_ns", dispatchUp)
++            .put("dispatch_return_ns", dispatchReturned).put("geometry_valid", geometryValid)
++    }
++
++    private fun waitUntil(time: Long) {
++        while (true) {
++            val remaining = time - now()
++            if (remaining <= 0) return
++            SystemClock.sleep((remaining + 999_999L) / 1_000_000L)
++        }
++    }
++
++    private fun bounds(text: String): Rect {
++        val view = requireNotNull(find(text)) { "Missing $text" }
++        val xy = IntArray(2); view.getLocationOnScreen(xy)
++        return Rect(xy[0], xy[1], xy[0] + view.width, xy[1] + view.height)
++    }
++
++    private fun find(text: String): View? {
++        fun walk(view: View): View? {
++            if (!view.isShown) return null
++            if (view is AutoScaleTextView && (view.text.toString().trim().equals(text, true) ||
++                    (text == "你" && view.text.toString().trim().startsWith(text)))) {
++                var parent: View? = view
++                while (parent != null && parent !is CustomGestureView) parent = parent.parent as? View
++                return parent ?: view
++            }
++            if (view is ViewGroup) for (i in 0 until view.childCount) walk(view.getChildAt(i))?.let { return it }
++            return null
++        }
++        return WindowInspector.getGlobalWindowViews().firstNotNullOfOrNull(::walk)
++    }
++
++    @Test fun replay(): Unit = runBlocking {
++        check(BuildConfig.BUILD_GIT_HASH == args.getString("expectedCommit")) { "Wrong product: ${BuildConfig.BUILD_GIT_HASH}" }
++        ins.runOnMainSync {
++            val prefs = AppPrefs.getInstance()
++            prefs.candidates.mode.setValue(FloatingCandidatesMode.Disabled)
++            prefs.keyboard.textKeyboardLayoutProfile.setValue("default")
++            prefs.keyboard.popupOnKeyPress.setValue(false)
++        }
++        val connection = FcitxDaemon.connect(javaClass.name)
++        val commits = Channel<Pair<String, Long>>(Channel.UNLIMITED)
++        val preedits = Channel<Pair<String, Long>>(Channel.UNLIMITED)
++        val collector = launch(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) {
++            connection.runImmediately { eventFlow }.collect {
++                when (it) {
++                    is FcitxEvent.CommitStringEvent -> commits.send(it.data.text to now())
++                    is FcitxEvent.InputPanelEvent -> preedits.send(it.data.preedit.toString() to now())
++                    else -> {}
++                }
++            }
++        }
++        val inputClass = Class.forName("android.hardware.input.InputManagerGlobal")
++        val inputManager = inputClass.getMethod("getInstance").invoke(null)
++        val inject = inputClass.getMethod("injectInputEvent", InputEvent::class.java, Int::class.javaPrimitiveType!!)
++        var wrappedWindow: Window? = null
++        var oldCallback: Window.Callback? = null
++        try {
++            ins.uiAutomation.adoptShellPermissionIdentity("android.permission.INJECT_EVENTS")
++            // No input API warm-up, fake keys, or wait for native readiness in this fresh process.
++            shell("am start -W -n io.github.sandyyur.inputbench/.BenchHost")
++            await("Keyboard visible") { var shown = false; ins.runOnMainSync { shown = find("n") != null }; shown }
++            // The initial Latin Android subtype may override the saved Chinese mode.
++            // Select the real schema, without typing a warm-up word.
++            connection.runOnReady {
++                if (currentIme().subMode.icon != "fcitx-rime:wanxiang") activateIme("rime")
++                setCandidatePagingMode(1)
++            }
++            val touches = ConcurrentHashMap<Long, Touch>()
++            val letters = HashMap<String, Rect>()
++            ins.runOnMainSync {
++                letters["n"] = bounds("n")
++                letters["i"] = bounds("i")
++                var view: View? = find("n")
++                while (view != null && view !is BaseInputView) view = view.parent as? View
++                val window = (view as BaseInputView).service.window.window!!
++                val previous = window.callback
++                wrappedWindow = window; oldCallback = previous
++                window.callback = object : Window.Callback by previous {
++                    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
++                        val touch = touches[event.downTime]
++                        if (event.actionMasked == MotionEvent.ACTION_DOWN && touch != null) {
++                            touch.dispatchDown = now()
++                            val view = find(touch.key)
++                            val xy = IntArray(2)
++                            if (view != null) {
++                                view.getLocationOnScreen(xy)
++                                touch.geometryValid = Rect(xy[0], xy[1], xy[0]+view.width, xy[1]+view.height)
++                                    .contains(event.rawX.toInt(), event.rawY.toInt())
++                            }
++                        }
++                        if (event.actionMasked == MotionEvent.ACTION_UP && touch != null) touch.dispatchUp = now()
++                        return try { previous.dispatchTouchEvent(event) } finally {
++                            if (event.actionMasked == MotionEvent.ACTION_UP && touch != null) {
++                                touch.dispatchReturned = now()
++                                touch.completed.countDown()
++                            }
++                        }
++                    }
++                }
++            }
++            fun tap(text: String, target: Rect, plannedDown: Long): Touch {
++                waitUntil(plannedDown)
++                val down = SystemClock.uptimeMillis()
++                val touch = Touch(text, plannedDown, plannedDown + 20_000_000L)
++                check(touches.putIfAbsent(down, touch) == null) { "Duplicate touch identity" }
++                for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
++                    if (action == MotionEvent.ACTION_UP) waitUntil(touch.plannedUp)
++                    val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, target.exactCenterX(), target.exactCenterY(), 0)
++                    event.source = InputDevice.SOURCE_TOUCHSCREEN
++                    if (action == MotionEvent.ACTION_DOWN) touch.injectDown = now() else touch.injectUp = now()
++                    // Test-only direct asynchronous injection avoids UiAutomationConnection's
++                    // surface/animation transaction synchronization before DOWN and after UP.
++                    try { check(inject.invoke(inputManager, event, 0) as Boolean) } finally { event.recycle() }
++                    if (action == MotionEvent.ACTION_DOWN) touch.downReturned = now() else touch.upReturned = now()
++                }
++                return touch
++            }
++            fun awaitTouch(touch: Touch) {
++                check(touch.completed.await(60, TimeUnit.SECONDS)) { "Missing ${touch.key} dispatch" }
++                check(touch.dispatchDown > 0 && touch.dispatchUp >= touch.dispatchDown && touch.dispatchReturned >= touch.dispatchUp)
++                check(touch.geometryValid) { "Cached coordinate missed actual ${touch.key} key" }
++            }
++            val rounds = JSONArray()
++            repeat(6) { round ->
++                // Six taps in one editor distinguish first-use cost from repeated binding cost.
++                val plannedN = now() + 20_000_000L
++                val n = tap("n", letters.getValue("n"), plannedN)
++                val i = tap("i", letters.getValue("i"), plannedN + 100_000_000L)
++                awaitTouch(n); awaitTouch(i)
++                var preedit: Long? = null
++                val niReady = withTimeout(60_000) {
++                    var entry: Pair<String, Long>
++                    do {
++                        entry = preedits.receive()
++                        if (entry.first == "n" && entry.second >= n.plannedDown) preedit = entry.second
++                    } while (entry.first != "ni")
++                    entry.second
++                }
++                // Selection is measured after the ni UI settles; this does not gate n/i injection.
++                ins.waitForIdleSync()
++                await("Candidate bound") { var found = false; ins.runOnMainSync { found = find("你") != null }; found }
++                var candidateBounds: Rect? = null
++                ins.runOnMainSync { candidateBounds = bounds("你") }
++                val select = tap("你", candidateBounds!!, now() + 5_000_000L)
++                awaitTouch(select)
++                val commit = withTimeout(60_000) { commits.receive() }
++                assertEquals("你", commit.first)
++                // Dumping happens AFTER the commit; polling never determines the recorded latency.
++                shell("am broadcast -n io.github.sandyyur.inputbench/.BenchControl --es command dump")
++                rounds.put(JSONObject().put("round", round + 1).put("n", n.result()).put("i", i.result()).put("select", select.result())
++                    .put("ni_ready_ns", niReady).put("preedit_collected_ns", preedit ?: JSONObject.NULL).put("commit_collected_ns", commit.second))
++            }
++            assertNull(withTimeoutOrNull(250) { commits.receive() })
++            val maps = File("/proc/self/maps").readText()
++            val labels = connection.runOnReady { statusArea().map { it.shortText } }
++            for (expected in listOf("上下文开", "简码开", "小字集")) assertTrue("Missing $expected: $labels", labels.any { it.startsWith(expected) })
++            assertTrue(maps.contains("wanxiang-lts-zh-hans.gram"))
++            File(ctx.filesDir, "candidate-taps.json").writeText(JSONObject().put("commit", BuildConfig.BUILD_GIT_HASH)
++                .put("injection_protocol", "fixed_cadence_100ms_input_manager_async_cached_letters")
++                .put("clock", "SystemClock.elapsedRealtimeNanos, across both Android processes")
++                .put("model_mapped", true).put("fcitx_core_mapped", maps.contains("libFcitx5Core.so"))
++                .put("switch_labels", JSONArray(labels)).put("rounds", rounds).toString(2))
++        } finally {
++            ins.uiAutomation.dropShellPermissionIdentity()
++            ins.runOnMainSync { wrappedWindow?.callback = oldCallback }
++            collector.cancelAndJoin()
++            FcitxDaemon.disconnect(javaClass.name)
++        }
++    }
++}
+diff --git a/tools/dispatch-ablation/candidate-cadence.py b/tools/dispatch-ablation/candidate-cadence.py
+new file mode 100644
+index 00000000..349b3817
+--- /dev/null
++++ b/tools/dispatch-ablation/candidate-cadence.py
+@@ -0,0 +1,167 @@
++#!/usr/bin/env python3
++"""First candidate tap after fresh process, then five taps in the same editor."""
++import argparse
++import json
++import os
++import re
++import subprocess
++import time
++from pathlib import Path
++PRODUCTS = tuple(os.environ.get("PRODUCT_ORDER", "before,ui,priority,after").split(","))
++assert PRODUCTS and set(PRODUCTS) <= {"before", "ui", "priority", "after"} and len(PRODUCTS) == len(set(PRODUCTS)), PRODUCTS
++
++parser = argparse.ArgumentParser(description=__doc__)
++parser.add_argument('--apks', type=Path, required=True)
++parser.add_argument('--fixture', type=Path, required=True)
++parser.add_argument('--host', type=Path, required=True)
++parser.add_argument('--output', type=Path, required=True)
++parser.add_argument('--trials', type=int, default=3)
++parser.add_argument('--pilot', action='store_true', help='One process per product; calibration only')
++parser.add_argument('--profile', action='store_true', help='Separate diagnostic run; do not compare its timings with untraced runs')
++args = parser.parse_args()
++if args.pilot:
++    args.trials = 1
++args.output.mkdir(parents=True, exist_ok=True)
++host = 'io.github.sandyyur.inputbench'
++
++def adb(*parts, check=True, timeout=900, input=None):
++    return subprocess.run(['adb', *map(str, parts)], input=input, text=True, capture_output=True, check=check, timeout=timeout)
++
++def instrument(package, method, revision):
++    command = ['adb', 'shell', 'am', 'instrument', '--no-hidden-api-checks', '-w', '-r', '-e', 'class',
++              'org.fcitx.fcitx5.android.core.CandidateTapTest#' + method,
++              '-e', 'expectedCommit', revision,
++              package + '.test/androidx.test.runner.AndroidJUnitRunner']
++    process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++    if method == 'replay':
++        # force-stop (including am instrument's own restart) makes Android select
++        # its fallback IME. Select our IME only AFTER the fresh test process starts.
++        deadline = time.monotonic() + 30
++        started = False
++        while process.poll() is None and time.monotonic() < deadline:
++            logs = adb('logcat', '-d', '-s', 'TestRunner:I', '*:S').stdout
++            if 'started: replay(org.fcitx.fcitx5.android.core.CandidateTapTest)' in logs:
++                started = True
++                break
++            time.sleep(0.1)
++        if started:
++            component = package + '/org.fcitx.fcitx5.android.input.FcitxInputMethodService'
++            adb('shell', 'ime', 'enable', component)
++            adb('shell', 'ime', 'set', component)
++            assert adb('shell', 'settings', 'get', 'secure', 'default_input_method').stdout.strip() == component
++    stdout, stderr = process.communicate(timeout=900)
++    run = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
++    return run, run.returncode == 0 and 'OK (1 test)' in run.stdout
++
++assert adb('get-serialno').stdout.strip().startswith('emulator-'), 'Disposable emulator required'
++adb('shell', 'setprop', 'debug.hwui.drawing_enabled', 'true')
++adb('shell', 'settings', 'put', 'secure', 'show_ime_with_hard_keyboard', '1')
++adb('shell', 'settings', 'put', 'system', 'screen_off_timeout', '1800000')
++adb('install', '-r', args.host)
++adb('push', args.fixture, '/data/local/tmp/candidate-fixture.zip')
++results = {}
++sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
++aapt = sorted((sdk / 'build-tools').glob('*/aapt2'), key=lambda p: [int(x) for x in re.findall(r'\d+', p.parent.name)])[-1]
++for label in PRODUCTS:
++    assert (args.apks / (label + '.apk')).is_file(), label
++    package = subprocess.check_output([str(aapt), 'dump', 'packagename', str(args.apks / (label + '.apk'))], text=True).strip()
++    assert re.fullmatch(r'[a-zA-Z0-9_.]+', package), package
++    revision = (args.apks / (label + '-commit.txt')).read_text().strip()
++    # Reference APKs may have a different CI debug signer. Never upgrade across
++    # signers or inherit the previous product's profile on this disposable device.
++    adb('uninstall', package + '.test', check=False)
++    adb('uninstall', package, check=False)
++    adb('install', '-r', args.apks / (label + '.apk'))
++    adb('install', '-r', args.apks / (label + '-tests.apk'))
++    adb('shell', 'am', 'force-stop', package)
++    adb('shell', 'pm', 'clear', package)
++    adb('shell', 'run-as', package, 'mkdir', '-p', 'files')
++    adb('shell', f"cat /data/local/tmp/candidate-fixture.zip | run-as {package} sh -c 'cat > files/candidate-fixture.zip'")
++    adb('logcat', '-c')
++    prepare, passed = instrument(package, 'prepare', revision)
++    (args.output / (label + '-prepare.txt')).write_text(prepare.stdout + prepare.stderr)
++    if not passed:
++        (args.output / (label + '-prepare-logcat.txt')).write_text(adb('logcat', '-d', '-v', 'threadtime').stdout)
++    assert passed, label + ': fixture preparation failed'
++    component = package + '/org.fcitx.fcitx5.android.input.FcitxInputMethodService'
++    adb('shell', 'ime', 'enable', component)
++    # The replay runner selects it after instrumentation's final process restart.
++    trials = []
++    for trial in range(args.trials):
++        print(f'Testing {label} fresh process {trial + 1}', flush=True)
++        adb('shell', 'am', 'force-stop', host)
++        adb('shell', 'pm', 'clear', host)
++        for other in ('org.fcitx.fcitx5.android.fx.rime.debug', 'io.github.sandyyur.rime.direct', 'org.fcitx.fcitx5.android.fx.rime'):
++            adb('shell', 'am', 'force-stop', other)
++        adb('shell', 'am', 'force-stop', package)
++        adb('logcat', '-c')
++        trace_pid = None
++        if args.profile:
++            remote_trace = '/data/misc/perfetto-traces/candidate.perfetto-trace'
++            config = f'''buffers {{ size_kb: 32768 fill_policy: RING_BUFFER }}
++duration_ms: 20000
++write_into_file: true
++file_write_period_ms: 1000
++flush_period_ms: 1000
++data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
++ ftrace_events: "sched/sched_switch"
++ ftrace_events: "sched/sched_waking"
++ atrace_categories: "view"
++ atrace_categories: "gfx"
++ atrace_categories: "input"
++ atrace_categories: "dalvik"
++ atrace_apps: "{package}"
++ atrace_apps: "{host}"
++}} }} }}
++data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ proc_stats_poll_ms: 1000 }} }} }}
++'''
++            trace_pid = adb('shell', 'perfetto', '--background-wait', '--txt', '-c', '-', '-o', remote_trace, input=config).stdout.strip()
++            assert trace_pid.isdigit(), trace_pid
++            (args.output / (label + "-" + str(trial + 1) + ".trace-config.txt")).write_text(config)
++        run, passed = instrument(package, 'replay', revision)
++        prefix = args.output / f'{label}-{trial + 1}'
++        prefix.with_suffix('.instrumentation.txt').write_text(run.stdout + run.stderr)
++        prefix.with_suffix('.logcat.txt').write_text(adb('logcat', '-d', '-v', 'threadtime').stdout)
++        assert passed, f'{label} trial {trial + 1} failed'
++        ime = json.loads(adb('shell', 'run-as', package, 'cat', 'files/candidate-taps.json').stdout)
++        # Flush the editor dump AFTER timing; its own callbacks contain the timestamps.
++        adb('shell', 'am', 'broadcast', '-n', host + '/.BenchControl', '--es', 'command', 'dump')
++        editor = json.loads(adb('shell', 'run-as', host, 'cat', 'files/candidate-editor.json').stdout)
++        assert editor['text'] == '你' * 6, editor
++        assert ime['commit'] == revision and ime['model_mapped']
++        assert ime['injection_protocol'] == 'fixed_cadence_100ms_input_manager_async_cached_letters'
++        assert all(t['geometry_valid'] for r in ime['rounds'] for t in (r['n'],r['i'],r['select']))
++        assert ime['fcitx_core_mapped'] == (label == 'fcitx')
++        data = {'ime': ime, 'editor': editor}
++        data['timings_ms'] = []
++        for index, row in enumerate(ime['rounds']):
++            selected = row['select']
++            up = selected['dispatch_up_ns']
++            expected = '你' * (index + 1)
++            edit = next(e['at_ns'] for e in editor['edits'] if e['text'] == expected)
++            draw = next(e['at_ns'] for e in editor['draws'] if e['text'] == expected)
++            data['timings_ms'].append({
++                'round': index + 1,
++                'injection_up_to_ime_dispatch': (up - selected['inject_up_ns']) / 1e6,
++                'ime_dispatch_up_to_commit_collector': (row['commit_collected_ns'] - up) / 1e6,
++                'ime_dispatch_up_to_editor_input_connection': (editor['commits'][index]['at_ns'] - up) / 1e6,
++                'ime_dispatch_up_to_editor_change': (edit - up) / 1e6,
++                'ime_dispatch_up_to_editor_draw': (draw - up) / 1e6,
++                'ime_touch_up_handler': (selected['dispatch_return_ns'] - up) / 1e6,
++                # The n presentation may validly be coalesced during rapid input.
++                'n_dispatch_up_to_preedit_collector': None if row['preedit_collected_ns'] is None else (row['preedit_collected_ns'] - row['n']['dispatch_up_ns']) / 1e6,
++                'i_planned_up_to_dispatch': (row['i']['dispatch_up_ns'] - row['i']['planned_up_ns']) / 1e6,
++                'i_actual_inject_up_to_dispatch': (row['i']['dispatch_up_ns'] - row['i']['inject_up_ns']) / 1e6,
++                'i_up_submission_lateness': (row['i']['inject_up_ns'] - row['i']['planned_up_ns']) / 1e6,
++            })
++        prefix.with_suffix('.json').write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
++        trials.append(data)
++        print(json.dumps(data['timings_ms'], ensure_ascii=False), flush=True)
++        if trace_pid:
++            deadline = time.monotonic() + 30
++            while adb('shell', 'test', '-d', '/proc/' + trace_pid, check=False).returncode == 0:
++                assert time.monotonic() < deadline, 'Perfetto did not finish'
++                time.sleep(0.5)
++            adb('pull', remote_trace, str(prefix.with_suffix('.perfetto-trace')))
++    results[label] = trials
++(args.output / 'comparison.json').write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n')
+diff --git a/tools/dispatch-ablation/verify-cadence.py b/tools/dispatch-ablation/verify-cadence.py
+new file mode 100644
+index 00000000..8c2cd20b
+--- /dev/null
++++ b/tools/dispatch-ablation/verify-cadence.py
+@@ -0,0 +1,10 @@
++from pathlib import Path
++import hashlib,json,sys
++products,inputs=map(Path,sys.argv[1:]);tool=Path('tools/dispatch-ablation');r=json.loads((products/'products.json').read_text());s=json.loads((tool/'sources.json').read_text())
++assert r['sources']=={k:s[k] for k in ['before','ui']}
++for n,sha in r['apks'].items():assert hashlib.sha256((products/n).read_bytes()).hexdigest()==sha,n
++assert hashlib.sha256((tool/'cadenceTest/CandidateTapTest.kt').read_bytes()).hexdigest()==r['harness_sha256']
++f=json.loads((inputs/'fixture.manifest.json').read_text());frozen=json.loads((tool/'frozen-inputs.json').read_text())
++assert all(f[k]==v for k,v in frozen.items());assert hashlib.sha256((inputs/'fixture.zip').read_bytes()).hexdigest()==f['fixture_sha256']
++for label in ['before','ui']:assert (products/(label+'-commit.txt')).read_text().strip()==s[label]
++print('Independent cadence probe, two fixed application sources and original user/model fixture verified')
+-- 
+2.52.0
+
+
+From 4777f651ed0f422101ba219b2e4acf9b8b895821 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 04:26:48 +0000
+Subject: [PATCH 7/7] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=80=99=E9=80=89):=20?=
+ =?UTF-8?q?=E9=AA=8C=E8=AF=81=E6=81=A2=E5=A4=8D=E9=BB=98=E8=AE=A4=E6=96=87?=
+ =?UTF-8?q?=E5=AD=97=E6=A0=B7=E5=BC=8F=E5=90=8E=E7=9A=84=E6=9C=80=E7=BB=88?=
+ =?UTF-8?q?=E4=BA=A7=E5=93=81=E4=B8=8E=E6=B0=B8=E4=B9=85=E8=8A=82=E6=8B=8D?=
+ =?UTF-8?q?=E5=B7=A5=E5=85=B7?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/workflows/rime-candidate-perf.yml    | 27 ++++++++++++----
+ tools/dispatch-ablation/build-cadence.sh     | 34 ++++++++++++++++++--
+ tools/dispatch-ablation/cadence-sources.json |  4 +++
+ tools/dispatch-ablation/verify-cadence.py    |  2 +-
+ 4 files changed, 57 insertions(+), 10 deletions(-)
+ create mode 100644 tools/dispatch-ablation/cadence-sources.json
+
+diff --git a/.github/workflows/rime-candidate-perf.yml b/.github/workflows/rime-candidate-perf.yml
+index 1f771bb9..3dec5371 100644
+--- a/.github/workflows/rime-candidate-perf.yml
++++ b/.github/workflows/rime-candidate-perf.yml
+@@ -4,7 +4,7 @@ on:
+     inputs:
+       scope:
+         type: choice
+-        options: [all, build, recover, measure, graphics, cadence]
++        options: [all, build, recover, measure, graphics, cadence, cadence-fix]
+         default: all
+       pair:
+         type: choice
+@@ -212,7 +212,7 @@ jobs:
+           path: build/dispatch-ablation/
+           retention-days: 30
+   cadence_build:
+-    if: inputs.scope == 'cadence'
++    if: inputs.scope == 'cadence' || inputs.scope == 'cadence-fix'
+     runs-on: ubuntu-22.04
+     timeout-minutes: 35
+     steps:
+@@ -223,7 +223,15 @@ jobs:
+       - uses: android-actions/setup-android@v4
+         with: {packages: 'platform-tools'}
+       - uses: gradle/actions/setup-gradle@v6
+-      - run: bash tools/dispatch-ablation/build-cadence.sh "$RUNNER_TEMP/products"
++      - uses: actions/download-artifact@v7
++        if: inputs.scope == 'cadence-fix'
++        with:
++          name: cadence-products
++          run-id: 43152077919
++          github-token: ${{ github.token }}
++          path: ${{ runner.temp }}/cadence-references
++      - name: Build the final scoped product with the same cadence probe
++        run: bash tools/dispatch-ablation/build-cadence.sh "$RUNNER_TEMP/products" "${{ inputs.scope == 'cadence-fix' && runner.temp || '' }}${{ inputs.scope == 'cadence-fix' && '/cadence-references' || '' }}"
+       - uses: actions/upload-artifact@v7
+         if: always()
+         with:
+@@ -232,7 +240,7 @@ jobs:
+           retention-days: 30
+   cadence_compare:
+     needs: cadence_build
+-    if: inputs.scope == 'cadence' && needs.cadence_build.result == 'success'
++    if: (inputs.scope == 'cadence' || inputs.scope == 'cadence-fix') && needs.cadence_build.result == 'success'
+     strategy:
+       fail-fast: false
+       matrix:
+@@ -266,6 +274,13 @@ jobs:
+           bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/host" "$GITHUB_WORKSPACE/tools/candidate-perf/host"
+           mkdir -p build/dispatch-ablation
+           cp "$RUNNER_TEMP/products/products.json" "$RUNNER_TEMP/inputs/fixture.manifest.json" build/dispatch-ablation/
++      - name: Use the permanent runner and exact probe from the final code PR
++        run: |
++          revision=$(python3 -c 'import json;print(json.load(open("tools/dispatch-ablation/cadence-sources.json"))["ui"])')
++          git fetch --no-recurse-submodules --no-tags origin "$revision"
++          mkdir -p "$RUNNER_TEMP/cadence-runner"
++          git show "$revision:tools/input-perf/run-cadence.py" > "$RUNNER_TEMP/cadence-runner/run-cadence.py"
++          git show "$revision:tools/input-perf/CadenceCandidateTapTest.kt" > "$RUNNER_TEMP/cadence-runner/CadenceCandidateTapTest.kt"
+       - name: Enable KVM
+         run: |
+           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+@@ -281,8 +296,8 @@ jobs:
+             adb root
+             adb wait-for-device
+             adb shell getprop > build/dispatch-ablation/device-properties.txt
+-            python3 tools/dispatch-ablation/candidate-cadence.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/untraced --trials 6
+-            python3 tools/dispatch-ablation/candidate-cadence.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/traced --trials 1 --profile
++            python3 "$RUNNER_TEMP/cadence-runner/run-cadence.py" --order "$PRODUCT_ORDER" --fixture-manifest "$RUNNER_TEMP/inputs/fixture.manifest.json" --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/untraced --trials 6
++            python3 "$RUNNER_TEMP/cadence-runner/run-cadence.py" --order "$PRODUCT_ORDER" --fixture-manifest "$RUNNER_TEMP/inputs/fixture.manifest.json" --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/dispatch-ablation/traced --trials 1 --profile
+       - uses: actions/upload-artifact@v7
+         if: always()
+         with:
+diff --git a/tools/dispatch-ablation/build-cadence.sh b/tools/dispatch-ablation/build-cadence.sh
+index 265c9c31..6df397b6 100644
+--- a/tools/dispatch-ablation/build-cadence.sh
++++ b/tools/dispatch-ablation/build-cadence.sh
+@@ -3,8 +3,21 @@ set -euo pipefail
+ root=$(pwd)
+ output=${1:?output directory}
+ mkdir -p "$output"
++references=${2:-}
++if [ -n "$references" ]; then
++python3 - "$references" "$output" <<'PYREF'
++from pathlib import Path
++import hashlib,json,shutil,sys
++src,out=map(Path,sys.argv[1:]);tool=Path('tools/dispatch-ablation');r=json.loads((src/'products.json').read_text());pins=json.loads((tool/'cadence-sources.json').read_text())
++assert r['sources']['before']==pins['before'];assert r['harness_sha256']==hashlib.sha256((tool/'cadenceTest/CandidateTapTest.kt').read_bytes()).hexdigest()
++for suffix in ['.apk','-tests.apk']:
++ p=src/('before'+suffix);assert hashlib.sha256(p.read_bytes()).hexdigest()==r['apks'][p.name];shutil.copyfile(p,out/p.name)
++shutil.copyfile(src/'before-commit.txt',out/'before-commit.txt');shutil.copyfile(src/'products.json',out/'reused-cadence-products.json')
++PYREF
++fi
+ for label in before ui; do
+-  revision=$(python3 -c 'import json,sys;print(json.load(open("tools/dispatch-ablation/sources.json"))[sys.argv[1]])' "$label")
++  if [ "$label" = before ] && [ -n "$references" ]; then continue; fi
++  revision=$(python3 -c 'import json,sys;print(json.load(open("tools/dispatch-ablation/cadence-sources.json"))[sys.argv[1]])' "$label")
+   checkout="$RUNNER_TEMP/cadence-product-$label"
+   git clone --shared --no-checkout "$root" "$checkout"
+   git -C "$checkout" checkout --detach "$revision"
+@@ -13,19 +26,34 @@ for label in before ui; do
+     ./prepare_personal_build.sh
+     cp "$root/tools/dispatch-ablation/cadenceTest/CandidateTapTest.kt" app/src/androidTest/java/org/fcitx/fcitx5/android/core/
+     git diff --exit-code -- app/src/main direct-rime native build-logic app/build.gradle.kts
+-    ./gradlew -PbuildABI=x86_64 -Pkotlin.compiler.execution.strategy=in-process --max-workers=2 :app:assembleFxDebug :app:assembleFxDebugAndroidTest
++    ./gradlew -PbuildABI=x86_64 -Pkotlin.compiler.execution.strategy=in-process --max-workers=2  :app:assembleFxDebug :app:assembleFxDebugAndroidTest :app:testFxDebugUnitTest \
++      --tests 'org.fcitx.fcitx5.android.input.candidates.*' \
++      --tests 'org.fcitx.fcitx5.android.core.Candidate*' \
++      --tests 'org.fcitx.fcitx5.android.core.InputEventQueueTest' \
++      --tests 'org.fcitx.fcitx5.android.core.InputKeyGateTest' \
++      --tests 'org.fcitx.fcitx5.android.core.InputBindingStartupTest' \
++      --tests 'org.fcitx.fcitx5.android.core.InputStatisticsBackendTest'
++    python3 tools/check-junit-results.py app/build/test-results/testFxDebugUnitTest
++    cp -r app/build/test-results/testFxDebugUnitTest "$output/$label-unit-results"
+     cp app/build/outputs/apk/fx/debug/*.apk "$output/$label.apk"
+     cp app/build/outputs/apk/androidTest/fx/debug/*.apk "$output/$label-tests.apk"
+     git rev-parse HEAD > "$output/$label-commit.txt"
+     python3 tools/verify-direct-rime-apk.py "$output/$label.apk" > "$output/$label-apk-audit.json"
++    if [ "$label" = ui ]; then
++      ./gradlew -PbuildABI=arm64-v8a -Pkotlin.compiler.execution.strategy=in-process --max-workers=2 :app:assembleFxDebug
++      cp app/build/outputs/apk/fx/debug/*.apk "$output/ui-arm64.apk"
++      python3 tools/verify-direct-rime-apk.py "$output/ui-arm64.apk" > "$output/ui-arm64-apk-audit.json"
++      python3 tools/audit-direct-rime-link.py "$output/ui-arm64.apk" > "$output/ui-native-link-audit.json"
++    fi
+     ./gradlew --stop
+   )
+ done
+ python3 - "$output" <<'PY'
+ from pathlib import Path
+ import hashlib,json,sys,subprocess
+-out=Path(sys.argv[1]);tool=Path('tools/dispatch-ablation');sources=json.loads((tool/'sources.json').read_text());sources={k:sources[k] for k in ['before','ui']}
++out=Path(sys.argv[1]);tool=Path('tools/dispatch-ablation');sources=json.loads((tool/'cadence-sources.json').read_text());sources={k:sources[k] for k in ['before','ui']}
+ locks={label:hashlib.sha256(subprocess.check_output(['git','show',sha+':native/rime-sdk.lock.json'])).hexdigest() for label,sha in sources.items()};assert len(set(locks.values()))==1
++assert subprocess.check_output(['git','show',sources['ui']+':tools/input-perf/CadenceCandidateTapTest.kt'])==(tool/'cadenceTest/CandidateTapTest.kt').read_bytes()
+ (out/'products.json').write_text(json.dumps({'sources':sources,'sdk_lock_sha256':locks,
+  'protocol':'fixed_cadence_100ms_input_manager_async_cached_letters',
+  'apks':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.glob('*.apk'))},
+diff --git a/tools/dispatch-ablation/cadence-sources.json b/tools/dispatch-ablation/cadence-sources.json
+new file mode 100644
+index 00000000..6e9b650c
+--- /dev/null
++++ b/tools/dispatch-ablation/cadence-sources.json
+@@ -0,0 +1,4 @@
++{
++  "before": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
++  "ui": "b03e9b46d0cc615039ace6749b29d8ab47739c37"
++}
+diff --git a/tools/dispatch-ablation/verify-cadence.py b/tools/dispatch-ablation/verify-cadence.py
+index 8c2cd20b..3dcd442f 100644
+--- a/tools/dispatch-ablation/verify-cadence.py
++++ b/tools/dispatch-ablation/verify-cadence.py
+@@ -1,6 +1,6 @@
+ from pathlib import Path
+ import hashlib,json,sys
+-products,inputs=map(Path,sys.argv[1:]);tool=Path('tools/dispatch-ablation');r=json.loads((products/'products.json').read_text());s=json.loads((tool/'sources.json').read_text())
++products,inputs=map(Path,sys.argv[1:]);tool=Path('tools/dispatch-ablation');r=json.loads((products/'products.json').read_text());s=json.loads((tool/'cadence-sources.json').read_text())
+ assert r['sources']=={k:s[k] for k in ['before','ui']}
+ for n,sha in r['apks'].items():assert hashlib.sha256((products/n).read_bytes()).hexdigest()==sha,n
+ assert hashlib.sha256((tool/'cadenceTest/CandidateTapTest.kt').read_bytes()).hexdigest()==r['harness_sha256']
+-- 
+2.52.0
+

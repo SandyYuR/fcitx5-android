@@ -1,0 +1,3 @@
+*.log -whitespace
+*.log.txt -whitespace
+*.mbox.txt -whitespace
