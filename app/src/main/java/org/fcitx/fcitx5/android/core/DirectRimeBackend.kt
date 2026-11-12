@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.fcitx.directrime.Native
-import org.fcitx.directrime.ProfileArchive
 import org.fcitx.directrime.Snapshot
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.BuildConfig
@@ -23,15 +22,14 @@ import org.fcitx.fcitx5.android.core.engine.RimeEngineKind
 import org.fcitx.fcitx5.android.core.engine.RimeEnginePlugins
 import org.fcitx.fcitx5.android.core.engine.RimeEngineSelection
 import org.fcitx.fcitx5.android.core.engine.RimeEngineStore
-import org.fcitx.fcitx5.android.data.WanxiangPayload
-import org.fcitx.fcitx5.android.data.WanxiangUpdateTransaction
 import org.fcitx.fcitx5.android.data.WanxiangAdvancedFiles
+import org.fcitx.fcitx5.android.data.RimeProfileImportTransaction
+import org.fcitx.fcitx5.android.data.RimeProfileUpdateInstaller
 import timber.log.Timber
 import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
 
-private val EMPTY_CANDIDATE_ACTIONS = emptyArray<CandidateAction>()
 private const val EXTERNAL_STOP_TIMEOUT_MS = 10_000L
 private const val EXTERNAL_START_TIMEOUT_MS = 180_000L
 
@@ -414,25 +412,28 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 optionsRevision = value.optionsRevision
             }
         }
-        val client = when (config.preeditMode) {
-            "ComposingText" -> formatted(value.preedit, value.cursorUtf16, true)
-            "CommitPreview" -> formatted(value.preview, underline = true)
-            else -> FormattedText.Empty
-        }
-        val tabContext = CandidateTabActionContext(value.generation, value.tabsRevision)
-        val tabs = if (value.tabs.isEmpty()) EMPTY_CANDIDATE_ACTIONS else Array(value.tabs.size) { i ->
-            CandidateAction(i, value.tabs[i], false, "", false, false, CandidateTabActionTarget(tabContext, i))
-        }
-        val panel = FcitxEvent.InputPanelEvent.Data(
-            if (config.preeditMode == "No") formatted(value.preedit, value.cursorUtf16) else FormattedText.Empty,
-            if (directInput && bindingUsable(value)) FormattedText.Empty
-            else if (value.ready) formatted(statusHint) else formatted(startupError.ifEmpty { value.gateMessage }),
-            FormattedText.Empty, tabs, statusHintId = if (value.ready) statusHintLifetime.id else 0
+        val client = DirectRimePresentation.clientPreedit(value, config.preeditMode)
+        val panel = DirectRimePresentation.inputPanel(
+            value,
+            config.preeditMode,
+            directInput,
+            bindingUsable(value),
+            statusHint,
+            startupError,
+            statusHintLifetime.id,
         )
         val ime = entry(value)
         val imeChanged = ime != inputMethodEntryCached
         val statusChanged = newSession || optionsChanged || imeChanged || statusAreaActionsCached.isEmpty()
-        val actions = if (statusChanged) buildActions(value) else statusAreaActionsCached
+        val actions = if (statusChanged) DirectRimeStatusMenu.build(
+            DirectRimeStatusMenu.State(value.schema, value.schemaName, value.ascii),
+            schemas,
+            optionRows,
+            DirectRimeStatusMenu.Labels(
+                context.getString(R.string.direct_rime_ascii_mode),
+                context.getString(R.string.direct_rime_chinese_mode),
+            ),
+        ) else statusAreaActionsCached
         val clientChanged = newSession || client != clientPreeditCached
         val panelChanged = newSession || panel != inputPanelCached
         clientPreeditCached = client
@@ -448,15 +449,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }
         if (clientChanged) batch += FcitxEvent.ClientPreeditEvent(client)
         if (panelChanged) batch += FcitxEvent.InputPanelEvent(panel)
-        val candidates = Array(value.candidates.size) { i ->
-            // Candidate codes are separate metadata, not a schema's visible comment.
-            // Appending them would bypass Lua filters such as Wanxiang's comment switch.
-            CandidateWord(value.labels.getOrElse(i) { "${(i + 1) % 10} " }, value.candidates[i],
-                value.comments.getOrElse(i) { "" })
-        }
-        val candidateEvent = if (pagingMode != 0) FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data(
-            candidates, value.highlighted, FcitxEvent.PagedCandidateEvent.LayoutHint.NotSet, value.page > 0, !value.lastPage))
-        else FcitxEvent.CandidateListEvent(FcitxEvent.CandidateListEvent.Data(-1, candidates))
+        val candidates = DirectRimePresentation.candidates(value)
+        val candidateEvent = DirectRimePresentation.candidateEvent(value, pagingMode, candidates)
         // An unchanged first page can hide a changed tail of a lazy translation.
         // Keep handled keys/actions and composition changes invalidating expanded pages.
         val invalidateCandidates = newSession || value.handled || optionsChanged || previous?.preedit != value.preedit ||
@@ -524,37 +518,6 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val ascii = value?.ascii == true || forwardsKeysDirectly()
         return inputMethodEntryCache.get(ascii, value?.schema.orEmpty(), value?.schemaName.orEmpty(),
             context.getString(R.string.direct_rime_ime_name))
-    }
-    private fun action(id: Int, name: String, text: String = name, checked: Boolean? = null,
-                       menu: Array<Action>? = null, separator: Boolean = false) =
-        Action(id, separator, checked != null, checked == true, name, "", text, text, menu)
-    private fun buildActions(value: Snapshot): Array<Action> {
-        // The label describes the next mode; checked still reports Rime's current ASCII state.
-        val targetMode = context.getString(if (value.ascii) R.string.direct_rime_chinese_mode else R.string.direct_rime_ascii_mode)
-        val menu = mutableListOf(action(10, "ascii_mode", targetMode, value.ascii))
-        schemas.forEachIndexed { i, (id, name) -> menu += action(100 + i, id, name, id == value.schema) }
-        menu += action(9, "separator", separator = true)
-        val options = buildList {
-            val groups = mutableSetOf<String>()
-            optionRows.forEachIndexed { i, row ->
-                if (row[3].isEmpty()) {
-                    // Like fcitx5-rime ToggleAction: current state → target state.
-                    add(action(1000 + i, row[0], row[1]))
-                } else if (groups.add(row[3])) {
-                    // Like SelectAction: one button per mutually exclusive group.
-                    val members = optionRows.withIndex().filter { it.value[3] == row[3] }
-                    val selected = members.firstOrNull { it.value[2] == "1" } ?: members.first()
-                    val children = members.map { (index, member) ->
-                        action(1000 + index, member[0], member[1], member[2] == "1")
-                    }.toTypedArray()
-                    add(action(-1000 - i, "select-${row[0]}", selected.value[1], menu = children))
-                }
-            }
-        }
-        menu += action(11, "deploy", "重新部署")
-        menu += action(12, "sync", "同步用户词典")
-        val label = if (value.ascii) context.getString(R.string.direct_rime_ascii_mode) else value.schemaName.ifEmpty { "Rime" }
-        return arrayOf(action(1, "rime", label, menu = menu.toTypedArray()), *options.toTypedArray())
     }
     private fun showUnavailable(message: String) {
         inputPanelCached = FcitxEvent.InputPanelEvent.Data(FormattedText.Empty, formatted(message), FormattedText.Empty, emptyArray())
@@ -713,10 +676,11 @@ class DirectRimeBackend(context: Context) : InputEngine {
     ): Boolean = idx >= 0 && actionIdx == 0 && performAction(if (global) 12 else 5, idx, expected)?.ready == true
 
     override suspend fun activateSchemaActionIfCurrent(id: Int, expectedInputSession: Long): Boolean = onOwner {
-        if (inputSession != expectedInputSession || id !in 100 until 100 + schemas.size) false
+        val index = DirectRimeStatusMenu.schemaIndex(id, schemas.size)
+        if (inputSession != expectedInputSession || index == null) false
         else {
             demandSessionForAction()
-            act(3, value = schemas[id - 100].first)?.ready == true
+            act(3, value = schemas[index].first)?.ready == true
         }
     }
     override suspend fun setCandidatePagingMode(mode: Int) { onOwner { pagingMode = mode; refreshPresentation(forceCandidates = true) } }
@@ -779,17 +743,19 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override suspend fun statusArea() = statusAreaActionsCached
     override suspend fun activateAction(id: Int) {
         when {
-            id == 11 -> redeploy()
-            id == 12 -> synchronize()
-            else -> onOwner { demandSessionForAction(); when {
-                id == 10 -> act(6)
-                id in 100 until 100 + schemas.size -> act(3, value = schemas[id - 100].first)
-                id in 1000 until 1000 + optionRows.size -> {
-                    val row = optionRows[id - 1000]
-                    if (row[3].isNotEmpty()) optionRows.filter { it[3] == row[3] && it[0] != row[0] }.forEach { act(8, 0, it[0]) }
-                    act(8, if (row[3].isNotEmpty() || row[2] != "1") 1 else 0, row[0])
+            id == DirectRimeStatusMenu.DEPLOY_ID -> redeploy()
+            id == DirectRimeStatusMenu.SYNC_ID -> synchronize()
+            else -> onOwner {
+                demandSessionForAction()
+                when (val command = DirectRimeStatusMenu.resolveOwnerCommand(id, schemas, optionRows)) {
+                    DirectRimeStatusMenu.OwnerCommand.ToggleMode -> act(6)
+                    is DirectRimeStatusMenu.OwnerCommand.SelectSchema -> act(3, value = command.schema)
+                    is DirectRimeStatusMenu.OwnerCommand.SetOptions -> command.changes.forEach { change ->
+                        act(8, if (change.enabled) 1 else 0, change.name)
+                    }
+                    null -> Unit
                 }
-            } }
+            }
         }
     }
 
@@ -1089,70 +1055,28 @@ class DirectRimeBackend(context: Context) : InputEngine {
             } }
             "wanxiang-settings-save" -> withContext(NonCancellable) { maintain {
                 org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
-                val id = java.util.UUID.fromString(config.findByName("RequestId")!!.value)
-                val job = WanxiangPayload.child(context.noBackupFilesDir.canonicalFile, "wanxiang-settings/$id")
-                val planFile = WanxiangPayload.child(job, "plan.json")
-                require(planFile.isFile && planFile.length() <= 256 * 1024)
-                val plan = kotlinx.serialization.json.Json.decodeFromString<WanxiangAdvancedFiles.Plan>(planFile.readText())
-                this@DirectRimeBackend.config.requireUpdateTarget(plan.profile, plan.path)
-                WanxiangAdvancedFiles.verify(this@DirectRimeBackend.config.user, plan.expected)
-                val payload = WanxiangPayload.child(job, "payload")
-                payload.listFiles().orEmpty().forEach { file ->
-                    require(WanxiangAdvancedFiles.writable(file.name) && plan.expected.containsKey(file.name))
-                    require(WanxiangPayload.child(payload.canonicalFile, file.name) == file.absoluteFile && file.isFile && file.length() <= org.fcitx.fcitx5.android.data.WanxiangYaml.MAX_TEXT)
-                    if (!file.name.endsWith(".dict.yaml")) org.fcitx.fcitx5.android.data.WanxiangYaml().document(file.readText())
-                }
-                stopNativeForRestart()
-                try {
-                    WanxiangUpdateTransaction.install(this@DirectRimeBackend.config.user, payload,
-                        activate = { restartNative() }, deactivate = { stopNativeForRestart() }, settings = true)
-                } catch (error: Throwable) {
-                    try { WanxiangUpdateTransaction.recover(this@DirectRimeBackend.config.user); restartNative() }
-                    catch (recovery: Throwable) { error.addSuppressed(recovery) }
-                    throw error
-                }
+                val plan = DirectRimeMaintenanceFiles.prepareSettings(
+                    context,
+                    this@DirectRimeBackend.config,
+                    config,
+                )
+                RimeProfileUpdateInstaller.install(plan, ::stopNativeForRestart, ::restartNative)
             } }
             "rime-custom-update" -> withContext(NonCancellable) { maintain {
                 org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
-                val id = java.util.UUID.fromString(config.findByName("RequestId")!!.value)
-                val request = org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdates.request(context, id)
-                this@DirectRimeBackend.config.requireUpdateTarget(request.target.profile, request.target.path)
-                val job = org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdates.directory(context, id)
-                require(WanxiangPayload.child(job, "prepared").isFile) { "更新资源尚未准备完成" }
-                val staging = WanxiangPayload.child(job, "payload")
-                if (staging.walkTopDown().none { it.isFile }) return@maintain
-                stopNativeForRestart()
-                try {
-                    WanxiangUpdateTransaction.install(this@DirectRimeBackend.config.user, staging,
-                        activate = { restartNative() }, deactivate = { stopNativeForRestart() }, generic = true)
-                } catch (error: Throwable) {
-                    try { WanxiangUpdateTransaction.recover(this@DirectRimeBackend.config.user); restartNative() }
-                    catch (recovery: Throwable) { error.addSuppressed(recovery) }
-                    throw error
-                }
+                DirectRimeMaintenanceFiles.prepareCustomUpdate(
+                    context,
+                    this@DirectRimeBackend.config,
+                    config,
+                )?.let { RimeProfileUpdateInstaller.install(it, ::stopNativeForRestart, ::restartNative) }
             } }
             "wanxiang-update" -> withContext(NonCancellable) { maintain {
                 org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
-                this@DirectRimeBackend.config.requireUpdateTarget(config.findByName("Profile")!!.value, config.findByName("Path")!!.value)
-                val id = java.util.UUID.fromString(config.findByName("RequestId")!!.value)
-                val staging = WanxiangPayload.child(context.noBackupFilesDir.canonicalFile, "wanxiang-updates/$id/payload")
-                val selection = org.fcitx.fcitx5.android.ui.main.wanxiang.WanxiangUpdates.jobSelection(context, id)
-                org.fcitx.fcitx5.android.data.WanxiangProtection(selection.protection).filter(staging, this@DirectRimeBackend.config.user)
-                org.fcitx.fcitx5.android.ui.main.wanxiang.WanxiangExtraDictionaries.verifyAuxiliary(staging.parentFile!!, staging, this@DirectRimeBackend.config.user)
-                if (staging.walkTopDown().none { it.isFile }) return@maintain
-                stopNativeForRestart()
-                try {
-                    WanxiangUpdateTransaction.install(this@DirectRimeBackend.config.user, staging,
-                        activate = { restartNative() },
-                        deactivate = { stopNativeForRestart() }, overrides = true)
-                } catch (error: Throwable) {
-                    try {
-                        // Recovery must succeed before opening any database or model again.
-                        WanxiangUpdateTransaction.recover(this@DirectRimeBackend.config.user)
-                        restartNative()
-                    } catch (recovery: Throwable) { error.addSuppressed(recovery) }
-                    throw error
-                }
+                DirectRimeMaintenanceFiles.prepareWanxiangUpdate(
+                    context,
+                    this@DirectRimeBackend.config,
+                    config,
+                )?.let { RimeProfileUpdateInstaller.install(it, ::stopNativeForRestart, ::restartNative) }
             } }
             "deploy" -> redeploy()
             "sync" -> synchronize()
@@ -1198,40 +1122,28 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 engineRepository.requireProfileMutationIdle()
                 engineRepository.requireBuiltinForProfileSwitch()
                 val pathValue = config.findByName("Archive")?.value ?: error("请选择方案 ZIP")
-                val archive = File(pathValue).canonicalFile
-                require(archive.parentFile == File(context.cacheDir, "rime-import").canonicalFile) { "无效导入路径" }
                 val destinationPath = config.findByName("Destination")?.value.orEmpty()
                 val parent = if (destinationPath.isBlank()) {
                     this.config.dataRoot.canonicalFile
                 } else {
                     File(destinationPath).canonicalFile
                 }
-                require(parent.isDirectory && parent.canRead() && parent.canWrite()) { "无法写入所选目录" }
-
                 val profiles = this.config.directoryState().findByName("Profiles")?.value
                     .orEmpty().lineSequence().filter(String::isNotBlank).toSet()
-                var timestamp = System.currentTimeMillis()
-                var name = "import-$timestamp"
-                while (name in profiles || File(parent, name).exists() || File(parent, ".$name.importing").exists()) {
-                    name = "import-${++timestamp}"
-                }
-                val staging = File(parent, ".$name.importing")
-                val target = File(parent, name)
+                val transaction = RimeProfileImportTransaction.prepare(
+                    pathValue,
+                    File(context.cacheDir, "rime-import"),
+                    parent,
+                    profiles,
+                )
                 try {
-                    archive.inputStream().use { ProfileArchive.extract(it, staging) }
-                    check(staging.renameTo(target)) { "无法安装方案文件" }
-                } catch (e: Exception) {
-                    staging.deleteRecursively()
-                    throw e
-                }
-                var registered = false
-                try {
+                    val target = transaction.install()
                     engineRepository.profileMutationLease().use {
                         engineRepository.requireBuiltinForProfileSwitch()
-                        this.config.create(name, target.absolutePath)
-                        registered = true
+                        this.config.create(transaction.name, target.absolutePath)
+                        transaction.markRegistered()
                         val previous = this.config.current
-                        try { this.config.switch(name); restartNative() }
+                        try { this.config.switch(transaction.name); restartNative() }
                         catch (e: Exception) {
                             this.config.switch(previous)
                             restartNative()
@@ -1239,7 +1151,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
                         }
                     }
                 } catch (e: Exception) {
-                    if (!registered) target.deleteRecursively()
+                    transaction.recoverAfterFailure()
                     throw e
                 }
             }
