@@ -48,5 +48,5 @@
   "delivered_385_apk_was_performance_timed": false,
   "new_default_88a664d4_was_measured": false,
   "default_branch_pushed": false,
-  "cleanup": "archive-prepared-before-deletion"
+  "cleanup": "completed; see cleanup-receipt.json"
 }

@@ -1,11 +1,37 @@
 {
-  "state": "archive-prepared-before-deletion",
+  "state": "completed",
+  "completed_at_beijing": "2026-11-13T00:08:50+08:00",
+  "archive_commit_pushed_before_deletion": "a7d7735d5ebf8ee38523a7c8c202c3a768f740b2",
   "expected_tip": "9b63190fc97408f5960a8a3203a411565e5ccd82",
   "branch": "test/pr32-input-phase-20261112",
-  "remote_deleted": false,
-  "local_deleted": false,
-  "worktree_removed": false,
-  "archive_push_required_before_deletion": true,
+  "remote_deleted": true,
+  "local_deleted": true,
+  "worktree_removed": true,
+  "exact_remote_delete_lease": true,
+  "workflows": [
+    {
+      "id": 388119728,
+      "name": "First candidate tap comparison",
+      "path": ".github/workflows/rime-candidate-perf.yml",
+      "state": "disabled_manually"
+    },
+    {
+      "id": 387536957,
+      "name": "Wanxiang touch and screen comparison",
+      "path": ".github/workflows/wanxiang-screen-perf.yml",
+      "state": "disabled_manually"
+    }
+  ],
+  "remaining_worktrees": [
+    "/workspace/fcitx5-android         38555944 [fix/first-candidate-latency-20261112]",
+    "/workspace/fcitx5-android-report  a7d7735d [report/wanxiang-retest-20261108]"
+  ],
+  "observed_target_refs": {
+    "refs/heads/docs": "08ffd6f035adead6bf70f90ac7dd1d13baed77c7",
+    "refs/heads/fx-rime-only": "88a664d46ba82712d5457d86c037629c478b042c"
+  },
   "default_branch_pushed": false,
-  "historical_ci_deleted": false
+  "historical_ci_deleted": false,
+  "source_and_exact_commit_archives_retained": true,
+  "private_or_unknown_directories_deleted": false
 }
