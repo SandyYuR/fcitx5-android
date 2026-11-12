@@ -1,0 +1,25 @@
+{
+  "total_count": 1,
+  "artifacts": [
+    {
+      "id": 13909910872,
+      "node_id": "MDg6QXJ0aWZhY3QxMzkwOTkxMDg3Mg==",
+      "name": "direct-rime-pr-native-audit",
+      "size_in_bytes": 677,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13909910872",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13909910872/zip",
+      "expired": false,
+      "digest": "sha256:10cc3d79e277fc1899691325ad0c8675a366cd64e844a354f351fc8f585e0c7b",
+      "created_at": "2026-11-12T02:23:46Z",
+      "updated_at": "2026-11-12T02:23:46Z",
+      "expires_at": "2026-12-12T02:13:05Z",
+      "workflow_run": {
+        "id": 43139842907,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec"
+      }
+    }
+  ]
+}

@@ -1,0 +1,2334 @@
+From 8f25c2e2818f6b58b649baa3a3d6ea9d72afa71f Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 14:10:01 +0000
+Subject: [PATCH 01/11] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=BB=B6=E8=BF=9F):?=
+ =?UTF-8?q?=20=E5=AF=B9=E5=8E=9F=E5=A7=8B=E5=BD=93=E5=89=8D=E7=89=88?=
+ =?UTF-8?q?=E6=8A=93=E5=8F=96=E9=A6=96=E9=94=AE=E4=B8=8E=E5=8D=81=E5=85=AD?=
+ =?UTF-8?q?=E6=AC=A1=E8=BF=9E=E7=BB=AD=E9=80=89=E8=AF=8D=20trace?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/workflows/wanxiang-screen-perf.yml    | 100 +++-----
+ .../latency-investigation-20261111/README.md  |  20 ++
+ .../candidate-trace.py                        | 161 ++++++++++++
+ .../latency-investigation-20261111/common.py  |   1 +
+ .../host/AndroidManifest.xml                  |  11 +
+ .../host/BenchControl.java                    |   8 +
+ .../host/BenchHost.java                       |  71 ++++++
+ .../host/Calibrate.java                       |  56 ++++
+ .../host/FileTimes.java                       |  40 +++
+ .../host/Prepare.java                         |  67 +++++
+ .../host/Replay.java                          | 239 ++++++++++++++++++
+ .../inputs.json                               |  87 +++++++
+ .../repeat-trace.py                           | 125 +++++++++
+ .../verify-inputs.py                          |  16 ++
+ 14 files changed, 942 insertions(+), 60 deletions(-)
+ create mode 100644 tools/latency-investigation-20261111/README.md
+ create mode 100644 tools/latency-investigation-20261111/candidate-trace.py
+ create mode 100644 tools/latency-investigation-20261111/common.py
+ create mode 100644 tools/latency-investigation-20261111/host/AndroidManifest.xml
+ create mode 100644 tools/latency-investigation-20261111/host/BenchControl.java
+ create mode 100644 tools/latency-investigation-20261111/host/BenchHost.java
+ create mode 100644 tools/latency-investigation-20261111/host/Calibrate.java
+ create mode 100644 tools/latency-investigation-20261111/host/FileTimes.java
+ create mode 100644 tools/latency-investigation-20261111/host/Prepare.java
+ create mode 100644 tools/latency-investigation-20261111/host/Replay.java
+ create mode 100644 tools/latency-investigation-20261111/inputs.json
+ create mode 100644 tools/latency-investigation-20261111/repeat-trace.py
+ create mode 100644 tools/latency-investigation-20261111/verify-inputs.py
+
+diff --git a/.github/workflows/wanxiang-screen-perf.yml b/.github/workflows/wanxiang-screen-perf.yml
+index 0839610b..d759f28a 100644
+--- a/.github/workflows/wanxiang-screen-perf.yml
++++ b/.github/workflows/wanxiang-screen-perf.yml
+@@ -1,60 +1,53 @@
+-name: Wanxiang touch and screen comparison
++name: Input latency investigation 2026-11-11
+ on:
+   workflow_dispatch:
+     inputs:
+-      pilot:
+-        description: Short calibration run only
+-        type: boolean
+-        default: false
+-      reuse_run:
+-        description: Reuse identical pinned APKs from a successful calibration run (optional)
+-        type: string
+-        default: ''
++      suite:
++        type: choice
++        options: [all, candidate, repeat]
++        default: all
++        description: Existing APK diagnostic traces; never mix with formal results
+ permissions:
+   contents: read
+   actions: read
+ concurrency:
+-  group: wanxiang-screen-${{ github.ref }}
+-  cancel-in-progress: true
++  group: latency-investigation-${{ github.ref }}-${{ inputs.suite }}
++  cancel-in-progress: false
+ jobs:
+-  compare:
++  investigate:
++    strategy:
++      fail-fast: false
++      matrix:
++        suite: ${{ fromJSON(inputs.suite == 'all' && '["candidate","repeat"]' || format('["{0}"]', inputs.suite)) }}
+     runs-on: ubuntu-22.04
+-    timeout-minutes: 75
++    timeout-minutes: 35
+     steps:
+       - uses: actions/checkout@v7
+-        with:
+-          fetch-depth: 0
+       - uses: actions/setup-java@v5
+-        with:
+-          distribution: temurin
+-          java-version: '17'
++        with: {distribution: temurin, java-version: '17'}
+       - uses: android-actions/setup-android@v4
++        with: {packages: 'platform-tools'}
++      - uses: actions/download-artifact@v7
+         with:
+-          packages: platform-tools
+-      - uses: gradle/actions/setup-gradle@v6
+-        with:
+-          cache-read-only: false
+-      - name: Download fixed APKs from calibration
+-        if: inputs.reuse_run != '' && github.event_name == 'workflow_dispatch'
+-        uses: actions/download-artifact@v6
++          name: wanxiang-inputs-20261111
++          run-id: 43018095886
++          github-token: ${{ github.token }}
++          path: ${{ runner.temp }}/inputs
++      - uses: actions/download-artifact@v7
+         with:
+-          name: screen-comparison-apks
+-          run-id: ${{ inputs.reuse_run }}
++          name: wanxiang-debug-products-20261111
++          run-id: 43015193478
+           github-token: ${{ github.token }}
+-          path: ${{ runner.temp }}/screen-apks
+-      - name: Build independently pinned products
+-        if: inputs.reuse_run == '' || github.event_name != 'workflow_dispatch'
+-        run: |
+-          bash tools/screen-perf/build-products.sh "$RUNNER_TEMP/screen-apks"
+-      - name: Prepare neutral editor and exact user fixture
++          path: ${{ runner.temp }}/products
++      - name: Verify unchanged APKs and fixture, build independent host
+         run: |
+-          sudo apt-get update -qq
+-          sudo apt-get install -y -qq ffmpeg
++          python3 tools/latency-investigation-20261111/verify-inputs.py "$RUNNER_TEMP/products" "$RUNNER_TEMP/inputs"
+           sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+-          bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/screen-host"
+-          python3 tools/screen-perf/prepare.py "$RUNNER_TEMP/screen-wanxiang.zip"
+-          mkdir -p build/screen-comparison
+-          cp "$RUNNER_TEMP/screen-wanxiang.manifest.json" "$RUNNER_TEMP/screen-apks/apk-sha256.txt" build/screen-comparison/
++          if [ '${{ matrix.suite }}' = candidate ]; then
++            bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/host" "$GITHUB_WORKSPACE/tools/candidate-perf/host"
++          else
++            bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/host" "$GITHUB_WORKSPACE/tools/latency-investigation-20261111/host"
++          fi
+       - name: Enable KVM
+         run: |
+           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+@@ -63,29 +56,16 @@ jobs:
+       - uses: reactivecircus/android-emulator-runner@v2
+         with:
+           api-level: 35
+-          target: google_apis
++          target: aosp_atd
+           arch: x86_64
+-          profile: pixel_2
+-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -cores 2 -memory 3072 -camera-back none -camera-front none
+           disable-animations: true
+-          script: python3 tools/screen-perf/run.py --apks "$RUNNER_TEMP/screen-apks" --fixture "$RUNNER_TEMP/screen-wanxiang.zip" --host "$RUNNER_TEMP/screen-host/host.apk" --output build/screen-comparison ${{ (github.event_name == 'push' || inputs.pilot == true) && '--pilot' || '' }}
+-      - uses: actions/upload-artifact@v7
+-        if: always()
+-        with:
+-          name: wanxiang-touch-screen-results
+-          path: |
+-            build/screen-comparison/
+-            !build/screen-comparison/**/*.mp4
+-          retention-days: 14
+-      - uses: actions/upload-artifact@v7
+-        if: always()
+-        with:
+-          name: wanxiang-touch-screen-videos
+-          path: build/screen-comparison/**/*.mp4
+-          retention-days: 14
++          script: |
++            adb root
++            adb wait-for-device
++            if [ '${{ matrix.suite }}' = candidate ]; then python3 tools/latency-investigation-20261111/candidate-trace.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-candidate --profile --trials 3; else python3 tools/latency-investigation-20261111/repeat-trace.py --products "$RUNNER_TEMP/products" --inputs "$RUNNER_TEMP/inputs" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-repeat; fi
+       - uses: actions/upload-artifact@v7
+         if: always()
+         with:
+-          name: screen-comparison-apks
+-          path: ${{ runner.temp }}/screen-apks/
+-          retention-days: 3
++          name: latency-investigation-${{ matrix.suite }}-20261111
++          retention-days: 30
++          path: build/latency-${{ matrix.suite }}/
+diff --git a/tools/latency-investigation-20261111/README.md b/tools/latency-investigation-20261111/README.md
+new file mode 100644
+index 00000000..6058f3cb
+--- /dev/null
++++ b/tools/latency-investigation-20261111/README.md
+@@ -0,0 +1,20 @@
++# 2026-11-11 输入延迟定向调查
++
++仅调查当前默认分支冻结源码 0380d70f 对应的同一份 Debug APK；从构建
++43015193478 恢复 current.apk / current-tests.apk，逐一校验原始六包摘要。
++固定方案、模型、两份用户 YAML 沿用正式批次 43018095886，不下载浮动 LTS。
++
++不改变应用代码、SDK、引擎、现有 AndroidTest 的字节或正式报告原始记录。
++所有目录清空与工作库写入仅发生在本任务全新可丢弃的 Actions 模拟器上。
++
++- candidate：原 CandidateTapTest，每进程六次真实选词，三个新进程，增加
++  Perfetto 调度、首次界面与已有 rime.direct.* 分段，定位首个 n 和点击分发等待。
++- repeat：独立宿主真实输入 ni/zaoshanghao，每个编辑器16次候选点选，并离开
++  编辑器后返回再16次；观察第8次与第16次，区分固定位置、周期和末次效应。
++  先准备原 candidate-bench，并用你/早上好校准实际键盘位置；该校准不计时。
++
++trace 会影响绝对时间，因此这些数据只用于归因，不并入之前的无追踪性能表。
++以原始事件时间戳关联 native process_key / action_core / snapshot，分别核对
++回调入口之前、Rime调用、事件交付、编辑器IC和绘制，不能将独立分位数相加。
++
++默认分支不操作；文档与新的原始证据归入现有 docs 报告 PR 的独立子目录。
+diff --git a/tools/latency-investigation-20261111/candidate-trace.py b/tools/latency-investigation-20261111/candidate-trace.py
+new file mode 100644
+index 00000000..f4df5639
+--- /dev/null
++++ b/tools/latency-investigation-20261111/candidate-trace.py
+@@ -0,0 +1,161 @@
++#!/usr/bin/env python3
++"""First candidate tap after fresh process, then five taps in the same editor."""
++import argparse
++import json
++import os
++import re
++import subprocess
++import time
++from pathlib import Path
++from common import PRODUCTS
++
++parser = argparse.ArgumentParser(description=__doc__)
++parser.add_argument('--apks', type=Path, required=True)
++parser.add_argument('--fixture', type=Path, required=True)
++parser.add_argument('--host', type=Path, required=True)
++parser.add_argument('--output', type=Path, required=True)
++parser.add_argument('--trials', type=int, default=3)
++parser.add_argument('--pilot', action='store_true', help='One process per product; calibration only')
++parser.add_argument('--profile', action='store_true', help='Separate diagnostic run; do not compare its timings with untraced runs')
++args = parser.parse_args()
++if args.pilot:
++    args.trials = 1
++args.output.mkdir(parents=True, exist_ok=True)
++host = 'io.github.sandyyur.inputbench'
++
++def adb(*parts, check=True, timeout=900, input=None):
++    return subprocess.run(['adb', *map(str, parts)], input=input, text=True, capture_output=True, check=check, timeout=timeout)
++
++def instrument(package, method, revision):
++    command = ['adb', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
++              'org.fcitx.fcitx5.android.core.CandidateTapTest#' + method,
++              '-e', 'expectedCommit', revision,
++              package + '.test/androidx.test.runner.AndroidJUnitRunner']
++    process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++    if method == 'replay':
++        # force-stop (including am instrument's own restart) makes Android select
++        # its fallback IME. Select our IME only AFTER the fresh test process starts.
++        deadline = time.monotonic() + 30
++        started = False
++        while process.poll() is None and time.monotonic() < deadline:
++            logs = adb('logcat', '-d', '-s', 'TestRunner:I', '*:S').stdout
++            if 'started: replay(org.fcitx.fcitx5.android.core.CandidateTapTest)' in logs:
++                started = True
++                break
++            time.sleep(0.1)
++        if started:
++            component = package + '/org.fcitx.fcitx5.android.input.FcitxInputMethodService'
++            adb('shell', 'ime', 'enable', component)
++            adb('shell', 'ime', 'set', component)
++            assert adb('shell', 'settings', 'get', 'secure', 'default_input_method').stdout.strip() == component
++    stdout, stderr = process.communicate(timeout=900)
++    run = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
++    return run, run.returncode == 0 and 'OK (1 test)' in run.stdout
++
++assert adb('get-serialno').stdout.strip().startswith('emulator-'), 'Disposable emulator required'
++adb('shell', 'setprop', 'debug.hwui.drawing_enabled', 'true')
++adb('shell', 'settings', 'put', 'secure', 'show_ime_with_hard_keyboard', '1')
++adb('shell', 'settings', 'put', 'system', 'screen_off_timeout', '1800000')
++adb('install', '-r', args.host)
++adb('push', args.fixture, '/data/local/tmp/candidate-fixture.zip')
++results = {}
++sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
++aapt = sorted((sdk / 'build-tools').glob('*/aapt2'), key=lambda p: [int(x) for x in re.findall(r'\d+', p.parent.name)])[-1]
++for label in PRODUCTS:
++    if not (args.apks / (label + '.apk')).is_file():
++        continue
++    package = subprocess.check_output([str(aapt), 'dump', 'packagename', str(args.apks / (label + '.apk'))], text=True).strip()
++    assert re.fullmatch(r'[a-zA-Z0-9_.]+', package), package
++    revision = (args.apks / (label + '-commit.txt')).read_text().strip()
++    # Reference APKs may have a different CI debug signer. Never upgrade across
++    # signers or inherit the previous product's profile on this disposable device.
++    adb('uninstall', package + '.test', check=False)
++    adb('uninstall', package, check=False)
++    adb('install', '-r', args.apks / (label + '.apk'))
++    adb('install', '-r', args.apks / (label + '-tests.apk'))
++    adb('shell', 'am', 'force-stop', package)
++    adb('shell', 'pm', 'clear', package)
++    adb('shell', 'run-as', package, 'mkdir', '-p', 'files')
++    adb('shell', f"cat /data/local/tmp/candidate-fixture.zip | run-as {package} sh -c 'cat > files/candidate-fixture.zip'")
++    adb('logcat', '-c')
++    prepare, passed = instrument(package, 'prepare', revision)
++    (args.output / (label + '-prepare.txt')).write_text(prepare.stdout + prepare.stderr)
++    if not passed:
++        (args.output / (label + '-prepare-logcat.txt')).write_text(adb('logcat', '-d', '-v', 'threadtime').stdout)
++    assert passed, label + ': fixture preparation failed'
++    component = package + '/org.fcitx.fcitx5.android.input.FcitxInputMethodService'
++    adb('shell', 'ime', 'enable', component)
++    # The replay runner selects it after instrumentation's final process restart.
++    trials = []
++    for trial in range(args.trials):
++        print(f'Testing {label} fresh process {trial + 1}', flush=True)
++        adb('shell', 'am', 'force-stop', host)
++        adb('shell', 'pm', 'clear', host)
++        for other in ('org.fcitx.fcitx5.android.fx.rime.debug', 'io.github.sandyyur.rime.direct', 'org.fcitx.fcitx5.android.fx.rime'):
++            adb('shell', 'am', 'force-stop', other)
++        adb('shell', 'am', 'force-stop', package)
++        adb('logcat', '-c')
++        trace_pid = None
++        if args.profile:
++            remote_trace = '/data/misc/perfetto-traces/candidate.perfetto-trace'
++            config = f'''buffers {{ size_kb: 32768 fill_policy: RING_BUFFER }}
++duration_ms: 20000
++write_into_file: true
++file_write_period_ms: 1000
++flush_period_ms: 1000
++data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
++ ftrace_events: "sched/sched_switch"
++ ftrace_events: "sched/sched_waking"
++ atrace_categories: "view"
++ atrace_categories: "gfx"
++ atrace_categories: "input"
++ atrace_categories: "dalvik"
++ atrace_apps: "{package}"
++ atrace_apps: "{host}"
++}} }} }}
++data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ proc_stats_poll_ms: 1000 }} }} }}
++'''
++            trace_pid = adb('shell', 'perfetto', '--background-wait', '--txt', '-c', '-', '-o', remote_trace, input=config).stdout.strip()
++            assert trace_pid.isdigit(), trace_pid
++            (args.output / (label + "-" + str(trial + 1) + ".trace-config.txt")).write_text(config)
++        run, passed = instrument(package, 'replay', revision)
++        prefix = args.output / f'{label}-{trial + 1}'
++        prefix.with_suffix('.instrumentation.txt').write_text(run.stdout + run.stderr)
++        prefix.with_suffix('.logcat.txt').write_text(adb('logcat', '-d', '-v', 'threadtime').stdout)
++        assert passed, f'{label} trial {trial + 1} failed'
++        ime = json.loads(adb('shell', 'run-as', package, 'cat', 'files/candidate-taps.json').stdout)
++        # Flush the editor dump AFTER timing; its own callbacks contain the timestamps.
++        adb('shell', 'am', 'broadcast', '-n', host + '/.BenchControl', '--es', 'command', 'dump')
++        editor = json.loads(adb('shell', 'run-as', host, 'cat', 'files/candidate-editor.json').stdout)
++        assert editor['text'] == '你' * 6, editor
++        assert ime['commit'] == revision and ime['model_mapped']
++        assert ime['fcitx_core_mapped'] == (label == 'fcitx')
++        data = {'ime': ime, 'editor': editor}
++        data['timings_ms'] = []
++        for index, row in enumerate(ime['rounds']):
++            selected = row['select']
++            up = selected['dispatch_up_ns']
++            expected = '你' * (index + 1)
++            edit = next(e['at_ns'] for e in editor['edits'] if e['text'] == expected)
++            draw = next(e['at_ns'] for e in editor['draws'] if e['text'] == expected)
++            data['timings_ms'].append({
++                'round': index + 1,
++                'injection_up_to_ime_dispatch': (up - selected['inject_up_ns']) / 1e6,
++                'ime_dispatch_up_to_commit_collector': (row['commit_collected_ns'] - up) / 1e6,
++                'ime_dispatch_up_to_editor_input_connection': (editor['commits'][index]['at_ns'] - up) / 1e6,
++                'ime_dispatch_up_to_editor_change': (edit - up) / 1e6,
++                'ime_dispatch_up_to_editor_draw': (draw - up) / 1e6,
++                'ime_touch_up_handler': (selected['dispatch_return_ns'] - up) / 1e6,
++                'n_dispatch_up_to_preedit_collector': (row['preedit_collected_ns'] - row['n']['dispatch_up_ns']) / 1e6,
++            })
++        prefix.with_suffix('.json').write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
++        trials.append(data)
++        print(json.dumps(data['timings_ms'], ensure_ascii=False), flush=True)
++        if trace_pid:
++            deadline = time.monotonic() + 30
++            while adb('shell', 'test', '-d', '/proc/' + trace_pid, check=False).returncode == 0:
++                assert time.monotonic() < deadline, 'Perfetto did not finish'
++                time.sleep(0.5)
++            adb('pull', remote_trace, str(prefix.with_suffix('.perfetto-trace')))
++    results[label] = trials
++(args.output / 'comparison.json').write_text(json.dumps(results, ensure_ascii=False, indent=2) + '\n')
+diff --git a/tools/latency-investigation-20261111/common.py b/tools/latency-investigation-20261111/common.py
+new file mode 100644
+index 00000000..e0511191
+--- /dev/null
++++ b/tools/latency-investigation-20261111/common.py
+@@ -0,0 +1 @@
++PRODUCTS = ("current",)
+diff --git a/tools/latency-investigation-20261111/host/AndroidManifest.xml b/tools/latency-investigation-20261111/host/AndroidManifest.xml
+new file mode 100644
+index 00000000..0c3003a8
+--- /dev/null
++++ b/tools/latency-investigation-20261111/host/AndroidManifest.xml
+@@ -0,0 +1,11 @@
++<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="io.github.sandyyur.inputbench">
++    <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="28" />
++    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
++    <application android:label="Candidate timing host" android:debuggable="true" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:allowBackup="false">
++        <activity android:name=".BenchHost" android:exported="true" android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
++        <receiver android:name=".BenchControl" android:exported="true" />
++    </application>
++    <instrumentation android:name=".Replay" android:targetPackage="io.github.sandyyur.inputbench" android:label="Unmodified IME touch replay" />
++<instrumentation android:name=".Prepare" android:targetPackage="io.github.sandyyur.inputbench" />
++<instrumentation android:name=".Calibrate" android:targetPackage="io.github.sandyyur.inputbench" />
++</manifest>
+diff --git a/tools/latency-investigation-20261111/host/BenchControl.java b/tools/latency-investigation-20261111/host/BenchControl.java
+new file mode 100644
+index 00000000..9b3d52d5
+--- /dev/null
++++ b/tools/latency-investigation-20261111/host/BenchControl.java
+@@ -0,0 +1,8 @@
++package io.github.sandyyur.inputbench;
++import android.content.*;
++public final class BenchControl extends BroadcastReceiver {
++    @Override public void onReceive(Context context, Intent intent) {
++        if (BenchHost.current == null) throw new IllegalStateException("Host must be running");
++        BenchHost.current.control(intent.getStringExtra("command"));
++    }
++}
+diff --git a/tools/latency-investigation-20261111/host/BenchHost.java b/tools/latency-investigation-20261111/host/BenchHost.java
+new file mode 100644
+index 00000000..ab4d7148
+--- /dev/null
++++ b/tools/latency-investigation-20261111/host/BenchHost.java
+@@ -0,0 +1,71 @@
++package io.github.sandyyur.inputbench;
++
++import android.app.Activity;
++import android.graphics.Canvas;
++import android.os.Bundle;
++import android.os.SystemClock;
++import android.text.*;
++import android.view.*;
++import android.view.inputmethod.*;
++import android.widget.EditText;
++import org.json.*;
++import java.io.*;
++
++/** Neutral editor. Timestamps are recorded in callbacks, before any host-side polling. */
++public class BenchHost extends Activity {
++    static BenchHost current;
++    EditText editor;
++    final JSONArray connections = new JSONArray();
++    final JSONArray commits = new JSONArray();
++    final JSONArray edits = new JSONArray();
++    final JSONArray draws = new JSONArray();
++    boolean pendingDraw;
++    long now() { return SystemClock.elapsedRealtimeNanos(); }
++    JSONObject record(String text) {
++        try { return new JSONObject().put("at_ns", now()).put("text", text); }
++        catch (JSONException e) { throw new RuntimeException(e); }
++    }
++    @Override public void onCreate(Bundle state) {
++        super.onCreate(state);
++        current = this;
++        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
++        editor = new EditText(this) {
++            @Override public InputConnection onCreateInputConnection(EditorInfo info) {
++                InputConnection original = super.onCreateInputConnection(info);
++                connections.put(now());
++                return original == null ? null : new InputConnectionWrapper(original, false) {
++                    @Override public boolean commitText(CharSequence text, int cursor) {
++                        commits.put(record(text.toString()));
++                        return super.commitText(text, cursor);
++                    }
++                };
++            }
++            @Override protected void onDraw(Canvas canvas) {
++                super.onDraw(canvas);
++                if (pendingDraw) { pendingDraw = false; draws.put(record(getText().toString())); }
++            }
++        };
++        editor.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
++        editor.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN);
++        editor.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
++        editor.setCursorVisible(false);
++        editor.setGravity(Gravity.TOP | Gravity.LEFT);
++        editor.addTextChangedListener(new TextWatcher() {
++            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
++            public void onTextChanged(CharSequence s, int start, int before, int count) {}
++            public void afterTextChanged(Editable s) { edits.put(record(s.toString())); pendingDraw = true; }
++        });
++        setContentView(editor);
++        editor.requestFocus();
++        editor.post(() -> ((InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT));
++    }
++    void control(String command) {
++        if ("dump".equals(command)) {
++            try {
++                JSONObject result = new JSONObject().put("text", editor.getText().toString()).put("connections", connections)
++                    .put("commits", commits).put("edits", edits).put("draws", draws);
++                try (FileOutputStream out = openFileOutput("candidate-editor.json", MODE_PRIVATE)) { out.write(result.toString(2).getBytes("UTF-8")); }
++            } catch (Exception e) { throw new RuntimeException(e); }
++        }
++    }
++}
+diff --git a/tools/latency-investigation-20261111/host/Calibrate.java b/tools/latency-investigation-20261111/host/Calibrate.java
+new file mode 100644
+index 00000000..3445bf9b
+--- /dev/null
++++ b/tools/latency-investigation-20261111/host/Calibrate.java
+@@ -0,0 +1,56 @@
++package io.github.sandyyur.inputbench;
++import android.accessibilityservice.AccessibilityServiceInfo;
++import android.content.Intent;
++import android.graphics.Rect;
++import android.os.Bundle;
++import android.os.SystemClock;
++import org.json.JSONArray;
++import org.json.JSONObject;
++import java.io.FileOutputStream;
++/** Untimed readiness check using only the real IME UI and an external editor. */
++public final class Calibrate extends Replay {
++    @Override public void onStart() {
++        Bundle result=new Bundle();
++        try {
++            AccessibilityServiceInfo info=getUiAutomation().getServiceInfo();
++            info.flags|=AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS|AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
++            getUiAutomation().setServiceInfo(info);
++            imePackage=args.getString("package");JSONObject points=new JSONObject(args.getString("points"));
++            host=(BenchHost)startActivitySync(new Intent(getTargetContext(),BenchHost.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
++            awaitSessionReady();
++            long deadline=now()+600_000_000_000L;
++            while((imeText("Deploying",10000)!=null || imeText("正在准备中州韵",10000)!=null || imeText("正在部署",10000)!=null) && now()<deadline)SystemClock.sleep(500);
++            if(imeText("Deploying",10000)!=null || imeText("正在准备中州韵",10000)!=null || imeText("正在部署",10000)!=null)throw new IllegalStateException("Deployment did not finish");
++            for(String key:new String[]{"n","i"}){tap(points.getJSONArray(key));SystemClock.sleep(100);}
++            SystemClock.sleep(1000);
++            awaitCandidatePanel();
++            Rect candidate=imeText("你",points.getJSONArray("q").getInt(1));
++            screenshot("calibration-candidates.png");
++            // AutoScaleTextView draws its own glyphs; Android can expose an
++            // empty accessibility text despite a visible Chinese candidate.
++            // Use stock geometry only after the deployment hint disappears,
++            // then require the exact real commit and retain its screenshot.
++            points.put("candidate",candidate==null?points.getJSONArray("candidate"):new JSONArray(new int[]{candidate.centerX(),candidate.centerY()}));
++            tap(points.getJSONArray("candidate"));
++            deadline=now()+15_000_000_000L;
++            while(!editorText().equals("你") && now()<deadline)SystemClock.sleep(50);
++            if(!editorText().equals("你"))throw new IllegalStateException("Chinese commit failed: "+editorText());
++            // Exercise all letter rows before timing, not only n/i.
++            for(char key:"zaoshanghao".toCharArray()){tap(points.getJSONArray(String.valueOf(key)));SystemClock.sleep(100);}
++            SystemClock.sleep(1000);awaitCandidatePanel();screenshot("calibration-phrase.png");tap(points.getJSONArray("candidate"));
++            deadline=now()+15_000_000_000L;
++            while(!editorText().equals("你早上好") && now()<deadline)SystemClock.sleep(50);
++            if(!editorText().equals("你早上好"))throw new IllegalStateException("Phrase calibration failed: "+editorText());
++            runOnMainSync(()->host.control("dump"));screenshot("calibration-editor.png");
++            try(FileOutputStream file=getTargetContext().openFileOutput("calibration-data.json",0)) {
++                file.write(new JSONObject().put("text",editorText()).put("points",points)
++                    .put("candidate_locator",candidate==null?"observed toolbar-row bounds; canvas text unavailable; verify screenshots and exact commits":"accessible text bounds")
++                    .toString(2).getBytes("UTF-8"));
++            }
++            result.putString("status","ok");finish(0,result);
++        } catch(Throwable error) {
++            try{screenshot("calibration-failure.png");}catch(Throwable ignored){}
++            result.putString("failure",android.util.Log.getStackTraceString(error));finish(1,result);
++        }
++    }
++}
+diff --git a/tools/latency-investigation-20261111/host/FileTimes.java b/tools/latency-investigation-20261111/host/FileTimes.java
+new file mode 100644
+index 00000000..7e6b8276
+--- /dev/null
++++ b/tools/latency-investigation-20261111/host/FileTimes.java
+@@ -0,0 +1,40 @@
++package io.github.sandyyur.inputbench;
++import android.os.Process;
++import java.nio.file.*;
++import java.nio.file.attribute.FileTime;
++import java.util.*;
++import java.util.concurrent.TimeUnit;
++import java.util.stream.Stream;
++import org.json.*;
++/** Root-only fixture utility; never loaded into either input method. */
++public final class FileTimes {
++    public static void main(String[] args) throws Exception {
++        if(Process.myUid()!=0)throw new IllegalStateException("Disposable root emulator required");
++        if(args[0].equals("capture")) {
++            JSONArray rows=new JSONArray();
++            for(int i=1;i<args.length-1;i++) {
++                try(Stream<Path> paths=Files.walk(Paths.get(args[i]))) {
++                    for(Iterator<Path> it=paths.iterator();it.hasNext();) {
++                        Path p=it.next();if(Files.isSymbolicLink(p))continue;
++                        rows.put(new JSONObject().put("path",p.toString())
++                            .put("mtime_ns",Long.toString(Files.getLastModifiedTime(p).to(TimeUnit.NANOSECONDS))));
++                    }
++                }
++            }
++            Files.write(Paths.get(args[args.length-1]),rows.toString(2).getBytes("UTF-8"));
++            System.out.println("CAPTURED "+rows.length()+" exact file times");
++        } else if(args[0].equals("restore")) {
++            JSONArray rows=new JSONArray(new String(Files.readAllBytes(Paths.get(args[1])),"UTF-8"));
++            // Children before parents, so directory mtimes remain those captured.
++            for(int i=rows.length()-1;i>=0;i--) {
++                JSONObject row=rows.getJSONObject(i);Path p=Paths.get(row.getString("path"));
++                long wanted=Long.parseLong(row.getString("mtime_ns"));
++                if(!Files.exists(p)||Files.isSymbolicLink(p))throw new IllegalStateException("Fixture path missing: "+p);
++                Files.setLastModifiedTime(p,FileTime.from(wanted,TimeUnit.NANOSECONDS));
++                if(Files.getLastModifiedTime(p).to(TimeUnit.NANOSECONDS)!=wanted)
++                    throw new IllegalStateException("Nanosecond timestamp restoration failed: "+p);
++            }
++            System.out.println("RESTORED "+rows.length()+" exact file times");
++        } else throw new IllegalArgumentException("capture or restore");
++    }
++}
+diff --git a/tools/latency-investigation-20261111/host/Prepare.java b/tools/latency-investigation-20261111/host/Prepare.java
+new file mode 100644
+index 00000000..525ef5d5
+--- /dev/null
++++ b/tools/latency-investigation-20261111/host/Prepare.java
+@@ -0,0 +1,67 @@
++package io.github.sandyyur.inputbench;
++import android.app.Instrumentation;
++import android.accessibilityservice.AccessibilityServiceInfo;
++import android.content.Intent;
++import android.graphics.Bitmap;
++import android.graphics.Rect;
++import android.os.Bundle;
++import android.os.SystemClock;
++import android.view.accessibility.AccessibilityNodeInfo;
++import android.view.accessibility.AccessibilityWindowInfo;
++import android.view.inputmethod.InputMethodManager;
++import android.view.inputmethod.InputMethodInfo;
++import android.view.inputmethod.InputMethodSubtype;
++import org.json.JSONArray;
++import org.json.JSONObject;
++import java.io.FileOutputStream;
++/** Untimed, independent observer; no access to either IME's private Java APIs. */
++public final class Prepare extends Instrumentation {
++    Bundle args;
++    public void onCreate(Bundle input) { super.onCreate(input); args=input; start(); }
++    void walk(AccessibilityNodeInfo node, JSONArray nodes) throws Exception {
++        if (node==null) return;
++        Rect box=new Rect();node.getBoundsInScreen(box);
++        String text=node.getText()==null?"":node.getText().toString();
++        if(text.isEmpty() && node.getContentDescription()!=null)text=node.getContentDescription().toString();
++        nodes.put(new JSONObject().put("text",text).put("package",String.valueOf(node.getPackageName()))
++            .put("bounds",new JSONArray(new int[]{box.left,box.top,box.right,box.bottom})));
++        for(int i=0;i<node.getChildCount();i++){AccessibilityNodeInfo child=node.getChild(i);walk(child,nodes);if(child!=null)child.recycle();}
++    }
++    @SuppressWarnings("deprecation") public void onStart() {
++        Bundle output = new Bundle();
++        try {
++            AccessibilityServiceInfo service=getUiAutomation().getServiceInfo();
++            service.flags|=AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS|AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
++            getUiAutomation().setServiceInfo(service);
++            startActivitySync(new Intent(getTargetContext(),BenchHost.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
++            SystemClock.sleep(1500);
++            InputMethodManager imm = (InputMethodManager)getTargetContext().getSystemService("input_method");
++            String component = args.getString("component");
++            StringBuilder all = new StringBuilder();
++            for (InputMethodInfo info: imm.getInputMethodList()) {
++                if (!info.getId().equals(component)) continue;
++                InputMethodSubtype chosen=null;
++                for (int i=0;i<info.getSubtypeCount();i++) {
++                    InputMethodSubtype subtype=info.getSubtypeAt(i);
++                    String value=subtype.getExtraValue();
++                    all.append(subtype.getLocale()).append(" ").append(value).append("\n");
++                    if (value.contains("rime") || subtype.getLocale().startsWith("zh")) chosen=subtype;
++                }
++                if (chosen!=null) imm.setInputMethodAndSubtype(null,component,chosen);
++            }
++            SystemClock.sleep(1000);
++            JSONArray nodes=new JSONArray(),windows=new JSONArray();
++            for(AccessibilityWindowInfo window:getUiAutomation().getWindows()){
++                Rect box=new Rect();window.getBoundsInScreen(box);
++                windows.put(new JSONObject().put("type",window.getType()).put("bounds",new JSONArray(new int[]{box.left,box.top,box.right,box.bottom})));
++                AccessibilityNodeInfo node=window.getRoot();walk(node,nodes);if(node!=null)node.recycle();window.recycle();
++            }
++            try(FileOutputStream file=getTargetContext().openFileOutput("calibration-ui.json",0)){
++                file.write(new JSONObject().put("nodes",nodes).put("windows",windows).toString(2).getBytes("UTF-8"));
++            }
++            Bitmap image=getUiAutomation().takeScreenshot();
++            if(image!=null){try(FileOutputStream file=getTargetContext().openFileOutput("calibration-ui.png",0)){image.compress(Bitmap.CompressFormat.PNG,100,file);}image.recycle();}
++            output.putString("subtypes",all.toString());finish(0,output);
++        } catch(Throwable error) { output.putString("failure",error.toString());finish(1,output); }
++    }
++}
+diff --git a/tools/latency-investigation-20261111/host/Replay.java b/tools/latency-investigation-20261111/host/Replay.java
+new file mode 100644
+index 00000000..9e0bfb9a
+--- /dev/null
++++ b/tools/latency-investigation-20261111/host/Replay.java
+@@ -0,0 +1,239 @@
++package io.github.sandyyur.inputbench;
++
++import android.app.Instrumentation;
++import android.accessibilityservice.AccessibilityServiceInfo;
++import android.content.Intent;
++import android.graphics.Bitmap;
++import android.graphics.Rect;
++import android.os.Bundle;
++import android.os.SystemClock;
++import android.view.InputDevice;
++import android.view.MotionEvent;
++import android.view.accessibility.AccessibilityNodeInfo;
++import android.view.accessibility.AccessibilityWindowInfo;
++import org.json.JSONArray;
++import org.json.JSONObject;
++import java.io.File;
++import java.io.FileOutputStream;
++import java.io.FileInputStream;
++import java.io.ByteArrayOutputStream;
++import java.nio.file.Files;
++
++/** Runs outside either IME; does not hook their gestures, API, threads or native engine. */
++public class Replay extends Instrumentation {
++    Bundle args;
++    BenchHost host;
++    String imePackage;
++    final JSONArray samples = new JSONArray();
++    final JSONArray phases = new JSONArray();
++    long now() { return SystemClock.elapsedRealtimeNanos(); }
++    @Override public void onCreate(Bundle arguments) { super.onCreate(arguments); args = arguments; start(); }
++
++    long[] tap(JSONArray point) throws Exception {
++        long down = SystemClock.uptimeMillis();
++        long[] times = new long[2];
++        for (int action = 0; action < 2; action++) {
++            MotionEvent event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action,
++                (float) point.getDouble(0), (float) point.getDouble(1), 0);
++            event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
++            try {
++                times[action] = now();
++                if (!getUiAutomation().injectInputEvent(event, true)) throw new IllegalStateException("Touch injection failed");
++            } finally { event.recycle(); }
++            if (action == MotionEvent.ACTION_DOWN) SystemClock.sleep(24);
++        }
++        return times;
++    }
++
++    boolean imeHas() {
++        for (AccessibilityWindowInfo window : getUiAutomation().getWindows()) {
++            if (window.getType() != AccessibilityWindowInfo.TYPE_INPUT_METHOD) continue;
++            AccessibilityNodeInfo node = window.getRoot();
++            try {
++                if (node != null && imePackage.equals(String.valueOf(node.getPackageName()))) return true;
++            }
++            finally { if (node != null) node.recycle(); window.recycle(); }
++        }
++        return false;
++    }
++
++    Rect findText(AccessibilityNodeInfo node, String prefix, int bottom) {
++        if (node==null) return null;
++        CharSequence text=node.getText();
++        if (text==null || text.length()==0) text=node.getContentDescription();
++        Rect box=new Rect();node.getBoundsInScreen(box);
++        if (text!=null && text.toString().trim().startsWith(prefix) && box.bottom<=bottom && !box.isEmpty()) return box;
++        for (int i=0;i<node.getChildCount();i++) {
++            AccessibilityNodeInfo child=node.getChild(i);
++            Rect found=findText(child,prefix,bottom);if(child!=null)child.recycle();
++            if(found!=null)return found;
++        }
++        return null;
++    }
++
++    Rect imeText(String prefix,int bottom) {
++        for (AccessibilityWindowInfo window:getUiAutomation().getWindows()) {
++            if(window.getType()!=AccessibilityWindowInfo.TYPE_INPUT_METHOD){window.recycle();continue;}
++            AccessibilityNodeInfo node=window.getRoot();
++            try {
++                if(node!=null && imePackage.equals(String.valueOf(node.getPackageName()))) {
++                    Rect found=findText(node,prefix,bottom);if(found!=null)return found;
++                }
++            } finally {if(node!=null)node.recycle();window.recycle();}
++        }
++        return null;
++    }
++
++    long awaitCandidatePanel() throws Exception {
++        // Both products replace the idle toolbar ("Status area") when binding
++        // a nonempty candidate panel. This remains observable even though the
++        // candidate glyphs are drawn on a canvas with empty accessibility text.
++        long deadline=now()+60_000_000_000L;
++        while(now()<deadline) {
++            if(imeHas() && imeText("Status area",10000)==null)return now();
++            SystemClock.sleep(50);
++        }
++        throw new IllegalStateException("Candidate panel did not replace idle toolbar");
++    }
++
++    long awaitNoSetupHint() throws Exception {
++        long deadline=now()+600_000_000_000L,since=0;
++        while(now()<deadline) {
++            boolean waiting=imeText("Deploying",10000)!=null || imeText("正在准备中州韵",10000)!=null || imeText("正在部署",10000)!=null;
++            if(waiting)since=0;
++            else {if(since==0)since=now();if(now()-since>=1_500_000_000L)return now();}
++            SystemClock.sleep(100);
++        }
++        throw new IllegalStateException("Deployment/preparation hint did not finish");
++    }
++
++    String editorText() {
++        final String[] value = {null};
++        runOnMainSync(() -> value[0] = host.editor.getText().toString());
++        return value[0];
++    }
++    String shell(String command) throws Exception {
++        try (android.os.ParcelFileDescriptor fd = getUiAutomation().executeShellCommand(command);
++             FileInputStream input = new FileInputStream(fd.getFileDescriptor());
++             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
++            byte[] buffer = new byte[8192];
++            int count;
++            while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
++            return output.toString("UTF-8");
++        }
++    }
++    long awaitSessionReady() throws Exception {
++        // Common observable precondition for both release APKs. This does not
++        // claim native-session readiness. Candidate selection is measured only
++        // after typing, a fixed 1000 ms settle and an exact-output assertion.
++        long deadline = now()+30_000_000_000L, since = 0;
++        while (now()<deadline) {
++            if (imeHas()) {
++                if (since==0) since=now();
++                if (now()-since>=500_000_000L) return now();
++            } else since=0;
++            SystemClock.sleep(20);
++        }
++        throw new IllegalStateException("IME window not stable");
++    }
++    void screenshot(String name) throws Exception {
++        Bitmap image = getUiAutomation().takeScreenshot();
++        if (image == null) throw new IllegalStateException("Screenshot unavailable");
++        try (FileOutputStream out = getTargetContext().openFileOutput(name, 0)) {
++            image.compress(Bitmap.CompressFormat.PNG, 100, out);
++        } finally { image.recycle(); }
++    }
++
++    void phase(String phase, JSONObject points, int rounds) throws Exception {
++        long launch = now();
++        host = (BenchHost) startActivitySync(new Intent(getTargetContext(), BenchHost.class)
++            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
++        long deadline = now() + 240_000_000_000L;
++        while (!imeHas() && now() < deadline) SystemClock.sleep(20);
++        if (!imeHas()) throw new IllegalStateException("Requested IME window did not appear");
++        long shown = now();
++        long ready = awaitSessionReady();
++        long prepared=awaitNoSetupHint();
++        phases.put(new JSONObject().put("phase", phase).put("launch_ns", launch).put("ime_observed_ns", shown)
++            .put("ime_window_stable_observed_ns", ready).put("setup_hint_gone_ns",prepared));
++        String expected = "";
++        String sequence = args.getString("sequence", "ni");
++        String word = args.getString("word", "你");
++        for (int round = 0; round < rounds; round++) {
++            JSONArray keys = new JSONArray();
++            long[] last = null;
++            for (int index = 0; index < sequence.length(); index++) {
++                if (index > 0) SystemClock.sleep(100);
++                String key = sequence.substring(index, index+1);
++                last = tap(points.getJSONArray(key));
++                keys.put(new JSONObject().put("key", key).put("down_ns", last[0]).put("up_ns", last[1]));
++            }
++            JSONObject sample = new JSONObject().put("phase", phase).put("round", round).put("keys", keys)
++                .put("last_key_down_ns", last[0]).put("last_key_up_ns", last[1]);
++            samples.put(sample);
++            // Foxy's floating preedit is not exposed by this accessibility tree.
++            // Wanxiang fuzzy spelling can also format a valid input differently.
++            // Isolate selection after the same fixed settling time in both UIs;
++            // validate actual editor delivery, never infer key loss from preedit.
++            SystemClock.sleep(1000);
++            sample.put("settle_finished_ns", now());
++            sample.put("candidate_panel_observed_ns",awaitCandidatePanel());
++            // Canvas-drawn candidate text may be absent from accessibility.
++            // Retain first-use screenshots; admit only exact editor output and
++            // one-to-one callbacks. Do not call this a native-readiness probe.
++            if (round == 0) screenshot(phase+"-candidates.png");
++            long[] select = tap(points.getJSONArray("candidate"));
++            sample.put("candidate_down_ns", select[0]).put("candidate_up_ns", select[1]);
++            expected += word;
++            deadline = now() + 15_000_000_000L;
++            String actual;
++            while (!(actual = editorText()).equals(expected) && now() < deadline) SystemClock.sleep(10);
++            if (!actual.equals(expected)) throw new IllegalStateException("Wrong/duplicate commit: " + actual);
++            SystemClock.sleep(180);
++        }
++        runOnMainSync(() -> host.control("dump"));
++        File data = getTargetContext().getFilesDir();
++        Files.copy(new File(data, "candidate-editor.json").toPath(), new File(data, phase+"-editor.json").toPath(),
++            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
++        screenshot(phase+"-editor.png");
++    }
++
++    @Override public void onStart() {
++        Bundle result = new Bundle();
++        try {
++            AccessibilityServiceInfo info = getUiAutomation().getServiceInfo();
++            info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS |
++                          AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
++            getUiAutomation().setServiceInfo(info);
++            JSONObject points = new JSONObject(args.getString("points"));
++            imePackage = args.getString("package");
++            int rounds = Integer.parseInt(args.getString("rounds", "8"));
++            phase("fresh", points, rounds);
++            runOnMainSync(() -> host.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS)));
++            long deadline = now()+5_000_000_000L;
++            while (imeHas() && now()<deadline) SystemClock.sleep(20);
++            if (imeHas()) throw new IllegalStateException("Non-editor Settings did not hide the IME");
++            phases.put(new JSONObject().put("phase", "noneditor").put("hidden_observed_ns", now()));
++            SystemClock.sleep(500);
++            phase("rebind", points, rounds);
++            JSONObject output = new JSONObject().put("phases", phases).put("samples", samples)
++                .put("output", editorText()).put("word", args.getString("word", "你"))
++                .put("method", "external real touch; timestamps before injection");
++            try (FileOutputStream out = getTargetContext().openFileOutput("replay.json", 0)) {
++                out.write(output.toString(2).getBytes("UTF-8"));
++            }
++            result.putString("status", "ok");
++            finish(0, result);
++        } catch (Throwable error) {
++            try {
++                if (host != null) { runOnMainSync(() -> host.control("dump")); screenshot("failure.png"); }
++                JSONObject output = new JSONObject().put("failure", error.toString()).put("phases", phases).put("samples", samples);
++                try (FileOutputStream out = getTargetContext().openFileOutput("replay.json", 0)) {
++                    out.write(output.toString(2).getBytes("UTF-8"));
++                }
++            } catch (Throwable ignored) { }
++            result.putString("failure", android.util.Log.getStackTraceString(error));
++            finish(1, result);
++        }
++    }
++}
+diff --git a/tools/latency-investigation-20261111/inputs.json b/tools/latency-investigation-20261111/inputs.json
+new file mode 100644
+index 00000000..3519755f
+--- /dev/null
++++ b/tools/latency-investigation-20261111/inputs.json
+@@ -0,0 +1,87 @@
++{
++  "schema_version": 1,
++  "recorded_utc": "2026-11-11",
++  "wanxiang_tag": "v18.1.10",
++  "base": {
++    "id": 720692646,
++    "name": "rime-wanxiang-base.zip",
++    "size": 25394477,
++    "digest": "sha256:ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999",
++    "browser_download_url": "https://github.com/amzxyz/rime-wanxiang/releases/download/v18.1.10/rime-wanxiang-base.zip",
++    "updated_at": "2026-11-07T12:47:31Z"
++  },
++  "model": {
++    "id": 719554076,
++    "name": "wanxiang-lts-zh-hans.gram",
++    "size": 418080812,
++    "digest": "sha256:769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a",
++    "browser_download_url": "https://github.com/amzxyz/rime-wanxiang-data/releases/download/LTS/wanxiang-lts-zh-hans.gram",
++    "updated_at": "2026-11-07T04:08:51Z"
++  },
++  "products": {
++    "fcitx": {
++      "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
++      "release": "nightly-0.1.3-715-g5fb6bca3-20261021-205826",
++      "asset": {
++        "id": 663773371,
++        "name": "org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
++        "size": 11906742,
++        "digest": "sha256:f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
++        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-715-g5fb6bca3-20261021-205826/org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
++        "updated_at": "2026-10-21T20:58:32Z"
++      }
++    },
++    "direct": {
++      "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
++      "release": "nightly-0.1.3-802-g2e48466e-20261107-112347",
++      "asset": {
++        "id": 720494660,
++        "name": "direct.apk",
++        "size": 10238250,
++        "digest": "sha256:b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
++        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-802-g2e48466e-20261107-112347/direct.apk",
++        "updated_at": "2026-11-07T11:23:53Z"
++      }
++    },
++    "current": {
++      "commit": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
++      "release_commit": "090a43e1485b9a6d76a28a31a6503c41e3e3db29",
++      "release": "nightly-0.1.3-823-g090a43e1-20261110-142502",
++      "asset": {
++        "id": 731714993,
++        "name": "direct.apk",
++        "size": 10120461,
++        "digest": "sha256:0a96e27c8ee355e862bcf391804b55d22546062ebc9625ec91a397c8c22dca67",
++        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-823-g090a43e1-20261110-142502/direct.apk",
++        "updated_at": "2026-11-10T14:25:09Z"
++      },
++      "runtime_equivalence": {
++        "changed_paths": [
++          "AGENTS.md",
++          "DESIGN.md",
++          "README.md"
++        ],
++        "verified_identical_paths": [
++          "app",
++          "direct-rime",
++          "native",
++          "build-logic",
++          "gradle",
++          "settings.gradle.kts",
++          "build.gradle.kts",
++          "gradle.properties"
++        ],
++        "note": "Default HEAD differs from the signed official APK only by documentation; do not relabel the APK commit."
++      }
++    }
++  },
++  "original_config_sha256": {
++    "wanxiang.custom.yaml": "42bf76351ceb6f2db87396ae13edf9d9914712a065a61cdf74c66c52900c1319",
++    "user.yaml": "dd82ae3dc637e850446eb6e4170d916bb3d628b08d85572096c6b4c62ccb9a57"
++  },
++  "comparison_order": [
++    "fcitx",
++    "direct",
++    "current"
++  ]
++}
+diff --git a/tools/latency-investigation-20261111/repeat-trace.py b/tools/latency-investigation-20261111/repeat-trace.py
+new file mode 100644
+index 00000000..5647c27a
+--- /dev/null
++++ b/tools/latency-investigation-20261111/repeat-trace.py
+@@ -0,0 +1,125 @@
++"""Trace sixteen real candidate choices per editor using the original current Debug APK."""
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import re
++import shlex
++import subprocess as sp
++import time
++
++HERE=Path(__file__).resolve().parent
++PACKAGE='org.fcitx.fcitx5.android.fx.rime.debug'
++HOST='io.github.sandyyur.inputbench'
++
++def adb(*args,check=True,timeout=600,input=None):
++    return sp.run(['adb',*map(str,args)],text=True,input=input,capture_output=True,check=check,timeout=timeout).stdout.strip()
++
++def instrument(runner,**arguments):
++    command=['am','instrument','-w']
++    for key,value in arguments.items():command+=['-e',key,str(value)]
++    return adb('shell',shlex.join([*command,runner]),timeout=600)
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--products',type=Path,required=True)
++    p.add_argument('--inputs',type=Path,required=True)
++    p.add_argument('--host',type=Path,required=True)
++    p.add_argument('--output',type=Path,required=True)
++    a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
++    assert adb('get-serialno').startswith('emulator-')
++    adb('root');adb('wait-for-device')
++    adb('shell','wm','size','320x640');adb('shell','wm','density','160')
++    adb('shell','settings','put','secure','show_ime_with_hard_keyboard','1')
++    adb('shell','settings','put','system','screen_off_timeout','1800000')
++    adb('install','-r',a.host)
++    for suffix in ['.test','']:adb('uninstall',PACKAGE+suffix,check=False)
++    adb('install','-r',a.products/'current.apk');adb('install','-r',a.products/'current-tests.apk')
++    adb('push',a.inputs/'fixture.zip','/data/local/tmp/candidate-fixture.zip')
++    adb('shell','run-as',PACKAGE,'mkdir','-p','files')
++    adb('shell',f"cat /data/local/tmp/candidate-fixture.zip | run-as {PACKAGE} sh -c 'cat > files/candidate-fixture.zip'")
++    revision=(a.products/'current-commit.txt').read_text().strip()
++    prepared=instrument(PACKAGE+'.test/androidx.test.runner.AndroidJUnitRunner',
++        **{'class':'org.fcitx.fcitx5.android.core.CandidateTapTest#prepare','expectedCommit':revision})
++    (a.output/'prepare.txt').write_text(prepared);assert 'OK (1 test)' in prepared
++    component=PACKAGE+'/org.fcitx.fcitx5.android.input.FcitxInputMethodService'
++    adb('shell','ime','enable',component);adb('shell','ime','set',component)
++    response=instrument(HOST+'/.Prepare',component=component)
++    (a.output/'subtypes.txt').write_text(response);assert 'failure=' not in response
++    adb('shell','am','start','-W','-n',HOST+'/.BenchHost')
++    raw=json.loads(adb('shell','run-as',HOST,'cat','files/calibration-ui.json'))
++    nodes=[(node['text'],node['bounds']) for node in raw['nodes'] if node['package']==PACKAGE]
++    (a.output/'calibration-ui.json').write_text(json.dumps(raw,indent=2))
++    bar=next(bounds for text,bounds in nodes if text=='Status area')
++    grouped={}
++    for box in {tuple(b) for _,b in nodes if b[1]>=bar[3] and 31<=b[2]-b[0]<=33 and 36<=b[3]-b[1]<=80}:
++        grouped.setdefault((box[1],box[3]),[]).append(box)
++    rows=[sorted(boxes) for _,boxes in sorted(grouped.items()) if len(boxes)>=7]
++    assert [len(row) for row in rows] in ([10,9,7],[10,10,7]),rows
++    points={}
++    for letters,boxes in zip(['qwertyuiop','asdfghjkl','zxcvbnm'],rows):
++        for letter,box in zip(letters,boxes):points[letter]=[(box[0]+box[2])//2,(box[1]+box[3])//2]
++    points['candidate']=[26,(bar[1]+bar[3])//2]
++    calibrated=instrument(HOST+'/.Calibrate',package=PACKAGE,points=json.dumps(points,separators=(',',':')))
++    (a.output/'calibration.txt').write_text(calibrated);assert 'status=ok' in calibrated,calibrated
++    calibration=json.loads(adb('shell','run-as',HOST,'cat','files/calibration-data.json'))
++    assert calibration['text']=='你早上好';points=calibration['points']
++    (a.output/'points.json').write_text(json.dumps(points,indent=2))
++    pid=adb('shell','pidof',PACKAGE).split()[0]
++    maps=adb('shell','cat','/proc/'+pid+'/maps');assert 'wanxiang-lts-zh-hans.gram' in maps and 'libFcitx5Core.so' not in maps
++    (a.output/'maps.txt').write_text(maps)
++    (a.output/'user.yaml').write_text(adb('shell','run-as',PACKAGE,'cat','/sdcard/Android/data/'+PACKAGE+'/files/data/candidate-bench/user.yaml'))
++    results=[]
++    for case,sequence,word in [('ni','ni','你'),('phrase','zaoshanghao','早上好')]:
++        out=a.output/case;out.mkdir()
++        adb('shell','am','force-stop',HOST);adb('shell','pm','clear',HOST)
++        adb('shell','am','force-stop',PACKAGE);adb('shell','ime','set',component);adb('logcat','-c')
++        remote='/data/misc/perfetto-traces/repeat-'+case+'.perfetto-trace'
++        config=f'''buffers {{ size_kb: 65536 fill_policy: RING_BUFFER }}
++duration_ms: 150000
++write_into_file: true
++file_write_period_ms: 1000
++flush_period_ms: 1000
++data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
++ ftrace_events: "sched/sched_switch"
++ ftrace_events: "sched/sched_waking"
++ atrace_categories: "view"
++ atrace_categories: "gfx"
++ atrace_categories: "input"
++ atrace_categories: "dalvik"
++ atrace_categories: "am"
++ atrace_categories: "wm"
++ atrace_apps: "{PACKAGE}"
++ atrace_apps: "{HOST}"
++}} }} }}
++data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ proc_stats_poll_ms: 1000 }} }} }}
++'''
++        (out/'trace-config.txt').write_text(config)
++        trace_pid=adb('shell','perfetto','--background-wait','--txt','-c','-','-o',remote,input=config)
++        assert trace_pid.isdigit(),trace_pid
++        response=instrument(HOST+'/.Replay',package=PACKAGE,points=json.dumps(points,separators=(',',':')),
++            rounds=16,sequence=sequence,word=word)
++        (out/'instrumentation.txt').write_text(response)
++        (out/'logcat.txt').write_text(adb('logcat','-d','-v','threadtime'))
++        replay=json.loads(adb('shell','run-as',HOST,'cat','files/replay.json'))
++        (out/'replay.json').write_text(json.dumps(replay,ensure_ascii=False,indent=2)+'\n')
++        assert 'status=ok' in response and not replay.get('failure'),response
++        for phase in ['fresh','rebind']:
++            editor=json.loads(adb('shell','run-as',HOST,'cat','files/'+phase+'-editor.json'))
++            (out/(phase+'-editor.json')).write_text(json.dumps(editor,ensure_ascii=False,indent=2)+'\n')
++            assert editor['text']==word*16 and [e['text'] for e in editor['commits'] if e['text']]==[word]*16
++        adb('shell','kill','-INT',trace_pid,check=False)
++        deadline=time.monotonic()+15
++        while time.monotonic()<deadline:
++            status=sp.run(['adb','shell','test','-d','/proc/'+trace_pid],capture_output=True)
++            if status.returncode:break
++            time.sleep(.2)
++        adb('pull',remote,out/'run.perfetto-trace')
++        assert (out/'run.perfetto-trace').stat().st_size>0
++        results.append({'case':case,'selections':32,'text_correct':True})
++        print('PASS repeat diagnostic',case,'32 exact commits',flush=True)
++    (a.output/'provenance.json').write_text(json.dumps({'commit':revision,'apk_sha256':hashlib.sha256((a.products/'current.apk').read_bytes()).hexdigest(),
++        'host_sha256':hashlib.sha256(a.host.read_bytes()).hexdigest(),'results':results,
++        'note':'Diagnostic traces only, not admitted to original performance tables. Untimed calibration learns ni and phrase; data is owned by a disposable emulator.'},indent=2)+'\n')
++
++if __name__=='__main__':main()
+diff --git a/tools/latency-investigation-20261111/verify-inputs.py b/tools/latency-investigation-20261111/verify-inputs.py
+new file mode 100644
+index 00000000..0b880d38
+--- /dev/null
++++ b/tools/latency-investigation-20261111/verify-inputs.py
+@@ -0,0 +1,16 @@
++import hashlib
++import json
++from pathlib import Path
++import sys
++
++products,inputs=map(Path,sys.argv[1:])
++pins=json.loads((Path(__file__).parent/'inputs.json').read_text())
++manifest=json.loads((products/'debug-products.json').read_text())
++assert manifest['products']==pins['products']
++for name,expected in manifest['apks'].items():
++    assert hashlib.sha256((products/name).read_bytes()).hexdigest()==expected,name
++fixture=json.loads((inputs/'fixture.manifest.json').read_text())
++assert all(fixture[key]==value for key,value in pins.items())
++assert hashlib.sha256((inputs/'fixture.zip').read_bytes()).hexdigest()==fixture['fixture_sha256']
++assert (products/'current-commit.txt').read_text().strip()==pins['products']['current']['commit']
++print('Original Debug APKs and unchanged Wanxiang/config/model fixture verified; only current will run.')
+-- 
+2.52.0
+
+
+From 0649bfb57d780d9c9b03b98a6160a70d09a4f347 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 14:14:04 +0000
+Subject: [PATCH 02/11] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=88=86=E6=9E=90):?=
+ =?UTF-8?q?=20=E6=8C=89=E9=80=90=E6=AC=A1=E8=BE=93=E5=85=A5=E6=97=B6?=
+ =?UTF-8?q?=E9=97=B4=E5=85=B3=E8=81=94=20native=20=E5=88=86=E6=AE=B5?=
+ =?UTF-8?q?=E4=B8=8E=E7=BA=BF=E7=A8=8B=20CPU?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../analyze-trace.py                          | 100 ++++++++++++++++++
+ 1 file changed, 100 insertions(+)
+ create mode 100644 tools/latency-investigation-20261111/analyze-trace.py
+
+diff --git a/tools/latency-investigation-20261111/analyze-trace.py b/tools/latency-investigation-20261111/analyze-trace.py
+new file mode 100644
+index 00000000..0aeb3bda
+--- /dev/null
++++ b/tools/latency-investigation-20261111/analyze-trace.py
+@@ -0,0 +1,100 @@
++"""Associate individual real input timestamps with existing native trace slices."""
++import argparse
++import csv
++import io
++import json
++from pathlib import Path
++import subprocess
++
++
++def query(processor,trace,sql):
++    result=subprocess.run([str(processor),'query','--no-agent','--format','csv',str(trace),sql],
++        capture_output=True,text=True,check=True)
++    return list(csv.DictReader(io.StringIO(result.stdout)))
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--trace',type=Path,required=True)
++    p.add_argument('--processor',type=Path,required=True)
++    p.add_argument('--data',type=Path,required=True)
++    p.add_argument('--kind',choices=['candidate','repeat'],required=True)
++    p.add_argument('--output',type=Path,required=True)
++    a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
++    queries={
++      'slices':'''SELECT s.id,s.ts,s.dur,s.name,s.parent_id,t.utid,t.tid,t.name AS thread_name,
++                 p.pid,p.name AS process_name FROM slice s
++                 JOIN thread_track tt ON s.track_id=tt.id JOIN thread t ON tt.utid=t.utid
++                 JOIN process p ON t.upid=p.upid
++                 WHERE s.dur>=0 AND (s.name GLOB 'rime.*' OR s.name='HandleFcitxEvent'
++                 OR s.name GLOB '*InputEvent*' OR s.name GLOB '*inputEvent*'
++                 OR s.name GLOB 'Choreographer*' OR s.name GLOB '*JIT*'
++                 OR s.name GLOB '*commitText*') ORDER BY s.ts''',
++      'sched':'''SELECT s.ts,s.dur,s.utid,s.cpu FROM sched s JOIN thread t USING(utid)
++                JOIN process p USING(upid) WHERE p.name GLOB '*fx.rime.debug*'
++                OR p.name GLOB '*inputbench*' ORDER BY s.ts''',
++      'thread_states':'''SELECT s.ts,s.dur,s.utid,s.state,s.io_wait,s.blocked_function
++                FROM thread_state s JOIN thread t USING(utid) JOIN process p USING(upid)
++                WHERE s.dur>0 AND (p.name GLOB '*fx.rime.debug*' OR p.name GLOB '*inputbench*') ORDER BY s.ts''',
++      'loss':'''SELECT name,idx,severity,value FROM stats WHERE value>0 AND
++               (severity IN ('error','data_loss') OR name GLOB '*lost*' OR name GLOB '*drop*')''',
++      'bounds':'SELECT * FROM trace_bounds',
++    }
++    tables={}
++    for name,sql in queries.items():
++        result=query(a.processor,a.trace,sql);tables[name]=result
++        if result:
++            with (a.output/(name+'.csv')).open('w') as f:
++                writer=csv.DictWriter(f,fieldnames=list(result[0]));writer.writeheader();writer.writerows(result)
++    slices=[]
++    for row in tables['slices']:
++        converted=dict(row)
++        for key in ['id','ts','dur','utid','tid','pid']:
++            converted[key]=int(row[key])
++        slices.append(converted)
++    native=[row for row in slices if row['name'].startswith('rime.direct.')]
++    assert native,'No native Rime slices: cannot attribute costs from empty traces'
++    sched=[(int(s['ts']),int(s['dur']),int(s['utid'])) for s in tables['sched'] if int(s['dur'])>0]
++    def core_cpu_ms(row):
++        start,end=row['ts'],row['ts']+row['dur']
++        return sum(max(0,min(end,ts+dur)-max(start,ts)) for ts,dur,utid in sched if utid==row['utid'])/1e6
++    source=json.loads(a.data.read_text());anchors=[]
++    if a.kind=='candidate':
++        for i,row in enumerate(source['ime']['rounds']):
++            for kind in ['n','select']:
++                event=row[kind]
++                end=row['preedit_collected_ns'] if kind=='n' else source['editor']['commits'][i]['at_ns']
++                anchors.append({'phase':'single_editor','round':i+1,'kind':kind,
++                    'start_ns':event['dispatch_down_ns'],'up_ns':event['dispatch_up_ns'],
++                    'injection_up_ns':event['inject_up_ns'],'end_ns':end})
++    else:
++        for row in source['samples']:
++            phase=row['phase'];index=row['round']
++            editor=json.loads((a.data.parent/(phase+'-editor.json')).read_text())
++            commits=[event for event in editor['commits'] if event['text']]
++            anchors.append({'phase':phase,'round':index+1,'kind':'select',
++                'start_ns':row['candidate_down_ns'],'up_ns':row['candidate_up_ns'],
++                'injection_up_ns':row['candidate_up_ns'],'end_ns':commits[index]['at_ns']})
++    associated=[]
++    for anchor in anchors:
++        name='rime.direct.process_key' if anchor['kind']=='n' else 'rime.direct.action_core'
++        core=[row for row in native if row['name']==name and anchor['start_ns']<=row['ts']<anchor['end_ns']]
++        snapshots=[row for row in native if row['name']=='rime.direct.snapshot' and anchor['start_ns']<=row['ts']<anchor['end_ns']]
++        selected=[row for row in native if row['name']=='rime.direct.select_candidate' and anchor['start_ns']<=row['ts']<anchor['end_ns']]
++        primary=sorted(core,key=lambda row:row['dur'],reverse=True)
++        total=(anchor['end_ns']-anchor['up_ns'])/1e6
++        row=dict(anchor,total_up_ms=total,core_calls=len(core),core_wall_ms=sum(c['dur'] for c in core)/1e6,
++            core_cpu_ms=sum(core_cpu_ms(c) for c in core),snapshot_ms=sum(c['dur'] for c in snapshots)/1e6,
++            core_first_after_up_ms=(min(c['ts'] for c in core)-anchor['up_ns'])/1e6 if core else None,
++            after_native_to_endpoint_ms=(anchor['end_ns']-max(c['ts']+c['dur'] for c in (selected or core)))/1e6 if core else None,
++            selected_native_wall_ms=sum(c['dur'] for c in selected)/1e6,
++            longest_core=primary[0] if primary else None)
++        associated.append(row)
++    result={'trace':a.trace.name,'data':a.data.name,'kind':a.kind,'bounds':tables['bounds'],
++        'trace_stats':tables['loss'],'native_slices':len(native),'anchors':associated,
++        'missing_native_anchors':[{key:r[key] for key in ['phase','round','kind']} for r in associated if not r['core_calls']]}
++    (a.output/'associated.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
++    print(json.dumps({'trace':a.trace.name,'anchors':len(associated),'missing':result['missing_native_anchors'],'trace_stats':result['trace_stats']}))
++
++
++if __name__=='__main__':main()
+-- 
+2.52.0
+
+
+From a18a3ef4852813c936362581903263104f99c854 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 14:17:40 +0000
+Subject: [PATCH 03/11] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E6=A0=A1=E5=87=86):?=
+ =?UTF-8?q?=20=E7=94=A8=E6=A8=A1=E6=8B=9F=E5=99=A8=20root=20=E8=AF=BB?=
+ =?UTF-8?q?=E5=8F=96=E8=87=AA=E6=9C=89=E5=A4=96=E9=83=A8=E5=B7=A5=E4=BD=9C?=
+ =?UTF-8?q?=E5=BA=93=E5=85=83=E6=95=B0=E6=8D=AE?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ tools/latency-investigation-20261111/repeat-trace.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/tools/latency-investigation-20261111/repeat-trace.py b/tools/latency-investigation-20261111/repeat-trace.py
+index 5647c27a..0ebc2861 100644
+--- a/tools/latency-investigation-20261111/repeat-trace.py
++++ b/tools/latency-investigation-20261111/repeat-trace.py
+@@ -68,7 +68,9 @@ def main():
+     pid=adb('shell','pidof',PACKAGE).split()[0]
+     maps=adb('shell','cat','/proc/'+pid+'/maps');assert 'wanxiang-lts-zh-hans.gram' in maps and 'libFcitx5Core.so' not in maps
+     (a.output/'maps.txt').write_text(maps)
+-    (a.output/'user.yaml').write_text(adb('shell','run-as',PACKAGE,'cat','/sdcard/Android/data/'+PACKAGE+'/files/data/candidate-bench/user.yaml'))
++    # run-as can be denied access to the emulated-storage mount on API35.
++    # This runner already required a fresh root emulator; inspect its physical path.
++    (a.output/'user.yaml').write_text(adb('shell','cat','/data/media/0/Android/data/'+PACKAGE+'/files/data/candidate-bench/user.yaml'))
+     results=[]
+     for case,sequence,word in [('ni','ni','你'),('phrase','zaoshanghao','早上好')]:
+         out=a.output/case;out.mkdir()
+-- 
+2.52.0
+
+
+From 28dfe7233cb61fc012e9ae3576da852b8287b9e5 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:07:16 +0000
+Subject: [PATCH 04/11] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=AE=BF=E4=B8=BB):?=
+ =?UTF-8?q?=20=E5=9C=A8=20Android15=20=E7=84=A6=E7=82=B9=E5=BB=BA=E7=AB=8B?=
+ =?UTF-8?q?=E5=90=8E=E9=87=8D=E6=96=B0=E7=BB=91=E5=AE=9A=E8=BE=93=E5=85=A5?=
+ =?UTF-8?q?=E6=B3=95=E5=B9=B6=E4=BF=9D=E7=95=99=E5=A4=B1=E8=B4=A5=20trace?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../analyze-trace.py                            |  9 +++++++--
+ .../host/BenchHost.java                         |  7 +++++++
+ .../host/Replay.java                            |  6 +++++-
+ .../repeat-trace.py                             | 17 ++++++++++++++---
+ 4 files changed, 33 insertions(+), 6 deletions(-)
+
+diff --git a/tools/latency-investigation-20261111/analyze-trace.py b/tools/latency-investigation-20261111/analyze-trace.py
+index 0aeb3bda..4ed0bde1 100644
+--- a/tools/latency-investigation-20261111/analyze-trace.py
++++ b/tools/latency-investigation-20261111/analyze-trace.py
+@@ -31,11 +31,16 @@ def main():
+                  OR s.name GLOB 'Choreographer*' OR s.name GLOB '*JIT*'
+                  OR s.name GLOB '*commitText*') ORDER BY s.ts''',
+       'sched':'''SELECT s.ts,s.dur,s.utid,s.cpu FROM sched s JOIN thread t USING(utid)
+-                JOIN process p USING(upid) WHERE p.name GLOB '*fx.rime.debug*'
++                JOIN process p USING(upid) WHERE p.upid IN
++                (SELECT DISTINCT t2.upid FROM slice a JOIN thread_track tt2 ON a.track_id=tt2.id
++                 JOIN thread t2 ON tt2.utid=t2.utid WHERE a.name GLOB 'rime.direct.*')
+                 OR p.name GLOB '*inputbench*' ORDER BY s.ts''',
+       'thread_states':'''SELECT s.ts,s.dur,s.utid,s.state,s.io_wait,s.blocked_function
+                 FROM thread_state s JOIN thread t USING(utid) JOIN process p USING(upid)
+-                WHERE s.dur>0 AND (p.name GLOB '*fx.rime.debug*' OR p.name GLOB '*inputbench*') ORDER BY s.ts''',
++                WHERE s.dur>0 AND (p.upid IN
++                (SELECT DISTINCT t2.upid FROM slice a JOIN thread_track tt2 ON a.track_id=tt2.id
++                 JOIN thread t2 ON tt2.utid=t2.utid WHERE a.name GLOB 'rime.direct.*')
++                OR p.name GLOB '*inputbench*') ORDER BY s.ts''',
+       'loss':'''SELECT name,idx,severity,value FROM stats WHERE value>0 AND
+                (severity IN ('error','data_loss') OR name GLOB '*lost*' OR name GLOB '*drop*')''',
+       'bounds':'SELECT * FROM trace_bounds',
+diff --git a/tools/latency-investigation-20261111/host/BenchHost.java b/tools/latency-investigation-20261111/host/BenchHost.java
+index ab4d7148..46002db5 100644
+--- a/tools/latency-investigation-20261111/host/BenchHost.java
++++ b/tools/latency-investigation-20261111/host/BenchHost.java
+@@ -59,6 +59,13 @@ public class BenchHost extends Activity {
+         editor.requestFocus();
+         editor.post(() -> ((InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT));
+     }
++    @Override public void onWindowFocusChanged(boolean focused) {
++        super.onWindowFocusChanged(focused);
++        if (focused && editor != null) editor.post(() -> {
++            editor.requestFocus();
++            ((InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT);
++        });
++    }
+     void control(String command) {
+         if ("dump".equals(command)) {
+             try {
+diff --git a/tools/latency-investigation-20261111/host/Replay.java b/tools/latency-investigation-20261111/host/Replay.java
+index 9e0bfb9a..0b465c61 100644
+--- a/tools/latency-investigation-20261111/host/Replay.java
++++ b/tools/latency-investigation-20261111/host/Replay.java
+@@ -148,7 +148,11 @@ public class Replay extends Instrumentation {
+         long launch = now();
+         host = (BenchHost) startActivitySync(new Intent(getTargetContext(), BenchHost.class)
+             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
+-        long deadline = now() + 240_000_000_000L;
++        // Reselect after the real host exists. Android15 can retain a stopped
++        // IME binding when selection happened before instrumentation restarted its host.
++        shell("ime enable " + imePackage + "/org.fcitx.fcitx5.android.input.FcitxInputMethodService");
++        shell("ime set " + imePackage + "/org.fcitx.fcitx5.android.input.FcitxInputMethodService");
++        long deadline = now() + 45_000_000_000L;
+         while (!imeHas() && now() < deadline) SystemClock.sleep(20);
+         if (!imeHas()) throw new IllegalStateException("Requested IME window did not appear");
+         long shown = now();
+diff --git a/tools/latency-investigation-20261111/repeat-trace.py b/tools/latency-investigation-20261111/repeat-trace.py
+index 0ebc2861..5cdf0613 100644
+--- a/tools/latency-investigation-20261111/repeat-trace.py
++++ b/tools/latency-investigation-20261111/repeat-trace.py
+@@ -72,10 +72,16 @@ def main():
+     # This runner already required a fresh root emulator; inspect its physical path.
+     (a.output/'user.yaml').write_text(adb('shell','cat','/data/media/0/Android/data/'+PACKAGE+'/files/data/candidate-bench/user.yaml'))
+     results=[]
++    fallback=next(ime for ime in adb('shell','ime','list','-s').splitlines() if not ime.startswith(PACKAGE+'/'))
+     for case,sequence,word in [('ni','ni','你'),('phrase','zaoshanghao','早上好')]:
+         out=a.output/case;out.mkdir()
+         adb('shell','am','force-stop',HOST);adb('shell','pm','clear',HOST)
+-        adb('shell','am','force-stop',PACKAGE);adb('shell','ime','set',component);adb('logcat','-c')
++        adb('shell','ime','set',fallback)
++        adb('shell','am','force-stop',PACKAGE)
++        # Explicit launch clears Android15's stopped-package state. This probe
++        # diagnoses repeated selection, not a cold process launch; candidate traces cover that.
++        adb('shell','am','start','-W','-n',PACKAGE+'/org.fcitx.fcitx5.android.ui.main.MainActivity')
++        adb('logcat','-c')
+         remote='/data/misc/perfetto-traces/repeat-'+case+'.perfetto-trace'
+         config=f'''buffers {{ size_kb: 65536 fill_policy: RING_BUFFER }}
+ duration_ms: 150000
+@@ -103,9 +109,14 @@ data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ pr
+             rounds=16,sequence=sequence,word=word)
+         (out/'instrumentation.txt').write_text(response)
+         (out/'logcat.txt').write_text(adb('logcat','-d','-v','threadtime'))
++        (out/'input-method-state.txt').write_text(adb('shell','dumpsys','input_method'))
+         replay=json.loads(adb('shell','run-as',HOST,'cat','files/replay.json'))
+         (out/'replay.json').write_text(json.dumps(replay,ensure_ascii=False,indent=2)+'\n')
+-        assert 'status=ok' in response and not replay.get('failure'),response
++        if 'status=ok' not in response or replay.get('failure'):
++            adb('shell','kill','-INT',trace_pid,check=False)
++            time.sleep(2)
++            adb('pull',remote,out/'failed.perfetto-trace',check=False)
++            raise AssertionError(response)
+         for phase in ['fresh','rebind']:
+             editor=json.loads(adb('shell','run-as',HOST,'cat','files/'+phase+'-editor.json'))
+             (out/(phase+'-editor.json')).write_text(json.dumps(editor,ensure_ascii=False,indent=2)+'\n')
+@@ -122,6 +133,6 @@ data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ pr
+         print('PASS repeat diagnostic',case,'32 exact commits',flush=True)
+     (a.output/'provenance.json').write_text(json.dumps({'commit':revision,'apk_sha256':hashlib.sha256((a.products/'current.apk').read_bytes()).hexdigest(),
+         'host_sha256':hashlib.sha256(a.host.read_bytes()).hexdigest(),'results':results,
+-        'note':'Diagnostic traces only, not admitted to original performance tables. Untimed calibration learns ni and phrase; data is owned by a disposable emulator.'},indent=2)+'\n')
++        'note':'Diagnostic traces only, not admitted to original performance tables. IME is prelaunched via its MainActivity; phases fresh/rebind identify editors, not cold processes. Untimed calibration learns ni and phrase; data is owned by a disposable emulator.'},indent=2)+'\n')
+ 
+ if __name__=='__main__':main()
+-- 
+2.52.0
+
+
+From fd24e1b408cd1fe58c5e0d61c0406b0aa1700207 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:13:44 +0000
+Subject: [PATCH 05/11] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=AE=BF=E4=B8=BB):?=
+ =?UTF-8?q?=20=E4=BD=BF=E7=94=A8=E7=8B=AC=E7=AB=8B=E6=97=A0=E8=BE=93?=
+ =?UTF-8?q?=E5=85=A5=E6=A1=86=E9=A1=B5=E9=9D=A2=E5=B9=B6=E6=8C=89=E9=98=B6?=
+ =?UTF-8?q?=E6=AE=B5=E4=BF=9D=E5=AD=98=20trace=20=E4=B8=8E=E5=9B=9E?=
+ =?UTF-8?q?=E8=B0=83?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../host/AndroidManifest.xml                  |  1 +
+ .../host/NoEditor.java                        | 16 ++++++++++++++++
+ .../host/Replay.java                          | 19 ++++++++++++-------
+ .../repeat-trace.py                           | 10 +++++++++-
+ 4 files changed, 38 insertions(+), 8 deletions(-)
+ create mode 100644 tools/latency-investigation-20261111/host/NoEditor.java
+
+diff --git a/tools/latency-investigation-20261111/host/AndroidManifest.xml b/tools/latency-investigation-20261111/host/AndroidManifest.xml
+index 0c3003a8..6e146f7a 100644
+--- a/tools/latency-investigation-20261111/host/AndroidManifest.xml
++++ b/tools/latency-investigation-20261111/host/AndroidManifest.xml
+@@ -3,6 +3,7 @@
+     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+     <application android:label="Candidate timing host" android:debuggable="true" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:allowBackup="false">
+         <activity android:name=".BenchHost" android:exported="true" android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
++        <activity android:name=".NoEditor" android:exported="false" android:screenOrientation="portrait" android:windowSoftInputMode="stateAlwaysHidden" />
+         <receiver android:name=".BenchControl" android:exported="true" />
+     </application>
+     <instrumentation android:name=".Replay" android:targetPackage="io.github.sandyyur.inputbench" android:label="Unmodified IME touch replay" />
+diff --git a/tools/latency-investigation-20261111/host/NoEditor.java b/tools/latency-investigation-20261111/host/NoEditor.java
+new file mode 100644
+index 00000000..facfde08
+--- /dev/null
++++ b/tools/latency-investigation-20261111/host/NoEditor.java
+@@ -0,0 +1,16 @@
++package io.github.sandyyur.inputbench;
++import android.app.Activity;
++import android.os.Bundle;
++import android.view.WindowManager;
++import android.widget.TextView;
++/** Neutral non-editor available even on the minimal ATD system image. */
++public final class NoEditor extends Activity {
++    @Override public void onCreate(Bundle state) {
++        super.onCreate(state);
++        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
++        TextView text=new TextView(this);
++        text.setText("Non-editor timing control");
++        text.setFocusable(false);
++        setContentView(text);
++    }
++}
+diff --git a/tools/latency-investigation-20261111/host/Replay.java b/tools/latency-investigation-20261111/host/Replay.java
+index 0b465c61..00fdbb24 100644
+--- a/tools/latency-investigation-20261111/host/Replay.java
++++ b/tools/latency-investigation-20261111/host/Replay.java
+@@ -200,6 +200,16 @@ public class Replay extends Instrumentation {
+         Files.copy(new File(data, "candidate-editor.json").toPath(), new File(data, phase+"-editor.json").toPath(),
+             java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+         screenshot(phase+"-editor.png");
++        checkpoint(false);
++    }
++
++    void checkpoint(boolean complete) throws Exception {
++        JSONObject output=new JSONObject().put("phases",phases).put("samples",samples)
++            .put("complete",complete).put("output",editorText()).put("word",args.getString("word","你"))
++            .put("method","external real touch; timestamps before injection");
++        try(FileOutputStream out=getTargetContext().openFileOutput("replay.json",0)) {
++            out.write(output.toString(2).getBytes("UTF-8"));
++        }
+     }
+ 
+     @Override public void onStart() {
+@@ -213,19 +223,14 @@ public class Replay extends Instrumentation {
+             imePackage = args.getString("package");
+             int rounds = Integer.parseInt(args.getString("rounds", "8"));
+             phase("fresh", points, rounds);
+-            runOnMainSync(() -> host.startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS)));
++            runOnMainSync(() -> host.startActivity(new Intent(getTargetContext(),NoEditor.class)));
+             long deadline = now()+5_000_000_000L;
+             while (imeHas() && now()<deadline) SystemClock.sleep(20);
+             if (imeHas()) throw new IllegalStateException("Non-editor Settings did not hide the IME");
+             phases.put(new JSONObject().put("phase", "noneditor").put("hidden_observed_ns", now()));
+             SystemClock.sleep(500);
+             phase("rebind", points, rounds);
+-            JSONObject output = new JSONObject().put("phases", phases).put("samples", samples)
+-                .put("output", editorText()).put("word", args.getString("word", "你"))
+-                .put("method", "external real touch; timestamps before injection");
+-            try (FileOutputStream out = getTargetContext().openFileOutput("replay.json", 0)) {
+-                out.write(output.toString(2).getBytes("UTF-8"));
+-            }
++            checkpoint(true);
+             result.putString("status", "ok");
+             finish(0, result);
+         } catch (Throwable error) {
+diff --git a/tools/latency-investigation-20261111/repeat-trace.py b/tools/latency-investigation-20261111/repeat-trace.py
+index 5cdf0613..97a72957 100644
+--- a/tools/latency-investigation-20261111/repeat-trace.py
++++ b/tools/latency-investigation-20261111/repeat-trace.py
+@@ -110,8 +110,16 @@ data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ pr
+         (out/'instrumentation.txt').write_text(response)
+         (out/'logcat.txt').write_text(adb('logcat','-d','-v','threadtime'))
+         (out/'input-method-state.txt').write_text(adb('shell','dumpsys','input_method'))
+-        replay=json.loads(adb('shell','run-as',HOST,'cat','files/replay.json'))
++        # Stop and retain the trace even if the independent host crashes.
++        adb('shell','kill','-INT',trace_pid,check=False)
++        time.sleep(2)
++        adb('pull',remote,out/'run.perfetto-trace',check=False)
++        raw=adb('shell','run-as',HOST,'cat','files/replay.json',check=False)
++        replay=json.loads(raw) if raw.startswith('{') else {'failure':'No replay checkpoint; see host logcat','samples':[]}
+         (out/'replay.json').write_text(json.dumps(replay,ensure_ascii=False,indent=2)+'\n')
++        for phase in ['fresh','rebind']:
++            raw=adb('shell','run-as',HOST,'cat','files/'+phase+'-editor.json',check=False)
++            if raw.startswith('{'):(out/(phase+'-editor.json')).write_text(raw+'\n')
+         if 'status=ok' not in response or replay.get('failure'):
+             adb('shell','kill','-INT',trace_pid,check=False)
+             time.sleep(2)
+-- 
+2.52.0
+
+
+From 7f6e06d7ed7a03c9a10cc4ee814bfe4ce79335b7 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:27:38 +0000
+Subject: [PATCH 06/11] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=BD=92=E5=9B=A0):?=
+ =?UTF-8?q?=20=E5=A2=9E=E5=8A=A0=E5=8E=9F=E7=AD=BE=E5=90=8D=20ARM64=20?=
+ =?UTF-8?q?=E6=AD=A3=E5=BC=8F=E5=8C=85=E7=9A=84=E5=8D=95=E8=AF=8D=E4=BE=8B?=
+ =?UTF-8?q?=20trace=20=E5=AF=B9=E7=85=A7?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/workflows/wanxiang-screen-perf.yml    |  12 +-
+ .../latency-investigation-20261111/common.py  |   3 +
+ .../release-control.py                        | 267 ++++++++++++++++++
+ 3 files changed, 277 insertions(+), 5 deletions(-)
+ create mode 100644 tools/latency-investigation-20261111/release-control.py
+
+diff --git a/.github/workflows/wanxiang-screen-perf.yml b/.github/workflows/wanxiang-screen-perf.yml
+index d759f28a..625cd045 100644
+--- a/.github/workflows/wanxiang-screen-perf.yml
++++ b/.github/workflows/wanxiang-screen-perf.yml
+@@ -4,7 +4,7 @@ on:
+     inputs:
+       suite:
+         type: choice
+-        options: [all, candidate, repeat]
++        options: [all, candidate, repeat, release]
+         default: all
+         description: Existing APK diagnostic traces; never mix with formal results
+ permissions:
+@@ -45,8 +45,10 @@ jobs:
+           sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+           if [ '${{ matrix.suite }}' = candidate ]; then
+             bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/host" "$GITHUB_WORKSPACE/tools/candidate-perf/host"
+-          else
++          elif [ '${{ matrix.suite }}' = repeat ]; then
+             bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/host" "$GITHUB_WORKSPACE/tools/latency-investigation-20261111/host"
++          else
++            echo "Reuse the original signed Release and original release-host APK"
+           fi
+       - name: Enable KVM
+         run: |
+@@ -55,14 +57,14 @@ jobs:
+           sudo udevadm trigger --name-match=kvm
+       - uses: reactivecircus/android-emulator-runner@v2
+         with:
+-          api-level: 35
+-          target: aosp_atd
++          api-level: ${{ matrix.suite == 'release' && 30 || 35 }}
++          target: ${{ matrix.suite == 'release' && 'google_apis' || 'aosp_atd' }}
+           arch: x86_64
+           disable-animations: true
+           script: |
+             adb root
+             adb wait-for-device
+-            if [ '${{ matrix.suite }}' = candidate ]; then python3 tools/latency-investigation-20261111/candidate-trace.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-candidate --profile --trials 3; else python3 tools/latency-investigation-20261111/repeat-trace.py --products "$RUNNER_TEMP/products" --inputs "$RUNNER_TEMP/inputs" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-repeat; fi
++            if [ '${{ matrix.suite }}' = candidate ]; then python3 tools/latency-investigation-20261111/candidate-trace.py --apks "$RUNNER_TEMP/products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-candidate --profile --trials 3; elif [ '${{ matrix.suite }}' = repeat ]; then python3 tools/latency-investigation-20261111/repeat-trace.py --products "$RUNNER_TEMP/products" --inputs "$RUNNER_TEMP/inputs" --host "$RUNNER_TEMP/host/host.apk" --output build/latency-repeat; else python3 tools/latency-investigation-20261111/release-control.py --inputs "$RUNNER_TEMP/inputs" --output build/latency-release --case ni --trials 1 --rounds 16; fi
+       - uses: actions/upload-artifact@v7
+         if: always()
+         with:
+diff --git a/tools/latency-investigation-20261111/common.py b/tools/latency-investigation-20261111/common.py
+index e0511191..559028c6 100644
+--- a/tools/latency-investigation-20261111/common.py
++++ b/tools/latency-investigation-20261111/common.py
+@@ -1 +1,4 @@
+ PRODUCTS = ("current",)
++
++def order(trial,offset=0):
++    return PRODUCTS
+diff --git a/tools/latency-investigation-20261111/release-control.py b/tools/latency-investigation-20261111/release-control.py
+new file mode 100644
+index 00000000..a7d587a1
+--- /dev/null
++++ b/tools/latency-investigation-20261111/release-control.py
+@@ -0,0 +1,267 @@
++"""Trace the exact signed current ARM64 Release with the original external host."""
++import argparse
++import hashlib
++import importlib.util
++import json
++from pathlib import Path
++import re
++import shlex
++import statistics
++import subprocess as sp
++import sys
++import time
++import xml.etree.ElementTree as ET
++import zipfile
++from common import PRODUCTS, order as product_order
++
++HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parent / 'foxy-perf'))
++from pilot import adb, selected_ime, capture, HOST
++spec = importlib.util.spec_from_file_location('selection_analysis', HERE.parent / 'foxy-perf/run.py')
++analysis = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(analysis)
++PACKAGE = 'org.fcitx.fcitx5.android.fx.rime'
++ASSETS = '/data/user_de/0/'+PACKAGE
++
++def nodes():
++    raw=adb('shell','run-as',HOST,'cat','files/calibration-ui.json',check=False)
++    if not raw.startswith('{'):return []
++    return [(n['text'],n['bounds']) for n in json.loads(raw)['nodes'] if n['package']==PACKAGE]
++
++
++def point(box):
++    return [(box[0]+box[2])//2, (box[1]+box[3])//2]
++
++def keyboard_geometry(all_nodes):
++    # Canvas labels are not accessibility text, but KeyView bounds are public.
++    # The current stock layout has a tenth second-row punctuation key; the old
++    # layout has nine letter keys with a half-key indent. Do not reuse coordinates.
++    bar=next(b for text,b in all_nodes if text=='Status area')
++    boxes={tuple(b) for text,b in all_nodes if b[1]>=bar[3] and 31<=b[2]-b[0]<=33 and 36<=b[3]-b[1]<=80}
++    grouped={}
++    for b in boxes:grouped.setdefault((b[1],b[3]),[]).append(b)
++    rows=[sorted(v) for k,v in sorted(grouped.items()) if len(v)>=7]
++    assert len(rows)==3,rows
++    assert [len(r) for r in rows] in ([10,9,7],[10,10,7]),rows
++    keys={}
++    for letters,boxes in zip(['qwertyuiop','asdfghjkl','zxcvbnm'],rows):
++        for letter,b in zip(letters,boxes):keys[letter]=point(b)
++    keys['candidate']=[26,(bar[1]+bar[3])//2]
++    return keys,rows
++
++def install(apk):
++    for pkg in [PACKAGE, HOST]:
++        adb('shell', 'am', 'force-stop', pkg, check=False)
++    adb('uninstall', PACKAGE, check=False)
++    adb('install', '-r', apk)
++    # Do not start the IME until its fixture is in place. Otherwise an old
++    # backend can legitimately cache an empty schema list on its first boot.
++
++def owner(target):
++    uid = re.search(r'uid:(\d+)', adb('shell', 'cmd', 'package', 'list', 'packages', '-U', PACKAGE)).group(1)
++    physical = target.replace('/sdcard/', '/data/media/0/', 1)
++    adb('shell', 'chown', '-R', uid+':'+uid, physical)
++    adb('shell', 'restorecon', '-RF', physical)
++
++def select_rime_profile(target):
++    root=target.rsplit('/data/',1)[0]
++    profile='[Groups/0]\nName=Default\nDefault Layout=us\nDefaultIM=rime\n\n[Groups/0/Items/0]\nName=rime\nLayout=\n\n[GroupOrder]\n0=Default\n'
++    adb('shell','mkdir','-p',root+'/config')
++    adb('shell','sh','-c',shlex.quote('printf %s '+shlex.quote(profile)+' > '+root+'/config/profile'))
++    owner(root)
++
++def start():
++    adb('shell', 'am', 'start', '-W', '-n', HOST+'/.BenchHost')
++    selected_ime(PACKAGE)
++
++def chinese_subtype():
++    response = adb('shell','am','instrument','-w','-e','component',
++        PACKAGE+'/org.fcitx.fcitx5.android.input.FcitxInputMethodService',HOST+'/.Prepare')
++    # Android restarts the target package for instrumentation. Restore the
++    # independent editor afterward, otherwise this setup helper removes focus.
++    start()
++    return response
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--inputs', type=Path, required=True)
++    p.add_argument('--output', type=Path, required=True)
++    p.add_argument('--pilot', action='store_true')
++    p.add_argument('--case', choices=['both','ni','phrase'], default='ni')
++    p.add_argument('--trials',type=int,default=1)
++    p.add_argument('--rounds',type=int,default=16)
++    a = p.parse_args(); a.output.mkdir(parents=True, exist_ok=True)
++    pins = json.loads((HERE/'inputs.json').read_text())
++    (a.output/'provenance.json').write_text(json.dumps({'pins':pins,'case':a.case,'pilot':a.pilot,
++        'binary_commits':{label:entry.get('release_commit',entry['commit']) for label,entry in pins['products'].items()},
++        'host_sha256':hashlib.sha256((a.inputs/'release-host/host.apk').read_bytes()).hexdigest()},indent=2))
++    assert adb('get-serialno').startswith('emulator-')
++    adb('root'); adb('wait-for-device')
++    assert 'arm64-v8a' in adb('shell','getprop','ro.product.cpu.abilist')
++    adb('shell','wm','size','320x640');adb('shell','wm','density','160')
++    for ns,key,value in [('secure','show_ime_with_hard_keyboard','1'),('system','screen_off_timeout','1800000'),
++                         ('global','heads_up_notifications_enabled','0'),
++                         ('global','window_animation_scale','0'),('global','transition_animation_scale','0')]:
++        adb('shell','settings','put',ns,key,value)
++    for package in ['com.google.android.gms','com.google.android.setupwizard','com.google.android.googlequicksearchbox',
++                    'com.android.chrome','com.google.android.youtube','com.google.android.apps.messaging',
++                    'com.google.android.apps.youtube.music','com.google.android.apps.maps','com.google.android.calendar',
++                    'com.google.android.videos','com.google.android.apps.photos','com.google.android.gm','com.google.android.ims',
++                    'com.google.android.projection.gearhead','com.google.android.apps.nexuslauncher']:
++        adb('shell','pm','disable-user','--user','0',package,check=False)
++    host=a.inputs/'release-host/host.apk';adb('install','-r',host)
++    adb('push',host,'/data/local/tmp/wanxiang-host.apk')
++    adb('shell','pm','grant',HOST,'android.permission.WRITE_SECURE_SETTINGS')
++    (a.output/'properties.txt').write_text(adb('shell','getprop'))
++    raw=a.output.parent/'release-fixture';raw.mkdir(exist_ok=True)
++    with zipfile.ZipFile(a.inputs/'fixture.zip') as z:
++        assert all(not Path(n).is_absolute() and '..' not in Path(n).parts for n in z.namelist())
++        z.extractall(raw)
++    target=f'/sdcard/Android/data/{PACKAGE}/files/data/rime'
++    points={}
++    for label in PRODUCTS:
++        out=a.output/('calibration-'+label);out.mkdir()
++        adb('shell','run-as',HOST,'sh','-c',shlex.quote('rm -f files/calibration-*.json files/calibration-*.png files/candidate-editor.json'))
++        apk=a.inputs/(label+'.apk')
++        assert hashlib.sha256(apk.read_bytes()).hexdigest()==pins['products'][label]['asset']['digest'].removeprefix('sha256:')
++        install(apk);adb('shell','mkdir','-p',target);adb('push',str(raw)+'/.',target);owner(target);select_rime_profile(target)
++        adb('logcat','-c');start();time.sleep(2)
++        response=chinese_subtype();(out/'subtypes.txt').write_text(response)
++        # UiAutomator's active root can omit the IME. The auxiliary observer
++        # captures all interactive windows; custom-drawn keys may still expose
++        # no text. Fall back only to stock geometry, then verify real commits.
++        all_nodes=nodes()
++        (out/'startup-logcat.txt').write_text(adb('logcat','-d','-v','threadtime'))
++        (out/'data-directories.txt').write_text(adb('shell','find',f'/sdcard/Android/data/{PACKAGE}/files','-maxdepth','4','-type','d',check=False))
++        for name in ['calibration-ui.json','calibration-ui.png']:
++            r=sp.run(['adb','exec-out','run-as',HOST,'cat','files/'+name],capture_output=True)
++            if r.returncode==0:(out/name).write_bytes(r.stdout)
++        # Choose the actual Rime Android subtype, without any synthetic engine key warmup.
++        response=chinese_subtype();(out/'subtypes.txt').write_text(response)
++        time.sleep(1)
++        # First deployment compiles the full base dictionary under ARM64
++        # translation. It is setup, not a timed candidate trial. Do not send
++        # calibration keys while the product is visibly still deploying.
++        deadline=time.monotonic()+600
++        while time.monotonic()<deadline:
++            pid=adb('shell','pidof',PACKAGE,check=False)
++            maps=adb('shell','cat','/proc/'+pid.split()[0]+'/maps',check=False) if pid else ''
++            if 'wanxiang-lts-zh-hans.gram' in maps:break
++            time.sleep(3)
++        (out/'deployment-logcat.txt').write_text(adb('logcat','-d','-v','threadtime'))
++        all_nodes=nodes();keys,rows=keyboard_geometry(all_nodes)
++        (out/'layout-geometry.json').write_text(json.dumps({'rows':rows,'points':keys},indent=2))
++        response=adb('shell',shlex.join(['am','instrument','-w','-e','package',PACKAGE,
++            '-e','points',json.dumps(keys,separators=(',',':')),HOST+'/.Calibrate']),timeout=900)
++        (out/'calibration-instrumentation.txt').write_text(response)
++        (out/'calibration-logcat.txt').write_text(adb('logcat','-d','-v','threadtime'))
++        for name in ['calibration-data.json','calibration-candidates.png','calibration-editor.png','calibration-phrase.png','calibration-failure.png','candidate-editor.json']:
++            r=sp.run(['adb','exec-out','run-as',HOST,'cat','files/'+name],capture_output=True)
++            signature=b'{' if name.endswith('.json') else b'\x89PNG\r\n\x1a\n'
++            if r.returncode==0 and r.stdout.startswith(signature):(out/name).write_bytes(r.stdout)
++        assert 'INSTRUMENTATION_RESULT: status=ok' in response,response
++        calibrated=json.loads((out/'calibration-data.json').read_text())
++        assert calibrated['text']=='你早上好',(label,calibrated)
++        keys=calibrated['points']
++        pid=adb('shell','pidof',PACKAGE).split()[0];maps=adb('shell','cat','/proc/'+pid+'/maps')
++        assert ('libFcitx5Core.so' in maps)==(label=='fcitx')
++        assert 'wanxiang-lts-zh-hans.gram' in maps and 'libndk_translation.so' in maps
++        (out/'maps.txt').write_text(maps);(out/'logcat.txt').write_text(adb('logcat','-d','-v','threadtime'))
++        (out/'user.yaml').write_text(adb('shell','cat',target+'/user.yaml'))
++        (out/'effective-schema.yaml').write_text(adb('shell','cat',target+'/build/wanxiang.schema.yaml'))
++        points[label]=keys
++        adb('shell','am','force-stop',PACKAGE)
++        # Preserve the complete deployed state, including user.yaml's generated
++        # fingerprint/build time and shared YAML mtimes. A reinstall recreates
++        # shared assets; restoring only external data invalidates deployment.
++        # Each trial gets the same two-word calibration learning trajectory.
++        captured=adb('shell',f'CLASSPATH=/data/local/tmp/wanxiang-host.apk app_process / {HOST}.FileTimes capture {target} {ASSETS}/usr {ASSETS}/descriptor.json /data/local/tmp/{label}-times.json')
++        assert 'CAPTURED ' in captured,captured
++        (out/'prepared-times.json').write_text(adb('shell','cat',f'/data/local/tmp/{label}-times.json'))
++        adb('shell',f'tar cf /data/local/tmp/{label}-profile.tar -C {target} .')
++        adb('shell',f'tar cf /data/local/tmp/{label}-assets.tar -C {ASSETS} usr descriptor.json')
++        (out/'prepared-assets.txt').write_text(adb('shell',f'tar tf /data/local/tmp/{label}-assets.tar'))
++    (a.output/'points.json').write_text(json.dumps(points,indent=2))
++    records=[];failures=[];trials=a.trials;rounds=a.rounds
++    cases=[c for c in [('ni','ni','你'),('phrase','zaoshanghao','早上好')] if a.case=='both' or c[0]==a.case]
++    for trial in range(trials):
++        for case,sequence,word in cases:
++            ordered=product_order(trial,3 if case=='phrase' else 0)
++            for label in ordered:
++                out=a.output/f'{trial:02d}-{case}-{label}';out.mkdir()
++                install(a.inputs/(label+'.apk'));adb('shell','mkdir','-p',target)
++                adb('shell',f'tar xf /data/local/tmp/{label}-profile.tar -C {target}');owner(target);select_rime_profile(target)
++                adb('shell',f'tar xf /data/local/tmp/{label}-assets.tar -C {ASSETS}');owner(ASSETS)
++                restored=adb('shell',f'CLASSPATH=/data/local/tmp/wanxiang-host.apk app_process / {HOST}.FileTimes restore /data/local/tmp/{label}-times.json')
++                assert 'RESTORED ' in restored,restored
++                (out/'restored-times.txt').write_text(restored)
++                adb('shell','am','force-stop',HOST);adb('shell','pm','clear',HOST)
++                # Common dexopt policy for the actual published APKs.
++                profile=adb('shell','am','broadcast','-a','androidx.profileinstaller.action.INSTALL_PROFILE','-n',PACKAGE+'/androidx.profileinstaller.ProfileInstallReceiver',check=False)
++                compile_result=adb('shell','cmd','package','compile','-f','-m','speed-profile',PACKAGE,check=False)
++                (out/'art.txt').write_text(profile+'\n'+compile_result)
++                # Select the same real Rime subtype after a fresh installation,
++                # then stop both processes. No synthetic word is typed. Timing
++                # still starts in new processes with prepared, warm file caches.
++                start();time.sleep(1);(out/'subtypes.txt').write_text(chinese_subtype())
++                adb('shell','am','force-stop',HOST)
++                adb('shell','am','force-stop',PACKAGE);selected_ime(PACKAGE);adb('logcat','-c')
++                command=['am','instrument','-w','-e','package',PACKAGE,'-e','points',json.dumps(points[label],separators=(',',':')),
++                         '-e','rounds',str(rounds),'-e','sequence',sequence,'-e','word',word,HOST+'/.Replay']
++                remote='/data/misc/perfetto-traces/release-control.perfetto-trace'
++                trace_config=f'''buffers {{ size_kb: 65536 fill_policy: RING_BUFFER }}
++duration_ms: 240000
++write_into_file: true
++file_write_period_ms: 1000
++flush_period_ms: 1000
++data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
++ ftrace_events: "sched/sched_switch"
++ ftrace_events: "sched/sched_waking"
++ atrace_categories: "view"
++ atrace_categories: "gfx"
++ atrace_categories: "input"
++ atrace_categories: "dalvik"
++ atrace_apps: "{PACKAGE}"
++ atrace_apps: "{HOST}"
++}} }} }}
++data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ proc_stats_poll_ms: 1000 }} }} }}
++'''
++                (out/'trace-config.txt').write_text(trace_config)
++                trace_pid=adb('shell','perfetto','--background-wait','--txt','-c','-','-o',remote,input=trace_config)
++                assert trace_pid.isdigit(),trace_pid
++                response=adb('shell',shlex.join(command),timeout=600);(out/'instrumentation.txt').write_text(response)
++                adb('shell','kill','-INT',trace_pid,check=False)
++                time.sleep(2)
++                adb('pull',remote,out/'run.perfetto-trace',check=False)
++                (out/'logcat.txt').write_text(adb('logcat','-d','-v','threadtime'))
++                for name in ['replay.json','fresh-editor.json','rebind-editor.json','fresh-candidates.png','rebind-candidates.png','fresh-editor.png','rebind-editor.png','failure.png']:
++                    r=sp.run(['adb','exec-out','run-as',HOST,'cat','files/'+name],capture_output=True)
++                    signature=b'{' if name.endswith('.json') else b'\x89PNG\r\n\x1a\n'
++                    if r.returncode==0 and r.stdout.startswith(signature):(out/name).write_bytes(r.stdout)
++                (out/'memory.txt').write_text(adb('shell','dumpsys','meminfo',PACKAGE))
++                try:
++                    replay=json.loads((out/'replay.json').read_text());assert not replay.get('failure'),replay.get('failure')
++                    measured=analysis.analyze(out,replay);assert len(measured)==rounds*2
++                    records.extend(dict(row,product=label,trial=trial,case=case) for row in measured)
++                    print('PASS release',trial,case,label,len(measured),flush=True)
++                except Exception as error:
++                    failures.append({'product':label,'trial':trial,'case':case,'error':str(error)})
++                    print('FAIL release',trial,case,label,str(error),flush=True)
++                (a.output/'records.json').write_text(json.dumps(records,indent=2))
++                (a.output/'failures.json').write_text(json.dumps(failures,indent=2))
++                if len(failures)>=2 and not records:
++                    raise RuntimeError('Both initial products failed validation; stopping this unproductive matrix. See failures.json.')
++    groups={}
++    for label in PRODUCTS:
++        groups[label]={}
++        for case in ['ni','phrase']:
++            for phase in ['fresh','rebind']:
++                for kind in ['first','warm']:
++                    rows=[r for r in records if r['product']==label and r['case']==case and r['phase']==phase and (r['round']==0)==(kind=='first')]
++                    groups[label][f'{case}_{phase}_{kind}']={m:analysis.describe([r[m] for r in rows]) for m in ['down_to_ic_ms','up_to_ic_ms','up_to_edit_ms','up_to_draw_ms']}
++    summary={'trials':trials,'rounds':rounds,'case':a.case,'products':groups,'failures':failures,
++             'method':'Actual published ARM64 APKs via API30 native bridge; external UP to independent editor; common stable-window guard and 1000ms post-key settle; prepared profile and OS caches, not storage-cold or phone timings.'}
++    (a.output/'summary.json').write_text(json.dumps(summary,indent=2))
++    assert not failures,failures
++
++if __name__=='__main__':main()
+-- 
+2.52.0
+
+
+From 91d6bfb39c564b6fa40bc9faf8fa4b844d9854d0 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:34:58 +0000
+Subject: [PATCH 07/11] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=BD=92=E5=9B=A0):?=
+ =?UTF-8?q?=20=E4=BF=9D=E5=AD=98=E5=A4=8D=E7=AE=97=20SQL=E3=80=81=E7=BA=BF?=
+ =?UTF-8?q?=E7=A8=8B=E7=8A=B6=E6=80=81=E4=B8=8E=E7=95=8C=E9=9D=A2=E7=AD=89?=
+ =?UTF-8?q?=E5=BE=85=E5=B9=B6=E4=BF=AE=E5=A4=8D=20trace=20=E5=90=AF?=
+ =?UTF-8?q?=E5=8A=A8?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../analyze-trace.py                          | 51 +++++++++++++--
+ .../release-control.py                        |  4 +-
+ .../summarize-traces.py                       | 64 +++++++++++++++++++
+ 3 files changed, 113 insertions(+), 6 deletions(-)
+ create mode 100644 tools/latency-investigation-20261111/summarize-traces.py
+
+diff --git a/tools/latency-investigation-20261111/analyze-trace.py b/tools/latency-investigation-20261111/analyze-trace.py
+index 4ed0bde1..9d6c52af 100644
+--- a/tools/latency-investigation-20261111/analyze-trace.py
++++ b/tools/latency-investigation-20261111/analyze-trace.py
+@@ -21,6 +21,15 @@ def main():
+     p.add_argument('--kind',choices=['candidate','repeat'],required=True)
+     p.add_argument('--output',type=Path,required=True)
+     a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
++    sql_dir=a.output/'queries';sql_dir.mkdir(exist_ok=True)
++    def recorded_query(name,sql):
++        (sql_dir/(name+'.sql')).write_text(sql.strip()+'\n')
++        return query(a.processor,a.trace,sql)
++    def save_csv(name,result):
++        if result:
++            with (a.output/(name+'.csv')).open('w') as f:
++                writer=csv.DictWriter(f,fieldnames=list(result[0]),lineterminator='\n')
++                writer.writeheader();writer.writerows(result)
+     queries={
+       'slices':'''SELECT s.id,s.ts,s.dur,s.name,s.parent_id,t.utid,t.tid,t.name AS thread_name,
+                  p.pid,p.name AS process_name FROM slice s
+@@ -47,10 +56,8 @@ def main():
+     }
+     tables={}
+     for name,sql in queries.items():
+-        result=query(a.processor,a.trace,sql);tables[name]=result
+-        if result:
+-            with (a.output/(name+'.csv')).open('w') as f:
+-                writer=csv.DictWriter(f,fieldnames=list(result[0]));writer.writeheader();writer.writerows(result)
++        result=recorded_query(name,sql);tables[name]=result
++        save_csv(name,result)
+     slices=[]
+     for row in tables['slices']:
+         converted=dict(row)
+@@ -60,6 +67,7 @@ def main():
+     native=[row for row in slices if row['name'].startswith('rime.direct.')]
+     assert native,'No native Rime slices: cannot attribute costs from empty traces'
+     sched=[(int(s['ts']),int(s['dur']),int(s['utid'])) for s in tables['sched'] if int(s['dur'])>0]
++    states=[(int(s['ts']),int(s['dur']),int(s['utid']),s['state']) for s in tables['thread_states']]
+     def core_cpu_ms(row):
+         start,end=row['ts'],row['ts']+row['dur']
+         return sum(max(0,min(end,ts+dur)-max(start,ts)) for ts,dur,utid in sched if utid==row['utid'])/1e6
+@@ -94,9 +102,42 @@ def main():
+             after_native_to_endpoint_ms=(anchor['end_ns']-max(c['ts']+c['dur'] for c in (selected or core)))/1e6 if core else None,
+             selected_native_wall_ms=sum(c['dur'] for c in selected)/1e6,
+             longest_core=primary[0] if primary else None)
++        state_ns={}
++        for core_row in core:
++            start,end=core_row['ts'],core_row['ts']+core_row['dur']
++            for ts,dur,utid,state in states:
++                overlap=max(0,min(end,ts+dur)-max(start,ts)) if utid==core_row['utid'] else 0
++                if overlap:state_ns[state]=state_ns.get(state,0)+overlap
++        row['core_thread_state_ms']={k:v/1e6 for k,v in state_ns.items()}
++        if anchor['kind']=='n' and anchor['round']==1 and primary:
++            first=primary[0];start,end=first['ts'],first['ts']+first['dur']
++            name='first-core-system-sched'
++            sql=f'''SELECT t.tid,t.name AS thread,p.pid,p.name AS process,s.priority,
++                SUM(MIN(s.ts+s.dur,{end})-MAX(s.ts,{start}))/1000000.0 AS cpu_ms
++                FROM sched s JOIN thread t USING(utid) LEFT JOIN process p USING(upid)
++                WHERE s.dur>0 AND s.ts<{end} AND s.ts+s.dur>{start}
++                GROUP BY t.utid,s.priority ORDER BY cpu_ms DESC'''
++            save_csv(name,recorded_query(name,sql))
+         associated.append(row)
++    input_waits=[]
++    if a.kind=='candidate':
++        for i,round_data in enumerate(source['ime']['rounds']):
++            for key in ['n','i','select']:
++                event=round_data[key];start,end=event['inject_up_ns'],event['dispatch_up_ns']
++                wait=dict(round=i+1,key=key,start_ns=start,end_ns=end,wait_ms=(end-start)/1e6)
++                input_waits.append(wait)
++                if end-start>8e6:
++                    name=f'input-wait-r{i+1}-{key}'
++                    sql=f'''SELECT s.id,s.ts,s.dur,s.name,t.tid,t.name AS thread,p.pid,
++                        p.name AS process FROM slice s JOIN thread_track tt ON s.track_id=tt.id
++                        JOIN thread t ON tt.utid=t.utid JOIN process p ON t.upid=p.upid
++                        WHERE s.dur>0 AND t.tid=p.pid AND s.ts<{end} AND s.ts+s.dur>{start}
++                        AND p.upid IN (SELECT DISTINCT t2.upid FROM slice a
++                        JOIN thread_track tt2 ON a.track_id=tt2.id JOIN thread t2 ON tt2.utid=t2.utid
++                        WHERE a.name GLOB 'rime.direct.*') ORDER BY s.ts,s.dur DESC'''
++                    save_csv(name,recorded_query(name,sql))
+     result={'trace':a.trace.name,'data':a.data.name,'kind':a.kind,'bounds':tables['bounds'],
+-        'trace_stats':tables['loss'],'native_slices':len(native),'anchors':associated,
++        'trace_stats':tables['loss'],'native_slices':len(native),'anchors':associated,'input_waits':input_waits,
+         'missing_native_anchors':[{key:r[key] for key in ['phase','round','kind']} for r in associated if not r['core_calls']]}
+     (a.output/'associated.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+     print(json.dumps({'trace':a.trace.name,'anchors':len(associated),'missing':result['missing_native_anchors'],'trace_stats':result['trace_stats']}))
+diff --git a/tools/latency-investigation-20261111/release-control.py b/tools/latency-investigation-20261111/release-control.py
+index a7d587a1..7a8bf237 100644
+--- a/tools/latency-investigation-20261111/release-control.py
++++ b/tools/latency-investigation-20261111/release-control.py
+@@ -227,7 +227,9 @@ data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
+ data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ proc_stats_poll_ms: 1000 }} }} }}
+ '''
+                 (out/'trace-config.txt').write_text(trace_config)
+-                trace_pid=adb('shell','perfetto','--background-wait','--txt','-c','-','-o',remote,input=trace_config)
++                trace_start=sp.run(['adb','shell','perfetto','--background-wait','--txt','-c','-','-o',remote],
++                    input=trace_config,capture_output=True,text=True,check=True,timeout=30)
++                trace_pid=trace_start.stdout.strip()
+                 assert trace_pid.isdigit(),trace_pid
+                 response=adb('shell',shlex.join(command),timeout=600);(out/'instrumentation.txt').write_text(response)
+                 adb('shell','kill','-INT',trace_pid,check=False)
+diff --git a/tools/latency-investigation-20261111/summarize-traces.py b/tools/latency-investigation-20261111/summarize-traces.py
+new file mode 100644
+index 00000000..b47079ce
+--- /dev/null
++++ b/tools/latency-investigation-20261111/summarize-traces.py
+@@ -0,0 +1,64 @@
++"""Summarize per-event trace associations; never merge with untraced benchmarks."""
++import argparse
++import csv
++import json
++from pathlib import Path
++import statistics
++
++
++def describe(values):
++    return dict(n=len(values),median=statistics.median(values),min=min(values),max=max(values))
++
++
++def load(path,expected):
++    data=json.loads(path.read_text())
++    assert not data['missing_native_anchors'],path
++    assert not data['trace_stats'],path
++    assert len(data['anchors'])==expected,path
++    assert all(row['core_calls']==1 for row in data['anchors']),path
++    return data
++
++
++def repeat(data):
++    result={}
++    for phase in ['fresh','rebind']:
++        rows=[r for r in data['anchors'] if r['phase']==phase]
++        result[phase]={metric:describe([r[metric] for r in rows]) for metric in
++            ['total_up_ms','core_wall_ms','core_cpu_ms','snapshot_ms']}
++        result[phase]['selected_rounds']={str(index):next(r for r in rows if r['round']==index)
++            for index in [1,4,8,16]}
++        result[phase]['max_core']=max(rows,key=lambda r:r['core_wall_ms'])
++        result[phase]['max_total']=max(rows,key=lambda r:r['total_up_ms'])
++    return result
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--evidence',type=Path,required=True)
++    parser.add_argument('--output',type=Path,required=True)
++    args=parser.parse_args();root=args.evidence
++    candidates=[]
++    for index in range(1,4):
++        folder=root/f'candidate-analysis/process-{index}'
++        data=load(folder/'associated.json',12)
++        rows=[r for r in data['anchors'] if r['kind']=='n']
++        system=list(csv.DictReader((folder/'first-core-system-sched.csv').open()))
++        waits=[]
++        for wait in data['input_waits']:
++            if wait['wait_ms']<=8:continue
++            overlap=list(csv.DictReader((folder/f"input-wait-r{wait['round']}-{wait['key']}.csv").open()))
++            waits.append(dict(wait,overlap=overlap))
++        candidates.append(dict(process=index,first_n=rows[0],warm_n_cpu=describe([r['core_cpu_ms'] for r in rows[1:]]),
++            first_n_system_cpu=system,input_waits_over_8ms=waits,
++            select_inject_to_dispatch=describe([r['wait_ms'] for r in data['input_waits'] if r['key']=='select'])))
++    result={'method':'Traced attribution only; individual ordered timestamps, not subtracted percentiles.',
++        'candidate':candidates,'debug_repeat':{case:repeat(load(root/f'repeat-analysis/{case}/associated.json',32))
++            for case in ['ni','phrase']}}
++    release=root/'release-analysis/associated.json'
++    if release.exists():result['release_control']=repeat(load(release,32))
++    args.output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
++    print(json.dumps({'candidate_anchors':36,'debug_repeat_anchors':64,
++        'release_control_anchors':32 if release.exists() else 0,'trace_loss':0}))
++
++
++if __name__=='__main__':main()
+-- 
+2.52.0
+
+
+From 36db7ef95200890b9dda9aa42d6dae05c57c413f Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:38:31 +0000
+Subject: [PATCH 08/11] =?UTF-8?q?=E6=96=87=E6=A1=A3(=E6=B5=8B=E8=AF=95):?=
+ =?UTF-8?q?=20=E6=98=8E=E7=A1=AE=E8=BF=BD=E8=B8=AA=E8=BE=B9=E7=95=8C?=
+ =?UTF-8?q?=E3=80=81=E6=AD=A3=E5=BC=8F=E5=8C=85=E5=8D=95=E9=A1=B9=E5=AF=B9?=
+ =?UTF-8?q?=E7=85=A7=E4=B8=8E=E7=A6=BB=E7=BA=BF=E5=A4=8D=E7=AE=97?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../latency-investigation-20261111/README.md  | 27 ++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/tools/latency-investigation-20261111/README.md b/tools/latency-investigation-20261111/README.md
+index 6058f3cb..bf223265 100644
+--- a/tools/latency-investigation-20261111/README.md
++++ b/tools/latency-investigation-20261111/README.md
+@@ -1,7 +1,9 @@
+ # 2026-11-11 输入延迟定向调查
+ 
+-仅调查当前默认分支冻结源码 0380d70f 对应的同一份 Debug APK；从构建
++调查当前默认分支冻结源码 0380d70f 对应的同一份 Debug APK；从构建
+ 43015193478 恢复 current.apk / current-tests.apk，逐一校验原始六包摘要。
++release 单项另使用原输入中的官方签名 ARM64 正式包 090a43e1，校验其原摘要；
++090→038 的应用/SDK/构建树一致，仅三份根说明不同。没有重建或重签正式包。
+ 固定方案、模型、两份用户 YAML 沿用正式批次 43018095886，不下载浮动 LTS。
+ 
+ 不改变应用代码、SDK、引擎、现有 AndroidTest 的字节或正式报告原始记录。
+@@ -12,9 +14,32 @@
+ - repeat：独立宿主真实输入 ni/zaoshanghao，每个编辑器16次候选点选，并离开
+   编辑器后返回再16次；观察第8次与第16次，区分固定位置、周期和末次效应。
+   先准备原 candidate-bench，并用你/早上好校准实际键盘位置；该校准不计时。
++  API35 ATD 没有 Settings，使用自己的 NoEditor；阶段性保存回调，失败也保留 trace。
++  应用事先启动以保证 Android15 绑定，fresh 是首编辑器而不是冷进程。
++- release：API30 Google x86_64 native bridge，复用原外部宿主 APK，不重建宿主；
++  仅当前正式包，单字1进程、每编辑器16次（共32次）。这是定位第8次的单项对照，
++  不重测旧 Fcitx/上次直连，也不与 Debug/x86 或原无 trace 批次混成提速结论。
++  默认 all 只含 candidate/repeat；release 必须显式选择。
+ 
+ trace 会影响绝对时间，因此这些数据只用于归因，不并入之前的无追踪性能表。
+ 以原始事件时间戳关联 native process_key / action_core / snapshot，分别核对
+ 回调入口之前、Rime调用、事件交付、编辑器IC和绘制，不能将独立分位数相加。
++CPU 取实际 sched 交集，按 native slice 的线程/UPID 识别进程（不能仅按可变进程名）；
++保存每个 SQL、线程状态、首键窗口的全系统调度和输入等待中的主线程 span。
++缺失 native 锚点或 trace 有丢失/错误时，汇总脚本拒绝把它当成有效归因。
++
++离线解析（官方 trace_processor v59.1）：
++
++```sh
++python3 tools/latency-investigation-20261111/analyze-trace.py \
++  --trace candidate/current-1.perfetto-trace --data candidate/current-1.json \
++  --kind candidate --processor /path/to/trace_processor --output candidate-analysis/process-1
++# process-2/3 同上。重复选词和正式包：--kind repeat，以 replay.json 为 --data。
++python3 tools/latency-investigation-20261111/summarize-traces.py \
++  --evidence /path/to/extracted-evidence --output derived.json
++```
++
++原始 trace 已含在 artifact ZIP；报告不重复提交展开 trace、APK、模型或分析器二进制。
++报告保存宿主失败批次与修复后的批次，不能用重试替换不利的有效应用样本。
+ 
+ 默认分支不操作；文档与新的原始证据归入现有 docs 报告 PR 的独立子目录。
+-- 
+2.52.0
+
+
+From 0c8ebf1829acfb860264b60cfe0093793149aecb Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:41:07 +0000
+Subject: [PATCH 09/11] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=85=BC=E5=AE=B9):?=
+ =?UTF-8?q?=20=E6=8C=89=20API30=20=E8=83=BD=E5=8A=9B=E5=90=AF=E5=8A=A8=20P?=
+ =?UTF-8?q?erfetto=20=E5=B9=B6=E5=9C=A8=E9=83=A8=E7=BD=B2=E5=89=8D?=
+ =?UTF-8?q?=E9=A2=84=E6=A3=80?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../release-control.py                        | 39 ++++++++++++++++---
+ 1 file changed, 34 insertions(+), 5 deletions(-)
+
+diff --git a/tools/latency-investigation-20261111/release-control.py b/tools/latency-investigation-20261111/release-control.py
+index 7a8bf237..e53eb5d4 100644
+--- a/tools/latency-investigation-20261111/release-control.py
++++ b/tools/latency-investigation-20261111/release-control.py
+@@ -82,6 +82,25 @@ def chinese_subtype():
+     start()
+     return response
+ 
++
++def start_trace(out,config,remote,flag):
++    (out/'trace-config.txt').write_text(config)
++    result=sp.run(['adb','shell','perfetto',flag,'--txt','-c','-','-o',remote],
++        input=config,capture_output=True,text=True,timeout=30)
++    (out/'trace-start.stdout.txt').write_text(result.stdout)
++    (out/'trace-start.stderr.txt').write_text(result.stderr)
++    assert result.returncode==0,(result.returncode,result.stdout,result.stderr)
++    pid=result.stdout.strip();assert pid.isdigit(),pid
++    # API30 lacks --background-wait; use its documented --background and
++    # observe streaming output before injecting any input.
++    deadline=time.monotonic()+10
++    while time.monotonic()<deadline:
++        size=adb('shell','stat','-c','%s',remote,check=False)
++        if size.isdigit() and int(size)>0:return pid
++        time.sleep(.25)
++    raise RuntimeError('Perfetto did not begin streaming: '+remote)
++
++
+ def main():
+     p = argparse.ArgumentParser(description=__doc__)
+     p.add_argument('--inputs', type=Path, required=True)
+@@ -98,6 +117,20 @@ def main():
+     assert adb('get-serialno').startswith('emulator-')
+     adb('root'); adb('wait-for-device')
+     assert 'arm64-v8a' in adb('shell','getprop','ro.product.cpu.abilist')
++    help_text=adb('shell','perfetto','--help',check=False)
++    (a.output/'perfetto-help.txt').write_text(help_text)
++    trace_flag='--background-wait' if '--background-wait' in help_text else '--background'
++    preflight=a.output/'trace-preflight';preflight.mkdir()
++    remote='/data/misc/perfetto-traces/release-preflight.perfetto-trace'
++    config='''buffers { size_kb: 4096 }
++duration_ms: 10000
++write_into_file: true
++file_write_period_ms: 1000
++data_sources { config { name: "linux.ftrace" ftrace_config { ftrace_events: "sched/sched_switch" } } }
++'''
++    trace_pid=start_trace(preflight,config,remote,trace_flag)
++    adb('shell','kill','-INT',trace_pid,check=False);time.sleep(1)
++    adb('pull',remote,preflight/'preflight.perfetto-trace')
+     adb('shell','wm','size','320x640');adb('shell','wm','density','160')
+     for ns,key,value in [('secure','show_ime_with_hard_keyboard','1'),('system','screen_off_timeout','1800000'),
+                          ('global','heads_up_notifications_enabled','0'),
+@@ -226,11 +259,7 @@ data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
+ }} }} }}
+ data_sources {{ config {{ name: "linux.process_stats" process_stats_config {{ proc_stats_poll_ms: 1000 }} }} }}
+ '''
+-                (out/'trace-config.txt').write_text(trace_config)
+-                trace_start=sp.run(['adb','shell','perfetto','--background-wait','--txt','-c','-','-o',remote],
+-                    input=trace_config,capture_output=True,text=True,check=True,timeout=30)
+-                trace_pid=trace_start.stdout.strip()
+-                assert trace_pid.isdigit(),trace_pid
++                trace_pid=start_trace(out,trace_config,remote,trace_flag)
+                 response=adb('shell',shlex.join(command),timeout=600);(out/'instrumentation.txt').write_text(response)
+                 adb('shell','kill','-INT',trace_pid,check=False)
+                 time.sleep(2)
+-- 
+2.52.0
+
+
+From a7a719f91fdde86c54ada422754991430a714fc1 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:44:07 +0000
+Subject: [PATCH 10/11] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=BD=92=E5=9B=A0):?=
+ =?UTF-8?q?=20=E5=90=8C=E6=97=B6=E8=AE=A1=E7=AE=97=E9=98=BB=E5=A1=9E?=
+ =?UTF-8?q?=E8=BE=93=E5=85=A5=E7=9A=84=E5=B8=83=E5=B1=80=20span=20?=
+ =?UTF-8?q?=E4=B8=BB=E7=BA=BF=E7=A8=8B=20CPU?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ tools/latency-investigation-20261111/analyze-trace.py | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/tools/latency-investigation-20261111/analyze-trace.py b/tools/latency-investigation-20261111/analyze-trace.py
+index 9d6c52af..c7754697 100644
+--- a/tools/latency-investigation-20261111/analyze-trace.py
++++ b/tools/latency-investigation-20261111/analyze-trace.py
+@@ -128,14 +128,17 @@ def main():
+                 input_waits.append(wait)
+                 if end-start>8e6:
+                     name=f'input-wait-r{i+1}-{key}'
+-                    sql=f'''SELECT s.id,s.ts,s.dur,s.name,t.tid,t.name AS thread,p.pid,
++                    sql=f'''SELECT s.id,s.ts,s.dur,s.name,t.utid,t.tid,t.name AS thread,p.pid,
+                         p.name AS process FROM slice s JOIN thread_track tt ON s.track_id=tt.id
+                         JOIN thread t ON tt.utid=t.utid JOIN process p ON t.upid=p.upid
+                         WHERE s.dur>0 AND t.tid=p.pid AND s.ts<{end} AND s.ts+s.dur>{start}
+                         AND p.upid IN (SELECT DISTINCT t2.upid FROM slice a
+                         JOIN thread_track tt2 ON a.track_id=tt2.id JOIN thread t2 ON tt2.utid=t2.utid
+                         WHERE a.name GLOB 'rime.direct.*') ORDER BY s.ts,s.dur DESC'''
+-                    save_csv(name,recorded_query(name,sql))
++                    overlap=recorded_query(name,sql)
++                    for item in overlap:
++                        item['cpu_ms']=core_cpu_ms({k:int(item[k]) for k in ['ts','dur','utid']})
++                    save_csv(name,overlap)
+     result={'trace':a.trace.name,'data':a.data.name,'kind':a.kind,'bounds':tables['bounds'],
+         'trace_stats':tables['loss'],'native_slices':len(native),'anchors':associated,'input_waits':input_waits,
+         'missing_native_anchors':[{key:r[key] for key in ['phase','round','kind']} for r in associated if not r['core_calls']]}
+-- 
+2.52.0
+
+
+From c780cf55ea2b23770bc2bbe8d063082d780fa7b2 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Wed, 11 Nov 2026 21:47:54 +0000
+Subject: [PATCH 11/11] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E8=AF=8A=E6=96=AD):?=
+ =?UTF-8?q?=20=E5=90=8C=E6=97=B6=E4=BF=9D=E7=95=99=E6=97=A7=E7=B3=BB?=
+ =?UTF-8?q?=E7=BB=9F=20Perfetto=20=E5=B8=AE=E5=8A=A9=E7=9A=84=E6=A0=87?=
+ =?UTF-8?q?=E5=87=86=E9=94=99=E8=AF=AF=E6=B5=81?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ tools/latency-investigation-20261111/release-control.py | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/tools/latency-investigation-20261111/release-control.py b/tools/latency-investigation-20261111/release-control.py
+index e53eb5d4..f6a68174 100644
+--- a/tools/latency-investigation-20261111/release-control.py
++++ b/tools/latency-investigation-20261111/release-control.py
+@@ -117,7 +117,8 @@ def main():
+     assert adb('get-serialno').startswith('emulator-')
+     adb('root'); adb('wait-for-device')
+     assert 'arm64-v8a' in adb('shell','getprop','ro.product.cpu.abilist')
+-    help_text=adb('shell','perfetto','--help',check=False)
++    help_result=sp.run(['adb','shell','perfetto','--help'],capture_output=True,text=True,timeout=30)
++    help_text=help_result.stdout+help_result.stderr
+     (a.output/'perfetto-help.txt').write_text(help_text)
+     trace_flag='--background-wait' if '--background-wait' in help_text else '--background'
+     preflight=a.output/'trace-preflight';preflight.mkdir()
+-- 
+2.52.0
+

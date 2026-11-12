@@ -1,0 +1,81 @@
+{
+  "repository": "SandyYuR/fcitx5-android",
+  "default_branch": "fx-rime-only",
+  "default_source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "code_pr": 32,
+  "code_branch": "fix/first-candidate-latency-20261112",
+  "code_head": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec",
+  "docs_pr": 31,
+  "docs_branch": "report/wanxiang-retest-20261108",
+  "measured_source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+  "runtime_source_comparison": {
+    "identical": true,
+    "paths": [
+      "app",
+      "direct-rime",
+      "native",
+      "build-logic",
+      "gradle",
+      "build.gradle.kts",
+      "settings.gradle.kts",
+      "gradle.properties"
+    ],
+    "generated_version_metadata_may_differ": true
+  },
+  "classified_commits": [
+    {
+      "sha": "0d9417b2b7fbd2c614191d5ac4151943d72831a1",
+      "scope": "candidate rendering, font measurement and regression",
+      "previous": [
+        "65d19c37",
+        "ac7045e2",
+        "015bde3a",
+        "4e28ceeb"
+      ]
+    },
+    {
+      "sha": "8f49edb08ac740f47a54bd072399383c4a1d2c2b",
+      "scope": "key result publication within existing interactive priority scope",
+      "previous": [
+        "4d77cd79"
+      ]
+    },
+    {
+      "sha": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec",
+      "scope": "continuous candidate device tests, reusable event association tool and README",
+      "previous": [
+        "tools archived from perf/investigate-input-latency-20261111; reusable subset only"
+      ]
+    }
+  ],
+  "cleanup": {
+    "state": "archive-prepared-before-deletion",
+    "remote_branches": [
+      {
+        "branch": "perf/wanxiang-latest-20261108",
+        "expected_tip": "178d5128a43b7949edb68d0f6e5fa98e8eb5c85c"
+      },
+      {
+        "branch": "perf/wanxiang-current-20261111",
+        "expected_tip": "1c050540ea95f5afe3674d438d1d3d04a9736e3c"
+      },
+      {
+        "branch": "perf/investigate-input-latency-20261111",
+        "expected_tip": "c780cf55ea2b23770bc2bbe8d063082d780fa7b2"
+      },
+      {
+        "branch": "perf/first-candidate-fix-20261112",
+        "expected_tip": "baf8d60ba0bd938dddb7fa2199e4493264b9a9c4"
+      }
+    ],
+    "precondition": "Source archives and measurements must be pushed to the docs PR before deleting any of these refs.",
+    "other_branches": "User engine variant branches and default branches are outside cleanup scope."
+  },
+  "workflow_states": {
+    "388119728": "disabled_manually",
+    "387536957": "disabled_manually"
+  },
+  "ci_evidence": "../../perf/candidate-latency-fix-2026-11-12/consolidated-source-ci.json",
+  "default_pushed_or_merged": false,
+  "historical_ci_deleted": false
+}

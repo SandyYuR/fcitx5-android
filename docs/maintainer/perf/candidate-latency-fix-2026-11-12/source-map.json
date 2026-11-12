@@ -1,0 +1,24 @@
+{
+  "measured_before": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "measured_after": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+  "review_head": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec",
+  "runtime_source_paths_identical": [
+    "app",
+    "direct-rime",
+    "native",
+    "build-logic",
+    "gradle",
+    "build.gradle.kts",
+    "settings.gradle.kts",
+    "gradle.properties"
+  ],
+  "generated_version_metadata_may_differ": true,
+  "note": "Consolidated history and permanent test/tool changes do not relabel the original measured APK. The complete measured source and commit series are preserved in the branch archive.",
+  "consolidated_validation": {
+    "head": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec",
+    "check_runs": "consolidated-source-ci.json",
+    "all_reported_checks_completed_success": true,
+    "performance_rerun": false,
+    "note": "Only validation and documentation/tool consolidation followed the measured source. Generated version metadata differs; do not relabel the historical measured APK."
+  }
+}

@@ -4,6 +4,7 @@
 
 | 主题 | 内容 |
 | --- | --- |
+| [Rime 直连架构与职责](direct-rime-architecture.md) | owner、生命周期、按键/事件链路、候选目标、维护和缓存边界 |
 | [正确性约束与代码定位](correctness-contracts.md) | 输入队列、前端渲染、布局兼容、数据保护与症状定位 |
 | [ClipCascade 接收限额](clipcascade-receive-limits.md) | WebSocket 帧、分片、堆预算、TLS 与代理兼容性 |
 | [自定义 hosts 下载任务](hosts-downloads.md) | 持久任务、断点续传、取消和 MediaStore 发布恢复 |

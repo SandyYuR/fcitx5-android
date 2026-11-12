@@ -1,0 +1,594 @@
+{
+  "method": "Same VM per order, three untraced fresh processes per product; two VM orders. One traced fresh process/product/VM is separate attribution, not merged into performance tables. Composite first-word measure includes probe polling and injection pauses; not a real typing speed.",
+  "untraced_records": [
+    {
+      "order": "before,after",
+      "product": "before",
+      "file": "before-1.json",
+      "n_up_to_preedit_ms": 79.757287,
+      "first_i_inject_to_dispatch_ms": 21.731915,
+      "select_external_up_to_ic_ms": 17.45311,
+      "select_external_up_to_edit_ms": 29.607182,
+      "select_dispatch_up_to_edit_ms": 29.056955,
+      "n_down_to_first_word_edit_ms": 430.092889
+    },
+    {
+      "order": "before,after",
+      "product": "before",
+      "file": "before-2.json",
+      "n_up_to_preedit_ms": 75.767707,
+      "first_i_inject_to_dispatch_ms": 0.414313,
+      "select_external_up_to_ic_ms": 10.73266,
+      "select_external_up_to_edit_ms": 15.441067,
+      "select_dispatch_up_to_edit_ms": 14.949518,
+      "n_down_to_first_word_edit_ms": 417.370202
+    },
+    {
+      "order": "before,after",
+      "product": "before",
+      "file": "before-3.json",
+      "n_up_to_preedit_ms": 61.999389,
+      "first_i_inject_to_dispatch_ms": 53.581149,
+      "select_external_up_to_ic_ms": 4.465122,
+      "select_external_up_to_edit_ms": 8.707198,
+      "select_dispatch_up_to_edit_ms": 8.295781,
+      "n_down_to_first_word_edit_ms": 392.913533
+    },
+    {
+      "order": "before,after",
+      "product": "after",
+      "file": "after-1.json",
+      "n_up_to_preedit_ms": 32.507353,
+      "first_i_inject_to_dispatch_ms": 0.732427,
+      "select_external_up_to_ic_ms": 6.828132,
+      "select_external_up_to_edit_ms": 24.019073,
+      "select_dispatch_up_to_edit_ms": 23.495887,
+      "n_down_to_first_word_edit_ms": 391.868034
+    },
+    {
+      "order": "before,after",
+      "product": "after",
+      "file": "after-2.json",
+      "n_up_to_preedit_ms": 75.199211,
+      "first_i_inject_to_dispatch_ms": 77.800956,
+      "select_external_up_to_ic_ms": 6.762035,
+      "select_external_up_to_edit_ms": 8.664946,
+      "select_dispatch_up_to_edit_ms": 7.882205,
+      "n_down_to_first_word_edit_ms": 385.708668
+    },
+    {
+      "order": "before,after",
+      "product": "after",
+      "file": "after-3.json",
+      "n_up_to_preedit_ms": 64.640756,
+      "first_i_inject_to_dispatch_ms": 51.953011,
+      "select_external_up_to_ic_ms": 4.796411,
+      "select_external_up_to_edit_ms": 11.721544,
+      "select_dispatch_up_to_edit_ms": 11.174253,
+      "n_down_to_first_word_edit_ms": 382.423556
+    },
+    {
+      "order": "after,before",
+      "product": "before",
+      "file": "before-1.json",
+      "n_up_to_preedit_ms": 31.496763,
+      "first_i_inject_to_dispatch_ms": 51.837726,
+      "select_external_up_to_ic_ms": 13.04039,
+      "select_external_up_to_edit_ms": 19.3934,
+      "select_dispatch_up_to_edit_ms": 18.797826,
+      "n_down_to_first_word_edit_ms": 325.742044
+    },
+    {
+      "order": "after,before",
+      "product": "before",
+      "file": "before-2.json",
+      "n_up_to_preedit_ms": 39.715173,
+      "first_i_inject_to_dispatch_ms": 0.472259,
+      "select_external_up_to_ic_ms": 7.342215,
+      "select_external_up_to_edit_ms": 18.025176,
+      "select_dispatch_up_to_edit_ms": 17.35495,
+      "n_down_to_first_word_edit_ms": 302.663582
+    },
+    {
+      "order": "after,before",
+      "product": "before",
+      "file": "before-3.json",
+      "n_up_to_preedit_ms": 19.142103,
+      "first_i_inject_to_dispatch_ms": 0.549896,
+      "select_external_up_to_ic_ms": 4.711154,
+      "select_external_up_to_edit_ms": 12.169583,
+      "select_dispatch_up_to_edit_ms": 11.663012,
+      "n_down_to_first_word_edit_ms": 246.78661
+    },
+    {
+      "order": "after,before",
+      "product": "after",
+      "file": "after-1.json",
+      "n_up_to_preedit_ms": 25.379669,
+      "first_i_inject_to_dispatch_ms": 0.361313,
+      "select_external_up_to_ic_ms": 5.797646,
+      "select_external_up_to_edit_ms": 20.571599,
+      "select_dispatch_up_to_edit_ms": 20.277898,
+      "n_down_to_first_word_edit_ms": 270.298003
+    },
+    {
+      "order": "after,before",
+      "product": "after",
+      "file": "after-2.json",
+      "n_up_to_preedit_ms": 45.833131,
+      "first_i_inject_to_dispatch_ms": 42.508518,
+      "select_external_up_to_ic_ms": 14.096726,
+      "select_external_up_to_edit_ms": 17.581298,
+      "select_dispatch_up_to_edit_ms": 9.07098,
+      "n_down_to_first_word_edit_ms": 226.755002
+    },
+    {
+      "order": "after,before",
+      "product": "after",
+      "file": "after-3.json",
+      "n_up_to_preedit_ms": 36.318575,
+      "first_i_inject_to_dispatch_ms": 37.119256,
+      "select_external_up_to_ic_ms": 4.267758,
+      "select_external_up_to_edit_ms": 6.330916,
+      "select_dispatch_up_to_edit_ms": 6.053189,
+      "n_down_to_first_word_edit_ms": 242.188134
+    }
+  ],
+  "untraced_summary": {
+    "before,after": {
+      "before": {
+        "n_up_to_preedit_ms": {
+          "n": 3,
+          "median": 75.767707,
+          "min": 61.999389,
+          "max": 79.757287
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 3,
+          "median": 21.731915,
+          "min": 0.414313,
+          "max": 53.581149
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 3,
+          "median": 10.73266,
+          "min": 4.465122,
+          "max": 17.45311
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 3,
+          "median": 15.441067,
+          "min": 8.707198,
+          "max": 29.607182
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 3,
+          "median": 14.949518,
+          "min": 8.295781,
+          "max": 29.056955
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 3,
+          "median": 417.370202,
+          "min": 392.913533,
+          "max": 430.092889
+        }
+      },
+      "after": {
+        "n_up_to_preedit_ms": {
+          "n": 3,
+          "median": 64.640756,
+          "min": 32.507353,
+          "max": 75.199211
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 3,
+          "median": 51.953011,
+          "min": 0.732427,
+          "max": 77.800956
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 3,
+          "median": 6.762035,
+          "min": 4.796411,
+          "max": 6.828132
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 3,
+          "median": 11.721544,
+          "min": 8.664946,
+          "max": 24.019073
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 3,
+          "median": 11.174253,
+          "min": 7.882205,
+          "max": 23.495887
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 3,
+          "median": 385.708668,
+          "min": 382.423556,
+          "max": 391.868034
+        }
+      }
+    },
+    "after,before": {
+      "before": {
+        "n_up_to_preedit_ms": {
+          "n": 3,
+          "median": 31.496763,
+          "min": 19.142103,
+          "max": 39.715173
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 3,
+          "median": 0.549896,
+          "min": 0.472259,
+          "max": 51.837726
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 3,
+          "median": 7.342215,
+          "min": 4.711154,
+          "max": 13.04039
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 3,
+          "median": 18.025176,
+          "min": 12.169583,
+          "max": 19.3934
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 3,
+          "median": 17.35495,
+          "min": 11.663012,
+          "max": 18.797826
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 3,
+          "median": 302.663582,
+          "min": 246.78661,
+          "max": 325.742044
+        }
+      },
+      "after": {
+        "n_up_to_preedit_ms": {
+          "n": 3,
+          "median": 36.318575,
+          "min": 25.379669,
+          "max": 45.833131
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 3,
+          "median": 37.119256,
+          "min": 0.361313,
+          "max": 42.508518
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 3,
+          "median": 5.797646,
+          "min": 4.267758,
+          "max": 14.096726
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 3,
+          "median": 17.581298,
+          "min": 6.330916,
+          "max": 20.571599
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 3,
+          "median": 9.07098,
+          "min": 6.053189,
+          "max": 20.277898
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 3,
+          "median": 242.188134,
+          "min": 226.755002,
+          "max": 270.298003
+        }
+      }
+    },
+    "all": {
+      "before": {
+        "n_up_to_preedit_ms": {
+          "n": 6,
+          "median": 50.857281,
+          "min": 19.142103,
+          "max": 79.757287
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 6,
+          "median": 11.1409055,
+          "min": 0.414313,
+          "max": 53.581149
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 6,
+          "median": 9.0374375,
+          "min": 4.465122,
+          "max": 17.45311
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 6,
+          "median": 16.7331215,
+          "min": 8.707198,
+          "max": 29.607182
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 6,
+          "median": 16.152234,
+          "min": 8.295781,
+          "max": 29.056955
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 6,
+          "median": 359.3277885,
+          "min": 246.78661,
+          "max": 430.092889
+        }
+      },
+      "after": {
+        "n_up_to_preedit_ms": {
+          "n": 6,
+          "median": 41.075853,
+          "min": 25.379669,
+          "max": 75.199211
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 6,
+          "median": 39.813887,
+          "min": 0.361313,
+          "max": 77.800956
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 6,
+          "median": 6.279840500000001,
+          "min": 4.267758,
+          "max": 14.096726
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 6,
+          "median": 14.651421,
+          "min": 6.330916,
+          "max": 24.019073
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 6,
+          "median": 10.1226165,
+          "min": 6.053189,
+          "max": 23.495887
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 6,
+          "median": 326.36077950000004,
+          "min": 226.755002,
+          "max": 391.868034
+        }
+      }
+    }
+  },
+  "traced": [
+    {
+      "order": "before,after",
+      "product": "before",
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 160068672456,
+        "up_ns": 160095712716,
+        "injection_up_ns": 160094912564,
+        "end_ns": 160150171366,
+        "total_up_ms": 54.45865,
+        "core_calls": 1,
+        "core_wall_ms": 38.84578,
+        "core_cpu_ms": 18.412489,
+        "snapshot_ms": 0.46059,
+        "core_first_after_up_ms": 12.880057,
+        "after_native_to_endpoint_ms": 2.732813,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 81391,
+          "ts": 160108592773,
+          "dur": 38845780,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 282,
+          "tid": 3763,
+          "thread_name": "rime-main",
+          "pid": 3707,
+          "process_name": "<pre-initialized>"
+        },
+        "core_thread_state_ms": {
+          "Running": 18.412489,
+          "R+": 0.08067,
+          "D": 0.201105,
+          "R": 20.151516
+        }
+      },
+      "candidate_layouts": [
+        {
+          "id": "82096",
+          "ts": "160166705478",
+          "dur": "14503517",
+          "name": "RV OnLayout",
+          "utid": "204",
+          "tid": "3707",
+          "pid": "3707",
+          "process": "<pre-initialized>",
+          "cpu_ms": 12.31021,
+          "wall_ms": 14.503517
+        }
+      ],
+      "max_layout_wall_ms": 14.503517,
+      "max_layout_cpu_ms": 12.31021
+    },
+    {
+      "order": "before,after",
+      "product": "after",
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 210367673198,
+        "up_ns": 210392207077,
+        "injection_up_ns": 210391209300,
+        "end_ns": 210463264563,
+        "total_up_ms": 71.057486,
+        "core_calls": 1,
+        "core_wall_ms": 58.86332,
+        "core_cpu_ms": 17.55009,
+        "snapshot_ms": 0.772972,
+        "core_first_after_up_ms": 10.033975,
+        "after_native_to_endpoint_ms": 2.160191,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 81824,
+          "ts": 210402241052,
+          "dur": 58863320,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 304,
+          "tid": 4195,
+          "thread_name": "rime-main",
+          "pid": 4131,
+          "process_name": "<pre-initialized>"
+        },
+        "core_thread_state_ms": {
+          "Running": 17.55009,
+          "R": 40.833831,
+          "R+": 0.346657,
+          "D": 0.132742
+        }
+      },
+      "candidate_layouts": [
+        {
+          "id": "82602",
+          "ts": "210483751655",
+          "dur": "12688708",
+          "name": "RV OnLayout",
+          "utid": "217",
+          "tid": "4131",
+          "pid": "4131",
+          "process": "<pre-initialized>",
+          "cpu_ms": 10.753688,
+          "wall_ms": 12.688708
+        }
+      ],
+      "max_layout_wall_ms": 12.688708,
+      "max_layout_cpu_ms": 10.753688
+    },
+    {
+      "order": "after,before",
+      "product": "before",
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 163242044232,
+        "up_ns": 163267258952,
+        "injection_up_ns": 163266812292,
+        "end_ns": 163296585517,
+        "total_up_ms": 29.326565,
+        "core_calls": 1,
+        "core_wall_ms": 18.419948,
+        "core_cpu_ms": 13.286119,
+        "snapshot_ms": 0.2864,
+        "core_first_after_up_ms": 5.82032,
+        "after_native_to_endpoint_ms": 5.086297,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 81108,
+          "ts": 163273079272,
+          "dur": 18419948,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 282,
+          "tid": 4155,
+          "thread_name": "rime-main",
+          "pid": 4101,
+          "process_name": "zygote64"
+        },
+        "core_thread_state_ms": {
+          "Running": 13.286119,
+          "R+": 0.00616,
+          "D": 0.108183,
+          "R": 5.019486
+        }
+      },
+      "candidate_layouts": [
+        {
+          "id": "81654",
+          "ts": "163308684825",
+          "dur": "16351693",
+          "name": "RV OnLayout",
+          "utid": "200",
+          "tid": "4101",
+          "pid": "4101",
+          "process": "zygote64",
+          "cpu_ms": 10.700497,
+          "wall_ms": 16.351693
+        }
+      ],
+      "max_layout_wall_ms": 16.351693,
+      "max_layout_cpu_ms": 10.700497
+    },
+    {
+      "order": "after,before",
+      "product": "after",
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 119976147507,
+        "up_ns": 120002220487,
+        "injection_up_ns": 120001314496,
+        "end_ns": 120046072442,
+        "total_up_ms": 43.851955,
+        "core_calls": 1,
+        "core_wall_ms": 34.413914,
+        "core_cpu_ms": 15.774365,
+        "snapshot_ms": 0.35322,
+        "core_first_after_up_ms": 8.001274,
+        "after_native_to_endpoint_ms": 1.436767,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 81182,
+          "ts": 120010221761,
+          "dur": 34413914,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 317,
+          "tid": 3731,
+          "thread_name": "rime-main",
+          "pid": 3681,
+          "process_name": "zygote64"
+        },
+        "core_thread_state_ms": {
+          "Running": 15.774365,
+          "D": 1.369958,
+          "R": 17.269591
+        }
+      },
+      "candidate_layouts": [
+        {
+          "id": "81687",
+          "ts": "120057782285",
+          "dur": "9840235",
+          "name": "RV OnLayout",
+          "utid": "249",
+          "tid": "3681",
+          "pid": "3681",
+          "process": "zygote64",
+          "cpu_ms": 7.218588,
+          "wall_ms": 9.840235
+        }
+      ],
+      "max_layout_wall_ms": 9.840235,
+      "max_layout_cpu_ms": 7.218588
+    }
+  ]
+}

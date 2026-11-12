@@ -1,0 +1,680 @@
+From 65d19c37b78cc8723120963365af4af69b41ff60 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 00:30:16 +0000
+Subject: [PATCH 1/5] =?UTF-8?q?=E4=BC=98=E5=8C=96(=E5=80=99=E9=80=89):=20?=
+ =?UTF-8?q?=E7=B2=BE=E7=AE=80=E9=A6=96=E6=AC=A1=E5=B8=83=E5=B1=80=E4=B8=8E?=
+ =?UTF-8?q?=E6=96=87=E5=AD=97=E6=B8=B2=E6=9F=93=E5=B9=B6=E6=8C=89=E9=9C=80?=
+ =?UTF-8?q?=E5=88=9B=E5=BB=BA=E8=A7=92=E6=A0=87?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../candidates/CandidateIndexBadgeTest.kt     |  7 +-
+ .../candidates/CandidateRenderingTest.kt      | 97 +++++++++++++++++++
+ .../fcitx5/android/input/AutoScaleTextView.kt | 45 +++++++--
+ .../input/candidates/CandidateItemUi.kt       | 47 +++++----
+ .../HorizontalCandidateComponent.kt           | 11 ++-
+ 5 files changed, 172 insertions(+), 35 deletions(-)
+ create mode 100644 app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt
+
+diff --git a/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateIndexBadgeTest.kt b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateIndexBadgeTest.kt
+index 763fac2c..3e44e908 100644
+--- a/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateIndexBadgeTest.kt
++++ b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateIndexBadgeTest.kt
+@@ -39,6 +39,7 @@ class CandidateIndexBadgeTest {
+     @Test
+     fun everyCornerKeepsBadgeInsidePaddingAndResetsOldMargins() = onMain {
+         val ui = candidateUi(CandidateWord("", "中", "", false), enableOverflow = true)
++        ui.setIndexBadge("init", CandidateIndexBadgePosition.BottomRight)
+         val badge = badge(ui)
+         for (number in NUMBERS) {
+             for (position in CandidateIndexBadgePosition.entries) {
+@@ -68,7 +69,7 @@ class CandidateIndexBadgeTest {
+                 for (candidate in candidates) {
+                     val ui = candidateUi(candidate, enableOverflow)
+                     layout(ui, wrapWidth)
+-                    assertEquals(View.GONE, badge(ui).visibility)
++                    assertEquals("disabled badge must not allocate a view", 1, ui.root.childCount)
+                     assertEquals(
+                         if (enableOverflow) AutoScaleTextView.Mode.None
+                         else AutoScaleTextView.Mode.Proportional,
+@@ -122,7 +123,7 @@ class CandidateIndexBadgeTest {
+             val candidates = Array(99) { CandidateWord("", "候选${it + 1}", "", false) }
+             adapter.updateCandidates(candidates, candidates.size)
+             adapter.onBindViewHolder(holder, 9)
+-            assertEquals(View.GONE, badge(holder.ui).visibility)
++            assertEquals("default badge must not allocate a view", 1, holder.ui.root.childCount)
+ 
+             adapter.setCandidateIndexBadgeEnabled(true)
+             for (number in NUMBERS) {
+@@ -176,7 +177,7 @@ class CandidateIndexBadgeTest {
+             styled.setSpan(AbsoluteSizeSpan(sp(12f).roundToInt(), false), start, end, flags)
+         }
+         text.text = styled
+-        badge(ui).typeface = Typeface.MONOSPACE
++        (ui.root.getChildAt(1) as? TextView)?.typeface = Typeface.MONOSPACE
+     }
+ 
+     private fun layout(ui: CandidateItemUi, wrapWidth: Boolean = false) {
+diff --git a/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt
+new file mode 100644
+index 00000000..9408f9ee
+--- /dev/null
++++ b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt
+@@ -0,0 +1,97 @@
++/*
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ * SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
++ */
++package org.fcitx.fcitx5.android.input.candidates
++
++import android.graphics.Typeface
++import android.text.SpannableString
++import android.text.Spanned
++import android.text.TextPaint
++import android.text.style.AbsoluteSizeSpan
++import android.text.style.ForegroundColorSpan
++import android.view.View
++import android.view.ViewGroup
++import androidx.test.platform.app.InstrumentationRegistry
++import org.fcitx.fcitx5.android.core.CandidateWord
++import org.fcitx.fcitx5.android.data.theme.ThemePreset
++import org.fcitx.fcitx5.android.input.AutoScaleTextView
++import org.junit.Assert.*
++import org.junit.Test
++import kotlin.math.ceil
++
++class CandidateRenderingTest {
++    private val instrumentation = InstrumentationRegistry.getInstrumentation()
++    private val context get() = instrumentation.targetContext
++
++    @Test fun plainAndCommentedCandidatesKeepTextColorsAcrossHighlightChanges() = onMain {
++        for (theme in listOf(ThemePreset.MaterialLight, ThemePreset.MaterialDark)) {
++            val ui = CandidateItemUi(context, theme, Typeface.MONOSPACE, Typeface.SERIF)
++            val text = (ui.root.getChildAt(0) as ViewGroup).getChildAt(0) as AutoScaleTextView
++            ui.updateCandidate(CandidateWord("1", "候选", "", false))
++            assertEquals("候选", text.text.toString())
++            assertFalse("plain candidates do not need spans", text.text is Spanned)
++            val original = text.text
++            ui.setActive(true)
++            assertSame("highlight must not replace plain text", original, text.text)
++            assertEquals(theme.genericActiveForegroundColor, text.currentTextColor)
++            ui.setActive(false)
++            assertEquals(theme.candidateTextColor, text.currentTextColor)
++
++            ui.updateCandidate(CandidateWord("1", "候选", "houxuan", true))
++            assertEquals("候选 houxuan", text.text.toString())
++            for (active in listOf(false, true, false)) {
++                ui.setActive(active)
++                val styled = text.text as Spanned
++                val color = styled.getSpans(3, styled.length, ForegroundColorSpan::class.java).single()
++                assertEquals(if (active) theme.genericActiveForegroundColor else theme.candidateCommentColor,
++                    color.foregroundColor)
++                assertEquals(if (active) theme.genericActiveForegroundColor else theme.candidateTextColor,
++                    text.currentTextColor)
++                assertEquals(1, styled.getSpans(3, styled.length, CustomTypefaceSpan::class.java).size)
++                assertEquals(1, styled.getSpans(3, styled.length, AbsoluteSizeSpan::class.java).size)
++            }
++        }
++    }
++
++    @Test fun replacingTypefaceRemeasuresTheSameCandidateText() = onMain {
++        val text = AutoScaleTextView(context).apply {
++            textSize = 32f
++            typeface = Typeface.MONOSPACE
++            text = "MMMMMMMM"
++        }
++        measure(text)
++        val before = text.measuredWidth
++        text.typeface = Typeface.SERIF
++        measure(text)
++        assertEquals(AutoScaleTextView.measureTextWidth(text.text, text.paint), text.measuredWidth)
++        assertNotEquals("fixture must distinguish the two typefaces", before, text.measuredWidth)
++    }
++
++    @Test fun spanMeasurementPreservesRunAdvancesAndDoesNotMutateBasePaint() = onMain {
++        val paint = TextPaint().apply { typeface = Typeface.MONOSPACE; textSize = 32f }
++        val text = SpannableString("word note").apply {
++            setSpan(ForegroundColorSpan(0xffaa0000.toInt()), 0, 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
++            setSpan(CustomTypefaceSpan(Typeface.SERIF), 5, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
++            setSpan(AbsoluteSizeSpan(16), 5, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
++        }
++        val comment = TextPaint(paint).apply { typeface = Typeface.SERIF; textSize = 16f }
++        val expected = ceil(paint.measureText("word") + paint.measureText(" ") +
++            comment.measureText("note")).toInt()
++        assertEquals(expected, AutoScaleTextView.measureTextWidth(text, paint))
++        assertEquals(32f, paint.textSize, 0f)
++        assertSame(Typeface.MONOSPACE, paint.typeface)
++    }
++
++    private fun measure(view: View) {
++        view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
++            View.MeasureSpec.makeMeasureSpec(80, View.MeasureSpec.EXACTLY))
++        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
++    }
++
++    private fun onMain(block: () -> Unit) {
++        var failure: Throwable? = null
++        instrumentation.runOnMainSync { try { block() } catch (error: Throwable) { failure = error } }
++        failure?.let { throw it }
++    }
++}
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt
+index c502efcb..386d20d9 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt
+@@ -23,13 +23,15 @@ import android.graphics.Typeface
+ import android.text.Spanned
+ import android.text.TextPaint
+ import android.text.style.CharacterStyle
++import android.text.style.MetricAffectingSpan
+ 
+ private inline fun forEachTextRun(
+     text: CharSequence,
+     paint: TextPaint,
++    plainText: String = text.toString(),
++    metricsOnly: Boolean = false,
+     block: (plainText: String, start: Int, end: Int, runPaint: TextPaint) -> Unit,
+ ) {
+-    val plainText = text.toString()
+     val spanned = text as? Spanned
+     if (spanned == null) {
+         block(plainText, 0, plainText.length, paint)
+@@ -38,10 +40,16 @@ private inline fun forEachTextRun(
+ 
+     var start = 0
+     while (start < plainText.length) {
++        // Keep the same shaping boundaries as drawTextWithSpans, including color-only runs.
+         val end = spanned.nextSpanTransition(start, plainText.length, CharacterStyle::class.java)
+-        val runPaint = TextPaint(paint)
+-        spanned.getSpans(start, end, CharacterStyle::class.java).forEach {
+-            it.updateDrawState(runPaint)
++        val spans = spanned.getSpans(start, end, CharacterStyle::class.java)
++        val needsRunPaint = spans.any { !metricsOnly || it is MetricAffectingSpan }
++        val runPaint = if (needsRunPaint) TextPaint(paint) else paint
++        spans.forEach {
++            if (metricsOnly) {
++                if (it is MetricAffectingSpan) it.updateMeasureState(runPaint)
++            }
++            else it.updateDrawState(runPaint)
+         }
+         block(plainText, start, end, runPaint)
+         start = end
+@@ -72,6 +80,13 @@ class AutoScaleTextView @JvmOverloads constructor(
+     }
+ 
+     var scaleMode = Mode.None
++        set(value) {
++            if (field == value) return
++            field = value
++            needsCalculateTransform = true
++            requestLayout()
++            invalidate()
++        }
+ 
+     // Keep a cached copy of the source text so that drawTextWithSpans can read
+     // CharacterStyle spans without re-allocating a String on every draw.
+@@ -93,7 +108,7 @@ class AutoScaleTextView @JvmOverloads constructor(
+             get() = FontProviders.fontTypefaceMap
+ 
+         /**
+-         * Measure the horizontal width using the same CharacterStyle runs as drawing.
++         * Measure the same runs as drawing, without copying paints just to apply colors.
+          * Single-code-point text keeps the existing ink-bounds behavior; longer text uses
+          * the sum of each run's advance so metric-affecting spans are accounted for.
+          */
+@@ -101,14 +116,14 @@ class AutoScaleTextView @JvmOverloads constructor(
+             val plainText = text.toString()
+             if (Character.codePointCount(plainText, 0, plainText.length) == 1) {
+                 val bounds = Rect()
+-                forEachTextRun(text, paint) { runText, start, end, runPaint ->
++                forEachTextRun(text, paint, plainText, metricsOnly = true) { runText, start, end, runPaint ->
+                     runPaint.getTextBounds(runText, start, end, bounds)
+                 }
+                 return bounds.width()
+             }
+ 
+             var width = 0.0f
+-            forEachTextRun(text, paint) { runText, start, end, runPaint ->
++            forEachTextRun(text, paint, plainText, metricsOnly = true) { runText, start, end, runPaint ->
+                 width += runPaint.measureText(runText, start, end)
+             }
+             return ceil(width).toInt()
+@@ -145,6 +160,18 @@ class AutoScaleTextView @JvmOverloads constructor(
+         needsCalculateTransform = true
+     }
+ 
++    override fun setTypeface(tf: Typeface?) {
++        val changed = typeface !== tf
++        super.setTypeface(tf)
++        if (changed) {
++            // This view measures/draws its own text; TextView's internal Layout is not our cache.
++            needsMeasureText = true
++            needsCalculateTransform = true
++            requestLayout()
++            invalidate()
++        }
++    }
++
+     override fun setText(charSequence: CharSequence?, bufferType: BufferType) {
+         // setText can be called from the super constructor; guard against the
+         // shadowed `text` field not yet being initialized by comparing safely.
+@@ -190,7 +217,7 @@ class AutoScaleTextView @JvmOverloads constructor(
+             val codePointCount = Character.codePointCount(plainText, 0, plainText.length)
+             if (codePointCount == 1) {
+                 // Keep actual ink bounds for one code point, applying any spans first.
+-                forEachTextRun(text, paint) { runText, start, end, runPaint ->
++                forEachTextRun(text, paint, plainText, metricsOnly = true) { runText, start, end, runPaint ->
+                     runPaint.getTextBounds(runText, start, end, textBounds)
+                 }
+             } else {
+@@ -313,7 +340,7 @@ class AutoScaleTextView @JvmOverloads constructor(
+ 
+     private fun drawTextWithSpans(canvas: Canvas, paint: TextPaint) {
+         var x = 0f
+-        forEachTextRun(text, paint) { runText, start, end, runPaint ->
++        forEachTextRun(text, paint, plainText) { runText, start, end, runPaint ->
+             canvas.drawText(runText, start, end, x, 0f, runPaint)
+             x += runPaint.measureText(runText, start, end)
+         }
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+index 8d9fb8f9..bbe79f94 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+@@ -117,15 +117,19 @@ class CandidateItemUi(
+         })
+     }
+ 
+-    private val indexBadge = view(::TextView) {
++    // The default bar has no badge. Do not construct/style a second TextView for every item.
++    private var indexBadge: TextView? = null
++
++    private fun createIndexBadge(): TextView = view(::TextView) {
+         includeFontPadding = false
+         textSize = 10f
+         gravity = Gravity.TOP or Gravity.START
+-        setTextColor(theme.candidateLabelColor)
+         isClickable = false
+         isFocusable = false
+         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+-        visibility = View.GONE
++    }.also { badge ->
++        indexBadge = badge
++        candidateRoot.add(badge, lParams(wrapContent, wrapContent))
+     }
+ 
+     /**
+@@ -180,14 +184,16 @@ class CandidateItemUi(
+         if (indexBadgeText == text && indexBadgePosition == position) return
+         indexBadgeText = text
+         indexBadgePosition = position
+-        indexBadge.text = text.orEmpty()
+-        indexBadge.visibility = if (text == null) View.GONE else View.VISIBLE
++        val badge = indexBadge ?: if (text != null) createIndexBadge() else return
++        badge.text = text.orEmpty()
++        badge.visibility = if (text == null) View.GONE else View.VISIBLE
+         applyIndexBadgeLayout()
+         refreshIndexBadgeColor()
+     }
+ 
+     private fun applyIndexBadgeLayout() {
+-        val params = indexBadge.layoutParams as? FrameLayout.LayoutParams ?: return
++        val badge = indexBadge ?: return
++        val params = badge.layoutParams as? FrameLayout.LayoutParams ?: return
+         val horizontalMargin = ctx.dp(INDEX_BADGE_HORIZONTAL_MARGIN_DP)
+         val isLeft = indexBadgePosition == CandidateIndexBadgePosition.TopLeft ||
+             indexBadgePosition == CandidateIndexBadgePosition.BottomLeft
+@@ -201,11 +207,11 @@ class CandidateItemUi(
+         params.marginEnd = if (!isLeft) horizontalMargin else 0
+         params.topMargin = 0
+         params.bottomMargin = 0
+-        indexBadge.layoutParams = params
++        badge.layoutParams = params
+     }
+ 
+     private fun refreshIndexBadgeColor() {
+-        indexBadge.setTextColor(
++        indexBadge?.setTextColor(
+             if (active) {
+                 ColorUtils.setAlphaComponent(theme.genericActiveForegroundColor, 190)
+             } else {
+@@ -251,10 +257,10 @@ class CandidateItemUi(
+     fun refreshConfiguredFont(fontOverride: Typeface? = font) {
+         applyConfiguredTypeface(fontOverride)
+         applyConfiguredTextSize()
+-        val commentTypeface = cachedCommentFont ?: FontProviders.resolveCommentTypeface(text.typeface)
+-        val signature = commentTypeface to FontProviders.commentFontSizePx(ctx)
+-        if (signature != renderedCommentSignature) {
+-            renderCandidate()
++        if (candidate.comment.isNotBlank()) {
++            val commentTypeface = cachedCommentFont ?: FontProviders.resolveCommentTypeface(text.typeface)
++            val signature = commentTypeface to FontProviders.commentFontSizePx(ctx)
++            if (signature != renderedCommentSignature) renderCandidate()
+         }
+     }
+ 
+@@ -269,7 +275,8 @@ class CandidateItemUi(
+     fun setActive(active: Boolean) {
+         if (this.active != active) {
+             this.active = active
+-            renderCandidate()
++            // Plain text follows currentTextColor without rebuilding or measuring its text.
++            if (candidate.comment.isNotBlank()) renderCandidate()
+         }
+         text.setTextColor(if (this.active) theme.genericActiveForegroundColor else theme.candidateTextColor)
+         refreshIndexBadgeColor()
+@@ -288,10 +295,6 @@ class CandidateItemUi(
+         add(content, lParams(wrapContent, matchParent) {
+             gravity = gravityCenter
+         })
+-        add(indexBadge, lParams(wrapContent, wrapContent) {
+-            gravity = Gravity.TOP or Gravity.START
+-            marginStart = ctx.dp(INDEX_BADGE_HORIZONTAL_MARGIN_DP)
+-        })
+     }
+ 
+     override val root: CustomGestureView = candidateRoot
+@@ -306,14 +309,18 @@ class CandidateItemUi(
+ 
+     private fun renderCandidate() {
+         val fg = if (active) theme.genericActiveForegroundColor else theme.candidateTextColor
++        text.setTextColor(fg)
++        if (candidate.comment.isBlank()) {
++            renderedCommentSignature = null
++            text.text = candidate.text
++            return
++        }
+         val altFg = if (active) theme.genericActiveForegroundColor else theme.candidateCommentColor
+         val commentTypeface = cachedCommentFont ?: FontProviders.resolveCommentTypeface(text.typeface)
+         val commentSizePx = FontProviders.commentFontSizePx(ctx)
+         renderedCommentSignature = commentTypeface to commentSizePx
+         text.text = buildSpannedString {
+-            color(fg) {
+-                append(candidate.text)
+-            }
++            append(candidate.text)
+             if (candidate.comment.isNotBlank()) {
+                 if (candidate.spaceBetweenComment) {
+                     append(" ")
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt
+index f695fab8..6f79837b 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt
+@@ -379,9 +379,14 @@ class HorizontalCandidateComponent :
+         ) {
+             override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
+                 super.onBindViewHolder(holder, position)
+-                holder.itemView.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
+-                    minWidth = layoutMinWidth
+-                    flexGrow = layoutFlexGrow
++                val params = holder.itemView.layoutParams as FlexboxLayoutManager.LayoutParams
++                // Setting the same LayoutParams requests another layout, including during bind.
++                // Read the actual values: the optional second pass also changes flexGrow.
++                if (params.minWidth != layoutMinWidth || params.flexGrow != layoutFlexGrow) {
++                    holder.itemView.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
++                        minWidth = layoutMinWidth
++                        flexGrow = layoutFlexGrow
++                    }
+                 }
+                 holder.itemView.setOnClickListener {
+                     val target = holder.selectionFor(adapter.candidates.getOrNull(holder.bindingAdapterPosition))
+-- 
+2.52.0
+
+
+From ac7045e2959f68fa62c0de9177ab362af368ff5e Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 00:31:00 +0000
+Subject: [PATCH 2/5] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=80=99=E9=80=89):=20?=
+ =?UTF-8?q?=E9=AA=8C=E8=AF=81=E5=85=B3=E9=97=AD=E8=A7=92=E6=A0=87=E6=97=B6?=
+ =?UTF-8?q?=E4=B8=8D=E5=88=9B=E5=BB=BA=E9=A2=9D=E5=A4=96=E8=A7=86=E5=9B=BE?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../input/candidates/horizontal/MovingCandidateBadgeTest.kt    | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt b/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt
+index 5adcd700..a078f9aa 100644
+--- a/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt
++++ b/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt
+@@ -152,7 +152,8 @@ class MovingCandidateBadgeTest {
+         adapter.updateCandidates(arrayOf(word("x"), word("a"), word("b")), 10)
+         layout(view)
+         assertEquals(0, changes)
+-        assertEquals(View.GONE, badge(view.findViewHolderForAdapterPosition(2) as CandidateViewHolder).visibility)
++        val holder = view.findViewHolderForAdapterPosition(2) as CandidateViewHolder
++        assertEquals("disabled badges must not create an extra TextView", 1, holder.ui.root.childCount)
+     }
+ 
+     @Test fun movingOnlyTheHighlightUsesPayloadsWithoutRebindingCandidateContent() = fixture { view, adapter ->
+-- 
+2.52.0
+
+
+From 015bde3a4205d63ee0b2bcb58a46c2a7f8b8cd92 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 00:38:45 +0000
+Subject: [PATCH 3/5] =?UTF-8?q?=E4=BF=AE=E5=A4=8D(=E5=80=99=E9=80=89):=20?=
+ =?UTF-8?q?=E4=BD=BF=E7=94=A8=E7=88=B6=E5=AE=B9=E5=99=A8=E5=B8=83=E5=B1=80?=
+ =?UTF-8?q?=E5=8F=82=E6=95=B0=E5=88=9B=E5=BB=BA=E5=BB=B6=E8=BF=9F=E8=A7=92?=
+ =?UTF-8?q?=E6=A0=87?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt  | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+index bbe79f94..92eefa53 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+@@ -129,7 +129,9 @@ class CandidateItemUi(
+         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+     }.also { badge ->
+         indexBadge = badge
+-        candidateRoot.add(badge, lParams(wrapContent, wrapContent))
++        candidateRoot.addView(badge, FrameLayout.LayoutParams(
++            FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT,
++        ))
+     }
+ 
+     /**
+-- 
+2.52.0
+
+
+From 4e28ceebe057345a678c5746d3ab8d413cf77a27 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 00:57:25 +0000
+Subject: [PATCH 4/5] =?UTF-8?q?=E4=BC=98=E5=8C=96(=E5=80=99=E9=80=89):=20?=
+ =?UTF-8?q?=E7=9C=81=E5=8E=BB=E9=80=9A=E7=94=A8=E6=96=87=E5=AD=97=E6=8E=A7?=
+ =?UTF-8?q?=E4=BB=B6=E6=A0=B7=E5=BC=8F=E8=A7=A3=E6=9E=90=E5=B9=B6=E6=8C=89?=
+ =?UTF-8?q?=E5=AE=9E=E9=99=85=E5=AD=97=E4=BD=93=E5=8F=98=E5=8C=96=E5=A4=B1?=
+ =?UTF-8?q?=E6=95=88?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../candidates/CandidateRenderingTest.kt      | 19 +++++++++++++++++++
+ .../fcitx5/android/input/AutoScaleTextView.kt |  9 +++++----
+ .../input/candidates/CandidateItemUi.kt       |  4 +++-
+ 3 files changed, 27 insertions(+), 5 deletions(-)
+
+diff --git a/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt
+index 9408f9ee..6f77e5b1 100644
+--- a/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt
++++ b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt
+@@ -83,6 +83,25 @@ class CandidateRenderingTest {
+         assertSame(Typeface.MONOSPACE, paint.typeface)
+     }
+ 
++    @Test fun explicitlyStyledCandidateKeepsTheDefaultTextViewGeometry() = onMain {
++        val standard = AutoScaleTextView(context)
++        val candidate = AutoScaleTextView(context, null, 0)
++        for (text in listOf(standard, candidate)) {
++            text.typeface = Typeface.MONOSPACE
++            text.textSize = 20f
++            text.isSingleLine = true
++            text.gravity = android.view.Gravity.CENTER
++            text.text = "候选 candidate"
++            measure(text)
++        }
++        assertEquals(standard.measuredWidth, candidate.measuredWidth)
++        assertEquals(standard.measuredHeight, candidate.measuredHeight)
++        assertEquals(standard.baseline, candidate.baseline)
++        val paint = candidate.paint
++        candidate.typeface = candidate.typeface
++        assertSame(paint, candidate.paint)
++    }
++
+     private fun measure(view: View) {
+         view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+             View.MeasureSpec.makeMeasureSpec(80, View.MeasureSpec.EXACTLY))
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt
+index 386d20d9..3e7ade8f 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt
+@@ -59,8 +59,9 @@ private inline fun forEachTextRun(
+ @SuppressLint("AppCompatCustomView")
+ class AutoScaleTextView @JvmOverloads constructor(
+     context: Context?,
+-    attributeSet: AttributeSet? = null
+-) : TextView(context, attributeSet) {
++    attributeSet: AttributeSet? = null,
++    defaultStyleAttr: Int = android.R.attr.textViewStyle,
++) : TextView(context, attributeSet, defaultStyleAttr) {
+ 
+     enum class Mode {
+         /**
+@@ -161,9 +162,9 @@ class AutoScaleTextView @JvmOverloads constructor(
+     }
+ 
+     override fun setTypeface(tf: Typeface?) {
+-        val changed = typeface !== tf
++        val previous = typeface
+         super.setTypeface(tf)
+-        if (changed) {
++        if (typeface !== previous) {
+             // This view measures/draws its own text; TextView's internal Layout is not our cache.
+             needsMeasureText = true
+             needsCalculateTransform = true
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+index 92eefa53..24fecc6f 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+@@ -63,7 +63,9 @@ class CandidateItemUi(
+     private fun resolveCandidateFontSize(): Float =
+         FontProviders.getFontSize("cand_font", FontProviders.DEFAULT_CANDIDATE_FONT_SIZE)
+ 
+-    private val text = view(::AutoScaleTextView) {
++    // All candidate text styling is explicit below. Avoid resolving the general TextView
++    // widget style for every newly visible candidate; keyboard labels keep their own default.
++    private val text = AutoScaleTextView(ctx, null, 0).apply {
+         scaleMode = AutoScaleTextView.Mode.Proportional
+         // Use configured font size with fallback to default (20f).
+         // 字号**只**由「字体设定」决定，不跟随「工具栏大小」：那是用户为"字多大"专门准备的
+-- 
+2.52.0
+
+
+From 4d77cd79a580a9984130a5653b13f949ec5bc0a9 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 01:06:09 +0000
+Subject: [PATCH 5/5] =?UTF-8?q?=E4=BC=98=E5=8C=96(=E8=BE=93=E5=85=A5):=20?=
+ =?UTF-8?q?=E4=BF=9D=E6=8C=81=E6=8C=89=E9=94=AE=E7=BB=93=E6=9E=9C=E5=8F=91?=
+ =?UTF-8?q?=E5=B8=83=E7=9A=84=E4=BA=A4=E4=BA=92=E4=BC=98=E5=85=88=E7=BA=A7?=
+ =?UTF-8?q?=E5=B9=B6=E5=A2=9E=E5=8A=A0=E5=88=86=E6=AE=B5=E8=BF=BD=E8=B8=AA?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../fcitx5/android/core/DirectRimeBackend.kt  | 58 ++++++++++---------
+ 1 file changed, 31 insertions(+), 27 deletions(-)
+
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt b/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
+index e84a8490..a4d7aad3 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
+@@ -280,7 +280,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
+         return interactivePriority.run {
+             Native.action(previous.generation, previous.revision, action, index, value, collectStatistics).also {
+                 val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous, it, wallTime, monotonicTime) else null
+-                publish(it, forceCandidates = forceCandidates, statistics = statistics)
++                trace("rime.direct.action_publish") { publish(it, forceCandidates = forceCandidates, statistics = statistics) }
+             }
+         }
+     }
+@@ -488,32 +488,36 @@ class DirectRimeBackend(context: Context) : InputEngine {
+         onOwner {
+             if (expected != inputSession || maintenance || !started) return@onOwner
+             val ownerAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
+-            val bypass = forwardsKeysDirectly()
+-            if (!up) clearStatusHint()
+-            val previous = snapshot
+-            val collectStatistics = !bypass && shouldCollectStatistics(statisticsSource, previous)
+-            val wallTime = if (collectStatistics) System.currentTimeMillis() else 0L
+-            val monotonicTime = if (collectStatistics) SystemClock.elapsedRealtime() else 0L
+-            val result = if (bypass) null else interactivePriority.run { Native.key(expected, sym, states.toInt(), up, collectStatistics) }
+-            val nativeAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
+-            if (result != null) {
+-                val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous!!, result, wallTime, monotonicTime) else null
+-                publish(result, release = up, statistics = statistics, statisticsKey = if (up) null else sym)
+-            }
+-            if (!up && result?.ready == true) {
+-                bindingKeys++
+-                if (BuildConfig.INPUT_DIAGNOSTICS && (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L))
+-                    android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys service_task=${diagnosticTask?.id ?: 0} service_category=${diagnosticTask?.category ?: "none"} admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
+-            }
+-            val keyId = sym to code
+-            val forward = if (up) forwardedKeys.remove(keyId) else
+-                (bypass || (result?.ready == true && !result.handled)).also { if (it) forwardedKeys.add(keyId) }
+-            if (forward) {
+-                // Preserve hardware down/up pairing and the frontend's virtual key fallback.
+-                val unicode = KeySym(sym).editorUnicode
+-                val event = FcitxEvent.KeyEvent(FcitxEvent.KeyEvent.Data(KeySym(sym), KeyStates(states), unicode, up, timestamp))
+-                event.inputSession = expected
+-                events.offer(listOf(event))
++            // Keep the short result publication at the same priority as Native.key, like act().
++            // Restore only after its accepted commit/presentation/forwarded key has been queued.
++            interactivePriority.run {
++                val bypass = forwardsKeysDirectly()
++                if (!up) clearStatusHint()
++                val previous = snapshot
++                val collectStatistics = !bypass && shouldCollectStatistics(statisticsSource, previous)
++                val wallTime = if (collectStatistics) System.currentTimeMillis() else 0L
++                val monotonicTime = if (collectStatistics) SystemClock.elapsedRealtime() else 0L
++                val result = if (bypass) null else Native.key(expected, sym, states.toInt(), up, collectStatistics)
++                val nativeAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
++                if (result != null) {
++                    val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous!!, result, wallTime, monotonicTime) else null
++                    trace("rime.direct.key_publish") { publish(result, release = up, statistics = statistics, statisticsKey = if (up) null else sym) }
++                }
++                if (!up && result?.ready == true) {
++                    bindingKeys++
++                    if (BuildConfig.INPUT_DIAGNOSTICS && (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L))
++                        android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys service_task=${diagnosticTask?.id ?: 0} service_category=${diagnosticTask?.category ?: "none"} admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
++                }
++                val keyId = sym to code
++                val forward = if (up) forwardedKeys.remove(keyId) else
++                    (bypass || (result?.ready == true && !result.handled)).also { if (it) forwardedKeys.add(keyId) }
++                if (forward) {
++                    // Preserve hardware down/up pairing and the frontend's virtual key fallback.
++                    val unicode = KeySym(sym).editorUnicode
++                    val event = FcitxEvent.KeyEvent(FcitxEvent.KeyEvent.Data(KeySym(sym), KeyStates(states), unicode, up, timestamp))
++                    event.inputSession = expected
++                    events.offer(listOf(event))
++                }
+             }
+         }
+     }
+-- 
+2.52.0
+

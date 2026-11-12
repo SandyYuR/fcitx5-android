@@ -1,0 +1,34 @@
+device	Run android-actions/setup-android@v4	﻿2026-11-12T00:43:23.4337952Z ##[group]Run android-actions/setup-android@v4
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.4339350Z with:
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.4340419Z   packages: platform-tools
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.4341740Z   cmdline-tools-version: 15859902
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.4342992Z   accept-android-sdk-licenses: true
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.4344327Z   log-accepted-android-sdk-licenses: true
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.4345631Z ##[endgroup]
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.5650033Z Found preinstalled sdkmanager in /usr/local/lib/android/sdk/cmdline-tools/latest with following source.properties:
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.5652603Z Pkg.Revision=9.0
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.5653794Z Pkg.Path=cmdline-tools;9.0
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.5654987Z Pkg.Desc=Android SDK Command-line Tools
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.5655743Z 
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.5656292Z Wrong version in preinstalled sdkmanager
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:23.5658965Z Downloading commandline tools from https://dl.google.com/android/repository/commandlinetools-linux-15859902_latest.zip
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:24.5898855Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/2ca361b9-8fa9-4090-9d16-0490888c323e
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.6453342Z Accepting Android SDK licenses
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.6457159Z [command]/usr/local/lib/android/sdk/cmdline-tools/22.0/bin/sdkmanager --licenses
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8695650Z This tool requires JDK 17 or later. Your version was detected as 11.0.32.1.
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8697045Z To override this check, set SKIP_JDK_VERSION_CHECK.
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8753748Z /home/runner/work/_actions/android-actions/setup-android/v4/dist/index.js:22731
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8755807Z         error2 = new Error(`The process '${this.toolPath}' failed with exit code ${this.processExitCode}`);
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8757831Z                  ^
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8758240Z 
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8758622Z Error: The process '/usr/local/lib/android/sdk/cmdline-tools/22.0/bin/sdkmanager' failed with exit code 1
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8759787Z     at _ExecState._setResult (/home/runner/work/_actions/android-actions/setup-android/v4/dist/index.js:22731:18)
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8760982Z     at _ExecState.CheckComplete (/home/runner/work/_actions/android-actions/setup-android/v4/dist/index.js:22717:12)
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8762771Z     at ChildProcess.<anonymous> (/home/runner/work/_actions/android-actions/setup-android/v4/dist/index.js:22622:17)
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8763708Z     at ChildProcess.emit (node:events:514:28)
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8764420Z     at maybeClose (node:internal/child_process:1172:16)
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8765120Z     at Socket.<anonymous> (node:internal/child_process:527:11)
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8766004Z     at Socket.emit (node:events:514:28)
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8766858Z     at Pipe.<anonymous> (node:net:362:12)
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8767249Z 
+device	Run android-actions/setup-android@v4	2026-11-12T00:43:25.8767444Z Node.js v24.22.1

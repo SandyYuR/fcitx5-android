@@ -117,6 +117,7 @@ const maintenance = [
   ] },
   { text: '现行实现协议', collapsed: false, items: [
     { text: '协议索引', link: '/maintainer/implementation/' },
+    { text: 'Rime 直连架构与职责', link: '/maintainer/implementation/direct-rime-architecture' },
     { text: '正确性约束与代码定位', link: '/maintainer/implementation/correctness-contracts' },
     { text: '界面设计与共用组件', link: '/maintainer/implementation/design-system' },
     { text: 'JS 语音宿主与插件 API', link: '/maintainer/implementation/js-voice-plugins' },
