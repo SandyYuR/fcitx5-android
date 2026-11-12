@@ -1252,8 +1252,10 @@
     <string name="rime_engine_authorize_title">Authorize %1$s</string>
     <string name="rime_engine_authorized">Authorized %1$s</string>
     <string name="rime_engine_switch_title">Switch to %1$s?</string>
-    <string name="rime_engine_switch_message">The current engine will stop. The input method process will restart and perform a full deployment in the directory bound to the selected engine. If initial loading or deployment fails, the next start automatically restores the previous engine.</string>
-    <string name="rime_engine_restarting">Stopping the current engine and restarting…</string>
+    <string name="rime_engine_switch_message">Input pauses briefly while the selected engine loads and deploys in its working directory. If loading or deployment fails, the current engine is restored automatically.</string>
+    <string name="rime_engine_switching">Switching and deploying…</string>
+    <string name="rime_engine_switch_target">Target engine: %1$s</string>
+    <string name="rime_engine_switched">Switched to %1$s</string>
     <string name="rime_engine_delete_title">Delete imported engine?</string>
     <string name="rime_engine_delete_message">Delete %1$s from the managed engine list? Its working directory %2$s and all Rime data are preserved.</string>
     <string name="rime_engine_revoke_title">Revoke provider authorization?</string>

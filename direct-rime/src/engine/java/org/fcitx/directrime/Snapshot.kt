@@ -94,7 +94,9 @@ internal class RawInputState(val text: String, val caretBytes: Int)
 
 internal object Native {
     init { System.loadLibrary("direct-rime") }
-    /** Configure an authorized external engine before [start]. */
+    /** Select the built-in engine after the current engine has stopped. */
+    external fun selectBuiltin()
+    /** Configure/select an authorized external engine after the current engine has stopped. */
     external fun configureExternal(fd: Int, entry: String, identity: String): Array<String>
     external fun start(shared: String, user: String, version: String, fullCheck: Boolean = false)
     external fun stop()

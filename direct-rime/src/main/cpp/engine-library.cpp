@@ -14,13 +14,24 @@
 #include <cstring>
 #include <memory>
 #include <stdexcept>
+#include <unordered_map>
 #include <vector>
 
 namespace direct_rime {
 namespace {
 
-void* selectedHandle = nullptr;
-RimeApi* externalApi = nullptr;
+struct ExternalEngineSlot {
+    void* handle;
+    RimeApi* api;
+    EngineLibraryInfo info;
+    std::string entry;
+};
+
+// Keep authorized libraries mapped for the life of this process. Running destructors from an
+// untrusted DSO during an ordinary switch is riskier than retaining a small, bounded set of
+// mappings. The corresponding Engine objects are retained by bridge.cpp so setup() stays once per
+// slot while every transition still destroys all sessions and calls finalize().
+std::unordered_map<std::string, ExternalEngineSlot> externalSlots;
 std::string selectedIdentity;
 
 struct HandleCloser {
@@ -33,6 +44,8 @@ struct FdCloser {
 using OwnedFd = std::unique_ptr<int, FdCloser>;
 
 constexpr off_t maxEngineBytes = 96LL * 1024 * 1024;
+constexpr size_t maxExternalSlots = 4;
+const std::string builtinIdentity = "builtin";
 
 #ifndef MFD_EXEC
 #define MFD_EXEC 0x0010U
@@ -232,27 +245,44 @@ std::pair<void*, RimeApi*> load(int fd, const std::string& entry,
     }
 }
 
+bool validIdentity(const std::string& identity) {
+    return identity.size() == 64 && std::all_of(identity.begin(), identity.end(), [](char value) {
+        return (value >= '0' && value <= '9') || (value >= 'a' && value <= 'f');
+    });
+}
+
 }  // namespace
 
 EngineLibraryInfo configureExternalEngine(int fd, const std::string& entry,
                                           const std::string& identity) {
-    if (selectedHandle) {
-        if (selectedIdentity != identity)
-            throw std::logic_error("本进程已经加载另一套引擎，请重启后切换");
-        return validate(externalApi);
+    if (!validIdentity(identity)) throw std::invalid_argument("外部引擎身份无效");
+    auto existing = externalSlots.find(identity);
+    if (existing != externalSlots.end()) {
+        if (existing->second.entry != entry)
+            throw std::logic_error("同一外部引擎的 API 入口发生变化");
+        selectedIdentity = identity;
+        return existing->second.info;
     }
+    if (externalSlots.size() >= maxExternalSlots)
+        throw std::runtime_error("本次运行已加载过多外部引擎，请关闭并重新打开应用后再试");
     auto [handle, api] = load(fd, entry, identity);
+    bool retained = false;
     try {
         auto result = validate(api);
-        selectedHandle = handle;
-        externalApi = api;
+        const auto inserted = externalSlots.emplace(
+            identity, ExternalEngineSlot{handle, api, result, entry}).second;
+        if (!inserted) throw std::logic_error("外部引擎槽位发生并发冲突");
+        retained = true;
         selectedIdentity = identity;
         return result;
     } catch (...) {
+        if (retained) externalSlots.erase(identity);
         dlclose(handle);
         throw;
     }
 }
+
+void selectBuiltinEngine() { selectedIdentity.clear(); }
 
 EngineLibraryInfo probeExternalEngine(int fd, const std::string& entry,
                                       const std::string& identity) {
@@ -268,11 +298,18 @@ EngineLibraryInfo probeExternalEngine(int fd, const std::string& entry,
 }
 
 bool externalEngineConfiguredFor(const std::string& identity) {
-    return selectedHandle && selectedIdentity == identity;
+    return selectedIdentity == identity && externalSlots.find(identity) != externalSlots.end();
+}
+
+const std::string& selectedEngineIdentity() {
+    return selectedIdentity.empty() ? builtinIdentity : selectedIdentity;
 }
 
 RimeApi* selectedRimeApi() {
-    return externalApi ? externalApi : rime_get_api();
+    if (selectedIdentity.empty()) return rime_get_api();
+    const auto selected = externalSlots.find(selectedIdentity);
+    if (selected == externalSlots.end()) throw std::logic_error("所选外部引擎槽位不存在");
+    return selected->second.api;
 }
 
 }  // namespace direct_rime

@@ -1218,8 +1218,10 @@
     <string name="rime_engine_authorize_title">授權 %1$s</string>
     <string name="rime_engine_authorized">已授權 %1$s</string>
     <string name="rime_engine_switch_title">切換到 %1$s？</string>
-    <string name="rime_engine_switch_message">目前引擎會先停止。輸入法程序隨後重新啟動，並在所選引擎綁定的工作目錄中執行完整部署。首次載入或部署失敗時，下次啟動會自動恢復先前引擎。</string>
-    <string name="rime_engine_restarting">正在停止目前引擎並重新啟動…</string>
+    <string name="rime_engine_switch_message">切換期間會暫時停止輸入，並在對應工作目錄中完成部署。載入或部署失敗時，會自動恢復目前引擎。</string>
+    <string name="rime_engine_switching">正在切換並部署…</string>
+    <string name="rime_engine_switch_target">目標引擎：%1$s</string>
+    <string name="rime_engine_switched">已切換到 %1$s</string>
     <string name="rime_engine_delete_title">刪除已匯入引擎？</string>
     <string name="rime_engine_delete_message">從受管清單刪除 %1$s？其工作目錄 %2$s 及全部 Rime 資料會保留。</string>
     <string name="rime_engine_revoke_title">撤銷提供者授權？</string>

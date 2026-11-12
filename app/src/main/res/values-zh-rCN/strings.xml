@@ -1248,8 +1248,10 @@
     <string name="rime_engine_authorize_title">授权 %1$s</string>
     <string name="rime_engine_authorized">已授权 %1$s</string>
     <string name="rime_engine_switch_title">切换到 %1$s？</string>
-    <string name="rime_engine_switch_message">当前引擎会先停止。输入法进程随后重启，并在所选引擎绑定的工作目录中执行完整部署。首次加载或部署失败时，下次启动会自动恢复先前引擎。</string>
-    <string name="rime_engine_restarting">正在停止当前引擎并重启…</string>
+    <string name="rime_engine_switch_message">切换期间会暂时停止输入，并在对应工作目录中完成部署。加载或部署失败时，会自动恢复当前引擎。</string>
+    <string name="rime_engine_switching">正在切换并部署…</string>
+    <string name="rime_engine_switch_target">目标引擎：%1$s</string>
+    <string name="rime_engine_switched">已切换到 %1$s</string>
     <string name="rime_engine_delete_title">删除已导入引擎？</string>
     <string name="rime_engine_delete_message">从受管列表删除 %1$s？其工作目录 %2$s 及全部 Rime 数据会保留。</string>
     <string name="rime_engine_revoke_title">撤销提供者授权？</string>

@@ -10,6 +10,7 @@ import org.fcitx.directrime.ProfileArchive
 import org.fcitx.fcitx5.android.core.data.DataManager
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -160,11 +161,23 @@ class RimeEngineVariantDeviceTest {
             }
             assertTrue("首选候选没有上屏：$firstCandidate", selected.commit.isNotEmpty())
             Native.end(generation)
+            assertThrows("运行中的引擎不能被另一槽位替换", IllegalStateException::class.java) {
+                Native.selectBuiltin()
+            }
 
-            // An ordinary daemon stop/start keeps the native Engine object alive. The same
-            // authorized DSO must remain reusable without forcing a process restart.
+            // Stop/finalize destroys the external session before selecting the retained built-in
+            // slot. Neither direction may require killing the Android process.
             Native.stop()
             started = false
+            Native.selectBuiltin()
+            Native.start(File(DataManager.dataDir, "usr/share/rime-data").absolutePath,
+                profile.absolutePath, "provider-builtin-switch-test", fullCheck = false)
+            started = true
+            Native.stop()
+            started = false
+
+            // The authorized DSO and its Engine slot remain reusable after the built-in round
+            // trip, so setup stays process-once while initialize/finalize remain per activation.
             ParcelFileDescriptor.open(File(resolved.filePath), ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
                 val configured = Native.configureExternal(descriptor.fd,
                     resolved.entrySymbol, resolved.payloadSha256)

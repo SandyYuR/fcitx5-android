@@ -4,9 +4,9 @@ package org.fcitx.fcitx5.android.ui.main.settings.im
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
-import android.os.Process
 import android.provider.OpenableColumns
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -42,11 +42,14 @@ import java.util.concurrent.ConcurrentHashMap
 /** Manages the built-in engine, imported single-file engines and installed provider APKs. */
 class RimeEngineManagerActivity : SettingsUiActivity() {
     private val repository by lazy { RimeEngineStore.repository(this) }
-    private val connection by lazy { FcitxDaemon.connect(javaClass.name) }
+    private val connectionName = "${javaClass.name}:${UUID.randomUUID()}"
+    private val connection by lazy { FcitxDaemon.connect(connectionName) }
     private lateinit var body: LinearLayout
     private lateinit var status: OperationStatusView
     private var screen: Screen? = null
     private var refreshing = false
+    private var operationRunning = false
+    private var disconnectAfterOperation = false
     private var pendingImport: File? = null
     private val stagingToken = UUID.randomUUID().toString()
     private val importStagingDirectory by lazy {
@@ -113,8 +116,12 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
         refresh()
     }
 
-    private fun refresh() {
-        if (refreshing) return
+    private fun refresh(
+        force: Boolean = false,
+        successMessage: CharSequence? = null,
+        errorMessage: CharSequence? = null
+    ) {
+        if (refreshing || (operationRunning && !force)) return
         refreshing = true
         status.show(getString(R.string.rime_engine_loading), state = OperationStatusView.State.WORKING)
         lifecycleScope.launch {
@@ -131,8 +138,15 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
                 screen = loaded
                 render(loaded)
                 val fallback = loaded.state.lastFallbackReason
-                if (fallback.isNullOrBlank()) status.show(getString(R.string.rime_engine_ready))
-                else status.show(getString(R.string.rime_engine_fallback_title), fallback, OperationStatusView.State.ERROR)
+                when {
+                    !fallback.isNullOrBlank() -> status.show(getString(R.string.rime_engine_fallback_title),
+                        fallback, OperationStatusView.State.ERROR)
+                    errorMessage != null -> status.show(getString(R.string.ui_operation_failed), errorMessage,
+                        OperationStatusView.State.ERROR)
+                    successMessage != null -> status.show(successMessage,
+                        state = OperationStatusView.State.SUCCESS)
+                    else -> status.show(getString(R.string.rime_engine_ready))
+                }
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
@@ -161,32 +175,6 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
                 )
             }
         ), block(bottom = 12))
-
-        sectionTitle(R.string.rime_engine_imported_section)
-        body.addView(EditorUi.button(this, R.string.rime_engine_import_so, tonal = true) {
-            enginePicker.launch(arrayOf("application/octet-stream", "application/x-sharedlib", "*/*"))
-        }, block(bottom = 8))
-        if (value.state.imported.isEmpty()) emptyText(R.string.rime_engine_no_imported)
-        value.state.imported.forEach { record ->
-            val selection = RimeEngineSelection(RimeEngineKind.IMPORTED, record.id)
-            val file = runCatching { repository.importedFile(record) }.getOrNull()
-            val available = file?.isFile == true
-            val details = buildString {
-                append(record.runtimeInfo.librimeVersion).append(" · ").append(record.staticInfo.abi)
-                append("\n").append(getString(R.string.rime_engine_profile_value, record.profile))
-                append("\nSHA-256 ").append(record.staticInfo.sha256.take(16)).append('…')
-                if (!available) append("\n").append(getString(R.string.rime_engine_payload_missing))
-            }
-            body.addView(engineCard(record.displayName, details, value.state.active == selection, buildList {
-                if (available && value.state.active != selection) add(action(R.string.rime_engine_switch) {
-                    confirmSwitch(selection, record.displayName)
-                })
-                add(action(R.string.rime_engine_choose_profile) {
-                    chooseProfile(record.profile) { profile -> updateImportedProfile(record, profile) }
-                })
-                if (value.state.active != selection) add(action(R.string.delete) { confirmDeleteImported(record) })
-            }), block(bottom = 8))
-        }
 
         sectionTitle(R.string.rime_engine_plugin_section)
         if (value.plugins.isEmpty() && value.state.plugins.isEmpty()) emptyText(R.string.rime_engine_no_plugins)
@@ -221,7 +209,9 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
                 })
             }), block(bottom = 8))
         }
-        value.state.plugins.filter { saved -> value.plugins.none { it.packageName == saved.packageName } }.forEach { missing ->
+        value.state.plugins.filter { saved ->
+            value.plugins.none { it.packageName == saved.packageName }
+        }.forEach { missing ->
             val selection = RimeEngineSelection(RimeEngineKind.PLUGIN, missing.packageName)
             body.addView(engineCard(missing.displayName,
                 getString(R.string.rime_engine_plugin_missing, missing.packageName),
@@ -229,6 +219,32 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
                 if (value.state.active == selection) emptyList() else listOf(action(R.string.rime_engine_revoke) {
                     confirmRevokePlugin(missing)
                 })), block(bottom = 8))
+        }
+
+        sectionTitle(R.string.rime_engine_imported_section)
+        body.addView(EditorUi.button(this, R.string.rime_engine_import_so, tonal = true) {
+            enginePicker.launch(arrayOf("application/octet-stream", "application/x-sharedlib", "*/*"))
+        }, block(bottom = 8))
+        if (value.state.imported.isEmpty()) emptyText(R.string.rime_engine_no_imported)
+        value.state.imported.forEach { record ->
+            val selection = RimeEngineSelection(RimeEngineKind.IMPORTED, record.id)
+            val file = runCatching { repository.importedFile(record) }.getOrNull()
+            val available = file?.isFile == true
+            val details = buildString {
+                append(record.runtimeInfo.librimeVersion).append(" · ").append(record.staticInfo.abi)
+                append("\n").append(getString(R.string.rime_engine_profile_value, record.profile))
+                append("\nSHA-256 ").append(record.staticInfo.sha256.take(16)).append('…')
+                if (!available) append("\n").append(getString(R.string.rime_engine_payload_missing))
+            }
+            body.addView(engineCard(record.displayName, details, value.state.active == selection, buildList {
+                if (available && value.state.active != selection) add(action(R.string.rime_engine_switch) {
+                    confirmSwitch(selection, record.displayName)
+                })
+                add(action(R.string.rime_engine_choose_profile) {
+                    chooseProfile(record.profile) { profile -> updateImportedProfile(record, profile) }
+                })
+                if (value.state.active != selection) add(action(R.string.delete) { confirmDeleteImported(record) })
+            }), block(bottom = 8))
         }
     }
 
@@ -494,7 +510,7 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
             .setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(R.string.rime_engine_switch) { _, _ ->
                 val currentProfile = screen?.directories?.current
-                runRepositoryMutation {
+                runRepositoryMutation(name) {
                     repository.select(selection, currentProfile)
                     true
                 }
@@ -504,12 +520,14 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
 
     private fun updateImportedProfile(record: ImportedRimeEngine, profile: String) {
         val selection = RimeEngineSelection(RimeEngineKind.IMPORTED, record.id)
-        runRepositoryMutation { repository.updateProfile(selection, profile) }
+        val activeName = record.displayName.takeIf { screen?.state?.active == selection }
+        runRepositoryMutation(activeName) { repository.updateProfile(selection, profile) }
     }
 
     private fun updatePluginProfile(record: PluginRimeEngineAuthorization, profile: String) {
         val selection = RimeEngineSelection(RimeEngineKind.PLUGIN, record.packageName)
-        runRepositoryMutation { repository.updateProfile(selection, profile) }
+        val activeName = record.displayName.takeIf { screen?.state?.active == selection }
+        runRepositoryMutation(activeName) { repository.updateProfile(selection, profile) }
     }
 
     private fun confirmDeleteImported(record: ImportedRimeEngine) {
@@ -532,34 +550,57 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
             }.show()
     }
 
-    private fun runRepositoryMutation(block: () -> Boolean) {
-        status.show(getString(R.string.rime_engine_loading), state = OperationStatusView.State.WORKING)
+    private fun runRepositoryMutation(switchTarget: String? = null, block: () -> Boolean) {
+        if (operationRunning) return
+        setOperationRunning(true, switchTarget)
         lifecycleScope.launch {
             try {
-                val restart = withContext(NonCancellable + Dispatchers.IO) {
-                    val shouldRestart = block()
-                    if (shouldRestart) {
-                        val handler = android.os.Handler(android.os.Looper.getMainLooper())
-                        val kill = Runnable { Process.killProcess(Process.myPid()) }
-                        // Persisted state already points at the next process. A hostile or broken
-                        // DSO must not keep the old process alive forever by hanging finalize.
-                        handler.postDelayed(kill, 5_000)
-                        try {
-                            FcitxDaemon.stopFcitx()
-                        } finally {
-                            handler.removeCallbacks(kill)
-                            handler.postDelayed(kill, 150)
+                val applied = withContext(NonCancellable + Dispatchers.IO) {
+                    block().also { shouldApply ->
+                        if (shouldApply) connection.runOnReady {
+                            setAddonSubConfig("rime", "engine-variant-switch")
                         }
                     }
-                    shouldRestart
                 }
-                if (!restart) refresh()
+                val success = switchTarget?.takeIf { applied }?.let {
+                    getString(R.string.rime_engine_switched, it)
+                }
+                refresh(force = true, successMessage = success)
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                status.show(getString(R.string.ui_operation_failed), error.message.orEmpty(),
-                    OperationStatusView.State.ERROR)
+                // The backend has already finished its same-process rollback before returning an
+                // error. Reload the persisted state so the active marker and fallback notice agree.
+                refresh(force = true, errorMessage = error.message.orEmpty())
+            } finally {
+                operationRunning = false
+                if (!isDestroyed) setEnabledRecursively(body, true)
+                if (disconnectAfterOperation) {
+                    disconnectAfterOperation = false
+                    FcitxDaemon.disconnect(connectionName)
+                }
             }
+        }
+    }
+
+    private fun setOperationRunning(value: Boolean, switchTarget: String? = null) {
+        operationRunning = value
+        setEnabledRecursively(body, !value)
+        if (value) {
+            if (switchTarget == null) {
+                status.show(getString(R.string.rime_engine_loading), state = OperationStatusView.State.WORKING)
+            } else {
+                status.show(getString(R.string.rime_engine_switching),
+                    getString(R.string.rime_engine_switch_target, switchTarget),
+                    OperationStatusView.State.WORKING)
+            }
+        }
+    }
+
+    private fun setEnabledRecursively(view: View, enabled: Boolean) {
+        view.isEnabled = enabled
+        if (view is ViewGroup) for (index in 0 until view.childCount) {
+            setEnabledRecursively(view.getChildAt(index), enabled)
         }
     }
 
@@ -686,7 +727,10 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
         FileUtil.removeFile(importStagingDirectory)
         FileUtil.removeFile(probeStagingDirectory)
         activeStagingTokens -= stagingToken
-        FcitxDaemon.disconnect(javaClass.name)
+        // NonCancellable switching owns the connection until its repository write, deployment
+        // and possible rollback have all completed. Back/rotation may destroy only this UI.
+        if (operationRunning) disconnectAfterOperation = true
+        else FcitxDaemon.disconnect(connectionName)
     }
 
     private fun block(top: Int = 0, bottom: Int = 0) = LinearLayout.LayoutParams(-1, -2).apply {

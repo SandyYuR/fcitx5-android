@@ -5,15 +5,20 @@
 #include <algorithm>
 #include <memory>
 #include <stdexcept>
+#include <unordered_map>
 #if INPUT_DIAGNOSTICS
 #include <android/trace.h>
 #endif
 
 using direct_rime::Engine;
 namespace {
-// Accessed exclusively on rime-main. Retain the object across finalize/initialize
-// because librime's setup (and glog initialization) is process-wide and runs once.
-std::unique_ptr<Engine> engine;
+// Accessed exclusively on rime-main. Each engine identity owns a retained Engine object so
+// librime's process-wide setup (including glog initialization) runs once for that loaded slot.
+// Switching first stop/finalizes the current slot; inactive external DSOs stay mapped so a failed
+// activation can restart the previous slot without killing the Android process.
+std::unordered_map<std::string, std::unique_ptr<Engine>> engineSlots;
+Engine* engine = nullptr;
+bool engineStarted = false;
 Engine& instance() {
     if (!engine) throw std::logic_error("direct Rime has not started");
     return *engine;
@@ -176,21 +181,29 @@ extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void*) {
 extern "C" JNIEXPORT void JNICALL JNI_METHOD(start)(JNIEnv* env, jobject, jstring shared, jstring user,
                                                     jstring version, jboolean fullCheck) {
     try {
-        if (!engine) engine = std::make_unique<Engine>(direct_rime::selectedRimeApi());
+        if (engineStarted) throw std::logic_error("direct Rime is already started");
+        const auto identity = direct_rime::selectedEngineIdentity();
+        auto& slot = engineSlots[identity];
+        if (!slot) slot = std::make_unique<Engine>(direct_rime::selectedRimeApi());
+        engine = slot.get();
         instance().start(string(env, shared), string(env, user), string(env, version), fullCheck);
+        engineStarted = true;
         clearSnapshotCache(env);
+    } catch (const std::exception& e) { error(env, e); }
+}
+extern "C" JNIEXPORT void JNICALL
+Java_org_fcitx_directrime_Native_selectBuiltin(JNIEnv* env, jobject) {
+    try {
+        if (engineStarted) throw std::logic_error("请先停止当前 Rime 引擎再切换");
+        direct_rime::selectBuiltinEngine();
     } catch (const std::exception& e) { error(env, e); }
 }
 extern "C" JNIEXPORT jobjectArray JNICALL
 Java_org_fcitx_directrime_Native_configureExternal(JNIEnv* env, jobject, jint fd,
                                                     jstring entry, jstring identity) {
     try {
+        if (engineStarted) throw std::logic_error("请先停止当前 Rime 引擎再切换");
         const auto identityValue = string(env, identity);
-        // Engine survives an ordinary stop/start in the same process. Reusing the same
-        // already-loaded DSO is valid; changing from the built-in engine or another DSO
-        // still requires the process restart performed by the settings UI.
-        if (engine && !direct_rime::externalEngineConfiguredFor(identityValue))
-            throw std::logic_error("本进程已经使用另一套引擎，请重启后切换");
         const auto info = direct_rime::configureExternalEngine(fd, string(env, entry), identityValue);
         auto array = env->NewObjectArray(3, stringArrayClass, nullptr);
         if (!array) return nullptr;
@@ -232,7 +245,11 @@ Java_org_fcitx_fcitx5_android_core_engine_RimeEngineProbeNative_probe(
     } catch (const std::exception& e) { error(env, e); return nullptr; }
 }
 extern "C" JNIEXPORT void JNICALL JNI_METHOD(stop)(JNIEnv* env, jobject) {
-    try { if (engine) instance().stop(); clearSnapshotCache(env); } catch (const std::exception& e) { error(env, e); }
+    try {
+        if (engine) instance().stop();
+        engineStarted = false;
+        clearSnapshotCache(env);
+    } catch (const std::exception& e) { error(env, e); }
 }
 extern "C" JNIEXPORT jobject JNICALL JNI_METHOD(begin)(JNIEnv* env, jobject, jlong generation, jstring program) {
     try { return snapshot(env, instance().begin(generation, string(env, program))); }
