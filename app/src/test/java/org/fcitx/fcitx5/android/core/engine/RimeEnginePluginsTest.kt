@@ -2,12 +2,11 @@
 package org.fcitx.fcitx5.android.core.engine
 
 import android.app.Application
-import android.content.ComponentName
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
+import android.content.pm.ResolveInfo
 import android.content.pm.Signature
 import android.content.pm.SigningInfo
 import android.os.Build
@@ -72,11 +71,12 @@ class RimeEnginePluginsTest {
                 }
             }
         })
-        shadowOf(manager).addIntentFilterForActivity(
-            ComponentName(packageName, activity.name),
-            IntentFilter(RimeEnginePlugins.DISCOVERY_ACTION).apply {
+        shadowOf(manager).addResolveInfoForIntent(
+            Intent(RimeEnginePlugins.DISCOVERY_ACTION).apply {
                 addCategory(Intent.CATEGORY_DEFAULT)
-            }
+                setPackage(packageName)
+            },
+            ResolveInfo().apply { activityInfo = activity }
         )
 
         val candidates = RimeEnginePlugins.discover(context, packageName)
