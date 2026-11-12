@@ -15,9 +15,9 @@
 | 本次文档修复起点 | `fd3b65ecc07bce2a38a01afcd307135e4b2f7eed`，PR #31 的报告分支 |
 | 产品与工具修复提交 | `8801309478aa981cf45128df9be6f0e99d260bc8` |
 | 最终代码提交 | `adb6a4e33426333677934ac82f0a19997245556a`，补充 Python 3.10 测试兼容性，已推送代码 PR 分支 |
-| 对应最终代码 CI | `43166258826`（Direct Rime CI）、`43166258811`（PR CI）；收尾时登记终态 |
+| 对应最终代码 CI | [Direct Rime CI 43166258826](https://github.com/SandyYuR/fcitx5-android/actions/runs/43166258826) 与 [PR CI 43166258811](https://github.com/SandyYuR/fcitx5-android/actions/runs/43166258811) 全部通过，六项检查均对应 `adb6a4e3` |
 
-代码与文档分别维护在现有 [PR #32](https://github.com/SandyYuR/fcitx5-android/pull/32) 和 [PR #31](https://github.com/SandyYuR/fcitx5-android/pull/31)。写入修复文件、通过本机门禁、提交、推送及合并是不同状态；本页在最终收尾时按实际完成情况登记。
+代码与文档已分别提交并推送到现有 [PR #32](https://github.com/SandyYuR/fcitx5-android/pull/32) 和 [PR #31](https://github.com/SandyYuR/fcitx5-android/pull/31) 分支；未合并默认分支，代码 PR 继续保持草稿。文档首批修复提交 `6fa9fb0642203dbd494b8ae51fd2c9da934201a6` 的 [Docs CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43167253289) 已通过；本页随后补入最终代码 CI 的原始记录。
 
 ## 归因分析器：缺失证据不得变成零 CPU
 
@@ -77,7 +77,7 @@
 | 本机 Debug / 测试编译 | ARM64 Debug、候选设备用例和 v2 固定节拍探针均编译通过；APK 白名单、16 KiB 对齐与原生链接审计通过 |
 | 候选组件设备像素回归 | 本提交的 Direct Rime CI 原始 XML 有 54 项实际用例，失败／错误／跳过均为零；新增 `CandidateRenderingTest` 的三个像素／缓存用例均执行通过。本机未安装或运行模拟器 |
 | 文档站五项门禁及 diff | 构建、链接、历史完整性、目录、搜索与 diff 检查通过；后续结果注记在文档 CI 再验证 |
-| 对应代码提交的 CI | 最终 `adb6a4e3` 的两个运行正在执行；25 项工具测试已在远端 Python 3.10 环境通过；不沿用 `10cc6331` 的历史 CI |
+| 对应代码提交的 CI | 最终 `adb6a4e3` 的两个运行、六项检查全部通过，包括全量 JVM、Debug／lint、ARM64、原生 prototype／sanitizer、引擎 smoke 和完整前端；25 项工具测试已在远端 Python 3.10 环境通过 |
 
 旧 CSV 复核使用[原分析附件](../perf/input-dispatch-2026-11-12/analysis.zip)中最后一轮固定节拍的正序/反序、默认/候选四组查询输出。旧查询未导出 `upid`，离线适配只对已确认的单进程记录补入同一个合成实例标识，以重播新覆盖校验；这不是重新采集，也不是用旧字段证明已经检测了 PID 复用。原始 CSV、ZIP 与历史结果保持不变，多实例拒绝能力另由自动测试覆盖。
 
@@ -85,6 +85,8 @@
 
 首个修复提交 `88013094` 的 Direct Rime CI 和两条 Debug／lint 检查通过，但两个 PR CI 的 JVM job 在前置 Python 测试失败：Ubuntu 22.04 的 Python 3.10 没有 `TestCase.enterContext`，11 个运行器用例在 `setUp` 抛出 `AttributeError`，因此后续远端 JVM 业务测试当时未执行。`adb6a4e3` 改用 `contextlib.ExitStack` 与 `addCleanup`，没有升级 CI 环境或改变产品实现。本机禁用该新 API 后重跑全部 25 项用例通过，随后远端 Python 3.10 的同一步骤也通过；保留[首次失败的运行](https://github.com/SandyYuR/fcitx5-android/actions/runs/43164464711)，不把它记成成功。
 
-原始与派生验证依据：[设备 XML 和诊断归档](../perf/pr32-review-repair-2026-11-12/frontend-results.zip)、[本次设备用例核验](../perf/pr32-review-repair-2026-11-12/frontend-validation.json)、[本机 JVM XML](../perf/pr32-review-repair-2026-11-12/local-jvm-results.zip)、[工具测试输出](../perf/pr32-review-repair-2026-11-12/tool-tests.txt)、[本机构建源码对应](../perf/pr32-review-repair-2026-11-12/source-validation.json)、[旧采样兼容重播摘要](../perf/pr32-review-repair-2026-11-12/association-replay.json)、[本机文档门禁](../perf/pr32-review-repair-2026-11-12/docs-gates.json)。设备归档 SHA-256 为 `15c678f2ef694aa99a9378067864dcbbec0e218a913fff340b822d8cec957b4d`，对应本次运行的 artifact `13918709948`，与 GitHub artifact digest 一致。
+原始与派生验证依据：[最终代码 CI](../perf/pr32-review-repair-2026-11-12/final-code-ci.json)、[最终设备 XML 和诊断归档](../perf/pr32-review-repair-2026-11-12/final-frontend-results.zip)、[最终设备用例核验](../perf/pr32-review-repair-2026-11-12/final-frontend-validation.json)、[本机 JVM XML](../perf/pr32-review-repair-2026-11-12/local-jvm-results.zip)、[工具测试输出](../perf/pr32-review-repair-2026-11-12/tool-tests.txt)、[本机构建源码对应](../perf/pr32-review-repair-2026-11-12/source-validation.json)、[旧采样兼容重播摘要](../perf/pr32-review-repair-2026-11-12/association-replay.json)、[本机文档门禁](../perf/pr32-review-repair-2026-11-12/docs-gates.json)。最终设备归档 SHA-256 为 `a4d70dad098c2ccf6ddfa49e96f3fcdcecf6a762aec2e500a609180aa1e2dd61`，对应 artifact `13920312739`，与 GitHub artifact digest 一致。
+
+先前 `88013094` 的[设备归档](../perf/pr32-review-repair-2026-11-12/frontend-results.zip)与[用例核验](../perf/pr32-review-repair-2026-11-12/frontend-validation.json)也保留原件：SHA-256 为 `15c678f2ef694aa99a9378067864dcbbec0e218a913fff340b822d8cec957b4d`，artifact 为 `13918709948`。两个提交分别有 54 项实际设备用例通过，不把重复运行相加成 108 项独立覆盖。
 
 本次尚无新的无 trace 性能对照、真机或 Release 提速结论。旧 `1,032` 次选词正确、`51` 项前端用例以及旧候选版的有利或不利计时，均仍属于各自历史源码和测试条件，不作为本次候选文字调整的性能验收。
