@@ -1210,8 +1210,8 @@
     <string name="js_voice_network_approved_hint">Approved. Press the voice button again to start.</string>
     <string name="js_voice_secret_unavailable">Cannot decrypt on this device; enter the key again</string>
     <string name="rime_engine_variants_title">Rime engine variants</string>
-    <string name="rime_engine_variants_summary">Built-in, imported .so, and installed provider engines</string>
-    <string name="rime_engine_variants_description">Keep the built-in engine as a safe fallback, import compatible single-file engines, or authorize installed Rime engine provider apps. Every external engine is bound to a Rime working directory. External variants are unavailable when an older device kernel or its security policy cannot provide a sealed executable memory file for isolated probing.</string>
+    <string name="rime_engine_variants_summary">Choose a built-in, imported, or provider engine</string>
+    <string name="rime_engine_variants_description">Choose a Rime engine and its working directory. If an external engine is unavailable, the built-in engine takes over.</string>
     <string name="rime_engine_loading">Reading engines and working directories…</string>
     <string name="rime_engine_ready">Engine list is ready</string>
     <string name="rime_engine_fallback_title">Engine fallback</string>

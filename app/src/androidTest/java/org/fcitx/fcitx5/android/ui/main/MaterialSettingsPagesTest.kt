@@ -6,17 +6,20 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
 import android.net.Uri
 import android.os.Build
+import android.os.SystemClock
 import android.view.View
 import android.view.ViewGroup
 import android.view.MotionEvent
 import android.view.inspector.WindowInspector
 import android.widget.ArrayAdapter
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ImageView
 import android.widget.ListView
@@ -43,6 +46,7 @@ import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
 import org.fcitx.fcitx5.android.ui.main.settings.im.RimeImportActivity
 import org.fcitx.fcitx5.android.ui.main.settings.im.RimeEngineManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.setup.SetupActivity
 import org.fcitx.fcitx5.android.ui.main.update.ReleaseInfo
 import org.fcitx.fcitx5.android.ui.main.update.UpdateCheckActivity
@@ -365,6 +369,62 @@ class MaterialSettingsPagesTest {
         } finally { image.delete() }
     }
 
+    @Test fun engineManagerToolbarBackClosesPage() {
+        val activity = instrumentation.startActivitySync(Intent(context, RimeEngineManagerActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        try {
+            lateinit var back: ImageButton
+            val readyDeadline = SystemClock.uptimeMillis() + 8000
+            var ready = false
+            while (!ready && SystemClock.uptimeMillis() < readyDeadline) {
+                instrumentation.waitForIdleSync()
+                onMain {
+                    val toolbar = activity.findViewById<MaterialToolbar>(R.id.toolbar)
+                    val candidate = (0 until toolbar.childCount).map(toolbar::getChildAt)
+                        .filterIsInstance<ImageButton>().firstOrNull()
+                    if (candidate != null && candidate.isShown && candidate.width > 0) {
+                        back = candidate
+                        ready = true
+                    }
+                }
+                if (!ready) SystemClock.sleep(30)
+            }
+            assertTrue("Engine manager navigation button did not become tappable", ready)
+            tap(back)
+            val finishDeadline = SystemClock.uptimeMillis() + 5000
+            while (!activity.isFinishing && !activity.isDestroyed &&
+                SystemClock.uptimeMillis() < finishDeadline) {
+                instrumentation.waitForIdleSync()
+                SystemClock.sleep(30)
+            }
+            assertTrue("Toolbar back did not close the engine manager",
+                activity.isFinishing || activity.isDestroyed)
+        } finally {
+            onMain { if (!activity.isFinishing && !activity.isDestroyed) activity.finish() }
+            instrumentation.waitForIdleSync()
+        }
+    }
+
+    @Test fun rimeEngineEntrySummaryStaysOnOneLine() {
+        page(MainActivity::class.java, extras = {
+            action = Intent.ACTION_RUN
+            putExtra(MainActivity.EXTRA_SETTINGS_ROUTE,
+                SettingsRoute.SettingsGroup(SettingsGroupSpecs.ID_INPUT))
+        }, ready = { activity ->
+            descendants(activity.window.decorView).filterIsInstance<TextView>().any {
+                it.isShown && it.height > 0 &&
+                    it.text == activity.getString(R.string.rime_engine_variants_summary)
+            }
+        }) { activity ->
+            val summary = descendants(activity.window.decorView).filterIsInstance<TextView>().single {
+                it.isShown && it.text == activity.getString(R.string.rime_engine_variants_summary)
+            }
+            assertEquals(1, summary.maxLines)
+            assertEquals(android.text.TextUtils.TruncateAt.END, summary.ellipsize)
+            assertEquals(1, summary.lineCount)
+        }
+    }
+
     @Test fun engineManagerDestroyRemovesOnlyItsStagingDirectory() {
         lateinit var manager: Activity
         lateinit var ownedStagingFile: File
@@ -517,6 +577,22 @@ class MaterialSettingsPagesTest {
         android.os.ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand(
             "screencap -p /data/local/tmp/direct-frontend-md3-$name-$mode.png"
         )).use { it.readBytes() }
+    }
+
+    private fun tap(view: View) {
+        val bounds = Rect()
+        onMain {
+            assertTrue("The control must be visible before tapping", view.getLocalVisibleRect(bounds))
+            val location = IntArray(2).also(view::getLocationOnScreen)
+            bounds.offset(location[0], location[1])
+        }
+        val now = SystemClock.uptimeMillis()
+        listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP).forEachIndexed { index, action ->
+            val event = MotionEvent.obtain(now, now + index * 30L, action,
+                bounds.exactCenterX(), bounds.exactCenterY(), 0)
+            try { instrumentation.sendPointerSync(event) } finally { event.recycle() }
+        }
+        instrumentation.waitForIdleSync()
     }
 
     private fun descendants(view: View): Sequence<View> = sequence {

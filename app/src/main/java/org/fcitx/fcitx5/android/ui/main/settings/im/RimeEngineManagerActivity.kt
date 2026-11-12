@@ -79,7 +79,6 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
             setTitle(R.string.rime_engine_variants_title)
             setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
             setNavigationContentDescription(androidx.appcompat.R.string.abc_action_bar_up_description)
-            setNavigationOnClickListener { finish() }
         }
         root.addView(toolbar)
         val content = LinearLayout(this).apply {
@@ -97,7 +96,16 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
         root.addView(ScrollView(this).apply { addView(content) }, LinearLayout.LayoutParams(-1, 0, 1f))
         setContentView(root)
         setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // ToolbarActionBar installs its own navigation listener in setSupportActionBar().
+        // Bind afterwards so the visible arrow always follows the Activity back dispatcher.
+        toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         connection
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 
     override fun onResume() {

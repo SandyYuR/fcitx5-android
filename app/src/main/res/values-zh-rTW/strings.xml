@@ -1176,8 +1176,8 @@
     <string name="js_voice_network_approved_hint">已批准，再次點按語音按鈕即可開始。</string>
     <string name="js_voice_secret_unavailable">本機無法解密，請重新填寫金鑰</string>
     <string name="rime_engine_variants_title">Rime引擎變體</string>
-    <string name="rime_engine_variants_summary">管理內建、匯入的 .so 與已安裝的提供者引擎</string>
-    <string name="rime_engine_variants_description">內建引擎始終作為安全回退；也可以匯入相容的單一檔案引擎，或授權已安裝的 Rime 引擎提供 APK。每個外部引擎分別綁定一個 Rime 工作目錄。舊裝置核心或系統安全策略若無法為隔離探測提供可封印的可執行記憶體檔案，外部變體不可用。</string>
+    <string name="rime_engine_variants_summary">選擇內建、匯入或外掛引擎</string>
+    <string name="rime_engine_variants_description">選擇要使用的 Rime 引擎及其工作目錄。外部引擎無法使用時，會自動切回內建引擎。</string>
     <string name="rime_engine_loading">正在讀取引擎和工作目錄…</string>
     <string name="rime_engine_ready">引擎清單已就緒</string>
     <string name="rime_engine_fallback_title">引擎已回退</string>

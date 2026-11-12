@@ -30,7 +30,8 @@ data class SettingsGroupEntry(
     @DrawableRes val icon: Int,
     @StringRes val summary: Int? = null,
     val action: SettingsGroupAction,
-    @StringRes val sectionTitle: Int? = null
+    @StringRes val sectionTitle: Int? = null,
+    val singleLineSummary: Boolean = false
 ) {
     companion object {
         fun route(
@@ -38,16 +39,20 @@ data class SettingsGroupEntry(
             @DrawableRes icon: Int,
             route: SettingsRoute,
             @StringRes summary: Int? = null,
-            @StringRes sectionTitle: Int? = null
-        ) = SettingsGroupEntry(title, icon, summary, SettingsGroupAction.Route(route), sectionTitle)
+            @StringRes sectionTitle: Int? = null,
+            singleLineSummary: Boolean = false
+        ) = SettingsGroupEntry(title, icon, summary, SettingsGroupAction.Route(route), sectionTitle,
+            singleLineSummary)
 
         fun activity(
             @StringRes title: Int,
             @DrawableRes icon: Int,
             activityClass: Class<out Activity>,
             @StringRes summary: Int? = null,
-            @StringRes sectionTitle: Int? = null
-        ) = SettingsGroupEntry(title, icon, summary, SettingsGroupAction.Launch(activityClass), sectionTitle)
+            @StringRes sectionTitle: Int? = null,
+            singleLineSummary: Boolean = false
+        ) = SettingsGroupEntry(title, icon, summary, SettingsGroupAction.Launch(activityClass),
+            sectionTitle, singleLineSummary)
     }
 }
 
@@ -103,7 +108,8 @@ object SettingsGroupSpecs {
                         R.string.rime_engine_variants_title,
                         R.drawable.ic_baseline_extension_24,
                         RimeEngineManagerActivity::class.java,
-                        R.string.rime_engine_variants_summary
+                        R.string.rime_engine_variants_summary,
+                        singleLineSummary = true
                     ),
                     // 候选栏样式与候选窗口同属「候选」族，两处都留在本组；
                     // 键盘页不再重复挂这一项（同一目标两条路径会让用户怀疑哪个是真的）。
