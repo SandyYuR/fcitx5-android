@@ -93,7 +93,15 @@
 
 `RimeEnginePluginsTest` 在 API 27、28、32、33 的 Robolectric 运行时实际执行 4 项，经过 provider 发现、ELF 校验、当前证书读取与 `requireCurrent` 再核对；历史证书刻意设置为不同值。与 `RimeEngineProbeServiceTest` 的 3 项合计 7 项，失败、错误、跳过均为零。结果位于本机 `.verify/ime-merge-20261112/` 的两份 JUnit XML；这些是 JVM 平台分支回归，不能写成四个系统版本的设备验收。
 
-本次准备合入的代码 PR 为 [#33](https://github.com/SandyYuR/fcitx5-android/pull/33)，审阅头为 `1d2d165abe678d0f131675af8ea9e431dd79b45b`，默认分支基线为 `0380d70f16efb6a9946a164821d5cad7118ce4ff`。原功能头 `68bfd17bf` 的 [Commit CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43143493465)、[Direct Rime CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43143497799)及 [Material 设置 API 34/35/36](https://github.com/SandyYuR/fcitx5-android/actions/runs/43143501732) 已成功；新增兼容补丁后的 [PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43162901132)与 [Direct Rime CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43162901374) 和实际合入结果单独核对，不继承旧提交的测试结论。
+合入前的 Android lint 还发现新增 60 个 `rime_engine_*` 键缺少五种现有语言的翻译。随后补齐德语、西班牙语、日语、韩语、俄语各 60 条，共 300 条文案，分别放入各语言的 `rime_engine_strings.xml`；长授权文案继续区分隔离探测与正式运行的完整信任边界，删除／撤销操作明确保留工作目录与数据。XML 键集合、格式占位符和重复键检查通过，没有用 suppress 或 baseline 隐藏 `MissingTranslation`。完整本地 `lintFxDebug` 最终为 0 errors、738 warnings；本轮未扩大修改既有 warnings，结果保存在 `.verify/ime-merge-20261112/lint-local.txt`、`lint-summary.json` 和 `translations-check.json`。
+
+代码 [PR #33](https://github.com/SandyYuR/fcitx5-android/pull/33) 已于 2026-11-12 14:15（北京时间）按用户要求使用 Squash merge 合入默认分支 `fx-rime-only`，合入提交为 [`88a664d46ba82712d5457d86c037629c478b042c`](https://github.com/SandyYuR/fcitx5-android/commit/88a664d46ba82712d5457d86c037629c478b042c)，标题为“功能(Rime): 支持安全导入、授权与无感切换引擎”。合入前默认分支基线为 `0380d70f16efb6a9946a164821d5cad7118ce4ff`；PR 最终审阅头为 `dcf90a5a3aba13bfa16dc358b07179442ed0569c`。审阅头与默认分支合入提交的 Git tree 均为 `a1340cb5587ba46d73853f553bce2176d12b06b9`，已核对内容完全一致，没有因压缩产生新 SHA 而重复重放补丁。
+
+配套文档通过 [PR #34](https://github.com/SandyYuR/fcitx5-android/pull/34) 合入 `docs`，同样采用用户指定的 Squash merge。本文更新时文档 PR 仍待最终检查与合并；文档站发布由合入 `docs` 后的 Pages 流水线独立确认。
+
+原功能头 `68bfd17bf` 的 [Commit CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43143493465)、[Direct Rime CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43143497799)及 [Material 设置 API 34/35/36](https://github.com/SandyYuR/fcitx5-android/actions/runs/43143501732) 已成功。随后 `1d2d165a` 的 [PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43162901132)与 [Direct Rime CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43162901374) 仅保留为翻译补齐前的阶段记录。
+
+最终审阅头 `dcf90a5a` 的 [PR CI 43165493812](https://github.com/SandyYuR/fcitx5-android/actions/runs/43165493812) 和 [Direct Rime CI 43165493798](https://github.com/SandyYuR/fcitx5-android/actions/runs/43165493798) 共 6 项检查全部成功：完整 JVM 单元测试、Debug APK／Android lint／原生链接审计、prototype、Android 引擎 smoke、完整前端 ARM64 APK、完整前端触摸与引擎测试。核对依据为本机 `checks-merged-head.json`、`pr-merged.json` 和 `merge-result.json`；默认分支的合入后构建与发布状态另行查看，不将 PR 成功当作新 APK 已发布。文档 PR 的首轮 [Docs CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43164108670) 已通过，本次更新继续运行本地五项门禁并等待最新文档检查。
 
 此输入法合入阶段保持 EVO 仓库不变，也没有改写内置 SDK 锁或用户方案。
 
