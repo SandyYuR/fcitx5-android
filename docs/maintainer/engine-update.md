@@ -57,6 +57,60 @@ Android 构建的依赖版本以 `sources.lock.json` 为准，不能只改 libri
 
 重新运行 CI、启动输入法、检查应用更新，都不会自动把固定的组件前移到上游最新提交。仅更新依赖时可以保留当前官方核心基线，不必同时变基核心。方案里的 `.lua` 文件、Lua 运行时和 librime-lua 插件也应分别记录版本。
 
+## 运行时引擎变体与提供 APK
+
+主应用仍以 `native/rime-sdk.lock.json` 固定的静态 SDK 构建内置引擎。运行时变体是另一条消费链：把完整引擎及其依赖最终链接成一个可加载的 Android DSO，再由用户直接导入，或放进提供 APK 的 `lib/<abi>/`。`SandyYuR/librime` 的 `android-sdk` 发布物包含静态归档、头文件和数据，不能把其中的 `librime.a` 政名为 `.so` 后导入；必须完成最终共享库链接、隐藏非入口导出并验证动态依赖。
+
+可导入 DSO 的最低契约为：当前进程 ABI 的 `ET_DYN`、16 KiB LOAD 对齐、无 W+X、无可执行栈、无 TEXTREL/RPATH/RUNPATH、只依赖允许的 Android 系统库，并导出 `rime_get_api` 或兼容入口。静态检查不能证明函数表兼容，因此主应用在用户首次确认后还会在一次性 Android `isolatedProcess` 中加载 DSO，核对 `RimeApi.data_size`、必需函数和版本。该进程使用独立 isolated UID，不继承应用已授予权限，应用的常规偏好、恢复和数据初始化也不在其中运行。由于 isolated UID 不能执行主应用代码缓存的 inode，探测桥接把传入的只读 FD 有界复制到隔离进程创建并加写入／增长／缩小封印的 memfd，再从同字节 memfd 加载；不能以 SELinux 限制为由退回同 UID 探测或未封印 ashmem。设备内核缺少 `memfd_create`、seccomp/LSM 拒绝或 seal 失败时，探测明确报不支持并 fail closed；这意味着最低 API 23 不保证所有旧内核可使用运行时变体。调用方串行化探测，取消、超时或收到结果后解除唯一绑定，服务销毁时结束隔离进程。探测只证明这一字节载荷能暴露当前桥接所需的 C API，不调用目标 profile 的部署流程，也不能证明具体方案、词典、Lua 或模型可用。正式启用后 DSO 仍在输入法主进程运行，因此最终授权文案必须继续说明完整信任边界。
+
+提供 APK 通过可查询 Activity 声明 `org.rime.plugin.MANIFEST` intent，并在 application metadata 提供：
+
+| 字段 | 当前值或含义 |
+| --- | --- |
+| `org.rime.plugin.API_VERSION` | 协议版本 `1` |
+| `org.rime.plugin.RIME_API_ABI` | Rime API 契约版本 `1` |
+| `org.rime.plugin.PLUGIN_ID` | 提供者稳定 ID |
+| `org.rime.plugin.SONAME` | 安装后 `nativeLibraryDir` 中的 DSO 文件名 |
+| `org.rime.plugin.LIBRIME_VERSION` | 供列表显示的声明版本，不能替代运行时探测 |
+| `org.rime.plugin.CHANNEL` | 例如 `release` 或 `test` |
+
+这是中州鹅兼容的社区协议，不是 Rime 上游标准。主应用把授权绑定到包名、签名证书 SHA-256、DSO SHA-256 和 SONAME；更新或换签后要求重新授权。实际启动不直接 `dlopen` 提供 APK 的 `nativeLibraryDir` 路径：先把载荷复制、重新静态检查并原子发布为应用管理的只读 `plugin-<SHA-256>.so` 执行快照，再重新查询包证书、provider ID、协议/API 版本、SONAME、载荷摘要和入口。复制期间发生安装更新或元数据变化时本次启动失败并走回退，不把旧授权套到新包。提供 APK 应设置 `extractNativeLibs=true`，确保宿主能从 `nativeLibraryDir` 取得可供复制的真实文件。稳定分发必须复用同一签名；临时 CI 签名只用于测试。
+
+提供 APK 的证书读取遵循系统版本：API 33 及以上使用 `PackageInfoFlags` 重载，API 28–32 使用整数 flags 的 `GET_SIGNING_CERTIFICATES`，两者都取 `SigningInfo.apkContentsSigners` 当前证书；API 27 及以下使用 `GET_SIGNATURES`。不能把历史签名证书误当作当前授权身份，也不能在 API 28–32 调用 API 33 的新重载。`RimeEnginePluginsTest` 在 API 27、28、32、33 的 Robolectric 运行时中调用真实发现、ELF 校验和再次身份核对，设备加载能力仍由单独回归确认。
+
+每次进程准备使用外部引擎，而不只是首次切换，都会在载荷发布和加载前原子写入启动守卫。显式切换或修改活动引擎绑定时还设置完整部署标志；普通稳定启动不因此无条件重编方案。只有 native 初始化、所需部署和方案刷新成功才清除守卫，未完成的下一次启动按保存的前一引擎回退。外部引擎活动期间，兼容保留的 `profile-manager` 不允许直接切换目录，`import-profile` 也不允许导入并切换；应在引擎变体页修改绑定。任何导入引擎、已授权 provider 或内置回退状态仍引用的 profile 均不得重命名或删除。
+
+`SandyYuR/librime-evo` 的 `.github/workflows/android-engine.yml` 是完整示例：从固定源码和依赖构建 ARM64 自包含 DSO，检查 ELF、导出和摘要，再把同一字节载荷封装为提供 APK。工作流分别上传 `.so` 与 APK artifact；只有 `main` 分支的非 PR 构建且四个 `ANDROID_ENGINE_*` Secrets 齐备时使用稳定发行签名。未配置 keystore，或属于非 `main`／PR 构建时，生成本次运行专用的测试签名；已进入发行签名分支但其余凭据不完整时，构建会终止。方案兼容仍需单独设备验证，构建成功不代表任意 YAML、词典或模型完整。
+
+设备门禁的两个 `RimeEngineVariantDeviceTest` 方法必须用两次独立 instrumentation 启动；同一 runner 进程不会卸载第一个 DSO，连续执行会污染第二项。2026-11-12 本机固定的 x86_64 夹具为：内置 SDK 最终链接 DSO SHA-256 `401da5c080b00876e173c9b351c881888f6c0eedc278728aba88ca15df7fabaf`，`librime-evo@8727992e` provider APK SHA-256 `75638150c5d273dc9a497d7b1a91ba51316e1129474cca114e9d7ad59a041f36`，可运行万象 profile ZIP SHA-256 `1bfe7d8652a71977b3cb67aaaefdcd0efc7c71f874c90eb1a615bea968a70788`（方案基线 `45eeda12`）。运行前逐项复核摘要、安装 provider，并把 DSO/ZIP 放到下列固定设备路径；不能用同名未核验文件替代。
+
+```sh
+runner='org.fcitx.fcitx5.android.fx.rime.debug.test/androidx.test.runner.AndroidJUnitRunner'
+target='org.fcitx.fcitx5.android.fx.rime.debug'
+class='org.fcitx.fcitx5.android.core.engine.RimeEngineVariantDeviceTest'
+
+adb shell am force-stop "$target"
+adb shell am instrument -w -r \
+  -e class "$class#importedEnginePassesDisposableProbeAndRunsThroughDirectBridge" \
+  -e enginePath /data/local/tmp/librime-current-x86_64.so "$runner"
+
+adb shell am force-stop "$target"
+adb shell am instrument -w -r \
+  -e class "$class#installedProviderIsDiscoveredProbedAndRunsThroughDirectBridge" \
+  -e providerPackage org.rime.plugin.sandyyur.librime_evo \
+  -e profilePath /data/local/tmp/wanxiang-evo-profile-45eeda12-runnable-v2.zip "$runner"
+```
+
+两次输出须各自为 `OK (1 test)`。导入项检查 isolated UID 与不可写探测快照、受管载荷、损坏执行缓存重发布及真实 bridge 启动；provider 项强制要求 `profilePath`，检查包身份重核、按摘要执行快照、完整部署、候选上屏以及同一 DSO 的 stop/start。当前通用 workflow 不携带这些外部固定夹具，故不会自动执行本项；必须把本机结果与常规 CI 分开记录。
+
+### 外部引擎的方案部署排查
+
+固定引擎载荷摘要、方案压缩包摘要及实际绑定目录，分别记录 API 探测、方案部署、候选与上屏结果。配置语法、Lua 接口、词典名称和模型格式都须符合该 fork；引擎 ARM64 CI 成功不能替代配套方案在设备上的验证。
+
+从本次部署日志中定位首个 `error applying patch`、`unresolved dependency`、`error building config`，并核对其指向的 `__patch`／`__include` 路径；词典、模型缺失则按明确文件名核对来源和目录。旧编译文件与可枚举的方案名称不能证明本次编译成功。验证错误通知时使用新解压的独立目录，避免旧缓存遮蔽失败，同时检查 `deploy/failure` 与 `deploy/success`，最终仍须输入中文编码并实际选字上屏。
+
+2026-11-12 已在 `librime-evo@06947eedd6236318cbf9a2745e2d0cfc65011af7` 复现：配置 Link 失败、目标编译文件缺失，但维护流程仍发出 `deploy/success`。修复在保留部分解析数据的前提下，将编译结果传给 `ConfigFileUpdate`，并让 `WorkspaceUpdate` 传播默认配置失败；独立设备进程已验证错误通知及自然码诊断包上屏。修复已随 `05037824` 推送至该仓库的开发分支，CI 已生成引擎与提供 APK 产物，但未自动更新设备上的引擎，完整范围见[日期记录](changes/2026-11-12-evo-profile-diagnosis)。上面的 `runnable-v2` 是裁剪过的测试夹具，不代表原始万象 EVO 方案通过。
+
 ## 组件源码在哪里
 
 以下为 2026-11-05 这一轮更新后的版本；完整 SHA 和下载摘要以[依赖锁](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/sources.lock.json)为准。
