@@ -1,0 +1,16 @@
+{
+  "commit": "38555944c2c365d85af8fd73c693ec6182e4d86f",
+  "artifact_id": 13958831850,
+  "sha256": "141a3e69c57c0e0f70bba297091eef02d8f0dac035215bb664f419a076424bcb",
+  "tests": 59,
+  "counts": {
+    "failure": 0,
+    "error": 0,
+    "skipped": 0
+  },
+  "reports": [
+    "outputs/androidTest-results/connected/debug/flavors/fx/TEST-test(AVD) - 15-_app-fx.xml"
+  ],
+  "performance_probe_executed_by_this_frontend_suite": false,
+  "performance_probe_compilation": "PR CI compileFxDebugAndroidTestKotlin"
+}

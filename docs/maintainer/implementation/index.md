@@ -29,3 +29,5 @@
 [JS 语音宿主与开发接口](./js-voice-plugins)：注册、设置字段、回调、二进制、HMAC、逐插件授权、资源预算及 stub 契约。用户安装步骤独立放在[JS 插件指南](/features/voice-input-js)。
 
 近期复核：[首个 i 分发等待与候选性能补丁撤回](../perf/input-dispatch-2026-11-12/index.md)，包含固定节拍协议、原始数据和当前代码范围。
+
+后续复核：[PR #32 独立发键与实际触摸时长](../perf/pr32-phase-review-2026-11-12/index.md)，保留正式对照、点选风险和采样修复。

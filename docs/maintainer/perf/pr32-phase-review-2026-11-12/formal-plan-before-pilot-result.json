@@ -1,0 +1,10 @@
+{
+  "condition": "Only if corrected pilot passes all source/clock/geometry/model/word gates",
+  "plan": "Same two frozen product APKs and v3 independent driver; 100ms gap only; both actual visible and hidden comments; two fresh VMs; each condition 3 independently randomized ABBA/BAAB blocks",
+  "unit": "One ABBA block = one paired observation, averaging the two fresh processes/product within block; warm rounds not independent samples",
+  "planned_processes": 48,
+  "planned_selections": 288,
+  "seed": 2026111211,
+  "trace": false,
+  "rule": "Keep all valid results, failures and attempted samples; do not rerun because a version is slower; do not use 300ms diagnostic waits as a speed improvement"
+}

@@ -1,0 +1,11 @@
+{
+  "state": "archive-prepared-before-deletion",
+  "expected_tip": "9b63190fc97408f5960a8a3203a411565e5ccd82",
+  "branch": "test/pr32-input-phase-20261112",
+  "remote_deleted": false,
+  "local_deleted": false,
+  "worktree_removed": false,
+  "archive_push_required_before_deletion": true,
+  "default_branch_pushed": false,
+  "historical_ci_deleted": false
+}

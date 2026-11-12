@@ -155,4 +155,4 @@ current 中保留的普通候选快路径只作用于**无注释**候选；本�
 
 [证据目录](../perf/pr32-latency-study-2026-11-12/index.md)保存五份已按 GitHub artifact SHA-256 核验的原始测量 ZIP、精简汇总、预登记、独立复算和本机绘制诊断派生摘要；不包含 APK、模型、夹具、私有签名材料或完整本机 trace。pilot 的 216 个首次/warm 指标值，以及正式试验汇总为 144 组统计的 864 个逐进程指标值，均由原始纳秒记录独立重算并核对一致。
 
-本页记录的是仍有长等待的研究阶段，未发布性能改善比例或修复验收结论。独立绘制诊断已经完成本轮阶段拆分，但探针自身开销、Debug JIT、软件图形和 UiAutomation 同步仍互相影响。后续若继续研究，应把驱动移到独立进程，以同一诊断 ID 串起 service queue、owner、native、publish、主线程消费、adapter 与 FrameTimeline 实际呈现，并扫描不同键间隔和帧相位；得到跨 VM 可复现的干预结果后再决定产品修改。
+本页记录的是仍有长等待的研究阶段，未发布性能改善比例或修复验收结论。独立绘制诊断已经完成本轮阶段拆分，但同进程探针、Debug JIT、软件图形与主线程绘制同步仍互相影响。这里的 v2 每键直接调用 InputManager 异步注入，已避开旧 UiAutomationConnection 的每键表面事务同步；UiAutomation 用于测试身份、宿主启动及测量后的 dump，不能再把旧注入同步当成本轮长等待的已证实原因。后续若继续研究，应把驱动移到独立进程，以同一诊断 ID 串起 service queue、owner、native、publish、主线程消费、adapter 与 FrameTimeline 实际呈现，并扫描不同键间隔和帧相位；得到跨 VM 可复现的干预结果后再决定产品修改。

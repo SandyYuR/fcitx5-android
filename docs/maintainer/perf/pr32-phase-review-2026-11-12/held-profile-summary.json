@@ -1,0 +1,54 @@
+[
+  {
+    "case": "100-baseline",
+    "valid": true,
+    "wait_ms": 10.028738,
+    "cpu_ms": {
+      "main": 2.44432,
+      "render": 7.674485,
+      "owner": 0.0
+    },
+    "postAndWait_overlap_ms": 4.660549,
+    "validation_errors": [],
+    "trace_errors": []
+  },
+  {
+    "case": "100-current",
+    "valid": true,
+    "wait_ms": 97.924658,
+    "cpu_ms": {
+      "main": 0.381562,
+      "render": 71.687576,
+      "owner": 0.0
+    },
+    "postAndWait_overlap_ms": 97.549698,
+    "validation_errors": [],
+    "trace_errors": []
+  },
+  {
+    "case": "300-baseline",
+    "valid": true,
+    "wait_ms": 1.252818,
+    "cpu_ms": {
+      "main": 0.311122,
+      "render": 0.0,
+      "owner": 0.0
+    },
+    "postAndWait_overlap_ms": 0,
+    "validation_errors": [],
+    "trace_errors": []
+  },
+  {
+    "case": "300-current",
+    "valid": true,
+    "wait_ms": 0.791769,
+    "cpu_ms": {
+      "main": 0.233827,
+      "render": 0.0,
+      "owner": 0.0
+    },
+    "postAndWait_overlap_ms": 0,
+    "validation_errors": [],
+    "trace_errors": []
+  }
+]
