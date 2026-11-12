@@ -1,0 +1,42 @@
+{
+  "completed_at": "2026-11-12T10:29:29.795407+08:00",
+  "archive_first_pushed_at": "348915a3f38c0f6c5c27ad613eee80f04e7813d9",
+  "deleted_remote_branches": {
+    "perf/wanxiang-latest-20261108": "178d5128a43b7949edb68d0f6e5fa98e8eb5c85c",
+    "perf/wanxiang-current-20261111": "1c050540ea95f5afe3674d438d1d3d04a9736e3c",
+    "perf/investigate-input-latency-20261111": "c780cf55ea2b23770bc2bbe8d063082d780fa7b2",
+    "perf/first-candidate-fix-20261112": "baf8d60ba0bd938dddb7fa2199e4493264b9a9c4"
+  },
+  "deleted_local_branches": [
+    "perf/wanxiang-latest-20261108",
+    "perf/wanxiang-current-20261111",
+    "perf/investigate-input-latency-20261111",
+    "perf/first-candidate-fix-20261112"
+  ],
+  "retained_worktrees": [
+    "worktree /workspace/fcitx5-android",
+    "HEAD 986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec",
+    "branch refs/heads/fix/first-candidate-latency-20261112",
+    "",
+    "worktree /workspace/fcitx5-android-report",
+    "HEAD 348915a3f38c0f6c5c27ad613eee80f04e7813d9",
+    "branch refs/heads/report/wanxiang-retest-20261108"
+  ],
+  "remaining_remote_branches": {
+    "doc-rime-engine-variants": "f9aad4e3c436161edfef3a2291c8f8006d1159da",
+    "docs": "9d663ea74177f96e7624b9b133278912a52113db",
+    "feat/rime-engine-variants": "072add84bf7b407adf559ad9ea5bbc64a8aedcd5",
+    "fix/first-candidate-latency-20261112": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec",
+    "fx-rime-only": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+    "report/wanxiang-retest-20261108": "348915a3f38c0f6c5c27ad613eee80f04e7813d9"
+  },
+  "default_unchanged": true,
+  "user_engine_variant_branches_unchanged": true,
+  "historical_actions_deleted": false,
+  "browser_validation": [
+    "desktop report, archive and architecture rendered",
+    "archive page attachments HTTP 200",
+    "mobile architecture image visible without page-wide horizontal overflow"
+  ],
+  "push_result": "To https://github.com/SandyYuR/fcitx5-android.git\n - [deleted]           perf/first-candidate-fix-20261112\n - [deleted]           perf/investigate-input-latency-20261111\n - [deleted]           perf/wanxiang-current-20261111\n - [deleted]           perf/wanxiang-latest-20261108\n"
+}

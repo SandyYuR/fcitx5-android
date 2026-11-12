@@ -49,7 +49,7 @@
     }
   ],
   "cleanup": {
-    "state": "archive-prepared-before-deletion",
+    "state": "completed",
     "remote_branches": [
       {
         "branch": "perf/wanxiang-latest-20261108",
@@ -69,7 +69,14 @@
       }
     ],
     "precondition": "Source archives and measurements must be pushed to the docs PR before deleting any of these refs.",
-    "other_branches": "User engine variant branches and default branches are outside cleanup scope."
+    "other_branches": "User engine variant branches and default branches are outside cleanup scope.",
+    "completed_at": "2026-11-12T10:29:29.795407+08:00",
+    "archive_first_pushed_at": "348915a3f38c0f6c5c27ad613eee80f04e7813d9",
+    "receipt": "cleanup-receipt.json",
+    "remote_branches_deleted": true,
+    "local_branches_deleted": true,
+    "remaining_worktrees": 2,
+    "precondition_satisfied": true
   },
   "workflow_states": {
     "388119728": "disabled_manually",
