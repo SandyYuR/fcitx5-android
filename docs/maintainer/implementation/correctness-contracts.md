@@ -53,11 +53,23 @@ Kotlin 的 `DirectRimeInputMethodEntryCache` 只保留最后一个不可变展�
 
 `core/DirectRimePublicationState` 集中持有 client preedit、input panel、输入法展示条目、状态菜单四类缓存，以及 `publishedGeneration`、`candidateVersion` 和候选事件缓存。它在同一 owner 上判断展示变化、推进候选版本、登记候选点选目标，并生成统计／提交先于展示的完整输入事件批次；绑定结束时清空 client preedit、input panel 和候选缓存并使旧候选目标失效，状态菜单与输入法展示条目保留到新绑定发布。菜单构建与 commit 计时通过构造时注入的 builder／`CommitClock` 调用。状态类不持有 native 快照、不调用 Native、不创建线程、不直接写队列，不取得输入绑定或 native session 的所有权。
 
-`DirectRimeBackend` 继续持有输入 generation、本次 native 快照、输入门控、提示计时任务及 native 生命周期。后端先校验当前绑定与结果代次，在 owner 上按需调用 `Native.options`，再将结果与本次展示上下文交给发布状态，最后调用 `events.offer`。过期结果不得推进发布代次、候选版本或覆盖当前缓存；提示任务的代次与寿命校验仍在后端完成后才调用发布状态更新面板。候选点选与分页读取仍在原有 owner 上校验实际发布的版本。`clearStatusActions` 只清菜单缓存，维护与启动等生命周期事件仍由 Backend 构造和交付。
+`DirectRimeBackend` 继续持有输入 generation、本次 native 快照、输入门控及 native 生命周期。后端先校验当前绑定与结果代次，在 owner 上按需调用 `Native.options`，再将结果与本次展示上下文交给发布状态，最后调用 `events.offer`。过期结果不得推进发布代次、候选版本或覆盖当前缓存；提示计时与寿命由 `DirectRimeStatusHintScheduler` 在原 owner 上协调，通过后端的 started／generation 检查后才调用发布状态更新面板。候选点选与分页读取仍在原有 owner 上校验实际发布的版本。`clearStatusActions` 只清菜单缓存，维护与启动等生命周期事件仍由 Backend 构造和交付。
 
 完整 `buildBatch`、绑定清空及候选版本转换、菜单清空和提示过期继续在 owner 上执行。四类对外展示缓存和候选版本保留 volatile 读取边界。`EngineLifecycleController.start` 的同步 `onStarting` 沿原行为在启动调用线程显示“准备中”面板；这一 `showUnavailable` 只替换 volatile panel 并返回原有不绑定 generation 的面板事件，不改变候选版本或已发布 generation。
 
 `DirectRimeStatusMenuTest` 与 `DirectRimePresentationTest` 检查菜单和显示转换规则。`DirectRimePublicationStateTest` 直接检查完整批次、统计与 commit 计时关联、候选版本失效／强制重发、绑定清空后的菜单与输入法条目保留、提示过期、不可用面板以及菜单清空后重建。`DirectRimePublicationContractTest` 通过后端的 `sendKey`／`setCandidatePagingMode` 入口检查统计与提交先于展示、发布目标的版本和过期结果不改状态；满足 `Snapshot.isUnchangedRelease` 的松键只更新后端持有的 native 快照。强制刷新仍读取新快照，不能重放旧 commit；仅在同代次、同分页模式且未触发既有候选失效条件时，重发候选而不推进候选版本。清空绑定展示仍推进候选版本，使旧界面持有的目标失效。Backend 集成 JVM 夹具替换了 Native，真实开关保存、跨会话恢复与触摸行为仍由 `DirectRimeFrontendTest` 验证；本次发布状态拆分范围见[2026-11-14 核对](../changes/2026-11-14-direct-rime-publication-state.md)，此前验证保留在[2026-11-13 后端重构核对](../changes/2026-11-13-direct-rime-backend-seams.md)。
+
+### 瞬时提示调度
+
+`core/DirectRimeStatusHintScheduler` 持有提示文本、提示 generation、Job 和既有 `StatusHintLifetime`，复用 Backend 的 engineScope、owner 与 uptime clock。它不创建新 scope、dispatcher 或线程，不取得输入绑定或 native session 的所有权，也不保存 native Snapshot、候选版本或发布缓存。`statusHintPresented` 继续先进入原 owner，再将提示 ID 与实际帧时间交给调度器。
+
+show 先取消旧任务并清文本、提示 ID 与 generation，再启动未呈现时 10 秒的兜底。首次有效 presented 将帧时间夹到不超过 owner 当前 uptime，截止时间改为该帧加 1,500 毫秒；早于 start、已过兜底期、重复呈现及旧提示 ID 均拒绝。owner 迟到处理呈现回调时保留原帧时间，已到截止时间便立即过期，不重新延长可见寿命。
+
+expiry 先核提示 ID，匹配时先清 Job、文本与 lifetime，再检查引擎 started 及提示 generation 是否仍等于当前输入代次，决定是否更新面板。expiry 保留提示 generation，显式 clear 才归零；旧任务不能清新提示。finalize、clearBinding、真实 DOWN 与 publish 沿原条件调用 clear／show。纯过期回调继续使用 `DirectRimePublicationState.expireStatusHint`，只清面板 auxUp／statusHintId 并交付原同代次单面板事件，不调用 Native、不重放 commit、不推进候选版本、native revision 或 tabsRevision。
+
+`showUnavailable` 与 `EngineLifecycleController.start` 的同步 `onStarting` 保留原启动调用线程更新 volatile 不可用面板的例外，不改为异步调度，也不清原瞬时提示；该面板事件不推进候选版本或已发布 generation。
+
+`DirectRimeStatusHintSchedulerTest` 使用测试专用虚拟 owner／Delay 检查寿命、迟到帧、旧 ID、替换、取消和输入代次变化。`DirectRimeStatusHintContractTest` 使用真实 Backend 与既有 Native shadow 检查 expiry 无 Native 刷新／commit 重放、绑定结束、停止清理先于 native finalize，以及 owner 阻塞时 startup 仍同步更新面板；回调同时核原 owner 线程。既有 `StatusHintLifetimeTest`、`InputEngineApiTest`、发布状态及输入绑定测试继续守护原规则，实际执行见[第 3 项固定记录](../changes/2026-11-14-direct-rime-responsibility-splits.md#第-3-项-瞬时提示调度)。
 
 ### 候选目标、坐标与展示快照
 

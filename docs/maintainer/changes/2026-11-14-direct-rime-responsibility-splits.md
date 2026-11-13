@@ -108,3 +108,53 @@ Backend 的协调器 `by lazy` 构造，Repository 通过 supplier 获取；mana
 本阶段构建时 D 验证副本 HEAD 为父提交 `3ee199dd6…`，叠加本项四路径；源与副本逐字节一致，并按 Git 文本换行规则与 `0d761a76…` 对应 blob 一致。APK 版本元数据仍来自父提交，仅用于相同源码的本机构建与审计；本阶段设备范围取自当前提交远端 CI。验证副本随后推进 HEAD，不改写构建时来源。
 
 当前 CI 的 XML-only 应用子集、源 central directory、两份设备原 ZIP 及 `ci-artifacts/junit-current-summary.json` 保存在同目录。应用子集保留原压缩 XML member 并校验源 ZIP CRC；设备包保留完整原 ZIP 并核对摘要。与第 1 项相同，这些本机资料不属于站点附件，在线来源是上表对应运行的 artifacts。
+
+## 第 3 项：瞬时提示调度
+
+代码提交为 [`aa11afcf53b30946b260dc664cab1ec11c1eaa77`](https://github.com/SandyYuR/fcitx5-android/commit/aa11afcf53b30946b260dc664cab1ec11c1eaa77)，基线为第 2 项 `0d761a76b1c065b69b7ecf6c65458dbb44877c45`。本项改动 5 个源码／测试文件，新增 528 行、删除 48 行；新增 Scheduler 11 项与真实 Backend 契约 4 项，共 15 项，代码 PR 累计新增 79 项。
+
+按最终 Git blob 统计，Backend 从 1068 行变为 1035 行，Scheduler 为 59 行。提示文本、Job 与寿命校验迁入复用原 owner 的组件，输入绑定、native 快照和发布缓存仍沿既有边界。
+
+| 入口 | 本阶段职责 |
+| --- | --- |
+| `core/DirectRimeStatusHintScheduler.kt` | 在原 engineScope／owner 上持有提示文本、提示 generation、Job 与 `StatusHintLifetime`，协调 show、presented、clear 及纯面板过期回调 |
+| `core/DirectRimeBackend.kt` | 保留 owner、绑定与生命周期，转交原提示呈现入口并提供 started／generation 检查和原单面板事件回调；startup 同步不可用面板路径保持 |
+| `core/NativeTestShadow.kt`（测试） | 为既有唯一 shadow 增加 stop 委托两行，支撑真实 Backend 停止顺序测试；生产没有新增 native seam 或依赖 |
+
+show 先清旧 Job／文本／ID／generation，再设置 10 秒未呈现兜底；首次有效帧的寿命改为该帧加 1,500 毫秒，帧时间不超过 owner 当前 uptime。迟到的 owner 回调保留原帧时间，重复、旧 ID、早于 start 或已过兜底期的呈现均拒绝。
+
+expiry 先核 ID，匹配后先清 Job、文本与 lifetime，再核 started／generation 决定是否只更新原面板。expiry 不把提示 generation 归零，clear 才归零；替换、失绑定、真实 DOWN 和停止保留原清理顺序。过期仅调用原 `DirectRimePublicationState.expireStatusHint`，不读 Native 或重放 commit，不推进候选版本、native revision 或 tabsRevision。`showUnavailable`／`onStarting` 保留启动调用线程同步更新不可用面板的例外，不清原 hint。
+
+独立审阅通过。现行边界见[瞬时提示调度契约](../implementation/correctness-contracts.md#瞬时提示调度)。协调器复用原 scope 与 `StatusHintLifetime`，没有新 owner、线程、dispatcher、输入会话或 Snapshot 副本。
+
+### 本阶段测试与代码 CI
+
+`DirectRimeStatusHintSchedulerTest` 的新 11 项使用测试专用虚拟 owner／Delay，检查未呈现兜底、首次呈现、延后执行的 timer 与帧、旧 ID、替换、取消、旧输入代次及停机拒绝。`DirectRimeStatusHintContractTest` 的新 4 项通过真实 Backend 和现有 Native shadow 检查纯 panel expiry 不刷新 Native／重放 commit、绑定结束、停止先清 hint 再 native finalize，以及阻塞 owner 时 startup 仍同步更新面板；包含原 owner 线程断言。
+
+| 报告范围 | 实际测试数 | failures | errors | skipped |
+| --- | ---: | ---: | ---: | ---: |
+| 本机相关 JVM，13 类 | 86 | 0 | 0 | 0 |
+| 当前提交的应用 JVM | 2184 | 0 | 0 | 0 |
+| 当前提交的完整前端设备 | 46 | 0 | 0 | 0 |
+| 当前提交的引擎 smoke | 6 | 0 | 0 | 0 |
+
+本机 13 份原 XML 的 suite tests 与实际 testcase 均为 86，包含新 15 项、StatusHintLifetime、InputEngineApi、生命周期、绑定、发布状态与共享 Native shadow 消费者回归，失败／错误／跳过均为 0。这个 13 类／86 项与第 2 项的 11 类／86 项是不同执行范围，分别保存原报告。
+
+以下固定同一 `head_sha = aa11afcf53b30946b260dc664cab1ec11c1eaa77` 的最终六个 job 全 success；当前快照按名称保留最新 job ID，并记录 run_attempt：
+
+| 运行 | 成功来源与范围 |
+| --- | --- |
+| [PR CI 43500629892](https://github.com/SandyYuR/fcitx5-android/actions/runs/43500629892) | attempt 1 的两项成功：SDK 下载器／全量应用 JVM、ARM64 Debug、lint、APK／链接审计 |
+| [Direct Rime CI 43500629890](https://github.com/SandyYuR/fcitx5-android/actions/runs/43500629890) | ARM64／应用 JVM 来自 attempt 2 重试；prototype、完整前端设备及引擎 smoke 沿用同 SHA attempt 1 的成功 job |
+
+Direct Rime 首次 ARM64 job 在 Robolectric 4.17 的 `MavenArtifactFetcher` line 108 发现暂存测试 SDK JAR 的 SHA-512 与 `.jar.sha512` 记录值不符，校验失败。该次 `DirectBootStartupTest` 的 15 项未执行，由单一 classMethod 失败替代，2170 计数不作为全量成功结果。源码、锁、工作流、来源和校验均未改变；只对同一运行／同一 SHA rerun-failed-jobs，attempt 2 成功后才核成功原始报告。
+
+成功应用 artifact 的 269 份原 XML 实际 testcase 为 2184，包含新 Scheduler 11／Contract 4、此前 Profile 21、管理解析 4／后端管理 7、发布状态 8，并确认 `DirectBootStartupTest` 的 15 项完整执行。前端与 smoke 各一份原 XML，分别为 46、6 项；全部失败／错误／跳过为 0，XML 摘要、源 member CRC 与设备 ZIP 摘要均已核对。
+
+### 本阶段证据与构建来源
+
+证据在工作区 `.dsh-tmp/direct-rime-recommended-splits-20261114/stage-03`：本机原 XML／`local-junit-summary.json`、源码 `source-manifest.json`／`committed-blobs.json`、Debug APK 与构建／两项原生审计日志、当前 `code-ci.json` 以及成功 `ci-artifacts` 子集和摘要。本机 ARM64 Debug、三库白名单、16 KiB 对齐及原生链接审计通过。
+
+本阶段构建时 D 验证副本 HEAD 为父提交 `0d761a76…`，叠加五路径；C／D 原字节一致，按 Git 文本换行规则与 AA 对应提交 blob 一致。APK 摘要为 `3cb1a00626499336b5953a607eb0c15eee6df25379142fb486eebb7711a302ed`，版本元数据仍来自父提交，仅用于相同源码的本机构建／审计。验证副本随后推进到 AA，不改写构建时来源；上表设备验收来源于同 SHA 的远端成功 job。
+
+首次失败保留 `ci-failed-job-132145147034.log`、`ci-failed-jobs.json`、`code-ci-failed-01.json`，重试请求保留 `ci-rerun-request.json`。应用 XML-only 子集保留原压缩 XML member 并校验源 ZIP CRC，两份设备原 ZIP 保留并核摘要；这些本机资料不属于文档站附件，在线来源是上表对应运行的 artifacts。
