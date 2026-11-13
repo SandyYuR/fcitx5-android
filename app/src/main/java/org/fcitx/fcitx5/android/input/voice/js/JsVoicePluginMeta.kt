@@ -144,6 +144,8 @@ internal data class JsVoicePluginRecord(
     val importedAt: Long,
     /** Content-addressed script; null keeps legacy <id>.js imports readable. */
     val scriptDigest: String? = null,
+    /** Only a deliberate replacement from this plugin's settings may override an APK asset. */
+    val overridesBuiltIn: Boolean = false,
 ) {
     fun encode(): String = buildJsonObject {
         put("id", meta.id)
@@ -153,6 +155,7 @@ internal data class JsVoicePluginRecord(
         put("source", sourceName)
         put("importedAt", importedAt)
         scriptDigest?.let { put("scriptDigest", it) }
+        put("overridesBuiltIn", overridesBuiltIn)
         put(
             "hosts",
             buildJsonArray { meta.hosts.forEach { add(JsonPrimitive(it)) } }
@@ -180,8 +183,12 @@ internal data class JsVoicePluginRecord(
             val meta = JsVoicePluginMeta.parse(json) ?: return null
             val digest = obj["scriptDigest"]?.jsonPrimitive?.contentOrNull
             if (digest != null && !digest.matches(Regex("[0-9a-f]{64}"))) return null
+            val overridesBuiltIn = obj["overridesBuiltIn"]?.let {
+                (it as? JsonPrimitive)?.takeUnless(JsonPrimitive::isString)?.booleanOrNull ?: return null
+            } ?: false
             return JsVoicePluginRecord(
                 scriptDigest = digest,
+                overridesBuiltIn = overridesBuiltIn,
                 meta = meta,
                 sourceName = obj["source"]?.jsonPrimitive?.contentOrNull.orEmpty(),
                 importedAt = obj["importedAt"]?.jsonPrimitive?.contentOrNull?.toLongOrNull() ?: 0L,

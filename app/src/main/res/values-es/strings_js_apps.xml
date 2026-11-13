@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="ai_assistant">Asistente de IA</string>
+    <string name="js_tools">Herramientas JS</string>
     <string name="js_app_none">Primero importa un complemento de aplicación JavaScript.</string>
     <string name="js_app_password">El asistente de IA no está disponible en campos de contraseña.</string>
     <string name="js_app_permission_message">¿Permitir que este complemento use las siguientes funciones?\n\n%1$s\n\nPuedes revocar el acceso en los ajustes del complemento.</string>

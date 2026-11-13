@@ -4,6 +4,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.voice
 import android.os.Bundle
 import android.text.InputType
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
@@ -42,6 +43,29 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     private val secretStates = mutableMapOf<String, JsVoiceSettingsStore.SecretState>()
     private var refreshOverview: (() -> Unit)? = null
 
+    private val replaceLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (view != null) load()
+    }
+    private val exportLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("text/javascript")) { uri ->
+        if (uri != null) {
+            val resolver = requireContext().contentResolver
+            val spec = JsVoiceProviders.specOf(pluginId) ?: return@registerForActivityResult
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    runCatching {
+                        val script = JsVoiceProviders.readScript(spec)
+                        check(script.isNotEmpty()) { "Plugin source is empty" }
+                        resolver.openOutputStream(uri, "wt")?.use { it.write(script.toByteArray(Charsets.UTF_8)) }
+                            ?: error("Cannot open destination")
+                    }
+                }
+                if (!isAdded) return@launch
+                toast(result.fold({ getString(R.string.js_plugin_export_success) },
+                    { getString(R.string.js_plugin_source_failed, it.message.orEmpty()) }))
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pluginId = arguments?.getString(ARG_PLUGIN_ID) ?: JsVoiceProviders.QWEN_ASR_ID
@@ -58,6 +82,12 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
             showPlaceholder(getString(R.string.js_voice_settings_loading))
             load()
         }
+    }
+
+    override fun onDestroyView() {
+        loaded = false
+        refreshOverview = null
+        super.onDestroyView()
     }
 
     private fun load() {
@@ -77,7 +107,11 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
                 secretStates.putAll(states)
                 render(fields)
             }
-                .onFailure { showPlaceholder(getString(R.string.js_voice_settings_failed, it.message.orEmpty())) }
+                .onFailure {
+                    showPlaceholder(getString(R.string.js_voice_settings_failed, it.message.orEmpty()))
+                    appendSourceEntries()
+                    appendRemoveEntry()
+                }
         }
     }
 
@@ -100,6 +134,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
         if (fields.isEmpty()) {
             showPlaceholder(getString(R.string.js_voice_settings_empty))
             appendHostPermissionEntry()
+            appendSourceEntries()
             appendRemoveEntry()
             return
         }
@@ -153,7 +188,73 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
         }
         refreshVisibility(rendered, values)
         appendHostPermissionEntry()
+        appendSourceEntries()
         appendRemoveEntry()
+    }
+
+    private fun toast(message: String) = Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+
+    private fun appendSourceEntries() {
+        val spec = JsVoiceProviders.specOf(pluginId) ?: return
+        val section = managementSection("ui_management", R.string.ui_plugin_manage, 10_000)
+        fun action(key: String, titleId: Int, summary: String, block: () -> Unit) {
+            section.addPreference(Preference(requireContext()).apply {
+                this.key = key
+                isPersistent = false
+                isIconSpaceReserved = false
+                isSingleLineTitle = false
+                setTitle(titleId)
+                this.summary = summary
+                setOnPreferenceClickListener { block(); true }
+            })
+        }
+        section.addPreference(Preference(requireContext()).apply {
+            key = "js_plugin_source"
+            isPersistent = false
+            isSelectable = false
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+            title = getString(when {
+                spec.overridesBuiltIn -> R.string.js_plugin_source_custom
+                spec.builtIn -> R.string.js_plugin_source_builtin
+                else -> R.string.js_plugin_source_imported
+            })
+            summary = "${spec.version} · ${spec.originName}"
+        })
+        action("js_plugin_export", R.string.js_plugin_export, getString(R.string.js_plugin_export_summary)) {
+            exportLauncher.launch(pluginId.removePrefix(JsVoicePluginMeta.PROVIDER_ID_PREFIX) + ".js")
+        }
+        action("js_plugin_replace", R.string.js_plugin_replace, getString(R.string.js_plugin_replace_summary)) {
+            replaceLauncher.launch(JsVoicePluginsActivity.intent(requireContext(), pluginId))
+        }
+        if (spec.overridesBuiltIn) {
+            action("js_plugin_restore", R.string.js_plugin_restore, getString(R.string.js_plugin_restore_summary)) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.js_plugin_restore)
+                    .setMessage(R.string.js_plugin_restore_message)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(R.string.js_plugin_restore) { _, _ -> restoreBuiltIn() }
+                    .show()
+            }
+        }
+    }
+
+    private fun restoreBuiltIn() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    check(JsVoicePluginStore.restoreBuiltIn(pluginId.removePrefix(JsVoicePluginMeta.PROVIDER_ID_PREFIX))) {
+                        "Cannot restore bundled plugin"
+                    }
+                    JsVoiceProviders.reload()
+                }
+            }
+            if (!isAdded) return@launch
+            result.onSuccess {
+                toast(getString(R.string.js_plugin_restored))
+                load()
+            }.onFailure { toast(getString(R.string.js_plugin_source_failed, it.message.orEmpty())) }
+        }
     }
 
     private fun managementSection(key: String, title: Int, order: Int): PreferenceCategory {
@@ -217,7 +318,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     private fun appendRemoveEntry() {
         val screen = preferenceScreen ?: return
         val spec = JsVoiceProviders.specOf(pluginId) ?: return
-        if (spec.builtIn) return
+        if (spec.builtIn || spec.overridesBuiltIn) return
         if (screen.findPreference<Preference>(KEY_REMOVE) != null) return
         managementSection("ui_management", R.string.ui_plugin_manage, 10_000).addPreference(Preference(requireContext()).apply {
             key = KEY_REMOVE
@@ -245,11 +346,19 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
 
     private fun remove(pluginId: String, label: String) {
         viewLifecycleOwner.lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                JsVoicePluginStore.delete(pluginId.removePrefix(JsVoicePluginMeta.PROVIDER_ID_PREFIX))
-                JsVoiceProviders.reload()
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    check(JsVoicePluginStore.delete(pluginId.removePrefix(JsVoicePluginMeta.PROVIDER_ID_PREFIX))) {
+                        "Cannot remove plugin"
+                    }
+                    JsVoiceProviders.reload()
+                }
             }
             if (!isAdded) return@launch
+            if (result.isFailure) {
+                toast(getString(R.string.js_plugin_source_failed, result.exceptionOrNull()?.message.orEmpty()))
+                return@launch
+            }
             // 插件没了，首选语音里那一项就成了永远识别不了的死选项，这里顺手清掉。
             val preferred = AppPrefs.getInstance().keyboard.preferredVoiceInput
             val preferredWasRemoved = preferred.getValue() == pluginId

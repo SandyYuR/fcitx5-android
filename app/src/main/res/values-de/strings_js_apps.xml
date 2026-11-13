@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="ai_assistant">KI-Assistent</string>
+    <string name="js_tools">JS-Werkzeuge</string>
     <string name="js_app_none">Importieren Sie zuerst ein JavaScript-App-Plugin.</string>
     <string name="js_app_password">Der KI-Assistent ist in Passwortfeldern nicht verfügbar.</string>
     <string name="js_app_permission_message">Diesem Plugin die folgenden Funktionen erlauben?\n\n%1$s\n\nSie können den Zugriff in den Einstellungen des Plugins widerrufen.</string>

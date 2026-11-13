@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="ai_assistant">AI assistant</string>
+    <string name="js_tools">JS tools</string>
+    <string name="js_tools_select_title">Choose the JS app for this button</string>
+    <string name="js_tools_select_hint">Choose a specific JS app again in Edit buttons.</string>
+    <string name="js_app_shortcut_missing">This JS app is no longer available. Reconfigure the button.</string>
+    <string name="js_app_shortcut_password">JS apps are unavailable in password fields.</string>
+    <string name="youdao_free_translate">Translate (no API key)</string>
     <string name="js_app_none">Import a JavaScript app plugin first.</string>
     <string name="js_app_password">AI assistant is unavailable in password fields.</string>
     <string name="js_app_permission_message">Allow this plugin to use the following capabilities?\n\n%1$s\n\nYou can revoke access in its settings.</string>

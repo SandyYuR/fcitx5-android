@@ -159,6 +159,93 @@ class JsVoiceImporterTest {
         assertEquals(JsVoiceImportResult.Failure.Reason.RESERVED_ID, failureReason(inspect(script)))
     }
 
+    private fun target(script: String, spec: JsVoiceProviders.Spec) = runBlocking {
+        JsVoiceImporter.inspect(script, "zh-CN", setOf(spec.id),
+            targetPluginId = spec.id, targetSpec = spec)
+    }
+
+    private fun targetSpec(
+        id: String,
+        hasVoice: Boolean,
+        apps: List<JsPluginApp> = emptyList(),
+        builtIn: Boolean = true,
+        overridesBuiltIn: Boolean = false,
+    ) =
+        JsVoiceProviders.Spec(id, "Target", "999.0", emptySet(), 16000,
+            JsVoiceProviders.Source.Asset("unused.js"), builtIn, "unused.js", hasVoice, apps,
+            overridesBuiltIn)
+
+    @Test
+    fun explicitTargetAcceptsTheRealBundledAssistantWithoutVersionGate() {
+        val script = File("src/main/assets/bundled/js-apps/llm-assistant.js").readText()
+        val spec = targetSpec("js:llm-assistant", false,
+            listOf(JsPluginApp("llm_assistant", "AI", emptySet())))
+        val result = target(script, spec) as JsVoiceImportResult.Success
+        assertTrue(result.replacesExisting)
+        assertEquals("llm-assistant", result.meta.id)
+        assertEquals(JsVoiceImportResult.Failure.Reason.RESERVED_ID,
+            failureReason(inspect(script, setOf(spec.id))))
+    }
+
+    @Test
+    fun explicitTargetRejectsAnotherPluginAndLostVoiceOrAppEntrypoints() {
+        val assistant = targetSpec("js:llm-assistant", false,
+            listOf(JsPluginApp("llm_assistant", "AI", emptySet())))
+        assertEquals(JsVoiceImportResult.Failure.Reason.TARGET_MISMATCH,
+            failureReason(target(validScript, assistant)))
+        assertEquals(JsVoiceImportResult.Failure.Reason.INCOMPATIBLE_TARGET,
+            failureReason(target(validScript.replace("demo-asr", "llm-assistant"), assistant)))
+
+        val voice = targetSpec("js:demo-asr", true)
+        val appOnly = """
+            foxy.plugin.register({id:'demo-asr', hosts:[], features:[]});
+            foxy.app.register({id:'different',permissions:[],onOpen:function(){return {close:true};}});
+        """.trimIndent()
+        assertEquals(JsVoiceImportResult.Failure.Reason.INCOMPATIBLE_TARGET,
+            failureReason(target(appOnly, voice)))
+        assertEquals(JsVoiceImportResult.Failure.Reason.INCOMPATIBLE_TARGET,
+            failureReason(target(appOnly.replace("demo-asr", "llm-assistant"), assistant)))
+        assertEquals(JsVoiceImportResult.Failure.Reason.NO_HOSTS,
+            failureReason(target(validScript.replace("hosts: [\"example.com\"],", "hosts: [],"), voice)))
+        val hybridWithoutHosts = validScript.replace("hosts: [\"example.com\"],", "hosts: [],") +
+            "\nfoxy.app.register({id:'tool',permissions:[],onOpen:function(){return {close:true};}});"
+        assertEquals(JsVoiceImportResult.Failure.Reason.NO_HOSTS,
+            failureReason(target(hybridWithoutHosts, voice)))
+    }
+
+    @Test
+    fun importedPluginUpgradeMayChangeItsCapabilitiesWhileBundledOverrideMayNot() {
+        val importedVoice = targetSpec("js:demo-asr", true, builtIn = false)
+        val appOnly = """
+            foxy.plugin.register({id:'demo-asr', hosts:[], features:[]});
+            foxy.app.register({id:'tool',permissions:[],onOpen:function(){return {close:true};}});
+        """.trimIndent()
+        assertEquals(
+            JsVoiceImportResult.Failure.Reason.INCOMPATIBLE_TARGET,
+            failureReason(target(appOnly, importedVoice)),
+        )
+
+        val importedApp = targetSpec(
+            "js:demo-asr",
+            hasVoice = false,
+            apps = listOf(JsPluginApp("old-tool", "Old", emptySet())),
+            builtIn = false,
+        )
+        assertTrue(target(appOnly, importedApp) is JsVoiceImportResult.Success)
+
+        val overriddenBundled = targetSpec(
+            id = "js:llm-assistant",
+            hasVoice = false,
+            apps = listOf(JsPluginApp("llm_assistant", "AI", emptySet())),
+            builtIn = false,
+            overridesBuiltIn = true,
+        )
+        assertEquals(
+            JsVoiceImportResult.Failure.Reason.INCOMPATIBLE_TARGET,
+            failureReason(target(appOnly.replace("demo-asr", "llm-assistant"), overriddenBundled)),
+        )
+    }
+
     private fun failureReason(result: JsVoiceImportResult): JsVoiceImportResult.Failure.Reason {
         assertTrue("expected failure, got " + result, result is JsVoiceImportResult.Failure)
         return (result as JsVoiceImportResult.Failure).reason

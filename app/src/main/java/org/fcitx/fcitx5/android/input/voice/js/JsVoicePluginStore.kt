@@ -3,12 +3,14 @@ package org.fcitx.fcitx5.android.input.voice.js
 
 import android.content.Context
 import android.content.SharedPreferences
+import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.utils.appContext
 import android.util.Xml
 import org.xmlpull.v1.XmlPullParser
 import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
+import java.util.UUID
 
 /**
  * 用户导入的 JS 语音插件的宿主侧存储。
@@ -31,6 +33,30 @@ internal object JsVoicePluginStore {
 
     private fun directory(): File = File(appContext.filesDir, DIR_NAME).apply {
         if (!isDirectory) runCatching { mkdirs() }
+        recoverDeleteTombstones(this)
+    }
+
+    /** Complete or roll back a delete interrupted between the body rename and metadata commit. */
+    private fun recoverDeleteTombstones(dir: File) {
+        val tombstones = dir.listFiles { file ->
+            file.isFile && file.name.startsWith(".") && file.name.contains(".js.delete-") &&
+                file.name.endsWith(".tmp")
+        }.orEmpty()
+        if (tombstones.isEmpty()) return
+        val referencedBodies = prefs().all.mapNotNull { (key, value) ->
+            if (!key.startsWith(KEY_PREFIX) || value !is String) return@mapNotNull null
+            val record = JsVoicePluginRecord.decode(value) ?: return@mapNotNull null
+            fileName(record.meta.id, record.scriptDigest)
+        }.toSet()
+        tombstones.forEach { tombstone ->
+            val originalName = tombstone.name.removePrefix(".").substringBeforeLast(".delete-")
+            val original = File(dir, originalName)
+            if (originalName in referencedBodies && !original.exists()) {
+                runCatching { tombstone.renameTo(original) }
+            } else {
+                runCatching { tombstone.delete() }
+            }
+        }
     }
 
     /**
@@ -78,7 +104,7 @@ internal object JsVoicePluginStore {
                 require(JsVoicePluginMeta.isValidId(id) && record.meta.id == id)
                 // Only the legacy format may omit scripts. A digest-bearing record must
                 // never silently restore without the body referenced by that digest.
-                if (!hasScripts && record.scriptDigest == null) continue
+                if (!hasScripts && record.scriptDigest == null && !record.overridesBuiltIn) continue
                 val file = File(scripts, fileName(id, record.scriptDigest))
                 require(file.isFile && file.length() <= JsVoicePluginMeta.MAX_SCRIPT_BYTES) { "Missing imported voice script: $id" }
                 record.scriptDigest?.let { require(digest(file.readBytes()) == it) { "Corrupt imported voice script: $id" } }
@@ -123,6 +149,7 @@ internal object JsVoicePluginStore {
      *
      * 覆盖时**只替换脚本与元信息**，不动 [JsVoiceSettingsStore] 里已经存下的设置与密钥：
      * 那是按 provider id 分键的，同名插件升级后用户不必重新填一遍 key。
+     * 旧源码的授权在发布新元信息前撤销；失败至多要求旧源码重新授权，不让新源码沿用旧授权。
      */
     @Synchronized
     fun save(record: JsVoicePluginRecord, script: String): Boolean {
@@ -132,19 +159,32 @@ internal object JsVoicePluginStore {
         if (bytes.size > JsVoicePluginMeta.MAX_SCRIPT_BYTES) return false
         val previous = prefs().getString(KEY_PREFIX + id, null)
         val previousFile = scriptFile(id)
-        val stored = record.copy(scriptDigest = digest(bytes))
+        val previousRecord = previous?.let(JsVoicePluginRecord::decode)
+        // Import validation normally reports this with a precise message. Keep the storage layer
+        // as the final invariant too: callers must not strand a saved voice-provider selection by
+        // replacing an existing voice plugin with an app-only record.
+        if (previousRecord?.meta?.voiceAsr != null && record.meta.voiceAsr == null) return false
+        val stored = record.copy(
+            scriptDigest = digest(bytes),
+            overridesBuiltIn = record.overridesBuiltIn || previousRecord?.overridesBuiltIn == true,
+        )
         val file = File(directory(), fileName(id, stored.scriptDigest))
         return runCatching {
-            val staged = File.createTempFile("import-", ".tmp", directory())
-            try {
-                FileOutputStream(staged).use { output -> output.write(bytes); output.fd.sync() }
-                check(staged.renameTo(file)) { "Cannot publish imported voice script" }
-            } finally {
-                staged.delete()
+            // Reimporting the identical source must also work on Windows, where renameTo cannot
+            // replace an existing file. Reuse only a verified content-addressed body.
+            if (!(file.isFile && digest(file.readBytes()) == stored.scriptDigest)) {
+                val staged = File.createTempFile("import-", ".tmp", directory())
+                try {
+                    FileOutputStream(staged).use { output -> output.write(bytes); output.fd.sync() }
+                    check(staged.renameTo(file)) { "Cannot publish imported voice script" }
+                } finally {
+                    staged.delete()
+                }
             }
-            if (!prefs().edit().putString(KEY_PREFIX + id, stored.encode()).commit()) {
-                // SharedPreferences changes memory even if its disk commit fails.
-                prefs().edit().putString(KEY_PREFIX + id, previous).commit()
+            if (stored.overridesBuiltIn || !JsVoiceProviders.isBuiltInId(record.meta.providerId)) {
+                revokePermissions(id)
+            }
+            if (!publishMetadata(id, stored.encode(), previous)) {
                 false
             } else {
                 if (previousFile != file) previousFile.delete()
@@ -153,13 +193,69 @@ internal object JsVoicePluginStore {
         }.getOrDefault(false)
     }
 
+    /** Disable only the explicitly chosen replacement; keep its source, settings and secrets. */
+    @Synchronized
+    fun restoreBuiltIn(id: String): Boolean {
+        if (!JsVoicePluginMeta.isValidId(id) ||
+            !JsVoiceProviders.isBuiltInId(JsVoicePluginMeta.PROVIDER_ID_PREFIX + id)) return false
+        val previous = prefs().getString(KEY_PREFIX + id, null) ?: return true
+        val record = JsVoicePluginRecord.decode(previous) ?: return false
+        if (!record.overridesBuiltIn) return true
+        return runCatching {
+            revokePermissions(id)
+            publishMetadata(id, record.copy(overridesBuiltIn = false).encode(), previous)
+        }.getOrDefault(false)
+    }
+
     /** Settings and secrets survive removal so reinstalling the same plugin can reuse them. */
     @Synchronized
-    fun delete(id: String) {
-        JsVoiceHostPermissions.revoke(JsVoicePluginMeta.PROVIDER_ID_PREFIX + id)
+    fun delete(id: String): Boolean {
+        if (!JsVoicePluginMeta.isValidId(id)) return false
         val file = scriptFile(id)
         val previous = prefs().getString(KEY_PREFIX + id, null)
-        if (prefs().edit().remove(KEY_PREFIX + id).commit()) file.delete()
-        else prefs().edit().putString(KEY_PREFIX + id, previous).commit()
+        return runCatching {
+            revokePermissions(id)
+            // Move the body aside before removing metadata. Readers share this object's lock, so
+            // they cannot observe the brief gap. If the preference commit (or its rollback) fails,
+            // move the exact body back; a live record never loses its only script. Once metadata is
+            // durably gone, failure to delete the private tombstone is only deferred cleanup.
+            val tombstone = if (file.isFile) {
+                File(directory(), ".${file.name}.delete-${UUID.randomUUID()}.tmp").also {
+                    check(file.renameTo(it)) { "Cannot stage plugin removal" }
+                }
+            } else null
+            val metadataRemoved = try {
+                publishMetadata(id, null, previous)
+            } catch (error: Throwable) {
+                if (tombstone != null) check(tombstone.renameTo(file)) { "Cannot restore plugin source" }
+                throw error
+            }
+            if (!metadataRemoved) {
+                if (tombstone != null) check(tombstone.renameTo(file)) { "Cannot restore plugin source" }
+                false
+            } else {
+                // Logical removal is complete. A transient Windows/AV lock can leave this harmless
+                // unreferenced private file; future directory access retries tombstone cleanup.
+                tombstone?.delete()
+                true
+            }
+        }.getOrDefault(false)
+    }
+
+    private fun revokePermissions(id: String) {
+        val pluginId = JsVoicePluginMeta.PROVIDER_ID_PREFIX + id
+        VoiceInputProviderManager.invalidateProvider(pluginId)
+        JsApps.onPluginSourceChanging(pluginId)
+        JsVoiceHostPermissions.revoke(pluginId)
+        JsAppPermissions.revoke(pluginId)
+    }
+
+    private fun publishMetadata(id: String, value: String?, previous: String?): Boolean {
+        if (runCatching { prefs().edit().putString(KEY_PREFIX + id, value).commit() }.getOrDefault(false)) return true
+        // SharedPreferences changes memory even if its disk commit fails.
+        check(runCatching {
+            prefs().edit().putString(KEY_PREFIX + id, previous).commit()
+        }.getOrDefault(false)) { "Cannot restore plugin metadata" }
+        return false
     }
 }

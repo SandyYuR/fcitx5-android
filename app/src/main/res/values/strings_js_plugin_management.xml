@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="js_app_preferred">Assistant used by the AI button</string>
+    <string name="js_app_selection_failed">This tool is no longer available. Please select it again.</string>
+    <string name="js_plugin_export">Export source</string>
+    <string name="js_plugin_export_summary">Save the current JavaScript source without saved settings or API keys.</string>
+    <string name="js_plugin_export_success">Plugin source exported.</string>
+    <string name="js_plugin_replace">Import replacement</string>
+    <string name="js_plugin_replace_summary">Replace this plugin with a modified .js file and keep its settings and API keys.</string>
+    <string name="js_plugin_replace_builtin_message">This version will replace the bundled plugin, even if its version number is unchanged. App updates will keep your replacement. You can restore the bundled version in plugin settings.</string>
+    <string name="js_plugin_replace_permissions">Existing permissions will be reset. This confirmation approves the listed network hosts; app capabilities and other hosts will be requested when used.</string>
+    <string name="js_plugin_import_wrong_id">Select a source file for %1$s. This file belongs to a different plugin.</string>
+    <string name="js_plugin_import_incompatible">The replacement must retain this plugin’s voice capability and existing app entries. Import a different tool from the plugin list instead.</string>
+    <string name="js_plugin_source_builtin">Source: bundled</string>
+    <string name="js_plugin_source_custom">Source: custom replacement</string>
+    <string name="js_plugin_source_imported">Source: imported</string>
+    <string name="js_plugin_source_failed">Could not update plugin source: %1$s</string>
+    <string name="js_plugin_restore">Restore bundled version</string>
+    <string name="js_plugin_restore_summary">Use the version included with this app and keep settings and API keys.</string>
+    <string name="js_plugin_restore_message">Use the bundled version again? Your imported source, settings and API keys will be kept. Permissions will be requested again when needed.</string>
+    <string name="js_plugin_restored">Bundled plugin restored.</string>
+    <string name="js_voice_import_post_install_failed">The plugin was installed, but authorization or the plugin list could not be refreshed: %1$s. Reopen the plugin page and review its permissions.</string>
+</resources>

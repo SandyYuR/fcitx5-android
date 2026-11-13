@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="js_app_preferred">AI 按钮使用的助手</string>
+    <string name="js_app_selection_failed">此工具已不可用，请重新选择。</string>
+    <string name="js_plugin_export">导出源码</string>
+    <string name="js_plugin_export_summary">保存当前使用的 JS 源码，不包含已保存的设置和 API 密钥。</string>
+    <string name="js_plugin_export_success">已导出插件源码。</string>
+    <string name="js_plugin_replace">导入替换</string>
+    <string name="js_plugin_replace_summary">选择修改后的 .js 文件替换此插件，保留设置和 API 密钥。</string>
+    <string name="js_plugin_replace_builtin_message">此版本将替代内置插件，无需提高版本号。应用升级后仍使用你的自定义版本，也可在插件设置中恢复内置。</string>
+    <string name="js_plugin_replace_permissions">原有授权将重置。本次确认会批准上方列出的网络主机；应用能力及其他主机会在使用时重新询问。</string>
+    <string name="js_plugin_import_wrong_id">请选择 %1$s 的源码，当前文件属于另一个插件。</string>
+    <string name="js_plugin_import_incompatible">替换文件须保留此插件的语音能力和已有工具入口。其他工具请从插件列表导入。</string>
+    <string name="js_plugin_source_builtin">当前源码：应用内置</string>
+    <string name="js_plugin_source_custom">当前源码：自定义替换</string>
+    <string name="js_plugin_source_imported">当前源码：自行导入</string>
+    <string name="js_plugin_source_failed">插件源码操作失败：%1$s</string>
+    <string name="js_plugin_restore">恢复内置</string>
+    <string name="js_plugin_restore_summary">使用当前应用附带的版本，保留设置和 API 密钥。</string>
+    <string name="js_plugin_restore_message">重新使用内置版本？已导入的源码、设置和 API 密钥会保留，所需权限会在使用时重新询问。</string>
+    <string name="js_plugin_restored">已恢复内置插件。</string>
+    <string name="js_voice_import_post_install_failed">插件已安装，但授权或插件列表刷新失败：%1$s。请重新打开插件页面并检查授权。</string>
+</resources>
