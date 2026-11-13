@@ -123,7 +123,7 @@ rename／delete 先检查 profile 未被引用。活动 profile 的 rename 首�
 
 高级设置保存、自定义方案更新和万象更新继续在 `withContext(NonCancellable) { maintain { … } }` 内执行。`core/DirectRimeMaintenanceFiles` 在 owner 上、停止引擎前完成既有目标与文件校验，生成含目标目录、payload 和安装策略的 `PreparedRimeInstall`。空自定义／万象 payload 在停机前返回；高级设置的空 payload 仍交由安装事务报错。各入口的文件保护规则见下文[万象更新](#万象方案更新与配置编辑)与[自定义更新](#自定义方案更新)。
 
-`data/RimeProfileUpdateInstaller` 先停止 native，再调用 `WanxiangUpdateTransaction`。初次停止失败不在安装器内恢复或重启；安装失败则在底层恢复之外再次调用恢复，恢复成功后才重启，并将恢复或重启异常附加到原错误。这层恢复也覆盖底层事务进入自身恢复段前的校验失败，不能因底层已有恢复而移除。停止、重启、外部引擎启动守卫和 watchdog 仍由后端提供。
+`data/RimeProfileUpdateInstaller` 先停止 native，再调用 `WanxiangUpdateTransaction`。初次停止失败不在安装器内恢复或重启；安装失败则在底层恢复之外再次调用恢复，恢复成功后才重启，并将恢复或重启异常附加到原错误。这层恢复也覆盖底层事务进入自身恢复段前的校验失败，不能因底层已有恢复而移除。停止和重启继续沿用后端维护回调，由 `DirectRimeEngineOperations` 在原 owner 上协调外部引擎启动守卫及 watchdog。
 
 `DirectRimeMaintenanceFilesTest` 检查三种安装策略与空资源边界；`RimeProfileUpdateInstallerTest` 检查替换前停止、激活失败回滚、事务前校验失败、初次停止失败和恢复异常。既有 `WanxiangUpdateTransactionTest`、更新 Worker 测试及 `MaintenanceSaveTest` 继续分别守护底层事务、任务状态和维护绑定恢复。
 
@@ -150,6 +150,18 @@ rename／delete 先检查 profile 未被引用。活动 profile 的 rename 首�
 导入暂存只属于当前 Activity 和当前两次确认流程，不跨配置重建恢复。每个 Activity 使用独立 token 子目录；创建时只回收当前进程没有登记为活动的旧 token，销毁时无条件删除自己的暂存。主题、语言、旋转或系统配置导致重建时，旧确认流程取消，用户必须重新选择文件。不能让一个页面实例删除另一个仍在确认的文件，也不能为恢复对话框而让尚未完成第二次授权的代码文件跨 Activity 生命周期存活。
 
 相关回归包括 `RimeEngineElfTest`、`RimeEngineStoreTest`、`RimeEngineProbeServiceTest`、设置搜索覆盖，以及 `RimeEngineVariantDeviceTest` 的真实 DSO/provider 探测、部署、候选上屏和进程内停止重启。方案测试必须区分 API 探测通过、引擎加载失败、方案编译错误与缺失模型；修补过的测试夹具不能表述成原上游方案已经无错误。
+
+### 引擎运行协调
+
+`DirectRimeEngineOperations` 在既有 owner 上同步协调配置、槽切换、维护重启与激活结果，唯一持有 activeSelection、newActivation、维护 pending selection 和 Handler／watchdog。`DirectRimeBackend` 继续持有唯一 volatile started、本次 Snapshot 与 startupError，提供原方案刷新及展示缓存重置；启动阶段、输入绑定／门控、维护调度及 finally 恢复仍由 Backend 负责。Repository 和 shared supplier 继续惰性取得，授权、启用守卫和目录保护复用原 Store／Config，不增加 owner、线程、scope 或会话状态副本。
+
+startup 每轮在原 try 外先重置 selection／newActivation，再进入 assets、config、engine-selection 和 native 阶段。configure 在载荷发布、provider 再校验和 profile 检查前登记本轮选择及完整检查标志，失败不能误归因给旧槽或内置引擎。Direct Boot 固定内置，不读取外部选择或写激活记录；普通启动的 fullCheck 条件与维护重启的 fullCheck=true 保持。
+
+槽切换先停止当前槽，且该 stop 位于可恢复目标加载 try 之外。切换 stop 先 arm watchdog、started=false、清 Snapshot，再调用 Native.stop；失败后不得在污染进程加载目标或回退槽。维护 stop 则先准备／核对激活守卫，再调用 Native.stop，成功后才写 started=false；不能统一成同一种失败写入顺序。启动／停止 watchdog 的内置与外部条件、超时和取消时点保持原规则。
+
+目标加载失败先清启动 watchdog，再停止 target。target 清理停止失败保留原 targetError 和 addSuppressed 调用，取消 watchdog 后安排 500ms 进程恢复，不加载 fallback。Kotlin 2.4.10 的 addSuppressed 扩展遇 self 忽略追加，继续抛原异常；这条路径没有新增显式 self 判断。清理成功后才登记 activationFailed 并尝试先前／回退槽；回退失败保留原 targetError 优先级、显式 self 排除和 attempted 守卫，安排新进程继续回退。回退成功仍抛 `EngineSwitchRecoveredException`，由原 maintain 识别；方案刷新与槽展示 revision／缓存重置保持原时点，旧输入和 commit 不重放。
+
+维护成功先调用 activationSucceeded，再清 pending 和 watchdog；失败先清 pending，再调用 activationFailed，之后才处理 started／watchdog／进程恢复。Repository 写入异常继续传播，不能提前清理后续状态或用 Boolean 返回值吞掉。`DirectRimeEngineOperationsTest` 的 24 项使用已登记载荷夹具、实际 Repository／Config 目录事务和共享 Native shadow，覆盖停止污染、目标清理／相同异常、回退、完整检查、维护守卫、持久化错误顺序及 startup 归因；描述符观察保留生产 fd 原值。既有 `RimeEngineStoreTest`、`RimeEnginePluginsTest`、`MaintenanceSaveTest`、`EngineLifecycleControllerTest` 和 `DirectBootStartupTest` 同跑，本机 shadow 回归与真实设备执行范围分别记录。
 
 ## 首次解锁前启动
 

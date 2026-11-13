@@ -158,3 +158,58 @@ Direct Rime 首次 ARM64 job 在 Robolectric 4.17 的 `MavenArtifactFetcher` lin
 本阶段构建时 D 验证副本 HEAD 为父提交 `0d761a76…`，叠加五路径；C／D 原字节一致，按 Git 文本换行规则与 AA 对应提交 blob 一致。APK 摘要为 `3cb1a00626499336b5953a607eb0c15eee6df25379142fb486eebb7711a302ed`，版本元数据仍来自父提交，仅用于相同源码的本机构建／审计。验证副本随后推进到 AA，不改写构建时来源；上表设备验收来源于同 SHA 的远端成功 job。
 
 首次失败保留 `ci-failed-job-132145147034.log`、`ci-failed-jobs.json`、`code-ci-failed-01.json`，重试请求保留 `ci-rerun-request.json`。应用 XML-only 子集保留原压缩 XML member 并校验源 ZIP CRC，两份设备原 ZIP 保留并核摘要；这些本机资料不属于文档站附件，在线来源是上表对应运行的 artifacts。
+
+## 第 4 项：引擎运行协调
+
+代码提交为 [`f9b1cd63d0e93c9dde4fab47bbaaa41188e2580f`](https://github.com/SandyYuR/fcitx5-android/commit/f9b1cd63d0e93c9dde4fab47bbaaa41188e2580f)，基线为第 3 项 `aa11afcf53b30946b260dc664cab1ec11c1eaa77`。本项改动 4 个源码／测试文件，新增 825 行、删除 254 行；新增 `DirectRimeEngineOperationsTest` 24 项，代码 PR 累计新增 103 项。
+
+按最终 Git blob 统计，Backend 从 1035 行变为 805 行，`DirectRimeEngineOperations` 为 296 行。选择、激活归因、槽切换与维护重启的同步协调迁入该组件，Backend 保留单一 owner、输入绑定、运行标志、快照和原启动／维护调度。
+
+diff 要按相同范围比较。本项 Backend 单文件为 +24／-254，净减 230；四文件总计 +825／-254，新增部分包含协调器 296 行和测试 505 行。原 PR 的 +64／-152 同样只是 Backend 单文件口径，原整项为 12 文件 +1358／-152、五个新增 helper 共 403 行；原 Backend 1248→1160，净减 88。迁移到新增文件的实现与留在 Backend 的回调／调度应一起核对，净删行数不代表提取的全部职责。
+
+| 入口 | 本阶段职责 |
+| --- | --- |
+| `core/DirectRimeEngineOperations.kt` | 在原 owner 上持有 activeSelection、newActivation、维护 pending selection 及 Handler／watchdog，复用实际 Repository／Config，协调配置、槽切换、维护重启和激活结果 |
+| `core/DirectRimeBackend.kt` | 保留唯一 volatile started、本次 Snapshot 与 startupError，提供原方案刷新和展示缓存重置；保留 startupStage 的 assets／config／native 顺序、输入门控、维护 finally 和事件交付，原停止／重启 wrapper 薄委托 |
+| `core/DirectRimeEngineOperationsTest.kt`（测试） | 24 项实际 Repository、Config／目录事务和共享 Native shadow 回归 |
+| `core/NativeTestShadow.kt`（测试） | 为既有唯一 shadow 增加 configureExternal 委托，供新测试观察原只读描述符、路径、摘要和关闭顺序 |
+
+startup 每轮在 try 外先重置选择／激活状态；configure 在载荷、provider 与绑定目录检查前登记本轮 selection 和 newActivation，确保失败归因仍指向请求引擎。Repository 和 shared 继续惰性取得，Direct Boot 固定内置并避开外部选择／持久化。
+
+切换当前槽的 stop 保留在可恢复目标加载 try 之外：先 arm watchdog、started=false、清 Snapshot，再调用 Native.stop；停止失败不得在污染进程加载目标或回退槽。维护 stop 继续在 Native.stop 成功后才写 started=false，保留两种停止路径的不同顺序。
+
+目标加载失败先清 watchdog 再清理 target；target 停止再失败保留原 addSuppressed 调用、取消 watchdog 并安排 500ms 进程恢复，不加载 fallback。Kotlin 2.4.10 的该扩展忽略 self 追加，继续抛原异常；没有新增生产判断。fallback 失败保留原 targetError 优先级、显式 self 排除及 attempted 守卫；回退成功仍抛 `EngineSwitchRecoveredException`，供原 maintain 识别。维护成功先登记 activationSucceeded 再清 pending／watchdog，失败先清 pending 再 activationFailed，Repository 异常继续传播。
+
+本项代码独立审阅通过。现行边界见[引擎运行协调契约](../implementation/correctness-contracts.md#引擎运行协调)。本项复用原 Store 的授权、绑定保护与启动守卫，没有新增 native session、输入代次、运行标志／快照副本、owner、线程或 scope；SDK、依赖与工作流未改变。
+
+### 本阶段测试与代码 CI
+
+新 24 项以已登记载荷夹具、实际 Repository 激活／回退记录、Config 与目录事务及共享 Native shadow，覆盖 Direct Boot、初次停止污染、目标清理失败与相同异常、回退成功／失败、完整检查标志、维护选择／profile 守卫、持久化异常顺序及 startup 失败归因。configureExternal 观察原描述符的文件、摘要、只读模式和关闭；本机这组测试中的 DSO 执行由 shadow 提供，设备执行范围来自下表当前 SHA 的远端 CI。
+
+| 报告范围 | 实际测试数 | failures | errors | skipped |
+| --- | ---: | ---: | ---: | ---: |
+| 本机相关 JVM，17 类 | 136 | 0 | 0 | 0 |
+| 当前提交的应用 JVM | 2208 | 0 | 0 | 0 |
+| 当前提交的完整前端设备 | 46 | 0 | 0 | 0 |
+| 当前提交的引擎 smoke | 6 | 0 | 0 | 0 |
+
+本机 17 份原 XML 的 suite tests 与实际 testcase 均为 136，包含新 24 项、既有 Store／provider、Config 安全、维护绑定、生命周期、Direct Boot、输入和共享 Native shadow 消费者回归。首轮 20 个失败来自新测试对 Robolectric／Windows FD 整数非负的错误假设；修正为观察原只读文件描述符，保留生产传入的 fd 原值。第二轮仅剩 1 个新测试误套 Java Throwable 的 self-suppression 期待；核 AA 原源码及 Kotlin 2.4.10 同扩展字节码后，仅修正新测试期待。两轮原 XML／日志／manifest 均保留，第三轮完整 136 项全零才算本机成功。
+
+以下固定同一 `head_sha = f9b1cd63d0e93c9dde4fab47bbaaa41188e2580f` 的最终六个 job 全 success；快照记录实际 job ID 与 run_attempt：
+
+| 运行 | 成功来源与范围 |
+| --- | --- |
+| [PR CI 43511796890](https://github.com/SandyYuR/fcitx5-android/actions/runs/43511796890) | attempt 1：SDK 下载器／全量应用 JVM、ARM64 Debug、lint、APK／链接审计 |
+| [Direct Rime CI 43511796880](https://github.com/SandyYuR/fcitx5-android/actions/runs/43511796880) | attempt 2 当前成功快照：prototype 原生契约／诊断构建、应用 JVM、完整前端 ARM64、真实前端设备与引擎 smoke |
+
+Direct Rime 首次 ARM64 job 在 `:app:checkFxDebugDuplicateClasses` 解析已有 `error_prone_annotations:2.15.0` 时，报告固定 Maven Central JAR 未找到；该 job 实际 JVM 为 0，后续 APK 审计与应用报告上传未执行，没有重复类清单，不能记为测试执行失败。同 URL 后续 GET 200、16023 字节及 SHA-256 与已有本机 cache 一致；这不能确定原 runner 的 HTTP／缓存根因。构建、SDK、依赖和工作流 blob 均未改变，相同运行／SHA 重试到 attempt 2 全通过后，才核对本表原始成功报告。
+
+成功应用 artifact 的 270 份原 XML 实际 testcase 为 2208，新引擎运行协调 24 项及此前新增回归完整执行；前端与 smoke 原 XML 分别为 46、6 项。全部失败／错误／跳过为 0，XML 摘要、源 member CRC 与设备 ZIP 摘要均已核对。
+
+### 本阶段证据与构建来源
+
+证据在工作区 `.dsh-tmp/direct-rime-recommended-splits-20261114/stage-04`：三轮本机原 XML／日志／summary、最终 `local-junit-summary.json`、源码 `source-manifest.json`／`committed-blobs.json`、Debug APK、构建和两项原生审计日志、`code-delivery.json`、当前 `code-ci.json` 与成功 `ci-artifacts`。本机 ARM64 Debug、三库白名单、16 KiB 对齐和原生链接审计通过。
+
+本阶段构建时 D 验证副本 HEAD 为父提交 AA，叠加四路径；C／D 原字节一致，按 Git 文本换行规则与 `f9b1cd63…` 对应提交 blob 一致。APK 摘要为 `327056fcb69937aed7769ab06afde4dcb6012fa237b94a3b4a84b3f2de0935e5`，版本元数据仍来自 AA，只用于相同源码的本机构建／审计。验证副本经 index tree 与最终提交 tree 一致核对后推进到 `f9b1cd63…`，保留既有未跟踪资料；不改写构建时来源。
+
+首次及第二次本机失败保留 `jvm-failed-01.log`／`junit-failed-01`、`jvm-failed-02.log`／`junit-failed-02` 和各自 summary。当前 CI 应用 XML-only 子集保留原压缩 XML member 并核源 ZIP CRC，两份设备原 ZIP 保留并核摘要；这些本机资料不属于站点附件，在线来源是上表对应运行的 artifacts。
