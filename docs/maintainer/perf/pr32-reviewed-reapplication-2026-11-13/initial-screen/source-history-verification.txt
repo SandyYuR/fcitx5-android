@@ -1,0 +1,8 @@
+The bundle contains these 3 refs:
+47a9a34f724e1b723247f9c8f52f80f29152d935 refs/heads/test/pr32-reviewed-ui-20261113
+0abc33d64d036c3cbdbe45a3b1f603f1c3f2817e refs/heads/test/pr32-reviewed-priority-20261113
+8c9c2f836bc2fb5ae691695972115eab49a5b79b refs/heads/test/pr32-reviewed-ablation-20261113
+The bundle requires this ref:
+2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18
+The bundle uses this hash algorithm: sha1
+/workspace/rime-pr32-reviewed-2026-11-13/reviewed-source-history.bundle is okay

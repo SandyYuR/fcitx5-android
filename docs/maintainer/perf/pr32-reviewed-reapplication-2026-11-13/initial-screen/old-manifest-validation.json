@@ -1,0 +1,42 @@
+[
+  {
+    "manifest": "docs/maintainer/perf/candidate-latency-fix-2026-11-12/checksums.sha256.txt",
+    "files": 59,
+    "sha256": "4206babb764d5405e5074582971640d81bce311f0daa7b4c4bac83f405c72b3c"
+  },
+  {
+    "manifest": "docs/maintainer/perf/input-dispatch-2026-11-12/checksums.sha256.txt",
+    "files": 67,
+    "sha256": "b59b098daac6d4a5ed15e08730efbe8a450dae2101fdd426b4bf20346669372c"
+  },
+  {
+    "manifest": "docs/maintainer/perf/pr32-font-confirmation-2026-11-13/checksums.sha256.txt",
+    "files": 30,
+    "sha256": "5297d6190d66115b5606773030359bc4e926fc18c0e0c45378b7d113f7fd6653"
+  },
+  {
+    "manifest": "docs/maintainer/perf/pr32-latency-study-2026-11-12/checksums.sha256.txt",
+    "files": 26,
+    "sha256": "6ee5d6a1b0fe325fcd78c3b66dbb0994adb5c82d1563ccc33fba6d76da0712fb"
+  },
+  {
+    "manifest": "docs/maintainer/perf/pr32-phase-review-2026-11-12/checksums.sha256.txt",
+    "files": 77,
+    "sha256": "bdeb88ff704ff7b0fbd2a7aa90e3c5820c2008b7d163b373579c5e46610272ff"
+  },
+  {
+    "manifest": "docs/maintainer/perf/wanxiang-2026-11-08/checksums.sha256.txt",
+    "files": 797,
+    "sha256": "340b2923de9defa1b53dfce5c39731f9a1fee6e9aa02e9bcfa0281e3d40a1789"
+  },
+  {
+    "manifest": "docs/maintainer/perf/wanxiang-2026-11-08/supplement-2026-11-11/checksums.sha256.txt",
+    "files": 1063,
+    "sha256": "e7526c5a382d8cba46e12d647cac8786c49460b78195d4e621ed671d7c8838c4"
+  },
+  {
+    "manifest": "docs/maintainer/perf/wanxiang-2026-11-08/supplement-2026-11-11/investigation-2026-11-11/checksums.sha256.txt",
+    "files": 34,
+    "sha256": "0f233379589f95ce1e6f3c3e5d640c39c15c01d99a1ded0379621ce9858186dd"
+  }
+]

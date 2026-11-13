@@ -1,0 +1,430 @@
+From 47a9a34f724e1b723247f9c8f52f80f29152d935 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 03:53:00 +0000
+Subject: [PATCH 1/2] =?UTF-8?q?=E4=BC=98=E5=8C=96(=E5=80=99=E9=80=89):=20?=
+ =?UTF-8?q?=E4=BF=9D=E6=8C=81=E6=A0=B7=E5=BC=8F=E8=AF=AD=E4=B9=89=E5=B9=B6?=
+ =?UTF-8?q?=E5=A4=8D=E7=94=A8=E9=81=8D=E5=8E=86=E7=94=BB=E7=AC=94=E3=80=81?=
+ =?UTF-8?q?=E5=BB=B6=E8=BF=9F=E8=A7=92=E6=A0=87=E5=92=8C=E5=8E=BB=E9=87=8D?=
+ =?UTF-8?q?=E5=B8=83=E5=B1=80?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../candidates/CandidateIndexBadgeTest.kt     |   7 +-
+ .../input/candidates/TextRunReuseTest.kt      | 117 ++++++++++++++++++
+ .../fcitx5/android/input/AutoScaleTextView.kt |  10 +-
+ .../input/candidates/CandidateItemUi.kt       |  26 ++--
+ .../HorizontalCandidateComponent.kt           |  10 +-
+ .../horizontal/MovingCandidateBadgeTest.kt    |   3 +-
+ tools/test-direct-rime-frontend.sh            |   1 +
+ 7 files changed, 153 insertions(+), 21 deletions(-)
+ create mode 100644 app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/TextRunReuseTest.kt
+
+diff --git a/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateIndexBadgeTest.kt b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateIndexBadgeTest.kt
+index 763fac2c..3e44e908 100644
+--- a/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateIndexBadgeTest.kt
++++ b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateIndexBadgeTest.kt
+@@ -39,6 +39,7 @@ class CandidateIndexBadgeTest {
+     @Test
+     fun everyCornerKeepsBadgeInsidePaddingAndResetsOldMargins() = onMain {
+         val ui = candidateUi(CandidateWord("", "中", "", false), enableOverflow = true)
++        ui.setIndexBadge("init", CandidateIndexBadgePosition.BottomRight)
+         val badge = badge(ui)
+         for (number in NUMBERS) {
+             for (position in CandidateIndexBadgePosition.entries) {
+@@ -68,7 +69,7 @@ class CandidateIndexBadgeTest {
+                 for (candidate in candidates) {
+                     val ui = candidateUi(candidate, enableOverflow)
+                     layout(ui, wrapWidth)
+-                    assertEquals(View.GONE, badge(ui).visibility)
++                    assertEquals("disabled badge must not allocate a view", 1, ui.root.childCount)
+                     assertEquals(
+                         if (enableOverflow) AutoScaleTextView.Mode.None
+                         else AutoScaleTextView.Mode.Proportional,
+@@ -122,7 +123,7 @@ class CandidateIndexBadgeTest {
+             val candidates = Array(99) { CandidateWord("", "候选${it + 1}", "", false) }
+             adapter.updateCandidates(candidates, candidates.size)
+             adapter.onBindViewHolder(holder, 9)
+-            assertEquals(View.GONE, badge(holder.ui).visibility)
++            assertEquals("default badge must not allocate a view", 1, holder.ui.root.childCount)
+ 
+             adapter.setCandidateIndexBadgeEnabled(true)
+             for (number in NUMBERS) {
+@@ -176,7 +177,7 @@ class CandidateIndexBadgeTest {
+             styled.setSpan(AbsoluteSizeSpan(sp(12f).roundToInt(), false), start, end, flags)
+         }
+         text.text = styled
+-        badge(ui).typeface = Typeface.MONOSPACE
++        (ui.root.getChildAt(1) as? TextView)?.typeface = Typeface.MONOSPACE
+     }
+ 
+     private fun layout(ui: CandidateItemUi, wrapWidth: Boolean = false) {
+diff --git a/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/TextRunReuseTest.kt b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/TextRunReuseTest.kt
+new file mode 100644
+index 00000000..63e74b8a
+--- /dev/null
++++ b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/TextRunReuseTest.kt
+@@ -0,0 +1,117 @@
++/* SPDX-License-Identifier: LGPL-2.1-or-later */
++package org.fcitx.fcitx5.android.input.candidates
++
++import android.graphics.Bitmap
++import android.graphics.Canvas
++import android.graphics.Color
++import android.graphics.Typeface
++import android.text.SpannableString
++import android.text.Spanned
++import android.text.TextPaint
++import android.text.style.CharacterStyle
++import android.view.Gravity
++import android.view.View
++import androidx.test.platform.app.InstrumentationRegistry
++import org.fcitx.fcitx5.android.input.AutoScaleTextView
++import org.junit.Assert.*
++import org.junit.Test
++import kotlin.math.ceil
++
++/** The oracle draws declared segments with fresh paints, independently of span traversal. */
++class TextRunReuseTest {
++    private class Run(val text: String, val style: (TextPaint.() -> Unit)? = null)
++
++    private fun runs() = listOf(
++        Run("MMMM") { textSize = 52f; typeface = Typeface.SERIF; textScaleX = 1.25f; color = Color.RED },
++        Run(" iiii "),
++        Run("WWWW") { textSize = 21f; typeface = Typeface.SANS_SERIF; textSkewX = -0.25f; color = Color.BLUE },
++        Run(" plain"),
++    )
++
++    private fun styled(runs: List<Run>): SpannableString {
++        val text = SpannableString(runs.joinToString("") { it.text })
++        var start = 0
++        for (run in runs) {
++            val style = run.style
++            if (style != null) {
++                // CharacterStyle is intentionally not MetricAffectingSpan. Preserve
++                // the original updateDrawState semantics during measurement too.
++                text.setSpan(object : CharacterStyle() {
++                    override fun updateDrawState(paint: TextPaint) { style(paint) }
++                }, start, start + run.text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
++            }
++            start += run.text.length
++        }
++        return text
++    }
++
++    @Test fun measuringStyledRunsRestoresTheBasePaintForEveryPlainSegment() = onMain {
++        val runs = runs()
++        val base = TextPaint().apply {
++            isAntiAlias = true
++            textSize = 32f
++            typeface = Typeface.MONOSPACE
++            color = Color.BLACK
++        }
++        val before = TextPaint(base)
++        var expectedWidth = 0f
++        for (run in runs) {
++            val paint = TextPaint(before)
++            run.style?.invoke(paint)
++            expectedWidth += paint.measureText(run.text)
++        }
++        val expected = ceil(expectedWidth).toInt()
++        assertEquals(expected, AutoScaleTextView.measureTextWidth(styled(runs), base))
++        assertEquals(before.textSize, base.textSize, 0f)
++        assertEquals(before.textScaleX, base.textScaleX, 0f)
++        assertEquals(before.textSkewX, base.textSkewX, 0f)
++        assertEquals(before.typeface, base.typeface)
++        assertEquals(before.color, base.color)
++    }
++
++    @Test fun drawingStyledRunsMatchesIndependentFreshPaintSegments() = onMain {
++        val runs = runs()
++        val view = AutoScaleTextView(InstrumentationRegistry.getInstrumentation().targetContext).apply {
++            setPadding(0, 0, 0, 0)
++            gravity = Gravity.TOP or Gravity.LEFT
++            scaleMode = AutoScaleTextView.Mode.None
++            textSize = 32f
++            typeface = Typeface.MONOSPACE
++            setTextColor(Color.BLACK)
++            background = null
++            text = styled(runs)
++        }
++        val width = 800
++        val height = 160
++        view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
++            View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
++        view.layout(0, 0, width, height)
++        val actual = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
++        val expected = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
++        try {
++            view.draw(Canvas(actual))
++            val base = TextPaint(view.paint).apply { color = Color.BLACK }
++            val canvas = Canvas(expected)
++            val baseline = -base.fontMetrics.top
++            var x = 0f
++            for (run in runs) {
++                val paint = TextPaint(base)
++                run.style?.invoke(paint)
++                canvas.drawText(run.text, x, baseline, paint)
++                x += paint.measureText(run.text)
++            }
++            assertTrue("Run state must not leak into following unstyled text", actual.sameAs(expected))
++        } finally {
++            actual.recycle()
++            expected.recycle()
++        }
++    }
++
++    private fun onMain(block: () -> Unit) {
++        var failure: Throwable? = null
++        InstrumentationRegistry.getInstrumentation().runOnMainSync {
++            try { block() } catch (error: Throwable) { failure = error }
++        }
++        failure?.let { throw it }
++    }
++}
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt
+index 44239022..ea188d68 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt
+@@ -36,10 +36,14 @@ private inline fun forEachTextRun(
+         return
+     }
+ 
++    if (plainText.isEmpty()) return
++    // Scratch state is confined to this traversal. Keep all CharacterStyle
++    // behavior and reset it before the next run, including unstyled segments.
++    val runPaint = TextPaint(paint)
+     var start = 0
+     while (start < plainText.length) {
+         val end = spanned.nextSpanTransition(start, plainText.length, CharacterStyle::class.java)
+-        val runPaint = TextPaint(paint)
++        if (start != 0) runPaint.set(paint)
+         spanned.getSpans(start, end, CharacterStyle::class.java).forEach {
+             it.updateDrawState(runPaint)
+         }
+@@ -73,8 +77,8 @@ class AutoScaleTextView @JvmOverloads constructor(
+ 
+     var scaleMode = Mode.None
+ 
+-    // Keep a cached copy of the source text so that drawTextWithSpans can read
+-    // CharacterStyle spans without re-allocating a String on every draw.
++    // Retain source spans and cache a plain copy for bounds/code-point checks.
++    // Traversal still observes mutable CharSequence content when drawing.
+     private var text: CharSequence = ""
+     private var plainText: String = ""
+ 
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+index 8d9fb8f9..f8c39233 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+@@ -117,7 +117,9 @@ class CandidateItemUi(
+         })
+     }
+ 
+-    private val indexBadge = view(::TextView) {
++    private var indexBadge: TextView? = null
++
++    private fun createIndexBadge(): TextView = view(::TextView) {
+         includeFontPadding = false
+         textSize = 10f
+         gravity = Gravity.TOP or Gravity.START
+@@ -125,7 +127,11 @@ class CandidateItemUi(
+         isClickable = false
+         isFocusable = false
+         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+-        visibility = View.GONE
++    }.also { badge ->
++        indexBadge = badge
++        candidateRoot.addView(badge, FrameLayout.LayoutParams(
++            FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT,
++        ))
+     }
+ 
+     /**
+@@ -180,14 +186,16 @@ class CandidateItemUi(
+         if (indexBadgeText == text && indexBadgePosition == position) return
+         indexBadgeText = text
+         indexBadgePosition = position
+-        indexBadge.text = text.orEmpty()
+-        indexBadge.visibility = if (text == null) View.GONE else View.VISIBLE
++        val badge = indexBadge ?: if (text != null) createIndexBadge() else return
++        badge.text = text.orEmpty()
++        badge.visibility = if (text == null) View.GONE else View.VISIBLE
+         applyIndexBadgeLayout()
+         refreshIndexBadgeColor()
+     }
+ 
+     private fun applyIndexBadgeLayout() {
+-        val params = indexBadge.layoutParams as? FrameLayout.LayoutParams ?: return
++        val badge = indexBadge ?: return
++        val params = badge.layoutParams as? FrameLayout.LayoutParams ?: return
+         val horizontalMargin = ctx.dp(INDEX_BADGE_HORIZONTAL_MARGIN_DP)
+         val isLeft = indexBadgePosition == CandidateIndexBadgePosition.TopLeft ||
+             indexBadgePosition == CandidateIndexBadgePosition.BottomLeft
+@@ -201,11 +209,11 @@ class CandidateItemUi(
+         params.marginEnd = if (!isLeft) horizontalMargin else 0
+         params.topMargin = 0
+         params.bottomMargin = 0
+-        indexBadge.layoutParams = params
++        badge.layoutParams = params
+     }
+ 
+     private fun refreshIndexBadgeColor() {
+-        indexBadge.setTextColor(
++        indexBadge?.setTextColor(
+             if (active) {
+                 ColorUtils.setAlphaComponent(theme.genericActiveForegroundColor, 190)
+             } else {
+@@ -288,10 +296,6 @@ class CandidateItemUi(
+         add(content, lParams(wrapContent, matchParent) {
+             gravity = gravityCenter
+         })
+-        add(indexBadge, lParams(wrapContent, wrapContent) {
+-            gravity = Gravity.TOP or Gravity.START
+-            marginStart = ctx.dp(INDEX_BADGE_HORIZONTAL_MARGIN_DP)
+-        })
+     }
+ 
+     override val root: CustomGestureView = candidateRoot
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt
+index f695fab8..8c1ffa76 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt
+@@ -379,9 +379,13 @@ class HorizontalCandidateComponent :
+         ) {
+             override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
+                 super.onBindViewHolder(holder, position)
+-                holder.itemView.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
+-                    minWidth = layoutMinWidth
+-                    flexGrow = layoutFlexGrow
++                val params = holder.itemView.layoutParams as FlexboxLayoutManager.LayoutParams
++                // The second layout pass can change flexGrow; inspect actual values.
++                if (params.minWidth != layoutMinWidth || params.flexGrow != layoutFlexGrow) {
++                    holder.itemView.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
++                        minWidth = layoutMinWidth
++                        flexGrow = layoutFlexGrow
++                    }
+                 }
+                 holder.itemView.setOnClickListener {
+                     val target = holder.selectionFor(adapter.candidates.getOrNull(holder.bindingAdapterPosition))
+diff --git a/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt b/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt
+index 5adcd700..a078f9aa 100644
+--- a/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt
++++ b/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt
+@@ -152,7 +152,8 @@ class MovingCandidateBadgeTest {
+         adapter.updateCandidates(arrayOf(word("x"), word("a"), word("b")), 10)
+         layout(view)
+         assertEquals(0, changes)
+-        assertEquals(View.GONE, badge(view.findViewHolderForAdapterPosition(2) as CandidateViewHolder).visibility)
++        val holder = view.findViewHolderForAdapterPosition(2) as CandidateViewHolder
++        assertEquals("disabled badges must not create an extra TextView", 1, holder.ui.root.childCount)
+     }
+ 
+     @Test fun movingOnlyTheHighlightUsesPayloadsWithoutRebindingCandidateContent() = fixture { view, adapter ->
+diff --git a/tools/test-direct-rime-frontend.sh b/tools/test-direct-rime-frontend.sh
+index 4016d0aa..416fa3c6 100644
+--- a/tools/test-direct-rime-frontend.sh
++++ b/tools/test-direct-rime-frontend.sh
+@@ -12,6 +12,7 @@ frontend_test_classes=(
+   org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest
+   org.fcitx.fcitx5.android.input.candidates.CandidateTypefaceTest
+   org.fcitx.fcitx5.android.input.candidates.CandidateRenderingTest
++  org.fcitx.fcitx5.android.input.candidates.TextRunReuseTest
+   org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeTest
+   org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest
+ )
+-- 
+2.52.0
+
+
+From 7f27c8af0ba8fa2f7d4ce113a1122d50d4641f3c Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 03:53:00 +0000
+Subject: [PATCH 2/2] =?UTF-8?q?=E4=BC=98=E5=8C=96(=E8=BE=93=E5=85=A5):=20?=
+ =?UTF-8?q?=E4=BB=85=E5=BB=B6=E7=BB=AD=E5=8E=9F=E7=94=9F=E6=8C=89=E9=94=AE?=
+ =?UTF-8?q?=E4=B8=8E=E7=BB=93=E6=9E=9C=E5=8F=91=E5=B8=83=E7=9A=84=E4=BA=A4?=
+ =?UTF-8?q?=E4=BA=92=E4=BC=98=E5=85=88=E7=BA=A7?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../fcitx5/android/core/DirectRimeBackend.kt  | 17 +++++++---
+ .../android/core/InputBindingStartupTest.kt   | 31 +++++++++++++++++++
+ 2 files changed, 43 insertions(+), 5 deletions(-)
+
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt b/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
+index e84a8490..6cab85f2 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
+@@ -494,12 +494,19 @@ class DirectRimeBackend(context: Context) : InputEngine {
+             val collectStatistics = !bypass && shouldCollectStatistics(statisticsSource, previous)
+             val wallTime = if (collectStatistics) System.currentTimeMillis() else 0L
+             val monotonicTime = if (collectStatistics) SystemClock.elapsedRealtime() else 0L
+-            val result = if (bypass) null else interactivePriority.run { Native.key(expected, sym, states.toInt(), up, collectStatistics) }
+-            val nativeAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
+-            if (result != null) {
+-                val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous!!, result, wallTime, monotonicTime) else null
+-                publish(result, release = up, statistics = statistics, statisticsKey = if (up) null else sym)
++            // Only diagnostic builds need a mutable timestamp carrier. Keep normal
++            // key handling free of timing-container allocations.
++            val nativeCompletedAt = if (BuildConfig.INPUT_DIAGNOSTICS) LongArray(1) else null
++            val result = if (bypass) null else interactivePriority.run {
++                val value = Native.key(expected, sym, states.toInt(), up, collectStatistics)
++                if (nativeCompletedAt != null) nativeCompletedAt[0] = SystemClock.elapsedRealtimeNanos()
++                val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous!!, value, wallTime, monotonicTime) else null
++                // Match act(): preserve the accepted result's publication before
++                // restoring priority, excluding logs and forwarded-key bookkeeping.
++                publish(value, release = up, statistics = statistics, statisticsKey = if (up) null else sym)
++                value
+             }
++            val nativeAt = nativeCompletedAt?.get(0) ?: 0L
+             if (!up && result?.ready == true) {
+                 bindingKeys++
+                 if (BuildConfig.INPUT_DIAGNOSTICS && (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L))
+diff --git a/app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt b/app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt
+index 02b24ad0..0046de00 100644
+--- a/app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt
++++ b/app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt
+@@ -91,6 +91,37 @@ class InputBindingStartupTest {
+             withContext(owner) { Process.getThreadPriority(Process.myTid()) })
+     }
+ 
++    @Test fun keyResultStatusReadKeepsPriorityAndRestoresTheOwner() = runBlocking {
++        createBackend()
++        bind("editor")
++        withContext(owner) { Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND) }
++        BindingNativeShadow.calls.clear()
++
++        backend.sendKey('N', 0u, 0, false, 0)
++
++        assertEquals(listOf("inline-ascii", "options"), BindingNativeShadow.calls.map { it.phase })
++        assertTrue(BindingNativeShadow.calls.all { it.priority <= Process.THREAD_PRIORITY_DISPLAY })
++        assertEquals(Process.THREAD_PRIORITY_BACKGROUND,
++            withContext(owner) { Process.getThreadPriority(Process.myTid()) })
++        assertTrue(currentSnapshot().ascii)
++    }
++
++    @Test fun keyPublicationFailureStillRestoresTheOwnerThreadPriority() = runBlocking {
++        createBackend()
++        bind("editor")
++        withContext(owner) { Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND) }
++        BindingNativeShadow.calls.clear()
++        BindingNativeShadow.failOptions = true
++
++        val failure = runCatching { backend.sendKey('N', 0u, 0, false, 0) }.exceptionOrNull()
++
++        assertTrue(failure is IllegalStateException)
++        assertEquals(listOf("inline-ascii", "options"), BindingNativeShadow.calls.map { it.phase })
++        assertTrue(BindingNativeShadow.calls.all { it.priority <= Process.THREAD_PRIORITY_DISPLAY })
++        assertEquals(Process.THREAD_PRIORITY_BACKGROUND,
++            withContext(owner) { Process.getThreadPriority(Process.myTid()) })
++    }
++
+     @Test fun newApplicationUsesRimeAsciiReset() = runBlocking {
+         createBackend()
+         bind("editor.one")
+-- 
+2.52.0
+

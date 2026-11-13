@@ -1,0 +1,7 @@
+{
+  "state": "archive-prepared-before-deletion",
+  "archive_push_required_before_deletion": true,
+  "default_branch_pushed": false,
+  "user_refactor_branch_touched": false,
+  "historical_ci_deleted": false
+}
