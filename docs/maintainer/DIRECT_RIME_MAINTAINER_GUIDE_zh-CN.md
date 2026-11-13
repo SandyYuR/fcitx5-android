@@ -21,6 +21,21 @@
 当前只有 `native/rime-prelude` 一个子模块；引擎改为下载固定版本的 SDK。旧 `lib/fcitx5`、`plugin/rime`、`app/src/main/cpp` 已移除；本地遗留的未跟踪目录不属于构建输入。
 代码分支不放 `docs/`；站点、协议和报告统一在 `docs` 分支。
 
+### 直连后端的职责划分
+
+下表的 Kotlin 路径相对 `app/src/main/java/org/fcitx/fcitx5/android/`。拆分范围、固定源码与验证证据见[2026-11-13 后端重构核对](changes/2026-11-13-direct-rime-backend-seams.md)。
+
+| 组件 | 职责与调用边界 |
+| --- | --- |
+| `core/DirectRimeBackend` | 持有单一 native owner、输入绑定与 generation、快照和展示缓存、`candidateVersion`、事件顺序及维护门控；执行 native 命令、停止与重启 |
+| `core/DirectRimeStatusMenu` | 组装状态菜单并解码动作 ID；命令交回后端在 owner 上执行 |
+| `core/DirectRimePresentation` | 将本次 Snapshot 转为 preedit、panel、带版本的音节标签及候选展示值；不调用 native、不发布事件 |
+| `core/DirectRimeMaintenanceFiles` | 在 owner 上、停机前核对高级设置／自定义更新／万象更新任务，生成包含目标、payload 和策略的安装计划 |
+| `data/RimeProfileUpdateInstaller` | 共用停机、资源安装及失败恢复流程；停止和重启回调由后端提供，保留外部引擎启动守卫与 watchdog |
+| `data/RimeProfileImportTransaction` | 负责方案 ZIP 的路径检查、暂存解压、目录安装与登记前失败清理；登记、切换及重启仍由后端执行 |
+
+展示转换与菜单命令解码不取得输入会话所有权。候选版本推进、候选点选目标登记、commit 事件生成及发布顺序继续集中在后端；资源更新与方案导入的取消边界分别见[正确性契约](implementation/correctness-contracts.md#资源维护与方案导入)。
+
 ## 构建与安装
 
 工具版本由 `build-logic/convention/src/main/kotlin/Versions.kt` 及构建配置决定。当前使用 Java 17、SDK 36、NDK `28.0.13004108`、CMake `3.31.6`，最低 Android 6.0 / API 23。

@@ -93,3 +93,13 @@
 | [插件设备回归](/maintainer/engine-update#三、构建并核对验证范围) | [PluginSdkSmokeTest](https://github.com/SandyYuR/fcitx5-android/blob/ae4a13438be015c7546fce0060c96c140e3c4ab6/direct-rime/src/androidTest/java/org/fcitx/directrime/PluginSdkSmokeTest.kt) |
 | [AI 文本助手](/features/ai-assistant) | [JsApps](https://github.com/SandyYuR/fcitx5-android/blob/ae4a13438be015c7546fce0060c96c140e3c4ab6/app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsApps.kt) · [JsAppHttp](https://github.com/SandyYuR/fcitx5-android/blob/ae4a13438be015c7546fce0060c96c140e3c4ab6/app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppHttp.kt) · [JsAppEditor](https://github.com/SandyYuR/fcitx5-android/blob/ae4a13438be015c7546fce0060c96c140e3c4ab6/app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppEditor.kt) |
 | [Foxy 接口中文参考与宿主差异](/features/voice-input-js-reference-zh-CN) | [JsVoicePrelude](https://github.com/SandyYuR/fcitx5-android/blob/ae4a13438be015c7546fce0060c96c140e3c4ab6/app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoicePrelude.kt) · [现行宿主协议](/maintainer/implementation/js-voice-plugins) |
+
+## 直连后端维护入口
+
+后端组件职责见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN#直连后端的职责划分)，固定源码、变更范围与当次验证见[2026-11-13 核对](./2026-11-13-direct-rime-backend-seams)。下表补充维护定位，原有用户功能入口继续保留。
+
+| 说明 | 生产与回归入口 |
+| --- | --- |
+| [展示、菜单与发布](/maintainer/implementation/correctness-contracts#后端展示与菜单) | `DirectRimeStatusMenu`、`DirectRimePresentation`、`DirectRimeBackend.publish`；`DirectRimeStatusMenuTest`、`DirectRimePresentationTest`、`DirectRimePublicationContractTest` |
+| [设置与资源更新](/maintainer/implementation/correctness-contracts#设置与资源更新) | `DirectRimeMaintenanceFiles`、`RimeProfileUpdateInstaller`、`WanxiangUpdateTransaction`；`DirectRimeMaintenanceFilesTest`、`RimeProfileUpdateInstallerTest` |
+| [方案 ZIP 导入](/maintainer/implementation/correctness-contracts#方案-zip-导入) | `RimeProfileImportTransaction`、后端 `import-profile` 维护入口；`RimeProfileImportTransactionTest`、`DirectRimeFrontendTest.profileImportSelectionAndMigration` |

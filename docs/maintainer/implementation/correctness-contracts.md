@@ -47,6 +47,12 @@ Native owner 只缓存 `schema_id`、`schema_name` 与 `ascii_mode` 三个稳定
 
 Kotlin 的 `DirectRimeInputMethodEntryCache` 只保留最后一个不可变展示对象。中英文模式、中文态的方案 ID／名称或资源显示名变化时重建；西文态忽略没有显示的后台方案字段，回到中文态按当前方案重新比较。该缓存不保存输入绑定，也不改变方案恢复行为。
 
+### 后端展示与菜单
+
+`core/DirectRimeStatusMenu` 只组装状态菜单并将动作 ID 解码为命令；互斥组选项仍先关闭其他成员，再启用目标。`core/DirectRimePresentation` 只将本次 Snapshot 转成预编辑、面板、带 generation／`tabsRevision` 的音节标签和候选展示值。命令执行、generation 校验、快照与展示缓存、`candidateVersion`、候选点选目标登记及事件发布顺序仍由 `DirectRimeBackend` 管理。展示转换不得消费 commit、调用 native 或自行推进候选版本。
+
+`DirectRimeStatusMenuTest` 与 `DirectRimePresentationTest` 检查菜单和显示转换规则。`DirectRimePublicationContractTest` 通过后端的 `sendKey`／`setCandidatePagingMode` 入口检查统计与提交先于展示、发布目标的版本和过期结果不改状态；满足 `Snapshot.isUnchangedRelease` 的松键只更新后端持有的 native 快照。强制刷新仍读取新快照，不能重放旧 commit；仅在同代次、同分页模式且未触发既有候选失效条件时，重发候选而不推进候选版本。该 JVM 夹具替换了 Native，真实开关保存、跨会话恢复与触摸行为仍由 `DirectRimeFrontendTest` 验证；固定范围见[后端重构核对](../changes/2026-11-13-direct-rime-backend-seams.md)。
+
 ### 候选目标、坐标与展示快照
 
 `CandidateWord.selectionTarget` 由生产者在发布前登记，包含编辑器/候选版本、原始序号及其局部页/全局含义。它不参与文字显示相等性。界面可以在不重绑相同文字的情况下更新目标，但不能用 backend 的最新版本给仍未加载完成的旧分页数据重新贴标签；点击时还需确认 adapter 项与 holder 实际显示的文字相符。`CandidateGenerationTracker` 同时观察引擎版本，避免第一屏相同就漏刷懒候选尾部。
@@ -70,6 +76,22 @@ JNI 分配失败后停止后续构造，只做允许的引用释放，已有 Jav
 `RimeSyncUserData` 的返回值表示是否启动维护线程。`Engine::sync` 等待线程后，还必须确认本次请求收到成功完成通知；失败在同次维护中保持有效，后续成功通知不能覆盖它，下一次请求则重新计数。原生同步会清理 session，不能继续复用旧句柄。运行时 `save()` 走相同维护门控；引擎未启动时跳过 native 同步，使已有用户文件仍可导出。系统关机广播直接进入最终关闭门控并等待 `Native.stop()`，不调用 `save()` 启动词典同步；关机门控一旦设置，迟到的连接或恢复回调不能重启引擎。真正复制备份时仍须通过下方停写入口，不能把同步成功当作停写完成。
 
 会话销毁后，Lua 的 `Memory` 对象可能尚未回收，仍占用 LevelDB。同步维护先通过 `stop` / `initialize(false)` 释放模块与词库资源，再发起同步；不重跑进程级 `setup`，也不强制重编方案。初始化失败时不能继续同步并覆盖错误；`PluginSdkSmokeTest` 实际覆盖 Lua 已学习词条的同步与重启读取。
+
+## 资源维护与方案导入
+
+### 设置与资源更新
+
+高级设置保存、自定义方案更新和万象更新继续在 `withContext(NonCancellable) { maintain { … } }` 内执行。`core/DirectRimeMaintenanceFiles` 在 owner 上、停止引擎前完成既有目标与文件校验，生成含目标目录、payload 和安装策略的 `PreparedRimeInstall`。空自定义／万象 payload 在停机前返回；高级设置的空 payload 仍交由安装事务报错。各入口的文件保护规则见下文[万象更新](#万象方案更新与配置编辑)与[自定义更新](#自定义方案更新)。
+
+`data/RimeProfileUpdateInstaller` 先停止 native，再调用 `WanxiangUpdateTransaction`。初次停止失败不在安装器内恢复或重启；安装失败则在底层恢复之外再次调用恢复，恢复成功后才重启，并将恢复或重启异常附加到原错误。这层恢复也覆盖底层事务进入自身恢复段前的校验失败，不能因底层已有恢复而移除。停止、重启、外部引擎启动守卫和 watchdog 仍由后端提供。
+
+`DirectRimeMaintenanceFilesTest` 检查三种安装策略与空资源边界；`RimeProfileUpdateInstallerTest` 检查替换前停止、激活失败回滚、事务前校验失败、初次停止失败和恢复异常。既有 `WanxiangUpdateTransactionTest`、更新 Worker 测试及 `MaintenanceSaveTest` 继续分别守护底层事务、任务状态和维护绑定恢复。
+
+### 方案 ZIP 导入
+
+普通方案 ZIP 的 `import-profile` 直接进入 `maintain`，没有整段包裹 `NonCancellable`；取消与绑定恢复沿用维护入口的规则。`data/RimeProfileImportTransaction` 只负责文件部分：限定 archive 来自缓存导入目录，选择未被登记或占用的名称，解压到同一父目录的隐藏 staging，再以目录 rename 安装。
+
+后端在 profile mutation lease 内重新检查内置引擎条件，完成 `config.create` 后立即调用 `markRegistered`，再切换 profile 并重启引擎。失败清理会尝试移除 staging，且仅在安装完成、尚未登记时删除 target；登记后切换或重启失败仍保留已登记目录，由后端尝试恢复先前 profile。`RimeProfileImportTransactionTest` 检查路径限制、唯一名称、完整安装、非法 ZIP 及登记前后清理；真实引擎回归为 `DirectRimeFrontendTest.profileImportSelectionAndMigration`。外部引擎活动时的导入限制继续遵循下文引擎变体契约。
 
 ## 运行时引擎变体
 

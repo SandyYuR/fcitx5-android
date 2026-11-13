@@ -98,6 +98,7 @@ const maintenance = [
     { text: '文档维护与分类约定', link: '/maintainer/documentation' },
   ] },
   { text: '代码与文档对照', collapsed: false, items: [
+    { text: '后端展示与维护重构 · 2026-11-13', link: '/maintainer/changes/2026-11-13-direct-rime-backend-seams' },
     { text: '万象 EVO 方案排查 · 2026-11-12', link: '/maintainer/changes/2026-11-12-evo-profile-diagnosis' },
     { text: '提交分类整理 · 2026-11-07', link: '/maintainer/changes/2026-11-07-history-squash' },
     { text: '引擎同步与输入修复 · 2026-11-06', link: '/maintainer/changes/2026-11-06-engine-input-fixes' },
