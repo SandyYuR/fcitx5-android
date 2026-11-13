@@ -146,7 +146,6 @@ abstract class BaseInputView(
         resolveIndex: () -> Int
     ) {
         candidateAnchorOwners[view] = Any()
-        val characters = text.candidateCharacters()
         var gestureCancelled = false
         var popup: CandidateCharacterPopup? = null
         // 本次按住是否已经选定方向（上滑弹字窗 / 下滑弹菜单）；选定后不再改向。
@@ -189,7 +188,12 @@ abstract class BaseInputView(
                         directionLocked -> true
 
                         // 向上滑：弹单字窗
-                        event.totalY < 0 && characters.isNotEmpty() -> {
+                        event.totalY < 0 -> {
+                            // Ordinary candidate binding/taps do not need Unicode segmentation.
+                            // Resolve the displayed binding's text only when this gesture opens
+                            // the character picker; subsequent moves reuse the popup below.
+                            val characters = text.candidateCharacters()
+                            if (characters.isEmpty()) return@OnGestureListener false
                             directionLocked = true
                             popup = CandidateCharacterPopup(view, characters, theme).also {
                                 candidateCharacterPopup = it
