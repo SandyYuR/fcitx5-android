@@ -86,6 +86,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override val eventFlow = flow.asSharedFlow()
     private val config = DirectRimeConfig(this.context)
     private val engineRepository by lazy { RimeEngineStore.repository(this.context) }
+    private val profileOperations by lazy {
+        DirectRimeProfileOperations(config, { engineRepository }, ::stopNativeForRestart, ::restartNative)
+    }
     private var activeEngineSelection = RimeEngineSelection.Builtin
     private var newEngineActivation = false
     private var maintenanceActivationSelection: RimeEngineSelection? = null
@@ -1035,33 +1038,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
             "profile-manager" -> maintain {
                 require(!directBootMode) { "首次解锁前不能管理 Rime 工作目录" }
                 val command = DirectRimeManagementCommands.profileManager(config)
-                val name = command.name
-                try {
-                    engineRepository.profileMutationLease().use {
-                        when (command.action) {
-                            DirectRimeManagementCommands.ProfileAction.Create ->
-                                this.config.create(name, DirectRimeManagementCommands.externalPath(config))
-                            DirectRimeManagementCommands.ProfileAction.Switch -> {
-                                engineRepository.requireBuiltinForProfileSwitch()
-                                this.config.switch(name)
-                                restartNative()
-                            }
-                            DirectRimeManagementCommands.ProfileAction.Rename -> {
-                                engineRepository.requireProfileUnreferenced(name)
-                                val active = name == this.config.current
-                                if (active) stopNativeForRestart()
-                                try { this.config.rename(name, DirectRimeManagementCommands.newName(config)) }
-                                finally { if (active) restartNative() }
-                            }
-                            DirectRimeManagementCommands.ProfileAction.Delete -> {
-                                engineRepository.requireProfileUnreferenced(name)
-                                this.config.delete(name)
-                            }
-                            DirectRimeManagementCommands.ProfileAction.Unknown -> error("无效目录操作")
-                        }
-                    }
-                    this.config.error = ""
-                } catch (e: Exception) { this.config.error = e.message.orEmpty(); throw e }
+                profileOperations.manage(command,
+                    { DirectRimeManagementCommands.externalPath(config) },
+                    { DirectRimeManagementCommands.newName(config) })
             }
             "import-profile" -> maintain {
                 require(!directBootMode) { "首次解锁前不能导入 Rime 工作目录" }
@@ -1082,24 +1061,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
                     parent,
                     profiles,
                 )
-                try {
-                    val target = transaction.install()
-                    engineRepository.profileMutationLease().use {
-                        engineRepository.requireBuiltinForProfileSwitch()
-                        this.config.create(transaction.name, target.absolutePath)
-                        transaction.markRegistered()
-                        val previous = this.config.current
-                        try { this.config.switch(transaction.name); restartNative() }
-                        catch (e: Exception) {
-                            this.config.switch(previous)
-                            restartNative()
-                            throw e
-                        }
-                    }
-                } catch (e: Exception) {
-                    transaction.recoverAfterFailure()
-                    throw e
-                }
+                profileOperations.installImported(transaction)
             }
         }
     }

@@ -117,7 +117,9 @@ class DirectRimeManagementCommandContractTest {
     }
 
     @Test fun directBootGuardsTakePriorityOverMissingOrUnknownManagementFields() = runBlocking {
+        ReflectionHelpers.setField(RimeEngineStore, "instance", null)
         val config = createBackend(directBoot = true).apply { error = "previous error" }
+        assertNull(ReflectionHelpers.getField<RimeEngineRepository?>(RimeEngineStore, "instance"))
         val messages = mapOf(
             "profile-manager" to "首次解锁前不能管理 Rime 工作目录",
             "import-profile" to "首次解锁前不能导入 Rime 工作目录",
@@ -128,6 +130,7 @@ class DirectRimeManagementCommandContractTest {
             assertEquals(message, failure?.message)
             assertEquals("previous error", config.error)
             assertFalse(ReflectionHelpers.getField<Boolean>(backend, "maintenance"))
+            assertNull(ReflectionHelpers.getField<RimeEngineRepository?>(RimeEngineStore, "instance"))
         }
     }
 
