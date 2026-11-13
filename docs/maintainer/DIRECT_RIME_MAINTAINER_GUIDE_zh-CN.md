@@ -27,7 +27,8 @@
 
 | 组件 | 职责与调用边界 |
 | --- | --- |
-| `core/DirectRimeBackend` | 持有单一 native owner、输入绑定与 generation、唯一 started 标志、本次 native 快照、启动错误及输入门控；保留启动／停止和维护调度，在 owner 上读取方案选项、执行 native 命令，提供原方案刷新及展示缓存重置，交付输入批次和生命周期事件 |
+| `core/DirectRimeBackend` | 持有单一 native owner、输入绑定与 generation、唯一 started、本次 Snapshot、启动错误及 keyGate／events；保留启动／停止与薄维护入口，提供原 enter／leave 屏障、实际状态事件、方案刷新及绑定读写回调，执行 native 命令并交付输入批次 |
+| `core/DirectRimeMaintenanceCoordinator<B>` | 唯一持有维护 Mutex，编排 owner 维护操作、激活结果及绑定恢复；通过固定 Owner 访问后端当次状态和实际动作，private Binding 保持在 Backend，不增加 owner／scope／线程或实时状态副本 |
 | `core/DirectRimeEngineOperations` | 在原 owner 上同步协调引擎配置、槽切换、维护停止／重启及激活结果；持有 activeSelection、newActivation、维护 pending selection 和 Handler／watchdog，惰性取得实际 Repository／shared，透过 Owner 访问后端唯一 started／快照／启动错误 |
 | `core/DirectRimePublicationState` | 持有四类前端展示缓存、已发布 generation、候选版本及候选事件缓存；在 owner 上登记候选目标、构造有序输入发布批次、清空绑定展示及更新提示过期面板；不可用面板保留既有启动回调的同步更新方式 |
 | `core/DirectRimeStatusHintScheduler` | 在原 engineScope／owner 上协调提示文本、提示 generation、Job 与 `StatusHintLifetime`；保留首次呈现及兜底寿命、替换／清理顺序，过期只调用后端提供的纯面板回调 |
@@ -41,7 +42,7 @@
 
 发布状态、展示转换与菜单命令解码不取得输入会话所有权。`DirectRimePublicationState` 接收后端已校验的本次结果与展示上下文，不调用 Native、不创建线程、不直接写事件队列；完整输入批次和候选版本转换在现有单一 owner 上执行，后端调用 `events.offer`。启动时同步 `onStarting` 可以在调用线程更新 volatile 不可用面板；这条既有生命周期路径不推进候选版本。资源更新与方案导入的取消边界分别见[正确性契约](implementation/correctness-contracts.md#资源维护与方案导入)。
 
-引擎运行协调器复用原 Store 的授权、绑定保护和启动守卫，没有运行标志、Snapshot、native session 或 scope 副本。Backend 保留 startupStage 的 assets／config／native 顺序、输入门控和维护 finally；既有停止／重启回调薄委托给协调器。槽切换与维护停止的不同写入顺序、失败回退和 watchdog 规则见[引擎运行协调](implementation/correctness-contracts.md#引擎运行协调)。
+引擎运行协调器复用原 Store 的授权、绑定保护和启动守卫，没有运行标志、Snapshot、native session 或 scope 副本。Backend 保留 startupStage 的 assets／config／native 顺序和输入实时状态；维护流程及恢复时点由 `DirectRimeMaintenanceCoordinator` 控制，enter／leave 的实际旗标、同步代次和 keyGate 仍由 Backend 回调执行。既有停止／重启薄委托 `DirectRimeEngineOperations`；槽切换规则见[引擎运行协调](implementation/correctness-contracts.md#引擎运行协调)，Mutex、取消及绑定恢复见[维护与绑定恢复协调](implementation/correctness-contracts.md#维护与绑定恢复协调)。
 
 ## 构建与安装
 

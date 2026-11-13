@@ -213,3 +213,51 @@ Direct Rime 首次 ARM64 job 在 `:app:checkFxDebugDuplicateClasses` 解析已�
 本阶段构建时 D 验证副本 HEAD 为父提交 AA，叠加四路径；C／D 原字节一致，按 Git 文本换行规则与 `f9b1cd63…` 对应提交 blob 一致。APK 摘要为 `327056fcb69937aed7769ab06afde4dcb6012fa237b94a3b4a84b3f2de0935e5`，版本元数据仍来自 AA，只用于相同源码的本机构建／审计。验证副本经 index tree 与最终提交 tree 一致核对后推进到 `f9b1cd63…`，保留既有未跟踪资料；不改写构建时来源。
 
 首次及第二次本机失败保留 `jvm-failed-01.log`／`junit-failed-01`、`jvm-failed-02.log`／`junit-failed-02` 和各自 summary。当前 CI 应用 XML-only 子集保留原压缩 XML member 并核源 ZIP CRC，两份设备原 ZIP 保留并核摘要；这些本机资料不属于站点附件，在线来源是上表对应运行的 artifacts。
+
+## 第 5 项：维护与绑定恢复协调
+
+本阶段代码来源为 `90de4e1fcff833ff25cc2b6364c2004519af2c7b`，文档编辑前基线为 `34b23a3f5156b424be789112e580d878680a9693`。以下结果来自本项实际源码、本机和当前 SHA 的 CI，不沿用第 4 项的验收。
+
+### 范围与职责
+
+`DirectRimeMaintenanceCoordinator<B>` 集中 Mutex 串行维护及绑定恢复。Backend 保留 private Binding、单一 native owner、started／Snapshot／epoch／bindingLock／binding／keyGate／events，通过固定 `Owner<Binding>` 回调投影实际操作；协调器不增加实时状态副本、scope、dispatcher 或线程。
+
+原维护屏障继续在 try 前完成：先设置 maintenance 与 block，再锁内保存 previous、推进 epoch、清 binding 并 invalidate ticket。进入 owner 后依次清绑定、清状态菜单并交付当次 token 事件、维护提示、operation、可选刷新、激活完成和恢复绑定。Mutex 覆盖全部维护及 NonCancellable 恢复，取消等待 Mutex 不提前推进代次或修改运行中的流程。
+
+恢复沿原动态检查读取 started、token／inputSession 与已有 usable binding；当前 metadata 缺失时才使用 previous。prepare 后再次经原锁读取当次 metadata，决定 begin 或 clear，显式 inactive 不提升输入需求。取消和已恢复的引擎切换错误继续恢复并传播 primary，不显示普通失败提示；恢复错误保留到 primary 的 suppressed，原 self 判断与 finally 门控时点保持。
+
+本项 3 路径实际 +663／-55：Backend 从 805 行变为 790 行，该文件 +40／-55，净减 15；协调器 77 行，新测试 546 行。Owner 投影保留了实际读写、锁和事件构造，净减少行数不等于移出逻辑量，本项目标是集中维护顺序与异常规则。
+
+### 实际验证
+
+新增 `DirectRimeMaintenanceCoordinatorTest` 23 项，代码 PR 累计新增 126 项。新测试使用真实 owner dispatcher、Mutex、同步代次／metadata 和 InputKeyGate，覆盖票据屏障、并发等待、取消恢复、current 与 previous、停止和外部激活失败、primary 优先、fatal Error 与无编辑器；既有 `MaintenanceSaveTest` 7 项实际 Backend 契约继续同跑。
+
+| 报告范围 | 实际测试数 | failures | errors | skipped |
+| --- | ---: | ---: | ---: | ---: |
+| 本机相关 JVM，17 类 | 146 | 0 | 0 | 0 |
+| 当前提交的应用 JVM | 2231 | 0 | 0 | 0 |
+| 当前提交的完整前端设备 | 46 | 0 | 0 | 0 |
+| 当前提交的引擎 smoke | 6 | 0 | 0 | 0 |
+
+本机 17 份原 XML 的 suite 与实际 testcase 均为 146，包含新增 23 项、既有维护 7 项、TYPE_NULL 解绑在 SDK23／28 的 4 项、Direct Boot 15 项、输入绑定／发布状态与共享 Native shadow 消费者。第三轮失败／错误／跳过全零，前两轮不能作为成功结果。
+
+首轮同 17 类／145 项、22 个新增 case 失败：新夹具精确比较 Thread.name，既有 coroutine debug 会附加 `@coroutine#N`。其中 17 个直接名称断言、4 个派生 latch 超时和 1 个派生空列表断言；123 个既有 case 没有失败。改为记录 ThreadFactory 创建的真实 Thread 并 assertSame 对象身份，保留 debug、同步／超时和生产代码。
+
+第二轮同 17 类／145 项、8 个新增 case 的异常 identity 预期失败，14 个新项与 123 个既有项通过。既有 coroutines 1.11.0 debug stacktrace recovery 会复制普通 Throwable，不能无条件将跨 dispatcher 的 source 和实际 primary 视为同对象。测试受控 Failure／Cancel／Fatal 实现已有 `CopyableThrowable.createCopy = null`，核协调器内部的 primary／secondary／self／fatal；真实 `EngineSwitchRecoveredException` 保持原 marker。另新增普通 IOException transport case，核实际 primary、唯一 secondary、source／recovery cause 链与门控状态。生产、debug 与依赖不改，最终 23 项重跑全零。
+
+| 运行 | 成功来源与范围 |
+| --- | --- |
+| [PR CI 43520828954](https://github.com/SandyYuR/fcitx5-android/actions/runs/43520828954) | attempt 1：SDK 下载器／全量应用 JVM、ARM64 Debug、lint、APK／链接审计 |
+| [Direct Rime CI 43520829055](https://github.com/SandyYuR/fcitx5-android/actions/runs/43520829055) | attempt 1：prototype 原生契约／诊断构建、应用 JVM、完整前端 ARM64、前端设备与引擎 smoke |
+
+两个运行固定同一 `head_sha = 90de4e1fcff833ff25cc2b6364c2004519af2c7b`，六项检查均 success，本阶段没有 CI 重试。成功应用 artifact 的 271 份原 XML 实际 testcase 为 2231，新增 23、维护 7、`NullBindingUnbindTest` 4、Direct Boot 15 和发布状态 8 项完整执行；前端与 smoke 原 XML 分别为 46、6 项，failure／error／skipped 全零。XML 摘要、原 member CRC 和设备 ZIP 摘要均已核。
+
+### 本阶段证据与构建来源
+
+资料保存在工作区 `.dsh-tmp/direct-rime-recommended-splits-20261114/stage-05`：三轮本机原 XML／日志／summary、线程对象及运行信号夹具修正 JSON／字节码、最终 source-manifest／committed-blobs、Debug APK、两项原生审计、code-delivery、当前 code-ci 与 ci-artifacts。两轮失败 log／XML／manifest／summary 均另存，不覆盖成功来源；这些本机资料不属于站点附件，在线来源为上表对应 artifacts。
+
+生产分支对固定父提交的独立审阅，以及最终夹具线程／运行信号与实际 XML 的独立复核通过。本机 ARM64 Debug、三库白名单、16 KiB 对齐和原生链接审计通过；C／D 原字节及按 Git 文本换行规则的提交 blob 一致。APK 摘要为 `19bfffb4760462e0db5b7d90605b5bd2c8e960ebba450002f9462339895a9ff7`。
+
+构建时 D 验证副本 HEAD 与 APK 元数据仍为父提交 `f9b1cd63d0e93c9dde4fab47bbaaa41188e2580f`，叠加本项三路径；这是相同源码的本机验收，不能称为最终代码 SHA 的发行 APK。验证副本核 index tree 与最终提交 tree 一致后推进到 `90de4e1f…`，保留四个既有物化链接的类型差异，不改写构建时来源。
+
+本项配套文档仍使用 build、links、legacy、catalog、search 五门禁及四页实际 VPDoc／锚点核对，前四项完整 26801 字节前缀、两份旧报告和 package-lock 继续守护；最终提交与在线验收由配套 PR 记录。本项没有新增性能测量。
