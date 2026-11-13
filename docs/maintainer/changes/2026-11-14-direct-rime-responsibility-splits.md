@@ -261,3 +261,47 @@ Direct Rime 首次 ARM64 job 在 `:app:checkFxDebugDuplicateClasses` 解析已�
 构建时 D 验证副本 HEAD 与 APK 元数据仍为父提交 `f9b1cd63d0e93c9dde4fab47bbaaa41188e2580f`，叠加本项三路径；这是相同源码的本机验收，不能称为最终代码 SHA 的发行 APK。验证副本核 index tree 与最终提交 tree 一致后推进到 `90de4e1f…`，保留四个既有物化链接的类型差异，不改写构建时来源。
 
 本项配套文档仍使用 build、links、legacy、catalog、search 五门禁及四页实际 VPDoc／锚点核对，前四项完整 26801 字节前缀、两份旧报告和 package-lock 继续守护；最终提交与在线验收由配套 PR 记录。本项没有新增性能测量。
+
+## 第 6 项：交互目标校验与光标操作
+
+本阶段代码来源为 `e6c6187606b6855ed9c8ab184ade379f10b64e29`，文档编辑前基线为 `633bc21ff650592ee73d06b64d624842fad3177b`。以下结果来自本项最终源码、本机和当前 SHA 的 CI，前五项完整记录继续保留。
+
+### 范围与职责
+
+`DirectRimeInteractionTargets` 仅保存 Owner 引用，集中动作入场、owner 内当前目标、候选分页三项判定及显式光标同步编排。Backend 继续持有 owner、Snapshot、epoch、started／maintenance、publication state、keyGate／events；raw input、act 9 和恢复事件通过 Backend 原回调执行，没有线程、scope 或实时状态副本。
+
+动作入场保留输入门控、generation 和候选／tab context 的原短路；owner 内另核 Snapshot native revision。分页只按运行／维护、generation 与候选显示版本，不能因同展示的 native revision 前进而拒绝。tabsRevision 继续独立于候选版本，inputSession 原重复动态读取不合并为一次捕获。Backend 的索引、legacy／schema action、全局分页、admission 等待、诊断／统计及 act 最后新快照门保持。
+
+光标沿 Snapshot／状态／代次门、ComposingText／排队时 client preedit、只读 raw 请求和既有 UTF-8 映射顺序执行。mode／文本错误、raw 空或映射不确定恢复当前 client cursor 并返回 false；目标已在 caret 时恢复并返回 true，不 act。实际移动空结果或非 ready 仅返回 false，不增加恢复；原异常传播、commit 消费及展示刷新边界不变。
+
+四路径实际 +575／-36：Backend 从 790 行变为 778 行，该文件 +24／-36，净减 12；helper 71 行，两个新测试分别 244、236 行。动态 Owner 回调和实际动作保留在后端，净减少行数不能代替规则隔离的评估。代码 PR 相对目标基线 `88a664d4…` 共 32 文件 +5280／-657，Backend 由 1248 行变为 778 行；本项没有性能测量。
+
+### 实际验证
+
+新增 `DirectRimeInteractionTargetsTest` 18 项与 `DirectRimeInteractionContractTest` 9 项，代码 PR 累计新增 153 项。前者检查三种版本、短路和动态代次、mode／文本、raw／映射／caret 分支；后者经真实 Backend owner 和唯一 Native shadow 检查 stale 目标拒绝、候选读时点、act 最后门、只读 raw 请求和 Unicode 字节位置。
+
+| 报告范围 | 实际测试数 | failures | errors | skipped |
+| --- | ---: | ---: | ---: | ---: |
+| 本机相关 JVM，22 类 | 201 | 0 | 0 | 0 |
+| 当前提交的应用 JVM | 2258 | 0 | 0 | 0 |
+| 当前提交的完整前端设备 | 46 | 0 | 0 | 0 |
+| 当前提交的引擎 smoke | 6 | 0 | 0 | 0 |
+
+本机首轮 22 份原 XML 的 suite 与实际 testcase 均为 201，新增 27 项全部执行。既有 `CandidateActionGuardTest` 18 项来自源码 9 项乘 SDK23／28，候选分页 4 项、光标映射 6 项、只读展示 4 项、发布状态 8 项及输入／维护／共享 Native shadow 回归继续同跑；不使用早先估计的 203 或 Guard 20 项作验收数量。本阶段未改共享 shadow，测试 owner 按真实线程对象验证。
+
+| 运行 | 成功来源与范围 |
+| --- | --- |
+| [PR CI 43526620253](https://github.com/SandyYuR/fcitx5-android/actions/runs/43526620253) | attempt 1：SDK 下载器／全量应用 JVM、ARM64 Debug、lint、APK／链接审计 |
+| [Direct Rime CI 43526620207](https://github.com/SandyYuR/fcitx5-android/actions/runs/43526620207) | attempt 1：prototype 原生契约／诊断构建、应用 JVM、完整前端 ARM64、前端设备与引擎 smoke |
+
+两运行固定同一 `head_sha = e6c6187606b6855ed9c8ab184ade379f10b64e29`，六项检查均 success，本阶段没有 CI 重试。成功应用 artifact 的 273 份原 XML 实际 testcase 为 2258，包含新增 18+9、Guard 18、PageReader 4、Mapping 6、ReadOnly 4 和发布状态 8 项；前端与 smoke 原 XML 分别为 46、6 项，failure／error／skipped 全零。
+
+### 本阶段证据与构建来源
+
+资料在工作区 `.dsh-tmp/direct-rime-recommended-splits-20261114/stage-06`：本机原 XML／日志／summary、source-manifest／committed-blobs、Debug APK、两项原生审计、code-delivery、当前 code-ci 与成功 ci-artifacts。应用 XML-only 子集保留原压缩 member 并核源 ZIP CRC／member 摘要；两份设备完整 ZIP 核 published digest。不能把所选应用 XML 校验称为整个 APK artifact 摘要验收；本机资料不属于站点附件，在线来源为上表 artifacts。
+
+四路径 source 及实际本机 XML 的独立审阅通过，最后全 PR 整合审阅也确认单一 owner、实时状态与权限／Direct Boot 边界保持，SDK／依赖／签名和工作流没有改动。本机 ARM64 Debug、三库白名单、16 KiB 对齐与原生链接审计通过；C／D 原字节及按 Git 换行规则的最终提交 blob 一致。
+
+APK 摘要为 `bebb25fdf159e1d3001cd54e3233fd440bb288737a9d5c69a5047adb41728f8f`。构建时 D 验证副本 HEAD 与 APK 元数据来自父提交 `90de4e1fcff833ff25cc2b6364c2004519af2c7b`，叠加本项四路径，这是相同源码的本机验收，不能称为 e6 最终 SHA 的发行 APK。验证副本核 index tree 与最终提交 tree 一致后推进到 e6，保留既有物化链接类型差异，不改写构建时来源。
+
+六项推荐代码拆分至此均逐项通过本机、独立审阅和各自固定 SHA 的 CI；完整记录仍按阶段保存。配套文档继续使用五门禁及四页 VPDoc／真实锚点核对，前五项完整 33164 字节前缀、两份旧报告与 package-lock 保持，最后文档提交和在线 Docs CI 由配套 PR 记录。此次未新增性能测量，不能由行数变化推断速度改善。

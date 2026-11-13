@@ -31,7 +31,7 @@
 | 分页遇组合变化必须取消，批间让出执行机会 | `core/CandidatePageReader.kt` 中的顶层函数 `readCandidatePage` |
 | 部署、同步与重载期间关闭按键处理，finally 恢复 | `DirectRimeBackend.maintain` → `DirectRimeMaintenanceCoordinator.run`；实际 enter／leave 与 `keyGate` 回调仍在 Backend |
 | commit 只消费一次，展示刷新不得移动光标或重放旧提交 | `refreshPresentation` 与 native action 13；action 9 仅用于真实原始编码光标移动 |
-| 候选点选绑定实际显示的数据版本与原始序号 | `CandidateSelectionTarget`、`selectCandidateIfCurrent`；横向、展开和浮动入口共用服务串行队列 |
+| 候选点选绑定实际显示的数据版本与原始序号 | `CandidateSelectionTarget`、`selectCandidateIfCurrent`、`DirectRimeInteractionTargets`；横向、展开和浮动入口共用服务串行队列 |
 | DOWN 必须有兜底 UP；focus 不覆盖显式 inactive binding | `focus` / `deactivate`、`KeyboardInputLifecycleTrackerTest` |
 | 临时线程优先级必须恢复；提升失败不拒键 | `core/InteractiveThreadPriority.kt` |
 
@@ -65,7 +65,7 @@ Exception 恢复继续 `withContext(NonCancellable)` 再进入原 owner，先处
 
 `core/DirectRimePublicationState` 集中持有 client preedit、input panel、输入法展示条目、状态菜单四类缓存，以及 `publishedGeneration`、`candidateVersion` 和候选事件缓存。它在同一 owner 上判断展示变化、推进候选版本、登记候选点选目标，并生成统计／提交先于展示的完整输入事件批次；绑定结束时清空 client preedit、input panel 和候选缓存并使旧候选目标失效，状态菜单与输入法展示条目保留到新绑定发布。菜单构建与 commit 计时通过构造时注入的 builder／`CommitClock` 调用。状态类不持有 native 快照、不调用 Native、不创建线程、不直接写队列，不取得输入绑定或 native session 的所有权。
 
-`DirectRimeBackend` 继续持有输入 generation、本次 native 快照、输入门控及 native 生命周期。后端先校验当前绑定与结果代次，在 owner 上按需调用 `Native.options`，再将结果与本次展示上下文交给发布状态，最后调用 `events.offer`。过期结果不得推进发布代次、候选版本或覆盖当前缓存；提示计时与寿命由 `DirectRimeStatusHintScheduler` 在原 owner 上协调，通过后端的 started／generation 检查后才调用发布状态更新面板。候选点选与分页读取仍在原有 owner 上校验实际发布的版本。`clearStatusActions` 只清菜单缓存，维护与启动等生命周期事件仍由 Backend 构造和交付。
+`DirectRimeBackend` 继续持有输入 generation、本次 native 快照、输入门控及 native 生命周期。后端先校验当前绑定与结果代次，在 owner 上按需调用 `Native.options`，再将结果与本次展示上下文交给发布状态，最后调用 `events.offer`。过期结果不得推进发布代次、候选版本或覆盖当前缓存；提示计时与寿命由 `DirectRimeStatusHintScheduler` 在原 owner 上协调，通过后端的 started／generation 检查后才调用发布状态更新面板。候选点选与分页读取沿原 owner／队列执行，目标规则交给 `DirectRimeInteractionTargets` 动态判定，实际 Native 与最终结果门仍在 Backend。`clearStatusActions` 只清菜单缓存，维护与启动等生命周期事件仍由 Backend 构造和交付。
 
 完整 `buildBatch`、绑定清空及候选版本转换、菜单清空和提示过期继续在 owner 上执行。四类对外展示缓存和候选版本保留 volatile 读取边界。`EngineLifecycleController.start` 的同步 `onStarting` 沿原行为在启动调用线程显示“准备中”面板；这一 `showUnavailable` 只替换 volatile panel 并返回原有不绑定 generation 的面板事件，不改变候选版本或已发布 generation。
 
@@ -93,13 +93,23 @@ expiry 先核提示 ID，匹配时先清 Job、文本与 lifetime，再检查引
 
 方案菜单的当前项由 `SubModeManager.resolveSelectedSchemaAction` 从同一份动作列表的勾选状态解析，不能用 `currentIme().subMode` 的西文/密码直接输入标记推断方案。方案切换后，密码字段仍应保持直接输入和原编辑器焦点。
 
-Android 光标位置以 UTF-16 计，服务交给引擎 API 的位置以显示文本 Unicode 码点计，Rime setter 使用原始编码 UTF-8 字节位置。`moveCursorIfCurrent` 校验排队时的编辑器及预编辑文本，再按需调用 `Native.rawInput(generation, revision)`。原始读取不消费 commit、不推进 revision，也不加入每键快照；`preeditCursorToRawBytes` 只接受可确定的文字、分隔符和边界映射，无法确定时重新发送当前 client preedit 恢复光标。“候选预览”不按预测词位置改写原始编码。
+Android 光标位置以 UTF-16 计，服务交给引擎 API 的位置以显示文本 Unicode 码点计，Rime setter 使用原始编码 UTF-8 字节位置。`moveCursorIfCurrent` 在原 owner 上委托 `DirectRimeInteractionTargets.moveCursor`，校验排队时的编辑器及预编辑文本，再经 Backend 回调按需调用 `Native.rawInput(generation, revision)`。原始读取不消费 commit、不推进 revision，也不加入每键快照；`preeditCursorToRawBytes` 只接受可确定的文字、分隔符和边界映射，无法确定时重新发送当前 client preedit 恢复光标。“候选预览”不按预测词位置改写原始编码。
 
 `refreshPresentation` 使用 native action 13 读取新结果，仍只消费一次待提交文字，但不调用 `set_caret_pos` 或重新 Compose。同模式重新呈现可以发送候选而不增加 `candidateVersion`；native `revision` 仍然前进。不能重新发送带旧 commit 的缓存快照，也不能把显示偏移传给原始光标 setter。
 
 JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果复用字符串和数组。`Snapshot.reusePresentation` 必须创建新的不可变快照、使用新 revision 并清空旧 commit；接收方不得修改共享数组。缓存至多一份，文本预算为 64 KiB、数组字符串合计至多 1024 个；大结果走完整打包。完整打包可在一次 `newSnapshot` 内复用 grow-only UTF-16 转换缓冲，因为每次 `NewString` 返回前已经复制输入；缓冲不能跨 snapshot 保存或替代 Java 字符串所有权。停止、部署及同步返回时清理展示缓存。这是缓存预算，不是进程内存或延迟测量值。
 
 JNI 分配失败后停止后续构造，只做允许的引用释放，已有 Java 异常优先于新包装的 native 异常。成功取得的 Rime 结果与 JNI 字符引用由作用域清理保护，包装层后续复制失败仍恰好释放一次。候选迭代需区分两种失败：`candidate_list_next` 正常返回后，包装复制失败可以调用 `candidate_list_end`；锁定 SDK 的 `candidate_list_next` 内部会先释放旧文本，若它自身抛出异常，指针可能部分失效，此时禁止再次调用 `end`。这避免包装层二次释放，不表示已修复 SDK 内部所有部分分配的回收。`engine_test.cpp` 的 `testCandidateIteratorFailureDoesNotReclosePartialApiState` 固定该边界。
+
+### 交互目标校验与光标操作
+
+`core/DirectRimeInteractionTargets` 仅持有固定 Owner 引用，不保存 Snapshot、代次、运行／维护标志或展示版本副本，也不创建 owner、scope、dispatcher 或线程。Owner getter 投影 Backend 当次状态；inputSession 可在非 owner 线程失效，原短路顺序及重复读取保留，不能把它们解释成一次捕获后的新原子保证。
+
+`admitsAction` 依次核输入门控、expected generation、候选 context 与 tab context；`actionStillCurrent` 在原 owner 内再核 generation、当前 Snapshot native revision 及两种 context。后续 `act` 仍由 Backend 读取最新 Snapshot／started／maintenance／epoch 作最后门控，不把这一检查前移或去掉。候选 context 比较实际发布的 candidateVersion，tab context 比较 tabsRevision；分页 `candidatePageStillCurrent` 只核运行／维护、generation 和 candidateVersion，不以 native revision 变化拒绝同展示的候选读取。
+
+光标流程先读取当次 Snapshot，依次核 started／maintenance／ready、Snapshot generation 和 expectedSession，保留后两者各自的 inputSession 读取，再核 ComposingText 与排队时 client preedit；状态或代次门失败直接返回 false。mode／文本不匹配、raw 为空或映射失败时调用原 client cursor 恢复回调并返回 false；目标已等于 raw caret 时恢复并返回 true，不调用 act 9。其余移动仍经 Backend callback，act 返回空或非 ready 时返回 false，不新增恢复事件；raw／act 异常沿原入口传播。Native raw 请求保留 Snapshot 的 generation／revision，UTF-8 映射复用既有函数，恢复不重放 commit。
+
+索引、局部／全局分页、legacy／schema action、admission 等待、诊断／统计及 `readCandidatePage` 批次仍在 Backend。`DirectRimeInteractionTargetsTest` 直接检查动态 getter、三类版本、短路与光标分支；`DirectRimeInteractionContractTest` 使用真实 Backend owner 和共享 Native shadow 检查拒绝 stale target、分页读时点、act 最后门及 Unicode 映射。当前原始验收及旧守卫／只读／映射回归范围见[第 6 项固定记录](../changes/2026-11-14-direct-rime-responsibility-splits.md#第-6-项-交互目标校验与光标操作)。
 
 ### 同步完成与备份门控
 
