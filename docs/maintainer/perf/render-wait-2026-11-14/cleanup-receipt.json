@@ -1,0 +1,27 @@
+{
+  "stage": "before report commit",
+  "remote_refs": {
+    "docs": "08ffd6f035adead6bf70f90ac7dd1d13baed77c7",
+    "documentation/direct-rime-backend-seams": "3fbb1d5873c3663ecdd329852f8fb9d2936b8673",
+    "fix/first-candidate-latency-20261112": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+    "fx-rime-only": "88a664d46ba82712d5457d86c037629c478b042c",
+    "perf/input-pipeline-20261113": "a3c9bea60ef409b93e3c506525a3f510b03bb9c6",
+    "refactor/direct-rime-backend-seams": "aa11afcf53b30946b260dc664cab1ec11c1eaa77"
+  },
+  "default_and_docs_not_modified": true,
+  "pr32_code_not_modified": true,
+  "user_owned_branches_not_modified_by_this_task": true,
+  "user_refactor_advanced_externally": true,
+  "workflow": {
+    "id": 388119728,
+    "state": "disabled_manually"
+  },
+  "device_restoration": {
+    "a": "all settings restored; owned apps and shell injector removed",
+    "b": "all settings restored; owned apps and shell injector removed"
+  },
+  "new_production_changes": 0,
+  "sampling_run": 43508740045,
+  "followup_trace_config_fix_rerun": false,
+  "old_raw_evidence_preserved": true
+}

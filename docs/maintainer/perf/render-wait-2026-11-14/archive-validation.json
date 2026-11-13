@@ -1,0 +1,14 @@
+[
+  {
+    "archive": "run-driver-source.zip",
+    "revision": "3c474d1d3e8aa1fdbb92983c6efcf8db5ec82b25",
+    "verified_files": 41,
+    "sha256": "5adf90b02fa4608a8dd8271aa73d13f7e1eaa56d346b1d60f130a96ade2af5b0"
+  },
+  {
+    "archive": "fixed-driver-source.zip",
+    "revision": "a3c9bea60ef409b93e3c506525a3f510b03bb9c6",
+    "verified_files": 41,
+    "sha256": "5d747007e3ce3277ae06e5ffcc80a6ea3138670b01fe7a20e714711879111e67"
+  }
+]
