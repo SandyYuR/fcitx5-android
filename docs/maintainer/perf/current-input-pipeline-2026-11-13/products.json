@@ -1,0 +1,52 @@
+{
+  "sources": {
+    "baseline": "88a664d46ba82712d5457d86c037629c478b042c",
+    "current": "f02bbaec1c2820545382dab82b3e007e9f2735fe"
+  },
+  "driver_commit": "b070c2b7b0d9a3ca446e444204408f11717dbe2f",
+  "metadata_driver_commit": "b070c2b7b0d9a3ca446e444204408f11717dbe2f",
+  "sdk_lock_sha256": {
+    "baseline": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f",
+    "current": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f"
+  },
+  "protocol": "external_process_input_manager_phase_v3",
+  "harness_sha256": "95e1918ba170222bf3fefd8b723fe01b1291e501b674c93303e4ed6f56d5f26d",
+  "contract_classes_sha256": {
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest": "e5e6cd3b3985aaf0eb6e1927b411d58fa755d8a9d03b851de97604580c6a6e6a",
+    "org.fcitx.fcitx5.android.ui.main.log.LogExportTest": "575eaaf0479bb929f90ac44bc4cd23ebd98be501eb6ad3e27e33191a30c9aa09",
+    "org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapterViewTest": "a88fe6dc57423c95681a890171adbfd3cdc8c508e8a7f95997df382b20cb3edf",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest": "87e85f5d8a50166f53fee7a3046c73e251a85474dffe62c4ac7473b391e5f428",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeTest": "cc5cf7fb69b7e0994a6e0adbf5a6edd5c92d8cf0bfb2c45b4ac5098bc635460e",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest": "4183d684ae9b1040da31990c77f888558ba31ca57787ad201bd47e0c1a65dcf6"
+  },
+  "host_sources_sha256": {
+    "tools/candidate-perf/host/BenchTouchDriver.java": "95f85ed7c7f7d1e8b15bc501277cc7b38f380b58670510fa9d0f112e82a2a965",
+    "tools/candidate-perf/host/BenchHost.java": "bb2afdf547729eecec065117742fd0f35ef9db3feeeb1381777b899581b53cd7",
+    "tools/candidate-perf/host/BenchControl.java": "9b48f4c1a7931cdd03372c1d41a2919c7e40643bd39c7f4edb82168f81537cbe",
+    "tools/candidate-perf/host/AndroidManifest.xml": "9f322d7d9062b8a158fa7d787314754a4cd44536ee4d223288d0de5299064374",
+    "tools/screen-perf/build-host.sh": "2ed8acbac95e1fa2f686a8109390e3bedbb1d9b3e251e6692f5ffe3d4d0f488e"
+  },
+  "host_sha256": "2654697013dd6fa944494d2b2a9787c310d5a8b1a0e8c102678c9e0f92df578c",
+  "packages": {
+    "baseline-tests.apk": "org.fcitx.fcitx5.android.fx.rime.debug.test",
+    "baseline.apk": "org.fcitx.fcitx5.android.fx.rime.debug",
+    "current-tests.apk": "org.fcitx.fcitx5.android.fx.rime.debug.test",
+    "current.apk": "org.fcitx.fcitx5.android.fx.rime.debug"
+  },
+  "signer_sha256": {
+    "baseline-tests.apk": "4d4d216d2015782c0f9cb097579c7ccbdb034a3b1ef3da8807ff2c235a134e5b",
+    "baseline.apk": "4d4d216d2015782c0f9cb097579c7ccbdb034a3b1ef3da8807ff2c235a134e5b",
+    "current-tests.apk": "4d4d216d2015782c0f9cb097579c7ccbdb034a3b1ef3da8807ff2c235a134e5b",
+    "current.apk": "4d4d216d2015782c0f9cb097579c7ccbdb034a3b1ef3da8807ff2c235a134e5b"
+  },
+  "native_audit_sha256": {
+    "baseline": "c2ad6c30e38371e7c09619f280e8187b2adf941cc63201ff91d299cb19fd3b72",
+    "current": "1d6c9817be06e1c2af249b6d886c9cece6fae4897faacd61a82e34f3d38a33be"
+  },
+  "apks": {
+    "baseline-tests.apk": "d18c8b1559a736d2f2a73c0c6c3676fd773183857042542c79ddb075cac2dd5b",
+    "baseline.apk": "2438e893fbc40d82fe36a45b3c2658b9ecfe5a0046be4fad93c380bbe6d66b8e",
+    "current-tests.apk": "e125ae6bab9f02467cd89736ed8623f12484d5ff5bbc1d29efc8293d773d1838",
+    "current.apk": "7e72849c2e991790f38389ff308f6eff95b630af310f6c2383244f3c586a9381"
+  }
+}

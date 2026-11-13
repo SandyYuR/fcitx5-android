@@ -1,0 +1,17 @@
+{
+  "current": {
+    "source": "f02bbaec1c2820545382dab82b3e007e9f2735fe",
+    "archive_sha256": "6e0b186c4c7cb7e1db5438d3ff9059d711606efa973ee6a670e198687b0fe930",
+    "restored_bytes_identical": true
+  },
+  "driver": {
+    "source": "b070c2b7b0d9a3ca446e444204408f11717dbe2f",
+    "archive_sha256": "87233cf758aa6bb12d5abf5b62dc1aafeb4386ef3775aa8c3aaca4690027983a",
+    "restored_bytes_identical": true
+  },
+  "resume_driver": {
+    "source": "6b4cf6e8a9ae2043081f227bf8a85962c6cfe07e",
+    "archive_sha256": "3288aab5bd4e47c80e05772c90a29c74f7268c7badc4e25a8fac7a25a32d137b",
+    "restored_bytes_identical": true
+  }
+}

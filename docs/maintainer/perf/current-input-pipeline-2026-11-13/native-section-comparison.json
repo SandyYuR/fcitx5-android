@@ -1,0 +1,428 @@
+{
+  "only_different_sections": [
+    ".note.gnu.build-id"
+  ],
+  "all_other_sections_identical_including_layout": true,
+  "sections": {
+    "baseline": {
+      ".note.android.ident": {
+        "type": 7,
+        "flags": 2,
+        "address": 568,
+        "offset": 568,
+        "size": 152,
+        "sha256": "a12ff204649756c402e6b675237ec835e69e498959f2d449a94bb09e5b88ccc0"
+      },
+      ".note.gnu.build-id": {
+        "type": 7,
+        "flags": 2,
+        "address": 720,
+        "offset": 720,
+        "size": 36,
+        "sha256": "41ff8e752a6e05dd3ce97c18719c1d29462b7230cd531fd5fca550f9a17a673f"
+      },
+      ".dynsym": {
+        "type": 11,
+        "flags": 2,
+        "address": 760,
+        "offset": 760,
+        "size": 21384,
+        "sha256": "3f8a8775389b98230a819b673cab66237fe1d5d5d870d9e0bd8c1b30212bf287"
+      },
+      ".gnu.version": {
+        "type": 1879048191,
+        "flags": 2,
+        "address": 22144,
+        "offset": 22144,
+        "size": 1782,
+        "sha256": "9a39c9a859c15866cc32fce0470955606cca04c760e08723db9f1d37cf682c2e"
+      },
+      ".gnu.version_r": {
+        "type": 1879048190,
+        "flags": 2,
+        "address": 23928,
+        "offset": 23928,
+        "size": 96,
+        "sha256": "b55745380e9aac5b3dc7203f519ed1da478cb7abc31f1c8eb07464ebb13e4a90"
+      },
+      ".gnu.hash": {
+        "type": 1879048182,
+        "flags": 2,
+        "address": 24024,
+        "offset": 24024,
+        "size": 3028,
+        "sha256": "f2ff76301e467b5d028a4d45ad500091dc411683fe894d22988a1df705767558"
+      },
+      ".dynstr": {
+        "type": 3,
+        "flags": 2,
+        "address": 27052,
+        "offset": 27052,
+        "size": 66299,
+        "sha256": "a1090e002d921bb0ce02001251aeb26bfc982d3cedb8e7b595aaf4a4acebf0fe"
+      },
+      ".rela.dyn": {
+        "type": 4,
+        "flags": 2,
+        "address": 93352,
+        "offset": 93352,
+        "size": 239832,
+        "sha256": "cedbc7793ba4de48a027693a6e2e3d0f382bcd5f20f71d9ffefde2fc0fdae225"
+      },
+      ".rela.plt": {
+        "type": 4,
+        "flags": 66,
+        "address": 333184,
+        "offset": 333184,
+        "size": 18240,
+        "sha256": "9be7340b1c156b60df5f0d5d3f5273460eeb7791849a35918d6f6492ec52af2c"
+      },
+      ".gcc_except_table": {
+        "type": 1,
+        "flags": 2,
+        "address": 351424,
+        "offset": 351424,
+        "size": 132772,
+        "sha256": "07adbe2d94df32696f116634b59c0939322a6599c4b9889bff2acbd6080d8fcd"
+      },
+      ".rodata": {
+        "type": 1,
+        "flags": 50,
+        "address": 484208,
+        "offset": 484208,
+        "size": 233852,
+        "sha256": "7fb733e0aed72a5af0bb487e50a6767618814ad79d561636543d1464694321ad"
+      },
+      ".eh_frame_hdr": {
+        "type": 1,
+        "flags": 2,
+        "address": 718060,
+        "offset": 718060,
+        "size": 94260,
+        "sha256": "07666e0ac4e30404bbfe9c1c7b06f9ae434d9c1b0dd8868f07b8f3d5a5abba29"
+      },
+      ".eh_frame": {
+        "type": 1,
+        "flags": 2,
+        "address": 812320,
+        "offset": 812320,
+        "size": 432400,
+        "sha256": "9d78ee572c0b6ce8e914e10c15f3271dad96452ee4033a38b05b4973236f1469"
+      },
+      ".text": {
+        "type": 1,
+        "flags": 6,
+        "address": 1244720,
+        "offset": 1244720,
+        "size": 3557032,
+        "sha256": "a30543a80c66933d9df8ec2750c22573fe7fc321c8d44b55502761f6d4f1a741"
+      },
+      ".plt": {
+        "type": 1,
+        "flags": 6,
+        "address": 4801760,
+        "offset": 4801760,
+        "size": 12176,
+        "sha256": "2144aba922a67b1ef9666b9ba8ca9d0d5b3787a910d00b4bd3d20a162d4f5a16"
+      },
+      ".data.rel.ro": {
+        "type": 1,
+        "flags": 3,
+        "address": 4830320,
+        "offset": 4813936,
+        "size": 87792,
+        "sha256": "4296c14e61cc79ea678652dcf48bfeae9df5bff05d781d21f288ac88c9ccc417"
+      },
+      ".fini_array": {
+        "type": 15,
+        "flags": 3,
+        "address": 4918112,
+        "offset": 4901728,
+        "size": 16,
+        "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+      },
+      ".init_array": {
+        "type": 14,
+        "flags": 3,
+        "address": 4918128,
+        "offset": 4901744,
+        "size": 440,
+        "sha256": "360d579dbd14759b41afdf7fb5e80c0101e15150ae401d59f92a1e32d129f7cb"
+      },
+      ".dynamic": {
+        "type": 6,
+        "flags": 3,
+        "address": 4918568,
+        "offset": 4902184,
+        "size": 480,
+        "sha256": "a4961d40f0a393f1045e83b585900a90b86d4eed093d6cfaeab4672e2fac802a"
+      },
+      ".got": {
+        "type": 1,
+        "flags": 3,
+        "address": 4919048,
+        "offset": 4902664,
+        "size": 1520,
+        "sha256": "be3f3d5517d4a3b8c7e9c08513aeb806cf86832bdc452d8f06a29fdc11ff695c"
+      },
+      ".got.plt": {
+        "type": 1,
+        "flags": 3,
+        "address": 4920568,
+        "offset": 4904184,
+        "size": 6104,
+        "sha256": "d26fac38e6e64361a7409db0347fe97359002e5a5b574b47f24bbfbcde0d78d9"
+      },
+      ".relro_padding": {
+        "type": 8,
+        "flags": 3,
+        "address": 4926672,
+        "offset": 4910288,
+        "size": 816,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      ".data": {
+        "type": 1,
+        "flags": 3,
+        "address": 4943056,
+        "offset": 4910288,
+        "size": 2960,
+        "sha256": "cdba785d87ebbf32e033c747d29f9023db6a5f7f5c115221caac26c7c20c33b8"
+      },
+      ".bss": {
+        "type": 8,
+        "flags": 2097155,
+        "address": 4946016,
+        "offset": 4913248,
+        "size": 171424,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      ".comment": {
+        "type": 1,
+        "flags": 48,
+        "address": 0,
+        "offset": 4913248,
+        "size": 204,
+        "sha256": "4fa39180cf4b3d4b290035087dd5e2a246928e1e53741edd394ac827cb0843c5"
+      },
+      ".shstrtab": {
+        "type": 3,
+        "flags": 0,
+        "address": 0,
+        "offset": 4913452,
+        "size": 275,
+        "sha256": "10eabab790fa8c2582e6152a5ed4f4942d5b561ddc6341cce55bcb193f584dbd"
+      }
+    },
+    "current": {
+      ".note.android.ident": {
+        "type": 7,
+        "flags": 2,
+        "address": 568,
+        "offset": 568,
+        "size": 152,
+        "sha256": "a12ff204649756c402e6b675237ec835e69e498959f2d449a94bb09e5b88ccc0"
+      },
+      ".note.gnu.build-id": {
+        "type": 7,
+        "flags": 2,
+        "address": 720,
+        "offset": 720,
+        "size": 36,
+        "sha256": "c15707889c835e51575929e136f35dfceec8ad6c656abf087d7372b154445f68"
+      },
+      ".dynsym": {
+        "type": 11,
+        "flags": 2,
+        "address": 760,
+        "offset": 760,
+        "size": 21384,
+        "sha256": "3f8a8775389b98230a819b673cab66237fe1d5d5d870d9e0bd8c1b30212bf287"
+      },
+      ".gnu.version": {
+        "type": 1879048191,
+        "flags": 2,
+        "address": 22144,
+        "offset": 22144,
+        "size": 1782,
+        "sha256": "9a39c9a859c15866cc32fce0470955606cca04c760e08723db9f1d37cf682c2e"
+      },
+      ".gnu.version_r": {
+        "type": 1879048190,
+        "flags": 2,
+        "address": 23928,
+        "offset": 23928,
+        "size": 96,
+        "sha256": "b55745380e9aac5b3dc7203f519ed1da478cb7abc31f1c8eb07464ebb13e4a90"
+      },
+      ".gnu.hash": {
+        "type": 1879048182,
+        "flags": 2,
+        "address": 24024,
+        "offset": 24024,
+        "size": 3028,
+        "sha256": "f2ff76301e467b5d028a4d45ad500091dc411683fe894d22988a1df705767558"
+      },
+      ".dynstr": {
+        "type": 3,
+        "flags": 2,
+        "address": 27052,
+        "offset": 27052,
+        "size": 66299,
+        "sha256": "a1090e002d921bb0ce02001251aeb26bfc982d3cedb8e7b595aaf4a4acebf0fe"
+      },
+      ".rela.dyn": {
+        "type": 4,
+        "flags": 2,
+        "address": 93352,
+        "offset": 93352,
+        "size": 239832,
+        "sha256": "cedbc7793ba4de48a027693a6e2e3d0f382bcd5f20f71d9ffefde2fc0fdae225"
+      },
+      ".rela.plt": {
+        "type": 4,
+        "flags": 66,
+        "address": 333184,
+        "offset": 333184,
+        "size": 18240,
+        "sha256": "9be7340b1c156b60df5f0d5d3f5273460eeb7791849a35918d6f6492ec52af2c"
+      },
+      ".gcc_except_table": {
+        "type": 1,
+        "flags": 2,
+        "address": 351424,
+        "offset": 351424,
+        "size": 132772,
+        "sha256": "07adbe2d94df32696f116634b59c0939322a6599c4b9889bff2acbd6080d8fcd"
+      },
+      ".rodata": {
+        "type": 1,
+        "flags": 50,
+        "address": 484208,
+        "offset": 484208,
+        "size": 233852,
+        "sha256": "7fb733e0aed72a5af0bb487e50a6767618814ad79d561636543d1464694321ad"
+      },
+      ".eh_frame_hdr": {
+        "type": 1,
+        "flags": 2,
+        "address": 718060,
+        "offset": 718060,
+        "size": 94260,
+        "sha256": "07666e0ac4e30404bbfe9c1c7b06f9ae434d9c1b0dd8868f07b8f3d5a5abba29"
+      },
+      ".eh_frame": {
+        "type": 1,
+        "flags": 2,
+        "address": 812320,
+        "offset": 812320,
+        "size": 432400,
+        "sha256": "9d78ee572c0b6ce8e914e10c15f3271dad96452ee4033a38b05b4973236f1469"
+      },
+      ".text": {
+        "type": 1,
+        "flags": 6,
+        "address": 1244720,
+        "offset": 1244720,
+        "size": 3557032,
+        "sha256": "a30543a80c66933d9df8ec2750c22573fe7fc321c8d44b55502761f6d4f1a741"
+      },
+      ".plt": {
+        "type": 1,
+        "flags": 6,
+        "address": 4801760,
+        "offset": 4801760,
+        "size": 12176,
+        "sha256": "2144aba922a67b1ef9666b9ba8ca9d0d5b3787a910d00b4bd3d20a162d4f5a16"
+      },
+      ".data.rel.ro": {
+        "type": 1,
+        "flags": 3,
+        "address": 4830320,
+        "offset": 4813936,
+        "size": 87792,
+        "sha256": "4296c14e61cc79ea678652dcf48bfeae9df5bff05d781d21f288ac88c9ccc417"
+      },
+      ".fini_array": {
+        "type": 15,
+        "flags": 3,
+        "address": 4918112,
+        "offset": 4901728,
+        "size": 16,
+        "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+      },
+      ".init_array": {
+        "type": 14,
+        "flags": 3,
+        "address": 4918128,
+        "offset": 4901744,
+        "size": 440,
+        "sha256": "360d579dbd14759b41afdf7fb5e80c0101e15150ae401d59f92a1e32d129f7cb"
+      },
+      ".dynamic": {
+        "type": 6,
+        "flags": 3,
+        "address": 4918568,
+        "offset": 4902184,
+        "size": 480,
+        "sha256": "a4961d40f0a393f1045e83b585900a90b86d4eed093d6cfaeab4672e2fac802a"
+      },
+      ".got": {
+        "type": 1,
+        "flags": 3,
+        "address": 4919048,
+        "offset": 4902664,
+        "size": 1520,
+        "sha256": "be3f3d5517d4a3b8c7e9c08513aeb806cf86832bdc452d8f06a29fdc11ff695c"
+      },
+      ".got.plt": {
+        "type": 1,
+        "flags": 3,
+        "address": 4920568,
+        "offset": 4904184,
+        "size": 6104,
+        "sha256": "d26fac38e6e64361a7409db0347fe97359002e5a5b574b47f24bbfbcde0d78d9"
+      },
+      ".relro_padding": {
+        "type": 8,
+        "flags": 3,
+        "address": 4926672,
+        "offset": 4910288,
+        "size": 816,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      ".data": {
+        "type": 1,
+        "flags": 3,
+        "address": 4943056,
+        "offset": 4910288,
+        "size": 2960,
+        "sha256": "cdba785d87ebbf32e033c747d29f9023db6a5f7f5c115221caac26c7c20c33b8"
+      },
+      ".bss": {
+        "type": 8,
+        "flags": 2097155,
+        "address": 4946016,
+        "offset": 4913248,
+        "size": 171424,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      ".comment": {
+        "type": 1,
+        "flags": 48,
+        "address": 0,
+        "offset": 4913248,
+        "size": 204,
+        "sha256": "4fa39180cf4b3d4b290035087dd5e2a246928e1e53741edd394ac827cb0843c5"
+      },
+      ".shstrtab": {
+        "type": 3,
+        "flags": 0,
+        "address": 0,
+        "offset": 4913452,
+        "size": 275,
+        "sha256": "10eabab790fa8c2582e6152a5ed4f4942d5b561ddc6341cce55bcb193f584dbd"
+      }
+    }
+  }
+}
