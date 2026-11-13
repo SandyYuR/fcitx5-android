@@ -8,8 +8,6 @@ import androidx.tracing.trace
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.fcitx.directrime.Native
 import org.fcitx.directrime.Snapshot
 import org.fcitx.fcitx5.android.FcitxApplication
@@ -38,7 +36,6 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private val epoch = AtomicLong()
     private val bindingLock = Any()
     private val keyGate = InputKeyGate()
-    private val maintenanceMutex = Mutex()
     private data class Binding(val generation: Long, val program: String, val flags: CapabilityFlags, val needsRime: Boolean)
     @Volatile private var binding: Binding? = null
     override val inputSession get() = epoch.get()
@@ -123,6 +120,44 @@ class DirectRimeBackend(context: Context) : InputEngine {
         },
     )
     @Volatile private var maintenance = false
+    private val maintenanceCoordinator = DirectRimeMaintenanceCoordinator(
+        object : DirectRimeMaintenanceCoordinator.Owner<Binding> {
+            override val started get() = this@DirectRimeBackend.started
+            override val inputSession get() = this@DirectRimeBackend.inputSession
+            override fun enterMaintenance(): Pair<Long, Binding?> {
+                maintenance = true
+                keyGate.block()
+                return synchronized(bindingLock) {
+                    val previous = binding
+                    val next = epoch.incrementAndGet()
+                    binding = null
+                    keyGate.invalidate(next)
+                    next to previous
+                }
+            }
+            override fun leaveMaintenance() { maintenance = false; keyGate.running(started) }
+            override suspend fun onOwner(operation: () -> Unit) = this@DirectRimeBackend.onOwner(operation)
+            override fun clearBinding(generation: Long) = this@DirectRimeBackend.clearBinding(generation)
+            override fun publishMaintenanceStatus(generation: Long) {
+                publicationState.clearStatusActions()
+                events.offer(listOf(FcitxEvent.StatusAreaEvent(
+                    FcitxEvent.StatusAreaEvent.Data(statusAreaActionsCached, inputMethodEntryCached)
+                ).apply { inputSession = generation }))
+            }
+            override fun showUnavailable(message: String) = this@DirectRimeBackend.showUnavailable(message)
+            override fun refreshSchemas() = this@DirectRimeBackend.refreshSchemas()
+            override fun completeActivation() = engineOperations.completeMaintenanceActivation()
+            override fun failActivation(error: Exception) = engineOperations.failMaintenanceActivation(error)
+            override fun hasUsableBinding(generation: Long) = this@DirectRimeBackend.hasUsableBinding(generation)
+            override fun currentBinding(generation: Long) = synchronized(bindingLock) {
+                binding?.takeIf { it.generation == generation }
+            }
+            override fun prepareBinding(generation: Long, previous: Binding) = prepareInputSession(
+                generation, previous.program, previous.flags, previous.needsRime,
+            )
+            override fun beginBinding(generation: Long) = begin(generation)
+        },
+    )
     override val acceptsInput get() = keyGate.canProcess()
     override val inputMethodEntryCached get() = publicationState.inputMethodEntryCached
     override val statusAreaActionsCached get() = publicationState.statusAreaActionsCached
@@ -608,58 +643,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }
     }
 
-    private fun restoreMaintenanceBinding(token: Long, previous: Binding?) {
-        if (!started || token != inputSession || hasUsableBinding(token)) return
-        val current = synchronized(bindingLock) { binding?.takeIf { it.generation == token } }
-        if (current == null && previous != null) {
-            prepareInputSession(token, previous.program, previous.flags, previous.needsRime)
-        }
-        if (synchronized(bindingLock) { binding?.generation == token }) begin(token)
-        else clearBinding(token)
-    }
-
-    private suspend fun maintain(refreshAfterOperation: Boolean = true, operation: () -> Unit) = maintenanceMutex.withLock {
-        maintenance = true
-        keyGate.block()
-        val (token, previousBinding) = synchronized(bindingLock) {
-            val previous = binding
-            val next = epoch.incrementAndGet()
-            binding = null
-            keyGate.invalidate(next)
-            next to previous
-        }
-        try { onOwner {
-            clearBinding(token)
-            publicationState.clearStatusActions()
-            events.offer(listOf(FcitxEvent.StatusAreaEvent(
-                FcitxEvent.StatusAreaEvent.Data(statusAreaActionsCached, inputMethodEntryCached)
-            ).apply { inputSession = token }))
-            showUnavailable("正在部署，请稍候…")
-            operation()
-            if (refreshAfterOperation) refreshSchemas()
-            engineOperations.completeMaintenanceActivation()
-            restoreMaintenanceBinding(token, previousBinding)
-        } } catch (e: Exception) {
-            try {
-                withContext(NonCancellable) {
-                    onOwner {
-                        val failedExternal = engineOperations.failMaintenanceActivation(e)
-                        if (token == inputSession) {
-                            if (!failedExternal) {
-                                restoreMaintenanceBinding(token, previousBinding)
-                            }
-                            if (e !is CancellationException && e !is DirectRimeEngineOperations.EngineSwitchRecoveredException) {
-                                showUnavailable(e.message ?: "操作失败，请检查方案文件")
-                            }
-                        }
-                    }
-                }
-            } catch (recovery: Exception) {
-                if (recovery !== e) e.addSuppressed(recovery)
-            }
-            throw e
-        } finally { maintenance = false; keyGate.running(started) }
-    }
+    private suspend fun maintain(refreshAfterOperation: Boolean = true, operation: () -> Unit) =
+        maintenanceCoordinator.run(refreshAfterOperation, operation)
     private suspend fun redeploy() = maintain {
         if (started) check(Native.deploy()) { "部署失败，请检查方案文件后重新部署" }
         else restartNative()
