@@ -49,9 +49,15 @@ Kotlin 的 `DirectRimeInputMethodEntryCache` 只保留最后一个不可变展�
 
 ### 后端展示与菜单
 
-`core/DirectRimeStatusMenu` 只组装状态菜单并将动作 ID 解码为命令；互斥组选项仍先关闭其他成员，再启用目标。`core/DirectRimePresentation` 只将本次 Snapshot 转成预编辑、面板、带 generation／`tabsRevision` 的音节标签和候选展示值。命令执行、generation 校验、快照与展示缓存、`candidateVersion`、候选点选目标登记及事件发布顺序仍由 `DirectRimeBackend` 管理。展示转换不得消费 commit、调用 native 或自行推进候选版本。
+`core/DirectRimeStatusMenu` 只组装状态菜单并将动作 ID 解码为命令；互斥组选项仍先关闭其他成员，再启用目标。`core/DirectRimePresentation` 只将本次 Snapshot 转成预编辑、面板、带 generation／`tabsRevision` 的音节标签和候选展示值。展示转换不得消费 commit、调用 native 或自行推进候选版本。
 
-`DirectRimeStatusMenuTest` 与 `DirectRimePresentationTest` 检查菜单和显示转换规则。`DirectRimePublicationContractTest` 通过后端的 `sendKey`／`setCandidatePagingMode` 入口检查统计与提交先于展示、发布目标的版本和过期结果不改状态；满足 `Snapshot.isUnchangedRelease` 的松键只更新后端持有的 native 快照。强制刷新仍读取新快照，不能重放旧 commit；仅在同代次、同分页模式且未触发既有候选失效条件时，重发候选而不推进候选版本。该 JVM 夹具替换了 Native，真实开关保存、跨会话恢复与触摸行为仍由 `DirectRimeFrontendTest` 验证；固定范围见[后端重构核对](../changes/2026-11-13-direct-rime-backend-seams.md)。
+`core/DirectRimePublicationState` 集中持有 client preedit、input panel、输入法展示条目、状态菜单四类缓存，以及 `publishedGeneration`、`candidateVersion` 和候选事件缓存。它在同一 owner 上判断展示变化、推进候选版本、登记候选点选目标，并生成统计／提交先于展示的完整输入事件批次；绑定结束时清空 client preedit、input panel 和候选缓存并使旧候选目标失效，状态菜单与输入法展示条目保留到新绑定发布。菜单构建与 commit 计时通过构造时注入的 builder／`CommitClock` 调用。状态类不持有 native 快照、不调用 Native、不创建线程、不直接写队列，不取得输入绑定或 native session 的所有权。
+
+`DirectRimeBackend` 继续持有输入 generation、本次 native 快照、输入门控、提示计时任务及 native 生命周期。后端先校验当前绑定与结果代次，在 owner 上按需调用 `Native.options`，再将结果与本次展示上下文交给发布状态，最后调用 `events.offer`。过期结果不得推进发布代次、候选版本或覆盖当前缓存；提示任务的代次与寿命校验仍在后端完成后才调用发布状态更新面板。候选点选与分页读取仍在原有 owner 上校验实际发布的版本。`clearStatusActions` 只清菜单缓存，维护与启动等生命周期事件仍由 Backend 构造和交付。
+
+完整 `buildBatch`、绑定清空及候选版本转换、菜单清空和提示过期继续在 owner 上执行。四类对外展示缓存和候选版本保留 volatile 读取边界。`EngineLifecycleController.start` 的同步 `onStarting` 沿原行为在启动调用线程显示“准备中”面板；这一 `showUnavailable` 只替换 volatile panel 并返回原有不绑定 generation 的面板事件，不改变候选版本或已发布 generation。
+
+`DirectRimeStatusMenuTest` 与 `DirectRimePresentationTest` 检查菜单和显示转换规则。`DirectRimePublicationStateTest` 直接检查完整批次、统计与 commit 计时关联、候选版本失效／强制重发、绑定清空后的菜单与输入法条目保留、提示过期、不可用面板以及菜单清空后重建。`DirectRimePublicationContractTest` 通过后端的 `sendKey`／`setCandidatePagingMode` 入口检查统计与提交先于展示、发布目标的版本和过期结果不改状态；满足 `Snapshot.isUnchangedRelease` 的松键只更新后端持有的 native 快照。强制刷新仍读取新快照，不能重放旧 commit；仅在同代次、同分页模式且未触发既有候选失效条件时，重发候选而不推进候选版本。清空绑定展示仍推进候选版本，使旧界面持有的目标失效。Backend 集成 JVM 夹具替换了 Native，真实开关保存、跨会话恢复与触摸行为仍由 `DirectRimeFrontendTest` 验证；本次发布状态拆分范围见[2026-11-14 核对](../changes/2026-11-14-direct-rime-publication-state.md)，此前验证保留在[2026-11-13 后端重构核对](../changes/2026-11-13-direct-rime-backend-seams.md)。
 
 ### 候选目标、坐标与展示快照
 
