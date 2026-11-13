@@ -284,5 +284,8 @@
     "total_correct_selection_counts_only": 672,
     "default_branch_pushed": false
   },
-  "cleanup_policy": "push_archive_before_ref_deletion"
+  "cleanup_policy": "push_archive_before_ref_deletion",
+  "cleanup_state": "completed",
+  "archive_commit_pushed_before_deletion": "53af22f73053f55ac055b35c7e670af8bb5fc9ff",
+  "cleanup_receipt": "cleanup-receipt.json"
 }
