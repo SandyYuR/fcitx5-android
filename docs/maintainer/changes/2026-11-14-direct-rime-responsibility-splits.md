@@ -61,3 +61,50 @@ Import 的 idle、builtin 检查仍优先于 Archive 后 Destination 的解码�
 该副本 APK 的版本元数据仍来自父提交，仅用于相同源码的本机构建与审计，不能称为新代码 SHA 的发行产物。上表设备范围来源于本阶段远端 CI，源码、构建和设备的验收来源分别登记。
 
 远端原始来源为 `direct-rime-frontend-arm64-debug`、`direct-rime-frontend-android-results` 和 `direct-rime-android-smoke-results`。应用 artifact 通过 HTTP Range 提取全部 JUnit XML 原压缩 member，校验源 ZIP CRC 后保存 XML-only 子集；两份设备 artifact 保留完整原 ZIP。XML 子集、源 central directory、两份设备原 ZIP及 `ci-artifacts/junit-current-summary.json` 同证据目录保留，均已按记录的摘要与 CRC 核对；XML-only 子集不是完整应用 artifact，不声称对应用整包作本机 SHA-256 复核。这些本机资料不属于文档站发布附件，在线来源为上表对应运行的 artifacts。
+
+## 第 2 项：Profile 操作协调
+
+代码提交为 [`0d761a76b1c065b69b7ecf6c65458dbb44877c45`](https://github.com/SandyYuR/fcitx5-android/commit/0d761a76b1c065b69b7ecf6c65458dbb44877c45)，基线为第 1 项 `3ee199dd67e3d19d0719613d51d2092af211a5f4`。本项改动 4 个源码／测试文件，新增 549 行、删除 45 行；新增 `DirectRimeProfileOperationsTest` 21 项，PR 累计新增 64 项。既有后端管理契约仍为 7 项，强化了 Direct Boot 的 Repository 未初始化断言。
+
+按最终 Git blob 统计，Backend 从 1106 行变为 1068 行，协调器为 68 行。新增 diff 包含 471 行新测试；职责拆分的效果应结合执行边界与回归覆盖评估，行数变化不作为性能证据。
+
+| 入口 | 本阶段职责 |
+| --- | --- |
+| `core/DirectRimeProfileOperations.kt` | 同步协调 Profile 管理、mutation lease、错误登记及导入安装后的注册／切换／失败恢复；调用实际 Config、Repository 和现有文件事务 |
+| `core/DirectRimeBackend.kt` | 保留路径分发、Direct Boot、maintain、导入初始检查、命令解码与 transaction prepare；提供原停止／重启回调 |
+
+Backend 的协调器 `by lazy` 构造，Repository 通过 supplier 获取；manager 中首次 Repository 访问继续在原 try 内的 lease 位置，初始化失败仍写 `config.error`。ExternalPath 与 NewName 保持原惰性读取时点；活动 rename 首次停止位于内部 try／finally 之前，停止失败不会读取 NewName 或重启，finally 重启异常保持原优先级。
+
+管理 switch 的重启失败保留已写入的新选择。导入仍先 install，再取得 lease 并重复 builtin 检查；create 成功后立即 markRegistered，随后捕获 previous、switch／restart。导入切换失败尝试切回 previous 并重启；注册前失败清理未登记 target，注册后失败保留已登记目录。manager 与 import 各自保留原 catch(Exception)、取消、恢复异常顺序及 `config.error` 策略。
+
+独立审阅通过。现行边界见[工作目录操作协调契约](../implementation/correctness-contracts.md#工作目录操作协调)及[方案 ZIP 导入](../implementation/correctness-contracts.md#方案-zip-导入)。Config／Repository 的持久化、保护与唯一状态源继续沿实际实现，协调器没有新 scope、dispatcher 或输入会话副本。
+
+### 本阶段测试与代码 CI
+
+新 21 项使用实际配置、Repository 和临时 ZIP 事务，检查 lease 与字段读取、活动／非活动 rename、初次停止失败、持久化和重启失败、manager switch／取消、导入注册前后清理及恢复异常顺序。回调用于记录生命周期顺序并注入停止／重启失败，文件与 Repository 执行真实实现。强化的后端 Direct Boot case 通过真实入口与现有 Native shadow 检查构造和两条拒绝路径仍未初始化 Repository。
+
+| 报告范围 | 实际测试数 | failures | errors | skipped |
+| --- | ---: | ---: | ---: | ---: |
+| 本机相关 JVM，11 类 | 86 | 0 | 0 | 0 |
+| 当前提交的应用 JVM | 2169 | 0 | 0 | 0 |
+| 当前提交的完整前端设备 | 46 | 0 | 0 | 0 |
+| 当前提交的引擎 smoke | 6 | 0 | 0 | 0 |
+
+原始本机 11 份 XML 的 suite tests 与实际 testcase 均为 86，包含新 21 项与强化的原 7 项。首轮本机命令遗漏既有 `local-tests.init.gradle.kts`，Robolectric 下载锁落入 C 盘并拒绝访问；失败日志与原 XML 保存在 `jvm-failed-01.log`／`junit-failed-01`。补回原 D 盘测试 init 后完整执行 86 项，全零；生产和测试没有为此改写或豁免。
+
+当前 SHA 的两条代码工作流及 6 个 jobs 全 success：
+
+| 运行 | 实际通过范围 |
+| --- | --- |
+| [PR CI 43493292245](https://github.com/SandyYuR/fcitx5-android/actions/runs/43493292245) | SDK 下载器与全量应用 JVM、ARM64 Debug、lint、APK／链接审计 |
+| [Direct Rime CI 43493292237](https://github.com/SandyYuR/fcitx5-android/actions/runs/43493292237) | prototype 原生契约与诊断构建、完整前端 ARM64、真实前端设备与引擎 smoke |
+
+本阶段应用 artifact 的 267 份原始 XML 实际 testcase 为 2169，包含新 Profile 操作 21 项、管理解析 4 项、后端管理 7 项和此前发布状态 8 项。两份设备原 XML 分别为 46 和 6 项；全部报告的 SHA-256、源 member CRC 及失败／错误／跳过已核对，不继承第 1 项的报告数量。
+
+### 本阶段证据与构建来源
+
+证据在工作区 `.dsh-tmp/direct-rime-recommended-splits-20261114/stage-02`：成功／失败的本机 XML 与日志、`local-junit-summary.json`、源码 `source-manifest.json`／`committed-blobs.json`、`debug.apk`、构建和两项原生审计日志。本机 ARM64 Debug、三库白名单、16 KiB 对齐和原生链接审计通过。
+
+本阶段构建时 D 验证副本 HEAD 为父提交 `3ee199dd6…`，叠加本项四路径；源与副本逐字节一致，并按 Git 文本换行规则与 `0d761a76…` 对应 blob 一致。APK 版本元数据仍来自父提交，仅用于相同源码的本机构建与审计；本阶段设备范围取自当前提交远端 CI。验证副本随后推进 HEAD，不改写构建时来源。
+
+当前 CI 的 XML-only 应用子集、源 central directory、两份设备原 ZIP 及 `ci-artifacts/junit-current-summary.json` 保存在同目录。应用子集保留原压缩 XML member 并校验源 ZIP CRC；设备包保留完整原 ZIP 并核对摘要。与第 1 项相同，这些本机资料不属于站点附件，在线来源是上表对应运行的 artifacts。

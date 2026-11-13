@@ -87,13 +87,25 @@ JNI 分配失败后停止后续构造，只做允许的引用释放，已有 Jav
 
 ### 管理命令解析
 
-`core/DirectRimeManagementCommands` 只将 `profile-manager`、`import-profile` 和 `schema-selector` 的 RawConfig 字段解码为只读命令，不调用 Native、不检查文件或引擎、不进入维护。后端仍保留路径分发、输入 owner、维护与实际配置操作；未知路径继续不进入维护、不改变输入代次或展示缓存。三类资源更新请求的准备仍由 `DirectRimeMaintenanceFiles` 负责。
+`core/DirectRimeManagementCommands` 只将 `profile-manager`、`import-profile` 和 `schema-selector` 的 RawConfig 字段解码为只读命令，不调用 Native、不检查文件或引擎、不进入维护。后端保留路径分发、输入 owner 与维护，工作目录操作由 `DirectRimeProfileOperations` 在该边界内调用实际 Config／Repository；未知路径继续不进入维护、不改变输入代次或展示缓存。三类资源更新请求的准备仍由 `DirectRimeMaintenanceFiles` 负责。
 
 Profile 的 `Name` 后 `Action` 继续在原 Direct Boot 检查之后读取。未知动作解码为 `ProfileAction.Unknown`，仍在原 mutation lease／try 内报错并更新 `config.error`，不能把这一步提前到守卫或租约之前。`RawConfig` 的字段可变：命令头部捕获已读取的名称与动作，但 `ExternalPath` 和 `NewName` 仍在原分支执行时读取；后者保持在引用检查、必要停止之后的 rename try 内，不能为统一解析而提前冻结这些字段。
 
 导入的 `Archive` 后 `Destination` 继续在原 idle 与 builtin 检查之后读取。缺少 Archive 与空字串保留区别，解析不修剪或规范化路径；canonical path、目录可用性与 ZIP 安装校验仍按原次序执行。方案列表按 `split('\t', limit = 3)` 读取，仅选择第一列恰为 `1` 的三列行，保留空 ID、重复项、顺序及第三列剩余内容，不新增方案有效性过滤。
 
 `DirectRimeManagementCommandsTest` 检查字段默认值、头部捕获与后续字段读取、导入字串以及方案行规则。`DirectRimeManagementCommandContractTest` 通过真实后端维护入口及临时 repository 检查未知路径、未知动作、Direct Boot、busy lease 和 import 前置检查的错误顺序；没有用新生产回调替代原守卫。固定范围与实际结果见[职责分批核对](../changes/2026-11-14-direct-rime-responsibility-splits.md)。
+
+### 工作目录操作协调
+
+`core/DirectRimeProfileOperations` 同步协调管理和导入操作，沿后端的单一维护 owner 调用实际配置、Repository 与文件事务。Backend 保留 Direct Boot、维护门控、导入初始 idle／builtin 检查、命令解码及 transaction prepare。协调器在 Backend 中 `by lazy` 构造，并以 supplier 取得 Repository；manager 的首次实际 Repository 访问仍在原 try 内的 mutation lease 位置，初始化异常也会记录 `config.error`，构造协调器不能提前读取 CE。
+
+manager 在 Name／Action 解码后进入 try，取得 lease 后执行各分支，释放 lease 后清空 `config.error`；任一 Exception 记录原 message 并重抛。Unknown 动作继续在 lease／try 内报错。create 在原调用处才读取 ExternalPath；switch 先检查 builtin，再保存选择并重启，重启失败保留已写入的新选择。
+
+rename／delete 先检查 profile 未被引用。活动 profile 的 rename 首次停止在内部 try／finally 之前；NewName 在停止后的 rename try 内读取，finally 为活动 profile 重启。首次停止失败不会读取 NewName 或重启；重命名持久化失败沿 Config 自身事务恢复文件，重启失败保持原 finally 异常优先级。目录持久化和文件保护继续由 Config／Repository 的实际实现负责。
+
+管理操作与[方案 ZIP 导入](#方案-zip-导入)各自保留原恢复顺序：管理切换失败保留新选择，导入切换失败尝试恢复先前 profile。只有 manager 清空或设置 `config.error`；import 沿自己的登记和清理规则执行。两条路径保持原 catch(Exception)、取消及恢复／finally 异常覆盖规则。
+
+`DirectRimeProfileOperationsTest` 用实际 Config、Repository 和 ZIP 事务检查 lease、字段读取、目录持久化、注册前后清理与恢复，通过回调记录停止／重启顺序和异常。`DirectRimeManagementCommandContractTest` 的真实后端 Direct Boot case 同时检查构造与两条拒绝路径没有初始化 Repository。实际执行范围见[第 2 项固定记录](../changes/2026-11-14-direct-rime-responsibility-splits.md#第-2-项-profile-操作协调)。
 
 ### 设置与资源更新
 
@@ -107,7 +119,7 @@ Profile 的 `Name` 后 `Action` 继续在原 Direct Boot 检查之后读取。�
 
 普通方案 ZIP 的 `import-profile` 直接进入 `maintain`，没有整段包裹 `NonCancellable`；取消与绑定恢复沿用维护入口的规则。`data/RimeProfileImportTransaction` 只负责文件部分：限定 archive 来自缓存导入目录，选择未被登记或占用的名称，解压到同一父目录的隐藏 staging，再以目录 rename 安装。
 
-后端在 profile mutation lease 内重新检查内置引擎条件，完成 `config.create` 后立即调用 `markRegistered`，再切换 profile 并重启引擎。失败清理会尝试移除 staging，且仅在安装完成、尚未登记时删除 target；登记后切换或重启失败仍保留已登记目录，由后端尝试恢复先前 profile。`RimeProfileImportTransactionTest` 检查路径限制、唯一名称、完整安装、非法 ZIP 及登记前后清理；真实引擎回归为 `DirectRimeFrontendTest.profileImportSelectionAndMigration`。外部引擎活动时的导入限制继续遵循下文引擎变体契约。
+后端完成初始 idle／builtin 检查、字段解码与 transaction prepare，`DirectRimeProfileOperations.installImported` 先 install，再在 profile mutation lease 内重新检查 builtin，完成 `config.create` 后立即 `markRegistered`，捕获先前 profile 后切换并重启。切换或重启失败先切回 previous 并重启，再抛异常；外层继续调用 `recoverAfterFailure`。失败清理会尝试移除 staging，且仅在安装完成、尚未登记时删除 target；登记后的目录保留，恢复异常沿原覆盖规则传播，import 不改 `config.error`。`RimeProfileImportTransactionTest` 检查文件事务，`DirectRimeProfileOperationsTest` 检查登记、lease 和恢复顺序；真实引擎回归为 `DirectRimeFrontendTest.profileImportSelectionAndMigration`。外部引擎活动时的导入限制继续遵循下文引擎变体契约。
 
 ## 运行时引擎变体
 

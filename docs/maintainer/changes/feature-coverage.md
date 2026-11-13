@@ -102,5 +102,6 @@
 | --- | --- |
 | [展示、菜单与发布](/maintainer/implementation/correctness-contracts#后端展示与菜单) | `DirectRimeStatusMenu`、`DirectRimePresentation`、`DirectRimePublicationState`、`DirectRimeBackend.publish`；`DirectRimeStatusMenuTest`、`DirectRimePresentationTest`、`DirectRimePublicationStateTest`、`DirectRimePublicationContractTest` |
 | [管理命令解析](/maintainer/implementation/correctness-contracts#管理命令解析) | `DirectRimeManagementCommands`、`DirectRimeBackend.setAddonSubConfig`；`DirectRimeManagementCommandsTest`、`DirectRimeManagementCommandContractTest` |
+| [工作目录操作协调](/maintainer/implementation/correctness-contracts#工作目录操作协调) | `DirectRimeProfileOperations.manage`、`DirectRimeProfileOperations.installImported`、后端维护入口；`DirectRimeProfileOperationsTest`、`DirectRimeManagementCommandContractTest` |
 | [设置与资源更新](/maintainer/implementation/correctness-contracts#设置与资源更新) | `DirectRimeMaintenanceFiles`、`RimeProfileUpdateInstaller`、`WanxiangUpdateTransaction`；`DirectRimeMaintenanceFilesTest`、`RimeProfileUpdateInstallerTest` |
-| [方案 ZIP 导入](/maintainer/implementation/correctness-contracts#方案-zip-导入) | `RimeProfileImportTransaction`、后端 `import-profile` 维护入口；`RimeProfileImportTransactionTest`、`DirectRimeFrontendTest.profileImportSelectionAndMigration` |
+| [方案 ZIP 导入](/maintainer/implementation/correctness-contracts#方案-zip-导入) | `RimeProfileImportTransaction`、`DirectRimeProfileOperations.installImported`、后端 `import-profile` 维护入口；`RimeProfileImportTransactionTest`、`DirectRimeProfileOperationsTest`、`DirectRimeFrontendTest.profileImportSelectionAndMigration` |

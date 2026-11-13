@@ -31,10 +31,11 @@
 | `core/DirectRimePublicationState` | 持有四类前端展示缓存、已发布 generation、候选版本及候选事件缓存；在 owner 上登记候选目标、构造有序输入发布批次、清空绑定展示及更新提示过期面板；不可用面板保留既有启动回调的同步更新方式 |
 | `core/DirectRimeStatusMenu` | 组装状态菜单并解码动作 ID；命令交回后端在 owner 上执行 |
 | `core/DirectRimePresentation` | 将本次 Snapshot 转为 preedit、panel、带版本的音节标签及候选展示值；不调用 native、不发布事件 |
-| `core/DirectRimeManagementCommands` | 解码 Profile、方案导入和方案列表管理请求的字段；保留只读命令头部及分支字段的原读取时点，守卫、维护、文件校验和执行仍由后端处理 |
+| `core/DirectRimeManagementCommands` | 解码 Profile、方案导入和方案列表管理请求的字段；保留只读命令头部及分支字段的原读取时点，交回既有维护入口执行 |
+| `core/DirectRimeProfileOperations` | 在后端既有维护 owner 上同步协调工作目录管理、mutation lease、错误登记及导入注册／切换／失败恢复；调用实际 Config／Repository，停止和重启回调由后端提供 |
 | `core/DirectRimeMaintenanceFiles` | 在 owner 上、停机前核对高级设置／自定义更新／万象更新任务，生成包含目标、payload 和策略的安装计划 |
 | `data/RimeProfileUpdateInstaller` | 共用停机、资源安装及失败恢复流程；停止和重启回调由后端提供，保留外部引擎启动守卫与 watchdog |
-| `data/RimeProfileImportTransaction` | 负责方案 ZIP 的路径检查、暂存解压、目录安装与登记前失败清理；登记、切换及重启仍由后端执行 |
+| `data/RimeProfileImportTransaction` | 负责方案 ZIP 的路径检查、暂存解压、目录安装与登记前失败清理；登记、切换和失败恢复由 `DirectRimeProfileOperations` 协调，重启沿用后端回调 |
 
 发布状态、展示转换与菜单命令解码不取得输入会话所有权。`DirectRimePublicationState` 接收后端已校验的本次结果与展示上下文，不调用 Native、不创建线程、不直接写事件队列；完整输入批次和候选版本转换在现有单一 owner 上执行，后端调用 `events.offer`。启动时同步 `onStarting` 可以在调用线程更新 volatile 不可用面板；这条既有生命周期路径不推进候选版本。资源更新与方案导入的取消边界分别见[正确性契约](implementation/correctness-contracts.md#资源维护与方案导入)。
 
