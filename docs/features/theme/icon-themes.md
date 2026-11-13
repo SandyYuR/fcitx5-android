@@ -22,6 +22,7 @@
 | `keys.backspace` | 退格按钮 |
 | `toolbar.random_theme` | 工具栏或状态区的随机主题动作 |
 | `toolbar.ai_assistant` | 工具栏或状态区的 AI 助手动作，默认星形图标 |
+| `toolbar.js_tools` | 工具栏或状态区的 JS App 直达动作；内置翻译默认语言图标，其他工具回退代码图标 |
 
 缺少槽位或值为空时回退内置图标。符号面板监听图标主题切换并刷新功能键，分类与滚动位置继续保留。
 
