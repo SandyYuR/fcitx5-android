@@ -1028,37 +1028,36 @@ class DirectRimeBackend(context: Context) : InputEngine {
             "deploy" -> redeploy()
             "sync" -> synchronize()
             "schema-selector" -> maintain {
-                val ids = config.findByName("Items")?.value.orEmpty().lines().mapNotNull {
-                    val row = it.split('\t', limit = 3); if (row.size == 3 && row[0] == "1") row[1] else null
-                }
-                check(Native.selectSchemas(ids.toTypedArray())) { "无法保存输入方案选择" }
+                val command = DirectRimeManagementCommands.schemaSelection(config)
+                check(Native.selectSchemas(command.ids.toTypedArray())) { "无法保存输入方案选择" }
                 check(Native.deploy()) { "部署失败，请检查方案文件" }
             }
             "profile-manager" -> maintain {
                 require(!directBootMode) { "首次解锁前不能管理 Rime 工作目录" }
-                val name = config.findByName("Name")?.value.orEmpty()
-                val operation = config.findByName("Action")?.value.orEmpty()
+                val command = DirectRimeManagementCommands.profileManager(config)
+                val name = command.name
                 try {
                     engineRepository.profileMutationLease().use {
-                        when (operation) {
-                            "create" -> this.config.create(name, config.findByName("ExternalPath")?.value.orEmpty())
-                            "switch" -> {
+                        when (command.action) {
+                            DirectRimeManagementCommands.ProfileAction.Create ->
+                                this.config.create(name, DirectRimeManagementCommands.externalPath(config))
+                            DirectRimeManagementCommands.ProfileAction.Switch -> {
                                 engineRepository.requireBuiltinForProfileSwitch()
                                 this.config.switch(name)
                                 restartNative()
                             }
-                            "rename" -> {
+                            DirectRimeManagementCommands.ProfileAction.Rename -> {
                                 engineRepository.requireProfileUnreferenced(name)
                                 val active = name == this.config.current
                                 if (active) stopNativeForRestart()
-                                try { this.config.rename(name, config.findByName("NewName")?.value.orEmpty()) }
+                                try { this.config.rename(name, DirectRimeManagementCommands.newName(config)) }
                                 finally { if (active) restartNative() }
                             }
-                            "delete" -> {
+                            DirectRimeManagementCommands.ProfileAction.Delete -> {
                                 engineRepository.requireProfileUnreferenced(name)
                                 this.config.delete(name)
                             }
-                            else -> error("无效目录操作")
+                            DirectRimeManagementCommands.ProfileAction.Unknown -> error("无效目录操作")
                         }
                     }
                     this.config.error = ""
@@ -1068,8 +1067,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 require(!directBootMode) { "首次解锁前不能导入 Rime 工作目录" }
                 engineRepository.requireProfileMutationIdle()
                 engineRepository.requireBuiltinForProfileSwitch()
-                val pathValue = config.findByName("Archive")?.value ?: error("请选择方案 ZIP")
-                val destinationPath = config.findByName("Destination")?.value.orEmpty()
+                val command = DirectRimeManagementCommands.importProfile(config)
+                val destinationPath = command.destinationPath
                 val parent = if (destinationPath.isBlank()) {
                     this.config.dataRoot.canonicalFile
                 } else {
@@ -1078,7 +1077,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 val profiles = this.config.directoryState().findByName("Profiles")?.value
                     .orEmpty().lineSequence().filter(String::isNotBlank).toSet()
                 val transaction = RimeProfileImportTransaction.prepare(
-                    pathValue,
+                    command.archivePath,
                     File(context.cacheDir, "rime-import"),
                     parent,
                     profiles,
