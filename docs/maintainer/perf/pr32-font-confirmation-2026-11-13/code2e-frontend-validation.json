@@ -1,0 +1,13 @@
+{
+  "source": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+  "run": 43259807564,
+  "artifact_id": 13964097088,
+  "sha256": "b249a10051ea43af5679403b0179060737a7a94f20fb7e136d25c83b6bb182a3",
+  "tests": 59,
+  "counts": {
+    "failure": 0,
+    "error": 0,
+    "skipped": 0
+  },
+  "revised_rendering_case_observed": true
+}

@@ -1,0 +1,184 @@
+{
+  "current": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+  "baseline": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "study_driver": "9a26eb811904d1d353ce165bacdf9d8cfa84de86",
+  "run": 43331231186,
+  "new_default_engine_variant_benchmarked": false,
+  "default_branch_pushed": false,
+  "snapshots": [
+    {
+      "file": "final-product-source.zip",
+      "sha256": "8fbbddec28243222259b3f32c4e524d904d10fbe42ab935cf45d52fdc16f536f",
+      "bytes": 3579631
+    },
+    {
+      "file": "study-driver-source.zip",
+      "sha256": "f0770629d3b21204094946039db92bad63082b935b2e0991b51a2974686b3e5b",
+      "bytes": 3589304
+    },
+    {
+      "file": "source-history-bundles.zip",
+      "sha256": "146e0f1cd714da0420fef3dddae5104382cf83efbd11837dffdc51047ba752b4",
+      "bytes": 111140
+    },
+    {
+      "file": "final-product-commits.mbox.txt",
+      "sha256": "3ee9be071a7dc98cf413137f47f33fb9a424c59691b6a2cdda0317a0e7b8dd36",
+      "bytes": 7380
+    },
+    {
+      "file": "study-driver-commits.mbox.txt",
+      "sha256": "39c73e17670dbc4087339ce876a4fc98ee8184ccc6a61051cbddeee0f8efcb93",
+      "bytes": 70061
+    }
+  ],
+  "products": {
+    "sources": {
+      "baseline": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+      "current": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18"
+    },
+    "driver_commit": "9a26eb811904d1d353ce165bacdf9d8cfa84de86",
+    "metadata_driver_commit": "9a26eb811904d1d353ce165bacdf9d8cfa84de86",
+    "sdk_lock_sha256": {
+      "baseline": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f",
+      "current": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f"
+    },
+    "protocol": "external_process_input_manager_phase_v3",
+    "harness_sha256": "95e1918ba170222bf3fefd8b723fe01b1291e501b674c93303e4ed6f56d5f26d",
+    "contract_classes_sha256": {
+      "CandidateTypefaceTest.kt": "4464638df5a7b88672e1791c1e0417aa2e2a5d58f66c25b71d146f5c4d1a6460",
+      "CandidateRenderingTest.kt": "4bb0b4ab7e7c34cceac317236aad075ee8f697ac5581172a9a227d6b3bbdd2e9"
+    },
+    "host_sources_sha256": {
+      "tools/candidate-perf/host/BenchTouchDriver.java": "95f85ed7c7f7d1e8b15bc501277cc7b38f380b58670510fa9d0f112e82a2a965",
+      "tools/candidate-perf/host/BenchHost.java": "bb2afdf547729eecec065117742fd0f35ef9db3feeeb1381777b899581b53cd7",
+      "tools/candidate-perf/host/BenchControl.java": "9b48f4c1a7931cdd03372c1d41a2919c7e40643bd39c7f4edb82168f81537cbe",
+      "tools/candidate-perf/host/AndroidManifest.xml": "9f322d7d9062b8a158fa7d787314754a4cd44536ee4d223288d0de5299064374",
+      "tools/screen-perf/build-host.sh": "2ed8acbac95e1fa2f686a8109390e3bedbb1d9b3e251e6692f5ffe3d4d0f488e"
+    },
+    "host_sha256": "798f7faffe71591d6e818a3d8a25ff91005e2ec6ec2d249a6ae7604d57ffc316",
+    "packages": {
+      "baseline-tests.apk": "org.fcitx.fcitx5.android.fx.rime.debug.test",
+      "baseline.apk": "org.fcitx.fcitx5.android.fx.rime.debug",
+      "current-tests.apk": "org.fcitx.fcitx5.android.fx.rime.debug.test",
+      "current.apk": "org.fcitx.fcitx5.android.fx.rime.debug"
+    },
+    "signer_sha256": {
+      "baseline-tests.apk": "6013746c5481cc8d2f1c194cb13848784a0a4d2f58be756c9359bc067f71adc1",
+      "baseline.apk": "6013746c5481cc8d2f1c194cb13848784a0a4d2f58be756c9359bc067f71adc1",
+      "current-tests.apk": "6013746c5481cc8d2f1c194cb13848784a0a4d2f58be756c9359bc067f71adc1",
+      "current.apk": "6013746c5481cc8d2f1c194cb13848784a0a4d2f58be756c9359bc067f71adc1"
+    },
+    "native_audit_sha256": {
+      "baseline": "0d0355ab7d3bf71e3198a29eaaf66f6c6f84499f249a8c9350d88a1a98fce578",
+      "current": "006a644fd7c111f61f13255a06e9411195a772dc26f20352a84c32fe6146e2e4"
+    },
+    "apks": {
+      "baseline-tests.apk": "f14207782ab12afe59d8128552e3257e55d1eb604e43b056d5e8626e21d4d7a7",
+      "baseline.apk": "28588ca02108f85f5281c5f3727a6c3c53bf9a8671ec5e00556d21d870594387",
+      "current-tests.apk": "35d2abe2cda0ee6a6613a720c9f1215a5ff2bc421ab13dbc76a2c53793524ab9",
+      "current.apk": "5013da9cffffef2b7054131a53ce34e765b7b7519e3a2c7c07f27a0248abf63a"
+    }
+  },
+  "raw_artifacts": [
+    {
+      "file": "products.zip",
+      "original_github_artifact": {
+        "id": 13996395174,
+        "name": "latency-study-products",
+        "size_in_bytes": 47239178,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13996395174",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13996395174/zip",
+        "expired": false,
+        "created_at": "2026-11-12T23:52:45Z",
+        "expires_at": "2026-12-12T23:43:26Z",
+        "updated_at": "2026-11-12T23:52:45Z",
+        "digest": "sha256:864d45e97dab1d66a0c5766d020a6e79f73f4a0e7f6a4229bbfe342882a3ea53",
+        "workflow_run": {
+          "id": 43331231186,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-font-only-20261113",
+          "head_sha": "9a26eb811904d1d353ce165bacdf9d8cfa84de86"
+        }
+      },
+      "raw_zip_published": false
+    },
+    {
+      "file": "font-forward.zip",
+      "original_github_artifact": {
+        "id": 13996887219,
+        "name": "font-confirmation-forward",
+        "size_in_bytes": 1045096,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13996887219",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13996887219/zip",
+        "expired": false,
+        "created_at": "2026-11-13T00:08:48Z",
+        "expires_at": "2026-12-12T23:43:26Z",
+        "updated_at": "2026-11-13T00:08:48Z",
+        "digest": "sha256:bfa248c54f88c18d93567241c73896b44addc6a1c6132a638dd55627aa26b0be",
+        "workflow_run": {
+          "id": 43331231186,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-font-only-20261113",
+          "head_sha": "9a26eb811904d1d353ce165bacdf9d8cfa84de86"
+        }
+      },
+      "raw_zip_published": true
+    },
+    {
+      "file": "font-reverse.zip",
+      "original_github_artifact": {
+        "id": 13995709523,
+        "name": "font-confirmation-reverse",
+        "size_in_bytes": 1053645,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13995709523",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13995709523/zip",
+        "expired": false,
+        "created_at": "2026-11-13T00:10:04Z",
+        "expires_at": "2026-12-12T23:43:26Z",
+        "updated_at": "2026-11-13T00:10:04Z",
+        "digest": "sha256:646a1bc574fca0335703f48f9e0733e48595dfc6522f0d31a08987a07af2d24c",
+        "workflow_run": {
+          "id": 43331231186,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-font-only-20261113",
+          "head_sha": "9a26eb811904d1d353ce165bacdf9d8cfa84de86"
+        }
+      },
+      "raw_zip_published": true
+    },
+    {
+      "file": "font-contracts.zip",
+      "original_github_artifact": {
+        "id": 13995976028,
+        "name": "font-contracts",
+        "size_in_bytes": 728542,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13995976028",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13995976028/zip",
+        "expired": false,
+        "created_at": "2026-11-12T23:54:42Z",
+        "expires_at": "2026-12-12T23:43:26Z",
+        "updated_at": "2026-11-12T23:54:42Z",
+        "digest": "sha256:f8e1336a3ded2ab52486105befb19207336cb70b6a5fdff8ef35140824c2a9ed",
+        "workflow_run": {
+          "id": 43331231186,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-font-only-20261113",
+          "head_sha": "9a26eb811904d1d353ce165bacdf9d8cfa84de86"
+        }
+      },
+      "raw_zip_published": true
+    }
+  ],
+  "current_source_apk_actually_performance_timed": true,
+  "fresh_processes": 48,
+  "correct_selections": 288,
+  "font_negative_control_expected_failure": 1,
+  "font_current_passes": 4,
+  "exact_history_prerequisite": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "cleanup": "archive-prepared-before-deletion"
+}

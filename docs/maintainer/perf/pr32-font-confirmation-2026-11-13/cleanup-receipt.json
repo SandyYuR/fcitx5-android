@@ -1,0 +1,11 @@
+{
+  "state": "archive-prepared-before-deletion",
+  "branch": "test/pr32-font-only-20261113",
+  "expected_tip": "9a26eb811904d1d353ce165bacdf9d8cfa84de86",
+  "remote_deleted": false,
+  "local_deleted": false,
+  "worktree_removed": false,
+  "archive_push_required_before_deletion": true,
+  "default_branch_pushed": false,
+  "historical_ci_deleted": false
+}

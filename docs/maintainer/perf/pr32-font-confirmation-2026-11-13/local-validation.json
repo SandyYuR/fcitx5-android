@@ -1,0 +1,7 @@
+{
+  "python_grammar_files": 5,
+  "workflow_and_embedded_shell": "pass",
+  "font_contract_parser_checks": 7,
+  "balanced_plan_and_sample_checks": 6,
+  "note": "Synthetic parser checks are local unit inputs, never device performance samples"
+}
