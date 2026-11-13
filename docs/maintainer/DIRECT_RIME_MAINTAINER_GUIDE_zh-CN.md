@@ -23,7 +23,7 @@
 
 ### 直连后端的职责划分
 
-下表的 Kotlin 路径相对 `app/src/main/java/org/fcitx/fcitx5/android/`。发布状态拆分的固定源码与验证记录见[2026-11-14 核对](changes/2026-11-14-direct-rime-publication-state.md)；此前展示与文件事务提取的当次事实保留在[2026-11-13 后端重构核对](changes/2026-11-13-direct-rime-backend-seams.md)。
+下表的 Kotlin 路径相对 `app/src/main/java/org/fcitx/fcitx5/android/`。后续管理职责的分批拆分见[2026-11-14 分批核对](changes/2026-11-14-direct-rime-responsibility-splits.md)；发布状态拆分的固定源码与验证记录见[2026-11-14 发布状态核对](changes/2026-11-14-direct-rime-publication-state.md)，此前展示与文件事务提取的当次事实保留在[2026-11-13 后端重构核对](changes/2026-11-13-direct-rime-backend-seams.md)。
 
 | 组件 | 职责与调用边界 |
 | --- | --- |
@@ -31,6 +31,7 @@
 | `core/DirectRimePublicationState` | 持有四类前端展示缓存、已发布 generation、候选版本及候选事件缓存；在 owner 上登记候选目标、构造有序输入发布批次、清空绑定展示及更新提示过期面板；不可用面板保留既有启动回调的同步更新方式 |
 | `core/DirectRimeStatusMenu` | 组装状态菜单并解码动作 ID；命令交回后端在 owner 上执行 |
 | `core/DirectRimePresentation` | 将本次 Snapshot 转为 preedit、panel、带版本的音节标签及候选展示值；不调用 native、不发布事件 |
+| `core/DirectRimeManagementCommands` | 解码 Profile、方案导入和方案列表管理请求的字段；保留只读命令头部及分支字段的原读取时点，守卫、维护、文件校验和执行仍由后端处理 |
 | `core/DirectRimeMaintenanceFiles` | 在 owner 上、停机前核对高级设置／自定义更新／万象更新任务，生成包含目标、payload 和策略的安装计划 |
 | `data/RimeProfileUpdateInstaller` | 共用停机、资源安装及失败恢复流程；停止和重启回调由后端提供，保留外部引擎启动守卫与 watchdog |
 | `data/RimeProfileImportTransaction` | 负责方案 ZIP 的路径检查、暂存解压、目录安装与登记前失败清理；登记、切换及重启仍由后端执行 |

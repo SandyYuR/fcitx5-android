@@ -96,10 +96,11 @@
 
 ## 直连后端维护入口
 
-后端组件职责见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN#直连后端的职责划分)，发布状态拆分的固定源码、变更范围与当次验证见[2026-11-14 核对](./2026-11-14-direct-rime-publication-state)，此前展示与文件事务提取记录见[2026-11-13 核对](./2026-11-13-direct-rime-backend-seams)。下表补充维护定位，原有用户功能入口继续保留。
+后端组件职责见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN#直连后端的职责划分)，后续管理职责拆分见[2026-11-14 分批核对](./2026-11-14-direct-rime-responsibility-splits)；发布状态拆分的固定源码、变更范围与当次验证见[2026-11-14 发布状态核对](./2026-11-14-direct-rime-publication-state)，此前展示与文件事务提取记录见[2026-11-13 核对](./2026-11-13-direct-rime-backend-seams)。下表补充维护定位，原有用户功能入口继续保留。
 
 | 说明 | 生产与回归入口 |
 | --- | --- |
 | [展示、菜单与发布](/maintainer/implementation/correctness-contracts#后端展示与菜单) | `DirectRimeStatusMenu`、`DirectRimePresentation`、`DirectRimePublicationState`、`DirectRimeBackend.publish`；`DirectRimeStatusMenuTest`、`DirectRimePresentationTest`、`DirectRimePublicationStateTest`、`DirectRimePublicationContractTest` |
+| [管理命令解析](/maintainer/implementation/correctness-contracts#管理命令解析) | `DirectRimeManagementCommands`、`DirectRimeBackend.setAddonSubConfig`；`DirectRimeManagementCommandsTest`、`DirectRimeManagementCommandContractTest` |
 | [设置与资源更新](/maintainer/implementation/correctness-contracts#设置与资源更新) | `DirectRimeMaintenanceFiles`、`RimeProfileUpdateInstaller`、`WanxiangUpdateTransaction`；`DirectRimeMaintenanceFilesTest`、`RimeProfileUpdateInstallerTest` |
 | [方案 ZIP 导入](/maintainer/implementation/correctness-contracts#方案-zip-导入) | `RimeProfileImportTransaction`、后端 `import-profile` 维护入口；`RimeProfileImportTransactionTest`、`DirectRimeFrontendTest.profileImportSelectionAndMigration` |

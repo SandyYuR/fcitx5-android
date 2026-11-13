@@ -85,6 +85,16 @@ JNI 分配失败后停止后续构造，只做允许的引用释放，已有 Jav
 
 ## 资源维护与方案导入
 
+### 管理命令解析
+
+`core/DirectRimeManagementCommands` 只将 `profile-manager`、`import-profile` 和 `schema-selector` 的 RawConfig 字段解码为只读命令，不调用 Native、不检查文件或引擎、不进入维护。后端仍保留路径分发、输入 owner、维护与实际配置操作；未知路径继续不进入维护、不改变输入代次或展示缓存。三类资源更新请求的准备仍由 `DirectRimeMaintenanceFiles` 负责。
+
+Profile 的 `Name` 后 `Action` 继续在原 Direct Boot 检查之后读取。未知动作解码为 `ProfileAction.Unknown`，仍在原 mutation lease／try 内报错并更新 `config.error`，不能把这一步提前到守卫或租约之前。`RawConfig` 的字段可变：命令头部捕获已读取的名称与动作，但 `ExternalPath` 和 `NewName` 仍在原分支执行时读取；后者保持在引用检查、必要停止之后的 rename try 内，不能为统一解析而提前冻结这些字段。
+
+导入的 `Archive` 后 `Destination` 继续在原 idle 与 builtin 检查之后读取。缺少 Archive 与空字串保留区别，解析不修剪或规范化路径；canonical path、目录可用性与 ZIP 安装校验仍按原次序执行。方案列表按 `split('\t', limit = 3)` 读取，仅选择第一列恰为 `1` 的三列行，保留空 ID、重复项、顺序及第三列剩余内容，不新增方案有效性过滤。
+
+`DirectRimeManagementCommandsTest` 检查字段默认值、头部捕获与后续字段读取、导入字串以及方案行规则。`DirectRimeManagementCommandContractTest` 通过真实后端维护入口及临时 repository 检查未知路径、未知动作、Direct Boot、busy lease 和 import 前置检查的错误顺序；没有用新生产回调替代原守卫。固定范围与实际结果见[职责分批核对](../changes/2026-11-14-direct-rime-responsibility-splits.md)。
+
 ### 设置与资源更新
 
 高级设置保存、自定义方案更新和万象更新继续在 `withContext(NonCancellable) { maintain { … } }` 内执行。`core/DirectRimeMaintenanceFiles` 在 owner 上、停止引擎前完成既有目标与文件校验，生成含目标目录、payload 和安装策略的 `PreparedRimeInstall`。空自定义／万象 payload 在停机前返回；高级设置的空 payload 仍交由安装事务报错。各入口的文件保护规则见下文[万象更新](#万象方案更新与配置编辑)与[自定义更新](#自定义方案更新)。
