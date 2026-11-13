@@ -180,5 +180,5 @@
   "font_negative_control_expected_failure": 1,
   "font_current_passes": 4,
   "exact_history_prerequisite": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
-  "cleanup": "archive-prepared-before-deletion"
+  "cleanup": "completed; see cleanup-receipt.json"
 }
