@@ -22,6 +22,9 @@ internal interface NativeTestDelegate {
     fun candidates(value: Long, offset: Int, limit: Int): Array<String> = error("Unexpected native candidates")
     fun rawInput(value: Long, previous: Long): RawInputState? = error("Unexpected native rawInput")
     fun end(value: Long): Snapshot = error("Unexpected native end")
+    fun selectBuiltin(): Unit = error("Unexpected native selectBuiltin")
+    fun configureExternal(fd: Int, entrySymbol: String, identity: String): Unit = error("Unexpected native configureExternal")
+    fun start(shared: String, user: String, version: String, fullCheck: Boolean): Unit = error("Unexpected native start")
     fun stop(): Unit = error("Unexpected native stop")
     fun sync(): Boolean = error("Unexpected native sync")
 }
@@ -45,6 +48,9 @@ internal class NativeTestShadow {
     @Implementation fun candidates(value: Long, offset: Int, limit: Int) = delegate.candidates(value, offset, limit)
     @Implementation fun rawInput(value: Long, previous: Long) = delegate.rawInput(value, previous)
     @Implementation fun end(value: Long) = delegate.end(value)
+    @Implementation fun selectBuiltin() = delegate.selectBuiltin()
+    @Implementation fun configureExternal(fd: Int, entrySymbol: String, identity: String) = delegate.configureExternal(fd, entrySymbol, identity)
+    @Implementation fun start(shared: String, user: String, version: String, fullCheck: Boolean) = delegate.start(shared, user, version, fullCheck)
     @Implementation fun stop() = delegate.stop()
     @Implementation fun sync() = delegate.sync()
 }
