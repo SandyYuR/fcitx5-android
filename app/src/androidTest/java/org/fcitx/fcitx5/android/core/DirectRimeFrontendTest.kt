@@ -2071,4 +2071,114 @@ end
             if (!enabled) shell("ime disable $component")
         }
     }
+    /** Real IME view: mode changes are ordered data, and splitting belongs to the hold gesture. */
+    @Test fun candidateDeliveryAndCharacterGestureKeepTheirDisplayedBinding(): Unit = runBlocking {
+        val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
+        val previous = shell("settings get secure default_input_method")
+        val previousHardKeyboard = shell("settings get secure show_ime_with_hard_keyboard")
+        val enabled = component in shell("ime list -s")
+        val prefs = AppPrefs.getInstance()
+        val oldFloating = prefs.candidates.mode.getValue()
+        val oldLayout = prefs.keyboard.textKeyboardLayoutProfile.getValue()
+        val oldHold = prefs.keyboard.longPressDelay.getValue()
+        var activity: RimeImportActivity? = null
+        var view: InputView? = null
+        fun descendants(root: View): Sequence<View> = sequence {
+            yield(root)
+            if (root is ViewGroup) for (i in 0 until root.childCount) yieldAll(descendants(root.getChildAt(i)))
+        }
+        try {
+            shell("settings put secure show_ime_with_hard_keyboard 1")
+            instrumentation.runOnMainSync {
+                prefs.candidates.mode.setValue(FloatingCandidatesMode.Disabled)
+                prefs.keyboard.textKeyboardLayoutProfile.setValue("default")
+                prefs.keyboard.longPressDelay.setValue(300)
+            }
+            shell("ime enable $component"); shell("ime set $component")
+            activity = instrumentation.startActivitySync(Intent(context, RimeImportActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as RimeImportActivity
+            val editor = activity!!.findViewById<EditText>(R.id.direct_rime_test_editor)
+            instrumentation.runOnMainSync {
+                editor.inputType = InputType.TYPE_CLASS_TEXT
+                editor.requestFocus()
+                (context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT)
+            }
+            await("Visible input view") {
+                instrumentation.runOnMainSync {
+                    view = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
+                        .filterIsInstance<InputView>().firstOrNull { it.isShown && it.service.isInputViewShown }
+                }
+                view != null
+            }
+            connection.runOnReady { sendKey('n'); sendKey('i') }
+            val horizontalField = InputView::class.java.getDeclaredField("horizontalCandidate").apply { isAccessible = true }
+            fun horizontal() = horizontalField.get(view) as org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateComponent
+            await("Visible Chinese candidate") {
+                var found = false
+                instrumentation.runOnMainSync { found = horizontal().adapter.candidates.any { it.text == "你" } }
+                found
+            }
+            instrumentation.runOnMainSync {
+                val input = requireNotNull(view)
+                input.handleEvents = false // No engine events may race these synthetic presentation fixtures.
+                val deliver = InputView::class.java.getDeclaredMethod("handleFcitxEvent", FcitxEvent::class.java)
+                    .apply { isAccessible = true }
+                val page = FcitxEvent.PagedCandidateEvent.Data(
+                    arrayOf(CandidateWord("1", "输入é𠀀", "")), 0,
+                    FcitxEvent.PagedCandidateEvent.LayoutHint.NotSet, false, false)
+                deliver.invoke(input, FcitxEvent.PagedCandidateEvent(page))
+                val list = FcitxEvent.CandidateListEvent.Data(-1, arrayOf(CandidateWord("1", "列表", "")))
+                deliver.invoke(input, FcitxEvent.CandidateListEvent(list))
+                assertSame("A true list event must not be suppressed within 500 ms", list.candidates, horizontal().adapter.candidates)
+                deliver.invoke(input, FcitxEvent.PagedCandidateEvent(page))
+                assertSame(page.candidates, horizontal().adapter.candidates)
+            }
+            instrumentation.waitForIdleSync()
+            var root: org.fcitx.fcitx5.android.input.keyboard.CustomGestureView? = null
+            await("Displayed fixture holder") {
+                instrumentation.runOnMainSync {
+                    root = (horizontal().view.findViewHolderForAdapterPosition(0)
+                        as? org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder)?.ui?.root
+                }
+                root != null
+            }
+            val popupField = org.fcitx.fcitx5.android.input.BaseInputView::class.java
+                .getDeclaredField("candidateCharacterPopup").apply { isAccessible = true }
+            fun touch(action: Int, y: Float, down: Long) = instrumentation.runOnMainSync {
+                val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, root!!.width / 2f, y, 0)
+                try { root!!.dispatchTouchEvent(event) } finally { event.recycle() }
+            }
+            val down = SystemClock.uptimeMillis()
+            touch(MotionEvent.ACTION_DOWN, root!!.height / 2f, down)
+            delay(350)
+            touch(MotionEvent.ACTION_MOVE, -40f, down)
+            instrumentation.runOnMainSync {
+                val popup = requireNotNull(popupField.get(view))
+                val characters = popup.javaClass.getDeclaredField("characters").apply { isAccessible = true }.get(popup)
+                assertEquals(listOf("输", "入", "é", "𠀀"), characters)
+                assertTrue((popup as org.fcitx.fcitx5.android.input.candidates.CandidateCharacterPopup).isShowing)
+            }
+            touch(MotionEvent.ACTION_CANCEL, -40f, down)
+            instrumentation.runOnMainSync {
+                assertNull(popupField.get(view))
+                assertEquals("Cancelling a picker must not commit a character", "", editor.text.toString())
+                view!!.unbindCandidateGesture(root!!)
+                assertNull(root!!.onGestureListener)
+            }
+        } finally {
+            instrumentation.runOnMainSync {
+                view?.handleEvents = true
+                activity?.finish()
+                prefs.keyboard.longPressDelay.setValue(oldHold)
+                prefs.keyboard.textKeyboardLayoutProfile.setValue(oldLayout)
+                prefs.candidates.mode.setValue(oldFloating)
+            }
+            if (previous.isNotBlank() && previous != "null") shell("ime set $previous")
+            if (previousHardKeyboard == "null") shell("settings delete secure show_ime_with_hard_keyboard")
+            else shell("settings put secure show_ime_with_hard_keyboard $previousHardKeyboard")
+            if (!enabled) shell("ime disable $component")
+        }
+    }
+
 }
