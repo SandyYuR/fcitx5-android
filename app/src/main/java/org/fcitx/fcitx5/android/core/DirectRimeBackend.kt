@@ -158,6 +158,25 @@ class DirectRimeBackend(context: Context) : InputEngine {
             override fun beginBinding(generation: Long) = begin(generation)
         },
     )
+    private val interactionTargets = DirectRimeInteractionTargets(
+        object : DirectRimeInteractionTargets.Owner {
+            override val acceptsInput get() = this@DirectRimeBackend.acceptsInput
+            override val inputSession get() = this@DirectRimeBackend.inputSession
+            override val snapshot get() = this@DirectRimeBackend.snapshot
+            override val candidateActionContext get() = this@DirectRimeBackend.candidateActionContext
+            override val candidateTabActionContext get() = this@DirectRimeBackend.candidateTabActionContext
+            override val started get() = this@DirectRimeBackend.started
+            override val maintenance get() = this@DirectRimeBackend.maintenance
+            override val candidateVersion get() = publicationState.candidateVersion
+            override val preeditMode get() = config.preeditMode
+            override val clientPreeditText get() = clientPreeditCached.toString()
+            override fun rawInput(value: Snapshot) = Native.rawInput(value.generation, value.revision)
+            override fun restoreClientCursor(generation: Long) {
+                events.offer(listOf(FcitxEvent.ClientPreeditEvent(clientPreeditCached).apply { inputSession = generation }))
+            }
+            override fun moveRawCursor(target: Int) = act(9, target)?.ready == true
+        },
+    )
     override val acceptsInput get() = keyGate.canProcess()
     override val inputMethodEntryCached get() = publicationState.inputMethodEntryCached
     override val statusAreaActionsCached get() = publicationState.statusAreaActionsCached
@@ -468,16 +487,12 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val statisticsSource = if (action == 1 || action == 11) currentCoroutineContext()[InputStatisticsSource] else null
         val diagnosticTask = if (BuildConfig.INPUT_DIAGNOSTICS)
             currentCoroutineContext()[InputDiagnostics.ServiceTask] else null
-        if (!acceptsInput || expected.generation != inputSession ||
-            (candidateContext != null && candidateContext != candidateActionContext) ||
-            (tabContext != null && tabContext != candidateTabActionContext)) return null
+        if (!interactionTargets.admitsAction(expected, candidateContext, tabContext)) return null
         val queuedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
         events.awaitCapacity()
         val admittedAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
         return onOwner {
-            if (expected.generation != inputSession || snapshot?.revision != expected.revision ||
-                (candidateContext != null && candidateContext != candidateActionContext) ||
-                (tabContext != null && tabContext != candidateTabActionContext)) {
+            if (!interactionTargets.actionStillCurrent(expected, candidateContext, tabContext)) {
                 if (action == 1 || action == 11)
                     android.util.Log.i("RimeInputTiming", "select_rejected generation=${expected.generation} service_task=${diagnosticTask?.id ?: 0} reason=stale_snapshot")
                 null
@@ -499,35 +514,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
         idx >= 0 && performAction(if (global) 11 else 1, idx, expected)?.ready == true
     override suspend fun isEmpty() = onOwner { snapshot?.preedit.isNullOrEmpty() }
     override suspend fun reset() { onOwner { act(0) } }
-    override suspend fun moveCursor(position: Int) { onOwner { moveCursorOnOwner(position, inputSession, null) } }
+    override suspend fun moveCursor(position: Int) { onOwner { interactionTargets.moveCursor(position, inputSession, null) } }
     override suspend fun moveCursorIfCurrent(position: Int, expectedSession: Long, expectedPreedit: String) =
-        onOwner { moveCursorOnOwner(position, expectedSession, expectedPreedit) }
-
-    private fun moveCursorOnOwner(position: Int, expectedSession: Long, expectedPreedit: String?): Boolean {
-        val value = snapshot ?: return false
-        if (!started || maintenance || !value.ready || value.generation != inputSession || expectedSession != inputSession)
-            return false
-        fun restoreClientCursor() {
-            events.offer(listOf(FcitxEvent.ClientPreeditEvent(clientPreeditCached).apply { inputSession = value.generation }))
-        }
-        // CommitPreview is a prediction, not an editable representation of raw input.
-        if (config.preeditMode != "ComposingText" ||
-            (expectedPreedit != null && expectedPreedit != clientPreeditCached.toString())) {
-            restoreClientCursor()
-            return false
-        }
-        val raw = Native.rawInput(value.generation, value.revision)
-        val target = raw?.let { preeditCursorToRawBytes(value.preedit, value.cursorUtf16, it.text, it.caretBytes, position) }
-        if (raw == null || target == null) {
-            restoreClientCursor()
-            return false
-        }
-        if (target == raw.caretBytes) {
-            restoreClientCursor()
-            return true
-        }
-        return act(9, target)?.ready == true
-    }
+        onOwner { interactionTargets.moveCursor(position, expectedSession, expectedPreedit) }
     override suspend fun getCandidates(offset: Int, limit: Int): Array<CandidateWord> {
         val expected = snapshot ?: return emptyArray()
         // Snapshot revisions also advance on unhandled key-up. Only cancel a
@@ -539,8 +528,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         if (offset < 0 || offset > Int.MAX_VALUE - count) return emptyArray()
         return readCandidatePage(offset, count) { start, size ->
             onOwner {
-                if (!started || maintenance || expected.generation != inputSession ||
-                    publicationState.candidateVersion != expectedVersion) return@onOwner null
+                if (!interactionTargets.candidatePageStillCurrent(expected, expectedVersion)) return@onOwner null
                 trace("rime.direct.candidate_batch") {
                     Native.candidates(expected.generation, start, size).toList().chunked(2)
                         .mapIndexed { index, word ->
