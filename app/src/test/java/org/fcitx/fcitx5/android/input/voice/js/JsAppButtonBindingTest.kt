@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.voice.js
 
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.action.ButtonAction
 import org.fcitx.fcitx5.android.input.action.JsAppButtonAction
 import org.junit.Assert.assertEquals
@@ -21,6 +22,8 @@ class JsAppButtonBindingTest {
         action as JsAppButtonAction
         assertEquals("js:youdao-free-translate", action.pluginId)
         assertEquals("youdao_translate", action.appId)
+        assertEquals(R.drawable.ic_translate_24, action.defaultIcon)
+        assertEquals("toolbar.js_tools", action.iconSlot)
     }
 
     @Test fun malformedOrUnnamespacedIdsCannotBecomeJsAppActions() {
