@@ -25,6 +25,7 @@ import org.robolectric.util.ReflectionHelpers
 class CandidateSelectionQueueTest {
     @Test fun queuedTapKeepsItsDisplayedVersionAndItsNativeIndexOrigin() = runBlocking {
         val backend = DirectRimeBackend(RuntimeEnvironment.getApplication())
+        val publicationState: DirectRimePublicationState = ReflectionHelpers.getField(backend, "publicationState")
         FcitxDaemonTestShadow.install(CandidateQueueDaemonDelegate(backend))
         val owner: ExecutorCoroutineDispatcher = ReflectionHelpers.getField(backend, "owner")
         val service = Robolectric.buildService(FcitxInputMethodService::class.java).get()
@@ -51,7 +52,7 @@ class CandidateSelectionQueueTest {
             ReflectionHelpers.setField(service, "fcitx", connection)
 
             fun displayedTarget(): CandidateSelectionTarget {
-                val event: FcitxEvent.PagedCandidateEvent = ReflectionHelpers.getField(backend, "candidateEventCached")
+                val event: FcitxEvent.PagedCandidateEvent = ReflectionHelpers.getField(publicationState, "candidateEventCached")
                 return requireNotNull(event.data.candidates[0].selectionTarget)
             }
             backend.sendKey('n', 0u, 0, false, 0)

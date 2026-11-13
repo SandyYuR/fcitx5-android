@@ -106,10 +106,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private var schemas = emptyList<Pair<String, String>>()
     private var optionRows = emptyList<List<String>>()
     private var optionsRevision = Long.MIN_VALUE
-    private var publishedGeneration = Long.MIN_VALUE
-    private var candidateEventCached: FcitxEvent<*>? = null
-    @Volatile private var candidateVersion = 0L
-    override val candidateActionContext get() = CandidateActionContext(inputSession, candidateVersion)
+    override val candidateActionContext get() = CandidateActionContext(inputSession, publicationState.candidateVersion)
     override val candidateTabActionContext get() = snapshot?.let {
         CandidateTabActionContext(it.generation, it.tabsRevision)
     } ?: CandidateTabActionContext(inputSession, 0)
@@ -120,16 +117,15 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private val statusHintLifetime = StatusHintLifetime()
     private var statusHintGeneration = 0L
     private val inputMethodEntryCache = DirectRimeInputMethodEntryCache()
+    private val publicationState = DirectRimePublicationState(
+        entry(null), ::buildStatusActions, SystemClock::elapsedRealtimeNanos,
+    )
     @Volatile private var maintenance = false
     override val acceptsInput get() = keyGate.canProcess()
-    @Volatile override var inputMethodEntryCached = entry(null)
-        private set
-    @Volatile override var statusAreaActionsCached = emptyArray<Action>()
-        private set
-    @Volatile override var clientPreeditCached = FormattedText.Empty
-        private set
-    @Volatile override var inputPanelCached = FcitxEvent.InputPanelEvent.Data()
-        private set
+    override val inputMethodEntryCached get() = publicationState.inputMethodEntryCached
+    override val statusAreaActionsCached get() = publicationState.statusAreaActionsCached
+    override val clientPreeditCached get() = publicationState.clientPreeditCached
+    override val inputPanelCached get() = publicationState.inputPanelCached
 
     init {
         // Emission is independent of the native owner. A slow UI never drops commits
@@ -342,17 +338,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
         appliedNoLearning = null
         forwardedKeys.clear()
         clearStatusHint()
-        clientPreeditCached = FormattedText.Empty
-        inputPanelCached = FcitxEvent.InputPanelEvent.Data()
-        candidateEventCached = null
-        candidateVersion++
-        publishedGeneration = Long.MIN_VALUE
+        val batch = publicationState.clearBinding(generation)
         keyGate.resolve(generation, false)
-        events.offer(listOf(
-            FcitxEvent.ClientPreeditEvent(FormattedText.Empty),
-            FcitxEvent.InputPanelEvent(inputPanelCached),
-            FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data.Empty)
-        ).onEach { it.inputSession = generation })
+        events.offer(batch)
         android.util.Log.i("RimeLifecycle", "binding_inactive generation=$generation native_create=false")
     }
     private fun act(action: Int, index: Int = 0, value: String = "", forceCandidates: Boolean = false,
@@ -383,10 +371,6 @@ class DirectRimeBackend(context: Context) : InputEngine {
         return InputOperationStatistics(source.epoch, previous.schema, previous.schemaName,
             result.rawInputLength + 1, result.inputWasCommand, result.preedit.isNotEmpty(), wallTime, monotonicTime)
     }
-    private fun formatted(text: String, cursor: Int = text.length, underline: Boolean = false) =
-        if (text.isEmpty()) FormattedText.Empty else FormattedText(arrayOf(text),
-            intArrayOf(if (underline) TextFormatFlag.Underline.flag else 0), cursor.coerceIn(0, text.length))
-
     private fun publish(value: Snapshot, release: Boolean = false, forceCandidates: Boolean = false,
                         statistics: InputOperationStatistics? = null, statisticsKey: Int? = null) {
         if (value.generation != inputSession || value.gate == 3) return
@@ -396,7 +380,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         // Keep the new revision for subsequent selection, but avoid repacking unchanged UI arrays.
         // A handled release can invalidate lazy candidate tails even if the visible page is equal.
         if (release && value.isUnchangedRelease(previous)) return
-        val newSession = publishedGeneration != value.generation
+        val newSession = publicationState.isNewSession(value.generation)
         val modeChanged = !newSession && previous?.ready == true && value.ready &&
             (previous.schema != value.schema || previous.ascii != value.ascii)
         if (modeChanged && !directInput) {
@@ -422,55 +406,22 @@ class DirectRimeBackend(context: Context) : InputEngine {
             startupError,
             statusHintLifetime.id,
         )
-        val ime = entry(value)
-        val imeChanged = ime != inputMethodEntryCached
-        val statusChanged = newSession || optionsChanged || imeChanged || statusAreaActionsCached.isEmpty()
-        val actions = if (statusChanged) DirectRimeStatusMenu.build(
-            DirectRimeStatusMenu.State(value.schema, value.schemaName, value.ascii),
-            schemas,
-            optionRows,
-            DirectRimeStatusMenu.Labels(
-                context.getString(R.string.direct_rime_ascii_mode),
-                context.getString(R.string.direct_rime_chinese_mode),
-            ),
-        ) else statusAreaActionsCached
-        val clientChanged = newSession || client != clientPreeditCached
-        val panelChanged = newSession || panel != inputPanelCached
-        clientPreeditCached = client
-        inputPanelCached = panel
-        inputMethodEntryCached = ime
-        statusAreaActionsCached = actions
-        val batch = mutableListOf<FcitxEvent<*>>()
-        if (statistics != null && statisticsKey != null && value.ready)
-            batch += FcitxEvent.StatisticsKeyEvent(statistics, statisticsKey)
-        if (value.commit.isNotEmpty()) batch += FcitxEvent.CommitStringEvent(FcitxEvent.CommitStringEvent.Data(value.commit, -1)).apply {
-            commitProducedNanos = SystemClock.elapsedRealtimeNanos()
-            this.statistics = statistics
-        }
-        if (clientChanged) batch += FcitxEvent.ClientPreeditEvent(client)
-        if (panelChanged) batch += FcitxEvent.InputPanelEvent(panel)
-        val candidates = DirectRimePresentation.candidates(value)
-        val candidateEvent = DirectRimePresentation.candidateEvent(value, pagingMode, candidates)
-        // An unchanged first page can hide a changed tail of a lazy translation.
-        // Keep handled keys/actions and composition changes invalidating expanded pages.
-        val invalidateCandidates = newSession || value.handled || optionsChanged || previous?.preedit != value.preedit ||
-            previous?.cursorBytes != value.cursorBytes || candidateEvent != candidateEventCached
-        if (invalidateCandidates) candidateVersion++
-        val candidateContext = CandidateActionContext(value.generation, candidateVersion)
-        candidates.forEachIndexed { index, candidate ->
-            // The native snapshot contains the current Rime page, even when a UI
-            // chooses a different presentation mode. Keep that source identity.
-            candidate.selectionTarget = CandidateSelectionTarget(candidateContext, index, global = false)
-        }
-        candidateEvent.candidateActionContext = candidateContext
-        if (invalidateCandidates || forceCandidates) batch += candidateEvent
-        candidateEventCached = candidateEvent
-        if (imeChanged) batch += FcitxEvent.IMChangeEvent(ime)
-        if (statusChanged) batch += FcitxEvent.StatusAreaEvent(FcitxEvent.StatusAreaEvent.Data(actions, ime))
-        batch.forEach { it.inputSession = value.generation }
-        publishedGeneration = value.generation
+        val batch = publicationState.buildBatch(
+            value, previous, client, panel, entry(value), pagingMode, optionsChanged,
+            forceCandidates, statistics, statisticsKey,
+        )
         if (batch.isNotEmpty()) events.offer(batch)
     }
+
+    private fun buildStatusActions(value: Snapshot): Array<Action> = DirectRimeStatusMenu.build(
+        DirectRimeStatusMenu.State(value.schema, value.schemaName, value.ascii),
+        schemas,
+        optionRows,
+        DirectRimeStatusMenu.Labels(
+            context.getString(R.string.direct_rime_ascii_mode),
+            context.getString(R.string.direct_rime_chinese_mode),
+        ),
+    )
 
     private fun clearStatusHint() {
         statusHintJob?.cancel()
@@ -507,11 +458,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
             statusHintLifetime.clear()
             if (!started || generation != inputSession) return@launch
             // Expire only the presentation text, without refreshing native state or replaying commits.
-            val panel = inputPanelCached.copy(auxUp = FormattedText.Empty, statusHintId = 0)
-            if (panel != inputPanelCached) {
-                inputPanelCached = panel
-                events.offer(listOf(FcitxEvent.InputPanelEvent(panel).apply { inputSession = generation }))
-            }
+            val batch = publicationState.expireStatusHint(generation)
+            if (batch.isNotEmpty()) events.offer(batch)
         }
     }
     private fun entry(value: Snapshot?): InputMethodEntry {
@@ -520,8 +468,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             context.getString(R.string.direct_rime_ime_name))
     }
     private fun showUnavailable(message: String) {
-        inputPanelCached = FcitxEvent.InputPanelEvent.Data(FormattedText.Empty, formatted(message), FormattedText.Empty, emptyArray())
-        events.offer(listOf(FcitxEvent.InputPanelEvent(inputPanelCached)))
+        events.offer(publicationState.showUnavailable(message))
     }
 
     override suspend fun sendKey(sym: Int, states: UInt, code: Int, up: Boolean, timestamp: Int) {
@@ -649,14 +596,14 @@ class DirectRimeBackend(context: Context) : InputEngine {
         // Snapshot revisions also advance on unhandled key-up. Only cancel a
         // page when a candidate invalidation was actually published, otherwise
         // Paging would lose its load without receiving a replacement refresh.
-        val expectedVersion = candidateVersion
+        val expectedVersion = publicationState.candidateVersion
         val selectionContext = CandidateActionContext(expected.generation, expectedVersion)
         val count = limit.coerceIn(1, 256)
         if (offset < 0 || offset > Int.MAX_VALUE - count) return emptyArray()
         return readCandidatePage(offset, count) { start, size ->
             onOwner {
                 if (!started || maintenance || expected.generation != inputSession ||
-                    candidateVersion != expectedVersion) return@onOwner null
+                    publicationState.candidateVersion != expectedVersion) return@onOwner null
                 trace("rime.direct.candidate_batch") {
                     Native.candidates(expected.generation, start, size).toList().chunked(2)
                         .mapIndexed { index, word ->
@@ -781,7 +728,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }
         try { onOwner {
             clearBinding(token)
-            statusAreaActionsCached = emptyArray()
+            publicationState.clearStatusActions()
             events.offer(listOf(FcitxEvent.StatusAreaEvent(
                 FcitxEvent.StatusAreaEvent.Data(statusAreaActionsCached, inputMethodEntryCached)
             ).apply { inputSession = token }))
@@ -931,7 +878,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         optionRows = emptyList()
         optionsRevision = Long.MIN_VALUE
         inputMethodEntryCache.clear()
-        statusAreaActionsCached = emptyArray()
+        publicationState.clearStatusActions()
     }
     private fun prepareMaintenanceRestart() {
         if (!directBootMode) {

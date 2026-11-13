@@ -29,6 +29,8 @@ class DirectRimePublicationContractTest {
     private lateinit var native: PublicationNative
     private lateinit var initial: Snapshot
     private var generation = 0L
+    private val publicationState: DirectRimePublicationState
+        get() = ReflectionHelpers.getField(backend, "publicationState")
 
     @Before fun prepare() {
         backend = DirectRimeBackend(RuntimeEnvironment.getApplication())
@@ -122,10 +124,10 @@ class DirectRimePublicationContractTest {
     }
 
     @Test fun staleGenerationAndExpiredGateLeavePublicationStateUntouched() = runBlocking {
-        ReflectionHelpers.setField(backend, "candidateVersion", 13L)
-        ReflectionHelpers.setField(backend, "publishedGeneration", generation)
+        ReflectionHelpers.setField(publicationState, "candidateVersion", 13L)
+        ReflectionHelpers.setField(publicationState, "publishedGeneration", generation)
         val cachedCandidate = FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data.Empty)
-        ReflectionHelpers.setField(backend, "candidateEventCached", cachedCandidate)
+        ReflectionHelpers.setField(publicationState, "candidateEventCached", cachedCandidate)
         val client = backend.clientPreeditCached
         val panel = backend.inputPanelCached
         val ime = backend.inputMethodEntryCached
@@ -142,8 +144,8 @@ class DirectRimePublicationContractTest {
         assertNull(unexpected.await())
         assertSame(initial, ReflectionHelpers.getField<Snapshot>(backend, "snapshot"))
         assertEquals(13L, backend.candidateActionContext.version)
-        assertEquals(generation, ReflectionHelpers.getField<Long>(backend, "publishedGeneration"))
-        assertSame(cachedCandidate, ReflectionHelpers.getField<FcitxEvent<*>>(backend, "candidateEventCached"))
+        assertEquals(generation, ReflectionHelpers.getField<Long>(publicationState, "publishedGeneration"))
+        assertSame(cachedCandidate, ReflectionHelpers.getField<FcitxEvent<*>>(publicationState, "candidateEventCached"))
         assertSame(client, backend.clientPreeditCached)
         assertSame(panel, backend.inputPanelCached)
         assertSame(ime, backend.inputMethodEntryCached)
@@ -151,10 +153,10 @@ class DirectRimePublicationContractTest {
     }
 
     @Test fun unchangedReleaseAdvancesOnlyTheNativeSnapshot() = runBlocking {
-        ReflectionHelpers.setField(backend, "candidateVersion", 21L)
-        ReflectionHelpers.setField(backend, "publishedGeneration", generation)
+        ReflectionHelpers.setField(publicationState, "candidateVersion", 21L)
+        ReflectionHelpers.setField(publicationState, "publishedGeneration", generation)
         val cachedCandidate = FcitxEvent.PagedCandidateEvent(FcitxEvent.PagedCandidateEvent.Data.Empty)
-        ReflectionHelpers.setField(backend, "candidateEventCached", cachedCandidate)
+        ReflectionHelpers.setField(publicationState, "candidateEventCached", cachedCandidate)
         val client = backend.clientPreeditCached
         val panel = backend.inputPanelCached
         val ime = backend.inputMethodEntryCached
@@ -171,8 +173,8 @@ class DirectRimePublicationContractTest {
         assertSame(next, ReflectionHelpers.getField<Snapshot>(backend, "snapshot"))
         assertEquals(2L, ReflectionHelpers.getField<Snapshot>(backend, "snapshot").revision)
         assertEquals(21L, backend.candidateActionContext.version)
-        assertEquals(generation, ReflectionHelpers.getField<Long>(backend, "publishedGeneration"))
-        assertSame(cachedCandidate, ReflectionHelpers.getField<FcitxEvent<*>>(backend, "candidateEventCached"))
+        assertEquals(generation, ReflectionHelpers.getField<Long>(publicationState, "publishedGeneration"))
+        assertSame(cachedCandidate, ReflectionHelpers.getField<FcitxEvent<*>>(publicationState, "candidateEventCached"))
         assertSame(client, backend.clientPreeditCached)
         assertSame(panel, backend.inputPanelCached)
         assertSame(ime, backend.inputMethodEntryCached)
