@@ -27,6 +27,7 @@ class YoudaoFreeTranslateAppTest {
     private class Harness(
         script: String,
         private val selection: String = "",
+        private val rejectPreview: Boolean = false,
     ) : AutoCloseable {
         private val js = JsVoiceRuntime.create()
         val editorCalls = mutableListOf<Pair<String, String>>()
@@ -42,6 +43,7 @@ class YoudaoFreeTranslateAppTest {
                 val method = args[0].toString()
                 val value = args[1].toString()
                 editorCalls += method to value
+                if (method == "setComposition" && rejectPreview) error("Editor rejected preview")
                 if (method == "getSelection") selection else null
             }
             js.function("__n_appHttp") { args ->
@@ -103,10 +105,11 @@ class YoudaoFreeTranslateAppTest {
         Harness(script, selection = "hello").use { harness ->
             val opened = harness.invoke("open")
             assertTrue(opened.containsKey("layout"))
-            assertTrue(opened.toString().contains("翻译方向"))
-            assertTrue(opened.toString().contains("仅点击"))
+            assertFalse(opened.toString().contains("翻译方向"))
+            assertFalse(opened.toString().contains("仅点击"))
             assertTrue(opened.toString().contains("原文"))
             assertTrue(opened.toString().contains("\"maxWidth\":380"))
+            assertTrue(opened.toString().contains("\"maxHeight\":440"))
             assertTrue(harness.httpRequests.isEmpty())
             assertEquals(listOf("getSelection" to ""), harness.editorCalls)
 
@@ -119,10 +122,19 @@ class YoudaoFreeTranslateAppTest {
             assertEquals("GET", harness.httpRequests.single().text("method"))
             assertEquals("setComposition" to "你好", harness.editorCalls.last())
             assertFalse(harness.editorCalls.any { it.first == "commit" })
-            assertTrue(translated.toString().contains("译文 · 长按可选择复制"))
+            assertTrue(translated.toString().contains("\"id\":\"input\""))
+            assertTrue(translated.toString().contains("\"label\":\"原文\""))
+            assertTrue(translated.toString().contains("\"value\":\"hello\""))
+            assertTrue(translated.toString().contains("\"label\":\"译文\""))
+            assertTrue(translated.toString().contains("\"value\":\"你好\""))
             assertTrue(translated.toString().contains("\"readOnly\":true"))
-            assertTrue(translated.toString().contains("use_result"))
-            assertTrue(translated.toString().contains("替换选中内容"))
+            assertTrue(translated.toString().contains("\"id\":\"use_result\""))
+            assertTrue(translated.toString().contains("\"label\":\"作原文\""))
+            assertTrue(translated.toString().contains("\"label\":\"再译\""))
+            assertTrue(translated.toString().contains("\"label\":\"替换\""))
+            assertFalse(translated.toString().contains("\"icon\":\"send\""))
+            assertFalse(translated.toString().contains("\"icon\":\"check\""))
+            assertFalse(translated.toString().contains("译文已生成"))
 
             val confirmed = harness.invoke("confirm", input = "hello", target = "zh-CHS")
             assertTrue(confirmed["close"]!!.jsonPrimitive.boolean)
@@ -131,31 +143,53 @@ class YoudaoFreeTranslateAppTest {
     }
 
     @Test
-    fun resultCanBecomeTheNextOriginalWithoutAnotherRequestOrACommit() = runBlocking {
-        Harness(script).use { harness ->
-            harness.invoke("open")
+    fun rejectedTemporaryPreviewKeepsTranslationVisibleAndConfirmable() = runBlocking {
+        Harness(script, rejectPreview = true).use { harness ->
             val translated = harness.invoke("translate", input = "hello", target = "zh-CHS")
-            assertTrue(translated.toString().contains("插入译文"))
 
-            val reused = harness.invoke("use_result", input = "hello", target = "zh-CHS")
-            assertEquals(1, harness.httpRequests.size)
-            assertEquals("clearComposition" to "", harness.editorCalls.last())
-            assertFalse(harness.editorCalls.any { it.first == "commit" })
-            assertTrue(reused.toString().contains("\"value\":\"你好\""))
-            assertFalse(reused.toString().contains("\"id\":\"result\""))
+            assertEquals("setComposition" to "你好", harness.editorCalls.last())
+            assertTrue(translated.toString().contains("\"label\":\"原文\""))
+            assertTrue(translated.toString().contains("\"value\":\"hello\""))
+            assertTrue(translated.toString().contains("\"label\":\"译文\""))
+            assertTrue(translated.toString().contains("\"value\":\"你好\""))
+            assertTrue(translated.toString().contains("当前输入框不支持临时预览"))
+            assertTrue(translated.toString().contains("\"id\":\"confirm\""))
+            assertFalse(translated.toString().contains("翻译失败"))
+
+            val confirmed = harness.invoke("confirm", input = "hello", target = "zh-CHS")
+            assertTrue(confirmed["close"]!!.jsonPrimitive.boolean)
+            assertEquals("commit" to "你好", harness.editorCalls.last())
         }
     }
 
     @Test
-    fun closeClearsUnconfirmedPreview() = runBlocking {
+    fun originalAndTranslationAreBothVisibleAfterTranslation() = runBlocking {
         Harness(script).use { harness ->
-            harness.invoke("translate", input = "hello", target = "zh-CHS")
+            harness.invoke("open")
+            val translated = harness.invoke("translate", input = "hello", target = "zh-CHS")
+            assertTrue(translated.toString().contains("\"label\":\"插入\""))
+            assertEquals(1, harness.httpRequests.size)
             assertEquals("setComposition" to "你好", harness.editorCalls.last())
-
-            val closed = harness.invoke("close", input = "hello", target = "zh-CHS")
-            assertTrue(closed["close"]!!.jsonPrimitive.boolean)
-            assertEquals("clearComposition" to "", harness.editorCalls.last())
             assertFalse(harness.editorCalls.any { it.first == "commit" })
+            assertTrue(translated.toString().contains("\"value\":\"hello\""))
+            assertTrue(translated.toString().contains("\"value\":\"你好\""))
+            assertTrue(translated.toString().contains("\"readOnly\":true"))
+            assertTrue(translated.toString().contains("use_result"))
+        }
+    }
+
+    @Test
+    fun everyCloseAliasClearsUnconfirmedPreview() = runBlocking {
+        for (event in listOf("close", "cancel", "dismiss")) {
+            Harness(script).use { harness ->
+                harness.invoke("translate", input = "hello", target = "zh-CHS")
+                assertEquals("setComposition" to "你好", harness.editorCalls.last())
+
+                val closed = harness.invoke(event, input = "你好", target = "zh-CHS")
+                assertTrue(closed["close"]!!.jsonPrimitive.boolean)
+                assertEquals("clearComposition" to "", harness.editorCalls.last())
+                assertFalse(harness.editorCalls.any { it.first == "commit" })
+            }
         }
     }
 
@@ -164,17 +198,64 @@ class YoudaoFreeTranslateAppTest {
         suspend fun verifyChanged(input: String, target: String) {
             Harness(script).use { harness ->
                 harness.invoke("translate", input = "hello", target = "zh-CHS")
-                harness.invoke("input", input = input, target = target)
-                assertEquals("clearComposition" to "", harness.editorCalls.last())
-
                 val rejected = harness.invoke("confirm", input = input, target = target)
+                assertEquals("clearComposition" to "", harness.editorCalls.last())
                 assertTrue(rejected.toString().contains("请重新翻译"))
                 assertFalse(harness.editorCalls.any { it.first == "commit" })
             }
         }
 
         verifyChanged(input = "changed", target = "zh-CHS")
-        verifyChanged(input = "hello", target = "ja")
+        verifyChanged(input = "你好", target = "ja")
+    }
+
+    @Test
+    fun translatedTextCanBeTranslatedAgainToAnotherLanguage() = runBlocking {
+        Harness(script).use { harness ->
+            harness.invoke("translate", input = "hello", target = "zh-CHS")
+            val reused = harness.invoke("use_result", input = "hello", target = "zh-CHS")
+            assertTrue(reused.toString().contains("\"value\":\"你好\""))
+            assertFalse(reused.toString().contains("\"id\":\"result\""))
+            harness.httpResponse = buildJsonObject {
+                put("status", 200)
+                put("body", """{"errorCode":"0","translation":["こんにちは"]}""")
+            }.toString()
+
+            val second = harness.invoke("translate", input = "你好", target = "ja")
+
+            assertEquals(2, harness.httpRequests.size)
+            assertEquals(
+                "https://aidemo.youdao.com/trans?from=auto&to=ja&q=%E4%BD%A0%E5%A5%BD",
+                harness.httpRequests.last().text("url"),
+            )
+            assertTrue(second.toString().contains("\"value\":\"こんにちは\""))
+            assertEquals("setComposition" to "こんにちは", harness.editorCalls.last())
+
+            val confirmed = harness.invoke("confirm", input = "你好", target = "ja")
+            assertTrue(confirmed["close"]!!.jsonPrimitive.boolean)
+            assertEquals("commit" to "こんにちは", harness.editorCalls.last())
+        }
+    }
+
+    @Test
+    fun languagePrefixOverridesOnlyTheRequestAndResultStillConfirms() = runBlocking {
+        Harness(script).use { harness ->
+            harness.httpResponse = buildJsonObject {
+                put("status", 200)
+                put("body", """{"errorCode":"0","translation":["Hello"]}""")
+            }.toString()
+
+            val translated = harness.invoke("translate", input = "英 你好", target = "ja")
+            assertEquals(
+                "https://aidemo.youdao.com/trans?from=auto&to=en&q=%E4%BD%A0%E5%A5%BD",
+                harness.httpRequests.single().text("url"),
+            )
+            assertTrue(translated.toString().contains("\"value\":\"Hello\""))
+
+            val confirmed = harness.invoke("confirm", input = "英 你好", target = "ja")
+            assertTrue(confirmed["close"]!!.jsonPrimitive.boolean)
+            assertEquals("commit" to "Hello", harness.editorCalls.last())
+        }
     }
 
     @Test
@@ -197,6 +278,19 @@ class YoudaoFreeTranslateAppTest {
     }
 
     @Test
+    fun unsupportedDemoTargetsAreNotOffered() = runBlocking {
+        Harness(script).use { harness ->
+            val opened = harness.invoke("open", defaultTarget = "zh-CHT")
+            val rendered = opened.toString()
+
+            assertFalse(rendered.contains("繁体中文"))
+            assertFalse(rendered.contains("意大利语"))
+            assertTrue(rendered.contains("\"id\":\"target\""))
+            assertTrue(rendered.contains("\"value\":\"auto\""))
+        }
+    }
+
+    @Test
     fun errorResponseStaysInPanelWithoutPreviewOrCommit() = runBlocking {
         Harness(script).use { harness ->
             harness.httpResponse = buildJsonObject {
@@ -206,10 +300,33 @@ class YoudaoFreeTranslateAppTest {
 
             val result = harness.invoke("translate", input = "hello", target = "zh-CHS")
             assertEquals(1, harness.httpRequests.size)
-            assertTrue(result.toString().contains("请求受限"))
+            assertTrue(result.toString().contains("频率限制"))
+            assertTrue(result.toString().contains("不表示所选语言不受支持"))
             assertFalse(harness.editorCalls.any { it.first == "setComposition" })
             assertFalse(harness.editorCalls.any { it.first == "commit" })
             assertEquals("clearComposition" to "", harness.editorCalls.last())
+        }
+    }
+
+    @Test
+    fun bothHttpAndBodyRateLimitsHaveTheSameClearExplanation() = runBlocking {
+        val responses = listOf(
+            buildJsonObject { put("status", 411); put("body", "rate limited") }.toString(),
+            buildJsonObject {
+                put("status", 200)
+                put("body", """{"errorCode":411,"msg":"请求频率过快"}""")
+            }.toString(),
+        )
+        for (response in responses) {
+            Harness(script).use { harness ->
+                harness.httpResponse = response
+                val result = harness.invoke("translate", input = "hello", target = "zh-CHS")
+
+                assertTrue(result.toString().contains("频率限制"))
+                assertTrue(result.toString().contains("不表示所选语言不受支持"))
+                assertFalse(harness.editorCalls.any { it.first == "setComposition" })
+                assertFalse(harness.editorCalls.any { it.first == "commit" })
+            }
         }
     }
 }
