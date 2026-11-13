@@ -115,13 +115,16 @@ class DirectRimeBackend(context: Context) : InputEngine {
     } ?: CandidateTabActionContext(inputSession, 0)
     private val forwardedKeys = mutableSetOf<Pair<Int, Int>>()
     private var startupError = ""
-    private var statusHint = ""
-    private var statusHintJob: Job? = null
-    private val statusHintLifetime = StatusHintLifetime()
-    private var statusHintGeneration = 0L
     private val inputMethodEntryCache = DirectRimeInputMethodEntryCache()
     private val publicationState = DirectRimePublicationState(
         entry(null), ::buildStatusActions, SystemClock::elapsedRealtimeNanos,
+    )
+    private val statusHints = DirectRimeStatusHintScheduler(
+        engineScope, SystemClock::uptimeMillis, { started && it == inputSession },
+        { generation ->
+            val batch = publicationState.expireStatusHint(generation)
+            if (batch.isNotEmpty()) events.offer(batch)
+        },
     )
     @Volatile private var maintenance = false
     override val acceptsInput get() = keyGate.canProcess()
@@ -196,7 +199,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             keyGate.stop()
         },
         finalize = {
-            clearStatusHint()
+            statusHints.clear()
             try { if (started) Native.stop() }
             finally { started = false; snapshot = null }
         },
@@ -340,7 +343,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         snapshot = null
         appliedNoLearning = null
         forwardedKeys.clear()
-        clearStatusHint()
+        statusHints.clear()
         val batch = publicationState.clearBinding(generation)
         keyGate.resolve(generation, false)
         events.offer(batch)
@@ -387,10 +390,10 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val modeChanged = !newSession && previous?.ready == true && value.ready &&
             (previous.schema != value.schema || previous.ascii != value.ascii)
         if (modeChanged && !directInput) {
-            showStatusHint(value, if (previous!!.schema != value.schema) value.schemaName.ifEmpty { value.schema } else
+            statusHints.show(value.generation, if (previous!!.schema != value.schema) value.schemaName.ifEmpty { value.schema } else
                 context.getString(if (value.ascii) R.string.direct_rime_ascii_mode else R.string.direct_rime_chinese_mode))
         } else if (newSession || !value.ready || value.preedit.isNotEmpty() || value.commit.isNotEmpty()) {
-            clearStatusHint()
+            statusHints.clear()
         }
         val optionsChanged = value.ready && value.optionsRevision != optionsRevision
         if (value.ready) {
@@ -405,9 +408,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
             config.preeditMode,
             directInput,
             bindingUsable(value),
-            statusHint,
+            statusHints.text,
             startupError,
-            statusHintLifetime.id,
+            statusHints.id,
         )
         val batch = publicationState.buildBatch(
             value, previous, client, panel, entry(value), pagingMode, optionsChanged,
@@ -426,44 +429,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
         ),
     )
 
-    private fun clearStatusHint() {
-        statusHintJob?.cancel()
-        statusHintJob = null
-        statusHint = ""
-        statusHintLifetime.clear()
-        statusHintGeneration = 0
-    }
-
-    private fun showStatusHint(value: Snapshot, text: String) {
-        clearStatusHint()
-        statusHint = text
-        statusHintGeneration = value.generation
-        val id = statusHintLifetime.start(SystemClock.uptimeMillis())
-        scheduleStatusHintExpiry(value.generation, id)
-    }
-
     override suspend fun statusHintPresented(hintId: Long, frameUptimeMillis: Long) {
-        onOwner {
-            if (started && statusHintGeneration == inputSession &&
-                statusHintLifetime.presented(hintId, frameUptimeMillis.coerceAtMost(SystemClock.uptimeMillis()))) {
-                scheduleStatusHintExpiry(statusHintGeneration, hintId)
-            }
-        }
-    }
-
-    private fun scheduleStatusHintExpiry(generation: Long, hintId: Long) {
-        statusHintJob?.cancel()
-        statusHintJob = engineScope.launch {
-            delay(statusHintLifetime.remaining(SystemClock.uptimeMillis()))
-            if (statusHintLifetime.id != hintId) return@launch
-            statusHintJob = null
-            statusHint = ""
-            statusHintLifetime.clear()
-            if (!started || generation != inputSession) return@launch
-            // Expire only the presentation text, without refreshing native state or replaying commits.
-            val batch = publicationState.expireStatusHint(generation)
-            if (batch.isNotEmpty()) events.offer(batch)
-        }
+        onOwner { statusHints.presented(hintId, frameUptimeMillis) }
     }
     private fun entry(value: Snapshot?): InputMethodEntry {
         val ascii = value?.ascii == true || forwardsKeysDirectly()
@@ -489,7 +456,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             if (expected != inputSession || maintenance || !started) return@onOwner
             val ownerAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
             val bypass = forwardsKeysDirectly()
-            if (!up) clearStatusHint()
+            if (!up) statusHints.clear()
             val previous = snapshot
             val collectStatistics = !bypass && shouldCollectStatistics(statisticsSource, previous)
             val wallTime = if (collectStatistics) System.currentTimeMillis() else 0L
