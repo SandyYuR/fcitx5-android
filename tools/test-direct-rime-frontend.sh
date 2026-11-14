@@ -5,8 +5,20 @@ set -uo pipefail
 adb shell setprop debug.hwui.drawing_enabled true
 # The cold-start performance probe needs its own pinned full fixture and is run
 # by tools/input-perf/probe-cold-io.sh, not by this ordinary regression suite.
+frontend_test_classes=(
+  org.fcitx.fcitx5.android.core.DirectRimeFrontendTest
+  org.fcitx.fcitx5.android.ui.main.log.LogExportTest
+  org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapterViewTest
+  org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest
+  org.fcitx.fcitx5.android.input.candidates.CandidateTypefaceTest
+  org.fcitx.fcitx5.android.input.candidates.CandidateRenderingTest
+  org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeTest
+  org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest
+)
+printf -v frontend_test_filter '%s,' "${frontend_test_classes[@]}"
+frontend_test_filter=${frontend_test_filter%,}
 ./gradlew -PbuildABI=x86_64 \
-  -Pandroid.testInstrumentationRunnerArguments.class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest,org.fcitx.fcitx5.android.ui.main.log.LogExportTest,org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapterViewTest,org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest \
+  "-Pandroid.testInstrumentationRunnerArguments.class=$frontend_test_filter" \
   '-Pandroid.testInstrumentationRunnerArguments.notClass=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#diagnoseColdCandidateCore' \
   :app:connectedFxDebugAndroidTest
 test_result=$?

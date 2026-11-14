@@ -35,6 +35,9 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
+      - name: Test input performance tools without device access
+        run: python3 -m unittest discover -s tools/input-perf -p 'test_*.py' -v
+
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -98,6 +101,13 @@ jobs:
 
       - name: Build Debug APK
         run: ./gradlew :app:assembleFxDebug
+
+      - name: Compile the instrumentation-only cadence harness
+        run: |
+          target=app/src/androidTest/java/org/fcitx/fcitx5/android/core/CandidateTapTest.kt
+          test ! -e "$target"
+          cp tools/input-perf/CadenceCandidateTapTest.kt "$target"
+          ./gradlew :app:compileFxDebugAndroidTestKotlin
 
       - name: Android lint
         run: ./gradlew :app:lintFxDebug
