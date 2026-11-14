@@ -1,0 +1,14 @@
+{
+  "status": "pending",
+  "reason": "Publish recoverable source/history before deleting the temporary branch.",
+  "delete_branch": "perf/input-pipeline-20261113",
+  "expected_tip": "a3c9bea60ef409b93e3c506525a3f510b03bb9c6",
+  "delete_worktree": "/workspace/fcitx5-android-pipeline",
+  "retained": [
+    "fix/first-candidate-latency-20261112",
+    "report/wanxiang-retest-20261108",
+    "perf/pr35-default-comparison-20261114",
+    "default/docs/user branches"
+  ],
+  "performance_workflow_state": "disabled_manually"
+}

@@ -1,0 +1,103 @@
+{
+  "initial": [
+    {
+      "id": 14097055792,
+      "name": "direct-rime-frontend-android-results",
+      "size_in_bytes": 1360427,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097055792",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097055792/zip",
+      "expired": false,
+      "created_at": "2026-11-14T03:36:02Z",
+      "expires_at": "2026-12-14T03:27:51Z",
+      "updated_at": "2026-11-14T03:36:02Z",
+      "digest": "sha256:747a84bf39903c4ec2e785cae428d2cb4ae8f55c1aa124029860f2efc2b915e0",
+      "workflow_run": {
+        "id": 43551759674,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "8ee233bc7f75786fc36faff412a89d1a6ccca601"
+      }
+    },
+    {
+      "id": 14096382154,
+      "name": "direct-rime-android-smoke-results",
+      "size_in_bytes": 408216,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14096382154",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14096382154/zip",
+      "expired": false,
+      "created_at": "2026-11-14T03:31:30Z",
+      "expires_at": "2026-12-14T03:27:51Z",
+      "updated_at": "2026-11-14T03:31:30Z",
+      "digest": "sha256:d359c88bf8666be5c32e6327f3338720e4f3186fbdc25e0a6fcd3038df36e5f0",
+      "workflow_run": {
+        "id": 43551759674,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "8ee233bc7f75786fc36faff412a89d1a6ccca601"
+      }
+    },
+    {
+      "id": 14096107384,
+      "name": "direct-rime-arm64-debug",
+      "size_in_bytes": 4949284,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14096107384",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14096107384/zip",
+      "expired": false,
+      "created_at": "2026-11-14T03:30:01Z",
+      "expires_at": "2026-12-14T03:27:51Z",
+      "updated_at": "2026-11-14T03:30:01Z",
+      "digest": "sha256:20d4f760588a27fa720f2f6a451cc62af5a7912a6f34e70010c2f68fd8a4586c",
+      "workflow_run": {
+        "id": 43551759674,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "8ee233bc7f75786fc36faff412a89d1a6ccca601"
+      }
+    }
+  ],
+  "final": [
+    {
+      "id": 14097650670,
+      "name": "direct-rime-arm64-debug",
+      "size_in_bytes": 4949306,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097650670",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097650670/zip",
+      "expired": false,
+      "created_at": "2026-11-14T03:49:24Z",
+      "expires_at": "2026-12-14T03:47:00Z",
+      "updated_at": "2026-11-14T03:49:24Z",
+      "digest": "sha256:2facbd5c40da493086ff44ef63c6d44d2812227238eef9a3a1440ea6f7403f68",
+      "workflow_run": {
+        "id": 43553382736,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2"
+      }
+    },
+    {
+      "id": 14097526091,
+      "name": "direct-rime-android-smoke-results",
+      "size_in_bytes": 386344,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097526091",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097526091/zip",
+      "expired": false,
+      "created_at": "2026-11-14T03:49:49Z",
+      "expires_at": "2026-12-14T03:47:00Z",
+      "updated_at": "2026-11-14T03:49:49Z",
+      "digest": "sha256:678c31f233238d7dc0755661cc68f011826492c1be7b53ef47863a86ffb167b6",
+      "workflow_run": {
+        "id": 43553382736,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2"
+      }
+    }
+  ],
+  "final_complete": false,
+  "description": "Artifact identities at the archival checkpoint; final CI is still running. Only original XML/logcat and verification records are embedded; APKs are identified by these SHA256 records."
+}
