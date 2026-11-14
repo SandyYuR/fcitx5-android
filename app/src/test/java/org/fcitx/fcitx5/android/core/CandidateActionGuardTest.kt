@@ -25,6 +25,8 @@ import java.util.concurrent.atomic.AtomicLong
 class CandidateActionGuardTest {
     private lateinit var backend: DirectRimeBackend
     private lateinit var owner: ExecutorCoroutineDispatcher
+    private val publicationState: DirectRimePublicationState
+        get() = ReflectionHelpers.getField(backend, "publicationState")
     private val expected = CandidateActionContext(7, 20)
     private val expectedTab = CandidateTabActionContext(7, 30)
 
@@ -36,7 +38,7 @@ class CandidateActionGuardTest {
         backend = DirectRimeBackend(RuntimeEnvironment.getApplication())
         owner = ReflectionHelpers.getField(backend, "owner")
         ReflectionHelpers.getField<AtomicLong>(backend, "epoch").set(7)
-        ReflectionHelpers.setField(backend, "candidateVersion", 20L)
+        ReflectionHelpers.setField(publicationState, "candidateVersion", 20L)
         ReflectionHelpers.setField(backend, "started", true)
         ReflectionHelpers.setField(backend, "schemas", listOf("fixture" to "Fixture"))
         ReflectionHelpers.setField(backend, "snapshot", snapshot())
@@ -93,7 +95,7 @@ class CandidateActionGuardTest {
     }
 
     @Test fun candidateVersionIsRecheckedOnTheActualNativeOwner() = queuedChange(
-        { ReflectionHelpers.setField(backend, "candidateVersion", 21L) },
+        { ReflectionHelpers.setField(publicationState, "candidateVersion", 21L) },
         { backend.triggerCandidateActionIfCurrent(0, 0, false, expected) }
     )
 
