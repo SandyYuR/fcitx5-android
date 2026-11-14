@@ -32,7 +32,10 @@ class JsVoiceCapabilitiesTest {
             assertFalse(caps["http"]!!.jsonObject["stream"]!!.jsonPrimitive.boolean)
             assertFalse(caps["http"]!!.jsonObject["cancelStream"]!!.jsonPrimitive.boolean)
             assertTrue(caps["websocket"]!!.jsonObject["authorize"]!!.jsonPrimitive.boolean)
-            assertFalse(caps["websocket"]!!.jsonObject["onMessage"]!!.jsonPrimitive.boolean)
+            assertTrue(caps["websocket"]!!.jsonObject["onMessage"]!!.jsonPrimitive.boolean)
+            assertTrue(caps["websocket"]!!.jsonObject["onBinary"]!!.jsonPrimitive.boolean)
+            assertTrue(caps["websocket"]!!.jsonObject["onError"]!!.jsonPrimitive.boolean)
+            assertTrue(caps["websocket"]!!.jsonObject["onClose"]!!.jsonPrimitive.boolean)
             assertTrue(caps["settings"] is JsonNull)
         } finally { js.close() }
     }

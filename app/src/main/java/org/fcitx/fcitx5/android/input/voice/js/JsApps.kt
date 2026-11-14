@@ -11,6 +11,9 @@ import com.dokar.quickjs.QuickJs
 import com.dokar.quickjs.binding.asyncFunction
 import com.dokar.quickjs.binding.function
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.*
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
@@ -140,6 +143,42 @@ internal object JsApps {
         var configuredSecrets = emptyList<String>()
         val dialog = JsAppDialog(service, ::event, ::close)
 
+        /** WebSocket 入站帧先入队：OkHttp 回调线程不能直接碰引擎，消费协程负责串行投递。 */
+        private val wsEvents = Channel<WsInbound>(Channel.UNLIMITED)
+
+        /** 同一引擎上的 JS 调用必须串行：对话框事件与 WebSocket 回调都从这里过。 */
+        private val jsLock = Mutex()
+
+        /**
+         * App 会话的 WebSocket 传输。授权沿用 endpoint policy：connect 是同步的，没法在里边弹授权框，
+         * 所以插件必须先 await foxy.websocket.authorize(url)，这里只校验「已授权」。
+         */
+        private val ws = JsWebSocketTransport(
+            http = JsAppHttp.CLIENT,
+            authorizeUrl = { url ->
+                requirePermission("network.request")
+                val parsed = JsAppEndpointPolicy(spec.hosts, settings).checkUrl(url)
+                require(parsed.host.trimEnd('.') in JsVoiceHostPermissions.approvedHosts(spec.id)) {
+                    "Host is not authorized; call foxy.websocket.authorize first"
+                }
+                parsed
+            },
+            authorizeSend = { requirePermission("network.request") },
+            headers = { secretField, authHeader, authPrefix, headersJson ->
+                require(secretField.isBlank() || fields.any { it.key == secretField && it.isSecret }) {
+                    "Undeclared credential"
+                }
+                JsVoiceHeaders.build(
+                    secretField = secretField,
+                    secret = secretField.takeIf { it.isNotBlank() }?.let { JsVoiceSettingsStore.secret(spec.id, it) },
+                    authHeader = authHeader,
+                    authPrefix = authPrefix,
+                    headersJson = headersJson,
+                )
+            },
+            receive = { wsEvents.trySend(it) },
+        )
+
         fun start() {
             if (connection == null || token?.isCurrent() != true) return
             activeSession = this
@@ -174,6 +213,8 @@ internal object JsApps {
             js = engine
             withContext(Dispatchers.IO) {
                 JsVoiceStubNatives.install(engine, locale)
+                // 覆盖占位实现：App 会话现在有真实 WebSocket，授权与端点校验走 endpoint policy。
+                ws.install(engine)
                 installJsAppDelay(engine) { withContext(Dispatchers.Main.immediate) { ensureCurrent() } }
                 engine.asyncFunction("__n_appEditor") { args -> withContext(Dispatchers.Main.immediate) {
                     requireNotNull(editor).call(args.getOrNull(0).toString(), args.getOrNull(1).toString())
@@ -242,6 +283,38 @@ internal object JsApps {
                 settings = JsVoiceFields.currentValues(fields, JsVoiceSettingsStore.values(spec.id))
                 configuredSecrets = fields.filter { it.isSecret && JsVoiceSettingsStore.hasSecret(spec.id, it.key) }.map { it.key }
             }
+            scope.launch { consumeWebSocket() }
+        }
+
+        /**
+         * 把入站帧翻成 foxy.websocket.onMessage/onBinary/onError/onClose 的调用。
+         * 与语音会话的 plugin.onMessage 单入口不同：App 侧按种类分派，且没有处理器时静默丢弃。
+         */
+        private suspend fun consumeWebSocket() {
+            for (inbound in wsEvents) {
+                val engine = js ?: continue
+                val context = buildJsonObject {
+                    when (inbound) {
+                        is WsInbound.Text -> { put("kind", "message"); put("payload", inbound.text) }
+                        is WsInbound.Binary -> { put("kind", "binary"); put("payload", inbound.base64) }
+                        is WsInbound.Failed -> { put("kind", "error"); put("payload", inbound.message) }
+                        // foxy 的 onClose 第二个参数是 wasClean，不是关闭码。
+                        is WsInbound.Closed -> { put("kind", "close"); put("payload", inbound.code == 1000) }
+                    }
+                    put("socket", inbound.socketId)
+                }
+                try {
+                    jsLock.withLock {
+                        withContext(Dispatchers.IO) {
+                            JsVoiceInvoker.call({ engine.evaluate<String>(it) }, "ws", context.toString(), 180_000)
+                        }
+                    }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    // 单个回调抛错不该掐断后续帧，也不该顶掉对话框里的错误提示。
+                }
+            }
         }
 
         fun event(name: String, values: JsonObject) {
@@ -263,7 +336,9 @@ internal object JsApps {
                         put("configuredSecrets", JsonArray(if ("credentials.list" in app.permissions) configuredSecrets.map(::JsonPrimitive) else emptyList()))
                     }
                     val outcome = withContext(Dispatchers.IO) {
-                        JsVoiceInvoker.call({ engine.evaluate<String>(it) }, "app", context.toString(), 180_000)
+                        jsLock.withLock {
+                            JsVoiceInvoker.call({ engine.evaluate<String>(it) }, "app", context.toString(), 180_000)
+                        }
                     }
                     ensureCurrent()
                     outcome.error?.let { error(it) }
@@ -321,6 +396,8 @@ internal object JsApps {
                 service.jsAppDismiss = null
                 service.resetJsAppEditorState()
             }
+            ws.closeAll()
+            wsEvents.close()
             scope.cancel()
             val engine = js
             js = null

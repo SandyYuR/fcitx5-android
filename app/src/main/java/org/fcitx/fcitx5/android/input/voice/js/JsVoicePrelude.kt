@@ -22,6 +22,9 @@ var __fields = [];
 var __plugin = null;
 var __apps = {};
 var __pending = null;
+// foxy.websocket 的回调按种类各注册一个，宿主收到帧后按种类调用；与语音会话的
+// plugin.onMessage 单入口并存，互不覆盖。
+var __wsHandlers = { message: null, binary: null, error: null, close: null };
 var __native = {
   locale: __n_locale, wsConnect: __n_wsConnect, wsWaitOpen: __n_wsWaitOpen, wsSend: __n_wsSend,
   wsSendBinary: __n_wsSendBinary, wsSendGzipFrame: __n_wsSendGzipFrame, wsClose: __n_wsClose,
@@ -103,7 +106,12 @@ var foxy = {
     sendGzipFrame: function (socket, prefixB64, payloadB64) {
       return __native.wsSendGzipFrame(__str(socket), __str(prefixB64), __str(payloadB64));
     },
-    close: function (socket) { return __native.wsClose(__str(socket)); }
+    close: function (socket) { return __native.wsClose(__str(socket)); },
+    // 与 foxy 一致：只收一个处理函数，不按 socket 区分；宿主用 (socket, payload) 调用它。
+    onMessage: function (fn) { __wsHandlers.message = fn; },
+    onBinary: function (fn) { __wsHandlers.binary = fn; },
+    onError: function (fn) { __wsHandlers.error = fn; },
+    onClose: function (fn) { __wsHandlers.close = fn; }
   },
   http: {
     supportsConfiguredEndpoints: true,
@@ -155,7 +163,7 @@ var foxy = {
     voice: { ready: true, partial: true, final: true, error: true, ended: true },
     websocket: {
       authorize: true, connect: true, waitOpen: true, send: true, sendBinary: true,
-      sendGzipFrame: true, close: true, onMessage: false, onBinary: false, onError: false, onClose: false
+      sendGzipFrame: true, close: true, onMessage: true, onBinary: true, onError: true, onClose: true
     },
     http: {
       request: true, post: true, supportsConfiguredEndpoints: true,
@@ -268,6 +276,11 @@ function __invoke(name, ctx) {
   if (name === "audio") return __plugin.audio(ctx);
   if (name === "stop") return __plugin.stop(ctx);
   if (name === "onMessage") return __plugin.onMessage(ctx);
+  if (name === "ws") {
+    var handler = __wsHandlers[ctx.kind];
+    if (typeof handler !== "function") return null;
+    return handler(ctx.socket, ctx.payload);
+  }
   throw new Error("Unknown plugin callback: " + name);
 }
 
