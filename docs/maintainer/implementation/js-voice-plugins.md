@@ -9,6 +9,8 @@
 本节对应默认分支 `fx-rime-only` 的当前实现，AI 助手于 2026-11-05 合入；较早的 APK 需更新后使用。旧章节锚点保留，以兼容已有链接。
 
 - `foxy.app.register` 注册 App；`features` 可以为空，App 不会加入语音服务列表。App 能力与网络主机分别授权，可在插件设置撤销。
+- “编辑按钮”中的“JS 工具”是添加模板：用户在配置阶段选择一个已注册 App，布局保存 `js_app:js:<plugin-id>/<app-id>` 形式的稳定动态动作 ID。运行时短按直接解析当前 `Spec` 与 App，不再弹选择器；长按进入对应插件设置。一个插件的多个 App 可分别绑定，纯语音插件不列出。目标缺失时不回退其他 App，重新安装相同 ID 后从当前目录恢复解析。
+- AI 首选保存完整的插件 ID 与 App ID 组合，不依赖名称、用途标签或列表顺序。短按运行与长按配置使用同一解析结果；所选插件或 App 消失时清除失效选择并回退到 `js:llm-assistant`，之后重新安装该外部插件不会自动恢复旧选择。选择其他 App 不转移插件之间的设置、密钥或权限。
 - App 回调收到 `event`、`values`、`appId`、`command`、`settings`、普通设置顶层别名及已配置的密钥字段 ID。按钮和下拉选择使用控件 ID 作为事件名，主流程按次序执行。
 - 支持 `column`、`row`、`text`、`input`、`select`、`button`、`spacer`。标签默认在左侧，`labelPlacement: "top"` 放上方；字段的 `height` 只计控件，不计标签。`input.readOnly: true` 允许选择、复制和滚动，但不接收键盘输入。
 - 本地界面扩展 `header` 与 `actions`：根 `column` 首部的 `header` 和末尾的 `actions` 固定在滚动正文两侧；空间过矮时整块滚动，切换只移动现有视图。`actions` 只接收按钮，并按完整按钮换行；旧 `row` 表单仍按原结构显示。
@@ -16,17 +18,23 @@
 - 原生界面通过 `SettingsUiPreferences.themedContext` 复用主界面颜色角色，包含深浅色、Monet、手动色板和纯黑。图标来自受限应用资源，不接受脚本提供的外部图片路径；界面样式不改变原有事件 ID、能力权限或输入连接归属。
 - 支持 `foxy.ui.dialog.show/update/setValue/setEnabled/setLoading/setError/close`。面板不抢原应用焦点、无背景遮罩，可拖动，键盘通过本地输入连接编辑助手文本框；`foxy.editor.*` 始终操作打开助手前捕获的应用编辑框。输入会话失效时拒绝后续写入并取消运行。
 - 同一输入法服务中的 AI 动作再次点击会关闭当前 App 面板，取消未完成请求并恢复临时预览；重新点击才创建新会话。键盘内剪贴板等页面切换保留现有面板和本地输入，不改变原应用连接。
+- 同一动态 App 动作再次点击会关闭当前面板；点击另一动态 App 动作会先取消旧会话、恢复临时预览，再打开精确目标。切换入口不改变原应用编辑器的归属，过期输入会话不能因按钮解析而复活。旧的通用 `js_tools` 占位只引导用户回“编辑按钮”重新绑定，不再提供运行时选择器。
 - `foxy.editor.getSelection/getText/setComposition/clearComposition/commit` 分别核对相应能力。预览取消时恢复原选中文本；只有 `commit` 正式上屏。`credentials.list` 和 `context.configuredSecrets` 仅提供已配置的字段 ID，不提供密钥。
+- JS 不提供自动读取剪贴板的能力。迁移其他宿主的文本插件时，可按声明读取选区，或让用户在 App 的 `input` 中输入、手动粘贴；网络、返回值及界面需分别适配本页接口。上屏前的明确确认与旧结果失效逻辑仍由脚本实现，动态按钮不会替插件添加这些步骤。
 - `foxy.http.request` 支持 GET、POST、PUT、PATCH、DELETE，返回 JSON 字符串形式的状态、头和正文。`credential`、`authHeader`、`authPrefix` 让宿主注入密钥，JS 不持有明文。请求体限制 1 MiB、响应限制 2 MiB，禁止自动重定向和覆盖传输头。
 - App HTTP 的主机须为静态声明项或当前普通设置中有效 HTTPS 地址的精确主机；读取密钥与发送请求前还需该插件对该主机的用户批准。旧批准本身不能使已从配置删除的非声明主机继续可访问。内置助手使用空 `hosts` 与空默认地址。
 - 授权按插件及主机名记录；首次请求新主机再询问。URL 路径、端口、模型变化不另作域名授权，Host 和 HTTP/2 `:authority` 由 OkHttp 生成。App 回调等待上限 180 秒。
 - 中州鹅扩展 `await foxy.app.sleep(milliseconds)`：仅 App 运行上下文可调用，接受 0–10000 的整数毫秒，通过可取消协程等待，等待前后检查输入会话。QuickJS 不提供浏览器 `setTimeout`，不能用立即返回的替代函数假装完成退避。
 - App HTTP 可传 `timeoutMs`（1–60000 的整数，默认 60000），宿主限制整次网络调用；读取密钥后、真正发送前再次核对域名与授权。内置助手每组生成请求共享 60 秒预算，最多三次尝试，退避为 900/1800 ms；超过 20 秒的失败不自动重试。
-- 内置 `llm-assistant` 由 APK 版本更新，优先于历史同 ID 导入记录；设置和密钥的字段 ID 不变。其保留 ID 不能再被外部文件覆盖。
+- APK 内置 `llm-assistant` 与 `youdao-free-translate`。后者从用户提供的元书脚本适配，只在点击翻译后向静态声明的 `aidemo.youdao.com` 发送文本；成功后同时保留原文和只读译文，面板结果不依赖目标编辑器是否接受临时 composition，确认后才 commit。公开服务的限流、语言范围与可用性不是宿主保证。两者都作为 App 而不是语音提供方加载。
+- 普通新增导入保留内置 ID；插件设置的定向“导入替换”只放行选定的 ID。内置替换还核对其原有 App／语音入口，由用户确认启用自定义来源；普通导入插件升级可调整 App 列表，但已有语音能力不得移除。内置覆盖标记随导入记录原子提交，旧记录默认不带标记，历史同 ID 文件不会自动抢占内置。明确启用的自定义版本持续优先，不比较版本号，APK 升级不自动切回内置。
+- “恢复内置”取消自定义覆盖标记，保留设置、密钥和已导入脚本；后者不再参与实际运行，重新启用须再次明确导入替换。同 ID 源码更新保留设置和密钥，源码替换、恢复内置或移除会使同 ID 的活动 App 与语音 provider 失效，并撤销旧 App 与网络授权。导入脚本的静态主机经本次导入确认批准；APK 初次附带、尚未经过导入确认的静态主机（如内置翻译）在首次实际请求时询问。动态主机也在实际请求时单独询问。
+- 目录重建后核对 `preferredVoiceInput`：仅当 `js:` 首选已不再注册语音 provider 时持久清除；外部 provider ID 不受此逻辑影响。这样 App-only 内置项的自定义语音覆盖在“恢复内置”后不会留下死首选，原本就是语音的内置项恢复后仍保留有效选择。
+- “导出源码”读取当前有效 `Spec` 的实际来源，仅输出 `.js` 正文，不打包宿主保存的设置、授权或密钥。源码内自行硬编码的数据会原样导出；本功能不提供在线 JS 更新检查。
 
 内置助手以 **发送 AI → 显示 AI 回复 → 确认上屏** 为主流程。无有效回复的旧 `confirm` 事件按生成处理；输入、用途、服务或配置变化使旧回复失效，不能提交旧结果。失败保持窗口与输入。按钮标签没有宿主内建语义，其他插件应自行实现完整状态处理。
 
-当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的非流式文本请求；App SSE/WebSocket、`foxy.websocket.authorize`、旧式平铺 `fields/buttons`、任意 `js.*` 布局命令和通用 App 选择器未实现。
+当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的非流式文本请求；App SSE/WebSocket、`foxy.websocket.authorize`、旧式平铺 `fields/buttons` 和任意 `js.*` 布局命令未实现。动态 JS App 按钮只解析已注册 App，不执行任意布局命令。
 新版 [Foxy 英文接口参考](/features/voice-input-js-en)和[中文译文](/features/voice-input-js-reference-zh-CN)包含上游完整 API，不能将其中的流式示例直接视为本宿主已支持。
 
 ## 插件定义
