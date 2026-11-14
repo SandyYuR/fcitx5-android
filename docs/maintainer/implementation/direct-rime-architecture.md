@@ -2,7 +2,7 @@
 
 主应用的输入路径是 Android 前端 → Kotlin 单一 owner → JNI → librime。`FcitxAPI`、`FcitxEvent` 和服务类名保留前端协议兼容用途，不表示仍有原生 Fcitx 引擎运行。本页说明协作方式；具体失效条件和验收入口以[正确性契约](./correctness-contracts.md)为准。
 
-后端职责说明对应默认分支已合入的 [PR #35](https://github.com/SandyYuR/fcitx5-android/pull/35)。候选分发、字形选择及字体缓存说明对应 [PR #32](https://github.com/SandyYuR/fcitx5-android/pull/32) 的审阅版本，随代码合入发布；日期实测不能自动成为所有设备的性能保证。
+后端职责说明对应 [PR #35](https://github.com/SandyYuR/fcitx5-android/pull/35)，候选分发、字形选择及字体缓存说明对应 [PR #32](https://github.com/SandyYuR/fcitx5-android/pull/32)；具体源码与合入映射见[本次收尾记录](../changes/2026-11-14-pr32-squash-merge.md)。日期实测不能自动成为所有设备的性能保证。
 
 ## 一次按键如何到达编辑器
 

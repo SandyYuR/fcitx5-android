@@ -91,6 +91,10 @@ expiry 先核提示 ID，匹配时先清 Job、文本与 lifetime，再检查引
 
 横向候选高亮变化只通过专用 RecyclerView payload 调用 `setActive`；结构变化后的高亮位置必须采用 `CandidateUpdatePlan` 已换算的新坐标。高亮与角标位移 payload 可以合并处理，角标仍同时更新全局下标；候选内容、主题、字体或字号变化继续完整绑定。局部 payload 不取消 `setActive` 内对正文／注释前景色和高亮背景的更新，也不改变 holder 的候选目标。
 
+`InputView` 将分页快照直接交给 `InputBroadcaster`，不先合成列表事件。广播器向每个 `PagedCandidateReceiver` 交付完整页，其他接收方共享一份列表兼容表示；每个接收方只收到一种表示。真实列表事件仍正常广播，分页与列表切换立即生效，不使用 500ms 超时猜测模式。空页须清空两种接收方，相同显示文字的新快照仍须交付其真实选择版本。入口测试为 `CandidateBroadcastTest`。
+
+`BaseInputView.bindCandidateGesture` 在真正上滑打开选字窗时才对当次绑定文字调用 `candidateCharacters()`，普通绑定和点击不提前拆分字形簇；既有触摸取消、重绑失效及选择目标校验继续保留。`AutoScaleTextView.setTypeface` 在实际字体引用变化时清理测量／绘制变换缓存，重新请求布局与绘制；正文、注释和高亮的 span 行为继续保留。字体状态回归见 `CandidateRenderingStateTest`，真实前端与字形行为沿 `tools/test-direct-rime-frontend.sh` 的设备用例验证。
+
 方案菜单的当前项由 `SubModeManager.resolveSelectedSchemaAction` 从同一份动作列表的勾选状态解析，不能用 `currentIme().subMode` 的西文/密码直接输入标记推断方案。方案切换后，密码字段仍应保持直接输入和原编辑器焦点。
 
 Android 光标位置以 UTF-16 计，服务交给引擎 API 的位置以显示文本 Unicode 码点计，Rime setter 使用原始编码 UTF-8 字节位置。`moveCursorIfCurrent` 在原 owner 上委托 `DirectRimeInteractionTargets.moveCursor`，校验排队时的编辑器及预编辑文本，再经 Backend 回调按需调用 `Native.rawInput(generation, revision)`。原始读取不消费 commit、不推进 revision，也不加入每键快照；`preeditCursorToRawBytes` 只接受可确定的文字、分隔符和边界映射，无法确定时重新发送当前 client preedit 恢复光标。“候选预览”不按预测词位置改写原始编码。

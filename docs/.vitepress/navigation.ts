@@ -98,6 +98,7 @@ const maintenance = [
     { text: '文档维护与分类约定', link: '/maintainer/documentation' },
   ] },
   { text: '代码与文档对照', collapsed: false, items: [
+    { text: '候选修复与文档压缩合入 · 2026-11-14', link: '/maintainer/changes/2026-11-14-pr32-squash-merge' },
     { text: 'PR #32 分支与指引对齐 · 2026-11-14', link: '/maintainer/changes/2026-11-14-pr32-alignment' },
     { text: '后端职责分批拆分 · 2026-11-14', link: '/maintainer/changes/2026-11-14-direct-rime-responsibility-splits' },
     { text: '后端发布状态拆分 · 2026-11-14', link: '/maintainer/changes/2026-11-14-direct-rime-publication-state' },
